@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "Generated-shop floor pricing still stops before movement for piles and silently omits price text for single objects. The slice must add exact common-case pricing, quote recording, atomic all-member preflight, and a fresh generated-shop differential before it is ready for audit.",
-  "commitChecked": "e3d46b27746acfb38fefb8957c1488ed27ecb597",
+  "mode": "ready-for-audit",
+  "reason": "The committed generated-shop pricing transaction now covers the selected ownership, arithmetic, naming, quote, pile, count-only, and same-shop transition paths. Independent acceptance reproduced the full checkpoint and fresh C differential, so the slice is ready for the expanded formal review.",
+  "commitChecked": "4c22caa12f367449664e6279146ae3c3786a4098",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "e3d46b27746acfb38fefb8957c1488ed27ecb597",
@@ -25,8 +25,8 @@
       "owner": "js/shk.js get_cost_of_shop_item and existing shop/location helpers",
       "effects": "Select shop-owned merchandise for pricing without mutating keeper, billing, object, or room state.",
       "evidence": "js/shk.js get_cost_of_shop_item ports the selected shk.c 2806-2843 floor branch. scripts/shop-floor-pricing.test.mjs exercises current-shop equality, strict interior, resident/inhishop, freespot, no-charge and all named ownership exclusions before mutation.",
-      "status": "missing",
-      "remaining": "Orchestrator acceptance remains after the implementation commit."
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Ordinary object charge calculation",
@@ -34,8 +34,8 @@
       "owner": "js/shk.js get_pricing_units, oid_price_adjustment, getprice, and get_cost",
       "effects": "Compute the exact total and per-unit shop charge without RNG, output, or state mutation.",
       "evidence": "js/shk.js ports get_pricing_units, oid_price_adjustment, getprice and get_cost. scripts/shk.test.mjs pins every Charisma comparison, C decimal rounding, unknown-id adjustment, quantity, minimum price and each reached object-class adjustment.",
-      "status": "missing",
-      "remaining": "Orchestrator acceptance remains after the implementation commit."
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Priced object name and durable quote record",
@@ -43,8 +43,8 @@
       "owner": "js/objnam.js doname_with_price and priced preflight; js/shk.js record_price_quote; js/invent.js currency",
       "effects": "Append the exact for-sale suffix after the object name and update oc_buy_minseen/oc_buy_maxseen with price divided by quantity.",
       "evidence": "js/objnam.js doname_with_price preflights without mutation, runs ordinary naming, appends the exact for-sale/currency suffix, then calls js/shk.js record_price_quote. The direct pile and natural potion cases pin singular/plural output and quote extrema.",
-      "status": "missing",
-      "remaining": "Orchestrator acceptance remains after the implementation commit."
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Single-object live consumer",
@@ -52,8 +52,8 @@
       "owner": "js/invent.js look_here single-object arm and js/hack.js movement admission",
       "effects": "Print You see here with the for-sale suffix, set last_msg, record the quote, and reach the next prompt.",
       "evidence": "scripts/run-shop-floor-pricing.mjs replays seed 7633019 at 20310417113000 through <25,11> west to the natural clear potion at <24,11>. The C differential passes 5,520 PRNG calls, 7 screens and 7 cursors through the next prompt, and records a 7-zorkmid quote.",
-      "status": "missing",
-      "remaining": "Orchestrator acceptance remains after the implementation commit."
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Two-to-four-object priced pile transaction",
@@ -61,8 +61,8 @@
       "owner": "js/hack.js requireSimpleHeroDestination and js/invent.js look_here/displayObjectPile",
       "effects": "Preflight every member before movement, then discover, price, record and render every row in object-chain order without partial durable state.",
       "evidence": "js/hack.js now preflights every named pile member and js/invent.js formats every row in chain order. scripts/shop-floor-pricing.test.mjs moves onto an eligible two-member pile, captures the priced tty window, and proves an excluded second member leaves all observables unchanged.",
-      "status": "missing",
-      "remaining": "Orchestrator acceptance remains after the implementation commit."
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Name-free pile-limit count path",
@@ -70,8 +70,8 @@
       "owner": "js/hack.js requireSimpleHeroDestination and js/invent.js look_here count arm",
       "effects": "Admit the existing count output without pricing, discovery, or quote mutation.",
       "evidence": "js/hack.js applies shop-price preflight only after the pile_limit count decision. The costly two-object equality test admits a no-charge second member, prints the count, and leaves both quote ranges unchanged.",
-      "status": "missing",
-      "remaining": "Orchestrator acceptance remains after the implementation commit."
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Excluded pricing branches fail atomically",
@@ -79,8 +79,8 @@
       "owner": "js/shk.js and js/objnam.js priced preflight, consumed by js/hack.js",
       "effects": "Stop before coordinates, room strings, discovery, quote fields, floor chains, output, or RNG change.",
       "evidence": "scripts/shop-floor-pricing.test.mjs checks every named exclusion. Its excluded-second movement snapshot compares coordinates, room strings, discovery, quote fields, floor links and ownership, topline, complete terminal grid, cursor, and RNG log.",
-      "status": "missing",
-      "remaining": "Orchestrator acceptance remains after the implementation commit."
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Same-shop room-transition prerequisite",
@@ -88,37 +88,10 @@
       "owner": "js/rooms.js check_special_room and move_update",
       "effects": "Continue same-shop movement without entering the unported u_left_shop departure path.",
       "evidence": "hack.c 3588-3634 derives ushops_left before the departure call. js/rooms.js now stops only when that buffer names a left shop; the explicit strict-interior regression and both live movement cases pass.",
-      "status": "missing",
-      "remaining": "Orchestrator acceptance remains after the implementation commit."
+      "status": "done",
+      "remaining": ""
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "shop ownership and arithmetic",
-      "candidates": [
-        "Common generated-shop ownership and location gate",
-        "Ordinary object charge calculation",
-        "Excluded pricing branches fail atomically"
-      ],
-      "next": "Orchestrator verifies the implementation commit and records acceptance."
-    },
-    {
-      "group": "priced naming transaction",
-      "candidates": [
-        "Priced object name and durable quote record",
-        "Single-object live consumer",
-        "Two-to-four-object priced pile transaction",
-        "Name-free pile-limit count path"
-      ],
-      "next": "Orchestrator verifies the implementation commit and records acceptance."
-    },
-    {
-      "group": "same-shop room transition",
-      "candidates": [
-        "Same-shop room-transition prerequisite"
-      ],
-      "next": "Orchestrator verifies the implementation commit and records acceptance."
-    }
-  ],
-  "sourceReview": "Implementation follows the traced movement, both invent.c look_here consumers, objnam.c DONAME_WITH_PRICE suffix/quote order, common shk.c ownership and arithmetic, and hack.c same-shop room transition. The admitted direct pile transaction and natural single-stock route run in production; every named exclusion has a pre-mutation check. The final checkpoint passed focused tests, 2,777 full-suite tests, generated-data checks, namespace checks, and the unchanged development score; 51 of 57 mutants were killed, with six arithmetic-equivalent relational survivors. The review gate remains due because this slice closes the active formal review boundary. The checklist deliberately stays in implementation mode with missing statuses for orchestrator acceptance after commit."
+  "missingWorkByOwner": [],
+  "sourceReview": "The orchestrator independently traced the committed movement admission, both invent.c look_here consumers, objnam.c DONAME_WITH_PRICE suffix and quote order, common shk.c ownership and arithmetic, and hack.c same-shop transition against upstream. The direct pile transaction and natural single-stock route execute the production code; every declared exclusion stops before mutation. The complete checkpoint passed 2,777 tests, all generated and static checks, and the unchanged development score. The fresh reference differential matched 5,520 PRNG calls and all seven screen and cursor boundaries. Mutation killed 51 of 57 sites; the six survivors are arithmetic-equivalent relational changes documented in commit 4c22caa12f367449664e6279146ae3c3786a4098. No known work remains inside the selected boundary."
 }
