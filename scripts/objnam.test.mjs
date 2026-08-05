@@ -9,6 +9,7 @@ import {
     BLINDED,
     COLNO,
     CORR,
+    DOOR,
     FOUNTAIN,
     IN_SIGHT,
     LAVAPOOL,
@@ -465,6 +466,49 @@ test('ordinary object piles display every name before reading the engraving',
         assert.equal(head.dknown, true);
     });
 
+test('decorated object piles put terrain and a separator before the heading',
+    async () => {
+        const { state } = pileLookState({ count: 2, typ: DOOR });
+        const events = [];
+
+        await look_here(2, LOOKHERE_NOFLAGS, state, {
+            message: async (text) => events.push(['message', text]),
+            displayObjectPile: async (lines) => events.push(['display', lines]),
+            readEngraving: async () => events.push(['engraving']),
+        });
+
+        assert.deepEqual(events, [
+            ['display', [
+                'There is a doorway here.',
+                '',
+                'Things that are here:',
+                'a dart',
+                'a food ration',
+            ]],
+            ['engraving'],
+        ]);
+    });
+
+test('decorated pile-limit counts report terrain before the count',
+    async () => {
+        const { state } = pileLookState({ count: 2, typ: DOOR });
+        // Equality selects the count arm while preserving the terrain line.
+        state.flags.pile_limit = 2;
+        const events = [];
+
+        await look_here(2, LOOKHERE_NOFLAGS, state, {
+            message: async (text) => events.push(['message', text]),
+            displayObjectPile: async (lines) => events.push(['display', lines]),
+            readEngraving: async () => events.push(['engraving']),
+        });
+
+        assert.deepEqual(events, [
+            ['message', 'There is a doorway here.'],
+            ['engraving'],
+            ['message', 'There are two objects here.'],
+        ]);
+    });
+
 test('pile-limit counts bypass names and use source count partitions',
     async () => {
         for (const [count, expected] of [
@@ -572,11 +616,6 @@ test('object-pile exclusions stop before names, output, or engraving',
                     };
                 },
                 expected: /engraving after/u,
-            },
-            {
-                name: 'decorated pile',
-                build: () => pileLookState({ typ: FOUNTAIN }),
-                expected: /decorated object-pile menu/u,
             },
             {
                 name: 'lava pile',

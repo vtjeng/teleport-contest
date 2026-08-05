@@ -9,6 +9,8 @@ import {
     ALTAR,
     BLINDED,
     CONTAINED_SYM,
+    DOOR,
+    D_NODOOR,
     FUMBLING,
     HALLUC,
     HALLUC_RES,
@@ -31,6 +33,7 @@ import {
     PIT,
     ROOM,
     SINK,
+    STAIRS,
     WEB,
     W_QUIVER,
     W_WEP,
@@ -2164,6 +2167,40 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
         ]);
         assert.equal(encumbered, 2);
     });
+
+test('heavy wish drops stay on an up staircase and a doorway', async () => {
+    for (const [name, configure] of [
+        ['up staircase', ({ state }) => {
+            state.level.at(10, 5).typ = STAIRS;
+            state.stairs = {
+                // An up staircase makes dokick.c down_gate() return
+                // MIGR_NOWHERE, so ship_object() leaves the ball here.
+                sx: 10,
+                sy: 5,
+                up: true,
+                isladder: false,
+                tolev: { dnum: 0, dlevel: 0 },
+                next: null,
+            };
+        }],
+        ['doorway', ({ state }) => {
+            const square = state.level.at(10, 5);
+            square.typ = DOOR;
+            square.flags = square.doormask = D_NODOOR;
+        }],
+    ]) {
+        const fixture = ordinaryDropFixture();
+        configure(fixture);
+
+        await dropx(fixture.obj, {
+            state: fixture.state,
+            hooks: fixture.hooks,
+        });
+
+        assert.equal(fixture.state.level.objects[10][5], fixture.obj, name);
+        assert.equal(fixture.obj.where, OBJ_FLOOR, name);
+    }
+});
 
 test('ordinary drop preflight refuses excluded floor effects before mutation',
     () => {

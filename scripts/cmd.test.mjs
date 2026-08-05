@@ -688,6 +688,56 @@ test('a walk opens and dismisses ordinary two-to-four-object pile windows',
         }
     });
 
+test('a walk reports decorated pile terrain on menu and count paths',
+    async () => {
+        for (const [label, counted, decorate] of [
+            ['staircase menu', false, (destination, x, y) => {
+                destination.typ = STAIRS;
+                // The relocated down staircase supplies the complete record
+                // stairs_description() reads for this synthetic destination.
+                const stway = stairway_find_dir(false, game);
+                stway.sx = x;
+                stway.sy = y;
+            }],
+            ['doorway count', true, (destination) => {
+                destination.typ = DOOR;
+                destination.flags = destination.doormask = D_NODOOR;
+            }],
+        ]) {
+            const { destination, replay, x, y } =
+                await prepareHeroMoveAdmission();
+            decorate(destination, x, y);
+            game.flags.pickup = false;
+            game.flags.pile_limit = counted ? 2 : 5;
+            const head = installFloorPile(x, y, 2);
+            clearTtyMessageWindow(game);
+            game._ttyToplines = '';
+            if (!counted) {
+                // The menu is the next input boundary; Space dismisses it.
+                game.nhDisplay.pushKey(commandKeyCode(' '));
+            }
+            const screensBefore = replay.getScreens().length;
+
+            await domove(game);
+
+            assert.deepEqual([game.u.ux, game.u.uy], [x, y], label);
+            if (counted) {
+                const terrain = game._ttyToplines.indexOf(
+                    'There is a doorway here.',
+                );
+                const count = game._ttyToplines.indexOf(
+                    'There are two objects here.',
+                );
+                assert.ok(terrain >= 0, label);
+                assert.ok(count > terrain, label);
+            } else {
+                assert.ok(replay.getScreens().length > screensBefore, label);
+                for (let object = head; object; object = object.nexthere)
+                    assert.equal(object.dknown, true, label);
+            }
+        }
+    });
+
 test('a walk reports every ordinary pile-limit count partition without names',
     async () => {
         for (const [count, expected, typ] of [
@@ -833,14 +883,6 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             setup: ({ x, y }) => {
                 installFloorPile(x, y);
                 game.flags.mention_decor = true;
-            },
-        },
-        {
-            name: 'decorated pile',
-            reason: 'decorated object pile',
-            setup: ({ destination, x, y }) => {
-                destination.typ = FOUNTAIN;
-                installFloorPile(x, y);
             },
         },
         {

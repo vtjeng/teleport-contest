@@ -6,6 +6,7 @@
 import {
     CORR,
     DIR_DOWN,
+    DOOR,
     ECMD_OK,
     ECMD_TIME,
     FLYING,
@@ -338,7 +339,7 @@ function requiredDropHook(env, name) {
     return hook;
 }
 
-// Dependency-only check for the ordinary-ground subset below. The wish path
+// Dependency-only check for the source-inert ground subset below. The wish path
 // calls this while the object is still OBJ_FREE, before observe_object(), its
 // failure message, or addinv() can change visible state. dropx() repeats it
 // after addinv() with the object in OBJ_INVENT.
@@ -379,8 +380,11 @@ export function preflight_dropx(obj, env = {}) {
     const location = state.level?.at(x, y);
     if (!location)
         throw new UnsupportedDropError('non-ordinary terrain');
-    // dropx() runs ship_object() before its altar arm.
-    if (stairway_at(x, y, state))
+    // dropx() runs ship_object() before its altar arm. dokick.c down_gate()
+    // selects only a down staircase or ladder; an up stairway returns
+    // MIGR_NOWHERE and reaches the ordinary drop tail.
+    const stway = stairway_at(x, y, state);
+    if (stway && !stway.up)
         throw new UnsupportedDropError('shipping down stairs or a ladder');
     if (IS_ALTAR(location.typ))
         throw new UnsupportedDropError('an altar');
@@ -393,8 +397,13 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('shipping or floor effects at a trap');
     if (is_lava(x, y, state) || is_pool(x, y, state))
         throw new UnsupportedDropError('liquid terrain');
-    if (location.typ !== ROOM && location.typ !== CORR)
+    // A doorway and an up stairway add no flooreffects() branch. They are
+    // admitted for the live decorated-pile differential, while every other
+    // special terrain remains at this boundary.
+    if (location.typ !== ROOM && location.typ !== CORR
+        && location.typ !== DOOR && !stway?.up) {
         throw new UnsupportedDropError('non-ordinary terrain');
+    }
     if (engr_at(x, y, state))
         throw new UnsupportedDropError('an engraving under the drop');
     if (visible_region_at(x, y, state))
@@ -422,7 +431,8 @@ export function preflight_dropx(obj, env = {}) {
 }
 
 // C ref: do.c dropx() (785-797). ship_object() and doaltarobj() are absent
-// because preflight_dropx() admits neither a down gate nor an altar.
+// because preflight_dropx() admits neither a down gate nor an altar. An up
+// stairway makes down_gate() return MIGR_NOWHERE, so ship_object() is inert.
 export async function dropx(obj, env = {}) {
     const normalized = preflight_dropx(obj, env);
     if (obj.where !== OBJ_INVENT)
@@ -436,10 +446,10 @@ export async function dropy(obj, env = {}) {
     await dropz(obj, false, env);
 }
 
-// C ref: do.c dropz() (806-842), ordinary shopless ground and with_impact
+// C ref: do.c dropz() (806-842), source-inert shopless ground and with_impact
 // FALSE. The admitted heavy ball is not equipped, cannot merge, and reaches
-// an empty impact-disturbance list, so the source calls between place_object()
-// and newsym() have no effect.
+// an empty impact-disturbance list. ROOM, CORR, a doorway, and an up stairway
+// therefore share the source calls from place_object() through newsym().
 export async function dropz(obj, with_impact, env = {}) {
     const normalized = dropEnv(env);
     const { state } = normalized;

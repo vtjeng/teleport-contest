@@ -681,15 +681,16 @@ function activeStoneResistance(state) {
     );
 }
 
-// C ref: invent.c look_here(). Covers a hero standing on an ordinary square,
+// C ref: invent.c look_here(). Covers a hero standing on an admitted square,
 // sighted or blind: the region and trap line, the terrain feature line, the
 // engraving read, and the no-object, single-object, ordinary two-to-four-
-// object menu, or sighted ordinary pile-limit count. Blindness is not
+// object menu, or sighted pile-limit count. A sighted decorated pile includes
+// its dfeature_at() line in either output path. Blindness is not
 // excluded from the first two
 // outcomes; a pile reached while blind stops before its tactile preamble
 // because feel_cockatrice() and the tactile menu belong to a later slice. A
-// decorated pile, liquid square, engraving, non-triggering pile outside two
-// through four, or picked-some count likewise stops before output.
+// A liquid square, engraving, non-triggering pile outside two through four,
+// or picked-some count likewise stops before output.
 //
 // Returns true where C returns ECMD_TIME and false where it returns ECMD_OK,
 // so the caller decides whether the command takes game time.
@@ -776,12 +777,6 @@ export async function look_here(
 
     let dfeature = dfeature_at(ux, uy, state);
     if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
-    if (hasPile && dfeature && !skip_dfeature) {
-        throw new UnsupportedFeatureDescriptionError(
-            'a decorated object-pile menu',
-        );
-    }
-
     if (blind) {
         // C's drift case belongs to the Air and Water levels, and its ice
         // case to a square dfeature_at() already stops on.
@@ -843,10 +838,10 @@ export async function look_here(
     if (otmp.nexthere) {
         if (typeof displayObjectPile !== 'function')
             throw new TypeError('look_here needs an object-pile display owner');
-        const lines = [
-            `${(lookhere_flags & LOOKHERE_PICKED_SOME) !== 0
-                ? 'Other things' : 'Things'} that are here:`,
-        ];
+        const lines = [];
+        if (dfeature && !skip_dfeature) lines.push(fbuf, '');
+        lines.push(`${(lookhere_flags & LOOKHERE_PICKED_SOME) !== 0
+            ? 'Other things' : 'Things'} that are here:`);
         for (let object = otmp; object; object = object.nexthere)
             lines.push(donameFresh(object, state));
         await displayObjectPile(lines, state);
