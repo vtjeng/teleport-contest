@@ -1268,6 +1268,20 @@ export function stopWaveScope(unitName) {
     throw new Error(`failed to stop mutation wave scope ${scopeUnit}: ${detail}`);
 }
 
+/** Whether systemd, rather than the launcher, recorded the wave's OOM kill. */
+export function waveScopeWasOomKilled(unitName) {
+    const scopeUnit = `${unitName}.scope`;
+    const result = spawnSync('systemctl', [
+        '--user', 'show', scopeUnit, '--property=Result', '--value',
+    ], {
+        encoding: 'utf8',
+        env: { ...process.env, LC_ALL: 'C' },
+    });
+    return result.status === 0
+        && (result.stdout ?? '') === 'oom-kill\n'
+        && (result.stderr ?? '') === '';
+}
+
 export function runTests(workspace, testFiles, timeoutMs) {
     // `node --test` with no file argument discovers and runs everything it can
     // find, so an empty list would quietly run the whole workspace, including
@@ -1288,6 +1302,7 @@ export function runTests(workspace, testFiles, timeoutMs) {
         startedPath, startedToken);
     const started = process.hrtime.bigint();
     let result;
+    let scopeWasOomKilled = false;
     try {
         result = spawnSync(runner.command, runner.args, {
             cwd: workspace,
@@ -1296,6 +1311,11 @@ export function runTests(workspace, testFiles, timeoutMs) {
             timeout: runner.outerTimeoutMs,
             maxBuffer: 64 * 1024 * 1024,
         });
+        const rawSignal = result.status === null && result.signal !== null
+            && result.error?.code !== 'ETIMEDOUT';
+        if (rawSignal) {
+            scopeWasOomKilled = waveScopeWasOomKilled(runner.unitName);
+        }
         // The test runner's process group cannot contain a helper which called
         // setsid() or spawned with detached:true. The uniquely named scope does,
         // so stop it after every result and preserve the runner's result only once
@@ -1314,8 +1334,7 @@ export function runTests(workspace, testFiles, timeoutMs) {
                 + 'authenticate a started Node test child'
                 + (output ? `: ${output}` : ''));
         }
-        if (result.status === null && result.signal !== null
-            && result.error?.code !== 'ETIMEDOUT') {
+        if (rawSignal && !scopeWasOomKilled) {
             throw new Error(`mutation test wave launcher ${runner.unitName} `
                 + `ended with signal ${result.signal}`);
         }
@@ -1326,6 +1345,7 @@ export function runTests(workspace, testFiles, timeoutMs) {
     const timedOut = result.status === 124
         || result.error?.code === 'ETIMEDOUT';
     return { passed: !timedOut && result.status === 0, timedOut, seconds,
+        resourceLimited: scopeWasOomKilled,
         output: `${result.stdout ?? ''}${result.stderr ?? ''}` };
 }
 

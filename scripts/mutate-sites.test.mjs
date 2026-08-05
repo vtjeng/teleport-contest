@@ -918,7 +918,7 @@ test('timed mutation waves kill the complete Node test process group', () => {
     );
 });
 
-test('a timed mutation wave leaves no hanging test descendant', () => {
+test('a timed mutation wave leaves no hanging test descendant', async () => {
     const workspace = mkdtempSync(join(tmpdir(), 'mutate-timeout-test-'));
     const scripts = join(workspace, 'scripts');
     const pidPath = join(workspace, 'child.pid');
@@ -939,7 +939,7 @@ test('a timed mutation wave leaves no hanging test descendant', () => {
         assert.equal(result.passed, false);
         assert.equal(result.timedOut, true);
         childPid = Number(readFileSync(pidPath, 'utf8'));
-        assert.throws(() => process.kill(childPid, 0), { code: 'ESRCH' });
+        await waitForProcessExit(childPid);
     } finally {
         if (childPid !== null) {
             try {
@@ -952,7 +952,7 @@ test('a timed mutation wave leaves no hanging test descendant', () => {
     }
 });
 
-test('a completed mutation wave reaps a detached test descendant', () => {
+test('a completed mutation wave reaps a detached test descendant', async () => {
     const workspace = mkdtempSync(join(tmpdir(), 'mutate-exit-test-'));
     const scripts = join(workspace, 'scripts');
     const pidPath = join(workspace, 'child.pid');
@@ -975,7 +975,7 @@ test('a completed mutation wave reaps a detached test descendant', () => {
         assert.equal(result.passed, true);
         assert.equal(result.timedOut, false);
         childPid = Number(readFileSync(pidPath, 'utf8'));
-        assert.throws(() => process.kill(childPid, 0), { code: 'ESRCH' });
+        await waitForProcessExit(childPid);
     } finally {
         if (childPid !== null) {
             try {
@@ -988,7 +988,7 @@ test('a completed mutation wave reaps a detached test descendant', () => {
     }
 });
 
-test('a failing mutation wave reaps a detached test descendant', () => {
+test('a failing mutation wave reaps a detached test descendant', async () => {
     const workspace = mkdtempSync(join(tmpdir(), 'mutate-fail-exit-test-'));
     const scripts = join(workspace, 'scripts');
     const pidPath = join(workspace, 'child.pid');
@@ -1013,7 +1013,7 @@ test('a failing mutation wave reaps a detached test descendant', () => {
         assert.equal(result.timedOut, false);
         assert.match(result.output, /deliberate wave failure/u);
         childPid = Number(readFileSync(pidPath, 'utf8'));
-        assert.throws(() => process.kill(childPid, 0), { code: 'ESRCH' });
+        await waitForProcessExit(childPid);
     } finally {
         if (childPid !== null) {
             try {
@@ -1308,6 +1308,46 @@ test('a signalled wave launcher is infrastructure failure after child start',
             rmSync(workspace, { recursive: true, force: true });
         }
     });
+
+test('a wave OOM kill is an attributable failing-test verdict', () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'mutate-wave-oom-kill-'));
+    const bin = join(workspace, 'bin');
+    const oldPath = process.env.PATH;
+    mkdirSync(bin);
+    writeFileSync(join(bin, 'systemd-run'), [
+        '#!/usr/bin/env node',
+        "import { writeFileSync } from 'node:fs';",
+        "const runner = process.argv.findIndex((arg) => arg.endsWith('/run-bounded-tests.mjs'));",
+        "writeFileSync(process.argv[runner + 2], `${process.argv[runner + 3]}\\n`);",
+        "process.kill(process.pid, 'SIGTERM');",
+        '',
+    ].join('\n'));
+    writeFileSync(join(bin, 'systemctl'), [
+        '#!/usr/bin/env node',
+        "const command = process.argv[3];",
+        "if (command === 'show') {",
+        "  process.stdout.write('oom-kill\\n');",
+        '  process.exitCode = 0;',
+        '} else {',
+        "  const unit = process.argv.at(-1);",
+        "  process.stderr.write(`Failed to stop ${unit}: Unit ${unit} not loaded.\\n`);",
+        '  process.exitCode = 5;',
+        '}',
+        '',
+    ].join('\n'));
+    chmodSync(join(bin, 'systemd-run'), 0o755);
+    chmodSync(join(bin, 'systemctl'), 0o755);
+    try {
+        process.env.PATH = `${bin}:${oldPath}`;
+        const result = runTests(workspace, ['unused.test.mjs'], 5_000);
+        assert.equal(result.passed, false);
+        assert.equal(result.timedOut, false);
+        assert.equal(result.resourceLimited, true);
+    } finally {
+        process.env.PATH = oldPath;
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
 
 test('scope cleanup accepts only the exact collected-unit result', () => {
     const workspace = mkdtempSync(join(tmpdir(), 'mutate-scope-stop-'));

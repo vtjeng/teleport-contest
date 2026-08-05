@@ -1,7 +1,7 @@
 {
   "mode": "implementation",
-  "reason": "The latest frozen adjudication confirmed eight remaining boundary gaps. Their fixes, focused suites, fresh C differentials, and full checkpoint are complete; the exact committed-head readiness attestation and another frozen audit remain.",
-  "commitChecked": "caae1525f48eded6d36b3e9a40ebae84bb6e632e",
+  "reason": "The exact-head readiness run exposed a deterministic OOM-killed mutant whose authenticated systemd-run process ends with SIGTERM. Exact systemd-result classification, the 80-test lifecycle suite, and the full 2,830-test checkpoint are complete; the fix commit and a fresh exact-head range mutation remain before audit readiness is restored.",
+  "commitChecked": "cf8861f28c48cd5b21c561cc872ac7aaba7a1d84",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "0f274faa825d3247e0244aa096d40dfefe5cce62",
@@ -452,11 +452,11 @@
       "remaining": ""
     },
     {
-      "candidate": "Post-authentication launcher-signal classification",
-      "reachability": "The bounded child authenticates, then systemd-run itself ends from a raw signal unrelated to the owned timeout result.",
+      "candidate": "Post-authentication wave-signal classification",
+      "reachability": "The bounded child authenticates, then systemd-run ends from a raw signal because either the launcher failed or systemd's 1 GiB wave limit killed a runaway mutant.",
       "owner": "scripts/mutate-sites.mjs runTests result classifier",
-      "effects": "Treat only status 124 or ETIMEDOUT as a timeout; report any other raw launcher signal as infrastructure failure rather than a killed mutant.",
-      "evidence": "A fake launcher writes the correct token and self-SIGKILLs; runTests rejects it as launcher infrastructure while existing wrapper child-signal and timeout cases retain their distinct verdicts.",
+      "effects": "Trust only an exact C-locale systemd Result=oom-kill as a mutant-attributable resource failure; report every other raw launcher signal as infrastructure, while retaining status 124 and ETIMEDOUT as timeouts.",
+      "evidence": "A fake authenticated launcher self-SIGKILLs and remains infrastructure failure; a separate exact oom-kill schedule is an attributable non-timeout failure. The readiness mutant at js/invent.js:706 reproduces a 1 GiB MemoryPeak and Result=oom-kill in about five seconds, distinguishing the real resource path. All 80 lifecycle tests and the full 2,830-test checkpoint pass.",
       "status": "done",
       "remaining": ""
     },
@@ -465,7 +465,7 @@
       "reachability": "Marker, stable-lock, or worker-authentication tests could pass through coupled or existence-only assertions.",
       "owner": "scripts/mutate-sites.test.mjs lifecycle contract",
       "effects": "Pin absent-versus-exact-token marker states, the exact /run/user/<uid>/teleport-mutate.lock path, and independent marker/slice/scope authentication dimensions.",
-      "evidence": "All wrapper outcomes assert exact marker content or absence; cross-TMPDIR contention prints and checks the canonical path; worker cases independently vary missing/wrong marker, wrong slice, unrelated cgroup path, near-match scope, and the exact valid suffix. All 79 lifecycle tests pass outside the sandbox.",
+      "evidence": "All wrapper outcomes assert exact marker content or absence; cross-TMPDIR contention prints and checks the canonical path; worker cases independently vary missing/wrong marker, wrong slice, unrelated cgroup path, near-match scope, and the exact valid suffix. All 80 lifecycle tests pass outside the sandbox.",
       "status": "done",
       "remaining": ""
     },
