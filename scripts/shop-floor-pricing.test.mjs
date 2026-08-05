@@ -161,6 +161,21 @@ function floorChain(state, x, y) {
     return result;
 }
 
+function priceQuoteSnapshot(state, target) {
+    const types = new Set(floorChain(state, target.x, target.y)
+        .map(({ object }) => object.otyp));
+    return [...types].sort((left, right) => left - right).map((otyp) => {
+        const type = state.objects[otyp];
+        return [
+            otyp,
+            type.oc_buy_minseen,
+            type.oc_buy_maxseen,
+            type.oc_sell_minseen,
+            type.oc_sell_maxseen,
+        ];
+    });
+}
+
 function movementSnapshot(state, target, keeper = null) {
     return {
         position: [state.u.ux, state.u.uy],
@@ -172,6 +187,7 @@ function movementSnapshot(state, target, keeper = null) {
             ushops_left: state.u.ushops_left,
         }),
         floor: floorChain(state, target.x, target.y),
+        priceQuotes: priceQuoteSnapshot(state, target),
         shop: keeper ? structuredClone(keeper.mextra.eshk) : null,
         uachieved: structuredClone(state.u.uachieved),
         toplines: state._ttyToplines,
@@ -195,6 +211,7 @@ function assertMovementSnapshot(state, target, before, keeper = null) {
         ushops_left: state.u.ushops_left,
     }, before.rooms);
     assert.deepEqual(floorChain(state, target.x, target.y), before.floor);
+    assert.deepEqual(priceQuoteSnapshot(state, target), before.priceQuotes);
     if (keeper) assert.deepEqual(keeper.mextra.eshk, before.shop);
     assert.deepEqual(state.u.uachieved, before.uachieved);
     assert.equal(state._ttyToplines, before.toplines);
@@ -581,8 +598,7 @@ test('an excluded second pile member refuses before any durable mutation',
             ],
             rng: [...getRngLog()],
             quote: [
-                state.objects[upper.otyp].oc_buy_minseen,
-                state.objects[upper.otyp].oc_buy_maxseen,
+                ...priceQuoteSnapshot(state, target),
             ],
         };
 
@@ -602,10 +618,7 @@ test('an excluded second pile member refuses before any durable mutation',
         assert.deepEqual(floorChain(state, target.x, target.y), before.floor);
         assert.equal(upper.dknown, false);
         assert.equal(lower.dknown, false);
-        assert.deepEqual([
-            state.objects[upper.otyp].oc_buy_minseen,
-            state.objects[upper.otyp].oc_buy_maxseen,
-        ], before.quote);
+        assert.deepEqual(priceQuoteSnapshot(state, target), before.quote);
         assert.equal(state._ttyToplines, before.toplines);
         assert.deepEqual(state.nhDisplay.grid, before.grid);
         assert.deepEqual([

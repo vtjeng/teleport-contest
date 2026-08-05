@@ -165,9 +165,11 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MUTATION_CGROUP_MARKER = 'TELEPORT_MUTATION_CGROUP';
 const MUTATION_SLICE_MARKER = 'TELEPORT_MUTATION_SLICE';
 const LOCK_INITIALIZATION_GRACE_MS = 5_000;
+const MUTATION_UID = process.getuid?.() ?? 'user';
 const DEFAULT_MUTATION_LOCK = join(
-    tmpdir(),
-    `teleport-mutate-${process.getuid?.() ?? 'user'}.lock`,
+    '/run/user',
+    String(MUTATION_UID),
+    'teleport-mutate.lock',
 );
 const BOUNDED_TEST_RUNNER = fileURLToPath(
     new URL('./run-bounded-tests.mjs', import.meta.url));
@@ -1194,16 +1196,19 @@ export function testCommandArgs(testFiles) {
 // pathological mutant can allocate quickly. Its 1 GiB cap
 // turns that runaway into one failed wave without killing the range run.  The
 // wrapper also starts Node's test runner in a new process group and kills that
-// complete group on timeout and after ordinary exit. runTests() then stops the
-// complete wave scope, which also collects helpers in another process group.
+// complete group on timeout or caller interruption. After every result,
+// runTests() stops the complete wave scope, which also collects helpers in
+// another process group without signalling a reusable post-exit numeric PGID.
 export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
     runnerPath = BOUNDED_TEST_RUNNER,
     unitName = `teleport-mutate-wave-${process.pid}-${++testWaveSequence}`,
-    sliceName = null) {
+    sliceName = null,
+    startedPath = join(tmpdir(), `${unitName}.started`)) {
     const sliceArgs = sliceName ? [`--slice=${sliceName}.slice`] : [];
     return {
         command: 'systemd-run',
         unitName,
+        startedPath,
         args: [
             '--user',
             '--scope',
@@ -1218,6 +1223,7 @@ export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
             nodePath,
             runnerPath,
             String(timeoutMs),
+            startedPath,
             nodePath,
             ...nodeArgs,
         ],
@@ -1264,19 +1270,31 @@ export function runTests(workspace, testFiles, timeoutMs) {
     const runner = testRunnerCommand(process.execPath, args, timeoutMs,
         BOUNDED_TEST_RUNNER, undefined,
         process.env[MUTATION_SLICE_MARKER] ?? null);
+    rmSync(runner.startedPath, { force: true });
     const started = process.hrtime.bigint();
-    const result = spawnSync(runner.command, runner.args, {
-        cwd: workspace,
-        encoding: 'utf8',
-        env: childEnvironment(),
-        timeout: runner.outerTimeoutMs,
-        maxBuffer: 64 * 1024 * 1024,
-    });
-    // The test runner's process group cannot contain a helper which called
-    // setsid() or spawned with detached:true. The uniquely named scope does,
-    // so stop it after every result and preserve the runner's result only once
-    // systemd confirms that the complete wave cgroup is empty.
-    stopWaveScope(runner.unitName);
+    let result;
+    try {
+        result = spawnSync(runner.command, runner.args, {
+            cwd: workspace,
+            encoding: 'utf8',
+            env: childEnvironment(),
+            timeout: runner.outerTimeoutMs,
+            maxBuffer: 64 * 1024 * 1024,
+        });
+        // The test runner's process group cannot contain a helper which called
+        // setsid() or spawned with detached:true. The uniquely named scope does,
+        // so stop it after every result and preserve the runner's result only once
+        // systemd confirms that the complete wave cgroup is empty.
+        stopWaveScope(runner.unitName);
+        if (!existsSync(runner.startedPath)) {
+            const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
+            throw new Error(`mutation test wave ${runner.unitName} never `
+                + 'started its Node test child'
+                + (output ? `: ${output}` : ''));
+        }
+    } finally {
+        rmSync(runner.startedPath, { force: true });
+    }
     const seconds = Number(process.hrtime.bigint() - started) / 1e9;
     const timedOut = result.status === 124
         || result.error?.code === 'ETIMEDOUT'

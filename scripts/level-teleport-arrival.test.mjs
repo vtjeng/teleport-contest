@@ -563,6 +563,49 @@ test('multi-square shop arrival refuses without committing planned RNG',
         assert.deepEqual(getRngLog(), before.log);
     });
 
+test('multi-square dry run and replay select the same heterogeneous square',
+    async () => {
+        const makeState = (excludedX) => {
+            const state = placementState();
+            state.dndest = { lx: 10, ly: 8, hx: 11, hy: 8 };
+            state.level.rooms[0] = { rtype: SHOPBASE };
+            for (const x of [10, 11]) {
+                Object.assign(state.level.at(x, 8), {
+                    typ: ROOM,
+                    roomno: x === excludedX ? ROOMOFFSET : 0,
+                    edge: x === excludedX,
+                });
+            }
+            return state;
+        };
+
+        const refused = makeState(10);
+        initRng(9450613);
+        enableRngLog();
+        const refusedBefore = {
+            position: [refused.u.ux, refused.u.uy],
+            rng: structuredClone(game.coreCtx),
+            log: [...getRngLog()],
+        };
+        await assert.rejects(
+            () => place_random_arrival(0, refused),
+            /outside the shop interior/u,
+        );
+        assert.deepEqual([refused.u.ux, refused.u.uy],
+            refusedBefore.position);
+        assert.deepEqual(game.coreCtx, refusedBefore.rng);
+        assert.deepEqual(getRngLog(), refusedBefore.log);
+
+        const admitted = makeState(11);
+        initRng(9450613);
+        enableRngLog();
+        const admittedRng = structuredClone(game.coreCtx);
+        await place_random_arrival(0, admitted);
+        assert.deepEqual([admitted.u.ux, admitted.u.uy], [10, 8]);
+        assert.notDeepEqual(game.coreCtx, admittedRng);
+        assert.ok(getRngLog().length > 0);
+    });
+
 test('random arrival preflights the complete ordinary pickup transaction',
     async () => {
         await runSegment({

@@ -785,6 +785,75 @@ test('a stale lock recovers when its recorded slice is already absent', () => {
     }
 });
 
+test('the default lock remains exclusive across different TMPDIR values',
+    async () => {
+        const root = mkdtempSync(join(tmpdir(), 'mutate-tmpdir-lock-test-'));
+        const firstTmp = join(root, 'first');
+        const secondTmp = join(root, 'second');
+        mkdirSync(firstTmp);
+        mkdirSync(secondTmp);
+        const source = [
+            `const M = await import(${JSON.stringify(SCRIPT_PATH)});`,
+            'const lock = M.acquireMutationLock();',
+            "process.stdout.write('READY\\n');",
+            "process.stdin.once('data', () => {",
+            '  M.releaseMutationLock(lock);',
+            '});',
+        ].join('\n');
+        const environment = (directory) => {
+            const value = { ...process.env, TMPDIR: directory };
+            delete value.TELEPORT_MUTATION_LOCK;
+            return value;
+        };
+        const holder = spawn(process.execPath,
+            ['--input-type=module', '-e', source], {
+                env: environment(firstTmp),
+                stdio: ['pipe', 'pipe', 'pipe'],
+            });
+        try {
+            await new Promise((resolve, reject) => {
+                let output = '';
+                const timer = setTimeout(() => reject(new Error(
+                    `default lock holder did not start: ${output}`)), 5_000);
+                const accept = (chunk) => {
+                    output += chunk;
+                    if (!output.includes('READY')) return;
+                    clearTimeout(timer);
+                    resolve();
+                };
+                holder.stdout.on('data', accept);
+                holder.stderr.on('data', accept);
+                holder.once('error', reject);
+                holder.once('exit', (code, signal) => reject(new Error(
+                    `default lock holder exited: ${code}/${signal}: ${output}`)));
+            });
+            const contender = spawnSync(process.execPath, [
+                '--input-type=module', '-e', [
+                    `const M = await import(${JSON.stringify(SCRIPT_PATH)});`,
+                    'try {',
+                    '  const lock = M.acquireMutationLock();',
+                    '  M.releaseMutationLock(lock);',
+                    "  process.stdout.write('ACQUIRED\\n');",
+                    '} catch (error) {',
+                    '  process.stderr.write(`${error.message}\\n`);',
+                    '  process.exitCode = 2;',
+                    '}',
+                ].join('\n'),
+            ], { env: environment(secondTmp), encoding: 'utf8' });
+            assert.equal(contender.status, 2);
+            assert.match(contender.stderr, /another mutation run owns/u);
+            assert.doesNotMatch(contender.stdout, /ACQUIRED/u);
+        } finally {
+            if (holder.exitCode === null && holder.signalCode === null) {
+                const exit = new Promise((resolve) =>
+                    holder.once('exit', resolve));
+                holder.stdin.end('\n');
+                await exit;
+            }
+            rmSync(root, { recursive: true, force: true });
+        }
+    });
+
 test('mutation test waves run at four-file concurrency', () => {
     // Four workers ran the current 39-file baseline in 10.66 seconds across
     // two runs. Eight was faster when invoked directly, but the mutator's
@@ -802,10 +871,12 @@ test('timed mutation waves kill the complete Node test process group', () => {
     assert.deepEqual(
         testRunnerCommand('/usr/bin/node', ['--test', 'scripts/a.test.mjs'],
             61_001, '/repo/scripts/run-bounded-tests.mjs',
-            'teleport-mutate-wave-test', 'teleport_mutate_123'),
+            'teleport-mutate-wave-test', 'teleport_mutate_123',
+            '/tmp/teleport-mutate-wave-test.started'),
         {
             command: 'systemd-run',
             unitName: 'teleport-mutate-wave-test',
+            startedPath: '/tmp/teleport-mutate-wave-test.started',
             args: [
                 '--user',
                 '--scope',
@@ -820,6 +891,7 @@ test('timed mutation waves kill the complete Node test process group', () => {
                 '/usr/bin/node',
                 '/repo/scripts/run-bounded-tests.mjs',
                 '61001',
+                '/tmp/teleport-mutate-wave-test.started',
                 '/usr/bin/node',
                 '--test',
                 'scripts/a.test.mjs',
@@ -899,11 +971,57 @@ test('a completed mutation wave reaps a detached test descendant', () => {
     }
 });
 
+test('a failing mutation wave reaps a detached test descendant', () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'mutate-fail-exit-test-'));
+    const scripts = join(workspace, 'scripts');
+    const pidPath = join(workspace, 'child.pid');
+    let childPid = null;
+    mkdirSync(scripts);
+    writeFileSync(join(scripts, 'fail.test.mjs'), [
+        "import { spawn } from 'node:child_process';",
+        "import { writeFileSync } from 'node:fs';",
+        "import { join } from 'node:path';",
+        "import test from 'node:test';",
+        "test('leave helper and fail', () => {",
+        "  const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { detached: true, stdio: 'ignore' });",
+        '  child.unref();',
+        "  writeFileSync(join(process.cwd(), 'child.pid'), String(child.pid));",
+        "  throw new Error('deliberate wave failure');",
+        '});',
+        '',
+    ].join('\n'));
+    try {
+        const result = runTests(workspace, ['fail.test.mjs'], 5_000);
+        assert.equal(result.passed, false);
+        assert.equal(result.timedOut, false);
+        assert.match(result.output, /deliberate wave failure/u);
+        childPid = Number(readFileSync(pidPath, 'utf8'));
+        assert.throws(() => process.kill(childPid, 0), { code: 'ESRCH' });
+    } finally {
+        if (childPid !== null) {
+            try {
+                process.kill(childPid, 'SIGKILL');
+            } catch (error) {
+                if (error.code !== 'ESRCH') throw error;
+            }
+        }
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
 test('the bounded wrapper preserves ordinary, error, timeout, and signal results', () => {
-    const run = (timeoutMs, args) => spawnSync(process.execPath,
-        [BOUNDED_RUNNER_PATH, String(timeoutMs), ...args], {
-            encoding: 'utf8',
-        });
+    const run = (timeoutMs, args) => {
+        const root = mkdtempSync(join(tmpdir(), 'bounded-result-test-'));
+        try {
+            return spawnSync(process.execPath,
+                [BOUNDED_RUNNER_PATH, String(timeoutMs),
+                    join(root, 'started'), ...args], {
+                    encoding: 'utf8',
+                });
+        } finally {
+            rmSync(root, { recursive: true, force: true });
+        }
+    };
 
     // Five seconds is a ceiling for commands that terminate immediately. The
     // chosen nonzero status distinguishes propagation from a generic failure.
@@ -943,7 +1061,8 @@ test('signalling the bounded wrapper kills its detached test group', async () =>
             // the selected signal; a shorter accidental deadline could turn
             // the result into timeout status 124.
             wrapper = spawn(process.execPath, [BOUNDED_RUNNER_PATH, '30000',
-                process.execPath, '--input-type=module', '-e', childSource], {
+                join(workspace, 'started'), process.execPath,
+                '--input-type=module', '-e', childSource], {
                 stdio: 'ignore',
             });
             await waitForFile(pidPath);
@@ -988,6 +1107,8 @@ test('an outer deadline synchronously stops only its named wave scope', async ()
         "import { spawn } from 'node:child_process';",
         "import { writeFileSync } from 'node:fs';",
         "const unit = process.argv.slice(2).find((arg) => arg.startsWith('--unit=')).slice(7);",
+        "const runner = process.argv.findIndex((arg) => arg.endsWith('/run-bounded-tests.mjs'));",
+        "writeFileSync(process.argv[runner + 2], 'started\\n');",
         'writeFileSync(process.env.TEST_WAVE_UNIT_PATH, unit);',
         "const helper = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { detached: true, stdio: 'ignore' });",
         'helper.unref();',
@@ -1043,6 +1164,38 @@ test('an outer deadline synchronously stops only its named wave scope', async ()
                 if (error.code !== 'ESRCH') throw error;
             }
         }
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('a wave launcher failure is not a failing-test verdict', () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'mutate-wave-launch-fail-'));
+    const bin = join(workspace, 'bin');
+    const oldPath = process.env.PATH;
+    mkdirSync(bin);
+    writeFileSync(join(bin, 'systemd-run'), [
+        '#!/usr/bin/env node',
+        "process.stderr.write('transient user-manager failure\\n');",
+        'process.exitCode = 17;',
+        '',
+    ].join('\n'));
+    writeFileSync(join(bin, 'systemctl'), [
+        '#!/usr/bin/env node',
+        "const unit = process.argv.at(-1);",
+        "process.stderr.write(`Failed to stop ${unit}: Unit ${unit} not loaded.\\n`);",
+        'process.exitCode = 5;',
+        '',
+    ].join('\n'));
+    chmodSync(join(bin, 'systemd-run'), 0o755);
+    chmodSync(join(bin, 'systemctl'), 0o755);
+    try {
+        process.env.PATH = `${bin}:${oldPath}`;
+        assert.throws(
+            () => runTests(workspace, ['unused.test.mjs'], 5_000),
+            /never started.*transient user-manager failure/u,
+        );
+    } finally {
+        process.env.PATH = oldPath;
         rmSync(workspace, { recursive: true, force: true });
     }
 });

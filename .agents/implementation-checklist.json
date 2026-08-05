@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "All seven findings confirmed by the fresh audit over 1dd01581..d918e03 are corrected. The full checkpoint passes 2,822 tests plus every generated/static check, the development score remains unchanged, all 74 mutation-runner tests cover the revised cleanup/process lifecycle, and the complete arrival and shop files cover the corrected atomicity and translation oracles. One final frozen pass remains.",
-  "commitChecked": "d918e03abee0315e1869f0c5f58aa49d00115a07",
+  "reason": "All six findings confirmed by the latest full audit over 1dd01581..c46d75a are corrected. The full checkpoint passes 2,826 tests plus every generated/static check, the development score remains unchanged, all 77 mutation-runner tests cover stable ownership and authenticated wave results, and all 29 arrival plus 15 shop tests cover heterogeneous replay and complete quote snapshots. One final frozen pass remains.",
+  "commitChecked": "c46d75a5cfc92a3c88f21640f284f1b1fa5ce336",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "0f274faa825d3247e0244aa096d40dfefe5cce62",
@@ -362,6 +362,60 @@
       "remaining": ""
     },
     {
+      "candidate": "Heterogeneous random-arrival dry-run/replay oracle",
+      "reachability": "A two-square destination contains one supported coordinate and one shop-edge exclusion, so the cloned and live traversals must select the same one.",
+      "owner": "scripts/level-teleport-arrival.test.mjs multi-square replay regression",
+      "effects": "Prove refusal is atomic when the selected square is excluded, and prove admission reaches that exact coordinate with live RNG consumption when only the other square is excluded.",
+      "evidence": "Seed 9450613 selects <10,8>. The paired heterogeneous cases reject with unchanged position/core RNG/log when <10,8> is excluded, then admit exactly <10,8> with changed live RNG when <11,8> is excluded. All 29 arrival tests pass.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "TMPDIR-independent mutation exclusivity",
+      "reachability": "Two same-user mutation invocations inherit different TMPDIR values while competing for the same local resource budget.",
+      "owner": "scripts/mutate-sites.mjs default owner-lock path",
+      "effects": "Resolve both invocations to one stable /run/user/<uid>/teleport-mutate.lock while retaining TELEPORT_MUTATION_LOCK as an explicit override.",
+      "evidence": "A live holder launched with one TMPDIR and a contender with another now share the stable lock; the contender names the live owner and cannot acquire. The complete 77-test mutation-runner suite passes.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Authenticated mutation-wave test verdict",
+      "reachability": "systemd-run or the bounded wrapper fails before Node's test child starts after a passing mutation baseline.",
+      "owner": "scripts/run-bounded-tests.mjs child-spawn marker and scripts/mutate-sites.mjs runTests",
+      "effects": "Write a unique marker only after the Node child emits spawn; clean the owned scope, then throw infrastructure failure for every unmarked launcher result instead of returning passed:false to kill accounting.",
+      "evidence": "The fake transient-manager schedule returns status 17 with exact absent-scope cleanup and is rejected as never-started infrastructure. Command-shape and real wrapper tests pin marker placement, ordinary/failing results, spawn failure, timeouts, and signals. All 77 lifecycle tests pass.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Ordinary failing-wave descendant cleanup oracle",
+      "reachability": "A Node test spawns a detached helper and then fails normally without timing out.",
+      "owner": "scripts/mutate-sites.test.mjs failing detached-helper fixture",
+      "effects": "Preserve passed:false, timedOut:false and the failure output while proving the uniquely owned scope removes the helper.",
+      "evidence": "The new real systemd wave records the helper PID, reports the deliberate failure, and proves the detached process is absent after runTests returns. Passing, timeout, interrupt, and failing cases all remain green.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Complete atomic price-quote snapshot",
+      "reachability": "Movement preflight examines any pile member before a later no-charge or object-name exclusion refuses the destination.",
+      "owner": "scripts/shop-floor-pricing.test.mjs priceQuoteSnapshot and movementSnapshot",
+      "effects": "Compare buy/sell minimum and maximum extrema for every object type on the destination square across every atomic refusal.",
+      "evidence": "The shared snapshot now enumerates all target types and all four quote fields; both public movement-boundary paths and the excluded-second case compare it. All 15 shop-floor tests pass.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Accurate wave cleanup ownership comment",
+      "reachability": "A maintainer changes the bounded wrapper or runTests after reading the wave lifecycle comment.",
+      "owner": "scripts/mutate-sites.mjs testRunnerCommand comment",
+      "effects": "State that numeric group signalling occurs only before exit on timeout/interruption and the unique systemd scope owns descendant collection after every result.",
+      "evidence": "The corrected comment matches every signalGroup call, the post-exit reuse guard, and passing/failing/timeout detached-descendant integrations.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
       "candidate": "Confirmed contract clarity",
       "reachability": "A maintainer reads the changed status shrink order, look_here boundary, doname pricing ownership, quote lifecycle, or getprice preconditions.",
       "owner": "js/display.js, js/invent.js, js/objnam.js, and js/shk.js comments/private API",
@@ -372,5 +426,5 @@
     }
   ],
   "missingWorkByOwner": [],
-  "sourceReview": "The repeated source review traces the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. It covers exact publication-versus-reclaim and claimant-read-versus-unlink schedules, aged incomplete publication, partial set-property startup, exact raw-stream absent-unit proof, child/body/cleanup-error-plus-signal order, post-exit process-group reuse, every game branch/helper reachable before the next prompt, state/cache/PRNG order, and every explicit pre-commit exclusion. All latest confirmed items are fixed and validated through their terminal outcomes. No known unsupported behavior remains after an observable change inside this boundary."
+  "sourceReview": "The repeated source review traces the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. It covers heterogeneous dry-run/replay selection, exact publication/reclaim schedules, stable per-user ownership across TMPDIR, partial startup, exact raw-stream absent-unit proof, authenticated Node-child startup, ordinary failing-wave descendant cleanup, child/body/cleanup-error-plus-signal order, post-exit process-group reuse, every game branch/helper reachable before the next prompt, state/cache/PRNG order, and every explicit pre-commit exclusion. All latest confirmed items are fixed and validated through their terminal outcomes. No known unsupported behavior remains after an observable change inside this boundary."
 }

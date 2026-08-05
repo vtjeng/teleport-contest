@@ -8,6 +8,7 @@
 // also collects a helper that created another process group.
 
 import { spawn } from 'node:child_process';
+import { writeFileSync } from 'node:fs';
 import { constants as osConstants } from 'node:os';
 
 function signalGroup(pid, signal) {
@@ -22,9 +23,9 @@ function signalGroup(pid, signal) {
 }
 
 function main(argv) {
-    if (argv.length < 3)
-        throw new Error('usage: run-bounded-tests <timeout-ms> <node> <args...>');
-    const [timeoutText, nodePath, ...nodeArgs] = argv;
+    if (argv.length < 4)
+        throw new Error('usage: run-bounded-tests <timeout-ms> <started-path> <node> <args...>');
+    const [timeoutText, startedPath, nodePath, ...nodeArgs] = argv;
     const timeoutMs = Number(timeoutText);
     if (!Number.isInteger(timeoutMs) || timeoutMs < 1)
         throw new Error('timeout-ms must be a positive integer');
@@ -33,6 +34,12 @@ function main(argv) {
         detached: true,
         stdio: 'inherit',
     });
+    // Authenticate that systemd-run reached this wrapper and that the Node
+    // test child actually started. Without this marker, a launcher or spawn
+    // failure is infrastructure failure rather than a failing-test verdict.
+    child.once('spawn', () => writeFileSync(startedPath, 'started\n', {
+        flag: 'wx',
+    }));
     let timedOut = false;
     let interrupted = false;
     const timer = setTimeout(() => {
