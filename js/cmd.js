@@ -62,6 +62,7 @@ import {
     ECM_NO1CHARCMD,
     IFBURIED,
     INTERNALCMD,
+    PREFIXCMD,
     WIZMODECMD,
     extcmdlist,
 } from './extcmdlist_data.js';
@@ -1330,11 +1331,31 @@ export async function rhack(key, state = game) {
                 state.context.pendingCommand =
                     captureParsedCommand(key, state);
             }
+            if (!key || key === 0xFF || key === ESC) {
+                resetCommandVars(state);
+                return;
+            }
             command = commandForKey(commandBindings(state), key);
             // C loops back to do_cmdq_extcmd for the prefixed command, so the
             // second key gets its own can_do_extcmd() before do_reqmenu()
             // reports a doubled prefix.
             if (!await rhackCanDoExtcmd(command, state)) return;
+            const prefixedEntry = EXTCMD_BY_NAME.get(command);
+            if (prefixedEntry
+                && !(prefixedEntry.flags & PREFIXCMD)
+                && !(prefixedEntry.flags & CMD_M_PREFIX)) {
+                const prefix = keyForCommand(
+                    commandBindings(state),
+                    'reqmenu',
+                );
+                await ttyNorep(
+                    `The ${prefixedEntry.ef_txt} command does not accept `
+                    + `'${visibleCommandKey(prefix)}' prefix.`,
+                    state,
+                );
+                resetCommandVars(state);
+                return;
+            }
             if (command === 'reqmenu') {
                 const prefix = keyForCommand(commandBindings(state), 'reqmenu');
                 await ttyNorep(

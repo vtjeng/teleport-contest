@@ -140,7 +140,9 @@
 // distinguishes the two.
 
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { randomBytes } from 'node:crypto';
 import {
+    chmodSync,
     cpSync,
     existsSync,
     linkSync,
@@ -204,8 +206,12 @@ export function isVerifiedMutationWorker(
         return false;
     const membership = cgroupText
         ?? readFileSync('/proc/self/cgroup', 'utf8');
-    return membership.includes(`/${sliceName}.slice/`)
-        && membership.includes(`/${sliceName}_run.scope`);
+    const expectedSuffix = `/${sliceName}.slice/${sliceName}_run.scope`;
+    return membership.split('\n').some((line) => {
+        const separator = line.indexOf('::');
+        return separator >= 0
+            && line.slice(separator + 2).endsWith(expectedSuffix);
+    });
 }
 
 export function mutationRunNames(
@@ -1203,12 +1209,14 @@ export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
     runnerPath = BOUNDED_TEST_RUNNER,
     unitName = `teleport-mutate-wave-${process.pid}-${++testWaveSequence}`,
     sliceName = null,
-    startedPath = join(tmpdir(), `${unitName}.started`)) {
+    startedPath = join(tmpdir(), `${unitName}.started`),
+    startedToken = 'authenticated-start') {
     const sliceArgs = sliceName ? [`--slice=${sliceName}.slice`] : [];
     return {
         command: 'systemd-run',
         unitName,
         startedPath,
+        startedToken,
         args: [
             '--user',
             '--scope',
@@ -1224,6 +1232,7 @@ export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
             runnerPath,
             String(timeoutMs),
             startedPath,
+            startedToken,
             nodePath,
             ...nodeArgs,
         ],
@@ -1267,10 +1276,16 @@ export function runTests(workspace, testFiles, timeoutMs) {
     if (!testFiles.length)
         throw new Error('runTests needs at least one test file');
     const args = testCommandArgs(testFiles);
+    const authenticationRoot = mkdtempSync(
+        join(workspace, '.teleport-wave-auth-'),
+    );
+    chmodSync(authenticationRoot, 0o700);
+    const startedPath = join(authenticationRoot, 'started');
+    const startedToken = randomBytes(32).toString('hex');
     const runner = testRunnerCommand(process.execPath, args, timeoutMs,
         BOUNDED_TEST_RUNNER, undefined,
-        process.env[MUTATION_SLICE_MARKER] ?? null);
-    rmSync(runner.startedPath, { force: true });
+        process.env[MUTATION_SLICE_MARKER] ?? null,
+        startedPath, startedToken);
     const started = process.hrtime.bigint();
     let result;
     try {
@@ -1286,19 +1301,30 @@ export function runTests(workspace, testFiles, timeoutMs) {
         // so stop it after every result and preserve the runner's result only once
         // systemd confirms that the complete wave cgroup is empty.
         stopWaveScope(runner.unitName);
-        if (!existsSync(runner.startedPath)) {
+        let authenticated = false;
+        try {
+            authenticated = readFileSync(runner.startedPath, 'utf8')
+                === `${runner.startedToken}\n`;
+        } catch (error) {
+            if (error.code !== 'ENOENT') throw error;
+        }
+        if (!authenticated) {
             const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
-            throw new Error(`mutation test wave ${runner.unitName} never `
-                + 'started its Node test child'
+            throw new Error(`mutation test wave ${runner.unitName} did not `
+                + 'authenticate a started Node test child'
                 + (output ? `: ${output}` : ''));
         }
+        if (result.status === null && result.signal !== null
+            && result.error?.code !== 'ETIMEDOUT') {
+            throw new Error(`mutation test wave launcher ${runner.unitName} `
+                + `ended with signal ${result.signal}`);
+        }
     } finally {
-        rmSync(runner.startedPath, { force: true });
+        rmSync(authenticationRoot, { recursive: true, force: true });
     }
     const seconds = Number(process.hrtime.bigint() - started) / 1e9;
     const timedOut = result.status === 124
-        || result.error?.code === 'ETIMEDOUT'
-        || (result.status === null && result.signal !== null);
+        || result.error?.code === 'ETIMEDOUT';
     return { passed: !timedOut && result.status === 0, timedOut, seconds,
         output: `${result.stdout ?? ''}${result.stderr ?? ''}` };
 }

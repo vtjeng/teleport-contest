@@ -807,6 +807,17 @@ test('random shop arrival preflights owned stock pricing', async () => {
         false,
         objectGenerationEnv({ state: game }),
     );
+    // mksobj_at() prepends, so this supported object is visited before the
+    // unsupported tin. A dry preflight must not discover or quote it before
+    // the later member refuses the whole arrival.
+    const eligible = mksobj_at(
+        APPLE,
+        destination.x,
+        destination.y,
+        false,
+        false,
+        objectGenerationEnv({ state: game }),
+    );
     game.dndest = {
         lx: destination.x,
         ly: destination.y,
@@ -814,6 +825,18 @@ test('random shop arrival preflights owned stock pricing', async () => {
         hy: destination.y,
     };
     const extension = room.resident.mextra.eshk;
+    const quoteSnapshot = () => [...new Set([eligible.otyp, tin.otyp])]
+        .sort((left, right) => left - right)
+        .map((otyp) => {
+            const type = game.objects[otyp];
+            return [
+                otyp,
+                type.oc_buy_minseen,
+                type.oc_buy_maxseen,
+                type.oc_sell_minseen,
+                type.oc_sell_maxseen,
+            ];
+        });
     enableRngLog();
     const before = {
         hero: structuredClone(game.u),
@@ -826,7 +849,15 @@ test('random shop arrival preflights owned stock pricing', async () => {
             bill_p: extension.bill_p,
             following: extension.following,
         }),
-        object: { dknown: tin.dknown, where: tin.where },
+        objects: [eligible, tin].map((object) => ({
+            dknown: object.dknown,
+            where: object.where,
+            nobj: object.nobj,
+            nexthere: object.nexthere,
+        })),
+        floor: game.level.objects[destination.x][destination.y],
+        list: game.level.objlist,
+        quotes: quoteSnapshot(),
         toplines: game._ttyToplines,
         grid: structuredClone(game.nhDisplay.grid),
         cursor: [
@@ -851,7 +882,16 @@ test('random shop arrival preflights owned stock pricing', async () => {
         bill_p: extension.bill_p,
         following: extension.following,
     }, before.shop);
-    assert.deepEqual({ dknown: tin.dknown, where: tin.where }, before.object);
+    assert.deepEqual([eligible, tin].map((object) => ({
+        dknown: object.dknown,
+        where: object.where,
+        nobj: object.nobj,
+        nexthere: object.nexthere,
+    })), before.objects);
+    assert.equal(game.level.objects[destination.x][destination.y],
+        before.floor);
+    assert.equal(game.level.objlist, before.list);
+    assert.deepEqual(quoteSnapshot(), before.quotes);
     assert.equal(game._ttyToplines, before.toplines);
     assert.deepEqual(game.nhDisplay.grid, before.grid);
     assert.deepEqual([

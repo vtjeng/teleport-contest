@@ -2516,6 +2516,45 @@ test('a rebound reqmenu prefix forces its following wait command', async () => {
     assert.equal(state.nhDisplay.inputQueueLength, 0);
 });
 
+test('reqmenu rejects non-prefix commands and Escape cancels silently',
+    async () => {
+        for (const [key, description] of [
+            [':', 'look'],
+            ['i', 'inventory'],
+        ]) {
+            const { state } = resetSafeWaitTestGame('OPTIONS=!cmdassist');
+            const grid = structuredClone(state.nhDisplay.grid);
+            state.nhDisplay.pushKey(commandKeyCode('m'));
+            state.nhDisplay.pushKey(commandKeyCode(key));
+
+            await rhack(0, state);
+
+            assert.equal(
+                state._pending_message,
+                `The ${description} command does not accept 'm' prefix.`,
+            );
+            assert.deepEqual(state.nhDisplay.grid, grid);
+            assert.equal(state.context.move, 0);
+            assert.equal(state.iflags.menu_requested, false);
+            assert.equal(state.nhDisplay.inputQueueLength, 0);
+        }
+
+        for (const cancel of [0, 0xFF, 0x1B]) {
+            const { state } = resetSafeWaitTestGame('OPTIONS=!cmdassist');
+            const grid = structuredClone(state.nhDisplay.grid);
+            state.nhDisplay.pushKey(commandKeyCode('m'));
+            state.nhDisplay.pushKey(cancel);
+
+            await rhack(0, state);
+
+            assert.equal(state._pending_message, '');
+            assert.deepEqual(state.nhDisplay.grid, grid);
+            assert.equal(state.context.move, 0);
+            assert.equal(state.iflags.menu_requested, false);
+            assert.equal(state.nhDisplay.inputQueueLength, 0);
+        }
+    });
+
 test('dangerous hero properties reject waiting and success resets its counter', async () => {
     const { state, monster } = resetSafeWaitTestGame('OPTIONS=!cmdassist');
     state.level.monsters[monster.mx][monster.my] = null;

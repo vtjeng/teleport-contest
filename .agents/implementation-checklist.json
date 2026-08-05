@@ -1,7 +1,7 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "All six findings confirmed by the latest full audit over 1dd01581..c46d75a are corrected. The full checkpoint passes 2,826 tests plus every generated/static check, the development score remains unchanged, all 77 mutation-runner tests cover stable ownership and authenticated wave results, and all 29 arrival plus 15 shop tests cover heterogeneous replay and complete quote snapshots. One final frozen pass remains.",
-  "commitChecked": "c46d75a5cfc92a3c88f21640f284f1b1fa5ce336",
+  "mode": "implementation",
+  "reason": "The latest frozen adjudication confirmed eight remaining boundary gaps. Their fixes, focused suites, fresh C differentials, and full checkpoint are complete; the exact committed-head readiness attestation and another frozen audit remain.",
+  "commitChecked": "caae1525f48eded6d36b3e9a40ebae84bb6e632e",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "0f274faa825d3247e0244aa096d40dfefe5cce62",
@@ -412,6 +412,60 @@
       "owner": "scripts/mutate-sites.mjs testRunnerCommand comment",
       "effects": "State that numeric group signalling occurs only before exit on timeout/interruption and the unique systemd scope owns descendant collection after every result.",
       "evidence": "The corrected comment matches every signalGroup call, the post-exit reuse guard, and passing/failing/timeout detached-descendant integrations.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Reqmenu second-command admissibility and cancellation",
+      "reachability": "The reqmenu prefix reads a command that is not marked CMD_M_PREFIX/PREFIXCMD, or reads zero, 0xff, or Escape.",
+      "owner": "js/cmd.js rhack reqmenu redispatch",
+      "effects": "Reject an inadmissible second command with C's exact prefix diagnostic, and cancel all three terminators silently after resetting command state.",
+      "evidence": "scripts/cmd.test.mjs covers look, inventory, zero, 0xff, and Escape with grid, movement, menu flag, and queue assertions. Fresh C differentials for m:, mi, and m+Escape match all 4,657 PRNG calls and all 13 screens/cursors.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Recorder-compatible pile_limit integer narrowing",
+      "reachability": "A pile_limit value exceeds signed 32-bit range or signed-long range before options.c stores atoi() in flags.pile_limit.",
+      "owner": "js/options.js setPileLimit",
+      "effects": "Apply glibc signed-long saturation, two's-complement 32-bit narrowing, and the source's negative-to-default rule in that order.",
+      "evidence": "scripts/options.test.mjs pins both int edges, modulo-width values, and both long saturation directions. The seven-segment fresh object-pile matrix uses 4294967298, whose narrowed value 2 changes count-versus-window behavior, and matches C for 27,400 PRNG calls and all 213 screens/cursors.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Mixed priced-pile random-arrival refusal oracle",
+      "reachability": "A selected shop destination contains one unsupported and one supported priced object in traversal order.",
+      "owner": "scripts/level-teleport-arrival.test.mjs random-arrival snapshot",
+      "effects": "Require atomic refusal across both objects' discovery, ownership, links, object-list head, and every buy/sell quote extremum.",
+      "evidence": "The mixed TIN/APPLE case visits the supported apple before refusing on the tin and snapshots both objects plus all four quote extrema for both types, position, rooms, output, and RNG owners.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Private authenticated mutation-wave verdict",
+      "reachability": "A launcher result can create or reuse a predictable marker without starting the intended Node child.",
+      "owner": "scripts/mutate-sites.mjs runTests and scripts/run-bounded-tests.mjs",
+      "effects": "Create a mode-0700 per-wave directory and unpredictable token; accept a test verdict only when the spawned wrapper writes that exact token after child spawn.",
+      "evidence": "Lifecycle tests distinguish success, failure, timeout, missing executable, missing token, and a forged wrong token, and require cleanup of the private authentication directory.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Post-authentication launcher-signal classification",
+      "reachability": "The bounded child authenticates, then systemd-run itself ends from a raw signal unrelated to the owned timeout result.",
+      "owner": "scripts/mutate-sites.mjs runTests result classifier",
+      "effects": "Treat only status 124 or ETIMEDOUT as a timeout; report any other raw launcher signal as infrastructure failure rather than a killed mutant.",
+      "evidence": "A fake launcher writes the correct token and self-SIGKILLs; runTests rejects it as launcher infrastructure while existing wrapper child-signal and timeout cases retain their distinct verdicts.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Exact mutation ownership test oracles",
+      "reachability": "Marker, stable-lock, or worker-authentication tests could pass through coupled or existence-only assertions.",
+      "owner": "scripts/mutate-sites.test.mjs lifecycle contract",
+      "effects": "Pin absent-versus-exact-token marker states, the exact /run/user/<uid>/teleport-mutate.lock path, and independent marker/slice/scope authentication dimensions.",
+      "evidence": "All wrapper outcomes assert exact marker content or absence; cross-TMPDIR contention prints and checks the canonical path; worker cases independently vary missing/wrong marker, wrong slice, unrelated cgroup path, near-match scope, and the exact valid suffix. All 79 lifecycle tests pass outside the sandbox.",
       "status": "done",
       "remaining": ""
     },

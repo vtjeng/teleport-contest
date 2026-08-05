@@ -18,9 +18,9 @@ test('the object-pile count matrix has clean, independent replay inputs', () => 
     // Version 5 is the clean session schema whose recipes contain replay
     // inputs but no recorded answers.
     assert.equal(version, 5);
-    // Four wording partitions and two menu controls independently replay the
-    // count threshold and its outside-boundary behavior.
-    assert.equal(segments.length, 6);
+    // Four wording partitions, one narrowing discriminator, and two menu
+    // controls independently replay the threshold and its boundary behavior.
+    assert.equal(segments.length, 7);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
 
     const names = new Set(segments.map(
@@ -28,7 +28,7 @@ test('the object-pile count matrix has clean, independent replay inputs', () => 
     ));
     // Name does not affect look_here(), so varying it would add an irrelevant
     // input dimension to the differential.
-    assert.deepEqual([...names], ['PileCount']);
+    assert.deepEqual([...names], ['PileCount', 'PileWrap']);
 
     const limits = segments.map(
         ({ nethackrc }) => optionValue(nethackrc, 'pile_limit'),
@@ -37,6 +37,8 @@ test('the object-pile count matrix has clean, independent replay inputs', () => 
         // Leading whitespace plus an explicit sign reaches C atoi()'s valid
         // signed-decimal prefix while equalling the two-object pile count.
         '   +2',
+        // The recorder's atoi() narrows this unsigned-looking decimal to 2.
+        '4294967298',
         // Equality at three pins skip_objects' `obj_cnt >= pile_limit` edge.
         '3',
         // Five is the first "several" count in invent.c look_here().

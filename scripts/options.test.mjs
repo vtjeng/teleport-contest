@@ -121,6 +121,16 @@ test('pile_limit startup parsing follows optfn_pile_limit and C atoi', () => {
         // Leading ASCII whitespace and an explicit plus sign are accepted by
         // C atoi(); seven keeps the assertion distinct from other cases.
         ['OPTIONS=pile_limit:   +7', 7],
+        // The recorder narrows glibc atoi()'s signed-long result into the
+        // 32-bit flags.pile_limit field before applying the negative reset.
+        ['OPTIONS=pile_limit:2147483647', 2147483647],
+        ['OPTIONS=pile_limit:2147483648', 5],
+        ['OPTIONS=pile_limit:4294967295', 5],
+        ['OPTIONS=pile_limit:4294967296', 0],
+        ['OPTIONS=pile_limit:4294967298', 2],
+        // glibc saturates signed-long overflow before that same narrowing.
+        ['OPTIONS=pile_limit:9223372036854775808', 5],
+        ['OPTIONS=pile_limit:-9223372036854775809', 0],
         // Both negated spellings select the never-skip value before gameplay.
         ['OPTIONS=!pile_limit', 0],
         ['OPTIONS=!pile_limit:', 0],

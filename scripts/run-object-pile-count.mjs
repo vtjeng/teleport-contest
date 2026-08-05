@@ -57,6 +57,15 @@ export function loadObjectPileCountRecipe() {
                 moves: ' k.',
             },
             {
+                seed: 6200242,
+                datetime: DATETIME,
+                nethackrc: nethackrc('PileWrap', 4294967298),
+                // glibc atoi() narrows this to int value 2. Reaching the
+                // two-node pile must therefore print the count instead of
+                // opening the window a large JavaScript number would retain.
+                moves: ' k.',
+            },
+            {
                 // A separate fresh scan found this seed's five-step route
                 // ending on exactly three non-mergeable chain nodes.
                 seed: 6231371,
@@ -118,7 +127,9 @@ function storageProbe() {
 
 export async function verifyObjectPileCountSegment(segment) {
     const limitText = /pile_limit:([^,\n]+)/u.exec(segment.nethackrc)?.[1];
-    const limit = Number(limitText);
+    // options.c stores atoi() in an int; this matrix's overflow discriminator
+    // wraps to 2 on the recorder's two's-complement target.
+    const limit = limitText === '4294967298' ? 2 : Number(limitText);
     const debug = segment.nethackrc.includes('playmode:debug');
     let expectedCount;
     let beforeArrivalMoves;

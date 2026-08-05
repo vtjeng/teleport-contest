@@ -1866,7 +1866,12 @@ function setPileLimit(result, value, negated, lineNumber) {
         optionError(lineNumber, "'pile_limit' requires a value");
     }
     const match = value.match(/^[\t\n\v\f\r ]*[+-]?\d+/u);
-    const parsed = match ? Number.parseInt(match[0], 10) : 0;
+    let wide = match ? BigInt(match[0].trim()) : 0n;
+    const longMax = (1n << 63n) - 1n;
+    const longMin = -(1n << 63n);
+    if (wide > longMax) wide = longMax;
+    else if (wide < longMin) wide = longMin;
+    const parsed = Number(BigInt.asIntN(32, wide));
     result.flags.pile_limit = parsed < 0 ? 5 : parsed;
 }
 
