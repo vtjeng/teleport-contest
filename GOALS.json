@@ -32,6 +32,11 @@
           "name": "decorated-object-pile-terrain-header",
           "status": "closed",
           "closedBy": "15f734f807b1e31b8c01720c36c0aff65169412a"
+        },
+        {
+          "name": "no-pick-object-pile-walk",
+          "status": "closed",
+          "closedBy": "0de90b0ee43957e13069d1dc8aed6f2e941206e6"
         }
       ],
       "openedAt": "18b809a1a725ade6b83f296d3fa76c775e887fdb",

@@ -135,3 +135,11 @@ utc	event	phase	goal	detail
 2026-08-05T05:03:59.134Z	end	select	object-pile-window	Selected the decorated object-pile terrain header: lift the staircase and doorway pile boundary through look_here menu and count output; hidden-trap activation remains out of scope.
 2026-08-05T05:05:09.979Z	start	implement	object-pile-window	Fresh worker closes decorated-object-pile-terrain-header from the live movement consumer through source-faithful terrain header, menu/count output, fresh C/JavaScript differentials, checkpoint, mutation, and commit.
 2026-08-05T05:28:40.110Z	end	implement	object-pile-window	Accepted 15f734f independently: 2,722 tests, six generated checks, namespace integrity, unchanged 1,001-screen/116,103-RNG development score, exact 4,738-RNG/129-screen decorated-pile matrix, 7/7 mutants killed, and a clear WATCH quality gate.
+2026-08-05T05:29:29.687Z	start	review	object-pile-window	Run the required full correctness audit over the committed object-pile-window implementation range, then apply and revalidate every confirmed finding.
+2026-08-05T06:59:39.741Z	end	review	object-pile-window	full audit confirmed 16 findings; scope-expanding behavior and input/rendering findings return the goal to implementation
+2026-08-05T06:59:39.769Z	start	implement	object-pile-window	implement confirmed object-pile audit findings through observable boundaries
+2026-08-05T07:05:48.695Z	end	implement	object-pile-window	Triaged confirmed findings; production work requires a source-bounded follow-up slice before edits.
+2026-08-05T07:05:48.726Z	start	select	object-pile-window	Partition confirmed production findings and choose the earliest common observable boundary.
+2026-08-05T07:05:48.790Z	end	select	object-pile-window	Selected no-pick-object-pile-walk: connect reqmenu movement through pickup(1) early return before later pile rendering branches.
+2026-08-05T07:05:48.818Z	start	implement	object-pile-window	Fresh worker closes no-pick-object-pile-walk through the next command prompt with exact C/JavaScript differential evidence.
+2026-08-05T07:29:37.668Z	end	implement	object-pile-window	Accepted 0de90b0 independently: 2,728 tests, six generated checks, namespace integrity, exact 11,025-RNG/17-screen no-pick matrix, development 1,002 screens and 1,010 cursors, 7/7 mutants killed, and clear WATCH quality gate.
