@@ -52,6 +52,11 @@
           "name": "multibyte-object-pile-byte-geometry",
           "status": "closed",
           "closedBy": "996fff10bf3b59d9bf675ef192ff8e4e283b6b7a"
+        },
+        {
+          "name": "heavy-wish-drop-admission-atomicity",
+          "status": "closed",
+          "closedBy": "deb84c6a996de25b36fda262aae79bda631e1333"
         }
       ],
       "openedAt": "18b809a1a725ade6b83f296d3fa76c775e887fdb",

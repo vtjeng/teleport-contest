@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "makewish currently names and discovers the wished object and increments wish conduct before hold_another_object determines that a heavy iron ball must drop and preflights the supported drop tail. An excluded drop context can therefore fail closed after durable mutation.",
-  "commitChecked": "eb05ccef491e1b099f8b1ada580b8f3a4bb5c710",
+  "mode": "ready-for-audit",
+  "reason": "Commit deb84c6a closes heavy-wish drop atomicity by preparing a one-shot object/state/hook/fingerprint-bound admission before discovery and conduct, then consuming the approved tail without post-mutation re-evaluation. Independent exact matrices and checkpoint verification passed; excluded contexts remain atomic and all 17 gating mutants are killed.",
+  "commitChecked": "deb84c6a996de25b36fda262aae79bda631e1333",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "eb05ccef491e1b099f8b1ada580b8f3a4bb5c710",
