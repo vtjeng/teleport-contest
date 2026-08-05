@@ -39,6 +39,7 @@ import {
     parseRange,
     removeWorkspace,
     reportedTestCount,
+    runTests,
     runMutants,
     sampleItems,
     SITE_KINDS,
@@ -47,6 +48,7 @@ import {
     siteFilterFromReport,
     survivingRangeLines,
     testCommandArgs,
+    testRunnerCommand,
     tokenize,
     uncommittedJsLines,
 } from './mutate-sites.mjs';
@@ -147,6 +149,105 @@ test('mutation test waves run at four-file concurrency', () => {
         'scripts/a.test.mjs',
         'scripts/b.test.mjs',
     ]);
+});
+
+test('timed mutation waves kill the complete Node test process group', () => {
+    assert.deepEqual(
+        testRunnerCommand('/usr/bin/node', ['--test', 'scripts/a.test.mjs'],
+            61_001, '/repo/scripts/run-bounded-tests.mjs',
+            'teleport-mutate-wave-test'),
+        {
+            command: 'systemd-run',
+            args: [
+                '--user',
+                '--scope',
+                '--collect',
+                '--quiet',
+                '--unit=teleport-mutate-wave-test',
+                '--property=MemoryAccounting=yes',
+                '--property=MemoryMax=1G',
+                '--property=MemorySwapMax=0',
+                '--property=TasksMax=64',
+                '/usr/bin/node',
+                '/repo/scripts/run-bounded-tests.mjs',
+                '61001',
+                '/usr/bin/node',
+                '--test',
+                'scripts/a.test.mjs',
+            ],
+            outerTimeoutMs: 66_001,
+        },
+    );
+});
+
+test('a timed mutation wave leaves no hanging test descendant', () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'mutate-timeout-test-'));
+    const scripts = join(workspace, 'scripts');
+    const pidPath = join(workspace, 'child.pid');
+    let childPid = null;
+    mkdirSync(scripts);
+    writeFileSync(join(scripts, 'hang.test.mjs'), [
+        "import { spawn } from 'node:child_process';",
+        "import { writeFileSync } from 'node:fs';",
+        "import { join } from 'node:path';",
+        "import test from 'node:test';",
+        "const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)']);",
+        "writeFileSync(join(process.cwd(), 'child.pid'), String(child.pid));",
+        "test('hang', async () => new Promise(() => {}));",
+        '',
+    ].join('\n'));
+    try {
+        const result = runTests(workspace, ['hang.test.mjs'], 1_000);
+        assert.equal(result.passed, false);
+        assert.equal(result.timedOut, true);
+        childPid = Number(readFileSync(pidPath, 'utf8'));
+        assert.throws(() => process.kill(childPid, 0), { code: 'ESRCH' });
+    } finally {
+        if (childPid !== null) {
+            try {
+                process.kill(childPid, 'SIGKILL');
+            } catch (error) {
+                if (error.code !== 'ESRCH') throw error;
+            }
+        }
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('a completed mutation wave reaps an unreferenced test descendant', () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'mutate-exit-test-'));
+    const scripts = join(workspace, 'scripts');
+    const pidPath = join(workspace, 'child.pid');
+    let childPid = null;
+    mkdirSync(scripts);
+    writeFileSync(join(scripts, 'exit.test.mjs'), [
+        "import { spawn } from 'node:child_process';",
+        "import { writeFileSync } from 'node:fs';",
+        "import { join } from 'node:path';",
+        "import test from 'node:test';",
+        "test('leave helper', () => {",
+        "  const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' });",
+        "  child.unref();",
+        "  writeFileSync(join(process.cwd(), 'child.pid'), String(child.pid));",
+        "});",
+        '',
+    ].join('\n'));
+    try {
+        const result = runTests(workspace, ['exit.test.mjs'], 5_000);
+        assert.equal(result.passed, true);
+        assert.equal(result.timedOut, false);
+        childPid = Number(readFileSync(pidPath, 'utf8'));
+        assert.throws(() => process.kill(childPid, 0), { code: 'ESRCH' });
+    } finally {
+        if (childPid !== null) {
+            try {
+                process.kill(childPid, 'SIGKILL');
+            } catch (error) {
+                if (error.code !== 'ESRCH') throw error;
+            }
+        }
+        rmSync(workspace, { recursive: true, force: true });
+    }
 });
 
 // ---------------------------------------------------------------------------

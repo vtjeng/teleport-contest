@@ -157,6 +157,9 @@ import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MUTATION_CGROUP_MARKER = 'TELEPORT_MUTATION_CGROUP';
+const BOUNDED_TEST_RUNNER = fileURLToPath(
+    new URL('./run-bounded-tests.mjs', import.meta.url));
+let testWaveSequence = 0;
 
 /** Build the systemd scope that contains the mutator and every test child. */
 export function mutationCgroupArgs(nodePath, scriptPath, argv) {
@@ -752,7 +755,38 @@ export function testCommandArgs(testFiles) {
     ];
 }
 
-function runTests(workspace, testFiles, timeoutMs) {
+// Each wave receives its own cgroup because a pathological mutant can allocate
+// past the parent scope's 2 GiB ceiling before the time limit.  Its 1 GiB cap
+// turns that runaway into one failed wave without killing the range run.  The
+// wrapper also starts Node's test runner in a new process group and kills that
+// complete group on timeout and after ordinary exit, so no worker or helper
+// survives into the next mutant.
+export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
+    runnerPath = BOUNDED_TEST_RUNNER,
+    unitName = `teleport-mutate-wave-${process.pid}-${++testWaveSequence}`) {
+    return {
+        command: 'systemd-run',
+        args: [
+            '--user',
+            '--scope',
+            '--collect',
+            '--quiet',
+            `--unit=${unitName}`,
+            '--property=MemoryAccounting=yes',
+            '--property=MemoryMax=1G',
+            '--property=MemorySwapMax=0',
+            '--property=TasksMax=64',
+            nodePath,
+            runnerPath,
+            String(timeoutMs),
+            nodePath,
+            ...nodeArgs,
+        ],
+        outerTimeoutMs: timeoutMs + 5_000,
+    };
+}
+
+export function runTests(workspace, testFiles, timeoutMs) {
     // `node --test` with no file argument discovers and runs everything it can
     // find, so an empty list would quietly run the whole workspace, including
     // fixtures meant to fail. Every caller has to decide what an empty set
@@ -760,16 +794,18 @@ function runTests(workspace, testFiles, timeoutMs) {
     if (!testFiles.length)
         throw new Error('runTests needs at least one test file');
     const args = testCommandArgs(testFiles);
+    const runner = testRunnerCommand(process.execPath, args, timeoutMs);
     const started = process.hrtime.bigint();
-    const result = spawnSync(process.execPath, args, {
+    const result = spawnSync(runner.command, runner.args, {
         cwd: workspace,
         encoding: 'utf8',
         env: childEnvironment(),
-        timeout: timeoutMs,
+        timeout: runner.outerTimeoutMs,
         maxBuffer: 64 * 1024 * 1024,
     });
     const seconds = Number(process.hrtime.bigint() - started) / 1e9;
-    const timedOut = result.error?.code === 'ETIMEDOUT'
+    const timedOut = result.status === 124
+        || result.error?.code === 'ETIMEDOUT'
         || (result.status === null && result.signal !== null);
     return { passed: !timedOut && result.status === 0, timedOut, seconds,
         output: `${result.stdout ?? ''}${result.stderr ?? ''}` };
