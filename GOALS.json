@@ -25,8 +25,8 @@
         },
         {
           "name": "ordinary-object-pile-count-line",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "8cf03fc11dcb43810468d73666676982740ccd34"
         }
       ],
       "openedAt": "18b809a1a725ade6b83f296d3fa76c775e887fdb",
