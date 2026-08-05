@@ -93,11 +93,11 @@ import {
     HEAVY_IRON_BALL,
     POTION_CLASS,
 } from './objects.js';
-import { pickup } from './pickup.js';
+import { pickup, preflight_random_arrival_pickup } from './pickup.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { cloneCoreContext, createCoreRandom, rn2 } from './rng.js';
-import { check_special_room } from './rooms.js';
+import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
 import { preflight_shop_arrival } from './shk.js';
 import {
@@ -158,6 +158,28 @@ export async function place_random_arrival(
     } = {},
 ) {
     const earthSenseMessages = [];
+    const preflightArrival = (x, y, liveState) => {
+        preflight_shop_arrival(x, y, liveState);
+        const projected = {
+            ...liveState,
+            context: { ...(liveState.context ?? {}) },
+            gp: { ...(liveState.gp ?? {}) },
+            gw: { ...(liveState.gw ?? {}) },
+            iflags: { ...(liveState.iflags ?? {}) },
+            u: { ...liveState.u, ux: x, uy: y },
+        };
+        for (const field of [
+            'urooms',
+            'urooms0',
+            'uentered',
+            'ushops',
+            'ushops0',
+            'ushops_entered',
+            'ushops_left',
+        ]) projected.u[field] = [...(liveState.u[field] ?? [])];
+        move_update(false, projected);
+        preflight_random_arrival_pickup(projected);
+    };
     if (place === u_on_rndspot) {
         const plannedRandom = createCoreRandom(
             cloneCoreContext(state.coreCtx ?? game.coreCtx),
@@ -166,13 +188,13 @@ export async function place_random_arrival(
         place(upflag, state, {
             planPositionOnly: true,
             randomOneBased: plannedRandom.rn1,
-            preflightPosition: preflight_shop_arrival,
+            preflightPosition: preflightArrival,
         });
     }
     place(upflag, state, {
         earthSenseMessage: (line) => earthSenseMessages.push(line),
         deferSwitchTerrain: true,
-        preflightPosition: preflight_shop_arrival,
+        preflightPosition: preflightArrival,
     });
     await finish_random_arrival_effects(earthSenseMessages, state, {
         message,

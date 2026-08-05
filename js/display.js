@@ -2781,7 +2781,7 @@ function _statusLine3VitalsLayout() {
     const hunger = _statusFieldData('hunger').text;
     if (hunger) {
         column = row.write(column, ' ');
-        row.write(column, hunger, _fieldOwner('hunger'));
+        column = row.write(column, hunger, _fieldOwner('hunger'));
     }
     const capacity = _capacityStatus();
     if (capacity) {

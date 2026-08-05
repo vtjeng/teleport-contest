@@ -143,6 +143,7 @@ import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
     cpSync,
     existsSync,
+    linkSync,
     mkdirSync,
     mkdtempSync,
     readFileSync,
@@ -151,6 +152,7 @@ import {
     rmSync,
     statSync,
     symlinkSync,
+    unlinkSync,
     writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -249,6 +251,64 @@ export function mutationOwnerIsAlive(
     return identity.startTime === owner.processStartTime;
 }
 
+function acquireStaleReclaimClaim(lockPath, owner) {
+    const claimPath = `${lockPath}.reclaim`;
+    for (let attempt = 0; attempt < 4; ++attempt) {
+        const pendingPath = `${claimPath}.${owner.sliceName}.${attempt}.tmp`;
+        writeFileSync(pendingPath, `${JSON.stringify(owner)}\n`, { flag: 'wx' });
+        try {
+            // link(2) publishes the already-complete inode only if the claim
+            // name is absent. Unlike opening the final name for writing, no
+            // contender can observe a partial claimant record.
+            linkSync(pendingPath, claimPath);
+            return { claimPath, owner };
+        } catch (error) {
+            if (error.code !== 'EEXIST') throw error;
+        } finally {
+            try {
+                unlinkSync(pendingPath);
+            } catch (error) {
+                if (error.code !== 'ENOENT') throw error;
+            }
+        }
+
+        let claimant = null;
+        try {
+            claimant = JSON.parse(readFileSync(claimPath, 'utf8'));
+        } catch (error) {
+            if (!['ENOENT', 'SyntaxError'].includes(error.code ?? error.name))
+                throw error;
+        }
+        if (claimant && mutationOwnerIsAlive(claimant)) {
+            throw new Error(`another mutation run is reclaiming ${lockPath} `
+                + `(pid ${claimant.pid})`);
+        }
+        try {
+            unlinkSync(claimPath);
+        } catch (error) {
+            if (error.code !== 'ENOENT') throw error;
+        }
+    }
+    throw new Error(`could not claim stale mutation lock ${lockPath}`);
+}
+
+function releaseStaleReclaimClaim(claim) {
+    if (!claim) return;
+    let owner = null;
+    try {
+        owner = JSON.parse(readFileSync(claim.claimPath, 'utf8'));
+    } catch (error) {
+        if (error.code === 'ENOENT') return;
+        throw error;
+    }
+    if (owner.pid !== claim.owner.pid
+        || owner.processStartTime !== claim.owner.processStartTime) {
+        throw new Error(`mutation reclaim ownership changed at ${
+            claim.claimPath}`);
+    }
+    unlinkSync(claim.claimPath);
+}
+
 export function acquireMutationLock(
     lockPath = process.env.TELEPORT_MUTATION_LOCK ?? DEFAULT_MUTATION_LOCK,
     names = mutationRunNames(),
@@ -256,6 +316,8 @@ export function acquireMutationLock(
         now = Date.now,
         afterLockDirectoryCreated = null,
         afterPendingOwnerWritten = null,
+        afterStaleOwnerRead = null,
+        stopStaleSlice = stopMutationSlice,
     } = {},
 ) {
     const ownerPath = join(lockPath, 'owner.json');
@@ -311,17 +373,49 @@ export function acquireMutationLock(
             throw new Error(`another mutation run owns ${lockPath} `
                 + `(pid ${incumbent.pid})`);
         }
-        if (incumbent?.sliceName)
-            stopMutationSlice(incumbent.sliceName);
-
-        const stalePath = `${lockPath}.stale-${process.pid}-${attempt}`;
+        afterStaleOwnerRead?.({ incumbent, lockPath, ownerPath });
+        const claim = acquireStaleReclaimClaim(lockPath, owner);
         try {
-            renameSync(lockPath, stalePath);
-        } catch (error) {
-            if (error.code === 'ENOENT') continue;
-            throw error;
+            // Another reclaimer may have replaced the dead owner before this
+            // process acquired the claim. Re-read only after serialization;
+            // no directory observed before a slow systemctl call authorizes a
+            // later rename or deletion.
+            let current = null;
+            try {
+                current = JSON.parse(readFileSync(ownerPath, 'utf8'));
+            } catch (error) {
+                if (!['ENOENT', 'EISDIR', 'SyntaxError'].includes(
+                    error.code ?? error.name)) throw error;
+            }
+            if (!current) {
+                try {
+                    const ageMs = now() - statSync(lockPath).mtimeMs;
+                    if (ageMs < LOCK_INITIALIZATION_GRACE_MS) {
+                        throw new Error(`another mutation run is initializing ${
+                            lockPath}`);
+                    }
+                } catch (error) {
+                    if (error.code === 'ENOENT') continue;
+                    throw error;
+                }
+            }
+            if (mutationOwnerIsAlive(current)) {
+                throw new Error(`another mutation run owns ${lockPath} `
+                    + `(pid ${current.pid})`);
+            }
+            if (current?.sliceName) stopStaleSlice(current.sliceName);
+
+            const stalePath = `${lockPath}.stale-${process.pid}-${attempt}`;
+            try {
+                renameSync(lockPath, stalePath);
+            } catch (error) {
+                if (error.code === 'ENOENT') continue;
+                throw error;
+            }
+            rmSync(stalePath, { recursive: true, force: true });
+        } finally {
+            releaseStaleReclaimClaim(claim);
         }
-        rmSync(stalePath, { recursive: true, force: true });
     }
     throw new Error(`could not acquire mutation lock ${lockPath}`);
 }
@@ -394,10 +488,11 @@ export async function runInMutationCgroup(
         spawnChild = spawn,
         signalTarget = process,
         reraise = (signal) => process.kill(process.pid, signal),
+        settleSignals = () => new Promise((resolve) => setImmediate(resolve)),
     } = {},
 ) {
     let lock = null;
-    let sliceStarted = false;
+    let sliceNeedsCleanup = false;
     let child = null;
     let interrupt = null;
     let resolveInterrupt;
@@ -420,8 +515,12 @@ export async function runInMutationCgroup(
     try {
         lock = acquireLock(undefined, names);
         if (!interrupt) {
+            // startSlice can create the unit and then fail while setting its
+            // limits or reverting it. Mark potential ownership first so the
+            // outer cleanup still retries and retains the owner record if it
+            // cannot prove the aggregate unit clean.
+            sliceNeedsCleanup = true;
             startSlice(names.sliceName);
-            sliceStarted = true;
         }
         if (!interrupt) {
             child = spawnChild('systemd-run',
@@ -442,7 +541,7 @@ export async function runInMutationCgroup(
             const outcome = await Promise.race([exited, interrupted]);
             if (outcome.type === 'interrupt') {
                 stopSlice(names.sliceName);
-                sliceStarted = false;
+                sliceNeedsCleanup = false;
                 child.kill(outcome.signal);
                 await exited;
             } else if (outcome.type === 'error') {
@@ -457,15 +556,24 @@ export async function runInMutationCgroup(
     } finally {
         let cleanupError = null;
         try {
-            if (sliceStarted) stopSlice(names.sliceName);
+            if (sliceNeedsCleanup) {
+                stopSlice(names.sliceName);
+                sliceNeedsCleanup = false;
+            }
         } catch (error) {
             cleanupError = error;
         }
-        try {
-            releaseLock(lock);
-        } catch (error) {
-            cleanupError ??= error;
+        if (!sliceNeedsCleanup) {
+            try {
+                releaseLock(lock);
+            } catch (error) {
+                cleanupError ??= error;
+            }
         }
+        // spawnSync-based teardown blocks JavaScript signal callbacks. Give
+        // libuv one turn to deliver an OS signal received during that window
+        // before removing the handlers and deciding whether to re-raise it.
+        await settleSignals();
         for (const [signal, handler] of signalHandlers)
             signalTarget.removeListener(signal, handler);
         if (cleanupError) throw cleanupError;

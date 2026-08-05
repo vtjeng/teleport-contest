@@ -50,9 +50,10 @@ import {
     place_lregion,
 } from '../js/mkmaze.js';
 import { PM_DWARF, monst_globals_init } from '../js/monsters.js';
+import { m_at } from '../js/monst.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { APPLE, ELVEN_DAGGER } from '../js/objects.js';
+import { APPLE, CORPSE, ELVEN_DAGGER, TIN } from '../js/objects.js';
 import { pickup } from '../js/pickup.js';
 import { com_pager } from '../js/questpgr.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -465,6 +466,30 @@ test('random-arrival planning never applies live placement effects',
         assert.deepEqual(events, ['switch']);
     });
 
+test('random arrival refuses a helpless hero before RNG or placement',
+    async () => {
+        const state = placementState();
+        initRng(9450610);
+        enableRngLog();
+        state.multi = -1;
+        state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
+        state.level.at(10, 8).typ = ROOM;
+        const before = {
+            position: [state.u.ux, state.u.uy],
+            rng: structuredClone(game.coreCtx),
+            log: [...getRngLog()],
+        };
+
+        await assert.rejects(
+            () => place_random_arrival(0, state),
+            /pickup\(\) while helpless/u,
+        );
+
+        assert.deepEqual([state.u.ux, state.u.uy], before.position);
+        assert.deepEqual(game.coreCtx, before.rng);
+        assert.deepEqual(getRngLog(), before.log);
+    });
+
 test('random shop-boundary arrival refuses before relocating the hero',
     async () => {
         const state = placementState();
@@ -536,6 +561,225 @@ test('multi-square shop arrival refuses without committing planned RNG',
         assert.deepEqual(game.coreCtx, before.rng);
         assert.deepEqual(getRngLog(), before.log);
     });
+
+test('random arrival preflights the complete ordinary pickup transaction',
+    async () => {
+        await runSegment({
+            seed: 7632401,
+            datetime: '20310417113000',
+            nethackrc: [
+                'OPTIONS=name:ArrivalPickup,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,autopickup,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: '',
+        });
+        let destination = null;
+        for (let x = 1; x < 80 && !destination; ++x) {
+            for (let y = 0; y < 21; ++y) {
+                if (game.level.at(x, y)?.typ === ROOM
+                    && !game.level.objects[x]?.[y]
+                    && !m_at(x, y, game)) {
+                    destination = { x, y };
+                    break;
+                }
+            }
+        }
+        assert.ok(destination);
+        const corpse = mksobj_at(
+            CORPSE,
+            destination.x,
+            destination.y,
+            false,
+            false,
+            objectGenerationEnv({ state: game }),
+        );
+        game.dndest = {
+            lx: destination.x,
+            ly: destination.y,
+            hx: destination.x,
+            hy: destination.y,
+        };
+        enableRngLog();
+        const before = {
+            hero: structuredClone(game.u),
+            rng: structuredClone(game.coreCtx),
+            log: [...getRngLog()],
+            object: {
+                where: corpse.where,
+                nobj: corpse.nobj,
+                nexthere: corpse.nexthere,
+                dknown: corpse.dknown,
+            },
+            floor: game.level.objects[destination.x][destination.y],
+            list: game.level.objlist,
+            toplines: game._ttyToplines,
+            grid: structuredClone(game.nhDisplay.grid),
+            cursor: [
+                game.nhDisplay.cursorCol,
+                game.nhDisplay.cursorRow,
+                game.nhDisplay.cursorVisible,
+            ],
+        };
+
+        await assert.rejects(
+            () => place_random_arrival(0, game),
+            /special artifact, corpse, or scare scroll/u,
+        );
+
+        assert.deepEqual(game.u, before.hero);
+        assert.deepEqual(game.coreCtx, before.rng);
+        assert.deepEqual(getRngLog(), before.log);
+        assert.deepEqual({
+            where: corpse.where,
+            nobj: corpse.nobj,
+            nexthere: corpse.nexthere,
+            dknown: corpse.dknown,
+        }, before.object);
+        assert.equal(game.level.objects[destination.x][destination.y],
+            before.floor);
+        assert.equal(game.level.objlist, before.list);
+        assert.equal(game._ttyToplines, before.toplines);
+        assert.deepEqual(game.nhDisplay.grid, before.grid);
+        assert.deepEqual([
+            game.nhDisplay.cursorCol,
+            game.nhDisplay.cursorRow,
+            game.nhDisplay.cursorVisible,
+        ], before.cursor);
+
+        // With autopickup disabled, the same corpse belongs to look_here()
+        // rather than pickup_object(). Both source terms independently select
+        // that description-only arm.
+        game.flags.pickup = false;
+        await place_random_arrival(0, game);
+        assert.deepEqual([game.u.ux, game.u.uy], [
+            destination.x,
+            destination.y,
+        ]);
+    });
+
+test('random shop arrival preflights owned stock pricing', async () => {
+    await runSegment({
+        seed: 7621001,
+        datetime: '20310417113000',
+        nethackrc: [
+            'OPTIONS=name:ArrivalShop,role:Wizard,race:human,gender:male,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            'OPTIONS=pettype:none,!acoustics,autopickup,playmode:debug',
+            '',
+        ].join('\n'),
+        moves: '.\x165\n.',
+    });
+    const room = game.level.rooms.find(
+        (candidate) => candidate?.rtype >= SHOPBASE,
+    );
+    assert.ok(room?.resident);
+    let destination = null;
+    for (let x = room.lx; x <= room.hx && !destination; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y) {
+            if (!game.level.at(x, y).edge
+                && !game.level.objects[x]?.[y]
+                && !m_at(x, y, game)) {
+                destination = { x, y };
+                break;
+            }
+        }
+    }
+    assert.ok(destination);
+    const tin = mksobj_at(
+        TIN,
+        destination.x,
+        destination.y,
+        false,
+        false,
+        objectGenerationEnv({ state: game }),
+    );
+    game.dndest = {
+        lx: destination.x,
+        ly: destination.y,
+        hx: destination.x,
+        hy: destination.y,
+    };
+    const extension = room.resident.mextra.eshk;
+    enableRngLog();
+    const before = {
+        hero: structuredClone(game.u),
+        rng: structuredClone(game.coreCtx),
+        log: [...getRngLog()],
+        achievement: [...game.u.uachieved],
+        shop: structuredClone({
+            visitct: extension.visitct,
+            customer: extension.customer,
+            bill_p: extension.bill_p,
+            following: extension.following,
+        }),
+        object: { dknown: tin.dknown, where: tin.where },
+        toplines: game._ttyToplines,
+        grid: structuredClone(game.nhDisplay.grid),
+        cursor: [
+            game.nhDisplay.cursorCol,
+            game.nhDisplay.cursorRow,
+            game.nhDisplay.cursorVisible,
+        ],
+    };
+
+    await assert.rejects(
+        () => place_random_arrival(0, game),
+        /corpse, tin, or egg pricing adjustment/u,
+    );
+
+    assert.deepEqual(game.u, before.hero);
+    assert.deepEqual(game.coreCtx, before.rng);
+    assert.deepEqual(getRngLog(), before.log);
+    assert.deepEqual(game.u.uachieved, before.achievement);
+    assert.deepEqual({
+        visitct: extension.visitct,
+        customer: extension.customer,
+        bill_p: extension.bill_p,
+        following: extension.following,
+    }, before.shop);
+    assert.deepEqual({ dknown: tin.dknown, where: tin.where }, before.object);
+    assert.equal(game._ttyToplines, before.toplines);
+    assert.deepEqual(game.nhDisplay.grid, before.grid);
+    assert.deepEqual([
+        game.nhDisplay.cursorCol,
+        game.nhDisplay.cursorRow,
+        game.nhDisplay.cursorVisible,
+    ], before.cursor);
+
+    // A supported owned object must pass with the destination shop projected
+    // as current. Treating this as new-level room clearing loses u.ushops and
+    // turns valid pricing into an ownership refusal.
+    let admitted = null;
+    for (let x = room.lx; x <= room.hx && !admitted; ++x) {
+        for (let y = room.ly; y <= room.hy; ++y) {
+            if (!game.level.at(x, y).edge
+                && !game.level.objects[x]?.[y]
+                && !m_at(x, y, game)) {
+                admitted = { x, y };
+                break;
+            }
+        }
+    }
+    assert.ok(admitted);
+    mksobj_at(
+        APPLE,
+        admitted.x,
+        admitted.y,
+        false,
+        false,
+        objectGenerationEnv({ state: game }),
+    );
+    game.dndest = {
+        lx: admitted.x,
+        ly: admitted.y,
+        hx: admitted.x,
+        hy: admitted.y,
+    };
+    await place_random_arrival(0, game);
+    assert.deepEqual([game.u.ux, game.u.uy], [admitted.x, admitted.y]);
+});
 
 test('the Quest portal pager spends its private shuffle before exact lines',
     async () => {

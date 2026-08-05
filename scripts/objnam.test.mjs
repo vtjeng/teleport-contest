@@ -349,8 +349,26 @@ test('single-object look_here reports the item and records its message kind',
             ['engraving'],
             ['message', 'You see here a dart.', state],
         ]);
-        assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
+    assert.equal(state.iflags.last_msg, PLNMSG_ONE_ITEM_HERE);
+});
+
+test('a sighted hero does not force-touch a petrifying corpse', async () => {
+    const corpse = objectOf(namingState(), CORPSE, {
+        corpsenm: PM_COCKATRICE,
     });
+    const state = lookState(ROOM, corpse);
+    const events = [];
+
+    await look_here(0, LOOKHERE_NOFLAGS, state, {
+        message: async (text) => events.push(text),
+        readEngraving: async () => events.push('engraving'),
+    });
+
+    assert.deepEqual(events, [
+        'engraving',
+        'You see here a cockatrice corpse.',
+    ]);
+});
 
 test('blind single-object look_here uses the source surface and output order',
     async () => {

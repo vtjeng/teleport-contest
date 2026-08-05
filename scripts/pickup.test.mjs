@@ -50,6 +50,30 @@ import {
     TOOL_CLASS,
 } from '../js/objects.js';
 
+function inventoryOfSize(state, count, { withCoins = false } = {}) {
+    const template = state.invent;
+    let head = withCoins ? {
+        ...template,
+        oclass: COIN_CLASS,
+        invlet: '$',
+        o_id: 90_000,
+        nobj: null,
+        owt: 0,
+        quan: 100,
+    } : null;
+    for (let index = 0; index < count; ++index) {
+        head = {
+            ...template,
+            o_id: 91_000 + index,
+            spe: index,
+            nobj: head,
+            quan: 1,
+            where: OBJ_INVENT,
+        };
+    }
+    state.invent = head;
+}
+
 function burdenState() {
     return {
         disp: {},
@@ -604,6 +628,52 @@ test('pickup preflights the whole pile before any state or floor mutation',
         assert.equal(state._ttyToplines, beforeToplines);
     });
 
+test('pickup validates each independent floor-object shape term', async () => {
+    const cases = [
+        ['floor ownership', (object) => { object.where = OBJ_FREE; }],
+        ['integer quantity', (object) => { object.quan = 1.5; }],
+        ['positive quantity', (object) => { object.quan = 0; }],
+    ];
+    for (const [name, prepare] of cases) {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        const object = objectUnderHero(state);
+        prepare(object);
+        await assert.rejects(
+            () => pickup(1, state),
+            (error) => error instanceof UnsupportedPickupError
+                && /malformed floor object/u.test(error.message),
+            name,
+        );
+    }
+});
+
+test('pickup full-pack counting excludes coins and preserves exact 52 slots',
+    async () => {
+        for (const specimen of [
+            { count: 51, withCoins: false, accepted: true },
+            { count: 51, withCoins: true, accepted: true },
+            { count: 52, withCoins: false, accepted: false },
+        ]) {
+            const state = await heroOnAnEmptySquare();
+            state.flags.pickup = true;
+            inventoryOfSize(state, specimen.count, specimen);
+            const object = objectUnderHero(state);
+            quiet(state);
+            if (specimen.accepted) {
+                assert.equal(await pickup(1, state), 1);
+                assert.equal(object.where, OBJ_INVENT);
+            } else {
+                await assert.rejects(
+                    () => pickup(1, state),
+                    (error) => error instanceof UnsupportedPickupError
+                        && /full pack/u.test(error.message),
+                );
+                assert.equal(object.where, OBJ_FLOOR);
+            }
+        }
+    });
+
 test('pickup projects sight-created merge dependencies before observation',
     async () => {
         const state = await heroOnAnEmptySquare();
@@ -834,6 +904,19 @@ test('pickup refuses exact maximum-capacity equality before floor mutation',
         assertStillOnBothFloorChains(state, object, links);
         assert.equal(object.dknown, false);
         assert.equal(state.loot_reset_justpicked, beforeLootReset);
+    });
+
+test('pickup admits one weight unit below the maximum-capacity refusal',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        state.flags.pickup_burden = EXT_ENCUMBER;
+        const object = objectUnderHero(state);
+        object.owt = 2 * weight_cap(state) - inv_weight(state) - 1;
+        quiet(state);
+
+        assert.equal(await pickup(1, state), 1);
+        assert.equal(object.where, OBJ_INVENT);
     });
 
 test('pickup takes the early return for each thing that hides the square',

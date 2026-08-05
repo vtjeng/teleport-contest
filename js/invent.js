@@ -686,6 +686,147 @@ function activeStoneResistance(state) {
     );
 }
 
+// Mutation-free admission for look_here() through its first complete result.
+// `objects` projects the floor chain after an automatic pickup without
+// relinking the live objects. `decorTerrain` projects describe_decor()'s
+// preceding prev_decor write when check_here() has already admitted it.
+export function preflight_look_here(
+    checkedObjectCount,
+    lookhere_flags,
+    state = game,
+    { objects = null, decorTerrain = null } = {},
+) {
+    if (state.u.uswallow)
+        throw new UnsupportedFeatureDescriptionError('an engulfer\'s inventory');
+
+    const blind = heroIsBlind(state);
+    const { ux, uy } = state.u;
+    const skip_dfeature = (lookhere_flags & LOOKHERE_SKIP_DFEATURE) !== 0;
+    const skip_objects = state.flags.pile_limit > 0
+        && checkedObjectCount >= state.flags.pile_limit;
+    const objectList = objects ?? (() => {
+        const result = [];
+        for (let object = state.level.objects[ux]?.[uy] ?? null;
+            object;
+            object = object.nexthere) result.push(object);
+        return result;
+    })();
+    const otmp = objectList[0] ?? null;
+    const hasPile = objectList.length > 1;
+    const withShopPrice = Boolean(otmp) && costly_spot(ux, uy, state);
+    const pickedSome = (lookhere_flags & LOOKHERE_PICKED_SOME) !== 0;
+
+    if (hasPile) {
+        if (!skip_objects && objectList.length > 4) {
+            throw new UnsupportedFeatureDescriptionError(
+                'an object pile outside the two-to-four-item window',
+            );
+        }
+        if (skip_objects && pickedSome) {
+            throw new UnsupportedFeatureDescriptionError(
+                'the picked-some skipped-pile count',
+            );
+        }
+        if (blind) {
+            throw new UnsupportedFeatureDescriptionError(
+                'a blind object-pile menu',
+            );
+        }
+        if (state.flags.mention_decor) {
+            const terrain = state.level.at(ux, uy)?.typ;
+            if (skip_objects) {
+                throw new UnsupportedFeatureDescriptionError(
+                    'mention-decor pile-limit count',
+                );
+            }
+            if ((terrain !== ROOM && terrain !== CORR)
+                || (decorTerrain ?? state.iflags.prev_decor) !== terrain) {
+                throw new UnsupportedFeatureDescriptionError(
+                    'describe_decor() before an object-pile menu',
+                );
+            }
+        }
+        if (t_at(ux, uy, state)) {
+            throw new UnsupportedFeatureDescriptionError(
+                'a trap under an object-pile menu',
+            );
+        }
+        if (engr_at(ux, uy, state)) {
+            throw new UnsupportedFeatureDescriptionError(
+                'an engraving after an object-pile menu',
+            );
+        }
+        if (is_lava(ux, uy, state)
+            || (is_pool(ux, uy, state) && !state.u.uinwater)) {
+            throw new UnsupportedFeatureDescriptionError(
+                'objects on an inaccessible liquid square',
+            );
+        }
+        if (!skip_objects) {
+            for (const object of objectList) {
+                if (withShopPrice)
+                    assertPricedObjectNameable(object, state);
+                else
+                    assertObjectNameable(object, state);
+            }
+        }
+    }
+
+    const trap = t_at(ux, uy, state);
+    if (!skip_objects) {
+        const reg = visible_region_at(ux, uy, state);
+        if (reg || (trap && trap.tseen)) {
+            throw new UnsupportedFeatureDescriptionError(
+                reg ? 'a visible region description' : 'trapname()',
+            );
+        }
+    }
+
+    let dfeature = dfeature_at(ux, uy, state);
+    if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
+    let surf = null;
+    let cant_reach;
+    let cannotReachObjects;
+    if (blind) {
+        if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz))
+            throw new UnsupportedFeatureDescriptionError('a drifting level');
+        cant_reach = !can_reach_floor(undefined, state);
+        surf = surface(ux, uy, state);
+        cannotReachObjects = !can_reach_floor(
+            Boolean(trap && is_pit(trap.ttyp)),
+            state,
+        );
+    }
+
+    if (skip_objects && !hasPile) {
+        throw new UnsupportedFeatureDescriptionError(
+            'the single-object skipped-pile count',
+        );
+    }
+    if (otmp && !hasPile && !skip_objects) {
+        if (will_feel_cockatrice(otmp, false, state))
+            throw new UnsupportedFeatureDescriptionError('feel_cockatrice()');
+        if (withShopPrice)
+            assertPricedObjectNameable(otmp, state);
+        else
+            assertObjectNameable(otmp, state);
+    }
+    return {
+        blind,
+        cant_reach,
+        cannotReachObjects,
+        dfeature,
+        hasPile,
+        objectList,
+        otmp,
+        pickedSome,
+        skip_dfeature,
+        skip_objects,
+        surf,
+        withShopPrice,
+    };
+}
+
 // C ref: invent.c look_here(). Covers a hero standing on an admitted square,
 // sighted or blind: the terrain feature line, the engraving read, and the
 // no-object, single-object, ordinary two-to-four-object menu, or sighted
@@ -711,104 +852,27 @@ export async function look_here(
 ) {
     if (typeof message !== 'function' || typeof readEngraving !== 'function')
         throw new TypeError('look_here needs message and engraving owners');
-    if (state.u.uswallow)
-        throw new UnsupportedFeatureDescriptionError('an engulfer\'s inventory');
-
-    const blind = heroIsBlind(state);
+    const plan = preflight_look_here(
+        checkedObjectCount,
+        lookhere_flags,
+        state,
+    );
+    const {
+        blind,
+        cant_reach,
+        cannotReachObjects,
+        dfeature,
+        hasPile,
+        otmp,
+        pickedSome,
+        skip_objects,
+        surf,
+        withShopPrice,
+    } = plan;
     const verb = blind ? 'feel' : 'see';
     const { ux, uy } = state.u;
-    let skip_dfeature = (lookhere_flags & LOOKHERE_SKIP_DFEATURE) !== 0;
-    // pickup.c check_here() supplies this count after excluding uchain. It
-    // selects pile_limit and its message wording independently of the local
-    // chain traversal below.
-    // A pile_limit of 0 means "never skip"; the default is 5.
-    const skip_objects = state.flags.pile_limit > 0
-        && checkedObjectCount >= state.flags.pile_limit;
-
-    const otmp = state.level.objects[ux]?.[uy] ?? null;
-    const hasPile = Boolean(otmp?.nexthere);
-    const withShopPrice = Boolean(otmp) && costly_spot(ux, uy, state);
-    const pickedSome = (lookhere_flags & LOOKHERE_PICKED_SOME) !== 0;
-    let supportedPileCount = 0;
-    if (hasPile) {
-        for (let object = otmp; object; object = object.nexthere)
-            ++supportedPileCount;
-        // hasPile proves that this count is at least two. The remaining guard
-        // refuses only menu paths above the implemented four-object window.
-        if (!skip_objects && supportedPileCount > 4) {
-            throw new UnsupportedFeatureDescriptionError(
-                'an object pile outside the two-to-four-item window',
-            );
-        }
-        if (skip_objects && pickedSome) {
-            throw new UnsupportedFeatureDescriptionError(
-                'the picked-some skipped-pile count',
-            );
-        }
-        if (blind) {
-            throw new UnsupportedFeatureDescriptionError(
-                'a blind object-pile menu',
-            );
-        }
-        if (state.flags.mention_decor) {
-            const terrain = state.level.at(ux, uy)?.typ;
-            if (skip_objects) {
-                throw new UnsupportedFeatureDescriptionError(
-                    'mention-decor pile-limit count',
-                );
-            }
-            if ((terrain !== ROOM && terrain !== CORR)
-                || state.iflags.prev_decor !== terrain) {
-                throw new UnsupportedFeatureDescriptionError(
-                    'describe_decor() before an object-pile menu',
-                );
-            }
-        }
-        if (t_at(ux, uy, state)) {
-            throw new UnsupportedFeatureDescriptionError(
-                'a trap under an object-pile menu',
-            );
-        }
-        if (engr_at(ux, uy, state)) {
-            throw new UnsupportedFeatureDescriptionError(
-                'an engraving after an object-pile menu',
-            );
-        }
-        if (is_lava(ux, uy, state)
-            || (is_pool(ux, uy, state) && !state.u.uinwater)) {
-            throw new UnsupportedFeatureDescriptionError(
-                'objects on an inaccessible liquid square',
-            );
-        }
-        if (!skip_objects) {
-            for (let object = otmp; object; object = object.nexthere) {
-                if (withShopPrice)
-                    assertPricedObjectNameable(object, state);
-                else
-                    assertObjectNameable(object, state);
-            }
-        }
-    }
-
-    if (!skip_objects) {
-        const reg = visible_region_at(ux, uy, state);
-        const trap = t_at(ux, uy, state);
-        if (reg || (trap && trap.tseen)) {
-            throw new UnsupportedFeatureDescriptionError(
-                reg ? 'a visible region description' : 'trapname()',
-            );
-        }
-    }
-
-    let dfeature = dfeature_at(ux, uy, state);
-    if (dfeature === 'pool of water' && state.u.uinwater) dfeature = null;
+    let skip_dfeature = plan.skip_dfeature;
     if (blind) {
-        // C's drift case belongs to the Air and Water levels, and its ice
-        // case to a square dfeature_at() already stops on.
-        if (Is_airlevel(state.u.uz) || Is_waterlevel(state.u.uz))
-            throw new UnsupportedFeatureDescriptionError('a drifting level');
-        const cant_reach = !can_reach_floor(true, state);
-        const surf = surface(ux, uy, state);
         await message(
             `You try to feel what is ${
                 cant_reach ? 'lying beneath you' : `lying here on the ${surf}`
@@ -816,8 +880,7 @@ export async function look_here(
             state,
         );
         if (dfeature === surf) skip_dfeature = true;
-        const trap = t_at(ux, uy, state);
-        if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
+        if (cannotReachObjects) {
             await message("But you can't reach it!", state);
             return false;
         }
@@ -845,13 +908,6 @@ export async function look_here(
         return blind;
     }
     if (skip_objects) {
-        // A threshold of one also selects this arm for one object, but that
-        // single-object wording is outside this slice's pile transaction.
-        if (!hasPile) {
-            throw new UnsupportedFeatureDescriptionError(
-                'the single-object skipped-pile count',
-            );
-        }
         if (dfeature && !skip_dfeature) await message(fbuf, state);
         await readEngraving(state);
         const countName = checkedObjectCount === 2 ? 'two'
@@ -865,7 +921,7 @@ export async function look_here(
             throw new TypeError('look_here needs an object-pile display owner');
         const lines = [];
         if (dfeature && !skip_dfeature) lines.push(fbuf, '');
-        lines.push(`${(lookhere_flags & LOOKHERE_PICKED_SOME) !== 0
+        lines.push(`${pickedSome
             ? 'Other things' : 'Things'} that are here:`);
         for (let object = otmp; object; object = object.nexthere) {
             lines.push(withShopPrice
@@ -876,12 +932,6 @@ export async function look_here(
         await readEngraving(state);
         return blind;
     }
-    // Only one object. C ends this branch with feel_cockatrice(otmp, FALSE),
-    // which does nothing unless will_feel_cockatrice() holds; that case is
-    // unported, so it stops here, before any of the branch's output.
-    if (will_feel_cockatrice(otmp, false, state))
-        throw new UnsupportedFeatureDescriptionError('feel_cockatrice()');
-    if (withShopPrice) assertPricedObjectNameable(otmp, state);
     if (dfeature && !skip_dfeature) await message(fbuf, state);
     await readEngraving(state);
     const namedObject = withShopPrice

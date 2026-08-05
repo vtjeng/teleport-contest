@@ -302,6 +302,47 @@ test('a reused live PID does not preserve a stale lock', () => {
     }
 });
 
+test('serialized stale reclaim cannot delete a replacement owner', () => {
+    const root = mkdtempSync(join(tmpdir(), 'mutate-lock-reclaim-race-'));
+    const lockPath = join(root, 'owner.lock');
+    const deadPid = spawnSync(process.execPath, ['-e', '']).pid;
+    const stale = mutationRunNames(deadPid, 'stale_race');
+    let replacement = null;
+    mkdirSync(lockPath);
+    writeFileSync(join(lockPath, 'owner.json'), `${JSON.stringify({
+        pid: deadPid,
+        ...stale,
+    })}\n`);
+    try {
+        assert.throws(
+            () => acquireMutationLock(
+                lockPath,
+                mutationRunNames(process.pid, 'paused_reclaimer'),
+                {
+                    stopStaleSlice: () => {},
+                    afterStaleOwnerRead: () => {
+                        replacement = acquireMutationLock(
+                            lockPath,
+                            mutationRunNames(process.pid, 'replacement'),
+                            { stopStaleSlice: () => {} },
+                        );
+                    },
+                },
+            ),
+            /another mutation run owns/u,
+        );
+        assert.ok(replacement);
+        assert.equal(existsSync(replacement.ownerPath), true);
+        assert.equal(
+            JSON.parse(readFileSync(replacement.ownerPath, 'utf8')).sliceName,
+            replacement.owner.sliceName,
+        );
+    } finally {
+        if (replacement) releaseMutationLock(replacement);
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
 test('worker mode requires both the named slice and run scope', () => {
     const environment = {
         TELEPORT_MUTATION_CGROUP: '1',
@@ -364,6 +405,123 @@ test('outer signal ownership spans acquisition through cleanup', async () => {
         'acquire', 'start', 'stop', 'release', 'signal:SIGTERM',
     ]);
 });
+
+test('aggregate cleanup failure retains its recovery owner', async () => {
+    for (const startFailure of [false, true]) {
+        const root = mkdtempSync(join(tmpdir(), 'mutate-cleanup-owner-'));
+        const lockPath = join(root, 'owner.lock');
+        let owner = null;
+        try {
+            await assert.rejects(
+                () => runInMutationCgroup('/repo/mutate-sites.mjs', [], {
+                    names: mutationRunNames(
+                        process.pid,
+                        startFailure ? 'partial_start' : 'cleanup_failure',
+                    ),
+                    acquireLock: (_unused, names) => {
+                        owner = acquireMutationLock(lockPath, names);
+                        return owner;
+                    },
+                    startSlice: () => {
+                        if (startFailure) throw new Error('partial start');
+                    },
+                    spawnChild: () => {
+                        const child = new EventEmitter();
+                        child.kill = () => {};
+                        queueMicrotask(() => child.emit('exit', 0, null));
+                        return child;
+                    },
+                    stopSlice: () => { throw new Error('stop failed'); },
+                }),
+                /stop failed/u,
+            );
+            assert.ok(owner);
+            assert.equal(existsSync(owner.ownerPath), true);
+            const retained = JSON.parse(
+                readFileSync(owner.ownerPath, 'utf8'),
+            );
+            // Model the failed outer process exiting. The next invocation
+            // must use the retained unit name before publishing replacement
+            // ownership.
+            retained.processStartTime = 'exited-owner';
+            writeFileSync(owner.ownerPath, `${JSON.stringify(retained)}\n`);
+            const recovered = [];
+            const replacement = acquireMutationLock(
+                lockPath,
+                mutationRunNames(process.pid, `recovered_${startFailure}`),
+                {
+                    stopStaleSlice: (sliceName) =>
+                        recovered.push(`stop:${sliceName}`),
+                },
+            );
+            assert.deepEqual(recovered, [`stop:${owner.owner.sliceName}`]);
+            releaseMutationLock(replacement);
+            owner = null;
+        } finally {
+            if (owner && existsSync(owner.ownerPath))
+                releaseMutationLock(owner);
+            rmSync(root, { recursive: true, force: true });
+        }
+    }
+});
+
+test('OS signals received during synchronous teardown are re-raised',
+    async () => {
+        for (const signal of ['SIGINT', 'SIGTERM']) {
+            const source = [
+                `import { spawnSync } from 'node:child_process';`,
+                `import { EventEmitter } from 'node:events';`,
+                `import { writeFileSync } from 'node:fs';`,
+                `const { runInMutationCgroup } = await import(${JSON.stringify(
+                    SCRIPT_PATH)});`,
+                `const child = new EventEmitter();`,
+                `child.kill = () => {};`,
+                `queueMicrotask(() => child.emit('exit', 0, null));`,
+                `await runInMutationCgroup('/repo/mutate-sites.mjs', [], {`,
+                `  acquireLock: () => ({ name: 'lock' }),`,
+                `  startSlice: () => {},`,
+                `  spawnChild: () => child,`,
+                `  stopSlice: () => {`,
+                `    writeFileSync(1, 'TEARDOWN\\n');`,
+                `    spawnSync(process.execPath, ['-e',`,
+                `      'setTimeout(() => {}, 750)']);`,
+                `  },`,
+                `  releaseLock: () => writeFileSync(1, 'RELEASE\\n'),`,
+                `});`,
+            ].join('\n');
+            const subprocess = spawn(process.execPath, [
+                '--input-type=module', '-e', source,
+            ], { stdio: ['ignore', 'pipe', 'pipe'] });
+            let output = '';
+            await new Promise((resolve, reject) => {
+                const timer = setTimeout(
+                    () => reject(new Error(`teardown did not start: ${output}`)),
+                    5_000,
+                );
+                const accept = (chunk) => {
+                    output += chunk;
+                    if (!output.includes('TEARDOWN')) return;
+                    clearTimeout(timer);
+                    resolve();
+                };
+                subprocess.stdout.on('data', accept);
+                subprocess.stderr.on('data', accept);
+                subprocess.once('error', reject);
+                subprocess.once('exit', (code, exitSignal) => reject(new Error(
+                    `subprocess exited before teardown: ${code}/${exitSignal}`
+                    + `\n${output}`,
+                )));
+            });
+            const exit = new Promise((resolve, reject) => {
+                subprocess.once('error', reject);
+                subprocess.once('exit', (code, exitSignal) =>
+                    resolve({ code, signal: exitSignal }));
+            });
+            subprocess.kill(signal);
+            assert.deepEqual(await exit, { code: null, signal });
+            assert.match(output, /RELEASE/u);
+        }
+    });
 
 test('a stale lock stops its recorded aggregate slice before replacement',
     () => {

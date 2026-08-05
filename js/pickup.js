@@ -36,6 +36,7 @@ import {
     look_here,
     obj_extract_self,
     preflight_addinv_sequence,
+    preflight_look_here,
     prinv,
 } from './invent.js';
 import { notake } from './mondata.js';
@@ -241,6 +242,142 @@ export async function describe_decor(state) {
     return true;
 }
 
+function planAutomaticFloorPickup(state) {
+    const { u } = state;
+    const costly = costly_spot(u.ux, u.uy, state);
+    const selected = [];
+    const remaining = [];
+    for (let obj = state.level.objects[u.ux][u.uy];
+        obj;
+        obj = obj.nexthere) {
+        if (costly && !obj.no_charge) {
+            remaining.push(obj);
+            continue;
+        }
+        if ((obj.how_lost ?? LOST_NONE) !== LOST_NONE) {
+            throw new UnsupportedPickupError(
+                'pickup() with a lost-object option override',
+            );
+        }
+        selected.push({ obj, count: obj.quan });
+    }
+
+    // Preflight every selected item before observe_object() or unlinking the
+    // first. This is the narrow fail-closed boundary for special pickup
+    // behavior and keeps both floor indexes and discovery state atomic.
+    let addedWeight = 0;
+    for (const { obj, count } of selected) {
+        if (obj.where !== OBJ_FLOOR || !Number.isInteger(count) || count < 1)
+            throw new UnsupportedPickupError('pickup() malformed floor object');
+        if (obj.oartifact || obj.otyp === CORPSE
+            || obj.otyp === SCR_SCARE_MONSTER) {
+            throw new UnsupportedPickupError(
+                'pickup() special artifact, corpse, or scare scroll',
+            );
+        }
+        assertObjectNameable(obj, state);
+        addedWeight += Math.trunc(obj.owt);
+    }
+    if (inv_cnt(false, state) + selected.length > 52) {
+        throw new UnsupportedPickupError('pickup() with a full pack');
+    }
+    if (inv_weight(state) + addedWeight >= 2 * weight_cap(state)) {
+        throw new UnsupportedPickupError(
+            'pickup() requiring a partial or failed lift',
+        );
+    }
+    const promptLimit = Math.max(
+        near_capacity(state),
+        state.flags?.pickup_burden ?? MOD_ENCUMBER,
+    );
+    if (calc_capacity(addedWeight, state) > promptLimit) {
+        throw new UnsupportedPickupError('pickup() requiring a burden prompt');
+    }
+
+    const env = objectGenerationEnv({
+        state,
+        hooks: {
+            message: ttyPline,
+            inventoryComparisonDiscovered: () => ttyPline(
+                'You learn more about your items by comparing them.',
+                state,
+            ),
+        },
+    });
+    const addPlans = preflight_addinv_sequence(
+        selected.map(({ obj }) => obj),
+        env,
+        { observeObjects: !heroIsBlind(state) },
+    );
+    for (const plan of addPlans)
+        assertObjectNameable(plan.projectedResult, state);
+    return { addPlans, env, remaining, selected };
+}
+
+// Random arrival commits placement, room entry and its display before
+// goto_level() reaches pickup(1). Validate the complete supported floor
+// transaction against the projected destination first, so a later naming or
+// pricing refusal cannot leave those earlier writes behind.
+export function preflight_random_arrival_pickup(state = game) {
+    const { u } = state;
+    if (u.uswallow)
+        throw new UnsupportedPickupError('pickup() inside a monster');
+    if (Math.trunc(state.multi) < 0)
+        throw new UnsupportedPickupError('pickup() while helpless');
+
+    const head = state.level?.objects?.[u.ux]?.[u.uy] ?? null;
+    const inaccessibleLiquid = [
+        is_pool(u.ux, u.uy, state) && !u.uinwater,
+        is_lava(u.ux, u.uy, state),
+    ].some(Boolean);
+    if (state.context?.nopick || !head || inaccessibleLiquid) {
+        if (state.flags?.mention_decor)
+            preflight_describe_decor_at(u.ux, u.uy, state);
+        return;
+    }
+
+    const trap = t_at(u.ux, u.uy, state);
+    if (!can_reach_floor(Boolean(trap && is_pit(trap.ttyp)), state)) {
+        throw new UnsupportedPickupError(
+            'pickup() by a hero who cannot reach the floor',
+        );
+    }
+    if (notake(state.youmonst?.data)) {
+        throw new UnsupportedPickupError(
+            'pickup() by a hero who cannot take objects',
+        );
+    }
+
+    let remaining;
+    let pickedSome;
+    if ((Math.trunc(state.multi) && !state.context?.run)
+        || !state.flags?.pickup) {
+        remaining = [];
+        for (let obj = head; obj; obj = obj.nexthere) remaining.push(obj);
+    } else {
+        if (state.ga?.apelist) {
+            throw new UnsupportedPickupError(
+                'pickup() with autopickup exceptions',
+            );
+        }
+        if (state.flags?.pickup_types)
+            throw new UnsupportedPickupError('pickup() with pickup_types');
+        const plan = planAutomaticFloorPickup(state);
+        remaining = plan.remaining;
+        pickedSome = Boolean(plan.selected.length);
+    }
+
+    if (state.flags?.mention_decor)
+        preflight_describe_decor_at(u.ux, u.uy, state);
+    const lookhereFlags = pickedSome
+        ? LOOKHERE_PICKED_SOME : LOOKHERE_NOFLAGS;
+    preflight_look_here(remaining.length, lookhereFlags, state, {
+        objects: remaining,
+        decorTerrain: state.flags?.mention_decor
+            ? state.level.at(u.ux, u.uy)?.typ : null,
+    });
+}
+
 // C ref: pickup.c pickup() (672-910), autopick(), pickup_object(), pick_obj()
 // and pickup_prinv(). In addition to the no-object/no-autopickup arms, this
 // covers the complete ordinary generated-floor-object path used by a level
@@ -313,69 +450,7 @@ export async function pickup(what, state = game) {
         throw new UnsupportedPickupError('pickup() with pickup_types');
     }
 
-    const costly = costly_spot(u.ux, u.uy, state);
-    const selected = [];
-    for (let obj = state.level.objects[u.ux][u.uy];
-        obj;
-        obj = obj.nexthere) {
-        if (costly && !obj.no_charge) continue;
-        if ((obj.how_lost ?? LOST_NONE) !== LOST_NONE) {
-            throw new UnsupportedPickupError(
-                'pickup() with a lost-object option override',
-            );
-        }
-        selected.push({ obj, count: obj.quan });
-    }
-
-    // Preflight every selected item before observe_object() or unlinking the
-    // first. This is the narrow fail-closed boundary for special pickup
-    // behavior and keeps both floor indexes and discovery state atomic.
-    let addedWeight = 0;
-    for (const { obj, count } of selected) {
-        if (obj.where !== OBJ_FLOOR || !Number.isInteger(count) || count < 1)
-            throw new UnsupportedPickupError('pickup() malformed floor object');
-        if (obj.oartifact || obj.otyp === CORPSE
-            || obj.otyp === SCR_SCARE_MONSTER) {
-            throw new UnsupportedPickupError(
-                'pickup() special artifact, corpse, or scare scroll',
-            );
-        }
-        assertObjectNameable(obj, state);
-        addedWeight += Math.trunc(obj.owt ?? 0);
-    }
-    if (inv_cnt(false, state) + selected.length > 52) {
-        throw new UnsupportedPickupError('pickup() with a full pack');
-    }
-    if (inv_weight(state) + addedWeight >= 2 * weight_cap(state)) {
-        throw new UnsupportedPickupError(
-            'pickup() requiring a partial or failed lift',
-        );
-    }
-    const promptLimit = Math.max(
-        near_capacity(state),
-        state.flags?.pickup_burden ?? MOD_ENCUMBER,
-    );
-    if (calc_capacity(addedWeight, state) > promptLimit) {
-        throw new UnsupportedPickupError('pickup() requiring a burden prompt');
-    }
-
-    const env = objectGenerationEnv({
-        state,
-        hooks: {
-            message: ttyPline,
-            inventoryComparisonDiscovered: () => ttyPline(
-                'You learn more about your items by comparing them.',
-                state,
-            ),
-        },
-    });
-    const addPlans = preflight_addinv_sequence(
-        selected.map(({ obj }) => obj),
-        env,
-        { observeObjects: !heroIsBlind(state) },
-    );
-    for (const plan of addPlans)
-        assertObjectNameable(plan.projectedResult, state);
+    const { addPlans, env, selected } = planAutomaticFloorPickup(state);
 
     if (selected.length) reset_justpicked(state.invent);
     let picked = 0;

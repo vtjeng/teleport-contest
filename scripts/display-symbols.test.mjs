@@ -4920,6 +4920,7 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
 test('three-line conditions align to hunger before carrying capacity',
     async () => {
         const state = bareThreeLineState();
+        state.u.uhs = SATIATED;
         state.invent = {
             oclass: WEAPON_CLASS,
             otyp: SPEAR,
@@ -4933,11 +4934,12 @@ test('three-line conditions align to hunger before carrying capacity',
 
         const vitals = terminalRow(state, 22);
         const details = terminalRow(state, 23);
-        assert.match(vitals, / Strained\s*$/u);
+        assert.match(vitals, / Satiated Strained\s*$/u);
         // wintty.c aligns BL_CONDITION to BL_HUNGER's fixed column, and the
-        // following BL_CAP uses that same printable start when hunger is empty.
+        // following BL_CAP starts after the complete hunger field.
         assert.equal(details.indexOf('Blind'), 40);
-        assert.equal(vitals.indexOf('Strained'), 40);
+        assert.equal(vitals.indexOf('Satiated'), 40);
+        assert.equal(vitals.indexOf('Strained'), 49);
     });
 
 test('tutorial overflow shrinking preserves complete status grids and attributes', async () => {

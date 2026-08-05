@@ -1,15 +1,15 @@
 {
   "mode": "implementation",
-  "reason": "The full correctness audit over 1dd01581..9177257 produced 23 raw and 16 deduplicated findings; all 16 passed adversarial source verification. Input retry state, shop transitions, and mutation-process ownership expand implementation scope, so repository policy requires completing them before a new readiness gate and full audit.",
-  "commitChecked": "91772577e02963cea601c4ca589cf47cfc07696e",
+  "reason": "The repeated full correctness audit over 1dd01581..0f274fa produced six deduplicated findings and an independent adjudicator confirmed all six. Random-arrival pickup and floor description form a previously incomplete input boundary, three-line status composition changes rendering behavior, movement must preserve its public admission error, and mutation cleanup changes lifecycle ownership. Repository policy therefore returns these fixes to implementation before another readiness gate and full audit.",
+  "commitChecked": "0f274faa825d3247e0244aa096d40dfefe5cce62",
   "boundary": {
     "goalId": "object-pile-window",
-    "startingCommit": "91772577e02963cea601c4ca589cf47cfc07696e",
-    "startingEvent": "A parsed reqmenu move is retried after an admission boundary, a hero crosses a generated-shop boundary, a completed object-pile transaction exposes its named or priced row, or a mutation command owns active wrapper, scope, wave, helper, and reporting state.",
-    "endingEvent": "The original command semantics and source-shaped shop transition reach the next prompt atomically, or the mutation command exits or is cancelled with every owned process collected and every timeout attributable; all confirmed tests and contracts distinguish the fixed behavior.",
-    "validInputs": "Parsed reqmenu movement and retry; generated-shop strict-interior, edge, and debt-free exit transitions; supported billed-departure refusal; ordinary dropy; multibyte named pile rows; quantity stacks and quote partitions; mutation wrapper completion, signals, concurrent refusal, timeouts, and detached helpers.",
-    "observables": "Pending command state, nopick/autopickup, hero and room state, achievement/billing/keeper state, messages, screens, cursors, PRNG log, floor ownership, exact byte rows and prices, quote extrema, process results/signals, cgroup ownership, descendant cleanup, timeout identities, and subsequent invocation availability.",
-    "exclusions": "Unported shop billing/debit settlement remains fail-closed before movement; the full shop-edge blocking dialogue remains deferred behind an atomic admission stop; no sealed holdout evidence is used. Other prior generated-shop price exclusions remain unchanged."
+    "startingCommit": "0f274faa825d3247e0244aa096d40dfefe5cce62",
+    "startingEvent": "A random level arrival selects its destination before committing coordinates, a three-line status row composes hunger and capacity fields, ordinary movement admits or rejects a destination, or a mutation command reclaims or tears down its aggregate slice.",
+    "endingEvent": "Arrival pickup and floor description either complete through the next prompt or refuse before any observable change; the status row contains both fields; movement exposes its public boundary error; or the mutation command exits or re-raises its signal with live ownership preserved whenever cleanup is incomplete.",
+    "validInputs": "Random arrivals while helpless, with autopickup disabled, with ordinary and shop-owned floor objects, and with supported ordinary pickup; satiated plus strained three-line status; unsupported destination object naming; concurrent stale-lock reclaim, partial slice startup, cleanup failure, SIGINT, and SIGTERM.",
+    "observables": "Hero and room state, inventory and floor ownership, achievement/billing/keeper state, messages, complete screens and cursors, PRNG log, public error class, process result or signal, lock owner record, cgroup ownership, descendant cleanup, and subsequent invocation availability.",
+    "exclusions": "Unported shop billing/debit settlement remains fail-closed before movement; the full shop-edge blocking dialogue remains deferred behind an atomic admission stop; unsupported arrival pickup and naming branches stop before the planned destination is committed; no sealed holdout evidence is used. Other prior generated-shop price exclusions remain unchanged."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "Traced hack.c domove_core through pickup.c check_here and invent.c look_here's single-object and pile doname_with_price call sites, then objnam.c doname_base(DONAME_WITH_PRICE) and shk.c get_cost_of_shop_item, get_pricing_units, get_cost, getprice, oid_price_adjustment, and record_price_quote.",
@@ -164,6 +164,60 @@
       "remaining": ""
     },
     {
+      "candidate": "Atomic random-arrival pickup and description planning",
+      "reachability": "u_on_rndspot selects an admissible destination whose post-move check_here path can pick up, filter, name, price, or describe floor objects and terrain.",
+      "owner": "js/do.js destination admission, js/pickup.js automatic-pickup planner, and js/invent.js look_here planner",
+      "effects": "Plan move_update, pickup, remaining-floor description, discovery, names, and prices against projected destination state before live coordinates, rooms, inventory, floor chains, output, or RNG change.",
+      "evidence": "The shared planners now drive both admission and the live pickup/description transaction. scripts/level-teleport-arrival.test.mjs proves helpless, malformed corpse, disabled-autopickup, strict-interior shop-price, and supported shop-floor cases are atomic. The fresh 34-case level-teleport matrix matches C for 206,200 PRNG calls and all 981 screens and cursors, including ordinary, single-object, merging, two-object, and shop arrivals.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Three-line status hunger and capacity composition",
+      "reachability": "status line three renders both a non-empty hunger label and a non-empty carrying-capacity label.",
+      "owner": "js/display.js botl_status3 field cursor",
+      "effects": "Advance the shared write cursor after hunger so capacity follows instead of overwriting it.",
+      "evidence": "scripts/display-symbols.test.mjs pins the complete Satiated Strained row and exact field columns; the checkpoint passes the full renderer suite.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Movement admission error ownership",
+      "reachability": "Prospective floor-object naming or shop pricing rejects a movement destination.",
+      "owner": "js/hack.js assertMovementFloorObjectNameable",
+      "effects": "Translate lower-level object-name and price exclusions into UnsupportedHeroMoveBoundaryError without changing the atomic refusal state.",
+      "evidence": "scripts/shop-floor-pricing.test.mjs requires the public movement-boundary class for an excluded second member while retaining its complete no-change snapshot.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Serialized stale mutation-owner reclaim",
+      "reachability": "Two reclaimers observe a stale owner while one replacement owner can acquire the main lock between their reads.",
+      "owner": "scripts/mutate-sites.mjs stale-reclaim claim inode and incumbent revalidation",
+      "effects": "Serialize reclaimers and remove the main lock only when its re-read contents still name the stale owner being reclaimed.",
+      "evidence": "scripts/mutate-sites.test.mjs deterministically interleaves two reclaimers with a replacement owner and proves the replacement lock and slice survive.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Recoverable aggregate-slice cleanup failure",
+      "reachability": "Aggregate startup partially succeeds, or stop/reset verification fails during ordinary completion or cancellation.",
+      "owner": "scripts/mutate-sites.mjs sliceNeedsCleanup state and owner-lock release",
+      "effects": "Retain the sole recovery owner record until aggregate cleanup is proven, so the next stale acquisition stops the recorded slice before replacement.",
+      "evidence": "scripts/mutate-sites.test.mjs injects both post-start cleanup failure and partial-start failure, then proves the next invocation recovers the recorded unit.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "OS signal preservation through synchronous teardown",
+      "reachability": "SIGINT or SIGTERM arrives while mutation cleanup occupies the synchronous teardown interval.",
+      "owner": "scripts/mutate-sites.mjs queued signal settling and re-raise path",
+      "effects": "Give queued signal handlers one event-loop turn before removal, complete owned cleanup, and terminate with the original OS signal.",
+      "evidence": "scripts/mutate-sites.test.mjs sends real SIGINT and SIGTERM during synchronous teardown and verifies both aggregate cleanup and caller-visible signal termination.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
       "candidate": "Confirmed contract clarity",
       "reachability": "A maintainer reads the changed status shrink order, look_here boundary, doname pricing ownership, quote lifecycle, or getprice preconditions.",
       "owner": "js/display.js, js/invent.js, js/objnam.js, and js/shk.js comments/private API",
@@ -174,5 +228,5 @@
     }
   ],
   "missingWorkByOwner": [],
-  "sourceReview": "The full audit used correctness, readability, test-quality, variable-flow, and concurrency finders over 1dd01581..9177257. It produced 23 raw findings, deduplicated them to 16, and two independent adjudicators confirmed all 16 with no warning or unverified item. Exact-window mutation ran 204 sites, killed 194, left ten survivors, and timed out five; six shop survivors are proven equivalents, while the dropy survivor and remaining boundary survivors are assigned above. Because confirmed fixes change input retry, shop-transition, and process-lifecycle ownership, the pass returns to implementation and cannot close until a new readiness gate and full audit cover the expanded range."
+  "sourceReview": "The repeated full audit used correctness, readability-risk, test-quality, variable-flow, and concurrency finders over 1dd01581..0f274fa. It produced six deduplicated findings, and a fresh independent adjudicator confirmed all six under source truth, diff causality, and observable impact. The fixes trace the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. The full checkpoint passes with 29 of 29 uncommitted gameplay mutants killed, and the existing 34-case arrival matrix remains exact against fresh C. Because these confirmed fixes change rendering, arrival admission, and lifecycle ownership, the pass remains in implementation until a new frozen-range readiness gate and full audit cover the expanded head."
 }

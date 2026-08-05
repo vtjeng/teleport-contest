@@ -1,7 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { domove, requireSimpleHeroDestination } from '../js/hack.js';
+import {
+    domove,
+    requireSimpleHeroDestination,
+    UnsupportedHeroMoveBoundaryError,
+} from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { m_at } from '../js/monst.js';
@@ -583,7 +587,8 @@ test('an excluded second pile member refuses before any durable mutation',
 
         await assert.rejects(
             () => domove(state),
-            /unpaid or no-charge floor object/u,
+            (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                && /unpaid or no-charge floor object/u.test(error.message),
         );
         assert.deepEqual([state.u.ux, state.u.uy], before.position);
         assert.deepEqual({
