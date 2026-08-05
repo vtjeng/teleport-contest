@@ -1,15 +1,15 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "The committed generated-shop pricing transaction now covers the selected ownership, arithmetic, naming, quote, pile, count-only, and same-shop transition paths. Independent acceptance reproduced the full checkpoint and fresh C differential, so the slice is ready for the expanded formal review.",
-  "commitChecked": "4c22caa12f367449664e6279146ae3c3786a4098",
+  "mode": "implementation",
+  "reason": "The full correctness audit over 1dd01581..9177257 produced 23 raw and 16 deduplicated findings; all 16 passed adversarial source verification. Input retry state, shop transitions, and mutation-process ownership expand implementation scope, so repository policy requires completing them before a new readiness gate and full audit.",
+  "commitChecked": "91772577e02963cea601c4ca589cf47cfc07696e",
   "boundary": {
     "goalId": "object-pile-window",
-    "startingCommit": "e3d46b27746acfb38fefb8957c1488ed27ecb597",
-    "startingEvent": "A sighted, non-hallucinating hero whose current room string names a generated shop steps onto one or two-to-four top-level floor objects in that shop's strict interior while its peaceful unsurcharged resident keeper remains in the shop.",
-    "endingEvent": "The priced single-object message or priced pile window is displayed, each positive per-unit quote is recorded, the display is dismissed, and the game reaches the next command prompt.",
-    "validInputs": "Autopickup disabled; ordinary top-level non-container floor merchandise; generated strict-interior shop square; current-shop equality; present peaceful generated keeper; ordinary quantity pricing; supported object-name and getprice branches; pile_limit count paths that do not name objects.",
-    "observables": "Hero movement and room state, object discovery, exact for-sale suffix and currency plurality, menu geometry, price-quote min/max fields, object and floor chains, messages, screens and cursors, PRNG log, and next prompt.",
-    "exclusions": "Coins, punishment objects, non-floor or contained objects, other/shared/boundary shops, keeper freespot, no-charge or unpaid objects, absent/displaced/angry/surcharged keepers, containers or contents, globs, artifacts, corpse/tin/egg adjustment, unidentified glass-gem pseudopricing, Dunce cap, young Tourist or visible undershirt adjustment, restore/suppress-price mode, remembered-price display fallback, hallucinated currency, and existing unsupported naming branches."
+    "startingCommit": "91772577e02963cea601c4ca589cf47cfc07696e",
+    "startingEvent": "A parsed reqmenu move is retried after an admission boundary, a hero crosses a generated-shop boundary, a completed object-pile transaction exposes its named or priced row, or a mutation command owns active wrapper, scope, wave, helper, and reporting state.",
+    "endingEvent": "The original command semantics and source-shaped shop transition reach the next prompt atomically, or the mutation command exits or is cancelled with every owned process collected and every timeout attributable; all confirmed tests and contracts distinguish the fixed behavior.",
+    "validInputs": "Parsed reqmenu movement and retry; generated-shop strict-interior, edge, and debt-free exit transitions; supported billed-departure refusal; ordinary dropy; multibyte named pile rows; quantity stacks and quote partitions; mutation wrapper completion, signals, concurrent refusal, timeouts, and detached helpers.",
+    "observables": "Pending command state, nopick/autopickup, hero and room state, achievement/billing/keeper state, messages, screens, cursors, PRNG log, floor ownership, exact byte rows and prices, quote extrema, process results/signals, cgroup ownership, descendant cleanup, timeout identities, and subsequent invocation availability.",
+    "exclusions": "Unported shop billing/debit settlement remains fail-closed before movement; the full shop-edge blocking dialogue remains deferred behind an atomic admission stop; no sealed holdout evidence is used. Other prior generated-shop price exclusions remain unchanged."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "Traced hack.c domove_core through pickup.c check_here and invent.c look_here's single-object and pile doname_with_price call sites, then objnam.c doname_base(DONAME_WITH_PRICE) and shk.c get_cost_of_shop_item, get_pricing_units, get_cost, getprice, oid_price_adjustment, and record_price_quote.",
@@ -90,8 +90,117 @@
       "evidence": "hack.c 3588-3634 derives ushops_left before the departure call. js/rooms.js now stops only when that buffer names a left shop; the explicit strict-interior regression and both live movement cases pass.",
       "status": "done",
       "remaining": ""
+    },
+    {
+      "candidate": "Reqmenu retry preserves parsed prefix semantics",
+      "reachability": "A reqmenu-prefixed movement parses successfully, destination admission refuses, and the retained pending command is retried without new input after the destination becomes admissible.",
+      "owner": "js/cmd.js pending-command capture and restore",
+      "effects": "Restore menu_requested so set_move_cmd reconstructs context.nopick and the retry moves without pickup or pile description.",
+      "evidence": "Correctness and test finders reproduced prefix loss; adjudication accepted all three lenses.",
+      "status": "missing",
+      "remaining": "Persist the logical prefix effect and add direct and rebound retry tests."
+    },
+    {
+      "candidate": "Debt-free generated-shop departure",
+      "reachability": "The hero leaves a generated shop whose keeper is absent or whose bill count and debit are both zero.",
+      "owner": "js/rooms.js check_special_room and js/shk.js u_left_shop boundary",
+      "effects": "Match shk.c's no-effect return and reach the next prompt; reject genuinely billed departures before movement and room mutation.",
+      "evidence": "Correctness, variable-flow, and test finders traced the current late blanket refusal; adjudication confirmed the source behavior and fix, with a causality note that the broad refusal partly predates this range.",
+      "status": "missing",
+      "remaining": "Port the inert source branches, add read-only transition admission for billing, and replace the test that rewards blanket refusal."
+    },
+    {
+      "candidate": "Atomic unsupported shop-edge entry",
+      "reachability": "Movement or arrival newly enters a generated-shop edge square whose blocking tail is not ported.",
+      "owner": "js/hack.js movement admission, level arrival admission, and js/shk.js u_entered_shop",
+      "effects": "Refuse before position, room strings, achievement, billing/customer state, visit count, greeting output, cursor, or RNG change.",
+      "evidence": "Correctness and test finders reproduced the late greeting and state writes; adjudication accepted all lenses.",
+      "status": "missing",
+      "remaining": "Preflight the edge transition at each live position-commit seam and add complete snapshot tests."
+    },
+    {
+      "candidate": "Owned outer mutation cancellation",
+      "reachability": "The unmarked CLI has launched a long mutation run and receives SIGINT or SIGTERM, or a concurrent invocation is refused while another run owns the exclusivity lock.",
+      "owner": "scripts/mutate-sites.mjs outer launcher and exclusivity owner",
+      "effects": "Forward cancellation only to the owned run, await cleanup, reproduce the caller-visible signal, and prevent a refused contender from stopping the owner.",
+      "evidence": "Three finders confirmed the missing outer handler; the audit itself demonstrated fixed-name cleanup stopping an unrelated active run. Adjudication accepted all lenses.",
+      "status": "missing",
+      "remaining": "Replace spawnSync ownership with an asynchronous owned launcher and test real outer-PID cancellation and collision."
+    },
+    {
+      "candidate": "Aggregate mutation cgroup containment",
+      "reachability": "The outer mutator owns an active per-wave scope under memory/task limits and is cancelled or resource-limited.",
+      "owner": "scripts/mutate-sites.mjs systemd unit topology",
+      "effects": "Place outer and wave scopes beneath one uniquely owned aggregate slice so limits and cancellation contain the full process tree.",
+      "evidence": "The concurrency finder observed sibling app.slice scopes; adjudication confirmed the command topology and material contract mismatch.",
+      "status": "missing",
+      "remaining": "Introduce aggregate containment and assert ControlGroup ancestry plus cancellation cleanup."
+    },
+    {
+      "candidate": "Detached wave descendant cleanup",
+      "reachability": "A test runner exits normally after a helper creates a new process group inside its wave scope.",
+      "owner": "scripts/run-bounded-tests.mjs and scripts/mutate-sites.mjs wave cleanup",
+      "effects": "Preserve the runner result while collecting every helper and the uniquely owned wave scope after ordinary completion.",
+      "evidence": "Concurrency and test finders showed the existing unref fixture remains in the original process group; adjudication accepted the detached schedule.",
+      "status": "missing",
+      "remaining": "Stop the owned wave after every result and add a genuinely detached helper case."
+    },
+    {
+      "candidate": "Attributable mutation timeouts",
+      "reachability": "A first-wave or wider-suite mutant exceeds its bounded test deadline.",
+      "owner": "scripts/mutate-sites.mjs result model, text report, and JSON report",
+      "effects": "Retain path, line, column, mutation, and wave for every timed-out kill instead of exposing only an aggregate count.",
+      "evidence": "The exact audit run reported five timeouts whose identities could not be recovered; adjudication confirmed the reporting loss.",
+      "status": "missing",
+      "remaining": "Persist timeout records with a schema bump and controlled timeout fixtures."
+    },
+    {
+      "candidate": "Confirmed test-oracle coverage",
+      "reachability": "Ordinary dropy, multibyte live pile naming, quantity stack pricing, or buy/sell quote partitions execute their admitted paths.",
+      "owner": "scripts/inventory-substrate.test.mjs, multibyte runner/tests, shop-floor-pricing.test.mjs, and shk.test.mjs",
+      "effects": "Kill the non-equivalent dropy survivor and pin exact named bytes, total-versus-per-unit pricing, and cross-partition preservation.",
+      "evidence": "The test finder identified four independent gaps; all passed adversarial verification.",
+      "status": "missing",
+      "remaining": "Add focused independent assertions for each confirmed gap."
+    },
+    {
+      "candidate": "Confirmed contract clarity",
+      "reachability": "A maintainer reads the changed status shrink order, look_here boundary, doname pricing ownership, quote lifecycle, or getprice preconditions.",
+      "owner": "js/display.js, js/invent.js, js/objnam.js, and js/shk.js comments/private API",
+      "effects": "Make the exact phase order, fail-closed branches, pricing owner, quote writer/consumer lifecycle, and production preconditions explicit.",
+      "evidence": "The readability finder reported five concrete misread risks; adjudication accepted source and causality for all five.",
+      "status": "missing",
+      "remaining": "Correct the four stale/misleading comments and make the price-suffix delegation private or explicitly narrow."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The orchestrator independently traced the committed movement admission, both invent.c look_here consumers, objnam.c DONAME_WITH_PRICE suffix and quote order, common shk.c ownership and arithmetic, and hack.c same-shop transition against upstream. The direct pile transaction and natural single-stock route execute the production code; every declared exclusion stops before mutation. The complete checkpoint passed 2,777 tests, all generated and static checks, and the unchanged development score. The fresh reference differential matched 5,520 PRNG calls and all seven screen and cursor boundaries. Mutation killed 51 of 57 sites; the six survivors are arithmetic-equivalent relational changes documented in commit 4c22caa12f367449664e6279146ae3c3786a4098. No known work remains inside the selected boundary."
+  "missingWorkByOwner": [
+    {
+      "group": "movement and shop transition ownership",
+      "candidates": [
+        "Reqmenu retry preserves parsed prefix semantics",
+        "Debt-free generated-shop departure",
+        "Atomic unsupported shop-edge entry"
+      ],
+      "next": "Implement source-shaped preflight and retry ownership through the next command boundary."
+    },
+    {
+      "group": "mutation process lifecycle",
+      "candidates": [
+        "Owned outer mutation cancellation",
+        "Aggregate mutation cgroup containment",
+        "Detached wave descendant cleanup",
+        "Attributable mutation timeouts"
+      ],
+      "next": "Redesign ownership and containment as one tested lifecycle transaction."
+    },
+    {
+      "group": "tests and contracts",
+      "candidates": [
+        "Confirmed test-oracle coverage",
+        "Confirmed contract clarity"
+      ],
+      "next": "Apply every confirmed nonbehavioral finding and rerun mutation."
+    }
+  ],
+  "sourceReview": "The full audit used correctness, readability, test-quality, variable-flow, and concurrency finders over 1dd01581..9177257. It produced 23 raw findings, deduplicated them to 16, and two independent adjudicators confirmed all 16 with no warning or unverified item. Exact-window mutation ran 204 sites, killed 194, left ten survivors, and timed out five; six shop survivors are proven equivalents, while the dropy survivor and remaining boundary survivors are assigned above. Because confirmed fixes change input retry, shop-transition, and process-lifecycle ownership, the pass returns to implementation and cannot close until a new readiness gate and full audit cover the expanded range."
 }
