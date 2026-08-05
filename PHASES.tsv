@@ -143,3 +143,11 @@ utc	event	phase	goal	detail
 2026-08-05T07:05:48.790Z	end	select	object-pile-window	Selected no-pick-object-pile-walk: connect reqmenu movement through pickup(1) early return before later pile rendering branches.
 2026-08-05T07:05:48.818Z	start	implement	object-pile-window	Fresh worker closes no-pick-object-pile-walk through the next command prompt with exact C/JavaScript differential evidence.
 2026-08-05T07:29:37.668Z	end	implement	object-pile-window	Accepted 0de90b0 independently: 2,728 tests, six generated checks, namespace integrity, exact 11,025-RNG/17-screen no-pick matrix, development 1,002 screens and 1,010 cursors, 7/7 mutants killed, and clear WATCH quality gate.
+2026-08-05T07:30:18.708Z	start	select	object-pile-window	Choose the next prerequisite-ordered slice among the remaining confirmed review findings after no-pick movement closed.
+2026-08-05T07:38:58.936Z	end	select	object-pile-window	Selected mention-decor-inert-pile-window: port only describe_decor same non-furniture terrain no-effect branch through the ordinary pile menu.
+2026-08-05T07:38:58.964Z	start	implement	object-pile-window	Fresh worker closes mention-decor-inert-pile-window with a checklist, exact C/JavaScript differential, excluded-branch proofs, checkpoint and mutation.
+2026-08-05T07:57:24.260Z	end	implement	object-pile-window	mention-decor-inert-pile-window committed nothing: moveloop_preamble pickup(1) must first print and remember the initial staircase under mention_decor.
+2026-08-05T07:57:24.287Z	start	select	object-pile-window	Select the startup staircase mention_decor prerequisite discovered by the rejected fresh differential.
+2026-08-05T08:04:10.428Z	end	select	object-pile-window	Selected mention-decor-startup-staircase before the parked inert pile slice: own preamble pickup, exact staircase line, More ordering, and prev_decor initialization.
+2026-08-05T08:04:10.455Z	start	implement	object-pile-window	Fresh worker closes mention-decor-startup-staircase through the first command boundary with quiet/calendar fresh differentials, checklist, checkpoint and mutation.
+2026-08-05T08:33:04.108Z	end	implement	object-pile-window	Accepted 2094fb8 independently: 2,736 tests, six generated checks, namespace integrity, exact 5,177-RNG/6-screen startup decor matrix, unchanged development score, 17/17 mutants killed, ready checklist, and clear WATCH gate.

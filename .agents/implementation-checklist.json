@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "The bounded startup implementation and its evidence are complete. The orchestrator must name and independently verify the resulting commit before changing this checklist to ready-for-audit or updating commitChecked.",
-  "commitChecked": "e84a6f5551b528954cb1137450f4c3c30f9b1a48",
+  "mode": "ready-for-audit",
+  "reason": "Commit 2094fb8 closes the new-game mention_decor staircase transaction through option-state initialization, reset_justpicked, source-ordered pickup(1), exact pending-message sequencing, staircase naming and prev_decor assignment. Independent checkpoint and fresh differential verification passed, and every excluded startup family refuses atomically.",
+  "commitChecked": "2094fb8aeb7533bdb0af8d4145535db9b4a59cbc",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "e84a6f5551b528954cb1137450f4c3c30f9b1a48",
