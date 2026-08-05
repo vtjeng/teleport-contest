@@ -396,6 +396,8 @@ test('movement keeps the non-shop remembered-price fallback excluded',
 test('movement displays and records every eligible generated-shop pile price',
     async () => {
         const { lower, start, state, target, upper } = await generatedShopPile();
+        upper.quan = 3;
+        upper.owt *= upper.quan;
         const inputScreens = [];
         const readKey = state.nhDisplay.readKey.bind(state.nhDisplay);
         state.nhDisplay.readKey = (options) => {
@@ -424,9 +426,10 @@ test('movement displays and records every eligible generated-shop pile price',
             assert.equal(type.oc_buy_minseen, type.oc_buy_maxseen);
             assert.ok(type.oc_buy_minseen > 0);
         }
-        assert.ok(inputScreens.some(
-            (screen) => /for sale, \d+ zorkmids?/u.test(screen),
-        ));
+        assert.equal(state.objects[upper.otyp].oc_buy_minseen, 3);
+        assert.ok(inputScreens.some((screen) => screen.includes(
+            '3 darts (for sale, 9 zorkmids)',
+        )));
         assert.notDeepEqual([state.u.ux, state.u.uy], [start.x, start.y]);
     });
 

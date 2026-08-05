@@ -200,10 +200,10 @@ export function is_fshk(monster) {
 // so the caller concatenates. `buf` is still needed because C drops the whole
 // suffix when appending it would overrun BUFSZ.
 //
-// record_price_quote() is the only writer of the four seen-price fields and no
-// ported path calls it, so every type still holds the init_objects() sentinel
-// and this returns '' today. It is called anyway because C calls it for every
-// discoveries line, and skipping it would hide the day a shop lands.
+// record_price_quote() is the only writer of the four seen-price fields;
+// doname_with_price() records the buy half after a live shop-pile row is
+// displayed. This formatter is the remembered-price consumer used by
+// discoveries lines, although that caller remains outside the ported path.
 export function append_price_quote(buf, otyp, state = game) {
     const type = state.objects[otyp];
 
@@ -269,8 +269,9 @@ export function oid_price_adjustment(obj, oid, state = game) {
     return 0;
 }
 
-// C ref: shk.c getprice(), reached selling-to-hero branches. Artifact and
-// corpse-family adjustments are excluded by preflight_floor_shop_price().
+// C ref: shk.c getprice(), reached selling-to-hero branches. The live floor-
+// merchandise caller, get_cost_of_shop_item(), excludes artifact and
+// corpse-family adjustments before it reaches this common pricing subset.
 export function getprice(obj, shk_buying, state = game) {
     const type = objectType(obj, state);
     let price = Math.trunc(type.oc_cost);

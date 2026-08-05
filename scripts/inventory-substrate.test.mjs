@@ -39,6 +39,7 @@ import {
     W_WEP,
 } from '../js/const.js';
 import {
+    dropy,
     dropz,
     dropx,
     preflight_dropx,
@@ -2274,6 +2275,17 @@ function ordinaryDropFixture(otyp = HEAVY_IRON_BALL) {
     };
     return { hooks, lines, obj, state };
 }
+
+test('dropy reaches dropz without container-impact handling', async () => {
+    const { hooks, obj, state } = ordinaryDropFixture();
+    state.invent = null;
+    obj.where = OBJ_FREE;
+
+    await dropy(obj, { state, hooks });
+
+    assert.equal(state.level.objects[10][5], obj);
+    assert.equal(obj.where, OBJ_FLOOR);
+});
 
 test('heavy-ball retain and drop paths preserve source callback order',
     async () => {

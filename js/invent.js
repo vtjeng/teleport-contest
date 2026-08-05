@@ -687,15 +687,15 @@ function activeStoneResistance(state) {
 }
 
 // C ref: invent.c look_here(). Covers a hero standing on an admitted square,
-// sighted or blind: the region and trap line, the terrain feature line, the
-// engraving read, and the no-object, single-object, ordinary two-to-four-
-// object menu, or sighted pile-limit count. A sighted decorated pile includes
-// its dfeature_at() line in either output path. Blindness is not
-// excluded from the first two
-// outcomes; a pile reached while blind stops before its tactile preamble
-// because feel_cockatrice() and the tactile menu belong to a later slice. A
-// liquid square, engraving, non-triggering pile outside two through four,
-// or picked-some count likewise stops before output.
+// sighted or blind: the terrain feature line, the engraving read, and the
+// no-object, single-object, ordinary two-to-four-object menu, or sighted
+// pile-limit count. Visible-region and seen-trap descriptions remain
+// fail-closed before output. A sighted decorated pile includes its
+// dfeature_at() line in either output path. Blindness is not excluded from the
+// first two outcomes; a pile reached while blind stops before its tactile
+// preamble because feel_cockatrice() and the tactile menu belong to a later
+// slice. A liquid square, engraving, non-triggering pile outside two through
+// four, or picked-some count likewise stops before output.
 //
 // Returns true where C returns ECMD_TIME and false where it returns ECMD_OK,
 // so the caller decides whether the command takes game time.

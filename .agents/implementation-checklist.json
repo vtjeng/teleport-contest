@@ -159,29 +159,20 @@
       "reachability": "Ordinary dropy, multibyte live pile naming, quantity stack pricing, or buy/sell quote partitions execute their admitted paths.",
       "owner": "scripts/inventory-substrate.test.mjs, multibyte runner/tests, shop-floor-pricing.test.mjs, and shk.test.mjs",
       "effects": "Kill the non-equivalent dropy survivor and pin exact named bytes, total-versus-per-unit pricing, and cross-partition preservation.",
-      "evidence": "The test finder identified four independent gaps; all passed adversarial verification.",
-      "status": "missing",
-      "remaining": "Add focused independent assertions for each confirmed gap."
+      "evidence": "scripts/inventory-substrate.test.mjs now reaches dropy() with a free heavy ball and distinguishes its FALSE impact argument. The live multibyte runner stops on the actual pile window, checks the exact a café byte string, and pins the recorder shadow row's two skipped high-bit cells. The movement pricing integration uses a three-dart stack and checks both the exact 9-zorkmid row and remembered per-unit value 3. scripts/shk.test.mjs snapshots the opposite quote partition around both buy and sell updates. All focused tests pass.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Confirmed contract clarity",
       "reachability": "A maintainer reads the changed status shrink order, look_here boundary, doname pricing ownership, quote lifecycle, or getprice preconditions.",
       "owner": "js/display.js, js/invent.js, js/objnam.js, and js/shk.js comments/private API",
       "effects": "Make the exact phase order, fail-closed branches, pricing owner, quote writer/consumer lifecycle, and production preconditions explicit.",
-      "evidence": "The readability finder reported five concrete misread risks; adjudication accepted source and causality for all five.",
-      "status": "missing",
-      "remaining": "Correct the four stale/misleading comments and make the price-suffix delegation private or explicitly narrow."
+      "evidence": "The status comment now names the capacity-abbreviation phase; look_here names its visible-region and seen-trap fail-closed boundary; shk.js describes the live quote writer, future remembered-price consumer, and get_cost_of_shop_item precondition owner. donameFresh no longer exposes a withPrice option: only private donameFreshInternal can admit the live price suffix, and the public bypass regression test was observed red before the fix. Worktree mutation killed all four changed objnam mutants, including both sides of that private delegation.",
+      "status": "done",
+      "remaining": ""
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "tests and contracts",
-      "candidates": [
-        "Confirmed test-oracle coverage",
-        "Confirmed contract clarity"
-      ],
-      "next": "Apply every confirmed nonbehavioral finding and rerun mutation."
-    }
-  ],
+  "missingWorkByOwner": [],
   "sourceReview": "The full audit used correctness, readability, test-quality, variable-flow, and concurrency finders over 1dd01581..9177257. It produced 23 raw findings, deduplicated them to 16, and two independent adjudicators confirmed all 16 with no warning or unverified item. Exact-window mutation ran 204 sites, killed 194, left ten survivors, and timed out five; six shop survivors are proven equivalents, while the dropy survivor and remaining boundary survivors are assigned above. Because confirmed fixes change input retry, shop-transition, and process-lifecycle ownership, the pass returns to implementation and cannot close until a new readiness gate and full audit cover the expanded range."
 }

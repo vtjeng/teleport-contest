@@ -12,7 +12,9 @@ import { fileURLToPath } from 'node:url';
 
 import { OBJ_FLOOR, ROOM } from '../js/const.js';
 import { game } from '../js/gstate.js';
+import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { runSegment } from '../js/jsmain.js';
+import { donameFresh } from '../js/objnam.js';
 import { SLIME_MOLD } from '../js/objects.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
@@ -66,6 +68,15 @@ function pileAt(x, y) {
     return pile;
 }
 
+function floorObjectOfType(x, y, type) {
+    for (let object = game.level.objects[x]?.[y] ?? null;
+        object;
+        object = object.nexthere) {
+        if (object.otyp === type) return object;
+    }
+    return null;
+}
+
 export async function verifyMultibyteObjectPileSegment(segment) {
     // The first four directions stop one square north of the target pile.
     await runSegment({ ...segment, moves: ' lljj' });
@@ -77,6 +88,28 @@ export async function verifyMultibyteObjectPileSegment(segment) {
         || expected.filter(({ type }) => type === SLIME_MOLD).length !== 1) {
         throw new Error('setup did not retain the two-object slime-mold pile');
     }
+
+    // Stop at the pile menu's input boundary so its rows remain on the live
+    // terminal. The complete replay below dismisses this window and checks
+    // the successor command boundary separately.
+    await runSegment({ ...segment, moves: ' lljjj' });
+    const pileRows = game.nhDisplay.grid.map(
+        (row) => row.map(({ ch }) => ch).join(''),
+    );
+    const fruitObject = floorObjectOfType(game.u.ux, game.u.uy, SLIME_MOLD);
+    if (!fruitObject)
+        throw new Error('pile window lost its named slime mold');
+    const fruitName = donameFresh(fruitObject, game);
+    if (fruitName !== 'a caf\u00e9'
+        || encodeUtf8ByteString(fruitName).join(',')
+            !== '97,32,99,97,102,195,169') {
+        throw new Error('pile window did not preserve the named fruit bytes');
+    }
+    // Recorder patch 006 advances one cell per source byte but ignores both
+    // signed high-bit bytes of the final UTF-8 character. The live shadow row
+    // therefore ends in two blank cells after the visible ASCII prefix.
+    if (!pileRows.some((row) => row.includes('a caf  ')))
+        throw new Error('pile window did not project the named fruit row');
 
     let boundary = null;
     await runSegment(segment, {

@@ -2364,7 +2364,8 @@ function _statusLine2Configuration() {
         ? ` ${_capacityStatus(capacityLevel)}` : ''}${capacityPadding}${_statusConditions(u, conditionLevel)}${optional}`;
     let status = build();
     // wintty.c make_things_fit() first tries both abbreviated condition
-    // vocabularies, then shortens "Dlvl" to "Dl" before truncating.
+    // vocabularies, then both carrying-capacity abbreviations, and finally
+    // shortens "Dlvl" to "Dl" before truncating.
     while (status.length + versionLength > TTY_STATUS_WIDTH
         && conditionLevel < 2) {
         conditionLevel++;

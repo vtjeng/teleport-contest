@@ -232,9 +232,10 @@ test('getprice preserves reached class adjustments', () => {
     assert.equal(getprice(candle, false, state), 10);
 });
 
-test('record_price_quote widens and narrows only the selected buy range', () => {
+test('record_price_quote updates one partition without changing the other', () => {
     const state = costState();
     const type = state.objects[DART];
+    const initialSell = [type.oc_sell_minseen, type.oc_sell_maxseen];
     record_price_quote(DART, 7, true, state);
     record_price_quote(DART, 4, true, state);
     record_price_quote(DART, 9, true, state);
@@ -242,12 +243,20 @@ test('record_price_quote widens and narrows only the selected buy range', () => 
         [type.oc_buy_minseen, type.oc_buy_maxseen],
         [4, 9],
     );
-    assert.ok(type.oc_sell_minseen > type.oc_sell_maxseen);
+    assert.deepEqual(
+        [type.oc_sell_minseen, type.oc_sell_maxseen],
+        initialSell,
+    );
+    const completedBuy = [type.oc_buy_minseen, type.oc_buy_maxseen];
     record_price_quote(DART, 5, false, state);
     record_price_quote(DART, 8, false, state);
     assert.deepEqual(
         [type.oc_sell_minseen, type.oc_sell_maxseen],
         [5, 8],
+    );
+    assert.deepEqual(
+        [type.oc_buy_minseen, type.oc_buy_maxseen],
+        completedBuy,
     );
 });
 

@@ -253,11 +253,11 @@ function preflightXname(obj, type, state) {
         unsupported('user-assigned type name', obj);
 }
 
-function preflightDoname(obj, type, state, withPrice) {
+function preflightDoname(obj, type, state, allowLiveShopPrice) {
     preflightXname(obj, type, state);
     if (obj.unpaid)
         unsupported('shop price suffix', obj);
-    if (!withPrice && state.iflags?.pricequotes && !type.oc_name_known)
+    if (!allowLiveShopPrice && state.iflags?.pricequotes && !type.oc_name_known)
         unsupported('price quote suffix', obj);
     if (obj.owornmask & (W_RING | W_RINGL | W_RINGR))
         unsupported('worn-ring suffix', obj);
@@ -848,11 +848,12 @@ export function aobjnam(otmp, verb, state = game) {
 }
 
 // C ref: objnam.c doname(). Shop, known-container, worn-item, end-game, and
-// lit-candle branches stop before xname() can mutate discovery state.
-export function donameFresh(obj, state, options = {}) {
+// lit-candle branches stop before xname() can mutate discovery state. The
+// private allowLiveShopPrice seam is owned only by doname_with_price(), which
+// appends and records that price after this ordinary name is complete.
+function donameFreshInternal(obj, state, allowLiveShopPrice) {
     const type = objectType(obj, state);
-    const withPrice = Boolean(options.withPrice);
-    preflightDoname(obj, type, state, withPrice);
+    preflightDoname(obj, type, state, allowLiveShopPrice);
     let base = xnameFresh(obj, state);
     const quantity = Math.trunc(obj.quan);
     const modifiers = [];
@@ -946,6 +947,10 @@ export function donameFresh(obj, state, options = {}) {
     return articleName(words);
 }
 
+export function donameFresh(obj, state) {
+    return donameFreshInternal(obj, state, false);
+}
+
 // C ref: objnam.c doname_base(DONAME_WITH_PRICE), through its ordinary floor
 // item branch. xname() observes first, the suffix uses the resulting price,
 // and record_price_quote() is the final durable write.
@@ -957,7 +962,7 @@ export function doname_with_price(
     if (typeof currencyName !== 'function')
         throw new TypeError('doname_with_price needs the currency owner');
     assertPricedObjectNameable(obj, state);
-    const name = donameFresh(obj, state, { withPrice: true });
+    const name = donameFreshInternal(obj, state, true);
     const quote = get_cost_of_shop_item(obj, state);
     const suffix = `${quote.cost} ${currencyName(quote.cost, state)}`;
     const result = `${name} (for sale, ${suffix})`;

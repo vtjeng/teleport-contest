@@ -979,6 +979,14 @@ test('unsupported naming branches fail before discovery or state changes', () =>
     assert.equal(quoted.dknown, false);
     assert.equal(state.objects[POT_HEALING].oc_encountered, 0);
 
+    const optionBypass = objectOf(state, POT_HEALING);
+    assert.throws(
+        () => donameFresh(optionBypass, state, { withPrice: true }),
+        (error) => error instanceof UnsupportedObjectNameError
+            && error.branch === 'price quote suffix',
+    );
+    assert.equal(optionBypass.dknown, false);
+
 
     state.iflags.pricequotes = false;
 
