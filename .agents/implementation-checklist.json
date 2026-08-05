@@ -1,108 +1,108 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Commit deb84c6a closes heavy-wish drop atomicity by preparing a one-shot object/state/hook/fingerprint-bound admission before discovery and conduct, then consuming the approved tail without post-mutation re-evaluation. Independent exact matrices and checkpoint verification passed; excluded contexts remain atomic and all 17 gating mutants are killed.",
-  "commitChecked": "deb84c6a996de25b36fda262aae79bda631e1333",
+  "mode": "implementation",
+  "reason": "Generated-shop floor pricing still stops before movement for piles and silently omits price text for single objects. The slice must add exact common-case pricing, quote recording, atomic all-member preflight, and a fresh generated-shop differential before it is ready for audit.",
+  "commitChecked": "e3d46b27746acfb38fefb8957c1488ed27ecb597",
   "boundary": {
     "goalId": "object-pile-window",
-    "startingCommit": "eb05ccef491e1b099f8b1ada580b8f3a4bb5c710",
-    "startingEvent": "A debug hero submits a wish for a nonmerging single heavy iron ball that exact capacity or the 53rd non-gold inventory slot will force onto the floor.",
-    "endingEvent": "The admitted transaction completes C-ordered discovery, conduct, inventory insertion, drop message, floor placement and next prompt, or an excluded context refuses before discovery, conduct, inventory/floor links, message output, RNG, or capacity-cache mutation.",
-    "validInputs": "Burden-triggered drops; 51 existing non-gold slots that retain the new ball as the 52nd; 52 existing non-gold slots that force the new ball out as the 53rd; strict capacity equality; shopless ordinary ROOM/CORR, up-stair, and doorway destinations.",
-    "observables": "Object dknown/discovery, wish conduct, blessing timeout RNG, inventory and floor chains, object ownership and nomerge, exact messages/screens/cursors, capacity cache, hooks, hero state, and next command boundary.",
-    "exclusions": "Shops, blindness, hallucination, special levels, unreachable floors, swallowed heroes, worn/attached/unpaid objects, down gates, altars, traps, liquids, engravings, regions, nearby timed corpses, artifacts, Fumbling, fatal wished corpses, and non-heavy/merging/split objects."
+    "startingCommit": "e3d46b27746acfb38fefb8957c1488ed27ecb597",
+    "startingEvent": "A sighted, non-hallucinating hero whose current room string names a generated shop steps onto one or two-to-four top-level floor objects in that shop's strict interior while its peaceful unsurcharged resident keeper remains in the shop.",
+    "endingEvent": "The priced single-object message or priced pile window is displayed, each positive per-unit quote is recorded, the display is dismissed, and the game reaches the next command prompt.",
+    "validInputs": "Autopickup disabled; ordinary top-level non-container floor merchandise; generated strict-interior shop square; current-shop equality; present peaceful generated keeper; ordinary quantity pricing; supported object-name and getprice branches; pile_limit count paths that do not name objects.",
+    "observables": "Hero movement and room state, object discovery, exact for-sale suffix and currency plurality, menu geometry, price-quote min/max fields, object and floor chains, messages, screens and cursors, PRNG log, and next prompt.",
+    "exclusions": "Coins, punishment objects, non-floor or contained objects, other/shared/boundary shops, keeper freespot, no-charge or unpaid objects, absent/displaced/angry/surcharged keepers, containers or contents, globs, artifacts, corpse/tin/egg adjustment, unidentified glass-gem pseudopricing, Dunce cap, young Tourist or visible undershirt adjustment, restore/suppress-price mode, remembered-price display fallback, hallucinated currency, and existing unsupported naming branches."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "Traced zap.c makewish through invent.c hold_another_object into do.c dropx/dropy/dropz, including discovery/conduct ordering and the source drop_it tail.",
-    "dispatchTablesAndCatalogs": "Bounded the wished object to one nonartifact, nonmerging HEAVY_IRON_BALL and inventory slots to inv_cnt(FALSE)'s 52 non-gold letters.",
-    "reachableHelpers": "Read doname discovery, conduct bookkeeping, projectsHeavyBallDrop, observe_object, addinv, inv_cnt, near_capacity, preflight_dropx, dropx/freeinv, floor placement, newsym and encumber feedback.",
-    "javascriptCrossCheck": "Inspected zap.js makewish ordering, invent.js heavy-drop projection and hold transaction, do.js admission/drop comments and guards, command-boundary conversion, and current heavy-drop tests/fresh matrices.",
-    "remainingLimits": "Development-session scanning aborts on unrelated dosounds shop debt. Existing fresh object-pile count and decorated-pile matrices exercise supported heavy wishes; excluded contexts require atomic direct snapshots because the port intentionally stops."
+    "upstreamEntryPoints": "Traced hack.c domove_core through pickup.c check_here and invent.c look_here's single-object and pile doname_with_price call sites, then objnam.c doname_base(DONAME_WITH_PRICE) and shk.c get_cost_of_shop_item, get_pricing_units, get_cost, getprice, oid_price_adjustment, and record_price_quote.",
+    "dispatchTablesAndCatalogs": "Cross-checked object classes and oc_cost data, generated SHTYPES rooms and keepers, quantity and Charisma partitions, quote sentinels, inventory currency wording, room-number buffers, and pile_limit's count-versus-menu split.",
+    "reachableHelpers": "Followed get_obj_location, in_rooms, inside_shop, shop_keeper, inhishop, ordinary naming, price rounding, currency, and the object-chain loop. contained_cost and billing are excluded because valid objects are top-level non-containers.",
+    "javascriptCrossCheck": "Inspected js/hack.js costly_spot refusal, js/invent.js look_here preflight and both naming sites, js/objnam.js preflight/discovery ownership, js/shk.js generated-shop queries and quote helpers, js/light.js object location, js/rooms.js current-shop state, and existing shop/object-pile tests and fresh runners.",
+    "remainingLimits": "The fresh case validates a natural single generated-shop stock object because stock_room creates one object per square; a direct movement integration must separately prove the reviewed two-member menu and its atomic excluded-second-member refusal."
   },
   "entries": [
     {
-      "candidate": "Side-effect-free heavy-drop projection",
-      "reachability": "A single nonmerging heavy ball may exceed the burden threshold or the 52-letter non-gold inventory limit.",
-      "owner": "js/invent.js projectsHeavyBallDrop",
-      "effects": "Predict hold versus drop without retaining capacity-cache or chain mutation and preserve strict source comparisons.",
-      "evidence": "prepareHeavyBallDropAdmission calls projectsHeavyBallDrop before wish mutation and restores the prior gw/wc shape; focused tests pin strict capacity equality and both inventory-slot boundaries.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "Common generated-shop ownership and location gate",
+      "reachability": "get_cost_of_shop_item sees a non-coin top-level floor object whose location, hero current shop, in_rooms result, strict interior, resident keeper and inhishop result all name the same generated shop; the object is neither freespot nor no_charge.",
+      "owner": "js/shk.js get_cost_of_shop_item and existing shop/location helpers",
+      "effects": "Select shop-owned merchandise for pricing without mutating keeper, billing, object, or room state.",
+      "evidence": "shk.c 2806-2843 and generated-shop room/keeper state; no implementation or boundary matrix yet.",
+      "status": "missing",
+      "remaining": "Port and test every admitted equality and strict-interior gate, with excluded states refusing before movement."
     },
     {
-      "candidate": "Prepared drop admission before wish mutation",
-      "reachability": "Projection says the wished heavy ball will enter hold_another_object's drop_it tail.",
-      "owner": "js/zap.js makewish, js/invent.js admission helper, and js/do.js preflight_dropx",
-      "effects": "Resolve required hooks and all supported ground/drop guards before donameFresh, conduct increment, message output, RNG, inventory linking, or object observation.",
-      "evidence": "makewish now builds the hold environment and prepares the heavy-drop admission before donameFresh and uconduct.wishes++; a live shop-level command test fails at that point.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "Ordinary object charge calculation",
+      "reachability": "An admitted non-container uses ordinary quantity units and a supported getprice branch, then applies unknown-object id adjustment, Charisma arithmetic, C integer rounding, and the minimum-price rule.",
+      "owner": "js/shk.js get_pricing_units, oid_price_adjustment, getprice, and get_cost",
+      "effects": "Compute the exact total and per-unit shop charge without RNG, output, or state mutation.",
+      "evidence": "shk.c 2846-2944 and 4319-4358; focused tables and live consumer are not yet implemented.",
+      "status": "missing",
+      "remaining": "Port the reached whole arithmetic branches, refuse named special adjustments, and pin every comparison and rounding boundary."
     },
     {
-      "candidate": "Consume prepared admission without re-evaluation",
-      "reachability": "The admitted wish reaches hold_another_object and the same projected drop branch after source-ordered addinv.",
-      "owner": "js/invent.js hold_another_object",
-      "effects": "Use the prepared drop owner once, retain exact source mutation/message order, undo inventory ownership and place the ball on the floor.",
-      "evidence": "hold_another_object consumes an object/state/inventory-bound one-shot token, and dropx consumes the nested object/state/hook-bound admission before freeinv without repeating preflight_dropx.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "Priced object name and durable quote record",
+      "reachability": "doname_base receives DONAME_WITH_PRICE for admitted floor merchandise, ordinary naming succeeds, and get_cost_of_shop_item returns a positive charge.",
+      "owner": "js/objnam.js doname_with_price and priced preflight; js/shk.js record_price_quote; js/invent.js currency",
+      "effects": "Append the exact for-sale suffix after the object name and update oc_buy_minseen/oc_buy_maxseen with price divided by quantity.",
+      "evidence": "objnam.c 1651-1683 and 1760-1765 plus shk.c 439-450; no priced JS mode exists yet.",
+      "status": "missing",
+      "remaining": "Add a mutation-free priced preflight, exact suffix/currency formatting, and source-ordered quote update."
     },
     {
-      "candidate": "Atomic excluded-context refusal",
-      "reachability": "A projected heavy drop is on any excluded terrain, hero state, shop/billing state, attachment, trap/region/engraving, or missing-hook context.",
-      "owner": "js/do.js preflight_dropx and js/zap.js makewish command seam",
-      "effects": "Refuse with every durable field, object chain, output buffer, RNG log, and capacity cache unchanged.",
-      "evidence": "The existing complete direct preflight matrix remains green. The new rhack shop-level snapshot proves unchanged conduct, discoveries, encounter state, inventory/floor links, blessing timeout, capacity cache, and absence of a drop message; only mksobj's rnd(2) draw occurs.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "Single-object live consumer",
+      "reachability": "look_here reaches one floor object with skip_objects false after movement onto natural generated-shop stock.",
+      "owner": "js/invent.js look_here single-object arm and js/hack.js movement admission",
+      "effects": "Print You see here with the for-sale suffix, set last_msg, record the quote, and reach the next prompt.",
+      "evidence": "invent.c 4277-4287 and fresh seed 7633019 recipe proposed by the selector; not yet recorded or replayed.",
+      "status": "missing",
+      "remaining": "Connect preflight and priced formatting, then record and exactly replay the natural stock step through the next prompt."
     },
     {
-      "candidate": "53rd-slot and capacity boundary matrix",
-      "reachability": "The hero has 51 or 52 occupied non-gold slots, with optional gold, and the ball's projected burden equals or exceeds the pickup limit.",
-      "owner": "scripts/inventory-substrate.test.mjs and wish integration tests",
-      "effects": "Prove the 52nd item is retained, the 53rd is dropped, gold is excluded from inv_cnt(FALSE), and equality alone does not trigger a burden drop.",
-      "evidence": "Focused tests retain the ball as the 52nd non-gold object, drop it as the 53rd, exclude an added gold stack from inv_cnt(FALSE), and retain the ball when projected capacity equals MOD_ENCUMBER.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "Two-to-four-object priced pile transaction",
+      "reachability": "look_here reaches its menu arm on two to four eligible shop-owned floor objects with skip_objects false.",
+      "owner": "js/hack.js requireSimpleHeroDestination and js/invent.js look_here/displayObjectPile",
+      "effects": "Preflight every member before movement, then discover, price, record and render every row in object-chain order without partial durable state.",
+      "evidence": "invent.c 4288-4313; current js/hack.js blanket-refuses every costly pile.",
+      "status": "missing",
+      "remaining": "Replace the blanket refusal with all-member priced preflight and add eligible and excluded-second-member atomic movement tests."
     },
     {
-      "candidate": "Supported live heavy-drop regressions",
-      "reachability": "Existing fresh count and decorated-pile recipes wish/drop heavy balls on ROOM, up stairs, and a doorway.",
-      "owner": "existing fresh matrix runners plus focused replay tests",
-      "effects": "Preserve exact PRNG, screens, cursors, floor chains, messages and next prompts after moving admission earlier.",
-      "evidence": "Fresh reruns matched 8 segments, 26,157 PRNG calls, 338 screens and 338 cursors across the object-pile-count and decorated-object-pile matrices, including ROOM, up-stair and doorway heavy drops.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "Name-free pile-limit count path",
+      "reachability": "checkedObjectCount reaches pile_limit, so look_here prints only the count even on a costly square.",
+      "owner": "js/hack.js requireSimpleHeroDestination and js/invent.js look_here count arm",
+      "effects": "Admit the existing count output without pricing, discovery, or quote mutation.",
+      "evidence": "invent.c 4245-4276; current costly_spot refusal occurs before this distinction.",
+      "status": "missing",
+      "remaining": "Move price preflight behind the menu-only condition and pin zero quote/discovery changes."
     },
     {
-      "candidate": "Owner and contract documentation",
-      "reachability": "Maintainers read hold_another_object and preflight_dropx around the prepared transaction.",
-      "owner": "js/invent.js and js/do.js comments",
-      "effects": "Describe the actual supported heavy-drop arm and full admission semantics without calling the check dependency-only or the hold arm plain-only.",
-      "evidence": "invent.js now names the plain addinv and heavy-ball drop_it boundary; do.js describes preflight_dropx as the complete one-shot admission check and explains its post-addinv consumption.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "Excluded pricing branches fail atomically",
+      "reachability": "Any excluded location, ownership, object, keeper, pricing, formatter, or currency condition is present at the prospective destination.",
+      "owner": "js/shk.js and js/objnam.js priced preflight, consumed by js/hack.js",
+      "effects": "Stop before coordinates, room strings, discovery, quote fields, floor chains, output, or RNG change.",
+      "evidence": "The selected boundary names each excluded branch; no consolidated atomic matrix exists.",
+      "status": "missing",
+      "remaining": "Implement source-specific refusal reasons and a complete pre-mutation snapshot matrix."
     }
   ],
   "missingWorkByOwner": [
     {
-      "group": "prepared wish/drop transaction",
+      "group": "shop ownership and arithmetic",
       "candidates": [
-        "Side-effect-free heavy-drop projection",
-        "Prepared drop admission before wish mutation",
-        "Consume prepared admission without re-evaluation",
-        "Atomic excluded-context refusal"
+        "Common generated-shop ownership and location gate",
+        "Ordinary object charge calculation",
+        "Excluded pricing branches fail atomically"
       ],
-      "next": "Build the prepared contract before makewish's first durable mutation, then consume it exactly once inside hold_another_object."
+      "next": "Port and test the exact common top-level merchandise gates and calculation before connecting naming."
     },
     {
-      "group": "boundary evidence and clarity",
+      "group": "priced naming transaction",
       "candidates": [
-        "53rd-slot and capacity boundary matrix",
-        "Supported live heavy-drop regressions",
-        "Owner and contract documentation"
+        "Priced object name and durable quote record",
+        "Single-object live consumer",
+        "Two-to-four-object priced pile transaction",
+        "Name-free pile-limit count path"
       ],
-      "next": "Pin slot/capacity boundaries, rerun source recordings, and align comments with the resulting contract."
+      "next": "Preflight full naming and pricing, connect both look_here call sites, validate pile atomicity, then run the fresh generated-stock case."
     }
   ],
-  "sourceReview": "The orchestrator and fresh selector traced the wish transaction from readobjnam through the supported heavy-ball drop tail. This checklist stays in implementation mode until admission precedes every durable wish mutation, prepared use is single and identity-safe, supported floor drops remain exact, excluded contexts are atomic, the true 53rd-slot case is covered, and owner comments match the code."
+  "sourceReview": "The orchestrator and fresh selector traced the selected event through movement admission, both invent.c look_here price call sites, objnam.c suffix and quote order, common shk.c ownership and price arithmetic, and generated-shop/current-room state. The checklist remains in implementation mode until every admitted branch runs in production, every named exclusion stops atomically, the direct pile transaction is complete, and the fresh single-stock differential matches through the next prompt."
 }
