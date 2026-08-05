@@ -173,7 +173,7 @@ const BOUNDED_TEST_RUNNER = fileURLToPath(
     new URL('./run-bounded-tests.mjs', import.meta.url));
 let testWaveSequence = 0;
 
-/** Build the systemd scope that contains the mutator and every test child. */
+/** Build the outer-mutator scope; sibling test waves join the same slice. */
 export function mutationCgroupArgs(
     nodePath,
     scriptPath,
@@ -444,13 +444,21 @@ export function releaseMutationLock(lock) {
     rmSync(lock.lockPath, { recursive: true, force: true });
 }
 
-function runSystemctl(args, action) {
-    const result = spawnSync('systemctl', ['--user', ...args], {
+export function runSystemctl(args, action, {
+    acceptMissingUnit = null,
+    execute = spawnSync,
+} = {}) {
+    const result = execute('systemctl', ['--user', ...args], {
         encoding: 'utf8',
         env: { ...process.env, LC_ALL: 'C' },
     });
     if (result.status === 0) return;
     const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trimEnd();
+    if (acceptMissingUnit) {
+        const absent = `Failed to ${args[0]} ${acceptMissingUnit}: `
+            + `Unit ${acceptMissingUnit} not loaded.`;
+        if (result.status === 5 && output === absent) return;
+    }
     const detail = result.error?.message
         ?? (output || (result.signal
             ? `systemctl ended with signal ${result.signal}`
@@ -472,7 +480,11 @@ export function startMutationSlice(sliceName, control = runSystemctl) {
 
 export function stopMutationSlice(sliceName) {
     const unit = `${sliceName}.slice`;
-    runSystemctl(['stop', unit], `failed to stop mutation slice ${unit}`);
+    runSystemctl(
+        ['stop', unit],
+        `failed to stop mutation slice ${unit}`,
+        { acceptMissingUnit: unit },
+    );
     // set-property writes a runtime drop-in. Remove it once the uniquely owned
     // slice is empty so completed runs do not accumulate unit definitions.
     runSystemctl(['revert', unit], `failed to revert mutation slice ${unit}`);
@@ -520,9 +532,9 @@ export async function runInMutationCgroup(
         lock = acquireLock(undefined, names);
         if (!interrupt) {
             // startSlice can create the unit and then fail while setting its
-            // limits or reverting it. Mark potential ownership first so the
-            // outer cleanup still retries and retains the owner record if it
-            // cannot prove the aggregate unit clean.
+            // limits. It performs no cleanup: this outer owner alone runs
+            // stop/revert and retains the recovery record if that cannot prove
+            // the aggregate unit clean.
             sliceNeedsCleanup = true;
             startSlice(names.sliceName);
         }

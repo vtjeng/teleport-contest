@@ -46,6 +46,7 @@ import {
     removeWorkspace,
     releaseMutationLock,
     reportedTestCount,
+    runSystemctl,
     runTests,
     runInMutationCgroup,
     runMutants,
@@ -241,8 +242,9 @@ test('the original lock owner survives contenders during publication', () => {
         () => acquireMutationLock(
             lockPath,
             mutationRunNames(process.pid, 'contender'),
+            { now: () => Number.MAX_SAFE_INTEGER },
         ),
-        /another mutation run (?:is initializing|is publishing or reclaiming)/u,
+        /another mutation run is publishing or reclaiming/u,
     );
     try {
         owner = acquireMutationLock(
@@ -525,6 +527,34 @@ test('partial aggregate startup has one outer cleanup owner', async () => {
     assert.deepEqual(events, ['acquire', 'start', 'stop', 'release']);
 });
 
+test('aggregate cleanup accepts only the exact unloaded-unit result', () => {
+    const unit = 'teleport_mutate_123_absent.slice';
+    const action = `failed to stop mutation slice ${unit}`;
+    const execute = (_command, args) => ({
+        status: 5,
+        stdout: '',
+        stderr: `Failed to stop ${unit}: Unit ${unit} not loaded.\n`,
+        signal: null,
+        error: null,
+        args,
+    });
+    assert.doesNotThrow(() => runSystemctl(
+        ['stop', unit], action, { acceptMissingUnit: unit, execute },
+    ));
+
+    const busFailure = (_command, args) => ({
+        ...execute(_command, args),
+        stderr: 'Failed to connect to bus: Permission denied\n',
+    });
+    assert.throws(
+        () => runSystemctl(
+            ['stop', unit], action,
+            { acceptMissingUnit: unit, execute: busFailure },
+        ),
+        /Permission denied/u,
+    );
+});
+
 test('teardown signals take precedence over an earlier body error',
     async () => {
         for (const signal of ['SIGINT', 'SIGTERM']) {
@@ -649,6 +679,33 @@ test('a stale lock stops its recorded aggregate slice before replacement',
             rmSync(root, { recursive: true, force: true });
         }
     });
+
+test('a stale lock recovers when its recorded slice is already absent', () => {
+    const root = mkdtempSync(join(tmpdir(), 'mutate-stale-absent-slice-'));
+    const lockPath = join(root, 'owner.lock');
+    const deadPid = spawnSync(process.execPath, ['-e', '']).pid;
+    const stale = mutationRunNames(deadPid, 'already_absent');
+    let replacement = null;
+    mkdirSync(lockPath);
+    writeFileSync(join(lockPath, 'owner.json'), `${JSON.stringify({
+        pid: deadPid,
+        ...stale,
+    })}\n`);
+    try {
+        replacement = acquireMutationLock(
+            lockPath,
+            mutationRunNames(process.pid, 'absent_replacement'),
+        );
+        assert.equal(existsSync(replacement.ownerPath), true);
+        assert.equal(
+            JSON.parse(readFileSync(replacement.ownerPath, 'utf8')).sliceName,
+            replacement.owner.sliceName,
+        );
+    } finally {
+        if (replacement) releaseMutationLock(replacement);
+        rmSync(root, { recursive: true, force: true });
+    }
+});
 
 test('mutation test waves run at four-file concurrency', () => {
     // Four workers ran the current 39-file baseline in 10.66 seconds across

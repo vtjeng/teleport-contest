@@ -180,6 +180,12 @@ export async function place_random_arrival(
         move_update(false, projected);
         preflight_random_arrival_pickup(projected);
     };
+    // Atomic arrival admission is a lockstep dry-run/replay protocol. The dry
+    // pass must follow exactly the candidate-selection control flow of the
+    // live pass, using only the cloned core RNG and mutation-free preflight.
+    // Its callbacks must not change any live selection input. Only after that
+    // pass succeeds may the identical traversal consume the live RNG and
+    // commit its selected coordinate.
     if (place === u_on_rndspot) {
         const plannedRandom = createCoreRandom(
             cloneCoreContext(state.coreCtx ?? game.coreCtx),

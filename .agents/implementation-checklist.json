@@ -1,7 +1,7 @@
 {
   "mode": "implementation",
-  "reason": "The final full correctness audit over 1dd01581..9feeae6 produced nine deduplicated candidates. Independent adjudication confirmed four lifecycle defects: initial publication can race stale reclaim, stale claimant deletion is not generation-safe, partial slice startup has two cleanup owners, and an earlier body error can suppress a teardown signal. Those confirmed fixes must pass validation and another frozen-range audit before this boundary is clean.",
-  "commitChecked": "9feeae6e7a6b56e6324b55340cc10fa2d1572531",
+  "reason": "The repeated full audit over 1dd01581..3a0ac1b produced six raw and five deduplicated candidates; fresh adjudication confirmed all five. Aggregate cleanup must accept the exact unloaded-unit proof, the aged-publication oracle must distinguish claim serialization from the grace guard, and three shared lifecycle/arrival contracts need accurate reviewer-facing ownership documentation. These fixes require validation and a final frozen pass.",
+  "commitChecked": "3a0ac1b57157eb40b44f04c194caffbcec5a6cf5",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "0f274faa825d3247e0244aa096d40dfefe5cce62",
@@ -254,6 +254,51 @@
       "remaining": ""
     },
     {
+      "candidate": "Idempotent cleanup of an absent aggregate slice",
+      "reachability": "Startup fails before the slice loads, or an owner dies after successful slice cleanup but before releasing its lock.",
+      "owner": "scripts/mutate-sites.mjs runSystemctl and stopMutationSlice",
+      "effects": "Accept only systemd's exact C-locale status-5 Unit-not-loaded response as proof the aggregate is already empty; preserve all other failures and their recovery owner.",
+      "evidence": "The parser regression accepts the exact unloaded response and rejects an unrelated status-5 bus failure. A real-systemd stale-owner regression names an absent slice and proves immediate replacement ownership, complementing the existing active-slice recovery case.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Aged publication-versus-reclaim oracle",
+      "reachability": "A contender runs from either publication hook after the lock directory's initialization grace has conceptually expired.",
+      "owner": "scripts/mutate-sites.test.mjs publication-race regression",
+      "effects": "Force the contender past the age guard and require refusal specifically because publication holds the shared claim.",
+      "evidence": "Both hook contenders now inject a maximum clock, accept only the publishing-or-reclaiming error, and retain the original final owner-record assertion.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Aggregate slice and sibling scope ownership contract",
+      "reachability": "A maintainer changes mutationCgroupArgs or testRunnerCommand while relying on the outer-scope helper comment.",
+      "owner": "scripts/mutate-sites.mjs mutationCgroupArgs comment",
+      "effects": "State that the helper builds only the outer-mutator scope and the aggregate slice owns it alongside separately attached wave scopes.",
+      "evidence": "The corrected comment matches command-shape tests and the live ControlGroup ancestry assertions for distinct sibling scopes under one slice.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Single-owner partial-start cleanup contract",
+      "reachability": "A maintainer reads the sliceNeedsCleanup comment while changing startup or cleanup.",
+      "owner": "scripts/mutate-sites.mjs runInMutationCgroup comment",
+      "effects": "Say explicitly that startSlice performs no cleanup and the outer owner alone stops/reverts or retains recovery ownership.",
+      "evidence": "The corrected comment matches startMutationSlice, stopMutationSlice, and the exact one-stop partial-start regression.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Random-arrival dry-run/replay contract",
+      "reachability": "A maintainer changes candidate selection, RNG use, or preflight callbacks in the paired random-arrival passes.",
+      "owner": "js/do.js place_random_arrival",
+      "effects": "Name the lockstep protocol, cloned-versus-live RNG ownership, callback purity, identical traversal, and preflight-before-live-RNG ordering.",
+      "evidence": "The contract now sits immediately above the paired calls; multi-square refusal and admitted-arrival tests pin unchanged live RNG on refusal and successful live placement.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
       "candidate": "Confirmed contract clarity",
       "reachability": "A maintainer reads the changed status shrink order, look_here boundary, doname pricing ownership, quote lifecycle, or getprice preconditions.",
       "owner": "js/display.js, js/invent.js, js/objnam.js, and js/shk.js comments/private API",
@@ -264,5 +309,5 @@
     }
   ],
   "missingWorkByOwner": [],
-  "sourceReview": "The repeated source review traces the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. The final audit added exact publication-versus-reclaim and claimant-read-versus-unlink schedules, partial set-property startup, and child-error-plus-teardown-signal order. It rejected five candidates with concrete production reachability or explicit-boundary evidence and confirmed the four lifecycle defects now assigned above. No known gameplay gap remains inside the boundary; lifecycle readiness awaits broad validation and a repeated full audit."
+  "sourceReview": "The repeated source review traces the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. It covers exact publication-versus-reclaim and claimant-read-versus-unlink schedules, aged incomplete publication, partial set-property startup, already-unloaded aggregate cleanup, child-error-plus-teardown-signal order, every game branch and helper reachable before the next prompt, state and PRNG order, and every explicit pre-commit exclusion. The latest audit confirmed all five candidates, now assigned above. No known gameplay gap remains inside the boundary; final readiness awaits broad validation and a repeated frozen pass."
 }
