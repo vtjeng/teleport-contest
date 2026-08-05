@@ -32,6 +32,7 @@ import {
     formatSiteCounts,
     killingTestFiles,
     killRateInterval,
+    mutationCgroupArgs,
     parseAddedLines,
     parseArgs,
     partitionTestFiles,
@@ -45,6 +46,7 @@ import {
     reportFromResult,
     siteFilterFromReport,
     survivingRangeLines,
+    testCommandArgs,
     tokenize,
     uncommittedJsLines,
 } from './mutate-sites.mjs';
@@ -54,6 +56,10 @@ const SCRIPT_PATH = fileURLToPath(
 const FIXTURE_ROOT = fileURLToPath(
     new URL('./fixtures/mutate-sites', import.meta.url));
 const FIXTURE_MODULE = `${FIXTURE_ROOT}/js/bounds.js`;
+// CLI fixture checks bypass the host scope because they enumerate or reject
+// arguments without running a mutant. Production invocations omit this marker
+// and must enter the scope before main() runs.
+const CLI_TEST_ENV = { ...process.env, TELEPORT_MUTATION_CGROUP: '1' };
 
 function fixtureSource() {
     return readFileSync(FIXTURE_MODULE, 'utf8');
@@ -100,6 +106,46 @@ function newestJsCommit() {
     assert.match(sha, /^[0-9a-f]{40}$/u);
     return sha;
 }
+
+// ---------------------------------------------------------------------------
+// Resource bounds
+// ---------------------------------------------------------------------------
+
+test('the mutation CLI enters one bounded cgroup', () => {
+    // The sampled production path peaked at 330 MiB and used 41 tasks. These
+    // bounds leave measured headroom while containing the runaway process that
+    // previously consumed the complete 23 GiB host and its 8 GiB swap.
+    assert.deepEqual(
+        mutationCgroupArgs('/usr/bin/node', '/repo/scripts/mutate-sites.mjs', [
+            '--worktree',
+        ]),
+        [
+            '--user',
+            '--scope',
+            '--collect',
+            '--unit=teleport-mutate',
+            '--property=MemoryAccounting=yes',
+            '--property=MemoryMax=1G',
+            '--property=MemorySwapMax=0',
+            '--property=TasksMax=64',
+            '/usr/bin/node',
+            '/repo/scripts/mutate-sites.mjs',
+            '--worktree',
+        ],
+    );
+});
+
+test('mutation test waves run at four-file concurrency', () => {
+    // Four workers cut the current 39-file baseline to 11.48 seconds while
+    // its cgroup peaked at 276 MiB, leaving most of the 1 GiB limit unused.
+    // Two files prove that each relative name remains an explicit test input.
+    assert.deepEqual(testCommandArgs(['a.test.mjs', 'b.test.mjs']), [
+        '--test',
+        '--test-concurrency=4',
+        'scripts/a.test.mjs',
+        'scripts/b.test.mjs',
+    ]);
+});
 
 // ---------------------------------------------------------------------------
 // The changed lines
@@ -1099,7 +1145,7 @@ test('the command prints a census and rejects a bad argument', () => {
     const census = spawnSync(process.execPath,
         [SCRIPT_PATH, '--range', `${newestJsCommit()}~1..HEAD`,
             '--enumerate-only'],
-        { encoding: 'utf8' });
+        { encoding: 'utf8', env: CLI_TEST_ENV });
 
     assert.equal(census.status, 0);
     assert.match(census.stdout, /\d+ file\(s\), \d+ line\(s\) in scope/u);
@@ -1107,7 +1153,7 @@ test('the command prints a census and rejects a bad argument', () => {
 
     const byPath = spawnSync(process.execPath,
         [SCRIPT_PATH, '--file', 'js/lock.js', '--enumerate-only'],
-        { encoding: 'utf8' });
+        { encoding: 'utf8', env: CLI_TEST_ENV });
 
     assert.equal(byPath.status, 0);
     assert.match(byPath.stdout, /^js\/lock\.js: \d+ line\(s\) in scope/mu);
@@ -1116,7 +1162,7 @@ test('the command prints a census and rejects a bad argument', () => {
     // finding to review, so a completed run exits 0 whatever it found; only an
     // error reaches this arm.
     const rejected = spawnSync(process.execPath, [SCRIPT_PATH, 'HEAD'],
-        { encoding: 'utf8' });
+        { encoding: 'utf8', env: CLI_TEST_ENV });
 
     assert.equal(rejected.status, 2);
     assert.match(rejected.stderr, /unexpected argument 'HEAD'/u);

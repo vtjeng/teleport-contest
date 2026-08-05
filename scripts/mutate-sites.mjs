@@ -87,6 +87,12 @@
 // own set, which `scripts/mutate-sites.test.mjs` asserts against whichever
 // commit last changed js/.
 //
+// Every CLI form re-executes itself in `teleport-mutate.scope`. The scope caps
+// the complete process tree at 1 GiB of memory, disables swap for that tree,
+// and permits at most 64 tasks. A fixed unit name also refuses a second local
+// mutation run while the first remains active. The Node test runner admits at
+// most four test files at once inside that scope.
+//
 // A first wave costs what its own files cost, from 0.14 s per mutant for a
 // one-file wave to 2.20 s for js/hack.js's seven. Under `--whole-suite`, every
 // mutant that passes its first wave costs about 13 s more, the time the
@@ -150,6 +156,38 @@ import { fileURLToPath } from 'node:url';
 import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const MUTATION_CGROUP_MARKER = 'TELEPORT_MUTATION_CGROUP';
+
+/** Build the systemd scope that contains the mutator and every test child. */
+export function mutationCgroupArgs(nodePath, scriptPath, argv) {
+    return [
+        '--user',
+        '--scope',
+        '--collect',
+        '--unit=teleport-mutate',
+        '--property=MemoryAccounting=yes',
+        '--property=MemoryMax=1G',
+        '--property=MemorySwapMax=0',
+        '--property=TasksMax=64',
+        nodePath,
+        scriptPath,
+        ...argv,
+    ];
+}
+
+function runInMutationCgroup(scriptPath, argv) {
+    const result = spawnSync('systemd-run',
+        mutationCgroupArgs(process.execPath, scriptPath, argv), {
+            stdio: 'inherit',
+            env: { ...process.env, [MUTATION_CGROUP_MARKER]: '1' },
+        });
+    if (result.error) throw result.error;
+    if (result.status === null) {
+        throw new Error(`bounded mutation scope ended with signal ${
+            result.signal ?? 'unknown'}`);
+    }
+    return result.status;
+}
 
 // Copied into the workspace because a mutation rewrites js/ and the test files
 // under scripts/ have to resolve `../js/` to the workspace's own copy.
@@ -705,6 +743,15 @@ export function reportedTestCount(output) {
     return match ? Number(match[1]) : 0;
 }
 
+/** Build one bounded Node test wave from names relative to scripts/. */
+export function testCommandArgs(testFiles) {
+    return [
+        '--test',
+        '--test-concurrency=4',
+        ...testFiles.map((name) => join('scripts', name)),
+    ];
+}
+
 function runTests(workspace, testFiles, timeoutMs) {
     // `node --test` with no file argument discovers and runs everything it can
     // find, so an empty list would quietly run the whole workspace, including
@@ -712,7 +759,7 @@ function runTests(workspace, testFiles, timeoutMs) {
     // means.
     if (!testFiles.length)
         throw new Error('runTests needs at least one test file');
-    const args = ['--test', ...testFiles.map((name) => join('scripts', name))];
+    const args = testCommandArgs(testFiles);
     const started = process.hrtime.bigint();
     const result = spawnSync(process.execPath, args, {
         cwd: workspace,
@@ -1402,9 +1449,16 @@ async function main(argv) {
     }
 }
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+
+if (process.argv[1] === SCRIPT_PATH) {
     try {
-        await main(process.argv.slice(2));
+        if (process.env[MUTATION_CGROUP_MARKER] === '1') {
+            await main(process.argv.slice(2));
+        } else {
+            process.exitCode = runInMutationCgroup(
+                SCRIPT_PATH, process.argv.slice(2));
+        }
     } catch (error) {
         console.error(`mutate-sites: ${error.message}`);
         process.exitCode = 2;
