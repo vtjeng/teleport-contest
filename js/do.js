@@ -339,10 +339,11 @@ function requiredDropHook(env, name) {
     return hook;
 }
 
-// Dependency-only check for the source-inert ground subset below. The wish path
-// calls this while the object is still OBJ_FREE, before observe_object(), its
-// failure message, or addinv() can change visible state. dropx() repeats it
-// after addinv() with the object in OBJ_INVENT.
+// Complete admission check for the source-inert ground subset below. The wish
+// path calls this while the object is still OBJ_FREE, before observe_object(),
+// its failure message, or addinv() can change visible state. The returned
+// one-shot admission lets dropx() execute the approved tail after addinv()
+// without repeating checks against state changed by the admitted transaction.
 export function preflight_dropx(obj, env = {}) {
     const normalized = dropEnv(env);
     const { state } = normalized;
@@ -427,23 +428,74 @@ export function preflight_dropx(obj, env = {}) {
     preflight_update_inventory(normalized);
     requiredDropHook(normalized, 'newsym');
     requiredDropHook(normalized, 'encumberMessage');
-    return normalized;
+    return {
+        consumed: false,
+        initialWhere: obj.where,
+        normalized,
+        object: obj,
+        state,
+    };
+}
+
+function consumeDropAdmission(obj, env, admission) {
+    const normalized = dropEnv(env);
+    if (admission.object !== obj)
+        throw new Error('drop admission belongs to another object');
+    if (admission.state !== normalized.state)
+        throw new Error('drop admission belongs to another state');
+    if (admission.consumed)
+        throw new Error('drop admission was already consumed');
+    if (admission.normalized.hooks !== normalized.hooks)
+        throw new Error('drop admission belongs to another hook set');
+    if (obj.where !== OBJ_INVENT
+        || (admission.initialWhere !== OBJ_FREE
+            && admission.initialWhere !== OBJ_INVENT)) {
+        throw new Error('drop admission is stale');
+    }
+    admission.consumed = true;
+    return admission.normalized;
 }
 
 // C ref: do.c dropx() (785-797). ship_object() and doaltarobj() are absent
 // because preflight_dropx() admits neither a down gate nor an altar. An up
 // stairway makes down_gate() return MIGR_NOWHERE, so ship_object() is inert.
-export async function dropx(obj, env = {}) {
-    const normalized = preflight_dropx(obj, env);
-    if (obj.where !== OBJ_INVENT)
-        throw new Error('dropx requires an inventory object');
+export async function dropx(obj, env = {}, prepared = null) {
+    const admission = prepared ?? preflight_dropx(obj, env);
+    const normalized = consumeDropAdmission(obj, env, admission);
     freeinv(obj, normalized);
-    await dropy(obj, normalized);
+    await dropzAdmitted(obj, normalized);
 }
 
 // C ref: do.c dropy() (799-804).
 export async function dropy(obj, env = {}) {
     await dropz(obj, false, env);
+}
+
+async function dropzAdmitted(obj, normalized) {
+    if (obj.where !== OBJ_FREE)
+        throw new Error('dropz requires a free object');
+    if (flooreffects(obj, normalized.state.u.ux, normalized.state.u.uy,
+                     'drop', {
+                         state: normalized.state,
+                         unsupported: (reason) => {
+                             throw new UnsupportedDropError(reason);
+                         },
+                     })) {
+        return;
+    }
+    place_object(
+        obj,
+        normalized.state.u.ux,
+        normalized.state.u.uy,
+        normalized,
+    );
+    stackobj(obj, normalized);
+    requiredDropHook(normalized, 'newsym')(
+        normalized.state.u.ux,
+        normalized.state.u.uy,
+        normalized.state,
+    );
+    await requiredDropHook(normalized, 'encumberMessage')(normalized.state);
 }
 
 // C ref: do.c dropz() (806-842), source-inert shopless ground and with_impact
@@ -459,16 +511,7 @@ export async function dropz(obj, with_impact, env = {}) {
         throw new Error('dropz requires a free object');
     // Recheck the post-freeinv state without requiring inventory ownership.
     preflight_dropx(obj, normalized);
-    if (flooreffects(obj, state.u.ux, state.u.uy, 'drop', {
-        state,
-        unsupported: (reason) => { throw new UnsupportedDropError(reason); },
-    })) {
-        return;
-    }
-    place_object(obj, state.u.ux, state.u.uy, normalized);
-    stackobj(obj, normalized);
-    requiredDropHook(normalized, 'newsym')(state.u.ux, state.u.uy, state);
-    await requiredDropHook(normalized, 'encumberMessage')(state);
+    await dropzAdmitted(obj, normalized);
 }
 
 // C ref: do.c u_stuck_cannot_go() (1109-1128). Its release arm calls

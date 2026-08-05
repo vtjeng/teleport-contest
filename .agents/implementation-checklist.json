@@ -1,118 +1,108 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Commit 996fff10 closes recorder-byte object-pile geometry through compression, truncation, pre-split width, byte-indexed splitting and emission, pending-topline dismissal, both repair modes, live multibyte admission, and the next prompt. Independent two-case fresh differential and full checkpoint verification passed; shops, pricing, count, paging, selectable menus, and exceptional paths remain atomic.",
-  "commitChecked": "996fff10bf3b59d9bf675ef192ff8e4e283b6b7a",
+  "mode": "implementation",
+  "reason": "makewish currently names and discovers the wished object and increments wish conduct before hold_another_object determines that a heavy iron ball must drop and preflights the supported drop tail. An excluded drop context can therefore fail closed after durable mutation.",
+  "commitChecked": "eb05ccef491e1b099f8b1ada580b8f3a4bb5c710",
   "boundary": {
     "goalId": "object-pile-window",
-    "startingCommit": "069ba7ecf17a1fc0fa7bf831f37ec59166395321",
-    "startingEvent": "A sighted hero with !autopickup makes an ordinary one-square move onto a shopless ROOM or CORR square holding two to four source-nameable objects, at least one rendered name containing non-ASCII bytes.",
-    "endingEvent": "Space dismisses the Things-that-are-here hybrid TTY window, its covered region is repaired, and the game reaches the next command boundary with the pile and command state intact.",
-    "validInputs": "Shopless ordinary ROOM/CORR piles of two to four objects; short two-, three-, and four-byte text; a space-bearing name at or beyond CO bytes; a PL_PSIZ truncation ending inside a multibyte sequence; menu_overlay enabled or disabled; and a pending TTY topline before look_here displays WIN_MESSAGE.",
-    "observables": "Exact PRNG calls, byte-derived maxcol/offx and recursive split rows, complete cells/attributes/cursors, More input waits, snapshot restoration, pile identity and dknown state, run/multi state, unread input, and persisted state through the next prompt.",
-    "exclusions": "Shops, unpaid objects, pricequotes, blindness, cockatrice handling, swallowed heroes, pile-limit count output, one-object messages, decorated headers, paging, selectable menus, and multibyte paths outside this pile window."
+    "startingCommit": "eb05ccef491e1b099f8b1ada580b8f3a4bb5c710",
+    "startingEvent": "A debug hero submits a wish for a nonmerging single heavy iron ball that exact capacity or the 53rd non-gold inventory slot will force onto the floor.",
+    "endingEvent": "The admitted transaction completes C-ordered discovery, conduct, inventory insertion, drop message, floor placement and next prompt, or an excluded context refuses before discovery, conduct, inventory/floor links, message output, RNG, or capacity-cache mutation.",
+    "validInputs": "Burden-triggered drops; 51 existing non-gold slots that retain the new ball as the 52nd; 52 existing non-gold slots that force the new ball out as the 53rd; strict capacity equality; shopless ordinary ROOM/CORR, up-stair, and doorway destinations.",
+    "observables": "Object dknown/discovery, wish conduct, blessing timeout RNG, inventory and floor chains, object ownership and nomerge, exact messages/screens/cursors, capacity cache, hooks, hero state, and next command boundary.",
+    "exclusions": "Shops, blindness, hallucination, special levels, unreachable floors, swallowed heroes, worn/attached/unpaid objects, down gates, altars, traps, liquids, engravings, regions, nearby timed corpses, artifacts, Fumbling, fatal wished corpses, and non-heavy/merging/split objects."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "Traced hack.c domove/spoteffects through pickup.c pickup/check_here and invent.c look_here into wintty.c tty_putstr, compress_str, tty_display_nhwindow, process_text_window, dmore, tty_dismiss_nhwindow, and erase_menu_or_text.",
-    "dispatchTablesAndCatalogs": "Confirmed built-in object, monster, and artifact names are ASCII; bounded variable text to already-supported personal-name or fruit fields and the two-to-four pile family.",
-    "reachableHelpers": "Read the byte-sized BUFSZ/PL_PSIZ truncation, pre-split maxcol update, last-space-before-CO recursive split, hybrid menu geometry, More placement, overlay clear, and partial/full repair paths.",
-    "javascriptCrossCheck": "Inspected ttyMenuTextData/layout/window, hacklib UTF-8 byte-string helpers, objnam pile admission, look_here's live consumer, TTY message dismissal, and existing menu unit tests.",
-    "remainingLimits": "No development session carries non-ASCII input, and the session scan aborts earlier on unrelated dosounds shop debt, so completion rests on source-shaped direct tests and fresh C/JavaScript recordings."
+    "upstreamEntryPoints": "Traced zap.c makewish through invent.c hold_another_object into do.c dropx/dropy/dropz, including discovery/conduct ordering and the source drop_it tail.",
+    "dispatchTablesAndCatalogs": "Bounded the wished object to one nonartifact, nonmerging HEAVY_IRON_BALL and inventory slots to inv_cnt(FALSE)'s 52 non-gold letters.",
+    "reachableHelpers": "Read doname discovery, conduct bookkeeping, projectsHeavyBallDrop, observe_object, addinv, inv_cnt, near_capacity, preflight_dropx, dropx/freeinv, floor placement, newsym and encumber feedback.",
+    "javascriptCrossCheck": "Inspected zap.js makewish ordering, invent.js heavy-drop projection and hold transaction, do.js admission/drop comments and guards, command-boundary conversion, and current heavy-drop tests/fresh matrices.",
+    "remainingLimits": "Development-session scanning aborts on unrelated dosounds shop debt. Existing fresh object-pile count and decorated-pile matrices exercise supported heavy wishes; excluded contexts require atomic direct snapshots because the port intentionally stops."
   },
   "entries": [
     {
-      "candidate": "Recorder-byte representation",
-      "reachability": "A rendered pile line contains a Unicode code point represented by two to four UTF-8 bytes or a preserved malformed tail byte.",
-      "owner": "js/hacklib.js helpers and js/tty_menu.js window-line pipeline",
-      "effects": "Convert to the recorder byte-string once and retain every byte through compression, measurement, splitting, and cell emission.",
-      "evidence": "wintty.c operates on char buffers and strlen; current tty_menu.js iterates JavaScript characters and indexes code units.",
+      "candidate": "Side-effect-free heavy-drop projection",
+      "reachability": "A single nonmerging heavy ball may exceed the burden threshold or the 52-letter non-gold inventory limit.",
+      "owner": "js/invent.js projectsHeavyBallDrop",
+      "effects": "Predict hold versus drop without retaining capacity-cache or chain mutation and preserve strict source comparisons.",
+      "evidence": "prepareHeavyBallDropAdmission calls projectsHeavyBallDrop before wish mutation and restores the prior gw/wc shape; focused tests pin strict capacity equality and both inventory-slot boundaries.",
       "status": "done",
-      "remaining": "tty_menu.js now converts each hybrid-window line through hacklib's byte-string helpers once per source operation and retains malformed bytes without changing tty_message.js."
+      "remaining": ""
     },
     {
-      "candidate": "Byte-based compress_str and BUFSZ truncation",
-      "reachability": "A line is at least CO bytes, contains newline or repeated spaces, or approaches BUFSZ; PL_PSIZ-limited source text may end mid-sequence.",
-      "owner": "js/tty_menu.js compressTtyWindowLine and source name preparation",
-      "effects": "Collapse source spaces/newlines and reserve the NUL byte exactly where C does, preserving any malformed retained byte.",
-      "evidence": "wintty.c compress_str walks char pointers and bounds its static BUFSZ buffer; current length/slice operations are code-unit based.",
+      "candidate": "Prepared drop admission before wish mutation",
+      "reachability": "Projection says the wished heavy ball will enter hold_another_object's drop_it tail.",
+      "owner": "js/zap.js makewish, js/invent.js admission helper, and js/do.js preflight_dropx",
+      "effects": "Resolve required hooks and all supported ground/drop guards before donameFresh, conduct increment, message output, RNG, inventory linking, or object observation.",
+      "evidence": "makewish now builds the hold environment and prepares the heavy-drop admission before donameFresh and uconduct.wishes++; a live shop-level command test fails at that point.",
       "status": "done",
-      "remaining": "Direct tests pin two-, three-, and four-byte input plus BUFSZ's 254-byte result ending in a preserved 0xE2 tail byte."
+      "remaining": ""
     },
     {
-      "candidate": "Pre-split byte maxcol",
-      "reachability": "Every stored pile line, including a multibyte line wider than CO.",
-      "owner": "js/tty_menu.js ttyMenuTextData and ttyMenuTextLayout",
-      "effects": "Set maxcol from byte strlen plus one before splitting, then derive the exact menu offx and clear decision.",
-      "evidence": "tty_putstr updates maxcol from n0 before the n0 > CO arm; current compressed.length counts code units.",
+      "candidate": "Consume prepared admission without re-evaluation",
+      "reachability": "The admitted wish reaches hold_another_object and the same projected drop branch after source-ordered addinv.",
+      "owner": "js/invent.js hold_another_object",
+      "effects": "Use the prepared drop owner once, retain exact source mutation/message order, undo inventory ownership and place the ball on the floor.",
+      "evidence": "hold_another_object consumes an object/state/inventory-bound one-shot token, and dropx consumes the nested object/state/hook-bound admission before freeinv without repeating preflight_dropx.",
       "status": "done",
-      "remaining": "The data and layout tests calculate maxcol from encoded bytes before splitting and distinguish an over-wide full repair from the initial clear decision."
+      "remaining": ""
     },
     {
-      "candidate": "Byte-indexed recursive splitting and cell emission",
-      "reachability": "A compressed line exceeds CO bytes and has a space before byte column CO, or contains high bytes without splitting.",
-      "owner": "js/tty_menu.js ttyMenuTextData and writeStyledText",
-      "effects": "Find the split in byte indices, retain source row order, and project each recorder byte into the same physical cells and attributes as C.",
-      "evidence": "wintty.c searches backward from CO-1 in char indices and recursively stores the suffix; current indexing and setCell loop use code units.",
+      "candidate": "Atomic excluded-context refusal",
+      "reachability": "A projected heavy drop is on any excluded terrain, hero state, shop/billing state, attachment, trap/region/engraving, or missing-hook context.",
+      "owner": "js/do.js preflight_dropx and js/zap.js makewish command seam",
+      "effects": "Refuse with every durable field, object chain, output buffer, RNG log, and capacity cache unchanged.",
+      "evidence": "The existing complete direct preflight matrix remains green. The new rhack shop-level snapshot proves unchanged conduct, discoveries, encounter state, inventory/floor links, blessing timeout, capacity cache, and absence of a drop message; only mksobj's rnd(2) draw occurs.",
       "status": "done",
-      "remaining": "Tests pin the byte-76 split space, recursive suffix, two-/three-/four-byte recorder columns, and g_putch's special first-byte projection."
+      "remaining": ""
     },
     {
-      "candidate": "Pending topline before the hybrid menu",
-      "reachability": "WIN_MESSAGE has a pending TTY topline when look_here displays the pile window.",
-      "owner": "js/tty_menu.js displayTtyMenuTextWindow and js/tty_message.js dismissal",
-      "effects": "Dismiss the pending line in source order before clearing row zero, then draw and wait on the pile window.",
-      "evidence": "Confirmed review gap: existing tests do not exercise a real pending topline at this consumer.",
+      "candidate": "53rd-slot and capacity boundary matrix",
+      "reachability": "The hero has 51 or 52 occupied non-gold slots, with optional gold, and the ball's projected burden equals or exceeds the pickup limit.",
+      "owner": "scripts/inventory-substrate.test.mjs and wish integration tests",
+      "effects": "Prove the 52nd item is retained, the 53rd is dropped, gold is excluded from inv_cnt(FALSE), and equality alone does not trigger a burden drop.",
+      "evidence": "Focused tests retain the ball as the 52nd non-gold object, drop it as the 53rd, exclude an added gold stack from inv_cnt(FALSE), and retain the ball when projected capacity equals MOD_ENCUMBER.",
       "status": "done",
-      "remaining": "A direct pending ttyPline test records both More boundaries, their order and cursors, then proves both dismissal bytes were consumed."
+      "remaining": ""
     },
     {
-      "candidate": "Overlay-disabled and byte-window restoration",
-      "reachability": "menu_overlay is false, or byte geometry makes offx zero; otherwise a right-side overlay is used.",
-      "owner": "js/tty_menu.js layout snapshot, clear, dismissal, and repair",
-      "effects": "Distinguish clearing the screen from requiring full repair, restore the exact prior cells/attributes, and return the base cursor.",
-      "evidence": "Confirmed review gaps: disabled-overlay restoration lacks a complete assertion and clearsScreen/fullRepair are distinct implicit contracts.",
+      "candidate": "Supported live heavy-drop regressions",
+      "reachability": "Existing fresh count and decorated-pile recipes wish/drop heavy balls on ROOM, up stairs, and a doorway.",
+      "owner": "existing fresh matrix runners plus focused replay tests",
+      "effects": "Preserve exact PRNG, screens, cursors, floor chains, messages and next prompts after moving admission earlier.",
+      "evidence": "Fresh reruns matched 8 segments, 26,157 PRNG calls, 338 screens and 338 cursors across the object-pile-count and decorated-object-pile matrices, including ROOM, up-stair and doorway heavy drops.",
       "status": "done",
-      "remaining": "The layout comment defines clearsScreen and fullRepair separately; direct tests restore complete cells and attributes for both modes, and the fresh matrix covers each mode live."
+      "remaining": ""
     },
     {
-      "candidate": "Remove only the pile-name byte guard",
-      "reachability": "All other movement, decor, naming, pile-count, shop, and exceptional preflights pass for the destination.",
-      "owner": "js/hack.js and js/objnam.js",
-      "effects": "Admit multibyte object names into the now-byte-faithful pile renderer without weakening source-nameability or atomic exclusions.",
-      "evidence": "b9ca359 added assertObjectNameUsesSingleByteText solely to quarantine this renderer defect.",
+      "candidate": "Owner and contract documentation",
+      "reachability": "Maintainers read hold_another_object and preflight_dropx around the prepared transaction.",
+      "owner": "js/invent.js and js/do.js comments",
+      "effects": "Describe the actual supported heavy-drop arm and full admission semantics without calling the check dependency-only or the hold arm plain-only.",
+      "evidence": "invent.js now names the plain addinv and heavy-ball drop_it boundary; do.js describes preflight_dropx as the complete one-shot admission check and explains its post-addinv consumption.",
       "status": "done",
-      "remaining": "requireSimpleHeroDestination now applies the existing mutation-free nameability preflight. The renderer-only recursive guard is deleted; all surrounding exclusions and the paging refusal remain unchanged and covered by the existing focused suites."
-    },
-    {
-      "candidate": "Fresh end-to-end multibyte pile matrix",
-      "reachability": "Replayable debug wishes/drops create independent short, long/split, and disabled-overlay/truncated-byte piles, then ordinary movement opens each window.",
-      "owner": "new source-shaped runner and focused replay tests",
-      "effects": "Compare exact C/JavaScript PRNG logs, screens, cursors, window waits, restoration, object state, and next prompt.",
-      "evidence": "No fixed development session reaches the branch; fresh differential evidence is required for gameplay completion.",
-      "status": "done",
-      "remaining": "Seed 6500803 was found by a fresh generated-level scan. Enabled and disabled overlay recipes reach its natural two-object pile containing a custom UTF-8 slime mold and match 3,684 PRNG calls, 18 screens and 18 cursors exactly. Long object names cannot be assigned by the port's replay command surface, so source-shaped direct tests supply the long-split and malformed-tail evidence."
+      "remaining": ""
     }
   ],
   "missingWorkByOwner": [
     {
-      "group": "byte-faithful hybrid TTY window",
+      "group": "prepared wish/drop transaction",
       "candidates": [
-        "Recorder-byte representation",
-        "Byte-based compress_str and BUFSZ truncation",
-        "Pre-split byte maxcol",
-        "Byte-indexed recursive splitting and cell emission",
-        "Pending topline before the hybrid menu",
-        "Overlay-disabled and byte-window restoration"
+        "Side-effect-free heavy-drop projection",
+        "Prepared drop admission before wish mutation",
+        "Consume prepared admission without re-evaluation",
+        "Atomic excluded-context refusal"
       ],
-      "next": "Port and test the byte pipeline in source order, including both repair modes and pending-message ordering."
+      "next": "Build the prepared contract before makewish's first durable mutation, then consume it exactly once inside hold_another_object."
     },
     {
-      "group": "live multibyte pile admission",
+      "group": "boundary evidence and clarity",
       "candidates": [
-        "Remove only the pile-name byte guard",
-        "Fresh end-to-end multibyte pile matrix"
+        "53rd-slot and capacity boundary matrix",
+        "Supported live heavy-drop regressions",
+        "Owner and contract documentation"
       ],
-      "next": "Lift only the quarantine guard after renderer tests pass, then prove complete C/JavaScript transactions."
+      "next": "Pin slot/capacity boundaries, rerun source recordings, and align comments with the resulting contract."
     }
   ],
-  "sourceReview": "Complete. The implementation follows wintty.c's char-buffer order for compress_str(), pre-split strlen(), byte-indexed recursive splitting, process_text_window() cell projection, pending WIN_MESSAGE dismissal, and erase_menu_or_text() repair. Fresh enabled/disabled overlay recordings match 3,684 PRNG calls, 18 screens and 18 cursors exactly. Direct source-shaped tests cover long splitting and a BUFSZ truncation that preserves a malformed tail because the current replay command surface cannot assign long object names. The orchestrator still owns the final ready and commitChecked fields."
+  "sourceReview": "The orchestrator and fresh selector traced the wish transaction from readobjnam through the supported heavy-ball drop tail. This checklist stays in implementation mode until admission precedes every durable wish mutation, prepared use is single and identity-safe, supported floor drops remain exact, excluded contexts are atomic, the true 53rd-slot case is covered, and owner comments match the code."
 }

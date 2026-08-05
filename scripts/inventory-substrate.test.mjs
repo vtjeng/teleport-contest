@@ -65,6 +65,7 @@ import {
     obj_to_let,
     preflight_addinv,
     preflight_addinv_sequence,
+    prepareHeavyBallDropAdmission,
     prinv,
     reassign,
     resetInventory,
@@ -107,6 +108,8 @@ import {
 // Any valid non-sentinel monster index works for identity-only object tests.
 const TEST_SPECIES = 4;
 const LETTERS_PER_CASE = 26; // a-z or A-Z inventory slots
+const MINIMUM_HERO_ATTRIBUTE = 3; // makes a normal heavy ball exceed MOD_ENCUMBER
+const NON_OBJECT_VALUE = 7; // exercises a truthy primitive object argument
 // Construct corpse fixtures without invoking the monster seam before the test.
 const PLACEHOLDER_CORPSE_WEIGHT = 1;
 
@@ -2040,24 +2043,187 @@ test('heavy-drop projection keeps exact inventory and burden boundaries',
         ball.owt = Math.ceil(weight_cap(state) * 1.5);
         assert.equal(calc_capacity(ball.owt, state), 2);
         let preflights = 0;
+        const env = {
+            state,
+            hooks: {
+                encumberMessage: () => {},
+                preflightDropObject: () => { ++preflights; },
+            },
+        };
+        const admission = prepareHeavyBallDropAdmission(ball, env);
 
         const held = await hold_another_object(
             ball,
             null,
             null,
             null,
-            {
-                state,
-                hooks: {
-                    encumberMessage: () => {},
-                    preflightDropObject: () => { ++preflights; },
-                },
-            },
+            env,
+            admission,
         );
 
         assert.equal(held, ball);
         assert.equal(preflights, 0);
         assert.equal(ball.where, OBJ_INVENT);
+    });
+
+test('heavy-drop admission distinguishes the 52nd and 53rd non-gold slots',
+    async () => {
+        for (const [existingSlots, expectedDrop] of [
+            // The incoming ball receives the last legal non-gold letter.
+            [INVLET_BASIC - 1, false],
+            // The incoming ball is the first item beyond the 52-letter limit.
+            [INVLET_BASIC, true],
+        ]) {
+            const state = carryingState();
+            let tail = null;
+            for (let index = 0; index < existingSlots; ++index) {
+                const lamp = instance(OIL_LAMP, state, {
+                    invlet: index < LETTERS_PER_CASE
+                        ? String.fromCharCode(97 + index)
+                        : String.fromCharCode(
+                            65 + index - LETTERS_PER_CASE,
+                        ),
+                    nomerge: true,
+                    owt: 0,
+                    where: OBJ_INVENT,
+                });
+                if (tail) tail.nobj = lamp;
+                else state.invent = lamp;
+                tail = lamp;
+            }
+            const gold = instance(GOLD_PIECE, state, {
+                invlet: '$',
+                owt: 0,
+                where: OBJ_INVENT,
+            });
+            tail.nobj = gold;
+            const ball = instance(HEAVY_IRON_BALL, state, { owt: 0 });
+            let drops = 0;
+            const env = {
+                state,
+                hooks: {
+                    encumberMessage: () => {},
+                    preflightDropObject: () => ({ object: ball }),
+                    dropObject: () => { ++drops; },
+                },
+            };
+            const admission = prepareHeavyBallDropAdmission(ball, env);
+
+            const held = await hold_another_object(
+                ball, null, null, null, env, admission,
+            );
+
+            assert.equal(held, expectedDrop ? null : ball, existingSlots);
+            assert.equal(drops, expectedDrop ? 1 : 0, existingSlots);
+        }
+    });
+
+test('heavy-drop admission validates its object before reading its type', () => {
+    const state = carryingState();
+    for (const value of [null, NON_OBJECT_VALUE]) {
+        assert.throws(
+            () => prepareHeavyBallDropAdmission(value, { state }),
+            /heavy-drop admission requires an object/u,
+        );
+    }
+});
+
+test('heavy-drop admission is object-specific, state-specific, and one-shot',
+    async () => {
+        const first = ordinaryDropFixture();
+        first.obj.where = OBJ_FREE;
+        first.state.invent = null;
+        first.state.u.acurr.a[A_STR] = MINIMUM_HERO_ATTRIBUTE;
+        first.state.u.acurr.a[A_CON] = MINIMUM_HERO_ATTRIBUTE;
+        first.hooks.preflightDropObject = () => ({ object: first.obj });
+        first.hooks.dropObject = () => {};
+        const admission = prepareHeavyBallDropAdmission(first.obj, first);
+        const other = instance(HEAVY_IRON_BALL, first.state);
+
+        await assert.rejects(
+            hold_another_object(
+                other, null, null, null, first, admission,
+            ),
+            /admission belongs to another object/u,
+        );
+        const otherState = carryingState();
+        await assert.rejects(
+            hold_another_object(
+                first.obj,
+                null,
+                null,
+                null,
+                { state: otherState, hooks: first.hooks },
+                admission,
+            ),
+            /admission belongs to another state/u,
+        );
+        await hold_another_object(
+            first.obj, null, null, null, first, admission,
+        );
+        await assert.rejects(
+            hold_another_object(
+                first.obj, null, null, null, first, admission,
+            ),
+            /admission was already consumed/u,
+        );
+
+        const stale = ordinaryDropFixture();
+        stale.obj.where = OBJ_FREE;
+        stale.state.invent = null;
+        stale.state.u.acurr.a[A_STR] = MINIMUM_HERO_ATTRIBUTE;
+        stale.state.u.acurr.a[A_CON] = MINIMUM_HERO_ATTRIBUTE;
+        stale.hooks.preflightDropObject = () => ({ object: stale.obj });
+        stale.hooks.dropObject = () => {};
+        const staleAdmission = prepareHeavyBallDropAdmission(
+            stale.obj,
+            stale,
+        );
+        stale.state.invent = instance(OIL_LAMP, stale.state, {
+            where: OBJ_INVENT,
+        });
+        await assert.rejects(
+            hold_another_object(
+                stale.obj, null, null, null, stale, staleAdmission,
+            ),
+            /admission is stale/u,
+        );
+
+        for (const [name, mutate] of [
+            ['type', (obj) => { obj.otyp = OIL_LAMP; }],
+            ['weight', (obj) => { ++obj.owt; }],
+            // Quantity 2 changes the admitted single ball into a split stack.
+            ['quantity', (obj) => { obj.quan = 2; }],
+            ['ownership', (obj) => { obj.where = OBJ_FLOOR; }],
+        ]) {
+            const changed = ordinaryDropFixture();
+            changed.obj.where = OBJ_FREE;
+            changed.state.invent = null;
+            changed.state.u.acurr.a[A_STR] = MINIMUM_HERO_ATTRIBUTE;
+            changed.state.u.acurr.a[A_CON] = MINIMUM_HERO_ATTRIBUTE;
+            changed.hooks.preflightDropObject = () => ({
+                object: changed.obj,
+            });
+            changed.hooks.dropObject = () => {};
+            const changedAdmission = prepareHeavyBallDropAdmission(
+                changed.obj,
+                changed,
+            );
+            mutate(changed.obj);
+
+            await assert.rejects(
+                hold_another_object(
+                    changed.obj,
+                    null,
+                    null,
+                    null,
+                    changed,
+                    changedAdmission,
+                ),
+                /admission is stale/u,
+                name,
+            );
+        }
     });
 
 test('heavy artifact and Fumbling guards precede drop projection', async () => {
@@ -2133,13 +2299,16 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
             newsym: () => {},
             encumberMessage: () => { ++encumbered; },
         };
+        const env = { state, hooks };
+        const admission = prepareHeavyBallDropAdmission(ball, env);
 
         const held = await hold_another_object(
             ball,
             'Oops!  %s to the floor!',
             'The heavy iron ball drops',
             null,
-            { state, hooks },
+            env,
+            admission,
         );
 
         assert.equal(held, null);
@@ -2148,12 +2317,14 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
         assert.equal(ball.where, OBJ_FLOOR);
         assert.equal(ball.nomerge, 0);
         const second = instance(HEAVY_IRON_BALL, state);
+        const secondAdmission = prepareHeavyBallDropAdmission(second, env);
         assert.equal(await hold_another_object(
             second,
             'Oops!  %s to the floor!',
             'The heavy iron ball drops',
             null,
-            { state, hooks },
+            env,
+            secondAdmission,
         ), null);
         // place_object() prepends the new object to both independent source
         // indexes; oc_merge=0 leaves both nodes distinct through stackobj().
@@ -2369,6 +2540,39 @@ test('drop preflight validates its object argument before reading ownership',
                 /preflight_dropx requires an object/u,
             );
         }
+    });
+
+test('prepared drop admission rejects changed ownership and origin',
+    async () => {
+        const used = ordinaryDropFixture();
+        const usedAdmission = preflight_dropx(used.obj, used);
+        await dropx(used.obj, used, usedAdmission);
+        await assert.rejects(
+            dropx(used.obj, used, usedAdmission),
+            /drop admission was already consumed/u,
+        );
+
+        const freed = ordinaryDropFixture();
+        const freedAdmission = preflight_dropx(freed.obj, freed);
+        freed.obj.where = OBJ_FREE;
+        freed.state.invent = null;
+        await assert.rejects(
+            dropx(freed.obj, freed, freedAdmission),
+            /drop admission is stale/u,
+        );
+
+        const wrongOrigin = ordinaryDropFixture();
+        const wrongOriginAdmission = preflight_dropx(
+            wrongOrigin.obj,
+            wrongOrigin,
+        );
+        // No preflight can issue this value; corrupting the token isolates the
+        // origin half of consumeDropAdmission's stale-token guard.
+        wrongOriginAdmission.initialWhere = OBJ_FLOOR;
+        await assert.rejects(
+            dropx(wrongOrigin.obj, wrongOrigin, wrongOriginAdmission),
+            /drop admission is stale/u,
+        );
     });
 
 test('buried-corpse impact preflight pins every coordinate boundary', () => {

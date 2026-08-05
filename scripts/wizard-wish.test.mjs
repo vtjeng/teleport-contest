@@ -14,6 +14,7 @@ import test from 'node:test';
 import {
     UnsupportedHeroCommandBoundaryError, failClosedCommandRefusals, rhack,
 } from '../js/cmd.js';
+import { A_CON, A_STR } from '../js/const.js';
 import { UnsupportedDropError } from '../js/do.js';
 import { UnsupportedObjectOperationError } from '../js/obj.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
@@ -22,7 +23,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
-import { objects_globals_init } from '../js/objects.js';
+import { HEAVY_IRON_BALL, objects_globals_init } from '../js/objects.js';
 import { UnsupportedWishError, makewish } from '../js/zap.js';
 import {
     ESCAPE_KEY,
@@ -327,6 +328,56 @@ test('a wish the hero cannot carry stops the segment rather than escaping',
             boundaries[0].message,
             /held object dropped is not available for otyp 475/,
         );
+    });
+
+test('an excluded heavy-ball drop refuses before wish state changes',
+    async () => {
+        const recorded = loadWizardWishRecipe().segments[0];
+        const replay = await runSegment({ ...recorded, moves: '.' });
+        // Strength and Constitution 3 make the 480-weight ball exceed the
+        // default MOD_ENCUMBER pickup limit on this otherwise live hero.
+        game.u.acurr.a[A_STR] = 3;
+        game.u.acurr.a[A_CON] = 3;
+        game.level.flags.has_shop = true;
+        const { ux, uy } = game.u;
+        const before = {
+            blesscnt: game.u.ublesscnt,
+            conduct: game.u.uconduct.wishes,
+            discovery: [...game.svd.disco],
+            encountered: game.objects[HEAVY_IRON_BALL].oc_encountered,
+            floor: game.level.objects[ux][uy],
+            gw: structuredClone(game.gw),
+            inventory: game.invent,
+            rng: replay.getRngLog().length,
+        };
+        for (const ch of 'heavy iron ball\n')
+            game.nhDisplay.pushKey(ch.charCodeAt(0));
+
+        await assert.rejects(
+            () => rhack(WIZWISH_KEY.charCodeAt(0), game),
+            (error) => error instanceof UnsupportedHeroCommandBoundaryError
+                && /shop level/u.test(error.message),
+        );
+
+        assert.equal(game.u.uconduct.wishes, before.conduct);
+        assert.deepEqual(game.svd.disco, before.discovery);
+        assert.equal(
+            game.objects[HEAVY_IRON_BALL].oc_encountered,
+            before.encountered,
+        );
+        assert.equal(game.invent, before.inventory);
+        assert.equal(game.level.objects[ux][uy], before.floor);
+        assert.equal(game.u.ublesscnt, before.blesscnt);
+        assert.deepEqual(game.gw, before.gw);
+        // mksobj() spends rnd(2) while creating the ball. Admission precedes
+        // the later rn1(100, 50) blessing timeout draw.
+        assert.deepEqual(
+            replay.getRngLog().slice(before.rng).map(
+                (entry) => entry.replace(/=.*/u, ''),
+            ),
+            ['rnd(2)'],
+        );
+        assert.doesNotMatch(topLine(), /Oops!/u);
     });
 
 test('ordinary wish-drop refusals convert at the command seam', () => {

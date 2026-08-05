@@ -15,7 +15,10 @@ import { dropx, preflight_dropx } from './do.js';
 import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
 import { lcase, mungspaces } from './hacklib.js';
-import { hold_another_object } from './invent.js';
+import {
+    hold_another_object,
+    prepareHeavyBallDropAdmission,
+} from './invent.js';
 import { The, aobjnam, donameFresh } from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
@@ -103,6 +106,20 @@ export async function makewish(state = game) {
         throw new UnsupportedWishError('a wished-for artifact', bufcpy);
     }
 
+    const holdEnv = {
+        state,
+        hooks: {
+            encumberMessage: encumber_msg,
+            newsym,
+            preflightDropObject: preflight_dropx,
+            dropObject: dropx,
+        },
+    };
+    // The supported heavy-ball drop tail must be admitted before doname()
+    // records discovery and before wish conduct changes. The returned token
+    // is consumed after addinv() reaches the source drop_it branch.
+    const heavyDropAdmission = prepareHeavyBallDropAdmission(otmp, holdEnv);
+
     // 6398 builds the livelog string.  Its three arms differ only in the text
     // they write to the livelog file, but doname() runs for all of them and
     // its xname() marks the object seen, so the call stays.
@@ -125,15 +142,8 @@ export async function makewish(state = game) {
     /* The(aobjnam()) is safe since otmp is unidentified -dlc */
     await hold_another_object(
         otmp, oops_msg, The(aobjnam(otmp, verb, state)), null,
-        {
-            state,
-            hooks: {
-                encumberMessage: encumber_msg,
-                newsym,
-                preflightDropObject: preflight_dropx,
-                dropObject: dropx,
-            },
-        },
+        holdEnv,
+        heavyDropAdmission,
     );
     state.u.ublesscnt += rn1(100, 50); /* the gods take notice */
 }

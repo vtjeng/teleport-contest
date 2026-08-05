@@ -2377,11 +2377,9 @@ export async function prinv(prefix, obj, quan, env = {}) {
     );
 }
 
-// C ref: invent.c hold_another_object() (1206-1306), its plain addinv arm.
-// The object a wish creates is no artifact, the hero is not Fumbling and has a
-// free slot, so C's artifact block (1216-1244), its Fumbling arm (1245-1249),
-// its wished-for-corpse arm (1250-1256) and the drop_it: tail (1293-1304) each
-// stop here instead.
+// C ref: invent.c hold_another_object() (1206-1306), restricted to the plain
+// addinv arm and the nonmerging heavy-iron-ball route through drop_it. Artifact,
+// Fumbling, fatal-corpse, merging, and other drop routes remain fail-closed.
 //
 // C calls addinv_core0(obj, NULL, FALSE), whose FALSE holds back the
 // permanent-inventory refresh until the explicit update_inventory() below.
@@ -2416,33 +2414,88 @@ function projectsHeavyBallDrop(obj, state) {
     }
 }
 
+// Prepare the only drop_it route this port can finish. makewish() calls this
+// before doname() records discovery and before it increments wish conduct.
+// The token records both a hold decision and an admitted drop decision so
+// hold_another_object() need not repeat a guard after those source-ordered
+// writes. It also restores near_capacity()'s cache before returning.
+export function prepareHeavyBallDropAdmission(obj, env = {}) {
+    const normalized = inventoryEnv(env);
+    const { state } = normalized;
+    if (!obj || typeof obj !== 'object')
+        throw new TypeError('heavy-drop admission requires an object');
+    if (obj.otyp === HEAVY_IRON_BALL
+        && propertyPresent(state, FUMBLING)) {
+        throw new UnsupportedObjectOperationError('held while fumbling', obj);
+    }
+    if (obj.otyp !== HEAVY_IRON_BALL || obj.quan !== 1
+        || obj.oartifact || state.objects?.[obj.otyp]?.oc_merge) {
+        return null;
+    }
+    const willDrop = projectsHeavyBallDrop(obj, state);
+    let dropObject = null;
+    let dropAdmission = null;
+    if (willDrop) {
+        dropObject = requiredHook(normalized, 'dropObject', obj);
+        dropAdmission = requiredHook(
+            normalized,
+            'preflightDropObject',
+            obj,
+        )(obj, normalized);
+    }
+    return {
+        consumed: false,
+        dropAdmission,
+        dropObject,
+        inventory: state.invent ?? null,
+        object: obj,
+        objectFacts: {
+            oartifact: obj.oartifact,
+            otyp: obj.otyp,
+            owt: obj.owt,
+            quan: obj.quan,
+            where: obj.where,
+        },
+        state,
+        willDrop,
+    };
+}
+
+function consumeHeavyBallDropAdmission(obj, state, admission) {
+    if (!admission) return null;
+    if (admission.object !== obj)
+        throw new Error('heavy-drop admission belongs to another object');
+    if (admission.state !== state)
+        throw new Error('heavy-drop admission belongs to another state');
+    if (admission.consumed)
+        throw new Error('heavy-drop admission was already consumed');
+    const facts = admission.objectFacts;
+    if ((state.invent ?? null) !== admission.inventory
+        || obj.oartifact !== facts.oartifact
+        || obj.otyp !== facts.otyp
+        || obj.owt !== facts.owt
+        || obj.quan !== facts.quan
+        || obj.where !== facts.where) {
+        throw new Error('heavy-drop admission is stale');
+    }
+    admission.consumed = true;
+    return admission;
+}
+
 export async function hold_another_object(
-    obj, drop_fmt, drop_arg, hold_msg, env = {},
+    obj, drop_fmt, drop_arg, hold_msg, env = {}, preparedHeavyDrop = null,
 ) {
     const normalized = inventoryEnv(env);
     const { state } = normalized;
 
-    // The ordinary heavy-ball drop is predictable without linking the object:
-    // oc_merge is false, so calc_capacity(obj->owt) is exactly the capacity C
-    // sees after addinv_core0(). Preflight do.c's whole admitted tail before
-    // observe_object() changes dknown or a missing dependency can leave the
-    // new object in inventory.
-    let preflightedHeavyDrop = false;
-    let heavyDropObject = null;
-    if (obj.otyp === HEAVY_IRON_BALL && obj.quan === 1
-        && !obj.oartifact && !propertyPresent(state, FUMBLING)) {
-        if (projectsHeavyBallDrop(obj, state)) {
-            // Retain both owners now: neither may be discovered after
-            // observe_object(), addinv(), or the drop message has changed
-            // visible state.
-            heavyDropObject = requiredHook(normalized, 'dropObject', obj);
-            requiredHook(normalized, 'preflightDropObject', obj)(
-                obj,
-                normalized,
-            );
-            preflightedHeavyDrop = true;
-        }
-    }
+    // Direct callers retain the old entry contract. makewish() supplies the
+    // prepared token so every refusal occurs before discovery and conduct.
+    const heavyDropAdmission = consumeHeavyBallDropAdmission(
+        obj,
+        state,
+        preparedHeavyDrop
+            ?? prepareHeavyBallDropAdmission(obj, normalized),
+    );
 
     if (!isBlind(normalized))
         observe_object(obj, state); /* maximize mergeability */
@@ -2470,7 +2523,7 @@ export async function hold_another_object(
             || ((obj.otyp !== LOADSTONE || !obj.cursed)
                 && near_capacity(state) > prev_encumbr)) {
             /* 1275-1281 undoes any merge that took place and drops it */
-            if (!preflightedHeavyDrop || obj.quan !== oquan) {
+            if (!heavyDropAdmission?.willDrop || obj.quan !== oquan) {
                 throw new UnsupportedObjectOperationError('held object dropped',
                                                           obj);
             }
@@ -2479,7 +2532,11 @@ export async function hold_another_object(
                 await message(drop_fmt.replace('%s', drop_arg ?? ''), state);
             }
             obj.nomerge = 0;
-            await heavyDropObject(obj, normalized);
+            await heavyDropAdmission.dropObject(
+                obj,
+                normalized,
+                heavyDropAdmission.dropAdmission,
+            );
             return null;
         }
         if (state.flags?.autoquiver && !state.uquiver && !obj.owornmask) {
