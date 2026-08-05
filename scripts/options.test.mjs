@@ -9,6 +9,7 @@ import {
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
+    STONE,
 } from '../js/const.js';
 import {
     ROLE_NONE,
@@ -872,6 +873,16 @@ test('acoustics value spellings use the source boolean parser', () => {
             value,
         );
     }
+});
+
+test('mention_decor toggles reset the remembered terrain', () => {
+    // STAIRS differs from options.c's STONE reset and proves that the second
+    // option occurrence runs opt_mention_decor after the first one.
+    const parsed = parseNethackrc(
+        'OPTIONS=mention_decor,!mention_decor,mention_decor',
+    );
+    assert.equal(parsed.flags.mention_decor, true);
+    assert.equal(parsed.iflags.prev_decor, STONE);
 });
 
 test('continued config lines follow cfgfiles.c merge and comment rules', () => {

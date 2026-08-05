@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { NORMAL_SPEED } from '../js/const.js';
+import { NORMAL_SPEED, STAIRS, STONE } from '../js/const.js';
 import { flush_screen } from '../js/display.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -105,6 +105,58 @@ test('ordinary new-game preamble owns its RNG draws and basic state', async () =
     assert.equal(state.iflags.debug_fuzzer, 1);
     assert.equal(state.iflags.fuzzerpending, false);
 });
+
+test('new-game preamble resets starting inventory before staircase decor',
+    async () => {
+        // 2026-01-29 has no calendar message, so the one Space dismisses only
+        // the pending welcome line before pickup.c describes the staircase.
+        const state = preambleState('20260129120000', ' ');
+        state.flags = {
+            mention_decor: true,
+            pickup: false,
+            verbose: true,
+        };
+        state.iflags.prev_decor = STONE;
+        Object.assign(state.u, {
+            ux: 1,
+            uy: 1,
+            uz: { dnum: 0, dlevel: 1 },
+            uhave: { amulet: false },
+        });
+        const locations = Array.from({ length: 3 }, () =>
+            Array.from({ length: 3 }, () => ({ typ: 0 })));
+        locations[1][1].typ = STAIRS;
+        state.level = {
+            locations,
+            objects: Array.from({ length: 3 }, () => Array(3).fill(null)),
+            at(x, y) { return this.locations[x]?.[y] ?? { typ: 0 }; },
+        };
+        state.stairs = {
+            sx: 1,
+            sy: 1,
+            up: true,
+            isladder: false,
+            tolev: { dnum: 1, dlevel: 1 },
+            u_traversed: true,
+            next: null,
+        };
+        state.invent = { pickup_prev: true, nobj: null };
+        await ttyPline('Hello Stair, welcome to NetHack!', state);
+
+        await moveloop_preamble(false, state);
+
+        assert.equal(state.invent.pickup_prev, false);
+        assert.equal(
+            state._pending_message,
+            'There is a staircase up out of the dungeon here.',
+        );
+        assert.equal(state.iflags.prev_decor, STAIRS);
+        assert.deepEqual(
+            getRngLog().map((entry) => entry.slice(0, entry.indexOf('='))),
+            ['rnd(9000)', 'rnd(30)'],
+        );
+        assert.deepEqual([state.u.ux, state.u.uy, state.context.move], [1, 1, 0]);
+    });
 
 test('permanent inventory first renders after entering the move loop', async () => {
     const state = preambleState('20260129120000');

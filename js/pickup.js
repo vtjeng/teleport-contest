@@ -4,6 +4,7 @@
 import {
     BLINDED,
     EXT_ENCUMBER,
+    FUMBLING,
     HVY_ENCUMBER,
     LOOKHERE_NOFLAGS,
     LOOKHERE_PICKED_SOME,
@@ -11,10 +12,12 @@ import {
     MOD_ENCUMBER,
     OBJ_FLOOR,
     SLT_ENCUMBER,
+    STAIRS,
+    STONE,
     is_pit,
 } from './const.js';
 import { flush_screen, newsym } from './display.js';
-import { can_reach_floor, read_engr_at } from './engrave.js';
+import { can_reach_floor, engr_at, read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import {
     calc_capacity,
@@ -26,6 +29,7 @@ import {
 } from './hack.js';
 import {
     addinv_runtime,
+    dfeature_at,
     look_here,
     obj_extract_self,
     preflight_addinv_sequence,
@@ -37,6 +41,7 @@ import { objectGenerationEnv } from './object_generation.js';
 import { CORPSE, SCR_SCARE_MONSTER } from './objects.js';
 import { assertObjectNameable } from './objnam.js';
 import { costly_spot } from './shk.js';
+import { stairway_at } from './stairs.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 
@@ -104,8 +109,78 @@ export function observe_pickup_object(obj, state = game) {
 // C ref: pickup.c reset_justpicked().  Regular pickup owns this direct reset;
 // gl.loot_reset_justpicked is the separate doloot() handoff consumed by
 // addinv_core0() and must not be used to delay this mutation.
-function reset_justpicked(head) {
+export function reset_justpicked(head) {
     for (let obj = head; obj; obj = obj.nobj) obj.pickup_prev = false;
+}
+
+function heroHasProperty(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+// This is the bounded branch of pickup.c describe_decor() reached by
+// allmain.c moveloop_preamble(FALSE): a new hero stands on the traversed D:1
+// staircase before the first command. Later terrain and repeated descriptions
+// remain fail-closed at their existing callers.
+function startupStairDecor(state) {
+    const { u } = state;
+    const cell = state.level?.at(u.ux, u.uy);
+    const stair = stairway_at(u.ux, u.uy, state);
+    const ordinaryExit = cell?.typ === STAIRS
+        && stair?.up === true
+        && stair.isladder === false
+        && stair.u_traversed === true
+        && u.uz?.dnum === 0
+        && u.uz?.dlevel === 1
+        && !u.uhave?.amulet
+        && dfeature_at(u.ux, u.uy, state)
+            === 'staircase up out of the dungeon';
+    if (!ordinaryExit) {
+        throw new UnsupportedPickupError(
+            'mention_decor outside the initial D:1 staircase',
+        );
+    }
+    if (state.flags?.verbose !== true) {
+        throw new UnsupportedPickupError(
+            'nonverbose initial decor description',
+        );
+    }
+    if (u.uinwater || heroHasProperty(state, FUMBLING)
+        || state.iflags?.defer_decor
+        || state.decor_fumble_override
+        || state.decor_levitate_override) {
+        throw new UnsupportedPickupError(
+            'exceptional initial decor description',
+        );
+    }
+    if (state.iflags?.prev_decor !== STONE) {
+        throw new UnsupportedPickupError(
+            'repeated initial decor description',
+        );
+    }
+    return 'staircase up out of the dungeon';
+}
+
+// Temporary startup admission for the portion of pickup(1) selected by this
+// boundary. It runs before reset_justpicked(), so an excluded object,
+// engraving, or terrain leaves inventory and decor memory unchanged.
+export function preflight_initial_pickup(state = game) {
+    const { u } = state;
+    if (state.level?.objects?.[u.ux]?.[u.uy]) {
+        throw new UnsupportedPickupError('initial floor object');
+    }
+    if (engr_at(u.ux, u.uy, state)) {
+        throw new UnsupportedPickupError('initial engraving');
+    }
+    if (state.flags?.mention_decor) startupStairDecor(state);
+}
+
+// C ref: pickup.c describe_decor(), restricted to startupStairDecor() above.
+export async function describe_decor(state) {
+    const feature = startupStairDecor(state);
+    await ttyPline(`There is a ${feature} here.`, state);
+    state.iflags.prev_decor = STAIRS;
+    return true;
 }
 
 // C ref: pickup.c pickup() (672-910), autopick(), pickup_object(), pick_obj()
@@ -137,11 +212,7 @@ export async function pickup(what, state = game) {
             || (is_pool(u.ux, u.uy, state) && !u.uinwater)
             || is_lava(u.ux, u.uy, state))) {
         if (state.flags?.mention_decor) {
-            // describe_decor() and its iflags.prev_decor memory are unported;
-            // ROADMAP.md lists them with the decor work.
-            throw new UnsupportedPickupError(
-                'pickup() with mention_decor set',
-            );
+            await describe_decor(state);
         }
         await read_engr_at(u.ux, u.uy, state, {
             pline: ttyPline,

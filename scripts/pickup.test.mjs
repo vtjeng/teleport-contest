@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BLINDED,
     EXT_ENCUMBER,
+    FUMBLING,
     HVY_ENCUMBER,
     MOAT,
     MOD_ENCUMBER,
@@ -14,6 +15,8 @@ import {
     PIT,
     ROOM,
     SLT_ENCUMBER,
+    STAIRS,
+    STONE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import {
@@ -28,8 +31,10 @@ import { objectGenerationEnv } from '../js/object_generation.js';
 import { addinv, obj_extract_self } from '../js/invent.js';
 import {
     encumber_msg,
+    describe_decor,
     observe_pickup_object,
     pickup,
+    preflight_initial_pickup,
     UnsupportedPickupError,
 } from '../js/pickup.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
@@ -103,6 +108,28 @@ async function heroOnAnEmptySquare() {
     return state;
 }
 
+async function heroOnStartingStair() {
+    const state = await heroOnAnEmptySquare();
+    state.level.at(state.u.ux, state.u.uy).typ = STAIRS;
+    state.flags.mention_decor = true;
+    state.flags.verbose = true;
+    state.iflags.prev_decor = STONE;
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    state.u.uhave = { amulet: false };
+    // The synthetic stair leads out of the main dungeon and has already been
+    // traversed, which selects stairs.c's D:1 exit wording.
+    state.stairs = {
+        sx: state.u.ux,
+        sy: state.u.uy,
+        up: true,
+        isladder: false,
+        tolev: { dnum: 1, dlevel: 1 },
+        u_traversed: true,
+        next: null,
+    };
+    return state;
+}
+
 // Drop the pending message so look_here()'s next pline() starts a fresh top
 // line rather than asking for a --More-- no keystroke is left to answer.
 function quiet(state) {
@@ -172,6 +199,146 @@ test('pickup answers an empty square without taking anything', async () => {
     // query_objlist() with an empty chain and also answers zero.
     assert.equal(await pickup(1, state), 0);
     assert.equal(await pickup(-1, state), 0);
+});
+
+test('pickup describes the traversed D:1 staircase before returning',
+    async () => {
+        const state = await heroOnStartingStair();
+        const position = [state.u.ux, state.u.uy];
+        const inventory = state.invent;
+
+        assert.equal(await pickup(1, state), 0);
+        assert.equal(
+            state._ttyToplines,
+            'There is a staircase up out of the dungeon here.',
+        );
+        assert.equal(state.iflags.prev_decor, STAIRS);
+        assert.deepEqual([state.u.ux, state.u.uy], position);
+        assert.equal(state.invent, inventory);
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
+    });
+
+test('bounded describe_decor reports that it printed the staircase',
+    async () => {
+        const state = await heroOnStartingStair();
+        assert.equal(await describe_decor(state), true);
+        assert.equal(state.iflags.prev_decor, STAIRS);
+    });
+
+test('initial pickup rejects every excluded startup family atomically',
+    async () => {
+        const cases = [
+            {
+                // One ordinary floor object would enter autopickup or
+                // check_here(), both beyond the selected empty-square arm.
+                name: 'floor object',
+                expected: /initial floor object/u,
+                alter: (state) => { objectUnderHero(state); },
+            },
+            {
+                // Any engraving would let read_engr_at() print after decor.
+                name: 'engraving',
+                expected: /initial engraving/u,
+                alter: (state) => {
+                    state.head_engr = {
+                        engr_x: state.u.ux,
+                        engr_y: state.u.uy,
+                        engr_txt: 'x',
+                        nxt_engr: null,
+                    };
+                },
+            },
+            {
+                // ROOM selects describe_decor()'s no-feature arm.
+                name: 'other terrain',
+                expected: /outside the initial D:1 staircase/u,
+                alter: (state) => {
+                    state.level.at(state.u.ux, state.u.uy).typ = ROOM;
+                },
+            },
+            {
+                // flags.verbose changes the source sentence form.
+                name: 'nonverbose wording',
+                expected: /nonverbose initial decor/u,
+                alter: (state) => { state.flags.verbose = false; },
+            },
+            {
+                // Underwater suppresses the ordinary stair feature.
+                name: 'underwater hero',
+                expected: /exceptional initial decor/u,
+                alter: (state) => { state.u.uinwater = true; },
+            },
+            {
+                // Fumbling can defer feedback when its timeout reaches one.
+                name: 'fumbling hero',
+                expected: /exceptional initial decor/u,
+                alter: (state) => {
+                    state.u.uprops[FUMBLING].intrinsic = 1;
+                },
+            },
+            {
+                // force_decor() may override the ordinary fumble deferral;
+                // that probing path lies outside initial startup.
+                name: 'fumble override',
+                expected: /exceptional initial decor/u,
+                alter: (state) => { state.decor_fumble_override = true; },
+            },
+            {
+                // force_decor() also owns a levitation override during
+                // probing, which an initial startup call never sets.
+                name: 'levitation override',
+                expected: /exceptional initial decor/u,
+                alter: (state) => { state.decor_levitate_override = true; },
+            },
+            {
+                // Carrying the Amulet selects the endgame staircase name.
+                name: 'endgame staircase',
+                expected: /outside the initial D:1 staircase/u,
+                alter: (state) => { state.u.uhave.amulet = true; },
+            },
+            {
+                // A remembered staircase belongs to a later decor call.
+                name: 'repeated decor',
+                expected: /repeated initial decor/u,
+                alter: (state) => { state.iflags.prev_decor = STAIRS; },
+            },
+        ];
+
+        for (const entry of cases) {
+            const state = await heroOnStartingStair();
+            const inventory = state.invent;
+            inventory.pickup_prev = true;
+            const position = [state.u.ux, state.u.uy];
+            const toplines = state._ttyToplines;
+            entry.alter(state);
+            const previousDecor = state.iflags.prev_decor;
+
+            assert.throws(
+                () => preflight_initial_pickup(state),
+                entry.expected,
+                entry.name,
+            );
+            assert.equal(inventory.pickup_prev, true, entry.name);
+            assert.equal(state.invent, inventory, entry.name);
+            assert.equal(state.iflags.prev_decor, previousDecor, entry.name);
+            assert.equal(state._ttyToplines, toplines, entry.name);
+            assert.deepEqual([state.u.ux, state.u.uy], position, entry.name);
+        }
+    });
+
+test('initial staircase decor is independent of autopickup', async () => {
+    const outputs = [];
+    for (const pickupEnabled of [false, true]) {
+        const state = await heroOnStartingStair();
+        state.flags.pickup = pickupEnabled;
+        assert.equal(await pickup(1, state), 0);
+        outputs.push({
+            line: state._ttyToplines,
+            previousDecor: state.iflags.prev_decor,
+            floor: state.level.objects[state.u.ux][state.u.uy],
+        });
+    }
+    assert.deepEqual(outputs[0], outputs[1]);
 });
 
 test('pickup describes a square it is not allowed to take from', async () => {

@@ -11,6 +11,11 @@ import {
 import { friday_13th, phase_of_the_moon } from './calendar.js';
 import { game } from './gstate.js';
 import { update_inventory } from './invent.js';
+import {
+    pickup,
+    preflight_initial_pickup,
+    reset_justpicked,
+} from './pickup.js';
 import { rnd } from './rng.js';
 import { initrack } from './track.js';
 import { ttyPline } from './tty_message.js';
@@ -21,8 +26,7 @@ export function change_luck(amount, state = game) {
     state.u.uluck = Math.max(LUCKMIN, Math.min(LUCKMAX, current + amount));
 }
 
-// Inventory-owned set_wear(NULL), reset_justpicked(invent), pickup(1), and
-// encumber_msg() remain at their source boundary. Monster visibility deferral
+// encumber_msg() remains at its source boundary. Monster visibility deferral
 // remains with the future vision subsystem.
 export async function moveloop_preamble(
     resuming = false,
@@ -58,8 +62,13 @@ export async function moveloop_preamble(
         state.program_state.beyond_savefile_load = 1;
         state.context.rndencode = rnd(9000);
 
-        // Inventory side effects occur here in C.  They are intentionally
-        // absent until the inventory subsystem can own them faithfully.
+        // C calls set_wear(NULL) here. ini_inv_use_obj() is the sole startup
+        // wearer and selects armor only; use_initial_inventory() has already
+        // passed those items through setworn(), establishing the same slots,
+        // extrinsics, and status values before this new-game path begins.
+        preflight_initial_pickup(state);
+        reset_justpicked(state.invent);
+        await pickup(1, state);
 
         state.context.seer_turn = rnd(30);
         state.u.umovement = NORMAL_SPEED;
