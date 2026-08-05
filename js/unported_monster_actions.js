@@ -88,6 +88,7 @@ import {
     mon_in_region,
 } from './region.js';
 import {
+    cloneCoreContext,
     createCoreRandom,
     d,
     rn1,
@@ -226,21 +227,8 @@ function assertSimpleActionState(monster, state) {
         unsupported('monster ranged or magical action');
 }
 
-function cloneIsaacContext(context) {
-    if (!context
-        || !Array.isArray(context.m)
-        || !Array.isArray(context.r)) {
-        throw new TypeError('simple preflight requires initialized core RNG');
-    }
-    return {
-        ...context,
-        m: [...context.m],
-        r: [...context.r],
-    };
-}
-
 function clonedRandom(state) {
-    const context = cloneIsaacContext(state.coreCtx);
+    const context = cloneCoreContext(state.coreCtx);
     return createCoreRandom(context, state);
 }
 
@@ -454,7 +442,7 @@ function planningState(state) {
         // otherwise a dry run changes later live glyphs even though every
         // terminal operation is suppressed.
         displayCtx: state.displayCtx
-            ? cloneIsaacContext(state.displayCtx)
+            ? cloneCoreContext(state.displayCtx)
             : state.displayCtx,
         disp: structuredClone(state.disp),
         flags: structuredClone(state.flags),

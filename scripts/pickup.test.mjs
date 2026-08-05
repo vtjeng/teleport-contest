@@ -220,6 +220,19 @@ test('pickup describes the traversed D:1 staircase before returning',
         assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
     });
 
+test('nonverbose startup decor uses the source article and terse sentence',
+    async () => {
+        const state = await heroOnStartingStair();
+        state.flags.verbose = false;
+
+        assert.equal(await pickup(1, state), 0);
+        assert.equal(
+            state._ttyToplines,
+            'A staircase up out of the dungeon.',
+        );
+        assert.equal(state.iflags.prev_decor, STAIRS);
+    });
+
 test('bounded describe_decor reports that it printed the staircase',
     async () => {
         const state = await heroOnStartingStair();
@@ -360,12 +373,6 @@ test('initial pickup rejects every excluded startup family atomically',
                 alter: (state) => {
                     state.level.at(state.u.ux, state.u.uy).typ = ROOM;
                 },
-            },
-            {
-                // flags.verbose changes the source sentence form.
-                name: 'nonverbose wording',
-                expected: /nonverbose initial decor/u,
-                alter: (state) => { state.flags.verbose = false; },
             },
             {
                 // Underwater suppresses the ordinary stair feature.

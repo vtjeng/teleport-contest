@@ -143,11 +143,6 @@ function startupStairDecor(state) {
             'mention_decor outside the initial D:1 staircase',
         );
     }
-    if (state.flags?.verbose !== true) {
-        throw new UnsupportedPickupError(
-            'nonverbose initial decor description',
-        );
-    }
     if (u.uinwater || heroHasProperty(state, FUMBLING)
         || state.iflags?.defer_decor
         || state.decor_fumble_override
@@ -239,7 +234,9 @@ export async function describe_decor(state) {
         return ordinary.result;
     }
     const feature = startupStairDecor(state);
-    await ttyPline(`There is a ${feature} here.`, state);
+    await ttyPline(state.flags?.verbose === true
+        ? `There is a ${feature} here.`
+        : `A ${feature}.`, state);
     state.iflags.prev_decor = STAIRS;
     return true;
 }

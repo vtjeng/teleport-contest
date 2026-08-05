@@ -721,9 +721,11 @@ export function requireSimpleHeroDestination(x, y, state) {
         // visible region therefore remains outside this slice even when both
         // endpoints are already inside it and in_out_region() has no crossing
         // to report.
-        if (skipObjects && visible_region_at(x, y, state)) {
+        if (visible_region_at(x, y, state)) {
             throw new UnsupportedHeroMoveBoundaryError(
-                'visible region over skipped-pile count',
+                skipObjects
+                    ? 'visible region over skipped-pile count'
+                    : 'visible region over object-pile menu',
             );
         }
         if (pileCount < 2 || (!skipObjects && pileCount > 4)) {

@@ -96,7 +96,7 @@ import {
 import { pickup } from './pickup.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
-import { rn2 } from './rng.js';
+import { cloneCoreContext, createCoreRandom, rn2 } from './rng.js';
 import { check_special_room } from './rooms.js';
 import { savelev } from './save.js';
 import { preflight_shop_arrival } from './shk.js';
@@ -158,6 +158,17 @@ export async function place_random_arrival(
     } = {},
 ) {
     const earthSenseMessages = [];
+    if (place === u_on_rndspot) {
+        const plannedRandom = createCoreRandom(
+            cloneCoreContext(state.coreCtx ?? game.coreCtx),
+            state,
+        );
+        place(upflag, state, {
+            planPositionOnly: true,
+            randomOneBased: plannedRandom.rn1,
+            preflightPosition: preflight_shop_arrival,
+        });
+    }
     place(upflag, state, {
         earthSenseMessage: (line) => earthSenseMessages.push(line),
         deferSwitchTerrain: true,

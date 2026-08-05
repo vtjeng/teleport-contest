@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 // Record and replay the initial mention_decor staircase description against
-// the patched C reference. The two cases cross autopickup with an ordinary
-// calendar and the maximal full-moon-plus-Friday message sequence.
+// the patched C reference. The cases cross autopickup and verbose wording with
+// an ordinary calendar and the maximal full-moon-plus-Friday message sequence.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,14 +15,17 @@ import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
-const STAIRCASE_LINE = 'There is a staircase up out of the dungeon here.';
+const VERBOSE_STAIRCASE_LINE =
+    'There is a staircase up out of the dungeon here.';
+const TERSE_STAIRCASE_LINE = 'A staircase up out of the dungeon.';
 
-function nethackrc(name, autopickup) {
+function nethackrc(name, autopickup, verbose = true) {
     return [
         `OPTIONS=name:${name},role:Healer,race:human,gender:male,`
             + 'align:neutral',
         'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none,!acoustics,'
-            + `mention_decor,${autopickup ? '' : '!'}autopickup`,
+            + `mention_decor,${autopickup ? '' : '!'}autopickup,`
+            + `${verbose ? '' : '!'}verbose`,
         '',
     ].join('\n');
 }
@@ -47,6 +50,12 @@ export function loadStartupStaircaseDecorRecipe() {
                 nethackrc: nethackrc('DecorMax', true),
                 // The three spaces dismiss welcome, full moon, and Friday.
                 moves: '   ',
+            },
+            {
+                seed: 7310503,
+                datetime: '20340117112233',
+                nethackrc: nethackrc('DecorTerse', false, false),
+                moves: ' ',
             },
         ],
     }, 'startup staircase decor recipe');
@@ -85,8 +94,10 @@ export async function verifyStartupStaircaseDecorSegment(segment) {
         || u.umovement !== NORMAL_SPEED) {
         throw new Error('startup changed the hero position or turn state');
     }
-    if (game._pending_message !== STAIRCASE_LINE
-        || game._ttyToplines !== STAIRCASE_LINE
+    const staircaseLine = segment.nethackrc.includes('!verbose')
+        ? TERSE_STAIRCASE_LINE : VERBOSE_STAIRCASE_LINE;
+    if (game._pending_message !== staircaseLine
+        || game._ttyToplines !== staircaseLine
         || game._ttyMessageStopped
         || game.nhDisplay.inputQueueLength !== 0) {
         throw new Error('startup did not stop at the staircase command boundary');

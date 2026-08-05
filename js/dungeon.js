@@ -1014,6 +1014,8 @@ export function u_on_rndspot(
         earthSenseMessage = null,
         deferSwitchTerrain = false,
         preflightPosition = null,
+        planPositionOnly = false,
+        randomOneBased = null,
     } = {},
 ) {
     const up = (upflag & 1), was_in_W_tower = (upflag & 2);
@@ -1029,20 +1031,29 @@ export function u_on_rndspot(
         /* Stay inside the Wizard's tower when feasible. */
         place_lregion(dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
                       0, 0, 0, 0, LR_DOWNTELE, null, state,
-                      { earthSenseMessage, preflightPosition });
+                      {
+                          earthSenseMessage, preflightPosition,
+                          planPositionOnly, randomOneBased,
+                      });
     else if (up)
         place_lregion(updest.lx, updest.ly, updest.hx, updest.hy,
                       updest.nlx, updest.nly, updest.nhx, updest.nhy,
                       LR_UPTELE, null, state,
-                      { earthSenseMessage, preflightPosition });
+                      {
+                          earthSenseMessage, preflightPosition,
+                          planPositionOnly, randomOneBased,
+                      });
     else
         place_lregion(dndest.lx, dndest.ly, dndest.hx, dndest.hy,
                       dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
                       LR_DOWNTELE, null, state,
-                      { earthSenseMessage, preflightPosition });
+                      {
+                          earthSenseMessage, preflightPosition,
+                          planPositionOnly, randomOneBased,
+                      });
 
     /* might have just left solid rock and unblocked levitation */
-    if (!deferSwitchTerrain) switch_terrain(state);
+    if (!deferSwitchTerrain && !planPositionOnly) switch_terrain(state);
 }
 
 export class UnsupportedEarthSenseError extends Error {

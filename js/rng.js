@@ -121,6 +121,19 @@ export function createCoreRandom(context, state = game) {
     };
 }
 
+export function cloneCoreContext(context) {
+    if (!context
+        || !Array.isArray(context.m)
+        || !Array.isArray(context.r)) {
+        throw new TypeError('RNG planning requires an initialized core RNG');
+    }
+    return {
+        ...context,
+        m: [...context.m],
+        r: [...context.r],
+    };
+}
+
 // C ref: rn2(x) — random number 0..x-1
 export function rn2(x) {
     return rn2From(game.coreCtx, x, logResult);

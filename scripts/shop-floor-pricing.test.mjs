@@ -38,6 +38,7 @@ import {
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { PM_TOURIST } from '../js/monsters.js';
 import { getRngLog } from '../js/rng.js';
+import { create_region } from '../js/region.js';
 import { check_special_room } from '../js/rooms.js';
 import { get_cost_of_shop_item } from '../js/shk.js';
 
@@ -156,6 +157,52 @@ function floorChain(state, x, y) {
     return result;
 }
 
+function movementSnapshot(state, target, keeper = null) {
+    return {
+        position: [state.u.ux, state.u.uy],
+        rooms: structuredClone({
+            urooms: state.u.urooms,
+            ushops: state.u.ushops,
+            ushops0: state.u.ushops0,
+            ushops_entered: state.u.ushops_entered,
+            ushops_left: state.u.ushops_left,
+        }),
+        floor: floorChain(state, target.x, target.y),
+        shop: keeper ? structuredClone(keeper.mextra.eshk) : null,
+        achievements: structuredClone(state.achievements),
+        toplines: state._ttyToplines,
+        grid: structuredClone(state.nhDisplay.grid),
+        cursor: [
+            state.nhDisplay.cursorCol,
+            state.nhDisplay.cursorRow,
+            state.nhDisplay.cursorVisible,
+        ],
+        rng: [...getRngLog()],
+    };
+}
+
+function assertMovementSnapshot(state, target, before, keeper = null) {
+    assert.deepEqual([state.u.ux, state.u.uy], before.position);
+    assert.deepEqual({
+        urooms: state.u.urooms,
+        ushops: state.u.ushops,
+        ushops0: state.u.ushops0,
+        ushops_entered: state.u.ushops_entered,
+        ushops_left: state.u.ushops_left,
+    }, before.rooms);
+    assert.deepEqual(floorChain(state, target.x, target.y), before.floor);
+    if (keeper) assert.deepEqual(keeper.mextra.eshk, before.shop);
+    assert.deepEqual(state.achievements, before.achievements);
+    assert.equal(state._ttyToplines, before.toplines);
+    assert.deepEqual(state.nhDisplay.grid, before.grid);
+    assert.deepEqual([
+        state.nhDisplay.cursorCol,
+        state.nhDisplay.cursorRow,
+        state.nhDisplay.cursorVisible,
+    ], before.cursor);
+    assert.deepEqual(getRngLog(), before.rng);
+}
+
 function changeObjectType(object, otyp, state) {
     object.otyp = otyp;
     object.oclass = state.objects[otyp].oc_class;
@@ -186,31 +233,86 @@ test('settled shop departure moves without shop bookkeeping', async () => {
     assert.deepEqual(state.u.ushops_left.slice(0, 2), [ROOMOFFSET, 0]);
 });
 
-test('unsettled shop departure refuses before movement', async () => {
-    const { keeper, start, state, target } = await generatedShopPile();
-    // One bill entry is the smallest positive debt marker checked by
-    // shk.c:u_left_shop(); its contents are irrelevant before rob_shop().
-    keeper.mextra.eshk.billct = 1;
-    state.level.at(target.x, target.y).roomno = 0;
-    state.level.objects[target.x][target.y] = null;
-    const beforeRooms = structuredClone({
-        urooms: state.u.urooms,
-        ushops: state.u.ushops,
-        ushops0: state.u.ushops0,
-        ushops_entered: state.u.ushops_entered,
-        ushops_left: state.u.ushops_left,
+test('bill and debit shop debt each refuse departure before movement',
+    async () => {
+        for (const debt of ['billct', 'debit']) {
+            const { keeper, state, target } = await generatedShopPile();
+            keeper.mextra.eshk[debt] = 1;
+            state.level.at(target.x, target.y).roomno = 0;
+            state.level.objects[target.x][target.y] = null;
+            const before = movementSnapshot(state, target, keeper);
+
+            await assert.rejects(
+                () => domove(state),
+                /leaving a shop with debt/u,
+                debt,
+            );
+
+            assertMovementSnapshot(state, target, before, keeper);
+        }
     });
 
-    await assert.rejects(() => domove(state), /leaving a shop with debt/u);
+test('ordinary movement refuses entry onto a shop edge atomically',
+    async () => {
+        const { keeper, start, state, target } = await generatedShopPile();
+        state.level.objects[target.x][target.y] = null;
+        Object.assign(state.level.at(start.x, start.y), {
+            roomno: 0,
+            edge: false,
+        });
+        state.level.at(target.x, target.y).edge = true;
+        for (const rooms of [
+            state.u.urooms,
+            state.u.ushops,
+            state.u.ushops0,
+            state.u.ushops_entered,
+            state.u.ushops_left,
+        ]) rooms.fill(0);
+        const before = movementSnapshot(state, target, keeper);
 
-    assert.deepEqual([state.u.ux, state.u.uy], [start.x, start.y]);
-    assert.deepEqual({
-        urooms: state.u.urooms,
-        ushops: state.u.ushops,
-        ushops0: state.u.ushops0,
-        ushops_entered: state.u.ushops_entered,
-        ushops_left: state.u.ushops_left,
-    }, beforeRooms);
+        await assert.rejects(
+            () => domove(state),
+            /outside the shop interior/u,
+        );
+
+        assertMovementSnapshot(state, target, before, keeper);
+    });
+
+test('ordinary movement refuses a debtor reaching the shop edge atomically',
+    async () => {
+        const { keeper, state, target } = await generatedShopPile();
+        state.level.objects[target.x][target.y] = null;
+        state.level.at(target.x, target.y).edge = true;
+        keeper.mextra.eshk.debit = 1;
+        const before = movementSnapshot(state, target, keeper);
+
+        await assert.rejects(
+            () => domove(state),
+            /reaching a shop boundary with debt/u,
+        );
+
+        assertMovementSnapshot(state, target, before, keeper);
+    });
+
+test('a visible-region pile menu refuses before movement', async () => {
+    const { keeper, start, state, target } = await generatedShopPile();
+    const region = create_region([{
+        lx: Math.min(start.x, target.x),
+        ly: Math.min(start.y, target.y),
+        hx: Math.max(start.x, target.x),
+        hy: Math.max(start.y, target.y),
+    }]);
+    region.visible = true;
+    region.hero_inside = true;
+    state.level.regions.push(region);
+    const before = movementSnapshot(state, target, keeper);
+
+    await assert.rejects(
+        () => domove(state),
+        /visible region over object-pile menu/u,
+    );
+
+    assertMovementSnapshot(state, target, before, keeper);
 });
 
 test('plain xname does not apply doname-only shop suffix guards', async () => {
@@ -366,8 +468,20 @@ test('positive shop prices take precedence over remembered-price display',
         const potion = state.level.objects[target.x][target.y].nexthere;
         changeObjectType(potion, POT_HEALING, state);
         state.objects[potion.otyp].oc_name_known = 0;
+        const inputScreens = [];
+        const readKey = state.nhDisplay.readKey.bind(state.nhDisplay);
+        state.nhDisplay.readKey = (options) => {
+            inputScreens.push(state.nhDisplay.grid
+                .map((row) => row.map(({ ch }) => ch).join(''))
+                .join('\n'));
+            return readKey(options);
+        };
         state.nhDisplay.pushKey(' '.charCodeAt(0));
-        await domove(state);
+        try {
+            await domove(state);
+        } finally {
+            state.nhDisplay.readKey = readKey;
+        }
         assert.deepEqual([state.u.ux, state.u.uy], [target.x, target.y]);
         assert.equal(potion.dknown, true);
         assert.equal(
@@ -375,6 +489,9 @@ test('positive shop prices take precedence over remembered-price display',
                 <= state.objects[potion.otyp].oc_buy_maxseen,
             true,
         );
+        const menu = inputScreens.join('\n');
+        assert.match(menu, /potion \(for sale, \d+ zorkmids?\)/u);
+        assert.doesNotMatch(menu, /potion \{buy /u);
     });
 
 test('movement keeps the non-shop remembered-price fallback excluded',
@@ -427,9 +544,12 @@ test('movement displays and records every eligible generated-shop pile price',
             assert.ok(type.oc_buy_minseen > 0);
         }
         assert.equal(state.objects[upper.otyp].oc_buy_minseen, 3);
-        assert.ok(inputScreens.some((screen) => screen.includes(
-            '3 darts (for sale, 9 zorkmids)',
-        )));
+        const menu = inputScreens.join('\n');
+        const upperRow = '3 darts (for sale, 9 zorkmids)';
+        const lowerRow = 'a food ration (for sale, 60 zorkmids)';
+        assert.ok(menu.includes(upperRow));
+        assert.ok(menu.includes(lowerRow));
+        assert.ok(menu.indexOf(upperRow) < menu.indexOf(lowerRow));
         assert.notDeepEqual([state.u.ux, state.u.uy], [start.x, start.y]);
     });
 

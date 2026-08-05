@@ -2215,9 +2215,14 @@ function _hungerStatus(u) {
     return hunger ? ` ${hunger}` : '';
 }
 
-function _capacityStatus(shrinkLevel = 0) {
-    const capacity = near_capacity(game);
+// C refs: botl.c enc_stat[] and wintty.c shrink_enc(). Keeping the lookup
+// separate makes all source vocabulary rows independently testable.
+export function tty_capacity_status(capacity, shrinkLevel) {
     return ENC_STAT_FORMS[shrinkLevel]?.[capacity] ?? '';
+}
+
+function _capacityStatus(shrinkLevel = 0) {
+    return tty_capacity_status(near_capacity(game), shrinkLevel);
 }
 
 const STATUS_CONDITION_SPECS = Object.freeze([

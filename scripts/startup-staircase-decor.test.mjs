@@ -11,8 +11,9 @@ test('startup staircase recipe crosses calendar and autopickup partitions',
         const { segments, version } = loadStartupStaircaseDecorRecipe();
         // Version 5 stores replay inputs and contains no recorded C answers.
         assert.equal(version, 5);
-        // The pair crosses quiet/maximal calendars with off/on autopickup.
-        assert.equal(segments.length, 2);
+        // The matrix crosses quiet/maximal calendars, autopickup, and the
+        // source's terse describe_decor() wording.
+        assert.equal(segments.length, 3);
         assert.ok(segments.every(
             (segment) => !Object.hasOwn(segment, 'steps'),
         ));
@@ -34,6 +35,11 @@ test('startup staircase recipe crosses calendar and autopickup partitions',
                     datetime: '20300913120000',
                     autopickup: true,
                     inputCount: 3,
+                },
+                {
+                    datetime: '20340117112233',
+                    autopickup: false,
+                    inputCount: 1,
                 },
             ],
         );

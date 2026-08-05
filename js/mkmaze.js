@@ -93,6 +93,7 @@ export function place_lregion(
     state = game,
     options = {},
 ) {
+    const randomOneBased = options.randomOneBased ?? rn1;
     lx ??= 0;
     ly ??= 0;
     hx ??= 0;
@@ -128,8 +129,8 @@ export function place_lregion(
 
     const oneshot = (lx === hx && ly === hy);
     for (let trycnt = 0; trycnt < 200; trycnt++) {
-        const x = rn1((hx - lx) + 1, lx);
-        const y = rn1((hy - ly) + 1, ly);
+        const x = randomOneBased((hx - lx) + 1, lx);
+        const y = randomOneBased((hy - ly) + 1, ly);
         if (put_lregion_here(x, y, nlx, nly, nhx, nhy, rtype, oneshot, lev,
                              state, options))
             return;
@@ -202,7 +203,16 @@ function put_lregion_here(
             }
             return false;
         }
-        u_on_newpos(x, y, state, options);
+        if (options.planPositionOnly) {
+            if (typeof options.preflightPosition !== 'function') {
+                throw new TypeError(
+                    'planned region placement requires a position preflight',
+                );
+            }
+            options.preflightPosition(x, y, state);
+        } else {
+            u_on_newpos(x, y, state, options);
+        }
         break;
     }
     default:

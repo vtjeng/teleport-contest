@@ -6,6 +6,7 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { EventEmitter } from 'node:events';
 import {
     chmodSync,
     existsSync,
@@ -32,8 +33,10 @@ import {
     enumerateSites,
     formatReport,
     formatSiteCounts,
+    isVerifiedMutationWorker,
     killingTestFiles,
     killRateInterval,
+    mutationOwnerIsAlive,
     mutationCgroupArgs,
     mutationRunNames,
     parseAddedLines,
@@ -44,6 +47,7 @@ import {
     releaseMutationLock,
     reportedTestCount,
     runTests,
+    runInMutationCgroup,
     runMutants,
     sampleItems,
     SITE_KINDS,
@@ -65,13 +69,22 @@ const BOUNDED_RUNNER_PATH = fileURLToPath(
 const FIXTURE_ROOT = fileURLToPath(
     new URL('./fixtures/mutate-sites', import.meta.url));
 const FIXTURE_MODULE = `${FIXTURE_ROOT}/js/bounds.js`;
-// CLI fixture checks bypass the host scope because they enumerate or reject
-// arguments without running a mutant. Production invocations omit this marker
-// and must enter the scope before main() runs.
-const CLI_TEST_ENV = { ...process.env, TELEPORT_MUTATION_CGROUP: '1' };
-
 function fixtureSource() {
     return readFileSync(FIXTURE_MODULE, 'utf8');
+}
+
+function runDirectMain(args) {
+    const source = [
+        `const { main } = await import(${JSON.stringify(SCRIPT_PATH)});`,
+        'try { await main(JSON.parse(process.argv[1])); }',
+        'catch (error) {',
+        '  console.error(`mutate-sites: ${error.message}`);',
+        '  process.exitCode = 2;',
+        '}',
+    ].join('\n');
+    return spawnSync(process.execPath, [
+        '--input-type=module', '-e', source, JSON.stringify(args),
+    ], { encoding: 'utf8' });
 }
 
 /** One `runMutants` target over the fixture module. */
@@ -196,6 +209,161 @@ test('the exclusivity lock refuses a contender without releasing its owner',
             rmSync(root, { recursive: true, force: true });
         }
     });
+
+test('an unpublished or partial fresh owner record cannot be reclaimed', () => {
+    const root = mkdtempSync(join(tmpdir(), 'mutate-lock-publish-test-'));
+    const lockPath = join(root, 'owner.lock');
+    try {
+        for (const partialOwner of [null, '{"pid":']) {
+            mkdirSync(lockPath);
+            if (partialOwner !== null)
+                writeFileSync(join(lockPath, 'owner.json'), partialOwner);
+            assert.throws(
+                () => acquireMutationLock(
+                    lockPath,
+                    mutationRunNames(process.pid, 'contender'),
+                ),
+                /another mutation run is initializing/u,
+            );
+            rmSync(lockPath, { recursive: true, force: true });
+        }
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
+test('the original lock owner survives contenders during publication', () => {
+    const root = mkdtempSync(join(tmpdir(), 'mutate-lock-race-test-'));
+    const lockPath = join(root, 'owner.lock');
+    let owner = null;
+    const contend = () => assert.throws(
+        () => acquireMutationLock(
+            lockPath,
+            mutationRunNames(process.pid, 'contender'),
+        ),
+        /another mutation run is initializing/u,
+    );
+    try {
+        owner = acquireMutationLock(
+            lockPath,
+            mutationRunNames(process.pid, 'owner'),
+            {
+                afterLockDirectoryCreated: contend,
+                afterPendingOwnerWritten: contend,
+            },
+        );
+        assert.equal(existsSync(owner.ownerPath), true);
+        assert.throws(
+            () => acquireMutationLock(
+                lockPath,
+                mutationRunNames(process.pid, 'late_contender'),
+            ),
+            /another mutation run owns/u,
+        );
+    } finally {
+        if (owner) releaseMutationLock(owner);
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
+test('lock liveness distinguishes process birth and zombie state', () => {
+    const owner = { pid: process.pid, processStartTime: 'expected' };
+    assert.equal(mutationOwnerIsAlive(owner, () => ({
+        state: 'S', startTime: 'expected',
+    })), true);
+    assert.equal(mutationOwnerIsAlive(owner, () => ({
+        state: 'S', startTime: 'reused',
+    })), false);
+    assert.equal(mutationOwnerIsAlive(owner, () => ({
+        state: 'Z', startTime: 'expected',
+    })), false);
+});
+
+test('a reused live PID does not preserve a stale lock', () => {
+    const root = mkdtempSync(join(tmpdir(), 'mutate-lock-reuse-test-'));
+    const lockPath = join(root, 'owner.lock');
+    const stale = mutationRunNames(process.pid, 'reused');
+    let replacement = null;
+    mkdirSync(lockPath);
+    writeFileSync(join(lockPath, 'owner.json'), `${JSON.stringify({
+        pid: process.pid,
+        processStartTime: '0',
+        ...stale,
+    })}\n`);
+    try {
+        replacement = acquireMutationLock(
+            lockPath,
+            mutationRunNames(process.pid, 'replacement'),
+        );
+        assert.equal(existsSync(replacement.ownerPath), true);
+    } finally {
+        if (replacement) releaseMutationLock(replacement);
+        rmSync(root, { recursive: true, force: true });
+    }
+});
+
+test('worker mode requires both the named slice and run scope', () => {
+    const environment = {
+        TELEPORT_MUTATION_CGROUP: '1',
+        TELEPORT_MUTATION_SLICE: 'teleport_mutate_123_token',
+    };
+    const valid = '0::/user.slice/teleport_mutate_123_token.slice/'
+        + 'teleport_mutate_123_token_run.scope\n';
+    assert.equal(isVerifiedMutationWorker(environment, valid), true);
+    assert.equal(isVerifiedMutationWorker(environment,
+        '0::/user.slice/not-the-owner.scope\n'), false);
+    assert.equal(isVerifiedMutationWorker({
+        ...environment,
+        TELEPORT_MUTATION_SLICE: '../forged',
+    }, valid), false);
+});
+
+test('outer signal ownership spans acquisition through cleanup', async () => {
+    const acquisitionSignals = new EventEmitter();
+    const acquisitionEvents = [];
+    await runInMutationCgroup('/repo/mutate-sites.mjs', [], {
+        names: mutationRunNames(process.pid, 'acquire_signal'),
+        signalTarget: acquisitionSignals,
+        acquireLock: () => {
+            acquisitionEvents.push('acquire');
+            acquisitionSignals.emit('SIGINT');
+            return { name: 'lock' };
+        },
+        startSlice: () => acquisitionEvents.push('start'),
+        releaseLock: () => acquisitionEvents.push('release'),
+        reraise: (signal) => acquisitionEvents.push(`signal:${signal}`),
+    });
+    assert.deepEqual(acquisitionEvents, [
+        'acquire', 'release', 'signal:SIGINT',
+    ]);
+
+    const cleanupSignals = new EventEmitter();
+    const cleanupEvents = [];
+    await runInMutationCgroup('/repo/mutate-sites.mjs', [], {
+        names: mutationRunNames(process.pid, 'cleanup_signal'),
+        signalTarget: cleanupSignals,
+        acquireLock: () => {
+            cleanupEvents.push('acquire');
+            return { name: 'lock' };
+        },
+        startSlice: () => cleanupEvents.push('start'),
+        spawnChild: () => {
+            const child = new EventEmitter();
+            child.kill = () => cleanupEvents.push('kill');
+            queueMicrotask(() => child.emit('exit', 0, null));
+            return child;
+        },
+        stopSlice: () => {
+            cleanupEvents.push('stop');
+            cleanupSignals.emit('SIGTERM');
+        },
+        releaseLock: () => cleanupEvents.push('release'),
+        reraise: (signal) => cleanupEvents.push(`signal:${signal}`),
+    });
+    assert.deepEqual(cleanupEvents, [
+        'acquire', 'start', 'stop', 'release', 'signal:SIGTERM',
+    ]);
+});
 
 test('a stale lock stops its recorded aggregate slice before replacement',
     () => {
@@ -1439,6 +1607,44 @@ test('each timed-out mutant records its identity and wave', () => {
         + '(first wave)')), true);
 });
 
+test('suite-wave timeouts retain their identity in both reports', () => {
+    let calls = 0;
+    const runTestWave = () => {
+        calls += 1;
+        const suiteTimeout = calls >= 3 && calls % 2 === 1;
+        return {
+            passed: !suiteTimeout,
+            timedOut: suiteTimeout,
+            seconds: 0,
+            output: suiteTimeout ? '' : '# tests 1\n',
+        };
+    };
+    const result = withWorkspace((workspace) => runMutants({
+        workspace,
+        targets: [fixtureTarget({ lines: new Set([10]) })],
+        allTests: FIXTURE_SUITE,
+        wholeSuite: true,
+        runTestWave,
+    }));
+
+    assert.equal(result.timeouts, 2);
+    assert.deepEqual(
+        result.timeoutRecords.map(({ replacement, wave }) => ({
+            replacement, wave,
+        })),
+        [
+            { replacement: '5', wave: 'suite' },
+            { replacement: '3', wave: 'suite' },
+        ],
+    );
+    assert.equal(formatReport(result).filter((line) =>
+        line.includes('(suite wave)')).length, 2);
+    assert.deepEqual(
+        reportFromResult(result).timeouts.map(({ wave }) => wave),
+        ['suite', 'suite'],
+    );
+});
+
 test('a workspace is removed when a run is killed', async () => {
     // removeWorkspace() runs from a `finally` arm, which a terminating signal
     // skips, so an interrupted run used to leave 6.7 MB of copied js/ and
@@ -1589,137 +1795,181 @@ test('a path puts every line of that file in scope', () => {
     assert.deepEqual(target.tests, coveringTests().get('js/lock.js'));
 });
 
-test('the real unmarked CLI enters its outer cgroup exactly once', () => {
-    const environment = { ...process.env };
-    delete environment.TELEPORT_MUTATION_CGROUP;
-    // Enumerating one ordinary module reaches the complete parent-entry path
-    // without creating a mutation workspace or running any tests.
-    const run = spawnSync(process.execPath,
-        [SCRIPT_PATH, '--file', 'js/lock.js', '--enumerate-only'], {
-            encoding: 'utf8',
-            env: environment,
-        });
-    const output = `${run.stdout ?? ''}${run.stderr ?? ''}`;
-
-    assert.equal(run.status, 0, output);
-    // One systemd announcement proves the unmarked parent entered the scope.
-    // Completion proves the marked child did not recursively enter it again.
-    const outerAnnouncements = output.match(
-        /Running (?:scope )?as unit: teleport_mutate_\d+_[a-z0-9]+_run\.scope/gu,
-    ) ?? [];
-    assert.equal(outerAnnouncements.length, 1, output);
-    assert.match(output, /^js\/lock\.js: \d+ line\(s\) in scope/mu);
-});
-
-test('outer cancellation cleans only its aggregate run and releases the lock',
-    async () => {
-        const root = mkdtempSync(join(tmpdir(), 'mutate-outer-signal-'));
+test('a successful outer run authenticates its child and cleans ownership',
+    () => {
+        const root = mkdtempSync(join(tmpdir(), 'mutate-outer-success-'));
         const lockPath = join(root, 'owner.lock');
         const environment = {
             ...process.env,
             TELEPORT_MUTATION_LOCK: lockPath,
+            // A forged worker marker must not bypass the outer owner.
+            TELEPORT_MUTATION_CGROUP: '1',
+            TELEPORT_MUTATION_SLICE: 'teleport_mutate_1_forged',
         };
-        delete environment.TELEPORT_MUTATION_CGROUP;
-        delete environment.TELEPORT_MUTATION_SLICE;
-        let first = null;
         try {
-            first = spawn(process.execPath, [SCRIPT_PATH, '--file',
-                'js/lock.js', '--kind', 'boolean'], {
-                env: environment,
-                stdio: ['ignore', 'pipe', 'pipe'],
-            });
-            let output = '';
-            const baseline = new Promise((resolve, reject) => {
-                // Ten seconds bounds slice startup and the two-file baseline;
-                // the ordinary run reaches it in under two seconds locally.
-                const timer = setTimeout(
-                    () => reject(new Error(`baseline did not start: ${output}`)),
-                    10_000,
-                );
-                const accept = (chunk) => {
-                    output += chunk;
-                    if (!output.includes('baseline:')) return;
-                    clearTimeout(timer);
-                    resolve();
-                };
-                first.stdout.on('data', accept);
-                first.stderr.on('data', accept);
-                first.once('error', reject);
-                first.once('exit', (code, signal) => reject(new Error(
-                    `owner exited before baseline: ${code}/${signal}\n${output}`)));
-            });
-            await baseline;
-            const scope = /Running (?:scope )?as unit: (teleport_mutate_\d+_[a-z0-9]+)_run\.scope/u.exec(output);
-            assert.ok(scope, output);
-            const sliceGroup = execFileSync('systemctl', [
-                '--user', 'show', `${scope[1]}.slice`,
-                '--property=ControlGroup', '--value',
-            ], { encoding: 'utf8' }).trim();
-            const outerGroup = execFileSync('systemctl', [
-                '--user', 'show', `${scope[1]}_run.scope`,
-                '--property=ControlGroup', '--value',
-            ], { encoding: 'utf8' }).trim();
-            assert.equal(outerGroup.startsWith(`${sliceGroup}/`), true);
-
-            const contender = spawnSync(process.execPath,
+            const run = spawnSync(process.execPath,
                 [SCRIPT_PATH, '--file', 'js/lock.js', '--enumerate-only'], {
-                    env: environment,
                     encoding: 'utf8',
+                    env: environment,
                 });
-            assert.equal(contender.status, 2);
-            assert.match(contender.stderr, /another mutation run owns/u);
-            assert.equal(first.exitCode, null);
+            const output = `${run.stdout ?? ''}${run.stderr ?? ''}`;
 
-            const ownerExit = new Promise((resolve, reject) => {
-                first.once('error', reject);
-                first.once('exit', (code, signal) =>
-                    resolve({ code, signal }));
-            });
-            first.kill('SIGTERM');
-            assert.deepEqual(await ownerExit, { code: null, signal: 'SIGTERM' });
-
+            assert.equal(run.status, 0, output);
+            const announcements = [...output.matchAll(
+                /Running (?:scope )?as unit: (teleport_mutate_\d+_[a-z0-9]+)_run\.scope/gu,
+            )];
+            assert.equal(announcements.length, 1, output);
+            assert.match(output, /^js\/lock\.js: \d+ line\(s\) in scope/mu);
+            const slice = `${announcements[0][1]}.slice`;
             const active = spawnSync('systemctl', [
-                '--user', 'is-active', `${scope[1]}.slice`,
+                '--user', 'is-active', slice,
             ], { encoding: 'utf8' });
             assert.notEqual(active.status, 0, active.stdout);
+            const dropIns = execFileSync('systemctl', [
+                '--user', 'show', slice,
+                '--property=DropInPaths', '--value',
+            ], { encoding: 'utf8' }).trim();
+            assert.equal(dropIns, '');
+            assert.equal(existsSync(lockPath), false);
 
             const next = spawnSync(process.execPath,
                 [SCRIPT_PATH, '--file', 'js/lock.js', '--enumerate-only'], {
-                    env: environment,
                     encoding: 'utf8',
+                    env: environment,
                 });
             assert.equal(next.status, 0, `${next.stdout}${next.stderr}`);
         } finally {
-            if (first?.exitCode === null && first?.signalCode === null) {
-                const stopped = new Promise((resolve) =>
-                    first.once('exit', resolve));
-                first.kill('SIGTERM');
-                // Two seconds exceeds the normal aggregate stop and keeps a
-                // broken cleanup path from hanging the test suite itself.
-                await Promise.race([
-                    stopped,
-                    new Promise((resolve) => setTimeout(resolve, 2_000)),
-                ]);
-                if (first.exitCode === null && first.signalCode === null)
-                    first.kill('SIGKILL');
-            }
             rmSync(root, { recursive: true, force: true });
+        }
+});
+
+test('SIGINT and SIGTERM clean only their aggregate run and release the lock',
+    async () => {
+        for (const interruptSignal of ['SIGINT', 'SIGTERM']) {
+            const root = mkdtempSync(join(tmpdir(), 'mutate-outer-signal-'));
+            const lockPath = join(root, 'owner.lock');
+            const environment = {
+                ...process.env,
+                TELEPORT_MUTATION_LOCK: lockPath,
+            };
+            delete environment.TELEPORT_MUTATION_CGROUP;
+            delete environment.TELEPORT_MUTATION_SLICE;
+            let first = null;
+            try {
+                first = spawn(process.execPath, [SCRIPT_PATH, '--file',
+                    'js/lock.js', '--kind', 'boolean'], {
+                    env: environment,
+                    stdio: ['ignore', 'pipe', 'pipe'],
+                });
+                let output = '';
+                const baseline = new Promise((resolve, reject) => {
+                    // Ten seconds bounds slice startup and the two-file
+                    // baseline; the ordinary run reaches it in under two
+                    // seconds locally.
+                    const timer = setTimeout(
+                        () => reject(new Error(
+                            `baseline did not start: ${output}`)),
+                        10_000,
+                    );
+                    const accept = (chunk) => {
+                        output += chunk;
+                        if (!output.includes('baseline:')) return;
+                        clearTimeout(timer);
+                        resolve();
+                    };
+                    first.stdout.on('data', accept);
+                    first.stderr.on('data', accept);
+                    first.once('error', reject);
+                    first.once('exit', (code, signal) => reject(new Error(
+                        `owner exited before baseline: ${code}/${signal}\n${
+                            output}`)));
+                });
+                await baseline;
+                const scope = /Running (?:scope )?as unit: (teleport_mutate_\d+_[a-z0-9]+)_run\.scope/u.exec(output);
+                assert.ok(scope, output);
+                const sliceGroup = execFileSync('systemctl', [
+                    '--user', 'show', `${scope[1]}.slice`,
+                    '--property=ControlGroup', '--value',
+                ], { encoding: 'utf8' }).trim();
+                const outerGroup = execFileSync('systemctl', [
+                    '--user', 'show', `${scope[1]}_run.scope`,
+                    '--property=ControlGroup', '--value',
+                ], { encoding: 'utf8' }).trim();
+                assert.equal(outerGroup.startsWith(`${sliceGroup}/`), true);
+                const property = (name) => execFileSync('systemctl', [
+                    '--user', 'show', `${scope[1]}.slice`,
+                    `--property=${name}`, '--value',
+                ], { encoding: 'utf8' }).trim();
+                assert.equal(property('MemoryAccounting'), 'yes');
+                assert.equal(property('MemoryMax'), '2147483648');
+                assert.equal(property('MemorySwapMax'), '0');
+                assert.equal(property('TasksMax'), '64');
+
+                const contender = spawnSync(process.execPath,
+                    [SCRIPT_PATH, '--file', 'js/lock.js',
+                        '--enumerate-only'], {
+                        env: environment,
+                        encoding: 'utf8',
+                    });
+                assert.equal(contender.status, 2);
+                assert.match(contender.stderr,
+                    /another mutation run owns/u);
+                assert.equal(first.exitCode, null);
+
+                const ownerExit = new Promise((resolve, reject) => {
+                    first.once('error', reject);
+                    first.once('exit', (code, signal) =>
+                        resolve({ code, signal }));
+                });
+                first.kill(interruptSignal);
+                assert.deepEqual(await ownerExit, {
+                    code: null,
+                    signal: interruptSignal,
+                });
+
+                const active = spawnSync('systemctl', [
+                    '--user', 'is-active', `${scope[1]}.slice`,
+                ], { encoding: 'utf8' });
+                assert.notEqual(active.status, 0, active.stdout);
+
+                const next = spawnSync(process.execPath,
+                    [SCRIPT_PATH, '--file', 'js/lock.js',
+                        '--enumerate-only'], {
+                        env: environment,
+                        encoding: 'utf8',
+                    });
+                assert.equal(next.status, 0, `${next.stdout}${next.stderr}`);
+            } finally {
+                if (first?.exitCode === null && first?.signalCode === null) {
+                    const stopped = new Promise((resolve) =>
+                        first.once('exit', resolve));
+                    first.kill('SIGTERM');
+                    // Two seconds exceeds normal aggregate stop and keeps a
+                    // broken cleanup path from hanging the test suite itself.
+                    await Promise.race([
+                        stopped,
+                        new Promise((resolve) => setTimeout(resolve, 2_000)),
+                    ]);
+                    if (first.exitCode === null && first.signalCode === null)
+                        first.kill('SIGKILL');
+                }
+                rmSync(root, { recursive: true, force: true });
+            }
         }
     });
 
 test('the command prints a census and rejects a bad argument', () => {
-    const census = spawnSync(process.execPath,
-        [SCRIPT_PATH, '--range', `${newestJsCommit()}~1..HEAD`,
-            '--enumerate-only'],
-        { encoding: 'utf8', env: CLI_TEST_ENV });
+    const census = runDirectMain([
+        '--range', `${newestJsCommit()}~1..HEAD`, '--enumerate-only',
+    ]);
 
     assert.equal(census.status, 0);
     assert.match(census.stdout, /\d+ file\(s\), \d+ line\(s\) in scope/u);
     assert.match(census.stdout, /sites per line in scope/u);
 
-    const byPath = spawnSync(process.execPath,
-        [SCRIPT_PATH, '--file', 'js/lock.js', '--enumerate-only'],
-        { encoding: 'utf8', env: CLI_TEST_ENV });
+    const byPath = runDirectMain([
+        '--file', 'js/lock.js', '--enumerate-only',
+    ]);
 
     assert.equal(byPath.status, 0);
     assert.match(byPath.stdout, /^js\/lock\.js: \d+ line\(s\) in scope/mu);
@@ -1727,8 +1977,7 @@ test('the command prints a census and rejects a bad argument', () => {
     // An unusable invocation exits 2 and names the problem. A survivor is a
     // finding to review, so a completed run exits 0 whatever it found; only an
     // error reaches this arm.
-    const rejected = spawnSync(process.execPath, [SCRIPT_PATH, 'HEAD'],
-        { encoding: 'utf8', env: CLI_TEST_ENV });
+    const rejected = runDirectMain(['HEAD']);
 
     assert.equal(rejected.status, 2);
     assert.match(rejected.stderr, /unexpected argument 'HEAD'/u);

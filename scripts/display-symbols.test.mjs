@@ -101,6 +101,7 @@ import {
     terrain_glyph,
     timebot,
     trap_glyph_info,
+    tty_capacity_status,
     UnsupportedStatusRefreshError,
     weapon_status,
 } from '../js/display.js';
@@ -4812,6 +4813,19 @@ test('the two-line status row reports carrying capacity', async () => {
     assert.match(terminalRow(state, 23), / Strained\s*$/u);
 });
 
+test('tty carrying-capacity vocabulary matches both shrink rows', () => {
+    assert.deepEqual(
+        Array.from({ length: 6 }, (_, capacity) =>
+            tty_capacity_status(capacity, 1)),
+        ['', 'Burden', 'Stress', 'Strain', 'Overtax', 'Overload'],
+    );
+    assert.deepEqual(
+        Array.from({ length: 6 }, (_, capacity) =>
+            tty_capacity_status(capacity, 2)),
+        ['', 'Brd', 'Strs', 'Strn', 'Ovtx', 'Ovld'],
+    );
+});
+
 test('two-line capacity shrinking uses strict 79-column overflow edges',
     async () => {
         const cases = [
@@ -4847,6 +4861,24 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
                 },
                 expected: 'Dlvl:1 $:0 HP:16(16) Pw:4(6) AC:8 Xp:1/42 T:99'
                     + ' Strain Spear Shield Stairs 5.0.0',
+            },
+            {
+                name: 'second shortened capacity form',
+                inventory: {
+                    oclass: WEAPON_CLASS, otyp: SPEAR, owt: 2000,
+                    quan: 1, nobj: null,
+                },
+                extra: (state) => {
+                    state.flags.time = true;
+                    state.flags.weaponstatus = true;
+                    state.flags.armorstatus = true;
+                    state.flags.terrainstatus = true;
+                    state.flags.showexp = true;
+                    state.moves = 99;
+                    state.u.uhpmax = 999;
+                },
+                expected: 'Dlvl:1 $:0 HP:16(999) Pw:4(6) AC:8 Xp:1/42 T:99'
+                    + ' Strn Spear Shield Stairs  5.0.0',
             },
             {
                 name: 'empty capacity padding',

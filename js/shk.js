@@ -201,8 +201,9 @@ export function is_fshk(monster) {
 // suffix when appending it would overrun BUFSZ.
 //
 // record_price_quote() is the only writer of the four seen-price fields;
-// doname_with_price() records the buy half after a live shop-pile row is
-// displayed. This formatter is the remembered-price consumer used by
+// doname_with_price() records the buy half while formatting a live shop-pile
+// row, before its caller displays that completed row. This formatter is the
+// remembered-price consumer used by
 // discoveries lines, although that caller remains outside the ported path.
 export function append_price_quote(buf, otyp, state = game) {
     const type = state.objects[otyp];
@@ -232,7 +233,8 @@ export function append_price_quote(buf, otyp, state = game) {
 }
 
 // C ref: shk.c record_price_quote(). The object catalog owns the four quote
-// extrema; callers pass the per-unit price after the player has seen it.
+// extrema; callers pass the per-unit price before displaying the formatted
+// row to the player.
 export function record_price_quote(
     otyp,
     price,

@@ -433,9 +433,43 @@ test('random arrival switches terrain unless its caller defers the effect',
         assert.deepEqual([state.u.ux, state.u.uy], [10, 8]);
     });
 
+test('random arrival deferral suppresses switch_terrain after placement', () => {
+    const state = placementState();
+    state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
+    state.level.at(10, 8).typ = ROOM;
+    state.u.uprops[LEVITATION].blocked = 1;
+
+    assert.doesNotThrow(() => u_on_rndspot(0, state, {
+        deferSwitchTerrain: true,
+    }));
+    assert.deepEqual([state.u.ux, state.u.uy], [10, 8]);
+});
+
+test('random-arrival planning never applies live placement effects',
+    async () => {
+        const state = placementState();
+        initRng(9450611);
+        state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
+        state.level.at(10, 8).typ = ROOM;
+        // A live switch_terrain() would reject this property state. The
+        // caller-supplied completion proves only the committed placement gets
+        // as far as the deferred switch seam.
+        state.u.uprops[LEVITATION].blocked = 1;
+        const events = [];
+
+        await place_random_arrival(0, state, {
+            switchTerrain: () => events.push('switch'),
+        });
+
+        assert.deepEqual([state.u.ux, state.u.uy], [10, 8]);
+        assert.deepEqual(events, ['switch']);
+    });
+
 test('random shop-boundary arrival refuses before relocating the hero',
     async () => {
         const state = placementState();
+        initRng(9450612);
+        enableRngLog();
         // A one-square destination makes <10,8> the first and only candidate;
         // room zero is represented by ROOMOFFSET in map room-number storage.
         const destination = { x: 10, y: 8 };
@@ -451,14 +485,56 @@ test('random shop-boundary arrival refuses before relocating the hero',
             roomno: ROOMOFFSET,
             edge: true,
         });
-        const before = [state.u.ux, state.u.uy];
+        state.u.uundetected = true;
+        state.u.usteed = { mx: state.u.ux, my: state.u.uy };
+        const before = {
+            hero: structuredClone(state.u),
+            rng: structuredClone(game.coreCtx),
+            log: [...getRngLog()],
+            lastSeen: state.level.lastseentyp,
+            terrainType: state.iflags.terrain_typ,
+        };
 
         await assert.rejects(
             () => place_random_arrival(0, state),
             /outside the shop interior/u,
         );
 
-        assert.deepEqual([state.u.ux, state.u.uy], before);
+        assert.deepEqual(state.u, before.hero);
+        assert.deepEqual(game.coreCtx, before.rng);
+        assert.deepEqual(getRngLog(), before.log);
+        assert.equal(state.level.lastseentyp, before.lastSeen);
+        assert.equal(state.iflags.terrain_typ, before.terrainType);
+    });
+
+test('multi-square shop arrival refuses without committing planned RNG',
+    async () => {
+        const state = placementState();
+        initRng(9450613);
+        enableRngLog();
+        state.dndest = { lx: 10, ly: 8, hx: 11, hy: 8 };
+        state.level.rooms[0] = { rtype: SHOPBASE };
+        for (const x of [10, 11]) {
+            Object.assign(state.level.at(x, 8), {
+                typ: ROOM,
+                roomno: ROOMOFFSET,
+                edge: true,
+            });
+        }
+        const before = {
+            position: [state.u.ux, state.u.uy],
+            rng: structuredClone(game.coreCtx),
+            log: [...getRngLog()],
+        };
+
+        await assert.rejects(
+            () => place_random_arrival(0, state),
+            /outside the shop interior/u,
+        );
+
+        assert.deepEqual([state.u.ux, state.u.uy], before.position);
+        assert.deepEqual(game.coreCtx, before.rng);
+        assert.deepEqual(getRngLog(), before.log);
     });
 
 test('the Quest portal pager spends its private shuffle before exact lines',

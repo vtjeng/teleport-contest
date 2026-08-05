@@ -149,6 +149,7 @@ import {
     readdirSync,
     renameSync,
     rmSync,
+    statSync,
     symlinkSync,
     writeFileSync,
 } from 'node:fs';
@@ -161,6 +162,7 @@ import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const MUTATION_CGROUP_MARKER = 'TELEPORT_MUTATION_CGROUP';
 const MUTATION_SLICE_MARKER = 'TELEPORT_MUTATION_SLICE';
+const LOCK_INITIALIZATION_GRACE_MS = 5_000;
 const DEFAULT_MUTATION_LOCK = join(
     tmpdir(),
     `teleport-mutate-${process.getuid?.() ?? 'user'}.lock`,
@@ -188,6 +190,20 @@ export function mutationCgroupArgs(
     ];
 }
 
+export function isVerifiedMutationWorker(
+    environment = process.env,
+    cgroupText = null,
+) {
+    if (environment[MUTATION_CGROUP_MARKER] !== '1') return false;
+    const sliceName = environment[MUTATION_SLICE_MARKER];
+    if (!/^teleport_mutate_[0-9]+_[a-z0-9]+$/u.test(sliceName ?? ''))
+        return false;
+    const membership = cgroupText
+        ?? readFileSync('/proc/self/cgroup', 'utf8');
+    return membership.includes(`/${sliceName}.slice/`)
+        && membership.includes(`/${sliceName}_run.scope`);
+}
+
 export function mutationRunNames(
     pid = process.pid,
     token = Date.now().toString(36),
@@ -198,29 +214,74 @@ export function mutationRunNames(
     return { sliceName, scopeName: `${sliceName}_run` };
 }
 
-function processIsAlive(pid) {
-    if (!Number.isInteger(pid) || pid < 1) return false;
+export function readProcessIdentity(pid) {
+    if (!Number.isInteger(pid) || pid < 1) return null;
     try {
         process.kill(pid, 0);
-        return true;
     } catch (error) {
-        if (error.code === 'ESRCH') return false;
+        if (error.code === 'ESRCH') return null;
         throw error;
     }
+    let stat;
+    try {
+        stat = readFileSync(`/proc/${pid}/stat`, 'utf8');
+    } catch (error) {
+        if (error.code === 'ENOENT') return null;
+        throw error;
+    }
+    const commandEnd = stat.lastIndexOf(')');
+    if (commandEnd < 0) throw new Error(`malformed /proc/${pid}/stat`);
+    const fields = stat.slice(commandEnd + 1).trim().split(/\s+/u);
+    if (fields.length < 20)
+        throw new Error(`incomplete /proc/${pid}/stat`);
+    return { state: fields[0], startTime: fields[19] };
+}
+
+export function mutationOwnerIsAlive(
+    owner,
+    identityReader = readProcessIdentity,
+) {
+    const identity = identityReader(owner?.pid);
+    if (!identity || identity.state === 'Z') return false;
+    // A pre-identity owner might come from an invocation of the immediately
+    // preceding tool version. Keep it conservative until that process exits.
+    if (owner.processStartTime === undefined) return true;
+    return identity.startTime === owner.processStartTime;
 }
 
 export function acquireMutationLock(
     lockPath = process.env.TELEPORT_MUTATION_LOCK ?? DEFAULT_MUTATION_LOCK,
     names = mutationRunNames(),
+    {
+        now = Date.now,
+        afterLockDirectoryCreated = null,
+        afterPendingOwnerWritten = null,
+    } = {},
 ) {
     const ownerPath = join(lockPath, 'owner.json');
-    const owner = { pid: process.pid, ...names };
+    const identity = readProcessIdentity(process.pid);
+    if (!identity || identity.state === 'Z')
+        throw new Error('mutation lock owner has no live process identity');
+    const owner = {
+        pid: process.pid,
+        processStartTime: identity.startTime,
+        ...names,
+    };
     for (let attempt = 0; attempt < 4; ++attempt) {
         try {
             mkdirSync(lockPath);
-            writeFileSync(ownerPath, `${JSON.stringify(owner)}\n`, {
+            afterLockDirectoryCreated?.({ lockPath, ownerPath, owner });
+            const pendingOwnerPath = join(
+                lockPath,
+                `.owner-${process.pid}-${attempt}.tmp`,
+            );
+            writeFileSync(pendingOwnerPath, `${JSON.stringify(owner)}\n`, {
                 flag: 'wx',
             });
+            afterPendingOwnerWritten?.({
+                lockPath, ownerPath, pendingOwnerPath, owner,
+            });
+            renameSync(pendingOwnerPath, ownerPath);
             return { lockPath, ownerPath, owner };
         } catch (error) {
             if (error.code !== 'EEXIST') throw error;
@@ -233,7 +294,20 @@ export function acquireMutationLock(
             if (!['ENOENT', 'EISDIR', 'SyntaxError'].includes(
                 error.code ?? error.name)) throw error;
         }
-        if (processIsAlive(incumbent?.pid)) {
+        if (!incumbent) {
+            let ageMs = 0;
+            try {
+                ageMs = now() - statSync(lockPath).mtimeMs;
+            } catch (error) {
+                if (error.code === 'ENOENT') continue;
+                throw error;
+            }
+            if (ageMs < LOCK_INITIALIZATION_GRACE_MS) {
+                throw new Error(`another mutation run is initializing ${
+                    lockPath}`);
+            }
+        }
+        if (mutationOwnerIsAlive(incumbent)) {
             throw new Error(`another mutation run owns ${lockPath} `
                 + `(pid ${incumbent.pid})`);
         }
@@ -262,6 +336,7 @@ export function releaseMutationLock(lock) {
         throw error;
     }
     if (owner.pid !== lock.owner.pid
+        || owner.processStartTime !== lock.owner.processStartTime
         || owner.sliceName !== lock.owner.sliceName) {
         throw new Error(`mutation lock ownership changed at ${lock.lockPath}`);
     }
@@ -307,9 +382,21 @@ export function stopMutationSlice(sliceName) {
     runSystemctl(['revert', unit], `failed to revert mutation slice ${unit}`);
 }
 
-async function runInMutationCgroup(scriptPath, argv) {
-    const names = mutationRunNames();
-    const lock = acquireMutationLock(undefined, names);
+export async function runInMutationCgroup(
+    scriptPath,
+    argv,
+    {
+        names = mutationRunNames(),
+        acquireLock = acquireMutationLock,
+        releaseLock = releaseMutationLock,
+        startSlice = startMutationSlice,
+        stopSlice = stopMutationSlice,
+        spawnChild = spawn,
+        signalTarget = process,
+        reraise = (signal) => process.kill(process.pid, signal),
+    } = {},
+) {
+    let lock = null;
     let sliceStarted = false;
     let child = null;
     let interrupt = null;
@@ -322,47 +409,68 @@ async function runInMutationCgroup(scriptPath, argv) {
         interrupt = signal;
         resolveInterrupt({ type: 'interrupt', signal });
     };
-    for (const signal of INTERRUPTS) process.on(signal, onInterrupt);
+    const signalHandlers = new Map(INTERRUPTS.map((signal) => [
+        signal,
+        () => onInterrupt(signal),
+    ]));
+    for (const [signal, handler] of signalHandlers)
+        signalTarget.on(signal, handler);
 
     let status = 2;
     try {
-        startMutationSlice(names.sliceName);
-        sliceStarted = true;
-        child = spawn('systemd-run',
-            mutationCgroupArgs(process.execPath, scriptPath, argv, names), {
-                stdio: 'inherit',
-                env: {
-                    ...process.env,
-                    [MUTATION_CGROUP_MARKER]: '1',
-                    [MUTATION_SLICE_MARKER]: names.sliceName,
-                },
+        lock = acquireLock(undefined, names);
+        if (!interrupt) {
+            startSlice(names.sliceName);
+            sliceStarted = true;
+        }
+        if (!interrupt) {
+            child = spawnChild('systemd-run',
+                mutationCgroupArgs(process.execPath, scriptPath, argv, names), {
+                    stdio: 'inherit',
+                    env: {
+                        ...process.env,
+                        [MUTATION_CGROUP_MARKER]: '1',
+                        [MUTATION_SLICE_MARKER]: names.sliceName,
+                    },
+                });
+            const exited = new Promise((resolve) => {
+                child.once('error', (error) =>
+                    resolve({ type: 'error', error }));
+                child.once('exit', (code, signal) =>
+                    resolve({ type: 'exit', code, signal }));
             });
-        const exited = new Promise((resolve) => {
-            child.once('error', (error) => resolve({ type: 'error', error }));
-            child.once('exit', (code, signal) =>
-                resolve({ type: 'exit', code, signal }));
-        });
-        const outcome = await Promise.race([exited, interrupted]);
-        if (outcome.type === 'interrupt') {
-            stopMutationSlice(names.sliceName);
-            sliceStarted = false;
-            child.kill(outcome.signal);
-            await exited;
-        } else if (outcome.type === 'error') {
-            throw outcome.error;
-        } else if (outcome.code === null) {
-            throw new Error(`bounded mutation scope ended with signal ${
-                outcome.signal ?? 'unknown'}`);
-        } else {
-            status = outcome.code;
+            const outcome = await Promise.race([exited, interrupted]);
+            if (outcome.type === 'interrupt') {
+                stopSlice(names.sliceName);
+                sliceStarted = false;
+                child.kill(outcome.signal);
+                await exited;
+            } else if (outcome.type === 'error') {
+                throw outcome.error;
+            } else if (outcome.code === null) {
+                throw new Error(`bounded mutation scope ended with signal ${
+                    outcome.signal ?? 'unknown'}`);
+            } else {
+                status = outcome.code;
+            }
         }
     } finally {
-        for (const signal of INTERRUPTS)
-            process.removeListener(signal, onInterrupt);
-        if (sliceStarted) stopMutationSlice(names.sliceName);
-        releaseMutationLock(lock);
+        let cleanupError = null;
+        try {
+            if (sliceStarted) stopSlice(names.sliceName);
+        } catch (error) {
+            cleanupError = error;
+        }
+        try {
+            releaseLock(lock);
+        } catch (error) {
+            cleanupError ??= error;
+        }
+        for (const [signal, handler] of signalHandlers)
+            signalTarget.removeListener(signal, handler);
+        if (cleanupError) throw cleanupError;
     }
-    if (interrupt) process.kill(process.pid, interrupt);
+    if (interrupt) reraise(interrupt);
     return status;
 }
 
@@ -1649,7 +1757,7 @@ export function formatTrailer({ ran, killed }, kinds) {
         + `kind=${kinds?.length ? kinds.join(',') : 'all'}`;
 }
 
-async function main(argv) {
+export async function main(argv) {
     const options = parseArgs(argv);
     let reportFilter = null;
     if (options.fromReport) {
@@ -1717,7 +1825,7 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
 if (process.argv[1] === SCRIPT_PATH) {
     try {
-        if (process.env[MUTATION_CGROUP_MARKER] === '1') {
+        if (isVerifiedMutationWorker()) {
             await main(process.argv.slice(2));
         } else {
             process.exitCode = await runInMutationCgroup(

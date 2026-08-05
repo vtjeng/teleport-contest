@@ -33,6 +33,7 @@ import {
 import { LEATHER_ARMOR, WAN_WISHING } from '../js/objects.js';
 import { str2role } from '../js/roles.js';
 import {
+    cloneCoreContext,
     createCoreRandom,
     d,
     enableRngLog,
@@ -70,6 +71,23 @@ async function runWithGridCapture(input) {
 function sha256(value) {
     return createHash('sha256').update(value).digest('hex');
 }
+
+test('cloneCoreContext requires both ISAAC arrays and copies each one', () => {
+    assert.throws(() => cloneCoreContext(null), /initialized core RNG/u);
+    assert.throws(
+        () => cloneCoreContext({ m: [] }),
+        /initialized core RNG/u,
+    );
+    assert.throws(
+        () => cloneCoreContext({ r: [] }),
+        /initialized core RNG/u,
+    );
+    const context = { m: [1n], r: [2n], a: 3n };
+    const clone = cloneCoreContext(context);
+    assert.deepEqual(clone, context);
+    assert.notEqual(clone.m, context.m);
+    assert.notEqual(clone.r, context.r);
+});
 
 function gridDigest(grid) {
     // Pin every character, recorder-facing color, and attribute in the 24x80
