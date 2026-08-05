@@ -99,6 +99,7 @@ import { in_out_region, visible_region_at } from './region.js';
 import { rn2 } from './rng.js';
 import { check_special_room } from './rooms.js';
 import { savelev } from './save.js';
+import { preflight_shop_arrival } from './shk.js';
 import {
     stairway_at,
     stairway_find_from,
@@ -160,6 +161,7 @@ export async function place_random_arrival(
     place(upflag, state, {
         earthSenseMessage: (line) => earthSenseMessages.push(line),
         deferSwitchTerrain: true,
+        preflightPosition: preflight_shop_arrival,
     });
     await finish_random_arrival_effects(earthSenseMessages, state, {
         message,

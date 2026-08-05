@@ -868,8 +868,10 @@ async function executeMovement(command, firstTime, state) {
 
 // pendingCommand owns either one rejected physical byte which has not entered
 // cmd.c parsing, or the complete parsed state needed to retry a destination
-// admission failure. Parser UI state and prefix flags are deliberately absent:
-// neither kind of retry resumes inside get_count() or a prefix handler.
+// admission failure. Parser UI state is deliberately absent because neither
+// kind of retry resumes inside get_count(). A parsed retry does retain the
+// reqmenu effect: rhack() has already consumed the prefix byte, so no later
+// input can reconstruct it before set_move_cmd() copies it to context.nopick.
 function captureParsedCommand(key, state) {
     return {
         phase: 'parsed',
@@ -877,6 +879,7 @@ function captureParsedCommand(key, state) {
         commandCount: state.commandCount,
         lastCommandCount: state.lastCommandCount,
         multi: state.multi,
+        ...(state.iflags?.menu_requested ? { menuRequested: true } : {}),
     };
 }
 
@@ -885,6 +888,7 @@ function restoreParsedCommand(pending, state) {
     state.commandCount = pending.commandCount;
     state.lastCommandCount = pending.lastCommandCount;
     state.multi = pending.multi;
+    state.iflags.menu_requested = Boolean(pending.menuRequested);
     return pending.key;
 }
 

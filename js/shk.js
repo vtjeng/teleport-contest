@@ -77,6 +77,116 @@ export function shop_keeper(roomno, state = game) {
         && resident.mextra?.eshk?.shoproom === roomno ? resident : null;
 }
 
+// The generated-shop subset of shk.c:u_entered_shop(). The source performs
+// its boundary handling after achievement and greeting effects because it can
+// continue into block_door(). This port cannot continue there, so callers use
+// this admission check before changing the hero's position or shop state.
+export function assert_shop_entry_supported(x, y, roomno, state = game) {
+    if (inside_shop(x, y, state) !== roomno) {
+        throw new UnsupportedShopError(
+            'u_entered_shop() arriving outside the shop interior',
+        );
+    }
+    const shopkeeper = shop_keeper(roomno, state);
+    if (!shopkeeper) {
+        throw new UnsupportedShopError('u_entered_shop() in an untended shop');
+    }
+    if (!inhishop(shopkeeper, state)) {
+        throw new UnsupportedShopError('u_entered_shop() in an untended shop');
+    }
+    const extension = shopkeeper.mextra.eshk;
+    const unsupportedGreeting = [
+        !shopkeeper.mcanmove,
+        shopkeeper.msleeping,
+        extension.following,
+        !shopkeeper.mpeaceful,
+        extension.surcharge,
+        extension.robbed,
+        heroIsInvisible(state),
+    ].some(Boolean);
+    if (unsupportedGreeting) {
+        throw new UnsupportedShopError(
+            'u_entered_shop() outside the peaceful visible greeting',
+        );
+    }
+    const room = state.level.rooms[roomno - ROOMOFFSET];
+    if (!SHTYPES[room.rtype - SHOPBASE]?.name)
+        throw new UnsupportedShopError('u_entered_shop() shop type');
+    return { extension, room, shopkeeper };
+}
+
+export function preflight_shop_arrival(x, y, state = game) {
+    const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+    if (roomno) assert_shop_entry_supported(x, y, roomno, state);
+}
+
+// Admission seam for the parts of shk.c:u_left_shop() and u_entered_shop()
+// which movement can reach. Settled departures and absent/displaced keepers
+// have no effect. Debt handling and boundary-entry blocking remain named
+// refusals, raised before hack.c:domove_core() changes u.ux/u.uy.
+export function preflight_shop_transition(
+    fromX,
+    fromY,
+    toX,
+    toY,
+    state = game,
+) {
+    const oldShops = in_rooms(fromX, fromY, SHOPBASE, state);
+    const newShops = in_rooms(toX, toY, SHOPBASE, state);
+    const entered = newShops.find((roomno) => !oldShops.includes(roomno));
+    if (entered)
+        assert_shop_entry_supported(toX, toY, entered, state);
+
+    const left = oldShops.filter((roomno) => !newShops.includes(roomno));
+    const from = state.level?.at(fromX, fromY);
+    const to = state.level?.at(toX, toY);
+    if (!left.length) {
+        if (!to?.edge) return;
+        if (from?.edge) return;
+    }
+
+    const roomno = left[0] ?? oldShops[0] ?? 0;
+    const shopkeeper = shop_keeper(roomno, state);
+    if (!shopkeeper) return;
+    if (!inhishop(shopkeeper, state)) return;
+    const extension = shopkeeper.mextra.eshk;
+    if (!extension.billct) {
+        if (!extension.debit) return;
+    }
+    throw new UnsupportedShopError(
+        left.length
+            ? 'u_left_shop() leaving a shop with debt'
+            : 'u_left_shop() reaching a shop boundary with debt',
+    );
+}
+
+// C ref: shk.c u_left_shop(). Only its three no-effect returns are ported;
+// preflight_shop_transition() prevents the remaining branches from reaching
+// this post-move check in ordinary movement.
+export function u_left_shop(leavestring, _newlev, state = game) {
+    const left = Array.from(leavestring ?? []).filter(Boolean);
+    const from = state.level?.at(state.u?.ux0, state.u?.uy0);
+    const to = state.level?.at(state.u?.ux, state.u?.uy);
+    if (!left.length) {
+        if (!to?.edge) return;
+        if (from?.edge) return;
+    }
+
+    const roomno = left[0] ?? Math.trunc(state.u?.ushops0?.[0] ?? 0);
+    const shopkeeper = shop_keeper(roomno, state);
+    if (!shopkeeper) return;
+    if (!inhishop(shopkeeper, state)) return;
+    const extension = shopkeeper.mextra.eshk;
+    if (!extension.billct) {
+        if (!extension.debit) return;
+    }
+    throw new UnsupportedShopError(
+        left.length
+            ? 'u_left_shop() leaving a shop with debt'
+            : 'u_left_shop() reaching a shop boundary with debt',
+    );
+}
+
 // C ref: shk.c is_fshk() (5010-5015), which exists for mondata.c
 // levl_follower(). `following` is set when a shopkeeper chases a debtor off
 // the level; js/shknam.js never sets it, so this answers FALSE for every
@@ -368,20 +478,12 @@ export async function u_entered_shop(
 ) {
     const roomno = Math.trunc(enterstring?.[0] ?? 0);
     if (!roomno) return false;
-    const shopkeeper = shop_keeper(roomno, state);
-    if (!shopkeeper || !inhishop(shopkeeper, state)) {
-        throw new UnsupportedShopError('u_entered_shop() in an untended shop');
-    }
-    const extension = shopkeeper.mextra.eshk;
-    const room = state.level.rooms[roomno - ROOMOFFSET];
-    if (!shopkeeper.mcanmove || shopkeeper.msleeping
-        || extension.following || !shopkeeper.mpeaceful
-        || extension.surcharge || extension.robbed
-        || heroIsInvisible(state)) {
-        throw new UnsupportedShopError(
-            'u_entered_shop() outside the peaceful visible greeting',
-        );
-    }
+    const { extension, room, shopkeeper } = assert_shop_entry_supported(
+        state.u.ux,
+        state.u.uy,
+        roomno,
+        state,
+    );
 
     record_achievement(ACH_SHOP, state);
     extension.bill_p = extension.bill;
@@ -398,8 +500,6 @@ export async function u_entered_shop(
 
     const again = extension.visitct++ ? ' again' : '';
     const shopName = SHTYPES[room.rtype - SHOPBASE]?.name;
-    if (!shopName)
-        throw new UnsupportedShopError('u_entered_shop() shop type');
     const owner = s_suffix(extension.shknam);
     if (!heroIsDeaf(state)) {
         await message(
@@ -409,11 +509,6 @@ export async function u_entered_shop(
         );
     } else {
         await message(`You enter ${owner} ${shopName}${again}!`, state);
-    }
-    if (!inside_shop(state.u.ux, state.u.uy, state)) {
-        throw new UnsupportedShopError(
-            'u_entered_shop() arriving outside the shop interior',
-        );
     }
     return true;
 }

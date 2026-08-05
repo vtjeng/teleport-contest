@@ -172,6 +172,47 @@ test('same-shop strict-interior movement has no departure effect', async () => {
     assert.deepEqual(state.u.ushops_left.slice(0, 1), [0]);
 });
 
+test('settled shop departure moves without shop bookkeeping', async () => {
+    const { state, target } = await generatedShopPile();
+    // A zero room number is NO_ROOM. It turns the prepared adjacent ROOM into
+    // the first square outside the synthetic shop without adding terrain work.
+    state.level.at(target.x, target.y).roomno = 0;
+    state.level.objects[target.x][target.y] = null;
+
+    await domove(state);
+
+    assert.deepEqual([state.u.ux, state.u.uy], [target.x, target.y]);
+    assert.deepEqual(state.u.ushops.slice(0, 1), [0]);
+    assert.deepEqual(state.u.ushops_left.slice(0, 2), [ROOMOFFSET, 0]);
+});
+
+test('unsettled shop departure refuses before movement', async () => {
+    const { keeper, start, state, target } = await generatedShopPile();
+    // One bill entry is the smallest positive debt marker checked by
+    // shk.c:u_left_shop(); its contents are irrelevant before rob_shop().
+    keeper.mextra.eshk.billct = 1;
+    state.level.at(target.x, target.y).roomno = 0;
+    state.level.objects[target.x][target.y] = null;
+    const beforeRooms = structuredClone({
+        urooms: state.u.urooms,
+        ushops: state.u.ushops,
+        ushops0: state.u.ushops0,
+        ushops_entered: state.u.ushops_entered,
+        ushops_left: state.u.ushops_left,
+    });
+
+    await assert.rejects(() => domove(state), /leaving a shop with debt/u);
+
+    assert.deepEqual([state.u.ux, state.u.uy], [start.x, start.y]);
+    assert.deepEqual({
+        urooms: state.u.urooms,
+        ushops: state.u.ushops,
+        ushops0: state.u.ushops0,
+        ushops_entered: state.u.ushops_entered,
+        ushops_left: state.u.ushops_left,
+    }, beforeRooms);
+});
+
 test('plain xname does not apply doname-only shop suffix guards', async () => {
     const { state, upper } = await generatedShopPile();
     upper.unpaid = true;

@@ -949,12 +949,13 @@ export function u_on_newpos(
     x,
     y,
     state = game,
-    { earthSenseMessage = null } = {},
+    { earthSenseMessage = null, preflightPosition = null } = {},
 ) {
     if (!isok(x, y))
         throw new RangeError(
             `u_on_newpos: hero location is off map <${x},${y}>`,
         );
+    preflightPosition?.(x, y, state);
 
     const hero = state.u;
     hero.ux = x;
@@ -1009,7 +1010,11 @@ export function u_on_newpos(
 export function u_on_rndspot(
     upflag,
     state = game,
-    { earthSenseMessage = null, deferSwitchTerrain = false } = {},
+    {
+        earthSenseMessage = null,
+        deferSwitchTerrain = false,
+        preflightPosition = null,
+    } = {},
 ) {
     const up = (upflag & 1), was_in_W_tower = (upflag & 2);
     const dndest = state.dndest ?? {};
@@ -1024,15 +1029,17 @@ export function u_on_rndspot(
         /* Stay inside the Wizard's tower when feasible. */
         place_lregion(dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
                       0, 0, 0, 0, LR_DOWNTELE, null, state,
-                      { earthSenseMessage });
+                      { earthSenseMessage, preflightPosition });
     else if (up)
         place_lregion(updest.lx, updest.ly, updest.hx, updest.hy,
                       updest.nlx, updest.nly, updest.nhx, updest.nhy,
-                      LR_UPTELE, null, state, { earthSenseMessage });
+                      LR_UPTELE, null, state,
+                      { earthSenseMessage, preflightPosition });
     else
         place_lregion(dndest.lx, dndest.ly, dndest.hx, dndest.hy,
                       dndest.nlx, dndest.nly, dndest.nhx, dndest.nhy,
-                      LR_DOWNTELE, null, state, { earthSenseMessage });
+                      LR_DOWNTELE, null, state,
+                      { earthSenseMessage, preflightPosition });
 
     /* might have just left solid rock and unblocked levitation */
     if (!deferSwitchTerrain) switch_terrain(state);

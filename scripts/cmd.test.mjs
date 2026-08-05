@@ -1619,6 +1619,56 @@ test('unsupported movement retains its byte ahead of the next command',
         assert.equal(game.context.pendingCommand, undefined);
     });
 
+test('retried reqmenu movement retains its no-pick prefix', async () => {
+    const replay = await runSegment({
+        // This independent seed supplies an ordinary adjacent square; the
+        // test replaces its terrain and object so only retry ownership varies.
+        seed: 840005,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:PendingMenuMove,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,autopickup',
+        moves: '',
+    });
+    clearTtyMessageWindow(game);
+    resetCommandVars(game);
+    const start = [game.u.ux, game.u.uy];
+    const x = start[0] + 1;
+    const y = start[1];
+    const east = game.level.at(x, y);
+    // ICE is the first type outside IS_FURNITURE(), so the first attempt
+    // reaches the destination boundary after both prefix bytes are parsed.
+    east.typ = ICE;
+    east.flags = east.doormask = 0;
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    const floorObject = installFloorPile(x, y, 1);
+    game.level.traps = [];
+    game.level.regions = [];
+    game.head_engr = null;
+    game.nhDisplay.pushKey(commandKeyCode('m'));
+    // `l` names the prepared square one column east of the hero.
+    game.nhDisplay.pushKey(commandKeyCode('l'));
+
+    await assert.rejects(
+        moveloop_core(),
+        (error) => (
+            error instanceof UnsupportedHeroMoveBoundaryError
+            && error.reason === 'door or special terrain movement'
+        ),
+    );
+    assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
+    assert.deepEqual(replay.getRngSlices().at(-1), []);
+
+    east.typ = ROOM;
+    await moveloop_core();
+
+    assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+    assert.equal(game.level.objects[x][y], floorObject);
+    assert.equal(game.context.nopick, 1);
+    assert.equal(game.context.pendingCommand, undefined);
+});
+
 test('simple hero movement admits empty room and corridor controls',
     async () => {
         for (const terrain of [ROOM, CORR]) {

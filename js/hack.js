@@ -148,7 +148,11 @@ import {
 import { in_out_region, inside_region, visible_region_at } from './region.js';
 import { rn2, rnd } from './rng.js';
 import { check_special_room } from './rooms.js';
-import { costly_spot } from './shk.js';
+import {
+    costly_spot,
+    preflight_shop_transition,
+    UnsupportedShopError,
+} from './shk.js';
 import {
     canSpotMonster,
     collectMonsterNoticeMessages,
@@ -795,6 +799,12 @@ export function requireSimpleHeroDestination(x, y, state) {
     }
     if (engr_at(x, y, state))
         throw new UnsupportedHeroMoveBoundaryError('engraving interaction');
+    try {
+        preflight_shop_transition(state.u.ux, state.u.uy, x, y, state);
+    } catch (error) {
+        if (!(error instanceof UnsupportedShopError)) throw error;
+        throw new UnsupportedHeroMoveBoundaryError(error.branch);
+    }
 }
 
 function doorMask(location) {

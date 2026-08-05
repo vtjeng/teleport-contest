@@ -30,7 +30,7 @@ import {
 } from './const.js';
 import { wake_msg } from './mon.js';
 import { rn2 } from './rng.js';
-import { u_entered_shop } from './shk.js';
+import { u_entered_shop, u_left_shop } from './shk.js';
 import { ttyPline } from './tty_message.js';
 
 const ROOM_STRING_SIZE = 5;
@@ -201,15 +201,10 @@ export async function check_special_room(
 ) {
     move_update(newlev, state);
 
-    // C ref: shk.c u_left_shop() (579-625). A move between two strict-interior
-    // squares passes an empty leave string and returns immediately. Boundary
-    // warnings and actual departures can reach billing, so they remain the
-    // explicit shop-work boundary.
-    if (roomString(roomBuffer(state.u, 'ushops_left')).length) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'check_special_room() leaving a shop',
-        );
-    }
+    // C calls u_left_shop() whenever the previous square belonged to a shop,
+    // including an interior-to-boundary step whose leavestring is empty.
+    if (roomString(roomBuffer(state.u, 'ushops0')).length)
+        u_left_shop(roomBuffer(state.u, 'ushops_left'), newlev, state);
 
     // svl.level.flags.has_town is set by the Mine Town special level alone, so
     // no level this port generates satisfies the achievement's first term.

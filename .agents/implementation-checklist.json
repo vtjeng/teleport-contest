@@ -96,27 +96,27 @@
       "reachability": "A reqmenu-prefixed movement parses successfully, destination admission refuses, and the retained pending command is retried without new input after the destination becomes admissible.",
       "owner": "js/cmd.js pending-command capture and restore",
       "effects": "Restore menu_requested so set_move_cmd reconstructs context.nopick and the retry moves without pickup or pile description.",
-      "evidence": "Correctness and test finders reproduced prefix loss; adjudication accepted all three lenses.",
-      "status": "missing",
-      "remaining": "Persist the logical prefix effect and add direct and rebound retry tests."
+      "evidence": "js/cmd.js now retains menuRequested with the parsed command and restores it before redispatch. scripts/cmd.test.mjs refuses reqmenu plus east movement on ICE, admits the retained command after changing the square to ROOM, and proves the autopickup object remains on the floor. The existing rebound reqmenu integration still passes.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Debt-free generated-shop departure",
       "reachability": "The hero leaves a generated shop whose keeper is absent or whose bill count and debit are both zero.",
       "owner": "js/rooms.js check_special_room and js/shk.js u_left_shop boundary",
       "effects": "Match shk.c's no-effect return and reach the next prompt; reject genuinely billed departures before movement and room mutation.",
-      "evidence": "Correctness, variable-flow, and test finders traced the current late blanket refusal; adjudication confirmed the source behavior and fix, with a causality note that the broad refusal partly predates this range.",
-      "status": "missing",
-      "remaining": "Port the inert source branches, add read-only transition admission for billing, and replace the test that rewards blanket refusal."
+      "evidence": "js/shk.js ports u_left_shop's no-effect returns and preflights debt before movement; js/rooms.js calls the post-move helper whenever ushops0 is nonempty. scripts/shop-floor-pricing.test.mjs proves settled departure reaches the outside square and a one-entry bill refuses with position and room buffers unchanged. scripts/leaving-level-helpers.test.mjs now expects the absent-keeper new-level return.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Atomic unsupported shop-edge entry",
       "reachability": "Movement or arrival newly enters a generated-shop edge square whose blocking tail is not ported.",
       "owner": "js/hack.js movement admission, level arrival admission, and js/shk.js u_entered_shop",
       "effects": "Refuse before position, room strings, achievement, billing/customer state, visit count, greeting output, cursor, or RNG change.",
-      "evidence": "Correctness and test finders reproduced the late greeting and state writes; adjudication accepted all lenses.",
-      "status": "missing",
-      "remaining": "Preflight the edge transition at each live position-commit seam and add complete snapshot tests."
+      "evidence": "js/shk.js centralizes supported generated-shop entry admission; js/hack.js invokes it before ordinary movement, and do.js passes it through u_on_rndspot to u_on_newpos before random-arrival position writes. scripts/level-teleport-arrival.test.mjs proves direct entry leaves achievement, billing, customer, visit and output state untouched and random arrival leaves the hero at the old coordinate.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "Owned outer mutation cancellation",
@@ -174,15 +174,6 @@
     }
   ],
   "missingWorkByOwner": [
-    {
-      "group": "movement and shop transition ownership",
-      "candidates": [
-        "Reqmenu retry preserves parsed prefix semantics",
-        "Debt-free generated-shop departure",
-        "Atomic unsupported shop-edge entry"
-      ],
-      "next": "Implement source-shaped preflight and retry ownership through the next command boundary."
-    },
     {
       "group": "mutation process lifecycle",
       "candidates": [

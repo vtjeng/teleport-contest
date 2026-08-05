@@ -11,6 +11,7 @@ import {
     CORR,
     DEAF,
     LAST_PROP,
+    LEVITATION,
     LR_BRANCH,
     LR_DOWNTELE,
     LR_TELE,
@@ -415,6 +416,51 @@ test('random arrival prints earth sense before switching terrain', async () => {
     ]);
 });
 
+test('random arrival switches terrain unless its caller defers the effect',
+    () => {
+        const state = placementState();
+        // A one-square region makes <10,8> the selected ROOM without a draw.
+        state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
+        state.level.at(10, 8).typ = ROOM;
+        // A blocked levitation property makes switch_terrain() observable: its
+        // currently unported unblocking arm throws after u_on_newpos() lands.
+        state.u.uprops[LEVITATION].blocked = 1;
+
+        assert.throws(
+            () => u_on_rndspot(0, state),
+            /unblocking levitation or flight/u,
+        );
+        assert.deepEqual([state.u.ux, state.u.uy], [10, 8]);
+    });
+
+test('random shop-boundary arrival refuses before relocating the hero',
+    async () => {
+        const state = placementState();
+        // A one-square destination makes <10,8> the first and only candidate;
+        // room zero is represented by ROOMOFFSET in map room-number storage.
+        const destination = { x: 10, y: 8 };
+        state.dndest = {
+            lx: destination.x,
+            ly: destination.y,
+            hx: destination.x,
+            hy: destination.y,
+        };
+        state.level.rooms[0] = { rtype: SHOPBASE };
+        Object.assign(state.level.at(destination.x, destination.y), {
+            typ: ROOM,
+            roomno: ROOMOFFSET,
+            edge: true,
+        });
+        const before = [state.u.ux, state.u.uy];
+
+        await assert.rejects(
+            () => place_random_arrival(0, state),
+            /outside the shop interior/u,
+        );
+
+        assert.deepEqual([state.u.ux, state.u.uy], before);
+    });
+
 test('the Quest portal pager spends its private shuffle before exact lines',
     async () => {
         const state = { urole: roles.find((role) => role.filecode === 'Wiz') };
@@ -604,6 +650,30 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
             expected: deafGreeting,
         });
         await enterWith({ role: wizardRole, roleplay: true, expected: deafGreeting });
+
+        // A shop boundary belongs to the room but is not strictly inside it.
+        // The port does not yet own C's blocking dialogue, so refusal must
+        // precede every achievement, billing, customer, visit, and UI write.
+        game.level.at(interior.x, interior.y).edge = true;
+        game.u.uachieved = game.u.uachieved.filter(
+            (achievement) => achievement !== ACH_SHOP,
+        );
+        extension.visitct = 0;
+        extension.customer = '';
+        extension.bill_p = null;
+        const edgeLines = [];
+        await assert.rejects(
+            () => u_entered_shop([roomno], game, {
+                message: async (line) => edgeLines.push(line),
+            }),
+            /outside the shop interior/u,
+        );
+        assert.equal(game.u.uachieved.includes(ACH_SHOP), false);
+        assert.equal(extension.bill_p, null);
+        assert.equal(extension.customer, '');
+        assert.equal(extension.visitct, 0);
+        assert.deepEqual(edgeLines, []);
+        game.level.at(interior.x, interior.y).edge = false;
 
         // pickup.c autopick() skips owned merchandise but accepts no_charge
         // objects. Put both on a square aligned with exactly one keeper

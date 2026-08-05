@@ -285,7 +285,7 @@ test('set_uinwater only reaches switch_terrain() when the flag changes', () => {
     );
 });
 
-test('check_special_room(TRUE) clears the room strings and stops for a shop',
+test('check_special_room(TRUE) clears room strings and settles inert shop exit',
     async () => {
     // hack.c:3624-3654. move_update(TRUE) blanks u.uentered and
     // u.ushops_entered, so the early return is unconditional for a new level.
@@ -299,14 +299,13 @@ test('check_special_room(TRUE) clears the room strings and stops for a shop',
     assert.deepEqual([...state.u.uentered], [0, 0, 0, 0, 0]);
     assert.deepEqual([...state.u.urooms0], [3, 0, 0, 0, 0]);
 
-    // u.ushops0 is what move_update() copied from u.ushops, so a hero leaving
-    // a shop reaches u_left_shop().
+    // u.ushops0 is what move_update() copied from u.ushops, so this reaches
+    // u_left_shop(). With no resident keeper, C returns without an effect.
     const shopper = heroState();
     shopper.u.ushops[0] = 5;
-    await assert.rejects(
-        () => check_special_room(true, shopper),
-        /leaving a shop/u,
-    );
+    await check_special_room(true, shopper);
+    assert.deepEqual([...shopper.u.ushops0], [5, 0, 0, 0, 0]);
+    assert.deepEqual([...shopper.u.ushops], [0, 0, 0, 0, 0]);
 
     const town = heroState();
     town.level.flags = { has_town: true };
