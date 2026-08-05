@@ -45,8 +45,8 @@
         },
         {
           "name": "mention-decor-inert-pile-window",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b9ca3597bfceb7b23dd26db6829cbd0b4bde5862"
         }
       ],
       "openedAt": "18b809a1a725ade6b83f296d3fa76c775e887fdb",

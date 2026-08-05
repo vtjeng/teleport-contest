@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "Startup now owns mention_decor and prev_decor=STAIRS, but object-free movement still skips pickup(1), describe_decor supports only the startup staircase, and check_here/look_here still reject every mention_decor pile. The silent ordinary-terrain transition and equal-terrain pile consumer remain missing.",
-  "commitChecked": "678ba16ce4f7812d3507a8ce20f0e621af5a0ab2",
+  "mode": "ready-for-audit",
+  "reason": "Commit b9ca359 closes the inert mention_decor ROOM/CORR path from source-faithful startup terrain memory through object-free pickup(1), silent describe_decor transitions, check_here ordering, the dismissed two-to-four-object window, and the next command boundary. Independent fresh differential and checkpoint verification passed; excluded speaking, priced, multibyte, count, reqmenu, and exceptional paths remain atomic.",
+  "commitChecked": "b9ca3597bfceb7b23dd26db6829cbd0b4bde5862",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "678ba16ce4f7812d3507a8ce20f0e621af5a0ab2",
