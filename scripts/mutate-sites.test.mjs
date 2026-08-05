@@ -530,29 +530,40 @@ test('partial aggregate startup has one outer cleanup owner', async () => {
 test('aggregate cleanup accepts only the exact unloaded-unit result', () => {
     const unit = 'teleport_mutate_123_absent.slice';
     const action = `failed to stop mutation slice ${unit}`;
-    const execute = (_command, args) => ({
-        status: 5,
+    let observedOptions = null;
+    const unloaded = `Failed to stop ${unit}: Unit ${unit} not loaded.\n`;
+    const result = (status, stderr) => ({
+        status,
         stdout: '',
-        stderr: `Failed to stop ${unit}: Unit ${unit} not loaded.\n`,
+        stderr,
         signal: null,
         error: null,
-        args,
     });
+    const execute = (_command, _args, options) => {
+        observedOptions = options;
+        return result(5, unloaded);
+    };
     assert.doesNotThrow(() => runSystemctl(
         ['stop', unit], action, { acceptMissingUnit: unit, execute },
     ));
+    assert.equal(observedOptions.env.LC_ALL, 'C');
 
-    const busFailure = (_command, args) => ({
-        ...execute(_command, args),
-        stderr: 'Failed to connect to bus: Permission denied\n',
-    });
-    assert.throws(
-        () => runSystemctl(
-            ['stop', unit], action,
-            { acceptMissingUnit: unit, execute: busFailure },
-        ),
-        /Permission denied/u,
-    );
+    for (const nearMiss of [
+        result(4, unloaded),
+        result(5, 'Failed to stop other.slice: Unit other.slice not loaded.\n'),
+        result(5, `warning\n${unloaded}`),
+        result(5, `${unloaded}warning\n`),
+        result(5, 'Failed to connect to bus: Permission denied\n'),
+    ]) {
+        // Preserve each near miss exactly; only the precise status-5 result
+        // for this unit proves that the owned cgroup is absent.
+        assert.throws(
+            () => runSystemctl(
+                ['stop', unit], action,
+                { acceptMissingUnit: unit, execute: () => nearMiss },
+            ),
+        );
+    }
 });
 
 test('teardown signals take precedence over an earlier body error',
@@ -645,6 +656,40 @@ test('OS signals received during synchronous teardown are re-raised',
                 assert.deepEqual(await exit, { code: null, signal });
                 assert.match(output, /RELEASE/u);
             }
+        }
+    });
+
+test('OS signals delivered at the settlement boundary are re-raised',
+    async () => {
+        for (const signal of ['SIGINT', 'SIGTERM']) {
+            const source = [
+                `import { EventEmitter } from 'node:events';`,
+                `const { runInMutationCgroup } = await import(${JSON.stringify(
+                    SCRIPT_PATH)});`,
+                `const child = new EventEmitter();`,
+                `child.kill = () => {};`,
+                `queueMicrotask(() => child.emit('exit', 0, null));`,
+                `await runInMutationCgroup('/repo/mutate-sites.mjs', [], {`,
+                `  acquireLock: () => ({ name: 'lock' }),`,
+                `  startSlice: () => {},`,
+                `  spawnChild: () => child,`,
+                `  stopSlice: () => {},`,
+                `  releaseLock: () => {},`,
+                `  settleSignals: () => {`,
+                `    process.kill(process.pid, ${JSON.stringify(signal)});`,
+                `    return Promise.resolve();`,
+                `  },`,
+                `});`,
+                `process.stdout.write('RETURNED\\n');`,
+            ].join('\n');
+            const result = spawnSync(process.execPath, [
+                '--input-type=module', '-e', source,
+            ], { encoding: 'utf8' });
+            assert.deepEqual(
+                { status: result.status, signal: result.signal },
+                { status: null, signal },
+            );
+            assert.doesNotMatch(result.stdout, /RETURNED/u);
         }
     });
 

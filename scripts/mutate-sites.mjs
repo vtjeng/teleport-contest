@@ -509,19 +509,31 @@ export async function runInMutationCgroup(
     let sliceNeedsCleanup = false;
     let child = null;
     let interrupt = null;
+    let cleanupComplete = false;
     let resolveInterrupt;
     const interrupted = new Promise((resolve) => {
         resolveInterrupt = resolve;
     });
     const onInterrupt = (signal) => {
+        if (cleanupComplete) {
+            removeSignalHandlers();
+            reraise(signal);
+            return;
+        }
         if (interrupt) return;
         interrupt = signal;
         resolveInterrupt({ type: 'interrupt', signal });
     };
-    const signalHandlers = new Map(INTERRUPTS.map((signal) => [
+    let signalHandlers = new Map(INTERRUPTS.map((signal) => [
         signal,
         () => onInterrupt(signal),
     ]));
+    const removeSignalHandlers = () => {
+        if (!signalHandlers) return;
+        for (const [signal, handler] of signalHandlers)
+            signalTarget.removeListener(signal, handler);
+        signalHandlers = null;
+    };
     for (const [signal, handler] of signalHandlers)
         signalTarget.on(signal, handler);
 
@@ -591,8 +603,21 @@ export async function runInMutationCgroup(
         // libuv one turn to deliver an OS signal received during that window
         // before removing the handlers and deciding whether to re-raise it.
         await settleSignals();
-        for (const [signal, handler] of signalHandlers)
-            signalTarget.removeListener(signal, handler);
+        if (signalTarget === process) {
+            // A real libuv signal callback can still be pending after the
+            // settlement turn resolves. Mark cleanup complete, then keep the
+            // broker alive for one more event-loop turn. A pending delivery
+            // now removes the handlers and re-raises; otherwise remove them
+            // before returning so later signals use their default disposition.
+            // Injected EventEmitters have no kernel delivery gap.
+            cleanupComplete = true;
+            if (!interrupt) {
+                await new Promise((resolve) => setImmediate(resolve));
+            }
+            removeSignalHandlers();
+        } else {
+            removeSignalHandlers();
+        }
     }
     if (interrupt) reraise(interrupt);
     else if (cleanupError) throw cleanupError;

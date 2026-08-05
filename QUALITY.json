@@ -763,6 +763,15 @@
       "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "The three-case fresh recipe uses a full-moon date whose pending More prompt consumes the level-teleport inputs; realign the input/date and assert final levels and dispatch counts."
+    },
+    {
+      "id": "pickup-merged-gold-weight",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "14f350a9ad7f64e6c24ddbc1dd8eb594e2e3f06f",
+      "detail": "js/pickup.js automatic-pickup capacity planning uses incoming gold's gross obj.owt, while pickup.c carry_count() subtracts the weight already represented by mergeable carried gold. Near the capacity boundary this can reject a gold pickup that C admits. This predates the audited range and needs its own source-driven slice and fresh C differential."
     }
   ],
   "areas": [

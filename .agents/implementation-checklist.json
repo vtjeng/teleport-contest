@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "The repeated full audit over 1dd01581..3a0ac1b produced six raw and five deduplicated candidates; fresh adjudication confirmed all five. Aggregate cleanup must accept the exact unloaded-unit proof, the aged-publication oracle must distinguish claim serialization from the grace guard, and three shared lifecycle/arrival contracts need accurate reviewer-facing ownership documentation. These fixes require validation and a final frozen pass.",
-  "commitChecked": "3a0ac1b57157eb40b44f04c194caffbcec5a6cf5",
+  "mode": "ready-for-audit",
+  "reason": "Every listed path is implemented or fails atomically at its named exclusion. The full checkpoint passes 2,819 tests and all generated/static checks, the development score is unchanged, the fresh 34-case arrival matrix still supplies the gameplay differential, and all 73 mutation-runner tests cover the final parser and signal-handoff fixes through their terminal outcomes. One final frozen pass remains.",
+  "commitChecked": "14f350a9ad7f64e6c24ddbc1dd8eb594e2e3f06f",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "0f274faa825d3247e0244aa096d40dfefe5cce62",
@@ -258,7 +258,16 @@
       "reachability": "Startup fails before the slice loads, or an owner dies after successful slice cleanup but before releasing its lock.",
       "owner": "scripts/mutate-sites.mjs runSystemctl and stopMutationSlice",
       "effects": "Accept only systemd's exact C-locale status-5 Unit-not-loaded response as proof the aggregate is already empty; preserve all other failures and their recovery owner.",
-      "evidence": "The parser regression accepts the exact unloaded response and rejects an unrelated status-5 bus failure. A real-systemd stale-owner regression names an absent slice and proves immediate replacement ownership, complementing the existing active-slice recovery case.",
+      "evidence": "The parser regression pins LC_ALL=C, accepts the exact status-5 unloaded response, and rejects wrong status, wrong unit, prefixed output, suffixed output, and an unrelated status-5 bus failure. A real-systemd stale-owner regression names an absent slice and proves immediate replacement ownership, complementing the existing active-slice recovery case.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "OS signal preservation at cleanup settlement",
+      "reachability": "A real SIGINT or SIGTERM is accepted by the kernel while cleanup is ending, but its libuv callback becomes runnable only as the settlement promise resolves.",
+      "owner": "scripts/mutate-sites.mjs runInMutationCgroup terminal signal broker",
+      "effects": "Keep signal ownership through one post-cleanup event-loop turn, then either remove the broker and re-raise the delivered signal or restore default handling before returning.",
+      "evidence": "A real subprocess regression injects both SIGINT and SIGTERM at the settlement boundary and requires caller-visible termination by the original signal with no successful return. The full 73-test mutation-runner suite also preserves prior synchronous-teardown, cleanup, and error-precedence outcomes.",
       "status": "done",
       "remaining": ""
     },
@@ -309,5 +318,5 @@
     }
   ],
   "missingWorkByOwner": [],
-  "sourceReview": "The repeated source review traces the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. It covers exact publication-versus-reclaim and claimant-read-versus-unlink schedules, aged incomplete publication, partial set-property startup, already-unloaded aggregate cleanup, child-error-plus-teardown-signal order, every game branch and helper reachable before the next prompt, state and PRNG order, and every explicit pre-commit exclusion. The latest audit confirmed all five candidates, now assigned above. No known gameplay gap remains inside the boundary; final readiness awaits broad validation and a repeated frozen pass."
+  "sourceReview": "The repeated source review traces the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. It covers exact publication-versus-reclaim and claimant-read-versus-unlink schedules, aged incomplete publication, partial set-property startup, already-unloaded aggregate cleanup, child-error-plus-teardown-signal order, every game branch/helper reachable before the next prompt, state/PRNG order, and every explicit pre-commit exclusion. All latest confirmed items are fixed and validated through their terminal outcomes. No known unsupported behavior remains after an observable change inside this boundary."
 }
