@@ -715,7 +715,7 @@ export async function parseCommand(state = game) {
 // it, so the key stays on the refusing side while the typed name works.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'down', 'wizwish', 'wizlevelport', '#',
+    'eat', 'down', 'reqmenu', 'wizwish', 'wizlevelport', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `

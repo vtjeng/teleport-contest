@@ -610,13 +610,13 @@ function heroCommandRetrySnapshot(replay, trimInputCaptures = 0) {
     };
 }
 
-async function prepareHeroMoveAdmission() {
+async function prepareHeroMoveAdmission(extraRc = '') {
     const replay = await runSegment({
         seed: 840004,
         datetime: COMMAND_DATETIME,
         nethackrc: 'OPTIONS=name:MoveAdmission,role:Healer,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
-            + 'pettype:none',
+            + `pettype:none\n${extraRc}`,
         moves: '',
     });
     const x = game.u.ux + 1;
@@ -637,6 +637,48 @@ async function prepareHeroMoveAdmission() {
     game.domoveAttempting = 1;
     return { destination, replay, x, y };
 }
+
+test('reqmenu movement crosses ordinary piles without pickup or description',
+    async () => {
+        for (const [label, pickupEnabled, pileLimit, binding, prefix] of [
+            // The default prefix and limit exercise the menu-sized branch
+            // that ordinary !autopickup movement would otherwise enter.
+            ['default menu', false, 5, '', 'm'],
+            // Equality at two selects the count line without the prefix.
+            ['default count', false, 2, '', 'm'],
+            // Explicit autopickup exercises pickup()'s same nopick return.
+            ['autopickup menu', true, 5, '', 'm'],
+            // Rebinding reqmenu proves dispatch carries its semantic flag;
+            // the count threshold keeps the two display branches covered.
+            ['rebound autopickup count', true, 2,
+                'BINDINGS=x:reqmenu', 'x'],
+        ]) {
+            const { x, y } = await prepareHeroMoveAdmission(binding);
+            game.flags.pickup = pickupEnabled;
+            game.flags.pile_limit = pileLimit;
+            const head = installFloorPile(x, y, 2);
+            const before = structuredClone(head);
+            clearTtyMessageWindow(game);
+            game._ttyToplines = '';
+            game.context.move = 0;
+            game.context.run = 0;
+            game.context.nopick = 0;
+            game.domoveAttempting = 0;
+            game.nhDisplay.pushKey(commandKeyCode(prefix));
+            // The destination is one square east of the prepared hero.
+            game.nhDisplay.pushKey(commandKeyCode('l'));
+
+            await rhack(0, game);
+
+            assert.deepEqual([game.u.ux, game.u.uy], [x, y], label);
+            assert.equal(game.level.objects[x][y], head, label);
+            assert.deepEqual(structuredClone(head), before, label);
+            assert.equal(game._ttyToplines, '', label);
+            assert.equal(game.context.nopick, 1, label);
+            assert.equal(game.iflags.menu_requested, false, label);
+            assert.equal(game.nhDisplay.inputQueueLength, 0, label);
+        }
+    });
 
 function installFloorPile(x, y, count = 2, firstOverrides = {}) {
     let head = null;
@@ -2378,40 +2420,19 @@ test('safe wait rejects a nearby hostile with the bound force prefix', async () 
     assert.equal(state.did_nothing_flag, 3);
 });
 
-test('reqmenu prefix stops before consuming its following command', async () => {
+test('a rebound reqmenu prefix forces its following wait command', async () => {
     const { state } = resetSafeWaitTestGame(
         'OPTIONS=!cmdassist\nBINDINGS=x:reqmenu',
     );
     state.nhDisplay.pushKey(commandKeyCode('x'));
     state.nhDisplay.pushKey(commandKeyCode('.'));
 
-    await assert.rejects(
-        rhack(0, state),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === commandKeyCode('x'),
-    );
-    const rejected = structuredClone({
-        context: state.context,
-        iflags: state.iflags,
-        input: state.nhDisplay.terminal._inputQueue,
-        pendingMessage: state._pending_message,
-    });
-    await assert.rejects(
-        rhack(0, state),
-        (error) => error instanceof UnsupportedHeroCommandBoundaryError
-            && error.key === commandKeyCode('x'),
-    );
+    await rhack(0, state);
 
-    assert.deepEqual(structuredClone({
-        context: state.context,
-        iflags: state.iflags,
-        input: state.nhDisplay.terminal._inputQueue,
-        pendingMessage: state._pending_message,
-    }), rejected);
-    assert.equal(state.context.move, 0);
-    assert.equal(state.iflags.menu_requested, false);
+    assert.equal(state.context.move, 1);
+    assert.equal(state.iflags.menu_requested, true);
     assert.equal(state.did_nothing_flag ?? 0, 0);
-    assert.equal(state.nhDisplay.inputQueueLength, 1);
+    assert.equal(state.nhDisplay.inputQueueLength, 0);
 });
 
 test('dangerous hero properties reject waiting and success resets its counter', async () => {

@@ -137,7 +137,7 @@ import {
 import { curr_mon_load } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { can_fog, closed_door, onscary, youHear } from './monmove.js';
-import { check_here } from './pickup.js';
+import { pickup } from './pickup.js';
 import { in_out_region, inside_region, visible_region_at } from './region.js';
 import { rn2, rnd } from './rng.js';
 import { check_special_room } from './rooms.js';
@@ -670,18 +670,24 @@ export function requireSimpleHeroDestination(x, y, state) {
         throw new UnsupportedHeroMoveBoundaryError('decor description');
     }
     const floorObject = state.level?.objects?.[x]?.[y] ?? null;
+    // cmd.c set_move_cmd() copies a pending reqmenu prefix to context.nopick
+    // before domove(). executeMovement() runs this temporary admission seam
+    // first, so read the pending prefix as the same movement intent here.
+    const noPickMove = Boolean(
+        state.context?.nopick || state.iflags?.menu_requested,
+    );
     if (sobj_at(BOULDER, x, y, state))
         throw new UnsupportedHeroMoveBoundaryError('boulder movement');
-    if (floorObject && state.flags?.pickup)
+    if (floorObject && state.flags?.pickup && !noPickMove)
         throw new UnsupportedHeroMoveBoundaryError('automatic pickup');
-    if (floorObject && !floorObject.nexthere
+    if (floorObject && !noPickMove && !floorObject.nexthere
         && state.flags?.pile_limit > 0
         && state.flags.pile_limit <= 1) {
         throw new UnsupportedHeroMoveBoundaryError(
             'single-object skipped-pile count',
         );
     }
-    if (floorObject?.nexthere) {
+    if (floorObject?.nexthere && !noPickMove) {
         let pileCount = 0;
         for (let object = floorObject; object; object = object.nexthere)
             ++pileCount;
@@ -2021,10 +2027,12 @@ export async function spoteffects(pick, state = game) {
         throw new UnsupportedHeroMoveBoundaryError('dosinkfall()');
     }
     if (!state.in_steed_dismounting) {
-        // C ref: pickup(1) -> check_here(). pickup()'s own arms need
-        // describe_decor(), read_engr_at() and autopickup, all of which
-        // requireSimpleHeroDestination() refuses ahead of this call.
-        if (pick) await check_here(false, state);
+        // C ref: pickup(1). Object-bearing squares use its real movement
+        // consumer so the no-pick arm returns before check_here(). Object-free
+        // ROOM and CORR squares remain inert at this temporary seam until
+        // describe_decor() and prev_decor are ported.
+        const objectHere = state.level?.objects?.[state.u.ux]?.[state.u.uy];
+        if (pick && objectHere) await pickup(1, state);
     }
 }
 
