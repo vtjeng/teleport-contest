@@ -3,8 +3,8 @@
 // Record and replay ordinary two-to-four-object floor-pile windows against
 // the patched C reference. Each segment walks only through object-free ROOM
 // or CORR squares with autopickup disabled, reaches a natural generated pile,
-// dismisses the `(end)` prompt with Space, and supplies a trailing rest so the
-// repaired next command prompt is captured before that command is read.
+// dismisses the `--More--` prompt with Space, and supplies a trailing rest so
+// the repaired next command prompt is captured before that command is read.
 //
 // The source transaction is pickup.c pickup()'s !flags.pickup arm through
 // check_here(FALSE), invent.c look_here()'s otmp->nexthere arm, and the tty

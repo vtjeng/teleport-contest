@@ -14,6 +14,7 @@ import test from 'node:test';
 import {
     UnsupportedHeroCommandBoundaryError, failClosedCommandRefusals, rhack,
 } from '../js/cmd.js';
+import { UnsupportedDropError } from '../js/do.js';
 import { UnsupportedObjectOperationError } from '../js/obj.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
@@ -327,3 +328,7 @@ test('a wish the hero cannot carry stops the segment rather than escaping',
             /held object dropped is not available for otyp 475/,
         );
     });
+
+test('ordinary wish-drop refusals convert at the command seam', () => {
+    assert.ok(failClosedCommandRefusals().includes(UnsupportedDropError));
+});

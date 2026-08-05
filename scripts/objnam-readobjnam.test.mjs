@@ -46,6 +46,7 @@ import {
     GEM_CLASS,
     GRAY_DRAGON_SCALES,
     GRAY_DRAGON_SCALE_MAIL,
+    HEAVY_IRON_BALL,
     HELM_OF_TELEPATHY,
     JADE,
     KATANA,
@@ -525,6 +526,15 @@ test('readobjnam resolves an alternate spelling without a lookup', () => {
     // spellings[] returns 2 from readobjnam_postparse1(), which skips
     // readobjnam_postparse3() entirely, so the first draw is mksobj()'s
     // next_ident() rather than a lookup.
+    assert.equal(draws[0], 'rnd(2)');
+});
+
+test('the iron ball spelling reaches its type without a lookup draw', () => {
+    const state = wishState();
+    const { obj, draws } = wish(state, 'iron ball');
+    assert.equal(obj.otyp, HEAVY_IRON_BALL);
+    // spellings[] returns straight to typfnd:, so the first draw belongs to
+    // mksobj()'s next_ident() rather than rnd_otyp_by_namedesc().
     assert.equal(draws[0], 'rnd(2)');
 });
 

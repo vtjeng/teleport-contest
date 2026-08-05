@@ -120,34 +120,38 @@ test('NHW_MENU text uses H2344_BROKEN right-half geometry', () => {
     assert.equal(overlayDisabled.firstColumn, 0);
 });
 
-test('NHW_MENU text waits at (end) and repairs through docorner', async () => {
-    const state = menuState('x ');
-    const boundaries = [];
-    state._preNhgetchHook = () => boundaries.push({
-        rows: Array.from({ length: 4 }, (_, row) => rowText(state, row)),
-        cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
-    });
+test('NHW_MENU text waits at --More-- and repairs through docorner',
+    async () => {
+        const state = menuState('x ');
+        const boundaries = [];
+        state._preNhgetchHook = () => boundaries.push({
+            rows: Array.from({ length: 4 }, (_, row) => rowText(state, row)),
+            cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        });
 
-    assert.equal(await displayTtyMenuTextWindow(state, [
-        'Things that are here:',
-        'a dart',
-        'a food ration',
-    ]), ' '.charCodeAt(0));
+        assert.equal(await displayTtyMenuTextWindow(state, [
+            'Things that are here:',
+            'a dart',
+            'a food ration',
+        ]), ' '.charCodeAt(0));
 
-    assert.equal(boundaries.length, 2);
-    assert.deepEqual(boundaries[0], boundaries[1]);
-    assert.deepEqual(boundaries[0], {
-        rows: [
-            `${' '.repeat(41)}Things that are here:`,
-            `${' '.repeat(41)}a dart`,
-            `${' '.repeat(41)}a food ration`,
-            `${' '.repeat(41)}(end)`,
-        ],
-        cursor: [46, 3],
+        assert.equal(boundaries.length, 2);
+        assert.deepEqual(boundaries[0], boundaries[1]);
+        assert.deepEqual(boundaries[0], {
+            rows: [
+                `${' '.repeat(41)}Things that are here:`,
+                `${' '.repeat(41)}a dart`,
+                `${' '.repeat(41)}a food ration`,
+                `${' '.repeat(41)}--More--`,
+            ],
+            // dmore() begins at layout column 41 and advances eight cells for
+            // the complete source prompt, leaving the cursor at column 49 on
+            // the fourth (zero-based row 3) line.
+            cursor: [49, 3],
+        });
+        assert.equal(rowText(state, 4), 'NetHack, Copyright 1985-2026');
+        assert.equal(rowText(state, 3), '');
     });
-    assert.equal(rowText(state, 4), 'NetHack, Copyright 1985-2026');
-    assert.equal(rowText(state, 3), '');
-});
 
 test('NHW_MENU text honors disabled overlays and refuses a paged boundary',
     async () => {
@@ -165,7 +169,9 @@ test('NHW_MENU text honors disabled overlays and refuses a paged boundary',
         ]);
         assert.deepEqual(boundaries, [{
             first: 'Things that are here:',
-            cursor: [6, 2],
+            // A clear-screen layout starts at column 0; dmore()'s menu offset
+            // plus the eight-character prompt leaves column 9 on row 2.
+            cursor: [9, 2],
         }]);
 
         const paged = menuState(' ');

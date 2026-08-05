@@ -4789,6 +4789,125 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
     assert.equal(row(23).length, 79);
 });
 
+// botl.c bot_via_windowport() fills BL_CAP from near_capacity(), and tty's
+// two-line field order puts the resulting enc_stat word after hunger.
+test('the two-line status row reports carrying capacity', async () => {
+    const state = statusRenderingState();
+    state.flags.showexp = false;
+    state.flags.showvers = false;
+    state.flags.time = false;
+    state.flags.weaponstatus = false;
+    state.flags.armorstatus = false;
+    state.flags.terrainstatus = false;
+    state.invent = {
+        oclass: WEAPON_CLASS,
+        otyp: SPEAR,
+        owt: 2000,
+        quan: 1,
+        nobj: null,
+    };
+
+    await bot();
+
+    assert.match(terminalRow(state, 23), / Strained\s*$/u);
+});
+
+test('two-line capacity shrinking uses strict 79-column overflow edges',
+    async () => {
+        const cases = [
+            {
+                name: 'full capacity form',
+                inventory: {
+                    oclass: WEAPON_CLASS, otyp: SPEAR, owt: 2000,
+                    quan: 1, nobj: null,
+                },
+                extra: (state) => {
+                    state.flags.time = true;
+                    state.flags.weaponstatus = true;
+                    state.flags.armorstatus = true;
+                    state.flags.terrainstatus = true;
+                    state.moves = 999;
+                },
+                expected: 'Dlvl:1 $:0 HP:16(16) Pw:4(6) AC:8 Xp:1 T:999'
+                    + ' Strained Spear Shield Stairs 5.0.0',
+            },
+            {
+                name: 'first shortened capacity form',
+                inventory: {
+                    oclass: WEAPON_CLASS, otyp: SPEAR, owt: 2000,
+                    quan: 1, nobj: null,
+                },
+                extra: (state) => {
+                    state.flags.time = true;
+                    state.flags.weaponstatus = true;
+                    state.flags.armorstatus = true;
+                    state.flags.terrainstatus = true;
+                    state.flags.showexp = true;
+                    state.moves = 99;
+                },
+                expected: 'Dlvl:1 $:0 HP:16(16) Pw:4(6) AC:8 Xp:1/42 T:99'
+                    + ' Strain Spear Shield Stairs 5.0.0',
+            },
+            {
+                name: 'empty capacity padding',
+                inventory: { oclass: COIN_CLASS, quan: 50, nobj: null },
+                extra: (state) => {
+                    state.flags.time = true;
+                    state.flags.weaponstatus = true;
+                    state.flags.armorstatus = true;
+                    state.flags.terrainstatus = true;
+                    state.flags.showexp = true;
+                    state.moves = 1000;
+                    state.u.uhpmax = 999999;
+                },
+                expected: 'Dlvl:1 $:50 HP:16(999999) Pw:4(6) AC:8 Xp:1/42'
+                    + ' T:1000 Spear Shield Stairs 5.0.0',
+            },
+        ];
+
+        for (const { name, inventory, extra, expected } of cases) {
+            const state = statusRenderingState();
+            state.flags.showexp = false;
+            state.flags.showvers = true;
+            state.flags.time = false;
+            state.flags.weaponstatus = false;
+            state.flags.armorstatus = false;
+            state.flags.terrainstatus = false;
+            state.moves = 1;
+            state.invent = inventory;
+            extra?.(state);
+
+            await bot();
+
+            const text = terminalRow(state, 23).trimEnd();
+            assert.equal(text, expected, name);
+            assert.ok(text.length >= 79, `${name}: reaches the tty edge`);
+        }
+});
+
+test('three-line conditions align to hunger before carrying capacity',
+    async () => {
+        const state = bareThreeLineState();
+        state.invent = {
+            oclass: WEAPON_CLASS,
+            otyp: SPEAR,
+            owt: 2000,
+            quan: 1,
+            nobj: null,
+        };
+        setConditionProperties(state, [BLINDED]);
+
+        await bot();
+
+        const vitals = terminalRow(state, 22);
+        const details = terminalRow(state, 23);
+        assert.match(vitals, / Strained\s*$/u);
+        // wintty.c aligns BL_CONDITION to BL_HUNGER's fixed column, and the
+        // following BL_CAP uses that same printable start when hunger is empty.
+        assert.equal(details.indexOf('Blind'), 40);
+        assert.equal(vitals.indexOf('Strained'), 40);
+    });
+
 test('tutorial overflow shrinking preserves complete status grids and attributes', async () => {
     const state = statusRenderingState();
     state.tutorial_dnum = state.u.uz.dnum;

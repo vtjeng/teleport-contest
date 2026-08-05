@@ -85,6 +85,8 @@ test('startup option defaults use source role indices and zero roleplay', () => 
     assert.equal(parsed.flags.versinfo, 1);
     assert.equal(parsed.iflags.altmeta, false);
     assert.equal(parsed.preferred_pet, '');
+    // options.c PILE_LIMIT_DFLT is five before any startup option runs.
+    assert.equal(parsed.flags.pile_limit, 5);
     assert.equal(parsed.roleFilter.mask, 0);
     assert.equal(parsed.roleFilter.roles.length, roles.length);
     assert.ok(parsed.roleFilter.roles.every((filtered) => !filtered));
@@ -100,6 +102,46 @@ test('startup option defaults use source role indices and zero roleplay', () => 
         numbones: 0,
         numrerolls: 0,
     });
+});
+
+test('pile_limit startup parsing follows optfn_pile_limit and C atoi', () => {
+    const values = [
+        // One is the smallest positive threshold and forces every object
+        // chain into look_here()'s count arm.
+        ['OPTIONS=pile_limit:1', 1],
+        // Zero is the documented never-skip threshold.
+        ['OPTIONS=pile_limit:0', 0],
+        // C atoi() stops at the first non-digit after a valid decimal prefix.
+        ['OPTIONS=pile_limit:9objects', 9],
+        // C atoi() returns zero when no signed decimal prefix exists.
+        ['OPTIONS=pile_limit:nonnumeric', 0],
+        // A negative parsed result resets to the source default of five.
+        ['OPTIONS=pile_limit:-1', 5],
+        // Leading ASCII whitespace and an explicit plus sign are accepted by
+        // C atoi(); seven keeps the assertion distinct from other cases.
+        ['OPTIONS=pile_limit:   +7', 7],
+        // Both negated spellings select the never-skip value before gameplay.
+        ['OPTIONS=!pile_limit', 0],
+        ['OPTIONS=!pile_limit:', 0],
+    ];
+    for (const [rc, expected] of values)
+        assert.equal(parseNethackrc(rc).flags.pile_limit, expected, rc);
+
+    // Generic compound-option validation rejects a missing positive value
+    // before optfn_pile_limit() runs, as the fresh C startup did.
+    for (const rc of ['OPTIONS=pile_limit', 'OPTIONS=pile_limit:']) {
+        assert.throws(
+            () => parseNethackrc(rc),
+            /pile_limit.*requires a value/u,
+            rc,
+        );
+    }
+    // bad_negation() is the handler's own rejection for a negated value;
+    // three is the smallest ordinary count threshold above the two edge.
+    assert.throws(
+        () => parseNethackrc('OPTIONS=!pile_limit:3'),
+        /may not both have a value and be negated/u,
+    );
 });
 
 test('explicit character options and pinned aliases produce source indices', () => {

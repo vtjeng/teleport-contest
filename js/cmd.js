@@ -36,7 +36,11 @@ import {
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
 import { bot, flush_screen } from './display.js';
-import { dodown, UnsupportedLevelChangeError } from './do.js';
+import {
+    dodown,
+    UnsupportedDropError,
+    UnsupportedLevelChangeError,
+} from './do.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { UnsupportedObjectOperationError } from './obj.js';
@@ -917,6 +921,7 @@ export function failClosedCommandRefusals() {
         UnsupportedSteedError,
         UnsupportedHitPointLossError,
         UnsupportedArtifactDisplayError,
+        UnsupportedDropError,
         UnsupportedLevelChangeError,
         // wizcmds.c wiz_level_change() reaches the first when asked to lower
         // a level, which exper.c losexp() owns. attrib.c adjabil() throws the

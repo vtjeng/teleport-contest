@@ -13,6 +13,7 @@ import {
     IN_SIGHT,
     LAVAPOOL,
     LOOKHERE_NOFLAGS,
+    LOOKHERE_PICKED_SOME,
     OBJ_FLOOR,
     NON_PM,
     PLNMSG_ONE_ITEM_HERE,
@@ -315,7 +316,10 @@ function pileLookState({
     const types = [first, FOOD_RATION, DAGGER, ARROW, POT_HEALING];
     let head = null;
     for (let index = count - 1; index >= 0; --index) {
-        head = objectOf(state, types[index], {
+        // Reuse the five ordinary nameable types when a wording boundary
+        // needs a longer synthetic chain; look_here() counts chain nodes, not
+        // distinct types, and this fixture bypasses floor-stack merging.
+        head = objectOf(state, types[index % types.length], {
             dknown: false,
             nexthere: head,
             ...(index === 0 ? firstOverrides : {}),
@@ -461,18 +465,64 @@ test('ordinary object piles display every name before reading the engraving',
         assert.equal(head.dknown, true);
     });
 
+test('pile-limit counts bypass names and use source count partitions',
+    async () => {
+        for (const [count, expected] of [
+            // Two has its own source word.
+            [2, 'two'],
+            // Three and four are the lower and upper edges of "a few".
+            [3, 'a few'],
+            [4, 'a few'],
+            // Five and nine are the lower and upper edges of "several".
+            [5, 'several'],
+            [9, 'several'],
+            // Ten is the lower edge of the unbounded "many" partition;
+            // twelve shows that values above the edge remain there.
+            [10, 'many'],
+            [12, 'many'],
+        ]) {
+            const { head, state } = pileLookState({ count });
+            // Equality selects the count arm and pins the inclusive
+            // `obj_cnt >= pile_limit` edge for every source partition.
+            state.flags.pile_limit = count;
+            const events = [];
+
+            const output = await look_here(count, LOOKHERE_NOFLAGS, state, {
+                message: async (text, owner) =>
+                    events.push(['message', text, owner]),
+                displayObjectPile: async (lines) =>
+                    events.push(['display', lines]),
+                readEngraving: async () => events.push(['engraving']),
+            });
+
+            assert.equal(output, false);
+            assert.deepEqual(events, [
+                ['engraving'],
+                ['message', `There are ${expected} objects here.`, state],
+            ]);
+            for (let object = head; object; object = object.nexthere)
+                assert.equal(object.dknown, false, `count ${count}`);
+        }
+    });
+
 test('object-pile exclusions stop before names, output, or engraving',
     async () => {
         const cases = [
             {
-                name: 'pile-limit count',
+                name: 'picked-some pile-limit count',
+                // Two is the smallest pile, and an equal threshold selects
+                // the excluded picked-some wording.
                 build: () => pileLookState({ count: 2 }),
                 prepare: ({ state }) => { state.flags.pile_limit = 2; },
-                expected: /skipped-pile count/u,
+                flags: LOOKHERE_PICKED_SOME,
+                expected: /picked-some skipped-pile count/u,
             },
             {
-                name: 'five-object pile',
+                name: 'non-triggering five-object pile',
+                // Five is the first count outside the preceding menu slice;
+                // zero disables the count shortcut.
                 build: () => pileLookState({ count: 5 }),
+                prepare: ({ state }) => { state.flags.pile_limit = 0; },
                 expected: /outside the two-to-four-item window/u,
             },
             {
@@ -539,10 +589,15 @@ test('object-pile exclusions stop before names, output, or engraving',
             const built = specimen.build();
             specimen.prepare?.(built);
             const events = [];
+            // Mirror pickup.c check_here() instead of duplicating a fixture
+            // count in each exclusion case.
+            let objectCount = 0;
+            for (let object = built.head; object; object = object.nexthere)
+                ++objectCount;
             await assert.rejects(
                 look_here(
-                    Math.max(2, specimen.name === 'five-object pile' ? 5 : 2),
-                    LOOKHERE_NOFLAGS,
+                    objectCount,
+                    specimen.flags ?? LOOKHERE_NOFLAGS,
                     built.state,
                     {
                         message: (text) => events.push(['message', text]),

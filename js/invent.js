@@ -2,7 +2,7 @@
 // C refs: src/invent.c addinv(), mergable(), merged(), useupall();
 //         src/mkobj.c extract_nobj(), add_to_container(), and add_to_buried().
 
-import { inv_cnt, near_capacity } from './hack.js';
+import { calc_capacity, inv_cnt, near_capacity } from './hack.js';
 import {
     ACH_MINE_PRIZE,
     ACH_SOKO_PRIZE,
@@ -114,6 +114,7 @@ import {
     FOOD_CLASS,
     GEM_CLASS,
     GLASS,
+    HEAVY_IRON_BALL,
     LEASH,
     LOADSTONE,
     LUCKSTONE,
@@ -682,12 +683,13 @@ function activeStoneResistance(state) {
 
 // C ref: invent.c look_here(). Covers a hero standing on an ordinary square,
 // sighted or blind: the region and trap line, the terrain feature line, the
-// engraving read, and the no-object, single-object, or ordinary
-// two-to-four-object menu. Blindness is not excluded from the first two
+// engraving read, and the no-object, single-object, ordinary two-to-four-
+// object menu, or sighted ordinary pile-limit count. Blindness is not
+// excluded from the first two
 // outcomes; a pile reached while blind stops before its tactile preamble
 // because feel_cockatrice() and the tactile menu belong to a later slice. A
-// pile-limit count, decorated pile, liquid square, engraving, or pile outside
-// two through four likewise stops before output.
+// decorated pile, liquid square, engraving, non-triggering pile outside two
+// through four, or picked-some count likewise stops before output.
 //
 // Returns true where C returns ECMD_TIME and false where it returns ECMD_OK,
 // so the caller decides whether the command takes game time.
@@ -716,17 +718,18 @@ export async function look_here(
 
     const otmp = state.level.objects[ux]?.[uy] ?? null;
     const hasPile = Boolean(otmp?.nexthere);
+    const pickedSome = (lookhere_flags & LOOKHERE_PICKED_SOME) !== 0;
     let pileCount = 0;
     if (hasPile) {
         for (let object = otmp; object; object = object.nexthere) ++pileCount;
-        if (pileCount < 2 || pileCount > 4) {
+        if (pileCount < 2 || (!skip_objects && pileCount > 4)) {
             throw new UnsupportedFeatureDescriptionError(
                 'an object pile outside the two-to-four-item window',
             );
         }
-        if (skip_objects) {
+        if (skip_objects && pickedSome) {
             throw new UnsupportedFeatureDescriptionError(
-                'the skipped-pile count',
+                'the picked-some skipped-pile count',
             );
         }
         if (blind) {
@@ -755,8 +758,10 @@ export async function look_here(
                 'objects on an inaccessible liquid square',
             );
         }
-        for (let object = otmp; object; object = object.nexthere)
-            assertObjectNameable(object, state);
+        if (!skip_objects) {
+            for (let object = otmp; object; object = object.nexthere)
+                assertObjectNameable(object, state);
+        }
     }
 
     if (!skip_objects) {
@@ -819,8 +824,22 @@ export async function look_here(
             await message(`You ${verb} no objects here.`, state);
         return blind;
     }
-    if (skip_objects)
-        throw new UnsupportedFeatureDescriptionError('the skipped-pile count');
+    if (skip_objects) {
+        // A threshold of one also selects this arm for one object, but that
+        // single-object wording is outside this slice's pile transaction.
+        if (!hasPile) {
+            throw new UnsupportedFeatureDescriptionError(
+                'the single-object skipped-pile count',
+            );
+        }
+        if (dfeature && !skip_dfeature) await message(fbuf, state);
+        await readEngraving(state);
+        const countName = obj_cnt === 2 ? 'two'
+            : obj_cnt < 5 ? 'a few'
+                : obj_cnt < 10 ? 'several' : 'many';
+        await message(`There are ${countName} objects here.`, state);
+        return blind;
+    }
     if (otmp.nexthere) {
         if (typeof displayObjectPile !== 'function')
             throw new TypeError('look_here needs an object-pile display owner');
@@ -2363,11 +2382,61 @@ export async function prinv(prefix, obj, quan, env = {}) {
 // addinv() makes that refresh unconditionally, but update_inventory() does
 // nothing unless iflags.perm_invent is set with a window to draw into, and
 // throws when it is set without one, so the two orders cannot diverge here.
+function projectsHeavyBallDrop(obj, state) {
+    const hadGw = Object.hasOwn(state, 'gw');
+    const previousGw = state.gw;
+    const hadWeightCache = previousGw
+        && Object.hasOwn(previousGw, 'wc');
+    const previousWeightCache = previousGw?.wc;
+    try {
+        let projectedLimit = near_capacity(state);
+        const pickupBurden = state.flags?.pickup_burden ?? MOD_ENCUMBER;
+        if (projectedLimit < pickupBurden) projectedLimit = pickupBurden;
+        return inv_cnt(false, state) + 1 > INVLET_BASIC
+            || calc_capacity(obj.owt, state) > projectedLimit;
+    } finally {
+        // inv_weight() caches weight_cap() in gw.wc. The prediction precedes
+        // the drop preflight, so put that cache back before a refusal can
+        // escape. The source-visible calculation runs again after admission.
+        if (!hadGw) {
+            delete state.gw;
+        } else if (!previousGw) {
+            state.gw = previousGw;
+        } else if (!hadWeightCache) {
+            delete previousGw.wc;
+        } else {
+            previousGw.wc = previousWeightCache;
+        }
+    }
+}
+
 export async function hold_another_object(
     obj, drop_fmt, drop_arg, hold_msg, env = {},
 ) {
     const normalized = inventoryEnv(env);
     const { state } = normalized;
+
+    // The ordinary heavy-ball drop is predictable without linking the object:
+    // oc_merge is false, so calc_capacity(obj->owt) is exactly the capacity C
+    // sees after addinv_core0(). Preflight do.c's whole admitted tail before
+    // observe_object() changes dknown or a missing dependency can leave the
+    // new object in inventory.
+    let preflightedHeavyDrop = false;
+    let heavyDropObject = null;
+    if (obj.otyp === HEAVY_IRON_BALL && obj.quan === 1
+        && !obj.oartifact && !propertyPresent(state, FUMBLING)) {
+        if (projectsHeavyBallDrop(obj, state)) {
+            // Retain both owners now: neither may be discovered after
+            // observe_object(), addinv(), or the drop message has changed
+            // visible state.
+            heavyDropObject = requiredHook(normalized, 'dropObject', obj);
+            requiredHook(normalized, 'preflightDropObject', obj)(
+                obj,
+                normalized,
+            );
+            preflightedHeavyDrop = true;
+        }
+    }
 
     if (!isBlind(normalized))
         observe_object(obj, state); /* maximize mergeability */
@@ -2395,8 +2464,17 @@ export async function hold_another_object(
             || ((obj.otyp !== LOADSTONE || !obj.cursed)
                 && near_capacity(state) > prev_encumbr)) {
             /* 1275-1281 undoes any merge that took place and drops it */
-            throw new UnsupportedObjectOperationError('held object dropped',
-                                                      obj);
+            if (!preflightedHeavyDrop || obj.quan !== oquan) {
+                throw new UnsupportedObjectOperationError('held object dropped',
+                                                          obj);
+            }
+            if (drop_fmt) {
+                const message = normalized.hooks.message ?? ttyPline;
+                await message(drop_fmt.replace('%s', drop_arg ?? ''), state);
+            }
+            obj.nomerge = 0;
+            await heavyDropObject(obj, normalized);
+            return null;
         }
         if (state.flags?.autoquiver && !state.uquiver && !obj.owornmask) {
             /* 1283-1286 quivers a missile; ammo_and_launcher() is unported */

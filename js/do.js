@@ -18,6 +18,7 @@ import {
     LADDER,
     LEVITATION,
     LFILE_EXISTS,
+    OBJ_INVENT,
     OBJ_FREE,
     ROOM,
     RLOC_NOMSG,
@@ -32,12 +33,16 @@ import {
     Upolyd,
     VIBRATING_SQUARE,
     VISITED,
+    BLINDED,
+    HALLUC,
+    HALLUC_RES,
     is_hole,
 } from './const.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { set_move_cmd } from './cmd.js';
 import { docrt, flush_screen } from './display.js';
 import { keepdogs, losedogs, update_mlstmv } from './dog.js';
+import { can_reach_floor, engr_at } from './engrave.js';
 import {
     Can_fall_thru,
     In_hell,
@@ -70,16 +75,26 @@ import {
     switch_terrain,
     u_rooted,
 } from './hack.js';
+import {
+    freeinv,
+    preflight_update_inventory,
+    stackobj,
+} from './invent.js';
 import { maybe_reset_pick } from './lock.js';
 import { mklev } from './mklev.js';
 import { set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { PM_ROGUE, PM_TOURIST } from './monsters.js';
-import { is_pick } from './obj.js';
-import { BOULDER, POTION_CLASS } from './objects.js';
+import { is_pick, place_object } from './obj.js';
+import {
+    BOULDER,
+    CORPSE,
+    HEAVY_IRON_BALL,
+    POTION_CLASS,
+} from './objects.js';
 import { pickup } from './pickup.js';
 import { com_pager } from './questpgr.js';
-import { in_out_region } from './region.js';
+import { in_out_region, visible_region_at } from './region.js';
 import { rn2 } from './rng.js';
 import { check_special_room } from './rooms.js';
 import { savelev } from './save.js';
@@ -294,6 +309,156 @@ export function flooreffects(obj, x, y, verb, env = {}) {
         unsupported('a potion landing on the hot ground of a hot level');
     }
     return false;
+}
+
+// This boundary is narrower than the general `d` command: it is the do.c
+// dropx()/dropy()/dropz() tail reached when invent.c hold_another_object()
+// cannot carry a wished-for heavy iron ball. Other drop callers retain their
+// own messages, billing, equipment, migration, and impact behavior.
+export class UnsupportedDropError extends Error {
+    constructor(reason) {
+        super(`unsupported drop: ${reason}`);
+        this.name = 'UnsupportedDropError';
+        this.reason = reason;
+    }
+}
+
+function dropEnv(env = {}) {
+    return {
+        ...env,
+        state: env.state ?? game,
+        hooks: env.hooks ?? {},
+    };
+}
+
+function requiredDropHook(env, name) {
+    const hook = env.hooks[name];
+    if (typeof hook !== 'function')
+        throw new UnsupportedDropError(`missing ${name} operation`);
+    return hook;
+}
+
+// Dependency-only check for the ordinary-ground subset below. The wish path
+// calls this while the object is still OBJ_FREE, before observe_object(), its
+// failure message, or addinv() can change visible state. dropx() repeats it
+// after addinv() with the object in OBJ_INVENT.
+export function preflight_dropx(obj, env = {}) {
+    const normalized = dropEnv(env);
+    const { state } = normalized;
+    const u = state.u;
+    if (!obj || typeof obj !== 'object')
+        throw new TypeError('preflight_dropx requires an object');
+    if (obj.where !== OBJ_FREE && obj.where !== OBJ_INVENT)
+        throw new UnsupportedDropError(`object ownership ${obj.where}`);
+    if (obj.otyp !== HEAVY_IRON_BALL || obj.quan !== 1
+        || state.objects?.[obj.otyp]?.oc_merge) {
+        throw new UnsupportedDropError('a merging, split, or non-ball object');
+    }
+    if (!u || u.uswallow)
+        throw new UnsupportedDropError('a swallowed hero');
+    const blind = heroPropertyActive(u, BLINDED)
+        && !u.uprops?.[BLINDED]?.blocked;
+    const hallucinating = heroPropertyActive(u, HALLUC)
+        && !heroPropertyActive(u, HALLUC_RES);
+    if (blind || hallucinating)
+        throw new UnsupportedDropError('blind or hallucinated display');
+    if (u.uinwater || on_level(u.uz, state.air_level)
+        || on_level(u.uz, state.water_level)) {
+        throw new UnsupportedDropError('underwater or special-level display');
+    }
+    if (!can_reach_floor(true, state))
+        throw new UnsupportedDropError('an unreachable floor');
+    if (obj.owornmask || state.uwep === obj || state.uquiver === obj
+        || state.uswapwep === obj || state.uball === obj) {
+        throw new UnsupportedDropError('a worn or attached object');
+    }
+    if (obj.unpaid)
+        throw new UnsupportedDropError('an unpaid object');
+
+    const { ux: x, uy: y } = u;
+    const location = state.level?.at(x, y);
+    if (!location)
+        throw new UnsupportedDropError('non-ordinary terrain');
+    // dropx() runs ship_object() before its altar arm.
+    if (stairway_at(x, y, state))
+        throw new UnsupportedDropError('shipping down stairs or a ladder');
+    if (IS_ALTAR(location.typ))
+        throw new UnsupportedDropError('an altar');
+    // sellobj() is square-specific, but its location and billing effects are
+    // not ported. Conservatively exclude the whole level when any shop exists.
+    if (state.level.flags?.has_shop)
+        throw new UnsupportedDropError('a shop level');
+    // The remaining square effects are reached from dropz()'s flooreffects().
+    if (t_at(x, y, state))
+        throw new UnsupportedDropError('shipping or floor effects at a trap');
+    if (is_lava(x, y, state) || is_pool(x, y, state))
+        throw new UnsupportedDropError('liquid terrain');
+    if (location.typ !== ROOM && location.typ !== CORR)
+        throw new UnsupportedDropError('non-ordinary terrain');
+    if (engr_at(x, y, state))
+        throw new UnsupportedDropError('an engraving under the drop');
+    if (visible_region_at(x, y, state))
+        throw new UnsupportedDropError('a visible region over the drop');
+    for (let buried = state.level.buriedobjlist; buried; buried = buried.nobj) {
+        // hack.c impact_disturbs_zombies() only changes a timed corpse within
+        // one square. A matching timer still needs peek_timer(), so
+        // conservatively refuse every nearby timed corpse; unrelated buried
+        // objects make the loop inert.
+        if (buried.otyp === CORPSE && buried.timed
+            && buried.ox >= x - 1 && buried.ox <= x + 1
+            && buried.oy >= y - 1 && buried.oy <= y + 1) {
+            throw new UnsupportedDropError(
+                'impact disturbing a nearby buried corpse',
+            );
+        }
+    }
+    if (!Array.isArray(state.level.objects?.[x]))
+        throw new UnsupportedDropError('a missing floor-object grid');
+
+    preflight_update_inventory(normalized);
+    requiredDropHook(normalized, 'newsym');
+    requiredDropHook(normalized, 'encumberMessage');
+    return normalized;
+}
+
+// C ref: do.c dropx() (785-797). ship_object() and doaltarobj() are absent
+// because preflight_dropx() admits neither a down gate nor an altar.
+export async function dropx(obj, env = {}) {
+    const normalized = preflight_dropx(obj, env);
+    if (obj.where !== OBJ_INVENT)
+        throw new Error('dropx requires an inventory object');
+    freeinv(obj, normalized);
+    await dropy(obj, normalized);
+}
+
+// C ref: do.c dropy() (799-804).
+export async function dropy(obj, env = {}) {
+    await dropz(obj, false, env);
+}
+
+// C ref: do.c dropz() (806-842), ordinary shopless ground and with_impact
+// FALSE. The admitted heavy ball is not equipped, cannot merge, and reaches
+// an empty impact-disturbance list, so the source calls between place_object()
+// and newsym() have no effect.
+export async function dropz(obj, with_impact, env = {}) {
+    const normalized = dropEnv(env);
+    const { state } = normalized;
+    if (with_impact)
+        throw new UnsupportedDropError('container impact');
+    if (obj.where !== OBJ_FREE)
+        throw new Error('dropz requires a free object');
+    // Recheck the post-freeinv state without requiring inventory ownership.
+    preflight_dropx(obj, normalized);
+    if (flooreffects(obj, state.u.ux, state.u.uy, 'drop', {
+        state,
+        unsupported: (reason) => { throw new UnsupportedDropError(reason); },
+    })) {
+        return;
+    }
+    place_object(obj, state.u.ux, state.u.uy, normalized);
+    stackobj(obj, normalized);
+    requiredDropHook(normalized, 'newsym')(state.u.ux, state.u.uy, state);
+    await requiredDropHook(normalized, 'encumberMessage')(state);
 }
 
 // C ref: do.c u_stuck_cannot_go() (1109-1128). Its release arm calls

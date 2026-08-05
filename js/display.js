@@ -2190,6 +2190,11 @@ export const enc_stat = Object.freeze([
     '', 'Burdened', 'Stressed',
     'Strained', 'Overtaxed', 'Overloaded',
 ]);
+const ENC_STAT_FORMS = Object.freeze([
+    enc_stat,
+    Object.freeze(['', 'Burden', 'Stress', 'Strain', 'Overtax', 'Overload']),
+    Object.freeze(['', 'Brd', 'Strs', 'Strn', 'Ovtx', 'Ovld']),
+]);
 
 function _propertyActive(u, index) {
     const property = u.uprops?.[index];
@@ -2208,6 +2213,11 @@ function _hungerStatus(u) {
     if ((u.uhs ?? NOT_HUNGRY) === NOT_HUNGRY) return '';
     const hunger = hungerStatusField(u.uhs);
     return hunger ? ` ${hunger}` : '';
+}
+
+function _capacityStatus(shrinkLevel = 0) {
+    const capacity = near_capacity(game);
+    return ENC_STAT_FORMS[shrinkLevel]?.[capacity] ?? '';
 }
 
 const STATUS_CONDITION_SPECS = Object.freeze([
@@ -2347,9 +2357,11 @@ function _statusLine2Configuration() {
     const versionLength = game.flags?.showvers
         ? status_version(game.flags).length + 1 : 0;
     let conditionLevel = 0;
+    let capacityLevel = 0;
     let capacityPadding = '';
     let shortLevel = false;
-    const build = () => `${_statusLevelDescription(u, shortLevel)} ${_statusVitals(u)}${time}${_hungerStatus(u)}${capacityPadding}${_statusConditions(u, conditionLevel)}${optional}`;
+    const build = () => `${_statusLevelDescription(u, shortLevel)} ${_statusVitals(u)}${time}${_hungerStatus(u)}${_capacityStatus(capacityLevel)
+        ? ` ${_capacityStatus(capacityLevel)}` : ''}${capacityPadding}${_statusConditions(u, conditionLevel)}${optional}`;
     let status = build();
     // wintty.c make_things_fit() first tries both abbreviated condition
     // vocabularies, then shortens "Dlvl" to "Dl" before truncating.
@@ -2358,7 +2370,18 @@ function _statusLine2Configuration() {
         conditionLevel++;
         status = build();
     }
-    if (status.length + versionLength > TTY_STATUS_WIDTH) {
+    if (status.length + versionLength > TTY_STATUS_WIDTH
+        && _capacityStatus(capacityLevel)) {
+        capacityLevel = 1;
+        status = build();
+    }
+    if (status.length + versionLength > TTY_STATUS_WIDTH
+        && _capacityStatus(capacityLevel)) {
+        capacityLevel = 2;
+        status = build();
+    }
+    if (status.length + versionLength > TTY_STATUS_WIDTH
+        && !_capacityStatus(capacityLevel)) {
         // shrink_enc() reconstructs an unencumbered BL_CAP as one blank;
         // unlike tty_status_update(), it does not suppress that blank again.
         capacityPadding = ' ';
@@ -2368,10 +2391,13 @@ function _statusLine2Configuration() {
         shortLevel = true;
         status = build();
     }
-    return { capacityPadding, conditionLevel, shortLevel };
+    return { capacityLevel, capacityPadding, conditionLevel, shortLevel };
 }
 
-function _statusLine3VitalsBase(u) {
+function _statusLine3HungerPrefix(u) {
+    // wintty.c check_fields() records BL_HUNGER's column before either
+    // BL_HUNGER or BL_CAP contributes its current text.  The condition row
+    // aligns to that stable field column, not to the rendered end of the row.
     return `${_statusAlignment(u)} ${_statusVitals(u)}`;
 }
 
@@ -2682,7 +2708,12 @@ function _statusLine2Fields() {
     // this function has no row to draw for.
     const configuration = _statusLine2Configuration();
     if (!configuration) return null;
-    const { capacityPadding, conditionLevel, shortLevel } = configuration;
+    const {
+        capacityLevel,
+        capacityPadding,
+        conditionLevel,
+        shortLevel,
+    } = configuration;
     const fields = [
         _statusField(
             _statusLevelDescription(u, shortLevel),
@@ -2702,6 +2733,13 @@ function _statusLine2Fields() {
         fields.push(
             _statusField(' '),
             _statusField(hunger, _fieldOwner('hunger')),
+        );
+    }
+    const capacity = _capacityStatus(capacityLevel);
+    if (capacity) {
+        fields.push(
+            _statusField(' '),
+            _statusField(capacity, _fieldOwner('carrying-capacity')),
         );
     }
     if (capacityPadding) fields.push(_statusField(capacityPadding));
@@ -2739,6 +2777,15 @@ function _statusLine3VitalsLayout() {
         column = row.write(column, ' ');
         row.write(column, hunger, _fieldOwner('hunger'));
     }
+    const capacity = _capacityStatus();
+    if (capacity) {
+        column = row.write(column, ' ');
+        row.write(
+            column,
+            capacity,
+            _fieldOwner('carrying-capacity'),
+        );
+    }
     return row.finish();
 }
 
@@ -2774,7 +2821,7 @@ function _statusLine3DetailsFields() {
         // [BL_HUNGER].x. BL_HUNGER follows the alignment and the vitals on the
         // second of three rows, and check_fields() gives it that column
         // whether or not the hunger word is currently empty.
-        hungerX: _statusLine3VitalsBase(u).length + 1,
+        hungerX: _statusLine3HungerPrefix(u).length + 1,
     };
 }
 

@@ -1837,6 +1837,30 @@ function setWhatisCoord(result, value, negated, lineNumber) {
     result.iflags.getpos_coords = mode;
 }
 
+// C ref: options.c optfn_pile_limit(). atoi() accepts an initial signed
+// decimal run and returns zero when there is none; the option handler then
+// replaces negative results with PILE_LIMIT_DFLT. Generic compound-option
+// validation rejects a missing positive value before this handler, while an
+// empty negated spelling means "never skip".
+function setPileLimit(result, value, negated, lineNumber) {
+    if (negated && value != null && value.length > 0) {
+        optionError(
+            lineNumber,
+            "'pile_limit' may not both have a value and be negated",
+        );
+    }
+    if (negated) {
+        result.flags.pile_limit = 0;
+        return;
+    }
+    if (value == null || value.length === 0) {
+        optionError(lineNumber, "'pile_limit' requires a value");
+    }
+    const match = value.match(/^[\t\n\v\f\r ]*[+-]?\d+/u);
+    const parsed = match ? Number.parseInt(match[0], 10) : 0;
+    result.flags.pile_limit = parsed < 0 ? 5 : parsed;
+}
+
 function sourceOptionMatch(parsedName) {
     return SOURCE_OPTION_MATCHES.find(([canonical, minLength]) => (
         !SOURCE_PREFIX_OPTION_NAMES.includes(canonical)
@@ -2085,6 +2109,8 @@ function applyOption(result, optionState, option, lineNumber) {
         setWhatisCoord(result, value, negated, lineNumber);
     } else if (name === 'runmode') {
         setRunmode(result, value, negated, lineNumber);
+    } else if (name === 'pile_limit') {
+        setPileLimit(result, value, negated, lineNumber);
     } else if (HANDLED_BOOLEAN_OPTIONS.has(name)) {
         applyBooleanOption(result, name, value, negated, lineNumber);
     } else if (value != null) {

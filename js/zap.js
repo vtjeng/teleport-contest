@@ -10,6 +10,8 @@
 import {
     ICE, IRONBARS, Is_airlevel, Is_waterlevel,
 } from './const.js';
+import { newsym } from './display.js';
+import { dropx, preflight_dropx } from './do.js';
 import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
 import { lcase, mungspaces } from './hacklib.js';
@@ -123,7 +125,15 @@ export async function makewish(state = game) {
     /* The(aobjnam()) is safe since otmp is unidentified -dlc */
     await hold_another_object(
         otmp, oops_msg, The(aobjnam(otmp, verb, state)), null,
-        { state, hooks: { encumberMessage: encumber_msg } },
+        {
+            state,
+            hooks: {
+                encumberMessage: encumber_msg,
+                newsym,
+                preflightDropObject: preflight_dropx,
+                dropObject: dropx,
+            },
+        },
     );
     state.u.ublesscnt += rn1(100, 50); /* the gods take notice */
 }

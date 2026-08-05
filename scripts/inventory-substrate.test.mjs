@@ -6,6 +6,7 @@ import {
     ACH_SOKO_PRIZE,
     A_CON,
     A_STR,
+    ALTAR,
     BLINDED,
     CONTAINED_SYM,
     FUMBLING,
@@ -13,6 +14,8 @@ import {
     HALLUC_RES,
     HANDS_SYM,
     LAST_PROP,
+    LAVAPOOL,
+    LEVITATION,
     LOST_EXPLODING,
     LOST_THROWN,
     NON_PM,
@@ -25,9 +28,20 @@ import {
     OBJ_INVENT,
     OBJ_LUAFREE,
     OBJ_ONBILL,
+    PIT,
+    ROOM,
+    SINK,
+    WEB,
     W_QUIVER,
     W_WEP,
 } from '../js/const.js';
+import {
+    dropz,
+    dropx,
+    preflight_dropx,
+    UnsupportedDropError,
+} from '../js/do.js';
+import { calc_capacity, weight_cap } from '../js/hack.js';
 import {
     add_to_buried,
     add_to_container,
@@ -65,6 +79,7 @@ import {
     weight,
 } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
+import { add_rect_to_reg, create_region } from '../js/region.js';
 import {
     APPLE,
     AKLYS,
@@ -78,6 +93,7 @@ import {
     FOOD_RATION,
     GLOB_OF_GRAY_OOZE,
     GOLD_PIECE,
+    HEAVY_IRON_BALL,
     LUCKSTONE,
     OIL_LAMP,
     SACK,
@@ -1987,6 +2003,460 @@ test('hold_another_object stops on the arms it cannot finish', async () => {
     await assert.rejects(
         () => hold_another_object(instance(BOULDER, state), null, null, null,
                                  env),
-        UnsupportedObjectOperationError,
+        /held object dropped/u,
     );
 });
+
+test('heavy-drop projection keeps exact inventory and burden boundaries',
+    async () => {
+        const state = carryingState();
+        let tail = null;
+        for (let index = 0; index < INVLET_BASIC - 1; ++index) {
+            const lamp = instance(OIL_LAMP, state, {
+                invlet: index < 26
+                    ? String.fromCharCode(97 + index)
+                    : String.fromCharCode(65 + index - 26),
+                nomerge: true,
+                owt: 0,
+                where: OBJ_INVENT,
+            });
+            if (tail) tail.nobj = lamp;
+            else state.invent = lamp;
+            tail = lamp;
+        }
+        const gold = instance(GOLD_PIECE, state, {
+            invlet: '$',
+            owt: 0,
+            where: OBJ_INVENT,
+        });
+        tail.nobj = gold;
+        const ball = instance(HEAVY_IRON_BALL, state);
+        // Exactly MOD_ENCUMBER pins `calc_capacity(...) > projectedLimit`;
+        // 51 non-gold slots plus the new ball pins the strict INVLET_BASIC
+        // comparison while the gold slot distinguishes inv_cnt(FALSE).
+        ball.owt = Math.ceil(weight_cap(state) * 1.5);
+        assert.equal(calc_capacity(ball.owt, state), 2);
+        let preflights = 0;
+
+        const held = await hold_another_object(
+            ball,
+            null,
+            null,
+            null,
+            {
+                state,
+                hooks: {
+                    encumberMessage: () => {},
+                    preflightDropObject: () => { ++preflights; },
+                },
+            },
+        );
+
+        assert.equal(held, ball);
+        assert.equal(preflights, 0);
+        assert.equal(ball.where, OBJ_INVENT);
+    });
+
+test('heavy artifact and Fumbling guards precede drop projection', async () => {
+    for (const [name, setup, reason] of [
+        ['artifact', (state, ball) => { ball.oartifact = 1; }, /artifact/u],
+        ['Fumbling', (state) => {
+            state.u.uprops[FUMBLING].intrinsic = 1;
+        }, /fumbling/u],
+    ]) {
+        const state = carryingState();
+        state.u.acurr.a[A_STR] = 3;
+        state.u.acurr.a[A_CON] = 3;
+        const ball = instance(HEAVY_IRON_BALL, state);
+        setup(state, ball);
+        await assert.rejects(
+            hold_another_object(ball, null, null, null, {
+                state,
+                hooks: { encumberMessage: () => {} },
+            }),
+            reason,
+            name,
+        );
+    }
+});
+
+// invent.c hold_another_object() (1275-1304) and do.c dropx(), dropy(), and
+// dropz() (785-842), restricted to an ordinary, shopless floor square.
+function ordinaryDropFixture(otyp = HEAVY_IRON_BALL) {
+    const state = carryingState();
+    state.u.ux = 10;
+    state.u.uy = 5;
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    state.youmonst = {
+        data: { mflags1: 0, msize: 2, mattk: [] },
+    };
+    state.level = new GameMap();
+    state.level.at(10, 5).typ = ROOM;
+    state.stairs = null;
+    const obj = instance(otyp, state);
+    obj.where = OBJ_INVENT;
+    obj.invlet = 'a';
+    state.invent = obj;
+    const lines = [];
+    const hooks = {
+        message: (line) => lines.push(line),
+        newsym: () => {},
+        encumberMessage: () => {},
+    };
+    return { hooks, lines, obj, state };
+}
+
+test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
+    async () => {
+        const state = carryingState();
+        state.u.acurr.a[A_STR] = 3;
+        state.u.acurr.a[A_CON] = 3;
+        state.u.ux = 10;
+        state.u.uy = 5;
+        state.u.uz = { dnum: 0, dlevel: 1 };
+        state.youmonst = {
+            data: { mflags1: 0, msize: 2, mattk: [] },
+        };
+        state.level = new GameMap();
+        state.level.at(10, 5).typ = ROOM;
+        state.stairs = null;
+        const ball = instance(HEAVY_IRON_BALL, state);
+        const lines = [];
+        let encumbered = 0;
+        const hooks = {
+            message: (text) => lines.push(text),
+            preflightDropObject: preflight_dropx,
+            dropObject: dropx,
+            newsym: () => {},
+            encumberMessage: () => { ++encumbered; },
+        };
+
+        const held = await hold_another_object(
+            ball,
+            'Oops!  %s to the floor!',
+            'The heavy iron ball drops',
+            null,
+            { state, hooks },
+        );
+
+        assert.equal(held, null);
+        assert.equal(state.invent, null);
+        assert.equal(state.level.objects[10][5], ball);
+        assert.equal(ball.where, OBJ_FLOOR);
+        assert.equal(ball.nomerge, 0);
+        const second = instance(HEAVY_IRON_BALL, state);
+        assert.equal(await hold_another_object(
+            second,
+            'Oops!  %s to the floor!',
+            'The heavy iron ball drops',
+            null,
+            { state, hooks },
+        ), null);
+        // place_object() prepends the new object to both independent source
+        // indexes; oc_merge=0 leaves both nodes distinct through stackobj().
+        assert.equal(state.level.objects[10][5], second);
+        assert.equal(second.nexthere, ball);
+        assert.equal(state.level.objlist, second);
+        assert.equal(second.nobj, ball);
+        assert.deepEqual(lines, [
+            'Oops!  The heavy iron ball drops to the floor!',
+            'Oops!  The heavy iron ball drops to the floor!',
+        ]);
+        assert.equal(encumbered, 2);
+    });
+
+test('ordinary drop preflight refuses excluded floor effects before mutation',
+    () => {
+        const state = carryingState();
+        state.u.ux = 10;
+        state.u.uy = 5;
+        state.u.uz = { dnum: 0, dlevel: 1 };
+        state.youmonst = {
+            data: { mflags1: 0, msize: 2, mattk: [] },
+        };
+        state.level = new GameMap();
+        state.level.at(10, 5).typ = ROOM;
+        const ball = instance(HEAVY_IRON_BALL, state);
+        ball.where = OBJ_INVENT;
+        ball.invlet = 'a';
+        state.invent = ball;
+        state.level.flags.has_shop = true;
+
+        assert.throws(
+            () => preflight_dropx(ball, { state, hooks: {} }),
+            /shop/u,
+        );
+        assert.equal(state.invent, ball);
+        assert.equal(ball.where, OBJ_INVENT);
+        assert.equal(state.level.objects[10][5], null);
+
+        state.level.flags.has_shop = false;
+        state.u.uprops[BLINDED].intrinsic = 1;
+        assert.throws(
+            () => preflight_dropx(ball, { state, hooks: {} }),
+            /blind/u,
+        );
+        state.u.uprops[BLINDED].intrinsic = 0;
+        state.u.uprops[HALLUC].intrinsic = 1;
+        assert.throws(
+            () => preflight_dropx(ball, { state, hooks: {} }),
+            /hallucinated/u,
+        );
+        state.u.uprops[HALLUC].intrinsic = 0;
+        state.u.uinwater = true;
+        assert.throws(
+            () => preflight_dropx(ball, { state, hooks: {} }),
+            /underwater/u,
+        );
+        state.u.uinwater = false;
+        state.head_engr = { engr_x: 10, engr_y: 5, nxt_engr: null };
+        assert.throws(
+            () => preflight_dropx(ball, { state, hooks: {} }),
+            /engraving/u,
+        );
+        state.head_engr = null;
+        const region = create_region();
+        region.visible = true;
+        add_rect_to_reg(region, { lx: 10, ly: 5, hx: 10, hy: 5 });
+        state.level.regions.push(region);
+        assert.throws(
+            () => preflight_dropx(ball, { state, hooks: {} }),
+            /visible region/u,
+        );
+    });
+
+test('ordinary drop preflight atomically refuses every excluded do.c tail',
+    () => {
+        const cases = [
+            ['wrong ownership', /ownership/u, ({ obj }) => {
+                obj.where = OBJ_FLOOR;
+            }],
+            ['non-ball object', /non-ball/u, null, OIL_LAMP],
+            ['split ball', /split/u, ({ obj }) => { obj.quan = 2; }],
+            ['merging ball', /merging/u, ({ state, obj }) => {
+                state.objects[obj.otyp].oc_merge = true;
+            }],
+            ['swallowed hero', /swallowed/u, ({ state }) => {
+                state.u.uswallow = true;
+            }],
+            ['air level', /special-level/u, ({ state }) => {
+                state.air_level = { ...state.u.uz };
+            }],
+            ['water level', /special-level/u, ({ state }) => {
+                state.water_level = { ...state.u.uz };
+            }],
+            ['unreachable floor', /unreachable/u, ({ state }) => {
+                state.u.uprops[LEVITATION].intrinsic = 1;
+            }],
+            ['seen pit floor', /unreachable/u, ({ state }) => {
+                state.level.traps.push({
+                    tx: 10, ty: 5, ttyp: PIT, tseen: true,
+                });
+            }],
+            ['worn ball', /worn/u, ({ obj }) => { obj.owornmask = W_WEP; }],
+            ['wielded ball', /attached/u, ({ state, obj }) => {
+                state.uwep = obj;
+            }],
+            ['quivered ball', /attached/u, ({ state, obj }) => {
+                state.uquiver = obj;
+            }],
+            ['swap-wielded ball', /attached/u, ({ state, obj }) => {
+                state.uswapwep = obj;
+            }],
+            ['attached ball', /attached/u, ({ state, obj }) => {
+                state.uball = obj;
+            }],
+            ['unpaid ball', /unpaid/u, ({ obj }) => { obj.unpaid = true; }],
+            ['altar', /altar/u, ({ state }) => {
+                state.level.at(10, 5).typ = ALTAR;
+            }],
+            ['stair shipping', /shipping/u, ({ state }) => {
+                state.stairs = { sx: 10, sy: 5, next: null };
+            }],
+            ['trap effects', /trap/u, ({ state }) => {
+                state.level.traps.push({ tx: 10, ty: 5, ttyp: WEB });
+            }],
+            ['liquid effects', /liquid/u, ({ state }) => {
+                state.level.at(10, 5).typ = LAVAPOOL;
+            }],
+            ['other terrain', /non-ordinary/u, ({ state }) => {
+                state.level.at(10, 5).typ = SINK;
+            }],
+            ['nearby timed corpse impact', /buried corpse/u, ({ state }) => {
+                state.level.buriedobjlist = {
+                    nobj: null,
+                    otmp: null,
+                    otyp: CORPSE,
+                    ox: 10,
+                    oy: 5,
+                    timed: true,
+                };
+            }],
+            ['missing floor grid', /floor-object grid/u, ({ state }) => {
+                state.level.objects[10] = null;
+            }],
+        ];
+
+        for (const [name, reason, setup, otyp] of cases) {
+            const fixture = ordinaryDropFixture(otyp);
+            setup?.(fixture);
+            const { hooks, lines, obj, state } = fixture;
+            const before = {
+                invent: state.invent,
+                where: obj.where,
+                floor: state.level.objects?.[10]?.[5] ?? null,
+            };
+
+            assert.throws(
+                () => preflight_dropx(obj, { state, hooks }),
+                reason,
+                name,
+            );
+            assert.equal(state.invent, before.invent, `${name}: inventory`);
+            assert.equal(obj.where, before.where, `${name}: ownership`);
+            assert.equal(
+                state.level.objects?.[10]?.[5] ?? null,
+                before.floor,
+                `${name}: floor`,
+            );
+            assert.deepEqual(lines, [], `${name}: output`);
+        }
+    });
+
+test('drop preflight validates its object argument before reading ownership',
+    () => {
+        const { hooks, state } = ordinaryDropFixture();
+        for (const value of [null, 7]) {
+            assert.throws(
+                () => preflight_dropx(value, { state, hooks }),
+                /preflight_dropx requires an object/u,
+            );
+        }
+    });
+
+test('buried-corpse impact preflight pins every coordinate boundary', () => {
+    const refusing = [
+        [9, 4], [9, 5], [9, 6],
+        [10, 4], [10, 6],
+        [11, 4], [11, 5], [11, 6],
+    ];
+    for (const [ox, oy] of refusing) {
+        const { hooks, obj, state } = ordinaryDropFixture();
+        state.level.buriedobjlist = {
+            nobj: null, otyp: CORPSE, ox, oy, timed: true,
+        };
+        assert.throws(
+            () => preflight_dropx(obj, { state, hooks }),
+            /buried corpse/u,
+            `${ox},${oy}`,
+        );
+    }
+
+    for (const [name, buried] of [
+        ['wrong type', { otyp: OIL_LAMP, timed: true, ox: 10, oy: 5 }],
+        ['untimed', { otyp: CORPSE, timed: false, ox: 10, oy: 5 }],
+        ['left', { otyp: CORPSE, timed: true, ox: 8, oy: 5 }],
+        ['right', { otyp: CORPSE, timed: true, ox: 12, oy: 5 }],
+        ['above', { otyp: CORPSE, timed: true, ox: 10, oy: 3 }],
+        ['below', { otyp: CORPSE, timed: true, ox: 10, oy: 7 }],
+    ]) {
+        const { hooks, obj, state } = ordinaryDropFixture();
+        state.level.buriedobjlist = { ...buried, nobj: null };
+        assert.doesNotThrow(
+            () => preflight_dropx(obj, { state, hooks }),
+            name,
+        );
+    }
+});
+
+test('dropz refuses container impact before placing or announcing the object',
+    async () => {
+        const { hooks, lines, obj, state } = ordinaryDropFixture();
+        obj.where = OBJ_FREE;
+        state.invent = null;
+
+        await assert.rejects(
+            dropz(obj, true, { state, hooks }),
+            /container impact/u,
+        );
+        assert.equal(obj.where, OBJ_FREE);
+        assert.equal(state.level.objects[10][5], null);
+        assert.deepEqual(lines, []);
+    });
+
+test('heavy wish-drop refusal restores capacity cache and leaves no trace',
+    async () => {
+        const state = carryingState();
+        state.u.acurr.a[A_STR] = 3;
+        state.u.acurr.a[A_CON] = 3;
+        state.u.ux = 10;
+        state.u.uy = 5;
+        state.u.uz = { dnum: 0, dlevel: 1 };
+        state.youmonst = {
+            data: { mflags1: 0, msize: 2, mattk: [] },
+        };
+        state.level = new GameMap();
+        state.level.at(10, 5).typ = ROOM;
+        state.level.flags.has_shop = true;
+        state.gw = { marker: 1 };
+        const ball = instance(HEAVY_IRON_BALL, state, { dknown: false });
+        const lines = [];
+
+        await assert.rejects(
+            () => hold_another_object(
+                ball,
+                'Oops!  %s to the floor!',
+                'The heavy iron ball drops',
+                null,
+                {
+                    state,
+                    hooks: {
+                        message: (line) => lines.push(line),
+                        preflightDropObject: preflight_dropx,
+                        dropObject: () => {},
+                    },
+                },
+            ),
+            UnsupportedDropError,
+        );
+        assert.deepEqual(state.gw, { marker: 1 });
+        assert.equal(ball.dknown, false);
+        assert.equal(ball.where, OBJ_FREE);
+        assert.equal(state.invent, null);
+        assert.deepEqual(lines, []);
+    });
+
+test('a missing heavy drop owner is refused before observation or inventory',
+    async () => {
+        const { obj, state } = ordinaryDropFixture();
+        state.u.acurr.a[A_STR] = 3;
+        state.u.acurr.a[A_CON] = 3;
+        obj.where = OBJ_FREE;
+        obj.dknown = false;
+        state.invent = null;
+        state.gw = { marker: 1 };
+        const lines = [];
+
+        await assert.rejects(
+            () => hold_another_object(
+                obj,
+                'Oops!  %s to the floor!',
+                'The heavy iron ball drops',
+                null,
+                {
+                    state,
+                    hooks: {
+                        message: (line) => lines.push(line),
+                        preflightDropObject: preflight_dropx,
+                    },
+                },
+            ),
+            /dropObject is not available/u,
+        );
+        assert.deepEqual(state.gw, { marker: 1 });
+        assert.equal(obj.dknown, false);
+        assert.equal(obj.where, OBJ_FREE);
+        assert.equal(state.invent, null);
+        assert.equal(state.level.objects[10][5], null);
+        assert.deepEqual(lines, []);
+    });

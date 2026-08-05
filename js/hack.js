@@ -138,7 +138,7 @@ import { curr_mon_load } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { can_fog, closed_door, onscary, youHear } from './monmove.js';
 import { check_here } from './pickup.js';
-import { in_out_region, inside_region } from './region.js';
+import { in_out_region, inside_region, visible_region_at } from './region.js';
 import { rn2, rnd } from './rng.js';
 import { check_special_room } from './rooms.js';
 import {
@@ -674,11 +674,29 @@ export function requireSimpleHeroDestination(x, y, state) {
         throw new UnsupportedHeroMoveBoundaryError('boulder movement');
     if (floorObject && state.flags?.pickup)
         throw new UnsupportedHeroMoveBoundaryError('automatic pickup');
+    if (floorObject && !floorObject.nexthere
+        && state.flags?.pile_limit > 0
+        && state.flags.pile_limit <= 1) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'single-object skipped-pile count',
+        );
+    }
     if (floorObject?.nexthere) {
         let pileCount = 0;
         for (let object = floorObject; object; object = object.nexthere)
             ++pileCount;
-        if (pileCount < 2 || pileCount > 4) {
+        const skipObjects = state.flags?.pile_limit > 0
+            && pileCount >= state.flags.pile_limit;
+        // The count arm deliberately bypasses look_here()'s region line.  A
+        // visible region therefore remains outside this slice even when both
+        // endpoints are already inside it and in_out_region() has no crossing
+        // to report.
+        if (skipObjects && visible_region_at(x, y, state)) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'visible region over skipped-pile count',
+            );
+        }
+        if (pileCount < 2 || (!skipObjects && pileCount > 4)) {
             throw new UnsupportedHeroMoveBoundaryError(
                 'object pile outside the two-to-four-item window',
             );
@@ -696,12 +714,13 @@ export function requireSimpleHeroDestination(x, y, state) {
         if (heroIsBlind(state)) {
             throw new UnsupportedHeroMoveBoundaryError('blind object pile');
         }
-        if (state.flags?.pile_limit > 0
-            && pileCount >= state.flags.pile_limit) {
-            throw new UnsupportedHeroMoveBoundaryError('skipped-pile count');
+        // invent.c look_here() never calls doname_with_price() when the
+        // threshold selects its count line. Keep nameability as a menu-only
+        // preflight so the message path admits every ordinary pile count.
+        if (!skipObjects) {
+            for (let object = floorObject; object; object = object.nexthere)
+                assertObjectNameable(object, state);
         }
-        for (let object = floorObject; object; object = object.nexthere)
-            assertObjectNameable(object, state);
     }
     // invent.c look_here()'s blind arm names what the hero feels underfoot,
     // and dungeon.c surface() (1750-1787) answers per terrain: "altar",

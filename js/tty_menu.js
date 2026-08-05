@@ -198,6 +198,8 @@ export function ttyMenuTextLayout(display, rawLines, overlay = true) {
         firstColumn: offx,
         repairColumn: Math.max(0, offx - 1),
         lineColumn: offx ? offx + 1 : 0,
+        // process_text_window() homes BASE_WINDOW at offx + 1, then dmore()
+        // applies its NHW_MENU offset of two in tty's one-based coordinates.
         promptColumn: offx + 1,
         promptRow: maxrow,
         maxcol: data.maxcol,
@@ -211,7 +213,10 @@ export function ttyMenuTextLayout(display, rawLines, overlay = true) {
 // C refs: invent.c look_here()'s NHW_MENU window; wintty.c
 // tty_display_nhwindow(), process_text_window(), dmore(),
 // tty_destroy_nhwindow(), tty_dismiss_nhwindow(), and
-// erase_menu_or_text(). Returns the key accepted by dmore().
+// erase_menu_or_text(). This window never passes through tty_end_menu(), so
+// cw->morestr remains null and dmore() uses defmorestr ("--More--") rather
+// than the "(end)" prompt a completed selection menu installs. Returns the
+// key accepted by dmore().
 export async function displayTtyMenuTextWindow(
     state = game,
     rawLines,
@@ -261,12 +266,12 @@ export async function displayTtyMenuTextWindow(
         display,
         layout.promptColumn,
         layout.promptRow,
-        END_PROMPT,
+        MORE_PROMPT,
         NO_COLOR,
         0,
     );
     display.setCursor(
-        layout.promptColumn + END_PROMPT.length,
+        layout.promptColumn + MORE_PROMPT.length,
         layout.promptRow,
     );
 
