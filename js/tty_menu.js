@@ -5,6 +5,10 @@
 
 import { game } from './gstate.js';
 import { tty_getlin } from './getline.js';
+import {
+    decodeUtf8ByteString,
+    encodeUtf8ByteString,
+} from './hacklib.js';
 import { nhgetch } from './input.js';
 import {
     clearTtyMessageWindow,
@@ -91,6 +95,36 @@ function writeStyledText(display, column, row, text, color, attr) {
     }
 }
 
+// Recorder patch 006 receives each process_text_window() byte after C has
+// advanced ttyDisplay->curx. Printable ASCII replaces its shadow-grid cell.
+// A later high-bit byte promotes from signed char to a negative int, so
+// nomux_putch() ignores it and the prior cell survives at that byte column.
+// g_putch() treats the first byte specially and strips its high bit before
+// calling nomux_putch().
+function writeRecorderTtyWindowLine(
+    display,
+    column,
+    row,
+    byteString,
+) {
+    const bytes = encodeUtf8ByteString(byteString);
+    for (let index = 0; index !== bytes.length; ++index) {
+        const byte = bytes[index];
+        let cell = null;
+        if (byte < 0x80) cell = String.fromCharCode(byte);
+        else if (index === 0) cell = String.fromCharCode(byte ^ 0x80);
+        if (cell !== null) {
+            display.setCell(
+                column + index,
+                row,
+                cell,
+                NO_COLOR,
+                0,
+            );
+        }
+    }
+}
+
 function copyRegion(display, firstColumn, rowCount) {
     return display.grid.slice(0, rowCount).map((row) => (
         row.slice(firstColumn).map((cell) => ({
@@ -133,20 +167,20 @@ function restoreRegion(display, firstColumn, snapshot) {
 // and text data before it measures or stores a line. CO is the live terminal
 // width and BUFSZ bounds the function's static buffer.
 function compressTtyWindowLine(value, columns) {
-    const source = String(value ?? '');
-    if (source.length < columns && !source.includes('\n')) return source;
+    const source = encodeUtf8ByteString(value ?? '');
+    if (source.length < columns && !source.includes(0x0A)) return source;
 
-    let result = '';
+    const result = [];
     let wasSpace = true;
-    for (const sourceCharacter of source) {
-        const character = sourceCharacter === '\n' ? ' ' : sourceCharacter;
-        if (wasSpace && character === ' ') continue;
+    for (const sourceByte of source) {
+        const byte = sourceByte === 0x0A ? 0x20 : sourceByte;
+        if (wasSpace && byte === 0x20) continue;
         if (result.length >= BUFSZ - 1) break;
-        result += character;
-        wasSpace = character === ' ';
+        result.push(byte);
+        wasSpace = byte === 0x20;
     }
     if ((wasSpace && result.length) || result.length === BUFSZ - 1)
-        result = result.slice(0, -1);
+        result.pop();
     return result;
 }
 
@@ -163,18 +197,18 @@ export function ttyMenuTextData(lines, columns) {
         maxcol = Math.max(maxcol, n0);
         if (n0 > columns) {
             let split = columns - 1;
-            while (split && compressed[split] !== ' '
-                && compressed[split] !== '\n') {
+            while (split && compressed[split] !== 0x20
+                && compressed[split] !== 0x0A) {
                 --split;
             }
             if (split) {
                 const next = split + 1;
-                stored.push(compressed.slice(0, next));
-                putstr(compressed.slice(next));
+                stored.push(decodeUtf8ByteString(compressed.slice(0, next)));
+                putstr(decodeUtf8ByteString(compressed.slice(next)));
                 return;
             }
         }
-        stored.push(compressed);
+        stored.push(decodeUtf8ByteString(compressed));
     };
 
     for (const line of lines) putstr(line?.text ?? line);
@@ -192,6 +226,9 @@ export function ttyMenuTextLayout(display, rawLines, overlay = true) {
         display.cols - data.maxcol - 1,
     );
     offx = Math.max(0, offx);
+    // Under H2344_BROKEN, tty_display_nhwindow() clears only for a terminal-
+    // height window or disabled overlays. An over-wide line can still make
+    // offx zero; erase_menu_or_text() then requests docrt() at dismissal.
     const clearsScreen = maxrow >= display.rows || !overlay;
     if (clearsScreen) offx = 0;
     return {
@@ -252,13 +289,11 @@ export async function displayTtyMenuTextWindow(
     if (layout.clearsScreen) display.clearScreen();
     for (let row = 0; row < layout.lines.length; ++row) {
         clearRowFrom(display, layout.firstColumn, row);
-        writeStyledText(
+        writeRecorderTtyWindowLine(
             display,
             layout.lineColumn,
             row,
             layout.lines[row],
-            NO_COLOR,
-            0,
         );
     }
     clearRowFrom(display, layout.firstColumn, layout.promptRow);

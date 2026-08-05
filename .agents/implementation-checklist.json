@@ -1,117 +1,118 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Commit b9ca359 closes the inert mention_decor ROOM/CORR path from source-faithful startup terrain memory through object-free pickup(1), silent describe_decor transitions, check_here ordering, the dismissed two-to-four-object window, and the next command boundary. Independent fresh differential and checkpoint verification passed; excluded speaking, priced, multibyte, count, reqmenu, and exceptional paths remain atomic.",
-  "commitChecked": "b9ca3597bfceb7b23dd26db6829cbd0b4bde5862",
+  "mode": "implementation",
+  "reason": "The live object-pile text window measures and splits JavaScript code units, while NetHack's TTY path measures, truncates, and indexes recorder bytes. Admission currently refuses any object name containing non-ASCII text, and pending-topline plus disabled-overlay restoration need complete live coverage.",
+  "commitChecked": "069ba7ecf17a1fc0fa7bf831f37ec59166395321",
   "boundary": {
     "goalId": "object-pile-window",
-    "startingCommit": "678ba16ce4f7812d3507a8ce20f0e621af5a0ab2",
-    "startingEvent": "After the source-faithful startup staircase description has stored STAIRS, a sighted ordinary hero with mention_decor and no autopickup makes an object-free step onto ordinary ROOM or CORR, then a same-terrain one-square step onto a two-to-four-object pile.",
-    "endingEvent": "The Things-that-are-here window is dismissed and the game reaches the next command boundary with the ordinary terrain retained in iflags.prev_decor.",
-    "validInputs": "Ordinary one-square ROOM-to-ROOM or CORR-to-CORR walks following a silent non-feature transition that establishes the terrain memory; mention_decor; no autopickup; pile_limit 5; two to four non-boulder, source-nameable objects; sighted, unimpeded hero.",
-    "observables": "Hero position and turn/run state, prev_decor transitions from STAIRS to ordinary terrain and remains there, exact PRNG calls, complete cells/attributes/cursors, input waits and menu restoration, object-chain identity/knowledge, and persisted state through the next prompt.",
-    "exclusions": "Furniture, doors and doorways, stairs after startup, unequal feature-bearing terrain, ice/pools/lava, traps, engravings, regions, shops, hallucination, blindness, reqmenu, pile-limit count output, multibyte names, and every describe_decor branch that speaks, defers, suppresses a dungeon feature, or reports returning to ground."
+    "startingCommit": "069ba7ecf17a1fc0fa7bf831f37ec59166395321",
+    "startingEvent": "A sighted hero with !autopickup makes an ordinary one-square move onto a shopless ROOM or CORR square holding two to four source-nameable objects, at least one rendered name containing non-ASCII bytes.",
+    "endingEvent": "Space dismisses the Things-that-are-here hybrid TTY window, its covered region is repaired, and the game reaches the next command boundary with the pile and command state intact.",
+    "validInputs": "Shopless ordinary ROOM/CORR piles of two to four objects; short two-, three-, and four-byte text; a space-bearing name at or beyond CO bytes; a PL_PSIZ truncation ending inside a multibyte sequence; menu_overlay enabled or disabled; and a pending TTY topline before look_here displays WIN_MESSAGE.",
+    "observables": "Exact PRNG calls, byte-derived maxcol/offx and recursive split rows, complete cells/attributes/cursors, More input waits, snapshot restoration, pile identity and dknown state, run/multi state, unread input, and persisted state through the next prompt.",
+    "exclusions": "Shops, unpaid objects, pricequotes, blindness, cockatrice handling, swallowed heroes, pile-limit count output, one-object messages, decorated headers, paging, selectable menus, and multibyte paths outside this pile window."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "Traced hack.c spoteffects() into pickup.c pickup(1), pickup.c describe_decor() and check_here(), and invent.c look_here(); incorporated the closed startup staircase owner from commit 2094fb8.",
-    "dispatchTablesAndCatalogs": "Bounded terrain to ROOM and CORR, both non-furniture, with no dfeature; checked the first silent STAIRS-to-ordinary transition and the subsequent equal-terrain shortcut, plus the two-to-four pile and pile_limit families.",
-    "reachableHelpers": "Read every describe_decor branch before its prev_decor assignment, pickup(1)'s empty-square and no-autopickup paths, check_here's decor result/count/flag ordering, and the existing ordinary look_here/menu renderer through dismissal.",
-    "javascriptCrossCheck": "Searched current js/ and tests for prev_decor, describe_decor, mention_decor, pickup(1), check_here, look_here and object-free spoteffects; inspected js/hack.js admission/spoteffects, js/pickup.js startup subset/pickup/check_here, and js/invent.js pile guards.",
-    "remainingLimits": "Fresh C recording must prove a complete ROOM route from the now-matching startup state. A direct live CORR route may require an excluded doorway transition and must remain source-boundary-tested unless an in-boundary route is found. Fixed development inputs do not enable mention_decor."
+    "upstreamEntryPoints": "Traced hack.c domove/spoteffects through pickup.c pickup/check_here and invent.c look_here into wintty.c tty_putstr, compress_str, tty_display_nhwindow, process_text_window, dmore, tty_dismiss_nhwindow, and erase_menu_or_text.",
+    "dispatchTablesAndCatalogs": "Confirmed built-in object, monster, and artifact names are ASCII; bounded variable text to already-supported personal-name or fruit fields and the two-to-four pile family.",
+    "reachableHelpers": "Read the byte-sized BUFSZ/PL_PSIZ truncation, pre-split maxcol update, last-space-before-CO recursive split, hybrid menu geometry, More placement, overlay clear, and partial/full repair paths.",
+    "javascriptCrossCheck": "Inspected ttyMenuTextData/layout/window, hacklib UTF-8 byte-string helpers, objnam pile admission, look_here's live consumer, TTY message dismissal, and existing menu unit tests.",
+    "remainingLimits": "No development session carries non-ASCII input, and the session scan aborts earlier on unrelated dosounds shop debt, so completion rests on source-shaped direct tests and fresh C/JavaScript recordings."
   },
   "entries": [
     {
-      "candidate": "Canonical mention_decor and startup terrain memory",
-      "reachability": "OPTIONS=mention_decor initializes prev_decor to STONE and startup pickup describes the D:1 staircase before the first command.",
-      "owner": "js/options.js, js/moveloop_preamble.js and js/pickup.js startup describe_decor subset",
-      "effects": "Begin movement with prev_decor=STAIRS and source-matched pending-message state.",
-      "evidence": "Closed slice 2094fb8; independent exact quiet/calendar startup matrix matched 5,177 PRNG calls and six screens/cursors.",
+      "candidate": "Recorder-byte representation",
+      "reachability": "A rendered pile line contains a Unicode code point represented by two to four UTF-8 bytes or a preserved malformed tail byte.",
+      "owner": "js/hacklib.js helpers and js/tty_menu.js window-line pipeline",
+      "effects": "Convert to the recorder byte-string once and retain every byte through compression, measurement, splitting, and cell emission.",
+      "evidence": "wintty.c operates on char buffers and strlen; current tty_menu.js iterates JavaScript characters and indexes code units.",
       "status": "done",
-      "remaining": "Use as the fresh route's matching starting state."
+      "remaining": "tty_menu.js now converts each hybrid-window line through hacklib's byte-string helpers once per source operation and retains malformed bytes without changing tty_message.js."
     },
     {
-      "candidate": "Object-free movement calls pickup(1)",
-      "reachability": "spoteffects(pick=true) reaches an ordinary ROOM or CORR square without a floor object, trap, engraving or region effect.",
-      "owner": "js/hack.js spoteffects and js/pickup.js pickup",
-      "effects": "Call pickup(1), run the decor decision and read_engr_at, then return without check_here or object work.",
-      "evidence": "hack.c:3381 calls pickup(1) regardless of OBJ_AT; js/hack.js currently calls pickup only when objectHere is true.",
+      "candidate": "Byte-based compress_str and BUFSZ truncation",
+      "reachability": "A line is at least CO bytes, contains newline or repeated spaces, or approaches BUFSZ; PL_PSIZ-limited source text may end mid-sequence.",
+      "owner": "js/tty_menu.js compressTtyWindowLine and source name preparation",
+      "effects": "Collapse source spaces/newlines and reserve the NUL byte exactly where C does, preserving any malformed retained byte.",
+      "evidence": "wintty.c compress_str walks char pointers and bounds its static BUFSZ buffer; current length/slice operations are code-unit based.",
       "status": "done",
-      "remaining": "js/hack.js now calls pickup(1) on every admitted object-free step; the fresh ROOM route exercised four such steps before the pile."
+      "remaining": "Direct tests pin two-, three-, and four-byte input plus BUFSZ's 254-byte result ending in a preserved 0xE2 tail byte."
     },
     {
-      "candidate": "Silent non-feature ordinary-terrain transition",
-      "reachability": "ltyp is ROOM or CORR, dfeature_at returns null, the hero is not underwater/fumbling/deferred, and prev_decor is neither equal nor pool/lava/ice (initially STAIRS).",
-      "owner": "js/pickup.js describe_decor subset",
-      "effects": "Emit no line, return true, and store ROOM or CORR in prev_decor without randomness.",
-      "evidence": "pickup.c:392-425 falls through the no-dfeature/non-water prior-terrain branch, then assigns ltyp; current startupStairDecor rejects this case.",
+      "candidate": "Pre-split byte maxcol",
+      "reachability": "Every stored pile line, including a multibyte line wider than CO.",
+      "owner": "js/tty_menu.js ttyMenuTextData and ttyMenuTextLayout",
+      "effects": "Set maxcol from byte strlen plus one before splitting, then derive the exact menu offx and clear decision.",
+      "evidence": "tty_putstr updates maxcol from n0 before the n0 > CO arm; current compressed.length counts code units.",
       "status": "done",
-      "remaining": "describe_decor returns true and stores ROOM or CORR after the startup STAIRS memory. Direct tests cover both terrains; the fresh route covers ROOM live."
+      "remaining": "The data and layout tests calculate maxcol from encoded bytes before splitting and distinguish an over-wide full repair from the initial clear decision."
     },
     {
-      "candidate": "Equal non-furniture terrain shortcut",
-      "reachability": "The following pile destination has ltyp equal to prev_decor and ROOM/CORR is not furniture.",
-      "owner": "js/pickup.js describe_decor subset",
-      "effects": "Emit no line, return false, and store the same terrain back into prev_decor without randomness.",
-      "evidence": "pickup.c:392-425; current describe_decor supports only prev_decor=STONE on the startup staircase.",
+      "candidate": "Byte-indexed recursive splitting and cell emission",
+      "reachability": "A compressed line exceeds CO bytes and has a space before byte column CO, or contains high bytes without splitting.",
+      "owner": "js/tty_menu.js ttyMenuTextData and writeStyledText",
+      "effects": "Find the split in byte indices, retain source row order, and project each recorder byte into the same physical cells and attributes as C.",
+      "evidence": "wintty.c searches backward from CO-1 in char indices and recursively stores the suffix; current indexing and setCell loop use code units.",
       "status": "done",
-      "remaining": "describe_decor returns false on equal ROOM or CORR and stores the same terrain; direct tests pin both return values."
+      "remaining": "Tests pin the byte-76 split space, recursive suffix, two-/three-/four-byte recorder columns, and g_putch's special first-byte projection."
     },
     {
-      "candidate": "pickup(1) no-autopickup path into check_here(FALSE)",
-      "reachability": "what is positive, flags.pickup is false, the hero can reach/take, and the destination holds an ordinary pile.",
-      "owner": "js/hack.js admission/spoteffects and js/pickup.js pickup",
-      "effects": "Call check_here(FALSE) after the decor decision and before any automatic pickup attempt.",
-      "evidence": "pickup.c:701-727 and hack.c:3381; object-bearing movement already reaches pickup, but admission/pickup reject mention_decor.",
+      "candidate": "Pending topline before the hybrid menu",
+      "reachability": "WIN_MESSAGE has a pending TTY topline when look_here displays the pile window.",
+      "owner": "js/tty_menu.js displayTtyMenuTextWindow and js/tty_message.js dismissal",
+      "effects": "Dismiss the pending line in source order before clearing row zero, then draw and wait on the pile window.",
+      "evidence": "Confirmed review gap: existing tests do not exercise a real pending topline at this consumer.",
       "status": "done",
-      "remaining": "The live !autopickup pile step reaches pickup(1), takes the source early arm, and calls check_here(false)."
+      "remaining": "A direct pending ttyPline test records both More boundaries, their order and cursors, then proves both dismissal bytes were consumed."
     },
     {
-      "candidate": "check_here decor result, pile count and look_here flags",
-      "reachability": "Equal ordinary terrain makes describe_decor return false and the floor chain contains two to four objects below pile_limit.",
-      "owner": "js/pickup.js check_here",
-      "effects": "Call describe_decor before counting, leave LOOKHERE_SKIP_DFEATURE clear, stop a run, flush, and call look_here with the actual count.",
-      "evidence": "pickup.c:430-455; js/pickup.js counts/calls look_here but omits the mention_decor arm.",
+      "candidate": "Overlay-disabled and byte-window restoration",
+      "reachability": "menu_overlay is false, or byte geometry makes offx zero; otherwise a right-side overlay is used.",
+      "owner": "js/tty_menu.js layout snapshot, clear, dismissal, and repair",
+      "effects": "Distinguish clearing the screen from requiring full repair, restore the exact prior cells/attributes, and return the base cursor.",
+      "evidence": "Confirmed review gaps: disabled-overlay restoration lacks a complete assertion and clearsScreen/fullRepair are distinct implicit contracts.",
       "status": "done",
-      "remaining": "check_here calls describe_decor before counting and sets LOOKHERE_SKIP_DFEATURE only for a true result; the equal ROOM route leaves it clear."
+      "remaining": "The layout comment defines clearsScreen and fullRepair separately; direct tests restore complete cells and attributes for both modes, and the fresh matrix covers each mode live."
     },
     {
-      "candidate": "Ordinary two-to-four-object menu and dismissal",
-      "reachability": "Sighted hero, two to four source-nameable objects, pile_limit 5, no trap/engraving/liquid/shop/multibyte name, and no skip-dfeature flag.",
-      "owner": "js/invent.js look_here and js/tty_menu.js displayTtyMenuTextWindow",
-      "effects": "Draw, wait for and dismiss the ordinary pile window, restore the frame, and update object knowledge in source order.",
-      "evidence": "Existing ordinary/decorated pile slices are exact; the current only new blocker is look_here's blanket mention_decor refusal.",
+      "candidate": "Remove only the pile-name byte guard",
+      "reachability": "All other movement, decor, naming, pile-count, shop, and exceptional preflights pass for the destination.",
+      "owner": "js/hack.js and js/objnam.js",
+      "effects": "Admit multibyte object names into the now-byte-faithful pile renderer without weakening source-nameability or atomic exclusions.",
+      "evidence": "b9ca359 added assertObjectNameUsesSingleByteText solely to quarantine this renderer defect.",
       "status": "done",
-      "remaining": "look_here admits only a matching ROOM/CORR memory for mention_decor menus. The fresh seed 6231371 route matched 2,135 PRNG calls and nine screens/cursors through dismissal and rest."
+      "remaining": "requireSimpleHeroDestination now applies the existing mutation-free nameability preflight. The renderer-only recursive guard is deleted; all surrounding exclusions and the paging refusal remain unchanged and covered by the existing focused suites."
     },
     {
-      "candidate": "All non-inert movement decor branches",
-      "reachability": "Terrain is furniture/door/stair/feature-bearing, differs with a speaking result, follows pool/lava/ice, is underwater, or reaches fumble/deferred handling.",
-      "owner": "Temporary fail-closed guards in js/hack.js, js/pickup.js and js/invent.js",
-      "effects": "Stop before movement, output, prev_decor mutation, input or randomness until source behavior is ported.",
-      "evidence": "pickup.c:353-425 enumerates these branches; current JavaScript blanket guards stop them.",
+      "candidate": "Fresh end-to-end multibyte pile matrix",
+      "reachability": "Replayable debug wishes/drops create independent short, long/split, and disabled-overlay/truncated-byte piles, then ordinary movement opens each window.",
+      "owner": "new source-shaped runner and focused replay tests",
+      "effects": "Compare exact C/JavaScript PRNG logs, screens, cursors, window waits, restoration, object state, and next prompt.",
+      "evidence": "No fixed development session reaches the branch; fresh differential evidence is required for gameplay completion.",
       "status": "done",
-      "remaining": "Admission retains furniture, doorway, reqmenu, pile-limit count, shop, multibyte-name, blindness, trap, region and engraving refusals. Direct describe_decor tests retain exceptional-state and prior-terrain refusals before output or memory changes."
+      "remaining": "Seed 6500803 was found by a fresh generated-level scan. Enabled and disabled overlay recipes reach its natural two-object pile containing a custom UTF-8 slime mold and match 3,684 PRNG calls, 18 screens and 18 cursors exactly. Long object names cannot be assigned by the port's replay command surface, so source-shaped direct tests supply the long-split and malformed-tail evidence."
     }
   ],
   "missingWorkByOwner": [
     {
-      "group": "ordinary movement decor memory",
+      "group": "byte-faithful hybrid TTY window",
       "candidates": [
-        "Object-free movement calls pickup(1)",
-        "Silent non-feature ordinary-terrain transition",
-        "Equal non-furniture terrain shortcut",
-        "All non-inert movement decor branches"
+        "Recorder-byte representation",
+        "Byte-based compress_str and BUFSZ truncation",
+        "Pre-split byte maxcol",
+        "Byte-indexed recursive splitting and cell emission",
+        "Pending topline before the hybrid menu",
+        "Overlay-disabled and byte-window restoration"
       ],
-      "next": "Completed: the owner now covers the silent STAIRS-to-ordinary and equal-ordinary results, with live ROOM and direct ROOM/CORR evidence."
+      "next": "Port and test the byte pipeline in source order, including both repair modes and pending-message ordering."
     },
     {
-      "group": "ordinary mention_decor pile transaction",
+      "group": "live multibyte pile admission",
       "candidates": [
-        "pickup(1) no-autopickup path into check_here(FALSE)",
-        "check_here decor result, pile count and look_here flags",
-        "Ordinary two-to-four-object menu and dismissal"
+        "Remove only the pile-name byte guard",
+        "Fresh end-to-end multibyte pile matrix"
       ],
-      "next": "Completed: the false result flows through check_here to the existing menu and the next command boundary."
+      "next": "Lift only the quarantine guard after renderer tests pass, then prove complete C/JavaScript transactions."
     }
   ],
-  "sourceReview": "The implementation follows pickup.c describe_decor(), pickup() and check_here() in source order. A fresh seed 6231371 ROOM route from canonical startup crossed four object-free squares, opened and dismissed a same-terrain three-object window, and matched 2,135 PRNG calls plus nine complete screens and cursors. CORR has direct source-boundary coverage because this slice does not broaden the doorway transitions needed to seek a live corridor route. Excluded speaking, stateful, count, shop, multibyte-name, reqmenu and exceptional branches remain fail-closed. Final readiness and commitChecked belong to the orchestrator."
+  "sourceReview": "Complete. The implementation follows wintty.c's char-buffer order for compress_str(), pre-split strlen(), byte-indexed recursive splitting, process_text_window() cell projection, pending WIN_MESSAGE dismissal, and erase_menu_or_text() repair. Fresh enabled/disabled overlay recordings match 3,684 PRNG calls, 18 screens and 18 cursors exactly. Direct source-shaped tests cover long splitting and a BUFSZ truncation that preserves a malformed tail because the current replay command surface cannot assign long object names. The orchestrator still owns the final ready and commitChecked fields."
 }

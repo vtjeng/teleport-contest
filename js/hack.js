@@ -115,7 +115,7 @@ import {
     verysmall,
 } from './mondata.js';
 import { is_pick, objectType, sobj_at } from './obj.js';
-import { assertObjectNameUsesSingleByteText } from './objnam.js';
+import { assertObjectNameable } from './objnam.js';
 import {
     BOULDER,
     COIN_CLASS,
@@ -740,7 +740,7 @@ export function requireSimpleHeroDestination(x, y, state) {
         // preflight so the message path admits every ordinary pile count.
         if (!skipObjects) {
             for (let object = floorObject; object; object = object.nexthere)
-                assertObjectNameUsesSingleByteText(object, state);
+                assertObjectNameable(object, state);
         }
     }
     // invent.c look_here()'s blind arm names what the hero feels underfoot,

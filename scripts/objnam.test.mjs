@@ -38,7 +38,7 @@ import {
     The,
     an,
     aobjnam,
-    assertObjectNameUsesSingleByteText,
+    assertObjectNameable,
     cloak_simple_name,
     cxname,
     otense,
@@ -490,30 +490,20 @@ test('an equal ordinary mention-decor terrain retains the object-pile menu',
         ]);
     });
 
-test('object-pile admission rejects multibyte instance names', () => {
+test('object-pile nameability admits multibyte instance names', () => {
     const state = namingState();
-    // A plain source name proves the recursive scan reaches its false result
-    // without treating primitive object fields as text failures.
+    // A plain source name pins the same mutation-free naming preflight used by
+    // the movement admission path.
     assert.doesNotThrow(
-        () => assertObjectNameUsesSingleByteText(objectOf(state, DART), state),
+        () => assertObjectNameable(objectOf(state, DART), state),
     );
     const named = objectOf(state, DART, {
         // The accented byte distinguishes UTF-8 byte width from JavaScript's
         // code-unit length in the hybrid tty text window.
         oextra: { oname: 'caf\u00e9' },
     });
-    assert.throws(
-        () => assertObjectNameUsesSingleByteText(named, state),
-        /multibyte pile-menu text/u,
-    );
-
-    // Monster index zero pins the inclusive NON_PM boundary used for corpse
-    // and statue names. The synthetic multibyte species text must be scanned.
-    const monsterNamed = objectOf(state, DART, { corpsenm: 0 });
-    state.mons[0] = { pmnames: ['caf\u00e9'] };
-    assert.throws(
-        () => assertObjectNameUsesSingleByteText(monsterNamed, state),
-        /multibyte pile-menu text/u,
+    assert.doesNotThrow(
+        () => assertObjectNameable(named, state),
     );
 });
 

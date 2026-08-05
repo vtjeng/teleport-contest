@@ -730,6 +730,30 @@ test('a walk opens and dismisses ordinary two-to-four-object pile windows',
         }
     });
 
+test('a walk admits a multibyte name to the ordinary object-pile window',
+    async () => {
+        const { replay, x, y } = await prepareHeroMoveAdmission();
+        game.flags.pickup = false;
+        game.flags.pile_limit = 5;
+        // The two-byte final character reaches the byte-window renderer while
+        // the second object keeps this on look_here()'s pile branch.
+        const head = installFloorPile(x, y, 2, {
+            oextra: { oname: 'caf\u00e9' },
+        });
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        const screensBefore = replay.getScreens().length;
+        game.nhDisplay.pushKey(commandKeyCode(' '));
+
+        await domove(game);
+
+        assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+        assert.equal(game.level.objects[x][y], head);
+        assert.equal(replay.getScreens().length, screensBefore + 1);
+        assert.equal(head.dknown, true);
+        assert.equal(game.nhDisplay.inputQueueLength, 0);
+    });
+
 test('a walk reports decorated pile terrain on menu and count paths',
     async () => {
         for (const [label, counted, decorate] of [

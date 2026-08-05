@@ -4,7 +4,11 @@ import test from 'node:test';
 import { PICK_NONE } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
+import {
+    encodeUtf8ByteString,
+} from '../js/hacklib.js';
 import { parseNethackrc } from '../js/options.js';
+import { ttyPline } from '../js/tty_message.js';
 import {
     displayTtyMenuTextWindow,
     dismissTtyMenu,
@@ -85,6 +89,38 @@ test('NHW_MENU text data keeps pre-wrap width and the split space', () => {
     assert.deepEqual(ttyMenuTextData([fitsExactly], 80).lines, [fitsExactly]);
 });
 
+test('NHW_MENU text measures, truncates, and splits recorder bytes', () => {
+    // These code points occupy two, three, and four UTF-8 bytes. Together
+    // they distinguish byte strlen() from JavaScript code-unit length.
+    const short = 'a caf\u00e9 \u20ac \ud83d\ude00';
+    const shortBytes = encodeUtf8ByteString(short);
+    const shortData = ttyMenuTextData([short], 80);
+    assert.equal(shortData.maxcol, shortBytes.length + 1);
+    assert.deepEqual(encodeUtf8ByteString(shortData.lines[0]), shortBytes);
+
+    // Thirty-eight two-byte characters place the space at byte 76, before
+    // tty_putstr()'s byte-79 search start, and leave a suffix after CO bytes.
+    const long = `${'\u00e9'.repeat(38)} TAIL`;
+    const longData = ttyMenuTextData([long], 80);
+    assert.equal(longData.maxcol, encodeUtf8ByteString(long).length + 1);
+    assert.deepEqual(
+        longData.lines.map((line) => encodeUtf8ByteString(line)),
+        [
+            [...encodeUtf8ByteString('\u00e9'.repeat(38)), 0x20],
+            encodeUtf8ByteString('TAIL'),
+        ],
+    );
+
+    // The 253-byte ASCII prefix leaves two bytes of a three-byte code point
+    // in compress_str()'s 255-byte copy limit. Its full-buffer rule removes
+    // the second copied tail byte to reserve NUL, preserving 0xE2 alone.
+    const truncated = `${'A'.repeat(253)}\u20ac`;
+    const truncatedData = ttyMenuTextData([truncated], 80);
+    const retained = encodeUtf8ByteString(truncatedData.lines.join(''));
+    assert.equal(retained.length, 254);
+    assert.deepEqual(retained.slice(-2), [0x41, 0xE2]);
+});
+
 test('NHW_MENU text uses H2344_BROKEN right-half geometry', () => {
     const state = menuState();
     const layout = ttyMenuTextLayout(state.nhDisplay, [
@@ -118,6 +154,16 @@ test('NHW_MENU text uses H2344_BROKEN right-half geometry', () => {
     );
     assert.equal(overlayDisabled.clearsScreen, true);
     assert.equal(overlayDisabled.firstColumn, 0);
+
+    // An over-wide line can force offx to zero while overlay remains enabled.
+    // C skips the initial clear in that case, then docrt() performs the full
+    // repair at dismissal. This separates clearsScreen from fullRepair.
+    const fullRepairWithoutClear = ttyMenuTextLayout(
+        state.nhDisplay,
+        [`${'\u00e9'.repeat(38)} TAIL`],
+    );
+    assert.equal(fullRepairWithoutClear.clearsScreen, false);
+    assert.equal(fullRepairWithoutClear.fullRepair, true);
 });
 
 test('NHW_MENU text waits at --More-- and repairs through docorner',
@@ -153,6 +199,52 @@ test('NHW_MENU text waits at --More-- and repairs through docorner',
         assert.equal(rowText(state, 3), '');
     });
 
+test('NHW_MENU text emits ASCII at recorder-byte columns', async () => {
+    const state = menuState(' ');
+    let boundary = null;
+    state._preNhgetchHook = () => {
+        const layout = ttyMenuTextLayout(state.nhDisplay, [
+            'Things that are here:',
+            'a \u00e9X \u20acY \ud83d\ude00Z',
+            '\u00e9X',
+        ]);
+        boundary = {
+            layout,
+            row: state.nhDisplay.grid[1].map((cell) => cell.ch),
+            leadingHighRow: state.nhDisplay.grid[2].map((cell) => cell.ch),
+            style: {
+                color: state.nhDisplay.grid[1][layout.lineColumn].color,
+                attr: state.nhDisplay.grid[1][layout.lineColumn].attr,
+            },
+        };
+    };
+
+    await displayTtyMenuTextWindow(state, [
+        'Things that are here:',
+        // X, Y, and Z follow two-, three-, and four-byte code points. Their
+        // columns pin curx's increment for each recorder byte.
+        'a \u00e9X \u20acY \ud83d\ude00Z',
+        // process_text_window() sends the first byte through g_putch().
+        '\u00e9X',
+    ]);
+
+    const start = boundary.layout.lineColumn;
+    assert.equal(boundary.row[start], 'a');
+    assert.equal(boundary.row[start + 4], 'X');
+    assert.equal(boundary.row[start + 9], 'Y');
+    assert.equal(boundary.row[start + 15], 'Z');
+    assert.deepEqual(boundary.style, { color: 8, attr: 0 });
+    // Recorder patch 006 ignores these signed high-bit bytes after cl_end()
+    // cleared the row, so each occupied byte column remains a plain space.
+    for (const offset of [2, 3, 6, 7, 8, 11, 12, 13, 14])
+        assert.equal(boundary.row[start + offset], ' ');
+    // Recorder patch 006 strips the lead byte's high bit in g_putch(), ignores
+    // the signed continuation byte, and emits X at byte offset two.
+    assert.equal(boundary.leadingHighRow[start], 'C');
+    assert.equal(boundary.leadingHighRow[start + 1], ' ');
+    assert.equal(boundary.leadingHighRow[start + 2], 'X');
+});
+
 test('NHW_MENU text honors disabled overlays and refuses a paged boundary',
     async () => {
         const state = menuState(' ');
@@ -183,6 +275,73 @@ test('NHW_MENU text honors disabled overlays and refuses a paged boundary',
             /paged tty menu text window is not supported/u,
         );
     });
+
+test('NHW_MENU text dismisses a pending topline before drawing the window',
+    async () => {
+        // Two spaces dismiss the pending-message More and the menu More in
+        // source order. The hook records both complete input boundaries.
+        const state = menuState('  ');
+        await ttyPline('A pending message.', state);
+        const boundaries = [];
+        state._preNhgetchHook = () => boundaries.push({
+            first: rowText(state, 0),
+            second: rowText(state, 1),
+            cursor: [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+        });
+
+        await displayTtyMenuTextWindow(state, [
+            'Things that are here:',
+            'a caf\u00e9',
+        ]);
+
+        assert.equal(boundaries.length, 2);
+        assert.deepEqual(boundaries[0], {
+            first: 'A pending message.--More--',
+            second: '',
+            // Eighteen message bytes plus the eight-byte More prompt.
+            cursor: [26, 0],
+        });
+        assert.equal(boundaries[1].first.endsWith('Things that are here:'), true);
+        assert.equal(boundaries[1].second.endsWith('a caf'), true);
+        assert.deepEqual(boundaries[1].cursor, [49, 2]);
+        assert.equal(state.nhDisplay.inputQueueLength, 0);
+    });
+
+test('NHW_MENU text restores partial and full byte-window regions', async () => {
+    for (const [label, overlay, line] of [
+        // A short two-byte name retains the right-side overlay.
+        ['partial', true, 'a caf\u00e9'],
+        // Disabled overlays clear first and restore the complete display.
+        ['full', false, 'a \u20ac and \ud83d\ude00'],
+    ]) {
+        const state = menuState(' ');
+        state.iflags = { menu_overlay: overlay };
+        // Row zero belongs to WIN_MESSAGE, so begin after the caller has
+        // cleared it. Distinct attributes pin restoration as well as text.
+        state.nhDisplay.clearRow(0);
+        state.nhDisplay.setCell(17, 5, label[0], 2, 1);
+        state.nhDisplay.setCursor(13, 7);
+        const before = structuredClone(state.nhDisplay.grid);
+        const cursorBefore = [
+            state.nhDisplay.cursorCol,
+            state.nhDisplay.cursorRow,
+        ];
+
+        await displayTtyMenuTextWindow(state, [
+            'Things that are here:',
+            line,
+        ]);
+
+        assert.deepEqual(state.nhDisplay.grid, before, label);
+        if (!overlay) {
+            assert.deepEqual(
+                [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+                cursorBefore,
+                label,
+            );
+        }
+    }
+});
 
 test('narrow tty menus overlay the right half and restore it on dismissal', () => {
     const state = menuState();
