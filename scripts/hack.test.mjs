@@ -281,6 +281,22 @@ test('a levitating hero over a sink stops for dosinkfall()', async () => {
     await spoteffects(false, levitationOnly);
 });
 
+test('spoteffects calls pickup only for an enabled ordinary arrival',
+    async () => {
+        const disabled = terrainState(ROOM, ROOM);
+        // pickup() resets this source field before any early return. Keeping
+        // the sentinel proves pick=false did not call it.
+        disabled.gp = { pickup_encumbrance: 7 };
+        await spoteffects(false, disabled);
+        assert.equal(disabled.gp.pickup_encumbrance, 7);
+
+        const dismounting = terrainState(ROOM, ROOM);
+        dismounting.gp = { pickup_encumbrance: 7 };
+        dismounting.in_steed_dismounting = true;
+        await spoteffects(true, dismounting);
+        assert.equal(dismounting.gp.pickup_encumbrance, 7);
+    });
+
 test('movement smudges old then new engravings in source RNG order', () => {
     const destination = engraving(5, 4, DUST);
     const state = smudgeState(engraving(4, 4, DUST, destination));
@@ -832,4 +848,3 @@ test('the run stop before a monster reads each of C\'s three terms', () => {
     mimic.u.uprops[PROT_FROM_SHAPE_CHANGERS].intrinsic = 1;
     assert.equal(runStopsBeforeMonster(disguised, 1, mimic), true);
 });
-

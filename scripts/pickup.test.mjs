@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     BLINDED,
+    CORR,
     EXT_ENCUMBER,
     FUMBLING,
     HVY_ENCUMBER,
@@ -34,6 +35,7 @@ import {
     describe_decor,
     observe_pickup_object,
     pickup,
+    preflight_describe_decor_at,
     preflight_initial_pickup,
     UnsupportedPickupError,
 } from '../js/pickup.js';
@@ -221,8 +223,111 @@ test('pickup describes the traversed D:1 staircase before returning',
 test('bounded describe_decor reports that it printed the staircase',
     async () => {
         const state = await heroOnStartingStair();
+        assert.equal(
+            preflight_describe_decor_at(state.u.ux, state.u.uy, state),
+            true,
+        );
         assert.equal(await describe_decor(state), true);
         assert.equal(state.iflags.prev_decor, STAIRS);
+    });
+
+test('decor preflight rejects either changed coordinate before mutation',
+    async () => {
+        const state = await heroOnStartingStair();
+        const remembered = state.iflags.prev_decor;
+        for (const [label, x, y] of [
+            // One changed x coordinate pins the first half of C's location
+            // equality, while one changed y coordinate pins the second.
+            ['x', state.u.ux + 1, state.u.uy],
+            ['y', state.u.ux, state.u.uy + 1],
+        ]) {
+            // STONE bypasses the owned ordinary-terrain plan so this test
+            // reaches the destination-coordinate guard itself.
+            state.level.at(x, y).typ = STONE;
+            assert.throws(
+                () => preflight_describe_decor_at(x, y, state),
+                /outside silent ordinary terrain/u,
+                label,
+            );
+            assert.equal(state.iflags.prev_decor, remembered, label);
+            assert.equal(state._ttyToplines ?? '', '', label);
+        }
+    });
+
+test('describe_decor remembers silent ordinary terrain transitions',
+    async () => {
+        for (const terrain of [ROOM, CORR]) {
+            const state = await heroOnAnEmptySquare();
+            state.flags.mention_decor = true;
+            state.iflags.prev_decor = STAIRS;
+            state.level.at(state.u.ux, state.u.uy).typ = terrain;
+            state.stairs = null;
+
+            assert.equal(await describe_decor(state), true);
+            assert.equal(state.iflags.prev_decor, terrain);
+            assert.equal(state._ttyToplines ?? '', '');
+
+            assert.equal(await describe_decor(state), false);
+            assert.equal(state.iflags.prev_decor, terrain);
+            assert.equal(state._ttyToplines ?? '', '');
+        }
+    });
+
+test('ordinary describe_decor exclusions preserve terrain memory and output',
+    async () => {
+        const cases = [
+            {
+                // STONE is neither the startup staircase nor the preceding
+                // STAIRS terrain owned by the silent transition.
+                name: 'unowned prior terrain',
+                alter: (state) => { state.iflags.prev_decor = STONE; },
+            },
+            {
+                // Underwater suppresses dfeature output and belongs to the
+                // water transition owner.
+                name: 'underwater hero',
+                alter: (state) => { state.u.uinwater = true; },
+            },
+            {
+                // Fumbling with one timeout turn can defer the description.
+                name: 'fumbling hero',
+                alter: (state) => {
+                    state.u.uprops[FUMBLING].intrinsic = 1;
+                },
+            },
+            {
+                // deferred_decor() changes when the feedback is emitted.
+                name: 'deferred decor',
+                alter: (state) => { state.iflags.defer_decor = true; },
+            },
+            {
+                // force_decor() changes the fumble feedback gate.
+                name: 'fumble override',
+                alter: (state) => { state.decor_fumble_override = true; },
+            },
+            {
+                // Probing can override levitation-sensitive decor details.
+                name: 'levitation override',
+                alter: (state) => { state.decor_levitate_override = true; },
+            },
+        ];
+
+        for (const entry of cases) {
+            const state = await heroOnAnEmptySquare();
+            state.flags.mention_decor = true;
+            state.iflags.prev_decor = STAIRS;
+            state.stairs = null;
+            entry.alter(state);
+            const remembered = state.iflags.prev_decor;
+
+            await assert.rejects(
+                () => describe_decor(state),
+                UnsupportedPickupError,
+                entry.name,
+            );
+            assert.equal(state.iflags.prev_decor, remembered, entry.name);
+            assert.equal(state._ttyToplines ?? '', '', entry.name);
+        }
     });
 
 test('initial pickup rejects every excluded startup family atomically',
@@ -768,7 +873,8 @@ test('pickup stops on each state it has no answer for', async () => {
     state.multi = 0;
 
     state.flags.mention_decor = true;
-    await assert.rejects(() => pickup(1, state), /mention_decor/u);
+    state.stairs = null;
+    await assert.rejects(() => pickup(1, state), /unowned prior terrain/u);
     state.flags.mention_decor = false;
 
     // can_reach_floor() answers FALSE for a swallowed hero, which is the one

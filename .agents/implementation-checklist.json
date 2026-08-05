@@ -1,103 +1,117 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Commit 2094fb8 closes the new-game mention_decor staircase transaction through option-state initialization, reset_justpicked, source-ordered pickup(1), exact pending-message sequencing, staircase naming and prev_decor assignment. Independent checkpoint and fresh differential verification passed, and every excluded startup family refuses atomically.",
-  "commitChecked": "2094fb8aeb7533bdb0af8d4145535db9b4a59cbc",
+  "mode": "implementation",
+  "reason": "Startup now owns mention_decor and prev_decor=STAIRS, but object-free movement still skips pickup(1), describe_decor supports only the startup staircase, and check_here/look_here still reject every mention_decor pile. The silent ordinary-terrain transition and equal-terrain pile consumer remain missing.",
+  "commitChecked": "678ba16ce4f7812d3507a8ce20f0e621af5a0ab2",
   "boundary": {
     "goalId": "object-pile-window",
-    "startingCommit": "e84a6f5551b528954cb1137450f4c3c30f9b1a48",
-    "startingEvent": "A new D:1 game with OPTIONS=mention_decor has completed newgame and welcome(TRUE), leaving the welcome message pending while the hero stands on the traversed up staircase.",
-    "endingEvent": "moveloop_preamble(FALSE) has run its initial pickup(1), the staircase description is visible at the first command-input boundary, and iflags.prev_decor is STAIRS without consuming a turn or moving the hero.",
-    "validInputs": "New games with mention_decor, ordinary D:1 traversed up staircase, default verbose, short ASCII identity, no legacy/tutorial/splash screen, no starting floor object or engraving; autopickup either enabled or disabled. Primary case uses a quiet non-Friday, non-full/new-moon date; a full-moon plus Friday case verifies prior message ordering.",
-    "observables": "Exact PRNG order and count, complete terminal cells and attributes, cursor positions, pending-message and More input boundaries, prev_decor from STONE to STAIRS, unchanged hero position/turn/inventory/floor state, status dirtiness, and arrival at first command input.",
-    "exclusions": "Restore startup, nonverbose wording, starting objects or automatic collection, starting engravings, tutorial/legacy/accessibility prompts, endgame or Amulet stair names, non-stair terrain, all movement, check_here, object-pile rendering, and every describe_decor branch other than the initial traversed up staircase."
+    "startingCommit": "678ba16ce4f7812d3507a8ce20f0e621af5a0ab2",
+    "startingEvent": "After the source-faithful startup staircase description has stored STAIRS, a sighted ordinary hero with mention_decor and no autopickup makes an object-free step onto ordinary ROOM or CORR, then a same-terrain one-square step onto a two-to-four-object pile.",
+    "endingEvent": "The Things-that-are-here window is dismissed and the game reaches the next command boundary with the ordinary terrain retained in iflags.prev_decor.",
+    "validInputs": "Ordinary one-square ROOM-to-ROOM or CORR-to-CORR walks following a silent non-feature transition that establishes the terrain memory; mention_decor; no autopickup; pile_limit 5; two to four non-boulder, source-nameable objects; sighted, unimpeded hero.",
+    "observables": "Hero position and turn/run state, prev_decor transitions from STAIRS to ordinary terrain and remains there, exact PRNG calls, complete cells/attributes/cursors, input waits and menu restoration, object-chain identity/knowledge, and persisted state through the next prompt.",
+    "exclusions": "Furniture, doors and doorways, stairs after startup, unequal feature-bearing terrain, ice/pools/lava, traps, engravings, regions, shops, hallucination, blindness, reqmenu, pile-limit count output, multibyte names, and every describe_decor branch that speaks, defers, suppresses a dungeon feature, or reports returning to ground."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "Traced allmain.c newgame/welcome and moveloop_preamble(FALSE), pickup.c pickup(1) and describe_decor(), invent.c dfeature_at(), stairs.c stairs_description(), and options.c opt_mention_decor.",
-    "dispatchTablesAndCatalogs": "Bounded terrain to STAIRS at D:1's traversed up staircase; checked mention_decor, verbose, autopickup, moon phase and Friday option/date families that can alter startup messages and waits.",
-    "reachableHelpers": "Followed welcome pline pending state; calendar messages; rnd(9000); set_wear(NULL); reset_justpicked(); pickup's no-object early arm; dfeature/stair naming; pline More sequencing; prev_decor assignment; rnd(30); and the first command capture.",
-    "javascriptCrossCheck": "Inspected js/jsmain.js startup order, js/moveloop_preamble.js omissions, js/options.js option state, js/pickup.js early refusal, js/invent.js dfeature_at, js/stairs.js naming, and js/tty_message.js pending-message behavior; searched all js/ and tests for mention_decor, prev_decor, moveloop_preamble and pickup(1).",
-    "remainingLimits": "The fresh quiet and full-moon-plus-Friday matrix matched 5,177 PRNG calls and all 6 screens, attributes, cursors, and input boundaries. Movement, repeated decor, other terrain, objects, engravings, nonverbose output, exceptional hero state, restore, and endgame stairs remain outside this slice."
+    "upstreamEntryPoints": "Traced hack.c spoteffects() into pickup.c pickup(1), pickup.c describe_decor() and check_here(), and invent.c look_here(); incorporated the closed startup staircase owner from commit 2094fb8.",
+    "dispatchTablesAndCatalogs": "Bounded terrain to ROOM and CORR, both non-furniture, with no dfeature; checked the first silent STAIRS-to-ordinary transition and the subsequent equal-terrain shortcut, plus the two-to-four pile and pile_limit families.",
+    "reachableHelpers": "Read every describe_decor branch before its prev_decor assignment, pickup(1)'s empty-square and no-autopickup paths, check_here's decor result/count/flag ordering, and the existing ordinary look_here/menu renderer through dismissal.",
+    "javascriptCrossCheck": "Searched current js/ and tests for prev_decor, describe_decor, mention_decor, pickup(1), check_here, look_here and object-free spoteffects; inspected js/hack.js admission/spoteffects, js/pickup.js startup subset/pickup/check_here, and js/invent.js pile guards.",
+    "remainingLimits": "Fresh C recording must prove a complete ROOM route from the now-matching startup state. A direct live CORR route may require an excluded doorway transition and must remain source-boundary-tested unless an in-boundary route is found. Fixed development inputs do not enable mention_decor."
   },
   "entries": [
     {
-      "candidate": "options.c opt_mention_decor terrain-memory reset",
-      "reachability": "The startup configuration enables mention_decor before newgame and moveloop_preamble.",
-      "owner": "js/options.js option parsing and per-game iflags initialization",
-      "effects": "Set the canonical iflags.prev_decor value to STONE before any describe_decor call.",
-      "evidence": "js/options.js initializes prev_decor to STONE and resets it for every enabled or disabled mention_decor occurrence; scripts/options.test.mjs pins repeated toggles.",
+      "candidate": "Canonical mention_decor and startup terrain memory",
+      "reachability": "OPTIONS=mention_decor initializes prev_decor to STONE and startup pickup describes the D:1 staircase before the first command.",
+      "owner": "js/options.js, js/moveloop_preamble.js and js/pickup.js startup describe_decor subset",
+      "effects": "Begin movement with prev_decor=STAIRS and source-matched pending-message state.",
+      "evidence": "Closed slice 2094fb8; independent exact quiet/calendar startup matrix matched 5,177 PRNG calls and six screens/cursors.",
       "status": "done",
-      "remaining": "No work remains inside this candidate."
+      "remaining": "Use as the fresh route's matching starting state."
     },
     {
-      "candidate": "moveloop_preamble pre-pickup inventory operations",
-      "reachability": "Every new game executes set_wear(NULL) and reset_justpicked(invent) after rnd(9000) and immediately before pickup(1).",
-      "owner": "js/moveloop_preamble.js plus existing inventory initialization owners",
-      "effects": "Establish starting equipment side effects and clear just-picked flags before floor pickup without changing the source PRNG position.",
-      "evidence": "u_init.c ini_inv_use_obj() is the sole startup wearer and selects armor; js/u_init_inventory_use.js already applies the equivalent setworn slot, extrinsic, and status effects. The new preamble call resets every starting pickup_prev flag, while the fresh verifier pins equipped references and status cleanliness.",
+      "candidate": "Object-free movement calls pickup(1)",
+      "reachability": "spoteffects(pick=true) reaches an ordinary ROOM or CORR square without a floor object, trap, engraving or region effect.",
+      "owner": "js/hack.js spoteffects and js/pickup.js pickup",
+      "effects": "Call pickup(1), run the decor decision and read_engr_at, then return without check_here or object work.",
+      "evidence": "hack.c:3381 calls pickup(1) regardless of OBJ_AT; js/hack.js currently calls pickup only when objectHere is true.",
       "status": "done",
-      "remaining": "No work remains inside this candidate."
+      "remaining": "js/hack.js now calls pickup(1) on every admitted object-free step; the fresh ROOM route exercised four such steps before the pile."
     },
     {
-      "candidate": "allmain.c moveloop_preamble initial pickup(1) call",
-      "reachability": "Every non-restored new game reaches the call after calendar messages and rnd(9000), before rnd(30) and the first command.",
-      "owner": "js/moveloop_preamble.js",
-      "effects": "Invoke pickup with positive what at the exact source position and await any TTY input it causes.",
-      "evidence": "js/moveloop_preamble.js preflights the selected floor state, resets starting inventory, awaits pickup(1) after rnd(9000), and reaches rnd(30) in source order. Both fresh cases matched the C PRNG stream exactly.",
-      "status": "done",
-      "remaining": "No work remains inside this candidate."
-    },
-    {
-      "candidate": "pickup.c no-object mention_decor early arm",
-      "reachability": "The D:1 staircase holds no floor object; what is positive, so pickup's autopickup predicate takes the no-object arm regardless of flags.pickup.",
-      "owner": "js/pickup.js pickup",
-      "effects": "Call describe_decor, then read_engr_at, and return zero before check_here or automatic pickup.",
-      "evidence": "js/pickup.js now calls the bounded describe_decor() from the no-object autopickup arm, then calls read_engr_at() and returns zero. The fresh matrix crosses flags.pickup off and on with identical terrain output and no floor mutation.",
-      "status": "done",
-      "remaining": "No work remains inside this candidate."
-    },
-    {
-      "candidate": "pickup.c describe_decor initial traversed up staircase",
-      "reachability": "SURFACE_AT is STAIRS, prev_decor is STONE, dfeature_at names the D:1 traversed up staircase, verbose is true, and the hero is not underwater or fumbling.",
+      "candidate": "Silent non-feature ordinary-terrain transition",
+      "reachability": "ltyp is ROOM or CORR, dfeature_at returns null, the hero is not underwater/fumbling/deferred, and prev_decor is neither equal nor pool/lava/ice (initially STAIRS).",
       "owner": "js/pickup.js describe_decor subset",
-      "effects": "Print `There is a staircase up out of the dungeon here.`, set prev_decor to STAIRS, return true, and consume no randomness.",
-      "evidence": "js/pickup.js describe_decor() validates the selected traversed D:1 stair, prints the exact source line, assigns STAIRS after ttyPline returns, and returns true. Focused tests pin its direct return contract and post-message state.",
+      "effects": "Emit no line, return true, and store ROOM or CORR in prev_decor without randomness.",
+      "evidence": "pickup.c:392-425 falls through the no-dfeature/non-water prior-terrain branch, then assigns ltyp; current startupStairDecor rejects this case.",
       "status": "done",
-      "remaining": "No work remains inside this candidate."
+      "remaining": "describe_decor returns true and stores ROOM or CORR after the startup STAIRS memory. Direct tests cover both terrains; the fresh route covers ROOM live."
     },
     {
-      "candidate": "TTY pending welcome and calendar message ordering",
-      "reachability": "welcome text is pending; quiet dates require one dismissal before the staircase line, while full-moon plus Friday adds source-ordered messages and More boundaries before pickup.",
-      "owner": "js/tty_message.js and js/moveloop_preamble.js existing message owners",
-      "effects": "Capture each More boundary and leave the staircase line visible at the first command wait without reordering RNG.",
-      "evidence": "The committed-style fresh runner records one quiet case and one full-moon-plus-Friday case. It matched every C screen, attribute, cursor, wait, and PRNG call through the first command boundary.",
+      "candidate": "Equal non-furniture terrain shortcut",
+      "reachability": "The following pile destination has ltyp equal to prev_decor and ROOM/CORR is not furniture.",
+      "owner": "js/pickup.js describe_decor subset",
+      "effects": "Emit no line, return false, and store the same terrain back into prev_decor without randomness.",
+      "evidence": "pickup.c:392-425; current describe_decor supports only prev_decor=STONE on the startup staircase.",
       "status": "done",
-      "remaining": "No work remains inside this candidate."
+      "remaining": "describe_decor returns false on equal ROOM or CORR and stores the same terrain; direct tests pin both return values."
     },
     {
-      "candidate": "Stair feature naming",
-      "reachability": "dfeature_at sees the traversed up staircase on D:1 and stairs_description selects the branch-exit wording.",
-      "owner": "js/invent.js dfeature_at and js/stairs.js stairs_description",
-      "effects": "Return `staircase up out of the dungeon` without output or randomness.",
-      "evidence": "The fresh startup route executes dfeature_at() and stairs_description() through describe_decor(); both cases matched `There is a staircase up out of the dungeon here.` against C.",
+      "candidate": "pickup(1) no-autopickup path into check_here(FALSE)",
+      "reachability": "what is positive, flags.pickup is false, the hero can reach/take, and the destination holds an ordinary pile.",
+      "owner": "js/hack.js admission/spoteffects and js/pickup.js pickup",
+      "effects": "Call check_here(FALSE) after the decor decision and before any automatic pickup attempt.",
+      "evidence": "pickup.c:701-727 and hack.c:3381; object-bearing movement already reaches pickup, but admission/pickup reject mention_decor.",
       "status": "done",
-      "remaining": "No work remains inside this candidate."
+      "remaining": "The live !autopickup pile step reaches pickup(1), takes the source early arm, and calls check_here(false)."
     },
     {
-      "candidate": "Excluded startup pickup and decor families",
-      "reachability": "A starting floor object, engraving, non-stair terrain, restore, nonverbose mode, tutorial/accessibility prompt, endgame stair, or another describe_decor condition is present.",
-      "owner": "Temporary fail-closed guards in js/moveloop_preamble.js and js/pickup.js",
-      "effects": "Stop before output, input, prev_decor mutation, inventory/floor mutation or unowned randomness.",
-      "evidence": "scripts/pickup.test.mjs rejects floor objects, engravings, other terrain, nonverbose output, underwater or fumbling heroes, probing overrides, endgame stairs, and repeated decor before inventory, floor, hero, message, or prev_decor mutation. Restore still skips the new-game arm.",
+      "candidate": "check_here decor result, pile count and look_here flags",
+      "reachability": "Equal ordinary terrain makes describe_decor return false and the floor chain contains two to four objects below pile_limit.",
+      "owner": "js/pickup.js check_here",
+      "effects": "Call describe_decor before counting, leave LOOKHERE_SKIP_DFEATURE clear, stop a run, flush, and call look_here with the actual count.",
+      "evidence": "pickup.c:430-455; js/pickup.js counts/calls look_here but omits the mention_decor arm.",
       "status": "done",
-      "remaining": "No work remains inside this candidate."
+      "remaining": "check_here calls describe_decor before counting and sets LOOKHERE_SKIP_DFEATURE only for a true result; the equal ROOM route leaves it clear."
+    },
+    {
+      "candidate": "Ordinary two-to-four-object menu and dismissal",
+      "reachability": "Sighted hero, two to four source-nameable objects, pile_limit 5, no trap/engraving/liquid/shop/multibyte name, and no skip-dfeature flag.",
+      "owner": "js/invent.js look_here and js/tty_menu.js displayTtyMenuTextWindow",
+      "effects": "Draw, wait for and dismiss the ordinary pile window, restore the frame, and update object knowledge in source order.",
+      "evidence": "Existing ordinary/decorated pile slices are exact; the current only new blocker is look_here's blanket mention_decor refusal.",
+      "status": "done",
+      "remaining": "look_here admits only a matching ROOM/CORR memory for mention_decor menus. The fresh seed 6231371 route matched 2,135 PRNG calls and nine screens/cursors through dismissal and rest."
+    },
+    {
+      "candidate": "All non-inert movement decor branches",
+      "reachability": "Terrain is furniture/door/stair/feature-bearing, differs with a speaking result, follows pool/lava/ice, is underwater, or reaches fumble/deferred handling.",
+      "owner": "Temporary fail-closed guards in js/hack.js, js/pickup.js and js/invent.js",
+      "effects": "Stop before movement, output, prev_decor mutation, input or randomness until source behavior is ported.",
+      "evidence": "pickup.c:353-425 enumerates these branches; current JavaScript blanket guards stop them.",
+      "status": "done",
+      "remaining": "Admission retains furniture, doorway, reqmenu, pile-limit count, shop, multibyte-name, blindness, trap, region and engraving refusals. Direct describe_decor tests retain exceptional-state and prior-terrain refusals before output or memory changes."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The complete selected path was retraced against allmain.c moveloop_preamble(FALSE), pickup.c reset_justpicked(), pickup(1), and describe_decor(), options.c opt_mention_decor, invent.c dfeature_at(), stairs.c stairs_description(), and u_init.c ini_inv_use_obj(). The trace covers calendar output, both PRNG calls, starting equipment equivalence, pickup memory, the empty-floor predicate, TTY waits, prev_decor ordering, and the command boundary. Every reachable excluded family has an atomic negative test or remains before the new-game call site.",
-  "validation": {
-    "focused": "options 44/44, pickup 21/21, moveloop preamble 17/17, startup runner 2/2, second-turn integration 3/3",
-    "fresh": "2 segments; 5,177 PRNG calls; 6 screens and cursors; 0 animation frames; exact C parity",
-    "checkpoint": "2,735 tests passed; six generated-data checks and namespace check passed; development score 1/33, RNG 116103/610816, screens 1002/7765, cursors 1010/7765",
-    "mutation": "17/17 relational, logical, and boolean mutants killed; no survivors or timeouts"
-  }
+  "missingWorkByOwner": [
+    {
+      "group": "ordinary movement decor memory",
+      "candidates": [
+        "Object-free movement calls pickup(1)",
+        "Silent non-feature ordinary-terrain transition",
+        "Equal non-furniture terrain shortcut",
+        "All non-inert movement decor branches"
+      ],
+      "next": "Completed: the owner now covers the silent STAIRS-to-ordinary and equal-ordinary results, with live ROOM and direct ROOM/CORR evidence."
+    },
+    {
+      "group": "ordinary mention_decor pile transaction",
+      "candidates": [
+        "pickup(1) no-autopickup path into check_here(FALSE)",
+        "check_here decor result, pile count and look_here flags",
+        "Ordinary two-to-four-object menu and dismissal"
+      ],
+      "next": "Completed: the false result flows through check_here to the existing menu and the next command boundary."
+    }
+  ],
+  "sourceReview": "The implementation follows pickup.c describe_decor(), pickup() and check_here() in source order. A fresh seed 6231371 ROOM route from canonical startup crossed four object-free squares, opened and dismissed a same-terrain three-object window, and matched 2,135 PRNG calls plus nine complete screens and cursors. CORR has direct source-boundary coverage because this slice does not broaden the doorway transitions needed to seek a live corridor route. Excluded speaking, stateful, count, shop, multibyte-name, reqmenu and exceptional branches remain fail-closed. Final readiness and commitChecked belong to the orchestrator."
 }

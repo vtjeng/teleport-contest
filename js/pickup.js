@@ -8,12 +8,15 @@ import {
     HVY_ENCUMBER,
     LOOKHERE_NOFLAGS,
     LOOKHERE_PICKED_SOME,
+    LOOKHERE_SKIP_DFEATURE,
     LOST_NONE,
     MOD_ENCUMBER,
     OBJ_FLOOR,
     SLT_ENCUMBER,
     STAIRS,
     STONE,
+    ROOM,
+    CORR,
     is_pit,
 } from './const.js';
 import { flush_screen, newsym } from './display.js';
@@ -161,6 +164,58 @@ function startupStairDecor(state) {
     return 'staircase up out of the dungeon';
 }
 
+// This source-bounded plan covers describe_decor()'s two silent ordinary
+// terrain results. The first step from the remembered startup staircase
+// returns TRUE and stores ROOM or CORR. A following step on the same ordinary
+// terrain returns FALSE and stores the same value. Other prior terrain can
+// invoke back_on_ground(), and every feature-bearing or exceptional state can
+// print, defer, or suppress feedback, so those states remain outside this
+// owner.
+function ordinaryDecorPlan(x, y, state) {
+    const typ = state.level?.at(x, y)?.typ;
+    if (typ !== ROOM && typ !== CORR) return null;
+    if (!state.flags?.mention_decor) {
+        throw new UnsupportedPickupError(
+            'ordinary describe_decor without mention_decor',
+        );
+    }
+    if (state.u.uinwater || heroHasProperty(state, FUMBLING)
+        || state.iflags?.defer_decor
+        || state.decor_fumble_override
+        || state.decor_levitate_override) {
+        throw new UnsupportedPickupError(
+            'exceptional ordinary decor description',
+        );
+    }
+    if (dfeature_at(x, y, state)) {
+        throw new UnsupportedPickupError(
+            'feature-bearing ordinary decor description',
+        );
+    }
+    const previous = state.iflags?.prev_decor;
+    if (previous !== STAIRS && previous !== typ) {
+        throw new UnsupportedPickupError(
+            'ordinary decor after unowned prior terrain',
+        );
+    }
+    return { typ, result: previous !== typ };
+}
+
+// Admission calls this before movement so an excluded describe_decor() branch
+// cannot move the hero and then fail. The function reads the destination and
+// returns C's boolean result without changing terrain memory or output.
+export function preflight_describe_decor_at(x, y, state = game) {
+    const ordinary = ordinaryDecorPlan(x, y, state);
+    if (ordinary) return ordinary.result;
+    if (x !== state.u.ux || y !== state.u.uy) {
+        throw new UnsupportedPickupError(
+            'mention_decor outside silent ordinary terrain',
+        );
+    }
+    startupStairDecor(state);
+    return true;
+}
+
 // Temporary startup admission for the portion of pickup(1) selected by this
 // boundary. It runs before reset_justpicked(), so an excluded object,
 // engraving, or terrain leaves inventory and decor memory unchanged.
@@ -175,8 +230,14 @@ export function preflight_initial_pickup(state = game) {
     if (state.flags?.mention_decor) startupStairDecor(state);
 }
 
-// C ref: pickup.c describe_decor(), restricted to startupStairDecor() above.
+// C ref: pickup.c describe_decor(). This owns the startup staircase output and
+// the silent STAIRS-to-ROOM/CORR and equal-ROOM/CORR branches described above.
 export async function describe_decor(state) {
+    const ordinary = ordinaryDecorPlan(state.u.ux, state.u.uy, state);
+    if (ordinary) {
+        state.iflags.prev_decor = ordinary.typ;
+        return ordinary.result;
+    }
     const feature = startupStairDecor(state);
     await ttyPline(`There is a ${feature} here.`, state);
     state.iflags.prev_decor = STAIRS;
@@ -351,11 +412,14 @@ export async function pickup(what, state = game) {
 }
 
 // C ref: pickup.c check_here(), reached from domove() through spoteffects()
-// and pickup(). Its flags.mention_decor arm calls describe_decor(), which is
-// not ported; js/hack.js refuses the squares that can produce a decor line
-// before the move is admitted. uchain has no ported owner either, so every
-// object on the square counts, as it does for an unpunished hero.
+// and pickup(). uchain has no ported owner, so every object on the square
+// counts, as it does for an unpunished hero.
 export async function check_here(picked_some, state = game) {
+    let lookhereFlags = picked_some
+        ? LOOKHERE_PICKED_SOME : LOOKHERE_NOFLAGS;
+    if (state.flags?.mention_decor && await describe_decor(state))
+        lookhereFlags |= LOOKHERE_SKIP_DFEATURE;
+
     let count = 0;
     for (let obj = state.level?.objects?.[state.u.ux]?.[state.u.uy] ?? null;
         obj;
@@ -369,7 +433,7 @@ export async function check_here(picked_some, state = game) {
         await flush_screen(1);
         await look_here(
             count,
-            picked_some ? LOOKHERE_PICKED_SOME : LOOKHERE_NOFLAGS,
+            lookhereFlags,
             state,
             {
                 message: ttyPline,

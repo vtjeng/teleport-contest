@@ -34,6 +34,7 @@ import {
     D_NODOOR,
     DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
+    CORR,
     IRONBARS,
     IS_ALTAR,
     IS_DOOR,
@@ -41,6 +42,7 @@ import {
     IS_GRAVE,
     IS_SINK,
     IS_THRONE,
+    ROOM,
     TREE,
     P_BOOMERANG,
     P_BOW,
@@ -739,9 +741,18 @@ export async function look_here(
             );
         }
         if (state.flags.mention_decor) {
-            throw new UnsupportedFeatureDescriptionError(
-                'describe_decor() before an object-pile menu',
-            );
+            const terrain = state.level.at(ux, uy)?.typ;
+            if (skip_objects) {
+                throw new UnsupportedFeatureDescriptionError(
+                    'mention-decor pile-limit count',
+                );
+            }
+            if ((terrain !== ROOM && terrain !== CORR)
+                || state.iflags.prev_decor !== terrain) {
+                throw new UnsupportedFeatureDescriptionError(
+                    'describe_decor() before an object-pile menu',
+                );
+            }
         }
         if (t_at(ux, uy, state)) {
             throw new UnsupportedFeatureDescriptionError(

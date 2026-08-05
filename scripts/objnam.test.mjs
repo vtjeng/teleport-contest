@@ -38,6 +38,7 @@ import {
     The,
     an,
     aobjnam,
+    assertObjectNameUsesSingleByteText,
     cloak_simple_name,
     cxname,
     otense,
@@ -466,6 +467,56 @@ test('ordinary object piles display every name before reading the engraving',
         assert.equal(head.dknown, true);
     });
 
+test('an equal ordinary mention-decor terrain retains the object-pile menu',
+    async () => {
+        const { state } = pileLookState({ count: 2 });
+        state.flags.mention_decor = true;
+        state.iflags.prev_decor = ROOM;
+        const events = [];
+
+        await look_here(2, LOOKHERE_NOFLAGS, state, {
+            message: async (text) => events.push(['message', text]),
+            displayObjectPile: async (lines) => events.push(['display', lines]),
+            readEngraving: async () => events.push(['engraving']),
+        });
+
+        assert.deepEqual(events, [
+            ['display', [
+                'Things that are here:',
+                'a dart',
+                'a food ration',
+            ]],
+            ['engraving'],
+        ]);
+    });
+
+test('object-pile admission rejects multibyte instance names', () => {
+    const state = namingState();
+    // A plain source name proves the recursive scan reaches its false result
+    // without treating primitive object fields as text failures.
+    assert.doesNotThrow(
+        () => assertObjectNameUsesSingleByteText(objectOf(state, DART), state),
+    );
+    const named = objectOf(state, DART, {
+        // The accented byte distinguishes UTF-8 byte width from JavaScript's
+        // code-unit length in the hybrid tty text window.
+        oextra: { oname: 'caf\u00e9' },
+    });
+    assert.throws(
+        () => assertObjectNameUsesSingleByteText(named, state),
+        /multibyte pile-menu text/u,
+    );
+
+    // Monster index zero pins the inclusive NON_PM boundary used for corpse
+    // and statue names. The synthetic multibyte species text must be scanned.
+    const monsterNamed = objectOf(state, DART, { corpsenm: 0 });
+    state.mons[0] = { pmnames: ['caf\u00e9'] };
+    assert.throws(
+        () => assertObjectNameUsesSingleByteText(monsterNamed, state),
+        /multibyte pile-menu text/u,
+    );
+});
+
 test('decorated object piles put terrain and a separator before the heading',
     async () => {
         const { state } = pileLookState({ count: 2, typ: DOOR });
@@ -583,6 +634,16 @@ test('object-pile exclusions stop before names, output, or engraving',
                 build: () => pileLookState(),
                 prepare: ({ state }) => { state.flags.mention_decor = true; },
                 expected: /describe_decor/u,
+            },
+            {
+                name: 'mention-decor pile-limit count',
+                build: () => pileLookState(),
+                prepare: ({ state }) => {
+                    state.flags.mention_decor = true;
+                    state.flags.pile_limit = 2;
+                    state.iflags.prev_decor = ROOM;
+                },
+                expected: /mention-decor pile-limit/u,
             },
             {
                 name: 'trap under pile',

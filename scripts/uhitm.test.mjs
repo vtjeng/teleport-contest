@@ -8,6 +8,7 @@ import {
     GRAVE,
     ICE,
     LADDER,
+    DOOR,
     ROOM,
     SINK,
     STAIRS,
@@ -206,13 +207,11 @@ test('live movement swaps with a pet standing on every furniture square',
 // nothing downstream would refuse: the seam has to, and it has to before the
 // swap so that no line is written first.
 //
-// A bare ROOM square stays admitted, as it is at the walking seam. There
-// dfeature_at() finds nothing, and describe_decor()'s remaining arm needs
-// prev_decor to be a pool, lava or ice, so C prints nothing either.
-// The whole seven-type table, not one terrain: the guard tests
-// IS_FURNITURE(destination.typ), so a single FOUNTAIN case leaves it free to
-// narrow to any one type with the suite still green.
-test('a pet swap onto furniture refuses mention_decor before it moves',
+// A bare ROOM square stays admitted after startup has remembered STAIRS, as it
+// is at the walking seam. There dfeature_at() finds nothing and the silent
+// transition stores ROOM. The complete furniture table and the doorway pin
+// the refusal predicate's bounds.
+test('a pet swap onto furniture or a doorway refuses mention_decor before it moves',
     async () => {
         for (const [label, terrain] of [
             ['stairs', STAIRS],
@@ -222,10 +221,12 @@ test('a pet swap onto furniture refuses mention_decor before it moves',
             ['sink', SINK],
             ['grave', GRAVE],
             ['altar', ALTAR],
+            ['doorway', DOOR],
         ]) {
             const pet = await startingPet({ pettype: 'cat' });
             const { destination, oldHero } = standPetEastOf(pet, terrain);
             game.flags.mention_decor = true;
+            game.iflags.prev_decor = STAIRS;
             initRng(1);
             game.nhDisplay.pushKey('l'.charCodeAt(0));
 
@@ -247,6 +248,7 @@ test('a pet swap onto furniture refuses mention_decor before it moves',
         const roomPet = await startingPet({ pettype: 'cat' });
         const room = standPetEastOf(roomPet, ROOM);
         game.flags.mention_decor = true;
+        game.iflags.prev_decor = STAIRS;
         initRng(1);
         game.nhDisplay.pushKey('l'.charCodeAt(0));
 

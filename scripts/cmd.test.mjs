@@ -920,11 +920,15 @@ test('simple hero movement rejects spot effects before mutation', async () => {
             },
         },
         {
-            name: 'mention-decor pile',
-            reason: 'decor description before object pile',
+            name: 'mention-decor pile-limit count',
+            reason: 'mention-decor pile-limit count',
             setup: ({ x, y }) => {
                 installFloorPile(x, y);
                 game.flags.mention_decor = true;
+                // An equal threshold selects the deferred count branch after
+                // the ordinary terrain preflight has accepted its memory.
+                game.flags.pile_limit = 2;
+                game.iflags.prev_decor = ROOM;
             },
         },
         {
@@ -1809,11 +1813,11 @@ test('a blind hero refuses an object on terrain surface() cannot name',
         }
     });
 
-// pickup.c check_here() calls describe_decor() under flags.mention_decor, and
+// pickup.c check_here() calls describe_decor() under flags.mention_decor.
 // pickup.c:392-410 mentions a furniture square even when the terrain has not
 // changed, because its `ltyp == iflags.prev_decor` test carries
-// `&& !IS_FURNITURE(ltyp)`. Neither describe_decor() nor iflags.prev_decor is
-// ported, so the whole predicate stays refused rather than printing nothing.
+// `&& !IS_FURNITURE(ltyp)`. The silent ROOM and CORR branches are owned after
+// the startup staircase memory; furniture remains refused.
 // The doorway rows matter as much as the furniture ones: the guard's
 // predicate is `IS_FURNITURE(location.typ) || doorway`, and without a doorway
 // case the `|| doorway` term can be deleted with the whole suite still green.
@@ -1832,6 +1836,9 @@ test('a furniture square with mention_decor stays refused', async () => {
         destination.typ = terrain;
         destination.flags = destination.doormask = mask;
         game.flags.mention_decor = true;
+        // The selected movement boundary begins after startup has described
+        // and remembered the traversed D:1 staircase.
+        game.iflags.prev_decor = STAIRS;
 
         if (admitted) {
             await domove(game);

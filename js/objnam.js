@@ -679,6 +679,29 @@ export function assertObjectNameable(obj, state = game) {
     preflightObjectName(obj, objectType(obj, state), state, true);
 }
 
+function hasMultibyteText(value, seen = new WeakSet()) {
+    if (typeof value === 'string') return /[^\x00-\x7f]/u.test(value);
+    if (!value || typeof value !== 'object' || seen.has(value)) return false;
+    seen.add(value);
+    for (const nested of Object.values(value)) {
+        if (hasMultibyteText(nested, seen)) return true;
+    }
+    return false;
+}
+
+// The hybrid tty text-window renderer measures JavaScript code units where C
+// measures recorder bytes. Keep names whose byte geometry can differ outside
+// the admitted object-pile path until that renderer owns UTF-8 cell widths.
+export function assertObjectNameUsesSingleByteText(obj, state = game) {
+    assertObjectNameable(obj, state);
+    const sources = [obj, objectType(obj, state)];
+    if (obj.corpsenm >= 0) sources.push(state.mons?.[obj.corpsenm]);
+    if (obj.oartifact) sources.push(state.artilist?.[obj.oartifact]);
+    if (obj.otyp === SLIME_MOLD) sources.push(state.gf?.ffruit);
+    if (sources.some((source) => hasMultibyteText(source)))
+        unsupported('multibyte pile-menu text', obj);
+}
+
 // C ref: objnam.c doname(), the owornmask suffixes. Amulets, armor, and worn
 // tools are answered inside its class switch; the wielded, alternate-weapon,
 // and quiver phrases follow the charge and lit text, which is the order the
