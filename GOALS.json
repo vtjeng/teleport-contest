@@ -47,6 +47,11 @@
           "name": "mention-decor-inert-pile-window",
           "status": "closed",
           "closedBy": "b9ca3597bfceb7b23dd26db6829cbd0b4bde5862"
+        },
+        {
+          "name": "multibyte-object-pile-byte-geometry",
+          "status": "closed",
+          "closedBy": "996fff10bf3b59d9bf675ef192ff8e4e283b6b7a"
         }
       ],
       "openedAt": "18b809a1a725ade6b83f296d3fa76c775e887fdb",

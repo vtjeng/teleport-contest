@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "The live object-pile text window measures and splits JavaScript code units, while NetHack's TTY path measures, truncates, and indexes recorder bytes. Admission currently refuses any object name containing non-ASCII text, and pending-topline plus disabled-overlay restoration need complete live coverage.",
-  "commitChecked": "069ba7ecf17a1fc0fa7bf831f37ec59166395321",
+  "mode": "ready-for-audit",
+  "reason": "Commit 996fff10 closes recorder-byte object-pile geometry through compression, truncation, pre-split width, byte-indexed splitting and emission, pending-topline dismissal, both repair modes, live multibyte admission, and the next prompt. Independent two-case fresh differential and full checkpoint verification passed; shops, pricing, count, paging, selectable menus, and exceptional paths remain atomic.",
+  "commitChecked": "996fff10bf3b59d9bf675ef192ff8e4e283b6b7a",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "069ba7ecf17a1fc0fa7bf831f37ec59166395321",
