@@ -88,7 +88,7 @@
 // commit last changed js/.
 //
 // Every CLI form re-executes itself in `teleport-mutate.scope`. The scope caps
-// the complete process tree at 1 GiB of memory, disables swap for that tree,
+// the complete process tree at 2 GiB of memory, disables swap for that tree,
 // and permits at most 64 tasks. A fixed unit name also refuses a second local
 // mutation run while the first remains active. The Node test runner admits at
 // most four test files at once inside that scope.
@@ -166,7 +166,7 @@ export function mutationCgroupArgs(nodePath, scriptPath, argv) {
         '--collect',
         '--unit=teleport-mutate',
         '--property=MemoryAccounting=yes',
-        '--property=MemoryMax=1G',
+        '--property=MemoryMax=2G',
         '--property=MemorySwapMax=0',
         '--property=TasksMax=64',
         nodePath,

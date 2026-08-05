@@ -112,9 +112,10 @@ function newestJsCommit() {
 // ---------------------------------------------------------------------------
 
 test('the mutation CLI enters one bounded cgroup', () => {
-    // The sampled production path peaked at 330 MiB and used 41 tasks. These
-    // bounds leave measured headroom while containing the runaway process that
-    // previously consumed the complete 23 GiB host and its 8 GiB swap.
+    // The stable four-worker sample peaked at 408 MiB with 41 tasks active;
+    // the failed eight-worker probe peaked at 690 MiB. These bounds leave
+    // measured headroom while containing the runaway process that previously
+    // consumed the complete 23 GiB host and its 8 GiB swap.
     assert.deepEqual(
         mutationCgroupArgs('/usr/bin/node', '/repo/scripts/mutate-sites.mjs', [
             '--worktree',
@@ -125,7 +126,7 @@ test('the mutation CLI enters one bounded cgroup', () => {
             '--collect',
             '--unit=teleport-mutate',
             '--property=MemoryAccounting=yes',
-            '--property=MemoryMax=1G',
+            '--property=MemoryMax=2G',
             '--property=MemorySwapMax=0',
             '--property=TasksMax=64',
             '/usr/bin/node',
@@ -136,8 +137,9 @@ test('the mutation CLI enters one bounded cgroup', () => {
 });
 
 test('mutation test waves run at four-file concurrency', () => {
-    // Four workers cut the current 39-file baseline to 11.48 seconds while
-    // its cgroup peaked at 276 MiB, leaving most of the 1 GiB limit unused.
+    // Four workers ran the current 39-file baseline in 10.66 seconds across
+    // two runs. Eight was faster when invoked directly, but the mutator's
+    // spawnSync path left one worker hung in two separate bounded runs.
     // Two files prove that each relative name remains an explicit test input.
     assert.deepEqual(testCommandArgs(['a.test.mjs', 'b.test.mjs']), [
         '--test',
