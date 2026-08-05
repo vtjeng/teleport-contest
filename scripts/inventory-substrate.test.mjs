@@ -2275,6 +2275,151 @@ function ordinaryDropFixture(otyp = HEAVY_IRON_BALL) {
     return { hooks, lines, obj, state };
 }
 
+test('heavy-ball retain and drop paths preserve source callback order',
+    async () => {
+        const cases = [
+            {
+                name: 'retained at the pickup-burden equality',
+                configure({ obj, state }) {
+                    // One and a half times carrying capacity lands exactly at
+                    // MOD_ENCUMBER, so the strict capacity increase is false.
+                    obj.owt = Math.ceil(weight_cap(state) * 1.5);
+                    assert.equal(calc_capacity(obj.owt, state), 2);
+                    // This is the one case that must expose the source's
+                    // explicit permanent-inventory refresh.
+                    state.iflags.perm_invent = true;
+                },
+                drops: false,
+            },
+            {
+                name: 'dropped after capacity rises above pickup burden',
+                configure({ state }) {
+                    // NetHack's minimum ordinary attributes make the normal
+                    // heavy ball exceed MOD_ENCUMBER.
+                    state.u.acurr.a[A_STR] = MINIMUM_HERO_ATTRIBUTE;
+                    state.u.acurr.a[A_CON] = MINIMUM_HERO_ATTRIBUTE;
+                },
+                drops: true,
+            },
+            {
+                name: 'dropped as the 53rd non-gold inventory slot',
+                configure({ obj, state }) {
+                    let tail = null;
+                    for (let index = 0; index < INVLET_BASIC; ++index) {
+                        const lamp = instance(OIL_LAMP, state, {
+                            invlet: index < LETTERS_PER_CASE
+                                ? String.fromCharCode(97 + index)
+                                : String.fromCharCode(
+                                    65 + index - LETTERS_PER_CASE,
+                                ),
+                            nomerge: true,
+                            // Zero weight isolates the 52-letter limit from
+                            // the independent capacity condition.
+                            owt: 0,
+                            where: OBJ_INVENT,
+                        });
+                        if (tail) tail.nobj = lamp;
+                        else state.invent = lamp;
+                        tail = lamp;
+                    }
+                    // Zero weight keeps the incoming 53rd slot below every
+                    // encumbrance boundary.
+                    obj.owt = 0;
+                },
+                drops: true,
+            },
+        ];
+
+        for (const currentCase of cases) {
+            const fixture = ordinaryDropFixture();
+            const { obj, state } = fixture;
+            // hold_another_object() receives a free wished-for object. Start
+            // with nomerge set so the drop message and drop callback can pin
+            // the source-ordered clearing of that flag.
+            state.invent = null;
+            obj.where = OBJ_FREE;
+            obj.invlet = '\0';
+            obj.nomerge = 1;
+            currentCase.configure(fixture);
+            const events = [];
+            const snapshot = (event, text = null) => {
+                events.push([
+                    event,
+                    text,
+                    obj.where,
+                    obj.nomerge,
+                    state.invent === obj,
+                    state.level.objects[10][5] === obj,
+                ]);
+            };
+            const hooks = {
+                message(text) {
+                    snapshot('message', text);
+                },
+                preflightDropObject: preflight_dropx,
+                async dropObject(object, env, admission) {
+                    snapshot('dropx');
+                    await dropx(object, env, admission);
+                },
+                newsym() {
+                    snapshot('newsym');
+                },
+                encumberMessage() {
+                    snapshot('encumber');
+                },
+            };
+            if (!currentCase.drops) {
+                hooks.updateInventory = () => {
+                    snapshot('inventory refresh');
+                };
+            }
+            const env = { state, hooks };
+            const admission = prepareHeavyBallDropAdmission(obj, env);
+
+            const held = await hold_another_object(
+                obj,
+                'Oops!  %s to the floor!',
+                'The heavy iron ball drops',
+                'You hold',
+                env,
+                admission,
+            );
+
+            if (!currentCase.drops) {
+                assert.equal(held, obj, currentCase.name);
+                assert.equal(obj.where, OBJ_INVENT, currentCase.name);
+                assert.deepEqual(events, [
+                    [
+                        'message',
+                        'You hold a - an uncursed very heavy iron ball.',
+                        OBJ_INVENT,
+                        1,
+                        true,
+                        false,
+                    ],
+                    ['inventory refresh', null, OBJ_INVENT, 1, true, false],
+                    ['encumber', null, OBJ_INVENT, 1, true, false],
+                ], currentCase.name);
+            } else {
+                assert.equal(held, null, currentCase.name);
+                assert.equal(obj.where, OBJ_FLOOR, currentCase.name);
+                assert.deepEqual(events, [
+                    [
+                        'message',
+                        'Oops!  The heavy iron ball drops to the floor!',
+                        OBJ_INVENT,
+                        1,
+                        true,
+                        false,
+                    ],
+                    ['dropx', null, OBJ_INVENT, 0, true, false],
+                    ['newsym', null, OBJ_FLOOR, 0, false, true],
+                    ['encumber', null, OBJ_FLOOR, 0, false, true],
+                ], currentCase.name);
+            }
+        }
+    });
+
 test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
     async () => {
         const state = carryingState();

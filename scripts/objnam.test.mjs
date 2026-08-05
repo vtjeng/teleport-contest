@@ -319,8 +319,10 @@ function pileLookState({
     let head = null;
     for (let index = count - 1; index >= 0; --index) {
         // Reuse the five ordinary nameable types when a wording boundary
-        // needs a longer synthetic chain; look_here() counts chain nodes, not
-        // distinct types, and this fixture bypasses floor-stack merging.
+        // needs a longer synthetic chain. The caller supplies `count` as
+        // check_here()'s obj_cnt, while look_here() traverses this chain only
+        // to enforce the port's supported menu window. The fixture bypasses
+        // floor-stack merging so those two values remain equal.
         head = objectOf(state, types[index % types.length], {
             dknown: false,
             nexthere: head,

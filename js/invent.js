@@ -691,13 +691,13 @@ function activeStoneResistance(state) {
 // excluded from the first two
 // outcomes; a pile reached while blind stops before its tactile preamble
 // because feel_cockatrice() and the tactile menu belong to a later slice. A
-// A liquid square, engraving, non-triggering pile outside two through four,
+// liquid square, engraving, non-triggering pile outside two through four,
 // or picked-some count likewise stops before output.
 //
 // Returns true where C returns ECMD_TIME and false where it returns ECMD_OK,
 // so the caller decides whether the command takes game time.
 export async function look_here(
-    obj_cnt,
+    checkedObjectCount,
     lookhere_flags,
     state = game,
     {
@@ -715,17 +715,23 @@ export async function look_here(
     const verb = blind ? 'feel' : 'see';
     const { ux, uy } = state.u;
     let skip_dfeature = (lookhere_flags & LOOKHERE_SKIP_DFEATURE) !== 0;
+    // pickup.c check_here() supplies this count after excluding uchain. It
+    // selects pile_limit and its message wording independently of the local
+    // chain traversal below.
     // A pile_limit of 0 means "never skip"; the default is 5.
     const skip_objects = state.flags.pile_limit > 0
-        && obj_cnt >= state.flags.pile_limit;
+        && checkedObjectCount >= state.flags.pile_limit;
 
     const otmp = state.level.objects[ux]?.[uy] ?? null;
     const hasPile = Boolean(otmp?.nexthere);
     const pickedSome = (lookhere_flags & LOOKHERE_PICKED_SOME) !== 0;
-    let pileCount = 0;
+    let supportedPileCount = 0;
     if (hasPile) {
-        for (let object = otmp; object; object = object.nexthere) ++pileCount;
-        if (pileCount < 2 || (!skip_objects && pileCount > 4)) {
+        for (let object = otmp; object; object = object.nexthere)
+            ++supportedPileCount;
+        // hasPile proves that this count is at least two. The remaining guard
+        // refuses only menu paths above the implemented four-object window.
+        if (!skip_objects && supportedPileCount > 4) {
             throw new UnsupportedFeatureDescriptionError(
                 'an object pile outside the two-to-four-item window',
             );
@@ -840,9 +846,9 @@ export async function look_here(
         }
         if (dfeature && !skip_dfeature) await message(fbuf, state);
         await readEngraving(state);
-        const countName = obj_cnt === 2 ? 'two'
-            : obj_cnt < 5 ? 'a few'
-                : obj_cnt < 10 ? 'several' : 'many';
+        const countName = checkedObjectCount === 2 ? 'two'
+            : checkedObjectCount < 5 ? 'a few'
+                : checkedObjectCount < 10 ? 'several' : 'many';
         await message(`There are ${countName} objects here.`, state);
         return blind;
     }
@@ -2190,7 +2196,7 @@ function insertInventoryObject(obj, previous, state) {
     obj.where = OBJ_INVENT;
 }
 
-function finishAddinv(context, obj, inserted) {
+function finishAddinv(context, obj, inserted, updatePermInvent = true) {
     const {
         addinvFacts,
         carryEffects,
@@ -2205,12 +2211,14 @@ function finishAddinv(context, obj, inserted) {
     obj.pickup_prev = true;
     addinvCore2(obj, normalized, addinvFacts);
     carry_obj_effects(obj, normalized, carryEffects);
-    update_inventory(normalized);
+    if (updatePermInvent) update_inventory(normalized);
     return obj;
 }
 
-// C ref: invent.c addinv_core0() and addinv().
-export function addinv(obj, env = {}, prepared = null) {
+// C ref: invent.c addinv_core0().
+function addinvCore0(
+    obj, env = {}, prepared = null, updatePermInvent,
+) {
     const context = beginAddinv(obj, env, prepared);
     if (!context) return null;
     const { normalized, state } = context;
@@ -2231,7 +2239,12 @@ export function addinv(obj, env = {}, prepared = null) {
             inserted = true;
         }
     }
-    return finishAddinv(context, obj, inserted);
+    return finishAddinv(context, obj, inserted, updatePermInvent);
+}
+
+// C ref: invent.c addinv().
+export function addinv(obj, env = {}, prepared = null) {
+    return addinvCore0(obj, env, prepared, true);
 }
 
 // Live pickup counterpart of addinv().  It preserves the synchronous API for
@@ -2383,9 +2396,6 @@ export async function prinv(prefix, obj, quan, env = {}) {
 //
 // C calls addinv_core0(obj, NULL, FALSE), whose FALSE holds back the
 // permanent-inventory refresh until the explicit update_inventory() below.
-// addinv() makes that refresh unconditionally, but update_inventory() does
-// nothing unless iflags.perm_invent is set with a window to draw into, and
-// throws when it is set without one, so the two orders cannot diverge here.
 function projectsHeavyBallDrop(obj, state) {
     const hadGw = Object.hasOwn(state, 'gw');
     const previousGw = state.gw;
@@ -2518,7 +2528,7 @@ export async function hold_another_object(
         /* C copies drop_arg into a local buffer here, because addinv() could
            recycle the obuf[] doname() built it in; JavaScript strings need no
            such copy */
-        obj = addinv(obj, normalized);
+        obj = addinvCore0(obj, normalized, null, false);
         if (inv_cnt(false, state) > INVLET_BASIC
             || ((obj.otyp !== LOADSTONE || !obj.cursed)
                 && near_capacity(state) > prev_encumbr)) {

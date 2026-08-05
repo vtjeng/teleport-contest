@@ -612,8 +612,10 @@ function refusedDiagonalDoorway(x, y, state) {
 
 // This repeated-command boundary owns entry into an unoccupied ROOM, CORR, or
 // IS_FURNITURE square, or a doorway whose mask is exactly D_NODOOR or
-// D_ISOPEN, plus the sighted object descriptions produced when autopickup is
-// disabled. These checks are a temporary admission seam in front
+// D_ISOPEN. With autopickup disabled, it also admits the sighted object
+// descriptions and the blind ordinary ROOM/CORR paths with no object or one
+// object. Blind paths that would describe an object pile remain refused.
+// These checks are a temporary admission seam in front
 // of hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
 export function requireSimpleHeroDestination(x, y, state) {
