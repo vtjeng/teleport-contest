@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every listed path is implemented or fails atomically at its named exclusion. The full checkpoint passes 2,819 tests and all generated/static checks, the development score is unchanged, the fresh 34-case arrival matrix still supplies the gameplay differential, and all 73 mutation-runner tests cover the final parser and signal-handoff fixes through their terminal outcomes. One final frozen pass remains.",
-  "commitChecked": "14f350a9ad7f64e6c24ddbc1dd8eb594e2e3f06f",
+  "reason": "All seven findings confirmed by the fresh audit over 1dd01581..d918e03 are corrected. The full checkpoint passes 2,822 tests plus every generated/static check, the development score remains unchanged, all 74 mutation-runner tests cover the revised cleanup/process lifecycle, and the complete arrival and shop files cover the corrected atomicity and translation oracles. One final frozen pass remains.",
+  "commitChecked": "d918e03abee0315e1869f0c5f58aa49d00115a07",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "0f274faa825d3247e0244aa096d40dfefe5cce62",
@@ -308,6 +308,60 @@
       "remaining": ""
     },
     {
+      "candidate": "Exact raw-stream absent-unit proof",
+      "reachability": "Aggregate or wave cleanup receives nonzero systemctl output while deciding whether its uniquely owned unit is already absent.",
+      "owner": "scripts/mutate-sites.mjs runSystemctl and stopWaveScope",
+      "effects": "Accept only status 5 with empty stdout and the exact single C-locale unloaded-unit stderr line; retain recovery ownership for every stream, whitespace, unit, status, or diagnostic near miss.",
+      "evidence": "Aggregate and wave parser regressions accept the exact raw stderr result and reject wrong status, wrong unit, prefix, suffix, trailing whitespace, stdout, split streams, and bus errors; both pin LC_ALL=C. The full 74-test mutation-runner suite passes, including real absent-unit recovery.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "No post-exit numeric process-group signal",
+      "reachability": "The bounded test child has exited and been reaped before its exit callback runs, so its former PID/PGID may be reused.",
+      "owner": "scripts/run-bounded-tests.mjs child exit path and scripts/mutate-sites.mjs wave-scope collector",
+      "effects": "Never signal a reusable numeric group after child exit; let the uniquely owned systemd wave scope collect every remaining descendant.",
+      "evidence": "The post-exit signalGroup call is removed while timeout and caller-interrupt group kills remain pre-exit. The full mutation-runner suite preserves ordinary, error, timeout, signal, detached-helper, and real scope-cleanup outcomes.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Projected random-arrival weight-cache isolation oracle",
+      "reachability": "Automatic-pickup planning reaches inv_weight and writes projected gw.wc before an overweight floor object is rejected.",
+      "owner": "scripts/level-teleport-arrival.test.mjs rejected overweight arrival regression",
+      "effects": "Pin the cloned gw owner so a rejected dry run cannot refresh the live weight cache, position, RNG, floor ownership, or discovery state.",
+      "evidence": "The new ordinary overweight-object case seeds a live gw.wc sentinel, reaches the partial/failed-lift exclusion, and compares the complete gw object plus position, RNG context/log, floor chain head, ownership, and dknown. All 28 arrival tests pass.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Cleanup-error signal precedence oracle",
+      "reachability": "Aggregate stop emits SIGINT or SIGTERM and then fails, leaving both interrupt and cleanupError set with recovery ownership live.",
+      "owner": "scripts/mutate-sites.test.mjs terminal outcome regression",
+      "effects": "Require the original caller signal to win, suppress the stored cleanup error, and prevent owner-lock release after failed cleanup.",
+      "evidence": "Both signals now run the exact intersection schedule and require stop followed by re-raise with no release. The full mutation-runner suite also preserves body-error and real-process signal schedules.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Shop-entry achievement ownership oracle",
+      "reachability": "An unsupported shop-edge entry could call record_achievement before refusing movement.",
+      "owner": "scripts/shop-floor-pricing.test.mjs movementSnapshot",
+      "effects": "Snapshot and compare the source-owned state.u.uachieved array, seeded nontrivially, rather than an unused top-level field.",
+      "evidence": "The corrected atomic snapshot reads state.u.uachieved and the shop-edge regression seeds slot zero before refusal. All 15 shop-floor pricing tests pass.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Object-name movement error translation oracle",
+      "reachability": "Prospective movement encounters a priced pile member whose user-assigned type name raises UnsupportedObjectNameError.",
+      "owner": "scripts/shop-floor-pricing.test.mjs live domove regression",
+      "effects": "Require translation to UnsupportedHeroMoveBoundaryError while preserving the complete movement snapshot.",
+      "evidence": "The new live user-name case distinguishes the object-name branch from the existing shop-error case and verifies the public class/reason plus every atomic snapshot owner. All 15 focused tests pass.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
       "candidate": "Confirmed contract clarity",
       "reachability": "A maintainer reads the changed status shrink order, look_here boundary, doname pricing ownership, quote lifecycle, or getprice preconditions.",
       "owner": "js/display.js, js/invent.js, js/objnam.js, and js/shk.js comments/private API",
@@ -318,5 +372,5 @@
     }
   ],
   "missingWorkByOwner": [],
-  "sourceReview": "The repeated source review traces the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. It covers exact publication-versus-reclaim and claimant-read-versus-unlink schedules, aged incomplete publication, partial set-property startup, already-unloaded aggregate cleanup, child-error-plus-teardown-signal order, every game branch/helper reachable before the next prompt, state/PRNG order, and every explicit pre-commit exclusion. All latest confirmed items are fixed and validated through their terminal outcomes. No known unsupported behavior remains after an observable change inside this boundary."
+  "sourceReview": "The repeated source review traces the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. It covers exact publication-versus-reclaim and claimant-read-versus-unlink schedules, aged incomplete publication, partial set-property startup, exact raw-stream absent-unit proof, child/body/cleanup-error-plus-signal order, post-exit process-group reuse, every game branch/helper reachable before the next prompt, state/cache/PRNG order, and every explicit pre-commit exclusion. All latest confirmed items are fixed and validated through their terminal outcomes. No known unsupported behavior remains after an observable change inside this boundary."
 }

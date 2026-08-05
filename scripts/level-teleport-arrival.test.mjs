@@ -42,6 +42,7 @@ import {
 } from '../js/do.js';
 import { GameMap } from '../js/game.js';
 import { game } from '../js/gstate.js';
+import { inv_weight, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     UnsupportedRegionPlacementError,
@@ -657,6 +658,74 @@ test('random arrival preflights the complete ordinary pickup transaction',
             destination.x,
             destination.y,
         ]);
+    });
+
+test('rejected overweight random arrival preserves the live weight cache',
+    async () => {
+        await runSegment({
+            seed: 7632401,
+            datetime: '20310417113000',
+            nethackrc: [
+                'OPTIONS=name:ArrivalWeight,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,autopickup,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: '',
+        });
+        let destination = null;
+        for (let x = 1; x < 80 && !destination; ++x) {
+            for (let y = 0; y < 21; ++y) {
+                if (game.level.at(x, y)?.typ === ROOM
+                    && !game.level.objects[x]?.[y]
+                    && !m_at(x, y, game)) {
+                    destination = { x, y };
+                    break;
+                }
+            }
+        }
+        assert.ok(destination);
+        const apple = mksobj_at(
+            APPLE,
+            destination.x,
+            destination.y,
+            false,
+            false,
+            objectGenerationEnv({ state: game }),
+        );
+        apple.owt = 2 * weight_cap(game) - inv_weight(game);
+        game.dndest = {
+            lx: destination.x,
+            ly: destination.y,
+            hx: destination.x,
+            hy: destination.y,
+        };
+        game.gw.wc = 123456;
+        enableRngLog();
+        const before = {
+            position: [game.u.ux, game.u.uy],
+            gw: structuredClone(game.gw),
+            rng: structuredClone(game.coreCtx),
+            log: [...getRngLog()],
+            floor: game.level.objects[destination.x][destination.y],
+            object: { where: apple.where, dknown: apple.dknown },
+        };
+
+        await assert.rejects(
+            () => place_random_arrival(0, game),
+            /partial or failed lift/u,
+        );
+
+        assert.deepEqual([game.u.ux, game.u.uy], before.position);
+        assert.deepEqual(game.gw, before.gw);
+        assert.deepEqual(game.coreCtx, before.rng);
+        assert.deepEqual(getRngLog(), before.log);
+        assert.equal(game.level.objects[destination.x][destination.y],
+            before.floor);
+        assert.deepEqual(
+            { where: apple.where, dknown: apple.dknown },
+            before.object,
+        );
     });
 
 test('random shop arrival preflights owned stock pricing', async () => {

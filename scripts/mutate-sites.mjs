@@ -456,8 +456,10 @@ export function runSystemctl(args, action, {
     const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trimEnd();
     if (acceptMissingUnit) {
         const absent = `Failed to ${args[0]} ${acceptMissingUnit}: `
-            + `Unit ${acceptMissingUnit} not loaded.`;
-        if (result.status === 5 && output === absent) return;
+            + `Unit ${acceptMissingUnit} not loaded.\n`;
+        if (result.status === 5
+            && (result.stdout ?? '') === ''
+            && (result.stderr ?? '') === absent) return;
     }
     const detail = result.error?.message
         ?? (output || (result.signal
@@ -1236,11 +1238,13 @@ export function stopWaveScope(unitName) {
     if (result.status === 0) return;
 
     const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trimEnd();
-    const collected = `Failed to stop ${scopeUnit}: Unit ${scopeUnit} not loaded.`;
+    const collected = `Failed to stop ${scopeUnit}: Unit ${scopeUnit} not loaded.\n`;
     // `--collect` can remove a scope between spawnSync's timeout and this
     // command. systemd 255 reports that completed cleanup as status 5 with
     // exactly this line.
-    if (result.status === 5 && output === collected) return;
+    if (result.status === 5
+        && (result.stdout ?? '') === ''
+        && (result.stderr ?? '') === collected) return;
 
     const detail = result.error?.message
         ?? (output || (result.signal

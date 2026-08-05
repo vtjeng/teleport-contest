@@ -532,9 +532,9 @@ test('aggregate cleanup accepts only the exact unloaded-unit result', () => {
     const action = `failed to stop mutation slice ${unit}`;
     let observedOptions = null;
     const unloaded = `Failed to stop ${unit}: Unit ${unit} not loaded.\n`;
-    const result = (status, stderr) => ({
+    const result = (status, stderr, stdout = '') => ({
         status,
-        stdout: '',
+        stdout,
         stderr,
         signal: null,
         error: null,
@@ -553,6 +553,11 @@ test('aggregate cleanup accepts only the exact unloaded-unit result', () => {
         result(5, 'Failed to stop other.slice: Unit other.slice not loaded.\n'),
         result(5, `warning\n${unloaded}`),
         result(5, `${unloaded}warning\n`),
+        result(5, `${unloaded}\n`),
+        result(5, `${unloaded}  `),
+        result(5, '', unloaded),
+        result(5, unloaded, unloaded),
+        result(5, unloaded.slice(10), unloaded.slice(0, 10)),
         result(5, 'Failed to connect to bus: Permission denied\n'),
     ]) {
         // Preserve each near miss exactly; only the precise status-5 result
@@ -593,6 +598,34 @@ test('teardown signals take precedence over an earlier body error',
             assert.deepEqual(events, [
                 'stop', 'release', `signal:${signal}`,
             ]);
+        }
+    });
+
+test('teardown signals take precedence over aggregate cleanup failure',
+    async () => {
+        for (const signal of ['SIGINT', 'SIGTERM']) {
+            const signals = new EventEmitter();
+            const events = [];
+            await runInMutationCgroup('/repo/mutate-sites.mjs', [], {
+                names: mutationRunNames(process.pid, `cleanup_error_${signal}`),
+                signalTarget: signals,
+                acquireLock: () => ({ name: 'lock' }),
+                startSlice: () => {},
+                spawnChild: () => {
+                    const child = new EventEmitter();
+                    child.kill = () => {};
+                    queueMicrotask(() => child.emit('exit', 0, null));
+                    return child;
+                },
+                stopSlice: () => {
+                    events.push('stop');
+                    signals.emit(signal);
+                    throw new Error('cleanup failed');
+                },
+                releaseLock: () => events.push('release'),
+                reraise: (received) => events.push(`signal:${received}`),
+            });
+            assert.deepEqual(events, ['stop', `signal:${signal}`]);
         }
     });
 
@@ -1033,10 +1066,41 @@ test('scope cleanup accepts only the exact collected-unit result', () => {
             `#!${process.execPath}`,
             "const mode = process.env.TEST_SYSTEMCTL_MODE;",
             "const unit = process.argv.at(-1);",
+            "const unloaded = `Failed to stop ${unit}: Unit ${unit} not loaded.\\n`;",
             "if (mode === 'success') {",
             '  process.exitCode = 0;',
             "} else if (mode === 'collected') {",
-            "  process.stderr.write(`Failed to stop ${unit}: Unit ${unit} not loaded.\\n`);",
+            '  process.stderr.write(unloaded);',
+            '  process.exitCode = 5;',
+            "} else if (mode === 'locale') {",
+            "  if (process.env.LC_ALL === 'C') {",
+            '    process.stderr.write(unloaded);',
+            '    process.exitCode = 5;',
+            '  } else {',
+            "    process.stderr.write('wrong locale\\n');",
+            '    process.exitCode = 1;',
+            '  }',
+            "} else if (mode === 'wrong-status') {",
+            '  process.stderr.write(unloaded);',
+            '  process.exitCode = 4;',
+            "} else if (mode === 'wrong-unit') {",
+            "  process.stderr.write('Failed to stop other.scope: Unit other.scope not loaded.\\n');",
+            '  process.exitCode = 5;',
+            "} else if (mode === 'prefixed') {",
+            "  process.stderr.write(`warning\\n${unloaded}`);",
+            '  process.exitCode = 5;',
+            "} else if (mode === 'suffixed') {",
+            "  process.stderr.write(`${unloaded}warning\\n`);",
+            '  process.exitCode = 5;',
+            "} else if (mode === 'whitespace') {",
+            "  process.stderr.write(`${unloaded}  `);",
+            '  process.exitCode = 5;',
+            "} else if (mode === 'stdout') {",
+            '  process.stdout.write(unloaded);',
+            '  process.exitCode = 5;',
+            "} else if (mode === 'split') {",
+            '  process.stdout.write(unloaded.slice(0, 10));',
+            '  process.stderr.write(unloaded.slice(10));',
             '  process.exitCode = 5;',
             "} else if (mode === 'same-status-other-error') {",
             "  process.stderr.write('Failed to connect to bus.\\n');",
@@ -1057,6 +1121,20 @@ test('scope cleanup accepts only the exact collected-unit result', () => {
         // remains to clean up.
         process.env.TEST_SYSTEMCTL_MODE = 'collected';
         assert.doesNotThrow(() => stopWaveScope(unitName));
+        process.env.TEST_SYSTEMCTL_MODE = 'locale';
+        assert.doesNotThrow(() => stopWaveScope(unitName));
+        for (const mode of [
+            'wrong-status',
+            'wrong-unit',
+            'prefixed',
+            'suffixed',
+            'whitespace',
+            'stdout',
+            'split',
+        ]) {
+            process.env.TEST_SYSTEMCTL_MODE = mode;
+            assert.throws(() => stopWaveScope(unitName), undefined, mode);
+        }
         // Status 5 alone is insufficient: bus failure uses the same status on
         // this platform and leaves cleanup unproved.
         process.env.TEST_SYSTEMCTL_MODE = 'same-status-other-error';

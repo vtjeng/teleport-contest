@@ -173,7 +173,7 @@ function movementSnapshot(state, target, keeper = null) {
         }),
         floor: floorChain(state, target.x, target.y),
         shop: keeper ? structuredClone(keeper.mextra.eshk) : null,
-        achievements: structuredClone(state.achievements),
+        uachieved: structuredClone(state.u.uachieved),
         toplines: state._ttyToplines,
         grid: structuredClone(state.nhDisplay.grid),
         cursor: [
@@ -196,7 +196,7 @@ function assertMovementSnapshot(state, target, before, keeper = null) {
     }, before.rooms);
     assert.deepEqual(floorChain(state, target.x, target.y), before.floor);
     if (keeper) assert.deepEqual(keeper.mextra.eshk, before.shop);
-    assert.deepEqual(state.achievements, before.achievements);
+    assert.deepEqual(state.u.uachieved, before.uachieved);
     assert.equal(state._ttyToplines, before.toplines);
     assert.deepEqual(state.nhDisplay.grid, before.grid);
     assert.deepEqual([
@@ -272,6 +272,7 @@ test('ordinary movement refuses entry onto a shop edge atomically',
             state.u.ushops_entered,
             state.u.ushops_left,
         ]) rooms.fill(0);
+        state.u.uachieved[0] = 99;
         const before = movementSnapshot(state, target, keeper);
 
         await assert.rejects(
@@ -614,6 +615,20 @@ test('an excluded second pile member refuses before any durable mutation',
         ], before.cursor);
         assert.deepEqual(getRngLog(), before.rng);
         assert.deepEqual([state.u.ux, state.u.uy], [start.x, start.y]);
+    });
+
+test('movement translates an object-name exclusion at its public boundary',
+    async () => {
+        const { state, target, upper } = await generatedShopPile();
+        state.objects[upper.otyp].oc_uname = 'needle';
+        const before = movementSnapshot(state, target);
+
+        await assert.rejects(
+            () => domove(state),
+            (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                && /user-assigned type name/u.test(error.message),
+        );
+        assertMovementSnapshot(state, target, before);
     });
 
 test('the costly pile-limit count moves without naming or recording prices',

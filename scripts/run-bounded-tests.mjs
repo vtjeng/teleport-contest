@@ -64,10 +64,9 @@ function main(argv) {
         clearTimeout(timer);
         for (const interrupt of interrupts)
             process.removeListener(interrupt, onInterrupt);
-        // A failing Node test runner can exit before every worker or helper it
-        // started.  The detached test group is disposable after its runner
-        // exits, so reap any descendant still holding that process-group id.
-        signalGroup(child.pid, 'SIGKILL');
+        // The child has been reaped before this callback, so its numeric
+        // process-group id can already be reused. The caller now stops the
+        // uniquely owned wave scope to collect every remaining descendant.
         if (timedOut) {
             process.exitCode = 124;
         } else if (code !== null) {
