@@ -1,7 +1,7 @@
 {
   "mode": "implementation",
-  "reason": "The repeated full correctness audit over 1dd01581..0f274fa produced six deduplicated findings and an independent adjudicator confirmed all six. Random-arrival pickup and floor description form a previously incomplete input boundary, three-line status composition changes rendering behavior, movement must preserve its public admission error, and mutation cleanup changes lifecycle ownership. Repository policy therefore returns these fixes to implementation before another readiness gate and full audit.",
-  "commitChecked": "0f274faa825d3247e0244aa096d40dfefe5cce62",
+  "reason": "The final full correctness audit over 1dd01581..9feeae6 produced nine deduplicated candidates. Independent adjudication confirmed four lifecycle defects: initial publication can race stale reclaim, stale claimant deletion is not generation-safe, partial slice startup has two cleanup owners, and an earlier body error can suppress a teardown signal. Those confirmed fixes must pass validation and another frozen-range audit before this boundary is clean.",
+  "commitChecked": "9feeae6e7a6b56e6324b55340cc10fa2d1572531",
   "boundary": {
     "goalId": "object-pile-window",
     "startingCommit": "0f274faa825d3247e0244aa096d40dfefe5cce62",
@@ -218,6 +218,42 @@
       "remaining": ""
     },
     {
+      "candidate": "Serialized initial lock publication and stale reclaim",
+      "reachability": "An initializer pauses after creating or writing its pending lock while a contender judges the owner absent or stale after the grace interval.",
+      "owner": "scripts/mutate-sites.mjs mutation publication/reclaim claim",
+      "effects": "Use the same exclusive claim for initial owner publication and stale replacement so a live owner cannot appear between a reclaimer's final read and directory removal.",
+      "evidence": "acquireMutationLock now acquires the complete-inode claim before mkdir, pending-owner rename, live-owner validation, stale-slice cleanup, and replacement. Publication hooks prove a contender is refused while the original complete owner record survives.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Generation-safe stale reclaim claim",
+      "reachability": "A crashed reclaimer leaves a dead claim and two later contenders can overlap their claimant read and unlink operations.",
+      "owner": "scripts/mutate-sites.mjs acquireMutationLockClaim",
+      "effects": "Never unlink the shared claim based on a prior liveness read; fail closed with the preserved dead owner identity rather than risk deleting a replacement claimant.",
+      "evidence": "The dead-claim regression proves acquisition refuses, preserves the exact claimant record, and creates no main lock. The serialized replacement regression proves one held claim refuses a second publisher.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Single aggregate startup cleanup owner",
+      "reachability": "The slice starts but setting runtime limits fails.",
+      "owner": "scripts/mutate-sites.mjs runInMutationCgroup outer lifecycle",
+      "effects": "Leave all partial-start cleanup to the outer owner, which stops once and releases the lock only after cleanup succeeds.",
+      "evidence": "startMutationSlice no longer stops internally. The partial-start regression pins start/set-property without an inner stop, then proves the outer sequence is acquire, start, one stop, release while retaining the original startup error.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "Teardown signal precedence over prior body failure",
+      "reachability": "The mutation child or protected body fails, then SIGINT or SIGTERM arrives during synchronous aggregate teardown.",
+      "owner": "scripts/mutate-sites.mjs runInMutationCgroup terminal outcome",
+      "effects": "Store body and cleanup errors until handlers settle, then re-raise a recorded caller signal before propagating stored errors.",
+      "evidence": "Injected schedules cover both signals after child error, and real subprocess schedules cover both normal and failed children receiving both OS signals during synchronous teardown; all clean ownership and terminate with the original signal.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
       "candidate": "Confirmed contract clarity",
       "reachability": "A maintainer reads the changed status shrink order, look_here boundary, doname pricing ownership, quote lifecycle, or getprice preconditions.",
       "owner": "js/display.js, js/invent.js, js/objnam.js, and js/shk.js comments/private API",
@@ -228,5 +264,5 @@
     }
   ],
   "missingWorkByOwner": [],
-  "sourceReview": "The repeated full audit used correctness, readability-risk, test-quality, variable-flow, and concurrency finders over 1dd01581..0f274fa. It produced six deduplicated findings, and a fresh independent adjudicator confirmed all six under source truth, diff causality, and observable impact. The fixes trace the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. The full checkpoint passes with 29 of 29 uncommitted gameplay mutants killed, and the existing 34-case arrival matrix remains exact against fresh C. Because these confirmed fixes change rendering, arrival admission, and lifecycle ownership, the pass remains in implementation until a new frozen-range readiness gate and full audit cover the expanded head."
+  "sourceReview": "The repeated source review traces the random-arrival transaction through do.c goto_level/u_on_rndspot/u_on_newpos, pickup.c check_here/pickup, invent.c look_here, display.c status composition, movement admission ownership, and the mutation runner's lock/slice/signal lifecycle. The final audit added exact publication-versus-reclaim and claimant-read-versus-unlink schedules, partial set-property startup, and child-error-plus-teardown-signal order. It rejected five candidates with concrete production reachability or explicit-boundary evidence and confirmed the four lifecycle defects now assigned above. No known gameplay gap remains inside the boundary; lifecycle readiness awaits broad validation and a repeated full audit."
 }

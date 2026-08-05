@@ -251,7 +251,7 @@ export function mutationOwnerIsAlive(
     return identity.startTime === owner.processStartTime;
 }
 
-function acquireStaleReclaimClaim(lockPath, owner) {
+function acquireMutationLockClaim(lockPath, owner) {
     const claimPath = `${lockPath}.reclaim`;
     for (let attempt = 0; attempt < 4; ++attempt) {
         const pendingPath = `${claimPath}.${owner.sliceName}.${attempt}.tmp`;
@@ -272,27 +272,31 @@ function acquireStaleReclaimClaim(lockPath, owner) {
             }
         }
 
-        let claimant = null;
+        let claimant;
         try {
             claimant = JSON.parse(readFileSync(claimPath, 'utf8'));
         } catch (error) {
-            if (!['ENOENT', 'SyntaxError'].includes(error.code ?? error.name))
-                throw error;
+            if (error.code === 'ENOENT') continue;
+            if (error.name === 'SyntaxError') {
+                throw new Error(`invalid mutation lock claim ${claimPath}`);
+            }
+            throw error;
         }
-        if (claimant && mutationOwnerIsAlive(claimant)) {
-            throw new Error(`another mutation run is reclaiming ${lockPath} `
+        if (mutationOwnerIsAlive(claimant)) {
+            throw new Error(`another mutation run is publishing or reclaiming ${lockPath} `
                 + `(pid ${claimant.pid})`);
         }
-        try {
-            unlinkSync(claimPath);
-        } catch (error) {
-            if (error.code !== 'ENOENT') throw error;
-        }
+        // unlink(2) cannot say "remove this name only if it still names the
+        // inode I read". Deleting a dead claimant here therefore lets two
+        // reclaimers unlink each other's replacement claims. Fail closed;
+        // the owner record identifies the dead process for manual recovery.
+        throw new Error(`stale mutation lock claim blocks ${lockPath} `
+            + `(pid ${claimant.pid})`);
     }
     throw new Error(`could not claim stale mutation lock ${lockPath}`);
 }
 
-function releaseStaleReclaimClaim(claim) {
+function releaseMutationLockClaim(claim) {
     if (!claim) return;
     let owner = null;
     try {
@@ -330,56 +334,59 @@ export function acquireMutationLock(
         ...names,
     };
     for (let attempt = 0; attempt < 4; ++attempt) {
+        // Publication and stale reclaim share one claim. A delayed publisher
+        // therefore cannot install owner.json after a reclaimer's last empty
+        // read but before that reclaimer removes the directory.
+        const claim = acquireMutationLockClaim(lockPath, owner);
         try {
-            mkdirSync(lockPath);
-            afterLockDirectoryCreated?.({ lockPath, ownerPath, owner });
-            const pendingOwnerPath = join(
-                lockPath,
-                `.owner-${process.pid}-${attempt}.tmp`,
-            );
-            writeFileSync(pendingOwnerPath, `${JSON.stringify(owner)}\n`, {
-                flag: 'wx',
-            });
-            afterPendingOwnerWritten?.({
-                lockPath, ownerPath, pendingOwnerPath, owner,
-            });
-            renameSync(pendingOwnerPath, ownerPath);
-            return { lockPath, ownerPath, owner };
-        } catch (error) {
-            if (error.code !== 'EEXIST') throw error;
-        }
-
-        let incumbent = null;
-        try {
-            incumbent = JSON.parse(readFileSync(ownerPath, 'utf8'));
-        } catch (error) {
-            if (!['ENOENT', 'EISDIR', 'SyntaxError'].includes(
-                error.code ?? error.name)) throw error;
-        }
-        if (!incumbent) {
-            let ageMs = 0;
             try {
-                ageMs = now() - statSync(lockPath).mtimeMs;
+                mkdirSync(lockPath);
+                afterLockDirectoryCreated?.({ lockPath, ownerPath, owner });
+                const pendingOwnerPath = join(
+                    lockPath,
+                    `.owner-${process.pid}-${attempt}.tmp`,
+                );
+                writeFileSync(pendingOwnerPath, `${JSON.stringify(owner)}\n`, {
+                    flag: 'wx',
+                });
+                afterPendingOwnerWritten?.({
+                    lockPath, ownerPath, pendingOwnerPath, owner,
+                });
+                renameSync(pendingOwnerPath, ownerPath);
+                return { lockPath, ownerPath, owner };
             } catch (error) {
-                if (error.code === 'ENOENT') continue;
-                throw error;
+                if (error.code !== 'EEXIST') throw error;
             }
-            if (ageMs < LOCK_INITIALIZATION_GRACE_MS) {
-                throw new Error(`another mutation run is initializing ${
-                    lockPath}`);
+
+            let incumbent = null;
+            try {
+                incumbent = JSON.parse(readFileSync(ownerPath, 'utf8'));
+            } catch (error) {
+                if (!['ENOENT', 'EISDIR', 'SyntaxError'].includes(
+                    error.code ?? error.name)) throw error;
             }
-        }
-        if (mutationOwnerIsAlive(incumbent)) {
-            throw new Error(`another mutation run owns ${lockPath} `
-                + `(pid ${incumbent.pid})`);
-        }
-        afterStaleOwnerRead?.({ incumbent, lockPath, ownerPath });
-        const claim = acquireStaleReclaimClaim(lockPath, owner);
-        try {
-            // Another reclaimer may have replaced the dead owner before this
-            // process acquired the claim. Re-read only after serialization;
-            // no directory observed before a slow systemctl call authorizes a
-            // later rename or deletion.
+            if (!incumbent) {
+                let ageMs = 0;
+                try {
+                    ageMs = now() - statSync(lockPath).mtimeMs;
+                } catch (error) {
+                    if (error.code === 'ENOENT') continue;
+                    throw error;
+                }
+                if (ageMs < LOCK_INITIALIZATION_GRACE_MS) {
+                    throw new Error(`another mutation run is initializing ${
+                        lockPath}`);
+                }
+            }
+            if (mutationOwnerIsAlive(incumbent)) {
+                throw new Error(`another mutation run owns ${lockPath} `
+                    + `(pid ${incumbent.pid})`);
+            }
+            afterStaleOwnerRead?.({ incumbent, lockPath, ownerPath });
+
+            // Hooks model work performed after the first owner read. Re-read
+            // while still holding the claim so injected or external changes
+            // cannot authorize cleanup from a stale snapshot.
             let current = null;
             try {
                 current = JSON.parse(readFileSync(ownerPath, 'utf8'));
@@ -414,7 +421,7 @@ export function acquireMutationLock(
             }
             rmSync(stalePath, { recursive: true, force: true });
         } finally {
-            releaseStaleReclaimClaim(claim);
+            releaseMutationLockClaim(claim);
         }
     }
     throw new Error(`could not acquire mutation lock ${lockPath}`);
@@ -451,21 +458,16 @@ function runSystemctl(args, action) {
     throw new Error(`${action}: ${detail}`);
 }
 
-export function startMutationSlice(sliceName) {
+export function startMutationSlice(sliceName, control = runSystemctl) {
     const unit = `${sliceName}.slice`;
-    runSystemctl(['start', unit], `failed to start mutation slice ${unit}`);
-    try {
-        runSystemctl([
-            'set-property', '--runtime', unit,
-            'MemoryAccounting=yes',
-            'MemoryMax=2G',
-            'MemorySwapMax=0',
-            'TasksMax=64',
-        ], `failed to limit mutation slice ${unit}`);
-    } catch (error) {
-        stopMutationSlice(sliceName);
-        throw error;
-    }
+    control(['start', unit], `failed to start mutation slice ${unit}`);
+    control([
+        'set-property', '--runtime', unit,
+        'MemoryAccounting=yes',
+        'MemoryMax=2G',
+        'MemorySwapMax=0',
+        'TasksMax=64',
+    ], `failed to limit mutation slice ${unit}`);
 }
 
 export function stopMutationSlice(sliceName) {
@@ -512,6 +514,8 @@ export async function runInMutationCgroup(
         signalTarget.on(signal, handler);
 
     let status = 2;
+    let bodyError = null;
+    let cleanupError = null;
     try {
         lock = acquireLock(undefined, names);
         if (!interrupt) {
@@ -553,8 +557,9 @@ export async function runInMutationCgroup(
                 status = outcome.code;
             }
         }
+    } catch (error) {
+        bodyError = error;
     } finally {
-        let cleanupError = null;
         try {
             if (sliceNeedsCleanup) {
                 stopSlice(names.sliceName);
@@ -576,9 +581,10 @@ export async function runInMutationCgroup(
         await settleSignals();
         for (const [signal, handler] of signalHandlers)
             signalTarget.removeListener(signal, handler);
-        if (cleanupError) throw cleanupError;
     }
     if (interrupt) reraise(interrupt);
+    else if (cleanupError) throw cleanupError;
+    else if (bodyError) throw bodyError;
     return status;
 }
 
