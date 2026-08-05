@@ -7,6 +7,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import {
+    chmodSync,
     existsSync,
     mkdirSync,
     mkdtempSync,
@@ -46,6 +47,7 @@ import {
     formatTrailer,
     reportFromResult,
     siteFilterFromReport,
+    stopWaveScope,
     survivingRangeLines,
     testCommandArgs,
     testRunnerCommand,
@@ -55,6 +57,8 @@ import {
 
 const SCRIPT_PATH = fileURLToPath(
     new URL('./mutate-sites.mjs', import.meta.url));
+const BOUNDED_RUNNER_PATH = fileURLToPath(
+    new URL('./run-bounded-tests.mjs', import.meta.url));
 const FIXTURE_ROOT = fileURLToPath(
     new URL('./fixtures/mutate-sites', import.meta.url));
 const FIXTURE_MODULE = `${FIXTURE_ROOT}/js/bounds.js`;
@@ -91,6 +95,35 @@ function withWorkspace(body) {
     } finally {
         removeWorkspace(workspace);
     }
+}
+
+async function waitForFile(path) {
+    // Two seconds leaves ample process-startup headroom without hiding a
+    // runner that failed before publishing its child pid. Ten milliseconds
+    // keeps the successful path responsive without a busy loop.
+    const deadline = Date.now() + 2_000;
+    while (Date.now() < deadline) {
+        if (existsSync(path)) return;
+        await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    throw new Error(`timed out waiting for ${path}`);
+}
+
+async function waitForProcessExit(pid) {
+    // Signal delivery and orphan reaping can finish just after the process
+    // that initiated cleanup exits. The same two-second startup allowance is
+    // enough for that kernel bookkeeping, with the same 10 ms poll interval.
+    const deadline = Date.now() + 2_000;
+    while (Date.now() < deadline) {
+        try {
+            process.kill(pid, 0);
+        } catch (error) {
+            if (error.code === 'ESRCH') return;
+            throw error;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    throw new Error(`process ${pid} survived cleanup`);
 }
 
 const shorthand = (site) =>
@@ -158,6 +191,7 @@ test('timed mutation waves kill the complete Node test process group', () => {
             'teleport-mutate-wave-test'),
         {
             command: 'systemd-run',
+            unitName: 'teleport-mutate-wave-test',
             args: [
                 '--user',
                 '--scope',
@@ -246,6 +280,212 @@ test('a completed mutation wave reaps an unreferenced test descendant', () => {
                 if (error.code !== 'ESRCH') throw error;
             }
         }
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('the bounded wrapper preserves ordinary, error, timeout, and signal results', () => {
+    const run = (timeoutMs, args) => spawnSync(process.execPath,
+        [BOUNDED_RUNNER_PATH, String(timeoutMs), ...args], {
+            encoding: 'utf8',
+        });
+
+    // Five seconds is a ceiling for commands that terminate immediately. The
+    // chosen nonzero status distinguishes propagation from a generic failure.
+    assert.equal(run(5_000,
+        [process.execPath, '-e', 'process.exit(0)']).status, 0);
+    assert.equal(run(5_000,
+        [process.execPath, '-e', 'process.exit(17)']).status, 17);
+    // A missing executable exercises spawn's error event, whose reserved
+    // wrapper status is 125.
+    assert.equal(run(5_000,
+        ['/no/such/mutation-test-node']).status, 125);
+    // Fifty milliseconds bounds a child that never exits and preserves the
+    // wrapper's documented inner-timeout status, 124.
+    assert.equal(run(50,
+        [process.execPath, '-e', 'setInterval(() => {}, 1000)']).status, 124);
+    // A child-side SIGTERM remains the conventional 128 + 15 status. It is
+    // distinct from signalling the wrapper itself, which the next test covers.
+    assert.equal(run(5_000, [process.execPath, '-e',
+        "process.kill(process.pid, 'SIGTERM')"]).status, 143);
+});
+
+test('signalling the bounded wrapper kills its detached test group', async () => {
+    for (const signal of ['SIGINT', 'SIGTERM']) {
+        const workspace = mkdtempSync(join(tmpdir(), 'bounded-signal-test-'));
+        const pidPath = join(workspace, 'pids.json');
+        let wrapper = null;
+        let pids = null;
+        try {
+            const childSource = [
+                "import { spawn } from 'node:child_process';",
+                "import { writeFileSync } from 'node:fs';",
+                "const helper = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)']);",
+                `writeFileSync(${JSON.stringify(pidPath)}, JSON.stringify({ self: process.pid, helper: helper.pid }));`,
+                'setInterval(() => {}, 1000);',
+            ].join('\n');
+            // Thirty seconds leaves the wrapper running until this test sends
+            // the selected signal; a shorter accidental deadline could turn
+            // the result into timeout status 124.
+            wrapper = spawn(process.execPath, [BOUNDED_RUNNER_PATH, '30000',
+                process.execPath, '--input-type=module', '-e', childSource], {
+                stdio: 'ignore',
+            });
+            await waitForFile(pidPath);
+            pids = JSON.parse(readFileSync(pidPath, 'utf8'));
+            const exit = new Promise((resolve, reject) => {
+                wrapper.once('error', reject);
+                wrapper.once('exit', (code, exitSignal) =>
+                    resolve({ code, signal: exitSignal }));
+            });
+
+            wrapper.kill(signal);
+
+            assert.deepEqual(await exit, { code: null, signal });
+            await waitForProcessExit(pids.self);
+            await waitForProcessExit(pids.helper);
+        } finally {
+            if (wrapper?.exitCode === null && wrapper?.signalCode === null)
+                wrapper.kill('SIGKILL');
+            for (const pid of pids ? [pids.self, pids.helper] : []) {
+                try {
+                    process.kill(pid, 'SIGKILL');
+                } catch (error) {
+                    if (error.code !== 'ESRCH') throw error;
+                }
+            }
+            rmSync(workspace, { recursive: true, force: true });
+        }
+    }
+});
+
+test('an outer deadline synchronously stops only its named wave scope', async () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'mutate-outer-timeout-'));
+    const bin = join(workspace, 'bin');
+    const pidPath = join(workspace, 'helper.pid');
+    const unitPath = join(workspace, 'unit.txt');
+    const stopPath = join(workspace, 'stops.jsonl');
+    const oldPath = process.env.PATH;
+    let helperPid = null;
+    mkdirSync(bin);
+    writeFileSync(join(bin, 'systemd-run'), [
+        '#!/usr/bin/env node',
+        "import { spawn } from 'node:child_process';",
+        "import { writeFileSync } from 'node:fs';",
+        "const unit = process.argv.slice(2).find((arg) => arg.startsWith('--unit=')).slice(7);",
+        'writeFileSync(process.env.TEST_WAVE_UNIT_PATH, unit);',
+        "const helper = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { detached: true, stdio: 'ignore' });",
+        'helper.unref();',
+        'writeFileSync(process.env.TEST_WAVE_PID_PATH, String(helper.pid));',
+        'setInterval(() => {}, 1000);',
+        '',
+    ].join('\n'));
+    writeFileSync(join(bin, 'systemctl'), [
+        '#!/usr/bin/env node',
+        "import { appendFileSync, readFileSync } from 'node:fs';",
+        "appendFileSync(process.env.TEST_WAVE_STOP_PATH, `${JSON.stringify(process.argv.slice(2))}\\n`);",
+        "const pid = Number(readFileSync(process.env.TEST_WAVE_PID_PATH, 'utf8'));",
+        "try { process.kill(pid, 'SIGKILL'); } catch (error) { if (error.code !== 'ESRCH') throw error; }",
+        // Status 5 models systemctl finding that collection won the race. The
+        // caller still has to return its timeout result after cleanup.
+        "process.stderr.write(`Failed to stop ${process.argv.at(-1)}: Unit ${process.argv.at(-1)} not loaded.\\n`);",
+        'process.exitCode = 5;',
+        '',
+    ].join('\n'));
+    chmodSync(join(bin, 'systemd-run'), 0o755);
+    chmodSync(join(bin, 'systemctl'), 0o755);
+
+    try {
+        process.env.PATH = `${bin}:${oldPath}`;
+        process.env.TEST_WAVE_PID_PATH = pidPath;
+        process.env.TEST_WAVE_UNIT_PATH = unitPath;
+        process.env.TEST_WAVE_STOP_PATH = stopPath;
+
+        // One millisecond makes spawnSync's outer ceiling 5,001 ms. The fake
+        // systemd-run deliberately ignores both the inner runner and that
+        // ceiling, reproducing the outer-timeout path at its minimum cost.
+        const result = runTests(workspace, ['unused.test.mjs'], 1);
+        assert.equal(result.timedOut, true);
+        await waitForFile(pidPath);
+        helperPid = Number(readFileSync(pidPath, 'utf8'));
+
+        assert.equal(existsSync(stopPath), true);
+        const stops = readFileSync(stopPath, 'utf8').trim().split('\n')
+            .map((line) => JSON.parse(line));
+        const unit = readFileSync(unitPath, 'utf8');
+        assert.match(unit, /^teleport-mutate-wave-\d+-\d+$/u);
+        assert.deepEqual(stops, [['--user', 'stop', `${unit}.scope`]]);
+        await waitForProcessExit(helperPid);
+    } finally {
+        process.env.PATH = oldPath;
+        delete process.env.TEST_WAVE_PID_PATH;
+        delete process.env.TEST_WAVE_UNIT_PATH;
+        delete process.env.TEST_WAVE_STOP_PATH;
+        if (helperPid !== null) {
+            try {
+                process.kill(helperPid, 'SIGKILL');
+            } catch (error) {
+                if (error.code !== 'ESRCH') throw error;
+            }
+        }
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('scope cleanup accepts only the exact collected-unit result', () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'mutate-scope-stop-'));
+    const bin = join(workspace, 'bin');
+    const systemctl = join(bin, 'systemctl');
+    const oldPath = process.env.PATH;
+    mkdirSync(bin);
+    // The fixed name cannot collide with a production wave because production
+    // names include both the mutator pid and its wave sequence.
+    const unitName = 'teleport-mutate-wave-contract-test';
+    try {
+        process.env.PATH = bin;
+        // A missing systemctl executable is a cleanup failure. Returning the
+        // mutation timeout would falsely claim that the scope was emptied.
+        assert.throws(() => stopWaveScope(unitName), /failed to stop/u);
+
+        writeFileSync(systemctl, [
+            `#!${process.execPath}`,
+            "const mode = process.env.TEST_SYSTEMCTL_MODE;",
+            "const unit = process.argv.at(-1);",
+            "if (mode === 'success') {",
+            '  process.exitCode = 0;',
+            "} else if (mode === 'collected') {",
+            "  process.stderr.write(`Failed to stop ${unit}: Unit ${unit} not loaded.\\n`);",
+            '  process.exitCode = 5;',
+            "} else if (mode === 'same-status-other-error') {",
+            "  process.stderr.write('Failed to connect to bus.\\n');",
+            '  process.exitCode = 5;',
+            '} else {',
+            "  process.stderr.write('Access denied.\\n');",
+            '  process.exitCode = 1;',
+            '}',
+            '',
+        ].join('\n'));
+        chmodSync(systemctl, 0o755);
+
+        // Status 0 is the ordinary result when systemctl stopped a live scope.
+        process.env.TEST_SYSTEMCTL_MODE = 'success';
+        assert.doesNotThrow(() => stopWaveScope(unitName));
+        // systemd 255 returns 5 and names the exact unloaded unit after
+        // collection. This is the sole nonzero result that means no process
+        // remains to clean up.
+        process.env.TEST_SYSTEMCTL_MODE = 'collected';
+        assert.doesNotThrow(() => stopWaveScope(unitName));
+        // Status 5 alone is insufficient: bus failure uses the same status on
+        // this platform and leaves cleanup unproved.
+        process.env.TEST_SYSTEMCTL_MODE = 'same-status-other-error';
+        assert.throws(() => stopWaveScope(unitName), /Failed to connect/u);
+        // Any other nonzero result must also replace the timeout result with a
+        // cleanup error.
+        process.env.TEST_SYSTEMCTL_MODE = 'permission';
+        assert.throws(() => stopWaveScope(unitName), /Access denied/u);
+    } finally {
+        process.env.PATH = oldPath;
+        delete process.env.TEST_SYSTEMCTL_MODE;
         rmSync(workspace, { recursive: true, force: true });
     }
 });
@@ -1242,6 +1482,27 @@ test('a path puts every line of that file in scope', () => {
     // test set is the same one a range over this file would use.
     assert.equal(target.sites.length, enumerateSites(source).length);
     assert.deepEqual(target.tests, coveringTests().get('js/lock.js'));
+});
+
+test('the real unmarked CLI enters its outer cgroup exactly once', () => {
+    const environment = { ...process.env };
+    delete environment.TELEPORT_MUTATION_CGROUP;
+    // Enumerating one ordinary module reaches the complete parent-entry path
+    // without creating a mutation workspace or running any tests.
+    const run = spawnSync(process.execPath,
+        [SCRIPT_PATH, '--file', 'js/lock.js', '--enumerate-only'], {
+            encoding: 'utf8',
+            env: environment,
+        });
+    const output = `${run.stdout ?? ''}${run.stderr ?? ''}`;
+
+    assert.equal(run.status, 0, output);
+    // One systemd announcement proves the unmarked parent entered the scope.
+    // Completion proves the marked child did not recursively enter it again.
+    assert.equal([...output.matchAll(
+        /Running (?:scope )?as unit: teleport-mutate\.scope/gu)].length, 1,
+    output);
+    assert.match(output, /^js\/lock\.js: \d+ line\(s\) in scope/mu);
 });
 
 test('the command prints a census and rejects a bad argument', () => {

@@ -9,6 +9,9 @@ import { spawn } from 'node:child_process';
 import { constants as osConstants } from 'node:os';
 
 function signalGroup(pid, signal) {
+    // spawn can report an error before assigning a pid. An interrupt during
+    // that interval has no process group to clean up.
+    if (!Number.isInteger(pid) || pid < 1) return;
     try {
         process.kill(-pid, signal);
     } catch (error) {
@@ -29,18 +32,36 @@ function main(argv) {
         stdio: 'inherit',
     });
     let timedOut = false;
+    let interrupted = false;
     const timer = setTimeout(() => {
         timedOut = true;
         signalGroup(child.pid, 'SIGKILL');
     }, timeoutMs);
+    const interrupts = ['SIGINT', 'SIGTERM'];
+    const onInterrupt = (signal) => {
+        if (interrupted) return;
+        interrupted = true;
+        clearTimeout(timer);
+        signalGroup(child.pid, 'SIGKILL');
+        // Re-raise the caller's signal after cleanup. Removing both handlers
+        // prevents this handler from intercepting the re-raised signal.
+        for (const interrupt of interrupts)
+            process.removeListener(interrupt, onInterrupt);
+        process.kill(process.pid, signal);
+    };
+    for (const signal of interrupts) process.on(signal, onInterrupt);
 
     child.once('error', (error) => {
         clearTimeout(timer);
+        for (const signal of interrupts)
+            process.removeListener(signal, onInterrupt);
         process.stderr.write(`run-bounded-tests: ${error.message}\n`);
         process.exitCode = 125;
     });
     child.once('exit', (code, signal) => {
         clearTimeout(timer);
+        for (const interrupt of interrupts)
+            process.removeListener(interrupt, onInterrupt);
         // A failing Node test runner can exit before every worker or helper it
         // started.  The detached test group is disposable after its runner
         // exits, so reap any descendant still holding that process-group id.

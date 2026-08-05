@@ -766,6 +766,7 @@ export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
     unitName = `teleport-mutate-wave-${process.pid}-${++testWaveSequence}`) {
     return {
         command: 'systemd-run',
+        unitName,
         args: [
             '--user',
             '--scope',
@@ -786,6 +787,32 @@ export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
     };
 }
 
+/** Stop a wave scope after spawnSync's own deadline killed systemd-run. */
+export function stopWaveScope(unitName) {
+    const scopeUnit = `${unitName}.scope`;
+    // `systemctl stop` waits for the scope to empty. Capture its result so a
+    // cleanup failure cannot masquerade as the mutation timeout that prompted
+    // it. C locale makes the one accepted missing-unit response stable.
+    const result = spawnSync('systemctl', ['--user', 'stop', scopeUnit], {
+        encoding: 'utf8',
+        env: { ...process.env, LC_ALL: 'C' },
+    });
+    if (result.status === 0) return;
+
+    const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trimEnd();
+    const collected = `Failed to stop ${scopeUnit}: Unit ${scopeUnit} not loaded.`;
+    // `--collect` can remove a scope between spawnSync's timeout and this
+    // command. systemd 255 reports that completed cleanup as status 5 with
+    // exactly this line.
+    if (result.status === 5 && output === collected) return;
+
+    const detail = result.error?.message
+        ?? (output || (result.signal
+            ? `systemctl ended with signal ${result.signal}`
+            : `systemctl exited with status ${result.status}`));
+    throw new Error(`failed to stop mutation wave scope ${scopeUnit}: ${detail}`);
+}
+
 export function runTests(workspace, testFiles, timeoutMs) {
     // `node --test` with no file argument discovers and runs everything it can
     // find, so an empty list would quietly run the whole workspace, including
@@ -803,6 +830,8 @@ export function runTests(workspace, testFiles, timeoutMs) {
         timeout: runner.outerTimeoutMs,
         maxBuffer: 64 * 1024 * 1024,
     });
+    if (result.error?.code === 'ETIMEDOUT')
+        stopWaveScope(runner.unitName);
     const seconds = Number(process.hrtime.bigint() - started) / 1e9;
     const timedOut = result.status === 124
         || result.error?.code === 'ETIMEDOUT'
