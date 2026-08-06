@@ -38,11 +38,13 @@ The orchestrator repeats, without returning to the user between its steps:
    `node scripts/goal-log.mjs --current` reports queued. When none is queued,
    ask the goal-selector for the next one and record it yourself with
    `queue-goal`: the traced source findings go in `--detail` and the
-   look-ahead forecast in `--forecast-steps` and `--forecast-basis`. Then
-   `open-goal` it, which captures the score standing the close will be
-   measured against, and take its first queued slice. When it lists none, ask
-   the slice-selector and `queue-slice` the answer. Both selectors report;
-   only you write.
+   look-ahead forecast goes in `--forecast-steps` and `--forecast-basis`, with
+   one `--forecast-witness '<session>=<C-path evidence>'` for every contributing
+   session. Restate a queued forecast after re-ranking; never open it with stale
+   figures. Then `open-goal` it, which captures the score standing the close
+   will be measured against, and take its first queued slice. When it lists
+   none, ask the slice-selector and `queue-slice` the answer. Both selectors
+   report; only you write.
 2. Spawn a worker for that slice. When it returns, establish independently what
    landed: `git log --oneline` and `git status --short` for the commits and the
    tree, and `npm run checkpoint` for the suite and the development score.

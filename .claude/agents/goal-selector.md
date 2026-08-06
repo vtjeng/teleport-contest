@@ -31,7 +31,10 @@ slicing to the slice-selector.
    `node scripts/goal-log.mjs --current --detail` for the goals already
    queued with
    their traced source findings.
-4. Read the C source the goal would port, far enough to state the property that
+4. For every session counted in the forecast, use the scan's replay context to
+   trace the exact C path at the stop. Report the governing state and option
+   preconditions as that session's forecast witness.
+5. Read the C source the goal would port, far enough to state the property that
    bounds it and to judge its size against `.agents/selection.md`. This reading
    is the substance of your report. The census supplies the counts; only the
    source shows where the goal ends.
@@ -50,7 +53,8 @@ boundary, upstream owners, forecast with its basis, and detail.
   property as a condition a reader can test against the C source, the way
   existing `GOALS.json` entries state their `boundary`.
 - What the goal gates: the development sessions it unblocks and their recorded
-  steps, stated as a ceiling, and any command sequence it opens for later goals.
+  steps, stated as a ceiling, each session's C-path forecast witness, and any
+  command sequence it opens for later goals.
 - The upstream C files and functions the goal covers, and how much C that is.
 - Any traced finding that shapes the goal: a branch a starting character never
   reaches, a prerequisite that has to land before the first commit, a helper

@@ -159,6 +159,14 @@ supported before you rank.
 
 ### Ranking the behavior table
 
+**Require a C-path witness for every contributing session.** Before counting a
+session toward a source-bounded goal, trace that session's seed, date, options,
+configuration, and stop step through the C source. Confirm that it reaches the
+goal's defining branch and preconditions. A JavaScript boundary and matching
+screen are insufficient: different C and JavaScript branches can produce the
+same visible screen. A session that does not execute the proposed branch
+contributes zero; rename or widen the goal to the branch it actually executes.
+
 **Rank by the look-ahead forecast.** The port is fail-closed: a session earns
 no screen past its first stop, so a candidate pays what it unblocks. Start
 from `unlocks`, the recorded steps running from a stopped session's boundary
