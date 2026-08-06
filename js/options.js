@@ -1846,11 +1846,13 @@ function setWhatisCoord(result, value, negated, lineNumber) {
     result.iflags.getpos_coords = mode;
 }
 
-// C ref: options.c optfn_pile_limit(). atoi() accepts an initial signed
-// decimal run and returns zero when there is none; the option handler then
-// replaces negative results with PILE_LIMIT_DFLT. Generic compound-option
-// validation rejects a missing positive value before this handler, while an
-// empty negated spelling means "never skip".
+// C ref: options.c optfn_pile_limit(). The recorder's glibc atoi() accepts an
+// initial signed decimal run, returns zero when there is none, saturates first
+// to signed long, then narrows to flags.pile_limit's signed 32-bit int. The
+// option handler replaces that narrowed result with PILE_LIMIT_DFLT when it is
+// negative. BigInt preserves this phase order across JavaScript hosts. Generic
+// compound-option validation rejects a missing positive value before this
+// handler, while an empty negated spelling means "never skip".
 function setPileLimit(result, value, negated, lineNumber) {
     if (negated && value != null && value.length > 0) {
         optionError(

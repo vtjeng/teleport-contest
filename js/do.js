@@ -93,7 +93,7 @@ import {
     HEAVY_IRON_BALL,
     POTION_CLASS,
 } from './objects.js';
-import { pickup, preflight_random_arrival_pickup } from './pickup.js';
+import { pickup, preflight_projected_random_arrival_pickup } from './pickup.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { cloneCoreContext, createCoreRandom, rn2 } from './rng.js';
@@ -179,7 +179,9 @@ export async function place_random_arrival(
             'ushops_left',
         ]) projected.u[field] = [...(liveState.u[field] ?? [])];
         move_update(false, projected);
-        preflight_random_arrival_pickup(projected);
+        // Pickup admission refreshes the weight cache, so its API accepts only
+        // this projected state and cannot default to the live game.
+        preflight_projected_random_arrival_pickup(projected);
     };
     // Atomic arrival admission is a lockstep dry-run/replay protocol. The dry
     // pass must follow exactly the candidate-selection control flow of the

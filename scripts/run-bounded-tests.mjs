@@ -53,8 +53,10 @@ function main(argv) {
         interrupted = true;
         clearTimeout(timer);
         signalGroup(child.pid, 'SIGKILL');
-        // Re-raise the caller's signal after cleanup. Removing both handlers
-        // prevents this handler from intercepting the re-raised signal.
+        // Request termination of the original process group, then re-raise the
+        // caller's signal. runTests() owns confirmed cleanup of the complete
+        // uniquely named scope, including any detached descendants. Removing
+        // both handlers prevents this handler from intercepting the re-raise.
         for (const interrupt of interrupts)
             process.removeListener(interrupt, onInterrupt);
         process.kill(process.pid, signal);

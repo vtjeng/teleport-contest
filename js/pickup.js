@@ -343,7 +343,7 @@ function planAutomaticFloorPickup(state) {
 // goto_level() reaches pickup(1). Validate the complete supported floor
 // transaction against the projected destination first, so a later naming or
 // pricing refusal cannot leave those earlier writes behind.
-export function preflight_random_arrival_pickup(state = game) {
+export function preflight_projected_random_arrival_pickup(state) {
     const { u } = state;
     if (u.uswallow)
         throw new UnsupportedPickupError('pickup() inside a monster');

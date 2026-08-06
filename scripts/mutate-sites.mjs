@@ -550,13 +550,13 @@ export async function runInMutationCgroup(
     let sliceNeedsCleanup = false;
     let child = null;
     let interrupt = null;
-    let cleanupComplete = false;
+    let terminalSignalWindowReached = false;
     let resolveInterrupt;
     const interrupted = new Promise((resolve) => {
         resolveInterrupt = resolve;
     });
     const onInterrupt = (signal) => {
-        if (cleanupComplete) {
+        if (terminalSignalWindowReached) {
             removeSignalHandlers();
             reraise(signal);
             return;
@@ -646,12 +646,14 @@ export async function runInMutationCgroup(
         await settleSignals();
         if (signalTarget === process) {
             // A real libuv signal callback can still be pending after the
-            // settlement turn resolves. Mark cleanup complete, then keep the
-            // broker alive for one more event-loop turn. A pending delivery
-            // now removes the handlers and re-raises; otherwise remove them
-            // before returning so later signals use their default disposition.
-            // Injected EventEmitters have no kernel delivery gap.
-            cleanupComplete = true;
+            // settlement turn resolves. Enter the terminal signal window,
+            // then keep the broker alive for one more event-loop turn. This
+            // says nothing about cgroup cleanup success: sliceNeedsCleanup and
+            // cleanupError retain that state and its recovery owner. A pending
+            // delivery now removes the handlers and re-raises; otherwise
+            // remove them before returning so later signals use their default
+            // disposition. Injected EventEmitters have no kernel delivery gap.
+            terminalSignalWindowReached = true;
             if (!interrupt) {
                 await new Promise((resolve) => setImmediate(resolve));
             }
@@ -1232,11 +1234,13 @@ export function testCommandArgs(testFiles) {
 // Each wave receives its own scope inside the aggregate slice because a
 // pathological mutant can allocate quickly. Its 1 GiB cap
 // turns that runaway into one failed wave without killing the range run.  The
-// wrapper also starts Node's test runner in a new process group and kills that
-// complete group on timeout or caller interruption. After every result,
-// runTests() reads the retained scope result, then stops and resets the complete
-// wave scope. That also collects helpers in another process group without
-// signalling a reusable post-exit numeric PGID.
+// wrapper also starts Node's test runner in a new process group and requests
+// that group's termination on timeout or caller interruption. For an
+// authenticated, non-timeout failure, runTests() first reads the retained
+// scope Result when it needs OOM attribution. It then stops and resets the
+// complete wave scope after every outcome. That confirmed scope cleanup also
+// collects helpers in another process group without signalling a reusable
+// post-exit numeric PGID.
 export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
     runnerPath = BOUNDED_TEST_RUNNER,
     unitName = null,

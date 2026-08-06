@@ -852,6 +852,41 @@ test('OS signals delivered at the settlement boundary are re-raised',
         }
     });
 
+test('settlement-boundary signals outrank cleanup failure and retain ownership',
+    () => {
+        for (const signal of ['SIGINT', 'SIGTERM']) {
+            const source = [
+                `import { EventEmitter } from 'node:events';`,
+                `import { writeFileSync } from 'node:fs';`,
+                `const { runInMutationCgroup } = await import(${JSON.stringify(
+                    SCRIPT_PATH)});`,
+                `const child = new EventEmitter();`,
+                `child.kill = () => {};`,
+                `queueMicrotask(() => child.emit('exit', 0, null));`,
+                `await runInMutationCgroup('/repo/mutate-sites.mjs', [], {`,
+                `  acquireLock: () => ({ name: 'lock' }),`,
+                `  startSlice: () => {},`,
+                `  spawnChild: () => child,`,
+                `  stopSlice: () => { throw new Error('cleanup failed'); },`,
+                `  releaseLock: () => writeFileSync(1, 'RELEASED\\n'),`,
+                `  settleSignals: () => {`,
+                `    process.kill(process.pid, ${JSON.stringify(signal)});`,
+                `    return Promise.resolve();`,
+                `  },`,
+                `});`,
+                `process.stdout.write('RETURNED\\n');`,
+            ].join('\n');
+            const result = spawnSync(process.execPath, [
+                '--input-type=module', '-e', source,
+            ], { encoding: 'utf8' });
+            assert.deepEqual(
+                { status: result.status, signal: result.signal },
+                { status: null, signal },
+            );
+            assert.doesNotMatch(result.stdout, /RELEASED|RETURNED/u);
+        }
+    });
+
 test('a stale lock stops its recorded aggregate slice before replacement',
     () => {
         const root = mkdtempSync(join(tmpdir(), 'mutate-stale-lock-test-'));
