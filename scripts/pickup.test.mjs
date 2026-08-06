@@ -729,6 +729,31 @@ test('pickup applies the 52-slot limit after source-ordered merge projection',
         }
     });
 
+test('pickup projects merged-gold weight with carry_count rounding', async () => {
+    const state = await heroOnAnEmptySquare();
+    state.flags.pickup = true;
+    state.flags.pickup_burden = EXT_ENCUMBER;
+    const carriedGold = carryGeneratedObject(state, GOLD_PIECE);
+    // pickup.c GOLD_WT rounds each 50-coin stack to one unit, while their
+    // combined 100 coins still weigh one; merging therefore adds zero weight.
+    carriedGold.quan = 50;
+    carriedGold.owt = 1;
+    const floorGold = typedObjectUnderHero(state, GOLD_PIECE);
+    floorGold.quan = 50;
+    floorGold.owt = 1;
+    // One unit below the absolute lift boundary distinguishes C's zero delta
+    // from the rejected full floor-stack weight used by the old planner.
+    const filler = state.invent.nobj;
+    filler.owt += 2 * weight_cap(state) - inv_weight(state) - 1;
+    quiet(state);
+
+    assert.equal(inv_weight(state), 2 * weight_cap(state) - 1);
+    assert.equal(await pickup(1, state), 1);
+    assert.equal(carriedGold.quan, 100);
+    assert.equal(floorGold.where, OBJ_DELETED);
+    assert.equal(inv_weight(state), 2 * weight_cap(state) - 1);
+});
+
 test('pickup projects sight-created merge dependencies before observation',
     async () => {
         const state = await heroOnAnEmptySquare();

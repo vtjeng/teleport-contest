@@ -150,12 +150,14 @@ function floorChain(state, x, y) {
     for (let object = state.level.objects[x][y]; object;
         object = object.nexthere) {
         result.push({
-            object,
+            objectId: object.o_id,
+            objectType: object.otyp,
             where: object.where,
             ox: object.ox,
             oy: object.oy,
             dknown: object.dknown,
-            nexthere: object.nexthere,
+            nobjId: object.nobj?.o_id ?? null,
+            nexthereId: object.nexthere?.o_id ?? null,
         });
     }
     return result;
@@ -163,7 +165,7 @@ function floorChain(state, x, y) {
 
 function priceQuoteSnapshot(state, target) {
     const types = new Set(floorChain(state, target.x, target.y)
-        .map(({ object }) => object.otyp));
+        .map(({ objectType }) => objectType));
     return [...types].sort((left, right) => left - right).map((otyp) => {
         const type = state.objects[otyp];
         return [
@@ -187,6 +189,7 @@ function movementSnapshot(state, target, keeper = null) {
             ushops_left: state.u.ushops_left,
         }),
         floor: floorChain(state, target.x, target.y),
+        objectListHeadId: state.level.objlist?.o_id ?? null,
         priceQuotes: priceQuoteSnapshot(state, target),
         shop: keeper ? structuredClone(keeper.mextra.eshk) : null,
         uachieved: structuredClone(state.u.uachieved),
@@ -211,6 +214,7 @@ function assertMovementSnapshot(state, target, before, keeper = null) {
         ushops_left: state.u.ushops_left,
     }, before.rooms);
     assert.deepEqual(floorChain(state, target.x, target.y), before.floor);
+    assert.equal(state.level.objlist?.o_id ?? null, before.objectListHeadId);
     assert.deepEqual(priceQuoteSnapshot(state, target), before.priceQuotes);
     if (keeper) assert.deepEqual(keeper.mextra.eshk, before.shop);
     assert.deepEqual(state.u.uachieved, before.uachieved);
@@ -228,6 +232,33 @@ function changeObjectType(object, otyp, state) {
     object.otyp = otyp;
     object.oclass = state.objects[otyp].oc_class;
 }
+
+test('movement snapshots own floor, object-list, and keeper values', async () => {
+    const { keeper, lower, state, target, upper } = await generatedShopPile();
+    const before = movementSnapshot(state, target, keeper);
+
+    const originalNext = upper.nobj;
+    upper.nobj = null;
+    assert.throws(
+        () => assertMovementSnapshot(state, target, before, keeper),
+        { name: 'AssertionError' },
+    );
+    upper.nobj = originalNext;
+
+    const originalHead = state.level.objlist;
+    state.level.objlist = lower;
+    assert.throws(
+        () => assertMovementSnapshot(state, target, before, keeper),
+        { name: 'AssertionError' },
+    );
+    state.level.objlist = originalHead;
+
+    ++keeper.mextra.eshk.visitct;
+    assert.throws(
+        () => assertMovementSnapshot(state, target, before, keeper),
+        { name: 'AssertionError' },
+    );
+});
 
 test('same-shop strict-interior movement has no departure effect', async () => {
     const { start, state, target } = await generatedShopPile();
@@ -578,71 +609,33 @@ test('movement displays and records every eligible generated-shop pile price',
 
 test('an excluded second pile member refuses before any durable mutation',
     async () => {
-        const { lower, start, state, target, upper }
+        const { keeper, lower, start, state, target, upper }
             = await generatedShopPile({ excludedSecond: true });
-        const before = {
-            position: [state.u.ux, state.u.uy],
-            rooms: structuredClone({
-                urooms: state.u.urooms,
-                ushops: state.u.ushops,
-                ushops0: state.u.ushops0,
-                ushops_entered: state.u.ushops_entered,
-                ushops_left: state.u.ushops_left,
-            }),
-            floor: floorChain(state, target.x, target.y),
-            toplines: state._ttyToplines,
-            grid: structuredClone(state.nhDisplay.grid),
-            cursor: [
-                state.nhDisplay.cursorCol,
-                state.nhDisplay.cursorRow,
-                state.nhDisplay.cursorVisible,
-            ],
-            rng: [...getRngLog()],
-            quote: [
-                ...priceQuoteSnapshot(state, target),
-            ],
-        };
+        const before = movementSnapshot(state, target, keeper);
 
         await assert.rejects(
             () => domove(state),
             (error) => error instanceof UnsupportedHeroMoveBoundaryError
                 && /unpaid or no-charge floor object/u.test(error.message),
         );
-        assert.deepEqual([state.u.ux, state.u.uy], before.position);
-        assert.deepEqual({
-            urooms: state.u.urooms,
-            ushops: state.u.ushops,
-            ushops0: state.u.ushops0,
-            ushops_entered: state.u.ushops_entered,
-            ushops_left: state.u.ushops_left,
-        }, before.rooms);
-        assert.deepEqual(floorChain(state, target.x, target.y), before.floor);
+        assertMovementSnapshot(state, target, before, keeper);
         assert.equal(upper.dknown, false);
         assert.equal(lower.dknown, false);
-        assert.deepEqual(priceQuoteSnapshot(state, target), before.quote);
-        assert.equal(state._ttyToplines, before.toplines);
-        assert.deepEqual(state.nhDisplay.grid, before.grid);
-        assert.deepEqual([
-            state.nhDisplay.cursorCol,
-            state.nhDisplay.cursorRow,
-            state.nhDisplay.cursorVisible,
-        ], before.cursor);
-        assert.deepEqual(getRngLog(), before.rng);
         assert.deepEqual([state.u.ux, state.u.uy], [start.x, start.y]);
     });
 
 test('movement translates an object-name exclusion at its public boundary',
     async () => {
-        const { state, target, upper } = await generatedShopPile();
+        const { keeper, state, target, upper } = await generatedShopPile();
         state.objects[upper.otyp].oc_uname = 'needle';
-        const before = movementSnapshot(state, target);
+        const before = movementSnapshot(state, target, keeper);
 
         await assert.rejects(
             () => domove(state),
             (error) => error instanceof UnsupportedHeroMoveBoundaryError
                 && /user-assigned type name/u.test(error.message),
         );
-        assertMovementSnapshot(state, target, before);
+        assertMovementSnapshot(state, target, before, keeper);
     });
 
 test('the costly pile-limit count moves without naming or recording prices',

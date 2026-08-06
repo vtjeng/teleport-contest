@@ -34,6 +34,7 @@ import {
     addinv_runtime,
     dfeature_at,
     look_here,
+    money_cnt,
     obj_extract_self,
     preflight_addinv_sequence,
     preflight_look_here,
@@ -42,7 +43,7 @@ import {
 import { notake } from './mondata.js';
 import { observe_object } from './o_init.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { CORPSE, SCR_SCARE_MONSTER } from './objects.js';
+import { COIN_CLASS, CORPSE, SCR_SCARE_MONSTER } from './objects.js';
 import { assertObjectNameable } from './objnam.js';
 import { costly_spot } from './shk.js';
 import { stairway_at } from './stairs.js';
@@ -64,6 +65,13 @@ const DECREASED_BURDEN_MESSAGES = Object.freeze([
     'You rebalance your load.  Movement is still difficult.',
     'You stagger under your load.  Movement is still very hard.',
 ]);
+
+// pickup.c's local GOLD_WT macro deliberately has no minimum-one clamp.
+// Floor object weight supplies that clamp; carry_count subtracts the overlap
+// between separately rounded carried, picked, and combined coin quantities.
+function pickupGoldWeight(quantity) {
+    return Math.trunc((Math.trunc(quantity) + 50) / 100);
+}
 
 export async function encumber_msg(
     state = game,
@@ -266,6 +274,7 @@ function planAutomaticFloorPickup(state) {
     // first. This is the narrow fail-closed boundary for special pickup
     // behavior and keeps both floor indexes and discovery state atomic.
     let addedWeight = 0;
+    let projectedGold = money_cnt(state.invent);
     for (const { obj, count } of selected) {
         if (obj.where !== OBJ_FLOOR || !Number.isInteger(count) || count < 1)
             throw new UnsupportedPickupError('pickup() malformed floor object');
@@ -276,7 +285,15 @@ function planAutomaticFloorPickup(state) {
             );
         }
         assertObjectNameable(obj, state);
-        addedWeight += Math.trunc(obj.owt);
+        let objectWeight = Math.trunc(obj.owt);
+        if (obj.oclass === COIN_CLASS) {
+            const combinedGold = projectedGold + count;
+            objectWeight -= pickupGoldWeight(projectedGold)
+                + pickupGoldWeight(count)
+                - pickupGoldWeight(combinedGold);
+            projectedGold = combinedGold;
+        }
+        addedWeight += objectWeight;
     }
     if (inv_weight(state) + addedWeight >= 2 * weight_cap(state)) {
         throw new UnsupportedPickupError(
