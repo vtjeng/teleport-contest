@@ -554,10 +554,11 @@ export async function runInMutationCgroup(
 ) {
     // Terminal precedence is signal, cleanup error, body error, then child
     // status. A slice that cannot be proved clean retains the lock as its
-    // recovery owner. After successful production cleanup, one signal broker
-    // remains through process exit and is replaced by the next run. The
-    // injectable target and reraiser are synchronous test seams; wrapping
-    // either production default selects handler removal before return.
+    // recovery owner. With no recorded interrupt, a production run retains one
+    // signal broker through its return or throw; process exit removes it, or
+    // the next in-process run replaces it synchronously. The injectable target
+    // and reraiser are synchronous test seams; wrapping either production
+    // default selects handler removal before return.
     const retainTerminalBroker = signalTarget === process
         && reraise === reraiseProcessSignal;
     if (retainTerminalBroker) clearRetainedProcessSignalBroker();

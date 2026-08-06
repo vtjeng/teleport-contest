@@ -15,8 +15,9 @@ test('the generated-shop price recipe contains only replay inputs', () => {
     // whose clear stock potion sits one step west of the arrival square.
     assert.equal(segment.seed, 7633019);
     assert.equal(segment.datetime, '20310417113000');
-    // Ctrl-V chooses D:5, Space dismisses the greeting, and h reaches the
-    // stock potion before the successor prompt.
+    // Period reaches the first command boundary, Ctrl-V opens wizard level
+    // teleport, 5 selects D:5, Enter confirms, Space dismisses the greeting,
+    // and h steps west onto the stock potion before the successor prompt.
     assert.equal(segment.moves, '.\x165\n h');
     assert.equal(Object.hasOwn(segment, 'steps'), false);
     assert.match(segment.nethackrc, /!autopickup/u);

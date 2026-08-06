@@ -165,10 +165,12 @@ export async function place_random_arrival(
     const preflightArrival = (x, y, liveState) => {
         preflight_shop_arrival(x, y, liveState);
         // This is a write-set clone, not a general deep clone. move_update()
-        // may write context, gp, iflags, u, and its room buffers; pickup
-        // admission may write gw.wc. The shared level, inventory, and object
-        // graph stays read-only. Extend this list before either preflight gains
-        // another nested write owner.
+        // writes u and its room buffers, and projected pickup writes gw.wc;
+        // the admission helpers currently only read context, gp, and iflags.
+        // The shared level, inventory, and object graph stays read-only. Extend
+        // this list before an operation on the projection gains another nested
+        // write owner. preflight_shop_arrival() runs on liveState before this
+        // clone and must remain mutation-free.
         const projected = {
             ...liveState,
             context: { ...(liveState.context ?? {}) },
