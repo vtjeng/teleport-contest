@@ -781,6 +781,24 @@
       "status": "open",
       "from": "068406fdc5b340678750973805adf3597bfe5fdf",
       "detail": "`js/sounds.js` raises its two fail-closed refusals as a plain `Error`:\n`rejectUnportedSpecialSound()` at :107 and `rejectUnportedOracleSound()` at\n:116. Every other refusal in the port throws `UnsupportedSpecialRoomError` or a\nsibling, and `js/jsmain.js:522-543` swallows only those named classes, so this\none escapes `runSegment()`.\n\nTwo consequences, both verified by reading the call sites. `scripts/scan-sessions.mjs`\ncalls `runSegment()` at :359-364 inside no `try`; its only handler is the\ntop-level `main(...).catch(...)` at :1049, so one session whose later segments\nreach a shop level aborts the whole census. Selection on 6 August 2026 hit\nexactly that — `Session scan failed: dosounds initial-level slice reached an\nunported later-level branch (has_shop)` on `seed0030-ten-diverse-deaths` — and\nhad to be run under a scratchpad loader shim that re-raised the two throws as\n`UnsupportedSpecialRoomError`. Scoring hides the defect rather than showing it:\n`frozen/ps_test_runner.mjs` catches at the loop level and records the message as\nthat session's `error`, so `scripts/score-development.mjs` still completes.\n\nThe fix is the error class, not the refusal: both throws become the boundary\nclass that `jsmain.js` already admits, so the segment ends on its last matching\nscreen instead of crashing. It changes which screens the affected sessions\ncontribute, so it needs its own whole-score comparison rather than riding an\naudit fix.\n\nSame shape as two entries already in this ledger: `artifactTouchable() crashes a\nsegment instead of ending it` (monsters) and `a live monster refusal escapes as\na hard failure` (startup). A single sweep could settle all three."
+    },
+    {
+      "id": "pick-lock-d-broken-arm-dormant",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "3b2f83d0b88c75ce76358c1787258b6bd1dd3123",
+      "detail": "`lock.c pick_lock()`'s `doormask` switch was translated whole in `7310643`,\nincluding the `D_BROKEN` arm (\"This door is broken.\"). That arm is dormant: the\nonly generator that writes `D_BROKEN` is `sp_lev.c rnddoor()`, and no level this\nport builds calls it. `mklev.c dosdoor()`, which does run, never writes it.\n\nThe slice ported the arm rather than refusing it, on the argument that a\nrefusal there would be exactly as dormant as the ported line and would have to\nbe rediscovered when doors can break. Its only evidence is a unit test driving\na hand-set mask; no recorded or fresh session reaches it.\n\n`D_ISOPEN` and `D_NODOOR` are both reachable and covered by fresh segments, so\nthis entry is about the third arm alone. Resolve it when a level generator or a\ndoor-breaking path can produce `D_BROKEN`, by replacing the hand-set mask with\na case the running game reaches.\n\nSame shape as the existing entry `three arms of the door message switch are\ndormant`, which records the identical judgement for `notClosedMessage()`'s\nsibling switch in the same file."
+    },
+    {
+      "id": "isok-ported-twice",
+      "area": "runtime",
+      "category": "simplification",
+      "effort": "small",
+      "status": "open",
+      "from": "3b2f83d0b88c75ce76358c1787258b6bd1dd3123",
+      "detail": "`cmd.c isok()` is ported twice, in two files, against `AGENTS.md` \"Keep each\nsource file's port in one place\":\n\n- `js/const.js:2003` — names `cmd.c isok()` in its comment and reads the\n  module's own `COLNO`/`ROWNO`.\n- `js/hacklib.js:460` — the same expression, `x >= 1 && x <= COLNO - 1 && y >= 0\n  && y <= ROWNO - 1`, reading `COLNO`/`ROWNO` through a lazy `await_const()`\n  import that exists to avoid a circular dependency.\n\nBoth are live. `js/region.js`, `js/room_coordinates.js`, `js/muse.js` and\n`js/startup_a11y.js` import the `const.js` one; `js/dogmove.js` imports the\n`hacklib.js` one and calls it at :737, :789, :1305 and :1310. The lock-pick\nslice at `7310643` used the `const.js` definition for `get_adjacent_loc()`,\nwhich is the correct one by name.\n\nThe two bodies agree today, so nothing is currently wrong; the risk is that one\nis edited and the other is not. `cmd.c` is the C owner, so `js/cmd.js` is where\nthis function belongs by the file-placement rule, and neither copy sits there.\n\nRecorded because the slice-worker that noticed the duplication reported the\n`hacklib.js` copy as a dead stub that nothing imports. That is false —\n`js/dogmove.js` imports it — and deleting it on that basis would break\n`dogmove.js`. This entry exists so the next reader does not repeat the mistake:\nthe fix is to converge the two on one owner, not to delete either one unread."
     }
   ],
   "areas": [
