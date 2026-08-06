@@ -403,6 +403,20 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   pass whose entry count differs from the deferred count, one whose entry
   names an id the ledger does not hold, and one whose production-category
   deferrals disagree with the deferred `productionDefects` entries.
+- Cite a symbol in an entry's text: the file together with the function or
+  constant name. Line numbers rot. Any edit above a citation moves the line it
+  names, and the symbol stays findable through the same edit.
+- Correct an open entry with `npm run quality -- note-deferral --id <id> --note
+  <text>`. It appends a note stamped with the commit it was written at and
+  leaves `detail` as first written, so a reader can separate an original claim
+  from a later correction and date each one. Write a note when a later commit
+  falsifies a claim the entry rests on, or closes part of what it counts. The
+  ten-entry sweep threshold in `.agents/selection.md` counts entries, and an
+  entry whose work is half done counts the same as a fresh one, so an entry
+  that reads larger than it is schedules a sweep before one is due.
+  `npm run quality -- deferrals` prints each entry's note count, and
+  `--id <id>` prints the notes themselves. A closed entry takes no note;
+  recording a deferral against its id reopens it first.
 - A full correctness record also names the exact range, enabled optional
   finders, fixes, deferrals, unverified judgments, rejections and their
   counter-evidence, warnings, and validation. Record clarity separately only

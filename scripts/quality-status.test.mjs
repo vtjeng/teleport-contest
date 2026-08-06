@@ -3,8 +3,10 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
+  appendDeferralNote,
   assignPathToArea,
   auditMetricsFromOptions,
+  formatDeferralRow,
   countReviewCommits,
   excludeGeneratedLines,
   formatMetrics,
@@ -735,6 +737,172 @@ test('assign inserts a js/ file into one area and refuses every bad write', () =
   assert.throws(
     () => assignPathToArea(config(), 'scripts/foo.mjs', 'monsters'),
     /invalid path in area monsters/,
+  );
+});
+
+// The minimal valid config shape the ownership tests above use, carrying one
+// open entry and one closed entry so both status branches are reachable. The
+// SHAs are full-length placeholders because validateConfigShape() checks their
+// length; which 40 hex characters they hold is immaterial.
+const deferralLedgerConfig = () => ({
+  version: 4,
+  trackingBase: '1'.repeat(40),
+  enforcementBase: '2'.repeat(40),
+  legacyPassCount: 0,
+  thresholds: { reviewCommits: 10, reviewChangedLines: 1000 },
+  deferred: [
+    {
+      id: 'open-entry',
+      area: 'monsters',
+      category: 'production',
+      effort: 'small',
+      status: 'open',
+      from: '3'.repeat(40),
+      detail: 'the original claim',
+    },
+    {
+      id: 'closed-entry',
+      area: 'monsters',
+      category: 'production',
+      effort: 'small',
+      status: 'closed',
+      from: '3'.repeat(40),
+      detail: 'a settled claim',
+    },
+  ],
+  areas: [{ id: 'monsters', label: 'Monsters', paths: ['js/monmove.js'] }],
+  passes: [],
+});
+
+test('a deferral note appends without disturbing what the entry already says', () => {
+  // Two notes at two commits. The second must land after the first, because a
+  // reader dates a correction by the commit beside it, and a rewrite would
+  // destroy when the earlier claim died.
+  const noted = deferralLedgerConfig();
+  appendDeferralNote(noted, 'open-entry', 'the claim died', 'a'.repeat(40));
+  appendDeferralNote(noted, 'open-entry', 'this one too', 'b'.repeat(40));
+  const entry = noted.deferred[0];
+  assert.deepEqual(entry.notes, [
+    { text: 'the claim died', at: 'a'.repeat(40) },
+    { text: 'this one too', at: 'b'.repeat(40) },
+  ]);
+  // Every field that identifies the entry survives both appends, and so does
+  // the claim as first written.
+  assert.deepEqual(
+    { ...entry, notes: undefined },
+    { ...deferralLedgerConfig().deferred[0], notes: undefined },
+  );
+  // An entry nobody has corrected carries no notes key, so a note's ledger
+  // diff names only the entry that took one.
+  assert.equal(Object.hasOwn(noted.deferred[1], 'notes'), false);
+
+  // An unknown id is a typo. Creating an entry is defer's job.
+  assert.throws(
+    () => appendDeferralNote(
+      deferralLedgerConfig(), 'no-such-entry', 'x', 'a'.repeat(40)),
+    /no deferred entry has id: no-such-entry/u,
+  );
+  // A closed entry schedules no work, so nothing it says is still a claim on
+  // anyone; the refusal names the route that reopens it.
+  assert.throws(
+    () => appendDeferralNote(
+      deferralLedgerConfig(), 'closed-entry', 'x', 'a'.repeat(40)),
+    /already closed: closed-entry; reopen it by recording a deferral/u,
+  );
+});
+
+test('a malformed deferral note never reaches the ledger', () => {
+  const withNotes = (notes) => {
+    const config = deferralLedgerConfig();
+    config.deferred[0].notes = notes;
+    return config;
+  };
+  const wellFormed = { text: 'a correction', at: 'a'.repeat(40) };
+
+  assert.doesNotThrow(() => validateConfigShape(withNotes([wellFormed])));
+  // Absent and empty both say the entry has never been corrected.
+  assert.doesNotThrow(() => validateConfigShape(withNotes([])));
+  assert.doesNotThrow(
+    () => validateConfigShape(deferralLedgerConfig()));
+
+  assert.throws(
+    () => validateConfigShape(withNotes(wellFormed)),
+    /deferred\[0\]\.notes must be an array/u,
+  );
+  // A bare string is the shape a hand-edit reaches for first.
+  assert.throws(
+    () => validateConfigShape(withNotes(['a correction'])),
+    /deferred\[0\]\.notes\[0\] must be an object/u,
+  );
+  // Whitespace-only text is as absent as a missing key.
+  assert.throws(
+    () => validateConfigShape(withNotes([{ ...wellFormed, text: '  ' }])),
+    /deferred\[0\]\.notes\[0\]\.text must be nonempty/u,
+  );
+  // An abbreviated SHA dates a note only until the repository grows a second
+  // commit with that prefix, so the appender stores all 40 characters.
+  assert.throws(
+    () => validateConfigShape(withNotes([{ ...wellFormed, at: 'abc1234' }])),
+    /deferred\[0\]\.notes\[0\]\.at must be a full commit SHA/u,
+  );
+  assert.throws(
+    () => validateConfigShape(withNotes([{ text: 'a correction' }])),
+    /deferred\[0\]\.notes\[0\]\.at must be a full commit SHA/u,
+  );
+});
+
+test('the deferrals listing prints a note count and never a note', () => {
+  const entry = {
+    id: 'an-entry', area: 'monsters', category: 'production', effort: 'small',
+  };
+  const note = { text: 'a correction', at: 'a'.repeat(40) };
+
+  // Without notes the line is exactly what the listing printed before notes
+  // existed, so adding the field changed no existing row.
+  assert.equal(formatDeferralRow(entry),
+    '[monsters] (production, small) an-entry');
+  // One and two exercise both sides of the plural. The note text stays out of
+  // the line: the backlog runs to dozens of entries and a note is a paragraph.
+  assert.equal(
+    formatDeferralRow({ ...entry, notes: [note] }),
+    '[monsters] (production, small) an-entry (1 note)',
+  );
+  assert.equal(
+    formatDeferralRow({ ...entry, notes: [note, note] }),
+    '[monsters] (production, small) an-entry (2 notes)',
+  );
+  // An area-less entry keeps the dash the listing has always printed.
+  assert.equal(formatDeferralRow({ ...entry, area: null }),
+    '[-] (production, small) an-entry');
+});
+
+// Through main(), for the reason the --areas test below records: a correct
+// function stays unreachable when the dispatcher never routes to it.
+test('note-deferral is reachable as a command and refuses an unknown id', () => {
+  const run = (args) => {
+    try {
+      main(args);
+    } catch (error) {
+      return String(error?.message ?? '');
+    }
+    return '';
+  };
+
+  // No entry in QUALITY.json is named 'no-such-deferral', so the command
+  // reaches the appender and stops there, before any write.
+  assert.match(
+    run(['note-deferral', '--id', 'no-such-deferral',
+      '--note', 'a correction']),
+    /no deferred entry has id: no-such-deferral/u,
+  );
+  // Both options are required, and the check runs before the ledger is read.
+  assert.match(run(['note-deferral', '--id', 'no-such-deferral']),
+    /--note is required/u);
+  // --detail belongs to defer. Refusing it here shows the assertions above are
+  // not vacuous.
+  assert.match(
+    run(['note-deferral', '--id', 'x', '--note', 'y', '--detail', 'z']),
+    /unknown option: --detail/u,
   );
 });
 
