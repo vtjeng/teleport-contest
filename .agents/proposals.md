@@ -7,6 +7,41 @@ Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
 retires it.
 
+## Report a ported function that no production code calls
+
+**What it changes.** A check would list every function exported from `js/` that
+no other `js/` module calls, and flag the subset whose name also appears as an
+injected operation. `AGENTS.md`, "Port pure functions in bulk", already requires
+that "when a ported function replaces an injected operation that stood in for
+it, delete the injection in the same batch"; nothing detects a batch that
+skipped it.
+
+**Scope.** One script beside `scripts/check-namespace-members.mjs`, which
+already parses `js/` imports for a related purpose, plus its test and a line in
+the checkpoint summary. Informational, in the pattern of the sweep-candidate
+line; it prints and does not block, because a pure-function batch is allowed to
+land ahead of its caller and only becomes a defect once an injection stands in
+for the same behavior.
+
+**What prompted it.** `3d33c40` on 24 July 2026 ported `artifact.c
+touch_artifact()`'s monster branch into `js/artifacts.js` with tests, and
+deleted none of the five injections that stand in for it
+(`js/monmove.js postmov()`, four in `js/unported_monster_actions.js`). It went
+unnoticed for thirteen days. On 6 August the `monsters` sweep spent most of one
+slice rediscovering it: two agents in succession reasoned about a capability
+the port already had, and the closing entry
+`touch-artifact-ported-but-unwired` exists only to record work that the
+original batch was required to finish.
+
+**Cost.** Small. Resolving which module a symbol comes from needs the import
+block parsed rather than grepped, which `check-namespace-members.mjs` already
+does.
+
+**What it leaves unfixed.** It cannot tell a batch that is correctly ahead of
+its caller from one that is overdue, so the flagged subset is a reading list
+rather than a verdict. It also says nothing about an injection that stands in
+for a function nobody has ported yet, which is the ordinary and correct state.
+
 ## Split the quality gate's two signals, which mean opposite things to a pass
 
 **What it changes.** `qualityGateBlocked()` (`scripts/quality-status.mjs:647`)
