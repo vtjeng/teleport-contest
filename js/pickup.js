@@ -344,6 +344,11 @@ function planAutomaticFloorPickup(state) {
 // transaction against the projected destination first, so a later naming or
 // pricing refusal cannot leave those earlier writes behind.
 export function preflight_projected_random_arrival_pickup(state) {
+    if (state === undefined) {
+        throw new TypeError(
+            'preflight_projected_random_arrival_pickup requires projected state',
+        );
+    }
     const { u } = state;
     if (u.uswallow)
         throw new UnsupportedPickupError('pickup() inside a monster');

@@ -56,7 +56,10 @@ import { m_at } from '../js/monst.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { APPLE, CORPSE, ELVEN_DAGGER, TIN } from '../js/objects.js';
-import { pickup } from '../js/pickup.js';
+import {
+    pickup,
+    preflight_projected_random_arrival_pickup,
+} from '../js/pickup.js';
 import { com_pager } from '../js/questpgr.js';
 import { create_region, visible_region_at } from '../js/region.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
@@ -978,6 +981,30 @@ test('random arrival refuses every unsupported ordinary pickup guard atomically'
             guard.restore();
         }
     });
+
+test('random-arrival pickup admission requires a projected state', async () => {
+    await runSegment({
+        seed: 7632401,
+        datetime: '20310417113000',
+        nethackrc: [
+            'OPTIONS=name:ArrivalProjection,role:Wizard,race:human,gender:male,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen,pettype:none',
+            '',
+        ].join('\n'),
+        moves: '',
+    });
+    game.gw.wc = 123456;
+    const before = structuredClone(game.gw);
+
+    assert.throws(
+        () => preflight_projected_random_arrival_pickup(),
+        {
+            name: 'TypeError',
+            message: 'preflight_projected_random_arrival_pickup requires projected state',
+        },
+    );
+    assert.deepEqual(game.gw, before);
+});
 
 test('rejected overweight random arrival preserves the live weight cache',
     async () => {

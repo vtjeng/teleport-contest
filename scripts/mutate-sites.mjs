@@ -531,6 +531,19 @@ export function stopMutationSlice(sliceName, control = runSystemctl) {
     control(['revert', unit], `failed to revert mutation slice ${unit}`);
 }
 
+let retainedProcessSignalHandlers = null;
+
+function reraiseProcessSignal(signal) {
+    process.kill(process.pid, signal);
+}
+
+function clearRetainedProcessSignalBroker() {
+    if (!retainedProcessSignalHandlers) return;
+    for (const [signal, handler] of retainedProcessSignalHandlers)
+        process.removeListener(signal, handler);
+    retainedProcessSignalHandlers = null;
+}
+
 export async function runInMutationCgroup(
     scriptPath,
     argv,
@@ -542,10 +555,13 @@ export async function runInMutationCgroup(
         stopSlice = stopMutationSlice,
         spawnChild = spawn,
         signalTarget = process,
-        reraise = (signal) => process.kill(process.pid, signal),
+        reraise = reraiseProcessSignal,
         settleSignals = () => new Promise((resolve) => setImmediate(resolve)),
     } = {},
 ) {
+    const retainTerminalBroker = signalTarget === process
+        && reraise === reraiseProcessSignal;
+    if (retainTerminalBroker) clearRetainedProcessSignalBroker();
     let lock = null;
     let sliceNeedsCleanup = false;
     let child = null;
@@ -571,6 +587,8 @@ export async function runInMutationCgroup(
     ]));
     const removeSignalHandlers = () => {
         if (!signalHandlers) return;
+        if (retainedProcessSignalHandlers === signalHandlers)
+            retainedProcessSignalHandlers = null;
         for (const [signal, handler] of signalHandlers)
             signalTarget.removeListener(signal, handler);
         signalHandlers = null;
@@ -650,14 +668,24 @@ export async function runInMutationCgroup(
             // then keep the broker alive for one more event-loop turn. This
             // says nothing about cgroup cleanup success: sliceNeedsCleanup and
             // cleanupError retain that state and its recovery owner. A pending
-            // delivery now removes the handlers and re-raises; otherwise
-            // remove them before returning so later signals use their default
-            // disposition. Injected EventEmitters have no kernel delivery gap.
+            // delivery now removes the handlers and re-raises. The production
+            // process retains that terminal broker through exit so removing a
+            // listener cannot create one last loss window. Injected targets
+            // and custom re-raisers have no kernel delivery gap and are
+            // removed before returning.
             terminalSignalWindowReached = true;
             if (!interrupt) {
                 await new Promise((resolve) => setImmediate(resolve));
             }
-            removeSignalHandlers();
+            if (interrupt || !retainTerminalBroker) {
+                removeSignalHandlers();
+            } else {
+                // Signal listeners do not keep Node alive. Retain one broker
+                // through process exit so no handler-removal handoff can drop
+                // a signal accepted after cleanup. A later in-process run
+                // replaces this broker synchronously before taking ownership.
+                retainedProcessSignalHandlers = signalHandlers;
+            }
         } else {
             removeSignalHandlers();
         }

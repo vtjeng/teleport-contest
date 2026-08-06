@@ -906,6 +906,34 @@ test('a triggering pile inside a visible region is refused before movement',
         assert.equal(game._ttyToplines, toplinesBefore);
     });
 
+test('a single object inside an entered visible region refuses atomically',
+    async () => {
+        const target = await prepareHeroMoveAdmission();
+        const source = { x: game.u.ux, y: game.u.uy };
+        game.flags.pickup = false;
+        // Zero keeps one object on invent.c look_here()'s naming path.
+        game.flags.pile_limit = 0;
+        installFloorPile(target.x, target.y, 1);
+        const region = create_region([{
+            lx: Math.min(source.x, target.x),
+            ly: Math.min(source.y, target.y),
+            hx: Math.max(source.x, target.x),
+            hy: Math.max(source.y, target.y),
+        }]);
+        region.visible = true;
+        region.hero_inside = true;
+        game.level.regions.push(region);
+        const before = heroMoveAdmissionSnapshot(target.replay);
+
+        await assert.rejects(
+            domove(game),
+            (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                && error.reason
+                    === 'visible region over single-object description',
+        );
+        assert.deepEqual(heroMoveAdmissionSnapshot(target.replay), before);
+    });
+
 test('pile_limit zero leaves a single object on the naming path', async () => {
     const { x, y } = await prepareHeroMoveAdmission();
     game.flags.pickup = false;
@@ -1970,6 +1998,68 @@ test('a furniture square with mention_decor stays refused', async () => {
         );
     }
 });
+
+test('decor preflight translations preserve the raw movement reason',
+    async () => {
+        const expectedReason = 'ordinary decor after unowned prior terrain';
+        const ordinary = await prepareHeroMoveAdmission();
+        game.flags.mention_decor = true;
+        // FOUNTAIN is neither the startup staircase nor the ROOM destination,
+        // so ordinaryDecorPlan reaches its unsupported prior-terrain branch.
+        game.iflags.prev_decor = FOUNTAIN;
+        const ordinaryBefore = heroMoveAdmissionSnapshot(ordinary.replay);
+        await assert.rejects(
+            domove(game),
+            (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                && error.reason === expectedReason
+                && error.message
+                    === `unsupported hero move: ${expectedReason}`,
+        );
+        assert.deepEqual(
+            heroMoveAdmissionSnapshot(ordinary.replay),
+            ordinaryBefore,
+        );
+
+        const replay = await runSegment({
+            seed: 840024,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:PetDecorReason,role:Valkyrie,'
+                + 'race:human,gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,mention_decor',
+            moves: ' ',
+        });
+        const pet = game.level.monlist;
+        assert.ok(pet?.mtame, 'the starting pet is on the level');
+        const x = game.u.ux + 1;
+        const y = game.u.uy;
+        game.level.at(x, y).typ = ROOM;
+        game.level.monsters[pet.mx][pet.my] = null;
+        pet.mx = x;
+        pet.my = y;
+        game.level.monsters[x][y] = pet;
+        game.level.objects[x][y] = null;
+        game.level.traps = [];
+        game.level.regions = [];
+        game.head_engr = null;
+        game.iflags.prev_decor = FOUNTAIN;
+        game.u.dx = 1;
+        game.u.dy = 0;
+        game.context.move = 1;
+        game.domoveAttempting = 1;
+        const petBefore = heroMoveAdmissionSnapshot(replay);
+        const petPosition = [pet.mx, pet.my];
+
+        await assert.rejects(
+            domove(game),
+            (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                && error.reason === expectedReason
+                && error.message
+                    === `unsupported hero move: ${expectedReason}`,
+        );
+        assert.deepEqual(heroMoveAdmissionSnapshot(replay), petBefore);
+        assert.deepEqual([pet.mx, pet.my], petPosition);
+        assert.equal(game.iflags.prev_decor, FOUNTAIN);
+    });
 
 test('a run onto a doorway or a furniture square ends on the square it reaches',
     async () => {

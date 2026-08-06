@@ -710,7 +710,7 @@ export function requireSimpleHeroDestination(x, y, state) {
         } catch (error) {
             if (!(error instanceof UnsupportedPickupError)) throw error;
             throw new UnsupportedHeroMoveBoundaryError(
-                error.message,
+                error.reason,
             );
         }
     }
@@ -770,6 +770,11 @@ export function requireSimpleHeroDestination(x, y, state) {
         }
     }
     if (floorObject && !floorObject.nexthere && !noPickMove) {
+        if (visible_region_at(x, y, state)) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'visible region over single-object description',
+            );
+        }
         assertMovementFloorObjectNameable(
             floorObject,
             costly_spot(x, y, state),
@@ -1076,7 +1081,7 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
             preflight_describe_decor_at(x, y, state);
         } catch (error) {
             if (!(error instanceof UnsupportedPickupError)) throw error;
-            throw new UnsupportedHeroMoveBoundaryError(error.message);
+            throw new UnsupportedHeroMoveBoundaryError(error.reason);
         }
     }
 

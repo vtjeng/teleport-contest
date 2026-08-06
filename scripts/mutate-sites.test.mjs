@@ -75,6 +75,9 @@ const BOUNDED_RUNNER_PATH = fileURLToPath(
 const FIXTURE_ROOT = fileURLToPath(
     new URL('./fixtures/mutate-sites', import.meta.url));
 const FIXTURE_MODULE = `${FIXTURE_ROOT}/js/bounds.js`;
+const UNALLOCATABLE_PID = Number(
+    readFileSync('/proc/sys/kernel/pid_max', 'utf8').trim(),
+) + 1;
 function fixtureSource() {
     return readFileSync(FIXTURE_MODULE, 'utf8');
 }
@@ -326,7 +329,7 @@ test('a reused live PID does not preserve a stale lock', () => {
 });
 
 test('stale cleanup refuses every malformed aggregate owner identity', () => {
-    const deadPid = spawnSync(process.execPath, ['-e', '']).pid;
+    const deadPid = UNALLOCATABLE_PID;
     const valid = mutationRunNames(deadPid, 'stale');
     const invalidOwners = [
         { ...valid, sliceName: 'unrelated' },
@@ -366,7 +369,7 @@ test('stale cleanup refuses every malformed aggregate owner identity', () => {
 test('the reclaim claim serializes stale replacement publication', () => {
     const root = mkdtempSync(join(tmpdir(), 'mutate-lock-reclaim-race-'));
     const lockPath = join(root, 'owner.lock');
-    const deadPid = spawnSync(process.execPath, ['-e', '']).pid;
+    const deadPid = UNALLOCATABLE_PID;
     const stale = mutationRunNames(deadPid, 'stale_race');
     let replacement = null;
     mkdirSync(lockPath);
@@ -406,7 +409,7 @@ test('a dead reclaim claimant fails closed without deleting its record', () => {
     const root = mkdtempSync(join(tmpdir(), 'mutate-stale-claim-'));
     const lockPath = join(root, 'owner.lock');
     const claimPath = `${lockPath}.reclaim`;
-    const deadPid = spawnSync(process.execPath, ['-e', '']).pid;
+    const deadPid = UNALLOCATABLE_PID;
     const claimant = {
         pid: deadPid,
         ...mutationRunNames(deadPid, 'dead_claimant'),
@@ -887,13 +890,58 @@ test('settlement-boundary signals outrank cleanup failure and retain ownership',
         }
     });
 
+test('the terminal process broker closes the final-callback signal handoff',
+    () => {
+        for (const signal of ['SIGINT', 'SIGTERM']) {
+            for (const cleanupFails of [false, true]) {
+                const source = [
+                    `import { EventEmitter } from 'node:events';`,
+                    `const { runInMutationCgroup } = await import(${JSON.stringify(
+                        SCRIPT_PATH)});`,
+                    `const realSetImmediate = globalThis.setImmediate;`,
+                    `globalThis.setImmediate = (callback) => realSetImmediate(() => {`,
+                    `  process.kill(process.pid, ${JSON.stringify(signal)});`,
+                    `  callback();`,
+                    `});`,
+                    `const child = new EventEmitter();`,
+                    `child.kill = () => {};`,
+                    `queueMicrotask(() => child.emit('exit', 0, null));`,
+                    `let caught = null;`,
+                    `try {`,
+                    `  await runInMutationCgroup('/repo/mutate-sites.mjs', [], {`,
+                    `    acquireLock: () => ({ name: 'lock' }),`,
+                    `    startSlice: () => {},`,
+                    `    spawnChild: () => child,`,
+                    cleanupFails
+                        ? `    stopSlice: () => { throw new Error('cleanup failed'); },`
+                        : `    stopSlice: () => {},`,
+                    `    releaseLock: () => {},`,
+                    `    settleSignals: () => Promise.resolve(),`,
+                    `  });`,
+                    `} catch (error) { caught = error; }`,
+                    `await new Promise((resolve) => setTimeout(resolve, 100));`,
+                    `if (caught) process.stdout.write('CAUGHT\\n');`,
+                    `process.stdout.write('RETURNED\\n');`,
+                ].join('\n');
+                const result = spawnSync(process.execPath, [
+                    '--input-type=module', '-e', source,
+                ], { encoding: 'utf8' });
+                assert.deepEqual(
+                    { status: result.status, signal: result.signal },
+                    { status: null, signal },
+                    `${signal}, cleanupFails=${cleanupFails}`,
+                );
+                assert.doesNotMatch(result.stdout, /CAUGHT|RETURNED/u);
+            }
+        }
+    });
+
 test('a stale lock stops its recorded aggregate slice before replacement',
     () => {
         const root = mkdtempSync(join(tmpdir(), 'mutate-stale-lock-test-'));
         const lockPath = join(root, 'owner.lock');
-        const deadPid = spawnSync(process.execPath, ['-e', '']).pid;
-        // The short child has been collected by spawnSync, so its pid is a
-        // proven dead owner rather than an assumed unused number.
+        const deadPid = UNALLOCATABLE_PID;
+        // A value above pid_max cannot be recycled while the fixture runs.
         const stale = mutationRunNames(deadPid, 'stale');
         const unit = `${stale.sliceName}.slice`;
         let replacement = null;
@@ -922,7 +970,7 @@ test('a stale lock stops its recorded aggregate slice before replacement',
 test('a stale lock recovers when its recorded slice is already absent', () => {
     const root = mkdtempSync(join(tmpdir(), 'mutate-stale-absent-slice-'));
     const lockPath = join(root, 'owner.lock');
-    const deadPid = spawnSync(process.execPath, ['-e', '']).pid;
+    const deadPid = UNALLOCATABLE_PID;
     const stale = mutationRunNames(deadPid, 'already_absent');
     let replacement = null;
     mkdirSync(lockPath);
