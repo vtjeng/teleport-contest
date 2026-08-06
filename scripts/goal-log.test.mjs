@@ -5,7 +5,8 @@ import { join } from 'node:path';
 import test from 'node:test';
 
 import {
-    calibrationLines, deliveredSince, formatGoal, readGoals, validateGoals,
+    buildForecast, calibrationLines, deliveredSince, formatGoal, readGoals,
+    restateForecast, validateGoals,
 } from './goal-log.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'goal-log-'));
@@ -66,6 +67,15 @@ test('--detail adds the owners and traced findings the default omits', () => {
         status: 'queued',
         boundary: 'look_here() opens the Things-that-are-here window',
         upstreamOwners: ['invent.c look_here'],
+        forecast: {
+            steps: 1,
+            basis: 'fresh capped look-ahead',
+            sessions: ['seed0004-feeding-pony'],
+            witnesses: [{
+                session: 'seed0004-feeding-pony',
+                evidence: 'pickup.c pickup(1), automatic pickup path',
+            }],
+        },
         detail: 'line one\nline two',
         slices: [{ name: 'first', status: 'queued', closedBy: null }],
     };
@@ -78,6 +88,7 @@ test('--detail adds the owners and traced findings the default omits', () => {
     // indented four spaces under its label.
     const full = formatGoal(goal, { detail: true });
     assert.ok(full.includes('owners: invent.c look_here'));
+    assert.ok(full.includes('witness seed0004-feeding-pony: pickup.c pickup(1)'));
     assert.ok(full.includes('  detail:\n    line one\n    line two'));
 });
 
@@ -133,4 +144,64 @@ test('delivered figures are the closing standing minus the opening one', () => {
     // A goal opened before SCORE.tsv existed has no opening standing, and a
     // null result says "not measured" rather than claiming zero.
     assert.equal(deliveredSince(null, { screens: 520, rng: 107227 }), null);
+});
+
+test('a nonzero forecast requires one C-path witness per named session', () => {
+    const forecast = buildForecast({
+        'forecast-steps': '61',
+        'forecast-basis': 'capped look-ahead at the current commit',
+        sessions: 'seed0004-feeding-pony,seed0030-ten-diverse-deaths',
+        'forecast-witness': [
+            // Each value names the session before `=` and records the exact C
+            // branch after it. Two sessions exercise the one-to-one check.
+            'seed0004-feeding-pony=pickup.c pickup(1), flags.pickup is true',
+            'seed0030-ten-diverse-deaths=pickup.c check_here(FALSE)',
+        ],
+    });
+    assert.deepEqual(forecast.witnesses, [
+        {
+            session: 'seed0004-feeding-pony',
+            evidence: 'pickup.c pickup(1), flags.pickup is true',
+        },
+        {
+            session: 'seed0030-ten-diverse-deaths',
+            evidence: 'pickup.c check_here(FALSE)',
+        },
+    ]);
+
+    assert.throws(() => buildForecast({
+        'forecast-steps': '61',
+        'forecast-basis': 'capped look-ahead',
+        sessions: 'seed0004-feeding-pony',
+    }), /missing C-path witness.*seed0004-feeding-pony/u);
+    assert.throws(() => buildForecast({
+        'forecast-steps': '61',
+        'forecast-basis': 'capped look-ahead',
+        sessions: 'seed0004-feeding-pony',
+        'forecast-witness': [
+            'some-other-session=pickup.c check_here(FALSE)',
+        ],
+    }), /witness names a session outside the forecast/u);
+});
+
+test('a queued forecast can be restated but an open one is immutable', () => {
+    const queued = structuredClone(store);
+    const forecast = {
+        steps: 1,
+        basis: 'fresh capped look-ahead',
+        sessions: ['seed0004-feeding-pony'],
+        witnesses: [{
+            session: 'seed0004-feeding-pony',
+            evidence: 'pickup.c pickup(1), automatic pickup path',
+        }],
+    };
+    const updated = restateForecast(queued, 'object-pile-window', forecast);
+    assert.equal(updated.forecast, forecast);
+
+    const opened = structuredClone(store);
+    opened.goals[1].status = 'open';
+    assert.throws(
+        () => restateForecast(opened, 'object-pile-window', forecast),
+        /is open, not queued/u,
+    );
 });

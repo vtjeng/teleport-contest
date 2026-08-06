@@ -18,6 +18,7 @@ import {
     dedupeMessages,
     executedCommands,
     extendedCommandAt,
+    formatReplayContext,
     legend,
     main,
     rankCandidates,
@@ -138,6 +139,37 @@ test('recordedTopLine reads C message line, trimmed', () => {
     assert.equal(recordedTopLine({ screen: '\nmap starts here' }), '');
     // Defensive: a step index past the recorded steps yields no screen.
     assert.equal(recordedTopLine(undefined), '');
+});
+
+test('the look-ahead context exposes the inputs needed for a C-path witness', () => {
+    const text = formatReplayContext({
+        segments: [{
+            // A completed earlier segment can persist state into the stopped
+            // segment, so its distinct configuration and input must survive.
+            segment: 0,
+            seed: 3,
+            datetime: '20260414170000',
+            nethackrc: 'OPTIONS=autopickup\n',
+            inputThroughStop: '@S',
+        }, {
+            // Seed 4 and this timestamp are the exact recorded inputs for the
+            // pony session whose 61-step object-pile forecast exposed the gate.
+            segment: 1,
+            seed: 4,
+            datetime: '20260414173108',
+            nethackrc: 'OPTIONS=symset:DECgraphics\n',
+            // The prefix includes the stop key so toggles and prompt answers
+            // that change dynamic state cannot disappear behind the message.
+            inputThroughStop: 'Tetra\ryy  nkkklLuujjllnnJj',
+        }],
+    });
+    assert.match(text, /segment: 0[\s\S]*OPTIONS=autopickup/u);
+    assert.match(text, /segment: 1/u);
+    assert.match(text, /seed: 4/u);
+    assert.match(text, /datetime: 20260414173108/u);
+    assert.match(text, /OPTIONS=symset:DECgraphics/u);
+    assert.match(text, /input through stop: "Tetra\\ryy  n/u);
+    assert.match(text, /verify the exact C branch/u);
 });
 
 test('censusBy groups sessions and sums the screens behind each group', () => {

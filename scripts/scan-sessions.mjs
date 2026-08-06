@@ -164,6 +164,32 @@ export function recordedTopLine(step) {
     return decodeScreen(step.screen)[0].map(cell => cell.ch).join('').trimEnd();
 }
 
+/** The recorded inputs a source trace needs before it assigns a forecast. */
+export function formatReplayContext(context) {
+    if (!context) return '  replay context unavailable';
+    const segments = context.segments ?? [context];
+    const lines = [];
+    for (const segment of segments) {
+        const rc = segment.nethackrc?.trimEnd() || '(empty)';
+        lines.push(
+            ...(segment.segment === undefined
+                ? [] : [`  segment: ${segment.segment}`]),
+            `  seed: ${segment.seed}`,
+            `  datetime: ${segment.datetime}`,
+            '  nethackrc:',
+            ...rc.split('\n').map((line) => `    ${line}`),
+            `  input through stop: ${JSON.stringify(
+                segment.inputThroughStop ?? '',
+            )}`,
+        );
+    }
+    lines.push(
+        '  verify the exact C branch and its governing state before counting '
+            + 'this session',
+    );
+    return lines.join('\n');
+}
+
 /**
  * Where the reference program left the cursor, and what it drew there.
  *
@@ -323,13 +349,14 @@ export async function scanSession(file) {
     let stop = null;
     let behavioral = null;
     let stepOffset = 0;
+    const completedContexts = [];
     // Every command the session issued, numbered across segments so one index
     // orders the whole recording.
     const issuedAll = [];
     let answers = 0;
     let ambiguous = 0;
 
-    for (const segment of data.segments) {
+    for (const [segmentIndex, segment] of data.segments.entries()) {
         let boundary = null;
         const segmentGame = await runSegment(
             { ...replayInputFor(segment), storage },
@@ -337,12 +364,20 @@ export async function scanSession(file) {
         );
         const segmentScreens = (segmentGame.getScreens?.() ?? []).length;
         const steps = segment.steps || [];
+        const contextFor = (inputThroughStop) => ({
+            segment: segmentIndex,
+            seed: segment.seed,
+            datetime: segment.datetime,
+            nethackrc: segment.nethackrc ?? '',
+            inputThroughStop,
+        });
         if (stop === null) screensEmitted += segmentScreens;
         // Read the bindings before the next segment overwrites the shared game
         // singleton. Both the refused keystroke below and this segment's issued
         // commands resolve through them.
         if (boundary && stop === null) {
-            const step = steps[stopStepIndex(segmentScreens)];
+            const stopIndex = stopStepIndex(segmentScreens);
+            const step = steps[stopIndex];
             stop = {
                 boundary: boundary.message,
                 commandRefusal:
@@ -350,6 +385,13 @@ export async function scanSession(file) {
                 key: step?.key ?? null,
                 command: resolvedCommand(step?.key),
                 message: recordedTopLine(step),
+                context: {
+                    segments: [
+                        ...completedContexts,
+                        contextFor(steps.slice(1, stopIndex + 1)
+                            .map((entry) => entry.key ?? '').join('')),
+                    ],
+                },
             };
         }
         const issued = commandsIssued(steps);
@@ -367,6 +409,9 @@ export async function scanSession(file) {
             && behavioral === null)
             behavioral = { member: boundary.message, at: screensEmitted };
         stepOffset += steps.length;
+        completedContexts.push(contextFor(
+            steps.slice(1).map((entry) => entry.key ?? '').join(''),
+        ));
     }
 
     // Behaviors are assembled by the caller, once every session has been
@@ -381,6 +426,7 @@ export async function scanSession(file) {
         key: stop?.key ?? null,
         command: stop?.command ?? null,
         message: stop?.message ?? '',
+        stopContext: stop?.context ?? null,
         behavioral,
         issued: issuedAll,
         answers,
@@ -888,6 +934,7 @@ function reportAhead(rows, target) {
         total += steps.length;
         console.log(`== ${row.file}: steps ${stretch.from}..${stretch.to} `
             + `(${steps.length} ahead)`);
+        console.log(formatReplayContext(row.stopContext));
         for (const { line, count } of dedupeMessages(steps.map(recordedTopLine)))
             console.log(count > 1 ? `${line}  [x${count}]` : line);
         console.log('');
@@ -906,6 +953,7 @@ function aheadStretches(rows, target) {
             return {
                 file: row.file,
                 ...stretch,
+                context: row.stopContext,
                 messages: dedupeMessages(
                     recordedStepsFor(row.file)
                         .slice(stretch.from, stretch.to)

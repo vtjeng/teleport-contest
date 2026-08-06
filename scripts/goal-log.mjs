@@ -95,6 +95,76 @@ function findGoal(store, id) {
     return goal;
 }
 
+function commaSeparated(value) {
+    return value
+        ? value.split(',').map((entry) => entry.trim()).filter(Boolean)
+        : [];
+}
+
+/** Build a forecast whose named sessions each carry an exact C-path trace. */
+export function buildForecast(options) {
+    if (options['forecast-steps'] === undefined) return null;
+    const steps = Number(options['forecast-steps']);
+    if (!Number.isInteger(steps) || steps < 0) {
+        throw new Error('--forecast-steps must be a nonnegative integer');
+    }
+    const basis = options['forecast-basis']?.trim();
+    if (!basis) throw new Error('--forecast-basis is required');
+
+    const sessions = commaSeparated(options.sessions);
+    if (steps > 0 && sessions.length === 0) {
+        throw new Error('a nonzero forecast requires --sessions');
+    }
+    if (new Set(sessions).size !== sessions.length) {
+        throw new Error('--sessions contains a duplicate session');
+    }
+
+    const witnessValues = options['forecast-witness'] === undefined
+        ? []
+        : Array.isArray(options['forecast-witness'])
+            ? options['forecast-witness']
+            : [options['forecast-witness']];
+    const witnesses = witnessValues.map((value) => {
+        const separator = value.indexOf('=');
+        const session = value.slice(0, separator).trim();
+        const evidence = value.slice(separator + 1).trim();
+        if (separator < 1 || !evidence) {
+            throw new Error(
+                '--forecast-witness must be SESSION=C-path evidence',
+            );
+        }
+        return { session, evidence };
+    });
+    const witnessed = new Set();
+    for (const witness of witnesses) {
+        if (!sessions.includes(witness.session)) {
+            throw new Error(
+                `forecast witness names a session outside the forecast: ${
+                    witness.session}`,
+            );
+        }
+        if (witnessed.has(witness.session)) {
+            throw new Error(`duplicate C-path witness: ${witness.session}`);
+        }
+        witnessed.add(witness.session);
+    }
+    const missing = sessions.filter((session) => !witnessed.has(session));
+    if (missing.length) {
+        throw new Error(`missing C-path witness for ${missing.join(', ')}`);
+    }
+    return { steps, basis, sessions, witnesses };
+}
+
+/** Replace only a queued goal's forecast; opened calibration is immutable. */
+export function restateForecast(store, id, forecast) {
+    const goal = findGoal(store, id);
+    if (goal.status !== 'queued') {
+        throw new Error(`goal ${goal.id} is ${goal.status}, not queued`);
+    }
+    goal.forecast = forecast;
+    return goal;
+}
+
 function required(options, keys) {
     for (const key of keys) {
         if (!options[key]?.trim()) throw new Error(`--${key} is required`);
@@ -123,6 +193,9 @@ export function formatGoal(goal, { detail = false } = {}) {
     if (detail) {
         if (goal.upstreamOwners?.length) {
             lines.push(`  owners: ${goal.upstreamOwners.join(', ')}`);
+        }
+        for (const witness of goal.forecast?.witnesses ?? []) {
+            lines.push(`  witness ${witness.session}: ${witness.evidence}`);
         }
         if (goal.detail) {
             lines.push('  detail:');
@@ -177,7 +250,15 @@ function parseOptions(args) {
         if (index + 1 >= args.length || args[index + 1].startsWith('--')) {
             throw new Error(`${argument} needs a value`);
         }
-        options[key] = args[index + 1];
+        const value = args[index + 1];
+        if (key === 'forecast-witness') {
+            options[key] ??= [];
+            options[key].push(value);
+        } else if (Object.hasOwn(options, key)) {
+            throw new Error(`--${key} was provided twice`);
+        } else {
+            options[key] = value;
+        }
         index += 1;
     }
     return options;
@@ -216,13 +297,7 @@ function main(args) {
                 upstreamOwners: options.owners
                     ? options.owners.split(',').map((owner) => owner.trim())
                     : [],
-                forecast: options['forecast-steps'] ? {
-                    steps: Number(options['forecast-steps']),
-                    basis: options['forecast-basis'] ?? '',
-                    sessions: options.sessions
-                        ? options.sessions.split(',').map((s) => s.trim())
-                        : [],
-                } : null,
+                forecast: buildForecast(options),
                 detail: options.detail ?? '',
                 slices: [],
                 openedAt: null,
@@ -233,10 +308,32 @@ function main(args) {
             store.goals.push(goal);
         }
         if (mode === 'open-goal') {
+            if (goal.forecast?.sessions?.length
+                && goal.forecast.sessions.some((session) =>
+                    !goal.forecast.witnesses?.some(
+                        (witness) => witness.session === session,
+                    ))) {
+                throw new Error(
+                    `goal ${goal.id} needs one C-path witness per forecast `
+                    + 'session before it can open',
+                );
+            }
             goal.status = 'open';
             goal.openedAt = repositoryHead();
             goal.openStanding = developmentStanding();
         }
+        writeGoals(store);
+        console.log(formatGoal(goal));
+        return;
+    }
+    if (mode === 'restate-forecast') {
+        required(options, ['id', 'forecast-steps', 'forecast-basis']);
+        const store = readGoals();
+        const goal = restateForecast(
+            store,
+            options.id,
+            buildForecast(options),
+        );
         writeGoals(store);
         console.log(formatGoal(goal));
         return;
@@ -275,7 +372,7 @@ function main(args) {
         return;
     }
     throw new Error('modes: --current [--detail], calibration, queue-goal, '
-        + 'open-goal, queue-slice, close-slice, close-goal');
+        + 'restate-forecast, open-goal, queue-slice, close-slice, close-goal');
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
