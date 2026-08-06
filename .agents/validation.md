@@ -19,6 +19,9 @@ defined there.
   `--skip-score` omits the development score for a quick run; the score still
   has to pass before the commit. `scripts/checkpoint-checks.mjs` rejects every
   other option and prints no help text.
+- `npm test` excludes the mutation-runner integration suite. Run
+  `npm run test:mutation-runner` when changing that runner or suite, and
+  `npm run test:all` when changing test registration.
 - Redirect every checkpoint run to a log and read only its tail:
 
   ```

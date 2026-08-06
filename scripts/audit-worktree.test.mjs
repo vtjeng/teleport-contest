@@ -22,6 +22,7 @@ import {
     prepareAuditWorktree,
     runReadiness,
     validateChecklist,
+    assertMutationRangeWithinAudit,
     assertRangeCoversFrontier,
     readinessCommands,
     reviewFrontier,
@@ -72,6 +73,8 @@ function makeFixture(t) {
     const base = commit(repositoryRoot, 'base');
 
     writeFileSync(join(repositoryRoot, 'game.js'), 'export const turn = 2;\n');
+    const mutationBase = commit(repositoryRoot, 'first implementation');
+    writeFileSync(join(repositoryRoot, 'game.js'), 'export const turn = 3;\n');
     const head = commit(repositoryRoot, 'implementation');
     mkdirSync(join(repositoryRoot, '.agents'));
     writeFileSync(
@@ -90,6 +93,7 @@ function makeFixture(t) {
     return {
         base,
         head,
+        mutationBase,
         promptPath,
         repositoryRoot,
         skillPath,
@@ -381,9 +385,11 @@ test('cleanup rejects a manifest moved outside its prepared root', t => {
     );
 });
 
-test('readiness runs the three commands and refuses any red one', () => {
+test('readiness records its exact mutation range and report', () => {
     const base = 'b'.repeat(40);
+    const mutationBase = 'c'.repeat(40);
     const head = 'a'.repeat(40);
+    const reportPath = '/tmp/audit/mutation-report.json';
     const seen = [];
     // A fake runner that passes everything: the entries carry each command,
     // its verdict, and the last lines of its output for the manifest.
@@ -391,14 +397,17 @@ test('readiness runs the three commands and refuses any red one', () => {
         seen.push(`${command} ${args.join(' ')}`);
         return { status: 0, stdout: 'line1\nline2\n', stderr: '' };
     };
-    const results = runReadiness({ root: '/repo', base, head, run: green });
+    const results = runReadiness({
+        root: '/repo', base, head, mutationBase, reportPath, run: green,
+    });
     assert.deepEqual(results.map(({ label }) => label),
         ['checkpoint', 'quality check', 'range mutation']);
     // The mutation command names the exact frozen range and the three gating
     // kinds, so a transcribed range cannot drift from the audited one.
     assert.equal(seen[2],
-        `npm run mutate -- --range ${base}..${head} `
-            + '--kind relational,logical,boolean');
+        `npm run mutate -- --range ${mutationBase}..${head} `
+            + '--kind relational,logical,boolean '
+            + `--report ${reportPath}`);
     assert.equal(results[0].passed, true);
     assert.equal(results[0].tail, 'line1\nline2');
 
@@ -416,11 +425,58 @@ test('readiness runs the three commands and refuses any red one', () => {
 
 test('prepare accepts --readiness as a boolean option', () => {
     const parsed = parseAuditArgs(['prepare', '--range', 'a..b',
-        '--skill', 's', '--skill-path', 'p', '--prompt', 'q', '--readiness']);
+        '--mutation-range', 'm..b', '--skill', 's', '--skill-path', 'p',
+        '--prompt', 'q', '--readiness']);
     assert.equal(parsed.readiness, true);
+    assert.equal(parsed.mutationRange, 'm..b');
     const without = parseAuditArgs(['prepare', '--range', 'a..b',
         '--skill', 's', '--skill-path', 'p', '--prompt', 'q']);
     assert.equal(without.readiness, false);
+});
+
+test('prepare embeds a follow-up mutation delta and its report path', t => {
+    const fixture = makeFixture(t);
+    let readinessInput;
+    const prepared = prepareAuditWorktree({
+        range: `${fixture.base}..${fixture.head}`,
+        mutationRange: `${fixture.mutationBase}..${fixture.head}`,
+        skill: 'audit-diff-correctness',
+        skillPath: fixture.skillPath,
+        promptPath: fixture.promptPath,
+        repositoryRoot: fixture.repositoryRoot,
+        temporaryRoot: fixture.temporaryRoot,
+        readiness: true,
+        runReadinessCommands: input => {
+            readinessInput = input;
+            writeFileSync(input.reportPath, '{"version":1}\n');
+            return [];
+        },
+    });
+    t.after(() => cleanupAuditWorktree({
+        manifestPath: prepared.manifestPath,
+        repositoryRoot: fixture.repositoryRoot,
+    }));
+
+    assert.equal(readinessInput.mutationBase, fixture.mutationBase);
+    assert.deepEqual(prepared.manifest.mutation, {
+        range: `${fixture.mutationBase}..${fixture.head}`,
+        reportPath: join(prepared.manifest.workRoot, 'mutation-report.json'),
+    });
+});
+
+test('a mutation delta must follow the audited history to its head', () => {
+    const ancestors = new Set(['audit-base>delta', 'delta>audit-head']);
+    const isAncestorOf = (ancestor, descendant) =>
+        ancestor === descendant || ancestors.has(`${ancestor}>${descendant}`);
+
+    assertMutationRangeWithinAudit({
+        base: 'audit-base', head: 'audit-head',
+        mutationBase: 'delta', mutationHead: 'audit-head', isAncestorOf,
+    });
+    assert.throws(() => assertMutationRangeWithinAudit({
+        base: 'audit-base', head: 'audit-head',
+        mutationBase: 'side-branch', mutationHead: 'audit-head', isAncestorOf,
+    }), /suffix/u);
 });
 
 // The gate's two halves mean opposite things to a pass. readinessCommands()

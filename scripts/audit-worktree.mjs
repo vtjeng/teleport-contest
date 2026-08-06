@@ -34,6 +34,7 @@ export const DEFAULT_CHECKLIST = '.agents/implementation-checklist.json';
 export const USAGE = `Usage:
   node scripts/audit-worktree.mjs prepare \\
     --range <base>..<head> \\
+    [--mutation-range <base>..<head>] \\
     --skill <skill-name> \\
     --skill-path <path/to/SKILL.md> \\
     --prompt <path/to/audit-prompt.md> \\
@@ -107,6 +108,8 @@ function parsePrepareArgs(args) {
         const option = args[index];
         if (option === '--range') {
             parsed.range = optionValue(args, index, option);
+        } else if (option === '--mutation-range') {
+            parsed.mutationRange = optionValue(args, index, option);
         } else if (option === '--skill') {
             parsed.skill = optionValue(args, index, option);
         } else if (option === '--skill-path') {
@@ -133,6 +136,9 @@ function parsePrepareArgs(args) {
     if (parsed.noChecklistReason !== null
         && parsed.noChecklistReason.trim().length === 0) {
         throw new Error('--no-checklist-reason must explain the exception');
+    }
+    if (parsed.mutationRange && !parsed.readiness) {
+        throw new Error('--mutation-range requires --readiness');
     }
     return parsed;
 }
@@ -166,6 +172,23 @@ export function parseRange(range) {
         throw new Error('range revisions must not begin with a dash');
     }
     return { base, head };
+}
+
+export function assertMutationRangeWithinAudit({
+    base,
+    head,
+    mutationBase,
+    mutationHead,
+    isAncestorOf,
+}) {
+    if (mutationBase === mutationHead) {
+        throw new Error('mutation range is empty');
+    }
+    if (mutationHead !== head
+        || !isAncestorOf(base, mutationBase)
+        || !isAncestorOf(mutationBase, head)) {
+        throw new Error('mutation range must be a suffix of the audit range');
+    }
 }
 
 function resolveCommit(repositoryRoot, revision, label) {
@@ -380,6 +403,11 @@ function validateManifestPaths(manifestPath, manifest, repositoryRoot) {
             !== join(workRoot, 'implementation-checklist.json')) {
         throw new Error('checklist snapshot is outside its temporary root');
     }
+    if (manifest.mutation
+        && resolve(manifest.mutation.reportPath)
+            !== join(workRoot, 'mutation-report.json')) {
+        throw new Error('mutation report is outside its temporary root');
+    }
     if (resolve(manifest.repositoryRoot) !== resolve(repositoryRoot)) {
         throw new Error('audit manifest belongs to a different repository');
     }
@@ -442,20 +470,38 @@ export function assertRangeCoversFrontier(base, frontier, isAncestorOf) {
     );
 }
 
-export function readinessCommands(base, head) {
+export function readinessCommands(base, head, {
+    mutationBase = base,
+    mutationHead = head,
+    reportPath = null,
+} = {}) {
+    const mutationArgs = [
+        'run', 'mutate', '--', '--range', `${mutationBase}..${mutationHead}`,
+        '--kind', 'relational,logical,boolean',
+    ];
+    if (reportPath) mutationArgs.push('--report', reportPath);
     return [
         { label: 'checkpoint', command: 'npm', args: ['run', 'checkpoint'] },
         { label: 'quality check', command: 'npm',
             args: ['run', 'quality', '--', '--check', '--health'] },
         { label: 'range mutation', command: 'npm',
-            args: ['run', 'mutate', '--', '--range', `${base}..${head}`,
-                '--kind', 'relational,logical,boolean'] },
+            args: mutationArgs },
     ];
 }
 
-export function runReadiness({ root, base, head, run = runCommand }) {
+export function runReadiness({
+    root,
+    base,
+    head,
+    mutationBase = base,
+    mutationHead = head,
+    reportPath = null,
+    run = runCommand,
+}) {
     const results = [];
-    for (const { label, command, args } of readinessCommands(base, head)) {
+    for (const { label, command, args } of readinessCommands(base, head, {
+        mutationBase, mutationHead, reportPath,
+    })) {
         const result = run(command, args, {
             cwd: root,
             allowFailure: true,
@@ -481,6 +527,7 @@ export function runReadiness({ root, base, head, run = runCommand }) {
 
 export function prepareAuditWorktree({
     range,
+    mutationRange = null,
     skill,
     skillPath,
     promptPath,
@@ -491,6 +538,9 @@ export function prepareAuditWorktree({
     repositoryRoot = PROJECT_ROOT,
     temporaryRoot = tmpdir(),
 }) {
+    if (mutationRange !== null && !readiness) {
+        throw new Error('mutationRange requires readiness');
+    }
     const root = repositoryRootFor(repositoryRoot);
     const revisions = parseRange(range);
     const base = resolveCommit(root, revisions.base, 'base');
@@ -504,6 +554,19 @@ export function prepareAuditWorktree({
     if (ancestry.status !== 0) {
         throw new Error('audit base is not an ancestor of audit head');
     }
+    const mutationRevisions = parseRange(mutationRange ?? range);
+    const mutationBase = resolveCommit(
+        root, mutationRevisions.base, 'mutation base',
+    );
+    const mutationHead = resolveCommit(
+        root, mutationRevisions.head, 'mutation head',
+    );
+    const isAncestorOf = (ancestor, descendant) => ancestor === descendant
+        || runGit(root, ['merge-base', '--is-ancestor', ancestor, descendant],
+            { allowFailure: true }).status === 0;
+    assertMutationRangeWithinAudit({
+        base, head, mutationBase, mutationHead, isAncestorOf,
+    });
 
     // The range must reach back to the frontier, so recording it cannot
     // advance the frontier past commits no pass read.
@@ -585,6 +648,7 @@ export function prepareAuditWorktree({
     const checklistSnapshotPath = checklistExists
         ? join(workRoot, 'implementation-checklist.json')
         : null;
+    const mutationReportPath = join(workRoot, 'mutation-report.json');
     try {
         runGit(root, ['worktree', 'add', '--detach', worktreePath, head]);
         const actualHead = runGit(
@@ -618,7 +682,15 @@ export function prepareAuditWorktree({
                         + `HEAD is ${repoHead} and the range head ${head}`,
                 );
             }
-            readinessResults = runReadinessCommands({ root, base, head });
+            readinessResults = runReadinessCommands({
+                root,
+                base,
+                head,
+                mutationBase,
+                mutationHead,
+                reportPath: mutationReportPath,
+            });
+            readUtf8(mutationReportPath, 'mutation report');
         }
         const manifest = {
             version: MANIFEST_VERSION,
@@ -629,6 +701,10 @@ export function prepareAuditWorktree({
             base,
             head,
             range: `${base}..${head}`,
+            mutation: readiness ? {
+                range: `${mutationBase}..${mutationHead}`,
+                reportPath: mutationReportPath,
+            } : null,
             readiness: readinessResults,
             skill: {
                 name: skill,
@@ -721,6 +797,9 @@ export function checkAuditWorktree({
             );
         }
     }
+    if (manifest.mutation) {
+        readUtf8(manifest.mutation.reportPath, 'mutation report');
+    }
     if (manifest.upstream) {
         const upstreamPath = join(
             manifest.worktreePath,
@@ -754,6 +833,7 @@ function requirePreservedRoot(manifest) {
     if (manifest.checklist.snapshotPath) {
         allowedRootEntries.add('implementation-checklist.json');
     }
+    if (manifest.mutation) allowedRootEntries.add('mutation-report.json');
     const unpreserved = readdirSync(manifest.workRoot)
         .filter(entry => !allowedRootEntries.has(entry));
     if (unpreserved.length > 0) {

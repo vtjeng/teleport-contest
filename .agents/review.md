@@ -34,12 +34,15 @@ full suite at every checkpoint, and run a fresh differential when a slice
 closes. Launch a formal review pass only when the orchestrator judges the
 behavior and evidence complete. Freeze the committed range and prepare it with
 `node scripts/audit-worktree.mjs prepare ... --readiness`, which runs
-`npm run checkpoint`, `npm run quality -- --check`, and
-`npm run mutate -- --range <base>..<head> --kind relational,logical,boolean`
-at the repository head, embeds each command's result in the manifest, and
-refuses to prepare while any is red. That is the machine half of readiness;
-"Mutation-test the reviewed lines" states what a survivor proves and how the
-run's survivor list reaches the review.
+`npm run checkpoint`, `npm run quality -- --check --health`, and the mutation command
+selected by "Mutation-test the reviewed lines" at the repository head. It
+embeds each command, mutation range, report path, and result in the manifest
+and refuses to prepare while any is red. A window's first correctness pass
+mutates the whole frozen range. A follow-up pass over audit fixes mutates its
+new delta unless the conditions below require an earlier scope to be repeated.
+That is the machine half of readiness; "Mutation-test the reviewed lines"
+states what a survivor proves and how the run's survivor list reaches the
+review.
 
 The hand-written half is three attestations, recorded in the pass's
 `auditMetrics.readiness`:
@@ -184,7 +187,10 @@ integer bounds, the largest group and the weakest signal, because most of them
 are constants that no test can observe. Both stop at each mutant's first wave,
 the test files that reach its module without passing through another `js/`
 module. `--whole-suite` judges every first-wave survivor by every test file;
-reach for it when a survivor list looks wrong.
+reserve it for a first wave with no covering test file or a source trace that
+identifies a transitive test capable of deciding the survivor. Use
+`--from-report` to run only those survivors. Classify all other survivors from
+their source path, caller invariants, and declared exclusions.
 
 **Per slice.** A behavior slice closes with a mutation run over its own lines.
 The worker runs it while the work is uncommitted, which
@@ -198,11 +204,17 @@ slice from closing. Integer survivors are not gating.
 js/-touching commits in a range that carry no `Mutants:` trailer, so the
 orchestrator checks the record in place of inspecting for it.
 
+Every first-wave run writes a JSON report. Preserve it until every survivor is
+killed, classified, or selected for a whole-suite rerun. The report serializes
+the verdicts the run already computed; never rerun a first wave solely to
+create it.
+
 The commit message carries that record because a slice run measures uncommitted
 work, whose subject is gone once the slice is committed, and because
 `QUALITY.json` holds `auditMetrics` for passes alone.
 
-**Per window.** The run `prepare --readiness` performs over the frozen range stays as it is:
+**Per window.** A window's first correctness pass mutates its complete frozen
+range:
 
 ```
 npm run mutate -- --range <base>..<head> --kind relational,logical,boolean
@@ -210,15 +222,32 @@ npm run mutate -- --range <base>..<head> --kind relational,logical,boolean
 
 It names two commits, so a later reader repeats it and reaches the same target
 set, while a slice run's subject no longer exists after the commit. It also
-covers two things the slice runs leave out. It reaches the `js/` lines of
-commits that close no slice, because an audit fix and a simplification both
-change production lines. And it judges every mutant in the window against the
-suite as it finally stands, so a mutant that a slice run found killed appears
-here as a survivor when a later commit weakened the test that killed it.
+covers the `js/` lines of commits that close no slice and judges every mutant
+against the integrated suite at the first review boundary.
+
+A follow-up pass whose new range contains audit fixes or simplification commits
+passes that delta to readiness explicitly:
+
+```
+node scripts/audit-worktree.mjs prepare ... --readiness \
+  --mutation-range <previous-head>..<head>
+```
+
+The original window result and each later delta result compose the mutation
+evidence for the final head. Adding assertions or production fixes requires
+only the delta run.
+
+Repeat an earlier mutation scope when the follow-up removes or relaxes an
+existing assertion that killed one of its mutants, changes test reachability
+for a previously mutated production module, changes the mutator's site
+selection or verdict logic, or follows an incomplete mutation run. Limit the
+repeat to the affected earlier files when the tool can express that scope.
+Record the repeated scope and the reason in the readiness manifest.
 
 Record its mutant count, survivor count, per-kind counts, and the test-quality
-finder's conclusion under `mutation` in the pass's `auditMetrics`. Where a
-per-slice record and this run disagree about a mutant, this run is the record.
+finder's conclusion under `mutation` in the pass's `auditMetrics`, together
+with every mutation range used. Where a per-slice record and a later window or
+delta run disagree about a mutant, the later run is the record.
 
 Two limits bound what either list proves. A line holding no mutable site
 produces no mutant, so a line the list omits carries no evidence either way. A

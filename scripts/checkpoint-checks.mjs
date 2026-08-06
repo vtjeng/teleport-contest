@@ -211,13 +211,16 @@ export function summarizeMutation({ stdout = '', stderr = '', status }) {
     }
     const survivors = output.split('\n')
         .filter((line) => line.startsWith('survived '));
+    const report = /^report written: (.+)$/mu.exec(output)?.[1];
+    const reportDetail = report ? `; report ${report}` : '';
     const summary = /^(\d+) mutant\(s\): (\d+) killed/mu.exec(output);
     if (!summary)
-        return { body: output.trimEnd(), detail: 'no js/ line in scope' };
+        return { body: output.trimEnd(),
+            detail: `no js/ line in scope${reportDetail}` };
     return {
         body: output.trimEnd(),
         detail: `${survivors.length} survivor(s) of ${summary[1]} mutant(s) `
-            + 'over the uncommitted js/ diff',
+            + `over the uncommitted js/ diff${reportDetail}`,
     };
 }
 

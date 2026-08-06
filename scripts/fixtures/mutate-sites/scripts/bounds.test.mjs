@@ -1,5 +1,5 @@
 // The covering test file for the mutate-sites fixture module. Only
-// scripts/mutate-sites.test.mjs runs it, by naming it explicitly inside a
+// scripts/mutate-sites.integration.mjs runs it, by naming it explicitly inside a
 // workspace; `npm test` globs scripts/*.test.mjs and never reaches this
 // directory.
 //

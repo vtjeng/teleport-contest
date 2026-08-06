@@ -1,4 +1,4 @@
-// A fixture for scripts/mutate-sites.test.mjs. It is not game code and nothing
+// A fixture for scripts/mutate-sites.integration.mjs. It is not game code and nothing
 // under js/ imports it.
 //
 // Each mutable site below is placed so that the fixture's own test either pins

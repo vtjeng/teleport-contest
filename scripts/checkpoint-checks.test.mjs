@@ -175,11 +175,13 @@ test('the mutation check reports survivors on its summary line', () => {
         'survived js/lock.js:29:50: logical `||` -> `&&` (first wave was 1)',
         'killed js/lock.js:29:28: logical `||` -> `&&` (first wave: lock.test)',
         '2 mutant(s): 1 killed, 1 survived, 0 timed out; 0.9 s of test time',
+        'report written: /tmp/teleport-mutation-report-fixed/report.json',
     ].join('\n');
 
     assert.deepEqual(summarizeMutation({ stdout, status: 0 }), {
         body: stdout,
-        detail: '1 survivor(s) of 2 mutant(s) over the uncommitted js/ diff',
+        detail: '1 survivor(s) of 2 mutant(s) over the uncommitted js/ diff; '
+            + 'report /tmp/teleport-mutation-report-fixed/report.json',
     });
 
     // A clean tree puts no line in scope, so the mutator prints no summary.

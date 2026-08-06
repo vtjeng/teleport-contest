@@ -4,7 +4,9 @@
   "description": "The Teleport Coding Challenge — Port NetHack C to JavaScript",
   "type": "module",
   "scripts": {
-    "test": "node --test scripts/*.test.mjs",
+    "test": "node scripts/run-test-suite.mjs default",
+    "test:mutation-runner": "node scripts/run-test-suite.mjs mutation-runner",
+    "test:all": "node scripts/run-test-suite.mjs all",
     "check:namespace-members": "node scripts/check-namespace-members.mjs",
     "check:extcmds": "node scripts/generate-extcmds.mjs --check",
     "check:monsters": "node scripts/generate-monsters.mjs --check",

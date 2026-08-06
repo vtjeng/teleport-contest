@@ -58,10 +58,10 @@
 // `--jobs 1` runs serially. Values 2 through 7 allow up to that many isolated
 // mutation lanes. Each active lane owns its workspace and wave identities;
 // reports retain serial mutant order.
-// `--report <path>` writes the run's survivors as a versioned JSON report, and
-// `--from-report <path>` re-runs exactly those survivors, which is the
-// escalation path: write the report on the first wave, then judge the
-// survivors alone with `--from-report <path> --whole-suite` in place of
+// Every completed mutation run writes its survivors as a versioned JSON report
+// under a unique temporary directory. `--report <path>` selects another
+// location, and `--from-report <path>` re-runs exactly those survivors. This
+// escalation path judges the survivors alone with `--whole-suite` without
 // re-running every mutant's first wave to rediscover them.
 //
 // `--sample <n>` draws n mutants uniformly at random from the whole target set
@@ -86,8 +86,8 @@
 // reports positions the reader can open. A line that a later commit rewrote
 // belongs to that commit and drops out, as does a line edited but not
 // committed. When the head is the working tree, the blamed set is the diff's
-// own set, which `scripts/mutate-sites.test.mjs` asserts against whichever
-// commit last changed js/.
+// own set, which `scripts/mutate-sites.integration.mjs` asserts against
+// whichever commit last changed js/.
 //
 // Every CLI form acquires one local exclusivity lock and creates a uniquely
 // named aggregate slice. The slice contains the outer mutator and every wave,
@@ -2277,7 +2277,8 @@ function startMutationLaneWorker() {
  * unattributed kill is a legitimate result; the import-failure note below
  * covers that case.
  *
- * That format is the reporter's, not an API, so `scripts/mutate-sites.test.mjs`
+ * That format is the reporter's, not an API, so
+ * `scripts/mutate-sites.integration.mjs`
  * pins each one against a file that genuinely fails. One other route was
  * measured and rejected: running a wave one file at a time to attribute by
  * position costs 2.72 times the concurrent wall clock for js/monmove.js's six
@@ -2662,6 +2663,13 @@ function assertJsPath(path, root) {
 // refuses a version it does not know rather than misreading the file.
 export const REPORT_VERSION = 3;
 
+export function automaticReportPath(requested, {
+    makeTemporaryRoot = () => mkdtempSync(join(
+        tmpdir(), 'teleport-mutation-report-')),
+} = {}) {
+    return requested ?? join(makeTemporaryRoot(), 'report.json');
+}
+
 export function reportFromResult(result, kinds) {
     return {
         kind: 'mutate-sites-report',
@@ -2758,11 +2766,10 @@ export async function main(argv) {
     // `npm run quality -- slice-mutants` later checks it is there.
     if (options.emitTrailer)
         console.log(formatTrailer(result, options.kinds));
-    if (options.report) {
-        writeFileSync(options.report, `${JSON.stringify(
-            reportFromResult(result, options.kinds), null, 2)}\n`);
-        console.log(`report written: ${options.report}`);
-    }
+    const reportPath = automaticReportPath(options.report);
+    writeFileSync(reportPath, `${JSON.stringify(
+        reportFromResult(result, options.kinds), null, 2)}\n`);
+    console.log(`report written: ${reportPath}`);
 }
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);

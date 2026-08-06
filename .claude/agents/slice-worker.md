@@ -69,10 +69,11 @@ the ban on `scripts/score-holdout.mjs` and `sessions/holdout/`.
 ## Mutation-test the lines you changed
 
 `npm run checkpoint` runs `scripts/mutate-sites.mjs` over your uncommitted js/
-diff and reports the survivor count on its summary line. A survivor is a mutant
-that no test failed on: your tests do not distinguish the changed line from a
-wrong version of it. Read that line after each checkpoint, and attempt to kill
-every surviving mutant.
+diff, writes a JSON report, and prints its path and survivor count on the
+summary line. A survivor is a mutant that no test failed on: your tests do not
+distinguish the changed line from a wrong version of it. Preserve the report,
+read that line after each checkpoint, and attempt to kill every surviving
+mutant. Never rerun a first wave solely to create its report.
 
 Before you commit, every surviving relational, logical, or boolean mutant needs
 one of two outcomes: an assertion that kills it, or a reason no test can kill
@@ -85,14 +86,13 @@ measured figures; nothing else in it is required here.
 A survivor may be false. The check judges each mutant by the test files that
 reach its module without passing through another js/ module, so a test that
 reaches the module through another js/ module can kill a mutant this check
-reports as surviving. Kill what you can first, then escalate once:
-`--whole-suite` runs every test file that imports a js/ module against each
-surviving mutant, so an earlier escalation pays that for mutants you are about
-to kill anyway. When only survivors you cannot explain remain, escalate them alone: add
-`--report <path>` to your first-wave run, then run
+reports as surviving. Kill what you can from the first-wave result. Use
+`--whole-suite` only when the first wave names no covering test file or your
+source trace identifies a transitive test capable of deciding the survivor.
+Select those survivors from the report written by the original run, then run
 `npm run mutate -- --from-report <path> --kind relational,logical,boolean
---whole-suite`, which judges the reported survivors without re-running every
-mutant's first wave.
+--whole-suite`. Classify the remaining survivors from their source path, caller
+invariants, and declared exclusions.
 
 Record the run in the slice's commit: rerun the final command with
 `--emit-trailer`, copy the `Mutants:` line it prints into the commit message
