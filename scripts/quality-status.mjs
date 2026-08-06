@@ -829,6 +829,27 @@ export function validateConfigShape(config) {
     if (typeof entry.detail !== 'string' || entry.detail.trim().length === 0) {
       fail(`${label}.detail must be nonempty`);
     }
+    // Notes are the append-only half of an entry: `detail` states the claim as
+    // first written, and each note corrects it without erasing it. An entry
+    // that has never been corrected carries no `notes` key at all.
+    if (entry.notes !== undefined) {
+      if (!Array.isArray(entry.notes)) fail(`${label}.notes must be an array`);
+      for (const [noteIndex, note] of entry.notes.entries()) {
+        const noteLabel = `${label}.notes[${noteIndex}]`;
+        if (!note || typeof note !== 'object' || Array.isArray(note)) {
+          fail(`${noteLabel} must be an object`);
+        }
+        if (typeof note.text !== 'string' || note.text.trim().length === 0) {
+          fail(`${noteLabel}.text must be nonempty`);
+        }
+        // The commit dates the note. `from` may say `roadmap` because an entry
+        // can predate the ledger; a note is only ever written by the
+        // subcommand, which resolves HEAD, so nothing but a SHA is valid.
+        if (!SHA_PATTERN.test(note.at ?? '')) {
+          fail(`${noteLabel}.at must be a full commit SHA`);
+        }
+      }
+    }
   }
 
   for (const [passIndex, pass] of config.passes.entries()) {
@@ -1288,6 +1309,19 @@ export function sweepCandidates(deferred, threshold = 10) {
   return [...counts.entries()].filter(([, count]) => count >= threshold);
 }
 
+// One line per entry, so a note's text stays out of the listing: the backlog
+// runs to dozens of entries and a note is a paragraph. The count is what a
+// reader needs from a list -- it says this entry has been corrected since it
+// was written -- and `deferrals --id <id>` prints the entry whole, notes
+// included.
+export function formatDeferralRow(entry) {
+  const notes = entry.notes?.length
+    ? ` (${plural(entry.notes.length, 'note')})`
+    : '';
+  return `[${entry.area ?? '-'}] (${entry.category}, ${entry.effort}) `
+    + `${entry.id}${notes}`;
+}
+
 function queryLedger(command, options, config) {
   if (command === 'pass') {
     rejectUnknownOptions(options, new Set(['head']));
@@ -1322,9 +1356,7 @@ function queryLedger(command, options, config) {
   }
   const rows = openDeferrals(config.deferred,
     { area: options.area ?? null, status });
-  for (const row of rows) {
-    console.log(`[${row.area ?? '-'}] (${row.category}, ${row.effort}) ${row.id}`);
-  }
+  for (const row of rows) console.log(formatDeferralRow(row));
   console.log(`${plural(rows.length, 'deferral')} (${status}`
     + `${options.area ? `, ${options.area}` : ''}).`);
   for (const [area, count] of sweepCandidates(config.deferred)) {
@@ -1357,6 +1389,45 @@ function deferEntry(options) {
     validateConfigShape(config);
     writeConfig(config);
     console.log(`Deferred: ${options.id.trim()}`);
+  });
+}
+
+// A deferral's `detail` is written once and never rewritten. A later commit
+// can falsify its central claim, and when that happened is worth as much as
+// the correction itself, so a note appends beside the original rather than
+// replacing it. The entry's id, area, category, effort and `from` are the
+// entry's identity and are never touched here.
+//
+// A closed entry takes no note, for the same reason resolve-deferral refuses
+// to close one twice: a closed entry schedules no work, so nothing it says is
+// still a claim on anyone. A correction to settled work belongs with whatever
+// reopens the entry -- recording a deferral against a closed id does exactly
+// that -- and the reopened entry then takes the note in the backlog where a
+// reader will meet it.
+export function appendDeferralNote(config, id, text, at) {
+  const entry = config.deferred.find((candidate) => candidate.id === id);
+  if (!entry) fail(`no deferred entry has id: ${id}`);
+  if (entry.status === 'closed') {
+    fail(`already closed: ${entry.id}; reopen it by recording a deferral `
+      + 'against its id before adding a note');
+  }
+  entry.notes = [...entry.notes ?? [], { text, at }];
+  // Full-shape validation rejects a malformed note before anything is written.
+  validateConfigShape(config);
+  return entry;
+}
+
+function noteDeferral(options) {
+  rejectUnknownOptions(options, new Set(['id', 'note']));
+  for (const key of ['id', 'note']) {
+    if (!options[key]?.trim()) fail(`--${key} is required`);
+  }
+  withLedgerLock(() => {
+    const config = loadConfig();
+    const entry = appendDeferralNote(
+      config, options.id.trim(), options.note.trim(), resolveCommit('HEAD'));
+    writeConfig(config);
+    console.log(`Noted: ${entry.id} (${plural(entry.notes.length, 'note')})`);
   });
 }
 
@@ -1466,14 +1537,19 @@ function printHelp() {
   npm run quality -- assign --file js/<name>.js --area <id>
   npm run quality -- defer --id <id> --category <c> --effort <small|slice> \\
     --detail <text> [--area <id>]
+  npm run quality -- note-deferral --id <id> --note <text>
   npm run quality -- resolve-deferral --id <id>
   npm run quality -- slice-mutants --range <base>..<head>
 
 The query subcommands read the ledger, so a later pass consults prior
 rejections and open deferrals without opening QUALITY.json. defer opens a
-ledger entry and resolve-deferral closes one when its fix lands. areas lists
-the quality areas, and assign inserts a new js/ file into one, the write the
-per-chunk workflow requires as soon as the file is created.
+ledger entry and resolve-deferral closes one when its fix lands. note-deferral
+appends a correction to an open entry, stamped with the commit it was written
+at; it never rewrites what the entry already says, so a reader can tell an
+original claim from a later correction and date each one. The deferrals listing
+prints each entry's note count, and deferrals --id prints the notes themselves.
+areas lists the quality areas, and assign inserts a new js/ file into one, the
+write the per-chunk workflow requires as soon as the file is created.
 
 Status is derived from Git. The review frontier is the newest recorded
 review head, and recording a pass advances it through the --range head.
@@ -1516,6 +1592,10 @@ export function main(argv) {
   }
   if (first === 'defer') {
     deferEntry(parseOptions(rest));
+    return;
+  }
+  if (first === 'note-deferral') {
+    noteDeferral(parseOptions(rest));
     return;
   }
   if (first === 'resolve-deferral') {
