@@ -772,6 +772,15 @@
       "status": "open",
       "from": "14f350a9ad7f64e6c24ddbc1dd8eb594e2e3f06f",
       "detail": "js/pickup.js automatic-pickup capacity planning uses incoming gold's gross obj.owt, while pickup.c carry_count() subtracts the weight already represented by mergeable carried gold. Near the capacity boundary this can reject a gold pickup that C admits. This predates the audited range and needs its own source-driven slice and fresh C differential."
+    },
+    {
+      "id": "dosounds-refusal-escapes-as-hard-failure",
+      "area": "world-effects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "068406fdc5b340678750973805adf3597bfe5fdf",
+      "detail": "`js/sounds.js` raises its two fail-closed refusals as a plain `Error`:\n`rejectUnportedSpecialSound()` at :107 and `rejectUnportedOracleSound()` at\n:116. Every other refusal in the port throws `UnsupportedSpecialRoomError` or a\nsibling, and `js/jsmain.js:522-543` swallows only those named classes, so this\none escapes `runSegment()`.\n\nTwo consequences, both verified by reading the call sites. `scripts/scan-sessions.mjs`\ncalls `runSegment()` at :359-364 inside no `try`; its only handler is the\ntop-level `main(...).catch(...)` at :1049, so one session whose later segments\nreach a shop level aborts the whole census. Selection on 6 August 2026 hit\nexactly that — `Session scan failed: dosounds initial-level slice reached an\nunported later-level branch (has_shop)` on `seed0030-ten-diverse-deaths` — and\nhad to be run under a scratchpad loader shim that re-raised the two throws as\n`UnsupportedSpecialRoomError`. Scoring hides the defect rather than showing it:\n`frozen/ps_test_runner.mjs` catches at the loop level and records the message as\nthat session's `error`, so `scripts/score-development.mjs` still completes.\n\nThe fix is the error class, not the refusal: both throws become the boundary\nclass that `jsmain.js` already admits, so the segment ends on its last matching\nscreen instead of crashing. It changes which screens the affected sessions\ncontribute, so it needs its own whole-score comparison rather than riding an\naudit fix.\n\nSame shape as two entries already in this ledger: `artifactTouchable() crashes a\nsegment instead of ending it` (monsters) and `a live monster refusal escapes as\na hard failure` (startup). A single sweep could settle all three."
     }
   ],
   "areas": [

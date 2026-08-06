@@ -422,6 +422,52 @@
         "screens": 36,
         "rng": 536
       }
+    },
+    {
+      "id": "apply-tool-command",
+      "status": "open",
+      "boundary": "the hero issues apply (a), apply.c apply_ok() classifies inventory for getobj(\"use or apply\", ...), and apply.c doapply() runs the arm the chosen object's otyp selects — the stethoscope and the lock pick; every other arm of that switch, and the wand, spellbook and coin shortcuts above it, stop at a named refusal",
+      "upstreamOwners": [
+        "apply.c apply_ok()",
+        "apply.c doapply()",
+        "apply.c use_stethoscope()",
+        "insight.c ustatusline()",
+        "lock.c pick_lock()"
+      ],
+      "forecast": {
+        "steps": 26,
+        "basis": "capped look-ahead, 6 August 2026: seed0016-healer-newmoon-eat-zap 11 of 11, capped by its own segment end at step 14 where zap begins, and seed0077-rogue-chargen 15 of 15, uncapped to the segment end at step 32. Neither stretch was cut, so 26 is both the raw unlocks figure and the capped one. Highest of fourteen candidates: options caps at 16 of 48, #twoweapon at 25 of 35, #pray at 21 of 21, pet combat evaluation at 19 of 21, takeoff at 18 of 18 over four sessions, fire at 17, monster trap activation at 16, hero combat at 15 over two, wizgenesis at 11, riding movement at 10 of 31, hero trap activation at 8 of 61, engraving interaction at 6 of 238, #rub at 2 of 22 and #l at 1 of 19. Scanned with a scratchpad loader shim, because js/sounds.js raises its refusals as a plain Error and aborts the census.",
+        "sessions": [
+          "seed0016-healer-newmoon-eat-zap",
+          "seed0077-rogue-chargen"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0016-healer-newmoon-eat-zap",
+            "evidence": "seed 16, datetime 20000205090000, gnome Healer, nethackrc !autopickup !tutorial suppress_alert:3.4.3 symset:DECgraphics disclose:yi ya yv yg yc yo. Stop at step 3, key 'a'. u_init.c:76-89 gives the Healer a=scalpel b=leather gloves c=stethoscope d,e=potions f=wand of sleep g,h,i=spellbooks j=apples; apply.c apply_ok() (4151-4210) returns GETOBJ_SUGGEST for TOOL_CLASS, WAND_CLASS and SPBOOK_CLASS and GETOBJ_DOWNPLAY for the two potion stacks, which is exactly the recorded prompt \"[cfghi or ?*]\". Step 4 picks c = STETHOSCOPE, so doapply() (4214) reaches its STETHOSCOPE case at 4327-4329. Step 5 answers getdir() with '.', which zeroes u.dx, u.dy and u.dz, so use_stethoscope() (318) falls past the usteed, uswallow and u.dz arms to confdir(FALSE) and the !u.dx && !u.dy test at 380-383, calling insight.c ustatusline() (3402). The recorded line \"Status of Healix (fervently neutral):  Level 1  HP 12(12)  AC 8.\" is that function's output."
+          },
+          {
+            "session": "seed0077-rogue-chargen",
+            "evidence": "seed 77, datetime 20000110090000, human Rogue, nethackrc !autopickup suppress_alert:3.4.3 symset:DECgraphics disclose:yi ya yv yg yc yo. Stop at step 18, key 'a'. u_init.c:133-141 gives the Rogue a=short sword b=daggers c=leather armor d=potion of sickness e=lock pick f=sack; apply_ok() suggests only the two TOOL_CLASS items, which is the recorded prompt \"[ef or ?*]\". Step 19 picks e = LOCK_PICK, so doapply() reaches its LOCK_PICK/CREDIT_CARD/SKELETON_KEY case at 4290-4293 and calls lock.c pick_lock(obj, 0, 0, NULL) (358) with rx = ry = 0, so autounlock is FALSE and the function prompts for a direction. Step 20 answers 'j', selecting the square south of the hero, which takes pick_lock()'s not-the-hero's-location branch; that square is an open door, so the doormask switch reaches its D_ISOPEN arm at lock.c:599 and returns PICKLOCK_LEARNED_SOMETHING. The recorded line \"You cannot lock an open door.\" is that arm."
+          }
+        ]
+      },
+      "detail": "### The hero applies a tool\n\n`apply.c doapply()` (4214-4430) is the `a` command. Its entry is short — `nohands()`, `check_capacity()`, `getobj(\"use or apply\", apply_ok, GETOBJ_NOFLAGS)`, `retouch_object()`, then three `oclass` shortcuts (wand, spellbook, coin) and a switch on `otyp`. Two arms of that switch carry the whole forecast: `STETHOSCOPE` at 4327-4329 and `LOCK_PICK` at 4290-4293. Everything else in the switch is the goal's boundary and must stop at a named refusal, including `SACK` reaching `use_container()`, which the Rogue also carries as inventory letter `f`.\n\n**The stop is measured.** Both sessions stop on the port's repeated-command boundary refusing the byte `a` (`js/cmd.js:783-786`, `ADMITTED_COMMANDS` at 717-720). The scan puts `seed0016` at 3/36 and `seed0077` at 18/33, and both stretches were read step by step against the recorded keys, not from the top-line summary.\n\n**Most of the scaffolding is already ported.** `getobj()` is `js/invent.js:369` and already serves `eat`, so `apply_ok()` plugs into an existing consumer rather than needing one. `getdir()` is `js/cmd.js:515`, `confdir()` is `js/cmd.js:496`, `check_capacity()` is `js/hack.js:255`, and `nohands()` is `js/mondata.js`. `js/lock.js` already owns `lock.c`'s `xlock` context, `reset_pick()` and `maybe_reset_pick()`, and its header comment names `pick_lock()` as the deliberate gap, so `pick_lock()` lands in the file that is already waiting for it.\n\n**Three things are genuinely new.** `insight.c ustatusline()` (3402) has no port; `js/insight.js` is its owner. `freehand()` has no port and gates `use_stethoscope()`'s third guard. `svc.context.stethoscope_seq` compared against `gh.hero_seq` (decl.c:394, allmain.c:260 and 396) is the free-action rule that decides whether the first stethoscope use of a move costs time; `state.hero_seq` already exists (`js/u_init_inventory_attrs.js:237`, validated at `js/allmain.js:428`), so only the `stethoscope_seq` half is missing, and it needs one owner.\n\n**`retouch_object()` needs a decision before the first commit.** `js/eat.js` references it but `js/` has no port; `QUALITY.json` carries `artifactTouchable() crashes a segment instead of ending it` against the same area. Neither starting kit holds an artifact, so the branch is dormant for both sessions, but it sits between `getobj()` and the switch and must be ported or refused explicitly rather than skipped.\n\n**A branch neither starting character reaches.** `use_stethoscope()`'s `u.usteed`, `u.uswallow`, `u.dz` and cursed-object arms (346-378) are all unreachable here: `.` zeroes all three deltas and both stethoscopes are `{ STETHOSCOPE, 0, TOOL_CLASS, 1, 1, 0 }`, uncursed by definition at u_init.c:79. `pick_lock()`'s resume-an-interrupted-attempt branch (378-400) needs `gx.xlock.usedtime`, which `reset_pick()` is the port's only writer of and which is zero on a first application.\n\n**A side effect worth pricing in.** `pick_lock()` is half of what `QUALITY.json`'s `an explicit autounlock setting is refused` says its fix belongs with, the other half being `autokey()`. Porting it does not close that entry — the entry waits on the parser for `flags.autounlock` — but it removes the `door unlocking tool` refusal at `js/hack.js:986-988` from the critical path, which is what currently caps `seed0007`'s `options` stretch at step 50.\n\n**Why this goal and not the field.** Capped look-ahead on 6 August 2026 across fourteen candidates: this boundary 26 over two sessions with neither stretch cut, `#twoweapon` 25 of 35, `#pray` 21 of 21, pet combat evaluation 19 of 21, `takeoff` 18 of 18 over four, `fire` 17, monster trap activation 16, `options` 16 of 48, hero combat 15 over two, `wizgenesis` 11, riding movement 10 of 31, hero trap activation 8 of 61, engraving interaction 6 of 238, `#rub` 2 of 22. `options` led on the raw figure and on a first reading of its stretch, and it lost on the second: `seed0007` picks `lit_corridor` among its eight booleans, and `options.c:5362-5375` answers that option with `vision_recalc(2)`, `gv.vision_full_recalc = 1` and, because `color` is on and its address is `&iflags.wc_color` (optlist.h:236-238), `go.opt_need_redraw = TRUE`. `js/vision.js:746` skips at `control === 2` exactly the loop C runs there, and `reglyph_darkroom()` and `check_gold_symbol()` have no port at all — `js/do.js:855-864` and `:910-916` record both as deliberately unreachable. That caps `options` at step 36, where the picks are applied.",
+      "slices": [
+        {
+          "name": "the hero applies a stethoscope to herself",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "068406fdc5b340678750973805adf3597bfe5fdf",
+      "openStanding": {
+        "sha": "aa9f3c85b1100bdb84517bf993ecceaf403c4eeb",
+        "screens": 1002,
+        "rng": 116103
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
