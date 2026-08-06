@@ -82,9 +82,10 @@ behavior, use newly chosen strict C-versus-JavaScript recordings and compare
 PRNG logs, complete 24-by-80 screens and attributes, and cursor positions.
 Exercise the valid option or configuration dimensions relevant to the path.
 
-If no valid natural case reaches the candidate, keep it `unverified`; do not
-call it covered. Do not weaken fresh-recipe or sealed-path protections to make
-a case easier to produce.
+If valid inputs cannot reproduce the suspected behavior in the C reference
+game, classify it as `unverified` unless the user authorizes the exception
+under `.agents/validation.md`. Follow that file's recipe and sealed-holdout
+requirements for every reproduction.
 
 ### 6. Cluster confirmed gaps
 

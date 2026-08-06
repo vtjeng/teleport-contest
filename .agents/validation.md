@@ -79,6 +79,19 @@ focused tests cover the renderer's input contract.
   contain replay inputs only. They must never contain recorded `steps`,
   weaken the sealed-path checks that reject paths under `sessions/holdout/`,
   or reference the sealed holdout.
+- Build each fresh case from the shortest valid input sequence that reaches
+  the behavior. Use options, character selection, Wizard commands, inventory
+  actions, or movement to create the setup directly. Search for a natural seed
+  only when the test measures generation or random selection, or must prove
+  that the setup occurs in ordinary play. Before searching, record which part
+  of the behavior direct setup would skip and the finite set of seeds and
+  inputs to scan; stop when that scan completes.
+- With explicit user authorization, C source analysis plus a constructed
+  integration test may replace a fresh C case when valid C inputs cannot create
+  the required setup within the declared search domain. Record the exact setup,
+  the C functions that determine its behavior, the integration test, why the C
+  case could not reach it, and what the substitute does not prove in the
+  implementation checklist.
 - Before closing a nontrivial behavior slice or goal, run a reproducible
   matrix that varies inputs relevant to the change. Cover ordinary cases and
   rare branches identified from source; exhaustive combinations are
