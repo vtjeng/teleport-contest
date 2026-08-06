@@ -603,7 +603,17 @@ test('multi-square dry run and replay select the same heterogeneous square',
         await place_random_arrival(0, admitted);
         assert.deepEqual([admitted.u.ux, admitted.u.uy], [10, 8]);
         assert.notDeepEqual(game.coreCtx, admittedRng);
-        assert.ok(getRngLog().length > 0);
+        assert.deepEqual(getRngLog(), [
+            'rn2(2)=0',
+            'rn2(1)=0',
+        ]);
+        const admittedFinalRng = structuredClone(game.coreCtx);
+        const expected = makeState(11);
+        initRng(9450613);
+        enableRngLog();
+        u_on_rndspot(0, expected, { deferSwitchTerrain: true });
+        assert.deepEqual(game.coreCtx, admittedFinalRng);
+        assert.deepEqual([expected.u.ux, expected.u.uy], [10, 8]);
     });
 
 test('random arrival preflights the complete ordinary pickup transaction',

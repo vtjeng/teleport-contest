@@ -472,11 +472,12 @@ test('priced preflight projects observation and accepts hallucination resistance
         // dknown write and computes the Charisma-8 price of 3, not 4.
         upper.o_id = 404;
         assert.equal(
-            assertPricedObjectNameable(upper, state).perUnit,
+            assertPricedObjectNameable(upper, state).pricingUnitCost,
             3,
         );
         assert.equal(
-            get_cost_of_shop_item(upper, state, { observed: false }).perUnit,
+            get_cost_of_shop_item(upper, state, { observed: false })
+                .pricingUnitCost,
             4,
         );
     });

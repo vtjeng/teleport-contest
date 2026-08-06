@@ -1203,8 +1203,9 @@ export function testCommandArgs(testFiles) {
 // turns that runaway into one failed wave without killing the range run.  The
 // wrapper also starts Node's test runner in a new process group and kills that
 // complete group on timeout or caller interruption. After every result,
-// runTests() stops the complete wave scope, which also collects helpers in
-// another process group without signalling a reusable post-exit numeric PGID.
+// runTests() reads the retained scope result, then stops and resets the complete
+// wave scope. That also collects helpers in another process group without
+// signalling a reusable post-exit numeric PGID.
 export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
     runnerPath = BOUNDED_TEST_RUNNER,
     unitName = `teleport-mutate-wave-${process.pid}-${++testWaveSequence}`,
@@ -1220,7 +1221,6 @@ export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
         args: [
             '--user',
             '--scope',
-            '--collect',
             '--quiet',
             `--unit=${unitName}`,
             ...sliceArgs,
@@ -1250,13 +1250,36 @@ export function stopWaveScope(unitName) {
         encoding: 'utf8',
         env: { ...process.env, LC_ALL: 'C' },
     });
-    if (result.status === 0) return;
+    if (result.status === 0) {
+        // A failed scope remains loaded without systemd-run --collect. Reset
+        // it only after Result has been read, then permit the exact race where
+        // systemd unloaded it between stop and reset-failed.
+        const reset = spawnSync(
+            'systemctl', ['--user', 'reset-failed', scopeUnit], {
+                encoding: 'utf8',
+                env: { ...process.env, LC_ALL: 'C' },
+            },
+        );
+        if (reset.status === 0) return;
+        const resetMissing = `Failed to reset failed state of unit `
+            + `${scopeUnit}: Unit ${scopeUnit} not loaded.\n`;
+        if ((reset.status === 1 || reset.status === 5)
+            && (reset.stdout ?? '') === ''
+            && (reset.stderr ?? '') === resetMissing) return;
+        const resetOutput = `${reset.stdout ?? ''}${reset.stderr ?? ''}`
+            .trimEnd();
+        const resetDetail = reset.error?.message
+            ?? (resetOutput || (reset.signal
+                ? `systemctl ended with signal ${reset.signal}`
+                : `systemctl exited with status ${reset.status}`));
+        throw new Error(`failed to reset mutation wave scope ${scopeUnit}: `
+            + resetDetail);
+    }
 
     const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trimEnd();
     const collected = `Failed to stop ${scopeUnit}: Unit ${scopeUnit} not loaded.\n`;
-    // `--collect` can remove a scope between spawnSync's timeout and this
-    // command. systemd 255 reports that completed cleanup as status 5 with
-    // exactly this line.
+    // An ordinary successful scope can unload before this command. systemd
+    // 255 reports that completed cleanup as status 5 with exactly this line.
     if (result.status === 5
         && (result.stdout ?? '') === ''
         && (result.stderr ?? '') === collected) return;
@@ -1311,16 +1334,6 @@ export function runTests(workspace, testFiles, timeoutMs) {
             timeout: runner.outerTimeoutMs,
             maxBuffer: 64 * 1024 * 1024,
         });
-        const rawSignal = result.status === null && result.signal !== null
-            && result.error?.code !== 'ETIMEDOUT';
-        if (rawSignal) {
-            scopeWasOomKilled = waveScopeWasOomKilled(runner.unitName);
-        }
-        // The test runner's process group cannot contain a helper which called
-        // setsid() or spawned with detached:true. The uniquely named scope does,
-        // so stop it after every result and preserve the runner's result only once
-        // systemd confirms that the complete wave cgroup is empty.
-        stopWaveScope(runner.unitName);
         let authenticated = false;
         try {
             authenticated = readFileSync(runner.startedPath, 'utf8')
@@ -1328,6 +1341,18 @@ export function runTests(workspace, testFiles, timeoutMs) {
         } catch (error) {
             if (error.code !== 'ENOENT') throw error;
         }
+        const timedOut = result.status === 124
+            || result.error?.code === 'ETIMEDOUT';
+        const rawSignal = result.status === null && result.signal !== null
+            && result.error?.code !== 'ETIMEDOUT';
+        if (authenticated && !timedOut && result.status !== 0) {
+            scopeWasOomKilled = waveScopeWasOomKilled(runner.unitName);
+        }
+        // The test runner's process group cannot contain a helper which called
+        // setsid() or spawned with detached:true. The uniquely named scope does,
+        // so stop it after every result and preserve the runner's result only once
+        // systemd confirms that the complete wave cgroup is empty.
+        stopWaveScope(runner.unitName);
         if (!authenticated) {
             const output = `${result.stdout ?? ''}${result.stderr ?? ''}`.trim();
             throw new Error(`mutation test wave ${runner.unitName} did not `
@@ -1430,7 +1455,8 @@ export function runMutants({ workspace, targets,
     // known.
     if (!baselineFiles.length) {
         return { survivors: [], kills: [], killed: 0, timeouts: 0, ran: 0,
-            perFile: [], timeoutRecords: [],
+            perFile: [], timeoutRecords: [], resourceLimits: 0,
+            resourceLimitRecords: [],
             unmeasured, wholeSuite, suiteSize: allTests.length,
             ranSeconds: 0, firstWaveKilled: 0, firstWaveRuns: 0,
             firstWaveSeconds: 0, wholeSuiteKilled: 0, wholeSuiteRuns: 0,
@@ -1466,6 +1492,7 @@ export function runMutants({ workspace, targets,
     const survivors = [];
     const kills = [];
     const timeoutRecords = [];
+    const resourceLimitRecords = [];
     const perFile = [];
     // Kill rates differ sharply by kind, and that is the signal worth reading:
     // a surviving relational operator marks an untested boundary, while a
@@ -1479,6 +1506,7 @@ export function runMutants({ workspace, targets,
     };
     let killed = 0;
     let timeouts = 0;
+    let resourceLimits = 0;
     let ran = 0;
     let firstWaveKilled = 0;
     let firstWaveRuns = 0;
@@ -1513,12 +1541,19 @@ export function runMutants({ workspace, targets,
                         timeoutRecords.push({ ...site, path: target.path,
                             wave: 'first' });
                     }
+                    if (wave.resourceLimited) {
+                        resourceLimits += 1;
+                        resourceLimitRecords.push({
+                            ...site, path: target.path, wave: 'first',
+                        });
+                    }
                     if (!wave.passed) {
                         killed += 1;
                         firstWaveKilled += 1;
                         recordKind(site.kind, true);
                         kills.push({ ...site, path: target.path, wave: 'first',
-                            killedBy: killingTestFiles(wave.output) });
+                            killedBy: killingTestFiles(wave.output),
+                            resourceLimited: Boolean(wave.resourceLimited) });
                         continue;
                     }
                 }
@@ -1541,6 +1576,12 @@ export function runMutants({ workspace, targets,
                     timeoutRecords.push({ ...site, path: target.path,
                         wave: 'suite' });
                 }
+                if (rest.resourceLimited) {
+                    resourceLimits += 1;
+                    resourceLimitRecords.push({
+                        ...site, path: target.path, wave: 'suite',
+                    });
+                }
                 if (rest.passed) {
                     survivors.push({ ...site, path: target.path,
                         tests: target.tests });
@@ -1548,7 +1589,8 @@ export function runMutants({ workspace, targets,
                     killed += 1;
                     wholeSuiteKilled += 1;
                     kills.push({ ...site, path: target.path, wave: 'suite',
-                        killedBy: killingTestFiles(rest.output) });
+                        killedBy: killingTestFiles(rest.output),
+                        resourceLimited: Boolean(rest.resourceLimited) });
                 }
                 recordKind(site.kind, !rest.passed);
             }
@@ -1558,7 +1600,8 @@ export function runMutants({ workspace, targets,
         if (tally.mutants) perFile.push(tally);
     }
 
-    return { survivors, kills, killed, timeouts, timeoutRecords, ran,
+    return { survivors, kills, killed, timeouts, timeoutRecords,
+        resourceLimits, resourceLimitRecords, ran,
         perFile, unmeasured,
         byKind, wholeSuite, suiteSize: allTests.length,
         ranSeconds: firstWaveSeconds + wholeSuiteSeconds,
@@ -1639,6 +1682,10 @@ export function formatReport(result, population = result.ran) {
     }
     for (const timeout of result.timeoutRecords ?? [])
         lines.push(`timed out ${describeSite(timeout)} (${timeout.wave} wave)`);
+    for (const limited of result.resourceLimitRecords ?? []) {
+        lines.push(`resource limited ${describeSite(limited)} `
+            + `(${limited.wave} wave)`);
+    }
     // Per-file cost, split by phase. The first-wave figure follows from how
     // many test files reach the module; the full-suite figure is the same for
     // every file and applies only to the mutants that got past their first
@@ -1655,7 +1702,8 @@ export function formatReport(result, population = result.ran) {
     }
     for (const kill of result.kills ?? []) {
         lines.push(`killed ${describeSite(kill)} (${kill.wave} wave: `
-            + `${kill.killedBy.join(', ') || 'killer unattributed'})`);
+            + `${kill.resourceLimited ? 'memory limit' :
+                kill.killedBy.join(', ') || 'killer unattributed'})`);
     }
     for (const target of result.unmeasured) {
         lines.push(`unmeasured ${target.path}: ${target.sites.length} site(s), `
@@ -1685,6 +1733,7 @@ export function formatReport(result, population = result.ran) {
     }
     lines.push(`${result.ran} mutant(s): ${result.killed} killed, `
         + `${result.survivors.length} survived, ${result.timeouts} timed out; `
+        + `${result.resourceLimits ?? 0} resource limited; `
         + `${result.ranSeconds.toFixed(1)} s of test time, `
         + `${perMutant(result.ranSeconds, result.ran)} s per mutant; baseline `
         + `${result.baselineTests} test(s) in `
@@ -1938,7 +1987,7 @@ function assertJsPath(path, root) {
 // --from-report, so escalating a survivor list mutates the survivors alone.
 // The version field gates parsing: a schema change bumps it, and a consumer
 // refuses a version it does not know rather than misreading the file.
-export const REPORT_VERSION = 2;
+export const REPORT_VERSION = 3;
 
 export function reportFromResult(result, kinds) {
     return {
@@ -1946,6 +1995,9 @@ export function reportFromResult(result, kinds) {
         version: REPORT_VERSION,
         kinds: kinds ?? null,
         timeouts: (result.timeoutRecords ?? []).map(
+            ({ path, line, column, kind, original, replacement, wave }) =>
+                ({ path, line, column, kind, original, replacement, wave })),
+        resourceLimits: (result.resourceLimitRecords ?? []).map(
             ({ path, line, column, kind, original, replacement, wave }) =>
                 ({ path, line, column, kind, original, replacement, wave })),
         survivors: result.survivors.map(

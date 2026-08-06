@@ -1650,15 +1650,26 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     // `l` names the prepared square one column east of the hero.
     game.nhDisplay.pushKey(commandKeyCode('l'));
 
-    await assert.rejects(
-        moveloop_core(),
-        (error) => (
-            error instanceof UnsupportedHeroMoveBoundaryError
-            && error.reason === 'door or special terrain movement'
-        ),
-    );
-    assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
-    assert.deepEqual(replay.getRngSlices().at(-1), []);
+    let pendingCommand = null;
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            moveloop_core(),
+            (error) => (
+                error instanceof UnsupportedHeroMoveBoundaryError
+                && error.reason === 'door or special terrain movement'
+            ),
+        );
+        assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
+        assert.equal(game.context.pendingCommand.menuRequested, true);
+        if (pendingCommand === null) {
+            pendingCommand = structuredClone(game.context.pendingCommand);
+        } else {
+            assert.deepEqual(game.context.pendingCommand, pendingCommand);
+        }
+        assert.deepEqual([game.u.ux, game.u.uy], start);
+        assert.equal(game.level.objects[x][y], floorObject);
+        assert.deepEqual(replay.getRngSlices().at(-1), []);
+    }
 
     east.typ = ROOM;
     await moveloop_core();

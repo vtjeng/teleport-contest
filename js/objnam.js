@@ -966,6 +966,8 @@ export function doname_with_price(
     const quote = get_cost_of_shop_item(obj, state);
     const suffix = `${quote.cost} ${currencyName(quote.cost, state)}`;
     const result = `${name} (for sale, ${suffix})`;
+    // get_cost_of_shop_item() totals get_pricing_units(), but C remembers the
+    // displayed quote per object quantity, which can be a different divisor.
     record_price_quote(obj.otyp, quote.cost / obj.quan, true, state);
     return result;
 }

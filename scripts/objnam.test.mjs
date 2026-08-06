@@ -30,7 +30,7 @@ import {
     W_QUIVER,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
-import { look_here } from '../js/invent.js';
+import { dolook, look_here } from '../js/invent.js';
 import { init_objects } from '../js/o_init.js';
 import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { newObject } from '../js/obj.js';
@@ -485,6 +485,39 @@ test('ordinary object piles display every name before reading the engraving',
             ['engraving'],
         ]);
         assert.equal(head.dknown, true);
+    });
+
+test('caller obj_cnt keeps dolook and check_here pile limits distinct',
+    async () => {
+        const render = async (invoke) => {
+            const { state } = pileLookState({ count: 2 });
+            state.flags.pile_limit = 2;
+            const events = [];
+            await invoke(state, {
+                message: async (text) => events.push(['message', text]),
+                displayObjectPile: async (lines) =>
+                    events.push(['display', lines]),
+                readEngraving: async () => events.push(['engraving']),
+            });
+            return events;
+        };
+
+        assert.deepEqual(await render((state, hooks) => dolook(state, hooks)), [
+            ['display', [
+                'Things that are here:',
+                'a dart',
+                'a food ration',
+            ]],
+            ['engraving'],
+        ]);
+        assert.deepEqual(
+            await render((state, hooks) =>
+                look_here(2, LOOKHERE_NOFLAGS, state, hooks)),
+            [
+                ['engraving'],
+                ['message', 'There are two objects here.'],
+            ],
+        );
     });
 
 test('an equal ordinary mention-decor terrain retains the object-pile menu',

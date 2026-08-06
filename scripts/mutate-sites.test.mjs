@@ -62,6 +62,7 @@ import {
     testRunnerCommand,
     tokenize,
     uncommittedJsLines,
+    waveScopeWasOomKilled,
 } from './mutate-sites.mjs';
 
 const SCRIPT_PATH = fileURLToPath(
@@ -896,7 +897,6 @@ test('timed mutation waves kill the complete Node test process group', () => {
             args: [
                 '--user',
                 '--scope',
-                '--collect',
                 '--quiet',
                 '--unit=teleport-mutate-wave-test',
                 '--slice=teleport_mutate_123.slice',
@@ -1349,11 +1349,112 @@ test('a wave OOM kill is an attributable failing-test verdict', () => {
     }
 });
 
-test('scope cleanup accepts only the exact collected-unit result', () => {
+test('an OOM wrapper status is an attributable resource-limited verdict',
+    () => {
+        const workspace = mkdtempSync(join(tmpdir(), 'mutate-wave-oom-status-'));
+        const bin = join(workspace, 'bin');
+        const oldPath = process.env.PATH;
+        mkdirSync(bin);
+        writeFileSync(join(bin, 'systemd-run'), [
+            '#!/usr/bin/env node',
+            "import { writeFileSync } from 'node:fs';",
+            "const runner = process.argv.findIndex((arg) => arg.endsWith('/run-bounded-tests.mjs'));",
+            "writeFileSync(process.argv[runner + 2], `${process.argv[runner + 3]}\\n`);",
+            'process.exitCode = 137;',
+            '',
+        ].join('\n'));
+        writeFileSync(join(bin, 'systemctl'), [
+            '#!/usr/bin/env node',
+            "const command = process.argv[3];",
+            "if (command === 'show') {",
+            "  process.stdout.write('oom-kill\\n');",
+            '  process.exitCode = 0;',
+            '} else {',
+            "  const unit = process.argv.at(-1);",
+            "  process.stderr.write(`Failed to stop ${unit}: Unit ${unit} not loaded.\\n`);",
+            '  process.exitCode = 5;',
+            '}',
+            '',
+        ].join('\n'));
+        chmodSync(join(bin, 'systemd-run'), 0o755);
+        chmodSync(join(bin, 'systemctl'), 0o755);
+        try {
+            process.env.PATH = `${bin}:${oldPath}`;
+            const result = runTests(workspace, ['unused.test.mjs'], 5_000);
+            assert.deepEqual({
+                passed: result.passed,
+                timedOut: result.timedOut,
+                resourceLimited: result.resourceLimited,
+            }, {
+                passed: false,
+                timedOut: false,
+                resourceLimited: true,
+            });
+        } finally {
+            process.env.PATH = oldPath;
+            rmSync(workspace, { recursive: true, force: true });
+        }
+    });
+
+test('OOM scope detection pins the exact systemctl query and response', () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'mutate-oom-query-'));
+    const bin = join(workspace, 'bin');
+    const logPath = join(workspace, 'query.json');
+    const oldPath = process.env.PATH;
+    mkdirSync(bin);
+    writeFileSync(join(bin, 'systemctl'), [
+        '#!/usr/bin/env node',
+        "import { writeFileSync } from 'node:fs';",
+        "writeFileSync(process.env.TEST_SYSTEMCTL_LOG, JSON.stringify({ args: process.argv.slice(2), locale: process.env.LC_ALL }));",
+        "const mode = process.env.TEST_SYSTEMCTL_MODE;",
+        "if (mode === 'exact') process.stdout.write('oom-kill\\n');",
+        "else if (mode === 'prefix') process.stdout.write('warning\\noom-kill\\n');",
+        "else if (mode === 'suffix') process.stdout.write('oom-kill\\nwarning\\n');",
+        "else if (mode === 'whitespace') process.stdout.write('oom-kill  \\n');",
+        "else if (mode === 'stderr') { process.stdout.write('oom-kill\\n'); process.stderr.write('warning\\n'); }",
+        "else if (mode === 'other') process.stdout.write('signal\\n');",
+        "else if (mode === 'status') { process.stdout.write('oom-kill\\n'); process.exitCode = 1; }",
+        '',
+    ].join('\n'));
+    chmodSync(join(bin, 'systemctl'), 0o755);
+    try {
+        process.env.PATH = `${bin}:${oldPath}`;
+        process.env.TEST_SYSTEMCTL_LOG = logPath;
+        process.env.TEST_SYSTEMCTL_MODE = 'exact';
+        assert.equal(waveScopeWasOomKilled(
+            'teleport-mutate-wave-contract-test'), true);
+        assert.deepEqual(JSON.parse(readFileSync(logPath, 'utf8')), {
+            args: [
+                '--user',
+                'show',
+                'teleport-mutate-wave-contract-test.scope',
+                '--property=Result',
+                '--value',
+            ],
+            locale: 'C',
+        });
+        for (const mode of [
+            'prefix', 'suffix', 'whitespace', 'stderr', 'empty', 'other',
+            'status',
+        ]) {
+            process.env.TEST_SYSTEMCTL_MODE = mode;
+            assert.equal(waveScopeWasOomKilled(
+                'teleport-mutate-wave-contract-test'), false, mode);
+        }
+    } finally {
+        process.env.PATH = oldPath;
+        delete process.env.TEST_SYSTEMCTL_LOG;
+        delete process.env.TEST_SYSTEMCTL_MODE;
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('scope cleanup stops, resets, or accepts an exactly unloaded unit', () => {
     const workspace = mkdtempSync(join(tmpdir(), 'mutate-scope-stop-'));
     const bin = join(workspace, 'bin');
     const systemctl = join(bin, 'systemctl');
     const oldPath = process.env.PATH;
+    const logPath = join(workspace, 'systemctl.jsonl');
     mkdirSync(bin);
     // This name cannot collide with a production wave because production names
     // include both the mutator pid and its wave sequence.
@@ -1366,6 +1467,8 @@ test('scope cleanup accepts only the exact collected-unit result', () => {
 
         writeFileSync(systemctl, [
             `#!${process.execPath}`,
+            "import { appendFileSync } from 'node:fs';",
+            "appendFileSync(process.env.TEST_SYSTEMCTL_LOG, `${JSON.stringify(process.argv.slice(2))}\\n`);",
             "const mode = process.env.TEST_SYSTEMCTL_MODE;",
             "const unit = process.argv.at(-1);",
             "const unloaded = `Failed to stop ${unit}: Unit ${unit} not loaded.\\n`;",
@@ -1414,10 +1517,19 @@ test('scope cleanup accepts only the exact collected-unit result', () => {
             '',
         ].join('\n'));
         chmodSync(systemctl, 0o755);
+        process.env.TEST_SYSTEMCTL_LOG = logPath;
 
         // Status 0 is the ordinary result when systemctl stopped a live scope.
         process.env.TEST_SYSTEMCTL_MODE = 'success';
         assert.doesNotThrow(() => stopWaveScope(unitName));
+        assert.deepEqual(
+            readFileSync(logPath, 'utf8').trim().split('\n')
+                .map((line) => JSON.parse(line)),
+            [
+                ['--user', 'stop', `${unitName}.scope`],
+                ['--user', 'reset-failed', `${unitName}.scope`],
+            ],
+        );
         // systemd 255 returns 5 and names the exact unloaded unit after
         // collection. This is the sole nonzero result that means no process
         // remains to clean up.
@@ -1448,6 +1560,7 @@ test('scope cleanup accepts only the exact collected-unit result', () => {
     } finally {
         process.env.PATH = oldPath;
         delete process.env.TEST_SYSTEMCTL_MODE;
+        delete process.env.TEST_SYSTEMCTL_LOG;
         rmSync(workspace, { recursive: true, force: true });
     }
 });
@@ -2380,6 +2493,58 @@ test('suite-wave timeouts retain their identity in both reports', () => {
     );
 });
 
+test('resource-limited mutants retain their identity in both wave reports',
+    () => {
+        const runCase = (wholeSuite) => {
+            let calls = 0;
+            const runTestWave = () => {
+                calls += 1;
+                const baseline = calls === 1;
+                const firstWave = !wholeSuite || calls % 2 === 0;
+                const limited = !baseline && (wholeSuite ? !firstWave : true);
+                return {
+                    passed: baseline || !limited,
+                    timedOut: false,
+                    resourceLimited: limited,
+                    seconds: 0,
+                    output: '# tests 1\n',
+                };
+            };
+            return withWorkspace((workspace) => runMutants({
+                workspace,
+                targets: [fixtureTarget({ lines: new Set([10]) })],
+                allTests: FIXTURE_SUITE,
+                wholeSuite,
+                runTestWave,
+            }));
+        };
+
+        for (const [wholeSuite, expectedWave] of [
+            [false, 'first'],
+            [true, 'suite'],
+        ]) {
+            const result = runCase(wholeSuite);
+            assert.equal(result.resourceLimits, 2);
+            assert.deepEqual(
+                result.resourceLimitRecords.map(({ replacement, wave }) => ({
+                    replacement, wave,
+                })),
+                [
+                    { replacement: '5', wave: expectedWave },
+                    { replacement: '3', wave: expectedWave },
+                ],
+            );
+            assert.equal(result.kills.every((kill) =>
+                kill.resourceLimited), true);
+            assert.equal(formatReport(result).filter((line) =>
+                line.startsWith('resource limited ')).length, 2);
+            assert.deepEqual(
+                reportFromResult(result).resourceLimits.map(({ wave }) => wave),
+                [expectedWave, expectedWave],
+            );
+        }
+    });
+
 test('a workspace is removed when a run is killed', async () => {
     // removeWorkspace() runs from a `finally` arm, which a terminating signal
     // skips, so an interrupted run used to leave 6.7 MB of copied js/ and
@@ -2739,11 +2904,14 @@ test('a survivor report round-trips into a targeted re-run filter', () => {
             kind: 'relational', original: '<', replacement: '<=' }],
         timeoutRecords: [{ path: 'js/bounds.js', line: 10, column: 27,
             kind: 'integer', original: '4', replacement: '5', wave: 'first' }],
+        resourceLimitRecords: [{ path: 'js/bounds.js', line: 10, column: 27,
+            kind: 'integer', original: '4', replacement: '3', wave: 'suite' }],
     };
     const report = reportFromResult(result, ['relational']);
-    assert.equal(report.version, 2);
+    assert.equal(report.version, 3);
     assert.equal(report.kind, 'mutate-sites-report');
     assert.deepEqual(report.timeouts, result.timeoutRecords);
+    assert.deepEqual(report.resourceLimits, result.resourceLimitRecords);
     const filter = siteFilterFromReport(report);
     assert.deepEqual(filter.paths, ['js/bounds.js']);
     assert.equal(filter.matches('js/bounds.js',
@@ -2753,8 +2921,8 @@ test('a survivor report round-trips into a targeted re-run filter', () => {
         { line: 21, column: 10, replacement: '11' }), false);
     // A future schema bump must refuse rather than misread.
     assert.throws(
-        () => siteFilterFromReport({ ...report, version: 3 }),
-        /version 2/u,
+        () => siteFilterFromReport({ ...report, version: 4 }),
+        /version 3/u,
     );
-    assert.throws(() => siteFilterFromReport({ survivors: [] }), /version 2/u);
+    assert.throws(() => siteFilterFromReport({ survivors: [] }), /version 3/u);
 });

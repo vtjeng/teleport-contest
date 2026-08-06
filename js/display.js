@@ -2221,8 +2221,8 @@ export function tty_capacity_status(capacity, shrinkLevel) {
     return ENC_STAT_FORMS[shrinkLevel]?.[capacity] ?? '';
 }
 
-function _capacityStatus(shrinkLevel = 0) {
-    return tty_capacity_status(near_capacity(game), shrinkLevel);
+function _capacityStatus(capacity, shrinkLevel = 0) {
+    return tty_capacity_status(capacity, shrinkLevel);
 }
 
 const STATUS_CONDITION_SPECS = Object.freeze([
@@ -2354,7 +2354,7 @@ function _statusTimeText() {
     return `T:${game.moves || 1}`;
 }
 
-function _statusLine2Configuration() {
+function _statusLine2Configuration(capacity) {
     const u = game.u;
     if (!u) return null;
     const time = game.flags?.time ? ` ${_statusTimeText()}` : '';
@@ -2365,8 +2365,11 @@ function _statusLine2Configuration() {
     let capacityLevel = 0;
     let capacityPadding = '';
     let shortLevel = false;
-    const build = () => `${_statusLevelDescription(u, shortLevel)} ${_statusVitals(u)}${time}${_hungerStatus(u)}${_capacityStatus(capacityLevel)
-        ? ` ${_capacityStatus(capacityLevel)}` : ''}${capacityPadding}${_statusConditions(u, conditionLevel)}${optional}`;
+    const build = () => {
+        const capacityText = _capacityStatus(capacity, capacityLevel);
+        return `${_statusLevelDescription(u, shortLevel)} ${_statusVitals(u)}${time}${_hungerStatus(u)}${capacityText
+            ? ` ${capacityText}` : ''}${capacityPadding}${_statusConditions(u, conditionLevel)}${optional}`;
+    };
     let status = build();
     // wintty.c make_things_fit() first tries both abbreviated condition
     // vocabularies, then both carrying-capacity abbreviations, and finally
@@ -2377,17 +2380,17 @@ function _statusLine2Configuration() {
         status = build();
     }
     if (status.length + versionLength > TTY_STATUS_WIDTH
-        && _capacityStatus(capacityLevel)) {
+        && _capacityStatus(capacity, capacityLevel)) {
         capacityLevel = 1;
         status = build();
     }
     if (status.length + versionLength > TTY_STATUS_WIDTH
-        && _capacityStatus(capacityLevel)) {
+        && _capacityStatus(capacity, capacityLevel)) {
         capacityLevel = 2;
         status = build();
     }
     if (status.length + versionLength > TTY_STATUS_WIDTH
-        && !_capacityStatus(capacityLevel)) {
+        && !_capacityStatus(capacity, capacityLevel)) {
         // shrink_enc() reconstructs an unencumbered BL_CAP as one blank;
         // unlike tty_status_update(), it does not suppress that blank again.
         capacityPadding = ' ';
@@ -2468,8 +2471,10 @@ function _newStatusRow() {
     return { clear, finish, write };
 }
 
-function _fieldOwner(field) {
-    return { kind: 'field', field };
+function _fieldOwner(field, value = null) {
+    return value === null
+        ? { kind: 'field', field }
+        : { kind: 'field', field, value };
 }
 
 function _conditionOwner(option) {
@@ -2708,11 +2713,11 @@ function _statusLine1Layout(includeAlignment = true) {
 }
 
 // The fields wintty.c twolineorder[]'s second row holds, in its order.
-function _statusLine2Fields() {
+function _statusLine2Fields(capacityValue) {
     const u = game.u;
     // _statusLine2Configuration() answers null for exactly the missing hero
     // this function has no row to draw for.
-    const configuration = _statusLine2Configuration();
+    const configuration = _statusLine2Configuration(capacityValue);
     if (!configuration) return null;
     const {
         capacityLevel,
@@ -2741,11 +2746,14 @@ function _statusLine2Fields() {
             _statusField(hunger, _fieldOwner('hunger')),
         );
     }
-    const capacity = _capacityStatus(capacityLevel);
+    const capacity = _capacityStatus(capacityValue, capacityLevel);
     if (capacity) {
         fields.push(
             _statusField(' '),
-            _statusField(capacity, _fieldOwner('carrying-capacity')),
+            _statusField(
+                capacity,
+                _fieldOwner('carrying-capacity', capacityValue),
+            ),
         );
     }
     if (capacityPadding) fields.push(_statusField(capacityPadding));
@@ -2760,14 +2768,14 @@ function _statusLine2Fields() {
     return fields;
 }
 
-function _statusLine2Layout() {
-    const fields = _statusLine2Fields();
+function _statusLine2Layout(capacity) {
+    const fields = _statusLine2Fields(capacity);
     if (!fields) return { text: '', owners: [] };
     const { row } = _renderStatusFields(fields);
     return { ...row.finish(), fields };
 }
 
-function _statusLine3VitalsLayout() {
+function _statusLine3VitalsLayout(capacityValue) {
     const u = game.u;
     if (!u) return { text: '', owners: [] };
     const row = _newStatusRow();
@@ -2783,13 +2791,13 @@ function _statusLine3VitalsLayout() {
         column = row.write(column, ' ');
         column = row.write(column, hunger, _fieldOwner('hunger'));
     }
-    const capacity = _capacityStatus();
+    const capacity = _capacityStatus(capacityValue);
     if (capacity) {
         column = row.write(column, ' ');
         row.write(
             column,
             capacity,
-            _fieldOwner('carrying-capacity'),
+            _fieldOwner('carrying-capacity', capacityValue),
         );
     }
     return row.finish();
@@ -2860,13 +2868,17 @@ function statusLayouts({ initialTtyRefresh = false } = {}) {
     if (game.iflags?.status_updates === false) {
         return Array.from({ length: count }, () => ({ text: '', owners: [] }));
     }
+    // botl.c computes BL_CAP once per full status update. near_capacity()
+    // stores inv_weight()'s result in gw.wc, so layout retries and highlight
+    // selection must reuse this snapshot rather than recomputing live state.
+    const capacity = game.u ? near_capacity(game) : 0;
     return game.iflags?.wc2_statuslines === 3
         ? [
             _statusLine1Layout(false),
-            _statusLine3VitalsLayout(),
+            _statusLine3VitalsLayout(capacity),
             _statusLine3DetailsLayout({ initialTtyRefresh }),
         ]
-        : [_statusLine1Layout(), _statusLine2Layout()];
+        : [_statusLine1Layout(), _statusLine2Layout(capacity)];
 }
 
 function _statusPercentage(value, maximum) {
@@ -2933,7 +2945,7 @@ function _criticallyLowHp(onlyIfInjured) {
     return current <= 5 || current * divisor <= maximum;
 }
 
-function _statusFieldData(field) {
+function _statusFieldData(field, valueSnapshot = null) {
     const u = game.u;
     const attrs = [
         effective_attribute(game, A_STR),
@@ -2964,7 +2976,7 @@ function _statusFieldData(field) {
     case 'alignment': return { text: _statusAlignment(u) };
     case 'score': return { value: 0 };
     case 'carrying-capacity': {
-        const capacity = near_capacity(game);
+        const capacity = valueSnapshot ?? near_capacity(game);
         return {
             value: capacity,
             text: enc_stat[capacity] ?? '',
@@ -3027,12 +3039,12 @@ function _statusRelationMatches(actual, relation, threshold) {
 // C ref: botl.c:get_hilite(). Initial status has no up/down transition, but
 // persistent percentage, absolute, text, always, and critical rules retain
 // the source best-fit precedence.
-function _statusFieldStyle(field) {
+function _statusFieldStyle(field, valueSnapshot = null) {
     if (!game.iflags?.hilite_delta) return null;
     const rules = (game.iflags.status_hilites ?? []).filter(
         (rule) => rule.field === field,
     );
-    const data = _statusFieldData(field);
+    const data = _statusFieldData(field, valueSnapshot);
     if (!rules.length || (data.text === '' && data.value == null)) return null;
     let selected = null;
     let exact = false;
@@ -3113,7 +3125,9 @@ function _statusConditionStyle(option) {
 
 function _statusOwnerStyle(owner) {
     if (!owner) return null;
-    if (owner.kind === 'field') return _statusFieldStyle(owner.field);
+    if (owner.kind === 'field') {
+        return _statusFieldStyle(owner.field, owner.value ?? null);
+    }
     if (owner.kind === 'condition') {
         return _statusConditionStyle(owner.option);
     }

@@ -690,8 +690,11 @@ function activeStoneResistance(state) {
 // `objects` projects the floor chain after an automatic pickup without
 // relinking the live objects. `decorTerrain` projects describe_decor()'s
 // preceding prev_decor write when check_here() has already admitted it.
+// `obj_cnt` is invent.c's caller-owned parameter, deliberately independent of
+// the floor chain: check_here() passes its count for pile_limit, while dolook()
+// passes zero even when it inspects the same objects.
 export function preflight_look_here(
-    checkedObjectCount,
+    obj_cnt,
     lookhere_flags,
     state = game,
     { objects = null, decorTerrain = null } = {},
@@ -703,7 +706,7 @@ export function preflight_look_here(
     const { ux, uy } = state.u;
     const skip_dfeature = (lookhere_flags & LOOKHERE_SKIP_DFEATURE) !== 0;
     const skip_objects = state.flags.pile_limit > 0
-        && checkedObjectCount >= state.flags.pile_limit;
+        && obj_cnt >= state.flags.pile_limit;
     const objectList = objects ?? (() => {
         const result = [];
         for (let object = state.level.objects[ux]?.[uy] ?? null;
@@ -841,7 +844,7 @@ export function preflight_look_here(
 // Returns true where C returns ECMD_TIME and false where it returns ECMD_OK,
 // so the caller decides whether the command takes game time.
 export async function look_here(
-    checkedObjectCount,
+    obj_cnt,
     lookhere_flags,
     state = game,
     {
@@ -853,7 +856,7 @@ export async function look_here(
     if (typeof message !== 'function' || typeof readEngraving !== 'function')
         throw new TypeError('look_here needs message and engraving owners');
     const plan = preflight_look_here(
-        checkedObjectCount,
+        obj_cnt,
         lookhere_flags,
         state,
     );
@@ -910,9 +913,9 @@ export async function look_here(
     if (skip_objects) {
         if (dfeature && !skip_dfeature) await message(fbuf, state);
         await readEngraving(state);
-        const countName = checkedObjectCount === 2 ? 'two'
-            : checkedObjectCount < 5 ? 'a few'
-                : checkedObjectCount < 10 ? 'several' : 'many';
+        const countName = obj_cnt === 2 ? 'two'
+            : obj_cnt < 5 ? 'a few'
+                : obj_cnt < 10 ? 'several' : 'many';
         await message(`There are ${countName} objects here.`, state);
         return blind;
     }

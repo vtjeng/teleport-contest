@@ -427,10 +427,10 @@ export function get_cost_of_shop_item(
     const pricedObject = observed && !obj.dknown
         ? { ...obj, dknown: true }
         : obj;
-    const perUnit = get_cost(pricedObject, shopkeeper, state);
+    const pricingUnitCost = get_cost(pricedObject, shopkeeper, state);
     return {
-        cost: units * perUnit,
-        perUnit,
+        cost: units * pricingUnitCost,
+        pricingUnitCost,
         shopkeeper,
     };
 }

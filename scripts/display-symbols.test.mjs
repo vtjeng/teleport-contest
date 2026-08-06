@@ -4807,10 +4807,33 @@ test('the two-line status row reports carrying capacity', async () => {
         quan: 1,
         nobj: null,
     };
+    state.iflags.hilite_delta = 3;
+    state.iflags.status_hilites = [{
+        field: 'carrying-capacity',
+        behavior: 'text',
+        text: 'Strained',
+        style: {
+            attr: ATR_BOLD,
+            clearAttributes: false,
+            color: CLR_RED,
+        },
+    }];
+    let capacityWrites = 0;
+    let storedCapacity;
+    state.gw = {};
+    Object.defineProperty(state.gw, 'wc', {
+        configurable: true,
+        get: () => storedCapacity,
+        set: (value) => {
+            storedCapacity = value;
+            capacityWrites += 1;
+        },
+    });
 
     await bot();
 
     assert.match(terminalRow(state, 23), / Strained\s*$/u);
+    assert.equal(capacityWrites, 1);
 });
 
 test('tty carrying-capacity vocabulary matches both shrink rows', () => {
