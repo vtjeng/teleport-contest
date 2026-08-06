@@ -535,7 +535,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "16574f3f18a4e8c06cdea0933e3e8ecc14faa649",
       "detail": "mon.c:961 minliquid_core() sets infountain from IS_FOUNTAIN(levl[mx][my].typ) and feeds it to the gremlin split at :987: a PM_GREMLIN standing in a fountain draws rn2(3) and may split_mon() and dryup(). Both of this port's minLiquid owners -- js/allmain.js elapsedTurnMinLiquid() and the planning stub in js/unported_monster_actions.js -- refuse a pool or lava and return false for every other square, so that draw never happens and the divergence is silent. The gap predates the furniture-square-entry slice, since makemon() can place a monster on a fountain with no move involved, but that slice lets a monster walk onto one and so widens it. Fix: refuse a gremlin on a fountain in both owners, or port the split. No development session or fresh case reaches it: a gremlin is difficulty 8 (monsters.h:448-455) and D:1 generates nothing near that."
     },

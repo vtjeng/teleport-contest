@@ -497,8 +497,8 @@
       "slices": [
         {
           "name": "refuse the gremlin split in a fountain",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "3249e2dddb0aeda58ff39ea9a5853224429c6403"
         }
       ],
       "openedAt": "0d3e6d36df3d21596c6226d58958623e1f9e84ce",
