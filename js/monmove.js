@@ -128,7 +128,7 @@ import {
     W_NONDIGGABLE,
     isok,
 } from './const.js';
-import { ART_SUNSWORD } from './artifacts.js';
+import { ART_SUNSWORD, artifactTouchable } from './artifacts.js';
 import { effective_attribute } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { newsym } from './display.js';
@@ -2009,16 +2009,6 @@ function costlySpot(x, y, state) {
         && location?.roomno === room && !location.edge
         && state.level.rooms?.[room - ROOMOFFSET]?.rtype >= SHOPBASE
         && (x !== eshk.shk.x || y !== eshk.shk.y));
-}
-
-function artifactTouchable(obj, monster, env) {
-    if (!obj.oartifact) return true;
-    if (typeof env.touchArtifact !== 'function') {
-        throw new TypeError(
-            'postmov object selection requires a touchArtifact operation',
-        );
-    }
-    return Boolean(env.touchArtifact(obj, monster, env));
 }
 
 export function mon_would_take_item(monster, obj, rawEnv = {}) {

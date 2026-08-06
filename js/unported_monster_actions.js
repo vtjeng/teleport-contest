@@ -706,6 +706,17 @@ async function moveSimpleOrdinary(monster, env) {
         mayCrossRegion: assertSimpleDestination,
         resolveTrappedMonster: () => false,
         resistsTrapEffect,
+        // mon.c can_touch_safely() asks artifact.c touch_artifact() about
+        // every item a monster considers, and that function can blast the
+        // toucher for d(4,10) and print. Three consumers read this one
+        // injection: m_search_items()'s can_carry() and can_touch_safely()
+        // below, dog_invent()'s and dog_goal()'s can_carry() through
+        // movePet(), which m_move() hands its own env, and postmov(), which
+        // replaces it with a narrower reason of its own. Without it the first
+        // two raised a bare TypeError for the missing operation, which
+        // escapes runSegment() and discards the segment's matching prefix
+        // rather than ending the segment on it.
+        touchArtifact: () => unsupported('monster artifact item selection'),
         unsupported,
     });
 }

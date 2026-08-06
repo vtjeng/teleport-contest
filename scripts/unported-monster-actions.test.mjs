@@ -77,8 +77,10 @@ import {
 } from '../js/unported_monster_actions.js';
 import { newMonster } from '../js/monst.js';
 import { newObject } from '../js/obj.js';
+import { ART_STING } from '../js/artifacts.js';
 import {
     DAGGER,
+    ELVEN_DAGGER,
     FOOD_RATION,
     ORCISH_HELM,
     POT_HEALING,
@@ -1708,6 +1710,90 @@ test('simple preflight ignores an unselected rock during item search',
         );
     });
 
+// C ref: mon.c can_touch_safely():1971 asks artifact.c touch_artifact() about
+// every item a monster considers, and that function can blast the toucher for
+// d(4,10) and print. m_move()'s env answers it with a refusal, which the two
+// cases below reach by the two routes the running game has: a hostile
+// monster's m_search_items(), and a pet's dog_invent() and dog_goal() under
+// movePet(). Neither route used to supply the operation at all, so both raised
+// a bare TypeError, which escapes runSegment() and discards the segment's
+// matching prefix instead of ending the segment on it.
+test('simple item search refuses an artifact it cannot touch', async () => {
+    // A gnome is M2_COLLECT, so mon_would_take_item() claims a weapon and
+    // m_search_items() asks can_carry() -> can_touch_safely() about it. Sting
+    // is artilist.h:138, the elven dagger; only obj->oartifact reaches the
+    // refusal, so any artifact of a wanted class would do.
+    const target = await prepareSelectedAction({ pmidx: PM_GNOME });
+    // A blind monster off the hero's line runs the item search; the sighted
+    // fixture keeps approach == 1 and skips it.
+    target.monster.mcansee = false;
+    game.viz_array[target.heroY][target.monsterX] &= ~COULD_SEE;
+    const sting = floorObject(
+        target.monsterX,
+        target.heroY,
+        9101,
+        ELVEN_DAGGER,
+    );
+    sting.oartifact = ART_STING;
+    installObject(target, sting);
+    const before = completeSecondTurnSnapshot(game, target.replay);
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'monster artifact item selection'
+            ),
+            `attempt ${attempt + 1}`,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            `attempt ${attempt + 1}`,
+        );
+    }
+});
+
+test('a pet fetching an artifact refuses instead of crashing', async () => {
+    // The same fixture as the planned-pickup case below, with the dagger made
+    // an artifact: dog_invent() reads the pet's own square, finds no food in
+    // a weapon, and asks can_carry() -> can_touch_safely() whether to fetch.
+    const target = await prepareStartingPetAction(PM_PONY);
+    target.monster.mextra.edog.apport = 20;
+    const sting = floorObject(
+        target.monsterX,
+        target.heroY,
+        9101,
+        ELVEN_DAGGER,
+    );
+    sting.oartifact = ART_STING;
+    installObject(target, sting);
+    const before = completeSecondTurnSnapshot(game, target.replay);
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'monster artifact item selection'
+            ),
+            `attempt ${attempt + 1}`,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            `attempt ${attempt + 1}`,
+        );
+        assert.equal(
+            game.level.objects[target.monsterX][target.heroY],
+            sting,
+            `attempt ${attempt + 1}`,
+        );
+        assert.equal(target.monster.minvent, null, `attempt ${attempt + 1}`);
+    }
+});
+
 test('simple monster movement continues through an ignored object',
     async () => {
         const target = await prepareSelectedAction();
@@ -2012,7 +2098,9 @@ test('a planned pet pickup leaves the live object graph untouched',
         // writer of artiexist[].found, it is reached only through xname() on
         // an object whose oartifact is set, and giving this fixture a real
         // artifact makes the pet path refuse first: can_carry() reaches
-        // can_touch_safely() and throws for a missing touchArtifact operation.
+        // can_touch_safely(), which m_move()'s env answers with a refusal.
+        // The pet case in the artifact pair earlier in this file is that
+        // fixture, with the dagger given an oartifact.
         // So no admitted planning round reaches find_artifact() today, and
         // planningState()'s artiexist clone is unexercised: replacing it with
         // the live array leaves this whole file green. It is kept anyway,

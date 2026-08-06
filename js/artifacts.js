@@ -559,6 +559,29 @@ export function touch_artifact(obj, monster, env = game) {
     return !(badclass && badalign && selfWilled);
 }
 
+// The seam every monster-side C caller of touch_artifact() reaches instead of
+// touch_artifact() itself: mon.c can_touch_safely() in js/weapon.js, and mon.c
+// meatmetal() through js/monmove.js select_postmove_object_action(). Both call
+// touch_artifact() directly in C, so they share this one wrapper.
+//
+// The ART_NONARTIFACT return above is repeated here because it is the half
+// that is settled: an ordinary object is touchable, and asking costs no draw,
+// no message, and no state. For an artifact the wrapper asks the caller
+// instead of the port above. Answering from the port would let a monster
+// carry, wield or eat an artifact, and nothing downstream of that decision has
+// ever run against a C recording. QUALITY.json holds the wiring as
+// touch-artifact-ported-but-unwired; until it lands, every caller injects a
+// refusal, and the segment stops on its last matching screen.
+export function artifactTouchable(obj, monster, env) {
+    if (!obj.oartifact) return true;
+    if (typeof env.touchArtifact !== 'function') {
+        throw new TypeError(
+            'artifact touch requires a touchArtifact operation',
+        );
+    }
+    return Boolean(env.touchArtifact(obj, monster, env));
+}
+
 const ORIGIN_FLAGS = Object.freeze([
     [ONAME_WISH, 'wish'],
     [ONAME_GIFT, 'gift'],

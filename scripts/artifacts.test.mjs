@@ -15,6 +15,7 @@ import {
     ART_STING,
     AFTER_LAST_ARTIFACT,
     NROFARTIFACTS,
+    artifactTouchable,
     artifact_defends,
     createArtifactTable,
     init_artifacts,
@@ -250,6 +251,52 @@ test('monster artifact touching applies alignment, class, and bane gates', () =>
         lawful,
         { state },
     ), false);
+});
+
+test('the artifact touch seam answers only the settled half', () => {
+    const state = stateFor('Wiz', 'neutral');
+    init_artifacts(state);
+    const kitten = {
+        data: {
+            pmidx: PM_KITTEN,
+            maligntyp: 0,
+            mflags1: 0,
+            mflags2: 0,
+            mflags3: 0,
+        },
+    };
+    const asked = [];
+    const env = {
+        state,
+        touchArtifact: (obj, monster) => {
+            asked.push([obj.oartifact, monster]);
+            return false;
+        },
+    };
+
+    // artifact.c touch_artifact():914-915 returns 1 for an ordinary object
+    // before it reads anything else, so the seam answers that half itself and
+    // leaves the caller's operation untouched.
+    assert.equal(artifactTouchable({ oartifact: 0 }, kitten, env), true);
+    assert.equal(artifactTouchable({}, kitten, env), true);
+    assert.deepEqual(asked, []);
+
+    // Every artifact goes to the caller, whose answer is the seam's answer.
+    const demonbane = { oartifact: ART_DEMONBANE };
+    assert.equal(artifactTouchable(demonbane, kitten, env), false);
+    assert.deepEqual(asked, [[ART_DEMONBANE, kitten]]);
+    assert.equal(artifactTouchable(demonbane, kitten, {
+        ...env,
+        touchArtifact: () => true,
+    }), true);
+
+    // A caller that supplies no operation at all has broken the contract, and
+    // js/unported_monster_actions.js is what keeps the running game from
+    // being one: this throw is not a gameplay boundary and nothing admits it.
+    assert.throws(
+        () => artifactTouchable(demonbane, kitten, { state }),
+        /touchArtifact/,
+    );
 });
 
 test('per-game tables and tracking state do not leak across initialization', () => {

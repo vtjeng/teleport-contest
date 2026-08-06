@@ -2,7 +2,11 @@
 // C refs: weapon.c oselect(), select_rwep(), select_hwep(), mon_wield_item(),
 // setmnotwielded(); wield.c mwelded().
 
-import { ART_SNICKERSNEE, ART_SUNSWORD } from './artifacts.js';
+import {
+    ART_SNICKERSNEE,
+    ART_SUNSWORD,
+    artifactTouchable,
+} from './artifacts.js';
 import {
     AKLYS_LIM,
     NEED_AXE,
@@ -285,16 +289,6 @@ function resistsStoning(monster) {
         | (monster.mextrinsics ?? 0)
         | (monster.mintrinsics ?? 0);
     return Boolean(resistanceBits & MR_STONE);
-}
-
-function artifactTouchable(obj, monster, env) {
-    if (!obj.oartifact) return true;
-    const touchArtifact = requiredOperation(
-        env,
-        'touchArtifact',
-        'artifact weapon selection',
-    );
-    return Boolean(touchArtifact(obj, monster, env));
 }
 
 // C ref: worn.c which_armor().
