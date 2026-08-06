@@ -30,6 +30,7 @@ import {
     coveringTests,
     createWorkspace,
     describeSite,
+    dispatchMutationRun,
     enumerateSites,
     formatReport,
     formatSiteCounts,
@@ -38,7 +39,9 @@ import {
     killRateInterval,
     mutationOwnerIsAlive,
     mutationCgroupArgs,
+    mergeParallelResults,
     mutationRunNames,
+    mutationRunPlan,
     mutationWaveName,
     parseAddedLines,
     parseArgs,
@@ -46,12 +49,16 @@ import {
     parseRange,
     removeWorkspace,
     releaseMutationLock,
+    readAggregateResourceCounters,
+    parseCgroupEvents,
     readProcessIdentity,
     reportedTestCount,
     runSystemctl,
     runTests,
     runInMutationCgroup,
     runMutants,
+    runMutantsParallel,
+    runMutationQueue,
     sampleItems,
     SITE_KINDS,
     startMutationSlice,
@@ -479,17 +486,404 @@ test('every generated run name round-trips through worker authentication',
         }
     });
 
-test('wave names retain their aggregate invocation identity', () => {
+test('wave names include aggregate invocation and process-token identities',
+    () => {
     const first = mutationRunNames(123, 'first');
     const second = mutationRunNames(123, 'second');
-    assert.equal(mutationWaveName(first.sliceName, 1),
-        `${first.sliceName}_wave_1`);
-    assert.equal(mutationWaveName(second.sliceName, 1),
-        `${second.sliceName}_wave_1`);
+    assert.equal(mutationWaveName(first.sliceName, 1, 123, 'a1b2'),
+        `${first.sliceName}_wave_a1b2_1`);
+    assert.equal(mutationWaveName(second.sliceName, 1, 123, 'a1b2'),
+        `${second.sliceName}_wave_a1b2_1`);
     assert.notEqual(
-        mutationWaveName(first.sliceName, 1),
-        mutationWaveName(second.sliceName, 1),
+        mutationWaveName(first.sliceName, 1, 123, 'a1b2'),
+        mutationWaveName(second.sliceName, 1, 123, 'a1b2'),
     );
+    assert.notEqual(
+        mutationWaveName(first.sliceName, 1, 123, 'a1b2'),
+        mutationWaveName(first.sliceName, 1, 123, 'c3d4'),
+    );
+});
+
+test('aggregate-local event files are parsed without hiding pressure', () => {
+    // These are the complete keys Linux 6.17 exposes in the two local event
+    // files. A missing or repeated key could otherwise turn an unsafe run into
+    // an apparent all-zero result.
+    assert.deepEqual(parseCgroupEvents([
+        'low 0', 'high 0', 'max 3', 'oom 1', 'oom_kill 1',
+        'oom_group_kill 0', '',
+    ].join('\n'), ['low', 'high', 'max', 'oom', 'oom_kill',
+        'oom_group_kill'], 'memory.events.local'), {
+        low: 0, high: 0, max: 3, oom: 1, oom_kill: 1,
+        oom_group_kill: 0,
+    });
+    assert.deepEqual(parseCgroupEvents('max 2\n', ['max'],
+        'pids.events.local'), { max: 2 });
+    for (const malformed of ['max nope\n', 'max 0\nmax 1\n', 'oom 0\n']) {
+        assert.throws(() => parseCgroupEvents(malformed, ['max'],
+            'events.local'), /events\.local/u);
+    }
+
+    const slice = 'teleport_mutate_123_counter';
+    const membership = `0::/user.slice/${slice}.slice/${slice}_run.scope\n`;
+    const files = new Map([
+        [`/sys/fs/cgroup/user.slice/${slice}.slice/memory.events.local`,
+            'low 0\nhigh 0\nmax 11\noom 13\noom_kill 17\n'
+            + 'oom_group_kill 19\n'],
+        [`/sys/fs/cgroup/user.slice/${slice}.slice/pids.events.local`,
+            'max 23\n'],
+    ]);
+    assert.deepEqual(readAggregateResourceCounters({
+        sliceName: slice,
+        cgroupText: membership,
+        readFile: (path) => files.get(path),
+    }), {
+        memoryMaxEvents: 11,
+        oomEvents: 13,
+        oomKillEvents: 17,
+        oomGroupKillEvents: 19,
+        pidsMaxEvents: 23,
+    });
+});
+
+test('the mutation queue bounds concurrency and preserves ordinal order',
+    async () => {
+        // Seven items exercise a full three-slot wave, refill every slot, and
+        // leave a final partial wave.
+        const items = Array.from({ length: 7 }, (_, ordinal) => ({ ordinal }));
+        let active = 0;
+        let maximum = 0;
+        const releases = [];
+        const started = [];
+        const workspaces = [];
+        const removed = [];
+        const run = runMutationQueue(items, {
+            jobs: 3,
+            createWorkspace: () => {
+                const path = `workspace-${workspaces.length}`;
+                workspaces.push(path);
+                return path;
+            },
+            removeWorkspace: (path) => removed.push(path),
+            execute: async (item, { workspace }) => {
+                started.push([item.ordinal, workspace]);
+                active += 1;
+                maximum = Math.max(maximum, active);
+                await new Promise((resolve) => releases.push(resolve));
+                active -= 1;
+                return `result-${item.ordinal}`;
+            },
+        });
+        await new Promise((resolve) => setImmediate(resolve));
+        assert.equal(started.length, 3);
+        releases.shift()();
+        await new Promise((resolve) => setImmediate(resolve));
+        assert.equal(started.length, 4);
+        while (releases.length) {
+            releases.shift()();
+            await new Promise((resolve) => setImmediate(resolve));
+        }
+        assert.deepEqual(await run, items.map(({ ordinal }) =>
+            `result-${ordinal}`));
+        assert.equal(maximum, 3);
+        assert.equal(new Set(workspaces).size, 3);
+        assert.deepEqual(removed.sort(), workspaces.sort());
+    });
+
+test('a mutation queue error cancels admission and cleans every workspace',
+    async () => {
+        // Four items leave two queued while both slots are occupied. Ordinal
+        // one fails; ordinal zero observes cancellation; neither queued item
+        // may start, and the causal failure must not be replaced by the lower
+        // ordinal's peer-cancellation error.
+        const started = [];
+        const removed = [];
+        let workspaceNumber = 0;
+        let settled = false;
+        await assert.rejects(runMutationQueue(
+            Array.from({ length: 4 }, (_, ordinal) => ({ ordinal })), {
+                jobs: 2,
+                createWorkspace: () => `workspace-${workspaceNumber++}`,
+                removeWorkspace: (path) => {
+                    assert.equal(settled, true);
+                    removed.push(path);
+                },
+                execute: async (item, { signal }) => {
+                    started.push(item.ordinal);
+                    if (item.ordinal === 0) {
+                        await new Promise((resolve) =>
+                            signal.addEventListener('abort', resolve,
+                                { once: true }));
+                        throw new Error('cancelled peer');
+                    }
+                    throw new Error('root lane failure');
+                },
+                settle: async () => { settled = true; },
+            }), /root lane failure/u);
+        assert.deepEqual(started.sort(), [0, 1]);
+        assert.equal(removed.length, 2);
+    });
+
+test('mutation queue settlement precedes ordinary workspace removal',
+    async () => {
+        let releaseSettle;
+        const settleBarrier = new Promise((resolve) => {
+            releaseSettle = resolve;
+        });
+        let settled = false;
+        const removed = [];
+        const run = runMutationQueue([{ ordinal: 0 }, { ordinal: 1 }], {
+            jobs: 2,
+            createWorkspace: () => `workspace-${removed.length}`,
+            removeWorkspace: (workspace) => {
+                assert.equal(settled, true);
+                removed.push(workspace);
+            },
+            execute: async ({ ordinal }) => ordinal,
+            settle: async () => {
+                await settleBarrier;
+                settled = true;
+            },
+        });
+        await new Promise((resolve) => setImmediate(resolve));
+        assert.deepEqual(removed, []);
+        releaseSettle();
+        assert.deepEqual(await run, [0, 1]);
+        assert.equal(removed.length, 2);
+    });
+
+test('signals settle active mutation lanes before removing workspaces',
+    async () => {
+        for (const interrupt of ['SIGINT', 'SIGTERM']) {
+            const signals = new EventEmitter();
+            const events = [];
+            let created = 0;
+            const run = runMutationQueue(
+                [{ ordinal: 0 }, { ordinal: 1 }], {
+                    jobs: 2,
+                    createWorkspace: () => `workspace-${created++}`,
+                    removeWorkspace: (workspace) =>
+                        events.push(`remove:${workspace}`),
+                    execute: async ({ ordinal }, { signal }) => {
+                        events.push(`start:${ordinal}`);
+                        await new Promise((resolve) =>
+                            signal.addEventListener('abort', resolve,
+                                { once: true }));
+                        events.push(`stop:${ordinal}`);
+                    },
+                    settle: async () => events.push('settled'),
+                    signalTarget: signals,
+                    reraise: (signal) => events.push(`signal:${signal}`),
+                });
+            await new Promise((resolve) => setImmediate(resolve));
+            signals.emit(interrupt);
+            await run;
+            const settled = events.indexOf('settled');
+            const firstRemoval = events.findIndex((event) =>
+                event.startsWith('remove:'));
+            assert.ok(events.indexOf('stop:0') < settled, events);
+            assert.ok(events.indexOf('stop:1') < settled, events);
+            assert.ok(settled < firstRemoval, events);
+            assert.equal(events.at(-1), `signal:${interrupt}`);
+        }
+    });
+
+test('simultaneous mutants use separate workspaces', async () => {
+    const target = fixtureTarget({ lines: new Set([10]) });
+    const items = target.sites.map((site, ordinal) => ({ ordinal, site }));
+    const created = [];
+    const observed = [];
+    let releaseBarrier;
+    const barrier = new Promise((resolve) => { releaseBarrier = resolve; });
+    const run = runMutationQueue(items, {
+        jobs: 2,
+        createWorkspace: () => {
+            const workspace = createWorkspace(FIXTURE_ROOT);
+            created.push(workspace);
+            return workspace;
+        },
+        removeWorkspace,
+        execute: async ({ site }, { workspace }) => {
+            const path = join(workspace, 'js/bounds.js');
+            writeFileSync(path, applyMutation(target.source, site));
+            observed.push({ workspace, source: readFileSync(path, 'utf8') });
+            if (observed.length === 2) releaseBarrier();
+            await barrier;
+            return site.replacement;
+        },
+    });
+    // Line 10 contains integer literal 4, whose two integer mutants replace it
+    // with 5 and 3 in enumeration order.
+    assert.deepEqual(await run, ['5', '3']);
+    assert.equal(new Set(observed.map(({ workspace }) => workspace)).size, 2);
+    assert.equal(observed[0].source === observed[1].source, false);
+    assert.equal(readFileSync(FIXTURE_MODULE, 'utf8'), target.source);
+    for (const workspace of created) assert.equal(existsSync(workspace), false);
+});
+
+test('parallel reduction matches the full serial aggregate and record order',
+    async () => {
+        const target = fixtureTarget({ lines: new Set([10, 15]) });
+        const sites = target.sites;
+        const baseline = { seconds: 1, tests: 6,
+            files: [...FIXTURE_SUITE], timeoutMs: 60_000 };
+        const makeResult = (site, ordinal) => {
+            const identity = { ...site, ordinal, path: target.path };
+            const survivor = ordinal === 0;
+            const timeout = ordinal === 1;
+            const resourceLimited = ordinal === 2;
+            return {
+                survivors: survivor ? [{ ...identity, tests: target.tests }] : [],
+                kills: survivor ? [] : [{ ...identity, wave: 'first',
+                    killedBy: timeout ? [] : ['bounds.test.mjs'],
+                    resourceLimited }],
+                killed: survivor ? 0 : 1,
+                timeouts: timeout ? 1 : 0,
+                timeoutRecords: timeout
+                    ? [{ ...identity, wave: 'first' }] : [],
+                resourceLimits: resourceLimited ? 1 : 0,
+                resourceLimitRecords: resourceLimited
+                    ? [{ ...identity, wave: 'first' }] : [],
+                ran: 1,
+                perFile: [{ path: target.path, tests: target.tests.length,
+                    mutants: 1, firstWaveSeconds: 0,
+                    reachedFullSuite: 0, wholeSuiteSeconds: 0 }],
+                byKind: new Map([[site.kind,
+                    { ran: 1, killed: survivor ? 0 : 1 }]]),
+                firstWaveKilled: survivor ? 0 : 1,
+                firstWaveRuns: 1,
+                firstWaveSeconds: 0,
+                wholeSuiteKilled: 0,
+                wholeSuiteRuns: 0,
+                wholeSuiteSeconds: 0,
+                ranSeconds: 0,
+            };
+        };
+        const items = sites.map((site, ordinal) => ({ ordinal, site }));
+        const parallel = await runMutationQueue(items, {
+            jobs: 3,
+            createWorkspace: () => ({}),
+            removeWorkspace: () => {},
+            execute: async ({ site, ordinal }) => {
+                // Later ordinals complete first, which would reverse every
+                // identity list if the reducer followed completion order.
+                await new Promise((resolve) => setTimeout(
+                    resolve, (sites.length - ordinal) * 2));
+                return makeResult(site, ordinal);
+            },
+        });
+        const serial = items.map(({ site, ordinal }) =>
+            makeResult(site, ordinal));
+        const context = { targets: [target], unmeasured: [],
+            wholeSuite: false, suiteSize: FIXTURE_SUITE.length, baseline };
+        const canonical = (results) => mergeParallelResults(results, context);
+        assert.deepEqual(canonical(parallel), canonical(serial));
+        assert.deepEqual(canonical(parallel).timeoutRecords.map(
+            ({ ordinal }) => ordinal), [1]);
+        assert.deepEqual(canonical(parallel).resourceLimitRecords.map(
+            ({ ordinal }) => ordinal), [2]);
+        assert.deepEqual(formatReport(canonical(parallel)),
+            formatReport(canonical(serial)));
+    });
+
+test('a parallel lane accepts the shared baseline file superset', () => {
+    const target = fixtureTarget({ lines: new Set([10]) });
+    const result = withWorkspace((workspace) => runMutants({
+        workspace,
+        targets: [target],
+        allTests: FIXTURE_SUITE,
+        wholeSuite: false,
+        // A multi-file coordinator measures the union once. This lane needs
+        // only bounds.test.mjs, so its valid shared baseline contains one
+        // additional file.
+        baseline: { seconds: 1, tests: 6, files: [...FIXTURE_SUITE],
+            timeoutMs: 60_000 },
+        runTestWave: () => ({ passed: true, timedOut: false,
+            resourceLimited: false, seconds: 0, output: '# tests 5\n' }),
+    }));
+    assert.equal(result.ran, 2);
+});
+
+test('the parallel coordinator measures one duplicate-free baseline union',
+    async () => {
+        const first = fixtureTarget({ lines: new Set([10]),
+            tests: ['a.test.mjs', 'shared.test.mjs'] });
+        const second = fixtureTarget({ lines: new Set([15]),
+            tests: ['shared.test.mjs', 'z.test.mjs'] });
+        const baselineCalls = [];
+        const laneBaselines = [];
+        const runTestWave = (_workspace, files) => {
+            baselineCalls.push(files);
+            return { passed: true, timedOut: false, resourceLimited: false,
+                seconds: 1, output: '# tests 1\n' };
+        };
+        const result = await runMutantsParallel({
+            targets: [first, second],
+            allTests: ['a.test.mjs', 'shared.test.mjs', 'z.test.mjs'],
+            wholeSuite: false,
+            jobs: 2,
+            makeWorkspace: () => createWorkspace(FIXTURE_ROOT),
+            discardWorkspace: removeWorkspace,
+            runTestWave,
+            makeLane: () => ({
+                run: async (payload) => {
+                    laneBaselines.push(payload.baseline.files);
+                    return runMutants({ workspace: payload.workspace,
+                        targets: [payload.target],
+                        allTests: payload.allTests,
+                        wholeSuite: payload.wholeSuite,
+                        baseline: payload.baseline,
+                        runTestWave: () => ({ passed: true, timedOut: false,
+                            resourceLimited: false, seconds: 0,
+                            output: '# tests 1\n' }) });
+                },
+                close: async () => {},
+            }),
+        });
+        const union = ['a.test.mjs', 'shared.test.mjs', 'z.test.mjs'];
+        assert.deepEqual(baselineCalls, [union]);
+        assert.ok(laneBaselines.length > 1);
+        for (const files of laneBaselines) assert.deepEqual(files, union);
+        assert.equal(result.parallelLanes, 2);
+    });
+
+test('job dispatch selects serial execution only for one requested job',
+    async () => {
+        for (let jobs = 1; jobs <= 7; ++jobs) {
+            const calls = [];
+            const result = await dispatchMutationRun({
+                jobs,
+                runOptions: { marker: 'run' },
+                makeWorkspace: () => 'workspace',
+                discardWorkspace: (workspace) =>
+                    calls.push(`remove:${workspace}`),
+                runSerial: ({ marker, workspace }) => {
+                    calls.push(`serial:${marker}:${workspace}`);
+                    return { ran: 0 };
+                },
+                runParallel: async ({ marker, jobs: parallelJobs }) => {
+                    calls.push(`parallel:${marker}:${parallelJobs}`);
+                    return { ran: 0, jobs: 0 };
+                },
+            });
+            if (jobs === 1) {
+                assert.deepEqual(calls,
+                    ['serial:run:workspace', 'remove:workspace']);
+                assert.equal(result.parallelLanes, 0);
+            } else {
+                assert.deepEqual(calls, [`parallel:run:${jobs}`]);
+            }
+        }
+    });
+
+test('run planning makes the first-wave baseline a stable set union', () => {
+    const plan = mutationRunPlan([
+        fixtureTarget({ lines: new Set([10]),
+            tests: ['shared.test.mjs', 'a.test.mjs'] }),
+        fixtureTarget({ lines: new Set([15]),
+            tests: ['z.test.mjs', 'shared.test.mjs'] }),
+    ], [], false);
+    assert.deepEqual(plan.baselineFiles,
+        ['a.test.mjs', 'shared.test.mjs', 'z.test.mjs']);
 });
 
 test('outer signal ownership spans acquisition through cleanup', async () => {
@@ -2298,9 +2692,31 @@ test('without --whole-suite a module with no first wave is unmeasured',
         // as survivors would claim a gap that was never tested for.
         assert.equal(result.ran, 0);
         assert.deepEqual(result.survivors, []);
+        result.parallelLanes = 0;
         assert.equal(formatReport(result).some((line) => line.startsWith(
             'unmeasured js/bounds.js: 2 site(s)')), true);
+        assert.equal(formatReport(result).some((line) => line.startsWith(
+            'jobs:')), false);
     });
+
+test('aggregate report labels preserve distinct local event counts', () => {
+    const result = withWorkspace((workspace) => runMutants({
+        workspace,
+        targets: [fixtureTarget({ tests: [], lines: new Set([10]) })],
+        allTests: FIXTURE_SUITE,
+    }));
+    result.aggregateCounters = {
+        memoryMaxEvents: 11,
+        oomEvents: 13,
+        oomKillEvents: 17,
+        oomGroupKillEvents: 19,
+        pidsMaxEvents: 23,
+    };
+    assert.equal(formatReport(result).find((line) =>
+        line.startsWith('aggregate local counters:')),
+    'aggregate local counters: memory.max events 11, oom 13, oom_kill 17, '
+        + 'oom_group_kill 19, pids.max events 23');
+});
 
 test('the module is restored after the last mutant', () => {
     const before = fixtureSource();
@@ -2504,18 +2920,18 @@ test('every target is named by --range, --file, or --worktree', () => {
     assert.deepEqual(parseArgs(['--range', 'a..b']),
         { range: 'a..b', paths: [], worktree: false, kinds: null,
             enumerateOnly: false, emitTrailer: false, wholeSuite: false,
-            sample: null, seed: 1, report: null, fromReport: null });
+            sample: null, seed: 1, report: null, fromReport: null, jobs: 2 });
     assert.deepEqual(parseArgs(['--file', 'js/a.js', '--file', 'js/b.js']),
         { range: null, paths: ['js/a.js', 'js/b.js'], worktree: false,
             kinds: null, enumerateOnly: false, emitTrailer: false,
             wholeSuite: false, sample: null, seed: 1, report: null,
-            fromReport: null });
+            fromReport: null, jobs: 2 });
     // `--name=value` and `--name value` are the same option.
     assert.deepEqual(parseArgs(['--range=a..b', '--enumerate-only',
         '--whole-suite', '--sample=40', '--seed=7']),
     { range: 'a..b', paths: [], worktree: false, kinds: null,
         enumerateOnly: true, emitTrailer: false, wholeSuite: true,
-        sample: 40, seed: 7, report: null, fromReport: null });
+        sample: 40, seed: 7, report: null, fromReport: null, jobs: 2 });
     assert.deepEqual(parseArgs(['--range', 'a..b',
         '--kind', 'logical,relational,logical']).kinds,
     ['logical', 'relational']);
@@ -2914,37 +3330,133 @@ test('resource-limited mutants retain their identity in both wave reports',
         }
     });
 
-test('a workspace is removed when a run is killed', async () => {
+test('all parallel workspaces are removed when a run is interrupted',
+    async () => {
     // removeWorkspace() runs from a `finally` arm, which a terminating signal
     // skips, so an interrupted run used to leave 6.7 MB of copied js/ and
     // scripts/ behind. The handler has to remove it and re-raise.
-    const child = spawn(process.execPath, ['--input-type=module', '-e',
-        `const M = await import(${JSON.stringify(SCRIPT_PATH)});`
-        + 'console.log(M.createWorkspace());'
-        + 'setTimeout(() => {}, 60000);'], { stdio: ['ignore', 'pipe', 'pipe'] });
-    const workspace = await new Promise((resolve, reject) => {
-        let out = '';
-        child.stdout.on('data', (chunk) => {
-            out += chunk;
-            if (out.includes('\n')) resolve(out.trim());
+    for (const interrupt of ['SIGINT', 'SIGTERM']) {
+        const child = spawn(process.execPath, ['--input-type=module', '-e',
+            `const M = await import(${JSON.stringify(SCRIPT_PATH)});`
+            + 'console.log(JSON.stringify(['
+            + 'M.createWorkspace(), M.createWorkspace(), M.createWorkspace()]));'
+            + 'setTimeout(() => {}, 60000);'],
+        { stdio: ['ignore', 'pipe', 'pipe'] });
+        const workspaces = await new Promise((resolve, reject) => {
+            let out = '';
+            child.stdout.on('data', (chunk) => {
+                out += chunk;
+                if (out.includes('\n')) resolve(JSON.parse(out.trim()));
+            });
+            child.on('error', reject);
+            child.on('exit', () => reject(new Error(`child exited: ${out}`)));
         });
-        child.on('error', reject);
-        child.on('exit', () => reject(new Error(`child exited: ${out}`)));
-    });
 
-    assert.match(workspace, /teleport-mutate-/u);
-    assert.equal(existsSync(workspace), true);
+        assert.equal(workspaces.length, 3);
+        for (const workspace of workspaces) {
+            assert.match(workspace, /teleport-mutate-/u);
+            assert.equal(existsSync(workspace), true);
+        }
 
-    const exit = new Promise((resolve) => {
-        child.on('exit', (code, signal) => resolve(signal));
-    });
-    child.kill('SIGTERM');
+        const exit = new Promise((resolve) => {
+            child.on('exit', (code, signal) => resolve(signal));
+        });
+        child.kill(interrupt);
 
-    // The handler re-raises, so the caller sees the signal it sent rather than
-    // an exit code the handler invented.
-    assert.equal(await exit, 'SIGTERM');
-    assert.equal(existsSync(workspace), false);
+        // The handler re-raises, so the caller sees the signal it sent rather
+        // than an exit code the handler invented.
+        assert.equal(await exit, interrupt);
+        for (const workspace of workspaces)
+            assert.equal(existsSync(workspace), false);
+    }
 });
+
+test('signals received during synchronous queue cleanup are re-raised',
+    async () => {
+        for (const interrupt of ['SIGINT', 'SIGTERM']) {
+            const source = [
+                `const M = await import(${JSON.stringify(SCRIPT_PATH)});`,
+                "const { writeSync } = await import('node:fs');",
+                'await M.runMutationQueue([{ ordinal: 0 }], {',
+                '  jobs: 1,',
+                "  createWorkspace: () => 'workspace',",
+                '  removeWorkspace: () => {',
+                "    writeSync(1, 'discarding\\n');",
+                '    Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),',
+                '      0, 0, 1000);',
+                '  },',
+                '  execute: async () => 0,',
+                '  signalTarget: process,',
+                '});',
+                "console.log('returned');",
+            ].join('\n');
+            const child = spawn(process.execPath,
+                ['--input-type=module', '-e', source],
+                { stdio: ['ignore', 'pipe', 'pipe'] });
+            await new Promise((resolve, reject) => {
+                let output = '';
+                child.stdout.on('data', (chunk) => {
+                    output += chunk;
+                    if (output.includes('discarding\n')) resolve();
+                });
+                child.on('error', reject);
+                child.on('exit', (code, signal) => reject(new Error(
+                    `child exited before cleanup signal: ${code}/${signal}`)));
+            });
+            // Give the child time to enter its one-second synchronous wait
+            // after publishing `discarding`, so the signal arrives during
+            // blocked cleanup.
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            const exit = new Promise((resolve) => child.on('exit',
+                (code, signal) => resolve({ code, signal })));
+            child.kill(interrupt);
+            assert.deepEqual(await exit, { code: null, signal: interrupt });
+        }
+    });
+
+test('a later signal retries a queue workspace removal that failed',
+    async () => {
+        for (const interrupt of ['SIGINT', 'SIGTERM']) {
+            const source = [
+                `const M = await import(${JSON.stringify(SCRIPT_PATH)});`,
+                "const { writeSync } = await import('node:fs');",
+                'let workspace;',
+                'try {',
+                '  await M.runMutationQueue([{ ordinal: 0 }], {',
+                '    jobs: 1,',
+                '    execute: async () => 0,',
+                '    removeWorkspace: (path) => {',
+                '      workspace = path;',
+                "      throw new Error('first removal failed');",
+                '    },',
+                '    signalTarget: process,',
+                '  });',
+                '} catch {',
+                "  writeSync(1, `${workspace}\\n`);",
+                '  setTimeout(() => {}, 60000);',
+                '}',
+            ].join('\n');
+            const child = spawn(process.execPath,
+                ['--input-type=module', '-e', source],
+                { stdio: ['ignore', 'pipe', 'pipe'] });
+            const workspace = await new Promise((resolve, reject) => {
+                let output = '';
+                child.stdout.on('data', (chunk) => {
+                    output += chunk;
+                    if (output.includes('\n')) resolve(output.trim());
+                });
+                child.on('error', reject);
+                child.on('exit', (code, signal) => reject(new Error(
+                    `child exited before retry signal: ${code}/${signal}`)));
+            });
+            assert.equal(existsSync(workspace), true);
+            const exit = new Promise((resolve) => child.on('exit',
+                (code, signal) => resolve({ code, signal })));
+            child.kill(interrupt);
+            assert.deepEqual(await exit, { code: null, signal: interrupt });
+            assert.equal(existsSync(workspace), false);
+        }
+    });
 
 test('a blamed line holds text that the range added', () => {
     // The two numbering schemes are not comparable: survivingRangeLines()
@@ -3112,14 +3624,45 @@ test('a successful outer run authenticates its child and cleans ownership',
         }
 });
 
+test('parallel CLI verdicts keep serial order and zero aggregate counters',
+    () => {
+        const root = mkdtempSync(join(tmpdir(), 'mutate-parallel-cli-'));
+        try {
+            const run = (jobs) => spawnSync(process.execPath, [
+                SCRIPT_PATH,
+                '--file', 'js/lock.js',
+                '--kind', 'boolean',
+                '--jobs', String(jobs),
+            ], {
+                encoding: 'utf8',
+                env: { ...process.env,
+                    TELEPORT_MUTATION_LOCK: join(root, 'owner.lock') },
+            });
+            const serial = run(1);
+            const parallel = run(3);
+            assert.equal(serial.status, 0, `${serial.stdout}${serial.stderr}`);
+            assert.equal(parallel.status, 0,
+                `${parallel.stdout}${parallel.stderr}`);
+            const verdicts = (output) => output.split('\n').filter((line) =>
+                /^(survived|timed out|resource limited|killed) /u.test(line));
+            assert.deepEqual(verdicts(parallel.stdout), verdicts(serial.stdout));
+            assert.match(parallel.stdout,
+                /jobs: 3 isolated mutation lane\(s\)/u);
+            assert.match(parallel.stdout,
+                /aggregate local counters: memory\.max events 0, oom 0, oom_kill 0, oom_group_kill 0, pids\.max events 0/u);
+        } finally {
+            rmSync(root, { recursive: true, force: true });
+        }
+    });
+
 test('aggregate limits, exclusivity, signals, cleanup, and reacquisition hold',
     async () => {
-        // systemd reports byte/task values: 2 GiB memory, disabled swap, and
-        // the aggregate's 64-task ceiling.
+        // systemd reports byte/task values: 8 GiB memory, disabled swap, and
+        // the aggregate's 512-task ceiling.
         const expectedLimits = {
-            MemoryMax: '2147483648',
+            MemoryMax: '8589934592',
             MemorySwapMax: '0',
-            TasksMax: '64',
+            TasksMax: '512',
         };
         for (const interruptSignal of ['SIGINT', 'SIGTERM']) {
             const root = mkdtempSync(join(tmpdir(), 'mutate-outer-signal-'));
@@ -3260,6 +3803,20 @@ test('the command prints a census and rejects a bad argument', () => {
 
     assert.equal(rejected.status, 2);
     assert.match(rejected.stderr, /unexpected argument 'HEAD'/u);
+});
+
+test('--jobs accepts one through seven and rejects representative invalid values',
+    () => {
+    assert.equal(parseArgs(['--file', 'js/lock.js', '--jobs', '1']).jobs, 1);
+    assert.equal(parseArgs(['--file', 'js/lock.js', '--jobs=7']).jobs, 7);
+    for (const value of ['0', '8', '1.5', 'many', '']) {
+        assert.throws(() => parseArgs([
+            '--file', 'js/lock.js', `--jobs=${value}`,
+        ]), /--jobs/u, value);
+    }
+    assert.throws(() => parseArgs([
+        '--file', 'js/lock.js', '--jobs=2', '--jobs=3',
+    ]), /one --jobs/u);
 });
 
 test('the emitted trailer carries ran, killed, and the kind filter', () => {

@@ -55,6 +55,9 @@
 // `--whole-suite` judges every mutant that survives its first wave by the whole
 // suite, at the cost the figures below give. A correctness pass wants it; a
 // quick local check does not.
+// `--jobs 1` runs serially. Values 2 through 7 allow up to that many isolated
+// mutation lanes. Each active lane owns its workspace and wave identities;
+// reports retain serial mutant order.
 // `--report <path>` writes the run's survivors as a versioned JSON report, and
 // `--from-report <path>` re-runs exactly those survivors, which is the
 // escalation path: write the report on the first wave, then judge the
@@ -88,10 +91,10 @@
 //
 // Every CLI form acquires one local exclusivity lock and creates a uniquely
 // named aggregate slice. The slice contains the outer mutator and every wave,
-// caps their combined memory at 2 GiB, disables swap, and permits at most 64
-// tasks. The lock refuses a second local run without giving that contender any
-// unit it could stop. The Node test runner admits at most four test files at
-// once inside the slice.
+// caps their combined memory at 8 GiB, disables swap, and permits at most 512
+// tasks. Each wave remains capped at 1 GiB and 64 tasks. The lock refuses a
+// second local run without giving that contender any unit it could stop. The
+// Node test runner admits at most four test files at once inside each wave.
 //
 // Historical wall-clock measurements from 30 July 2026 follow. They describe
 // that tree's suite size and cost, not the current repository population:
@@ -104,6 +107,23 @@
 //   The first wave killed 1 at 0.14 s; the 16 that reached the suite cost
 //   13.0 s each and it killed none, so `--whole-suite` cost 75 times as much
 //   for the same answer.
+//
+// The parallel default was measured on 6 August 2026 with Node 22.23.2 and
+// systemd 255 on a 5-core/10-thread host. The fixed range
+// `5b738a77..ce9c59f` held eight first-wave mutants over js/hack.js and
+// js/lock.js, with 22 covering test files. One excluded warm-up preceded five
+// balanced runs per setting:
+//
+// - 1 job: 48.71 s median, 48.28-51.40 s, 0.64 s scaled MAD, 246.28 s total;
+// - 2 jobs: 40.68 s median, 40.44-40.82 s, 0.18 s scaled MAD, 203.33 s total;
+// - 3 jobs: 40.71 s median, 39.91-44.66 s, 0.85 s scaled MAD, 206.21 s total.
+//
+// Two unchanged runs at a93024d took 48.58 and 48.85 s, a 0.55% noise floor.
+// Two jobs improved the median by 16.49% ± 0.55% unchanged-code noise, well
+// beyond the 1.31% largest relative MAD in that comparison. Three jobs were
+// 0.07% slower than two and less stable. Every ordered verdict stream matched,
+// and every candidate run reported zero aggregate-local memory/OOM/task-limit
+// events. The lower stable setting is therefore the default.
 //
 // Site density measured 0.165 per line in scope over the 692 lines
 // `HEAD~40..HEAD` changed at 049ebb0 on 29 July 2026, at 1.45 mutants per site.
@@ -153,6 +173,7 @@ import {
 import { tmpdir } from 'node:os';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isMainThread, parentPort, Worker, workerData } from 'node:worker_threads';
 
 import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 
@@ -172,6 +193,10 @@ let testWaveSequence = 0;
 const mutationProcessToken = randomBytes(8).toString('hex');
 const MUTATION_SLICE_PATTERN =
     /^teleport_mutate_([1-9][0-9]*)_([A-Za-z0-9]+(?:_[A-Za-z0-9]+)*)$/u;
+// Seven 1 GiB/64-task waves fit inside the 8 GiB/512-task aggregate while
+// leaving one wave's share for the coordinator and worker threads.
+const MAX_JOBS = 7;
+const DEFAULT_JOBS = 2;
 
 /** Build the outer-mutator scope; sibling test waves join the same slice. */
 export function mutationCgroupArgs(
@@ -498,10 +523,66 @@ export function startMutationSlice(sliceName, control = runSystemctl) {
     control([
         'set-property', '--runtime', unit,
         'MemoryAccounting=yes',
-        'MemoryMax=2G',
+        'MemoryMax=8G',
         'MemorySwapMax=0',
-        'TasksMax=64',
+        'TasksMax=512',
     ], `failed to limit mutation slice ${unit}`);
+}
+
+export function parseCgroupEvents(text, requiredKeys, label) {
+    const values = {};
+    for (const line of text.split('\n')) {
+        if (!line) continue;
+        const match = /^([a-z_]+) ([0-9]+)$/u.exec(line);
+        if (!match || Object.hasOwn(values, match[1]))
+            throw new Error(`malformed ${label}`);
+        values[match[1]] = Number(match[2]);
+        if (!Number.isSafeInteger(values[match[1]]))
+            throw new Error(`unsafe counter in ${label}`);
+    }
+    for (const key of requiredKeys) {
+        if (!Object.hasOwn(values, key))
+            throw new Error(`missing ${key} in ${label}`);
+    }
+    return values;
+}
+
+/**
+ * Read aggregate-local counters while the verified inner process still
+ * belongs to this invocation's run scope.
+ */
+export function readAggregateResourceCounters({
+    sliceName = process.env[MUTATION_SLICE_MARKER],
+    cgroupText = readFileSync('/proc/self/cgroup', 'utf8'),
+    cgroupRoot = '/sys/fs/cgroup',
+    readFile = (path) => readFileSync(path, 'utf8'),
+} = {}) {
+    if (!MUTATION_SLICE_PATTERN.test(sliceName ?? ''))
+        throw new Error('aggregate counter reader needs a valid slice name');
+    const suffix = `/${sliceName}.slice/${sliceName}_run.scope`;
+    const membership = cgroupText.split('\n').find((line) => {
+        const separator = line.indexOf('::');
+        return separator >= 0 && line.slice(separator + 2).endsWith(suffix);
+    });
+    if (!membership)
+        throw new Error(`process is not inside ${sliceName}.slice`);
+    const path = membership.slice(membership.indexOf('::') + 2);
+    const slicePath = path.slice(0, -(`/${sliceName}_run.scope`.length));
+    const memory = parseCgroupEvents(
+        readFile(join(cgroupRoot, slicePath, 'memory.events.local')),
+        ['low', 'high', 'max', 'oom', 'oom_kill', 'oom_group_kill'],
+        'memory.events.local',
+    );
+    const tasks = parseCgroupEvents(
+        readFile(join(cgroupRoot, slicePath, 'pids.events.local')),
+        ['max'], 'pids.events.local');
+    return {
+        memoryMaxEvents: memory.max,
+        oomEvents: memory.oom,
+        oomKillEvents: memory.oom_kill,
+        oomGroupKillEvents: memory.oom_group_kill,
+        pidsMaxEvents: tasks.max,
+    };
 }
 
 export function stopMutationSlice(sliceName, control = runSystemctl) {
@@ -1193,6 +1274,7 @@ const WORKSPACE_PREFIX = join(tmpdir(), 'teleport-mutate-');
 // behind: 6.7 MB each.
 const liveWorkspaces = new Set();
 const INTERRUPTS = ['SIGINT', 'SIGTERM'];
+let activeQueueProcessSignalHandlers = null;
 
 function onInterrupt(signal) {
     for (const workspace of [...liveWorkspaces]) removeWorkspace(workspace);
@@ -1204,8 +1286,10 @@ function onInterrupt(signal) {
 
 export function createWorkspace(root = REPO_ROOT) {
     const workspace = mkdtempSync(WORKSPACE_PREFIX);
-    if (liveWorkspaces.size === 0)
+    if (liveWorkspaces.size === 0 && !activeQueueProcessSignalHandlers) {
+        clearRetainedProcessSignalBroker();
         for (const signal of INTERRUPTS) process.on(signal, onInterrupt);
+    }
     liveWorkspaces.add(workspace);
     try {
         for (const entry of COPIED_ENTRIES)
@@ -1225,9 +1309,174 @@ export function removeWorkspace(workspace) {
         throw new Error('refusing to remove an unexpected workspace path');
     rmSync(workspace, { recursive: true, force: true });
     liveWorkspaces.delete(workspace);
-    if (liveWorkspaces.size === 0)
+    if (liveWorkspaces.size === 0 && !activeQueueProcessSignalHandlers)
         for (const signal of INTERRUPTS)
             process.removeListener(signal, onInterrupt);
+}
+
+/**
+ * Run ordinal work through a bounded set of private workspaces.
+ *
+ * A slot does not admit another item after any peer fails. Active operations
+ * receive one abort signal and are allowed to settle before every workspace is
+ * removed. Results are returned in input order, independent of completion
+ * order. The `settle` hook runs after active operations finish and before
+ * workspace removal. After cleanup, an interrupt is re-raised ahead of cleanup
+ * or execution failures; otherwise the first cleanup failure takes precedence
+ * over the execution failure.
+ *
+ * When `signalTarget` is `process`, the queue exclusively owns SIGINT and
+ * SIGTERM until cleanup and terminal handoff complete. Injected event targets
+ * do not participate in process-broker ownership.
+ */
+export async function runMutationQueue(items, {
+    jobs,
+    createWorkspace: makeWorkspace = createWorkspace,
+    removeWorkspace: discardWorkspace = removeWorkspace,
+    execute,
+    settle = async () => {},
+    signalTarget = null,
+    reraise = reraiseProcessSignal,
+}) {
+    if (!Number.isInteger(jobs) || jobs < 1 || jobs > MAX_JOBS)
+        throw new TypeError(`jobs must be an integer from 1 to ${MAX_JOBS}`);
+    if (typeof execute !== 'function')
+        throw new TypeError('mutation queue needs an execute function');
+    if (!items.length) return [];
+
+    const controller = new AbortController();
+    const results = new Array(items.length);
+    let executionFailure = null;
+    const cleanupFailures = [];
+    let interrupt = null;
+    let terminalSignalWindowReached = false;
+    let signalHandlers = null;
+    const removeSignalHandlers = () => {
+        if (!signalHandlers) return;
+        for (const [signal, handler] of signalHandlers)
+            signalTarget.removeListener(signal, handler);
+        if (retainedProcessSignalHandlers === signalHandlers)
+            retainedProcessSignalHandlers = null;
+        if (signalTarget === process
+            && activeQueueProcessSignalHandlers === signalHandlers)
+            activeQueueProcessSignalHandlers = null;
+        signalHandlers = null;
+    };
+    const settleSignalOwnership = async () => {
+        if (!signalHandlers) return;
+        if (signalTarget !== process) {
+            removeSignalHandlers();
+            return;
+        }
+        // Workspace removal and lane teardown use synchronous system calls.
+        // Let libuv deliver a signal accepted during either one before the
+        // queue decides precedence, then retain a terminal broker across the
+        // handler-removal handoff just as the aggregate owner does.
+        await new Promise((resolve) => setImmediate(resolve));
+        terminalSignalWindowReached = true;
+        if (!interrupt)
+            await new Promise((resolve) => setImmediate(resolve));
+        if (interrupt) removeSignalHandlers();
+        else if (liveWorkspaces.size) {
+            // A failed default removal leaves its path registered. Hand the
+            // signal boundary back to the cleanup-aware handler before
+            // dropping the queue broker, so a later interrupt retries it.
+            for (const signal of INTERRUPTS)
+                process.on(signal, onInterrupt);
+            removeSignalHandlers();
+        } else {
+            retainedProcessSignalHandlers = signalHandlers;
+            if (activeQueueProcessSignalHandlers === signalHandlers)
+                activeQueueProcessSignalHandlers = null;
+        }
+    };
+    if (signalTarget) {
+        if (signalTarget === process) {
+            clearRetainedProcessSignalBroker();
+            if (activeQueueProcessSignalHandlers)
+                throw new Error('another mutation queue owns process signals');
+            for (const signal of INTERRUPTS)
+                process.removeListener(signal, onInterrupt);
+        }
+        signalHandlers = new Map(INTERRUPTS.map((signal) => [signal, () => {
+            if (terminalSignalWindowReached) {
+                removeSignalHandlers();
+                reraise(signal);
+                return;
+            }
+            if (interrupt) return;
+            interrupt = signal;
+            controller.abort(new Error(`mutation queue interrupted by ${signal}`));
+        }]));
+        if (signalTarget === process)
+            activeQueueProcessSignalHandlers = signalHandlers;
+        for (const [signal, handler] of signalHandlers)
+            signalTarget.on(signal, handler);
+    }
+    let next = 0;
+    const slots = Math.min(jobs, items.length);
+    const workspaces = [];
+    try {
+        for (let slot = 0; slot < slots; ++slot)
+            workspaces.push(makeWorkspace());
+    } catch (error) {
+        for (const workspace of workspaces) {
+            try {
+                discardWorkspace(workspace);
+            } catch (cleanupError) {
+                cleanupFailures.push(cleanupError);
+            }
+        }
+        await settleSignalOwnership();
+        if (interrupt) {
+            reraise(interrupt);
+            return results;
+        }
+        throw cleanupFailures[0] ?? error;
+    }
+
+    const runSlot = async (slot) => {
+        while (!controller.signal.aborted) {
+            const index = next++;
+            if (index >= items.length) return;
+            try {
+                results[index] = await execute(items[index], {
+                    workspace: workspaces[slot],
+                    signal: controller.signal,
+                    slot,
+                });
+            } catch (error) {
+                if (!controller.signal.aborted) {
+                    executionFailure = error;
+                    controller.abort(error);
+                }
+                return;
+            }
+        }
+    };
+
+    await Promise.allSettled(
+        Array.from({ length: slots }, (_, slot) => runSlot(slot)));
+    try {
+        await settle({ signal: controller.signal });
+    } catch (error) {
+        cleanupFailures.push(error);
+    }
+    for (const workspace of workspaces) {
+        try {
+            discardWorkspace(workspace);
+        } catch (error) {
+            cleanupFailures.push(error);
+        }
+    }
+    await settleSignalOwnership();
+    if (interrupt) {
+        reraise(interrupt);
+        return results;
+    }
+    if (cleanupFailures.length) throw cleanupFailures[0];
+    if (executionFailure) throw executionFailure;
+    return results;
 }
 
 // ---------------------------------------------------------------------------
@@ -1317,7 +1566,9 @@ export function mutationWaveName(
     if (sliceName !== null) {
         if (!MUTATION_SLICE_PATTERN.test(sliceName))
             throw new TypeError('mutation wave slice name is invalid');
-        return `${sliceName}_wave_${sequence}`;
+        if (!/^[a-f0-9]+$/u.test(processToken))
+            throw new TypeError('mutation wave process token is invalid');
+        return `${sliceName}_wave_${processToken}_${sequence}`;
     }
     if (!Number.isInteger(pid) || pid < 1
         || !/^[a-f0-9]+$/u.test(processToken)) {
@@ -1518,6 +1769,50 @@ export function partitionTestFiles(rootPath = REPO_ROOT) {
     return { suite, unaffected };
 }
 
+/** Partition targets and build the duplicate-free test-file baseline union. */
+export function mutationRunPlan(targets, allTests, wholeSuite) {
+    const withSites = targets.filter((target) => target.sites.length);
+    const measurable = wholeSuite
+        ? withSites
+        : withSites.filter((target) => target.tests.length);
+    const unmeasured = wholeSuite
+        ? []
+        : withSites.filter((target) => !target.tests.length);
+    const baselineFiles = wholeSuite
+        ? allTests
+        : [...new Set(measurable.flatMap((target) => target.tests))].sort();
+    return { measurable, unmeasured, baselineFiles };
+}
+
+export function runMutationBaseline({
+    workspace,
+    baselineFiles,
+    log = () => {},
+    runTestWave = runTests,
+}) {
+    log(`baseline: ${baselineFiles.length} test file(s)`);
+    const wave = runTestWave(workspace, baselineFiles, 15 * 60 * 1000);
+    const tests = reportedTestCount(wave.output);
+    if (!wave.passed) {
+        throw new Error('the unmutated tests do not pass, so no mutant '
+            + 'result would be meaningful; fix them first. '
+            + `node --test ${baselineFiles.join(' ')} reported:\n`
+            + failureLines(wave.output));
+    }
+    if (tests === 0) {
+        throw new Error(`the baseline run of ${baselineFiles.length} test `
+            + 'file(s) reported no tests, so no mutant result would be '
+            + 'meaningful');
+    }
+    log(`baseline passed ${tests} test(s) in ${wave.seconds.toFixed(1)} s`);
+    return {
+        seconds: wave.seconds,
+        tests,
+        files: [...baselineFiles],
+        timeoutMs: Math.max(60_000, Math.ceil(wave.seconds * 3) * 1000),
+    };
+}
+
 /**
  * Apply each site's substitutions one at a time and report the survivors.
  *
@@ -1528,30 +1823,20 @@ export function partitionTestFiles(rootPath = REPO_ROOT) {
  *
  * Each mutant runs its first wave, the test files that reach the module without
  * passing through another js/ module. A failure there kills the mutant and the
- * rest of the suite is skipped, which is where the ordering pays. A mutant that
- * survives its first wave then runs every remaining test file, so a survivor is
- * a mutant the whole suite passed. Node 24 offers no bail flag, so the stop
- * happens between the two spawns.
+ * rest of the suite is skipped. With `wholeSuite`, a mutant that survives its
+ * first wave then runs every remaining test file.
  *
- * The unmutated suite runs first, and a failure there aborts the run: a red
- * baseline kills every mutant, so the result would say nothing about the tests.
+ * A caller may supply a baseline measured once for several isolated lanes.
+ * Its `files` must be a duplicate-free superset of this lane's required
+ * baseline files, and its positive finite `timeoutMs` applies to every lane.
+ * Without one, this function measures the unmutated suite itself and aborts on
+ * a red or empty baseline before admitting any mutant.
  */
 export function runMutants({ workspace, targets,
     allTests = partitionTestFiles().suite, wholeSuite = false,
-    log = () => {}, runTestWave = runTests }) {
-    const withSites = targets.filter((target) => target.sites.length);
-    // Without the whole suite, a module no test file reaches has no verdict at
-    // all, and reporting its mutants as survivors would claim a gap that was
-    // never tested for.
-    const measurable = wholeSuite
-        ? withSites
-        : withSites.filter((target) => target.tests.length);
-    const unmeasured = wholeSuite
-        ? []
-        : withSites.filter((target) => !target.tests.length);
-    const baselineFiles = wholeSuite
-        ? allTests
-        : [...new Set(measurable.flatMap((target) => target.tests))].sort();
+    log = () => {}, runTestWave = runTests, baseline = null }) {
+    const { measurable, unmeasured, baselineFiles } = mutationRunPlan(
+        targets, allTests, wholeSuite);
 
     // With no first wave and no `--whole-suite`, nothing runs and nothing is
     // known.
@@ -1566,31 +1851,25 @@ export function runMutants({ workspace, targets,
             baselineTests: 0, byKind: new Map() };
     }
 
-    log(`baseline: ${baselineFiles.length} test file(s)`);
-    const baseline = runTestWave(
-        workspace, baselineFiles, 15 * 60 * 1000);
-    const baselineSeconds = baseline.seconds;
-    const baselineTests = reportedTestCount(baseline.output);
-    if (!baseline.passed) {
-        throw new Error('the unmutated tests do not pass, so no mutant '
-            + 'result would be meaningful; fix them first. '
-            + `node --test ${baselineFiles.join(' ')} reported:\n`
-            + failureLines(baseline.output));
+    const measuredBaseline = baseline ?? runMutationBaseline({
+        workspace, baselineFiles, log, runTestWave,
+    });
+    const baselineSeconds = measuredBaseline.seconds;
+    const baselineTests = measuredBaseline.tests;
+    const measuredFiles = new Set(measuredBaseline.files);
+    if (!Number.isFinite(baselineSeconds) || baselineSeconds < 0
+        || !Number.isInteger(baselineTests) || baselineTests < 1
+        || !Number.isFinite(measuredBaseline.timeoutMs)
+        || measuredBaseline.timeoutMs < 1
+        || measuredFiles.size !== measuredBaseline.files.length
+        || !baselineFiles.every((file) => measuredFiles.has(file))) {
+        throw new Error('parallel mutation lane received an invalid baseline');
     }
-    // A run that executes nothing also exits 0, and every mutant would then
-    // look like a survivor.
-    if (baselineTests === 0) {
-        throw new Error(`the baseline run of ${baselineFiles.length} test `
-            + 'file(s) reported no tests, so no mutant result would be '
-            + 'meaningful');
-    }
-    log(`baseline passed ${baselineTests} test(s) in `
-        + `${baselineSeconds.toFixed(1)} s`);
 
     // A mutant can turn a bounded loop into an unbounded one. The unmutated
     // suite is the ceiling for any subset of it, so a run past that ceiling is
     // a hang, and a hung mutant counts as killed.
-    const timeoutMs = Math.max(60_000, Math.ceil(baselineSeconds * 3) * 1000);
+    const timeoutMs = measuredBaseline.timeoutMs;
     const survivors = [];
     const kills = [];
     const timeoutRecords = [];
@@ -1713,6 +1992,278 @@ export function runMutants({ workspace, targets,
 }
 
 /**
+ * Merge one-mutant results supplied in serial target/site order.
+ * Identity-bearing arrays preserve that input order.
+ */
+export function mergeParallelResults(results, {
+    targets, unmeasured, wholeSuite, suiteSize, baseline,
+}) {
+    const merged = {
+        survivors: [], kills: [], killed: 0, timeouts: 0,
+        timeoutRecords: [], resourceLimits: 0,
+        resourceLimitRecords: [], ran: 0, perFile: [], unmeasured,
+        byKind: new Map(), wholeSuite, suiteSize, ranSeconds: 0,
+        firstWaveKilled: 0, firstWaveRuns: 0, firstWaveSeconds: 0,
+        wholeSuiteKilled: 0, wholeSuiteRuns: 0, wholeSuiteSeconds: 0,
+        baselineSeconds: baseline.seconds, baselineFiles: baseline.files,
+        baselineTests: baseline.tests,
+    };
+    const perFile = new Map(targets.map((target) => [target.path, {
+        path: target.path,
+        tests: target.tests.length,
+        mutants: 0,
+        firstWaveSeconds: 0,
+        reachedFullSuite: 0,
+        wholeSuiteSeconds: 0,
+    }]));
+    for (const result of results) {
+        merged.survivors.push(...result.survivors);
+        merged.kills.push(...result.kills);
+        merged.timeoutRecords.push(...result.timeoutRecords);
+        merged.resourceLimitRecords.push(...result.resourceLimitRecords);
+        for (const name of [
+            'killed', 'timeouts', 'resourceLimits', 'ran', 'ranSeconds',
+            'firstWaveKilled', 'firstWaveRuns', 'firstWaveSeconds',
+            'wholeSuiteKilled', 'wholeSuiteRuns', 'wholeSuiteSeconds',
+        ]) merged[name] += result[name];
+        for (const tally of result.perFile) {
+            const total = perFile.get(tally.path);
+            for (const name of [
+                'mutants', 'firstWaveSeconds', 'reachedFullSuite',
+                'wholeSuiteSeconds',
+            ]) total[name] += tally[name];
+        }
+        for (const [kind, tally] of result.byKind) {
+            const total = merged.byKind.get(kind) ?? { ran: 0, killed: 0 };
+            total.ran += tally.ran;
+            total.killed += tally.killed;
+            merged.byKind.set(kind, total);
+        }
+    }
+    merged.perFile = [...perFile.values()].filter((tally) => tally.mutants);
+    return merged;
+}
+
+class MutationWorkerLane {
+    constructor() {
+        this.token = randomBytes(32).toString('hex');
+        this.pending = null;
+        this.closedError = null;
+        this.worker = new Worker(new URL(import.meta.url), {
+            workerData: { kind: 'mutation-lane', token: this.token },
+        });
+        this.worker.on('message', (message) => {
+            if (!this.pending) return;
+            const pending = this.pending;
+            this.pending = null;
+            if (message?.token !== this.token) {
+                pending.reject(new Error(
+                    'mutation lane returned an unauthenticated result'));
+            } else if (message.error) {
+                const error = new Error(message.error.message);
+                error.stack = message.error.stack;
+                pending.reject(error);
+            } else {
+                pending.resolve(message.result);
+            }
+        });
+        this.worker.on('error', (error) => {
+            this.closedError = error;
+            if (!this.pending) return;
+            const pending = this.pending;
+            this.pending = null;
+            pending.reject(error);
+        });
+        this.worker.on('exit', (code) => {
+            if (code !== 0 && !this.closedError) {
+                this.closedError = new Error(
+                    `mutation lane exited with status ${code}`);
+            }
+            if (!this.pending) return;
+            const pending = this.pending;
+            this.pending = null;
+            pending.reject(this.closedError
+                ?? new Error('mutation lane exited before returning a result'));
+        });
+    }
+
+    run(payload, signal) {
+        if (this.closedError) return Promise.reject(this.closedError);
+        if (this.pending)
+            throw new Error('mutation lane received overlapping work');
+        return new Promise((resolve, reject) => {
+            let aborted = false;
+            const onAbort = () => {
+                aborted = true;
+                this.worker.terminate().then(() => reject(
+                    signal.reason ?? new Error('mutation lane cancelled')),
+                reject);
+            };
+            signal.addEventListener('abort', onAbort, { once: true });
+            this.pending = {
+                resolve: (value) => {
+                    signal.removeEventListener('abort', onAbort);
+                    resolve(value);
+                },
+                reject: (error) => {
+                    signal.removeEventListener('abort', onAbort);
+                    reject(error);
+                },
+            };
+            if (!aborted) this.worker.postMessage({ token: this.token, payload });
+        });
+    }
+
+    async close() {
+        await this.worker.terminate();
+    }
+}
+
+/**
+ * Run isolated mutant lanes after one shared baseline. `runTestWave` replaces
+ * only the coordinator's baseline runner; worker lanes use their own `runTests`
+ * implementation. Inject `makeLane` to replace lane execution in tests.
+ */
+export async function runMutantsParallel({
+    targets,
+    allTests = partitionTestFiles().suite,
+    wholeSuite = false,
+    jobs,
+    log = () => {},
+    makeWorkspace = createWorkspace,
+    discardWorkspace = removeWorkspace,
+    runTestWave = runTests,
+    makeLane = () => new MutationWorkerLane(),
+    runQueue = runMutationQueue,
+}) {
+    const plan = mutationRunPlan(targets, allTests, wholeSuite);
+    if (!plan.baselineFiles.length) {
+        const workspace = makeWorkspace();
+        try {
+            const result = runMutants({ workspace, targets, allTests, wholeSuite,
+                log, runTestWave });
+            result.parallelLanes = 0;
+            return result;
+        } finally {
+            discardWorkspace(workspace);
+        }
+    }
+
+    const baselineWorkspace = makeWorkspace();
+    let baseline;
+    try {
+        baseline = runMutationBaseline({
+            workspace: baselineWorkspace,
+            baselineFiles: plan.baselineFiles,
+            log,
+            runTestWave,
+        });
+    } finally {
+        discardWorkspace(baselineWorkspace);
+    }
+
+    const items = [];
+    for (const target of plan.measurable) {
+        for (const site of target.sites) {
+            items.push({
+                ordinal: items.length,
+                target: { ...target, sites: [{ ...site, ordinal: items.length }] },
+            });
+        }
+    }
+    const lanes = new Map();
+    const results = await runQueue(items, {
+        jobs,
+        createWorkspace: makeWorkspace,
+        removeWorkspace: discardWorkspace,
+        execute: (item, { slot, signal, workspace }) => {
+            let lane = lanes.get(slot);
+            if (!lane) {
+                lane = makeLane();
+                lanes.set(slot, lane);
+            }
+            return lane.run({
+                workspace,
+                target: item.target,
+                allTests,
+                wholeSuite,
+                baseline,
+            }, signal);
+        },
+        settle: async () => {
+            const settled = await Promise.allSettled(
+                [...lanes.values()].map((lane) => lane.close()));
+            const failed = settled.find((outcome) =>
+                outcome.status === 'rejected');
+            if (failed) throw failed.reason;
+        },
+        signalTarget: process,
+    });
+    const merged = mergeParallelResults(results, {
+        targets: plan.measurable,
+        unmeasured: plan.unmeasured,
+        wholeSuite,
+        suiteSize: allTests.length,
+        baseline,
+    });
+    merged.parallelLanes = lanes.size;
+    return merged;
+}
+
+/** Select serial execution or the isolated worker-lane pool for one run. */
+export async function dispatchMutationRun({
+    jobs,
+    runOptions,
+    makeWorkspace = createWorkspace,
+    discardWorkspace = removeWorkspace,
+    runSerial = runMutants,
+    runParallel = runMutantsParallel,
+}) {
+    if (jobs > 1)
+        return runParallel({ ...runOptions, jobs, makeWorkspace,
+            discardWorkspace });
+    const workspace = makeWorkspace();
+    try {
+        const result = runSerial({ workspace, ...runOptions });
+        result.parallelLanes = 0;
+        return result;
+    } finally {
+        discardWorkspace(workspace);
+    }
+}
+
+function startMutationLaneWorker() {
+    if (!parentPort || workerData?.kind !== 'mutation-lane'
+        || !/^[a-f0-9]{64}$/u.test(workerData.token ?? '')) {
+        throw new Error('invalid mutation lane worker identity');
+    }
+    parentPort.on('message', (message) => {
+        if (message?.token !== workerData.token) {
+            parentPort.postMessage({ token: workerData.token,
+                error: { message: 'unauthenticated mutation lane request' } });
+            return;
+        }
+        try {
+            const { workspace, target, allTests, wholeSuite, baseline }
+                = message.payload;
+            const result = runMutants({
+                workspace,
+                targets: [target],
+                allTests,
+                wholeSuite,
+                baseline,
+            });
+            parentPort.postMessage({ token: workerData.token, result });
+        } catch (error) {
+            parentPort.postMessage({ token: workerData.token, error: {
+                message: error.message,
+                stack: error.stack,
+            } });
+        }
+    });
+}
+
+/**
  * The test files a failing run blamed, read from the reporter's own failure
  * output, over both the TAP and the spec reporter as `reportedTestCount()`
  * above does. The spec reporter prints `test at <path>:<line>:<col>` once per
@@ -1776,6 +2327,17 @@ export function formatReport(result, population = result.ran) {
         : 'verdict: the first wave only, so a survivor below may still be '
             + 'killed by a test that reaches its module through another js/ '
             + 'module; pass --whole-suite to judge every mutant by the suite');
+    if (result.parallelLanes)
+        lines.push(`jobs: ${result.parallelLanes} isolated mutation lane(s)`);
+    if (result.aggregateCounters) {
+        const counters = result.aggregateCounters;
+        lines.push('aggregate local counters: '
+            + `memory.max events ${counters.memoryMaxEvents}, `
+            + `oom ${counters.oomEvents}, `
+            + `oom_kill ${counters.oomKillEvents}, `
+            + `oom_group_kill ${counters.oomGroupKillEvents}, `
+            + `pids.max events ${counters.pidsMaxEvents}`);
+    }
     for (const site of result.survivors) {
         lines.push(`survived ${describeSite(site)} `
             + `(${result.wholeSuite ? 'the whole suite passed; ' : ''}`
@@ -1947,7 +2509,9 @@ export function formatSiteCounts(targets, scopedLines) {
 export function parseArgs(argv) {
     const options = { range: null, paths: [], worktree: false, kinds: null,
         enumerateOnly: false, emitTrailer: false, wholeSuite: false,
-        sample: null, seed: 1, report: null, fromReport: null };
+        sample: null, seed: 1, report: null, fromReport: null,
+        jobs: DEFAULT_JOBS };
+    let jobsSeen = false;
     for (let i = 0; i < argv.length; ++i) {
         const separator = argv[i].indexOf('=');
         const name = separator < 0 ? argv[i] : argv[i].slice(0, separator);
@@ -2007,6 +2571,13 @@ export function parseArgs(argv) {
             if (!Number.isInteger(value) || value < 1)
                 throw new Error('--seed takes a positive integer');
             options.seed = value;
+        } else if (name === '--jobs') {
+            if (jobsSeen) throw new Error('pass one --jobs');
+            jobsSeen = true;
+            const value = Number(valueOf());
+            if (!Number.isInteger(value) || value < 1 || value > MAX_JOBS)
+                throw new Error(`--jobs takes an integer from 1 to ${MAX_JOBS}`);
+            options.jobs = value;
         } else if (name.startsWith('-')) {
             throw new Error(`unknown option '${name}'`);
         } else {
@@ -2163,40 +2734,42 @@ export async function main(argv) {
         console.log(line);
     if (options.enumerateOnly) return;
 
-    const workspace = createWorkspace();
-    try {
-        const { suite, unaffected } = partitionTestFiles();
-        if (options.wholeSuite) {
-            console.log(`suite: ${suite.length} test file(s) import a js/ `
-                + `module; ${unaffected.length} cannot be affected by a `
-                + `mutation and are not run (${unaffected.join(', ')})`);
-        }
-        const result = runMutants({
-            workspace,
-            targets: targets.filter((target) => target.sites.length),
-            allTests: suite,
-            wholeSuite: options.wholeSuite,
-            log: (message) => console.log(message),
-        });
-        for (const line of formatReport(result, populationMutants))
-            console.log(line);
-        // The worker copies this line into the slice's commit message, and
-        // `npm run quality -- slice-mutants` later checks it is there.
-        if (options.emitTrailer)
-            console.log(formatTrailer(result, options.kinds));
-        if (options.report) {
-            writeFileSync(options.report, `${JSON.stringify(
-                reportFromResult(result, options.kinds), null, 2)}\n`);
-            console.log(`report written: ${options.report}`);
-        }
-    } finally {
-        removeWorkspace(workspace);
+    const { suite, unaffected } = partitionTestFiles();
+    if (options.wholeSuite) {
+        console.log(`suite: ${suite.length} test file(s) import a js/ `
+            + `module; ${unaffected.length} cannot be affected by a `
+            + `mutation and are not run (${unaffected.join(', ')})`);
+    }
+    const runOptions = {
+        targets: targets.filter((target) => target.sites.length),
+        allTests: suite,
+        wholeSuite: options.wholeSuite,
+        log: (message) => console.log(message),
+    };
+    const result = await dispatchMutationRun({
+        jobs: options.jobs,
+        runOptions,
+    });
+    if (isVerifiedMutationWorker())
+        result.aggregateCounters = readAggregateResourceCounters();
+    for (const line of formatReport(result, populationMutants))
+        console.log(line);
+    // The worker copies this line into the slice's commit message, and
+    // `npm run quality -- slice-mutants` later checks it is there.
+    if (options.emitTrailer)
+        console.log(formatTrailer(result, options.kinds));
+    if (options.report) {
+        writeFileSync(options.report, `${JSON.stringify(
+            reportFromResult(result, options.kinds), null, 2)}\n`);
+        console.log(`report written: ${options.report}`);
     }
 }
 
 const SCRIPT_PATH = fileURLToPath(import.meta.url);
 
-if (process.argv[1] === SCRIPT_PATH) {
+if (!isMainThread) {
+    startMutationLaneWorker();
+} else if (process.argv[1] === SCRIPT_PATH) {
     try {
         if (isVerifiedMutationWorker()) {
             await main(process.argv.slice(2));
