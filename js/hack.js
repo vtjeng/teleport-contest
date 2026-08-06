@@ -981,7 +981,10 @@ function requireAutoopenClosedDoor(x, y, state, run) {
         // holds a skeleton key, lock pick or credit card; its quest-artifact
         // and magic-key preferences only choose among those three, and
         // pick_lock() is the sole caller that observes which one, so the
-        // function is deferred with it.
+        // function is deferred with it. js/lock.js pick_lock() serves the
+        // hero-directed apply, but its autounlock entry stops on the nonzero
+        // coordinates this call site would pass, so removing this refusal
+        // would fail open.
         if (carriesUnlockingTool(state)) {
             throw new UnsupportedHeroMoveBoundaryError('door unlocking tool');
         }

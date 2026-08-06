@@ -1,7 +1,8 @@
 // apply.js -- the `a` command: using a tool.
 // C refs: src/apply.c apply_ok(), doapply(), and use_stethoscope().
 //
-// doapply()'s switch has thirty-odd arms. Only STETHOSCOPE is live; every
+// doapply()'s switch has thirty-odd arms. Two are live: STETHOSCOPE, and the
+// LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c pick_lock() serves. Every
 // other arm, and the wand, spellbook and coin shortcuts above the switch,
 // stops at a refusal naming the C function it needs. use_stethoscope() covers
 // its three guards, the free-action rule, and the self-probe that confdir()
@@ -27,6 +28,7 @@ import { game } from './gstate.js';
 import { check_capacity } from './hack.js';
 import { ustatusline } from './insight.js';
 import { getobj } from './invent.js';
+import { pick_lock } from './lock.js';
 import { nohands } from './mondata.js';
 import { is_axe, is_graystone, is_pick, objectType } from './obj.js';
 import {
@@ -34,10 +36,13 @@ import {
     BULLWHIP,
     COIN_CLASS,
     CREAM_PIE,
+    CREDIT_CARD,
     EUCALYPTUS_LEAF,
+    LOCK_PICK,
     LUMP_OF_ROYAL_JELLY,
     POT_OIL,
     POTION_CLASS,
+    SKELETON_KEY,
     SPBOOK_CLASS,
     STETHOSCOPE,
     TOOL_CLASS,
@@ -236,6 +241,14 @@ export async function doapply(state = game) {
     switch (obj.otyp) {
     case STETHOSCOPE:
         return use_stethoscope(obj, state);
+    case LOCK_PICK:
+    case CREDIT_CARD:
+    case SKELETON_KEY:
+        // apply.c:4285-4289. Every pick_lock() answer except
+        // PICKLOCK_DID_NOTHING spends the turn, which is what draws the next
+        // turn's random numbers.
+        return (await pick_lock(obj, 0, 0, null, state) !== 0)
+            ? ECMD_TIME : ECMD_OK;
     default:
         // Every other arm of C's switch, and its `default` -- which redirects
         // a polearm to use_pole(), a pick or an axe to use_pick_axe(), and

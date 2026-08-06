@@ -2869,7 +2869,12 @@ export function Upolyd(player) {
 }
 
 // Canonical macros — previously duplicated as local stubs in 15+ files
-export function u_at(x, y) { return game?.u?.ux === x && game?.u?.uy === y; }
+// C ref: you.h:562 u_at(). The optional state argument matches the rest of the
+// port's calling convention; the module-global default preserves the reading
+// every other canonical macro in this block does.
+export function u_at(x, y, state = game) {
+    return state?.u?.ux === x && state?.u?.uy === y;
+}
 export function OBJ_AT(x, y) { return Boolean(game?.level?.objects?.[x]?.[y]); }
 export function Has_contents(obj) { return obj?.cobj != null; }
 // C ref: monst.h:73-74. The mask matters: m_ap_type also carries M_AP_F_DKNOWN

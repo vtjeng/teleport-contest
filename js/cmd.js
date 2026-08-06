@@ -20,6 +20,7 @@ import {
     MV_WALK,
     N_DIRS,
     N_DIRS_Z,
+    Never_mind,
     PICK_NONE,
     PICK_ONE,
     PLNMSG_UNKNOWN,
@@ -28,6 +29,7 @@ import {
     SLIMED,
     STONED,
     STRANGLED,
+    isok,
     quitchars,
     xdir,
     ydir,
@@ -42,6 +44,7 @@ import {
     UnsupportedDropError,
     UnsupportedLevelChangeError,
 } from './do.js';
+import { UnsupportedLockError } from './lock.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { UnsupportedObjectOperationError } from './obj.js';
@@ -502,6 +505,32 @@ export function confdir(force_impairment, state = game) {
     }
 }
 
+// C ref: cmd.c get_adjacent_loc() (3929-3953), translated whole. getdir()
+// supplies the direction; this turns it into a square and checks it. Callers
+// pass <u.ux, u.uy> as the origin, so `cc` names one of the eight neighbours,
+// or the hero's own square when the answer set u.dz instead of u.dx/u.dy.
+//
+// The `emsg` refusal needs an origin on the map's edge: isok() admits
+// x 1..COLNO-1 and y 0..ROWNO-1, and lock.c pick_lock(), its only ported
+// caller, starts from a hero who is standing on room floor or a corridor.
+export async function get_adjacent_loc(prompt, emsg, x, y, cc, state = game) {
+    const u = state.u;
+    if (!await getdir(prompt, state)) {
+        await ttyPline(Never_mind, state);
+        return 0;
+    }
+    const new_x = x + u.dx;
+    const new_y = y + u.dy;
+    if (cc && isok(new_x, new_y)) {
+        cc.x = new_x;
+        cc.y = new_y;
+    } else {
+        if (emsg) await ttyPline(emsg, state);
+        return 0;
+    }
+    return 1;
+}
+
 // C ref: cmd.c getdir() (3958-4098). Returns 1 when u.dx/u.dy/u.dz name a
 // direction and 0 otherwise, exactly as C does.
 //
@@ -921,6 +950,9 @@ export function failClosedCommandRefusals() {
         UnsupportedDirectionBoundaryError,
         UnsupportedEatError,
         UnsupportedApplyError,
+        // lock.c pick_lock() stops inside doapply()'s lock-pick arm, one
+        // frame below UnsupportedApplyError rather than beside it.
+        UnsupportedLockError,
         // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
         // and done_eating() and lesshungry() call it from doeat().
         UnsupportedHungerTransitionError,

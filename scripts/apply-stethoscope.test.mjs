@@ -60,6 +60,7 @@ import {
     POT_WATER,
     POTION_CLASS,
     ROCK,
+    SACK,
     SCALPEL,
     SPBOOK_CLASS,
     SPE_HEALING,
@@ -557,14 +558,16 @@ test('doapply refuses every class and arm this slice does not port',
             new RegExp(`applying a tool requires ${branch}`, 'u'), letter);
     }
 
-    // An arm of the switch: the Rogue's lock pick, which the next slice ports.
+    // An arm of the switch: the Rogue's sack, which apply.c:4274 sends to
+    // use_container(). Her lock pick, slot `e` in the same pack, no longer
+    // stops here; scripts/apply-lock-pick.test.mjs owns it.
     const rogueSegment = loadApplyPromptRecipe().segments.find(
         ({ nethackrc }) => nethackrc.includes('role:Rogue'),
     );
     assert.ok(rogueSegment, 'the matrix carries a Rogue segment');
-    const lockPick = await boundaryFor(rogueSegment, '.ae');
-    assert.match(lockPick?.message ?? '',
-        new RegExp(`doapply\\(\\)'s arm for object type ${LOCK_PICK}`, 'u'));
+    const sack = await boundaryFor(rogueSegment, '.af');
+    assert.match(sack?.message ?? '',
+        new RegExp(`doapply\\(\\)'s arm for object type ${SACK}`, 'u'));
 
     // The two direction arms below confdir(): 'j' names an adjacent square
     // and '>' names the floor.
