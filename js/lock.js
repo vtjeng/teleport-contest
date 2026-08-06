@@ -87,8 +87,14 @@ function doorMask(location) {
 }
 
 // C ref: lock.c:352-354, pick_lock()'s three return values. The caller reads
-// only whether the value is zero, but the names say why: a refusal issued
-// before the direction prompt costs no time, and everything after it does.
+// only whether the value is zero. C's own comment (349-352) hedges: giving a
+// direction or resuming an interrupted attempt "usually" costs the hero a
+// move, and being told "can't do that" before the prompt, or cancelling it
+// with ESC, does not. Two arms of this port sit on the "usually" rather than
+// the rule: a cancelled prompt answers PICKLOCK_DID_NOTHING (lock.c:427), and
+// so does the pit refusal at lock.c:551-556, which follows the prompt but
+// answers no time anyway -- C's comment there says #open does the same for the
+// similar situation. Read each C return statement rather than deriving it.
 export const PICKLOCK_LEARNED_SOMETHING = -1;
 export const PICKLOCK_DID_NOTHING = 0;
 export const PICKLOCK_DID_SOMETHING = 1;

@@ -248,7 +248,10 @@ export function piousness(showneg, suffix, state = game) {
                                             : 'transgressed';
 
     let buf = pio;
-    if (suffix && (!showneg || record >= 0)) {
+    // C tests `suffix` for NULL, not for emptiness: an empty string is a
+    // non-NULL pointer, so C appends the separating space for it and this
+    // must too. A plain truthiness test would take the other branch.
+    if (suffix != null && (!showneg || record >= 0)) {
         if (record !== 3) buf += ' ';
         buf += suffix;
     }

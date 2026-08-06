@@ -21,6 +21,11 @@ function erodeable_wep(obj, state) {
 }
 
 // C ref: wield.c will_weld() (66-68).
+//
+// js/weapon.js willWeld() is a second, independent port of this macro and of
+// erodeable_wep() above it, reached from mwelded(). The two bodies agree
+// today and must be changed together until one of them owns the pair;
+// QUALITY.json carries `will-weld-ported-twice` for that convergence.
 function will_weld(obj, state) {
     return Boolean(obj.cursed)
         && (erodeable_wep(obj, state) || obj.otyp === TIN_OPENER);

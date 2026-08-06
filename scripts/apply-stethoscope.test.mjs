@@ -5,6 +5,7 @@ import { apply_ok, doapply, UnsupportedApplyError } from '../js/apply.js';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     BLINDED,
+    DEAF,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -31,6 +32,7 @@ import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { piousness, ustatusline } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
+import { getRngLog } from '../js/rng.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { is_axe, set_bknown } from '../js/obj.js';
 import {
@@ -319,6 +321,20 @@ test('set_bknown writes the flag only when it changes', () => {
     // Turn 1 is u_init()'s, where C suppresses the redraw with `moves > 1L`;
     // turn 2 is the first that shows one.
     assert.equal(refreshes(OBJ_INVENT, 1), false);
+
+    // The change guard itself, under the same redrawing state: every case
+    // above hands set_bknown() a fresh object whose flag does change, so they
+    // hold with the guard deleted. Writing a value the object already holds
+    // must reach neither the write nor update_inventory(). moves = 2 is the
+    // first turn C's `svm.moves > 1L` admits, and OBJ_INVENT the where that
+    // redraws, so both conjuncts are satisfied and only the guard can stop it.
+    state.moves = 2;
+    const settled = item(TOOL_CLASS, STETHOSCOPE,
+        { bknown: 0, where: OBJ_INVENT });
+    assert.throws(() => set_bknown(settled, 1, { state }),
+        { name: 'UnsupportedObjectOperationError' });
+    assert.equal(settled.bknown, 1);
+    assert.doesNotThrow(() => set_bknown(settled, 1, { state }));
 });
 
 test('welded and freehand answer on the wielded weapon', () => {
@@ -421,11 +437,27 @@ test('piousness names each band of the alignment record', () => {
     assert.equal(at(-4, true), 'sinned');
     assert.equal(at(-8, true), 'sinned');
     assert.equal(at(-9, true), 'transgressed');
-    // No suffix at all leaves the adverb alone, at the same record that just
-    // produced "transgressed" with one.
+    // The record, not the suffix, is what drops it here: showneg with a
+    // fallen record fails C's `!showneg || u.ualign.record >= 0` term, so the
+    // adverb stands alone whatever the suffix holds.
     assert.equal(piousness(true, '', state), 'transgressed');
     // showneg keeps the suffix once the record is back at or above zero.
     assert.equal(at(0, true), 'nominally neutral');
+
+    // C tests `suffix` for NULL, and an empty string is not NULL, so it takes
+    // the append branch and emits the separator on its own. A JavaScript
+    // truthiness test would answer the opposite way for exactly this input,
+    // which is the one value that separates the two readings.
+    assert.equal(at(10, false, ''), 'fervently ');
+    // Record 3 is the band whose adverb is empty and whose separator C skips,
+    // so the same empty suffix yields nothing at all.
+    assert.equal(at(3, false, ''), '');
+    // A genuinely absent suffix is C's NULL, which skips the branch and the
+    // separator with it. `at` supplies a default for an omitted argument, so
+    // the undefined case calls piousness() directly.
+    assert.equal(at(10, false, null), 'fervently');
+    state.u.ualign.record = 10;
+    assert.equal(piousness(false, undefined, state), 'fervently');
 });
 
 test('the apply command is admitted and shares its extcmdlist row with doapply',
@@ -538,6 +570,26 @@ test('a deaf hero hears nothing and is never asked for a direction',
     assert.equal(game.context.stethoscope_seq, 0);
 });
 
+test('the Deaf guard reads the intrinsic and the extrinsic, not the option',
+    async () => {
+    // youprop.h:125 spells Deaf as the intrinsic, the extrinsic and the
+    // roleplay option. The segment above supplies only the option, so on its
+    // own it holds for an implementation that reads uroleplay.deaf alone.
+    // These two drive an ordinary Healer and set one term each.
+    for (const term of ['intrinsic', 'extrinsic']) {
+        await runSegment({ ...segmentFor('ac.'), moves: '.' });
+        game.u.uprops[DEAF][term] = 1;
+        game.nhDisplay.pushKey('c'.charCodeAt(0));
+        // No direction key is queued: reaching getdir() would hang or read
+        // the wrong byte, so the guard answering first is what makes this
+        // pass at all.
+        assert.equal(await doapply(game), ECMD_OK, term);
+        assert.equal(pendingTopLine(), "You can't hear anything!", term);
+        // apply.c:331-333 returns above the free-action write.
+        assert.equal(game.context.stethoscope_seq, 0, term);
+    }
+});
+
 test('doapply refuses every class and arm this slice does not port',
     async () => {
     const segment = segmentFor('ac.');
@@ -578,6 +630,66 @@ test('doapply refuses every class and arm this slice does not port',
         assert.match(await refusal(`.ac${key}`),
             new RegExp(`applying a tool requires ${branch}`, 'u'), key);
     }
+});
+
+// The arms between the free-action write and confdir() that no key sequence
+// can reach, because the starting Healer is unmounted, unswallowed and
+// carries an uncursed tool. Each is set by hand and doapply() driven
+// directly. C's order is usteed, uswallow, u.dz, then cursed
+// (apply.c:345-377), and these pin the order as well as the arms.
+test('use_stethoscope stops for the states its own keys cannot reach',
+    async () => {
+    const drive = async (setup, keys) => {
+        await runSegment({ ...segmentFor('ac.'), moves: '.' });
+        setup();
+        for (const key of keys) game.nhDisplay.pushKey(key.charCodeAt(0));
+        return doapply(game).then(
+            (value) => ({ value }),
+            (error) => ({ error }),
+        );
+    };
+    // A steed is only consulted when the hero points down: apply.c:345 reads
+    // `u.usteed && u.dz > 0`. The stub carries no fields because every reader
+    // of u.usteed below this arm stops before it.
+    const mounted = () => { game.u.usteed = { mx: game.u.ux, my: game.u.uy }; };
+    assert.equal((await drive(mounted, ['c', '>'])).error?.branch,
+        'mstatusline() for a steed');
+    // The same steed with dz 0 falls past the arm to ustatusline(), which is
+    // the `u.dz > 0` half of the conjunct. Under `>=` this would refuse.
+    const selfListen = await drive(mounted, ['c', '.']);
+    assert.equal(selfListen.error, undefined);
+    // Driven outside moveloop_core(), so the report is still pending rather
+    // than painted; the replayed self-listen above reads it from the grid.
+    assert.equal(
+        pendingTopLine(),
+        'Status of Stetho (fervently neutral):  Level 1  HP 13(13)  AC 8.',
+    );
+
+    // apply.c:352 and :356 both need mstatusline() for u.ustuck.
+    assert.equal(
+        (await drive(() => { game.u.uswallow = 1; }, ['c', '.'])).error?.branch,
+        'mstatusline() for an engulfer',
+    );
+
+    // C's cursed arm is `obj->cursed && !rn2(2)`, so the port must stop on
+    // obj.cursed alone to keep that draw out of the stream. Refusing it must
+    // cost no random number at all.
+    const cursed = () => {
+        for (let obj = game.invent; obj; obj = obj.nobj)
+            if (obj.otyp === STETHOSCOPE) obj.cursed = 1;
+    };
+    await runSegment({ ...segmentFor('ac.'), moves: '.' });
+    cursed();
+    const drawsBefore = (getRngLog() ?? []).length;
+    for (const key of ['c', '.']) game.nhDisplay.pushKey(key.charCodeAt(0));
+    await assert.rejects(doapply(game), { branch: 'a cursed stethoscope' });
+    assert.equal((getRngLog() ?? []).length, drawsBefore,
+        'the refused cursed arm draws no random number');
+
+    // The same cursed tool pointed down answers the u.dz arm instead, which
+    // is the order: C tests u.dz at 363 before cursed at 374.
+    assert.equal((await drive(cursed, ['c', '>'])).error?.branch,
+        'listening to the floor or ceiling');
 });
 
 test('ustatusline stops for every clause it would have to name', async () => {
@@ -622,6 +734,22 @@ test('ustatusline stops for every clause it would have to name', async () => {
     await assert.rejects(() => ustatusline(game),
         (error) => error.branch === 'the disguised clause');
     game.youmonst.m_ap_type = 0;
+
+    // The last clause, and the only one behind a helper rather than a
+    // property: region.c visible_region_at() answers on a region that is
+    // visible, is not expiring (ttl -2) and covers the square. The shape is
+    // what js/region.js inside_region() reads -- a bounding box and the
+    // rectangles inside it -- both set to the hero's own square.
+    const here = { lx: game.u.ux, hx: game.u.ux,
+        ly: game.u.uy, hy: game.u.uy };
+    game.level.regions = [
+        { visible: true, ttl: -1, bounding_box: here, rects: [here] },
+    ];
+    await assert.rejects(() => ustatusline(game),
+        (error) => error.branch === 'the cloud-of-vapor clause');
+    // Cleared again, so the clean report below proves the refusal was the
+    // region and not some state the stub left behind.
+    game.level.regions = [];
 
     // With every clause cleared the report is the one line the command draws.
     await ustatusline(game);

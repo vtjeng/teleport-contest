@@ -517,6 +517,10 @@ function artifactLight(obj) {
         || obj?.oartifact === ART_SUNSWORD;
 }
 
+// C ref: wield.c will_weld() (66-68) with erodeable_wep() (61-64) inlined.
+// js/wield.js will_weld() is a second, independent port of the same macro
+// pair. The two bodies agree today and must be changed together until one of
+// them owns the pair; QUALITY.json carries `will-weld-ported-twice`.
 function willWeld(obj, state) {
     const erodeableWeapon = obj.oclass === WEAPON_CLASS
         || isWeptool(obj, state)
