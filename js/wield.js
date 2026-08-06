@@ -1,8 +1,40 @@
 // wield.js -- what the hero's hands are doing.
-// C ref: src/wield.c empty_handed().
+// C refs: src/wield.c erodeable_wep(), will_weld(), welded(), and
+// empty_handed().
 
 import { game } from './gstate.js';
 import { humanoid } from './mondata.js';
+import { isWeptool, set_bknown } from './obj.js';
+import {
+    HEAVY_IRON_BALL,
+    IRON_CHAIN,
+    TIN_OPENER,
+    WEAPON_CLASS,
+} from './objects.js';
+
+// C ref: wield.c erodeable_wep() (61-64), the macro will_weld() reads. Despite
+// the name, it selects what a curse can weld to the hand rather than what
+// rusts; C's own comment says the name should probably change.
+function erodeable_wep(obj, state) {
+    return obj.oclass === WEAPON_CLASS || isWeptool(obj, state)
+        || obj.otyp === HEAVY_IRON_BALL || obj.otyp === IRON_CHAIN;
+}
+
+// C ref: wield.c will_weld() (66-68).
+function will_weld(obj, state) {
+    return Boolean(obj.cursed)
+        && (erodeable_wep(obj, state) || obj.otyp === TIN_OPENER);
+}
+
+// C ref: wield.c welded() (1050-1058). Answers whether the wielded weapon has
+// stuck to the hero's hand, and teaches her it is cursed when it has.
+export function welded(obj, state = game, env = {}) {
+    if (obj && obj === state.uwep && will_weld(obj, state)) {
+        set_bknown(obj, 1, { ...env, state });
+        return 1;
+    }
+    return 0;
+}
 
 // C ref: wield.c empty_handed(). Describes hands that hold no weapon; the ^X
 // attributes window and the wield messages share the wording.

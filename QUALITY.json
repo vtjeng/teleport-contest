@@ -972,6 +972,7 @@
       "id": "commands",
       "label": "Commands, input, and messages",
       "paths": [
+        "js/apply.js",
         "js/cmd.js",
         "js/command_bindings.js",
         "js/do.js",

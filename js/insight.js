@@ -1,9 +1,11 @@
-// insight.js -- the attributes window that `^X` opens.
+// insight.js -- the attributes window that `^X` opens, and the one-line
+// self-report a stethoscope produces.
 // C ref: src/insight.c enlght_out(), enlght_line(), enl_msg(), you_are(),
 // you_have(), attrval(), fmt_elapsed_time(), enlightenment(),
 // background_enlightenment(), basics_enlightenment(),
 // characteristics_enlightenment(), one_characteristic(),
-// status_enlightenment(), weapon_insight(), doattributes(), and align_str().
+// status_enlightenment(), weapon_insight(), doattributes(), align_str(),
+// piousness(), and ustatusline().
 //
 // `doattributes()` is the only ported caller, so `mode` is BASICENLIGHTENMENT
 // alone and `final` is ENL_GAMEINPROGRESS. `enlightenment()` refuses every
@@ -40,6 +42,7 @@ import {
     DEAF,
     ENL_GAMEINPROGRESS,
     EXT_ENCUMBER,
+    FAST,
     FIXED_ABIL,
     FLYING,
     FULL_MOON,
@@ -51,10 +54,12 @@ import {
     HVY_ENCUMBER,
     In_endgame,
     In_quest,
+    INVIS,
     Is_bigroom,
     Is_knox_level,
     Is_rogue_level,
     LEVITATION,
+    M_AP_NOTHING,
     MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
     N_ACH,
@@ -100,6 +105,7 @@ import {
 import { align_gname, u_gname } from './pray.js';
 import { is_ammo } from './obj.js';
 import { body_part } from './polyself.js';
+import { visible_region_at } from './region.js';
 import {
     genders,
     rankOf,
@@ -108,6 +114,7 @@ import {
     ROLE_MALE,
 } from './roles.js';
 import { costly_spot } from './shk.js';
+import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { hidden_gold } from './vault.js';
 import {
@@ -217,6 +224,35 @@ export function align_str(alignment) {
     case A_NONE: return 'unaligned';
     default: return 'unknown';
     }
+}
+
+// C ref: insight.c piousness() (3234-3271), used for self-probing. `showneg`
+// selects between naming how far the hero has fallen and the single word
+// "insufficiently"; ustatusline(), the only ported caller, passes FALSE.
+//
+// A record of exactly 3 answers the empty adverb, and C then joins the suffix
+// with no separating space, so the caller's suffix stands alone.
+export function piousness(showneg, suffix, state = game) {
+    const record = state.u.ualign.record;
+    /* note: piousness 20 matches MIN_QUEST_ALIGN (quest.h) */
+    const pio = record >= 20 ? 'piously'
+        : record > 13 ? 'devoutly'
+            : record > 8 ? 'fervently'
+                : record > 3 ? 'stridently'
+                    : record === 3 ? ''
+                        : record > 0 ? 'haltingly'
+                            : record === 0 ? 'nominally'
+                                : !showneg ? 'insufficiently'
+                                    : record >= -3 ? 'strayed'
+                                        : record >= -8 ? 'sinned'
+                                            : 'transgressed';
+
+    let buf = pio;
+    if (suffix && (!showneg || record >= 0)) {
+        if (record !== 3) buf += ' ';
+        buf += suffix;
+    }
+    return buf;
 }
 
 // C ref: insight.c attrval(). Strength above 18 reads as "18/xx" up to
@@ -796,6 +832,72 @@ export function record_achievement(achidx, state = game) {
 export function achieve_rank(rank, state = game) {
     const achidx = (rank - 1) + ACH_RNK1;
     return state.flags.female ? -achidx : achidx;
+}
+
+// Conditions ustatusline() names in the trailing `info` clause of its report.
+// A hero who has just started carries none of them, and each one's wording
+// needs source no ported caller reaches -- makeplural(body_part(LEG)),
+// fingers_or_gloves(), a_monnam() and the `, cover`/`ed by sticky goop` split
+// -- so their presence stops the command rather than dropping the clause.
+//
+// The rows follow C's order inside ustatusline(), because C builds `info` by
+// appending in that order and a hero carrying two of them would need both
+// fragments in that sequence. Plain rows use hasProperty(), whose
+// intrinsic-or-extrinsic answer is a superset of every macro listed here:
+// youprop.h defines Sick, Stoned, Slimed, Strangled, Vomiting, Confusion,
+// Glib and Stunned as the intrinsic alone, Wounded_legs and Fast as the pair,
+// and Blind and Invis as the pair minus a blocking term. So each stop can only
+// fire early, never late.
+const UNPORTED_USTATUS_CONDITIONS = Object.freeze([
+    [SICK, 'the dying-from-illness clause'],
+    [STONED, 'the solidifying clause'],
+    [SLIMED, 'the becoming-slimy clause'],
+    [STRANGLED, 'the being-strangled clause'],
+    [VOMITING, 'the nauseated clause'],
+    [CONFUSION, 'the confused clause'],
+    [BLINDED, 'the blind clause'],
+    [STUNNED, 'the stunned clause'],
+    [WOUNDED_LEGS, 'the injured-leg clause'],
+    [GLIB, 'fingers_or_gloves()'],
+    [FAST, 'the fast clause'],
+    [INVIS, 'the invisible clause'],
+]);
+
+// C ref: insight.c ustatusline() (3401-3489), the one-line report a
+// stethoscope or a probe applied to the hero produces. Every writer of C's
+// `info` buffer stops above, so the buffer is provably empty where C's format
+// string interpolates it and the report ends at the armor class.
+export async function ustatusline(state = game) {
+    const u = state.u;
+
+    for (const [propidx, branch] of UNPORTED_USTATUS_CONDITIONS) {
+        if (hasProperty(state, propidx))
+            throw new UnsupportedEnlightenmentError(branch);
+    }
+    if (u.utrap)
+        throw new UnsupportedEnlightenmentError('the trapped clause');
+    if (u.uundetected)
+        throw new UnsupportedEnlightenmentError('the concealed clause');
+    if ((state.youmonst?.m_ap_type ?? M_AP_NOTHING) !== M_AP_NOTHING)
+        throw new UnsupportedEnlightenmentError('the disguised clause');
+    // u.ustuck covers C's swallowed, held and holding arms, and with it the
+    // u.uswallow guard on the region clause below: youprop.h keeps u.uswallow
+    // inside u.ustuck, so a hero with no holder is a hero who is not swallowed.
+    if (u.ustuck)
+        throw new UnsupportedEnlightenmentError('a_monnam() for u.ustuck');
+    // `info` is empty at this point, so C's `strlen(info) < sizeof info` term
+    // holds and the clause depends only on there being a visible region.
+    if (visible_region_at(u.ux, u.uy, state))
+        throw new UnsupportedEnlightenmentError('the cloud-of-vapor clause');
+
+    await ttyPline(
+        `Status of ${state.plname} `
+        + `(${piousness(false, align_str(u.ualign.type), state)}):  `
+        + `Level ${Upolyd(u) ? state.mons[u.umonnum].mlevel : u.ulevel}  `
+        + `HP ${Upolyd(u) ? u.mh : u.uhp}(${Upolyd(u) ? u.mhmax : u.uhpmax})  `
+        + `AC ${u.uac}.`,
+        state,
+    );
 }
 
 // C ref: insight.c doattributes(), bound to `^X`. Returns whether the command

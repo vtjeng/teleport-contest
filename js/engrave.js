@@ -1,5 +1,6 @@
 // Engraving creation and erosion.
-// C ref: engrave.c make_engr_at(), wipe_engr_at(), and wipeout_text().
+// C ref: engrave.c make_engr_at(), wipe_engr_at(), wipeout_text(), and
+// freehand().
 
 import {
     BLINDED,
@@ -31,6 +32,8 @@ import {
 } from './monsters.js';
 import { rn2, rnd } from './rng.js';
 import { t_at, uescaped_shaft, uteetering_at_seen_pit } from './trap.js';
+import { welded } from './wield.js';
+import { bimanual } from './worn.js';
 
 const RUBOUTS = new Map([
     ['A', '^'], ['B', 'Pb['], ['C', '('], ['D', '|)['], ['E', '|FL[_'],
@@ -200,6 +203,16 @@ export function can_reach_floor(checkPit = true, state = game) {
             return false;
     }
     return true;
+}
+
+// C ref: engrave.c freehand() (469-477). Answers whether the hero has a hand
+// free for something other than her weapon. A weapon that is not welded leaves
+// one free whatever else she wears; a welded one leaves the off hand free
+// unless the weapon is two-handed or a cursed shield occupies it.
+export function freehand(state = game, env = {}) {
+    const uwep = state.uwep;
+    return !uwep || !welded(uwep, state, env)
+        || (!bimanual(uwep, state) && (!state.uarms || !state.uarms.cursed));
 }
 
 // C ref: engrave.c read_engr_at(). The message callback is injected to avoid

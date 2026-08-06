@@ -26,6 +26,7 @@ import {
     OBJ_INVENT,
     OBJ_LUAFREE,
     OBJ_MINVENT,
+    P_AXE,
     P_BOW,
     P_CROSSBOW,
     P_NONE,
@@ -42,6 +43,7 @@ import { noveltitle } from './do_name.js';
 import { depth, level_difficulty, on_level } from './dungeon.js';
 import { set_tin_variety } from './eat.js';
 import { game } from './gstate.js';
+import { update_inventory } from './invent.js';
 import { obj_sheds_light } from './light.js';
 import { rndmonnum } from './makemon.js';
 import {
@@ -680,6 +682,12 @@ export function is_ammo(obj, state = game) {
         && skill <= -P_BOW;
 }
 
+// C ref: obj.h is_axe() (217-219). Reads the same field is_pick() below does.
+export function is_axe(obj, state = game) {
+    return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
+        && objectType(obj, state).oc_subtyp === P_AXE;
+}
+
 // C ref: obj.h is_pick(). The objects[] field C calls oc_skill is stored under
 // its union alias oc_subtyp here, as is_ammo() above also reads it.
 export function is_pick(obj, state = game) {
@@ -857,6 +865,21 @@ export function blessorcurse(obj, chance, env = {}) {
         else bless(obj);
     }
     return obj;
+}
+
+// C ref: mkobj.c set_bknown() (1862-1873). Records that the hero has learned
+// an object's bless/curse state, and refreshes the permanent-inventory window
+// when the object she learned it about is one she is carrying.
+//
+// C's guard is `svm.moves > 1L`, which suppresses the refresh during the first
+// turn while u_init() is still building the pack; update_inventory() applies
+// its own program_state.in_moveloop test on top of that.
+export function set_bknown(obj, onoff, env = {}) {
+    if (Boolean(obj.bknown) !== Boolean(onoff)) {
+        obj.bknown = onoff;
+        if (obj.where === OBJ_INVENT && (objectEnv(env).state.moves ?? 0) > 1)
+            update_inventory(env);
+    }
 }
 
 function monsterRecord(obj, env) {

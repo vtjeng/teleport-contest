@@ -33,6 +33,7 @@ import {
     ydir,
     zdir,
 } from './const.js';
+import { doapply, UnsupportedApplyError } from './apply.js';
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
 import { bot, flush_screen } from './display.js';
@@ -716,7 +717,7 @@ export async function parseCommand(state = game) {
 // it, so the key stays on the refusing side while the typed name works.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'down', 'reqmenu', 'wizwish', 'wizlevelport', '#',
+    'eat', 'apply', 'down', 'reqmenu', 'wizwish', 'wizlevelport', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -919,6 +920,7 @@ export function failClosedCommandRefusals() {
         UnsupportedSearchError,
         UnsupportedDirectionBoundaryError,
         UnsupportedEatError,
+        UnsupportedApplyError,
         // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
         // and done_eating() and lesshungry() call it from doeat().
         UnsupportedHungerTransitionError,
@@ -1112,6 +1114,14 @@ async function runEatCommand(key, state) {
     }));
 }
 
+// C ref: apply.c doapply(). Like dosearch() and doeat() it returns its own
+// ECMD_* result: use_stethoscope()'s free first listen answers ECMD_OK where a
+// second listen in the same move answers ECMD_TIME, and a cancelled object or
+// direction prompt answers ECMD_CANCEL.
+async function runApplyCommand(key, state) {
+    return failClosedCommand(key, state, () => doapply(state));
+}
+
 // C ref: do.c dodown(). Like dosearch() and doeat() it returns its own ECMD_*
 // result, because dodown() distinguishes the refusal that spends no turn from
 // the arms that spend one.
@@ -1241,6 +1251,8 @@ async function doextcmd(key, state) {
         return await runSearchCommand(key, state);
     case 'doeat':
         return await runEatCommand(key, state);
+    case 'doapply':
+        return await runApplyCommand(key, state);
     case 'dodown':
         return await runDownCommand(key, state);
     case 'doride':
@@ -1408,6 +1420,20 @@ export async function rhack(key, state = game) {
             // reason it is there, because cmd.c:3805-3809 documents
             // (ECMD_TIME|ECMD_CANCEL) as a real result.
             const res = await runEatCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state);
+            if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'apply') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search` and `eat` arms apply. doapply()
+            // reaches all three: ECMD_CANCEL for a cancelled object or
+            // direction prompt, ECMD_OK for the free first listen of a move
+            // and for the three use_stethoscope() guards, and ECMD_TIME for a
+            // second listen in the same move.
+            const res = await runApplyCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state);

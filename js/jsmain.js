@@ -293,8 +293,14 @@ export class NethackGame {
         g.u = { uroleplay: { ...(opts.uroleplay ?? {}) } };
         // context.h declares door_opened beside move; test_move() clears it on
         // entry and domove_core() reads it, so it exists from the start rather
-        // than appearing the first time the hero tries to walk.
-        g.context = { move: 0, door_opened: false };
+        // than appearing the first time the hero tries to walk. stethoscope_seq
+        // (context.h:158) joins them: C zeroes the whole svc.context struct at
+        // startup, and use_stethoscope() compares it against gh.hero_seq before
+        // it ever writes it, so the value it is compared against on the first
+        // listen of a game is 0 rather than absent. gh.hero_seq is never 0
+        // during play -- allmain.c:260 sets it to moves << 3 with moves >= 1 --
+        // so that first listen is always the free one.
+        g.context = { move: 0, door_opened: false, stethoscope_seq: 0 };
         g.program_state = {};
         g.moves = 0;
         g._commandDispatchCount = 0;
