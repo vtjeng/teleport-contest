@@ -457,18 +457,6 @@ export function xcrypt(text) {
     return result;
 }
 
-export function isok(x, y) {
-    const { COLNO, ROWNO } = await_const();
-    return x >= 1 && x <= COLNO - 1 && y >= 0 && y <= ROWNO - 1;
-}
-
-// Lazy import to avoid circular deps
-let _const = null;
-function await_const() {
-    if (!_const) _const = { COLNO: 80, ROWNO: 21 };
-    return _const;
-}
-
 export function distmin(x1, y1, x2, y2) {
     return Math.max(Math.abs(x1 - x2), Math.abs(y1 - y2));
 }

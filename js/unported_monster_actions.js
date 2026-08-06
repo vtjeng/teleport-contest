@@ -85,7 +85,6 @@ import {
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
 import { newObject } from './obj.js';
-import { copyObjclassEntry } from './objects.js';
 import {
     inside_region,
     mon_in_region,

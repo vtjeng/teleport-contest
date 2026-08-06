@@ -66,6 +66,7 @@ import {
     ROCK,
     SILVER_DAGGER,
     TIN,
+    TIN_OPENER,
     objects_globals_init,
 } from '../js/objects.js';
 import {
@@ -603,10 +604,6 @@ test('setmnotwielded clears ordinary state and preflights lit artifacts', async 
     await setmnotwielded(subject, ordinary, { state });
     assert.equal(subject.mw, null);
     assert.equal(ordinary.owornmask, 0);
-    assert.equal(mwelded(object(state, DAGGER, {
-        cursed: true,
-        owornmask: W_WEP,
-    }), state), true);
 
     const lit = object(state, LONG_SWORD, {
         oartifact: ART_SUNSWORD,
@@ -620,6 +617,40 @@ test('setmnotwielded clears ordinary state and preflights lit artifacts', async 
     );
     assert.equal(subject.mw, lit);
     assert.equal(lit.owornmask, W_WEP);
+});
+
+// wield.c:1078 mwelded() is `obj && (obj->owornmask & W_WEP)
+// && will_weld(obj)`, so all three terms must hold. will_weld() lives in
+// js/wield.js, shared with welded(); the last two cases below reach the two
+// halves of its `erodeable_wep(optr) || (optr)->otyp == TIN_OPENER`, which
+// shows that mwelded() consults it.
+test('mwelded needs a wielded, cursed, weldable object', () => {
+    const state = makeState();
+    const welding = { cursed: true, owornmask: W_WEP };
+    // All three terms hold: a cursed dagger wielded as the weapon.
+    assert.equal(mwelded(object(state, DAGGER, welding), state), true);
+    // The caller may hand mwelded() no object at all; C's `obj &&`
+    // short-circuits before it reads the mask.
+    assert.equal(mwelded(null, state), false);
+    // Cursed and weldable, but carried: an empty owornmask fails the W_WEP
+    // term.
+    assert.equal(mwelded(object(state, DAGGER, { cursed: true }), state),
+        false);
+    // Cursed and worn, but on the shield arm: W_ARMS is a different bit, so
+    // the W_WEP term still fails.
+    assert.equal(mwelded(object(state, DAGGER, {
+        cursed: true,
+        owornmask: W_ARMS,
+    }), state), false);
+    // Wielded and weldable, but not cursed, so will_weld() answers false.
+    assert.equal(mwelded(object(state, DAGGER, { owornmask: W_WEP }), state),
+        false);
+    // The tin opener is TOOL_CLASS and no weptool, so erodeable_wep() rejects
+    // it; will_weld() names it in its own term and welds it anyway.
+    assert.equal(mwelded(object(state, TIN_OPENER, welding), state), true);
+    // A luckstone is cursed and wielded. GEM_CLASS fails erodeable_wep() and
+    // its otyp fails the tin-opener term, so both halves reject it.
+    assert.equal(mwelded(object(state, LUCKSTONE, welding), state), false);
 });
 
 // A hero state carrying nothing but the skill slots and the role identity

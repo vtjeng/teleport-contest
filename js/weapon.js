@@ -61,7 +61,7 @@ import {
     PM_SAMURAI,
     S_KOP,
 } from './monsters.js';
-import { is_ammo, is_graystone, isWeptool, objectType } from './obj.js';
+import { is_ammo, is_graystone, objectType } from './obj.js';
 import {
     AKLYS,
     ARROW,
@@ -105,8 +105,6 @@ import {
     GRAPPLING_HOOK,
     GUISARME,
     HALBERD,
-    HEAVY_IRON_BALL,
-    IRON_CHAIN,
     JAVELIN,
     KATANA,
     KNIFE,
@@ -167,6 +165,7 @@ import {
     weapon_type,
 } from './startup_skills.js';
 import { couldsee } from './vision.js';
+import { will_weld } from './wield.js';
 
 const MR_STONE = 0x80;
 
@@ -511,22 +510,9 @@ function artifactLight(obj) {
         || obj?.oartifact === ART_SUNSWORD;
 }
 
-// C ref: wield.c will_weld() (66-68) with erodeable_wep() (61-64) inlined.
-// js/wield.js will_weld() is a second, independent port of the same macro
-// pair. The two bodies agree today and must be changed together until one of
-// them owns the pair; QUALITY.json carries `will-weld-ported-twice`.
-function willWeld(obj, state) {
-    const erodeableWeapon = obj.oclass === WEAPON_CLASS
-        || isWeptool(obj, state)
-        || obj.otyp === HEAVY_IRON_BALL
-        || obj.otyp === IRON_CHAIN;
-    return Boolean(obj.cursed
-        && (erodeableWeapon || obj.otyp === TIN_OPENER));
-}
-
 // C ref: wield.c mwelded().
 export function mwelded(obj, state = game) {
-    return Boolean(obj && (obj.owornmask & W_WEP) && willWeld(obj, state));
+    return Boolean(obj && (obj.owornmask & W_WEP) && will_weld(obj, state));
 }
 
 async function clearMonsterWeapon(
@@ -685,7 +671,7 @@ export async function mon_wield_item(monster, env = {}) {
                 'wieldMessage',
                 'mon_wield_item',
             );
-            const newlyWelded = willWeld(obj, state);
+            const newlyWelded = will_weld(obj, state);
             await wieldMessage(
                 monster,
                 obj,
@@ -896,5 +882,4 @@ export const _weaponInternals = Object.freeze({
     RANGED_WEAPONS,
     artifactLight,
     resistsStoning,
-    willWeld,
 });

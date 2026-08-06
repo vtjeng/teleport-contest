@@ -278,7 +278,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "roadmap",
       "detail": "One of the nine defects counted under `### Planning clone` above, kept here for\nthe general trap it records: a spread is not a copy when the source uses\n`Object.defineProperty`.\n\n`js/objects.js defineObjclassAliases()` installs eight aliases — `oc_skill`,\n`oc_armcat`, `a_ac`, `a_can`, `oc_bimanual`, `oc_bulky`, `oc_hitbon` and\n`oc_level` — as non-enumerable properties, so a spread copy silently drops\nthem. `planningState()` cloned the catalog with `{ ...entry }` from `8bd4d6a`\nuntil `39e5df1`, which meant the dry run read `undefined` for all eight and\ntook different branches from the live pass.\n\n`copyObjclassEntry()` in `js/objects.js` is the correct way to *materialize* a\ncopy of a catalog entry, and the generator emits it. The planning clone no\nlonger needs one: it uses `Object.create(entry)` prototype delegation, which\ngave the same isolation without the 6.4 ms per turn a 482-entry copy cost. The\nimport in `js/unported_monster_actions.js` is dead as a result and is left for\na simplification pass. The general lesson is recorded here\nbecause the same trap applies to any state the port clones: a spread is not a\ncopy when the source uses `Object.defineProperty`."
     },
@@ -836,7 +836,7 @@
       "area": "runtime",
       "category": "simplification",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "3b2f83d0b88c75ce76358c1787258b6bd1dd3123",
       "detail": "`cmd.c isok()` is ported twice, in two files, against `AGENTS.md` \"Keep each\nsource file's port in one place\":\n\n- `js/const.js:2003` — names `cmd.c isok()` in its comment and reads the\n  module's own `COLNO`/`ROWNO`.\n- `js/hacklib.js:460` — the same expression, `x >= 1 && x <= COLNO - 1 && y >= 0\n  && y <= ROWNO - 1`, reading `COLNO`/`ROWNO` through a lazy `await_const()`\n  import that exists to avoid a circular dependency.\n\nBoth are live. `js/region.js`, `js/room_coordinates.js`, `js/muse.js` and\n`js/startup_a11y.js` import the `const.js` one; `js/dogmove.js` imports the\n`hacklib.js` one and calls it at :737, :789, :1305 and :1310. The lock-pick\nslice at `7310643` used the `const.js` definition for `get_adjacent_loc()`,\nwhich is the correct one by name.\n\nThe two bodies agree today, so nothing is currently wrong; the risk is that one\nis edited and the other is not. `cmd.c` is the C owner, so `js/cmd.js` is where\nthis function belongs by the file-placement rule, and neither copy sits there.\n\nRecorded because the slice-worker that noticed the duplication reported the\n`hacklib.js` copy as a dead stub that nothing imports. That is false —\n`js/dogmove.js` imports it — and deleting it on that basis would break\n`dogmove.js`. This entry exists so the next reader does not repeat the mistake:\nthe fix is to converge the two on one owner, not to delete either one unread."
     },
@@ -845,7 +845,7 @@
       "area": "monsters",
       "category": "simplification",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "e22cb3a9a3146d046f3a777b8cf73bb280dd46be",
       "detail": "`wield.c will_weld()` (66-68) and the `erodeable_wep()` (61-64) it reads are\nported twice, against `AGENTS.md` \"Keep each source file's port in one place\":\n\n- `js/wield.js:18-27` — `erodeable_wep()` and `will_weld()` as separate\n  functions, added by the stethoscope slice at `1339326` because `welded()`\n  needs them. This is the correct owner by file name.\n- `js/weapon.js:520-527` — `willWeld()`, pre-existing, with `erodeable_wep()`\n  inlined into it, reached from `mwelded()`.\n\nBoth are live. The bodies agree today: weapon class or weptool or heavy iron\nball or iron chain, cursed, or a tin opener. Neither file mentioned the other\nuntil the audit for `aa9f3c85..3b2f83d`, which added a cross-reference comment\nat each site as the in-scope half of the fix.\n\nThe convergence itself is out of scope for an audit fix, because `js/weapon.js`\nis outside that reviewed range and `mwelded()` is live monster code. Resolve it\nby exporting `will_weld()` from `js/wield.js`, deleting `willWeld()`, and\npointing `mwelded()` at the survivor, with the development score identical\nacross the change.\n\nSame shape as `isok-ported-twice`. A simplification pass over these two entries\nwould settle both."
     },

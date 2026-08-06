@@ -20,13 +20,10 @@ function erodeable_wep(obj, state) {
         || obj.otyp === HEAVY_IRON_BALL || obj.otyp === IRON_CHAIN;
 }
 
-// C ref: wield.c will_weld() (66-68).
-//
-// js/weapon.js willWeld() is a second, independent port of this macro and of
-// erodeable_wep() above it, reached from mwelded(). The two bodies agree
-// today and must be changed together until one of them owns the pair;
-// QUALITY.json carries `will-weld-ported-twice` for that convergence.
-function will_weld(obj, state) {
+// C ref: wield.c will_weld() (66-68). The two ported callers are welded()
+// below and js/weapon.js mwelded(), which is wield.c mwelded(); C calls the
+// macro from four more places in wield.c that are not ported yet.
+export function will_weld(obj, state) {
     return Boolean(obj.cursed)
         && (erodeable_wep(obj, state) || obj.otyp === TIN_OPENER);
 }

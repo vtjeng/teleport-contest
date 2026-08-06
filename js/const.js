@@ -2000,6 +2000,13 @@ export const quitchars = ' \r\n\x1B';
 
 // Check if position is within map bounds
 // C ref: cmd.c isok() — x >= 1 && x <= COLNO-1 && y >= 0 && y <= ROWNO-1
+//
+// The C owner is cmd.c, so js/cmd.js is where "Keep each source file's port in
+// one place" would put this. It lives here instead because js/cmd.js is itself
+// one of the twenty-one modules that import isok(), and it already imports the
+// other twenty, directly or through another module; moving isok() there would
+// make each of them import the command dispatcher and close a cycle. isok()
+// reads nothing but COLNO and ROWNO, which this module owns.
 export function isok(x, y) {
     return x >= 1 && x <= COLNO - 1 && y >= 0 && y <= ROWNO - 1;
 }

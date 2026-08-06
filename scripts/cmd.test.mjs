@@ -45,6 +45,7 @@ import {
     ICE,
     IN_SIGHT,
     INTRINSIC,
+    isok,
     LADDER,
     LAVAPOOL,
     M_AP_FURNITURE,
@@ -150,6 +151,26 @@ function topLine(state) {
     return state.nhDisplay.grid[0]
         .map(({ ch }) => ch).join('').trimEnd();
 }
+
+// cmd.c:4326-4330 isok() is `x >= 1 && x <= COLNO - 1 && y >= 0
+// && y <= ROWNO - 1`. The column and row bounds differ: column 0 exists in
+// levl[][] and sits outside the map, while row 0 is the map's first row. The
+// port defines isok() in js/const.js, where a comment says why; these cases
+// sit on each of the four bounds and one step past it.
+test('isok admits the map columns and rows cmd.c names', () => {
+    // Column 1 row 0 is the first square isok() admits, at two of the bounds.
+    assert.equal(isok(1, 0), true);
+    // COLNO-1 and ROWNO-1 are the last, at the other two.
+    assert.equal(isok(COLNO - 1, ROWNO - 1), true);
+    // `x >= 1` drops column 0, which levl[][] has and the map does not.
+    assert.equal(isok(0, 0), false);
+    // `x <= COLNO - 1` drops column COLNO, one past the last.
+    assert.equal(isok(COLNO, 0), false);
+    // `y >= 0` drops row -1; C admits row 0, unlike column 0.
+    assert.equal(isok(1, -1), false);
+    // `y <= ROWNO - 1` drops row ROWNO, one past the last.
+    assert.equal(isok(1, ROWNO), false);
+});
 
 test('test_move describes remembered walls without time or PRNG work',
     async () => {

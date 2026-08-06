@@ -22,6 +22,7 @@ import {
     IS_DOOR,
     IS_OBSTRUCTED,
     IS_ROOM,
+    isok,
     MAGIC_PORTAL,
     MANFOOD,
     M_AP_NOTHING,
@@ -49,7 +50,6 @@ import { On_stairs } from './stairs.js';
 import {
     dist2,
     distmin,
-    isok,
     sgn,
 } from './hacklib.js';
 import { check_gear_next_turn } from './mon.js';
