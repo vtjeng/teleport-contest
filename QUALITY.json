@@ -287,7 +287,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "roadmap",
       "detail": "The correctness pass over `f826ba53..4d78313` confirmed five test gaps that its\nfixes did not close, all of the same shape: the assertion holds whether or not\nthe behavior it names is present. Four are closed at `247675b` and `5dd9bab` —\n`cloneLightList()`'s and `cloneTimerList()`'s object-remap arms, the redraw that\nruns whether or not the hero can see the square (in both `dog_invent()` and\n`mpickstuff()`), and `distant_name()`'s `obj.oartifact` disjunct. One remains:\n\n- The `wieldPickedItem: () => unsupported('pet weapon selection')` refusal has\n  no test, and the same diff deleted the `pony pickup` entry from the\n  preflight's starting-pet case list. No starting pet has an `AT_WEAP` attack,\n  so pinning it needs a fabricated pet rather than a fresh case."
     },

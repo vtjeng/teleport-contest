@@ -53,6 +53,7 @@ import {
     AT_BREA,
     AT_GAZE,
     AT_SPIT,
+    AT_WEAP,
     PM_CAVE_SPIDER,
     PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
@@ -1791,6 +1792,74 @@ test('a pet fetching an artifact refuses instead of crashing', async () => {
             `attempt ${attempt + 1}`,
         );
         assert.equal(target.monster.minvent, null, `attempt ${attempt + 1}`);
+    }
+});
+
+// C ref: dogmove.c:466-470. dog_invent()'s carry arm hands an AT_WEAP pet
+// straight to weapon.c mon_wield_item() once mpickobj() has taken the object,
+// and moveSimplePet()'s wieldPickedItem injection answers that call with a
+// refusal. Without the injection dog_invent() raises a bare TypeError from
+// inventoryOperation(), which escapes runSegment() and discards the segment's
+// matching prefix instead of ending the segment on its last matching screen --
+// the same failure the artifact pair above covers for can_touch_safely().
+//
+// The arm needs a fabricated pet. assertSimpleActionState() admits a tame
+// monster only when its species is one of the three starting pets, and none of
+// those three has AT_WEAP: include/monsters.h:228-234 and :381-388 give the
+// little dog and the kitten a lone AT_BITE, and :1002-1009 gives the pony
+// AT_KICK and AT_BITE. So this fixture puts an AT_WEAP attack in the pony's
+// first free mattk slot, which is where a permonst entry with three attacks
+// carries it, and leaves the kick and the bite in place.
+test('a pet picking a weapon up refuses instead of crashing', async () => {
+    const target = await prepareStartingPetAction(PM_PONY);
+    target.monster.mextra.edog.apport = 20;
+    const attacks = [...target.monster.data.mattk];
+    // ATTK(AT_WEAP, AD_PHYS, 1, 6): AD_PHYS is 0 and the damage is never
+    // rolled here, so only aatyp selects the arm.
+    attacks[2] = { aatyp: AT_WEAP, adtyp: 0, damn: 1, damd: 6 };
+    target.monster.data = { ...target.monster.data, mattk: attacks };
+    // C ref: dogmove.c:467. NEED_WEAPON is the second half of the gate, and
+    // monst.js starts a monster at NO_WEAPON_WANTED.
+    target.monster.weapon_check = NEED_WEAPON;
+    const dagger = floorObject(
+        target.monsterX,
+        target.heroY,
+        9101,
+        DAGGER,
+    );
+    installObject(target, dagger);
+    const before = completeSecondTurnSnapshot(game, target.replay);
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'pet weapon selection'
+            ),
+            `attempt ${attempt + 1}`,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            `attempt ${attempt + 1}`,
+        );
+        // The refusal lands after mpickobj() has run on the clone, so the live
+        // dagger stays on the floor and the live pony's pack stays empty.
+        assert.equal(
+            game.level.objects[target.monsterX][target.heroY],
+            dagger,
+            `attempt ${attempt + 1}`,
+        );
+        assert.equal(target.monster.minvent, null, `attempt ${attempt + 1}`);
+        // C sets NEED_HTH_WEAPON immediately before the call, on the clone.
+        // A live pony still asking for a weapon proves the write was isolated
+        // and that the refusal did not come from some earlier gate.
+        assert.equal(
+            target.monster.weapon_check,
+            NEED_WEAPON,
+            `attempt ${attempt + 1}`,
+        );
     }
 });
 
