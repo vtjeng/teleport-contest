@@ -504,6 +504,11 @@
           "name": "refuse the monster artifact touch instead of crashing",
           "status": "closed",
           "closedBy": "344e0cdbb42b4bc2551ea602d490cd09895f2996"
+        },
+        {
+          "name": "converge the duplicate ports and drop the dead catalog-alias import",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "0d3e6d36df3d21596c6226d58958623e1f9e84ce",
