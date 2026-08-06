@@ -274,10 +274,9 @@ export async function displayTtyMenuTextWindow(
         state.iflags?.menu_overlay !== false,
     );
     if (layout.maxrow >= display.rows) {
-        // The selected two-to-four-object transaction cannot reach paging:
-        // optional terrain plus its blank separator, one header, and four
-        // BUFSZ-bounded names occupy at most nineteen rows on the default
-        // 80-column terminal even when every name is split repeatedly.
+        // process_text_window() pagination remains a named unsupported
+        // boundary. BUFSZ bounds each source line, but repeated wrapping can
+        // still make even a four-object window taller than the terminal.
         throw new RangeError('paged tty menu text window is not supported');
     }
 
