@@ -129,6 +129,7 @@ import { m_everyturn_effect } from './monmove.js';
 import {
     preflightSimpleMonsterActions,
     runSimpleMonsterAction,
+    unportedMinliquidReason,
     UnsupportedSimpleMonsterActionError,
 } from './unported_monster_actions.js';
 import {
@@ -144,7 +145,6 @@ import { regen_hp, regen_pw } from './regen.js';
 import { automatic_search } from './detect.js';
 import { age_spells } from './spell.js';
 import { settrack } from './track.js';
-import { is_lava, is_pool } from './trap.js';
 import { clear_splitobjs } from './obj.js';
 
 // PRNG-owning initializer seam corresponding to the point immediately before
@@ -522,11 +522,12 @@ async function runEveryTurnEffectWithRegionHooks(monster, env) {
     });
 }
 
+// The live half of mon.c minliquid_core()'s refusal; the cloned scan's half
+// calls the same predicate. unportedMinliquidReason() states which of that
+// function's branches each square and species earns.
 function elapsedTurnMinLiquid(monster, env) {
-    if (is_pool(monster.mx, monster.my, env.state)
-        || is_lava(monster.mx, monster.my, env.state)) {
-        elapsedTurnBoundary('an immobile monster in liquid');
-    }
+    const reason = unportedMinliquidReason(monster, env.state);
+    if (reason) elapsedTurnBoundary(reason);
     return false;
 }
 

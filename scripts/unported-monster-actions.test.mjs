@@ -58,6 +58,7 @@ import {
     PM_FOG_CLOUD,
     PM_GIANT_RAT,
     PM_GNOME,
+    PM_GREMLIN,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_ORC_SHAMAN,
@@ -71,6 +72,7 @@ import {
 import {
     preflightSimpleMonsterActions,
     runSimpleMonsterAction,
+    unportedMinliquidReason,
     UnsupportedSimpleMonsterActionError,
 } from '../js/unported_monster_actions.js';
 import { newMonster } from '../js/monst.js';
@@ -787,6 +789,81 @@ test('simple preflight stops before current-square liquid and engraving effects'
             }
         }
     });
+
+// C ref: mon.c minliquid_core():987. The split reads `infountain` beside
+// `inpool`, and only for `mons[PM_GREMLIN]`: a gremlin standing on a fountain
+// draws rn2(3) there that no other species draws. The scan cannot answer that
+// draw, so it stops on the square; every other species crosses the same
+// fountain as ordinary terrain.
+test('simple preflight stops a gremlin standing on a fountain', async () => {
+    const gremlin = await prepareSelectedAction({ pmidx: PM_GREMLIN });
+    game.level.at(gremlin.monsterX, gremlin.heroY).typ = FOUNTAIN;
+    const before = completeSecondTurnSnapshot(game, gremlin.replay);
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => (
+                error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'a gremlin splitting in a fountain'
+            ),
+            `attempt ${attempt + 1}`,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, gremlin.replay),
+            before,
+            `attempt ${attempt + 1}`,
+        );
+    }
+
+    // PM_GIANT_RAT is prepareSelectedAction()'s default species; it reads the
+    // square through `inpool` and `inlava` alone, so the identical fountain
+    // leaves the scan running.
+    const rat = await prepareSelectedAction();
+    game.level.at(rat.monsterX, rat.heroY).typ = FOUNTAIN;
+    const ratBefore = preflightSnapshot();
+    await preflightSimpleMonsterActions(game);
+    assert.deepEqual(preflightSnapshot(), ratBefore);
+});
+
+// unportedMinliquidReason() also answers js/allmain.js elapsedTurnMinLiquid().
+// Its water and lava arm has no case in this file: assertSimpleScanState()
+// refuses both squares, with a different reason, before the scan reaches
+// minLiquid, and the live turn runs only on a monster that scan admitted.
+// mcalcdistress() does reach the arm, for an immobile monster that ended up in
+// liquid, but through js/allmain.js rather than through this module. A direct
+// call is what covers the arm either way.
+test('minliquid refusal reads the square before the species', async () => {
+    const LIQUID = 'an immobile monster in liquid';
+    const GREMLIN_SPLIT = 'a gremlin splitting in a fountain';
+    const cases = [
+        // mon.c:1068 drowns a monster in a pool; nothing here ports it.
+        { terrain: POOL, pmidx: PM_GIANT_RAT, reason: LIQUID },
+        // mon.c:1010 burns a monster in lava; nothing here ports it either.
+        { terrain: LAVAPOOL, pmidx: PM_GIANT_RAT, reason: LIQUID },
+        // mon.c:987's `(inpool || infountain)` claims a gremlin on both, and
+        // the arm above claims the pool first. Either way the caller refuses.
+        { terrain: POOL, pmidx: PM_GREMLIN, reason: LIQUID },
+        { terrain: FOUNTAIN, pmidx: PM_GREMLIN, reason: GREMLIN_SPLIT },
+        // `infountain` reaches no other species, and no arm reads a gremlin's
+        // dry floor, so both of these are squares C walks straight past.
+        { terrain: FOUNTAIN, pmidx: PM_GIANT_RAT, reason: null },
+        { terrain: ROOM, pmidx: PM_GREMLIN, reason: null },
+    ];
+
+    const target = await prepareSelectedAction();
+    const square = game.level.at(target.monsterX, target.heroY);
+    for (const minliquidCase of cases) {
+        square.typ = minliquidCase.terrain;
+        target.monster.data = game.mons[minliquidCase.pmidx];
+        assert.equal(
+            unportedMinliquidReason(target.monster, game),
+            minliquidCase.reason,
+            `terrain ${minliquidCase.terrain}, species `
+                + `${minliquidCase.pmidx}`,
+        );
+    }
+});
 
 test('simple preflight admits engravings that source wipe leaves intact',
     async () => {
