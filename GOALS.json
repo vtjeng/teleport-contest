@@ -425,7 +425,7 @@
     },
     {
       "id": "apply-tool-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "the hero issues apply (a), apply.c apply_ok() classifies inventory for getobj(\"use or apply\", ...), and apply.c doapply() runs the arm the chosen object's otyp selects — the stethoscope and the lock pick; every other arm of that switch, and the wand, spellbook and coin shortcuts above it, stop at a named refusal",
       "upstreamOwners": [
         "apply.c apply_ok()",
@@ -471,8 +471,11 @@
         "screens": 1002,
         "rng": 116103
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "1ed568346cb5ac6ec45d5a973015586e1edae612",
+      "delivered": {
+        "screens": 25,
+        "rng": 104
+      }
     }
   ]
 }
