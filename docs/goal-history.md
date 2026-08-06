@@ -147,3 +147,21 @@ aggregate would not shift by one screen until that boundary opened. The
 next selection should ask which boundary, if any, stands in front of many
 sessions at once that resemble the eleven hidden holdout sessions. No
 instrument in this repository reports that directly.
+
+`apply-tool-command` closed on 6 August 2026 and is the sixth zero. It ported
+`apply.c doapply()`'s entry with its stethoscope and lock-pick arms, forecast
+26 steps, and delivered 25 development screens and 104 random-number values,
+taking `seed0077-rogue-chargen` to 33 of 33 and the port to two fully matched
+development sessions. The holdout returned 195 of 3,640 screens and 32,614 of
+182,022 values, identical digit for digit to the evaluation before it. The
+boundary stopped 2 of 33 development sessions, and each was gated on a starting
+pack -- the Healer's stethoscope, the Rogue's lock pick -- so it sits behind a
+role as well as behind a command.
+
+The question the paragraph above leaves open is now settled, and not by a new
+instrument. The user decided on 6 August 2026 that ranking stays on the
+development look-ahead forecast and that the holdout's job is to catch a
+significant inadvertent regression. `.agents/selection.md`, "Ranking the
+behavior table", carries that rule; this file keeps the measurements behind it.
+Six zeros remain consistent with the effect-size reading given above: this
+goal's 25 screens are 0.3% of the recorded development total.

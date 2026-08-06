@@ -29,12 +29,13 @@ Read the log with `node scripts/score-log.mjs --latest [event]`, `--standing`,
 or `--since <sha>`; `--standing` carries the last stated holdout figure
 forward. Do not answer a score question by scanning `SCORE.tsv` itself.
 
-Prefer source-faithful subsystem improvements to isolated score gains. If an
-authorized aggregate holdout evaluation shows that development results did not
-carry over to the holdout, first compare the source, implementation diff, and
-development evidence. Run the protocol below only if that review confirms that
-behavior special-cased to a recorded session (fixture-specific) or hardcoded
-behavior passed development checks but did not carry over to the holdout.
+Prefer source-faithful subsystem improvements to isolated score gains. Run the
+protocol below when a review of the source, implementation diff, and
+development evidence confirms that behavior was special-cased to a recorded
+session (fixture-specific) or hardcoded, and passed the development checks that
+way. Anything may prompt that review. A holdout figure that moves little or not
+at all does not prompt one by itself: the holdout guards against a significant
+inadvertent regression, and a goal that does not move it is ordinary.
 
 ## Generalization failure protocol
 

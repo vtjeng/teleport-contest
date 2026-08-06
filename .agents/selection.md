@@ -198,3 +198,7 @@ forecast: the pickup goal was chosen because its behavior "fires without a
 player command" and gained one development screen; the trap goal promised that
 closing the dart-miss path would unblock `seed1500`, which stops earlier, on
 pet cursed-object feedback. `docs/goal-history.md` preserves both.
+
+**Rank on development look-ahead.** The sealed holdout guards against a
+significant inadvertent regression. Do not rank, re-rank, or reopen a goal on a
+holdout figure, and do not read an unmoved holdout as a failed goal.
