@@ -189,3 +189,6 @@ utc	event	phase	goal	detail
 2026-08-06T19:37:05.865Z	end	implement	apply-tool-command	
 2026-08-06T19:37:05.896Z	start	review	apply-tool-command	
 2026-08-06T20:34:11.026Z	end	review	apply-tool-command	
+2026-08-06T20:37:34.159Z	start	select		
+2026-08-06T20:56:53.234Z	end	select	monsters-deferral-sweep	
+2026-08-06T20:56:53.261Z	start	implement	monsters-deferral-sweep	

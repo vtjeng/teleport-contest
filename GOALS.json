@@ -476,6 +476,39 @@
         "screens": 25,
         "rng": 104
       }
+    },
+    {
+      "id": "monsters-deferral-sweep",
+      "status": "open",
+      "boundary": "resolve the monsters area's open non-scope deferrals, which npm run quality names as a sweep candidate at ten, before the next fail-closed boundary port opens",
+      "upstreamOwners": [
+        "mon.c minliquid_core()",
+        "js/weapon.js artifactTouchable()",
+        "wield.c will_weld()",
+        "js/unported_monster_actions.js preflightSimpleMonsterActions()"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "npm run quality at 0d3e6d3 names monsters at ten open non-scope deferrals, and .agents/selection.md requires clearing a named sweep before opening the next boundary port. A sweep resolves recorded findings rather than unblocking recorded steps, so it forecasts no development screens. Precedent: commands-deferral-sweep forecast 0 and delivered 0.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "### Clear the monsters area's deferral backlog\n\n`npm run quality` at `0d3e6d3` names `monsters` at ten open non-`scope`\ndeferrals, and `.agents/selection.md`, \"Deferred-area sweeps\", requires\nresolving one of an area's entries before the next boundary goal opens. Read\nevery entry in the area first; the reading costs more than the closing.\n\n**Order.** The rule orders entries by how the port behaves at each one: an\nentry where the port silently skips a message-writing C branch comes before one\nwhere the port stops at a named refusal, because `AGENTS.md` forbids the first\nand permits the second.\n\nBy that order the silent divergences lead:\n\n- `gremlin-in-a-fountain` (production, small). Both `minLiquid` owners answer\n  false for a fountain, so `mon.c:961 minliquid_core()`'s gremlin split at\n  `:987` never draws its `rn2(3)`. Closable today by refusing.\n- `artifactTouchable() crashes a segment instead of ending it` (production).\n  `js/weapon.js:264-268` throws a bare `TypeError`, which costs the whole\n  session prefix rather than ending the segment on its last matching screen.\n  Same shape as `dosounds-refusal-escapes-as-hard-failure` in `world-effects`\n  and `a live monster refusal escapes as a hard failure` in `startup`.\n- `will-weld-ported-twice` (simplification, small). `js/wield.js:18-27` and\n  `js/weapon.js:520-527` hold independent ports of `wield.c will_weld()` and\n  `erodeable_wep()`. Opened by the `apply-tool-command` correctness pass, which\n  applied the cross-reference comments and left the convergence here because\n  `js/weapon.js` sat outside its reviewed range.\n- The two planning-clone entries, `leaks by omission` and `must copy\n  non-enumerable catalog aliases`. Both concern\n  `preflightSimpleMonsterActions()`'s clone, which the next boundary goal will\n  exercise hard whichever one is chosen.\n- `one pickup assertion still does not discriminate` and `nine postmov findings\n  are deferred`, both test-category.\n\n**Expected survivors.** An entry closes only when the behavior its record names\nas the closing condition is ported, so three are expected to survive on\nunported combat and must be named in the closing report with what each waits\non: `dochug() returns where C breaks into PHASE FOUR`, `five monster-pickup\nfindings remain deferred` (`refuseHeroAttack()` omits `mattacku()`'s\n`find_offensive()`/`use_offensive()` arm), and `the postmov minvis redraw has\nno case that can reach it`.\n\n**Scope entries are excluded** by the counting rule: the five `scope` entries in\nthis area name unported territory that a boundary goal attacks, not sweep work.",
+      "slices": [
+        {
+          "name": "refuse the gremlin split in a fountain",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "0d3e6d36df3d21596c6226d58958623e1f9e84ce",
+      "openStanding": {
+        "sha": "1ed5683",
+        "screens": 1027,
+        "rng": 116207
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
