@@ -7319,6 +7319,141 @@
         }
       },
       "recordedAt": "2026-08-04T17:34:11.544Z"
+    },
+    {
+      "kind": "review",
+      "head": "4882f67b270d127ca5d3b32c5c561427061a8789",
+      "auditedRange": "1dd015811e327524b61de87575851855180f4586..4882f67b270d127ca5d3b32c5c561427061a8789",
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "generation",
+        "monsters",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 6 raw, 6 deduplicated, 4 confirmed, 4 applied, 0 deferred, 2 rejected, 0 unverified; mutation: 13 survivors of 248 mutants. Full correctness audit: four confirmed test/documentation contract findings applied; two PID/PGID reuse claims rejected with child-reaping counter-evidence; exact checkpoint and development score passed.",
+      "auditMetrics": {
+        "wallTimeSeconds": 4200,
+        "counts": {
+          "raw": 6,
+          "deduplicated": 6,
+          "confirmed": 4,
+          "applied": 4,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 3,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "mutation": {
+          "mutants": 248,
+          "survivors": 13,
+          "byKind": {
+            "boolean": {
+              "ran": 34,
+              "killed": 34
+            },
+            "logical": {
+              "ran": 160,
+              "killed": 158
+            },
+            "relational": {
+              "ran": 54,
+              "killed": 43
+            }
+          },
+          "finderConclusion": "The aggregate range run completed with 235 first-wave kills, 13 non-kills including 2 timeouts and 3 resource-limited verdicts. The user authorized skipping the auxiliary identity-by-identity survivor report for this pass; the independent test-quality review confirmed three coverage or test-contract findings, and all three were applied."
+        },
+        "readiness": {
+          "boundary": "Reviewed the complete goal boundary from random-arrival destination planning, ordinary movement, floor pickup and visible-region description through the next prompt, together with three-line capacity display and mutation-runner invocation ownership through exit or signal re-raise.",
+          "sourceReview": "Traced the reachable NetHack owners in do.c, dungeon.c, hack.c, invent.c, pickup.c, mkmaze.c, shk.c, tty menu and display code against their JavaScript ports, plus the mutation runner's lock, cgroup, child, cleanup, and signal lifecycle.",
+          "completeness": "All supported branches inside the stated boundary have focused source-pinned or constructed integration evidence and pass the exact checkpoint; the visible-region/autopickup combination uses the user's documented exception permitting upstream C analysis plus the constructed integration test instead of a fresh natural C session."
+        },
+        "rejections": [
+          {
+            "summary": "A post-stop child PID can be reused before the mutation runner finishes its numeric signal cleanup.",
+            "counterEvidence": "The child remains unreaped until Node delivers its exit event, so its PID cannot be reused while the numeric signaling branch is active; after that event the branch no longer targets the PID."
+          },
+          {
+            "summary": "A bounded-wrapper process-group ID can be reused during the runner's post-stop cleanup.",
+            "counterEvidence": "The process-group leader remains an unreaped child until the exit event, preventing PGID reuse during the numeric group-signaling window; the later path no longer signals that group."
+          }
+        ],
+        "deferrals": []
+      },
+      "recordedAt": "2026-08-06T09:47:51.652Z"
+    },
+    {
+      "kind": "review",
+      "head": "aa9f3c85b1100bdb84517bf993ecceaf403c4eeb",
+      "auditedRange": "4882f67b270d127ca5d3b32c5c561427061a8789..aa9f3c85b1100bdb84517bf993ecceaf403c4eeb",
+      "level": "light",
+      "areas": [
+        "objects",
+        "generation",
+        "monsters",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 1 raw, 1 deduplicated, 1 confirmed, 1 applied, 0 deferred, 0 rejected, 0 unverified; mutation: 0 survivors of 0 mutants. Light correctness verification of the clarity-only delta: three core readers clean; one false tty paging-bound comment corrected and independently reverified; formal readiness and focused tests pass.",
+      "auditMetrics": {
+        "wallTimeSeconds": 900,
+        "counts": {
+          "raw": 1,
+          "deduplicated": 1,
+          "confirmed": 1,
+          "applied": 1,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 0,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "mutation": {
+          "mutants": 0,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 0,
+              "killed": 0
+            },
+            "logical": {
+              "ran": 0,
+              "killed": 0
+            },
+            "relational": {
+              "ran": 0,
+              "killed": 0
+            }
+          },
+          "finderConclusion": "Formal readiness found no supported boolean, logical, or relational mutation site in the clarity-only delta; the independent test-quality reviewer reported no weakened or missing behavior assertion."
+        },
+        "readiness": {
+          "boundary": "Verified only the clarity-pass delta from the full correctness audit head through the final comment correction.",
+          "sourceReview": "Traced every renamed ISAAC-context helper and pickup-planning helper through imports and callers, checked projected arrival ownership comments against do.js, rooms.js, and pickup.js, and checked mutation lifecycle and tty-menu comments against their executable conditions.",
+          "completeness": "All four core light-review perspectives completed; behavior, test quality, and variable flow were clean, and the sole comment-accuracy finding was applied and independently reverified."
+        },
+        "rejections": [],
+        "deferrals": []
+      },
+      "recordedAt": "2026-08-06T10:14:54.393Z"
     }
   ]
 }

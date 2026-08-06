@@ -2,7 +2,7 @@
   "goals": [
     {
       "id": "object-pile-window",
-      "status": "open",
+      "status": "closed",
       "boundary": "a walking hero steps onto a floor square holding more than one object with !autopickup, and look_here() opens the Things-that-are-here window",
       "upstreamOwners": [
         "pickup.c pickup()",
@@ -65,8 +65,11 @@
         "screens": 1001,
         "rng": 116197
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "aa9f3c85b1100bdb84517bf993ecceaf403c4eeb",
+      "delivered": {
+        "screens": 1,
+        "rng": -94
+      }
     },
     {
       "id": "experience-level-gain",

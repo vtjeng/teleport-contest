@@ -27,9 +27,9 @@ states it.
 
 ## Current standing
 
-- Development, at `d1d3169` (2026-08-04): 1,001 of 7,765 screens and 116,103 of
+- Development, at `aa9f3c8` (2026-08-06): 1,002 of 7,765 screens and 116,103 of
   610,816 random-number values, over the development set of 33 sessions.
-- Reserved holdout, last evaluated at `1492311`: 196 of 3,640 screens, 32,633
+- Reserved holdout, last evaluated at `aa9f3c8`: 195 of 3,640 screens, 32,614
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
