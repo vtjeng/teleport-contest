@@ -512,8 +512,8 @@
         },
         {
           "name": "exercise the pet weapon-selection refusal in production",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "7a1835b2370ebc0b32c9907e8d3c611497be9642"
         }
       ],
       "openedAt": "0d3e6d36df3d21596c6226d58958623e1f9e84ce",
