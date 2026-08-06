@@ -7491,6 +7491,133 @@
         "deferrals": []
       },
       "recordedAt": "2026-08-06T10:14:54.393Z"
+    },
+    {
+      "kind": "review",
+      "head": "a97c0a112fc66dcf4e3dfc6633c99bb665fb5992",
+      "auditedRange": "aa9f3c85b1100bdb84517bf993ecceaf403c4eeb..a97c0a112fc66dcf4e3dfc6633c99bb665fb5992",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 20 raw, 18 deduplicated, 9 confirmed, 8 applied, 1 deferred, 9 rejected, 0 unverified; mutation: 3 survivors of 53 mutants. Full correctness pass over the apply-tool-command goal: apply.c apply_ok(), doapply()'s entry and its STETHOSCOPE and LOCK_PICK arms, insight.c ustatusline(), lock.c pick_lock() and cmd.c get_adjacent_loc(). Two findings were defects rather than test gaps, and both matter beyond this range. piousness() read C's pointer-NULL suffix test as a truthiness test, a mistranslation no differential could reach because no ported caller passes an empty suffix. run-test-suite.mjs reported success for a signal-killed test child, so every OOM-killed npm test has been reporting green; killing a real run's child gives exit 0 before the fix and 137 after. The five test findings closed the arms no key sequence reaches -- the steed, engulfed and cursed refusals, the cloud-of-vapor clause, set_bknown()'s change guard and heroDeaf()'s other two terms -- and killed two of the window's three mutation survivors. The ninth finding's convergence half is deferred as will-weld-ported-twice because it needs a file outside this range. Score unchanged at 1,027 of 7,765 screens and 116,207 of 610,816 PRNG values, as expected for latent and test-only fixes; suite 2,817 tests green.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1868,
+        "counts": {
+          "raw": 20,
+          "deduplicated": 18,
+          "confirmed": 9,
+          "applied": 8,
+          "deferred": 1,
+          "rejected": 9,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 5,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/insight.js:251 piousness() translated C’s `if (suffix && ...)` pointer-NULL test as a JavaScript truthiness test, so an empty-string suffix — non-NULL and therefore true in C — took the opposite branch and lost the separating space C emits. Fixed to `suffix != null`. No ported caller passes an empty suffix, so nothing observable moved.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "scripts/run-test-suite.mjs:16 assigned `process.exitCode = result.status` unconditionally, and spawnSync leaves `status` null for a signal-terminated child, which Node reads as 0. Every OOM-killed or externally killed `npm test` reported success. Verified end to end by killing a real run’s test child: the parent exited 0 before the fix and 137 after.",
+            "foundBy": [
+              "readability",
+              "tests"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 53,
+          "survivors": 3,
+          "byKind": {
+            "boolean": {
+              "ran": 3,
+              "killed": 3
+            },
+            "logical": {
+              "ran": 40,
+              "killed": 38
+            },
+            "relational": {
+              "ran": 10,
+              "killed": 9
+            }
+          },
+          "ranges": [
+            "aa9f3c85b1100bdb84517bf993ecceaf403c4eeb..3b2f83d0b88c75ce76358c1787258b6bd1dd3123"
+          ],
+          "finderConclusion": "The window run over the frozen range killed 50 of 53 first-wave mutants, and all three survivors sat in js/apply.js. They were routed to the test-quality finder, which traced each against source and confirmed two as genuinely unpinned behavior rather than unreachable lines: js/apply.js:184:26 (`u.usteed && u.dz > 0`) and the heroDeaf() disjunction. Both are killed by the cases this pass added — a re-run scoped to js/apply.js falls from 3 survivors to 1. The remaining survivor, js/apply.js:71:24 `!hallucination || !resistance` -> `&&`, is classified rather than fixed: it is a fail-fast guard against uninitialized u.uprops, and u_init together with every test fixture creates the HALLUC and HALLUC_RES entries as a pair, so no constructible state makes the two spellings disagree. The audit prompt described that survivor as sitting on the resistance disjunction at line 74; that was the orchestrator’s error, and line 74 is killed."
+        },
+        "readiness": {
+          "boundary": "The hero types `a` and answers the object prompt. Two arms run to an observable end: the stethoscope prints insight.c ustatusline()’s one-line report, and the lock pick answers the doormask switch. Both execute in the running game — seed0016 steps 3-5 and seed0077 steps 19-20 — and seed0077 now matches all 33 of its screens.",
+          "sourceReview": "Every branch reachable before those two endings was traced against nethack-c/upstream: apply.c apply_ok() (4149-4210), doapply() (4213-4430), use_stethoscope() (313-424), insight.c ustatusline() (3401-3489) and piousness() (3234-3271), lock.c pick_lock() (356-656), cmd.c get_adjacent_loc() (3929-3953), engrave.c freehand(), and wield.c welded()/will_weld()/erodeable_wep(). The trace covered PRNG order specifically: use_stethoscope()’s cursed arm refuses ahead of C’s rn2(2), and pick_lock()’s usedtime resume refuses by name because only the unported picklock() occupation writes it. Stubs and explicit stops were enumerated: retouch_object() stops on obj.oartifact alone, on a derivation this pass re-checked, and every other switch arm and pick_lock() branch stops at a named error.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Each excluded branch refuses before changing state, consuming randomness, or producing output, and this pass added the cases pinning the three arms that previously had none. Two fresh differentials against the patched C reference matched call for call and screen for screen: 20 segments and 47,343 PRNG calls, and 10 segments and 24,545 PRNG calls."
+        },
+        "rejections": [
+          {
+            "summary": "js/apply.js:158 (readability) — `use_stethoscope()` silently drops C's entry-time `interference` initializer, and the file's two header comments — which otherwise enumerate every covered guard and every stopping arm — never record that the omitted expression draws an `rn2()` *before* the three guards.",
+            "counterEvidence": "evidence refute: The header comment makes no completeness claim that this refutes. It says \"Four arms between the direction prompt and confdir() stop rather than run\" — a true statement about the four arms — and never claims to enumerate every unported expression in use_stethoscope(). More decisively, the expression it is faulted for omitting can never execute: C's initializer short-circuits on u.uswallow. Counter-evidence: apply.c:324-325 reads `boolean interference = (u.uswallow && is_whirly(u.ustuck->data) && !rn2(...))` — `&&` short-circuits, so no draw occurs unless u.uswallow is set. `grep -rn \"uswallow\" js/` shows exactly two writers in the whole port: js/u_init.js:161 `uswallow: false` and js/mon.js:260 `state.u.uswallow = 0;`. Nothing sets it truthy, so C and the port agree on all four exits in every state the running game can build. The finding also miscites the C location as a Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/apply.js:159 (variable-trace) — use_stethoscope() omits C's entry-time `interference` initializer, which draws rn2() before any of the three guards; the u.uswallow refusal is placed after getdir() instead, so the Deaf, no-free-hand and ESC exits return normally with a PRNG stream one draw short.",
+            "counterEvidence": "evidence refute: The claimed divergence requires u.uswallow to be truthy, and no code path in the port can make it so. With u.uswallow falsy, C's `&&` short-circuits before rn2(), so C draws nothing on all four exits and the port matches C call for call. The claim that the three guards \"fail open\" is therefore about a state the port cannot construct. Counter-evidence: apply.c:324-325 `(u.uswallow && is_whirly(u.ustuck->data) && !rn2(...))` — short-circuit `&&`. `grep -rn \"uswallow\" js/` returns writers only at js/u_init.js:161 (`uswallow: false`) and js/mon.js:260 (`state.u.uswallow = 0;`); every other hit is a read. The engulf machinery is unported wholesale — js/monmove.js:1820 records \"release_hero(), u.ustuck — no hero-grabbing monster is reachable\". The finding's secondary claim that the line-186 refusal is \"late\" relative to the stethoscope_seq write is also wrong: C performs the s Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/apply.js:184 (correctness) — `use_stethoscope()` drops `apply.c:343-344`'s two unconditional state writes (`gb.bhitpos.x/y = u.ux/u.uy` and `gn.notonhead = u.uswallow`) on a fully live path, leaving stale values in state the port already owns and other ported modules read.",
+            "counterEvidence": "evidence refute: The load-bearing part of the claim — that ported modules read these values and would see stale content — does not survive a grep. Every port site that touches gb.bhitpos or gn.notonhead writes before it reads, so there is no reader that the omission can mislead, and the concrete trace offered (a long-worm pet leaving gn.notonhead true) is refuted by the writer at js/dogmove.js:228 setting it on every use. Counter-evidence: `grep -rn \"bhitpos\" js/` yields writes at js/dog.js:318-320, js/dogmove.js:224-226 and 895-897, a structural clone at js/unported_monster_actions.js:459, and — in js/mhitm.js:74 and :101 — only comment text, not a read. `grep -rn \"notonhead\" js/` yields js/dog.js:322-324 (writes then returns the value it just wrote), js/dogmove.js:228 and :899 (writes). No site reads either value before writing it, so the finding's own premise (\"unobservable today only Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/apply.js:186 (correctness) — `use_stethoscope()` never models C's `interference` initializer, whose `rn2()` is drawn at function entry — before the nohands/Deaf/freehand guards and before `getdir()` — so the swallowed-hero refusal at line 186 sits after three return paths that can leave the port one RNG draw behind C with no fa",
+            "counterEvidence": "evidence refute: Same refutation as index 1: the draw the port is said to skip cannot occur, because C short-circuits it behind u.uswallow and nothing in the port writes u.uswallow truthy. The stronger wording here — that the refusal \"fails open for four of C's exits\" — is wrong for every state the running game can build, since on those states C makes no draw either. Counter-evidence: apply.c:324-325 `(u.uswallow && is_whirly(u.ustuck->data) && !rn2(Role_if(PM_HEALER) ? 10 : 3))`; `&&` short-circuits. `grep -rn \"uswallow\" js/` shows the only assignments in the entire port are js/u_init.js:161 `uswallow: false` and js/mon.js:260 `state.u.uswallow = 0;`. The finding's own grep reaches the same conclusion (\"the path is latent\"). The quoted C excerpt is also misattributed to apply.c:318-337; the initializer is at 324-325.  ||  causality refute: Introduced-by-the-range holds, but materiality  Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/insight.js:843 (readability) — The comment above `UNPORTED_USTATUS_CONDITIONS` claims \"The rows follow C's order inside ustatusline(), because C builds `info` by appending in that order\", but three of C's `info` writers are checked after the whole array, so the file's actual stop order is not C's append order.",
+            "counterEvidence": "evidence refute: The comment does not assert what the finding refutes. It says \"The rows follow C's order\", scoped to the twelve array rows, and those twelve are in C's relative append order (Sick, Stoned, Slimed, Strangled, Vomiting, Confusion, Blind, Stunned, Wounded_legs, Glib, Fast, Invis). It never claims the whole stop sequence, including the three non-property checks below the loop, reproduces C's append order. The WOUNDED_LEGS point is likewise already covered by the comment's own closing sentence. Counter-evidence: js/insight.js:861-863 lists GLIB, FAST, INVIS in the same relative order C appends them at insight.c:3452, 3456, 3462. The comment at js/insight.js:849-850 states \"So each stop can only fire early, never late\", which is exactly the disposition of the WOUNDED_LEGS row that drops C's `!u.usteed` conjunct at insight.c:3438 — the stop is deliberately wider, and the commen Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/insight.js:862 (variable-trace) — UNPORTED_USTATUS_CONDITIONS lists FAST and INVIS before the u.utrap, u.uundetected and disguised checks, but C appends those fragments in the opposite order — contradicting the table's own comment that the rows follow C's order.",
+            "counterEvidence": "causality refute: The range introduces the arrangement, but the impact is not material. Every row and every following check throws the same UnsupportedEnlightenmentError and ends the segment, so the order changes only the diagnostic string. The remaining harm — a future porter converting stops into appends in the listed order — is speculative and contradicted by the port's governing rule to implement from the C function. Counter-evidence: js/insight.js:872-891: all five checks below the rows raise UnsupportedEnlightenmentError. The finding states it itself: \"No output or PRNG effect today, because every row and every following check raises the same UnsupportedEnlightenmentError and ends the segment.\" AGENTS.md: \"Implement from the C function, never from observed output.\"  ||  resolution refute: The validation is tautological. Asserting that a hero with u.utrap and FAST raises 'the trappe Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/insight.js:881 (correctness) — `ustatusline()` compares the raw `youmonst.m_ap_type` field against `M_AP_NOTHING`, but C's `U_AP_TYPE` is `gy.youmonst.m_ap_type & M_AP_TYPMASK` (`monst.h:71`); the unmasked read answers truthy whenever the `M_AP_F_DKNOWN` bit (0x8) is set on an otherwise-`M_AP_NOTHING` hero.",
+            "counterEvidence": "evidence refute: The unmasked read is only a divergence if M_AP_F_DKNOWN can be set on the hero's youmonst, and it cannot be in either program. Counter-evidence: `grep -rn 'youmonst\\.m_ap_type' nethack-c/upstream/src/` returns only whole-value assignments — hack.c:2960, potion.c:214, mhitu.c:676, timeout.c:397, polyself.c:226/782/1794/1867, teleport.c:495, monmove.c:611, eat.c:173/1219 — every one storing M_AP_NOTHING, M_AP_OBJECT or M_AP_MONSTER, never OR-ing a flag. The single C writer of the flag, pager.c:372 inside object_from_map(), operates on the `mtmp` it takes from the map ('there might be a mimic here posing as an object', pager.c:305), and the hero is never in the monster chain, so it can never be &gy.youmonst. On the port side `grep -rn 'm_ap_type' js/` shows js/insight.js:881 is the only mention of youmonst.m_ap_type at all — no writer exists. Masked and unmasked reads there Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/insight.js:881 (variable-trace) — ustatusline() reads `youmonst.m_ap_type` raw instead of through the canonical `M_AP_TYPE()` helper, so the M_AP_F_DKNOWN flag bit alone would make it report the hero as disguised.",
+            "counterEvidence": "evidence refute: Same trace as finding 9: the masked and unmasked reads cannot disagree, and the supporting claim about the const.js helper's provenance is wrong. Counter-evidence: C sets M_AP_F_DKNOWN only at pager.c:372, on a map mimic obtained inside object_from_map() (pager.c:284-305); all twelve writers of gy.youmonst.m_ap_type assign whole appearance values, so U_AP_TYPE's mask is defensive for the hero and never load-bearing. js/ has no writer of youmonst.m_ap_type at all. The finding also asserts that 'the same commit range added the const.js helper whose comment warns against exactly this read', but `git show aa9f3c85b1100bdb84517bf993ecceaf403c4eeb:js/const.js | grep -n 'M_AP_TYPE\\b'` prints line 2878 defining M_AP_TYPE at the range base, and the range's only const.js change is the u_at() signature.  ||  causality refute: No behavior is introduced or exposed: the divergent stat Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "scripts/apply-stethoscope.test.mjs:310 (tests) — The `refreshes()` helper reports \"no refresh happened\" for any error other than `UnsupportedObjectOperationError`, so its two negative assertions pass whether the refresh was skipped or attempted and failed for an unrelated reason.",
+            "counterEvidence": "evidence refute: The collapsed catch can only hide an outcome if update_inventory() can fail with something other than UnsupportedObjectOperationError in this test's environment, and it cannot. Counter-evidence: js/invent.js:1018-1022 preflight_update_inventory() runs requireInventoryRefresh() first, and js/invent.js:1007-1013 throws UnsupportedObjectOperationError whenever program_state.in_moveloop is set, map output is not suppressed, iflags.perm_invent is true and hooks.updateInventory is absent — exactly the state the test installs at scripts/apply-stethoscope.test.mjs:301-303. Nothing past that point can run: line 1030 returns false when the hook is missing, so hooks.updateInventory() is never invoked and no TypeError can originate inside it. An implementation that wrongly refreshed on the floor object or on turn 1 would therefore throw precisely UnsupportedObjectOperationError, ref Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/wield.js:24 and js/weapon.js:520 hold independent ports of wield.c will_weld() and erodeable_wep(). The in-scope half — a cross-reference comment at each site — was applied; converging them on one owner needs js/weapon.js, which sits outside the reviewed range, and reaches live monster code through mwelded().",
+            "category": "simplification",
+            "trackedIn": "will-weld-ported-twice"
+          }
+        ]
+      },
+      "recordedAt": "2026-08-06T20:33:58.968Z"
     }
   ]
 }
