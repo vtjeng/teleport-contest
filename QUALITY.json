@@ -808,6 +808,15 @@
       "status": "open",
       "from": "e22cb3a9a3146d046f3a777b8cf73bb280dd46be",
       "detail": "`wield.c will_weld()` (66-68) and the `erodeable_wep()` (61-64) it reads are\nported twice, against `AGENTS.md` \"Keep each source file's port in one place\":\n\n- `js/wield.js:18-27` — `erodeable_wep()` and `will_weld()` as separate\n  functions, added by the stethoscope slice at `1339326` because `welded()`\n  needs them. This is the correct owner by file name.\n- `js/weapon.js:520-527` — `willWeld()`, pre-existing, with `erodeable_wep()`\n  inlined into it, reached from `mwelded()`.\n\nBoth are live. The bodies agree today: weapon class or weptool or heavy iron\nball or iron chain, cursed, or a tin opener. Neither file mentioned the other\nuntil the audit for `aa9f3c85..3b2f83d`, which added a cross-reference comment\nat each site as the in-scope half of the fix.\n\nThe convergence itself is out of scope for an audit fix, because `js/weapon.js`\nis outside that reviewed range and `mwelded()` is live monster code. Resolve it\nby exporting `will_weld()` from `js/wield.js`, deleting `willWeld()`, and\npointing `mwelded()` at the survivor, with the development score identical\nacross the change.\n\nSame shape as `isok-ported-twice`. A simplification pass over these two entries\nwould settle both."
+    },
+    {
+      "id": "minliquid-refusal-ignores-flyers",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "f8861e087f741cf3d5c0b6c5e9890905b1ad6dff",
+      "detail": "`unportedMinliquidReason()` in `js/unported_monster_actions.js:167-168`, and\nthe sibling test at `:205-206`, refuse on bare `is_pool(...) || is_lava(...)`.\nC's `minliquid_core()` derives the two flags with a flyer and floater\nexemption:\n\n    inpool = (is_pool(mtmp->mx, mtmp->my)\n              && (!(is_flyer(mtmp->data) || is_floater(mtmp->data))\n                  || Is_waterlevel(&u.uz)));            /* mon.c:967-970 */\n    inlava = (is_lava(mtmp->mx, mtmp->my)\n              && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));\n\nSo a flying or floating monster over water or lava is left alone by C, and\nrefused by the port. A bat crossing a pool ends the segment where C simply\ncontinues the turn.\n\nThe refusal is fail-closed, so it cannot produce a wrong screen or a wrong\nrandom number; what it costs is replay length, and replay length is screens.\nThat makes it a scoring cost rather than a correctness defect, which is why the\ngremlin slice at `3249e2d` documented it in place rather than narrowing it.\n\nNarrowing it means porting the arms it stands in for: the drown effect at\n`mon.c:1068` and the burn effect at `:1010`, with `is_flyer()` and\n`is_floater()` first. Resolve this entry when those land, or earlier if a\nscored session is measured stopping here on a flyer -- the cheap check is to\ncount how many development sessions reach a flying or floating monster over\nliquid at all.\n\nFound by reading during the `monsters` deferral sweep, not by a failing test."
     }
   ],
   "areas": [
