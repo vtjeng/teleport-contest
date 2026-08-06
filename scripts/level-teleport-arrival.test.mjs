@@ -10,6 +10,7 @@ import {
     ARROW_TRAP,
     CORR,
     DEAF,
+    INVIS,
     LAST_PROP,
     LEVITATION,
     LR_BRANCH,
@@ -50,7 +51,7 @@ import {
     is_exclusion_zone,
     place_lregion,
 } from '../js/mkmaze.js';
-import { PM_DWARF, monst_globals_init } from '../js/monsters.js';
+import { M1_NOTAKE, PM_DWARF, monst_globals_init } from '../js/monsters.js';
 import { m_at } from '../js/monst.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -713,6 +714,151 @@ test('random arrival preflights the complete ordinary pickup transaction',
         ]);
     });
 
+test('random arrival refuses every unsupported ordinary pickup guard atomically',
+    async () => {
+        await runSegment({
+            seed: 7632401,
+            datetime: '20310417113000',
+            nethackrc: [
+                'OPTIONS=name:ArrivalGuards,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,autopickup,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: '',
+        });
+        let destination = null;
+        for (let x = 1; x < 80 && !destination; ++x) {
+            for (let y = 0; y < 21; ++y) {
+                if (game.level.at(x, y)?.typ === ROOM
+                    && !game.level.objects[x]?.[y]
+                    && !m_at(x, y, game)) {
+                    destination = { x, y };
+                    break;
+                }
+            }
+        }
+        assert.ok(destination);
+        const apple = mksobj_at(
+            APPLE,
+            destination.x,
+            destination.y,
+            false,
+            false,
+            objectGenerationEnv({ state: game }),
+        );
+        game.dndest = {
+            lx: destination.x,
+            ly: destination.y,
+            hx: destination.x,
+            hy: destination.y,
+        };
+        game.ga ??= {};
+        game.ga.apelist = null;
+        const originalSpecies = game.youmonst.data;
+        enableRngLog();
+
+        const cases = [
+            {
+                name: 'unreachable floor',
+                pattern: /cannot reach the floor/u,
+                apply: () => {
+                    game.u.uprops[LEVITATION].intrinsic = 1;
+                },
+                restore: () => {
+                    game.u.uprops[LEVITATION].intrinsic = 0;
+                },
+            },
+            {
+                name: 'no-taking hero form',
+                pattern: /cannot take objects/u,
+                apply: () => {
+                    game.youmonst.data = {
+                        ...originalSpecies,
+                        mflags1: originalSpecies.mflags1 | M1_NOTAKE,
+                    };
+                },
+                restore: () => {
+                    game.youmonst.data = originalSpecies;
+                },
+            },
+            {
+                name: 'autopickup exception list',
+                pattern: /autopickup exceptions/u,
+                apply: () => {
+                    game.ga.apelist = {};
+                },
+                restore: () => {
+                    game.ga.apelist = null;
+                },
+            },
+            {
+                name: 'pickup type filter',
+                pattern: /pickup_types/u,
+                apply: () => {
+                    game.flags.pickup_types = '$';
+                },
+                restore: () => {
+                    game.flags.pickup_types = '';
+                },
+            },
+        ];
+        for (const guard of cases) {
+            guard.apply();
+            const before = {
+                hero: structuredClone(game.u),
+                species: game.youmonst.data,
+                rng: structuredClone(game.coreCtx),
+                log: [...getRngLog()],
+                object: {
+                    where: apple.where,
+                    nobj: apple.nobj,
+                    nexthere: apple.nexthere,
+                    dknown: apple.dknown,
+                },
+                floor: game.level.objects[destination.x][destination.y],
+                list: game.level.objlist,
+                toplines: game._ttyToplines,
+                grid: structuredClone(game.nhDisplay.grid),
+                cursor: [
+                    game.nhDisplay.cursorCol,
+                    game.nhDisplay.cursorRow,
+                    game.nhDisplay.cursorVisible,
+                ],
+                capacity: game.gw.wc,
+            };
+
+            await assert.rejects(
+                () => place_random_arrival(0, game),
+                guard.pattern,
+                guard.name,
+            );
+
+            assert.deepEqual(game.u, before.hero, guard.name);
+            assert.equal(game.youmonst.data, before.species, guard.name);
+            assert.deepEqual(game.coreCtx, before.rng, guard.name);
+            assert.deepEqual(getRngLog(), before.log, guard.name);
+            assert.deepEqual({
+                where: apple.where,
+                nobj: apple.nobj,
+                nexthere: apple.nexthere,
+                dknown: apple.dknown,
+            }, before.object, guard.name);
+            assert.equal(game.level.objects[destination.x][destination.y],
+                before.floor, guard.name);
+            assert.equal(game.level.objlist, before.list, guard.name);
+            assert.equal(game._ttyToplines, before.toplines, guard.name);
+            assert.deepEqual(game.nhDisplay.grid, before.grid, guard.name);
+            assert.deepEqual([
+                game.nhDisplay.cursorCol,
+                game.nhDisplay.cursorRow,
+                game.nhDisplay.cursorVisible,
+            ], before.cursor, guard.name);
+            assert.equal(game.gw.wc, before.capacity, guard.name);
+            guard.restore();
+        }
+    });
+
 test('rejected overweight random arrival preserves the live weight cache',
     async () => {
         await runSegment({
@@ -1156,6 +1302,139 @@ test('ordinary shop arrival performs the peaceful first-visit greeting',
         assert.equal(extension.visitct, 0);
         assert.deepEqual(edgeLines, []);
         game.level.at(interior.x, interior.y).edge = false;
+
+        const exceptionalGreetings = [
+            {
+                name: 'immobile shopkeeper',
+                apply: () => { room.resident.mcanmove = false; },
+                pattern: /outside the peaceful visible greeting/u,
+            },
+            {
+                name: 'sleeping shopkeeper',
+                apply: () => { room.resident.msleeping = true; },
+                pattern: /outside the peaceful visible greeting/u,
+            },
+            {
+                name: 'following shopkeeper',
+                apply: () => { extension.following = true; },
+                pattern: /outside the peaceful visible greeting/u,
+            },
+            {
+                name: 'angry shopkeeper',
+                apply: () => { room.resident.mpeaceful = false; },
+                pattern: /outside the peaceful visible greeting/u,
+            },
+            {
+                name: 'surcharging shopkeeper',
+                apply: () => { extension.surcharge = true; },
+                pattern: /outside the peaceful visible greeting/u,
+            },
+            {
+                name: 'robbed shopkeeper',
+                apply: () => { extension.robbed = 1; },
+                pattern: /outside the peaceful visible greeting/u,
+            },
+            {
+                name: 'invisible hero',
+                apply: () => { game.u.uprops[INVIS].intrinsic = 1; },
+                pattern: /outside the peaceful visible greeting/u,
+            },
+            {
+                name: 'invalid shop type',
+                apply: () => { room.rtype = SHOPBASE + SHTYPES.length; },
+                pattern: /shop type/u,
+            },
+        ];
+        for (const exceptional of exceptionalGreetings) {
+            room.rtype = originalRoomType;
+            room.resident.mcanmove = true;
+            room.resident.msleeping = false;
+            room.resident.mpeaceful = true;
+            extension.following = false;
+            extension.surcharge = false;
+            extension.robbed = 0;
+            extension.visitct = 0;
+            extension.customer = '';
+            extension.bill_p = null;
+            game.u.uprops[INVIS].intrinsic = 0;
+            game.u.uprops[INVIS].extrinsic = 0;
+            game.u.uprops[INVIS].blocked = 0;
+            game.u.uachieved = game.u.uachieved.filter(
+                (achievement) => achievement !== ACH_SHOP,
+            );
+            exceptional.apply();
+            const before = {
+                achieved: [...game.u.uachieved],
+                roomType: room.rtype,
+                keeper: {
+                    mcanmove: room.resident.mcanmove,
+                    msleeping: room.resident.msleeping,
+                    mpeaceful: room.resident.mpeaceful,
+                },
+                shop: {
+                    following: extension.following,
+                    surcharge: extension.surcharge,
+                    robbed: extension.robbed,
+                    visitct: extension.visitct,
+                    customer: extension.customer,
+                    bill_p: extension.bill_p,
+                },
+                invisibility: structuredClone(game.u.uprops[INVIS]),
+                toplines: game._ttyToplines,
+                grid: structuredClone(game.nhDisplay.grid),
+                cursor: [
+                    game.nhDisplay.cursorCol,
+                    game.nhDisplay.cursorRow,
+                    game.nhDisplay.cursorVisible,
+                ],
+            };
+            const lines = [];
+
+            await assert.rejects(
+                () => u_entered_shop([roomno], game, {
+                    message: async (line) => lines.push(line),
+                }),
+                exceptional.pattern,
+                exceptional.name,
+            );
+
+            assert.deepEqual(game.u.uachieved, before.achieved,
+                exceptional.name);
+            assert.equal(room.rtype, before.roomType, exceptional.name);
+            assert.deepEqual({
+                mcanmove: room.resident.mcanmove,
+                msleeping: room.resident.msleeping,
+                mpeaceful: room.resident.mpeaceful,
+            }, before.keeper, exceptional.name);
+            assert.deepEqual({
+                following: extension.following,
+                surcharge: extension.surcharge,
+                robbed: extension.robbed,
+                visitct: extension.visitct,
+                customer: extension.customer,
+                bill_p: extension.bill_p,
+            }, before.shop, exceptional.name);
+            assert.deepEqual(game.u.uprops[INVIS], before.invisibility,
+                exceptional.name);
+            assert.equal(game._ttyToplines, before.toplines,
+                exceptional.name);
+            assert.deepEqual(game.nhDisplay.grid, before.grid,
+                exceptional.name);
+            assert.deepEqual([
+                game.nhDisplay.cursorCol,
+                game.nhDisplay.cursorRow,
+                game.nhDisplay.cursorVisible,
+            ], before.cursor, exceptional.name);
+            assert.deepEqual(lines, [], exceptional.name);
+        }
+        room.rtype = originalRoomType;
+        room.resident.mcanmove = true;
+        room.resident.msleeping = false;
+        room.resident.mpeaceful = true;
+        extension.following = false;
+        extension.surcharge = false;
+        extension.robbed = 0;
+        game.u.uprops[INVIS].intrinsic = 0;
 
         // pickup.c autopick() skips owned merchandise but accepts no_charge
         // objects. Put both on a square aligned with exactly one keeper

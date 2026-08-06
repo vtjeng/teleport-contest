@@ -45,6 +45,7 @@ import {
     parseRange,
     removeWorkspace,
     releaseMutationLock,
+    readProcessIdentity,
     reportedTestCount,
     runSystemctl,
     runTests,
@@ -62,7 +63,7 @@ import {
     testRunnerCommand,
     tokenize,
     uncommittedJsLines,
-    waveScopeWasOomKilled,
+    waveScopeResult,
 } from './mutate-sites.mjs';
 
 const SCRIPT_PATH = fileURLToPath(
@@ -281,6 +282,22 @@ test('lock liveness distinguishes process birth and zombie state', () => {
     assert.equal(mutationOwnerIsAlive(owner, () => ({
         state: 'Z', startTime: 'expected',
     })), false);
+});
+
+test('process identity does not require signal permission', () => {
+    const originalKill = process.kill;
+    process.kill = () => {
+        const error = new Error('operation not permitted');
+        error.code = 'EPERM';
+        throw error;
+    };
+    try {
+        const identity = readProcessIdentity(process.pid);
+        assert.match(identity.startTime, /^\d+$/u);
+        assert.notEqual(identity.state, 'Z');
+    } finally {
+        process.kill = originalKill;
+    }
 });
 
 test('a reused live PID does not preserve a stale lock', () => {
@@ -1290,9 +1307,14 @@ test('a signalled wave launcher is infrastructure failure after child start',
         ].join('\n'));
         writeFileSync(join(bin, 'systemctl'), [
             '#!/usr/bin/env node',
-            "const unit = process.argv.at(-1);",
-            "process.stderr.write(`Failed to stop ${unit}: Unit ${unit} not loaded.\\n`);",
-            'process.exitCode = 5;',
+            "if (process.argv[3] === 'show') {",
+            "  process.stdout.write('signal\\n');",
+            '  process.exitCode = 0;',
+            '} else {',
+            "  const unit = process.argv.at(-1);",
+            "  process.stderr.write(`Failed to stop ${unit}: Unit ${unit} not loaded.\\n`);",
+            '  process.exitCode = 5;',
+            '}',
             '',
         ].join('\n'));
         chmodSync(join(bin, 'systemd-run'), 0o755);
@@ -1312,6 +1334,7 @@ test('a signalled wave launcher is infrastructure failure after child start',
 test('a wave OOM kill is an attributable failing-test verdict', () => {
     const workspace = mkdtempSync(join(tmpdir(), 'mutate-wave-oom-kill-'));
     const bin = join(workspace, 'bin');
+    const logPath = join(workspace, 'systemctl.jsonl');
     const oldPath = process.env.PATH;
     mkdirSync(bin);
     writeFileSync(join(bin, 'systemd-run'), [
@@ -1324,14 +1347,14 @@ test('a wave OOM kill is an attributable failing-test verdict', () => {
     ].join('\n'));
     writeFileSync(join(bin, 'systemctl'), [
         '#!/usr/bin/env node',
+        "import { appendFileSync } from 'node:fs';",
+        "appendFileSync(process.env.TEST_SYSTEMCTL_LOG, `${JSON.stringify(process.argv.slice(2))}\\n`);",
         "const command = process.argv[3];",
         "if (command === 'show') {",
         "  process.stdout.write('oom-kill\\n');",
         '  process.exitCode = 0;',
         '} else {',
-        "  const unit = process.argv.at(-1);",
-        "  process.stderr.write(`Failed to stop ${unit}: Unit ${unit} not loaded.\\n`);",
-        '  process.exitCode = 5;',
+        '  process.exitCode = 0;',
         '}',
         '',
     ].join('\n'));
@@ -1339,12 +1362,21 @@ test('a wave OOM kill is an attributable failing-test verdict', () => {
     chmodSync(join(bin, 'systemctl'), 0o755);
     try {
         process.env.PATH = `${bin}:${oldPath}`;
+        process.env.TEST_SYSTEMCTL_LOG = logPath;
         const result = runTests(workspace, ['unused.test.mjs'], 5_000);
         assert.equal(result.passed, false);
         assert.equal(result.timedOut, false);
         assert.equal(result.resourceLimited, true);
+        const unit = readFileSync(logPath, 'utf8').trim().split('\n')
+            .map((line) => JSON.parse(line));
+        assert.deepEqual(unit.map((args) => args[1]), [
+            'show', 'stop', 'reset-failed',
+        ]);
+        assert.equal(unit[0][2], unit[1][2]);
+        assert.equal(unit[1][2], unit[2][2]);
     } finally {
         process.env.PATH = oldPath;
+        delete process.env.TEST_SYSTEMCTL_LOG;
         rmSync(workspace, { recursive: true, force: true });
     }
 });
@@ -1353,6 +1385,7 @@ test('an OOM wrapper status is an attributable resource-limited verdict',
     () => {
         const workspace = mkdtempSync(join(tmpdir(), 'mutate-wave-oom-status-'));
         const bin = join(workspace, 'bin');
+        const logPath = join(workspace, 'systemctl.jsonl');
         const oldPath = process.env.PATH;
         mkdirSync(bin);
         writeFileSync(join(bin, 'systemd-run'), [
@@ -1365,14 +1398,14 @@ test('an OOM wrapper status is an attributable resource-limited verdict',
         ].join('\n'));
         writeFileSync(join(bin, 'systemctl'), [
             '#!/usr/bin/env node',
+            "import { appendFileSync } from 'node:fs';",
+            "appendFileSync(process.env.TEST_SYSTEMCTL_LOG, `${JSON.stringify(process.argv.slice(2))}\\n`);",
             "const command = process.argv[3];",
             "if (command === 'show') {",
             "  process.stdout.write('oom-kill\\n');",
             '  process.exitCode = 0;',
             '} else {',
-            "  const unit = process.argv.at(-1);",
-            "  process.stderr.write(`Failed to stop ${unit}: Unit ${unit} not loaded.\\n`);",
-            '  process.exitCode = 5;',
+            '  process.exitCode = 0;',
             '}',
             '',
         ].join('\n'));
@@ -1380,6 +1413,7 @@ test('an OOM wrapper status is an attributable resource-limited verdict',
         chmodSync(join(bin, 'systemctl'), 0o755);
         try {
             process.env.PATH = `${bin}:${oldPath}`;
+            process.env.TEST_SYSTEMCTL_LOG = logPath;
             const result = runTests(workspace, ['unused.test.mjs'], 5_000);
             assert.deepEqual({
                 passed: result.passed,
@@ -1390,13 +1424,66 @@ test('an OOM wrapper status is an attributable resource-limited verdict',
                 timedOut: false,
                 resourceLimited: true,
             });
+            const calls = readFileSync(logPath, 'utf8').trim().split('\n')
+                .map((line) => JSON.parse(line));
+            assert.deepEqual(calls.map((args) => args[1]), [
+                'show', 'stop', 'reset-failed',
+            ]);
+            assert.equal(calls[0][2], calls[1][2]);
+            assert.equal(calls[1][2], calls[2][2]);
         } finally {
             process.env.PATH = oldPath;
+            delete process.env.TEST_SYSTEMCTL_LOG;
             rmSync(workspace, { recursive: true, force: true });
         }
     });
 
-test('OOM scope detection pins the exact systemctl query and response', () => {
+test('a malformed retained scope result still cleans up before failing', () => {
+    const workspace = mkdtempSync(join(tmpdir(), 'mutate-wave-result-error-'));
+    const bin = join(workspace, 'bin');
+    const logPath = join(workspace, 'systemctl.jsonl');
+    const oldPath = process.env.PATH;
+    mkdirSync(bin);
+    writeFileSync(join(bin, 'systemd-run'), [
+        '#!/usr/bin/env node',
+        "import { writeFileSync } from 'node:fs';",
+        "const runner = process.argv.findIndex((arg) => arg.endsWith('/run-bounded-tests.mjs'));",
+        "writeFileSync(process.argv[runner + 2], `${process.argv[runner + 3]}\\n`);",
+        'process.exitCode = 1;',
+        '',
+    ].join('\n'));
+    writeFileSync(join(bin, 'systemctl'), [
+        '#!/usr/bin/env node',
+        "import { appendFileSync } from 'node:fs';",
+        "appendFileSync(process.env.TEST_SYSTEMCTL_LOG, `${JSON.stringify(process.argv.slice(2))}\\n`);",
+        "if (process.argv[3] === 'show') process.stdout.write('oom-kill  \\n');",
+        'process.exitCode = 0;',
+        '',
+    ].join('\n'));
+    chmodSync(join(bin, 'systemd-run'), 0o755);
+    chmodSync(join(bin, 'systemctl'), 0o755);
+    try {
+        process.env.PATH = `${bin}:${oldPath}`;
+        process.env.TEST_SYSTEMCTL_LOG = logPath;
+        assert.throws(
+            () => runTests(workspace, ['unused.test.mjs'], 5_000),
+            /failed to read mutation wave scope result/u,
+        );
+        const calls = readFileSync(logPath, 'utf8').trim().split('\n')
+            .map((line) => JSON.parse(line));
+        assert.deepEqual(calls.map((args) => args[1]), [
+            'show', 'stop', 'reset-failed',
+        ]);
+        assert.equal(calls[0][2], calls[1][2]);
+        assert.equal(calls[1][2], calls[2][2]);
+    } finally {
+        process.env.PATH = oldPath;
+        delete process.env.TEST_SYSTEMCTL_LOG;
+        rmSync(workspace, { recursive: true, force: true });
+    }
+});
+
+test('wave scope Result reading pins the exact query and response', () => {
     const workspace = mkdtempSync(join(tmpdir(), 'mutate-oom-query-'));
     const bin = join(workspace, 'bin');
     const logPath = join(workspace, 'query.json');
@@ -1421,8 +1508,8 @@ test('OOM scope detection pins the exact systemctl query and response', () => {
         process.env.PATH = `${bin}:${oldPath}`;
         process.env.TEST_SYSTEMCTL_LOG = logPath;
         process.env.TEST_SYSTEMCTL_MODE = 'exact';
-        assert.equal(waveScopeWasOomKilled(
-            'teleport-mutate-wave-contract-test'), true);
+        assert.equal(waveScopeResult(
+            'teleport-mutate-wave-contract-test'), 'oom-kill');
         assert.deepEqual(JSON.parse(readFileSync(logPath, 'utf8')), {
             args: [
                 '--user',
@@ -1433,13 +1520,16 @@ test('OOM scope detection pins the exact systemctl query and response', () => {
             ],
             locale: 'C',
         });
+        process.env.TEST_SYSTEMCTL_MODE = 'other';
+        assert.equal(waveScopeResult(
+            'teleport-mutate-wave-contract-test'), 'signal');
         for (const mode of [
-            'prefix', 'suffix', 'whitespace', 'stderr', 'empty', 'other',
-            'status',
+            'prefix', 'suffix', 'whitespace', 'stderr', 'empty', 'status',
         ]) {
             process.env.TEST_SYSTEMCTL_MODE = mode;
-            assert.equal(waveScopeWasOomKilled(
-                'teleport-mutate-wave-contract-test'), false, mode);
+            assert.throws(() => waveScopeResult(
+                'teleport-mutate-wave-contract-test'),
+            /failed to read mutation wave scope result/u, mode);
         }
     } finally {
         process.env.PATH = oldPath;
@@ -1470,9 +1560,47 @@ test('scope cleanup stops, resets, or accepts an exactly unloaded unit', () => {
             "import { appendFileSync } from 'node:fs';",
             "appendFileSync(process.env.TEST_SYSTEMCTL_LOG, `${JSON.stringify(process.argv.slice(2))}\\n`);",
             "const mode = process.env.TEST_SYSTEMCTL_MODE;",
+            "const command = process.argv[3];",
             "const unit = process.argv.at(-1);",
             "const unloaded = `Failed to stop ${unit}: Unit ${unit} not loaded.\\n`;",
-            "if (mode === 'success') {",
+            "const resetUnloaded = `Failed to reset failed state of unit ${unit}: Unit ${unit} not loaded.\\n`;",
+            "if (mode.startsWith('reset-') && command === 'stop') {",
+            '  process.exitCode = 0;',
+            "} else if (mode === 'reset-missing-1') {",
+            '  process.stderr.write(resetUnloaded);',
+            '  process.exitCode = 1;',
+            "} else if (mode === 'reset-missing-5') {",
+            '  process.stderr.write(resetUnloaded);',
+            '  process.exitCode = 5;',
+            "} else if (mode === 'reset-wrong-status') {",
+            '  process.stderr.write(resetUnloaded);',
+            '  process.exitCode = 4;',
+            "} else if (mode === 'reset-wrong-unit') {",
+            "  process.stderr.write('Failed to reset failed state of unit other.scope: Unit other.scope not loaded.\\n');",
+            '  process.exitCode = 1;',
+            "} else if (mode === 'reset-prefixed') {",
+            "  process.stderr.write(`warning\\n${resetUnloaded}`);",
+            '  process.exitCode = 1;',
+            "} else if (mode === 'reset-suffixed') {",
+            "  process.stderr.write(`${resetUnloaded}warning\\n`);",
+            '  process.exitCode = 1;',
+            "} else if (mode === 'reset-whitespace') {",
+            "  process.stderr.write(`${resetUnloaded}  `);",
+            '  process.exitCode = 1;',
+            "} else if (mode === 'reset-stdout') {",
+            '  process.stdout.write(resetUnloaded);',
+            '  process.exitCode = 1;',
+            "} else if (mode === 'reset-split') {",
+            '  process.stdout.write(resetUnloaded.slice(0, 10));',
+            '  process.stderr.write(resetUnloaded.slice(10));',
+            '  process.exitCode = 1;',
+            "} else if (mode === 'reset-bus') {",
+            "  process.stderr.write('Failed to connect to bus.\\n');",
+            '  process.exitCode = 1;',
+            "} else if (mode === 'reset-permission') {",
+            "  process.stderr.write('Access denied.\\n');",
+            '  process.exitCode = 1;',
+            "} else if (mode === 'success') {",
             '  process.exitCode = 0;',
             "} else if (mode === 'collected') {",
             '  process.stderr.write(unloaded);',
@@ -1530,6 +1658,26 @@ test('scope cleanup stops, resets, or accepts an exactly unloaded unit', () => {
                 ['--user', 'reset-failed', `${unitName}.scope`],
             ],
         );
+        for (const mode of ['reset-missing-1', 'reset-missing-5']) {
+            process.env.TEST_SYSTEMCTL_MODE = mode;
+            assert.doesNotThrow(() => stopWaveScope(unitName), mode);
+        }
+        for (const mode of [
+            'reset-wrong-status',
+            'reset-wrong-unit',
+            'reset-prefixed',
+            'reset-suffixed',
+            'reset-whitespace',
+            'reset-stdout',
+            'reset-split',
+        ]) {
+            process.env.TEST_SYSTEMCTL_MODE = mode;
+            assert.throws(() => stopWaveScope(unitName), undefined, mode);
+        }
+        process.env.TEST_SYSTEMCTL_MODE = 'reset-bus';
+        assert.throws(() => stopWaveScope(unitName), /Failed to connect/u);
+        process.env.TEST_SYSTEMCTL_MODE = 'reset-permission';
+        assert.throws(() => stopWaveScope(unitName), /Access denied/u);
         // systemd 255 returns 5 and names the exact unloaded unit after
         // collection. This is the sole nonzero result that means no process
         // remains to clean up.

@@ -4836,7 +4836,12 @@ test('the two-line status row reports carrying capacity', async () => {
     assert.equal(capacityWrites, 1);
 });
 
-test('tty carrying-capacity vocabulary matches both shrink rows', () => {
+test('tty carrying-capacity vocabulary matches every source row', () => {
+    assert.deepEqual(
+        Array.from({ length: 6 }, (_, capacity) =>
+            tty_capacity_status(capacity, 0)),
+        ['', 'Burdened', 'Stressed', 'Strained', 'Overtaxed', 'Overloaded'],
+    );
     assert.deepEqual(
         Array.from({ length: 6 }, (_, capacity) =>
             tty_capacity_status(capacity, 1)),
@@ -4904,6 +4909,43 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
                     + ' Strn Spear Shield Stairs  5.0.0',
             },
             {
+                name: 'conditions shorten before capacity',
+                inventory: {
+                    oclass: WEAPON_CLASS, otyp: SPEAR, owt: 2000,
+                    quan: 1, nobj: null,
+                },
+                extra: (state) => {
+                    state.flags.time = true;
+                    state.flags.weaponstatus = true;
+                    state.flags.armorstatus = true;
+                    state.flags.terrainstatus = false;
+                    state.moves = 999;
+                    state.u.usick_type = SICK_VOMITABLE;
+                    state.u.uprops[SICK] = { intrinsic: 1 };
+                },
+                expected: 'Dlvl:1 $:0 HP:16(16) Pw:4(6) AC:8 Xp:1 T:999'
+                    + ' Strained Fpois Spear Shield  5.0.0',
+            },
+            {
+                name: 'capacity shortens after conditions reach shortest form',
+                inventory: {
+                    oclass: WEAPON_CLASS, otyp: SPEAR, owt: 2000,
+                    quan: 1, nobj: null,
+                },
+                extra: (state) => {
+                    state.flags.time = true;
+                    state.flags.weaponstatus = true;
+                    state.flags.armorstatus = true;
+                    state.flags.terrainstatus = true;
+                    state.flags.showexp = true;
+                    state.moves = 999;
+                    state.u.usick_type = SICK_VOMITABLE;
+                    state.u.uprops[SICK] = { intrinsic: 1 };
+                },
+                expected: 'Dl:1 $:0 HP:16(16) Pw:4(6) AC:8 Xp:1/42 T:999'
+                    + ' Strn Poi Spear Shield Stairs 5.0.',
+            },
+            {
                 name: 'empty capacity padding',
                 inventory: { oclass: COIN_CLASS, quan: 50, nobj: null },
                 extra: (state) => {
@@ -4952,6 +4994,28 @@ test('three-line conditions align to hunger before carrying capacity',
             nobj: null,
         };
         setConditionProperties(state, [BLINDED]);
+        state.iflags.hilite_delta = 3;
+        state.iflags.status_hilites = [{
+            field: 'carrying-capacity',
+            behavior: 'text',
+            text: 'Strained',
+            style: {
+                attr: ATR_BOLD,
+                clearAttributes: false,
+                color: CLR_RED,
+            },
+        }];
+        let capacityWrites = 0;
+        let storedCapacity;
+        state.gw = {};
+        Object.defineProperty(state.gw, 'wc', {
+            configurable: true,
+            get: () => storedCapacity,
+            set: (value) => {
+                storedCapacity = value;
+                capacityWrites += 1;
+            },
+        });
 
         await bot();
 
@@ -4963,6 +5027,13 @@ test('three-line conditions align to hunger before carrying capacity',
         assert.equal(details.indexOf('Blind'), 40);
         assert.equal(vitals.indexOf('Satiated'), 40);
         assert.equal(vitals.indexOf('Strained'), 49);
+        assert.equal(capacityWrites, 1);
+        for (let column = 49; column < 57; ++column) {
+            assert.deepEqual({
+                attr: state.nhDisplay.grid[22][column].attr,
+                color: state.nhDisplay.grid[22][column].color,
+            }, { attr: ATR_BOLD, color: CLR_RED });
+        }
     });
 
 test('tutorial overflow shrinking preserves complete status grids and attributes', async () => {
