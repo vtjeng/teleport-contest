@@ -27,10 +27,13 @@ states it.
 
 ## Current standing
 
-- Development, at `aa9f3c8` (2026-08-06): 1,002 of 7,765 screens and 116,103 of
-  610,816 random-number values, over the development set of 33 sessions.
-- Reserved holdout, last evaluated at `aa9f3c8`: 195 of 3,640 screens, 32,614
+- Development, at `1ed5683` (2026-08-06): 1,027 of 7,765 screens and 116,207 of
+  610,816 random-number values, over the development set of 33 sessions, of
+  which 2 match completely.
+- Reserved holdout, last evaluated at `1ed5683`: 195 of 3,640 screens, 32,614
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
+  Identical to the evaluation at `aa9f3c8` before it; `docs/goal-history.md`
+  records what six such results say about effect size.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,
