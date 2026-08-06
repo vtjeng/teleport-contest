@@ -22,6 +22,8 @@ test('startup staircase recipe crosses calendar and autopickup partitions',
                 datetime: segment.datetime,
                 autopickup: !segment.nethackrc.includes('!autopickup'),
                 inputCount: segment.moves.length,
+                wording: segment.nethackrc.includes('!verbose')
+                    ? 'terse' : 'verbose',
             })),
             [
                 // One key dismisses welcome on the ordinary calendar date.
@@ -29,23 +31,27 @@ test('startup staircase recipe crosses calendar and autopickup partitions',
                     datetime: '20340117112233',
                     autopickup: false,
                     inputCount: 1,
+                    wording: 'verbose',
                 },
                 // Three keys dismiss welcome, full moon, and Friday messages.
                 {
                     datetime: '20300913120000',
                     autopickup: true,
                     inputCount: 3,
+                    wording: 'verbose',
                 },
+                // The third route is the ordinary-calendar terse complement.
                 {
                     datetime: '20340117112233',
                     autopickup: false,
                     inputCount: 1,
+                    wording: 'terse',
                 },
             ],
         );
     });
 
-test('both startup routes stop at the first command with decor remembered',
+test('all three startup routes stop at the first command with decor remembered',
     async () => {
         for (const segment of loadStartupStaircaseDecorRecipe().segments)
             await verifyStartupStaircaseDecorSegment(segment);

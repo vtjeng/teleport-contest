@@ -96,7 +96,7 @@ import {
 import { pickup, preflight_projected_random_arrival_pickup } from './pickup.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
-import { cloneCoreContext, createCoreRandom, rn2 } from './rng.js';
+import { cloneIsaacContext, createCoreRandom, rn2 } from './rng.js';
 import { check_special_room, move_update } from './rooms.js';
 import { savelev } from './save.js';
 import { preflight_shop_arrival } from './shk.js';
@@ -155,12 +155,20 @@ export async function place_random_arrival(
         message = ttyPline,
         switchTerrain = switch_terrain,
         place = u_on_rndspot,
+        // The default placement operation is called first in planning mode
+        // and then live. It must honor planPositionOnly without live effects;
+        // inject a distinct planPlace when an alternate place operation cannot.
         planPlace = place,
     } = {},
 ) {
     const earthSenseMessages = [];
     const preflightArrival = (x, y, liveState) => {
         preflight_shop_arrival(x, y, liveState);
+        // This is a write-set clone, not a general deep clone. move_update()
+        // may write context, gp, iflags, u, and its room buffers; pickup
+        // admission may write gw.wc. The shared level, inventory, and object
+        // graph stays read-only. Extend this list before either preflight gains
+        // another nested write owner.
         const projected = {
             ...liveState,
             context: { ...(liveState.context ?? {}) },
@@ -191,7 +199,7 @@ export async function place_random_arrival(
     // commit its selected coordinate.
     if (planPlace) {
         const plannedRandom = createCoreRandom(
-            cloneCoreContext(state.coreCtx ?? game.coreCtx),
+            cloneIsaacContext(state.coreCtx ?? game.coreCtx),
             state,
         );
         planPlace(upflag, state, {

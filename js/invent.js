@@ -2573,7 +2573,8 @@ export async function hold_another_object(
     const { state } = normalized;
 
     // Direct callers retain the old entry contract. makewish() supplies the
-    // prepared token so every refusal occurs before discovery and conduct.
+    // prepared token so the supported heavy-ball hold/drop refusal occurs
+    // before discovery and conduct; ordinary-object refusals remain below.
     const heavyDropAdmission = consumeHeavyBallDropAdmission(
         obj,
         state,

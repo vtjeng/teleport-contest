@@ -23,6 +23,11 @@ test('the multibyte pile matrix varies only overlay restoration', () => {
         )),
         [false, true],
     );
+    const normalizedSegments = recipes.map(({ segments: [segment] }) => ({
+        ...segment,
+        nethackrc: segment.nethackrc.replace(/!?menu_overlay/u, 'menu_overlay'),
+    }));
+    assert.deepEqual(normalizedSegments[0], normalizedSegments[1]);
 });
 
 test('both live multibyte routes preserve and observe their floor pile',

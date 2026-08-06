@@ -275,8 +275,9 @@ export async function displayTtyMenuTextWindow(
     );
     if (layout.maxrow >= display.rows) {
         // The selected two-to-four-object transaction cannot reach paging:
-        // one header plus four BUFSZ-bounded names occupies at most seventeen
-        // rows even when every name is split repeatedly.
+        // optional terrain plus its blank separator, one header, and four
+        // BUFSZ-bounded names occupy at most nineteen rows on the default
+        // 80-column terminal even when every name is split repeatedly.
         throw new RangeError('paged tty menu text window is not supported');
     }
 

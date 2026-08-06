@@ -996,17 +996,18 @@ export function u_on_newpos(
     earth_sense(state, { message: earthSenseMessage });
 }
 
-// C ref: dungeon.c u_on_rndspot() (1604-1638). Places the hero at a random
-// spot in the arrival region a level change left behind, which is what a level
-// teleport, a fall through a trap door and a portal with no exit all use.
+// C ref: dungeon.c u_on_rndspot() (1604-1638). Live mode places the hero at a
+// random spot in the arrival region a level change left behind. Planning mode
+// repeats the same candidate selection with the supplied RNG and calls the
+// required preflight without changing position or terrain.
 //
 // `upflag` packs two bits, as C's own `int up = (upflag & 1),
 // was_in_W_tower = (upflag & 2)` shows.
 //
-// hack.c switch_terrain() closes the function because the hero may have just
-// left solid rock. Every arm of it needs terrain that blocks levitation or
-// flight, or one of those properties already blocked; a hero arriving on a
-// ROOM square with neither reaches only its `flags.terrainstatus` tail.
+// In live mode, hack.c switch_terrain() closes the function because the hero
+// may have just left solid rock. Every arm of it needs terrain that blocks
+// levitation or flight, or one of those properties already blocked; a hero
+// arriving on a ROOM square with neither reaches only its terrainstatus tail.
 export function u_on_rndspot(
     upflag,
     state = game,
@@ -1023,8 +1024,8 @@ export function u_on_rndspot(
     const updest = state.updest ?? {};
 
     /*
-     * Place the hero at a random location within the relevant region.
-     * place_lregion(xTELE) -> put_lregion_here(xTELE) -> u_on_newpos()
+     * Select a random location within the relevant region. Live placement
+     * reaches u_on_newpos(); planPositionOnly reaches preflightPosition.
      * Unspecified region (.lx == 0) defaults to entire level.
      */
     if (was_in_W_tower && On_W_tower_level(state.u.uz, state))

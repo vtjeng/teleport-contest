@@ -36,10 +36,9 @@
 // applied.
 //
 // Judging by a transitive import set would cost nearly what the whole suite
-// costs, so it buys nothing over `--whole-suite`. Following js/-to-js/ imports
-// puts 72 of the 132 test files behind js/hack.js and 102 behind js/mondata.js,
-// and the slowest files sit in those sets, so `node --test`'s concurrency
-// leaves the subset almost as slow as the whole run.
+// costs, so it buys nothing over `--whole-suite`. Common modules reach most
+// test files transitively, including the slowest files, so `node --test`'s
+// concurrency leaves the subset almost as slow as the whole run.
 //
 // Usage:
 //
@@ -64,7 +63,7 @@
 //
 // `--sample <n>` draws n mutants uniformly at random from the whole target set
 // and runs only those, which is how to estimate a kill rate over a population
-// too large to run: the 126 files under js/ hold 94,899 mutants. `--seed <k>`
+// too large to run. `--seed <k>`
 // sets the draw, and the report names the seed it used, so a sample can be
 // repeated exactly. The report gives the kill rate with a 95% Wilson interval
 // for the population the sample was drawn from.
@@ -94,14 +93,8 @@
 // unit it could stop. The Node test runner admits at most four test files at
 // once inside the slice.
 //
-// A first wave costs what its own files cost, from 0.14 s per mutant for a
-// one-file wave to 2.20 s for js/hack.js's seven. Under `--whole-suite`, every
-// mutant that passes its first wave costs about 13 s more, the time the
-// 122-file verdict suite takes, so the total depends on how many the first
-// wave kills. A module whose own tests are weak pays the suite for nearly every
-// mutant.
-//
-// Measured on 30 July 2026, wall clock for the whole command:
+// Historical wall-clock measurements from 30 July 2026 follow. They describe
+// that tree's suite size and cost, not the current repository population:
 //
 // - `ce9c59f~1..ce9c59f`, 8 mutants over js/hack.js and js/lock.js: 12.7 s
 //   without `--whole-suite` and 84.0 s with it. The first wave killed 3 at
@@ -118,10 +111,10 @@
 // `.agents/review.md` sets as the full-pass gate holds about 239 mutants. Under
 // `--whole-suite` that runs in roughly 26 minutes if the first wave kills half
 // of them and 52 minutes if it kills none. Both figures extrapolate from the
-// two ranges above and assume the same density and the same 13 s suite.
+// two ranges above and assume that historical density and suite cost.
 
 // This file belongs to no `QUALITY.json` area, which is deliberate. Areas
-// partition `js/`, the ported game code, and own 135 paths, none outside it;
+// partition `js/`, the ported game code, and own every tracked path there;
 // `unassignedJsFiles()` in scripts/quality-status.mjs enforces that coverage
 // over `js/` alone. Owning a tool here would put code that changes no scored
 // behavior into a gate that measures ported-behavior debt, and would aim a
@@ -559,6 +552,12 @@ export async function runInMutationCgroup(
         settleSignals = () => new Promise((resolve) => setImmediate(resolve)),
     } = {},
 ) {
+    // Terminal precedence is signal, cleanup error, body error, then child
+    // status. A slice that cannot be proved clean retains the lock as its
+    // recovery owner. After successful production cleanup, one signal broker
+    // remains through process exit and is replaced by the next run. The
+    // injectable target and reraiser are synchronous test seams; wrapping
+    // either production default selects handler removal before return.
     const retainTerminalBroker = signalTarget === process
         && reraise === reraiseProcessSignal;
     if (retainTerminalBroker) clearRetainedProcessSignalBroker();
@@ -671,8 +670,8 @@ export async function runInMutationCgroup(
             // delivery now removes the handlers and re-raises. The production
             // process retains that terminal broker through exit so removing a
             // listener cannot create one last loss window. Injected targets
-            // and custom re-raisers have no kernel delivery gap and are
-            // removed before returning.
+            // and the supported injected test doubles have no kernel delivery
+            // gap and are removed before returning.
             terminalSignalWindowReached = true;
             if (!interrupt) {
                 await new Promise((resolve) => setImmediate(resolve));

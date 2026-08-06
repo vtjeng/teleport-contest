@@ -11,8 +11,12 @@ test('the generated-shop price recipe contains only replay inputs', () => {
     assert.equal(recipe.version, 5);
     assert.equal(recipe.segments.length, 1);
     const [segment] = recipe.segments;
+    // This seed and fixed ordinary date produce the natural D:5 potion shop
+    // whose clear stock potion sits one step west of the arrival square.
     assert.equal(segment.seed, 7633019);
     assert.equal(segment.datetime, '20310417113000');
+    // Ctrl-V chooses D:5, Space dismisses the greeting, and h reaches the
+    // stock potion before the successor prompt.
     assert.equal(segment.moves, '.\x165\n h');
     assert.equal(Object.hasOwn(segment, 'steps'), false);
     assert.match(segment.nethackrc, /!autopickup/u);
@@ -23,6 +27,8 @@ test('the live generated-shop route records its natural potion quote',
     async () => {
         const [segment] = loadShopFloorPricingRecipe().segments;
         const replay = await verifyShopFloorPricingSegment(segment);
+        // These are the complete patched-C trace totals through that successor
+        // prompt, not partial observations of the priced line.
         assert.equal(replay.getScreens().length, 7);
         assert.equal(replay.getCursors().length, 7);
         assert.equal(replay.getRngLog().length, 5520);

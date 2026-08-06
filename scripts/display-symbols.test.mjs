@@ -4841,21 +4841,38 @@ test('the two-line status row reports carrying capacity', async () => {
 });
 
 test('tty carrying-capacity vocabulary matches every source row', () => {
-    assert.deepEqual(
-        Array.from({ length: 6 }, (_, capacity) =>
-            tty_capacity_status(capacity, 0)),
-        ['', 'Burdened', 'Stressed', 'Strained', 'Overtaxed', 'Overloaded'],
-    );
-    assert.deepEqual(
-        Array.from({ length: 6 }, (_, capacity) =>
-            tty_capacity_status(capacity, 1)),
-        ['', 'Burden', 'Stress', 'Strain', 'Overtax', 'Overload'],
-    );
-    assert.deepEqual(
-        Array.from({ length: 6 }, (_, capacity) =>
-            tty_capacity_status(capacity, 2)),
-        ['', 'Brd', 'Strs', 'Strn', 'Ovtx', 'Ovld'],
-    );
+    // wintty.c shrink_enc() selects full, shortened, then shortest wording at
+    // levels zero through two.
+    const cases = [
+        {
+            name: 'full',
+            shrinkLevel: 0,
+            expected: [
+                '', 'Burdened', 'Stressed', 'Strained',
+                'Overtaxed', 'Overloaded',
+            ],
+        },
+        {
+            name: 'shortened',
+            shrinkLevel: 1,
+            expected: [
+                '', 'Burden', 'Stress', 'Strain', 'Overtax', 'Overload',
+            ],
+        },
+        {
+            name: 'shortest',
+            shrinkLevel: 2,
+            expected: ['', 'Brd', 'Strs', 'Strn', 'Ovtx', 'Ovld'],
+        },
+    ];
+    for (const { name, shrinkLevel, expected } of cases) {
+        assert.deepEqual(
+            Array.from({ length: 6 }, (_, capacity) =>
+                tty_capacity_status(capacity, shrinkLevel)),
+            expected,
+            name,
+        );
+    }
 });
 
 test('two-line capacity shrinking uses strict 79-column overflow edges',

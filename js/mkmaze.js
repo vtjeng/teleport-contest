@@ -85,6 +85,10 @@ export function bad_location(x, y, nlx, nly, nhx, nhy, state = game) {
 // do.c goto_level() zeroes before every arrival. js/do.js renders that clearing
 // as `state.updest = {}`, so an unset field arrives here as undefined where C
 // would read 0; `?? 0` restores C's value before any comparison sees it.
+// Planning options form one lockstep protocol: `planPositionOnly` traverses
+// candidates with `randomOneBased`, calls the required `preflightPosition`
+// for the selected square instead of committing it, and must leave every
+// selection input unchanged so the caller can replay the traversal live.
 export function place_lregion(
     lx, ly, hx, hy,
     nlx, nly, nhx, nhy,

@@ -3112,8 +3112,15 @@ test('a successful outer run authenticates its child and cleans ownership',
         }
 });
 
-test('SIGINT and SIGTERM clean only their aggregate run and release the lock',
+test('aggregate limits, exclusivity, signals, cleanup, and reacquisition hold',
     async () => {
+        // systemd reports byte/task values: 2 GiB memory, disabled swap, and
+        // the aggregate's 64-task ceiling.
+        const expectedLimits = {
+            MemoryMax: '2147483648',
+            MemorySwapMax: '0',
+            TasksMax: '64',
+        };
         for (const interruptSignal of ['SIGINT', 'SIGTERM']) {
             const root = mkdtempSync(join(tmpdir(), 'mutate-outer-signal-'));
             const lockPath = join(root, 'owner.lock');
@@ -3170,9 +3177,12 @@ test('SIGINT and SIGTERM clean only their aggregate run and release the lock',
                     `--property=${name}`, '--value',
                 ], { encoding: 'utf8' }).trim();
                 assert.equal(property('MemoryAccounting'), 'yes');
-                assert.equal(property('MemoryMax'), '2147483648');
-                assert.equal(property('MemorySwapMax'), '0');
-                assert.equal(property('TasksMax'), '64');
+                assert.equal(property('MemoryMax'), expectedLimits.MemoryMax);
+                assert.equal(
+                    property('MemorySwapMax'),
+                    expectedLimits.MemorySwapMax,
+                );
+                assert.equal(property('TasksMax'), expectedLimits.TasksMax);
 
                 const contender = spawnSync(process.execPath,
                     [SCRIPT_PATH, '--file', 'js/lock.js',

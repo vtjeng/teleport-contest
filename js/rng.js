@@ -121,11 +121,13 @@ export function createCoreRandom(context, state = game) {
     };
 }
 
-export function cloneCoreContext(context) {
+export function cloneIsaacContext(context) {
     if (!context
         || !Array.isArray(context.m)
         || !Array.isArray(context.r)) {
-        throw new TypeError('RNG planning requires an initialized core RNG');
+        throw new TypeError(
+            'RNG planning requires an initialized ISAAC context',
+        );
     }
     return {
         ...context,

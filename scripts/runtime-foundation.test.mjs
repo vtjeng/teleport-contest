@@ -33,7 +33,7 @@ import {
 import { LEATHER_ARMOR, WAN_WISHING } from '../js/objects.js';
 import { str2role } from '../js/roles.js';
 import {
-    cloneCoreContext,
+    cloneIsaacContext,
     createCoreRandom,
     d,
     enableRngLog,
@@ -72,18 +72,18 @@ function sha256(value) {
     return createHash('sha256').update(value).digest('hex');
 }
 
-test('cloneCoreContext requires both ISAAC arrays and copies each one', () => {
-    assert.throws(() => cloneCoreContext(null), /initialized core RNG/u);
+test('cloneIsaacContext requires both ISAAC arrays and copies each one', () => {
+    assert.throws(() => cloneIsaacContext(null), /initialized ISAAC context/u);
     assert.throws(
-        () => cloneCoreContext({ m: [] }),
-        /initialized core RNG/u,
+        () => cloneIsaacContext({ m: [] }),
+        /initialized ISAAC context/u,
     );
     assert.throws(
-        () => cloneCoreContext({ r: [] }),
-        /initialized core RNG/u,
+        () => cloneIsaacContext({ r: [] }),
+        /initialized ISAAC context/u,
     );
     const context = { m: [1n], r: [2n], a: 3n };
-    const clone = cloneCoreContext(context);
+    const clone = cloneIsaacContext(context);
     assert.deepEqual(clone, context);
     assert.notEqual(clone.m, context.m);
     assert.notEqual(clone.r, context.r);

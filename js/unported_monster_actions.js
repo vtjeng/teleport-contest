@@ -88,7 +88,7 @@ import {
     mon_in_region,
 } from './region.js';
 import {
-    cloneCoreContext,
+    cloneIsaacContext,
     createCoreRandom,
     d,
     rn1,
@@ -228,7 +228,7 @@ function assertSimpleActionState(monster, state) {
 }
 
 function clonedRandom(state) {
-    const context = cloneCoreContext(state.coreCtx);
+    const context = cloneIsaacContext(state.coreCtx);
     return createCoreRandom(context, state);
 }
 
@@ -442,7 +442,7 @@ function planningState(state) {
         // otherwise a dry run changes later live glyphs even though every
         // terminal operation is suppressed.
         displayCtx: state.displayCtx
-            ? cloneCoreContext(state.displayCtx)
+            ? cloneIsaacContext(state.displayCtx)
             : state.displayCtx,
         disp: structuredClone(state.disp),
         flags: structuredClone(state.flags),

@@ -250,7 +250,7 @@ export async function describe_decor(state) {
     return true;
 }
 
-function planAutomaticFloorPickup(state) {
+function planAutomaticFloorPickupAndRefreshCapacityCache(state) {
     const { u } = state;
     const costly = costly_spot(u.ux, u.uy, state);
     const selected = [];
@@ -342,7 +342,9 @@ function planAutomaticFloorPickup(state) {
 // Random arrival commits placement, room entry and its display before
 // goto_level() reaches pickup(1). Validate the complete supported floor
 // transaction against the projected destination first, so a later naming or
-// pricing refusal cannot leave those earlier writes behind.
+// pricing refusal cannot leave those earlier writes behind. Burden calculation
+// writes `state.gw.wc`; callers must supply an isolated projection whose `gw`
+// owner is cloned from live state.
 export function preflight_projected_random_arrival_pickup(state) {
     if (state === undefined) {
         throw new TypeError(
@@ -392,7 +394,7 @@ export function preflight_projected_random_arrival_pickup(state) {
         }
         if (state.flags?.pickup_types)
             throw new UnsupportedPickupError('pickup() with pickup_types');
-        const plan = planAutomaticFloorPickup(state);
+        const plan = planAutomaticFloorPickupAndRefreshCapacityCache(state);
         remaining = plan.remaining;
         pickedSome = Boolean(plan.selected.length);
     }
@@ -485,7 +487,8 @@ export async function pickup(what, state = game) {
         throw new UnsupportedPickupError('pickup() with pickup_types');
     }
 
-    const { addPlans, env, selected } = planAutomaticFloorPickup(state);
+    const { addPlans, env, selected }
+        = planAutomaticFloorPickupAndRefreshCapacityCache(state);
 
     if (selected.length) reset_justpicked(state.invent);
     let picked = 0;
