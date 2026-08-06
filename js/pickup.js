@@ -369,13 +369,18 @@ export function preflight_random_arrival_pickup(state = game) {
 
     if (state.flags?.mention_decor)
         preflight_describe_decor_at(u.ux, u.uy, state);
-    const lookhereFlags = pickedSome
-        ? LOOKHERE_PICKED_SOME : LOOKHERE_NOFLAGS;
-    preflight_look_here(remaining.length, lookhereFlags, state, {
-        objects: remaining,
-        decorTerrain: state.flags?.mention_decor
-            ? state.level.at(u.ux, u.uy)?.typ : null,
-    });
+    // pickup.c check_here() calls look_here() only while something remains on
+    // the floor.  Its zero-count arm reads the engraving instead, so a visible
+    // region cannot reject an arrival whose complete pile will be picked up.
+    if (remaining.length) {
+        const lookhereFlags = pickedSome
+            ? LOOKHERE_PICKED_SOME : LOOKHERE_NOFLAGS;
+        preflight_look_here(remaining.length, lookhereFlags, state, {
+            objects: remaining,
+            decorTerrain: state.flags?.mention_decor
+                ? state.level.at(u.ux, u.uy)?.typ : null,
+        });
+    }
 }
 
 // C ref: pickup.c pickup() (672-910), autopick(), pickup_object(), pick_obj()

@@ -58,6 +58,7 @@ import { objectGenerationEnv } from '../js/object_generation.js';
 import { APPLE, CORPSE, ELVEN_DAGGER, TIN } from '../js/objects.js';
 import { pickup } from '../js/pickup.js';
 import { com_pager } from '../js/questpgr.js';
+import { create_region, visible_region_at } from '../js/region.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { roles } from '../js/roles.js';
 import { costly_spot, inside_shop, u_entered_shop } from '../js/shk.js';
@@ -406,6 +407,10 @@ test('random arrival prints earth sense before switching terrain', async () => {
     const integrationEvents = [];
     await place_random_arrival(0, state, {
         place: (_upflag, _state, options) => {
+            if (options.planPositionOnly) {
+                options.preflightPosition(10, 8, _state);
+                return;
+            }
             integrationEvents.push(`defer:${options.deferSwitchTerrain}`);
             options.earthSenseMessage('earth');
         },
@@ -564,6 +569,41 @@ test('multi-square shop arrival refuses without committing planned RNG',
         assert.deepEqual(getRngLog(), before.log);
     });
 
+test('wrapped random placement retains atomic dry-run refusal', async () => {
+    const state = placementState();
+    initRng(9450613);
+    enableRngLog();
+    state.dndest = { lx: 10, ly: 8, hx: 11, hy: 8 };
+    state.level.rooms[0] = { rtype: SHOPBASE };
+    for (const x of [10, 11]) {
+        Object.assign(state.level.at(x, 8), {
+            typ: ROOM,
+            roomno: ROOMOFFSET,
+            edge: true,
+        });
+    }
+    const before = {
+        position: [state.u.ux, state.u.uy],
+        rng: structuredClone(game.coreCtx),
+        log: [...getRngLog()],
+    };
+    let calls = 0;
+    const wrappedPlacement = (...args) => {
+        calls += 1;
+        return u_on_rndspot(...args);
+    };
+
+    await assert.rejects(
+        () => place_random_arrival(0, state, { place: wrappedPlacement }),
+        /outside the shop interior/u,
+    );
+
+    assert.equal(calls, 1);
+    assert.deepEqual([state.u.ux, state.u.uy], before.position);
+    assert.deepEqual(game.coreCtx, before.rng);
+    assert.deepEqual(getRngLog(), before.log);
+});
+
 test('multi-square dry run and replay select the same heterogeneous square',
     async () => {
         const makeState = (excludedX) => {
@@ -712,6 +752,86 @@ test('random arrival preflights the complete ordinary pickup transaction',
             destination.x,
             destination.y,
         ]);
+    });
+
+test('an entirely autopicked arrival pile skips visible-region description',
+    async () => {
+        await runSegment({
+            seed: 7632401,
+            datetime: '20310417113000',
+            nethackrc: [
+                'OPTIONS=name:ArrivalRegion,role:Wizard,race:human,gender:male,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=pettype:none,!acoustics,autopickup,playmode:debug',
+                '',
+            ].join('\n'),
+            moves: '',
+        });
+        let destination = null;
+        for (let x = 1; x < 80 && !destination; ++x) {
+            for (let y = 0; y < 21; ++y) {
+                if (game.level.at(x, y)?.typ === ROOM
+                    && !game.level.objects[x]?.[y]
+                    && !m_at(x, y, game)) {
+                    destination = { x, y };
+                    break;
+                }
+            }
+        }
+        assert.ok(destination);
+        const apple = mksobj_at(
+            APPLE,
+            destination.x,
+            destination.y,
+            false,
+            false,
+            objectGenerationEnv({ state: game }),
+        );
+        game.dndest = {
+            lx: destination.x,
+            ly: destination.y,
+            hx: destination.x,
+            hy: destination.y,
+        };
+        const region = create_region([{
+            lx: destination.x,
+            ly: destination.y,
+            hx: destination.x,
+            hy: destination.y,
+        }]);
+        region.visible = true;
+        game.level.regions.push(region);
+        assert.equal(visible_region_at(destination.x, destination.y, game),
+            region);
+        enableRngLog();
+        const before = {
+            position: [game.u.ux, game.u.uy],
+            rng: structuredClone(game.coreCtx),
+            log: [...getRngLog()],
+        };
+
+        game.flags.pickup = false;
+        await assert.rejects(
+            () => place_random_arrival(0, game),
+            /visible region description/u,
+        );
+        assert.deepEqual([game.u.ux, game.u.uy], before.position);
+        assert.deepEqual(game.coreCtx, before.rng);
+        assert.deepEqual(getRngLog(), before.log);
+
+        game.flags.pickup = true;
+        await place_random_arrival(0, game);
+        assert.deepEqual([game.u.ux, game.u.uy], [
+            destination.x,
+            destination.y,
+        ]);
+        assert.deepEqual(getRngLog(), ['rn2(1)=0', 'rn2(1)=0']);
+        game.nhDisplay.pushKey(' '.charCodeAt(0));
+        assert.equal(await pickup(1, game), 1);
+        assert.equal(apple.where, OBJ_INVENT);
+        assert.notEqual(game.level.objects[destination.x][destination.y],
+            apple);
+        assert.equal(game.level.regions.includes(region), true);
     });
 
 test('random arrival refuses every unsupported ordinary pickup guard atomically',

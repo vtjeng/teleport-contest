@@ -2566,6 +2566,36 @@ test('reqmenu rejects non-prefix commands and Escape cancels silently',
         }
     });
 
+test('a doubled reqmenu prefix cancels without leaking into the next command',
+    async () => {
+        for (const [configuration, prefix] of [
+            ['OPTIONS=!cmdassist', 'm'],
+            ['OPTIONS=!cmdassist\nBINDINGS=x:reqmenu', 'x'],
+        ]) {
+            const { state, monster } = resetSafeWaitTestGame(configuration);
+            const grid = structuredClone(state.nhDisplay.grid);
+            state.nhDisplay.pushKey(commandKeyCode(prefix));
+            state.nhDisplay.pushKey(commandKeyCode(prefix));
+
+            await rhack(0, state);
+
+            assert.equal(state._pending_message,
+                `Double ${prefix} prefix, canceled.`);
+            assert.deepEqual(state.nhDisplay.grid, grid);
+            assert.equal(state.context.move, 0);
+            assert.equal(state.iflags.menu_requested, false);
+            assert.equal(state.context.pendingCommand, undefined);
+            assert.equal(state.nhDisplay.inputQueueLength, 0);
+
+            state.level.monsters[monster.mx][monster.my] = null;
+            state.level.monlist = null;
+            state.nhDisplay.pushKey(commandKeyCode('.'));
+            await rhack(0, state);
+            assert.equal(state.context.move, 1);
+            assert.equal(state.iflags.menu_requested, false);
+        }
+    });
+
 test('dangerous hero properties reject waiting and success resets its counter', async () => {
     const { state, monster } = resetSafeWaitTestGame('OPTIONS=!cmdassist');
     state.level.monsters[monster.mx][monster.my] = null;

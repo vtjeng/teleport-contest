@@ -39,6 +39,7 @@ import {
     mutationOwnerIsAlive,
     mutationCgroupArgs,
     mutationRunNames,
+    mutationWaveName,
     parseAddedLines,
     parseArgs,
     partitionTestFiles,
@@ -323,6 +324,44 @@ test('a reused live PID does not preserve a stale lock', () => {
     }
 });
 
+test('stale cleanup refuses every malformed aggregate owner identity', () => {
+    const deadPid = spawnSync(process.execPath, ['-e', '']).pid;
+    const valid = mutationRunNames(deadPid, 'stale');
+    const invalidOwners = [
+        { ...valid, sliceName: 'unrelated' },
+        {
+            ...valid,
+            sliceName: `teleport_mutate_${deadPid + 1}_stale`,
+            scopeName: `teleport_mutate_${deadPid + 1}_stale_run`,
+        },
+        { ...valid, scopeName: `${valid.sliceName}_other` },
+    ];
+    for (const [index, names] of invalidOwners.entries()) {
+        const root = mkdtempSync(join(tmpdir(), 'mutate-invalid-owner-'));
+        const lockPath = join(root, 'owner.lock');
+        let stopCalls = 0;
+        mkdirSync(lockPath);
+        writeFileSync(join(lockPath, 'owner.json'), `${JSON.stringify({
+            pid: deadPid,
+            ...names,
+        })}\n`);
+        try {
+            assert.throws(
+                () => acquireMutationLock(
+                    lockPath,
+                    mutationRunNames(process.pid, `replacement_${index}`),
+                    { stopStaleSlice: () => { stopCalls += 1; } },
+                ),
+                /invalid mutation lock owner identity/u,
+            );
+            assert.equal(stopCalls, 0);
+            assert.equal(existsSync(join(lockPath, 'owner.json')), true);
+        } finally {
+            rmSync(root, { recursive: true, force: true });
+        }
+    }
+});
+
 test('the reclaim claim serializes stale replacement publication', () => {
     const root = mkdtempSync(join(tmpdir(), 'mutate-lock-reclaim-race-'));
     const lockPath = join(root, 'owner.lock');
@@ -414,6 +453,39 @@ test('worker mode requires both the named slice and run scope', () => {
             false,
         );
     }
+});
+
+test('every generated run name round-trips through worker authentication',
+    () => {
+        for (const token of ['auditlabel', 'audit_label', 'body_error_SIGINT']) {
+            const names = mutationRunNames(123, token);
+            const environment = {
+                TELEPORT_MUTATION_CGROUP: '1',
+                TELEPORT_MUTATION_SLICE: names.sliceName,
+            };
+            const membership = `0::/user.slice/${names.sliceName}.slice/`
+                + `${names.scopeName}.scope\n`;
+            assert.equal(isVerifiedMutationWorker(environment, membership),
+                true, token);
+        }
+        for (const token of ['', '_leading', 'trailing_', 'two__words',
+            'hyphen-name', '../scope']) {
+            assert.throws(() => mutationRunNames(123, token), undefined,
+                token);
+        }
+    });
+
+test('wave names retain their aggregate invocation identity', () => {
+    const first = mutationRunNames(123, 'first');
+    const second = mutationRunNames(123, 'second');
+    assert.equal(mutationWaveName(first.sliceName, 1),
+        `${first.sliceName}_wave_1`);
+    assert.equal(mutationWaveName(second.sliceName, 1),
+        `${second.sliceName}_wave_1`);
+    assert.notEqual(
+        mutationWaveName(first.sliceName, 1),
+        mutationWaveName(second.sliceName, 1),
+    );
 });
 
 test('outer signal ownership spans acquisition through cleanup', async () => {
@@ -1203,7 +1275,7 @@ test('an outer deadline synchronously stops only its named wave scope', async ()
         const stops = readFileSync(stopPath, 'utf8').trim().split('\n')
             .map((line) => JSON.parse(line));
         const unit = readFileSync(unitPath, 'utf8');
-        assert.match(unit, /^teleport-mutate-wave-\d+-\d+$/u);
+        assert.match(unit, /^teleport-mutate-wave-\d+-[a-f0-9]+-\d+$/u);
         assert.deepEqual(stops, [['--user', 'stop', `${unit}.scope`]]);
         await waitForProcessExit(helperPid);
     } finally {

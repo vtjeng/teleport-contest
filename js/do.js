@@ -155,6 +155,7 @@ export async function place_random_arrival(
         message = ttyPline,
         switchTerrain = switch_terrain,
         place = u_on_rndspot,
+        planPlace = place,
     } = {},
 ) {
     const earthSenseMessages = [];
@@ -186,12 +187,12 @@ export async function place_random_arrival(
     // Its callbacks must not change any live selection input. Only after that
     // pass succeeds may the identical traversal consume the live RNG and
     // commit its selected coordinate.
-    if (place === u_on_rndspot) {
+    if (planPlace) {
         const plannedRandom = createCoreRandom(
             cloneCoreContext(state.coreCtx ?? game.coreCtx),
             state,
         );
-        place(upflag, state, {
+        planPlace(upflag, state, {
             planPositionOnly: true,
             randomOneBased: plannedRandom.rn1,
             preflightPosition: preflightArrival,

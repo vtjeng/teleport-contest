@@ -4834,6 +4834,10 @@ test('the two-line status row reports carrying capacity', async () => {
 
     assert.match(terminalRow(state, 23), / Strained\s*$/u);
     assert.equal(capacityWrites, 1);
+    assertStatusTextStyle(state, 23, 'Strained', {
+        attr: ATR_BOLD,
+        color: CLR_RED,
+    }, { after: false });
 });
 
 test('tty carrying-capacity vocabulary matches every source row', () => {
@@ -4859,6 +4863,7 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
         const cases = [
             {
                 name: 'full capacity form',
+                capacity: 'Strained',
                 inventory: {
                     oclass: WEAPON_CLASS, otyp: SPEAR, owt: 2000,
                     quan: 1, nobj: null,
@@ -4875,6 +4880,7 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
             },
             {
                 name: 'first shortened capacity form',
+                capacity: 'Strain',
                 inventory: {
                     oclass: WEAPON_CLASS, otyp: SPEAR, owt: 2000,
                     quan: 1, nobj: null,
@@ -4892,6 +4898,7 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
             },
             {
                 name: 'second shortened capacity form',
+                capacity: 'Strn',
                 inventory: {
                     oclass: WEAPON_CLASS, otyp: SPEAR, owt: 2000,
                     quan: 1, nobj: null,
@@ -4910,6 +4917,7 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
             },
             {
                 name: 'conditions shorten before capacity',
+                capacity: 'Strained',
                 inventory: {
                     oclass: WEAPON_CLASS, otyp: SPEAR, owt: 2000,
                     quan: 1, nobj: null,
@@ -4928,6 +4936,7 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
             },
             {
                 name: 'capacity shortens after conditions reach shortest form',
+                capacity: 'Strn',
                 inventory: {
                     oclass: WEAPON_CLASS, otyp: SPEAR, owt: 2000,
                     quan: 1, nobj: null,
@@ -4962,7 +4971,7 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
             },
         ];
 
-        for (const { name, inventory, extra, expected } of cases) {
+        for (const { name, inventory, extra, expected, capacity } of cases) {
             const state = statusRenderingState();
             state.flags.showexp = false;
             state.flags.showvers = true;
@@ -4973,12 +4982,31 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
             state.moves = 1;
             state.invent = inventory;
             extra?.(state);
+            if (capacity) {
+                state.iflags.hilite_delta = 3;
+                state.iflags.status_hilites = [{
+                    field: 'carrying-capacity',
+                    behavior: 'text',
+                    text: 'Strained',
+                    style: {
+                        attr: ATR_BOLD,
+                        clearAttributes: false,
+                        color: CLR_RED,
+                    },
+                }];
+            }
 
             await bot();
 
             const text = terminalRow(state, 23).trimEnd();
             assert.equal(text, expected, name);
             assert.ok(text.length >= 79, `${name}: reaches the tty edge`);
+            if (capacity) {
+                assertStatusTextStyle(state, 23, capacity, {
+                    attr: ATR_BOLD,
+                    color: CLR_RED,
+                });
+            }
         }
 });
 

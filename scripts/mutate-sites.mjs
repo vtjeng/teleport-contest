@@ -176,6 +176,9 @@ const DEFAULT_MUTATION_LOCK = join(
 const BOUNDED_TEST_RUNNER = fileURLToPath(
     new URL('./run-bounded-tests.mjs', import.meta.url));
 let testWaveSequence = 0;
+const mutationProcessToken = randomBytes(8).toString('hex');
+const MUTATION_SLICE_PATTERN =
+    /^teleport_mutate_([1-9][0-9]*)_([A-Za-z0-9]+(?:_[A-Za-z0-9]+)*)$/u;
 
 /** Build the outer-mutator scope; sibling test waves join the same slice. */
 export function mutationCgroupArgs(
@@ -202,8 +205,7 @@ export function isVerifiedMutationWorker(
 ) {
     if (environment[MUTATION_CGROUP_MARKER] !== '1') return false;
     const sliceName = environment[MUTATION_SLICE_MARKER];
-    if (!/^teleport_mutate_[0-9]+_[a-z0-9]+$/u.test(sliceName ?? ''))
-        return false;
+    if (!MUTATION_SLICE_PATTERN.test(sliceName ?? '')) return false;
     const membership = cgroupText
         ?? readFileSync('/proc/self/cgroup', 'utf8');
     const expectedSuffix = `/${sliceName}.slice/${sliceName}_run.scope`;
@@ -220,8 +222,21 @@ export function mutationRunNames(
 ) {
     // A hyphen in a slice name creates another slice level. Underscores keep
     // each invocation in one leaf unit which cleanup can remove completely.
+    if (!Number.isInteger(pid) || pid < 1)
+        throw new TypeError('mutation run pid must be a positive integer');
+    if (!/^[A-Za-z0-9]+(?:_[A-Za-z0-9]+)*$/u.test(token)) {
+        throw new TypeError('mutation run token must contain only alphanumeric '
+            + 'words separated by underscores');
+    }
     const sliceName = `teleport_mutate_${pid}_${token}`;
     return { sliceName, scopeName: `${sliceName}_run` };
+}
+
+export function mutationOwnerHasValidNames(owner) {
+    const match = MUTATION_SLICE_PATTERN.exec(owner?.sliceName ?? '');
+    return Boolean(match
+        && Number(match[1]) === owner.pid
+        && owner.scopeName === `${owner.sliceName}_run`);
 }
 
 export function readProcessIdentity(pid) {
@@ -311,7 +326,9 @@ function releaseMutationLockClaim(claim) {
         throw error;
     }
     if (owner.pid !== claim.owner.pid
-        || owner.processStartTime !== claim.owner.processStartTime) {
+        || owner.processStartTime !== claim.owner.processStartTime
+        || owner.sliceName !== claim.owner.sliceName
+        || owner.scopeName !== claim.owner.scopeName) {
         throw new Error(`mutation reclaim ownership changed at ${
             claim.claimPath}`);
     }
@@ -338,6 +355,8 @@ export function acquireMutationLock(
         processStartTime: identity.startTime,
         ...names,
     };
+    if (!mutationOwnerHasValidNames(owner))
+        throw new Error('invalid mutation lock owner identity');
     for (let attempt = 0; attempt < 4; ++attempt) {
         // Publication and stale reclaim share one claim. A delayed publisher
         // therefore cannot install owner.json after a reclaimer's last empty
@@ -415,7 +434,13 @@ export function acquireMutationLock(
                 throw new Error(`another mutation run owns ${lockPath} `
                     + `(pid ${current.pid})`);
             }
-            if (current?.sliceName) stopStaleSlice(current.sliceName);
+            if (current?.sliceName) {
+                if (!mutationOwnerHasValidNames(current)) {
+                    throw new Error(`invalid mutation lock owner identity at ${
+                        ownerPath}`);
+                }
+                stopStaleSlice(current.sliceName);
+            }
 
             const stalePath = `${lockPath}.stale-${process.pid}-${attempt}`;
             try {
@@ -443,7 +468,8 @@ export function releaseMutationLock(lock) {
     }
     if (owner.pid !== lock.owner.pid
         || owner.processStartTime !== lock.owner.processStartTime
-        || owner.sliceName !== lock.owner.sliceName) {
+        || owner.sliceName !== lock.owner.sliceName
+        || owner.scopeName !== lock.owner.scopeName) {
         throw new Error(`mutation lock ownership changed at ${lock.lockPath}`);
     }
     rmSync(lock.lockPath, { recursive: true, force: true });
@@ -1205,21 +1231,24 @@ export function testCommandArgs(testFiles) {
 // signalling a reusable post-exit numeric PGID.
 export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
     runnerPath = BOUNDED_TEST_RUNNER,
-    unitName = `teleport-mutate-wave-${process.pid}-${++testWaveSequence}`,
+    unitName = null,
     sliceName = null,
-    startedPath = join(tmpdir(), `${unitName}.started`),
+    startedPath = null,
     startedToken = 'authenticated-start') {
+    const resolvedUnitName = unitName ?? mutationWaveName(sliceName);
+    const resolvedStartedPath = startedPath
+        ?? join(tmpdir(), `${resolvedUnitName}.started`);
     const sliceArgs = sliceName ? [`--slice=${sliceName}.slice`] : [];
     return {
         command: 'systemd-run',
-        unitName,
-        startedPath,
+        unitName: resolvedUnitName,
+        startedPath: resolvedStartedPath,
         startedToken,
         args: [
             '--user',
             '--scope',
             '--quiet',
-            `--unit=${unitName}`,
+            `--unit=${resolvedUnitName}`,
             ...sliceArgs,
             '--property=MemoryAccounting=yes',
             '--property=MemoryMax=1G',
@@ -1228,13 +1257,33 @@ export function testRunnerCommand(nodePath, nodeArgs, timeoutMs,
             nodePath,
             runnerPath,
             String(timeoutMs),
-            startedPath,
+            resolvedStartedPath,
             startedToken,
             nodePath,
             ...nodeArgs,
         ],
         outerTimeoutMs: timeoutMs + 5_000,
     };
+}
+
+export function mutationWaveName(
+    sliceName = null,
+    sequence = ++testWaveSequence,
+    pid = process.pid,
+    processToken = mutationProcessToken,
+) {
+    if (!Number.isInteger(sequence) || sequence < 1)
+        throw new TypeError('mutation wave sequence must be positive');
+    if (sliceName !== null) {
+        if (!MUTATION_SLICE_PATTERN.test(sliceName))
+            throw new TypeError('mutation wave slice name is invalid');
+        return `${sliceName}_wave_${sequence}`;
+    }
+    if (!Number.isInteger(pid) || pid < 1
+        || !/^[a-f0-9]+$/u.test(processToken)) {
+        throw new TypeError('mutation wave fallback identity is invalid');
+    }
+    return `teleport-mutate-wave-${pid}-${processToken}-${sequence}`;
 }
 
 /** Stop a uniquely owned wave scope after any test result. */
