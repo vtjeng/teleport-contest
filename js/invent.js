@@ -2170,7 +2170,13 @@ function projectAddinv(obj, projectedEnv) {
         target.invlet = NOINVSYM;
         reassign(state);
     }
-    return { projectedResult: target };
+    return {
+        projectedResult: target,
+        // pickup.c lift_object() applies the 52-slot limit one object at a
+        // time, after merge_choice(), and excludes gold.  Expose that exact
+        // projected fact to pickup's atomic floor-transaction planner.
+        addedOrdinarySlot: target === obj && obj.oclass !== COIN_CLASS,
+    };
 }
 
 // Plan a source-ordered series of invent.c addinv()/prinv() calls without

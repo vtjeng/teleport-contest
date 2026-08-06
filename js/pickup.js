@@ -278,9 +278,6 @@ function planAutomaticFloorPickup(state) {
         assertObjectNameable(obj, state);
         addedWeight += Math.trunc(obj.owt);
     }
-    if (inv_cnt(false, state) + selected.length > 52) {
-        throw new UnsupportedPickupError('pickup() with a full pack');
-    }
     if (inv_weight(state) + addedWeight >= 2 * weight_cap(state)) {
         throw new UnsupportedPickupError(
             'pickup() requiring a partial or failed lift',
@@ -309,6 +306,17 @@ function planAutomaticFloorPickup(state) {
         env,
         { observeObjects: !heroIsBlind(state) },
     );
+    // pickup.c lift_object() checks the 52-letter limit in floor order after
+    // merge_choice().  Gold consumes no ordinary slot, and a later floor
+    // object can merge with an earlier projected pickup.  Reject atomically
+    // only at the first projected non-merge addition which C would refuse.
+    let projectedSlots = inv_cnt(false, state);
+    for (const plan of addPlans) {
+        if (!plan.addedOrdinarySlot) continue;
+        if (projectedSlots >= 52)
+            throw new UnsupportedPickupError('pickup() with a full pack');
+        ++projectedSlots;
+    }
     for (const plan of addPlans)
         assertObjectNameable(plan.projectedResult, state);
     return { addPlans, env, remaining, selected };

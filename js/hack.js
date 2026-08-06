@@ -788,7 +788,7 @@ export function requireSimpleHeroDestination(x, y, state) {
     // a fountain does ("fountain" both ways) and a grave does not ("grave"
     // against "headstone"). OPTIONS=blind reaches this from turn one through
     // u.uroleplay.blind.
-    if (floorObject && heroIsBlind(state)
+    if (floorObject && !noPickMove && heroIsBlind(state)
         && location.typ !== ROOM && location.typ !== CORR) {
         throw new UnsupportedHeroMoveBoundaryError('blind terrain description');
     }
@@ -802,7 +802,7 @@ export function requireSimpleHeroDestination(x, y, state) {
     // failClosedCommand() wrapper, unlike the extended commands -- so letting
     // it travel would abort the segment instead of ending it on its last
     // matching screen.
-    if (floorObject && location.typ === ALTAR) {
+    if (floorObject && !noPickMove && location.typ === ALTAR) {
         throw new UnsupportedHeroMoveBoundaryError(
             'terrain feature description',
         );

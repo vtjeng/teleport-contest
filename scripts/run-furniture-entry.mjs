@@ -181,6 +181,16 @@ export function loadFurnitureEntryRecipe() {
             // the shape seed2600-wizard-custom-binds stops on, a kitten on
             // STAIRS. Narrowed: two of five.
             arriveThenWait({ seed: 5300090, moves: 'hl' }),
+            // The same natural fountain-and-gold destination as the fourth
+            // segment, but blind and prefixed with reqmenu. cmd.c carries the
+            // prefix into context.nopick; pickup.c then returns before
+            // check_here(), so neither blind surface naming nor the fountain
+            // feature line runs and the gold remains untouched.
+            segment({
+                seed: 5100896,
+                moves: 'mh',
+                extra: ['OPTIONS=!autopickup,blind'],
+            }),
         ],
     }, 'furniture entry recipe');
 }

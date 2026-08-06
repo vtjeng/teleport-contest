@@ -680,6 +680,36 @@ test('reqmenu movement crosses ordinary piles without pickup or description',
         }
     });
 
+test('reqmenu movement skips look-here terrain guards with an object present',
+    async () => {
+        for (const [name, terrain] of [
+            ['blind fountain', FOUNTAIN],
+            ['altar feature', ALTAR],
+        ]) {
+            const options = terrain === FOUNTAIN ? 'OPTIONS=blind' : '';
+            const { destination, x, y } = await prepareHeroMoveAdmission(
+                options,
+            );
+            destination.typ = terrain;
+            const head = installFloorPile(x, y, 1);
+            const before = structuredClone(head);
+            clearTtyMessageWindow(game);
+            game._ttyToplines = '';
+            game.context.move = 0;
+            game.domoveAttempting = 0;
+            game.nhDisplay.pushKey(commandKeyCode('m'));
+            game.nhDisplay.pushKey(commandKeyCode('l'));
+
+            await rhack(0, game);
+
+            assert.deepEqual([game.u.ux, game.u.uy], [x, y], name);
+            assert.equal(game.level.objects[x][y], head, name);
+            assert.deepEqual(structuredClone(head), before, name);
+            assert.equal(game._ttyToplines, '', name);
+            assert.equal(game.context.nopick, 1, name);
+        }
+    });
+
 function installFloorPile(x, y, count = 2, firstOverrides = {}) {
     let head = null;
     for (let index = count - 1; index >= 0; --index) {

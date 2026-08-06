@@ -55,6 +55,7 @@ import {
     sampleItems,
     SITE_KINDS,
     startMutationSlice,
+    stopMutationSlice,
     formatTrailer,
     reportFromResult,
     siteFilterFromReport,
@@ -625,6 +626,31 @@ test('partial aggregate startup has one outer cleanup owner', async () => {
         /failed to set limits/u,
     );
     assert.deepEqual(events, ['acquire', 'start', 'stop', 'release']);
+});
+
+test('aggregate cleanup resets every invocation-owned failed wave', () => {
+    const sliceName = 'teleport_mutate_123_cleanup';
+    const calls = [];
+    stopMutationSlice(sliceName, (args) => calls.push(args));
+    assert.deepEqual(calls, [
+        ['stop', `${sliceName}.slice`],
+        ['reset-failed', `${sliceName}_wave_*.scope`],
+        ['revert', `${sliceName}.slice`],
+    ]);
+
+    const failedCalls = [];
+    assert.throws(
+        () => stopMutationSlice(sliceName, (args) => {
+            failedCalls.push(args);
+            if (args[0] === 'reset-failed')
+                throw new Error('aggregate wave reset failed');
+        }),
+        /aggregate wave reset failed/u,
+    );
+    assert.deepEqual(failedCalls, [
+        ['stop', `${sliceName}.slice`],
+        ['reset-failed', `${sliceName}_wave_*.scope`],
+    ]);
 });
 
 test('aggregate cleanup accepts only the exact unloaded-unit result', () => {

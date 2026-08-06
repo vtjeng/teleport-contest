@@ -23,7 +23,9 @@ import {
 // command, and the monster segments spend every key on it, so no segment can
 // reach a second hero destination. The one exception is the room-source swap,
 // which walks off the up-staircase before stepping back onto it.
-const SEGMENT_KEYS = new Set(['h', 'k', 'l', 's', RUN_NORTH, RUSH_NORTH]);
+const SEGMENT_KEYS = new Set([
+    'h', 'k', 'l', 'm', 's', RUN_NORTH, RUSH_NORTH,
+]);
 
 function heroTerrain() {
     return game.level.at(game.u.ux, game.u.uy).typ;
@@ -53,7 +55,7 @@ function furnitureOccupants() {
 test('furniture-entry matrix contains only source-selected inputs', () => {
     const recipe = loadFurnitureEntryRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 16);
+    assert.equal(recipe.segments.length, 17);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
@@ -122,6 +124,18 @@ test('the fountain the hero walks onto keeps its gold piece', async () => {
     const floor = game.level.objects[game.u.ux][game.u.uy];
     assert.ok(floor, 'the gold piece is still on the square');
     assert.equal(floor.nexthere, null, 'and it is the only object there');
+});
+
+test('blind reqmenu entry skips object and terrain description', async () => {
+    const segment = loadFurnitureEntryRecipe().segments.at(-1);
+    assert.match(segment.nethackrc, /!autopickup,blind/u);
+    assert.equal(segment.moves, 'mh');
+    await runSegment(segment);
+
+    assert.equal(heroTerrain(), FOUNTAIN);
+    assert.deepEqual([game.u.ux, game.u.uy], [63, 5]);
+    assert.ok(game.level.objects[game.u.ux][game.u.uy]);
+    assert.doesNotMatch(topLine(), /fountain|gold|zorkmid/ui);
 });
 
 // Each swap segment is replayed only to its arrival key: the two search turns

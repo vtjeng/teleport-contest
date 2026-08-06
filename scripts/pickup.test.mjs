@@ -22,6 +22,7 @@ import {
 import { game } from '../js/gstate.js';
 import {
     calc_capacity,
+    inv_cnt,
     inv_weight,
     weight_cap,
 } from '../js/hack.js';
@@ -44,6 +45,7 @@ import {
     COIN_CLASS,
     ELVEN_DAGGER,
     FIGURINE,
+    GOLD_PIECE,
     LUCKSTONE,
     SACK,
     SCR_IDENTIFY,
@@ -671,6 +673,59 @@ test('pickup full-pack counting excludes coins and preserves exact 52 slots',
                 );
                 assert.equal(object.where, OBJ_FLOOR);
             }
+        }
+    });
+
+test('pickup applies the 52-slot limit after source-ordered merge projection',
+    async () => {
+        // A compatible object uses no new letter even when all 52 are held.
+        {
+            const state = await heroOnAnEmptySquare();
+            state.flags.pickup = true;
+            inventoryOfSize(state, 52);
+            const target = state.invent;
+            target.owornmask = 0;
+            target.worn = 0;
+            target.lamplit = false;
+            const incoming = objectUnderHero(state);
+            matchStackTraits(incoming, target);
+            quiet(state);
+
+            assert.equal(await pickup(1, state), 1);
+            assert.equal(incoming.where, OBJ_DELETED);
+            assert.equal(target.quan, 2);
+            assert.equal(inv_cnt(false, state), 52);
+        }
+
+        // Gold is exempt from the ordinary inventory-letter limit.
+        {
+            const state = await heroOnAnEmptySquare();
+            state.flags.pickup = true;
+            inventoryOfSize(state, 52);
+            const gold = typedObjectUnderHero(state, GOLD_PIECE);
+            quiet(state);
+
+            assert.equal(await pickup(1, state), 1);
+            assert.equal(gold.where, OBJ_INVENT);
+            assert.equal(inv_cnt(false, state), 52);
+        }
+
+        // The first floor object takes slot 52 and the second merges into its
+        // projected stack, so the aggregate pile has only one slot effect.
+        {
+            const state = await heroOnAnEmptySquare();
+            state.flags.pickup = true;
+            inventoryOfSize(state, 51);
+            const first = objectUnderHero(state);
+            const second = objectUnderHero(state);
+            matchStackTraits(first, second);
+            quiet(state);
+            state.nhDisplay.pushKey(' '.charCodeAt(0));
+
+            assert.equal(await pickup(1, state), 1);
+            assert.equal(inv_cnt(false, state), 52);
+            assert.equal(first.where === OBJ_DELETED
+                || second.where === OBJ_DELETED, true);
         }
     });
 

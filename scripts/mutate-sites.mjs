@@ -511,16 +511,24 @@ export function startMutationSlice(sliceName, control = runSystemctl) {
     ], `failed to limit mutation slice ${unit}`);
 }
 
-export function stopMutationSlice(sliceName) {
+export function stopMutationSlice(sliceName, control = runSystemctl) {
     const unit = `${sliceName}.slice`;
-    runSystemctl(
+    control(
         ['stop', unit],
         `failed to stop mutation slice ${unit}`,
         { acceptMissingUnit: unit },
     );
+    // A failed wave scope remains loaded until reset-failed succeeds.  The
+    // worker can exit after its local reset fails, so aggregate teardown owns
+    // this exact invocation-specific fallback before it may release the lock.
+    const wavePattern = `${sliceName}_wave_*.scope`;
+    control(
+        ['reset-failed', wavePattern],
+        `failed to reset mutation wave scopes ${wavePattern}`,
+    );
     // set-property writes a runtime drop-in. Remove it once the uniquely owned
     // slice is empty so completed runs do not accumulate unit definitions.
-    runSystemctl(['revert', unit], `failed to revert mutation slice ${unit}`);
+    control(['revert', unit], `failed to revert mutation slice ${unit}`);
 }
 
 export async function runInMutationCgroup(
