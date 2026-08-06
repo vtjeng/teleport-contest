@@ -458,6 +458,11 @@
           "name": "the hero applies a stethoscope to herself",
           "status": "closed",
           "closedBy": "1339326b2bc9a9e9e7307b5f687aa100d479c80c"
+        },
+        {
+          "name": "the hero applies a lock pick to an open door",
+          "status": "closed",
+          "closedBy": "7310643d453b850c60c35a3ff16eda8a99f01017"
         }
       ],
       "openedAt": "068406fdc5b340678750973805adf3597bfe5fdf",
