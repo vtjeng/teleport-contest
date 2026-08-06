@@ -456,6 +456,50 @@ test('random arrival deferral suppresses switch_terrain after placement', () => 
     assert.deepEqual([state.u.ux, state.u.uy], [10, 8]);
 });
 
+test('live placement preflights before changing any position owner', () => {
+    const state = placementState();
+    state.u.uundetected = true;
+    state.u.usteed = { mx: 1, my: 1 };
+    const before = structuredClone({
+        hero: state.u,
+        iflags: state.iflags,
+        lastSeen: state.level.lastseentyp,
+    });
+    const refusal = new Error('position refused');
+
+    assert.throws(
+        () => u_on_newpos(10, 8, state, {
+            preflightPosition(x, y, callbackState) {
+                assert.deepEqual([x, y], [10, 8]);
+                assert.equal(callbackState, state);
+                throw refusal;
+            },
+        }),
+        (error) => error === refusal,
+    );
+    assert.deepEqual({
+        hero: state.u,
+        iflags: state.iflags,
+        lastSeen: state.level.lastseentyp,
+    }, before);
+});
+
+test('plan-only random placement requires its position preflight', () => {
+    const state = placementState();
+    state.dndest = { lx: 10, ly: 8, hx: 10, hy: 8 };
+    state.level.at(10, 8).typ = ROOM;
+    const before = [state.u.ux, state.u.uy];
+
+    assert.throws(
+        () => u_on_rndspot(0, state, { planPositionOnly: true }),
+        {
+            name: 'TypeError',
+            message: 'planned region placement requires a position preflight',
+        },
+    );
+    assert.deepEqual([state.u.ux, state.u.uy], before);
+});
+
 test('random-arrival planning never applies live placement effects',
     async () => {
         const state = placementState();

@@ -473,19 +473,52 @@ test('blind obstacle refusal records exact tactile viewing vectors',
     });
 
 function heroMoveAdmissionSnapshot(replay) {
+    const objectRecord = (object) => {
+        const {
+            cobj,
+            nobj,
+            nexthere,
+            ...fields
+        } = object;
+        return {
+            cobj: cobj?.o_id ?? null,
+            fields: structuredClone(fields),
+            nexthere: nexthere?.o_id ?? null,
+            nobj: nobj?.o_id ?? null,
+        };
+    };
+    const objectChain = (head, link) => {
+        const records = [];
+        for (let object = head; object; object = object[link]) {
+            records.push(objectRecord(object));
+        }
+        return records;
+    };
     return {
         context: structuredClone(game.context),
         cursor: replay.getCursors().map((cursor) => [...cursor]),
-        display: structuredClone(game.nhDisplay.grid),
-        domoveAttempting: game.domoveAttempting,
-        hero: {
-            umoved: game.u.umoved,
-            ux: game.u.ux,
-            ux0: game.u.ux0,
-            uy: game.u.uy,
-            uy0: game.u.uy0,
+        display: {
+            grid: structuredClone(game.nhDisplay.grid),
+            messages: [...game.nhDisplay.messages],
+            topMessage: game.nhDisplay.topMessage,
+            toplin: game.nhDisplay.toplin,
+            toplines: game.nhDisplay.toplines,
+            ttyToplines: game._ttyToplines,
         },
+        domoveAttempting: game.domoveAttempting,
+        hero: structuredClone(game.u),
+        iflags: structuredClone(game.iflags),
         multi: game.multi,
+        monsters: (() => {
+            const monsters = [];
+            for (let monster = game.level.monlist;
+                monster;
+                monster = monster.nmon) {
+                const { nmon: _next, ...fields } = monster;
+                monsters.push(structuredClone(fields));
+            }
+            return monsters;
+        })(),
         pendingMessage: game._pending_message,
         regions: game.level.regions.map((region) => region.hero_inside),
         rngContext: {
@@ -496,8 +529,31 @@ function heroMoveAdmissionSnapshot(replay) {
             n: game.coreCtx.n,
             r: [...game.coreCtx.r],
         },
+        displayRngContext: {
+            a: game.displayCtx.a,
+            b: game.displayCtx.b,
+            c: game.displayCtx.c,
+            m: [...game.displayCtx.m],
+            n: game.displayCtx.n,
+            r: [...game.displayCtx.r],
+        },
         rngLog: [...getRngLog()],
         screens: [...replay.getScreens()],
+        world: {
+            lastSeen: structuredClone(game.level.lastseentyp),
+            levelObjects: objectChain(game.level.objlist, 'nobj'),
+            locations: structuredClone(game.level.locations),
+            monsterGrid: game.level.monsters.map(
+                (column) => column.map((monster) => monster?.m_id ?? 0),
+            ),
+            objectGrid: game.level.objects.map(
+                (column) => column.map(
+                    (head) => objectChain(head, 'nexthere'),
+                ),
+            ),
+            vision: game.viz_array.map((row) => [...row]),
+            visionFullRecalc: game.vision_full_recalc,
+        },
     };
 }
 
@@ -729,6 +785,70 @@ function installFloorPile(x, y, count = 2, firstOverrides = {}) {
     game.level.objects[x][y] = head;
     return head;
 }
+
+test('movement-admission snapshots detect every atomic owner they claim',
+    async () => {
+        const { replay, x, y } = await prepareHeroMoveAdmission();
+        const floorObject = installFloorPile(x, y, 2);
+        const secondFloorObject = floorObject.nexthere;
+        const monster = newMonster({
+            m_id: 987654,
+            mx: x + 1,
+            my: y,
+            mhp: 1,
+            mcanmove: true,
+        });
+        game.level.monlist = monster;
+        game.level.monsters[monster.mx][monster.my] = monster;
+        const before = heroMoveAdmissionSnapshot(replay);
+        const cases = [
+            {
+                name: 'floor discovery',
+                mutate: () => { floorObject.dknown = !floorObject.dknown; },
+                restore: () => { floorObject.dknown = !floorObject.dknown; },
+            },
+            {
+                name: 'floor link',
+                mutate: () => { floorObject.nexthere = null; },
+                restore: () => { floorObject.nexthere = secondFloorObject; },
+            },
+            {
+                name: 'hero room buffers',
+                mutate: () => { game.u.urooms = 'Z'; },
+                restore: () => { game.u.urooms = before.hero.urooms; },
+            },
+            {
+                name: 'remembered map',
+                mutate: () => { game.level.at(x, y).seenv ^= 1; },
+                restore: () => { game.level.at(x, y).seenv ^= 1; },
+            },
+            {
+                name: 'vision',
+                mutate: () => { game.viz_array[y][x] ^= IN_SIGHT; },
+                restore: () => { game.viz_array[y][x] ^= IN_SIGHT; },
+            },
+            {
+                name: 'monster state',
+                mutate: () => { monster.mfleetim += 1; },
+                restore: () => { monster.mfleetim -= 1; },
+            },
+        ];
+
+        for (const oracle of cases) {
+            oracle.mutate();
+            assert.notDeepEqual(
+                heroMoveAdmissionSnapshot(replay),
+                before,
+                oracle.name,
+            );
+            oracle.restore();
+            assert.deepEqual(
+                heroMoveAdmissionSnapshot(replay),
+                before,
+                `${oracle.name} restoration`,
+            );
+        }
+    });
 
 test('a walk opens and dismisses ordinary two-to-four-object pile windows',
     async () => {

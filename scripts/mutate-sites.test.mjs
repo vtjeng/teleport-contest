@@ -936,6 +936,46 @@ test('the terminal process broker closes the final-callback signal handoff',
         }
     });
 
+test('sequential process runs replace rather than accumulate signal brokers',
+    () => {
+        const source = [
+            `import { EventEmitter } from 'node:events';`,
+            `const { runInMutationCgroup } = await import(${JSON.stringify(
+                SCRIPT_PATH)});`,
+            `const baseline = ['SIGINT', 'SIGTERM'].map((signal) =>`,
+            `  process.listenerCount(signal));`,
+            `const run = async () => {`,
+            `  const child = new EventEmitter();`,
+            `  child.kill = () => {};`,
+            `  queueMicrotask(() => child.emit('exit', 0, null));`,
+            `  await runInMutationCgroup('/repo/mutate-sites.mjs', [], {`,
+            `    acquireLock: () => ({ name: 'lock' }),`,
+            `    startSlice: () => {},`,
+            `    spawnChild: () => child,`,
+            `    stopSlice: () => {},`,
+            `    releaseLock: () => {},`,
+            `    settleSignals: () => Promise.resolve(),`,
+            `  });`,
+            `};`,
+            `await run();`,
+            `const first = ['SIGINT', 'SIGTERM'].map((signal) =>`,
+            `  process.listenerCount(signal));`,
+            `if (!first.every((count, index) =>`,
+            `  count === baseline[index] + 1)) throw new Error(`,
+            `    'first broker counts: ' + JSON.stringify({ baseline, first }));`,
+            `await run();`,
+            `const second = ['SIGINT', 'SIGTERM'].map((signal) =>`,
+            `  process.listenerCount(signal));`,
+            `if (!second.every((count, index) => count === first[index]))`,
+            `  throw new Error('replacement counts: '`,
+            `    + JSON.stringify({ baseline, first, second }));`,
+        ].join('\n');
+        const result = spawnSync(process.execPath, [
+            '--input-type=module', '-e', source,
+        ], { encoding: 'utf8' });
+        assert.equal(result.status, 0, result.stderr);
+    });
+
 test('a stale lock stops its recorded aggregate slice before replacement',
     () => {
         const root = mkdtempSync(join(tmpdir(), 'mutate-stale-lock-test-'));

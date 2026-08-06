@@ -1,6 +1,8 @@
-// Shop queries and remembered price quotes.
-// C refs: shk.c inhishop(), is_fshk(), append_price_quote(), contained_gold()
-// and costly_spot().
+// Shop admission and entry/departure transitions, generated-shop pricing,
+// live price-quote writes, and remembered-price queries.
+// C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
+// u_left_shop(), getprice(), get_cost(), get_cost_of_shop_item(),
+// append_price_quote(), contained_gold(), and costly_spot().
 
 import {
     A_CHA,
