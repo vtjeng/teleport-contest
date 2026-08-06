@@ -456,8 +456,8 @@
       "slices": [
         {
           "name": "the hero applies a stethoscope to herself",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "1339326b2bc9a9e9e7307b5f687aa100d479c80c"
         }
       ],
       "openedAt": "068406fdc5b340678750973805adf3597bfe5fdf",
