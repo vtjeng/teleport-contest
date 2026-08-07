@@ -1576,8 +1576,9 @@ test('simple preflight rejects every selected excluded action atomically',
                 }),
             },
             {
-                // monmove.c maybe_spin_web() draws rn2(1000) for a webmaker
-                // standing on a trapless square.
+                // monmove.c:1271-1273 maybe_spin_web() reaches its rn2(1000)
+                // only for a webmaker that also passes four narrower guards.
+                // The port refuses on webmaker() alone rather than port them.
                 name: 'web-spinning monster',
                 reason: 'monster web spinning',
                 prepare: () => prepareSelectedAction({
@@ -1689,9 +1690,12 @@ test('simple preflight admits inert AT_WEAP capability and inventory',
 
 test('simple preflight ignores an unselected rock during item search',
     async () => {
-        // A gnome is M2_COLLECT, so m_search_items() would select this
-        // object were it not the rock its source skips. A rock mole would too,
-        // but its move reaches postmov()'s dig arm first.
+        // js/monmove.js:2229 drops a rock before mon_would_take_item() runs,
+        // which is monmove.c:1413-1414. The skip therefore never consults the
+        // species, so this case shows only that a rock selects nothing and
+        // draws nothing. That the same fixture does reach a wanted object is
+        // what 'simple item search refuses an artifact it cannot touch' below
+        // asserts, with the same gnome and the same blinding.
         const target = await prepareSelectedAction({
             pmidx: PM_GNOME,
         });

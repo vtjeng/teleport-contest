@@ -1376,8 +1376,9 @@ test('postmov refuses the dig arm only where may_dig admits the square',
         );
     });
 
-// C ref: monmove.c:1690, maybe_spin_web(). Its own rn2(1000) is spent for any
-// webmaker on a trapless square, so the port refuses rather than skip a call.
+// C ref: monmove.c:1690, maybe_spin_web(). Its rn2(1000) at :1279 is spent
+// only for a webmaker that also passes the four narrower guards at
+// :1271-1273, so the port refuses every webmaker rather than skip a call.
 test('postmov refuses a webmaker after a move and after a completed action',
     async () => {
         for (const mmoved of [MMOVE_MOVED, MMOVE_DONE]) {
@@ -1452,8 +1453,9 @@ test('m_move hands postmov the tunneling capability it computed', async () => {
         return { monster, redraws, result };
     };
 
-    // A hero 72 squares away leaves can_tunnel set, so the rat reaches the dig
-    // arm on the ordinary floor square it stepped onto.
+    // Without M1_NEEDPICK the condition stops at needspick(), its second
+    // conjunct, and never measures a distance at all. can_tunnel survives, so
+    // the rat reaches the dig arm on the floor square it stepped onto.
     await assert.rejects(
         runTunneler(M1_TUNNEL, 10, 10),
         (error) => error.message === 'monster tunneling',
@@ -1471,6 +1473,35 @@ test('m_move hands postmov the tunneling capability it computed', async () => {
     // near hero leaves an ordinary monster's move untouched.
     const plain = await runTunneler(M1_NEEDPICK, 3, 5);
     assert.equal(plain.result, MMOVE_MOVED);
+
+    // The three cases above never disagree with a condition that has lost one
+    // of its `&&`: the first two hold every conjunct that C reaches, and the
+    // third stops at the first. This case is the one that separates them. A
+    // tunneler with no pick-axe need, standing two squares from the hero,
+    // fails only the needspick() conjunct, so C leaves can_tunnel set and the
+    // dig arm runs. Replacing either `&&` after needspick() with `||` lets the
+    // surviving `(!mpeaceful || Conflict) && dist2 <= 8` clear it instead, and
+    // the move then ends without the dig arm.
+    await assert.rejects(
+        runTunneler(M1_TUNNEL, 3, 5),
+        (error) => error.message === 'monster tunneling',
+    );
+
+    // dist2 == 8 is the largest distance C still calls close enough, since
+    // monmove.c:1913 is `<= 8`. A hero two rows and two columns away gives
+    // 4 + 4. Clearing here is what separates `<= 8` from `< 8` and from `<= 7`.
+    const atLimit = await runTunneler(M1_TUNNEL | M1_NEEDPICK, 6, 6);
+    assert.deepEqual([atLimit.monster.mux, atLimit.monster.muy], [6, 6]);
+    assert.equal(atLimit.result, MMOVE_MOVED);
+
+    // dist2 == 9 is the smallest distance outside the bound: three columns
+    // away and none down. Not clearing here is what separates `<= 8` from
+    // `<= 9`, and it is the only case that measures a distance and still
+    // reaches the dig arm.
+    await assert.rejects(
+        runTunneler(M1_TUNNEL | M1_NEEDPICK, 7, 4),
+        (error) => error.message === 'monster tunneling',
+    );
 });
 
 test('m_move owns trapped, eating, and tame prologue order', async () => {

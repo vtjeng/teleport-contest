@@ -2538,9 +2538,15 @@ export async function postmov(
             // ROADMAP.md records why no case can reach that arm.
         }
         // maybe_spin_web(), called at monmove.c:1690 and defined at :1269,
-        // draws rn2(1000) for any webmaker standing on a trapless square, so
-        // skipping it silently would move the whole PRNG log.  Its own guards are narrower than this refusal:
-        // helpless() and soko_allow_web() are not ported.
+        // reaches its rn2(1000) at :1279 only when all five conjuncts of
+        // :1271-1273 hold: webmaker(), !helpless(), !mspec_used, no trap on
+        // the square, and soko_allow_web().  Skipping that draw silently would
+        // move the whole PRNG log, so this refuses on webmaker() alone and
+        // applies none of the other four.  Two are already available here --
+        // mspec_used is a monster field and t_at() is ported -- helpless() is
+        // ported but module-private to js/mhitm.js, and soko_allow_web() has
+        // no port, though monmove.c:1257 makes it constantly true off
+        // Sokoban.
         if (webmaker(species)) unsupported('monster web spinning');
         // monmove.c:1692-1699 draws rn2(5) for a hides_under() species or an
         // eel whose mundetected is clear, and helpless() cannot hold here
