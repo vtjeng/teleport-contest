@@ -7851,6 +7851,121 @@
         "deferrals": []
       },
       "recordedAt": "2026-08-07T04:24:31.095Z"
+    },
+    {
+      "kind": "review",
+      "head": "65d1bbaad98fc51489a733c31bf9122c8e3c9dd4",
+      "auditedRange": "049a95ae2bd0bb62fdbecd78c705d971059e6ff3..65d1bbaad98fc51489a733c31bf9122c8e3c9dd4",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 19 raw, 16 deduplicated, 14 confirmed, 14 applied, 0 deferred, 2 rejected, 0 unverified; mutation: 851 survivors of 977 mutants. Full correctness pass over the options goal's pick application, closed over its own fixes. Five production defects, all applied. The sharpest is a relapse: reglyph_darkroom() threw a bare Error outside failClosedCommandRefusals(), so an ordinary OPTIONS=!color plus one menu pick aborted the whole segment and discarded every screen already matched - the same failure class the monsters sweep had just removed from dosounds and artifactTouchable, reappearing in new code and reproduced end to end by the reviewer. The others: costly_spot()'s return discarded, collapsing C's if/else and dropping a branch; oc_to_str() called on a raw pickup_types string without the guard the menu applies to the same field; the ', with exceptions' clause decided from a list the port never populates; and setBooleanOptionValue() leaving a stale parse shadow that tripped the guard the previous pass added. Two findings mattered more than their labels: the tests for the relaxed vision_recalc() guard and the new vpline() hook asserted almost nothing, and those are the only two changes in the range that no recorded session pins. The fixes corrected the reviewers twice - finding [11] proposed deleting a call that is not inert once [10] is fixed, and [10]'s own proposed validation was run and found not to discriminate, so it was pinned by a unit test instead of a recipe that would have proved nothing. Development score identical per session across all 33, at 1,056 of 7,765 screens and 116,602 of 610,816 PRNG values; suite 2,903 green. The mutation headline is noise for the third pass running: 826 of 851 survivors sit in a declared generated table the runner does not exclude.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3069,
+        "counts": {
+          "raw": 19,
+          "deduplicated": 16,
+          "confirmed": 14,
+          "applied": 14,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 5,
+          "tests": 4,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/display.js reglyph_darkroom() threw a bare Error, which failClosedCommandRefusals() does not list, so an ordinary `OPTIONS=!color` or `!dark_room` plus one menu pick aborted the whole segment and discarded every screen already matched, instead of stopping on the last match. Reproduced end to end by the reviewer. This is the same failure class the monsters sweep removed from dosounds and artifactTouchable, reappearing in new code. Fixed with a named UnsupportedGlyphRepairError declared beside the existing UnsupportedStatusRefreshError in the same file and listed in js/cmd.js, so failClosedCommand() rewraps it into the command boundary runSegment() already admits. The guard stayed inside reglyph_darkroom() rather than being hoisted, so C’s other two call sites keep it.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/insight.js discarded costly_spot()’s return value, collapsing C’s if/else at insight.c:808-819 into straight-line code and silently dropping the \"temporarily disabled while inside the shop\" branch of the autopickup enlightenment line.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/insight.js called oc_to_str() on flags.pickup_types without the raw-string guard the options menu applies to the same field, so a nethackrc setting pickup_types turned ^X into unreadable output. Now refused by name.",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "tests",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/insight.js decided C’s \", with exceptions\" clause from state.ga.apelist, which the port never populates, so the clause could never appear. Fixed by refusing on the unported AUTOPICKUP_EXCEPTION statement rather than by porting the parser: autopickup_exception joins UNPORTED_CONFIG_STATEMENTS and count_apes() refuses on the same input, so no deferred work was needed.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js setBooleanOptionValue() wrote only allopt[].addr, leaving parseNethackrc()’s raw copy under flags.<name> stale, which tripped the consistency guard the previous pass added on the next menu build. Fixed by deleting the parse shadow when the two storage names differ. The affected set was enumerated programmatically at 43 boolean options and each grepped for a real reader; two hits, neither on the interactive path.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 977,
+          "survivors": 851,
+          "byKind": {
+            "boolean": {
+              "ran": 894,
+              "killed": 71
+            },
+            "logical": {
+              "ran": 45,
+              "killed": 33
+            },
+            "relational": {
+              "ran": 38,
+              "killed": 22
+            }
+          },
+          "ranges": [
+            "049a95ae2bd0bb62fdbecd78c705d971059e6ff3..979821308f69de4b4c533c4293fd512081930909"
+          ],
+          "finderConclusion": "The headline survivor count is an artifact for the third pass running and must not be read as coverage: 826 of the 851 survivors are in js/optlist_data.js, a declared generated output whose correctness comes from check:options diffing it against the C source rather than from any test, because scripts/mutate-sites.mjs selects sites from changed lines and does not exclude such outputs. Prior runs on this goal saw the same distortion at 425:9 and 827:25. The real list was 25, and 21 of those clustered in js/options.js 3298-3365, choose_classes_menu()’s bounds arithmetic; the tests finder was asked to decide whether that density meant an unpinned region or equivalent mutants. The audit fixes then ran their own mutation over the changed lines and reported 0 survivors of 14, having killed four that could have been excused as unreachable — including both menuinvertmode arms in js/windows.js — with direct unit tests rather than arguments."
+        },
+        "readiness": {
+          "boundary": "The hero types m then O, commits nine picks from the seven-page menu, and the eight booleans plus the pickup_types class menu apply. seed0007-rogue-snake-swamp advances from 36 to 49 of 302 screens, which the running game executes.",
+          "sourceReview": "Every branch reachable before that ending was traced against nethack-c/upstream: options.c doset()’s pick loop, parseoptions()’s do_set path, optfn_boolean()’s do_set arm, optfn_pickup_types(), handler_pickup_types(), reset_needed_visuals(), determine_ambiguities(), match_optname() and string_for_opt(); windows.c choose_classes_menu() and menuitem_invert_test(); drawing.c def_char_to_objclass(); botl.c status_initialize(); vision.c vision_recalc()’s control == 2 fall-through; pline.c vpline() 266-271; and wintty.c tty_display_nhwindow()’s NHW_MENU arm. The trace covered PRNG order: the goal added 395 random-number calls, all from the class menu, and no other session moved.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Each excluded branch refuses before changing state, consuming randomness or producing output, and this pass fixed the one refusal that did not — reglyph_darkroom()’s bare Error. Two fresh differentials against the patched C reference cover the range, the second re-recorded during the fixes to discriminate the menuinvertmode correction end to end: 4 segments with 9,364 PRNG calls and 54 screens, and 6 rounds with 137 screens. The goal fell one step short of its 30-step forecast on a single cell’s colour at step 49, whose cause is display.c newsym()’s out-of-sight memory-correction block, reached from movement and therefore outside this boundary."
+        },
+        "rejections": [
+          {
+            "summary": "js/display.js:1943 (readability) — `reglyph_darkroom()`'s guard tests that `dark_room` and `color` are currently both true, but its message says the map was \"remembered under different\" settings, and neither the guard nor the header comment mentions that C's trailing assignment has an else arm the port drops.",
+            "counterEvidence": "evidence refute: The two sub-claims do not hold up against the source. (a) The guard `if (!state.flags?.dark_room || !state.iflags?.wc_color) throw` (js/display.js:1943) is the exact De Morgan negation of C's condition at display.c:1850, so C's else arm at display.c:1852-1853 is refused, not silently dropped; a reviewer diffing the two sees the throw sitting where the else would run. (b) The header comment already states the test in current-value terms -- 'this refuses the two option values that would give it work' -- so the finding's claim that the comment 'describes a change, not the current-value test' misreads it. The message's 'remembered under different settings' wording is loose but is a refusal label for a state the comment above explains in full (the loop finds work only when one of the two options has moved since the square was drawn). Counter-evidence: js/display.js:1943 guard Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/options.js:3405 (readability) — The comment on `setBooleanOptionValue()` says \"booleanOptionValue() above reads the same field\", but `booleanOptionValue()` reads two fields and refuses when they disagree; the new writer updates only one, so a single `O` toggle can poison the next `O` with a refusal that blames the configuration pa",
+            "counterEvidence": "evidence refute: The comment's statement is literally true and the duplicate it is accused of hiding is documented at length at the reader. setBooleanOptionValue() writes option.addr and booleanOptionValue() does read option.addr first; the flags[name] cross-check that follows carries its own ten-line explanation naming the duplicate, why it exists and why it refuses. A maintainer reading the pair is told exactly what the finding says the comment conceals, so the readability claim in its own category is not supported. What is real here is the behavioral asymmetry, which is finding [7]. Counter-evidence: js/options.js:2648-2659 documents the second field in full: 'This port's parse writes that field only for the options applyBooleanOption() has an arm for; everything else lands under the option's own lowercased name, leaving addr holding the compiled-in default ... When the two fields dis Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": []
+      },
+      "recordedAt": "2026-08-07T11:06:24.716Z"
     }
   ]
 }
