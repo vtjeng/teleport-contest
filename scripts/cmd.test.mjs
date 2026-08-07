@@ -1548,100 +1548,183 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
     }
 });
 
-// hack.c doorless_door() masks off D_NODOOR and D_BROKEN together, so
-// test_move()'s exit arm lets the hero step diagonally off either one. The
-// destination seam refuses D_BROKEN as an arrival, so the only way to observe
-// that half of the predicate is to place the hero on one directly.
-test('a diagonal pet swap stops rather than refusing silently', async () => {
-    // A hero on a doorway that still has its door may not step out of it
-    // diagonally, and C reaches that refusal through do_attack() rather than
-    // before it. uhitm.c:474 evaluates `foo = (Punished || !rn2(7) || ...)`
-    // inside the is_safemon branch, so C spends a draw even for the pet the
-    // hero would otherwise swap with, then returns FALSE and lets
-    // test_move()'s exit rule decline the step. The port does have do_attack()
-    // (js/uhitm.js:51) and spends that draw on an ordinary swap, but domove()
-    // runs test_move() before it, the reverse of hack.c, so admitting this
-    // step would refuse it without ever reaching the draw. It fails closed
-    // instead.
-    const replay = await runSegment({
-        seed: 840024,
-        datetime: COMMAND_DATETIME,
-        nethackrc: 'OPTIONS=name:PetDoorway,role:Valkyrie,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
-        moves: ' ',
-    });
-    const pet = game.level.monlist;
-    assert.ok(pet?.mtame, 'the starting pet is on the level');
+// Place the hero on an intact doorway with the pet on the diagonal it would
+// step to. hack.c:2798 reaches domove_attackmon_at() and hack.c:2843 reaches
+// test_move(), in that order, so the doorway exit rule decides the step only
+// after do_attack() has had its turn -- and the two seeds below split on what
+// do_attack() answers.
+function petOnRefusedDiagonal(name) {
     const [x, y] = [game.u.ux + 1, game.u.uy - 1];
     game.level.at(game.u.ux, game.u.uy).typ = DOOR;
     game.level.at(game.u.ux, game.u.uy).flags = D_ISOPEN;
     const destination = game.level.at(x, y);
     destination.typ = ROOM;
     destination.flags = 0;
+    const pet = game.level.monlist;
+    assert.ok(pet?.mtame, `the starting pet is on the level for ${name}`);
     game.level.monsters[pet.mx][pet.my] = null;
     pet.mx = x;
     pet.my = y;
     game.level.monsters[x][y] = pet;
-    const before = { ux: game.u.ux, uy: game.u.uy, moves: game.moves };
+    return { pet, x, y };
+}
 
+function petDoorwaySegment(seed, name) {
+    return {
+        seed,
+        datetime: COMMAND_DATETIME,
+        nethackrc: `OPTIONS=name:${name},role:Valkyrie,race:human,`
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    };
+}
+
+// uhitm.c:474 evaluates `foo = (Punished || !rn2(7) || ...)` inside
+// do_attack()'s is_safemon branch. On the `!rn2(7)` outcome the pet refuses to
+// swap: uhitm.c:497 makes it flee for rnd(6) turns, :500 prints the line and
+// :502 returns TRUE, which ends domove_core() at hack.c:2799 without ever
+// reaching test_move(). The turn is spent even though the hero has not moved.
+test('a pet that refuses the swap ends the step before test_move()',
+    async () => {
+        const replay = await runSegment(
+            petDoorwaySegment(840024, 'PetDoorway'),
+        );
+        const { pet, x, y } = petOnRefusedDiagonal('PetDoorway');
+        const before = { ux: game.u.ux, uy: game.u.uy };
+        const drawsBefore = replay.getRngLog().length;
+
+        game.nhDisplay.pushKey(commandKeyCode('u'));
+        await moveloop_core();
+
+        // Both draws belong to do_attack(); the doorway rule below it draws
+        // nothing, so this pins the whole cost of the step.
+        assert.deepEqual(
+            replay.getRngLog().slice(drawsBefore),
+            ['rn2(7)=0', 'rnd(6)=3'],
+            'do_attack() drew before anything looked at the doorway',
+        );
+        assert.equal(
+            game._pending_message,
+            'You stop.  Your little dog is in the way!',
+        );
+        assert.deepEqual([game.u.ux, game.u.uy], [before.ux, before.uy]);
+        assert.deepEqual([pet.mx, pet.my], [x, y], 'nobody swapped');
+        assert.equal(pet.mflee, true);
+        assert.equal(pet.mfleetim, 3);
+        // uhitm.c:502 returns TRUE, so svc.context.move survives the step and
+        // the turn elapses on the next moveloop_core().
+        assert.equal(game.context.move, 1);
+    });
+
+// The other outcome of the same draw. do_attack() falls through to uhitm.c:509
+// and returns FALSE, domove_core() carries on to test_move() at hack.c:2843,
+// and the exit rule at hack.c:1208 declines the diagonal. hack.c:2844-2847
+// answers that with `svc.context.move = 0; nomul(0)`, so this step costs the
+// draw and nothing else.
+test('a declined attack still reaches the doorway exit rule', async () => {
+    const replay = await runSegment(petDoorwaySegment(840026, 'PetLingers'));
+    const { pet, x, y } = petOnRefusedDiagonal('PetLingers');
+    const before = { ux: game.u.ux, uy: game.u.uy };
     const drawsBefore = replay.getRngLog().length;
-    game.nhDisplay.pushKey(commandKeyCode('u'));
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error.reason === 'hero combat or displacement',
-    );
 
+    game.nhDisplay.pushKey(commandKeyCode('u'));
+    await moveloop_core();
+
+    // Six is not zero, so `foo` is false and do_attack() declines the step.
     assert.deepEqual(
-        { ux: game.u.ux, uy: game.u.uy, moves: game.moves },
-        before,
-        'the stopped swap moved nobody and elapsed no turn',
+        replay.getRngLog().slice(drawsBefore),
+        ['rn2(7)=6'],
+        'the draw happened even though test_move() refused the step',
     );
-    assert.deepEqual(
-        [pet.mx, pet.my],
-        [x, y],
-        'the pet stayed on the destination square',
-    );
-    // Fail-closed means before the draw, not instead of it: nothing may be
-    // spent on a step the port cannot finish.
-    assert.equal(replay.getRngLog().length, drawsBefore);
+    assert.equal(game._pending_message, '');
+    assert.deepEqual([game.u.ux, game.u.uy], [before.ux, before.uy]);
+    assert.deepEqual([pet.mx, pet.my], [x, y], 'nobody swapped');
+    assert.equal(pet.mflee, false);
+    assert.equal(game.context.move, 0, 'the refused diagonal spent no turn');
 });
 
-// The refusal sits ahead of requireOrdinaryStartingPetSwap() on purpose, and
-// the plain pet case cannot tell: its square holds nothing, so every swap gate
-// returns and the throw fires whichever order the two are in. A trap on the
-// destination distinguishes them. C never consults the swap gates on this step
-// -- do_attack() returns FALSE and test_move()'s exit rule declines it -- so
-// reporting a pet-swap trap boundary would name a situation C never reaches.
-test('a refused diagonal outranks the pet-swap consequence gates', async () => {
-    const replay = await runSegment({
-        seed: 840024,
-        datetime: COMMAND_DATETIME,
-        nethackrc: 'OPTIONS=name:TrapDoorway,role:Valkyrie,race:human,'
-            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
-        moves: ' ',
+// hack.c domove_bump_mon() (1925-1948) runs at hack.c:2794, above the
+// do_attack() call this slice moved. With the reqmenu prefix pending it prints
+// "Pardon me, <pet>." and spends the turn without reaching do_attack() at all,
+// so the port cannot admit the step and let the swap happen. The control run
+// is what makes this a test of the prefix rather than of the geometry: the
+// same two squares swap normally when nothing precedes the movement key.
+test('the reqmenu prefix refuses a step into a monster', async () => {
+    for (const prefixed of [false, true]) {
+        const label = prefixed ? 'with m' : 'without m';
+        const replay = await runSegment(petDoorwaySegment(840026, 'PetBump'));
+        const pet = game.level.monlist;
+        assert.ok(pet?.mtame, label);
+        const [x, y] = [game.u.ux + 1, game.u.uy];
+        const start = [game.u.ux, game.u.uy];
+        game.level.monsters[pet.mx][pet.my] = null;
+        pet.mx = x;
+        pet.my = y;
+        game.level.monsters[x][y] = pet;
+        const drawsBefore = replay.getRngLog().length;
+
+        if (prefixed) game.nhDisplay.pushKey(commandKeyCode('m'));
+        game.nhDisplay.pushKey(commandKeyCode('l'));
+
+        if (!prefixed) {
+            await moveloop_core();
+            // Six is not zero, so do_attack() declines and the swap runs.
+            assert.deepEqual(replay.getRngLog().slice(drawsBefore),
+                ['rn2(7)=6'], label);
+            assert.deepEqual([game.u.ux, game.u.uy], [x, y], label);
+            assert.deepEqual([pet.mx, pet.my], start, label);
+            continue;
+        }
+        await assert.rejects(
+            moveloop_core(),
+            (error) => error.reason === 'reqmenu bump into a monster',
+            label,
+        );
+        // C spends the turn on the bump; the port spends nothing and stops,
+        // so neither the draw nor the swap may have happened.
+        assert.equal(replay.getRngLog().length, drawsBefore, label);
+        assert.deepEqual([game.u.ux, game.u.uy], start, label);
+        assert.deepEqual([pet.mx, pet.my], [x, y], label);
+        // The seam runs ahead of cmd.c set_move_cmd(), which is what lets
+        // executeMovement() unwind the keystroke completely. A refusal raised
+        // below domove() instead would leave context.move set, and the next
+        // moveloop_core() would charge the hero for a turn that never ran.
+        assert.deepEqual({
+            nopick: game.context.nopick,
+            move: game.context.move,
+            menuRequested: game.iflags.menu_requested,
+            attempting: game.domoveAttempting,
+        }, {
+            nopick: 0, move: 0, menuRequested: false, attempting: 0,
+        }, label);
+    }
+});
+
+// The swap-consequence gates in requireOrdinaryStartingPetSwap() guard
+// domove_swap_with_pet(), which C calls at hack.c:2922 -- long after the
+// test_move() that declines this step. Running them ahead of do_attack() is
+// therefore wider than C, which never consults them here. The widening is
+// deliberate: both stop the port, and this seam stops it one call earlier
+// than the terrain rule would. A trap on the destination is what shows it,
+// because a bare pet square passes every gate.
+test('the pet-swap gates refuse a diagonal C declines at test_move()',
+    async () => {
+        const replay = await runSegment(
+            petDoorwaySegment(840026, 'TrapDoorway'),
+        );
+        const { x, y } = petOnRefusedDiagonal('TrapDoorway');
+        game.level.traps = [{ tx: x, ty: y, ttyp: PIT, tseen: false }];
+        const drawsBefore = replay.getRngLog().length;
+
+        game.nhDisplay.pushKey(commandKeyCode('u'));
+        await assert.rejects(
+            moveloop_core(),
+            (error) => error.reason === 'pet swap trap interaction',
+        );
+        // The seam runs before movement intent is committed, so the refusal
+        // costs the draw the same step spent in the test above.
+        assert.equal(replay.getRngLog().length, drawsBefore);
     });
-    const pet = game.level.monlist;
-    assert.ok(pet?.mtame, 'the starting pet is on the level');
-    const [x, y] = [game.u.ux + 1, game.u.uy - 1];
-    game.level.at(game.u.ux, game.u.uy).typ = DOOR;
-    game.level.at(game.u.ux, game.u.uy).flags = D_ISOPEN;
-    const destination = game.level.at(x, y);
-    destination.typ = ROOM;
-    destination.flags = 0;
-    game.level.monsters[pet.mx][pet.my] = null;
-    pet.mx = x;
-    pet.my = y;
-    game.level.monsters[x][y] = pet;
-    // The gate that would otherwise claim the step first.
-    game.level.traps = [{ tx: x, ty: y, ttyp: PIT, tseen: false }];
-
-    game.nhDisplay.pushKey(commandKeyCode('u'));
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error.reason === 'hero combat or displacement',
-    );
-    void replay;
-});
 
 // The mirror of the pet case above, and the ordering it protects.
 // domove_core() takes m_at() at hack.c:2762 and reaches domove_attackmon_at()

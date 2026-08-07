@@ -944,16 +944,19 @@ function requireAutoopenClosedDoor(x, y, state, run) {
     if (u.usteed) {
         throw new UnsupportedHeroMoveBoundaryError('closed door on a steed');
     }
-    // domove_core() reaches domove_bump_mon() and domove_attackmon_at()
-    // (2786-2796) before test_move(), and this port's domove() calls
-    // test_move() first, so a monster standing on the closed door would take
-    // the door arm here where C attacks it. lock.c:826
-    // stumble_on_door_mimic() is the same square seen from doopen_indir().
+    // A monster on the closed door has already been offered to
+    // domove_attackmon_at() by the time test_move() runs, both in C
+    // (hack.c:2798 against 2843) and in domove(). C attacks it, or -- for a pet
+    // do_attack() declines -- opens the door under it; this arm would open the
+    // door either way. lock.c:826 stumble_on_door_mimic() is that square seen
+    // from doopen_indir().
     //
-    // This guard is defensive rather than live: preflightDomoveDestination()
-    // tests `m_at()` before its closed_door() arm, so the seam refuses a
-    // monster-occupied door as combat and nothing reaches here. It exists for
-    // the test_move() call inside domove(), which has no such ordering.
+    // The guard stays defensive. requireOrdinaryStartingPetSwap() admits only a
+    // ROOM, CORR, IS_FURNITURE or D_NODOOR destination, and both
+    // preflightDomoveDestination() and domove() call it above do_attack(), so a
+    // monster on a closed door stops as 'door or special terrain movement'
+    // first. This is what keeps that closed now that test_move() runs with the
+    // destination monster still standing there.
     if (m_at(x, y, state)) {
         throw new UnsupportedHeroMoveBoundaryError('monster on a closed door');
     }
@@ -1048,6 +1051,32 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
     if (!startingPet || !is_safemon(monster, state)) {
         throw new UnsupportedHeroMoveBoundaryError(
             'hero combat or displacement',
+        );
+    }
+    // C ref: hack.c domove_bump_mon() (1925-1948), which domove_core() calls at
+    // 2794, one line above domove_attackmon_at(). With the reqmenu prefix
+    // pending it claims the step outright -- "Pardon me, Fido." for a peaceful
+    // target -- and spends the turn without reaching do_attack(), so none of
+    // that function's draws happen. Nothing here ports it.
+    //
+    // Two of C's terms are left out rather than restated. `!svc.context.travel`
+    // is always true: js/hack.js:412, js/cmd.js:844 and js/cmd.js:865 are the
+    // only writers of context.travel and all three write 0. canspotmon(mtmp)
+    // is always true as well, because is_safemon() above requires it.
+    //
+    // The refusal sits below the combat gate rather than above it, which is the
+    // reverse of C's order. It costs nothing while every hostile is refused
+    // above; the slice that ports the hostile arm of do_attack() has to lift
+    // this test above that gate and add canspotmon() back, because C bumps into
+    // a hostile too, with "You move right into the newt."
+    //
+    // cmd.c set_move_cmd() copies the prefix into context.nopick, but
+    // executeMovement() runs this seam before that call, so the pending
+    // iflags.menu_requested is read beside it exactly as
+    // requireSimpleHeroDestination() does.
+    if (state.context?.nopick || state.iflags?.menu_requested) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'reqmenu bump into a monster',
         );
     }
     const ordinaryTimedFlee = !monster.mflee
@@ -1151,12 +1180,12 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
 // shown that the destination is inside the currently ported domove() subset.
 export function preflightDomoveDestination(x, y, state = game, run = 0) {
     // The destination monster comes first, because domove_core() does: it
-    // takes m_at() at hack.c:2762, runs its run-stop, then domove_bump_mon()
-    // and domove_attackmon_at() at 2786-2796, and only reaches test_move() at
-    // 2841. Admitting a diagonal doorway step ahead of that inverted the order
-    // and turned an honest 'hero combat or displacement' stop into a silent
-    // one: the port refused the step in test_move() and never attacked, where
-    // C attacks -- uhitm.c do_attack() has no diagonal-doorway test at all.
+    // takes m_at() at hack.c:2763, runs its run-stop, then domove_bump_mon()
+    // and domove_attackmon_at() at 2794-2799, and only reaches test_move() at
+    // 2843. So a monster on the destination claims the step whatever the
+    // terrain rules below would have said about the square, and the diagonal
+    // doorway arms never see it: uhitm.c do_attack() has no doorway test at
+    // all, and test_move() runs after it.
     const destinationMonster = m_at(x, y, state);
     if (destinationMonster) {
         // domove_core()'s run arm stops in front of a monster the hero can
@@ -1164,29 +1193,17 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // arm is ported, so admit the command and let domove() run it; the
         // pet-displacement seam below owns every other destination monster.
         if (runStopsBeforeMonster(destinationMonster, run, state)) return;
-        // A refused diagonal with any monster on the destination fails closed,
-        // safemon included, and it does so before the swap-consequence gates
-        // below.
+        // Note that this admits steps test_move() then declines, which is the
+        // point: uhitm.c:474 evaluates `foo = (Punished || !rn2(7) || ...)`
+        // inside do_attack()'s is_safemon branch, so a pet displacement off an
+        // intact doorway spends that draw before test_move()'s exit rule
+        // refuses the step and no time elapses.
         //
-        // C reaches do_attack() first: uhitm.c:474 evaluates
-        // `foo = (Punished || !rn2(7) || ...)` inside its is_safemon branch, so
-        // even the pet case spends a draw before do_attack() returns FALSE and
-        // test_move() refuses. do_attack() IS ported -- js/uhitm.js:51, with
-        // that draw at :70 -- and domove() calls it live at :1098. The blocker
-        // is ordering, not coverage: domove() runs test_move() at :1065 before
-        // that call, the reverse of hack.c:2794 and :2841, so admitting the
-        // step would refuse it inside test_move() and never reach the draw.
-        // Remove this throw when domove() is reordered to match, not when
-        // "combat lands" -- it already has.
-        //
-        // Refusing ahead of requireOrdinaryStartingPetSwap() also keeps its
-        // trap, object, region and engraving gates out of a step C never lets
-        // reach them.
-        if (refusedDiagonalDoorway(x, y, state)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'hero combat or displacement',
-            );
-        }
+        // The swap-consequence gates inside requireOrdinaryStartingPetSwap()
+        // are therefore wider than C on such a step: C declines it at
+        // test_move() without ever consulting them, where this seam refuses a
+        // trap, object, region or engraving on the destination first. Both
+        // stop the port; the seam simply stops it one call earlier.
         requireOrdinaryStartingPetSwap(destinationMonster, x, y, state);
     } else if (refusedDiagonalDoorway(x, y, state)) {
         // test_move() owns both diagonal doorway refusals on an empty square.
@@ -1638,19 +1655,8 @@ export async function domove(state = game) {
         state.domoveAttempting = 0;
         return;
     }
-    // C ref: domove_core():2843-2849. The closed-door arm inside test_move()
-    // sets context.door_opened when the pull succeeded, and that suppresses
-    // the no-time refusal here even though the hero has not moved.
-    if (!await test_move(u.ux, u.uy, u.dx, u.dy, DO_MOVE, state, {
-        message: ttyPline,
-    })) {
-        if (!state.context.door_opened) {
-            state.context.move = 0;
-            nomul(0, state);
-        }
-        state.domoveAttempting = 0;
-        return;
-    }
+    // C ref: domove_core():2763-2777. The destination monster is read, and the
+    // run stopped in front of it, before anything reads the terrain.
     const destinationMonster = m_at(newx, newy, state);
     if (runStopsBeforeMonster(destinationMonster, state.context.run, state)) {
         nomul(0, state);
@@ -1658,6 +1664,26 @@ export async function domove(state = game) {
         state.domoveAttempting = 0;
         return;
     }
+
+    // C ref: domove_core():2780-2781, the square the hero is leaving. C writes
+    // it here, above the monster block, so do_attack() and test_move() both
+    // run with it already set.
+    const oldx = u.ux;
+    const oldy = u.uy;
+    u.ux0 = oldx;
+    u.uy0 = oldy;
+
+    // C ref: domove_core():2787-2800, which reaches domove_attackmon_at()
+    // (1955-1992) at 2798 and test_move() only at 2843. The attack therefore
+    // precedes the terrain rules: a step that test_move() goes on to decline
+    // has still spent do_attack()'s rn2(7), and a refused pet displacement off
+    // an intact doorway is where that is observable.
+    //
+    // C's `nomul(0)` at 2791-2792 is omitted: it is gated on
+    // `!is_safemon(mtmp) || svc.context.forcefight`, and the seam below admits
+    // no monster that fails is_safemon() while nothing in this port ever sets
+    // context.forcefight -- js/cmd.js:841 and js/cmd.js:917 are its only
+    // writers and both write 0.
     if (destinationMonster) {
         requireOrdinaryStartingPetSwap(
             destinationMonster,
@@ -1665,15 +1691,6 @@ export async function domove(state = game) {
             newy,
             state,
         );
-    } else {
-        requireSimpleHeroDestination(newx, newy, state);
-    }
-
-    const oldx = u.ux;
-    const oldy = u.uy;
-    u.ux0 = oldx;
-    u.uy0 = oldy;
-    if (destinationMonster) {
         const attackConsumedMove = await do_attack(
             destinationMonster,
             state,
@@ -1690,6 +1707,22 @@ export async function domove(state = game) {
             return;
         }
     }
+
+    // C ref: domove_core():2843-2849. The closed-door arm inside test_move()
+    // sets context.door_opened when the pull succeeded, and that suppresses
+    // the no-time refusal here even though the hero has not moved.
+    if (!await test_move(u.ux, u.uy, u.dx, u.dy, DO_MOVE, state, {
+        message: ttyPline,
+    })) {
+        if (!state.context.door_opened) {
+            state.context.move = 0;
+            nomul(0, state);
+        }
+        state.domoveAttempting = 0;
+        return;
+    }
+    if (!destinationMonster) requireSimpleHeroDestination(newx, newy, state);
+
     if (!await in_out_region(newx, newy, { state })) return;
     u.ux = newx;
     u.uy = newy;
