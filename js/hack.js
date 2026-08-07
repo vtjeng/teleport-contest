@@ -683,8 +683,14 @@ export function requireSimpleHeroDestination(x, y, state) {
     // Only D_NODOOR and D_ISOPEN are admitted, the two masks recorded against
     // the C program. D_BROKEN behaves like D_NODOOR in doorless_door() but
     // differs in dfeature_at(), which returns the literal "broken door" where
-    // the other two go through the cmap; sp_lev.c rnddoor() can produce it on
-    // a themed-room door, so it is refused rather than assumed equivalent.
+    // the other two go through the cmap, so it is refused rather than assumed
+    // equivalent. It is a mask a level really can carry: sp_lev.c
+    // lspo_door():4702 rolls rnddoor() for `state = "random"`, and its
+    // coordinate arm at 4721-4726 hands that roll to sel_set_door() (4646-4662)
+    // to write as the doormask. dat/tut-1.lua:273 takes that arm, so the
+    // tutorial's door at map [40,15] is D_BROKEN on about one seed in five. The
+    // room-door arm at 4704-4720 cannot: it passes `msk`, still -1, to
+    // create_door(), which rerolls a state that has no D_BROKEN in it.
     // D_TRAPPED is excluded too: C admits an open trapped door here because
     // its trap fires from doopen(), not from entry, but that path is not
     // traced yet, so it stays refused.
