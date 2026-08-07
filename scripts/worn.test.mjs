@@ -19,10 +19,13 @@ import {
     AMULET_OF_GUARDING,
     ARROW,
     BOW,
+    CROSSBOW,
     DART,
     GOLD_DRAGON_SCALE_MAIL,
     KATANA,
     ORCISH_HELM,
+    PARTISAN,
+    SLING,
     objects_globals_init,
 } from '../js/objects.js';
 import {
@@ -355,10 +358,12 @@ test('extract_from_minvent rejects an object outside a monster inventory',
         );
     });
 
-// wield.c:128-134 computes gu.unweapon: a wielded weapon that is a launcher,
-// ammunition, a missile, or a polearm on foot leaves the hero "not really
-// wielding a weapon", and everything else does not. js/worn.js setuwep()
-// owns the same expression, so each of its terms needs its own case.
+// wield.c:128-134 computes gu.unweapon. Its WEAPON_CLASS arm (:129-131) leaves
+// the hero "not really wielding a weapon" for a launcher, ammunition, a
+// missile, or a polearm on foot, and calls any other weapon a real one.
+// js/worn.js setuwep() owns the same expression, so each of those four terms
+// gets a case below. Its non-weapon arm (:132) and the Snickersnee exception
+// inside the polearm term have none.
 function heroWieldState() {
     const state = catalogState();
     state.invent = null;
@@ -376,15 +381,33 @@ function heroWieldState() {
 }
 
 test('setuwep marks a launcher, ammunition and a missile as no weapon', () => {
-    // objects.c gives the bow oc_skill P_BOW, the arrow -P_BOW and the dart
-    // -P_DART, which is_launcher(), is_ammo() and is_missile() read in turn.
-    for (const otyp of [BOW, ARROW, DART]) {
+    // obj.h:235-237 makes is_launcher() the closed window P_BOW..P_CROSSBOW,
+    // and objects.c puts the bow, the sling and the crossbow on its bottom,
+    // middle and top. All three are wieldable starts: u_init.c:252 gives a
+    // gnome the crossbow where another race gets the bow. The arrow's -P_BOW
+    // and the dart's -P_DART reach is_ammo() and is_missile() instead.
+    for (const otyp of [BOW, SLING, CROSSBOW, ARROW, DART]) {
         const state = heroWieldState();
         setuwep(wornObject(state, otyp, 0), { state });
         assert.equal(state.unweapon, true);
     }
-    // A katana matches none of the three, so it is a real melee weapon.
+    // A katana matches none of the five, so it is a real melee weapon.
     const melee = heroWieldState();
     setuwep(wornObject(melee, KATANA, 0), { state: melee });
     assert.equal(melee.unweapon, false);
+});
+
+test('setuwep marks a polearm as no weapon only while the hero is afoot', () => {
+    // wield.c:131 is the only term that reads state outside the object, and a
+    // partisan is is_pole() by its P_POLEARMS oc_skill. The same pair runs
+    // through steed.c mounting in scripts/dismount-steed.test.mjs; these two
+    // cases cover setuwep()'s own term directly.
+    const afoot = heroWieldState();
+    setuwep(wornObject(afoot, PARTISAN, 0), { state: afoot });
+    assert.equal(afoot.unweapon, true);
+
+    const mounted = heroWieldState();
+    mounted.u.usteed = kitten(mounted);
+    setuwep(wornObject(mounted, PARTISAN, 0), { state: mounted });
+    assert.equal(mounted.unweapon, false);
 });

@@ -746,10 +746,12 @@ export async function parseCommand(state = game) {
 // the same keystrokes.
 //
 // doextcmd() dispatches two commands that are deliberately absent here:
-// '#ride', whose own key is M-R, and '#twoweapon', whose own key is M-2.
-// Reaching doride() or dotwoweapon() from those keystrokes needs rhack()'s arm
-// for each as well as this admission, and nothing in the current goal drives
-// either, so both keys stay on the refusing side while the typed names work.
+// '#ride', whose own key is M-R (cmd.c:1833), and '#twoweapon', whose own key
+// is 'X' (cmd.c:1913) and which commands_init() binds a second time to M-2
+// (cmd.c:2776). Reaching doride() or dotwoweapon() from any of those three
+// keystrokes needs rhack()'s arm for each as well as this admission, and
+// nothing in the current goal drives either, so all three keys stay on the
+// refusing side while the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'down', 'reqmenu', 'options', 'wizwish', 'wizlevelport',

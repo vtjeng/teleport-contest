@@ -6,6 +6,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { failClosedCommandRefusals } from '../js/cmd.js';
 import {
     A_DEX,
     ECMD_OK,
@@ -15,6 +16,7 @@ import {
     W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
+import { weapon_status } from '../js/display.js';
 import { could_twoweap } from '../js/mondata.js';
 import {
     AT_WEAP,
@@ -22,7 +24,7 @@ import {
     PM_SAMURAI,
     monst_globals_init,
 } from '../js/monsters.js';
-import { newObject } from '../js/obj.js';
+import { UnsupportedObjectOperationError, newObject } from '../js/obj.js';
 import {
     ARROW,
     BOW,
@@ -161,13 +163,13 @@ test('could_twoweap reads the hero form the Samurai starts in', () => {
 
 test('can_twoweapon accepts the Samurai katana and short sword', async () => {
     const state = armHero(makeState());
-    // wield.c:803, the only arm that returns TRUE, and it prints nothing.
+    // wield.c:802, the only arm that returns TRUE, and it prints nothing.
     assert.equal(await can_twoweapon(state), true);
     assert.equal(state._pending_message, undefined);
 });
 
 test('can_twoweapon names the role that cannot hold two weapons', async () => {
-    // wield.c:765-772. A newt has no AT_WEAP slot at all, so the role's own
+    // wield.c:765-771. A newt has no AT_WEAP slot at all, so the role's own
     // name is pluralized into the refusal. role.c:533 names the Wizard in the
     // male form only.
     assert.equal(await refusal(armHero(makeState(PM_NEWT, ROLE_WIZARD))),
@@ -184,6 +186,14 @@ test('can_twoweapon names the role that cannot hold two weapons', async () => {
     cavewoman.flags.female = true;
     assert.equal(await refusal(cavewoman),
         "Cavewomen aren't able to use two weapons at once.");
+
+    // wield.c:770 conjoins flags.female with urole.name.f, so the two roles
+    // that own a female name still print the male one for a male hero. These
+    // are the only two states in which that conjunct decides the noun.
+    assert.equal(await refusal(armHero(makeState(PM_NEWT, ROLE_PRIEST))),
+        "Priests aren't able to use two weapons at once.");
+    assert.equal(await refusal(armHero(makeState(PM_NEWT, ROLE_CAVEMAN))),
+        "Cavemen aren't able to use two weapons at once.");
 
     // A female role with no name.f keeps the male form.
     const wizard = armHero(makeState(PM_NEWT, ROLE_WIZARD));
@@ -202,7 +212,7 @@ test('can_twoweapon blames the form when the hero is polymorphed', async () => {
 });
 
 test('can_twoweapon reports which hand is empty', async () => {
-    // wield.c:773-779. Both hands empty pluralizes body_part(HAND) and
+    // wield.c:772-779. Both hands empty pluralizes body_part(HAND) and
     // vtense() agrees the verb with it; one hand empty names the side, and
     // the secondary weapon is the left-hand one.
     assert.equal(await refusal(armHero(makeState(), null, null)),
@@ -218,6 +228,11 @@ test('can_twoweapon refuses launchers, ammunition and missiles', async () => {
     // an arrow is is_ammo() and a dart is is_missile(); each disqualifies the
     // slot it occupies on its own. The uwep test runs first, so a bad primary
     // is named "primary" and everything else "secondary".
+    //
+    // This is the one arm the #twoweapon differential matrix cannot reach:
+    // scripts/run-twoweapon-command.mjs REFUSAL_CASES records why no role's
+    // u_init.c loadout selects it, so these constructed states are its only
+    // cover.
     assert.equal(await refusal(armHero(makeState(), BOW, SHORT_SWORD)),
         "Your bow isn't a suitable primary weapon.");
     assert.equal(await refusal(armHero(makeState(), KATANA, ARROW)),
@@ -326,9 +341,58 @@ test('dotwoweapon redraws the status line when weaponstatus is on', async () => 
     const state = armHero(makeState());
     state.flags.weaponstatus = true;
     state.u.acurr.a[A_DEX] = 14;
+    // botl.c:516-519 describes a katana by its skill class while two-weapon
+    // combat is off, so the field has a value the command has to replace.
+    assert.equal(weapon_status(state), 'Sword');
     await dotwoweapon(state);
     // wield.c set_twoweap() at :834-841 sets disp.botl on a real change.
     assert.equal(state.disp.botl, true);
+    // botl.c:492-499. u.twoweap takes the field over from the skill class,
+    // and only a lance held on a steed turns it into "Dual+joust". This is
+    // the field the redraw above exists to repaint.
+    assert.equal(weapon_status(state), 'Dual-weps');
+});
+
+test('a stopped can_twoweapon() arm ends the command, not the run', () => {
+    // js/allmain.js tests this list to turn the two stopped arms into a
+    // retryable command boundary rather than a failed segment. Neither arm is
+    // reachable from a recorded input, so nothing else can pin the entry.
+    assert.ok(failClosedCommandRefusals().includes(UnsupportedTwoWeaponError));
+});
+
+// invent.c update_inventory() repaints the persistent-inventory window.
+// js/invent.js supplies no window, so with OPTIONS=perm_invent set inside the
+// move loop it stops instead; that stop is the only observable either
+// update_inventory() call in dotwoweapon() has.
+function permInventHero(state) {
+    state.iflags = { perm_invent: true };
+    state.program_state = { in_moveloop: true };
+    return state;
+}
+
+test('dotwoweapon refreshes the inventory after switching on', async () => {
+    initRng(2);
+    enableRngLog();
+    const state = permInventHero(armHero(makeState()));
+    state.u.acurr.a[A_DEX] = 14;
+    await assert.rejects(() => dotwoweapon(state),
+        UnsupportedObjectOperationError);
+    // wield.c:858-860 prints, sets the flag, then refreshes, so both earlier
+    // statements have run by the time the refresh stops.
+    assert.equal(state._pending_message, 'You begin two-weapon combat.');
+    assert.equal(state.u.twoweap, true);
+    // wield.c:861 draws only after the refresh returns.
+    assert.deepEqual(getRngLog(), []);
+});
+
+test('dotwoweapon refreshes the inventory after switching off', async () => {
+    const state = permInventHero(armHero(makeState()));
+    state.u.twoweap = true;
+    await assert.rejects(() => dotwoweapon(state),
+        UnsupportedObjectOperationError);
+    // wield.c:849-851, in that order, before the arm returns ECMD_OK.
+    assert.equal(state._pending_message, 'You switch to your primary weapon.');
+    assert.equal(state.u.twoweap, false);
 });
 
 test('dotwoweapon switches two-weapon combat back off for free', async () => {
@@ -346,7 +410,7 @@ test('dotwoweapon switches two-weapon combat back off for free', async () => {
 });
 
 test('dotwoweapon toggles off even from a state it would refuse to enter', async () => {
-    // wield.c:847 tests u.twoweap before can_twoweapon(), so a hero whose
+    // wield.c:848 tests u.twoweap before can_twoweapon(), so a hero whose
     // secondary slot has emptied still switches back without a refusal.
     const state = armHero(makeState(), KATANA, null);
     state.u.twoweap = true;

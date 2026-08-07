@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    REFUSAL_CASES,
+    TIME_COST_CASES,
     loadTwoWeaponCommandRecipe,
     loadTwoWeaponRefusalRecipe,
     loadTwoWeaponSwitchRecipe,
@@ -20,8 +23,17 @@ test('the #twoweapon matrix covers both sides of the time-cost draw', () => {
     assert.ok(recipe.segments.every(
         (segment) => !Object.hasOwn(segment, 'steps'),
     ));
-    // Two seeds whose recorded rnd(20) beats Dexterity and two that do not,
-    // one of which draws exactly Dexterity. wield.c:861 compares with `>`.
+    // wield.c:861 is `rnd(20) > ACURR(A_DEX)`, so the draw has to land above,
+    // on, and below Dexterity for the recorded segments to separate `>` from
+    // `>=` and from `<`. Asserting the property rather than the seeds means a
+    // re-recorded case that lost the equal draw fails here.
+    const relations = TIME_COST_CASES.map(
+        ({ draw, dexterity }) => Math.sign(draw - dexterity),
+    );
+    assert.ok(relations.includes(1), 'no case draws above Dexterity');
+    assert.ok(relations.includes(0), 'no case draws exactly Dexterity');
+    assert.ok(relations.includes(-1), 'no case draws below Dexterity');
+    // The seed list is the separate tripwire for a silent re-recording.
     assert.deepEqual(
         recipe.segments.map(({ seed }) => seed),
         [7710001, 7710002, 7710003, 7710004],
@@ -36,7 +48,7 @@ test('the #twoweapon matrix covers both sides of the time-cost draw', () => {
 test('the switch-off matrix issues the command twice', () => {
     const recipe = loadTwoWeaponSwitchRecipe();
     assert.equal(recipe.version, 5);
-    // wield.c:847 only reaches the toggle-off arm once u.twoweap is TRUE, so
+    // wield.c:848 only reaches the toggle-off arm once u.twoweap is TRUE, so
     // every segment has to succeed first and switch back afterwards.
     assert.ok(recipe.segments.every(
         ({ moves }) => moves === '.#twoweapon\n#twoweapon\n..',
@@ -56,15 +68,39 @@ test('the refusal matrix reaches one can_twoweapon() arm per role', () => {
     assert.ok(recipe.segments.every(
         ({ moves }) => moves === '.#twoweapon\n..',
     ));
-    // wield.c:764 twice (once through the male role name and once through
-    // the female one), then :771, :785 and :788.
+    // wield.c:765 three times -- twice through the male role name at :771 and
+    // once through the female one at :770 -- then :772, :786 and :789.
     assert.deepEqual(recipe.segments.map(roleOf), [
         'Wizard/human/male',
+        'Caveman/human/male',
         'Caveman/human/female',
         'Tourist/human/male',
         'Barbarian/human/male',
         'Valkyrie/human/female',
     ]);
+});
+
+test('every refusal case cites the wield.c line that opens its arm', () => {
+    const source = readFileSync(
+        new URL('../nethack-c/upstream/src/wield.c', import.meta.url), 'utf8',
+    ).split('\n');
+    for (const { who, arm } of REFUSAL_CASES) {
+        const match = /^wield\.c:(\d+) (\S+)/u.exec(arm);
+        assert.ok(match, `${who}'s arm label is not "wield.c:<line> <cond>"`);
+        // split('\n') is zero-based and C line numbers are one-based.
+        const line = source[Number(match[1]) - 1].trim();
+        // can_twoweapon() is one if/else-if chain, so every arm it can refuse
+        // from opens on a line of one of these two shapes. A label that
+        // slipped by a line lands on a blank line, a bare `else`, or a
+        // continuation of the previous arm's pline, and fails here.
+        assert.match(line, /^(if|\} else if) \(/u,
+            `${who} cites wield.c:${match[1]}, which opens no arm`);
+        // The first C identifier the label quotes has to be in that condition,
+        // so a label cannot drift onto some other arm's head either.
+        const [identifier] = /[A-Za-z_][A-Za-z0-9_]*/u.exec(match[2]);
+        assert.ok(line.includes(identifier),
+            `wield.c:${match[1]} does not test ${identifier}`);
+    }
 });
 
 test('every #twoweapon case reaches the arm it was chosen for',

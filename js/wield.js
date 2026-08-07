@@ -80,9 +80,9 @@ function Glib(state) {
     return Boolean(state.u?.uprops?.[GLIB]?.intrinsic);
 }
 
-// C ref: wield.c can_twoweapon() (760-832). Answers whether the hero may
-// dual-wield, printing the reason she may not. Five of its six refusal arms
-// and its success path at 803 are complete; the two arms below stop, each
+// C ref: wield.c can_twoweapon() (760-804). Answers whether the hero may
+// dual-wield, printing the reason she may not. Five of its eight refusal arms
+// and its success path at 802 are complete; the two arms below stop, each
 // because reaching what C does there needs a subsystem this port has not
 // ported, and neither can be reached from any input it accepts.
 //

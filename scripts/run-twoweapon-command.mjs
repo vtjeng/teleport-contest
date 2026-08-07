@@ -43,7 +43,7 @@ const TWOWEAPON = '#twoweapon\n';
 // dotwoweapon(wield.c:861), and the Dexterity its status line shows. `costs`
 // restates wield.c:861 rather than an observation, so a seed whose draw
 // changed would fail the verifier rather than silently agree with it.
-const TIME_COST_CASES = [
+export const TIME_COST_CASES = [
     // Draw above Dexterity: the command costs a move. The C step logs the
     // whole following turn (18 calls) instead of the draw alone.
     { seed: 7710001, draw: 20, dexterity: 13 },
@@ -78,8 +78,11 @@ const ROLES = {
     // could_twoweap() is false however the hands are filled.
     wizard: { role: 'Wizard', race: 'human', gender: 'male',
               align: 'neutral' },
-    // monsters.h:3363 likewise, and role.c:113 names the female form, so the
-    // refusal reads "Cavewomen" rather than "Cavemen".
+    // monsters.h:3363 likewise. role.c:113 names both forms, and wield.c:770
+    // reads the female one only when flags.female is set, so the same arm
+    // prints "Cavemen" for one gender and "Cavewomen" for the other.
+    caveman: { role: 'Caveman', race: 'human', gender: 'male',
+               align: 'neutral' },
     cavewoman: { role: 'Caveman', race: 'human', gender: 'female',
                  align: 'neutral' },
     // u_init.c:151 quivers the Tourist's darts and wields nothing.
@@ -111,19 +114,35 @@ const SWITCH_CASES = [
 ];
 
 // Each case names the can_twoweapon() arm its role reaches and the state that
-// selects it. verifyRefusal() checks that state against the port before the
-// differential compares C's message with the port's.
-const REFUSAL_CASES = [
-    { who: 'wizard', seed: REFUSAL_SEED, arm: 'wield.c:764 !could_twoweap()',
+// selects it. Every `arm` cites the `if` or `} else if` that opens the arm it
+// names, which scripts/twoweapon-matrix.test.mjs re-reads out of wield.c.
+// verifyRefusal() checks the state against the port before the differential
+// compares C's message with the port's.
+//
+// Three roles reach wield.c:765, and two of them differ inside it: :770-771
+// takes urole.name.f over urole.name.m only when flags.female is set.
+//
+// wield.c:780-785, the unsuitable-weapon arm, has no case here, and no role
+// could give it one. Replaying every role's start at REFUSAL_SEED shows that
+// the only two whose u_init.c loadout puts a launcher in a hand -- the
+// Caveman's sling and the Ranger's bow -- are also roles whose monst.c role
+// monster has a single AT_WEAP attack, so wield.c:765 refuses first; every
+// role that clears :765 holds only objects TWOWEAPOK() admits.
+// scripts/twoweapon.test.mjs pins that arm from constructed states instead.
+export const REFUSAL_CASES = [
+    { who: 'wizard', seed: REFUSAL_SEED, arm: 'wield.c:765 !could_twoweap()',
       reaches: () => !could_twoweap(game.youmonst.data) },
+    { who: 'caveman', seed: REFUSAL_SEED,
+      arm: 'wield.c:765 !could_twoweap() with a male role name',
+      reaches: () => !could_twoweap(game.youmonst.data) && !game.flags.female },
     { who: 'cavewoman', seed: REFUSAL_SEED,
-      arm: 'wield.c:768 the female role name',
+      arm: 'wield.c:765 !could_twoweap() with a female role name',
       reaches: () => !could_twoweap(game.youmonst.data) && game.flags.female },
-    { who: 'tourist', seed: REFUSAL_SEED, arm: 'wield.c:771 !uwep||!uswapwep',
+    { who: 'tourist', seed: REFUSAL_SEED, arm: 'wield.c:772 !uwep||!uswapwep',
       reaches: () => !game.uwep && !game.uswapwep },
-    { who: 'barbarian', seed: REFUSAL_SEED, arm: 'wield.c:785 bimanual()',
+    { who: 'barbarian', seed: REFUSAL_SEED, arm: 'wield.c:786 bimanual()',
       reaches: () => bimanual(game.uwep) },
-    { who: 'valkyrie', seed: REFUSAL_SEED, arm: 'wield.c:788 uarms',
+    { who: 'valkyrie', seed: REFUSAL_SEED, arm: 'wield.c:789 uarms',
       reaches: () => Boolean(game.uarms) },
 ];
 

@@ -25,7 +25,6 @@ import {
     HALLUC,
     HALLUC_RES,
     NOT_HUNGRY,
-    OBJ_INVENT,
     PROTECTION,
     RANDOM_TIN,
     REGENERATION,
@@ -92,7 +91,9 @@ import {
     S_PUDDING,
     S_VORTEX,
 } from './monsters.js';
-import { costly_alteration, objectType, splitobj, weight } from './obj.js';
+import {
+    carried, costly_alteration, objectType, splitobj, weight,
+} from './obj.js';
 import { singular, the, xnameFresh } from './objnam.js';
 import {
     APPLE,
@@ -592,12 +593,6 @@ export function set_tin_variety(obj, forcetype, env = {}) {
 // ---------------------------------------------------------------------------
 // The meal in progress.
 // ---------------------------------------------------------------------------
-
-// C ref: obj.h carried(). eat.c asks it four times to pick between the
-// inventory and the floor half of an operation.
-function carried(obj) {
-    return obj.where === OBJ_INVENT;
-}
 
 // C ref: youprop.h Hallucination (120). Its positive term is HHallucination
 // (116), the intrinsic alone -- "Hallucination is solely a timeout" (115) --
