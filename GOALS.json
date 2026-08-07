@@ -649,6 +649,47 @@
         "screens": 25,
         "rng": 185
       }
+    },
+    {
+      "id": "chat-command",
+      "status": "open",
+      "boundary": "the hero issues #chat and sounds.c dotalk() runs dochat() to completion along every path returning before price_quote() at :1288 and domonnoise() at :1302 and :1408: the speech guards, the getdir() cancel, the steed-absent u.dz arm, self-chat, the !isok() return, the statue arm, and the wall or secret-door arm printing \"It's like talking to a wall.\"; chatting at a monster that answers, at a steed, or at a shop's merchandise stays refused",
+      "upstreamOwners": [
+        "sounds.c dotalk()",
+        "sounds.c dochat()",
+        "shk.c shop_object()",
+        "mkobj.c vobj_at()",
+        "mondata.h is_silent()"
+      ],
+      "forecast": {
+        "steps": 21,
+        "basis": "Capped look-ahead at 4c11163, 7 August 2026. #chat carries unlocks 21 over one session; the --ahead=#chat classifier read found no capping message, so the capped figure equals the raw one and the goal takes seed0105 from 9 to 30 of 30 recorded steps. Every step after \"It's like talking to a wall.\" is a command the port already dispatches -- i, a, e, +, \\, ^X, s, : -- verified against js/invent.js, js/spell.js, js/o_init.js and js/cmd.js. Highest of sixteen candidates, tied with #pray 21 of 21 over one session: takeoff 20 of 22 over four, pet melee combat 19 of 21, fire 17 of 17, hero combat 17 of 49 over three, monster trap activation 16 of 16, wizgenesis 11 of 11, riding movement 10 of 31, hero trap activation 8 of 61, pet cursed-object feedback 8 of 27, engraving interaction 5 of 238, door unlocking tool 4 of 18, zap 2 of 22, #l 1 of 19, #rub 1 of 22. Three figures moved against the previous selection: takeoff falls from 21 to 20 because js/eat.js:1090-1093 refuses CLOVE_OF_GARLIC, capping seed0367 at step 61; zap's recorded 2-to-22 range resolves to 2 because js/allmain.js moveloop_core() has no multi < 0 branch and js/zap.js holds only makewish(); pet cursed-object feedback falls from 14 to 8 because seed1500's step 9, \"The kitten is almost hit by a dart!\", is monster trap activation, itself a live boundary. Scanned with a scratchpad loader shim, because js/sounds.js still raises its refusals as a plain Error and aborts the census.",
+        "sessions": [
+          "seed0105-valk-chat-lamp-ration"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0105-valk-chat-lamp-ration",
+            "evidence": "seed 105, datetime 20000110090000, human female neutral Valkyrie Astrid on D:1; nethackrc sets only name/role/race/gender/align, !autopickup, suppress_alert:3.4.3 and symset:DECgraphics, so Deaf, Blind and Hallucination are all off at their defaults. Stop at step 9, key \"\\r\", the Enter that submits #chat; js/extcmdlist_data.js:53 already carries row(0xE3, \"chat\", ..., \"dotalk\", IFBURIED|AUTOCOMPLETE), so the port echoes the command and refuses only the dispatch at js/cmd.js:1395. C reaches sounds.c:1248 dotalk() then dochat() with youmonst.data human (is_silent false), Strangled 0, u.uswallow 0, Underwater false, and shop_object(u.ux,u.uy) null because the level holds no shop, so control reaches getdir(\"Talk to whom? (in what direction)\") -- the recorded top line. Step 10 answers \"y\": u.usteed is null, u.dz == 0, u.dx == -1 and u.dy == -1, so the target is the square northwest of the hero. The recorded screen places @ at screen column 20 of row 17 with the room walls drawn at row 15 and column 19, so that target square is the room wall glyph; m_at() is null there and vobj_at() is no statue, so IS_WALL(levl[tx][ty].typ) holds and sounds.c:1352 prints \"It's like talking to a wall.\" before dochat() returns ECMD_OK. Both steps 9 and 10 log zero random-number calls, which is the observable consequence of that ECMD_OK return: no move is spent."
+          }
+        ]
+      },
+      "detail": "### The hero chats into a wall\n\n`sounds.c dotalk()` (1248) runs `dochat()` (1256-1409, both ends printed and\nchecked) along every path that returns before the two calls this goal excludes:\n`price_quote()` at :1288 and `domonnoise()` at :1302 and :1408. That admits the\nspeech guards (`is_silent`, `Strangled`, `u.uswallow`, `Underwater`), the\n`getdir()` cancel, the steed-absent `u.dz` up/down arm, self-chat, the\n`!isok(tx,ty)` return, the statue arm, and the wall/secret-door arm printing\n\"It's like talking to a wall.\" at :1352. All of these return `ECMD_OK` or\n`ECMD_CANCEL` and spend no move.\n\n**The whole reachable branch is time-free and rng-free.** `seed0105` records\nzero random-number calls at both steps 9 and 10, which is the observable\nconsequence of the `ECMD_OK` return. Nothing in this goal can move the\nrandom-number stream, so a delivery miss can only be a screen miss.\n\n**What is already ported.** `cmd.c getdir()` is `js/cmd.js:550`, with the prompt\nparameter `js/apply.js:174` and `js/steed.js:804` already pass, so the goal needs\nno prompt machinery. `m_at` is `js/monst.js:95`, `IS_WALL` is\n`js/room_coordinates.js:16`, `in_rooms` is in `js/rooms.js`, Deaf is read at\n`js/shk.js:518` and `js/monmove.js:1441`, hallucination at `js/sounds.js:49`.\n`js/sounds.js` already exists at 193 lines, so the port stays one file per C\nfile with no placement question.\n\n**What is genuinely new**, each verified absent under both snake_case and\ncamelCase spellings: `shk.c shop_object()` (5386-5402), `mkobj.c vobj_at()`, and\n`mondata.h is_silent()` -- `grep -rlw` returns no files for any of the six\nnames. `dochat` likewise returns none, and `dotalk` matches only the metadata\nrow at `js/extcmdlist_data.js:53`.\n\n**Deliberately outside the boundary.** `domonnoise()` is `sounds.c:679` to about\n:1240, roughly 560 lines switching on monster class. `seed0105`'s kitten sits\ndirectly east of the hero at screen column 21, so a chat one key away would have\nreached it; the recorded chat goes northwest into the wall. Chatting at a\nmonster that answers, at a steed, and at a shop's merchandise all stay refused.\n\n**How a reader tests the boundary.** Read `dochat()` and check that every\n`return` above line 1408 has a ported counterpart, and that :1288, :1302 and\n:1408 raise the port's refusal.\n\n**Why this and not the field.** `#pray` ties at 21 over one session and lost on\nshape rather than count: all 21 of its steps sit behind `seed0017`'s step 47, a\nsingle keystroke drawing 85 random numbers that needs `nomul(-3)` and a\n`multi < 0` occupation continuation `js/allmain.js moveloop_core()` has no\nbranch for, on top of five `pray.c` functions. `takeoff` at 20 over four\nsessions is the broadest by reachability and would be named first if the rule\nranked on anything but the capped sum.",
+      "slices": [
+        {
+          "name": "the hero chats into a wall",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "2905644186754f0cb2a93b80d080fa9ab173891d",
+      "openStanding": {
+        "sha": "508da8c",
+        "screens": 1081,
+        "rng": 116787
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

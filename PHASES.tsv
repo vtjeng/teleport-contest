@@ -203,3 +203,6 @@ utc	event	phase	goal	detail
 2026-08-07T12:03:35.867Z	end	select	twoweapon-command	
 2026-08-07T12:03:35.899Z	start	implement	twoweapon-command	
 2026-08-07T15:11:56.864Z	end	implement	twoweapon-command	
+2026-08-07T15:34:25.605Z	start	select		
+2026-08-07T16:12:04.113Z	end	select	chat-command	
+2026-08-07T16:12:04.141Z	start	implement	chat-command	
