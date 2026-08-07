@@ -1452,20 +1452,31 @@ test('symbol assignments accept exactly the source symbol catalog', () => {
 
 // C ref: options.c optfn_sortloot()'s do_set arm, which keeps the lowercased
 // first letter of the value and rejects everything else.
-test('sortloot keeps one letter and refuses an unknown one', () => {
+test('sortloot keeps one letter and refuses every other spelling', () => {
     assert.equal(parseNethackrc('OPTIONS=sortloot:full\n').flags.sortloot, 'f');
     assert.equal(parseNethackrc('OPTIONS=sortloot:N\n').flags.sortloot, 'n');
     assert.throws(() => parseNethackrc('OPTIONS=sortloot:x\n'),
         /unknown sortloot parameter/u);
-    // string_for_env_opt() answers empty_optstr for a value-less option, and
-    // optfn_sortloot() returns optn_err rather than choosing a default.
-    assert.throws(() => parseNethackrc('OPTIONS=sortloot:\n'),
-        /unknown sortloot parameter/u);
+    // string_for_opt() answers empty_optstr with a "Missing parameter for"
+    // config error when the value is missing, which is what optfn_sortloot()
+    // asks for by re-reading it with val_optional FALSE; it then returns
+    // optn_err rather than choosing a default. Both value-less spellings
+    // reach that, including the bare name, which before this fell past the
+    // arm to applyBooleanOption() and stored `true` over the 'l' default.
+    for (const line of ['OPTIONS=sortloot:\n', 'OPTIONS=sortloot\n']) {
+        assert.throws(() => parseNethackrc(line),
+            /'sortloot' requires a value/u, line);
+    }
+    // optlist.h gives sortloot negateok No, so parseoptions() answers a
+    // negation with bad_negation() before optfn_sortloot() runs, whatever
+    // value follows.
+    assert.throws(() => parseNethackrc('OPTIONS=!sortloot:none\n'),
+        /negated compound option 'sortloot'/u);
 });
 
 // C ref: options.c optfn_msg_window()'s do_set arm under PREV_MSGS, which is
 // 1 for this tty build.
-test('msg_window keeps one letter and refuses an unknown one', () => {
+test('msg_window keeps one letter and answers its value-less spellings', () => {
     assert.equal(
         parseNethackrc('OPTIONS=msg_window:reversed\n').iflags.prevmsg_window,
         'r',
@@ -1477,4 +1488,64 @@ test('msg_window keeps one letter and refuses an unknown one', () => {
     );
     assert.throws(() => parseNethackrc('OPTIONS=msg_window:x\n'),
         /unknown msg_window parameter/u);
+    // parseoptions() reads every option's value with string_for_opt(opts,
+    // TRUE), so a value-less msg_window reaches the handler as empty_optstr
+    // rather than as a config error, and its `tmp = negated ? 's' : 'f'` arm
+    // answers it. optlist.h gives msg_window negateok Yes, so the negated
+    // spelling gets there too. Both fell past this arm before, and the bare
+    // name became the boolean flags.msg_window.
+    for (const line of ['OPTIONS=msg_window\n', 'OPTIONS=msg_window:\n']) {
+        assert.equal(parseNethackrc(line).iflags.prevmsg_window, 'f', line);
+        assert.equal(parseNethackrc(line).flags.msg_window, undefined, line);
+    }
+    assert.equal(
+        parseNethackrc('OPTIONS=!msg_window\n').iflags.prevmsg_window, 's',
+    );
+    // bad_negation() inside the handler: a negation that carries a value is
+    // the one negation optfn_msg_window() itself rejects.
+    assert.throws(() => parseNethackrc('OPTIONS=!msg_window:full\n'),
+        /may not be negated/u);
+});
+
+// C ref: cfgfiles.c config_line_stmt[], whose AUTOCOMPLETE, MSGTYPE and
+// MENUCOLOR rows dispatch to handlers this port has not ported. Recording the
+// statement is what lets options.c doset()'s counts refuse rather than report
+// the empty list the port built.
+test('the parser records the config statements it cannot interpret', () => {
+    assert.deepEqual(parseNethackrc('').unportedConfigStatements, []);
+    // parse_config_line() matches a case-insensitive prefix of at least the
+    // row's length: CNFL_N(AUTOCOMPLETE, 5), CNFL_N(MSGTYPE, 7) and
+    // CNFL_N(MENUCOLOR, 9).
+    assert.deepEqual(
+        parseNethackrc('AUTOCOMPLETE=!terrain\n').unportedConfigStatements,
+        ['autocomplete'],
+    );
+    assert.deepEqual(
+        parseNethackrc('MSGTYPE=hide "You swap places*"\n')
+            .unportedConfigStatements,
+        ['msgtype'],
+    );
+    assert.deepEqual(
+        parseNethackrc('MENUCOLOR="blessed"=green\n')
+            .unportedConfigStatements,
+        ['menucolor'],
+    );
+    // The shortest accepted prefix of each, and the longest rejected one.
+    assert.deepEqual(
+        parseNethackrc('AUTOC=x\nMSGTYPE=x\nMENUCOLOR=x\n')
+            .unportedConfigStatements,
+        ['autocomplete', 'msgtype', 'menucolor'],
+    );
+    assert.deepEqual(
+        parseNethackrc('AUTO=x\nMSGTYP=x\nMENUCOLO=x\n')
+            .unportedConfigStatements,
+        [],
+    );
+    // Every occurrence is recorded, because each one appends its own node to
+    // the list the count walks.
+    assert.deepEqual(
+        parseNethackrc('MENUCOLOR="a"=green\nMENUCOLOR="b"=red\n')
+            .unportedConfigStatements,
+        ['menucolor', 'menucolor'],
+    );
 });

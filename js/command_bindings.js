@@ -116,7 +116,13 @@ export function bindingAt(bindings, key) {
     return bindings.find((binding) => binding.key === (key & 0xFF)) ?? null;
 }
 
-function setBinding(bindings, key, command, restBinding = false) {
+// C ref: cmd.c cmdbind_add(), whose `user` argument becomes the entry's
+// userbind flag.  An overwrite stores the new call's value, so a compiled-in
+// rebinding of a key the player bound clears the flag again.  Every C caller
+// but bind_key()'s OPTIONS `bind` path passes FALSE, which is this default.
+// cmd.c count_bind_keys() is the only reader.
+function setBinding(bindings, key, command, restBinding = false,
+    userbind = false) {
     const index = bindings.findIndex((binding) => binding.key === key);
     if (command == null) {
         if (index >= 0) bindings.splice(index, 1);
@@ -125,8 +131,9 @@ function setBinding(bindings, key, command, restBinding = false) {
     if (index >= 0) {
         bindings[index].command = command;
         bindings[index].restBinding = restBinding;
+        bindings[index].userbind = userbind;
     } else {
-        bindings.unshift({ key, command, restBinding });
+        bindings.unshift({ key, command, restBinding, userbind });
     }
 }
 
@@ -296,6 +303,11 @@ export function createCommandBindingModel(state) {
                 model.bindings,
                 operation.key,
                 command === 'nothing' ? null : command,
+                false,
+                // cmd.c bind_key(key, command, TRUE) is the only call that
+                // marks an entry as the player's; options.c parsebindings()
+                // is its one caller that passes TRUE.
+                true,
             );
         } else if (operation.type === 'special_key') {
             model.specialKeys[operation.command] = operation.key & 0xFF;

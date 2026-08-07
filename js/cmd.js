@@ -1209,26 +1209,40 @@ async function runOptionsCommand(key, state) {
             cancelValue: null,
             overlay: state.iflags?.menu_overlay !== false,
         }),
+        // Not a window-port seam like `menu` above: count_bind_keys() below
+        // is the complete port of the cmd.c function optfn_o_bind_keys()
+        // calls, and cmd.c owns it. It is injected only because js/cmd.js
+        // already imports js/options.js, so importing this back would close
+        // the cycle.
         countBindKeys: count_bind_keys,
     }));
 }
 
-// C ref: cmd.c count_bind_keys(). The first loop counts every cmdbinds entry
-// whose userbind flag is set and whose command sits on a key other than its
-// extcmdlist[] one; a `bind` statement is the only thing that sets that flag,
-// and createCommandBindingModel() replays those statements from
-// commandOperations. The second loop counts every command whose compiled-in
-// key no cmdbinds entry holds, which is what model.bindings tracks.
+// C ref: cmd.c count_bind_keys(). Both of its loops read gc.Cmd.cmdbinds,
+// which holds one entry per key: cmdbind_add() overwrites an existing entry
+// in place and bind_key(key, "nothing") removes it, so repeated `bind`
+// statements for one key leave one entry behind. model.bindings is that list
+// -- createCommandBindingModel() replays commandOperations with the same
+// replace-in-place semantics and carries C's userbind flag on each entry --
+// so both loops walk it here too.
+//
+// The first loop counts every entry the player bound whose command sits on a
+// key other than its extcmdlist[] one. C reads that key through bind->cmd,
+// the row bind_key() matched after stripping any `(param)` suffix; this port
+// stores the stripped name, so EXTCMD_BY_NAME looks the row back up. A name
+// bind_key() would have rejected has no row and, as in C, contributes
+// nothing. The second loop counts every command whose compiled-in key no
+// entry holds.
 export function count_bind_keys(state = game) {
     const model = commandBindings(state);
     let nbinds = 0;
-    for (const operation of state.commandOperations ?? []) {
-        if (operation.type !== 'bind') continue;
-        const key = operation.key & 0xFF;
-        const command = EXTCMD_BY_NAME.get(operation.command);
-        if (command && command.key !== key) nbinds++;
+    const keys = new Set();
+    for (const binding of model.bindings) {
+        const key = binding.key & 0xFF;
+        keys.add(key);
+        const command = EXTCMD_BY_NAME.get(binding.command);
+        if (binding.userbind && command && command.key !== key) nbinds++;
     }
-    const keys = new Set(model.bindings.map(({ key }) => key & 0xFF));
     for (const entry of extcmdlist)
         if (entry.key && !keys.has(entry.key)) nbinds++;
     return nbinds;

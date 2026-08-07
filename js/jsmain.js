@@ -286,6 +286,7 @@ export class NethackGame {
         g.commandOperations = opts.commandOperations.map((operation) => ({
             ...operation,
         }));
+        g.unportedConfigStatements = [...opts.unportedConfigStatements];
         if (opts.tutorial_set) g.tutorial_set_in_config = true;
 
         // The rc parser owns roleplay options until u_init_misc() preserves

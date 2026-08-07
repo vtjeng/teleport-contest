@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
 // Record and replay the '#optionsfull' menu against the patched C reference.
-// Both segments type 'm' then 'O', which options.c doset_simple() hands to
-// doset(), and page through every one of its pages without committing a
+// Every segment types 'm' then 'O', which options.c doset_simple() hands to
+// doset(), and pages through every one of its pages without committing a
 // selection. The first uses stock options, so the cmdassist help block leads
 // the menu and the compiled-in defaults fill its value column. The second
 // turns cmdassist off, which drops that block and shifts every page boundary,
-// and sets seven option values the menu then has to report back.
+// and sets seven option values the menu then has to report back. The third
+// rebinds keys, which is the only input that moves the "bind keys" count on
+// the menu's last page.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -60,6 +62,28 @@ export function loadOptionsMenuRecipes() {
             ]),
             moves: ' ' + OPEN_FULL_OPTIONS_MENU,
         },
+        {
+            seed: 4210041,
+            datetime: DATETIME,
+            // Four shapes of BINDINGS statement, none of them touching the
+            // keys this recording types. cmd.c count_bind_keys() answers each
+            // from gc.Cmd.cmdbinds, which holds one entry per key: '^X' ends
+            // on #kick because cmdbind_add() overwrote the #jump entry rather
+            // than adding a second, 'Z' ends on #apply because
+            // parsebindings() applies a comma list right to left, 'q' takes
+            // the CMD_PARAM row #toggle that bind_key() finds after splitting
+            // the parameter off at '(', and 'v' loses its entry to
+            // cmdbind_remove(). That leaves three moved commands for the
+            // first loop and #version's orphaned 'v' for the second.
+            nethackrc: nethackrc([
+                'BINDINGS=^X:jump',
+                'BINDINGS=^X:kick',
+                'BINDINGS=Z:apply,Z:eat',
+                'BINDINGS=q:toggle(showexp)',
+                'BINDINGS=v:nothing',
+            ]),
+            moves: ' ' + OPEN_FULL_OPTIONS_MENU,
+        },
     ];
     // record-session preserves the staged install between one recipe's
     // segments, and each of these leaves the recorder stopped inside a live
@@ -98,11 +122,12 @@ export async function verifyOptionsMenuSegment(segment) {
 }
 
 export async function runOptionsMenuMatrix() {
-    const [stock, configured] = loadOptionsMenuRecipes();
+    const [stock, configured, bound] = loadOptionsMenuRecipes();
     return runFreshMatrix({
         entries: [
             { label: 'stock options menu', recipe: stock },
             { label: 'configured options menu', recipe: configured },
+            { label: 'rebound options menu', recipe: bound },
         ],
         summaryLabel: 'OPTIONS MENU',
         verifySegment: verifyOptionsMenuSegment,

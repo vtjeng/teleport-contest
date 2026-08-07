@@ -383,9 +383,11 @@ function assignMenuAccelerators(spec, pageSize) {
     for (let n = 0; n < lead + spec.items.length; ++n) {
         if (n % pageSize === 0) menu_ch = 'a';
         if (n < lead) continue;
-        // menuLines() accepts a bare string as a display-only line, which
-        // has no selector to assign; a null item would already have thrown
-        // there, so nothing else needs guarding.
+        // menuLines() accepts a bare string as a display-only line, which has
+        // no selector to assign. ttyMenuLayout() runs this pass before
+        // menuLines(), so this is the first read of an item and `typeof null
+        // === 'object'` lets a null one reach Object.hasOwn() below, which is
+        // the trip-wire that reports it.
         const item = spec.items[n - lead];
         if (typeof item !== 'object') continue;
         if (!Object.hasOwn(item, 'value') || item.selector) continue;

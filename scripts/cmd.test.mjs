@@ -2308,6 +2308,38 @@ test('runtime bindings apply a custom movement binding, phone-layout directions,
     );
 });
 
+// C ref: cmd.c's rest_on_space updater (3487-3503). Its `unrestonspace` is a
+// static that remembers whatever command Space held before rest_on_space took
+// it, so that turning the option off hands Space back rather than unbinding
+// it -- "have some non-Null command bound in player's RC file", as the
+// comment there puts it. The port spells that memory as model.unrestOnSpace,
+// and the restBinding flag is how updateRestOnSpace() tells the #wait entry it
+// installed itself apart from the player's own binding. Only that one call
+// sets the flag; cmdbind_add() has no counterpart, so every other binding,
+// including a `bind` statement's, leaves it clear.
+test('rest_on_space hands Space back to the command the rc file bound', () => {
+    // options.c txt2key() spells the space key "<space>". Binding it first,
+    // then toggling the option on and off, is the sequence that needs the
+    // memory: the entry Space holds when the option comes on is the player's.
+    const model = createCommandBindingModel(parseNethackrc(
+        'BINDINGS=<space>:kick\n'
+        + 'OPTIONS=rest_on_space\n'
+        + 'OPTIONS=!rest_on_space\n',
+    ));
+    assert.equal(commandForKey(model, commandKeyCode(' ')), 'kick');
+    // With the option left on, #wait holds Space and the rc binding waits.
+    const resting = createCommandBindingModel(parseNethackrc(
+        'BINDINGS=<space>:kick\nOPTIONS=rest_on_space\n',
+    ));
+    assert.equal(commandForKey(resting, commandKeyCode(' ')), 'wait');
+    // With no rc binding, C's unrestonspace stays Null and Space ends unbound,
+    // which is the "Unknown command ' '." case that comment names.
+    const bare = createCommandBindingModel(parseNethackrc(
+        'OPTIONS=rest_on_space\nOPTIONS=!rest_on_space\n',
+    ));
+    assert.equal(commandForKey(bare, commandKeyCode(' ')), null);
+});
+
 test('special count-key bindings retain their source byte namespace', async () => {
     const cases = [
         ['x', 'x'.charCodeAt(0)],
@@ -3983,5 +4015,32 @@ test('count_bind_keys counts moved commands and orphaned default keys',
         // why the first loop has to look the command up before it compares.
         assert.equal(
             count_bind_keys(stateFor('BINDINGS=Z:notacommand\n')), 0,
+        );
+        // cmdbind_add() overwrites the entry a key already holds instead of
+        // adding a second one, so rebinding a key leaves cmdbinds with one
+        // entry to count. Both spellings reach that: parsebindings() recurses
+        // into the comma suffix before applying the element ahead of it, so
+        // one statement applies right to left and #apply is what survives
+        // either way. #apply's 'a' and #eat's 'e' keep their own entries, so
+        // the second loop adds nothing.
+        assert.equal(count_bind_keys(stateFor('BINDINGS=Z:apply,Z:eat\n')), 1);
+        assert.equal(
+            count_bind_keys(stateFor('BINDINGS=Z:eat\nBINDINGS=Z:apply\n')), 1,
+        );
+        // Unbinding a key that an earlier statement rebound removes the one
+        // entry both statements shared, so the first loop counts nothing and
+        // only #attributes' orphaned '^X' reaches the second.
+        assert.equal(
+            count_bind_keys(
+                stateFor('BINDINGS=^X:jump\nBINDINGS=^X:nothing\n'),
+            ),
+            1,
+        );
+        // bind_key() splits a parameter off at '(' before matching, so
+        // "toggle(showexp)" reaches the CMD_PARAM row #toggle, whose own key
+        // is NUL and therefore differs from '^X'. #toggle carries no key of
+        // its own for the second loop to miss, and '^X' still holds an entry.
+        assert.equal(
+            count_bind_keys(stateFor('BINDINGS=^X:toggle(showexp)\n')), 1,
         );
     });

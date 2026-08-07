@@ -1,9 +1,10 @@
 // Focused tests for options.c doset(), the '#optionsfull' menu.
 //
-// The two configurations below are the two segments
+// The two configurations these tests start from are the first two segments
 // scripts/run-options-menu.mjs records with the patched C reference, so every
 // literal here is a value the C program printed for that exact configuration
-// and the differential is what keeps them honest.
+// and the differential is what keeps them honest. Its third segment covers
+// the "bind keys" count, which no configuration here moves.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -16,7 +17,9 @@ import {
     doset_simple,
     dosetMenuItems,
     longest_option_name,
+    parseNethackrc,
     term_for_boolean,
+    UNPARSED_COMPOUND_OPTIONS,
     UnsupportedOptionMenuError,
 } from '../js/options.js';
 import {
@@ -50,6 +53,18 @@ function menuHelpers(overrides = {}) {
 async function startConfiguredGame(index) {
     const segment = loadOptionsMenuRecipes()[index].segments[0];
     await runSegment({ ...segment, moves: ' ' });
+    return game;
+}
+
+// The stock configuration with extra configuration-file lines appended, for
+// the settings the recorded recipes do not carry.
+async function startGameWithConfig(...lines) {
+    const segment = loadOptionsMenuRecipes()[0].segments[0];
+    await runSegment({
+        ...segment,
+        nethackrc: segment.nethackrc + lines.map((line) => `${line}\n`).join(''),
+        moves: ' ',
+    });
     return game;
 }
 
@@ -346,6 +361,21 @@ test('the menu refuses an option whose value it cannot derive', async () => {
         (error) => error.what === "parseoptions() to interpret 'pickup_types'",
     );
     state.flags.pickup_types = '';
+    // versinfo is a fifth option whose parsed home is its own name. Its parse
+    // arm sits behind the test for a value, so `OPTIONS=versinfo` -- which C
+    // answers with a config error that leaves flags.versinfo at its default --
+    // reaches applyBooleanOption() here and leaves a boolean in that field.
+    const savedVersinfo = state.flags.versinfo;
+    for (const raw of ['kick', true]) {
+        state.flags.versinfo = raw;
+        assert.throws(
+            () => dosetMenuItems(state, menuHelpers(), false),
+            (error) => error instanceof UnsupportedOptionMenuError
+                && error.what === "parseoptions() to interpret 'versinfo'",
+            `versinfo:${raw}`,
+        );
+    }
+    state.flags.versinfo = savedVersinfo;
     // A boolean option with no live value would otherwise read as false.
     delete state.flags.acoustics;
     assert.throws(
@@ -356,6 +386,211 @@ test('the menu refuses an option whose value it cannot derive', async () => {
     state.flags.acoustics = true;
     assert.equal(dosetMenuItems(state, menuHelpers(), false).length, 150);
 });
+
+// C ref: cmd.c count_bind_keys(), reached through options.c
+// optfn_o_bind_keys(). Every other test here calls dosetMenuItems() with the
+// stub in menuHelpers(), so this is the one that builds the helper object
+// runOptionsCommand() passes and proves the seam between the two files.
+test("the 'O' command wires the real count_bind_keys() into the menu",
+    async () => {
+        const segment = loadOptionsMenuRecipes()[0].segments[0];
+        let boundary = null;
+        await runSegment(
+            {
+                ...segment,
+                nethackrc: `${segment.nethackrc}BINDINGS=Z:apply\n`,
+                // The recorded route: 'm' then 'O', then six spaces to page
+                // through to the last of doset()'s seven pages, where the
+                // "Other settings" block sits.
+                moves: ' mO      ',
+            },
+            { onBoundary: (error) => { boundary = error; } },
+        );
+        assert.equal(boundary, null);
+        // The overlay's left margin is the paging differential's business;
+        // this test is about which count reaches the row.
+        const screen = game.nhDisplay.grid.map(
+            (row) => row.map(({ ch }) => ch).join('').trim(),
+        );
+        // count_bind_keys() answers 1 here: cmdbinds' 'Z' entry now holds
+        // #apply, whose own extcmdlist[] key is 'a'. menuHelpers()' stub
+        // answers 0 for every configuration, so no stubbed run prints this.
+        assert.ok(
+            screen.includes('h - bind keys               [(1 currently set)]'),
+            screen.join('\n'),
+        );
+    });
+
+// C ref: options.c doset()'s boolean pass and doset_add_menu(), which both
+// set any.a_int = (indexoffset == 0) ? 0 : i + 1 + indexoffset. doset()'s
+// pick loop subtracts the 1 back off, so the number has to be exact.
+test('each selectable item carries its own allopt[] identifier', async () => {
+    const items = await menuItemsFor(0);
+    const identifier = (name) => items.find(
+        (item) => item.text.trim().startsWith(`${name} `),
+    )?.value;
+    const allow = (name) => allopt.findIndex(
+        (option) => option.name === name,
+    ) + 2;
+    // indexoffset is 1 for every pass a running game can set, so a selectable
+    // item's identifier is its allopt[] index plus two. One from each of the
+    // three places doset() builds it: the boolean pass, a CompOpt row and an
+    // OthrOpt row.
+    assert.equal(identifier('accessiblemsg'), allow('accessiblemsg'));
+    assert.equal(identifier('autounlock'), allow('autounlock'));
+    assert.equal(identifier('bind keys'), allow('bind keys'));
+    // The passes a running game cannot set take indexoffset 0, which makes
+    // a_int 0 and the row a plain display line: doset()'s pass 0 booleans and
+    // its set_gameview compounds.
+    for (const name of ['blind', 'windowtype', 'msghistory'])
+        assert.equal(identifier(name), undefined, name);
+    // No two rows share an identifier, so a pick names one option.
+    const values = items.filter(selectable).map((item) => item.value);
+    assert.equal(new Set(values).size, values.length);
+});
+
+// UNPARSED_COMPOUND_OPTIONS and the by-type guards inside the value handlers
+// are together the whole defence against the menu printing a compiled-in
+// default where the session set something else. Derive the rule rather than
+// listing it: an option needs a guard exactly when parseNethackrc() can leave
+// raw text under flags[<option name>].
+test('every shown compound option guards its unparsed raw text', async () => {
+    const state = await startConfiguredGame(0);
+    const shown = new Set(dosetMenuItems(state, menuHelpers(), false)
+        .map((item) => item.text.trim())
+        .map((text) => text.slice(0, text.indexOf('[')).trim())
+        .filter(Boolean));
+    // A value no parse arm would leave behind, and not a legal value for any
+    // shown option.
+    const RAW = 'kick';
+    const needsGuard = [];
+    for (const option of allopt) {
+        if (option.opttyp !== 'CompOpt' || !shown.has(option.name)) continue;
+        let parsed;
+        // The parse rejects the value outright: nothing can reach flags[name].
+        try {
+            parsed = parseNethackrc(`OPTIONS=${option.name}:${RAW}\n`);
+        } catch {
+            continue;
+        }
+        // The parse routes the value to the field the handler reads.
+        if (parsed.flags[option.name] !== RAW) continue;
+        const saved = state.flags[option.name];
+        state.flags[option.name] = RAW;
+        assert.throws(
+            () => dosetMenuItems(state, menuHelpers(), false),
+            (error) => error instanceof UnsupportedOptionMenuError,
+            option.name,
+        );
+        if (saved === undefined) delete state.flags[option.name];
+        else state.flags[option.name] = saved;
+        needsGuard.push(option.name);
+    }
+    // The two routes that answer the loop above, and nothing else: the frozen
+    // set, plus the options whose handler reads flags[<option name>] itself
+    // and tests its type there. versinfo is a fifth of those, but its parse
+    // arm rejects a value it cannot read as a number, so raw text reaches its
+    // field only through the value-less spelling the refusal test covers.
+    assert.deepEqual(needsGuard.slice().sort(), [
+        ...UNPARSED_COMPOUND_OPTIONS,
+        'autounlock', 'pickup_burden', 'pickup_types', 'suppress_alert',
+    ].sort());
+    // The other-settings rows need no guard: each counts live state instead
+    // of reading an option field, so raw text under their names is inert.
+    for (const name of UNPARSED_COMPOUND_OPTIONS) {
+        assert.equal(
+            allopt.find((option) => option.name === name)?.opttyp, 'CompOpt',
+            name,
+        );
+    }
+});
+
+// C ref: options.c optfn_boolean()'s do_set arm, which writes
+// *allopt[optidx].addr. This port's parse writes that field only for the
+// options applyBooleanOption() has an arm for.
+test('the menu refuses a boolean the parse stored somewhere else',
+    async () => {
+        // optlist.h binds fixinv to &flags.invlet_constant, mail to
+        // &flags.biff and travel to &flags.travelcmd, none of which this
+        // parse writes; each negation lands under the option's own name and
+        // leaves the seeded compiled-in TRUE where the menu reads.
+        const state = await startGameWithConfig('OPTIONS=!fixinv,!mail,!travel');
+        assert.equal(state.flags.fixinv, false);
+        assert.equal(state.flags.invlet_constant, true);
+        assert.throws(
+            () => dosetMenuItems(state, menuHelpers(), false),
+            (error) => error instanceof UnsupportedOptionMenuError
+                && error.what
+                    === "parseoptions() to store 'fixinv' in flags.invlet_constant",
+        );
+        // Setting one of them to the value it already holds leaves the two
+        // fields agreeing, and the menu prints that value rather than
+        // stopping: what the port cannot show is a value it does not hold.
+        const same = await startGameWithConfig('OPTIONS=fixinv');
+        const items = dosetMenuItems(same, menuHelpers(), false);
+        assert.equal(valueOf(items, 'fixinv'), 'true');
+    });
+
+// C ref: options.c doset()'s fmtstr_doset choice. menu_tab_sep's set_wizonly
+// restriction keeps doset() from listing the option, not from acting on it,
+// and a configuration file can turn it on in an ordinary game.
+test('the menu refuses the tab-separated layout menu_tab_sep asks for',
+    async () => {
+        const configured = await startGameWithConfig('OPTIONS=menu_tab_sep');
+        // The parse leaves the option under its own name, so the format
+        // helper's read of iflags.menu_tab_sep stops on the same disagreement
+        // every other unstored boolean does -- before any row is formatted.
+        assert.throws(
+            () => dosetMenuItems(configured, menuHelpers(), false),
+            (error) => error instanceof UnsupportedOptionMenuError
+                && error.what
+                    === "parseoptions() to store 'menu_tab_sep' in iflags.menu_tab_sep",
+        );
+        // With the flag itself on, C drops the four-space indent and formats
+        // every line "%s%s\t[%s]". That branch is not ported.
+        const state = await startConfiguredGame(0);
+        state.iflags.menu_tab_sep = true;
+        assert.throws(
+            () => dosetMenuItems(state, menuHelpers(), false),
+            (error) => error instanceof UnsupportedOptionMenuError
+                && error.what === 'doset() with menu_tab_sep',
+        );
+        state.iflags.menu_tab_sep = false;
+        assert.equal(dosetMenuItems(state, menuHelpers(), false).length, 150);
+    });
+
+// C ref: coloratt.c count_menucolors(), options.c msgtype_count() and cmd.c
+// count_autocompletions(). Each walks a list that a configuration statement
+// this port drops is what fills.
+test('each Other settings count refuses a statement the parse dropped',
+    async () => {
+        const dropped = [
+            // cfgfiles.c cnf_line_MENUCOLOR() appends one gm.menu_colorings
+            // node, which count_menucolors() counts.
+            ['MENUCOLOR="blessed"=green', 'menu colors', 'MENUCOLOR'],
+            // cnf_line_MSGTYPE() appends one gp.plinemsg_types node.
+            ['MSGTYPE=hide "You swap places*"', 'message types', 'MSGTYPE'],
+            // cnf_line_AUTOCOMPLETE() sets AUTOCOMP_ADJ on an extcmdlist[]
+            // row, which count_autocompletions() counts.
+            ['AUTOCOMPLETE=!terrain', 'autocompletions', 'AUTOCOMPLETE'],
+        ];
+        for (const [line, row, handler] of dropped) {
+            const state = await startGameWithConfig(line);
+            assert.throws(
+                () => dosetMenuItems(state, menuHelpers(), false),
+                (error) => error instanceof UnsupportedOptionMenuError
+                    && error.what === `cfgfiles.c cnf_line_${handler}()`,
+                row,
+            );
+        }
+        // Each count stops only on its own statement, so the other two rows
+        // still report the empty list the port really holds.
+        const state = await startGameWithConfig('MENUCOLOR="blessed"=green');
+        state.unportedConfigStatements = [];
+        const items = dosetMenuItems(state, menuHelpers(), false);
+        for (const row of ['menu colors', 'message types', 'autocompletions'])
+            assert.equal(valueOf(items, row), '(0 currently set)', row);
+    });
 
 test('the m prefix routes doset_simple() to doset() exactly once',
     async () => {

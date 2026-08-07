@@ -406,6 +406,11 @@ function defaultResult() {
         commandOperations: [],
         symbolOperations: [],
         rogueSymbols: {},
+        // The configuration statements this parser recognizes but does not
+        // interpret, in the order the file spelled them.  Each one makes
+        // cfgfiles.c append to a list the options menu counts, so the count
+        // has to know the statement was there; see UNPORTED_CONFIG_STATEMENTS.
+        unportedConfigStatements: [],
     };
     applyBooleanOptionDefaults(result);
     return result;
@@ -2146,6 +2151,52 @@ function applyOption(result, optionState, option, lineNumber) {
         setRunmode(result, value, negated, lineNumber);
     } else if (name === 'pile_limit') {
         setPileLimit(result, value, negated, lineNumber);
+    } else if (name === 'msg_window') {
+        // C ref: options.c optfn_msg_window()'s do_set arm. PREV_MSGS is 1
+        // for this tty build. parseoptions() reads this option's value as
+        // optional, so the spellings with no value reach the handler with
+        // empty_optstr, which means 'f' plain and 's' negated; a negation
+        // that does carry a value is bad_negation(). Otherwise C keeps the
+        // lowercased first letter and rejects anything but s, c, f or r.
+        let tmp;
+        if (!value) {
+            tmp = negated ? 's' : 'f';
+        } else if (negated) {
+            optionError(
+                lineNumber, "the 'msg_window' option may not be negated",
+            );
+        } else {
+            tmp = value[0].toLowerCase();
+        }
+        if (!'scfr'.includes(tmp)) {
+            optionError(
+                lineNumber, `unknown msg_window parameter '${value}'`,
+            );
+        }
+        result.iflags.prevmsg_window = tmp;
+    } else if (name === 'sortloot') {
+        // C ref: options.c optfn_sortloot()'s do_set arm, which stores the
+        // lowercased first letter and rejects anything else. optlist.h gives
+        // sortloot negateok No, so parseoptions() answers a negation with
+        // bad_negation() before the handler runs, which is why the handler
+        // declares its negated argument UNUSED. The handler then re-reads the
+        // value with string_for_env_opt(name, opts, FALSE), so a spelling
+        // with no value is the "Missing parameter" config error rather than a
+        // default. This port stops on each of those errors.
+        if (negated) {
+            optionError(
+                lineNumber,
+                `negated compound option '${name}' is not supported`,
+            );
+        }
+        if (!value) optionError(lineNumber, "'sortloot' requires a value");
+        const c = value[0].toLowerCase();
+        if (!'nlf'.includes(c)) {
+            optionError(
+                lineNumber, `unknown sortloot parameter '${value}'`,
+            );
+        }
+        result.flags.sortloot = c;
     } else if (HANDLED_BOOLEAN_OPTIONS.has(name)) {
         applyBooleanOption(result, name, value, negated, lineNumber);
     } else if (value != null) {
@@ -2164,28 +2215,6 @@ function applyOption(result, optionState, option, lineNumber) {
         }
         else if (name === 'suppress_alert') {
             result.flags.suppress_alert = value;
-        } else if (name === 'msg_window') {
-            // C ref: options.c optfn_msg_window()'s do_set arm. PREV_MSGS is
-            // 1 for this tty build, so C keeps the lowercased first letter of
-            // the value and rejects anything but s, c, f or r. An empty value
-            // means 'f', which the negated form here cannot reach.
-            const tmp = value ? value[0].toLowerCase() : 'f';
-            if (!'scfr'.includes(tmp)) {
-                optionError(
-                    lineNumber, `unknown msg_window parameter '${value}'`,
-                );
-            }
-            result.iflags.prevmsg_window = tmp;
-        } else if (name === 'sortloot') {
-            // C ref: options.c optfn_sortloot()'s do_set arm, which stores
-            // the lowercased first letter and rejects anything else.
-            const c = value ? value[0].toLowerCase() : '';
-            if (!c || !'nlf'.includes(c)) {
-                optionError(
-                    lineNumber, `unknown sortloot parameter '${value}'`,
-                );
-            }
-            result.flags.sortloot = c;
         } else if (name === 'versinfo') {
             const versinfo = Number.parseInt(value, 10);
             if (!Number.isInteger(versinfo)
@@ -2238,9 +2267,23 @@ function applyDirectOption(result, key, value) {
     }
 }
 
+// C ref: cfgfiles.c config_line_stmt[].  Each row here dispatches to a
+// cnf_line_<NAME>() this port has not ported, and each of those appends to a
+// list the options menu counts.  parse_config_line() matches on the same
+// case-insensitive prefix of at least `minLength` bytes, so these lengths are
+// the C table's: CNFL_N(AUTOCOMPLETE, 5), CNFL_N(MSGTYPE, 7) and
+// CNFL_N(MENUCOLOR, 9).  Recording the statement lets the count refuse rather
+// than report a list the port never built.
+const UNPORTED_CONFIG_STATEMENTS = Object.freeze([
+    { name: 'autocomplete', minLength: 5, kind: 'unported' },
+    { name: 'msgtype', minLength: 7, kind: 'unported' },
+    { name: 'menucolor', minLength: 9, kind: 'unported' },
+]);
+
 const CONFIG_STATEMENTS = Object.freeze([
     { name: 'options', minLength: 4, kind: 'options' },
     { name: 'bindings', minLength: 4, kind: 'bindings' },
+    ...UNPORTED_CONFIG_STATEMENTS,
     { name: 'roguesymbols', minLength: 4, kind: 'symbols', set: 'rogue' },
     { name: 'symbols', minLength: 4, kind: 'symbols', set: 'primary' },
     { name: 'name', minLength: 4, kind: 'direct', directName: 'name' },
@@ -2364,6 +2407,10 @@ export function parseNethackrc(rc, random = rn2) {
             matchesConfigName(statementName, name, minLength)
         ));
         if (!statement) continue;
+        if (statement.kind === 'unported') {
+            result.unportedConfigStatements.push(statement.name);
+            continue;
+        }
 
         const rawValue = statement.kind === 'options'
             ? paddingTrimmedLine.slice(configDelimiter(paddingTrimmedLine) + 1)
@@ -2574,6 +2621,21 @@ function booleanOptionValue(state, option) {
             `a live value for boolean option '${option.name}' (${option.addr})`,
         );
     }
+    // options.c optfn_boolean()'s do_set arm writes *allopt[optidx].addr, the
+    // field read just above.  This port's parse writes that field only for the
+    // options applyBooleanOption() has an arm for; everything else lands under
+    // the option's own lowercased name, leaving addr holding the compiled-in
+    // default applyBooleanOptionDefaults() seeded.  When the two fields
+    // disagree the port does not hold the value doset() has to print, so stop
+    // rather than show the default as though it were the session's setting.
+    // The two are the same field whenever addr is `flags.<name>`, which is
+    // why an option the parse does handle never reaches this.
+    const parsed = state.flags?.[option.name.toLowerCase()];
+    if (parsed !== undefined && parsed !== value) {
+        throw new UnsupportedOptionMenuError(
+            `parseoptions() to store '${option.name}' in ${option.addr}`,
+        );
+    }
     return value;
 }
 
@@ -2723,17 +2785,38 @@ function count_apes(state) {
     return numapes;
 }
 
-// C ref: coloratt.c count_menucolors() over gm.menu_colorings, and
-// options.c msgtype_count() over gp.plinemsg_types.  CONFIG_STATEMENTS above
-// carries neither MENUCOLOR nor MSGTYPE, and no ported command adds an entry
-// to either list, so both are empty for every game this port can construct.
-function count_menucolors() { return 0; }
-function msgtype_count() { return 0; }
+// A configuration statement cfgfiles.c dispatches and parseNethackrc() only
+// records.  The list each one appends to is the list a count below walks, so
+// the count stops here rather than reporting the empty list as the session's.
+function refuseUnportedConfigStatement(state, name) {
+    if (state.unportedConfigStatements?.includes(name)) {
+        throw new UnsupportedOptionMenuError(
+            `cfgfiles.c cnf_line_${name.toUpperCase()}()`,
+        );
+    }
+}
 
-// C ref: cmd.c count_autocompletions(), over the AUTOCOMP_ADJ flag that the
-// AUTOCOMPLETE configuration statement sets on an extcmdlist[] row.  The
-// generated table carries the compiled-in flags only.
-function count_autocompletions() {
+// C ref: coloratt.c count_menucolors() over gm.menu_colorings, and options.c
+// msgtype_count() over gp.plinemsg_types.  cfgfiles.c cnf_line_MENUCOLOR()
+// and cnf_line_MSGTYPE() are what append to those lists at startup, and both
+// stop this port above.  Nothing else in reach adds an entry: no js/ module
+// writes gm.menu_colorings or gp.plinemsg_types, and the commands that would
+// (doset()'s pick loop for either row) are unported.
+function count_menucolors(state) {
+    refuseUnportedConfigStatement(state, 'menucolor');
+    return 0;
+}
+function msgtype_count(state) {
+    refuseUnportedConfigStatement(state, 'msgtype');
+    return 0;
+}
+
+// C ref: cmd.c count_autocompletions(), over the AUTOCOMP_ADJ flag that
+// cmd.c's AUTOCOMPLETE handler sets on an extcmdlist[] row.  The generated
+// table carries the compiled-in flags, which is the whole answer once the one
+// statement that changes them stops above.
+function count_autocompletions(state) {
+    refuseUnportedConfigStatement(state, 'autocomplete');
     return extcmdlist.filter((entry) => entry.flags & AUTOCOMP_ADJ).length;
 }
 
@@ -2926,8 +3009,12 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         return none;
     },
     symset: (state) => symsetValue(state, PRIMARYSET, true),
-    versinfo: (state) => {
-        const vi = state.flags.versinfo;
+    // A fifth option whose parsed home is its own name: the parse arm sits
+    // inside the branch that needs a value, so `OPTIONS=versinfo`, which C
+    // answers with a config error that leaves flags.versinfo alone, reaches
+    // applyBooleanOption()'s fallback and leaves a boolean in this field.
+    versinfo: (state, option) => {
+        const vi = requireParsedNumber(state, option);
         const g = (vi & VI_NAME) !== 0;
         const b = (vi & VI_BRANCH) !== 0;
         const n = (vi & VI_NUMBER) !== 0;
@@ -2947,13 +3034,16 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         return filter === GFILTER_VIEW ? 'view'
             : filter === GFILTER_AREA ? 'area' : 'none';
     },
-    o_autocomplete: () => n_currently_set(count_autocompletions()),
+    o_autocomplete: (state) => n_currently_set(count_autocompletions(state)),
     o_autopickup_exceptions: (state) => n_currently_set(count_apes(state)),
+    // cmd.c count_bind_keys(), ported in js/cmd.js beside the cmdbinds model
+    // it walks. It arrives through helpers rather than an import because
+    // js/cmd.js already imports this module.
     o_bind_keys: (state, option, helpers) => n_currently_set(
         helpers.countBindKeys(state),
     ),
-    o_menu_colors: () => n_currently_set(count_menucolors()),
-    o_message_types: () => n_currently_set(msgtype_count()),
+    o_menu_colors: (state) => n_currently_set(count_menucolors(state)),
+    o_message_types: (state) => n_currently_set(msgtype_count(state)),
     o_status_cond: (state) => n_currently_set(count_cond(state)),
     o_status_hilites: (state) => n_currently_set(count_status_hilites(state)),
 });
@@ -2973,12 +3063,21 @@ function symsetValue(state, set, withHandling) {
 // and preserves every other option's raw text under flags[<option name>].  A
 // value kept that way never reached the field the handler above reads, so the
 // menu would show the compiled-in default instead of the session's setting.
-// These are the shown compound and other options whose parsed home differs
-// from the option's own name, so a value under that name can only be raw.
-// The three whose parsed home is the option's own name -- autounlock,
-// pickup_types and suppress_alert -- are guarded inside their handlers,
-// where the compiled-in default is available to compare against.
-const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
+//
+// Membership is every shown compound option that parseNethackrc() leaves as
+// raw text under flags[<option name>] and whose handler above reads some
+// other field, so the raw text sits beside the value rather than replacing
+// it.  packorder is a member on that rule even though it has its own parse
+// arm, because that arm only retains the raw text: its handler reads
+// flags.inv_order.  Where the raw text lands in the very field the handler
+// reads -- autounlock, pickup_burden, pickup_types, suppress_alert and
+// versinfo -- there is nothing left to compare against, so those five are
+// guarded by type inside their handlers instead and are not members.  The
+// other-settings rows need neither guard: each counts live state rather than
+// reading an option field.  scripts/options-menu.test.mjs derives the whole
+// rule from parseNethackrc(), so the set cannot drift from
+// OPTION_VALUE_HANDLERS unnoticed.
+export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'boulder', 'crash_email', 'crash_name', 'crash_urlmax',
     'disclose', 'glyph', 'menu_objsyms', 'menuinvertmode', 'menustyle',
     'msghistory', 'packorder', 'paranoid_confirmation',
@@ -3014,10 +3113,21 @@ function doset_add_menu(
     items.push(a_int ? { text, value: a_int } : { text });
 }
 
-// C ref: options.c doset()'s fmtstr_doset.  iflags.menu_tab_sep is a
-// wizard-mode-only option, so the tab-separated form is unreachable here and
-// only the "%s%-Nus [%s]" form is built.
-function dosetEntryFormat(startpass, endpass) {
+// options.c doset() lists menu_tab_sep only for a hero in debug mode, because
+// its setwhere is set_wizonly -- but that restriction governs the listing
+// alone.  optfn_boolean()'s do_set arm rejects only set_in_config after
+// startup and set_wiznofuz at startup, so a configuration file turns
+// iflags.menu_tab_sep on in an ordinary game, and every line of the menu then
+// takes the "%s%s\t[%s]" form with no pass 0 indent.
+const MENU_TAB_SEP = allopt.find(
+    (option) => option.name === 'menu_tab_sep',
+);
+
+// C ref: options.c doset()'s fmtstr_doset, the "%s%-Nus [%s]" branch.
+// fmtstr_tab_doset, the branch above, is not ported.
+function dosetEntryFormat(state, startpass, endpass) {
+    if (booleanOptionValue(state, MENU_TAB_SEP))
+        throw new UnsupportedOptionMenuError('doset() with menu_tab_sep');
     const width = longest_option_name(startpass, endpass);
     return (indent, name, value) => `${indent}${name.padEnd(width)} [${value}]`;
 }
@@ -3059,7 +3169,7 @@ export function dosetMenuItems(state, helpers, skiphelp) {
     // because SYSCF's `#ifdef notyet` block is not compiled.
     const startpass = set_gameview;
     const endpass = state.wizard ? set_wiznofuz : set_in_game;
-    const format = dosetEntryFormat(startpass, endpass);
+    const format = dosetEntryFormat(state, startpass, endpass);
     const indexoffset = 1;
 
     items.push({
