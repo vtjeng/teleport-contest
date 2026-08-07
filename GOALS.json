@@ -769,8 +769,8 @@
       "slices": [
         {
           "name": "the attack precedes test_move",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "fabbb65880d84b14c135a90e79b38adbc96571e2"
         },
         {
           "name": "a hostile melee attempt misses",
