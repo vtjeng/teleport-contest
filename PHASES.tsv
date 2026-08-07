@@ -207,3 +207,7 @@ utc	event	phase	goal	detail
 2026-08-07T16:12:04.113Z	end	select	chat-command	
 2026-08-07T16:12:04.141Z	start	implement	chat-command	
 2026-08-07T17:12:57.503Z	end	implement	chat-command	
+2026-08-07T17:38:17.647Z	end	select	commands-deferral-sweep-2	
+2026-08-07T17:38:17.678Z	start	implement	commands-deferral-sweep-2	
+2026-08-07T17:38:26.733Z	end	select	commands-deferral-sweep-2	
+2026-08-07T17:38:26.763Z	start	implement	commands-deferral-sweep-2	
