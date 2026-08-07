@@ -774,8 +774,8 @@
         },
         {
           "name": "a hostile melee attempt misses",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b2663648a0af35ab0fdee9f4b2eddec93eafd0e6"
         },
         {
           "name": "a hostile melee attempt hits",
