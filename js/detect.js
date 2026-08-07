@@ -48,6 +48,7 @@ import {
 import { on_level } from './dungeon.js';
 import { can_reach_floor, engr_at } from './engrave.js';
 import { game } from './gstate.js';
+import { nomul } from './hack.js';
 import { hides_under, is_hider } from './mondata.js';
 import { S_EEL } from './monsters.js';
 import { m_at } from './monst.js';
@@ -353,28 +354,6 @@ async function defaultWaitFoundTrap(env) {
     await docrt();
 }
 
-// C ref: hack.c nomul(0), including end_running(TRUE)'s state effects which
-// matter when automatic searching interrupts a repeated movement command.
-function defaultNomulZero(env) {
-    const { state } = env;
-    if ((state.multi ?? 0) < 0) return;
-    state.disp ??= {};
-    state.context ??= {};
-    state.disp.botl = true;
-    if (state.u) {
-        state.u.uinvulnerable = false;
-        state.u.usleep = 0;
-    }
-    state.multi = 0;
-    state.multi_reason = null;
-    state.multireasonbuf = '';
-    state.context.run = 0;
-    state.context.travel = 0;
-    state.context.travel1 = 0;
-    state.context.mv = 0;
-    state.travelmap = null;
-}
-
 async function defaultExerciseWisdom(env) {
     await exercise(A_WIS, true, env.state, env.random, env.hooks);
 }
@@ -433,7 +412,9 @@ function normalizeSearchEnv(rawEnv = {}) {
             'exerciseWisdom',
             defaultExerciseWisdom,
         ),
-        nomulZero: operation('nomulZero', defaultNomulZero),
+        // detect.c calls nomul(0) at 2048, 2058 and 2080, which js/hack.js
+        // owns along with the end_running(TRUE) inside it.
+        nomulZero: operation('nomulZero', ({ state }) => nomul(0, state)),
         message: operation('message', defaultMessage),
         trapName: operation(
             'trapName',
@@ -868,10 +849,3 @@ export async function dosearch(state = game, rawEnv = {}) {
     if (prevented) return ECMD_OK;
     return await dosearch0(0, { state, ...rawEnv }) ? ECMD_TIME : ECMD_OK;
 }
-
-export const _detectInternals = Object.freeze({
-    artifactSearchAbility,
-    coordinateDescription,
-    defaultNomulZero,
-    searchFund,
-});

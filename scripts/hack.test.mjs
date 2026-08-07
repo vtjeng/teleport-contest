@@ -33,6 +33,7 @@ import {
 import {
     disturb_buried_zombies,
     domove,
+    endRunning,
     hero_tread_disturbs_buried_zombies,
     lookaround,
     maybe_smudge_engr,
@@ -451,6 +452,45 @@ test('nomul(0) clears the run and the source fields around it', () => {
     assert.equal(state.disp.botl, true);
     assert.equal(state.u.uinvulnerable, false);
     assert.equal(state.u.usleep, 0);
+});
+
+test('nomul(0) clears the multi reason fields', () => {
+    // hack.c:4169-4170 clears both only for nval == 0. The buffer values are
+    // arbitrary non-empty markers: any value survives a mistaken omission, and
+    // C reaches this line with whatever the interrupted action last wrote.
+    const state = runState({
+        multi_reason: 'digging', multireasonbuf: 'digging down',
+    });
+    nomul(0, state);
+    assert.equal(state.multi_reason, null);
+    assert.equal(state.multireasonbuf, '');
+});
+
+test('nomul with a nonzero request leaves the multi reason fields alone',
+    () => {
+    // hack.c:4169 guards the pair with `nval == 0`, so a paralysis keeps the
+    // reason it is about to be described by. -3 is any negative request the
+    // "bug fix by ab@unido" guard admits from multi 0.
+    const state = runState({
+        multi: 0, multi_reason: 'frozen', multireasonbuf: 'frozen by a spell',
+    });
+    nomul(-3, state);
+    assert.equal(state.multi, -3);
+    assert.equal(state.multi_reason, 'frozen');
+    assert.equal(state.multireasonbuf, 'frozen by a spell');
+});
+
+test('end_running frees the travel map whether or not a run was going', () => {
+    // hack.c:4151-4154 frees gt.travelmap outside both the `context.run` block
+    // and the `and_travel` arm, so neither guard can withhold the clear. The
+    // sentinel stands for the selection C would selection_free(); this port
+    // has no reader for it yet, so only its disposal is observable.
+    for (const run of [0, 1]) {
+        const state = runState({ context: { run, travel: 1, mv: 1 } });
+        state.travelmap = { sentinel: true };
+        endRunning(state);
+        assert.equal(state.travelmap, null, `travelmap with run ${run}`);
+    }
 });
 
 test('nomul returns early when multi is already lower than the request', () => {

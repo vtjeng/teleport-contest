@@ -40,7 +40,6 @@ import {
     W_CHAIN,
 } from '../js/const.js';
 import {
-    _detectInternals,
     cvt_sdoor_to_door,
     dosearch,
     dosearch0,
@@ -56,6 +55,7 @@ import {
     unmap_invisible,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
+import { nomul } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     CHEST,
@@ -208,7 +208,7 @@ function recordingOperations(state, events) {
         waitFoundTrap() {},
         nomulZero(env) {
             events.push('nomul(0)');
-            _detectInternals.defaultNomulZero(env);
+            nomul(0, env.state);
         },
         message(text, x, y) {
             events.push(`message(${x},${y},${text})`);
@@ -413,6 +413,35 @@ test('automatic search reveals a secret door in source operation order', async (
     assert.equal(state.u.usleep, 0);
     random.done();
 });
+
+test('a secret door found in production ends the turn through nomul(0)',
+    async () => {
+        // The harness above supplies its own nomul(0), so nothing there
+        // exercises the one searchEnv() installs. Seed 8100006 puts an SDOOR
+        // at <41,7> next to a Ranger starting at <42,8>, and ten `s` presses
+        // find it; four do not. gm.multi_reason and gt.travelmap are written
+        // by nomul(0) and end_running() and by nothing else in js/, so they
+        // stay undefined until the find and separate a delegated call from a
+        // skipped one. The same seed, rc and keys replay against the patched C
+        // program with matching random-number calls, screens and cursors.
+        const rc = 'OPTIONS=name:Searcher,role:Ranger,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'time';
+        const segment = (moves) => ({
+            seed: 8100006, datetime: '20260807140000', nethackrc: rc, moves,
+        });
+
+        await runSegment(segment('ssss'));
+        assert.equal(game.level.at(41, 7).typ, SDOOR);
+        assert.equal(game.multi_reason, undefined);
+        assert.equal(game.travelmap, undefined);
+
+        await runSegment(segment('ssssssssss'));
+        assert.equal(game.level.at(41, 7).typ, DOOR);
+        assert.equal(game.multi_reason, null);
+        assert.equal(game.multireasonbuf, '');
+        assert.equal(game.travelmap, null);
+    });
 
 test('secret-door conversion closes unlocked doors and opens rogue doors', () => {
     const ordinary = searchState();

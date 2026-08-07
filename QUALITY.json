@@ -905,7 +905,7 @@
       "area": "commands",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "2fcd795c3ca62e17f54ae1df21c8396590c6c4dd",
       "detail": "`js/hack.js endRunning()` carries the comment \"gt.travelmap has no ported\ncounterpart, so its selection_free() is absent.\" That is false, and acting on\nit would delete live code.\n\n`grep -rn \"travelmap\" js/ scripts/` returns exactly two lines: that comment,\nand `js/detect.js state.travelmap = null;`. The second sits inside a function\nheaded \"C ref: hack.c nomul(0), including end_running(TRUE)'s state effects\",\nso it *is* a port of `hack.c`'s travelmap clear.\n\nThe defect underneath the comment is that `hack.c end_running()` has two\ndisagreeing ports. `js/hack.js endRunning()` does not clear `travelmap`; the\ncopy inside `js/detect.js` does. A reader who trusts the comment concludes the\n`detect.js` line is unported scaffolding and removes it.\n\nResolve by deciding which function owns `end_running()`'s state effects --\n`hack.c` names `js/hack.js` -- moving the clear there, having the `detect.js`\npath call it, and correcting the comment. Confirm an identical development\nscore: whichever way the ownership falls, no scored session should observe a\ndifference today, because the two paths already agree on the value written.\n\nFound by an audit of absence claims across `js/` comments on 6 August 2026.\nThat audit checked 53 such claims and found 14 false or stale, so this entry is\none instance of a class rather than an isolated slip."
     },

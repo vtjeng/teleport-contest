@@ -392,16 +392,13 @@ export function monsterNearby(state = game) {
 // the run ends. nomul() masks half of that by setting disp.botl itself, but the
 // direct callers in js/uhitm.js and js/eat.js reach here without it.
 //
-// gt.travelmap is ported, but not here. C frees it unconditionally, below and
-// outside the `if (and_travel)` arm; this port writes it only in js/detect.js,
-// inside the nomul(0) copy of these same state effects. So hack.c
-// end_running() has two disagreeing ports and this is the one missing the
-// clear. That js/detect.js assignment is the field's only write, and no js/
-// module reads it, so no behavior differs today and adding the clear here
-// would be a no-op until a reader exists.
-// QUALITY.json carries `end-running-travelmap-two-ports` for deciding which
-// function owns the effects; do not read this omission as evidence that the
-// js/detect.js line is unported scaffolding.
+// state.travelmap stands for gt.travelmap, the selection travel builds and
+// every end_running() disposes of. C frees it here unconditionally, outside
+// both the `context.run` block and the `and_travel` arm, so this clear carries
+// no guard either. Nothing in js/ builds a travel selection yet, so today the
+// field only ever goes from undefined to null; the clear is here because
+// end_running() is where C puts it, and dotravel() will find it already
+// waiting.
 export function endRunning(state = game) {
     if (state.context.run) {
         state.context.run = 0;
@@ -415,13 +412,20 @@ export function endRunning(state = game) {
     state.context.travel = 0;
     state.context.travel1 = 0;
     state.context.mv = 0;
+    state.travelmap = null;
     if (state.multi > 0) state.multi = 0;
 }
 
-// C ref: hack.c nomul(). Interrupts a multi-turn action: a run, a travel, or
-// a counted repeat. Its cmdq_clear(CQ_CANNED) has no ported command queue,
-// and gm.multi_reason/gm.multireasonbuf have no ported reader, so neither is
-// represented here.
+// C ref: hack.c nomul() (4160-4173). Interrupts a multi-turn action: a run, a
+// travel, or a counted repeat. Its cmdq_clear(CQ_CANNED) has no ported command
+// queue, so it is not represented here.
+//
+// gm.multi_reason and gm.multireasonbuf have no ported reader. They are
+// written anyway because they are the reason string for the interrupted
+// action, and losing the clear would leave the previous action's reason
+// standing for the next one that sets it -- the same stale-string defect
+// dropping done_eating()'s nomovemsg reset produces. C zeroes them together
+// and only for nval 0, so both stay under that one guard.
 export function nomul(nval, state = game) {
     const multi = state.multi ?? 0;
     if (multi < nval) return; /* This is a bug fix by ab@unido */
@@ -430,6 +434,10 @@ export function nomul(nval, state = game) {
     state.u.uinvulnerable = false;
     state.u.usleep = 0;
     state.multi = nval;
+    if (nval === 0) {
+        state.multi_reason = null;
+        state.multireasonbuf = '';
+    }
     endRunning(state);
 }
 
