@@ -4,7 +4,7 @@
 // Every segment contains replay inputs only; runFreshMatrix() records new
 // reference output in an isolated temporary workspace.
 //
-// Three groups of cases:
+// Four groups of cases:
 //
 // - TIME_COST_CASES settle wield.c dotwoweapon()'s single draw. It ends
 //   `(rnd(20) > ACURR(A_DEX)) ? ECMD_TIME : ECMD_OK`, so one draw decides
@@ -18,12 +18,15 @@
 //   role reaches is fixed by its u_init.c starting inventory and by
 //   mondata.h could_twoweap() over its monst.c role monster, so a role
 //   selects an arm the way a keystroke selects a command.
+// - WEAPONSTATUS_CASES turn on the one option that puts the outcome on the
+//   status line, which every other group leaves off.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { A_DEX } from '../js/const.js';
 import { effective_attribute } from '../js/attrib.js';
+import { weapon_status } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { could_twoweap } from '../js/mondata.js';
@@ -113,6 +116,16 @@ const SWITCH_CASES = [
     { who: 'rogue', seed: REFUSAL_SEED },
 ];
 
+// wield.c set_twoweap() marks the status line dirty only when
+// flags.weaponstatus is on, and botl.c:492-499 is what it dirties the line
+// for. With the option off -- every other group here, and every recorded
+// session -- the field is absent, so no recorded screen shows what a
+// successful #twoweapon does to it. This case turns it on over the Samurai
+// start whose success path the switch group already replays.
+export const WEAPONSTATUS_CASES = [
+    { who: 'samurai', seed: REFUSAL_SEED },
+];
+
 // Each case names the can_twoweapon() arm its role reaches and the state that
 // selects it. Every `arm` cites the `if` or `} else if` that opens the arm it
 // names, which scripts/twoweapon-matrix.test.mjs re-reads out of wield.c.
@@ -149,13 +162,17 @@ export const REFUSAL_CASES = [
 // One short name for every segment. u_init.c's welcome line names the hero,
 // the role, the race, the gender and the alignment, and a longer name wraps it
 // past 80 columns into a --More-- that would swallow the leading wait.
-function nethackrc(who = 'samurai') {
+//
+// `weaponstatus` is off in every group but WEAPONSTATUS_CASES, so the recorded
+// status line carries no weapon field and nothing on it moves with the hands.
+function nethackrc(who = 'samurai', { weaponstatus = false } = {}) {
     const { role, race, gender, align } = ROLES[who];
     return [
         `OPTIONS=name:Twoweap,role:${role},race:${race},gender:${gender},`
         + `align:${align}`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics',
+        ...(weaponstatus ? ['OPTIONS=weaponstatus'] : []),
         '',
     ].join('\n');
 }
@@ -163,11 +180,11 @@ function nethackrc(who = 'samurai') {
 // Each segment waits, issues the command, then waits twice more, so a move
 // wrongly spent or wrongly saved moves every later turn into a screen the
 // differential compares.
-function segment({ seed, who = 'samurai', repeat = 1 }) {
+function segment({ seed, who = 'samurai', repeat = 1, weaponstatus = false }) {
     return {
         seed,
         datetime: DATETIME,
-        nethackrc: nethackrc(who),
+        nethackrc: nethackrc(who, { weaponstatus }),
         moves: `${WAIT}${TWOWEAPON.repeat(repeat)}${WAIT}${WAIT}`,
     };
 }
@@ -190,6 +207,15 @@ export function loadTwoWeaponRefusalRecipe() {
     return validateCleanRecipe({
         version: 5,
         segments: REFUSAL_CASES.map((entry) => segment(entry)),
+    });
+}
+
+export function loadTwoWeaponStatusRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: WEAPONSTATUS_CASES.map(
+            (entry) => segment({ ...entry, weaponstatus: true }),
+        ),
     });
 }
 
@@ -286,12 +312,38 @@ async function verifyRefusal(recipeSegment) {
         throw new Error(`${arm} spent a move`);
 }
 
+async function verifyWeaponStatus(recipeSegment) {
+    // Stop one keystroke before the Enter. The option has to be on, or the
+    // field would be missing from the screen rather than merely wrong.
+    await runSegment({ ...recipeSegment, moves: `${WAIT}#twoweapon` });
+    if (!game.flags.weaponstatus)
+        throw new Error('the case did not turn the weapon status field on');
+    // botl.c:516-519 names a katana by its skill class while two-weapon
+    // combat is off, so the field holds a value the command has to replace.
+    if (weapon_status(game) !== 'Sword')
+        throw new Error(`the field starts at ${weapon_status(game)}`);
+
+    // botl.c:492-499. Only a lance held on a steed reads "Dual+joust", and
+    // the Samurai has neither.
+    await runSegment({ ...recipeSegment, moves: `${WAIT}${TWOWEAPON}` });
+    if (!game.u.twoweap)
+        throw new Error('the command did not turn two-weapon combat on');
+    if (weapon_status(game) !== 'Dual-weps')
+        throw new Error(`the field reads ${weapon_status(game)}`);
+}
+
 // Routes a segment to the group it belongs to. The time-cost group is the one
-// with its own seeds; the other two share REFUSAL_SEED and are told apart by
-// the role their nethackrc selects.
+// with its own seeds; the other three share REFUSAL_SEED and are told apart by
+// the nethackrc, which names a different role or sets a different option for
+// every case.
 export async function verifyTwoWeaponCommandSegment(recipeSegment) {
     if (TIME_COST_CASES.some((e) => e.seed === recipeSegment.seed))
         await verifyTimeCost(recipeSegment);
+    else if (WEAPONSTATUS_CASES.some(
+        (e) => nethackrc(e.who, { weaponstatus: true })
+            === recipeSegment.nethackrc,
+    ))
+        await verifyWeaponStatus(recipeSegment);
     else if (SWITCH_CASES.some(
         (e) => nethackrc(e.who) === recipeSegment.nethackrc,
     ))
@@ -309,6 +361,8 @@ export async function runTwoWeaponCommandMatrix() {
               recipe: loadTwoWeaponSwitchRecipe() },
             { label: 'twoweapon refusals',
               recipe: loadTwoWeaponRefusalRecipe() },
+            { label: 'twoweapon weapon status',
+              recipe: loadTwoWeaponStatusRecipe() },
         ],
         summaryLabel: 'TWOWEAPON COMMAND',
         verifySegment: verifyTwoWeaponCommandSegment,

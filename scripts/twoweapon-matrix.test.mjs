@@ -7,6 +7,7 @@ import {
     TIME_COST_CASES,
     loadTwoWeaponCommandRecipe,
     loadTwoWeaponRefusalRecipe,
+    loadTwoWeaponStatusRecipe,
     loadTwoWeaponSwitchRecipe,
     verifyTwoWeaponCommandSegment,
 } from './run-twoweapon-command.mjs';
@@ -103,11 +104,31 @@ test('every refusal case cites the wield.c line that opens its arm', () => {
     }
 });
 
+test('only the weapon-status matrix turns the status field on', () => {
+    // wield.c set_twoweap() marks the status line dirty only under this
+    // option, so it is the one group whose screens can show "Dual-weps".
+    const status = loadTwoWeaponStatusRecipe();
+    assert.equal(status.version, 5);
+    assert.ok(status.segments.every(
+        ({ nethackrc }) => nethackrc.includes('\nOPTIONS=weaponstatus\n'),
+    ));
+    // Every other group has to leave it off, or its recorded status lines
+    // would move with the hands and stop isolating the command's own effects.
+    for (const recipe of [loadTwoWeaponCommandRecipe(),
+                          loadTwoWeaponSwitchRecipe(),
+                          loadTwoWeaponRefusalRecipe()]) {
+        assert.ok(recipe.segments.every(
+            ({ nethackrc }) => !nethackrc.includes('weaponstatus'),
+        ));
+    }
+});
+
 test('every #twoweapon case reaches the arm it was chosen for',
     async () => {
         for (const recipe of [loadTwoWeaponCommandRecipe(),
                               loadTwoWeaponSwitchRecipe(),
-                              loadTwoWeaponRefusalRecipe()]) {
+                              loadTwoWeaponRefusalRecipe(),
+                              loadTwoWeaponStatusRecipe()]) {
             for (const segment of recipe.segments)
                 await verifyTwoWeaponCommandSegment(segment);
         }
