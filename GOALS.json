@@ -580,6 +580,11 @@
           "name": "doset()'s pick loop toggles the booleans",
           "status": "closed",
           "closedBy": "dbb6b02943424110f5765ebc4e8d05c8e611cf60"
+        },
+        {
+          "name": "handler_pickup_types() reaches choose_classes_menu()",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "9e48b83743f3b36670505f548910cc4960a2abb8",
