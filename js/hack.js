@@ -392,7 +392,16 @@ export function monsterNearby(state = game) {
 // the run ends. nomul() masks half of that by setting disp.botl itself, but the
 // direct callers in js/uhitm.js and js/eat.js reach here without it.
 //
-// gt.travelmap has no ported counterpart, so its selection_free() is absent.
+// gt.travelmap is ported, but not here. C frees it unconditionally, below and
+// outside the `if (and_travel)` arm; this port writes it only in js/detect.js,
+// inside the nomul(0) copy of these same state effects. So hack.c
+// end_running() has two disagreeing ports and this is the one missing the
+// clear. That js/detect.js assignment is the field's only write, and no js/
+// module reads it, so no behavior differs today and adding the clear here
+// would be a no-op until a reader exists.
+// QUALITY.json carries `end-running-travelmap-two-ports` for deciding which
+// function owns the effects; do not read this omission as evidence that the
+// js/detect.js line is unported scaffolding.
 export function endRunning(state = game) {
     if (state.context.run) {
         state.context.run = 0;
