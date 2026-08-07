@@ -575,6 +575,11 @@
           "name": "doset()'s menu reaches the screen",
           "status": "closed",
           "closedBy": "7a1278f92b617ec4ed34ffdfdbc1e508d339709f"
+        },
+        {
+          "name": "doset()'s pick loop toggles the booleans",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "9e48b83743f3b36670505f548910cc4960a2abb8",
