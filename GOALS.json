@@ -583,8 +583,8 @@
         },
         {
           "name": "handler_pickup_types() reaches choose_classes_menu()",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "ad53741511c9c4f449bf800670236a8bb573ed60"
         }
       ],
       "openedAt": "9e48b83743f3b36670505f548910cc4960a2abb8",
