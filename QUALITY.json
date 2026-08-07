@@ -911,6 +911,15 @@
       "status": "open",
       "from": "8c80cca803b92d64afeb907e33d28664f66e9d6c",
       "detail": "Two placement leftovers found while closing the last sweep slice at `a448201`.\n\n**`mon_allowflags()` is in the wrong file.** C owns it at `mon.c:2064`, so\n`AGENTS.md` \"Keep each source file's port in one place\" puts it in `js/mon.js`;\nthe port has it at `js/monmove.js`. It carries a second copy of the\n`can_tunnel` clearing that `m_move()` also performs, which is placement only\nrather than a duplicate port -- C duplicates it too. Note that the `m_move()`\ncopy now has seven mutants killed by a dedicated test while this one has no\ncomparable coverage, so move it with a test rather than without.\n\n**`monst.h:251 helpless()` is ported once and inlined three times.** The port\nis `js/mhitm.js helpless()`. Three call sites reimplement its body inline and\ncite the same C line rather than importing it: two in `js/steed.js` and one in\n`js/dog.js`. The bodies agree today.\n\nThe second is the fourth duplicate-port finding of 6 August 2026, after\n`isok()`, `will_weld()` and `depth()`. Unlike those it is an inlining rather\nthan a second definition, so a duplicate-export report would not list it; only\nreading finds this shape."
+    },
+    {
+      "id": "options-config-error-and-parser-residue",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "049a95ae2bd0bb62fdbecd78c705d971059e6ff3",
+      "detail": "Four follow-ups found while applying the correctness pass over\n`a97c0a1..e9723ab`, none of them in its fourteen findings.\n\n**`count_apes()` carries the identical defect the pass fixed three times over.**\nIts comment cites the port's missing `AUTOPICKUP_EXCEPTION` statement as\nevidence that the exception list is empty. `cfgfiles.c` has\n`CNFL_N(AUTOPICKUP_EXCEPTION, 5)`, so C reads such a statement and the port\ndrops it. Adding a fourth row to `UNPORTED_CONFIG_STATEMENTS` closes it in\nabout three lines, and it is the same reasoning error: the port's own gap\noffered as a fact about the game.\n\n**A boolean written by an unhandled `OPTIONS=<name>:true` is stored as the\nstring `'true'`.** The options menu now refuses to display it, so the wrong\nvalue cannot reach a screen through that path, but it stays wrong wherever else\nit is read.\n\n**`createCommandBindingModel()` does not skip `INTERNALCMD` rows** the way\n`cmd.c bind_key()` does, so a binding to an internal command succeeds in the\nport and fails in C.\n\n**The port has no non-fatal config error.** `optfn_sortloot()`,\n`optfn_versinfo()` and `optfn_msg_window()` all call `config_error_add()` and\nlet the game continue; the port throws. Matching C there is its own slice, and\nit is the shape most likely to cost screens: C keeps playing where the port\nstops."
     }
   ],
   "areas": [
@@ -7729,6 +7738,108 @@
         ]
       },
       "recordedAt": "2026-08-06T20:33:58.968Z"
+    },
+    {
+      "kind": "review",
+      "head": "049a95ae2bd0bb62fdbecd78c705d971059e6ff3",
+      "auditedRange": "a97c0a112fc66dcf4e3dfc6633c99bb665fb5992..049a95ae2bd0bb62fdbecd78c705d971059e6ff3",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 17 raw, 15 deduplicated, 14 confirmed, 14 applied, 0 deferred, 1 rejected, 0 unverified; mutation: 434 survivors of 507 mutants. Full correctness pass over the monsters deferral sweep and the first options slice. Four production defects, all applied. The sharpest was count_bind_keys(), which counted every BIND statement where C's cmdbind_add() overwrites in place: two binds of one key printed '(2 currently set)' against C's 1, reproduced and then pinned by a fresh three-segment differential whose bind-keys row now agrees with C. The other three shared one habit rather than being three slips: each justified a hard-coded answer by reasoning from the port's own parser gap as though it were evidence about C, so the fixes replace guesses with refusals and teach parseNethackrc() to record the statements it drops. One finding's preferred fix was declined as out of scope and applied as a refusal instead: routing applyBooleanOption()'s fallback through booleanOptionStorage() would activate about 47 options the parser currently drops, each with a live consumer, which is a state-owner change belonging to implementation. Applying the findings also corrected two of them: C's parsebindings() recurses into the comma suffix before handling the head, so the reviewer's second bind case was wrong, and optlist.h's negateok column makes sortloot's negation a stop rather than an ignored argument. Development score identical before and after at 1,043 of 7,765 screens and 116,207 of 610,816 PRNG values; suite 2,856 green. The mutation figure needs its recorded caveat: 425 of 434 survivors are in the generated table, which the runner does not exclude.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2005,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 15,
+          "confirmed": 14,
+          "applied": 14,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 6,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/cmd.js count_bind_keys() counted every `bind` operation, where C’s cmdbind_add() overwrites in place and keeps one entry per key, so two BIND statements for one key printed \"(2 currently set)\" against C’s \"(1 currently set)\". Both loops now read the createCommandBindingModel() bindings, which replay with C’s semantics, and the model gained C’s userbind flag. This also fixed the command(param) spelling, which was counted as zero.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js booleanOptionValue() read a boolean through allopt[].addr while applyBooleanOption()’s fallback wrote flags[<lowercased name>], so any boolean whose C storage name differs was read from the wrong place. Fixed by refusing when the two disagree, covering 32 divergent spellings. The finding’s preferred fix, routing the write through booleanOptionStorage(), was declined: it would activate about 47 options the parser currently drops, each with a live consumer, which is a state-owner change needing new end-to-end cases and therefore implementation rather than an audit fix.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js count_menucolors(), msgtype_count() and count_autocompletions() returned hard-coded answers justified by the port’s own parser gap rather than by C. parseNethackrc() now records a dropped MENUCOLOR, MSGTYPE or AUTOCOMPLETE statement with C’s own prefix lengths, and each count stops on its own statement instead of guessing.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js dosetEntryFormat() hard-coded doset()’s padded layout on a false premise, that menu_tab_sep is wizard-mode-only. set_wizonly governs where doset() lists an option, not whether a config file may set it, so the tab-separated form is reachable. Now refused by name, with the comment corrected.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 507,
+          "survivors": 434,
+          "byKind": {
+            "boolean": {
+              "ran": 442,
+              "killed": 16
+            },
+            "logical": {
+              "ran": 39,
+              "killed": 37
+            },
+            "relational": {
+              "ran": 26,
+              "killed": 20
+            }
+          },
+          "ranges": [
+            "a97c0a112fc66dcf4e3dfc6633c99bb665fb5992..e9723ab70731e869104be0b27ae5f6206d4815bf"
+          ],
+          "finderConclusion": "The headline survivor count is an artifact and must not be read as a coverage figure. 425 of the 434 survivors are in js/optlist_data.js, the generated options table: scripts/mutate-sites.mjs selects sites from changed lines and does not exclude declared generated outputs, so it mutated 217 table entries whose correctness comes from check:options diffing them against the C source rather than from any test. That also explains the boolean kind’s 16-of-442 figure. The real survivor list was nine, all outside the table, and it was routed to the tests finder, which traced each. The audit fixes killed eight; one remains, js/command_bindings.js setBinding()’s restBinding default, classified rather than fixed because no call omitting the argument can bind Space: extcmdlist has no row with key 0x20, the alias table has none, and resetCommandBindings() touches only direction keys and their variants. The tooling gap is worth recording separately, because every future goal that generates a table will bury its real survivors the same way."
+        },
+        "readiness": {
+          "boundary": "Two boundaries. For the monsters sweep, each resolved entry’s refusal, observable as a named stop rather than a silent skip or a bare TypeError. For the options slice, the hero types m then O and seven menu pages reach the screen; seed0007-rogue-snake-swamp advances from 20 to 36 of 302 screens, which the running game executes.",
+          "sourceReview": "Every branch reachable before those endings was traced against nethack-c/upstream: options.c doset(), doset_simple(), doset_add_menu(), longest_option_name(), term_for_boolean(), parsebindings() and the optfn_*(get_val) arms; optlist.h allopt[] with its negateok and valok columns; cfgfiles.c’s dispatch table and match_optname(); cmd.c cmdbind_add(), cmdbind_remove(), reset_commands() and count_bind_keys(); mon.c minliquid_core(); wield.c will_weld() and mwelded(); worn.c which_armor(). The trace covered PRNG order: the menu draws no random number, and the development total is unchanged across the range. Stubs and explicit stops were enumerated: the pick loop, reset_needed_visuals(), doset_simple_menu() and get_option_value() all stop by name.",
+          "completeness": "No known unsupported behavior remains inside either boundary. Each excluded branch refuses before changing state, consuming randomness or producing output, and the fixes added refusals where the port had been guessing from its own gaps. Every new refusal was checked against all 34 development sessions, 45 nethackrc values, and none carries a statement or spelling any of them covers, which is why the development score is identical before and after. A fresh differential for the fixes recorded three segments against the patched C reference: 7,023 PRNG calls, 30 screens and 30 cursors, all matching, with the bind-keys row reading (4 currently set) in C and in the fixed port where the pre-fix port printed 5."
+        },
+        "rejections": [
+          {
+            "summary": "js/tty_menu.js:402 (readability) — ttyMenuLayout(), a query-named exported function, now writes `selector` into the caller's spec.items as a side effect, and the accelerators land on whichever copy of the spec was passed — so the rendered menu and selectOneTtyMenu()'s search path can disagree about what letter each item carries.",
+            "counterEvidence": "evidence refute: The bare mechanical claim is true — I confirmed `ttyMenuLayout({rows:24,cols:80}, {title:'t', items:[{text:'one',value:1},{text:'two',value:2}]})` leaves the caller's items carrying selectors ['a','b'] — but both concrete harms the finding asserts are impossible against this source. Hazard one is false: js/startup_reroll.js buildRerollMenuSpec() (lines 302-325) gives its only two value-bearing items explicit selectors ('a'/'p' and 'b'/'r'); every remaining entry is `{ text }` or `{ text, glyphInfo }` with no `value` key, and assignMenuAccelerators skips any item failing `Object.hasOwn(item,'value')`, so the probe at line 382 stamps nothing at all. Hazard two is unreachable: it needs a PICK_ONE spec whose value-bearing items carry no selector, and no such spec exists — reroll (startup_reroll.js:302-311), tutorial (tutorial_startup.js:43-53), player selection (player_selec Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": []
+      },
+      "recordedAt": "2026-08-07T04:24:31.095Z"
     }
   ]
 }
