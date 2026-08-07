@@ -43,6 +43,7 @@ import { d, rn2, rnd } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { P_SKILL } from './startup_skills.js';
 import { abon, hitval, weapon_hit_bonus } from './weapon.js';
+import { can_twoweapon } from './wield.js';
 import { find_mac } from './worn.js';
 
 function intrinsicProperty(hero, index) {
@@ -59,17 +60,25 @@ function helpless(monster) {
     return Boolean(monster.msleeping) || !monster.mcanmove;
 }
 
+// C ref: youprop.h:120 Hallucination, over :116-119. HHallucination is the
+// intrinsic alone -- no worn item confers hallucination, so there is no
+// EHallucination term -- while Halluc_resistance is the intrinsic or the
+// extrinsic. Both readers below take the macro from here, because uhitm.c
+// spells it the same way at 300 as display.h is_safemon() does.
+function Hallucination(state) {
+    return intrinsicProperty(state?.u, HALLUC)
+        && !propertyPresent(state?.u, HALLUC_RES);
+}
+
 // C ref: display.h is_safemon().
 export function is_safemon(monster, state = game) {
     const hero = state.u;
-    const hallucinating = intrinsicProperty(hero, HALLUC)
-        && !propertyPresent(hero, HALLUC_RES);
     return Boolean(
         state.flags?.safe_dog
         && monster?.mpeaceful
         && canSpotMonster(monster, state)
         && !intrinsicProperty(hero, CONFUSION)
-        && !hallucinating
+        && !Hallucination(state)
         && !intrinsicProperty(hero, STUNNED),
     );
 }
@@ -109,7 +118,7 @@ export function attack_checks(mtmp, wep, state = game, env = {}) {
 
     mtmp.mstrategy &= ~STRAT_WAITMASK;
 
-    if (engulfing_u(mtmp)) unsupported('attacking the engulfer');
+    if (engulfing_u(mtmp, state)) unsupported('attacking the engulfer');
     if (state.context?.forcefight) unsupported('force-fight attack');
 
     if (!canSpotMonster(mtmp, state))
@@ -119,7 +128,7 @@ export function attack_checks(mtmp, wep, state = game, env = {}) {
 
     if (state.flags?.confirm && mtmp.mpeaceful
         && !intrinsicProperty(state.u, CONFUSION)
-        && !propertyPresent(state.u, HALLUC)
+        && !Hallucination(state)
         && !intrinsicProperty(state.u, STUNNED)) {
         unsupported('confirming an attack on a peaceful monster');
     }
@@ -293,8 +302,13 @@ export async function do_attack(monster, state = game, env = {}) {
     }
     if (await requireAttackOperation(env, 'overexertion')(state)) return true;
 
-    // 528-529. untwoweapon() prints and drops the off-hand weapon.
-    if (state.u.twoweap) unsupported('two-weapon melee');
+    // 528-529. A hero still able to two-weapon falls straight through: C runs
+    // nothing here and reaches the exercise below. can_twoweapon() is
+    // wield.c's and fully ported, messages included, so evaluating it is
+    // source-faithful; only its FALSE branch stops, because that is where
+    // wield.c untwoweapon() takes over.
+    if (state.u.twoweap && !(await can_twoweapon(state)))
+        unsupported('ending two-weapon combat');
 
     // 531-541. wield.c setuwep() sets gu.unweapon for a hero holding something
     // that is not a weapon; the first swing clears it and, with `verbose` on,

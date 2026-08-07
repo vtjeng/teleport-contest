@@ -15,6 +15,7 @@ import {
     CONFUSION,
     DETECT_MONSTERS,
     HALLUC,
+    HALLUC_RES,
     HVY_ENCUMBER,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
@@ -52,6 +53,7 @@ import {
     mon_maybe_unparalyze,
     passive,
 } from '../js/uhitm.js';
+import { can_twoweapon } from '../js/wield.js';
 
 const DATETIME = '20260214031500';
 
@@ -164,21 +166,106 @@ test('attack_checks stops on each state it cannot report', async () => {
     }
 });
 
-// uhitm.c:302-303. Each of the three states suppresses the confirmation, which
-// is why C attacks a peaceful monster outright while confused, hallucinating
-// or stunned.
-test('a confused, hallucinating or stunned hero skips the confirmation',
+// uhitm.c:200-201 reads monst.h:250 engulfing_u(). Every other read in
+// attack_checks() answers from the state argument, and this one has to as
+// well, or a caller working on any state but the module global gets the
+// engulfer guard decided by a different hero.
+test('attack_checks reads the engulfer from the state it was given',
     async () => {
-        for (const property of [CONFUSION, HALLUC, STUNNED]) {
+        await hero();
+        const mtmp = target();
+        assert.ok(!game.u.uswallow);
+        const swallowed = {
+            ...game,
+            u: { ...game.u, uswallow: 1, ustuck: mtmp },
+        };
+        refuses(
+            () => attack_checks(mtmp, game.uwep, swallowed, REFUSING),
+            'attacking the engulfer',
+        );
+
+        // The macro is a conjunction, and each half decides on its own: a
+        // monster that merely holds the hero is not engulfing her, and being
+        // inside something else is not being inside this target.
+        const held = { ...game, u: { ...game.u, uswallow: 0, ustuck: mtmp } };
+        assert.equal(attack_checks(mtmp, game.uwep, held, REFUSING), false);
+        const elsewhere = {
+            ...game,
+            u: { ...game.u, uswallow: 1, ustuck: target(PM_LEPRECHAUN) },
+        };
+        assert.equal(attack_checks(mtmp, game.uwep, elsewhere, REFUSING),
+                     false);
+
+        // And the reverse: an engulfed module-global hero must not decide for
+        // a state that says the hero is free.
+        game.u.uswallow = 1;
+        game.u.ustuck = mtmp;
+        const free = { ...game, u: { ...game.u, uswallow: 0, ustuck: null } };
+        assert.equal(attack_checks(mtmp, game.uwep, free, REFUSING), false);
+    });
+
+// uhitm.c:302-303, `!Confusion && !Hallucination && !Stunned`. Each of the
+// three states suppresses the confirmation, which is why C attacks a peaceful
+// monster outright while confused, hallucinating or stunned -- but the three
+// macros are not the same shape, and a row that sets only `.intrinsic` cannot
+// tell them apart. youprop.h:80 and :83 make Stunned and Confusion the
+// intrinsic alone; :120 makes Hallucination the intrinsic minus
+// Halluc_resistance, which has an intrinsic and an extrinsic source of its
+// own and no extrinsic hallucination term to go with them.
+test('the confirmation reads each suppressing property the way C spells it',
+    async () => {
+        for (const [label, suppressed, install] of [
+            ['confusion intrinsic', true, (hero) => {
+                hero.uprops[CONFUSION].intrinsic = 1;
+            }],
+            ['stun intrinsic', true, (hero) => {
+                hero.uprops[STUNNED].intrinsic = 1;
+            }],
+            ['hallucination intrinsic', true, (hero) => {
+                hero.uprops[HALLUC].intrinsic = 1;
+            }],
+            // No worn item confers any of the three, so an extrinsic alone
+            // leaves the confirmation standing.
+            ['confusion extrinsic only', false, (hero) => {
+                hero.uprops[CONFUSION].extrinsic = 1;
+            }],
+            ['stun extrinsic only', false, (hero) => {
+                hero.uprops[STUNNED].extrinsic = 1;
+            }],
+            ['hallucination extrinsic only', false, (hero) => {
+                hero.uprops[HALLUC].extrinsic = 1;
+            }],
+            // Halluc_resistance cancels the intrinsic from either source.
+            ['hallucination met by intrinsic resistance', false, (hero) => {
+                hero.uprops[HALLUC].intrinsic = 1;
+                hero.uprops[HALLUC_RES].intrinsic = 1;
+            }],
+            ['hallucination met by extrinsic resistance', false, (hero) => {
+                hero.uprops[HALLUC].intrinsic = 1;
+                hero.uprops[HALLUC_RES].extrinsic = 1;
+            }],
+            // Resistance on its own subtracts nothing.
+            ['resistance without hallucination', false, (hero) => {
+                hero.uprops[HALLUC_RES].intrinsic = 1;
+            }],
+        ]) {
             await hero();
             const peaceful = target(PM_LICHEN, { mpeaceful: 1 });
-            game.u.uprops[property].intrinsic = 1;
-            assert.equal(game.flags.confirm, true);
-            assert.equal(
-                attack_checks(peaceful, game.uwep, game, REFUSING),
-                false,
-                `property ${property}`,
-            );
+            install(game.u);
+            assert.equal(game.flags.confirm, true, label);
+            if (suppressed) {
+                assert.equal(
+                    attack_checks(peaceful, game.uwep, game, REFUSING),
+                    false,
+                    label,
+                );
+            } else {
+                refuses(
+                    () => attack_checks(peaceful, game.uwep, game, REFUSING),
+                    'confirming an attack on a peaceful monster',
+                    label,
+                );
+            }
         }
     });
 
@@ -586,19 +673,60 @@ test('do_attack clears gu.unweapon and exercises Strength before swinging',
     });
 
 test('do_attack stops for the states below its upkeep', async () => {
-    for (const [reason, apply] of [
-        ['two-weapon melee', () => { game.u.twoweap = true; }],
-        ['leprechaun dodge', () => {}],
-    ]) {
-        await hero();
-        apply();
-        const mtmp = reason === 'leprechaun dodge'
-            ? target(PM_LEPRECHAUN) : target();
-        await refusesAsync(
-            () => do_attack(mtmp, game, meleeEnv()),
-            reason,
-        );
-    }
+    await hero();
+    await refusesAsync(
+        () => do_attack(target(PM_LEPRECHAUN), game, meleeEnv()),
+        'leprechaun dodge',
+    );
+});
+
+// uhitm.c:528-529, `if (u.twoweap && !can_twoweapon()) untwoweapon();`. A hero
+// who can still sustain the pair runs nothing here and falls through to the
+// exercise, the swing and the passive counter-attack below.
+test('do_attack lets a sustainable two-weapon pair swing', async () => {
+    // u_init.c arms the Samurai with a katana, a short sword in the swap slot
+    // and no shield, which is can_twoweapon()'s success path.
+    await hero({ role: 'Samurai', gender: 'male', align: 'lawful' });
+    assert.equal(await can_twoweapon(game), true);
+    game.u.twoweap = true;
+
+    // Rolling exactly the number find_roll_to_hit() returned is a miss, which
+    // is the arm this port carries all the way through.
+    const uattk = game.youmonst.data.mattk[0];
+    const tmp = find_roll_to_hit(
+        target(), uattk.aatyp, game.uwep,
+        { attknum: 0, role_roll_penalty: 0 }, game, REFUSING,
+    );
+    const env = meleeEnv({ dieroll: tmp });
+    // gt.twohits is set from u.twoweap at uhitm.c:765, so the second swing at
+    // 791 is what stops -- three draws and one line further on than the
+    // whole-attempt refusal this replaced.
+    await refusesAsync(
+        () => do_attack(target(), game, env),
+        'second melee attack',
+    );
+    // exercise(A_STR, TRUE) at 543, the to-hit roll at 780 and passive()'s
+    // guard at 6013 -- the three draws the whole-attempt refusal discarded.
+    assert.deepEqual(env.bounds, ['rn2(19)', 'rnd(20)', 'rn2(3)']);
+    assert.deepEqual(env.lines, ['You miss the lichen.']);
+});
+
+// uhitm.c:529's own arm: the pair has stopped being legal, so C hands over to
+// wield.c untwoweapon(), which prints, clears u.twoweap and redraws the
+// inventory. None of that is ported.
+test('do_attack stops when the two-weapon pair is no longer legal', async () => {
+    await hero({ role: 'Samurai', gender: 'male', align: 'lawful' });
+    game.u.twoweap = true;
+    // wield.c:805-807. A shield in the off hand is the refusal that needs no
+    // change to either weapon.
+    game.uarms = { otyp: 0, oclass: 3 };
+    // can_twoweapon()'s refusal is C's own pline, and it lands on top of the
+    // line the segment left on screen, so it raises a More prompt first.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await refusesAsync(
+        () => do_attack(target(), game, meleeEnv()),
+        'ending two-weapon combat',
+    );
 });
 
 // uhitm.c:779-790. The roll decides the arm, and only a hit exercises

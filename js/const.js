@@ -2894,7 +2894,10 @@ export function Has_contents(obj) { return obj?.cobj != null; }
 // (0x8), so an unmasked read answers truthy for a monster whose appearance type
 // is M_AP_NOTHING and whose display-known flag is set.
 export function M_AP_TYPE(mon) { return (mon?.m_ap_type ?? 0) & M_AP_TYPMASK; }
-export function engulfing_u(mon) { const g = (typeof game !== 'undefined' ? game : null); return g?.u?.uswallow && g?.u?.ustuck === mon; }
+// C ref: monst.h:250 engulfing_u(). The optional state argument matches
+// u_at() above; C reads the one global hero, and every caller here threads the
+// state it is already working on.
+export function engulfing_u(mon, state = game) { return state?.u?.uswallow && state?.u?.ustuck === mon; }
 // C ref: monst.h:285, `#define ismnum(x) ((x) >= LOW_PM && (x) < NUMMONS)`.
 // Both bounds matter: callers pass indices that can come from saved or
 // generated data (u.ulycn, corpsenm, cham), and an index at or past NUMMONS
