@@ -754,6 +754,17 @@ async function moveSimplePet(monster, after, env) {
         // drop arm as ported functions with unported branches, so they refuse
         // through the caller's boundary class the way m_move() does.
         unsupported,
+        // No arm of the running game reaches this one, and it stays anyway.
+        // dog_invent() calls it only for a pet with AT_WEAP, and
+        // assertSimpleActionState() above refuses any tame monster outside
+        // STARTING_PETS, whose three species carry AT_BITE and AT_KICK alone
+        // (monsters.h:228-234, :381-388, :1002-1009). Without the injection
+        // inventoryOperation() would throw a bare TypeError the moment that
+        // boundary widens, which costs a session its whole matching prefix
+        // rather than ending the segment; keeping it makes that first
+        // widening a named refusal. scripts/unported-monster-actions.test.mjs
+        // fabricates an AT_WEAP pony to pin it, so the pair reads as dead
+        // code plus scaffolding and is neither.
         wieldPickedItem: () => unsupported('pet weapon selection'),
     });
 }
