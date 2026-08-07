@@ -2820,6 +2820,32 @@ test('a rebound reqmenu prefix forces its following wait command', async () => {
     assert.equal(state.nhDisplay.inputQueueLength, 0);
 });
 
+// cmd.c binds 'm' to do_reqmenu with PREFIXCMD (1829-1830), so rhack() jumps
+// back to got_prefix_input (3762-3773) and parse() reads a second key. Each
+// tty_nhgetch() is where recorder patch 006 captures a screen and a cursor, so
+// the prefix costs exactly one frame. The port used to refuse 'm' in
+// readSimpleCommand() before the reqmenu arm could run, which ended the segment
+// one frame early and lost every frame after it.
+test('the reqmenu prefix costs the one frame its second key read does in C',
+    async () => {
+        // Counts read off fresh recordings of the patched C program at seed
+        // 5150601, datetime 20260807140000, with the rc below: 2 frames for a
+        // bare 's', 3 for 'ms', and 3 for the doubled prefix 'mm', which
+        // cancels. Every one is one frame per key plus the launch frame.
+        for (const [moves, frames] of [['s', 2], ['ms', 3], ['mm', 3]]) {
+            const replay = await runSegment({
+                seed: 5150601,
+                datetime: '20260807140000',
+                nethackrc: 'OPTIONS=name:Prefixer,role:Valkyrie,race:human,'
+                    + 'gender:female,align:neutral,!legacy,!tutorial,'
+                    + '!splash_screen',
+                moves,
+            });
+            assert.equal(replay.getScreens().length, frames, `${moves} screens`);
+            assert.equal(replay.getCursors().length, frames, `${moves} cursors`);
+        }
+    });
+
 test('reqmenu rejects non-prefix commands and Escape cancels silently',
     async () => {
         for (const [key, description] of [

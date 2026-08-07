@@ -323,7 +323,7 @@
       "area": "commands",
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "roadmap",
       "detail": "C emits a screen and a cursor position for the `m` prefix and the port emits\nnone. The search slice's worker reported reproducing this at seed 9300001 with\n`wait` as well as with `search`, which places it before that slice rather than\ninside it; the reproduction has not been repeated independently, so treat the\nseed as a lead rather than as recorded evidence.\n\n`js/cmd.js` has no `m` prefix handling at all, so the refusal is the port's\ngeneral unbound-or-unadmitted path. It belongs with the prefix work that\n`hack.c lookaround()`'s corridor-widening arm also waits on."
     },
