@@ -652,7 +652,7 @@
     },
     {
       "id": "chat-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "the hero issues #chat and sounds.c dotalk() runs dochat() over the arms that resolve before a monster is examined: the four speech guards, the getdir() cancel, the steed-absent u.dz arm, self-chat, the !isok() return, the statue arm, the wall or secret-door arm printing \"It's like talking to a wall.\", and the empty-square return at :1374. price_quote() at :1288, domonnoise() at :1302 and :1408, both steed arms, and dochat()'s remaining monster arms at :1374-1407 stay refused, the last of these recorded as chat-no-answer-arms-refused-as-one.",
       "upstreamOwners": [
         "sounds.c dotalk()",
@@ -688,8 +688,11 @@
         "screens": 1081,
         "rng": 116787
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "914ad42720003e948377bef4ec0fae1651a9b65c",
+      "delivered": {
+        "screens": 21,
+        "rng": 31
+      }
     }
   ]
 }

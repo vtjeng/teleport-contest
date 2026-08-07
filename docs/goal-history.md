@@ -213,3 +213,29 @@ forecast alone would have filed the goal complete with a documented gap inside
 its own scope. The evidence that they are correct is fourteen fresh C segments
 across seven roles -- 42,032 random-number calls and 243 screens -- which no
 score column records.
+
+`chat-command` closed on 7 August 2026 and is the ninth zero. It met its
+forecast exactly -- 21 steps predicted, 21 delivered -- and the holdout returned
+195 of 3,640 screens and 32,614 of 182,022 values for the fifth evaluation
+running.
+
+This zero says more than the eight before it. Each of those left its
+contributing session unfinished, so a reader could argue the holdout saw only a
+fragment of the capability. This one took
+`seed0105-valk-chat-lamp-ration` from 9 of 30 screens to 30 of 30, the first
+time a goal has carried a development session from partial to complete, and
+raised the fully matching count from 2 to 3. A whole session finished end to
+end, and the eleven hidden sessions moved by nothing. Reachability is the
+reading that survives.
+
+The goal also closed one screen short of its own written boundary, which is
+worth recording because the fault was in the writing. The boundary opened with
+"every path returning before `price_quote()` at :1288 and `domonnoise()` at
+:1302 and :1408" and then enumerated the arms it meant; the general clause
+admits four arms the enumeration omits. An audit of all 17 returns above :1408
+found every other arm ported and those four refused as one. They were deferred
+to the `domonnoise()` work as `chat-no-answer-arms-refused-as-one`, on the
+grounds that they move no development session, one of them cannot fire until
+`dogmove.c dog_eat()` lands, and the three that can need the same naming
+helpers `domonnoise()` needs. A boundary that states a rule and then enumerates
+cases invites the two to disagree; enumerate or state the rule, not both.
