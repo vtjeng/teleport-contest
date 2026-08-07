@@ -23,6 +23,7 @@ import {
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { is_undead } from '../js/mondata.js';
 import { newMonster } from '../js/monst.js';
 import {
     AT_BITE,
@@ -37,6 +38,7 @@ import {
     PM_HILL_ORC,
     PM_ELF,
     PM_KNIGHT,
+    PM_GNOME_ZOMBIE,
     PM_LEPRECHAUN,
     PM_LICHEN,
     PM_SAMURAI,
@@ -303,11 +305,19 @@ test('check_caitiff stops only for the two roles that lose alignment',
                 REFUSING),
             'knightly caitiff penalty',
         );
-        // mavenge cancels it, and so does an undead target.
+        // An unavenged grudge is what makes flight caitiff, so mavenge
+        // cancels it.
         check_caitiff(
             target(PM_LICHEN, { mflee: 1, mavenge: 1 }), game, REFUSING,
         );
-        check_caitiff(target(), game, REFUSING);
+        // uhitm.c:338's own term: a sleeping gnome zombie is as helpless as
+        // any other sleeper, and chivalry does not extend to the undead. This
+        // target fails nothing else in the guard, so is_undead() is the only
+        // thing keeping the penalty away.
+        assert.equal(is_undead(game.mons[PM_GNOME_ZOMBIE]), true);
+        check_caitiff(
+            target(PM_GNOME_ZOMBIE, { msleeping: 1 }), game, REFUSING,
+        );
         // A chaotic Knight is not bound by chivalry.
         game.u.ualign.type = A_CHAOTIC;
         check_caitiff(target(PM_LICHEN, { msleeping: 1 }), game, REFUSING);
@@ -603,7 +613,7 @@ test('passive rolls the empty slot dice and stops on a real counter-attack',
 // The env is the one js/hack.js domove() builds, with the two hack.c owners
 // injected because js/hack.js imports this module.
 
-function meleeEnv({ dieroll = 20, ...overrides } = {}) {
+function meleeEnv({ dieroll = 20, rn2Result = () => 1, ...overrides } = {}) {
     const lines = [];
     const bounds = [];
     const env = {
@@ -616,7 +626,7 @@ function meleeEnv({ dieroll = 20, ...overrides } = {}) {
         unsupported: (reason) => { throw new Error(reason); },
         random: {
             d: () => 0,
-            rn2(bound) { bounds.push(`rn2(${bound})`); return 1; },
+            rn2(bound) { bounds.push(`rn2(${bound})`); return rn2Result(bound); },
             rnd(bound) { bounds.push(`rnd(${bound})`); return dieroll; },
         },
         ...overrides,
@@ -771,6 +781,50 @@ test('hitum compares the roll with the number find_roll_to_hit returned',
         game.u.uswallow = 0;
     });
 
+// uhitm.c:779-781 fixes the order find_roll_to_hit() -> mon_maybe_unparalyze()
+// -> rnd(20), and the order is what the target's freedom is worth: C decides
+// the to-hit number while the target is still frozen, so the +4 at 393 is
+// granted whether or not the blow shakes it loose, and the rn2(10) sits ahead
+// of the die roll in the call sequence.
+test('hitum frees a paralyzed target between the to-hit number and the roll',
+    async () => {
+        await hero();
+        const uattk = game.youmonst.data.mattk[0];
+        const roll = (mtmp) => find_roll_to_hit(
+            mtmp, uattk.aatyp, game.uwep,
+            { attknum: 0, role_roll_penalty: 0 }, game, REFUSING,
+        );
+        const mobile = roll(target());
+        const frozen = roll(target(PM_LICHEN, { mcanmove: 0, mfrozen: 4 }));
+        // uhitm.c:393, the only difference between the two targets.
+        assert.equal(frozen, mobile + 4);
+
+        // A roll of 10 leaves the target paralyzed, so the whole swing is a
+        // miss against a frozen lichen and the sequence is rn2(10) first.
+        const stuck = meleeEnv({ dieroll: frozen });
+        const stillFrozen = target(PM_LICHEN, { mcanmove: 0, mfrozen: 4 });
+        await hitum(stillFrozen, uattk, game, stuck);
+        assert.deepEqual(stuck.bounds, ['rn2(10)', 'rnd(20)', 'rn2(3)']);
+        assert.deepEqual([stillFrozen.mcanmove, stillFrozen.mfrozen], [0, 4]);
+
+        // A roll of 0 frees it, and the to-hit number keeps the +4 anyway:
+        // rolling exactly the mobile number still beats it, which it would
+        // not do had the unparalyze run first.
+        const freed = meleeEnv({
+            dieroll: mobile,
+            rn2Result: (bound) => (bound === 10 ? 0 : 1),
+        });
+        const shakenLoose = target(PM_LICHEN, { mcanmove: 0, mfrozen: 4 });
+        await refusesAsync(
+            () => hitum(shakenLoose, uattk, game, freed),
+            'melee damage',
+        );
+        assert.deepEqual([shakenLoose.mcanmove, shakenLoose.mfrozen], [1, 0]);
+        // rn2(10) frees it, rnd(20) is the roll and rn2(19) is the Dexterity
+        // exercise a hit earns; known_hitum() then stops on hmon().
+        assert.deepEqual(freed.bounds, ['rn2(10)', 'rnd(20)', 'rn2(19)']);
+    });
+
 // uhitm.c:608. missum()'s third argument is `rollneeded + armorpenalty >
 // dieroll`, which is what separates a Monk who missed because of his suit
 // from one who would have missed anyway. The three rows straddle the
@@ -779,10 +833,15 @@ test('known_hitum reports the armor penalty only when it decided the miss',
     async () => {
         await hero();
         const mhit = () => ({ value: 0 });
+        // uhitm.c:585-592 names the sixth parameter uattk and the seventh
+        // dieroll. Feeding the real attack struct rather than a second copy
+        // of the number is what lets the "over" row below notice a swapped
+        // pair: `rollneeded + armorpenalty > <struct>` is never true.
+        const uattk = game.youmonst.data.mattk[0];
         const run = async (rollneeded, armorpenalty, dieroll) => {
             const env = meleeEnv();
             const alive = await known_hitum(
-                target(), null, mhit(), rollneeded, armorpenalty, dieroll,
+                target(), null, mhit(), rollneeded, armorpenalty, uattk,
                 dieroll, game, env,
             );
             assert.equal(alive, true);
