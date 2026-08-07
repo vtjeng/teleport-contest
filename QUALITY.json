@@ -983,6 +983,24 @@
       "status": "open",
       "from": "e0127f1eb4728060accc66880159c00d7c612253",
       "detail": "wield.c can_twoweapon()'s last two refusal arms still raise UnsupportedTwoWeaponError, and no input the port accepts can reach either. wield.c:791-793 refuses an artifact in the secondary slot with Yobjnam2(uswapwep, \"resist\"); objnam.c yname()'s artifact branch needs obj_is_pname() and artiname(), and u_init.c:1310 asks mksobj() for artif FALSE, so no role starts with one. wield.c:797-801 sets bknown and calls drop_uswapwep(), whose three messages need Yobjnam2()/yobjnam() and whose dropx(uswapwep) needs do.c dropz()'s setuwep/setuqwep/setuswapwep head and a preflight_dropx() that admits an equipped, mergeable weapon; today's admits only an unequipped heavy iron ball. Neither condition can arise either: u_init.c:1223 clears cursed on every starting object and nothing in the port grants Glib. wield.c:794-796, the CORPSE arm, stays absent rather than stopped, because obj.h is_weptool() demands TOOL_CLASS and a corpse is FOOD_CLASS, so TWOWEAPOK() refuses it two arms earlier."
+    },
+    {
+      "id": "walltalk-clamp-unpinned-until-hallucination",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "75b1295ad567278a9ddc9cf3eba49ab5b81835da",
+      "detail": "js/sounds.js:351 clamps rn2(10) to WALLTALK's 8 entries inside dochat()'s hallucinating wall reply, ported verbatim from sounds.c:1366-1367. Mutating >= to > is a real behavior change, not an equivalence: idx reaches 9, so an idx of 8 escapes the clamp and the reply prints \"The wall undefined\". The mutant survives only because Hallucination(state) cannot be true. The direct proof is that `grep -rnE \"\\[HALLUC\\]\\s*(\\.\\s*(intrinsic|extrinsic|blocked)\\s*)?=[^=]|set_itimeout|incr_itimeout|make_hallucinated\" js/` returns no assignment: all HALLUC references in js/ are reads.\n\nThis turns into a live defect the first time make_hallucinated() gains a writer, and sessions/seed0383-wizard-hallucinate.session.json is already recorded against that day. Whoever ports a hallucination source should pin this clamp with a test at the same time."
+    },
+    {
+      "id": "chat-no-answer-arms-refused-as-one",
+      "area": "commands",
+      "category": "scope",
+      "effort": "slice",
+      "status": "open",
+      "from": "75b1295ad567278a9ddc9cf3eba49ab5b81835da",
+      "detail": "sounds.c dochat() holds four arms between the wall block and domonnoise() that js/sounds.js:365 refuses as one: the M_AP_FURNITURE and M_AP_OBJECT disjuncts at :1374-1377, the helpless-monster \"%s seems not to notice you.\" at :1380-1386, the tame-and-meating \"%s is eating noisily.\" at :1391-1396, and the Deaf \"Any response%s%s %s.\" at :1397-1407. The clearing of mtmp->mstrategy's STRAT_WAITMASK at :1389 sits among them. A return-by-return audit of all 17 returns above :1408 found these the only shortfall; every other arm is ported and every excluded call refuses before output, randomness, or state change, so the port is fail-closed here rather than wrong.\n\nThey belong with domonnoise() rather than with the chat-command goal, for three reasons. They move no development session: eight sessions record ten #chat commands, and the only one landing on an unported in-boundary arm is seed0004-feeding-pony step 346, in a session that halts at screen 26 of 409 on a bear trap at step 27. The eating arm cannot fire at all, because meating's three writers in js/ all write 0 and its C writer dogmove.c dog_eat() :166-210 is unported, so no fresh differential can exercise it until that lands. And the three live arms need canspotmon(), Monnam() and mon_nam() under the same conditions domonnoise() needs them, so porting them separately splits one slice in two.\n\nWhoever takes them should know four things. :1389 gives chat its first state write, feeding js/monmove.js:1861, so a differential must run several turns past the reply rather than stopping at it. js/do_name.js:127-128 records that mon_nam() and Monnam() cover an early ordinary-monster subset, missing invisibility, mimic appearance and the peaceful and tame adjectives; canspotmon() guards both new call sites, which removes the unseen cases but not a sleeping peaceful or invisible target. map_invisible() at :1393 is reachable only inside the dead eating arm's !canspotmon sub-branch, and porting it arms the throw at js/display.js:1530, so leave it refused. The Deaf format string at :1402-1405 passes canspotmon(mtmp) twice, so one stray space is a full screen mismatch.\n\nThe helpless-steed arm at :1297-1300 returns ECMD_TIME above domonnoise() at :1302 and is refused by the same reading. It needs a mounted hero, an asleep or immobilized steed, and a downward chat, which \"Complete common gameplay first\" defers."
     }
   ],
   "areas": [
