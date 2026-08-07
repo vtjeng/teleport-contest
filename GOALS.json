@@ -532,6 +532,59 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "options",
+      "status": "open",
+      "boundary": "every function reachable from cmd.c's O binding until control returns to rhack(): options.c doset_simple(), doset() under the m prefix, both menus' optfn_*(get_val) value column, parseoptions()'s do_set arm for a boolean pick, a compound pick's do_handler, and reset_needed_visuals() with the vision_recalc(2), reglyph_darkroom() and check_gold_symbol() calls it makes; a behavior reached only from a different command's dispatch is outside it",
+      "upstreamOwners": [
+        "options.c doset()",
+        "options.c doset_simple()",
+        "options.c doset_simple_menu()",
+        "options.c doset_add_menu()",
+        "options.c reset_needed_visuals()",
+        "options.c term_for_boolean()",
+        "options.c longest_option_name()",
+        "options.c get_option_value()",
+        "options.c parseoptions()",
+        "options.c optfn_boolean()",
+        "options.c optfn_pickup_types()",
+        "options.c handler_pickup_types()",
+        "include/optlist.h allopt[]",
+        "windows.c choose_classes_menu()",
+        "display.c reglyph_darkroom()",
+        "botl.c check_gold_symbol()",
+        "vision.c vision_recalc() control==2"
+      ],
+      "forecast": {
+        "steps": 30,
+        "basis": "seed0007 stops at step 20 of 302 on the byte O and its stretch runs steps 20-67 (unlocks 48, one session). Capped at step 50, where the recorded h bumps a locked door: hack.c test_move()'s closed-door arm (1074-1137) reaches lock.c doopen_indir():875, whose :876-883 calls pick_lock(autokey(TRUE), cc.x, cc.y, NULL), because the step-32 menu page records autounlock [apply-key] and the Rogue kit carries a lock pick. js/cmd.js's admission preflight requireAutoopenClosedDoor() throws 'door unlocking tool' at js/hack.js:989 before any output, and js/lock.js:135 refuses the same entry on rx !== 0, so step 50 earns nothing. Earned steps 20-49 = 30. Not capped at step 36: options.c:8973 runs reset_needed_visuals() after the pick loop, so reglyph_darkroom() and check_gold_symbol() (8997-8999) fire between steps 47 and 48, and the one call at step 36, vision_recalc(2) at options.c:5372, is inside doset()'s call tree and leaves rows 1-23 of the recorded screen byte-identical to step 19.",
+        "sessions": [
+          "seed0007-rogue-snake-swamp"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0007-rogue-snake-swamp",
+            "evidence": "seed 7, datetime 20260503025436, nethackrc OPTIONS=symset:DECgraphics, male orc Rogue Septor on D:1. Step 19 is m and step 20 is O: extcmdlist_data.js binds 0x4F to doset_simple with CMD_M_PREFIX (cmd.c:507 accept_menu_prefix), so iflags.menu_requested survives into doset_simple() (options.c:8712-8716) and it returns doset(). The recorded prompt \" Set what options?\" is doset()'s end_menu() at 8944, not doset_simple_menu()'s \" Options\". Picks read off the recorded pages: page 2 g=autopickup; page 3 i=lit_corridor j=lootabc p=menucolors u=price_quotes; page 4 a=quick_farsight f=showexp p=time; page 6 n=pickup_types. Eight booleans reach optfn_boolean()'s do_set arm and print at options.c:5438-5439; lit_corridor takes 5362-5375 with color [true] (optlist.h:236-238, iflags.use_color aliases wc_color at flag.h:507); pickup_types takes do_handler -> handler_pickup_types() -> optfn_pickup_types():3355-3363, and menustyle [full] makes use_menu TRUE so choose_classes_menu(\"Autopickup what?\") runs with no getlin. The session reaches the goal defining branch, doset() proper."
+          }
+        ]
+      },
+      "detail": "**One command, two C entry points.** `O` is `doset_simple` (`extcmdlist_data.js:91`, `0x4F`, `CMD_M_PREFIX`). `seed0007` prefixes it with `m`, so `doset_simple()` delegates to `doset()` and the recorded prompt is `Set what options?`. The other three sessions carrying `options` debt -- `seed0006` step 49, `seed0012` step 58, `seed0014` step 25 -- all type a bare `O` and get `doset_simple_menu()`'s `Options` menu with its `X`/blank value column and `OptS_*` section headings. Both menus are in scope; only `seed0007` contributes to the forecast, and `seed2200` step 96's `O` is a prompt answer, not a command.\n\n**What is already ported and reused.** `js/tty_menu.js` (1403 lines) already renders paged `PICK_ANY` menus with the `(N of M)` footer (`:384-385`), the `(end)` prompt, group accelerators and selection marks -- the recorded pages show `-` becoming `+` at step 29, which that loop already does for role filtering. `docrt()` is `js/display.js:1871`, `update_inventory()` is `js/invent.js:1024`, `reassign()` is `js/invent.js:2373` (and `flags.invlet_constant` defaults true, so `opt_price_quotes` skips it), `back_to_glyph`'s corridor arm already reads `flags.lit_corridor` (`js/display.js:1221`, mirroring `display.c:2526`), and the status line already honours `flags.showexp` and `flags.time` (`js/display.js:2330`, `:2360`), which is what makes step 39's `Xp:1/0 T:1` representable. The `m` prefix itself is ported (`js/cmd.js:1370`, `:1251`).\n\n**What is genuinely new.** There is no `allopt[]` at all -- `git grep -E 'setwhere|opttyp|termpref|BoolOpt|CompOpt|OthrOpt' -- js/ scripts/` returns 0 hits. `include/optlist.h` holds 261 entries (131 `NHOPTB`, 120 `NHOPTC`, 10 `NHOPTO`) in 924 lines, so `AGENTS.md`'s \"Generate large fixed tables from source\" applies: a `scripts/generate-options.mjs` beside the six existing generators. `js/options.js` exports exactly one function, `parseNethackrc()`, a startup parser returning a `result` object; `options.c parseoptions()` operating on live `flags`/`iflags` with the `do_set` post-processing switch has no counterpart. Also new: `reset_needed_visuals()` and its `go.opt_*` flags (0 hits), `windows.c choose_classes_menu()` (0 hits, 118 lines, needed for the recorded `Autopickup what?` menu at steps 40-47), `display.c reglyph_darkroom()` (36 lines), `botl.c check_gold_symbol()` (6 lines), and `vision_recalc()`'s `control == 2` arm -- a one-condition change at `js/vision.js:746`, since the loop C runs there is already written for controls 0 and 1.\n\n**Branches this session never reaches.** `wizard` is false, so `endpass` is `set_in_game` and `set_wiznofuz` options never enter either menu. `gavehelp`'s `rerun` arm needs `?` to be the only pick; the recorded picks are nine option letters. `iflags.menu_tab_sep` is off, so only the `%s%-Nus [%s]` format matters and `longest_option_name()` must be exact. `enhance_menu_text()` is a no-op in this build -- its only body sits behind `#if 0 /*#ifdef TTY_PERM_INVENT*/`. `optfn_pickup_types()`'s `getlin` arm needs `MENU_TRADITIONAL` or `MENU_COMBINATION`; the recorded menu shows `menustyle [full]`.\n\n**Why the forecast is 30 and not 16.** An earlier reading capped this stretch at step 36 on `lit_corridor`, citing `reglyph_darkroom()` and `check_gold_symbol()`. That C is real but reached elsewhere: `options.c:8973` calls `reset_needed_visuals()` after the pick loop and after `destroy_nhwindow()`, and that function calls both at `options.c:8997-8999`, between steps 47 and 48. The only call at step 36 is `vision_recalc(2)` at `options.c:5372`, inside `doset()`'s own call tree and therefore goal scope. It is also measurably inert here: comparing the recorded screens at step 19 and step 36 gives 24 rows compared, 1 differing, and that row is the toggle message. The hero has never left one lit room, so every arm of `reglyph_darkroom()`'s double loop (`display.c:1818-1853`) misses, and its closing `gs.showsyms[S_darkroom] = gs.showsyms[S_room]` is a self-assignment.\n\n**Residual forecast risk.** Steps 48 and 49 are the first multi-turn shift-direction runs (`H`, `Y`) on this level and draw 116 and 279 random numbers with no message; the 30 assumes they replay clean. Nothing in the recorded stream flags them, and other sessions run far past comparable points (`seed0360` reaches step 130), but they are the one silent stretch inside the cap.",
+      "slices": [
+        {
+          "name": "doset()'s menu reaches the screen",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "9e48b83743f3b36670505f548910cc4960a2abb8",
+      "openStanding": {
+        "sha": "8c80cca",
+        "screens": 1027,
+        "rng": 116207
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
