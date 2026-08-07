@@ -708,7 +708,13 @@
         "witnesses": []
       },
       "detail": "### The commands area's ten non-scope deferrals\n\n`npm run quality -- deferrals` names `commands` at ten, counting every category\nexcept `scope`. The area holds fifteen entries; the five `scope` ones name\nunported territory a boundary goal attacks and are not swept.\n\nThe ten, unordered:\n\n- three arms of the door message switch are dormant (production, undecided)\n- the m prefix loses a frame (production, undecided)\n- the two-meal segment never reaches its second meal (tests, undecided)\n- adjabil()'s already-held suppression test has no reachable case (tests, slice)\n- movement-path-has-no-failclosed-wrapper (production, slice)\n- earth_sense()'s notice is refused rather than printed (production, undecided)\n- stop_occupation() refuses where C prints the stop (production, slice)\n- pick-lock-d-broken-arm-dormant (production, slice)\n- end-running-travelmap-two-ports (production, small)\n- walltalk-clamp-unpinned-until-hallucination (tests, small)\n\n`.agents/selection.md` sets the reading order: an entry where the port skips a\nmessage-writing C branch silently comes before one where the port stops on a\nnamed refusal, because `AGENTS.md` forbids the first and permits the second.\nOn that test \"three arms of the door message switch are dormant\" and \"the m\nprefix loses a frame\" read first, and the entries whose records say \"refuses\"\nread last.\n\nTwo of the ten arrived with `chat-command`'s close on 7 August 2026.\n`walltalk-clamp-unpinned-until-hallucination` is the tenth, and it is what\nbrought the area to the threshold; `chat-no-answer-arms-refused-as-one` is\n`scope` and does not count. The count is real either way, and the entry stands\non its own: `js/sounds.js:351` survived mutation, and the mutant is a real\nbehavior change rather than an equivalence.\n\nAn entry closes only when the behavior its record names as the closing\ncondition is ported, so an entry waiting on an unported command survives the\nsweep and must be named in the closing report with the behavior it waits on.\nTwo are already expected to survive on that test:\n`walltalk-clamp-unpinned-until-hallucination` waits on any writer of `HALLUC`,\nand `adjabil()`'s entry waits on a reachable already-held case.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "the movement path gets a fail-closed backstop",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "62356789d4e9a0ca59a64fadee371305e0503d1a",
       "openStanding": {
         "sha": "914ad42",
