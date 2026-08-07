@@ -48,6 +48,7 @@ import {
     isok,
     LADDER,
     LAVAPOOL,
+    LEVITATION,
     M_AP_FURNITURE,
     MON_FLOOR,
     NORMAL_SPEED,
@@ -90,6 +91,7 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { game, resetGame } from '../js/gstate.js';
+import { newObject, place_object } from '../js/obj.js';
 import { UnsupportedFeatureDescriptionError } from '../js/invent.js';
 import {
     domove,
@@ -3705,6 +3707,173 @@ test('movement repeat counts preserve the COLNO sentinel threshold', async () =>
         assert.equal(game.multi, expected, `initial multi ${initial}`);
     }
 });
+
+// The refusal both movement backstops convert. pickup.c pickup() reaches
+// engrave.c can_reach_floor() only when the hero's new square holds an object,
+// and that answers FALSE while the hero levitates, where js/pickup.js raises
+// UnsupportedPickupError. That class is one of the four the movement path can
+// reach that js/jsmain.js does not break the segment on, so before the
+// wrappers it escaped runSegment() and cost the segment its matching prefix.
+//
+// The js/hack.js seam guards refuse ahead of domove(), but none of them reads
+// Levitation -- hack.c test_move() does not either, and js/hack.js
+// spoteffects() records that nothing in this port grants the property yet --
+// so the two tests below set it directly. That is what makes them backstop
+// tests rather than repeats of the seam's own admission cases.
+function installUnreachableFloorObject(x, y) {
+    // !autopickup keeps the seam's 'automatic pickup' guard silent, so the
+    // object survives as far as pickup()'s can_reach_floor() test.
+    game.flags.pickup = false;
+    place_object(
+        // One ordinary dart: xname() formats it, so the seam's nameability
+        // preflight admits the square.
+        newObject({ o_id: 7101, otyp: DART, oclass: WEAPON_CLASS, quan: 1 }),
+        x,
+        y,
+        { state: game },
+    );
+    // An extrinsic source is the shape worn levitation takes. An intrinsic one
+    // carries a turn count, which the elapsed turn's nh_timeout refuses before
+    // the movement under test can run.
+    game.u.uprops[LEVITATION].extrinsic = 1;
+}
+
+test('a refusal below domove() reaches the player as a command boundary',
+    async () => {
+        const { x, y } = await prepareHeroMoveAdmission();
+        installUnreachableFloorObject(x, y);
+        game.context.move = 0;
+        game.context.run = 0;
+        game.context.nopick = 0;
+        game.domoveAttempting = 0;
+        const moveKey = commandKeyCode('l');
+        game.nhDisplay.pushKey(moveKey);
+
+        await assert.rejects(
+            () => rhack(0, game),
+            (error) => {
+                assert.ok(
+                    error instanceof UnsupportedHeroCommandBoundaryError,
+                    `${error.constructor.name} is not a command boundary`,
+                );
+                assert.equal(error.key, moveKey);
+                assert.equal(
+                    error.message,
+                    'unsupported hero command: an unported branch of this '
+                    + 'command: unsupported pickup: pickup() by a hero who '
+                    + 'cannot reach the floor',
+                );
+                return true;
+            },
+        );
+        // The wrapper refuses after the step rather than before it: domove()
+        // moved the hero and only then reached pickup(). That is why the
+        // js/hack.js seam guards stay where they are -- they refuse while
+        // nothing has moved, drawn or painted yet.
+        assert.deepEqual([game.u.ux, game.u.uy], [x, y]);
+        // failClosedCommand() runs resetCommandVars() before it throws, and
+        // that reset deliberately preserves context.pendingCommand. Nothing
+        // serializes pendingCommand, so the retained key outlives the refusal
+        // only inside this segment, which js/jsmain.js then ends.
+        assert.equal(game.context.move, 0);
+        assert.equal(game.multi, 0);
+        assert.equal(game.context.pendingCommand.key, moveKey);
+    });
+
+// Prepares the run the two tests below drive: two ordinary squares east of the
+// hero, with the hero's own square made ordinary too because hack.c
+// lookaround() reads levl[u.ux][u.uy].typ and a new game starts on the
+// upstairs. Answers the second square, which the run reaches on the turn
+// allmain.c:526 runs with rhack() off the stack.
+async function prepareRunPastTheFirstStep() {
+    const { x, y } = await prepareHeroMoveAdmission();
+    const beyond = game.level.at(x + 1, y);
+    beyond.typ = ROOM;
+    beyond.flags = beyond.doormask = 0;
+    game.level.monsters[x + 1][y] = null;
+    game.level.objects[x + 1][y] = null;
+    game.level.at(game.u.ux, game.u.uy).typ = ROOM;
+    game.context.move = 0;
+    game.context.run = 0;
+    game.context.nopick = 0;
+    game.domoveAttempting = 0;
+    return { second: [x + 1, y], first: [x, y] };
+}
+
+// Takes the run's first step through rhack() and leaves moveloop_core() the
+// second. Shift-l is an uncounted run, the only movement the repeated-command
+// seam admits: executeMovement() sets multi to the COLNO sentinel, which is
+// what sends the next turn into the domove() re-entry rather than rhack().
+async function takeFirstRunStep(first) {
+    game.nhDisplay.pushKey(commandKeyCode('L'));
+    await rhack(0, game);
+    assert.deepEqual([game.u.ux, game.u.uy], first);
+    assert.equal(game.multi, COLNO);
+    assert.equal(game.context.mv, 1);
+    // rhack() ran its finally on the way out and dropped the retained
+    // keystroke. That is the premise of the turn boundary the next turn
+    // raises: no key survives here for a command boundary to hand back.
+    assert.equal(game.context.pendingCommand, undefined);
+    // Skip the elapsed-turn block, so the next turn is the run step alone.
+    game.context.move = 0;
+}
+
+test('a refusal below the run loop reaches the player as a turn boundary',
+    async () => {
+        const { first, second } = await prepareRunPastTheFirstStep();
+        installUnreachableFloorObject(second[0], second[1]);
+        await takeFirstRunStep(first);
+
+        await assert.rejects(
+            () => moveloop_core(),
+            (error) => {
+                assert.ok(
+                    error instanceof UnsupportedTurnBoundaryError,
+                    `${error.constructor.name} is not a turn boundary`,
+                );
+                assert.equal(
+                    error.message,
+                    'a continued move reached unsupported pickup: pickup() by '
+                    + 'a hero who cannot reach the floor',
+                );
+                // The turn boundary carries no key. rhack() is off the stack
+                // here, its finally has already deleted context.pendingCommand
+                // and no retry could honour one, so this site must not raise
+                // the command boundary the js/cmd.js half raises.
+                assert.equal(error.key, undefined);
+                return true;
+            },
+        );
+        assert.deepEqual([game.u.ux, game.u.uy], second);
+    });
+
+test('the run loop leaves a class outside the refusal list as it found it',
+    async () => {
+        // The wrapper converts only what failClosedCommandRefusals() names.
+        // UnsupportedHeroMoveBoundaryError is not on that list -- js/jsmain.js
+        // breaks the segment on it directly -- so the seam's own refusal has
+        // to arrive with its own type, reason and message.
+        const { first, second } = await prepareRunPastTheFirstStep();
+        // ICE is outside the terrain requireSimpleHeroDestination() admits,
+        // and domove() calls that seam on every step, including this one.
+        game.level.at(second[0], second[1]).typ = ICE;
+        await takeFirstRunStep(first);
+
+        await assert.rejects(
+            () => moveloop_core(),
+            (error) => {
+                assert.ok(
+                    error instanceof UnsupportedHeroMoveBoundaryError,
+                    `${error.constructor.name} is not a hero move boundary`,
+                );
+                assert.equal(error.reason,
+                    'door or special terrain movement');
+                return true;
+            },
+        );
+        // The refused step left the hero where the first one put him.
+        assert.deepEqual([game.u.ux, game.u.uy], first);
+    });
 
 test('all source direction families dispatch their exact movement intent', async () => {
     // cmd.c's default vi order is h/y/k/u/l/n/j/b for

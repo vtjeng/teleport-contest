@@ -465,6 +465,28 @@ async function runDeferredGotoAtTurnBoundary(state) {
     }
 }
 
+// allmain.c:526 re-enters domove() for every turn of a run after the first,
+// with rhack() off the stack. js/cmd.js failClosedCommand() cannot own a
+// refusal raised here: it raises UnsupportedHeroCommandBoundaryError carrying
+// a key, which advertises a retryable keystroke, and the rhack() call that
+// started the run has already run its finally and deleted
+// context.pendingCommand, so nothing can honour that. Convert to the turn
+// boundary instead, as the deferred goto above and the occupation below do.
+async function runDomoveAtTurnBoundary(state) {
+    try {
+        await domove(state);
+    } catch (error) {
+        if (!failClosedCommandRefusals().some(
+            (type) => error instanceof type,
+        )) {
+            throw error;
+        }
+        throw new UnsupportedTurnBoundaryError(
+            `a continued move reached ${error.message}`,
+        );
+    }
+}
+
 function propertyActive(state, property) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic);
@@ -1018,7 +1040,7 @@ export async function moveloop_core() {
         }
         if (g.context.mv) {
             if (g.multi < COLNO && !--g.multi) endRunning(g);
-            await domove(g);
+            await runDomoveAtTurnBoundary(g);
         } else {
             --g.multi;
             await rhack(g.cmdKey, g);

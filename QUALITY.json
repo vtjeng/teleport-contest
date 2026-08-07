@@ -590,7 +590,7 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "9b7333ed150faacc0bb1798a653ceefe155ea52c",
       "detail": "js/cmd.js executeMovement() calls domove() without the failClosedCommand() wrapper every extended command uses, and js/allmain.js:922 re-enters domove() in the run loop without a fresh key. Any Unsupported* class raised below domove() that is not one of the four js/jsmain.js:525-529 breaks on therefore escapes runSegment() and discards the segment's matching prefix rather than ending on it. Found by the furniture-square-entry correctness pass through UnsupportedFeatureDescriptionError on an altar arrival, which 9b7333e closes at the seam; the general gap stays open. Widening the jsmain boundary list is not the fix, because it would skip resetCommandVars() and leave the rejected keystroke unretryable. Closing condition: wrap both call sites and pin an escaping class end to end through moveloop_core().",
       "notes": [

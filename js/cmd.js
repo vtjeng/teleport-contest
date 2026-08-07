@@ -871,7 +871,9 @@ export function set_move_cmd(dir, run, state = game) {
 }
 
 // C ref: cmd.c set_move_cmd() and rhack()'s DOMOVE_WALK/DOMOVE_RUSH paths.
-async function executeMovement(command, firstTime, state) {
+// `key` is the movement key rhack() dispatched, which the failClosedCommand()
+// wrapper below needs to keep the keystroke retryable.
+async function executeMovement(command, key, firstTime, state) {
     const [dx, dy, run] = MOVEMENT_INTENTS[command];
 
     // moveloop_core() optimistically sets context.move before rhack(), as C
@@ -903,7 +905,15 @@ async function executeMovement(command, firstTime, state) {
         }
         state.context.mv = 1;
     }
-    await domove(state);
+    // Every extended command routes its handler through failClosedCommand();
+    // movement had no equivalent, so a refusal class raised below domove()
+    // that js/jsmain.js does not break on escaped runSegment() and discarded
+    // the segment's matching prefix instead of ending on it. The preflight
+    // above converts by hand the refusals it can see ahead of the move; this
+    // is the backstop for the ones only domove() reaches. rhack() is on the
+    // stack here, so its finally still holds context.pendingCommand and the
+    // keystroke stays retryable, exactly as the '#' arm's wrapper leaves it.
+    await failClosedCommand(key, state, () => domove(state));
     if (!run) state.context.forcefight = 0;
     state.iflags.menu_requested = false;
 }
@@ -942,9 +952,9 @@ function rejectedPhysicalCommand(pending) {
 }
 
 // The classes failClosedCommand() converts. js/jsmain.js breaks the segment
-// only for the three boundary classes, so a class a command handler can raise
-// that is missing from this list escapes as a hard failure and discards the
-// segment's matching prefix instead of stopping on it.
+// only for the boundary classes it lists, so a class a command handler can
+// raise that is missing from this list escapes as a hard failure and discards
+// the segment's matching prefix instead of stopping on it.
 // js/allmain.js elapsedTurnPlanningRefusals() is the same list for the turn
 // loop; a class both paths can reach belongs in both.
 export function failClosedCommandRefusals() {
@@ -1671,7 +1681,7 @@ export async function rhack(key, state = game) {
             return;
         }
         if (Object.hasOwn(MOVEMENT_INTENTS, command)) {
-            await executeMovement(command, firstTime, state);
+            await executeMovement(command, key, firstTime, state);
             return;
         }
         if (command !== null) {
