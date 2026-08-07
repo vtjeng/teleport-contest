@@ -956,9 +956,15 @@
       "area": "commands",
       "category": "scope",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "5dd14ef51420955bd1ff92dc0b7f43368c1d03a3",
-      "detail": "wield.c can_twoweapon()'s seven refusal messages and dotwoweapon()'s toggle-off arm are unported: js/wield.js raises UnsupportedTwoWeaponError for each, so the segment stops where C prints a line and spends no turn. Three recorded just-outside-the-limit cases, all at seed 7710101, datetime 20310203040506, OPTIONS=name:Refuse,race:human,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen with moves '.#twoweapon\\n..': Valkyrie/female/lawful prints \"You can't use two weapons while wearing a shield.\" (uarms arm, wield.c:789); Barbarian/male/neutral prints \"Your two-handed sword isn't one-handed.\" (bimanual arm, wield.c:786); Tourist/male/neutral prints \"Your hands are empty.\" (empty-hand arm, wield.c:773). Each logs no RNG call and spends no move. The port stops at the '#twoweapon' Enter instead."
+      "detail": "wield.c can_twoweapon()'s seven refusal messages and dotwoweapon()'s toggle-off arm are unported: js/wield.js raises UnsupportedTwoWeaponError for each, so the segment stops where C prints a line and spends no turn. Three recorded just-outside-the-limit cases, all at seed 7710101, datetime 20310203040506, OPTIONS=name:Refuse,race:human,pettype:none,!acoustics,!legacy,!tutorial,!splash_screen with moves '.#twoweapon\\n..': Valkyrie/female/lawful prints \"You can't use two weapons while wearing a shield.\" (uarms arm, wield.c:789); Barbarian/male/neutral prints \"Your two-handed sword isn't one-handed.\" (bimanual arm, wield.c:786); Tourist/male/neutral prints \"Your hands are empty.\" (empty-hand arm, wield.c:773). Each logs no RNG call and spends no move. The port stops at the '#twoweapon' Enter instead.",
+      "notes": [
+        {
+          "text": "Ported: five of can_twoweapon()'s six refusal messages (wield.c:765-790, both arms of the wrong-form one) and dotwoweapon()'s toggle-off arm. scripts/run-twoweapon-command.mjs now records eight further C cases: a Wizard and a Cavewoman on the wrong-form arm, a Tourist on the empty-hand arm, a Barbarian on the two-handed arm, a Valkyrie on the shield arm, and a Samurai, an Archeologist and a Rogue that switch on and back off. Correction to this entry's recorded cases: they cannot be replayed at seed 7710101, and could not before this work either. The port stops on the leading wait, at monmove.c distfleeck(), one key before the command; 7710101 and 7710102 both put a monster beside the hero. The matrix uses 7710103, the first seed after them that no role stops on. What remains unported moved to twoweapon-unreachable-refusal-arms.",
+          "at": "e0127f1eb4728060accc66880159c00d7c612253"
+        }
+      ]
     },
     {
       "id": "doname-twoweap-guard-too-broad",
@@ -968,6 +974,15 @@
       "status": "open",
       "from": "5dd14ef51420955bd1ff92dc0b7f43368c1d03a3",
       "detail": "js/objnam.js:264 refuses doname() for ANY worn object once u.twoweap is set: 'if (obj.owornmask && state.u?.twoweap) unsupported(\"two-weapon suffix\", obj)'. objnam.c doname_base() reads u.twoweap in exactly two places, at :1562 for W_WEP (twoweap_primary picks \"wielded in\" over \"weapon in\") and at :1614 for W_SWAPWEP (\"wielded in left hand\" over \"alternate weapon; not wielded\"). Every other worn mask -- armor, rings, amulet, quiver -- carries no u.twoweap term, so refusing them is over-broad. The guard was dead until the #twoweapon slice made u.twoweap reachable; it now blocks any doname() of worn armor while two-weaponing, which the inventory command would hit first. Narrowing the mask to (W_WEP | W_SWAPWEP) needs no new porting, because js/objnam.js:718-737 already omits both twoweap branches and so must keep refusing those two slots."
+    },
+    {
+      "id": "twoweapon-unreachable-refusal-arms",
+      "area": "commands",
+      "category": "scope",
+      "effort": "slice",
+      "status": "open",
+      "from": "e0127f1eb4728060accc66880159c00d7c612253",
+      "detail": "wield.c can_twoweapon()'s last two refusal arms still raise UnsupportedTwoWeaponError, and no input the port accepts can reach either. wield.c:791-793 refuses an artifact in the secondary slot with Yobjnam2(uswapwep, \"resist\"); objnam.c yname()'s artifact branch needs obj_is_pname() and artiname(), and u_init.c:1310 asks mksobj() for artif FALSE, so no role starts with one. wield.c:797-801 sets bknown and calls drop_uswapwep(), whose three messages need Yobjnam2()/yobjnam() and whose dropx(uswapwep) needs do.c dropz()'s setuwep/setuqwep/setuswapwep head and a preflight_dropx() that admits an equipped, mergeable weapon; today's admits only an unequipped heavy iron ball. Neither condition can arise either: u_init.c:1223 clears cursed on every starting object and nothing in the port grants Glib. wield.c:794-796, the CORPSE arm, stays absent rather than stopped, because obj.h is_weptool() demands TOOL_CLASS and a corpse is FOOD_CLASS, so TWOWEAPOK() refuses it two arms earlier."
     }
   ],
   "areas": [

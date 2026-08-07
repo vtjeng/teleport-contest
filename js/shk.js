@@ -2,7 +2,8 @@
 // live price-quote writes, and remembered-price queries.
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
 // u_left_shop(), getprice(), get_cost(), get_cost_of_shop_item(),
-// append_price_quote(), contained_gold(), and costly_spot().
+// append_price_quote(), contained_gold(), costly_spot(), shk_owns(),
+// mon_owns(), and shk_your().
 
 import {
     A_CHA,
@@ -12,6 +13,7 @@ import {
     HUNGRY,
     INVIS,
     OBJ_FLOOR,
+    OBJ_MINVENT,
     PL_NSIZ,
     ROOMOFFSET,
     SHOPBASE,
@@ -23,7 +25,9 @@ import { s_suffix } from './hacklib.js';
 import { record_achievement } from './insight.js';
 import { get_obj_location } from './light.js';
 import { set_malign } from './makemon.js';
-import { hasContents, isCandle, isContainer, objectType } from './obj.js';
+import {
+    carried, hasContents, isCandle, isContainer, objectType,
+} from './obj.js';
 import {
     ARMOR_CLASS,
     COIN_CLASS,
@@ -458,6 +462,50 @@ export function costly_spot(x, y, state = game) {
     const extension = shopkeeper.mextra.eshk;
     return inside_shop(x, y, state) === roomno
         && !(x === extension.shk.x && y === extension.shk.y);
+}
+
+// C ref: decl.c c_common_strings.c_the_your (39-52), indexed by carried().
+const the_your = ['the', 'your'];
+
+// C ref: shk.c shk_owns() (5884-5898). C answers the shopkeeper's possessive,
+// or "the" where the shop has no resident, for an unpaid object and for one
+// lying on a charged shop square. shkname() is unported and no ported caller
+// names an object a shopkeeper owns, so the whole owning branch stops and
+// only its NULL answer is written out.
+function shk_owns(obj, state) {
+    const spot = get_obj_location(obj, 0, state);
+    if (spot && (obj.unpaid
+        || (obj.where === OBJ_FLOOR && !obj.no_charge
+            && costly_spot(spot.x, spot.y, state)))) {
+        throw new UnsupportedShopError('shk_owns() naming a shop owner');
+    }
+    return null;
+}
+
+// C ref: shk.c mon_owns() (5899-5905). Its one branch needs y_monnam(), which
+// is unported, so an object in a monster's pack stops instead of being named.
+function mon_owns(obj) {
+    if (obj.where === OBJ_MINVENT)
+        throw new UnsupportedShopError('mon_owns() naming a carrier');
+    return null;
+}
+
+// C ref: shk.c shk_your() (5860-5873). Writes the ownership prefix, with its
+// trailing space, that objnam.c yname() and ysimple_name() put in front of an
+// object's name: "your " for what the hero carries and "the " for what she
+// does not.
+//
+// Its two corpse arms are absent. Both test ismnum(obj->corpsenm), and
+// objnam.c cxname() -- which yname() calls before this -- already stops on a
+// corpse because corpse_xname() is unported.
+//
+// Both owner probes answer NULL for every object this port names, so C's
+// `!shk_owns(...) && !mon_owns(...)` guard is always true here. Each probe is
+// still called, because each stops where C would write an owner's possessive.
+export function shk_your(obj, state = game) {
+    shk_owns(obj, state);
+    mon_owns(obj);
+    return `${the_your[carried(obj) ? 1 : 0]} `;
 }
 
 function heroIsInvisible(state) {

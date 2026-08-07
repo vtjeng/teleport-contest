@@ -1,6 +1,6 @@
 // Runtime object naming for the early movement, pet, trap, and combat paths.
 // C refs: objnam.c xname(), corpse_xname(), doname(), distant_name(), cxname(),
-// The(), aobjnam(), otense() and singular().
+// The(), aobjnam(), otense(), singular(), yname() and Yname2().
 //
 // objnam.c is split across two files. Its wish-parsing group lives in
 // js/objnam_readobjnam.js: readobjnam() and its five-function chain,
@@ -59,6 +59,7 @@ import {
 import {
     get_cost_of_shop_item,
     record_price_quote,
+    shk_your,
 } from './shk.js';
 
 export class UnsupportedObjectNameError extends Error {
@@ -820,7 +821,7 @@ export function The(str) {
 // once discovered but not while they are still "a pair of lenses";
 // undiscovered_artifact() is unported and no wish this port grants makes an
 // artifact, so that arm stops.
-function is_plural(otmp) {
+export function is_plural(otmp) {
     if (otmp.quan !== 1) return true;
     if (otmp.oartifact === ART_EYES_OF_THE_OVERWORLD)
         unsupported('undiscovered_artifact() for is_plural()', otmp);
@@ -845,6 +846,31 @@ export function aobjnam(otmp, verb, state = game) {
     if (verb)
         bp = `${bp} ${otense(otmp, verb)}`;
     return bp;
+}
+
+// C ref: objnam.c yname() (2357-2374). "your <cxname>" for what the hero
+// carries, "the <cxname>" for what she does not, and a shopkeeper's or a
+// monster's possessive where shk_your() finds an owner.
+//
+// C skips the prefix for an artifact whose proper name stands alone. That
+// test is obj_is_pname(), which answers FALSE for every object with no
+// oartifact, so a non-artifact always takes the prefix and the artifact arm
+// stops: naming one needs artiname() and not_fully_identified(), neither of
+// which is ported.
+export function yname(obj, state = game) {
+    const s = cxname(obj, state);
+
+    if (obj.oartifact)
+        unsupported('obj_is_pname() for yname()', obj);
+    return `${shk_your(obj, state)}${s}`;
+}
+
+// C ref: objnam.c Yname2() (2376-2383). yname() with its first character
+// capitalized, so that the name can open a sentence.
+export function Yname2(obj, state = game) {
+    const s = yname(obj, state);
+
+    return highc(s[0]) + s.slice(1);
 }
 
 // C ref: objnam.c doname(). Shop, known-container, worn-item, end-game, and

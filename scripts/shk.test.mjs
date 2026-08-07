@@ -1,7 +1,17 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { A_CHA, BUFSZ, HUNGRY } from '../js/const.js';
+import {
+    A_CHA,
+    BUFSZ,
+    HUNGRY,
+    OBJ_CONTAINED,
+    OBJ_FLOOR,
+    OBJ_INVENT,
+    OBJ_MINVENT,
+    ROOMOFFSET,
+    SHOPBASE,
+} from '../js/const.js';
 import { init_objects } from '../js/o_init.js';
 import {
     COIN_CLASS,
@@ -14,6 +24,7 @@ import {
     TALLOW_CANDLE,
     WAN_SLEEP,
     SACK,
+    WEAPON_CLASS,
 } from '../js/objects.js';
 import { newObject } from '../js/obj.js';
 import {
@@ -24,6 +35,8 @@ import {
     getprice,
     oid_price_adjustment,
     record_price_quote,
+    shk_your,
+    UnsupportedShopError,
 } from '../js/shk.js';
 import { hidden_gold } from '../js/vault.js';
 import { PM_TOURIST } from '../js/monsters.js';
@@ -300,4 +313,87 @@ test('hidden_gold walks the pack the way vault.c does', () => {
 
     assert.equal(hidden_gold(false, state), 12);
     assert.equal(hidden_gold(true, state), 17);
+});
+
+// shk.c shk_your() reads five things about an object: whether a shopkeeper
+// owns it (unpaid, or lying unfree on a charged shop square), whether a
+// monster carries it, and whether the hero does. This fixture is a one-room
+// tended shop, so costly_spot() answers true on the single square the tests
+// place a floor object on; ownedState({ has_shop: false }) turns it off again
+// without moving the object.
+const SHOP_ROOMNO = ROOMOFFSET;
+
+function shopState({ has_shop = true } = {}) {
+    const location = { roomno: SHOP_ROOMNO, edge: false };
+    const shoplevel = { dnum: 0, dlevel: 3 };
+    return {
+        u: { ux: 4, uy: 5, uz: { ...shoplevel } },
+        level: {
+            flags: { has_shop },
+            at: () => location,
+            rooms: [{
+                rtype: SHOPBASE,
+                resident: {
+                    isshk: true,
+                    mx: 4,
+                    my: 5,
+                    mextra: {
+                        eshk: {
+                            shoproom: SHOP_ROOMNO,
+                            shoplevel,
+                            /* the shopkeeper's own post, which is not
+                               "inside" the shop */
+                            shk: { x: 1, y: 1 },
+                        },
+                    },
+                },
+            }],
+        },
+    };
+}
+
+function shopObject(where, overrides = {}) {
+    return newObject({
+        otyp: DART, oclass: WEAPON_CLASS, quan: 1, where, ox: 4, oy: 5,
+        ...overrides,
+    });
+}
+
+test('shk_your prefixes what the hero holds and what she does not', () => {
+    const state = shopState();
+    // decl.c c_common_strings.c_the_your is { "the", "your" }, indexed by
+    // obj.h carried(), and shk.c appends the separating space.
+    assert.equal(shk_your(shopObject(OBJ_INVENT), state), 'your ');
+    // A floor object outside a charged square has no owner, so C falls to
+    // the_your[0]. costly_spot() answers false with no shop on the level.
+    assert.equal(
+        shk_your(shopObject(OBJ_FLOOR), shopState({ has_shop: false })),
+        'the ',
+    );
+    // no_charge takes the square's own object out of shk_owns()'s reach even
+    // where costly_spot() is true.
+    assert.equal(
+        shk_your(shopObject(OBJ_FLOOR, { no_charge: 1 }), state), 'the ',
+    );
+});
+
+test('shk_your stops on every object shk.c would name an owner for', () => {
+    const state = shopState();
+    // shk.c:5890. An unpaid object belongs to the shopkeeper wherever it is,
+    // including in the hero's own pack.
+    assert.throws(() => shk_your(shopObject(OBJ_INVENT, { unpaid: 1 }), state),
+        UnsupportedShopError);
+    // shk.c:5891-5892. A charged shop square owns what lies on it.
+    assert.throws(() => shk_your(shopObject(OBJ_FLOOR), state),
+        UnsupportedShopError);
+    // shk.c:5902. A monster's pack answers through mon_owns() instead.
+    assert.throws(() => shk_your(shopObject(OBJ_MINVENT), state),
+        UnsupportedShopError);
+    // shk.c passes locflags 0, so get_obj_location() answers NULL for a
+    // contained object even when its container is locatable, and C's whole
+    // shopkeeper test sits behind that answer. An unpaid object inside a
+    // carried bag therefore reaches the ordinary prefix.
+    const bagged = shopObject(OBJ_CONTAINED, { unpaid: 1 });
+    bagged.ocontainer = shopObject(OBJ_INVENT);
+    assert.equal(shk_your(bagged, state), 'the ');
 });

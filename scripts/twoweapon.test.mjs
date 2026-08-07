@@ -1,7 +1,7 @@
 // The #twoweapon command: mondata.h could_twoweap(), wield.c TWOWEAPOK()
 // reached through wield.c can_twoweapon(), and wield.c dotwoweapon()'s
-// success path. Every expected value comes from those C sources and is cited
-// at the assertion that uses it.
+// success, refusal and toggle-off paths. Every expected value comes from
+// those C sources and is cited at the assertion that uses it.
 
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -11,6 +11,7 @@ import {
     ECMD_OK,
     ECMD_TIME,
     GLIB,
+    OBJ_INVENT,
     W_SWAPWEP,
     W_WEP,
 } from '../js/const.js';
@@ -33,27 +34,48 @@ import {
     TWO_HANDED_SWORD,
     objects_globals_init,
 } from '../js/objects.js';
+import { init_objects } from '../js/o_init.js';
 import { enableRngLog, getRngLog, initRng, rnd } from '../js/rng.js';
+import { roles } from '../js/roles.js';
 import {
     UnsupportedTwoWeaponError,
     can_twoweapon,
     dotwoweapon,
 } from '../js/wield.js';
 
+// roles.js keeps the role records in role.c's order, so these are the indices
+// role.c:113 (Caveman), :275 (Priest) and :533 (Wizard) sit at.
+const ROLE_CAVEMAN = 2;
+const ROLE_PRIEST = 6;
+const ROLE_SAMURAI = 9;
+const ROLE_WIZARD = 12;
+
 // u_init.c gives the Samurai a katana in the primary slot and a short sword
 // in the secondary one, and no shield; that pair is can_twoweapon()'s success
 // path, so every refusal test below starts from it and breaks one condition.
-function makeState(pmidx = PM_SAMURAI) {
+function makeState(pmidx = PM_SAMURAI, roleIndex = ROLE_SAMURAI) {
     const state = {
         invent: null,
         uwep: null,
         uswapwep: null,
         uarms: null,
         flags: {},
-        u: { twoweap: false, acurr: { a: [] }, uprops: {} },
+        urole: roles[roleIndex],
+        // Upolyd() compares these two, so an unpolymorphed hero needs both.
+        u: {
+            twoweap: false,
+            acurr: { a: [] },
+            umonnum: pmidx,
+            umonster: pmidx,
+            uprops: {},
+        },
     };
     monst_globals_init(state);
     objects_globals_init(state);
+    // xname() enters the named type in the discoveries list, which needs the
+    // per-class bases and the discovery array init_objects() builds. The
+    // constant rn2 keeps its description shuffle from drawing on the game RNG.
+    init_objects(state, () => 0);
     state.youmonst = { data: state.mons[pmidx] };
     return state;
 }
@@ -64,26 +86,43 @@ function object(state, otyp, overrides = {}) {
         oclass: state.objects[otyp].oc_class,
         quan: 1,
         owornmask: 0,
+        // u_init.c:1218 sets dknown on every starting object, and obj.h
+        // carried() reads where, which shk_your() consults for "your ".
+        dknown: 1,
+        where: OBJ_INVENT,
         ...overrides,
     });
 }
 
-function armHero(state, primaryTyp = KATANA, secondaryTyp = SHORT_SWORD) {
+function armHero(
+    state, primaryTyp = KATANA, secondaryTyp = SHORT_SWORD, secondaryQuan = 1,
+) {
     state.uwep = primaryTyp === null
         ? null
         : object(state, primaryTyp, { owornmask: W_WEP });
     state.uswapwep = secondaryTyp === null
         ? null
-        : object(state, secondaryTyp, { owornmask: W_SWAPWEP });
+        : object(state, secondaryTyp,
+                 { owornmask: W_SWAPWEP, quan: secondaryQuan });
     return state;
 }
 
-function refusal(state) {
+// Every refusal arm answers FALSE and prints one line, so the two are checked
+// together.
+async function refusal(state) {
+    assert.equal(await can_twoweapon(state), false);
+    return state._pending_message;
+}
+
+async function stoppedRefusal(state) {
     let caught = null;
-    assert.throws(() => can_twoweapon(state), (error) => {
+    await assert.rejects(() => can_twoweapon(state), (error) => {
         caught = error;
         return error instanceof UnsupportedTwoWeaponError;
     });
+    // A stopped arm must print nothing, because js/cmd.js retries the whole
+    // command from this boundary.
+    assert.equal(state._pending_message, undefined);
     return caught.message;
 }
 
@@ -120,80 +159,129 @@ test('could_twoweap reads the hero form the Samurai starts in', () => {
     assert.equal(could_twoweap(state.mons[PM_NEWT]), false);
 });
 
-test('can_twoweapon accepts the Samurai katana and short sword', () => {
+test('can_twoweapon accepts the Samurai katana and short sword', async () => {
     const state = armHero(makeState());
-    // wield.c:803, the only arm that returns TRUE.
-    assert.equal(can_twoweapon(state), true);
+    // wield.c:803, the only arm that returns TRUE, and it prints nothing.
+    assert.equal(await can_twoweapon(state), true);
+    assert.equal(state._pending_message, undefined);
 });
 
-test('can_twoweapon refuses a form that cannot hold two weapons', () => {
-    // wield.c:765. A newt has no AT_WEAP slot at all.
-    const state = armHero(makeState(PM_NEWT));
-    assert.match(refusal(state), /wrong-form/u);
+test('can_twoweapon names the role that cannot hold two weapons', async () => {
+    // wield.c:765-772. A newt has no AT_WEAP slot at all, so the role's own
+    // name is pluralized into the refusal. role.c:533 names the Wizard in the
+    // male form only.
+    assert.equal(await refusal(armHero(makeState(PM_NEWT, ROLE_WIZARD))),
+        "Wizards aren't able to use two weapons at once.");
+
+    // flags.female picks urole.name.f where role.c gives one: role.c:275 and
+    // :113. Both plurals exercise makeplural()'s "-ess" and "-man" rules.
+    const priestess = armHero(makeState(PM_NEWT, ROLE_PRIEST));
+    priestess.flags.female = true;
+    assert.equal(await refusal(priestess),
+        "Priestesses aren't able to use two weapons at once.");
+
+    const cavewoman = armHero(makeState(PM_NEWT, ROLE_CAVEMAN));
+    cavewoman.flags.female = true;
+    assert.equal(await refusal(cavewoman),
+        "Cavewomen aren't able to use two weapons at once.");
+
+    // A female role with no name.f keeps the male form.
+    const wizard = armHero(makeState(PM_NEWT, ROLE_WIZARD));
+    wizard.flags.female = true;
+    assert.equal(await refusal(wizard),
+        "Wizards aren't able to use two weapons at once.");
 });
 
-test('can_twoweapon refuses an empty hand', () => {
-    // wield.c:773. Either slot alone is enough to refuse.
-    assert.match(refusal(armHero(makeState(), KATANA, null)), /empty-hand/u);
-    assert.match(refusal(armHero(makeState(), null, SHORT_SWORD)),
-        /empty-hand/u);
-    assert.match(refusal(armHero(makeState(), null, null)), /empty-hand/u);
+test('can_twoweapon blames the form when the hero is polymorphed', async () => {
+    // wield.c:766-767. Upolyd() is umonnum != umonster, and it replaces the
+    // role name with the form the hero is stuck in.
+    const state = armHero(makeState(PM_NEWT, ROLE_WIZARD));
+    state.u.umonster = PM_SAMURAI;
+    assert.equal(await refusal(state),
+        "You can't use two weapons in your current form.");
 });
 
-test('can_twoweapon refuses launchers, ammunition and missiles', () => {
-    // wield.c:780 through TWOWEAPOK() at :75-78. A bow is is_launcher(), an
-    // arrow is is_ammo() and a dart is is_missile(); each disqualifies the
-    // slot it occupies on its own.
-    assert.match(refusal(armHero(makeState(), BOW, SHORT_SWORD)),
-        /unsuitable-weapon/u);
-    assert.match(refusal(armHero(makeState(), KATANA, ARROW)),
-        /unsuitable-weapon/u);
-    assert.match(refusal(armHero(makeState(), KATANA, DART)),
-        /unsuitable-weapon/u);
-    assert.match(refusal(armHero(makeState(), DART, SHORT_SWORD)),
-        /unsuitable-weapon/u);
+test('can_twoweapon reports which hand is empty', async () => {
+    // wield.c:773-779. Both hands empty pluralizes body_part(HAND) and
+    // vtense() agrees the verb with it; one hand empty names the side, and
+    // the secondary weapon is the left-hand one.
+    assert.equal(await refusal(armHero(makeState(), null, null)),
+        'Your hands are empty.');
+    assert.equal(await refusal(armHero(makeState(), KATANA, null)),
+        'Your left hand is empty.');
+    assert.equal(await refusal(armHero(makeState(), null, SHORT_SWORD)),
+        'Your right hand is empty.');
 });
 
-test('can_twoweapon accepts a weapon-tool and refuses a plain tool', () => {
+test('can_twoweapon refuses launchers, ammunition and missiles', async () => {
+    // wield.c:780-785 through TWOWEAPOK() at :75-78. A bow is is_launcher(),
+    // an arrow is is_ammo() and a dart is is_missile(); each disqualifies the
+    // slot it occupies on its own. The uwep test runs first, so a bad primary
+    // is named "primary" and everything else "secondary".
+    assert.equal(await refusal(armHero(makeState(), BOW, SHORT_SWORD)),
+        "Your bow isn't a suitable primary weapon.");
+    assert.equal(await refusal(armHero(makeState(), KATANA, ARROW)),
+        "Your arrow isn't a suitable secondary weapon.");
+    assert.equal(await refusal(armHero(makeState(), DART, SHORT_SWORD)),
+        "Your dart isn't a suitable primary weapon.");
+
+    // is_plural() and plur() both read quan, so a stack changes the verb, the
+    // article and the noun together.
+    assert.equal(await refusal(armHero(makeState(), KATANA, DART, 3)),
+        "Your darts aren't suitable secondary weapons.");
+});
+
+test('can_twoweapon accepts a weapon-tool and refuses a plain tool', async () => {
     // TWOWEAPOK()'s non-WEAPON_CLASS arm is is_weptool(): a pick-axe has a
     // nonzero oc_skill and passes, an oil lamp has none and fails.
-    assert.equal(can_twoweapon(armHero(makeState(), KATANA, PICK_AXE)), true);
-    assert.match(refusal(armHero(makeState(), KATANA, OIL_LAMP)),
-        /unsuitable-weapon/u);
+    assert.equal(await can_twoweapon(armHero(makeState(), KATANA, PICK_AXE)),
+        true);
+    // objects.c gives the oil lamp the description "lamp" and no starting
+    // discovery, so xname() names what the hero sees rather than the type.
+    assert.equal(await refusal(armHero(makeState(), KATANA, OIL_LAMP)),
+        "Your lamp isn't a suitable secondary weapon.");
 });
 
-test('can_twoweapon refuses a two-handed weapon in either slot', () => {
-    // wield.c:786. objects.c gives the two-handed sword oc_bimanual.
-    assert.match(refusal(armHero(makeState(), TWO_HANDED_SWORD, SHORT_SWORD)),
-        /two-handed/u);
-    assert.match(refusal(armHero(makeState(), KATANA, TWO_HANDED_SWORD)),
-        /two-handed/u);
+test('can_twoweapon refuses a two-handed weapon in either slot', async () => {
+    // wield.c:786-788. objects.c gives the two-handed sword oc_bimanual, and
+    // the uwep test runs first, so it is named when both slots hold one.
+    assert.equal(
+        await refusal(armHero(makeState(), TWO_HANDED_SWORD, SHORT_SWORD)),
+        "Your two-handed sword isn't one-handed.",
+    );
+    assert.equal(
+        await refusal(armHero(makeState(), KATANA, TWO_HANDED_SWORD)),
+        "Your two-handed sword isn't one-handed.",
+    );
 });
 
-test('can_twoweapon refuses a worn shield', () => {
-    // wield.c:789. The Samurai starts without one; any uarms refuses.
+test('can_twoweapon refuses a worn shield', async () => {
+    // wield.c:789-790. The Samurai starts without one; any uarms refuses.
     const state = armHero(makeState());
     state.uarms = object(state, SHORT_SWORD);
-    assert.match(refusal(state), /shield/u);
+    assert.equal(await refusal(state),
+        "You can't use two weapons while wearing a shield.");
 });
 
-test('can_twoweapon refuses an artifact in the secondary slot', () => {
-    // wield.c:791, which tests uswapwep only.
+test('can_twoweapon stops on an artifact in the secondary slot', async () => {
+    // wield.c:791-793, which tests uswapwep only. Yobjnam2() needs yname()'s
+    // artifact branch, which is unported, so the arm stops with no output.
     const state = armHero(makeState());
     state.uswapwep.oartifact = 1;
-    assert.match(refusal(state), /artifact/u);
+    assert.match(await stoppedRefusal(state), /artifact/u);
 });
 
-test('can_twoweapon refuses slippery fingers and a cursed secondary', () => {
-    // wield.c:797. Glib (youprop.h:112) and uswapwep->cursed refuse
-    // separately; each drops the secondary weapon, which this slice omits.
+test('can_twoweapon stops on slippery fingers and a cursed secondary', async () => {
+    // wield.c:797-801. Glib (youprop.h:112) and uswapwep->cursed refuse
+    // separately; each drops the secondary weapon through drop_uswapwep(),
+    // which do.c's dropx() does not admit yet.
     const cursed = armHero(makeState());
     cursed.uswapwep.cursed = 1;
-    assert.match(refusal(cursed), /slippery-or-cursed/u);
+    assert.match(await stoppedRefusal(cursed), /slippery-or-cursed/u);
 
     const glib = armHero(makeState());
     glib.u.uprops[GLIB] = { intrinsic: 1 };
-    assert.match(refusal(glib), /slippery-or-cursed/u);
+    assert.match(await stoppedRefusal(glib), /slippery-or-cursed/u);
 });
 
 // Drive dotwoweapon() with the core RNG positioned so that the single
@@ -243,13 +331,39 @@ test('dotwoweapon redraws the status line when weaponstatus is on', async () => 
     assert.equal(state.disp.botl, true);
 });
 
-test('dotwoweapon refuses to switch two-weapon combat back off', async () => {
-    // wield.c:847-853 prints "You switch to your primary weapon."; this
-    // slice owns the turn-on path only.
+test('dotwoweapon switches two-weapon combat back off for free', async () => {
+    // wield.c:847-853. The toggle-off arm returns ECMD_OK before the gate, so
+    // it neither consults can_twoweapon() nor draws rnd(20).
+    initRng(2);
+    enableRngLog();
     const state = armHero(makeState());
     state.u.twoweap = true;
-    await assert.rejects(
-        () => dotwoweapon(state),
-        UnsupportedTwoWeaponError,
-    );
+    assert.equal(await dotwoweapon(state), ECMD_OK);
+    assert.equal(state.u.twoweap, false);
+    assert.equal(state._pending_message,
+        'You switch to your primary weapon.');
+    assert.deepEqual(getRngLog(), []);
+});
+
+test('dotwoweapon toggles off even from a state it would refuse to enter', async () => {
+    // wield.c:847 tests u.twoweap before can_twoweapon(), so a hero whose
+    // secondary slot has emptied still switches back without a refusal.
+    const state = armHero(makeState(), KATANA, null);
+    state.u.twoweap = true;
+    assert.equal(await dotwoweapon(state), ECMD_OK);
+    assert.equal(state.u.twoweap, false);
+    assert.equal(state._pending_message,
+        'You switch to your primary weapon.');
+});
+
+test('a refused switch spends no move and draws nothing', async () => {
+    // wield.c:863. can_twoweapon() answering FALSE falls past the rnd(20) to
+    // ECMD_OK, so the whole command is free.
+    initRng(2);
+    enableRngLog();
+    const state = armHero(makeState(), TWO_HANDED_SWORD, SHORT_SWORD);
+    state.u.acurr.a[A_DEX] = 14;
+    assert.equal(await dotwoweapon(state), ECMD_OK);
+    assert.equal(state.u.twoweap, false);
+    assert.deepEqual(getRngLog(), []);
 });

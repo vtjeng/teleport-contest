@@ -4,11 +4,20 @@
 // Every segment contains replay inputs only; runFreshMatrix() records new
 // reference output in an isolated temporary workspace.
 //
-// wield.c dotwoweapon() ends `(rnd(20) > ACURR(A_DEX)) ? ECMD_TIME : ECMD_OK`,
-// so one draw decides whether turning two-weapon combat on costs the hero a
-// move. The four seeds below were chosen by recording Samurai starts until
-// each side of that comparison appeared, including the equal case that
-// separates `>` from `>=`.
+// Three groups of cases:
+//
+// - TIME_COST_CASES settle wield.c dotwoweapon()'s single draw. It ends
+//   `(rnd(20) > ACURR(A_DEX)) ? ECMD_TIME : ECMD_OK`, so one draw decides
+//   whether turning two-weapon combat on costs the hero a move. The four
+//   seeds were chosen by recording Samurai starts until each side of that
+//   comparison appeared, including the equal case that separates `>` from
+//   `>=`.
+// - SWITCH_CASES issue the command twice, so the toggle-off arm at
+//   wield.c:847-853 runs after the success path that armed it.
+// - REFUSAL_CASES reach one arm of wield.c can_twoweapon() each. Which arm a
+//   role reaches is fixed by its u_init.c starting inventory and by
+//   mondata.h could_twoweap() over its monst.c role monster, so a role
+//   selects an arm the way a keystroke selects a command.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,7 +26,9 @@ import { A_DEX } from '../js/const.js';
 import { effective_attribute } from '../js/attrib.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { could_twoweap } from '../js/mondata.js';
 import { KATANA, SHORT_SWORD } from '../js/objects.js';
+import { bimanual } from '../js/worn.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
 
@@ -32,7 +43,7 @@ const TWOWEAPON = '#twoweapon\n';
 // dotwoweapon(wield.c:861), and the Dexterity its status line shows. `costs`
 // restates wield.c:861 rather than an observation, so a seed whose draw
 // changed would fail the verifier rather than silently agree with it.
-const CASES = [
+const TIME_COST_CASES = [
     // Draw above Dexterity: the command costs a move. The C step logs the
     // whole following turn (18 calls) instead of the draw alone.
     { seed: 7710001, draw: 20, dexterity: 13 },
@@ -45,13 +56,85 @@ const CASES = [
     { seed: 7710004, draw: 20, dexterity: 16 },
 ];
 
+// role.c fixes which race, gender and alignment each role admits, and
+// u_init.c fixes the loadout that follows. Only roles whose loadout can be
+// reached from a fresh start appear here; wield.c:791 (an artifact in the
+// secondary slot) and wield.c:797 (slippery fingers or a cursed secondary)
+// have no such role, because u_init.c:1310 asks mksobj() for no artifact and
+// u_init.c:1223 clears cursed on every starting object.
+const ROLES = {
+    // u_init.c:143-144 wields a katana over a short sword: can_twoweapon()'s
+    // success path.
+    samurai: { role: 'Samurai', race: 'human', gender: 'male',
+               align: 'lawful' },
+    // u_init.c:44,48 wield a bullwhip over a pick-axe, so TWOWEAPOK()'s
+    // is_weptool() arm decides the secondary slot.
+    archeologist: { role: 'Archeologist', race: 'human', gender: 'male',
+                    align: 'lawful' },
+    // u_init.c:134-135 wield a short sword over a stack of daggers, the only
+    // start whose secondary slot holds more than one object.
+    rogue: { role: 'Rogue', race: 'human', gender: 'male', align: 'chaotic' },
+    // monsters.h:3454 gives the wizard role monster one AT_WEAP attack, so
+    // could_twoweap() is false however the hands are filled.
+    wizard: { role: 'Wizard', race: 'human', gender: 'male',
+              align: 'neutral' },
+    // monsters.h:3363 likewise, and role.c:113 names the female form, so the
+    // refusal reads "Cavewomen" rather than "Cavemen".
+    cavewoman: { role: 'Caveman', race: 'human', gender: 'female',
+                 align: 'neutral' },
+    // u_init.c:151 quivers the Tourist's darts and wields nothing.
+    tourist: { role: 'Tourist', race: 'human', gender: 'male',
+               align: 'neutral' },
+    // u_init.c:55 or :62 wields a two-handed sword or a battle-axe; both are
+    // oc_bimanual.
+    barbarian: { role: 'Barbarian', race: 'human', gender: 'male',
+                 align: 'neutral' },
+    // u_init.c:163 wears a small shield over the spear and dagger.
+    valkyrie: { role: 'Valkyrie', race: 'human', gender: 'female',
+                align: 'lawful' },
+};
+
+// One seed for every case that is not measuring the draw: which arm of
+// can_twoweapon() a role reaches does not depend on the seed, so a second
+// seed would only vary the level around the hero.
+//
+// It does have to be a seed whose first turn the port can already replay.
+// 7710101 and 7710102 both put a monster next to the hero, and the port stops
+// on the leading wait at monmove.c distfleeck(), before the command is even
+// typed. 7710103 is the first seed after them that no role stops on.
+const REFUSAL_SEED = 7710103;
+
+const SWITCH_CASES = [
+    { who: 'samurai', seed: REFUSAL_SEED },
+    { who: 'archeologist', seed: REFUSAL_SEED },
+    { who: 'rogue', seed: REFUSAL_SEED },
+];
+
+// Each case names the can_twoweapon() arm its role reaches and the state that
+// selects it. verifyRefusal() checks that state against the port before the
+// differential compares C's message with the port's.
+const REFUSAL_CASES = [
+    { who: 'wizard', seed: REFUSAL_SEED, arm: 'wield.c:764 !could_twoweap()',
+      reaches: () => !could_twoweap(game.youmonst.data) },
+    { who: 'cavewoman', seed: REFUSAL_SEED,
+      arm: 'wield.c:768 the female role name',
+      reaches: () => !could_twoweap(game.youmonst.data) && game.flags.female },
+    { who: 'tourist', seed: REFUSAL_SEED, arm: 'wield.c:771 !uwep||!uswapwep',
+      reaches: () => !game.uwep && !game.uswapwep },
+    { who: 'barbarian', seed: REFUSAL_SEED, arm: 'wield.c:785 bimanual()',
+      reaches: () => bimanual(game.uwep) },
+    { who: 'valkyrie', seed: REFUSAL_SEED, arm: 'wield.c:788 uarms',
+      reaches: () => Boolean(game.uarms) },
+];
+
 // One short name for every segment. u_init.c's welcome line names the hero,
 // the role, the race, the gender and the alignment, and a longer name wraps it
 // past 80 columns into a --More-- that would swallow the leading wait.
-function nethackrc() {
+function nethackrc(who = 'samurai') {
+    const { role, race, gender, align } = ROLES[who];
     return [
-        'OPTIONS=name:Twoweap,role:Samurai,race:human,gender:male,'
-        + 'align:lawful',
+        `OPTIONS=name:Twoweap,role:${role},race:${race},gender:${gender},`
+        + `align:${align}`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics',
         '',
@@ -61,30 +144,53 @@ function nethackrc() {
 // Each segment waits, issues the command, then waits twice more, so a move
 // wrongly spent or wrongly saved moves every later turn into a screen the
 // differential compares.
-function segment({ seed }) {
+function segment({ seed, who = 'samurai', repeat = 1 }) {
     return {
         seed,
         datetime: DATETIME,
-        nethackrc: nethackrc(),
-        moves: `${WAIT}${TWOWEAPON}${WAIT}${WAIT}`,
+        nethackrc: nethackrc(who),
+        moves: `${WAIT}${TWOWEAPON.repeat(repeat)}${WAIT}${WAIT}`,
     };
 }
 
 export function loadTwoWeaponCommandRecipe() {
     return validateCleanRecipe({
         version: 5,
-        segments: CASES.map(segment),
+        segments: TIME_COST_CASES.map((entry) => segment(entry)),
     });
 }
 
-function caseForSeed(seed) {
-    const found = CASES.find((entry) => entry.seed === seed);
-    if (!found) throw new Error(`no recorded case for seed ${seed}`);
+export function loadTwoWeaponSwitchRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: SWITCH_CASES.map((entry) => segment({ ...entry, repeat: 2 })),
+    });
+}
+
+export function loadTwoWeaponRefusalRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: REFUSAL_CASES.map((entry) => segment(entry)),
+    });
+}
+
+// The recipes carry replay inputs only, so a segment is matched back to its
+// case by the nethackrc that selects the role, which is unique per case.
+function caseFor(entries, recipeSegment) {
+    const found = entries.find(
+        (entry) => nethackrc(entry.who) === recipeSegment.nethackrc,
+    );
+    if (!found)
+        throw new Error(`no recorded case for ${recipeSegment.nethackrc}`);
     return found;
 }
 
-export async function verifyTwoWeaponCommandSegment(recipeSegment) {
-    const { draw, dexterity } = caseForSeed(recipeSegment.seed);
+async function verifyTimeCost(recipeSegment) {
+    const found = TIME_COST_CASES.find(
+        (entry) => entry.seed === recipeSegment.seed,
+    );
+    if (!found) throw new Error(`no case for seed ${recipeSegment.seed}`);
+    const { draw, dexterity } = found;
     // wield.c:861. Restated here so the expectation is the C comparison, not
     // a remembered outcome.
     const costsAMove = draw > dexterity;
@@ -121,12 +227,70 @@ export async function verifyTwoWeaponCommandSegment(recipeSegment) {
         throw new Error('the case turned the weapon status field on');
 }
 
+async function verifySwitch(recipeSegment) {
+    const { who } = caseFor(SWITCH_CASES, recipeSegment);
+
+    // The first command has to succeed, or the second one would take
+    // can_twoweapon() rather than the toggle-off arm above it.
+    await runSegment({ ...recipeSegment, moves: `${WAIT}${TWOWEAPON}` });
+    if (!game.u.twoweap)
+        throw new Error(`${who} did not enter two-weapon combat`);
+
+    // wield.c:850 sets u.twoweap back to FALSE, and :852 returns ECMD_OK, so
+    // the second command always ends the turn where the first one left it.
+    const movesBefore = game.moves;
+    await runSegment({
+        ...recipeSegment, moves: `${WAIT}${TWOWEAPON}${TWOWEAPON}`,
+    });
+    if (game.u.twoweap)
+        throw new Error(`${who} did not leave two-weapon combat`);
+    if (game.moves !== movesBefore)
+        throw new Error('the toggle-off arm spent a move');
+}
+
+async function verifyRefusal(recipeSegment) {
+    const { who, arm, reaches } = caseFor(REFUSAL_CASES, recipeSegment);
+
+    // Stop one keystroke before the Enter, and check that the start really
+    // does select the arm this case is here for.
+    await runSegment({ ...recipeSegment, moves: `${WAIT}#twoweapon` });
+    if (!reaches())
+        throw new Error(`the ${who} start does not reach ${arm}`);
+    const movesBefore = game.moves;
+
+    // wield.c:863 returns ECMD_OK for every refusal, so the command is free
+    // and two-weapon combat stays off.
+    await runSegment({ ...recipeSegment, moves: `${WAIT}${TWOWEAPON}` });
+    if (game.u.twoweap)
+        throw new Error(`${arm} let two-weapon combat start`);
+    if (game.moves !== movesBefore)
+        throw new Error(`${arm} spent a move`);
+}
+
+// Routes a segment to the group it belongs to. The time-cost group is the one
+// with its own seeds; the other two share REFUSAL_SEED and are told apart by
+// the role their nethackrc selects.
+export async function verifyTwoWeaponCommandSegment(recipeSegment) {
+    if (TIME_COST_CASES.some((e) => e.seed === recipeSegment.seed))
+        await verifyTimeCost(recipeSegment);
+    else if (SWITCH_CASES.some(
+        (e) => nethackrc(e.who) === recipeSegment.nethackrc,
+    ))
+        await verifySwitch(recipeSegment);
+    else
+        await verifyRefusal(recipeSegment);
+}
+
 export async function runTwoWeaponCommandMatrix() {
     return runFreshMatrix({
-        entries: [{
-            label: 'twoweapon command',
-            recipe: loadTwoWeaponCommandRecipe(),
-        }],
+        entries: [
+            { label: 'twoweapon time cost',
+              recipe: loadTwoWeaponCommandRecipe() },
+            { label: 'twoweapon switch off',
+              recipe: loadTwoWeaponSwitchRecipe() },
+            { label: 'twoweapon refusals',
+              recipe: loadTwoWeaponRefusalRecipe() },
+        ],
         summaryLabel: 'TWOWEAPON COMMAND',
         verifySegment: verifyTwoWeaponCommandSegment,
     });

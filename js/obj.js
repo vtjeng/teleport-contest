@@ -670,6 +670,12 @@ export function isCandle(obj) {
     return obj.otyp === TALLOW_CANDLE || obj.otyp === WAX_CANDLE;
 }
 
+// C ref: obj.h carried() (332). Answers whether the hero holds the object, as
+// opposed to a monster, the floor, a container, or the ground under a grave.
+export function carried(obj) {
+    return obj.where === OBJ_INVENT;
+}
+
 export function isWeptool(obj, state = game) {
     return obj.oclass === TOOL_CLASS && objectType(obj, state).oc_subtyp !== P_NONE;
 }

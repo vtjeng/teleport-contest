@@ -965,9 +965,9 @@ export function failClosedCommandRefusals() {
         UnsupportedHungerTransitionError,
         UnsupportedObjectPromptError,
         UnsupportedSteedError,
-        // wield.c can_twoweapon()'s seven refusal messages and
-        // dotwoweapon()'s toggle-off arm, all of which stop before the
-        // command prints anything or draws its rnd(20).
+        // wield.c can_twoweapon()'s artifact and slippery-or-cursed arms,
+        // both of which stop before the command prints anything or draws its
+        // rnd(20).
         UnsupportedTwoWeaponError,
         UnsupportedHitPointLossError,
         UnsupportedArtifactDisplayError,

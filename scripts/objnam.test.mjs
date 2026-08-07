@@ -16,6 +16,7 @@ import {
     LOOKHERE_NOFLAGS,
     LOOKHERE_PICKED_SOME,
     OBJ_FLOOR,
+    OBJ_INVENT,
     NON_PM,
     PLNMSG_ONE_ITEM_HERE,
     PIT,
@@ -51,6 +52,8 @@ import {
     donameFresh,
     vtense,
     xnameFresh,
+    yname,
+    Yname2,
 } from '../js/objnam.js';
 import {
     MZ_MEDIUM,
@@ -1313,4 +1316,34 @@ test('aobjnam names the object and agrees the verb with it', () => {
     assert.equal(cxname(lamp, state), 'lamp');
     const corpse = objectOf(state, CORPSE, { corpsenm: PM_NEWT });
     assert.throws(() => cxname(corpse, state), UnsupportedObjectNameError);
+});
+
+// objnam.c yname() (2357-2374) and Yname2() (2376-2383). wield.c
+// can_twoweapon() opens two of its refusals with Yname2(), so the capital and
+// the ownership prefix both land at the start of a sentence.
+test('yname prefixes the owner and Yname2 capitalizes it', () => {
+    const state = namingState();
+    const lamp = objectOf(state, OIL_LAMP, {
+        dknown: true, where: OBJ_INVENT,
+    });
+
+    // shk.c shk_your() answers "your " for what the hero carries, and
+    // Yname2() raises only the first character of the whole result.
+    assert.equal(yname(lamp, state), 'your lamp');
+    assert.equal(Yname2(lamp, state), 'Your lamp');
+
+    // A stack pluralizes through cxname(), and the prefix is unchanged.
+    lamp.quan = 2;
+    assert.equal(Yname2(lamp, state), 'Your lamps');
+
+    // C skips the prefix for an artifact whose name stands on its own, which
+    // needs obj_is_pname(); naming one at all needs artiname().
+    state.artiexist[ART_GIANTSLAYER].exists = 1;
+    const artifact = objectOf(state, LONG_SWORD, {
+        dknown: true,
+        oartifact: ART_GIANTSLAYER,
+        oextra: { oname: 'Giantslayer' },
+        where: OBJ_INVENT,
+    });
+    assert.throws(() => yname(artifact, state), UnsupportedObjectNameError);
 });
