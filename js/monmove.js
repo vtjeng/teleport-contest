@@ -338,7 +338,8 @@ import {
     recalc_block_point,
     vision_recalc,
 } from './vision.js';
-import { can_touch_safely, which_armor } from './weapon.js';
+import { can_touch_safely } from './weapon.js';
+import { which_armor } from './worn.js';
 import * as M from './monsters.js';
 import * as O from './objects.js';
 

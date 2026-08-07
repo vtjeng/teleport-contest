@@ -34,7 +34,8 @@ import * as O from './objects.js';
 import { onscary } from './monmove.js';
 import { rn2 } from './rng.js';
 import { t_at } from './trap.js';
-import { mwelded, which_armor } from './weapon.js';
+import { mwelded } from './wield.js';
+import { which_armor } from './worn.js';
 
 // The generated catalog stores these values but does not currently export
 // their source enum names.

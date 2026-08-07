@@ -99,8 +99,7 @@ import { rn1, rn2, rnd } from './rng.js';
 import { teleds } from './teleport.js';
 import { float_down, is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
-import { which_armor } from './weapon.js';
-import { is_pole } from './worn.js';
+import { is_pole, which_armor } from './worn.js';
 
 // A steed path this port has not reached yet.
 export class UnsupportedSteedError extends Error {

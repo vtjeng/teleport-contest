@@ -1,7 +1,9 @@
-// wield.js -- what the hero's hands are doing.
-// C refs: src/wield.c erodeable_wep(), will_weld(), welded(), and
-// empty_handed().
+// wield.js -- what the hero's hands are doing, plus the one question wield.c
+// asks about a monster's hands.
+// C refs: src/wield.c erodeable_wep(), will_weld(), welded(), empty_handed(),
+// and mwelded().
 
+import { W_WEP } from './const.js';
 import { game } from './gstate.js';
 import { humanoid } from './mondata.js';
 import { isWeptool, set_bknown } from './obj.js';
@@ -20,9 +22,9 @@ function erodeable_wep(obj, state) {
         || obj.otyp === HEAVY_IRON_BALL || obj.otyp === IRON_CHAIN;
 }
 
-// C ref: wield.c will_weld() (66-68). The two ported callers are welded()
-// below and js/weapon.js mwelded(), which is wield.c mwelded(); C calls the
-// macro from four more places in wield.c that are not ported yet.
+// C ref: wield.c will_weld() (66-68). The two ported callers are welded() and
+// mwelded(), both below; C calls the macro from four more places in wield.c
+// that are not ported yet.
 export function will_weld(obj, state) {
     return Boolean(obj.cursed)
         && (erodeable_wep(obj, state) || obj.otyp === TIN_OPENER);
@@ -47,4 +49,11 @@ export function empty_handed(state = game) {
             ? 'bare handed'
             /* alternate phrasing for paws or lack of hands */
             : 'not wielding anything';
+}
+
+// C ref: wield.c mwelded() (1077-1084). The monster-side counterpart of
+// welded(): it asks the same question of a monster's wielded weapon, and
+// teaches nobody anything, because a monster has no bknown to set.
+export function mwelded(obj, state = game) {
+    return Boolean(obj && (obj.owornmask & W_WEP) && will_weld(obj, state));
 }

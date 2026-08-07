@@ -1,6 +1,6 @@
 // weapon.js -- Monster weapon selection and wield state.
 // C refs: weapon.c oselect(), select_rwep(), select_hwep(), mon_wield_item(),
-// setmnotwielded(); wield.c mwelded().
+// setmnotwielded().
 
 import {
     ART_SNICKERSNEE,
@@ -165,7 +165,8 @@ import {
     weapon_type,
 } from './startup_skills.js';
 import { couldsee } from './vision.js';
-import { will_weld } from './wield.js';
+import { mwelded, will_weld } from './wield.js';
+import { which_armor } from './worn.js';
 
 const MR_STONE = 0x80;
 
@@ -288,14 +289,6 @@ function resistsStoning(monster) {
         | (monster.mextrinsics ?? 0)
         | (monster.mintrinsics ?? 0);
     return Boolean(resistanceBits & MR_STONE);
-}
-
-// C ref: worn.c which_armor().
-export function which_armor(monster, mask) {
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        if (obj.owornmask & mask) return obj;
-    }
-    return null;
 }
 
 // C ref: mon.c can_touch_safely(). Artifact acceptance remains with
@@ -508,11 +501,6 @@ function artifactLight(obj) {
              || obj?.otyp === GOLD_DRAGON_SCALES)
             && Boolean(obj.owornmask & W_ARM))
         || obj?.oartifact === ART_SUNSWORD;
-}
-
-// C ref: wield.c mwelded().
-export function mwelded(obj, state = game) {
-    return Boolean(obj && (obj.owornmask & W_WEP) && will_weld(obj, state));
 }
 
 async function clearMonsterWeapon(
@@ -875,11 +863,3 @@ export class UnsupportedWeaponSkillError extends Error {
         this.branch = branch;
     }
 }
-
-export const _weaponInternals = Object.freeze({
-    HAND_TO_HAND_WEAPONS,
-    POLEARMS,
-    RANGED_WEAPONS,
-    artifactLight,
-    resistsStoning,
-});

@@ -1,7 +1,7 @@
 // Hero worn-object and weapon-slot primitives, plus the monster-inventory
 // extraction that shares them.
 // C refs: src/worn.c setworn(), setnotworn(), recalc_telepat_range(),
-//         find_mac(), extract_from_minvent();
+//         find_mac(), which_armor(), extract_from_minvent();
 //         src/wield.c setuwep(), setuswapwep(), and setuqwep().
 
 import {
@@ -322,6 +322,17 @@ export function setnotworn(obj, env = {}) {
     update_inventory(normalized);
     recalc_telepat_range(state, normalized.hooks);
     return obj;
+}
+
+// C ref: worn.c which_armor() (1006-1035), the `mon != &gy.youmonst` branch.
+// Every ported caller passes a monster; C's hero branch, which reads the uarm*
+// globals by slot and calls impossible() for an unknown flag, has no caller
+// here yet.
+export function which_armor(monster, mask) {
+    for (let obj = monster.minvent; obj; obj = obj.nobj) {
+        if (obj.owornmask & mask) return obj;
+    }
+    return null;
 }
 
 // C ref: worn.c extract_from_minvent() (1376-1416). Take obj out of a

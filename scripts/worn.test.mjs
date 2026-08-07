@@ -20,7 +20,11 @@ import {
     ORCISH_HELM,
     objects_globals_init,
 } from '../js/objects.js';
-import { extract_from_minvent, find_mac } from '../js/worn.js';
+import {
+    extract_from_minvent,
+    find_mac,
+    which_armor,
+} from '../js/worn.js';
 
 // A kitten is monsters.h:381-388, `LVL(2, 18, 6, 0, 0)`, so its base armor
 // class is 6. An orcish helm is objects.h:448, whose HELM `ac` argument is 9
@@ -153,6 +157,37 @@ test('find_mac caps the result at AC_MAX', () => {
     });
     assert.equal(find_mac(cursed, state), 99);
 });
+
+// worn.c:1031-1034, the monster branch. The loop answers the first minvent
+// object whose owornmask carries a queried bit, and falls out to null when no
+// object does. Every case below chains three objects so that the walk has
+// somewhere to go past its first link.
+test('which_armor answers the first minvent object worn in a queried slot',
+    () => {
+        const state = catalogState();
+        const mail = wornObject(state, GOLD_DRAGON_SCALE_MAIL, W_ARM);
+        const amulet = wornObject(state, AMULET_OF_GUARDING, W_AMUL);
+        amulet.nobj = mail;
+        const helm = wornObject(state, ORCISH_HELM, W_ARMH);
+        helm.nobj = amulet;
+        const dressed = kitten(state, {
+            minvent: helm,
+            misc_worn_check: W_ARMH | W_AMUL | W_ARM,
+        });
+
+        // Two links in: the mask test must reject the helm and the amulet,
+        // whose owornmask shares no bit with W_ARM.
+        assert.equal(which_armor(dressed, W_ARM), mail);
+        // The first link answers, which is the case the walk must not skip.
+        assert.equal(which_armor(dressed, W_ARMH), helm);
+        // Nothing is wielded, so the walk runs off the end and returns null.
+        // C's `obj->owornmask & flag` rejects each object; an inclusive test
+        // would accept the helm and answer it instead.
+        assert.equal(which_armor(dressed, W_WEP), null);
+        // A monster carrying nothing never enters the loop at all.
+        assert.equal(which_armor(kitten(state, { minvent: null }), W_ARM),
+            null);
+    });
 
 // ── worn.c extract_from_minvent() ──
 

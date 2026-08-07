@@ -438,6 +438,7 @@ import {
 } from './symbols.js';
 import { begin_burn } from './timeout.js';
 import { t_at } from './trap.js';
+import { which_armor } from './worn.js';
 
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOCOUNTBIRTH
@@ -1363,14 +1364,6 @@ function addFreshMonsterObject(monster, obj, normalized) {
     return merged ? null : obj;
 }
 
-// C ref: worn.c which_armor().
-function whichArmor(monster, mask) {
-    for (let obj = monster.minvent; obj; obj = obj.nobj) {
-        if (obj.owornmask & mask) return obj;
-    }
-    return null;
-}
-
 // C ref: makemon.c mongets(). No reachable species is a demon, lawful minion,
 // or player monster. Gnome rulers do use the source prince-quality floor.
 export function mongets(monster, otyp, normalized) {
@@ -1712,7 +1705,7 @@ function rnd_offensive_item(monster, normalized) {
         9 - Number(ptr.difficulty < 4) + 4 * Number(ptr.difficulty > 6),
     )) {
     case 0: {
-        const helmet = whichArmor(monster, W_ARMH);
+        const helmet = which_armor(monster, W_ARMH);
         if (isHardHelmet(helmet, state)
             || (ptr.mflags1 & (M1_AMORPHOUS | M1_WALLWALK | M1_UNSOLID))
             || ptr.mlet === S_GHOST) {
@@ -2773,7 +2766,7 @@ function finishMonsterInventoryAndStrategy(
         const saddleRoll = random.rn2(100);
         if (!saddleRoll && (ptr.mflags2 & M2_DOMESTIC)
             && can_saddle(monster)
-            && !whichArmor(monster, W_SADDLE)) {
+            && !which_armor(monster, W_SADDLE)) {
             put_saddle_on_mon(null, monster, normalized);
         }
     } else {

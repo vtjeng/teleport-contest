@@ -133,7 +133,7 @@ import {
     couldsee,
     do_clear_area,
 } from './vision.js';
-import { which_armor } from './weapon.js';
+import { which_armor } from './worn.js';
 
 const SQSRCHRADIUS = 5;
 const FARAWAY = COLNO + 2;

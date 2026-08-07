@@ -72,17 +72,17 @@ import {
 import {
     can_touch_safely,
     mon_wield_item,
-    mwelded,
     select_hwep,
     select_rwep,
     setmnotwielded,
-    which_armor,
     can_advance,
     UnsupportedWeaponSkillError,
     P_NAME,
     skill_level_name,
     weapon_descr,
 } from '../js/weapon.js';
+import { mwelded } from '../js/wield.js';
+import { which_armor } from '../js/worn.js';
 
 function makeState() {
     const state = { invent: null, uwep: null, youmonst: {} };
@@ -620,10 +620,10 @@ test('setmnotwielded clears ordinary state and preflights lit artifacts', async 
 });
 
 // wield.c:1078 mwelded() is `obj && (obj->owornmask & W_WEP)
-// && will_weld(obj)`, so all three terms must hold. will_weld() lives in
-// js/wield.js, shared with welded(); the last two cases below reach the two
-// halves of its `erodeable_wep(optr) || (optr)->otyp == TIN_OPENER`, which
-// shows that mwelded() consults it.
+// && will_weld(obj)`, so all three terms must hold. It and will_weld() both
+// live in js/wield.js, which owns wield.c; the last two cases below reach the
+// two halves of will_weld()'s `erodeable_wep(optr) || (optr)->otyp ==
+// TIN_OPENER`, which shows that mwelded() consults it.
 test('mwelded needs a wielded, cursed, weldable object', () => {
     const state = makeState();
     const welding = { cursed: true, owornmask: W_WEP };
