@@ -678,8 +678,8 @@
       "slices": [
         {
           "name": "the hero chats into a wall",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d0b317b241a42be0a74f08f18af351701b2a234d"
         }
       ],
       "openedAt": "2905644186754f0cb2a93b80d080fa9ab173891d",
