@@ -254,6 +254,16 @@ produces no mutant, so a line the list omits carries no evidence either way. A
 first-wave survivor may still be killed by a test that reaches its module
 through another `js/` module, which is what `--whole-suite` settles.
 
+For the first limit, delete the line and run the whole suite. One failure, and
+it is the test you expect, proves that test pins the line and nothing else
+does; none means the line is unpinned. Restore it, and record which line you
+deleted and what failed.
+
+A search for a message string answers less than it appears to. A refusal
+comment quotes the C message it refuses, so the text sits in commentary as
+often as in code, and a message assembled by interpolation matches no literal
+search at all. Read the emitting site.
+
 Hand the survivor list to the pass as a `validation` context item addressed to
 the `tests` finder, which is how `/audit-diff-correctness` routes evidence to
 one perspective. That finder traces each survivor against its source, so a false
