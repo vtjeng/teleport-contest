@@ -74,6 +74,7 @@ import {
     monsterNearby,
     near_capacity,
     nomul,
+    overexert_hp,
     projected_capacity,
     runmode_delay_output,
 } from './hack.js';
@@ -649,17 +650,20 @@ async function finishElapsedTurn(
     if (state.u.uinvulnerable) wtcap = UNENCUMBERED;
     else regen_hp(wtcap, state, { random, interruptMulti: interrupt_multi });
     // C ref: allmain.c's "moving around while encumbered is hard work" block,
-    // between regen_hp() and regen_pw(). overexert_hp() costs a hit point and
-    // refreshes the status line, and at uhp <= 1 it also prints a message,
-    // draws rn2 through exercise(A_CON, FALSE), and calls fall_asleep(). None
-    // of that is ported, so the branch stops instead. Only a burdened hero can
-    // reach wtcap > MOD_ENCUMBER, and a burdened turn is planned on the clone
-    // first, so the live pass stops before spending anything on this turn.
+    // between regen_hp() and regen_pw(). The gate is allmain.c's; what it
+    // guards is hack.c overexert_hp(), whose port lives in js/hack.js and
+    // stops only for the arm that prints, exercises Constitution and faints.
+    // Only a burdened hero can reach wtcap > MOD_ENCUMBER, and a burdened turn
+    // is planned on the clone first, so the live pass stops before spending
+    // anything on this turn.
     if (wtcap > MOD_ENCUMBER && state.u.umoved
         && !(wtcap < EXT_ENCUMBER
             ? state.moves % 30
             : state.moves % 10)) {
-        elapsedTurnBoundary('overexertion hit point loss');
+        overexert_hp(
+            state,
+            () => elapsedTurnBoundary('overexertion hit point loss'),
+        );
     }
     regen_pw(wtcap, state, { random, interruptMulti: interrupt_multi });
 

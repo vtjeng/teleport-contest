@@ -1511,6 +1511,10 @@ test('burdened multi-cycle upkeep stops before region and search work',
                     game.moves = 29;
                     game.hero_seq = game.moves * 8;
                     game.u.umoved = true;
+                    // One hit point is hack.c overexert_hp()'s unported arm,
+                    // the one that prints and faints; above it the hero just
+                    // pays and plays on.
+                    game.u.uhp = 1;
                 },
             ],
         ]) {
@@ -1804,24 +1808,42 @@ test('exerper sees the capacity the weakness transition produced', async () => {
 
 test('the overexertion cadence follows both of allmain.c\'s divisors',
     async () => {
-    // allmain.c:298-303 stops only when wtcap > MOD_ENCUMBER, the hero moved,
-    // and the turn count divides: 30 below EXT_ENCUMBER, 10 at or above it.
-    // Each row below moves exactly one of those three away from the stopping
-    // point, so a guard that dropped a term would pass one and fail another.
+    // allmain.c:298-303 costs a hit point only when wtcap > MOD_ENCUMBER, the
+    // hero moved, and the turn count divides: 30 below EXT_ENCUMBER, 10 at or
+    // above it. Each row below moves exactly one of those three away from the
+    // paying point, so a guard that dropped a term would pass one and fail
+    // another.
+    //
+    // The first three rows put the hero at one hit point, where hack.c
+    // overexert_hp() would faint and the port stops; the fourth leaves her at
+    // full health and watches the hit point actually go. Full health also
+    // keeps regen_hp() out of the way: allmain.c runs it just above this
+    // block, and it returns at once while uhp is uhpmax.
     for (const [name, install, expectStop] of [
-        // HVY_ENCUMBER at moves reaching 30 is the stopping point.
+        // HVY_ENCUMBER at moves reaching 30 is the paying point.
         ['heavy, 30th turn', (state) => {
             state.moves = 29;
+            state.u.uhp = 1;
         }, true],
         // 20 divides the ext cadence but not the heavy one, so the ternary's
         // untaken arm must not fire here.
         ['heavy, 20th turn', (state) => {
             state.moves = 19;
+            state.u.uhp = 1;
         }, false],
-        // The hero has to have moved, whatever the turn count.
+        // The hero has to have moved, whatever the turn count. This row keeps
+        // full health rather than one hit point, because regen_hp() above the
+        // block heals a hero who did not move and would hand back what this
+        // row is watching for.
         ['heavy, 30th turn, unmoved', (state) => {
             state.moves = 29;
             state.u.umoved = false;
+            state.u.uhp = state.u.uhpmax;
+        }, false],
+        // The same stopping row with a hit point to spare plays on.
+        ['heavy, 30th turn, healthy', (state) => {
+            state.moves = 29;
+            state.u.uhp = state.u.uhpmax;
         }, false],
     ]) {
         const replay = await runSegment({
@@ -1851,6 +1873,7 @@ test('the overexertion cadence follows both of allmain.c\'s divisors',
         // trips clairvoyancePlan()'s own consistency check.
         game.context.seer_turn = game.moves + 1;
         const startingMoves = game.moves;
+        const startingHp = game.u.uhp;
 
         if (expectStop) {
             await assert.rejects(
@@ -1860,6 +1883,7 @@ test('the overexertion cadence follows both of allmain.c\'s divisors',
                 name,
             );
             assert.equal(game.moves, startingMoves, name);
+            assert.equal(game.u.uhp, startingHp, name);
         } else {
             // The turn's encumbrance message raises a More prompt, and
             // moveloop_core() then asks for the next command; the Space
@@ -1871,6 +1895,15 @@ test('the overexertion cadence follows both of allmain.c\'s divisors',
             // movement points, so the assertion is that the cadence point was
             // crossed without stopping, not the exact count.
             assert.ok(game.moves > startingMoves, name);
+            // Only the healthy row crosses a paying turn, and it crosses
+            // exactly one: 30 is the sole multiple of 30 in the range the
+            // command elapses.
+            assert.equal(
+                game.u.uhp,
+                name === 'heavy, 30th turn, healthy'
+                    ? startingHp - 1 : startingHp,
+                name,
+            );
         }
         void replay;
     }

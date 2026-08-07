@@ -269,16 +269,35 @@ export async function check_capacity(str, state = game) {
     return false;
 }
 
+// C ref: hack.c overexert_hp() (3035-3047). What working while overloaded
+// costs: one hit point, or consciousness when there is not one to spare.
+//
+// Upolyd is constantly false in this port, so C's `int *hp` is always
+// &u.uhp. Only the `*hp <= 1` arm stops: it prints, exercises Constitution
+// through attrib.c exercise(A_CON, FALSE) and calls fall_asleep(-10, FALSE),
+// none of which is ported. `refuse` is the caller's own boundary, because
+// hack.c overexertion() and allmain.c moveloop_core() reach this from
+// different commands and stop at different classes.
+export function overexert_hp(state, refuse) {
+    if (typeof refuse !== 'function')
+        throw new TypeError('overexert_hp requires a refusal');
+    if (state.u.uhp > 1) {
+        state.u.uhp -= 1;
+        state.disp.botl = true;
+    } else {
+        refuse();
+    }
+}
+
 // C ref: hack.c overexertion() (3051-3061). Combat increases metabolism:
 // do_attack() calls this once per attempt, so a fight burns nutrition on top
 // of the turn loop's own gethungry(). Its rn2(20) is the first random-number
 // call any melee attempt makes.
 //
 // C's return value is `gm.multi < 0`, which is true only when overexert_hp()
-// forced the hero to faint. That branch is not ported here for the same reason
-// allmain.c's copy is not (js/allmain.js:650-661): overexert_hp() prints,
-// exercises Constitution and calls fall_asleep(). It stops instead, so the
-// return is always false.
+// forced the hero to faint. Nothing reachable from here sets gm.multi:
+// gethungry() never writes it, and the arm of overexert_hp() that would stops
+// instead. So the return is always false.
 export async function overexertion(state = game) {
     // The same four owners allmain.c's caller supplies at js/allmain.js:676.
     // gethungry() demands nearCapacity() always and the other three only when
@@ -289,8 +308,13 @@ export async function overexertion(state = game) {
         endRunning,
         statusRefresh: () => bot(),
     });
-    if ((state.moves % 3) !== 0 && near_capacity(state) >= HVY_ENCUMBER)
-        throw new UnsupportedHeroMoveBoundaryError('overexertion hit points');
+    if ((state.moves % 3) !== 0 && near_capacity(state) >= HVY_ENCUMBER) {
+        overexert_hp(state, () => {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'overexertion hit points',
+            );
+        });
+    }
     return false;
 }
 
