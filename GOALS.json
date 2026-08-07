@@ -634,8 +634,8 @@
         },
         {
           "name": "can_twoweapon() prints its refusals and the command toggles off",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e7d5fef476ee7c0a8889da1f27c4811ea4aeb53c"
         }
       ],
       "openedAt": "1de9dececb2cdc2286486003234ec13b6e0acc7a",
