@@ -101,3 +101,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-07T11:07:38.550Z	c4cb6d8	goal	2	33	1056	7765	116602	610816	1066	7765	195	3640	32614	182022	options: forecast 30, delivered 29; holdout unchanged for the seventh goal running
 2026-08-07T15:12:31.782Z	508da8c	goal	2	33	1081	7765	116787	610816	1091	7765	195	3640	32614	182022	twoweapon-command: forecast 25, delivered 25; holdout unchanged for the eighth goal running
 2026-08-07T17:22:00.000Z	914ad42	goal	3	33	1102	7765	116818	610816	1112	7765	195	3640	32614	182022	chat-command: forecast 21, delivered 21; holdout unchanged for the ninth goal running
+2026-08-07T18:44:04.000Z	8d94b51	goal	3	33	1102	7765	116818	610816	1112	7765	195	3640	32614	182022	commands-deferral-sweep-2: forecast 0, delivered 0; both score sets unchanged across a two-port merge, which is the regression check passing

@@ -696,7 +696,7 @@
     },
     {
       "id": "commands-deferral-sweep-2",
-      "status": "open",
+      "status": "closed",
       "boundary": "resolve the commands area's open non-scope deferrals, which npm run quality names as a sweep candidate at ten, before the next fail-closed boundary port opens",
       "upstreamOwners": [
         "QUALITY.json deferred entries for the commands area"
@@ -721,8 +721,11 @@
         "screens": 1102,
         "rng": 116818
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "8d94b51a245dc4735d52035af9781c5c11993644",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }

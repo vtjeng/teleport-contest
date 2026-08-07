@@ -239,3 +239,30 @@ grounds that they move no development session, one of them cannot fire until
 `dogmove.c dog_eat()` lands, and the three that can need the same naming
 helpers `domonnoise()` needs. A boundary that states a rule and then enumerates
 cases invites the two to disagree; enumerate or state the rule, not both.
+
+`commands-deferral-sweep-2` closed on 7 August 2026. It forecast 0 steps and
+delivered 0, and the holdout returned the same 195 of 3,640 screens for the
+sixth evaluation running.
+
+This is the first close where the holdout guarded something rather than
+confirming a zero. The sweep merged `hack.c end_running()` and `nomul()` from
+two disagreeing ports into one and rerouted `js/detect.js` through the survivor,
+touching five `js/` files while claiming no observable change. Development
+matched session by session and the holdout did not move, which is the pair of
+results a behavior-preserving merge should produce. A sweep that moved either
+number would have meant something other than cleanup happened.
+
+The reading was worth more than the closing, as the rule predicts, but not in
+the way the rule frames it. Two of the ten records were substantively wrong and
+a third was wrong in a checkable detail. `pick-lock-d-broken-arm-dormant` was
+wrong on both halves -- `rnddoor()`'s table does reach a real doormask, and
+`dat/tut-1.lua:273` takes it in 11 of 60 tutorial levels -- and the same mistake
+had been copied into a `js/hack.js` comment. `the two-meal segment never reaches
+its second meal` asserted that dropping a line leaves the suite green; deleting
+`js/eat.js:1225` turns one test red, a test written after the entry. Only two
+entries closed, and eight survive against named blockers.
+
+A deferral record is a claim written once and read many times, and nothing
+re-derives it between those readings. That is the same shape as the fifteen
+false absence claims of the preceding four days: cheap to assert, expensive to
+falsify, and inherited rather than checked. Sweeps are where the bill arrives.
