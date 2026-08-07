@@ -1028,6 +1028,24 @@
       "status": "open",
       "from": "910ca6fde4d99fa060d35fcb6e97967be256b20e",
       "detail": "artifact.c artifact_light() (2262-2274) has five ports in js/. Four are function definitions -- js/timeout.js:168, js/monmove.js:1414, js/weapon.js:499 and js/worn.js:420 -- and the fifth is the same logic inlined as an expression at js/light.js:72. js/worn.js:490 exports its copy, so the other three could have imported it and did not. This is the seventh duplicate port found in this repository in five days.\n\nThe bodies disagree, and one diverges from C. C guards its first clause with `obj &&` at 2268. js/worn.js:420 guards with an explicit `if (!obj) return false;`, js/monmove.js:1414 with `Boolean(obj && ...)`, and js/weapon.js:499 with optional chaining that short-circuits before the `obj.owornmask` dereference. js/timeout.js:168 has no guard at all: it evaluates `obj.otyp` directly and throws a TypeError where C returns FALSE. Its one caller is js/timeout.js:435. A bare throw escaping runSegment() discards the segment's matching prefix, so this is a fail-open path rather than a cosmetic difference.\n\nAGENTS.md, \"Keep each source file's port in one place\", puts the survivor in js/artifacts.js, which exists and is where artifact.c's port lives. Converging there also settles which body is correct: the C guard is unconditional, so the survivor keeps it.\n\nhero-combat consumes this. uhitm.c hmon_hitmon_weapon_melee():1038 needs artifact_light(), and adding a sixth copy is the path of least resistance. The slice that ports that function should converge the five instead, with the development score verified bit-identical per session, in the pattern 65d1bba used for obj.h carried()."
+    },
+    {
+      "id": "pickup-burden-option-has-no-parser",
+      "area": "startup",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "d1353b6e6b4e54c6ac3212dd8d641df2c163ff14",
+      "detail": "js/optlist_data.js:147 declares pickup_burden with has_handler true, but js/options.js has no parseoptions() arm for it: `grep -rn \"pickup_burden\\|pickupBurden\" js/` returns eight hits across js/invent.js, js/optlist_data.js and nothing else, so no code converts the option's text to an encumbrance level.\n\nOPTIONS=pickup_burden:overloaded therefore leaves the raw string in state.flags.pickup_burden. js/invent.js:2601 then evaluates `prev_encumbr < pickupBurden` with a number on the left and a string on the right, which is false for every value, and js/invent.js:2482 does the same. The effect runs the wrong way: an option a player sets to loosen the pickup limit silently makes it stricter than the MOD_ENCUMBER default that options.c initoptions_init() installs.\n\nFound while trying to record a fresh C differential for the hack.c overexert_hp() port in the eed732b3..5168910 correctness pass. No ported command can raise the hero past Stressed encumbrance -- hold_another_object() at js/invent.js:2600 drops any wished object that crosses the limit, \",\" is not in ADMITTED_COMMANDS, and autopickup applies the same test -- and raising the limit through the rc is the obvious way around that, which is how the missing arm surfaced.\n\nClosing condition: js/options.js parses pickup_burden into the same encumbrance constants js/invent.js compares against, with a test that pins each accepted spelling to the level options.c assigns it."
+    },
+    {
+      "id": "overexertion-arm-has-no-fresh-differential",
+      "area": "hero",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "d1353b6e6b4e54c6ac3212dd8d641df2c163ff14",
+      "detail": "The hack.c overexert_hp() port at js/hack.js closed finding 3 of the eed732b3..5168910 correctness pass without a fresh C differential, on the orchestrator's authorization, because no ported command can reach the branch.\n\nC's overexert_hp() (3035-3047) decrements one hit point and sets disp.botl when uhp > 1, and prints, exercises Constitution and calls fall_asleep() when uhp <= 1. The port previously refused both arms, and refused after gethungry() had already spent rn2(20) and mutated u.uhunger, which is a refusal placed after a draw and a state change. The common arm is now ported and only uhp <= 1 refuses.\n\nThe branch needs the hero at Stressed encumbrance or worse on a turn where moves % 3 is nonzero. Every route there is closed today: hold_another_object() at js/invent.js:2600 drops a wished object that crosses the limit, \",\" is not admitted, autopickup applies the same test, and pickup_burden is unparsed, which is recorded separately as pickup-burden-option-has-no-parser. Confirmed empirically -- a third plate mail wish stops at \"held object dropped\".\n\nWhat stands in for the differential: the C trace of 3035-3047; scripts/melee-upkeep.test.mjs pinning both arms against values read from that source; scripts/allmain-turn.test.mjs driving the real moveloop_core() through four cadence rows including one where the hit point is actually paid; and all four mutants on the changed lines killed. The development score is unchanged by this fix alone, measured before the two-weapon fix landed in the same session.\n\nClosing condition: a fresh C differential over a hero at Stressed encumbrance, recordable once any of the routes above opens. Whoever ports encumbrance-raising pickup should take this with it."
     }
   ],
   "areas": [
@@ -8166,6 +8184,134 @@
         "deferrals": []
       },
       "recordedAt": "2026-08-07T15:11:42.001Z"
+    },
+    {
+      "kind": "review",
+      "head": "5168910fede17e2588c598d9673dd003f24c4665",
+      "auditedRange": "eed732b3175f7b50bbe7c92dc92c4a0a881fa462..5168910fede17e2588c598d9673dd003f24c4665",
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 21 raw, 20 deduplicated, 15 confirmed, 15 applied, 0 deferred, 5 rejected, 0 unverified; mutation: 0 survivors of 11 mutants. Full correctness pass over three goals' work: chat-command, commands-deferral-sweep-2, and hero-combat slices 1 and 2. Four mandatory finders, 21 raw findings, 20 after deduplication, 15 confirmed by independent adversarial adjudication, 5 rejected with counter-evidence, 0 unverified, 0 warnings. All 15 applied across five Audit-fix-for commits. Five were production defects, the sharpest being a refusal placed after a random-number draw and a state change in js/hack.js overexertion(), and an over-broad two-weapon refusal in js/uhitm.js do_attack() that was discarding three calls a turn from seed0107. Two findings were the eighth and ninth duplicate ports found in five days. Six were test defects, including a term whose deletion left all 3,000 tests green. Development score 1,102 of 7,765 screens and 116,830 of 610,816 calls, the only movement being seed0107 gaining the three calls the two-weapon refusal discarded.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2111,
+        "counts": {
+          "raw": 21,
+          "deduplicated": 20,
+          "confirmed": 15,
+          "applied": 15,
+          "deferred": 0,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 5,
+          "tests": 6,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/hack.js overexertion() refused both arms of hack.c overexert_hp() (3035-3047), where only the `uhp <= 1` arm prints, exercises Constitution and calls fall_asleep(). The `uhp > 1` arm is two portable statements. Worse, the refusal sat after gethungry() had spent rn2(20) and mutated u.uhunger, so a branch C walks past ended the segment after a draw and a state change. The common arm is now ported and only `uhp <= 1` refuses. Unreachable today through any admitted command, so it closed on authorized substituted evidence, tracked as overexertion-arm-has-no-fresh-differential.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/uhitm.js do_attack() refused on u.twoweap alone, where uhitm.c:528 reaches unported code only when can_twoweapon() is additionally false. A two-weaponing hero walking into a hostile monster ended the segment three draws and one screen before C does. This is the only finding in the pass that moved the development score: seed0107-samurai-twoweapon-enhance gained the rn2(19), rnd(20) and rn2(3) the over-broad refusal discarded, 2842 to 2845 of 2902 calls, with every other session byte-identical.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/uhitm.js attack_checks() read C’s Hallucination as intrinsic-or-extrinsic, dropping the !Halluc_resistance factor youprop.h:120 requires. That is a third distinct reading of one macro, in a file whose own is_safemon() 57 lines above reads it correctly. With hallucination intrinsic set and resistance active, C puts up the paranoid \"Really attack?\" prompt and the port did not. Reported independently by the correctness, readability and tests finders as findings 8, 9 and 12; one defect, fixed once.",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "tests",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "display.h vobj_at() and engrave.c u_wipe_engr() each gained a second JavaScript home in this range: the new js/display.js vobj_at() against the pre-existing visibleObjectAt() at js/monmove.js, and the new js/engrave.js u_wipe_engr() against the statements inlined in js/allmain.js maybeWipeHeroEngraving(). The eighth and ninth duplicate ports found in five days. Both converged onto the file named for the C file, with the development score verified identical session by session across the convergence.",
+            "foundBy": [
+              "variable-trace",
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/uhitm.js attack_checks() called engulfing_u(mtmp) against the module-global `game` while threading `state` through every other read in the same function, so a reader reasonably treating the function as state-pure would be wrong about its first guard.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 11,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 1,
+              "killed": 1
+            },
+            "logical": {
+              "ran": 8,
+              "killed": 8
+            },
+            "relational": {
+              "ran": 2,
+              "killed": 2
+            }
+          },
+          "ranges": [
+            "5168910fede17e2588c598d9673dd003f24c4665..d1353b6"
+          ],
+          "finderConclusion": "No survivors across the five audit-fix commits, but the number understates the work: two mutants survived the whole suite rather than one wave and needed new assertions written for them. js/monmove.js onscary()’s Elbereth disjunct had no test at all for its displaced-image and guarded-pile arms, and js/const.js engulfing_u()’s && survived flipping to || because nothing distinguished being held from being swallowed. The five test findings this pass confirmed are the same shape: finding 13 showed that deleting `!is_undead(mtmp.data)` from js/uhitm.js left all 3,000 tests green, and finding 15 that the known_hitum() test passed dieroll into the uattk slot, so it could not detect the parameter-order defect it existed to pin. Mutation score alone would have reported this range as healthy."
+        },
+        "readiness": {
+          "boundary": "The range eed732b3..5168910 holds three goals: chat-command (sounds.c dotalk() and dochat() to the wall reply), commands-deferral-sweep-2 (hack.c end_running() and nomul() merged from two disagreeing ports into one, plus a fail-closed backstop at the two live domove() call sites), and hero-combat slices 1 and 2 (domove() reordered so the attack precedes test_move() as hack.c:2798 precedes 2843, then the hostile melee attempt ported down to the miss). The development score at the frozen head was 1,102 of 7,765 screens and 116,827 of 610,816 calls with 3 of 33 sessions matching; after the fixes it is 116,830, the whole movement in seed0107.",
+          "sourceReview": "Four mandatory finders ran at full mode: correctness, readability-risk, test-quality and variable-flow. Neither optional finder was enabled, and both omissions were reasoned rather than skipped: the range adds no unbounded or amplified work, and source-required melee iteration does not trigger the performance finder on its own; the port is single-threaded replay, and although the reorder moved two awaits and the backstop added error handling around one, neither introduces overlapping work, cancellation or retries. Each finding was adversarially verified against the C source by an independent adjudicator applying evidence, causality and resolution checks; 15 of 20 deduplicated findings survived, 5 were rejected with counter-evidence, none went unverified and no warnings were raised. The random-number order of the melee path was re-derived from uhitm.c, eat.c and attrib.c rather than taken from the diff’s own comments, because the order originally supplied to the implementing agent was wrong.",
+          "completeness": "All 15 confirmed findings are applied across five commits carrying Audit-fix-for: 5168910. Every new test was observed failing first by breaking the line it covers and restoring it, thirteen breakages in all, each named in its commit. Two items were reported rather than silently handled and are recorded in the ledger: overexertion-arm-has-no-fresh-differential, where no admitted command can raise the hero past Stressed encumbrance so the fresh differential AGENTS.md requires cannot be recorded yet and substituted evidence was authorized; and pickup-burden-option-has-no-parser, a live bug outside this range found while attempting that recording, where js/options.js has no parseoptions() arm for pickup_burden so the option silently becomes stricter than its default rather than looser. One trigger was deliberately not run: /simplify-codebase applies to artifact.c artifact_light()’s five ports, which is tracked as artifact-light-ported-five-times and scheduled into the slice that consumes the function."
+        },
+        "rejections": [
+          {
+            "summary": "js/cmd.js:916 — The new movement backstop reuses failClosedCommand(), whose documented contract is \"the keystroke stays retryable\", but domove() can raise a listed refusal class only after it has logged core random draws, printed, and mutated hero and monster state — so the boundary advertises a replay that would d",
+            "counterEvidence": "evidence refute: The claim that the wrapper advertises an unsound replay does not survive a trace of the retry machinery. Counter-evidence: js/jsmain.js:534-551 breaks the segment for UnsupportedHeroCommandBoundaryError, UnsupportedHeroMoveBoundaryError and UnsupportedTurnBoundaryError alike, and no game state is serialised across segments (js/storage.js is untouched by the port; grep for pendingCommand finds no writer or reader outside js/cmd.js and js/allmain.js comments). A pending command is therefore never replayed in the scored path, for the '#' arm or the movement arm. Independently, js/cmd.js:1709-1712 already sets retryableBoundary for every UnsupportedHeroMoveBoundaryError, so the refusals domove() actually raises from inside itself ('overexertion hit points', 'peaceful monster displacement') were marked retryable before this range and are untouched by the new failClosedCommand Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/hack.js:286 — `overexertion()` takes only `state` and calls `gethungry()` without the caller's `env`, so `do_attack()`'s validated `env.random` injection never reaches the attempt's first random-number call.",
+            "counterEvidence": "causality refute: The deviation is harmless: no live divergence and no test is misled, because overexertion is itself an injected owner rather than a draw made by do_attack. Counter-evidence: js/hack.js:1770-1786 builds do_attack()'s env without a random key, so production uses the module stream on every path and nothing diverges. js/uhitm.js:292 obtains overexertion through requireAttackOperation(env, 'overexertion'), the same seam as checkCapacity, which likewise ignores env.random (js/hack.js:261-270 uses ttyPline directly). The only test that installs a counting RNG, scripts/uhitm-to-hit.test.mjs:517-538 meleeEnv(), also injects `overexertion: async () => false`, and its assertion at :576 expects exactly ['rn2(19)','rnd(20)','rn2(3)'] — no rn2(20) is claimed or lost. The slice's real call-order evidence, scripts/hostile-melee-miss.test.mjs:145-146, reads the module RNG log, where the Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/uhitm.js:112 — The injected `unsupported` operation must throw for the new uhitm.js functions to be correct, but nothing states or enforces that, and the code this change replaced used the same operation as a value-returning call.",
+            "counterEvidence": "causality refute: Speculative: no injection anywhere returns instead of throwing, so the range exposes no reachable failure. Counter-evidence: The single live injection at js/hack.js:1780-1782 throws UnsupportedHeroMoveBoundaryError. Every test injection throws: scripts/uhitm-to-hit.test.mjs:116 and :529 (`throw new Error(reason)`), scripts/uhitm.test.mjs:290 (throws after counting), scripts/flooreffects.test.mjs:72 and scripts/steal.test.mjs:401 (shared `refuse`). The pre-existing `return requireAttackOperation(env, 'unsupported')(...)` shape the finding cites was equally dependent on the throw, so the range changes nothing about the contract.  ||  resolution refute: The proposed enforcement would itself violate the range's governing fail-closed invariant. Counter-evidence: A wrapper that 'unconditionally throws if it returned' has no named Unsupported* class to throw; per the audit's o Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/uhitm.js:227 — find_roll_to_hit()'s else arm refuses every attack type other than AT_WEAP and AT_CLAW, but its comment and its refusal message both describe it as the AT_KICK arm alone.",
+            "counterEvidence": "causality refute: Refuted on materiality: no behavior can diverge, and the deviation is fail-closed by design. Counter-evidence: find_roll_to_hit() has exactly one caller, hitum() at js/uhitm.js:404-411, which passes uattk.aatyp from state.youmonst.data.mattk[0]; with polyself unported (Upolyd constantly false, js/uhitm.js:284-285) that value is AT_WEAP for every role, so the else arm is unreachable and no session can take it. What remains is the wording of a refusal reason and of a comment — prose accuracy, which the brief assigns to a clarity audit rather than this correctness pass.  ||  resolution refute: Refuted: the primary direction offered would replace a fail-closed stop with a silent fall-through, and the suggested test only restates the new message text. Counter-evidence: 'Split the arm to match C — an `else if (aatyp === AT_KICK)` that refuses, and no else at all for the remai Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/uhitm.js:471 — missum() formats C's `mon_nam(mdef)` through `monsterCommonName()`, a partial x_monnam() port with no hallucination and no unseen-monster branch, and it does not fail closed on either.",
+            "counterEvidence": "causality refute: Refuted: the incompleteness is pre-existing and shared, not introduced or newly exposed in a material way, and one of the two claimed branches is impossible at this call site. Counter-evidence: monsterCommonName() is unchanged by this range (git log eed732b3..5168910 -- js/do_name.js is empty) and is documented at js/do_name.js:179-181 as 'the port's older partial mon_nam()'; six other pre-existing call sites use it the same way (js/steed.js:205,293,338,346,371,397,612, js/teleport.js:619, js/trap_effects.js:181). The 'unseen monster' half is impossible here: do_name.c x_monnam() sets do_it only when !canspotmon(mtmp), and uhitm.c:5208 only takes the mon_nam() arm when canspotmon(mdef) is true, so C never yields 'it' on this path. The hallucination half is unreachable — no production code writes uprops[HALLUC].intrinsic anywhere in js/.  ||  resolution refute: Refuted:  Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": []
+      },
+      "recordedAt": "2026-08-07T23:13:40.505Z"
     }
   ]
 }
