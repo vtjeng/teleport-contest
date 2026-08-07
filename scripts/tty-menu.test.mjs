@@ -658,3 +658,44 @@ test('a highlighted line drops its style across a compressed space run', () => {
     assert.deepEqual(attrs, [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1]);
     dismissTtyMenu(state, rendered);
 });
+
+// C ref: wintty.c tty_end_menu()'s accelerator loop. It runs over every
+// stored line, including the prompt and its blank separator, so an item's
+// letter depends on which page its line index falls on.
+test('tty_end_menu assigns a fresh accelerator run to every page', () => {
+    const state = menuState();
+    // 24 terminal rows give lmax == 23. The prompt and its separator take the
+    // first two lines, so 21 items finish page one and the 22nd opens page two.
+    const items = [];
+    for (let index = 0; index < 25; ++index)
+        items.push({ text: `entry ${index}`, value: index + 1 });
+    // A bare string is a display-only line, which consumes no letter.
+    items.splice(3, 0, 'a plain line');
+    const spec = { title: 'Pick some', items, overlay: false };
+
+    const layout = ttyMenuLayout(state.nhDisplay, spec, 0);
+    assert.equal(layout.pageSize, 23);
+    assert.equal(layout.pageCount, 2);
+    // The first item sits at line index 2 and takes 'a'.
+    assert.equal(items[0].selector, 'a');
+    assert.equal(items[2].selector, 'c');
+    // The plain line takes none, so the item after it continues at 'd'.
+    assert.equal(items[4].selector, 'd');
+    // Line index 22 is the last of page one; line 23 opens page two at 'a'.
+    // Three letters went to the items above the plain line, so the last item
+    // on page one is 't' rather than 'u'.
+    assert.equal(items[20].selector, 't');
+    assert.equal(items[21].selector, 'a');
+    assert.equal(items[25].selector, 'e');
+    assert.equal(layout.lines[2].text, 'a - entry 0');
+
+    // An item that arrives with its own selector keeps it and consumes no
+    // letter, so its neighbours are unaffected.
+    const explicit = [
+        { text: 'help', value: 90, selector: '?' },
+        { text: 'first', value: 1 },
+    ];
+    ttyMenuLayout(state.nhDisplay, { title: 'x', items: explicit, overlay: false });
+    assert.equal(explicit[0].selector, '?');
+    assert.equal(explicit[1].selector, 'a');
+});

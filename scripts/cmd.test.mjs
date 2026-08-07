@@ -3949,3 +3949,39 @@ test("both classes a lowered experience level raises convert at the command "
     // tail at 1072. No ported command reaches either yet.
     assert.ok(converted.includes(UnsupportedAbilityChangeError));
 });
+
+// C ref: cmd.c count_bind_keys(), which options.c optfn_o_bind_keys() shows
+// as the "bind keys" line's "(N currently set)".
+test('count_bind_keys counts moved commands and orphaned default keys',
+    async () => {
+        const { count_bind_keys } = await import('../js/cmd.js');
+        const { parseNethackrc } = await import('../js/options.js');
+        const stateFor = (rc) => {
+            const parsed = parseNethackrc(rc);
+            return {
+                flags: parsed.flags,
+                iflags: parsed.iflags,
+                commandOperations: parsed.commandOperations,
+            };
+        };
+        // A stock game binds every extcmdlist[] row that carries a key to
+        // that key and moves nothing, so both of the source's loops add zero.
+        assert.equal(count_bind_keys(stateFor('')), 0);
+        // Binding 'Z' to #apply is the first loop's term: cmdbinds gains a
+        // userbind entry whose command's own key is 'a'. 'a' keeps its
+        // default binding, so the second loop still adds nothing.
+        assert.equal(count_bind_keys(stateFor('BINDINGS=Z:apply\n')), 1);
+        // "nothing" is cmd.c bind_key()'s unbind, so it removes the entry
+        // rather than adding one. That leaves #apply's own key 'a' held by no
+        // entry, which the second loop counts on top of the moved command.
+        assert.equal(
+            count_bind_keys(stateFor('BINDINGS=Z:apply,a:nothing\n')), 2,
+        );
+        // bind_key() matches its command against extcmdlist[] and adds no
+        // entry when nothing matches, so an unknown name contributes to
+        // neither loop. This port's binding model keeps the key, which is
+        // why the first loop has to look the command up before it compares.
+        assert.equal(
+            count_bind_keys(stateFor('BINDINGS=Z:notacommand\n')), 0,
+        );
+    });

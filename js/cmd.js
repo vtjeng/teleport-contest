@@ -21,6 +21,7 @@ import {
     N_DIRS,
     N_DIRS_Z,
     Never_mind,
+    PICK_ANY,
     PICK_NONE,
     PICK_ONE,
     PLNMSG_UNKNOWN,
@@ -86,6 +87,7 @@ import {
 import { doattributes, UnsupportedEnlightenmentError } from './insight.js';
 import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
 import { UnsupportedObjectNameError } from './objnam.js';
+import { doset_simple, UnsupportedOptionMenuError } from './options.js';
 import { UnsupportedShopError } from './shk.js';
 import { dovspell, UnsupportedSpellDisplayError } from './spell.js';
 import { UnsupportedWeaponSkillError } from './weapon.js';
@@ -746,7 +748,8 @@ export async function parseCommand(state = game) {
 // it, so the key stays on the refusing side while the typed name works.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'down', 'reqmenu', 'wizwish', 'wizlevelport', '#',
+    'eat', 'apply', 'down', 'reqmenu', 'options', 'wizwish', 'wizlevelport',
+    '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -976,6 +979,10 @@ export function failClosedCommandRefusals() {
         // reaches rloc_to() placing a follower, and mklev() reaches makemon()
         // when the shop it generates holds a mimic.
         UnsupportedPickupError,
+        // options.c doset() builds its whole menu before select_menu() draws
+        // anything, so an unported option value stops with no output; its
+        // pick loop stops after the player has committed a selection.
+        UnsupportedOptionMenuError,
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,
@@ -1179,6 +1186,52 @@ async function runWishCommand(key, state) {
 // on both arms, so a cancelled level teleport spends no turn.
 async function runLevelTeleCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_level_tele(state));
+}
+
+// C ref: options.c doset_simple(), the 'O' command. Its menu_requested arm
+// hands off to doset(), whose whole menu is formatted before select_menu()
+// draws anything, so an unported option value stops before any output.
+async function runOptionsCommand(key, state) {
+    return failClosedCommand(key, state, () => doset_simple(state, {
+        // add_menu_heading() draws each section heading with
+        // iflags.menu_headings, which menuTitleStyle() reads.
+        headingStyle: {
+            attr: menuTitleStyle(state).titleAttr,
+            color: menuTitleStyle(state).titleColor,
+        },
+        // doset() ends its menu with end_menu(prompt) and asks select_menu()
+        // for PICK_ANY; Escape answers null and an empty commit answers [].
+        menu: (items, prompt) => selectTtyMenu(state, {
+            items,
+            how: PICK_ANY,
+            title: prompt,
+            ...menuTitleStyle(state),
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        }),
+        countBindKeys: count_bind_keys,
+    }));
+}
+
+// C ref: cmd.c count_bind_keys(). The first loop counts every cmdbinds entry
+// whose userbind flag is set and whose command sits on a key other than its
+// extcmdlist[] one; a `bind` statement is the only thing that sets that flag,
+// and createCommandBindingModel() replays those statements from
+// commandOperations. The second loop counts every command whose compiled-in
+// key no cmdbinds entry holds, which is what model.bindings tracks.
+export function count_bind_keys(state = game) {
+    const model = commandBindings(state);
+    let nbinds = 0;
+    for (const operation of state.commandOperations ?? []) {
+        if (operation.type !== 'bind') continue;
+        const key = operation.key & 0xFF;
+        const command = EXTCMD_BY_NAME.get(operation.command);
+        if (command && command.key !== key) nbinds++;
+    }
+    const keys = new Set(model.bindings.map(({ key }) => key & 0xFF));
+    for (const entry of extcmdlist)
+        if (entry.key && !keys.has(entry.key)) nbinds++;
+    return nbinds;
 }
 
 // C ref: invent.c dolook().
@@ -1489,6 +1542,18 @@ export async function rhack(key, state = game) {
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state);
             if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'options') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, which the
+            // '#', `search`, `eat` and `down` arms above spell out in full.
+            // Both doset_simple() and doset() end `return ECMD_OK`
+            // (options.c:8734, :8974), so only reset_cmd_vars() runs. The
+            // MOVEMENTCMD and domove_attempting tests at 3773-3800 cannot
+            // divert it: extcmdlist[]'s "options" row carries IFBURIED,
+            // GENERALCMD and CMD_M_PREFIX and no movement flag.
+            await runOptionsCommand(key, state);
+            resetCommandVars(state);
             return;
         }
         if (command === 'wizwish') {

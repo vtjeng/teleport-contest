@@ -6,6 +6,7 @@ import {
     A_DEX,
     A_STR,
     ALTAR,
+    AUTOUNLOCK_APPLY_KEY,
     BLINDED,
     COLD_RES,
     CONFUSION,
@@ -990,10 +991,11 @@ function requireAutoopenClosedDoor(x, y, state, run) {
         }
         // lock.c:884-893. AUTOUNLOCK_KICK asks "Kick it?" through ynq() and
         // queues dokick. options.c:1074 initializes flags.autounlock to
-        // AUTOUNLOCK_APPLY_KEY and js/options.js deliberately leaves an
-        // explicit `autounlock` value uninterpreted on state.flags, so an
-        // absent field is the only state whose bits this port knows.
-        if (state.flags?.autounlock !== undefined) {
+        // AUTOUNLOCK_APPLY_KEY, whose arm the tool test above has already
+        // taken, so that one value is the only state whose bits this port
+        // knows; every other value, including the 0 that `autounlock:none`
+        // sets, reaches an unported arm.
+        if (state.flags?.autounlock !== AUTOUNLOCK_APPLY_KEY) {
             throw new UnsupportedHeroMoveBoundaryError('autounlock setting');
         }
     }

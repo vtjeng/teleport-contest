@@ -3,16 +3,43 @@
 // nmcpy(); hacklib.c mungspaces(); bones.c sanitize_name(); role.c str2*().
 
 import {
+    AUTOUNLOCK_APPLY_KEY,
+    AUTOUNLOCK_FORCE,
+    AUTOUNLOCK_KICK,
+    AUTOUNLOCK_UNTRAP,
+    DISCLOSE_PROMPT_DEFAULT_NO,
+    GFILTER_AREA,
+    GFILTER_NONE,
+    GFILTER_VIEW,
     GPCOORDS_COMPASS,
     GPCOORDS_COMFULL,
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
+    MENU_FULL,
+    MOD_ENCUMBER,
+    NUM_DISCLOSURE_OPTIONS,
+    PARANOID_AUTOALL,
+    PARANOID_BONES,
+    PARANOID_BREAKWAND,
+    PARANOID_CONFIRM,
+    PARANOID_DIE,
+    PARANOID_EATING,
+    PARANOID_HIT,
+    PARANOID_PRAY,
+    PARANOID_QUIT,
+    PARANOID_REMOVE,
+    PARANOID_SWIM,
+    PARANOID_TRAP,
+    PARANOID_WERECHANGE,
+    PRIMARYSET,
+    ROGUESET,
     RUN_CRAWL,
     RUN_LEAP,
     RUN_STEP,
     RUN_TPORT,
     STONE,
+    SYM_BOULDER,
 } from './const.js';
 import {
     ROLE_ALIGNMASK,
@@ -61,6 +88,19 @@ import {
     encodeUtf8Text,
 } from './hacklib.js';
 import { sourceGlyphName } from './glyph_ids.js';
+import { allopt } from './optlist_data.js';
+import { AUTOCOMP_ADJ, extcmdlist } from './extcmdlist_data.js';
+import {
+    DEFAULT_PRIMARY_SYMBOLS,
+    SYM_OFF_O,
+    SYM_OFF_X,
+} from './symbol_data.js';
+import {
+    status_version,
+    VI_BRANCH,
+    VI_NAME,
+    VI_NUMBER,
+} from './version.js';
 import {
     AMULET_CLASS,
     ARMOR_CLASS,
@@ -85,51 +125,13 @@ const PLAYER_NAME_BYTE_LIMIT = 31; // PL_NSIZ - 1
 const CONFIG_BUFFER_BYTE_CAPACITY = 4 * 256; // cfgfiles.c: 4 * BUFSZ
 const OPTION_ELEMENT_BYTE_LIMIT = 256 / 2; // options.c: BUFSZ / 2
 
-// C ref: options.c:allopt[] and determine_ambiguities().  This is the
-// canonical name catalog produced by the recorder's configured optlist.h.
-// Keeping the full catalog matters because unported options still determine
-// whether a prefix is unique (and are preserved under their canonical key).
-const SOURCE_OPTION_NAMES = Object.freeze((
-    'windowtype|playmode|name|role|race|gender|alignment|accessiblemsg'
-    + '|acoustics|align_message|align_status|altkeyhandling|altmeta'
-    + '|armorstatus|ascii_map|autocompletions|autodescribe|autodig|autoopen'
-    + '|autopickup|autopickup exceptions|autoquiver|autounlock|bgcolors'
-    + '|bind keys|bios|blind|bones|boulder|catname|checkpoint|cmdassist'
-    + '|color|confirm|crash_email|crash_name|crash_urlmax|customcolors'
-    + '|customsymbols|dark_room|deaf|decgraphics|debug_hunger|debug_mongen'
-    + '|debug_overwrite_stairs|disclose|dogname|dropped_nopick|dungeon'
-    + '|effects|eight_bit_tty|extmenu|female|fireassist|fixinv|font_map'
-    + '|font_menu|font_message|font_size_map|font_size_menu'
-    + '|font_size_message|font_size_status|font_size_text|font_status'
-    + '|font_text|force_invmenu|fruit|fullscreen|glyph|goldx|guicolor|help'
-    + '|herecmd_menu|hilite_pet|hilite_pile|hilite_status|hitpointbar'
-    + '|horsename|ibmgraphics|idlecheckpoint|ignintr|implicit_uncursed'
-    + '|legacy|lit_corridor|lootabc|mail|map_mode|mention_decor|mention_map'
-    + '|mention_walls|menu_deselect_all|menu_deselect_page|menu_first_page'
-    + '|menu_headings|menu_invert_all|menu_invert_page|menu_last_page'
-    + '|menu_next_page|menu_objsyms|menu_overlay|menu_previous_page'
-    + '|menu_search|menu_select_all|menu_select_page|menu_shift_left'
-    + '|menu_shift_right|menu_tab_sep|menucolors|menu colors|menuinvertmode'
-    + '|menustyle|message types|mon_movement|monpolycontrol|montelecontrol'
-    + '|monsters|mouse_support|msg_window|msghistory|news|nudist|null'
-    + '|number_pad|objects|packorder|paranoid_confirmation|pauper'
-    + '|perm_invent|perminv_mode|petattr|pettype|pickup_burden'
-    + '|pickup_stolen|pickup_thrown|pickup_types|pile_limit|player_selection'
-    + '|popup_dialog|preload_tiles|price_quotes|pushweapon|query_menu'
-    + '|quick_farsight|rawio|reroll|rest_on_space|roguesymset|runmode'
-    + '|safe_pet|safe_wait|sanity_check|scores|scroll_amount|scroll_margin'
-    + '|selectsaved|showdamage|showexp|showrace|showscore|showvers|silent'
-    + '|softkeyboard|sortdiscoveries|sortloot|sortpack|sortvanquished'
-    + '|soundlib|sounds|sparkle|spot_monsters|splash_screen|standout'
-    + '|status_updates|status condition fields|statushilites'
-    + '|status highlight rules|statuslines|suppress_alert|symset|term_cols'
-    + '|term_rows|terrainstatus|tile_file|tile_height|tile_width|tiled_map'
-    + '|time|timed_delay|tips|tombstone|toptenwin|traps|travel|travel_debug'
-    + '|tutorial|use_darkgray|use_inverse|use_truecolor|vary_msgcount'
-    + '|verbose|versinfo|voices|vt_tiledata|vt_sounddata|warnings'
-    + '|weaponstatus|whatis_coord|whatis_filter|whatis_menu|whatis_moveskip'
-    + '|windowborders|windowcolors|wizmgender|wizweight|wraptext|cond_|font'
-).split('|'));
+// C ref: options.c:allopt[] and determine_ambiguities().  Matching is
+// case-insensitive, so the generated catalog is folded once here.  The full
+// catalog matters because unported options still determine whether a prefix
+// is unique (and are preserved under their canonical key).
+const SOURCE_OPTION_NAMES = Object.freeze(
+    allopt.map((option) => option.name.toLowerCase()),
+);
 
 function sourceOptionMinLength(name) {
     let needed = 0;
@@ -272,42 +274,53 @@ function defaultRoleFilter() {
     };
 }
 
-function defaultResult() {
+// allopt[].addr names the C lvalue a boolean option writes.  Its four roots
+// are the live option structures; parseNethackrc()'s result carries three of
+// them under their own names and u.uroleplay under `uroleplay`, which
+// jsmain.js installs as state.u.uroleplay.
+function booleanOptionStorage(addr) {
+    const split = addr.lastIndexOf('.');
+    const owner = addr.slice(0, split);
     return {
+        resultKey: owner === 'u.uroleplay' ? 'uroleplay' : owner,
+        field: addr.slice(split + 1),
+    };
+}
+
+// C ref: options.c initoptions_init() (7165-7168).  Every boolean option that
+// has storage starts at the compiled-in value optlist.h gives it, before any
+// configuration file is read.  Options with no storage are the ones whose
+// #ifdef arm compiled to a null pointer; C leaves them nowhere to write.
+function applyBooleanOptionDefaults(result) {
+    for (const option of allopt) {
+        if (option.opttyp !== 'BoolOpt' || !option.addr) continue;
+        const { resultKey, field } = booleanOptionStorage(option.addr);
+        result[resultKey][field] = option.initval;
+    }
+}
+
+function defaultResult() {
+    const result = {
         name: '',
         role: ROLE_NONE,
         race: ROLE_NONE,
         gender: ROLE_NONE,
         align: ROLE_NONE,
+        // Every boolean option's startup value comes from allopt[].initval
+        // through applyBooleanOptionDefaults() below, so only the fields
+        // initoptions_init() sets separately appear here.
         flags: {
             initrole: ROLE_NONE,
             initrace: ROLE_NONE,
             initgend: ROLE_NONE,
             initalign: ROLE_NONE,
-            female: false,
             debug: false,
             explore: false,
-            // optlist.h:181 declares autoopen opt_out, so a hero who walks
-            // into a closed door pulls at it unless the option is turned off.
-            autoopen: true,
-            pickup: false,
-            bones: true,
-            acoustics: true,
-            legacy: true,
-            tutorial: true,
-            verbose: true,
-            // optlist.h stores safe_pet in flags.safe_dog and defaults On.
-            safe_dog: true,
-            // optlist.h: safe_wait is opt_out and defaults On.
-            safe_wait: true,
             // options.c initoptions_init(): PILE_LIMIT_DFLT.
             pile_limit: 5,
             // options.c initoptions_init() sets sortloot to 'l', which sorts
             // loot but not inventory; display_pickinv() compares against 'f'.
             sortloot: 'l',
-            // optlist.h defaults sortpack and invlet_constant On.
-            sortpack: true,
-            invlet_constant: true,
             // options.c def_inv_order[], the class order the inventory menu
             // walks. The trailing 0 terminates the list in C. options.c
             // change_inv_order() rewrites this from the packorder option,
@@ -318,49 +331,49 @@ function defaultResult() {
                 RING_CLASS, WAND_CLASS, TOOL_CLASS, GEM_CLASS, ROCK_CLASS,
                 BALL_CLASS, CHAIN_CLASS,
             ],
-            pushweapon: false,
             // options.c initoptions_init() sets flags.runmode = RUN_LEAP.
             runmode: RUN_LEAP,
-            showexp: false,
-            showvers: false,
-            time: false,
             // Recorder release builds have no git-branch metadata, so
             // options.c defaults versinfo to VI_NUMBER.
             versinfo: 1,
+            // The remaining initoptions_init() assignments, in source order.
+            end_own: false,
+            end_top: 3,
+            end_around: 2,
+            paranoia_bits: PARANOID_PRAY | PARANOID_SWIM | PARANOID_TRAP,
+            // C's char array of object-class indices, empty for "all". Its
+            // bytes are class numbers rather than class symbols, which is why
+            // oc_to_str() maps them through def_oc_syms[].
+            pickup_types: '',
+            pickup_burden: MOD_ENCUMBER,
+            end_disclose: Array(NUM_DISCLOSURE_OPTIONS).fill(
+                DISCLOSE_PROMPT_DEFAULT_NO,
+            ),
+            menu_style: MENU_FULL,
+            // optfn_autounlock()'s do_init arm, which allopt_array_init()
+            // runs for every option before the configuration file is read.
+            autounlock: AUTOUNLOCK_APPLY_KEY,
+            // o_init.c get_sortdisco() rewrites any unrecognized value to 'o',
+            // which is also what a zeroed flags struct resolves to.
+            discosort: 'o',
+            // insight.c vanqorders[] index 0, "traditional".
+            vanq_sortmode: 0,
+            // A version number packed by feature_alert_opts(); zero means no
+            // alert is suppressed.
+            suppress_alert: 0,
         },
         iflags: {
             // options.c initializes instance_flags to zero, which is STONE.
             // Its boolean handler restores this value on every toggle.
             prev_decor: STONE,
-            wc_color: true,
-            wc_inverse: true,
-            // optlist.h: use_darkgray is opt_out and defaults On.
-            wc2_darkgray: true,
-            wc_hilite_pet: false,
-            hilite_pile: false,
-            wc2_hitpointbar: false,
-            wc_splash_screen: true,
-            status_updates: true,
-            wc_eight_bit_input: false,
-            // optlist.h:303 declares extmenu opt_in, defaulting Off, three
-            // lines below eight_bit_tty above.  C binds it to &iflags.extmenu,
-            // so its startup value is FALSE rather than absent.
-            extmenu: false,
             wc2_statuslines: 2,
             wc2_petattr: ATR_INVERSE,
-            altmeta: false,
             hilite_delta: 0,
             status_hilites: [],
             status_conditions: { ...DEFAULT_STATUS_CONDITIONS },
-            // optlist.h: cmdassist is opt_out and defaults On.  Unlike most
-            // behavior booleans, its source owner is instance_flags.
-            cmdassist: true,
             num_pad: false,
             num_pad_mode: 0,
             getpos_coords: GPCOORDS_NONE,
-            customcolors: true,
-            customsymbols: true,
-            menu_overlay: true,
             // options.c keeps these as parallel, insertion-ordered strings.
             // The first alias for an incoming key wins in map_menu_cmd().
             mapped_menu_cmds: '',
@@ -369,12 +382,16 @@ function defaultResult() {
                 attr: ATR_INVERSE,
                 color: NO_COLOR,
             },
+            msg_history: 20,
+            // initoptions_init()'s TTY_GRAPHICS arm; this build is tty.
+            prevmsg_window: 's',
+            // optfn_menu_objsyms()'s do_init arm calls
+            // set_menuobjsyms_flags(4), "conditional".
+            menuobjsyms: 4,
+            menuinvertmode: 1,
+            getloc_filter: GFILTER_NONE,
         },
         a11y: {
-            accessiblemsg: false,
-            glyph_updates: false,
-            mon_movement: false,
-            mon_notices: false,
             mon_notices_blocked: 0,
         },
         roleFilter: defaultRoleFilter(),
@@ -390,6 +407,8 @@ function defaultResult() {
         symbolOperations: [],
         rogueSymbols: {},
     };
+    applyBooleanOptionDefaults(result);
+    return result;
 }
 
 function optionError(lineNumber, message) {
@@ -2146,7 +2165,27 @@ function applyOption(result, optionState, option, lineNumber) {
         else if (name === 'suppress_alert') {
             result.flags.suppress_alert = value;
         } else if (name === 'msg_window') {
-            result.iflags.prevmsg_window = value;
+            // C ref: options.c optfn_msg_window()'s do_set arm. PREV_MSGS is
+            // 1 for this tty build, so C keeps the lowercased first letter of
+            // the value and rejects anything but s, c, f or r. An empty value
+            // means 'f', which the negated form here cannot reach.
+            const tmp = value ? value[0].toLowerCase() : 'f';
+            if (!'scfr'.includes(tmp)) {
+                optionError(
+                    lineNumber, `unknown msg_window parameter '${value}'`,
+                );
+            }
+            result.iflags.prevmsg_window = tmp;
+        } else if (name === 'sortloot') {
+            // C ref: options.c optfn_sortloot()'s do_set arm, which stores
+            // the lowercased first letter and rejects anything else.
+            const c = value ? value[0].toLowerCase() : '';
+            if (!c || !'nlf'.includes(c)) {
+                optionError(
+                    lineNumber, `unknown sortloot parameter '${value}'`,
+                );
+            }
+            result.flags.sortloot = c;
         } else if (name === 'versinfo') {
             const versinfo = Number.parseInt(value, 10);
             if (!Number.isInteger(versinfo)
@@ -2367,4 +2406,756 @@ export function parseNethackrc(rc, random = rn2) {
     }
 
     return result;
+}
+
+// ===========================================================================
+// options.c doset() -- the '#optionsfull' menu, reached from 'O' with the 'm'
+// prefix through doset_simple().  Everything below builds that menu and hands
+// it to the window port; applying the picks stays unported.
+// ===========================================================================
+
+// Thrown where the options menu reaches an options.c path this port has not
+// implemented.  Every stop names the C function that is missing.
+export class UnsupportedOptionMenuError extends Error {
+    constructor(what) {
+        super(`the options menu requires ${what}`);
+        this.name = 'UnsupportedOptionMenuError';
+        this.what = what;
+    }
+}
+
+// C ref: global.h enum optset_restrictions, the values doset() compares
+// allopt[].setwhere against.
+const set_gameview = 3;
+const set_in_game = 4;
+const set_wizonly = 5;
+const set_wiznofuz = 6;
+
+// C ref: options.c wc_options[] and wc2_options[].  Each option names the
+// window-port capability its interface must advertise; doset() hides an
+// option whose interface does not.  Naming the capability rather than its
+// winprocs.h bit keeps the mapping readable, because nothing here combines
+// capabilities arithmetically.
+const WC_OPTION_CAPABILITY = Object.freeze(new Map([
+    ['ascii_map', 'WC_ASCII_MAP'],
+    ['color', 'WC_COLOR'],
+    ['eight_bit_tty', 'WC_EIGHT_BIT_IN'],
+    ['hilite_pet', 'WC_HILITE_PET'],
+    ['perm_invent', 'WC_PERM_INVENT'],
+    ['perminv_mode', 'WC_PERM_INVENT'],
+    ['popup_dialog', 'WC_POPUP_DIALOG'],
+    ['player_selection', 'WC_PLAYER_SELECTION'],
+    ['preload_tiles', 'WC_PRELOAD_TILES'],
+    ['tiled_map', 'WC_TILED_MAP'],
+    ['tile_file', 'WC_TILE_FILE'],
+    ['tile_width', 'WC_TILE_WIDTH'],
+    ['tile_height', 'WC_TILE_HEIGHT'],
+    ['align_message', 'WC_ALIGN_MESSAGE'],
+    ['align_status', 'WC_ALIGN_STATUS'],
+    ['font_map', 'WC_FONT_MAP'],
+    ['font_menu', 'WC_FONT_MENU'],
+    ['font_message', 'WC_FONT_MESSAGE'],
+    ['font_size_map', 'WC_FONTSIZ_MAP'],
+    ['font_size_menu', 'WC_FONTSIZ_MENU'],
+    ['font_size_message', 'WC_FONTSIZ_MESSAGE'],
+    ['font_size_status', 'WC_FONTSIZ_STATUS'],
+    ['font_size_text', 'WC_FONTSIZ_TEXT'],
+    ['font_status', 'WC_FONT_STATUS'],
+    ['font_text', 'WC_FONT_TEXT'],
+    ['map_mode', 'WC_MAP_MODE'],
+    ['scroll_amount', 'WC_SCROLL_AMOUNT'],
+    ['scroll_margin', 'WC_SCROLL_MARGIN'],
+    ['splash_screen', 'WC_SPLASH_SCREEN'],
+    ['use_inverse', 'WC_INVERSE'],
+    ['vary_msgcount', 'WC_VARY_MSGCOUNT'],
+    ['windowcolors', 'WC_WINDOWCOLORS'],
+    ['mouse_support', 'WC_MOUSE_SUPPORT'],
+]));
+
+const WC2_OPTION_CAPABILITY = Object.freeze(new Map([
+    ['armorstatus', 'WC2_EXTRASTATUS'],
+    ['fullscreen', 'WC2_FULLSCREEN'],
+    ['guicolor', 'WC2_GUICOLOR'],
+    ['hilite_status', 'WC2_HILITE_STATUS'],
+    ['hitpointbar', 'WC2_HITPOINTBAR'],
+    ['menu_shift', 'WC2_MENU_SHIFT'],
+    ['petattr', 'WC2_PETATTR'],
+    ['softkeyboard', 'WC2_SOFTKEYBOARD'],
+    // The name shown in the 'O' menu differs from the option name.
+    ['status hilite rules', 'WC2_HILITE_STATUS'],
+    // statushilites has no bit of its own.
+    ['statushilites', 'WC2_HILITE_STATUS'],
+    ['statuslines', 'WC2_STATUSLINES'],
+    ['term_cols', 'WC2_TERM_SIZE'],
+    ['term_rows', 'WC2_TERM_SIZE'],
+    ['terrainstatus', 'WC2_EXTRASTATUS'],
+    ['use_darkgray', 'WC2_DARKGRAY'],
+    ['weaponstatus', 'WC2_EXTRASTATUS'],
+    ['windowborders', 'WC2_WINDOWBORDERS'],
+    ['wraptext', 'WC2_WRAPTEXT'],
+]));
+
+// C ref: win/tty/wintty.c tty_procs.wincap and .wincap2.  This build compiles
+// none of TTY_PERM_INVENT, MSDOS or WIN32CON, so wincap carries only the four
+// unconditional bits; SELECTSAVED and STATUS_HILITES are both defined in
+// config.h and NO_TERMS is not, so wincap2 carries every bit listed there.
+const TTY_WINCAP = Object.freeze(new Set([
+    'WC_COLOR', 'WC_HILITE_PET', 'WC_INVERSE', 'WC_EIGHT_BIT_IN',
+]));
+const TTY_WINCAP2 = Object.freeze(new Set([
+    'WC2_SELECTSAVED', 'WC2_HILITE_STATUS', 'WC2_HITPOINTBAR',
+    'WC2_FLUSH_STATUS', 'WC2_RESET_STATUS', 'WC2_DARKGRAY',
+    'WC2_SUPPRESS_HIST', 'WC2_URGENT_MESG', 'WC2_STATUSLINES',
+    'WC2_U_UTF8STR', 'WC2_PETATTR', 'WC2_EXTRACOLORS', 'WC2_EXTRASTATUS',
+]));
+
+// C ref: options.c is_wc_option(), wc_supported(), is_wc2_option() and
+// wc2_supported().
+function is_wc_option(name) { return WC_OPTION_CAPABILITY.has(name); }
+function wc_supported(name) {
+    return TTY_WINCAP.has(WC_OPTION_CAPABILITY.get(name));
+}
+function is_wc2_option(name) { return WC2_OPTION_CAPABILITY.has(name); }
+function wc2_supported(name) {
+    return TTY_WINCAP2.has(WC2_OPTION_CAPABILITY.get(name));
+}
+
+// The three menu loops repeat this pair of tests verbatim.
+function unsupportedWindowOption(name) {
+    return (is_wc_option(name) && !wc_supported(name))
+        || (is_wc2_option(name) && !wc2_supported(name));
+}
+
+// C ref: options.c longest_option_name().  The two passes differ only in
+// which options the first one skips, and both feed the same maximum.
+export function longest_option_name(startpass, endpass) {
+    let longest_name_len = 0;
+    for (let pass = 0; pass < 2; pass++) {
+        for (const option of allopt) {
+            if (pass === 0
+                && (option.opttyp !== 'BoolOpt' || !option.addr)) continue;
+            const optflags = option.setwhere;
+            if (optflags < startpass || optflags > endpass) continue;
+            if (unsupportedWindowOption(option.name)) continue;
+            if (option.name.length > longest_name_len)
+                longest_name_len = option.name.length;
+        }
+    }
+    return longest_name_len;
+}
+
+// C ref: options.c term_for_boolean().  booleanterms[][0] is the value shown
+// unless the option asked for one of the other three vocabularies.
+const BOOLEAN_TERMS = Object.freeze([
+    Object.freeze(['false', 'off', 'disabled', 'excluded from build']),
+    Object.freeze(['true', 'on', 'enabled', 'included']),
+]);
+
+export function term_for_boolean(index, value) {
+    const f_t = value ? 1 : 0;
+    let boolean_term = BOOLEAN_TERMS[f_t][0];
+    const i = allopt[index].termpref;
+    if (i > 0 && i < BOOLEAN_TERMS[0].length) boolean_term = BOOLEAN_TERMS[f_t][i];
+    return boolean_term;
+}
+
+// allopt[].addr names the C lvalue that stores a boolean option's value.
+// Its four roots are the live option structures this port keeps on the game
+// state; jsmain.js installs flags, iflags and a11y from parseNethackrc(), and
+// u_init_misc() carries u.uroleplay across its memset boundary.
+function booleanOptionValue(state, option) {
+    const path = option.addr.split('.');
+    let owner = state;
+    for (let index = 0; index < path.length - 1; ++index)
+        owner = owner?.[path[index]];
+    const value = owner?.[path[path.length - 1]];
+    if (typeof value !== 'boolean') {
+        throw new UnsupportedOptionMenuError(
+            `a live value for boolean option '${option.name}' (${option.addr})`,
+        );
+    }
+    return value;
+}
+
+// C ref: coloratt.c colornames[] and attrnames[], each truncated at the NULL
+// entry that separates canonical names from aliases; clr2colorname() and
+// attr2attrname() return the first entry whose value matches.  The port's
+// attribute set holds four of C's seven values, because recorder patch 006
+// retains only bold, underline and inverse, so dim, italic and blink share
+// ATR_NONE and cannot be named apart from it.
+const COLOR_NAMES = Object.freeze([
+    ['black', CLR_BLACK], ['red', CLR_RED], ['green', CLR_GREEN],
+    ['brown', CLR_BROWN], ['blue', CLR_BLUE], ['magenta', CLR_MAGENTA],
+    ['cyan', CLR_CYAN], ['gray', CLR_GRAY], ['orange', CLR_ORANGE],
+    ['light green', CLR_BRIGHT_GREEN], ['yellow', CLR_YELLOW],
+    ['light blue', CLR_BRIGHT_BLUE], ['light magenta', CLR_BRIGHT_MAGENTA],
+    ['light cyan', CLR_BRIGHT_CYAN], ['white', CLR_WHITE],
+    ['no color', NO_COLOR],
+]);
+const ATTR_NAMES = Object.freeze([
+    ['none', ATR_NONE], ['bold', ATR_BOLD], ['underline', ATR_UNDERLINE],
+    ['inverse', ATR_INVERSE],
+]);
+
+function nameForValue(table, value, what) {
+    const found = table.find(([, candidate]) => candidate === value);
+    if (!found) throw new UnsupportedOptionMenuError(`a name for ${what}`);
+    return found[0];
+}
+
+// C ref: coloratt.c color_attr_to_str().
+function color_attr_to_str(ca) {
+    return `${nameForValue(COLOR_NAMES, ca.color, `color ${ca.color}`)}`
+        + `&${nameForValue(ATTR_NAMES, ca.attr, `attribute ${ca.attr}`)}`;
+}
+
+// C ref: options.c oc_to_str(), which spells an object-class list with the
+// fixed drawing.c def_oc_syms[] symbols rather than the active symbol set.
+function oc_to_str(classes) {
+    return classes
+        .map((oclass) => String.fromCharCode(
+            DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass],
+        ))
+        .join('');
+}
+
+// C ref: options.c's file-scope strings shared by several handlers.
+const none = '(none)';
+const randomrole = 'random';
+const to_be_done = '(to be done)';
+
+// C ref: options.c rolestring().
+function rolestring(val, array, field) {
+    if (val >= 0) return field(array[val]);
+    return val === ROLE_RANDOM ? randomrole : none;
+}
+
+// C ref: options.c unlocktypes[], burdentype[], runmodes[], sortltype[] and
+// menutype[]; insight.c vanqorders[]; o_init.c disco_order_let and
+// disco_orders_descr[]; decl.c disclosure_options; symbols.c
+// known_handling[].  Only the columns the value column shows are kept.
+const unlocktypes = Object.freeze(['untrap', 'apply-key', 'kick', 'force']);
+const burdentype = Object.freeze([
+    'unencumbered', 'burdened', 'stressed',
+    'strained', 'overtaxed', 'overloaded',
+]);
+const runmodes = Object.freeze(['teleport', 'run', 'walk', 'crawl']);
+const sortltype = Object.freeze(['none', 'loot', 'full']);
+const menutype = Object.freeze([
+    'traditional', 'combination', 'full', 'partial',
+]);
+const objsymvals = Object.freeze([
+    'none', 'headers', 'entries', 'both', 'conditional', 'one-or-other',
+]);
+const vanqorders = Object.freeze([
+    ['t', 'traditional: by monster level'],
+    ['d', 'by monster difficulty rating'],
+    ['a', 'alphabetically, unique monsters separate'],
+    ['A', 'alphabetically, unique monsters intermixed'],
+    ['C', 'by monster class, high to low level in class'],
+    ['c', 'by monster class, low to high level in class'],
+    ['n', 'by count, high to low'],
+    ['z', 'by count, low to high'],
+]);
+const disco_order_let = 'osca';
+const disco_orders_descr = Object.freeze([
+    'by order of discovery within each class',
+    'sortloot order (by class with some sub-class groupings)',
+    'alphabetical within each class',
+    'alphabetical across all classes',
+]);
+const disclosure_options = 'iavgco';
+const known_handling = Object.freeze([
+    'UNKNOWN', 'IBM', 'DEC', 'CURS', 'MAC', 'UTF8',
+]);
+// C ref: options.c paranoia[], in the order optfn_paranoid_confirmation()
+// walks when it spells the current bits.  The two config-only trailing rows,
+// "none" and "all", carry no bit of their own and never print.
+const paranoia = Object.freeze([
+    [PARANOID_CONFIRM, 'Confirm'],
+    [PARANOID_QUIT, 'quit'],
+    [PARANOID_DIE, 'die'],
+    [PARANOID_BONES, 'bones'],
+    [PARANOID_HIT, 'attack'],
+    [PARANOID_BREAKWAND, 'wand-break'],
+    [PARANOID_EATING, 'eat'],
+    [PARANOID_WERECHANGE, 'Were-change'],
+    [PARANOID_PRAY, 'pray'],
+    [PARANOID_TRAP, 'trap'],
+    [PARANOID_AUTOALL, 'Autoall'],
+    [PARANOID_SWIM, 'swim'],
+    [PARANOID_REMOVE, 'Remove'],
+]);
+// C ref: options.c n_currently_set.
+function n_currently_set(count) {
+    return `(${count} currently set)`;
+}
+
+// C ref: options.c petname_optfn(), shared by catname, dogname and horsename.
+function petname_optfn(state, option) {
+    const petname = state[option.name] ?? '';
+    return petname || none;
+}
+
+// C ref: botl.c count_status_hilites().  Its gather pass walks every status
+// field and every condition; with no rule of either kind configured it
+// counts nothing, and this port has no representation for the line-per-rule
+// count the pass produces once rules exist.
+function count_status_hilites(state) {
+    if (state.iflags?.status_hilites?.length)
+        throw new UnsupportedOptionMenuError('count_status_hilites() rules');
+    return 0;
+}
+
+// C ref: options.c count_cond(), over botl.c condtests[].
+function count_cond(state) {
+    return Object.values(state.iflags?.status_conditions ?? {})
+        .filter(Boolean).length;
+}
+
+// C ref: options.c count_apes(), over ga.apelist.  parseNethackrc() has no
+// AUTOPICKUP_EXCEPTION statement and no ported command adds one, so the list
+// is empty; js/pickup.js refuses the same field where autopickup would read
+// it.
+function count_apes(state) {
+    let numapes = 0;
+    for (let ape = state.ga?.apelist; ape; ape = ape.next) numapes++;
+    return numapes;
+}
+
+// C ref: coloratt.c count_menucolors() over gm.menu_colorings, and
+// options.c msgtype_count() over gp.plinemsg_types.  CONFIG_STATEMENTS above
+// carries neither MENUCOLOR nor MSGTYPE, and no ported command adds an entry
+// to either list, so both are empty for every game this port can construct.
+function count_menucolors() { return 0; }
+function msgtype_count() { return 0; }
+
+// C ref: cmd.c count_autocompletions(), over the AUTOCOMP_ADJ flag that the
+// AUTOCOMPLETE configuration statement sets on an extcmdlist[] row.  The
+// generated table carries the compiled-in flags only.
+function count_autocompletions() {
+    return extcmdlist.filter((entry) => entry.flags & AUTOCOMP_ADJ).length;
+}
+
+// parseNethackrc() gives source semantics to the options its own arms parse
+// and falls back to keeping an unported option's raw text under
+// flags[<option name>].  For an option whose parsed home is that same field,
+// the raw text overwrites the parsed value rather than sitting beside it, and
+// showing the compiled-in default would misreport the session.  Every such
+// option's parsed form is a number, so a type test finds the raw string.
+function requireParsedNumber(state, option) {
+    const value = state.flags[option.name];
+    if (typeof value !== 'number') {
+        throw new UnsupportedOptionMenuError(
+            `parseoptions() to interpret '${option.name}'`,
+        );
+    }
+    return value;
+}
+
+// The value column each compound and other option shows.  Every entry ports
+// its options.c optfn_<name>() get_val arm; the key is allopt[].optfn, which
+// is that function's name.  A handler returns the C buffer's contents, so an
+// empty string is the "left the buffer alone" result doset_add_menu() shows
+// as "unknown".
+const OPTION_VALUE_HANDLERS = Object.freeze({
+    // windowprocs.name, which is WPID(tty) for this build's only interface.
+    windowtype: () => 'tty',
+    playmode: (state) => (state.flags.debug ? 'debug'
+        : state.flags.explore ? 'explore' : 'normal'),
+    // svp.plname; jsmain.js installs the same value as state.plname.
+    name: (state) => state.plname ?? '',
+    role: (state) => rolestring(
+        state.flags.initrole, roles, (entry) => entry.name.m,
+    ),
+    race: (state) => rolestring(
+        state.flags.initrace, races, (entry) => entry.noun,
+    ),
+    gender: (state) => rolestring(
+        state.flags.initgend, genders, (entry) => entry.adj,
+    ),
+    alignment: (state) => rolestring(
+        state.flags.initalign, aligns, (entry) => entry.adj,
+    ),
+    catname: petname_optfn,
+    dogname: petname_optfn,
+    horsename: petname_optfn,
+    msghistory: (state) => `${state.iflags.msg_history}`,
+    pettype: (state) => {
+        const preferred = state.gp?.preferred_pet;
+        return preferred === 'c' ? 'cat'
+            : preferred === 'd' ? 'dog'
+                : preferred === 'h' ? 'horse'
+                    : preferred === 'n' ? 'none' : 'random';
+    },
+    // sounds.c get_soundlib_name() over ga.active_soundlib.  SND_LIB_INTEGRATED
+    // is undefined for this build, so soundlib_choices[] holds only
+    // nosound_procs and no configuration can select another.
+    soundlib: () => 'nosound',
+    autounlock: (state, option) => {
+        const bits = requireParsedNumber(state, option);
+        if (!bits) return 'none';
+        return unlocktypes
+            .filter((_name, index) => (bits & (1 << index)))
+            .join(' + ');
+    },
+    // go.ov_primary_syms holds an explicit S_boulder override; without one
+    // the value falls back to the active rock-class symbol.
+    boulder: (state) => String.fromCharCode(
+        state.go?.ov_primary_syms?.[SYM_OFF_X + SYM_BOULDER]
+        || state.gs.showsyms[SYM_OFF_O + ROCK_CLASS],
+    ),
+    // gc.crash_email and gc.crash_name are null until a configuration file
+    // sets them, and C then leaves the buffer empty.
+    crash_email: (state) => state.gc?.crash_email ?? '',
+    crash_name: (state) => state.gc?.crash_name ?? '',
+    crash_urlmax: (state) => `${state.gc?.crash_urlmax ?? -1}`,
+    disclose: (state) => state.flags.end_disclose
+        .map((setting, index) => `${setting}${disclosure_options[index]}`)
+        .join(' '),
+    fruit: (state) => state.svp.pl_fruit,
+    glyph: () => to_be_done,
+    hilite_status: (state) => (count_status_hilites(state)
+        ? '(see "status highlight rules" below)' : none),
+    // strNsubst(ca_buf, " ", "-", 0) replaces every space, so a two-word
+    // color or attribute name becomes hyphenated.
+    menu_headings: (state) => color_attr_to_str(state.iflags.menu_headings)
+        .replaceAll(' ', '-'),
+    menu_objsyms: (state) => objsymvals[state.iflags.menuobjsyms],
+    menuinvertmode: (state) => `${state.iflags.menuinvertmode}`,
+    menustyle: (state) => menutype[state.flags.menu_style],
+    // WINDOWPORT(curses) rewrites two of the four settings; this build's
+    // interface is tty, which supports all four.
+    msg_window: (state) => {
+        const tmp = state.iflags.prevmsg_window;
+        return tmp === 's' ? 'single'
+            : tmp === 'c' ? 'combination'
+                : tmp === 'f' ? 'full' : 'reversed';
+    },
+    number_pad: (state) => {
+        const numpadmodes = [
+            '0=off', '1=on', '2=on, MSDOS compatible',
+            '3=on, phone-style layout',
+            '4=on, phone layout, MSDOS compatible',
+            '-1=off, y & z swapped',
+        ];
+        // gc.Cmd's three parsed fields, which js/options.js packs into
+        // iflags.num_pad_mode: bit 0 is pcHack_compat when the pad is on and
+        // swap_yz when it is off, and bit 1 is phone_layout.
+        const mode = state.iflags.num_pad_mode;
+        const indx = state.iflags.num_pad
+            ? ((mode & 2) ? ((mode & 1) ? 4 : 3) : ((mode & 1) ? 2 : 1))
+            : ((mode & 1) ? 5 : 0);
+        return numpadmodes[indx];
+    },
+    packorder: (state) => oc_to_str(state.flags.inv_order),
+    paranoid_confirmation: (state) => {
+        const bits = state.flags.paranoia_bits;
+        const names = paranoia
+            // paranoid_confirm:bones is hidden during play outside debug mode.
+            .filter(([mask]) => (bits & mask)
+                && (mask !== PARANOID_BONES || state.wizard))
+            .map(([, argname]) => argname);
+        return names.length ? names.join(' ') : 'none';
+    },
+    // The tty and curses arm; this build's interface is tty.
+    petattr: (state) => nameForValue(
+        ATTR_NAMES, state.iflags.wc2_petattr,
+        `attribute ${state.iflags.wc2_petattr}`,
+    ),
+    pickup_burden: (state, option) => burdentype[
+        requireParsedNumber(state, option)
+    ],
+    pickup_types: (state) => {
+        // flags.pickup_types holds object-class indices, which
+        // optfn_pickup_types()'s do_set arm derives from the option's class
+        // symbols. That arm is not ported, so parseNethackrc() leaves the raw
+        // symbols in the same field and the list is empty for every game this
+        // port can construct.
+        if (state.flags.pickup_types !== '') {
+            throw new UnsupportedOptionMenuError(
+                "parseoptions() to interpret 'pickup_types'",
+            );
+        }
+        const ocl = oc_to_str([...state.flags.pickup_types]
+            .map((symbol) => symbol.charCodeAt(0)));
+        return ocl || 'all';
+    },
+    pile_limit: (state) => `${state.flags.pile_limit}`,
+    roguesymset: (state) => symsetValue(state, ROGUESET, false),
+    runmode: (state) => runmodes[state.flags.runmode],
+    scores: (state) => {
+        let opts = '';
+        if (state.flags.end_top > 0) opts = `${state.flags.end_top} top`;
+        if (state.flags.end_around > 0) {
+            opts += `${state.flags.end_top > 0 ? '/' : ''}`
+                + `${state.flags.end_around} around`;
+        }
+        if (state.flags.end_own) {
+            opts += `${(state.flags.end_top > 0
+                || state.flags.end_around > 0) ? '/' : ''}own`;
+        }
+        return opts || 'none';
+    },
+    // o_init.c get_sortdisco() with cnf FALSE.
+    sortdiscoveries: (state) => {
+        const index = disco_order_let.indexOf(state.flags.discosort);
+        return disco_orders_descr[index < 0 ? 0 : index];
+    },
+    sortloot: (state) => sortltype.find(
+        (name) => name[0] === state.flags.sortloot,
+    ) ?? '',
+    sortvanquished: (state) => {
+        const order = vanqorders[state.flags.vanq_sortmode];
+        return `${order[0]}: ${order[1]}`;
+    },
+    statushilites: (state) => (state.iflags.hilite_delta
+        ? `${state.iflags.hilite_delta} (on: highlight status for `
+            + `${state.iflags.hilite_delta} turns)`
+        : "0 (off: don't highlight status fields)"),
+    statuslines: (state) => (wc2_supported('statuslines')
+        ? (state.iflags.wc2_statuslines < 3 ? '2' : '3') : 'unknown'),
+    suppress_alert: (state, option) => {
+        // feature_alert_opts(), which packs the option's version number into
+        // this field, is not ported, so zero is the only value it can hold.
+        if (requireParsedNumber(state, option) !== 0) {
+            throw new UnsupportedOptionMenuError(
+                'a packed suppress_alert version',
+            );
+        }
+        return none;
+    },
+    symset: (state) => symsetValue(state, PRIMARYSET, true),
+    versinfo: (state) => {
+        const vi = state.flags.versinfo;
+        const g = (vi & VI_NAME) !== 0;
+        const b = (vi & VI_BRANCH) !== 0;
+        const n = (vi & VI_NUMBER) !== 0;
+        return `${vi}: ${g ? 'name' : ''}${(b && g) ? '+' : ''}`
+            + `${b ? 'branch' : ''}${(n && (b || g)) ? '+' : ''}`
+            + `${n ? 'number' : ''} (${status_version(state.flags, false)})`;
+    },
+    whatis_coord: (state) => {
+        const coords = state.iflags.getpos_coords;
+        return coords === GPCOORDS_MAP ? 'map'
+            : coords === GPCOORDS_COMPASS ? 'compass'
+                : coords === GPCOORDS_COMFULL ? 'full compass'
+                    : coords === GPCOORDS_SCREEN ? 'screen' : 'none';
+    },
+    whatis_filter: (state) => {
+        const filter = state.iflags.getloc_filter;
+        return filter === GFILTER_VIEW ? 'view'
+            : filter === GFILTER_AREA ? 'area' : 'none';
+    },
+    o_autocomplete: () => n_currently_set(count_autocompletions()),
+    o_autopickup_exceptions: (state) => n_currently_set(count_apes(state)),
+    o_bind_keys: (state, option, helpers) => n_currently_set(
+        helpers.countBindKeys(state),
+    ),
+    o_menu_colors: () => n_currently_set(count_menucolors()),
+    o_message_types: () => n_currently_set(msgtype_count()),
+    o_status_cond: (state) => n_currently_set(count_cond(state)),
+    o_status_hilites: (state) => n_currently_set(count_status_hilites(state)),
+});
+
+// C ref: optfn_symset() and optfn_roguesymset(), which differ only in the set
+// they report and in the handler suffix the primary set adds.
+function symsetValue(state, set, withHandling) {
+    const entry = state.gs?.symset?.[set] ?? {};
+    let opts = entry.name ? entry.name : 'default';
+    if (state.gc?.currentgraphics === set && entry.name) opts += ', active';
+    if (withHandling && entry.handling)
+        opts += `, handler=${known_handling[entry.handling]}`;
+    return opts;
+}
+
+// parseNethackrc() gives source semantics to the options its own arms parse
+// and preserves every other option's raw text under flags[<option name>].  A
+// value kept that way never reached the field the handler above reads, so the
+// menu would show the compiled-in default instead of the session's setting.
+// These are the shown compound and other options whose parsed home differs
+// from the option's own name, so a value under that name can only be raw.
+// The three whose parsed home is the option's own name -- autounlock,
+// pickup_types and suppress_alert -- are guarded inside their handlers,
+// where the compiled-in default is available to compare against.
+const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
+    'boulder', 'crash_email', 'crash_name', 'crash_urlmax',
+    'disclose', 'glyph', 'menu_objsyms', 'menuinvertmode', 'menustyle',
+    'msghistory', 'packorder', 'paranoid_confirmation',
+    'scores', 'sortdiscoveries', 'sortvanquished',
+    'soundlib', 'whatis_filter', 'windowtype',
+]));
+
+// C ref: options.c doset_add_menu()'s optfn call, plus the "unknown" default
+// it keeps when the handler writes nothing.
+function optionValue(state, option, helpers) {
+    if (UNPARSED_COMPOUND_OPTIONS.has(option.name)
+        && state.flags?.[option.name] !== undefined) {
+        throw new UnsupportedOptionMenuError(
+            `parseoptions() to interpret '${option.name}'`,
+        );
+    }
+    const handler = OPTION_VALUE_HANDLERS[option.optfn];
+    if (!handler)
+        throw new UnsupportedOptionMenuError(`optfn_${option.optfn}()`);
+    return handler(state, option, helpers);
+}
+
+// C ref: options.c doset_add_menu().  idx < 0 is the PREFIXES_IN_USE arm,
+// which this build does not compile, so every call names a real option.
+function doset_add_menu(
+    state, helpers, items, option, format, index, indexoffset,
+) {
+    const a_int = indexoffset === 0 ? 0 : index + 1 + indexoffset;
+    const value = optionValue(state, option, helpers);
+    // "    " replaces "a - " -- assumes menus follow that style.
+    const indent = !a_int ? '    ' : '';
+    const text = format(indent, option.name, value || 'unknown');
+    items.push(a_int ? { text, value: a_int } : { text });
+}
+
+// C ref: options.c doset()'s fmtstr_doset.  iflags.menu_tab_sep is a
+// wizard-mode-only option, so the tab-separated form is unreachable here and
+// only the "%s%-Nus [%s]" form is built.
+function dosetEntryFormat(startpass, endpass) {
+    const width = longest_option_name(startpass, endpass);
+    return (indent, name, value) => `${indent}${name.padEnd(width)} [${value}]`;
+}
+
+// C ref: options.c doset()'s cmdassist help block.  helptext[]'s single NULL
+// marks where the selectable '?' entry is inserted.
+const DOSET_HELPTEXT = Object.freeze([
+    "For a brief explanation of how this works, type '?' to select",
+    'the next menu choice, then press <enter> or <return>.',
+    null,
+    "[To suppress this menu help, toggle off the 'cmdassist' option.]",
+    '',
+]);
+
+// C ref: options.c HELP_IDX, which is SIZE(allopt): the table's own length
+// plus the terminating entry allopt_init[] carries.
+const HELP_IDX = allopt.length + 1;
+
+// C ref: options.c doset(), everything up to select_menu().  Returns the menu
+// specification the window port renders.
+export function dosetMenuItems(state, helpers, skiphelp) {
+    const items = [];
+    if (!skiphelp) {
+        for (const line of DOSET_HELPTEXT) {
+            if (line !== null) {
+                items.push({ text: `    ${line.slice(0, 75)}` });
+            } else {
+                items.push({
+                    text: 'view help for options menu',
+                    value: HELP_IDX + 1,
+                    selector: '?',
+                    groupSelector: '?',
+                });
+            }
+        }
+    }
+
+    // wizard mode would widen both ends; this port has no set_in_sysconf arm
+    // because SYSCF's `#ifdef notyet` block is not compiled.
+    const startpass = set_gameview;
+    const endpass = state.wizard ? set_wiznofuz : set_in_game;
+    const format = dosetEntryFormat(startpass, endpass);
+    const indexoffset = 1;
+
+    items.push({
+        text: 'Booleans (selecting will toggle value):',
+        ...helpers.headingStyle,
+    });
+    // First list any other non-modifiable booleans, then modifiable ones.
+    for (let pass = 0; pass <= 1; pass++) {
+        for (let i = 0; i < allopt.length; ++i) {
+            const option = allopt[i];
+            if (option.opttyp !== 'BoolOpt' || !option.addr) continue;
+            if (!((option.setwhere <= set_gameview && pass === 0)
+                || (option.setwhere >= set_in_game && pass === 1))) continue;
+            // flags.female is obsolete; gender:female replaced it.
+            if (option.addr === 'flags.female') continue;
+            if (option.setwhere === set_wizonly && !state.wizard) continue;
+            if (option.setwhere === set_wiznofuz
+                && (!state.wizard || state.iflags?.debug_fuzzer)) continue;
+            if (unsupportedWindowOption(option.name)) continue;
+
+            const a_int = pass === 0 ? 0 : i + 1 + indexoffset;
+            const indent = pass === 0 ? '    ' : '';
+            // enhance_menu_text() is compiled out; its whole body sits behind
+            // `#if 0` in this build.
+            const text = format(
+                indent, option.name,
+                term_for_boolean(i, booleanOptionValue(state, option)),
+            );
+            items.push(a_int ? { text, value: a_int } : { text });
+        }
+    }
+
+    items.push({ text: '' });
+    items.push({
+        text: 'Compounds (selecting will prompt for new value):',
+        ...helpers.headingStyle,
+    });
+    for (let pass = startpass; pass <= endpass; pass++) {
+        for (let i = 0; i < allopt.length; ++i) {
+            const option = allopt[i];
+            if (option.opttyp !== 'CompOpt') continue;
+            if (option.setwhere !== pass) continue;
+            if (unsupportedWindowOption(option.name)) continue;
+            doset_add_menu(
+                state, helpers, items, option, format, i,
+                pass === set_gameview ? 0 : indexoffset,
+            );
+        }
+    }
+
+    items.push({ text: '' });
+    items.push({ text: 'Other settings:', ...helpers.headingStyle });
+    for (let pass = startpass; pass <= endpass; pass++) {
+        for (let i = 0; i < allopt.length; ++i) {
+            const option = allopt[i];
+            if (option.opttyp !== 'OthrOpt') continue;
+            if (option.setwhere !== pass) continue;
+            if (unsupportedWindowOption(option.name)) continue;
+            doset_add_menu(
+                state, helpers, items, option, format, i,
+                pass === set_gameview ? 0 : indexoffset,
+            );
+        }
+    }
+    return items;
+}
+
+// C ref: options.c doset(), the '#optionsfull' command.  The pick loop that
+// applies the selections is not ported; this stops once select_menu() has
+// answered.
+export async function doset(state, helpers) {
+    if (state.iflags?.menu_requested) {
+        // doset_simple() checks for 'm' and calls doset(); clear the
+        // menu-requested flag to avoid doing that recursively.
+        state.iflags.menu_requested = false;
+        return doset_simple(state, helpers);
+    }
+    const skiphelp = !state.iflags?.cmdassist;
+    const items = dosetMenuItems(state, helpers, skiphelp);
+    const picks = await helpers.menu(items, 'Set what options?');
+    if (Array.isArray(picks) && picks.length > 0)
+        throw new UnsupportedOptionMenuError("doset()'s pick loop");
+    // select_menu() answered no pick, either through Escape or an empty
+    // commit, so doset() falls straight through its pick loop to
+    // destroy_nhwindow() and then reset_needed_visuals(), which is unported.
+    throw new UnsupportedOptionMenuError('reset_needed_visuals()');
+}
+
+// C ref: options.c doset_simple(), the 'O' command.  Only its
+// menu_requested arm is ported; the simple menu itself is not.
+export async function doset_simple(state, helpers) {
+    if (state.iflags?.menu_requested) {
+        // doset() checks for 'm' and calls doset_simple(); clear the
+        // menu-requested flag to avoid doing that recursively.
+        state.iflags.menu_requested = false;
+        return doset(state, helpers);
+    }
+    throw new UnsupportedOptionMenuError('doset_simple_menu()');
 }

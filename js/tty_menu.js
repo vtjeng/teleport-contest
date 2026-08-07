@@ -369,11 +369,38 @@ function menuLines(spec) {
     ];
 }
 
+// C ref: wintty.c tty_end_menu()'s accelerator pass. Every page restarts at
+// 'a' and runs 'a'..'z' then 'A'..'Z', so an item's letter depends on where
+// its page boundary falls. add_menu() callers that pass their own selector
+// keep it and consume no letter, which is how the options menu's '?' entry
+// leaves 'a' for the first option below it.
+function assignMenuAccelerators(spec, pageSize) {
+    if (!spec.items) return;
+    // menuLines() puts the prompt and its blank separator ahead of the items,
+    // exactly as tty_end_menu() does before it counts pages.
+    const lead = spec.title == null ? 0 : 2;
+    let menu_ch = 'a';
+    for (let n = 0; n < lead + spec.items.length; ++n) {
+        if (n % pageSize === 0) menu_ch = 'a';
+        if (n < lead) continue;
+        // menuLines() accepts a bare string as a display-only line, which
+        // has no selector to assign; a null item would already have thrown
+        // there, so nothing else needs guarding.
+        const item = spec.items[n - lead];
+        if (typeof item !== 'object') continue;
+        if (!Object.hasOwn(item, 'value') || item.selector) continue;
+        item.selector = menu_ch;
+        menu_ch = menu_ch === 'z'
+            ? 'A' : String.fromCharCode(menu_ch.charCodeAt(0) + 1);
+    }
+}
+
 export function ttyMenuLayout(display, spec, pageIndex = 0) {
-    const allLines = menuLines(spec);
     // tty_end_menu() limits each page to the smaller of 52 accelerators or
     // all terminal rows except the dmore() footer.
     const pageSize = Math.min(52, Math.max(1, display.rows - 1));
+    assignMenuAccelerators(spec, pageSize);
+    const allLines = menuLines(spec);
     const pageCount = Math.max(1, Math.ceil(allLines.length / pageSize));
     if (pageIndex < 0 || pageIndex >= pageCount)
         throw new RangeError(`invalid tty menu page ${pageIndex}`);

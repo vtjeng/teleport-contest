@@ -1449,3 +1449,32 @@ test('symbol assignments accept exactly the source symbol catalog', () => {
         );
     }
 });
+
+// C ref: options.c optfn_sortloot()'s do_set arm, which keeps the lowercased
+// first letter of the value and rejects everything else.
+test('sortloot keeps one letter and refuses an unknown one', () => {
+    assert.equal(parseNethackrc('OPTIONS=sortloot:full\n').flags.sortloot, 'f');
+    assert.equal(parseNethackrc('OPTIONS=sortloot:N\n').flags.sortloot, 'n');
+    assert.throws(() => parseNethackrc('OPTIONS=sortloot:x\n'),
+        /unknown sortloot parameter/u);
+    // string_for_env_opt() answers empty_optstr for a value-less option, and
+    // optfn_sortloot() returns optn_err rather than choosing a default.
+    assert.throws(() => parseNethackrc('OPTIONS=sortloot:\n'),
+        /unknown sortloot parameter/u);
+});
+
+// C ref: options.c optfn_msg_window()'s do_set arm under PREV_MSGS, which is
+// 1 for this tty build.
+test('msg_window keeps one letter and refuses an unknown one', () => {
+    assert.equal(
+        parseNethackrc('OPTIONS=msg_window:reversed\n').iflags.prevmsg_window,
+        'r',
+    );
+    assert.equal(
+        parseNethackrc('OPTIONS=msg_window:Combination\n')
+            .iflags.prevmsg_window,
+        'c',
+    );
+    assert.throws(() => parseNethackrc('OPTIONS=msg_window:x\n'),
+        /unknown msg_window parameter/u);
+});

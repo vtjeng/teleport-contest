@@ -537,11 +537,12 @@ test('the locked arm refuses what doopen_indir cannot answer for', async () => {
         ['skeleton key', 'door unlocking tool', carrying(SKELETON_KEY)],
         ['lock pick', 'door unlocking tool', carrying(LOCK_PICK)],
         ['credit card', 'door unlocking tool', carrying(CREDIT_CARD)],
-        // lock.c:884-893 needs AUTOUNLOCK_KICK, and js/options.js leaves an
-        // explicit autounlock value uninterpreted, so any setting refuses.
-        // `!autounlock` reaches the same term through applyBooleanOption();
-        // refusing it gives up a case C treats like the default, which is the
-        // price of not parsing the option.
+        // lock.c:884-893 needs AUTOUNLOCK_KICK. js/options.js keeps
+        // optfn_autounlock()'s do_init value, AUTOUNLOCK_APPLY_KEY, and
+        // leaves an explicit autounlock value uninterpreted, so any setting
+        // refuses. `!autounlock` reaches the same term through
+        // applyBooleanOption(); refusing it gives up a case C treats like
+        // the default, which is the price of not parsing the option.
         ['autounlock kick', 'autounlock setting',
             (state) => { state.flags.autounlock = 'kick'; }],
         ['autounlock negated', 'autounlock setting',
