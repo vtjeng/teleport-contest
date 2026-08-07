@@ -14,6 +14,7 @@ const GENERATED_CHECKS = [
     'check:extcmds',
     'check:monsters',
     'check:objects',
+    'check:options',
     'check:shtypes',
     'check:symbols',
     'check:themerooms',
