@@ -7,8 +7,11 @@ import {
     ART_SUNSWORD,
     artifactTouchable,
 } from './artifacts.js';
+import { effective_attribute } from './attrib.js';
 import {
     AKLYS_LIM,
+    A_DEX,
+    A_STR,
     NEED_AXE,
     NEED_HTH_WEAPON,
     NEED_PICK_AXE,
@@ -29,11 +32,13 @@ import {
     P_NONE,
     P_NUM_SKILLS,
     P_PICK_AXE,
+    P_RIDING,
     P_SKILLED,
     P_SKILL_LIMIT,
     P_SLING,
     P_TWO_WEAPON_COMBAT,
     P_UNSKILLED,
+    STR18,
     W_ARM,
     W_ARMG,
     W_ARMS,
@@ -47,10 +52,14 @@ import {
     is_covetous,
     is_giant,
     is_rider,
+    is_swimmer,
     likes_gems,
     mindless,
+    mon_hates_blessings,
     mon_hates_silver,
+    passes_walls,
     strongmonst,
+    thick_skinned,
     throws_rocks,
 } from './mondata.js';
 import {
@@ -59,9 +68,23 @@ import {
     PM_COCKATRICE,
     PM_MONK,
     PM_SAMURAI,
+    S_DRAGON,
+    S_EEL,
+    S_GIANT,
+    S_JABBERWOCK,
     S_KOP,
+    S_NAGA,
+    S_SNAKE,
+    S_XORN,
 } from './monsters.js';
-import { is_ammo, is_graystone, objectType } from './obj.js';
+import {
+    is_ammo,
+    is_graystone,
+    is_pick,
+    is_spear,
+    isWeptool,
+    objectType,
+} from './obj.js';
 import {
     AKLYS,
     ARROW,
@@ -164,6 +187,7 @@ import {
     practice_needed_to_advance,
     weapon_type,
 } from './startup_skills.js';
+import { is_pool } from './trap.js';
 import { couldsee } from './vision.js';
 import { mwelded, will_weld } from './wield.js';
 import { which_armor } from './worn.js';
@@ -262,6 +286,16 @@ const POLEARMS = Object.freeze([
     LANCE,
 ]);
 
+// C ref: weapon.c kebabable[] (70-73), the monster classes a spear gets a
+// to-hit bonus against. C stores it as a NUL-terminated string and reads it
+// with strchr(); an array membership test is the same question without the
+// terminator, which strchr() would match against an mlet of 0. Only the
+// pmidx -1 sentinel that closes monsters.h carries that class, and no live
+// monster's data points at it.
+const kebabable = Object.freeze([
+    S_XORN, S_DRAGON, S_JABBERWOCK, S_NAGA, S_GIANT,
+]);
+
 function weaponEnv(env = {}) {
     return { ...env, state: env.state ?? game };
 }
@@ -289,6 +323,47 @@ function resistsStoning(monster) {
         | (monster.mextrinsics ?? 0)
         | (monster.mintrinsics ?? 0);
     return Boolean(resistanceBits & MR_STONE);
+}
+
+// C ref: weapon.c hitval() (148-187). The "to hit" bonus a wielded object
+// gives against one target. Pure: it reads objects[], the object and the
+// target and nothing else.
+//
+// The artifact arm (weapon.c:184-185) needs artifact.c spec_abon(), which has
+// no port, so an artifact weapon stops here rather than silently losing its
+// bonus. Every other arm is complete.
+export function hitval(otmp, mon, state = game, env = {}) {
+    let tmp = 0;
+    const ptr = mon.data;
+    const objectData = objectType(otmp, state);
+    const isWeapon = otmp.oclass === WEAPON_CLASS || isWeptool(otmp, state);
+
+    if (isWeapon) tmp += otmp.spe;
+
+    /* Put weapon-specific "to hit" bonuses in below: */
+    tmp += objectData.oc_hitbon;
+
+    /* Blessed weapons used against undead or demons */
+    if (isWeapon && otmp.blessed && mon_hates_blessings(mon)) tmp += 2;
+
+    if (is_spear(otmp, state) && kebabable.includes(ptr.mlet)) tmp += 2;
+
+    /* trident is highly effective against swimmers */
+    if (otmp.otyp === TRIDENT && is_swimmer(ptr)) {
+        if (is_pool(mon.mx, mon.my, state)) tmp += 4;
+        else if (ptr.mlet === S_EEL || ptr.mlet === S_SNAKE) tmp += 2;
+    }
+
+    /* Picks used against xorns and earth elementals */
+    if (is_pick(otmp, state) && passes_walls(ptr) && thick_skinned(ptr))
+        tmp += 2;
+
+    if (otmp.oartifact) {
+        requiredOperation(env, 'unsupported', 'hitval')(
+            'artifact to-hit bonus',
+        );
+    }
+    return tmp;
 }
 
 // C ref: mon.c can_touch_safely(). Artifact acceptance remains with
@@ -527,6 +602,36 @@ async function clearMonsterWeapon(
 // end_burn(FALSE) and its visibility-dependent message.
 export async function setmnotwielded(monster, obj, env = {}) {
     return clearMonsterWeapon(monster, obj, weaponEnv(env));
+}
+
+// C ref: weapon.c abon() (949-987), the hero's Strength and Dexterity attack
+// bonus. C's Upolyd arm returns adj_lev(&mons[u.umonnum]) - 3; polyself is
+// unported, so Upolyd() is constantly false (js/regen.js:52 records the same
+// fact) and that arm is left out rather than restated.
+//
+// ACURR(A_STR) is the 3..125 encoding, which is what STR18() indexes, so this
+// reads effective_attribute() rather than acurrstr().
+export function abon(state = game) {
+    const str = effective_attribute(state, A_STR);
+    const dex = effective_attribute(state, A_DEX);
+    let sbon;
+
+    if (str < 6) sbon = -2;
+    else if (str < 8) sbon = -1;
+    else if (str < 17) sbon = 0;
+    else if (str < STR18(50)) sbon = 1; /* up to 18/49 */
+    else if (str < STR18(100)) sbon = 2;
+    else sbon = 3;
+
+    /* Game tuning kludge: make it a bit easier for a low level character
+     * to hit */
+    sbon += (state.u.ulevel < 3) ? 1 : 0;
+
+    if (dex < 4) return sbon - 3;
+    if (dex < 6) return sbon - 2;
+    if (dex < 8) return sbon - 1;
+    if (dex < 14) return sbon;
+    return sbon + dex - 14;
 }
 
 function selectToolWeapon(monster, weaponCheck, state) {
@@ -808,6 +913,76 @@ export function skill_level_name(skill, state = game) {
     case P_GRAND_MASTER: return 'Grand Master';
     default: return 'Unknown';
     }
+}
+
+// C ref: weapon.c weapon_hit_bonus() (1544-1636). The to-hit bonus the hero's
+// skill in `weapon` is worth; a null weapon means bare-handed combat.
+//
+// C's three `default: impossible(bad_skill, ...)` arms fall through into the
+// P_ISRESTRICTED/P_UNSKILLED case, so an out-of-range skill scores as
+// unskilled. Each is written here as the switch's default value rather than as
+// a separate arm, because impossible() only warns.
+export function weapon_hit_bonus(weapon, state = game) {
+    let bonus = 0;
+    const wep_type = weapon_type(weapon, state);
+    /* use two weapon skill only if attacking with one of the wielded
+       weapons */
+    const type = (state.u.twoweap
+        && (weapon === state.uwep || weapon === state.uswapwep))
+        ? P_TWO_WEAPON_COMBAT
+        : wep_type;
+
+    if (type === P_NONE) {
+        bonus = 0;
+    } else if (type <= P_LAST_WEAPON) {
+        switch (P_SKILL(type, state)) {
+        case P_BASIC: bonus = 0; break;
+        case P_SKILLED: bonus = 2; break;
+        case P_EXPERT: bonus = 3; break;
+        default: bonus = -4; break;
+        }
+    } else if (type === P_TWO_WEAPON_COMBAT) {
+        let skill = P_SKILL(P_TWO_WEAPON_COMBAT, state);
+        if (P_SKILL(wep_type, state) < skill)
+            skill = P_SKILL(wep_type, state);
+        switch (skill) {
+        case P_BASIC: bonus = -7; break;
+        case P_SKILLED: bonus = -5; break;
+        case P_EXPERT: bonus = -3; break;
+        default: bonus = -9; break;
+        }
+    } else if (type === P_BARE_HANDED_COMBAT) {
+        /*
+         *        b.h. m.a.
+         * unskl:  +1  n/a
+         * basic:  +1   +3
+         * skild:  +2   +4
+         * exprt:  +2   +5
+         * mastr:  +3   +6
+         * grand:  +3   +7
+         */
+        bonus = P_SKILL(type, state);
+        bonus = Math.max(bonus, P_UNSKILLED) - 1; /* unskilled => 0 */
+        bonus = Math.trunc(((bonus + 2) * (martial_bonus(state) ? 2 : 1)) / 2);
+    }
+
+    /* KMH -- It's harder to hit while you are riding */
+    if (state.u.usteed) {
+        switch (P_SKILL(P_RIDING, state)) {
+        case P_ISRESTRICTED:
+        case P_UNSKILLED:
+            bonus -= 2;
+            break;
+        case P_BASIC:
+            bonus -= 1;
+            break;
+        default:
+            break;
+        }
+        if (state.u.twoweap) bonus -= 2;
+    }
+
+    return bonus;
 }
 
 // C ref: weapon.c slots_required().

@@ -16,6 +16,7 @@ import {
     ismnum,
     MAX_CARR_CAP,
     M_AP_FURNITURE,
+    M_AP_NOTHING,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     MFAST,
@@ -31,6 +32,8 @@ import {
 import { night } from './calendar.js';
 import { newsym } from './display.js';
 import { capitalizedMonsterName } from './do_name.js';
+import { finish_meating } from './dogmove.js';
+import { sengr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { disturb_buried_zombies } from './hack.js';
 import { dist2 } from './hacklib.js';
@@ -73,6 +76,7 @@ import {
     S_EEL,
     S_VAMPIRE,
 } from './monsters.js';
+import { onscary } from './monmove.js';
 import { clear_splitobjs, splitobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { BOULDER } from './objects.js';
@@ -857,6 +861,82 @@ export async function wake_msg(monster, interesting, rawEnv = {}) {
         state,
         rawEnv,
     );
+}
+
+function requireDistressOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`waking a monster requires ${name}`);
+    return operation;
+}
+
+// C ref: mon.c setmangry() (4264-4318). Clears the target's wait strategy and,
+// for a peaceful monster, turns it hostile. A hostile target -- the ordinary
+// melee case -- returns at 4289-4290 with only the strategy write done.
+//
+// Two arms stop instead of porting. The Elbereth hypocrisy penalty (4267-4285)
+// needs attrib.c adjalign() and engrave.c del_engr_at(), and the peaceful arm
+// (4296-4317) needs adjalign(), sounds.c growl() and peacefuls_respond(). Both
+// keep C's full guard so that no reachable hostile case stops here.
+export function setmangry(monster, via_attack, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const { ux, uy } = state.u;
+
+    if (via_attack && sengr_at('Elbereth', ux, uy, true, state)
+        && (onscary(ux, uy, monster, state) || monster.mpeaceful)) {
+        requireDistressOperation(rawEnv, 'unsupported')(
+            'attacking from an Elbereth square',
+        );
+    }
+
+    monster.mstrategy &= ~STRAT_WAITMASK;
+    if (!monster.mpeaceful) return;
+    if (monster.mtame) return;
+    requireDistressOperation(rawEnv, 'unsupported')(
+        'angering a peaceful monster',
+    );
+}
+
+// C ref: mon.c wakeup() (4332-4363). Wakes a monster and, when the hero is the
+// cause, angers it. uhitm.c missum() and attack_checks() are its melee callers.
+//
+// Three arms stop. A mimic or disguised Wizard needs display.c seemimic()
+// (4339-4343); a target that was asleep needs sounds.c growl() (4353-4354);
+// and a peaceful priest or shopkeeper needs ghod_hitsu() or hot_pursuit()
+// (4356-4361). The last is unreachable through setmangry() above, which stops
+// on every peaceful non-pet first, so only a tame priest or shopkeeper could
+// arrive -- but the guard is C's, not a wider one.
+export async function wakeup(monster, via_attack, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const was_sleeping = monster.msleeping;
+
+    await wake_msg(monster, via_attack, rawEnv);
+    monster.msleeping = 0;
+    if (((monster.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_NOTHING) {
+        requireDistressOperation(rawEnv, 'unsupported')(
+            'waking a mimicking monster',
+        );
+    } else if (state.context?.forcefight && !state.context?.mon_moving
+               && monster.mundetected) {
+        monster.mundetected = 0;
+        newsym(monster.mx, monster.my, state);
+    }
+    finish_meating(monster);
+    if (via_attack) {
+        const was_peaceful = monster.mpeaceful;
+
+        if (was_sleeping) {
+            requireDistressOperation(rawEnv, 'unsupported')(
+                'growl from a woken monster',
+            );
+        }
+        setmangry(monster, true, rawEnv);
+        if (was_peaceful && (monster.ispriest || monster.isshk)) {
+            requireDistressOperation(rawEnv, 'unsupported')(
+                'angering a peaceful priest or shopkeeper',
+            );
+        }
+    }
 }
 
 // C ref: mon.c wake_nearto_core(). Frontend sound is cosmetic; wake messages,

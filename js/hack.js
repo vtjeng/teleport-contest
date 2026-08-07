@@ -21,6 +21,7 @@ import {
     D_NODOOR,
     D_TRAPPED,
     EXT_ENCUMBER,
+    HVY_ENCUMBER,
     FAST,
     FIRE_RES,
     FLYING,
@@ -81,6 +82,7 @@ import {
 } from './const.js';
 import { acurrstr, effective_attribute, exercise } from './attrib.js';
 import {
+    bot,
     classify_terrain,
     feel_location,
     flush_screen,
@@ -89,6 +91,7 @@ import {
 } from './display.js';
 import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
 import { u_on_newpos } from './dungeon.js';
+import { gethungry } from './eat.js';
 import { dist2, highc } from './hacklib.js';
 import {
     can_reach_floor,
@@ -131,6 +134,7 @@ import {
     WATER_WALKING_BOOTS,
 } from './objects.js';
 import {
+    PM_DISPLACER_BEAST,
     PM_ELF,
     PM_GRID_BUG,
     PM_KITTEN,
@@ -143,6 +147,7 @@ import { curr_mon_load } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import { can_fog, closed_door, onscary, youHear } from './monmove.js';
 import {
+    encumber_msg,
     pickup,
     preflight_describe_decor_at,
     UnsupportedPickupError,
@@ -261,6 +266,31 @@ export async function check_capacity(str, state = game) {
         );
         return true;
     }
+    return false;
+}
+
+// C ref: hack.c overexertion() (3051-3061). Combat increases metabolism:
+// do_attack() calls this once per attempt, so a fight burns nutrition on top
+// of the turn loop's own gethungry(). Its rn2(20) is the first random-number
+// call any melee attempt makes.
+//
+// C's return value is `gm.multi < 0`, which is true only when overexert_hp()
+// forced the hero to faint. That branch is not ported here for the same reason
+// allmain.c's copy is not (js/allmain.js:650-661): overexert_hp() prints,
+// exercises Constitution and calls fall_asleep(). It stops instead, so the
+// return is always false.
+export async function overexertion(state = game) {
+    // The same four owners allmain.c's caller supplies at js/allmain.js:676.
+    // gethungry() demands nearCapacity() always and the other three only when
+    // the nutrition it is about to spend could move the hunger status.
+    await gethungry(state, {
+        nearCapacity: () => near_capacity(state),
+        message: ttyPline,
+        endRunning,
+        statusRefresh: () => bot(),
+    });
+    if ((state.moves % 3) !== 0 && near_capacity(state) >= HVY_ENCUMBER)
+        throw new UnsupportedHeroMoveBoundaryError('overexertion hit points');
     return false;
 }
 
@@ -1042,41 +1072,87 @@ function carriesUnlockingTool(state) {
     return false;
 }
 
+// C ref: hack.c domove_bump_mon() (1924-1948), which domove_core() calls at
+// 2794, one line above domove_attackmon_at(). With the reqmenu prefix pending
+// it claims the step outright -- "Pardon me, Fido." for a peaceful target,
+// "You move right into the newt." for a hostile one -- and spends the turn
+// without reaching do_attack(), so none of that function's draws happen.
+// Nothing here ports it.
+//
+// `!svc.context.travel` is left out rather than restated: it is always true,
+// because js/hack.js:412, js/cmd.js:844 and js/cmd.js:865 are the only writers
+// of context.travel and all three write 0.
+//
+// The two glyph terms are left out for a different reason. Both stand in for
+// remembering a monster the hero cannot make out, and both are false: the
+// invisible-monster marker has no writer while display.c map_invisible() is
+// unported (js/display.js:1507-1524), and a warning glyph needs a warning
+// level this port never raises. Without them an unspotted target falls through
+// to do_attack(), which is what C does too, and stops inside attack_checks()
+// on the arm that needs map_invisible().
+//
+// cmd.c set_move_cmd() copies the prefix into context.nopick, but
+// executeMovement() runs this seam before that call, so the pending
+// iflags.menu_requested is read beside it exactly as
+// requireSimpleHeroDestination() does.
+function requireNoMonsterBump(monster, state) {
+    if ((state.context?.nopick || state.iflags?.menu_requested)
+        && canSpotMonster(monster, state)) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'reqmenu bump into a monster',
+        );
+    }
+}
+
+// C ref: hack.c domove_attackmon_at() (1954-1992). What the hero has to know
+// about the target before uhitm.c do_attack() can run.
+//
+// C's displacer-beast swap at 1972-1985 short-circuits on the species before
+// its !rn2(2), so every other target reaches do_attack() with no draw spent
+// and only that one species stops here.
+//
+// The gate at 1968-1970 is the other refusal. Its `!mtmp->mundetected` term is
+// what admits an ordinary target; a hidden one needs sensemon() or the
+// hides_under()/S_EEL pair to be admitted, and if none holds, C skips
+// do_attack() entirely and lets the terrain rules answer the step with the
+// monster still standing there. Both halves need unported code -- the skip
+// arm has no port at all, and the admitted arm reaches attack_checks()'s
+// hiding reveal -- so a hidden target stops before nomul(0) rather than one
+// call later.
+function requireOrdinaryHostileMelee(monster) {
+    if (monster.data?.pmidx === PM_DISPLACER_BEAST) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'displacer beast position swap',
+        );
+    }
+    if (monster.mundetected) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'attacking a hidden monster',
+        );
+    }
+}
+
+// The destination-monster seam. C splits by is_safemon() inside do_attack()
+// (uhitm.c:461); this splits the same way, because the two arms have nothing
+// in common below that test.
+function requireSupportedDestinationMonster(monster, x, y, state) {
+    requireNoMonsterBump(monster, state);
+    if (!is_safemon(monster, state)) {
+        requireOrdinaryHostileMelee(monster);
+        return;
+    }
+    requireOrdinaryStartingPetSwap(monster, x, y, state);
+}
+
 function requireOrdinaryStartingPetSwap(monster, x, y, state) {
     const startingPet = monster
         && monster.m_id === state.context?.startingpet_mid
         && STARTING_PETS.has(monster.data?.pmidx)
         && monster.mtame
         && monster.mpeaceful;
-    if (!startingPet || !is_safemon(monster, state)) {
+    if (!startingPet) {
         throw new UnsupportedHeroMoveBoundaryError(
-            'hero combat or displacement',
-        );
-    }
-    // C ref: hack.c domove_bump_mon() (1925-1948), which domove_core() calls at
-    // 2794, one line above domove_attackmon_at(). With the reqmenu prefix
-    // pending it claims the step outright -- "Pardon me, Fido." for a peaceful
-    // target -- and spends the turn without reaching do_attack(), so none of
-    // that function's draws happen. Nothing here ports it.
-    //
-    // Two of C's terms are left out rather than restated. `!svc.context.travel`
-    // is always true: js/hack.js:412, js/cmd.js:844 and js/cmd.js:865 are the
-    // only writers of context.travel and all three write 0. canspotmon(mtmp)
-    // is always true as well, because is_safemon() above requires it.
-    //
-    // The refusal sits below the combat gate rather than above it, which is the
-    // reverse of C's order. It costs nothing while every hostile is refused
-    // above; the slice that ports the hostile arm of do_attack() has to lift
-    // this test above that gate and add canspotmon() back, because C bumps into
-    // a hostile too, with "You move right into the newt."
-    //
-    // cmd.c set_move_cmd() copies the prefix into context.nopick, but
-    // executeMovement() runs this seam before that call, so the pending
-    // iflags.menu_requested is read beside it exactly as
-    // requireSimpleHeroDestination() does.
-    if (state.context?.nopick || state.iflags?.menu_requested) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'reqmenu bump into a monster',
+            'peaceful monster displacement',
         );
     }
     const ordinaryTimedFlee = !monster.mflee
@@ -1204,7 +1280,7 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // test_move() without ever consulting them, where this seam refuses a
         // trap, object, region or engraving on the destination first. Both
         // stop the port; the seam simply stops it one call earlier.
-        requireOrdinaryStartingPetSwap(destinationMonster, x, y, state);
+        requireSupportedDestinationMonster(destinationMonster, x, y, state);
     } else if (refusedDiagonalDoorway(x, y, state)) {
         // test_move() owns both diagonal doorway refusals on an empty square.
     } else if (closed_door(x, y, state)) {
@@ -1679,24 +1755,29 @@ export async function domove(state = game) {
     // has still spent do_attack()'s rn2(7), and a refused pet displacement off
     // an intact doorway is where that is observable.
     //
-    // C's `nomul(0)` at 2791-2792 is omitted: it is gated on
-    // `!is_safemon(mtmp) || svc.context.forcefight`, and the seam below admits
-    // no monster that fails is_safemon() while nothing in this port ever sets
-    // context.forcefight -- js/cmd.js:841 and js/cmd.js:917 are its only
-    // writers and both write 0.
+    // C's `nomul(0)` at 2790-2792 ends a multi-turn action before the attack.
+    // It is gated on `!is_safemon(mtmp) || svc.context.forcefight`, so a pet
+    // displacement skips it and a hostile target takes it. Nothing in this
+    // port sets context.forcefight -- js/cmd.js:841 and js/cmd.js:917 are its
+    // only writers and both write 0 -- so is_safemon() decides it alone.
     if (destinationMonster) {
-        requireOrdinaryStartingPetSwap(
+        requireSupportedDestinationMonster(
             destinationMonster,
             newx,
             newy,
             state,
         );
+        if (!is_safemon(destinationMonster, state)) nomul(0, state);
         const attackConsumedMove = await do_attack(
             destinationMonster,
             state,
             {
+                checkCapacity: check_capacity,
+                encumberMessage: encumber_msg,
                 endRunning,
                 message: ttyPline,
+                nearCapacity: near_capacity,
+                overexertion,
                 unsupported: (reason) => {
                     throw new UnsupportedHeroMoveBoundaryError(reason);
                 },

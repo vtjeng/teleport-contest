@@ -12,6 +12,7 @@ import {
     ROOM,
     SINK,
     STAIRS,
+    STRAT_WAITMASK,
     THRONE,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -261,12 +262,18 @@ test('a pet swap onto furniture or a doorway refuses mention_decor before it mov
         );
     });
 
+// A pet fails is_safemon() when `safe_pet` is off, so do_attack() takes its
+// hostile arm at uhitm.c:511. attack_checks() then stops on the confirm test
+// at 300-320 -- C would ask "Really attack your kitten?" through
+// paranoid_query() -- and that happens before any draw, before the pet's flee
+// state is touched, and after the one write C makes at 195.
 test('do_attack sends a false safe-monster predicate to combat unchanged',
     async () => {
         const pet = await startingPet({
             pettype: 'cat',
             safePet: false,
         });
+        pet.mstrategy = STRAT_WAITMASK;
         const before = structuredClone({
             mflee: pet.mflee,
             mfleetim: pet.mfleetim,
@@ -280,17 +287,19 @@ test('do_attack sends a false safe-monster predicate to combat unchanged',
                     rn2: () => assert.fail('unsafe collision must not draw'),
                     rnd: () => assert.fail('unsafe collision must not draw'),
                 },
-                unsupported(reason, subject, state) {
+                unsupported(reason) {
                     ++unsupportedCalls;
-                    assert.equal(reason, 'hero combat');
-                    assert.equal(subject, pet);
-                    assert.equal(state, game);
+                    assert.equal(
+                        reason,
+                        'confirming an attack on a peaceful monster',
+                    );
                     throw new Error('combat boundary');
                 },
             }),
             /combat boundary/u,
         );
         assert.equal(unsupportedCalls, 1);
+        assert.equal(pet.mstrategy, 0);
         assert.deepEqual({
             mflee: pet.mflee,
             mfleetim: pet.mfleetim,

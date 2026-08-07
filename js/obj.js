@@ -32,6 +32,7 @@ import {
     P_NONE,
     P_PICK_AXE,
     P_SHURIKEN,
+    P_SPEAR,
     RANDOM_TIN,
     REVIVE_MON,
     ROT_CORPSE,
@@ -699,6 +700,13 @@ export function is_axe(obj, state = game) {
 export function is_pick(obj, state = game) {
     return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
         && objectType(obj, state).oc_subtyp === P_PICK_AXE;
+}
+
+// C ref: obj.h is_spear() (233-234). Unlike is_axe() and is_pick() above, a
+// weapon-tool does not qualify: C tests WEAPON_CLASS alone.
+export function is_spear(obj, state = game) {
+    return obj.oclass === WEAPON_CLASS
+        && objectType(obj, state).oc_subtyp === P_SPEAR;
 }
 
 // C ref: obj.h greatest_erosion().

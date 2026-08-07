@@ -9,16 +9,21 @@ import {
     P_EXPERT,
     P_GRAND_MASTER,
     P_ISRESTRICTED,
-    P_LONG_SWORD,
+    P_LAST_WEAPON,
     P_MASTER,
     P_NONE,
     P_NUM_SKILLS,
+    POOL,
     P_PICK_AXE,
+    P_LONG_SWORD,
     P_POLEARMS,
+    P_RIDING,
     P_SABER,
     P_SKILLED,
     P_TWO_WEAPON_COMBAT,
+    P_UNICORN_HORN,
     P_UNSKILLED,
+    ROOM,
     NEED_AXE,
     NEED_HTH_WEAPON,
     NEED_PICK_AXE,
@@ -38,8 +43,11 @@ import {
     PM_MONK,
     PM_VALKYRIE,
     PM_GIANT,
+    PM_GIANT_EEL,
     PM_HUMAN_WEREWOLF,
     PM_NEWT,
+    PM_WRAITH,
+    PM_XORN,
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
@@ -64,13 +72,18 @@ import {
     PICK_AXE,
     POT_WATER,
     ROCK,
+    SPEAR,
+    TRIDENT,
     SILVER_DAGGER,
     TIN,
     TIN_OPENER,
+    UNICORN_HORN,
     objects_globals_init,
 } from '../js/objects.js';
 import {
+    abon,
     can_touch_safely,
+    hitval,
     mon_wield_item,
     select_hwep,
     select_rwep,
@@ -80,6 +93,7 @@ import {
     P_NAME,
     skill_level_name,
     weapon_descr,
+    weapon_hit_bonus,
 } from '../js/weapon.js';
 import { mwelded } from '../js/wield.js';
 import { which_armor } from '../js/worn.js';
@@ -806,4 +820,257 @@ test('slots_required halves the cost for martial and bare-handed skills',
     weaponSlot.max_skill = P_EXPERT;
     weaponSlot.advance = 80;
     assert.equal(can_advance(P_LONG_SWORD, false, state), false);
+});
+
+// The hero-side to-hit bonuses. weapon.c abon() and weapon_hit_bonus() are
+// pure, and hitval() is pure except for the artifact arm that stops, so each
+// is pinned against values read from the C source rather than from a replay.
+
+function heroState({ str = 10, dex = 10, ulevel = 1 } = {}) {
+    const state = makeState();
+    state.u = {
+        acurr: { a: [str, 0, 0, dex, 0, 0] },
+        abon: [0, 0, 0, 0, 0, 0],
+        atemp: [0, 0, 0, 0, 0, 0],
+        ulevel,
+        twoweap: false,
+        usteed: null,
+    };
+    state.uwep = null;
+    state.uswapwep = null;
+    state.urole = { mnum: PM_VALKYRIE };
+    state.u.weapon_skills = Array.from({ length: P_NUM_SKILLS }, () => ({
+        skill: P_ISRESTRICTED, max_skill: P_ISRESTRICTED, advance: 0,
+    }));
+    return state;
+}
+
+// weapon.c:961-982. sbon comes from Strength, and Dexterity adjusts it; the
+// `u.ulevel < 3` kludge adds one on top for a level 1 or 2 hero. Each row is a
+// boundary of one of the two ladders, with the level kludge removed by using
+// ulevel 3.
+test('abon reads the Strength and Dexterity ladders at their boundaries',
+    () => {
+        const at = (str, dex, ulevel = 3) =>
+            abon(heroState({ str, dex, ulevel }));
+
+        // Strength, with Dexterity parked in the 8..13 band that adds nothing.
+        assert.equal(at(5, 10), -2);
+        assert.equal(at(6, 10), -1);
+        assert.equal(at(7, 10), -1);
+        assert.equal(at(8, 10), 0);
+        assert.equal(at(16, 10), 0);
+        assert.equal(at(17, 10), 1);
+        // STR18(50) is 68 in acurr()'s encoding: 18/49 still scores 1.
+        assert.equal(at(67, 10), 1);
+        assert.equal(at(68, 10), 2);
+        assert.equal(at(117, 10), 2);
+        assert.equal(at(118, 10), 3);
+
+        // Dexterity, with Strength parked in the 8..16 band that scores 0.
+        assert.equal(at(10, 3), -3);
+        assert.equal(at(10, 4), -2);
+        assert.equal(at(10, 5), -2);
+        assert.equal(at(10, 6), -1);
+        assert.equal(at(10, 7), -1);
+        assert.equal(at(10, 8), 0);
+        assert.equal(at(10, 13), 0);
+        assert.equal(at(10, 14), 0);
+        assert.equal(at(10, 18), 4);
+
+        // weapon.c:977-979, the low-level kludge.
+        assert.equal(at(10, 10, 1), 1);
+        assert.equal(at(10, 10, 2), 1);
+        assert.equal(at(10, 10, 3), 0);
+    });
+
+// weapon.c:1556-1636. Each skill level is a separate constant in C, and the
+// two-weapon and bare-handed ladders are separate tables again.
+test('weapon_hit_bonus reads one bonus per skill level', () => {
+    const state = heroState();
+    const sword = object(state, LONG_SWORD);
+    const setSkill = (skill, level) => {
+        state.u.weapon_skills[skill].skill = level;
+    };
+
+    // An object whose class carries no skill at all scores nothing. A rock
+    // would not do: rocks are GEM_CLASS, whose oc_skill is a launcher code
+    // that weapon_type() folds back to a real skill.
+    assert.equal(weapon_hit_bonus(object(state, POT_WATER), state), 0);
+
+    for (const [level, bonus] of [
+        [P_ISRESTRICTED, -4], [P_UNSKILLED, -4], [P_BASIC, 0],
+        [P_SKILLED, 2], [P_EXPERT, 3],
+    ]) {
+        setSkill(P_LONG_SWORD, level);
+        assert.equal(weapon_hit_bonus(sword, state), bonus, `level ${level}`);
+    }
+
+    // A unicorn horn's skill is P_LAST_WEAPON itself, the inclusive end of
+    // the weapon table.
+    setSkill(P_UNICORN_HORN, P_SKILLED);
+    assert.equal(P_UNICORN_HORN, P_LAST_WEAPON);
+    assert.equal(weapon_hit_bonus(object(state, UNICORN_HORN), state), 2);
+
+    // Two-weapon combat takes the lower of the two skills, and its own table.
+    state.u.twoweap = true;
+    state.uwep = sword;
+    setSkill(P_LONG_SWORD, P_EXPERT);
+    for (const [level, bonus] of [
+        [P_ISRESTRICTED, -9], [P_UNSKILLED, -9], [P_BASIC, -7],
+        [P_SKILLED, -5], [P_EXPERT, -3],
+    ]) {
+        setSkill(P_TWO_WEAPON_COMBAT, level);
+        assert.equal(weapon_hit_bonus(sword, state), bonus, `two ${level}`);
+    }
+    // The weapon skill is the lower one here, so it decides instead.
+    setSkill(P_TWO_WEAPON_COMBAT, P_EXPERT);
+    setSkill(P_LONG_SWORD, P_BASIC);
+    assert.equal(weapon_hit_bonus(sword, state), -7);
+    // A weapon that is neither wielded nor the off-hand one uses its own
+    // skill even while two-weaponing.
+    assert.equal(weapon_hit_bonus(object(state, DAGGER), state), -4);
+    state.u.twoweap = false;
+    state.uwep = null;
+});
+
+// weapon.c:1607-1613. `bonus = ((max(skill, P_UNSKILLED) - 1 + 2) * (martial
+// ? 2 : 1)) / 2`, with integer division, which is why the plain and martial
+// columns of the comment there differ the way they do.
+test('weapon_hit_bonus doubles the bare-handed ladder for martial roles',
+    () => {
+        const state = heroState();
+        const levels = [
+            P_ISRESTRICTED, P_UNSKILLED, P_BASIC, P_SKILLED, P_EXPERT,
+            P_MASTER, P_GRAND_MASTER,
+        ];
+        const bare = [];
+        const martial = [];
+        for (const level of levels) {
+            state.u.weapon_skills[P_BARE_HANDED_COMBAT].skill = level;
+            state.urole = { mnum: PM_VALKYRIE };
+            bare.push(weapon_hit_bonus(null, state));
+            state.urole = { mnum: PM_MONK };
+            martial.push(weapon_hit_bonus(null, state));
+        }
+        // Restricted folds onto unskilled, which is why the first two match.
+        assert.deepEqual(bare, [1, 1, 1, 2, 2, 3, 3]);
+        // The comment's "n/a" for martial-unskilled is not a special case in
+        // the arithmetic: it scores 2 like restricted does.
+        assert.deepEqual(martial, [2, 2, 3, 4, 5, 6, 7]);
+    });
+
+// weapon.c:1616-1633. Riding costs two while unskilled, one at basic, and
+// nothing above; two-weaponing from the saddle costs two more.
+test('weapon_hit_bonus subtracts a riding penalty', () => {
+    const state = heroState();
+    state.u.weapon_skills[P_LONG_SWORD].skill = P_BASIC;
+    const sword = object(state, LONG_SWORD);
+    assert.equal(weapon_hit_bonus(sword, state), 0);
+
+    state.u.usteed = { mx: 1, my: 1 };
+    for (const [level, bonus] of [
+        [P_ISRESTRICTED, -2], [P_UNSKILLED, -2], [P_BASIC, -1],
+        [P_SKILLED, 0], [P_EXPERT, 0],
+    ]) {
+        state.u.weapon_skills[P_RIDING].skill = level;
+        assert.equal(weapon_hit_bonus(sword, state), bonus, `riding ${level}`);
+    }
+    // Riding is free at Expert, so the -5 below is the two-weapon Skilled
+    // bonus of -5 with the saddle's own two-weapon penalty of -2 on top of
+    // the Expert two-weapon bonus of -3.
+    state.u.weapon_skills[P_RIDING].skill = P_EXPERT;
+    state.u.twoweap = true;
+    state.uwep = sword;
+    state.u.weapon_skills[P_LONG_SWORD].skill = P_EXPERT;
+    state.u.weapon_skills[P_TWO_WEAPON_COMBAT].skill = P_EXPERT;
+    assert.equal(weapon_hit_bonus(sword, state), -5);
+});
+
+// weapon.c:153-186.
+test('hitval adds each weapon-versus-monster bonus its source names', () => {
+    const state = heroState();
+    const newt = monster(state, PM_NEWT);
+    const refuse = {
+        unsupported: (reason) => { throw new Error(reason); },
+    };
+
+    // Enchantment and objects[].oc_hitbon, both of which only a weapon or a
+    // weapon-tool contributes.
+    const sword = object(state, LONG_SWORD, { spe: 2 });
+    assert.equal(
+        hitval(sword, newt, state, refuse),
+        2 + state.objects[LONG_SWORD].oc_hitbon,
+    );
+    // A non-weapon of the same enchantment contributes only oc_hitbon.
+    const rock = object(state, ROCK, { spe: 2 });
+    assert.equal(
+        hitval(rock, newt, state, refuse),
+        state.objects[ROCK].oc_hitbon,
+    );
+
+    // A blessed weapon is worth two more against something that hates it, and
+    // nothing against anything else.
+    const blessed = object(state, LONG_SWORD, { blessed: 1 });
+    assert.equal(hitval(blessed, newt, state, refuse), 0);
+    assert.equal(
+        hitval(blessed, monster(state, PM_WRAITH), state, refuse),
+        2,
+    );
+    // Blessing something that is not a weapon buys nothing.
+    assert.equal(
+        hitval(object(state, ROCK, { blessed: 1 }),
+            monster(state, PM_WRAITH), state, refuse),
+        0,
+    );
+
+    // A spear is worth two more against the five kebabable classes.
+    const spear = object(state, SPEAR);
+    assert.equal(hitval(spear, monster(state, PM_GIANT), state, refuse), 2);
+    assert.equal(hitval(spear, newt, state, refuse), 0);
+    // A dagger against the same giant is not a spear; what it does score is
+    // its own oc_hitbon, which is 2.
+    assert.equal(hitval(object(state, DAGGER), monster(state, PM_GIANT),
+        state, refuse), state.objects[DAGGER].oc_hitbon);
+
+    // A pick is worth two more against something that both walks through
+    // walls and is thick-skinned; a xorn qualifies and a newt does not.
+    const pick = object(state, PICK_AXE);
+    const pickbon = state.objects[PICK_AXE].oc_hitbon;
+    assert.equal(hitval(pick, monster(state, PM_XORN), state, refuse),
+        pickbon + 2);
+    assert.equal(hitval(pick, newt, state, refuse), pickbon);
+    // A dagger against the same xorn is not a pick.
+    assert.equal(
+        hitval(object(state, DAGGER), monster(state, PM_XORN), state, refuse),
+        state.objects[DAGGER].oc_hitbon,
+    );
+
+    // artifact.c spec_abon() has no port.
+    assert.throws(
+        () => hitval(object(state, LONG_SWORD, { oartifact: ART_SUNSWORD }),
+            newt, state, refuse),
+        /artifact to-hit bonus/u,
+    );
+});
+
+// weapon.c:170-175, the trident's three answers. It needs a level to read
+// is_pool() from, which the other rows above never touch.
+test('hitval reads the trident bonus off the target square', () => {
+    const state = heroState();
+    state.level = {
+        at: (x) => ({ typ: x === 5 ? POOL : ROOM }),
+    };
+    const trident = object(state, TRIDENT);
+    const eel = monster(state, PM_GIANT_EEL, { mx: 1, my: 1 });
+    const swimmerInWater = monster(state, PM_GIANT_EEL, { mx: 5, my: 1 });
+    const newt = monster(state, PM_NEWT, { mx: 1, my: 1 });
+
+    assert.equal(hitval(trident, swimmerInWater, state, {}), 4);
+    assert.equal(hitval(trident, eel, state, {}), 2);
+    // A newt is not a swimmer, so neither arm applies.
+    assert.equal(hitval(trident, newt, state, {}), 0);
+    // A long sword against the same eel is not a trident.
+    assert.equal(hitval(object(state, LONG_SWORD), swimmerInWater, state, {}),
+        0);
 });

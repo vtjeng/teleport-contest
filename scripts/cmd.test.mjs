@@ -107,6 +107,7 @@ import {
     M1_TUNNEL,
     PM_FOG_CLOUD,
     PM_COCKATRICE,
+    PM_LICHEN,
     PM_NEWT,
     S_FELINE,
 } from '../js/monsters.js';
@@ -1211,12 +1212,17 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                 };
             },
         },
+        // An ordinary hostile at the destination is no longer an admission
+        // case at all: hack.c domove_core() hands it to uhitm.c do_attack(),
+        // which spends the turn. What is still refused ahead of every
+        // mutation is a target the hero has not detected, which C decides at
+        // domove_attackmon_at():1968 before do_attack() is called.
         {
-            name: 'monster at destination',
-            reason: 'hero combat or displacement',
+            name: 'hidden monster at destination',
+            reason: 'attacking a hidden monster',
             setup: ({ x, y }) => {
                 game.level.monsters[x][y] = {
-                    mx: x, my: y, mhp: 1,
+                    mx: x, my: y, mhp: 1, mundetected: 1,
                 };
             },
         },
@@ -1251,6 +1257,12 @@ test('simple hero movement rejects spot effects before mutation', async () => {
     }
 });
 
+// With `safe_pet` off, is_safemon() is false for the hero's own pet, so
+// uhitm.c do_attack() takes its hostile arm at 511 rather than the swap arm.
+// attack_checks()'s confirm test at 300-320 is what stops it there: the pet is
+// peaceful and the hero is neither confused, hallucinating nor stunned, so C
+// asks "Really attack your kitten?" through paranoid_query(), which has no
+// port. The stop still costs nothing, because the test precedes every draw.
 test('live !safe_pet collision is a zero-PRNG retryable boundary',
     async () => {
         const replay = await runSegment({
@@ -1273,22 +1285,31 @@ test('live !safe_pet collision is a zero-PRNG retryable boundary',
         game.u.umoved = false;
         game.context.move = 1;
         game.domoveAttempting = 1;
-        const before = heroMoveAdmissionSnapshot(replay);
+        const drawsBefore = replay.getRngLog().length;
 
+        // The first attempt is not silent: hack.c:2790-2792 runs nomul(0) for
+        // a target that fails is_safemon(), which normalizes context.mv,
+        // context.travel, context.travel1 and multi. Comparing the second
+        // attempt with the first is what shows the keystroke is retryable,
+        // and the random-number log is what shows the stop is free.
+        let previous = null;
         for (let attempt = 0; attempt < 2; ++attempt) {
             await assert.rejects(
                 domove(game),
                 (error) => (
                     error instanceof UnsupportedHeroMoveBoundaryError
-                    && error.reason === 'hero combat or displacement'
+                    && error.reason
+                        === 'confirming an attack on a peaceful monster'
                 ),
             );
-            assert.deepEqual(
-                heroMoveAdmissionSnapshot(replay),
-                before,
-                `attempt ${attempt + 1}`,
-            );
+            const snapshot = heroMoveAdmissionSnapshot(replay);
+            if (previous)
+                assert.deepEqual(snapshot, previous, `attempt ${attempt + 1}`);
+            previous = snapshot;
+            assert.equal(replay.getRngLog().length, drawsBefore);
         }
+        assert.equal(game.multi, 0);
+        assert.deepEqual([game.u.umoved, game.domoveAttempting], [false, 1]);
     });
 
 test('runtime hero refusals do not become phantom elapsed turns', async () => {
@@ -1733,7 +1754,11 @@ test('the pet-swap gates refuse a diagonal C declines at test_move()',
 // diagonal-doorway test. The seam briefly admitted the step ahead of its
 // monster branch, which turned this honest stop into a silent refusal: the
 // port declined the move and never attacked, where C attacks.
-test('a hostile on a refused diagonal still stops for combat', async () => {
+//
+// Now that the hostile arm is ported the swing really happens, so what the
+// refused diagonal has to leave behind is the attempt's draws rather than a
+// boundary. A doorway rule consulted first would leave none.
+test('a hostile on a refused diagonal is attacked, not declined', async () => {
     const replay = await runSegment({
         seed: 840024,
         datetime: COMMAND_DATETIME,
@@ -1750,27 +1775,42 @@ test('a hostile on a refused diagonal still stops for combat', async () => {
     const destination = game.level.at(x, y);
     destination.typ = ROOM;
     destination.flags = 0;
+    // A real species, so the swing can read its armor class through worn.c
+    // find_mac() and its empty attack slot through uhitm.c passive(). The
+    // copy's armor class is far below anything the dungeon generates, which
+    // makes find_roll_to_hit() return a number no rnd(20) can fall under: the
+    // swing misses whatever this seed rolls, and the case stays about the
+    // ordering rather than about the combat arithmetic.
     const hostile = newMonster({
         mx: x,
         my: y,
         mhp: 3,
-        data: {
-            pmnames: ['newt', 'newt', 'newt'],
-            mlet: S_FELINE,
-            mflags1: 0,
-            mflags2: 0,
-            mflags3: 0,
-        },
+        mhpmax: 3,
+        // newMonster() leaves mcanmove clear, which would put
+        // mon_maybe_unparalyze()'s rn2(10) between the exercise draw and the
+        // to-hit roll. This case is about which subsystem runs first, so the
+        // target is mobile and the sequence stays the ordinary four.
+        mcanmove: 1,
+        data: { ...game.mons[PM_LICHEN], ac: -30 },
     });
     game.level.monsters[x] ??= [];
     game.level.monsters[x][y] = hostile;
+    const drawsBefore = replay.getRngLog().length;
 
     game.nhDisplay.pushKey(commandKeyCode('u'));
-    await assert.rejects(
-        moveloop_core(),
-        (error) => error.reason === 'hero combat or displacement',
+    await moveloop_core();
+
+    // The hero stayed put -- do_attack() returns TRUE and domove_core() ends
+    // at 2799 -- and the four melee calls were spent all the same.
+    assert.deepEqual([game.u.ux, game.u.uy], [x - 1, y + 1]);
+    assert.deepEqual(
+        replay.getRngLog().slice(drawsBefore, drawsBefore + 4).map(
+            (entry) => entry.split('=')[0],
+        ),
+        ['rn2(20)', 'rn2(19)', 'rnd(20)', 'rn2(3)'],
     );
-    void replay;
+    assert.equal(game._pending_message, 'You miss the lichen.');
+    assert.equal(hostile.mhp, 3);
 });
 
 test('a doorless destination admits the diagonal test_move() allows',

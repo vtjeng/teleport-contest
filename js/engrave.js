@@ -357,6 +357,15 @@ export function wipeout_text(text, count, seed = 0, env = {}) {
     return decodeUtf8ByteString(bytes);
 }
 
+// C ref: engrave.c u_wipe_engr() (264-268). Rubs out part of whatever the hero
+// is standing on. With nothing engraved there wipe_engr_at() returns before
+// its first draw, so an ordinary square costs nothing.
+export function u_wipe_engr(count, env = {}) {
+    const { state } = engravingEnv(env);
+    if (can_reach_floor(true, state))
+        wipe_engr_at(state.u.ux, state.u.uy, count, false, env);
+}
+
 export function wipe_engr_at(x, y, count, magical = false, env = {}) {
     const normalized = engravingEnv(env);
     const { random, state } = normalized;
