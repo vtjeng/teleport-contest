@@ -2295,10 +2295,12 @@ function applyDirectOption(result, key, value) {
 // cnf_line_<NAME>() this port has not ported, and each of those appends to a
 // list the options menu counts.  parse_config_line() matches on the same
 // case-insensitive prefix of at least `minLength` bytes, so these lengths are
-// the C table's: CNFL_N(AUTOCOMPLETE, 5), CNFL_N(MSGTYPE, 7) and
-// CNFL_N(MENUCOLOR, 9).  Recording the statement lets the count refuse rather
-// than report a list the port never built.
+// the C table's: CNFL_N(AUTOPICKUP_EXCEPTION, 5), CNFL_N(AUTOCOMPLETE, 5),
+// CNFL_N(MSGTYPE, 7) and CNFL_N(MENUCOLOR, 9).  Recording the statement lets
+// the readers of the list refuse rather than report a list the port never
+// built.
 const UNPORTED_CONFIG_STATEMENTS = Object.freeze([
+    { name: 'autopickup_exception', minLength: 5, kind: 'unported' },
     { name: 'autocomplete', minLength: 5, kind: 'unported' },
     { name: 'msgtype', minLength: 7, kind: 'unported' },
     { name: 'menucolor', minLength: 9, kind: 'unported' },
@@ -2800,11 +2802,13 @@ function count_cond(state) {
         .filter(Boolean).length;
 }
 
-// C ref: options.c count_apes(), over ga.apelist.  parseNethackrc() has no
-// AUTOPICKUP_EXCEPTION statement and no ported command adds one, so the list
-// is empty; js/pickup.js refuses the same field where autopickup would read
-// it.
+// C ref: options.c count_apes(), over ga.apelist.  cfgfiles.c
+// cnf_line_AUTOPICKUP_EXCEPTION() is the only thing that appends to that list
+// in reach -- no ported command adds one -- and parseNethackrc() records the
+// statement without interpreting it, so the count stops rather than report an
+// empty list as the session's.
 function count_apes(state) {
+    refuseUnportedConfigStatement(state, 'autopickup_exception');
     let numapes = 0;
     for (let ape = state.ga?.apelist; ape; ape = ape.next) numapes++;
     return numapes;
@@ -2813,8 +2817,12 @@ function count_apes(state) {
 // A configuration statement cfgfiles.c dispatches and parseNethackrc() only
 // records.  The list each one appends to is the list a count below walks, so
 // the count stops here rather than reporting the empty list as the session's.
+export function hasUnportedConfigStatement(state, name) {
+    return Boolean(state.unportedConfigStatements?.includes(name));
+}
+
 function refuseUnportedConfigStatement(state, name) {
-    if (state.unportedConfigStatements?.includes(name)) {
+    if (hasUnportedConfigStatement(state, name)) {
         throw new UnsupportedOptionMenuError(
             `cfgfiles.c cnf_line_${name.toUpperCase()}()`,
         );
@@ -3402,8 +3410,18 @@ function preference_update(state, pref) {
 }
 
 // C ref: options.c optfn_boolean()'s `*(allopt[optidx].addr) = !negated`
-// (5285).  booleanOptionValue() above reads the same field; this is its only
-// writer.
+// (5285).  booleanOptionValue() above reads the address this writes, and this
+// is its only writer.
+//
+// C stores a boolean option once, at allopt[].addr.  This port stores it twice
+// whenever applyBooleanOption()'s final arm handled the configuration file's
+// copy: that arm writes flags.<name>, which is a second field for the 43
+// options whose address is something else.  booleanOptionValue() refuses when
+// the two disagree, because before this writer existed the only way they could
+// was a configuration file the parse had misplaced.  Now that the menu writes
+// the address itself, the parse's copy is a stale duplicate rather than an
+// answer, so drop it and leave the address as the value's only owner --
+// otherwise the next menu build refuses a value the port does hold.
 function setBooleanOptionValue(state, option, value) {
     const path = option.addr.split('.');
     let owner = state;
@@ -3416,6 +3434,9 @@ function setBooleanOptionValue(state, option, value) {
         );
     }
     owner[path[path.length - 1]] = value;
+    const parsedName = option.name.toLowerCase();
+    if (option.addr !== `flags.${parsedName}`)
+        delete state.flags?.[parsedName];
 }
 
 // C ref: options.c optfn_boolean() (5192-5443), the do_set request.  The
@@ -3502,9 +3523,12 @@ async function optfn_boolean(state, optidx, negated, opts) {
         await ttyPline("There is no underlying support for 'idlecheckpoint'"
             + ' compiled in.', state);
         state.iflags.idlecheckpoint = false;
-        // C's give_opt_msg is a file static that starts TRUE; only this arm
-        // and doset_simple()'s loop write it, so once this fires no further
-        // toggle in the same game announces itself.
+        // C's give_opt_msg is a file static that starts TRUE, and only this
+        // arm and doset_simple() write it.  doset_simple() brackets its own
+        // pick loop with FALSE at options.c:8722 and an unconditional TRUE at
+        // :8733, so the suppression this arm starts lasts only until the next
+        // 'O'.  This port has no restore because that loop stops at
+        // doset_simple_menu(); porting it has to bring the trailing TRUE.
         state.give_opt_msg = false;
         break;
     default:
@@ -3730,9 +3754,6 @@ export async function parseoptions(
         );
         negated = !negated;
     }
-    const optlen = Math.min(opts.length, length_without_val(
-        opts, opts.length,
-    ));
 
     let got_match = false;
     let matchidx = -1;
@@ -3747,11 +3768,12 @@ export async function parseoptions(
         }
         if (got_match) {
             // options.c:583-589 answers "Ambiguous option" here when
-            // optlen < allopt[i].minmatch.  match_optname() has just measured
-            // the same optlen from the same string with the same val_allowed,
-            // and answered true only because that length reached minmatch, so
-            // the test cannot hold and the arm is left out rather than written
-            // unreachable.
+            // length_without_val(opts, strlen(opts)) is below
+            // allopt[i].minmatch.  match_optname() has just measured that same
+            // length from the same string with the same val_allowed, and
+            // answered true only because it reached minmatch, so the test
+            // cannot hold and the arm is left out rather than written
+            // unreachable.  Nothing in this port needs the length itself.
             matchidx = i;
             break;
         }

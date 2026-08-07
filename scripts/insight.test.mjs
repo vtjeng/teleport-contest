@@ -31,6 +31,8 @@ import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { ARMOR_CLASS, DAGGER, TOWEL, WEAPON_CLASS } from '../js/objects.js';
+import { ROOMOFFSET, SHOPBASE } from '../js/const.js';
+import { costly_spot } from '../js/shk.js';
 
 test('align_str names the four alignments insight.c switches on', () => {
     // insight.c align_str(); the default arm covers every other value.
@@ -106,13 +108,14 @@ test('fmt_elapsed_time counts time elapsed since start_timing', () => {
 // inventory, encumbrance and the wielded weapon, none of which a hand-built
 // state supplies, so these drive the real startup and then set the one field
 // under test. `pettype:none` keeps a pet off the square the hero starts on.
-async function readyGame(options = '') {
+async function readyGame(options = '', ...configLines) {
     await runSegment({
         seed: 8810051,
         datetime: '2026-03-04 10:00:00',
         nethackrc: 'OPTIONS=name:Insight,role:Valkyrie,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
-            + `pettype:none${options ? `,${options}` : ''}`,
+            + `pettype:none${options ? `,${options}` : ''}\n`
+            + configLines.map((line) => `${line}\n`).join(''),
         moves: '',
     });
     return game;
@@ -310,5 +313,104 @@ test('the autopickup line reports the pickup_types class list', async () => {
         statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
             ' Autopickup '),
         " Autopickup is on for ')['.",
+    );
+});
+
+// C ref: insight.c basics_enlightenment() (808-819), whose autopickup line is
+// an if/else on costly_spot(): inside a shop the line names the shop and
+// nothing else, so neither the class list, " plus thrown" nor ", with
+// exceptions" can follow it.
+test('the autopickup line reports a shop instead of the class list',
+    async () => {
+        const state = await readyGame('autopickup');
+        // shk.c costly_spot() reads five things, and the hero's own room
+        // supplies all five once it is turned into a tended shop: the level's
+        // has_shop flag, the room's rtype, the strict interior inside_shop()
+        // demands, the resident shop_keeper() answers with, and the eshk
+        // whose shoproom and shoplevel inhishop() matches. eshk.shk is the
+        // shopkeeper's post, which the source excludes from "inside".
+        const roomno = state.level.at(state.u.ux, state.u.uy).roomno;
+        const room = state.level.rooms[roomno - ROOMOFFSET];
+        state.level.flags.has_shop = true;
+        room.rtype = SHOPBASE;
+        room.resident = {
+            isshk: true,
+            mx: state.u.ux,
+            my: state.u.uy,
+            mextra: {
+                eshk: {
+                    shoproom: roomno,
+                    shoplevel: { ...state.u.uz },
+                    shk: { x: 0, y: 0 },
+                },
+            },
+        };
+        assert.equal(costly_spot(state.u.ux, state.u.uy, state), true);
+
+        // Both suffixes the else arm can add are armed, so a port that ran
+        // the else arm anyway would show them.
+        state.flags.pickup_thrown = true;
+        state.flags.pickup_types = [WEAPON_CLASS];
+        assert.equal(
+            statusLine(
+                enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+                ' Autopickup ',
+            ),
+            ' Autopickup is on, but temporarily disabled while inside'
+                + ' the shop.',
+        );
+
+        // Stepping onto the shopkeeper's post leaves the shop room but not
+        // its interior, which is the one square costly_spot() excludes, so
+        // the else arm runs there.
+        room.resident.mextra.eshk.shk = { x: state.u.ux, y: state.u.uy };
+        assert.equal(costly_spot(state.u.ux, state.u.uy, state), false);
+        assert.equal(
+            statusLine(
+                enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+                ' Autopickup ',
+            ),
+            " Autopickup is on for ')' plus thrown.",
+        );
+    });
+
+// C ref: options.c optfn_pickup_types(), which is what turns the option's
+// class symbols into the class indices oc_to_str() reads. parseNethackrc() has
+// no arm for the option, so a configuration file that sets it leaves raw text
+// where the enlightenment line expects a list.
+test('the autopickup line stops on a configured pickup_types', async () => {
+    const state = await readyGame('autopickup,pickup_types:$"');
+    assert.equal(state.flags.pickup_types, '$"');
+    assert.throws(
+        () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        (error) => error instanceof UnsupportedEnlightenmentError
+            && error.branch === "parseoptions() to interpret 'pickup_types'",
+    );
+});
+
+// C ref: insight.c basics_enlightenment() (817-818), `if (ga.apelist)
+// Strcat(buf, ", with exceptions")`. cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION()
+// (612) is the only thing in reach that appends to that list, and
+// parseNethackrc() records the statement without interpreting it, so the empty
+// list would otherwise read as "no exceptions".
+test('the autopickup line stops on a configured exception list', async () => {
+    const state = await readyGame(
+        'autopickup', 'AUTOPICKUP_EXCEPTION="<*scroll of scare monster"',
+    );
+    assert.deepEqual(state.unportedConfigStatements, ['autopickup_exception']);
+    assert.equal(state.ga?.apelist, undefined);
+    assert.throws(
+        () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        (error) => error instanceof UnsupportedEnlightenmentError
+            && error.branch === 'cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION()',
+    );
+
+    // Without the statement the same game reports the empty list, which is
+    // what makes the stop above a statement test rather than a blanket one.
+    const plain = await readyGame('autopickup');
+    assert.equal(
+        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, plain),
+            ' Autopickup '),
+        ' Autopickup is on for all types.',
     );
 });

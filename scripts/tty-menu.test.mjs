@@ -488,9 +488,34 @@ test('a menu flushes an unacknowledged top line before it draws',
         // the player has acknowledged it.
         assert.equal(boundaries.length, 2);
         assert.equal(boundaries[0], 'A pending message.--More--');
-        assert.equal(boundaries[1].includes('--More--'), false);
+        // The whole row, not merely the absence of '--More--':
+        // tty_clear_nhwindow(WIN_MESSAGE) blanked it and the overlay menu's
+        // own title is all that is left on it, at the menu's offx + 1.
+        assert.equal(
+            boundaries[1], `${' '.repeat(41)}Is this ok? [ynq]`,
+        );
         assert.equal(state.nhDisplay.inputQueueLength, 0);
     });
+
+// C ref: wintty.c tty_display_nhwindow()'s NHW_MESSAGE arm (1874-1877):
+// `more(); ttyDisplay->toplin = TOPLINE_NEED_MORE; tty_clear_nhwindow(window)`.
+// The restore is what sends the clear down its home()/cl_end() branch. For an
+// overlay menu the arm below repeats the clear, but a full-screen one clears
+// the screen from the menu's own origin and never touches row 0, so this is
+// the only thing that removes the acknowledged message -- and on dismissal
+// erase_menu_or_text() -> docrt() leaves the row blank.
+test('a full-screen menu clears the acknowledged top line', async () => {
+    // One space dismisses the pending-message More; 'y' answers the menu.
+    const state = menuState(' y');
+    await ttyPline('A pending message.', state);
+
+    await selectTtyMenu(state, { ...confirmation, overlay: false });
+
+    assert.equal(rowText(state, 0), '');
+    assert.deepEqual(
+        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow], [0, 0],
+    );
+});
 
 test('state-parameterized menus read only their supplied display and hook', async () => {
     const globalState = menuState('y');

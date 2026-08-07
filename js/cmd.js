@@ -39,7 +39,9 @@ import {
 import { doapply, UnsupportedApplyError } from './apply.js';
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
-import { bot, flush_screen } from './display.js';
+import {
+    bot, flush_screen, UnsupportedGlyphRepairError,
+} from './display.js';
 import {
     dodown,
     UnsupportedDropError,
@@ -983,6 +985,12 @@ export function failClosedCommandRefusals() {
         // anything, so an unported option value stops with no output; its
         // pick loop stops after the player has committed a selection.
         UnsupportedOptionMenuError,
+        // display.c reglyph_darkroom() sits one frame below the second of
+        // those: options.c reset_needed_visuals() calls it once the pick loop
+        // has applied every selection, so a toggle that raises
+        // go.opt_need_redraw reaches it under 'OPTIONS=!color' or
+        // 'OPTIONS=!dark_room'.
+        UnsupportedGlyphRepairError,
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,

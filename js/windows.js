@@ -67,7 +67,7 @@ export async function choose_classes_menu(
             // incoming list is empty; having it selected means that it would
             // have to be explicitly de-selected in order to select anything
             // else.
-            bulkSelectable: false,
+            skipinvert: true,
         });
         if (prompt === 'Autopickup what?') {
             items.push({
@@ -96,4 +96,41 @@ export async function choose_classes_menu(
     // and sets n = 1, which also ends the loop it sits in.
     if (picked.includes(' ')) return ' ';
     return picked.join('');
+}
+
+// C ref: windows.c menuitem_invert_test() (1560-1589), the decision the bulk
+// select, deselect and invert routines of every window port share; the tty
+// port calls it from set_all_on_page(), unset_all_on_page(), invert_all_on_page
+// and invert_all() (wintty.c:1209, 1229, 1253, 1299).
+//
+// C is handed the whole MENU_ITEMFLAGS_* word.  MENU_ITEMFLAGS_SKIPINVERT is
+// the only bit the body reads and the only one this port's menu items carry,
+// so the bit itself is the parameter.  C's first parameter, the mode, is
+// declared UNUSED: which bulk operation is running reaches the decision
+// through `is_selected` alone, so js/tty_menu.js names its mode in a comment
+// at each call site rather than passing it.
+//
+// options.c initoptions_init() (7279) sets iflags.menuinvertmode to 1, and the
+// 'menuinvertmode' option that would change it is unported, so 1 is what a
+// running game answers with: a bulk operation never selects a SKIPINVERT entry
+// on, but one that is already selected is still deselected and still inverted
+// off.
+export function menuitem_invert_test(skipinvert, is_selected, state) {
+    if (!skipinvert) /* if not flagged SKIPINVERT, always pass test */
+        return true;
+    /*
+     * menuinvertmode 0: treat entries flagged with skipinvert as ordinary
+     *                   (same as if not flagged);
+     * menuinvertmode 1: don't toggle bulk invert or bulk select entries On;
+     *                   allow toggling to Off (for invert and deselect;
+     *                   select doesn't do Off);
+     * menuinvertmode 2: don't toggle skipinvert entries either On or Off
+     *                   when any bulk change is performed.
+     */
+    if (state.iflags?.menuinvertmode === 2) {
+        return false;
+    } else if (state.iflags?.menuinvertmode === 1) {
+        return is_selected;
+    }
+    return true;
 }

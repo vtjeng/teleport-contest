@@ -16,16 +16,21 @@ import { runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
 import {
     doset,
+    dosetMenuItems,
     OPTION_MINMATCH,
     oc_to_str,
     parseoptions,
     reset_needed_visuals,
     UnsupportedOptionMenuError,
 } from '../js/options.js';
-import { reglyph_darkroom } from '../js/display.js';
+import { failClosedCommandRefusals } from '../js/cmd.js';
+import {
+    flush_screen, reglyph_darkroom, UnsupportedGlyphRepairError,
+} from '../js/display.js';
 import { choose_classes_menu } from '../js/windows.js';
 import {
-    MENU_COMBINATION, MENU_FULL, MENU_TRADITIONAL,
+    COULD_SEE, FOUNTAIN, IN_SIGHT,
+    MENU_COMBINATION, MENU_FULL, MENU_TRADITIONAL, PICK_ANY,
 } from '../js/const.js';
 import {
     FOOD_CLASS, RING_CLASS, WAND_CLASS, WEAPON_CLASS,
@@ -33,7 +38,8 @@ import {
 import { S_darkroom, S_room } from '../js/symbols.js';
 import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
-import { vision_recalc } from '../js/vision.js';
+import { selectTtyMenu } from '../js/tty_menu.js';
+import { cansee, vision_recalc } from '../js/vision.js';
 import { loadOptionsMenuRecipes } from './run-options-menu.mjs';
 
 // Start the stock configuration and stop on the first command prompt, which
@@ -48,6 +54,28 @@ async function startStockGame() {
     await runSegment({ ...segment, moves: ' ' });
     clearTopline(game);
     return game;
+}
+
+// The same configuration with extra lines appended, for the option values
+// that stock options leave at their compiled-in defaults.
+async function startGameWithConfig(...lines) {
+    const segment = loadOptionsMenuRecipes()[0].segments[0];
+    await runSegment({
+        ...segment,
+        nethackrc: segment.nethackrc + lines.map((line) => `${line}\n`).join(''),
+        moves: ' ',
+    });
+    clearTopline(game);
+    return game;
+}
+
+// doset_add_menu() writes "%-*s [%s]" from the option's name and its value,
+// so an entry's own name is the prefix of its line.
+function itemText(items, name) {
+    const found = items.find(
+        (item) => item.text?.trim().startsWith(`${name} `),
+    );
+    return found?.text ?? null;
 }
 
 // tty_clear_nhwindow(WIN_MESSAGE) keeps gt.toplines for message history and
@@ -679,7 +707,7 @@ test('choose_classes_menu() lays out the object classes', async () => {
     assert.deepEqual(items.slice(15), [
         { text: '' },
         { value: ' ', selector: 'A', label: '   All classes of objects',
-            bulkSelectable: false },
+            skipinvert: true },
         { text: 'Note: when no choices are selected, "all" is implied.' },
         // flags.pickup is false in this configuration ('OPTIONS=!autopickup'),
         // so the trailing line offers to turn autopickup on.
@@ -719,26 +747,137 @@ test('doset() stops on a boolean whose post-change work is unported',
         }
     });
 
+// C ref: options.c reset_needed_visuals() (8999), which calls display.c
+// reglyph_darkroom() once the pick loop has applied every selection. Its
+// refusal has to be one of the classes js/cmd.js failClosedCommandRefusals()
+// lists, or the whole segment fails instead of ending on its last matching
+// screen.
+test("doset() stops closed on a map it cannot repair", async () => {
+    for (const [config, name] of [
+        // optfn_boolean() raises go.opt_need_redraw at its hilite_pet arm
+        // (options.c:5300) and its hitpointbar arm (5389) whatever 'color'
+        // holds. Its lit_corridor arm (5372) raises it only when
+        // iflags.use_color is set, so that one needs 'color' left on and
+        // 'dark_room' turned off instead.
+        ['OPTIONS=!color', 'hilite_pet'],
+        ['OPTIONS=!color', 'hitpointbar'],
+        ['OPTIONS=!dark_room', 'lit_corridor'],
+    ]) {
+        const state = await startGameWithConfig(config);
+        const rejection = await doset(state, menuHelpers([
+            { value: menuValue(name), count: -1 },
+        ])).then(() => null, (error) => error);
+        assert.ok(
+            rejection instanceof UnsupportedGlyphRepairError,
+            `${config} ${name}: ${rejection}`,
+        );
+        assert.ok(
+            failClosedCommandRefusals().some(
+                (type) => rejection instanceof type,
+            ),
+            `${config} ${name} is not a fail-closed command refusal`,
+        );
+    }
+});
+
+// C ref: options.c optfn_boolean()'s `*(allopt[optidx].addr) = !negated`
+// (5285) and doset_add_menu()'s `*allopt[opt_indx].addr ? "!" : ""` (8858),
+// which read the byte the pick loop just wrote. This port's configuration
+// parse keeps a second copy under flags.<name> for an option whose address is
+// something else, and dosetMenuItems() refuses when the two disagree, so the
+// interactive write has to leave that copy behind.
+test('the menu shows a toggled option stored outside flags', async () => {
+    // 'autodescribe' is bound to &iflags.autodescribe and its initval is
+    // true, so this line changes nothing and leaves the two fields agreeing.
+    const state = await startGameWithConfig('OPTIONS=autodescribe');
+    assert.equal(state.iflags.autodescribe, true);
+    assert.equal(state.flags.autodescribe, true);
+    assert.equal(
+        itemText(dosetMenuItems(state, menuHelpers(), false), 'autodescribe'),
+        'autodescribe            [true]',
+    );
+
+    await doset(state, menuHelpers([
+        { value: menuValue('autodescribe'), count: -1 },
+    ]));
+    assert.equal(state.iflags.autodescribe, false);
+    assert.equal(
+        itemText(dosetMenuItems(state, menuHelpers(), false), 'autodescribe'),
+        'autodescribe            [false]',
+    );
+});
+
 test('vision_recalc(2) repaints every square that was in sight', async () => {
     const state = await startStockGame();
-    const lit = [];
     vision_recalc(0, { state, redraw: () => {} });
-    vision_recalc(2, { state, redraw: (x, y) => lit.push(`${x},${y}`) });
     // C's control == 2 shares the "you see nothing" arm with u.uswallow and
-    // then falls into the ordinary update loop, so every square the hero had
-    // in sight is handed to newsym() with the new, empty vision array. The
-    // starting room is lit, so that is more than the eight around her.
-    assert.ok(lit.length > 8, `expected a repainted room, got ${lit.length}`);
-    assert.ok(lit.includes(`${state.u.ux},${state.u.uy}`));
+    // then falls into the ordinary update loop with an all-zero new array.
+    // Every one of its four arms then answers from the old value alone, and
+    // the last one -- `(ov & IN_SIGHT) || ((nv & COULD_SEE) ^ (ov &
+    // COULD_SEE))` with nv zero -- is the only one a zero nv can reach. So
+    // the repainted set is exactly the squares the old array had in sight or
+    // could see, which the port must derive rather than approximate.
+    const expected = [];
+    for (let y = 0; y < state.viz_array.length; ++y) {
+        for (let x = 0; x < state.viz_array[y].length; ++x) {
+            if (state.viz_array[y][x] & (IN_SIGHT | COULD_SEE))
+                expected.push(`${x},${y}`);
+        }
+    }
+    // The starting room is lit and the corridor mouths beyond it are in
+    // range, so this is a whole room rather than the hero's neighbourhood.
+    assert.equal(expected.length, 113);
+
+    const lit = [];
+    vision_recalc(2, { state, redraw: (x, y) => lit.push(`${x},${y}`) });
+    assert.deepEqual([...new Set(lit)].sort(), [...expected].sort());
+    // vision_recalc()'s trailing `if (ux > 0) redraw(ux, uy)` repaints the
+    // hero's own square a second time, so the call count is one above the
+    // set's size.
+    assert.equal(lit.length, expected.length + 1);
+    assert.equal(
+        lit.filter((at) => at === `${state.u.ux},${state.u.uy}`).length, 2,
+    );
+    // Nothing on the 24x80 grid moves here: this port remembers a finished
+    // {ch, color} record per square and newsym() replays it, so repainting a
+    // remembered lit room from memory reproduces the same cells. The set
+    // above is what a display assertion cannot see.
 });
 
 test('a message spends a deferred vision recalculation', async () => {
     const state = await startStockGame();
+    // Shut vision down first, so the recalculation the message spends has
+    // every square to restore rather than nothing to do.
+    vision_recalc(2, { state });
+    await flush_screen(1);
+    // A square the hero can see again once vision returns, far enough away
+    // that a recalculation confined to her neighbourhood would miss it. The
+    // map row is one below the message line and the map column is one left of
+    // the map coordinate.
+    const target = { x: 35, y: 2 };
+    assert.ok(Math.abs(target.x - state.u.ux) > 1
+        || Math.abs(target.y - state.u.uy) > 1);
+    const cell = () => state.nhDisplay.grid[target.y + 1][target.x - 1].ch;
+    assert.equal(cell(), '.');
+    // newsym() draws an in-sight square from the terrain, so replacing the
+    // floor gives the repaint something visible to do.
+    state.level.at(target.x, target.y).typ = FOUNTAIN;
+
     state.vision_full_recalc = 1;
+    const beforeArray = state.viz_array;
     await ttyPline('Testing.', state);
+
     // pline.c:266-271 runs vision_recalc(0), whose first statement clears the
     // flag, before flush_screen() paints the map the message describes.
     assert.equal(state.vision_full_recalc, 0);
+    // vision_recalc() swaps the two vision buffers, so a different array is
+    // the difference between a recalculation and a bare flag clear.
+    assert.notEqual(state.viz_array, beforeArray);
+    assert.ok(cansee(target.x, target.y, state));
+    // And the flush that follows painted the recalculated map: a call moved
+    // after flush_screen() would leave the old floor on the grid until the
+    // next one.
+    assert.equal(cell(), '{');
 });
 
 test('reglyph_darkroom() moves the dark-room symbol with the room symbol',
@@ -806,4 +945,42 @@ test('choose_classes_menu() wraps its accelerators and then stops', async () => 
     await choose_classes_menu(state, 'Pick a class', classes, '', helpers);
     assert.equal(seen.length, 17);
     assert.equal(seen.at(-1).value, ' ');
+});
+
+// C ref: windows.c choose_classes_menu()'s MENU_ITEMFLAGS_SKIPINVERT entry
+// (1725) driven through the real tty menu, which consults
+// menuitem_invert_test() for every bulk operation. options.c:7279 leaves
+// iflags.menuinvertmode at 1, where a selected SKIPINVERT entry is still
+// cleared by invert-all and deselect-all; only selecting one is refused.
+test("the class menu's 'all classes' entry clears with the rest", async () => {
+    for (const [keys, expected] of [
+        // 'a' takes the first class by accelerator and 'A' the "all classes"
+        // entry. '@' is MENU_INVERT_ALL: the first class inverts off, the
+        // other fourteen invert on, and the "all classes" entry inverts off
+        // with them, so the commit is a class list rather than "all".
+        ['aA@\r', (classes) => classes.slice(1)],
+        // '-' is MENU_UNSELECT_ALL, which clears both picks and commits the
+        // empty list optfn_pickup_types() reads as "all types".
+        ['aA-\r', () => ''],
+        // Without a bulk command the entry stands, and C's own "all means a
+        // blank list" rewrite answers the single space.
+        ['aA\r', () => ' '],
+    ]) {
+        const state = await startStockGame();
+        const classes = oc_to_str(state.flags.inv_order); // 15 symbols
+        for (const key of keys) state.nhDisplay.pushKey(key.charCodeAt(0));
+        const picked = await choose_classes_menu(
+            state, 'Autopickup what?', classes, '',
+            {
+                menu: (items, prompt) => selectTtyMenu(state, {
+                    items,
+                    how: PICK_ANY,
+                    title: prompt,
+                    cancelValue: null,
+                    overlay: true,
+                }),
+            },
+        );
+        assert.equal(picked, expected(classes), keys);
+    }
 });

@@ -1939,9 +1939,22 @@ export async function docrt() {
 //
 // The trailing assignment is what remains, and it is the reason this exists as
 // a function: a SYMBOLS=S_room override moves S_darkroom with it.
+//
+// The refusal is its own class because every caller reaches it from inside a
+// command: js/cmd.js failClosedCommandRefusals() lists it, so an options menu
+// that toggles 'hilite_pet', 'hitpointbar' or 'lit_corridor' under
+// 'OPTIONS=!color' ends the segment on its last matching screen instead of
+// discarding every screen the segment had already matched.
+export class UnsupportedGlyphRepairError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UnsupportedGlyphRepairError';
+    }
+}
+
 export function reglyph_darkroom(state = game) {
     if (!state.flags?.dark_room || !state.iflags?.wc_color) {
-        throw new Error(
+        throw new UnsupportedGlyphRepairError(
             'reglyph_darkroom() over a map remembered under different '
             + "'dark_room' or 'color' settings",
         );

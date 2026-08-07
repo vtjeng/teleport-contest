@@ -96,7 +96,7 @@ import { lcase, lowc, highc, mungspaces, strsubst } from './hacklib.js';
 import { currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
 import { an } from './objnam.js';
-import { oc_to_str } from './options.js';
+import { hasUnportedConfigStatement, oc_to_str } from './options.js';
 import {
     DUNCE_CAP,
     GAUNTLETS_OF_POWER,
@@ -492,16 +492,35 @@ function basics_enlightenment(final, state, lines) {
 
     if (state.flags.pickup) {
         buf = 'on';
-        // C splits here: being in a shop inhibits autopickup, so inside one
-        // the line ends ", but temporarily disabled while inside the shop"
-        // and never reaches oc_to_str(). costly_spot() answers FALSE on a
-        // shopless level and stops on a shop level, which is the arm's stop.
-        costly_spot(state.u.ux, state.u.uy, state);
-        const ocl = oc_to_str(state.flags.pickup_types);
-        buf += ` for ${ocl ? `'${ocl}'` : 'all types'}`;
-        /* show when not 'all types' */
-        if (state.flags.pickup_thrown && ocl) buf += ' plus thrown';
-        if (state.ga?.apelist) buf += ', with exceptions';
+        if (costly_spot(state.u.ux, state.u.uy, state)) {
+            /* being in a shop inhibits autopickup, even 'pickup_thrown' */
+            buf += ', but temporarily disabled while inside the shop';
+        } else {
+            // options.c optfn_pickup_types() turns the option's class symbols
+            // into the class indices oc_to_str() reads, and parseNethackrc()
+            // has no arm for the option, so a configuration file that sets it
+            // leaves its raw text in this field. js/options.js
+            // OPTION_VALUE_HANDLERS.pickup_types stops on the same string.
+            if (typeof state.flags.pickup_types === 'string') {
+                throw new UnsupportedEnlightenmentError(
+                    "parseoptions() to interpret 'pickup_types'",
+                );
+            }
+            const ocl = oc_to_str(state.flags.pickup_types);
+            buf += ` for ${ocl ? `'${ocl}'` : 'all types'}`;
+            /* show when not 'all types' */
+            if (state.flags.pickup_thrown && ocl) buf += ' plus thrown';
+            // cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION() is what appends to
+            // ga.apelist, and parseNethackrc() only records the statement, so
+            // the empty list below would read as "no exceptions" for a
+            // session that configured some.
+            if (hasUnportedConfigStatement(state, 'autopickup_exception')) {
+                throw new UnsupportedEnlightenmentError(
+                    'cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION()',
+                );
+            }
+            if (state.ga?.apelist) buf += ', with exceptions';
+        }
     } else {
         buf = 'off';
     }

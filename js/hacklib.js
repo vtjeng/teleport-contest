@@ -236,10 +236,12 @@ export function strip_newline(str) {
     return str.slice(0, cut);
 }
 
-// C ref: hacklib.c str_start_is().  True when chkstr is a prefix of str, and
-// also when str is the shorter of the two -- C returns TRUE the moment chkstr
-// runs out and TRUE again when str runs out with chkstr already exhausted, so
-// two equal strings answer TRUE from either arm.
+// C ref: hacklib.c str_start_is().  True when chkstr is a prefix of str: when
+// chkstr is the shorter of the two, because C returns TRUE the moment chkstr
+// runs out, and when the two are equal, because C's `if (!*str) return
+// (*chkstr == 0)` runs first and finds chkstr exhausted too.  A str shorter
+// than chkstr answers FALSE from that same arm, so a truncated statement such
+// as "cond" does not start with "cond_".
 export function str_start_is(str, chkstr, caseblind) {
     for (let index = 0; ; ++index) {
         if (index >= str.length) return index >= chkstr.length;

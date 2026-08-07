@@ -20,6 +20,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { game } from '../js/gstate.js';
+import { COIN_CLASS } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
@@ -58,17 +59,26 @@ const COMMIT_BOOLEAN_PICKS = 'mO g ijpu afp' + '        ' + '\x1b';
 // tty_display_nhwindow()'s NHW_MENU arm raises when the class menu covers that
 // unacknowledged message; the keys after it answer the class menu.
 //
-// The five rounds cover choose_classes_menu()'s outcomes in turn: two classes
+// The six rounds cover choose_classes_menu()'s outcomes in turn: two classes
 // picked by accelerator and by class symbol; the "all classes" entry, which
 // collapses a mixed selection to a blank list; a single class; Escape, which
-// leaves the incoming list standing; and deselecting that survivor, whose
-// empty commit clears the list. Rounds four and five also open the menu with a
-// class already selected, which is what preselects an entry.
+// leaves the incoming list standing; deselecting that survivor, whose empty
+// commit clears the list; and one class plus the "all classes" entry inverted
+// with '@'. Rounds four and five also open the menu with a class already
+// selected, which is what preselects an entry.
 // Round two toggles 'autopickup' rather than 'autoquiver', so rounds one and
 // two also cover the two arms of the menu's trailing 'autopickup' line, and
 // its wider note line moves the whole window eight columns left.
+//
+// Round six is the one that reaches windows.c menuitem_invert_test(). The
+// "all classes" entry carries MENU_ITEMFLAGS_SKIPINVERT, and options.c:7279
+// leaves iflags.menuinvertmode at 1, where a selected SKIPINVERT entry still
+// inverts off; so '@' clears the coin class 'a' selected, sets the other
+// fourteen, and clears the "all classes" entry with them, leaving a
+// fourteen-class list rather than the blank one "all classes" would commit.
 const EDIT_PICKUP_TYPES = [
     ['h', 'c%\r'], ['g', 'A\r'], ['h', '=\r'], ['h', '\x1b'], ['h', '=\r'],
+    ['h', 'aA@\r'],
 ].map(([boolean, answer]) => `mO ${boolean}    n\r ${answer}`).join('')
     + '\x1b';
 
@@ -181,15 +191,19 @@ export async function verifyOptionsMenuSegment(segment) {
         throw new Error('opening the options menu advanced the turn counter');
 
     if (segment.moves.includes(EDIT_PICKUP_TYPES)) {
-        // The rounds leave [WEAPON, FOOD], [], [RING], [RING] and [] in turn;
-        // only the last survives to here, and the screens the differential
-        // compares carry the four before it.
+        // The rounds leave [WEAPON, FOOD], [], [RING], [RING], [] and every
+        // class but the coins in turn; only the last survives to here, and
+        // the screens the differential compares carry the five before it.
+        // The last is flags.inv_order without COIN_CLASS because round six
+        // selected the coin entry before inverting, which turned it off and
+        // everything else on.
         assert.deepEqual(
-            game.flags.pickup_types, [],
+            game.flags.pickup_types,
+            game.flags.inv_order.filter((oclass) => oclass !== COIN_CLASS),
             'the class menu left the wrong pickup_types',
         );
-        // Five rounds toggled 'autoquiver' four times and 'autopickup' once.
-        if (game.flags.pickup !== true || game.flags.autoquiver !== false)
+        // Six rounds toggled 'autoquiver' five times and 'autopickup' once.
+        if (game.flags.pickup !== true || game.flags.autoquiver !== true)
             throw new Error('the pickup_types rounds toggled the wrong boolean');
         return;
     }

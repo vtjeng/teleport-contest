@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { PICK_ANY } from '../js/const.js';
+import { PICK_ANY, PICK_ONE } from '../js/const.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { parseNethackrc } from '../js/options.js';
@@ -15,6 +15,7 @@ import {
     selectTtyMenu,
     ttyMenuLayout,
 } from '../js/tty_menu.js';
+import { menuitem_invert_test } from '../js/windows.js';
 
 function menuState(keys = '', filter = null) {
     resetGame();
@@ -25,7 +26,10 @@ function menuState(keys = '', filter = null) {
         initgend: 1,
         initalign: 0,
     };
-    game.iflags = {};
+    // options.c initoptions_init() (7279) sets menuinvertmode to 1, and the
+    // option that would change it is unported, so this is the mode
+    // windows.c menuitem_invert_test() answers with in every running game.
+    game.iflags = { menuinvertmode: 1 };
     if (filter) game.roleFilter = structuredClone(filter);
     for (const character of keys)
         game.nhDisplay.pushKey(character.charCodeAt(0));
@@ -167,6 +171,11 @@ test('PICK_ANY tracks global groups and numeric counts', async () => {
     ]);
 });
 
+// Item 5 carries MENU_ITEMFLAGS_SKIPINVERT and starts selected, so every
+// expectation below is also windows.c menuitem_invert_test() answering under
+// menuinvertmode 1: a bulk operation may still turn a selected SKIPINVERT
+// entry off, and only turning one on is refused. The test after this one
+// covers the refusal.
 test('PICK_ANY bulk commands distinguish all items from the current page', async () => {
     const baseItems = () => Array.from({ length: 30 }, (_, index) => ({
         selector: String.fromCharCode(65 + (index % 26)),
@@ -174,18 +183,25 @@ test('PICK_ANY bulk commands distinguish all items from the current page', async
         value: index,
         selected: index === 0 || index === 5,
         count: index === 0 ? 12 : index === 5 ? 7 : -1,
-        bulkSelectable: index !== 5,
+        skipinvert: index === 5,
     }));
     const expectedValues = {
+        // Page one holds items 0 through 20. Selecting it leaves 0 and 5
+        // alone, because set_all_on_page() skips an already-selected entry
+        // before it consults menuitem_invert_test() at all.
         ',': [0, ...Array.from({ length: 20 }, (_, i) => i + 1)],
         '>,': [0, 5, ...Array.from({ length: 9 }, (_, i) => i + 21)],
-        '\\': [5],
+        // unset_all_on_page() asks menuitem_invert_test(2, SKIPINVERT, TRUE),
+        // which is TRUE under menuinvertmode 1, so item 5 goes off with 0.
+        '\\': [],
         '>\\': [0, 5],
-        '~': [1, 2, 3, 4, ...Array.from({ length: 16 }, (_, i) => i + 5)],
+        // invert_all_on_page() asks menuitem_invert_test(0, SKIPINVERT,
+        // curr->selected); item 5 is selected, so it inverts off.
+        '~': [1, 2, 3, 4, ...Array.from({ length: 15 }, (_, i) => i + 6)],
         '>~': [0, 5, ...Array.from({ length: 9 }, (_, i) => i + 21)],
         '.': Array.from({ length: 30 }, (_, index) => index),
-        '-': [5],
-        '@': Array.from({ length: 29 }, (_, i) => i + 1),
+        '-': [],
+        '@': [1, 2, 3, 4, ...Array.from({ length: 24 }, (_, i) => i + 6)],
     };
 
     for (const [commands, expected] of Object.entries(expectedValues)) {
@@ -205,8 +221,123 @@ test('PICK_ANY bulk commands distinguish all items from the current page', async
             selected.map(({ value, count }) => [value, count]),
         );
         if (retained.has(0)) assert.equal(retained.get(0), 12, commands);
-        assert.equal(retained.get(5), 7, commands);
+        // A count survives only where the entry itself did: the four
+        // commands that leave item 5 selected never touch it, and the four
+        // that clear it reset the count to -1 with the selection.
+        assert.equal(
+            retained.has(5), expected.includes(5), commands,
+        );
+        if (retained.has(5)) assert.equal(retained.get(5), 7, commands);
     }
+});
+
+// C ref: windows.c menuitem_invert_test()'s menuinvertmode 1 arm (1585-1586),
+// `return is_selected ? TRUE : FALSE`. The case above starts the SKIPINVERT
+// entry selected, where mode 1 and mode 0 agree; this one starts it
+// unselected, which is the only state they disagree about.
+test('a bulk operation never turns a SKIPINVERT entry on', async () => {
+    const baseItems = () => Array.from({ length: 6 }, (_, index) => ({
+        selector: String.fromCharCode(65 + index),
+        label: `choice ${index}`,
+        value: index,
+        selected: false,
+        count: -1,
+        skipinvert: index === 5,
+    }));
+    // '.' is MENU_SELECT_ALL and '@' is MENU_INVERT_ALL; both ask the test
+    // with is_selected FALSE, which mode 1 answers FALSE.
+    for (const command of ['.', '@']) {
+        const state = menuState(`${command}\n`);
+        const selected = await selectTtyMenu(state, {
+            title: 'Synthetic bulk commands',
+            titleAttr: 0,
+            how: PICK_ANY,
+            items: baseItems(),
+        });
+        assert.deepEqual(
+            selected.map(({ value }) => value),
+            [0, 1, 2, 3, 4],
+            command,
+        );
+    }
+    // Group toggling takes invert_all()'s other arm, `curr->gselector != acc`,
+    // and never consults the test, so the same entry inverts on there.
+    // process_menu_window() reaches group toggling by two routes: a digit
+    // group accelerator gets its one chance before a count can start, and
+    // every other one falls through the menu commands, so both are driven.
+    for (const accelerator of ['1', 'x']) {
+        const state = menuState(`${accelerator}\n`);
+        const selected = await selectTtyMenu(state, {
+            title: 'Synthetic bulk commands',
+            titleAttr: 0,
+            how: PICK_ANY,
+            items: baseItems().map(
+                (item) => ({ ...item, groupSelector: accelerator }),
+            ),
+        });
+        assert.deepEqual(
+            selected.map(({ value }) => value), [0, 1, 2, 3, 4, 5],
+            accelerator,
+        );
+    }
+});
+
+// C ref: wintty.c unset_all_on_page() (1217-1235), which process_menu_window()
+// reaches for MENU_UNSELECT_PAGE and MENU_UNSELECT_ALL on a PICK_ONE menu as
+// well as a PICK_ANY one. It sets each item off, so the markers set_item_state()
+// repaints go from selected to unselected rather than the other way.
+test('unselecting a PICK_ONE menu clears its markers', async () => {
+    const state = menuState('-\x1b');
+    const rendered = [];
+    state._preNhgetchHook = () => rendered.push(
+        [rowText(state, 2), rowText(state, 3)],
+    );
+
+    assert.equal(await selectTtyMenu(state, {
+        title: 'Pick one',
+        titleAttr: 0,
+        how: PICK_ONE,
+        items: [
+            { selector: 'a', label: 'apples', value: 1, selected: true },
+            { selector: 'b', label: 'bananas', value: 2, selected: true },
+        ],
+        cancelValue: -1,
+    }), -1);
+
+    // '*' is the marker for a selection carried in, '-' for none, and '+'
+    // for one made in the menu, so the second frame distinguishes an unselect
+    // from a select as well as from no bulk command at all.
+    assert.deepEqual(rendered, [
+        [`${' '.repeat(41)}a * apples`, `${' '.repeat(41)}b * bananas`],
+        [`${' '.repeat(41)}a - apples`, `${' '.repeat(41)}b - bananas`],
+    ]);
+});
+
+// C ref: windows.c menuitem_invert_test() (1560-1589) read directly, which is
+// the only way to reach the two menuinvertmode values options.c:7279 does not
+// leave behind: the option that would set them is unported.
+test('menuitem_invert_test answers for each menuinvertmode', () => {
+    const modeState = (menuinvertmode) => ({ iflags: { menuinvertmode } });
+    for (const mode of [0, 1, 2]) {
+        // An item without the flag always passes, whatever the mode.
+        assert.equal(
+            menuitem_invert_test(false, false, modeState(mode)), true, `${mode}`,
+        );
+        assert.equal(
+            menuitem_invert_test(false, true, modeState(mode)), true, `${mode}`,
+        );
+    }
+    // Mode 0 treats a flagged item as ordinary; mode 2 excludes it from every
+    // bulk change; mode 1 allows only the changes that turn it off.
+    assert.equal(menuitem_invert_test(true, false, modeState(0)), true);
+    assert.equal(menuitem_invert_test(true, true, modeState(0)), true);
+    assert.equal(menuitem_invert_test(true, false, modeState(1)), false);
+    assert.equal(menuitem_invert_test(true, true, modeState(1)), true);
+    assert.equal(menuitem_invert_test(true, false, modeState(2)), false);
+    assert.equal(menuitem_invert_test(true, true, modeState(2)), false);
+    // C's `if (mode == 2) ... else if (mode == 1) ... return TRUE` ends on the
+    // unconditional TRUE, which is what an uninitialized mode reaches.
+    assert.equal(menuitem_invert_test(true, false, { iflags: {} }), true);
 });
 
 test('gold remains a group accelerator when its selector is off-page', async () => {
