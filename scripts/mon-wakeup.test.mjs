@@ -96,6 +96,26 @@ test('setmangry stops for a peaceful non-pet and passes a pet through',
         );
     });
 
+// The owner seam both functions share. setmangry() is the anger path, not the
+// waking path, so a caller that forgot to supply the operation has to be told
+// which function wanted it rather than be sent looking at wakeup().
+test('a missing owner names the function that asked for it', async () => {
+    await hero();
+    engraveElbereth();
+    assert.throws(
+        // No `unsupported` in the env, so the Elbereth arm cannot report.
+        () => setmangry(target(), true, { state: game }),
+        (error) => {
+            assert.ok(error instanceof TypeError);
+            assert.equal(
+                error.message,
+                'setmangry()/wakeup() requires unsupported',
+            );
+            return true;
+        },
+    );
+});
+
 // mon.c:4267-4270. All three terms matter: the attack has to be the cause, the
 // square has to carry exactly "Elbereth", and the target has to be one that
 // respects it or a peaceful one.

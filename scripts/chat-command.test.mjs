@@ -18,16 +18,19 @@ import test from 'node:test';
 
 import {
     ECMD_OK,
+    HALLUC,
     SHOPBASE,
     STRANGLED,
 } from '../js/const.js';
 import { UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
 import { vobj_at } from '../js/display.js';
+import { rndmonnam } from '../js/do_name.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { is_silent } from '../js/mondata.js';
 import * as M from '../js/monsters.js';
 import { COIN_CLASS } from '../js/objects.js';
+import { getRngLog } from '../js/rng.js';
 import { in_rooms } from '../js/rooms.js';
 import { shop_keeper, shop_object } from '../js/shk.js';
 import { UnsupportedChatError, dotalk } from '../js/sounds.js';
@@ -169,6 +172,84 @@ test('vobj_at answers the head of the floor pile', async () => {
     const buried = { oclass: east.oclass, otyp: east.otyp, nexthere: null };
     east.nexthere = buried;
     assert.equal(vobj_at(state.u.ux + 1, state.u.uy, state), east);
+});
+
+// sounds.c:1355-1362, transcribed from the C array in its own order. The
+// matrix behind this file has no hallucination case -- hallucination is not an
+// rc conduct -- so nothing else checks the table, the bound, or the clamp.
+const WALL_REPLIES = [
+    'gripes about its job.',
+    'tells you a funny joke!',
+    'insults your heritage!',
+    'chuckles.',
+    'guffaws merrily!',
+    'deprecates your exploration efforts.',
+    'suggests a stint of rehab...',
+    "doesn't seem to be interested.",
+];
+
+test('a hallucinating hero hears the wall out of an eight-row table',
+    async () => {
+        const state = await chatterOnTurnOne();
+        state.u.uprops[HALLUC].intrinsic = 1;
+        const rolled = new Set();
+        // Enough repeats that every value of rn2(10) turns up; the seed is
+        // fixed, so the coverage assertion below either holds or does not.
+        // #chat costs no move, so the same square answers every time.
+        for (let attempt = 0; attempt < 80; attempt++) {
+            quiet(state);
+            // 'y' is northwest, the room corner the recorded matrix uses for
+            // its sighted wall case.
+            state.nhDisplay.pushKey('y'.charCodeAt(0));
+            const before = getRngLog().length;
+            assert.equal(await dotalk(state), ECMD_OK);
+
+            // sounds.c:1364. The reply is the arm's only draw, and its bound
+            // is what decides how often the clamp fires.
+            const drawn = getRngLog().slice(before);
+            assert.equal(drawn.length, 1, `attempt ${attempt}`);
+            const [call, result] = drawn[0].split('=');
+            assert.equal(call, 'rn2(10)', `attempt ${attempt}`);
+            const roll = Number(result);
+            rolled.add(roll);
+
+            // sounds.c:1365-1366 clamps a roll past the end onto the last
+            // row, so rolls 7, 8 and 9 all say the same thing.
+            assert.equal(
+                toplines(state),
+                `The wall ${WALL_REPLIES[Math.min(roll, 7)]}`,
+                `roll ${roll}`,
+            );
+        }
+        // Every row of the table and all three clamped rolls were reached.
+        assert.deepEqual([...rolled].sort((a, b) => a - b),
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    });
+
+// sounds.c:1336-1339. The statue arm's second draw site: a hallucinating hero
+// cannot tell what she is looking at, so the line names a random monster
+// instead. rndmonnam() draws on the display stream, which the recorder's core
+// log does not carry, so only the printed line shows it happened.
+test('a hallucinating hero cannot tell a statue from a monster', async () => {
+    const [segment] = loadChatStatueRecipe().segments;
+
+    // The same start twice. The first run reads the name the display stream
+    // is about to produce; the second lets dochat() draw it, so the assertion
+    // names no observed string of its own.
+    await runSegment({ ...segment, moves: '.' });
+    const expected = rndmonnam({ state: game });
+
+    const state = await (async () => {
+        await runSegment({ ...segment, moves: '.' });
+        quiet(game);
+        return game;
+    })();
+    state.u.uprops[HALLUC].intrinsic = 1;
+    // 'u' is northeast, the square the statue recipe puts its statue on.
+    state.nhDisplay.pushKey('u'.charCodeAt(0));
+    assert.equal(await dotalk(state), ECMD_OK);
+    assert.notEqual(toplines(state), 'The statue seems not to notice you.');
+    assert.equal(toplines(state), `The ${expected} seems not to notice you.`);
 });
 
 test('a swallowed hero cannot be heard outside', async () => {

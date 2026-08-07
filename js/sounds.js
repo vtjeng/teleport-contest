@@ -253,8 +253,12 @@ const WALLTALK = Object.freeze([
  * calls this goal leaves for later: price_quote() at :1288 and domonnoise() at
  * :1302 and :1408.
  *
- * Every ported arm answers ECMD_OK or ECMD_CANCEL, so #chat spends no move,
- * and only the hallucinating wall reply draws a random number.
+ * Every ported arm answers ECMD_OK or ECMD_CANCEL, so #chat spends no move.
+ * Two arms draw, and both belong to a hallucinating hero. The wall reply at
+ * :1364 spends rn2(10) on the core stream, which the recorder logs. The
+ * statue line at :1338 spends rndmonnam()'s draws on the display stream,
+ * which the recorder does not log -- but they still choose the name the line
+ * prints, so the arm is not free.
  */
 async function dochat(state) {
     const u = state.u;

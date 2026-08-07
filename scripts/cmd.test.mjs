@@ -105,6 +105,7 @@ import {
     AT_CLAW,
     M1_NEEDPICK,
     M1_TUNNEL,
+    PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
     PM_COCKATRICE,
     PM_LICHEN,
@@ -1224,6 +1225,37 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                 game.level.monsters[x][y] = {
                     mx: x, my: y, mhp: 1, mundetected: 1,
                 };
+            },
+        },
+        // hack.c:1972's displacer-beast swap short-circuits on the species
+        // before its !rn2(2), so the refusal has to cost no draw -- which the
+        // snapshot below checks along with everything else.
+        {
+            name: 'displacer beast at destination',
+            reason: 'displacer beast position swap',
+            setup: ({ x, y }) => {
+                game.level.monsters[x][y] = newMonster({
+                    mx: x, my: y, mhp: 3, mhpmax: 3, mcanmove: 1,
+                    data: game.mons[PM_DISPLACER_BEAST],
+                });
+            },
+        },
+        // is_safemon() sends a spotted peaceful monster down do_attack()'s
+        // swap arm at uhitm.c:461, and everything that arm does past the
+        // rn2(7) is written for the starting pet. Any other peaceful stops.
+        {
+            name: 'peaceful non-pet at destination',
+            reason: 'peaceful monster displacement',
+            setup: ({ x, y }) => {
+                game.level.monsters[x][y] = newMonster({
+                    mx: x, my: y, mhp: 3, mhpmax: 3, mcanmove: 1,
+                    // A distinct m_id is what makes it not the starting pet;
+                    // this recipe has pettype:none, so there is no pet at all.
+                    m_id: 4242,
+                    mpeaceful: 1,
+                    data: game.mons[PM_NEWT],
+                });
+                assert.notEqual(game.context.startingpet_mid, 4242);
             },
         },
     ];

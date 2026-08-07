@@ -863,10 +863,15 @@ export async function wake_msg(monster, interesting, rawEnv = {}) {
     );
 }
 
-function requireDistressOperation(env, name) {
+// The owner seam setmangry() and wakeup() share. It is not
+// requiredDistressOperation() further down, which belongs to mcalcdistress();
+// the two guard different call sets and say so, because a name one letter
+// apart from another is a misedit waiting to happen.
+function requiredMonsterReactionOperation(env, name) {
     const operation = env[name];
-    if (typeof operation !== 'function')
-        throw new TypeError(`waking a monster requires ${name}`);
+    if (typeof operation !== 'function') {
+        throw new TypeError(`setmangry()/wakeup() requires ${name}`);
+    }
     return operation;
 }
 
@@ -884,7 +889,7 @@ export function setmangry(monster, via_attack, rawEnv = {}) {
 
     if (via_attack && sengr_at('Elbereth', ux, uy, true, state)
         && (onscary(ux, uy, monster, state) || monster.mpeaceful)) {
-        requireDistressOperation(rawEnv, 'unsupported')(
+        requiredMonsterReactionOperation(rawEnv, 'unsupported')(
             'attacking from an Elbereth square',
         );
     }
@@ -892,7 +897,7 @@ export function setmangry(monster, via_attack, rawEnv = {}) {
     monster.mstrategy &= ~STRAT_WAITMASK;
     if (!monster.mpeaceful) return;
     if (monster.mtame) return;
-    requireDistressOperation(rawEnv, 'unsupported')(
+    requiredMonsterReactionOperation(rawEnv, 'unsupported')(
         'angering a peaceful monster',
     );
 }
@@ -913,7 +918,7 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
     await wake_msg(monster, via_attack, rawEnv);
     monster.msleeping = 0;
     if (((monster.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_NOTHING) {
-        requireDistressOperation(rawEnv, 'unsupported')(
+        requiredMonsterReactionOperation(rawEnv, 'unsupported')(
             'waking a mimicking monster',
         );
     } else if (state.context?.forcefight && !state.context?.mon_moving
@@ -926,13 +931,13 @@ export async function wakeup(monster, via_attack, rawEnv = {}) {
         const was_peaceful = monster.mpeaceful;
 
         if (was_sleeping) {
-            requireDistressOperation(rawEnv, 'unsupported')(
+            requiredMonsterReactionOperation(rawEnv, 'unsupported')(
                 'growl from a woken monster',
             );
         }
         setmangry(monster, true, rawEnv);
         if (was_peaceful && (monster.ispriest || monster.isshk)) {
-            requireDistressOperation(rawEnv, 'unsupported')(
+            requiredMonsterReactionOperation(rawEnv, 'unsupported')(
                 'angering a peaceful priest or shopkeeper',
             );
         }
