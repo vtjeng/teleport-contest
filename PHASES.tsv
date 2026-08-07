@@ -199,3 +199,6 @@ utc	event	phase	goal	detail
 2026-08-07T04:24:45.897Z	end	review	options	
 2026-08-07T04:24:45.928Z	start	implement	options	
 2026-08-07T11:06:45.755Z	end	implement	options	
+2026-08-07T11:29:25.563Z	start	select		
+2026-08-07T12:03:35.867Z	end	select	twoweapon-command	
+2026-08-07T12:03:35.899Z	start	implement	twoweapon-command	

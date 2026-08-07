@@ -598,6 +598,49 @@
         "screens": 29,
         "rng": 395
       }
+    },
+    {
+      "id": "twoweapon-command",
+      "status": "open",
+      "boundary": "the hero issues the #twoweapon extended command and wield.c dotwoweapon() (845-905) runs to completion: its toggle-off arm, its can_twoweapon() (761-833) gate with every refusal message that gate prints, set_twoweap(), update_inventory(), and the single rnd(20) > ACURR(A_DEX) draw that decides whether the command spends the move; the second attack u.twoweap later enables in uhitm.c hitum() and weapon_hit_bonus()'s P_TWO_WEAPON_COMBAT arm are outside it",
+      "upstreamOwners": [
+        "wield.c dotwoweapon()",
+        "wield.c can_twoweapon()",
+        "wield.c set_twoweap()",
+        "wield.c drop_uswapwep()",
+        "wield.c TWOWEAPOK()",
+        "mondata.h could_twoweap()",
+        "obj.h is_weptool()"
+      ],
+      "forecast": {
+        "steps": 25,
+        "basis": "capped look-ahead at 1de9dec, 7 August 2026: seed0107 stops at 15 of 98 and its stretch runs 15..49 (unlocks 35, one session); capped at step 40, where \"You miss the lichen.  You kill the lichen!\" needs hero melee combat, which js/hack.js:644-647 refuses. Earned steps 15-39 = 25. Highest of sixteen candidates: takeoff 21 of 22 over four sessions, #pray 21 of 21, #chat 21 of 21, pet melee combat 19 of 21, fire 17 or less, monster trap activation 16 or less, hero combat 15 of 39 over two, pet cursed-object feedback 14 of 27, door unlocking tool 14 of 18, wizgenesis 11 or less, riding movement 10 of 31, hero trap activation 8 of 61, engraving interaction 6 of 238, zap between 2 and 22 depending on whether the multi-turn sleep loop is ported, #l 1 of 19, #rub 1 of 22. Three of these were corrected during selection against the port's actual refusal sites: hero combat is 15 not 39 because js/options.js refuses a bare O, pet cursed-object feedback is 14 not 27 because js/lock.js refuses a square holding no door, and takeoff is 21 not 22 because js/apply.js refuses doapply()'s default arm. Scanned with a scratchpad loader shim because js/sounds.js raises its refusals as a plain Error and aborts the census.",
+        "sessions": [
+          "seed0107-samurai-twoweapon-enhance"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0107-samurai-twoweapon-enhance",
+            "evidence": "seed 107, datetime 20000110090000, human male lawful Samurai Bushi on D:1, nethackrc OPTIONS=name:Bushi,role:Samurai,race:human,gender:male,align:lawful and nothing else, so confirm, safe_dog, autopickup and verbose are at their defaults. Stop at step 15, key \"\\n\", the Enter that submits #twoweapon; js/extcmdlist_data.js:143 already carries row(0x58, \"twoweapon\", ..., \"dotwoweapon\", 0), so the port echoes \"# twoweapon\" and refuses only the dispatch. C reaches wield.c dotwoweapon():845 with u.twoweap FALSE, so it takes the can_twoweapon() gate at 862. u_init.c:142-148 gives the Samurai a katana as uwep, a short sword as uswapwep, a yumi, ya and splint mail, and no shield. could_twoweap(gy.youmonst.data) reads the role monster, not PM_HUMAN: the port's own MONSTER_TEMPLATES[340] (\"samurai\") carries aatyp 254 (AT_WEAP) in slots 0 and 1, so (1+1+0) > 1 is TRUE. uwep and uswapwep are both set; TWOWEAPOK holds for both, since each is WEAPON_CLASS and neither is a launcher, ammo or missile; the katana is not bimanual; uarms is empty; uswapwep is no artifact, no corpse, and UNDEF_BLESS rather than cursed. can_twoweapon() therefore returns TRUE at 803 and dotwoweapon() prints the recorded \"You begin two-weapon combat.\", calls set_twoweap(TRUE) and update_inventory(), then returns (rnd(20) > ACURR(A_DEX)) ? ECMD_TIME : ECMD_OK with Dx:14. The recorded step logs exactly one random-number call, which is that rnd(20)."
+          }
+        ]
+      },
+      "detail": "### The hero turns two-weapon combat on\n\n`wield.c dotwoweapon()` (845-905) is the `#twoweapon` command. With\n`u.twoweap` FALSE it takes the `can_twoweapon()` gate at 862, and on success\nprints \"You begin two-weapon combat.\", calls `set_twoweap(TRUE)` and\n`update_inventory()`, then returns `(rnd(20) > ACURR(A_DEX)) ? ECMD_TIME :\nECMD_OK`. Roughly 150 lines of `wield.c`: `dotwoweapon()` 61,\n`can_twoweapon()` 73, `set_twoweap()` 11, plus the `TWOWEAPOK` and\n`could_twoweap` macros. `drop_uswapwep()` is reachable only when `Glib ||\nuswapwep->cursed`, which the witness never satisfies.\n\n**The time cost is the whole risk.** One `rnd(20)` decides `ECMD_TIME` against\n`ECMD_OK`, and getting the draw or its comparison wrong desynchronizes all 24\nfollowing steps of the stretch.\n\n**Two corrections to the trace that proposed this goal, both verified.**\n\nFirst, `is_weptool` **is ported**, as `isWeptool` in `js/obj.js`. The proposing\ntrace reported it \"not defined anywhere under `js/`\" on a `grep -rEw\n\"could_twoweap|is_weptool\" js/` returning zero hits. That grep is accurate and\nthe conclusion is not: `grep -rn \"isWeptool\" js/` returns six importing modules,\nincluding `js/wield.js` itself at :9 and :21, which is the file this goal\nextends. Porting it again would make a fifth duplicate port in a codebase where\nthe `monsters` sweep converged four. `could_twoweap` is genuinely absent —\n`grep -rniE \"could_?twoweap\" js/` returns nothing.\n\nSecond, `u.twoweap` is not a write-only flag awaiting future combat. Four live\nreaders already consult it: `js/insight.js:620` and `:655`, `js/display.js:1991`\nand `js/muse.js:143`. Setting it TRUE therefore changes what the status and\nenlightenment paths render on the very next frame, which is the same shape as\nthe `flags.pickup_types` type change in the `options` goal — dormant readers\nbecoming armed the moment a field acquires a real value. Check each before\nwriting the flag.\n\n**Ported helpers this reuses:** `update_inventory()` (`js/invent.js`),\n`bimanual()` (`js/worn.js`), `dropx()` (`js/do.js`), `vtense()`\n(`js/objnam.js`), `u.acurr.a[]` (`js/u_init.js:173`), and `isWeptool`\n(`js/obj.js`). `js/wield.js` is 59 lines holding `erodeable_wep()`,\n`will_weld()`, `welded()`, `empty_handed()` and `mwelded()`, so the new\nfunctions land in the file that is already `wield.c`'s port.\n\n**Out of scope:** the second attack `u.twoweap` later enables in `uhitm.c\nhitum()` (797-812), and `weapon_hit_bonus()`'s `P_TWO_WEAPON_COMBAT` arm.\n\n**A field to check rather than assume:** `flags.weaponstatus` gates a\n`disp.botl` in `set_twoweap()`, and seed0107's recorded status line carries no\nweapon field.\n\n**Why this and not the field.** Capped look-ahead at `1de9dec`: `#twoweapon`\n25, `takeoff` 21 over four sessions, `#pray` 21, `#chat` 21, pet melee combat\n19, `fire` 17 or less, monster trap activation 16 or less, hero combat 15 over\ntwo, pet cursed-object feedback 14, door unlocking tool 14, `wizgenesis` 11 or\nless, riding movement 10, hero trap activation 8, engraving interaction 6,\n`zap` between 2 and 22, `#l` 1, `#rub` 1. `takeoff` is the better-hedged\nforecast — its 21 steps spread over four short stretches rather than one run of\n24 silent moves — and it lost on the count alone.",
+      "slices": [
+        {
+          "name": "the Samurai turns two-weapon combat on",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "1de9dececb2cdc2286486003234ec13b6e0acc7a",
+      "openStanding": {
+        "sha": "c4cb6d8",
+        "screens": 1056,
+        "rng": 116602
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
