@@ -601,7 +601,7 @@
     },
     {
       "id": "twoweapon-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "the hero issues the #twoweapon extended command and wield.c dotwoweapon() (843-864) runs to completion: its toggle-off arm, its can_twoweapon() (760-804) gate with every refusal message that gate prints, set_twoweap(), update_inventory(), and the single rnd(20) > ACURR(A_DEX) draw that decides whether the command spends the move; the second attack u.twoweap later enables in uhitm.c hitum() and weapon_hit_bonus()'s P_TWO_WEAPON_COMBAT arm are outside it",
       "upstreamOwners": [
         "wield.c dotwoweapon()",
@@ -644,8 +644,11 @@
         "screens": 1056,
         "rng": 116602
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "508da8c9417d52213094d9303b73879cd9d2b535",
+      "delivered": {
+        "screens": 25,
+        "rng": 185
+      }
     }
   ]
 }

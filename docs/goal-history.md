@@ -193,3 +193,23 @@ the price: ranking on development look-ahead selects boundaries the recorded
 players happened to reach, and a boundary reached by one rare keystroke cannot
 move an eleven-session holdout however much behavior it adds. Seven zeros now
 say that about effect size, capability, and reachability in turn.
+
+`twoweapon-command` closed on 7 August 2026 and is the eighth zero. It met its
+forecast exactly -- 25 steps predicted, 25 delivered, `seed0107` from 15 to 40
+of 98 screens -- and the holdout returned 195 of 3,640 screens and 32,614 of
+182,022 values, identical to the four evaluations before it.
+
+This one adds nothing to the account and that is the point. `options` tested
+capability and found it insufficient; this goal is smaller, gated on a single
+extended command that one of thirty-three development sessions issues, and the
+zero it returns is what the reachability reading already predicted. Recorded so
+nobody re-derives it.
+
+What the goal is worth is not in the holdout column. Its second slice earned no
+development screens at all, by construction: every one of `can_twoweapon()`'s
+refusal arms needs a role the contributing session does not have. It was worth
+running because the goal's boundary named those arms, and closing on the
+forecast alone would have filed the goal complete with a documented gap inside
+its own scope. The evidence that they are correct is fourteen fresh C segments
+across seven roles -- 42,032 random-number calls and 243 screens -- which no
+score column records.
