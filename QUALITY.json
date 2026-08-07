@@ -8020,6 +8020,107 @@
         "deferrals": []
       },
       "recordedAt": "2026-08-07T11:06:24.716Z"
+    },
+    {
+      "kind": "review",
+      "head": "eed732b3175f7b50bbe7c92dc92c4a0a881fa462",
+      "auditedRange": "65d1bbaad98fc51489a733c31bf9122c8e3c9dd4..eed732b3175f7b50bbe7c92dc92c4a0a881fa462",
+      "level": "full",
+      "areas": [
+        "hero",
+        "objects",
+        "monsters",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 18 raw, 14 deduplicated, 12 confirmed, 12 applied, 0 deferred, 1 rejected, 1 unverified; mutation: 0 survivors of 20 mutants. Full correctness pass over the twoweapon-command goal, closed over its own fixes. Its sharpest finding was against the goal record rather than the code: the boundary and detail cited dotwoweapon() as 845-905 and can_twoweapon() as 761-833, where the spans are 843-864 and 760-804. Line 905 is the head of untwoweapon(), so the bad span attributed untwoweapon() and drop_uswapwep() to this goal - the two functions its own open deferral records as unported, which a later selector would have read as done. The other production defects: the ADMITTED_COMMANDS comment named M-2 as the command's own key when its key is X and M-2 the alias; obj.h carried() became a sixth duplicate port and was converged; and two live fail-closed boundaries were unpinned, the newly reachable Dual-weps status field and both update_inventory() calls, the first now pinned by a fresh C recording rather than an assertion. Applying the findings corrected three of them, one materially: the reviewer justified an unreachable arm by saying no role starts with a launcher in a wield slot, but the human Ranger takes a dagger primary and a bow secondary; the arm is unreachable because wield.c:765 refuses that role monster one arm earlier, verified by replaying all thirteen roles. Score bit-identical per session at 1,081 of 7,765 screens and 116,787 of 610,816 PRNG values, which is the required outcome for a range no development session can reach; the evidence is the differential, now fourteen fresh C segments at 42,032 PRNG calls and 243 screens. Mutation was clean for the first time in this sequence - 20 of 20 killed, no generated-table noise - so the tests finder judged whether tests pin behavior instead of triaging survivors, which produced five of the twelve findings.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2217,
+        "counts": {
+          "raw": 18,
+          "deduplicated": 14,
+          "confirmed": 12,
+          "applied": 12,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 1
+        },
+        "categories": {
+          "production": 4,
+          "tests": 5,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The goal record’s own C citations were wrong, and the error was material. `boundary` and `detail` gave `dotwoweapon() (845-905)` and `can_twoweapon() (761-833)`; the spans are 843-864 and 760-804. Line 905 is the head of `untwoweapon()`, so the bad span attributed `untwoweapon()` and `drop_uswapwep()` to this goal — the two functions the open deferral `twoweapon-unreachable-refusal-arms` records as NOT ported. A later selector reading the boundary would have concluded they were done. Corrected in ce65d2f by direct edit, since goal-log.mjs offers no amend for an open goal’s boundary.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The ADMITTED_COMMANDS comment said `#twoweapon`’s \"own key is M-2\". Its own key is `X` (cmd.c:1913, extcmdlist row 0x58); M-2 is the alias commands_init() adds at cmd.c:2776, and the port binds both. A reader auditing the boundary would have concluded `X` was already handled.",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "`obj.h carried()` became a second live named port: `js/obj.js:675` exported, added by this range, beside the module-private `js/eat.js:598` with an identical body. The sixth duplicate port found in this repository in two days. Converged on js/obj.js, which obj.h names; js/eat.js repointed and the private copy deleted, with the development score verified bit-identical per session.",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Two live fail-closed boundaries were unpinned: `set_twoweap(true, …)` makes js/display.js’s \"Dual-weps\" status field reachable for the first time, and both `update_inventory({ state })` calls in dotwoweapon() could be deleted with the whole suite still green, though under `OPTIONS=perm_invent` each is the port’s only stop. The status field was pinned by a new C recording rather than a unit assertion.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 20,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 6,
+              "killed": 6
+            },
+            "logical": {
+              "ran": 7,
+              "killed": 7
+            },
+            "relational": {
+              "ran": 7,
+              "killed": 7
+            }
+          },
+          "ranges": [
+            "65d1bbaad98fc51489a733c31bf9122c8e3c9dd4..ae61102de6814a8b5c9598abd8c9fe0045dc9c77"
+          ],
+          "finderConclusion": "The first clean mutation signal of this goal sequence: 20 of 20 killed, no survivors, no timeouts, and no declared generated output in range, so none of the distortion that made the three previous passes report 425, 827 and 826 meaningless survivors applies here. With no survivor list to triage, the tests finder was asked instead to sample-verify the claim that eighteen mutation-invisible lines had each been broken with their covering test observed to fail. That reframing produced five of the twelve findings, all of them gaps a survivor list could not have shown: an untested refusal-class registration, a matrix test re-asserting a constant copied from a few lines away, an unpinned `state.flags.female` guard, and a setuwep test covering three of its expression’s terms. The audit fixes added no mutable site of their own, so their evidence runs the other way: each new assertion was shown killing a specific mutant on already-committed lines."
+        },
+        "readiness": {
+          "boundary": "The hero issues `#twoweapon`. On the success path the command prints \"You begin two-weapon combat.\", sets `u.twoweap`, refreshes inventory and spends or does not spend the move on one `rnd(20) > ACURR(A_DEX)`; on a refusal it prints one of seven messages and spends nothing. `seed0107-samurai-twoweapon-enhance` executes the success path in the running game, advancing from 15 to 40 of 98 screens.",
+          "sourceReview": "Every branch reachable before those endings was traced against nethack-c/upstream: wield.c dotwoweapon() (843-864), can_twoweapon() (760-804) with all eight of its arms, set_twoweap(), drop_uswapwep() and the TWOWEAPOK() macro; mondata.h could_twoweap(); objnam.c yname(), Yname2() and is_plural(); shk.c shk_your(), shk_owns() and mon_owns(); obj.h carried() and is_weptool(); u_init.c ini_inv_use_obj() and the role inventory tables. The trace covered PRNG order: the command draws exactly one random number on the success path and none on any refusal, which the differential confirms.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Three arms stay unported with derivations recorded in code and tracked as `twoweapon-unreachable-refusal-arms`, and applying the findings corrected one of those derivations: the reviewer said no role starts with a launcher in a wield slot, but the human Ranger takes a dagger primary and a bow secondary (u_init.c:124-128). The arm is still unreachable, for the different reason that wield.c:765 refuses the Ranger and Caveman role monsters one arm earlier — verified by replaying all thirteen roles. The differential grew from twelve to fourteen fresh C segments: 42,032 PRNG calls, 243 screens, all matching."
+        },
+        "rejections": [
+          {
+            "summary": "js/shk.js:494 — `shk_your()`'s header names `yname()` and `ysimple_name()` as its two callers, but the argument for dropping C's two corpse arms holds only for `yname()`: it relies on `cxname()` refusing a corpse first. `ysimple_name()` goes through `minimal_xname()`, which has no such refusal, so the stated contra",
+            "counterEvidence": "evidence refute: The comment does not make the claim the finding attributes to it. Counter-evidence: js/shk.js:497-500 reads: \"Its two corpse arms are absent. Both test ismnum(obj->corpsenm), and objnam.c cxname() -- which yname() calls before this -- already stops on a corpse because corpse_xname() is unported.\" The precondition is explicitly attributed to yname(), by name, in the same sentence that states it; a porter of ysimple_name() reading it is told which caller supplies the guarantee, not that every caller does. The caller sentence at :493-496 is a description of what shk_your() produces in C, and it is already an incomplete list of C's callers — `grep -rn \"shk_your\" nethack-c/upstream/src/*.c` returns apply.c:1738/2862/2908, do_wear.c:3374-3375, objnam.c:2270/2367/2394, read.c:388, trap.c:825/839 and zap.c:1042/1181 — so it plainly is not a supported-caller contract. The C order Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": []
+      },
+      "recordedAt": "2026-08-07T15:11:42.001Z"
     }
   ]
 }
