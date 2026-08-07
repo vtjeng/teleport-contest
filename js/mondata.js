@@ -85,6 +85,18 @@ export function dmgtype(species, damageType) {
     return hasDamageType(species, damageType);
 }
 
+// C ref: mondata.h could_twoweap() (129-132). C adds three equality tests
+// together and asks for a sum above one, so a form needs two weapon attacks
+// among mattk[0], mattk[1] and mattk[2]. The comment at 124-128 records that
+// stopping at three slots is deliberate rather than an oversight.
+export function could_twoweap(species) {
+    let weaponAttacks = 0;
+    for (let slot = 0; slot < 3; ++slot) {
+        if (species?.mattk?.[slot]?.aatyp === M.AT_WEAP) ++weaponAttacks;
+    }
+    return weaponAttacks > 1;
+}
+
 function flag1(species, mask) {
     return Boolean(species && ((species.mflags1 ?? 0) & mask));
 }

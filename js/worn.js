@@ -398,7 +398,9 @@ export function bimanual(obj, state = game) {
         && Boolean(objectType(obj, state).oc_bimanual);
 }
 
-function isLauncher(obj, state) {
+// C ref: obj.h is_launcher() (235-237). Exported beside is_ammo() and
+// is_missile() because wield.c TWOWEAPOK() reads all three.
+export function is_launcher(obj, state = game) {
     const skill = objectType(obj, state).oc_skill;
     return obj.oclass === WEAPON_CLASS
         && skill >= P_BOW && skill <= P_CROSSBOW;
@@ -462,7 +464,7 @@ export function setuwep(obj, env = {}) {
     }
     if (obj) {
         state.unweapon = obj.oclass === WEAPON_CLASS
-            ? isLauncher(obj, state) || is_ammo(obj, state)
+            ? is_launcher(obj, state) || is_ammo(obj, state)
                 || is_missile(obj, state)
                 || (is_pole(obj, state) && !state.u.usteed
                     && obj.oartifact !== ART_SNICKERSNEE)

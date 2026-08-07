@@ -111,6 +111,7 @@ import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
 import { wiz_level_change, wiz_level_tele, wiz_wish } from './wizcmds.js';
 import { UnsupportedWishError } from './zap.js';
+import { dotwoweapon, UnsupportedTwoWeaponError } from './wield.js';
 import {
     clearTtyMessageWindow,
     ttyNorep,
@@ -744,10 +745,11 @@ export async function parseCommand(state = game) {
 // after the prompt has painted the frames the reference program painted for
 // the same keystrokes.
 //
-// doextcmd() dispatches one command that is deliberately absent here: '#ride',
-// whose own key is M-R. Reaching doride() from that keystroke needs rhack()'s
-// arm for it as well as this admission, and nothing in the current goal drives
-// it, so the key stays on the refusing side while the typed name works.
+// doextcmd() dispatches two commands that are deliberately absent here:
+// '#ride', whose own key is M-R, and '#twoweapon', whose own key is M-2.
+// Reaching doride() or dotwoweapon() from those keystrokes needs rhack()'s arm
+// for each as well as this admission, and nothing in the current goal drives
+// either, so both keys stay on the refusing side while the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'down', 'reqmenu', 'options', 'wizwish', 'wizlevelport',
@@ -963,6 +965,10 @@ export function failClosedCommandRefusals() {
         UnsupportedHungerTransitionError,
         UnsupportedObjectPromptError,
         UnsupportedSteedError,
+        // wield.c can_twoweapon()'s seven refusal messages and
+        // dotwoweapon()'s toggle-off arm, all of which stop before the
+        // command prints anything or draws its rnd(20).
+        UnsupportedTwoWeaponError,
         UnsupportedHitPointLossError,
         UnsupportedArtifactDisplayError,
         UnsupportedDropError,
@@ -1196,6 +1202,14 @@ async function runLevelTeleCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_level_tele(state));
 }
 
+// C ref: wield.c dotwoweapon(). Like dosearch() and doeat() it returns its own
+// ECMD_* result, and it is the only ported command whose result a random draw
+// decides: wield.c:861 answers ECMD_TIME when rnd(20) beats the hero's current
+// Dexterity and ECMD_OK when it does not.
+async function runTwoWeaponCommand(key, state) {
+    return failClosedCommand(key, state, () => dotwoweapon(state));
+}
+
 // C ref: options.c doset_simple(), the 'O' command. Its menu_requested arm
 // hands off to doset(), whose whole menu is formatted before select_menu()
 // draws anything, so an unported option value stops before any output.
@@ -1365,6 +1379,8 @@ async function doextcmd(key, state) {
     case 'doride':
         // C ref: steed.c doride(), which returns its own ECMD_* result.
         return await doride(state);
+    case 'dotwoweapon':
+        return await runTwoWeaponCommand(key, state);
     case 'wiz_level_change':
         return await runLevelChangeCommand(key, state);
     case 'wiz_level_tele':

@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     I_SPECIAL,
+    LAST_PROP,
     OBJ_FREE,
     OBJ_MINVENT,
     W_AMUL,
@@ -16,13 +17,18 @@ import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import {
     AMULET_OF_GUARDING,
+    ARROW,
+    BOW,
+    DART,
     GOLD_DRAGON_SCALE_MAIL,
+    KATANA,
     ORCISH_HELM,
     objects_globals_init,
 } from '../js/objects.js';
 import {
     extract_from_minvent,
     find_mac,
+    setuwep,
     which_armor,
 } from '../js/worn.js';
 
@@ -348,3 +354,37 @@ test('extract_from_minvent rejects an object outside a monster inventory',
             /not in minvent/u,
         );
     });
+
+// wield.c:128-134 computes gu.unweapon: a wielded weapon that is a launcher,
+// ammunition, a missile, or a polearm on foot leaves the hero "not really
+// wielding a weapon", and everything else does not. js/worn.js setuwep()
+// owns the same expression, so each of its terms needs its own case.
+function heroWieldState() {
+    const state = catalogState();
+    state.invent = null;
+    state.uwep = null;
+    state.u = {
+        uroleplay: {},
+        // setworn() reads every property slot it clears, so the hero needs a
+        // full uprops table rather than the sparse ones the monster cases use.
+        uprops: Array.from(
+            { length: LAST_PROP + 1 },
+            () => ({ intrinsic: 0, extrinsic: 0, blocked: 0 }),
+        ),
+    };
+    return state;
+}
+
+test('setuwep marks a launcher, ammunition and a missile as no weapon', () => {
+    // objects.c gives the bow oc_skill P_BOW, the arrow -P_BOW and the dart
+    // -P_DART, which is_launcher(), is_ammo() and is_missile() read in turn.
+    for (const otyp of [BOW, ARROW, DART]) {
+        const state = heroWieldState();
+        setuwep(wornObject(state, otyp, 0), { state });
+        assert.equal(state.unweapon, true);
+    }
+    // A katana matches none of the three, so it is a real melee weapon.
+    const melee = heroWieldState();
+    setuwep(wornObject(melee, KATANA, 0), { state: melee });
+    assert.equal(melee.unweapon, false);
+});
