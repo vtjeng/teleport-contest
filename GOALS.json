@@ -479,7 +479,7 @@
     },
     {
       "id": "monsters-deferral-sweep",
-      "status": "open",
+      "status": "closed",
       "boundary": "resolve the monsters area's open non-scope deferrals, which npm run quality names as a sweep candidate at ten, before the next fail-closed boundary port opens",
       "upstreamOwners": [
         "mon.c minliquid_core()",
@@ -527,8 +527,11 @@
         "screens": 1027,
         "rng": 116207
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "8c80cca803b92d64afeb907e33d28664f66e9d6c",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
