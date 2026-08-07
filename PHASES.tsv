@@ -212,3 +212,7 @@ utc	event	phase	goal	detail
 2026-08-07T17:38:26.733Z	end	select	commands-deferral-sweep-2	
 2026-08-07T17:38:26.763Z	start	implement	commands-deferral-sweep-2	
 2026-08-07T18:44:04.375Z	end	implement	commands-deferral-sweep-2	
+2026-08-07T18:44:59.531Z	end	select	hero-combat	
+2026-08-07T18:44:59.561Z	start	implement	hero-combat	
+2026-08-07T18:45:54.710Z	end	select	hero-combat	
+2026-08-07T18:45:54.738Z	start	implement	hero-combat	
