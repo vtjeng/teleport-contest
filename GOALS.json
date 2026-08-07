@@ -629,8 +629,8 @@
       "slices": [
         {
           "name": "the Samurai turns two-weapon combat on",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e4d15db03e36817a2b022fcb07f43863b88a361c"
         }
       ],
       "openedAt": "1de9dececb2cdc2286486003234ec13b6e0acc7a",
