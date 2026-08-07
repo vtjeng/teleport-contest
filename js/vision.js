@@ -743,7 +743,17 @@ export function vision_recalc(control = 0, env = {}) {
 
     const old_rmin = state._viz_rmin;
     const old_rmax = state._viz_rmax;
-    if (old_array && control !== 2 && state.level) {
+    // C ref: vision.c vision_recalc().  control == 2 shares the "you see
+    // nothing" arm with u.uswallow and then falls into this loop rather than
+    // jumping over it the way the Blind arm does with its `goto skip`.  Every
+    // cell keeps the zero get_unused_cs() left, so next_rmin[row] stays COLNO
+    // and next_rmax[row] stays 0 and the span below is the old array's alone:
+    // each square that was in sight, or could be seen, is repainted from
+    // memory.  That is how "shut down vision" darkens the map.
+    //
+    // The early return above already established state.level, so old_array,
+    // which is unset only before the first recalculation, is the whole test.
+    if (old_array) {
         for (let row = 0; row < ROWNO; row++) {
             const old_row = old_array[row];
             const next_row = next[row];

@@ -236,6 +236,20 @@ export function strip_newline(str) {
     return str.slice(0, cut);
 }
 
+// C ref: hacklib.c str_start_is().  True when chkstr is a prefix of str, and
+// also when str is the shorter of the two -- C returns TRUE the moment chkstr
+// runs out and TRUE again when str runs out with chkstr already exhausted, so
+// two equal strings answer TRUE from either arm.
+export function str_start_is(str, chkstr, caseblind) {
+    for (let index = 0; ; ++index) {
+        if (index >= str.length) return index >= chkstr.length;
+        if (index >= chkstr.length) return true;
+        const t1 = caseblind ? lowc(str[index]) : str[index];
+        const t2 = caseblind ? lowc(chkstr[index]) : chkstr[index];
+        if (t1 !== t2) return false;
+    }
+}
+
 // C ref: hacklib.c str_end_is().
 export function str_end_is(str, chkstr) {
     if (str.length < chkstr.length) return false;

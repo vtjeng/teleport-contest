@@ -32,6 +32,7 @@ import {
     PARANOID_SWIM,
     PARANOID_TRAP,
     PARANOID_WERECHANGE,
+    ECMD_OK,
     PRIMARYSET,
     ROGUESET,
     RUN_CRAWL,
@@ -86,7 +87,22 @@ import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
     encodeUtf8Text,
+    lowc,
+    str_start_is,
 } from './hacklib.js';
+// js/display.js, js/invent.js and js/vision.js do not import this file, so
+// these three are plain one-way dependencies; js/tty_message.js reaches
+// js/display.js from the other side, and both use the other's exports only
+// inside function bodies.
+import {
+    bot,
+    classify_terrain,
+    docrt,
+    reglyph_darkroom,
+} from './display.js';
+import { reassign, update_inventory } from './invent.js';
+import { ttyPline } from './tty_message.js';
+import { vision_recalc } from './vision.js';
 import { sourceGlyphName } from './glyph_ids.js';
 import { allopt } from './optlist_data.js';
 import { AUTOCOMP_ADJ, extcmdlist } from './extcmdlist_data.js';
@@ -2473,6 +2489,7 @@ export class UnsupportedOptionMenuError extends Error {
 
 // C ref: global.h enum optset_restrictions, the values doset() compares
 // allopt[].setwhere against.
+const set_in_config = 1;
 const set_gameview = 3;
 const set_in_game = 4;
 const set_wizonly = 5;
@@ -3146,6 +3163,11 @@ const DOSET_HELPTEXT = Object.freeze([
 // plus the terminating entry allopt_init[] carries.
 const HELP_IDX = allopt.length + 1;
 
+// C ref: options.c doset()'s `indexoffset = 1` (8830).  Every selectable
+// entry's a_int is its allopt[] index plus one for select_menu()'s own offset
+// plus this, and the pick loop subtracts all three back out again.
+const DOSET_INDEXOFFSET = 1;
+
 // C ref: options.c doset(), everything up to select_menu().  Returns the menu
 // specification the window port renders.
 export function dosetMenuItems(state, helpers, skiphelp) {
@@ -3170,7 +3192,7 @@ export function dosetMenuItems(state, helpers, skiphelp) {
     const startpass = set_gameview;
     const endpass = state.wizard ? set_wiznofuz : set_in_game;
     const format = dosetEntryFormat(state, startpass, endpass);
-    const indexoffset = 1;
+    const indexoffset = DOSET_INDEXOFFSET;
 
     items.push({
         text: 'Booleans (selecting will toggle value):',
@@ -3237,9 +3259,511 @@ export function dosetMenuItems(state, helpers, skiphelp) {
     return items;
 }
 
-// C ref: options.c doset(), the '#optionsfull' command.  The pick loop that
-// applies the selections is not ported; this stops once select_menu() has
-// answered.
+// ===========================================================================
+// options.c parseoptions() and optfn_boolean(), as doset()'s pick loop
+// reaches them.  The configuration-file pass has its own parser above; this
+// is the interactive one, which writes live flags and prints a message.
+// ===========================================================================
+
+// C ref: options.c:84, the value each option handler answers with.  The third,
+// optn_silenterr, has no port: C's optfn_boolean() returns it only from the
+// value-parsing and "not anatomically possible" arms, both of which stop with
+// a refusal below, and parseoptions() treats it as every other error anyway.
+const optn_err = 0;
+const optn_ok = 1;
+
+// C ref: options.c determine_ambiguities() (6699-6736), which
+// initoptions_init() runs once over the fixed allopt[] table.  needed[i] ends
+// as one more than the longest prefix option i's name shares with another
+// name, and minmatch is that count floored at three characters and capped at
+// the name's own length.  Nothing here reads game state, so this port computes
+// the table once at import instead of on the first parse.
+function determine_ambiguities() {
+    const needed = allopt.map(() => 0);
+    for (let i = 0; i < allopt.length; ++i) {
+        for (let j = 0; j < allopt.length; ++j) {
+            if (j === i) continue;
+            const p1 = allopt[i].name;
+            const p2 = allopt[j].name;
+            let tmpneeded = 1;
+            let at = 0;
+            while (at < p1.length && at < p2.length
+                && lowc(p1[at]) === lowc(p2[at])) {
+                ++tmpneeded;
+                ++at;
+            }
+            if (tmpneeded > needed[i]) needed[i] = tmpneeded;
+            if (tmpneeded > needed[j]) needed[j] = tmpneeded;
+        }
+    }
+    return needed.map((count, i) => {
+        const len = allopt[i].name.length;
+        if (count < 3) return 3;
+        return count <= len ? count : len;
+    });
+}
+
+export const OPTION_MINMATCH = Object.freeze(determine_ambiguities());
+
+// C's strncmpi() over at most `n` bytes, with C's NUL terminator: a string
+// that ends inside the window matches only if the other ends there too.
+function equal_ncasechars(a, b, n) {
+    for (let index = 0; index < n; ++index) {
+        const endedA = index >= a.length;
+        const endedB = index >= b.length;
+        if (endedA || endedB) return endedA && endedB;
+        if (lowc(a[index]) !== lowc(b[index])) return false;
+    }
+    return true;
+}
+
+// C ref: options.c length_without_val().  A statement's name ends at the first
+// ':' or '=', whichever comes first, and any whitespace in front of that
+// separator belongs to neither side.
+function length_without_val(user_string, len) {
+    const colon = user_string.indexOf(':');
+    const equals = user_string.indexOf('=');
+    let at = colon;
+    if (colon < 0 || (equals >= 0 && equals < colon)) at = equals;
+    if (at < 0) return len;
+    while (at > 0 && /[\t\n\v\f\r ]/u.test(user_string[at - 1])) --at;
+    return at;
+}
+
+// C ref: options.c match_optname().  The player's text has to be a prefix of
+// the option's name and at least min_length characters long.
+function match_optname(user_string, optn_name, min_length, val_allowed) {
+    let len = user_string.length;
+    if (val_allowed) len = length_without_val(user_string, len);
+    return len >= min_length && equal_ncasechars(optn_name, user_string, len);
+}
+
+// C ref: options.c string_for_opt(opts, TRUE).  Answers the text after the
+// first ':' or '=', or the empty string where C answers its empty_optstr
+// sentinel.  The val_optional == FALSE caller adds a configuration-file error
+// message and is not on any path this port reaches.
+function string_for_opt(opts) {
+    const colon = opts.indexOf(':');
+    const equals = opts.indexOf('=');
+    const at = (colon < 0 || (equals >= 0 && equals < colon)) ? equals : colon;
+    return (at < 0 || at + 1 >= opts.length) ? '' : opts.slice(at + 1);
+}
+
+// C ref: include/botl.h:213 VIA_WINDOWPORT(), which asks whether the interface
+// takes status updates field by field.  tty advertises both bits, so every
+// caller in optfn_boolean() takes its true arm.
+function VIA_WINDOWPORT() {
+    return TTY_WINCAP2.has('WC2_HILITE_STATUS')
+        || TTY_WINCAP2.has('WC2_FLUSH_STATUS');
+}
+
+// C ref: botl.c status_initialize(REASSESS_ONLY) (1697-1721).  Its loop hands
+// every field to windows.c genl_status_enablefield(), which caches the field's
+// format, name and enabled state in three module arrays that
+// bot_via_windowport() reads back.  This port keeps no such cache:
+// js/display.js recomputes each field from flags on every bot(), which is what
+// makes flags.showexp and flags.time reach the status line at all, and
+// writeStatusRows() clears and rewrites both rows rather than sending only the
+// fields C would have marked dirty, so gu.update_all is permanently set here.
+// The redraw request the function ends with is the part that needs a home.
+function status_initialize(state) {
+    state.disp ??= {};
+    state.disp.botlx = true;
+}
+
+// C ref: windows.c adjust_menu_promptstyle().  It relays iflags.menu_headings
+// to the window port, and tty stores it in tty_menu_promptstyle
+// (wintty.c:2905).  This port reads iflags.menu_headings afresh every time it
+// opens a menu -- js/cmd.js menuTitleStyle() -- so the cached copy has no
+// counterpart and the flag reset is all that survives.
+function adjust_menu_promptstyle(state) {
+    state.go.opt_need_promptstyle = false;
+}
+
+// C ref: win/tty/wintty.c tty_preference_update().  Its one compiled arm tests
+// for "statuslines"; genl_preference_update() below it returns at once and the
+// TTY_PERM_INVENT block is not compiled, so every other preference is a no-op.
+function preference_update(state, pref) {
+    if (pref === 'statuslines') {
+        // Unreachable from doset(): 'statuslines' is a CompOpt, and the
+        // compound arm of the pick loop refuses before this call.
+        throw new UnsupportedOptionMenuError(
+            'tty_preference_update("statuslines")',
+        );
+    }
+}
+
+// C ref: options.c optfn_boolean()'s `*(allopt[optidx].addr) = !negated`
+// (5285).  booleanOptionValue() above reads the same field; this is its only
+// writer.
+function setBooleanOptionValue(state, option, value) {
+    const path = option.addr.split('.');
+    let owner = state;
+    for (let index = 0; index < path.length - 1; ++index)
+        owner = owner?.[path[index]];
+    if (!owner) {
+        throw new UnsupportedOptionMenuError(
+            `live storage for boolean option '${option.name}'`
+            + ` (${option.addr})`,
+        );
+    }
+    owner[path[path.length - 1]] = value;
+}
+
+// C ref: options.c optfn_boolean() (5192-5443), the do_set request.  The
+// do_init request returns at once and the get_val request answers an empty
+// string, which is what term_for_boolean() already supplies to
+// doset_add_menu(), so neither needs an arm here.
+//
+// C switches on optidx, the enum opt member; this switches on the option's
+// name, which the generator pins to the same array position.
+async function optfn_boolean(state, optidx, negated, opts) {
+    const option = allopt[optidx];
+
+    /* silent retreat: the #ifdef arm that would have supplied storage for
+       this option compiled to a null pointer */
+    if (!option.addr) return optn_ok;
+
+    /* option that must come from config file? */
+    if (!state.go.opt_initial && option.setwhere === set_in_config)
+        return optn_err;
+    /* options that must NOT come from config file */
+    if (state.go.opt_initial && option.setwhere === set_wiznofuz)
+        return optn_err;
+
+    if (string_for_opt(opts) !== '') {
+        // options.c:5211-5241 reads "opt:true", "opt:no", "opt:1" and their
+        // relatives, and `ln`, which the opt_female arm below floors at 3,
+        // is the length of that value.  doset() builds its statement as
+        // "%s%s" from an optional '!' and the option's name, so no pick
+        // brings a value and ln stays 0.
+        throw new UnsupportedOptionMenuError(
+            "parseoptions() with a value on a boolean option's statement",
+        );
+    }
+
+    if (state.iflags?.debug_fuzzer && !state.go.opt_initial) {
+        /* don't randomly toggle this/these */
+        if (option.name === 'silent' || option.name === 'perm_invent')
+            return optn_ok;
+    }
+
+    /* Before the change */
+    switch (option.name) {
+    case 'female':
+        // options.c:5245-5266 keeps the old 'O'-prompts-for-text behaviour,
+        // where "female" and "male" both reached this entry.  doset()'s
+        // boolean loop skips every entry whose storage is &flags.female
+        // (options.c:8873), so no pick can arrive here.
+        throw new UnsupportedOptionMenuError(
+            "optfn_boolean()'s flags.female arm",
+        );
+    case 'perm_invent':
+        // options.c:5267-5270 asks can_set_perm_invent() whether the
+        // interface can show a persistent inventory window.  The port's
+        // TTY_WINCAP carries no WC_PERM_INVENT, so unsupportedWindowOption()
+        // keeps 'perm_invent' out of the menu entirely.
+        throw new UnsupportedOptionMenuError('can_set_perm_invent()');
+    default:
+        break;
+    }
+
+    setBooleanOptionValue(state, option, !negated); /* <==== SET IT HERE */
+
+    /* After the change */
+    switch (option.name) {
+    case 'pauper':
+        // options.c:5288-5291. 'pauper' is set_in_config, so doset() lists it
+        // in the pass that assigns no selector.
+        throw new UnsupportedOptionMenuError("optfn_boolean()'s pauper arm");
+    case 'ascii_map':
+        state.iflags.wc_tiled_map = negated;
+        break;
+    case 'tiled_map':
+        state.iflags.wc_ascii_map = negated;
+        break;
+    case 'hilite_pet':
+        /* if we're enabling hilite_pet and petattr isn't set, set it to
+           Inverse; if we're disabling, leave petattr alone so that
+           re-enabling will get current value back */
+        if (state.iflags.wc_hilite_pet && !state.iflags.wc2_petattr)
+            state.iflags.wc2_petattr = ATR_INVERSE;
+        state.go.opt_need_redraw = true;
+        break;
+    case 'idlecheckpoint':
+        await ttyPline("There is no underlying support for 'idlecheckpoint'"
+            + ' compiled in.', state);
+        state.iflags.idlecheckpoint = false;
+        // C's give_opt_msg is a file static that starts TRUE; only this arm
+        // and doset_simple()'s loop write it, so once this fires no further
+        // toggle in the same game announces itself.
+        state.give_opt_msg = false;
+        break;
+    default:
+        break;
+    }
+
+    /* only do processing below if setting with doset() */
+    if (state.go.opt_initial) return optn_ok;
+
+    switch (option.name) {
+    case 'terrainstatus':
+        classify_terrain(state); /* bring iflags.terrain_typ up to date */
+        /* FALLTHRU */
+    case 'weaponstatus':
+    case 'armorstatus':
+        // The three fall through to the group below because the port's
+        // TTY_WINCAP2 carries WC2_EXTRASTATUS; options.c:5330-5335's
+        // "'%s' is not supported." arm needs an interface that does not, and
+        // unsupportedWindowOption() would have kept them out of the menu.
+        /* FALLTHRU */
+    case 'showscore':
+    case 'showvers':
+    case 'showexp':
+    case 'time':
+        if (VIA_WINDOWPORT()) status_initialize(state);
+        state.disp ??= {};
+        state.disp.botl = true;
+        break;
+    case 'fixinv':
+    case 'price_quotes':
+    case 'sortpack':
+    case 'implicit_uncursed':
+    case 'wizweight':
+        if (!state.flags.invlet_constant) reassign(state);
+        update_inventory({ state });
+        break;
+    case 'lit_corridor':
+        /*
+         * All corridor squares seen via night vision or candles & lamps
+         * change.  Update them by calling newsym() on them.
+         */
+        vision_recalc(2, { state }); /* shut down vision */
+        state.vision_full_recalc = 1; /* delayed recalc */
+        if (state.iflags.wc_color)
+            state.go.opt_need_redraw = true; /* darkroom refresh */
+        break;
+    case 'dark_room':
+        // options.c:5362-5375 shares its arm with 'lit_corridor', and the
+        // go.opt_need_redraw it raises takes reset_needed_visuals() into
+        // reglyph_darkroom().  js/display.js reglyph_darkroom() explains why
+        // this port cannot repair a map remembered under the other setting.
+        throw new UnsupportedOptionMenuError(
+            "reglyph_darkroom() over a 'dark_room' change",
+        );
+    case 'wizmgender':
+    case 'showrace':
+    case 'use_inverse':
+    case 'hilite_pile':
+    case 'perm_invent':
+    case 'ascii_map':
+    case 'tiled_map':
+        state.go.opt_need_redraw = true;
+        state.go.opt_need_glyph_reset = true;
+        break;
+    case 'hitpointbar':
+        if (VIA_WINDOWPORT()) {
+            status_initialize(state);
+            state.go.opt_need_redraw = true;
+        }
+        break;
+    case 'color':
+        state.go.opt_need_redraw = true;
+        state.go.opt_need_glyph_reset = true;
+        break;
+    case 'customcolors':
+        state.go.opt_reset_customcolors = true;
+        break;
+    case 'customsymbols':
+        state.go.opt_reset_customsymbols = true;
+        break;
+    case 'menucolors':
+    case 'guicolor':
+        update_inventory({ state });
+        state.go.opt_need_promptstyle = true;
+        break;
+    case 'mention_decor':
+        state.iflags.prev_decor = STONE;
+        break;
+    case 'rest_on_space':
+        // options.c:5424-5425 calls cmd.c update_rest_on_space(), which
+        // rebinds <space> in gc.Cmd.cmdbinds to a private #wait entry, or
+        // back to whatever the RC file bound there.
+        throw new UnsupportedOptionMenuError('update_rest_on_space()');
+    case 'accessiblemsg':
+        // options.c:5427-5428 clears a11y.msg_loc.  This port stores no such
+        // position: pline.c:162-164 clears it on every message, which is the
+        // state js/hack.js:1370 and :1405 already assume, so the assignment
+        // writes a value that is always already in force.
+        break;
+    default:
+        break;
+    }
+
+    /* boolean value has been toggled but some option changes can still be
+       pending at this point (mainly for opt_need_redraw); give the toggled
+       message now regardless */
+    if (state.give_opt_msg !== false) {
+        await ttyPline(
+            `'${option.name}' option toggled ${!negated ? 'on' : 'off'}.`,
+            state,
+        );
+    }
+    return optn_ok;
+}
+
+// C ref: options.c parseoptions() (489-681), the path doset()'s pick loop
+// takes.  `opts` there is always an allopt[] name with an optional leading
+// '!', and both flags arrive FALSE.
+export async function parseoptions(state, statement, tinitial, tfrom_file) {
+    if (tinitial || tfrom_file) {
+        // The comma recursion at options.c:513-521, duplicate_opt_detection()'s
+        // per-option counter and every config_error_add() report belong to the
+        // configuration-file pass, which parseNethackrc() above covers with a
+        // parser of its own.
+        throw new UnsupportedOptionMenuError(
+            'parseoptions() during option initialization',
+        );
+    }
+    state.go ??= {};
+    state.go.opt_initial = tinitial;
+    state.go.opt_from_file = tfrom_file;
+
+    if (encodeUtf8ByteString(statement).length > OPTION_ELEMENT_BYTE_LIMIT)
+        return false; /* "Option too long" */
+
+    let opts = trimCWhitespace(statement);
+    if (!opts) return false; /* "Empty statement" */
+
+    let negated = false;
+    while (opts[0] === '!' || equal_ncasechars(opts, 'no', 2)) {
+        opts = opts.slice(
+            opts[0] === '!' ? 1 : (opts[2] !== '-' ? 2 : 3),
+        );
+        negated = !negated;
+    }
+    const optlen = Math.min(opts.length, length_without_val(
+        opts, opts.length,
+    ));
+
+    let got_match = false;
+    let matchidx = -1;
+    for (let i = 0; i < allopt.length; ++i) {
+        got_match = false;
+        if (allopt[i].pfx && str_start_is(opts, allopt[i].name, true))
+            got_match = true;
+        if (!got_match) {
+            got_match = match_optname(
+                opts, allopt[i].name, OPTION_MINMATCH[i], true,
+            );
+        }
+        if (got_match) {
+            // options.c:583-589 answers "Ambiguous option" here when
+            // optlen < allopt[i].minmatch.  match_optname() has just measured
+            // the same optlen from the same string with the same val_allowed,
+            // and answered true only because that length reached minmatch, so
+            // the test cannot hold and the arm is left out rather than written
+            // unreachable.
+            matchidx = i;
+            break;
+        }
+    }
+    if (!got_match) {
+        // options.c:592-612 tries allopt[].alias next.  doset() builds this
+        // statement from an allopt[] entry's own name, and the loop above
+        // always matches such a name by the time it reaches that entry, so no
+        // pick can arrive here.
+        throw new UnsupportedOptionMenuError("parseoptions()'s alias table");
+    }
+
+    // options.c:614 raises program_state.in_parseoptions so a handler can ask
+    // who called it; optfn_boolean(), the one handler dispatched below, never
+    // asks.  options.c:620 and :671 also test allopt[].disregarded, which only
+    // cfgfiles.c rcfile_interface_options() writes, and it leaves just
+    // 'windowtype' and 'soundlib' set; neither is a boolean option.
+    // duplicate_opt_detection() (options.c:434-439) answers FALSE whenever
+    // go.opt_initial and go.opt_from_file are not both set, which the guard at
+    // the head of this function has already established.
+    if (negated && !allopt[matchidx].negateok) {
+        /* bad_negation(); C returns optn_err, which is 0, from a function
+           declared boolean, so the caller reads it as FALSE */
+        return false;
+    }
+
+    if (allopt[matchidx].optfn !== 'boolean') {
+        // opt_set_in_config[matchidx], which options.c:640 sets after a
+        // successful handler call, feeds #saveoptions alone and has no port.
+        const prefix = allopt[matchidx].pfx ? 'pfxfn' : 'optfn';
+        throw new UnsupportedOptionMenuError(
+            `${prefix}_${allopt[matchidx].optfn}()'s do_set request`,
+        );
+    }
+    const optresult = await optfn_boolean(state, matchidx, negated, opts);
+
+    // options.c:670-681.  Every remaining arm reports a configuration error
+    // and answers FALSE; only optn_ok answers TRUE, and `retval` is TRUE
+    // because the comma recursion that could clear it is a tinitial-only path.
+    // doset() discards this answer -- `(void) parseoptions(buf, FALSE, FALSE)`
+    // at options.c:8929 -- so the arms differ only in the message they add.
+    return optresult === optn_ok;
+}
+
+// C ref: options.c reset_needed_visuals() (8977-9010), which doset() runs once
+// after its pick loop and doset_simple() runs after every pass of its own.
+export async function reset_needed_visuals(state) {
+    const go = state.go ??= {};
+    if (go.opt_need_glyph_reset) {
+        // display.c reset_glyphmap(gm_optionchange) rebuilds the whole
+        // glyph-to-symbol map after an option changed how a class of glyphs
+        // is drawn.  js/symbols.js reset_glyphmap() covers the symbol-set
+        // switch only.
+        throw new UnsupportedOptionMenuError(
+            'reset_glyphmap(gm_optionchange)',
+        );
+    }
+    if (go.opt_reset_customcolors || go.opt_update_basic_palette
+        || go.opt_reset_customsymbols || go.opt_need_redraw) {
+        if (go.opt_update_basic_palette) {
+            // change_palette() sits behind CHANGE_COLOR, which no unix tty
+            // build defines, so C clears the flag and does nothing else.
+            go.opt_update_basic_palette = false;
+        }
+        if (go.opt_reset_customcolors)
+            throw new UnsupportedOptionMenuError('reset_customcolors()');
+        if (go.opt_reset_customsymbols)
+            throw new UnsupportedOptionMenuError('reset_customsymbols()');
+        if (go.opt_need_redraw) {
+            // botl.c check_gold_symbol() writes iflags.invis_goldsym from
+            // gs.showsyms[COIN_CLASS + SYM_OFF_O].  Its only readers are
+            // botl.c:131 and botl.c:1071, which choose between the literal
+            // "$" and encglyph(objnum_to_glyph(GOLD_PIECE)); tty renders the
+            // second as the coin-class symbol, which is '$' in both symbol
+            // sets this port loads, so the two arms write the same status
+            // byte and js/display.js spells that byte out.  js/do.js:857-860
+            // records the same reasoning for goto_level()'s call.
+            reglyph_darkroom(state);
+        }
+        // display.c docrt_flags() brackets its repaint with vision_recalc(2)
+        // and vision_recalc(0); js/display.js docrt() leaves that bracket to
+        // each caller because they do not all want the same one.  This caller
+        // wants both: the map on screen was drawn under the old option values
+        // and every square has to be reconsidered.
+        // js/display.js docrt() and bot() paint the module-level game, so
+        // passing `state` here is what refuses a state that is not it.
+        vision_recalc(2, { state });
+        await docrt();
+        vision_recalc(0, { state });
+    }
+    if (go.opt_need_promptstyle) adjust_menu_promptstyle(state);
+    if (state.disp?.botl || state.disp?.botlx) await bot();
+    go.opt_need_redraw = false;
+    go.opt_need_glyph_reset = false;
+    go.opt_reset_customcolors = false;
+    go.opt_reset_customsymbols = false;
+    go.opt_update_basic_palette = false;
+}
+
+// C ref: options.c doset(), the '#optionsfull' command.
 export async function doset(state, helpers) {
     if (state.iflags?.menu_requested) {
         // doset_simple() checks for 'm' and calls doset(); clear the
@@ -3247,15 +3771,59 @@ export async function doset(state, helpers) {
         state.iflags.menu_requested = false;
         return doset_simple(state, helpers);
     }
+    // options.c:8781 sets go.opt_phase = play_opt, which only the
+    // configuration-file error reporter reads.
     const skiphelp = !state.iflags?.cmdassist;
     const items = dosetMenuItems(state, helpers, skiphelp);
+    // options.c:8944-8946: end_menu(), then the two flags
+    // reset_needed_visuals() consumes, cleared before select_menu() can run a
+    // handler that raises either.
+    state.go ??= {};
+    state.go.opt_need_redraw = false;
+    state.go.opt_need_glyph_reset = false;
+
     const picks = await helpers.menu(items, 'Set what options?');
-    if (Array.isArray(picks) && picks.length > 0)
-        throw new UnsupportedOptionMenuError("doset()'s pick loop");
-    // select_menu() answered no pick, either through Escape or an empty
-    // commit, so doset() falls straight through its pick loop to
-    // destroy_nhwindow() and then reset_needed_visuals(), which is unported.
-    throw new UnsupportedOptionMenuError('reset_needed_visuals()');
+    const pick_list = Array.isArray(picks) ? picks : [];
+    /*
+     * Walk down the selection list and either invert the booleans or prompt
+     * for new values.  In most cases, call parseoptions() to take care of
+     * options that require special attention, like redraws.
+     */
+    for (let pick_idx = 0; pick_idx < pick_list.length; ++pick_idx) {
+        // options.c:8908-8912 answers '?' with display_file(OPTMENUHELP), then
+        // re-runs the whole menu when '?' was the only pick.  Both the help
+        // file and that second pass stop here.
+        if (pick_list[pick_idx].value - 1 === HELP_IDX)
+            throw new UnsupportedOptionMenuError('display_file(OPTMENUHELP)');
+        // options.c:8913-8914 corrects an a_int below -1, which only the
+        // PREFIXES_IN_USE entries produce and that block is not compiled;
+        // doset_add_menu() gives every selectable entry an a_int of at least
+        // two.  INDEXOFFSET is the 1 doset() adds at options.c:8830.
+        const opt_indx = pick_list[pick_idx].value - 1 - DOSET_INDEXOFFSET;
+        const option = allopt[opt_indx];
+        if (option.opttyp === 'BoolOpt') {
+            /* boolean option */
+            const buf = (booleanOptionValue(state, option) ? '!' : '')
+                + option.name;
+            await parseoptions(state, buf, false, false);
+        } else if (option.has_handler) {
+            /* compound option */
+            throw new UnsupportedOptionMenuError(
+                `optfn_${option.optfn}()'s do_handler request`,
+            );
+        } else {
+            throw new UnsupportedOptionMenuError(
+                `getlin("Set ${option.name} to what?")`,
+            );
+        }
+        if (wc_supported(option.name) || wc2_supported(option.name))
+            preference_update(state, option.name);
+    }
+    // destroy_nhwindow(tmpwin) at options.c:8971: the window port dismissed
+    // the menu as select_menu() answered, and this port creates no window
+    // object to free.
+    await reset_needed_visuals(state);
+    return ECMD_OK;
 }
 
 // C ref: options.c doset_simple(), the 'O' command.  Only its

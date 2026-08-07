@@ -2,13 +2,17 @@
 
 // Record and replay the '#optionsfull' menu against the patched C reference.
 // Every segment types 'm' then 'O', which options.c doset_simple() hands to
-// doset(), and pages through every one of its pages without committing a
-// selection. The first uses stock options, so the cmdassist help block leads
-// the menu and the compiled-in defaults fill its value column. The second
-// turns cmdassist off, which drops that block and shifts every page boundary,
-// and sets seven option values the menu then has to report back. The third
-// rebinds keys, which is the only input that moves the "bind keys" count on
-// the menu's last page.
+// doset(). The first three page through every one of its pages without
+// committing a selection: the first uses stock options, so the cmdassist help
+// block leads the menu and the compiled-in defaults fill its value column; the
+// second turns cmdassist off, which drops that block and shifts every page
+// boundary, and sets seven option values the menu then has to report back; the
+// third rebinds keys, which is the only input that moves the "bind keys" count
+// on the menu's last page.
+//
+// The fourth commits eight boolean picks and covers what happens afterwards:
+// parseoptions() and optfn_boolean() applying each one, and
+// reset_needed_visuals() repainting once the loop ends.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,6 +31,19 @@ const DATETIME = '20281114073500';
 // menu. Six spaces then walk pages 2 through 7. A seventh space would commit
 // the (empty) selection, which is the next behavior slice.
 const OPEN_FULL_OPTIONS_MENU = 'mO      ';
+// The same menu, with picks taken on pages 2, 3 and 4 before the walk
+// resumes. The eight reach five of optfn_boolean()'s do_set arms: autopickup,
+// lootabc and quick_farsight fall to its default, lit_corridor shuts vision
+// down and asks for a redraw, menucolors asks for a prompt style,
+// price_quotes refreshes the inventory, and showexp and time share the arm
+// that reassesses the status line.
+//
+// Of the eight spaces that follow, three finish the walk to page 7 and the
+// fourth commits there; the last four dismiss --More-- prompts, three raised
+// by the eight messages as they fill the top line and the fourth by
+// reset_needed_visuals()'s repaint. The Escape is the key the recorder has to
+// read at the command prompt for the repainted screen to be captured.
+const COMMIT_BOOLEAN_PICKS = 'mO g ijpu afp' + '        ' + '\x1b';
 
 function nethackrc(extra) {
     return [
@@ -84,6 +101,14 @@ export function loadOptionsMenuRecipes() {
             ]),
             moves: ' ' + OPEN_FULL_OPTIONS_MENU,
         },
+        {
+            seed: 4210041,
+            datetime: DATETIME,
+            // Stock options again, so the menu pages -- and with them the
+            // selector each pick names -- are the first segment's.
+            nethackrc: nethackrc([]),
+            moves: ' ' + COMMIT_BOOLEAN_PICKS,
+        },
     ];
     // record-session preserves the staged install between one recipe's
     // segments, and each of these leaves the recorder stopped inside a live
@@ -94,18 +119,49 @@ export function loadOptionsMenuRecipes() {
     }, `options menu recipe ${index + 1}`));
 }
 
+// The eight booleans the committing recipe picks, in the order doset() walks
+// them, each paired with the allopt[] storage it writes.
+const COMMITTED_PICKS = Object.freeze([
+    ['autopickup', 'flags', 'pickup'],
+    ['lit_corridor', 'flags', 'lit_corridor'],
+    ['lootabc', 'flags', 'lootabc'],
+    ['menucolors', 'iflags', 'use_menu_color'],
+    ['price_quotes', 'iflags', 'pricequotes'],
+    ['quick_farsight', 'flags', 'quick_farsight'],
+    ['showexp', 'flags', 'showexp'],
+    ['time', 'flags', 'time'],
+]);
+
 export async function verifyOptionsMenuSegment(segment) {
     let boundary = null;
     await runSegment(
         { ...segment },
         { onBoundary: (error) => { boundary = error; } },
     );
-    // Paging through the menu must not reach the unported pick loop; the
-    // whole recorded stretch happens inside select_menu().
+    // Neither shape of run may stop early: the paging ones stay inside
+    // select_menu(), and the committing one runs the whole pick loop.
     if (boundary) throw boundary;
     // doset() spends no turn, so the hero must still be on the first one.
     if (game.moves !== 1)
         throw new Error('opening the options menu advanced the turn counter');
+
+    if (segment.moves.includes(COMMIT_BOOLEAN_PICKS)) {
+        for (const [name, owner, field] of COMMITTED_PICKS) {
+            if (game[owner][field] !== true) {
+                throw new Error(
+                    `committing the options menu left '${name}' off`,
+                );
+            }
+        }
+        // reset_needed_visuals() spends every flag it consumes, so a second
+        // 'O' would find the same clean slate the first one did.
+        if (game.go.opt_need_redraw !== false
+            || game.go.opt_need_promptstyle !== false) {
+            throw new Error('reset_needed_visuals() left a repair pending');
+        }
+        return;
+    }
+
     // Paging the menu must apply nothing. These four are the options the two
     // recipes disagree about or that the recorded pages show as togglable:
     // autopickup and lit_corridor stay off, menucolors stays off, and
@@ -122,12 +178,13 @@ export async function verifyOptionsMenuSegment(segment) {
 }
 
 export async function runOptionsMenuMatrix() {
-    const [stock, configured, bound] = loadOptionsMenuRecipes();
+    const [stock, configured, bound, committed] = loadOptionsMenuRecipes();
     return runFreshMatrix({
         entries: [
             { label: 'stock options menu', recipe: stock },
             { label: 'configured options menu', recipe: configured },
             { label: 'rebound options menu', recipe: bound },
+            { label: 'committed options menu', recipe: committed },
         ],
         summaryLabel: 'OPTIONS MENU',
         verifySegment: verifyOptionsMenuSegment,

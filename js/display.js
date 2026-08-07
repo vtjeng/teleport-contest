@@ -1918,6 +1918,38 @@ export async function docrt() {
     game.disp.botlx = true;
 }
 
+// ── reglyph_darkroom ──
+// C ref: display.c reglyph_darkroom() (1818-1855).
+//
+// C's double loop repairs levl[x][y].glyph, the remembered glyph, after
+// 'dark_room' or 'color' has changed what an out-of-sight room or corridor
+// square should look like. Every one of its four arms tests a condition
+// map_background() and back_to_glyph() already applied when the square was
+// last drawn, so the loop finds work only when one of those two options has
+// moved since. options.c reaches this function from initoptions_finish()
+// (7347), from reset_needed_visuals() (8999) and from goto_level() (do.c:1715);
+// js/do.js:910-916 records why the goto_level() call has nothing to repair.
+//
+// This port keeps no remembered glyph number to rewrite: loc.remembered_glyph
+// holds a finished {ch, color} presentation record and newsym() replays it, so
+// there is no glyph identity for the loop to match on. Rather than write a
+// loop that cannot fire, this refuses the two option values that would give it
+// work, which is also what optfn_boolean() refuses at its 'dark_room' and
+// 'color' arms.
+//
+// The trailing assignment is what remains, and it is the reason this exists as
+// a function: a SYMBOLS=S_room override moves S_darkroom with it.
+export function reglyph_darkroom(state = game) {
+    if (!state.flags?.dark_room || !state.iflags?.wc_color) {
+        throw new Error(
+            'reglyph_darkroom() over a map remembered under different '
+            + "'dark_room' or 'color' settings",
+        );
+    }
+    const showsyms = state.gs?.showsyms;
+    if (showsyms) showsyms[S_darkroom] = showsyms[S_room];
+}
+
 // ── Status lines ──
 const BOTL_NSIZ = 16; // include/botl.h
 const TTY_STATUS_WIDTH = COLNO - 1;

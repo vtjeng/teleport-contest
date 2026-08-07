@@ -23,6 +23,7 @@ import {
     UnsupportedOptionMenuError,
 } from '../js/options.js';
 import {
+    ECMD_OK,
     H_DEC,
     H_IBM,
     H_UNK,
@@ -603,13 +604,9 @@ test('the m prefix routes doset_simple() to doset() exactly once',
             },
         });
         state.iflags.menu_requested = true;
-        // An empty commit leaves doset()'s pick loop alone and stops at
-        // reset_needed_visuals(), which is unported.
-        await assert.rejects(
-            doset_simple(state, helpers),
-            (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === 'reset_needed_visuals()',
-        );
+        // An empty commit runs no pick and leaves reset_needed_visuals() with
+        // nothing to do, so doset() answers ECMD_OK (options.c:8974).
+        assert.equal(await doset_simple(state, helpers), ECMD_OK);
         assert.deepEqual(calls, [{ count: 150, prompt: 'Set what options?' }]);
         // doset_simple() cleared the flag, so a second call is the simple
         // menu, which is unported.
@@ -621,17 +618,21 @@ test('the m prefix routes doset_simple() to doset() exactly once',
         // Escape, which select_menu() answers with the cancel value, reaches
         // the same place an empty commit does.
         state.iflags.menu_requested = true;
-        await assert.rejects(
-            doset_simple(state, menuHelpers({ menu: () => null })),
-            (error) => error.what === 'reset_needed_visuals()',
+        assert.equal(
+            await doset_simple(state, menuHelpers({ menu: () => null })),
+            ECMD_OK,
         );
-        // A committed pick stops one step later, in the loop that applies it.
+        // 24 is the a_int doset_add_menu() gave allopt[22], the compound
+        // option 'autounlock', whose has_handler sends it to the do_handler
+        // request rather than to a "Set %s to what?" prompt.
+        assert.equal(allopt[22].name, 'autounlock');
         state.iflags.menu_requested = true;
         await assert.rejects(
             doset_simple(state, menuHelpers({
                 menu: () => [{ value: 24, count: -1 }],
             })),
-            (error) => error.what === "doset()'s pick loop",
+            (error) => error instanceof UnsupportedOptionMenuError
+                && error.what === "optfn_autounlock()'s do_handler request",
         );
         // doset() reached directly with the prefix still set delegates the
         // other way, to the simple menu.

@@ -65,13 +65,16 @@ const OPTTYPES = Object.freeze(['BoolOpt', 'CompOpt', 'OthrOpt']);
 // left out here rather than emitted unused.
 const FIELD = Object.freeze({
     name: 0,
+    idx: 4,
     setwhere: 5,
     opttyp: 6,
+    negateok: 7,
     pfx: 10,
     termpref: 11,
     addr: 13,
     optfn: 14,
     initval: 18,
+    has_handler: 19,
 });
 const FIELD_COUNT = 22;
 
@@ -148,6 +151,39 @@ function parseInitval(field) {
     throw new Error(`unexpected option initial value: ${field}`);
 }
 
+// optlist.h declares has_handler as a boolean but each NHOPT* macro fills it
+// from a different vocabulary: NHOPTB writes the literal 0, NHOPTC writes the
+// caller's enum Y_N and NHOPTO writes enum Off_On's On.
+function parseHasHandler(field) {
+    if (field === 'Yes' || field === 'On') return true;
+    if (field === 'No' || field === 'Off' || field === '0') return false;
+    throw new Error(`unexpected option handler flag: ${field}`);
+}
+
+// The `enum opt` members options.c builds from the same NHOPT* list, in the
+// same order, with opt_prefix_only ahead of them and OPTCOUNT behind. Each
+// entry's own idx field names its member, so comparing the two lists position
+// by position is what lets the port index allopt[] with the value C passes as
+// optidx.
+function parseOptEnum(expanded) {
+    const start = expanded.indexOf('enum opt {');
+    if (start < 0) throw new Error('enum opt is missing from options.c');
+    const end = expanded.indexOf('\n};', start);
+    if (end < 0) throw new Error('enum opt is unterminated');
+    const members = expanded.slice(start + 'enum opt {'.length, end)
+        // Drop the `# 117 "optlist.h"` line markers clang leaves behind.
+        .replace(/^#.*$/gmu, '')
+        .split(',')
+        .map((member) => member.trim())
+        .filter((member) => member.length > 0);
+    const first = members.shift();
+    if (first !== 'opt_prefix_only = -1')
+        throw new Error(`enum opt starts with ${first}`);
+    const last = members.pop();
+    if (last !== 'OPTCOUNT') throw new Error(`enum opt ends with ${last}`);
+    return members;
+}
+
 function parseEntries(expanded) {
     const start = expanded.indexOf('static struct allopt_t allopt_init[] = {');
     if (start < 0) throw new Error('allopt_init[] is missing from options.c');
@@ -178,10 +214,14 @@ function parseEntries(expanded) {
         const pfx = parseYesNo(fields[FIELD.pfx], 'option prefix flag');
         entries.push({
             name: parseStringLiteral(fields[FIELD.name], 'option name'),
+            idx: fields[FIELD.idx],
             setwhere: parseEnum(
                 fields[FIELD.setwhere], SETWHERE, 'option restriction',
             ),
             opttyp,
+            negateok: parseYesNo(
+                fields[FIELD.negateok], 'option negation flag',
+            ),
             pfx,
             termpref: opttyp === 'BoolOpt'
                 ? parseEnum(
@@ -191,19 +231,38 @@ function parseEntries(expanded) {
             addr,
             optfn: parseOptfn(fields[FIELD.optfn], pfx),
             initval: parseInitval(fields[FIELD.initval]),
+            has_handler: parseHasHandler(fields[FIELD.has_handler]),
         });
     }
     if (!entries.length) throw new Error('allopt_init[] parsed as empty');
+
+    const enumOrder = parseOptEnum(expanded);
+    if (enumOrder.length !== entries.length) {
+        throw new Error(
+            `enum opt has ${enumOrder.length} members for `
+            + `${entries.length} options`,
+        );
+    }
+    for (let index = 0; index < entries.length; ++index) {
+        if (entries[index].idx !== enumOrder[index]) {
+            throw new Error(
+                `option ${entries[index].name} carries idx `
+                + `${entries[index].idx} at position ${index}, where enum opt `
+                + `has ${enumOrder[index]}`,
+            );
+        }
+    }
     return entries;
 }
 
 function formatEntry(entry) {
     const addr = entry.addr === null ? 'null' : `'${entry.addr}'`;
     return `    { name: '${entry.name}', setwhere: ${entry.setwhere},`
-        + ` opttyp: '${entry.opttyp}', pfx: ${entry.pfx},`
-        + ` termpref: ${entry.termpref},`
+        + ` opttyp: '${entry.opttyp}', negateok: ${entry.negateok},`
+        + ` pfx: ${entry.pfx}, termpref: ${entry.termpref},`
         + ` addr: ${addr}, optfn: '${entry.optfn}',`
-        + ` initval: ${entry.initval} },`;
+        + ` initval: ${entry.initval},`
+        + ` has_handler: ${entry.has_handler} },`;
 }
 
 function formatModule(entries) {
@@ -212,11 +271,15 @@ function formatModule(entries) {
 // allopt_init[], at ${PINNED_REVISION}.
 
 // One entry per option, in the order doset() and doset_simple_menu() walk.
+// This order is also enum opt's, which the generator checks position by
+// position, so an entry's array index is the optidx C passes to its handler.
 // setwhere is global.h enum optset_restrictions, termpref is optlist.h enum
 // menu_terminology_preference, addr names the C lvalue holding a boolean
 // option's value, and optfn names the options.c handler minus its optfn_
-// prefix, or its pfxfn_ prefix when pfx is true. initval is the compiled-in
-// default initoptions_init() stores.
+// prefix, or its pfxfn_ prefix when pfx is true. negateok says whether
+// parseoptions() accepts a leading '!' or "no", has_handler whether doset()
+// runs the option's do_handler request instead of prompting, and initval is
+// the compiled-in default initoptions_init() stores.
 export const allopt = Object.freeze([
 ${entries.map(formatEntry).join('\n')}
 ].map(Object.freeze));

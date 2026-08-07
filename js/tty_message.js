@@ -7,6 +7,7 @@ import { encodeUtf8ByteString } from './hacklib.js';
 import { nhgetch } from './input.js';
 import { emitGlyphUpdateNotices } from './startup_a11y.js';
 import { NO_COLOR } from './terminal.js';
+import { vision_recalc } from './vision.js';
 
 // C ref: win/tty/wintty.c defmorestr[], the prompt both more() and dmore()
 // print when no window supplies its own.
@@ -248,6 +249,14 @@ async function ttyPlineCore(message, state, noRepeat) {
     const deathComparisonReached = deathMessage
         && (Boolean(current) || stoppedAtEntry)
         && fitsOnTtyTopline(priorTopline, next, columns);
+    // C ref: pline.c vpline() (266-271). A recalculation another routine
+    // deferred -- options.c:5372's lit_corridor toggle sets the flag right
+    // after shutting vision down -- is spent by the next message rather than
+    // waiting for the move loop, so the map flushed below is the one the
+    // player is being told about. C brackets the call with in_pline = 0 so a
+    // message raised inside it counts as top level; this port keeps no
+    // in_pline counter to save and restore.
+    if (state === game && state.vision_full_recalc) vision_recalc(0);
     // C ref: pline.c vpline(). Once the hero is on the map, every message
     // flushes pending map and bottom-line changes before update_topl() can
     // wrap into a blocking More prompt.
