@@ -96,6 +96,7 @@ import { lcase, lowc, highc, mungspaces, strsubst } from './hacklib.js';
 import { currency, money_cnt } from './invent.js';
 import { makeplural } from './fruit.js';
 import { an } from './objnam.js';
+import { oc_to_str } from './options.js';
 import {
     DUNCE_CAP,
     GAUNTLETS_OF_POWER,
@@ -490,17 +491,21 @@ function basics_enlightenment(final, state, lines) {
     }
 
     if (state.flags.pickup) {
-        // C splits here: inside a shop the line ends ", but temporarily
-        // disabled while inside the shop" and never reaches oc_to_str().
-        // costly_spot() answers FALSE on a shopless level and stops on a shop
-        // level, so each arm's stop names the source it actually needs.
+        buf = 'on';
+        // C splits here: being in a shop inhibits autopickup, so inside one
+        // the line ends ", but temporarily disabled while inside the shop"
+        // and never reaches oc_to_str(). costly_spot() answers FALSE on a
+        // shopless level and stops on a shop level, which is the arm's stop.
         costly_spot(state.u.ux, state.u.uy, state);
-        // options.c optfn_pickup_types() is what turns the option into
-        // flags.pickup_types; it is not ported, so oc_to_str() has nothing
-        // to read and this branch stops.
-        throw new UnsupportedEnlightenmentError('optfn_pickup_types()');
+        const ocl = oc_to_str(state.flags.pickup_types);
+        buf += ` for ${ocl ? `'${ocl}'` : 'all types'}`;
+        /* show when not 'all types' */
+        if (state.flags.pickup_thrown && ocl) buf += ' plus thrown';
+        if (state.ga?.apelist) buf += ', with exceptions';
+    } else {
+        buf = 'off';
     }
-    enl_msg(lines, final, 'Autopickup ', 'is ', 'was ', 'off', '');
+    enl_msg(lines, final, 'Autopickup ', 'is ', 'was ', buf, '');
 }
 
 // C ref: insight.c one_characteristic().

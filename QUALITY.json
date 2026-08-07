@@ -920,6 +920,15 @@
       "status": "open",
       "from": "049a95ae2bd0bb62fdbecd78c705d971059e6ff3",
       "detail": "Four follow-ups found while applying the correctness pass over\n`a97c0a1..e9723ab`, none of them in its fourteen findings.\n\n**`count_apes()` carries the identical defect the pass fixed three times over.**\nIts comment cites the port's missing `AUTOPICKUP_EXCEPTION` statement as\nevidence that the exception list is empty. `cfgfiles.c` has\n`CNFL_N(AUTOPICKUP_EXCEPTION, 5)`, so C reads such a statement and the port\ndrops it. Adding a fourth row to `UNPORTED_CONFIG_STATEMENTS` closes it in\nabout three lines, and it is the same reasoning error: the port's own gap\noffered as a fact about the game.\n\n**A boolean written by an unhandled `OPTIONS=<name>:true` is stored as the\nstring `'true'`.** The options menu now refuses to display it, so the wrong\nvalue cannot reach a screen through that path, but it stays wrong wherever else\nit is read.\n\n**`createCommandBindingModel()` does not skip `INTERNALCMD` rows** the way\n`cmd.c bind_key()` does, so a binding to an internal command succeeds in the\nport and fails in C.\n\n**The port has no non-fatal config error.** `optfn_sortloot()`,\n`optfn_versinfo()` and `optfn_msg_window()` all call `config_error_add()` and\nlet the game continue; the port throws. Matching C there is its own slice, and\nit is the shape most likely to cost screens: C keeps playing where the port\nstops."
+    },
+    {
+      "id": "full-screen-menu-dismissal-repaints-status",
+      "area": "display",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "760f9d77edb321f595701ff41527c94cca0b4237",
+      "detail": "`js/tty_menu.js dismissTtyMenu()` restores a snapshot of the base window where\n`wintty.c erase_menu_or_text()` (966-984) calls `docrt(); flush_screen(1)` for a\nfull-screen menu. The two differ on the rows `docrt()` does not repaint: C's\n`cls()` blanks the whole screen, redraws the map, and sets `disp.botlx` so the\nstatus lines come back at the next `bot()`; the port hands the status lines\nback immediately, from the snapshot.\n\nReproduce it with this recipe, which is scripts/run-options-menu.mjs's fifth\nwith the boolean pick removed from each round, so no message intervenes:\n\n    seed 4210041, datetime 20281114073500,\n    nethackrc = the file scripts/run-options-menu.mjs nethackrc([]) builds,\n    moves = ' mO     n\\r c%\\rmO     n\\r A\\rmO     n\\r =\\r\\x1b'\n\nExpected failure: `node scripts/diff-fresh.mjs --recipe <that file>` reports\n`First screen mismatch ... Cell row 23, column 1 (ch): C:\" \" JS:\"O\"` at the\nboundary where the class menu first draws. PRNG, cursors and every earlier\nscreen match.\n\nEvery path that reaches a second window inside one command without an\nintervening message is exposed. Nothing in the development sessions is: each\none that commits an options menu also toggles a boolean, and `ttyPline()`'s\n`flush_screen(1)` repaints over the difference before the next screen is\ncaptured. That is also why the defect predates the slice that found it -- until\n`handler_pickup_types()` landed, no command opened a second window after a\nfull-screen menu at all.\n\nFixing it means giving the port a `bot_disabled`-shaped notion of a status line\nthat is blank until the next `bot()`, which is the same machinery\n`flush_screen() rebuilds the whole screen` needs; read that entry first."
     }
   ],
   "areas": [
@@ -1131,6 +1140,7 @@
         "js/tty_menu.js",
         "js/tty_message.js",
         "js/uhitm.js",
+        "js/windows.js",
         "js/wizcmds.js"
       ],
       "generatedOutputs": [
@@ -1146,6 +1156,7 @@
       "label": "Display and symbols",
       "paths": [
         "js/display.js",
+        "js/drawing.js",
         "js/game_display.js",
         "js/glyph_ids.js",
         "js/symbol_data.js",

@@ -392,7 +392,7 @@ export function preflight_projected_random_arrival_pickup(state) {
                 'pickup() with autopickup exceptions',
             );
         }
-        if (state.flags?.pickup_types)
+        if (state.flags?.pickup_types?.length)
             throw new UnsupportedPickupError('pickup() with pickup_types');
         const plan = planAutomaticFloorPickupAndRefreshCapacityCache(state);
         remaining = plan.remaining;
@@ -483,7 +483,7 @@ export async function pickup(what, state = game) {
             'pickup() with autopickup exceptions',
         );
     }
-    if (state.flags?.pickup_types) {
+    if (state.flags?.pickup_types?.length) {
         throw new UnsupportedPickupError('pickup() with pickup_types');
     }
 

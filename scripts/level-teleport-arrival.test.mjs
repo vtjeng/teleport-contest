@@ -55,7 +55,9 @@ import { M1_NOTAKE, PM_DWARF, monst_globals_init } from '../js/monsters.js';
 import { m_at } from '../js/monst.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
-import { APPLE, CORPSE, ELVEN_DAGGER, TIN } from '../js/objects.js';
+import {
+    APPLE, COIN_CLASS, CORPSE, ELVEN_DAGGER, TIN,
+} from '../js/objects.js';
 import {
     pickup,
     preflight_projected_random_arrival_pickup,
@@ -969,10 +971,12 @@ test('random arrival refuses every unsupported ordinary pickup guard atomically'
                 name: 'pickup type filter',
                 pattern: /pickup_types/u,
                 apply: () => {
-                    game.flags.pickup_types = '$';
+                    // optfn_pickup_types() writes object-class indices, so
+                    // "pick up gold only" is [COIN_CLASS], not '$'.
+                    game.flags.pickup_types = [COIN_CLASS];
                 },
                 restore: () => {
-                    game.flags.pickup_types = '';
+                    game.flags.pickup_types = [];
                 },
             },
         ];

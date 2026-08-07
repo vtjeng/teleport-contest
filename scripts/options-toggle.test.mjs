@@ -1,6 +1,7 @@
-// Focused tests for options.c parseoptions(), optfn_boolean() and
-// reset_needed_visuals(), the three functions doset()'s pick loop reaches
-// once the player has committed a selection.
+// Focused tests for options.c parseoptions(), optfn_boolean(),
+// optfn_pickup_types() and reset_needed_visuals(), the functions doset()'s
+// pick loop reaches once the player has committed a selection, plus
+// windows.c choose_classes_menu(), which the pickup_types handler opens.
 //
 // Every game here starts from the first configuration
 // scripts/run-options-menu.mjs records with the patched C reference, and that
@@ -16,11 +17,19 @@ import { allopt } from '../js/optlist_data.js';
 import {
     doset,
     OPTION_MINMATCH,
+    oc_to_str,
     parseoptions,
     reset_needed_visuals,
     UnsupportedOptionMenuError,
 } from '../js/options.js';
 import { reglyph_darkroom } from '../js/display.js';
+import { choose_classes_menu } from '../js/windows.js';
+import {
+    MENU_COMBINATION, MENU_FULL, MENU_TRADITIONAL,
+} from '../js/const.js';
+import {
+    FOOD_CLASS, RING_CLASS, WAND_CLASS, WEAPON_CLASS,
+} from '../js/objects.js';
 import { S_darkroom, S_room } from '../js/symbols.js';
 import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
@@ -63,11 +72,20 @@ function menuValue(name) {
     return optionIndex(name) + 2;
 }
 
-function menuHelpers(picks) {
+// `classPicks` answers choose_classes_menu()'s window, which
+// handler_pickup_types() opens from inside the pick loop; `picks` answers
+// doset()'s own. Leaving classPicks undefined makes the class menu throw
+// rather than silently commit an empty selection.
+function menuHelpers(picks, classPicks, seen) {
     return {
         headingStyle: { attr: ATR_INVERSE, color: NO_COLOR },
         countBindKeys: () => 0,
-        menu: () => picks,
+        menu: (items, prompt) => {
+            if (prompt !== 'Autopickup what?') return picks;
+            assert.notEqual(classPicks, undefined, 'unexpected class menu');
+            if (seen) seen.push(...items);
+            return classPicks;
+        },
     };
 }
 
@@ -529,13 +547,157 @@ test('doset() stops on the picks whose handlers are unported', async () => {
         ])),
         (error) => error.what === 'getlin("Set boulder to what?")',
     );
-    // 'pickup_types' does have one, and it is the pick seed0007 records.
-    assert.equal(allopt[optionIndex('pickup_types')].has_handler, true);
+    // 'runmode' is a compound option with a handler this port has not written.
+    assert.equal(allopt[optionIndex('runmode')].has_handler, true);
     await assert.rejects(
         doset(state, menuHelpers([
-            { value: menuValue('pickup_types'), count: -1 },
+            { value: menuValue('runmode'), count: -1 },
         ])),
-        (error) => error.what === "optfn_pickup_types()'s do_handler request",
+        (error) => error.what === "optfn_runmode()'s do_handler request",
+    );
+});
+
+// C ref: options.c handler_pickup_types() (6114-6121) and
+// optfn_pickup_types()'s do_set arm (3320-3390). This is the pick seed0007
+// records; scripts/run-options-menu.mjs's fifth recipe runs it end to end
+// against the C reference.
+test("doset()'s 'pickup_types' pick edits the class list", async () => {
+    const state = await startStockGame();
+    assert.equal(allopt[optionIndex('pickup_types')].has_handler, true);
+    const pick = [{ value: menuValue('pickup_types'), count: -1 }];
+
+    // Two classes chosen by symbol. def_char_to_objclass() turns each into the
+    // class index optfn_pickup_types() stores.
+    await doset(state, menuHelpers(pick, [
+        { value: ')', count: -1 }, { value: '%', count: -1 },
+    ]));
+    assert.deepEqual(state.flags.pickup_types, [WEAPON_CLASS, FOOD_CLASS]);
+
+    // windows.c:1744-1751 collapses any selection containing the "all classes"
+    // entry to that entry alone, and optfn_pickup_types() reads the resulting
+    // ' ' as "no restriction" rather than as a class.
+    await doset(state, menuHelpers(pick, [
+        { value: '=', count: -1 }, { value: ' ', count: -1 },
+    ]));
+    assert.deepEqual(state.flags.pickup_types, []);
+
+    // An empty commit answers n == 0, which empties the buffer the same way.
+    await doset(state, menuHelpers(pick, [{ value: '=', count: -1 }]));
+    assert.deepEqual(state.flags.pickup_types, [RING_CLASS]);
+    await doset(state, menuHelpers(pick, []));
+    assert.deepEqual(state.flags.pickup_types, []);
+
+    // Escape answers n == -1, where C terminates class_select at its existing
+    // end and so hands the old list back to be parsed again.
+    await doset(state, menuHelpers(pick, [{ value: '/', count: -1 }]));
+    assert.deepEqual(state.flags.pickup_types, [WAND_CLASS]);
+    await doset(state, menuHelpers(pick, null));
+    assert.deepEqual(state.flags.pickup_types, [WAND_CLASS]);
+});
+
+// C ref: options.c optfn_pickup_types()'s do_set arm (3320-3390), reached
+// directly rather than through doset()'s pick loop, which discards its answer.
+test('optfn_pickup_types() reports a class list it could not parse', async () => {
+    const state = await startStockGame();
+    const run = async (classPicks) => parseoptions(
+        state, 'pickup_types', false, false, menuHelpers(null, classPicks),
+    );
+
+    // optn_ok, which parseoptions() answers as TRUE.
+    assert.equal(await run([{ value: ')', count: -1 }]), true);
+    assert.deepEqual(state.flags.pickup_types, [WEAPON_CLASS]);
+
+    // Two shapes of bad parameter, neither of which the class menu can
+    // produce -- C's getlin() arm is what accepts a typed list. C keeps every
+    // class it did accept and still answers optn_err, which is FALSE here.
+    assert.equal(await run([
+        { value: ')', count: -1 }, { value: ')', count: -1 },
+    ]), false);
+    assert.deepEqual(state.flags.pickup_types, [WEAPON_CLASS]);
+    assert.equal(await run([
+        { value: '%', count: -1 }, { value: 'Z', count: -1 },
+    ]), false);
+    assert.deepEqual(state.flags.pickup_types, [FOOD_CLASS]);
+
+    // A list beginning 'a' or 'A' is C's "all", which skips the parse
+    // entirely and leaves the buffer cleared. Neither reaches this arm from
+    // the class menu either: 'a' is no class symbol, so the menu offers it as
+    // an accelerator rather than as a value.
+    for (const all of ['a', 'A']) {
+        await run([{ value: '%', count: -1 }]);
+        assert.deepEqual(state.flags.pickup_types, [FOOD_CLASS]);
+        assert.equal(await run([{ value: all, count: -1 }]), true);
+        assert.deepEqual(state.flags.pickup_types, [], all);
+    }
+});
+
+// C ref: options.c optfn_pickup_types():3337-3356. Both traditional menu
+// styles ask getlin() for the class list instead of opening the class menu.
+test('optfn_pickup_types() stops on the two getlin menu styles', async () => {
+    const state = await startStockGame();
+    for (const style of [MENU_TRADITIONAL, MENU_COMBINATION]) {
+        state.flags.menu_style = style;
+        await assert.rejects(
+            doset(state, menuHelpers([
+                { value: menuValue('pickup_types'), count: -1 },
+            ])),
+            (error) => error instanceof UnsupportedOptionMenuError
+                && error.what
+                    === 'optfn_pickup_types()\'s getlin("New %s: [%s am] (%s)")',
+            `menu_style ${style}`,
+        );
+    }
+    state.flags.menu_style = MENU_FULL;
+});
+
+// C ref: windows.c choose_classes_menu()'s category 1 arm (1660-1740). The
+// literals are def_inv_order[] read through def_oc_syms[], which is what
+// seed0007 and the fifth recipe both record.
+test('choose_classes_menu() lays out the object classes', async () => {
+    const state = await startStockGame();
+    const pick = [{ value: menuValue('pickup_types'), count: -1 }];
+    const items = [];
+    // The wand pick survives into the second menu below as a preselection.
+    await doset(state, menuHelpers(pick, [{ value: '/', count: -1 }], items));
+
+    // One entry per class in flags.inv_order, in that order, each labelled
+    // "%c  %s" from the class symbol and def_oc_syms[].explain, and each
+    // carrying its own symbol as add_menu()'s groupacc.
+    assert.equal(items.length, 15 + 4);
+    assert.deepEqual(items.slice(0, 3), [
+        { value: '$', selector: 'a', groupSelector: '$',
+            label: '$  pile of coins', selected: false },
+        { value: '"', selector: 'b', groupSelector: '"',
+            label: '"  amulet', selected: false },
+        { value: ')', selector: 'c', groupSelector: ')',
+            label: ')  weapon', selected: false },
+    ]);
+    // next_accelerator runs 'a' upward independently of the group letters, so
+    // the fifteenth class is 'o' and the "all classes" entry keeps its 'A'.
+    assert.deepEqual(items[14], { value: '_', selector: 'o',
+        groupSelector: '_', label: '_  iron chain', selected: false });
+    assert.deepEqual(items.slice(15), [
+        { text: '' },
+        { value: ' ', selector: 'A', label: '   All classes of objects',
+            bulkSelectable: false },
+        { text: 'Note: when no choices are selected, "all" is implied.' },
+        // flags.pickup is false in this configuration ('OPTIONS=!autopickup'),
+        // so the trailing line offers to turn autopickup on.
+        { text: "Toggle on 'autopickup' to automatically pick these "
+            + 'things up.' },
+    ]);
+
+    // Reopening preselects the classes already in flags.pickup_types, and the
+    // note flips once autopickup is on.
+    state.flags.pickup = true;
+    const second = [];
+    await doset(state, menuHelpers(pick, null, second));
+    assert.equal(second.filter((item) => item.selected).length, 1);
+    assert.equal(second[9].value, '/');
+    assert.equal(second[9].selected, true);
+    assert.equal(
+        second.at(-1).text,
+        "Toggle off 'autopickup' to not pick up anything.",
     );
 });
 
@@ -597,3 +759,51 @@ test('reglyph_darkroom() moves the dark-room symbol with the room symbol',
         state.iflags.wc_color = false;
         assert.throws(() => reglyph_darkroom(state), /dark_room/u);
     });
+
+// C ref: windows.c choose_classes_menu()'s accelerator walk (1701-1707) and
+// its objclass panic (1683-1686). options.c:3360 hands the function at most
+// seventeen classes, so neither the 'z'-to-'A' wrap, the 'Z' stop, nor the
+// panic can be reached through doset(); a direct call is what pins them.
+test('choose_classes_menu() wraps its accelerators and then stops', async () => {
+    const state = await startStockGame();
+    const seen = [];
+    const helpers = {
+        menu: (items) => { seen.length = 0; seen.push(...items); return []; },
+    };
+    const classes = oc_to_str(state.flags.inv_order); // 15 symbols
+
+    // Twenty-five classes leave next_accelerator on 'z', the one value where
+    // the "all classes" guard's `<=` and a `<` disagree.
+    await choose_classes_menu(
+        state, 'Autopickup what?', classes.repeat(2).slice(0, 25), '', helpers,
+    );
+    assert.equal(seen[24].selector, 'y');
+    assert.deepEqual(seen[25], { text: '' });
+    assert.equal(seen[26].selector, 'A');
+
+    // Sixty run past 'z' into 'A', then stop after 'Z' with the rest of the
+    // list unwalked. The blank separator and "all classes" entry still follow,
+    // because 'Z' is below 'z'.
+    await choose_classes_menu(
+        state, 'Autopickup what?', classes.repeat(4), '', helpers,
+    );
+    assert.equal(seen[25].selector, 'z');
+    assert.equal(seen[26].selector, 'A');
+    assert.equal(seen[51].selector, 'Z');
+    assert.deepEqual(seen[52], { text: '' });
+    assert.equal(seen[53].selector, 'A');
+
+    // A character no object class owns reaches C's panic. 'Z' is a monster
+    // class symbol, so it is a plausible mistake rather than an arbitrary one.
+    await assert.rejects(
+        choose_classes_menu(state, 'Autopickup what?', 'Z', '', helpers),
+        (error) => error.message
+            === "choose_classes_menu: invalid objclass 'Z'",
+    );
+
+    // A prompt other than the one options.c passes drops the two notes, so the
+    // "all classes" entry is the last line.
+    await choose_classes_menu(state, 'Pick a class', classes, '', helpers);
+    assert.equal(seen.length, 17);
+    assert.equal(seen.at(-1).value, ' ');
+});

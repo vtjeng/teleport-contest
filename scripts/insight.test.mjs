@@ -274,3 +274,41 @@ test('every encumbrance level prints its own adjective', async () => {
         );
     }
 });
+
+// C ref: insight.c basics_enlightenment()'s autopickup line (804-822). The
+// value column reports flags.pickup_types through oc_to_str(), so the line
+// spells the classes rather than the indices the field holds.
+test('the autopickup line reports the pickup_types class list', async () => {
+    const state = await readyGame();
+    assert.equal(state.flags.pickup, false);
+    assert.equal(
+        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+            ' Autopickup '),
+        ' Autopickup is off.',
+    );
+
+    // An empty list is "all types", and C shows " plus thrown" only when the
+    // list is a restriction, so pickup_thrown alone must not add it.
+    state.flags.pickup = true;
+    state.flags.pickup_thrown = true;
+    assert.equal(
+        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+            ' Autopickup '),
+        ' Autopickup is on for all types.',
+    );
+
+    // Two classes, quoted, with the thrown suffix the restriction now earns.
+    state.flags.pickup_types = [WEAPON_CLASS, ARMOR_CLASS];
+    assert.equal(
+        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+            ' Autopickup '),
+        " Autopickup is on for ')[' plus thrown.",
+    );
+
+    state.flags.pickup_thrown = false;
+    assert.equal(
+        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+            ' Autopickup '),
+        " Autopickup is on for ')['.",
+    );
+});

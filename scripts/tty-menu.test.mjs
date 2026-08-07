@@ -439,6 +439,59 @@ test('a full-screen gameplay menu restores its base frame on dismissal', () => {
     );
 });
 
+// C ref: wintty.c process_menu_window() turns a page inside the window
+// tty_display_nhwindow() already opened, so the base window
+// tty_dismiss_nhwindow() repairs with docrt() is the one the first page
+// covered, not the page a later one replaced.
+test('a paged full-screen menu restores the frame its first page covered',
+    () => {
+        const state = menuState();
+        state.nhDisplay.setCell(12, 5, '@', 3, 1);
+        state.nhDisplay.setCursor(12, 5);
+        // Two pages: 23 lines fill the first page and the title pair plus the
+        // twenty-fourth line spill onto a second.
+        const lines = Array.from({ length: 24 }, (_, i) => `line ${i}`);
+        const spec = { title: 'Paged gameplay menu', lines };
+        const first = renderTtyMenu(state, spec, 0);
+        assert.equal(first.layout.pageCount, 2);
+        assert.equal(first.layout.fullScreen, true);
+        const second = renderTtyMenu(state, spec, 1, first);
+
+        dismissTtyMenu(state, second);
+
+        assert.deepEqual(
+            [
+                state.nhDisplay.grid[5][12].ch,
+                state.nhDisplay.grid[5][12].color,
+                state.nhDisplay.grid[5][12].attr,
+            ],
+            ['@', 3, 1],
+        );
+        assert.deepEqual(
+            [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+            [12, 5],
+        );
+    });
+
+// C ref: wintty.c tty_display_nhwindow()'s NHW_MENU arm (1921-1922).
+test('a menu flushes an unacknowledged top line before it draws',
+    async () => {
+        // One space dismisses the pending-message More; 'y' answers the menu.
+        const state = menuState(' y');
+        await ttyPline('A pending message.', state);
+        const boundaries = [];
+        state._preNhgetchHook = () => boundaries.push(rowText(state, 0));
+
+        await selectTtyMenu(state, confirmation);
+
+        // The More boundary comes first, and the menu covers row 0 only after
+        // the player has acknowledged it.
+        assert.equal(boundaries.length, 2);
+        assert.equal(boundaries[0], 'A pending message.--More--');
+        assert.equal(boundaries[1].includes('--More--'), false);
+        assert.equal(state.nhDisplay.inputQueueLength, 0);
+    });
+
 test('state-parameterized menus read only their supplied display and hook', async () => {
     const globalState = menuState('y');
     const foreign = {

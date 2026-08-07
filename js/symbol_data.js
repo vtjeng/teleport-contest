@@ -214,6 +214,8 @@ export const SYMBOL_INDEX_BY_NAME = Object.freeze(
 
 export const CMAP_EXPLANATIONS = Object.freeze(["stone","wall","wall","wall","wall","wall","wall","wall","wall","wall","wall","wall","doorway","open door","open door","closed door","closed door","iron bars","tree","floor of a room","dark part of a room","engraving","corridor","lit corridor","engraving","staircase up","staircase down","ladder up","ladder down","branch staircase up","branch staircase down","branch ladder up","branch ladder down","altar","grave","opulent throne","sink","fountain","water","ice","molten lava","wall of lava","lowered drawbridge","lowered drawbridge","raised drawbridge","raised drawbridge","air","cloud","water","arrow trap","dart trap","falling rock trap","squeaky board","bear trap","land mine","rolling boulder trap","sleeping gas trap","rust trap","fire trap","pit","spiked pit","hole","trap door","teleportation trap","level teleporter","magic portal","web","statue trap","magic trap","anti-magic field","polymorph trap","vibrating square","trapped door","trapped chest","","","","","","","","","","","","","poison cloud","valid position","","","","","","","","","","","","","","","","",""]);
 
+export const OBJCLASS_EXPLANATIONS = Object.freeze(["","strange object","weapon","suit or piece of armor","ring","amulet","useful item (pick-axe, key, lamp...)","piece of food","potion","scroll","spellbook","wand","pile of coins","gem or rock","boulder or statue","iron ball","iron chain","splash of venom"]);
+
 function freezeDefinition(definition) {
     Object.freeze(definition.restrictions);
     Object.freeze(definition.bytes);
