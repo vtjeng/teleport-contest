@@ -1,17 +1,35 @@
-// Ambient level sounds.
-// C ref: sounds.c dosounds().
+// Ambient level sounds and the #chat command.
+// C refs: sounds.c dosounds(), dotalk(), dochat().
 
 import {
+    BLINDED,
     DEAF,
+    ECMD_CANCEL,
+    ECMD_OK,
+    FEMALE,
     HALLUC,
     HALLUC_RES,
+    IS_WALL,
+    MALE,
     ROOMOFFSET,
+    SDOOR,
+    STONE,
+    STRANGLED,
     VAULT,
+    isok,
 } from './const.js';
+import { getdir } from './cmd.js';
+import { vobj_at } from './display.js';
+import { pmname, rndmonnam } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { is_silent } from './mondata.js';
+import { m_at } from './monst.js';
 import { g_at } from './obj.js';
+import { an } from './objnam.js';
+import { STATUE } from './objects.js';
 import { rn2 } from './rng.js';
+import { shop_object } from './shk.js';
 import { ttyPline } from './tty_message.js';
 
 const FOUNTAIN_MESSAGES = Object.freeze([
@@ -46,9 +64,27 @@ function propertyActive(hero, propertyIndex) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-function hallucinating(hero) {
-    return propertyActive(hero, HALLUC)
-        && !propertyActive(hero, HALLUC_RES);
+// C ref: youprop.h:120 Hallucination, over :116-119. HHallucination is the
+// intrinsic alone -- no worn item confers hallucination -- while
+// Halluc_resistance adds the extrinsic to it.
+function Hallucination(state) {
+    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
+        && !propertyActive(state.u, HALLUC_RES);
+}
+
+// C ref: youprop.h:125 Deaf, which adds the permanent-deafness roleplay option
+// to the intrinsic and the extrinsic.
+function Deaf(state) {
+    return propertyActive(state.u, DEAF)
+        || Boolean(state.u?.uroleplay?.deaf);
+}
+
+// C ref: youprop.h:103 Blind. Blindness subtracts a blocking term the other
+// properties here do not have.
+function Blind(state) {
+    const blinded = state.u?.uprops?.[BLINDED];
+    return Boolean(blinded?.intrinsic || blinded?.extrinsic)
+        && !blinded?.blocked;
 }
 
 function roomStringContainsType(buffer, roomType, state) {
@@ -137,13 +173,12 @@ export async function dosoundsInitialLevel(
 ) {
     const hero = state.u;
     const flags = state.level?.flags ?? {};
-    const deaf = propertyActive(hero, DEAF) || hero?.uroleplay?.deaf;
-    if (deaf || state.flags?.acoustics === false
+    if (Deaf(state) || state.flags?.acoustics === false
         || hero?.uswallow || hero?.uinwater) {
         return;
     }
 
-    const hallu = hallucinating(hero) ? 1 : 0;
+    const hallu = Hallucination(state) ? 1 : 0;
 
     if (flags.nfountains && random(400) === 0) {
         await hear(FOUNTAIN_MESSAGES[random(3) + hallu], state, pline);
@@ -190,4 +225,147 @@ export async function dosoundsInitialLevel(
     }
     rejectUnportedSpecialSound(state, POST_VAULT_SPECIAL_SOUND_FLAGS);
     rejectUnportedOracleSound(state);
+}
+
+export class UnsupportedChatError extends Error {
+    constructor(reason) {
+        super(`#chat needs ${reason}`);
+        this.name = 'UnsupportedChatError';
+    }
+}
+
+// C ref: sounds.c:1355-1362, the eight replies a hallucinating hero hears out
+// of a wall. sounds.c:1364-1367 draws rn2(10) and clamps it to the last slot,
+// so that reply answers three times as often as the others.
+const WALLTALK = Object.freeze([
+    'gripes about its job.',
+    'tells you a funny joke!',
+    'insults your heritage!',
+    'chuckles.',
+    'guffaws merrily!',
+    'deprecates your exploration efforts.',
+    'suggests a stint of rehab...',
+    "doesn't seem to be interested.",
+]);
+
+/**
+ * C ref: sounds.c dochat() (1256-1409), every arm that returns before the two
+ * calls this goal leaves for later: price_quote() at :1288 and domonnoise() at
+ * :1302 and :1408.
+ *
+ * Every ported arm answers ECMD_OK or ECMD_CANCEL, so #chat spends no move,
+ * and only the hallucinating wall reply draws a random number.
+ */
+async function dochat(state) {
+    const u = state.u;
+
+    if (is_silent(state.youmonst.data)) {
+        await ttyPline(
+            `As ${an(pmname(state.youmonst.data,
+                           state.flags.female ? FEMALE : MALE))}, `
+            + 'you cannot speak.',
+            state,
+        );
+        return ECMD_OK;
+    }
+    if (u.uprops[STRANGLED].intrinsic) { /* youprop.h:110 Strangled */
+        await ttyPline("You can't speak.  You're choking!", state);
+        return ECMD_OK;
+    }
+    if (u.uswallow) {
+        await ttyPline("They won't hear you out there.", state);
+        return ECMD_OK;
+    }
+    if (u.uinwater) { /* youprop.h:279 Underwater */
+        await ttyPline('Your speech is unintelligible underwater.', state);
+        return ECMD_OK;
+    }
+    if (!Deaf(state) && !Blind(state) && shop_object(u.ux, u.uy, state)) {
+        /* standing on something in a shop and chatting causes the shopkeeper
+           to describe the price(s) */
+        throw new UnsupportedChatError('price_quote() for shop merchandise');
+    }
+
+    if (!await getdir('Talk to whom? (in what direction)', state)) {
+        /* decided not to chat */
+        return ECMD_CANCEL;
+    }
+
+    if (u.usteed && u.dz > 0) {
+        throw new UnsupportedChatError('a chat aimed down at a steed');
+    }
+
+    if (u.dz) {
+        await ttyPline(
+            `They won't hear you ${u.dz < 0 ? 'up' : 'down'} there.`,
+            state,
+        );
+        return ECMD_OK;
+    }
+
+    if (u.dx === 0 && u.dy === 0) {
+        await ttyPline(
+            'Talking to yourself is a bad habit for a dungeoneer.',
+            state,
+        );
+        return ECMD_OK;
+    }
+
+    const tx = u.ux + u.dx;
+    const ty = u.uy + u.dy;
+
+    if (!isok(tx, ty))
+        return ECMD_OK;
+
+    const mtmp = m_at(tx, ty, state);
+
+    if (!mtmp || mtmp.mundetected) {
+        const otmp = vobj_at(tx, ty, state);
+        if (otmp && otmp.otyp === STATUE) {
+            /* Talking to a statue */
+            if (!Blind(state)) {
+                await ttyPline(
+                    /* if hallucinating, you can't tell it's a statue */
+                    `The ${Hallucination(state) ? rndmonnam({ state })
+                        : 'statue'} seems not to notice you.`,
+                    state,
+                );
+            }
+            return ECMD_OK;
+        }
+        const typ = state.level.at(tx, ty).typ;
+        if (!Deaf(state) && (IS_WALL(typ) || typ === SDOOR)) {
+            /* Talking to a wall; secret door remains hidden by behaving
+               like a wall; IS_WALL() test excludes solid rock even when
+               that serves as a wall bordering a corridor */
+            if (Blind(state)
+                && !IS_WALL(state.level.lastseentyp?.[tx]?.[ty] ?? STONE)) {
+                /* when blind, you can only talk to a wall if it has
+                   already been mapped as a wall */
+                /* (C's empty statement: the arm prints nothing) */
+            } else if (!Hallucination(state)) {
+                await ttyPline("It's like talking to a wall.", state);
+            } else {
+                let idx = rn2(10);
+
+                if (idx >= WALLTALK.length)
+                    idx = WALLTALK.length - 1;
+                await ttyPline(`The wall ${WALLTALK[idx]}`, state);
+            }
+            return ECMD_OK;
+        }
+    }
+
+    // sounds.c:1374-1377 answers ECMD_OK for an empty square and for a monster
+    // the hero has not detected, which is where this port stops: every arm
+    // below it needs the monster naming and mimic-appearance reads that lead
+    // into domonnoise().
+    if (!mtmp || mtmp.mundetected)
+        return ECMD_OK;
+    throw new UnsupportedChatError('a monster occupying the target square');
+}
+
+// C ref: sounds.c dotalk() (1247-1254), the #chat command.
+export async function dotalk(state = game) {
+    return dochat(state);
 }

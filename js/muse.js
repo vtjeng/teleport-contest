@@ -4,6 +4,7 @@
 
 import {
     MFAST,
+    MS_SILENT,
     NON_PM,
     OBJ_FLOOR,
     P_DAGGER,
@@ -38,9 +39,10 @@ import { mwelded } from './wield.js';
 import { which_armor } from './worn.js';
 
 // The generated catalog stores these values but does not currently export
-// their source enum names.
+// their source enum names. MS_SILENT moved to js/const.js when sounds.c
+// dochat() needed mondata.h is_silent(); the other two stay here until a
+// second caller wants them.
 const AT_GAZE = 15;
-const MS_SILENT = 0;
 const MS_BUZZ = 10;
 
 function activeHeroProperty(state, property) {

@@ -505,6 +505,12 @@ export const AMII_OKAY_VOLUME = 60;
 export const AMII_LOUDER_VOLUME = 80;
 
 // ===== monflag.h =====
+// monflag.h:10-60 `enum ms_sounds`, the permonst msound field. The auto-import
+// above emits object-like macros and anonymous enum members, so the named
+// enums of this header arrive here by hand. MS_ANIMAL is the last animal
+// noise, which is why shk.c muteshk() compares against it with `<=`.
+export const MS_SILENT = 0;
+export const MS_ANIMAL = 17;
 export const NEUTRAL = (FEMALE + 1);
 export const NUM_MGENDERS = (NEUTRAL + 1);
 export const G_KNOWN = 0x04;

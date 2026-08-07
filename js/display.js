@@ -1051,6 +1051,14 @@ function warningGlyphInfo(monster, state) {
     );
 }
 
+// C ref: display.h vobj_at() (22), the head of the floor pile at <x,y>. The
+// name says "visible object", but the macro is a plain read of
+// svl.level.objects[x][y]: it is a vestige of unimplemented invisible objects,
+// as display.h:17-21 records, and it applies no visibility test at all.
+export function vobj_at(x, y, state = game) {
+    return state.level?.objects?.[x]?.[y] ?? null;
+}
+
 // C ref: display.h obj_is_generic().  Unobserved potions, real/glass gems,
 // and ordinary spellbooks conceal their description color until nearby.
 export function object_is_generic(obj) {

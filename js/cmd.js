@@ -112,6 +112,7 @@ import { UnsupportedExperienceChangeError } from './exper.js';
 import { wiz_level_change, wiz_level_tele, wiz_wish } from './wizcmds.js';
 import { UnsupportedWishError } from './zap.js';
 import { dotwoweapon, UnsupportedTwoWeaponError } from './wield.js';
+import { dotalk, UnsupportedChatError } from './sounds.js';
 import {
     clearTtyMessageWindow,
     ttyNorep,
@@ -745,13 +746,14 @@ export async function parseCommand(state = game) {
 // after the prompt has painted the frames the reference program painted for
 // the same keystrokes.
 //
-// doextcmd() dispatches two commands that are deliberately absent here:
-// '#ride', whose own key is M-R (cmd.c:1833), and '#twoweapon', whose own key
-// is 'X' (cmd.c:1913) and which commands_init() binds a second time to M-2
-// (cmd.c:2776). Reaching doride() or dotwoweapon() from any of those three
-// keystrokes needs rhack()'s arm for each as well as this admission, and
-// nothing in the current goal drives either, so all three keys stay on the
-// refusing side while the typed names work.
+// doextcmd() dispatches three commands that are deliberately absent here:
+// '#ride', whose own key is M-R (cmd.c:1833); '#twoweapon', whose own key is
+// 'X' (cmd.c:1913) and which commands_init() binds a second time to M-2
+// (cmd.c:2776); and '#chat', whose own key is M-c (cmd.c:1691). Reaching
+// doride(), dotwoweapon() or dotalk() from any of those four keystrokes needs
+// rhack()'s arm for each as well as this admission, and nothing in the current
+// goal drives any of them, so all four keys stay on the refusing side while
+// the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'down', 'reqmenu', 'options', 'wizwish', 'wizlevelport',
@@ -1016,6 +1018,10 @@ export function failClosedCommandRefusals() {
         // class, and the note above says a class both paths can reach belongs
         // in both.
         UnsupportedObjectOperationError,
+        // sounds.c dochat() reaches this for a shop's merchandise, for a
+        // steed, and for a monster on the target square, all three of which
+        // continue into a function this goal leaves unported.
+        UnsupportedChatError,
     ];
 }
 
@@ -1212,6 +1218,13 @@ async function runTwoWeaponCommand(key, state) {
     return failClosedCommand(key, state, () => dotwoweapon(state));
 }
 
+// C ref: sounds.c dotalk(). Like dosearch() and doeat() it returns its own
+// ECMD_* result: dochat() answers ECMD_CANCEL for a cancelled direction prompt
+// and ECMD_OK for every arm this goal ports, so #chat never spends a move.
+async function runChatCommand(key, state) {
+    return failClosedCommand(key, state, () => dotalk(state));
+}
+
 // C ref: options.c doset_simple(), the 'O' command. Its menu_requested arm
 // hands off to doset(), whose whole menu is formatted before select_menu()
 // draws anything, so an unported option value stops before any output.
@@ -1383,6 +1396,8 @@ async function doextcmd(key, state) {
         return await doride(state);
     case 'dotwoweapon':
         return await runTwoWeaponCommand(key, state);
+    case 'dotalk':
+        return await runChatCommand(key, state);
     case 'wiz_level_change':
         return await runLevelChangeCommand(key, state);
     case 'wiz_level_tele':

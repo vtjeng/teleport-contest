@@ -24,6 +24,7 @@ import {
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     MALE,
+    MS_SILENT,
     NATTK,
     NEUTRAL,
     NO_TRAP,
@@ -1117,6 +1118,13 @@ export function levl_follower(mtmp, state = game) {
 
 // C ref: mondata.h monsndx().
 export function monsndx(species) { return species?.pmidx; }
+
+// C ref: mondata.h is_silent() (62). MS_SILENT is the zero member of
+// monflag.h's `enum ms_sounds`, so this is an equality test and not a
+// truthiness test: every other msound value is a sound the species makes.
+export function is_silent(species) {
+    return species?.msound === MS_SILENT;
+}
 
 // C ref: mondata.h is_shapeshifter().
 export function is_shapeshifter(species) {

@@ -2,8 +2,8 @@
 // live price-quote writes, and remembered-price queries.
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
 // u_left_shop(), getprice(), get_cost(), get_cost_of_shop_item(),
-// append_price_quote(), contained_gold(), costly_spot(), shk_owns(),
-// mon_owns(), and shk_your().
+// append_price_quote(), contained_gold(), costly_spot(), shop_object(),
+// shk_owns(), mon_owns(), and shk_your().
 
 import {
     A_CHA,
@@ -12,6 +12,7 @@ import {
     DEAF,
     HUNGRY,
     INVIS,
+    MS_ANIMAL,
     OBJ_FLOOR,
     OBJ_MINVENT,
     PL_NSIZ,
@@ -462,6 +463,43 @@ export function costly_spot(x, y, state = game) {
     const extension = shopkeeper.mextra.eshk;
     return inside_shop(x, y, state) === roomno
         && !(x === extension.shk.x && y === extension.shk.y);
+}
+
+// C ref: shk.c NOTANGRY() (54). Peacefulness is the whole test; shk.c also
+// assigns through this macro, which is why it is written as a field read.
+function NOTANGRY(monster) {
+    return Boolean(monster.mpeaceful);
+}
+
+// C ref: shk.c muteshk() (58). MS_ANIMAL is the last animal noise of
+// monflag.h's `enum ms_sounds`, so `<=` covers every species that grunts
+// rather than talks. monst.h:251 helpless() is inlined, as js/mhitm.js and
+// js/steed.js inline it.
+function muteshk(shopkeeper) {
+    return Boolean(shopkeeper.msleeping) || !shopkeeper.mcanmove
+        || shopkeeper.data.msound <= MS_ANIMAL;
+}
+
+// C ref: shk.c shop_object() (5386-5402). sounds.c dochat() calls it to decide
+// whether standing on shop goods turns #chat into a price quote, so it answers
+// an object only when the square is charged and the resident shopkeeper is
+// present, peaceful, awake and able to speak.
+//
+// The loop leaves otmp holding the first object of the pile that is not gold,
+// or null when the pile is empty or holds nothing but gold.
+export function shop_object(x, y, state = game) {
+    const roomno = in_rooms(x, y, SHOPBASE, state)[0] ?? 0;
+    const shopkeeper = shop_keeper(roomno, state);
+    if (!shopkeeper || !inhishop(shopkeeper, state)) return null;
+
+    let otmp = state.level?.objects?.[x]?.[y] ?? null;
+    for (; otmp; otmp = otmp.nexthere)
+        if (otmp.oclass !== COIN_CLASS) break;
+    /* note: otmp might have ->no_charge set, but that's ok */
+    return (otmp && costly_spot(x, y, state) && NOTANGRY(shopkeeper)
+            && !muteshk(shopkeeper))
+        ? otmp
+        : null;
 }
 
 // C ref: decl.c c_common_strings.c_the_your (39-52), indexed by carried().
