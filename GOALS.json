@@ -535,7 +535,7 @@
     },
     {
       "id": "options",
-      "status": "open",
+      "status": "closed",
       "boundary": "every function reachable from cmd.c's O binding until control returns to rhack(): options.c doset_simple(), doset() under the m prefix, both menus' optfn_*(get_val) value column, parseoptions()'s do_set arm for a boolean pick, a compound pick's do_handler, and reset_needed_visuals() with the vision_recalc(2), reglyph_darkroom() and check_gold_symbol() calls it makes; a behavior reached only from a different command's dispatch is outside it",
       "upstreamOwners": [
         "options.c doset()",
@@ -593,8 +593,11 @@
         "screens": 1027,
         "rng": 116207
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "c4cb6d8197ce8bc925409b0e39dbc27969a66a71",
+      "delivered": {
+        "screens": 29,
+        "rng": 395
+      }
     }
   ]
 }

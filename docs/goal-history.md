@@ -165,3 +165,31 @@ significant inadvertent regression. `.agents/selection.md`, "Ranking the
 behavior table", carries that rule; this file keeps the measurements behind it.
 Six zeros remain consistent with the effect-size reading given above: this
 goal's 25 screens are 0.3% of the recorded development total.
+
+`options` closed on 7 August 2026 and is the seventh zero, and it is the one
+that tests the account above rather than confirming it. That account reads the
+zeros as effect size: "the counts move only where the port gains behavior it
+cannot yet perform at all." This goal did gain such a behavior. Before it the
+port could not display an options menu at all; after it, `O` builds seven
+pages, applies eight boolean picks, and runs a class menu through
+`choose_classes_menu()`, with two new ported files and 395 new random-number
+calls. It delivered 29 development screens against a forecast of 30, the
+largest single-goal gain since the descent goal. The holdout returned 195 of
+3,640 screens and 32,614 of 182,022 values, identical digit for digit to the
+four evaluations before it.
+
+So a wholly new capability is not sufficient either. What distinguishes
+`options` is that it is reached only by typing `O`, and exactly one of the
+thirty-three development sessions does. The boundary was ranked on that one
+session's stretch, which is what `.agents/selection.md` prescribes and what the
+user reaffirmed on 6 August 2026. The runner-up that day, pet melee combat,
+was the first stop in 102 of 600 fresh D:1 walks; the selector proposed
+admitting that census as a tiebreak and the proposal was declined, on the
+ground that the fresh census predicts breadth across unseen play, which is the
+holdout's job rather than the ranking's.
+
+That decision stands and this entry is not an argument against it. It records
+the price: ranking on development look-ahead selects boundaries the recorded
+players happened to reach, and a boundary reached by one rare keystroke cannot
+move an eleven-session holdout however much behavior it adds. Seven zeros now
+say that about effect size, capability, and reachability in turn.
