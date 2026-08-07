@@ -929,6 +929,13 @@
         "js/startup_reroll.js",
         "js/tty_startup.js",
         "js/tutorial_startup.js"
+      ],
+      "generatedOutputs": [
+        {
+          "path": "js/optlist_data.js",
+          "generator": "scripts/generate-options.mjs",
+          "check": "node scripts/generate-options.mjs --check"
+        }
       ]
     },
     {
