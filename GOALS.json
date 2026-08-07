@@ -711,8 +711,8 @@
       "slices": [
         {
           "name": "the movement path gets a fail-closed backstop",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "1239ae23f59a2589bb35a82ab14661f4e8d7beef"
         }
       ],
       "openedAt": "62356789d4e9a0ca59a64fadee371305e0503d1a",
