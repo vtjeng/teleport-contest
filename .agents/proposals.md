@@ -42,51 +42,6 @@ its caller from one that is overdue, so the flagged subset is a reading list
 rather than a verdict. It also says nothing about an injection that stands in
 for a function nobody has ported yet, which is the ordinary and correct state.
 
-## Split the quality gate's two signals, which mean opposite things to a pass
-
-**What it changes.** `qualityGateBlocked()` (`scripts/quality-status.mjs:647`)
-returns `reviewDue > 0 || unassignedCount > 0`. That would become two facts a
-caller reads separately, because the two conditions imply opposite actions for a
-review pass. Review debt means implementation should stop and a pass should run,
-so it must not stop one. An unassigned `js/` file means a pass cannot attribute
-its findings to an area, so it must stop one. `prepare --readiness` would then
-require the second and ignore the first.
-
-**Scope.** Three parts. Return the two states separately and let each caller
-choose; teach `prepare --readiness` to read the health half alone; and give
-`prepare` the range-coverage check `record-review` already performs through
-`validateAuditedRangeCoverage()`, so a pass cannot be prepared over a range
-whose base sits after the frontier.
-
-The third part is what makes the first two safe. Today the blunt gate is a proxy
-for "you have reviewed everything", and `prepare` checks range coverage nowhere:
-`grep -n "frontier\|isAncestor\|coverage" scripts/audit-worktree.mjs` returns
-nothing. `record-review` catches an under-covering range, but only after the
-whole pass has run. Moving that check into `prepare` catches it in a second
-rather than an hour, and replaces the protection the proxy was accidentally
-providing.
-
-**What prompted it.** The wish goal's correctness pass on 2 August 2026. The
-gate reached `DUE` at 1,912 of 1,000 changed lines, so
-`npm run quality -- --check` printed `Review gate: BLOCKED` and
-`prepare --readiness` refused. The gate blocks because a pass is due, and
-readiness refuses because the gate blocks, so the pass that clears it cannot be
-prepared. The two passes earlier that day prepared cleanly only because their
-gate stood at `WATCH`, which is why the circularity had not appeared before.
-
-The pass was prepared without `--readiness`, and its three readiness commands
-supplied by hand: `npm run checkpoint` passed at the range head with the review
-gate its only failing check, and the mutation run over
-`3b2dde88..a00741d` was run separately.
-
-**Cost.** Small for the first two parts; the third reuses
-`validateAuditedRangeCoverage()`, which already exists and is already tested.
-
-**What it leaves unfixed.** Nothing re-runs the mutation half when an
-implementer's own run was partial. This pass's was interrupted once by a
-background job exiting 144, which is why the orchestrator re-ran it rather than
-carrying the implementer's figures.
-
 ## Let a review pass scope an audit-fix tail on its own
 
 **What it changes.** `scripts/audit-worktree.mjs prepare` would accept a range
