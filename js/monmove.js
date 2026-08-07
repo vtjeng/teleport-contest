@@ -131,7 +131,7 @@ import {
 import { ART_SUNSWORD, artifactTouchable } from './artifacts.js';
 import { effective_attribute } from './attrib.js';
 import { obj_resists } from './bury.js';
-import { newsym } from './display.js';
+import { newsym, vobj_at } from './display.js';
 import { capitalizedMonsterName } from './do_name.js';
 import { dogfood } from './dogfood.js';
 import { could_reach_item } from './dogmove.js';
@@ -1353,10 +1353,6 @@ function inEndgame(state) {
         && state.u.uz.dnum === state.astral_level?.dnum;
 }
 
-function visibleObjectAt(x, y, state) {
-    return state.level?.objects?.[x]?.[y] ?? null;
-}
-
 // C ref: monmove.c onscary().
 export function onscary(x, y, monster, state = game) {
     const auditoryScare = x === 0 && y === 0;
@@ -1396,7 +1392,7 @@ export function onscary(x, y, monster, state = game) {
     return Boolean(engraving
         && ((state.u?.ux === x && state.u?.uy === y)
             || imageAtSquare
-            || (engraving.guardobjects && visibleObjectAt(x, y, state)))
+            || (engraving.guardobjects && vobj_at(x, y, state)))
         && !(monster.isshk || monster.isgd || !monster.mcansee
             || monster.mpeaceful
             || isSpecies(monster, PM_MINOTAUR, state)

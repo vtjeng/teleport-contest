@@ -96,7 +96,7 @@ import {
     emitGlyphUpdateNotices,
     emitStartupA11yNotices,
 } from './startup_a11y.js';
-import { can_reach_floor, wipe_engr_at } from './engrave.js';
+import { u_wipe_engr } from './engrave.js';
 import { check_special_room } from './rooms.js';
 import { mnexto } from './teleport.js';
 import {
@@ -360,8 +360,11 @@ export async function maybe_generate_rnd_mon(state = game, env = {}) {
     });
 }
 
-// C ref: allmain.c moveloop_core() lines 360-361 and engrave.c
-// u_wipe_engr(). rnd(3) is evaluated before can_reach_floor(TRUE).
+// C ref: allmain.c moveloop_core() lines 360-361. The gate is C's, and so is
+// the argument: rnd(3) is evaluated before u_wipe_engr() runs, and everything
+// past that call -- the floor-reachability test and the wipe itself -- belongs
+// to engrave.c and lives in js/engrave.js. Answers whether the rare wear
+// branch fired, which is the only thing this gate decides.
 export function maybeWipeHeroEngraving(
     state = game,
     random = { rn2, rnd },
@@ -370,9 +373,7 @@ export function maybeWipeHeroEngraving(
     if (random.rn2(40 + dexterity * 3) !== 0) return false;
 
     const count = random.rnd(3);
-    const hero = state.u;
-    if (!can_reach_floor(true, state)) return false;
-    wipe_engr_at(hero.ux, hero.uy, count, false, { state, random });
+    u_wipe_engr(count, { state, random });
     return true;
 }
 

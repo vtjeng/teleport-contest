@@ -634,7 +634,7 @@ test('maybeWipeHeroEngraving consumes rnd(3) before touching the engraving', () 
     assert.equal(state.head_engr, null);
 });
 
-test('maybeWipeHeroEngraving skips unreachable floors after rnd', () => {
+test('u_wipe_engr spares an unreachable floor after allmain.c draws rnd', () => {
     for (const [label, makeUnreachable] of [
         ['swallowed', (state) => { state.u.uswallow = true; }],
         ['held by hugs', (state) => {
@@ -664,18 +664,32 @@ test('maybeWipeHeroEngraving skips unreachable floors after rnd', () => {
         }],
     ]) {
         const state = engravingTurnState();
+        // The engraving is what makes engrave.c u_wipe_engr()'s
+        // can_reach_floor(TRUE) observable from here: had the wipe run, it
+        // would have drawn rn2(1) and rn2(4) as the reachable case below
+        // does, and turnDraws() rejects a draw its script did not list.
+        make_engr_at(23, 9, '_', null, 0, DUST, {
+            state,
+            random: {
+                rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+                rnd: (bound) => assert.fail(`unexpected rnd(${bound})`),
+            },
+        });
         makeUnreachable(state);
         const script = turnDraws([
             ['rn2', 79, 0], // Enter the rare branch at Dexterity 13.
             ['rnd', 3, 2], // Evaluate the argument before floor reachability.
         ]);
 
+        // allmain.c's own gate fired, so the wear branch ran; the floor test
+        // that spared the engraving is engrave.c's, one call further in.
         assert.equal(
             maybeWipeHeroEngraving(state, script.random),
-            false,
+            true,
             label,
         );
         script.done();
+        assert.equal(state.head_engr.engr_txt[0], '_', label);
     }
 
     // A blocked property does not satisfy NetHack's Levitation macro.

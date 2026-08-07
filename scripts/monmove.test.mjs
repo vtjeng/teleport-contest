@@ -3888,6 +3888,49 @@ test('onscary requires an active whole Elbereth and an eligible monster', () => 
     assert.equal(onscary(state.u.ux, state.u.uy, monster, state), false);
 });
 
+// monmove.c onscary():295-297. Three things can put the hero's protection on
+// an Elbereth square, and the test above only covers the first, u_at(). These
+// are the other two, each shown granting the protection on its own and each
+// shown withholding it when only half of it holds.
+test('onscary grants Elbereth to a displaced image or a guarded pile', () => {
+    const { state } = makeState();
+    state.moves = 20;
+    // Two squares east of the hero, so u_at() is false throughout and only
+    // the second and third disjuncts can answer.
+    const x = state.u.ux + 2;
+    const y = state.u.uy;
+    make_engr_at(x, y, 'Elbereth', 'Elbereth', 19, DUST, { state });
+    const monster = ordinaryMonster(state, { mcansee: true });
+
+    // Neither disjunct holds: no displaced image, and display.h vobj_at()
+    // answers an empty floor.
+    assert.equal(onscary(x, y, monster, state), false);
+
+    // The hero's displaced image stands there: the second disjunct alone.
+    state.u.uprops[DISPLACED].intrinsic = 1;
+    monster.mux = x;
+    monster.muy = y;
+    assert.equal(onscary(x, y, monster, state), true);
+    // Displacement without the image on this square grants nothing.
+    monster.mux = state.u.ux;
+    monster.muy = state.u.uy;
+    assert.equal(onscary(x, y, monster, state), false);
+    state.u.uprops[DISPLACED].intrinsic = 0;
+
+    // The third disjunct needs both halves. An object on a hero-written
+    // Elbereth is not guarded, because engrave.c sets guardobjects only for
+    // an Elbereth laid down during level creation.
+    state.level.objects[x][y] = objectFor(state, LONG_SWORD);
+    assert.equal(state.head_engr.guardobjects, false);
+    assert.equal(onscary(x, y, monster, state), false);
+    // A guarded engraving with the pile still there scares the monster.
+    state.head_engr.guardobjects = true;
+    assert.equal(onscary(x, y, monster, state), true);
+    // Take the pile away and the same engraving guards nothing.
+    state.level.objects[x][y] = null;
+    assert.equal(onscary(x, y, monster, state), false);
+});
+
 test('in_your_sanctuary validates room, priest, shrine, and alignment', () => {
     const baseline = sanctuaryFixture();
     assert.equal(in_your_sanctuary(
