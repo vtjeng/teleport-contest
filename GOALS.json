@@ -578,8 +578,8 @@
         },
         {
           "name": "doset()'s pick loop toggles the booleans",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "dbb6b02943424110f5765ebc4e8d05c8e611cf60"
         }
       ],
       "openedAt": "9e48b83743f3b36670505f548910cc4960a2abb8",
