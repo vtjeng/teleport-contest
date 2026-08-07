@@ -517,8 +517,8 @@
         },
         {
           "name": "close the last two small monsters entries",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "a4482018fa4573fe05bffdcbce222882f2cbc128"
         }
       ],
       "openedAt": "0d3e6d36df3d21596c6226d58958623e1f9e84ce",
