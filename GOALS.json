@@ -833,8 +833,8 @@
       "slices": [
         {
           "name": "the hero reads the skills menu",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "3c7591cddf5d2a0bcf57c03ea96da134ec763fc9"
         }
       ],
       "openedAt": "c102fde616a7162b4ce9af75a4158af98973d529",
