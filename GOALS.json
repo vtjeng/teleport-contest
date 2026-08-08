@@ -899,8 +899,8 @@
         },
         {
           "name": "a monster falls into a pit",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "c6c8c921ca6af55778969c9355597b1c8101b1c1"
         }
       ],
       "openedAt": "7789033dc05e749dc2e57cbcb3f1b15a31d4698c",
