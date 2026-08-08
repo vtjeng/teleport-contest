@@ -8539,6 +8539,91 @@
         ]
       },
       "recordedAt": "2026-08-08T10:11:09.201Z"
+    },
+    {
+      "kind": "review",
+      "head": "533ac18609fa7119eb2b7029a922cd855517a9bc",
+      "auditedRange": "11193ab2f3667057d5d4f0c0a0d52e4bd59e9953..533ac18609fa7119eb2b7029a922cd855517a9bc",
+      "level": "full",
+      "areas": [
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 17 raw, 15 deduplicated, 13 confirmed, 13 applied, 0 deferred, 2 rejected, 0 unverified; mutation: 0 survivors of 1 mutants. Full correctness pass over the enhance-command goal and two trap-activation slices. Four mandatory finders; 17 raw, 15 deduplicated, 13 confirmed, 2 rejected with counter-evidence, 0 unverified, 0 warnings. All 13 applied across four Audit-fix-for commits, score unchanged. Two production defects: nh_timeout()'s invulnerability guard was missing from the live path, and the movement seam still screened a destination square on the assumption that u.utrap could not be set for the hero, which this range made false. Six were tests, the fourth consecutive pass where tests lead. The sharpest showed map_trap() had no oracle of any kind, its whole body replaceable with an early return while both the 3,162-test suite and the development score stayed identical session by session. Applying the findings corrected two against source and found a defect in a third's proposed test.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2270,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 15,
+          "confirmed": 13,
+          "applied": 13,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 6,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/timeout.js nh_timeout_elapsed_turn() ran the property countdown unconditionally, after the preflight had already returned early for an invulnerable hero, so C's if (u.uinvulnerable) return; at timeout.c:621-622 was missing from the live path. The guard is now where C has it, between adjust_timeout_luck() and decrement_property_timeouts(). Applying it corrected the finding's companion: the pass also proposed dropping the preflight's copy of the same guard, which would have been wrong, because everything the preflight validates sits below C's return -- the mtimedone, ucreamed, usptime and ugallop arms at 641-667, the countdown at 670-671, and run_timers() at 947 -- so removing it would refuse state C never reads. Unreachable in a scored session today because prayer is unported and nothing in js/ writes u.uinvulnerable.",
+            "foundBy": [
+              "tests",
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "u.utrap became settable for the hero for the first time in this range, and the movement admission seam ahead of domove() still screened the destination square on the old assumption that it could not be set. That is a live divergence rather than a stale guard: hack.c:2830 precedes test_move() at 2843, and trapmove()'s TT_BEARTRAP arm always falls through to return FALSE at 1690, so C never reads the destination for a bear trap. The fix guards on the trap type rather than on u.utrap, because TT_PIT returns TRUE at 1583 and TT_BURIEDBALL at 1648 and both do reach test_move(). It was reachable from the committed recipe: two existing matrix levels already place a refused square beside their trap, a closed door on seed 69 and an unported trap type on seed 395.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 1,
+          "survivors": 0,
+          "byKind": {
+            "logical": {
+              "ran": 1,
+              "killed": 1
+            }
+          },
+          "ranges": [
+            "533ac18609fa7119eb2b7029a922cd855517a9bc..697803f"
+          ],
+          "finderConclusion": "The audit-fix diff held exactly one mutable site across seven js/ files and 79 lines in scope, the && in the new heldStepIgnoresDestination(), which survived until the TT_BURIEDBALL case was added and is killed now. The figure is uninformative on its own and the pass's own evidence explains why: finding 1 showed map_trap()'s entire body could be replaced with an early return while the 3,162-test suite and the development score both stayed identical, session by session, and the slice that introduced it had run only boolean, logical and relational kinds, under which a statement deletion has no site at all. Three instruments were blind to the same function. That is the fourth consecutive pass in which the mutation figure and the test quality point in different directions, and this time the deletion was invisible to the score as well."
+        },
+        "readiness": {
+          "boundary": "The range 11193ab..533ac18 holds the enhance-command goal and two slices of trap-activation. 3c7591c ported weapon.c enhance_weapon_skill() and add_skills_to_menu() for the read-only case. 78e32d7 ported trap.c dotrap() and trapeffect_bear_trap()'s hero arm with hack.c trapmove()'s TT_BEARTRAP arm, spoteffects()'s trap ordering, do.c set_wounded_legs(), weight_cap()'s wounded-legs reduction and timeout.c nh_timeout()'s countdown, 1,202 insertions over 11 files. 3ef1e10 ported trap.c thitm()'s strike arm plus mon.c monkilled() and mondied(). Development stands at 1,170 of 7,765 screens and 117,563 of 610,816 calls, unchanged by the fixes.",
+          "sourceReview": "Four mandatory finders at full mode. Neither optional finder ran; the range adds no unbounded work and the port is single-threaded replay. Every finding was adversarially verified against C by an independent adjudicator: 13 of 15 survived, 2 were rejected with counter-evidence, none went unverified and no warnings were raised. This range was briefed asymmetrically because it retires a blanket refusal on any trap square and replaces it with dotrap()'s dispatcher, which newly makes the opposite failure possible -- an arm narrower than C admitting an unported trap type silently, which AGENTS.md forbids where a spurious stop is merely permitted. Both directions were checked. Applying the findings corrected two of them against the source, and found a defect in a third's proposed test: asserting the encumbrance line does not kill deleting encumber_msg() from set_wounded_legs(), because allmain.c:208 opens the next turn with an identical call, so a direct call isolating do.c:2445 was written instead.",
+          "completeness": "All 13 confirmed findings are applied across four commits carrying Audit-fix-for: 533ac18. Six were tests, the fourth consecutive pass in which tests are the largest category: 24 of 47 findings across the four. The sharpest was map_trap(), a newly ported function with no oracle of any kind -- its whole body could be replaced with an early return and both the test suite and the development score stayed identical. Every new assertion was observed failing first by breaking the term it covers and restoring it, including four printed lines deleted or reindexed, the rn2(2) leg arms swapped, rn1(10,10) perturbed in both directions, is_whirly() dropped, and map_trap()'s body stubbed with each guard inverted. Two limits are recorded rather than papered over: the leg-side ternary has no RIGHT_SIDE case because all seven matrix segments draw rn2(2)=0 and a second bite kills the fixture, and map_trap()'s glyph assertion is partly self-referential and would not catch a wrong TRAP_COLORS entry, though its two guards and the trap-argument drop are genuine oracles. The fresh differential grew to seven segments, 21,588 calls, 80 screens and 80 cursors, all matching."
+        },
+        "deferrals": [],
+        "rejections": [
+          {
+            "summary": "js/trap_effects.js:702 — mintrap()'s random-owner proof loop still lists only rn1/rn2/rnd/rne/rnl, but its comment claims the set \"covers every operation trapeffect_selector() can dispatch to\" and the newly dispatched bear-trap arm calls random.d().",
+            "counterEvidence": "evidence refute: The invariant the proof loop states still holds on every path mintrap() can take, so there is no unproven owner to find. Counter-evidence: js/trap_effects.js:473-485: trapeffect_bear_trap() reads `const is_you = mtmp === state.youmonst` at 478 and throws at 483 via `if (!is_you) unsupported('a monster caught in a bear trap')` BEFORE `const dmg = random.d(2, 4)` at 485. mintrap() only ever passes a monster (its steed comment at js/trap_effects.js:733 confirms even the dotrap-steed case is a monster, never youmonst), so no dispatch out of mintrap() can reach random.d. The comment sits inside mintrap() and is scoped to mintrap()'s dispatch, where the set is in fact complete. The hero direction proves `d` at its own entry: heroTrapEnv() binds `random: { d, rn1, rn2 }` (js/trap_effects.js:130). Both production callers already supply d: js/monmove.js:2541 `rawEnv.random ?? { d Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/weapon.js:1347 — add_skills_to_menu() is exported under its C name but silently drops C's `selectable` and `speedy` parameters, and the PICK_NONE decision C makes inside enhance_weapon_skill() was moved into js/cmd.js; both depend on a guard in a third function and neither fails closed when that guard is relaxed.",
+            "counterEvidence": "evidence refute: There is no divergence from C on any reachable state; the narrowing is enforced on the same call path, in the same file, before the formatter runs. Counter-evidence: js/weapon.js:1426-1427 `if (to_advance + eventually_advance + maxxed_cnt > 0) throw new UnsupportedWeaponSkillError(...)` executes inside enhance_weapon_skill() before `await menu(add_skills_to_menu(state), 'Current skills:')` at :1431, and add_skills_to_menu() has no other caller in js/ (`grep -rn add_skills_to_menu js/` returns only js/weapon.js). With all three counters zero, weapon.c:1266-1275 selects `prefix = \"\"` for every listed skill and weapon.c:1389 selects PICK_NONE, which is exactly what the port emits. The PICK_NONE placement in js/cmd.js:1261 is the established convention for window-system decisions, not a new one: js/cmd.js:1157-1161 does the same for doattributes()/enlightenment().  ||  causa Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-08-08T16:14:29.075Z"
     }
   ]
 }
