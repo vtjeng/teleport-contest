@@ -889,8 +889,8 @@
       "slices": [
         {
           "name": "the hero steps into a bear trap",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "78e32d79bcc7c5d356da42c4f48a49d4bddd5ccd"
         },
         {
           "name": "a trap strike kills a monster",
