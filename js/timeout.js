@@ -243,6 +243,12 @@ export class UnsupportedHeroTimeoutBoundaryError extends Error {
 // reachable timeout branch.
 export function preflight_nh_timeout_elapsed_turn(state = game) {
     const u = state.u ?? {};
+    // timeout.c:621-622 returns for an invulnerable hero, and everything this
+    // function validates sits below that return: the mtimedone, ucreamed,
+    // usptime and ugallop arms at 641-667, the property countdown at 670-671,
+    // and run_timers() at 947, nh_timeout()'s last statement. So none of that
+    // state is read on such a turn and none of it needs to be admitted.
+    // nh_timeout_elapsed_turn() makes the same return, in C's position.
     if (u.uinvulnerable) return;
     for (const [name, value] of [
         ['mtimedone', u.mtimedone],
@@ -318,9 +324,11 @@ export function adjust_timeout_luck(state = game) {
 
 // C ref: timeout.c nh_timeout() (670-672), the per-property countdown. C
 // decrements every property whose TIMEOUT field is nonzero and runs a switch on
-// each one that reaches zero. The preflight above admits no property but
-// WOUNDED_LEGS and refuses the turn any count would reach zero, so the switch
-// is unreachable and the countdown is the whole of what remains.
+// each one that reaches zero. An invulnerable hero never arrives, because the
+// caller returns first exactly as timeout.c:621 does; every other hero has been
+// through the preflight, which admits no property but WOUNDED_LEGS and refuses
+// the turn any count would reach zero, so the switch is unreachable and the
+// countdown is the whole of what remains.
 function decrement_property_timeouts(state) {
     for (const property of state.u?.uprops ?? []) {
         if ((Math.trunc(property?.intrinsic ?? 0) & TIMEOUT) !== 0)
@@ -333,6 +341,9 @@ function decrement_property_timeouts(state) {
 export function nh_timeout_elapsed_turn(state = game) {
     preflight_nh_timeout_elapsed_turn(state);
     adjust_timeout_luck(state);
+    /* "things past this point could kill you" -- timeout.c:621-622, below the
+       basal-luck block and above every branch nh_timeout() has left. */
+    if (state.u?.uinvulnerable) return;
     decrement_property_timeouts(state);
 }
 

@@ -11,11 +11,13 @@ import {
     OBJ_FREE,
     OBJ_INVENT,
     REVIVE_MON,
+    RIGHT_SIDE,
     ROT_CORPSE,
     SHRINK_GLOB,
     TIMER_NONE,
     TIMER_LEVEL,
     TIMER_OBJECT,
+    WOUNDED_LEGS,
     ZOMBIFY_MON,
 } from '../js/const.js';
 import {
@@ -126,8 +128,30 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state', () =>
 
 test('elapsed-turn timeout upkeep preserves invulnerability short circuit', () => {
     const state = timerState(2);
-    state.u = { uinvulnerable: true, mtimedone: 5, uprops: [] };
+    const uprops = [];
+    // WOUNDED_LEGS is the only property this port gives a timeout, so it is
+    // the only index at which timeout.c:670-671's countdown is observable.
+    // Five turns is an arbitrary count above the one the preflight refuses.
+    uprops[WOUNDED_LEGS] = { intrinsic: 5, extrinsic: RIGHT_SIDE };
+    state.u = { uinvulnerable: true, mtimedone: 5, uprops };
+
     assert.doesNotThrow(() => nh_timeout_elapsed_turn(state));
+    // timeout.c:621-622 returns above the countdown, so the count stands.
+    assert.equal(uprops[WOUNDED_LEGS].intrinsic, 5);
+
+    // One turn left is the count the preflight refuses for heal_legs(). It too
+    // is untouched, and silently: C reaches neither the loop nor its switch.
+    uprops[WOUNDED_LEGS].intrinsic = 1;
+    assert.doesNotThrow(() => nh_timeout_elapsed_turn(state));
+    assert.equal(uprops[WOUNDED_LEGS].intrinsic, 1);
+
+    // The same state without invulnerability does count down. Without this the
+    // two assertions above would also pass on a port that never counts at all.
+    state.u.uinvulnerable = false;
+    state.u.mtimedone = 0;
+    uprops[WOUNDED_LEGS].intrinsic = 5;
+    nh_timeout_elapsed_turn(state);
+    assert.equal(uprops[WOUNDED_LEGS].intrinsic, 4);
 });
 
 test('move-600 timeout luck uses basal role and luckstone gates', () => {
