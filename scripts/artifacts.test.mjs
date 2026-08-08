@@ -13,15 +13,18 @@ import {
     ART_MITRE_OF_HOLINESS,
     ART_ORCRIST,
     ART_STING,
+    ART_SUNSWORD,
     AFTER_LAST_ARTIFACT,
     NROFARTIFACTS,
     artifactTouchable,
     artifact_defends,
+    artifact_light,
+    shade_glare,
     createArtifactTable,
     init_artifacts,
     touch_artifact,
 } from '../js/artifacts.js';
-import { A_NONE, NON_PM } from '../js/const.js';
+import { A_NONE, NON_PM, W_ARM, W_ARMC } from '../js/const.js';
 import {
     AD_FIRE,
     AD_MAGM,
@@ -32,6 +35,15 @@ import {
     PM_ORC,
     PM_WIZARD,
 } from '../js/monsters.js';
+import {
+    objects_globals_init,
+    GOLD_DRAGON_SCALES,
+    GOLD_DRAGON_SCALE_MAIL,
+    LONG_SWORD,
+    ORCISH_DAGGER,
+    SILVER_DRAGON_SCALE_MAIL,
+    SILVER_SABER,
+} from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     ROLE_ALIGNMASK,
@@ -323,4 +335,81 @@ test('per-game tables and tracking state do not leak across initialization', () 
     assert.equal(first.artiexist[ART_DEMONBANE].exists, 0);
     assert.equal(first.artidisco[0], 0);
     assert.equal(first.artilist[ART_DEMONBANE].attk.damd, 0);
+});
+
+// C ref: artifact.c artifact_light() (2263-2275). The five inlined copies this
+// replaced disagreed about the null guard and about which clause carried it,
+// so each of the function's three decisions gets a pair of cases here.
+test('artifact_light answers each of its source clauses', () => {
+    // C dereferences nothing when obj is NULL: the gold-dragon clause is
+    // guarded by `obj &&` and is_art() tests `obj &&` itself. uhitm.c
+    // hmon_hitmon_do_hit():1411 relies on that, so both spellings of "no
+    // object" must answer FALSE rather than throw.
+    assert.equal(artifact_light(null), false);
+    assert.equal(artifact_light(undefined), false);
+
+    // Gold dragon scale mail and scales are not artifacts; they qualify only
+    // while worn as body armor, which is what `(owornmask & W_ARM) != 0L`
+    // tests. W_ARMC is the cloak bit, so a cloak-slot mask must not qualify.
+    const wornMail = { otyp: GOLD_DRAGON_SCALE_MAIL, owornmask: W_ARM };
+    const carriedMail = { otyp: GOLD_DRAGON_SCALE_MAIL, owornmask: 0 };
+    const wornScales = { otyp: GOLD_DRAGON_SCALES, owornmask: W_ARM };
+    assert.equal(artifact_light(wornMail), true);
+    assert.equal(artifact_light(carriedMail), false);
+    assert.equal(artifact_light(wornScales), true);
+    assert.equal(
+        artifact_light({ otyp: GOLD_DRAGON_SCALE_MAIL, owornmask: W_ARMC }),
+        false,
+    );
+
+    // Silver dragon scale mail is the neighbouring otyp that shares the slot
+    // and the appearance but emits no light, so a worn one stays FALSE.
+    assert.equal(
+        artifact_light({ otyp: SILVER_DRAGON_SCALE_MAIL, owornmask: W_ARM }),
+        false,
+    );
+
+    // is_art(obj, ART_SUNSWORD). Sunsword needs no worn mask: it lights the
+    // map from the hero's hand. Another artifact does not qualify.
+    assert.equal(artifact_light({ otyp: LONG_SWORD, oartifact: ART_SUNSWORD }),
+                 true);
+    assert.equal(
+        artifact_light({ otyp: LONG_SWORD, oartifact: ART_EXCALIBUR }),
+        false,
+    );
+    // ART_NONARTIFACT is 0, the value every ordinary object carries.
+    assert.equal(artifact_light({ otyp: LONG_SWORD, oartifact: 0 }), false);
+    assert.equal(artifact_light({ otyp: LONG_SWORD }), false);
+});
+
+// C ref: artifact.c shade_glare() (552-571). What can hurt a shade at all.
+// weapon.c dmgval():306-307 is the reader this port has.
+test('shade_glare answers for silver and for the undead-bane artifacts', () => {
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+    // The first test reads objects[], which stateFor() does not build.
+    objects_globals_init(state);
+    // objects[].oc_material is the first test, and it needs no artifact: a
+    // silver saber qualifies where a long sword of the same shape does not.
+    assert.equal(shade_glare({ otyp: SILVER_SABER, oartifact: 0 }, state),
+                 true);
+    assert.equal(shade_glare({ otyp: LONG_SWORD, oartifact: 0 }, state),
+                 false);
+
+    // The artifact clause needs SPFX_DFLAG2 together with mtype M2_UNDEAD.
+    // Sunsword is the weapon that carries both (artilist.h:209); Grimtooth
+    // carries SPFX_DFLAG2 with M2_ORC and does not qualify.
+    assert.equal(
+        shade_glare({ otyp: LONG_SWORD, oartifact: ART_SUNSWORD }, state),
+        true,
+    );
+    assert.equal(
+        shade_glare({ otyp: ORCISH_DAGGER, oartifact: ART_GRIMTOOTH }, state),
+        false,
+    );
+    // Excalibur carries neither flag.
+    assert.equal(
+        shade_glare({ otyp: LONG_SWORD, oartifact: ART_EXCALIBUR }, state),
+        false,
+    );
 });

@@ -17,11 +17,15 @@ import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
 import {
     UnsupportedObjectOperationError,
+    ammo_and_launcher,
     blessorcurse,
     copy_oextra,
     dealloc_obj,
     isFlammable,
     is_pick,
+    is_shield,
+    is_wet_towel,
+    matching_launcher,
     mksobj,
     mkobj,
     newObject,
@@ -37,22 +41,30 @@ import {
     ACID_VENOM,
     AMULET_OF_REFLECTION,
     AMULET_OF_STRANGULATION,
+    ARROW,
     AXE,
     BAG_OF_HOLDING,
+    BLINDFOLD,
     BLINDING_VENOM,
     BOULDER,
+    BOW,
     CANDY_BAR,
     COIN_CLASS,
+    CROSSBOW,
+    CROSSBOW_BOLT,
     CRYSKNIFE,
+    DAGGER,
     DART,
     DWARVISH_MATTOCK,
     EGG,
     FIGURINE,
+    FLINT,
     FOOD_RATION,
     GEM_CLASS,
     GOLD_PIECE,
     LONG_SWORD,
     OIL_LAMP,
+    ORCISH_HELM,
     PICK_AXE,
     POT_HEALING,
     POT_OIL,
@@ -63,12 +75,15 @@ import {
     SACK,
     SCR_MAGIC_MAPPING,
     SLIME_MOLD,
+    SLING,
+    SMALL_SHIELD,
     SPE_HEALING,
     SPE_NOVEL,
     SPLINT_MAIL,
     TALLOW_CANDLE,
     TINNING_KIT,
     TOUCHSTONE,
+    TOWEL,
     WAN_FIRE,
     WAN_SLEEP,
     WORM_TOOTH,
@@ -690,6 +705,99 @@ test('is_pick accepts the two P_PICK_AXE entries and nothing else', () => {
         is_pick(plainObject(PICK_AXE, state, { oclass: GEM_CLASS }), state),
         false,
     );
+});
+
+// C ref: obj.h matching_launcher() (242-243). oc_skill is positive on a
+// launcher and the negation of that value on the ammunition it fires, so the
+// macro is one comparison plus a guard against a missing launcher.
+test('matching_launcher accepts only the launcher that negates the skill',
+    () => {
+        const state = initializedState();
+        const arrow = plainObject(ARROW, state);
+        // objects.h:141-143 PROJECTILE("arrow", ... -P_BOW ...) against
+        // objects.h:395 BOW("bow", ... P_BOW ...): -20 negates 20.
+        assert.equal(matching_launcher(arrow, plainObject(BOW, state), state),
+            true);
+        // objects.h:405 BOW("crossbow", ... P_CROSSBOW ...) is 22, which an
+        // arrow's -20 does not negate. Comparing only the signs, or comparing
+        // absolute values, would accept this pair.
+        assert.equal(
+            matching_launcher(arrow, plainObject(CROSSBOW, state), state),
+            false,
+        );
+        // objects.h:155-157 PROJECTILE("crossbow bolt", ... -P_CROSSBOW ...)
+        // is the ammunition a crossbow does fire, so the same launcher that
+        // just failed succeeds here.
+        assert.equal(
+            matching_launcher(plainObject(CROSSBOW_BOLT, state),
+                plainObject(CROSSBOW, state), state),
+            true,
+        );
+        // C's leading `(l) &&`: an empty launcher slot answers false rather
+        // than reading oc_skill off nothing.
+        assert.equal(matching_launcher(arrow, null, state), false);
+    });
+
+// C ref: obj.h ammo_and_launcher() (244). is_ammo() is what the added test
+// contributes; matching_launcher() alone holds in both directions.
+test('ammo_and_launcher also requires the first object to be ammunition',
+    () => {
+        const state = initializedState();
+        const arrow = plainObject(ARROW, state);
+        const bow = plainObject(BOW, state);
+        assert.equal(ammo_and_launcher(arrow, bow, state), true);
+        // The GEM_CLASS arm of is_ammo(): objects.h:1521-1525 gives every ROCK
+        // entry -P_SLING, so flint (objects.h:1604) is sling ammunition even
+        // though it is not WEAPON_CLASS. objects.h:403 BOW("sling", ...
+        // P_SLING ...) is the launcher.
+        assert.equal(
+            ammo_and_launcher(plainObject(FLINT, state),
+                plainObject(SLING, state), state),
+            true,
+        );
+        // Reversed, the comparison still holds -- a bow's 20 equals -(-20) --
+        // so this pair distinguishes the two macros. is_ammo(bow) is false
+        // because 20 is outside [-P_CROSSBOW, -P_BOW].
+        assert.equal(matching_launcher(bow, arrow, state), true);
+        assert.equal(ammo_and_launcher(bow, arrow, state), false);
+        // Ammunition, but not for this launcher.
+        assert.equal(
+            ammo_and_launcher(arrow, plainObject(CROSSBOW, state), state),
+            false,
+        );
+    });
+
+// C ref: obj.h is_wet_towel() (256). A towel's spe counts the water left in
+// it rather than an enchantment, which is why obj.h:250-252 excludes towels
+// from is_weptool().
+test('is_wet_towel accepts a towel only while its spe is above zero', () => {
+    const state = initializedState();
+    // objects.h:948 EYEWEAR("towel", ...), holding one turn of water.
+    assert.equal(is_wet_towel(plainObject(TOWEL, state, { spe: 1 })), true);
+    // A dry towel. `spe > 0` rejects 0 where `spe >= 0` would accept it.
+    assert.equal(is_wet_towel(plainObject(TOWEL, state, { spe: 0 })), false);
+    // objects.h:946 EYEWEAR("blindfold", ...), the neighbouring tool: a
+    // positive spe on anything else is an enchantment, not wetness.
+    assert.equal(
+        is_wet_towel(plainObject(BLINDFOLD, state, { spe: 3 })),
+        false,
+    );
+});
+
+// C ref: obj.h is_shield() (280-282). oc_armcat and oc_skill share one union
+// field, so the class test is the only thing keeping a weapon out.
+test('is_shield accepts armor in the shield category only', () => {
+    const state = initializedState();
+    // objects.h:653-655 SHIELD("small shield", ...); the SHIELD macro at
+    // objects.h:434-436 passes ARM_SHIELD.
+    assert.equal(is_shield(plainObject(SMALL_SHIELD, state), state), true);
+    // objects.h:448 HELM("orcish helm", ...) reaches the same ARMOR() macro
+    // with ARM_HELM, objclass.h:40: right class, wrong category.
+    assert.equal(is_shield(plainObject(ORCISH_HELM, state), state), false);
+    // objects.h:200-202 WEAPON("dagger", ... P_DAGGER ...). P_DAGGER is 1
+    // (skills.h:24) and so is ARM_SHIELD (objclass.h:39), so the shared union
+    // field already matches and only `oclass == ARMOR_CLASS` rejects this.
+    assert.equal(is_shield(plainObject(DAGGER, state), state), false);
 });
 
 test('object APIs reject uninitialized catalogs, ids, and partial RNGs', () => {

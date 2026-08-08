@@ -36,10 +36,9 @@ import {
     TIMER_MONSTER,
     TIMER_OBJECT,
     TROLL_REVIVE_CHANCE,
-    W_ARM,
     ZOMBIFY_MON,
 } from './const.js';
-import { ART_SUNSWORD } from './artifacts.js';
+import { artifact_light } from './artifacts.js';
 import { stone_luck } from './attrib.js';
 import { game } from './gstate.js';
 import {
@@ -59,8 +58,6 @@ import {
     BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION,
     FEDORA,
-    GOLD_DRAGON_SCALE_MAIL,
-    GOLD_DRAGON_SCALES,
     LUCKSTONE,
     MAGIC_LAMP,
     OIL_LAMP,
@@ -161,15 +158,6 @@ function runBurnInventoryRefresh(updateInventory, state) {
     } finally {
         state.iflags.suppress_price = savedSuppressPrice;
     }
-}
-
-// C ref: artifact.c artifact_light().  Gold dragon armor and Sunsword use a
-// permanent light source rather than a BURN_OBJECT timer.
-function artifactLight(obj) {
-    return ((obj.otyp === GOLD_DRAGON_SCALE_MAIL
-             || obj.otyp === GOLD_DRAGON_SCALES)
-            && Boolean(obj.owornmask & W_ARM))
-        || obj.oartifact === ART_SUNSWORD;
 }
 
 // C ref: timeout.c cleanup_burn(). Light-source deletion remains an injected
@@ -432,7 +420,7 @@ export function preflight_end_burn(
 
     const attached = Boolean(timerAttached)
         && obj.otyp !== MAGIC_LAMP
-        && !artifactLight(obj);
+        && !artifact_light(obj);
     if (!attached) {
         const deleteLight = requiredCleanupHook(
             normalized,

@@ -917,7 +917,7 @@ function doorMask(location) {
 // turn on this predicate, so they read it here rather than testing masks
 // themselves. The Is_rogue_level() arm is not ported: the rogue level is not
 // reachable from this boundary.
-function doorless_door(location) {
+export function doorless_door(location) {
     return location?.typ === DOOR
         && (doorMask(location) & ~(D_NODOOR | D_BROKEN)) === 0;
 }

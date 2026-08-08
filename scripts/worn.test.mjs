@@ -8,7 +8,13 @@ import {
     OBJ_MINVENT,
     W_AMUL,
     W_ARM,
+    W_ARMC,
+    W_ARMF,
+    W_ARMG,
     W_ARMH,
+    W_ARMS,
+    W_ARMU,
+    W_SADDLE,
     W_WEP,
 } from '../js/const.js';
 import { newMonster } from '../js/monst.js';
@@ -19,13 +25,18 @@ import {
     AMULET_OF_GUARDING,
     ARROW,
     BOW,
+    CLOAK_OF_PROTECTION,
     CROSSBOW,
     DART,
     GOLD_DRAGON_SCALE_MAIL,
+    HAWAIIAN_SHIRT,
     KATANA,
+    LEATHER_GLOVES,
+    LOW_BOOTS,
     ORCISH_HELM,
     PARTISAN,
     SLING,
+    SMALL_SHIELD,
     objects_globals_init,
 } from '../js/objects.js';
 import {
@@ -196,6 +207,63 @@ test('which_armor answers the first minvent object worn in a queried slot',
         // A monster carrying nothing never enters the loop at all.
         assert.equal(which_armor(kitten(state, { minvent: null }), W_ARM),
             null);
+    });
+
+// worn.c:1007-1029, the hero branch. C answers one of the uarm* globals by
+// slot and never looks at minvent, which the hero does not use for worn
+// armor. One object per slot, each the kind of armor that slot holds.
+const HERO_SLOTS = [
+    // objects.h:505 DRGN_ARMR("gold dragon scale mail", ...), ARM_SUIT.
+    { mask: W_ARM, field: 'uarm', otyp: GOLD_DRAGON_SCALE_MAIL },
+    // objects.h:637 CLOAK("cloak of protection", ...), ARM_CLOAK.
+    { mask: W_ARMC, field: 'uarmc', otyp: CLOAK_OF_PROTECTION },
+    // objects.h:448 HELM("orcish helm", ...), ARM_HELM.
+    { mask: W_ARMH, field: 'uarmh', otyp: ORCISH_HELM },
+    // objects.h:653 SHIELD("small shield", ...), ARM_SHIELD.
+    { mask: W_ARMS, field: 'uarms', otyp: SMALL_SHIELD },
+    // objects.h:686 GLOVES("leather gloves", ...), ARM_GLOVES.
+    { mask: W_ARMG, field: 'uarmg', otyp: LEATHER_GLOVES },
+    // objects.h:700 BOOTS("low boots", ...), ARM_BOOTS.
+    { mask: W_ARMF, field: 'uarmf', otyp: LOW_BOOTS },
+    // objects.h:603 ARMOR("Hawaiian shirt", ...), ARM_SHIRT.
+    { mask: W_ARMU, field: 'uarmu', otyp: HAWAIIAN_SHIRT },
+];
+
+test('which_armor answers the hero from the uarm* slots, not from minvent',
+    () => {
+        const state = catalogState();
+        // The hero's own object list holds a helm worn in W_ARMH that is not
+        // the one in state.uarmh, so falling through to the monster walk
+        // would answer this object for W_ARMH and null for every other mask.
+        const decoy = wornObject(state, ORCISH_HELM, W_ARMH);
+        const hero = { minvent: decoy };
+        state.youmonst = hero;
+        for (const { mask, field, otyp } of HERO_SLOTS)
+            state[field] = wornObject(state, otyp, mask);
+
+        // Every case of C's switch. Dropping one, or routing two masks to the
+        // same global, fails here.
+        for (const { mask, field } of HERO_SLOTS)
+            assert.equal(which_armor(hero, mask, state), state[field]);
+
+        // A slot the hero is not using. C returns the global itself, which is
+        // empty when nothing is worn there.
+        state.uarms = null;
+        assert.equal(which_armor(hero, W_ARMS, state), null);
+
+        // worn.c:1027-1028, the default arm: `impossible("bad flag in
+        // which_armor"); return 0;`. W_SADDLE reaches which_armor() for a
+        // steed (artifact.c:2675, sit.c:624) and so is a mask the function
+        // really sees, but never for the hero.
+        assert.equal(which_armor(hero, W_SADDLE, state), null);
+
+        // The monster branch still runs for anything that is not the hero,
+        // even with the same state in hand.
+        const helm = wornObject(state, ORCISH_HELM, W_ARMH);
+        assert.equal(
+            which_armor(kitten(state, { minvent: helm }), W_ARMH, state),
+            helm,
+        );
     });
 
 // ── worn.c extract_from_minvent() ──
@@ -410,4 +478,44 @@ test('setuwep marks a polearm as no weapon only while the hero is afoot', () => 
     mounted.u.usteed = kitten(mounted);
     setuwep(wornObject(mounted, PARTISAN, 0), { state: mounted });
     assert.equal(mounted.unweapon, false);
+});
+
+// worn.c setuwep() reaches end_burn() only for
+// `olduwep && artifact_light(olduwep) && olduwep->lamplit`. The leading term
+// merely rejects a swap out of an empty hand; the two behind it decide whether
+// a light has to be put out. The two cases below hold the leading term true and
+// vary only the pair behind it.
+test('setuwep ends an old artifact light only when that weapon burns', () => {
+    // setworn() needs these two owners for any outgoing wielded object.
+    // endArtifactLight is deliberately absent, so any demand for it throws.
+    const swapHooks = () => ({
+        cancelDoff: () => {},
+        monsterUnseesProperty: () => {},
+    });
+
+    const dark = heroWieldState();
+    // A katana carries no artifact index and is unlit, so artifact_light() and
+    // lamplit are both false while olduwep itself is a real object.
+    const unlit = wornObject(dark, KATANA, W_WEP);
+    dark.uwep = unlit;
+    const replacement = wornObject(dark, DART, 0);
+    setuwep(replacement, { state: dark, hooks: swapHooks() });
+    assert.equal(dark.uwep, replacement);
+    assert.equal(unlit.owornmask, 0);
+
+    // Gold dragon scale mail worn in W_ARM is artifact_light()'s non-artifact
+    // case, and wielding it keeps that bit set. Lit, it demands the owner the
+    // hook table withholds.
+    const lit = heroWieldState();
+    const burning = wornObject(lit, GOLD_DRAGON_SCALE_MAIL, W_ARM | W_WEP, {
+        lamplit: true,
+    });
+    lit.uwep = burning;
+    assert.throws(
+        () => setuwep(wornObject(lit, DART, 0), {
+            state: lit,
+            hooks: swapHooks(),
+        }),
+        /worn requires endArtifactLight/u,
+    );
 });

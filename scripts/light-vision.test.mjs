@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
     BLINDED,
     CLOUD,
@@ -35,10 +36,13 @@ import {
     del_light_source,
     light_globals_init,
     new_light_source,
+    obj_sheds_light,
 } from '../js/light.js';
 import {
     BOULDER,
     CANDELABRUM_OF_INVOCATION,
+    LONG_SWORD,
+    OIL_LAMP,
     TALLOW_CANDLE,
 } from '../js/objects.js';
 import {
@@ -121,6 +125,24 @@ test('the candelabrum uses its source candle-count light bands', () => {
             spe,
         }), expected);
     }
+});
+
+// light.c obj_sheds_light() is `ignitable(obj) || artifact_light(obj)` behind
+// the lamplit test, so either arm answers on its own. Each case below satisfies
+// exactly one arm, which is what separates the disjunction from a conjunction.
+test('obj_sheds_light accepts either burning fuel or an artifact light', () => {
+    // objects.h:1053 TOOL("oil lamp", ...) carries no artifact, so a lit lamp
+    // reaches only obj.h ignitable()'s otyp list.
+    assert.equal(obj_sheds_light({ otyp: OIL_LAMP, lamplit: true }), true);
+    // A long sword is absent from that otyp list, so the Sunsword reaches only
+    // artifact.c artifact_light()'s is_art(obj, ART_SUNSWORD) clause.
+    assert.equal(obj_sheds_light({
+        otyp: LONG_SWORD,
+        oartifact: ART_SUNSWORD,
+        lamplit: true,
+    }), true);
+    // Neither arm: a lit long sword with no artifact index sheds nothing.
+    assert.equal(obj_sheds_light({ otyp: LONG_SWORD, lamplit: true }), false);
 });
 
 test('vision_recalc marks the hero square seen from every direction', () => {

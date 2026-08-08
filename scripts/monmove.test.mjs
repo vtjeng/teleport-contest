@@ -4544,6 +4544,79 @@ test('monflee selects every light-flight message in source order', async () => {
     assert.equal(sourceQuirk.message.lightSource, sword);
 });
 
+// monmove.c:450-456 flees_light() is
+//   (mon)->data == &mons[PM_GREMLIN]
+//   && ((uwep && uwep->lamplit && artifact_light(uwep))
+//       || (uarm && uarm->lamplit && artifact_light(uarm)))
+//   && mon->mcansee && couldsee(mon->mx, mon->my)
+// so the species test and each half of the equipment disjunction must all
+// hold. Both cases below leave exactly one of them unmet and expect the
+// ordinary flight message, which is the branch monflee() takes when
+// flees_light() is false.
+test('monflee reads the gremlin light test as a conjunction', async () => {
+    async function fleeMessageFor(state, mnum) {
+        const monster = newMonster({
+            data: state.mons[mnum],
+            mnum,
+            mhp: 5,
+            mcanmove: true,
+            mcansee: true,
+            mx: 4,
+            my: 4,
+        });
+        let message;
+        await monflee(monster, 0, true, true, {
+            state,
+            random: {
+                rn2: () => assert.fail('no light message needs a draw here'),
+            },
+            couldSee: () => true,
+            canSeeMonster: () => true,
+            fleeMessage(_candidate, selected) { message = selected; },
+        });
+        return message;
+    }
+
+    // A Sunsword and gold dragon scale mail are artifact.c artifact_light()'s
+    // two cases, and neither is kindled here. Each disjunct therefore has its
+    // artifact_light() term without its lamplit term.
+    const dark = makeState().state;
+    dark.uwep = {
+        otyp: LONG_SWORD,
+        oartifact: ART_SUNSWORD,
+        lamplit: false,
+        owornmask: 0,
+    };
+    dark.uarm = {
+        otyp: GOLD_DRAGON_SCALE_MAIL,
+        lamplit: false,
+        owornmask: W_ARM,
+    };
+    assert.deepEqual(
+        await fleeMessageFor(dark, PM_GREMLIN),
+        { kind: 'turns-to-flee' },
+    );
+
+    // The same equipment lit, carried by a giant rat: the disjunction holds
+    // and only the species test fails.
+    const lit = makeState().state;
+    lit.uwep = {
+        otyp: LONG_SWORD,
+        oartifact: ART_SUNSWORD,
+        lamplit: true,
+        owornmask: 0,
+    };
+    lit.uarm = {
+        otyp: GOLD_DRAGON_SCALE_MAIL,
+        lamplit: true,
+        owornmask: W_ARM,
+    };
+    assert.deepEqual(
+        await fleeMessageFor(lit, PM_GIANT_RAT),
+        { kind: 'turns-to-flee' },
+    );
+});
+
 test('monflee gives a newly fleeing Vrock its gas cooldown before the cloud', async () => {
     const { state } = makeState();
     const monster = newMonster({

@@ -34,6 +34,8 @@ import {
     gender,
     hates_blessings,
     hates_light,
+    is_watch,
+    is_wooden,
     max_passive_dmg,
     mon_hates_blessings,
     mon_hates_light,
@@ -83,6 +85,29 @@ test('the completely-destroyed golem sets each name exactly one pair', () => {
     // completelyrusts: the iron golem alone.
     assert.equal(completelyrusts(pm(M.PM_IRON_GOLEM)), true);
     assert.equal(completelyrusts(pm(M.PM_WOOD_GOLEM)), false);
+});
+
+// C ref: mondata.h is_wooden() (68). One species, named directly.
+test('is_wooden singles out the wood golem', () => {
+    // monsters.h:2545-2552 MON(NAM("wood golem"), ...).
+    assert.equal(is_wooden(pm(M.PM_WOOD_GOLEM)), true);
+    // monsters.h:2538-2544, the golem row immediately before it. Another
+    // golem, another organic material, and still not the one species the
+    // macro names.
+    assert.equal(is_wooden(pm(M.PM_LEATHER_GOLEM)), false);
+});
+
+// C ref: mondata.h is_watch() (159-160). Both arms of the `||` need a case,
+// or one species could be dropped without failing anything.
+test('is_watch names both members of the town watch', () => {
+    // monsters.h:2816-2824 MON(NAM("watchman"), ...).
+    assert.equal(is_watch(pm(M.PM_WATCHMAN)), true);
+    // monsters.h:2825-2833 MON(NAM("watch captain"), ...).
+    assert.equal(is_watch(pm(M.PM_WATCH_CAPTAIN)), true);
+    // monsters.h:2807-2815, the soldier rank immediately before watchman.
+    // Same S_HUMAN class and same M2_MERC flag, so nothing but the species
+    // identity separates it from the Watch.
+    assert.equal(is_watch(pm(M.PM_CAPTAIN)), false);
 });
 
 test('poly_when_stoned excludes the stone golem and honors genocide', () => {

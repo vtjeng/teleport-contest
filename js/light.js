@@ -18,15 +18,12 @@ import {
     RANGE_LEVEL,
     ROWNO,
     TEMP_LIT,
-    W_ARM,
 } from './const.js';
-import { ART_SUNSWORD } from './artifacts.js';
+import { artifact_light } from './artifacts.js';
 import { game } from './gstate.js';
 import {
     BRASS_LANTERN,
     CANDELABRUM_OF_INVOCATION,
-    GOLD_DRAGON_SCALE_MAIL,
-    GOLD_DRAGON_SCALES,
     MAGIC_LAMP,
     OIL_LAMP,
     POT_OIL,
@@ -69,11 +66,7 @@ export function obj_sheds_light(obj) {
         || obj.otyp === TALLOW_CANDLE
         || obj.otyp === WAX_CANDLE
         || obj.otyp === POT_OIL;
-    const artifactLight = ((obj.otyp === GOLD_DRAGON_SCALE_MAIL
-                            || obj.otyp === GOLD_DRAGON_SCALES)
-                           && Boolean(obj.owornmask & W_ARM))
-        || obj.oartifact === ART_SUNSWORD;
-    return ignitable || artifactLight;
+    return ignitable || artifact_light(obj);
 }
 
 function lightGlobals(state) {

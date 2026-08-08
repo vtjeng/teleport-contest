@@ -4,8 +4,9 @@
 
 import {
     ART_SNICKERSNEE,
-    ART_SUNSWORD,
     artifactTouchable,
+    artifact_light,
+    shade_glare,
 } from './artifacts.js';
 import { effective_attribute } from './attrib.js';
 import {
@@ -39,20 +40,28 @@ import {
     P_TWO_WEAPON_COMBAT,
     P_UNSKILLED,
     STR18,
+    WT_IRON_BALL_INCR,
     W_ARM,
+    W_ARMC,
     W_ARMG,
     W_ARMS,
+    W_ARMU,
+    W_RINGL,
+    W_RINGR,
     W_WEP,
 } from './const.js';
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import { m_carrying } from './mon.js';
 import {
+    bigmonst,
+    hates_light,
     is_animal,
     is_covetous,
     is_giant,
     is_rider,
     is_swimmer,
+    is_wooden,
     likes_gems,
     mindless,
     mon_hates_blessings,
@@ -68,6 +77,7 @@ import {
     PM_COCKATRICE,
     PM_MONK,
     PM_SAMURAI,
+    PM_SHADE,
     S_DRAGON,
     S_EEL,
     S_GIANT,
@@ -78,7 +88,9 @@ import {
     S_XORN,
 } from './monsters.js';
 import {
+    greatest_erosion,
     is_ammo,
+    is_axe,
     is_graystone,
     is_pick,
     is_spear,
@@ -86,10 +98,12 @@ import {
     objectType,
 } from './obj.js';
 import {
+    ACID_VENOM,
     AKLYS,
     ARROW,
     ATHAME,
     AXE,
+    BALL_CLASS,
     BARDICHE,
     BATTLE_AXE,
     BEC_DE_CORBIN,
@@ -100,6 +114,7 @@ import {
     BOW,
     BROADSWORD,
     BULLWHIP,
+    CHAIN_CLASS,
     CLUB,
     CORPSE,
     CREAM_PIE,
@@ -123,15 +138,16 @@ import {
     FLINT,
     GEM_CLASS,
     GLAIVE,
-    GOLD_DRAGON_SCALE_MAIL,
-    GOLD_DRAGON_SCALES,
     GRAPPLING_HOOK,
     GUISARME,
     HALBERD,
+    HEAVY_IRON_BALL,
+    IRON_CHAIN,
     JAVELIN,
     KATANA,
     KNIFE,
     LANCE,
+    LEATHER,
     LONG_SWORD,
     LOADSTONE,
     LUCKSTONE,
@@ -180,11 +196,13 @@ import {
     YUMI,
 } from './objects.js';
 import { makesingular } from './fruit.js';
+import { d, rn2, rnd } from './rng.js';
 import {
     P_ADVANCE,
     P_MAX_SKILL,
     P_SKILL,
     practice_needed_to_advance,
+    skillSlot,
     weapon_type,
 } from './startup_skills.js';
 import { is_pool } from './trap.js';
@@ -364,6 +382,186 @@ export function hitval(otmp, mon, state = game, env = {}) {
         );
     }
     return tmp;
+}
+
+// Weapons that add a fixed point or an extra die on top of oc_wldam, when the
+// target is a big monster. C ref: weapon.c dmgval() (215-244).
+const BIG_PLUS_ONE = Object.freeze([
+    IRON_CHAIN, CROSSBOW_BOLT, MORNING_STAR, PARTISAN, RUNESWORD,
+    ELVEN_BROADSWORD, BROADSWORD,
+]);
+const BIG_PLUS_D4 = Object.freeze([FLAIL, RANSEUR, VOULGE]);
+const BIG_PLUS_D6 = Object.freeze([ACID_VENOM, HALBERD, SPETUM]);
+const BIG_PLUS_2D4 = Object.freeze([BATTLE_AXE, BARDICHE, TRIDENT]);
+const BIG_PLUS_2D6 = Object.freeze([
+    TSURUGI, DWARVISH_MATTOCK, TWO_HANDED_SWORD,
+]);
+// The same, for a target that is not a big monster, on top of oc_wsdam.
+// C ref: weapon.c dmgval() (263-295).
+const SMALL_PLUS_ONE = Object.freeze([
+    IRON_CHAIN, CROSSBOW_BOLT, MACE, SILVER_MACE, WAR_HAMMER, FLAIL, SPETUM,
+    TRIDENT,
+]);
+const SMALL_PLUS_D4 = Object.freeze([
+    BATTLE_AXE, BARDICHE, BILL_GUISARME, GUISARME, LUCERN_HAMMER, MORNING_STAR,
+    RANSEUR, BROADSWORD, ELVEN_BROADSWORD, RUNESWORD, VOULGE,
+]);
+const SMALL_PLUS_D6 = Object.freeze([ACID_VENOM]);
+
+// C ref: weapon.c dmgval() (215-355). The damage `otmp` does to `mon`, before
+// the strength, damage-ring and skill bonuses uhitm.c hmon_hitmon_dmg_recalc()
+// adds. Unlike hitval() above it is not pure: the base die and several of the
+// bonuses are random-number calls, and C makes them in exactly this order.
+//
+// One arm stops: the artifact halving at 338-339 needs artifact.c spec_dbon(),
+// which is unported. C reaches it only for an artifact already carrying a bonus
+// above 1, and uhitm.c hmon_hitmon_weapon_melee():1013 -- the only caller here
+// -- refuses every artifact weapon a few lines later anyway, so the refusal is
+// wider than C's condition without widening what the game refuses.
+export function dmgval(otmp, mon, state = game, env = {}) {
+    const random = env.random ?? { d, rn2, rnd };
+    let tmp = 0;
+    const otyp = otmp.otyp;
+    const ptr = mon.data;
+    const objectData = objectType(otmp, state);
+    const Is_weapon = otmp.oclass === WEAPON_CLASS || isWeptool(otmp, state);
+
+    if (otyp === CREAM_PIE) return 0;
+
+    if (bigmonst(ptr)) {
+        if (objectData.oc_wldam) tmp = random.rnd(objectData.oc_wldam);
+        if (BIG_PLUS_ONE.includes(otyp)) tmp++;
+        else if (BIG_PLUS_D4.includes(otyp)) tmp += random.rnd(4);
+        else if (BIG_PLUS_D6.includes(otyp)) tmp += random.rnd(6);
+        else if (BIG_PLUS_2D4.includes(otyp)) tmp += random.d(2, 4);
+        else if (BIG_PLUS_2D6.includes(otyp)) tmp += random.d(2, 6);
+    } else {
+        if (objectData.oc_wsdam) tmp = random.rnd(objectData.oc_wsdam);
+        if (SMALL_PLUS_ONE.includes(otyp)) tmp++;
+        else if (SMALL_PLUS_D4.includes(otyp)) tmp += random.rnd(4);
+        else if (SMALL_PLUS_D6.includes(otyp)) tmp += random.rnd(6);
+    }
+    if (Is_weapon) {
+        tmp += otmp.spe;
+        /* negative enchantment mustn't produce negative damage */
+        if (tmp < 0) tmp = 0;
+    }
+
+    if (objectData.oc_material <= LEATHER && thick_skinned(ptr))
+        /* thick-skinned or scaled creatures don't feel it */
+        tmp = 0;
+    if (ptr === state.mons[PM_SHADE] && !shade_glare(otmp, state))
+        tmp = 0;
+
+    /* "very heavy iron ball"; weight increase is in increments */
+    if (otyp === HEAVY_IRON_BALL && tmp > 0) {
+        let wt = Math.trunc(objectType(HEAVY_IRON_BALL, state).oc_weight);
+
+        if (Math.trunc(otmp.owt) > wt) {
+            wt = Math.trunc((Math.trunc(otmp.owt) - wt) / WT_IRON_BALL_INCR);
+            tmp += random.rnd(4 * wt);
+            if (tmp > 25) tmp = 25; /* objects[].oc_wldam */
+        }
+    }
+
+    /* Put weapon vs. monster type damage bonuses in below: */
+    if (Is_weapon || otmp.oclass === GEM_CLASS || otmp.oclass === BALL_CLASS
+        || otmp.oclass === CHAIN_CLASS) {
+        let bonus = 0;
+
+        if (otmp.blessed && mon_hates_blessings(mon)) bonus += random.rnd(4);
+        if (is_axe(otmp, state) && is_wooden(ptr, state)) bonus += random.rnd(4);
+        if (objectData.oc_material === SILVER && mon_hates_silver(mon))
+            bonus += random.rnd(20);
+        if (artifact_light(otmp) && otmp.lamplit && hates_light(ptr))
+            bonus += random.rnd(8);
+
+        /* if the weapon is going to get a double damage bonus, adjust
+           this bonus so that effectively it's added after the doubling */
+        if (bonus > 1 && otmp.oartifact) {
+            requiredOperation(env, 'unsupported', 'dmgval')(
+                'artifact damage doubling',
+            );
+        }
+
+        tmp += bonus;
+    }
+
+    if (tmp > 0) {
+        /* It's debatable whether a rusted blunt instrument
+           should do less damage than a pristine one, since
+           it will hit with essentially the same impact, but
+           there ought to some penalty for using damaged gear
+           so always subtract erosion even for blunt weapons. */
+        tmp -= greatest_erosion(otmp);
+        if (tmp < 1) tmp = 1;
+    }
+
+    return tmp;
+}
+
+// C ref: weapon.c special_dmgval() (357-425). The extra damage a *non-weapon*
+// hit carries from blessed or silver equipment, and, through `silverhit`, which
+// slot supplied it. uhitm.c hmon_hitmon_barehands() is the only caller here,
+// and it passes W_ARMG when the hero wears gloves and the ring masks otherwise.
+//
+// C returns the bonus and writes the mask through `silverhit_p`; `out` carries
+// that second result. The W_ARMC|W_ARM|W_ARMU arm at 380-391 belongs to
+// mhitu.c's passive body-armor hits and no ported caller reaches it, so it
+// stops rather than being restated for a mask no caller sends.
+export function special_dmgval(magr, mdef, armask, out, state = game, env = {}) {
+    const random = env.random ?? { d, rn2, rnd };
+    const left_ring = (armask & W_RINGL) !== 0;
+    const right_ring = (armask & W_RINGR) !== 0;
+    let silverhit = 0;
+    let bonus = 0;
+
+    let obj = null;
+    if (armask & (W_ARMC | W_ARM | W_ARMU)) {
+        requiredOperation(env, 'unsupported', 'special_dmgval')(
+            'body armor special damage',
+        );
+    } else if (armask & (W_ARMG | W_RINGL | W_RINGR)) {
+        obj = which_armor(magr, W_ARMG, state);
+        armask = obj ? W_ARMG : 0;
+    } else {
+        obj = which_armor(magr, armask, state);
+    }
+
+    if (obj) {
+        if (obj.blessed && mon_hates_blessings(mdef)) bonus += random.rnd(4);
+        /* the only silver armor is shield of reflection (silver dragon
+           scales refer to color, not material) and the only way to hit
+           with one--aside from throwing--is to wield it and perform a
+           weapon hit, but we include a general check here */
+        if (objectType(obj, state).oc_material === SILVER
+            && mon_hates_silver(mdef)) {
+            bonus += random.rnd(20);
+            silverhit |= armask;
+        }
+
+    /* when no gloves we check for silver rings (blessed rings ignored) */
+    } else if ((left_ring || right_ring) && magr === state.youmonst) {
+        if (left_ring && state.uleft) {
+            if (objectType(state.uleft, state).oc_material === SILVER
+                && mon_hates_silver(mdef)) {
+                bonus += random.rnd(20);
+                silverhit |= W_RINGL;
+            }
+        }
+        if (right_ring && state.uright) {
+            if (objectType(state.uright, state).oc_material === SILVER
+                && mon_hates_silver(mdef)) {
+                /* two silver rings don't give double silver damage
+                   but 'silverhit' messages might be adjusted for them */
+                if (!(silverhit & W_RINGL)) bonus += random.rnd(20);
+                silverhit |= W_RINGR;
+            }
+        }
+    }
+
+    if (out) out.silverhit = silverhit;
+    return bonus;
 }
 
 // C ref: mon.c can_touch_safely(). Artifact acceptance remains with
@@ -571,13 +769,6 @@ export function select_hwep(monster, env = {}) {
     return null;
 }
 
-function artifactLight(obj) {
-    return ((obj?.otyp === GOLD_DRAGON_SCALE_MAIL
-             || obj?.otyp === GOLD_DRAGON_SCALES)
-            && Boolean(obj.owornmask & W_ARM))
-        || obj?.oartifact === ART_SUNSWORD;
-}
-
 async function clearMonsterWeapon(
     monster,
     obj,
@@ -585,7 +776,7 @@ async function clearMonsterWeapon(
     preflightEndArtifactLight,
 ) {
     if (!obj) return;
-    if (artifactLight(obj) && obj.lamplit) {
+    if (artifact_light(obj) && obj.lamplit) {
         const endArtifactLight = preflightEndArtifactLight
             ?? requiredOperation(
                 normalized,
@@ -632,6 +823,22 @@ export function abon(state = game) {
     if (dex < 8) return sbon - 1;
     if (dex < 14) return sbon;
     return sbon + dex - 14;
+}
+
+// C ref: weapon.c dbon() (991-1014), the hero's Strength damage bonus. As with
+// abon() above, C's Upolyd arm -- here a flat 0 -- is left out because polyself
+// is unported and Upolyd() is constantly false.
+export function dbon(state = game) {
+    const str = effective_attribute(state, A_STR);
+
+    if (str < 6) return -1;
+    if (str < 16) return 0;
+    if (str < 18) return 1;
+    if (str === 18) return 2; /* up to 18 */
+    if (str <= STR18(75)) return 3; /* up to 18/75 */
+    if (str <= STR18(90)) return 4; /* up to 18/90 */
+    if (str < STR18(100)) return 5; /* up to 18/99 */
+    return 6;
 }
 
 function selectToolWeapon(monster, weaponCheck, state) {
@@ -726,7 +933,7 @@ export async function mon_wield_item(monster, env = {}) {
                 'mon_wield_item',
             ),
             endArtifactLight: current
-                && artifactLight(current) && current.lamplit
+                && artifact_light(current) && current.lamplit
                 ? requiredOperation(
                     normalized,
                     'endArtifactLight',
@@ -734,7 +941,7 @@ export async function mon_wield_item(monster, env = {}) {
                 )
                 : null,
         };
-        const startsArtifactLight = artifactLight(obj) && !obj.lamplit;
+        const startsArtifactLight = artifact_light(obj) && !obj.lamplit;
         transition.startArtifactLight = startsArtifactLight
             ? requiredOperation(
                 normalized,
@@ -832,7 +1039,10 @@ const barehands_or_martial = Object.freeze([
 ]);
 
 // C ref: skills.h martial_bonus().
-function martial_bonus(state) {
+// C ref: skills.h martial_bonus() (81). uhitm.c hmon_hitmon_barehands() reads
+// it for the bare-handed damage die, as weapon_hit_bonus() and P_NAME() below
+// do for their own skill tables.
+export function martial_bonus(state = game) {
     const mnum = state.urole?.mnum;
     return mnum === PM_SAMURAI || mnum === PM_MONK;
 }
@@ -915,6 +1125,14 @@ export function skill_level_name(skill, state = game) {
     }
 }
 
+// C ref: weapon.c uwep_skill_type() (1531-1537). Which skill a melee swing
+// with the wielded weapon trains and is judged by. weapon_type() itself lives
+// with the startup skill tables, because equipment setup reads it first.
+export function uwep_skill_type(state = game) {
+    if (state.u.twoweap) return P_TWO_WEAPON_COMBAT;
+    return weapon_type(state.uwep, state);
+}
+
 // C ref: weapon.c weapon_hit_bonus() (1544-1636). The to-hit bonus the hero's
 // skill in `weapon` is worth; a null weapon means bare-handed combat.
 //
@@ -985,6 +1203,67 @@ export function weapon_hit_bonus(weapon, state = game) {
     return bonus;
 }
 
+// C ref: weapon.c weapon_dam_bonus() (1638-1729). The damage bonus the hero's
+// skill in `weapon` is worth; a null weapon means bare-handed combat. It is the
+// damage-side twin of weapon_hit_bonus() above and shares its shape, including
+// C's three `default: impossible(bad_skill, ...)` arms falling through into the
+// P_ISRESTRICTED/P_UNSKILLED case, written here as the switch's default value.
+export function weapon_dam_bonus(weapon, state = game) {
+    let bonus = 0;
+    const wep_type = weapon_type(weapon, state);
+    /* use two weapon skill only if attacking with one of the wielded
+       weapons */
+    const type = (state.u.twoweap
+        && (weapon === state.uwep || weapon === state.uswapwep))
+        ? P_TWO_WEAPON_COMBAT
+        : wep_type;
+
+    if (type === P_NONE) {
+        bonus = 0;
+    } else if (type <= P_LAST_WEAPON) {
+        switch (P_SKILL(type, state)) {
+        case P_BASIC: bonus = 0; break;
+        case P_SKILLED: bonus = 1; break;
+        case P_EXPERT: bonus = 2; break;
+        default: bonus = -2; break;
+        }
+    } else if (type === P_TWO_WEAPON_COMBAT) {
+        let skill = P_SKILL(P_TWO_WEAPON_COMBAT, state);
+        if (P_SKILL(wep_type, state) < skill)
+            skill = P_SKILL(wep_type, state);
+        switch (skill) {
+        case P_BASIC: bonus = -1; break;
+        case P_SKILLED: bonus = 0; break;
+        case P_EXPERT: bonus = 1; break;
+        default: bonus = -3; break;
+        }
+    } else if (type === P_BARE_HANDED_COMBAT) {
+        /*
+         *        b.h. m.a.
+         * unskl:   0  n/a
+         * basic:  +1   +3
+         * skild:  +1   +4
+         * exprt:  +2   +6
+         * mastr:  +2   +7
+         * grand:  +3   +9
+         */
+        bonus = P_SKILL(type, state);
+        bonus = Math.max(bonus, P_UNSKILLED) - 1; /* unskilled => 0 */
+        bonus = Math.trunc(((bonus + 1) * (martial_bonus(state) ? 3 : 1)) / 2);
+    }
+
+    /* KMH -- Riding gives some thrusting damage */
+    if (state.u.usteed && type !== P_TWO_WEAPON_COMBAT) {
+        switch (P_SKILL(P_RIDING, state)) {
+        case P_SKILLED: bonus += 1; break;
+        case P_EXPERT: bonus += 2; break;
+        default: break;
+        }
+    }
+
+    return bonus;
+}
+
 // C ref: weapon.c slots_required().
 function slots_required(skill, state) {
     const tmp = P_SKILL(skill, state);
@@ -1009,6 +1288,23 @@ export function can_advance(skill, speedy, state = game) {
     return P_ADVANCE(skill, state)
             >= practice_needed_to_advance(P_SKILL(skill, state))
         && state.u.weapon_slots >= slots_required(skill, state);
+}
+
+// C ref: weapon.c use_skill() (1423-1434). Practice toward the next skill
+// level. uhitm.c hmon_hitmon_dmg_recalc() calls it once for every hit that did
+// more than minimal damage, which is the only way a hero's P_ADVANCE rises in
+// combat.
+//
+// A restricted skill takes neither the practice nor the message, so the
+// give_may_advance_msg() arm needs a skill that was already advanceable-but-for
+// -practice; see add_weapon_skill() below for why that arm stays fail-closed.
+export function use_skill(skill, degree, state = game) {
+    if (skill !== P_NONE && P_SKILL(skill, state) !== P_ISRESTRICTED) {
+        const advance_before = can_advance(skill, false, state);
+        skillSlot(skill, state).advance += degree;
+        if (!advance_before && can_advance(skill, false, state))
+            throw new UnsupportedWeaponSkillError('give_may_advance_msg(skill)');
+    }
 }
 
 // C ref: weapon.c add_weapon_skill(), which attrib.c adjabil() calls once per

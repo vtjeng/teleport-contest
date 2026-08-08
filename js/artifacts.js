@@ -21,6 +21,7 @@ import {
     ONAME_VIA_DIP,
     ONAME_VIA_NAMING,
     ONAME_WISH,
+    W_ARM,
 } from './const.js';
 import { game } from './gstate.js';
 import {
@@ -60,6 +61,8 @@ import {
     CRYSTAL_BALL,
     ELVEN_BROADSWORD,
     ELVEN_DAGGER,
+    GOLD_DRAGON_SCALES,
+    GOLD_DRAGON_SCALE_MAIL,
     HELM_OF_BRILLIANCE,
     KATANA,
     LENSES,
@@ -72,6 +75,7 @@ import {
     QUARTERSTAFF,
     RIN_INCREASE_DAMAGE,
     RUNESWORD,
+    SILVER,
     SILVER_MACE,
     SILVER_SABER,
     SKELETON_KEY,
@@ -792,6 +796,47 @@ export function makeArtifact(obj, options = {}) {
 /** Hook adapter for obj.js artifactCount(). */
 export function artifactCount(env = game) {
     return nartifact_exist(env);
+}
+
+// C ref: artifact.c shade_glare() (552-571). Whether an object can hurt a
+// shade at all. weapon.c dmgval():306-307 and uhitm.c
+// hmon_hitmon_weapon_ranged():892 are the readers; the comment above the C
+// function records that the blessed-versus-undead bonus is deliberately not
+// part of the answer.
+//
+// C reads the artifact through get_artifact(), which has no port; every caller
+// here indexes state.artilist the way artifact_defends() above does. Index 0 is
+// the ART_NONARTIFACT row, whose spfx is 0, so it fails the mask test that
+// C's `arti != &artilist[ART_NONARTIFACT]` guards.
+export function shade_glare(obj, state = game) {
+    /* any silver object is effective */
+    if (state.objects?.[obj.otyp]?.oc_material === SILVER) return true;
+    /* non-silver artifacts with bonus against undead also are effective */
+    const arti = state.artilist?.[obj.oartifact];
+    if (obj.oartifact !== ART_NONARTIFACT && (arti?.spfx & SPFX_DFLAG2)
+        && arti?.mtype === M2_UNDEAD)
+        return true;
+    /* [if there was anything with special bonus against noncorporeals,
+       it would be effective too] */
+    /* otherwise, harmless to shades */
+    return false;
+}
+
+// C ref: artifact.c artifact_light() (2263-2275). Whether an object lights the
+// map without burning fuel. C's second clause reads
+// `get_artifact(obj) != &artilist[ART_NONARTIFACT] && is_art(obj, ART_SUNSWORD)`;
+// the first conjunct is redundant, because is_art() already requires
+// obj->oartifact to equal ART_SUNSWORD and get_artifact() maps every index in
+// 1..NROFARTIFACTS to a real entry. Both of C's helpers tolerate a null object,
+// which is why callers such as uhitm.c hmon_hitmon_do_hit():1411 pass one
+// unguarded.
+export function artifact_light(obj) {
+    if (obj && (obj.otyp === GOLD_DRAGON_SCALE_MAIL
+                || obj.otyp === GOLD_DRAGON_SCALES)
+        && (obj.owornmask & W_ARM) !== 0)
+        return true;
+
+    return obj?.oartifact === ART_SUNSWORD;
 }
 
 /** Port of artifact.c:permapoisoned(); currently only Grimtooth qualifies. */

@@ -238,6 +238,13 @@ export function is_mplayer(species) {
         && species?.pmidx <= M.PM_WIZARD;
 }
 
+// C ref: mondata.h is_watch() (159-160). C compares &mons[] addresses; the
+// port compares the same catalog indices, as is_mplayer() above does.
+export function is_watch(species) {
+    return species?.pmidx === M.PM_WATCHMAN
+        || species?.pmidx === M.PM_WATCH_CAPTAIN;
+}
+
 export function is_golem(species) { return species?.mlet === M.S_GOLEM; }
 export function nonliving(species) {
     return is_undead(species)
@@ -1136,6 +1143,12 @@ export function is_shapeshifter(species) {
 // against the same constant gives the same answer without needing the table.
 function speciesIs(species, ...indexes) {
     return indexes.includes(monsndx(species));
+}
+
+// C ref: mondata.h is_wooden() (68). weapon.c dmgval() gives an axe an extra
+// rnd(4) against the one species this answers for.
+export function is_wooden(species) {
+    return speciesIs(species, M.PM_WOOD_GOLEM);
 }
 
 // C ref: mondata.h hates_light().

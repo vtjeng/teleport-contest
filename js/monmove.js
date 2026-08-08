@@ -123,12 +123,11 @@ import {
     UNLOCKDOOR,
     VIBRATING_SQUARE,
     WEB,
-    W_ARM,
     W_ARMS,
     W_NONDIGGABLE,
     isok,
 } from './const.js';
-import { ART_SUNSWORD, artifactTouchable } from './artifacts.js';
+import { artifactTouchable, artifact_light } from './artifacts.js';
 import { effective_attribute } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { newsym, vobj_at } from './display.js';
@@ -279,8 +278,6 @@ import {
     FEDORA,
     FORTUNE_COOKIE,
     GEM_CLASS,
-    GOLD_DRAGON_SCALES,
-    GOLD_DRAGON_SCALE_MAIL,
     LEASH,
     LEATHER_JACKET,
     LEMBAS_WAFER,
@@ -1407,19 +1404,11 @@ export function monnear(monster, x, y, state = game) {
     return distance < 3;
 }
 
-function artifactLight(obj) {
-    return Boolean(obj
-        && ((((obj.otyp === GOLD_DRAGON_SCALE_MAIL
-                    || obj.otyp === GOLD_DRAGON_SCALES)
-                && (obj.owornmask & W_ARM))
-            || obj.oartifact === ART_SUNSWORD)));
-}
-
 function fleesLight(monster, normalized) {
     const { couldSee, state } = normalized;
     return isSpecies(monster, PM_GREMLIN, state)
-        && ((state.uwep?.lamplit && artifactLight(state.uwep))
-            || (state.uarm?.lamplit && artifactLight(state.uarm)))
+        && ((state.uwep?.lamplit && artifact_light(state.uwep))
+            || (state.uarm?.lamplit && artifact_light(state.uarm)))
         && monster.mcansee
         && couldSee(monster.mx, monster.my);
 }
@@ -1462,8 +1451,8 @@ function youSee(line, state) {
 }
 
 function fleeingLightSource(state) {
-    if (artifactLight(state.uwep)) return state.uwep;
-    if (artifactLight(state.uarm)) return state.uarm;
+    if (artifact_light(state.uwep)) return state.uwep;
+    if (artifact_light(state.uarm)) return state.uarm;
     return null;
 }
 

@@ -761,23 +761,32 @@ test('hitum compares the roll with the number find_roll_to_hit returned',
             [`rnd(20)`, 'rn2(3)']);
 
         // One below it is a hit, and uhitm.c:783's exercise(A_DEX, TRUE)
-        // draws rn2(19) before known_hitum() reaches hmon() and stops.
+        // draws rn2(19) before known_hitum() reaches hmon(). The lichen is
+        // given more hit points than any spear thrust can take, so the swing
+        // lands without killing and the rest of the attempt runs: rnd(6) is
+        // dmgval()'s die for the Valkyrie's spear against a small target,
+        // rn2(3) and rn2(6) are mhitm_knockback()'s pair, rn2(25) is
+        // known_hitum():624's morale check on a survivor and rn2(3) closes
+        // with passive().
         const beaten = meleeEnv({ dieroll: tmp - 1 });
-        await refusesAsync(
-            () => hitum(target(), uattk, game, beaten),
-            'melee damage',
-        );
-        assert.deepEqual(beaten.bounds, [`rnd(20)`, 'rn2(19)']);
+        const survivor = target(PM_LICHEN, { mhp: 99, mhpmax: 99 });
+        await hitum(survivor, uattk, game, beaten);
+        assert.deepEqual(beaten.bounds, [
+            'rnd(20)', 'rn2(19)', 'rnd(6)', 'rn2(3)', 'rn2(6)', 'rn2(25)',
+            'rn2(3)',
+        ]);
 
         // uhitm.c:781, u.uswallow forces the hit arm however the roll came
-        // out; the exercise stays behind the comparison, so it does not run.
+        // out; the exercise stays behind the comparison, so it does not run
+        // and rn2(19) is absent from the sequence below.
         game.u.uswallow = 1;
         const swallowed = meleeEnv({ dieroll: tmp });
-        await refusesAsync(
-            () => hitum(target(), uattk, game, swallowed),
-            'melee damage',
+        await hitum(
+            target(PM_LICHEN, { mhp: 99, mhpmax: 99 }), uattk, game, swallowed,
         );
-        assert.deepEqual(swallowed.bounds, [`rnd(20)`]);
+        assert.deepEqual(swallowed.bounds, [
+            'rnd(20)', 'rnd(6)', 'rn2(3)', 'rn2(6)', 'rn2(25)', 'rn2(3)',
+        ]);
         game.u.uswallow = 0;
     });
 
@@ -814,15 +823,18 @@ test('hitum frees a paralyzed target between the to-hit number and the roll',
             dieroll: mobile,
             rn2Result: (bound) => (bound === 10 ? 0 : 1),
         });
-        const shakenLoose = target(PM_LICHEN, { mcanmove: 0, mfrozen: 4 });
-        await refusesAsync(
-            () => hitum(shakenLoose, uattk, game, freed),
-            'melee damage',
-        );
+        const shakenLoose = target(PM_LICHEN, {
+            mcanmove: 0, mfrozen: 4, mhp: 99, mhpmax: 99,
+        });
+        await hitum(shakenLoose, uattk, game, freed);
         assert.deepEqual([shakenLoose.mcanmove, shakenLoose.mfrozen], [1, 0]);
         // rn2(10) frees it, rnd(20) is the roll and rn2(19) is the Dexterity
-        // exercise a hit earns; known_hitum() then stops on hmon().
-        assert.deepEqual(freed.bounds, ['rn2(10)', 'rnd(20)', 'rn2(19)']);
+        // exercise a hit earns; rnd(6) is the spear's damage die and the last
+        // four are the knockback pair, the morale check and passive().
+        assert.deepEqual(freed.bounds, [
+            'rn2(10)', 'rnd(20)', 'rn2(19)', 'rnd(6)', 'rn2(3)', 'rn2(6)',
+            'rn2(25)', 'rn2(3)',
+        ]);
     });
 
 // uhitm.c:608. missum()'s third argument is `rollneeded + armorpenalty >

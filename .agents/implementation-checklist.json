@@ -1,0 +1,207 @@
+{
+  "mode": "implementation",
+  "reason": "The hit arm has landed: a hero move into a hostile now runs uhitm.c hmon() (817-834) and hmon_hitmon() (1752-1935) with the eleven helpers those two reach, and a blow that lands without killing finishes the turn. What keeps this at implementation is the arm the same function ends on: hmon_hitmon():1911 killed() stops, so a fatal blow still ends the segment. That is the goal's next slice, 'the blow kills the monster', and until it lands the boundary below has a live path inside it that produces no output. The two entries at missing are that kill and the second two-weapon attack, in the order the goal record queues them.",
+  "commitChecked": "e8e6ccb3103ce2f13cf1ba8e4a4d2b02da4c5c73",
+  "boundary": {
+    "goalId": "hero-combat",
+    "startingCommit": "b2663648a0af35ab0fdee9f4b2eddec93eafd0e6",
+    "startingEvent": "a movement keystroke whose destination square holds a hostile monster, and whose to-hit roll at uhitm.c:780 lands",
+    "endingEvent": "the screen and cursor at the end of that turn, with the target alive",
+    "validInputs": "the eight movement keys and their run and rush forms, with any role, race, gender and alignment; no F force-fight prefix, no ranged attack and no #twoweapon",
+    "observables": "the random-number log, the full 24x80 screen with attributes, the cursor, and the persisted mon.mhp, u.uconduct.weaphit, u.weapon_skills[].advance, mon.mstrategy, mon.msleeping and mon.mcanmove",
+    "exclusions": "the kill itself at hmon_hitmon():1911 killed(), the second attack at hitum():791-812, force-fight, ranged and applied hits, a polymorphed hero via hmonas(), hero death at js/hack.js losehp()'s u.uhp < 1 branch, monster retaliation via mhitu.c mattacku(), and pet-versus-monster melee via mhitm.c mattackm()"
+  },
+  "candidateListMethod": {
+    "upstreamEntryPoints": "uhitm.c known_hitum() 585-646 hit arm, hmon() 817-834, hmon_hitmon() 1752-1935. Every function hmon_hitmon() names was read in full: hmon_hitmon_do_hit() 1386-1433, hmon_hitmon_barehands() 837-882, hmon_hitmon_weapon_ranged() 884-918, backstabbable() 920-931, hmon_hitmon_weapon_melee() 933-1067, hmon_hitmon_weapon() 1069-1092, hmon_hitmon_potion() 1094-1116, hmon_hitmon_misc_obj() 1118-1384, hmon_hitmon_dmg_recalc() 1435-1507, hmon_hitmon_poison() 1509-1538, hmon_hitmon_jousting() 1540-1567, hmon_hitmon_stagger() 1569-1585, hmon_hitmon_pet() 1587-1601, hmon_hitmon_splitmon() 1603-1634, hmon_hitmon_msg_hit() 1636-1660, hmon_hitmon_msg_silver() 1662-1699, hmon_hitmon_msg_lightobj() 1701-1751, first_weapon_hit() 1962-1990, m_is_steadfast() 5216-5243 and mhitm_knockback() 5245-5372. Beneath them: weapon.c dmgval() 215-355, special_dmgval() 357-425, dbon() 990-1014, use_skill() 1423-1434, uwep_skill_type() 1531-1537, weapon_dam_bonus() 1638-1729, and artifact.c artifact_light() 2263-2275.",
+    "dispatchTablesAndCatalogs": "hmon_hitmon_do_hit()'s oclass dispatch at 1420-1431 (WEAPON_CLASS, is_weptool, GEM_CLASS, POTION_CLASS, everything else); hmon_hitmon_weapon()'s four ranged tests at 1072-1086; dmgval()'s two otyp switches at 228-262 and 265-295, both transcribed against objects.c rather than summarized; weapon_dam_bonus()'s three skill switches; hmon_hitmon_msg_hit()'s four verbs at 1649-1657; hmon_hitmon_barehands()'s twohits switch at 861-881; include/you.h:511-552, the 27 fields of struct _hitmon_data, ported in declaration order.",
+    "reachableHelpers": "Each helper was traced from hmon_hitmon() outward and its guard read before its body, so a refusal could be placed above the first draw rather than after it. The random-number order was then confirmed against a live replay and against fresh C recordings: rn2(20), rn2(19), rnd(20), rn2(19), the damage die, then either rnd(100) or the rn2(3) and rn2(6) pair, then rn2(25) and rn2(3).",
+    "javascriptCrossCheck": "`grep -rnwE '(hmon|hmon_hitmon|dmgval|special_dmgval|dbon|weapon_dam_bonus|use_skill|uwep_skill_type|mhitm_knockback|first_weapon_hit)' js/` returned only comments before this slice; the camelCase spelling of each returned 0. `grep -rn 'artifactLight\\|artifact_light' js/` returned five separate definitions, which this slice converged onto js/artifacts.js. `grep -rnw 'is_weptool' js/` returns 1 and `isWeptool` 22, so that one was reused rather than ported again; the same check moved `is_flimsy` out of scope, because js/makemon_create.js:2027 already holds a partial port under the camelCase spelling and mhitm_knockback() stops above the line that would read it.",
+    "remainingLimits": "Three branches inside the boundary cannot be recorded from a first dungeon level and are pinned by unit test alone: zap.c exclam()'s \"!\", which needs a blow above four points that the target survives; hmon_hitmon_barehands()'s rnd(4), which needs martial_bonus(); and its silver-ring and blessed-glove bonuses, which need equipment no role starts with. A port-side scan of 6000 Valkyrie, 6000 Barbarian, 5000 Caveman and 4000 Monk seeds found no survivor of a blow above four points, which is the evidence for the first two. hmon_hitmon_msg_hit()'s \"bash\" verb and the wet-towel half of \"lash\" were dropped rather than ported, because hmon_hitmon_do_hit() cannot deliver an object that selects either."
+  },
+  "entries": [
+    {
+      "candidate": "uhitm.c known_hitum() 610-644, the hit arm",
+      "reachability": "Every swing whose rnd(20) at 780 is beaten, which is roughly half of them. It runs before hmon() and after it: the conduct counter at 615-616 is what hmon_hitmon():1843 tests, and the morale check at 623-631 is drawn only for a survivor.",
+      "owner": "js/uhitm.js known_hitum()",
+      "effects": "u.uconduct.weaphit rises by one for a weapon or weapon-tool; rn2(25) is drawn for a survivor. Two arms stop: the morale check's body needs mon.c set_ustuck(), and cutworm() needs a long worm.",
+      "evidence": "scripts/hostile-melee-hit.test.mjs asserts weaphit over ten wielded and five bare-handed segments, 1 for the first group and 0 for the second. scripts/uhitm-hmon.test.mjs 'known_hitum counts the weapon conduct' and 'known_hitum draws the morale check only for a survivor' pin the counter and both halves of the 624 guard.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c hmon() 817-834",
+      "reachability": "The only entry to hmon_hitmon(). Its own body is two consequences of striking a monster the town protects, and both are refused above the call so neither spends the damage roll first.",
+      "owner": "js/uhitm.js hmon()",
+      "effects": "None for an ordinary hostile. A priest target stops before its rn2(2); a peaceful shopkeeper or watchman stops before angry_guards(). A thrown, kicked or applied hit stops at the top: dothrow.c, dokick.c and apply.c own those and none is ported.",
+      "evidence": "scripts/uhitm-hmon.test.mjs 'hmon admits melee alone' and 'hmon stops on the two town consequences before it rolls damage', both of which assert an empty draw list at the refusal.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon() 1752-1935, its 27-field scratch struct and its control flow",
+      "reachability": "Every landed blow. The field order at 1763-1793 is include/you.h:511-552's, which the comment above that declaration says exists to fix first_weapon_hit() against the hit-point decrement.",
+      "owner": "js/uhitm.js hmon_hitmon()",
+      "effects": "mon.mhp falls by the damage and is capped at mhpmax; hmd.offmap and hmd.destroyed are set from the target's position and hit points; wakeup(mon, TRUE) runs for a survivor. gt.twohits is copied into hmd.twohits at 1765 with the ranged zeroing, so a ranged hit could not take the two-weapon damage branches.",
+      "evidence": "scripts/hostile-melee-hit.test.mjs asserts mon.mhp, mon.mhpmax, mon.mstrategy, mon.msleeping and mon.mcanmove for all fifteen segments. scripts/uhitm-hmon.test.mjs 'hmon_hitmon subtracts the damage and never raises mhp past mhpmax' and 'hmon_hitmon floors the damage at one point' pin the two arithmetic arms.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_do_hit() 1386-1433 and hmon_hitmon_weapon() 1069-1092, the object dispatch",
+      "reachability": "Every landed blow passes through both. do_hit() splits bare hands from an object and then splits by oclass; weapon() splits melee from ranged.",
+      "owner": "js/uhitm.js hmon_hitmon_do_hit(), hmon_hitmon_weapon()",
+      "effects": "hmd.saved_oname is set from cxname(). Three arms stop: a potion or a non-weapon needs hmon_hitmon_potion() or hmon_hitmon_misc_obj(); a launcher, missile or ammunition needs hmon_hitmon_weapon_ranged() with its BOOMERANG return; and a lit artifact light source needs bare_artifactname().",
+      "evidence": "scripts/uhitm-hmon.test.mjs 'do_hit and weapon dispatch reject what they cannot roll damage for' covers a shield, a ring, a bow and an arrow. The fifteen matrix segments cover the melee arm with a scalpel, a bullwhip and a spear.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_barehands() 837-882 with weapon.c special_dmgval() 357-425",
+      "reachability": "A hero with nothing wielded, which for a starting character means a Monk, a Tourist or an Archeologist whose random tool slot came up empty.",
+      "owner": "js/uhitm.js hmon_hitmon_barehands(), js/weapon.js special_dmgval()",
+      "effects": "rnd(2) or rnd(4) of damage, use_weapon_skill and train_weapon_skill set, and the blessed-glove or silver-ring bonus added. The shade arm stops before the die is rolled; special_dmgval()'s body-armor arm stops, and no ported caller sends it that mask.",
+      "evidence": "Five bare-handed matrix segments, which cover rnd(2) at both values and the train_weapon_skill boundary. scripts/uhitm-hmon.test.mjs 'hmon_hitmon_barehands reads the ring that struck' and 'a shade stops both damage arms'; scripts/weapon.test.mjs covers special_dmgval()'s ring and glove arms directly.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_weapon_melee() 933-1067 with weapon.c dmgval() 215-355",
+      "reachability": "A hero swinging a wielded weapon, weapon-tool or gem, which is the common case for eleven of the thirteen roles.",
+      "owner": "js/uhitm.js hmon_hitmon_weapon_melee(), js/weapon.js dmgval()",
+      "effects": "The damage die and every bonus dmgval() adds, in C's order; the Healer anatomy bonus; the Rogue backstab message and its rnd(u.ulevel); hmd.silvermsg, hmd.lightobj and hmd.material. Five arms stop: the dieroll == 2 weapon shatter, artifact_hit(), joust(), the HMON_THROWN ammunition bonuses, and permapoisoned().",
+      "evidence": "Ten wielded matrix segments over three weapons. scripts/uhitm-hmon.test.mjs 'the artifact, jousting and poison arms stop on their own guards'. scripts/weapon.test.mjs pins dmgval()'s switches, its four bonuses, the enchantment clamp, the thick-skinned zeroing, the heavy iron ball arm and the erosion floor.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_dmg_recalc() 1435-1507 with weapon.c dbon() 990-1014, weapon_dam_bonus() 1638-1729, uwep_skill_type() 1531-1537 and use_skill() 1423-1434",
+      "reachability": "Every blow that rolled above zero damage. Its skill practice is the only way a hero's P_ADVANCE rises in combat.",
+      "owner": "js/uhitm.js hmon_hitmon_dmg_recalc(); js/weapon.js dbon(), weapon_dam_bonus(), uwep_skill_type(), use_skill()",
+      "effects": "u.udaminc, the Strength bonus with its 3/4 and 3/2 variants, and the skill bonus are added; the total is floored at one; u.weapon_skills[wtype].advance rises by one for a hit above minimal damage. give_may_advance_msg() stops, which needs a skill already advanceable but for practice.",
+      "evidence": "Every matrix segment asserts P_ADVANCE after the segment, 21 where the die beat one and 20 where it did not, across P_KNIFE, P_WHIP, P_SPEAR and P_BARE_HANDED_COMBAT. scripts/weapon.test.mjs pins dbon()'s eight bands, weapon_dam_bonus()'s three switches and the riding bonus, and use_skill()'s four arms.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_stagger() 1569-1585 and mhitm_knockback() 5245-5372",
+      "reachability": "Exclusive arms of the same if-chain at 1826-1831, both needing dmg > 1: a hero with empty hands staggers, a hero holding a weapon may knock back. maybe_knockback is computed there but read at 1927, inside a block C skips whenever the target died.",
+      "owner": "js/uhitm.js hmon_hitmon_stagger(), mhitm_knockback()",
+      "effects": "rnd(100) for the stagger, or rn2(3) and rn2(6) for the knockback; five hits in six are rejected at 5269. mhurtle_to_doom() stops, and so does everything past the size test at 5324-5326, which for an unpolymorphed hero admits an MZ_TINY target alone.",
+      "evidence": "The matrix contains all four combinations of hand and damage. scripts/uhitm-hmon.test.mjs 'the stagger and knockback arms divide by hand and by damage', 'a fatal blow never reaches mhitm_knockback', 'mhitm_knockback rejects a target its attacker is not much larger than' over MZ_SMALL and MZ_TINY species, and 'mhitm_knockback refuses to push a target off the map'.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_pet() 1587-1601 and hmon_hitmon_splitmon() 1603-1634",
+      "reachability": "Both are called unconditionally at 1866 and 1868 and both are no-ops for a hostile that is not a pudding, which is every target this boundary admits.",
+      "owner": "js/uhitm.js hmon_hitmon_pet(), hmon_hitmon_splitmon()",
+      "effects": "None. A tame target stops on abuse_dog(); a pudding that meets every one of C's seven tests stops on clone_mon().",
+      "evidence": "scripts/uhitm-hmon.test.mjs 'the pet and pudding arms pass an ordinary hostile through', which also covers a pudding struck with an unwielded weapon, the case that fails C's test at 1616.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_msg_hit() 1636-1660 with zap.c exclam() 3546-3553",
+      "reachability": "Called unconditionally at 1870, and the guard at 1641-1645 requires !destroyed. A blow that killed says nothing here, which is why this arm needs a slice of its own.",
+      "owner": "js/uhitm.js hmon_hitmon_msg_hit(), js/zap.js exclam()",
+      "effects": "One top line. C's four verbs reduce to three, because hmon_hitmon_do_hit() cannot deliver a shield, a heavy iron ball or a towel; the thrown arm needs mshot_xname() and hmon() admits melee alone.",
+      "evidence": "Fifteen matrix segments over 'hit', 'lash' and the !verbose 'You hit it.'. scripts/uhitm-hmon.test.mjs 'hmon_hitmon_msg_hit picks its verb and its punctuation' adds 'smite' and both sides of exclam()'s boundary, and 'hmon_hitmon_msg_hit says nothing about a fatal blow' pins the guard.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c first_weapon_hit() 1962-1990",
+      "reachability": "The first hit of a game with a wielded weapon or weapon-tool that did damage, which the fifteen matrix segments all are.",
+      "owner": "js/uhitm.js first_weapon_hit()",
+      "effects": "None that this port can observe. The whole body builds one livelog_printf() line; pline.c appends it to gg.gamelog and to the live log file, and this port writes neither. js/eat.js:1479 records the same treatment for the food conduct.",
+      "status": "no-effect-yet",
+      "evidence": "The C body was read in full: it builds a buffer from simpleonames() and bare_artifactname() and passes it to livelog_printf(). No branch of it draws, prints to the screen, or changes game state.",
+      "remaining": ""
+    },
+    {
+      "candidate": "artifact.c artifact_light() 2263-2275, converged from five copies",
+      "reachability": "Read by weapon.c dmgval():333, uhitm.c hmon_hitmon_do_hit():1411 and hmon_hitmon_weapon_melee():1038, and by the five existing js/ call sites in light.c, timeout.c, monmove.c, weapon.c and worn.c.",
+      "owner": "js/artifacts.js artifact_light()",
+      "effects": "None on its own. The convergence is behavior-preserving: the development score was identical session by session before and after, 1102 of 7765 screens and 116830 of 610816 calls over all 33.",
+      "evidence": "scripts/artifacts.test.mjs 'artifact_light answers each of its source clauses' covers the null guard both copies handled differently, the W_ARM mask, a non-lighting neighbour otyp and the Sunsword clause. Each of the five call sites gained a test that kills the logical mutant on the line the convergence touched. The deferral artifact-light-ported-five-times is what this closes.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_potion() 1094-1116 and hmon_hitmon_misc_obj() 1118-1384",
+      "reachability": "A hero swinging a potion or anything that is not a weapon, weapon-tool or gem. Reachable from the running game -- wield.c setuwep() allows it and js/hack.js already clears gu.unweapon for it -- but not common, and 266 lines of C stand behind hmon_hitmon_misc_obj() alone.",
+      "owner": "None. js/uhitm.js hmon_hitmon_do_hit() stops at 'hitting with a non-weapon'.",
+      "effects": "None: the refusal is above the damage roll and above every message.",
+      "evidence": "scripts/uhitm-hmon.test.mjs 'do_hit and weapon dispatch reject what they cannot roll damage for' asserts the stop for a shield and a ring.",
+      "status": "later",
+      "remaining": "Left to a later goal. hmd.dryit and hmd.unpoisonmsg are written only from here, so both fields are dead until it lands."
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_weapon_ranged() 884-918",
+      "reachability": "A hero bashing with a wielded bow, dart, arrow or unmounted polearm. A Ranger starts with a bow in the quiver and a dagger in hand, so it takes a deliberate wield to reach.",
+      "owner": "None. js/uhitm.js hmon_hitmon_weapon() stops at 'hitting with a launcher or ammunition'.",
+      "effects": "None: the refusal is above the rnd(2) at 895.",
+      "evidence": "scripts/uhitm-hmon.test.mjs covers a bow, an arrow and an unmounted lance.",
+      "status": "later",
+      "remaining": "Belongs with the ranged-attack goal, which also owns hmon()'s HMON_THROWN and HMON_KICKED values."
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_msg_silver() 1662-1699 and hmon_hitmon_msg_lightobj() 1701-1751",
+      "reachability": "hmd.silvermsg needs a silver weapon or silver ring against a target that hates silver; hmd.lightobj needs a lit Sunsword against a gremlin. Neither is on the first dungeon level, and no role starts with either.",
+      "owner": "None. js/uhitm.js hmon_hitmon() stops at 'a silver hit message' and 'a light-source hit message'.",
+      "effects": "None beyond the messages C prints at those two points, which is what stops.",
+      "evidence": "Both flags are set in the ported code at hmon_hitmon_weapon_melee():1035-1040 and hmon_hitmon_barehands():881, so the guard is exercised as FALSE by every matrix segment.",
+      "status": "later",
+      "remaining": "Needs silver_sears() and the Sunsword feedback; both belong with a goal that reaches the equipment."
+    },
+    {
+      "candidate": "uhitm.c hmon_hitmon_poison() 1509-1538 and hmon_hitmon_jousting() 1540-1567",
+      "reachability": "hmd.ispoisoned needs permapoisoned() -- only Grimtooth -- or poisoned thrown ammunition. hmd.jousting needs a lance and a saddle.",
+      "owner": "None. js/uhitm.js hmon_hitmon_weapon_melee() stops at 'a permanently poisoned weapon' and 'jousting from a saddle', both above the flag being set.",
+      "effects": "None: both refusals fire before the flag is written, so hmon_hitmon()'s later reads of it cannot be reached.",
+      "evidence": "scripts/uhitm-hmon.test.mjs pins the jousting stop and the u.usteed term that gates it.",
+      "status": "later",
+      "remaining": "Jousting belongs with the riding goal, poison with the ranged-attack goal."
+    },
+    {
+      "candidate": "mon.c killed() 3469-3473 and xkilled() 3477-3740",
+      "reachability": "hmon_hitmon():1908-1912, for every blow that took the target's last hit point. All three of the goal's witness sessions record one.",
+      "owner": "None. js/uhitm.js hmon_hitmon() stops at 'killing a monster in melee'.",
+      "effects": "The refusal fires after mon.mhp has been reduced and after hmon_hitmon_msg_hit() has decided to say nothing, which is where C puts the call. Nothing between the two draws or prints.",
+      "evidence": "scripts/uhitm-hmon.test.mjs 'hmon_hitmon_msg_hit says nothing about a fatal blow' and 'a fatal blow never reaches mhitm_knockback' both stop here and assert what was and was not spent first.",
+      "status": "missing",
+      "remaining": "The goal's next slice, 'the blow kills the monster'. It carries 39 of the goal's 49 steps."
+    },
+    {
+      "candidate": "uhitm.c hitum() 791-812 second attack and double_punch() 736-754",
+      "reachability": "gt.twohits, which hitum():776 sets for a two-weapon hero or a bare-handed hero above Basic skill. seed0107 presses #twoweapon at step 15 and emits two outcomes from one keystroke at step 40.",
+      "owner": "None. js/uhitm.js hitum() stops at 'second melee attack'. double_punch() is ported and read.",
+      "effects": "The refusal fires after the first attack has resolved and after passive(), which is where C tests gt.twohits.",
+      "evidence": "hmd.twohits is copied at hmon_hitmon():1765 and read by hmon_hitmon_barehands()'s ring switch and hmon_hitmon_dmg_recalc()'s 3/4 Strength branch, so both readers are in place for it.",
+      "status": "missing",
+      "remaining": "The goal's last slice, 'two-weapon lands a second attack'. It carries the remaining 10 steps."
+    },
+    {
+      "candidate": "mhitu.c mattacku() monster retaliation against a wounded, adjacent target",
+      "reachability": "Every turn on which the target earns a movement ration. mon.c mcalcmove() gives a speed-1 lichen one on rn2(12) == 0 and a speed-12 sewer rat one every turn.",
+      "owner": "None. js/unported_monster_actions.js refuses the attack.",
+      "effects": "The segment ends. Unlike the miss matrix, a kill removes the target, so this only bites while the target lives.",
+      "evidence": "Every one of the fifteen matrix segments was selected by a port-side scan that kept only the seeds whose segment ran to the end, and scripts/hostile-melee-hit.test.mjs asserts one screen per key so that a segment which lost one would fail rather than pass quietly.",
+      "status": "cannot-occur",
+      "remaining": ""
+    }
+  ],
+  "missingWorkByOwner": [
+    {
+      "group": "mon.c kill path",
+      "candidates": ["mon.c killed() 3469-3473 and xkilled() 3477-3740"],
+      "next": "Port killed() and xkilled() whole, with mondead(), m_detach(), mon_leaving_level(), lifesaved_monster(), corpse_chance(), make_corpse(), exper.c experience() and attrib.c adjalign(). xkilled() cannot be split by position: rn2(6) at 3587 and corpse_chance()'s rn2(tmp) at 3248 both sit between the kill message and experience(), so a port stopping short desyncs on the next call."
+    },
+    {
+      "group": "uhitm.c second attack",
+      "candidates": ["uhitm.c hitum() 791-812 second attack and double_punch() 736-754"],
+      "next": "Port the second attack after the kill path, because seed0107's step 40 records a miss and a kill from one keystroke and needs both."
+    }
+  ],
+  "sourceReview": "Every C span named here was confirmed by printing its first and last line rather than citing it, and the two spans the goal record gave as 819-834 and 1754-1935 are 817-834 and 1752-1935 once the staticfn line above each declaration is counted. All 21 uhitm.c helpers hmon_hitmon() names were read in full, including the six that stop, so that each refusal could be placed above the first draw on its path rather than after it: hmon()'s priest and guard arms sit above hmon_hitmon(); hmon_hitmon_barehands()'s shade arm above its rnd(); hmon_hitmon_weapon_melee()'s artifact, joust and poison arms above the flags they would set; hmon_hitmon_stagger()'s and mhitm_knockback()'s bodies below the draws C makes there, which is the earliest either can be placed. The random-number order was traced through hmon_hitmon() twice, once against a live replay and once against fifteen fresh C recordings, and the two agree call for call. Four terms decided by `hmd.thrown` were folded out rather than restated, because hmon() admits HMON_MELEE alone and dothrow.c, dokick.c and apply.c have no port; each fold is named in a comment beside the code. Two arms of hmon_hitmon_msg_hit() were dropped for the same kind of reason, that hmon_hitmon_do_hit() cannot deliver an object of the class they test for. `js/weapon.js is_flimsy` was deliberately not ported, because js/makemon_create.js:2027 already holds a partial copy and mhitm_knockback() stops one line above the only reader; porting it would have made a second copy of a function the last correctness pass already flagged twice. artifact_light() went the other way: its five existing copies were converged onto js/artifacts.js, with the development score identical session by session across the change."
+}

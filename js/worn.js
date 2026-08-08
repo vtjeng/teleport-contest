@@ -41,7 +41,7 @@ import {
     ART_EYES_OF_THE_OVERWORLD,
     ART_OGRESMASHER,
     ART_SNICKERSNEE,
-    ART_SUNSWORD,
+    artifact_light,
 } from './artifacts.js';
 import { game } from './gstate.js';
 import { obj_extract_self, update_inventory } from './invent.js';
@@ -57,8 +57,6 @@ import {
     AMULET_OF_GUARDING,
     CORNUTHAUM,
     GEM_CLASS,
-    GOLD_DRAGON_SCALE_MAIL,
-    GOLD_DRAGON_SCALES,
     MUMMY_WRAPPING,
     TOOL_CLASS,
     TOWEL,
@@ -324,11 +322,26 @@ export function setnotworn(obj, env = {}) {
     return obj;
 }
 
-// C ref: worn.c which_armor() (1006-1035), the `mon != &gy.youmonst` branch.
-// Every ported caller passes a monster; C's hero branch, which reads the uarm*
-// globals by slot and calls impossible() for an unknown flag, has no caller
-// here yet.
-export function which_armor(monster, mask) {
+// C ref: worn.c which_armor() (1006-1035). C splits the hero from every other
+// monster: the hero's worn armor lives in the uarm* globals rather than in a
+// minvent list, and C reads exactly one of them by slot. WORN_SLOTS above holds
+// that same mask-to-field mapping, so the switch is a lookup here.
+//
+// C's switch answers for the seven armor masks and nothing else: every other
+// flag reaches `default: impossible("bad flag in which_armor"); return 0;`,
+// which only warns and answers "nothing worn". WORN_SLOTS carries the ring,
+// weapon and tool slots too, so the seven are named again here rather than
+// searched for; a hero asked for W_WEP must answer null, not uwep.
+// weapon.c special_dmgval() is the caller that passes the hero.
+const HERO_ARMOR_MASKS = W_ARM | W_ARMC | W_ARMH | W_ARMS | W_ARMG | W_ARMF
+    | W_ARMU;
+
+export function which_armor(monster, mask, state = game) {
+    if (monster === state.youmonst) {
+        if ((mask & ~HERO_ARMOR_MASKS) !== 0) return null;
+        const slot = WORN_SLOTS.find((entry) => entry.mask === mask);
+        return slot ? (state[slot.field] ?? null) : null;
+    }
     for (let obj = monster.minvent; obj; obj = obj.nobj) {
         if (obj.owornmask & mask) return obj;
     }
@@ -357,7 +370,7 @@ export function extract_from_minvent(
             'extract_from_minvent called on object not in minvent',
         );
     }
-    if ((unwornmask & W_ARM) !== 0 && obj.lamplit && artifactLight(obj))
+    if ((unwornmask & W_ARM) !== 0 && obj.lamplit && artifact_light(obj))
         requiredHook(normalized, 'endArtifactLight', obj)(obj, normalized);
 
     obj_extract_self(obj, normalized);
@@ -417,14 +430,6 @@ export function is_pole(obj, state = game) {
             || obj.oartifact === ART_SNICKERSNEE);
 }
 
-function artifactLight(obj) {
-    if (!obj) return false;
-    if ((obj.otyp === GOLD_DRAGON_SCALE_MAIL
-         || obj.otyp === GOLD_DRAGON_SCALES)
-        && (obj.owornmask & W_ARM)) return true;
-    return obj.oartifact === ART_SUNSWORD;
-}
-
 function markBottomLine(state) {
     state.disp ??= {};
     state.disp.botl = true;
@@ -436,7 +441,7 @@ export function setuwep(obj, env = {}) {
     if ((state.uwep ?? null) === (obj ?? null)) return obj ?? null;
     const olduwep = state.uwep ?? null;
     const endArtifactLightHook = olduwep
-        && artifactLight(olduwep) && olduwep.lamplit
+        && artifact_light(olduwep) && olduwep.lamplit
         ? requiredHook(normalized, 'endArtifactLight', olduwep)
         : null;
     setworn(obj, W_WEP, normalized);
@@ -487,7 +492,6 @@ export function setuqwep(obj, env = {}) {
 export const _wornInternals = Object.freeze({
     WORN_SLOTS,
     addSlotEffects,
-    artifactLight,
     blockedProperty,
     is_pole,
     preflightSetworn,

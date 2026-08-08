@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { ART_SUNSWORD } from '../js/artifacts.js';
 import {
     BURN_OBJECT,
     FIG_TRANSFORM,
@@ -28,7 +29,13 @@ import {
     PM_TROLL,
     monst_globals_init,
 } from '../js/monsters.js';
-import { FEDORA, LUCKSTONE } from '../js/objects.js';
+import {
+    FEDORA,
+    LONG_SWORD,
+    LUCKSTONE,
+    MAGIC_LAMP,
+    OIL_LAMP,
+} from '../js/objects.js';
 import {
     UnsupportedTimerCleanupError,
     attach_egg_hatch_timeout,
@@ -37,6 +44,7 @@ import {
     obj_has_timer,
     obj_stop_timers,
     peek_timer,
+    preflight_end_burn,
     spot_stop_timers,
     start_timer,
     start_glob_timeout,
@@ -544,6 +552,61 @@ test('timer lookup uses argument identity and intentionally ignores kind', () =>
     assert.equal(first.timed, 1);
     assert.equal(stop_timer(HATCH_EGG, first, state), 6);
     assert.equal(first.timed, 0);
+});
+
+// timeout.c end_burn() reaches its stop_timer() only when
+// `timer_attached && obj->otyp != MAGIC_LAMP && !artifact_light(obj)`; every
+// other lit object is deleted directly. The first three cases below falsify
+// one term each while the other two hold, and the fourth satisfies all three.
+test('end_burn takes the timer path only for a timed ordinary light', () => {
+    const hooks = { deleteObjectLightSource: () => {} };
+    // OBJ_FREE keeps the inventory-refresh seam out of every case.
+    const lit = (overrides) => (
+        { lamplit: true, timed: 0, where: OBJ_FREE, ...overrides }
+    );
+
+    // An oil lamp is neither a magic lamp nor an artifact light, so only the
+    // caller's timer_attached=FALSE can divert it. bury.c is that caller.
+    const detached = timerState();
+    assert.equal(
+        preflight_end_burn(lit({ otyp: OIL_LAMP }), false, {
+            state: detached,
+            hooks,
+        }).mode,
+        'direct',
+    );
+
+    // A magic lamp burns forever and so owns no burn timer to stop.
+    const everlasting = timerState();
+    assert.equal(
+        preflight_end_burn(lit({ otyp: MAGIC_LAMP }), true, {
+            state: everlasting,
+            hooks,
+        }).mode,
+        'direct',
+    );
+
+    // The Sunsword is artifact.c artifact_light(), which likewise burns no
+    // fuel and starts no timer.
+    const artifact = timerState();
+    assert.equal(
+        preflight_end_burn(
+            lit({ otyp: LONG_SWORD, oartifact: ART_SUNSWORD }),
+            true,
+            { state: artifact, hooks },
+        ).mode,
+        'direct',
+    );
+
+    // All three terms hold, so the queued timer is what ends the burn.
+    const timed = timerState();
+    const lamp = lit({ otyp: OIL_LAMP });
+    // Any positive delay queues the timer; its value never reaches the plan.
+    start_timer(7, TIMER_OBJECT, BURN_OBJECT, lamp, timed);
+    assert.equal(
+        preflight_end_burn(lamp, true, { state: timed, hooks }).mode,
+        'timer',
+    );
 });
 
 test('stop_timer performs burning-object cleanup in source order', () => {

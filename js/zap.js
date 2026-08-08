@@ -28,6 +28,17 @@ import { ttyPline } from './tty_message.js';
 // The wish parser raises every other refusal, so the class lives with it.
 export { UnsupportedWishError };
 
+// C ref: zap.c exclam() (3546-3553). The punctuation that ends a hit message,
+// chosen by how hard the blow landed. uhitm.c hmon_hitmon_msg_hit() is the
+// caller here. C's comment records that the "?" arm is for a force below zero,
+// which a zap can produce and a melee blow cannot.
+export function exclam(force) {
+    /* force == 0 occurs e.g. with sleep ray */
+    /* note that large force is usual with wands so that !! would
+            require information about hand/weapon/wand */
+    return (force < 0) ? '?' : (force <= 4) ? '.' : '!';
+}
+
 // C ref: zap.c makewish() (6313-6422). The Escape arm at 6346-6347, the
 // "help" arm at 6348-6352, the MAXWISHTRY retry loop at 6360-6368 and the
 // hands_obj and artifact arms all stop instead; the wishes this port grants

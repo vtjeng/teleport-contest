@@ -123,6 +123,13 @@ export function P_ADVANCE(skill, state = game) {
     return skillSlots(state)[skill].advance;
 }
 
+// The three macros above are lvalues in C, so `P_ADVANCE(skill) += degree` in
+// weapon.c use_skill() writes through one. This exposes the slot those readers
+// share, for the callers that assign rather than read.
+export function skillSlot(skill, state = game) {
+    return skillSlots(state)[skill];
+}
+
 export function spell_skilltype(booktype, state = game) {
     return objectSkill(booktype, state);
 }

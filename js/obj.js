@@ -79,6 +79,7 @@ import {
     AMULET_OF_STRANGULATION,
     AMULET_OF_YENDOR,
     ARMOR_CLASS,
+    ARM_SHIELD,
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     BALL_CLASS,
@@ -163,6 +164,7 @@ import {
     TINNING_KIT,
     TOOL_CLASS,
     TOUCHSTONE,
+    TOWEL,
     VENOM_CLASS,
     WAN_FIRE,
     WAN_STASIS,
@@ -687,6 +689,35 @@ export function is_ammo(obj, state = game) {
     return (obj.oclass === WEAPON_CLASS || obj.oclass === GEM_CLASS)
         && skill >= -P_CROSSBOW
         && skill <= -P_BOW;
+}
+
+// C ref: obj.h matching_launcher() (242-243). C's oc_skill is negative for
+// ammunition and positive for the launcher that fires it, so the two match
+// when one negates the other. Stored here under the union alias oc_subtyp, as
+// is_ammo() above reads it.
+export function matching_launcher(ammo, launcher, state = game) {
+    return Boolean(launcher)
+        && objectType(ammo, state).oc_subtyp
+            === -objectType(launcher, state).oc_subtyp;
+}
+
+// C ref: obj.h ammo_and_launcher() (244).
+export function ammo_and_launcher(ammo, launcher, state = game) {
+    return is_ammo(ammo, state) && matching_launcher(ammo, launcher, state);
+}
+
+// C ref: obj.h is_wet_towel() (256). `spe` counts a towel's remaining wetness
+// rather than an enchantment.
+export function is_wet_towel(obj) {
+    return obj.otyp === TOWEL && obj.spe > 0;
+}
+
+// C ref: obj.h is_shield() (280-282). oc_armcat is the objects[] field's
+// armor-category alias, over the same storage is_ammo() above reads as
+// oc_subtyp; C spells this test with oc_armcat.
+export function is_shield(obj, state = game) {
+    return obj.oclass === ARMOR_CLASS
+        && objectType(obj, state).oc_armcat === ARM_SHIELD;
 }
 
 // C ref: obj.h is_axe() (217-219). Reads the same field is_pick() below does.

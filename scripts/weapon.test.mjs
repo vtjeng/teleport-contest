@@ -6,6 +6,7 @@ import {
     P_ATTACK_SPELL,
     P_BARE_HANDED_COMBAT,
     P_BASIC,
+    P_DAGGER,
     P_EXPERT,
     P_GRAND_MASTER,
     P_ISRESTRICTED,
@@ -24,6 +25,7 @@ import {
     P_UNICORN_HORN,
     P_UNSKILLED,
     ROOM,
+    STR18,
     NEED_AXE,
     NEED_HTH_WEAPON,
     NEED_PICK_AXE,
@@ -31,21 +33,32 @@ import {
     NEED_RANGED_WEAPON,
     NEED_WEAPON,
     NO_WEAPON_WANTED,
+    W_ARM,
+    W_ARMC,
     W_ARMG,
     W_ARMS,
+    W_ARMU,
+    W_RINGL,
+    W_RINGR,
     W_WEP,
 } from '../js/const.js';
 import { newMonster } from '../js/monst.js';
 import {
     M2_STRONG,
+    PM_ARCHEOLOGIST,
     PM_COCKATRICE,
     PM_DEATH,
+    PM_GREMLIN,
     PM_MONK,
+    PM_SAMURAI,
+    PM_SHADE,
     PM_VALKYRIE,
+    PM_VAMPIRE,
     PM_GIANT,
     PM_GIANT_EEL,
     PM_HUMAN_WEREWOLF,
     PM_NEWT,
+    PM_WOOD_GOLEM,
     PM_WRAITH,
     PM_XORN,
     monst_globals_init,
@@ -53,41 +66,59 @@ import {
 import { init_objects } from '../js/o_init.js';
 import { newObject } from '../js/obj.js';
 import {
+    ACID_VENOM,
     AXE,
     ARROW,
     BATTLE_AXE,
     BELL_OF_OPENING,
     BOULDER,
     BOW,
+    BROADSWORD,
+    BULLWHIP,
     CLUB,
     CORPSE,
+    CREAM_PIE,
     CROSSBOW_BOLT,
     DAGGER,
     DWARVISH_MATTOCK,
     EGG,
+    FLAIL,
     GRAPPLING_HOOK,
     HALBERD,
+    HEAVY_IRON_BALL,
+    IRON_CHAIN,
+    LEATHER_GLOVES,
     LONG_SWORD,
     LUCKSTONE,
+    MACE,
     PICK_AXE,
     POT_WATER,
     ROCK,
     SPEAR,
     TRIDENT,
     SILVER_DAGGER,
+    SILVER_SABER,
     TIN,
     TIN_OPENER,
     UNICORN_HORN,
     objects_globals_init,
 } from '../js/objects.js';
+import { skillSlot } from '../js/startup_skills.js';
 import {
     abon,
     can_touch_safely,
+    dbon,
+    dmgval,
     hitval,
+    martial_bonus,
     mon_wield_item,
     select_hwep,
     select_rwep,
     setmnotwielded,
+    special_dmgval,
+    use_skill,
+    uwep_skill_type,
+    weapon_dam_bonus,
     can_advance,
     UnsupportedWeaponSkillError,
     P_NAME,
@@ -631,6 +662,28 @@ test('setmnotwielded clears ordinary state and preflights lit artifacts', async 
     );
     assert.equal(subject.mw, lit);
     assert.equal(lit.owornmask, W_WEP);
+
+    // weapon.c setmnotwielded() runs end_burn() for
+    // `artifact_light(obj) && obj->lamplit`, so satisfying one half alone
+    // leaves nothing to put out. A Sunsword that was never lit is
+    // artifact_light() without lamplit; a lit dagger is the reverse.
+    const dormant = object(state, LONG_SWORD, {
+        oartifact: ART_SUNSWORD,
+        owornmask: W_WEP,
+    });
+    subject.mw = dormant;
+    await setmnotwielded(subject, dormant, { state });
+    assert.equal(subject.mw, null);
+    assert.equal(dormant.owornmask, 0);
+
+    const litOrdinary = object(state, DAGGER, {
+        lamplit: true,
+        owornmask: W_WEP,
+    });
+    subject.mw = litOrdinary;
+    await setmnotwielded(subject, litOrdinary, { state });
+    assert.equal(subject.mw, null);
+    assert.equal(litOrdinary.owornmask, 0);
 });
 
 // wield.c:1078 mwelded() is `obj && (obj->owornmask & W_WEP)
@@ -1073,4 +1126,729 @@ test('hitval reads the trident bonus off the target square', () => {
     // A long sword against the same eel is not a trident.
     assert.equal(hitval(object(state, LONG_SWORD), swimmerInWater, state, {}),
         0);
+});
+
+// weapon.c:991-1014. Every band is a separate `return`, and three of the
+// comparisons at the top of the 18/xx range are hand-picked: `<=` at 18/75 and
+// 18/90, `<` at 18/100. Each pair below straddles one boundary, so flipping any
+// one comparison moves a value across it and fails a row.
+//
+// ACURR(A_STR) is the 3..125 encoding, in which 18 is plain 18, STR18(x) is
+// 18+x, and 19..25 come back as 119..125.
+test('dbon reads every Strength band and its exact boundaries', () => {
+    const at = (str) => dbon(heroState({ str }));
+
+    // str < 6. effective_attribute() floors Strength at 3, so 3 is the lowest
+    // value this band can be asked about.
+    assert.equal(at(3), -1);
+    assert.equal(at(5), -1);
+    // str < 16.
+    assert.equal(at(6), 0);
+    assert.equal(at(15), 0);
+    // str < 18.
+    assert.equal(at(16), 1);
+    assert.equal(at(17), 1);
+    // str == 18 exactly: 18/01 is a different band, so this row is one value
+    // wide.
+    assert.equal(at(18), 2);
+    // str <= STR18(75), i.e. 18/01 through 18/75 inclusive. 93 is the last
+    // value in the band; were the comparison `<` it would score 4.
+    assert.equal(at(STR18(1)), 3);
+    assert.equal(at(STR18(75)), 3);
+    // str <= STR18(90). 94 is the first value past 18/75 and 108 the last of
+    // this band; `<` at 18/90 would push 108 to 5.
+    assert.equal(at(STR18(76)), 4);
+    assert.equal(at(STR18(90)), 4);
+    // str < STR18(100), i.e. 18/91 through 18/99. Here the comparison is
+    // strict, so 18/100 itself belongs to the band below, not this one.
+    assert.equal(at(STR18(91)), 5);
+    assert.equal(at(STR18(99)), 5);
+    // The final `else`: 18/100 and above.
+    assert.equal(at(STR18(100)), 6);
+    // 25 is the encoding's ceiling, which effective_attribute() also caps at.
+    assert.equal(at(125), 6);
+});
+
+// weapon.c:1638-1729, the damage-side twin of weapon_hit_bonus(). Each arm
+// below is a separate constant in C.
+test('weapon_dam_bonus reads one bonus per weapon skill level', () => {
+    const state = heroState();
+    const sword = object(state, LONG_SWORD);
+    const setSkill = (skill, level) => {
+        state.u.weapon_skills[skill].skill = level;
+    };
+
+    // The P_NONE arm. A potion is neither weapon, weapon-tool, nor ammo, so
+    // weapon_type() answers P_NONE and the whole type chain is skipped. A
+    // restricted long sword would score -2 here, so this row is decisive.
+    assert.equal(weapon_dam_bonus(object(state, POT_WATER), state), 0);
+
+    for (const [level, bonus] of [
+        [P_ISRESTRICTED, -2], [P_UNSKILLED, -2], [P_BASIC, 0],
+        [P_SKILLED, 1], [P_EXPERT, 2],
+    ]) {
+        setSkill(P_LONG_SWORD, level);
+        assert.equal(weapon_dam_bonus(sword, state), bonus, `level ${level}`);
+    }
+
+    // A unicorn horn's skill is P_LAST_WEAPON itself, the inclusive end of the
+    // `type <= P_LAST_WEAPON` arm.
+    assert.equal(P_UNICORN_HORN, P_LAST_WEAPON);
+    setSkill(P_UNICORN_HORN, P_SKILLED);
+    assert.equal(weapon_dam_bonus(object(state, UNICORN_HORN), state), 1);
+});
+
+// weapon.c:1683-1697. The two-weapon arm scores the lower of the two skills,
+// and only for a weapon that is actually in one of the two hands.
+test('weapon_dam_bonus takes the lower skill while two-weaponing', () => {
+    const state = heroState();
+    const sword = object(state, LONG_SWORD);
+    const dagger = object(state, DAGGER);
+    const setSkill = (skill, level) => {
+        state.u.weapon_skills[skill].skill = level;
+    };
+    state.u.twoweap = true;
+    state.uwep = sword;
+    state.uswapwep = dagger;
+
+    // Long sword parked at Expert, so the two-weapon skill is the lower one
+    // and therefore the one the switch reads.
+    setSkill(P_LONG_SWORD, P_EXPERT);
+    setSkill(P_DAGGER, P_EXPERT);
+    for (const [level, bonus] of [
+        [P_ISRESTRICTED, -3], [P_UNSKILLED, -3], [P_BASIC, -1],
+        [P_SKILLED, 0], [P_EXPERT, 1],
+    ]) {
+        setSkill(P_TWO_WEAPON_COMBAT, level);
+        assert.equal(weapon_dam_bonus(sword, state), bonus, `two ${level}`);
+    }
+
+    // Now the weapon skill is the lower one, so `min` picks it instead.
+    setSkill(P_TWO_WEAPON_COMBAT, P_EXPERT);
+    setSkill(P_LONG_SWORD, P_BASIC);
+    assert.equal(weapon_dam_bonus(sword, state), -1);
+    // The off-hand weapon reaches the same arm through the uswapwep term.
+    setSkill(P_DAGGER, P_SKILLED);
+    assert.equal(weapon_dam_bonus(dagger, state), 0);
+    // A weapon in neither hand keeps its own ladder even while two-weaponing:
+    // P_DAGGER at Skilled scores 1 there rather than the 0 it scores above.
+    assert.equal(weapon_dam_bonus(object(state, DAGGER), state), 1);
+});
+
+// weapon.c:1697-1712. `bonus = ((max(skill, P_UNSKILLED) - 1 + 1) *
+// (martial ? 3 : 1)) / 2` with integer division. The expected values are the
+// two columns of C's own comment at 1697-1704.
+test('weapon_dam_bonus triples the bare-handed ladder for martial roles',
+    () => {
+        const state = heroState();
+        const levels = [
+            P_ISRESTRICTED, P_UNSKILLED, P_BASIC, P_SKILLED, P_EXPERT,
+            P_MASTER, P_GRAND_MASTER,
+        ];
+        const bare = [];
+        const martial = [];
+        for (const level of levels) {
+            state.u.weapon_skills[P_BARE_HANDED_COMBAT].skill = level;
+            state.urole = { mnum: PM_VALKYRIE };
+            bare.push(weapon_dam_bonus(null, state));
+            state.urole = { mnum: PM_MONK };
+            martial.push(weapon_dam_bonus(null, state));
+        }
+        // Restricted folds onto unskilled, which is why the first two match.
+        // The rest are the comment's b.h. column: 0, +1, +1, +2, +2, +3.
+        assert.deepEqual(bare, [0, 0, 1, 1, 2, 2, 3]);
+        // The comment's m.a. column: +3, +4, +6, +7, +9. Its "n/a" for
+        // martial-unskilled is not a special case in the arithmetic; that row
+        // scores 1, as restricted does.
+        assert.deepEqual(martial, [1, 1, 3, 4, 6, 7, 9]);
+    });
+
+// weapon.c:1714-1727. Riding adds thrusting damage, but C guards the whole
+// switch with `type != P_TWO_WEAPON_COMBAT`, so a two-weapon swing gets none.
+test('weapon_dam_bonus adds a riding bonus except while two-weaponing', () => {
+    const state = heroState();
+    state.u.weapon_skills[P_LONG_SWORD].skill = P_BASIC;
+    const sword = object(state, LONG_SWORD);
+    // Basic is worth 0, so every number below is the riding term alone.
+    assert.equal(weapon_dam_bonus(sword, state), 0);
+
+    state.u.usteed = { mx: 1, my: 1 };
+    for (const [level, bonus] of [
+        [P_ISRESTRICTED, 0], [P_UNSKILLED, 0], [P_BASIC, 0],
+        [P_SKILLED, 1], [P_EXPERT, 2],
+    ]) {
+        state.u.weapon_skills[P_RIDING].skill = level;
+        assert.equal(weapon_dam_bonus(sword, state), bonus, `riding ${level}`);
+    }
+
+    // The riding switch sits outside the type chain, so it also lands on the
+    // P_NONE and bare-handed arms.
+    state.u.weapon_skills[P_RIDING].skill = P_EXPERT;
+    assert.equal(weapon_dam_bonus(object(state, POT_WATER), state), 2);
+    state.u.weapon_skills[P_BARE_HANDED_COMBAT].skill = P_ISRESTRICTED;
+    assert.equal(weapon_dam_bonus(null, state), 0 + 2);
+
+    // The guard. Expert in both two-weapon combat and the long sword scores 1
+    // from the two-weapon arm, and Expert riding adds nothing on top.
+    state.u.weapon_skills[P_LONG_SWORD].skill = P_EXPERT;
+    state.u.weapon_skills[P_TWO_WEAPON_COMBAT].skill = P_EXPERT;
+    state.u.twoweap = true;
+    state.uwep = sword;
+    assert.equal(weapon_dam_bonus(sword, state), 1);
+    // Dropping two-weaponing alone moves the same sword to the weapon ladder,
+    // worth 2, and lets the same Expert riding add its 2 on top.
+    state.u.twoweap = false;
+    assert.equal(weapon_dam_bonus(sword, state), 4);
+});
+
+// Records the order and shape of every random-number call dmgval() and
+// special_dmgval() make, and hands back the next scripted result. C makes these
+// calls in a fixed order that a live game observes through the RNG log, so the
+// order matters as much as the total.
+function scriptedRandom(results) {
+    const remaining = [...results];
+    const calls = [];
+    const take = (label) => {
+        calls.push(label);
+        if (!remaining.length)
+            throw new Error(`unscripted random call ${label}`);
+        return remaining.shift();
+    };
+    return {
+        calls,
+        random: {
+            d: (n, x) => take(`d(${n},${x})`),
+            rn2: (x) => take(`rn2(${x})`),
+            rnd: (x) => take(`rnd(${x})`),
+        },
+    };
+}
+
+// Turns either of dmgval()'s two refusals into a throw the test can name.
+const refuseUnsupported = {
+    unsupported: (reason) => { throw new Error(reason); },
+};
+
+// weapon.c:220-221. The cream pie leaves before anything else runs, so an
+// empty script proves no die was rolled.
+test('dmgval returns nothing for a cream pie and rolls nothing', () => {
+    const state = makeState();
+    const roller = scriptedRandom([]);
+
+    assert.equal(dmgval(object(state, CREAM_PIE), monster(state, PM_GIANT),
+        state, { random: roller.random, ...refuseUnsupported }), 0);
+    assert.deepEqual(roller.calls, []);
+
+    // A cream pie has an oc_wsdam and an oc_wldam of 0, so falling through the
+    // early return would still roll nothing and still answer 0. The shade arm
+    // is what makes the return itself visible: everything below 220 would stop
+    // there, and C returns before reaching it.
+    assert.equal(dmgval(object(state, CREAM_PIE), monster(state, PM_SHADE),
+        state, { random: roller.random, ...refuseUnsupported }), 0);
+    assert.deepEqual(roller.calls, []);
+});
+
+// weapon.c:223-249. A giant is MZ_HUGE, so bigmonst() holds and the base die
+// is objects[].oc_wldam, the `ldam` column of include/objects.h.
+test('dmgval rolls the large-monster die and its extra die', () => {
+    const state = makeState();
+    const giant = monster(state, PM_GIANT);
+    const hit = (otyp, results) => {
+        const roller = scriptedRandom(results);
+        const damage = dmgval(object(state, otyp), giant, state,
+            { random: roller.random, ...refuseUnsupported });
+        return { damage, calls: roller.calls };
+    };
+
+    // A long sword is in neither switch, so its ldam of 12 is the whole roll.
+    assert.deepEqual(hit(LONG_SWORD, [7]), { damage: 7, calls: ['rnd(12)'] });
+    // IRON_CHAIN: ldam 4, then the flat `tmp++` arm.
+    assert.deepEqual(hit(IRON_CHAIN, [3]), { damage: 4, calls: ['rnd(4)'] });
+    // FLAIL: ldam 4, then `rnd(4)`.
+    assert.deepEqual(hit(FLAIL, [2, 3]),
+        { damage: 5, calls: ['rnd(4)', 'rnd(4)'] });
+    // HALBERD: ldam 6, then `rnd(6)`.
+    assert.deepEqual(hit(HALBERD, [5, 4]),
+        { damage: 9, calls: ['rnd(6)', 'rnd(6)'] });
+    // BATTLE_AXE: ldam 6, then `d(2,4)`.
+    assert.deepEqual(hit(BATTLE_AXE, [4, 5]),
+        { damage: 9, calls: ['rnd(6)', 'd(2,4)'] });
+    // DWARVISH_MATTOCK: ldam 8, then `d(2,6)`.
+    assert.deepEqual(hit(DWARVISH_MATTOCK, [6, 7]),
+        { damage: 13, calls: ['rnd(8)', 'd(2,6)'] });
+});
+
+// weapon.c:250-295. A newt is MZ_TINY, so the base die is objects[].oc_wsdam,
+// the `sdam` column, and the second switch applies instead.
+test('dmgval rolls the small-monster die and its extra die', () => {
+    const state = makeState();
+    const newt = monster(state, PM_NEWT);
+    const hit = (otyp, results) => {
+        const roller = scriptedRandom(results);
+        const damage = dmgval(object(state, otyp), newt, state,
+            { random: roller.random, ...refuseUnsupported });
+        return { damage, calls: roller.calls };
+    };
+
+    // A long sword is in neither switch here either; its sdam is 8.
+    assert.deepEqual(hit(LONG_SWORD, [5]), { damage: 5, calls: ['rnd(8)'] });
+    // MACE: sdam 6, then the flat `tmp++` arm.
+    assert.deepEqual(hit(MACE, [4]), { damage: 5, calls: ['rnd(6)'] });
+    // BROADSWORD: sdam 4, then `rnd(4)`. Note it is `tmp++` on the large side,
+    // so the two switches disagree about this weapon.
+    assert.deepEqual(hit(BROADSWORD, [3, 2]),
+        { damage: 5, calls: ['rnd(4)', 'rnd(4)'] });
+    // ACID_VENOM: sdam 6, then `rnd(6)`, the only entry in the small `rnd(6)`
+    // arm.
+    assert.deepEqual(hit(ACID_VENOM, [6, 5]),
+        { damage: 11, calls: ['rnd(6)', 'rnd(6)'] });
+});
+
+// weapon.c:297-301.
+test('dmgval adds enchantment for weapons only and never below zero', () => {
+    const state = makeState();
+    const newt = monster(state, PM_NEWT);
+    const hit = (obj, results) => {
+        const roller = scriptedRandom(results);
+        return dmgval(obj, newt, state,
+            { random: roller.random, ...refuseUnsupported });
+    };
+
+    // A +3 long sword: sdam 8 plus the enchantment.
+    assert.equal(hit(object(state, LONG_SWORD, { spe: 3 }), [5]), 8);
+    // A -10 long sword rolls 1, which the clamp lifts from -9 to 0. The final
+    // `if (tmp > 0)` then skips erosion, so the answer is 0 rather than 1.
+    assert.equal(hit(object(state, LONG_SWORD, { spe: -10 }), [1]), 0);
+    // An iron chain is CHAIN_CLASS and no weapon-tool, so Is_weapon is false
+    // and the same +5 is ignored: ldam-less small roll of 2, plus the `tmp++`.
+    assert.equal(hit(object(state, IRON_CHAIN, { spe: 5 }), [2]), 3);
+});
+
+// weapon.c:303-305. LEATHER is material 7 in objclass.h, so only the softest
+// materials are stopped by a hide.
+test('dmgval zeroes soft materials against a thick skin', () => {
+    const state = makeState();
+    const xorn = monster(state, PM_XORN);
+    const newt = monster(state, PM_NEWT);
+    const hit = (otyp, target, results) => {
+        const roller = scriptedRandom(results);
+        return dmgval(object(state, otyp), target, state,
+            { random: roller.random, ...refuseUnsupported });
+    };
+
+    // A bullwhip is LEATHER, exactly the limit, and a xorn is M1_THICK_HIDE.
+    // The die is still rolled first, then discarded.
+    assert.equal(hit(BULLWHIP, xorn, [2]), 0);
+    // The same bullwhip against a newt, which has no thick hide.
+    assert.equal(hit(BULLWHIP, newt, [2]), 2);
+    // A long sword is IRON, past the limit, so the same xorn feels it.
+    assert.equal(hit(LONG_SWORD, xorn, [5]), 5);
+});
+
+// weapon.c:311-321. weight.h sets WT_IRON_BALL_INCR to 160 and objects.h gives
+// the heavy iron ball an oc_weight of 480 and an sdam and ldam of 25.
+test('dmgval adds a die for a heavy iron ball above its base weight', () => {
+    const state = makeState();
+    const newt = monster(state, PM_NEWT);
+    const hit = (owt, results) => {
+        const roller = scriptedRandom(results);
+        const damage = dmgval(object(state, HEAVY_IRON_BALL, { owt }), newt,
+            state, { random: roller.random, ...refuseUnsupported });
+        return { damage, calls: roller.calls };
+    };
+
+    // At the base weight the inner `owt > wt` test fails, so only sdam rolls.
+    assert.deepEqual(hit(480, [5]), { damage: 5, calls: ['rnd(25)'] });
+    // 480 + 3 * 160: three increments, so `rnd(4 * 3)`.
+    assert.deepEqual(hit(960, [5, 4]),
+        { damage: 9, calls: ['rnd(25)', 'rnd(12)'] });
+    // 480 + 200: C's integer division truncates 1.25 to one increment, so the
+    // extra die is rnd(4), not rnd(5).
+    assert.deepEqual(hit(680, [5, 3]),
+        { damage: 8, calls: ['rnd(25)', 'rnd(4)'] });
+    // The cap. 25 + 10 is 35, which C clamps back to 25; no erosion follows,
+    // so 25 is also the returned damage.
+    assert.deepEqual(hit(960, [25, 10]),
+        { damage: 25, calls: ['rnd(25)', 'rnd(12)'] });
+});
+
+// weapon.c:324-341, the four versus-monster bonus terms and the order C rolls
+// them in.
+test('dmgval adds each versus-monster damage bonus its source names', () => {
+    const state = makeState();
+    const newt = monster(state, PM_NEWT);
+    const hit = (obj, target, results) => {
+        const roller = scriptedRandom(results);
+        const damage = dmgval(obj, target, state,
+            { random: roller.random, ...refuseUnsupported });
+        return { damage, calls: roller.calls };
+    };
+
+    // Blessed against a wraith, which is M2_UNDEAD: sdam 8, then rnd(4).
+    const wraith = monster(state, PM_WRAITH);
+    assert.deepEqual(
+        hit(object(state, LONG_SWORD, { blessed: 1 }), wraith, [3, 2]),
+        { damage: 5, calls: ['rnd(8)', 'rnd(4)'] },
+    );
+    // The same blessed sword against a newt buys nothing.
+    assert.deepEqual(hit(object(state, LONG_SWORD, { blessed: 1 }), newt, [3]),
+        { damage: 3, calls: ['rnd(8)'] });
+
+    // An axe against a wood golem, which is MZ_LARGE, so this rolls ldam 4 and
+    // then the axe bonus. The golem is also M1_THICK_HIDE, but an axe is IRON,
+    // so the material check above leaves the roll alone.
+    const woodGolem = monster(state, PM_WOOD_GOLEM);
+    assert.deepEqual(hit(object(state, AXE), woodGolem, [3, 2]),
+        { damage: 5, calls: ['rnd(4)', 'rnd(4)'] });
+    // The same axe against a giant, which is not wooden.
+    assert.deepEqual(hit(object(state, AXE), monster(state, PM_GIANT), [3]),
+        { damage: 3, calls: ['rnd(4)'] });
+    // A long sword against the wood golem is not an axe.
+    assert.deepEqual(hit(object(state, LONG_SWORD), woodGolem, [7]),
+        { damage: 7, calls: ['rnd(12)'] });
+
+    // Silver against a werewolf: sdam 4, then rnd(20).
+    const were = monster(state, PM_HUMAN_WEREWOLF);
+    assert.deepEqual(hit(object(state, SILVER_DAGGER), were, [2, 13]),
+        { damage: 15, calls: ['rnd(4)', 'rnd(20)'] });
+    // The same silver dagger against a newt, and an iron dagger against the
+    // same werewolf: both keep the base roll alone.
+    assert.deepEqual(hit(object(state, SILVER_DAGGER), newt, [2]),
+        { damage: 2, calls: ['rnd(4)'] });
+    assert.deepEqual(hit(object(state, DAGGER), were, [2]),
+        { damage: 2, calls: ['rnd(4)'] });
+
+    // A lit Sunsword against a gremlin, which hates light: sdam 8, then
+    // rnd(8). The scripted 1 keeps the bonus at 1 so it stays below the
+    // artifact-halving test at 338, which this port refuses.
+    const gremlin = monster(state, PM_GREMLIN);
+    const sunsword = (overrides) => object(state, LONG_SWORD, {
+        oartifact: ART_SUNSWORD, ...overrides,
+    });
+    assert.deepEqual(hit(sunsword({ lamplit: true }), gremlin, [2, 1]),
+        { damage: 3, calls: ['rnd(8)', 'rnd(8)'] });
+    // artifact_light() alone is not enough; C also requires obj->lamplit.
+    assert.deepEqual(hit(sunsword({}), gremlin, [2]),
+        { damage: 2, calls: ['rnd(8)'] });
+    // And a newt does not hate light.
+    assert.deepEqual(hit(sunsword({ lamplit: true }), newt, [2]),
+        { damage: 2, calls: ['rnd(8)'] });
+
+    // Two terms at once fix their order. A vampire is M2_UNDEAD and S_VAMPIRE,
+    // so it hates both the blessing and the silver: sdam 4, then rnd(4) for
+    // the blessing, then rnd(20) for the silver.
+    assert.deepEqual(
+        hit(object(state, SILVER_DAGGER, { blessed: 1 }),
+            monster(state, PM_VAMPIRE), [2, 3, 13]),
+        { damage: 18, calls: ['rnd(4)', 'rnd(4)', 'rnd(20)'] },
+    );
+});
+
+// weapon.c:343-353.
+test('dmgval subtracts erosion but never below one', () => {
+    const state = makeState();
+    const newt = monster(state, PM_NEWT);
+    const hit = (overrides, results, target = newt) => {
+        const roller = scriptedRandom(results);
+        return dmgval(object(state, LONG_SWORD, overrides), target, state,
+            { random: roller.random, ...refuseUnsupported });
+    };
+
+    // Rusted twice: 5 - 2.
+    assert.equal(hit({ oeroded: 2 }, [5]), 3);
+    // greatest_erosion() takes the larger of the two counters, so corrosion
+    // of 4 beats rust of 1: 8 - 4.
+    assert.equal(hit({ oeroded: 1, oeroded2: 4 }, [8]), 4);
+    // The floor: 1 - 3 is -2, which C lifts back to 1.
+    assert.equal(hit({ oeroded: 3, oeroded2: 1 }, [1]), 1);
+    // C guards the whole block with `tmp > 0`, so damage already reduced to
+    // nothing is not lifted to 1 by the floor. A bullwhip is LEATHER and a
+    // xorn is thick-skinned, which is what zeroes it.
+    const roller = scriptedRandom([2]);
+    assert.equal(
+        dmgval(object(state, BULLWHIP, { oeroded: 2 }),
+            monster(state, PM_XORN), state,
+            { random: roller.random, ...refuseUnsupported }),
+        0,
+    );
+});
+
+// The two arms of dmgval() this port stops at. Both sit after the base roll,
+// so each refusal happens with the die already spent.
+test('dmgval zeroes a shade hit unless the object can glare, and refuses an '
+    + 'artifact worth doubling', () => {
+    const state = makeState();
+
+    // weapon.c:306-307. An ordinary long sword passes harmlessly through a
+    // shade: the die is still rolled, and the total is then thrown away.
+    const shadeRoller = scriptedRandom([5]);
+    assert.equal(
+        dmgval(object(state, LONG_SWORD), monster(state, PM_SHADE),
+            state, { random: shadeRoller.random, ...refuseUnsupported }),
+        0,
+    );
+    assert.deepEqual(shadeRoller.calls, ['rnd(8)']);
+
+    // artifact.c shade_glare():558-559 answers TRUE for any silver object, so
+    // a silver saber hurts a shade. Its rnd(8) is the base die and the rnd(20)
+    // is the silver bonus at weapon.c:331-332, which a shade also earns
+    // through mon_hates_silver().
+    const silverRoller = scriptedRandom([5, 6]);
+    assert.equal(
+        dmgval(object(state, SILVER_SABER), monster(state, PM_SHADE),
+            state, { random: silverRoller.random, ...refuseUnsupported }),
+        11,
+    );
+    assert.deepEqual(silverRoller.calls, ['rnd(8)', 'rnd(20)']);
+
+    // weapon.c:338-339 needs artifact.c spec_dbon(). C reaches it only for an
+    // artifact whose bonus already exceeds 1, so a lit Sunsword against a
+    // gremlin refuses once the light bonus rolls 2 rather than the 1 the test
+    // above scripted.
+    const artifactRoller = scriptedRandom([2, 2]);
+    assert.throws(
+        () => dmgval(
+            object(state, LONG_SWORD, {
+                oartifact: ART_SUNSWORD, lamplit: true,
+            }),
+            monster(state, PM_GREMLIN), state,
+            { random: artifactRoller.random, ...refuseUnsupported },
+        ),
+        /artifact damage doubling/u,
+    );
+    assert.deepEqual(artifactRoller.calls, ['rnd(8)', 'rnd(8)']);
+
+    // The same bonus of 2 on a weapon that is no artifact passes through.
+    const plainRoller = scriptedRandom([3, 2]);
+    assert.equal(
+        dmgval(object(state, LONG_SWORD, { blessed: 1 }),
+            monster(state, PM_WRAITH), state,
+            { random: plainRoller.random, ...refuseUnsupported }),
+        5,
+    );
+});
+
+// weapon.c:357-425. special_dmgval() answers with the bonus and writes the
+// slot that supplied the silver through its `silverhit_p` output.
+test('special_dmgval reads blessed and silver gloves', () => {
+    const state = makeState();
+    const wraith = monster(state, PM_WRAITH);
+    const were = monster(state, PM_HUMAN_WEREWOLF);
+    const hit = (armask, mdef, results) => {
+        const roller = scriptedRandom(results);
+        const out = {};
+        const bonus = special_dmgval(state.youmonst, mdef, armask, out, state,
+            { random: roller.random, ...refuseUnsupported });
+        return { bonus, silverhit: out.silverhit, calls: roller.calls };
+    };
+
+    // Blessed gloves against something M2_UNDEAD. Nothing is silver, so the
+    // output mask stays empty.
+    state.uarmg = object(state, LEATHER_GLOVES, {
+        blessed: 1, owornmask: W_ARMG,
+    });
+    assert.deepEqual(hit(W_ARMG, wraith, [3]),
+        { bonus: 3, silverhit: 0, calls: ['rnd(4)'] });
+    // The same gloves against a newt, which hates neither.
+    assert.deepEqual(hit(W_ARMG, monster(state, PM_NEWT), []),
+        { bonus: 0, silverhit: 0, calls: [] });
+
+    // C's comment at 393-395 says no silver gloves exist and that the silver
+    // check is deliberately general, so this exercises it with a fixed-material
+    // object in the glove slot; special_dmgval() reads only oc_material there.
+    state.uarmg = object(state, SILVER_DAGGER, { owornmask: W_ARMG });
+    // The mask C passes for a bare-handed hit carries both ring bits too. The
+    // gloves win, and the mask C reports back is W_ARMG rather than a ring.
+    assert.deepEqual(hit(W_ARMG | W_RINGL | W_RINGR, were, [13]),
+        { bonus: 13, silverhit: W_ARMG, calls: ['rnd(20)'] });
+
+    // Blessed and silver together fix the order: rnd(4) then rnd(20). A
+    // vampire is M2_UNDEAD and S_VAMPIRE, so it hates both.
+    state.uarmg = object(state, SILVER_DAGGER, {
+        blessed: 1, owornmask: W_ARMG,
+    });
+    assert.deepEqual(hit(W_ARMG, monster(state, PM_VAMPIRE), [3, 13]),
+        { bonus: 16, silverhit: W_ARMG, calls: ['rnd(4)', 'rnd(20)'] });
+
+    // weapon.c:400-401 wants both halves: a silver object in the glove slot
+    // against a newt, which hates neither silver nor blessings, adds nothing
+    // and reports no mask.
+    state.uarmg = object(state, SILVER_DAGGER, { owornmask: W_ARMG });
+    assert.deepEqual(hit(W_ARMG, monster(state, PM_NEWT), []),
+        { bonus: 0, silverhit: 0, calls: [] });
+    // And leather gloves against a werewolf, which hates silver but finds
+    // nothing silver to hate.
+    state.uarmg = object(state, LEATHER_GLOVES, { owornmask: W_ARMG });
+    assert.deepEqual(hit(W_ARMG, were, []),
+        { bonus: 0, silverhit: 0, calls: [] });
+});
+
+// weapon.c:405-424, the ring arm C reaches only when the hero wears no gloves.
+test('special_dmgval reads silver rings when no gloves are worn', () => {
+    const state = makeState();
+    const were = monster(state, PM_HUMAN_WEREWOLF);
+    // As above, ring materials are shuffled at game start, so a fixed-material
+    // object stands in for a silver ring; only oc_material is read here.
+    const silver = () => object(state, SILVER_DAGGER);
+    const iron = () => object(state, DAGGER);
+    const hit = (armask, mdef, results) => {
+        const roller = scriptedRandom(results);
+        const out = {};
+        const bonus = special_dmgval(state.youmonst, mdef, armask, out, state,
+            { random: roller.random, ...refuseUnsupported });
+        return { bonus, silverhit: out.silverhit, calls: roller.calls };
+    };
+
+    state.uarmg = null;
+    state.uleft = silver();
+    state.uright = silver();
+
+    // W_RINGL alone consults the left hand only, even with silver on both.
+    assert.deepEqual(hit(W_RINGL, were, [13]),
+        { bonus: 13, silverhit: W_RINGL, calls: ['rnd(20)'] });
+    // W_RINGR alone consults the right hand only.
+    assert.deepEqual(hit(W_RINGR, were, [11]),
+        { bonus: 11, silverhit: W_RINGR, calls: ['rnd(20)'] });
+    // Both bits with silver on both hands: C's comment at 417-418 says two
+    // silver rings do not double the damage, so exactly one rnd(20) is rolled,
+    // while the reported mask names both hands.
+    assert.deepEqual(hit(W_RINGL | W_RINGR, were, [13]),
+        { bonus: 13, silverhit: W_RINGL | W_RINGR, calls: ['rnd(20)'] });
+
+    // Silver on the right hand only still scores, and reports only W_RINGR.
+    state.uleft = iron();
+    assert.deepEqual(hit(W_RINGL | W_RINGR, were, [11]),
+        { bonus: 11, silverhit: W_RINGR, calls: ['rnd(20)'] });
+    // An empty left hand takes the same path: C tests `left_ring && uleft`.
+    state.uleft = null;
+    assert.deepEqual(hit(W_RINGL | W_RINGR, were, [11]),
+        { bonus: 11, silverhit: W_RINGR, calls: ['rnd(20)'] });
+
+    // A defender that does not hate silver scores nothing from either hand.
+    state.uleft = silver();
+    assert.deepEqual(hit(W_RINGL | W_RINGR, monster(state, PM_NEWT), []),
+        { bonus: 0, silverhit: 0, calls: [] });
+
+    // C guards the ring arm with `magr == &gy.youmonst`, because uleft and
+    // uright are the hero's slots. An ordinary monster wearing no gloves gets
+    // nothing even though the same rings are on the hero's hands.
+    const roller = scriptedRandom([]);
+    const out = {};
+    assert.equal(
+        special_dmgval(monster(state, PM_GIANT), were, W_RINGL | W_RINGR, out,
+            state, { random: roller.random, ...refuseUnsupported }),
+        0,
+    );
+    assert.equal(out.silverhit, 0);
+    assert.deepEqual(roller.calls, []);
+});
+
+// weapon.c:380-391. The body-armor arm belongs to mhitu.c's passive hits and
+// has no ported caller, so all three of its bits stop here.
+test('special_dmgval refuses the body-armor mask', () => {
+    const state = makeState();
+    const wraith = monster(state, PM_WRAITH);
+
+    for (const armask of [W_ARMC, W_ARM, W_ARMU, W_ARMC | W_ARM | W_ARMU]) {
+        assert.throws(
+            () => special_dmgval(state.youmonst, wraith, armask, {}, state,
+                refuseUnsupported),
+            /body armor special damage/u,
+            `mask ${armask}`,
+        );
+    }
+});
+
+// weapon.c:1423-1434.
+test('use_skill practices a skill and stops where C announces advancement',
+    () => {
+        const state = makeHeroState();
+        const advanceable = (skill) => {
+            const slot = skillSlot(skill, state);
+            slot.skill = P_BASIC;
+            slot.max_skill = P_EXPERT;
+            slot.advance = 0;
+            return slot;
+        };
+
+        // The `skill != P_NONE` term, made decisive by giving slot P_NONE an
+        // unrestricted skill so the second term would let it through.
+        const none = advanceable(P_NONE);
+        use_skill(P_NONE, 5, state);
+        assert.equal(none.advance, 0);
+
+        // The `!P_RESTRICTED(skill)` term. A restricted skill takes no
+        // practice at all.
+        const sword = skillSlot(P_LONG_SWORD, state);
+        sword.skill = P_ISRESTRICTED;
+        sword.max_skill = P_EXPERT;
+        use_skill(P_LONG_SWORD, 5, state);
+        assert.equal(sword.advance, 0);
+
+        // The ordinary case. practice_needed_to_advance(P_BASIC) is
+        // 2 * 2 * 20 == 80 and slots_required() for a weapon skill is the
+        // current level, 2, so with no slots and 5 practice can_advance() is
+        // false before and after and nothing is announced.
+        advanceable(P_LONG_SWORD);
+        state.u.weapon_slots = 0;
+        use_skill(P_LONG_SWORD, 5, state);
+        assert.equal(sword.advance, 5);
+        use_skill(P_LONG_SWORD, 3, state);
+        assert.equal(sword.advance, 8);
+
+        // give_may_advance_msg(). Two slots and 79 practice leave the hero one
+        // point short, so the increment is what first makes can_advance() true.
+        sword.advance = 79;
+        state.u.weapon_slots = 2;
+        assert.equal(can_advance(P_LONG_SWORD, false, state), false);
+        assert.throws(
+            () => use_skill(P_LONG_SWORD, 1, state),
+            (error) => error instanceof UnsupportedWeaponSkillError
+                && error.branch === 'give_may_advance_msg(skill)',
+        );
+        // C adds the practice before it tests again, so the write survives.
+        assert.equal(sword.advance, 80);
+
+        // `!advance_before` keeps the message to the crossing itself. Further
+        // practice on an already-advanceable skill announces nothing.
+        use_skill(P_LONG_SWORD, 1, state);
+        assert.equal(sword.advance, 81);
+    });
+
+// weapon.c:1531-1537.
+test('uwep_skill_type answers for the wielded weapon or for two-weaponing',
+    () => {
+        const state = heroState();
+
+        // weapon_type(NULL) is bare-handed combat, not P_NONE.
+        state.uwep = null;
+        assert.equal(uwep_skill_type(state), P_BARE_HANDED_COMBAT);
+        state.uwep = object(state, LONG_SWORD);
+        assert.equal(uwep_skill_type(state), P_LONG_SWORD);
+        // A potion is neither weapon, weapon-tool, nor ammo.
+        state.uwep = object(state, POT_WATER);
+        assert.equal(uwep_skill_type(state), P_NONE);
+
+        // u.twoweap is tested first and answers for every one of them.
+        state.u.twoweap = true;
+        assert.equal(uwep_skill_type(state), P_TWO_WEAPON_COMBAT);
+        state.uwep = object(state, LONG_SWORD);
+        assert.equal(uwep_skill_type(state), P_TWO_WEAPON_COMBAT);
+        state.uwep = null;
+        assert.equal(uwep_skill_type(state), P_TWO_WEAPON_COMBAT);
+    });
+
+// skills.h:81. Only two roles get the martial tables that P_NAME(),
+// weapon_hit_bonus() and weapon_dam_bonus() above read through this.
+test('martial_bonus holds for the Samurai and the Monk alone', () => {
+    const state = heroState();
+
+    state.urole = { mnum: PM_SAMURAI };
+    assert.equal(martial_bonus(state), true);
+    state.urole = { mnum: PM_MONK };
+    assert.equal(martial_bonus(state), true);
+    state.urole = { mnum: PM_VALKYRIE };
+    assert.equal(martial_bonus(state), false);
+    state.urole = { mnum: PM_ARCHEOLOGIST };
+    assert.equal(martial_bonus(state), false);
 });
