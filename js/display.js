@@ -84,7 +84,7 @@ import { hu_stat } from './eat.js';
 import { observe_object } from './o_init.js';
 import { engr_at } from './engrave.js';
 import { status_version } from './version.js';
-import { isWeptool } from './obj.js';
+import { is_weptool } from './obj.js';
 import { newuexp, UnsupportedExperienceChangeError } from './exper.js';
 import { weapon_type } from './startup_skills.js';
 import { weapon_descr } from './weapon.js';
@@ -2046,7 +2046,7 @@ export function weapon_status(state = game) {
 
     description = description[0].toUpperCase() + description.slice(1);
     let result = '';
-    if ((weapon.oclass === WEAPON_CLASS || isWeptool(weapon, state))
+    if ((weapon.oclass === WEAPON_CLASS || is_weptool(weapon, state))
         && bimanual(weapon, state)
         && !description.startsWith('2')
         && !description.toLowerCase().startsWith('two')) result = '2H-';

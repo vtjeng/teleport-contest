@@ -11,10 +11,6 @@ import {
     CLAIRVOYANT,
     INVIS,
     OBJ_MINVENT,
-    P_BOW,
-    P_BOOMERANG,
-    P_CROSSBOW,
-    P_DART,
     P_LANCE,
     P_POLEARMS,
     TELEPAT,
@@ -49,14 +45,16 @@ import { check_gear_next_turn } from './mon.js';
 import { PM_WIZARD } from './monsters.js';
 import {
     ARM_BONUS,
-    isWeptool,
+    is_ammo,
+    is_launcher,
+    is_missile,
+    is_weptool,
     obj_no_longer_held,
     objectType,
 } from './obj.js';
 import {
     AMULET_OF_GUARDING,
     CORNUTHAUM,
-    GEM_CLASS,
     MUMMY_WRAPPING,
     TOOL_CLASS,
     TOWEL,
@@ -160,7 +158,7 @@ function removeSlotEffects(obj, slotMask, callerMask, env) {
 function addSlotEffects(obj, slotMask, callerMask, env) {
     const { state } = env;
     if (slotMask & (W_SWAPWEP | W_QUIVER)) return;
-    if (obj.oclass === WEAPON_CLASS || isWeptool(obj, state)
+    if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
         || callerMask !== W_WEP) {
         const oprop = Math.trunc(objectType(obj, state).oc_oprop ?? 0);
         property(state, oprop).extrinsic |= slotMask;
@@ -394,29 +392,9 @@ export function extract_from_minvent(
         requiredHook(normalized, 'mwepgone', obj)(mon, normalized);
 }
 
-export function is_ammo(obj, state = game) {
-    const skill = objectType(obj, state).oc_skill;
-    return (obj.oclass === WEAPON_CLASS || obj.oclass === GEM_CLASS)
-        && skill >= -P_CROSSBOW && skill <= -P_BOW;
-}
-
-export function is_missile(obj, state = game) {
-    const skill = objectType(obj, state).oc_skill;
-    return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
-        && skill >= -P_BOOMERANG && skill <= -P_DART;
-}
-
 export function bimanual(obj, state = game) {
     return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
         && Boolean(objectType(obj, state).oc_bimanual);
-}
-
-// C ref: obj.h is_launcher() (235-237). Exported beside is_ammo() and
-// is_missile() because wield.c TWOWEAPOK() reads all three.
-export function is_launcher(obj, state = game) {
-    const skill = objectType(obj, state).oc_skill;
-    return obj.oclass === WEAPON_CLASS
-        && skill >= P_BOW && skill <= P_CROSSBOW;
 }
 
 // C ref: obj.h:228 is_pole(). Snickersnee is not a polearm, but can hit from
@@ -473,7 +451,7 @@ export function setuwep(obj, env = {}) {
                 || is_missile(obj, state)
                 || (is_pole(obj, state) && !state.u.usteed
                     && obj.oartifact !== ART_SNICKERSNEE)
-            : !isWeptool(obj, state)
+            : !is_weptool(obj, state)
                 && !(obj.otyp === TOWEL && Math.trunc(obj.spe ?? 0) > 0);
     } else {
         state.unweapon = true;

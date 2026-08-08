@@ -101,7 +101,7 @@ import {
     is_graystone,
     is_pick,
     is_spear,
-    isWeptool,
+    is_weptool,
     objectType,
 } from './obj.js';
 import {
@@ -362,7 +362,7 @@ export function hitval(otmp, mon, state = game, env = {}) {
     let tmp = 0;
     const ptr = mon.data;
     const objectData = objectType(otmp, state);
-    const isWeapon = otmp.oclass === WEAPON_CLASS || isWeptool(otmp, state);
+    const isWeapon = otmp.oclass === WEAPON_CLASS || is_weptool(otmp, state);
 
     if (isWeapon) tmp += otmp.spe;
 
@@ -432,7 +432,7 @@ export function dmgval(otmp, mon, state = game, env = {}) {
     const otyp = otmp.otyp;
     const ptr = mon.data;
     const objectData = objectType(otmp, state);
-    const Is_weapon = otmp.oclass === WEAPON_CLASS || isWeptool(otmp, state);
+    const Is_weapon = otmp.oclass === WEAPON_CLASS || is_weptool(otmp, state);
 
     if (otyp === CREAM_PIE) return 0;
 

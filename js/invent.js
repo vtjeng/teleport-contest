@@ -44,11 +44,7 @@ import {
     IS_THRONE,
     ROOM,
     TREE,
-    P_BOOMERANG,
-    P_BOW,
-    P_CROSSBOW,
     P_DAGGER,
-    P_DART,
     is_pit,
     Is_airlevel,
     Is_waterlevel,
@@ -70,7 +66,6 @@ import {
     PLNMSG_ONE_ITEM_HERE,
     P_SABER,
     P_SHORT_SWORD,
-    P_SPEAR,
     W_QUIVER,
 } from './const.js';
 import { ART_MJOLLNIR } from './artifacts.js';
@@ -128,7 +123,6 @@ import {
     SPE_BOOK_OF_THE_DEAD,
     SPBOOK_CLASS,
     TIN,
-    TOOL_CLASS,
     WAR_HAMMER,
     WEAPON_CLASS,
     PIERCE,
@@ -141,6 +135,9 @@ import {
     isCandle,
     isContainer,
     isPudding,
+    is_ammo,
+    is_missile,
+    is_spear,
     objectType,
     preflightWeight,
     weight,
@@ -2066,20 +2063,14 @@ export function carry_obj_effects(obj, env = {}, prepared = null) {
     return obj;
 }
 
-function isAmmo(obj, state) {
-    const skill = objectType(obj, state).oc_subtyp;
-    return (obj.oclass === WEAPON_CLASS || obj.oclass === GEM_CLASS)
-        && skill >= -P_CROSSBOW
-        && skill <= -P_BOW;
-}
-
+// C ref: dothrow.c throwing_weapon().  obj.h is_blade() and is_sword() are
+// not ported, so their two terms stay inlined here; is_missile() and
+// is_spear() come from js/obj.js, which owns obj.h.
 function isThrowingWeapon(obj, state) {
     const type = objectType(obj, state);
     const skill = type.oc_subtyp;
-    const missile = (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
-        && skill >= -P_BOOMERANG
-        && skill <= -P_DART;
-    const spear = obj.oclass === WEAPON_CLASS && skill === P_SPEAR;
+    const missile = is_missile(obj, state);
+    const spear = is_spear(obj, state);
     const blade = obj.oclass === WEAPON_CLASS
         && skill >= P_DAGGER
         && skill <= P_SABER;
@@ -2096,7 +2087,7 @@ function isThrowingWeapon(obj, state) {
 function shouldAutoquiver(obj, state) {
     return obj.oartifact !== ART_MJOLLNIR
         && obj.otyp !== AKLYS
-        && (isThrowingWeapon(obj, state) || isAmmo(obj, state));
+        && (isThrowingWeapon(obj, state) || is_ammo(obj, state));
 }
 
 function setQuiver(obj, env) {

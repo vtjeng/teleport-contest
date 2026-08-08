@@ -89,7 +89,9 @@ import {
 } from './monsters.js';
 import {
     is_ammo,
-    isWeptool,
+    is_launcher,
+    is_missile,
+    is_weptool,
     objectType,
 } from './obj.js';
 import { cxname } from './objnam.js';
@@ -123,8 +125,6 @@ import { can_twoweapon } from './wield.js';
 import {
     bimanual,
     find_mac,
-    is_launcher,
-    is_missile,
     is_pole,
 } from './worn.js';
 import { exclam } from './zap.js';
@@ -470,7 +470,7 @@ export async function known_hitum(
 
         /* KMH, conduct */
         if (weapon && (weapon.oclass === WEAPON_CLASS
-                       || isWeptool(weapon, state)))
+                       || is_weptool(weapon, state)))
             state.u.uconduct.weaphit++;
 
         /* we hit the monster; be careful: it might die or
@@ -888,7 +888,7 @@ async function hmon_hitmon_do_hit(hmd, mon, obj, state, env, random) {
         else
             unsupported('naming a lit artifact light source');
 
-        if (obj.oclass === WEAPON_CLASS || isWeptool(obj, state)
+        if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
             || obj.oclass === GEM_CLASS) {
             await hmon_hitmon_weapon(hmd, mon, obj, state, env, random);
         /* attacking with non-weapons */
@@ -1183,7 +1183,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
         if (obj && (obj === state.uwep
                     || (obj === state.uswapwep && state.u.twoweap))
             /* known_hitum 'what counts as a weapon' criteria */
-            && (obj.oclass === WEAPON_CLASS || isWeptool(obj, state))
+            && (obj.oclass === WEAPON_CLASS || is_weptool(obj, state))
             && (thrown === HMON_MELEE || thrown === HMON_APPLIED)
             /* if jousting, the hit was already logged */
             && !hmd.jousting

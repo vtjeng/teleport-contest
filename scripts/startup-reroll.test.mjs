@@ -290,6 +290,39 @@ test('source-derived startup names cover monster food and charge forms', () => {
         assert.equal(identifiedStartingObjectName(item, state), expected);
 });
 
+// C ref: objnam.c xname():685-687, whose `case WEAPON_CLASS:` runs
+// `if (is_poisonable(obj) && obj->opoisoned) Strcpy(buf, "poisoned ")`.
+// mkobj.c:1174 is the only generator that reaches a starting object, and it
+// poisons under is_multigen() (obj.h:260-263), so every poisoned object a
+// reroll menu can show is WEAPON_CLASS ammunition and no weapon-tool.
+test('the startup poisoned prefix needs both the flag and a weapon', () => {
+    const state = rerollState();
+    // objects.h PROJECTILE("arrow", ... -P_BOW ...): WEAPON_CLASS with a
+    // non-zero oc_skill of the wrong sign, so is_weptool() is false and the
+    // class arm alone admits it. `||` cannot become `&&` here.
+    assert.equal(
+        identifiedStartingObjectName(
+            object(state, O.ARROW, { opoisoned: 1, spe: 0, quan: 3 }), state,
+        ),
+        '3 poisoned +0 arrows',
+    );
+    // The flag is the other conjunct: the same stack without it loses only
+    // the prefix.
+    assert.equal(
+        identifiedStartingObjectName(
+            object(state, O.ARROW, { spe: 0, quan: 3 }), state,
+        ),
+        '3 +0 arrows',
+    );
+    // A potion carries neither arm, so a stray flag adds nothing.
+    assert.equal(
+        identifiedStartingObjectName(
+            object(state, O.POT_WATER, { opoisoned: 1 }), state,
+        ),
+        'an uncursed potion of water',
+    );
+});
+
 test('attribute line applies ACURR bonuses and strength encoding', () => {
     const state = rerollState();
     state.u.acurr.a = [18, 9, 10, 11, 12, 13];

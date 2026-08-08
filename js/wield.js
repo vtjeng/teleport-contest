@@ -15,7 +15,13 @@ import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { update_inventory } from './invent.js';
 import { could_twoweap, humanoid } from './mondata.js';
-import { isWeptool, set_bknown } from './obj.js';
+import {
+    is_ammo,
+    is_launcher,
+    is_missile,
+    is_weptool,
+    set_bknown,
+} from './obj.js';
 import { is_plural, vtense, Yname2 } from './objnam.js';
 import {
     HEAVY_IRON_BALL,
@@ -26,13 +32,7 @@ import {
 import { body_part } from './polyself.js';
 import { rnd } from './rng.js';
 import { ttyPline } from './tty_message.js';
-import {
-    bimanual,
-    is_ammo,
-    is_launcher,
-    is_missile,
-    set_twoweap,
-} from './worn.js';
+import { bimanual, set_twoweap } from './worn.js';
 
 /**
  * A branch of wield.c can_twoweapon() this port does not own yet.  js/cmd.js
@@ -51,7 +51,7 @@ export class UnsupportedTwoWeaponError extends Error {
 // the name, it selects what a curse can weld to the hand rather than what
 // rusts; C's own comment says the name should probably change.
 function erodeable_wep(obj, state) {
-    return obj.oclass === WEAPON_CLASS || isWeptool(obj, state)
+    return obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
         || obj.otyp === HEAVY_IRON_BALL || obj.otyp === IRON_CHAIN;
 }
 
@@ -71,7 +71,7 @@ function TWOWEAPOK(obj, state) {
     return obj.oclass === WEAPON_CLASS
         ? !(is_launcher(obj, state) || is_ammo(obj, state)
             || is_missile(obj, state))
-        : isWeptool(obj, state);
+        : is_weptool(obj, state);
 }
 
 // youprop.h:112 defines Glib as the bare intrinsic field, so slippery fingers

@@ -4,7 +4,7 @@
 import { W_ARM, W_ARMC, W_ARMF, W_ARMG, W_ARMH, W_ARMS, W_ARMU } from './const.js';
 import { game } from './gstate.js';
 import { discover_object } from './o_init.js';
-import { isWeptool, objectType } from './obj.js';
+import { is_ammo, is_missile, is_weptool, objectType } from './obj.js';
 import {
     ARMOR_CLASS,
     ARM_BOOTS,
@@ -26,8 +26,6 @@ import {
 } from './objects.js';
 import {
     bimanual,
-    is_ammo,
-    is_missile,
     set_twoweap,
     setuqwep,
     setuswapwep,
@@ -92,7 +90,7 @@ export function ini_inv_use_obj(obj, env = {}) {
 
     if (obj.oclass === ARMOR_CLASS) initialArmor(obj, normalized);
 
-    if (obj.oclass === WEAPON_CLASS || isWeptool(obj, state)
+    if (obj.oclass === WEAPON_CLASS || is_weptool(obj, state)
         || obj.otyp === TIN_OPENER || obj.otyp === FLINT
         || obj.otyp === ROCK) {
         initialWeapon(obj, normalized);

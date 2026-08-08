@@ -22,6 +22,8 @@ import {
     copy_oextra,
     dealloc_obj,
     isFlammable,
+    is_launcher,
+    is_missile,
     is_pick,
     is_shield,
     is_wet_towel,
@@ -46,6 +48,7 @@ import {
     BAG_OF_HOLDING,
     BLINDFOLD,
     BLINDING_VENOM,
+    BOOMERANG,
     BOULDER,
     BOW,
     CANDY_BAR,
@@ -62,6 +65,7 @@ import {
     FOOD_RATION,
     GEM_CLASS,
     GOLD_PIECE,
+    LANCE,
     LONG_SWORD,
     OIL_LAMP,
     ORCISH_HELM,
@@ -75,10 +79,12 @@ import {
     SACK,
     SCR_MAGIC_MAPPING,
     SLIME_MOLD,
+    SHURIKEN,
     SLING,
     SMALL_SHIELD,
     SPE_HEALING,
     SPE_NOVEL,
+    SPEAR,
     SPLINT_MAIL,
     TALLOW_CANDLE,
     TINNING_KIT,
@@ -782,6 +788,54 @@ test('ammo_and_launcher also requires the first object to be ammunition',
             ammo_and_launcher(arrow, plainObject(CROSSBOW, state), state),
             false,
         );
+    });
+
+// C ref: obj.h is_launcher() (235-237). skills.h:43-45 numbers the launcher
+// skills P_BOW 20, P_SLING 21 and P_CROSSBOW 22, and both window bounds are
+// closed, so each end has an object sitting on it here.
+test('is_launcher accepts the closed P_BOW through P_CROSSBOW window', () => {
+    const state = initializedState();
+    // objects.h BOW("bow", ... P_BOW ...): the lower bound itself, which
+    // `> P_BOW` would drop.
+    assert.equal(is_launcher(plainObject(BOW, state), state), true);
+    // P_SLING 21, inside the window.
+    assert.equal(is_launcher(plainObject(SLING, state), state), true);
+    // P_CROSSBOW 22: the upper bound, which `< P_CROSSBOW` would drop.
+    assert.equal(is_launcher(plainObject(CROSSBOW, state), state), true);
+    // skills.h:42 P_LANCE 19 is the skill immediately below the window, and a
+    // lance is WEAPON_CLASS, so only the bound rejects it. This is also the
+    // pair that separates C's `&&` from `||`: the class test alone holds.
+    assert.equal(is_launcher(plainObject(LANCE, state), state), false);
+    // Ammunition carries the launcher skill negated, so -P_BOW is outside the
+    // window on the far side.
+    assert.equal(is_launcher(plainObject(ARROW, state), state), false);
+    // The class term: flint is sling ammunition but GEM_CLASS, and its
+    // -P_SLING is outside the window besides.
+    assert.equal(is_launcher(plainObject(FLINT, state), state), false);
+});
+
+// C ref: obj.h is_missile() (245-248). skills.h:46-48 numbers the thrown
+// skills P_DART 23, P_SHURIKEN 24 and P_BOOMERANG 25, and the macro reads them
+// negated, so -P_BOOMERANG is the low bound and -P_DART the high one.
+test('is_missile accepts the closed -P_BOOMERANG through -P_DART window',
+    () => {
+        const state = initializedState();
+        // -P_BOOMERANG, the low bound, which `> -P_BOOMERANG` would drop.
+        assert.equal(is_missile(plainObject(BOOMERANG, state), state), true);
+        assert.equal(is_missile(plainObject(SHURIKEN, state), state), true);
+        // -P_DART, the high bound, which `< -P_DART` would drop. A dart is
+        // WEAPON_CLASS and not TOOL_CLASS, so this case also separates C's
+        // `||` between the two classes from `&&`.
+        assert.equal(is_missile(plainObject(DART, state), state), true);
+        // -P_CROSSBOW is -22, one step above the high bound: the nearest
+        // ammunition the window excludes.
+        assert.equal(
+            is_missile(plainObject(CROSSBOW_BOLT, state), state), false,
+        );
+        assert.equal(is_missile(plainObject(ARROW, state), state), false);
+        // A positive skill on a weapon: the class test holds and the window
+        // does not, which is what C's outer `&&` decides.
+        assert.equal(is_missile(plainObject(SPEAR, state), state), false);
     });
 
 // C ref: obj.h is_wet_towel() (256). A towel's spe counts the water left in

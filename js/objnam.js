@@ -27,14 +27,14 @@ import { get_obj_location } from './light.js';
 import { cansee } from './vision.js';
 import { body_part } from './polyself.js';
 import { RIGHT_HANDED } from './u_init.js';
-import { bimanual, is_ammo, is_missile } from './worn.js';
+import { bimanual } from './worn.js';
 import { PM_CLERIC, PM_SAMURAI } from './monsters.js';
 import { observe_object } from './o_init.js';
 import {
     erosionMatters, hasContents, isBox, isCandle, isContainer,
     isCorrodeable, isCrackable,
     isDamageable, isFlammable, isMultigen, isRottable, isRustprone,
-    isWeptool, objectType,
+    is_ammo, is_missile, is_weptool, objectType,
 } from './obj.js';
 import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
 import {
@@ -437,7 +437,7 @@ function notFullyIdentified(obj, type, state) {
     if (obj.rknown
         || (obj.oclass !== ARMOR_CLASS
             && obj.oclass !== WEAPON_CLASS
-            && !isWeptool(obj, state)
+            && !is_weptool(obj, state)
             && obj.oclass !== BALL_CLASS)) {
         return false;
     }
@@ -709,7 +709,7 @@ export function assertPricedObjectNameable(obj, state = game) {
 function wornSuffix(obj, type, state) {
     const mask = obj.owornmask ?? 0;
     if (!mask) return '';
-    const classForSuffix = isWeptool(obj, state) ? WEAPON_CLASS : obj.oclass;
+    const classForSuffix = is_weptool(obj, state) ? WEAPON_CLASS : obj.oclass;
     let suffix = '';
     if ((classForSuffix === AMULET_CLASS && (mask & W_AMUL))
         || (classForSuffix === ARMOR_CLASS && (mask & W_ARMOR))
@@ -722,7 +722,7 @@ function wornSuffix(obj, type, state) {
         const alternate = obj.quan !== 1
             || (obj.oclass === WEAPON_CLASS
                 ? (is_ammo(obj, state) || is_missile(obj, state))
-                : !isWeptool(obj, state));
+                : !is_weptool(obj, state));
         if (alternate) {
             suffix += ' (wielded)';
         } else {
@@ -903,7 +903,7 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
         );
     }
     if (obj.greased) modifiers.push('greased');
-    const classForModifiers = isWeptool(obj, state)
+    const classForModifiers = is_weptool(obj, state)
         ? WEAPON_CLASS : obj.oclass;
     switch (classForModifiers) {
     case WEAPON_CLASS:

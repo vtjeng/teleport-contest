@@ -10,9 +10,7 @@ import {
     P_ATTACK_SPELL,
     P_BARE_HANDED_COMBAT,
     P_BASIC,
-    P_BOW,
     P_CLERIC_SPELL,
-    P_CROSSBOW,
     P_ENCHANTMENT_SPELL,
     P_EXPERT,
     P_GRAND_MASTER,
@@ -40,6 +38,7 @@ import {
     PM_WIZARD,
 } from './monsters.js';
 import { discover_object } from './o_init.js';
+import { is_ammo } from './obj.js';
 import {
     FLINT,
     FOOD_RATION,
@@ -178,13 +177,6 @@ export function num_spells(state = game) {
     return count;
 }
 
-function isAmmo(obj, state) {
-    const skill = objectSkill(obj.otyp, state);
-    return (obj.oclass === WEAPON_CLASS || obj.oclass === GEM_CLASS)
-        && skill >= -P_CROSSBOW
-        && skill <= -P_BOW;
-}
-
 // C ref: weapon.c weapon_type(). This helper is exported because startup
 // equipment and later weapon work use the same object-table interpretation.
 export function weapon_type(obj, state = game) {
@@ -267,7 +259,7 @@ export function skill_init(
     }
 
     for (let obj = state.invent ?? null; obj; obj = obj.nobj) {
-        if (isAmmo(obj, state)) continue;
+        if (is_ammo(obj, state)) continue;
         const skill = weapon_type(obj, state);
         if (skill !== P_NONE) skills[skill].skill = P_BASIC;
     }
@@ -381,6 +373,5 @@ export function finalize_startup_skills(state = game, options = {}) {
 
 export const _startupSkillInternals = Object.freeze({
     PAUPER_PREKNOWN_OBJECT,
-    isAmmo,
     spellbookKnowledgeLimit,
 });

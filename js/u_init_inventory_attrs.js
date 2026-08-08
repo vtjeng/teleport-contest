@@ -12,12 +12,7 @@ import {
     INTRINSIC,
     JUMPING,
     PROTECTION,
-    P_BOW,
-    P_CROSSBOW,
     P_DAGGER,
-    P_LANCE,
-    P_POLEARMS,
-    P_SPEAR,
 } from './const.js';
 import { effective_attribute, init_attr, vary_init_attr } from './attrib.js';
 import { game } from './gstate.js';
@@ -26,7 +21,7 @@ import {
     weight_cap as initial_weight_cap,
 } from './hack.js';
 import { resetInventory } from './invent.js';
-import { ARM_BONUS } from './obj.js';
+import { ARM_BONUS, is_ammo, is_launcher, is_spear } from './obj.js';
 import { discover_object } from './o_init.js';
 import { JAPANESE_ITEM_TYPES } from './objnam_data.js';
 import {
@@ -55,6 +50,7 @@ import {
     ini_inv,
     reset_ini_inv_nocreate,
 } from './u_init_inventory.js';
+import { is_pole } from './worn.js';
 import {
     ELF_STARTING_INSTRUMENT_ROLES,
     STARTING_INVENTORY_TABLES,
@@ -147,22 +143,6 @@ export function knows_object(otyp, overridePauper = false, state = game) {
     return discover_object(otyp, true, false, false, state);
 }
 
-function isPole(object) {
-    return object.oc_skill === P_POLEARMS || object.oc_skill === P_LANCE;
-}
-
-function isLauncher(object) {
-    return object.oc_skill >= P_BOW && object.oc_skill <= P_CROSSBOW;
-}
-
-function isAmmo(object) {
-    return object.oc_skill >= -P_CROSSBOW && object.oc_skill <= -P_BOW;
-}
-
-function isSpear(object) {
-    return object.oc_skill === P_SPEAR;
-}
-
 export function knows_class(objectClass, state = game) {
     if (state.u?.uroleplay?.pauper) return 0;
     const objects = requireInventoryCatalog(state);
@@ -170,6 +150,8 @@ export function knows_class(objectClass, state = game) {
     const last = state.svb.bases[objectClass + 1];
     const role = state.urole?.mnum;
     let count = 0;
+    // C ref: u_init.c:589 `struct obj odummy` initialized from cg.zeroobj.
+    const odummy = { oclass: objectClass, otyp: 0, oartifact: 0 };
 
     for (let otyp = first; otyp < last; ++otyp) {
         if (otyp === O.CORNUTHAUM
@@ -178,10 +160,17 @@ export function knows_class(objectClass, state = game) {
 
         const object = objects[otyp];
         if (objectClass === O.WEAPON_CLASS) {
-            if (role !== PM_KNIGHT && role !== PM_SAMURAI && isPole(object))
+            // u_init.c:594-596 builds `odummy` with this class and each otyp
+            // in turn so the obj.h macros below can read it, and updates its
+            // otyp at :614.  The predicates take an object, so the port needs
+            // the same stand-in rather than a second, type-taking copy.
+            odummy.otyp = otyp;
+            if (role !== PM_KNIGHT && role !== PM_SAMURAI
+                && is_pole(odummy, state))
                 continue;
             if (role === PM_RANGER
-                && !isLauncher(object) && !isAmmo(object) && !isSpear(object)) {
+                && !is_launcher(odummy, state) && !is_ammo(odummy, state)
+                && !is_spear(odummy, state)) {
                 continue;
             }
             if (role === PM_ROGUE && object.oc_skill !== P_DAGGER)

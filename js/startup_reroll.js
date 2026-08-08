@@ -39,7 +39,7 @@ import { game } from './gstate.js';
 import { nhgetch } from './input.js';
 import * as M from './monsters.js';
 import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
-import { isContainer, isWeptool, objectType } from './obj.js';
+import { isContainer, is_weptool, objectType } from './obj.js';
 import * as O from './objects.js';
 import { rn2_on_display_rng } from './rng.js';
 import { NO_COLOR } from './terminal.js';
@@ -243,12 +243,12 @@ function identifiedStartingObjectName(obj, state) {
     }
 
     if (obj.opoisoned
-        && (obj.oclass === O.WEAPON_CLASS || isWeptool(obj, state))) {
+        && (obj.oclass === O.WEAPON_CLASS || is_weptool(obj, state))) {
         prefixes.push('poisoned');
     }
     if (obj.oclass === O.WEAPON_CLASS
         || obj.oclass === O.ARMOR_CLASS
-        || isWeptool(obj, state)) {
+        || is_weptool(obj, state)) {
         prefixes.push(`${obj.spe >= 0 ? '+' : ''}${Math.trunc(obj.spe)}`);
     } else if (obj.oclass === O.RING_CLASS && type.oc_charged) {
         prefixes.push(`${obj.spe >= 0 ? '+' : ''}${Math.trunc(obj.spe)}`);

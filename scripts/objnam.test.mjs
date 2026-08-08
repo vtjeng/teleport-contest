@@ -1034,6 +1034,38 @@ test('artifact naming records discovery before choosing its article', () => {
     assert.equal(donameFresh(artifact, state), 'the +0 Giantslayer');
 });
 
+// C ref: objnam.c obj_is_pname() (334-343), which withholds the personal name
+// while not_fully_identified() (1787-1820) holds. Its last clause returns
+// FALSE early for every class outside armor, weapons, weapon-tools and the
+// ball, so only those four fall through to `return is_damageable(otmp)` at
+// 1820 -- meaning a weapon with rknown clear is still not fully identified.
+test('a named artifact weapon needs rknown before it names itself', () => {
+    const state = namingState();
+    state.artiexist[ART_GIANTSLAYER].exists = 1;
+    const artifact = objectOf(state, LONG_SWORD, {
+        oartifact: ART_GIANTSLAYER,
+        oextra: { oname: 'Giantslayer' },
+    });
+    // The first naming is what records the artifact as found, which clears
+    // not_fully_identified()'s undiscovered-artifact arm at 1805.
+    donameFresh(artifact, state);
+    artifact.known = true;
+    artifact.bknown = true;
+
+    // A long sword is WEAPON_CLASS, so the early `return FALSE` at 1819 does
+    // not apply and is_damageable() decides: iron erodes, so rknown still
+    // matters and the object keeps its ordinary name with the oname appended.
+    artifact.rknown = false;
+    assert.equal(
+        donameFresh(artifact, state),
+        'a +0 long sword named Giantslayer',
+    );
+
+    // rknown alone flips the first term of that clause.
+    artifact.rknown = true;
+    assert.equal(donameFresh(artifact, state), 'the +0 Giantslayer');
+});
+
 test('known charges and partly used candles use object-specific suffixes', () => {
     const state = namingState();
     assert.equal(

@@ -27,8 +27,10 @@ import {
     OBJ_LUAFREE,
     OBJ_MINVENT,
     P_AXE,
+    P_BOOMERANG,
     P_BOW,
     P_CROSSBOW,
+    P_DART,
     P_NONE,
     P_PICK_AXE,
     P_SHURIKEN,
@@ -695,8 +697,17 @@ export function carried(obj) {
     return obj.where === OBJ_INVENT;
 }
 
-export function isWeptool(obj, state = game) {
+// C ref: obj.h is_weptool() (249-250).
+export function is_weptool(obj, state = game) {
     return obj.oclass === TOOL_CLASS && objectType(obj, state).oc_subtyp !== P_NONE;
+}
+
+// C ref: obj.h is_launcher() (235-237). The closed skill window P_BOW through
+// P_CROSSBOW; is_ammo() below is its negated mirror.
+export function is_launcher(obj, state = game) {
+    const skill = objectType(obj, state).oc_subtyp;
+    return obj.oclass === WEAPON_CLASS
+        && skill >= P_BOW && skill <= P_CROSSBOW;
 }
 
 // C ref: obj.h is_ammo().
@@ -720,6 +731,14 @@ export function matching_launcher(ammo, launcher, state = game) {
 // C ref: obj.h ammo_and_launcher() (244).
 export function ammo_and_launcher(ammo, launcher, state = game) {
     return is_ammo(ammo, state) && matching_launcher(ammo, launcher, state);
+}
+
+// C ref: obj.h is_missile() (245-248). A tool qualifies here where is_launcher()
+// and is_ammo() admit only weapons, because a boomerang is a TOOL_CLASS object.
+export function is_missile(obj, state = game) {
+    const skill = objectType(obj, state).oc_subtyp;
+    return (obj.oclass === WEAPON_CLASS || obj.oclass === TOOL_CLASS)
+        && skill >= -P_BOOMERANG && skill <= -P_DART;
 }
 
 // C ref: obj.h is_wet_towel() (256). `spe` counts a towel's remaining wetness
@@ -789,7 +808,7 @@ export function erosionMatters(obj, state = game) {
         || obj.oclass === ARMOR_CLASS
         || obj.oclass === BALL_CLASS
         || obj.oclass === CHAIN_CLASS
-        || (obj.oclass === TOOL_CLASS && isWeptool(obj, state));
+        || (obj.oclass === TOOL_CLASS && is_weptool(obj, state));
 }
 
 export function isFlammable(obj, state = game) {
