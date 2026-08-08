@@ -252,14 +252,34 @@ export function strcmpiEqual(a, b) {
     return lcase(a) === lcase(b);
 }
 
-// C's strsubst() on a copy of the caller's string, with one difference this
-// port has not settled: hacklib.c strsubst() finds its target with
-// case-sensitive strstr(), while wishymatch()'s guard above it uses
-// case-insensitive strstri().  So C leaves "Helmet of brilliance" unchanged and
-// recurses on the original, where this fold rewrites it to "Helm".  Matching C
-// exactly would re-enter the same branch with the same string, which is why the
-// deferral "wishymatch() folds case where C's strsubst() does not" holds it: the
-// recursion needs tracing before the fold is removed.
+// C's strsubst() on a copy of the caller's string, folding case where C does
+// not, deliberately.
+//
+// hacklib.c strsubst() (536-551) finds its target with case-sensitive
+// strstr(), while the guards at objnam.c:3287 and :3291 that select it use
+// case-insensitive strstri() (hacklib.c:740-779). For a wish that spells
+// "Helmet" or "Gloves" with a capital, the guard therefore holds and the
+// substitution finds nothing, so objnam.c:3290 and :3295 recurse on a string
+// byte-identical to the one they were given. Nothing shortens it -- copynchars()
+// (hacklib.c:287-297) truncates but never folds -- and no caller lowercases
+// first: `grep -n 'lcase(' objnam.c` finds no hit inside readobjnam(), and
+// neither zap.c makewish() nor win/tty/getline.c touches case. The recursion is
+// unbounded.
+//
+// That is not a behavior a port can match, because C has none to match. The
+// reference program dies: recorded on 8 August 2026 at seed 4471020, datetime
+// 20291105071500, a Wizard wishing "Helmet of brilliance" exits on SIGSEGV
+// after 23 of the 25 input boundaries, and "Gloves of power" after 18 of 20.
+// The same wishes spelled in lower case complete, and the port matches them
+// call for call: "helmet of brilliance" is 2314 of 2314 draws and 25 of 25
+// screens. No recorded session can contain the capitalized form, because the
+// recorder cannot reach the end of one.
+//
+// So the fold stays, and the port answers the match C's guard already
+// committed to. Note that it splices in the literal lower-case replacement:
+// "Helmet of brilliance" becomes "helm of brilliance", not "Helm of
+// brilliance". fuzzymatch() is caseblind, so the difference cannot reach a
+// caller.
 function strsubstFold(str, orig, replacement) {
     const at = strstri(str, orig);
     if (at < 0) return str;

@@ -182,6 +182,16 @@ test('wishymatch accepts the recorded spelling variants', () => {
     // unchanged string would not terminate.
     assert.equal(wishymatch('dunce cap', 'helm of brilliance', true), false);
     assert.equal(wishymatch('dunce cap', 'gauntlets of power', true), false);
+    // A capital is the one input where C does not terminate. Its guards at
+    // 3287 and 3291 use case-insensitive strstri() and its substitution uses
+    // case-sensitive strsubst(), so C recurses on an unchanged string until
+    // the stack runs out; the recorded C program exits on SIGSEGV for both.
+    // js/objnam_readobjnam.js strsubstFold() folds case so the substitution
+    // lands, which is what makes these two answer at all.
+    assert.equal(wishymatch('Helmet of brilliance', 'helm of brilliance', true),
+                 true);
+    assert.equal(wishymatch('Gloves of dexterity', 'gauntlets of dexterity',
+                            true), true);
     // objnam.c:3297-3320, "detect <foo>" against "<foo> detection" both ways.
     assert.equal(wishymatch('monster detection', 'detect monsters', true),
                  true);

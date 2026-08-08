@@ -677,7 +677,7 @@
       "area": "objects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "c138e0514b1aa47e733cdc3f73bcb83ab2150ccf",
       "detail": "objnam.c:3287-3294 guards the helmet and gloves arms with case-insensitive strstri(), then substitutes with hacklib.c strsubst(), which finds its target using case-sensitive strstr(). For 'Helmet of brilliance' C therefore leaves the buffer unchanged and recurses on the original string, which re-enters the same branch with the same input. js/objnam_readobjnam.js strsubstFold() folds case instead, so the port rewrites to 'Helm' and the recursion terminates. Found by the wizard-mode-wish correctness pass. Matching C exactly is what AGENTS.md requires, including behavior that looks accidental, but an unbounded recursion in C becomes a stack overflow in JavaScript, so the C recursion must be traced first: establish whether any caller lowercases the wish text before wishymatch() sees it, and whether C terminates by another route. The comment at the fold now states the difference rather than the false justification it carried, which claimed the guard made the fold equivalent. Closing condition: a trace of C's recursion for a mixed-case 'Helmet' or 'Gloves' wish, then either the case-sensitive substitution or a recorded reason to keep the fold."
     },
