@@ -993,7 +993,7 @@
       "area": "objects",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "5dd14ef51420955bd1ff92dc0b7f43368c1d03a3",
       "detail": "js/objnam.js:264 refuses doname() for ANY worn object once u.twoweap is set: 'if (obj.owornmask && state.u?.twoweap) unsupported(\"two-weapon suffix\", obj)'. objnam.c doname_base() reads u.twoweap in exactly two places, at :1562 for W_WEP (twoweap_primary picks \"wielded in\" over \"weapon in\") and at :1614 for W_SWAPWEP (\"wielded in left hand\" over \"alternate weapon; not wielded\"). Every other worn mask -- armor, rings, amulet, quiver -- carries no u.twoweap term, so refusing them is over-broad. The guard was dead until the #twoweapon slice made u.twoweap reachable; it now blocks any doname() of worn armor while two-weaponing, which the inventory command would hit first. Narrowing the mask to (W_WEP | W_SWAPWEP) needs no new porting, because js/objnam.js:718-737 already omits both twoweap branches and so must keep refusing those two slots."
     },

@@ -20,6 +20,10 @@
 //   selects an arm the way a keystroke selects a command.
 // - WEAPONSTATUS_CASES turn on the one option that puts the outcome on the
 //   status line, which every other group leaves off.
+// - NAMING_CASES take a worn piece off while two-weapon combat is on, so
+//   objnam.c doname_base()'s owornmask suffixes are formatted with u.twoweap
+//   set. It reads the flag only for W_WEP (:1562) and W_SWAPWEP (:1614), so
+//   every other worn mask has to name itself unchanged.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,7 +34,7 @@ import { weapon_status } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { could_twoweap } from '../js/mondata.js';
-import { KATANA, SHORT_SWORD } from '../js/objects.js';
+import { FEDORA, KATANA, SHORT_SWORD } from '../js/objects.js';
 import { bimanual } from '../js/worn.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
@@ -126,6 +130,14 @@ export const WEAPONSTATUS_CASES = [
     { who: 'samurai', seed: REFUSAL_SEED },
 ];
 
+// u_init.c:44-52 wears a fedora over a leather jacket, so the Archeologist is
+// the one can_twoweapon() success path whose Take-off prompt has more than one
+// candidate and whose helmet slot is filled. objects.h gives FEDORA an
+// oc_delay of 0, which is what do_wear.c armoroff() admits today.
+export const NAMING_CASES = [
+    { who: 'archeologist', seed: REFUSAL_SEED, takeOff: 'c', otyp: FEDORA },
+];
+
 // Each case names the can_twoweapon() arm its role reaches and the state that
 // selects it. Every `arm` cites the `if` or `} else if` that opens the arm it
 // names, which scripts/twoweapon-matrix.test.mjs re-reads out of wield.c.
@@ -207,6 +219,25 @@ export function loadTwoWeaponRefusalRecipe() {
     return validateCleanRecipe({
         version: 5,
         segments: REFUSAL_CASES.map((entry) => segment(entry)),
+    });
+}
+
+// The command, then Take-off and the letter that answers its prompt. No
+// trailing wait: armoroff()'s message is the result this case is here for, and
+// a later turn would only add screens that the other groups already compare.
+function namingSegment({ seed, who, takeOff }) {
+    return {
+        seed,
+        datetime: DATETIME,
+        nethackrc: nethackrc(who),
+        moves: `${WAIT}${TWOWEAPON}T${takeOff}`,
+    };
+}
+
+export function loadTwoWeaponNamingRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: NAMING_CASES.map((entry) => namingSegment(entry)),
     });
 }
 
@@ -312,6 +343,36 @@ async function verifyRefusal(recipeSegment) {
         throw new Error(`${arm} spent a move`);
 }
 
+async function verifyNaming(recipeSegment) {
+    const { who, otyp } = caseFor(NAMING_CASES, recipeSegment);
+
+    // Stop after the command, before the Take-off. The piece has to be worn
+    // and two-weapon combat on, or the case would name nothing under the flag.
+    await runSegment({ ...recipeSegment, moves: `${WAIT}${TWOWEAPON}` });
+    if (!game.u.twoweap)
+        throw new Error(`${who} did not enter two-weapon combat`);
+    const worn = [...(function* pack(obj) {
+        for (let o = obj; o; o = o.nobj) yield o;
+    }(game.invent))].filter((obj) => obj.owornmask);
+    if (!worn.some((obj) => obj.otyp === otyp))
+        throw new Error(`${who} is not wearing otyp ${otyp}`);
+    // More than one worn piece is what makes C prompt for a letter rather
+    // than choosing the only candidate itself.
+    if (worn.filter((obj) => obj.oclass === game.objects[otyp].oc_class)
+        .length < 2)
+        throw new Error(`${who} wears too few pieces to reach the prompt`);
+
+    // Take it off. Its slot is clear afterwards, and every other worn mask
+    // named along the way was formatted with u.twoweap still set.
+    await runSegment(recipeSegment);
+    if (!game.u.twoweap)
+        throw new Error('the take-off left two-weapon combat');
+    for (let obj = game.invent; obj; obj = obj.nobj) {
+        if (obj.otyp === otyp && obj.owornmask)
+            throw new Error(`otyp ${otyp} is still worn`);
+    }
+}
+
 async function verifyWeaponStatus(recipeSegment) {
     // Stop one keystroke before the Enter. The option has to be on, or the
     // field would be missing from the screen rather than merely wrong.
@@ -339,6 +400,8 @@ async function verifyWeaponStatus(recipeSegment) {
 export async function verifyTwoWeaponCommandSegment(recipeSegment) {
     if (TIME_COST_CASES.some((e) => e.seed === recipeSegment.seed))
         await verifyTimeCost(recipeSegment);
+    else if (recipeSegment.moves.includes('T'))
+        await verifyNaming(recipeSegment);
     else if (WEAPONSTATUS_CASES.some(
         (e) => nethackrc(e.who, { weaponstatus: true })
             === recipeSegment.nethackrc,
@@ -363,6 +426,8 @@ export async function runTwoWeaponCommandMatrix() {
               recipe: loadTwoWeaponRefusalRecipe() },
             { label: 'twoweapon weapon status',
               recipe: loadTwoWeaponStatusRecipe() },
+            { label: 'twoweapon worn naming',
+              recipe: loadTwoWeaponNamingRecipe() },
         ],
         summaryLabel: 'TWOWEAPON COMMAND',
         verifySegment: verifyTwoWeaponCommandSegment,

@@ -6,6 +6,7 @@ import {
     REFUSAL_CASES,
     TIME_COST_CASES,
     loadTwoWeaponCommandRecipe,
+    loadTwoWeaponNamingRecipe,
     loadTwoWeaponRefusalRecipe,
     loadTwoWeaponStatusRecipe,
     loadTwoWeaponSwitchRecipe,
@@ -116,6 +117,7 @@ test('only the weapon-status matrix turns the status field on', () => {
     // would move with the hands and stop isolating the command's own effects.
     for (const recipe of [loadTwoWeaponCommandRecipe(),
                           loadTwoWeaponSwitchRecipe(),
+                          loadTwoWeaponNamingRecipe(),
                           loadTwoWeaponRefusalRecipe()]) {
         assert.ok(recipe.segments.every(
             ({ nethackrc }) => !nethackrc.includes('weaponstatus'),
@@ -128,7 +130,8 @@ test('every #twoweapon case reaches the arm it was chosen for',
         for (const recipe of [loadTwoWeaponCommandRecipe(),
                               loadTwoWeaponSwitchRecipe(),
                               loadTwoWeaponRefusalRecipe(),
-                              loadTwoWeaponStatusRecipe()]) {
+                              loadTwoWeaponStatusRecipe(),
+                              loadTwoWeaponNamingRecipe()]) {
             for (const segment of recipe.segments)
                 await verifyTwoWeaponCommandSegment(segment);
         }

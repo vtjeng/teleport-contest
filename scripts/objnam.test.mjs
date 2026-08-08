@@ -850,6 +850,56 @@ test('worn and wielded suffixes follow doname()\'s owornmask branches', () => {
     assert.match(worn(LONG_SWORD, W_QUIVER), / \(at the ready\)$/u);
 });
 
+// C ref: objnam.c doname_base() (1221-1751). `grep -n twoweap` over objnam.c
+// returns four lines, all inside that function: :1562 derives
+// twoweap_primary from `obj == uwep && u.twoweap`, :1575 and :1593 consume
+// it, and :1614 picks the W_SWAPWEP phrasing. Every other worn mask is
+// phrased the same whether or not two-weapon combat is on, so only the two
+// wielded slots may refuse while u.twoweap is set.
+test('only the two wielded slots refuse while two-weaponing', () => {
+    const state = namingState();
+    state.youmonst = {
+        data: { mflags1: M1_HUMANOID, msize: MZ_MEDIUM, mattk: [] },
+    };
+    state.u.uhandedness = RIGHT_HANDED;
+    state.u.twoweap = true;
+    const worn = (otyp, mask, overrides = {}) => donameFresh(
+        objectOf(state, otyp, { owornmask: mask, bknown: true, ...overrides }),
+        state,
+    );
+
+    // W_WEP: C:1593 would answer "wielded in" instead of "weapon in", and
+    // C:1575's `&& !twoweap_primary` would keep a stack out of the
+    // "(wielded)" arm. wornSuffix() has neither term.
+    assert.throws(
+        () => worn(LONG_SWORD, W_WEP),
+        (error) => error instanceof UnsupportedObjectNameError
+            && error.branch === 'two-weapon suffix',
+    );
+    // W_SWAPWEP: C:1614-1616 would answer "wielded in left hand".
+    assert.throws(
+        () => worn(DAGGER, W_SWAPWEP),
+        (error) => error instanceof UnsupportedObjectNameError
+            && error.branch === 'two-weapon suffix',
+    );
+
+    // The masks C phrases identically either way. Each is named here with
+    // two-weapon combat on and matches what the same object produces with it
+    // off, which is what the branches above this test pin.
+    assert.match(worn(AMULET_OF_ESP, W_AMUL), / \(being worn\)$/u);
+    assert.match(worn(LEATHER_ARMOR, W_ARM), / \(being worn\)$/u);
+    assert.match(worn(BLINDFOLD, W_TOOL), / \(being worn\)$/u);
+    assert.match(worn(ARROW, W_QUIVER), / \(in quiver\)$/u);
+
+    // With two-weapon combat off the same two slots name themselves, so the
+    // refusal above is the flag's doing and not the mask's.
+    state.u.twoweap = false;
+    assert.match(worn(LONG_SWORD, W_WEP), / \(weapon in right hand\)$/u);
+    assert.match(
+        worn(DAGGER, W_SWAPWEP), / \(alternate weapon; not wielded\)$/u,
+    );
+});
+
 test('container and tin names follow doname()\'s own branches', () => {
     const state = namingState();
     // An empty container the hero has looked into: "empty" precedes the BUC

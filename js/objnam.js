@@ -262,7 +262,14 @@ function preflightDoname(obj, type, state, allowLiveShopPrice) {
         unsupported('price quote suffix', obj);
     if (obj.owornmask & (W_RING | W_RINGL | W_RINGR))
         unsupported('worn-ring suffix', obj);
-    if (obj.owornmask && state.u?.twoweap)
+    // doname_base() reads u.twoweap in exactly two places, both inside a
+    // wielded-slot arm: objnam.c:1562 derives twoweap_primary for W_WEP, which
+    // :1575 and :1593 consume, and :1614 chooses the W_SWAPWEP phrasing.
+    // wornSuffix() below omits both, so those two slots must still refuse. No
+    // other worn mask carries a u.twoweap term -- armor, rings, the amulet and
+    // the quiver are phrased the same either way -- so refusing them was wider
+    // than C.
+    if ((obj.owornmask & (W_WEP | W_SWAPWEP)) && state.u?.twoweap)
         unsupported('two-weapon suffix', obj);
     if ((obj.owornmask & W_WEP) && obj.otyp === AKLYS)
         unsupported('tethered weapon suffix', obj);
