@@ -1032,8 +1032,8 @@
       "slices": [
         {
           "name": "dosounds refuses by name instead of aborting the run",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "fd5c1527e9f0fbc161773d30a9d3b9107ce8e5e2"
         },
         {
           "name": "the hero drops one object on the floor",
