@@ -207,6 +207,7 @@ import {
     mkobj,
     objectType,
     place_object,
+    sobj_at,
     splitobj,
 } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
@@ -1266,14 +1267,16 @@ export async function mcalcdistress(state = game, env = {}) {
 //
 // mon.c mongone(), m_detach()'s other C caller, stays in js/makemon_create.js
 // with its own merged copy of mon_leaving_level() and m_detach() rather than
-// calling the pair below, so mon.c is knowingly split across two files. The
-// reason is that m_detach() has to be async -- the inventory drop at its 2779
-// goes through steal.c relobj(), which is async because steal.c mdrop_obj()
-// can print -- while mongone()'s only caller chain, trap.c mk_trap_statue()
-// under mklev.c mktrap() under the level build, is synchronous from end to
-// end. Making mongone() async would push `await` through all of level
-// generation for a call that never reaches relobj(), because mongone() passes
-// due_to_death FALSE.
+// calling the pair below, and js/dog.js relmon() holds a third copy of
+// mon_leaving_level()'s body for the migration callers, so mon.c is knowingly
+// split across three files. The relmon() note names the arms that copy owns.
+// The reason for that one is that m_detach() has to be async -- the inventory
+// drop at its 2779 goes through steal.c relobj(), which is async because
+// steal.c mdrop_obj() can print -- while mongone()'s only caller chain, trap.c
+// mk_trap_statue() under mklev.c mktrap() under the level build, is
+// synchronous from end to end. Making mongone() async would push `await`
+// through all of level generation for a call that never reaches relobj(),
+// because mongone() passes due_to_death FALSE.
 // ---------------------------------------------------------------------------
 
 function requiredKillOperation(env, name) {
@@ -1350,9 +1353,8 @@ export function unstuck(mtmp, state = game, env = {}) {
 // furniture, and revealing it needs display.c seemimic(), which wakeup() above
 // already records as unported.
 //
-// svc.context.polearm.hitmon at 2728-2729 is left out rather than restated:
-// apply.c use_pole() is its only writer and none of it is ported, so the
-// pointer is permanently null and clearing it can change nothing.
+// js/dog.js relmon() holds the other copy of this body; the note above that
+// function says which arms each copy owns and why they have not been merged.
 export function mon_leaving_level(mon, state = game, env = {}) {
     const mx = mon.mx;
     const my = mon.my;
@@ -1379,6 +1381,12 @@ export function mon_leaving_level(mon, state = game, env = {}) {
         fill_pit(mx, my, state);
         killRedraw(mx, my, { ...env, state });
     }
+    /* "if mon is a remembered target, forget it since it isn't here anymore".
+       apply.c use_pole() is the only C writer that stores a monster here and
+       none of it is ported, so in production this pointer is null and the
+       test cannot hold; js/dog.js relmon() restates the same two lines. */
+    if (state.context?.polearm?.hitmon === mon)
+        state.context.polearm.hitmon = null;
 }
 
 // C ref: mon.c m_detach() (2733-2803). "'mtmp' is going away; remove effects
@@ -1721,8 +1729,9 @@ function make_corpse(mtmp, corpseflags, state, env) {
     const burythem = (corpstatflags & CORPSTAT_BURIED) !== 0;
 
     // 856-862's bury_an_obj() and the "corpse ends up buried" line xkilled()
-    // prints for it. burycorpse is written only at xkilled():3521, inside the
-    // pit arm that stops there, so this cannot fire; the guard is C's flag.
+    // prints for it. xkilled():3521 is the only writer of CORPSTAT_BURIED, and
+    // the monster whose pack sets it stops earlier, when m_detach()'s relobj()
+    // drops that boulder, so this guard is C's flag rather than a live stop.
     if (burythem) unsupported('a corpse buried in a pit');
 
     if (mtmp.female) corpstatflags |= CORPSTAT_FEMALE;
@@ -1846,11 +1855,21 @@ export async function killed(mtmp, state = game, env = {}) {
 // be ported in halves -- stopping short of either desyncs the stream for the
 // rest of the turn.
 //
+// 3514-3522 is ported rather than stopped, and a trapped monster in a bare
+// pit is killed like any other: C sets neither flag there. A boulder resting
+// on the square sets `nocorpse`, which is the flag XKILL_NOCORPSE already
+// sets, and one in the monster's pack sets `burycorpse`, which selects
+// make_corpse()'s CORPSTAT_BURIED. Neither flag can be read today, because
+// mondead() stops on both states first: mon_leaving_level() hands the boulder
+// on the square to trap.c fill_pit(), which refuses to settle it into the
+// pit, and m_detach()'s relobj() hands the carried one to do.c flooreffects(),
+// which refuses a boulder landing on the floor. Both stops sit above the
+// treasure draw. C's "corpse ends up buried" line at 3625-3628 is below them
+// as well as below make_corpse()'s own stop, so it has no counterpart here.
+//
 // Ten arms stop, each guarded by exactly C's condition and each placed above
 // the first draw, message or object on its path:
 //
-//   3514-3522  the pit arms, which suppress the drop under a boulder about to
-//              fall in and bury the corpse under one the monster carried.
 //   3524-3526  EDOG()->killed_by_u, for a pet that now knows its killer.
 //   3528-3541  mpickobj(), handing a thrown missile to the engulfer it killed.
 //   3546-3547  monstone(), for a monster killed by petrification, and with it
@@ -1867,8 +1886,10 @@ export async function killed(mtmp, state = game, env = {}) {
 //              alignment arms, every one of which reaches attrib.c adjalign()
 //              with a negative argument.
 //
-// C's `goto cleanup` at 3571 and 3575 becomes the `if (!skipCleanup)` block
-// below; the newsym() at 3642 belongs to the skipped part, not to cleanup.
+// C's `goto cleanup` at 3571 and 3575 jumps over the corpse-and-drop half, so
+// that half becomes the `if (!skipCorpseAndDrops)` block below and the cleanup
+// label's own work runs either way. The newsym() at 3642 is jumped over too,
+// so it belongs inside the guard rather than to cleanup.
 export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     const unsupported = requiredKillOperation(env, 'unsupported');
     const message = requiredKillOperation(env, 'message');
@@ -1877,8 +1898,9 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     const y = mtmp.my;
     const wasinside = engulfing_u(mtmp, state);
     const nomsg = (xkill_flags & XKILL_NOMSG) !== 0;
-    const nocorpse = (xkill_flags & XKILL_NOCORPSE) !== 0;
+    let nocorpse = (xkill_flags & XKILL_NOCORPSE) !== 0;
     const noconduct = (xkill_flags & XKILL_NOCONDUCT) !== 0;
+    let burycorpse = false;
 
     /* "potential pet message; always clear global flag" */
     const be_sad = state.iflags?.sad_feeling;
@@ -1903,8 +1925,13 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
 
     if (mtmp.mtrapped) {
         const t = t_at(x, y, state);
-        if (t && is_pit(t.ttyp))
-            unsupported('killing a trapped monster in a pit');
+        if (t && is_pit(t.ttyp)) {
+            /* "Prevent corpses/treasure being created 'on top' of boulder
+                that is about to fall in.  This is out of order, but cannot be
+                helped unless this whole routine is rearranged." */
+            if (sobj_at(BOULDER, x, y, state)) nocorpse = true;
+            if (m_carrying(mtmp, BOULDER, state)) burycorpse = true;
+        }
     }
 
     /* "your pet knows who just killed it...watch out" */
@@ -1931,9 +1958,9 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
     const mdat = mtmp.data; /* "note: mondead can change mtmp->data" */
     const mndx = monsndx(mdat);
 
-    const skipCleanup = nocorpse
+    const skipCorpseAndDrops = nocorpse
         || LEVEL_SPECIFIC_NOCORPSE(mdat, state, random);
-    if (!skipCleanup) {
+    if (!skipCorpseAndDrops) {
         if (mdat === state.mons[PM_MAIL_DAEMON])
             unsupported("the mail daemon's scroll of mail");
         if (accessible(x, y, state) || is_pool(x, y, state)) {
@@ -1985,7 +2012,9 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
                     && zombie_maker(state.youmonst)
                     && zombie_form(mtmp.data) !== NON_PM,
                 );
-                make_corpse(mtmp, CORPSTAT_NONE, state, env);
+                make_corpse(mtmp,
+                            burycorpse ? CORPSTAT_BURIED : CORPSTAT_NONE,
+                            state, env);
                 state.gz.zombify = false; /* "reset" */
             }
         }

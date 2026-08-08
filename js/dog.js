@@ -557,14 +557,26 @@ function mon_leave(monster, state) {
     return 0;
 }
 
-// C refs: mon.c relmon() (3396-3427) and mon_leaving_level() (3361-3395),
+// C refs: mon.c relmon() (2558-2594) and mon_leaving_level() (2694-2730),
 // which relmon() runs first. `listName` names the gm list the monster joins:
 // 'mydogs' for keepdogs(), 'migrating_mons' for migrate_to_level().
 //
+// js/mon.js mon_leaving_level() is the other JavaScript home of 2694-2730.
+// The two are not merged because the migration callers own the operations that
+// body performs, while the death callers let it perform them:
+//
+//   2724  fill_pit(). This copy hands the boulder to the caller's injected
+//         `fillPit`, because keepdogs() and migrate_to_level() run while the
+//         hero is between levels; js/mon.js calls trap.js fill_pit() directly.
+//   2725  newsym(). Same split: injected here, killRedraw() there.
+//   2704  unstuck() and 2721-2722's seemimic() are handled by this copy's
+//         callers instead, which refuse a monster holding the hero or wearing
+//         a disguise, so no `unsupported` operation is threaded through here.
+//   2697  the `onmap` gate, which this copy does not need: both callers have
+//         already established that the monster stands on its own coordinates.
+//
 // Every injected operation resolves before the first mutation, so a caller
-// that omits one cannot leave the monster half off the map. C's `unstuck(mon)`
-// and its mimic-unhiding seemimic() are handled by the callers' preconditions
-// instead, which refuse a monster holding the hero or wearing a disguise.
+// that omits one cannot leave the monster half off the map.
 function relmon(monster, listName, state, env) {
     const oldX = monster.mx;
     const oldY = monster.my;

@@ -14,14 +14,23 @@ import {
     unstuck,
     zombie_maker,
 } from '../js/mon.js';
-import { m_at, newMonster, place_monster } from '../js/monst.js';
+import {
+    m_at,
+    newMonster,
+    place_monster,
+    remove_monster,
+} from '../js/monst.js';
+import { set_malign } from '../js/makemon.js';
+import { emits_light, is_neuter } from '../js/mondata.js';
+import { new_light_source } from '../js/light.js';
 import { canSpotMonster } from '../js/startup_a11y.js';
 import { accessible } from '../js/monmove.js';
 import { maketrap } from '../js/trap.js';
 import { PIT, WEB } from '../js/const.js';
-import { mksobj } from '../js/obj.js';
+import { mksobj, place_object, remove_object } from '../js/obj.js';
 import {
     AMULET_OF_LIFE_SAVING,
+    BOULDER,
     CORPSE,
     ORCISH_DAGGER,
 } from '../js/objects.js';
@@ -64,8 +73,10 @@ import {
     PM_WINGED_GARGOYLE,
     PM_WOOD_NYMPH,
     PM_WRAITH,
+    PM_YELLOW_LIGHT,
 } from '../js/monsters.js';
 import {
+    LS_MONSTER,
     MAGICAL_BREATHING,
     MON_DETACH,
     OBJ_FLOOR,
@@ -515,6 +526,18 @@ test('unstuck re-arms a holder and leaves everything else alone',
         assert.deepEqual(hugs.bounds, ['rnd(2)']);
         assert.equal(hugger.mspec_used, 1);
 
+        // A holder whose cooldown is already running keeps it: 3462-3465's
+        // `!mtmp->mspec_used` exists because unstuck() can be reached after a
+        // shape change, and re-rolling would both spend a call and overwrite
+        // the live value. This is the only fixture here that starts nonzero.
+        const cooling = monster(PM_LICHEN, { mspec_used: 3 });
+        game.u.ustuck = cooling;
+        const cool = killEnv([2]);
+        unstuck(cooling, game, cool);
+        assert.equal(game.u.ustuck, null);
+        assert.deepEqual(cool.bounds, [], 'no second rnd(2)');
+        assert.equal(cooling.mspec_used, 3, 'the running cooldown survives');
+
         // A species with none of the three attacks spends no call.
         const plain = monster(PM_NEWT);
         game.u.ustuck = plain;
@@ -574,6 +597,22 @@ test('m_detach takes the monster off the map and drops what it carried',
             'm_detach: monster is already detached',
         );
     });
+
+// mon.c m_detach():2744-2745. A luminous monster takes its light source with
+// it; one left behind would keep lighting a square nothing occupies.
+test('m_detach releases the light a luminous monster shed', async () => {
+    await hero();
+    // S_LIGHT is the first of mondata.h emits_light()'s cases, and a yellow
+    // light's radius is 1. A goblin answers 0 and is the species every other
+    // m_detach row here uses, so the call is unreachable through them.
+    const glow = spawn(PM_YELLOW_LIGHT);
+    assert.equal(emits_light(glow.data), 1, 'the fixture is luminous');
+    new_light_source(glow.mx, glow.my, 1, LS_MONSTER, glow, game);
+    assert.equal(game.gl.light_base.id, glow, 'lit before the kill');
+
+    await m_detach(glow, glow.data, true, game, killEnv());
+    assert.equal(game.gl.light_base, null, 'and dark after it');
+});
 
 // mon.c m_detach():2782 and mondead():3133. Both compare a monster's m_id
 // against a global that is 0 until something writes it, so both are tested for
@@ -645,6 +684,16 @@ test('mon_leaving_level leaves a square another monster occupies',
 
         assert.equal(game.level.monsters[x][y], standing, 'left in place');
         assert.equal(stale.mtrapped, 0);
+
+        // 2727-2729, which sits below the onmap block and so runs for both.
+        // apply.c use_pole() is the only C writer that stores a monster in
+        // svc.context.polearm.hitmon and it is unported -- do.c goto_level()
+        // only ever clears it -- so the fixture sets the pointer by hand.
+        game.context.polearm = { hitmon: standing };
+        mon_leaving_level(stale, game, killEnv());
+        assert.equal(game.context.polearm.hitmon, standing, 'a different mon');
+        mon_leaving_level(standing, game, killEnv());
+        assert.equal(game.context.polearm.hitmon, null, 'forgotten');
     });
 
 // mon.c mondead():3111-3121 and 3128-3130. A dying chameleon or lycanthrope
@@ -679,7 +728,7 @@ test('mondead reverts a shifted form and counts the death', async () => {
     assert.equal(plain.data, game.mons[PM_NEWT]);
     assert.equal(game.svm.mvitals[PM_NEWT].died, 1);
 
-    // mon.c:3129 stops counting at 255, because svm.mvitals[].died is a
+    // mon.c:3135 stops counting at 255, because svm.mvitals[].died is a
     // one-byte field that also feeds experience()'s repeat-kill divisor.
     game.svm.mvitals[PM_NEWT].died = 254;
     await mondead(spawn(PM_NEWT), game, killEnv());
@@ -689,48 +738,67 @@ test('mondead reverts a shifted form and counts the death', async () => {
 });
 
 // mon.c mondead():3096-3171, the arms that stop. Each is guarded by exactly
-// C's condition, and every one is reached before m_detach().
+// C's condition, and every one is reached before m_detach(). The message alone
+// says nothing about where a refusal sits: one moved below m_detach() would
+// still carry it while leaving a monster off the map, its inventory on the
+// floor and iflags.purge_monsters counting a death dmonsfree() cannot find.
+// So each row asserts the position instead -- nothing drawn, nothing printed,
+// still on the map, not detached, not purged -- and asserts the vanquished
+// count against 3135, which is above three of these arms and below three.
 test('mondead stops on the arms it does not own', async () => {
     await hero();
+
+    const stopped = async (mon, reason, diedDelta, label) => {
+        const x = mon.mx;
+        const y = mon.my;
+        const mndx = mon.data.pmidx;
+        const died = game.svm.mvitals[mndx].died;
+        const purged = game.iflags.purge_monsters ?? 0;
+        const env = killEnv();
+        await refusesAsync(() => mondead(mon, game, env), reason, label);
+        assert.deepEqual(env.bounds, [], `${label}: drew nothing`);
+        assert.deepEqual(env.lines, [], `${label}: printed nothing`);
+        assert.equal(m_at(x, y, game), mon, `${label}: still on the map`);
+        assert.equal(mon.minvent?.where ?? OBJ_MINVENT, OBJ_MINVENT,
+                     `${label}: inventory undropped`);
+        assert.equal((mon.mstate ?? 0) & MON_DETACH, 0,
+                     `${label}: not detached`);
+        assert.equal(game.iflags.purge_monsters ?? 0, purged,
+                     `${label}: purge count`);
+        assert.equal(game.svm.mvitals[mndx].died, died + diedDelta,
+                     `${label}: vanquished count`);
+        // Teardown: spawn() takes the first free square beside the hero, and
+        // a refused kill leaves its fixture standing on one.
+        remove_monster(x, y, game);
+    };
+
     // A shape-shifted vampire would revert instead of dying.
-    const vampshifter = monster(PM_JACKAL, { cham: PM_VAMPIRE });
-    await refusesAsync(
-        () => mondead(vampshifter, game, killEnv()),
-        'a shape-shifted vampire reverting',
-    );
-    const guard = monster(PM_NEWT, { isgd: 1 });
-    await refusesAsync(
-        () => mondead(guard, game, killEnv()), "a vault guard's death",
-    );
-    // A Keystone Kop rolls rnd(5) for its return, which needs makemon().
-    await refusesAsync(
-        () => mondead(monster(PM_KEYSTONE_KOP), game, killEnv()),
-        'a Keystone Kop coming back',
-    );
+    await stopped(spawn(PM_JACKAL, { cham: PM_VAMPIRE }),
+                  'a shape-shifted vampire reverting', 0, 'vampshifter');
+    await stopped(spawn(PM_NEWT, { isgd: 1 }),
+                  "a vault guard's death", 0, 'vault guard');
+    // A Keystone Kop rolls rnd(5) for its return, which needs makemon(). It
+    // is the first arm below 3135, so its own death is already counted.
+    await stopped(spawn(PM_KEYSTONE_KOP),
+                  'a Keystone Kop coming back', 1, 'Kop');
     // A unique monster would be live-logged, and so would a revived one:
     // 3009's mrevived exemption applies to the High Priest alone, which is the
     // one species unique_corpstat() admits that is not literally unique.
-    await refusesAsync(
-        () => mondead(monster(PM_VLAD_THE_IMPALER), game, killEnv()),
-        'the live-log line for a unique or shopkeeper kill',
-    );
-    await refusesAsync(
-        () => mondead(monster(PM_VLAD_THE_IMPALER, { mrevived: 1 }), game,
-                      killEnv()),
-        'the live-log line for a unique or shopkeeper kill',
-    );
-    // A monster carrying a worn amulet of life saving.
-    const saved = monster(PM_NEWT, { m_id: 202 });
+    const logged = 'the live-log line for a unique or shopkeeper kill';
+    await stopped(spawn(PM_VLAD_THE_IMPALER), logged, 1, 'Vlad');
+    await stopped(spawn(PM_VLAD_THE_IMPALER, { mrevived: 1 }),
+                  logged, 1, 'revived Vlad');
+    // A monster carrying a worn amulet of life saving. lifesaved_monster()
+    // runs above everything else in mondead(), so nothing is counted.
+    const saved = spawn(PM_NEWT);
     const amulet = mksobj(AMULET_OF_LIFE_SAVING, false, false,
                           { state: game });
     amulet.where = OBJ_MINVENT;
     amulet.ocarry = saved;
     amulet.owornmask = W_AMUL;
     saved.minvent = amulet;
-    await refusesAsync(
-        () => mondead(saved, game, killEnv()),
-        'a monster saved by an amulet of life saving',
-    );
+    await stopped(saved, 'a monster saved by an amulet of life saving', 0,
+                  'life saving');
 });
 
 // mon.c killed() (3469-3473) passes XKILL_GIVEMSG, so the message is given and
@@ -738,6 +806,13 @@ test('mondead stops on the arms it does not own', async () => {
 test('killed spends the drop and corpse calls in that order', async () => {
     await hero();
     const mon = spawn(PM_GOBLIN, { mhp: 0 });
+    // spawn() builds its fixtures directly rather than through makemon(), so
+    // malign has to be set the way makemon.c:1429 would. A goblin's maligntyp
+    // is -3 and this hero is neutral, so set_malign() reaches its last arm --
+    // neither always_peaceful nor always_hostile nor co-aligned -- and leaves
+    // the absolute value. Without this the assertion below compares 0 with 0.
+    assert.equal(set_malign(mon, game), 3, 'the value makemon() would store');
+    assert.equal(game.u.ualign.record, 0, 'and the record starts at zero');
 
     // rn2(6)=2 declines the drop; rn2(2)=1 declines the corpse.
     const env = killEnv([2, 1]);
@@ -749,8 +824,8 @@ test('killed spends the drop and corpse calls in that order', async () => {
     assert.equal(game.u.uconduct.killer, 1);
     assert.equal(game.u.uexp, 6, 'experience() through more_experienced()');
     assert.equal(game.u.urexp, 24, 'the score takes four times the points');
-    // makemon.c set_malign() gave this goblin 3 against a neutral hero.
-    assert.equal(game.u.ualign.record, mon.malign);
+    // xkilled():3725's closing adjalign(mtmp->malign).
+    assert.equal(game.u.ualign.record, 3, 'the malign reached adjalign()');
 });
 
 // mon.c xkilled():3664. The luck penalty is the one arm a peaceful target
@@ -848,6 +923,41 @@ test('a corpse that would keep its traits stops at mkcorpstat', async () => {
     assert.equal(corpse.norevive, false, 'no Trollsbane was wielded');
 });
 
+// mon.c make_corpse():576-579, whose flags mkobj.c mkcorpstat():2086 stores in
+// the corpse's spe. Every ordinary kill runs those three lines, and nothing
+// else can show what they wrote: the sex costs no random-number call and
+// appears on no screen, so the saved object is the only witness a swapped pair
+// of flags or a dropped is_neuter() guard would ever face.
+test('a corpse records the sex of the monster it came from', async () => {
+    await hero();
+    // CORPSTAT_FEMALE is 1 and CORPSTAT_MALE is 2 in js/const.js, and
+    // mkcorpstat() masks with CORPSTAT_SPE_VAL (0x07) before storing.
+    // rn2(6)=2 declines the treasure drop and the corpse roll of 0 takes the
+    // corpse, for both divisors below.
+    const corpseOf = async (pmidx, female) => {
+        const mon = spawn(pmidx, { mhp: 0, female });
+        const x = mon.mx;
+        const y = mon.my;
+        await killed(mon, game, killEnv([2, 0]));
+        const corpse = game.level.objects[x][y];
+        assert.equal(corpse.otyp, CORPSE, `${pmidx} left a corpse`);
+        // Teardown: the next fixture reuses this square, and two corpses on
+        // it could merge.
+        remove_object(corpse, { state: game });
+        return corpse;
+    };
+
+    // A newt carries none of M2_MALE, M2_FEMALE or M2_NEUTER, so makemon()
+    // rolls its sex and either of the first two arms can apply.
+    assert.equal(is_neuter(game.mons[PM_NEWT]), false, 'the newt has a sex');
+    assert.equal((await corpseOf(PM_NEWT, true)).spe, 1, 'female');
+    assert.equal((await corpseOf(PM_NEWT, false)).spe, 2, 'male');
+    // A lichen is M2_NEUTER, so 578's guard drops the male arm as well and
+    // the corpse keeps the flags it was called with.
+    assert.equal(is_neuter(game.mons[PM_LICHEN]), true, 'the lichen has none');
+    assert.equal((await corpseOf(PM_LICHEN, false)).spe, 0, 'neuter');
+});
+
 // mon.c xkilled():3618-3621. gz.zombify decides whether mkobj.c
 // mkcorpstat() arms a corpse timer at all, and every term of its expression
 // answers FALSE for a hero this port can build: the Valkyrie holds a weapon,
@@ -885,25 +995,76 @@ test('an ordinary corpse arms no zombie timer', async () => {
 });
 
 // mon.c xkilled():3514-3522 and 3528-3541, the two arms whose guards read a
-// value the ordinary path leaves unset. Both must fall through when that value
-// is absent and stop when it is present.
+// value the ordinary path leaves unset. 3514's own guard decides nothing: it
+// is the two boulder tests inside it that set nocorpse and burycorpse, and a
+// trapped monster in a bare pit is killed like any other.
 test('the pit and thrown-missile arms read their own conditions',
     async () => {
         await hero();
-        // mtrapped with no trap under it, and mtrapped over a trap that is
-        // not a pit: both fall through.
+        // mtrapped with no trap under it at all. 3514 evaluates t_at() only
+        // because mtrapped is set, and the null it answers has to stop the
+        // conjunction before is_pit() reads a field of it.
+        const loose = spawn(PM_NEWT, { mhp: 0, mtrapped: 1 });
+        const untrapped = killEnv([2, 1]);
+        await killed(loose, game, untrapped);
+        assert.deepEqual(untrapped.bounds, ['rn2(6)', 'rn2(3)']);
+        assert.equal(game.level.monsters[loose.mx][loose.my], null);
+
+        // mtrapped over a trap that is not a pit: the third conjunct fails.
         const webbed = spawn(PM_NEWT, { mhp: 0, mtrapped: 1 });
         maketrap(webbed.mx, webbed.my, WEB, { state: game });
         await killed(webbed, game, killEnv([2, 1]));
         assert.equal(game.level.monsters[webbed.mx][webbed.my], null);
 
-        // A pit under a trapped monster stops.
+        // A pit with no boulder on it and none in the monster's pack. C sets
+        // neither flag at 3516 nor 3518, so the kill spends its two ordinary
+        // draws: rn2(6)=2 declines the drop and the newt's rn2(3)=1 declines
+        // the corpse.
         const pitted = spawn(PM_NEWT, { mhp: 0, mtrapped: 1 });
         maketrap(pitted.mx, pitted.my, PIT, { state: game });
+        const bare = killEnv([2, 1]);
+        await killed(pitted, game, bare);
+        assert.deepEqual(bare.bounds, ['rn2(6)', 'rn2(3)']);
+        assert.deepEqual(bare.lines, ['You kill the newt!']);
+        assert.equal(game.level.monsters[pitted.mx][pitted.my], null);
+        assert.equal(game.level.objects[pitted.mx][pitted.my], null);
+
+        // 3515's boulder resting on the square, which sets nocorpse. The flag
+        // is never read: mon_leaving_level() reaches trap.c fill_pit() first,
+        // and that is where the boulder about to fall in stops the kill --
+        // above the drop draw, so the stream is untouched.
+        const under = spawn(PM_NEWT, { mhp: 0, mtrapped: 1 });
+        maketrap(under.mx, under.my, PIT, { state: game });
+        const floorRock = mksobj(BOULDER, false, false, { state: game });
+        place_object(floorRock, under.mx, under.my, { state: game });
+        const covered = killEnv();
         await refusesAsync(
-            () => killed(pitted, game, killEnv()),
-            'killing a trapped monster in a pit',
+            () => killed(under, game, covered),
+            'unsupported hero move: fill_pit() settling a boulder into a pit',
         );
+        assert.deepEqual(covered.bounds, [], 'stopped above the drop draw');
+        // Teardown: the stopped kill freed the square but left the boulder on
+        // it, and spawn() reuses the first free square beside the hero. The
+        // vision hook is a fixture no-op; nothing below reads block points.
+        remove_object(floorRock,
+                      { state: game, hooks: { recalcBlockPoint() {} } });
+
+        // 3517's boulder in the monster's pack, which sets burycorpse. Its
+        // square is clear, so fill_pit() passes and the stop instead comes
+        // from m_detach()'s relobj(), which drops that boulder onto the pit
+        // before make_corpse() can read the flag. Also above both draws.
+        const carrier = spawn(PM_NEWT, { mhp: 0, mtrapped: 1 });
+        maketrap(carrier.mx, carrier.my, PIT, { state: game });
+        const carriedRock = mksobj(BOULDER, false, false, { state: game });
+        carriedRock.where = OBJ_MINVENT;
+        carriedRock.ocarry = carrier;
+        carrier.minvent = carriedRock;
+        const packed = killEnv();
+        await refusesAsync(
+            () => killed(carrier, game, packed),
+            `a boulder landing at <${carrier.mx},${carrier.my}>`,
+        );
+        assert.deepEqual(packed.bounds, [], 'stopped above the drop draw');
 
         // gt.thrownobj alone is not enough: 3528's first conjunct is
         // wasinside, and the hero is not inside anything here.
