@@ -47,6 +47,7 @@ import {
     UnsupportedDropError,
     UnsupportedLevelChangeError,
 } from './do.js';
+import { dotakeoff, UnsupportedTakeOffError } from './do_wear.js';
 import { UnsupportedLockError } from './lock.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
@@ -759,8 +760,8 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'down', 'reqmenu', 'options', 'wizwish', 'wizlevelport',
-    '#',
+    'eat', 'apply', 'down', 'takeoff', 'reqmenu', 'options', 'wizwish',
+    'wizlevelport', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -977,6 +978,10 @@ export function failClosedCommandRefusals() {
         // lock.c pick_lock() stops inside doapply()'s lock-pick arm, one
         // frame below UnsupportedApplyError rather than beside it.
         UnsupportedLockError,
+        // do_wear.c dotakeoff() raises this for a piece of armor whose
+        // objects[].oc_delay is non-zero and for the slots whose <X>_off()
+        // is unported, in both cases before anything is drawn or removed.
+        UnsupportedTakeOffError,
         // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
         // and done_eating() and lesshungry() call it from doeat().
         UnsupportedHungerTransitionError,
@@ -1201,6 +1206,14 @@ async function runApplyCommand(key, state) {
 // the arms that spend one.
 async function runDownCommand(key, state) {
     return failClosedCommand(key, state, () => dodown(state));
+}
+
+// C ref: do_wear.c dotakeoff(). Like dosearch() and doeat() it returns its own
+// ECMD_* result, and it is the first ported command to answer ECMD_CANCEL from
+// a getobj() the player escaped: an empty pack answers ECMD_OK instead,
+// because getobj() never prompts for one.
+async function runTakeOffCommand(key, state) {
+    return failClosedCommand(key, state, () => dotakeoff(state));
 }
 
 // C ref: wizcmds.c wiz_level_change(). Like dosearch() and doeat() it returns
@@ -1433,6 +1446,8 @@ async function doextcmd(key, state) {
         return await runApplyCommand(key, state);
     case 'dodown':
         return await runDownCommand(key, state);
+    case 'dotakeoff':
+        return await runTakeOffCommand(key, state);
     case 'doride':
         // C ref: steed.c doride(), which returns its own ECMD_* result.
         return await doride(state);
@@ -1637,6 +1652,22 @@ export async function rhack(key, state = game) {
             // same reason it is in the arms above, because cmd.c:3805-3809
             // documents (ECMD_TIME|ECMD_CANCEL) as a real result.
             const res = await runDownCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state);
+            if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'takeoff') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search`, `eat`, `apply` and `down` arms
+            // apply. dotakeoff() reaches all three: ECMD_CANCEL when the
+            // getobj() prompt is escaped, ECMD_OK for a bare pack, for an
+            // item that is not worn and for a cursed one, and ECMD_TIME for
+            // the piece that comes off. The MOVEMENTCMD and
+            // domove_attempting tests at 3773-3800 cannot divert it, because
+            // cmd.c:1886's "takeoff" row carries no flags at all.
+            const res = await runTakeOffCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state);

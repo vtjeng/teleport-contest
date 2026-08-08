@@ -75,8 +75,8 @@ function TWOWEAPOK(obj, state) {
 }
 
 // youprop.h:112 defines Glib as the bare intrinsic field, so slippery fingers
-// have no extrinsic source to consult.
-function Glib(state) {
+// have no extrinsic source to consult. do_wear.c cursed() reads it too.
+export function Glib(state) {
     return Boolean(state.u?.uprops?.[GLIB]?.intrinsic);
 }
 

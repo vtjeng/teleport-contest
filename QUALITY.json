@@ -1077,6 +1077,15 @@
       "status": "open",
       "from": "c102fde616a7162b4ce9af75a4158af98973d529",
       "detail": "js/teleport.js's Is_special guard sits only on the numeric branch of level teleport, at roughly :1300-1307. C's menu branch of print_dungeon() sets force_dest = TRUE and skips that validation deliberately, so a port that follows C there and stops at the guard is safe, but a port that follows C and omits the guard would silently generate an ordinary rooms level where C generates the named special level. That is a silent divergence rather than a fail-closed stop, which AGENTS.md forbids and permits respectively.\n\nThree development sessions reach this within one keystroke of their current stop, which is what surfaced it: seed0383 step 42 selects \"e - bigrm: 12\" and its arrival screen is a fully generated Big Room; seed2600 step 20 selects the same entry; seed0373 step 43 selects \"y - Bar-strt: 16\", whose next line is the Quest arrival flavor text. The census credits that boundary 195 raw steps and 4 capped, so it is not near-term work, but whoever takes it inherits the trap.\n\nNothing is ported yet: `grep -c Is_special js/mklev.js` returns 0 and `grep -rn \"makemaz\\|makeMaz\" js/` returns 0, so the special-level generators the menu path needs are wholly absent.\n\nClosing condition: the menu branch of level teleport either generates the named special level as C does, or refuses by name before generating anything. An ordinary rooms level produced where C produces a special one closes nothing."
+    },
+    {
+      "id": "armoroff() refuses every piece with a non-zero oc_delay",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "560d4a410ebe136d8fce6e854e44dfdcf9d82ce5",
+      "detail": "`js/do_wear.js armoroff()` ports only do_wear.c's no-delay branch at 1973-2005. The moment the delay computed at 1923 is non-zero it raises UnsupportedTakeOffError, before anything is drawn and before the piece leaves its slot.\n\nC instead calls nomul(delay), sets gm.multi_reason to \"disrobing\", points ga.afternmv at the slot's <X>_off() and sets gn.nomovemsg to \"You finish taking off your <what>.\" (do_wear.c:1930-1972), so the hero is helpless for that many turns and the item comes off at the end.\n\nEvery armor type outside four is affected: objects.h gives all boots oc_delay 2, all gloves 1, every helmet but FEDORA and DENTED_POT 1, and every suit but LEATHER_JACKET between 1 and 5. Cloaks, shields and shirts are all 0.\n\nReproduce it with a Samurai, who starts in splint mail (oc_delay 5):\n\n  node scripts/diff-fresh.mjs --seed 7710101 --datetime 20310203040506 \\\n    --role Samurai --gender male --align lawful --name TakeOff \\\n    --options 'pettype:none,!acoustics,!autopickup,!legacy,!tutorial,!splash_screen' \\\n    --moves '.T.'\n\nC prints nothing for the T, spends five turns and then prints the nomovemsg suit_simple_name() built, which for splint mail is \"You finish taking off your mail.\"; the port stops on the T with the screen the preceding wait left. scripts/take-off-armor.test.mjs pins the stop and its position; the case is kept out of the passing matrix in scripts/run-take-off-armor.mjs because it does not match C.\n\nClosing it needs allmain.c nomul(), ga.afternmv and gn.nomovemsg, which the open deferral 'nomul() has two owners and they disagree' also blocks."
     }
   ],
   "areas": [
@@ -1133,6 +1142,7 @@
         "js/artifacts.js",
         "js/corpstat.js",
         "js/do_name.js",
+        "js/do_wear.js",
         "js/eat.js",
         "js/fruit.js",
         "js/invent.js",

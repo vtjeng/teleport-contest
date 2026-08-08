@@ -8,9 +8,10 @@ import { do_light_sources } from './light.js';
 import { BOULDER } from './objects.js';
 import { visible_region_at } from './region.js';
 import { m_at } from './monst.js';
+import { perceives } from './mondata.js';
 import {
     BLINDED, CLOUD, COLNO, COULD_SEE, DB_MOAT, DB_UNDER, DRAWBRIDGE_UP,
-    IN_SIGHT, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR, POOL, WATER,
+    IN_SIGHT, INVIS, LAVAWALL, MOAT, ROWNO, DOOR, SDOOR, POOL, WATER,
     D_CLOSED, D_LOCKED, D_TRAPPED,
     MAX_RADIUS,
     M_AP_FURNITURE, M_AP_OBJECT, M_AP_TYPMASK, SEE_INVIS,
@@ -831,6 +832,20 @@ export function cansee(x, y, state = game) {
 export function couldsee(x, y, state = game) {
     if (y < 0 || y >= ROWNO || x < 0 || x >= COLNO) return false;
     return !!(state.viz_array?.[y]?.[x] & COULD_SEE);
+}
+
+// C ref: vision.h m_canseeu() (50-53), the variant compiled in. `Invis` is
+// youprop.h:198, the intrinsic-or-extrinsic pair minus the blocked term, and
+// `Underwater` is youprop.h:279, the bare u.uinwater field. The two commented
+// -out terms at vision.h:45-48, u.uburied and mburied, are not compiled.
+export function m_canseeu(mon, state = game) {
+    const invisible = state.u?.uprops?.[INVIS] ?? {};
+    const Invis = Boolean(
+        (invisible.intrinsic || invisible.extrinsic) && !invisible.blocked,
+    );
+    return (!Invis || perceives(mon.data))
+        && !state.u?.uinwater
+        && couldsee(mon.mx, mon.my, state);
 }
 
 export function init_vision_globals() {
