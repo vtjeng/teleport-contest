@@ -226,3 +226,5 @@ utc	event	phase	goal	detail
 2026-08-08T18:01:31.201Z	end	select	armor-takeoff	
 2026-08-08T18:01:31.231Z	start	implement	armor-takeoff	
 2026-08-08T20:55:36.834Z	end	implement	armor-takeoff	
+2026-08-08T21:34:19.510Z	end	select	objects-deferral-sweep	
+2026-08-08T21:34:19.540Z	start	implement	objects-deferral-sweep	
