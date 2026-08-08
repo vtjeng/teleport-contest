@@ -894,8 +894,8 @@
         },
         {
           "name": "a trap strike kills a monster",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "3ef1e1047c3d7bd80cbe4167824aff54566dd00d"
         },
         {
           "name": "a monster falls into a pit",
