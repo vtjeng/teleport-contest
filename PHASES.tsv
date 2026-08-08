@@ -220,3 +220,5 @@ utc	event	phase	goal	detail
 2026-08-08T11:23:55.814Z	end	select	enhance-command	
 2026-08-08T11:23:55.846Z	start	implement	enhance-command	
 2026-08-08T12:08:37.215Z	end	implement	enhance-command	
+2026-08-08T12:32:05.445Z	end	select	trap-activation	
+2026-08-08T12:32:05.481Z	start	implement	trap-activation	

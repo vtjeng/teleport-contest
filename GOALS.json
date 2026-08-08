@@ -848,6 +848,69 @@
         "screens": 35,
         "rng": 1
       }
+    },
+    {
+      "id": "trap-activation",
+      "status": "open",
+      "boundary": "dotrap() and mintrap() dispatch two trap types and no others: BEAR_TRAP for the hero and PIT for a monster. js/hack.js:897's blanket refusal of any trap square no longer refuses a BEAR_TRAP destination, and PIT leaves UNPORTED_TRAP_EFFECTS in js/trap_effects.js. SPIKED_PIT, HOLE, ARROW_TRAP, ROCKTRAP, SLP_GAS_TRAP, RUST_TRAP, FIRE_TRAP, TRAPDOOR, LEVEL_TELEP, MAGIC_PORTAL, TELEP_TRAP, WEB, STATUE_TRAP, MAGIC_TRAP, ANTI_MAGIC, LANDMINE, POLY_TRAP, ROLLING_BOULDER_TRAP and VIBRATING_SQUARE stay refused, for the hero and for monsters alike; a reader checks that against trapeffect_selector()'s switch at trap.c:2936-2993",
+      "upstreamOwners": [
+        "trap.c dotrap()",
+        "trap.c trapeffect_bear_trap()",
+        "trap.c trapeffect_pit()",
+        "trap.c thitm()",
+        "trap.c feeltrap()",
+        "trap.c wearing_iron_shoes()",
+        "trap.c mselftouch()",
+        "trap.c conjoined_pits()",
+        "trap.c adj_nonconjoined_pit()",
+        "hack.c trapmove()",
+        "mon.c monkilled()",
+        "do.c set_wounded_legs()"
+      ],
+      "forecast": {
+        "steps": 24,
+        "basis": "Capped development look-ahead at 7789033, census run under a read-only module.register loader in the scratchpad that rewrites js/sounds.js's two plain `throw new Error(` at :143 and :152 into UnsupportedSpecialRoomError, because the unshimmed run still dies at line 1 on the open deferral dosounds-refusal-escapes-as-hard-failure. No repository file was edited. Raw 77 over two sessions, 61 on seed0004 and 16 on seed0015; capped 24, being 8 and 16. Both stretches were capped by reading every recorded top line rather than by summarising a message stream. Raw is measured from each session's actual stop, not the modeled earliest-unmet position, because six stops remain UNRECONCILED against the zero .agents/selection.md expects: seed0006, seed0373, seed0383, seed0900, seed2600 and seed5006. Neither ranked session is among them. Ranked field, capped, with every low-confidence block discounted in the figure and ranked on its low end: trap activation 24 over two sessions, options menu 9 of a 9-24 range, zap 22, #pray 21, pet combat evaluation 19, takeoff 19 over three, fire 17, pet cursed-object feedback 14 of 27 raw, door unlocking tool 14, #sit 13, wizgenesis 11, riding movement 10 of 31 raw, pickup 9 over three, engraving 6 of 238 raw, level-teleport menu 4 of 195 raw, count prefix 2 of 73 raw. Trap activation ties the options menu on raw 24 and wins .agents/selection.md's tie-break on sessions stopped at the boundary, two against one, while also finishing seed0015 outright; the options menu does not survive verification at 24, because steps 50-56 open the Autopickup what? class submenu and steps 58, 63, 66, 68, 70 and 71 are the between-rounds repaints the open deferral full-screen-menu-dismissal-repaints-status describes, so its honest range is 9 to 24. The #enhance advancement half is not rankable at all: seed0107 now stops at step 85 on #sit, past its enhance interaction, so the boundary carries an unlocks of 0, and its gating deferral explains that give_may_advance_msg() fires only when P_ADVANCE is already at the next rank's requirement, whose sole writer is use_skill(), reached only through hero combat.",
+        "sessions": [
+          "seed0004-feeding-pony",
+          "seed0015-valk-level2-pit-dog-wait"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Tetra the Gallant, Lawful Knight, seed 4, datetime 20260414173108, nethackrc OPTIONS=symset:DECgraphics alone, so autopickup keeps its default and none of the four floor items is taken. Dlvl:1. Key \"j\" at step 26 walks the hero onto a square carrying both an unseen BEAR_TRAP and a four-item pile. hack.c spoteffects():3373-3398 computes pit = (trap && is_pit(trap->ttyp)), false for a bear trap, so pickup(1) runs before dotrap() -- which is why C's recorded screen at step 26 is the look_here() window \"Things that are here:\" and the trap line appears only at step 27, \"A bear trap closes on your foot!--More--\". That message is trap.c:1513-1514 with A_Your[0] and body_part(FOOT), so madeby_u is false. The status lines pin the rest of the branch: Dx falls 9 to 8 and HP 16 to 11 between steps 25 and 28, and Burdened appears -- set_wounded_legs() costing one Dexterity, losehp(Maybe_Half_Phys(d(2,4))) costing 5, and the shrunken weight_cap() making encumber_msg() print \"Your movements are slowed slightly because of your load.\" at step 28. Preconditions confirmed: no steed, msize > MZ_SMALL, no iron shoes, not amorphous, whirly or unsolid, no Levitation or Flying. Steps 29-33 are diagonal \"b\" moves under trapmove()'s TT_BEARTRAP arm. 8 steps, 26 to 33 of 409, a ceiling: the port refuses at step 34 on \"Your saddled pony steps reluctantly onto an orc corpse.--More--\", which is dogmove.c:1307 behind js/unported_monster_actions.js:750."
+          },
+          {
+            "session": "seed0015-valk-level2-pit-dog-wait",
+            "evidence": "Astrid the Stripling, Neutral Valkyrie, seed 15, datetime 20000110090000, nethackrc OPTIONS=!autopickup, Dlvl:2. Key \".\" at step 28 passes a turn; the little dog's move ends on a PIT and mintrap(), already ported at js/trap_effects.js:393, dispatches into trapeffect_selector(), which refuses. C's recorded line is \"The little dog falls into a pit!  The little dog is killed!\": trap.c:1988-1990 with fallverb \"falls\" and a_your[0], so the dog is grounded(), not a worm, madeby_u false and in_sight true; then thitm(0, mtmp, NULL, rnd(6), FALSE) with a d_override that forces a strike, and monkilled(mon, \"\", AD_PHYS) prints \"is killed!\". The hero's status is unchanged across the step, HP 16(16) on both sides, which confirms the monster arm rather than the hero's. Steps 29-43 are \".\", \"s\", \"i\", \"+\", \"\\\\\", Ctrl-X and \":\", every one named in the port's own repeated-command boundary message as supported, and the dog is dead so no further pet move intervenes. 16 steps, 28 to 43 of 44, which completes the session."
+          }
+        ]
+      },
+      "detail": "### Two trap types, one hero and one monster\n\n`js/hack.js:897` today refuses a hero move onto **any** trap square regardless of\ntype. Retiring that in favour of `dotrap()`'s dispatcher is what this goal buys\nbeyond its 24 steps: every later hero trap type arrives behind a switch that\nalready exists.\n\n**What the C owns.** Spans confirmed by printing the first and last line of each.\n`trap.c dotrap()` 2995-3060 (66 lines), `trapeffect_bear_trap()` 1478-1560 (83,\nof which the hero arm is 1489-1524), `trapeffect_pit()` 1824-2010 (187, of which\nonly the monster arm 1966-2008 is in scope), `thitm()` 6710-6773 (64),\n`feeltrap()` 3587-3594, `wearing_iron_shoes()` 1097-1102, `mselftouch()`\n3912-3933, `conjoined_pits()` 6551-6577, `adj_nonconjoined_pit()` 6603-6614;\n`hack.c trapmove()` 1549-1691 (143, of which the `TT_BEARTRAP` arm is 1565-1579\nplus the `wriggle_free:` label at 1671) and `spoteffects()`'s `pick && !pit`\nordering at 3373-3398; `mon.c monkilled()` 3376-3418; `do.c\nset_wounded_legs()` 2425-2446. About 360 lines actually in the arms.\n`heal_legs()` 2448-2486 lies past both caps.\n\n**A prerequisite that fixes the slice order.** `thitm()`'s strike arm is refused\nat `js/trap_effects.js:268` (`if (strike) unsupported('a monster hit by a\ntrap')`), and `trapeffect_pit()` passes `d_override = rnd(6)`, which forces\n`strike = 1` unconditionally. So the PIT arm cannot produce a single matching\nscreen until the strike arm and `mon.c monkilled()` are ported.\n`monkilled()` is genuinely absent -- `grep -rnw` finds it in three comments\n(`js/trap_effects.js:245`, `:250`, `js/steed.js:704`) and\n`grep -rnE 'function +monkilled|monkilled *=|monkilled *:'` returns 0 -- even\nthough `killed()`, `xkilled()`, `mondead()`, `m_detach()` and `make_corpse()`\nlanded with `hero-combat`'s kill path. The bear-trap arm needs none of this, so\nit goes first and delivers its 8 steps while the prerequisite is built.\n\n**A guard the goal must not disturb.** `mintrap()`'s ported tail refuses `a\nmonster trapped under an object` when `mhp >= 1 && mtrapped`, and\n`trapeffect_pit()` sets `mtrapped` before `thitm()`. `seed0015`'s dog dies, so\nthe tail is not reached; a monster the pit spares must still refuse.\n\n**Already ported, reuse rather than re-port.** `set_utrap()`, `reset_utrap()`,\n`fill_pit()`, `t_at()`, `seetrap()`, `mons_see_trap()`, `mon_learns_traps()`,\n`floor_trigger()`, `check_in_air()`, `fixed_tele_trap()`, `losehp()`,\n`Maybe_Half_Phys()`, `encumber_msg()`, `near_capacity()`, `calc_capacity()`,\n`u_locomotion()`, `exercise()`.\n\n**Genuinely new**, each grepped in both spellings across `js/` with zero\ndefinition hits: `dotrap`, `trapeffect_bear_trap`, `trapeffect_pit`, `trapmove`,\n`feeltrap`, `wearing_iron_shoes`, `set_wounded_legs`, `heal_legs`, `grounded`,\n`mselftouch`, `monkilled`, `conjoined_pits`, `adj_nonconjoined_pit`.\n\n**Branches a starting character never reaches, inside the two arms.** In\n`trapeffect_bear_trap()`: the `u.usteed` path, the amorphous, whirly and unsolid\npaths, the `MZ_SMALL` path, `PM_OWLBEAR` and `PM_BUGBEAR`, and iron shoes. In\n`trapeffect_pit()`'s monster arm: the Sokoban \"is dragged\" path, `forcetrap`,\n`passes_walls`, and the pit-viper joke.\n\n**Why this and not the runner-up.** The options menu\n(`options.c doset_simple_menu()` 8535-8702, refused at `js/options.js:3969`)\nties on raw 24 and loses the `.agents/selection.md` tie-break on sessions\nstopped at the boundary, two against one. It also does not survive verification\nat 24: steps 50-56 open the `Autopickup what?` class submenu, dragging\n`optfn_pickup_types` into the goal, and steps 58, 63, 66, 68, 70 and 71 are the\nbetween-rounds repaints that the open `full-screen-menu-dismissal-repaints-status`\ndeferral describes, so its honest range is 9 to 24 and it ranks on 9.\n\n**What it opens for later goals.** `thitm()`'s strike arm plus `monkilled()`\nunlock the monster arms of the arrow, rock and dart-hit traps at once.\n`set_wounded_legs()` and `heal_legs()` are also owners for `uhitm.c` and\n`steed.c`, so hero combat and riding inherit them.\n",
+      "slices": [
+        {
+          "name": "the hero steps into a bear trap",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "a trap strike kills a monster",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "a monster falls into a pit",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "7789033dc05e749dc2e57cbcb3f1b15a31d4698c",
+      "openStanding": {
+        "sha": "dd408c2",
+        "screens": 1162,
+        "rng": 117324
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
