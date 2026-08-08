@@ -2,7 +2,7 @@
 // C ref: trap.c -- wearing_iron_shoes(), floor_trigger(), check_in_air(),
 // seetrap(), feeltrap(), trapnote(), t_missile(), thitm(),
 // trapeffect_sqky_board(), trapeffect_dart_trap(), trapeffect_bear_trap(),
-// trapeffect_selector(), dotrap(), mintrap().
+// mselftouch(), trapeffect_pit(), trapeffect_selector(), dotrap(), mintrap().
 //
 // These are trap.c functions and belong beside js/trap.js's maketrap() group
 // by file name. They are split out because they reach the display, naming,
@@ -72,6 +72,7 @@ import { stackobj } from './invent.js';
 import { monkilled, wake_nearto } from './mon.js';
 import {
     amorphous,
+    grounded,
     is_floater,
     is_flyer,
     is_whirly,
@@ -79,6 +80,8 @@ import {
     mon_knows_traps,
     mon_learns_traps,
     mons_see_trap,
+    passes_walls,
+    touch_petrifies,
     unsolid,
 } from './mondata.js';
 import {
@@ -87,10 +90,12 @@ import {
     MZ_SMALL,
     PM_BUGBEAR,
     PM_OWLBEAR,
+    PM_PIT_FIEND,
+    PM_PIT_VIPER,
 } from './monsters.js';
 import { mksobj, objectType, place_object, weight } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { DART, IRON } from './objects.js';
+import { CORPSE, DART, IRON } from './objects.js';
 import { donameFresh, just_an } from './objnam.js';
 import { body_part } from './polyself.js';
 import { d, rn1, rn2 } from './rng.js';
@@ -118,9 +123,10 @@ function requireTrapOperation(env, name) {
     return operation;
 }
 
-// trap.c:78 A_Your[2], indexed by trap->madeby_u. Only the bear trap's four
-// messages read it so far; trap.c:77's lowercase a_your[2] has no ported
-// reader yet, because every message that takes it is refused.
+// trap.c:77-78, the two article tables, each indexed by trap->madeby_u. The
+// bear trap's four messages read the capitalized one and trapeffect_pit()'s
+// monster arm reads the lowercase one.
+const a_your = Object.freeze(['a', 'your']);
 const A_Your = Object.freeze(['A', 'Your']);
 
 // The hero's dotrap() runs in the live game, never in the planning clone that
@@ -459,9 +465,11 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
 }
 
 // C ref: trap.c trapeffect_bear_trap() (1478-1560), hero arm (1489-1524). The
-// monster arm (1525-1559) stops the scan: its two messages need trap.c:77's
-// lowercase a_your[], mon.c m_in_air() and pline.c You_hear(), and the monster
-// it catches leaves mtrapped set, which mintrap()'s tail refuses in turn.
+// monster arm (1525-1559) stops the scan. Every owner it reads is present now
+// -- a_your[] above, and mon.c m_in_air() and pline.c You_hear() through the
+// env mintrap() proves -- so what stops it is scope rather than a gap, and a
+// monster it catches leaves mtrapped set, which mintrap()'s tail refuses in
+// turn.
 //
 // Two of the hero arm's branches stop as well, and both are refused ahead of
 // the move by preflight_dotrap() rather than here, so that no refusal lands
@@ -528,17 +536,126 @@ async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
     return Trap_Effect_Finished;
 }
 
+// C ref: trap.c mselftouch() (3912-3933). A monster that has just been thrown
+// about touches its own wielded corpse; trapeffect_pit()'s monster arm below
+// is the caller this port was written for.
+//
+// Only the guard is ported. The body needs minstapetrify(), corpse_xname()
+// and mwepgone(), none of which is ported, so it stops the scan. The stop is
+// one conjunct wider than C's condition: monst.h:279 resists_ston() expands to
+// mondata.c Resists_Elem() (129-231), which is not ported either, so the port
+// also stops for a stone-resistant monster, which C would let walk away.
+function mselftouch(mon, _arg, _byplayer, env) {
+    const { state } = env;
+    const unsupported = requireTrapOperation(env, 'unsupported');
+    const mwep = mon.mw; /* MON_WEP() */
+
+    if (mwep && mwep.otyp === CORPSE
+        && touch_petrifies(state.mons?.[mwep.corpsenm]))
+        unsupported('a monster touching its wielded corpse');
+}
+
+// C ref: trap.c trapeffect_pit() (1824-2010), monster arm (1966-2008).
+//
+// The hero arm (1835-1965) stops the scan. preflight_dotrap() below already
+// refuses every trap type but BEAR_TRAP ahead of the hero's move, so nothing
+// reaches the stop here; it stands because trapeffect_selector() no longer
+// refuses PIT on the way in, and a hero arm that fell through would set
+// u.utrap and spend rn1(6, 2) with none of its messages written.
+//
+// trapeffect_selector() dispatches PIT here and still refuses SPIKED_PIT, so
+// C's `relevant_spikes` (1833) is always FALSE and is absent, together with
+// the two places that read it: the wearing_iron_shoes() test at 2001 that
+// clears it and the rnd(10) it would choose at 2003. Whoever ports SPIKED_PIT
+// restores all three.
+async function trapeffect_pit(mtmp, trap, trflags, env) {
+    const { state } = env;
+    const random = env.random;
+    const message = requireTrapOperation(env, 'message');
+    const unsupported = requireTrapOperation(env, 'unsupported');
+
+    if (mtmp === state.youmonst) unsupported('a hero falling into a pit');
+
+    const in_sight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+    const forcetrap = (trflags & FORCETRAP) !== 0;
+    const sokoban = Boolean(state.level?.flags?.sokoban_rules);
+    const inescapable = forcetrap || (sokoban && !trap.madeby_u);
+    const mptr = mtmp.data;
+    let fallverb = 'falls';
+
+    const airborne = !grounded(mptr, state);
+    // C ref: trap.c:1975. C reads the worm term only when the monster is on
+    // the ground, and worm.c count_wsegs() is not ported, so the stop sits
+    // exactly where C would call it rather than at the top of the arm.
+    if (!airborne && mtmp.wormno)
+        unsupported('a long worm falling into a pit');
+    if (airborne) {
+        if (forcetrap && !sokoban) {
+            /* openfallingtrap; not inescapable here */
+            if (in_sight) {
+                seetrap(trap, env);
+                await message(
+                    messageAt(
+                        `${capitalizedMonsterName(mtmp, state)} doesn't fall`
+                        + ' into the pit.',
+                        mtmp.mx,
+                        mtmp.my,
+                        state,
+                    ),
+                    state,
+                    env,
+                );
+            }
+            return Trap_Effect_Finished;
+        }
+        if (!inescapable) return Trap_Effect_Finished; /* avoids trap */
+        fallverb = 'is dragged'; /* sokoban pit */
+    }
+    if (!passes_walls(mptr)) {
+        // C assigns 1 to an unsigned bitfield; js/monst.js and
+        // js/makemon_create.js both keep mtrapped as a boolean.
+        mtmp.mtrapped = true;
+    }
+    if (in_sight) {
+        await message(
+            messageAt(
+                `${capitalizedMonsterName(mtmp, state)} ${fallverb} into`
+                + ` ${a_your[trap.madeby_u ? 1 : 0]} pit!`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ),
+            state,
+            env,
+        );
+        if (mptr === state.mons[PM_PIT_VIPER]
+            || mptr === state.mons[PM_PIT_FIEND])
+            await message("How pitiful.  Isn't that the pits?", state, env);
+        seetrap(trap, env);
+    }
+    mselftouch(mtmp, 'Falling, ', false, env);
+    // C ref: trap.c:2002-2004. The damage roll is thitm()'s argument, so a
+    // monster mselftouch() already killed spends no rnd(6).
+    const trapkilled = mtmp.mhp < 1 /* DEADMONSTER() */
+        || await thitm(0, mtmp, null, random.rnd(6), false, env);
+
+    return trapkilled ? Trap_Killed_Mon
+        : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
+}
+
 // The trap types whose trapeffect_*() body has no arm in the port yet. C
 // dispatches all of them; each stops the scan before the effect changes state,
-// draws, or writes a message. BEAR_TRAP is absent because its own body now
-// owns the refusal: its hero arm is ported and its monster arm stops there.
+// draws, or writes a message. BEAR_TRAP and PIT are absent because their own
+// bodies now own the refusal: the bear trap's hero arm and the pit's monster
+// arm are ported, and the other arm of each stops there. SPIKED_PIT stays
+// here even though C sends it to trapeffect_pit() as well, because neither
+// arm's spike handling is ported.
 const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ARROW_TRAP,
     ROCKTRAP,
     SLP_GAS_TRAP,
     RUST_TRAP,
     FIRE_TRAP,
-    PIT,
     SPIKED_PIT,
     HOLE,
     TRAPDOOR,
@@ -567,6 +684,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
         return trapeffect_dart_trap(monster, trap, trflags, env);
     if (trap.ttyp === BEAR_TRAP)
         return trapeffect_bear_trap(monster, trap, trflags, env);
+    if (trap.ttyp === PIT)
+        return trapeffect_pit(monster, trap, trflags, env);
     if (UNPORTED_TRAP_EFFECTS.has(trap.ttyp)) unsupported('trap activation');
     throw new Error(`trapeffect_selector: strange trap type ${trap.ttyp}`);
 }

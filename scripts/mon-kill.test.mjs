@@ -73,7 +73,6 @@ import {
     PM_SEWER_RAT,
     PM_QUASIT,
     PM_RAVEN,
-    PM_ROCK_TROLL,
     PM_SKELETON,
     PM_STONE_GOLEM,
     PM_VAMPIRE,
@@ -862,59 +861,73 @@ test('a peaceful kill costs luck behind its own draw', async () => {
 });
 
 // mon.c make_corpse():850. KEEPTRAITS() (549-556) sends the monster itself
-// into mkcorpstat(), which js/corpstat.js answers only with a save_mtraits()
-// hook that no caller supplies, so each of its disjuncts is a stop rather than
-// a corpse. Every case here reaches make_corpse() through killed(), so the
-// message and both draws happen first.
-test('a corpse that would keep its traits stops at mkcorpstat', async () => {
+// into mkcorpstat(), which copies it into the corpse with mkobj.c
+// save_mtraits() (2156-2195). Every case here reaches make_corpse() through
+// killed(), so the message and both draws happen first.
+test('a corpse that keeps its traits carries a copy of the monster',
+    async () => {
     await hero();
-    const traits = 'mkcorpstat requires monster-trait persistence';
 
-    // Three of KEEPTRAITS()'s six disjuncts stop earlier and cannot be shown
-    // here: mtmp->mtame stops at xkilled():3505's pet message, and both
-    // unique_corpstat() and mtmp->isshk stop at logdeadmon() or at
-    // m_detach():2784 before make_corpse() runs.
+    // Five of KEEPTRAITS()'s six disjuncts cannot be shown here: mtmp->mtame
+    // stops at xkilled():3505's pet message, unique_corpstat() and
+    // mtmp->isshk stop at logdeadmon() or at m_detach():2784 before
+    // make_corpse() runs, is_reviver()'s lowest species is a troll, whose
+    // experience levels a fresh Valkyrie and stops in exper.c newexplevel(),
+    // and the quest leader's m_id reaches make_corpse() but then stops at
+    // xkilled():3672. dmgtype(AD_SEDU) is the one that runs to completion.
+    const nymph = spawn(PM_WOOD_NYMPH, { mhp: 0 });
+    // mhpmax below the species level, so that save_mtraits():2184 has to
+    // raise it: a wood nymph's mlevel is 3, so the saved copy must read 4.
+    nymph.mhpmax = 0;
+    nymph.mtrack[0].x = 5;
+    // trapeffect_pit() kills the hero's dog, so edog is the mextra record
+    // this port's live consumer copies. A tame monster stops earlier, so the
+    // record rides on the nymph instead; only dogmove.c reads edog, and only
+    // for a tame monster.
+    nymph.mextra = { edog: { apport: 7, ogoal: { x: 3, y: 4 } } };
+    const nymphAt = { x: nymph.mx, y: nymph.my };
+    await killed(nymph, game, killEnv([2, 0]));
 
-    // is_reviver(): a troll, which is S_TROLL. corpse_chance() answers TRUE
-    // for it at 3245 without drawing, so the only call spent is the drop's.
-    const troll = spawn(PM_ROCK_TROLL, { mhp: 0 });
-    const trollEnv = killEnv([2]);
-    await refusesAsync(
-        () => killed(troll, game, trollEnv), traits, 'is_reviver',
+    const nymphCorpse = game.level.objects[nymphAt.x][nymphAt.y];
+    assert.equal(nymphCorpse.otyp, CORPSE, 'nymph corpse');
+    const saved = nymphCorpse.oextra.omonst;
+    assert.equal(saved.mnum, PM_WOOD_NYMPH, 'saved species index');
+    assert.equal(saved.m_id, nymph.m_id, 'm_id survives, to spot a revival');
+    // The four pointers C invalidates at 2173-2176, plus the worm tail.
+    assert.equal(saved.data, null, 'saved data pointer');
+    assert.equal(saved.nmon, null, 'saved nmon pointer');
+    assert.equal(saved.minvent, null, 'saved minvent pointer');
+    assert.equal(saved.mw, null, 'saved wielded weapon');
+    assert.equal(saved.wormno, 0, 'saved worm number');
+    assert.equal(saved.mhpmax, 4, 'mhpmax raised above the species level');
+    assert.equal(saved.mhp, 0, 'a dead monster saves no hit points');
+    // m_detach() runs before make_corpse(), so the live monster carries
+    // MON_DETACH and only the copy has it cleared.
+    assert.equal(nymph.mstate & MON_DETACH, MON_DETACH, 'live mstate');
+    assert.equal(saved.mstate & MON_DETACH, 0, 'saved mstate');
+    // C assigns the struct by value, so neither the mtrack array nor the
+    // mextra records are shared with the monster.
+    assert.notEqual(saved.mtrack, nymph.mtrack, 'mtrack is copied');
+    assert.deepEqual(saved.mtrack, nymph.mtrack, 'mtrack keeps its values');
+    assert.notEqual(saved.mextra, nymph.mextra, 'mextra is copied');
+    assert.notEqual(saved.mextra.edog, nymph.mextra.edog, 'edog is copied');
+    assert.deepEqual(
+        saved.mextra.edog, nymph.mextra.edog, 'edog keeps its values',
     );
-    assert.deepEqual(trollEnv.bounds, ['rn2(6)']);
 
-    // The quest leader's m_id, which reaches make_corpse() before the
-    // alignment arm at 3677 that would otherwise stop it.
-    game.svq.quest_status.leader_m_id = 7000;
-    try {
-        const leader = spawn(PM_NEWT, { mhp: 0 });
-        leader.m_id = 7000;
-        await refusesAsync(
-            () => killed(leader, game, killEnv([2, 0])), traits, 'leader',
-        );
-    } finally {
-        game.svq.quest_status.leader_m_id = 0;
-    }
-
-    // The same global with a monster whose m_id is not the leader's: the
-    // conjunction must fall through rather than treat any kill as his.
+    // The quest-leader global set to another monster's m_id: KEEPTRAITS()'s
+    // conjunction must fall through rather than treat any kill as his, which
+    // leaves a corpse with no saved monster at all.
     game.svq.quest_status.leader_m_id = 7001;
     try {
         const bystander = spawn(PM_NEWT, { mhp: 0 });
         await killed(bystander, game, killEnv([2, 0]));
-        assert.equal(
-            game.level.objects[bystander.mx][bystander.my].otyp, CORPSE,
-        );
+        const corpse = game.level.objects[bystander.mx][bystander.my];
+        assert.equal(corpse.otyp, CORPSE);
+        assert.equal(corpse.oextra, null, 'no traits without KEEPTRAITS');
     } finally {
         game.svq.quest_status.leader_m_id = 0;
     }
-
-    // dmgtype(AD_SEDU): a nymph.
-    const nymph = spawn(PM_WOOD_NYMPH, { mhp: 0 });
-    await refusesAsync(
-        () => killed(nymph, game, killEnv([2, 0])), traits, 'AD_SEDU',
-    );
 
     // A species that answers none of them leaves an ordinary corpse, and it
     // is dknown because the hero is neither blind nor unable to sense it.

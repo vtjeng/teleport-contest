@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     ALTAR,
+    ARROW_TRAP,
     BLINDED,
     BURN,
     BURN_OBJECT,
@@ -1545,10 +1546,32 @@ test('simple preflight rejects every selected excluded action atomically',
                 },
             },
             {
+                // An arrow trap, because trapeffect_selector() dispatches PIT
+                // to a ported arm now and only the types still listed in
+                // UNPORTED_TRAP_EFFECTS reach this reason.
                 name: 'trap activation',
                 reason: 'trap activation',
                 prepare: async () => {
                     const target = await prepareSelectedAction();
+                    game.level.traps.push({
+                        tx: target.destinationX,
+                        ty: target.heroY,
+                        ttyp: ARROW_TRAP,
+                        tseen: false,
+                    });
+                    return target;
+                },
+            },
+            {
+                // trap.c:3827-3835. The pit is ported, so the refusal moves to
+                // mintrap()'s tail, which maybe_unhide_at() owns. Twenty hit
+                // points put the rat out of reach of trapeffect_pit()'s
+                // rnd(6), so the victim always survives to reach it.
+                name: 'a pit that spares its victim',
+                reason: 'a monster trapped under an object',
+                prepare: async () => {
+                    const target = await prepareSelectedAction();
+                    target.monster.mhp = target.monster.mhpmax = 20;
                     game.level.traps.push({
                         tx: target.destinationX,
                         ty: target.heroY,

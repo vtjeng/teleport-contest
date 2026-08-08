@@ -41,6 +41,10 @@ import {
 } from './const.js';
 import { effective_attribute } from './attrib.js';
 import { artifact_defends } from './artifacts.js';
+// grounded() below reads has_ceiling(). The two files already reach each other
+// through js/shk.js and js/display.js, and both sides use the other's exports
+// only inside function bodies, so this direct edge resolves the same way.
+import { has_ceiling } from './dungeon.js';
 import { game } from './gstate.js';
 import { dist2, highc } from './hacklib.js';
 import * as M from './monsters.js';
@@ -123,6 +127,13 @@ export function is_floater(species) {
     return species?.mlet === M.S_EYE || species?.mlet === M.S_LIGHT;
 }
 export function is_clinger(species) { return flag1(species, M.M1_CLING); }
+// C ref: mondata.h:23-24 grounded(). The macro reads the global u.uz, which
+// this port takes from the caller's state so that the planning clone answers
+// for its own hero.
+export function grounded(species, state = game) {
+    return !is_flyer(species) && !is_floater(species)
+        && (!is_clinger(species) || !has_ceiling(state.u.uz));
+}
 export function is_swimmer(species) { return flag1(species, M.M1_SWIM); }
 export function breathless(species) { return flag1(species, M.M1_BREATHLESS); }
 export function amphibious(species) { return flag1(species, M.M1_AMPHIBIOUS); }

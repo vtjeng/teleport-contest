@@ -1352,6 +1352,34 @@ export function unstuck(mtmp, state = game, env = {}) {
         mtmp.mspec_used = random.rnd(2);
 }
 
+// C ref: mon.c copy_mextra() (2596-2646). Copies whichever of the eight
+// extension records the source carries onto the target, allocating the
+// target's mextra on demand. js/corpstat.js save_mtraits() is the caller this
+// port was written for.
+//
+// C assigns each record by value, so the copy shares nothing with the
+// original; structuredClone() is that assignment for the plain scalar-and-
+// coordinate records this port stores. The one C field that points inside its
+// own record is eshk's bill_p, which a clone would leave pointing at the
+// source's bill array: `grep -rn "bill_p" js/` finds three writers, and
+// js/shk.js:580 is the only one that sets it to anything but null, so a
+// shopkeeper billing a customer is the case that would need repair here.
+export function copy_mextra(mtmp2, mtmp1) {
+    if (!mtmp2 || !mtmp1 || !mtmp1.mextra) return;
+
+    const source = mtmp1.mextra;
+    mtmp2.mextra ??= {};
+    const target = mtmp2.mextra;
+    if (source.mgivenname) target.mgivenname = String(source.mgivenname);
+    for (const record of ['egd', 'epri', 'eshk', 'emin', 'edog', 'ebones'])
+        if (source[record]) target[record] = structuredClone(source[record]);
+    // mextra.h:234 has_mcorpsenm() is the record's presence plus a species
+    // that is not NON_PM, so a monster carrying the cleared overlay copies
+    // nothing and the target keeps no mcorpsenm at all.
+    if (source.mcorpsenm != null && source.mcorpsenm !== NON_PM)
+        target.mcorpsenm = source.mcorpsenm;
+}
+
 // C ref: mon.c mon_leaving_level() (2695-2730). "'mon' is being removed from
 // level due to migration [relmon from keepdogs or migrate_to_level] or due to
 // death [m_detach from mondead or mongone]".
@@ -1685,9 +1713,8 @@ export function corpse_chance(
 
 // C ref: mon.c KEEPTRAITS() (549-556), "for deciding whether corpse will carry
 // along full monster data". A TRUE result sends the monster itself into
-// mkcorpstat(), which then needs mkobj.c save_mtraits(); js/corpstat.js
-// requires that as its saveMonsterTraits hook and no caller supplies one, so
-// every species this answers TRUE for stops there rather than here.
+// mkcorpstat(), which then calls mkobj.c save_mtraits() on it; a pet is the
+// common case, because every tame monster answers TRUE here.
 function KEEPTRAITS(mon, state) {
     return Boolean(mon.isshk) || Boolean(mon.mtame)
         || unique_corpstat(mon.data)

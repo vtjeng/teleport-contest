@@ -481,7 +481,13 @@ test('mkcorpstat relocates before applying flags and saving monster traits', () 
         call('rn2', [2], 0), // random jackal corpse starts male
         call('rnz', [25], 25), // ordinary in-level rot timeout
     ]);
-    const monster = { data: state.mons[PM_KOBOLD], mcan: false };
+    // mkobj.c save_mtraits():2184-2191 clamps the saved hit points against the
+    // species level, which is 0 for a kobold: an mhpmax of 0 has to come back
+    // as 1, and the single hit point then sits exactly on both remaining
+    // bounds without being moved.
+    const monster = {
+        data: state.mons[PM_KOBOLD], mcan: false, m_id: 41, mhp: 1, mhpmax: 0,
+    };
     const events = [];
     const corpse = mkcorpstat(
         CORPSE,
@@ -493,6 +499,7 @@ test('mkcorpstat relocates before applying flags and saving monster traits', () 
         {
             state,
             random: rng.random,
+            unsupported: (reason) => { throw new Error(reason); },
             hooks: {
                 relocateObject(obj) {
                     events.push('relocate');
@@ -500,26 +507,24 @@ test('mkcorpstat relocates before applying flags and saving monster traits', () 
                     assert.equal(obj.corpsenm, PM_JACKAL);
                     assert.equal(obj.spe, CORPSTAT_MALE);
                     assert.equal(Boolean(obj.norevive), false);
+                    // save_mtraits() has not run yet: relocation comes first,
+                    // and mksobj() leaves no oextra of its own.
                     assert.equal(obj.oextra, null);
                     obj.ox = 17;
                     obj.oy = 6;
-                },
-                saveMonsterTraits(obj, savedMonster) {
-                    events.push('save traits');
-                    assert.equal(savedMonster, monster);
-                    assert.equal(obj.ox, 17);
-                    assert.equal(obj.oy, 6);
-                    assert.equal(obj.spe, CORPSTAT_FEMALE);
-                    assert.equal(obj.norevive, true);
-                    obj.oextra = { omonst: savedMonster };
                 },
             },
         },
     );
 
-    assert.deepEqual(events, ['relocate', 'save traits']);
+    assert.deepEqual(events, ['relocate']);
     assert.equal(corpse.corpsenm, PM_KOBOLD);
-    assert.equal(corpse.oextra.omonst, monster);
+    // save_mtraits() copies the monster rather than storing it, so the corpse
+    // carries an independent record that keeps the monster's identity.
+    assert.notEqual(corpse.oextra.omonst, monster);
+    assert.equal(corpse.oextra.omonst.m_id, 41);
+    assert.equal(corpse.oextra.omonst.mhpmax, 1, 'raised past the level');
+    assert.equal(corpse.oextra.omonst.mhp, 1, 'and the hit point stands');
     assert.equal(corpse.spe, CORPSTAT_FEMALE);
     assert.equal(corpse.norevive, true);
     rng.assertExhausted();
@@ -557,7 +562,30 @@ test('mkcorpstat preflights required hooks before object construction', () => {
             CORPSTAT_INIT,
             { state, random: noDraws.random },
         ),
-        /monster-trait persistence/,
+        /refusal owner/,
+    );
+    assert.equal(state.context.ident, firstId);
+    assert.equal(state.level.objects[10][5], null);
+    assert.equal(state.level.objlist, null);
+
+    // mkobj.c:2159's priest arm, refused ahead of construction for the same
+    // reason: a refusal that landed after mksobj() would have spent draws and
+    // linked an object onto the level.
+    assert.throws(
+        () => mkcorpstat(
+            CORPSE,
+            { data: state.mons[PM_KOBOLD], mcan: false, ispriest: true },
+            null,
+            10,
+            5,
+            CORPSTAT_INIT,
+            {
+                state,
+                random: noDraws.random,
+                unsupported: (reason) => { throw new Error(reason); },
+            },
+        ),
+        /a priest's saved traits/,
     );
     assert.equal(state.context.ident, firstId);
     assert.equal(state.level.objects[10][5], null);
@@ -578,12 +606,8 @@ test('mkcorpstat suppresses cancelled trolls but exempts cancelled Riders', () =
         ...makeStatueDraws(),
         ...makeStatueDraws(),
     ]);
-    const hooks = {
-        monsterObject,
-        saveMonsterTraits(obj, monster) {
-            obj.oextra = { omonst: monster };
-        },
-    };
+    const hooks = { monsterObject };
+    const unsupported = (reason) => { throw new Error(reason); };
     // Uninitialized statues avoid unrelated book-generation RNG while still
     // reaching the common random-species finalization in mksobj().
     const troll = mkcorpstat(
@@ -593,7 +617,7 @@ test('mkcorpstat suppresses cancelled trolls but exempts cancelled Riders', () =
         10,
         5,
         0,
-        { state, random: rng.random, hooks },
+        { state, random: rng.random, hooks, unsupported },
     );
     const rider = mkcorpstat(
         STATUE,
@@ -602,7 +626,7 @@ test('mkcorpstat suppresses cancelled trolls but exempts cancelled Riders', () =
         11,
         5,
         0,
-        { state, random: rng.random, hooks },
+        { state, random: rng.random, hooks, unsupported },
     );
 
     assert.equal(troll.corpsenm, PM_TROLL);

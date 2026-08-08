@@ -1,12 +1,16 @@
 // corpstat.js -- Corpse and statue construction.
-// C ref: mkobj.c mkcorpstat().
+// C ref: mkobj.c mkcorpstat() and save_mtraits().
 
 import {
     CORPSTAT_INIT,
     CORPSTAT_SPE_VAL,
+    MON_DETACH,
 } from './const.js';
 import { game } from './gstate.js';
-import { is_rider } from './mondata.js';
+// js/mon.js make_corpse() imports mkcorpstat() from this file. Both sides use
+// the other's exports only inside function bodies, so the cycle resolves.
+import { copy_mextra } from './mon.js';
+import { is_rider, monsndx } from './mondata.js';
 import { mksobj, mksobj_at, weight } from './obj.js';
 import { CORPSE, STATUE } from './objects.js';
 import { PM_LICHEN, PM_LIZARD, S_TROLL } from './monsters.js';
@@ -50,6 +54,50 @@ function monsterSpecies(monster, state) {
     throw new TypeError('mkcorpstat monster has no species');
 }
 
+// C ref: mkobj.c save_mtraits() (2156-2195). "save_mtraits updates
+// otmp->oextra->omonst in place": a corpse or statue carries a copy of the
+// monster so that a revival can restore it. mkcorpstat() below is C's only
+// caller.
+//
+// C's has_omonst()/newomonst() pair allocates obj->oextra->omonst on demand.
+// js/obj.js copy_oextra() already treats that field as a plain object, so the
+// port builds one instead. The priest arm at 2159-2160 is refused ahead of the
+// call, in mkcorpstat().
+function save_mtraits(obj, mtmp) {
+    const baselevel = mtmp.data.mlevel; /* "mtmp->data is valid ptr" */
+    // C's `*mtmp2 = *mtmp` copies the struct by value, so the fixed-size
+    // mtrack array inside it is copied too; js/obj.js copy_oextra() maps the
+    // same array for the same reason.
+    const mtmp2 = {
+        ...mtmp,
+        mtrack: Array.isArray(mtmp.mtrack)
+            ? mtmp.mtrack.map((point) => ({ ...point }))
+            : mtmp.mtrack,
+    };
+
+    mtmp2.mextra = null;
+    mtmp2.mnum = monsndx(mtmp.data);
+    /* "invalidate pointers"; m_id stays, to recognize a revived quest leader */
+    mtmp2.nmon = null;
+    mtmp2.data = null;
+    mtmp2.minvent = null;
+    mtmp2.mw = null; /* MON_NOWEP() */
+    if (mtmp.mextra) copy_mextra(mtmp2, mtmp);
+    /* "if mtmp is a long worm with segments, its saved traits will be one
+       without any segments" */
+    mtmp2.wormno = 0;
+    /* "make sure mtmp2 can survive if revived ('baselevel' will be 0 for
+       1d4 mon)" */
+    if (mtmp2.mhpmax <= baselevel) mtmp2.mhpmax = baselevel + 1;
+    if (mtmp2.mhp > mtmp2.mhpmax) mtmp2.mhp = mtmp2.mhpmax;
+    if (mtmp2.mhp < 1) mtmp2.mhp = 0;
+    mtmp2.mstate &= ~MON_DETACH;
+
+    obj.oextra ??= {};
+    obj.oextra.omonst = mtmp2;
+    return obj;
+}
+
 export function mkcorpstat(
     objtype,
     monster,
@@ -68,9 +116,16 @@ export function mkcorpstat(
         ? env.hooks.relocateObject : null;
     if (x === 0 && y === 0 && typeof relocate !== 'function')
         throw new Error('mkcorpstat requires random object relocation');
-    const saveTraits = monster ? env.hooks.saveMonsterTraits : null;
-    if (monster && typeof saveTraits !== 'function')
-        throw new Error('mkcorpstat requires monster-trait persistence');
+    // C ref: mkobj.c:2159-2160. save_mtraits() forgets a priest's temple entry
+    // before it copies anything, and priest.c forget_temple_entry() is not
+    // ported. The stop is preflighted here, with the relocation owner above,
+    // so that it precedes mksobj()'s draws rather than following them.
+    if (monster) {
+        const unsupported = env.unsupported;
+        if (typeof unsupported !== 'function')
+            throw new Error('mkcorpstat requires a refusal owner');
+        if (monster.ispriest) unsupported("a priest's saved traits");
+    }
 
     // The C helpers are always present.  Validate their JS equivalents and
     // source arguments before mksobj() can consume RNG, allocate an id, arm a
@@ -95,7 +150,7 @@ export function mkcorpstat(
     obj.norevive = Boolean(state.gm?.mkcorpstat_norevive);
 
     if (monster) {
-        saveTraits(obj, monster, env);
+        save_mtraits(obj, monster);
         const record = state.mons[resolvedSpecies];
         if (monster.mcan && !is_rider(record)) obj.norevive = true;
     }

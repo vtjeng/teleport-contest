@@ -20,6 +20,8 @@ import {
     HALLUC,
     HALLUC_RES,
     ICE,
+    In_endgame,
+    Is_earthlevel,
     LAVAPOOL,
     LEVITATION,
     LR_DOWNTELE,
@@ -627,6 +629,17 @@ export function Can_fall_thru(level, state = game) {
     return Can_dig_down(level, state)
         || Boolean(state.stronghold_level
             && on_level(level, state.stronghold_level));
+}
+
+// C ref: dungeon.c has_ceiling() (1689-1698). Every level has a ceiling
+// except the endgame planes, and the earth plane is solid rock rather than
+// open sky, so it keeps one. mondata.h:23 grounded() is the reader this port
+// was written for: a clinger holds onto a ceiling and so avoids a pit only
+// where one exists.
+export function has_ceiling(level) {
+    if (In_endgame(level) && !Is_earthlevel(level))
+        return false;
+    return true;
 }
 
 export function builds_up(level, state = game) {
