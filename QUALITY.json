@@ -1055,6 +1055,15 @@
       "status": "open",
       "from": "561f6f1457d21896ede4416ae6f2512703c29eb2",
       "detail": "steal.c mdrop_obj() (812-846) stops at js/steal.js:232 when the object it is dropping still has an owornmask, which mon.c m_detach():2779 relobj() reaches for every monster that dies wearing or wielding something. A port-side scan behind scripts/run-hostile-melee-kill.mjs hit it on 11 of 216 seeds whose hero started next to a hostile, so roughly one melee kill in twenty stops there. C's own handling is small: worn.c extract_from_minvent() already takes the unwornmask apart and is ported, and mdrop_obj()'s trailing update_mon_extrinsics() at 845 is skipped for a dead monster because DEADMONSTER() is true. What remains unported beneath it is worn.c mwepgone() and the saddle no_charge arm at 819-824. Fixing it needs those two plus a fresh differential over a seed whose target dies armed."
+    },
+    {
+      "id": "mutate-sites-reports-a-false-survivor",
+      "area": "runtime",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "6fc50ef4850448817de3e52b5428042dd39847d7",
+      "detail": "scripts/mutate-sites.mjs reported js/exper.js:178 as a first-wave survivor during hero-combat slice 4, but `node --test scripts/mon-kill.test.mjs` fails on that exact mutant, verified twice by hand, and mon-kill.test.mjs is in the runner's own covering list for js/exper.js. A survivor the covering suite actually kills is a false survivor, which is the direction that wastes triage effort rather than the direction that hides defects, but it undermines the instrument either way.\n\nThis matters more than one line. Two correctness passes over this subsystem have now shown that mutation score and test quality are close to uncorrelated here: the eed732b3..5168910 range scored 253 of 220 killed while six real test defects sat in it, and the 5168910..dc31f03 range scored 68 of 144 surviving with no production defect at all. The structural reason is that the mutator's site set is operators and literals, so it cannot express dropping a whole disjunct, which is the defect shape both passes kept finding. A false survivor on top of that makes the number harder still to read.\n\nClosing condition: reproduce the disagreement on js/exper.js:178, find whether the fault is in the covering-file selection, the first-wave harness, or the report, and add a test that pins whichever it is."
     }
   ],
   "areas": [
