@@ -960,8 +960,8 @@
       "slices": [
         {
           "name": "the hero takes off one armor piece",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "eb4ce2ff0627ae1324cb812807d835abe1179e44"
         }
       ],
       "openedAt": "68809ca87c9dbef51bce83f6b66ee459dc77baa7",
