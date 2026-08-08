@@ -8312,6 +8312,118 @@
         "deferrals": []
       },
       "recordedAt": "2026-08-07T23:13:40.505Z"
+    },
+    {
+      "kind": "review",
+      "head": "dc31f03280d5259548a0a6ce03dfdcf4a986a62e",
+      "auditedRange": "5168910fede17e2588c598d9673dd003f24c4665..dc31f03280d5259548a0a6ce03dfdcf4a986a62e",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 17 raw, 17 deduplicated, 8 confirmed, 8 applied, 0 deferred, 9 rejected, 0 unverified; mutation: 60 survivors of 220 mutants. Full correctness pass over hero-combat slice 3, 1,439 changed production lines in one commit, plus the five audit-fix commits of the previous pass. Four mandatory finders; 17 raw, 17 deduplicated, 8 confirmed, 9 rejected with counter-evidence, 0 unverified, 0 warnings. All 8 applied across two Audit-fix-for commits. No production behavior defect was confirmed, against five in the previous pass: the implementation held and the tests did not. Six of the eight were tests pinning nothing, each naming a term deletable with all 3,072 tests green, which matches the slice's own 68-of-144 mutation survivors. The one production fix restored hmon_hitmon()'s dropped doreturn guard, write-only until artifact_hit() lands two slices out and would have had its abort discarded. Applying the findings corrected three of them against the C source. Development score 1,102 of 7,765 screens and 116,833 of 610,816 calls, unchanged by the fixes.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2749,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 17,
+          "confirmed": 8,
+          "applied": 8,
+          "deferred": 0,
+          "rejected": 9,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 6,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/uhitm.js hmon_hitmon() copied all 27 struct _hitmon_data fields, including doreturn and retval, while dropping C's guards that read them, so both fields were write-only. Harmless at the time because no ported helper sets them, and a time bomb for the slices that follow: artifact_hit() sets doreturn on DEADMONSTER(mon) to abort before damage lands, and the abort would have been discarded, subtracting damage from a monster already dead and then running _pet, _splitmon, _msg_hit and wakeup() on a corpse. The finding asked for three guards; the source gave one. C's guards at uhitm.c:1090-1091 and 1418-1419 are the last statements of their own functions, so the guarded return reaches exactly what the fall-through reaches, and both are no-ops in C. The guard at 1806-1807 was restored alone, with the other two documented as absent by derivation. Mutation confirms it is live: flipping the doreturn initializer to true now fails tests, where at dc31f03 it did not.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 220,
+          "survivors": 60,
+          "byKind": {
+            "boolean": {
+              "ran": 34,
+              "killed": 14
+            },
+            "logical": {
+              "ran": 120,
+              "killed": 88
+            },
+            "relational": {
+              "ran": 66,
+              "killed": 58
+            }
+          },
+          "ranges": [
+            "dc31f03280d5259548a0a6ce03dfdcf4a986a62e..58ba7a2"
+          ],
+          "finderConclusion": "The audit-fix diff itself holds no mutable site: 32 lines in scope, 0 sites, 0 mutants, because it is 26 comment lines plus one restored guard statement. The figure that matters is the before-and-after over js/uhitm.js at the same kinds: 220 mutants, 62 survivors at dc31f03 and 60 after, so two previously-surviving mutants became killable. One is the doreturn initializer, killed by the restored production guard; the other is the first && of uhitm.c:1467's condition, killed by the new two-handed strength test, where JavaScript precedence turns a && b && c into a || (b && c) and the one-handed row lands two points where it expects one. The other five test findings kill nothing, and that is structural rather than a shortfall: they name term deletions, while the mutator's site set is operators and literals, so dropping a whole disjunct is outside what it can express. That is the same gap the previous pass demonstrated from the other direction, where a range scored 253 of 220 mutants killed while six real test defects sat in it. The 60 remaining first-wave survivors cluster in the _hitmon_data initializers, the first_weapon_hit() guard whose body is empty so nothing it decides is observable, and mhitm_knockback()'s return statements whose value hmon_hitmon discards; most look structurally unkillable, and recording that here should spare the next pass re-deriving it."
+        },
+        "readiness": {
+          "boundary": "The range 5168910..dc31f03 holds one slice of the hero-combat goal, 4d2a9cb at 1,439 changed production lines, plus the five audit-fix commits of the previous pass. A hero move into a hostile now lands a blow that does not kill: uhitm.c hmon() (817-834) and hmon_hitmon() (1752-1935) with eleven helpers, known_hitum()'s hit arm, the weapon.c damage math, and artifact.c shade_glare() and artifact_light(). The development score is 1,102 of 7,765 screens and 116,833 of 610,816 calls with 3 of 33 sessions, unchanged by the fixes.",
+          "sourceReview": "Four mandatory finders at full mode: correctness, readability-risk, test-quality and variable-flow. Neither optional finder ran; the range adds no unbounded work and the port is single-threaded replay. Every finding was adversarially verified against C by an independent adjudicator applying evidence, causality and resolution checks: 8 of 17 survived, 9 were rejected with counter-evidence, none went unverified and no warnings were raised. No production behavior defect was confirmed, against five in the previous pass over the two slices before this one. Applying the findings corrected three of them against the source: two of the three requested doreturn guards are no-ops in C; a gem cannot complete the swing, because objects.h:1516-1520 gives every gem oc_skill of -P_SLING so is_ammo() holds and the gem takes the ranged arm; and the ternary named by the barehands finding is redundant with special_dmgval()'s own which_armor() lookup, proven by deleting it and running the whole suite green.",
+          "completeness": "All 8 confirmed findings are applied across two commits carrying Audit-fix-for: dc31f03. Every new assertion was observed failing first by deleting the term it covers and restoring it, with the deletions and their results recorded in a script rather than asserted in prose. Six of the eight were tests that pinned nothing, each naming a term deletable with all 3,072 tests green, which is what the slice's own 68-of-144 survivor count had been saying. Writing them surfaced a further defect the pass had not found: the old barehands test passed its bounds assertion because game.twohits was undefined, so special_dmgval() received an empty mask, rather than because the target ignored silver. Citation drift in js/uhitm.js is systematic at roughly +4 in the hmon_hitmon_do_hit region and +9 in dmg_recalc; the new comments use verified numbers and the pre-existing ones are left for a clarity pass, which is outside audit-fix scope."
+        },
+        "deferrals": [],
+        "rejections": [
+          {
+            "summary": "js/uhitm.js:148 — A new file-local `Hallucination(state)` is a third independent port of the youprop.h:120 macro, alongside the identical `Hallucination(state)` in js/eat.js:600 and `heroHallucinating(state)` in js/display.js:827.",
+            "counterEvidence": "causality refute: The range adds one more instance of a pre-existing, pervasive convention rather than creating a hazard, and no behavior can diverge because the three bodies agree. Counter-evidence: `grep -rn \"HALLUC\\b\" js/*.js` shows the same youprop.h macro expanded inline in at least ten modules that predate this range: js/apply.js:69-70, js/attrib.js:768-769, js/do.js:417-418, js/dungeon.js:940-941, js/do_name.js:140-141, js/dog.js:336-337, js/o_init.js:400-401, js/detect.js:117-118, js/sounds.js:71 and js/display.js:2343-2344. So js/uhitm.js:148 is roughly the thirteenth site, not \"a third\", and the finding's stated hazard (a maintainer finding two definitions plus one differently named one) misdescribes the tree. Hallucination is a header macro with no .c owner that expands inline in every C file, so per-file expansion mirrors C; the divergent *reading* that did matter was the pri Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/uhitm.js:473 — known_hitum()'s new hit arm drops C's unconditional write to the gn.notonhead global (uhitm.c:620), and the comment justifying the omission names the wrong readers.",
+            "counterEvidence": "causality refute: Nothing can observe the omission today, and the omission continues a documented pre-range decision rather than introducing behavior. Counter-evidence: `grep -rn \"notonhead\" js/` returns only writes and comments: js/dog.js:322 writes and js/dog.js:324 returns its own write within the same function, js/dogmove.js:228 and :899 only write. No cross-call reader exists, so no state can go stale in any reachable path. The companion write C makes at uhitm.c:518-520 on the hero path is also absent, and js/uhitm.js:363-367 records that deferral of the gb.bhitpos/gn.notonhead pair; that code predates this range (slice 1/2, already audited), so the range applies an existing decision consistently. What is left is the accuracy of one comment's reader list.  ||  resolution refute: Porting uhitm.c:621 alone would substitute a wrong value for an absent one, and the suggested test is con Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/uhitm.js:597 — hmon()'s temple-priest refusal fires on `mon.ispriest` alone and is placed above hmon_hitmon(), where C's uhitm.c:830 only diverts on `mon->ispriest && !rn2(2)` and only after the blow has already landed. The refusal is wider than the C condition it stands for and swallows a complete, fully ported b",
+            "counterEvidence": "causality refute: The arm is unreachable in the port, so no session loses a call or a screen to it, which is the ground on which the previous pass rejected the equivalent find_roll_to_hit else-arm finding. Counter-evidence: `grep -rn \"ispriest\\s*[:=]\" js/*.js` returns exactly one hit, js/monst.js:61 `ispriest: false`, the monster template default; nothing in js/ ever sets it true, because priest_init() and the temple fill are unported (js/priest.js holds only mon_aligntyp, temple_occupied, histemple_at, has_shrine and friends). Independently, temples need depth > 8 (js/mklev.js:493-494). No monster the port can generate satisfies mon.ispriest.  ||  resolution refute: Letting the blow through as proposed converts a stop into a silent screen divergence, and the suggested test cannot see it. Counter-evidence: The port has no priest naming: js/do_name.js:212-218 (x_monnam) and :380-385 (Amon Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/uhitm.js:684 — The \"Five arms stop\" and \"Seven arms stop\" headers list code that is statically unreachable and simply absent alongside code guarded by a runtime refusal, so the counts do not match the refusals in the bodies.",
+            "counterEvidence": "causality refute: This is comment organisation with no behavioral consequence, and the labelling is a consistent house convention rather than a slip this range introduced. Counter-evidence: The same convention appears in the third header of the same file: js/uhitm.js:780-789 says \"Three arms stop\" over two refusals (807 and 810), its first bullet being the statically dead HMON_THROWN/HMON_KICKED stone-missile branch, with its own unreachability sentence. Every bullet in all three headers carries the reason it is not ported, so nothing is misstated, only grouped differently than the finding would prefer. The previous pass rejected an equivalent wording finding as \"prose accuracy, which the brief assigns to a clarity audit rather than this correctness pass\", and this review's brief repeats that scope limit.  ||  resolution refute: The proposed check still fails after the proposed edit, so  Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/uhitm.js:729 — The weapon-shatter guard drops C's `!is_flimsy(monwep)` and `!obj_resists(monwep, …)` conjuncts with no marker, while the header comment describes the remaining guard as C's own reach — and obj_resists() is already ported.",
+            "counterEvidence": "causality refute: The arm cannot be reached in any session, so the truncated conjuncts change no draw, screen or stop; what remains is comment wording, and one of the two missing conjuncts is a declared non-issue. Counter-evidence: Starting skill is never above P_BASIC: weapon.c:1750-1760 skill_init() sets P_BASIC for inventory weapons, mirrored at js/startup_skills.js:257-278, and nothing in js/ raises a skill afterwards — `grep -rn \"enhance_weapon_skill|'enhance'\" js/*.js` finds only the table row js/extcmdlist_data.js:64 with no handler. So `P_SKILL(uwep_skill_type(state), state) >= P_SKILLED` at js/uhitm.js:728 is false for every hero the port can produce, and the refusal at :729 never fires. The brief also lists the weapon-shatter arm as deliberately refused and is_flimsy as deliberately unported.  ||  resolution refute: The proposed differential cannot be constructed, so it cannot  Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/uhitm.js:807 — hmon_hitmon_do_hit()'s non-weapon arm refuses wider than C: it also stops the shade branch at uhitm.c:1427-1428, where C zeroes the damage and continues without calling the unported hmon_hitmon_misc_obj().",
+            "counterEvidence": "evidence refute: The premise that C's shade arm \"needs nothing unported\" is false: porting it moves the stop a few lines later without changing anything observable. Counter-evidence: shade_miss() has no port. With hmd.dmg driven to 0, js/uhitm.js:1046 skips hmon_hitmon_dmg_recalc (guarded by dmg > 0), and js/uhitm.js:1048-1055 immediately raises unsupported('a blow that passes through a shade') because mon_is_shade && !hittxt, exactly as the barehands comment at js/uhitm.js:606-609 states. Between js/uhitm.js:807 and :1055 no random number is drawn and no message is printed, so the port stops with an identical prefix either way.  ||  causality refute: No material impact: both the current code and the proposed code end the segment at the same observable point. Counter-evidence: Trace of a wielded FOOD_CLASS item against PM_SHADE: today it stops at js/uhitm.js:807; with the split it would  Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/uhitm.js:1005 — `hmd.twohits` reads `state.twohits`, but nothing in the port ever initializes that field; hitum() (js/uhitm.js:531) is its only writer. C's gt.twohits is a zero-initialized global, so any read that precedes the first hitum() sees 0 in C and `undefined` here.",
+            "counterEvidence": "evidence refute: The divergence is impossible in the running game, and the claimed test blindness does not hold either. Counter-evidence: hmon() has exactly one caller, known_hitum() at js/uhitm.js:473, which has exactly one caller, hitum() at js/uhitm.js:552; hitum assigns state.twohits at js/uhitm.js:531 before that call and resets it to 0 at :578, so no reachable read sees undefined. For the tests: with no ring worn, weapon.c:406-424 special_dmgval takes neither ring branch, so a mask of 0 and a mask of W_RINGR|W_RINGL both yield bonus 0 with no rnd(20) — the stagger and msg_hit rows wear no rings and lose nothing.  ||  causality refute: A latent-only difference with no reachable failure, of the shape the previous pass already rejected as speculative. Counter-evidence: The other two reads treat undefined exactly as C treats 0: js/uhitm.js:848 tests `if (hmd.twohits)` and hmon_hitmon_d Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/uhitm.js:1046 — hmon_hitmon() drops three of C's conditional call sites (uhitm.c:1809 ispoisoned, :1872 dryit, :1887/:1919 unpoisonmsg) and collapses C's `poiskilled / destroyed / umconf` chain to two arms, without either a refusal or a marker. Those are the only unported branches in the whole slice that fail open ",
+            "counterEvidence": "evidence refute: The central claim — that these four dropped call sites \"fail open rather than fail closed\" — is contradicted by the source: every C writer of the flags is refused at its own setter, so no path can reach hmon_hitmon() with any of them set. Counter-evidence: ispoisoned has exactly two C setters: uhitm.c:1062, inside `if (hmd->thrown == HMON_THROWN && ...)`, which js/uhitm.js:594 forbids by refusing any thrown != HMON_MELEE; and uhitm.c:1066, whose port is `if (permapoisoned(obj) && hmd.dieroll <= 5) unsupported('a permanently poisoned weapon')` at js/uhitm.js:743-744 — the refusal replaces the assignment, so the Grimtooth case the finding names stops before ispoisoned exists. dryit's only setter is uhitm.c:1372 inside hmon_hitmon_misc_obj(), refused at js/uhitm.js:809 (`unsupported('hitting with a non-weapon')`). unpoisonmsg, needpoismsg and poiskilled are set only in hmon Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "scripts/uhitm-hmon.test.mjs:622 — 'known_hitum counts the weapon conduct and downgrades a no-damage hit' never exercises the downgrade: its second half asserts that mhit stays true and the conduct is kept, which is the opposite of the branch in the title.",
+            "counterEvidence": "causality refute: The residual defect is the title's wording; the branch is unreachable by construction and the test body is neither vacuous nor silent about the gap. Counter-evidence: The second half is not an empty assertion: I mutated `hmd.dmg = (hmd.get_dmg_bonus && !mon_is_shade) ? 1 : 0;` (the port of uhitm.c:1817) to `hmd.dmg = 0;` and ran `node --test --test-name-pattern=\"known_hitum counts the weapon conduct\"` — 0 pass, 1 fail. The rolls `[-4]` case therefore pins the very floor that makes a no-damage hit impossible, and it detects the failure precisely through the downgrade branch. The test also carries a seven-line comment at :606-612 stating outright that nothing this port reaches can produce a zero-damage hit and naming both routes (Vorpal Blade's beheading via artifact_hit(), which stops in hmon_hitmon_weapon_melee(), and a sub-one damage total, which uhitm.c:1817 floors).  Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-08-08T06:10:43.398Z"
     }
   ]
 }
