@@ -106,3 +106,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-08T06:11:32.000Z	58ba7a2	window	3	33	1102	7765	116833	610816	1112	7765					correctness pass 5168910..dc31f03: 8 of 17 confirmed, all applied; no production defect, six tests pinning nothing; score unchanged
 2026-08-08T10:11:57.000Z	a789d52	window	3	33	1117	7765	117289	610816	1127	7765					correctness pass dc31f03..11193ab: 11 of 16 confirmed, all applied; xkilled's pit arm was wider than C; score unchanged
 2026-08-08T11:00:04.000Z	aa86920	goal	3	33	1127	7765	117323	610816	1137	7765	195	3640	32614	182022	hero-combat: forecast 49, delivered 25; seed0006's 24 missing steps sit behind the options menu, the block the selector flagged as least certain
+2026-08-08T12:08:37.000Z	dd408c2	goal	3	33	1162	7765	117324	610816	1172	7765	195	3640	32614	182022	enhance-command: forecast 34 discounted from a raw 35, delivered 35; holdout unchanged for the twelfth goal

@@ -807,7 +807,7 @@
     },
     {
       "id": "enhance-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "the hero issues #enhance and weapon.c enhance_weapon_skill() runs with wizard false, so speedy stays FALSE and the y_n(\"Advance skills without practice?\") at :1340 never fires; the skill scan at :1346-1355 leaves to_advance, eventually_advance and maxxed_cnt all zero, so no legend line is added at :1362-1378, add_skills_to_menu() is called with selectable FALSE, the title built at :1383-1384 is \"Current skills:\", and select_menu() is asked for PICK_NONE, whose answer cannot enter the if (n > 0) block at :1391 and whose while (speedy && n > 0) at :1405 is false; code reachable only when any of those three counters is non-zero, or only when wizard is set, is outside the goal",
       "upstreamOwners": [
         "weapon.c enhance_weapon_skill()",
@@ -843,8 +843,11 @@
         "screens": 1127,
         "rng": 117323
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "dd408c2810a841ef7e11a6ea97613dbf93696df3",
+      "delivered": {
+        "screens": 35,
+        "rng": 1
+      }
     }
   ]
 }

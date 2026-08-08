@@ -310,3 +310,33 @@ which refused every kill of a pit-trapped monster where C acts only when a bould
 is present: wrong, unreachable today, and held in place by a test that pinned the
 wrong behavior. Refusal tests now assert position -- no draw and no state change
 before the stop -- rather than text.
+
+`enhance-command` closed on 8 August 2026 and is the twelfth zero. It forecast
+34 and delivered 35, and the holdout returned 195 of 3,640 screens for the
+eighth evaluation running.
+
+It is the first goal to beat its forecast, and it did so because the forecast
+was deliberately pessimistic. The selector ranked it on 34 against a raw 35,
+discounting step 51 as the one step whose screen it could not verify against a
+live replay. That step matched. The instruction that produced the discount came
+from `hero-combat`, which had lost 24 steps by flagging a low-confidence block
+in its argument and leaving it at full value in its number. Discounting in the
+number cost one step of forecast here and would have cost nothing had the
+selector been right; leaving it undiscounted cost 24 there. The asymmetry
+favours the discount.
+
+The same discipline collapsed two much larger figures in the same census. The
+level-teleport menu path fell from 195 raw to 4 and engraving from 238 to 6,
+both verified screen by screen rather than modelled. A ranking that had taken
+those raw figures at face value would have selected either of them over a goal
+worth eight times more.
+
+On the holdout there is nothing new to say and that is itself the point. The
+eleventh zero, `hero-combat`, established the reading: the hidden sessions stop
+at 5.4 per cent of their screens, upstream of everything these goals touch, so
+they never reach the behavior being ported. `#enhance` is a menu the hidden
+sessions have no more chance of reaching than a fight. Until something finds
+what blocks them, further boundary ports selected on development look-ahead
+should be expected to return this same figure, and that expectation is now
+strong enough that a result other than 195 would be the thing needing
+explanation.
