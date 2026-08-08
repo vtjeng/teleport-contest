@@ -1064,6 +1064,15 @@
       "status": "open",
       "from": "6fc50ef4850448817de3e52b5428042dd39847d7",
       "detail": "scripts/mutate-sites.mjs reported js/exper.js:178 as a first-wave survivor during hero-combat slice 4, but `node --test scripts/mon-kill.test.mjs` fails on that exact mutant, verified twice by hand, and mon-kill.test.mjs is in the runner's own covering list for js/exper.js. A survivor the covering suite actually kills is a false survivor, which is the direction that wastes triage effort rather than the direction that hides defects, but it undermines the instrument either way.\n\nThis matters more than one line. Two correctness passes over this subsystem have now shown that mutation score and test quality are close to uncorrelated here: the eed732b3..5168910 range scored 253 of 220 killed while six real test defects sat in it, and the 5168910..dc31f03 range scored 68 of 144 surviving with no production defect at all. The structural reason is that the mutator's site set is operators and literals, so it cannot express dropping a whole disjunct, which is the defect shape both passes kept finding. A false survivor on top of that makes the number harder still to read.\n\nClosing condition: reproduce the disagreement on js/exper.js:178, find whether the fault is in the covering-file selection, the first-wave harness, or the report, and add a test that pins whichever it is."
+    },
+    {
+      "id": "level-tele-menu-path-would-generate-the-wrong-level",
+      "area": "generation",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "c102fde616a7162b4ce9af75a4158af98973d529",
+      "detail": "js/teleport.js's Is_special guard sits only on the numeric branch of level teleport, at roughly :1300-1307. C's menu branch of print_dungeon() sets force_dest = TRUE and skips that validation deliberately, so a port that follows C there and stops at the guard is safe, but a port that follows C and omits the guard would silently generate an ordinary rooms level where C generates the named special level. That is a silent divergence rather than a fail-closed stop, which AGENTS.md forbids and permits respectively.\n\nThree development sessions reach this within one keystroke of their current stop, which is what surfaced it: seed0383 step 42 selects \"e - bigrm: 12\" and its arrival screen is a fully generated Big Room; seed2600 step 20 selects the same entry; seed0373 step 43 selects \"y - Bar-strt: 16\", whose next line is the Quest arrival flavor text. The census credits that boundary 195 raw steps and 4 capped, so it is not near-term work, but whoever takes it inherits the trap.\n\nNothing is ported yet: `grep -c Is_special js/mklev.js` returns 0 and `grep -rn \"makemaz\\|makeMaz\" js/` returns 0, so the special-level generators the menu path needs are wholly absent.\n\nClosing condition: the menu branch of level teleport either generates the named special level as C does, or refuses by name before generating anything. An ordinary rooms level produced where C produces a special one closes nothing."
     }
   ],
   "areas": [

@@ -217,3 +217,5 @@ utc	event	phase	goal	detail
 2026-08-07T18:45:54.710Z	end	select	hero-combat	
 2026-08-07T18:45:54.738Z	start	implement	hero-combat	
 2026-08-08T11:00:04.502Z	end	implement	hero-combat	
+2026-08-08T11:23:55.814Z	end	select	enhance-command	
+2026-08-08T11:23:55.846Z	start	implement	enhance-command	

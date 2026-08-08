@@ -804,6 +804,47 @@
         "screens": 25,
         "rng": 505
       }
+    },
+    {
+      "id": "enhance-command",
+      "status": "open",
+      "boundary": "the hero issues #enhance and weapon.c enhance_weapon_skill() runs with wizard false, so speedy stays FALSE and the y_n(\"Advance skills without practice?\") at :1340 never fires; the skill scan at :1346-1355 leaves to_advance, eventually_advance and maxxed_cnt all zero, so no legend line is added at :1362-1378, add_skills_to_menu() is called with selectable FALSE, the title built at :1383-1384 is \"Current skills:\", and select_menu() is asked for PICK_NONE, whose answer cannot enter the if (n > 0) block at :1391 and whose while (speedy && n > 0) at :1405 is false; code reachable only when any of those three counters is non-zero, or only when wizard is set, is outside the goal",
+      "upstreamOwners": [
+        "weapon.c enhance_weapon_skill()",
+        "weapon.c add_skills_to_menu()",
+        "weapon.c could_advance()",
+        "weapon.c peaked_skill()",
+        "weapon.c skill_ranges[]"
+      ],
+      "forecast": {
+        "steps": 34,
+        "basis": "Capped look-ahead at c102fde, under a read-only scratchpad module.register() loader that rewrites js/sounds.js's two plain `throw new Error(` into UnsupportedSpecialRoomError, because the unshimmed census still dies at line 1 on \"dosounds initial-level slice reached an unported later-level branch (has_shop)\" -- the open deferral dosounds-refusal-escapes-as-hard-failure. No repository file was edited. Raw is measured from each session's actual stop rather than from the modeled earliest-unmet position, because six stops are now UNRECONCILED against the zero .agents/selection.md expects: the port refuses an unported branch of a command the model counts as supported, so the behavior table credits those stretches to the wrong row and shows no row for the real boundary. Ranked field, capped, with every low-confidence block discounted in the figure and ranked on its low end: #enhance 34-35 over one session, options menu 23-24, #pray 21, pet combat evaluation 19, takeoff about 18 over four, riding movement 10, hero trap activation 8 of a 61 raw range, pet cursed-object feedback 8, engraving interaction 6 of 238 raw, level_tele() menu path 4 of 195 raw over three sessions, count prefix 2 of a 73 raw range. Two large raw figures collapsed on screen-by-screen verification. print_dungeon falls 195 to 4 because all three sessions' very next keystroke selects a named special level -- seed0383 step 42 \"e\" is \"e - bigrm: 12\" arriving on a generated Big Room, seed2600 step 20 the same entry, seed0373 step 43 \"y\" is \"y - Bar-strt: 16\" followed by Quest arrival text -- and nothing that generates those levels is ported. Engraving falls 238 to 6, capping at seed0030 step 29 on \"The kitten bites the newt.  The newt is killed!\", which is pet melee refused at js/unported_monster_actions.js:727. The classifier was corrected on two sessions: it capped seed0107 at #chat, which chat-command ported at 914ad42, and it capped seed0900 at 65 while itself flagging steps 13 to 72 as unverified, which are the same refused pet melee, so seed0900 caps at 2. The winner is ranked on 34 rather than its raw 35 to discount step 51, the one step whose screen could not be verified against a live replay.",
+        "sessions": [
+          "seed0107-samurai-twoweapon-enhance"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0107-samurai-twoweapon-enhance",
+            "evidence": "seed 107, datetime 20000110090000, nethackrc OPTIONS=name:Bushi,role:Samurai,race:human,gender:male,align:lawful, input through the stop \"  ns#twoweapon\\nbbbbbbbbbhHHHkhhbjbhhhhykk#enhance\\n\". The port stops at step 50 of 98 on key \"\\n\", the Return completing #enhance at the extended-command prompt; the census names it rushsouth because Ctrl-J carries that binding, which is the reconciliation artifact .agents/selection.md describes. C's recorded screen is \" Current skills:\" in reverse video, then the heading \" Fighting Skills\", then \"   martial arts      [Basic]\", with footer \"(1 of 2)\". The rc sets no playmode, so wizard is false and :1340 is skipped. The recorded menu carries no * or # legend, which fixes eventually_advance == 0 and maxxed_cnt == 0 at :1362; the title reads \"Current skills:\" rather than \"Pick a skill to advance:\", which fixes to_advance == 0 at :1383. Those three zeros make selectable false at :1380-1381, and independently every skill line starts at the same column with no selector, which is add_skills_to_menu()'s !selectable arm at :1266-1267. select_menu() therefore runs PICK_NONE, skill_advance() never executes, and the function returns ECMD_OK on its first pass. The stretch is steps 50 to 84, 35 recorded steps: step 51 is the ESC dismissal, 52-62 and 63-73 are two #twoweapon toggles, 74-80 is #chat with a direction, and 81-84 is the #sit prompt echo the # seam already paints. The next unmet behavior is #sit at step 85."
+          }
+        ]
+      },
+      "detail": "### The hero checks skills with `#enhance`\n\n`seed0107-samurai-twoweapon-enhance` stops at step 50 of 98 on the Return that\ncompletes `#enhance`. `js/extcmdlist_data.js:64` already binds the command to\nits C name, so the seam exists and only the body is absent.\n\n**What the C owns.** Spans confirmed by printing the first and last line of\neach. `weapon.c enhance_weapon_skill()` 1329-1407 (79 lines),\n`add_skills_to_menu()` 1224-1302 (79), `could_advance()` 1171-1182 (12),\n`peaked_skill()` 1184-1195 (12), and the `skill_ranges[]` table 1215-1222 (8).\nAbout 190 lines of new C. `skill_advance()` 1197-1213 and `dump_skills()` from\n1304 stay outside.\n\n**Already ported, reuse rather than re-port.** `can_advance()` is\n`js/weapon.js:1280`, `skill_level_name()` is `:1115`, `slots_required()` is\n`:1268`; `practice_needed_to_advance()` and `P_NAME` are in the same file.\n`grep -rlw` finds `enhance_weapon_skill` only in `js/extcmdlist_data.js`, and\n`add_skills_to_menu`, `could_advance` and `peaked_skill` in no file at all,\nunder either spelling. Only `P_RESTRICTED` and `skill_ranges[]` are missing\ndata.\n\n**The menu renderer exists.** `js/tty_menu.js selectTtyMenu()` already draws\nheadings, paginates, and prints the `(N of M)` footer, and `js/cmd.js:1085`\nalready maps `item.heading` onto `menuTitleStyle()` for the inventory and spell\nmenus. The recorded screen's reverse-video headings and `(1 of 2)` footer are\nwhat it renders today.\n\n**Why the whole advancement half is out of reach here, and how a reader checks\nit.** The recorded menu carries no `*` or `#` legend, which fixes\n`eventually_advance == 0` and `maxxed_cnt == 0` at :1362. Its title reads\n`Current skills:` rather than `Pick a skill to advance:`, which fixes\n`to_advance == 0` at :1383. Those three zeros make `selectable` false at\n:1380-1381, and independently every skill line starts at the same column with no\nselector, which is `add_skills_to_menu()`'s `!selectable` arm at :1266-1267. So\n`select_menu()` runs `PICK_NONE` and `skill_advance()` cannot execute. A reader\ntests the boundary by confirming those three counters are zero on the witness\nand that no production path calls `skill_advance()`.\n\n**The wizard half is unreachable for a separate reason** and stays refused: the\n`y_n` prompt at :1340-1341, `can_advance()`'s `wizard && speedy` shortcut at\n:1163-1164, the wizard column format at :1277-1287, and the\n`(%d slot%s available)` title suffix at :1385-1387. The witness rc sets no\n`playmode`.\n\n**Two residual risks, both audited clear.**\n`full-screen-menu-dismissal-repaints-status` covers the ESC at step 51, but its\nown record states the exposure needs a second window inside one command with no\nintervening message, and step 52 opens a fresh command.\n`twoweapon-unreachable-refusal-arms` cannot fire, because no role starts with an\nartifact and `u_init.c:1223` clears cursed on every starting object.\n\n**Why this and not the runner-up.** The options menu\n(`options.c doset_simple_menu()` 8534-8702, 169 lines) caps at 23-24 on\n`seed0006`. `#enhance` is roughly half again as large a stretch from a third of\nthe C, and every step behind it is already-ported `#twoweapon` and `#chat`\nrather than new behavior. The options menu also opens a second window\nimmediately -- the `Autopickup what?` class submenu at steps 50-56 -- which\nwould drag `optfn_pickup_types` and the menu-dismissal repaint defect into the\nsame goal.\n\n**A note on the figure.** The forecast is 34 against a raw 35, discounting step\n51, the one step whose screen could not be verified against a live replay. The\n`hero-combat` goal that closed before this one forecast 49 and delivered 25\nbecause a flagged low-confidence block was discounted in the argument and left\nat full value in the number; this record discounts it in the number.\n",
+      "slices": [
+        {
+          "name": "the hero reads the skills menu",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "c102fde616a7162b4ce9af75a4158af98973d529",
+      "openStanding": {
+        "sha": "aa86920",
+        "screens": 1127,
+        "rng": 117323
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
