@@ -16,6 +16,7 @@ import {
 } from './const.js';
 import { level_difficulty, on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { always_hostile, always_peaceful } from './mondata.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import {
     G_FREQ,
@@ -28,9 +29,7 @@ import {
     M1_AMORPHOUS,
     M1_FLY,
     M1_SWIM,
-    M2_HOSTILE,
     M2_MINION,
-    M2_PEACEFUL,
     MR_COLD,
     MR_FIRE,
     MS_GUARDIAN,
@@ -382,8 +381,8 @@ export function peace_minded(monster, env = {}) {
     const mal = monster.maligntyp;
     const heroAlignment = state.u.ualign.type;
 
-    if (alwaysPeaceful(monster)) return true;
-    if (alwaysHostile(monster)) return false;
+    if (always_peaceful(monster)) return true;
+    if (always_hostile(monster)) return false;
     if (monster.msound === MS_LEADER || monster.msound === MS_GUARDIAN)
         return true;
     if (monster.msound === MS_NEMESIS) return false;
@@ -401,14 +400,6 @@ export function peace_minded(monster, env = {}) {
     const alignmentRecordBound = 16 + (record < -15 ? -15 : record);
     return Boolean(random.rn2(alignmentRecordBound)
         && random.rn2(2 + Math.abs(mal)));
-}
-
-function alwaysPeaceful(monster) {
-    return Boolean(monster.mflags2 & M2_PEACEFUL);
-}
-
-function alwaysHostile(monster) {
-    return Boolean(monster.mflags2 & M2_HOSTILE);
 }
 
 // C ref: makemon.c set_malign().
@@ -433,9 +424,9 @@ export function set_malign(mon, state = game) {
         mon.malign = -20;
     } else if (mal === A_NONE) {
         mon.malign = mon.mpeaceful ? 0 : 20;
-    } else if (alwaysPeaceful(mon.data)) {
+    } else if (always_peaceful(mon.data)) {
         mon.malign = (mon.mpeaceful ? -3 : 3) * Math.max(5, absolute);
-    } else if (alwaysHostile(mon.data)) {
+    } else if (always_hostile(mon.data)) {
         mon.malign = coaligned ? 0 : Math.max(5, absolute);
     } else if (coaligned) {
         mon.malign = mon.mpeaceful

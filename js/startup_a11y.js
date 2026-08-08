@@ -1567,7 +1567,9 @@ function propertyActive(hero, index) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
-function heroIsBlind(state) {
+// C ref: youprop.h Blind() (103). Exported because mon.c make_corpse():927
+// needs it too and this is the copy nearest its other visibility helpers.
+export function heroIsBlind(state) {
     const property = state.u?.uprops?.[BLINDED];
     return Boolean(property?.intrinsic || property?.extrinsic)
         && !property?.blocked;
@@ -1585,8 +1587,12 @@ export function monsterVisible(monster, state) {
     );
 }
 
+// C ref: display.h _canseemon() (118-120). C tests the monster's visibility
+// and the hero's line of sight and nothing else: a monster whose hit points
+// have just reached zero is still seen, which is what mon.c xkilled():3508
+// depends on to name what the hero killed.
 export function canSeeMonster(monster, state) {
-    if (!monster || monster.mhp < 1 || !monsterVisible(monster, state))
+    if (!monster || !monsterVisible(monster, state))
         return false;
     const hero = state.u;
     const couldSee = Boolean(
@@ -1653,7 +1659,7 @@ export function sensesMonster(monster, state) {
 // callers such as hack.c notice_mon() and monster_nearby() apply their own
 // source-specific concealment predicates.
 export function canSpotMonster(monster, state) {
-    if (!monster || monster.mhp < 1) return false;
+    if (!monster) return false;
     return canSeeMonster(monster, state) || sensesMonster(monster, state);
 }
 

@@ -1,95 +1,238 @@
-// mon.js -- Runtime monster turn and inventory state.
+// mon.js -- Runtime monster turn state, and the removal lifecycle a monster
+// runs when the hero kills it.
 // C refs: mon.c movemon(), mcalcmove(), mpickstuff(), curr_mon_load(),
-// max_mon_load(); mthrowu.c m_carrying().
+// max_mon_load(), zombie_maker(), unstuck(), mon_leaving_level(), m_detach(),
+// mlifesaver(), lifesaved_monster(), logdeadmon(), mondead(), corpse_chance(),
+// make_corpse(), killed() and xkilled(); mthrowu.c m_carrying();
+// do_name.c safe_oname().
 
 import {
+    A_CHAOTIC,
     BOLT_LIM,
     CONFLICT,
+    CORPSTAT_BURIED,
+    CORPSTAT_FEMALE,
+    CORPSTAT_INIT,
+    CORPSTAT_MALE,
+    CORPSTAT_NONE,
     DEAF,
     DOOR,
     D_CLOSED,
     D_LOCKED,
+    engulfing_u,
     FULL_MOON,
+    G_GENOD,
     HALLUC,
     HALLUC_RES,
+    has_mgivenname,
+    has_oname,
+    In_endgame,
     I_SPECIAL,
+    is_pit,
+    isok,
     ismnum,
+    LS_MONSTER,
     MAX_CARR_CAP,
     M_AP_FURNITURE,
+    M_AP_MONSTER,
     M_AP_NOTHING,
     M_AP_OBJECT,
+    M_AP_TYPE,
     M_AP_TYPMASK,
     MFAST,
+    MON_DETACH,
     MON_FLOOR,
     MON_MIGRATING,
     MSLOW,
+    NATTK,
     NORMAL_SPEED,
+    ONAME_NO_FLAGS,
     PROT_FROM_SHAPE_CHANGERS,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
+    W_AMUL,
     WT_HUMAN,
+    XKILL_GIVEMSG,
+    XKILL_NOCONDUCT,
+    XKILL_NOCORPSE,
+    XKILL_NOMSG,
 } from './const.js';
+import { artifact_exists } from './artifacts.js';
 import { night } from './calendar.js';
-import { newsym } from './display.js';
-import { capitalizedMonsterName } from './do_name.js';
+import { glyph_is_invisible, newsym } from './display.js';
+import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
+import { flooreffects } from './do.js';
 import { finish_meating } from './dogmove.js';
+import { on_level } from './dungeon.js';
 import { sengr_at } from './engrave.js';
+import { adjalign } from './attrib.js';
+import { experience, more_experienced, newexplevel } from './exper.js';
 import { game } from './gstate.js';
 import { disturb_buried_zombies } from './hack.js';
 import { dist2 } from './hacklib.js';
-import { obj_extract_self } from './invent.js';
-import { any_light_source } from './light.js';
+import { delobj, obj_extract_self, stackobj } from './invent.js';
+import { any_light_source, del_light_source } from './light.js';
+import { mkcorpstat } from './corpstat.js';
+import { change_luck } from './moveloop_preamble.js';
 import {
     dmonsfree,
     newcham_distress,
     pick_vampire_shape,
     preflight_newcham_distress,
+    remove_worm,
     set_mon_data,
+    wormgone,
 } from './makemon_create.js';
 import {
+    always_hostile,
     amorphous,
+    attacktype,
+    bigmonst,
+    dmgtype,
+    emits_light,
     is_female,
+    is_golem,
     is_hider,
     is_human,
+    is_mplayer,
+    is_neuter,
+    is_reviver,
+    is_rider,
     is_shapeshifter,
     is_male,
-    is_neuter,
+    is_undead,
+    is_unicorn,
     is_vampshifter,
     is_were,
     monsndx,
+    nonliving,
     regenerates,
     strongmonst,
     throws_rocks,
+    unique_corpstat,
+    verysmall,
+    zombie_form,
 } from './mondata.js';
 import {
+    AD_SEDU,
+    AD_SSEX,
+    AD_STCK,
+    AT_BOOM,
+    AT_ENGL,
+    AT_HUGS,
+    G_FREQ,
+    G_NOCORPSE,
     G_UNIQ,
+    M2_COLLECT,
+    MS_GUARDIAN,
+    MS_LEADER,
+    MS_NEMESIS,
     MZ_MEDIUM,
     NON_PM,
+    PM_ARCHEOLOGIST,
+    PM_BLACK_DRAGON,
+    PM_BLACK_PUDDING,
+    PM_BLACK_UNICORN,
+    PM_BLUE_DRAGON,
+    PM_BROWN_PUDDING,
+    PM_CLAY_GOLEM,
+    PM_DWARF_MUMMY,
+    PM_DWARF_ZOMBIE,
+    PM_ELF_MUMMY,
+    PM_ELF_ZOMBIE,
+    PM_ETTIN_MUMMY,
+    PM_ETTIN_ZOMBIE,
     PM_FLESH_GOLEM,
     PM_FOG_CLOUD,
+    PM_GIANT_MUMMY,
+    PM_GIANT_ZOMBIE,
+    PM_GLASS_GOLEM,
+    PM_GNOME_MUMMY,
+    PM_GNOME_ZOMBIE,
+    PM_GOLD_DRAGON,
+    PM_GOLD_GOLEM,
+    PM_GRAY_DRAGON,
+    PM_GRAY_OOZE,
+    PM_GRAY_UNICORN,
+    PM_GREEN_DRAGON,
+    PM_GREEN_SLIME,
+    PM_GHOUL,
+    PM_HIGH_CLERIC,
+    PM_HUMAN,
+    PM_HUMAN_MUMMY,
     PM_HUMAN_WEREJACKAL,
     PM_HUMAN_WERERAT,
     PM_HUMAN_WEREWOLF,
+    PM_HUMAN_ZOMBIE,
+    PM_IRON_GOLEM,
+    PM_KOBOLD_MUMMY,
+    PM_KOBOLD_ZOMBIE,
+    PM_LEATHER_GOLEM,
+    PM_LIZARD,
+    PM_LONG_WORM,
+    PM_MAIL_DAEMON,
+    PM_MEDUSA,
+    PM_ORANGE_DRAGON,
+    PM_ORC_MUMMY,
+    PM_ORC_ZOMBIE,
+    PM_PAPER_GOLEM,
+    PM_RED_DRAGON,
+    PM_ROPE_GOLEM,
+    PM_SILVER_DRAGON,
+    PM_SKELETON,
+    PM_STEAM_VORTEX,
+    PM_STONE_GOLEM,
+    PM_VAMPIRE,
+    PM_VAMPIRE_LEADER,
+    PM_VLAD_THE_IMPALER,
     PM_WEREJACKAL,
     PM_WERERAT,
     PM_WEREWOLF,
+    PM_WHITE_DRAGON,
+    PM_WHITE_UNICORN,
+    PM_WIZARD,
+    PM_WOOD_GOLEM,
+    PM_YELLOW_DRAGON,
     S_EEL,
+    S_KOP,
+    S_LICH,
     S_VAMPIRE,
+    S_ZOMBIE,
 } from './monsters.js';
-import { onscary } from './monmove.js';
-import { clear_splitobjs, splitobj } from './obj.js';
+import { accessible, onscary } from './monmove.js';
+import { m_at, remove_monster } from './monst.js';
+import {
+    clear_dknown,
+    clear_splitobjs,
+    mkobj,
+    objectType,
+    place_object,
+    splitobj,
+} from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { BOULDER } from './objects.js';
+import {
+    AMULET_OF_LIFE_SAVING,
+    BOULDER,
+    CORPSE,
+    FIGURINE,
+    FOOD_CLASS,
+    POTION_CLASS,
+    RANDOM_CLASS,
+} from './objects.js';
 import { distant_name, donameFresh } from './objnam.js';
 import { d, rn1, rn2, rnd, rne } from './rng.js';
 import {
     canSeeMonster,
     canSpotMonster,
+    heroIsBlind,
     messageAt,
+    sensesMonster,
 } from './startup_a11y.js';
-import { mpickobj } from './steal.js';
+import { mpickobj, relobj } from './steal.js';
+import { fill_pit, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
+import { which_armor } from './worn.js';
 
 function monsterTurnEnv(env = {}) {
     const state = env.state ?? game;
@@ -1114,4 +1257,779 @@ export async function mcalcdistress(state = game, env = {}) {
         if (monster.mfleetim && !--monster.mfleetim)
             monster.mflee = false;
     }
+}
+
+// ---------------------------------------------------------------------------
+// mon.c's removal lifecycle. A monster the hero kills runs killed() ->
+// xkilled() -> mondead() -> m_detach() -> mon_leaving_level(), leaving a
+// corpse, perhaps an object, and the experience and alignment it was worth.
+//
+// mon.c mongone(), m_detach()'s other C caller, stays in js/makemon_create.js
+// with its own merged copy of mon_leaving_level() and m_detach() rather than
+// calling the pair below, so mon.c is knowingly split across two files. The
+// reason is that m_detach() has to be async -- the inventory drop at its 2779
+// goes through steal.c relobj(), which is async because steal.c mdrop_obj()
+// can print -- while mongone()'s only caller chain, trap.c mk_trap_statue()
+// under mklev.c mktrap() under the level build, is synchronous from end to
+// end. Making mongone() async would push `await` through all of level
+// generation for a call that never reaches relobj(), because mongone() passes
+// due_to_death FALSE.
+// ---------------------------------------------------------------------------
+
+function requiredKillOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`the monster kill path requires ${name}`);
+    return operation;
+}
+
+// Match js/makemon_create.js redrawSquare(): a caller that supplies its own
+// newsym owns the redraw, and a synthetic state must not repaint the live map.
+function killRedraw(x, y, env) {
+    if (typeof env.hooks?.newsym === 'function') env.hooks.newsym(x, y, env);
+    else if ((env.state ?? game) === game) newsym(x, y);
+}
+
+// C ref: mon.c zombie_maker() (361-380). "return True if mon is capable of
+// converting other monsters into zombies". mon.c:3620 passes &gy.youmonst, so
+// this answers for the hero as well as for a monster.
+export function zombie_maker(mon) {
+    const pm = mon.data;
+
+    if (mon.mcan) return false;
+
+    switch (pm?.mlet) {
+    case S_ZOMBIE:
+        /* "Z-class monsters that aren't actually zombies go here" */
+        if (pm.pmidx === PM_GHOUL || pm.pmidx === PM_SKELETON) return false;
+        return true;
+    case S_LICH:
+        /* "all liches will create zombies as well" */
+        return true;
+    default:
+        return false;
+    }
+}
+
+// C ref: mon.c unstuck() (3437-3467). Releases a monster that is holding the
+// hero, and re-arms its holding attack so it cannot grab again immediately.
+//
+// 3448-3456's swallow arm stops. Putting the hero back on the engulfer's
+// square needs do.c placebc() for the ball and chain and display.c docrt() for
+// the redraw, neither ported. The refusal sits above set_ustuck() so nothing
+// is cleared before it, and its guard is C's own `swallowed`, which reads
+// u.uswallow before that call clears it.
+export function unstuck(mtmp, state = game, env = {}) {
+    if (state.u.ustuck !== mtmp) return;
+    const random = env.random ?? { rnd };
+    const ptr = mtmp.data;
+
+    if (state.u.uswallow)
+        requiredKillOperation(env, 'unsupported')('releasing an engulfer');
+
+    /* "do this first so that docrt()'s botl update is accurate;
+       clears u.uswallow as well as setting u.ustuck to Null" */
+    set_ustuck(null, state);
+
+    /* "prevent holder/engulfer from immediately re-holding/re-engulfing
+       [note: this call to unstuck() might be because u.ustuck has just
+       changed shape and doesn't have a holding attack any more, hence
+       don't set mspec_used unconditionally]" */
+    if (!mtmp.mspec_used
+        && (dmgtype(ptr, AD_STCK) || attacktype(ptr, AT_ENGL)
+            || attacktype(ptr, AT_HUGS)))
+        mtmp.mspec_used = random.rnd(2);
+}
+
+// C ref: mon.c mon_leaving_level() (2695-2730). "'mon' is being removed from
+// level due to migration [relmon from keepdogs or migrate_to_level] or due to
+// death [m_detach from mondead or mongone]".
+//
+// 2721-2722's seemimic() stops. A monster whose appearance is neither
+// M_AP_NOTHING nor M_AP_MONSTER is showing a false object or piece of
+// furniture, and revealing it needs display.c seemimic(), which wakeup() above
+// already records as unported.
+//
+// svc.context.polearm.hitmon at 2728-2729 is left out rather than restated:
+// apply.c use_pole() is its only writer and none of it is ported, so the
+// pointer is permanently null and clearing it can change nothing.
+export function mon_leaving_level(mon, state = game, env = {}) {
+    const mx = mon.mx;
+    const my = mon.my;
+    const onmap = isok(mx, my) && m_at(mx, my, state) === mon;
+
+    /* "to prevent an infinite relobj-flooreffects-hmon-killed loop" */
+    mon.mtrapped = 0;
+    /* "mon is not swallowing or holding you nor held by you" */
+    unstuck(mon, state, env);
+
+    /* "vault guard might be at <0,0>" */
+    if (onmap || mon === m_at(0, 0, state)) {
+        if (mon.wormno) remove_worm(mon, { ...env, state });
+        else remove_monster(mx, my, state);
+    }
+    if (onmap) {
+        /* "for migration; doesn't matter for death" */
+        mon.mundetected = 0;
+        /* "unhide mimic in case its shape has been blocking line of sight
+           or it is accompanying the hero to another level" */
+        if (M_AP_TYPE(mon) !== M_AP_NOTHING && M_AP_TYPE(mon) !== M_AP_MONSTER)
+            requiredKillOperation(env, 'unsupported')('unhiding a mimic');
+        /* "if mon is pinned by a boulder, removing mon lets boulder drop" */
+        fill_pit(mx, my, state);
+        killRedraw(mx, my, { ...env, state });
+    }
+}
+
+// C ref: mon.c m_detach() (2733-2803). "'mtmp' is going away; remove effects
+// of mtmp from other data structures". `mptr` is mtmp->data as it stood before
+// the death, which mondead() saves before restoring a chameleon's true form.
+//
+// Seven arms stop, each the whole of one C branch under exactly C's condition:
+//
+//   2741-2742  m_unleash(), for a leashed pet.
+//   2761-2762  wizdeadorgone(), for the Wizard of Yendor.
+//   2768-2776  nemdead(), nemesis_stinks() and leaddead(), the quest arms.
+//   2782-2783  thiefdead(), when the dying monster was mid-theft.
+//   2784-2785  shkgone(), for a shopkeeper.
+//   2788-2789  the endgame's MON_ENDGAME_FREE.
+//   2800-2801  dismount_steed(), when the hero was riding what just died.
+//
+// C's impossible() at 2791-2793 becomes a throw. A monster detached twice
+// would be counted twice against iflags.purge_monsters, and dmonsfree() checks
+// that count against what it actually unlinks, so limping past it corrupts the
+// monster list instead of merely logging.
+export async function m_detach(
+    mtmp,
+    mptr,
+    due_to_death,
+    state = game,
+    env = {},
+) {
+    const unsupported = requiredKillOperation(env, 'unsupported');
+    const mx = mtmp.mx;
+
+    if (mtmp.mleashed) unsupported('detaching a leashed pet');
+
+    if (mx > 0 && emits_light(mptr))
+        del_light_source(LS_MONSTER, mtmp, state);
+
+    /*
+     * "Take mtmp off map but not out of fmon list yet (dmonsfree does that).
+     *
+     * Sequencing issue:  mtmp's inventory should be dropped before taking
+     * it off the map but if that includes a boulder and mtmp is at a pit
+     * location, dropping minvent ought to be deferred until its corpse
+     * gets placed.  We compromise and just make sure mtmp is off the map
+     * before dropping its former belongings."
+     */
+    mon_leaving_level(mtmp, state, env);
+
+    mtmp.mhp = 0; /* "simplify some tests: force mhp to 0" */
+    /* "death handling for the Wizard needs to take place even if he is
+       leaving the dungeon alive rather than dying" */
+    if (mtmp.iswiz) unsupported("the Wizard of Yendor's death");
+    /* "foodead() might give quest feedback for foo having died; skip that
+       if we're called for mongone() rather than mondead()" */
+    if (due_to_death) {
+        if (mtmp.data.msound === MS_NEMESIS)
+            unsupported("the quest nemesis's death");
+        if (mtmp.data.msound === MS_LEADER)
+            unsupported("the quest leader's death");
+        /* "release (drop onto map) all objects carried by mtmp; assumes that
+           mtmp->mx,my contains the appropriate location" */
+        await relobj(mtmp, 1, false, { ...env, state });
+    }
+
+    /* gs.stealmid is 0 while no theft is in progress, and makemon() assigns
+       m_id from svc.context.ident, which starts at 1, so the nonzero test
+       keeps an unset stealmid from matching a monster with no identity. */
+    if (state.gs?.stealmid && mtmp.m_id === state.gs.stealmid)
+        unsupported('the death of a monster in mid-theft');
+    if (mtmp.isshk) unsupported("a shopkeeper's death");
+    if (mtmp.wormno) wormgone(mtmp, state);
+    if (In_endgame(state.u.uz)) unsupported('a monster death in the endgame');
+
+    if ((mtmp.mstate ?? 0) & MON_DETACH)
+        throw new Error('m_detach: monster is already detached');
+    mtmp.mstate |= MON_DETACH;
+    state.iflags ??= {};
+    state.iflags.purge_monsters = (state.iflags.purge_monsters ?? 0) + 1;
+
+    /* "hero is thrown from his steed when it dies or gets genocided" */
+    if (mtmp === state.u.usteed) unsupported("the death of the hero's steed");
+}
+
+// C ref: mon.c mlifesaver() (2825-2836). "find the worn amulet of life saving
+// which will save a monster".
+function mlifesaver(mtmp, state) {
+    if (!nonliving(mtmp.data) || is_vampshifter(mtmp)) {
+        const otmp = which_armor(mtmp, W_AMUL, state);
+
+        if (otmp && otmp.otyp === AMULET_OF_LIFE_SAVING) return otmp;
+    }
+    return null;
+}
+
+// C ref: mon.c lifesaved_monster() (2838-2884). The whole body stops: using up
+// the amulet needs mon.c m_useup(), re-equipping needs check_gear_next_turn()'s
+// counterpart in worn.c m_dowear(), and a life-saved pet needs dog.c
+// wary_dog(). The guard is C's `if (lifesave)`, so a monster wearing no amulet
+// -- every monster this port generates -- falls through exactly as C does.
+function lifesaved_monster(mtmp, state, env) {
+    if (mlifesaver(mtmp, state)) {
+        requiredKillOperation(env, 'unsupported')(
+            'a monster saved by an amulet of life saving',
+        );
+    }
+}
+
+// C ref: mon.c logdeadmon() (2996-3076). "when a mon has died, maybe record an
+// achievement or issue livelog message". Every branch writes only to the live
+// log or the achievement list. pline.c livelog_printf() appends to a file this
+// port cannot write, the treatment js/exper.js records at its pluslvl() head,
+// and record_achievement() is reached only for the first Medusa.
+//
+// Both of C's guards are still evaluated, so a kill that would have been
+// logged stops rather than silently skipping the record; an ordinary monster
+// fails both and returns having done nothing.
+function logdeadmon(mtmp, mndx, state, env) {
+    const howmany = state.svm.mvitals[mndx].died;
+
+    if (mndx === PM_MEDUSA && howmany === 1) {
+        requiredKillOperation(env, 'unsupported')('the Medusa achievement');
+    } else if ((unique_corpstat(mtmp.data)
+                && (mndx !== PM_HIGH_CLERIC || !mtmp.mrevived))
+               || (mtmp.isshk && !mtmp.mrevived)) {
+        requiredKillOperation(env, 'unsupported')(
+            'the live-log line for a unique or shopkeeper kill',
+        );
+    }
+}
+
+// C ref: mon.c mondead() (3080-3177). "monster 'mtmp' has died; maybe
+// life-save, otherwise unshapeshift and update vanquished stats and update
+// map". The ordinary path draws nothing: both of its random-number calls are
+// species-gated, the rn2(10) at 3104 to a steam vortex and the rnd(5) at 3149
+// to a Keystone Kop.
+//
+// Six arms stop:
+//
+//   3096-3097  vamprises(), when a shape-shifted vampire reverts rather than
+//              dying. The guard is is_vampshifter() alone, which is the outer
+//              half of C's `&&` and so the condition for reaching vamprises().
+//   3100-3101  the sad feeling for a lost pet. iflags.sad_feeling has no
+//              writer in this port, so nothing can set it.
+//   3103-3104  create_gas_cloud(), the steam vortex's parting cloud.
+//   3108-3109  grddead(), which parks a dead vault guard at <0,0>.
+//   3147-3166  the Kop resurrection, whose rnd(5) needs makemon() at a
+//              staircase and again at a random spot.
+//   3170-3171  unmap_object(), for a monster on a remembered invisible glyph;
+//              js/display.js records that function as unported.
+//
+// gd.disintegested and gv.vamp_rise_msg, which xkilled() sets around this
+// call, are read only by vamprises() and by the life-saved return at 3558.
+// Both stop above every reader, so neither flag is carried.
+export async function mondead(mtmp, state = game, env = {}) {
+    const unsupported = requiredKillOperation(env, 'unsupported');
+
+    /* "potential pet message; always clear global flag" */
+    const be_sad = state.iflags?.sad_feeling;
+    state.iflags ??= {};
+    state.iflags.sad_feeling = false;
+
+    mtmp.mhp = 0; /* "in case caller hasn't done this" */
+    lifesaved_monster(mtmp, state, env);
+    if (mtmp.mhp >= 1) return; /* !DEADMONSTER() */
+
+    /* "vampire in bat/fog/wolf form reverts to vampire instead of dying" */
+    if (is_vampshifter(mtmp)) unsupported('a shape-shifted vampire reverting');
+
+    if (be_sad) unsupported('the sad feeling for a lost pet');
+
+    if (mtmp.data === state.mons[PM_STEAM_VORTEX])
+        unsupported("a steam vortex's parting gas cloud");
+
+    /* "dead vault guard is actually kept at coordinate <0,0> until his
+       temporary corridor to/from the vault has been removed; need to do this
+       after life-saving and before m_detach()" */
+    if (mtmp.isgd) unsupported("a vault guard's death");
+
+    const mptr = mtmp.data; /* "save this for m_detach()" */
+    /* "restore chameleon, lycanthropes to true form at death" */
+    if (ismnum(mtmp.cham)) {
+        set_mon_data(mtmp, state.mons[mtmp.cham], state);
+        mtmp.cham = NON_PM;
+    } else if (mtmp.data === state.mons[PM_WEREJACKAL]) {
+        set_mon_data(mtmp, state.mons[PM_HUMAN_WEREJACKAL], state);
+    } else if (mtmp.data === state.mons[PM_WEREWOLF]) {
+        set_mon_data(mtmp, state.mons[PM_HUMAN_WEREWOLF], state);
+    } else if (mtmp.data === state.mons[PM_WERERAT]) {
+        set_mon_data(mtmp, state.mons[PM_HUMAN_WERERAT], state);
+    }
+
+    /*
+     * "svm.mvitals[].died does double duty as total number of dead monsters
+     * and as experience factor for the player killing more monsters."
+     */
+    const mndx = monsndx(mtmp.data);
+    if (state.svm.mvitals[mndx].died < 255) state.svm.mvitals[mndx].died++;
+
+    /* "if it's a (possibly polymorphed) quest leader, mark him as dead".
+       leader_m_id is 0 until the leader is created; see the note on
+       gs.stealmid in m_detach() above for why the nonzero test is needed. */
+    if (state.svq?.quest_status?.leader_m_id
+        && mtmp.m_id === state.svq.quest_status.leader_m_id)
+        state.svq.quest_status.leader_is_dead = true;
+    /* "if the mail daemon dies, no more mail delivery.  -3."
+       include/global.h:430 defines MAIL_STRUCTURES unconditionally, so this
+       arm is compiled even though MAIL is not and no daemon is generated. */
+    if (mndx === PM_MAIL_DAEMON)
+        state.svm.mvitals[mndx].mvflags |= G_GENOD;
+
+    if (mtmp.data.mlet === S_KOP) unsupported('a Keystone Kop coming back');
+
+    /* "achievement and/or livelog" */
+    logdeadmon(mtmp, mndx, state, env);
+
+    if (glyph_is_invisible(state.level.at(mtmp.mx, mtmp.my)))
+        unsupported('forgetting a remembered invisible monster');
+
+    /* "remove 'mtmp' from play; it will stay on the fmon list until end of
+       current move, then dmonsfree() will get rid of it" */
+    await m_detach(mtmp, mptr, true, state, env);
+}
+
+// C ref: mon.c LEVEL_SPECIFIC_NOCORPSE() (44-47), the macro xkilled() tests at
+// 3574 and corpse_chance() tests again at 3241. Its rn2(3) is drawn only in a
+// graveyard and only for undead; an ordinary level short-circuits on
+// level.flags.graveyard before reaching it.
+function LEVEL_SPECIFIC_NOCORPSE(mdat, state, random) {
+    return on_level(state.u?.uz, state.rogue_level)
+        || !state.level.flags.deathdrops
+        || Boolean(state.level.flags.graveyard && is_undead(mdat)
+                   && random.rn2(3));
+}
+
+// C ref: mon.c corpse_chance() (3180-3249). "TRUE if corpse might be dropped,
+// magr may die if mon was swallowed".
+//
+// Two arms stop, each above the first draw or message on its path:
+//
+//   3193-3197  Vlad and the liches, whose bodies crumble into dust instead.
+//   3200-3232  AT_BOOM, the gas spore's death explosion. The refusal is at the
+//              top of the matching attack slot, so neither the d() rolled for
+//              its damage nor mon_explodes() runs first.
+//
+// The closing formula at 3247 is what decides an ordinary kill, and it splits
+// species that look alike: a sewer rat is G_FREQ 1 and verysmall, so tmp is 4;
+// a goblin is G_FREQ 2, which fails `< 2`, and MZ_SMALL, so tmp is 2. Read the
+// species record rather than guessing from size.
+export function corpse_chance(
+    mon,
+    magr,
+    was_swallowed,
+    state = game,
+    env = {},
+) {
+    const unsupported = requiredKillOperation(env, 'unsupported');
+    const random = env.random ?? { d, rn2 };
+    const mdat = mon.data;
+    let i;
+    let tmp;
+
+    /* "for gas spore boom" */
+    if (!magr && state.gm?.mswallower
+        && attacktype(state.gm.mswallower.data, AT_ENGL)) {
+        magr = state.gm.mswallower;
+        was_swallowed = true;
+    }
+
+    if (mdat === state.mons[PM_VLAD_THE_IMPALER] || mdat.mlet === S_LICH)
+        unsupported('a lich body crumbling into dust');
+
+    /* "Gas spores always explode upon death" */
+    for (i = 0; i < NATTK; i++) {
+        if (mdat.mattk[i].aatyp === AT_BOOM)
+            unsupported('a gas spore exploding on death');
+    }
+
+    /* "must duplicate this below check in xkilled() since it results in
+        creating no objects as well as no corpse" */
+    if (LEVEL_SPECIFIC_NOCORPSE(mdat, state, random)) return false;
+
+    if (((bigmonst(mdat) || mdat === state.mons[PM_LIZARD]) && !mon.mcloned)
+        || is_golem(mdat) || is_mplayer(mdat) || is_rider(mdat) || mon.isshk)
+        return true;
+    tmp = 2 + ((mdat.geno & G_FREQ) < 2 ? 1 : 0) + (verysmall(mdat) ? 1 : 0);
+    return !random.rn2(tmp);
+}
+
+// C ref: mon.c KEEPTRAITS() (549-556), "for deciding whether corpse will carry
+// along full monster data". A TRUE result sends the monster itself into
+// mkcorpstat(), which then needs mkobj.c save_mtraits(); js/corpstat.js
+// requires that as its saveMonsterTraits hook and no caller supplies one, so
+// every species this answers TRUE for stops there rather than here.
+function KEEPTRAITS(mon, state) {
+    return Boolean(mon.isshk) || Boolean(mon.mtame)
+        || unique_corpstat(mon.data)
+        || is_reviver(mon.data)
+        /* "normally quest leader will be unique, but he or she might have
+            been polymorphed" */
+        || Boolean(state.svq?.quest_status?.leader_m_id
+                   && mon.m_id === state.svq.quest_status.leader_m_id)
+        /* "special cancellation handling for these" */
+        || dmgtype(mon.data, AD_SEDU) || dmgtype(mon.data, AD_SSEX);
+}
+
+// C ref: do_name.c safe_oname() (94-100). "" for an unnamed object, which is
+// the only value the caller below can hand artifact_exists().
+function safe_oname(obj) {
+    return has_oname(obj) ? obj.oextra.oname : '';
+}
+
+// C ref: mon.c make_corpse() (563-941). "Creates a monster corpse, a 'special'
+// corpse, or nothing if it doesn't leave corpses."
+//
+// The switch at 581 is 361 of those 378 lines and most of it is not compiled:
+// include/patchlevel.h:33 sets NH_DEVEL_STATUS to NH_STATUS_RELEASED, so the
+// 154-line PM_ roster at 686-844 is excluded and its `#else default:` at 846
+// is what every unlisted species reaches, falling through to the `default_1`
+// label at 848. What survives is that label and the twelve special groups
+// above it, and each group stops at the top of its own case, above the first
+// draw or object it would make:
+//
+//   582-597  dragon scales, and the rn2(3) or rn2(20) that decides them.
+//   598-611  a unicorn horn, and the rn2(2) that crumbles a regrown one.
+//   612-614  the long worm's tooth.
+//   615-621  vampires, which need undead_to_corpse() and mkcorpstat() with the
+//            monster itself.
+//   622-645  the mummies and zombies, which need the same pair.
+//   646-731  the nine golem bodies, seven of which roll for their pieces.
+//   732-746  the four puddings, which need obj_meld() and obj_nexto().
+//
+// 747-748's NON_PM, LEAVESTATUE and NUMMONS cases break out of the switch to
+// the closing `if (!obj) return 0;` and are unreachable here: monsndx()
+// answers with a real species for every monster on the level chain.
+function make_corpse(mtmp, corpseflags, state, env) {
+    const unsupported = requiredKillOperation(env, 'unsupported');
+    const mdat = mtmp.data;
+    const x = mtmp.mx;
+    const y = mtmp.my;
+    const mndx = monsndx(mdat);
+    let corpstatflags = corpseflags;
+    const burythem = (corpstatflags & CORPSTAT_BURIED) !== 0;
+
+    // 856-862's bury_an_obj() and the "corpse ends up buried" line xkilled()
+    // prints for it. burycorpse is written only at xkilled():3521, inside the
+    // pit arm that stops there, so this cannot fire; the guard is C's flag.
+    if (burythem) unsupported('a corpse buried in a pit');
+
+    if (mtmp.female) corpstatflags |= CORPSTAT_FEMALE;
+    else if (!is_neuter(mtmp.data)) corpstatflags |= CORPSTAT_MALE;
+
+    switch (mndx) {
+    case PM_GRAY_DRAGON:
+    case PM_GOLD_DRAGON:
+    case PM_SILVER_DRAGON:
+    case PM_RED_DRAGON:
+    case PM_ORANGE_DRAGON:
+    case PM_WHITE_DRAGON:
+    case PM_BLACK_DRAGON:
+    case PM_BLUE_DRAGON:
+    case PM_GREEN_DRAGON:
+    case PM_YELLOW_DRAGON:
+        unsupported('dragon scales from a dead dragon');
+        break;
+    case PM_WHITE_UNICORN:
+    case PM_GRAY_UNICORN:
+    case PM_BLACK_UNICORN:
+        unsupported('a horn from a dead unicorn');
+        break;
+    case PM_LONG_WORM:
+        unsupported("a dead long worm's tooth");
+        break;
+    case PM_VAMPIRE:
+    case PM_VAMPIRE_LEADER:
+        unsupported("a dead vampire's old corpse");
+        break;
+    case PM_KOBOLD_MUMMY:
+    case PM_DWARF_MUMMY:
+    case PM_GNOME_MUMMY:
+    case PM_ORC_MUMMY:
+    case PM_ELF_MUMMY:
+    case PM_HUMAN_MUMMY:
+    case PM_GIANT_MUMMY:
+    case PM_ETTIN_MUMMY:
+    case PM_KOBOLD_ZOMBIE:
+    case PM_DWARF_ZOMBIE:
+    case PM_GNOME_ZOMBIE:
+    case PM_ORC_ZOMBIE:
+    case PM_ELF_ZOMBIE:
+    case PM_HUMAN_ZOMBIE:
+    case PM_GIANT_ZOMBIE:
+    case PM_ETTIN_ZOMBIE:
+        unsupported("a dead mummy or zombie's old corpse");
+        break;
+    case PM_IRON_GOLEM:
+    case PM_GLASS_GOLEM:
+    case PM_CLAY_GOLEM:
+    case PM_STONE_GOLEM:
+    case PM_WOOD_GOLEM:
+    case PM_ROPE_GOLEM:
+    case PM_LEATHER_GOLEM:
+    case PM_GOLD_GOLEM:
+    case PM_PAPER_GOLEM:
+        unsupported("the pieces of a dead golem");
+        break;
+    case PM_GRAY_OOZE:
+    case PM_BROWN_PUDDING:
+    case PM_GREEN_SLIME:
+    case PM_BLACK_PUDDING:
+        unsupported('a glob left by a dead pudding');
+        break;
+    default:
+        break;
+    }
+
+    /* default_1: */
+    if (state.svm.mvitals[mndx].mvflags & G_NOCORPSE) return null;
+    corpstatflags |= CORPSTAT_INIT;
+    /* "preserve the unique traits of some creatures" */
+    const obj = mkcorpstat(
+        CORPSE,
+        KEEPTRAITS(mtmp, state) ? mtmp : null,
+        mdat,
+        x,
+        y,
+        corpstatflags,
+        { ...env, state },
+    );
+
+    /* "All special cases should precede the G_NOCORPSE check" */
+    if (!obj) return null;
+
+    /* "if polymorph or undead turning has killed this monster, prevent the
+        same attack beam from hitting its corpse" */
+    if (state.context?.bypasses)
+        unsupported('a corpse left inside a polymorph or undead-turning beam');
+
+    if (has_mgivenname(mtmp)) unsupported("a named monster's corpse");
+
+    /*  "Avoid 'It was hidden under a green mold corpse!' during Blind combat.
+     *  An unseen monster referred to as 'it' could be killed and leave a
+     *  corpse." */
+    if (heroIsBlind(state) && !sensesMonster(mtmp, state)) clear_dknown(obj);
+
+    /* "'obj' remains valid if stacking happens" */
+    stackobj(obj, objectGenerationEnv({ ...env, state }));
+    killRedraw(x, y, { ...env, state });
+    /* "in case the corpse was placed at a different spot from where the
+        monster was (not expected to happen)" */
+    if (obj.ox !== x || obj.oy !== y)
+        killRedraw(obj.ox, obj.oy, { ...env, state });
+    return obj;
+}
+
+// C ref: mon.c killed() (3469-3473).
+export async function killed(mtmp, state = game, env = {}) {
+    await xkilled(mtmp, XKILL_GIVEMSG, state, env);
+}
+
+// C ref: mon.c xkilled() (3476-3740). "the player has killed the monster
+// mtmp". `xkill_flags` is 1 to suppress the message, 2 the corpse and 4 the
+// conduct; killed() passes 0 and is the only caller wired here.
+//
+// Two random-number calls sit between the kill message and experience(), and
+// an ordinary kill makes both: the `!rn2(6)` treasure drop at 3587 and
+// corpse_chance()'s closing rn2(tmp) at 3248. That is why this function cannot
+// be ported in halves -- stopping short of either desyncs the stream for the
+// rest of the turn.
+//
+// Ten arms stop, each guarded by exactly C's condition and each placed above
+// the first draw, message or object on its path:
+//
+//   3514-3522  the pit arms, which suppress the drop under a boulder about to
+//              fall in and bury the corpse under one the monster carried.
+//   3524-3526  EDOG()->killed_by_u, for a pet that now knows its killer.
+//   3528-3541  mpickobj(), handing a thrown missile to the engulfer it killed.
+//   3546-3547  monstone(), for a monster killed by petrification, and with it
+//              the gs.stoned cleanup at 3569-3572.
+//   3552-3561  the life-saved return and its "Maybe not..." message.
+//   3563-3564  the sad feeling for a pet killed out of sight.
+//   3577-3581  the mail daemon's scroll of mail. include/global.h:430 defines
+//              MAIL_STRUCTURES unconditionally, so the arm is compiled.
+//   3632-3640  spoteffects(), which expels the hero from a dead engulfer.
+//   3648-3663  the murder punishment, which needs the intrinsic-telepathy
+//              clear at 3658 and display.c see_monsters().
+//   3666-3669  the guilt for killing a co-aligned unicorn.
+//   3677-3722  the quest leader, nemesis, guardian, priest, tame and peaceful
+//              alignment arms, every one of which reaches attrib.c adjalign()
+//              with a negative argument.
+//
+// C's `goto cleanup` at 3571 and 3575 becomes the `if (!skipCleanup)` block
+// below; the newsym() at 3642 belongs to the skipped part, not to cleanup.
+export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
+    const unsupported = requiredKillOperation(env, 'unsupported');
+    const message = requiredKillOperation(env, 'message');
+    const random = env.random ?? { d, rn1, rn2, rnd, rne };
+    const x = mtmp.mx;
+    const y = mtmp.my;
+    const wasinside = engulfing_u(mtmp, state);
+    const nomsg = (xkill_flags & XKILL_NOMSG) !== 0;
+    const nocorpse = (xkill_flags & XKILL_NOCORPSE) !== 0;
+    const noconduct = (xkill_flags & XKILL_NOCONDUCT) !== 0;
+
+    /* "potential pet message; always clear global flag" */
+    const be_sad = state.iflags?.sad_feeling;
+    state.iflags ??= {};
+    state.iflags.sad_feeling = false;
+
+    mtmp.mhp = 0; /* "caller will usually have already done this" */
+    if (!noconduct) { /* "KMH, conduct" */
+        /* C's livelog_printf() for the first kill writes a file this port
+           cannot write; js/eat.js:1479 records the same treatment. */
+        state.u.uconduct.killer++;
+    }
+    if (!nomsg) {
+        if (mtmp.mtame) unsupported('the kill message for a pet');
+        await message(
+            `You ${nonliving(mtmp.data) ? 'destroy' : 'kill'} `
+            + `${!(wasinside || canSpotMonster(mtmp, state))
+                ? 'it' : monsterCommonName(mtmp, state)}!`,
+            state,
+        );
+    }
+
+    if (mtmp.mtrapped) {
+        const t = t_at(x, y, state);
+        if (t && is_pit(t.ttyp))
+            unsupported('killing a trapped monster in a pit');
+    }
+
+    /* "your pet knows who just killed it...watch out" */
+    if (mtmp.mtame && !mtmp.isminion)
+        unsupported('a pet that learns who killed it');
+
+    if (wasinside && state.gt?.thrownobj && state.gt.thrownobj !== state.uball
+        /* "don't give to mon if missile is going to be destroyed" */
+        && state.gt.thrownobj.oclass !== POTION_CLASS
+        /* "don't give to mon if missile is going to return to hero" */
+        && state.gt.thrownobj !== state.iflags?.returning_missile) {
+        unsupported('a thrown missile handed to the engulfer it killed');
+    }
+
+    /* "dispose of monster and make cadaver" */
+    if (state.gs?.stoned) unsupported('a monster killed by petrification');
+    await mondead(mtmp, state, env);
+
+    if (mtmp.mhp >= 1) /* !DEADMONSTER(): "monster lifesaved" */
+        unsupported('a monster that survived being killed');
+
+    if (be_sad) unsupported('the sad feeling for a lost pet');
+
+    const mdat = mtmp.data; /* "note: mondead can change mtmp->data" */
+    const mndx = monsndx(mdat);
+
+    const skipCleanup = nocorpse
+        || LEVEL_SPECIFIC_NOCORPSE(mdat, state, random);
+    if (!skipCleanup) {
+        if (mdat === state.mons[PM_MAIL_DAEMON])
+            unsupported("the mail daemon's scroll of mail");
+        if (accessible(x, y, state) || is_pool(x, y, state)) {
+            /* "illogical but traditional 'treasure drop'" */
+            if (!random.rn2(6)
+                && !(state.svm.mvitals[mndx].mvflags & G_NOCORPSE)
+                /* "no extra item from swallower or steed" */
+                && (x !== state.u.ux || y !== state.u.uy)
+                /* "no extra item from kops--too easy to abuse" */
+                && mdat.mlet !== S_KOP
+                /* "no items from cloned monsters" */
+                && !mtmp.mcloned) {
+                const dropEnv = { ...env, state, random };
+                const otmp = mkobj(RANDOM_CLASS, true,
+                                   objectGenerationEnv(dropEnv));
+                /* "don't create large objects from small monsters" */
+                const otyp = otmp.otyp;
+                if (otmp.oclass === FOOD_CLASS
+                    && !(mdat.mflags2 & M2_COLLECT)
+                    && !otmp.oartifact) {
+                    /* "don't drop newly created permafood from kills, unless
+                        the monster collects food; it creates too much
+                        nutrition in the late game" */
+                    delobj(otmp, dropEnv);
+                } else if (mdat.msize < MZ_MEDIUM /* MZ_HUMAN */
+                           && otyp !== FIGURINE
+                           /* "oc_big is also oc_bimanual and oc_bulky" */
+                           && (otmp.owt > 30
+                               || objectType(otyp, state).oc_big)) {
+                    if (otmp.oartifact) { /* "un-create" */
+                        artifact_exists(otmp, safe_oname(otmp), false,
+                                        ONAME_NO_FLAGS, state);
+                    }
+                    delobj(otmp, dropEnv);
+                } else if (!flooreffects(otmp, x, y, nomsg ? '' : 'fall',
+                                         dropEnv)) {
+                    place_object(otmp, x, y, dropEnv);
+                    stackobj(otmp, objectGenerationEnv(dropEnv));
+                }
+            }
+            /* "corpse--none if hero was inside the monster" */
+            if (!wasinside && corpse_chance(mtmp, null, false, state, env)) {
+                /* gz.zombify decides whether mkobj.c start_corpse_timeout()
+                   turns the corpse into a zombie; js/corpstat.js and
+                   js/timeout.js read it and this is its only writer. */
+                state.gz ??= {};
+                state.gz.zombify = Boolean(
+                    !state.gt?.thrownobj && !state.gs?.stoned && !state.uwep
+                    && zombie_maker(state.youmonst)
+                    && zombie_form(mtmp.data) !== NON_PM,
+                );
+                make_corpse(mtmp, CORPSTAT_NONE, state, env);
+                state.gz.zombify = false; /* "reset" */
+            }
+        }
+
+        if (wasinside) unsupported('being expelled from a dead engulfer');
+        /* "monster is gone, corpse or other object might now be visible" */
+        killRedraw(x, y, { ...env, state });
+    }
+
+    /* cleanup: "Punish bad behavior." */
+    if (is_human(mdat)
+        && (!always_hostile(mdat) && mtmp.malign <= 0)
+        /* "exclude role monsters" */
+        && (mndx < PM_ARCHEOLOGIST || mndx > PM_WIZARD)
+        /* "exclude plain 'human', which isn't flagged as always hostile" */
+        && mndx !== PM_HUMAN
+        /* "only applicable if hero is lawful or neutral" */
+        && state.u.ualign.type !== A_CHAOTIC) {
+        unsupported('the murder penalty for killing a human');
+    }
+    if ((mtmp.mpeaceful && !random.rn2(2)) || mtmp.mtame)
+        change_luck(-1, state);
+    if (is_unicorn(mdat)
+        && Math.sign(state.u.ualign.type) === Math.sign(mdat.maligntyp)) {
+        unsupported('the guilt for killing a co-aligned unicorn');
+    }
+
+    /* "give experience points" */
+    const tmp = experience(mtmp, state.svm.mvitals[mndx].died, state);
+    more_experienced(tmp, 0, state);
+    await newexplevel(state, env); /* "will decide if you go up" */
+
+    /* "adjust alignment points" */
+    if (state.svq?.quest_status?.leader_m_id
+        && mtmp.m_id === state.svq.quest_status.leader_m_id)
+        unsupported('killing the quest leader');
+    else if (mdat.msound === MS_NEMESIS)
+        unsupported('killing the quest nemesis');
+    else if (mdat.msound === MS_GUARDIAN)
+        unsupported('killing a quest guardian');
+    else if (mtmp.ispriest) unsupported('killing a priest');
+    else if (mtmp.mtame) unsupported('killing a pet');
+    else if (mtmp.mpeaceful) unsupported('killing a peaceful monster');
+
+    /* "malign was already adjusted for u.ualign.type and randomization" */
+    adjalign(mtmp.malign, state);
 }

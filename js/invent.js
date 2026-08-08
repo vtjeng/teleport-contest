@@ -74,6 +74,7 @@ import {
     W_QUIVER,
 } from './const.js';
 import { ART_MJOLLNIR } from './artifacts.js';
+import { obj_resists } from './bury.js';
 import { yn_function } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
@@ -1346,6 +1347,38 @@ export function obj_extract_self(obj, env = {}) {
     default:
         throw new RangeError(`obj_extract_self: invalid where=${obj.where}`);
     }
+}
+
+// C ref: invent.c delobj() (1428-1433). "normal object deletion (if unpaid, it
+// remains on the bill)".
+export function delobj(obj, env = {}) {
+    delobj_core(obj, false, env);
+}
+
+// C ref: invent.c delobj_core() (1435-1462). `force` is TRUE only when
+// reviving a Rider corpse, so every call this port makes passes FALSE and
+// spends zap.c obj_resists()'s rn2(100) before deleting anything.
+//
+// 1457-1460's map update stops. It needs mon.c maybe_unhide_at(), which
+// js/teleport.js:962 records as unported, and it is reached only for a floor
+// object; the one wired caller, mon.c xkilled()'s treasure drop, hands over an
+// object mkobj() has just made and never placed, so obj->where is OBJ_FREE.
+// The refusal sits above obj_extract_self() so a floor object cannot be
+// unlinked and then stranded.
+export function delobj_core(obj, force, env = {}) {
+    const normalized = inventoryEnv(env);
+    /* "obj_resists(obj,0,0) protects the Amulet, the invocation tools,
+        and Rider corpses" */
+    if (!force && obj_resists(obj, 0, 0, normalized)) {
+        obj.in_use = 0; /* "in case caller has set this to 1" */
+        return;
+    }
+    /* "floor object's coordinates are always up to date" */
+    const update_map = (obj.where === OBJ_FLOOR);
+    if (update_map)
+        throw new UnsupportedObjectOperationError('delobjFloorUnhide', obj);
+    obj_extract_self(obj, normalized);
+    obfree(obj, null, normalized); /* "frees contents also" */
 }
 
 function hasTextExtra(obj, field) {

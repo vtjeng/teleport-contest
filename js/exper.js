@@ -1,14 +1,36 @@
 // exper.js — experience and spell-energy advancement.
-// C ref: src/exper.c newuexp(), enermod(), newpw(), more_experienced(),
-// newexplevel(), and pluslvl().
+// C ref: src/exper.c newuexp(), enermod(), newpw(), experience(),
+// more_experienced(), newexplevel(), and pluslvl().
 
-import { A_WIS, MAXULEV, Upolyd } from './const.js';
+import {
+    A_WIS,
+    MAGICAL_BREATHING,
+    MAXULEV,
+    NATTK,
+    NORMAL_SPEED,
+    Upolyd,
+} from './const.js';
 import { adjabil, effective_attribute, newhp, setuhpmax } from './attrib.js';
 import { exp_percent_changing, xlev_to_rank } from './display.js';
 import { game } from './gstate.js';
 import { achieve_rank, record_achievement } from './insight.js';
-import { PM_WIZARD } from './monsters.js';
+import { amphibious, extra_nasty } from './mondata.js';
+import {
+    AD_BLND,
+    AD_DRLI,
+    AD_PHYS,
+    AD_SLIM,
+    AD_STON,
+    AD_WRAP,
+    AT_BUTT,
+    AT_MAGC,
+    AT_WEAP,
+    PM_MAIL_DAEMON,
+    PM_WIZARD,
+    S_EEL,
+} from './monsters.js';
 import { rn1, rnd } from './rng.js';
+import { find_mac } from './worn.js';
 
 function advancementValue(advance, field) {
     return Math.trunc(advance?.[field] ?? 0);
@@ -75,6 +97,92 @@ export function newpw(state = game, random = { rn1, rnd }) {
         if (energy > limit) energy = limit;
     }
     return energy;
+}
+
+// C ref: youprop.h Amphibious() (272-273). Upolyd() is constantly false in
+// this port, so gy.youmonst.data is the role's own species and amphibious()
+// answers for it directly.
+function Amphibious(state) {
+    const breathing = state.u?.uprops?.[MAGICAL_BREATHING];
+    return Boolean(breathing?.intrinsic)
+        || Boolean(breathing?.extrinsic)
+        || amphibious(state.youmonst?.data);
+}
+
+// C ref: exper.c experience() (84-166). The experience points one kill is
+// worth. It draws nothing, prints nothing and changes nothing: every term
+// reads the dead monster's species record, its level, and its armor class.
+//
+// `nk` is svm.mvitals[mndx].died, which mondead() has already incremented, so
+// the current kill is included in the count. It matters only for a revived or
+// cloned monster, whose reward halves every so many kills of its species.
+export function experience(mtmp, nk, state = game) {
+    const ptr = mtmp.data;
+    let i;
+    let tmp;
+    let tmp2;
+
+    tmp = 1 + mtmp.m_lev * mtmp.m_lev;
+
+    /*  "For higher ac values, give extra experience" */
+    if ((i = find_mac(mtmp, state)) < 3)
+        tmp += (7 - i) * ((i < 0) ? 2 : 1);
+
+    /*  "For very fast monsters, give extra experience" */
+    if (ptr.mmove > NORMAL_SPEED)
+        tmp += (ptr.mmove > Math.trunc(3 * NORMAL_SPEED / 2)) ? 5 : 3;
+
+    /*  "For each 'special' attack type give extra experience" */
+    for (i = 0; i < NATTK; i++) {
+        tmp2 = ptr.mattk[i].aatyp;
+        if (tmp2 > AT_BUTT) {
+            if (tmp2 === AT_WEAP) tmp += 5;
+            else if (tmp2 === AT_MAGC) tmp += 10;
+            else tmp += 3;
+        }
+    }
+
+    /*  "For each 'special' damage type give extra experience" */
+    for (i = 0; i < NATTK; i++) {
+        tmp2 = ptr.mattk[i].adtyp;
+        if (tmp2 > AD_PHYS && tmp2 < AD_BLND) tmp += 2 * mtmp.m_lev;
+        else if (tmp2 === AD_DRLI || tmp2 === AD_STON || tmp2 === AD_SLIM)
+            tmp += 50;
+        else if (tmp2 !== AD_PHYS) tmp += mtmp.m_lev;
+        /* "extra heavy damage bonus" */
+        if (ptr.mattk[i].damd * ptr.mattk[i].damn > 23) tmp += mtmp.m_lev;
+        if (tmp2 === AD_WRAP && ptr.mlet === S_EEL && !Amphibious(state))
+            tmp += 1000;
+    }
+
+    /*  "For certain 'extra nasty' monsters, give even more" */
+    if (extra_nasty(ptr)) tmp += 7 * mtmp.m_lev;
+
+    /*  "For higher level monsters, an additional bonus is given" */
+    if (mtmp.m_lev > 8) tmp += 50;
+
+    /* "Mail daemons put up no fight." global.h:430 defines MAIL_STRUCTURES
+       unconditionally, so this arm is compiled even though MAIL is not. */
+    if (ptr === state.mons[PM_MAIL_DAEMON]) tmp = 1;
+
+    if (mtmp.mrevived || mtmp.mcloned) {
+        /*
+         * "Reduce experience awarded for repeated killings of 'the same
+         * monster'.  Kill count includes all of this monster's type which
+         * have been killed--including the current monster--regardless of
+         * how they were created."
+         *    1.. 20  full experience    81..120  xp / 8    241..255+  xp / 64
+         *   21.. 40  xp / 2            121..180  xp / 16
+         *   41.. 80  xp / 4            181..240  xp / 32
+         */
+        for (i = 0, tmp2 = 20; nk > tmp2 && tmp > 1; ++i) {
+            tmp = Math.trunc((tmp + 1) / 2);
+            nk -= tmp2;
+            if (i & 1) tmp2 += 20;
+        }
+    }
+
+    return tmp;
 }
 
 // Thrown where exper.c reaches an experience branch this port has not ported.

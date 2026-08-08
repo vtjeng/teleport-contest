@@ -228,6 +228,13 @@ export function likes_objs(species) {
     return flag2(species, M.M2_COLLECT) || attacktype(species, M.AT_WEAP);
 }
 export function likes_magic(species) { return flag2(species, M.M2_MAGIC); }
+export function extra_nasty(species) { return flag2(species, M.M2_NASTY); }
+export function always_hostile(species) {
+    return flag2(species, M.M2_HOSTILE);
+}
+export function always_peaceful(species) {
+    return flag2(species, M.M2_PEACEFUL);
+}
 export function is_covetous(species) { return flag3(species, M.M3_COVETOUS); }
 export function is_displacer(species) { return flag3(species, M.M3_DISPLACES); }
 export function type_is_pname(species) { return flag2(species, M.M2_PNAME); }
@@ -959,6 +966,26 @@ export function is_unicorn(ptr) {
 // C ref: mondata.h is_reviver().
 export function is_reviver(ptr) {
     return is_rider(ptr) || ptr?.mlet === M.S_TROLL;
+}
+
+// C ref: mondata.h unique_corpstat() (174). "unique" here also covers the
+// Wizard and any High Priest, which are not literally one of a kind.
+export function unique_corpstat(ptr) {
+    return Boolean(ptr?.geno & M.G_UNIQ);
+}
+
+// C ref: mondata.h emits_light() (178-185). Every luminous form listed there
+// has range one; the second conditional exists only because the macro once
+// gave the last two a wider range.
+export function emits_light(ptr) {
+    return ptr?.mlet === M.S_LIGHT
+        || ptr?.pmidx === M.PM_FLAMING_SPHERE
+        || ptr?.pmidx === M.PM_SHOCKING_SPHERE
+        || ptr?.pmidx === M.PM_BABY_GOLD_DRAGON
+        || ptr?.pmidx === M.PM_FIRE_VORTEX
+        ? 1
+        : (ptr?.pmidx === M.PM_FIRE_ELEMENTAL
+            || ptr?.pmidx === M.PM_GOLD_DRAGON) ? 1 : 0;
 }
 
 function isElf(ptr) {

@@ -963,6 +963,43 @@ export async function exerchk(state = game, env = {}) {
     return true;
 }
 
+// C ref: align.h ALIGNLIM (17). The ceiling on u.ualign.record, which rises
+// by one every 200 moves.
+export function ALIGNLIM(state = game) {
+    return 10 + Math.trunc((state.moves ?? 0) / 200);
+}
+
+// C ref: attrib.c adjalign() (1297-1316). "avoid possible problems with
+// alignment overflow, and provide a centralized location for any future
+// alignment limits". A gain raises u.ualign.record toward ALIGNLIM; a loss
+// lowers it without a floor and separately raises u.ualign.abuse, which never
+// falls.
+//
+// The whole `n < 0` arm stops. Its second half calls mon.c adj_erinys(), which
+// permanently rewrites mons[PM_ERINYS] -- flags, attacks, level and difficulty
+// -- and restore.c:727 replays that rewrite from u.ualign.abuse on every
+// restore because it is derived rather than saved. This port has no owner for
+// that replay, so porting the mutation alone would leave a species record that
+// survives one segment and reverts at the next. The refusal sits above both
+// writes rather than at C's call, and its condition is C's: `newabuse` is
+// `u.ualign.abuse - n` with `n < 0` and `abuse` unsigned, so 1305's
+// `newabuse > u.ualign.abuse` cannot fail and every negative `n` reaches
+// adj_erinys().
+export function adjalign(n, state = game) {
+    const u = state.u;
+    const newalign = u.ualign.record + n;
+
+    if (n < 0) {
+        throw new UnsupportedAbilityChangeError(
+            'adjalign() with a loss, which reaches mon.c adj_erinys()',
+        );
+    } else if (newalign > u.ualign.record) {
+        u.ualign.record = newalign;
+        if (u.ualign.record > ALIGNLIM(state))
+            u.ualign.record = ALIGNLIM(state);
+    }
+}
+
 function confersLuck(object, state) {
     if (object.otyp === LUCKSTONE) return true;
     if (!object.oartifact) return false;

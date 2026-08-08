@@ -4,6 +4,7 @@ import {
     ART_CLEAVER,
     ART_OGRESMASHER,
     ART_SNICKERSNEE,
+    ART_TROLLSBANE,
     artifact_light,
     permapoisoned,
 } from './artifacts.js';
@@ -43,7 +44,7 @@ import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import { doorless_door } from './hack.js';
 import { sgn } from './hacklib.js';
-import { wakeup } from './mon.js';
+import { killed, wakeup } from './mon.js';
 import {
     amorphous,
     attacktype,
@@ -83,6 +84,7 @@ import {
     S_EYE,
     S_FUNGUS,
     S_LEPRECHAUN,
+    S_TROLL,
 } from './monsters.js';
 import {
     is_ammo,
@@ -218,8 +220,10 @@ export function attack_checks(mtmp, wep, state = game, env = {}) {
 
 // C ref: uhitm.c check_caitiff() (330-347). A Knight who strikes a helpless or
 // fleeing target, or a Samurai who strikes a peaceful one, loses an alignment
-// point. Both arms need attrib.c adjalign(), which has no port, so both stop.
-// Every other hero runs the whole function and changes nothing.
+// point. Both arms call attrib.c adjalign(-1), and adjalign()'s loss arm stops
+// because it reaches mon.c adj_erinys(); the refusals stay here so the reason
+// names the Knight and the Samurai rather than the alignment helper. Every
+// other hero runs the whole function and changes nothing.
 export function check_caitiff(mtmp, state = game, env = {}) {
     const u = state.u;
     if (u.ualign.record <= -10) return;
@@ -1132,7 +1136,19 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     if (hmd.lightobj) unsupported('a light-source hit message');
 
     if (hmd.destroyed) {
-        unsupported('killing a monster in melee');
+        if (!hmd.already_killed) {
+            /* monst.h troll_baned() (246-247). Only Trollsbane sets
+               gm.mkcorpstat_norevive, and js/corpstat.js mkcorpstat() reads
+               it; a hero not wielding that artifact leaves it FALSE. */
+            if (mon.data.mlet === S_TROLL && obj
+                && obj.oartifact === ART_TROLLSBANE) {
+                state.gm ??= {};
+                state.gm.mkcorpstat_norevive = true;
+            }
+            await killed(mon, state, env); /* "takes care of most messages" */
+            state.gm ??= {};
+            state.gm.mkcorpstat_norevive = false;
+        }
     } else if (state.u.umconf && hmd.hand_to_hand) {
         unsupported('a confusing touch');
     }

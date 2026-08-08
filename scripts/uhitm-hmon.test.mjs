@@ -61,10 +61,12 @@ import {
     PM_WATCH_CAPTAIN,
     PM_WATCHMAN,
     PM_XORN,
+    NON_PM,
 } from '../js/monsters.js';
 import {
     ARROW,
     BOW,
+    CORPSE,
     BULLWHIP,
     DART,
     KATANA,
@@ -139,6 +141,12 @@ function refusesAsync(fn, reason, label) {
 // that uhitm.c:1852's cap changes nothing.
 function target(pmidx = PM_LICHEN, overrides = {}) {
     return newMonster({
+        // newMonster() is decl.c cg.zeromonst, whose cham is 0; makemon.c:1355
+        // overwrites that with NON_PM for every monster the game creates, and
+        // mon.c mondead():3111 reads it through ismnum(), for which 0 is the
+        // valid index of the first species. A fixture that skipped makemon()
+        // would therefore turn into a giant ant on death.
+        cham: NON_PM,
         mx: game.u.ux + 1,
         my: game.u.uy,
         mhp: 99,
@@ -163,10 +171,16 @@ function hitEnv({ rolls = [], fallback = 1, ...overrides } = {}) {
     const env = {
         message: async (text) => { lines.push(text); },
         unsupported: (reason) => { throw new Error(reason); },
+        // A kill reaches mkobj.c mksobj() and its corpse timer, which need
+        // the whole family, so the recorder answers all six rather than the
+        // three a surviving blow uses.
         random: {
             d: (n, x) => next(`d(${n},${x})`),
+            rn1: (x, from) => next(`rn1(${x},${from})`) + from,
             rn2: (bound) => next(`rn2(${bound})`),
             rnd: (bound) => next(`rnd(${bound})`),
+            rne: (bound) => next(`rne(${bound})`),
+            rnz: (bound) => next(`rnz(${bound})`),
         },
         ...overrides,
     };
@@ -300,21 +314,41 @@ test('hmon_hitmon_msg_hit picks its verb and its punctuation', async () => {
 // for: a blow that killed says nothing here, because killed() speaks instead.
 test('hmon_hitmon_msg_hit says nothing about a fatal blow', async () => {
     await hero();
-    // Two points against a two-point target. The message is suppressed and
-    // uhitm.c:1911 stops on killed() instead.
+    // Two points against a two-point target. "You hit the lichen." is
+    // suppressed and mon.c xkilled():3506 supplies the only line.
     const env = hitEnv({ rolls: [2] });
-    await refusesAsync(
-        () => hmon(target(PM_LICHEN, { mhp: 2, mhpmax: 2 }), game.uwep,
-                   HMON_MELEE, 10, game, env),
-        'killing a monster in melee',
-    );
-    assert.deepEqual(env.lines, []);
+    await hmon(target(PM_LICHEN, { mhp: 2, mhpmax: 2 }), game.uwep,
+               HMON_MELEE, 10, game, env);
+    assert.deepEqual(env.lines, ['You kill the lichen!']);
 
-    // One more hit point and the same blow speaks.
+    // One more hit point and the same blow speaks here instead.
     const survives = hitEnv({ rolls: [2] });
     await hmon(target(PM_LICHEN, { mhp: 3, mhpmax: 3 }), game.uwep,
                HMON_MELEE, 10, game, survives);
     assert.deepEqual(survives.lines, ['You hit the lichen.']);
+});
+
+// uhitm.c:1904-1910 and monst.h troll_baned() (246-247). gm.mkcorpstat_norevive
+// is what mkobj.c mkcorpstat() reads to mark a corpse that must not come back,
+// and only a wielded Trollsbane against an S_TROLL sets it. The flag is cleared
+// again after killed() either way.
+test('an ordinary kill leaves the corpse revivable', async () => {
+    await hero();
+    // A Healer's scalpel is no artifact and a lichen is no troll, so 1906's
+    // guard fails on both conjuncts and gm.mkcorpstat_norevive stays FALSE
+    // through mkcorpstat() and after the clear at 1909.
+    const mon = target(PM_LICHEN, { mhp: 2, mhpmax: 2 });
+    // rn2(6)=1 declines the drop and rn2(2)=0 leaves the corpse.
+    const env = hitEnv({ rolls: [2, 1, 0] });
+    await hmon(mon, game.uwep, HMON_MELEE, 10, game, env);
+    assert.deepEqual(env.lines, ['You kill the lichen!']);
+
+    let corpse = null;
+    for (let obj = game.level.objects[mon.mx][mon.my]; obj; obj = obj.nexthere)
+        if (obj.otyp === CORPSE) corpse = obj;
+    assert.ok(corpse, 'the kill left a corpse');
+    assert.equal(corpse.norevive, false, 'no Trollsbane, so it may revive');
+    assert.equal(game.gm.mkcorpstat_norevive, false, 'cleared after the kill');
 });
 
 // uhitm.c:1826-1831. The three arms are exclusive and both live ones need
@@ -363,15 +397,15 @@ test('the stagger and knockback arms divide by hand and by damage',
 // eagerly would spend two calls on every kill.
 test('a fatal blow never reaches mhitm_knockback', async () => {
     await hero();
-    const env = hitEnv({ rolls: [3] });
-    await refusesAsync(
-        () => hmon(target(PM_LICHEN, { mhp: 3, mhpmax: 3 }), game.uwep,
-                   HMON_MELEE, 10, game, env),
-        'killing a monster in melee',
-    );
-    // The damage die alone: the rn2(3) and rn2(6) a survivor would have cost
-    // are absent.
-    assert.deepEqual(env.bounds, ['rnd(3)']);
+    // rn2(6)=1 declines xkilled()'s treasure drop and rn2(2)=1 declines the
+    // lichen's corpse, so the kill costs exactly two calls after the die.
+    const env = hitEnv({ rolls: [3, 1, 1] });
+    await hmon(target(PM_LICHEN, { mhp: 3, mhpmax: 3 }), game.uwep,
+               HMON_MELEE, 10, game, env);
+    // The damage die and the kill's own pair. The rn2(3) mhitm_knockback()
+    // opens with is absent, which is the whole point: reading maybe_knockback
+    // eagerly would put it between the die and the rn2(6).
+    assert.deepEqual(env.bounds, ['rnd(3)', 'rn2(6)', 'rn2(2)']);
 });
 
 // uhitm.c mhitm_knockback() (5245-5372). Its guard chain runs after the two

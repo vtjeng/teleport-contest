@@ -1046,6 +1046,15 @@
       "status": "open",
       "from": "d1353b6e6b4e54c6ac3212dd8d641df2c163ff14",
       "detail": "The hack.c overexert_hp() port at js/hack.js closed finding 3 of the eed732b3..5168910 correctness pass without a fresh C differential, on the orchestrator's authorization, because no ported command can reach the branch.\n\nC's overexert_hp() (3035-3047) decrements one hit point and sets disp.botl when uhp > 1, and prints, exercises Constitution and calls fall_asleep() when uhp <= 1. The port previously refused both arms, and refused after gethungry() had already spent rn2(20) and mutated u.uhunger, which is a refusal placed after a draw and a state change. The common arm is now ported and only uhp <= 1 refuses.\n\nThe branch needs the hero at Stressed encumbrance or worse on a turn where moves % 3 is nonzero. Every route there is closed today: hold_another_object() at js/invent.js:2600 drops a wished object that crosses the limit, \",\" is not admitted, autopickup applies the same test, and pickup_burden is unparsed, which is recorded separately as pickup-burden-option-has-no-parser. Confirmed empirically -- a third plate mail wish stops at \"held object dropped\".\n\nWhat stands in for the differential: the C trace of 3035-3047; scripts/melee-upkeep.test.mjs pinning both arms against values read from that source; scripts/allmain-turn.test.mjs driving the real moveloop_core() through four cadence rows including one where the hit point is actually paid; and all four mutants on the changed lines killed. The development score is unchanged by this fix alone, measured before the two-weapon fix landed in the same session.\n\nClosing condition: a fresh C differential over a hero at Stressed encumbrance, recordable once any of the routes above opens. Whoever ports encumbrance-raising pickup should take this with it."
+    },
+    {
+      "id": "dead-monster-drops-equipped-gear",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "561f6f1457d21896ede4416ae6f2512703c29eb2",
+      "detail": "steal.c mdrop_obj() (812-846) stops at js/steal.js:232 when the object it is dropping still has an owornmask, which mon.c m_detach():2779 relobj() reaches for every monster that dies wearing or wielding something. A port-side scan behind scripts/run-hostile-melee-kill.mjs hit it on 11 of 216 seeds whose hero started next to a hostile, so roughly one melee kill in twenty stops there. C's own handling is small: worn.c extract_from_minvent() already takes the unwornmask apart and is ported, and mdrop_obj()'s trailing update_mon_extrinsics() at 845 is skipped for a dead monster because DEADMONSTER() is true. What remains unported beneath it is worn.c mwepgone() and the saddle no_charge arm at 819-824. Fixing it needs those two plus a fresh differential over a seed whose target dies armed."
     }
   ],
   "areas": [

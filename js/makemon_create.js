@@ -113,6 +113,7 @@ import {
 } from './makemon.js';
 import {
     can_be_hatched,
+    emits_light,
     is_female,
     is_giant,
     is_male,
@@ -156,7 +157,6 @@ import {
     NON_PM,
     LOW_PM,
     PM_ARCHEOLOGIST,
-    PM_BABY_GOLD_DRAGON,
     PM_BLACK_LIGHT,
     PM_BLACK_UNICORN,
     PM_CAVE_SPIDER,
@@ -168,9 +168,6 @@ import {
     PM_DEMILICH,
     PM_DWARF_RULER,
     PM_ELF,
-    PM_FIRE_ELEMENTAL,
-    PM_FIRE_VORTEX,
-    PM_FLAMING_SPHERE,
     PM_FOG_CLOUD,
     PM_FOX,
     PM_FOREST_CENTAUR,
@@ -212,7 +209,6 @@ import {
     PM_SEWER_RAT,
     PM_SHOPKEEPER,
     PM_SOLDIER,
-    PM_SHOCKING_SPHERE,
     PM_SKELETON,
     PM_SNAKE,
     PM_STALKER,
@@ -228,7 +224,6 @@ import {
     PM_WIZARD,
     PM_YELLOW_LIGHT,
     PM_YELLOW_MOLD,
-    PM_GOLD_DRAGON,
     SPECIAL_PM,
     S_CENTAUR,
     S_ELEMENTAL,
@@ -611,19 +606,6 @@ function setMimicCorpsenm(monster, value) {
     monster.mextra.mcorpsenm = value;
 }
 
-// C ref: mondata.h emits_light(). All currently listed luminous forms have
-// range one; keeping the explicit species list preserves the source predicate.
-function emitsLight(species) {
-    return species?.mlet === S_LIGHT
-        || species?.pmidx === PM_FLAMING_SPHERE
-        || species?.pmidx === PM_SHOCKING_SPHERE
-        || species?.pmidx === PM_BABY_GOLD_DRAGON
-        || species?.pmidx === PM_FIRE_VORTEX
-        || species?.pmidx === PM_FIRE_ELEMENTAL
-        || species?.pmidx === PM_GOLD_DRAGON
-        ? 1 : 0;
-}
-
 function permanentlyInvisible(species) {
     return species?.pmidx === PM_STALKER
         || species?.pmidx === PM_BLACK_LIGHT;
@@ -773,7 +755,7 @@ function place_worm_tail_randomly(monster, x, y, normalized) {
 
 // C ref: worm.c remove_worm(). This removes coordinate occupancy but retains
 // the segment record until wormgone() releases its slot.
-function remove_worm(monster, normalized) {
+export function remove_worm(monster, normalized) {
     const record = wormSlots(normalized.state)[monster.wormno];
     if (!record?.segments?.length)
         throw new Error('remove_worm requires an initialized tail');
@@ -787,7 +769,7 @@ function remove_worm(monster, normalized) {
 
 // C ref: worm.c wormgone(). remove_worm() has already cleared map occupancy
 // in mongone()'s m_detach path, so only the owned tail state remains here.
-function wormgone(monster, state) {
+export function wormgone(monster, state) {
     const wormno = monster.wormno;
     const slots = wormSlots(state);
     if (!wormno || !slots[wormno])
@@ -2275,10 +2257,18 @@ function monsterOnLevelChain(monster, state) {
     return false;
 }
 
-// C refs: mon.c mon_leaving_level(), m_detach(), and mongone(). This is the
-// level-generation subset used to discard a temporary monster after its
-// inventory has been transferred elsewhere. The dead monster stays linked on
-// level.monlist until dmonsfree(), just as C's fmon does.
+// C refs: mon.c mongone() (3266-3283), with mon_leaving_level() (2695-2730)
+// and m_detach() (2733-2803) merged into it for the due_to_death FALSE case.
+// This is the level-generation subset used to discard a temporary monster
+// after its inventory has been transferred elsewhere. The dead monster stays
+// linked on level.monlist until dmonsfree(), just as C's fmon does.
+//
+// js/mon.js holds the separate mon_leaving_level() and m_detach() the kill
+// path uses. This copy does not call them because m_detach() is async there
+// and the level build that reaches this function is synchronous throughout;
+// js/mon.js states the split in full above its killed() group. The two are
+// not interchangeable in the other direction either: the mimic reveal at
+// 2721-2722 is ported inline here and refused there.
 export function mongone(monster, env = {}) {
     const normalized = creationEnv(env);
     const { state } = normalized;
@@ -2299,7 +2289,7 @@ export function mongone(monster, env = {}) {
     monster.mhp = 0;
     discard_minvent(monster, false, normalized);
 
-    if (monster.mx > 0 && emitsLight(monster.data))
+    if (monster.mx > 0 && emits_light(monster.data))
         del_light_source(LS_MONSTER, monster, state);
 
     const onmap = isok(monster.mx, monster.my)
@@ -2500,8 +2490,8 @@ function apply_newcham_form(monster, target, normalized) {
 
     set_mon_data(monster, target);
 
-    const oldLight = emitsLight(olddata);
-    const newLight = emitsLight(target);
+    const oldLight = emits_light(olddata);
+    const newLight = emits_light(target);
     if (oldLight !== newLight) {
         if (oldLight)
             del_light_source(LS_MONSTER, monster, state);
@@ -2936,7 +2926,7 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
         && Math.sign(state.u.ualign.type) === Math.sign(ptr.maligntyp)) {
         monster.mpeaceful = true;
     }
-    const lightRange = emitsLight(monster.data);
+    const lightRange = emits_light(monster.data);
     if (lightRange) {
         new_light_source(
             monster.mx,

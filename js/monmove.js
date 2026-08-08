@@ -151,6 +151,7 @@ import {
     max_mon_load,
     mon_offmap,
     mpickstuff,
+    zombie_maker,
 } from './mon.js';
 import { can_carry } from './moncarry.js';
 import {
@@ -198,6 +199,7 @@ import {
     throws_rocks,
     touch_petrifies,
     tunnels,
+    unique_corpstat,
     unsolid,
     vegan,
     verysmall,
@@ -217,7 +219,6 @@ import {
     AD_RUST,
     AT_BREA,
     AT_WEAP,
-    G_UNIQ,
     MS_LEADER,
     MZ_SMALL,
     PM_ANGEL,
@@ -226,7 +227,6 @@ import {
     PM_ETTIN,
     PM_FLOATING_EYE,
     PM_FOG_CLOUD,
-    PM_GHOUL,
     PM_GREMLIN,
     PM_GRID_BUG,
     PM_HEZROU,
@@ -235,7 +235,6 @@ import {
     PM_MINOTAUR,
     PM_PURPLE_WORM,
     PM_SHRIEKER,
-    PM_SKELETON,
     PM_STALKER,
     PM_VROCK,
     PM_XORN,
@@ -245,11 +244,9 @@ import {
     S_GHOST,
     S_HUMAN,
     S_LEPRECHAUN,
-    S_LICH,
     S_LIGHT,
     S_NYMPH,
     S_VAMPIRE,
-    S_ZOMBIE,
 } from './monsters.js';
 import { searches_for_item } from './muse.js';
 import { isCandle, isContainer, objectType, sobj_at } from './obj.js';
@@ -843,18 +840,6 @@ function inWizardTower(x, y, state) {
         && y >= bounds.nly && y <= bounds.nhy;
 }
 
-function zombieMaker(monster, state) {
-    if (monster.mcan) return false;
-    if (monster.data?.mlet === S_LICH) return true;
-    if (monster.data?.mlet !== S_ZOMBIE) return false;
-    return !isSpecies(monster, PM_GHOUL, state)
-        && !isSpecies(monster, PM_SKELETON, state);
-}
-
-function uniqueCorpstat(species) {
-    return Boolean((species?.geno ?? 0) & G_UNIQ);
-}
-
 function mmTwoWayAggression(attacker, defender, state) {
     if (onWizardTowerLevel(state)) {
         const heroInside = inWizardTower(state.u?.ux, state.u?.uy, state);
@@ -866,12 +851,12 @@ function mmTwoWayAggression(attacker, defender, state) {
             return 0;
         }
     }
-    if (zombieMaker(attacker, state)
+    if (zombie_maker(attacker)
         && zombie_form(defender.data) >= 0) {
         if (attacker.mgenmklev && defender.mgenmklev) return 0;
         if (!on_level(state.u?.uz, state.stronghold_level)
-            && !uniqueCorpstat(attacker.data)
-            && !uniqueCorpstat(defender.data)) {
+            && !unique_corpstat(attacker.data)
+            && !unique_corpstat(defender.data)) {
             return ALLOW_M | ALLOW_TM;
         }
     }
@@ -1363,7 +1348,7 @@ export function onscary(x, y, monster, state = game) {
 
     if (magicalScare
         && (monster.data?.mlet === S_HUMAN
-            || Boolean(monster.data?.geno & G_UNIQ))) {
+            || unique_corpstat(monster.data))) {
         return false;
     }
 

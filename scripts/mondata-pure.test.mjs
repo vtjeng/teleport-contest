@@ -22,8 +22,12 @@ import test from 'node:test';
 import * as M from '../js/monsters.js';
 import { blankCommentsAndStrings } from './check-namespace-members.mjs';
 import {
+    always_hostile,
+    always_peaceful,
     big_little_match,
     breakarm,
+    emits_light,
+    extra_nasty,
     cantvomit,
     completelyburns,
     completelyrots,
@@ -36,6 +40,7 @@ import {
     hates_light,
     is_watch,
     is_wooden,
+    unique_corpstat,
     max_passive_dmg,
     mon_hates_blessings,
     mon_hates_light,
@@ -638,3 +643,60 @@ test('the two mseenres converters map their own key sets', () => {
     // STONE_RES (prop.h:22) has no arm, so it takes the default.
     assert.equal(cvt_prop_to_mseenres(8), 0x0000);
 });
+
+// mondata.h emits_light() (178-185), always_hostile() (116), always_peaceful()
+// (117), unique_corpstat() (174) and extra_nasty() (120). Each of the five had
+// a second copy elsewhere in js/ before mon.c's kill path needed it; these
+// expectations come from the macro and from the monsters.h entry for the
+// species, so a converged copy that answers differently is caught here rather
+// than at whichever caller happens to run first.
+test('the mondata.h predicates mon.c reads answer from the species record',
+    () => {
+        // emits_light() names seven forms and answers 1 for each. The macro's
+        // two conditionals both yield 1; the split is historical.
+        for (const pmidx of [
+            M.PM_FLAMING_SPHERE, M.PM_SHOCKING_SPHERE, M.PM_BABY_GOLD_DRAGON,
+            M.PM_FIRE_VORTEX, M.PM_FIRE_ELEMENTAL, M.PM_GOLD_DRAGON,
+        ]) {
+            assert.equal(
+                emits_light(M.MONSTER_TEMPLATES[pmidx]), 1, `${pmidx}`,
+            );
+        }
+        // S_LIGHT is a class rather than a species, so both of its members
+        // answer 1 too.
+        assert.equal(emits_light(M.MONSTER_TEMPLATES[M.PM_YELLOW_LIGHT]), 1);
+        assert.equal(emits_light(M.MONSTER_TEMPLATES[M.PM_BLACK_LIGHT]), 1);
+        // A gold dragon lights the level; the baby of every other colour does
+        // not, and neither does an ordinary animal.
+        assert.equal(emits_light(M.MONSTER_TEMPLATES[M.PM_BABY_RED_DRAGON]), 0);
+        assert.equal(emits_light(M.MONSTER_TEMPLATES[M.PM_RED_DRAGON]), 0);
+        assert.equal(emits_light(M.MONSTER_TEMPLATES[M.PM_JACKAL]), 0);
+        assert.equal(emits_light(null), 0);
+
+        // M2_HOSTILE and M2_PEACEFUL are independent bits: a kobold carries
+        // the first, a shopkeeper the second, and an acid blob neither.
+        assert.equal(always_hostile(M.MONSTER_TEMPLATES[M.PM_KOBOLD]), true);
+        assert.equal(always_peaceful(M.MONSTER_TEMPLATES[M.PM_KOBOLD]), false);
+        assert.equal(
+            always_peaceful(M.MONSTER_TEMPLATES[M.PM_SHOPKEEPER]), true,
+        );
+        assert.equal(
+            always_hostile(M.MONSTER_TEMPLATES[M.PM_SHOPKEEPER]), false,
+        );
+        assert.equal(
+            always_hostile(M.MONSTER_TEMPLATES[M.PM_ACID_BLOB]), false,
+        );
+        assert.equal(
+            always_peaceful(M.MONSTER_TEMPLATES[M.PM_ACID_BLOB]), false,
+        );
+
+        // G_UNIQ, which mon.c logdeadmon() and KEEPTRAITS() both read.
+        assert.equal(
+            unique_corpstat(M.MONSTER_TEMPLATES[M.PM_VLAD_THE_IMPALER]), true,
+        );
+        assert.equal(unique_corpstat(M.MONSTER_TEMPLATES[M.PM_NEWT]), false);
+
+        // M2_NASTY, which exper.c experience() multiplies by seven.
+        assert.equal(extra_nasty(M.MONSTER_TEMPLATES[M.PM_MINOTAUR]), true);
+        assert.equal(extra_nasty(M.MONSTER_TEMPLATES[M.PM_NEWT]), false);
+    });
