@@ -90,9 +90,9 @@ export function mkcorpstat(
     }
 
     obj.spe = corpstatflags & CORPSTAT_SPE_VAL;
-    obj.norevive = Boolean(
-        state.gm?.mkcorpstat_norevive ?? state.mkcorpstat_norevive,
-    );
+    /* decl.h:625 gm.mkcorpstat_norevive. js/uhitm.js hmon_hitmon()'s
+       Trollsbane arm is its only writer, and state.gm is its one home. */
+    obj.norevive = Boolean(state.gm?.mkcorpstat_norevive);
 
     if (monster) {
         saveTraits(obj, monster, env);
