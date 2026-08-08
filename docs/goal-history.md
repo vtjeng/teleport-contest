@@ -371,3 +371,38 @@ On the holdout there is nothing to add. Trap activation is ordinary early-game
 behavior on dungeon level one -- a hero stepping into a bear trap, a pet falling
 into a pit -- and it moved the hidden set by nothing, exactly as the eleventh
 zero predicted for anything reached after the 5.4 per cent mark.
+
+`armor-takeoff` closed on 8 August 2026 and is the fourteenth zero. It forecast
+18 steps and delivered 17, and the holdout returned 195 of 3,640 screens for the
+tenth evaluation running.
+
+The step that went missing is worth naming, because it is the ordinary kind of
+miss rather than the systematic kind. `seed0367` was forecast 11 and delivered
+10: its step 61 stops on a fleeing monster's teleport at `monmove.c:745`, an
+unported branch nothing in the goal touched. No monster-scan refusal fired a
+turn early anywhere in the three stretches, which is what the goal record
+predicted after the previous census measured that failure at 2.7 times its read
+value.
+
+What this goal is really evidence for is the review cadence rather than the
+score. Its correctness pass produced a confirmed finding in **both** refusal
+directions on the same range, which no earlier pass had. `heldStepIgnoresDestination()`
+was narrower than C -- it skipped `preflight_dotrap()` entirely, the silent-admission
+direction `AGENTS.md` forbids -- and `mintrap()`'s tail was wider than C. The
+first of those was written by the *previous* pass's audit fix, making this the
+second consecutive pass to find a defect in the last one's work. That is the
+argument for the frontier stopping short of audit-fix commits, and it is now
+made twice by evidence rather than by principle.
+
+The wider refusal is the more instructive half. It was invisible to the
+development set entirely: all 33 sessions scored identically before and after
+narrowing it. Finding its cost took scanning 6,600 fresh segments for a monster
+that survives a pit -- five exist -- and recording two. Those two went from 3 of
+41 screens to 41 of 41, and from 6 of 8 to 8 of 8. A defect worth 38 screens on
+a fresh case can sit at zero on the development set indefinitely, which is the
+sharpest available argument that the development score is a floor and not a
+measure.
+
+On the holdout there is nothing new. Taking armor off is as ordinary as
+behavior gets, and the hidden sessions moved by nothing, exactly as the eleventh
+zero established for anything reached beyond their 5.4 per cent.

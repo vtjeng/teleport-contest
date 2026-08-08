@@ -110,3 +110,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-08T16:14:59.000Z	697803f	window	3	33	1170	7765	117563	610816	1180	7765					correctness pass 11193ab..533ac18: 13 of 15 confirmed, all applied; map_trap had no oracle in either instrument; score unchanged
 2026-08-08T17:30:13.000Z	c2f0b93	goal	4	33	1186	7765	117642	610816	1196	7765	195	3640	32614	182022	trap-activation: forecast 24, delivered 24; seed0015 completes, the fourth matching session; holdout unchanged for the thirteenth goal
 2026-08-08T20:54:24.000Z	a7a6f3a	window	4	33	1203	7765	117774	610816	1213	7765					correctness pass 533ac18..54b3400: 12 of 17 confirmed, all applied; both refusal directions found; score unchanged
+2026-08-08T20:55:36.000Z	db8b58c	goal	4	33	1203	7765	117774	610816	1213	7765	195	3640	32614	182022	armor-takeoff: forecast 18, delivered 17; holdout unchanged for the fourteenth goal
