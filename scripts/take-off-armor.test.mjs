@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
+    ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
     GETOBJ_DOWNPLAY,
@@ -44,12 +45,14 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { monstunseesu } from '../js/mondata.js';
 import { M1_SEE_INVIS } from '../js/monsters.js';
+import { setworn } from '../js/worn.js';
 import {
     AMULET_CLASS,
     AMULET_OF_ESP,
     ARMOR_CLASS,
     BLINDFOLD,
     CLOAK_OF_DISPLACEMENT,
+    CLOAK_OF_MAGIC_RESISTANCE,
     ELVEN_MITHRIL_COAT,
     FEDORA,
     HAWAIIAN_SHIRT,
@@ -76,7 +79,7 @@ import {
 } from './run-take-off-armor.mjs';
 
 const { Armor_off, Cloak_off, is_boots, is_gloves, reset_remarm,
-    takeoffContext } = _doWearInternals;
+    takeoffContext, takeoffWornEnv } = _doWearInternals;
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -119,6 +122,16 @@ async function boundaryFor(segment, moves) {
     return boundary;
 }
 
+// The fields a refused <X>_off() arm could rewrite on the item still in its
+// slot. Recorded by value, because the alternative -- holding the object
+// itself -- compares a refusal's slot against itself and so can only see a
+// slot emptied or swapped, never an item edited in place.
+function slotDescriptor(obj) {
+    if (!obj) return null;
+    const { otyp, owornmask, spe, cursed, bknown } = obj;
+    return { otyp, owornmask, spe, cursed, bknown };
+}
+
 // A snapshot of everything a refusal must leave alone: the seven worn slots,
 // the turn counter, whether the command spent time, the drawn top line and
 // the number of random draws made so far.
@@ -127,10 +140,9 @@ function refusalWitness(replay) {
         // An empty slot reads as undefined at startup and as null once
         // setworn() has cleared it, so both are recorded the same way.
         slots: [
-            game.uarm ?? null, game.uarmc ?? null, game.uarmh ?? null,
-            game.uarms ?? null, game.uarmg ?? null, game.uarmf ?? null,
-            game.uarmu ?? null,
-        ],
+            game.uarm, game.uarmc, game.uarmh, game.uarms,
+            game.uarmg, game.uarmf, game.uarmu,
+        ].map((slot) => slotDescriptor(slot ?? null)),
         moves: game.moves,
         move: game.context.move,
         top: topLine(),
@@ -697,6 +709,35 @@ test('a cursed outer layer keeps the layer under it on', async () => {
     game.uarmh = null;
 });
 
+test('setworn clears only the doffed slot from the take-off mask', async () => {
+    // do_wear.c cancel_doff() (1642-1659), which worn.c:110 runs from inside
+    // setworn() for the item leaving the slot. Its whole ported body is
+    // `takeoff.mask &= ~slotmask`, and no removal path can show which bit that
+    // takes: armor_or_accessory_off() runs reset_remarm() immediately before
+    // armoroff(), so the mask is already 0 by the time <X>_off() calls
+    // setworn(), and Cloak_off()'s own `mask &= ~W_ARMC` at do_wear.c:389
+    // clears the same bit first in any case. Setting the other slots' bits by
+    // hand is what separates the ported body from an empty one and from one
+    // that cleared the whole mask.
+    const segment = segmentFor(TAKEOFF_KEY);
+    await runSegment({ ...segment, moves: WAIT });
+    assert.ok(game.uarmc, 'the Wizard starts in a cloak');
+
+    const others = W_ARM | W_ARMH | W_ARMS | W_ARMG | W_ARMF | W_ARMU;
+    takeoffContext(game).mask = others | W_ARMC;
+    setworn(null, W_ARMC, takeoffWornEnv(game));
+    assert.equal(game.uarmc, null, 'the cloak left its slot');
+    assert.equal(takeoffContext(game).mask, others);
+
+    // The same call with the slot already empty runs no cancel_doff() at all,
+    // because worn.c:87 reaches it only for an item that was there.
+    takeoffContext(game).mask = others | W_ARMC;
+    setworn(null, W_ARMC, takeoffWornEnv(game));
+    assert.equal(takeoffContext(game).mask, others | W_ARMC);
+
+    reset_remarm(game);
+});
+
 test('greased fingers get their own refusal', async () => {
     // do_wear.c:1907-1913. Nothing in the port grants Glib, so this arm has
     // no reachable input; the property is set by hand here because the arm is
@@ -916,6 +957,9 @@ test('the type guards inside the ported <X>_off arms hold', async () => {
     const segment = segmentFor(TAKEOFF_KEY);
     const replay = await runSegment({ ...segment, moves: WAIT });
     const cloak = game.uarmc;
+    // Read out before the mutation below, because `before` now holds a copy
+    // of the field rather than the object that carries it.
+    const originalOtyp = cloak.otyp;
     const before = refusalWitness(replay);
 
     // Armor_off(): only a leather jacket has oc_delay 0, so any other suit
@@ -934,7 +978,8 @@ test('the type guards inside the ported <X>_off arms hold', async () => {
     cloak.otyp = CLOAK_OF_DISPLACEMENT;
     assert.throws(() => Cloak_off(game), /Cloak_off\(\) for otyp/);
     assert.equal(game.uarmc, cloak, 'the cloak stays on');
-    cloak.otyp = before.slots[1].otyp;
+    cloak.otyp = originalOtyp;
+    assert.equal(cloak.otyp, CLOAK_OF_MAGIC_RESISTANCE, 'and unedited');
     assert.deepEqual(refusalWitness(replay), before);
 });
 
@@ -959,11 +1004,14 @@ test('a paranoid_confirmation game stops rather than guessing', async () => {
     assert.equal(game.uarmc, null);
 
     // With the bit set by hand, the same one-piece hero is prompted instead.
-    // The segment queued no keystroke for the prompt to read, so reaching
-    // getobj() at all is what the rejection reports.
+    // An Escape is queued for the prompt to read, so what the command reports
+    // is getobj() cancelled -- "Never mind.", ECMD_CANCEL and the cloak still
+    // worn -- rather than any throw that reaching getobj() might raise.
     await runSegment({ ...segment, moves: WAIT });
     game.flags.paranoia_bits |= PARANOID_REMOVE;
-    await assert.rejects(() => dotakeoff(game));
+    game.nhDisplay.pushKey(ESCAPE_KEY.charCodeAt(0));
+    assert.equal(await dotakeoff(game), ECMD_CANCEL);
+    assert.equal(takePendingTopLine(), 'Never mind.');
     assert.ok(game.uarmc, 'the prompt left the cloak on');
     game.flags.paranoia_bits &= ~PARANOID_REMOVE;
 });

@@ -131,19 +131,24 @@ function cancel_doff(obj, slotmask, env) {
 }
 
 // The worn.js hook set every setworn() call in this file needs. C runs all
-// three from inside setworn() itself; worn.js injects them because their
-// owners sit in other source files.
+// three from inside setworn() (worn.c:73-142) itself; worn.js injects them
+// because their owners sit in other source files. setnotworn() (worn.c:150)
+// calls the same three, but nothing here reaches it, and its copies are not
+// interchangeable: they run for every matching slot, where setworn()'s sit
+// inside the `wp->w_mask & ~(W_SWAPWEP | W_QUIVER)` gate at worn.c:93 that
+// js/worn.js removeSlotEffects() reproduces, and setnotworn() runs
+// cancel_doff() before the property work rather than after it.
 function takeoffWornEnv(state) {
     return {
         state,
         hooks: {
             cancelDoff: cancel_doff,
-            // C ref: worn.c:170 monstunseesu_prop(p).
+            // C ref: worn.c:102 monstunseesu_prop(p).
             monsterUnseesProperty: (propertyIndex, env) => {
                 monstunseesu(cvt_prop_to_mseenres(propertyIndex), env.state);
             },
-            // C ref: worn.c:172 set_artifact_intrinsic(). artifact.c owns it
-            // and no role starts with worn artifact armor, so a wished-for
+            // C ref: worn.c:105-106 set_artifact_intrinsic(). artifact.c owns
+            // it and no role starts with worn artifact armor, so a wished-for
             // artifact suit is the only way in.
             setArtifactIntrinsic: () => {
                 throw new UnsupportedTakeOffError('set_artifact_intrinsic()');
@@ -676,4 +681,5 @@ export const _doWearInternals = Object.freeze({
     off_msg,
     reset_remarm,
     takeoffContext,
+    takeoffWornEnv,
 });
