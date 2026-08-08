@@ -91,6 +91,7 @@ import {
     flush_screen,
     glyph_is_generic_object,
     hero_glyph_info,
+    map_trap,
     monster_glyph_info,
     newsym,
     object_glyph_info,
@@ -1753,6 +1754,64 @@ test('unprotected furniture mimics bypass disabled hero memory without RNG',
         );
         assert.equal(rn2_on_display_rng(NUMMONS), firstDraw);
     });
+
+test('map_trap paints on show and remembers only under hero memory', () => {
+    // C ref: display.c map_trap() (295-305): one glyph, written to
+    // levl[x][y].glyph while svl.level.flags.hero_memory is set and handed to
+    // show_glyph() while `show` is nonzero. trap.c feeltrap() is the ported
+    // caller and passes 1, so only hero_memory varies in play -- but both
+    // guards are C's and both are pinned here.
+    const x = 7;
+    const y = 4;
+    // Any trap type with a colour in TRAP_COLORS serves; a pit is the one the
+    // neighbouring cases in this file already use.
+    const trap = { tx: x, ty: y, ttyp: PIT };
+    // The memory a previous look at the square left, distinguishable from
+    // anything trap_glyph_info() can produce.
+    const priorMemory = {
+        ch: '?', color: CLR_YELLOW, decgfx: false, displayCh: null,
+    };
+
+    const mapped = (heroMemory, show) => {
+        const state = visibleCellState({ x, y });
+        state.level.flags.hero_memory = heroMemory;
+        state.level.at(x, y).remembered_glyph = { ...priorMemory };
+        const glyph = trap_glyph_info(trap, state);
+        map_trap(trap, show, state);
+        return { location: state.level.at(x, y), glyph };
+    };
+
+    // Both halves run. Recomputing the glyph from the same two helpers the
+    // body uses proves the plumbing -- that the trap's own glyph, carried
+    // through remembered_glyph_from_presentation() with the trap attached,
+    // is what reaches the memory and the buffer -- and not that the glyph is
+    // right. A wrong entry in TRAP_COLORS or trap_to_defsym() would satisfy
+    // it just as well; the recorded screens are what answer for that.
+    const shown = mapped(true, 1);
+    assert.deepEqual(
+        shown.location.remembered_glyph,
+        remembered_glyph_from_presentation(shown.glyph, trap),
+    );
+    assert.equal(shown.location.disp_ch, shown.glyph.ch);
+    assert.equal(shown.location.gnew, 1);
+
+    // show 0 writes the memory and leaves the display buffer untouched, which
+    // is the state a fresh cell starts in.
+    const unshown = mapped(true, 0);
+    assert.deepEqual(
+        unshown.location.remembered_glyph,
+        remembered_glyph_from_presentation(unshown.glyph, trap),
+    );
+    assert.equal(unshown.location.disp_glyph, undefined);
+    assert.equal(unshown.location.gnew, 0);
+
+    // Without hero memory the paint still happens and the square keeps
+    // whatever it remembered before.
+    const forgotten = mapped(false, 1);
+    assert.deepEqual(forgotten.location.remembered_glyph, priorMemory);
+    assert.equal(forgotten.location.disp_ch, forgotten.glyph.ch);
+    assert.equal(forgotten.location.gnew, 1);
+});
 
 test('monster disguises are transient and preserve display-RNG order', () => {
     const cases = [
