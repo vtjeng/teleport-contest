@@ -3,8 +3,8 @@
 // C refs: mon.c movemon(), mcalcmove(), mpickstuff(), curr_mon_load(),
 // max_mon_load(), zombie_maker(), unstuck(), mon_leaving_level(), m_detach(),
 // mlifesaver(), lifesaved_monster(), logdeadmon(), mondead(), corpse_chance(),
-// make_corpse(), killed() and xkilled(); mthrowu.c m_carrying();
-// do_name.c safe_oname().
+// make_corpse(), mondied(), monkilled(), killed() and xkilled();
+// mthrowu.c m_carrying(); do_name.c safe_oname().
 
 import {
     A_CHAOTIC,
@@ -88,6 +88,9 @@ import {
     amorphous,
     attacktype,
     bigmonst,
+    completelyburns,
+    completelyrots,
+    completelyrusts,
     dmgtype,
     emits_light,
     is_female,
@@ -114,6 +117,11 @@ import {
     zombie_form,
 } from './mondata.js';
 import {
+    AD_DCAY,
+    AD_DGST,
+    AD_FIRE,
+    AD_RBRE,
+    AD_RUST,
     AD_SEDU,
     AD_SSEX,
     AD_STCK,
@@ -1526,8 +1534,9 @@ function logdeadmon(mtmp, mndx, state, env) {
 //   3096-3097  vamprises(), when a shape-shifted vampire reverts rather than
 //              dying. The guard is is_vampshifter() alone, which is the outer
 //              half of C's `&&` and so the condition for reaching vamprises().
-//   3100-3101  the sad feeling for a lost pet. iflags.sad_feeling has no
-//              writer in this port, so nothing can set it.
+//   3100-3101  the sad feeling for a lost pet. monkilled() below is the flag's
+//              only writer here, so this fires for a pet that dies out of
+//              sight; the reader clears it either way, as C does.
 //   3103-3104  create_gas_cloud(), the steam vortex's parting cloud.
 //   3108-3109  grddead(), which parks a dead vault guard at <0,0>.
 //   3147-3166  the Kop resurrection, whose rnd(5) needs makemon() at a
@@ -1838,6 +1847,100 @@ function make_corpse(mtmp, corpseflags, state, env) {
     if (obj.ox !== x || obj.oy !== y)
         killRedraw(obj.ox, obj.oy, { ...env, state });
     return obj;
+}
+
+// C ref: mon.c mondied() (3251-3262). "drop (perhaps) a cadaver and remove
+// monster". Nothing stops here: every arm of the body is C's, and the two
+// callees that can stop -- mondead() and make_corpse() -- carry their own
+// refusals. C gives it external linkage for dogmove.c, do.c and monmove.c;
+// none of those callers is ported, so it stays file-private beside
+// make_corpse() until one of them arrives.
+//
+// C's comment on the corpse test is literally true of this port too:
+// mon_leaving_level() takes the monster off the map without clearing mx and
+// my, and mon.c:2712-2714 says in so many words that it must not clear them,
+// so corpse_chance() and make_corpse() still read the square it died on.
+async function mondied(mdef, state = game, env = {}) {
+    await mondead(mdef, state, env);
+    if (mdef.mhp >= 1) return; /* !DEADMONSTER(): "lifesaved" */
+
+    /* "this assumes that the dead monster's map coordinates remain
+       accurate" */
+    if (corpse_chance(mdef, null, false, state, env)
+        && (accessible(mdef.mx, mdef.my, state)
+            || is_pool(mdef.mx, mdef.my, state)))
+        make_corpse(mdef, CORPSTAT_NONE, state, env);
+}
+
+// C ref: mon.c monkilled() (3376-3418). "another monster has killed the
+// monster mdef". This is the kill path for a death the hero did not deal;
+// xkilled() is the one that did, and the two share mondead() below.
+//
+// C's `fltxt` is a pointer, and its `if (fltxt && ...)` tests the pointer
+// rather than the text: trap.c thitm() passes the empty string, which is a
+// live pointer and so takes the message arm with nothing between "killed" and
+// the exclamation mark. `fltxt != null` is that pointer test; `fltxt` on its
+// own would be the later `*fltxt` one and would silence the trap's message.
+//
+// C stores the disintegration test in gd.disintegested, a global, but its only
+// reader outside this function is vamprises() at mon.c:2906, and mondead()
+// refuses every shape-shifted vampire above that call. mondead()'s own note
+// records the same finding for the copy xkilled() writes, so the value stays a
+// local here rather than becoming a second place to keep it.
+//
+// Two arms stop:
+//
+//   3384       worm_known(), for a long worm whose visible segment decides
+//              whether the message is printed. The refusal precedes the
+//              message and every write below it.
+//   3414-3415  the "May <pet> rest in peace." farewell, which needs
+//              do_name.c noit_mon_nam(). Its guard is C's own `rxt`, so an
+//              ordinary pet -- one killed by neither fire, rust nor decay --
+//              passes through without it.
+export async function monkilled(mdef, fltxt, how, state = game, env = {}) {
+    const unsupported = requiredKillOperation(env, 'unsupported');
+    const message = requiredKillOperation(env, 'message');
+    const mptr = mdef.data;
+
+    if (fltxt != null && mdef.wormno)
+        unsupported("a long worm's death by another monster");
+
+    if (fltxt != null && cansee(mdef.mx, mdef.my, state)) {
+        await message(
+            messageAt(
+                `${capitalizedMonsterName(mdef, state)} is`
+                + ` ${nonliving(mptr) ? 'destroyed' : 'killed'}`
+                + `${fltxt ? ' by the ' : ''}${fltxt}!`,
+                mdef.mx,
+                mdef.my,
+                state,
+            ),
+            state,
+        );
+    } else {
+        /* "sad feeling is deferred until after potential life-saving" */
+        state.iflags ??= {};
+        state.iflags.sad_feeling = Boolean(mdef.mtame);
+    }
+
+    /* "no corpse if digested or disintegrated or flammable golem burnt up" */
+    const disintegested = how === AD_DGST || how === -AD_RBRE
+        || (how === AD_FIRE && completelyburns(mptr));
+    if (disintegested)
+        await mondead(mdef, state, env); /* "never leaves a corpse" */
+    else
+        await mondied(mdef, state, env); /* "and maybe leaves a corpse" */
+
+    if (mdef.mhp >= 1) return; /* !DEADMONSTER(): "life-saved" */
+
+    /* "extra message if pet golem is completely destroyed" */
+    if (mdef.mtame) {
+        const rxt = (how === AD_FIRE && completelyburns(mptr)) ? 'roast'
+            : (how === AD_RUST && completelyrusts(mptr)) ? 'rust'
+                : (how === AD_DCAY && completelyrots(mptr)) ? 'rot'
+                    : null;
+        if (rxt) unsupported('the farewell for a destroyed pet golem');
+    }
 }
 
 // C ref: mon.c killed() (3469-3473).

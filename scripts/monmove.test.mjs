@@ -1148,9 +1148,10 @@ test('postmov names a poisoned dart when the trap arm rolls zero', async () => {
     assert.equal(state.level.objects[5][4].opoisoned, true);
 });
 
-// C ref: trap.c:6731-6764. A dart that strikes needs weapon.c dmgval() and
-// mon.c monkilled(); the refusal comes after the to-hit roll, which C makes
-// either way, and before the message and the damage.
+// C ref: trap.c:6743-6760. A dart that strikes needs weapon.c dmgval() for its
+// damage and doname() for its message; the refusal comes after the to-hit
+// roll, which C makes either way, and before the message, the damage and the
+// missile's disposal.
 test('postmov refuses a dart that hits its target', async () => {
     const { state, monster } = dartTrapState();
     seeSquare(state, 5, 4);
@@ -1166,7 +1167,7 @@ test('postmov refuses a dart that hits its target', async () => {
 
     await assert.rejects(
         postmov(monster, 4, 4, MMOVE_MOVED, false, false, true, env),
-        (error) => error.message === 'a monster hit by a trap',
+        (error) => error.message === 'a monster struck by a trap missile',
     );
     assert.deepEqual(messages, []);
     assert.equal(state.level.objects[5][4], null);
@@ -1220,7 +1221,7 @@ test('postmov puts the dart miss and strike either side of fourteen',
             } else {
                 await assert.rejects(
                     run,
-                    (error) => error.message === 'a monster hit by a trap',
+                    (error) => error.message === 'a monster struck by a trap missile',
                     `rnd(20) of ${roll} must strike`,
                 );
                 assert.deepEqual(messages, []);

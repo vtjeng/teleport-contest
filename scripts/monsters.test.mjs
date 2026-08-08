@@ -58,6 +58,9 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(monsterExports.AD_ELEC, 6);
     assert.equal(monsterExports.AD_ACID, 8);
     assert.equal(monsterExports.AD_DRST, 7);
+    // mon.c monkilled():3398 tests both of these to decide whether the death
+    // leaves a corpse, and reads AD_RBRE negated.
+    assert.equal(monsterExports.AD_DGST, 26);
     assert.equal(monsterExports.AD_RBRE, 242);
     assert.equal(monsterExports.AD_STCK, 19);
     assert.equal(monsterExports.AD_WRAP, 28);
@@ -101,7 +104,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        '562c7df4bde6f46af0de1bb7ee8d443f8d08378f3fdffd5e0be5dee093a8681f',
+        '92d248bacd812b51963a3f2a5a988ad2e19a68f06226708f6c1385ad33bed9f9',
     );
 });
 

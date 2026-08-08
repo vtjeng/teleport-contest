@@ -700,10 +700,11 @@ export async function dismount_steed(reason, state = game) {
                 );
             }
         } else {
-            // Neither the enexto() fallback that keeps the hero put nor the
-            // killed()/monkilled() arm below it has an owner; both need a
-            // hero who is held, engulfed, or has nowhere to stand, and the
-            // BYCHOICE arm above has already returned for the last of those.
+            // The enexto() fallback that keeps the hero put has no owner, and
+            // the killed()/monkilled() arm below it is reached only through
+            // that fallback's failure; both need a hero who is held,
+            // engulfed, or has nowhere to stand, and the BYCHOICE arm above
+            // has already returned for the last of those.
             throw new UnsupportedSteedError(
                 'dismount_steed() with no landing spot for the hero',
             );

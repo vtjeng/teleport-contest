@@ -69,7 +69,7 @@ import {
     nomul,
 } from './hack.js';
 import { stackobj } from './invent.js';
-import { wake_nearto } from './mon.js';
+import { monkilled, wake_nearto } from './mon.js';
 import {
     amorphous,
     is_floater,
@@ -81,7 +81,13 @@ import {
     mons_see_trap,
     unsolid,
 } from './mondata.js';
-import { MZ_SMALL, PM_BUGBEAR, PM_OWLBEAR } from './monsters.js';
+import {
+    AD_PHYS,
+    AD_RBRE,
+    MZ_SMALL,
+    PM_BUGBEAR,
+    PM_OWLBEAR,
+} from './monsters.js';
 import { mksobj, objectType, place_object, weight } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import { DART, IRON } from './objects.js';
@@ -315,18 +321,31 @@ function t_missile(otyp, trap, env) {
     return otmp;
 }
 
-// C ref: trap.c thitm() (6709-6773), the `!strike` arm. The `strike` arm needs
-// weapon.c dmgval() for the damage roll and mon.c monkilled() for a lethal
-// one, and neither is ported, so it stops the scan after the to-hit roll and
-// before the message, the damage and the missile's disposal. The `d_override`
-// and `nocorpse` parameters are C's; only trapeffect_dart_trap() calls this
-// here, and it passes 0 and FALSE, so `nocorpse` -- read only by the refused
-// arm's monkilled() call -- goes unused.
-async function thitm(tlev, mon, obj, d_override, _nocorpse, env) {
+// C ref: trap.c thitm() (6709-6773). "Monster is hit by trap." Both arms of
+// the to-hit test are ported; one branch inside the `strike` arm stops.
+//
+// One branch stops: a missile that connects, which is 6740-6749's message and
+// damage, 6762-6763's harmless `else`, and 6769-6770's disposal. The damage is
+// weapon.c dmgval(), the message needs doname() for a still-free object whose
+// text also decides discovery, and a rock or gem that a rock-passing monster
+// shrugs off has to clear `strike` so that 6766 places the missile rather than
+// 6770 freeing it. The refusal sits at the top of the branch, above all three,
+// and its guard is C's own `obj`, so the miss arm still runs for every missile
+// that goes wide. Only a caller that passes no missile reaches the damage
+// below, and `harmless` is false for that caller by its first conjunct, so
+// stone_missile() and passes_rocks() have no reader either.
+//
+// C declares this `staticfn` and the port exports it, as it exports
+// trapnote() above, because a test has to reach it without a caller: its one
+// production caller today is trapeffect_dart_trap() below, whose arm covers
+// only the missile half, and trapeffect_pit() will be the second.
+export async function thitm(tlev, mon, obj, d_override, nocorpse, env) {
     const { state } = env;
     const random = env.random;
     const message = requireTrapOperation(env, 'message');
+    const redraw = requireTrapOperation(env, 'redraw');
     const unsupported = requireTrapOperation(env, 'unsupported');
+    let trapkilled = false;
 
     let strike;
     if (d_override)
@@ -339,33 +358,55 @@ async function thitm(tlev, mon, obj, d_override, _nocorpse, env) {
     /* Actually more accurate than thitu, which doesn't take
      * obj->spe into account.
      */
-    if (strike) unsupported('a monster hit by a trap');
-
-    if (obj && cansee(mon.mx, mon.my, state)) {
-        // doname() runs for its discovery side effects as well as its text:
-        // xname() calls observe_object(), which sets dknown and enters the
-        // type in the hero's discoveries. C names the missile while it is
-        // still free, before place_object() puts it on the floor.
-        await message(
-            messageAt(
-                `${capitalizedMonsterName(mon, state)} is almost hit by`
-                + ` ${donameFresh(obj, state)}!`,
-                mon.mx,
-                mon.my,
+    if (!strike) {
+        if (obj && cansee(mon.mx, mon.my, state)) {
+            // doname() runs for its discovery side effects as well as its
+            // text: xname() calls observe_object(), which sets dknown and
+            // enters the type in the hero's discoveries. C names the missile
+            // while it is still free, before place_object() puts it on the
+            // floor.
+            await message(
+                messageAt(
+                    `${capitalizedMonsterName(mon, state)} is almost hit by`
+                    + ` ${donameFresh(obj, state)}!`,
+                    mon.mx,
+                    mon.my,
+                    state,
+                ),
                 state,
-            ),
-            state,
-            env,
-        );
+                env,
+            );
+        }
+    } else {
+        if (obj) unsupported('a monster struck by a trap missile');
+        /* `harmless` is FALSE without a missile, by its first conjunct, so
+           C's `if (!harmless)` always holds below and the `else` that clears
+           `strike` for a shrugged-off rock belongs to the refused branch. */
+        let dam = 1;
+        if (d_override) dam = d_override;
+
+        mon.mhp -= dam;
+        if (mon.mhp <= 0) {
+            const xx = mon.mx;
+            const yy = mon.my;
+
+            await monkilled(mon, '', nocorpse ? -AD_RBRE : AD_PHYS,
+                            state, env);
+            if (mon.mhp < 1) { /* DEADMONSTER() */
+                redraw(xx, yy);
+                trapkilled = true;
+            }
+        }
     }
     // C ref: trap.c:6766-6770. A missed missile lands where the target
-    // stands; only a missile that struck is deallocated, which the refusal
-    // above owns. No newsym() follows in C.
+    // stands; only a missile that struck is deallocated, and that is inside
+    // the branch the refusal above owns, so every missile that arrives here
+    // has missed. No newsym() follows in C.
     if (obj) {
         place_object(obj, mon.mx, mon.my, env.objectEnv);
         stackobj(obj, env.objectEnv);
     }
-    return false; /* trapkilled */
+    return trapkilled;
 }
 
 // C ref: trap.c trapeffect_dart_trap() (1250-1321), monster arm (1294-1318).
@@ -418,16 +459,17 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
 }
 
 // C ref: trap.c trapeffect_bear_trap() (1478-1560), hero arm (1489-1524). The
-// monster arm (1525-1559) stops the scan: it reaches thitm()'s strike arm,
-// which needs mon.c monkilled().
+// monster arm (1525-1559) stops the scan: its two messages need trap.c:77's
+// lowercase a_your[], mon.c m_in_air() and pline.c You_hear(), and the monster
+// it catches leaves mtrapped set, which mintrap()'s tail refuses in turn.
 //
 // Two of the hero arm's branches stop as well, and both are refused ahead of
 // the move by preflight_dotrap() rather than here, so that no refusal lands
 // after feeltrap() has repainted or set_utrap() has written u.utrap: the
-// mounted arm at 1507-1511 needs s_suffix(mon_nam()), mbodypart() and the same
-// thitm() strike arm, and the iron-shoes line at 1517-1518 needs Yname2().
-// `dmg` is rolled before either of them, at C's position, because the roll
-// happens whether or not the branch that spends it is taken.
+// mounted arm at 1507-1511 needs s_suffix(mon_nam()) and mbodypart(), and the
+// iron-shoes line at 1517-1518 needs Yname2(). `dmg` is rolled before either
+// of them, at C's position, because the roll happens whether or not the branch
+// that spends it is taken.
 async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
     const { state } = env;
     const random = env.random;
@@ -542,8 +584,8 @@ export async function trapeffect_selector(monster, trap, trflags, env) {
 //     with it the one-in-five rn2(5) escape roll at :3038 that decides
 //     between them, plus Fumbling, conjoined_pits() and
 //     adj_nonconjoined_pit(), which are read nowhere else in dotrap();
-//   a mounted hero -- s_suffix(mon_nam()), mbodypart() and thitm()'s strike
-//     arm, at trap.c:1508-1511;
+//   a mounted hero -- s_suffix(mon_nam()) and mbodypart(), at
+//     trap.c:1508-1509;
 //   iron shoes -- Yname2(uarmf), at trap.c:1518.
 export function preflight_dotrap(trap, state = game) {
     if (trap.ttyp !== BEAR_TRAP)

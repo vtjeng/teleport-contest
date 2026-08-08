@@ -11,6 +11,7 @@ import {
     m_detach,
     mon_leaving_level,
     mondead,
+    monkilled,
     unstuck,
     zombie_maker,
 } from '../js/mon.js';
@@ -35,6 +36,12 @@ import {
     ORCISH_DAGGER,
 } from '../js/objects.js';
 import {
+    AD_DCAY,
+    AD_DGST,
+    AD_FIRE,
+    AD_PHYS,
+    AD_RBRE,
+    AD_RUST,
     NON_PM,
     PM_ARCH_LICH,
     PM_CAVE_SPIDER,
@@ -58,9 +65,11 @@ import {
     PM_LEPRECHAUN,
     PM_LICHEN,
     PM_LIZARD,
+    PM_LONG_WORM,
     PM_MINOTAUR,
     PM_NEWT,
     PM_OWLBEAR,
+    PM_PAPER_GOLEM,
     PM_SEWER_RAT,
     PM_QUASIT,
     PM_RAVEN,
@@ -1123,4 +1132,161 @@ test('the kill line picks its verb and its noun from the target', async () => {
     assert.deepEqual(
         await kill(PM_NEWT, { mundetected: 1 }), ['You kill it!'],
     );
+});
+
+// mon.c monkilled():3384-3388. The message names the victim, picks its verb
+// from nonliving(), and inserts " by the " only when fltxt has text in it.
+// C's guard is `fltxt &&`, a pointer test: every caller that supplies no text
+// at all passes NULL, and the empty string trap.c thitm() passes is a live
+// pointer that still prints.
+test('the monkilled line reads its verb and its clause off the arguments',
+    async () => {
+        await hero();
+
+        const kill = async (pmidx, fltxt, divisor) => {
+            const mon = spawn(pmidx);
+            // The corpse roll is the only call an ordinary death spends, and
+            // 1 declines it for either divisor below, so no corpse is left on
+            // the square the next fixture reuses.
+            const env = killEnv([1]);
+            await monkilled(mon, fltxt, AD_PHYS, game, env);
+            assert.deepEqual(env.bounds, [`rn2(${divisor})`], `${pmidx}`);
+            return env.lines;
+        };
+
+        // A goblin is G_FREQ 2 and MZ_SMALL, so corpse_chance()'s divisor is
+        // 2; a kobold zombie is G_FREQ 1, which raises it to 3.
+        assert.deepEqual(await kill(PM_GOBLIN, '', 2),
+                         ['The goblin is killed!']);
+        assert.deepEqual(await kill(PM_GOBLIN, 'fire', 2),
+                         ['The goblin is killed by the fire!']);
+        // is_undead, so nonliving() picks "destroyed".
+        assert.deepEqual(await kill(PM_KOBOLD_ZOMBIE, '', 3),
+                         ['The kobold zombie is destroyed!']);
+        assert.deepEqual(await kill(PM_KOBOLD_ZOMBIE, 'gas cloud', 3),
+                         ['The kobold zombie is destroyed by the gas cloud!']);
+    });
+
+// mon.c monkilled():3389-3391, the arm C reaches when the victim cannot be
+// seen. It writes iflags.sad_feeling, which mondead() reads and clears one
+// call later, and monkilled() is that flag's only writer in this port.
+test('an unwitnessed death files the sad feeling under the victim',
+    async () => {
+        await hero();
+
+        // A wild monster leaves the flag clear and dies normally: the newt's
+        // divisor is 3 and 1 declines its corpse.
+        const wild = spawn(PM_NEWT);
+        const wildEnv = killEnv([1]);
+        await monkilled(wild, null, AD_PHYS, game, wildEnv);
+        assert.deepEqual(wildEnv.lines, [], 'nothing is printed');
+        assert.equal(game.iflags.sad_feeling, false, 'cleared by mondead');
+        assert.equal((wild.mstate ?? 0) & MON_DETACH, MON_DETACH, 'detached');
+
+        // A pet sets it, and mondead() stops on it rather than printing "You
+        // have a sad feeling for a moment, then it passes." That stop is
+        // above m_detach(), so the pet is still on the map.
+        const pet = spawn(PM_NEWT, { mtame: 1 });
+        const petEnv = killEnv([1]);
+        await refusesAsync(
+            () => monkilled(pet, null, AD_PHYS, game, petEnv),
+            'the sad feeling for a lost pet',
+        );
+        assert.deepEqual(petEnv.lines, [], 'nothing is printed');
+        assert.deepEqual(petEnv.bounds, [], 'nothing is drawn');
+        assert.equal(m_at(pet.mx, pet.my, game), pet, 'still on the map');
+        assert.equal((pet.mstate ?? 0) & MON_DETACH, 0, 'not detached');
+        remove_monster(pet.mx, pet.my, game);
+    });
+
+// mon.c monkilled():3398-3403. The three disjuncts of gd.disintegested choose
+// mondead(), which leaves no corpse, over mondied(), which may. A paper golem
+// separates them without a roll: corpse_chance() answers TRUE for is_golem()
+// before it reaches its divisor, so mondied() always calls make_corpse(),
+// which stops on the golem's pieces. mondead() alone finishes.
+test('the disintegration test decides whether a corpse is even attempted',
+    async () => {
+        await hero();
+
+        const golem = async (how) => {
+            const mon = spawn(PM_PAPER_GOLEM);
+            const env = killEnv();
+            const outcome = await monkilled(mon, '', how, game, env).then(
+                () => null,
+                (error) => error.message,
+            );
+            assert.deepEqual(env.lines[0], 'The paper golem is destroyed!',
+                             `${how}: the line is printed either way`);
+            assert.deepEqual(env.bounds, [], `${how}: no roll is spent`);
+            if (outcome) remove_monster(mon.mx, mon.my, game);
+            return outcome;
+        };
+
+        const pieces = 'the pieces of a dead golem';
+        // AD_DGST, -AD_RBRE, and AD_FIRE against a species completelyburns()
+        // admits: each takes mondead() and leaves the square empty.
+        assert.equal(await golem(AD_DGST), null, 'digested');
+        assert.equal(await golem(-AD_RBRE), null, 'disintegrated');
+        assert.equal(await golem(AD_FIRE), null, 'burnt up');
+        // Neighbouring damage types do not: AD_RUST is the one the third
+        // disjunct would admit for an iron golem rather than a paper one, and
+        // AD_PHYS is what trap.c thitm() passes.
+        assert.equal(await golem(AD_RUST), pieces, 'rusted');
+        assert.equal(await golem(AD_PHYS), pieces, 'struck');
+
+        // The AD_FIRE disjunct is conjoined with completelyburns(), so a newt
+        // burnt to death still goes through mondied() and rolls for a corpse.
+        const newt = spawn(PM_NEWT);
+        const newtEnv = killEnv([1]);
+        await monkilled(newt, '', AD_FIRE, game, newtEnv);
+        assert.deepEqual(newtEnv.bounds, ['rn2(3)'], 'a corpse was attempted');
+    });
+
+// mon.c monkilled():3409-3415. C prints "May <pet> rest in peace." after the
+// death, so the stop that stands in for it is below m_detach() -- that is
+// where C puts the line, and the state it follows is C's own. `rxt` is what
+// guards it, not mtame alone.
+test('the pet golem farewell stops where C prints it', async () => {
+    await hero();
+
+    const pet = spawn(PM_PAPER_GOLEM, { mtame: 1 });
+    const env = killEnv();
+    await refusesAsync(
+        () => monkilled(pet, '', AD_FIRE, game, env),
+        'the farewell for a destroyed pet golem',
+    );
+    assert.deepEqual(env.lines, ['The paper golem is destroyed!']);
+    assert.equal((pet.mstate ?? 0) & MON_DETACH, MON_DETACH, 'detached');
+
+    // A pet whose species matches none of the three rxt tests passes through.
+    // Each row pairs a damage type with a species that fails its companion
+    // test: a newt is neither completelyburns(), completelyrusts() nor
+    // completelyrots(), so every conjunction collapses and rxt stays null.
+    // Both halves of each `&&` matter, and only the species half is free to
+    // vary here, because the damage half is what selects the row.
+    for (const how of [AD_FIRE, AD_RUST, AD_DCAY]) {
+        const newt = spawn(PM_NEWT, { mtame: 1 });
+        // The newt's corpse divisor is 3, and 1 declines it.
+        await monkilled(newt, '', how, game, killEnv([1]));
+        assert.equal((newt.mstate ?? 0) & MON_DETACH, MON_DETACH, `${how}`);
+    }
+});
+
+// mon.c monkilled():3384. A long worm's visibility is worm_known() rather than
+// cansee(), and that function is not ported. The stop sits above the message
+// and above everything mondied() would do.
+test('a long worm stops above the monkilled message', async () => {
+    await hero();
+
+    const worm = spawn(PM_LONG_WORM, { wormno: 1 });
+    const env = killEnv();
+    await refusesAsync(
+        () => monkilled(worm, '', AD_PHYS, game, env),
+        "a long worm's death by another monster",
+    );
+    assert.deepEqual(env.lines, [], 'printed nothing');
+    assert.deepEqual(env.bounds, [], 'drew nothing');
+    assert.equal(m_at(worm.mx, worm.my, game), worm, 'still on the map');
+    assert.equal((worm.mstate ?? 0) & MON_DETACH, 0, 'not detached');
+    assert.equal(game.svm.mvitals[PM_LONG_WORM].died, 0, 'not counted');
 });

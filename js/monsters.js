@@ -46,6 +46,7 @@ export const AD_WERE = 29;
 export const AD_DRDX = 30;
 export const AD_DRCO = 31;
 export const AD_DCAY = 34;
+export const AD_DGST = 26;
 export const AD_RBRE = 242;
 export const AD_RUST = 24;
 export const AD_CORR = 42;
