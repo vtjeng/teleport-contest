@@ -1040,8 +1040,11 @@ function requireAutoopenClosedDoor(x, y, state, run) {
         throw new UnsupportedHeroMoveBoundaryError('monster on a closed door');
     }
     // A held hero never gets as far as test_move(): domove_core():2830 hands
-    // the step to trapmove() and returns unless it escapes. lock.c:815 refuses
-    // the pull for the same hero from the other side.
+    // the step to trapmove() and returns unless it escapes, and no arm this
+    // port reaches escapes. So only the admission seam asks this, and only for
+    // the trap types heldStepIgnoresDestination() leaves to it -- every one of
+    // which trapmove() stops on in turn, one call later. lock.c:815 refuses
+    // the pull for a hero in a pit from the other side.
     if (u.utrap) {
         throw new UnsupportedHeroMoveBoundaryError('held hero movement');
     }
@@ -1301,6 +1304,21 @@ function requireOrdinaryStartingPetSwap(monster, x, y, state) {
     }
 }
 
+// C ref: hack.c domove_core():2830-2841, which hands the step to trapmove()
+// and returns before test_move() at 2843 unless the hero got free and moved.
+// trapmove()'s TT_BEARTRAP arm (1565-1579) always falls through to its
+// `return FALSE` at 1690 -- the hero that works loose still stands where it
+// was -- so a bear trap makes every neighbour unreadable, whatever it holds.
+// The admission seam has to agree, or it refuses a struggle C never declines.
+//
+// The test is on the trap type rather than on u.utrap because the other arms
+// differ: TT_PIT returns TRUE for an adjacent seen pit (1583) and
+// TT_BURIEDBALL for a step inside the chain's reach (1648), and both of those
+// do reach test_move(). Neither is ported; trapmove() stops on the type.
+function heldStepIgnoresDestination(state) {
+    return Boolean(state.u?.utrap) && state.u.utraptype === TT_BEARTRAP;
+}
+
 // cmd.c establishes movement intent only after this hack.c admission seam has
 // shown that the destination is inside the currently ported domove() subset.
 export function preflightDomoveDestination(x, y, state = game, run = 0) {
@@ -1330,6 +1348,9 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // trap, object, region or engraving on the destination first. Both
         // stop the port; the seam simply stops it one call earlier.
         requireSupportedDestinationMonster(destinationMonster, x, y, state);
+    } else if (heldStepIgnoresDestination(state)) {
+        // The step never reaches the terrain rules at all, so this seam must
+        // not consult them either. See heldStepIgnoresDestination() above.
     } else if (refusedDiagonalDoorway(x, y, state)) {
         // test_move() owns both diagonal doorway refusals on an empty square.
     } else if (closed_door(x, y, state)) {

@@ -87,6 +87,15 @@ export function loadHeroBearTrapRecipe() {
             // that no single approach direction carries the arm.
             walk({ seed: 69, role: 'Knight', align: 'lawful',
                 moves: 'n yyyyyyyy' }),
+            // The same capture, struggling northeast into a closed door
+            // instead of southwest into open floor. hack.c domove_core():2830
+            // returns before test_move() at 2843, so C never opens the door,
+            // never bumps into it and never says it is closed: the step is
+            // spent in trapmove() exactly as the segment above spends it. Five
+            // keys leave the hero held, so no free step follows to reach the
+            // door for real.
+            walk({ seed: 69, role: 'Knight', align: 'lawful',
+                moves: 'n uuuuu' }),
             // Two more levels, each with its own trap position and object
             // pile, so neither the map nor the pile contents are load-bearing.
             walk({ seed: 263, role: 'Knight', align: 'lawful',

@@ -15,6 +15,7 @@ import {
     OBJ_INVENT,
     TOOKPLUNGE,
     TT_BEARTRAP,
+    TT_BURIEDBALL,
     TT_NONE,
     WOUNDED_LEGS,
     W_ARMF,
@@ -25,11 +26,13 @@ import { game } from '../js/gstate.js';
 import {
     UnsupportedHeroMoveBoundaryError,
     domove,
+    preflightDomoveDestination,
     weight_cap,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     ARMOR_CLASS,
+    BOULDER,
     HIGH_BOOTS,
     IRON_SHOES,
 } from '../js/objects.js';
@@ -38,12 +41,14 @@ import {
     nh_timeout_elapsed_turn,
 } from '../js/timeout.js';
 import {
-    PM_AIR_ELEMENTAL,
     PM_BLACK_PUDDING,
+    PM_DUST_VORTEX,
     PM_GHOST,
     PM_KITTEN,
+    PM_KOBOLD,
     PM_OWLBEAR,
 } from '../js/monsters.js';
+import { newMonster, place_monster } from '../js/monst.js';
 import { float_vs_flight } from '../js/polyself.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
@@ -77,7 +82,7 @@ function woundedLegs() {
 test('hero-bear-trap matrix contains only source-selected inputs', () => {
     const recipe = loadHeroBearTrapRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 6);
+    assert.equal(recipe.segments.length, 7);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
@@ -154,9 +159,10 @@ test('every matrix segment springs its bear trap and replays to its last key',
                 [LEFT_SIDE, RIGHT_SIDE].includes(woundedLegs().extrinsic),
                 `segment ${index} wounds exactly one leg`,
             );
-            // rn1(10, 10) is 10..19 and the countdown has run for at most the
-            // segment's turns, so a positive remainder is the whole invariant
-            // heal_legs() would otherwise have to answer for.
+            // rn1(10, 10)'s base is pinned against its own draw by the test
+            // below; what this asserts is the matrix invariant that keeps the
+            // expiry out of reach, since heal_legs() would refuse the turn a
+            // count reached zero.
             assert.ok(
                 (woundedLegs().intrinsic & TIMEOUT) > 0,
                 `segment ${index} still has wounded legs`,
@@ -179,17 +185,98 @@ test('the hero arm draws d(2,4), rn1(4,4), rn2(2), rn1(10,10) and rn2(2)',
         const arrival = await runSegment({ ...walkIn, moves: 'j' });
         const spent = arrival.getRngLog().length;
         const sprung = await runSegment({ ...walkIn, moves: 'j ' });
-        const draws = sprung.getRngLog().slice(spent).map(
-            (entry) => entry.replace(/=.*$/u, ''),
-        );
+        const entries = sprung.getRngLog().slice(spent, spent + 5);
+        const draws = entries.map((entry) => entry.replace(/=.*$/u, ''));
+        const values = entries.map((entry) => Number(entry.replace(/^.*=/u, '')));
 
         assert.deepEqual(
-            draws.slice(0, 5),
+            draws,
             ['d(2,4)', 'rn2(4)', 'rn2(2)', 'rn2(10)', 'rn2(2)'],
         );
+        // trap.c:1520 maps a 1 to RIGHT_SIDE and a 0 to LEFT_SIDE. Deriving
+        // the side from the draw rather than naming a constant is what pins
+        // that polarity: nothing else in the port can tell the two apart,
+        // because hack.c weight_cap() subtracts WT_WOUNDEDLEG_REDUCT for
+        // either alike and do.c heal_legs(), whose line names the leg, is
+        // unported. This seed draws 0, so the RIGHT_SIDE arm stays unexercised
+        // -- every matrix segment draws 0 -- but a swapped pair still fails.
+        assert.equal(
+            woundedLegs().extrinsic,
+            values[2] ? RIGHT_SIDE : LEFT_SIDE,
+        );
+        // trap.c:1520's recovery time is rn1(10, 10), which is 10 plus the
+        // logged rn2(10). One point is already gone, because the trap springs
+        // inside the turn whose own nh_timeout() then counts it down. Written
+        // against the draw, this pins rn1()'s `from` argument in both
+        // directions; the matrix's remaining-turns bound cannot.
+        assert.equal(woundedLegs().intrinsic & TIMEOUT, 10 + values[3] - 1);
         // exercise(A_DEX, FALSE) subtracts rn2(2), so the exercise counter can
         // only have moved down.
         assert.ok(game.u.aexe[A_DEX] <= 0);
+    });
+
+test('the trap, the struggle and the load each print their own line',
+    async () => {
+        // Every line this slice writes, at the turn that writes it. The matrix
+        // asserts screen counts and state fields and never reads a screen's
+        // contents, so without this each of these four survives deletion.
+        const [knight, walkIn] = loadHeroBearTrapRecipe().segments;
+
+        // trap.c:1513-1514, A_Your[0] with body_part(FOOT).
+        await runSegment({ ...walkIn, moves: 'j ' });
+        assert.equal(game._ttyToplines, 'A bear trap closes on your foot!');
+
+        // do.c:2445 set_wounded_legs() -> encumber_msg(). The Knight is the
+        // one matrix hero whose load crosses a threshold when a wounded leg
+        // takes WT_WOUNDEDLEG_REDUCT off weight_cap(), which is why that
+        // segment needs a second space: this line and the trap line pair into
+        // a More prompt. Asserted here rather than inferred from the key
+        // count. The direct call comes first because allmain.c:208 opens the
+        // next turn with an encumber_msg() of its own, which prints the same
+        // line and so hides do.c's when the segment runs to its end.
+        const load = 'Your movements are slowed slightly because of your load.';
+        await runSegment({ ...knight, moves: '' });
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        await set_wounded_legs(RIGHT_SIDE, 12, game); // any nonzero timeout
+        assert.equal(game._ttyToplines, load);
+
+        await runSegment({ ...knight, moves: 'hh  ' });
+        assert.equal(game._ttyToplines, load);
+
+        // hack.c:1572 and 1676, the two lines trapmove() writes. One point of
+        // u.utrap left is the state the next-to-last struggling step reaches;
+        // writing it here spends no turns and so raises no message the segment
+        // has no key to dismiss. Both land on the same turn, because Norep()
+        // suppresses the first only when the previous message was already it.
+        await runSegment({ ...walkIn, moves: 'j ' });
+        game.u.utrap = 1;
+        game.u.dx = -1;
+        game.u.dy = -1;
+        game.u.umoved = false;
+        game.context.move = 1;
+        game.domoveAttempting = 1;
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        await domove(game);
+        assert.equal(
+            game._ttyToplines,
+            'You are caught in a bear trap.  You finally wriggle free.',
+        );
+
+        // trap.c:78's A_Your[1]. No recorded session can reach it: madeby_u is
+        // written only by the unported trap-setting code, so a direct dotrap()
+        // on a trap the hero is standing on is the only way to index it.
+        await runSegment({ ...walkIn, moves: '' });
+        const trap = {
+            tx: game.u.ux, ty: game.u.uy, ttyp: BEAR_TRAP,
+            tseen: false, madeby_u: 1,
+        };
+        game.level.traps.push(trap);
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        await dotrap(trap, 0, game);
+        assert.equal(game._ttyToplines, 'Your bear trap closes on your foot!');
     });
 
 test('a diagonal escape attempt costs no draw and an orthogonal one costs '
@@ -228,6 +315,108 @@ test('a diagonal escape attempt costs no draw and an orthogonal one costs '
     assert.equal(orthogonal.draws, 1);
     assert.ok([0, 1].includes(orthogonal.released));
 });
+
+test('a held hero struggles toward a square the seam screens when free',
+    async () => {
+        // hack.c domove_core():2830-2841 hands a held hero's step to
+        // trapmove() and returns at 2840, above test_move() at 2843, so C
+        // reads nothing about the square the hero pushes against. The
+        // admission seam runs ahead of domove() and used to read it anyway,
+        // which ended the segment on the first escape key aimed at anything
+        // but bare floor.
+        const { segments } = loadHeroBearTrapRecipe();
+        const cases = [
+            // The matrix levels' own neighbours. Seed 69 (segment 3) puts a
+            // closed door northeast of its bear trap; seed 395 (segment 1) an
+            // unported trap type. A free hero walks through the door, because
+            // autoopen pulls it open, so that case pins only the order of the
+            // held arm against the closed-door arm below it.
+            { index: 3, walkIn: 'n ', dx: 1, dy: -1, freeReason: null },
+            {
+                index: 1, walkIn: 'j ', dx: 1, dy: -1,
+                freeReason: 'trap activation',
+            },
+            // A boulder, written onto the bare floor northwest of seed 395's
+            // trap: no generated level puts one beside any of these six traps,
+            // and it is the neighbour a room is likeliest to hold.
+            {
+                index: 1, walkIn: 'j ', dx: -1, dy: -1,
+                freeReason: 'boulder movement',
+                place: (x, y) => {
+                    game.level.objects[x][y] = {
+                        o_id: 7101, otyp: BOULDER, nexthere: null,
+                    };
+                },
+            },
+        ];
+
+        for (const { index, walkIn, dx, dy, freeReason, place } of cases) {
+            await runSegment({ ...segments[index], moves: walkIn });
+            assert.equal(game.u.utraptype, TT_BEARTRAP, `segment ${index}`);
+            const x = game.u.ux + dx;
+            const y = game.u.uy + dy;
+            if (place) place(x, y);
+
+            // The seam still screens the square for a hero the trap has let
+            // go, which is what it is for; only the held hero skips it.
+            if (freeReason) {
+                const held = game.u.utrap;
+                game.u.utrap = 0;
+                game.u.utraptype = TT_NONE;
+                assert.throws(
+                    () => preflightDomoveDestination(x, y, game, 0),
+                    (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                        && error.reason === freeReason,
+                    `${freeReason} while free`,
+                );
+                game.u.utrap = held;
+                game.u.utraptype = TT_BEARTRAP;
+            }
+
+            const held = game.u.utrap;
+            const [ux, uy] = [game.u.ux, game.u.uy];
+            assert.doesNotThrow(
+                () => preflightDomoveDestination(x, y, game, 0),
+                `struggle toward <${x},${y}> admitted while held`,
+            );
+
+            game.u.dx = dx;
+            game.u.dy = dy;
+            game.u.umoved = false;
+            game.context.move = 1;
+            game.domoveAttempting = 1;
+            clearTtyMessageWindow(game);
+            game._ttyToplines = '';
+            await domove(game);
+
+            // trapmove() spent the step: the hero is where it was, one point
+            // of u.utrap is gone -- every case above steps diagonally, which
+            // hack.c:1575 short-circuits past rn2(5) -- and the line printed
+            // is the struggle, not anything about the square ahead.
+            assert.deepEqual([game.u.ux, game.u.uy], [ux, uy]);
+            assert.equal(game.u.utrap, held - 1);
+            assert.match(game._ttyToplines, /^You are caught in a bear trap\.$/u);
+        }
+
+        // The arm turns on the trap type, not on u.utrap alone. hack.c
+        // trapmove()'s TT_PIT arm can return TRUE at 1583 and TT_BURIEDBALL's
+        // at 1648, and both then reach test_move(), so a hero held by one of
+        // those still needs the destination screened. js/bury.js
+        // setBuriedBallTrap() is the port's other writer of u.utraptype, which
+        // is the field replaced here; u.utrap keeps the count the trap set.
+        await runSegment({ ...segments[1], moves: 'j ' });
+        const bx = game.u.ux - 1;
+        const by = game.u.uy - 1;
+        game.level.objects[bx][by] = {
+            o_id: 7102, otyp: BOULDER, nexthere: null,
+        };
+        game.u.utraptype = TT_BURIEDBALL;
+        assert.throws(
+            () => preflightDomoveDestination(bx, by, game, 0),
+            (error) => error instanceof UnsupportedHeroMoveBoundaryError
+                && error.reason === 'boulder movement',
+        );
+    });
 
 test('escaping a bear trap while levitating stops at float_up()', async () => {
     // hack.c:2833-2836 answers a hero who has just worked free with
@@ -271,8 +460,12 @@ test('a hero the bear trap cannot hold is told so and stays free', async () => {
     const forms = [
         // amorphous(): a pudding flows through the jaws.
         { form: PM_BLACK_PUDDING, expected: /closes harmlessly through you/u },
-        // is_whirly(): an air elemental has nothing solid to close on.
-        { form: PM_AIR_ELEMENTAL, expected: /closes harmlessly through you/u },
+        // is_whirly(): a dust vortex has nothing solid to close on. It is the
+        // form that isolates the middle term, because monst.c gives it neither
+        // M1_AMORPHOUS nor M1_UNSOLID -- an air elemental carries M1_UNSOLID
+        // and so proves nothing about is_whirly() -- and its MZ_HUGE msize
+        // carries it past the size arm to set_utrap() when the term is gone.
+        { form: PM_DUST_VORTEX, expected: /closes harmlessly through you/u },
         // unsolid() on its own. A ghost is neither amorphous nor whirly, so
         // it is the form that separates the third term from the other two.
         { form: PM_GHOST, expected: /closes harmlessly through you/u },
@@ -318,6 +511,51 @@ test('a hero the bear trap cannot hold is told so and stays free', async () => {
         assert.equal(trap.tseen, true);
     }
 });
+
+test('dotrap teaches the sprung trap to the monsters that watch it',
+    async () => {
+        // trap.c:3048 hands the trap to mondata.c mons_see_trap(), which sets
+        // the type's bit on every monster close enough, awake, sighted, and
+        // with a line to the square that m_cansee() admits. Those bits pick
+        // the monsters' later mintrap() branches and so their draws, and
+        // nothing else on the hero's trap path writes them.
+        const [, walkIn] = loadHeroBearTrapRecipe().segments;
+        const KNOWS_BEAR_TRAP = 1 << (BEAR_TRAP - 1);
+
+        // The Healer starts at <38,4> in a lit room, so maxdist is 7 * 7.
+        const watcher = async (x, y) => {
+            await runSegment({ ...walkIn, moves: '' });
+            const trap = {
+                tx: game.u.ux, ty: game.u.uy, ttyp: BEAR_TRAP,
+                tseen: false, madeby_u: 0,
+            };
+            game.level.traps.push(trap);
+            // A kobold passes every gate mons_see_trap() puts on the monster
+            // itself: monst.c gives it neither M1_ANIMAL nor M1_MINDLESS nor
+            // M1_NOEYES, and mcansee is set here as makemon() leaves it.
+            const kobold = place_monster(
+                newMonster({ data: game.mons[PM_KOBOLD], mhp: 4, mcansee: 1 }),
+                x, y, game,
+            );
+            kobold.nmon = game.level.monlist;
+            game.level.monlist = kobold;
+            clearTtyMessageWindow(game);
+            game._ttyToplines = '';
+            await dotrap(trap, 0, game);
+            return (kobold.mtrapseen ?? 0) & KNOWS_BEAR_TRAP;
+        };
+
+        // Two squares west, same room: dist2 4 against maxdist 49, clear line.
+        assert.equal(await watcher(36, 4), KNOWS_BEAR_TRAP);
+        // The room's west wall, dist2 37 -- still inside maxdist, so only
+        // m_cansee() can refuse it, which is what makes this the case that
+        // pins the clear_path() argument dotrap() passes in rather than just
+        // the call. No passable square on any matrix level is both inside
+        // maxdist and out of the trap's line: each of these traps sits in a
+        // lit room, where the two conditions coincide. mons_see_trap() reads
+        // only mx and my, which place_monster() sets here as it always does.
+        assert.equal(await watcher(32, 5), 0);
+    });
 
 test('set_wounded_legs charges Dexterity once and keeps the longer timeout',
     async () => {
