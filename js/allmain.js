@@ -654,8 +654,12 @@ async function finishElapsedTurn(
     // guards is hack.c overexert_hp(), whose port lives in js/hack.js and
     // stops only for the arm that prints, exercises Constitution and faints.
     // Only a burdened hero can reach wtcap > MOD_ENCUMBER, and a burdened turn
-    // is planned on the clone first, so the live pass stops before spending
-    // anything on this turn.
+    // is planned on the clone first, which runs this block too: a hero already
+    // down to one hit point refuses there, and advanceElapsedTurn() converts
+    // that refusal into the turn's boundary before the live pass starts. So
+    // the live pass arrives here with a point to spare and spends it, marking
+    // the status line for redraw. scripts/allmain-turn.test.mjs's "heavy, 30th
+    // turn, healthy" row asserts that decrement.
     if (wtcap > MOD_ENCUMBER && state.u.umoved
         && !(wtcap < EXT_ENCUMBER
             ? state.moves % 30
