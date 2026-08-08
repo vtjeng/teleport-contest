@@ -8647,6 +8647,140 @@
         ]
       },
       "recordedAt": "2026-08-08T16:14:29.075Z"
+    },
+    {
+      "kind": "review",
+      "head": "54b3400000daae602b1366ad4d7c4173e9e21f18",
+      "auditedRange": "533ac18609fa7119eb2b7029a922cd855517a9bc..54b3400000daae602b1366ad4d7c4173e9e21f18",
+      "level": "full",
+      "areas": [
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 20 raw, 17 deduplicated, 12 confirmed, 12 applied, 0 deferred, 5 rejected, 0 unverified; mutation: 1 survivors of 10 mutants. Full correctness pass over trap-activation's last slice and the whole armor-takeoff goal. Four mandatory finders; 20 raw, 17 deduplicated, 12 confirmed, 5 rejected with counter-evidence, 0 unverified, 0 warnings. All 12 applied across four Audit-fix-for commits, score identical per session. Both refusal directions produced a confirmed finding: heldStepIgnoresDestination() was narrower than C and skipped preflight_dotrap(), and mintrap()'s tail was wider than C and cost real screens on fresh cases (3 of 41 to 41/41 on one recorded seed). Two more duplicate ports, eleven and twelve. Five were tests, including an assert.rejects() that passed by catching the harness's own queue-empty error rather than any game result.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2381,
+        "counts": {
+          "raw": 20,
+          "deduplicated": 17,
+          "confirmed": 12,
+          "applied": 12,
+          "deferred": 0,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 5,
+          "tests": 5,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "heldStepIgnoresDestination(), added by the previous pass_s own audit fix, skipped the whole destination chain including preflight_dotrap(). That is the narrower-than-C direction, which AGENTS.md forbids while merely permitting a spurious stop. hack.c domove_core():2822-2825 runs avoid_trap_andor_region() above the u.utrap block at 2830, so it is the one call that reads a held hero_s destination: its second arm prompts on a tseen trap, its first on a visible region, and options.c:7173 sets PARANOID_TRAP by default. The arm now refuses those two destinations and the terrain bypass stands. This is the second consecutive pass to find a defect in the previous pass_s fix, which is the case for leaving audit-fix commits outside the frontier.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "trapeffect_pit()_s new mtmp.mtrapped = true made mintrap()_s tail refusal reachable, and that refusal was far wider than the C block it stands for: maybe_unhide_at() calls hideunder() only under if (undetected && ...), and canspotmon() = canseemon() || sensemon() makes the !alreadyspotted && canseemon() arm unreachable, so trap.c:3827-3835 is a no-op for a monster that was not hiding. The fifth refusal wider than C confirmed in this port. It was invisible to the development set and materially wrong on fresh cases: scanning 6,600 segments for a monster surviving a pit found five, and the two recorded went from 3 of 41 screens to 41/41 and from 6 of 8 to 8/8.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "save_mtraits() deep-copied mtrack but left mgoal aliased, where C_s *mtmp2 = *mtmp at mkobj.c:2167 and the memcpy at mkobj.c:430 copy the whole struct by value and monst.h:189 declares mgoal a coord value member. The corpse_s saved traits are meant to be a frozen snapshot and shared one coord object with the live monster. The port already knew the rule fifty lines away, at js/unported_monster_actions.js:276. Fixed in both homes, including js/obj.js copy_oextra() which sits outside the reviewed range, because leaving one half is how this class persists.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "dungeon.c has_ceiling() became the eleventh duplicate port found in eight days, against the pre-existing currentLevelHasCeiling() at js/monmove.js:708. Converging it was behavior-preserving only after has_ceiling() was state-scoped: the deleted currentLevelHasCeiling() read state.astral_level and state.earth_level while the new has_ceiling() read the game singleton through js/const.js, so applying the convergence alone would have regressed m_in_air(). The two landed together.",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "mon.c copy_mextra() became the twelfth duplicate port: js/obj.js copy_oextra() still open-coded the same C call as structuredClone(sourceMonster.mextra) after copy_mextra() was ported to own it. Converged onto the file mon.c names, with the development score verified identical session by session.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 10,
+          "survivors": 1,
+          "byKind": {
+            "integer": {
+              "ran": 4,
+              "killed": 3
+            },
+            "logical": {
+              "ran": 3,
+              "killed": 3
+            },
+            "relational": {
+              "ran": 2,
+              "killed": 2
+            },
+            "boolean": {
+              "ran": 1,
+              "killed": 1
+            }
+          },
+          "ranges": [
+            "54b3400..a7a6f3a"
+          ],
+          "finderConclusion": "Ten mutants over the audit-fix diff at all four kinds, nine killed. The survivor is js/trap_effects.js:890, integer 1 to 0 on monster.mhp >= 1, which differs only for a monster with no hit points left; m_detach() clears mundetected for every monster it removes from the map, so nothing reaches that line with mhp 0, mtrapped and mundetected together. The relational mutant on the same line was killed by setting the fixture_s hit points so rnd(6) leaves exactly 1. The more telling number is not the ratio but finding 12: an assert.rejects() with no error matcher was passing because it caught the harness_s Input queue empty error rather than any game result, which no mutation kind can express."
+        },
+        "readiness": {
+          "boundary": "The range 533ac18..54b3400 holds trap-activation_s last slice and the whole armor-takeoff goal: trapeffect_pit()_s monster arm with save_mtraits() and copy_mextra(), and js/do_wear.js, a new file porting do_wear.c_s takeoff spine. Development stands at 1,203 of 7,765 screens and 117,774 of 610,816 calls with 4 of 33 sessions, unchanged by the fixes and verified per session before and after.",
+          "sourceReview": "Four mandatory finders at full mode; neither optional finder ran. Every finding was adversarially verified against C by an independent adjudicator: 12 of 17 survived, 5 were rejected with counter-evidence, none went unverified and no warnings were raised. The range was briefed on both refusal directions because it took PIT out of UNPORTED_TRAP_EFFECTS and added a command to ADMITTED_COMMANDS, and both directions produced a confirmed finding. Applying the findings re-derived three of them: the five per-slot takeoff.mask lines cannot be pinned because setworn() clears the identical bit immediately after, so they stay as faithful to C with the reason recorded; the mselftouch case had to assert a different refusal once the pit guard narrowed; and the has_ceiling convergence had to land with its state-scoping or it would have regressed m_in_air().",
+          "completeness": "All 12 confirmed findings are applied across four commits carrying Audit-fix-for: 54b3400. Every new assertion was observed failing first by breaking the term it covers and restoring it, twelve breakages enumerated in the report. Five were tests, the fifth consecutive pass in which tests are the largest or joint-largest category: 36 of 59 findings across the five. Two limits are recorded rather than papered over: the per-slot mask lines are unpinnable from the other side, and the surviving integer mutant is unreachable because m_detach() clears mundetected on removal. One fix reached outside the reviewed range deliberately, js/obj.js copy_oextra(), because the aliasing defect had two homes and fixing one is how the class survives."
+        },
+        "rejections": [
+          {
+            "summary": "js/corpstat.js:71 — save_mtraits()'s comment presents mtrack as the one nested value the shallow spread has to copy by hand, but newMonster() also gives every monster `mgoal: { x, y }`, which the spread aliases into the saved traits.",
+            "counterEvidence": "causality refute: The distinctive readability claim is not what the source says, and the residual defect is index 0's. Counter-evidence: The comment at js/corpstat.js:71-74 reads: \"C's `*mtmp2 = *mtmp` copies the struct by value, so the fixed-size mtrack array inside it is copied too; js/obj.js copy_oextra() maps the same array for the same reason.\" It explains one deep copy and nowhere claims to enumerate every by-value member, so the premise that it \"reads as a completed audit of which struct-monst members ... copies by value\" is the finding's inference, not a statement in the file. Stripped of that inference, the finding is the same one-line code defect already reported at index 0, with the same anchor (js/corpstat.js:71) and the same fix, and adds no impact beyond it.  ||  resolution refute: Both branches of the proposed fix either duplicate index 0 or move the problem into prose. Co Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/do_wear.js:437 — do_wear.js reads the armor-category field as `oc_subtyp` in all four places, where C and every other file in js/ spell it `oc_armcat`; the comment at 436-438 compounds this by asserting that js/obj.js is_shield() reads the same `oc_subtyp` alias, which it does not.",
+            "counterEvidence": "evidence refute: The compound claim does not survive reading the comment and its siblings. Counter-evidence: The comment at js/do_wear.js:436-438 reads \"C ref: obj.h is_boots() (285-287) and is_gloves() (288-290), beside js/obj.js is_shield(). Both read the objects[] field stored here under its oc_subtyp union alias.\" The subject of \"Both\" is the two functions the first sentence names and the file then defines — is_boots() and is_gloves() — not is_shield(); the finding's central assertion, that the comment \"asserts that js/obj.js is_shield() reads the same oc_subtyp alias\", rests on the less natural reading. The claim of a broken sibling convention also fails: js/obj.js itself reads the union under both spellings, deliberately and with comments saying so — js/obj.js:717 (\"oc_armcat is the objects[] field's armor-category alias, over the same storage is_ammo() above reads as oc_subtyp\") a Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/do_wear.js:439 — is_boots() and is_gloves() are defined here, while their obj.h sibling is_shield() lives in js/obj.js:718 and the same three predicates are also inlined in js/objnam.js — a third home for one small group of C macros, and the new pair already disagrees with js/obj.js on the field spelling.",
+            "counterEvidence": "causality refute: The 'third home' is pre-existing and untouched, and the drift the finding points at is not drift. Counter-evidence: `git diff --stat 533ac18..54b3400 -- js/objnam.js js/obj.js` returns nothing: neither file is modified anywhere in the reviewed range, so js/objnam.js:328-330's open-coding and js/obj.js's ownership of is_shield both predate it. What the range adds is the first and only definition of is_boots() and is_gloves() in the port, placed next to their sole caller, cursed() at js/do_wear.js:415-416 — that is a file-placement judgement, not a duplicate port, and the brief reserves structural relocation for the simplification pass. The claimed \"divergence has already begun\" is two spellings of one accessor: js/objects.js:1544-1553 aliases oc_armcat to oc_subtyp, so js/obj.js:721 and js/do_wear.js:441 read the same storage and return the same value.  ||  resolution re Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/do_wear.js:636 — ParanoidRemove() hides an options-parsing refusal behind flag.h's boolean macro name, re-encodes a rule js/options.js already owns and pins with a test, and its comment says optfn_paranoid_confirmation() is unported when js/options.js:2968 ports that function's get_val arm.",
+            "counterEvidence": "causality refute: The operative statement is true and the stop is correctly placed; the claimed harm requires ignoring the clause that immediately follows the imprecise word. Counter-evidence: I ran parseNethackrc in the worktree: `parseNethackrc('OPTIONS=paranoid_confirmation:Remove\\n')` yields flags.paranoid_confirmation = \"Remove\" with flags.paranoia_bits = 3104, identical to the no-option case, and PARANOID_REMOVE is 0x40 (js/const.js:925), which 3104 (0xC20) does not contain — so the comment's actual operative claim, \"parseNethackrc() keeps the option's raw text in flags.paranoid_confirmation and never folds it into flags.paranoia_bits\", is exactly right and is stated in the same sentence as the word the finding disputes. The stop is also where C branches: dotakeoff() at js/do_wear.js:653 evaluates `counts.Narmorpieces !== 1 || ParanoidRemove(state)`, matching do_wear.c:1849's short Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/vision.js:842 — m_canseeu() re-expands youprop.h Invis inline, although js/shk.js:549 already carries heroIsInvisible() computing the identical expression — while the same change set took the opposite decision for Glib, exporting it from js/wield.js so js/do_wear.js could import it.",
+            "counterEvidence": "evidence refute: The two Invis expansions exist, but the premise that this is an anomalous, rule-less divergence is contradicted by the port's dominant convention, and a load-bearing sub-claim is factually wrong. Counter-evidence: `grep -rn \"intrinsic || .*extrinsic\" js/` returns roughly thirty local expansions of youprop.h property macros across js/insight.js:187, js/region.js:79, js/steal.js:74, js/do_name.js:123, js/display.js:2275, js/do.js:305, js/hack.js:399/420/639, js/regen.js:23, js/detect.js:112, js/vision.js:32/135, js/uhitm.js:138, js/eat.js:191, js/rooms.js:259, js/monmove.js:359/1735, js/attrib.js:671, js/muse.js:50, js/invent.js:668/686/1397 and more, including several independent expansions of the same blindness macro. Local per-file expansion is the established rule, so a second Invis expansion is the convention, not a contradiction of it. The claim that youprop.h:198 \"i Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ],
+        "deferrals": []
+      },
+      "recordedAt": "2026-08-08T20:54:56.249Z"
     }
   ]
 }
