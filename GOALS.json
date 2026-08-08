@@ -914,6 +914,64 @@
         "screens": 24,
         "rng": 318
       }
+    },
+    {
+      "id": "armor-takeoff",
+      "status": "open",
+      "boundary": "a T keystroke removes exactly one worn armor piece and returns to the command loop inside the same move, with no multi-turn occupation: dotakeoff() is ported for any target piece whose objects[otyp].oc_delay is 0, and the moment armoroff() computes a non-zero delay at do_wear.c:1923 the port refuses; a reader tests the edge by reading that item's delay field in include/objects.h",
+      "upstreamOwners": [
+        "do_wear.c dotakeoff()",
+        "do_wear.c armor_or_accessory_off()",
+        "do_wear.c count_worn_stuff()",
+        "do_wear.c armoroff()",
+        "do_wear.c off_msg()",
+        "do_wear.c cursed()",
+        "do_wear.c inaccessible_equipment()",
+        "do_wear.c equip_ok()",
+        "do_wear.c takeoff_ok()",
+        "do_wear.c Cloak_off()",
+        "do_wear.c Helmet_off()",
+        "do_wear.c Armor_off()"
+      ],
+      "forecast": {
+        "steps": 18,
+        "basis": "Capped development look-ahead at 68809ca, census under a scratchpad module.register loader rewriting js/sounds.js's two plain throws at :143 and :152 into UnsupportedSpecialRoomError, because the unshimmed run dies at line 1 on the open deferral dosounds-refusal-escapes-as-hard-failure. No repository file was edited. Raw 22 over four sessions; capped 18 over three, being 4 on seed0360, 3 on seed0361 and 11 on seed0367. seed0383's 3 were struck: its real stop is step 41 on the level-teleport menu, 93 steps before the stretch starts. seed0360 capped from 5 to 4 at step 134, where C prints \"Sorry, I don't know how to use that.\" but js/apply.js:258-260 throws UnsupportedApplyError for every arm but the three lock tools.\n\nRanked field, capped: zap 22 over one session, #pray 21, pet combat evaluation 19, takeoff 18 over three, fire 17, pet cursed-object feedback 14 measured of 80 raw, door unlocking tool 14, #sit 13, wizgenesis 11, riding movement 10 of 31 raw, pickup 6 of 31 raw over three, engraving interaction 6 of 238 raw.\n\nTakeoff ranks fourth on the undiscounted figure and first after discount, and one hard measurement licenses that. Neutralising reportCursedStep under a second loader shim and re-running the census gave pet cursed-object feedback 14 where message reading gave 38, a 2.7-fold overstatement in the direction of a mis-selected goal, on the only candidate that could be checked directly. seed0004 gained zero rather than 11, because preflightSimpleMonsterActions() plans the whole monster scan on a clone and refuses atomically, so the bear-trap refusal fires on the same turn as the first cursed-step message. Every candidate ranked above takeoff spends its stretch inside exactly that structure: zap's 22 rests on seven consecutive hero-asleep turns each running the full scan, #pray's 21 on nomul(-3) plus three more such turns and on can_pray() returning p_type 1 so prayer_done() reaches angrygods(), an indivisible branch reading u.ublesscnt, u.ualign.record and Luck which no development session pins, and pet combat evaluation's 19 sits inside the broad monster-combat scope deferral. The classifier that produced 22 and 21 also produced 38 for the behavior that measured 14, and flagged zap, #pray and fire as its lower-confidence verdicts.\n\nTakeoff's 18 carries none of that: its three heroes are solo on #levelchange 20 levels and no monster message appears anywhere in the three stretches, so there is no scan to spring. It is three independent blocks across three roles, so a miss on one keeps the other two, where 22, 21 and 19 are each a single session and a single all-or-nothing block. It wins the session tie-break .agents/selection.md names, three against one, carries the largest supports figure of any live candidate at 2609 screens over seven sessions, and opens a capability the port wholly lacks, since there is no armor-removal code at all.\n\nThe dosounds plain-Error fix was measured rather than assumed, because trap-activation had just shown a bare Error costing seed0015 all 44 of its screens. Scoring development twice at 68809ca, as-is and under the named-refusal shim, gives 1186 screens both ways and 117642 against 117755 values: 0 screens and 113 values, 0.02 per cent of the value total, roughly a hundredth of the leading boundary port. Only seed0030 carries the error and it keeps its 23 screens either way, because the crash lands in a later segment whose prefix had already stopped at step 23 on engraving. It stays a small deferral rather than becoming a goal. That deferral's own note is wrong on one point: the 4 steps it says seed0007 would recover are not recoverable, because the cap is \"You hear the chime of a cash register.\" and changing the refusal class does not port the has_shop sound.\n\nUNRECONCILED stops: 6, unchanged, being seed0006, seed0373, seed0383, seed0900, seed2600 and seed5006.",
+        "sessions": [
+          "seed0360-wizard-world-tour",
+          "seed0361-archeologist-tour",
+          "seed0367-priest-quest-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0360-wizard-world-tour",
+            "evidence": "seed 360, datetime 20000110090000, Wizard/human/male/neutral, playmode:debug, !autopickup. After #levelchange 20 and three wishes, key T at step 130. C prints \"You were wearing an uncursed +0 cloak of magic resistance.\" with no prompt, so count_worn_stuff() returned Narmorpieces == 1 and dotakeoff() fell through its Narmorpieces != 1 || ParanoidRemove || gi.item_action_in_progress test straight to armor_or_accessory_off(otmp). The Wizard's only armor is CLOAK_OF_MAGIC_RESISTANCE (u_init.c:169), and wishes deliver to inventory rather than to worn slots. Its oc_delay is 0 (objects.h:644-646), so armoroff() takes its no-delay branch and the line comes from off_msg(), not from Cloak_off(), which handles that type with a bare break at do_wear.c:396. 4 steps, capped from 5 at step 134 where js/apply.js:258-260 throws for a non-lock tool."
+          },
+          {
+            "session": "seed0361-archeologist-tour",
+            "evidence": "seed 361, Archeologist, playmode:debug, #levelchange 20 then T. Step 40 prints \"What do you want to take off? [bc or ?*]\": the Archeologist starts with LEATHER_JACKET and FEDORA (u_init.c:45-46), so Narmorpieces == 2 and dotakeoff() calls getobj(\"take off\", takeoff_ok, GETOBJ_NOFLAGS). Steps 41 and 42 print two off_msg() lines with no prompt between them, because after the fedora comes off Narmorpieces == 1 and the second T takes the no-prompt arm. This session witnesses both arms of dotakeoff() by itself. Both items carry oc_delay 0 (objects.h:454-456 and 598-600). 3 steps."
+          },
+          {
+            "session": "seed0367-priest-quest-tour",
+            "evidence": "seed 367, Priest/human/female/chaotic, playmode:debug, #levelchange 20, then \".\" and T. Step 51 prompts \"[bc or ?*]\" because the Priest starts with ROBE and SMALL_SHIELD (u_init.c:116-117); step 52 answers \"You don't have that object.--More--\" and step 53 re-prompts, which is the getobj() retry loop rejecting a letter through takeoff_ok() into equip_ok(). Step 54 prints \"You were wearing a +0 robe.\" ROBE has oc_delay 0 (objects.h:626-627) and Cloak_off() breaks on it without a message, so this line is off_msg() too. Only this session exercises the rejection arm. Its tail eats a clove of garlic, which is VEGGY and so clear of js/eat.js's corpse and FLESH refusals. 11 steps, the largest of the three."
+          }
+        ]
+      },
+      "detail": "### One `T` keystroke, one armor piece, no occupation\n\nThe port has **no armor-removal code at all**. `dotakeoff` appears only in\n`js/extcmdlist_data.js`'s name table, and `take_off`, `off_msg`, `armoroff` and\n`Cloak_off` return zero hits under both spellings.\n\n**What the C owns.** About 400 lines. `do_wear.c off_msg()` 64-76,\n`count_worn_stuff()` 1732-1769, `armor_or_accessory_off()` 1770-1831,\n`dotakeoff()` 1832-1860, `cursed()` 1892-1918, `armoroff()` 1919-2008 with only\nits no-delay branch 1973-2005 in scope, `inaccessible_equipment()` 3342-3402,\n`equip_ok()` 3403-3449, `takeoff_ok()` 3471-3478, and the `Cloak_off()`,\n`Helmet_off()` and `Armor_off()` arms the witness items reach. Reprint each\nspan's first and last line before trusting it: `1860` is a trailing comment\nrather than a closing brace, so at least one boundary is approximate.\n\n**Out of scope: the `A`-command occupation spine**, 327 lines — `select_off()`\n2694-2822, `do_takeoff()` 2823-2898, `take_off()` 2899-2988,\n`better_not_take_that_off()` 2989-3012, `reset_remarm()` 3013-3020.\n\n**No development session reaches `armoroff()`'s delayed branch.** All four\nwitness items carry `oc_delay == 0`, so `do_wear.c:1926-1972` — `nomul(delay)`,\n`gm.multi_reason`, `ga.afternmv`, `gn.nomovemsg` — stays refused. That keeps the\ngoal clear of the open deferral recording that `nomul()` has two owners which\ndisagree.\n\n**Prerequisites present**: `getobj()` with callback support at\n`js/invent.js:370`, `setworn()` (17 hits), `owornmask` (65), `W_ARMC` (19).\n\n**Both arms of `dotakeoff()` are witnessed, and by different sessions.**\n`seed0360` takes the no-prompt arm with `Narmorpieces == 1`; `seed0361` takes\nthe prompt arm at two pieces and then the no-prompt arm after the first comes\noff, exercising both by itself; `seed0367` is the only session that exercises\nthe `getobj()` rejection loop through `takeoff_ok()` into `equip_ok()`.\n\n**Why this and not the larger raw figures.** Takeoff ranks fourth undiscounted,\nbehind zap at 22, `#pray` at 21 and pet combat evaluation at 19, and first once\nthe discount is applied. One hard measurement licenses that. Re-running the\ncensus with `reportCursedStep` neutralised gave pet cursed-object feedback 14\nwhere message reading gave 38 — a 2.7-fold overstatement, on the only candidate\nthat could be checked directly, and in the direction of a mis-selected goal.\n`seed0004` gained zero rather than 11 because `preflightSimpleMonsterActions()`\nplans the whole monster scan on a clone and refuses atomically. Every candidate\nabove takeoff spends its stretch inside that same structure; takeoff's three\nheroes are solo on `#levelchange 20` levels with no monster message anywhere in\nthe three stretches. It is also three independent blocks across three roles, so\na miss on one keeps the other two, where each higher figure is a single\nall-or-nothing session.\n\n**What it opens.** `W` (`dowear`, 2432), `P` (`doputon`, 2454), `R`\n(`doremring`, 1874) and `A` (`doddoremarm`, 3022) all route through the\n`count_worn_stuff()` / `armor_or_accessory_off()` / `equip_ok()` spine this goal\nbuilds. Census `supports`: takeoff 2,609 screens over 7 sessions, puton 2,005\nover 8, wear 1,551 over 6 — the largest of any live candidate.\n\n**The runner-up and why not.** `zap` at a capped 22 would carry\n`seed0016-healer-newmoon-eat-zap` from 14 of 36 to a complete 36. Its whole\nfigure rests on seven consecutive hero-asleep monster-scan turns, the structure\nthat measured out at zero on `seed0004`, and reaching the sleep ray means\nporting `dozap()`, `weffects()`, `buzz()` and `zhitu()` out of a 5,000-line\n`zap.c` — an order of magnitude more C than `do_wear.c`'s takeoff half, for one\nsession.\n",
+      "slices": [
+        {
+          "name": "the hero takes off one armor piece",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "68809ca87c9dbef51bce83f6b66ee459dc77baa7",
+      "openStanding": {
+        "sha": "c2f0b93",
+        "screens": 1186,
+        "rng": 117642
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

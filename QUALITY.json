@@ -837,6 +837,10 @@
         {
           "text": "A measured cost, from the look-ahead classification run on 7 August 2026 at\n`1de9dec`. This refusal does not only abort the session census; it caps a\nranked candidate's forecast. `seed0007-rogue-snake-swamp`'s stretch for the\n`door unlocking tool` boundary runs 18 recorded steps raw and caps at 14,\nbecause step 64 is \"You hear the chime of a cash register.\" and\n`js/sounds.js:191` raises `rejectUnportedSpecialSound()` there as a plain\n`Error`, unconditional on `has_shop`.\n\nSo the four steps this entry costs are not hypothetical: they are subtracted\nfrom a candidate that ranked eighth of seventeen at 14 steps, and would rank\nlevel with `hero combat or displacement` at 15 without them. Whoever fixes the\nerror class should re-derive that row rather than assume the figure holds.",
           "at": "e593b94deb74b7d59ceb9cde30f70a2849f5e0db"
+        },
+        {
+          "text": "Measured at 68809ca rather than estimated, because trap-activation had just shown a bare Error costing seed0015 all 44 of its screens where a named refusal would have kept 28. Scoring development twice, as-is and under a loader shim rewriting js/sounds.js's two throws into UnsupportedSpecialRoomError, gives 1186 screens both ways and 117642 against 117755 values: 0 screens and 113 values, 0.02 per cent of the value total. Only seed0030 carries the error and it keeps its 23 screens either way, because the crash lands in a later segment whose prefix had already stopped at step 23 on engraving. This entry's original claim that seed0007 would recover 4 steps is wrong: its cap is \"You hear the chime of a cash register.\" and changing the refusal class does not port the has_shop sound. The entry stays small rather than becoming a goal; its real cost is the loader shim every census has needed for four goals running.",
+          "at": "68809ca87c9dbef51bce83f6b66ee459dc77baa7"
         }
       ]
     },

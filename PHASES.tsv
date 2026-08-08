@@ -223,3 +223,5 @@ utc	event	phase	goal	detail
 2026-08-08T12:32:05.445Z	end	select	trap-activation	
 2026-08-08T12:32:05.481Z	start	implement	trap-activation	
 2026-08-08T17:30:13.489Z	end	implement	trap-activation	
+2026-08-08T18:01:31.201Z	end	select	armor-takeoff	
+2026-08-08T18:01:31.231Z	start	implement	armor-takeoff	
