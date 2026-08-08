@@ -789,8 +789,8 @@
         },
         {
           "name": "two-weapon lands a second attack",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "fb881dcaa8c3838ae5bcf1635a50f418fb085bcd"
         }
       ],
       "openedAt": "60293dca4ab8b4e873355b1f1af4e064687ad528",
