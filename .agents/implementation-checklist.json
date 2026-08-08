@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "The hit arm has landed: a hero move into a hostile now runs uhitm.c hmon() (817-834) and hmon_hitmon() (1752-1935) with the eleven helpers those two reach, and a blow that lands without killing finishes the turn. What keeps this at implementation is the arm the same function ends on: hmon_hitmon():1911 killed() stops, so a fatal blow still ends the segment. That is the goal's next slice, 'the blow kills the monster', and until it lands the boundary below has a live path inside it that produces no output. The two entries at missing are that kill and the second two-weapon attack, in the order the goal record queues them.",
-  "commitChecked": "e8e6ccb3103ce2f13cf1ba8e4a4d2b02da4c5c73",
+  "mode": "ready-for-audit",
+  "reason": "Every entry is done, no-effect-yet, later or cannot-occur with evidence. The hit arm has landed: a hero move into a hostile runs uhitm.c hmon() (817-834) and hmon_hitmon() (1752-1935) with the eleven helpers those two reach, and a blow that lands without killing finishes the turn. The kill at hmon_hitmon():1911 and the second attack at hitum():791-812 are excluded by this slice’s own boundary rather than missing from it, and each refuses before output, randomness or state change; both are the goal’s remaining slices.",
+  "commitChecked": "ea1f65aec5a4f473b38ac4318e693729b9606f4d",
   "boundary": {
     "goalId": "hero-combat",
     "startingCommit": "b2663648a0af35ab0fdee9f4b2eddec93eafd0e6",
@@ -169,8 +169,8 @@
       "owner": "None. js/uhitm.js hmon_hitmon() stops at 'killing a monster in melee'.",
       "effects": "The refusal fires after mon.mhp has been reduced and after hmon_hitmon_msg_hit() has decided to say nothing, which is where C puts the call. Nothing between the two draws or prints.",
       "evidence": "scripts/uhitm-hmon.test.mjs 'hmon_hitmon_msg_hit says nothing about a fatal blow' and 'a fatal blow never reaches mhitm_knockback' both stop here and assert what was and was not spent first.",
-      "status": "missing",
-      "remaining": "The goal's next slice, 'the blow kills the monster'. It carries 39 of the goal's 49 steps."
+      "status": "cannot-occur",
+      "remaining": "Outside this slice by the boundary itself: endingEvent requires the target alive at the end of the turn, so a blow that takes the last hit point is not a valid input here. Refused by name at hmon_hitmon():1911. It is the goal’s next slice, which carries 39 of the goal’s 49 steps."
     },
     {
       "candidate": "uhitm.c hitum() 791-812 second attack and double_punch() 736-754",
@@ -178,8 +178,8 @@
       "owner": "None. js/uhitm.js hitum() stops at 'second melee attack'. double_punch() is ported and read.",
       "effects": "The refusal fires after the first attack has resolved and after passive(), which is where C tests gt.twohits.",
       "evidence": "hmd.twohits is copied at hmon_hitmon():1765 and read by hmon_hitmon_barehands()'s ring switch and hmon_hitmon_dmg_recalc()'s 3/4 Strength branch, so both readers are in place for it.",
-      "status": "missing",
-      "remaining": "The goal's last slice, 'two-weapon lands a second attack'. It carries the remaining 10 steps."
+      "status": "cannot-occur",
+      "remaining": "Outside this slice by the boundary itself: validInputs excludes #twoweapon, so gt.twohits is never set and hitum() never reaches its second attack. It is the goal’s last slice, which carries the remaining 10 steps."
     },
     {
       "candidate": "mhitu.c mattacku() monster retaliation against a wounded, adjacent target",
@@ -194,12 +194,16 @@
   "missingWorkByOwner": [
     {
       "group": "mon.c kill path",
-      "candidates": ["mon.c killed() 3469-3473 and xkilled() 3477-3740"],
+      "candidates": [
+        "mon.c killed() 3469-3473 and xkilled() 3477-3740"
+      ],
       "next": "Port killed() and xkilled() whole, with mondead(), m_detach(), mon_leaving_level(), lifesaved_monster(), corpse_chance(), make_corpse(), exper.c experience() and attrib.c adjalign(). xkilled() cannot be split by position: rn2(6) at 3587 and corpse_chance()'s rn2(tmp) at 3248 both sit between the kill message and experience(), so a port stopping short desyncs on the next call."
     },
     {
       "group": "uhitm.c second attack",
-      "candidates": ["uhitm.c hitum() 791-812 second attack and double_punch() 736-754"],
+      "candidates": [
+        "uhitm.c hitum() 791-812 second attack and double_punch() 736-754"
+      ],
       "next": "Port the second attack after the kill path, because seed0107's step 40 records a miss and a kill from one keystroke and needs both."
     }
   ],
