@@ -784,8 +784,8 @@
         },
         {
           "name": "the blow kills the monster",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d4234552c2d865411d46d9053a0b2cad92518432"
         },
         {
           "name": "two-weapon lands a second attack",
