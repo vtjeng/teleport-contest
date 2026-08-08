@@ -50,6 +50,7 @@ import {
 } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { float_vs_flight } from '../js/polyself.js';
+import { t_at } from '../js/trap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     check_in_air,
@@ -417,6 +418,48 @@ test('a held hero struggles toward a square the seam screens when free',
                 && error.reason === 'boulder movement',
         );
     });
+
+test('a held hero stops where C would ask to confirm the step', async () => {
+    // hack.c domove_core():2822-2825 runs avoid_trap_andor_region() above the
+    // u.utrap block at 2830, so these two destinations are the exception to
+    // the arm above: C reads them even though the step can never commit, and
+    // each one raises a paranoid_query() the port cannot answer.
+    const { segments } = loadHeroBearTrapRecipe();
+    await runSegment({ ...segments[1], moves: 'j ' });
+    assert.equal(game.u.utraptype, TT_BEARTRAP);
+    const x = game.u.ux + 1;
+    const y = game.u.uy - 1;
+
+    // Seed 395's own neighbouring trap. Unseen it is admitted -- that is the
+    // 'trap activation' case in the test above -- and hack.c:2556 turns on
+    // exactly the tseen bit changed here.
+    const neighbour = t_at(x, y, game);
+    assert.ok(neighbour, 'seed 395 puts a trap northeast of its bear trap');
+    assert.equal(neighbour.tseen, false, 'and the hero has not seen it');
+    assert.doesNotThrow(() => preflightDomoveDestination(x, y, game, 0));
+    neighbour.tseen = true;
+    assert.throws(
+        () => preflightDomoveDestination(x, y, game, 0),
+        (error) => error instanceof UnsupportedHeroMoveBoundaryError
+            && error.reason === 'paranoid trap confirmation',
+    );
+    neighbour.tseen = false;
+
+    // hack.c:2531's arm. The shape is what js/region.js inside_region() reads:
+    // a bounding box and the rectangles inside it, both set to the square the
+    // hero is pushing against, on a region that is visible and not expiring.
+    const there = { lx: x, hx: x, ly: y, hy: y };
+    game.level.regions = [
+        { visible: true, ttl: -1, bounding_box: there, rects: [there] },
+    ];
+    assert.throws(
+        () => preflightDomoveDestination(x, y, game, 0),
+        (error) => error instanceof UnsupportedHeroMoveBoundaryError
+            && error.reason === 'paranoid region confirmation',
+    );
+    game.level.regions = [];
+    assert.doesNotThrow(() => preflightDomoveDestination(x, y, game, 0));
+});
 
 test('escaping a bear trap while levitating stops at float_up()', async () => {
     // hack.c:2833-2836 answers a hero who has just worked free with
