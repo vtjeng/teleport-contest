@@ -27,13 +27,13 @@ states it.
 
 ## Current standing
 
-- Development, at `dd408c2` (2026-08-08): 1,162 of 7,765 screens and 117,324 of
+- Development, at `c2f0b93` (2026-08-08): 1,186 of 7,765 screens and 117,642 of
   610,816 random-number values, over the development set of 33 sessions, of
-  which 3 match completely.
-- Reserved holdout, last evaluated at `dd408c2`: 195 of 3,640 screens, 32,614
+  which 4 match completely.
+- Reserved holdout, last evaluated at `c2f0b93`: 195 of 3,640 screens, 32,614
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  Unchanged across the last eight evaluations; `docs/goal-history.md` records
-  what twelve such results say about effect size, capability and reachability,
+  Unchanged across the last nine evaluations; `docs/goal-history.md` records
+  what thirteen such results say about effect size, capability and reachability,
   and why the holdout's 5.4 per cent is now the most informative figure in it.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row

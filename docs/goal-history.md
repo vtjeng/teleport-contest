@@ -340,3 +340,34 @@ what blocks them, further boundary ports selected on development look-ahead
 should be expected to return this same figure, and that expectation is now
 strong enough that a result other than 195 would be the thing needing
 explanation.
+
+`trap-activation` closed on 8 August 2026 and is the thirteenth zero. It
+forecast 24 steps and delivered 24, and the holdout returned 195 of 3,640
+screens for the ninth evaluation running. `seed0015-valk-level2-pit-dog-wait`
+now matches completely, the fourth development session to do so.
+
+The goal's own arithmetic is unremarkable -- the second consecutive forecast to
+land exactly, after the discount-in-the-number rule came in. What it produced
+instead is the clearest evidence yet for why the port refuses the way it does.
+
+The pit arm's first score run returned **0 of 44 screens for `seed0015`, worse
+than the 28 it already had**. `KEEPTRAITS()` answers TRUE for every tame
+monster, so the dead dog's corpse carried the monster itself into
+`mkcorpstat()`, which raised a plain `Error` rather than a named refusal. The
+scorer treats a bare `Error` as a hard failure and discards the segment's whole
+matching prefix, so porting the behavior correctly made the session score less
+than not porting it at all. Closing the slice required `mkobj.c save_mtraits()`
+and `mon.c copy_mextra()` on top of the arm itself.
+
+That is the failure mode `dosounds-refusal-escapes-as-hard-failure` has been
+describing in the abstract since 5 August, and it has now been measured: the
+cost of a bare `Error` is not the branch it stops, it is every matching screen
+before it. A named refusal in the same position would have cost 16 screens and
+left 28; the bare one cost all 44. Any port that raises a plain `Error` is
+carrying that liability wherever it sits, and the census tooling has been
+working around this particular one with a loader shim for four goals.
+
+On the holdout there is nothing to add. Trap activation is ordinary early-game
+behavior on dungeon level one -- a hero stepping into a bear trap, a pet falling
+into a pit -- and it moved the hidden set by nothing, exactly as the eleventh
+zero predicted for anything reached after the 5.4 per cent mark.

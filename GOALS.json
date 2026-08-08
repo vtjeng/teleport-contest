@@ -851,7 +851,7 @@
     },
     {
       "id": "trap-activation",
-      "status": "open",
+      "status": "closed",
       "boundary": "dotrap() and mintrap() dispatch two trap types and no others: BEAR_TRAP for the hero and PIT for a monster. js/hack.js:897's blanket refusal of any trap square no longer refuses a BEAR_TRAP destination, and PIT leaves UNPORTED_TRAP_EFFECTS in js/trap_effects.js. SPIKED_PIT, HOLE, ARROW_TRAP, ROCKTRAP, SLP_GAS_TRAP, RUST_TRAP, FIRE_TRAP, TRAPDOOR, LEVEL_TELEP, MAGIC_PORTAL, TELEP_TRAP, WEB, STATUE_TRAP, MAGIC_TRAP, ANTI_MAGIC, LANDMINE, POLY_TRAP, ROLLING_BOULDER_TRAP and VIBRATING_SQUARE stay refused, for the hero and for monsters alike; a reader checks that against trapeffect_selector()'s switch at trap.c:2936-2993",
       "upstreamOwners": [
         "trap.c dotrap()",
@@ -909,8 +909,11 @@
         "screens": 1162,
         "rng": 117324
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "c2f0b9338e7f44d4024b4be1d818e7f73ee387ef",
+      "delivered": {
+        "screens": 24,
+        "rng": 318
+      }
     }
   ]
 }
