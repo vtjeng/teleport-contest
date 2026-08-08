@@ -527,12 +527,17 @@ export function double_punch(state = game, random = { rn2 }) {
 //   go.override_confirmation  written only by attack_checks()'s Stormbringer
 //                             arm, which stops; do_attack() records the same.
 //   gm.multi < 0              a passive counter-attack that paralysed the hero.
-//                             `grep -rn 'nomul(' js/` returns 37 hits, of which
-//                             every call site passes 0, and the three other
-//                             writers of state.multi -- js/cmd.js:699, :903 and
-//                             js/hack.js:490 -- store a repeat count, COLNO, or
-//                             nomul()'s own zero. Nothing in js/ can make it
-//                             negative.
+//                             `nomul()` in js/hack.js is the only writer of
+//                             state.multi that can store a negative value, and
+//                             every one of its 19 call sites in js/ passes 0.
+//                             The six other writers -- finishCommandParse(),
+//                             resetCommandVars(), executeMovement(), rhack()
+//                             and restoreParsedCommand() in js/cmd.js, and
+//                             endRunning() in js/hack.js -- store a repeat
+//                             count, COLNO, or zero, and the last of those only
+//                             replays a value one of the others had stored. So
+//                             nothing in js/ can make state.multi negative,
+//                             however many writers it acquires.
 //   u.umortality > oldumort   the hero killed by that counter-attack and then
 //                             life-saved. `grep -rn 'umortality' js/` returns
 //                             one hit, js/u_init.js:214, which initializes it

@@ -216,9 +216,11 @@ export async function mount_steed(mtmp, force, state = game) {
     if (propertyActive(state, WOUNDED_LEGS)) {
         // do.c legs_in_no_shape() (2408-2423) reads EWounded_legs' side bits
         // and makeplural(), and the `force && wizard` heal_legs() question
-        // below it is debug-mode only. Nothing in this port sets
-        // uprops[WOUNDED_LEGS]: trap.c and uhitm.c own every set_wounded_legs()
-        // call and neither is ported.
+        // below it is debug-mode only. Neither is ported, which is the whole
+        // basis for the stop: the property itself is live. do.c
+        // set_wounded_legs() writes it, and trap.c trapeffect_bear_trap()'s
+        // hero arm reaches that writer, so a hero who walks into a bear trap
+        // and then rides arrives here.
         throw new UnsupportedSteedError('mount_steed() with wounded legs');
     }
 
@@ -618,8 +620,14 @@ export async function dismount_steed(reason, state = game) {
        after dismounting, it reverts to the hero's legs. */
     if (repair_leg_damage) {
         // do.c heal_legs() prints "Your leg feels better." and clears the
-        // timeout. Nothing in this port sets uprops[WOUNDED_LEGS], and
-        // mount_steed() refuses a hero who has it.
+        // timeout; it is unported, which is the whole basis for this stop.
+        // The property is live -- do.c set_wounded_legs(), reached from trap.c
+        // trapeffect_bear_trap()'s hero arm, writes it -- but mount_steed()
+        // refuses a hero who already carries the wound, so arriving here needs
+        // one taken while riding, and no C writer that can inflict one on a
+        // rider is ported: trap.c:2581-2582's land mine, uhitm.c:4475, and the
+        // ball.c, dig.c, dokick.c and apply.c calls. steed.c:614's own wound,
+        // from the fall this function is handling, clears the flag at 615.
         throw new UnsupportedSteedError('dismount_steed() healing legs');
     }
 

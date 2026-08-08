@@ -1361,8 +1361,9 @@ export function unstuck(mtmp, state = game, env = {}) {
 // furniture, and revealing it needs display.c seemimic(), which wakeup() above
 // already records as unported.
 //
-// js/dog.js relmon() holds the other copy of this body; the note above that
-// function says which arms each copy owns and why they have not been merged.
+// js/dog.js relmon() and js/makemon_create.js mongone() hold the other two
+// copies of this body; the note above relmon() says which arms that copy owns
+// and why the three have not been merged.
 export function mon_leaving_level(mon, state = game, env = {}) {
     const mx = mon.mx;
     const my = mon.my;

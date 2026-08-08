@@ -27,6 +27,7 @@ import {
     N_DIRS,
     PIT,
     POOL,
+    RIGHT_SIDE,
     ROOM,
     SQKY_BOARD,
     ROOMOFFSET,
@@ -49,6 +50,7 @@ import {
     ydir,
 } from '../js/const.js';
 import { dirtocoord, xytodir } from '../js/cmd.js';
+import { set_wounded_legs } from '../js/do.js';
 import { see_monsters, statusConditionActive } from '../js/display.js';
 import {
     UnsupportedHeroMoveBoundaryError,
@@ -374,6 +376,27 @@ test('a polearm clears unweapon on mounting and sets it on dismounting',
     await dismount_steed(DISMOUNT_BYCHOICE, state);
     assert.equal(state.unweapon, true);
 });
+
+test('mount_steed refuses a hero a bear trap has already wounded',
+    async () => {
+        // steed.c:229-232 answers a wounded hero with legs_in_no_shape(
+        // "riding", FALSE) and returns FALSE. That helper is unported, so the
+        // port stops here instead -- and the state it stops on is live rather
+        // than hypothetical: do.c set_wounded_legs() is the writer, and trap.c
+        // trapeffect_bear_trap()'s hero arm is the ported caller that reaches
+        // it. Twelve turns is an arbitrary count; only nonzero matters.
+        const state = await rideTo(`.${RIDE_COMMAND}`);
+        const pony = m_at(state.u.ux, state.u.uy + 1, state);
+        await set_wounded_legs(RIGHT_SIDE, 12, state);
+        quiet(state);
+
+        await assert.rejects(
+            mount_steed(pony, false, state),
+            (error) => error instanceof UnsupportedSteedError
+                && error.reason === 'mount_steed() with wounded legs',
+        );
+        assert.equal(state.u.usteed, null);
+    });
 
 test('a stealthy hero is told when riding takes stealth away', async () => {
     // steed.c:372-378. youprop.h:210 makes Stealth the intrinsic or extrinsic

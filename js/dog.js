@@ -557,23 +557,26 @@ function mon_leave(monster, state) {
     return 0;
 }
 
-// C refs: mon.c relmon() (2558-2594) and mon_leaving_level() (2694-2730),
+// C refs: mon.c relmon() (2558-2594) and mon_leaving_level() (2695-2730),
 // which relmon() runs first. `listName` names the gm list the monster joins:
 // 'mydogs' for keepdogs(), 'migrating_mons' for migrate_to_level().
 //
-// js/mon.js mon_leaving_level() is the other JavaScript home of 2694-2730.
-// The two are not merged because the migration callers own the operations that
+// 2695-2730 has three JavaScript homes: js/mon.js mon_leaving_level() for the
+// kill path, js/makemon_create.js mongone() with it merged in, and this one.
+// The js/mon.js note above that function states why the first two are separate.
+// This third copy exists because the migration callers own the operations that
 // body performs, while the death callers let it perform them:
 //
 //   2724  fill_pit(). This copy hands the boulder to the caller's injected
 //         `fillPit`, because keepdogs() and migrate_to_level() run while the
 //         hero is between levels; js/mon.js calls trap.js fill_pit() directly.
 //   2725  newsym(). Same split: injected here, killRedraw() there.
-//   2704  unstuck() and 2721-2722's seemimic() are handled by this copy's
+//   2703  unstuck() and 2721-2722's seemimic() are handled by this copy's
 //         callers instead, which refuse a monster holding the hero or wearing
 //         a disguise, so no `unsupported` operation is threaded through here.
-//   2697  the `onmap` gate, which this copy does not need: both callers have
-//         already established that the monster stands on its own coordinates.
+//   2706  and 2717, the two `onmap` gates, which this copy does not need: both
+//         callers have already established that the monster stands on its own
+//         coordinates.
 //
 // Every injected operation resolves before the first mutation, so a caller
 // that omits one cannot leave the monster half off the map.

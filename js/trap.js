@@ -558,9 +558,12 @@ export function set_utrap(tim, typ, state = game) {
     float_vs_flight(state);
 }
 
-// C ref: trap.c reset_utrap() (1045-1057). `msg` is FALSE at the one ported
-// call site, teleds(), so float_up() and the "You can fly." line below it are
-// unreachable; both are refused rather than silently dropped.
+// C ref: trap.c reset_utrap() (1045-1057). Two call sites are ported and they
+// disagree about `msg`: teleport.c teleds() passes FALSE, and hack.c
+// domove_core():2835 passes TRUE for the hero who has just worked free of a
+// bear trap. So float_up() and the "You can fly." line below it are live
+// refusals rather than unreachable ones -- scripts/hero-bear-trap.test.mjs
+// reaches the first of them -- and both stop rather than being dropped.
 export function reset_utrap(msg, state = game) {
     const was_Lev = Levitation(state);
     const was_Fly = Flying(state);
