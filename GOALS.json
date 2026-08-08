@@ -918,7 +918,7 @@
     {
       "id": "armor-takeoff",
       "status": "open",
-      "boundary": "a T keystroke removes exactly one worn armor piece and returns to the command loop inside the same move, with no multi-turn occupation: dotakeoff() is ported for any target piece whose objects[otyp].oc_delay is 0, and the moment armoroff() computes a non-zero delay at do_wear.c:1923 the port refuses; a reader tests the edge by reading that item's delay field in include/objects.h",
+      "boundary": "a T keystroke removes exactly one worn armor piece, excluding the five delay-0 cloaks recorded as five-delay-zero-cloaks-still-refuse, and returns to the command loop inside the same move, with no multi-turn occupation: dotakeoff() is ported for any target piece whose objects[otyp].oc_delay is 0, and the moment armoroff() computes a non-zero delay at do_wear.c:1923 the port refuses; a reader tests the edge by reading that item's delay field in include/objects.h",
       "upstreamOwners": [
         "do_wear.c dotakeoff()",
         "do_wear.c armor_or_accessory_off()",
