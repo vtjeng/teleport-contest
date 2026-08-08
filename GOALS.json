@@ -779,8 +779,8 @@
         },
         {
           "name": "a hostile melee attempt hits",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "4d2a9cb3c31a3ab9edbfd874cd4596632b15ad12"
         },
         {
           "name": "the blow kills the monster",
