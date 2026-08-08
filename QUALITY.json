@@ -8442,6 +8442,94 @@
         ]
       },
       "recordedAt": "2026-08-08T06:10:43.398Z"
+    },
+    {
+      "kind": "review",
+      "head": "11193ab2f3667057d5d4f0c0a0d52e4bd59e9953",
+      "auditedRange": "dc31f03280d5259548a0a6ce03dfdcf4a986a62e..11193ab2f3667057d5d4f0c0a0d52e4bd59e9953",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 19 raw, 16 deduplicated, 11 confirmed, 11 applied, 0 deferred, 5 rejected, 0 unverified; mutation: 2 survivors of 4 mutants. Full correctness pass over hero-combat slice 4, the kill path, about 1,320 changed production lines mostly in js/mon.js, plus the previous pass's two audit-fix commits. Four mandatory finders; 19 raw, 16 deduplicated, 11 confirmed, 5 rejected with counter-evidence, 0 unverified, 0 warnings. All 11 applied across two Audit-fix-for commits. One production defect: xkilled()'s pit arm refused on C's outer guard alone where C acts only when a boulder is present, a refusal wider than its C condition and the third of that shape here, held in place by a test that pinned the wider behavior. Six were tests, the third consecutive pass where tests dominate, and this pass named the root cause: the refusal tests asserted a message alone, so a refusal firing after the effects it should prevent still passed. Development score 1,117 of 7,765 screens and 117,289 of 610,816 calls, identical before and after, verified session by session across all 33.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2557,
+        "counts": {
+          "raw": 19,
+          "deduplicated": 16,
+          "confirmed": 11,
+          "applied": 11,
+          "deferred": 0,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 6,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "xkilled()'s pit arm refused on mon.c:3514's outer guard alone, where C acts only when a boulder is present: 3514-3522 sets nocorpse from sobj_at(BOULDER, x, y) and burycorpse from m_carrying(mtmp, BOULDER), and does nothing at all when neither holds. A refusal wider than the C condition it stands for, and the third of that shape found in this subsystem. It could not fire today, because PIT sits in UNPORTED_TRAP_EFFECTS, but it would have become a live wrong stop the moment mintrap()'s pit arm landed, aborting a segment on an ordinary early-level kill that C completes. A test at scripts/mon-kill.test.mjs pinned the wider behavior, so the defect was held in place by its own coverage. Applying it corrected both findings that reported it, which proposed contradictory fixes: neither arm needs an unported operation, so both flags are ported and xkilled() gains no refusal. The flags remain unreachable, but for a reason neither finding gave -- mondead() stops on both boulder states before xkilled() reads either, at fill_pit()'s settling refusal and flooreffects()'s boulder-landing refusal, and both stops sit above the rn2(6) treasure draw.",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 4,
+          "survivors": 2,
+          "byKind": {
+            "boolean": {
+              "ran": 4,
+              "killed": 2
+            }
+          },
+          "ranges": [
+            "11193ab2f3667057d5d4f0c0a0d52e4bd59e9953..a789d52"
+          ],
+          "finderConclusion": "Two boolean survivors, both the newly ported pit flags at js/mon.js:1932-1933, neither of which has a reachable reader while mondead() stops above them. The worker declined to manufacture a stale-coordinates fixture that would have killed one, on the ground that the running game cannot produce a monster killed off its own coordinates and the row would imply the arm is live -- the right call, and the same judgement the mutation instrument cannot make for itself. Adding the missing no-trap row killed the && to || mutant on t && is_pit(t.ttyp), which the previous test comment had claimed to cover and did not. This is the third pass in a row where the mutation figure and the test quality point in different directions; js/exper.js:178 remains a known false survivor tracked as mutate-sites-reports-a-false-survivor."
+        },
+        "readiness": {
+          "boundary": "The range dc31f03..11193ab is the kill path of the hero-combat goal, commit d423455 at about 1,320 changed production lines mostly in js/mon.js, plus the two audit-fix commits of the previous pass. It ports mon.c killed() and xkilled() with mondead(), m_detach(), mon_leaving_level(), unstuck(), lifesaved_monster(), logdeadmon(), corpse_chance(), make_corpse() and zombie_maker(), plus exper.c experience(), attrib.c adjalign(), invent.c delobj() and do_name.c safe_oname(). It moved the development score for the first time in this goal, to 1,117 of 7,765 screens and 117,289 of 610,816 calls, all of it seed0200 and seed0006.",
+          "sourceReview": "Four mandatory finders at full mode: correctness, readability-risk, test-quality and variable-flow. Neither optional finder ran; the range adds no unbounded work and the port is single-threaded replay. Every finding was adversarially verified against C by an independent adjudicator applying evidence, causality and resolution checks: 11 of 16 survived, 5 were rejected with counter-evidence, none went unverified and no warnings were raised. Applying them corrected the pass in three places. Two findings proposed contradictory fixes for the same pit arm and the C source settled it toward porting both flags rather than refusing. The duplicate-port finding was reconciled rather than converged, because merging js/dog.js relmon() into mon_leaving_level() would change refusal classes on the live level-change path, turning a TypeError into an UnsupportedHeroMoveBoundaryError and leaving a boulder without a pit unrefused, which is new behavior an audit fix must not add. Five C citations in the range were wrong and are corrected, one of which the pre-existing test comment had carried too.",
+          "completeness": "All 11 confirmed findings are applied across two commits carrying Audit-fix-for: 11193ab. Six were tests, the third consecutive pass in which tests are the dominant category: 34 findings across three passes, eighteen of them tests. This pass named the root cause the previous two only circled. The refusal tests asserted a refusal's message alone, so a refusal that fires after the state changes it was meant to prevent still passed -- which is why two refusals placed after an effect and three refusals wider than C reached review in this subsystem. The new rows assert position rather than text: no random number drawn and no state changed before the refusal. Every new assertion was observed failing first by breaking the line it covers and restoring it. The development score is identical to the baseline, verified session by session across all 33 sessions on calls, screens, cursors, animation frames and error text."
+        },
+        "deferrals": [],
+        "rejections": [
+          {
+            "summary": "js/makemon_create.js:2261 — mongone()'s rewritten header claims mon_leaving_level() (2695-2730) and m_detach() (2733-2803) are \"merged into it for the due_to_death FALSE case\", but the merged body omits fill_pit() and three m_detach arms without porting or refusing them.",
+            "counterEvidence": "causality refute: The omissions are pre-existing unchanged code and none of them is reachable from the one wired caller, so the range neither introduces nor exposes a material problem; what the range changed is the header wording, which already labels the body a subset. Counter-evidence: `git diff dc31f03..11193ab -- js/makemon_create.js` shows the mongone() body changing on exactly one line (`emitsLight(monster.data)` -> `emits_light(monster.data)`); every omission the finding names predates the range. The header the range added itself says \"This is the level-generation subset used to discard a temporary monster\", so it does not claim a complete merge. Reachability of the fill_pit gap fails at the generator: mklev.c:2087 sets `avoid_boulder = (is_pit(kind) || is_hole(kind))` and the do/while at 2095-2096 rejects any candidate square where `sobj_at(BOULDER, m.x, m.y)`, so mktrap() never  Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/mon.js:2019 — xkilled()'s call to newexplevel() reaches the still-refused pluslvl(TRUE) arm, so the fourth ordinary melee kill throws UnsupportedExperienceChangeError only after the kill line has printed, the treasure-drop and corpse draws have been spent, the monster has been detached from the map and u.uexp has",
+            "counterEvidence": "causality refute: The range introduces the reachability, but the stated impact is not material: the throw is a declared segment boundary that preserves the matching prefix, and the state it leaves behind is C's own state, not a half-applied kill. Counter-evidence: js/cmd.js:995 lists UnsupportedExperienceChangeError in failClosedCommandRefusals(); js/cmd.js:1046-1053 converts it to UnsupportedHeroCommandBoundaryError; js/jsmain.js:534-548 breaks the segment on that class under the comment \"A known, fail-closed gameplay boundary preserves all output produced through the supported prefix. It must not turn that prefix into a zero-session scorer error.\" So the segment does not \"abort\" in the sense claimed — it stops on its last matching screen by design. Nor is the state half-applied relative to the reference: every effect the finding lists (the conduct increment at mon.c:3499-3502, the kill Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/mon.js:2031 — xkilled()'s alignment tail refuses a peaceful, tame, priest or quest kill only at mon.c:3677-3722, by which point the port has already printed the kill line, spent the rn2(6) treasure draw and corpse_chance()'s rn2(tmp), detached the monster, drawn the luck rn2(2) and applied change_luck(-1).",
+            "counterEvidence": "causality refute: Everything the port does before the stop is C's own behaviour at C's own position, so there is no material deviation to attribute to the range — the refusals sit where mon.c:3677-3722 sits, and the stop is a declared segment boundary that preserves the matching prefix. Counter-evidence: Line for line, the draws and the luck change the test records are C's: the rn2(6) is mon.c:3587's treasure drop, the rn2(3) is corpse_chance()'s rn2(tmp) at mon.c:3248, and the rn2(2) with change_luck(-1) is mon.c:3665 `if ((mtmp->mpeaceful && !rn2(2)) || mtmp->mtame) change_luck(-1);` — all of which C executes before it reaches the alignment tail at 3677. So the port has not \"mutated luck, mvitals, the map and the message stream\" ahead of a stop that should have preceded them; it has reproduced C up to the first unported statement, which is what mon.c requires. The stop itself is clean  Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "scripts/mon-kill.test.mjs:882 — 'an ordinary corpse arms no zombie timer' claims to run both sides of `!uwep`, but its two rows are indistinguishable and `assert.equal(game.gz.zombify, false)` is satisfied by killed()'s unconditional reset.",
+            "counterEvidence": "causality refute: The range introduced the code, but the stated impact is not material and the remaining complaint is out of this audit's scope. Counter-evidence: Because zombie_maker(state.youmonst) is constantly false (js/mon.js:1299-1311; the hero is S_HUMAN and no polymorph path writes youmonst.data), a sign error on !thrownobj, !stoned or !uwep changes nothing observable in the running game either — not a draw, not a screen, not a stored value — so 'invisible' describes the game as much as the test. The test is not the pins-nothing shape: its discriminating oracle, the 14-entry env.bounds list at scripts/mon-kill.test.mjs:877-881, does fail if start_corpse_timeout()'s rn1(15,5) appears. The rest of the stated impact — 'the second (Monk) row costs a full segment replay while asserting exactly what the first row asserts' — is duplicate-work removal, which the brief assigns to the simp Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "scripts/uhitm-hmon.test.mjs:350 — The new Trollsbane arm in hmon_hitmon() — the only writer of gm.mkcorpstat_norevive on the hero's kill path — has no positive test; disabling it changes nothing the suite can see.",
+            "counterEvidence": "evidence refute: The mutation does survive, but a source trace shows the arm it covers cannot execute, so the defect the finding describes is impossible rather than merely untested. Counter-evidence: js/uhitm.js:737, inside hmon_hitmon_weapon_melee(), reads `if (obj.oartifact) unsupported('artifact melee hit');` and is reached unconditionally for any wielded artifact: hmon_hitmon_do_hit() (js/uhitm.js:793-814) routes every non-null obj that is WEAPON_CLASS, a weptool or GEM_CLASS into hmon_hitmon_weapon(), and every arm of the preceding special-attack chain falls through to 737. The Trollsbane guard at 1143-1147 requires obj.oartifact === ART_TROLLSBANE, so the blow always refuses hundreds of lines earlier and never reaches `if (hmd.destroyed)`. The repository already pins this: scripts/uhitm-hmon.test.mjs:698-705 wields an ART_EXCALIBUR long sword and asserts hmon() rejects with 'artifa Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-08-08T10:11:09.201Z"
     }
   ]
 }
