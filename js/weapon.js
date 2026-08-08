@@ -13,6 +13,7 @@ import {
     AKLYS_LIM,
     A_DEX,
     A_STR,
+    ECMD_OK,
     NEED_AXE,
     NEED_HTH_WEAPON,
     NEED_PICK_AXE,
@@ -25,9 +26,14 @@ import {
     P_BOW,
     P_CROSSBOW,
     P_EXPERT,
+    P_FIRST_H_TO_H,
+    P_FIRST_SPELL,
+    P_FIRST_WEAPON,
     P_FLAIL,
     P_GRAND_MASTER,
     P_ISRESTRICTED,
+    P_LAST_H_TO_H,
+    P_LAST_SPELL,
     P_LAST_WEAPON,
     P_MASTER,
     P_NONE,
@@ -40,6 +46,7 @@ import {
     P_TWO_WEAPON_COMBAT,
     P_UNSKILLED,
     STR18,
+    TIP_ENHANCE,
     WT_IRON_BALL_INCR,
     W_ARM,
     W_ARMC,
@@ -200,6 +207,7 @@ import { d, rn2, rnd } from './rng.js';
 import {
     P_ADVANCE,
     P_MAX_SKILL,
+    P_RESTRICTED,
     P_SKILL,
     practice_needed_to_advance,
     skillSlot,
@@ -1278,7 +1286,7 @@ function slots_required(skill, state) {
 // nothing: the shortcut is `wizard && speedy`. Keeping that order matters,
 // because a restricted skill is an ordinary FALSE that needs nothing unported.
 export function can_advance(skill, speedy, state = game) {
-    if (P_SKILL(skill, state) === P_ISRESTRICTED
+    if (P_RESTRICTED(skill, state)
         || P_SKILL(skill, state) >= P_MAX_SKILL(skill, state)
         || state.u.skills_advanced >= P_SKILL_LIMIT)
         return false;
@@ -1288,6 +1296,144 @@ export function can_advance(skill, speedy, state = game) {
     return P_ADVANCE(skill, state)
             >= practice_needed_to_advance(P_SKILL(skill, state))
         && state.u.weapon_slots >= slots_required(skill, state);
+}
+
+// C ref: weapon.c could_advance() (1171-1182). can_advance() without the
+// weapon-slot test: the skill has the practice but not the slots to spend.
+export function could_advance(skill, state = game) {
+    if (P_RESTRICTED(skill, state)
+        || P_SKILL(skill, state) >= P_MAX_SKILL(skill, state)
+        || state.u.skills_advanced >= P_SKILL_LIMIT)
+        return false;
+
+    return P_ADVANCE(skill, state)
+        >= practice_needed_to_advance(P_SKILL(skill, state));
+}
+
+// C ref: weapon.c peaked_skill() (1184-1195). The skill sits at its ceiling
+// and has practised past the next step, which it can never take. C tests only
+// P_RESTRICTED here; u.skills_advanced plays no part.
+export function peaked_skill(skill, state = game) {
+    if (P_RESTRICTED(skill, state))
+        return false;
+
+    return P_SKILL(skill, state) >= P_MAX_SKILL(skill, state)
+        && P_ADVANCE(skill, state)
+            >= practice_needed_to_advance(P_SKILL(skill, state));
+}
+
+// C ref: weapon.c skill_ranges[] (1215-1222), the three contiguous blocks
+// add_skills_to_menu() walks and the heading each one opens with. The
+// fighting skills come first, which is why the menu leads with them rather
+// than with P_DAGGER at skill index 1.
+const skill_ranges = Object.freeze([
+    { first: P_FIRST_H_TO_H, last: P_LAST_H_TO_H, name: 'Fighting Skills' },
+    { first: P_FIRST_WEAPON, last: P_LAST_WEAPON, name: 'Weapon Skills' },
+    { first: P_FIRST_SPELL, last: P_LAST_SPELL, name: 'Spellcasting Skills' },
+]);
+
+// C ref: weapon.c add_skills_to_menu() (1224-1302). Covers the arm the only
+// caller in this port reaches: `selectable` FALSE and `wizard` FALSE, which is
+// the display-only listing. C takes `selectable` and `speedy` and uses both
+// only inside branches enhance_weapon_skill() refuses before calling here --
+// the `prefix` chain at :1266-1275, whose four other arms need a selection
+// letter, and the `any.a_int` assignment at :1298 -- so neither is a parameter
+// here. The wizard column format at :1277-1287 is refused the same way.
+//
+// C writes each line into a menu window; this returns the lines for its caller
+// to hand to the window owner, so nothing is drawn until the whole listing has
+// been formatted. A heading entry carries `heading: true`, which is
+// add_menu_heading()'s iflags.menu_headings styling.
+export function add_skills_to_menu(state = game) {
+    // The tab-separated column layout at :1294-1296 belongs to
+    // iflags.menu_tab_sep, whose options.c boolean handler is not ported.
+    if (state.iflags?.menu_tab_sep)
+        throw new UnsupportedWeaponSkillError('menu_tab_sep columns');
+
+    const lines = [];
+
+    /* Find the longest skill name. */
+    let longest = 0;
+    for (let i = 0; i < P_NUM_SKILLS; i++) {
+        if (P_RESTRICTED(i, state))
+            continue;
+        const len = P_NAME(i, state).length;
+        if (len > longest)
+            longest = len;
+    }
+
+    for (let pass = 0; pass < skill_ranges.length; pass++)
+        for (let i = skill_ranges[pass].first;
+            i <= skill_ranges[pass].last;
+            i++) {
+            /* Print headings for skill types */
+            if (i === skill_ranges[pass].first)
+                lines.push({ text: skill_ranges[pass].name, heading: true });
+
+            if (P_RESTRICTED(i, state))
+                continue;
+            // C's `" %s %-*s [%s]"` with an empty prefix. The leading pair of
+            // spaces is that format's own space plus the one the empty prefix
+            // sits in, and `longest` assumes a monospaced font.
+            lines.push({
+                text: `  ${P_NAME(i, state).padEnd(longest)} `
+                    + `[${skill_level_name(i, state)}]`,
+            });
+        }
+    return lines;
+}
+
+// C ref: weapon.c enhance_weapon_skill() (1329-1407), the `#enhance` command.
+// Covers the pass over a hero who can advance nothing: the skill scan at
+// :1346-1355 leaves all three counters at zero, so no legend is written, the
+// listing is display-only, the title is "Current skills:" and select_menu()
+// is asked for PICK_NONE. Its answer cannot enter the `if (n > 0)` block at
+// :1391, and `while (speedy && n > 0)` at :1405 ends the do/while after one
+// pass, so the whole advancement half -- skill_advance() included -- is
+// unreachable from here and stays unported.
+//
+// Returns ECMD_OK, which is C's only result.
+export async function enhance_weapon_skill(state = game, { menu } = {}) {
+    if (typeof menu !== 'function')
+        throw new TypeError('enhance_weapon_skill needs a menu owner');
+
+    /* player knows about #enhance, don't show tip anymore */
+    // hack.c handle_tip() is the only reader, and give_may_advance_msg() is
+    // the only path to it; use_skill() and add_weapon_skill() below refuse
+    // that path, so nothing observes this bit yet. C writes it before every
+    // branch below, so this does too.
+    state.context.tips = (state.context.tips ?? 0) | (1 << TIP_ENHANCE);
+
+    // :1340's y_n("Advance skills without practice?") fires for every hero in
+    // debug mode, whatever the answer, and the wizard-only column format at
+    // :1277-1287 and slot-count title suffix at :1385-1387 follow it.
+    if (state.wizard)
+        throw new UnsupportedWeaponSkillError('#enhance in debug mode');
+
+    /* count advanceable skills */
+    let to_advance = 0;
+    let eventually_advance = 0;
+    let maxxed_cnt = 0;
+    for (let i = 0; i < P_NUM_SKILLS; i++) {
+        if (P_RESTRICTED(i, state))
+            continue;
+        if (can_advance(i, false, state))
+            to_advance++;
+        else if (could_advance(i, state))
+            eventually_advance++;
+        else if (peaked_skill(i, state))
+            maxxed_cnt++;
+    }
+
+    // Every remaining branch this function has is behind one of these three
+    // counters: the "*" and "#" legend at :1362-1378, the selectable listing
+    // at :1380-1381, the "Pick a skill to advance:" title at :1383, and the
+    // PICK_ONE select_menu() at :1389 that leads to skill_advance().
+    if (to_advance + eventually_advance + maxxed_cnt > 0)
+        throw new UnsupportedWeaponSkillError('an advanceable or flagged skill');
+
+    await menu(add_skills_to_menu(state), 'Current skills:');
+    return ECMD_OK;
 }
 
 // C ref: weapon.c use_skill() (1423-1434). Practice toward the next skill

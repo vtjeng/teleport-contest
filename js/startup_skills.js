@@ -123,6 +123,13 @@ export function P_ADVANCE(skill, state = game) {
     return skillSlots(state)[skill].advance;
 }
 
+// C ref: skills.h P_RESTRICTED(). A skill the hero's role can never train
+// reads back as P_ISRESTRICTED, which skill_init() leaves in every slot the
+// role's def_skill[] table does not name.
+export function P_RESTRICTED(skill, state = game) {
+    return P_SKILL(skill, state) === P_ISRESTRICTED;
+}
+
 // The three macros above are lvalues in C, so `P_ADVANCE(skill) += degree` in
 // weapon.c use_skill() writes through one. This exposes the slot those readers
 // share, for the callers that assign rather than read.

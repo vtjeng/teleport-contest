@@ -92,7 +92,10 @@ import { UnsupportedObjectNameError } from './objnam.js';
 import { doset_simple, UnsupportedOptionMenuError } from './options.js';
 import { UnsupportedShopError } from './shk.js';
 import { dovspell, UnsupportedSpellDisplayError } from './spell.js';
-import { UnsupportedWeaponSkillError } from './weapon.js';
+import {
+    UnsupportedWeaponSkillError,
+    enhance_weapon_skill,
+} from './weapon.js';
 import {
     displayTtyTextWindow, menuTitleStyle, selectTtyMenu,
 } from './tty_menu.js';
@@ -1235,6 +1238,35 @@ async function runChatCommand(key, state) {
     return failClosedCommand(key, state, () => dotalk(state));
 }
 
+// C ref: weapon.c enhance_weapon_skill(). Like dosearch() and doeat() it
+// returns its own ECMD_* result, which for this command is always ECMD_OK.
+// The whole skill listing is formatted before select_menu() draws anything, so
+// an unported skill display stops with the screen untouched.
+async function runEnhanceCommand(key, state) {
+    return failClosedCommand(key, state, () => enhance_weapon_skill(state, {
+        // weapon.c add_skills_to_menu() opens each skill range with
+        // add_menu_heading(), which draws it with iflags.menu_headings;
+        // menuTitleStyle() reads that style. end_menu()'s prompt line takes
+        // the same style through allmain.c adjust_menu_promptstyle().
+        menu: (lines, prompt) => selectTtyMenu(state, {
+            lines: lines.map((line) => (line.heading
+                ? {
+                    ...line,
+                    attr: menuTitleStyle(state).titleAttr,
+                    color: menuTitleStyle(state).titleColor,
+                }
+                : line)),
+            // Every entry is display-only, so select_menu(PICK_NONE) ends
+            // only on a dismissal and always answers cancelValue.
+            how: PICK_NONE,
+            title: prompt,
+            ...menuTitleStyle(state),
+            cancelValue: null,
+            overlay: state.iflags?.menu_overlay !== false,
+        }),
+    }));
+}
+
 // C ref: options.c doset_simple(), the 'O' command. Its menu_requested arm
 // hands off to doset(), whose whole menu is formatted before select_menu()
 // draws anything, so an unported option value stops before any output.
@@ -1408,6 +1440,8 @@ async function doextcmd(key, state) {
         return await runTwoWeaponCommand(key, state);
     case 'dotalk':
         return await runChatCommand(key, state);
+    case 'enhance_weapon_skill':
+        return await runEnhanceCommand(key, state);
     case 'wiz_level_change':
         return await runLevelChangeCommand(key, state);
     case 'wiz_level_tele':
