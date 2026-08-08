@@ -73,7 +73,7 @@ export function loadMonsterPitRecipe() {
         segments: [
             // The in-sight kill, which is the arm's common case: both lines
             // on one top line, the pit revealed under the victim, and the
-            // corpse roll behind them. Four species, so that neither Monnam()
+            // corpse roll behind them. Five species, so that neither Monnam()
             // nor the corpse divisor is carried by one record.
             waiting({ seed: 6228974, turns: 15 }), // a lichen, on turn 3
             waiting({ seed: 6209768, turns: 35 }), // a grid bug, on turn 25
