@@ -18,6 +18,7 @@ import { UnsupportedStatusRefreshError } from './display.js';
 import { UnsupportedEarthSenseError } from './dungeon.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { UnsupportedSpecialRoomError } from './mkroom.js';
+import { UnsupportedAmbientSoundError } from './sounds.js';
 import { initRng, enableRngLog, getRngLog } from './rng.js';
 import {
     newgame,
@@ -545,7 +546,11 @@ export async function runSegment(
                 // turn-counter refresh ends the segment on its last matching
                 // screen.
                 || e instanceof UnsupportedStatusRefreshError
-                || e instanceof UnsupportedSpecialRoomError) {
+                || e instanceof UnsupportedSpecialRoomError
+                // sounds.c dosounds() runs every turn under this loop, so the
+                // first turn on a level holding an unported special room ends
+                // the segment here.
+                || e instanceof UnsupportedAmbientSoundError) {
                 onBoundary?.(e);
                 break;
             }

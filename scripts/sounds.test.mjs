@@ -9,9 +9,14 @@ import {
     VAULT,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
 import { COIN_CLASS } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
-import { dosoundsInitialLevel } from '../js/sounds.js';
+import {
+    dosoundsInitialLevel,
+    UnsupportedAmbientSoundError,
+} from '../js/sounds.js';
 
 function soundState() {
     const uprops = [];
@@ -299,45 +304,99 @@ test('dosounds clears a stale vault flag at the source gate', async () => {
     assert.deepEqual(messages, []);
 });
 
-test('dosounds stops at each unported branch in source order', async () => {
-    const fountainCourt = soundState();
-    fountainCourt.level.flags.nfountains = 1;
-    fountainCourt.level.flags.has_court = true;
-    // One misses the earlier fountain gate before the court boundary.
-    let script = scriptedRandom([1]);
-    await assert.rejects(
-        dosoundsInitialLevel(fountainCourt, {
+// Runs dosounds() expecting a refusal, and reports everything the refusal
+// position has to leave untouched: the draws taken, the messages printed, and
+// the level flags.
+async function refusedSounds(state, results) {
+    const script = scriptedRandom(results);
+    const sink = messageSink();
+    const flagsBefore = { ...state.level.flags };
+    let error = null;
+    try {
+        await dosoundsInitialLevel(state, {
             random: script.random,
-            pline: async () => {},
-        }),
-        /unported later-level branch \(has_court\)/u,
-    );
-    script.assertBounds([400]);
+            pline: sink.pline,
+        });
+    } catch (caught) {
+        error = caught;
+    }
+    return { error, script, messages: sink.messages, flagsBefore };
+}
 
-    const vaultBeehive = vaultState();
-    vaultBeehive.level.flags.has_beehive = true;
-    // One misses the earlier vault gate before the beehive boundary.
-    script = scriptedRandom([1]);
-    await assert.rejects(
-        dosoundsInitialLevel(vaultBeehive, {
-            random: script.random,
-            pline: async () => {},
-        }),
-        /unported later-level branch \(has_beehive\)/u,
-    );
-    script.assertBounds([200]);
+test('dosounds refuses each unported branch by name, in source order',
+    async () => {
+        const fountainCourt = soundState();
+        fountainCourt.level.flags.nfountains = 1;
+        fountainCourt.level.flags.has_court = true;
+        // One misses the earlier fountain gate before the court boundary.
+        let refusal = await refusedSounds(fountainCourt, [1]);
+        assert.ok(refusal.error instanceof UnsupportedAmbientSoundError);
+        assert.equal(refusal.error.name, 'UnsupportedAmbientSoundError');
+        assert.equal(refusal.error.message,
+            'dosounds() needs the has_court level-sound branch');
+        // The refusal precedes sounds.c:226's own rn2(200) court gate, so the
+        // fountain draw is the only one taken, nothing is printed, and the
+        // level flags are as they were.
+        refusal.script.assertBounds([400]);
+        assert.deepEqual(refusal.messages, []);
+        assert.deepEqual(fountainCourt.level.flags, refusal.flagsBefore);
 
-    const sinkOracle = soundState();
-    sinkOracle.level.flags.nsinks = 1;
-    sinkOracle.oracle_level = { ...sinkOracle.u.uz };
-    // One misses the earlier sink gate before the final Oracle boundary.
-    script = scriptedRandom([1]);
-    await assert.rejects(
-        dosoundsInitialLevel(sinkOracle, {
-            random: script.random,
-            pline: async () => {},
-        }),
-        /unported later-level branch \(Oracle\)/u,
-    );
-    script.assertBounds([300]);
-});
+        const vaultBeehive = vaultState();
+        vaultBeehive.level.flags.has_beehive = true;
+        // One misses the earlier vault gate before the beehive boundary.
+        refusal = await refusedSounds(vaultBeehive, [1]);
+        assert.ok(refusal.error instanceof UnsupportedAmbientSoundError);
+        assert.equal(refusal.error.message,
+            'dosounds() needs the has_beehive level-sound branch');
+        refusal.script.assertBounds([200]);
+        assert.deepEqual(refusal.messages, []);
+        assert.deepEqual(vaultBeehive.level.flags, refusal.flagsBefore);
+
+        const sinkOracle = soundState();
+        sinkOracle.level.flags.nsinks = 1;
+        sinkOracle.oracle_level = { ...sinkOracle.u.uz };
+        // One misses the earlier sink gate before the final Oracle boundary.
+        refusal = await refusedSounds(sinkOracle, [1]);
+        assert.ok(refusal.error instanceof UnsupportedAmbientSoundError);
+        assert.equal(refusal.error.message,
+            'dosounds() needs the Oracle level-sound branch');
+        refusal.script.assertBounds([300]);
+        assert.deepEqual(refusal.messages, []);
+        assert.deepEqual(sinkOracle.level.flags, refusal.flagsBefore);
+    });
+
+test('a refused ambient sound ends the segment on its matching prefix',
+    async () => {
+        let boundary = null;
+        const segment = await runSegment({
+            // A fresh case, chosen so ordinary generation reaches a shop:
+            // mklev.c:1349-1351 tries do_mkroom(SHOPBASE) on every Dlvl 2 with
+            // enough rooms, because rn2(2) is always below 3 there.
+            seed: 4711,
+            datetime: '20000110090000',
+            nethackrc: [
+                'OPTIONS=name:FreshDiff,role:Valkyrie,race:human,'
+                    + 'gender:female,align:neutral',
+                'OPTIONS=!legacy,!tutorial,!splash_screen',
+                'OPTIONS=playmode:debug',
+                '',
+            ].join('\n'),
+            // Wizard level teleport (^V) to Dlvl 2, then rests, the first of
+            // which spends a turn and reaches dosounds().
+            moves: '\x162\n....',
+        }, { onBoundary: (error) => { boundary ??= error; } });
+
+        assert.equal(boundary?.name, 'UnsupportedAmbientSoundError');
+        assert.equal(boundary?.message,
+            'dosounds() needs the has_shop level-sound branch');
+        assert.equal(game.u.uz.dlevel, 2);
+        assert.equal(game.level.flags.has_shop, true);
+        // runSegment() has to recognize the refusal as a boundary and keep the
+        // prefix. The four screens and 6,017 draws below are what the C
+        // recorder emits before its own rn2(200) at sounds.c:313, verified
+        // with scripts/diff-fresh.mjs on this case; raising the refusal as a
+        // plain Error instead let it escape runSegment() and left zero of
+        // both.
+        assert.equal(segment.getScreens().length, 4);
+        assert.equal(segment.getRngLog().length, 6017);
+    });

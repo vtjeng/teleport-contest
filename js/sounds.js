@@ -136,22 +136,30 @@ function vaultContainsGold(room, state) {
     return false;
 }
 
+// A sounds.c dosounds() branch this port cannot run yet. dosounds() runs once
+// per turn from allmain.c moveloop_core(), so the refusal has to end the
+// segment on its last matching screen rather than crash the caller.
+export class UnsupportedAmbientSoundError extends Error {
+    constructor(reason) {
+        super(`dosounds() needs ${reason}`);
+        this.name = 'UnsupportedAmbientSoundError';
+    }
+}
+
 function rejectUnportedSpecialSound(state, flagNames) {
     const flags = state.level?.flags ?? {};
     const laterFlag = flagNames.find((name) => flags[name]);
     if (laterFlag) {
-        throw new Error(
-            'dosounds initial-level slice reached an unported later-level '
-                + `branch (${laterFlag})`,
+        throw new UnsupportedAmbientSoundError(
+            `the ${laterFlag} level-sound branch`,
         );
     }
 }
 
 function rejectUnportedOracleSound(state) {
     if (on_level(state.u?.uz, state.oracle_level)) {
-        throw new Error(
-            'dosounds initial-level slice reached an unported later-level '
-                + 'branch (Oracle)',
+        throw new UnsupportedAmbientSoundError(
+            'the Oracle level-sound branch',
         );
     }
 }
