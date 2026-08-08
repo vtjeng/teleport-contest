@@ -1119,6 +1119,15 @@
       "status": "open",
       "from": "9f035b03c5cf9b9cb968942a074b245daa99740b",
       "detail": "Five of the twelve cloak types whose oc_delay is 0 still refuse in Cloak_off(): the elven cloak, the cloak of displacement, mummy wrapping, the cloak of invisibility and the alchemy smock. The armor-takeoff boundary as written admits any piece with oc_delay 0, so these five are the one clause of it that does not read as met.\n\nEach needs a subsystem outside do_wear.c: toggle_stealth(), toggle_displacement(), the See_invisible messages with newsym(), and EAcid_resistance. Porting them inside armor-takeoff would have pulled three unrelated systems into a goal whose C is otherwise confined to one file.\n\nThey move nothing today. The Ranger is the only role that starts in one of the five, and a session-wide scan for the T key shows no development session presses it while wearing any of them. Everything else the boundary admits is complete: all nine shields, both shirts, the leather jacket, the fedora, the dented pot and the seven plain cloaks.\n\nClosing condition: each of the five removes with its own property toggle ported, or the boundary is rewritten to name the seven plain cloaks rather than every delay-0 cloak. Whoever ports W (dowear) will want them, because Cloak_on() faces the same five."
+    },
+    {
+      "id": "is-poisonable-duplicated-with-a-divergent-reading",
+      "area": "objects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "3a78bc1521733ca3dd82705b0c222e936015c721",
+      "detail": "js/startup_reroll.js:245 is a divergent duplicate of obj.h is_poisonable(). It reads WEAPON_CLASS || is_weptool, where C is (WEAPON_CLASS && the multigen-skill window) || permapoisoned. The two disagree on any weptool that is not multigen, and on any permapoisoned object outside WEAPON_CLASS.\n\nThe divergence is unreachable today: only is_multigen objects and Grimtooth ever carry opoisoned, so no reachable input distinguishes the two readings. It is recorded rather than fixed because the objects sweep that found it nearly committed a test pinning the wrong behavior before checking the macro, which is the second time in this repository a test has been written against a duplicate's divergent reading rather than against C.\n\nThis is the thirteenth duplicate port found here in eight days, and the third whose copies disagree rather than merely repeat. AGENTS.md, \"Keep each source file's port in one place\", puts the survivor in the file obj.h names.\n\nClosing condition: one port of is_poisonable() reading C's condition, with the startup_reroll.js call site pointing at it, and the development score verified identical session by session."
     }
   ],
   "areas": [

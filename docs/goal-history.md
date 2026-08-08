@@ -406,3 +406,33 @@ measure.
 On the holdout there is nothing new. Taking armor off is as ordinary as
 behavior gets, and the hidden sessions moved by nothing, exactly as the eleventh
 zero established for anything reached beyond their 5.4 per cent.
+
+`objects-deferral-sweep` closed on 8 August 2026, the third sweep. It forecast 0
+and delivered 0, and the holdout returned 195 of 3,640 screens for the eleventh
+evaluation running. The area went from ten open non-scope entries to five.
+
+Both sweeps so far have found roughly a third of their records wrong, and this
+one identified why in a way the first did not. Two of the ten described defects
+that had **already been fixed and never closed** -- `artifact_light`'s five
+copies converged in `4d2a9cb` and the merged-gold weight in `9914fd3`, ten hours
+after its own entry was filed -- and a third named a blocker that had since been
+cleared, `armoroff()` waiting on a `nomul()` that `daae919` gave one port.
+
+A deferral record is a claim frozen at the moment it was written, read later
+against a tree that has moved. Nothing re-derives it in between. That is the same
+shape as the nineteen false absence claims and the twelve duplicate ports: cheap
+to assert, expensive to falsify, and inherited rather than checked. The sweep is
+the only mechanism that re-reads them, which is an argument for running one when
+the gate names an area rather than treating the gate as an interruption.
+
+The orchestrator made the same mistake in this goal's own opening commit,
+`8f14eca`, which asserts that the `hero-combat` slice was told to converge the
+`artifact_light` copies and did not. It did. The claim came from the deferral
+record rather than from the tree, and it is wrong in a commit message that
+cannot be amended. It is corrected in the goal's `detail` and here.
+
+One finding has no precedent in this project: the C reference **segfaults** on a
+mixed-case wish. `wishymatch()`'s case-folding entry closed on that evidence --
+23 of 25 boundaries crash on "Helmet", and "Gloves" does too, while lower case
+passes end to end at 2,314 of 2,314 draws. There is no C behavior to match, so
+the fold stays, with the recording kept beside it.
