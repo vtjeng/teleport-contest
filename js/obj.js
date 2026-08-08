@@ -55,6 +55,11 @@ import {
     is_neuter,
     undead_to_corpse,
 } from './mondata.js';
+// copy_oextra() below reads copy_mextra(), as mkobj.c:438 does. js/mon.js
+// already imports this file, and both sides use the other's exports only
+// inside function bodies, so this direct edge resolves the same way the
+// js/mondata.js edge onto js/dungeon.js does.
+import { copy_mextra } from './mon.js';
 import {
     pushRngLogEntry,
     rn1 as coreRn1,
@@ -482,8 +487,9 @@ function nextSplitOid(source, child, normalized) {
     return oid;
 }
 
-// C ref: mkobj.c copy_oextra(). C copies the inline monster structure while
-// retaining its pointer fields, then separately copies mextra and clears nmon.
+// C ref: mkobj.c copy_oextra() (417-448). C copies the inline monster
+// structure while retaining its pointer fields, then separately copies mextra
+// and clears nmon.
 export function copy_oextra(target, source) {
     if (!target || !source || !source.oextra) return target;
 
@@ -493,16 +499,26 @@ export function copy_oextra(target, source) {
         target.oextra.oname = String(sourceExtra.oname);
     if (sourceExtra.omonst) {
         const sourceMonster = sourceExtra.omonst;
-        target.oextra.omonst = {
+        // mkobj.c:430-431 copies struct monst by value, so its two
+        // struct-valued members -- `coord mtrack[MTSZ]` (monst.h:143) and
+        // `coord mgoal` (monst.h:189) -- are copied too, which a JavaScript
+        // spread would instead alias. js/corpstat.js save_mtraits() rebuilds
+        // the same two for the same reason.
+        const targetMonster = {
             ...sourceMonster,
             nmon: null,
             mtrack: Array.isArray(sourceMonster.mtrack)
                 ? sourceMonster.mtrack.map((point) => ({ ...point }))
                 : sourceMonster.mtrack,
-            mextra: sourceMonster.mextra
-                ? structuredClone(sourceMonster.mextra)
-                : null,
+            mgoal: sourceMonster.mgoal
+                ? { ...sourceMonster.mgoal }
+                : sourceMonster.mgoal,
+            mextra: null,
         };
+        target.oextra.omonst = targetMonster;
+        // mkobj.c:437-438 guards this call on the source's mextra;
+        // copy_mextra() makes the same test first, so the guard is left to it.
+        copy_mextra(targetMonster, sourceMonster);
     }
     if (sourceExtra.omailcmd)
         target.oextra.omailcmd = String(sourceExtra.omailcmd);

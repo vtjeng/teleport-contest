@@ -65,14 +65,18 @@ function monsterSpecies(monster, state) {
 // call, in mkcorpstat().
 function save_mtraits(obj, mtmp) {
     const baselevel = mtmp.data.mlevel; /* "mtmp->data is valid ptr" */
-    // C's `*mtmp2 = *mtmp` copies the struct by value, so the fixed-size
-    // mtrack array inside it is copied too; js/obj.js copy_oextra() maps the
-    // same array for the same reason.
+    // C's `*mtmp2 = *mtmp` copies the struct by value, so every struct-valued
+    // member inside it is copied too. monst.h gives struct monst two of them:
+    // the fixed-size `coord mtrack[MTSZ]` array (monst.h:143) and the `coord
+    // mgoal` strategy target (monst.h:189). A JavaScript spread aliases both,
+    // so both are rebuilt here. js/obj.js copy_oextra() copies the same two
+    // for the same reason.
     const mtmp2 = {
         ...mtmp,
         mtrack: Array.isArray(mtmp.mtrack)
             ? mtmp.mtrack.map((point) => ({ ...point }))
             : mtmp.mtrack,
+        mgoal: mtmp.mgoal ? { ...mtmp.mgoal } : mtmp.mgoal,
     };
 
     mtmp2.mextra = null;

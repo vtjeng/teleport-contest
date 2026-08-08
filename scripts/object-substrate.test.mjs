@@ -419,7 +419,13 @@ test('copy_oextra copies C-owned data while retaining monster pointers', () => {
             oname: 'practice darts',
             omonst: {
                 data: species,
-                mextra: { edog: { marker: 'deep copy' } },
+                // mcorpsenm sits beside edog so that the copy reports which
+                // of the two mextra routes ran: mon.c copy_mextra():2643-2644
+                // drops a NON_PM overlay, where a verbatim clone keeps it.
+                mextra: { edog: { marker: 'deep copy' }, mcorpsenm: NON_PM },
+                // Distinct coordinates prove that the strategy target is
+                // copied by value, as monst.h:189 declares it.
+                mgoal: { x: 11, y: 3 },
                 minvent: inventory,
                 // Distinct coordinates prove that the inline track is copied.
                 mtrack: [{ x: 4, y: 5 }],
@@ -442,6 +448,13 @@ test('copy_oextra copies C-owned data while retaining monster pointers', () => {
         target.oextra.omonst.mtrack,
         source.oextra.omonst.mtrack,
     );
+    assert.deepEqual(target.oextra.omonst.mgoal, { x: 11, y: 3 });
+    // Writing through the source proves the copy holds its own coord rather
+    // than the one the spread would have aliased.
+    source.oextra.omonst.mgoal.x = 9;
+    assert.equal(target.oextra.omonst.mgoal.x, 11);
+    // mkobj.c:437-438 routes the extension records through copy_mextra(), so
+    // the NON_PM overlay is absent on the copy and the edog is its own object.
     assert.deepEqual(
         target.oextra.omonst.mextra,
         { edog: { marker: 'deep copy' } },
@@ -449,6 +462,10 @@ test('copy_oextra copies C-owned data while retaining monster pointers', () => {
     assert.notEqual(
         target.oextra.omonst.mextra,
         source.oextra.omonst.mextra,
+    );
+    assert.notEqual(
+        target.oextra.omonst.mextra.edog,
+        source.oextra.omonst.mextra.edog,
     );
 });
 

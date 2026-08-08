@@ -486,7 +486,14 @@ test('mkcorpstat relocates before applying flags and saving monster traits', () 
     // as 1, and the single hit point then sits exactly on both remaining
     // bounds without being moved.
     const monster = {
-        data: state.mons[PM_KOBOLD], mcan: false, m_id: 41, mhp: 1, mhpmax: 0,
+        data: state.mons[PM_KOBOLD],
+        mcan: false,
+        m_id: 41,
+        // Distinct coordinates prove that mkobj.c:2167's by-value struct copy
+        // gives the corpse its own `coord mgoal` (monst.h:189).
+        mgoal: { x: 5, y: 7 },
+        mhp: 1,
+        mhpmax: 0,
     };
     const events = [];
     const corpse = mkcorpstat(
@@ -523,6 +530,10 @@ test('mkcorpstat relocates before applying flags and saving monster traits', () 
     // carries an independent record that keeps the monster's identity.
     assert.notEqual(corpse.oextra.omonst, monster);
     assert.equal(corpse.oextra.omonst.m_id, 41);
+    // The saved traits are a frozen snapshot, so a later move of the monster's
+    // strategy target must not follow it into the corpse.
+    monster.mgoal.x = 9;
+    assert.deepEqual(corpse.oextra.omonst.mgoal, { x: 5, y: 7 });
     assert.equal(corpse.oextra.omonst.mhpmax, 1, 'raised past the level');
     assert.equal(corpse.oextra.omonst.mhp, 1, 'and the hit point stands');
     assert.equal(corpse.spe, CORPSTAT_FEMALE);
