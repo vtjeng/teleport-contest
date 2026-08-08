@@ -729,7 +729,7 @@
     },
     {
       "id": "hero-combat",
-      "status": "open",
+      "status": "closed",
       "boundary": "no production path in js/ raises UnsupportedHeroMoveBoundaryError('hero combat or displacement'); a hero move into a square holding a monster instead runs uhitm.c do_attack() (448-583) and everything it reaches, matching the C reference's screens and random-number calls from the refused keystroke through the end of that turn",
       "upstreamOwners": [
         "uhitm.c do_attack()",
@@ -799,8 +799,11 @@
         "screens": 1102,
         "rng": 116818
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "aa86920d0d98e3e98061b6e9e74b0adf64f7b00d",
+      "delivered": {
+        "screens": 25,
+        "rng": 505
+      }
     }
   ]
 }

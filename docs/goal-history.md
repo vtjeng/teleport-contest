@@ -266,3 +266,47 @@ A deferral record is a claim written once and read many times, and nothing
 re-derives it between those readings. That is the same shape as the fifteen
 false absence claims of the preceding four days: cheap to assert, expensive to
 falsify, and inherited rather than checked. Sweeps are where the bill arrives.
+
+`hero-combat` closed on 8 August 2026 and is the eleventh zero. It forecast 49
+steps and delivered 25, and the holdout returned 195 of 3,640 screens for the
+seventh evaluation running.
+
+This is the goal that should have moved it. The ten zeros before it were extended
+commands and cleanup -- `#chat`, `#twoweapon`, an options sweep -- and each could
+be dismissed as too rare for eleven hidden sessions to contain. Hero melee combat
+is not rare. It is the loop the game is built around, and porting it took the
+development set from 1,102 to 1,127 screens across three sessions. Eleven hidden
+sessions moved by nothing at all.
+
+The reason is visible in the figure itself. The holdout sits at 5.4 per cent of
+its screens, so whatever stops those sessions is upstream of everything this goal
+touched; they do not reach a fight. Ten zeros made reachability the surviving
+reading. This one makes it the only reading, and it says the hidden sessions are
+blocked early by something the development set does not exercise. Finding what
+that is would be worth more than the next several boundary ports, and nothing in
+the current selection rule can point at it, because the rule ranks on development
+look-ahead and the development sessions do not stop there.
+
+The forecast miss is the other lesson, and the record predicted it. The goal was
+selected at 49 capped steps over three sessions, of which `seed0006` carried 32.
+It delivered 8. Its remaining 24 sit behind the Options and "Autopickup what?"
+menu, which is exactly the block the selector's own classifier had flagged as its
+lowest-confidence reading, saying the redraws were "verified at code level but not
+screen by screen". The selector then argued the margin survived discounting that
+session, and it did -- `hero-combat` still ranked first on 25 against a runner-up
+at 31 raw, and the two other witnesses delivered their forecasts exactly. So the
+ranking was right and the number was wrong, and it was wrong in the one place the
+selector had already said to distrust. A flagged low-confidence block should be
+discounted in the figure rather than only in the argument.
+
+Three formal correctness passes ran inside this goal, at `e8e6ccb`, `561f6f1` and
+`e489fe6`, confirming 34 findings between them. Eighteen were tests. The third
+pass found why: the refusal tests asserted a refusal's message and nothing else,
+so a refusal that fires after the state changes it was meant to prevent still
+passed, and so did a refusal wider than the C condition it stood for. Two of the
+first and three of the second reached formal review in a port whose defining
+property is being fail-closed. The sharpest instance was `xkilled()`'s pit arm,
+which refused every kill of a pit-trapped monster where C acts only when a boulder
+is present: wrong, unreachable today, and held in place by a test that pinned the
+wrong behavior. Refusal tests now assert position -- no draw and no state change
+before the stop -- rather than text.
