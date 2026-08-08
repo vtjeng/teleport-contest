@@ -20,8 +20,6 @@ import {
     HALLUC,
     HALLUC_RES,
     ICE,
-    In_endgame,
-    Is_earthlevel,
     LAVAPOOL,
     LEVITATION,
     LR_DOWNTELE,
@@ -633,11 +631,19 @@ export function Can_fall_thru(level, state = game) {
 
 // C ref: dungeon.c has_ceiling() (1689-1698). Every level has a ceiling
 // except the endgame planes, and the earth plane is solid rock rather than
-// open sky, so it keeps one. mondata.h:23 grounded() is the reader this port
-// was written for: a clinger holds onto a ceiling and so avoids a pit only
-// where one exists.
-export function has_ceiling(level) {
-    if (In_endgame(level) && !Is_earthlevel(level))
+// open sky, so it keeps one. Its two readers are mondata.h:23 grounded(),
+// where a clinger holds onto a ceiling and so avoids a pit only where one
+// exists, and mon.c m_in_air().
+//
+// dungeon.h:141 In_endgame() and :114 Is_earthlevel() are spelled out against
+// `state` rather than imported from js/const.js, whose copies read the module
+// singleton `game`: every other topology predicate in this file is
+// state-scoped, and grounded() is called with the planning clone in
+// js/unported_monster_actions.js, which carries its own hero.
+export function has_ceiling(level, state = game) {
+    const inEndgame = level?.dnum != null
+        && level.dnum === state.astral_level?.dnum;
+    if (inEndgame && !on_level(level, state.earth_level))
         return false;
     return true;
 }

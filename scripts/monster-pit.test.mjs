@@ -29,7 +29,7 @@ import {
     PM_XORN,
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
-import { CORPSE } from '../js/objects.js';
+import { CORPSE, EGG } from '../js/objects.js';
 import { canSeeMonster } from '../js/startup_a11y.js';
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';
 import { loadMonsterPitRecipe } from './run-monster-pit.mjs';
@@ -160,12 +160,36 @@ test('grounded excludes flyers, floaters and clingers under a ceiling',
         assert.equal(grounded(game.mons[PM_BAT], game), false, 'M1_FLY');
         assert.equal(grounded(game.mons[PM_FLOATING_EYE], game), false,
                      'S_EYE');
+
+        // dungeon.h:141 and :114 read astral_level and earth_level, which
+        // every other predicate in js/dungeon.js takes from the caller's
+        // state. js/unported_monster_actions.js hands grounded() a planning
+        // clone, so a second state has to answer for its own topology rather
+        // than the singleton's. The dungeon numbers are arbitrary and only
+        // have to differ from the singleton's, whose astral plane is a
+        // different dnum.
+        const otherEndgame = {
+            astral_level: { dnum: 9, dlevel: 1 },
+            earth_level: { dnum: 9, dlevel: 5 },
+        };
+        const otherPlane = { dnum: 9, dlevel: 2 };
+        assert.notEqual(otherEndgame.astral_level.dnum, game.astral_level.dnum);
+        assert.equal(has_ceiling(otherPlane, otherEndgame), false,
+                     "the other state's own endgame");
+        assert.equal(has_ceiling(otherEndgame.earth_level, otherEndgame), true,
+                     "the other state's own earth plane");
+        assert.equal(
+            grounded(game.mons[PM_ROCK_PIERCER],
+                     { ...otherEndgame, u: { uz: otherPlane } }),
+            true,
+            'a clinger with no ceiling to hold',
+        );
     });
 
 // trap.c trapeffect_pit():1989-2007, the ordinary case: the pit catches its
 // victim, tells the hero so, exposes itself on the map and spends rnd(6) on
-// the victim's hit points. mintrap():3830 then stops, because a monster the
-// pit leaves alive needs mon.c maybe_unhide_at().
+// the victim's hit points. mintrap():3827-3835 then runs to no effect and
+// returns the arm's answer at 3838.
 test('a pit in sight catches its victim and reports the fall', async () => {
     await hero();
     const { mon, trap, x, y } = victimInPit(PM_JACKAL, 9);
@@ -173,9 +197,7 @@ test('a pit in sight catches its victim and reports the fall', async () => {
 
     // rnd(6) of 4 leaves the jackal standing with 5 hit points.
     const env = pitEnv([4]);
-    await refusesAsync(
-        () => mintrap(mon, 0, env), 'a monster trapped under an object',
-    );
+    assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon, 'trap.c:2006');
     assert.deepEqual(env.lines, ['The jackal falls into a pit!']);
     assert.deepEqual(env.bounds, ['rnd(6)'], 'only the damage roll');
     assert.equal(mon.mhp, 5, 'rnd(6) of 4 off nine hit points');
@@ -183,13 +205,34 @@ test('a pit in sight catches its victim and reports the fall', async () => {
     assert.equal(trap.tseen, true, "seetrap()'s write");
     assert.deepEqual(env.redraws, [`${x},${y}`], "and seetrap()'s draw");
 
-    // trap.c:2006-2007. mintrap()'s tail stops before it can return, so the
-    // arm's own answer for a victim it caught is asked of it directly.
-    const caught = victimInPit(PM_JACKAL, 9);
-    assert.equal(
-        await trapeffect_selector(caught.mon, caught.trap, 0, pitEnv([4])),
-        Trap_Caught_Mon,
+    // trap.c:3827-3835 is a no-op for a victim that was not hiding, and the
+    // whole of what mon.c maybe_unhide_at():4714-4719 asks first is
+    // mtmp->mundetected. A hider caught by the same pit reaches hideunder()
+    // and stops. The jackal is not a hides_under() species, which makes this
+    // the mundetected bit on its own rather than the species behind it.
+    //
+    // Five hit points less the same rnd(6) of 4 leave exactly one, which is
+    // where monst.h:214 DEADMONSTER() draws its line: trap.c:3827 asks
+    // !DEADMONSTER(), so a victim on its last hit point is still one the
+    // block runs for.
+    const hider = victimInPit(PM_JACKAL, 5, { mundetected: true });
+    await refusesAsync(
+        () => mintrap(hider.mon, 0, pitEnv([4])),
+        'a monster trapped under an object',
     );
+
+    // The other side of that line: a hider the same pit empties is a
+    // DEADMONSTER(), so trap.c:3827 skips the block and mintrap() reports the
+    // kill. rnd(6) of 6 empties six hit points and the corpse roll's rn2(2) of
+    // 1 declines a corpse. The kill also clears the bit the guard reads --
+    // mon.c m_detach() does, at js/mon.js mon_leaving_level() -- so no monster
+    // ever reaches that line with no hit points left and mundetected still
+    // set, and lowering the bound to 0 changes nothing observable.
+    const deadHider = victimInPit(PM_JACKAL, 6, { mundetected: true });
+    assert.equal(
+        await mintrap(deadHider.mon, 0, pitEnv([6, 1])), Trap_Killed_Mon,
+    );
+    assert.equal(deadHider.mon.mhp, 0);
 });
 
 // trap.c trapeffect_pit():2002-2004 into mon.c monkilled(). This is the case
@@ -235,9 +278,7 @@ test('a pit out of sight is silent and stays off the map', async () => {
     assert.equal(canSeeMonster(mon, game), false, 'the hero cannot watch');
 
     const env = pitEnv([4]);
-    await refusesAsync(
-        () => mintrap(mon, 0, env), 'a monster trapped under an object',
-    );
+    assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon);
     assert.deepEqual(env.lines, [], 'no line');
     assert.deepEqual(env.redraws, [], 'no draw');
     assert.equal(trap.tseen, false, 'the pit stays unmapped');
@@ -254,9 +295,7 @@ test('a hero-made pit is named as the hero own', async () => {
 
     // rnl(5) of 0 declines setmangry(), which is not ported.
     const env = pitEnv([0, 4]);
-    await refusesAsync(
-        () => mintrap(mon, 0, env), 'a monster trapped under an object',
-    );
+    assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon);
     assert.deepEqual(env.lines, ['The jackal falls into your pit!']);
     assert.deepEqual(env.bounds, ['rnl(5)', 'rnd(6)']);
 });
@@ -305,12 +344,35 @@ test('a Sokoban pit drags a clinger in', async () => {
     game.level.flags.sokoban_rules = true;
     try {
         const env = pitEnv([4]);
-        await refusesAsync(
-            () => mintrap(mon, 0, env), 'a monster trapped under an object',
-        );
+        assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon);
         assert.deepEqual(env.lines, ['The rock piercer is dragged into a pit!']);
         assert.equal(mon.mtrapped, true);
         assert.equal(mon.mhp, 5);
+
+        // trap.c:1970. `inescapable` reads `Sokoban && !trap->madeby_u`, so a
+        // pit the hero dug in Sokoban is escapable and the clinger walks over
+        // it exactly as it does off the level. rnl(5) of 0 declines
+        // mintrap():3819's unported setmangry().
+        const own = victimInPit(PM_ROCK_PIERCER, 9, { madeby_u: true });
+        const ownEnv = pitEnv([0]);
+        assert.equal(await mintrap(own.mon, 0, ownEnv), Trap_Effect_Finished);
+        assert.deepEqual(ownEnv.lines, [], 'no line');
+        assert.deepEqual(ownEnv.redraws, [], 'no draw');
+        assert.deepEqual(ownEnv.bounds, ['rnl(5)'], 'not even the damage roll');
+        assert.equal(own.mon.mtrapped, false);
+        assert.equal(own.trap.tseen, false);
+
+        // trap.c:1976. The openfallingtrap arm carries `!Sokoban`, so a forced
+        // pit here drags the clinger in rather than reporting that it kept its
+        // footing, which is what the same call does off a Sokoban level.
+        const forced = victimInPit(PM_ROCK_PIERCER, 9);
+        const forcedEnv = pitEnv([4]);
+        assert.equal(
+            await mintrap(forced.mon, FORCETRAP, forcedEnv), Trap_Caught_Mon,
+        );
+        assert.deepEqual(forcedEnv.lines,
+                         ['The rock piercer is dragged into a pit!']);
+        assert.equal(forced.mon.mtrapped, true);
     } finally {
         game.level.flags.sokoban_rules = false;
     }
@@ -337,9 +399,7 @@ test('a pit viper draws the pit joke', async () => {
     const { mon } = victimInPit(PM_PIT_VIPER, 9);
 
     const env = pitEnv([4]);
-    await refusesAsync(
-        () => mintrap(mon, 0, env), 'a monster trapped under an object',
-    );
+    assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon);
     assert.deepEqual(env.lines, [
         'The pit viper falls into a pit!',
         "How pitiful.  Isn't that the pits?",
@@ -348,16 +408,14 @@ test('a pit viper draws the pit joke', async () => {
     // A lichen shares every other branch of the arm and takes no aside.
     const plain = victimInPit(PM_LICHEN, 9);
     const plainEnv = pitEnv([4]);
-    await refusesAsync(
-        () => mintrap(plain.mon, 0, plainEnv),
-        'a monster trapped under an object',
-    );
+    assert.equal(await mintrap(plain.mon, 0, plainEnv), Trap_Caught_Mon);
     assert.deepEqual(plainEnv.lines, ['The lichen falls into a pit!']);
 });
 
 // trap.c mselftouch() (3912-3933), called from trapeffect_pit():2000. Its body
 // is refused, and the guard has to be the C one: a wielded object that is not
-// a corpse, and a corpse that does not petrify, both fall through.
+// a corpse, and a corpse that does not petrify, both fall through. Each of the
+// three shapes is asserted below.
 test('a wielded cockatrice corpse stops the fall', async () => {
     await hero();
     const { mon } = victimInPit(PM_JACKAL, 9);
@@ -373,10 +431,17 @@ test('a wielded cockatrice corpse stops the fall', async () => {
     const safe = victimInPit(PM_JACKAL, 9);
     safe.mon.mw = mksobj(CORPSE, false, false, { state: game });
     safe.mon.mw.corpsenm = PM_LICHEN;
-    await refusesAsync(
-        () => mintrap(safe.mon, 0, pitEnv([4])),
-        'a monster trapped under an object',
-    );
+    assert.equal(await mintrap(safe.mon, 0, pitEnv([4])), Trap_Caught_Mon);
+
+    // The other half of the guard, and the only case that separates the otyp
+    // test from touch_petrifies(): an object that is not a corpse but carries
+    // a corpsenm all the same. objects.h gives EGG one, as tins, statues and
+    // figurines also have, so a monster wielding one would misfire on the otyp
+    // test alone.
+    const egg = victimInPit(PM_JACKAL, 9);
+    egg.mon.mw = mksobj(EGG, false, false, { state: game });
+    egg.mon.mw.corpsenm = PM_COCKATRICE;
+    assert.equal(await mintrap(egg.mon, 0, pitEnv([4])), Trap_Caught_Mon);
 });
 
 // trap.c trapeffect_pit():1975. The worm term is worm.c count_wsegs(), which
@@ -479,12 +544,14 @@ const FALL_KEY = Object.freeze({
     6305341: 18,
     6312649: 28,
     6301625: 74,
+    6202761: 3,
+    6200032: 6,
 });
 
 test('monster-pit matrix contains only source-selected inputs', () => {
     const recipe = loadMonsterPitRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 13);
+    assert.equal(recipe.segments.length, 15);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
@@ -493,20 +560,20 @@ test('monster-pit matrix contains only source-selected inputs', () => {
             'every segment spends its turns on the search command',
         );
     }
-    // Nine segments keep the hero alone, so the victim is always a wild
-    // monster; the other four put a pet in the same scan, which reaches
+    // Ten segments keep the hero alone, so the victim is always a wild
+    // monster; the other five put a pet in the same scan, which reaches
     // postmov() through dog_move() instead of m_move().
     assert.equal(
         recipe.segments.filter(
             ({ nethackrc }) => nethackrc.includes('OPTIONS=pettype:none\n'),
         ).length,
-        9,
+        10,
     );
     assert.equal(
         recipe.segments.filter(
             ({ nethackrc }) => nethackrc.includes('OPTIONS=pettype:dog\n'),
         ).length,
-        4,
+        5,
     );
 });
 

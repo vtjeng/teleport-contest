@@ -876,7 +876,18 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
     // C ref: trap.c:3827-3835. A monster the effect left trapped in a non-pit
     // stops hiding under an object. Only trapeffect_selector() arms that set
     // mtrapped reach it, and the squeaky board is not one of them.
-    if (monster.mhp >= 1 && monster.mtrapped)
+    //
+    // The whole block is a no-op for a victim that was not hiding, so only a
+    // hiding one stops here. mon.c maybe_unhide_at() (4698-4720) reads
+    // mtmp->mundetected into `undetected` and calls hideunder() only inside
+    // `if (undetected && ...)`, so with that bit clear it changes nothing and
+    // canseemon() answers the same after it as before. display.h:129 makes
+    // canspotmon() `canseemon() || sensemon()`, so `!alreadyspotted` implies
+    // `!canseemon` and the "%s appears." line cannot fire either. The refusal
+    // is wider than maybe_unhide_at()'s own guard, which also wants a
+    // hides_under() species or an eel out of water; hideunder() and Amonnam()
+    // are what it owns.
+    if (monster.mhp >= 1 && monster.mtrapped && monster.mundetected)
         unsupported('a monster trapped under an object');
     return result;
 }

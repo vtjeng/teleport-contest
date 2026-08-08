@@ -13,12 +13,15 @@
 // the draws the arm spends: the rnd(6) that hurts the victim and, behind it,
 // corpse_chance() and mkobj.c mksobj()'s corpse initialization.
 //
-// The matrix spreads over the three things that change what a recording sees:
+// The matrix spreads over the four things that change what a recording sees:
 // whether the hero can watch the victim, which selects both seetrap() and the
 // two lines; which species falls, because Monnam() and monkilled()'s
-// nonliving() both read it; and whether the victim reaches the trap through
+// nonliving() both read it; whether the victim reaches the trap through
 // dogmove.c dog_move() or monmove.c m_move(), which are separate paths into
-// the same postmov() call.
+// the same postmov() call; and whether the pit kills the victim or leaves it
+// alive and trapped, which is what decides between mintrap():3838's
+// Trap_Killed_Mon and Trap_Caught_Mon and whether the block at 3827-3835 runs
+// at all.
 //
 // The hero searches for the whole segment. Standing still keeps the hero's own
 // moves out of the recording, gives the monsters turns in which to find a pit,
@@ -28,7 +31,10 @@
 // whose dungeon level one holds a PIT that some monster later fell into, read
 // from the trap's `tseen` bit and from the corpse left on its square; none was
 // copied from a recorded session. Each segment's move count is the smallest
-// round number past the fall it was chosen for.
+// round number past the fall it was chosen for. The two survivor seeds come
+// from the same kind of scan over 6,200,000 to 6,203,300, kept instead when a
+// live monster still stood on a pit after forty turns: five of those 6,600
+// segments did, and one of the five was in sight.
 //
 // Three branches of the arm have no segment here, and scripts/monster-pit.test
 // .mjs pins all three against mintrap() directly. Sokoban's "is dragged" verb
@@ -99,6 +105,21 @@ export function loadMonsterPitRecipe() {
             // A kobold zombie, whose death monkilled() reports as `is
             // destroyed!` because nonliving() answers TRUE for it.
             waiting({ seed: 6301625, pettype: 'dog', turns: 85 }),
+            // The victim rnd(6) leaves alive. mintrap() then reaches
+            // trap.c:3827-3835 with mtmp->mtrapped still set, which is the
+            // whole difference from the kills above, and the turn ends with a
+            // monster stuck in a pit on the map instead of a corpse. The pet
+            // falls in sight on turn 3, so its fall line and seetrap() are
+            // both recorded; the seven keys after it find the pet again and
+            // spend no time, which is itself part of what the recording pins.
+            waiting({ seed: 6202761, pettype: 'dog', turns: 10 }),
+            // The same survival out of sight, where the arm withholds both the
+            // line and seetrap(), and where the hero keeps taking turns after
+            // it. Seven is one past the fall on turn 6: on turn 8 the trapped
+            // monster tries to move and monmove.c reaches an unported branch
+            // for one, so the segment stops short of that rather than
+            // recording a divergence.
+            waiting({ seed: 6200032, turns: 7 }),
         ],
     }, 'monster pit recipe');
 }

@@ -1566,12 +1566,16 @@ test('simple preflight rejects every selected excluded action atomically',
                 // trap.c:3827-3835. The pit is ported, so the refusal moves to
                 // mintrap()'s tail, which maybe_unhide_at() owns. Twenty hit
                 // points put the rat out of reach of trapeffect_pit()'s
-                // rnd(6), so the victim always survives to reach it.
-                name: 'a pit that spares its victim',
+                // rnd(6), so the victim always survives to reach it, and
+                // mundetected is what mon.c maybe_unhide_at():4714 reads
+                // before it can call hideunder(): without that bit the block
+                // does nothing and the turn carries on.
+                name: 'a pit that spares a hiding victim',
                 reason: 'a monster trapped under an object',
                 prepare: async () => {
                     const target = await prepareSelectedAction();
                     target.monster.mhp = target.monster.mhpmax = 20;
+                    target.monster.mundetected = true;
                     game.level.traps.push({
                         tx: target.destinationX,
                         ty: target.heroY,

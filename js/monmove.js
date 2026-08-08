@@ -134,7 +134,7 @@ import { newsym, vobj_at } from './display.js';
 import { capitalizedMonsterName } from './do_name.js';
 import { dogfood } from './dogfood.js';
 import { could_reach_item } from './dogmove.js';
-import { on_level } from './dungeon.js';
+import { has_ceiling, on_level } from './dungeon.js';
 import {
     bad_rock,
     cant_squeeze_thru,
@@ -705,17 +705,13 @@ export function mon_allowflags(monster, env = {}) {
     return allowflags;
 }
 
-function currentLevelHasCeiling(state) {
-    return !inEndgame(state) || on_level(state.u?.uz, state.earth_level);
-}
-
-// C ref: mon.c m_in_air(). Clingers count only while concealed against a
-// ceiling; ordinary flyers and floaters are unconditional.
+// C ref: mon.c m_in_air() (2128-2136). Clingers count only while concealed
+// against a ceiling; ordinary flyers and floaters are unconditional.
 export function m_in_air(monster, state = game) {
     return is_flyer(monster.data)
         || is_floater(monster.data)
         || (is_clinger(monster.data)
-            && currentLevelHasCeiling(state)
+            && has_ceiling(state.u?.uz, state)
             && monster.mundetected);
 }
 
