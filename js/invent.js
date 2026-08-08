@@ -750,11 +750,6 @@ export function preflight_look_here(
                 );
             }
         }
-        if (t_at(ux, uy, state)) {
-            throw new UnsupportedFeatureDescriptionError(
-                'a trap under an object-pile menu',
-            );
-        }
         if (engr_at(ux, uy, state)) {
             throw new UnsupportedFeatureDescriptionError(
                 'an engraving after an object-pile menu',
@@ -777,6 +772,12 @@ export function preflight_look_here(
     }
 
     const trap = t_at(ux, uy, state);
+    // C ref: invent.c look_here() (4162-4178). This block is the only place
+    // look_here() names a trap, and dfeature_at() has no trap arm at all, so an
+    // unseen trap under the square changes nothing about what is printed. A
+    // second, wider stop above this one used to refuse any trap beneath an
+    // object pile, seen or not; it kept the hero from ever walking onto a pile
+    // that hid a trap, which is the ordinary way a trap is met.
     if (!skip_objects) {
         const reg = visible_region_at(ux, uy, state);
         if (reg || (trap && trap.tseen)) {

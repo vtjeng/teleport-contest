@@ -22,6 +22,7 @@ import {
     D_TRAPPED,
     EXT_ENCUMBER,
     HVY_ENCUMBER,
+    FAILEDUNTRAP,
     FAST,
     FIRE_RES,
     FLYING,
@@ -46,6 +47,7 @@ import {
     INTRINSIC,
     INVIS,
     LAVAWALL,
+    LEFT_SIDE,
     LEVITATION,
     MAX_CARR_CAP,
     MAX_TYPE,
@@ -54,6 +56,7 @@ import {
     M_AP_TYPMASK,
     PASSES_WALLS,
     POISON_RES,
+    RIGHT_SIDE,
     ROOM,
     RUN_CRAWL,
     RUN_LEAP,
@@ -67,17 +70,21 @@ import {
     TELEPORT,
     TELEPORT_CONTROL,
     TIMER_OBJECT,
+    TT_BEARTRAP,
     Upolyd,
     VIBRATING_SQUARE,
+    WOUNDED_LEGS,
     W_NONDIGGABLE,
     W_NONPASSWALL,
     WT_ELF,
     WT_WEIGHTCAP_SPARE,
     WT_WEIGHTCAP_STRCON,
     WT_TOOMUCH_DIAGONAL,
+    WT_WOUNDEDLEG_REDUCT,
     ZOMBIFY_MON,
     OVERLOADED,
     PROT_FROM_SHAPE_CHANGERS,
+    is_pit,
     isok,
 } from './const.js';
 import { acurrstr, effective_attribute, exercise } from './attrib.js';
@@ -175,8 +182,9 @@ import {
     start_timer,
     stop_timer,
 } from './timeout.js';
-import { is_lava, is_pool, t_at } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import { is_lava, is_pool, reset_utrap, t_at } from './trap.js';
+import { dotrap, preflight_dotrap } from './trap_effects.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
 import { do_attack, is_safemon } from './uhitm.js';
 import { vision_recalc } from './vision.js';
 
@@ -187,20 +195,30 @@ const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 // helper, this reads effective Strength on every call, so hunger weakness can
 // change carrying capacity before the next monster/allocation cycle.
 //
-// Three of C's branches are absent because nothing reaches them: the
-// Boots_on/ELevitation deferral and its restore at 4337-4341, the Upolyd
-// adjustment, and the EWounded_legs reduction, which needs a property no line
-// of this port sets. The steed arm at 4325-4327 is live, because riding a
-// strong monster is one of the three ways C reaches MAX_CARR_CAP -- the other
-// two, Levitation and the air level, remain out of reach.
+// Two of C's branches are absent because nothing reaches them: the
+// Boots_on/ELevitation deferral and its restore at 4337-4341, and the Upolyd
+// adjustment. The steed arm at 4325-4327 is live, because riding a strong
+// monster is one of the three ways C reaches MAX_CARR_CAP -- the other two,
+// Levitation and the air level, remain out of reach.
+//
+// The EWounded_legs reduction at 4331-4336 is live too, and it is what turns a
+// bear trap's set_wounded_legs() into the "Burdened" the status line shows: one
+// wounded leg costs WT_WOUNDEDLEG_REDUCT, and both cost twice that. C guards it
+// with !Flying, which is the only reader of Flying in this function.
 export function weight_cap(state = game) {
     let capacity = WT_WEIGHTCAP_STRCON * (
         acurrstr(state) + effective_attribute(state, A_CON)
     ) + WT_WEIGHTCAP_SPARE;
-    if (state.u.usteed && strongmonst(state.u.usteed.data))
+    if (state.u.usteed && strongmonst(state.u.usteed.data)) {
         capacity = MAX_CARR_CAP;
-    else
+    } else {
         capacity = Math.min(capacity, MAX_CARR_CAP);
+        if (!heroIsFlying(state)) {
+            const sides = state.u?.uprops?.[WOUNDED_LEGS]?.extrinsic ?? 0;
+            if (sides & LEFT_SIDE) capacity -= WT_WOUNDEDLEG_REDUCT;
+            if (sides & RIGHT_SIDE) capacity -= WT_WOUNDEDLEG_REDUCT;
+        }
+    }
     return Math.max(Math.trunc(capacity), 1); /* never return 0 */
 }
 
@@ -893,8 +911,12 @@ export function requireSimpleHeroDestination(x, y, state) {
             'terrain feature description',
         );
     }
-    if (t_at(x, y, state))
-        throw new UnsupportedHeroMoveBoundaryError('trap activation');
+    // spoteffects() triggers the trap under the hero after the move commits,
+    // so everything trap.c dotrap() cannot answer has to be asked here, while
+    // refusing still costs nothing. preflight_dotrap() is that question and
+    // raises this same class; the bear trap is the one type it lets through.
+    const destinationTrap = t_at(x, y, state);
+    if (destinationTrap) preflight_dotrap(destinationTrap, state);
 
     for (const region of state.level?.regions ?? []) {
         if (region.attach_2_u) continue;
@@ -1730,6 +1752,47 @@ export function runStopsBeforeMonster(monster, run, state) {
     return seen || sensesMonster(monster, state);
 }
 
+// C ref: hack.c trapmove() (1549-1691), the TT_BEARTRAP arm (1565-1579) and
+// the wriggle_free: label it jumps to (1671-1680). TRUE means the hero may go
+// on to test_move(); FALSE means the step is spent struggling and the turn
+// still passes.
+//
+// Escaping costs one point of u.utrap per step, and a diagonal step always
+// pays it while an orthogonal one pays it on a one-in-five rn2(5) -- C's own
+// comment asks why diagonal movement gives the quickest escape. The
+// short-circuit matters: a diagonal step draws no random number at all.
+//
+// The other five u.utraptype arms are TT_PIT (climb_pit()), TT_WEB
+// (u_wield_art(ART_STING)), TT_LAVA, TT_INFLOOR and TT_BURIEDBALL
+// (buried_ball() and buried_ball_to_punishment()); none of those owners is
+// ported. `x`, `y` and `desttrap` are read by the TT_PIT arm alone, which is
+// why they are unread here. `anchored` is TT_BURIEDBALL's, and it is what
+// makes wriggle_free() say "wriggle" rather than "wrench the ball" below.
+async function trapmove(_x, _y, _desttrap, state = game) {
+    const u = state.u;
+
+    if (!u.utrap) return true; /* sanity check */
+
+    /*
+     * Note: caller should call reset_utrap() when we set u.utrap to 0.
+     */
+    if (u.utraptype !== TT_BEARTRAP) {
+        throw new UnsupportedHeroMoveBoundaryError('held hero movement');
+    }
+    // C ref: hack.c:1556 and 1569-1570. A mounted hero is named by
+    // y_monnam(u.usteed) and reported instead of the hero. domove() refuses a
+    // ride before this, so the refusal here is the second lock on the same
+    // door rather than the one that fires.
+    if (u.usteed) {
+        throw new UnsupportedHeroMoveBoundaryError('a steed in a bear trap');
+    }
+    if (state.flags?.verbose)
+        await ttyNorep('You are caught in a bear trap.', state);
+    if ((u.dx && u.dy) || !rn2(5)) --u.utrap;
+    if (!u.utrap) await ttyPline('You finally wriggle free.', state);
+    return false;
+}
+
 // C ref: hack.c domove(). This remains the narrow ordinary-floor subset; the
 // movement goal will replace its collision and terrain branches in source
 // order without changing the command intent established by cmd.c. It requires
@@ -1811,6 +1874,24 @@ export async function domove(state = game) {
             },
         );
         if (attackConsumedMove) {
+            state.domoveAttempting = 0;
+            return;
+        }
+    }
+
+    // C ref: domove_core():2830-2841. A held hero spends the step struggling
+    // and never reaches test_move(). C passes NULL for desttrap here; the
+    // adjacent-pit lookup that argument serves belongs to the other caller.
+    if (u.utrap) {
+        const moved = await trapmove(newx, newy, null, state);
+
+        if (!u.utrap) {
+            state.disp ??= {};
+            state.disp.botl = true;
+            reset_utrap(true, state); /* might resume levitation or flight */
+        }
+        /* might not have escaped, or did escape but remain in the same spot */
+        if (!moved) {
             state.domoveAttempting = 0;
             return;
         }
@@ -2240,10 +2321,11 @@ export function terrain_changed_under_hero(state = game) {
 }
 
 // C ref: hack.c spoteffects() (3312-3462), the arms an ordinary ROOM, CORR,
-// IS_FURNITURE or open doorway square reaches. Its two ported callers,
-// domove() and teleport.c teleds(), each admit their destination through
-// requireSimpleHeroDestination() first, which refuses every square that could
-// reach the pool, lava, trap or ice-warning arms; the recursion guard and the
+// IS_FURNITURE or open doorway square reaches, plus the trap arm at 3373-3398.
+// Its two ported callers, domove() and teleport.c teleds(), each admit their
+// destination through requireSimpleHeroDestination() first, which refuses
+// every square that could reach the pool, lava or ice-warning arms and hands
+// the trap arm's admission to preflight_dotrap(); the recursion guard and the
 // iflags.in_lava_effects return are unreachable for the same reason. The
 // resident-monster arm at 3417-3455 is kept out by the callers instead:
 // domove() reaches this seam only when m_at() answered null, and teleds()
@@ -2254,6 +2336,11 @@ export function terrain_changed_under_hero(state = game) {
 // pickup deferred: steed.c dismount_steed() sets it around its teleds() call
 // and then lets float_down() run pickup(1) exactly once.
 export async function spoteffects(pick, state = game) {
+    const trap = t_at(state.u.ux, state.u.uy, state);
+    // C ref: hack.c:3322. untrap.c is not ported and nothing sets the flag, so
+    // FAILEDUNTRAP never reaches dotrap() -- but the read belongs here, where
+    // C makes it, rather than being written out as the constant 0.
+    const trapflag = state.iflags?.failing_untrap ? FAILEDUNTRAP : 0;
     if (terrain_changed_under_hero(state)) switch_terrain(state);
     await check_special_room(false, state);
     // C ref: hack.c:3353-3354, spoteffects()'s only IS_FURNITURE arm. Nothing
@@ -2264,7 +2351,28 @@ export async function spoteffects(pick, state = game) {
         && propertyActiveUnblocked(state, LEVITATION)) {
         throw new UnsupportedHeroMoveBoundaryError('dosinkfall()');
     }
-    if (!state.in_steed_dismounting && pick) await pickup(1, state);
+    if (!state.in_steed_dismounting) {
+        // C ref: hack.c:3362-3372. A levitation about to time out at the end
+        // of this turn would let the trap fire twice, so C spends an rn2(2) to
+        // move the timeout out of the way. No ported source grants timed
+        // levitation -- js/timeout.js refuses any property timeout it does not
+        // own -- so HLevitation's timeout field is never 1 and the draw is
+        // unreachable rather than skipped.
+        //
+        // C ref: hack.c:3379-3398. Which of pickup(1) and dotrap() goes first
+        // is decided by is_pit() alone: the hero picks up what is lying on an
+        // ordinary trap before it fires, and falls into a pit before picking
+        // anything up from its floor. A bear trap is not a pit, which is why
+        // the object pile is described first and the trap line arrives on the
+        // next screen.
+        const pit = Boolean(trap && is_pit(trap.ttyp));
+        if (pick && !pit) await pickup(1, state);
+        // C's spottrap/spottraptyp statics at 3388-3396 guard against a fire
+        // trap re-entering spoteffects() through melt_ice(); no ported trap
+        // effect recurses, so the guard has nothing to suppress.
+        if (trap) await dotrap(trap, trapflag, state);
+        if (pick && pit) await pickup(1, state);
+    }
 }
 
 // C ref: flag.h:233 notice_mon_off(). Suspends the accessibility monster

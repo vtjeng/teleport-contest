@@ -1562,6 +1562,27 @@ export function trap_glyph_info(trap, state = game) {
     );
 }
 
+// C ref: display.c map_trap() (295-305). Remembers the trap's own glyph and,
+// when `show` is set, paints it. trap.c feeltrap() is the ported caller, and
+// it follows this with newsym(), which rewrites both the paint and the memory
+// from whatever layer really covers the square -- an object pile, or the hero
+// standing in the trap. The two writes are therefore only observable when
+// newsym() leaves them alone, which is why they are made here rather than
+// folded into the caller.
+export function map_trap(trap, show, state = game) {
+    const glyph = trap_glyph_info(trap, state);
+    if (state.level?.flags?.hero_memory) {
+        const location = state.level.at(trap.tx, trap.ty);
+        if (location) {
+            location.remembered_glyph = remembered_glyph_from_presentation(
+                glyph,
+                trap,
+            );
+        }
+    }
+    if (show) show_glyph_cell(trap.tx, trap.ty, glyph);
+}
+
 /**
  * C ref: display.h glyph_is_generic_object(). C asks the question of the
  * glyph number stored in levl[x][y].glyph; the port asks it of the mark

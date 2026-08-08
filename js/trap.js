@@ -527,14 +527,17 @@ export function maketrap(x, y, typ, rawEnv = {}) {
 
 // youprop.h:242 Levitation and :253 Flying, spelled out here for the same
 // reason every other file in this port spells them out: the macros read three
-// fields of one property and Flying adds a steed term.
-function Levitation(state) {
+// fields of one property and Flying adds a steed term. They are exported for
+// js/trap_effects.js alone, which holds the rest of trap.c's port and needs
+// the same two macros in dotrap() and trapeffect_bear_trap(); a second copy
+// there would be a second copy inside one C file.
+export function Levitation(state) {
     const levitation = state.u.uprops[LEVITATION];
     return Boolean((levitation.intrinsic || levitation.extrinsic)
                    && !levitation.blocked);
 }
 
-function Flying(state) {
+export function Flying(state) {
     const flying = state.u.uprops[FLYING];
     return Boolean((flying.intrinsic || flying.extrinsic
                     || (state.u.usteed && is_flyer(state.u.usteed.data)))

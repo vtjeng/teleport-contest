@@ -6,6 +6,7 @@ import {
     init_artifacts,
 } from '../js/artifacts.js';
 import {
+    BEAR_TRAP,
     BLINDED,
     COLNO,
     CORR,
@@ -692,12 +693,17 @@ test('object-pile exclusions stop before names, output, or engraving',
                 expected: /mention-decor pile-limit/u,
             },
             {
-                name: 'trap under pile',
+                // invent.c look_here() (4162-4178) is the only place a trap
+                // is named, and 4170-4171 drops one the hero has not seen.
+                // tseen is therefore what decides this stop; the companion
+                // test below pins the unseen half, which used to be refused
+                // here and kept the hero off every pile hiding a trap.
+                name: 'seen trap under pile',
                 build: () => pileLookState(),
                 prepare: ({ state }) => state.level.traps.push({
-                    tx: 1, ty: 1, ttyp: PIT, tseen: false,
+                    tx: 1, ty: 1, ttyp: PIT, tseen: true,
                 }),
-                expected: /trap under/u,
+                expected: /trapname\(\)/u,
             },
             {
                 name: 'visible region over pile',
@@ -758,6 +764,39 @@ test('object-pile exclusions stop before names, output, or engraving',
             assert.deepEqual(events, [], specimen.name);
             assert.equal(built.head.dknown, false, specimen.name);
         }
+    });
+
+test('an unseen trap under a pile changes nothing look_here() prints',
+    async () => {
+        // invent.c look_here() names a trap only at 4162-4178, and 4170-4171
+        // discards one whose tseen is clear; dfeature_at() (4041-4108) has no
+        // trap arm at all. So the menu is identical with and without the trap
+        // underneath, which is what lets hack.c spoteffects() describe an
+        // object pile before dotrap() springs the bear trap under it.
+        const runPile = async (trap) => {
+            const built = pileLookState();
+            if (trap) built.state.level.traps.push(trap);
+            const events = [];
+            await look_here(2, LOOKHERE_NOFLAGS, built.state, {
+                message: (text) => events.push(['message', text]),
+                displayObjectPile: (lines) => events.push(['display', lines]),
+                readEngraving: () => events.push(['engraving']),
+            });
+            return events;
+        };
+
+        const withoutTrap = await runPile(null);
+        const withUnseenTrap = await runPile({
+            tx: 1, ty: 1, ttyp: BEAR_TRAP, tseen: false,
+        });
+
+        assert.deepEqual(withUnseenTrap, withoutTrap);
+        // Pin the menu itself, so that a change which silenced both runs
+        // together could not pass this comparison.
+        assert.deepEqual(withoutTrap, [
+            ['display', ['Things that are here:', 'a dart', 'a food ration']],
+            ['engraving'],
+        ]);
     });
 
 test('worn and wielded suffixes follow doname()\'s owornmask branches', () => {

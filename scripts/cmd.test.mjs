@@ -25,6 +25,7 @@ import {
 } from '../js/eat.js';
 import {
     ALTAR,
+    BEAR_TRAP,
     COLNO,
     CORR,
     CROSSWALL,
@@ -53,6 +54,7 @@ import {
     MON_FLOOR,
     NORMAL_SPEED,
     OBJ_FLOOR,
+    OBJ_INVENT,
     PASSES_WALLS,
     PIT,
     ROOM,
@@ -75,15 +77,18 @@ import {
     BLCORNER,
     BRCORNER,
     VWALL,
+    W_ARMF,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
 import { flush_screen } from '../js/display.js';
 import {
     CORPSE,
+    ARMOR_CLASS,
     DAGGER,
     DART,
     FOOD_CLASS,
+    IRON_SHOES,
     objects_globals_init,
     PICK_AXE,
     SACK,
@@ -1167,6 +1172,41 @@ test('simple hero movement rejects spot effects before mutation', async () => {
                 game.level.traps.push({
                     tx: x, ty: y, ttyp: PIT, tseen: false,
                 });
+            },
+        },
+        // trap.c preflight_dotrap()'s three stops beyond the trap type. Each
+        // is asked here, ahead of the move, because spoteffects() calls
+        // dotrap() after the hero has already stepped onto the square and
+        // pickup(1) has already described what is on it; refusing there would
+        // land after both.
+        {
+            // trap.c dotrap():3035-3044 answers a trap the hero already knows
+            // with a one-in-five rn2(5) escape, and both that branch and the
+            // fly-over at :3027-3032 name the trap through trapname().
+            name: 'bear trap the hero has seen',
+            reason: 'a trap the hero has already seen',
+            setup: ({ x, y }) => {
+                installFloorPile(x, y);
+                game.level.traps.push({
+                    tx: x, ty: y, ttyp: BEAR_TRAP, tseen: true,
+                });
+            },
+        },
+        {
+            // trap.c:1517-1518 answers iron shoes with Yname2(uarmf).
+            name: 'bear trap under iron shoes',
+            reason: 'iron shoes in a bear trap',
+            setup: ({ x, y }) => {
+                installFloorPile(x, y);
+                game.level.traps.push({
+                    tx: x, ty: y, ttyp: BEAR_TRAP, tseen: false,
+                });
+                // IRON_SHOES is the one boot type objects.c gives oc_material
+                // IRON, which is the whole of wearing_iron_shoes()'s test.
+                game.uarmf = {
+                    o_id: 90, otyp: IRON_SHOES, oclass: ARMOR_CLASS,
+                    quan: 1, owornmask: W_ARMF, where: OBJ_INVENT,
+                };
             },
         },
         {

@@ -1,9 +1,11 @@
 // do.js -- Commands that drop, dig into, or descend through the floor.
 // C refs: do.c -- flooreffects(), u_stuck_cannot_go(), dodown(), goto_level(),
-// u_collide_m() and temperature_change_msg(); dokick.c obj_delivery(); mon.c
-// kill_genocided_monsters(); questpgr.c deliver_splev_message().
+// u_collide_m(), temperature_change_msg() and set_wounded_legs(); dokick.c
+// obj_delivery(); mon.c kill_genocided_monsters(); questpgr.c
+// deliver_splev_message().
 
 import {
+    A_DEX,
     CORR,
     DIR_DOWN,
     DOOR,
@@ -23,6 +25,7 @@ import {
     OBJ_FREE,
     ROOM,
     RLOC_NOMSG,
+    TIMEOUT,
     TT_BURIEDBALL,
     UNENCUMBERED,
     UTOTYPE_NONE,
@@ -34,6 +37,7 @@ import {
     Upolyd,
     VIBRATING_SQUARE,
     VISITED,
+    WOUNDED_LEGS,
     BLINDED,
     HALLUC,
     HALLUC_RES,
@@ -93,7 +97,11 @@ import {
     HEAVY_IRON_BALL,
     POTION_CLASS,
 } from './objects.js';
-import { pickup, preflight_projected_random_arrival_pickup } from './pickup.js';
+import {
+    encumber_msg,
+    pickup,
+    preflight_projected_random_arrival_pickup,
+} from './pickup.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
 import { cloneIsaacContext, createCoreRandom, rn2 } from './rng.js';
@@ -1167,4 +1175,40 @@ function temperature_change_msg(prev_temperature, state = game) {
             'temperature_change_msg() for a change of level temperature',
         );
     }
+}
+
+// C ref: do.c set_wounded_legs() (2425-2446). youprop.h:136-138 splits the
+// condition across one property: HWounded_legs, the intrinsic field, holds the
+// recovery timeout, and EWounded_legs, the extrinsic field, holds worn-ring
+// side bits saying which leg. Wounded_legs is their plain OR, with no blocked
+// term, so `already` below is that macro.
+//
+// Three consequences follow the write and belong to other owners, which is why
+// this function looks smaller than its effect: hack.c weight_cap() subtracts
+// WT_WOUNDEDLEG_REDUCT per side bit, attrib.c exerchk() exercises Dexterity
+// down while the condition lasts, and timeout.c nh_timeout() counts the
+// intrinsic down and calls heal_legs() at zero. heal_legs() is not ported, so
+// js/timeout.js stops the segment on the turn the count would reach zero.
+//
+// C's comment notes that a mounted hero's steed takes the wound instead and
+// that the caller adjusts its own messages; the hit-point loss is likewise the
+// caller's, not this function's.
+export async function set_wounded_legs(side, timex, state = game) {
+    const u = state.u;
+    const wounded = u.uprops[WOUNDED_LEGS];
+    const already = Boolean(wounded.intrinsic || wounded.extrinsic);
+
+    state.disp ??= {};
+    state.disp.botl = true;
+    if (!already) --u.atemp[A_DEX];
+
+    if (!already || (wounded.intrinsic & TIMEOUT) < timex) {
+        // prop.h set_itimeout(): overwrite the timeout field and keep the
+        // source bits above it.
+        wounded.intrinsic = (wounded.intrinsic & ~TIMEOUT) | timex;
+    }
+    // C ref: do.c:2442-2445. Bitwise-OR rather than assignment, so a second
+    // wound to the other leg does not heal the first.
+    wounded.extrinsic |= side;
+    await encumber_msg(state);
 }

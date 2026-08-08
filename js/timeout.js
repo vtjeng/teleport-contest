@@ -36,6 +36,7 @@ import {
     TIMER_MONSTER,
     TIMER_OBJECT,
     TROLL_REVIVE_CHANCE,
+    WOUNDED_LEGS,
     ZOMBIFY_MON,
 } from './const.js';
 import { artifact_light } from './artifacts.js';
@@ -256,11 +257,20 @@ export function preflight_nh_timeout_elapsed_turn(state = game) {
         }
     }
     for (let index = 0; index < (u.uprops?.length ?? 0); ++index) {
-        if ((Math.trunc(u.uprops[index]?.intrinsic ?? 0) & TIMEOUT) !== 0) {
-            throw new UnsupportedHeroTimeoutBoundaryError(
-                `no active property timeout at index ${index}`,
-            );
-        }
+        const timeout = Math.trunc(u.uprops[index]?.intrinsic ?? 0) & TIMEOUT;
+        if (timeout === 0) continue;
+        // WOUNDED_LEGS is the only property this port gives a timeout:
+        // do.c set_wounded_legs() sets it, for trap.c's bear trap. Its
+        // countdown at timeout.c:670-671 is ported below, so a count above 1
+        // is admitted. A count of exactly 1 reaches the expiry switch on this
+        // turn, and WOUNDED_LEGS' case there is do.c heal_legs(), which is
+        // not ported.
+        if (index === WOUNDED_LEGS && timeout > 1) continue;
+        throw new UnsupportedHeroTimeoutBoundaryError(
+            index === WOUNDED_LEGS
+                ? 'heal_legs() for an expiring wounded-legs timeout'
+                : `no active property timeout at index ${index}`,
+        );
     }
     const due = state.gt?.timer_base;
     if (due && Math.trunc(due.timeout) <= currentMove(state)) {
@@ -306,11 +316,24 @@ export function adjust_timeout_luck(state = game) {
     return true;
 }
 
+// C ref: timeout.c nh_timeout() (670-672), the per-property countdown. C
+// decrements every property whose TIMEOUT field is nonzero and runs a switch on
+// each one that reaches zero. The preflight above admits no property but
+// WOUNDED_LEGS and refuses the turn any count would reach zero, so the switch
+// is unreachable and the countdown is the whole of what remains.
+function decrement_property_timeouts(state) {
+    for (const property of state.u?.uprops ?? []) {
+        if ((Math.trunc(property?.intrinsic ?? 0) & TIMEOUT) !== 0)
+            --property.intrinsic;
+    }
+}
+
 // Source-ordered elapsed-turn owner. The remaining admitted timeout state is
-// source-inert after the live luck prefix.
+// source-inert after the live luck prefix and the property countdown.
 export function nh_timeout_elapsed_turn(state = game) {
     preflight_nh_timeout_elapsed_turn(state);
     adjust_timeout_luck(state);
+    decrement_property_timeouts(state);
 }
 
 // C inserts before the first timer whose expiry is greater than or equal to
