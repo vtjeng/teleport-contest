@@ -17,6 +17,8 @@ import {
     HALLUC,
     HALLUC_RES,
     HVY_ENCUMBER,
+    P_BARE_HANDED_COMBAT,
+    P_SKILLED,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
     STUNNED,
@@ -24,7 +26,7 @@ import {
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { is_undead } from '../js/mondata.js';
-import { newMonster } from '../js/monst.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
     AT_BITE,
     AT_CLAW,
@@ -42,6 +44,7 @@ import {
     PM_LEPRECHAUN,
     PM_LICHEN,
     PM_SAMURAI,
+    NON_PM,
 } from '../js/monsters.js';
 import {
     attack_checks,
@@ -55,6 +58,7 @@ import {
     mon_maybe_unparalyze,
     passive,
 } from '../js/uhitm.js';
+import { skillSlot } from '../js/startup_skills.js';
 import { can_twoweapon } from '../js/wield.js';
 
 const DATETIME = '20260214031500';
@@ -112,8 +116,35 @@ function target(pmidx = PM_LICHEN, overrides = {}) {
         mhpmax: 3,
         mcanmove: 1,
         data: game.mons[pmidx],
+        // makemon() sets these two beside data, and a target that dies needs
+        // both: mon.c mondead():3103 restores a chameleon to mons[cham], and
+        // newMonster() leaves cham at C's zeroed 0, which is a valid species
+        // index. Without this a killed test target turns into a giant ant
+        // before corpse_chance() reads its size.
+        mnum: pmidx,
+        cham: NON_PM,
         ...overrides,
     });
+}
+
+// u_init.c:143-144 arms the Samurai with a katana over a short sword and no
+// shield, the one starting loadout wield.c can_twoweapon() accepts outright.
+function samurai() {
+    return hero({ role: 'Samurai', gender: 'male', align: 'lawful' });
+}
+
+// uhitm.c:764 reads the aimed square off u.dx and u.dy, and :799 looks the
+// target up there again before the second swing, so a test that wants that
+// swing has to put the monster on the map and aim the step at it. Each call
+// takes the next free square east of the hero and re-aims at it.
+function placedTarget(pmidx = PM_LICHEN, overrides = {}) {
+    let dx = 1;
+    while (m_at(game.u.ux + dx, game.u.uy, game)) dx++;
+    const mtmp = target(pmidx, { mx: game.u.ux + dx, ...overrides });
+    place_monster(mtmp, mtmp.mx, game.u.uy, game);
+    game.u.dx = dx;
+    game.u.dy = 0;
+    return mtmp;
 }
 
 const REFUSING = {
@@ -613,9 +644,14 @@ test('passive rolls the empty slot dice and stops on a real counter-attack',
 // The env is the one js/hack.js domove() builds, with the two hack.c owners
 // injected because js/hack.js imports this module.
 
+// `dieroll` answers every rnd(). A two-weapon attempt rolls rnd(20) twice and
+// the two swings need separate answers, so it may also be a function of the
+// bound and of how many rnd() calls have gone before.
 function meleeEnv({ dieroll = 20, rn2Result = () => 1, ...overrides } = {}) {
     const lines = [];
     const bounds = [];
+    const rolls = [];
+    const nextRoll = typeof dieroll === 'function' ? dieroll : () => dieroll;
     const env = {
         checkCapacity: async () => false,
         encumberMessage: async () => {},
@@ -627,7 +663,12 @@ function meleeEnv({ dieroll = 20, rn2Result = () => 1, ...overrides } = {}) {
         random: {
             d: () => 0,
             rn2(bound) { bounds.push(`rn2(${bound})`); return rn2Result(bound); },
-            rnd(bound) { bounds.push(`rnd(${bound})`); return dieroll; },
+            rnd(bound) {
+                bounds.push(`rnd(${bound})`);
+                const value = nextRoll(bound, rolls.length);
+                rolls.push(value);
+                return value;
+            },
         },
         ...overrides,
     };
@@ -693,33 +734,242 @@ test('do_attack stops for the states below its upkeep', async () => {
 // uhitm.c:528-529, `if (u.twoweap && !can_twoweapon()) untwoweapon();`. A hero
 // who can still sustain the pair runs nothing here and falls through to the
 // exercise, the swing and the passive counter-attack below.
-test('do_attack lets a sustainable two-weapon pair swing', async () => {
+test('do_attack lets a sustainable two-weapon pair swing twice', async () => {
     // u_init.c arms the Samurai with a katana, a short sword in the swap slot
     // and no shield, which is can_twoweapon()'s success path.
-    await hero({ role: 'Samurai', gender: 'male', align: 'lawful' });
+    await samurai();
     assert.equal(await can_twoweapon(game), true);
     game.u.twoweap = true;
 
-    // Rolling exactly the number find_roll_to_hit() returned is a miss, which
-    // is the arm this port carries all the way through.
+    // Rolling exactly the number find_roll_to_hit() returned is a miss. The
+    // off-hand short sword has no oc_hitbon where the katana has +1, so one
+    // number under the first misses the second swing as well.
+    const mtmp = placedTarget();
     const uattk = game.youmonst.data.mattk[0];
     const tmp = find_roll_to_hit(
-        target(), uattk.aatyp, game.uwep,
+        mtmp, uattk.aatyp, game.uwep,
         { attknum: 0, role_roll_penalty: 0 }, game, REFUSING,
     );
     const env = meleeEnv({ dieroll: tmp });
-    // gt.twohits is set from u.twoweap at uhitm.c:765, so the second swing at
-    // 791 is what stops -- three draws and one line further on than the
-    // whole-attempt refusal this replaced.
-    await refusesAsync(
-        () => do_attack(target(), game, env),
-        'second melee attack',
+    assert.equal(await do_attack(mtmp, game, env), true);
+    // exercise(A_STR, TRUE) at 543, the to-hit roll at 780, passive()'s guard
+    // at 6013, and then the second to-hit roll at 804. uhitm.c:809 skips the
+    // second passive() because the second swing missed, and 783 has no
+    // counterpart at 801, so no exercise follows either roll.
+    assert.deepEqual(env.bounds, ['rn2(19)', 'rnd(20)', 'rn2(3)', 'rnd(20)']);
+    assert.deepEqual(
+        env.lines, ['You miss the lichen.', 'You miss the lichen.'],
     );
-    // exercise(A_STR, TRUE) at 543, the to-hit roll at 780 and passive()'s
-    // guard at 6013 -- the three draws the whole-attempt refusal discarded.
+    // uhitm.c:813 clears gt.twohits before returning.
+    assert.equal(game.twohits, 0);
+});
+
+// uhitm.c:776 sets gt.twohits from u.twoweap, and 797 opens the second attack
+// on it. With the pair switched off the same hero, the same target and the
+// same roll produce one swing.
+test('do_attack swings once when two-weapon combat is off', async () => {
+    await samurai();
+    assert.equal(game.u.twoweap, false);
+
+    const mtmp = placedTarget();
+    const uattk = game.youmonst.data.mattk[0];
+    const tmp = find_roll_to_hit(
+        mtmp, uattk.aatyp, game.uwep,
+        { attknum: 0, role_roll_penalty: 0 }, game, REFUSING,
+    );
+    const env = meleeEnv({ dieroll: tmp });
+    assert.equal(await do_attack(mtmp, game, env), true);
     assert.deepEqual(env.bounds, ['rn2(19)', 'rnd(20)', 'rn2(3)']);
     assert.deepEqual(env.lines, ['You miss the lichen.']);
+    assert.equal(game.twohits, 0);
 });
+
+// uhitm.c:801-811. Both swings land, which is where the second attack differs
+// most from a repeat of the first: it rolls the off hand's damage die, it
+// exercises no attribute, and it runs passive() again.
+test('both swings roll their own weapon and only the first trains Dexterity',
+    async () => {
+        await samurai();
+        game.u.twoweap = true;
+        const mtmp = placedTarget(PM_LICHEN, { mhp: 99, mhpmax: 99 });
+        // One is under every to-hit number these weapons can produce, so both
+        // swings land.
+        const env = meleeEnv({ dieroll: 1 });
+        assert.equal(await do_attack(mtmp, game, env), true);
+        assert.deepEqual(env.bounds, [
+            // exercise(A_STR, TRUE) at 543 and the first roll at 780.
+            'rn2(19)', 'rnd(20)',
+            // exercise(A_DEX, TRUE) at 783, which only a landed first swing
+            // reaches, then the katana's oc_wsdam 10 against a small target,
+            // known_hitum():624's morale check and passive()'s guard.
+            'rn2(19)', 'rnd(10)', 'rn2(25)', 'rn2(3)',
+            // The second roll at 804 with no exercise behind it, the short
+            // sword's oc_wsdam 6, and the same two closers.
+            'rnd(20)', 'rnd(6)', 'rn2(25)', 'rn2(3)',
+        ]);
+        assert.deepEqual(env.lines, [
+            'You hit the lichen.', 'You hit the lichen.',
+        ]);
+        // known_hitum():612-614 counts one conduct breach per landed blow.
+        assert.equal(game.u.uconduct.weaphit, 2);
+    });
+
+// uhitm.c:799's `!malive`. A target the first swing killed is not swung at
+// again, and the turn holds one to-hit roll.
+test('a fatal first swing cancels the second', async () => {
+    await samurai();
+    game.u.twoweap = true;
+    const mtmp = placedTarget(PM_LICHEN, { mhp: 1, mhpmax: 1 });
+    const env = meleeEnv({ dieroll: 1 });
+    assert.equal(await do_attack(mtmp, game, env), true);
+    assert.equal(mtmp.mhp < 1, true);
+    // rnd(10) is the katana; rn2(6) and rn2(2) are xkilled()'s treasure drop
+    // and corpse_chance(). No second rnd(20) follows them.
+    assert.deepEqual(env.bounds, [
+        'rn2(19)', 'rnd(20)', 'rn2(19)', 'rnd(10)', 'rn2(6)', 'rn2(2)',
+    ]);
+    assert.deepEqual(env.lines, ['You kill the lichen!']);
+    assert.equal(game.twohits, 0);
+});
+
+// uhitm.c:799's `m_at(x, y) != mon`, where x and y are the square the step was
+// aimed at, captured at 764 before the first swing. C is guarding against a
+// target knocked elsewhere; either way the second swing is aimed at a square,
+// not at a monster, and stops when the monster it hit is no longer standing
+// there.
+test('the second swing stops when the aimed square no longer holds the target',
+    async () => {
+        const uattk = () => game.youmonst.data.mattk[0];
+        // A live target one square east, and the step aimed one square west.
+        await samurai();
+        game.u.twoweap = true;
+        const elsewhere = placedTarget(PM_LICHEN, { mhp: 99, mhpmax: 99 });
+        game.u.dx = -1;
+        assert.notEqual(m_at(game.u.ux - 1, game.u.uy, game), elsewhere);
+        const empty = meleeEnv({ dieroll: 1 });
+        await hitum(elsewhere, uattk(), game, empty);
+        assert.deepEqual(empty.bounds, [
+            'rnd(20)', 'rn2(19)', 'rnd(10)', 'rn2(25)', 'rn2(3)',
+        ]);
+        assert.deepEqual(empty.lines, ['You hit the lichen.']);
+
+        // The same aim with a different monster standing on the square, so
+        // the test separates "no monster" from "not this monster".
+        await samurai();
+        game.u.twoweap = true;
+        const struck = placedTarget(PM_LICHEN, { mhp: 99, mhpmax: 99 });
+        const bystander = placedTarget(PM_LICHEN, { mhp: 99, mhpmax: 99 });
+        // placedTarget() aimed the step at the second monster it placed.
+        assert.equal(m_at(game.u.ux + game.u.dx, game.u.uy, game), bystander);
+        const occupied = meleeEnv({ dieroll: 1 });
+        await hitum(struck, uattk(), game, occupied);
+        assert.deepEqual(occupied.bounds, [
+            'rnd(20)', 'rn2(19)', 'rnd(10)', 'rn2(25)', 'rn2(3)',
+        ]);
+        assert.equal(bystander.mhp, 99);
+    });
+
+// uhitm.c:805, `mhit = (tmp > dieroll || u.uswallow)`, on the second swing's
+// own to-hit number rather than the first's. The rows straddle the comparison
+// and the last one forces the hit from the other side of the `||`.
+test('the second swing compares its roll with the off hand\'s number',
+    async () => {
+        await samurai();
+        const uattk = game.youmonst.data.mattk[0];
+        // uhitm.c:801 hands find_roll_to_hit() uswapwep, and 781 has already
+        // spent the first attack, so attknum arrives at 1.
+        const second = (mtmp) => find_roll_to_hit(
+            mtmp, uattk.aatyp, game.uswapwep,
+            { attknum: 1, role_roll_penalty: 0 }, game, REFUSING,
+        );
+        const first = (mtmp) => find_roll_to_hit(
+            mtmp, uattk.aatyp, game.uwep,
+            { attknum: 0, role_roll_penalty: 0 }, game, REFUSING,
+        );
+        // The first roll is the first swing's own number, which misses, so the
+        // second roll is the only one that can land and the damage die names
+        // which weapon swung.
+        const run = async (secondRoll, { swallow = 0 } = {}) => {
+            await samurai();
+            game.u.twoweap = true;
+            game.u.uswallow = swallow;
+            const mtmp = placedTarget(PM_LICHEN, { mhp: 99, mhpmax: 99 });
+            const env = meleeEnv({
+                dieroll: (bound, index) => (
+                    index === 0 ? first(mtmp) : secondRoll(mtmp)
+                ),
+            });
+            await hitum(mtmp, uattk, game, env);
+            game.u.uswallow = 0;
+            return env.bounds;
+        };
+
+        // Equal: `tmp > dieroll` is false, so the second swing misses too.
+        assert.deepEqual(
+            await run((mtmp) => second(mtmp)),
+            ['rnd(20)', 'rn2(3)', 'rnd(20)'],
+        );
+        // One under: it lands, and the short sword's rnd(6) proves which
+        // weapon swung.
+        assert.deepEqual(
+            await run((mtmp) => second(mtmp) - 1),
+            ['rnd(20)', 'rn2(3)', 'rnd(20)', 'rnd(6)', 'rn2(25)', 'rn2(3)'],
+        );
+        // Equal again, with the hero swallowed: the second half of the `||`
+        // makes the second swing a hit whatever the roll said. 781 spells the
+        // first swing's test the same way, so both land, and the exercise at
+        // 783 stays behind the bare comparison and never runs.
+        assert.deepEqual(
+            await run((mtmp) => second(mtmp), { swallow: 1 }),
+            ['rnd(20)', 'rnd(10)', 'rn2(25)', 'rn2(3)',
+             'rnd(20)', 'rnd(6)', 'rn2(25)', 'rn2(3)'],
+        );
+    });
+
+// uhitm.c:762 captures `secondwep` as uswapwep only while u.twoweap is set,
+// and 806 hands known_hitum() that capture while 801 hands find_roll_to_hit()
+// the live uswapwep. A bare-handed double punch is where the two differ: the
+// off hand is empty, so the blow rolls a fist's die even though the number it
+// had to beat was computed from the object in the swap slot.
+test('a double punch swings a fist while the swap slot still holds a weapon',
+    async () => {
+        await samurai();
+        const uattk = game.youmonst.data.mattk[0];
+        // weapon.c skill_init() leaves every role Basic at bare-handed combat
+        // at best, so double_punch()'s `skl_lvl > P_BASIC` needs #enhance to
+        // pass; the state is set here rather than played out.
+        skillSlot(P_BARE_HANDED_COMBAT, game).skill = P_SKILLED;
+        game.uwep = null;
+        assert.ok(game.uswapwep, 'the swap slot still holds the short sword');
+        assert.equal(game.u.twoweap, false);
+
+        const mtmp = placedTarget(PM_LICHEN, { mhp: 99, mhpmax: 99 });
+        const env = meleeEnv({
+            dieroll: 1,
+            // double_punch()'s rn2(5) at 752 must come out under
+            // `skl_lvl - P_BASIC`, which is 1 at Skilled.
+            rn2Result: (bound) => (bound === 5 ? 0 : 1),
+        });
+        await hitum(mtmp, uattk, game, env);
+        assert.deepEqual(env.bounds, [
+            // double_punch()'s draw comes before the first to-hit roll.
+            'rn2(5)', 'rnd(20)',
+            // rnd(4) is hmon_hitmon_barehands():845, whose die is 4 rather
+            // than 2 because weapon.c martial_bonus() counts a Samurai with
+            // empty hands as a martial artist.
+            'rn2(19)', 'rnd(4)', 'rn2(25)', 'rn2(3)',
+            // The second swing rolls a fist's die too: `secondwep` is null
+            // because u.twoweap is false, so the short sword in the swap slot
+            // never lands, even though uhitm.c:801 computed the number to beat
+            // from it.
+            'rnd(20)', 'rnd(4)', 'rn2(25)', 'rn2(3)',
+        ]);
+        // hmon_hitmon_stagger():1571 draws no rnd(100) here and
+        // mhitm_knockback() no rn2(3): hmd.unarmed at uhitm.c:1779 is
+        // `!uwep && !uarm && !uarms`, and the Samurai's splint mail keeps it
+        // FALSE, while 1830's arm needs a uwep this hero has put down.
+        assert.equal(Boolean(game.uarm), true);
+    });
 
 // uhitm.c:529's own arm: the pair has stopped being legal, so C hands over to
 // wield.c untwoweapon(), which prints, clears u.twoweap and redraws the

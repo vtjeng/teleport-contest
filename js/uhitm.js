@@ -61,6 +61,7 @@ import {
     thick_skinned,
 } from './mondata.js';
 import { monflee } from './monmove.js';
+import { m_at } from './monst.js';
 import {
     AD_PHYS,
     AT_BUTT,
@@ -510,22 +511,50 @@ export function double_punch(state = game, random = { rn2 }) {
     return false;
 }
 
-// C ref: uhitm.c hitum() (756-813), first attack only. Rolls one swing, hands
-// it to known_hitum() and then lets the target's passive counter-attack
-// answer. Returns TRUE if the target still lives.
+// C ref: uhitm.c hitum() (756-815). Rolls one swing, hands it to known_hitum()
+// and then lets the target's passive counter-attack answer; a hero fighting
+// with two weapons, or punching well enough for double_punch(), swings a second
+// time at 797-812. Returns TRUE if the target still lives.
 //
 // The Cleaver arm at 769-771 needs hitum_cleave(). C also requires !u.twoweap,
 // no engulfer, no holder and a diagonal-capable form before cleaving; this
 // stops on the wielded artifact alone, because the arms those four terms would
 // send it to are the ones below, which stop too.
 //
-// The second attack at 791-812 stops on gt.twohits, which is the only one of
-// C's six gate terms that can be true here: the other five are decided by the
-// hit arm and by passive(), both of which stop first.
+// Three of the six terms guarding the second attack are constantly false here
+// and are left out rather than restated:
+//
+//   go.override_confirmation  written only by attack_checks()'s Stormbringer
+//                             arm, which stops; do_attack() records the same.
+//   gm.multi < 0              a passive counter-attack that paralysed the hero.
+//                             `grep -rn 'nomul(' js/` returns 37 hits, of which
+//                             every call site passes 0, and the three other
+//                             writers of state.multi -- js/cmd.js:699, :903 and
+//                             js/hack.js:490 -- store a repeat count, COLNO, or
+//                             nomul()'s own zero. Nothing in js/ can make it
+//                             negative.
+//   u.umortality > oldumort   the hero killed by that counter-attack and then
+//                             life-saved. `grep -rn 'umortality' js/` returns
+//                             one hit, js/u_init.js:214, which initializes it
+//                             to 0; nothing increments it.
+//
+// The two that remain are written out, and only one of them can currently
+// decide anything. `m_at(x, y) != mon` is live: the second swing is aimed at
+// the square the step was, so a target that is no longer standing there is not
+// struck again. `!malive` is C's own first answer to the same question, but in
+// this port it can only be true where the m_at test is: killing a monster ends
+// at mon.c m_detach() -> mon_leaving_level(), which takes it off the map, and
+// hmon_hitmon() has no other way to return FALSE with the target still
+// standing. Deleting the term leaves all 3,113 tests passing. It stays because
+// it is C's, and because a later arm -- lifesaved_monster(), or a knockback
+// that kills -- can separate the two.
 export async function hitum(mon, uattk, state = game, env = {}) {
     const random = env.random ?? { d, rn2, rnd };
     const unsupported = requireAttackOperation(env, 'unsupported');
     const wepbefore = state.uwep;
+    const secondwep = state.u.twoweap ? state.uswapwep : null;
+    const x = state.u.ux + state.u.dx;
+    const y = state.u.uy + state.u.dy;
 
     if (state.uwep?.oartifact === ART_CLEAVER) unsupported('Cleaver melee');
 
@@ -537,7 +566,7 @@ export async function hitum(mon, uattk, state = game, env = {}) {
         : double_punch(state, random)) ? 1 : 0;
 
     const counters = { attknum: 0, role_roll_penalty: 0 };
-    const tmp = find_roll_to_hit(
+    let tmp = find_roll_to_hit(
         mon,
         uattk.aatyp,
         state.uwep,
@@ -546,7 +575,7 @@ export async function hitum(mon, uattk, state = game, env = {}) {
         env,
     );
     mon_maybe_unparalyze(mon, random);
-    const dieroll = random.rnd(20);
+    let dieroll = random.rnd(20);
     const mhit = { value: tmp > dieroll || state.u.uswallow };
     if (tmp > dieroll) {
         await exercise(A_DEX, true, state, random, {
@@ -555,7 +584,7 @@ export async function hitum(mon, uattk, state = game, env = {}) {
     }
 
     /* gb.bhitpos is set up by caller */
-    const malive = await known_hitum(
+    let malive = await known_hitum(
         mon,
         state.uwep,
         mhit,
@@ -578,7 +607,58 @@ export async function hitum(mon, uattk, state = game, env = {}) {
         env,
     );
 
-    if (state.twohits) unsupported('second melee attack');
+    /* second attack for two-weapon combat or skilled unarmed combat;
+       won't occur if Stormbringer overrode confirmation (assumes
+       Stormbringer is primary weapon), or if hero became paralyzed by
+       passive counter-attack, or if hero was killed by passive
+       counter-attack and got life-saved, or if monster was killed or
+       knocked to different location */
+    if (state.twohits && malive && m_at(x, y, state) === mon) {
+        state.twohits = 2; /* second of 2 hits */
+        // C reads the live uswapwep for the to-hit number but hands
+        // known_hitum() the `secondwep` it captured on entry. The two differ
+        // for a bare-handed double punch, which leaves uswapwep alone and
+        // strikes with nothing.
+        tmp = find_roll_to_hit(
+            mon,
+            uattk.aatyp,
+            state.uswapwep,
+            counters,
+            state,
+            env,
+        );
+        mon_maybe_unparalyze(mon, random);
+        dieroll = random.rnd(20);
+        // C reassigns its `mhit` local; known_hitum() may still downgrade the
+        // hit to a miss below, and the passive() guard reads what it left.
+        mhit.value = tmp > dieroll || state.u.uswallow;
+        // 783's exercise(A_DEX, TRUE) has no counterpart here: only the first
+        // swing of a turn exercises Dexterity.
+        malive = await known_hitum(
+            mon,
+            secondwep,
+            mhit,
+            tmp,
+            counters.role_roll_penalty,
+            uattk,
+            dieroll,
+            state,
+            env,
+        );
+        /* second passive counter-attack only occurs if second attack hits */
+        if (mhit.value) {
+            await passive(
+                mon,
+                secondwep,
+                mhit.value,
+                malive,
+                AT_WEAP,
+                Boolean(secondwep && !state.uswapwep),
+                state,
+                env,
+            );
+        }
+    }
     state.twohits = 0;
     return malive;
 }

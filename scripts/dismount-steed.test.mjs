@@ -73,7 +73,7 @@ import { float_vs_flight, steed_vs_stealth } from '../js/polyself.js';
 import { float_down, fill_pit, reset_utrap, set_utrap } from '../js/trap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { game } from '../js/gstate.js';
-import { M1_FLY } from '../js/monsters.js';
+import { M1_FLY, PM_LICHEN } from '../js/monsters.js';
 import {
     LANCE,
     LONG_SWORD,
@@ -83,7 +83,7 @@ import {
     TOOL_CLASS,
     WEAPON_CLASS,
 } from '../js/objects.js';
-import { m_at } from '../js/monst.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { strongmonst, throws_rocks } from '../js/mondata.js';
 import { mksobj, place_object, remove_object } from '../js/obj.js';
 import { BOULDER } from '../js/objects.js';
@@ -1016,6 +1016,20 @@ test('teleds refuses every arm outside an ordinary adjacent square',
         ['out of an occupied vault', (state) => {
             state.level.rooms = [{ rtype: VAULT }];
             state.u.urooms = [ROOMOFFSET, 0, 0, 0, 0];
+        }],
+        // teleds() makes no test of its own about who is standing on the
+        // destination; hack.c spoteffects():3417-3455 is what answers, by
+        // dropping a piercer or letting the resident monster attack by
+        // surprise. None of that is ported, and this is the one caller whose
+        // destination can hold a monster, so the refusal sits here.
+        ['onto an occupied square', (state, spot) => {
+            place_monster(
+                newMonster({
+                    mhp: 1, mhpmax: 1, mcanmove: 1,
+                    data: state.mons[PM_LICHEN], mnum: PM_LICHEN,
+                }),
+                spot.x, spot.y, state,
+            );
         }],
     ];
     for (const [reason, mutate] of rows) {

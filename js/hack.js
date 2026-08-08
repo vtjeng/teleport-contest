@@ -703,7 +703,7 @@ function refusedDiagonalDoorway(x, y, state) {
     return blocksDiagonalDoorwayExit(ux, uy, x, y, state);
 }
 
-// This repeated-command boundary owns entry into an unoccupied ROOM, CORR, or
+// This repeated-command boundary owns entry into a ROOM, CORR, or
 // IS_FURNITURE square, or a doorway whose mask is exactly D_NODOOR or
 // D_ISOPEN. With autopickup disabled, it also admits the sighted object
 // descriptions and the blind ordinary ROOM/CORR paths with no object or one
@@ -711,12 +711,15 @@ function refusedDiagonalDoorway(x, y, state) {
 // These checks are a temporary admission seam in front
 // of hack.c:domove_core(); each rejected branch will move to its upstream owner
 // when that behavior is ported.
+//
+// It says nothing about a monster standing on the square. Both callers in this
+// file reach it only when m_at() answered null -- preflightDomoveDestination()
+// through the else-if chain below a destination monster, and domove() through
+// an explicit `!destinationMonster` -- because uhitm.c do_attack() claims an
+// occupied destination before test_move() ever sees it. teleport.c teleds() is
+// the caller that can arrive on an occupied square, and it makes that test
+// itself.
 export function requireSimpleHeroDestination(x, y, state) {
-    if (m_at(x, y, state))
-        throw new UnsupportedHeroMoveBoundaryError(
-            'hero combat or displacement',
-        );
-
     const location = state.level?.at(x, y);
     // hack.c test_move() admits every IS_FURNITURE type untouched -- stairs,
     // ladder, fountain, throne, sink, grave and altar. Its obstacle chain never
@@ -2236,14 +2239,16 @@ export function terrain_changed_under_hero(state = game) {
         || state.iflags?.terrain_typ === MAX_TYPE;
 }
 
-// C ref: hack.c spoteffects() (3312-3480), the arms an ordinary ROOM, CORR,
+// C ref: hack.c spoteffects() (3312-3462), the arms an ordinary ROOM, CORR,
 // IS_FURNITURE or open doorway square reaches. Its two ported callers,
 // domove() and teleport.c teleds(), each admit their destination through
 // requireSimpleHeroDestination() first, which refuses every square that could
-// reach the pool, lava, trap, ice-warning or resident-monster arms; the
-// recursion guard and the iflags.in_lava_effects return are unreachable for
-// the same reason. The sink arm is the one an admitted destination can now
-// reach, so it is refused here rather than ahead of the move.
+// reach the pool, lava, trap or ice-warning arms; the recursion guard and the
+// iflags.in_lava_effects return are unreachable for the same reason. The
+// resident-monster arm at 3417-3455 is kept out by the callers instead:
+// domove() reaches this seam only when m_at() answered null, and teleds()
+// makes that test itself. The sink arm is the one an admitted destination can
+// now reach, so it is refused here rather than ahead of the move.
 //
 // gi.in_steed_dismounting is C's kludge for the one caller that needs the
 // pickup deferred: steed.c dismount_steed() sets it around its teleds() call

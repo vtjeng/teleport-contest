@@ -1080,6 +1080,21 @@ export async function teleds(nux, nuy, teleds_flags, state = game) {
         || distmin(u.ux, u.uy, nux, nuy) > 1)
         allow_drag = false;
 
+    // teleds() itself tests nothing about who is standing on <nux,nuy>: it
+    // moves the hero there at 525 and leaves the consequence to
+    // spoteffects(TRUE) at 568. The arm that answers is hack.c:3417-3455,
+    // `if ((mtmp = m_at(u.ux, u.uy)) != 0 && !u.uswallow)`, which drops a
+    // piercer on the hero or has the resident monster attack by surprise and
+    // then calls mnexto() to move it aside. None of that is ported, and unlike
+    // the hack.js callers of the seam below -- which never arrive on an
+    // occupied square, because uhitm.c do_attack() claims one first -- a
+    // teleport destination can hold a monster, so the test belongs here.
+    if (m_at(nux, nuy, state)) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'teleds() onto an occupied square',
+        );
+    }
+
     // The destination admission seam domove() uses. teleds() has no seam of
     // its own, and spoteffects() below depends on the same guarantees.
     requireSimpleHeroDestination(nux, nuy, state);
