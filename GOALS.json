@@ -1002,6 +1002,53 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "drop-command",
+      "status": "open",
+      "boundary": "a d command whose chosen object leaves the hero's inventory and lands on the square he is standing on: do.c dodrop() through drop() and dropx() into the already-ported dropy() and dropz(); every branch of drop() that a hero state other than standing on reachable ordinary floor selects -- swallowed, unable to reach the floor, on a sink, on an altar, or inside a shop -- stays refused, and so does the D #droptype menu",
+      "upstreamOwners": [
+        "do.c dodrop()",
+        "do.c drop()",
+        "do.c canletgo()",
+        "invent.c any_obj_ok()",
+        "cmd.c reset_occupations()",
+        "apply.c reset_trapset()"
+      ],
+      "forecast": {
+        "steps": 25,
+        "basis": "Measured rather than read. Raw unlocks of 99 splits 94 to seed0361 and 5 to seed0367; seed0367 contributes 0, because it is stopped earlier at step 61 on \"eating requires garlic_breath()\" and the 5 is the model's guess rather than its stop. For seed0361 the selector replayed its own recorded 42-byte prefix and substituted each of the three wishes that follow the drop: \"blessed amulet of life saving\" and \"blessed +5 silver dragon scale mail\" replay clean, while \"blessed +5 Grayswandir\" stops the port on a name the first objects[] lookup does not resolve. That puts the cap at step 68, the newline committing the artifact wish, so the stretch is steps 43 to 67, 25 steps. Two of the 25 are new behavior, the prompt and the cancel; the other 23 are tty_getlin echo the port already produces, confirmed by probe.\n\nThe predecessor read this at 30 from a hand count of the Grayswandir typing block. Measuring it moved the figure down by 5, but the direction is not the lesson: the same census measured riding 31 to 10 and pet cursed-object feedback 80 to 14, while an earlier selector's own reads of zap and pet combat evaluation came in low by 19 and 9. Reads are unreliable in both directions and only the emitting site settles them.\n\nRanked field, capped, with the basis of each stated: drop 25 measured, options menu 24 read, zap 22 read and possibly collapsing to 3 at \"The sleep ray hits you!\", #pray 21 read, pet combat evaluation 19 read, fire 17 read, pet cursed-object feedback 14 measured, door unlocking tool 14 read, #sit 13 read, wizgenesis 11 read, movement while riding 10 measured, pickup 9 read, engraving interaction 6 read of 238 raw, puton 5 read of 231 raw, level_tele menu 4 measured of 198 raw.\n\nThe census does not run at all at 2f1ecef. js/sounds.js:143 throws a plain Error that js/jsmain.js:534-550 does not recognise as a boundary, so it propagates out of runSegment and kills the whole scan; the only session that trips it is seed0030, whose later segment reaches a shop level. Every figure above was produced under a scratchpad module.register loader rewriting that throw in memory, with no repository file edited. That is the open deferral dosounds-refusal-escapes-as-hard-failure, measured at 0 screens two goals ago and left small on that basis. The measure was wrong: it costs no score and it costs the selector its instrument, and five consecutive censuses have needed the shim.\n\nEight stops are UNRECONCILED, up from six, and all eight were settled before ranking. Three of them -- seed0373, seed0383, seed2600 -- stop on level_tele() reaching print_dungeon() for \"?\" and carry 198 raw steps the behavior table cannot hold, because the model counts wizlevelport as supported and only the ? sub-branch is not. Dumping the recorded menus settles it at 4: each session selects a special level, bigrm twice and Bar-strt once, so each earns its menu page and then stops on special-level generation. The other five are single steps or gated behind an earlier boundary.",
+        "sessions": [
+          "seed0361-archeologist-tour"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0361-archeologist-tour",
+            "evidence": "seed 361, datetime 20000110090000, OPTIONS=role:Archeologist, race:human, gender:male, align:neutral, playmode:debug, symset:DECgraphics, !autopickup. Input through the stop is \"  n#levelchange\\n20\\n                    TcTd\". #levelchange sets the experience level, so the hero is Xp:20 on Dlvl:1, and the recorded screen shows a small ordinary room with no shopkeeper, so *u.ushops is empty and sellobj_state() is not reached at either dodrop() call site. Step 42, key T, took off the leather jacket. At step 43 rhack() dispatches dodrop(), which calls getobj(\"drop\", any_obj_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT); any_obj_ok answers GETOBJ_SUGGEST for all eight carried objects, giving the recorded \"What do you want to drop? [a-h or ?*]\". Step 44 is Escape, which is in quitchars, so getobj() prints Never_mind at invent.c:1952 and returns 0, and drop(NULL) returns ECMD_FAIL at the head of do.c drop(). ECMD_FAIL is 0x04, so `if (result) reset_occupations();` at do.c:40 does run, while the absent ECMD_TIME bit means no turn elapses -- confirmed by the map being byte-identical across steps 42, 43 and 44. The stretch is steps 43 to 67, 25 steps, capped at step 68 by the Grayswandir wish."
+          }
+        ]
+      },
+      "detail": "### One object, dropped on the floor\n\n**What the C owns.** Spans confirmed by printing first and last line.\n`do.c dodrop()` 28-42 (15 lines), `canletgo()` 664-711 (48), `drop()` 713-781\n(69); `invent.c any_obj_ok()` 1709-1715 (7); `cmd.c reset_occupations()`\n194-200 (7); `apply.c reset_trapset()` 2812-2817 (6). About **150 lines of new\nC**, plus the command-table admission.\n\n**Smaller than it looks, because the tail is already ported.** `dropx()`,\n`dropy()` and `dropz()` exist at `js/do.js:524`, `:532` and `:567`; `getobj()`,\n`freeinv()` and `stackobj()` in `js/invent.js`; `place_object()` in `js/obj.js`;\n`flooreffects()` at `js/do.js:313`; `reset_remarm()` at `js/do_wear.js:120`;\n`reset_pick()` at `js/lock.js:60`. Only `reset_trapset()` and\n`reset_occupations()` are missing from that chain. `dodrop` appears solely in\n`js/extcmdlist_data.js`; `doDrop` and `canletgo` return zero hits.\n\n**A prerequisite inside the goal.** `js/invent.js:384-385` reads\n`if (allowcnt) throw new UnsupportedObjectPromptError('get_count() and\nsplitobj()')`, and `dodrop()` passes `GETOBJ_PROMPT | GETOBJ_ALLOWCNT`, so the\nport refuses **before drawing any prompt**. In C, `allowcnt` is consulted only\nonce a digit is typed — `invent.c:1807`, `:1940`, `:1981`, `:1996` — so\nnarrowing that refusal to its point of use is the faithful reading, and it is\nsmaller than porting `get_count()`/`splitobj()`.\n\n**A stale comment to correct rather than trust.** The `getobj()` header at\n`js/invent.js:364-366` claims `GETOBJ_ALLOWCNT`, `GETOBJ_PROMPT` and\n`iflags.force_invmenu` \"each stop\". `GETOBJ_PROMPT` does not stop; it only\nsteers the early \"You don't have anything to drop.\" return at `:465`.\n\n**The completed drop is well attested and belongs in the goal even though it\nearns nothing yet.** No development session completes a drop behind this\nboundary, but four reach one later: `seed0013` in both variants drops a\n`+0 short sword` at step 24, `seed0030` a `+0 katana` at 1459 through the\nwielded-weapon `setuwep(NULL)` arm, `seed0012` 1,163 gold at 284 through the\n`COIN_CLASS` arm, and `seed0108` a chest at 167. Fresh recordings should cover\nthose arms.\n\n**What it opens.** `seed0013` in both variants sits at step 21 on `pickup`,\ndrops the short sword at 23-24, and carries `drop + fight + pickup` as its whole\nremaining debt. Porting `pickup` after `drop` would run both well past step 24;\nneither command alone moves them.\n\n### Slice 1 is tooling, not behavior, and it is here on measured grounds\n\n`js/sounds.js:143` and `:152` throw a plain `Error`. `js/jsmain.js:534-550` does\nnot recognise it as a boundary, so it escapes `runSegment()` and kills the whole\ncensus run — not the session, the run. The only session that trips it is\n`seed0030`, whose later segment reaches a shop level.\n\nThis is `dosounds-refusal-escapes-as-hard-failure`, which the `armor-takeoff`\nselection measured at **0 screens and 113 random-number values** and left small\non that basis. That measure was correct and the conclusion drawn from it was\nwrong: the entry costs no score and costs the selector its instrument, and five\nconsecutive censuses have run under a loader shim because of it. Two lines.\n\n**Why this and not the runner-up.** The options menu\n(`options.c doset_simple_menu()`) caps at 24 for `seed0006`, one step below, and\nits 24 is a read where this 25 is measured. On the tie-breakers\n`.agents/selection.md` applies at equal session counts, `drop` opens a command\nthe port wholly lacks and that six sessions carry in their debt, while the\noptions menu is an unported branch of a command the closed `options` goal\nalready delivered. If the `getobj()` prerequisite turns out larger than the C\nsuggests, the options menu is the obvious substitute.\n",
+      "slices": [
+        {
+          "name": "dosounds refuses by name instead of aborting the run",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "the hero drops one object on the floor",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "2f1ecef47f3ba29a9406e96657552c3e248a9018",
+      "openStanding": {
+        "sha": "3a78bc1",
+        "screens": 1203,
+        "rng": 117774
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
