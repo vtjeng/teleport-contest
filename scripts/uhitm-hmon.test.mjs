@@ -31,6 +31,7 @@ import {
     P_BASIC,
     P_KNIFE,
     P_SKILLED,
+    ROWNO,
     W_RINGL,
     W_RINGR,
 } from '../js/const.js';
@@ -56,13 +57,19 @@ import {
     PM_ROTHE,
     PM_SEWER_RAT,
     PM_SHADE,
+    PM_VAMPIRE,
+    PM_WATCH_CAPTAIN,
+    PM_WATCHMAN,
+    PM_XORN,
 } from '../js/monsters.js';
 import {
     ARROW,
     BOW,
     BULLWHIP,
+    DART,
     KATANA,
     LANCE,
+    LEATHER_GLOVES,
     LONG_SWORD,
     OIL_LAMP,
     PICK_AXE,
@@ -73,6 +80,7 @@ import {
     SILVER,
     SILVER_SABER,
     SMALL_SHIELD,
+    WORTHLESS_WHITE_GLASS,
 } from '../js/objects.js';
 import { mksobj } from '../js/obj.js';
 import { monsndx } from '../js/mondata.js';
@@ -193,20 +201,29 @@ test('hmon admits melee alone', async () => {
 test('hmon stops on the two town consequences before it rolls damage',
     async () => {
         await hero();
+        // Each row carries the species and the flags that reach one refusal.
+        // uhitm.c:827's two guard disjuncts are asked differently: isshk is a
+        // flag any species can carry, while mondata.h is_watch() reads the
+        // species itself, so the watch rows set no flag but mpeaceful.
         const cases = [
-            ['striking a temple priest', { ispriest: 1 }],
-            ['striking a temple priest', { ispriest: 1, mpeaceful: 1 }],
-            ['angering the town guards', { isshk: 1, mpeaceful: 1 }],
+            ['striking a temple priest', PM_LICHEN, { ispriest: 1 }],
+            ['striking a temple priest', PM_LICHEN,
+                { ispriest: 1, mpeaceful: 1 }],
+            ['angering the town guards', PM_LICHEN,
+                { isshk: 1, mpeaceful: 1 }],
+            ['angering the town guards', PM_WATCHMAN, { mpeaceful: 1 }],
+            ['angering the town guards', PM_WATCH_CAPTAIN, { mpeaceful: 1 }],
         ];
-        for (const [reason, overrides] of cases) {
+        for (const [reason, pmidx, overrides] of cases) {
+            const label = `${reason} ${pmidx}`;
             const env = hitEnv();
             await refusesAsync(
-                () => hmon(target(PM_LICHEN, overrides), game.uwep,
+                () => hmon(target(pmidx, overrides), game.uwep,
                            HMON_MELEE, 10, game, env),
                 reason,
-                reason,
+                label,
             );
-            assert.deepEqual(env.bounds, [], reason);
+            assert.deepEqual(env.bounds, [], label);
         }
         // A hostile shopkeeper is not protected: anger_guards at uhitm.c:826
         // requires mpeaceful, so this one runs the whole function.
@@ -215,6 +232,19 @@ test('hmon stops on the two town consequences before it rolls damage',
         assert.equal(await hmon(shk, game.uwep, HMON_MELEE, 10, game, env),
                      true);
         assert.deepEqual(env.lines, ['You hit the lichen.']);
+        // A hostile watchman is not protected either, so mpeaceful decides
+        // the is_watch() disjunct as well as the isshk one. rnd(3)=2 with a
+        // Healer's dbon() of 0 and a Basic knife skill is two points.
+        for (const pmidx of [PM_WATCHMAN, PM_WATCH_CAPTAIN]) {
+            const patrol = target(pmidx);
+            assert.equal(
+                await hmon(patrol, game.uwep, HMON_MELEE, 10, game,
+                           hitEnv({ rolls: [2] })),
+                true,
+                String(pmidx),
+            );
+            assert.equal(patrol.mhp, 97, String(pmidx));
+        }
     });
 
 // uhitm.c:1636-1660 hmon_hitmon_msg_hit(). Its verb comes from the object and
@@ -250,8 +280,14 @@ test('hmon_hitmon_msg_hit picks its verb and its punctuation', async () => {
     await hero({ role: 'Barbarian', gender: 'male', align: 'chaotic' });
     const scalpel = mksobj(SCALPEL, true, false, { state: game });
     const smite = hitEnv({ rolls: [1] });
-    await hmon(target(), scalpel, HMON_MELEE, 10, game, smite);
+    const smitten = target();
+    await hmon(smitten, scalpel, HMON_MELEE, 10, game, smite);
     assert.deepEqual(smite.lines, ['You smite the lichen.']);
+    // Two points, not one: uhitm.c:1467-1468 multiplies the strength bonus by
+    // 3/2 for a melee hit made while holding a two-handed weapon. The test
+    // below separates that term. The assertion here stops this row from
+    // passing at any total, since zap.c exclam() punctuates 1 and 2 alike.
+    assert.equal(smitten.mhp, 97);
 
     // uhitm.c:1648, flags.verbose off.
     await hero({ options: 'pettype:none,!acoustics,!verbose' });
@@ -394,6 +430,30 @@ test('mhitm_knockback refuses to push a target off the map', async () => {
     const env = hitEnv({ rolls: [3, 1, 0] });
     await hmon(edge, game.uwep, HMON_MELEE, 10, game, env);
     assert.deepEqual(env.bounds, ['rnd(3)', 'rn2(3)', 'rn2(6)']);
+
+    // The remaining three edges follow. isok() is x >= 1 && x <= COLNO - 1
+    // && y >= 0 && y <= ROWNO - 1, and the row above steps past the second of
+    // those four bounds alone, which leaves dy computed and unread. Each row
+    // below steps past one of the other three, so a dy stuck at zero or an
+    // sgn() with its sign reversed sends the grid bug on to the size test and
+    // stops there.
+    for (const [label, mx, my, ux, uy] of [
+        // dx 0, dy 1: ROWNO is 21, so row 20 is the last legal one.
+        ['south', 40, ROWNO - 1, 40, ROWNO - 2],
+        // dx 0, dy -1: row 0 is the first, and the step north leaves the map.
+        ['north', 40, 0, 40, 1],
+        // dx -1, dy 0: isok() rejects column 0, so column 1 is the first.
+        // mx must stay above 0 as well, because uhitm.c:1861 would otherwise
+        // set hmd.offmap and skip the knockback block altogether.
+        ['west', 1, 10, 2, 10],
+    ]) {
+        game.u.ux = ux;
+        game.u.uy = uy;
+        const cornered = target(PM_GRID_BUG, { mx, my });
+        const off = hitEnv({ rolls: [3, 1, 0] });
+        await hmon(cornered, game.uwep, HMON_MELEE, 10, game, off);
+        assert.deepEqual(off.bounds, ['rnd(3)', 'rn2(3)', 'rn2(6)'], label);
+    }
 });
 
 // uhitm.c:1846-1852. The damage lands on mon->mhp and the cap at 1851-1852
@@ -435,6 +495,35 @@ test('hmon_hitmon floors the damage at one point', async () => {
     // was drawn.
     assert.deepEqual(env.bounds, ['rnd(3)']);
 });
+
+// uhitm.c:1467-1468. A melee hit made while holding a two-handed weapon
+// multiplies weapon.c dbon() by 3/2, the largest single damage term the port
+// adds. C reads u.uwep for that test, not the object being swung, so the same
+// object lands for different totals in the same hand.
+test('a two-handed weapon takes three halves of the strength bonus',
+    async () => {
+        // A Barbarian starts at 18 Strength, which weapon.c dbon() scores 2,
+        // and his own weapon is a two-handed sword. The scalpel is swung as a
+        // carried object rather than wielded, so dmgval()'s rnd(3) and
+        // weapon_dam_bonus()'s -2 for a restricted knife skill are the same
+        // on both rows and the strength term is the only difference.
+        await hero({ role: 'Barbarian', gender: 'male', align: 'chaotic' });
+        const scalpel = mksobj(SCALPEL, true, false, { state: game });
+        // (3 * 2 + 1) / 2 truncates to 3, so 1 - 2 + 3 is two points.
+        const bimanualBlow = target();
+        await hmon(bimanualBlow, scalpel, HMON_MELEE, 10, game,
+                   hitEnv({ rolls: [1] }));
+        assert.equal(bimanualBlow.mhp, 97);
+
+        // The same hero holding a one-handed weapon takes dbon() as it is, so
+        // 1 - 2 + 2 is one point. uhitm.c:1817's floor would also produce one
+        // point, which is why the row above is the one that decides the term.
+        game.uwep = mksobj(SHORT_SWORD, true, false, { state: game });
+        const oneHandedBlow = target();
+        await hmon(oneHandedBlow, scalpel, HMON_MELEE, 10, game,
+                   hitEnv({ rolls: [1] }));
+        assert.equal(oneHandedBlow.mhp, 98);
+    });
 
 // uhitm.c:1815-1822 with weapon.c:306-307 and uhitm.c:841-843. A shade takes
 // nothing from an ordinary weapon or from a fist; both arms zero the damage
@@ -537,6 +626,28 @@ test('do_hit and weapon dispatch reject what they cannot roll damage for',
                 String(otyp),
             );
         }
+
+        // The two positive terms of the same pair of class tests. Each one
+        // selects which of the two refusals the swing reaches.
+        //
+        // uhitm.c:1416's GEM_CLASS disjunct: the GEM() macro in
+        // include/objects.h:1516-1520 gives every gem an oc_skill of -P_SLING,
+        // so is_ammo() holds and hmon_hitmon_weapon() sends the gem straight
+        // back out to the ranged arm. Without the disjunct the gem would never
+        // reach hmon_hitmon_weapon() at all and would refuse with the
+        // non-weapon reason instead.
+        const gem = mksobj(WORTHLESS_WHITE_GLASS, true, false, { state: game });
+        await refusesAsync(
+            () => hmon(target(), gem, HMON_MELEE, 10, game, hitEnv()),
+            'hitting with a launcher or ammunition',
+        );
+        // uhitm.c:1079's is_missile(): a dart is neither is_ammo() nor
+        // is_launcher(), so that term alone keeps it out of the melee arm.
+        const dart = mksobj(DART, true, false, { state: game });
+        await refusesAsync(
+            () => hmon(target(), dart, HMON_MELEE, 10, game, hitEnv()),
+            'hitting with a launcher or ammunition',
+        );
     });
 
 // uhitm.c:1013-1030, 1043-1049 and 1065-1066. Three of hmon_hitmon_weapon_
@@ -657,27 +768,62 @@ test('known_hitum draws the morale check only for a survivor', async () => {
     assert.equal(even.mhp, 10);
 });
 
-// uhitm.c hmon_hitmon_barehands() (837-882). The ring switch at 861-881 chooses
-// which hand's ring applies from gt.twohits, and no role starts with a silver
-// ring, so this is the only place the arms can be seen.
-test('hmon_hitmon_barehands reads the ring that struck', async () => {
+// uhitm.c:858-860 with weapon.c special_dmgval() (360-431). C's comment at
+// 852-857: blessed gloves and silver rings each add to a bare-handed blow,
+// rings are worn under gloves, and the hero gets one bonus rather than both.
+// No role starts with either, so this is the only place either arm can be
+// seen.
+//
+// The W_ARMG that uhitm.c:858 puts in the mask when a glove is worn is
+// redundant with weapon.c:388-389, which looks the glove up itself for any of
+// the three masks; either alone sends the blow down the glove arm. So what the
+// two rows below separate is the glove from the ring, and neither half of that
+// redundant pair can be pinned on its own.
+test('a glove takes the place of the ring beneath it', async () => {
     await hero({ role: 'Tourist', gender: 'male', seed: TOURIST_SEED });
-    const left = mksobj(RIN_ADORNMENT, true, false, { state: game });
-    const right = mksobj(RIN_ADORNMENT, true, false, { state: game });
-    // weapon.c:400 and 411 compare objects[otyp].oc_material with SILVER;
-    // no ring is made of silver, so the material is overridden here rather
-    // than a silver ring being wished for.
-    game.objects[left.otyp].oc_material = SILVER;
-    game.uleft = left;
-    game.uright = right;
-    // A sewer rat does not hate silver, so weapon.c:401 fails and the bonus
-    // is 0 whichever hand is checked.
-    const indifferent = hitEnv({ rolls: [1] });
-    await hmon(target(PM_SEWER_RAT), null, HMON_MELEE, 10, game, indifferent);
-    assert.deepEqual(indifferent.bounds, ['rnd(2)']);
-    game.objects[left.otyp].oc_material = 0;
+    const ring = mksobj(RIN_ADORNMENT, true, false, { state: game });
+    // weapon.c:401, 410 and 417 compare objects[otyp].oc_material with SILVER;
+    // no ring is made of silver, so the material is overridden here rather than
+    // a silver ring being wished for. A vampire is S_VAMPIRE and undead, which
+    // mondata.c hates_silver() and hates_blessings() answer TRUE for in turn,
+    // so one target can show either bonus.
+    game.objects[ring.otyp].oc_material = SILVER;
+    game.uleft = ring;
+    // gt.twohits is hitum()'s, and a test that calls hmon() directly leaves it
+    // unset; uhitm.c:859-860 compares it with 0, 1 and 2, so an unset value
+    // would select neither hand and hand special_dmgval() an empty mask.
+    game.twohits = 0;
+
+    // Bare hands: weapon.c:408-414 reaches the ring, draws rnd(20) for it and
+    // sets silverhit, which uhitm.c:865-867 copies into
+    // hmd.barehand_silver_rings and 880-881 turns into hmd.silvermsg -- the
+    // message this slice does not own. rnd(100) is the stagger draw the two
+    // points then earn.
+    const bare = hitEnv({ rolls: [1, 1] });
+    await refusesAsync(
+        () => hmon(target(PM_VAMPIRE), null, HMON_MELEE, 10, game, bare),
+        'a silver hit message',
+    );
+    assert.deepEqual(bare.bounds, ['rnd(2)', 'rnd(20)', 'rnd(100)']);
+
+    // The same hand inside a blessed leather glove: weapon.c:388-389 finds the
+    // glove, so the ring is never read and weapon.c:395-396's rnd(4) takes
+    // rnd(20)'s place. Leather is not silver, so nothing is seared and the
+    // swing finishes.
+    const gloves = mksobj(LEATHER_GLOVES, true, false, { state: game });
+    gloves.blessed = 1;
+    gloves.cursed = 0;
+    game.uarmg = gloves;
+    const gloved = target(PM_VAMPIRE);
+    const covered = hitEnv({ rolls: [1, 1] });
+    await hmon(gloved, null, HMON_MELEE, 10, game, covered);
+    assert.deepEqual(covered.bounds, ['rnd(2)', 'rnd(4)', 'rnd(100)']);
+    assert.equal(gloved.mhp, 97);
+
+    game.uarmg = null;
+    game.objects[ring.otyp].oc_material = 0;
     game.uleft = null;
-    game.uright = null;
+    game.twohits = 0;
 });
 
 // uhitm.c:960-968 and backstabbable() (920-931). A Rogue who catches a target
@@ -846,7 +992,7 @@ test('the weapon shatter arm needs all six of its terms', async () => {
     assert.ok(bystander.mhp < 99);
 });
 
-// uhitm.c:1571-1572. The two species tests sit behind the rnd(100), so a
+// uhitm.c:1576-1577. The two species tests sit behind the rnd(100), so a
 // martial-arts hero who clears the roll still leaves a large or armoured
 // target on its feet.
 test('a staggering punch spares a big or thick-skinned target', async () => {
@@ -854,7 +1000,12 @@ test('a staggering punch spares a big or thick-skinned target', async () => {
     // rnd(100)=0 clears P_SKILL(P_BARE_HANDED_COMBAT), which is 1 for an
     // Unskilled Tourist; a real rnd() never returns 0, so this is the only way
     // to reach the arm at all.
-    for (const pmidx of [PM_ROTHE, PM_BABY_GRAY_DRAGON]) {
+    //
+    // One species per conjunct, each chosen so that it is the only one it
+    // fails: a rothe is msize 3 without M1_THICK_HIDE, so bigmonst() alone
+    // spares it, and a xorn is msize 2 with M1_THICK_HIDE, so thick_skinned()
+    // alone does. The baby gray dragon is both at once.
+    for (const pmidx of [PM_ROTHE, PM_XORN, PM_BABY_GRAY_DRAGON]) {
         const spared = target(pmidx);
         await hmon(spared, null, HMON_MELEE, 10, game,
                    hitEnv({ rolls: [2, 0] }));

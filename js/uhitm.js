@@ -987,6 +987,31 @@ async function hmon_hitmon_msg_hit(hmd, mon, obj, state, env) {
 //   1911      killed(), the kill itself, which mon.c owns.
 //   1914-1919 the confused-touch arm behind u.umconf.
 //
+// Three of hmd's flags guard C call sites that this port leaves out. No ported
+// path can write any of the three, so a refusal in their place would announce
+// a stop that cannot happen:
+//
+//   ispoisoned   1808-1809 hmon_hitmon_poison(). C writes it at 1061-1062,
+//                inside `thrown == HMON_THROWN`, which hmon() rejects, and at
+//                1065-1066, where hmon_hitmon_weapon_melee() refuses
+//                permapoisoned() in place of the assignment.
+//   dryit        1872-1873 dry_a_towel(). Only the wet-towel branch of
+//                hmon_hitmon_misc_obj() writes it, and hmon_hitmon_do_hit()
+//                refuses that whole arm.
+//   unpoisonmsg  1887-1889's cxname() reformat and 1919-1923's message.
+//                hmon_hitmon_poison() writes it, and the ispoisoned entry
+//                above shows that function is never called; needpoismsg and
+//                poiskilled at 1898-1907 have the same writer.
+//
+// doreturn and retval carry C's abort of a blow that finished early. Of C's
+// three `if (hmd->doreturn)` guards only 1806-1807's is executable: the two at
+// 1090-1091 and 1418-1419 end their own function, so the `return` they guard
+// reaches the same next statement the fall-through does. The one below is
+// therefore the whole of that control flow. Every C writer -- artifact_hit()
+// at 1021-1029, hmon_hitmon_potion() at 1108-1166, hmon_hitmon_misc_obj() at
+// 1218-1248 and the stone missile at 1404-1405 -- sits inside an arm that
+// stops above it, so nothing sets the flag yet.
+//
 // maybe_knockback is computed at 1829-1831 but read at 1927, inside a block
 // C skips whenever the target died, so mhitm_knockback()'s two draws must not
 // be made eagerly.
@@ -1035,6 +1060,7 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
     let maybe_knockback = false;
 
     await hmon_hitmon_do_hit(hmd, mon, obj, state, env, random);
+    if (hmd.doreturn) return hmd.retval;
 
     /*
      ***** NOTE: perhaps obj is undefined! (if !thrown && BOOMERANG)
