@@ -32,11 +32,12 @@ states it.
   which 4 match completely.
 - Reserved holdout, last evaluated at `afd1984`: 207 of 3,640 screens, 32,682
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  **It moved at this evaluation**, after fifteen goals at exactly 195, and the
-  likeliest cause is the `dosounds` bare-`Error` fix rather than any ported
-  behavior; `docs/goal-history.md` records what fifteen such results say about
-  effect size, capability and reachability, and why the movement points at
-  fail-open refusals rather than at a capability wall.
+  **It moved at this evaluation**, after fifteen goals at exactly 195. An
+  authorized attribution run at `74c622c` shows the cause was `do.c dodrop()`
+  and not the `dosounds` bare-`Error` fix; `docs/goal-history.md` records what
+  fifteen such results say about effect size, capability and reachability, and
+  why a boundary port moving the hidden set makes the earlier "blocked upstream"
+  reading at best incomplete.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,

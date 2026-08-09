@@ -441,36 +441,32 @@ the fold stays, with the recording kept beside it.
 and **the holdout moved for the first time in fifteen goals**: 195 to 207
 screens, 32,614 to 32,682 random-number values, 5.4 to 5.7 per cent.
 
-The movement is very unlikely to be the drop command. This goal had two slices.
-The second ported `do.c dodrop()` and moved `seed0361` by exactly its forecast.
-The first changed two lines: `js/sounds.js`'s `dosounds` refusals threw a plain
-`Error`, which `js/jsmain.js` did not recognise as a boundary, so it escaped
-`runSegment()` and discarded the segment's whole matching prefix. Giving them a
-named class can only add matched output and never remove it, which is exactly
-the shape of a hidden session gaining twelve screens it had been throwing away.
+**Correction, measured the same day.** The paragraphs this replaces argued that
+the movement was very unlikely to be the drop command and most likely the
+two-line `dosounds` fix, on the reasoning that a named refusal class can only add
+matched output. The user authorized one attribution run at `74c622c`, the commit
+after the `dosounds` slice and before drop. It returns **195 of 3,640 screens and
+32,614 of 182,022 values** -- exactly the fifteen-goal figure. The `dosounds` fix
+moved the holdout by nothing. The twelve screens came from `dodrop()`.
 
-That reading cannot be confirmed from here. The sealed-holdout rules permit one
-evaluation per goal close, and attributing the twelve screens would need a second
-run at the commit between the two slices. It is recorded as the likeliest cause,
-not as a measured one.
+The argument was clean and wrong. "A named class can only add output" is true and
+was never the question; whether any hidden session actually reached that throw
+was, and none did. Reasoning about which of two changes caused an effect, when
+one measurement separates them, is a thing to measure rather than argue -- the
+same lesson the census reads taught five times over, applied here to a holdout
+figure instead of a step count.
 
-If it is right, it changes what the eleven previous zeros meant. The reading
-established at `hero-combat` was that the hidden sessions stop upstream of
-everything being ported and never reach the behavior. That may still be true.
-But at least part of the wall was not a capability gap at all -- it was a
-fail-open refusal throwing away a prefix the port had already earned. The same
-class cost `seed0015` all 44 of its screens in `trap-activation`, and cost five
-consecutive goal selections their census instrument until this slice.
+What the measurement actually says is more interesting than what the argument
+claimed. A boundary port moved the holdout, which no boundary port had done in
+fifteen goals. So the reading established at `hero-combat` -- that the hidden
+sessions stop upstream of everything being ported and never reach it -- is at
+best incomplete. They reached `drop`. Whatever the 5.4 per cent represents, it is
+not a wall that ported behavior cannot touch.
 
-`js/` holds **316** plain `throw new Error(` sites. Most are internal assertions,
-but the survey run during this goal found at least one more on a reachable path
-with a *named* class that still escapes: `UnsupportedSearchError` is admitted at
-the command seam and not at the turn-loop seam, so a Ranger with intrinsic
-searching aborts a run the same way. It is recorded as
-`search-refusal-escapes-from-the-turn-loop`.
-
-The measured cost of this class is now: one session's 44 screens, five censuses,
-and -- probably -- twelve holdout screens. Against a ranking rule that has been
-selecting boundary ports worth 17 to 35 development screens each, that is no
-longer a small deferral, and the next selection should price it as a candidate
-rather than as maintenance.
+The bare-`Error` class keeps its measured costs and loses the speculative one:
+`seed0015`'s 44 screens in `trap-activation`, and five consecutive censuses whose
+instrument it broke until this slice. `js/` holds 316 such sites, and
+`UnsupportedSearchError` escapes the turn-loop seam with a *named* class, recorded
+as `search-refusal-escapes-from-the-turn-loop`. Those are worth fixing on their
+own evidence, without the twelve holdout screens that turned out not to belong to
+them.
