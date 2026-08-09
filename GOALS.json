@@ -1005,7 +1005,7 @@
     },
     {
       "id": "drop-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "a d command whose chosen object leaves the hero's inventory and lands on the square he is standing on: do.c dodrop() through drop() and dropx() into the already-ported dropy() and dropz(); every branch of drop() that a hero state other than standing on reachable ordinary floor selects -- swallowed, unable to reach the floor, on a sink, on an altar, or inside a shop -- stays refused, and so does the D #droptype menu",
       "upstreamOwners": [
         "do.c dodrop()",
@@ -1047,8 +1047,11 @@
         "screens": 1203,
         "rng": 117774
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "afd1984dd9ba9ead2b89c0c0de1913964b7ee073",
+      "delivered": {
+        "screens": 25,
+        "rng": 113
+      }
     }
   ]
 }

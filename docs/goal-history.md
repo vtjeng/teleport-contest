@@ -436,3 +436,41 @@ mixed-case wish. `wishymatch()`'s case-folding entry closed on that evidence --
 23 of 25 boundaries crash on "Helmet", and "Gloves" does too, while lower case
 passes end to end at 2,314 of 2,314 draws. There is no C behavior to match, so
 the fold stays, with the recording kept beside it.
+
+`drop-command` closed on 8 August 2026. It forecast 25 steps and delivered 25,
+and **the holdout moved for the first time in fifteen goals**: 195 to 207
+screens, 32,614 to 32,682 random-number values, 5.4 to 5.7 per cent.
+
+The movement is very unlikely to be the drop command. This goal had two slices.
+The second ported `do.c dodrop()` and moved `seed0361` by exactly its forecast.
+The first changed two lines: `js/sounds.js`'s `dosounds` refusals threw a plain
+`Error`, which `js/jsmain.js` did not recognise as a boundary, so it escaped
+`runSegment()` and discarded the segment's whole matching prefix. Giving them a
+named class can only add matched output and never remove it, which is exactly
+the shape of a hidden session gaining twelve screens it had been throwing away.
+
+That reading cannot be confirmed from here. The sealed-holdout rules permit one
+evaluation per goal close, and attributing the twelve screens would need a second
+run at the commit between the two slices. It is recorded as the likeliest cause,
+not as a measured one.
+
+If it is right, it changes what the eleven previous zeros meant. The reading
+established at `hero-combat` was that the hidden sessions stop upstream of
+everything being ported and never reach the behavior. That may still be true.
+But at least part of the wall was not a capability gap at all -- it was a
+fail-open refusal throwing away a prefix the port had already earned. The same
+class cost `seed0015` all 44 of its screens in `trap-activation`, and cost five
+consecutive goal selections their census instrument until this slice.
+
+`js/` holds **316** plain `throw new Error(` sites. Most are internal assertions,
+but the survey run during this goal found at least one more on a reachable path
+with a *named* class that still escapes: `UnsupportedSearchError` is admitted at
+the command seam and not at the turn-loop seam, so a Ranger with intrinsic
+searching aborts a run the same way. It is recorded as
+`search-refusal-escapes-from-the-turn-loop`.
+
+The measured cost of this class is now: one session's 44 screens, five censuses,
+and -- probably -- twelve holdout screens. Against a ranking rule that has been
+selecting boundary ports worth 17 to 35 development screens each, that is no
+longer a small deferral, and the next selection should price it as a candidate
+rather than as maintenance.
