@@ -119,14 +119,16 @@ function prepare(fixture) {
  * the shape makeFixture() cannot produce: it leaves the checklist uncommitted
  * so that it can name HEAD.
  *
- * Three options build the cases that must still refuse: `gapTouchesProduction`
+ * Four options build the cases that must still refuse: `gapTouchesProduction`
  * changes the one area-owned path in the commit after the checklist, `ledger`
- * omits QUALITY.json, and `sideBranch` puts the commit the checklist names off
- * the head's history.
+ * omits QUALITY.json, `sideBranch` puts the commit the checklist names off the
+ * head's history, and `namedRef` writes a hand-written revision expression in
+ * place of the SHA that `git rev-parse` produced.
  */
 function makeCommittedChecklistFixture(t, {
     gapTouchesProduction = false,
     ledger = true,
+    namedRef = null,
     sideBranch = false,
 } = {}) {
     const fixtureRoot = mkdtempSync(join(tmpdir(), 'audit-worktree-test-'));
@@ -169,7 +171,7 @@ function makeCommittedChecklistFixture(t, {
     }
     writeFileSync(
         join(repositoryRoot, '.agents', 'implementation-checklist.json'),
-        readyChecklist(named),
+        readyChecklist(namedRef ?? named),
     );
     if (gapTouchesProduction) {
         writeFileSync(gamePath, 'export const turn = 3;\n');
@@ -607,6 +609,27 @@ test('a checklist naming a commit off the head history is still refused', t => {
         /implementation checklist covers .*, not /u,
     );
 });
+
+test('a checklist naming a revision expression is refused before git reads it',
+    t => {
+        // `HEAD~1` names the implementation commit here, so both later tests
+        // would pass it: it is an ancestor of the head, and the only path in
+        // the gap owns no area. The full-SHA test is what refuses it, and it
+        // is the same test that keeps an option-shaped value such as
+        // `--upload-pack=...` out of `git merge-base --is-ancestor <arg>` and
+        // `git diff --name-only <arg>..<head>` below it.
+        const fixture = makeCommittedChecklistFixture(t,
+            { namedRef: 'HEAD~1' });
+
+        assert.equal(
+            git(fixture.repositoryRoot, 'rev-parse', 'HEAD~1'),
+            fixture.implementation,
+        );
+        assert.throws(
+            () => prepare(fixture),
+            /implementation checklist covers HEAD~1, not /u,
+        );
+    });
 
 test('a checklist ahead of its head is refused without a ledger to consult',
     t => {
