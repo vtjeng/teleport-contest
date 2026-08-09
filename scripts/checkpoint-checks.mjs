@@ -208,15 +208,22 @@ export function summarizeReviewGate({ stdout = '', status }) {
 /**
  * Read the duplicate-symbol index for the checkpoint.
  *
- * The detail is the index's own summary line, and the listing is deliberately
- * left off the checkpoint's output: 282 keys at the time of writing would bury
- * the checks around it, and the count is what tells a reader whether their own
- * commit added one.
+ * The detail is the index's own two summary lines, and the listing is
+ * deliberately left off the checkpoint's output: 282 keys at the time of
+ * writing would bury the checks around it, and the counts are what tell a
+ * reader whether their own commit added one. Both counts ride here because the
+ * exact index alone answered nothing for a duplicate that differs by a suffix.
  */
 export function summarizeDuplicateSymbols({ stdout = '' }) {
-    const summary = stdout.split('\n').find(
-        (line) => line.startsWith('indexed '));
-    return { detail: summary ?? 'no summary line in the duplicate-symbol index' };
+    const lines = stdout.split('\n');
+    const summary = lines.find((line) => line.startsWith('indexed '));
+    const nearMiss = lines.find((line) => line.startsWith('near-miss keys: '));
+    return {
+        detail: [
+            summary ?? 'no summary line in the duplicate-symbol index',
+            nearMiss,
+        ].filter(Boolean).join('; '),
+    };
 }
 
 /**

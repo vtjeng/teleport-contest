@@ -54,20 +54,23 @@ test('the checkpoint reports duplicate symbols without gating on them', () => {
     // that genuinely differs, so a duplicate must not fail a checkpoint.
     assert.equal(index.informational, true);
     assert.deepEqual(index.args, ['run', 'check:duplicate-symbols']);
-    // The detail is the index's own summary line. The listing stays out of the
-    // checkpoint: 282 keys would bury every check around it.
+    // The detail is the index's own two summary lines. The listing stays out
+    // of the checkpoint: 282 keys would bury every check around it.
     const summary = summarizeDuplicateSymbols({
         stdout: 'isweptool: js/mondata.js:219 is_weptool (function), '
             + 'js/obj.js:44 isWeptool (function)\n'
-            + 'indexed 7197 top-level definition(s) in 144 file(s); '
+            + 'near-miss surface: js/dungeon.js:1271 surface_typ (function), '
+            + 'js/monmove.js:613 surfaceAt (function)\n'
+            + 'indexed 7199 top-level definition(s) in 144 file(s); '
             + 'duplicate symbols: 282 (98 defined only as functions '
-            + 'or classes)\n',
+            + 'or classes)\n'
+            + 'near-miss keys: 36 (102 site(s))\n',
     });
     assert.equal(
         summary.detail,
-        'indexed 7197 top-level definition(s) in 144 file(s); '
+        'indexed 7199 top-level definition(s) in 144 file(s); '
             + 'duplicate symbols: 282 (98 defined only as functions '
-            + 'or classes)',
+            + 'or classes); near-miss keys: 36 (102 site(s))',
     );
     assert.equal(summary.body, undefined);
     // An index that printed no summary line says so rather than reporting a

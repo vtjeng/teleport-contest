@@ -11,7 +11,9 @@ import test from 'node:test';
 import {
     definitionsIn,
     formatDuplicate,
+    formatNearMiss,
     indexDefinitions,
+    nearMissKey,
     resolveRoots,
     symbolKey,
 } from './check-duplicate-symbols.mjs';
@@ -33,6 +35,24 @@ test('one C name under two spellings folds to one key', () => {
     assert.equal(symbolKey('IS_WEPTOOL'), symbolKey('isWeptool'));
     // Different letters stay different keys: only case and underscores fold.
     assert.notEqual(symbolKey('is_weptool'), symbolKey('is_weapon'));
+    // A differing suffix is what the exact fold cannot see. rm.h SURFACE_AT()
+    // is ported under all three of these spellings.
+    assert.notEqual(symbolKey('surface_typ'), symbolKey('surfaceType'));
+    assert.notEqual(symbolKey('surfaceAt'), symbolKey('surfaceType'));
+});
+
+test('the near-miss key drops shape words and word order', () => {
+    // The three live spellings of rm.h SURFACE_AT() reach one key.
+    assert.equal(nearMissKey('surface_typ'), 'surface');
+    assert.equal(nearMissKey('surfaceAt'), 'surface');
+    assert.equal(nearMissKey('surfaceType'), 'surface');
+    // Sorting the words folds a reordering, and the case fold still applies.
+    assert.equal(nearMissKey('is_weptool'), nearMissKey('weptoolIs'));
+    assert.equal(nearMissKey('IS_WEPTOOL'), nearMissKey('isWeptool'));
+    // Different words stay apart, and a name that is only shape words has no
+    // key at all rather than an empty one every such name would share.
+    assert.notEqual(nearMissKey('is_weptool'), nearMissKey('is_weapon'));
+    assert.equal(nearMissKey('TYPE_AT'), '');
 });
 
 test('every declaration form at column zero is a definition site', () => {
@@ -82,14 +102,15 @@ test('the fixture directory indexes three duplicated keys', async () => {
     const { duplicates, callable, definitions } =
         await indexDefinitions(sourceFilesIn(FIXTURE_DIR));
 
-    // alpha.js: LEVITATION, is_weptool, SharedError, definedOnceOnly.
-    // beta.js: quoted, isWeptool, Shared_Error, Levitation.
-    assert.equal(definitions, 8);
+    // alpha.js: LEVITATION, is_weptool, SharedError, definedOnceOnly,
+    // surface_typ. beta.js: quoted, isWeptool, Shared_Error, Levitation,
+    // surfaceType.
+    assert.equal(definitions, 10);
     assert.deepEqual(duplicates, [
         {
             key: 'isweptool',
             sites: [
-                { file: `${FIXTURE}/alpha.js`, line: 10,
+                { file: `${FIXTURE}/alpha.js`, line: 11,
                     name: 'is_weptool', kind: 'function' },
                 { file: `${FIXTURE}/beta.js`, line: 17,
                     name: 'isWeptool', kind: 'function' },
@@ -98,7 +119,7 @@ test('the fixture directory indexes three duplicated keys', async () => {
         {
             key: 'levitation',
             sites: [
-                { file: `${FIXTURE}/alpha.js`, line: 8,
+                { file: `${FIXTURE}/alpha.js`, line: 9,
                     name: 'LEVITATION', kind: 'const' },
                 { file: `${FIXTURE}/beta.js`, line: 23,
                     name: 'Levitation', kind: 'function' },
@@ -107,7 +128,7 @@ test('the fixture directory indexes three duplicated keys', async () => {
         {
             key: 'sharederror',
             sites: [
-                { file: `${FIXTURE}/alpha.js`, line: 14,
+                { file: `${FIXTURE}/alpha.js`, line: 15,
                     name: 'SharedError', kind: 'class' },
                 { file: `${FIXTURE}/beta.js`, line: 21,
                     name: 'Shared_Error', kind: 'class' },
@@ -118,6 +139,46 @@ test('the fixture directory indexes three duplicated keys', async () => {
     // apart -- LEVITATION indexes u.uprops and Levitation() tests it -- so it
     // is excluded from the count the checkpoint reports.
     assert.equal(callable, 2);
+});
+
+test('the near-miss index reports the pair the exact index cannot', async () => {
+    const { duplicates, nearMisses } =
+        await indexDefinitions(sourceFilesIn(FIXTURE_DIR));
+
+    // surface_typ() and surfaceType() are one C macro under two spellings that
+    // differ by a shape word, so each is a singleton in the exact index.
+    assert.equal(duplicates.some(({ key }) => key.startsWith('surface')),
+        false);
+    // The three exact duplicates are not repeated here: every site in each of
+    // their groups shares one exact key.
+    assert.deepEqual(nearMisses, [
+        {
+            key: 'surface',
+            sites: [
+                { file: `${FIXTURE}/alpha.js`, line: 23,
+                    name: 'surface_typ', kind: 'function' },
+                { file: `${FIXTURE}/beta.js`, line: 30,
+                    name: 'surfaceType', kind: 'function' },
+            ],
+        },
+    ]);
+});
+
+test('a near-miss line is labelled and otherwise reads as a duplicate', () => {
+    const group = {
+        key: 'surface',
+        sites: [
+            { file: 'js/dungeon.js', line: 1271,
+                name: 'surface_typ', kind: 'function' },
+            { file: 'js/monmove.js', line: 613,
+                name: 'surfaceAt', kind: 'function' },
+        ],
+    };
+
+    assert.equal(
+        formatNearMiss(group),
+        `near-miss ${formatDuplicate(group)}`,
+    );
 });
 
 test('a definition quoted in a comment or a template is not a site',
@@ -175,9 +236,16 @@ test('the command reports its findings and still exits zero', () => {
         { encoding: 'utf8' });
 
     assert.equal(run.status, 0);
-    assert.match(run.stdout, /^isweptool: .*alpha\.js:10 is_weptool/mu);
+    assert.match(run.stdout, /^isweptool: .*alpha\.js:11 is_weptool/mu);
     assert.match(
         run.stdout,
-        /^indexed 8 top-level definition\(s\) in 2 file\(s\); duplicate symbols: 3 \(2 defined only as functions or classes\)$/mu,
+        /^near-miss surface: .*alpha\.js:23 surface_typ \(function\), .*beta\.js:30 surfaceType \(function\)$/mu,
     );
+    // The first summary line is the one the checkpoint quotes, so the
+    // near-miss count rides on a second line rather than widening it.
+    assert.match(
+        run.stdout,
+        /^indexed 10 top-level definition\(s\) in 2 file\(s\); duplicate symbols: 3 \(2 defined only as functions or classes\)$/mu,
+    );
+    assert.match(run.stdout, /^near-miss keys: 1 \(2 site\(s\)\)$/mu);
 });

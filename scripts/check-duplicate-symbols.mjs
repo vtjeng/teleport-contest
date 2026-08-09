@@ -19,6 +19,18 @@
 // what makes it worth writing: a refusal comment quoting the C body it stands
 // in for contains the C function's name, so a grep over the raw text names
 // every refusal as a definition.
+//
+// Two indexes, because one fold cannot do both jobs. The exact index folds
+// case and underscores, which is what caught is_weptool()/isWeptool(); a
+// duplicate that differs by suffix or word order slips past it, and rm.h
+// SURFACE_AT() is ported four times as surface_typ(), surfaceAt() and twice as
+// surfaceType(). The near-miss index sorts the name's words and drops the ones
+// that carry no meaning, and reports only groups that span more than one exact
+// key, so it adds sites rather than repeating them.
+//
+// Neither index reaches a copy that has no name. js/display.js and
+// js/monmove.js each inline the same SURFACE_AT() switch with no definition to
+// index, and only reading the C function finds those.
 
 import { readFile } from 'node:fs/promises';
 import { isAbsolute, join, relative, resolve, dirname } from 'node:path';
@@ -61,6 +73,29 @@ export function symbolKey(name) {
     return name.replaceAll('_', '').toLowerCase();
 }
 
+// Words that describe a name's shape rather than what it answers. `surface_typ`
+// and `surfaceAt` are one macro under two of them, so a fold that keeps them
+// separates two ports of one C function.
+const SHAPE_WORDS = new Set(['at', 'typ', 'type', 'for', 'of']);
+
+/**
+ * The key two namings of one C function share when their words agree.
+ *
+ * The name is split on underscores and case boundaries, lowercased, stripped of
+ * shape words, and sorted, so `surface_typ`, `surfaceAt` and `surfaceType` all
+ * become `surface` while `is_weptool` and `weptool_is` become `is weptool`.
+ * A name that is nothing but shape words has no key and is not indexed.
+ */
+export function nearMissKey(name) {
+    const words = name
+        .replace(/([a-z0-9])([A-Z])/gu, '$1 $2')
+        .replaceAll('_', ' ')
+        .toLowerCase()
+        .split(' ')
+        .filter((word) => word && !SHAPE_WORDS.has(word));
+    return words.sort().join(' ');
+}
+
 /**
  * Every top-level definition in one file's already-blanked source.
  *
@@ -89,40 +124,62 @@ function lineOf(source, offset) {
     return line;
 }
 
+function groupsWithSeveralSites(byKey) {
+    return [...byKey]
+        .filter(([, sites]) => sites.length > 1)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, sites]) => ({ key, sites }));
+}
+
 /**
- * Index `files` by symbol key.
+ * Index `files` by symbol key and by near-miss key.
  *
- * Returns `{ duplicates, definitions }`. `duplicates` holds one entry per key
- * with more than one definition site, ordered by key, each site carrying the
- * file, line, and the spelling used there. `definitions` counts every site
- * scanned, so a scan that silently stopped matching is visible.
+ * Returns `{ duplicates, callable, definitions, nearMisses }`. `duplicates`
+ * holds one entry per exact key with more than one definition site, ordered by
+ * key, each site carrying the file, line, and the spelling used there.
+ * `nearMisses` holds the same shape for the looser key, less every group whose
+ * sites all share one exact key, which `duplicates` already reports.
+ * `definitions` counts every site scanned, so a scan that silently stopped
+ * matching is visible.
  */
 export async function indexDefinitions(files) {
     const byKey = new Map();
+    const byNearMissKey = new Map();
     let definitions = 0;
     for (const file of files) {
         const code = blankCommentsAndStrings(await readFile(file, 'utf8'));
         const label = displayPath(file);
         for (const { name, kind, line } of definitionsIn(code)) {
             definitions += 1;
+            const site = { file: label, line, name, kind };
             const key = symbolKey(name);
             if (!byKey.has(key)) byKey.set(key, []);
-            byKey.get(key).push({ file: label, line, name, kind });
+            byKey.get(key).push(site);
+            const nearMiss = nearMissKey(name);
+            if (!nearMiss) continue;
+            if (!byNearMissKey.has(nearMiss)) byNearMissKey.set(nearMiss, []);
+            byNearMissKey.get(nearMiss).push(site);
         }
     }
-    const duplicates = [...byKey]
-        .filter(([, sites]) => sites.length > 1)
-        .sort(([left], [right]) => left.localeCompare(right))
-        .map(([key, sites]) => ({ key, sites }));
+    const duplicates = groupsWithSeveralSites(byKey);
+    const nearMisses = groupsWithSeveralSites(byNearMissKey).filter(
+        ({ sites }) => new Set(sites.map((site) => symbolKey(site.name))).size
+            > 1);
     const callable = duplicates.filter(
         ({ sites }) => sites.every((site) => site.kind !== 'const'));
-    return { duplicates, callable: callable.length, definitions };
+    return {
+        callable: callable.length, definitions, duplicates, nearMisses,
+    };
 }
 
 export function formatDuplicate({ key, sites }) {
     return `${key}: ${sites
         .map((site) => `${site.file}:${site.line} ${site.name} (${site.kind})`)
         .join(', ')}`;
+}
+
+export function formatNearMiss(group) {
+    return `near-miss ${formatDuplicate(group)}`;
 }
 
 function displayPath(file) {
@@ -137,11 +194,19 @@ export function resolveRoots(args) {
 
 async function main(args) {
     const files = resolveRoots(args).flatMap(sourceFilesIn);
-    const { duplicates, callable, definitions } = await indexDefinitions(files);
+    const { duplicates, callable, definitions, nearMisses } =
+        await indexDefinitions(files);
     for (const duplicate of duplicates) console.log(formatDuplicate(duplicate));
+    for (const group of nearMisses) console.log(formatNearMiss(group));
+    // Two summary lines, because the first one's count is quoted in the
+    // checkpoint summary and in two deferral entries: adding to it would change
+    // a number those readers compare against their own commit.
     console.log(`indexed ${definitions} top-level definition(s) in `
         + `${files.length} file(s); duplicate symbols: ${duplicates.length} `
         + `(${callable} defined only as functions or classes)`);
+    console.log(`near-miss keys: ${nearMisses.length} (`
+        + `${nearMisses.reduce((total, { sites }) => total + sites.length, 0)}`
+        + ' site(s))');
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url))

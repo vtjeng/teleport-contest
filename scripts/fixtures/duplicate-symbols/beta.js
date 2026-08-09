@@ -25,3 +25,8 @@ export function Levitation() {
     const definedOnceOnly = 1;
     return definedOnceOnly;
 }
+
+// The same rm.h SURFACE_AT() as alpha.js surface_typ(), spelled the other way.
+export function surfaceType(x, y) {
+    return [x, y];
+}
