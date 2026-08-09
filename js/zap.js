@@ -19,6 +19,7 @@ import {
     hold_another_object,
     prepareHeavyBallDropAdmission,
 } from './invent.js';
+import { remove_object } from './obj.js';
 import { The, aobjnam, donameFresh } from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
@@ -121,6 +122,10 @@ export async function makewish(state = game) {
         state,
         hooks: {
             encumberMessage: encumber_msg,
+            // do.c dropz() -> stackobj() -> invent.c merged() reaches
+            // mkobj.c obj_extract_self() for the pile member the landing
+            // object absorbs, and that member is on the floor.
+            extractExternalObject: remove_object,
             newsym,
             preflightDropObject: preflight_dropx,
             dropObject: dropx,

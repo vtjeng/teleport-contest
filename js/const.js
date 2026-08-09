@@ -338,6 +338,7 @@ export const NO_KILLER_PREFIX = 2;
 export const nothing_happens = "Nothing happens.";
 export const nothing_seems_to_happen = "Nothing seems to happen.";
 export const thats_enough_tries = "That's enough tries!";
+export const something = "something";
 export const Never_mind = "Never mind.";
 
 // Command queue type IDs and queue selectors (include/hack.h cmdq_cmdtypes/CQ_*)

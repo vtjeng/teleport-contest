@@ -1,5 +1,6 @@
 // apply.js -- the `a` command: using a tool.
-// C refs: src/apply.c apply_ok(), doapply(), and use_stethoscope().
+// C refs: src/apply.c apply_ok(), doapply(), use_stethoscope(), and
+// reset_trapset().
 //
 // doapply()'s switch has thirty-odd arms. Two are live: STETHOSCOPE, and the
 // LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c pick_lock() serves. Every
@@ -80,6 +81,21 @@ function heroDeaf(state) {
     const deafness = state.u?.uprops?.[DEAF] ?? {};
     return Boolean(deafness.intrinsic || deafness.extrinsic
         || state.u?.uroleplay?.deaf);
+}
+
+// C ref: apply.c reset_trapset() (2812-2817), the third of the three clears
+// cmd.c reset_occupations() makes.
+//
+// gt.trapinfo is the trap the hero is arming, carried across the set_trap()
+// occupation that use_trap() starts. C's struct holds tx, ty and time_needed
+// as well; only the two fields this function clears exist here, and this is
+// the only function in the port that reads or writes either, because use_trap()
+// and set_trap() are unported. The pair is therefore always already at its
+// reset value; the function exists so that reset_occupations() clears
+// everything C clears rather than two thirds of it.
+export function reset_trapset(state = game) {
+    state.gt ??= {};
+    state.gt.trapinfo = { tobj: null, force_bungle: false };
 }
 
 // C ref: apply.c apply_ok() (4149-4210), the getobj() callback for the `a`

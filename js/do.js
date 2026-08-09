@@ -1,5 +1,6 @@
 // do.js -- Commands that drop, dig into, or descend through the floor.
-// C refs: do.c -- flooreffects(), u_stuck_cannot_go(), dodown(), goto_level(),
+// C refs: do.c -- dodrop(), flooreffects(), canletgo(), drop(), dropx(),
+// dropy(), dropz(), u_stuck_cannot_go(), dodown(), goto_level(),
 // u_collide_m(), temperature_change_msg() and set_wounded_legs(); dokick.c
 // obj_delivery(); mon.c kill_genocided_monsters(); questpgr.c
 // deliver_splev_message().
@@ -9,18 +10,24 @@ import {
     CORR,
     DIR_DOWN,
     DOOR,
+    ECMD_FAIL,
     ECMD_OK,
     ECMD_TIME,
     FLYING,
     FUMBLING,
+    GETOBJ_ALLOWCNT,
+    GETOBJ_PROMPT,
     G_GENOD,
+    HAND,
     IS_ALTAR,
+    IS_SINK,
     In_endgame,
     In_quest,
     In_tutorial,
     LADDER,
     LEVITATION,
     LFILE_EXISTS,
+    LOST_DROPPED,
     OBJ_INVENT,
     OBJ_FREE,
     ROOM,
@@ -38,16 +45,24 @@ import {
     VIBRATING_SQUARE,
     VISITED,
     WOUNDED_LEGS,
+    W_ACCESSORY,
+    W_ARMOR,
+    W_SADDLE,
     BLINDED,
     HALLUC,
     HALLUC_RES,
     is_hole,
+    plur,
+    something,
 } from './const.js';
+import { reset_trapset } from './apply.js';
 import { next_to_u } from './apply_next_to_u.js';
-import { set_move_cmd } from './cmd.js';
-import { docrt, flush_screen } from './display.js';
+import { reset_occupations, set_move_cmd } from './cmd.js';
+import { docrt, flush_screen, newsym } from './display.js';
+import { setwornEnv } from './do_wear.js';
 import { keepdogs, losedogs, update_mlstmv } from './dog.js';
 import { can_reach_floor, engr_at } from './engrave.js';
+import { makeplural } from './fruit.js';
 import {
     Can_fall_thru,
     In_hell,
@@ -81,7 +96,9 @@ import {
     u_rooted,
 } from './hack.js';
 import {
+    any_obj_ok,
     freeinv,
+    getobj,
     preflight_update_inventory,
     stackobj,
 } from './invent.js';
@@ -90,13 +107,20 @@ import { mklev } from './mklev.js';
 import { set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { PM_ROGUE, PM_TOURIST } from './monsters.js';
-import { is_pick, place_object } from './obj.js';
+import {
+    is_pick, place_object, remove_object, set_bknown,
+} from './obj.js';
+import { donameFresh } from './objnam.js';
 import {
     BOULDER,
     CORPSE,
-    HEAVY_IRON_BALL,
+    LEASH,
+    LOADSTONE,
+    MEAT_RING,
     POTION_CLASS,
+    RING_CLASS,
 } from './objects.js';
+import { body_part } from './polyself.js';
 import {
     encumber_msg,
     pickup,
@@ -126,8 +150,10 @@ import {
     uescaped_shaft,
     uteetering_at_seen_pit,
 } from './trap.js';
-import { ttyPline } from './tty_message.js';
+import { ttyNorep, ttyPline } from './tty_message.js';
 import { cansee, vision_recalc, vision_reset } from './vision.js';
+import { welded } from './wield.js';
+import { bimanual, setuqwep, setuswapwep, setuwep } from './worn.js';
 
 // A fail-closed boundary for goto_level() branches outside the ordinary
 // staircase descent and positive-decimal level teleport ports.
@@ -374,10 +400,12 @@ export function flooreffects(obj, x, y, verb, env = {}) {
     return false;
 }
 
-// This boundary is narrower than the general `d` command: it is the do.c
-// dropx()/dropy()/dropz() tail reached when invent.c hold_another_object()
-// cannot carry a wished-for heavy iron ball. Other drop callers retain their
-// own messages, billing, equipment, migration, and impact behavior.
+// Every branch of the drop chain -- dodrop(), drop() and the
+// dropx()/dropy()/dropz() tail -- that this port has not translated raises
+// this. js/cmd.js failClosedCommandRefusals() lists it, so the segment keeps
+// every frame the command already matched instead of failing hard. Callers
+// other than the `d` command reach the tail with their own messages, billing,
+// equipment, migration and impact behavior still unported.
 export class UnsupportedDropError extends Error {
     constructor(reason) {
         super(`unsupported drop: ${reason}`);
@@ -401,11 +429,199 @@ function requiredDropHook(env, name) {
     return hook;
 }
 
-// Complete admission check for the source-inert ground subset below. The wish
-// path calls this while the object is still OBJ_FREE, before observe_object(),
-// its failure message, or addinv() can change visible state. The returned
-// one-shot admission lets dropx() execute the approved tail after addinv()
-// without repeating checks against state changed by the admitted transaction.
+// The three operations the dropz() tail needs. C calls newsym() and
+// encumber_msg() from inside dropz() itself, at do.c:840 and :842, and reaches
+// remove_object() through stackobj() -> merged() -> obj_extract_self() when
+// the landing object absorbs a pile member. All three are injected because
+// display.c, pickup.c and mkobj.c own them.
+function dropCommandEnv(state) {
+    return {
+        state,
+        hooks: {
+            encumberMessage: encumber_msg,
+            extractExternalObject: remove_object,
+            newsym,
+        },
+    };
+}
+
+// C ref: do.c dodrop() (28-42), the 'd' command.
+export async function dodrop(state = game) {
+    let result;
+
+    // C's `*u.ushops` is the first entry of the room list naming the shops the
+    // hero stands in; hack.c move_update() maintains it and js/rooms.js stores
+    // it as a fixed five-entry array, so an empty list reads as a zero here
+    // exactly as an empty string does there.
+    if (state.u?.ushops?.[0]) {
+        // shk.c sellobj_state() switches the shopkeeper's billing mode either
+        // side of the drop, which is what makes a deliberate drop an offer to
+        // sell. Both calls stop together, because the drop between them is
+        // what they bracket.
+        throw new UnsupportedDropError('sellobj_state() inside a shop');
+    }
+    result = await drop(
+        await getobj(
+            'drop', any_obj_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
+        ),
+        state,
+    );
+    // do.c:37-38's second `if (*u.ushops)` reads the same value, which the
+    // drop cannot change; the arm above has already stopped every hero it
+    // would be true for.
+    if (result)
+        reset_occupations(state);
+
+    return result;
+}
+
+// C ref: do.c canletgo() (664-711). Answers whether the hero can let go of an
+// object and says why when she cannot. `word` is the verb the message uses;
+// C's callers pass "" to ask the question without a message, and every test on
+// it is written out here even though the one ported caller passes "drop".
+export async function canletgo(obj, word, state = game) {
+    if (obj.owornmask & (W_ARMOR | W_ACCESSORY)) {
+        if (word) {
+            await ttyNorep(
+                `You cannot ${word} ${something} you are wearing.`, state,
+            );
+        }
+        return false;
+    }
+    if (obj === state.uwep && welded(state.uwep, state)) {
+        /* no weldmsg(), so uwep->bknown might become set silently
+           if word is "" */
+        if (word) {
+            let hand = body_part(HAND, state.youmonst);
+
+            if (bimanual(state.uwep, state))
+                hand = makeplural(hand);
+            await ttyNorep(
+                `You cannot ${word} ${something} welded to your ${hand}.`,
+                state,
+            );
+        }
+        return false;
+    }
+    if (obj.otyp === LOADSTONE && obj.cursed) {
+        /* getobj() kludge sets corpsenm to user's specified count
+           when refusing to split a stack of cursed loadstones */
+        if (word) {
+            /* getobj() ignores a count for throwing since that is
+               implicitly forced to be 1; replicate its kludge... */
+            if (word === 'throw' && obj.quan > 1)
+                obj.corpsenm = 1;
+            await ttyPline(
+                `For some reason, you cannot ${word}`
+                + `${obj.corpsenm ? ' any of' : ''}`
+                + ` the stone${plur(obj.quan)}!`,
+                state,
+            );
+        }
+        obj.corpsenm = 0; /* reset */
+        set_bknown(obj, 1, { state });
+        return false;
+    }
+    if (obj.otyp === LEASH && obj.leashmon !== 0) {
+        if (word) {
+            await ttyPline(
+                `The leash is tied around your ${body_part(HAND, state.youmonst)}.`,
+                state,
+            );
+        }
+        return false;
+    }
+    if (obj.owornmask & W_SADDLE) {
+        if (word) {
+            await ttyPline(
+                `You cannot ${word} ${something} you are sitting on.`, state,
+            );
+        }
+        return false;
+    }
+    return true;
+}
+
+// C ref: do.c drop() (713-780), staticfn. Four of its arms stop rather than
+// run, each named at the throw; what remains is the hero who is standing on
+// reachable ordinary floor and lets one object go.
+//
+// C's altar arm is not a stop of its own. do.c:774 only suppresses the message
+// there and falls through to dropx(), whose doaltarobj() is unported, so
+// preflight_dropx() below refuses the square and this function reproduces the
+// suppressed message either way.
+async function drop(obj, state = game) {
+    if (!obj)
+        return ECMD_FAIL;
+    if (!await canletgo(obj, 'drop', state))
+        return ECMD_FAIL;
+    if (obj.otyp === CORPSE) {
+        // do.c:720-721 better_not_try_to_drop_that() (946-962), which asks
+        // paranoid_ynq() to confirm before a bare-handed hero drops a corpse
+        // that could petrify her. Neither it nor u_safe_from_fatal_corpse() is
+        // ported, so every corpse stops here rather than skip the question.
+        throw new UnsupportedDropError('better_not_try_to_drop_that()');
+    }
+    if (obj === state.uwep) {
+        if (welded(state.uwep, state)) {
+            // do.c:724 weldmsg() (wield.c:1061-1074), which names the weapon
+            // with objnam.c Yobjnam2(); yname() under it is not ported.
+            throw new UnsupportedDropError('weldmsg()');
+        }
+        setuwep(null, setwornEnv(state));
+    }
+    if (obj === state.uquiver) {
+        setuqwep(null, setwornEnv(state));
+    }
+    if (obj === state.uswapwep) {
+        setuswapwep(null, setwornEnv(state));
+    }
+
+    if (state.u.uswallow) {
+        // do.c:736-751, the engulfer's barrier: the message needs
+        // do_name.c mon_nam() and mondata.c digests(), and dropz() then puts
+        // the object into the engulfer's inventory through mpickobj().
+        throw new UnsupportedDropError('a swallowed hero');
+    } else {
+        const here = state.level.at(state.u.ux, state.u.uy);
+        if ((obj.oclass === RING_CLASS || obj.otyp === MEAT_RING)
+            && IS_SINK(here.typ)) {
+            // do.c:755 dosinkring() (do.c:534-661), which identifies the ring
+            // by what the sink does and then buries, drops or uses it up.
+            throw new UnsupportedDropError('dosinkring()');
+        }
+        if (!can_reach_floor(true, state)) {
+            // do.c:758-773, the levitating or trapped hero: finesse_ahriman(),
+            // hitfloor() and float_down() are all unported.
+            throw new UnsupportedDropError(
+                'hitfloor() from an unreachable floor',
+            );
+        }
+        if (!IS_ALTAR(here.typ) && state.flags.verbose)
+            await ttyPline(`You drop ${donameFresh(obj, state)}.`, state);
+    }
+    obj.how_lost = LOST_DROPPED;
+    await dropx(obj, dropCommandEnv(state));
+    return ECMD_TIME;
+}
+
+// drop() is staticfn in do.c and its two terrain arms -- the sink at :753-757
+// and the unreachable floor at :758-773 -- refuse rather than run. Neither is
+// reachable from a recorded case: no ported input walks the hero onto a sink,
+// and none leaves her standing on a seen pit or shaft, because js/hack.js
+// ports dotrap()'s bear-trap arm alone and nothing else writes u.utrap. It is
+// exported so a test can hand it those two squares directly.
+export const _dropInternals = Object.freeze({ drop });
+
+// Complete admission check for the source-inert ground subset below: what
+// dropx()'s ship_object() and doaltarobj(), and dropz()'s flooreffects(),
+// container impact, zombie disturbance, ball, shop and blind-levitation arms
+// would each need. drop() above reaches it with the message already printed,
+// which is where C's own dropx() call sits; the wish path calls it earlier,
+// while the object is still OBJ_FREE and before observe_object(), its failure
+// message, or addinv() can change visible state. The returned one-shot
+// admission lets that caller execute the approved tail after addinv() without
+// repeating checks against state changed by the admitted transaction.
 export function preflight_dropx(obj, env = {}) {
     const normalized = dropEnv(env);
     const { state } = normalized;
@@ -414,10 +630,20 @@ export function preflight_dropx(obj, env = {}) {
         throw new TypeError('preflight_dropx requires an object');
     if (obj.where !== OBJ_FREE && obj.where !== OBJ_INVENT)
         throw new UnsupportedDropError(`object ownership ${obj.where}`);
-    if (obj.otyp !== HEAVY_IRON_BALL || obj.quan !== 1
-        || state.objects?.[obj.otyp]?.oc_merge) {
-        throw new UnsupportedDropError('a merging, split, or non-ball object');
-    }
+    // stackobj() merges the landing object into a like pile member, and
+    // invent.c merged() and shk.c obfree() ask their caller for an operation
+    // for each of these three: a light source to move and then delete, a timer
+    // to stop, and a glob to absorb. Refusing them here keeps the admission
+    // atomic, because a missing operation would otherwise be discovered after
+    // freeinv() had already emptied the slot.
+    if (obj.lamplit || obj.timed || obj.globby)
+        throw new UnsupportedDropError('a lit, timed, or globby object');
+    // obfree()'s remaining operations are reached by an object the drop chain
+    // already stops: canletgo() refuses a leash tied to a pet, the unpaid test
+    // below refuses a billed object and the shop-level test refuses an unpaid
+    // merge target. Only the box whose lock the hero is picking is left.
+    if (state.xlock?.box === obj)
+        throw new UnsupportedDropError('the box whose lock is being picked');
     if (!u || u.uswallow)
         throw new UnsupportedDropError('a swallowed hero');
     const blind = heroPropertyActive(u, BLINDED)
@@ -490,6 +716,11 @@ export function preflight_dropx(obj, env = {}) {
     preflight_update_inventory(normalized);
     requiredDropHook(normalized, 'newsym');
     requiredDropHook(normalized, 'encumberMessage');
+    // stackobj() reaches obj_extract_self() for the pile member it absorbs,
+    // and that member is on the floor. Required unconditionally rather than
+    // only for a non-empty pile, so that admitting the drop does not depend on
+    // what another object happens to be lying there.
+    requiredDropHook(normalized, 'extractExternalObject');
     return {
         consumed: false,
         initialWhere: obj.where,
@@ -561,9 +792,13 @@ async function dropzAdmitted(obj, normalized) {
 }
 
 // C ref: do.c dropz() (806-842), source-inert shopless ground and with_impact
-// FALSE. The admitted heavy ball is not equipped, cannot merge, and reaches
-// an empty impact-disturbance list. ROOM, CORR, a doorway, and an up stairway
-// therefore share the source calls from place_object() through newsym().
+// FALSE. Its three equipment clears at 809-814 are inert here: preflight_dropx()
+// refuses an object still in any of those slots, and do.c drop() has run the
+// same three calls before reaching this point. So are drop_ball(), sellobj()
+// and the blind-levitation map_object(), each refused by the admission above.
+// stackobj() can merge, which is why the admission checks what a merge would
+// ask for. ROOM, CORR, a doorway, and an up stairway therefore share the
+// source calls from place_object() through newsym().
 export async function dropz(obj, with_impact, env = {}) {
     const normalized = dropEnv(env);
     const { state } = normalized;
@@ -810,9 +1045,7 @@ export async function goto_level(
     // The context discard, do.c:1601-1622. It drops what belongs to the level
     // being left and keeps what travels with the hero.
     maybe_reset_pick(null, state);
-    // do.c:1606 reset_trapset(). gt.trapinfo holds the trap object the hero is
-    // arming; apply.c use_trap() and set_trap() are its only writers and
-    // neither is ported, so this port has no location to clear.
+    reset_trapset(state);
     // do.c:1607 clears iflags.travelcc, the travel command's destination
     // cache. The travel command is not ported and neither is that field.
     if (state.context) {

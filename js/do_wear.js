@@ -117,7 +117,8 @@ function takeoffContext(state) {
 
 // C ref: do_wear.c reset_remarm() (3012-3018). C clears takeoff.what and
 // takeoff.disrobing here as well; see takeoffContext() for why neither exists.
-function reset_remarm(state) {
+// Exported for cmd.c reset_occupations(), the first caller outside this file.
+export function reset_remarm(state = game) {
     takeoffContext(state).mask = 0;
 }
 
@@ -130,15 +131,17 @@ function cancel_doff(obj, slotmask, env) {
     takeoffContext(env.state).mask &= ~slotmask;
 }
 
-// The worn.js hook set every setworn() call in this file needs. C runs all
-// three from inside setworn() (worn.c:73-142) itself; worn.js injects them
-// because their owners sit in other source files. setnotworn() (worn.c:150)
-// calls the same three, but nothing here reaches it, and its copies are not
-// interchangeable: they run for every matching slot, where setworn()'s sit
-// inside the `wp->w_mask & ~(W_SWAPWEP | W_QUIVER)` gate at worn.c:93 that
-// js/worn.js removeSlotEffects() reproduces, and setnotworn() runs
-// cancel_doff() before the property work rather than after it.
-function takeoffWornEnv(state) {
+// The worn.js hook set every setworn() call needs. C runs all three from
+// inside setworn() (worn.c:73-142) itself; worn.js injects them because their
+// owners sit in other source files. It lives here because cancel_doff() does,
+// and do.c drop() imports it for its setuwep(), setuqwep() and setuswapwep()
+// calls. setnotworn() (worn.c:150) calls the same three, but nothing reaches
+// it, and its copies are not interchangeable: they run for every matching
+// slot, where setworn()'s sit inside the `wp->w_mask & ~(W_SWAPWEP |
+// W_QUIVER)` gate at worn.c:93 that js/worn.js removeSlotEffects()
+// reproduces, and setnotworn() runs cancel_doff() before the property work
+// rather than after it.
+export function setwornEnv(state = game) {
     return {
         state,
         hooks: {
@@ -181,7 +184,7 @@ function Armor_off(state) {
         );
     }
     takeoffContext(state).mask &= ~W_ARM;
-    setworn(null, W_ARM, takeoffWornEnv(state));
+    setworn(null, W_ARM, setwornEnv(state));
     return 0;
 }
 
@@ -211,7 +214,7 @@ function Cloak_off(state) {
     }
     takeoffContext(state).mask &= ~W_ARMC;
     /* For mummy wrapping, taking it off first resets `Invisible'. */
-    setworn(null, W_ARMC, takeoffWornEnv(state));
+    setworn(null, W_ARMC, setwornEnv(state));
     return 0;
 }
 
@@ -243,7 +246,7 @@ function Helmet_off(state) {
     default: /* DENTED_POT, one of C's plain break labels at 528-533 */
         break;
     }
-    setworn(null, W_ARMH, takeoffWornEnv(state));
+    setworn(null, W_ARMH, setwornEnv(state));
     return 0;
 }
 
@@ -257,7 +260,7 @@ function Shield_off(state) {
         );
     }
     takeoffContext(state).mask &= ~W_ARMS;
-    setworn(null, W_ARMS, takeoffWornEnv(state));
+    setworn(null, W_ARMS, setwornEnv(state));
     return 0;
 }
 
@@ -270,7 +273,7 @@ function Shirt_off(state) {
     if (otyp !== HAWAIIAN_SHIRT && otyp !== T_SHIRT)
         throw new UnsupportedTakeOffError(`Shirt_off() for otyp ${otyp}`);
     takeoffContext(state).mask &= ~W_ARMU;
-    setworn(null, W_ARMU, takeoffWornEnv(state));
+    setworn(null, W_ARMU, setwornEnv(state));
     return 0;
 }
 
@@ -681,5 +684,5 @@ export const _doWearInternals = Object.freeze({
     off_msg,
     reset_remarm,
     takeoffContext,
-    takeoffWornEnv,
+    setwornEnv,
 });

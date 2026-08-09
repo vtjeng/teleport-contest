@@ -2272,6 +2272,9 @@ function ordinaryDropFixture(otyp = HEAVY_IRON_BALL) {
         message: (line) => lines.push(line),
         newsym: () => {},
         encumberMessage: () => {},
+        // stackobj() unlinks the pile member it absorbs; remove_object() is
+        // what do.c supplies for it.
+        extractExternalObject: (object, env) => remove_object(object, env),
     };
     return { hooks, lines, obj, state };
 }
@@ -2369,6 +2372,9 @@ test('heavy-ball retain and drop paths preserve source callback order',
                     snapshot('message', text);
                 },
                 preflightDropObject: preflight_dropx,
+                extractExternalObject: (object, env2) => remove_object(
+                    object, env2,
+                ),
                 async dropObject(object, env, admission) {
                     snapshot('dropx');
                     await dropx(object, env, admission);
@@ -2455,6 +2461,7 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
             dropObject: dropx,
             newsym: () => {},
             encumberMessage: () => { ++encumbered; },
+            extractExternalObject: (object, env2) => remove_object(object, env2),
         };
         const env = { state, hooks };
         const admission = prepareHeavyBallDropAdmission(ball, env);
@@ -2596,10 +2603,22 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
             ['wrong ownership', /ownership/u, ({ obj }) => {
                 obj.where = OBJ_FLOOR;
             }],
-            ['non-ball object', /non-ball/u, null, OIL_LAMP],
-            ['split ball', /split/u, ({ obj }) => { obj.quan = 2; }],
-            ['merging ball', /merging/u, ({ state, obj }) => {
-                state.objects[obj.otyp].oc_merge = true;
+            // invent.c merged() asks its caller for an operation for each of
+            // these three before it can absorb the landing object into a pile
+            // member, and shk.c obfree() asks for two of them again.
+            ['lit lamp', /lit, timed, or globby/u, ({ obj }) => {
+                obj.lamplit = true;
+            }, OIL_LAMP],
+            ['timed object', /lit, timed, or globby/u, ({ obj }) => {
+                obj.timed = true;
+            }],
+            ['globby object', /lit, timed, or globby/u, ({ obj }) => {
+                obj.globby = true;
+            }],
+            // shk.c obfree()'s last operation: lock.c reset_pick(), for the
+            // box whose lock the hero is in the middle of picking.
+            ['box being picked', /lock is being picked/u, ({ state, obj }) => {
+                state.xlock = { box: obj };
             }],
             ['swallowed hero', /swallowed/u, ({ state }) => {
                 state.u.uswallow = true;

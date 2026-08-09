@@ -36,7 +36,7 @@ import {
     ydir,
     zdir,
 } from './const.js';
-import { doapply, UnsupportedApplyError } from './apply.js';
+import { doapply, reset_trapset, UnsupportedApplyError } from './apply.js';
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
 import {
@@ -44,11 +44,14 @@ import {
 } from './display.js';
 import {
     dodown,
+    dodrop,
     UnsupportedDropError,
     UnsupportedLevelChangeError,
 } from './do.js';
-import { dotakeoff, UnsupportedTakeOffError } from './do_wear.js';
-import { UnsupportedLockError } from './lock.js';
+import {
+    dotakeoff, reset_remarm, UnsupportedTakeOffError,
+} from './do_wear.js';
+import { reset_pick, UnsupportedLockError } from './lock.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
 import { UnsupportedObjectOperationError } from './obj.js';
@@ -760,7 +763,7 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'down', 'takeoff', 'reqmenu', 'options', 'wizwish',
+    'eat', 'apply', 'down', 'drop', 'takeoff', 'reqmenu', 'options', 'wizwish',
     'wizlevelport', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
@@ -830,6 +833,16 @@ async function readSimpleCommand(state) {
         throw new UnsupportedHeroCommandBoundaryError(ADMITTED_BOUNDARY, key);
     }
     return finishCommandParse({ key, count: 0 }, state);
+}
+
+// C ref: cmd.c reset_occupations() (194-200). Its own comment lists the three
+// occupations it stops from resuming: taking off all armor, picking a lock or
+// forcing a chest, and setting a trap. Each owner clears its own context, so
+// this is the three calls and nothing else.
+export function reset_occupations(state = game) {
+    reset_remarm(state);
+    reset_pick(state);
+    reset_trapset(state);
 }
 
 // C ref: cmd.c reset_cmd_vars(). Command queues and travel-map ownership stay
@@ -1208,6 +1221,13 @@ async function runDownCommand(key, state) {
     return failClosedCommand(key, state, () => dodown(state));
 }
 
+// C ref: do.c dodrop(), the 'd' command. Like dosearch() and doeat() it
+// returns its own ECMD_* result, because drop() answers ECMD_FAIL for a
+// refusal that spends no turn and ECMD_TIME for the object that lands.
+async function runDropCommand(key, state) {
+    return failClosedCommand(key, state, () => dodrop(state));
+}
+
 // C ref: do_wear.c dotakeoff(). Like dosearch() and doeat() it returns its own
 // ECMD_* result, and it is the first ported command to answer ECMD_CANCEL from
 // a getobj() the player escaped: an empty pack answers ECMD_OK instead,
@@ -1446,6 +1466,8 @@ async function doextcmd(key, state) {
         return await runApplyCommand(key, state);
     case 'dodown':
         return await runDownCommand(key, state);
+    case 'dodrop':
+        return await runDropCommand(key, state);
     case 'dotakeoff':
         return await runTakeOffCommand(key, state);
     case 'doride':
@@ -1652,6 +1674,23 @@ export async function rhack(key, state = game) {
             // same reason it is in the arms above, because cmd.c:3805-3809
             // documents (ECMD_TIME|ECMD_CANCEL) as a real result.
             const res = await runDownCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state);
+            if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'drop') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search`, `eat`, `apply`, `down` and
+            // `takeoff` arms apply. dodrop() answers ECMD_FAIL when the
+            // getobj() prompt is escaped or the object cannot be let go, and
+            // ECMD_TIME for the object that lands; the ECMD_CANCEL half of the
+            // first test cannot fire, because drop() has no ECMD_CANCEL arm.
+            // The MOVEMENTCMD and domove_attempting tests at 3773-3800 cannot
+            // divert it either, because cmd.c:1708's "drop" row carries no
+            // flags at all.
+            const res = await runDropCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state);

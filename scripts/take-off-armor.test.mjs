@@ -79,7 +79,7 @@ import {
 } from './run-take-off-armor.mjs';
 
 const { Armor_off, Cloak_off, is_boots, is_gloves, reset_remarm,
-    takeoffContext, takeoffWornEnv } = _doWearInternals;
+    takeoffContext, setwornEnv } = _doWearInternals;
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -725,14 +725,14 @@ test('setworn clears only the doffed slot from the take-off mask', async () => {
 
     const others = W_ARM | W_ARMH | W_ARMS | W_ARMG | W_ARMF | W_ARMU;
     takeoffContext(game).mask = others | W_ARMC;
-    setworn(null, W_ARMC, takeoffWornEnv(game));
+    setworn(null, W_ARMC, setwornEnv(game));
     assert.equal(game.uarmc, null, 'the cloak left its slot');
     assert.equal(takeoffContext(game).mask, others);
 
     // The same call with the slot already empty runs no cancel_doff() at all,
     // because worn.c:87 reaches it only for an item that was there.
     takeoffContext(game).mask = others | W_ARMC;
-    setworn(null, W_ARMC, takeoffWornEnv(game));
+    setworn(null, W_ARMC, setwornEnv(game));
     assert.equal(takeoffContext(game).mask, others | W_ARMC);
 
     reset_remarm(game);
