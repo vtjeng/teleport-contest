@@ -1037,8 +1037,8 @@
         },
         {
           "name": "the hero drops one object on the floor",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b9810b1d9fc79f6cf72e537c88bf45a4af1ba000"
         }
       ],
       "openedAt": "2f1ecef47f3ba29a9406e96657552c3e248a9018",
