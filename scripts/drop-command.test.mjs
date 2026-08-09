@@ -4,8 +4,10 @@ import test from 'node:test';
 import { reset_trapset } from '../js/apply.js';
 import { reset_occupations } from '../js/cmd.js';
 import {
+    ECMD_FAIL,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
+    LOST_DROPPED,
     OBJ_FLOOR,
     OBJ_INVENT,
     PIT,
@@ -20,10 +22,12 @@ import {
 import { game } from '../js/gstate.js';
 import { any_obj_ok } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
+import { newObject } from '../js/obj.js';
 import { stairway_at } from '../js/stairs.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     FOOD_CLASS, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING, RING_CLASS,
-    RIN_PROTECTION, SPEAR, WEAPON_CLASS,
+    RIN_PROTECTION, SPEAR, TWO_HANDED_SWORD, WEAPON_CLASS,
 } from '../js/objects.js';
 import {
     DROP_CASES,
@@ -214,6 +218,90 @@ test('the cursed loadstone message names the verb and the count', async () => {
     }
 });
 
+const VALKYRIE_SEGMENT = loadDropCommandRecipe().segments[0];
+
+// A real started game, so body_part(HAND) answers from the hero's own species
+// and objectType() reads the catalog the port built. cmd.js calls
+// clearTtyMessageWindow() once the command key has been read; the calls below
+// stand outside that loop, so without it the startup line is still pending and
+// the first message they write asks for --More-- instead.
+async function startedGame() {
+    await runSegment({ ...VALKYRIE_SEGMENT, moves: ' ' });
+    clearTtyMessageWindow(game);
+    return game;
+}
+
+// C ref: do.c canletgo() (672-684, 700-710). Each of these three arms builds
+// its message and none of them is reachable from any input the port accepts --
+// setuwep() runs only from u_init and drop(), and use_trap() and use_saddle()
+// are unported -- so this is the only place their text is checked. The
+// empty-verb loop above reaches the same `return FALSE` with nothing printed,
+// which is why it cannot stand in for this.
+test('canletgo names the verb and the body part in each message', async () => {
+    const state = await startedGame();
+    // Each refusal stands for its own command, so the top line is cleared
+    // between them as cmd.js does; two of these messages do not fit on one
+    // row together and would otherwise raise --More--.
+    const refusalFor = async (obj) => {
+        clearTtyMessageWindow(state);
+        assert.equal(await canletgo(obj, 'drop', state), false);
+        return state._ttyToplines;
+    };
+
+    // u_init.c:161 wields the Valkyrie a spear; cursing it is what
+    // wield.c will_weld() reads, and welded() answers only for uwep.
+    state.uwep.cursed = true;
+    assert.equal(
+        await refusalFor(state.uwep),
+        'You cannot drop something welded to your hand.',
+    );
+
+    // do.c:678-679. objects[].oc_bimanual is what turns the part plural, so
+    // a two-handed sword is the smallest change that reaches makeplural().
+    const twoHanded = newObject({
+        cursed: true, oclass: WEAPON_CLASS, otyp: TWO_HANDED_SWORD, quan: 1,
+    });
+    state.uwep = twoHanded;
+    assert.equal(
+        await refusalFor(twoHanded),
+        'You cannot drop something welded to your hands.',
+    );
+
+    // do.c:700-704. pline_The() prepends "The ", and the verb does not appear.
+    assert.equal(
+        await refusalFor(newObject({ leashmon: 42, otyp: LEASH, quan: 1 })),
+        'The leash is tied around your hand.',
+    );
+
+    // do.c:705-709. You() prepends "You ", and `something` is decl.c:45.
+    assert.equal(
+        await refusalFor(newObject({ owornmask: W_SADDLE, quan: 1 })),
+        'You cannot drop something you are sitting on.',
+    );
+});
+
+// C ref: do.c drop() (723-726), the weldmsg() arm. It cannot run: the
+// canletgo() call at do.c:718 tests the identical `obj == uwep &&
+// welded(uwep)` pair and returns first. The port reproduces the dead test, so
+// this pins which of the two refusals a welded weapon actually gets.
+test('a welded weapon is refused by canletgo, not by the weldmsg arm',
+    async () => {
+        const state = await startedGame();
+        const spear = state.uwep;
+        spear.cursed = true;
+
+        assert.equal(await _dropInternals.drop(spear, state), ECMD_FAIL);
+        assert.equal(
+            state._ttyToplines,
+            'You cannot drop something welded to your hand.',
+        );
+        // Nothing moved: the refusal is canletgo()'s, one branch before the
+        // slot clear at do.c:722.
+        assert.equal(state.uwep, spear);
+        assert.equal(spear.where, OBJ_INVENT);
+        assert.equal(pileAt(state, state.u.ux, state.u.uy).length, 0);
+    });
+
 // C ref: do.c dodrop() (33-34). sellobj_state() is unported, so a hero
 // standing in a shop stops before getobj() can draw anything.
 test('dodrop stops inside a shop before the prompt draws', async () => {
@@ -233,8 +321,6 @@ test('dodrop stops inside a shop before the prompt draws', async () => {
         (error) => !(error instanceof UnsupportedDropError),
     );
 });
-
-const VALKYRIE_SEGMENT = loadDropCommandRecipe().segments[0];
 
 async function playDrop(keys) {
     let boundary = null;
@@ -303,8 +389,15 @@ test('a carried object lands on the square with its message', async () => {
     assert.equal(pile.length, 1);
     assert.equal(pile[0].where, OBJ_FLOOR);
     // do.c:777 records how the object left the pack.
-    assert.equal(pile[0].how_lost, 2 /* LOST_DROPPED */);
+    assert.equal(pile[0].how_lost, LOST_DROPPED);
     assert.ok(!letters(state).includes('d'));
+    // do.c dodrop() (39-40) tests `if (result)`, and a drop that lands returns
+    // ECMD_TIME, so reset_occupations() runs on this arm too. Each context
+    // below exists only because that call created it, exactly as in the
+    // cancelled case above, which pins the other half of the same `if`.
+    assert.equal(state.context.takeoff.mask, 0);
+    assert.equal(state.xlock.usedtime, 0);
+    assert.deepEqual(state.gt.trapinfo, { tobj: null, force_bungle: false });
 });
 
 // C ref: do.c drop() (722-728). The wielded weapon leaves its slot before it
@@ -319,6 +412,39 @@ test('the wielded weapon leaves the weapon slot', async () => {
     // u_init.c:161 gives the Valkyrie a blessed +1 spear, and it is no longer
     // wielded when doname() names it, so no "(weapon in hand)" suffix.
     assert.equal(state._ttyToplines, 'You drop a blessed +1 spear.');
+});
+
+// C ref: do.c drop() (729-734). The other two slot clears. Without them
+// doname() still reads the slot mask, so the message names the slot and
+// preflight_dropx() then refuses a worn or attached object -- after the
+// message has already been written.
+test('the secondary weapon leaves the swap slot', async () => {
+    const { boundary, state } = await playDrop('db.');
+    assert.equal(boundary, null);
+    assert.equal(state.uswapwep, null);
+    // u_init.c:162 gives the Valkyrie a +0 dagger as the secondary weapon;
+    // with the slot cleared doname() adds no "(alternate weapon; not
+    // wielded)" suffix.
+    assert.equal(state._ttyToplines, 'You drop a +0 dagger.');
+    const pile = pileAt(state, state.u.ux, state.u.uy);
+    assert.equal(pile.length, 1);
+    assert.equal(pile[0].owornmask, 0);
+});
+
+test('the quivered stack leaves the quiver slot', async () => {
+    // The Tourist is the role whose starting inventory has a quivered stack;
+    // u_init.c:157 readies her darts.
+    let boundary = null;
+    await runSegment(
+        loadDropCommandRecipe().segments[6],
+        { onBoundary: (error) => { boundary = error; } },
+    );
+    assert.equal(boundary, null);
+    assert.equal(game.uquiver, null);
+    assert.equal(game._ttyToplines, 'You drop 40 +2 darts.');
+    const pile = pileAt(game, game.u.ux, game.u.uy);
+    assert.equal(pile.length, 1);
+    assert.equal(pile[0].owornmask, 0);
 });
 
 // C ref: do.c canletgo() (667-671), through the Norep at :669 with
@@ -410,6 +536,81 @@ test('drop refuses the sink and the unreachable floor by square', async () => {
         /hitfloor/u,
     );
 });
+
+// C ref: invent.c stackobj() (4366-4375) through merged() (814-948). The
+// second wished scroll lands on the first and absorbs it, which is the whole
+// reason dropCommandEnv() supplies extractExternalObject and
+// preflight_dropx() requires it: merged() reaches mkobj.c obj_extract_self()
+// for the member it frees.
+test('a second like object merges into the floor pile', async () => {
+    let boundary = null;
+    await runSegment(
+        loadDropMergeRecipe().segments[0],
+        { onBoundary: (error) => { boundary = error; } },
+    );
+    assert.equal(boundary, null);
+    const pile = pileAt(game, game.u.ux, game.u.uy);
+    // One node, not two: merged() freed the member it absorbed.
+    assert.equal(pile.length, 1);
+    assert.equal(pile[0].quan, MERGE_CASE.mergedQuantity);
+    // The second scroll took the lowest free letter, 'f', and left the pack.
+    assert.ok(!letters(game).includes('f'));
+});
+
+// C ref: invent.c merged() (851-854 and 928), reached through stackobj(). It
+// reads lamplit, timed and globby on the pile member it absorbs, not on the
+// object being dropped. mergable() forces lamplit to match and returns early
+// for a glob, so those two halves are symmetric; a timer is not, because
+// invent.c:4443-4446 rejects a timer mismatch only for EGG and a revivable
+// CORPSE. A drop admitted on the dropped object's fields alone therefore stops
+// inside stackobj(), after freeinv() and place_object() have already run.
+test('a timed pile member is refused before the object leaves the pack',
+    async () => {
+        // A real started game, so preflight_dropx() reads the map and the hero
+        // the port generated rather than a fixture shape.
+        await runSegment({ ...VALKYRIE_SEGMENT, moves: ' ' });
+        const state = game;
+        let ration = state.invent;
+        while (ration && ration.invlet !== 'd') ration = ration.nobj;
+        assert.ok(ration, 'the pack has no food ration');
+
+        // A copy of the ration, so every field invent.c mergable() compares
+        // already matches and only the timer differs. newObject() carries the
+        // union aliases obj.h declares, which a bare spread of an object drops
+        // because they are non-enumerable: without it `orotten` is undefined
+        // on the copy and mergable() refuses at invent.c:4421 for a reason
+        // this case is not about. do.c:777 stamps how_lost on the object it
+        // drops and invent.c:4401 refuses a member whose stamp differs, so the
+        // member carries the stamp a previously dropped object would have.
+        // obj->timed counts an object's timers and the admission reads it as a
+        // flag, so no timer has to exist behind it.
+        const member = newObject({
+            ...ration,
+            how_lost: LOST_DROPPED,
+            nexthere: null,
+            nobj: state.level.objlist ?? null,
+            o_id: ration.o_id + 1000,
+            ox: state.u.ux,
+            oy: state.u.uy,
+            timed: 1,
+            where: OBJ_FLOOR,
+        });
+        state.level.objects[state.u.ux][state.u.uy] = member;
+        state.level.objlist = member;
+
+        await assert.rejects(
+            () => _dropInternals.drop(ration, state),
+            (error) => error instanceof UnsupportedDropError
+                && /floor pile/u.test(error.message),
+        );
+        // The refusal has to land before freeinv(): a stop after it leaves the
+        // hero's slot empty and the object already relinked onto the floor.
+        assert.equal(ration.where, OBJ_INVENT);
+        assert.ok(letters(state).includes('d'));
+        assert.equal(
+            pileAt(state, state.u.ux, state.u.uy).length, 1,
+        );
+    });
 
 // C ref: do.c drop() (774). With flags.verbose off the object still lands but
 // the drop says nothing, so the prompt the player answered is the last line

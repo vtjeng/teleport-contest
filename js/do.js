@@ -99,6 +99,7 @@ import {
     any_obj_ok,
     freeinv,
     getobj,
+    mergable,
     preflight_update_inventory,
     stackobj,
 } from './invent.js';
@@ -542,9 +543,10 @@ export async function canletgo(obj, word, state = game) {
     return true;
 }
 
-// C ref: do.c drop() (713-780), staticfn. Four of its arms stop rather than
-// run, each named at the throw; what remains is the hero who is standing on
-// reachable ordinary floor and lets one object go.
+// C ref: do.c drop() (713-780), staticfn. Five of its arms stop rather than
+// run, each named at the throw. Four of them can be reached; the weldmsg() one
+// is dead in C as well and says so where it stands. What remains is the hero
+// who is standing on reachable ordinary floor and lets one object go.
 //
 // C's altar arm is not a stop of its own. do.c:774 only suppresses the message
 // there and falls through to dropx(), whose doaltarobj() is unported, so
@@ -566,6 +568,12 @@ async function drop(obj, state = game) {
         if (welded(state.uwep, state)) {
             // do.c:724 weldmsg() (wield.c:1061-1074), which names the weapon
             // with objnam.c Yobjnam2(); yname() under it is not ported.
+            //
+            // Unreachable, in C too: canletgo() at :715 tests the identical
+            // `obj == uwep && welded(uwep)` pair one branch earlier and
+            // returns FALSE, so drop() has already answered ECMD_FAIL with the
+            // Norep at do.c:677. The dead test is written out because the port
+            // keeps C's structure; deleting it changes nothing.
             throw new UnsupportedDropError('weldmsg()');
         }
         setuwep(null, setwornEnv(state));
@@ -635,7 +643,9 @@ export function preflight_dropx(obj, env = {}) {
     // for each of these three: a light source to move and then delete, a timer
     // to stop, and a glob to absorb. Refusing them here keeps the admission
     // atomic, because a missing operation would otherwise be discovered after
-    // freeinv() had already emptied the slot.
+    // freeinv() had already emptied the slot. merged() reads the same three
+    // fields on the pile member it absorbs rather than on this object, so the
+    // walk below covers that half; neither test implies the other.
     if (obj.lamplit || obj.timed || obj.globby)
         throw new UnsupportedDropError('a lit, timed, or globby object');
     // obfree()'s remaining operations are reached by an object the drop chain
@@ -712,6 +722,22 @@ export function preflight_dropx(obj, env = {}) {
     }
     if (!Array.isArray(state.level.objects?.[x]))
         throw new UnsupportedDropError('a missing floor-object grid');
+    // invent.c stackobj() (4366-4375) hands this object to merged() (814-948)
+    // as the survivor and each pile member in turn as the object absorbed, and
+    // merged() reads lamplit and timed on that member at 851-854 and globby at
+    // 928. The test above answers for the wrong side of the merge on its own:
+    // mergable() forces lamplit to match and returns early for a glob, but
+    // rejects a timer mismatch only for EGG and a revivable CORPSE. mergable()
+    // decides which members merged() can reach, so it is the gate here too.
+    for (let member = state.level.objects[x][y] ?? null; member;
+        member = member.nexthere) {
+        if (!member.lamplit && !member.timed && !member.globby) continue;
+        if (mergable(obj, member, normalized)) {
+            throw new UnsupportedDropError(
+                'a lit, timed, or globby object in the floor pile',
+            );
+        }
+    }
 
     preflight_update_inventory(normalized);
     requiredDropHook(normalized, 'newsym');

@@ -92,8 +92,12 @@ export function Glib(state) {
 // mksobj() with artif FALSE, so no role starts with one in either hand.
 //
 // wield.c:797-801 sets uswapwep's bknown and drops it through
-// drop_uswapwep(). do.c's dropx() admits only an unequipped heavy iron ball,
-// so dropping the secondary weapon is not portable yet; nor can either
+// drop_uswapwep() (808-831). Two things there are still missing. Its three
+// messages are built with objnam.c Yobjnam2() and yobjnam(), neither of which
+// is ported, and it hands dropx() an object that is still in the secondary
+// slot, which do.c preflight_dropx() refuses as worn or attached -- so
+// dropz()'s own three slot clears at do.c:809-814, inert while every admitted
+// object is already out of its slot, would have to become live. Nor can either
 // condition arise, because u_init.c:1223 clears cursed on every starting
 // object and nothing in the port grants Glib.
 //
