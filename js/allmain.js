@@ -671,6 +671,29 @@ async function finishElapsedTurn(
     }
     regen_pw(wtcap, state, { random, interruptMulti: interrupt_multi });
 
+    // C ref: allmain.c moveloop_core():342-344. A Ranger or an Archeologist
+    // holds SEARCHING from experience level 1 (js/attrib.js ran_abil and
+    // arc_abil), so this runs on every turn that hero takes.
+    //
+    // No converting try wraps the call, and none is owed. detect.c dosearch0()
+    // keeps every branch this port cannot finish behind one of its `!aflag`
+    // tests -- feel_location() at 2040, mfind0() at 2064, unmap_invisible() at
+    // 2076 -- or behind the Norep() at 2023, so UnsupportedSearchError belongs
+    // to the explicit `s` command alone and js/cmd.js
+    // failClosedCommandRefusals() is its only owner. scripts/detect.test.mjs
+    // 'every explicit search refusal leaves the automatic arm intact' pins
+    // that split on eleven shared states.
+    //
+    // detect.c:2079-2088, the trap block, is the one C does not gate on aflag,
+    // and js/detect.js preflightTrap() refuses its two unported branches --
+    // activate_statue_trap() and find_trap()'s hallucinatory display -- as
+    // plain Errors that would escape runSegment(). Neither is recordable yet:
+    // a statue trap needs level_difficulty() >= 8 (js/mktrap.js traptype_rnd())
+    // or a Statuary theme room, and across seeds 1-6000 no D:1 Statuary placed
+    // an unseen statue trap within a ten-step same-room walk of a Ranger's
+    // arrival square, while hallucination has no D:1 source this port reaches.
+    // Give them the boundary class, and this seam its catch, when a recorded
+    // case reaches one.
     if (propertyActive(state, SEARCHING)
         && !state.level.flags?.noautosearch
         && (state.multi ?? 0) >= 0) {

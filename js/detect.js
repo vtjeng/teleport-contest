@@ -606,9 +606,16 @@ function preflightExplicitSearch(env) {
                 // here, with the class js/cmd.js failClosedCommand() converts
                 // into a retryable command boundary, rather than inside
                 // preflightTrap(). That function's other checks catch a
-                // misconfigured env rather than an unported branch, and they
-                // serve the aflag == 1 owner, which reaches allmain.js instead
-                // of failClosedCommand() and so needs no boundary class.
+                // misconfigured env rather than an unported branch.
+                //
+                // detect.c:2079-2088 is the one block dosearch0() does not
+                // gate on aflag, so the automatic arm reaches these same two
+                // branches and refuses them from preflightTrap() as plain
+                // Errors, after the rnl(8) that selected the square. Those two
+                // escape runSegment() rather than ending a segment, because
+                // the turn loop converts nothing; neither is reachable by a
+                // case this port can record today, and js/allmain.js records
+                // that derivation beside the automatic call.
                 if (trap.ttyp === STATUE_TRAP) {
                     throw new UnsupportedSearchError(
                         'detect.c activate_statue_trap() is not ported',

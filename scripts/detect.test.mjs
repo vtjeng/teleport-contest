@@ -1302,16 +1302,138 @@ test('a blind miss draws before tactile display preflight', async () => {
     random.done();
 });
 
-test('swallowed search is inert automatically and refused explicitly', async () => {
-    const state = explicitSearchState();
-    state.u.uswallow = true;
-    assert.equal(await dosearch0(1, { state }), 1);
+// The six events detect.c:2042-2051 produces when rnl(7 - fund) hits on an
+// adjacent secret door. Every row below keeps that door, so the automatic arm
+// has real work to do on the very state that stops the explicit one.
+const FOUND_DOOR_EVENTS = Object.freeze([
+    'rnl(7)',
+    `recalc(9,9,${DOOR},${D_CLOSED})`,
+    'rn2(19)',
+    'nomul(0)',
+    'feelLocation(9,9)',
+    'message(9,9,You find a hidden door.)',
+]);
 
-    // detect.c:2020-2022 answers an explicit search through Norep().
-    await assert.rejects(
-        dosearch0(0, { state, ...recordingOperations(state, []) }),
-        /searching while swallowed is not ported/,
-    );
+// C keeps every branch this port cannot finish behind one of dosearch0()'s
+// three `!aflag` tests: feel_location() at detect.c:2040, mfind0() at 2064 and
+// unmap_invisible() at 2076, plus the Norep() at 2023 that a swallowed hero
+// reaches. UnsupportedSearchError therefore belongs to the explicit `s`
+// command alone, which js/cmd.js failClosedCommand() converts into a retryable
+// command boundary. allmain.c:342-344 drives the automatic arm from
+// moveloop_core(), where no converting wrapper exists, so a refusal that
+// leaked across the aflag split would escape runSegment() and cost the segment
+// every screen it had already matched. Each row proves the split holds on one
+// shared state: explicit refuses before its first draw, then automatic runs
+// the same state to completion.
+test('every explicit search refusal leaves the automatic arm intact', async () => {
+    const rows = [
+        // detect.c:1969 mfind0()'s three discovery arms, all behind 2064.
+        ['a mimicking monster', (state) => {
+            placeTestMonster(state, 9, 10, { m_ap_type: M_AP_OBJECT });
+        }, /needs seemimic\(\)/, [0], FOUND_DOOR_EVENTS],
+        ['an unspotted monster', (state) => {
+            placeTestMonster(state, 9, 10, { minvis: 1 });
+        }, /needs map_invisible\(\)/, [0], FOUND_DOOR_EVENTS],
+        ['a hidden eel', (state) => {
+            placeTestMonster(state, 9, 10, { mundetected: 1 }, {
+                mlet: S_EEL,
+            });
+        }, /hidden monster/, [0], FOUND_DOOR_EVENTS],
+        ['a ceiling hider', (state) => {
+            placeTestMonster(state, 9, 10, { mundetected: 1 }, {
+                mflags1: M1_HIDE,
+            });
+        }, /hidden monster/, [0], FOUND_DOOR_EVENTS],
+        ['an under-hider', (state) => {
+            placeTestMonster(state, 9, 10, { mundetected: 1 }, {
+                mflags1: M1_CONCEAL,
+            });
+        }, /hidden monster/, [0], FOUND_DOOR_EVENTS],
+        // Both operands of detect.c:2040.
+        ['a blind hero', (state) => {
+            state.u.uprops[BLINDED] = {
+                intrinsic: 1, extrinsic: 0, blocked: 0,
+            };
+        }, /feels every adjacent square/, [0], FOUND_DOOR_EVENTS],
+        ['a visible region', (state) => {
+            const region = create_region([{
+                lx: 11, ly: 11, hx: 11, hy: 11,
+            }]);
+            region.visible = true;
+            state.level.regions.push(region);
+        }, /feels every adjacent square/, [0], FOUND_DOOR_EVENTS],
+        // detect.c:2076.
+        ['a remembered invisible monster', (state) => {
+            state.level.at(11, 11).remembered_glyph = {
+                invisible_monster: true,
+            };
+        }, /remembered invisible monster/, [0], FOUND_DOOR_EVENTS],
+        // detect.c:2079-2088 is the one block C does not gate on aflag, so the
+        // automatic arm reaches the same two unported branches. It refuses
+        // them from preflightTrap() as plain Errors, after the rnl(8) that
+        // selects the square -- never as UnsupportedSearchError. A miss here
+        // is what lets the row finish; the hit is pinned separately, by
+        // 'a missed statue search draws before requiring its hit operation'
+        // and 'cluttered and hallucinatory trap finds reveal, wait, then
+        // redraw'.
+        ['an adjacent statue trap', (state) => {
+            state.level.traps.push({
+                tx: 11, ty: 11, ttyp: STATUE_TRAP, tseen: false,
+            });
+        }, /activate_statue_trap\(\)/, [0, 1],
+        [...FOUND_DOOR_EVENTS, 'rnl(8)']],
+        ['a hallucinatory trap find', (state) => {
+            state.u.uprops[HALLUC] = {
+                intrinsic: 1, extrinsic: 0, blocked: 0,
+            };
+            state.level.traps.push({
+                tx: 11, ty: 11, ttyp: ANTI_MAGIC, tseen: false,
+            });
+        }, /hallucinatory display/, [0, 1],
+        [...FOUND_DOOR_EVENTS, 'rnl(8)']],
+        // detect.c:2022-2024 skips the whole loop for both flags and answers
+        // only the explicit search, through Norep(). The empty draw list is
+        // what separates this row from the ten above.
+        ['a swallowed hero', (state) => {
+            state.u.uswallow = true;
+        }, /searching while swallowed is not ported/, [], []],
+    ];
+
+    for (const [label, setup, expected, rnlResults, expectedEvents] of rows) {
+        const state = explicitSearchState();
+        state.level.at(9, 9).typ = SDOOR;
+        setup(state);
+
+        const refusedEvents = [];
+        const refusedRandom = scriptedRandom(refusedEvents, []);
+        await assert.rejects(dosearch0(0, {
+            state,
+            random: refusedRandom,
+            ...recordingOperations(state, refusedEvents),
+            newSym: (x, y) => refusedEvents.push(`newSym(${x},${y})`),
+        }), (error) => error instanceof UnsupportedSearchError
+            && expected.test(error.message), label);
+        assert.deepEqual(refusedEvents, [], label);
+        refusedRandom.done();
+        assert.equal(state.level.at(9, 9).typ, SDOOR, label);
+
+        const events = [];
+        const random = scriptedRandom(events, rnlResults, expectedEvents.length
+            ? [18] : []);
+        assert.equal(await dosearch0(1, {
+            state,
+            random,
+            ...recordingOperations(state, events),
+            newSym: (x, y) => events.push(`newSym(${x},${y})`),
+        }), 1, label);
+        assert.deepEqual(events, expectedEvents, label);
+        random.done();
+        assert.equal(
+            state.level.at(9, 9).typ,
+            expectedEvents.length ? DOOR : SDOOR,
+            label,
+        );
+    }
 });
 
 test('dosearch0 rejects a flag that is neither automatic nor explicit', async () => {
