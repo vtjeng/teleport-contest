@@ -1,12 +1,17 @@
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync }
+    from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import test from 'node:test';
 
+import { COLUMNS } from './score-log.mjs';
+
 import {
-    buildForecast, calibrationLines, deliveredSince, formatGoal, readGoals,
-    restateForecast, validateGoals,
+    assertStandingIsCurrent, buildForecast, calibrationLines, deliveredSince,
+    formatGoal, readGoals, restateForecast, validateGoals,
 } from './goal-log.mjs';
 
 const dir = mkdtempSync(join(tmpdir(), 'goal-log-'));
@@ -144,6 +149,124 @@ test('delivered figures are the closing standing minus the opening one', () => {
     // A goal opened before SCORE.tsv existed has no opening standing, and a
     // null result says "not measured" rather than claiming zero.
     assert.equal(deliveredSince(null, { screens: 520, rng: 107227 }), null);
+});
+
+test('closing refuses a standing that predates the repository head', () => {
+    // The chat-command close: SCORE.tsv still held the previous goal's row, so
+    // the standing subtracted from itself and recorded delivered: 0 for a goal
+    // that delivered 21 screens and 31 rng values.
+    const head = 'afd1984c0ffee0000000000000000000000000d';
+    assert.throws(
+        () => assertStandingIsCurrent(
+            { sha: '3a78bc1', screens: 1203, rng: 117774 }, head),
+        /standing in SCORE.tsv is at 3a78bc1, not the repository head afd1984/u,
+    );
+    // A SCORE.tsv sha is the short form and the repository head is the full
+    // one, so a current standing matches by prefix rather than by equality.
+    assert.doesNotThrow(() => assertStandingIsCurrent(
+        { sha: 'afd1984', screens: 1228, rng: 117887 }, head));
+    // An empty log states no development figure at all, which is the same
+    // ordering mistake at its limit; close-goal would record delivered: null.
+    assert.throws(
+        () => assertStandingIsCurrent(null, head),
+        /SCORE.tsv states no development figure/u,
+    );
+    // Both refusals name the row to append and where the rule lives, because
+    // the fix is to append that row and rerun, not to edit GOALS.json.
+    assert.throws(
+        () => assertStandingIsCurrent(null, head),
+        /Append the goal row for afd1984 .*\.agents\/scoring\.md/su,
+    );
+});
+
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+
+function scoreRow(sha, screens, rng) {
+    const cells = {
+        utc: '2026-08-08T00:00:00.000Z',
+        sha,
+        event: 'goal',
+        screens_matched: String(screens),
+        screens_total: '7765',
+        rng_matched: String(rng),
+        rng_total: '610816',
+    };
+    return COLUMNS.map((column) => cells[column] ?? '').join('\t');
+}
+
+/**
+ * A throwaway repository holding the two scripts, one open goal, and a
+ * SCORE.tsv whose development row names `standingSha(head)`.
+ *
+ * `close-goal` resolves both files from its own location and reads the head
+ * from the working directory, so a copy of the scripts in a temporary
+ * repository exercises the real command without touching this one.
+ */
+function closeGoalFixture(standingSha) {
+    const root = mkdtempSync(join(tmpdir(), 'goal-log-close-'));
+    mkdirSync(join(root, 'scripts'));
+    for (const name of ['goal-log.mjs', 'score-log.mjs']) {
+        copyFileSync(join(SCRIPT_DIR, name), join(root, 'scripts', name));
+    }
+    const git = (...args) => spawnSync('git', args, { cwd: root });
+    git('init', '--quiet', '-b', 'main');
+    git('-c', 'user.email=test@example.invalid', '-c', 'user.name=Test',
+        '-c', 'commit.gpgsign=false',
+        'commit', '--allow-empty', '--quiet', '-m', 'root');
+    const head = spawnSync('git', ['rev-parse', 'HEAD'],
+        { cwd: root, encoding: 'utf8' }).stdout.trim();
+    writeFileSync(join(root, 'SCORE.tsv'),
+        // The real chat-command figures: 1,207 screens and 117,856 rng values
+        // at open, 1,228 and 117,887 at close, so it delivered 21 and 31.
+        `${COLUMNS.join('\t')}\n${scoreRow(standingSha(head), 1228, 117887)}\n`);
+    writeFileSync(join(root, 'GOALS.json'), `${JSON.stringify({
+        goals: [{
+            id: 'demo',
+            status: 'open',
+            boundary: 'a demonstration goal',
+            slices: [],
+            openedAt: 'b'.repeat(40),
+            openStanding: { sha: 'bbbbbbb', screens: 1207, rng: 117856 },
+            closedAt: null,
+            delivered: null,
+        }],
+    }, null, 2)}\n`);
+    return { root, head };
+}
+
+function runCloseGoal(root) {
+    const run = spawnSync(
+        process.execPath,
+        [join(root, 'scripts', 'goal-log.mjs'), 'close-goal', '--goal', 'demo'],
+        { cwd: root, encoding: 'utf8' },
+    );
+    return {
+        ...run,
+        goal: JSON.parse(readFileSync(join(root, 'GOALS.json'), 'utf8'))
+            .goals[0],
+    };
+}
+
+test('close-goal refuses to record a goal against a stale standing', () => {
+    // The unit test above proves the check; this proves close-goal calls it.
+    // Deleting the call leaves every other test in this file passing.
+    const stale = closeGoalFixture(() => '3a78bc1');
+    const refused = runCloseGoal(stale.root);
+
+    assert.equal(refused.status, 1);
+    assert.match(refused.stderr, /standing in SCORE.tsv is at 3a78bc1/u);
+    // The goal stays open, so appending the row and rerunning is the whole fix.
+    assert.equal(refused.goal.status, 'open');
+    assert.equal(refused.goal.delivered, null);
+
+    const current = closeGoalFixture((head) => head.slice(0, 7));
+    const closed = runCloseGoal(current.root);
+
+    assert.equal(closed.status, 0, closed.stderr);
+    assert.equal(closed.goal.status, 'closed');
+    assert.equal(closed.goal.closedAt, current.head);
+    // 1,228 - 1,207 screens and 117,887 - 117,856 rng values.
+    assert.deepEqual(closed.goal.delivered, { screens: 21, rng: 31 });
 });
 
 test('a nonzero forecast requires one C-path witness per named session', () => {

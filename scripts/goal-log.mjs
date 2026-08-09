@@ -80,6 +80,41 @@ function developmentStanding() {
     };
 }
 
+/**
+ * Refuse a close whose standing predates the head.
+ *
+ * `developmentStanding()` reads `SCORE.tsv` rather than scoring the tree, so a
+ * close run before the goal's own row is appended subtracts the previous
+ * goal's standing from itself. Closing `chat-command` did that and recorded
+ * `delivered: 0 screens, 0 rng values` for a goal that delivered 21 and 31.
+ * Nothing in the output said the standing was stale, and `GOALS.json` would
+ * have carried the zero into every later calibration table.
+ *
+ * A `SCORE.tsv` sha is the short form, so the head is matched by prefix.
+ *
+ * The check cannot tell a stale row from a correct row whose figures nobody
+ * re-measured, so it catches the ordering mistake rather than a wrong
+ * measurement. A goal that genuinely delivers zero still records zero, which
+ * is right and indistinguishable here.
+ */
+export function assertStandingIsCurrent(standing, head) {
+    const append = `Append the goal row for ${head.slice(0, 7)} with `
+        + '`node scripts/score-log.mjs --append`, as .agents/scoring.md '
+        + 'states, then close the goal.';
+    if (!standing) {
+        throw new Error(`SCORE.tsv states no development figure. ${append}`);
+    }
+    if (!head.startsWith(standing.sha)) {
+        throw new Error(
+            `the development standing in SCORE.tsv is at ${standing.sha}, not `
+            + `the repository head ${head.slice(0, 7)}. close-goal reads `
+            + 'SCORE.tsv rather than scoring the tree, so closing now would '
+            + `subtract the standing at open from a standing that predates `
+            + `this goal. ${append}`,
+        );
+    }
+}
+
 /** Delivered figures for a closing goal: the standing now minus at open. */
 export function deliveredSince(openStanding, closeStanding) {
     if (!openStanding || !closeStanding) return null;
@@ -363,10 +398,12 @@ function main(args) {
         if (goal.status !== 'open') {
             throw new Error(`goal ${goal.id} is ${goal.status}, not open`);
         }
+        const head = repositoryHead();
+        const closeStanding = developmentStanding();
+        assertStandingIsCurrent(closeStanding, head);
         goal.status = 'closed';
-        goal.closedAt = repositoryHead();
-        goal.delivered = deliveredSince(goal.openStanding,
-            developmentStanding());
+        goal.closedAt = head;
+        goal.delivered = deliveredSince(goal.openStanding, closeStanding);
         writeGoals(store);
         console.log(formatGoal(goal));
         return;

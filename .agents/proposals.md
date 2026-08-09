@@ -7,30 +7,6 @@ Each entry states what it would change, what it costs, what prompted it, and
 what it leaves unfixed. Delete an entry when the change lands or a decision
 retires it.
 
-## Refuse `close-goal` when the standing predates the head
-
-**What it changes.** `node scripts/goal-log.mjs close-goal` would refuse when
-`developmentStanding().sha` is not the repository head, naming the row that
-needs appending first.
-
-**Scope.** One check in the `close-goal` branch of `scripts/goal-log.mjs:359`,
-plus its test.
-
-**What prompted it.** Closing `chat-command` recorded `delivered: 0 screens, 0
-rng values` for a goal that delivered 21 and 31. `developmentStanding()` at
-`scripts/goal-log.mjs:73` reads `SCORE.tsv` rather than scoring the tree, so it
-returned the previous goal's row on both the open and close calls. The figure
-was corrected by hand. Nothing in the output said the standing was stale, and
-`GOALS.json` would have carried the zero into every later calibration table.
-
-**Cost.** Small. `close-goal` already calls both `repositoryHead()` and
-`developmentStanding()`; the check compares what it has.
-
-**What it leaves unfixed.** It cannot tell a stale row from a correct row whose
-figures nobody re-measured, so it catches the ordering mistake rather than a
-wrong measurement. A goal that genuinely delivers zero still records zero, which
-is right and indistinguishable at the point of the check.
-
 ## Report a ported function that no production code calls
 
 **What it changes.** A check would list every function exported from `js/` that
