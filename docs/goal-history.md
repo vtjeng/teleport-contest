@@ -470,3 +470,40 @@ instrument it broke until this slice. `js/` holds 316 such sites, and
 as `search-refusal-escapes-from-the-turn-loop`. Those are worth fixing on their
 own evidence, without the twelve holdout screens that turned out not to belong to
 them.
+
+`reachable-refusal-escapes` closed on 9 August 2026. It was directed by the user
+rather than ranked, forecast no steps and delivered none, and the holdout held at
+207 of 3,640.
+
+It was opened to convert refusals that escape `runSegment()` and discard a
+segment's earned prefix. Almost none of it turned out to be conversion work.
+
+Of the six sites it examined, **one was reachable and also wrong**:
+`dungeon.c surface()` answered `'floor'` for the hero's arrival square where C
+answers `'stairs'`, because `On_stairs()` reads the stairway list rather than
+the terrain, so every blind `:` on turn one mismatched. Converting it, which was
+the plan, would have left that. **One was an env assertion**, not a refusal of
+unported C -- converting it would have declared `makemon()` unported when it was
+merely unwired. **Four were unreachable**, and carry derivations rather than
+refusal classes nothing can raise.
+
+The premise for the first slice was three facts, each verified: the class sits
+in the command-seam list, it is absent from the turn-loop list, and the caller
+runs outside a converting `try`. All three were true and the conclusion drawn
+from them was false, because nothing raises the class -- C gates every refused
+branch behind `!aflag`. Sixty fresh Ranger cases over twelve seeds produced zero
+escapes.
+
+That is the same error three times in one day, in three different registers: a
+holdout movement attributed by argument rather than the one measurement that
+separated two commits; a deferral record read as current when the tree had moved
+under it; and here, a mechanism verified and a consequence assumed. Checking that
+a mechanism exists is not checking that anything reaches it, and this project's
+instruments -- fresh recordings, seed scans, per-session diffs -- exist precisely
+to close that gap. The rule that keeps earning its place is the narrow one:
+**measure the thing you are about to claim, not the thing next to it.**
+
+What the goal produced instead of conversions: a C function ported and corrected,
+a hook wired, four derivations, a new fresh matrix for `allmain.c:342-344` which
+had none, and the first test in the repository that pins a refusal *class* rather
+than its message.

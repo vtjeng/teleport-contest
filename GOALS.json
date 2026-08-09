@@ -1055,7 +1055,7 @@
     },
     {
       "id": "reachable-refusal-escapes",
-      "status": "open",
+      "status": "closed",
       "boundary": "every refusal on a path a development session or a fresh recording can reach converts at the seam that owns it, so a stop ends its segment and keeps the matching prefix instead of escaping runSegment() and discarding it: UnsupportedSearchError converts at the turn-loop seam as it already does at the command seam, and each further reachable escape the survey named is either converted or shown unreachable by a derivation recorded beside it",
       "upstreamOwners": [
         "js/allmain.js elapsedTurnPlanningRefusals()",
@@ -1089,8 +1089,11 @@
         "screens": 1228,
         "rng": 117887
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "8a10827b8129de472306a04adf7e9c4e2cf8c433",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
