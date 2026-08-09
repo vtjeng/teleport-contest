@@ -8868,6 +8868,104 @@
         "deferrals": []
       },
       "recordedAt": "2026-08-08T20:54:56.249Z"
+    },
+    {
+      "kind": "review",
+      "head": "eeb0f46795f047d70add9fe1fec3f74899434a0c",
+      "auditedRange": "54b3400000daae602b1366ad4d7c4173e9e21f18..eeb0f46795f047d70add9fe1fec3f74899434a0c",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 16 raw, 16 deduplicated, 9 confirmed, 9 applied, 0 deferred, 7 rejected, 0 unverified; mutation: 0 survivors of 2 mutants. Full correctness pass over the drop-command goal, three scripts-only tooling changes, and the reachable-refusal-escapes goal. Four mandatory finders; 16 raw, 16 deduplicated, 9 confirmed, 7 rejected with counter-evidence, 0 unverified, 0 warnings. All 9 applied across three Audit-fix-for commits with the score unchanged per session. One production defect: the merge admission guarded the object being dropped where merged() reads the floor pile member it absorbs, proven by execution rather than argument, and the same mid-transaction failure the drop slice had been written to close. Five were tests, the sixth consecutive pass where tests lead or tie. Two of the nine were defects in work this session produced, making this the third consecutive pass to find a defect in the previous round's fix.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2605,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 16,
+          "confirmed": 9,
+          "applied": 9,
+          "deferred": 0,
+          "rejected": 7,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 5,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The merge admission in preflight_dropx() tested lamplit, timed and globby on the object being dropped, while invent.c merged() reads those fields on the floor pile member it absorbs. mergable() forces lamplit to match and short-circuits on globby, so two of the three were accidentally symmetric; timed was not, because mergable() rejects a timer mismatch only for EGG and revivable CORPSE. The finder proved it by execution rather than argument: the object left inventory, place_object() ran, and only then did UnsupportedObjectOperationError fire. That is the same mid-transaction failure the drop slice had been written to close, still open one level down. It was unreachable from a d keystroke because drop() refuses every CORPSE, so the invariant was broken while the score was not. The orchestrator recommended the fix that supplies the missing operations from objectGenerationHooks(); that rested on a false premise, since it supplies stopObjectTimers but neither mergeLightSources nor absorbGlob, both of which are unported C in light.c and mkobj.c. The applied fix walks the floor pile and refuses any member mergable() would accept that carries one of the three fields, which also covers the wish path in js/zap.js because it shares the admission.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 2,
+          "survivors": 0,
+          "byKind": {
+            "logical": {
+              "ran": 2,
+              "killed": 2
+            }
+          },
+          "ranges": [
+            "eeb0f46..8849ff8"
+          ],
+          "finderConclusion": "Two mutants over the js/ diff, both on the new pile-walk guard, both killed. The number is small because two of the three commits are scripts/-only, which the mutator does not scope. The more useful measurement was made by hand: deleting both halves of the merge admission and running the full suite gives 3270 pass and 1 fail, and the single failure is the new merge test, so that test is the sole cover for the invariant. The commit body had recorded this more weakly from a single-line deletion, and the stronger uniqueness claim is verified here rather than there."
+        },
+        "readiness": {
+          "boundary": "The range 54b3400..eeb0f46 holds the drop-command goal, three scripts-only tooling changes, and the reachable-refusal-escapes goal. Development stands at 1,228 of 7,765 screens and 117,887 of 610,816 calls with 4 of 33 sessions, unchanged by the fixes and verified by diffing all 33 per-session lines against the baseline.",
+          "sourceReview": "Four mandatory finders at full mode; neither optional finder ran. Every finding was adversarially verified against C by an independent adjudicator: 9 of 16 survived, 7 were rejected with counter-evidence, none went unverified and no warnings were raised. The range was briefed hardest on the removed blind-terrain guard in js/hack.js, since deleting a stop is the one edit that can silently admit an unported path; no finding arose there and the removal holds. Applying the findings corrected several of their C citations, since stackobj() and mergable() are in invent.c at 4366 and 4379 rather than mkobj.c and merged() is invent.c 814-948, and rejected one finding's preferred fix outright on a false premise about what objectGenerationHooks() supplies.",
+          "completeness": "All 9 confirmed findings are applied across three commits carrying Audit-fix-for: eeb0f46. Five were tests, the sixth consecutive pass in which tests lead or tie: 41 of 68 findings across the six. Two of the nine were defects in work this same session produced, the merge admission introduced by the drop slice and the duplicate-symbol index's key folding, which makes this the third consecutive pass to find a defect in the previous round's fix. Every new assertion was observed failing first by breaking the term it covers. Two limits are recorded rather than papered over: preflight_dropx() now calls mergable(), which can itself require a hook for isReviver and samePrice on inputs no current caller can construct, and the index's near-miss fold carries a known false positive where stripping shape words pulls dungeon.c surface() into the SURFACE_AT group."
+        },
+        "deferrals": [],
+        "rejections": [
+          {
+            "summary": "js/allmain.js:754 -- UnsupportedAmbientSoundError is raised by the cloned once-per-turn round but is absent from elapsedTurnPlanningRefusals(), contradicting that list's own stated invariant and cmd.js's \"same list for the turn loop\" note.",
+            "counterEvidence": "causality refute: The range introduced the class, but the stated impact does not survive tracing: the omission is fail-safe and the class is not unique in kind. Counter-evidence: Nothing filters on UnsupportedTurnBoundaryError: js/jsmain.js:536-553 enumerates seven classes and treats each as a boundary, and grep for UnsupportedTurnBoundaryError outside js/allmain.js finds only js/jsmain.js's import and that one test. I ran the range's own case (seed 4711, moves '\\x162\\n....') and onBoundary received the error with the segment prefix intact, which is exactly what the range's new test scripts/sounds.test.mjs 'a refused ambient sound ends the segment on its matching prefix' asserts (4 screens, 6017 draws). UnsupportedSpecialRoomError (js/mkroom.js:187), UnsupportedStatusRefreshError (js/display.js:3556) and UnsupportedEarthSenseError (js/dungeon.js:1094) are also jsmain-listed and absent fr Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/do.js:641 -- preflight_dropx()'s obfree() justification rests on canletgo(), which only the `d` command path runs; the shared wish caller reaches the same admission without it.",
+            "counterEvidence": "causality refute: The stated impact is not material: the gap is vacuous for the wish caller, and even if reached it produces no failure. Counter-evidence: js/invent.js:2564-2567 returns null unless `obj.otyp === HEAVY_IRON_BALL && obj.quan === 1 && !obj.oartifact && !state.objects[obj.otyp].oc_merge`, so the wish caller can hand preflight_dropx() nothing but a single non-merging heavy iron ball — the leash scenario is not merely unreached, it is unconstructible through that caller. And admitting it would be harmless anyway: obfree() never runs on the dropped object in this path. js/invent.js:1683-1760 obfree()s only `plan.object`, the absorbed pile member, so an unleashObject hook is never asked for on the object being dropped. The finding's own deeper problem — that the comment reasons about the dropped object where obfree() reads the pile member — is finding [2]'s territory and is kept Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/dungeon.js:1271 -- surface_typ() and db_under_typ() add a fourth JavaScript home for rm.h SURFACE_AT() and a second for dbridge.c db_under_typ(), in a file that owns neither C source. js/monmove.js:613 surfaceAt(), js/teleport.js:361 surfaceType() and js/startup_a11y.js:1115 surfaceType() are the same macro, and js/di",
+            "counterEvidence": "evidence refute: The central claim — that this range added a home for these macros — is false. It named logic dungeon.js already carried inline. Counter-evidence: `git show 54b3400:js/dungeon.js` lines 1256-1263 hold the identical DRAWBRIDGE_UP/DB_UNDER switch inside update_lastseentyp() before the range; the diff replaces that inline block with a call to the new surface_typ(). The copy count in js/dungeon.js is 1 before and 1 after, and surface() consumes the same helper rather than opening a second path — which is precisely what the audit brief asked to check. The finding's own command output confirms the range created no duplicate key: `check-duplicate-symbols.mjs` reports only the pre-existing js/startup_a11y.js/js/teleport.js surfaceType pair, naming neither db_under_typ nor surface_typ. The claimed edge divergence is also inert: update_lastseentyp() returns STONE at js/dungeon.js:1 Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/dungeon.js:1298 -- surface() can now consume a display-RNG draw through hliquid(), but js/invent.js preflight_look_here() calls it and is documented as a mutation-free admission, and js/pickup.js runs that preflight and then look_here() runs it a second time.",
+            "counterEvidence": "evidence refute: The double draw is impossible: the projected preflight returns before preflight_look_here() for exactly the terrain whose surface() arms draw. Counter-evidence: js/pickup.js:361-368 computes `inaccessibleLiquid = [is_pool(u.ux,u.uy,state) && !u.uinwater, is_lava(u.ux,u.uy,state)].some(Boolean)` and returns immediately when it is true, before reaching the preflight_look_here() call at :410. surface()'s only drawing arms are the pool and lava ones (js/dungeon.js:1296-1302). A pool square with !uinwater and any lava square never reach the first preflight; a pool square with uinwater returns 'bottom' at js/dungeon.js:1297-1299 with no hliquid() call, and the remaining case, the water level, is refused one line earlier by preflight_look_here()'s 'a drifting level' throw (js/invent.js:818-819). So the stated 'two draws where C's look_here() spends one' cannot occur on any squa Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/dungeon.js:1299 -- surface()'s ice arm delegates to js/terrain.js is_ice(), which reads only location.flags, while the surface_typ()/db_under_typ() pair added in the same commit reads `flags || drawbridgemask`; a raised drawbridge whose underlay is recorded under the alias therefore answers \"floor\" where C answers \"ic",
+            "counterEvidence": "causality refute: No state the game can produce reaches the divergence: `drawbridgemask` is a test-fixture-only alias with no writer anywhere in the port. Counter-evidence: `grep -rn 'drawbridgemask *=' js/` returns nothing ('none'); every js/ occurrence (js/region.js:715, js/display.js:699, js/teleport.js:342, js/trap.js:101, js/vision.js:171, js/monmove.js:370, js/startup_a11y.js:1052, js/dungeon.js:1273) is a read, and the only assignments in the tree are in scripts/*.test.mjs fixtures (scripts/dungeon.test.mjs:622, scripts/monmove.test.mjs:3760, scripts/display-symbols.test.mjs:628). In C there is one field, so no divergence exists to port; in the running port `flags` always carries the mask and is_ice() agrees with surface_typ(). This is scaffolding inconsistency, not a behavioral deviation.  ||  resolution refute: Both directions propagate or entrench a fixture-only alias, and the  Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/hack.js:1374 -- avoid_trap_andor_region() is refused only on the held-hero arm, while C runs it on every step; the ordinary arm is covered only as a side effect of preflight_dotrap()'s tseen refusal, which is documented for an unrelated reason.",
+            "counterEvidence": "causality refute: The range introduces no gap: it adds a refusal to the one arm that had none, and the ordinary arm's coverage — including the region half — predates the diff and is total. Counter-evidence: `git diff 54b3400..HEAD -- js/trap_effects.js` touches only the mintrap() mundetected guard, so preflight_dotrap()'s tseen arm is pre-existing, as is its unconditional call at js/hack.js:902 (`if (destinationTrap) preflight_dotrap(...)`), which refuses every trap type outright and every seen bear trap. The region half is likewise already covered on the ordinary arm by the region-crossing refusal at js/hack.js:903-907 and the visible-region refusal at js/hack.js:873-877. The comment the finding says misdirects is explicitly scoped to the held arm — 'The step never reaches the terrain rules at all ... avoid_trap_andor_region() is the exception C makes, and the only one: it runs above th Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "js/invent.js:2092 -- The new comment asserts that js/obj.js owns obj.h, but the range left is_pole() and bimanual() exported from js/worn.js, so obj.h's predicates have two homes and two precedents.",
+            "counterEvidence": "causality refute: The split and its competing precedents predate the range; the range only narrowed them, so no new precedent is created and the stated impact is not material. Counter-evidence: `git show 54b3400:js/do_wear.js | grep -n \"obj.h is_boots\"` returns line 436, and `git show 54b3400:js/objnam.js | grep -n \"obj.h is_plural\"` returns line 820: two files outside js/obj.js already held obj.h predicates before this range, each with an explicit C-ref comment. The range moved is_ammo(), is_missile() and is_launcher() out of worn.js into obj.js, i.e. it reduced the split from five stragglers to two. Every straggler is discoverable by the same `grep obj.h` a maintainer would run, and the comment's operative statement about the two names used on the line below it (is_missile, is_spear both live in js/obj.js) is accurate. The claim that this is \"how the thirteen duplicates already found h Do not reopen without a source-reachable input and a diff-causal line."
+          }
+        ]
+      },
+      "recordedAt": "2026-08-09T08:43:55.133Z"
     }
   ]
 }
