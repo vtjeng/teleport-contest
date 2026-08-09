@@ -14,7 +14,7 @@ defined there.
 - For each coherent implementation chunk, inspect the diff and run focused
   tests plus the full test suite before committing. Use
   `npm run checkpoint -- --focus <test-file>` to run focused tests, the full
-  test suite, the six generated-data checks, `check:namespace-members`, and the
+  test suite, the seven generated-data checks, `check:namespace-members`, and the
   development score in one command. Repeat `--focus` to add more test files.
   `--skip-score` omits the development score for a quick run; the score still
   has to pass before the commit. `scripts/checkpoint-checks.mjs` rejects every
