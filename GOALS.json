@@ -1079,8 +1079,8 @@
         },
         {
           "name": "the five surveyed escapes are converted or shown unreachable",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "700f66fdc74c882f36b50fb1db77fa9b9a319cf6"
         }
       ],
       "openedAt": "51a6f84a2fa687fddfc98a7be27f39fff497b7ff",
