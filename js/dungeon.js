@@ -9,17 +9,26 @@ import {
     AGGRAVATE_MONSTER,
     Align2amask,
     BLINDED,
+    CLOUD,
     COLNO,
     DB_ICE,
     DB_LAVA,
     DB_MOAT,
     DB_UNDER,
+    DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
     CORR,
     FLYING,
     HALLUC,
     HALLUC_RES,
     ICE,
+    IS_AIR,
+    IS_ALTAR,
+    IS_DOOR,
+    IS_FOUNTAIN,
+    IS_GRAVE,
+    IS_ROOM,
+    IS_WALL,
     LAVAPOOL,
     LEVITATION,
     LR_DOWNTELE,
@@ -30,6 +39,7 @@ import {
     MOAT,
     ROWNO,
     ROOM,
+    SDOOR,
     STONE,
     Upolyd,
     VISITED,
@@ -39,6 +49,7 @@ import { PM_DWARF } from './monsters.js';
 // js/display.js imports update_lastseentyp() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
 import { see_nearby_objects } from './display.js';
+import { hliquid } from './do_name.js';
 import { switch_terrain } from './hack.js';
 import { strstri } from './hacklib.js';
 import { place_lregion } from './mkmaze.js';
@@ -46,7 +57,11 @@ import { cmap_to_type } from './mkroom.js';
 import { within_bounded_area } from './rect.js';
 // js/stairs.js imports depth() and on_level() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
-import { stairway_at } from './stairs.js';
+import { On_stairs, stairway_at } from './stairs.js';
+import { is_ice } from './terrain.js';
+// js/trap.js imports on_level() from this file. Both sides use the other's
+// exports only inside function bodies, so the cycle resolves.
+import { is_lava, is_pool } from './trap.js';
 
 export const BR_STAIR = 0;
 export const BR_NO_END1 = 1;
@@ -1239,14 +1254,70 @@ export function Is_special(level, state = game) {
     return null;
 }
 
-// C ref: dungeon.c surface(), ordinary repeated-command subset.  The live
-// caller admits only ROOM and CORR destinations; terrain with liquid,
-// drawbridge, stair, or hallucination behavior remains with those owners.
+// C ref: dbridge.c db_under_typ() (115-128). A closed drawbridge remembers the
+// terrain it spans in the DB_UNDER bits of its mask; both readers of that mask
+// in this file go through here.
+function db_under_typ(mask) {
+    switch (mask & DB_UNDER) {
+    case DB_ICE: return ICE;
+    case DB_LAVA: return LAVAPOOL;
+    case DB_MOAT: return MOAT;
+    default: return STONE;
+    }
+}
+
+// C ref: rm.h SURFACE_AT() (146-149). DRAWBRIDGE_UP is the square in front of a
+// closed drawbridge rather than a surface, so it reports what lies beneath.
+function surface_typ(location) {
+    if (location?.typ !== DRAWBRIDGE_UP) return location?.typ;
+    return db_under_typ(location.flags || location.drawbridgemask || 0);
+}
+
+// C ref: dungeon.c surface() (1749-1788). Every arm but the first is ported.
+// The engulfed arm needs mondata.c digests() and enfolds(), neither of which is
+// ported. It cannot be raised: the only caller is invent.c look_here()'s
+// admission in js/invent.js preflight_look_here(), which refuses u.uswallow
+// before it asks. C reads is_animal(u.ustuck->data) as well, so this stop is
+// wider than the branch it stands for and also covers a non-animal engulfer
+// that C would answer with terrain.
+//
+// Is_waterlevel() and Is_earthlevel() are spelled out against `state` for the
+// reason has_ceiling() gives above.
 export function surface(x, y, state = game) {
-    const typ = state.level?.at(x, y)?.typ;
-    if (typ === ROOM) return 'floor';
-    if (typ === CORR) return 'ground';
-    throw new Error('surface requires an ordinary room or corridor square');
+    const location = state.level?.at(x, y);
+    const levtyp = surface_typ(location);
+
+    if (x === state.u?.ux && y === state.u?.uy && state.u?.uswallow)
+        throw new Error('surface has no noun for an engulfer');
+    else if (IS_AIR(levtyp))
+        return on_level(state.u?.uz, state.water_level) ? 'air bubble'
+            : (levtyp === CLOUD) ? 'cloud' : 'air';
+    else if (is_pool(x, y, state))
+        return (state.u?.uinwater
+            && !on_level(state.u?.uz, state.water_level))
+            ? 'bottom' : hliquid('water', { state });
+    else if (is_ice(x, y, state))
+        return 'ice';
+    else if (is_lava(x, y, state))
+        return hliquid('lava', { state });
+    else if (location?.typ === DRAWBRIDGE_DOWN)
+        return 'bridge';
+    else if (IS_ALTAR(levtyp))
+        return 'altar';
+    else if (IS_GRAVE(levtyp))
+        return 'headstone';
+    else if (IS_FOUNTAIN(levtyp))
+        return 'fountain';
+    else if (On_stairs(x, y, state))
+        return 'stairs';
+    else if (IS_WALL(levtyp) || levtyp === SDOOR)
+        return 'wall'; /* 'surface' during Passes_walls */
+    else if (IS_DOOR(levtyp))
+        return 'doorway'; /* even for closed door */
+    else if (IS_ROOM(levtyp) && !on_level(state.u?.uz, state.earth_level))
+        return 'floor';
+    else
+        return 'ground';
 }
 
 // C ref: dungeon.c update_lastseentyp(). The caller supplies canseemon()
@@ -1259,14 +1330,7 @@ export function update_lastseentyp(
 ) {
     const location = state.level?.at(x, y);
     if (!location) return STONE;
-    let typ = location.typ;
-    if (typ === DRAWBRIDGE_UP) {
-        const under = (location.flags || location.drawbridgemask || 0)
-            & DB_UNDER;
-        typ = under === DB_ICE ? ICE
-            : under === DB_LAVA ? LAVAPOOL
-                : under === DB_MOAT ? MOAT : STONE;
-    }
+    let typ = surface_typ(location);
     const monster = state.level?.monsters?.[x]?.[y] ?? null;
     if (monster
         && (monster.m_ap_type & M_AP_TYPMASK) === M_AP_FURNITURE

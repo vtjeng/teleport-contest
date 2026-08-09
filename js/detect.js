@@ -256,6 +256,32 @@ function defaultFeelSearchLocation(x, y, env) {
     // W_CHAIN slots. Reading `state.u.uball` here answered undefined, so these
     // two clauses never fired and the guard was live only through
     // can_reach_floor(). `u.uinwater` really is a hero field and stays.
+    //
+    // This refuses three unported blocks of display.c feel_location(): the
+    // Levitation Rules at 777-858, the Underwater return at 769-771, and the
+    // Punished bc_felt work at 865-891. detect.c:2049 calls feel_location()
+    // outside dosearch0()'s `!aflag` tests, so the automatic arm does reach it
+    // -- but no running game can be in any of the four states, which is why it
+    // stays a bare Error rather than converting:
+    //
+    //   u.uinwater has one writer, js/hack.js set_uinwater(), and both call
+    //     sites pass false (js/do.js goto_level()).
+    //   state.uball and state.uchain have one writer, js/worn.js setworn(),
+    //     and no call site passes W_BALL or W_CHAIN; js/bury.js only clears
+    //     the fields.
+    //   can_reach_floor(FALSE) answers false for an engulfed hero, whom
+    //     detect.c:2022 returns before the loop for; for a hero held by an
+    //     AT_HUGS monster, which needs u.ustuck, and every set_ustuck() call
+    //     site in js/ passes null; for a levitating hero, and LEVITATION is
+    //     extrinsic-only here, so it needs setworn(), which no ported command
+    //     reaches -- js/cmd.js dispatches neither dowear() nor doputon(), and
+    //     ini_inv_use_obj() wears role armor alone; for a hero riding below
+    //     P_BASIC, which needs a tame saddled steed, and apply.c use_saddle()
+    //     is unported while the one tame steed ordinary play offers is the
+    //     Knight's pony, whose rider holds P_BASIC already; and for a hiding
+    //     ceiling-clinger, which needs polymorph.
+    //
+    // The test below pins all four terms of the guard.
     if (!can_reach_floor(false, state)
         || state.u.uinwater || state.uball || state.uchain) {
         throw new Error(

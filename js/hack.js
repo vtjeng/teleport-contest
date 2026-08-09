@@ -724,7 +724,8 @@ function refusedDiagonalDoorway(x, y, state) {
 // This repeated-command boundary owns entry into a ROOM, CORR, or
 // IS_FURNITURE square, or a doorway whose mask is exactly D_NODOOR or
 // D_ISOPEN. With autopickup disabled, it also admits the sighted object
-// descriptions and the blind ordinary ROOM/CORR paths with no object or one
+// descriptions and, now that js/dungeon.js surface() names every terrain
+// look_here() can feel underfoot, the blind paths with no object or one
 // object. Blind paths that would describe an object pile remain refused.
 // These checks are a temporary admission seam in front
 // of hack.c:domove_core(); each rejected branch will move to its upstream owner
@@ -880,32 +881,14 @@ export function requireSimpleHeroDestination(x, y, state) {
             state,
         );
     }
-    // invent.c look_here()'s blind arm names what the hero feels underfoot,
-    // and dungeon.c surface() (1750-1787) answers per terrain: "altar",
-    // "headstone", "fountain", "stairs", "doorway", "floor" in a room and
-    // "ground" otherwise. js/dungeon.js surface() ports the room and corridor
-    // arms alone, so before this guard a blind arrival on furniture or a
-    // doorway holding an object threw a bare Error out of runSegment() and
-    // discarded the whole segment. The rest of surface() is not ported here
-    // because the line it feeds is only half the behavior: invent.c:4210-4211
-    // suppresses the dfeature line when it repeats the surface, which is what
-    // a fountain does ("fountain" both ways) and a grave does not ("grave"
-    // against "headstone"). OPTIONS=blind reaches this from turn one through
-    // u.uroleplay.blind.
-    if (floorObject && !noPickMove && heroIsBlind(state)
-        && location.typ !== ROOM && location.typ !== CORR) {
-        throw new UnsupportedHeroMoveBoundaryError('blind terrain description');
-    }
     // invent.c look_here() computes dfeature_at() unconditionally and prints
     // it before "You see here" when the square holds exactly one object. Both
     // dfeature_at() and stairs_description() are ported, so every admitted
     // terrain but one reaches its own owner. ALTAR has no answer yet:
     // dfeature_at() throws for a_gname() rather than diverging, and that class
-    // is refused here rather than left to escape. Nothing converts an
-    // Unsupported* class raised below domove() -- the movement path has no
-    // failClosedCommand() wrapper, unlike the extended commands -- so letting
-    // it travel would abort the segment instead of ending it on its last
-    // matching screen.
+    // is refused here rather than left to escape. js/cmd.js runs domove()
+    // inside failClosedCommand(), so the class ends the segment on its last
+    // matching screen instead of aborting the run.
     if (floorObject && !noPickMove && location.typ === ALTAR) {
         throw new UnsupportedHeroMoveBoundaryError(
             'terrain feature description',

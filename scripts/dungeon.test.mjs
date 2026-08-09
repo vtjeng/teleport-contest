@@ -3,18 +3,32 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    AIR,
+    ALTAR,
     AM_CHAOTIC,
     AM_LAWFUL,
     AM_NEUTRAL,
+    CLOUD,
     CORR,
     DB_ICE,
+    DB_LAVA,
+    DB_MOAT,
+    DOOR,
+    DRAWBRIDGE_DOWN,
     DRAWBRIDGE_UP,
     FLYING,
     GRAVE,
     ICE,
+    LAVAPOOL,
+    LAVAWALL,
     LEVITATION,
+    MOAT,
+    POOL,
     ROOM,
+    SDOOR,
+    STAIRS,
     STONE,
+    VWALL,
 } from '../js/const.js';
 import { DUNGEON_DATA } from '../js/dungeon_data.js';
 import {
@@ -32,6 +46,7 @@ import {
     level_range,
     maxledgerno,
     on_level,
+    surface,
     u_on_newpos,
     UnsupportedEarthSenseError,
     update_lastseentyp,
@@ -140,16 +155,29 @@ test('update_lastseentyp remembers a raised drawbridge underlay', () => {
     // edge handling. DB_ICE exercises db_under_typ() rather than levl.typ.
     const x = 7;
     const y = 4;
-    const location = { typ: DRAWBRIDGE_UP, flags: DB_ICE };
-    const state = {
-        level: {
-            at: (atX, atY) => atX === x && atY === y ? location : null,
-            monsters: [],
-        },
+    const read = (location) => {
+        const state = {
+            level: {
+                at: (atX, atY) => atX === x && atY === y ? location : null,
+                monsters: [],
+            },
+        };
+        const typ = update_lastseentyp(x, y, state);
+        assert.equal(state.level.lastseentyp[x][y], typ);
+        return typ;
     };
 
-    assert.equal(update_lastseentyp(x, y, state), ICE);
-    assert.equal(state.level.lastseentyp[x][y], ICE);
+    assert.equal(read({ typ: DRAWBRIDGE_UP, flags: DB_ICE }), ICE);
+    // `drawbridgemask` is the compatibility alias eight js/ modules read beside
+    // `flags` for struct rm's single union slot, so a location carrying only
+    // the alias has to resolve to the same underlay. DB_LAVA rather than
+    // DB_MOAT, because DB_MOAT is 0 and a zero underlay is what every wrong
+    // reading of the mask lands on anyway.
+    assert.equal(read({ typ: DRAWBRIDGE_UP, drawbridgemask: DB_LAVA }),
+        LAVAPOOL);
+    // DB_MOAT is 0, so a drawbridge that records no underlay at all spans
+    // water, which is also what C's db_under_typ() default answers.
+    assert.equal(read({ typ: DRAWBRIDGE_UP }), MOAT);
 });
 
 test('induced_align short-circuits special, dungeon, then random masks', () => {
@@ -567,4 +595,99 @@ test('earth_sense refuses only the state its notice would speak for', () => {
     const polymorphed = earthSenseState(ROOM, [10, 10]);
     polymorphed.u.umonnum = polymorphed.u.umonster + 1;
     u_on_newpos(10, 10, polymorphed);
+});
+
+// 10,10 is interior, so isok() plays no part in any surface() result, and the
+// hero stands elsewhere unless a case moves her onto the square.
+function surfaceState(typ, {
+    flags = 0,
+    drawbridgemask,
+    uz = { dnum: 0, dlevel: 1 },
+    water_level,
+    earth_level,
+    uinwater = false,
+    uswallow = false,
+    stairs = null,
+} = {}) {
+    const state = {
+        u: { ux: 5, uy: 5, uz, uinwater, uswallow },
+        level: new GameMap(),
+        stairs,
+        water_level,
+        earth_level,
+    };
+    const location = state.level.at(10, 10);
+    location.typ = typ;
+    location.flags = flags;
+    if (drawbridgemask !== undefined) location.drawbridgemask = drawbridgemask;
+    return state;
+}
+
+// dungeon.c surface() (1749-1788). The five arms the movement seam can reach
+// are pinned end to end in scripts/cmd.test.mjs; these are the rest, each read
+// off the C branch it names. A liquid noun goes through do_name.c hliquid(),
+// which returns its argument unchanged for a hero who is not hallucinating.
+test('surface names every terrain in the C branch order', () => {
+    for (const [label, typ, options, noun] of [
+        // IS_AIR(levtyp) is AIR or CLOUD; the water level renames both.
+        ['air', AIR, {}, 'air'],
+        ['cloud', CLOUD, {}, 'cloud'],
+        ['air bubble', AIR, {
+            uz: { dnum: 1, dlevel: 2 }, water_level: { dnum: 1, dlevel: 2 },
+        }, 'air bubble'],
+        ['cloud on the water level', CLOUD, {
+            uz: { dnum: 1, dlevel: 2 }, water_level: { dnum: 1, dlevel: 2 },
+        }, 'air bubble'],
+        ['pool', POOL, {}, 'water'],
+        ['moat', MOAT, {}, 'water'],
+        // Underwater answers "bottom", but not on the water level itself.
+        ['underwater pool', POOL, { uinwater: true }, 'bottom'],
+        ['underwater on the water level', POOL, {
+            uinwater: true,
+            uz: { dnum: 1, dlevel: 2 },
+            water_level: { dnum: 1, dlevel: 2 },
+        }, 'water'],
+        ['ice', ICE, {}, 'ice'],
+        ['lava', LAVAPOOL, {}, 'lava'],
+        ['lava wall', LAVAWALL, {}, 'lava'],
+        // DRAWBRIDGE_DOWN is read off lev->typ, not the SURFACE_AT() value.
+        ['lowered drawbridge', DRAWBRIDGE_DOWN, {}, 'bridge'],
+        ['altar', ALTAR, {}, 'altar'],
+        ['wall', VWALL, {}, 'wall'],
+        ['secret door', SDOOR, {}, 'wall'],
+        ['closed door', DOOR, {}, 'doorway'],
+        // IS_ROOM(typ) is `typ >= ROOM`, so STONE falls past it.
+        ['solid rock', STONE, {}, 'ground'],
+        // The earth plane has no floor to name.
+        ['room on the earth level', ROOM, {
+            uz: { dnum: 5, dlevel: 1 }, earth_level: { dnum: 5, dlevel: 1 },
+        }, 'ground'],
+        // SURFACE_AT() resolves a raised drawbridge to what it spans, which
+        // reaches the pool and ice arms rather than the DRAWBRIDGE_DOWN one.
+        ['raised drawbridge over water', DRAWBRIDGE_UP, { flags: DB_MOAT },
+            'water'],
+        ['raised drawbridge over ice', DRAWBRIDGE_UP, { flags: DB_ICE },
+            'ice'],
+    ]) {
+        assert.equal(surface(10, 10, surfaceState(typ, options)), noun, label);
+    }
+
+    // On_stairs() reads the stairway list rather than the terrain, so a
+    // STAIRS square without a stairway is still an ordinary floor, and an
+    // ordinary room square carrying one answers "stairs".
+    assert.equal(surface(10, 10, surfaceState(STAIRS)), 'floor');
+    assert.equal(
+        surface(10, 10, surfaceState(ROOM, {
+            stairs: { sx: 10, sy: 10, next: null },
+        })),
+        'stairs',
+    );
+
+    // The engulfed arm is unported. It answers only for the hero's own square,
+    // so an engulfed hero standing elsewhere still reads the terrain.
+    const engulfed = surfaceState(ROOM, { uswallow: true });
+    assert.equal(surface(10, 10, engulfed), 'floor');
+    engulfed.u.ux = 10;
+    engulfed.u.uy = 10;
+    assert.throws(() => surface(10, 10, engulfed), /noun for an engulfer/u);
 });

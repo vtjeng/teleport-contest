@@ -635,10 +635,20 @@ export function select_themeroom(difficulty, random = rn2) {
     return pick;
 }
 
-// C ref: nhlua.c splev_chr2typ(). This table covers the special-level map
-// alphabet even though the first generated slice only uses '.', '-', '|',
-// and transparent 'x' cells.
-function splev_chr2typ(char) {
+// C ref: nhlua.c splev_chr2typ() (379-391). The cases below are char2typ[]
+// (340-377) entry for entry, so no character C accepts reaches the default arm.
+//
+// The default arm cannot be raised, and is not converted for that reason.
+// C returns INVALID_TYPE there instead of failing, and its three consumers
+// then diverge: lspo_map() skips the cell, while get_table_mapchr_opt() and
+// nhlsel.c's selection filter raise a Lua error. Both data sources that reach
+// here are fixed tables this repository ships, and both are covered --
+// js/tutorial_level.js TUTORIAL_MAP uses " #+-.FLPSTWZ|", and the nineteen
+// maps in js/themeroom_data.js use "-.Lx|}" between them. scripts/
+// tutorial-startup.test.mjs and scripts/themeroom-data.test.mjs run every
+// character of both through this function, so a map that ever needs a new
+// one fails there rather than escaping runSegment().
+export function splev_chr2typ(char) {
     switch (char) {
     case ' ': return STONE;
     case '#': return CORR;
@@ -781,6 +791,28 @@ function lightSpecialMatch(frame, mapCharacter, lit, state) {
     }
 }
 
+// C ref: sp_lev.c, the lspo_* handlers a des-file calls. makelevel() builds one
+// of these only when mklev() was given a specialLevelLoader, and
+// js/tutorial_startup.js is the only production caller that supplies one, with
+// js/tutorial_level.js loadTutorialLevel() for dat/tut-1.lua.
+//
+// Three arms below refuse a value C accepts, and all three are unreachable for
+// that reason, so none is converted to a boundary class:
+//
+//   level_init() takes only `solidfill`, where sp_lev.c lspo_level_init() also
+//     takes mazegrid, maze, rogue, mines and swamp. The tutorial makes one
+//     call, and it is solidfill.
+//   level_flags() takes the five names the tutorial passes, where
+//     lspo_level_flags() takes twenty-five. The other twenty appear in level
+//     files this port does not ship, and three of the five appear in no file
+//     but tut-1.lua and tut-2.lua.
+//   door() takes SPECIAL_DOOR_STATES plus `random`, where lspo_door() also
+//     takes `secret`. The tutorial's twelve door() calls use closed, locked,
+//     nodoor, open and random.
+//
+// scripts/tutorial-startup.test.mjs replays the loader against a recording
+// stub and fails if it ever supplies a value outside those sets, so a second
+// ported level file reopens the question there rather than in a session.
 function createSpecialLevelApi(state) {
     const frame = {
         xstart: 0,

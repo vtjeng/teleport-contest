@@ -12,6 +12,7 @@ import {
     LEATHER_GLOVES,
     WAN_SECRET_DOOR_DETECTION,
 } from '../js/objects.js';
+import { splev_chr2typ } from '../js/mklev.js';
 import {
     ask_do_tutorial,
     buildTutorialMenuSpec,
@@ -450,4 +451,62 @@ test('numpad mode restoration preserves duplicate meta-digit backups', () => {
         flags: { rest_on_space: false },
     });
     assert.equal(tutorialCommandKey('close', model), '#close');
+});
+
+// js/mklev.js createSpecialLevelApi() refuses a level_init style outside
+// solidfill, a level_flags name outside its five, and a door state outside
+// SPECIAL_DOOR_STATES plus random -- each a value sp_lev.c accepts. Those
+// three arms are unreachable only while this loader, the one des-file the port
+// ships, stays inside them, and js/mklev.js splev_chr2typ()'s default arm only
+// while every map character it writes is in char2typ[]. Reading the whole
+// level under both outcomes of each percent(50) and every role and energy
+// branch settles all four, and fails here the moment a level file needs more.
+test('the tutorial supplies only special-level values the port accepts', () => {
+    const styles = new Set();
+    const levelFlags = new Set();
+    const doorStates = new Set();
+    const mapCharacters = new Set();
+    for (const role of [PM_HEALER, PM_KNIGHT, PM_MONK]) {
+        // uenmax below and above the five the spell arm tests for.
+        for (const energy of [4, 10]) {
+            // The loader rolls percent(50) seven times; 0 takes every "true"
+            // arm and 99 every "false" one.
+            for (const roll of [0, 99]) {
+                const log = recordTutorialDescriptor({
+                    role, energy, percent: new Array(7).fill(roll),
+                });
+                for (const [name, ...args] of log) {
+                    if (name === 'level_init') {
+                        styles.add(args[0].style);
+                        mapCharacters.add(args[0].fg);
+                    } else if (name === 'level_flags') {
+                        for (const flag of args) levelFlags.add(flag);
+                    } else if (name === 'door') {
+                        doorStates.add(args[0].state);
+                    } else if (name === 'map') {
+                        for (const row of args[0])
+                            for (const character of row)
+                                mapCharacters.add(character);
+                    } else if (name === 'region' && args[0].match != null) {
+                        mapCharacters.add(args[0].match);
+                    }
+                }
+            }
+        }
+    }
+
+    assert.deepEqual([...styles], ['solidfill']);
+    assert.deepEqual([...levelFlags].sort(), [
+        'mazelevel', 'noautosearch', 'nodeathdrops', 'noflip', 'nomongen',
+    ]);
+    // `broken` is the one SPECIAL_DOOR_STATES key the tutorial never asks for.
+    assert.deepEqual([...doorStates].sort(), [
+        'closed', 'locked', 'nodoor', 'open', 'random',
+    ]);
+    // dat/tut-1.lua's map alphabet, which splev_chr2typ() must answer for
+    // without reaching its default arm.
+    assert.deepEqual([...mapCharacters].sort().join(''), ' #+-.FLPSTWZ|');
+    for (const character of mapCharacters) {
+        assert.notEqual(splev_chr2typ(character), undefined, character);
+    }
 });

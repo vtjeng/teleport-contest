@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { splev_chr2typ } from '../js/mklev.js';
 import { THEMEROOM_DEFINITIONS } from '../js/themeroom_data.js';
 
 function definitionNamed(name) {
@@ -132,3 +133,26 @@ test('bespoke callback ids are stable, explicit, and deeply frozen', () => {
     assert.equal(Object.isFrozen(cross.action.contents.filler), true);
     assert.equal(Object.isFrozen(cross.map), true);
 });
+
+// js/mklev.js splev_chr2typ()'s default arm refuses a map character that
+// nhlua.c char2typ[] accepts, and js/mklev.js records why it cannot be raised.
+// Half of that derivation lives here: themeroom_map_fits() and lspo_map() send
+// every character of every generated map through that function, so a new
+// themeroom map needing a new character fails here rather than in a session.
+test('every generated themeroom map uses characters splev_chr2typ answers for',
+    () => {
+        const characters = new Set();
+        let mapped = 0;
+        for (const definition of THEMEROOM_DEFINITIONS) {
+            if (!definition.map) continue;
+            ++mapped;
+            for (const row of definition.map)
+                for (const character of row) characters.add(character);
+        }
+        // themerms.lua carries nineteen des.map blocks between its rooms.
+        assert.equal(mapped, 19);
+        // HWALL, ROOM, LAVAPOOL, transparent MAX_TYPE, VWALL and MOAT.
+        assert.equal([...characters].sort().join(''), '-.Lx|}');
+        for (const character of characters)
+            assert.notEqual(splev_chr2typ(character), undefined, character);
+    });

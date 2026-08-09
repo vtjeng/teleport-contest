@@ -116,6 +116,7 @@ import {
     PM_GHOST,
     PM_FOG_CLOUD,
     PM_GIANT_MIMIC,
+    PM_GIANT_SPIDER,
     PM_HEALER,
     PM_HUMAN,
     PM_HUMAN_MUMMY,
@@ -2681,4 +2682,33 @@ test('Statuary composes floor statues with living statue traps', () => {
     assert.equal(level.monlist, null);
     assert.equal(state.iflags.purge_monsters, 0);
     assert.deepEqual(detached.map((monster) => monster.nmon), [null, null, null]);
+});
+
+test('Spider nest puts a giant spider on each web the source asks for', () => {
+    // level_difficulty() past 8 is what themerms.lua gates spider_on_web on,
+    // so this fixture sits on dungeon level 9, one past the gate.
+    const { level, room } = twoByTwoRoom();
+    const state = themedGenerationState(level, 9);
+    // percentage(30) retains <2,3> alone, then rn2(100) answers 0, which is
+    // under the 80 that asks for a spider. Every later draw belongs to
+    // maketrap() and makemon(), which take the last ordinary branch.
+    const percentageDraws = [0, 99, 99, 99, 0];
+    const random = {
+        ...quietObjectRandom(),
+        rn2(bound) {
+            if (bound === 100 && percentageDraws.length)
+                return percentageDraws.shift();
+            return Math.max(0, bound - 1);
+        },
+    };
+
+    run_themeroom_fill(fillById('spider_nest'), room, 9, { state, random });
+
+    const web = (level.traps ?? []).filter((trap) => trap.ttyp === WEB);
+    assert.deepEqual(web.map((trap) => [trap.tx, trap.ty]), [[2, 3]]);
+    // mklev.c mktrap() (2104-2105) calls makemon() itself, so the spider has
+    // to be standing on the web the same call created.
+    const spider = level.monsters[2][3];
+    assert.ok(spider, 'no monster on the web');
+    assert.equal(spider.data, state.mons[PM_GIANT_SPIDER]);
 });

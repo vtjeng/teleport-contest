@@ -2208,13 +2208,12 @@ test('an altar holding an object stops for a_gname()', async () => {
     };
 
     // The seam refuses this before look_here() can reach dfeature_at()'s
-    // a_gname() arm. That matters for where the error lands, not just which
-    // class it is: nothing wraps the movement path in failClosedCommand(), so
-    // an UnsupportedFeatureDescriptionError raised below domove() would travel
-    // past js/jsmain.js's boundary list and discard the segment's matching
-    // prefix. Only the four classes that list names end a segment, so the
-    // assertion is on the class the hero-move seam raises, not on membership
-    // in failClosedCommandRefusals(), which no code on this path consults.
+    // a_gname() arm, and it raises the movement class rather than letting
+    // UnsupportedFeatureDescriptionError travel. js/cmd.js runs domove()
+    // inside failClosedCommand(), so either class would end the segment, but
+    // js/jsmain.js breaks directly on the movement class and reaches the other
+    // only through that wrapper. The assertion is therefore on the class the
+    // hero-move seam raises.
     await assert.rejects(
         domove(game),
         (error) => error instanceof UnsupportedHeroMoveBoundaryError
@@ -2222,45 +2221,69 @@ test('an altar holding an object stops for a_gname()', async () => {
     );
 });
 
-// invent.c look_here()'s blind arm calls dungeon.c surface() for the noun the
-// hero feels underfoot, and js/dungeon.js surface() ports only its ROOM and
-// CORR arms. Every other admitted terrain would throw a bare Error out of
-// runSegment() and discard the segment, because js/jsmain.js breaks only on
-// the four boundary classes. OPTIONS=blind reaches this from turn one through
-// u.uroleplay.blind, so the guard is not hypothetical. The altar row expects
-// this reason rather than the a_gname() one because the blind guard sits
-// above it: a blind hero never reaches dfeature_at().
-test('a blind hero refuses an object on terrain surface() cannot name',
-    async () => {
-        for (const [label, terrain, admitted] of [
-            ['fountain', FOUNTAIN, false],
-            ['altar', ALTAR, false],
-            ['stairs', STAIRS, false],
-            ['room', ROOM, true],
-            ['corridor', CORR, true],
-        ]) {
+// invent.c look_here()'s blind arm names what the hero feels underfoot with
+// dungeon.c surface(), and js/dungeon.js surface() now answers every terrain
+// this seam admits. Until it did, a blind arrival on furniture or a doorway
+// holding an object threw a bare Error straight out of runSegment() and
+// discarded the segment's matching prefix; OPTIONS=blind reaches this from
+// turn one through u.uroleplay.blind, so it was not hypothetical.
+// invent.c:4210-4211 drops the dfeature line when it repeats the surface,
+// which is why the fountain row expects no second line and the grave row does.
+// An altar is the one admitted square that still stops, one guard below, for
+// dfeature_at()'s a_gname(); the test above owns that row.
+test('a blind hero feels the surface named under one object', async () => {
+    for (const [label, surf, feature, decorate] of [
+        ['fountain', 'fountain', null, (destination) => {
+            destination.typ = FOUNTAIN;
+        }],
+        // SINK and THRONE have no arm of their own in surface(): rm.h:126
+        // makes IS_ROOM(typ) `typ >= ROOM`, so both fall through to "floor"
+        // while dfeature_at() still names them.
+        ['sink', 'floor', 'There is a sink here.', (destination) => {
+            destination.typ = SINK;
+        }],
+        ['throne', 'floor', 'There is an opulent throne here.',
+            (destination) => {
+                destination.typ = THRONE;
+            }],
+        ['grave', 'headstone', 'There is a grave here.', (destination) => {
+            destination.typ = GRAVE;
+        }],
+        ['staircase', 'stairs', 'There is a staircase down here.',
+            (destination, x, y) => {
+                destination.typ = STAIRS;
+                // On_stairs() reads the stairway list, not the terrain, so
+                // move the level's own down staircase onto the square.
+                const stway = stairway_find_dir(false, game);
+                stway.sx = x;
+                stway.sy = y;
+            }],
+        ['open doorway', 'doorway', 'There is an open door here.',
+            (destination) => {
+                destination.typ = DOOR;
+                destination.flags = destination.doormask = D_ISOPEN;
+            }],
+        ['room', 'floor', null, () => {}],
+        ['corridor', 'ground', null, (destination) => {
+            destination.typ = CORR;
+        }],
+    ]) {
+        const expected = [
+            `You try to feel what is lying here on the ${surf}.`,
+            ...(feature ? [feature] : []),
+            'You feel here a dart.',
+        ].join(' ');
+        // The tty packs as many messages onto a topline as fit beside the
+        // --More--, so the split between toplines is not one per message.
+        // Replay the turn with one more queued space each time and collect the
+        // topline it stops on; the run that needs no further key completes.
+        const seen = [];
+        for (let dismissals = 0; dismissals <= 3; ++dismissals) {
             const { destination, x, y } = await prepareHeroMoveAdmission();
-            destination.typ = terrain;
+            decorate(destination, x, y);
             game.flags.pickup = false;
             game.u.uprops[BLINDED].intrinsic = 1;
-            // The bare square first: look_here() is reached only through
-            // check_here(), and pickup.c:702-707 returns before it when the
-            // square holds nothing, so C prints no surface line and the guard
-            // must not fire. Without this the `floorObject &&` term can be
-            // deleted with the whole suite still green.
-            await domove(game).catch((error) => {
-                assert.ok(
-                    !String(error?.message ?? '')
-                        .includes('blind terrain description'),
-                    `${label}, empty`,
-                );
-            });
-
-            const withObject = await prepareHeroMoveAdmission();
-            withObject.destination.typ = terrain;
-            game.flags.pickup = false;
-            game.u.uprops[BLINDED].intrinsic = 1;
-            game.level.objects[withObject.x][withObject.y] = {
+            game.level.objects[x][y] = {
                 otyp: DART,
                 oclass: WEAPON_CLASS,
                 quan: 1,
@@ -2268,31 +2291,32 @@ test('a blind hero refuses an object on terrain surface() cannot name',
                 nexthere: null,
                 dknown: true,
             };
-            if (admitted) {
-                // A blind hero on a room square reaches look_here()'s message
-                // and then waits for a key, so this control cannot run the
-                // move to completion. What it must show is that the guard did
-                // not fire, so it asserts on the reason rather than on
-                // reaching the end of the turn.
-                await domove(game).catch((error) => {
-                    assert.ok(
-                        !String(error?.message ?? '')
-                            .includes('blind terrain description'),
-                        label,
-                    );
-                });
-            } else {
-                await assert.rejects(
-                    domove(game),
-                    (error) => error instanceof UnsupportedHeroMoveBoundaryError
-                        && error.message.includes(
-                            'blind terrain description',
-                        ),
-                    label,
-                );
+            clearTtyMessageWindow(game);
+            game._ttyToplines = '';
+            for (let key = 0; key < dismissals; ++key)
+                game.nhDisplay.pushKey(commandKeyCode(' '));
+
+            const stopped = await domove(game).then(() => false, (error) => {
+                assert.match(String(error?.message ?? ''),
+                    /Input queue empty/u, `${label} after ${dismissals}`);
+                return true;
+            });
+            seen.push(game._ttyToplines ?? '');
+            if (!stopped) {
+                assert.deepEqual([game.u.ux, game.u.uy], [x, y], label);
+                break;
             }
         }
-    });
+        // topl.c separates two messages sharing a topline with two spaces and
+        // keeps a trailing one beside the --More--, neither of which says
+        // anything about the messages, so collapse both before comparing.
+        assert.equal(
+            seen.join(' ').replace(/\s+/gu, ' ').trim(),
+            expected,
+            label,
+        );
+    }
+});
 
 // pickup.c check_here() calls describe_decor() under flags.mention_decor.
 // pickup.c:392-410 mentions a furniture square even when the terrain has not

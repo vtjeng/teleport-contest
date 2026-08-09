@@ -262,7 +262,16 @@ function startMeltTimer(x, y, when, env) {
 function createTrap(type, flags, x, y, env) {
     const hook = env.hooks.createTrap;
     if (hook) return hook(type, flags, x, y, env);
-    return mktrap(type, flags, null, { x, y }, themedCreationEnv(env));
+    // C ref: mklev.c mktrap() (2104-2105) calls makemon() itself for the giant
+    // spider that comes with a web. js/mktrap.js takes that call as a hook, and
+    // this fill is its production owner: fillSpiderNest() asks for a spider on
+    // four webs in five once level_difficulty() passes 8, so before this the
+    // web arm threw a bare Error out of runSegment() on any D:9 spider nest.
+    const trapEnv = themedCreationEnv({
+        ...env,
+        hooks: { makeMonster: makemon, ...env.hooks },
+    });
+    return mktrap(type, flags, null, { x, y }, trapEnv);
 }
 
 // sp_lev.c create_trap(). Resolve either an SP_COORD_PACK() value or the
@@ -841,8 +850,9 @@ function fillBuriedZombies(room, difficulty, env) {
     }
 }
 
-// dat/themerms.lua "Spider nest". D:1 never requests a spider on each web,
-// but create_trap still performs its source mktrap victim check.
+// dat/themerms.lua "Spider nest". Its `spooders` gate is level_difficulty()
+// past 8, so no D:1 web carries a spider and create_trap() still performs its
+// source mktrap victim check. From D:9 down, four webs in five ask for one.
 function fillSpiderNest(room, difficulty, env) {
     const spiders = difficulty > 8;
     const locations = roomSelection(room, env).percentage(30, env.random.rn2);
