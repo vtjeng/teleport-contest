@@ -14,6 +14,7 @@ import test from 'node:test';
 
 import {
     MANIFEST_NAME,
+    ancestorCoverageReason,
     auditCommand,
     checkAuditWorktree,
     cleanupAuditWorktree,
@@ -112,6 +113,83 @@ function prepare(fixture) {
     });
 }
 
+/**
+ * A fixture whose checklist is committed, so it names the implementation
+ * commit rather than the head. This is the shape every real checklist has and
+ * the shape makeFixture() cannot produce: it leaves the checklist uncommitted
+ * so that it can name HEAD.
+ *
+ * Three options build the cases that must still refuse: `gapTouchesProduction`
+ * changes the one area-owned path in the commit after the checklist, `ledger`
+ * omits QUALITY.json, and `sideBranch` puts the commit the checklist names off
+ * the head's history.
+ */
+function makeCommittedChecklistFixture(t, {
+    gapTouchesProduction = false,
+    ledger = true,
+    sideBranch = false,
+} = {}) {
+    const fixtureRoot = mkdtempSync(join(tmpdir(), 'audit-worktree-test-'));
+    t.after(() => rmSync(fixtureRoot, { recursive: true, force: true }));
+    const repositoryRoot = join(fixtureRoot, 'repository');
+    const temporaryRoot = join(fixtureRoot, 'temporary');
+    mkdirSync(repositoryRoot);
+    mkdirSync(temporaryRoot);
+    git(repositoryRoot, 'init', '--quiet');
+    mkdirSync(join(repositoryRoot, 'js'));
+    mkdirSync(join(repositoryRoot, '.agents'));
+    writeFileSync(join(repositoryRoot, 'AGENTS.md'), '# Test instructions\n');
+    const gamePath = join(repositoryRoot, 'js', 'game.js');
+    writeFileSync(gamePath, 'export const turn = 1;\n');
+    const base = commit(repositoryRoot, 'base');
+
+    // The ledger names the base as its frontier, so the frontier check is not
+    // what refuses. QUALITY.json owns no area itself, so it may sit in the gap.
+    if (ledger) {
+        writeFileSync(join(repositoryRoot, 'QUALITY.json'), `${JSON.stringify({
+            enforcementBase: base,
+            areas: [
+                { id: 'runtime', label: 'Core runtime', paths: ['js/game.js'] },
+            ],
+            passes: [],
+        }, null, 2)}\n`);
+        commit(repositoryRoot, 'ledger');
+    }
+
+    writeFileSync(gamePath, 'export const turn = 2;\n');
+    const implementation = commit(repositoryRoot, 'implementation');
+
+    let named = implementation;
+    if (sideBranch) {
+        const branch = git(repositoryRoot, 'rev-parse', '--abbrev-ref', 'HEAD');
+        git(repositoryRoot, 'checkout', '--quiet', '-b', 'side');
+        writeFileSync(join(repositoryRoot, 'SIDE.md'), 'a parallel history\n');
+        named = commit(repositoryRoot, 'side');
+        git(repositoryRoot, 'checkout', '--quiet', branch);
+    }
+    writeFileSync(
+        join(repositoryRoot, '.agents', 'implementation-checklist.json'),
+        readyChecklist(named),
+    );
+    if (gapTouchesProduction) {
+        writeFileSync(gamePath, 'export const turn = 3;\n');
+    }
+    const head = commit(repositoryRoot, 'checklist');
+
+    const skillPath = join(fixtureRoot, 'SKILL.md');
+    writeFileSync(skillPath, '# audit-diff-correctness\n');
+    const promptPath = join(fixtureRoot, 'prompt.md');
+    writeFileSync(
+        promptPath,
+        `Read AGENTS.md. Run audit-diff-correctness for ${
+            base}..${head}. Do not access the sealed holdout directory.\n`,
+    );
+    return {
+        base, head, implementation, named, promptPath, repositoryRoot,
+        skillPath, temporaryRoot,
+    };
+}
+
 test('parses lifecycle commands and exact two-dot ranges', () => {
     assert.deepEqual(parseRange('main~1..main'), {
         base: 'main~1',
@@ -192,7 +270,49 @@ test('requires a ready checklist tied to the exact head', () => {
         () => validateChecklist(readyChecklist('b'.repeat(40)), head),
         /not a+/u,
     );
+    // Exact coverage is recorded as nothing, because there is no gap to
+    // explain to a later reader.
+    assert.equal(validateChecklist(readyChecklist(head), head), null);
 });
+
+// A checklist cannot name the commit that contains it, so a committed one
+// always names an ancestor of the head. Measured on 8 August 2026: a checklist
+// committed in the head commit is refused with `covers <parent>, not <head>`,
+// and pointing the range head at the commit it does name is refused by
+// --readiness with `HEAD is <later> and the range head <earlier>`.
+test('a checklist naming an ancestor covers the head over unowned paths only',
+    () => {
+        const owned = new Set(['js/mon.js', 'js/monmove.js']);
+        const ancestor = 'a'.repeat(40);
+
+        // A tracker-only gap changes nothing a review frontier advances over.
+        assert.match(
+            ancestorCoverageReason(ancestor,
+                ['.agents/implementation-checklist.json', 'PHASES.tsv'], owned),
+            /covers aaaaaaaa, an ancestor of the range head; the 2 path\(s\) /u,
+        );
+        // One production path in the gap is work no checklist entry covers,
+        // which is what the equality test existed to stop.
+        assert.equal(
+            ancestorCoverageReason(ancestor,
+                ['.agents/implementation-checklist.json', 'js/mon.js'], owned),
+            null,
+        );
+
+        // The reason, not merely the acceptance, is what validateChecklist
+        // hands back for the manifest to record.
+        const head = 'b'.repeat(40);
+        assert.deepEqual(
+            validateChecklist(readyChecklist(ancestor), head,
+                (commitChecked) => `accepted ${commitChecked.slice(0, 8)}`),
+            { commitChecked: ancestor, reason: 'accepted aaaaaaaa' },
+        );
+        // An acceptor that declines leaves the original refusal in place.
+        assert.throws(
+            () => validateChecklist(readyChecklist(ancestor), head, () => null),
+            /covers a+, not b+/u,
+        );
+    });
 
 test('prepares, rechecks, and cleans an exact audit worktree', t => {
     const fixture = makeFixture(t);
@@ -422,6 +542,85 @@ test('readiness records its exact mutation range and report', () => {
         /readiness commands failed: quality check/u,
     );
 });
+
+test('a committed checklist can ride with the pass that reviews its slice',
+    t => {
+        const fixture = makeCommittedChecklistFixture(t);
+        const prepared = prepareAuditWorktree({
+            range: `${fixture.base}..${fixture.head}`,
+            skill: 'audit-diff-correctness',
+            skillPath: fixture.skillPath,
+            promptPath: fixture.promptPath,
+            repositoryRoot: fixture.repositoryRoot,
+            temporaryRoot: fixture.temporaryRoot,
+            // --readiness is half the circularity: it demands the range head be
+            // HEAD, so the checklist cannot be behind by pointing the range
+            // backwards instead.
+            readiness: true,
+            runReadinessCommands: input => {
+                writeFileSync(input.reportPath, '{"version":1}\n');
+                return [];
+            },
+        });
+        t.after(() => cleanupAuditWorktree({
+            manifestPath: prepared.manifestPath,
+            repositoryRoot: fixture.repositoryRoot,
+        }));
+
+        // The manifest carries why the checklist was allowed to be behind, so
+        // a later reader does not have to rediscover the gap.
+        assert.deepEqual(prepared.manifest.checklist.coverage, {
+            commitChecked: fixture.implementation,
+            reason: `the checklist covers ${fixture.implementation.slice(0, 8)}`
+                + ', an ancestor of the range head; the 1 path(s) changed '
+                + 'between them own no QUALITY.json area',
+        });
+        // check re-decides the question rather than trusting that record.
+        assert.doesNotThrow(() => checkAuditWorktree({
+            manifestPath: prepared.manifestPath,
+            repositoryRoot: fixture.repositoryRoot,
+        }));
+    });
+
+test('a checklist behind an unreviewed production commit is still refused',
+    t => {
+        const fixture = makeCommittedChecklistFixture(t,
+            { gapTouchesProduction: true });
+
+        // js/game.js is the fixture ledger's one area-owned path, so the
+        // checklist demonstrably never read the head commit's production work.
+        assert.throws(
+            () => prepare(fixture),
+            /implementation checklist covers .*, not /u,
+        );
+    });
+
+test('a checklist naming a commit off the head history is still refused', t => {
+    // `git diff` answers for two unrelated commits as readily as for a parent
+    // and a child, so nothing but the ancestry test stops a checklist that
+    // names a commit the range never contained.
+    const fixture = makeCommittedChecklistFixture(t, { sideBranch: true });
+
+    assert.notEqual(fixture.named, fixture.implementation);
+    assert.throws(
+        () => prepare(fixture),
+        /implementation checklist covers .*, not /u,
+    );
+});
+
+test('a checklist ahead of its head is refused without a ledger to consult',
+    t => {
+        // The gap can only be shown to be free of the paths a pass must read
+        // when something lists them, so an absent QUALITY.json refuses.
+        const fixture = makeCommittedChecklistFixture(t, { ledger: false });
+
+        assert.equal(
+            existsSync(join(fixture.repositoryRoot, 'QUALITY.json')), false);
+        assert.throws(
+            () => prepare(fixture),
+            /implementation checklist covers .*, not /u,
+        );
+    });
 
 test('prepare accepts --readiness as a boolean option', () => {
     const parsed = parseAuditArgs(['prepare', '--range', 'a..b',

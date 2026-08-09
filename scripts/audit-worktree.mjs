@@ -223,10 +223,42 @@ export const CHECKLIST_STATUSES = Object.freeze([
     'done', 'no-effect-yet', 'later', 'cannot-occur', 'missing', 'undecided',
 ]);
 
+/**
+ * Why a checklist naming `commitChecked` may still cover the range head.
+ *
+ * A checklist cannot name the commit that contains it, so a committed one
+ * always names an ancestor of the head. Measured on 8 August 2026 against a
+ * fixture repository: a checklist committed in the head commit is refused with
+ * `covers <parent>, not <head>`, and pointing the range head at the commit it
+ * does name is refused by `--readiness` with `HEAD is <later> and the range
+ * head <earlier>`. The pair leaves no ordering, so a checklist could never
+ * ride with the pass reviewing its own slice and the reviewer lost the plan
+ * and the explicit refusal list exactly where they help most.
+ *
+ * The gap is accepted only when it changed nothing a pass would have to read.
+ * `ownedPaths` is the union of the QUALITY.json area paths, which is what a
+ * review frontier advances over; a commit touching one of them is production
+ * work the checklist does not cover, and it still refuses.
+ *
+ * Returns the reason to record, or null to refuse.
+ */
+export function ancestorCoverageReason(commitChecked, changed, ownedPaths) {
+    const owned = changed.filter((path) => ownedPaths.has(path));
+    if (owned.length > 0) return null;
+    return `the checklist covers ${commitChecked.slice(0, 8)}, an ancestor of `
+        + `the range head; the ${changed.length} path(s) changed between them `
+        + 'own no QUALITY.json area';
+}
+
 // The checklist is JSON so this gate reads fields as data. Its predecessor
 // regexed hand-written prose, and 29 of the 32 checklist versions committed
 // before 2026-08-01 failed its own patterns through wording drift.
-export function validateChecklist(text, head) {
+//
+// `acceptsAncestor` decides whether a checklist that names something other
+// than `head` may still cover it, and returns the reason to record. The
+// default refuses every such checklist, which is what a caller with no
+// repository to consult can prove.
+export function validateChecklist(text, head, acceptsAncestor = () => null) {
     let checklist;
     try {
         checklist = JSON.parse(text);
@@ -259,12 +291,66 @@ export function validateChecklist(text, head) {
             'implementation checklist mode is not ready-for-audit',
         );
     }
-    if (checklist.commitChecked !== head) {
+    if (checklist.commitChecked === head) return null;
+    const reason = acceptsAncestor(checklist.commitChecked);
+    if (!reason) {
         throw new Error(
             `implementation checklist covers ${checklist.commitChecked}, `
                 + `not ${head}`,
         );
     }
+    return { commitChecked: checklist.commitChecked, reason };
+}
+
+/** Ancestry within one repository, treating a commit as its own ancestor. */
+function isAncestorIn(root) {
+    return (ancestor, descendant) => ancestor === descendant
+        || runGit(root, ['merge-base', '--is-ancestor', ancestor, descendant],
+            { allowFailure: true }).status === 0;
+}
+
+// The repository-relative paths a committed range touched, and the paths the
+// QUALITY.json areas own. Both are computed here rather than imported from
+// scripts/quality-status.mjs, which has its own `changedPathsIn` for the
+// area-label computation: that file already imports `parseRange()` from this
+// one, and the reverse edge would close a cycle. `reviewFrontier()` above is
+// duplicated for the same reason and says so.
+function changedPathsIn(root, base, head) {
+    const output = runGit(root, ['diff', '--name-only', `${base}..${head}`])
+        .stdout.trim();
+    return output ? output.split('\n') : [];
+}
+
+function areaOwnedPaths(root) {
+    const qualityPath = resolve(root, 'QUALITY.json');
+    if (!existsSync(qualityPath)) return null;
+    const config = JSON.parse(readUtf8(qualityPath, 'quality ledger'));
+    return new Set((config.areas ?? []).flatMap((area) => area.paths ?? []));
+}
+
+/**
+ * Decide whether a checklist naming an ancestor of `head` still covers it.
+ *
+ * The full-SHA test is what keeps a hand-written `commitChecked` out of a git
+ * argument list: a value such as `--upload-pack=...` would otherwise be read
+ * as an option rather than a commit.
+ */
+function ancestorAcceptorFor(root, head) {
+    const isAncestorOf = isAncestorIn(root);
+    return (commitChecked) => {
+        if (typeof commitChecked !== 'string'
+            || !/^[0-9a-f]{40}$/u.test(commitChecked)) return null;
+        if (!isAncestorOf(commitChecked, head)) return null;
+        const ownedPaths = areaOwnedPaths(root);
+        // Without the ledger there is no list of the paths a pass has to read,
+        // so the gap cannot be shown to hold none of them.
+        if (!ownedPaths) return null;
+        return ancestorCoverageReason(
+            commitChecked,
+            changedPathsIn(root, commitChecked, head),
+            ownedPaths,
+        );
+    };
 }
 
 function validatePrompt(text, {
@@ -561,9 +647,7 @@ export function prepareAuditWorktree({
     const mutationHead = resolveCommit(
         root, mutationRevisions.head, 'mutation head',
     );
-    const isAncestorOf = (ancestor, descendant) => ancestor === descendant
-        || runGit(root, ['merge-base', '--is-ancestor', ancestor, descendant],
-            { allowFailure: true }).status === 0;
+    const isAncestorOf = isAncestorIn(root);
     assertMutationRangeWithinAudit({
         base, head, mutationBase, mutationHead, isAncestorOf,
     });
@@ -572,9 +656,6 @@ export function prepareAuditWorktree({
     // advance the frontier past commits no pass read.
     const qualityPath = resolve(root, 'QUALITY.json');
     if (existsSync(qualityPath)) {
-        const isAncestorOf = (ancestor, descendant) => ancestor === descendant
-            || runGit(root, ['merge-base', '--is-ancestor', ancestor,
-                descendant], { allowFailure: true }).status === 0;
         const config = JSON.parse(readUtf8(qualityPath, 'quality ledger'));
         assertRangeCoversFrontier(
             base, reviewFrontier(config, 'review', isAncestorOf), isAncestorOf,
@@ -607,11 +688,16 @@ export function prepareAuditWorktree({
             checklistSourcePath,
             'implementation checklist',
         );
-        validateChecklist(text, head);
+        const coverage = validateChecklist(
+            text, head, ancestorAcceptorFor(root, head));
         checklist = {
             sourcePath: checklistSourcePath,
             snapshotPath: null,
             sha256: sha256(text),
+            // Null when the checklist names the range head exactly. A reason
+            // here tells a later reader that the checklist was deliberately
+            // behind the range and on what evidence it was accepted.
+            coverage,
         };
         promptSnapshotText += '\n\n'
             + '## Implementation checklist snapshot\n\n'
@@ -786,7 +872,12 @@ export function checkAuditWorktree({
         if (sha256(checklistText) !== manifest.checklist.sha256) {
             throw new Error('implementation checklist snapshot changed');
         }
-        validateChecklist(checklistText, manifest.head);
+        // Recomputed rather than read from the manifest: the history between
+        // the checklist's commit and the audited head is fixed, so the same
+        // question has the same answer, and a hand-edited manifest cannot
+        // widen what check accepts.
+        validateChecklist(checklistText, manifest.head,
+            ancestorAcceptorFor(root, manifest.head));
         const sourceText = readUtf8(
             manifest.checklist.sourcePath,
             'implementation checklist source',

@@ -185,36 +185,3 @@ document's repair is a sentence; the model's is not.
 **What it leaves unfixed.** The ranking still cannot price a boundary that sits
 inside a supported command until the model can name it, so a goal like this one
 is nominated by the observed census alone.
-
-## Break the checklist's readiness circularity
-
-**What it changes.** `scripts/audit-worktree.mjs prepare --readiness` would
-accept a checklist whose `commitChecked` names the range head's ancestor when
-every commit between them touches no area-owned path.
-
-**Scope.** One relaxation of the `commitChecked === head` test in
-`validateChecklist()`, plus the reason recorded in the manifest.
-
-**What prompted it.** Preparing the correctness pass over `5168910..ea1f65a`
-was impossible with a checklist present. `validateChecklist()` requires
-`commitChecked` to equal the range head, and `--readiness` requires the range
-head to equal `HEAD`. A checklist cannot name the commit that contains it, so
-the two conditions can only both hold if the checklist file is committed in the
-same commit whose SHA it already names -- which no sequence of commits produces.
-The previous pass at `e8e6ccb` satisfied `prepare` only because no checklist
-existed and `--no-checklist-reason` applied.
-
-The workaround is to retire the checklist before every gate-forced pass, which
-the template independently prescribes once the qualifying slice closes, so
-nothing was lost this time. But it means a checklist can never ride along with
-the pass that reviews its slice, and the reviewer loses the plan and the
-explicit refusal list exactly when they are most useful.
-
-**Cost.** Small: the check already resolves both SHAs, and
-`changedPathsIn()` already exists for the area-label computation.
-
-**What it leaves unfixed.** A checklist whose evidence genuinely predates the
-range head still passes if the intervening commits are tracker-only, so the
-relaxation trades a provably-stale check for a narrower one. It also does not
-help a range whose head is an implementation commit made after the checklist
-was written; that case should still refuse.
