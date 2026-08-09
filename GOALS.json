@@ -1052,6 +1052,45 @@
         "screens": 25,
         "rng": 113
       }
+    },
+    {
+      "id": "reachable-refusal-escapes",
+      "status": "open",
+      "boundary": "every refusal on a path a development session or a fresh recording can reach converts at the seam that owns it, so a stop ends its segment and keeps the matching prefix instead of escaping runSegment() and discarding it: UnsupportedSearchError converts at the turn-loop seam as it already does at the command seam, and each further reachable escape the survey named is either converted or shown unreachable by a derivation recorded beside it",
+      "upstreamOwners": [
+        "js/allmain.js elapsedTurnPlanningRefusals()",
+        "js/detect.js UnsupportedSearchError",
+        "js/dungeon.js surface()",
+        "js/mktrap.js web spider arm",
+        "js/mklev.js des-file interpreter arms"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "Directed by the user rather than ranked, so the capped look-ahead does not apply and the forecast is not a step count. .agents/selection.md ranks boundary ports on development look-ahead; this goal is scheduled against that rule on the user's instruction, given the measured costs below.\n\nWhat the class has cost, measured rather than argued. In trap-activation a plain Error from mkcorpstat() gave seed0015 0 of 44 screens where it already had 28, because the scorer discards the segment's whole matching prefix rather than the branch that stopped. In drop-command's first slice, converting two js/sounds.js throws to a named class took node scripts/scan-sessions.mjs from exit 1 with no census to exit 0 with 227 lines, restoring the instrument five consecutive goal selections had worked around with a loader shim, and added 113 random-number values and 1 cursor on seed0030 whose error field became null.\n\nWhat it has not cost. The holdout movement at d496c13, 195 to 207 screens, was attributed by an authorized run at 74c622c and came from do.c dodrop(), not from the dosounds fix. That commit's note and the orchestrator's reading were wrong and are corrected at 9d26680. This goal therefore carries no holdout expectation.\n\nThe survey behind it counted 316 plain `throw new Error(` sites in js/, most of them internal assertions. One reachable escape is verified by hand: UnsupportedSearchError is listed in js/cmd.js:974's failClosedCommandRefusals() and absent from js/allmain.js's elapsedTurnPlanningRefusals(), while js/allmain.js:679 calls automatic_search() outside any converting try, so a hero with intrinsic searching -- a Ranger from experience level 1 -- reaches it every turn. Five more are named and unverified: js/dungeon.js:1249 surface(), reached by \":\" and by pickup where js/hack.js:895 converts only the movement route; js/detect.js:262, per-turn, in a file that already has a named class it does not use; js/mktrap.js:511's web spider; and four des-file interpreter arms at js/mklev.js:667, :808, :831 and :940.\n\nExpect no development screens. Every session currently stops on a named boundary, so a conversion can only matter where a session would otherwise abort, and none does today. Report any movement rather than assuming zero: the dosounds conversion added 113 values without adding a screen, and that shape can recur.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "### Refusals that discard what the port already earned\n\nA refusal that escapes `runSegment()` does not cost the branch it stops; it\ncosts **every matching screen before it**. That is measured twice:\n`seed0015` scored 0 of 44 where it already had 28, and five consecutive goal\nselections ran under a loader shim because two throws killed the census.\n\n**Slice 1, verified by hand.** `UnsupportedSearchError` is listed in\n`js/cmd.js:974`'s `failClosedCommandRefusals()` and absent from\n`js/allmain.js`'s `elapsedTurnPlanningRefusals()`, while `js/allmain.js:679`\ncalls `automatic_search({ state, random })` outside any converting `try`. A\nRanger has intrinsic searching from experience level 1, so this fires every\nturn for that role. Same defect as `dosounds`, one seam up, with a *named*\nclass — which is why grepping for `throw new Error(` would not have found it.\n\n**Slice 2, five named and unverified.** `js/dungeon.js:1249 surface()`, reached\nby `:` and by pickup, where `js/hack.js:895` converts only the movement route;\n`js/detect.js:262`, per-turn, in a file that already has a named class it does\nnot use; `js/mktrap.js:511`'s web spider; and four des-file interpreter arms at\n`js/mklev.js:667`, `:808`, `:831`, `:940`. **Each must be verified before it is\nconverted** — this repository has had nineteen \"X is unreachable\" claims come\nout wrong in eight days, and the survey that produced this list was delegated,\nnot checked.\n\nAn escape shown genuinely unreachable needs a derivation recorded beside it, not\na conversion. Converting an unreachable path adds a refusal class nothing can\nraise, which is the mirror of the problem.\n\n**Why this is not ranked.** `.agents/selection.md` ranks boundary ports on\ncapped development look-ahead, and this goal forecasts no steps. It is scheduled\non the user's instruction against that rule, on the two measured costs above.\nThe third cost I offered — twelve holdout screens — turned out not to belong to\nthis class at all: an authorized attribution run at `74c622c` showed the\nmovement came from `do.c dodrop()`. That correction is at `9d26680`, and this\ngoal carries no holdout expectation.\n\n**What the fix is not.** `js/` holds 316 plain `throw new Error(` sites. Most\nare internal assertions on paths no session reaches, and converting them\nwholesale would be speculative work of exactly the kind `AGENTS.md` defers. The\nboundary is *reachable* escapes, and reachability is the thing to establish\nfirst.\n",
+      "slices": [
+        {
+          "name": "the search refusal converts at the turn-loop seam",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "the five surveyed escapes are converted or shown unreachable",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "51a6f84a2fa687fddfc98a7be27f39fff497b7ff",
+      "openStanding": {
+        "sha": "afd1984",
+        "screens": 1228,
+        "rng": 117887
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

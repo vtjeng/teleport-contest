@@ -232,3 +232,5 @@ utc	event	phase	goal	detail
 2026-08-08T23:32:18.131Z	end	select	drop-command	
 2026-08-08T23:32:18.168Z	start	implement	drop-command	
 2026-08-09T01:14:53.651Z	end	implement	drop-command	
+2026-08-09T05:36:20.926Z	end	select	reachable-refusal-escapes	
+2026-08-09T05:36:20.959Z	start	implement	reachable-refusal-escapes	
