@@ -1074,8 +1074,8 @@
       "slices": [
         {
           "name": "the search refusal converts at the turn-loop seam",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "2b0834e13825923e1132c2cd0cad96ef57137160"
         },
         {
           "name": "the five surveyed escapes are converted or shown unreachable",
