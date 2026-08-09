@@ -80,6 +80,18 @@ export function checkpointCommands(focusedTests = [], {
         command: 'npm',
         args: ['run', 'check:namespace-members'],
     });
+    // Informational: a name defined twice is sometimes a module-private helper
+    // that genuinely differs from its namesake, and only a reader who knows the
+    // C function can tell that from a divergent duplicate port. The listing
+    // stays in the check's own output; only its count rides the summary.
+    commands.push({
+        label: 'duplicate symbols (check:duplicate-symbols)',
+        command: 'npm',
+        args: ['run', 'check:duplicate-symbols'],
+        capture: true,
+        informational: true,
+        summarize: summarizeDuplicateSymbols,
+    });
     // Informational: .agents/review.md's 10-commit/1,000-line gate stops
     // implementation, and this line puts its state in the one output every
     // agent already reads, so passing DUE cannot happen by omission.
@@ -191,6 +203,20 @@ export function summarizeReviewGate({ stdout = '', status }) {
         detail: [review ?? 'no review line in quality output', unassigned]
             .filter(Boolean).join('; '),
     };
+}
+
+/**
+ * Read the duplicate-symbol index for the checkpoint.
+ *
+ * The detail is the index's own summary line, and the listing is deliberately
+ * left off the checkpoint's output: 282 keys at the time of writing would bury
+ * the checks around it, and the count is what tells a reader whether their own
+ * commit added one.
+ */
+export function summarizeDuplicateSymbols({ stdout = '' }) {
+    const summary = stdout.split('\n').find(
+        (line) => line.startsWith('indexed '));
+    return { detail: summary ?? 'no summary line in the duplicate-symbol index' };
 }
 
 /**

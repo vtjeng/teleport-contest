@@ -7,6 +7,7 @@ import {
     parseCheckpointArgs,
     runCheckpointChecks,
     summarizeDevelopmentScore,
+    summarizeDuplicateSymbols,
     summarizeMutation,
     summarizeReviewGate,
 } from './checkpoint-checks.mjs';
@@ -46,6 +47,37 @@ test('the checkpoint surfaces the review gate without gating on it', () => {
     );
 });
 
+test('the checkpoint reports duplicate symbols without gating on them', () => {
+    const index = checkpointCommands([]).find(
+        (entry) => entry.label.startsWith('duplicate symbols'));
+    // Informational: a second definition is sometimes a module-private helper
+    // that genuinely differs, so a duplicate must not fail a checkpoint.
+    assert.equal(index.informational, true);
+    assert.deepEqual(index.args, ['run', 'check:duplicate-symbols']);
+    // The detail is the index's own summary line. The listing stays out of the
+    // checkpoint: 282 keys would bury every check around it.
+    const summary = summarizeDuplicateSymbols({
+        stdout: 'isweptool: js/mondata.js:219 is_weptool (function), '
+            + 'js/obj.js:44 isWeptool (function)\n'
+            + 'indexed 7197 top-level definition(s) in 144 file(s); '
+            + 'duplicate symbols: 282 (98 defined only as functions '
+            + 'or classes)\n',
+    });
+    assert.equal(
+        summary.detail,
+        'indexed 7197 top-level definition(s) in 144 file(s); '
+            + 'duplicate symbols: 282 (98 defined only as functions '
+            + 'or classes)',
+    );
+    assert.equal(summary.body, undefined);
+    // An index that printed no summary line says so rather than reporting a
+    // blank detail, which would read as a clean run.
+    assert.match(
+        summarizeDuplicateSymbols({ stdout: '' }).detail,
+        /no summary line/u,
+    );
+});
+
 test('checkpoint runs focused, full, mutants, generated, static, and score',
     () => {
         const commands = checkpointCommands([
@@ -67,6 +99,7 @@ test('checkpoint runs focused, full, mutants, generated, static, and score',
                 'generated data (check:symbols)',
                 'generated data (check:themerooms)',
                 'static sources (check:namespace-members)',
+                'duplicate symbols (check:duplicate-symbols)',
                 'review gate',
                 'development score',
             ],
