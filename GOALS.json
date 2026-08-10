@@ -1232,8 +1232,8 @@
         },
         {
           "name": "narrow the dig-tool guard to dig_typ's answer",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "8bd2f6b655628f334bd6d99e2611d572b0c176df"
         },
         {
           "name": "converge stop_occupation onto one owner and wire it",
