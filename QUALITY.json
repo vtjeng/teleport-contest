@@ -9326,6 +9326,105 @@
         }
       },
       "recordedAt": "2026-08-10T07:48:33.678Z"
+    },
+    {
+      "kind": "review",
+      "head": "6b87d14d284275e4c39c9f02858dfbafc4c5754b",
+      "auditedRange": "c975ad3f1e1ca3d59ecb9bc9c17c96ed4a6255d5..6b87d14d284275e4c39c9f02858dfbafc4c5754b",
+      "level": "full",
+      "areas": [
+        "commands",
+        "monsters",
+        "hero",
+        "world-effects",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 13 raw, 13 deduplicated, 9 confirmed, 8 applied, 1 deferred, 4 rejected, 0 unverified; mutation: 0 survivors of 0 mutants. Full correctness pass over the commands deferral sweep: five ledger entries, four of which changed production code. Four mandatory finders; neither optional finder was triggered, since the range adds no hot-path cost and no overlapping-lifecycle work. No production defect was found, which for a sweep is the expected result and is consistent with a range mutation run that produced no mutants at all. That empty run is the pass's most useful methodological result: the changed lines hold almost no relational, logical or boolean sites -- a bare return false, an assignment and a call, a straight-line body -- so the zero carries no evidence either way rather than evidence of coverage, and the three gaps it could not see were all found by reading. The one production change hardens an implicit contract whose two failure modes run in opposite directions: stop_occupation() took an optional env while env.message was mandatory on its common arm, where a missing operation is a bare TypeError that js/jsmain.js does not convert, so the segment is discarded rather than ended; on the sibling arm the same omission silently falls through to the live terminal writer during a planning clone. Five of the nine confirmed findings were comments the range itself falsified, which is now the third consecutive pass to find that pattern and the strongest recurring signal in this ledger. Tests led or tied for the ninth consecutive pass. One finding is deferred with its test shape and required mutation recorded.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2686,
+        "counts": {
+          "raw": 13,
+          "deduplicated": 13,
+          "confirmed": 9,
+          "applied": 8,
+          "deferred": 1,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 3,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/allmain.js stop_occupation() took `env = {}` while env.message is mandatory on its common arm, and the header described env only as something maybe_finished_meal() forwards to eatfood(), never as an operation this function calls itself. The two ways of getting it wrong fail in opposite directions, which is why the implicit contract was worth hardening rather than documenting: on the printing arm a missing message is a bare TypeError, and js/jsmain.js breaks the segment only for the named boundary classes, so the whole segment is discarded rather than ended on its last matching screen; on the finished-meal arm the same omission is not fatal at all, because js/eat.js eatOperations() defaults `message = ttyPline`, so a planning-mode caller that forgot it would write to the live terminal during a dry run. Reproduced by execution: calling stop_occupation with an installed occupation and `{ statusRefresh }` alone throws `TypeError: env.message is not a function`, and that shape is not hypothetical -- js/allmain.js invokes the occupation callback with exactly `{ statusRefresh }` twenty lines above the new call site. The range multiplied the caller count from one unexported helper to three exported call sites, and C has roughly fifteen further stop_occupation() sites unported, so new callers are expected. Fixed by resolving message through a requireOccupationOperation() helper matching the requireEatOperation/requireAttackOperation/requireDochugwOperation idiom the same file family already uses, and by rewriting the header to say message is required whenever an occupation is installed.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "A finding that js/hack.js's rewritten comment says the fight prefix swings at the pet while the code four lines later routes that pet through a helper named requireOrdinaryHostileMelee, so the name contradicts the prose.",
+            "counterEvidence": "The adjudicator found the naming consistent with C rather than contradictory: uhitm.c:462 splits do_attack() on `is_safemon(mtmp) && !svc.context.forcefight`, and the port's helper covers exactly the arm C reaches when that test fails, which is the ordinary attack arm whether the target is hostile or a pet under the prefix. Renaming it would make the port's name diverge from the C branch it stands for. The comment was separately confirmed as incomplete for a different reason -- it dropped the note that the path is bounded -- and that half was applied. Do not reopen on the name alone without showing the helper covers a branch C does not."
+          },
+          {
+            "summary": "A finding that the new `import { stop_occupation } from './allmain.js'` closes an allmain to unported_monster_actions cycle and the comment certifies only one direction of it.",
+            "counterEvidence": "The adjudicator found the cycle pre-existing and harmless under ES modules: the two files already imported from each other before this range, the import is used only inside a closure invoked long after both module bodies have evaluated, and no top-level initialization reads across the cycle. Do not reopen without a load-order case that actually observes a partially initialized binding."
+          },
+          {
+            "summary": "A finding that the dochugw stopOccupation hook discards occupationEnv.random, so randomness drawn by the finish-meal path it newly enables would come from the live ISAAC stream rather than the clone's.",
+            "counterEvidence": "The adjudicator traced the finish-meal path and found it draws no randomness: maybe_finished_meal() reaches eatfood() and done_eating(), and every arm the port reaches on that route is deterministic. The concern is real in shape but has no reachable instance today. Do not reopen without naming a call on that path that consumes a random number."
+          },
+          {
+            "summary": "A finding that the interruption matrix reaches maybe_finished_meal(TRUE) only through moveloop_core(), so the dochugw route -- the only one that runs against the planning clone -- is uncovered for the finished-meal case.",
+            "counterEvidence": "The adjudicator confirmed the coverage description but rejected the framing: the matrix does cover the dochugw route for the ordinary interruption, and the finished-meal-through-dochugw combination is a narrower gap than the finding claims, already implied by the separately confirmed and deferred dochugw-planning-display-suppression-unpinned entry. Reporting it twice would double-count one gap. Do not reopen separately from that deferral."
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "dochugw-planning-display-suppression-unpinned",
+            "category": "tests",
+            "trackedIn": "dochugw-planning-display-suppression-unpinned",
+            "summary": "The dochugw stop_occupation seam in js/unported_monster_actions.js hands stop_occupation() a silent message and a no-op statusRefresh when env.planning is set, and the live ttyPline/bot() pair otherwise, but nothing pins that choice: removing the planning arm and always passing the live pair leaves the full suite green and the four-segment interruption matrix byte-identical, because a planning pass that writes to the live terminal still produces the same recorded screens when the live pass writes the same line afterwards -- the corruption is a duplicate write, not a different one. Deferred rather than applied because a test needs a monster, an installed occupation and a state satisfying assertSimpleActionState(), which is more scaffolding than an audit fix should carry."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "c975ad3f1e1ca3d59ecb9bc9c17c96ed4a6255d5..896e50e988043100f1489d6d7f0e0a8420209fa4",
+            "uncommitted audit-fix diff at 6b87d14"
+          ],
+          "mutants": 0,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 0,
+              "killed": 0
+            },
+            "logical": {
+              "ran": 0,
+              "killed": 0
+            },
+            "relational": {
+              "ran": 0,
+              "killed": 0
+            }
+          },
+          "deltaRun": "0 mutants over the audit-fix diff; the production change adds a guard clause and the rest is comments and tests",
+          "finderConclusion": "The range mutation run produced no mutants at all, and the pass was told to treat that as grounds for suspicion rather than comfort. The tests finder confirmed the reading: the range's changed production lines hold almost no relational, logical or boolean sites -- attack_checks()'s force-fight arm is a bare `return false`, the off-edge arm is an assignment and a call, and stop_occupation()'s body is straight-line -- so the empty result carries no evidence either way rather than evidence of coverage. Judging those lines by reading instead found the three gaps the run could not: the printing arm's nomul(0) had no oracle at all, since deleting the statement left the whole suite green while every segment reaching it already has multi 0 and the fields already clear; the planning-mode display suppression was unobservable through the recorded matrix; and the two matrix rows named for an axe never checked that an axe was wielded, so substituting the Valkyrie's long sword for the Barbarian's battle-axe passed. All three are now closed or tracked, and the two applied ones were each watched failing on the exact substitution named."
+        },
+        "readiness": {
+          "boundary": "A deferred-area sweep has no single user-visible boundary; each slice's is its ledger entry's. The four that changed production code: `F` aimed at a monster the hero can spot, from the keystroke to the swing; `F` aimed off the edge of the map, from the keystroke to \"You harmlessly attack an unknown obstacle.\" and the spent turn; a force-fight by a hero wielding an axe, from the keystroke to the swing where the port previously refused; and an occupation interrupted by a monster, from the interrupting turn to \"You stop eating the food ration.\" The real game executes all four: scripts/run-force-fight.mjs replays 18 recorded C segments over 46,285 PRNG calls and 86 screens, and scripts/run-eat-occupation.mjs covers the interruption live and against the planning clone at seed 3101719.",
+          "sourceReview": "Every branch and helper reachable before those endings was traced against nethack-c/upstream/: uhitm.c attack_checks() (201-214) and do_attack() (462, 577-580); hack.c move_out_of_bounds() (2584-2612) and domove_fight_empty() (2227-2338); dig.c dig_typ() (167-192) whole; allmain.c stop_occupation() (683-696) and moveloop_core() (505-508); eat.c maybe_finished_meal() (3876-3889) and reset_eat() (308-319). The trace covered state, PRNG order and the points where the game waits for input. It found no behavioral divergence and five comments the range had falsified, all corrected. One port-scoped claim was checked rather than accepted: that do_attack()'s atk_done tail cannot be reached because canspotmon() cannot flip true to false during the blow. The claim survived, but its stated reason was wrong in one term -- C negates the glyph read, so a constantly-false glyph makes that conjunct constantly true and it blocks nothing; what keeps the tail out of reach is the spot check attack_checks() now performs together with !DEADMONSTER(mtmp).",
+          "completeness": "No known unsupported behavior remains inside the four boundaries. Every reachable excluded branch stops before changing state, consuming randomness or producing output, which the pass checked explicitly because two earlier passes in this repository each found a refusal that fired late. Excluded and verified fail-closed: dig_typ()'s statue and boulder arms, unreachable because js/hack.js refuses a square holding either object above the call with a wider test than C's; the boulder/statue message arm, which needs ansimpleoname(); Underwater; Upolyd with AT_EXPL; domove_fight_ironbars() and domove_fight_web(); bite()'s do_reset_eat() refusal, which is where reset_eat()'s consequence stops one boundary out; and teleport.c rloc_to_core()'s tail, the one stop_occupation() caller still refused. Two gaps are recorded rather than closed: a landed force-fight blow on a pet stops inside hmon_hitmon_pet() after the pet's hit points have gone negative, which is noted in the seam comment and untested end to end, and js/dogmove.js dog_hunger()'s injected operations have no production supplier, which is tracked separately as a fail-open."
+        }
+      },
+      "recordedAt": "2026-08-10T12:03:49.882Z"
     }
   ]
 }
