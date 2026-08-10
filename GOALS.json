@@ -1204,7 +1204,7 @@
     },
     {
       "id": "commands-deferral-sweep-3",
-      "status": "open",
+      "status": "closed",
       "boundary": "Resolve the commands area's open non-scope deferrals, which npm run quality names as a sweep candidate at eleven, before the next fail-closed boundary port opens. Read all sixteen entries and close every one the reading shows to be small, taking the area below the ten-entry threshold.",
       "upstreamOwners": [
         "src/uhitm.c",
@@ -1252,8 +1252,11 @@
         "screens": 1294,
         "rng": 118144
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "15f7f2bb9c3c9dc0fe0fe19724d45a32fadedfcd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
