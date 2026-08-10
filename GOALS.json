@@ -1222,8 +1222,8 @@
       "slices": [
         {
           "name": "force-fight at a monster",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9962e47775d47cea004ecc838bb62e1c6556ba8d"
         },
         {
           "name": "force-fight off the map edge",
