@@ -1202,13 +1202,23 @@ export function readobjnam_postparse3(d, env) {
 
     // C compares d->dn and d->origbp with d->actualn by pointer, because all
     // three point into the one wish buffer; this port holds them as separate
-    // strings and compares text.  The two agree on every wish.  Equal pointers
-    // always carry equal text.  Distinct pointers can carry equal text --
-    // "potion labeled potion" leaves dn and actualn reading the same -- and
-    // there C makes a lookup this port skips.  That lookup repeats the one
-    // d.actualn just made and lost, and rnd_otyp_by_namedesc() answers
-    // STRANGE_OBJECT without drawing when nothing matches, so the repeat
-    // cannot match, cannot draw and cannot be seen.
+    // strings and compares text.  The general argument, which does not rest on
+    // any one example: a lookup the port skips repeats one d.actualn just made
+    // with the same string and the same oclass, and rnd_otyp_by_namedesc()
+    // answers STRANGE_OBJECT without drawing when nothing matches, so the
+    // repeat cannot match, cannot draw and cannot be seen.
+    //
+    // Both directions of the deviation are safe for that reason, and both
+    // occur.  Distinct pointers can carry equal text, where C makes a lookup
+    // the port skips: "cap labeled cap" leaves dn and actualn reading the
+    // same.  A leading class word does not produce that case, because
+    // readobjnam_postparse1()'s prefix arm consumes it, returns 1 and leaves
+    // d.actualn null, so postparse2's tail never equalises the two.  In the
+    // other direction the ARMOR_CLASS arm below appends " mail" to d.bp while
+    // d.dn keeps the pre-append snapshot, so on the retry the port's dn and
+    // actualn compare unequal where C's pointers compare equal, and the port
+    // runs a lookup C skips -- with the same string pass one already passed
+    // and the same answer.
     if (((d.typ = rnd_otyp_by_namedesc(d.actualn, d.oclass, 1, env))
          !== STRANGE_OBJECT)
         || (d.dn !== d.actualn
@@ -1517,12 +1527,16 @@ export function readobjnam(bp, no_wish, env = {}) {
         action = 0;
     }
     if (action === 0) {
-        // objnam.c:4959-4986: a name nothing matched falls past the end of
-        // readobjnam_postparse3() into wiztrap:, where a wizard's line is
-        // offered to wizterrainwish(), then to the "polearm" and "hammer"
-        // skill picks, and finally answers a null pointer that makewish()
-        // reports with "Nothing fitting that description exists in the game."
-        // and retries.  None of those is ported.
+        // Two C outcomes share this stop, and the deferral that records it
+        // names both.  With no class word, objnam.c:4959-4986 falls past the
+        // end of readobjnam_postparse3() into wiztrap:, where a wizard's line
+        // is offered to wizterrainwish(), then to the "polearm" and "hammer"
+        // skill picks, and finally answers the null pointer at 4992-4993 that
+        // makewish() reports with "Nothing fitting that description exists in
+        // the game." and retries.  With a class word set and no type matched,
+        // C instead falls past `any:` into typfnd: with d.typ 0, where
+        // objnam.c:5037 calls mkobj(d.oclass, FALSE) and grants a random
+        // object of that class.  None of those is ported.
         throw new UnsupportedWishError('a wish no lookup resolves', origbp(d));
     }
     if (action !== 2) {

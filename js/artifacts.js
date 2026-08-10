@@ -563,8 +563,15 @@ function artifactBaneApplies(artifact, monster, yours, state) {
 // refused below, so the flag would never leave its initial FALSE and no field
 // carries it.
 //
-// Two arms stop this port, both of them a hero's. Nothing before either draws
-// or writes, so a refused touch leaves the game where it found it.
+// Two arms stop this port, both of them a hero's, and they differ in what the
+// stop costs. The self-willed route and the evade arm reach their stop before
+// any draw. The badalign-only route does not: its guard is
+// `badalign && (!yours || !rn2(4))`, so artifact.c:945's rn2(4) is spent
+// inside the branch condition and necessarily precedes the throw. C spends it
+// too, so that refusal leaves the random-number log matching C rather than
+// untouched -- which is the property that matters, and is not the same as
+// leaving the game where it found it. The detailed statement is at the guard
+// itself; do not restate a stronger claim here.
 export function touch_artifact(obj, monster, env = game) {
     const state = artifactTables(env);
     const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
@@ -766,22 +773,28 @@ export function set_artifact_intrinsic(otmp, on, wp_mask, state = game) {
         );
     }
 
+    /* intrinsics from the spfx field; there could be more than one */
+    // Read and refuse before the cary mask below, which is where C writes it.
+    // C completes both; the port stops on this group, so leaving the write in
+    // C's place would mean refusing after the hero's extrinsics had already
+    // moved -- a stop that has changed state, which ends the segment on a
+    // screen the port has diverged from. The remaining order is C's.
+    // 787-797 calls make_hallucinated(); 798-805 recalc_telepat_range() and
+    // see_monsters(); 824-840 see_monsters() and the svc.context.warntype.obj
+    // record; 859-866 the vision recalculation.
+    const spfx = oart.cspfx;
+    if (spfx & (SPFX_HALRES | SPFX_ESP | SPFX_WARN | SPFX_XRAY)) {
+        throw new UnsupportedArtifactDisplayError(
+            'a carried artifact that changes what the hero sees',
+        );
+    }
+
     /* effects from the defn field */
     const dtyp = oart.cary.adtyp;
     const property = ARTIFACT_RESISTANCE_PROPERTY.get(dtyp);
     if (property !== undefined)
         extrinsicMask(normalized, property, wp_mask);
 
-    /* intrinsics from the spfx field; there could be more than one */
-    const spfx = oart.cspfx;
-    if (spfx & (SPFX_HALRES | SPFX_ESP | SPFX_WARN | SPFX_XRAY)) {
-        // 787-804 calls make_hallucinated(), 797-804 recalc_telepat_range()
-        // and see_monsters(), 823-839 see_monsters() and the warntype record,
-        // and 859-866 the vision recalculation.
-        throw new UnsupportedArtifactDisplayError(
-            'a carried artifact that changes what the hero sees',
-        );
-    }
     for (const [bit, prop] of ARTIFACT_SPFX_PROPERTY) {
         if (spfx & bit) extrinsicMask(normalized, prop, wp_mask);
     }
