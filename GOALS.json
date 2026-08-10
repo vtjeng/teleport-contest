@@ -1201,6 +1201,59 @@
         "screens": 40,
         "rng": 204
       }
+    },
+    {
+      "id": "commands-deferral-sweep-3",
+      "status": "open",
+      "boundary": "Resolve the commands area's open non-scope deferrals, which npm run quality names as a sweep candidate at eleven, before the next fail-closed boundary port opens. Read all sixteen entries and close every one the reading shows to be small, taking the area below the ten-entry threshold.",
+      "upstreamOwners": [
+        "src/uhitm.c",
+        "src/hack.c",
+        "src/dig.c",
+        "src/allmain.c"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "A sweep ports no new boundary, so it moves no development session by construction. None of the eleven entries' refusal classes appears in any of the 33 sessions' first stops: the boundary census at b880cd7 lists 20 boundaries and none is force-fight, occupation interruption, dig-tool guard, earth sense or the door message switch. The three sweeps before it -- monsters-deferral-sweep at 8c80cca, commands-deferral-sweep-2 at 60293dc and objects-deferral-sweep -- each forecast 0, delivered 0, and held the holdout. The value is the reading: selection.md requires every entry read before the goal opens and every small one closed even after the count falls below ten, because the reading costs more than the closing. The two prior sweeps each found about a third of their records wrong; this one has already found one, the stale stop_occupation() entry recorded in the detail. A small non-zero development delta would not be alarming, because the force-fight and dig-guard entries do add capability the port wholly lacks; a large one would mean something other than cleanup happened.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "All sixteen commands entries were read before the goal opened, as the sweep rule requires: eleven counted and five scope.\n\nFive the reading says will close.\n\nforce-fight-at-a-monster. uhitm.c:203-215's arm body is entirely commented out; it is `if (svc.context.forcefight) return FALSE;`. js/uhitm.js:205 refuses instead. It sits above the !canspotmon arm at 229, which is what makes F useful at all. The caller tail at uhitm.c:576-580 needs map_invisible(), but it is gated on !canspotmon(mtmp), so a spotted target never reaches it; that bounds the slice.\n\nforce-fight-off-map-edge. hack.c move_out_of_bounds() (2585-2610) hands the step to domove_fight_empty(), whose off-edge arm at 2249-2252 copies unknown_obstacle into buf and jumps to futile. Also needs directionname(xytodir()) for the shared flags.mention_walls line.\n\ndig-tool-guard-refuses-where-dig_typ-answers-undiggable. js/hack.js refuses on is_pick(uwep) || is_axe(uwep), which is only dig_typ()'s first test (dig.c:173). dig.c:176-191 answers DIGTYP_UNDIGGABLE for an axe at any wall and for a pick on ROOM/CORR, where C swings and spends the turn. Needs a fresh recording of an axe swing at a wall.\n\nparsed-retry-forcefight-restore-untested. A test, not a port.\n\nstop_occupation() refuses where C prints the stop. The entry is out of date, and this correction is itself a deliverable of the sweep. It says \"the port refuses instead\". A working translation of allmain.c stop_occupation()'s occupied arm, maybe_finished_meal(TRUE) rerun of eatfood() included, already exists at js/allmain.js:314-336 and is wired into makemon()'s runtime-creation tail at js/allmain.js:356-357. The two refused boundaries inject stopOccupation from js/unported_monster_actions.js:864 and throw at js/allmain.js:1048. The work is converging that helper onto a properly named stop_occupation() and wiring it, not writing the body. The dry-run clone at js/allmain.js:830 remains the hard part.\n\nSix the reading says survive, each with its named blocker.\n\nthree arms of the door message switch are dormant: waits on doopen(). Verified unported -- grep over js/ finds only doopen_indir in js/lock.js, and js/extcmdlist_data.js:90 is the data row, not a port.\nearth_sense()'s notice is refused rather than printed: waits on making level creation async, plus a dwarf case no search has found.\npick-lock-d-broken-arm-dormant: waits on the picklock() occupation, dokick(), or a door-breaking path.\nwalltalk-clamp-unpinned-until-hallucination: waits on a make_hallucinated() writer.\nthe two-meal segment never reaches its second meal: waits on a fresh recording below SATIATED.\nadjabil()'s already-held suppression test has no reachable case: waits on #wizintrinsic, or closes by recording that the branch stays uncovered.\n\nClosing the five takes the area from eleven to six. Three of the eleven came from force-fight-command, which argues for taking them now rather than against it: two carry fully specified recorded cases, and scripts/run-force-fight.mjs and scripts/force-fight.test.mjs are current.",
+      "slices": [
+        {
+          "name": "force-fight at a monster",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "force-fight off the map edge",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "narrow the dig-tool guard to dig_typ's answer",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "converge stop_occupation onto one owner and wire it",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "pin the parsed retry that restores the fight prefix",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "b880cd755d73d636ceabc69bb962297da5ed8f55",
+      "openStanding": {
+        "sha": "a08817c",
+        "screens": 1294,
+        "rng": 118144
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
