@@ -1094,6 +1094,54 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "pickup-command",
+      "status": "open",
+      "boundary": "The , command (hack.c dopickup()) for a square holding at most one takeable object: pickup_checks() in full, and pickup(0)'s flags.menu_style != MENU_TRADITIONAL arm where query_objlist() returns through one of its two early arms, the n == 0 return at pickup.c:1069 and the n == 1 && (qflags & AUTOSELECT_SINGLE) shortcut at pickup.c:1072-1077, before sortloot() and before any menu window. A second allowed object on the square reaches sortloot() and the menu and stays refused; so do the swallowed, MENU_TRADITIONAL, and counted-pickup (what < 0) paths.",
+      "upstreamOwners": [
+        "src/hack.c",
+        "src/pickup.c"
+      ],
+      "forecast": {
+        "steps": 8,
+        "basis": "Capped look-ahead over the three sessions the refused-command census shows stopped on , (3 + 3 + 2 = 8 recorded steps). Raw unlocks is 51 over 4 sessions; seed0006's 22 are excluded because it stops earlier, at step 50, on doset_simple_menu(). Each cap was set by grepping the port for the next behavior rather than by reading message text: the two seed0013 sessions run steps 22-24 and cap at step 25, where C drops the wielded +0 short sword and js/do.js:671 refuses state.uwep === obj; seed0200 runs steps 22-23 and caps at step 24, where C eats the goblin corpse and js/eat.js refuses both eatcorpse() and violated_vegetarian().",
+        "sessions": [
+          "seed0013-friday13-save-then-fullmoon-restore.session.json",
+          "seed0013-rogue-friday13-combat.session.json",
+          "seed0200-monk-north-search.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0013-friday13-save-then-fullmoon-restore.session.json",
+            "evidence": "seed 13, 20001013090000, Rogue/human/female/chaotic, no symset-independent option affecting pickup. Step 22 is , with gc.command_count == 0, so rhack() calls hack.c dopickup() (3876), which calls pickup_checks() (3788). u.uswallow, is_pool and is_lava are all false; !OBJ_AT(u.ux,u.uy) holds; the hero stands in a gap in the room north wall at screen row 11 with a corridor square directly north, so IS_DOOR(lev->typ) is true and (lev->doormask & D_ISOPEN) is false. Every arm of the terrain switch therefore falls through to There(\"is nothing here to pick up.\"), return 0, ECMD_OK, no time. Step 23 repeats the same path."
+          },
+          {
+            "session": "seed0013-rogue-friday13-combat.session.json",
+            "evidence": "identical seed, datetime, options and input prefix to the save/restore session; the same doorway square, the same pickup_checks() !OBJ_AT fall-through at steps 22 and 23. It is a second segment shape over one C path, not a second path."
+          },
+          {
+            "session": "seed0200-monk-north-search.session.json",
+            "evidence": "seed 200, 20000110090000, Monk/human/female/neutral, OPTIONS=!autopickup so flags.pickup is FALSE. Step 21 moves west onto a plain ROOM square holding one goblin corpse; pickup(1) returns at pickup.c:727 via (autopickup && !flags.pickup) into check_here(FALSE), whose singular look_here() prints \"You see here a goblin corpse.\" Step 22 is ,: pickup_checks() returns -1, dopickup() calls pickup(-0) so count == 0, traverse_how gets AUTOSELECT_SINGLE | INVORDER_SORT | FEEL_COCKATRICE, query_objlist() counts n == 1 and returns at pickup.c:1072 before sortloot() and before the FEEL_COCKATRICE loop. pickup_object() then takes the CORPSE arm: u_safe_from_fatal_corpse(obj, st_all) is TRUE on st_petrifies because touch_petrifies(goblin) is false, so fatal_corpse_mistake() returns FALSE and rider_corpse_revival() returns FALSE. lift_object() -> carry_count() -> pick_obj() -> pickup_prinv() prints \"k - a goblin corpse.\"; check_here() is not reached because autopickup is false."
+          }
+        ]
+      },
+      "detail": "Upstream owners. nethack-c/upstream/src/hack.c: pickup_checks() (3788-3871) and dopickup() (3876-3891). nethack-c/upstream/src/pickup.c: pickup()'s interactive arm (672-910), query_objlist()'s counting loop and two early returns (1049-1077), all_but_uchain() (509-516), pickup_object() (1803-1896), u_safe_from_fatal_corpse() (273-284), fatal_corpse_mistake() (285-302), rider_corpse_revival() (303-316), lift_object() (1705-1802), pick_obj() (1897-1947), pickup_prinv() (1948-1977). nethack-c/upstream/src/cmd.c:1800 carries the ,/\"pickup\" row with CMD_M_PREFIX. About 300 lines of C, roughly half already represented in JavaScript, much of the remainder single-line pline() arms.\n\nWhat stops the port today. js/cmd.js:764 ADMITTED_COMMANDS has no 'pickup', so , raises the repeated-command boundary; that one omission is why 3 sessions stop and 8 of 33 steps need the command later. There is no dopickup case in the extended-command switch (js/cmd.js:1443-1487) and no command === 'pickup' arm in rhack. pickup_checks() is wholly unported: grepping js/ for \"There is nothing here to pick up\", \"It won't come off the hinges\" and \"Pick up what?\" returns nothing. js/pickup.js:423 pickup(what) covers only what > 0; past its autopickup guards it goes straight into planAutomaticFloorPickupAndRefreshCapacityCache(), the autopick() plan, with no count/menu_style branch and no query_objlist().\n\nHelpers already ported, so the goal reuses rather than rebuilds them. js/pickup.js holds reset_justpicked(), observe_pickup_object() (the sight-gated observe_object() in pickup_object()), check_here(), describe_decor(), and the encumbrance-prefix loop standing for pickup_prinv()'s nearload argument. js/invent.js holds preflight_addinv_sequence()/addinv_runtime()/prinv(), which together stand for lift_object() + pick_obj() + pickup_prinv(). The interactive arm must route through the same pair rather than add a second lift path, since gp.pickup_encumbrance and the 52-slot projection already live there.\n\nTraced findings that shape the work. planAutomaticFloorPickupAndRefreshCapacityCache() currently throws UnsupportedPickupError('pickup() special artifact, corpse, or scare scroll') for any CORPSE; seed0200 picks up a goblin corpse, so the corpse arm of pickup_object() (u_safe_from_fatal_corpse(), fatal_corpse_mistake(), rider_corpse_revival()) lands inside this goal. FEEL_COCKATRICE is passed in traverse_how for count == 0, but the n == 1 shortcut returns before the loop that reads it, so the cockatrice-feel path is unreachable within this boundary and belongs with the menu. A counted , cannot be reached: dopickup() reads gc.command_count and the port's admission boundary refuses every counted command, so pickup(-count) is always pickup(0). m, is reachable (reqmenu is already admitted) but iflags.menu_requested only ORs into the same menu_style test, so it still reaches the n == 1 shortcut; that is a comment, not a branch. pickup_checks()'s seven furniture messages (throne, sink, grave, fountain, open door, altar, stairs) are one pline() each with no state change, and a D:1 hero can stand on a fountain or stairs and press ,.",
+      "slices": [
+        {
+          "name": "pickup on a square with nothing to take",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "2d9835b1e6de707104168f542d42563c2e0e0245",
+      "openStanding": {
+        "sha": "8a10827",
+        "screens": 1228,
+        "rng": 117887
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
