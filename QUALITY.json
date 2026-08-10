@@ -1297,6 +1297,15 @@
       "status": "open",
       "from": "e0ac92ab076f73cbec2f6c8eea20dc8d7b71e99b",
       "detail": "hack.c move_out_of_bounds()'s flags.mention_walls block (2592-2606) prints You(\"have already gone as far %s as possible.\", directionname(xytodir(dx, dy))) for an ordinary step off the map, and at 2595-2603 clamps a diagonal to whichever cardinal direction reached its limit. js/hack.js move_out_of_bounds() refuses 'move out of bounds' instead. cmd.c xytodir() is already ported at js/cmd.js:481; cmd.c directionname() (4312-4323) is not, and is the whole of what is missing. This is the branch beside the force-fight arm closed as force-fight-off-map-edge, which returns at 2589-2590 before ever reaching it. Recorded case, which fails today and must pass when the block lands: seed 8800070, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,!autopickup / time,mention_walls', moves 'hjjj.'. The three walking keys put the hero on the corridor square 15,20, the bottom row of the map, and the fourth 'j' steps south off it. Measured on 10 August 2026: C prints the line and spends no turn, reaching 2528 PRNG calls and 6 screens, while the port stops at that key with 2521 calls and 4 screens."
+    },
+    {
+      "id": "c-citations-in-force-fight-code-read-low",
+      "area": "commands",
+      "category": "clarity",
+      "effort": "slice",
+      "status": "open",
+      "from": "352e51452d8abf6f72ca302f0d0b6a4c8153ea94",
+      "detail": "The C line citations in js/hack.js domove_fight_empty() and throughout scripts/force-fight.test.mjs are wrong against nethack-c/upstream/src/hack.c by up to seventeen lines, and non-uniformly: the Underwater buf arm is cited 2306-2312 and sits at 2289-2297, while the off-edge arm was cited 2249-2252 and sits at 2252-2256. js/uhitm.js attack_checks() and scripts/uhitm-to-hit.test.mjs have the same problem against uhitm.c, off by +2 near the top of the function and by -7 or -8 lower down. No single offset explains any of it. nethack-c/recorder/src/uhitm.c is byte-identical to upstream and no patch under nethack-c/patches/ touches either file, so this is not a patched-tree artifact; the citations were simply written against something else or drifted. Three consecutive slices have reported it and each corrected only the blocks it was already rewriting, which leaves the file mixed: some citations now correct, most still low, and no way for a reader to tell which without checking every one. That is worse than uniformly wrong. Close it by checking every C citation in js/hack.js, js/uhitm.js, scripts/force-fight.test.mjs and scripts/uhitm-to-hit.test.mjs against upstream in one pass and correcting all of them, so the next reader can trust a citation without verifying it. A script that extracts 'file.c:NNNN' citations and reports the ones whose named function does not span that line would make the pass repeatable."
     }
   ],
   "areas": [
