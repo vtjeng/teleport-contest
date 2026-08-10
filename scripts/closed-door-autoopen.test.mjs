@@ -371,6 +371,9 @@ test('every autoopen refusal term is reachable and individually pinned', async (
 // deleting its door term exposed that. The committed rush case reaches the
 // silent arm only, with mention_walls off, so the fail-closed guard and the
 // context.move = 0 beside it were both deletable with the suite green.
+//
+// The force-fight arm is scripts/force-fight.test.mjs's; this file keeps the
+// two arms that leave the hero where he stood.
 test('an off-map step refuses silently, or fails closed when it would speak', async () => {
     const { segments } = loadClosedDoorAutoopenRecipe();
     const base = segments.find(seg => seg.moves[0] === 'h');
@@ -391,24 +394,18 @@ test('an off-map step refuses silently, or fails closed when it would speak', as
     assert.equal(game.multi, 0);
     assert.equal(game.moves, movesBefore);
 
-    // Both arms C would print through instead fail closed, because neither
-    // message is ported.
-    for (const [label, apply] of [
-        ['mention_walls', (st) => { st.flags.mention_walls = true; }],
-        ['forcefight', (st) => { st.context.forcefight = 1; }],
-    ]) {
-        await runSegment({ ...base, moves: '' });
-        game.u.ux = 1;
-        game.flags.mention_walls = false;
-        game.context.forcefight = 0;
-        apply(game);
-        game.nhDisplay.pushKey(walkWest);
-        await assert.rejects(
-            moveloop_core(),
-            (error) => error.reason === 'move out of bounds',
-            label,
-        );
-    }
+    // hack.c:2592-2606, the arm C prints through. It needs cmd.c
+    // directionname(), which is unported, so it fails closed. The step still
+    // spends no turn in C, so the refusal drops a line and nothing else.
+    await runSegment({ ...base, moves: '' });
+    game.u.ux = 1;
+    game.context.forcefight = 0;
+    game.flags.mention_walls = true;
+    game.nhDisplay.pushKey(walkWest);
+    await assert.rejects(
+        moveloop_core(),
+        (error) => error.reason === 'move out of bounds',
+    );
 });
 
 // Replay each prefix of a segment and report where the hero stands, what the

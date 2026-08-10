@@ -32,6 +32,15 @@
 //   alone. DOORWAY_CASE is CLOSED_DOOR_CASE's pair: the same DOOR terrain,
 //   accessible this time because closed_door() is false for a doorway with no
 //   door in it.
+// - OFF_EDGE_CASE and OFF_EDGE_DIAGONAL_CASE walk to the bottom row of the map
+//   and swing past it. That square belongs to no arm above, because
+//   move_out_of_bounds() (2584-2612) claims a force-fight aimed off the map
+//   before domove_core() reaches the terrain at all and hands it straight to
+//   domove_fight_empty(), whose 2252-2256 names "an unknown obstacle" without
+//   reading a square. The pair differs only in whether the step is orthogonal
+//   or diagonal: C tests the destination with isok() alone, so a corner-facing
+//   swing takes the same arm, and neither the doorway-diagonal rule nor
+//   anything else in test_move() sits above it.
 // - DOUBLE_CASE presses `FF`. do_fight() cancels on the second press, and
 //   rhack()'s PREFIXCMD arm turns the ECMD_CANCEL into reset_cmd_vars().
 // - INVENTORY_CASE presses `Fi`. extcmdlist[]'s "inventory" row carries no
@@ -55,9 +64,10 @@
 // field as well as in the length of the random-number log.
 //
 // Seeds were found by generating D:1 with the port and reading the terrain
-// around the hero's start, around the end of a short straight walk, and, for
-// the last two cases, the four squares beside the start; no recorded session
-// was read.
+// around the hero's start, around the end of a short straight walk, for the two
+// monster cases the four squares beside the start, and for the two off-edge
+// cases the hero's row after a walk that reaches the bottom of the map; no
+// recorded session was read.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -97,6 +107,10 @@ const WALL_SEED = 8800004;
 const FOUNTAIN_SEED = 8800000;
 const CLOSED_DOOR_SEED = 8800127;
 const CORRIDOR_SEED = 8800032;
+// A level whose start is close enough to the bottom row to reach it in three
+// keys: `hjj` ends on the corridor square <15,20>, and ROWNO is 21, so one more
+// step south leaves the map.
+const MAP_EDGE_SEED = 8800070;
 // The two levels with a hostile monster next to the hero's start. The fox
 // survives the swing and the newt does not, which is the only difference the
 // two cases are chosen for.
@@ -194,6 +208,25 @@ export const FORCE_FIGHT_CASES = [
         doormask: D_NODOOR,
         message: 'You attack thin air.',
         movesAfter: 4,
+    },
+    {
+        label: 'the edge of the map, straight south',
+        seed: MAP_EDGE_SEED,
+        walk: 'hjj',
+        command: 'Fj',
+        // No `target`: the square is outside the map, so it has no terrain to
+        // name and level.at() has nothing to return for it.
+        message: 'You harmlessly attack an unknown obstacle.',
+        // Three walking turns and the force-fight.
+        movesAfter: 5,
+    },
+    {
+        label: 'the edge of the map, diagonally',
+        seed: MAP_EDGE_SEED,
+        walk: 'hjj',
+        command: 'Fn',
+        message: 'You harmlessly attack an unknown obstacle.',
+        movesAfter: 5,
     },
     {
         label: 'the prefix pressed twice',
@@ -337,9 +370,10 @@ export async function verifyForceFightSegment(segment) {
     );
     if (boundary) throw boundary;
 
-    // The two monster cases claim no terrain: uhitm.c do_attack() answers
-    // their square whatever it is made of, so naming its type would pin
-    // something the case does not depend on.
+    // Four cases claim no terrain. The two monster cases leave it out because
+    // uhitm.c do_attack() answers their square whatever it is made of, so
+    // naming its type would pin something the case does not depend on; the two
+    // off-edge cases leave it out because their square is outside the map.
     if (entry.typ !== undefined) verifyTargetTerrain(entry);
     // gt.toplines, which pline.c writes whether or not the row was repainted.
     const toplines = game._ttyToplines ?? '';

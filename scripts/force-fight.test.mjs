@@ -186,6 +186,83 @@ test('the movement prefix is cleared once the prefixed step has run',
         assert.equal(game.context.forcefight, 0);
     });
 
+// ── hack.c domove_fight_empty(), the off-edge arm ──
+
+// Column 0 with the swing aimed west, which is the shortest way to <-1, uy>.
+// move_out_of_bounds() (2588-2590) is the only caller that reaches the arm;
+// domove_core() calls domove_fight_empty() at 2810, below the same guard, so
+// every square it passes is on the map.
+async function heroAtTheWestEdge() {
+    const state = await heroInARoom();
+    state.u.ux = 0;
+    return state;
+}
+
+test('a force-fight off the edge of the map names an unknown obstacle',
+    async () => {
+        // hack.c:2252-2256 and the futile label at 2318-2321. `solid` is true
+        // from `off_edge` alone, so the adverb is "harmlessly ", and buf is the
+        // fixed string rather than any terrain's explanation.
+        const state = await heroAtTheWestEdge();
+        const before = game.moves;
+        await forceFightWest(state);
+        assert.equal(
+            toplines(state), 'You harmlessly attack an unknown obstacle.',
+        );
+        // The turn is spent. move_out_of_bounds()'s own arm at 2607-2608
+        // clears context.move, and the force-fight arm returns above it, so
+        // this is where a swing wrongly routed into the silent arm shows up.
+        assert.equal(state.context.move, 1);
+        assert.equal(game.moves, before);
+        assert.equal(state.u.ux, 0);
+        assert.equal(state.domoveAttempting, 0);
+    });
+
+test('a force-fight off the edge ends a multi-turn action', async () => {
+    // hack.c:2323 nomul(0), which the off-edge arm reaches through `futile`.
+    const state = await heroAtTheWestEdge();
+    state.multi = 7;
+    // The argument is 0 rather than merely small. gm.multi cannot show that on
+    // its own, because nomul()'s own end_running() call at 4171 zeroes any
+    // positive gm.multi it just set; hack.c:4169-4170, which clears
+    // gm.multi_reason and gm.multireasonbuf and only for nval 0, is where a
+    // nonzero argument would still be visible. "gazing into a crystal ball" is
+    // detect.c:1314's reason string, one of the ones a real interrupted action
+    // leaves behind.
+    state.multi_reason = 'gazing into a crystal ball';
+    state.multireasonbuf = 'gazing into a crystal ball';
+    await forceFightWest(state);
+    assert.equal(state.multi, 0);
+    assert.equal(state.multi_reason, null);
+    assert.equal(state.multireasonbuf, '');
+});
+
+test('mention_walls cannot reach a force-fight off the edge', async () => {
+    // hack.c:2589-2590 returns before the flags.mention_walls block at
+    // 2592-2606, so the option cannot change this line and the unported
+    // cmd.c directionname() inside that block is not a prerequisite for the
+    // arm. An ordinary step off the edge with the option on still refuses,
+    // which scripts/closed-door-autoopen.test.mjs pins.
+    const state = await heroAtTheWestEdge();
+    state.flags.mention_walls = true;
+    await forceFightWest(state);
+    assert.equal(
+        toplines(state), 'You harmlessly attack an unknown obstacle.',
+    );
+});
+
+test('an exploding form stops before the off-edge arm prints', async () => {
+    // hack.c:2247 reads `explo` above the arm at 2252 and spends it at
+    // 2319-2321, so the stop belongs above the arm rather than beside the
+    // in-bounds tests below it. A yellow light's one attack is
+    // ATTK(AT_EXPL, AD_BLND, 10, 20).
+    const state = await heroAtTheWestEdge();
+    state.u.umonnum = PM_YELLOW_LIGHT;
+    state.youmonst.data = state.mons[PM_YELLOW_LIGHT];
+    await refusedWest(state, /exploding form/u);
+    assert.equal(toplines(state), '');
+});
+
 // ── hack.c domove_fight_empty(), the solid arm ──
 
 // hack.c:2305-2308 names the terrain with

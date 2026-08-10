@@ -1716,16 +1716,21 @@ export async function test_move(
     return true;
 }
 
-// C ref: hack.c move_out_of_bounds(). domove_core() calls this ahead of every
-// terrain branch, so a step off the edge of the map ends the run and spends no
-// time before test_move() runs. Its forcefight arm needs domove_fight_empty()
-// and its flags.mention_walls line needs directionname(xytodir()); neither is
-// ported, so both refuse. Until this was ported the refusal happened by
-// accident, through an admission seam that answered "blocked" for a square
-// outside the map.
-function move_out_of_bounds(x, y, state) {
+// C ref: hack.c move_out_of_bounds() (2584-2612). domove_core() calls this
+// ahead of every terrain branch, so a step off the edge of the map ends the run
+// and spends no time before test_move() runs. Until this was ported the refusal
+// happened by accident, through an admission seam that answered "blocked" for a
+// square outside the map.
+//
+// The force-fight arm at 2589-2590 returns before the flags.mention_walls block
+// at 2592-2606, so a force-fight off the edge never reaches that line whatever
+// the option is set to, and needs nothing from it. That line needs cmd.c
+// directionname() (4312-4323), which has no port, so an ordinary step off the
+// edge refuses while mention_walls is on.
+async function move_out_of_bounds(x, y, state) {
     if (isok(x, y)) return false;
-    if (state.context.forcefight || state.flags?.mention_walls) {
+    if (state.context.forcefight) return domove_fight_empty(x, y, state);
+    if (state.flags?.mention_walls) {
         throw new UnsupportedHeroMoveBoundaryError('move out of bounds');
     }
     nomul(0, state);
@@ -1876,25 +1881,39 @@ function domove_fight_web(x, y, state) {
 // could come to carry one. Spelling it out would add three terms no test can
 // decide, so this note owns it instead.
 //
-// Two message arms are live: the solid arm at 2300-2312, where the terrain has
-// a remembered appearance, and the thin-air arm at 2318-2319. Every other arm
-// stops, each named below. The off-edge arm at 2249-2252 is not among them:
-// move_out_of_bounds() answers a force-fight off the map before domove_core()
-// reaches this function, so `off_edge` is constantly false at the one ported
-// call site and the variable is absent.
+// Three message arms are live. The off-edge arm at 2252-2256 answers the one
+// caller that is not domove_core(): move_out_of_bounds() hands a force-fight
+// aimed off the map straight here. The solid arm at 2298-2313 names terrain
+// with a remembered appearance, and the thin-air arm at 2314-2316 names
+// nothing. Every other arm stops, each named below.
 async function domove_fight_empty(x, y, state) {
     if (!state.context.forcefight) return false;
 
-    const location = state.level.at(x, y);
-
-    // 2245-2246 explo, whose consequences are the tail at 2323-2333:
-    // wake_nearto(), explum(), u.mh = -1 and rehumanize(). Nothing in this
-    // port polymorphs the hero, and none of those four is ported.
+    // 2247 explo, whose consequences are the tail at 2324-2334: wake_nearto(),
+    // explum(), u.mh = -1 and rehumanize(). Nothing in this port polymorphs the
+    // hero, and none of those four is ported. C reads it above the off-edge arm
+    // below and spends it at 2319-2321, so a swing off the edge in an exploding
+    // form stops here rather than printing.
     if (Upolyd(state.u) && attacktype(state.youmonst?.data, AT_EXPL)) {
         throw new UnsupportedHeroMoveBoundaryError(
             'force-fight while polymorphed into an exploding form',
         );
     }
+    // 2252-2256. `solid` at 2248 is true from `off_edge` alone and `boulder` is
+    // still the 0 it was given at 2246, so the adverb at 2320 is "harmlessly ";
+    // `explo`, its third input, is refused above. The jump to `futile` skips
+    // every test below along with unmap_object() and newsym(), so this arm
+    // reads no square at all -- which is why C's pinning of x,y to <0,1> at
+    // 2235-2239, there to keep the reads it skips inside the array, has no
+    // counterpart here.
+    if (!isok(x, y)) {
+        /* treat as if solid rock, even on planes' levels */
+        await ttyPline('You harmlessly attack an unknown obstacle.', state);
+        nomul(0, state);
+        return true;
+    }
+
+    const location = state.level.at(x, y);
     // 2253 and 2306-2312. Underwater skips the boulder and digging tests and
     // then takes a message arm of its own, which names an air bubble or
     // nothing at all rather than the terrain.
@@ -1972,13 +1991,14 @@ async function domove_fight_empty(x, y, state) {
             glyph_to_cmap(terrain_glyph(location, x, y, state))
         ]);
     } else {
-        // 2318-2319. Everything accessible that is not furniture is thin air,
+        // 2314-2316. Everything accessible that is not furniture is thin air,
         // which is ordinary floor, a corridor, ice, and a doorway with no
         // closed door in it.
         buf = 'thin air';
     }
 
-    // 2321-2324. C's adverb is
+    // 2318-2321, C's `futile` label, which the off-edge arm above jumps to and
+    // this arm falls into. C's adverb is
     //     !(boulder || solid) ? "" : !explo ? "harmlessly " : "futilely "
     // `boulder` and `explo` are refused above, so `solid` alone chooses
     // between the first two and no case can reach "futilely ".
@@ -2053,7 +2073,7 @@ export async function domove(state = game) {
         throw new UnsupportedHeroMoveBoundaryError('movement while riding');
     }
 
-    if (move_out_of_bounds(newx, newy, state)) {
+    if (await move_out_of_bounds(newx, newy, state)) {
         state.domoveAttempting = 0;
         return;
     }
