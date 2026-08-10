@@ -941,10 +941,12 @@ test('a run command after a prefix is refused at the movement seam',
     });
 
 // uhitm.c:462 splits do_attack() on `is_safemon(mtmp) && !svc.context
-// .forcefight`, so `F` aimed at the starting pet takes the attack arm, where
-// attack_checks() stops it, rather than the displacement arm that swaps places
-// with it. Nothing end to end can tell the two apart yet, because both arms
-// refuse, so the seam is pinned directly: the same pet, the same square, and
+// .forcefight`, so `F` aimed at the starting pet takes the attack arm rather
+// than the displacement arm that swaps places with it. attack_checks() no
+// longer stops it there: its force-fight arm now admits the pet, and the
+// refusal has moved down to hmon_hitmon_pet() on a damaging hit. The seam is
+// still pinned here rather than end to end, because what this test isolates is
+// the displacement arm's own refusal -- the same pet, the same square, and
 // only the flag differing.
 test('force-fight sends the starting pet down the attack arm', async () => {
     // A segment with a pet, unlike heroInARoom()'s pettype:none hero, and

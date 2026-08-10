@@ -503,6 +503,14 @@ test('an adjacent monster stops the meal and flags it for reset', async () => {
     // The stop landed on the meal's second turn, one turn later than the
     // dochugw() case above, because monster_nearby() is tested after the bite.
     assert.equal(game.moves, 3);
+    // The printing arm ends in nomul(0) just as the else arm does, and its own
+    // call had no oracle: deleting it left the whole suite green. C's
+    // hack.c:4169-4170 clears multi_reason and multireasonbuf only for a zero
+    // argument, so seeding both above and asserting they are gone distinguishes
+    // nomul(0) from nomul(-1), which would leave the hero helpless.
+    assert.equal(game.multi, 0);
+    assert.equal(game.multi_reason ?? null, null);
+    assert.equal(game.multireasonbuf ?? '', '');
 });
 
 test('an interruption on the meal\'s last turn finishes it instead',
@@ -672,5 +680,50 @@ test('the multi-turn matrix covers the branches this slice ports', () => {
     assert.deepEqual(
         loadOccupationInterruptRecipe().segments.map(({ seed }) => seed),
         [3100021, 3100246, 3101719, 5900020],
+    );
+});
+
+// The printing arm's nomul(0) had no oracle: deleting the statement left the
+// whole suite green, because every segment that reaches it already has multi 0
+// and the fields already clear. hack.c nomul() (527-540) clears multi_reason
+// and multireasonbuf only when nval is 0, so seeding both and driving the arm
+// directly is what proves the call happens at all rather than proving the
+// state it would have left.
+test('stop_occupation clears the multi reason on its printing arm',
+    async () => {
+        const lines = [];
+        const state = {
+            go: { occupation: () => 0, occtxt: 'eating the food ration' },
+            multi: 0,
+            multi_reason: 'occupied',
+            multireasonbuf: 'eating the food ration',
+            context: {},
+            u: {},
+            disp: {},
+        };
+        await stop_occupation(state, {
+            message: (text) => { lines.push(text); },
+        });
+        assert.deepEqual(lines, ['You stop eating the food ration.']);
+        assert.equal(state.go.occupation, null);
+        assert.equal(state.multi, 0);
+        assert.equal(state.multi_reason, null);
+        assert.equal(state.multireasonbuf, '');
+    });
+
+// The same function with an occupation installed and no operations at all.
+// js/jsmain.js converts only the named boundary classes, so a bare TypeError
+// here would discard the segment rather than end it; requiring the operation by
+// name is what keeps the failure legible.
+test('stop_occupation names the operation it is missing', async () => {
+    await assert.rejects(
+        () => stop_occupation({
+            go: { occupation: () => 0, occtxt: 'eating the food ration' },
+            multi: 0,
+            context: {},
+            u: {},
+            disp: {},
+        }, {}),
+        (error) => /stop_occupation\(\) requires message/u.test(error.message),
     );
 });

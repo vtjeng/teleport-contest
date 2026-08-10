@@ -1198,7 +1198,12 @@ function requireOrdinaryHostileMelee(monster) {
 // same way, because the two arms have nothing in common below that test. The
 // forcefight conjunct is what sends `F` at a pet down the attack arm instead
 // of down the displacement arm, so the prefix swings at the pet rather than
-// swapping places with it.
+// swapping places with it. That path is bounded rather than complete: a miss
+// runs the whole swing, including wakeup(), whose setmangry() returns early on
+// mtame so the pet is not angered, while a landed blow stops at js/uhitm.js
+// hmon_hitmon_pet()'s refusal -- which sits above abuse_dog() and its
+// monflee() rnd(), but below the point where the pet's hit points have already
+// gone negative. Neither outcome is tested end to end.
 function requireSupportedDestinationMonster(monster, x, y, state) {
     requireNoMonsterBump(monster, state);
     if (!is_safemon(monster, state) || state.context?.forcefight) {
@@ -1726,7 +1731,10 @@ export async function test_move(
 //
 // The force-fight arm at 2589-2590 returns before the flags.mention_walls block
 // at 2592-2606, so a force-fight off the edge never reaches that line whatever
-// the option is set to, and needs nothing from it. That line needs cmd.c
+// the option is set to, and needs nothing from it. It also returns above
+// nomul(0) and `context.move = 0`, so the turn-cost claim above is about the
+// ordinary arm alone: a force-fight off the edge spends the turn, which is
+// what C's own comment calls "specifying 'F' with no monster wastes a turn". That line needs cmd.c
 // directionname() (4312-4323), which has no port, so an ordinary step off the
 // edge refuses while mention_walls is on.
 async function move_out_of_bounds(x, y, state) {

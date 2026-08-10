@@ -79,6 +79,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { game } from '../js/gstate.js';
+import { is_axe, is_pick } from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
@@ -238,6 +239,7 @@ export const FORCE_FIGHT_CASES = [
         label: 'a wall, swung at with an axe in hand',
         seed: AXE_SEED,
         role: BARBARIAN,
+        wielded: 'axe',
         walk: '',
         command: 'Fl',
         target: [1, 0],
@@ -249,6 +251,7 @@ export const FORCE_FIGHT_CASES = [
         // The same axe on the thin-air arm, which is where a guard that
         // refused every digging tool cost a line as well as a turn.
         label: 'room floor, swung at with an axe in hand',
+        wielded: 'axe',
         seed: AXE_SEED,
         role: BARBARIAN,
         walk: '',
@@ -413,6 +416,27 @@ function verifyTargetTerrain(entry) {
     }
 }
 
+// A case whose label names the wielded tool has to check it, or the row proves
+// nothing about dig_typ(): the Barbarian's battle-axe is granted on
+// `rn2(100) < 50` (u_init.c:666-670), so a seed that stops granting it would
+// silently turn these into ordinary long-sword swings that pass anyway.
+function verifyWieldedTool(entry, state) {
+    if (entry.wielded === undefined) return;
+    const held = state.uwep;
+    const ok = entry.wielded === 'axe' ? is_axe(held, state)
+        : entry.wielded === 'pick' ? is_pick(held, state)
+            : null;
+    if (ok === null) {
+        throw new Error(`${entry.label}: unknown wielded kind ${entry.wielded}`);
+    }
+    if (!ok) {
+        throw new Error(
+            `${entry.label}: the hero wields ${held?.otyp ?? 'nothing'}, `
+            + `which is not a ${entry.wielded}`,
+        );
+    }
+}
+
 export async function verifyForceFightSegment(segment) {
     const entry = caseForSegment(segment);
     let boundary = null;
@@ -427,6 +451,7 @@ export async function verifyForceFightSegment(segment) {
     // naming its type would pin something the case does not depend on; the two
     // off-edge cases leave it out because their square is outside the map.
     if (entry.typ !== undefined) verifyTargetTerrain(entry);
+    verifyWieldedTool(entry, game);
     // gt.toplines, which pline.c writes whether or not the row was repainted.
     const toplines = game._ttyToplines ?? '';
     if (toplines !== entry.message) {

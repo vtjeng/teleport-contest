@@ -1324,6 +1324,15 @@
       "status": "open",
       "from": "57b2dfe2a6613093c54829761c277f2ccfe119fa",
       "detail": "scripts/record-session.test.mjs's case 'fails when a complete marker stream ends with an unexpected signal' failed once during the commands-deferral-sweep-3 goal, expecting exit status 1 and observing 0, then passed three times in isolation and on a full rerun. The fake recorder writes a marker and then signals itself, so the parent can miss the signal under load; the race is in the test's harness, not in the code under test. It was observed on a run with several concurrent node processes. A flaky case in the default suite is worse than a missing one, because it teaches readers to rerun rather than investigate, and it can redden CI on an unrelated commit. Close it by making the fake recorder's signal deterministic -- have the parent wait for the marker before the child signals, or assert on the recorded stream rather than the exit status -- and by confirming the case fails when the behavior it covers is broken. Do not close it by adding a retry."
+    },
+    {
+      "id": "dochugw-planning-display-suppression-unpinned",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "896e50e988043100f1489d6d7f0e0a8420209fa4",
+      "detail": "The dochugw stop_occupation seam in js/unported_monster_actions.js hands stop_occupation() a silent message and a no-op statusRefresh when env.planning is set, and the live ttyPline/bot() pair otherwise. Nothing pins that choice: removing the planning arm and always passing the live pair leaves the full suite green and leaves the four-segment interruption matrix in scripts/run-eat-occupation.mjs byte-identical, even though bot() writes to the live game unconditionally. The matrix cannot see it because a planning pass that writes to the live terminal still produces the same recorded screens when the live pass writes the same line afterwards; the corruption is a duplicate write, not a different one. Close it with a test that installs an occupation, drives runSimpleMonsterAction() with planning: true against a state whose disp.botl is false and whose pending message is empty, and asserts disp.botl is still false and no row of nhDisplay was written -- that is, that the operations reaching stop_occupation() are the no-op pair. Verify it bites by replacing the planning arm with the live pair and watching it fail. Found by the correctness pass over c975ad3..896e50e and deferred there because the setup needs a monster, an installed occupation and a state satisfying assertSimpleActionState(), which is more scaffolding than an audit fix should carry."
     }
   ],
   "areas": [

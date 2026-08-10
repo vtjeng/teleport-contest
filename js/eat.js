@@ -1308,16 +1308,20 @@ async function start_eating(otmp, already_partly_eaten, state, env) {
     // creation now reaches that owner through makemon()->dochugw(FALSE).
     //
     // Three other paths can reach allmain.c stop_occupation() while the meal
-    // runs, and each remains refused before printing:
+    // runs. Two are now ported and print; the third still refuses:
     //   - allmain.c moveloop_core():505-508, monster_nearby() after a bite,
-    //     which js/allmain.js stops with "interrupted by a nearby monster";
+    //     which prints "You stop eating ..." and then runs reset_eat(). This
+    //     is the common one: over 1500 seeds typing `ed`, it fired 303 times
+    //     against dochugw()'s 10, because dochugw() needs the monster to be
+    //     newly in range and one already visible nearby skips it;
     //   - monmove.c dochugw():223-235, a hostile spottable monster newly
-    //     inside (BOLT_LIM + 1) * (BOLT_LIM + 1), which js/monmove.js reaches
-    //     through the injected stopOccupation operation. This one fires
-    //     several turns earlier than the first, because its radius is nine and
-    //     hack.c monster_nearby() scans the eight adjacent squares alone;
+    //     inside (BOLT_LIM + 1) * (BOLT_LIM + 1), reached both from
+    //     makemon()'s runtime tail and from the live and planning monster
+    //     scans. It prints the same line and runs no reset_eat(). Its radius
+    //     is nine where hack.c monster_nearby() scans the eight adjacent
+    //     squares alone, so when it does fire it fires earlier;
     //   - teleport.c rloc_to_core():1761-1762, whose whole tail js/teleport.js
-    //     refuses.
+    //     still refuses.
     // makemon.c:1503 is the supported fourth call. js/allmain.js owns its exact
     // complete-meal versus "You stop eating ..." behavior.
     set_occupation(

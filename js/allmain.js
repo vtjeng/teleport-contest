@@ -315,12 +315,28 @@ export function u_calc_moveamt(wtcap, state = game, random = rn2) {
 // and moveloop_core()'s own monster_nearby() test after a turn of the activity.
 //
 // `env` carries the display operations that differ between the live game and an
-// atomic planning clone; maybe_finished_meal() passes them straight to
-// eatfood(), which owns the finished meal's object and message lifecycle.
+// atomic planning clone. It is not only forwarded: maybe_finished_meal() passes
+// it on to eatfood(), which owns the finished meal's object and message
+// lifecycle, but this function also writes the `You stop %s.` line itself, so
+// `message` is required whenever an occupation is installed. It is resolved by
+// name rather than read directly because the two ways of getting it wrong fail
+// in opposite directions: on this arm a missing `message` would be a bare
+// TypeError, which js/jsmain.js does not convert, so the segment is discarded
+// rather than ended; on the finished-meal arm it would fall through to
+// eatOperations()'s `message = ttyPline` default and quietly write to the live
+// terminal during a planning clone.
+function requireOccupationOperation(env, name) {
+    const operation = env?.[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`allmain.c stop_occupation() requires ${name}`);
+    return operation;
+}
+
 export async function stop_occupation(state = game, env = {}) {
     if (state.go?.occupation) {
+        const message = requireOccupationOperation(env, 'message');
         if (!await maybe_finished_meal(true, state, env)) {
-            await env.message(`You stop ${state.go.occtxt}.`, state, env);
+            await message(`You stop ${state.go.occtxt}.`, state, env);
         }
         state.go.occupation = null;
         state.disp ??= {};

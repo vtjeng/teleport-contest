@@ -445,9 +445,12 @@ export async function do_attack(monster, state = game, env = {}) {
     // between there and here that could take that back stop before they get
     // to. passive() refuses every counter-attack damage type but AD_PHYS, so
     // no blow blinds the hero, and mhitm_knockback() refuses the knockback
-    // that could carry the target out of sight. Its glyph term is constantly
-    // false for the reason it is everywhere else: map_invisible() is the only
-    // writer of the marker it reads.
+    // that could carry the target out of sight. C's own glyph term contributes
+    // nothing either way: glyph_is_invisible() is constantly false here,
+    // because map_invisible() is the only writer of the marker it reads, and
+    // C's conjunct is the negation `!glyph_is_invisible(...)`, so it is
+    // constantly true. What keeps the tail out of reach is the spot check
+    // attack_checks() now performs, together with !DEADMONSTER(mtmp).
     return true;
 }
 
