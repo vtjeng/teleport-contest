@@ -33,7 +33,8 @@
       "effort": "undecided",
       "status": "open",
       "from": "roadmap",
-      "detail": "`display.c newsym()` has an out-of-sight arm that shows a monster when\n`see_with_infrared(mon) && mon_visible(mon)`; `js/display.js newsym()` does not.\nReproduce with seed 7000063, a female chaotic orcish Rogue, moves `\" L\"`: C's\nmid-run animation frames show `r` at `<11,13>`, a square the hero could see but\ncannot, and the port leaves it blank.\n\nThe room-run slice found this and left it, because `newsym()` is load-bearing\nfor every screen the port draws and the slice's own boundary did not need it.\nThat case is deliberately absent from `scripts/run-room-runs.mjs`. Fix it with\nthe infravision work rather than inside a movement slice."
+      "detail": "`display.c newsym()` has an out-of-sight arm that shows a monster when\n`see_with_infrared(mon) && mon_visible(mon)`; `js/display.js newsym()` does not.\nReproduce with seed 7000063, a female chaotic orcish Rogue, moves `\" L\"`: C's\nmid-run animation frames show `r` at `<11,13>`, a square the hero could see but\ncannot, and the port leaves it blank.\n\nThe room-run slice found this and left it, because `newsym()` is load-bearing\nfor every screen the port draws and the slice's own boundary did not need it.\nThat case is deliberately absent from `scripts/run-room-runs.mjs`. Fix it with\nthe infravision work rather than inside a movement slice.",
+      "blockedOn": "see_with_infrared"
     },
     {
       "id": "vision_recalc(2) skips the redraw C performs",
@@ -42,7 +43,8 @@
       "effort": "undecided",
       "status": "open",
       "from": "roadmap",
-      "detail": "`js/vision.js vision_recalc()` guards its main update loop at `js/vision.js:746`\nso that `control === 2` skips it. C does not: at that control value it still\nwalks every previously visible cell calling `newsym()`, then calls\n`newsym(u.ux, u.uy)` and `notice_all_mons(TRUE)` on the way out. The port\ntherefore leaves the left level's remembered glyphs as they were.\n\nThe descent goal's slice 2 connected the only caller that passes 2,\n`goto_level()`'s call at `do.c:1631`, and left the gap unfixed deliberately.\nNothing flushes the screen between that call and slice 2's refusal, and slice 3\nrepaints through `docrt()` regardless, so no screen the port draws today can\nshow the difference.\n\nIt becomes reachable at slice 4, the restore path, which re-reads the glyphs\nthis call was supposed to update. Fix it with `getlev()`, or sooner if another\ncaller passes 2."
+      "detail": "`js/vision.js vision_recalc()` guards its main update loop at `js/vision.js:746`\nso that `control === 2` skips it. C does not: at that control value it still\nwalks every previously visible cell calling `newsym()`, then calls\n`newsym(u.ux, u.uy)` and `notice_all_mons(TRUE)` on the way out. The port\ntherefore leaves the left level's remembered glyphs as they were.\n\nThe descent goal's slice 2 connected the only caller that passes 2,\n`goto_level()`'s call at `do.c:1631`, and left the gap unfixed deliberately.\nNothing flushes the screen between that call and slice 2's refusal, and slice 3\nrepaints through `docrt()` regardless, so no screen the port draws today can\nshow the difference.\n\nIt becomes reachable at slice 4, the restore path, which re-reads the glyphs\nthis call was supposed to update. Fix it with `getlev()`, or sooner if another\ncaller passes 2.",
+      "blockedOn": "getlev"
     },
     {
       "id": "an indented inverse menu heading cannot match",
@@ -60,7 +62,8 @@
       "effort": "undecided",
       "status": "open",
       "from": "roadmap",
-      "detail": "C's `x_monnam()` returns `\"it\"` when `canspotmon()` is false and the article is\nnot `ARTICLE_YOUR` (`do_name.c:863`, `876-882`). `js/do_name.js`'s\n`monsterCommonName()` and `capitalizedMonsterName()` have no such branch and\nnever consult visibility, so every message that names a monster the hero cannot\nspot answers the species name where C answers `It`.\n\nThis is a **silent divergence, not a refusal**: nothing stops, and the first\nevidence would be a screen mismatch. `js/trap_effects.js thitm()` is one\nreachable writer, through `pline_mon(mon, \"%s is almost hit by %s!\",\nMonnam(mon), ...)` at `trap.c:6732-6734`, and there will be others as combat\nlands.\n\nNothing on dungeon level one sets `minvis`, and `assertSimpleActionState()`\nrefuses `is_hider`, so no admitted path reaches it today. It was found by a\ntest that made a monster `minvis` to separate two visibility gates and pinned\nthe species name as correct; that fixture now grants detection instead, which\nkeeps `canspotmon()` true, and `scripts/monmove.test.mjs` asserts both gates\ndirectly. Port the `do_it` branch with the goal that first admits an\nunspottable monster, and give it the mirror case."
+      "detail": "C's `x_monnam()` returns `\"it\"` when `canspotmon()` is false and the article is\nnot `ARTICLE_YOUR` (`do_name.c:863`, `876-882`). `js/do_name.js`'s\n`monsterCommonName()` and `capitalizedMonsterName()` have no such branch and\nnever consult visibility, so every message that names a monster the hero cannot\nspot answers the species name where C answers `It`.\n\nThis is a **silent divergence, not a refusal**: nothing stops, and the first\nevidence would be a screen mismatch. `js/trap_effects.js thitm()` is one\nreachable writer, through `pline_mon(mon, \"%s is almost hit by %s!\",\nMonnam(mon), ...)` at `trap.c:6732-6734`, and there will be others as combat\nlands.\n\nNothing on dungeon level one sets `minvis`, and `assertSimpleActionState()`\nrefuses `is_hider`, so no admitted path reaches it today. It was found by a\ntest that made a monster `minvis` to separate two visibility gates and pinned\nthe species name as correct; that fixture now grants detection instead, which\nkeeps `canspotmon()` true, and `scripts/monmove.test.mjs` asserts both gates\ndirectly. Port the `do_it` branch with the goal that first admits an\nunspottable monster, and give it the mirror case.",
+      "blockedOn": "mon_set_minvis"
     },
     {
       "id": "thirteen squeaky-board findings are deferred",
@@ -171,7 +174,8 @@
       "effort": "undecided",
       "status": "open",
       "from": "roadmap",
-      "detail": "`lock.c doopen_indir()`'s `!(doormask & D_CLOSED)` switch has four arms, and a\nwalk can reach only the locked arms. What narrows the input is the seam's own\nmask guard in `js/hack.js`, which admits `D_CLOSED`, `D_LOCKED` and\n`D_LOCKED | D_TRAPPED`; `monmove.c closed_door()` does not, being a bit test\nthat answers TRUE for any mask carrying either bit, `D_TRAPPED` combinations\nincluded. The broken, doorless and already-open arms arrive solely through\n`#open`, which is not ported.\n\nThe switch is one C statement and was translated whole, which `AGENTS.md`\nprefers to splitting a source construct. The consequence is three arms that\nwrite output and are reached by no fresh recording; `scripts/lock.test.mjs`\npins them and is their whole evidence. Record a differential for each when\n`#open` lands."
+      "detail": "`lock.c doopen_indir()`'s `!(doormask & D_CLOSED)` switch has four arms, and a\nwalk can reach only the locked arms. What narrows the input is the seam's own\nmask guard in `js/hack.js`, which admits `D_CLOSED`, `D_LOCKED` and\n`D_LOCKED | D_TRAPPED`; `monmove.c closed_door()` does not, being a bit test\nthat answers TRUE for any mask carrying either bit, `D_TRAPPED` combinations\nincluded. The broken, doorless and already-open arms arrive solely through\n`#open`, which is not ported.\n\nThe switch is one C statement and was translated whole, which `AGENTS.md`\nprefers to splitting a source construct. The consequence is three arms that\nwrite output and are reached by no fresh recording; `scripts/lock.test.mjs`\npins them and is their whole evidence. Record a differential for each when\n`#open` lands.",
+      "blockedOn": "doopen"
     },
     {
       "id": "an explicit autounlock setting is refused",
@@ -195,7 +199,8 @@
           "text": "Correction from the `monsters` deferral sweep recorded at `adc4ea5`. One of the\nfive sub-findings is dead: `postSimpleMove()` no longer exists, so the claim\nthat it reads injected message and redraw owners for the movement notice and\nthen hardcodes `ttyPline`/`newsym` for the pickup has no subject. Four remain.\n\nThe `is_drawbridge_wall()` sub-finding keeps its substance and loses its anchor.\nThe comment calling the predicate unported now sits in `js/invent.js` twice, at\n`:199-200` and at `:237-239`, and `is_drawbridge_wall()` is exported from\n`js/startup_a11y.js` and read by `js/hack.js`, so the contradiction the\nsub-finding names is still live. Cite the symbols.",
           "at": "abcb414175ceed06c5d38f8a6cf24051aa098b25"
         }
-      ]
+      ],
+      "blockedOn": "find_offensive"
     },
     {
       "id": "the postmov minvis redraw has no case that can reach it",
@@ -214,7 +219,8 @@
           "text": "Correction to a claim made *about* this entry, not by it. The commit message of\n`adc4ea5` states that `updateMonsterArmorEffects()` in `js/makemon_create.js`\ndrops eight arms of `worn.c update_mon_extrinsics()`. That figure is\nunsupported: reading `worn.c` finds no grouping of that function's cases\nyielding eight, and it was most likely miscounted from the off-switch's eight\nresistance cases, which are a different block. Do not carry the number forward.\n\nWhat is verified, and what this entry's own text already says more weakly:\n`updateMonsterArmorEffects()` handles exactly two object types, `MUMMY_WRAPPING`\nand `SPEED_BOOTS`, against C's fourteen named cases plus `default:`.\n\nOne consequence is worth stating because it is invisible from this entry.\n`monster.mextrinsics` is initialized to 0 in `js/monst.js` and never written\nanywhere in `js/`; it is only read, by `js/muse.js`, `js/weapon.js` and\n`js/mondata.js`. C's `default:` arm is `mon->mextrinsics |= res_to_mr(which)`,\nso every property that reaches it confers nothing here. A monster created\nwearing an alchemy smock has no acid resistance, and nothing refuses.",
           "at": "c446940dde15fc44571a2db6f9812860feb7c5a2"
         }
-      ]
+      ],
+      "blockedOn": "update_mon_extrinsics"
     },
     {
       "id": "the planning clone's object copy is still expensive",
@@ -271,7 +277,8 @@
           "text": "Correction from the `monsters` deferral sweep recorded at `adc4ea5`. The claim\nabove, that a monster which moves and then throws diverges silently with no\nrefusal and no boundary, stopped being true at `2ce30ba`. `dochug()` in\n`js/monmove.js` now requires a `postMoveRangedAttack` operation on its\n`MMOVE_MOVED` arm, and `runSimpleMonsterAction()` in\n`js/unported_monster_actions.js` supplies one that refuses with `monster ranged\nweapon action` once `select_rwep()` finds a missile.\n\nWhat stays silent is narrower. The port admits that arm on\n`attacktype(monster.data, AT_WEAP)` alone, where `monmove.c:945-949` breaks out\nof the movement phase on `ranged_attk_available(mtmp) || attacktype(mdat,\nAT_WEAP) || find_offensive(mtmp)`. A monster carrying a ranged attack or an\noffensive item, with no `AT_WEAP` attack, still returns where C breaks. Keep\nthe entry for that residue and for the phase structure it names; the divergence\nit opens with is now a stop.",
           "at": "abcb414175ceed06c5d38f8a6cf24051aa098b25"
         }
-      ]
+      ],
+      "blockedOn": "ranged_attk_available"
     },
     {
       "id": "the planning clone must copy non-enumerable catalog aliases",
@@ -875,7 +882,8 @@
           "text": "Both halves of this entry's central claim are false, checked on 7 August 2026.\n\nD_BROKEN is producible by the port's generation today. rnddoor()'s five-state table reaches a real doormask through sp_lev.c lspo_door()'s coordinate arm: 4702 rolls rnddoor() for state = \"random\", 4721-4726 hands the roll to sel_set_door() (4646-4662), and 4660 writes it as the doormask. dat/tut-1.lua:273 is des.door({ coord = { 40,15 }, state = \"random\" }), which js/tutorial_level.js:460 mirrors and js/mklev.js:932-947 serves from RANDOM_SPECIAL_DOOR_STATES. Over seeds 5200001-5200060 the port's tutorial level produced D_BROKEN at map [40,15] on 11 of 60. The entry's opposite claim, and the same claim in the js/hack.js comment this commit corrects, both read lspo_door()'s room-door arm (4704-4720), which passes msk still -1 to create_door() and so discards the roll.\n\npick_lock() is reachable from a player command today. js/apply.js:244-251 dispatches LOCK_PICK, CREDIT_CARD and SKELETON_KEY to pick_lock(obj, 0, 0, null, state) with no refusal in front of it, and scripts/apply-lock-pick.test.mjs already drives doapply() through runSegment() for the D_ISOPEN and D_NODOOR arms.\n\nWhat actually blocks the entry is that the two cannot meet. The tutorial hero enters with an empty inventory and dat/tut-1.lua places no key, lock pick or credit card. A wizard-mode hero can wish one up, but cannot walk to the broken door: a flood fill from the tutorial start over every passable square reaches 60 squares, and the only door on that region's border is dat/tut-1.lua:104's hard-coded locked door at map [5,10]. The level holds no SCORR. Passing it needs pick_lock()'s own default arm, which js/lock.js:199-200 refuses as UnsupportedLockError, or dokick.c dokick(), which has no port: grep -rn 'function dokick|dokick =' js/ returns 0. So the entry waits on the picklock() occupation, on dokick(), or on a door-breaking path that writes D_BROKEN on an ordinary dungeon level -- not on a generator that can produce the mask.",
           "at": "bddc645f2021234b9e9bfc60b96a94f1339b7210"
         }
-      ]
+      ],
+      "blockedOn": "picklock"
     },
     {
       "id": "isok-ported-twice",
@@ -902,7 +910,8 @@
       "effort": "slice",
       "status": "open",
       "from": "f8861e087f741cf3d5c0b6c5e9890905b1ad6dff",
-      "detail": "`unportedMinliquidReason()` in `js/unported_monster_actions.js:167-168`, and\nthe sibling test at `:205-206`, refuse on bare `is_pool(...) || is_lava(...)`.\nC's `minliquid_core()` derives the two flags with a flyer and floater\nexemption:\n\n    inpool = (is_pool(mtmp->mx, mtmp->my)\n              && (!(is_flyer(mtmp->data) || is_floater(mtmp->data))\n                  || Is_waterlevel(&u.uz)));            /* mon.c:967-970 */\n    inlava = (is_lava(mtmp->mx, mtmp->my)\n              && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));\n\nSo a flying or floating monster over water or lava is left alone by C, and\nrefused by the port. A bat crossing a pool ends the segment where C simply\ncontinues the turn.\n\nThe refusal is fail-closed, so it cannot produce a wrong screen or a wrong\nrandom number; what it costs is replay length, and replay length is screens.\nThat makes it a scoring cost rather than a correctness defect, which is why the\ngremlin slice at `3249e2d` documented it in place rather than narrowing it.\n\nNarrowing it means porting the arms it stands in for: the drown effect at\n`mon.c:1068` and the burn effect at `:1010`, with `is_flyer()` and\n`is_floater()` first. Resolve this entry when those land, or earlier if a\nscored session is measured stopping here on a flyer -- the cheap check is to\ncount how many development sessions reach a flying or floating monster over\nliquid at all.\n\nFound by reading during the `monsters` deferral sweep, not by a failing test."
+      "detail": "`unportedMinliquidReason()` in `js/unported_monster_actions.js:167-168`, and\nthe sibling test at `:205-206`, refuse on bare `is_pool(...) || is_lava(...)`.\nC's `minliquid_core()` derives the two flags with a flyer and floater\nexemption:\n\n    inpool = (is_pool(mtmp->mx, mtmp->my)\n              && (!(is_flyer(mtmp->data) || is_floater(mtmp->data))\n                  || Is_waterlevel(&u.uz)));            /* mon.c:967-970 */\n    inlava = (is_lava(mtmp->mx, mtmp->my)\n              && !(is_flyer(mtmp->data) || is_floater(mtmp->data)));\n\nSo a flying or floating monster over water or lava is left alone by C, and\nrefused by the port. A bat crossing a pool ends the segment where C simply\ncontinues the turn.\n\nThe refusal is fail-closed, so it cannot produce a wrong screen or a wrong\nrandom number; what it costs is replay length, and replay length is screens.\nThat makes it a scoring cost rather than a correctness defect, which is why the\ngremlin slice at `3249e2d` documented it in place rather than narrowing it.\n\nNarrowing it means porting the arms it stands in for: the drown effect at\n`mon.c:1068` and the burn effect at `:1010`, with `is_flyer()` and\n`is_floater()` first. Resolve this entry when those land, or earlier if a\nscored session is measured stopping here on a flyer -- the cheap check is to\ncount how many development sessions reach a flying or floating monster over\nliquid at all.\n\nFound by reading during the `monsters` deferral sweep, not by a failing test.",
+      "blockedOn": "minliquid_core"
     },
     {
       "id": "touch-artifact-ported-but-unwired",
@@ -1037,7 +1046,8 @@
       "effort": "small",
       "status": "open",
       "from": "75b1295ad567278a9ddc9cf3eba49ab5b81835da",
-      "detail": "js/sounds.js:351 clamps rn2(10) to WALLTALK's 8 entries inside dochat()'s hallucinating wall reply, ported verbatim from sounds.c:1366-1367. Mutating >= to > is a real behavior change, not an equivalence: idx reaches 9, so an idx of 8 escapes the clamp and the reply prints \"The wall undefined\". The mutant survives only because Hallucination(state) cannot be true. The direct proof is that `grep -rnE \"\\[HALLUC\\]\\s*(\\.\\s*(intrinsic|extrinsic|blocked)\\s*)?=[^=]|set_itimeout|incr_itimeout|make_hallucinated\" js/` returns no assignment: all HALLUC references in js/ are reads.\n\nThis turns into a live defect the first time make_hallucinated() gains a writer, and sessions/seed0383-wizard-hallucinate.session.json is already recorded against that day. Whoever ports a hallucination source should pin this clamp with a test at the same time."
+      "detail": "js/sounds.js:351 clamps rn2(10) to WALLTALK's 8 entries inside dochat()'s hallucinating wall reply, ported verbatim from sounds.c:1366-1367. Mutating >= to > is a real behavior change, not an equivalence: idx reaches 9, so an idx of 8 escapes the clamp and the reply prints \"The wall undefined\". The mutant survives only because Hallucination(state) cannot be true. The direct proof is that `grep -rnE \"\\[HALLUC\\]\\s*(\\.\\s*(intrinsic|extrinsic|blocked)\\s*)?=[^=]|set_itimeout|incr_itimeout|make_hallucinated\" js/` returns no assignment: all HALLUC references in js/ are reads.\n\nThis turns into a live defect the first time make_hallucinated() gains a writer, and sessions/seed0383-wizard-hallucinate.session.json is already recorded against that day. Whoever ports a hallucination source should pin this clamp with a test at the same time.",
+      "blockedOn": "make_hallucinated"
     },
     {
       "id": "chat-no-answer-arms-refused-as-one",
