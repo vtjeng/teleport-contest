@@ -50,6 +50,17 @@ const SETWHERE = Object.freeze({
     set_hidden: 7,
 });
 
+// optlist.h enum OptSection. doset_simple_menu() walks OptS_General through
+// OptS_Status and stops before OptS_Advanced, whose options only the full
+// doset() menu shows.
+const SECTION = Object.freeze({
+    OptS_General: 0,
+    OptS_Behavior: 1,
+    OptS_Map: 2,
+    OptS_Status: 3,
+    OptS_Advanced: 4,
+});
+
 // optlist.h enum menu_terminology_preference.
 const TERMPREF = Object.freeze({
     Term_False: 0,
@@ -65,6 +76,7 @@ const OPTTYPES = Object.freeze(['BoolOpt', 'CompOpt', 'OthrOpt']);
 // left out here rather than emitted unused.
 const FIELD = Object.freeze({
     name: 0,
+    section: 1,
     idx: 4,
     setwhere: 5,
     opttyp: 6,
@@ -214,6 +226,9 @@ function parseEntries(expanded) {
         const pfx = parseYesNo(fields[FIELD.pfx], 'option prefix flag');
         entries.push({
             name: parseStringLiteral(fields[FIELD.name], 'option name'),
+            section: parseEnum(
+                fields[FIELD.section], SECTION, 'option section',
+            ),
             idx: fields[FIELD.idx],
             setwhere: parseEnum(
                 fields[FIELD.setwhere], SETWHERE, 'option restriction',
@@ -257,7 +272,8 @@ function parseEntries(expanded) {
 
 function formatEntry(entry) {
     const addr = entry.addr === null ? 'null' : `'${entry.addr}'`;
-    return `    { name: '${entry.name}', setwhere: ${entry.setwhere},`
+    return `    { name: '${entry.name}', section: ${entry.section},`
+        + ` setwhere: ${entry.setwhere},`
         + ` opttyp: '${entry.opttyp}', negateok: ${entry.negateok},`
         + ` pfx: ${entry.pfx}, termpref: ${entry.termpref},`
         + ` addr: ${addr}, optfn: '${entry.optfn}',`
@@ -273,13 +289,14 @@ function formatModule(entries) {
 // One entry per option, in the order doset() and doset_simple_menu() walk.
 // This order is also enum opt's, which the generator checks position by
 // position, so an entry's array index is the optidx C passes to its handler.
-// setwhere is global.h enum optset_restrictions, termpref is optlist.h enum
-// menu_terminology_preference, addr names the C lvalue holding a boolean
-// option's value, and optfn names the options.c handler minus its optfn_
-// prefix, or its pfxfn_ prefix when pfx is true. negateok says whether
-// parseoptions() accepts a leading '!' or "no", has_handler whether doset()
-// runs the option's do_handler request instead of prompting, and initval is
-// the compiled-in default initoptions_init() stores.
+// section is optlist.h enum OptSection, the grouping doset_simple_menu()
+// walks, and setwhere is global.h enum optset_restrictions, the one doset()
+// walks. termpref is optlist.h enum menu_terminology_preference, addr names
+// the C lvalue holding a boolean option's value, and optfn names the options.c
+// handler minus its optfn_ prefix, or its pfxfn_ prefix when pfx is true.
+// negateok says whether parseoptions() accepts a leading '!' or "no",
+// has_handler whether doset() runs the option's do_handler request instead of
+// prompting, and initval is the compiled-in default initoptions_init() stores.
 export const allopt = Object.freeze([
 ${entries.map(formatEntry).join('\n')}
 ].map(Object.freeze));

@@ -27,6 +27,8 @@ import {
     H_DEC,
     H_IBM,
     H_UNK,
+    PICK_ANY,
+    PICK_ONE,
     PRIMARYSET,
     ROGUESET,
 } from '../js/const.js';
@@ -599,23 +601,31 @@ test('the m prefix routes doset_simple() to doset() exactly once',
         const state = await startConfiguredGame(0);
         const calls = [];
         const helpers = menuHelpers({
-            menu: (items, prompt) => {
-                calls.push({ count: items.length, prompt });
-                return [];
+            // selectTtyMenu() answers a PICK_ANY commit with the pick list
+            // and a PICK_ONE one with the cancel value; both mean "nothing
+            // picked" here.
+            menu: (items, prompt, how) => {
+                calls.push({ count: items.length, prompt, how });
+                return how === PICK_ANY ? [] : null;
             },
         });
         state.iflags.menu_requested = true;
         // An empty commit runs no pick and leaves reset_needed_visuals() with
         // nothing to do, so doset() answers ECMD_OK (options.c:8974).
         assert.equal(await doset_simple(state, helpers), ECMD_OK);
-        assert.deepEqual(calls, [{ count: 150, prompt: 'Set what options?' }]);
-        // doset_simple() cleared the flag, so a second call is the simple
-        // menu, which is unported.
+        assert.deepEqual(calls, [{
+            count: 150, prompt: 'Set what options?', how: PICK_ANY,
+        }]);
+        // doset_simple() cleared the flag, so a second call goes to the simple
+        // menu instead, which asks for one pick rather than any number. Its 41
+        // items are the '?' row, a blank line and a heading for each of the
+        // four OptSection groups, and 32 option rows;
+        // scripts/options-simple-menu.test.mjs pins every one of them.
         assert.equal(state.iflags.menu_requested, false);
-        await assert.rejects(
-            doset_simple(state, helpers),
-            (error) => error.what === 'doset_simple_menu()',
-        );
+        assert.equal(await doset_simple(state, helpers), ECMD_OK);
+        assert.deepEqual(calls[1], {
+            count: 41, prompt: 'Options', how: PICK_ONE,
+        });
         // Escape, which select_menu() answers with the cancel value, reaches
         // the same place an empty commit does.
         state.iflags.menu_requested = true;
@@ -637,11 +647,12 @@ test('the m prefix routes doset_simple() to doset() exactly once',
         );
         // doset() reached directly with the prefix still set delegates the
         // other way, to the simple menu.
+        calls.length = 0;
         state.iflags.menu_requested = true;
-        await assert.rejects(
-            doset(state, helpers),
-            (error) => error.what === 'doset_simple_menu()',
-        );
+        assert.equal(await doset(state, helpers), ECMD_OK);
+        assert.deepEqual(calls, [{
+            count: 41, prompt: 'Options', how: PICK_ONE,
+        }]);
     });
 
 test('tty_end_menu() restarts its accelerators on every page', async () => {

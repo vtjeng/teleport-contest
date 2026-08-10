@@ -2,6 +2,7 @@
 // C ref: src/windows.c, the interface-independent layer between the game and
 // whichever window port is linked in.
 
+import { PICK_ANY } from './const.js';
 import { def_char_to_objclass } from './drawing.js';
 import { MAXOCLASSES } from './objects.js';
 import { OBJCLASS_EXPLANATIONS } from './symbol_data.js';
@@ -84,7 +85,7 @@ export async function choose_classes_menu(
             });
         }
     }
-    const pick_list = await helpers.menu(items, prompt);
+    const pick_list = await helpers.menu(items, prompt, PICK_ANY);
     if (!Array.isArray(pick_list)) {
         // n == -1. C advances the write pointer to eos(class_select) and
         // terminates it there, which leaves the incoming selection standing.

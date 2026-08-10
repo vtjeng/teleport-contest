@@ -108,7 +108,11 @@ function menuHelpers(picks, classPicks, seen) {
     return {
         headingStyle: { attr: ATR_INVERSE, color: NO_COLOR },
         countBindKeys: () => 0,
-        menu: (items, prompt) => {
+        menu: (items, prompt, how) => {
+            // Both windows.c choose_classes_menu() and options.c doset() ask
+            // select_menu() for PICK_ANY; the 'O' menu is the one that asks
+            // for PICK_ONE, and neither caller here is it.
+            assert.equal(how, PICK_ANY, prompt);
             if (prompt !== 'Autopickup what?') return picks;
             assert.notEqual(classPicks, undefined, 'unexpected class menu');
             if (seen) seen.push(...items);
@@ -907,7 +911,12 @@ test('choose_classes_menu() wraps its accelerators and then stops', async () => 
     const state = await startStockGame();
     const seen = [];
     const helpers = {
-        menu: (items) => { seen.length = 0; seen.push(...items); return []; },
+        menu: (items, prompt, how) => {
+            assert.equal(how, PICK_ANY, prompt);
+            seen.length = 0;
+            seen.push(...items);
+            return [];
+        },
     };
     const classes = oc_to_str(state.flags.inv_order); // 15 symbols
 
@@ -972,9 +981,9 @@ test("the class menu's 'all classes' entry clears with the rest", async () => {
         const picked = await choose_classes_menu(
             state, 'Autopickup what?', classes, '',
             {
-                menu: (items, prompt) => selectTtyMenu(state, {
+                menu: (items, prompt, how) => selectTtyMenu(state, {
                     items,
-                    how: PICK_ANY,
+                    how,
                     title: prompt,
                     cancelValue: null,
                     overlay: true,

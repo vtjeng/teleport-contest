@@ -21,7 +21,6 @@ import {
     N_DIRS,
     N_DIRS_Z,
     Never_mind,
-    PICK_ANY,
     PICK_NONE,
     PICK_ONE,
     PLNMSG_UNKNOWN,
@@ -1381,9 +1380,10 @@ async function runEnhanceCommand(key, state) {
     }));
 }
 
-// C ref: options.c doset_simple(), the 'O' command. Its menu_requested arm
-// hands off to doset(), whose whole menu is formatted before select_menu()
-// draws anything, so an unported option value stops before any output.
+// C ref: options.c doset_simple(), the 'O' command. Both it and the doset()
+// its menu_requested arm hands off to format the whole menu before
+// select_menu() draws anything, so an unported option value stops before any
+// output.
 async function runOptionsCommand(key, state) {
     return failClosedCommand(key, state, () => doset_simple(state, {
         // add_menu_heading() draws each section heading with
@@ -1392,11 +1392,13 @@ async function runOptionsCommand(key, state) {
             attr: menuTitleStyle(state).titleAttr,
             color: menuTitleStyle(state).titleColor,
         },
-        // doset() ends its menu with end_menu(prompt) and asks select_menu()
-        // for PICK_ANY; Escape answers null and an empty commit answers [].
-        menu: (items, prompt) => selectTtyMenu(state, {
+        // Both menus end with end_menu(prompt) and then call select_menu().
+        // doset() asks for PICK_ANY, where Escape answers null and an empty
+        // commit answers []; doset_simple_menu() asks for PICK_ONE, where
+        // both of those answer null.
+        menu: (items, prompt, how) => selectTtyMenu(state, {
             items,
-            how: PICK_ANY,
+            how,
             title: prompt,
             ...menuTitleStyle(state),
             cancelValue: null,

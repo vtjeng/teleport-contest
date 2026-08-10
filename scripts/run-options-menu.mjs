@@ -1,19 +1,26 @@
 #!/usr/bin/env node
 
-// Record and replay the '#optionsfull' menu against the patched C reference.
-// Every segment types 'm' then 'O', which options.c doset_simple() hands to
-// doset(). The first three page through every one of its pages without
-// committing a selection: the first uses stock options, so the cmdassist help
-// block leads the menu and the compiled-in defaults fill its value column; the
-// second turns cmdassist off, which drops that block and shifts every page
-// boundary, and sets seven option values the menu then has to report back; the
-// third rebinds keys, which is the only input that moves the "bind keys" count
-// on the menu's last page.
+// Record and replay both options menus against the patched C reference.
+//
+// The first five segments type 'm' then 'O', which options.c doset_simple()
+// hands to doset(). The first three page through every one of its pages
+// without committing a selection: the first uses stock options, so the
+// cmdassist help block leads the menu and the compiled-in defaults fill its
+// value column; the second turns cmdassist off, which drops that block and
+// shifts every page boundary, and sets seven option values the menu then has
+// to report back; the third rebinds keys, which is the only input that moves
+// the "bind keys" count on the menu's last page.
 //
 // The fourth commits eight boolean picks and covers what happens afterwards:
 // parseoptions() and optfn_boolean() applying each one, and
 // reset_needed_visuals() repainting once the loop ends. The fifth commits the
 // one compound pick whose handler this port runs.
+//
+// The last two type 'O' on its own, which doset_simple() answers with
+// options.c doset_simple_menu()'s two-page menu. Both walk to the second page
+// and leave without a pick, which is the whole of the menu this port builds:
+// the first commits an empty selection with a space and the second cancels
+// with Escape, and between them they cover '>' and '<' as well.
 
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
@@ -83,12 +90,56 @@ const EDIT_PICKUP_TYPES = [
     + '\x1b';
 
 
+// The 'O' menu's own seed, clock and hero, chosen independently of the ones
+// above. Nothing in doset_simple_menu() reads any of them, which is the point:
+// the two menus have to agree about the option table, not about the game.
+const SIMPLE_SEED = 3729551;
+const SIMPLE_DATETIME = '20270412094500';
+
+// Two spaces walk to page 2 and commit there with nothing picked, which ends
+// doset_simple()'s loop; '>' and '<' move pages without ever committing, and
+// Escape cancels outright, which is select_menu()'s other way of answering
+// doset_simple_menu() with no pick. The Escape each one ends with is the key
+// the recorder has to read at the command prompt for the repainted screen to
+// be captured.
+const PAGE_SIMPLE_OPTIONS_MENU = ' O  \x1b';
+const CANCEL_SIMPLE_OPTIONS_MENU = ' O><>\x1b\x1b';
+
+// Both simple-menu recipes set menu_headings, and the reason is a display
+// ceiling rather than coverage. doset_simple_menu() writes each section
+// heading as " %-30s ", so the highlighted run starts one column before the
+// first glyph. record-session.mjs writes that single leading space out
+// literally, keeping its attribute; serialize() in frozen/terminal.js -- which
+// the judge substitutes for js/terminal.js -- emits a row's leading spaces at
+// the default attribute instead. Under the compiled-in
+// menu_headings:[no-color&inverse] the two therefore disagree about exactly
+// one cell per heading row, and frozen/screen-decode.mjs counts it because
+// inverse is visible on a space. Bold is not, so a bold heading still
+// exercises the styling and still compares cleanly. The deferral "an indented
+// inverse menu heading cannot match" holds the rest of that reasoning;
+// scripts/run-no-time-commands.mjs sidesteps the same ceiling in the spell
+// menu with menu_headings:none.
+
 function nethackrc(extra) {
     return [
         'OPTIONS=name:Optster,role:Valkyrie,race:human,gender:female,'
             + 'align:lawful',
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics,!autopickup',
+        ...extra,
+        '',
+    ].join('\n');
+}
+
+// The simple menu's recipes need their own base: the second one turns
+// autopickup on, so !autopickup cannot sit in the shared line the way it does
+// above, and a boolean stated twice is a configuration-file error.
+function simpleNethackrc(extra) {
+    return [
+        'OPTIONS=name:Optineer,role:Ranger,race:gnome,gender:male,'
+            + 'align:neutral',
+        'OPTIONS=!legacy,!tutorial,!splash_screen',
+        'OPTIONS=pettype:none,!acoustics',
         ...extra,
         '',
     ].join('\n');
@@ -154,6 +205,39 @@ export function loadOptionsMenuRecipes() {
             nethackrc: nethackrc([]),
             moves: ' ' + EDIT_PICKUP_TYPES,
         },
+        {
+            seed: SIMPLE_SEED,
+            datetime: SIMPLE_DATETIME,
+            nethackrc: simpleNethackrc([
+                'OPTIONS=!autopickup',
+                'OPTIONS=menu_headings:cyan&bold',
+            ]),
+            moves: PAGE_SIMPLE_OPTIONS_MENU,
+        },
+        {
+            seed: SIMPLE_SEED,
+            datetime: SIMPLE_DATETIME,
+            // Every boolean the simple menu shows whose name parseNethackrc()
+            // stores under its own address, flipped away from the compiled-in
+            // default the recipe above records, plus one changed value for
+            // each of the four compound rows that has a live setting.
+            // bgcolors, dropped_nopick, fireassist and price_quotes are the
+            // four the parse cannot round-trip: their storage is named for
+            // something other than the option, applyBooleanOption() has no arm
+            // for them, and booleanOptionValue() stops rather than print the
+            // default over the session's setting.
+            nethackrc: simpleNethackrc([
+                'OPTIONS=menu_headings:bold',
+                'OPTIONS=autodig,!autoopen,autopickup,autoquiver',
+                'OPTIONS=!cmdassist,!pickup_stolen',
+                'OPTIONS=!pickup_thrown,pushweapon,!color,!customcolors',
+                'OPTIONS=!customsymbols,hilite_pet,hilite_pile,showrace',
+                'OPTIONS=!sparkle,hitpointbar,showexp,time',
+                'OPTIONS=fruit:kiwi,number_pad:1,statuslines:3',
+                'OPTIONS=symset:DECgraphics',
+            ]),
+            moves: CANCEL_SIMPLE_OPTIONS_MENU,
+        },
     ];
     // record-session preserves the staged install between one recipe's
     // segments, and each of these leaves the recorder stopped inside a live
@@ -189,6 +273,26 @@ export async function verifyOptionsMenuSegment(segment) {
     // doset() spends no turn, so the hero must still be on the first one.
     if (game.moves !== 1)
         throw new Error('opening the options menu advanced the turn counter');
+
+    if (segment.moves === PAGE_SIMPLE_OPTIONS_MENU
+        || segment.moves === CANCEL_SIMPLE_OPTIONS_MENU) {
+        // Neither recipe picks anything, so the simple menu has to leave every
+        // setting as the configuration file left it. These four are the ones
+        // the two recipes disagree about, one per section.
+        const configured = segment.moves === CANCEL_SIMPLE_OPTIONS_MENU;
+        if (game.svp.pl_fruit !== (configured ? 'kiwi' : 'slime mold')
+            || game.flags.pickup !== configured
+            || game.iflags.wc_hilite_pet !== configured
+            || game.flags.time !== configured) {
+            throw new Error('paging the simple options menu changed a setting');
+        }
+        // doset_simple_menu() clears the five flags reset_needed_visuals()
+        // spends before select_menu() runs, and doset_simple() spends them
+        // after every pass, so its loop ends with nothing pending.
+        if (game.go.opt_need_redraw !== false)
+            throw new Error('reset_needed_visuals() left a repair pending');
+        return;
+    }
 
     if (segment.moves.includes(EDIT_PICKUP_TYPES)) {
         // The rounds leave [WEAPON, FOOD], [], [RING], [RING], [] and every
@@ -241,7 +345,7 @@ export async function verifyOptionsMenuSegment(segment) {
 }
 
 export async function runOptionsMenuMatrix() {
-    const [stock, configured, bound, committed, classes]
+    const [stock, configured, bound, committed, classes, simple, simpleSet]
         = loadOptionsMenuRecipes();
     return runFreshMatrix({
         entries: [
@@ -250,6 +354,8 @@ export async function runOptionsMenuMatrix() {
             { label: 'rebound options menu', recipe: bound },
             { label: 'committed options menu', recipe: committed },
             { label: 'pickup_types class menu', recipe: classes },
+            { label: 'stock simple options menu', recipe: simple },
+            { label: 'configured simple options menu', recipe: simpleSet },
         ],
         summaryLabel: 'OPTIONS MENU',
         verifySegment: verifyOptionsMenuSegment,
