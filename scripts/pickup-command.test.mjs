@@ -11,9 +11,11 @@ import {
     D_LOCKED,
     D_NODOOR,
     ECMD_OK,
+    ECMD_TIME,
     FOUNTAIN,
     GRAVE,
     LAVAPOOL,
+    MENU_TRADITIONAL,
     MOAT,
     PIT,
     POOL,
@@ -35,6 +37,11 @@ import {
     PICKUP_CASES,
     loadPickupCommandRecipe,
 } from './run-pickup-command.mjs';
+import {
+    PICKUP_ONE_OBJECT_CASES,
+    loadPickupOneObjectRecipe,
+    verifyPickupOneObjectSegment,
+} from './run-pickup-one-object.mjs';
 
 // The one recipe is the only record of which C branches were recorded, so a
 // silent re-recording that lost one has to fail here.
@@ -46,6 +53,24 @@ test('the pickup matrix keeps replay inputs only', () => {
         (segment) => !Object.hasOwn(segment, 'steps'),
     ));
     assert.equal(recipe.segments.length, PICKUP_CASES.length);
+});
+
+test('the one-object pickup matrix keeps replay inputs only', () => {
+    const recipe = loadPickupOneObjectRecipe();
+    // Version 5 recipes contain replay inputs and no recorded C answers.
+    assert.equal(recipe.version, 5);
+    assert.ok(recipe.segments.every(
+        (segment) => !Object.hasOwn(segment, 'steps'),
+    ));
+    assert.equal(recipe.segments.length, PICKUP_ONE_OBJECT_CASES.length);
+});
+
+// The port half of the matrix: each recorded case replayed here, so the
+// message, the emptied square, the inventory letter and the spent turn are
+// checked by `npm test` even though the C recording needs the recorder.
+test('every one-object pickup case lifts what its message names', async () => {
+    for (const segment of loadPickupOneObjectRecipe().segments)
+        await verifyPickupOneObjectSegment(segment);
 });
 
 // A Valkyrie standing on ordinary room floor with nothing on the square.
@@ -88,6 +113,12 @@ function squareUnderHero(state, typ, flags = 0) {
     location.flags = flags;
     location.doormask = 0;
     return state;
+}
+
+function carried(state, object) {
+    for (let item = state.invent; item; item = item.nobj)
+        if (item === object) return true;
+    return false;
 }
 
 function objectUnderHero(state) {
@@ -216,16 +247,67 @@ test('dopickup spends no turn on a square with nothing to take', async () => {
 
 test('dopickup hands a square with something on it to pickup()', async () => {
     const state = await heroOnAnEmptySquare();
-    objectUnderHero(state);
-    // pickup(-count) is pickup(0) here, and pickup.c's interactive arm is
-    // where this port stops: query_objlist() and the menu below it have no
-    // owner yet.
-    await assert.rejects(
-        () => dopickup(state),
-        (error) => error instanceof UnsupportedPickupError
-            && /object selection/u.test(error.message),
-    );
+    const object = objectUnderHero(state);
+    // pickup(-count) is pickup(0) here. query_objlist() counts one allowed
+    // object and returns it through the AUTOSELECT_SINGLE shortcut, so
+    // pickup() answers 1 and hack.c:3890 turns that into ECMD_TIME.
+    assert.equal(await dopickup(state), ECMD_TIME);
+    assert.ok(carried(state, object));
+    assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
+    assert.equal(toplines(state), `${object.invlet} - an elven dagger.`);
 });
+
+test('dopickup takes the whole stack the square holds', async () => {
+    const state = await heroOnAnEmptySquare();
+    const object = objectUnderHero(state);
+    // query_objlist():1075 hands pickup_object() `last->quan`, so
+    // pickup.c:1876's `obj->quan != count` is false and no splitobj() runs.
+    object.quan = 4;
+    assert.equal(await dopickup(state), ECMD_TIME);
+    assert.ok(carried(state, object));
+    assert.equal(object.quan, 4);
+    assert.equal(toplines(state), `${object.invlet} - 4 elven daggers.`);
+});
+
+test('the interactive arm stops before a second object on the square',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        const first = objectUnderHero(state);
+        const second = objectUnderHero(state);
+        // Two allowed objects fall past query_objlist():1072 into sortloot()
+        // and the menu, which this port refuses. The refusal has to land
+        // before reset_justpicked(), so nothing on either chain moves.
+        first.pickup_prev = true;
+        await assert.rejects(
+            () => dopickup(state),
+            (error) => error instanceof UnsupportedPickupError
+                && /query_objlist\(\) menu/u.test(error.message),
+        );
+        assert.equal(state.level.objects[state.u.ux][state.u.uy], second);
+        assert.equal(second.nexthere, first);
+        assert.equal(first.pickup_prev, true);
+        assert.equal(toplines(state), '');
+    });
+
+test('the interactive arm refuses the settings it cannot answer for',
+    async () => {
+        // flags.menu_style == MENU_TRADITIONAL without the reqmenu prefix is
+        // pickup.c:793's old-style interface. Nothing parses menustyle, so
+        // this is the refusal a future parser would meet.
+        const traditional = await heroOnAnEmptySquare();
+        objectUnderHero(traditional);
+        traditional.flags.menu_style = MENU_TRADITIONAL;
+        await assert.rejects(
+            () => dopickup(traditional),
+            (error) => error instanceof UnsupportedPickupError
+                && /traditional interface/u.test(error.message),
+        );
+        // pickup.c:759's second disjunct: `m,` reaches the menu arm whatever
+        // menustyle says, and a single object still takes the shortcut.
+        traditional.iflags.menu_requested = true;
+        assert.equal(await dopickup(traditional), ECMD_TIME);
+
+    });
 
 // The seed and datetime of run-pickup-command.mjs's fountain case, whose
 // upstairs start square is the shortest route to the command.
@@ -273,15 +355,33 @@ test('#pickup reaches the same handler as the , key', async () => {
     assert.equal(game.context.move, 0);
 });
 
-test('the , command stops on a square holding an object', async () => {
+test('the , command lifts the one object on the square', async () => {
     // `d` then `a` drops the Valkyrie's wielded spear onto the upstairs, so
     // the next `,` is the OBJ_AT side of hack.c:3825 without a walk.
-    const { boundary, replay } = await play(' da,');
+    const { boundary: dropped } = await play(' da');
+    const moves = game.moves;
+    assert.equal(dropped, null);
+
+    const { boundary } = await play(' da,');
+    assert.equal(boundary, null);
+    assert.equal(toplines(game), 'a - a +1 spear.');
+    assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
+    // pickup() answered 1, so hack.c:3890 returned ECMD_TIME and the move
+    // counter advanced where slice one's refusals left it alone.
+    assert.equal(game.moves, moves + 1);
+});
+
+test('the , command stops on a square holding two objects', async () => {
+    // A second drop onto the same square is the first case past this slice:
+    // query_objlist() falls through to sortloot() and the menu.
+    const { boundary, replay } = await play(' dadb,');
     assert.ok(boundary instanceof UnsupportedHeroCommandBoundaryError);
-    assert.match(boundary.message, /pickup\(\) object selection/u);
-    // The drop's own line is the last thing drawn: the boundary stops before
-    // pickup() prints or lifts anything.
-    assert.equal(toplines(game), 'You drop a +1 spear.');
+    assert.match(boundary.message, /query_objlist\(\) menu/u);
+    // The second drop's own line is the last thing drawn, and the screen it
+    // drew is the last frame: the boundary stops before pickup() prints,
+    // lifts anything or spends the turn.
+    assert.equal(toplines(game), 'You drop a +0 dagger.');
     const screens = replay.getScreens();
     assert.deepEqual(screens.at(-1), screens.at(-2));
+    assert.equal(game.context.move, 0);
 });

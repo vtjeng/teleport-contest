@@ -51,7 +51,12 @@ import {
     is_exclusion_zone,
     place_lregion,
 } from '../js/mkmaze.js';
-import { M1_NOTAKE, PM_DWARF, monst_globals_init } from '../js/monsters.js';
+import {
+    M1_NOTAKE,
+    PM_COCKATRICE,
+    PM_DWARF,
+    monst_globals_init,
+} from '../js/monsters.js';
 import { m_at } from '../js/monst.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
@@ -745,6 +750,12 @@ test('random arrival preflights the complete ordinary pickup transaction',
             false,
             objectGenerationEnv({ state: game }),
         );
+        // A bare-handed Wizard reaching pickup.c fatal_corpse_mistake() with
+        // a species that petrifies on touch: every term of
+        // u_safe_from_fatal_corpse() fails, so the arm that instapetrifies
+        // her is what the arrival refuses.
+        corpse.corpsenm = PM_COCKATRICE;
+        game.uarmg = null;
         game.dndest = {
             lx: destination.x,
             ly: destination.y,
@@ -775,7 +786,7 @@ test('random arrival preflights the complete ordinary pickup transaction',
 
         await assert.rejects(
             () => place_random_arrival(0, game),
-            /special artifact, corpse, or scare scroll/u,
+            /petrifying corpse/u,
         );
 
         assert.deepEqual(game.u, before.hero);

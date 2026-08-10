@@ -1608,6 +1608,14 @@ export const SIGNAL_NOMENU = 0x0020;
 export const SIGNAL_ESCAPE = 0x0040;
 export const FEEL_COCKATRICE = 0x0080;
 export const INCLUDE_HERO = 0x0100;
+
+// C ref: hack.h:856-862 enum stoning_checks, the `tests` argument of
+// u_safe_from_fatal_corpse().
+export const st_gloves = 0x1;
+export const st_corpse = 0x2;
+export const st_petrifies = 0x4;
+export const st_resists = 0x8;
+export const st_all = st_gloves | st_corpse | st_petrifies | st_resists;
 export const UNPAID_TYPES = 0x0004;
 export const GOLD_TYPES = 0x0008;
 export const WORN_TYPES = 0x0010;

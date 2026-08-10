@@ -2,22 +2,37 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    AUTOSELECT_SINGLE,
     BLINDED,
+    BY_NEXTHERE,
     CORR,
     EXT_ENCUMBER,
     FUMBLING,
     HVY_ENCUMBER,
+    INCLUDE_HERO,
     MOAT,
     MOD_ENCUMBER,
     OBJ_FLOOR,
     OBJ_FREE,
     OBJ_INVENT,
+    OBJ_MINVENT,
     OBJ_DELETED,
     PIT,
+    DUST,
     ROOM,
+    ROOMOFFSET,
+    SHOPBASE,
+    SIGNAL_NOMENU,
     SLT_ENCUMBER,
     STAIRS,
     STONE,
+    STONE_RES,
+    W_WEP,
+    st_all,
+    st_corpse,
+    st_gloves,
+    st_petrifies,
+    st_resists,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import {
@@ -27,10 +42,17 @@ import {
     weight_cap,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
-import { M1_NOTAKE, PM_KOBOLD_ZOMBIE } from '../js/monsters.js';
+import {
+    M1_NOTAKE,
+    PM_COCKATRICE,
+    PM_DEATH,
+    PM_KOBOLD_ZOMBIE,
+    PM_LICHEN,
+} from '../js/monsters.js';
 import { mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { addinv, obj_extract_self } from '../js/invent.js';
+import { make_engr_at } from '../js/engrave.js';
 import {
     encumber_msg,
     describe_decor,
@@ -38,17 +60,23 @@ import {
     pickup,
     preflight_describe_decor_at,
     preflight_initial_pickup,
+    query_objlist,
+    rider_corpse_revival,
+    u_safe_from_fatal_corpse,
     UnsupportedPickupError,
 } from '../js/pickup.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import {
     COIN_CLASS,
+    CORPSE,
     ELVEN_DAGGER,
     FIGURINE,
+    LEATHER_GLOVES,
     GOLD_PIECE,
     LUCKSTONE,
     SACK,
     SCR_IDENTIFY,
+    SCR_SCARE_MONSTER,
     TOOL_CLASS,
 } from '../js/objects.js';
 
@@ -225,14 +253,23 @@ test('pickup answers an empty square without taking anything', async () => {
     const state = await heroOnAnEmptySquare();
     // Autopickup takes the early empty-square return at pickup.c:702-707.
     assert.equal(await pickup(1, state), 0);
-    // A count pickup is one of the two interactive arms, which this port
-    // stops at pickup.c:747-749 instead of entering. hack.c pickup_checks()
-    // keeps dopickup() off this square anyway: an empty one never reaches
-    // pickup() at all.
+    // pickup.c:1069, the `n == 0` return: query_objlist() counts nothing
+    // allowed and pickup() answers 0 without a menu. In a running game only a
+    // punished hero reaches it, because hack.c pickup_checks() keeps
+    // dopickup() off an empty square and uchain is the one object
+    // all_but_uchain() rejects.
+    state.invent.pickup_prev = true;
+    assert.equal(await pickup(0, state), 0);
+    // pickup.c:780 guards reset_justpicked() with `n > 0`, so a selection of
+    // nothing leaves every carried object's pickup_prev alone.
+    assert.equal(state.invent.pickup_prev, true);
+    // A counted pickup is the other interactive arm, "Pick %d of what?" with
+    // the n_or_more selector, which this port stops at pickup.c:763 instead
+    // of entering.
     await assert.rejects(
         () => pickup(-1, state),
         (error) => error instanceof UnsupportedPickupError
-            && /object selection/u.test(error.message),
+            && /counted subset/u.test(error.message),
     );
 });
 
@@ -1098,4 +1135,317 @@ test('pickup stops a run before it selects anything', async () => {
     assert.equal(await pickup(1, state), 1);
     assert.equal(second.where, OBJ_INVENT);
     assert.equal(state.context.run, 8);
+});
+
+// pickup.c u_safe_from_fatal_corpse() (272-281). Each row names the term
+// that answers TRUE, or the state in which every term is FALSE. The species are
+// read from monst.c: a cockatrice carries M1_TPOISON, which mondata.h
+// touch_petrifies() tests, and a lichen does not.
+const STONING_ROWS = [
+    ['gloves stop the touch whatever the corpse is',
+        { gloves: true, otyp: CORPSE, corpsenm: PM_COCKATRICE }, true],
+    ['a non-corpse object is never a stoning risk',
+        { gloves: false, otyp: ELVEN_DAGGER, corpsenm: PM_COCKATRICE }, true],
+    ['a species that does not petrify on touch is safe bare-handed',
+        { gloves: false, otyp: CORPSE, corpsenm: PM_LICHEN }, true],
+    ['stoning resistance survives the bare-handed touch',
+        { gloves: false, otyp: CORPSE, corpsenm: PM_COCKATRICE,
+            resistant: true }, true],
+    ['a bare hand on a petrifying corpse fails every term',
+        { gloves: false, otyp: CORPSE, corpsenm: PM_COCKATRICE }, false],
+];
+
+test('u_safe_from_fatal_corpse answers each stoning check', async () => {
+    for (const [label, row, expected] of STONING_ROWS) {
+        const state = await heroOnAnEmptySquare();
+        state.uarmg = row.gloves ? { otyp: LEATHER_GLOVES } : null;
+        state.u.uprops[STONE_RES].intrinsic = row.resistant ? 1 : 0;
+        const object = { otyp: row.otyp, corpsenm: row.corpsenm };
+        assert.equal(
+            u_safe_from_fatal_corpse(object, st_all, state), expected, label,
+        );
+    }
+});
+
+test('u_safe_from_fatal_corpse reads only the terms its mask names',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.uarmg = { otyp: LEATHER_GLOVES };
+        state.u.uprops[STONE_RES].intrinsic = 0;
+        const corpse = { otyp: CORPSE, corpsenm: PM_COCKATRICE };
+        // st_gloves alone is the term the gloves answer.
+        assert.equal(u_safe_from_fatal_corpse(corpse, st_gloves, state), true);
+        // Without it, the same hero and corpse fail the other three.
+        assert.equal(
+            u_safe_from_fatal_corpse(
+                corpse, st_corpse | st_petrifies | st_resists, state,
+            ),
+            false,
+        );
+    });
+
+test('pickup refuses the corpses its helpers cannot carry through',
+    async () => {
+        // fatal_corpse_mistake(): bare hands on a petrifying corpse reach
+        // instapetrify() or a stone-golem polymorph, neither of them ported.
+        const petrifying = await heroOnAnEmptySquare();
+        petrifying.uarmg = null;
+        const cockatrice = typedObjectUnderHero(petrifying, CORPSE);
+        cockatrice.corpsenm = PM_COCKATRICE;
+        cockatrice.dknown = false;
+        petrifying.invent.pickup_prev = true;
+        await assert.rejects(
+            () => pickup(0, petrifying),
+            (error) => error instanceof UnsupportedPickupError
+                && /petrifying corpse/u.test(error.message),
+        );
+        assert.equal(cockatrice.where, OBJ_FLOOR);
+        // The refusal is a preflight one, so it lands before
+        // reset_justpicked() and before pickup_object()'s observe_object().
+        assert.equal(petrifying.invent.pickup_prev, true);
+        assert.equal(cockatrice.dknown, false);
+        // The same corpse under gloves is the st_gloves term of the live
+        // path, and the pickup goes through.
+        petrifying.uarmg = { otyp: LEATHER_GLOVES };
+        quiet(petrifying);
+        assert.equal(await pickup(0, petrifying), 1);
+        assert.equal(cockatrice.where, OBJ_INVENT);
+
+        // rider_corpse_revival(): a Rider's corpse calls revive_corpse().
+        // The hero's own hands lift it, so the refusal names C's "touch"
+        // phrasing rather than the telekinetic one.
+        const rider = await heroOnAnEmptySquare();
+        rider.uarmg = { otyp: LEATHER_GLOVES };
+        const death = typedObjectUnderHero(rider, CORPSE);
+        death.corpsenm = PM_DEATH;
+        death.dknown = false;
+        rider.invent.pickup_prev = true;
+        await assert.rejects(
+            () => pickup(0, rider),
+            (error) => error instanceof UnsupportedPickupError
+                && /Rider's corpse reviving at your touch$/u
+                    .test(error.message),
+        );
+        assert.equal(death.where, OBJ_FLOOR);
+        assert.equal(rider.invent.pickup_prev, true);
+        assert.equal(death.dknown, false);
+        // Called directly the way zap.c and dothrow.c call it, with a NULL
+        // object and with the remote phrasing.
+        assert.equal(rider_corpse_revival(null, false, rider), false);
+        assert.throws(
+            () => rider_corpse_revival(death, true, rider),
+            /attempted acquisition$/u,
+        );
+    });
+
+test('pickup refuses a stack that would merge into the wielded weapon',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        const wielded = state.invent;
+        state.uwep = wielded;
+        wielded.owornmask = W_WEP;
+        const incoming = objectUnderHero(state);
+        matchStackTraits(incoming, wielded);
+        incoming.owornmask = 0;
+        // pickup.c:1881 raises gm.mrg_to_wielded so pickup_prinv() drops the
+        // "(weapon in hand)" suffix objnam.c:1561 would otherwise add.
+        await assert.rejects(
+            () => pickup(0, state),
+            (error) => error instanceof UnsupportedPickupError
+                && /wielded weapon/u.test(error.message),
+        );
+        assert.equal(incoming.where, OBJ_FLOOR);
+        assert.equal(wielded.quan, 1);
+    });
+
+test('query_objlist counts what the callback allows', async () => {
+    const state = await heroOnAnEmptySquare();
+    const first = objectUnderHero(state);
+    const second = objectUnderHero(state);
+    const flags = BY_NEXTHERE | AUTOSELECT_SINGLE;
+    const head = state.level.objects[state.u.ux][state.u.uy];
+
+    // Two allowed objects fall past both early returns into the menu.
+    assert.throws(
+        () => query_objlist(head, flags, () => true, state),
+        (error) => error instanceof UnsupportedPickupError
+            && /query_objlist\(\) menu/u.test(error.message),
+    );
+    // One allowed object returns through pickup.c:1072 with its own quantity.
+    const single = query_objlist(head, flags, (obj) => obj === first, state);
+    assert.equal(single.n, 1);
+    assert.deepEqual(single.pick_list, [{ obj: first, count: first.quan }]);
+    // Without AUTOSELECT_SINGLE the same list reaches the menu instead.
+    assert.throws(
+        () => query_objlist(head, BY_NEXTHERE, (obj) => obj === second, state),
+        (error) => error instanceof UnsupportedPickupError
+            && /query_objlist\(\) menu/u.test(error.message),
+    );
+    // pickup.c:1069, where SIGNAL_NOMENU picks -1 over 0. dopickup() never
+    // sets it, so only this test separates the two returns.
+    assert.deepEqual(
+        query_objlist(head, flags, () => false, state),
+        { n: 0, pick_list: [] },
+    );
+    assert.deepEqual(
+        query_objlist(head, flags | SIGNAL_NOMENU, () => false, state),
+        { n: -1, pick_list: [] },
+    );
+    // An empty square answers before the counting loop runs.
+    assert.deepEqual(
+        query_objlist(null, flags | SIGNAL_NOMENU, () => true, state),
+        { n: 0, pick_list: [] },
+    );
+});
+
+test('query_objlist refuses the lists this port does not walk', async () => {
+    const state = await heroOnAnEmptySquare();
+    const object = objectUnderHero(state);
+    const flags = BY_NEXTHERE | AUTOSELECT_SINGLE;
+    // INCLUDE_HERO adds the swallowed hero as a fake extra entry.
+    assert.throws(
+        () => query_objlist(object, flags | INCLUDE_HERO, () => true, state),
+        (error) => error instanceof UnsupportedPickupError
+            && /engulfed hero/u.test(error.message),
+    );
+    // An engulfer's inventory is walked by nobj and can clear
+    // AUTOSELECT_SINGLE for a worn item.
+    object.where = OBJ_MINVENT;
+    assert.throws(
+        () => query_objlist(object, flags, () => true, state),
+        (error) => error instanceof UnsupportedPickupError
+            && /engulfer's inventory/u.test(error.message),
+    );
+});
+
+// The smallest level shape shk.c costly_spot() calls billable: a shop room
+// whose resident keeps its own room number, with the hero on an interior
+// square and the shopkeeper standing one square west of her.
+function makeShopUnderHero(state) {
+    const roomno = ROOMOFFSET;
+    const room = state.level.rooms[0];
+    room.rtype = SHOPBASE;
+    state.level.flags.has_shop = true;
+    const interior = [[state.u.ux, state.u.uy], [state.u.ux - 1, state.u.uy]];
+    for (const [x, y] of interior) {
+        Object.assign(state.level.at(x, y), { typ: ROOM, roomno, edge: false });
+    }
+    room.resident = {
+        isshk: true,
+        mpeaceful: true,
+        mx: state.u.ux - 1,
+        my: state.u.uy,
+        mextra: {
+            eshk: {
+                shoproom: roomno,
+                shoplevel: { ...state.u.uz },
+                shk: { x: state.u.ux - 1, y: state.u.uy },
+            },
+        },
+    };
+    return room;
+}
+
+test('the interactive arm refuses a shop square', async () => {
+    const state = await heroOnAnEmptySquare();
+    const stock = objectUnderHero(state);
+    makeShopUnderHero(state);
+    // all_but_uchain() allows the stock, and pick_obj() would then bill it
+    // through addtobill() and remote_burglary().
+    await assert.rejects(
+        () => pickup(0, state),
+        (error) => error instanceof UnsupportedPickupError
+            && /shop floor/u.test(error.message),
+    );
+    assert.equal(stock.where, OBJ_FLOOR);
+
+    // The same square with the shopkeeper standing on it is not costly, which
+    // is the second conjunct of shk.c costly_spot().
+    const keeper = state.level.rooms[0].resident;
+    Object.assign(keeper, { mx: state.u.ux, my: state.u.uy });
+    Object.assign(keeper.mextra.eshk.shk, { x: state.u.ux, y: state.u.uy });
+    assert.equal(await pickup(0, state), 1);
+    assert.equal(stock.where, OBJ_INVENT);
+});
+
+test('an autopickup that lifts nothing leaves the pile described as untouched',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        state.flags.pickup = true;
+        // invent.c look_here() skips naming a pile at or above the limit and
+        // counts it instead, which is the one output that reads
+        // LOOKHERE_PICKED_SOME without also pricing shop stock.
+        state.flags.pile_limit = 2;
+        // The hero still stands on the D:1 upstairs, whose dfeature_at() line
+        // would precede the count and ask for a --More-- no key answers.
+        state.stairs = null;
+        objectUnderHero(state);
+        objectUnderHero(state);
+        makeShopUnderHero(state);
+        quiet(state);
+
+        // Every object on the square is stock, so autopick() selected none of
+        // them and pickup.c:903 passes check_here() a FALSE picked_some.
+        assert.equal(await pickup(1, state), 0);
+        assert.equal(state._ttyToplines, 'There are two objects here.');
+    });
+
+
+test('pickup refuses the object types it never learned to lift', async () => {
+    // pickup.c:1826 hands an artifact to touch_artifact(), which prints and
+    // can blast the hero.
+    const artifact = await heroOnAnEmptySquare();
+    const blade = objectUnderHero(artifact);
+    blade.oartifact = 1;
+    await assert.rejects(
+        () => pickup(0, artifact),
+        (error) => error instanceof UnsupportedPickupError
+            && /of an artifact/u.test(error.message),
+    );
+    assert.equal(blade.where, OBJ_FLOOR);
+
+    // pickup.c:1832-1862 rewrites obj->spe, unblesses, or turns the whole
+    // stack to dust before it ever reaches lift_object().
+    const scare = await heroOnAnEmptySquare();
+    const scroll = typedObjectUnderHero(scare, SCR_SCARE_MONSTER);
+    await assert.rejects(
+        () => pickup(0, scare),
+        (error) => error instanceof UnsupportedPickupError
+            && /scroll of scare monster/u.test(error.message),
+    );
+    assert.equal(scroll.where, OBJ_FLOOR);
+    assert.equal(scroll.spe, 0);
+});
+
+test('a punished hero finds only the chain on the square', async () => {
+    const state = await heroOnAnEmptySquare();
+    const chain = objectUnderHero(state);
+    // all_but_uchain() is the one query_objlist() callback that rejects
+    // anything, and the ball and chain is the only thing it rejects. Nothing
+    // ported punishes the hero, so this is the sole route to pickup.c:1069.
+    state.uchain = chain;
+    assert.equal(await pickup(0, state), 0);
+    assert.equal(chain.where, OBJ_FLOOR);
+    assert.equal(state._ttyToplines, '');
+});
+
+test('the interactive arm leaves the engraving unread', async () => {
+    const state = await heroOnAnEmptySquare();
+    const object = objectUnderHero(state);
+    make_engr_at(
+        state.u.ux,
+        state.u.uy,
+        'Elbereth',
+        'Elbereth',
+        0,
+        DUST,
+        objectGenerationEnv({ state }),
+    );
+    quiet(state);
+
+    // pickup.c:903 guards check_here() with `if (autopickup)`, and
+    // check_here() is what reads the engraving once the square is bare.
+    assert.equal(await pickup(0, state), 1);
+    assert.equal(object.where, OBJ_INVENT);
+    assert.match(state._ttyToplines ?? '', /elven dagger/u);
 });
