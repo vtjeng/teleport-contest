@@ -1336,7 +1336,7 @@
       "area": "monsters",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "896e50e988043100f1489d6d7f0e0a8420209fa4",
       "detail": "The dochugw stop_occupation seam in js/unported_monster_actions.js hands stop_occupation() a silent message and a no-op statusRefresh when env.planning is set, and the live ttyPline/bot() pair otherwise. Nothing pins that choice: removing the planning arm and always passing the live pair leaves the full suite green and leaves the four-segment interruption matrix in scripts/run-eat-occupation.mjs byte-identical, even though bot() writes to the live game unconditionally. The matrix cannot see it because a planning pass that writes to the live terminal still produces the same recorded screens when the live pass writes the same line afterwards; the corruption is a duplicate write, not a different one. Close it with a test that installs an occupation, drives runSimpleMonsterAction() with planning: true against a state whose disp.botl is false and whose pending message is empty, and asserts disp.botl is still false and no row of nhDisplay was written -- that is, that the operations reaching stop_occupation() are the no-op pair. Verify it bites by replacing the planning arm with the live pair and watching it fail. Found by the correctness pass over c975ad3..896e50e and deferred there because the setup needs a monster, an installed occupation and a state satisfying assertSimpleActionState(), which is more scaffolding than an audit fix should carry."
     }

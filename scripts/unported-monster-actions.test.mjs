@@ -33,11 +33,14 @@ import {
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     NORMAL_SPEED,
+    NOT_HUNGRY,
     OBJ_FLOOR,
+    OBJ_INVENT,
     OBJ_MINVENT,
     PIT,
     POOL,
     ROOM,
+    SATIATED,
     SINK,
     STAIRS,
     STONE,
@@ -47,6 +50,7 @@ import {
     W_NONPASSWALL,
     W_WEP,
 } from '../js/const.js';
+import { eatfood } from '../js/eat.js';
 import { game } from '../js/gstate.js';
 import { new_light_source } from '../js/light.js';
 import { runSegment } from '../js/jsmain.js';
@@ -1980,6 +1984,126 @@ for (const arm of PET_HUNGER_REFUSALS) {
             }
         });
 }
+
+// C ref: monmove.c dochugw() (223-235). It interrupts an occupation only for a
+// monster the hero has not already seen, so the fixture hides the source square
+// from sight and reveals the destination: alreadySawMonster is taken before
+// dochug() runs and canspotmon() again afterwards, and both read viz_array
+// through the monster's own coordinates.
+async function prepareOccupationInterruption() {
+    const target = await prepareSelectedAction();
+    // COULD_SEE alone keeps the aligned approach prepareSelectedAction()
+    // documents while leaving cansee() false, which is what canspotmon() reads.
+    game.viz_array[target.heroY][target.monsterX] = COULD_SEE;
+    game.viz_array[target.heroY][target.destinationX] = COULD_SEE | IN_SIGHT;
+    return target;
+}
+
+// Everything stop_occupation()'s two operations can write. completeSecondTurn
+// Snapshot() cannot serve here: it structuredClone()s state.go, and an
+// installed occupation is a function. The last three fields are bot()'s own
+// bookkeeping, which it stamps on the live game whether or not the rows it
+// writes differ from the rows already there.
+function liveDisplaySnapshot() {
+    return {
+        disp: structuredClone(game.disp),
+        cursor: [
+            game.nhDisplay.cursorCol,
+            game.nhDisplay.cursorRow,
+            game.nhDisplay.cursorVisible,
+        ],
+        grid: structuredClone(game.nhDisplay.grid),
+        messages: [...game.nhDisplay.messages],
+        pending: game._pending_message,
+        topMessage: game.nhDisplay.topMessage,
+        toplin: game.nhDisplay.toplin,
+        toplines: game.nhDisplay.toplines,
+        ttyToplines: game._ttyToplines,
+        renderedStatusLayouts: structuredClone(
+            game._renderedStatusLayouts ?? null,
+        ),
+        statusOptionalFieldSnapshot:
+            game._statusOptionalFieldSnapshot ?? null,
+    };
+}
+
+// js/display.js bot() (3606-3610), the port of botl.c bot(), clears all three
+// of these, and allmain.c stop_occupation() sets only botl back. The other two are therefore the live
+// game's record of whether a status refresh ran, and a status line already
+// marked dirty is the ordinary mid-turn state.
+function markStatusLineDirty() {
+    game.disp.botl = true;
+    game.disp.botlx = true;
+    game.disp.time_botl = true;
+}
+
+// The planning pass replays the same turn against the live display afterwards,
+// so neither operation stop_occupation() receives may write during planning.
+// bot() is the dangerous one: js/display.js:3586 takes no state and writes the
+// module-global game's status rows whatever state the occupation runs on.
+//
+// Two arms of stop_occupation() reach the two operations, and each case below
+// takes one. An unfinished occupation reaches `message` through its own
+// "You stop %s." line; a meal whose last bite is taken reaches `statusRefresh`
+// through maybe_finished_meal() -> eatfood() -> done_eating() -> newuhs(), the
+// only consumer of that operation on this path.
+test('a planning interruption of an occupation writes nothing', async () => {
+    const { monster } = await prepareOccupationInterruption();
+    // cmd.c set_occupation() writes both fields; the callback is never invoked
+    // here, because dochugw() stops the occupation rather than running it.
+    game.go.occupation = () => 0;
+    game.go.occtxt = 'digging';
+    markStatusLineDirty();
+    const before = liveDisplaySnapshot();
+
+    await runSimpleMonsterAction(monster, { state: game, planning: true });
+
+    assert.equal(game.go.occupation, null);
+    assert.deepEqual(liveDisplaySnapshot(), before);
+});
+
+test('a planning interruption of a finished meal writes nothing', async () => {
+    const { monster } = await prepareOccupationInterruption();
+    const ration = newObject({
+        otyp: FOOD_RATION,
+        oclass: game.objects[FOOD_RATION].oc_class,
+        o_id: 9301,
+        quan: 1,
+        owt: game.objects[FOOD_RATION].oc_weight,
+        oeaten: 400,
+        where: OBJ_INVENT,
+        nobj: game.invent,
+    });
+    game.invent = ration;
+    game.go.occupation = eatfood;
+    game.go.occtxt = 'eating the food ration';
+    // eat.c maybe_finished_meal():825 needs usedtime at reqtime, and
+    // eatfood():1226 increments past it before calling done_eating().
+    game.context.victual = {
+        ...game.context.victual,
+        piece: ration,
+        o_id: ration.o_id,
+        usedtime: 5,
+        reqtime: 5,
+        eating: 1,
+    };
+    game.nomovemsg = "You're finally finished.";
+    // eat.c newuhs():879 resolves statusRefresh only when the status moves.
+    // 900 nutrition is NOT_HUNGRY, and the hero starts the turn SATIATED.
+    game.u.uhunger = 900;
+    game.u.uhs = SATIATED;
+    markStatusLineDirty();
+    const before = liveDisplaySnapshot();
+
+    await runSimpleMonsterAction(monster, { state: game, planning: true });
+
+    assert.equal(game.go.occupation, null);
+    // The meal really finished on this state, so the operation that would have
+    // written was reached rather than skipped.
+    assert.equal(game.context.victual.piece, null);
+    assert.equal(game.u.uhs, NOT_HUNGRY);
+    assert.deepEqual(liveDisplaySnapshot(), before);
+});
 
 test('simple monster movement continues through an ignored object',
     async () => {
