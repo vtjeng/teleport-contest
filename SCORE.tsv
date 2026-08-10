@@ -119,3 +119,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-10T02:11:58.337Z	8c64c2f	slice	4	33	1252	7765	117922	610816	1263	7765					pickup-command slice 1: dopickup() and pickup_checks()'s !OBJ_AT terrain switch; +24 screens, +35 RNG over 1228/117887
 2026-08-10T03:21:58.158Z	ece768c	slice	4	33	1254	7765	117940	610816	1265	7765					pickup-command slice 2: query_objlist()'s n==1 shortcut and pickup_object(); +2 screens, +18 RNG; goal's last slice
 2026-08-10T04:30:51.921Z	3e8f4d9	window	4	33	1254	7765	117940	610816	1265	7765					correctness pass eeb0f46..3e8f4d9: 21 raw, 16 deduped, 13 confirmed, all applied, 3 rejected; the burden gate went NaN on an unparsed pickup_burden and dropped its refusal; score unchanged
+2026-08-10T04:32:24.774Z	3771b92	goal	4	33	1254	7765	117940	610816	1265	7765	223	3640	33359	182022	pickup-command close; HOLDOUT MOVED 207 to 223 screens and 32682 to 33359 calls, carrying over from +26 development screens

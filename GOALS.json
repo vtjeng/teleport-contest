@@ -1097,7 +1097,7 @@
     },
     {
       "id": "pickup-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "The , command (hack.c dopickup()) for a square holding at most one takeable object: pickup_checks() in full, and pickup(0)'s flags.menu_style != MENU_TRADITIONAL arm where query_objlist() returns through one of its two early arms, the n == 0 return at pickup.c:1069 and the n == 1 && (qflags & AUTOSELECT_SINGLE) shortcut at pickup.c:1072-1077, before sortloot() and before any menu window. A second allowed object on the square reaches sortloot() and the menu and stays refused; so do the swallowed, MENU_TRADITIONAL, and counted-pickup (what < 0) paths.",
       "upstreamOwners": [
         "src/hack.c",
@@ -1145,8 +1145,11 @@
         "screens": 1228,
         "rng": 117887
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "3771b92c53cc741fa4348c3a4efc909db520e650",
+      "delivered": {
+        "screens": 26,
+        "rng": 53
+      }
     }
   ]
 }
