@@ -273,3 +273,5 @@ utc	event	phase	goal	detail
 2026-08-10T12:13:59.352Z	end	select	monsters-deferral-sweep-2	
 2026-08-10T12:14:14.343Z	start	implement	monsters-deferral-sweep-2	
 2026-08-10T13:11:12.722Z	end	implement	monsters-deferral-sweep-2	
+2026-08-10T13:13:09.976Z	start	review	monsters-deferral-sweep-2	
+2026-08-10T13:57:41.702Z	end	review	monsters-deferral-sweep-2	

@@ -9446,6 +9446,93 @@
         }
       },
       "recordedAt": "2026-08-10T12:03:49.882Z"
+    },
+    {
+      "kind": "review",
+      "head": "f748034b4267a00c863b10cd2c3b5828c875ea94",
+      "auditedRange": "6b87d14d284275e4c39c9f02858dfbafc4c5754b..f748034b4267a00c863b10cd2c3b5828c875ea94",
+      "level": "full",
+      "areas": [
+        "monsters",
+        "hero",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 18 raw, 12 deduplicated, 9 confirmed, 9 applied, 0 deferred, 3 rejected, 0 unverified; mutation: 0 survivors of 0 mutants. Full correctness pass over the monsters deferral sweep. Four mandatory finders; neither optional finder was triggered. No behavioral defect, which is the required result for a behavior-preserving range: the convergence of eleven helpless() spellings onto one definition held at every site when checked against what each previously computed, the moved mon_allowflags() computes what it did before, and the dog_hunger refusals fire before any output or state change. Seven of the nine confirmed findings were wrong C line citations, and that is the result worth keeping. One sat on the single line of production code recording why starvePet refuses rather than being wired, and began seven lines inside a different function. The decisive one was a test citing js/mon.js:972 in the same commit that shifted that code by 95 lines: it was wrong before it was pushed. That settles the argument for a checking script over careful hand-correction, since a citation written correctly can rot inside its own diff, and it is noted on the tracked entry, whose scope now extends past the four files it originally named. Two further comments misdescribed what this range did rather than where it came from: the note justifying the move enumerated the pre-move import while the same commit widened it, and the stopOccupation injection shadows a ported function three lines below a comment saying it is ported. The score is unchanged at 1294 screens and 118144 calls.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2124,
+        "counts": {
+          "raw": 18,
+          "deduplicated": 12,
+          "confirmed": 9,
+          "applied": 9,
+          "deferred": 0,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 0,
+          "clarity": 8,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/unported_monster_actions.js cited dogmove.c dog_starve() as (340-358) on the one line of production code that records why starvePet refuses rather than being wired. dog_starve() is dogmove.c:347-358; lines 340-345 are dog_eat()'s tail, ending in `return (DEADMONSTER(mtmp)) ? 2 : 1;`. The comment's substance was right -- dog_starve() does print through You_feel() and call mondied(), neither ported -- but a reader checking it against the cited range sees a different function with a different contract and may conclude the refusal is over-broad and could be wired after all. Corrected to 347-358, and the sibling dog_hunger() citation widened to 360-394 so both span their leading comment and closing brace. Also in the same file, the stopOccupation injection shadows an allmain.c stop_occupation() that is ported and already in the env chain, three lines below a comment telling the reader it is ported; the override is deliberate, because C reaches it at dogmove.c:377 after a You_feel() line that has no owner, so letting the real function through would run the interruption without the announcement preceding it. The comment now says that rather than leaving the contradiction.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "A finding that supplying all three hunger operations as throwing refusals defeats the pre-resolution at js/dogmove.js:373-375, whose purpose is to refuse before the arm runs.",
+            "counterEvidence": "The adjudicator traced the pre-resolution and found it unaffected: it resolves the operations by name and throws if one is missing, and a supplied operation that itself throws reaches the same named class through the same path. The refusals are the supply, not a bypass of it. Do not reopen without an input that reaches the arm and produces a class other than UnsupportedSimpleMonsterActionError."
+          },
+          {
+            "summary": "A finding that the moved mon_allowflags() reads Conflict through js/mon.js conflictActive(), one of three same-named helpers whose truth conditions differ.",
+            "counterEvidence": "The adjudicator checked all three against you.h's Conflict and found js/mon.js conflictActive() spells it correctly as intrinsic-or-extrinsic with no blocked term, which is what the macro says; the divergent sibling is elsewhere and is not read by this function. Nothing was duplicated or left behind by the move. Do not reopen without showing you.h carries a blocked term."
+          },
+          {
+            "summary": "A finding that the stopOccupation injection has no oracle, being unreachable in production behind reportWeakPet and untested.",
+            "counterEvidence": "The adjudicator confirmed the unreachability, which is the reason the injection is a refusal rather than a supplier, and rejected the framing: an unreachable arm that fails closed needs no oracle beyond the class it raises, which the three PET_HUNGER_REFUSALS cases already pin. Do not reopen unless the arm becomes reachable."
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "ranges": [
+            "6b87d14d284275e4c39c9f02858dfbafc4c5754b..a74126055a879e9828f9f65a8e09c09bfb9334ac",
+            "uncommitted audit-fix diff at f748034"
+          ],
+          "mutants": 0,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 0,
+              "killed": 0
+            },
+            "logical": {
+              "ran": 0,
+              "killed": 0
+            },
+            "relational": {
+              "ran": 0,
+              "killed": 0
+            }
+          },
+          "deltaRun": "0 mutants over the audit-fix diff, which is comments and citations only",
+          "finderConclusion": "The range run produced no mutants, and the pass was told what the previous one had learned: an empty result here means absence of mutable sites rather than presence of coverage. That held again. The slice's own run over the convergence commit had finished 34 of 34 killed, six of those being mon_allowflags()'s compound clauses each separated by a case satisfying one operand alone, plus dist2 8 and 9 either side of C's <= 8, so the lines that do hold sites are pinned. The tests finder judged the three dog_hunger cases adequate -- deleting the injections fails all three -- and raised no new coverage gap. Every finding this pass confirmed was found by reading, not by mutation, which is the expected shape for a behavior-preserving range."
+        },
+        "readiness": {
+          "boundary": "A sweep has no single user-visible boundary; each entry's is its own. The two that changed production code: a pet reaching dog_hunger() after roughly 1500 turns unfed, which now ends the segment on a named class instead of throwing a bare TypeError that discarded it; and mfndpos() reading mon_allowflags(), unchanged in behavior but relocated to the file the one-file-per-C-file rule names. The third was test-only. The real game executes the second on every monster move; the first is latent by construction, which is why it was closed with refusals rather than suppliers.",
+          "sourceReview": "Every branch and helper reachable before those endings was traced against nethack-c/upstream/: dogmove.c dog_hunger() and dog_starve(), mon.c mon_allowflags(), monmove.c monhaskey() and m_can_break_boulder(), monst.h's helpless() macro, and you.h's Conflict. The trace covered state, PRNG order and the points where the game waits for input. It found no behavioral divergence and seven wrong C citations, all corrected. The convergence of eleven helpless() spellings was checked site by site against what each previously computed rather than against the new helper, including the bare `!(msleeping || !mcanmove)` at js/steed.js that no citation search finds, and the one site deliberately left un-converged at js/hack.js, whose wider `!mcanmove || mfrozen || msleeping` matches a port boundary C spells separately.",
+          "completeness": "No known unsupported behavior remains inside the two boundaries. Every reachable excluded branch stops before changing state, consuming randomness or producing output, which the pass checked explicitly because two earlier passes in this repository each found a refusal that fired late. Excluded and verified fail-closed: dog_hunger()'s three arms, each raising UnsupportedSimpleMonsterActionError, which js/allmain.js converts into a class js/jsmain.js breaks the segment on -- the whole chain was confirmed rather than the first link; and the stopOccupation override, which is deliberate because C calls the real function after an unported You_feel() line. Two monsters entries stay open by the sweep rule because each needs its own fresh recording: dead-monster-drops-equipped-gear and touch-artifact-ported-but-unwired."
+        }
+      },
+      "recordedAt": "2026-08-10T13:57:28.393Z"
     }
   ]
 }
