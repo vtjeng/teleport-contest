@@ -1135,8 +1135,8 @@
         },
         {
           "name": "pickup on a square holding one object",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "ece768cb824bb5bba947933a0f3d349b73a21d24"
         }
       ],
       "openedAt": "2d9835b1e6de707104168f542d42563c2e0e0245",

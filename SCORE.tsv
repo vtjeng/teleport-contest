@@ -117,3 +117,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-09T08:44:51.000Z	8849ff8	window	4	33	1228	7765	117887	610816	1239	7765					correctness pass 54b3400..eeb0f46: 9 of 16 confirmed, all applied; the merge admission guarded the wrong object; score unchanged
 2026-08-09T08:45:35.000Z	8a10827	goal	4	33	1228	7765	117887	610816	1239	7765	207	3640	32682	182022	reachable-refusal-escapes: user-directed, forecast 0, delivered 0; one of five reachable and wrong, one an env assertion, three unreachable
 2026-08-10T02:11:58.337Z	8c64c2f	slice	4	33	1252	7765	117922	610816	1263	7765					pickup-command slice 1: dopickup() and pickup_checks()'s !OBJ_AT terrain switch; +24 screens, +35 RNG over 1228/117887
+2026-08-10T03:21:58.158Z	ece768c	slice	4	33	1254	7765	117940	610816	1265	7765					pickup-command slice 2: query_objlist()'s n==1 shortcut and pickup_object(); +2 screens, +18 RNG; goal's last slice
