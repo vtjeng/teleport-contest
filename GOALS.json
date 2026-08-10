@@ -1277,8 +1277,8 @@
       "slices": [
         {
           "name": "close the three monsters entries that need no fresh recording",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "712de12db1bd0bde2835268b0df1995b72c86d2e"
         }
       ],
       "openedAt": "c4fbd37fd1a99ed939e99f948e0c0323630077a8",
