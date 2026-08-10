@@ -9159,6 +9159,121 @@
         }
       },
       "recordedAt": "2026-08-10T04:30:13.041Z"
+    },
+    {
+      "kind": "review",
+      "head": "c975ad3f1e1ca3d59ecb9bc9c17c96ed4a6255d5",
+      "auditedRange": "3e8f4d9491dcfcc47d271fa8eefd7f3487c1e004..c975ad3f1e1ca3d59ecb9bc9c17c96ed4a6255d5",
+      "level": "full",
+      "areas": [
+        "commands",
+        "display",
+        "hero",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 15 raw, 14 deduplicated, 11 confirmed, 10 applied, 1 deferred, 3 rejected, 0 unverified; mutation: 3 survivors of 34 mutants. Full correctness pass over the two force-fight-command slices. Four mandatory finders; neither optional finder was triggered, since the range adds no hot-path or resource cost and no overlapping-lifecycle work. The pass earned its place on risk rather than size: 483 changed lines, but they replaced a single-prefix arm with a general prefix loop, corrected three lines that had been latently wrong for as long as nothing set context.forcefight, and made a representation decision outside C. Two production defects were applied and one deferred, and the first applied one was introduced by the range itself: moving unmap_object() back to C's position put a refusal below it, so a stop fired after map memory and the display buffer had been rewritten. That is the same late-refusal failure mode an earlier pass in this repository found, arriving by a different route -- an ordering fix that was right for the arms C completes and wrong for the one the port refuses. The second, a bare Error in unmap_invisible(), would have escaped the segment rather than ending it, and its stated reason had been falsified by this very range porting unmap_object(). Tests led again: 5 of 11 confirmed were test gaps, the eighth consecutive pass where tests lead or tie, and four of the five were invisible to the mutation run because they sit on ordering or on lines with no mutable site. One further gap the pass created rather than found is recorded separately as parsed-retry-forcefight-restore-untested. The score is unchanged at 1294 screens and 118144 calls across the fixes.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2510,
+        "counts": {
+          "raw": 15,
+          "deduplicated": 14,
+          "confirmed": 11,
+          "applied": 10,
+          "deferred": 1,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 5,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/hack.js domove_fight_empty() refused terrain with no remembered appearance after unmap_object() and newsym() had already run. Slice 2 introduced this by moving unmap_object() back to C's position (hack.c:2280-2285) without noticing that C's seenv test at 2302 sits below it because C completes that arm rather than refusing it. The port refuses, so putting the refusal where C puts the test meant a stop that had rewritten map memory and the display buffer, ending the segment on a screen the port had already diverged from -- the late-refusal failure mode this repository has found before. Fixed by hoisting the seenv/IS_STWALL/SDOOR/SCORR test above unmap_object(), guarded by the already-computed `solid`, with a comment stating that this is the one place the port deliberately departs from C's order and only on the arm it refuses. Pinned by asserting that the square's remembered_glyph and the top line are both untouched after the refusal.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/display.js unmap_invisible() refused with a bare Error whose stated reason was that unmap_object() is not ported. This range ported unmap_object(), so the reason had ceased to exist, and a bare Error is not one of the classes js/cmd.js failClosedCommandRefusals() converts, so it would have escaped the segment as a hard failure and discarded the matching prefix instead of ending on it. Fixed by raising UnsupportedMapMemoryError and naming the blocker that actually remains: map_invisible(), the only writer of the 'I' marker the arm clears, is unported, so the arm has never run. The TRUE arm was deliberately left unwritten rather than implemented, because AGENTS.md forbids preparing an unreachable branch. js/detect.js:624's comment carried the same falsified claim and was corrected. An existing test in scripts/detect.test.mjs pinned the old message and was updated.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/cmd.js captureParsedCommand() recorded the reqmenu prefix's effect (iflags.menu_requested) but not the fight prefix's (context.forcefight), so a retryable boundary raised under a force-fight would replay the direction key as a plain walk -- a different command from the one the player typed -- and would leave the flag set into the following command. The capture site at js/cmd.js inside rhack()'s prefix loop runs after do_fight() has set the flag, so the path is reachable. Fixed by capturing and restoring it alongside menuRequested, with the doc comment rewritten to name both prefixes. The new property's boolean mutant survives the suite because no test drives a retry through that path; that is a coverage gap rather than an unkillable mutant, and it is recorded as the deferral parsed-retry-forcefight-restore-untested.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/hack.js domove_fight_empty()'s dig-tool guard refuses every force-fight by a hero wielding a pick or an axe, which is dig.c:173 dig_typ()'s own first test and no more. C refuses only when dig_typ() answers something other than DIGTYP_UNDIGGABLE: dig.c:176-179 gives an axe DIGTYP_UNDIGGABLE at every wall, rock, pool and furniture square, where C swings and spends the turn, and dig.c:181-191 gives a pick DIGTYP_UNDIGGABLE on ROOM and CORR. scripts/force-fight.test.mjs's PICK_AXE/AXE row at a VWALL was pinning the port's refusal as though it were C's behavior. The guard is fail-closed, so the port is narrower than C rather than wrong. Narrowing it would make an axe-wielding hero's swing at a wall live, which is new supported behavior needing its own recorded C differential, so under .agents/review.md that returns to implementation rather than being an audit fix. Deferred as dig-tool-guard-refuses-where-dig_typ-answers-undiggable; the guard's comment and the test's comment now both state the real width.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "A correctness finding that executeMovement() still passes the command row's run value to preflightDomoveDestination(), the same wrong source corrected six lines below, so under a prefix that pre-commits DOMOVE_WALK the admission seam branches on a run value set_move_cmd() will never install.",
+            "counterEvidence": "The deviation is provably unobservable rather than merely masked. A forcefight with a nonzero run value is reachable only through a prefix pair, because the runwest/runeast rows carry MOVEMENTCMD|CMD_M_PREFIX and no CMD_gGF_PREFIX (js/extcmdlist_data.js:199-206), so `FL` is refused at the prefix flag test and only `mFL`/`FmL` with wasMPrefix latched get through. In every such case iflags.menu_requested is true, which sends requireNoMonsterBump() down the same arm regardless of the run value. Do not reopen without an input that reaches preflightDomoveDestination() with a nonzero run value and menu_requested false."
+          },
+          {
+            "summary": "A readability finding that rhack()'s prologue comment claims C resets both prefix effects at every rhack() entry, while the fight prefix's effect, context.forcefight, is deliberately not reset there.",
+            "counterEvidence": "The comment is accurate as written. The two statements it introduces are `state.iflags.menu_requested = false;` and `state.context.nopick = 0;` -- exactly the two values cmd.c:3634-3636 resets in rhack()'s prologue, and exactly the two effects the `m` prefix leaves behind. It says 'both prefix effects', not 'both prefixes'. Do not reopen without showing that C resets a third value there."
+          },
+          {
+            "summary": "A readability finding that glyph_to_cmap() carries C's name and a C-shaped docstring but accepts only a record terrainCmap() built moments earlier, so map-memory and display-buffer records lack the cmap property and make it throw a bare TypeError.",
+            "counterEvidence": "No current caller misuses the function, and the behavior follows the file's established convention rather than introducing a new hazard: show_glyph_cell() and remembered_glyph_from_presentation() each throw an equally unlisted bare TypeError for a wrong-shaped presentation record, so an escaping TypeError on a programming error is how this module already signals one. Do not reopen without a caller that reaches it with a record lacking the property."
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "dig-tool-guard-refuses-where-dig_typ-answers-undiggable",
+            "category": "production",
+            "summary": "js/hack.js domove_fight_empty()'s dig-tool guard refuses every force-fight by a hero wielding a pick or an axe, which is dig.c:173 dig_typ()'s own first test and no more. C refuses only when dig_typ() answers something other than DIGTYP_UNDIGGABLE: dig.c:176-179 gives an axe DIGTYP_UNDIGGABLE at every wall, rock, pool and furniture square, where C swings and spends the turn, and dig.c:181-191 gives a pick DIGTYP_UNDIGGABLE on ROOM and CORR. scripts/force-fight.test.mjs's PICK_AXE/AXE row at a VWALL was pinning the port's refusal as though it were C's behavior. The guard is fail-closed, so the port is narrower than C rather than wrong. Narrowing it would make an axe-wielding hero's swing at a wall live, which is new supported behavior needing its own recorded C differential, so under .agents/review.md that returns to implementation rather than being an audit fix. Deferred as dig-tool-guard-refuses-where-dig_typ-answers-undiggable; the guard's comment and the test's comment now both state the real width.",
+            "trackedIn": "dig-tool-guard-refuses-where-dig_typ-answers-undiggable"
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "3e8f4d9491dcfcc47d271fa8eefd7f3487c1e004..aad772b235a9286428e3bd7fbcee7d679287bb32",
+            "uncommitted audit-fix diff at c975ad3"
+          ],
+          "mutants": 34,
+          "survivors": 3,
+          "byKind": {
+            "boolean": {
+              "ran": 6,
+              "killed": 5
+            },
+            "logical": {
+              "ran": 16,
+              "killed": 15
+            },
+            "relational": {
+              "ran": 12,
+              "killed": 11
+            }
+          },
+          "deltaRun": "5 mutants, 1 survivor over the audit-fix diff; the survivor is the new forcefight property in captureParsedCommand(), deferred as parsed-retry-forcefight-restore-untested",
+          "finderConclusion": "The tests finder traced all three window survivors and confirmed the slice worker's classification of each: js/cmd.js's `iflags.menu_requested = false` write, which rhack() clears at every entry (cmd.c:3609) above both readers, and the two '<'/'>' disjunctions at js/cmd.js:1520-1521, where no extcmdlist row makes one conjunct true and the other false. It then found four gaps the mutation run could not see, because they sit on lines with no mutable site or on ordering rather than operators: the executeMovement() correction reading domoveAttempting was unpinned and reverting it left the whole suite green while `mFL` diverges; `prefixSeen = command` was unpinned and a first-wins latch left the suite green while changing what `Fmi` and `mFi` print; the uhitm.c:462 forcefight conjunct in requireSupportedDestinationMonster() had no test at all; and the engraved-square test asserted only the error class, so the unmap_object() hoist the second slice exists to make was not pinned. The dark-room test also varied only waslit and never the terrain, leaving the `typ === ROOM` conjunct with no negative case. All five now have tests, each observed failing first."
+        },
+        "readiness": {
+          "boundary": "Starting event: the `F` key, or `-`, followed by a movement command; also `m` in either order with it. Ending events: the swing message domove_fight_empty() prints for the square attacked -- \"You harmlessly attack the wall.\" for solid terrain, \"You attack thin air.\" for anything accessible and not furniture -- with one turn spent; or, for a prefix followed by a command that does not accept it, cmd.c rhack()'s refusal line with no turn spent. The real game executes all of these: twelve recorded C segments replayed by the port over 31,346 PRNG calls and 56 screens, and seed0013-rogue-friday13-combat now matches completely at 59/59 steps and 4838/4838 calls.",
+          "sourceReview": "Every branch and helper reachable before the ending events was traced against nethack-c/upstream/: cmd.c do_fight() (1621-1634) and rhack()'s PREFIXCMD/MOVEMENTCMD tail (3693-3800); hack.c domove_fight_empty() (2227-2338), move_out_of_bounds() (2585-2610) and domove_core()'s 2805-2810 block; display.c unmap_object() and map_background(); and the reads in dig.c dig_typ() (168-192) and uhitm.c (201, 462) that decide two of the arms. The trace covered state, PRNG order and the points where the game waits for input. It found four source-fidelity errors, all recorded above or in the range's own commits: the late refusal, the bare Error, the dig-guard width, and the missing forcefight capture. Three earlier handoff claims were also checked and two were wrong -- that spot_shows_engravings() is ROOM-only, and that the off-edge arm needs directionname(xytodir()) -- and were corrected in commit 32938e6 before the pass ran.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Every reachable excluded branch stops before changing state, consuming randomness or producing output, which the pass checked explicitly and which is where it found the seenv defect. Excluded and verified fail-closed: the off-map-edge arm and move_out_of_bounds(); the boulder/statue arm, which needs ansimpleoname() and a glyph_is_statue() answer the port's presentation map memory cannot give; Underwater; Upolyd with AT_EXPL; the dig-tool guard, which is wider than C and deferred; domove_fight_ironbars(); domove_fight_web(); attack_checks()'s force-fight arm; and unmap_object()'s engraving arm, which this range made genuinely reachable in ordinary play, so a force-fight at a square carrying a random graffito now ends the segment there. That last case is recorded as the deferral force-fight-engraved-square with its inputs and expected failure."
+        }
+      },
+      "recordedAt": "2026-08-10T07:48:33.678Z"
     }
   ]
 }
