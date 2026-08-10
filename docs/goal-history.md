@@ -507,3 +507,42 @@ What the goal produced instead of conversions: a C function ported and corrected
 a hook wired, four derivations, a new fresh matrix for `allmain.c:342-344` which
 had none, and the first test in the repository that pins a refusal *class* rather
 than its message.
+
+## Holdout carry-over does not track the development look-ahead, and that is settled
+
+Five goals have closed with a holdout run. Three were boundary ports:
+
+| goal | development screens | holdout screens |
+| --- | --- | --- |
+| `pickup-command` | +26 | +16 |
+| `force-fight-command` | +40 | 0 |
+| `wish-name-resolution` | +69, its forecast exactly | 0 |
+
+The two deferred-area sweeps between them forecast zero and delivered zero,
+which is what a sweep should do.
+
+The loop spent three goals building an explanation for the gap. The first was
+that ordinariness in play, not the size of the boundary, decides carry-over --
+`,` is something a player presses constantly and `F` is not. The
+`wish-name-resolution` selection tested that against the corpus and found
+wishing ordinary *here*: 34 wishes across 7 of the 33 development sessions, 9
+of 33 in `playmode:debug`. It recorded its own caveat that "ordinary in this
+corpus" and "ordinary in the holdout" are different populations it could not
+check, and the holdout then answered that they differ.
+
+A better-fitting explanation, offered late and never tested: a prefix-matching
+score only gains at the frontier, so anything past a session's earliest stop is
+invisible regardless of how ordinary it is. The holdout sits at 6.1 per cent of
+its screens against development's 17.6, so its sessions stop far earlier. `,`
+arrives in the first few dozen turns; `F` and wishes do not. On that reading the
+capped look-ahead measures the right quantity -- where sessions first stop --
+over a population that has drifted ahead of the holdout's.
+
+**The user settled it: finish the development set first, and use the holdout as
+a regression test.** So the capped development look-ahead stays the primary
+ranking rule, and `.agents/scoring.md` already says what the holdout is for --
+it guards against a significant inadvertent regression, and a goal that does not
+move it is ordinary. Do not re-derive the calibration above, do not re-rank
+candidates on expected carry-over, and do not read a flat holdout as a defect.
+The figures are recorded here so the question is not reopened by someone
+noticing the pattern afresh.
