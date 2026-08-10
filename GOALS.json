@@ -1337,7 +1337,7 @@
     },
     {
       "id": "movement-while-riding",
-      "status": "open",
+      "status": "closed",
       "boundary": "A mounted hero's step through hack.c domove_core() completes rather than stopping at js/hack.js:2081. Covers the three steed sites the ordinary-floor path reaches: 2815-2818's (u.dx || u.dy) && u.usteed && stucksteed(FALSE) gate with its nomul(0) and return; 2879-2884, where the tentative move writes u.usteed->mx/my and calls exercise_steed(); and 2921-2926, where a domove_swap_with_pet() that returned FALSE restores both the hero's and the steed's coordinates before u_on_newpos() at 2934. Covers steed.c exercise_steed() (386-398) including its u.urideturns >= 100 call to use_skill(P_RIDING, 1). Outside and still refused by name: stucksteed()'s two reports, which need a helpless or feeding steed; pooleffects()'s !grounded(u.usteed->data) arm; pickup_checks()'s P_SKILL(P_RIDING) < P_BASIC reach test; slippery_ice_fumbling()'s steed skater; and trapmove()'s mounted arms, which js/hack.js:2050 already refuses.",
       "upstreamOwners": [
         "src/hack.c",
@@ -1370,8 +1370,11 @@
         "screens": 1363,
         "rng": 118168
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "0b230e03967e4bdf8069c47d7f93e12a46bd9129",
+      "delivered": {
+        "screens": 10,
+        "rng": 389
+      }
     }
   ]
 }
