@@ -9563,6 +9563,148 @@
         }
       },
       "recordedAt": "2026-08-10T13:57:28.393Z"
+    },
+    {
+      "kind": "review",
+      "head": "6327eab7dc2bad61c88cafb82d816f7f9e46147e",
+      "auditedRange": "f748034b4267a00c863b10cd2c3b5828c875ea94..6327eab7dc2bad61c88cafb82d816f7f9e46147e",
+      "level": "full",
+      "areas": [
+        "objects",
+        "hero",
+        "startup",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 23 raw, 22 deduplicated, 19 confirmed, 10 applied, 9 deferred, 3 rejected, 0 unverified; mutation: 10 survivors of 10 mutants. Full correctness pass over the wish-name-resolution goal, on the largest range this ledger has reviewed: 678 changed production lines in one commit across five files, three of which lay outside the slice's stated boundary and were reached by following a trace. Four mandatory finders; neither optional finder was triggered. Nineteen confirmed findings, the largest set recorded here. One production defect, and it is this project's most durable pattern: set_artifact_intrinsic() refused after it had already written the hero's extrinsics, the third refusal-after-a-state-change found in five passes. The methodological result is the one worth carrying. The slice's ten mutation survivors were all argued equivalent and all the arguments held, but the pass showed the argument proves less than it looks: the mutator's relational map covers only the four ordering operators, so a strict-inequality line is not an enumerable site and the run is silent about it rather than covering it. A finder demonstrated that by taking such a line, bane_applies()'s SPFX_DALIGN hero arm, and proving with V8 coverage that it never executes. Nine test gaps were found that way, none visible to mutation, and they are deferred as one grouped ledger entry because nine fixtures across four test files exceeds what an audit-fix commit should carry. Two claims that no randomness lay on this path proved false during the work, both on the path the recorded case walks, and the comments asserting them are corrected rather than merely narrowed. The score is unchanged at 1363 screens and 118168 calls across the fixes.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3400,
+        "counts": {
+          "raw": 23,
+          "deduplicated": 22,
+          "confirmed": 19,
+          "applied": 10,
+          "deferred": 9,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 9,
+          "clarity": 9,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/artifacts.js set_artifact_intrinsic() wrote the carried-resistance extrinsic into u.uprops through extrinsicMask() and only then read oart.cspfx to refuse the HALRES/ESP/WARN/XRAY group, so the stop fired after the hero extrinsics had already moved. C completes both effects, so C order is correct for C; the port stops on that group, and a refusal that has changed state ends the segment on a screen the port has diverged from rather than on its last matching one. This is the same defect class two earlier passes in this ledger found -- a refusal after rewriting map memory, and a refusal after the object had left inventory -- making it the third instance in five passes and the most durable pattern in this project. Fixed by hoisting the cspfx read and its refusal above the cary lookup and the extrinsicMask() call, leaving the rest of the order as C has it, with a comment stating that this is the one place the port departs from C order and why.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/invent.js keeps a private `oname(obj)` that is C's safe_oname(), and this range makes that name collide with a newly exported do_name.js oname() whose contract is entirely different.",
+            "counterEvidence": "causality refute: Refuted: this is anchored to an unchanged pre-existing line and duplicates finding [4] from the other side. Counter-evidence: js/invent.js:1419 is not in this range's diff — the invent.js hunks touch only the import block, addinvCore1()/preflightAddinvCores() at 1996-2033, and hold_another_object() at 2643-2672 — so the finding is anchored to code the range did not cause. `node scripts/check-duplicate-symbols.mjs` already grouped this name before the commit: it prints `oname: js/const.js:2878 ONAME (function), js/do_name.js:125 oname (function), js/invent.js:1419 oname (function)`, and the const.js and invent.js members both existed at f748034, so the duplicate index report"
+          },
+          {
+            "summary": "preflightAddinvCores() dropped its `|| obj.oartifact` arm while addinvCore1() gained two new ways to throw for an artifact, so preflight_addinv()'s documented promise that every missing inventory effect is rejected before ownership changes no longer holds — and the mirror-image preflightFreeinvCore(",
+            "counterEvidence": "evidence refute: The finding reads the doc comment as promising that addinv() cannot throw, but the comment's first sentence scopes it: \"Dependency-only half of invent.c addinv_core0().\" preflight_addinv()'s job is resolving named injections through requiredHook(), and that coverage is still complete after the change -- addinvCore1()'s new artifact branch (js/invent.js:2001-2008) calls no hook at all, so there is no \"missing inventory effect\" left unchecked. Its two exits are ported refusals of unported C branches (UnsupportedObjectOperationError / UnsupportedArtifactDisplayError), a different category from an unsupplied hook. Counter-evidence: js/invent.js:2001-2008 contains no requiredHook"
+          },
+          {
+            "summary": "readobjnam_postparse3() now writes d.contents and d.halfeaten, two fields requireSimpleWishQualifiers() validates before the parse loop runs, so the guard's documented invariant (\"with the value readobjnam_init() gives each\") no longer holds and nothing next to either site says so.",
+            "counterEvidence": "evidence refute: Half the claim is impossible and the executed evidence for the other half is wrong. The fruit loop's `d.halfeaten = halfeatenf` can only ever write 0: readobjnam_preparse() strips 'partly eaten '/'partially eaten ' first (js/objnam_readobjnam.js:744-746) and sets d.halfeaten, so requireSimpleWishQualifiers() refuses any such wish before postparse3 runs at all. Only d.contents is genuinely written post-guard, and that write is paired with d.typ = TIN in the same two lines. Counter-evidence: `readobjnam('partly eaten slime mold')` refuses with 'a wish that sets halfeaten' -- the field guard, reached before the fruit loop, so halfeatenf is 0 on every path that reaches line 1316"
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "wish-artifact-path-test-gaps",
+            "category": "tests",
+            "trackedIn": "wish-artifact-path-test-gaps",
+            "summary": "The hero branch of bane_applies()'s SPFX_DALIGN arm is never executed by any test."
+          },
+          {
+            "id": "wish-artifact-path-test-gaps",
+            "category": "tests",
+            "trackedIn": "wish-artifact-path-test-gaps",
+            "summary": "touch_artifact()'s blast arm for a non-self-willed restricted artifact is never exercised: every hero test stubs rn2 to a nonzero value, so `!rn2(4)` is always false."
+          },
+          {
+            "id": "wish-artifact-path-test-gaps",
+            "category": "tests",
+            "trackedIn": "wish-artifact-path-test-gaps",
+            "summary": "The bare assert.throws for the Orb of Detection accepts a refusal that has already written an extrinsic into u.uprops, and does not check that the state is untouched."
+          },
+          {
+            "id": "wish-artifact-path-test-gaps",
+            "category": "tests",
+            "trackedIn": "wish-artifact-path-test-gaps",
+            "summary": "The confers_luck assertion that claims to cover SPFX_LUCK uses an artifact that has no SPFX_LUCK, and passes only through the LUCKSTONE short-circuit above it."
+          },
+          {
+            "id": "wish-artifact-path-test-gaps",
+            "category": "tests",
+            "trackedIn": "wish-artifact-path-test-gaps",
+            "summary": "The oname() truncation test uses only ASCII, so the byte-versus-code-point semantics its comment calls out are not pinned by any assertion."
+          },
+          {
+            "id": "wish-artifact-path-test-gaps",
+            "category": "tests",
+            "trackedIn": "wish-artifact-path-test-gaps",
+            "summary": "addinv_core1()'s quest-artifact refusal has no test, and unlike the four sibling special-object arms it is absent from preflightAddinvCores()."
+          },
+          {
+            "id": "wish-artifact-path-test-gaps",
+            "category": "tests",
+            "trackedIn": "wish-artifact-path-test-gaps",
+            "summary": "The test titled \"each arm of the postparse3 tail\" skips the fruit block entirely; the two mutation survivors inside it are zero coverage, not the equivalence the slice claimed."
+          },
+          {
+            "id": "wish-artifact-path-test-gaps",
+            "category": "tests",
+            "trackedIn": "wish-artifact-path-test-gaps",
+            "summary": "The test named for the d->dn and d->origbp lookups has no oracle that either lookup ran: both can be deleted outright and the whole suite stays green."
+          },
+          {
+            "id": "wish-artifact-path-test-gaps",
+            "category": "tests",
+            "trackedIn": "wish-artifact-path-test-gaps",
+            "summary": "The only test guarding the ARMOR_CLASS retry against an infinite loop kills a wrong implementation by hanging the test runner, not by failing."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "f748034b4267a00c863b10cd2c3b5828c875ea94..1f0bffd9766ce378fbea272741201efe64b0d491",
+            "uncommitted audit-fix diff at 6327eab"
+          ],
+          "mutants": 10,
+          "survivors": 10,
+          "byKind": {
+            "boolean": {
+              "ran": 1,
+              "killed": 0
+            },
+            "logical": {
+              "ran": 6,
+              "killed": 0
+            },
+            "relational": {
+              "ran": 3,
+              "killed": 0
+            }
+          },
+          "deltaRun": "0 mutants over the audit-fix diff, which hoists a refusal and rewrites comments",
+          "finderConclusion": "All ten survivors were argued equivalent by the slice worker and the pass adjudicated each rather than accepting them. The equivalence arguments held, but the pass established that they prove less than they appear to: the mutation tool RELATIONAL map covers only the four ordering operators, so a !== is not an enumerable site at all, and the run is silent about such a line rather than evidence of its coverage. The tests finder demonstrated that directly by taking a line the run never mutated -- bane_applies()s SPFX_DALIGN hero arm -- and proving with V8 coverage that it reports zero executions. Nine test gaps were found that way, none of them visible to mutation. Separately, three mutants at js/objnam_readobjnam.js:1236 were killed by timeout because that arm loops for ever if the mail test inverts; the pass judged killing-by-hanging weak evidence and it is recorded in the deferred group."
+        },
+        "readiness": {
+          "boundary": "Starting event: a wizard-mode wish committed at the getlin prompt whose text names an artifact. Ending event: the inventory line the grant prints, i - a silver saber named Grayswandir. The real game executes it: scripts/run-wizard-wish.mjs replays 31 recorded C segments over 83,049 PRNG calls and 583 screens, matching first try, and seed0361 advances from step 68 to 137 of 366 for a measured +69 development screens, exactly the goal forecast.",
+          "sourceReview": "Every branch and helper reachable before the ending event was traced against nethack-c/upstream/: objnam.c readobjnam_postparse3()s tail, readobjnam()s retry: loop and typfnd: d.name block; artifact.c artifact_name(), touch_artifact(), bane_applies() and spec_applies(); do_name.c oname() and new_oname(); zap.c makewish()s artifact_origin(); invent.c hold_another_object() and addinv_core1() with set_artifact_intrinsic(), get_artifact(), spec_ability() and confers_luck(). The trace covered state, PRNG order and the points where the game waits for input, and PRNG order specifically because two claims that no randomness lay on this path proved false during the work, both on the recorded path. It found one behavioral defect, three overstated comments and two ledger entries the range itself falsified.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Every reachable excluded branch stops before changing state or producing output, and after the fix above, before changing state in the one place it did not. Excluded and verified: touch_artifact()s blast and evade arms, where the blast route spends artifact.c:945 rn2(4) inside its guard and so leaves the random-number log matching C rather than untouched; set_artifact_intrinsic()s !on and W_WEP halves and its display-coupled cspfx bits; addinv_core1()s quest-artifact arm; and readobjnam() answering null, which is deferred and now recorded as covering two distinct C outcomes rather than one."
+        }
+      },
+      "recordedAt": "2026-08-10T17:11:30.739Z"
     }
   ]
 }
