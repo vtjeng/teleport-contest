@@ -1334,6 +1334,44 @@
         "screens": 69,
         "rng": 24
       }
+    },
+    {
+      "id": "movement-while-riding",
+      "status": "open",
+      "boundary": "A mounted hero's step through hack.c domove_core() completes rather than stopping at js/hack.js:2081. Covers the three steed sites the ordinary-floor path reaches: 2815-2818's (u.dx || u.dy) && u.usteed && stucksteed(FALSE) gate with its nomul(0) and return; 2879-2884, where the tentative move writes u.usteed->mx/my and calls exercise_steed(); and 2921-2926, where a domove_swap_with_pet() that returned FALSE restores both the hero's and the steed's coordinates before u_on_newpos() at 2934. Covers steed.c exercise_steed() (386-398) including its u.urideturns >= 100 call to use_skill(P_RIDING, 1). Outside and still refused by name: stucksteed()'s two reports, which need a helpless or feeding steed; pooleffects()'s !grounded(u.usteed->data) arm; pickup_checks()'s P_SKILL(P_RIDING) < P_BASIC reach test; slippery_ice_fumbling()'s steed skater; and trapmove()'s mounted arms, which js/hack.js:2050 already refuses.",
+      "upstreamOwners": [
+        "src/hack.c",
+        "src/steed.c"
+      ],
+      "forecast": {
+        "steps": 31,
+        "basis": "Capped development look-ahead at 752e816. One contributing session, seed0104-knight-ride-combat, stopped at step 12 of 43; its stretch runs 12-43 and the cap never fires, so the session would finish 43/43. Read step by step: 12-21 are ten mounted moves whose recorded top line is blank; 22 is `l` printing \"You kill the goblin!\", a mounted melee kill whose whole path (do_attack, hmon, killed) is ported and whose only steed-sensitive test, uhitm.c:1041's jousting arm, needs a wielded P_LANCE while a Knight wields the long sword; 23-28 type #ride, which doride() answers with dismount_steed(DISMOUNT_BYCHOICE), ported end to end for this path; 29-30 are the teleds() landing's \"Things that are here: a goblin corpse, an orcish helm\"; 31-42 are i, +, backslash, ^X, s, s and ':', all admitted commands proven by the fully matching sessions.\n\nRanked field, capped: movement while riding 31; options menu 28; zap 22 (seed0016, finishes 36/36); #pray 21 (seed0017, finishes 67/67); save 17 over 2 sessions; fire at most 17; pet cursed-object feedback 14; wizgenesis at most 11; door unlocking tool 8; engraving 6; garlic_breath() 6; level_tele reaching print_dungeon() 4; eatcorpse() 3; wield 2 of 2 raw, newly measured -- seed0361 walks steps 137-139 and stops on a teleport or wear, so it does not outrank the field; seed0900's count prefix 2; #rub 1; #l 1; pet combat evaluation 1; doapply() type 101 and the container wish 1 each; two-or-more objects and dead-monster-drops-equipped-gear 0.\n\nHonest risk: this stretch's cap never fired, which is the shape docs/goal-history.md records as overstating by 26 times once (eat/seed0900) and 4.8 times for the earlier #ride goal. The difference is that seed0900's raw stretch hid a pet fight inside a sixty-step --More-- run, while seed0104 has no independent pet at all -- movemon() skips u.usteed at js/mon.js:1025 -- and every step of its stretch was read individually.",
+        "sessions": [
+          "seed0104-knight-ride-combat.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0104-knight-ride-combat.session.json",
+            "evidence": "seed 104, datetime 20000110090000, OPTIONS=name:Sir,role:Knight,race:human,gender:male,align:lawful, no number_pad, default autopickup. Input through the stop is \"  ns#ride\\nlL\". Step 11's `l` answers getdir() inside steed.c doride() and mount_steed() prints \"You mount the saddled pony.\"; the status line reads Ride. Step 12's byte L resolves through cmd.c:2051 to do_run_east (cmd.c:1546), setting svc.context.run = 1, which js/cmd.js ADMITTED_RUN_MODES admits, so the port parses the command and enters domove(). In C, domove_core() finds isok() true and m_at() null at the destination, passes domove_fight_*, and reaches 2815: u.dx = 1, u.dy = 0, u.usteed is the saddled pony, and stucksteed(FALSE) is FALSE because maybewakesteed() cleared msleeping at the mount and the pony is not meating; the move proceeds, 2874-2875 writes the tentative position, 2879-2883 walks u.usteed->mx/my to it and exercise_steed() raises u.urideturns to 1 without reaching the >= 100 use_skill() call, and 2934's u_on_newpos() re-positions both. The port throws UnsupportedHeroMoveBoundaryError('movement while riding') at js/hack.js:2081, above every one of those."
+          }
+        ]
+      },
+      "detail": "Upstream owners: src/hack.c and src/steed.c, about 20 lines. The goal is small because the prior #ride goal already landed steed.c: js/steed.js is 837 lines covering can_ride, mount_steed, landing_spot, dismount_steed, stucksteed, maybewakesteed and doride. What is missing is exercise_steed() and four call sites in hack.c.\n\ndungeon.c u_on_newpos()'s \"ridden steed always shares hero's location\" write is already ported at js/dungeon.js:998-1001, so the 2934 re-position needs nothing new. The 2921-2926 restore after a failed domove_swap_with_pet() is the only place the port would newly write steed coordinates by hand.\n\nstucksteed()'s two arms already refuse by name and stay refused: reaching either needs a helpless or feeding steed, and maybewakesteed() clears msleeping and stops on any steed immobile at mount time.\n\nexercise_steed()'s only observable effect below 100 ride turns is the u.urideturns counter, which js/u_init.js:213 already initializes. weapon.c use_skill() is ported at js/weapon.js:1447, so the 100-turn arm is a wiring job rather than a new port. AGENTS.md's \"representative case just outside the limit\" therefore means a recorded case that rides 100 turns.\n\nA branch a Knight never reaches on this path: uhitm.c:1041's jousting arm fires only for a wielded P_LANCE, and a Knight's lance starts as the alternate weapon. js/uhitm.js:852 refuses it today and should keep refusing.\n\nTwo observations for whoever selects next.\n\nPet melee combat is the recurring second behavior across the whole census. js/unported_monster_actions.js:735 injects attackMonster as an unsupported('pet combat') refusal, and it alone caps the options menu (46 raw to 28), engraving (609 raw to 6), #l (33 to 1), pet combat evaluation (21 to 1) and seed0900's count prefix (73 to 2). It is the largest single lever available, but no session's first stop is on it, so .agents/selection.md's \"select on a measured stop\" bars it as a goal today. The session that does stop next to it, seed0103, would gain 19 and then reach an unported hero death. Worth queueing behind this goal.\n\nThe census reconciliation now reports 9 stops with no modeled behavior at the step the port refused, where .agents/selection.md says that count is 0 today. Those nine are boundaries the model cannot read out of the input at all: the options menu, three level_tele \"?\" stops, eatcorpse(), garlic_breath(), doapply() type 101, the container wish, and seed0900's count prefix. Each was priced by hand rather than from the behavior table, and none beats 31. This is the drift already tracked as scan-reconciliation-blind-to-unported-branches.",
+      "slices": [
+        {
+          "name": "a mounted hero's ordinary step",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "11229e6970db3a9468b1d9e4afdc5d75f484f0f0",
+      "openStanding": {
+        "sha": "b81fd96",
+        "screens": 1363,
+        "rng": 118168
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
