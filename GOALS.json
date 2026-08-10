@@ -1400,8 +1400,8 @@
       "slices": [
         {
           "name": "carry each option's section into the table and render the simple menu",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "2501dc498fbc122bcee598f2ad42973fd9af0a58"
         }
       ],
       "openedAt": "0c93031d73f3d75fd1400dc0b7173184f981a80a",
