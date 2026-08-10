@@ -1405,8 +1405,8 @@
         },
         {
           "name": "act on one pick from the simple options menu and re-offer it",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0f7b6cf39d07e0d2f225df449306b12aa9bb2318"
         }
       ],
       "openedAt": "0c93031d73f3d75fd1400dc0b7173184f981a80a",
