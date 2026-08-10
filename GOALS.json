@@ -1260,7 +1260,7 @@
     },
     {
       "id": "monsters-deferral-sweep-2",
-      "status": "open",
+      "status": "closed",
       "boundary": "Close the three monsters deferrals that need no fresh recording, and record what reading the other seven found. Read all ten before opening, per the sweep rule, and stop at the first entry needing a fresh recording once the area is below ten.",
       "upstreamOwners": [
         "src/dogmove.c",
@@ -1287,8 +1287,11 @@
         "screens": 1294,
         "rng": 118144
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "efdd5f1cdf3cbe8c905c433eef356147e5668cfd",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
