@@ -1270,7 +1270,7 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "aad772b235a9286428e3bd7fbcee7d679287bb32",
       "detail": "js/hack.js domove_fight_empty() refuses every force-fight by a hero wielding a pick or an axe, which is dig.c:173 dig_typ()'s own first test and no more. C refuses only when dig_typ() answers something other than DIGTYP_UNDIGGABLE. dig.c:176-179 gives an axe DIGTYP_DOOR for a closed door and DIGTYP_TREE for a tree, and DIGTYP_UNDIGGABLE for every wall, rock, pool and furniture square, where C swings and spends the turn; dig.c:181-191 gives a pick DIGTYP_UNDIGGABLE on ROOM, CORR and a tree. So an axe-wielding hero who force-fights a wall gets 'You harmlessly attack the wall.' from C and a refusal from the port, and a pick-wielding hero who force-fights ordinary floor gets 'You attack thin air.' from C and a refusal from the port. The guard is fail-closed, so no wrong screen is produced; the port is narrower than C, not incorrect. The narrowing is cheap and does not need pick_can_reach() or conjoined_pits(): dig_typ()'s statue and boulder arms are already dead at this call site because the arm above refuses both first. What remains is, for is_axe(uwep), refuse only closed_door(x, y) or IS_TREE(typ); for is_pick(uwep), refuse only closed_door(x, y) or (!IS_TREE(typ) && IS_OBSTRUCTED(typ) && (!level.flags.arboreal || IS_WALL(typ))). It is a slice rather than a small fix because it makes an axe hero's swing at a wall live, which needs its own recorded C differential. scripts/force-fight.test.mjs's PICK_AXE/AXE row currently pins the port's refusal at a VWALL; its comment now says so. Close it by narrowing the guard and recording that case."
     },
@@ -1477,6 +1477,7 @@
         "js/apply_splash_lit.js",
         "js/bury.js",
         "js/detect.js",
+        "js/dig.js",
         "js/engrave.js",
         "js/grave.js",
         "js/light.js",

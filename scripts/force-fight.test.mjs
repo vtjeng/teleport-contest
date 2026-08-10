@@ -18,6 +18,7 @@ import {
     SCORR,
     SDOOR,
     STONE,
+    TREE,
     VWALL,
     WEB,
 } from '../js/const.js';
@@ -434,19 +435,27 @@ test('a force-fight this port cannot answer stops by name', async () => {
         await refusedWest(state, /boulder or statue/u);
     }
 
-    // hack.c:2266-2273. dig.c use_pick_axe2() digs instead of swinging, but
-    // only when dig_typ() answers something other than DIGTYP_UNDIGGABLE. At
-    // a VWALL it answers UNDIGGABLE for an axe (dig.c:176-179 gives an axe
-    // only a closed door or a tree), so C swings here and the port refuses.
-    // This row pins the port's refusal, not C's behavior; the divergence is
-    // recorded as dig-tool-guard-refuses-where-dig_typ-answers-undiggable.
-    for (const otyp of [PICK_AXE, AXE]) {
+    // hack.c:2269-2276. dig.c use_pick_axe2() digs instead of swinging
+    // whenever dig_typ() answers something other than DIGTYP_UNDIGGABLE, and
+    // it has no port, so each digging answer is where the command stops. The
+    // swings dig_typ() declines are the next test; scripts/dig.test.mjs pins
+    // the answers themselves.
+    const DIGGING_ANSWERS = [
+        // dig.c:188-190 DIGTYP_ROCK. An axe at the same wall swings instead.
+        { otyp: PICK_AXE, typ: VWALL },
+        // dig.c:186 and 178 DIGTYP_DOOR, the one answer both tools give.
+        { otyp: PICK_AXE, typ: DOOR, flags: D_CLOSED },
+        { otyp: AXE, typ: DOOR, flags: D_CLOSED },
+        // dig.c:179 DIGTYP_TREE, which only an axe is ever given.
+        { otyp: AXE, typ: TREE },
+    ];
+    for (const { otyp, typ, flags = 0 } of DIGGING_ANSWERS) {
         const state = await heroInARoom();
-        targetTerrain(state, VWALL);
+        targetTerrain(state, typ, { flags });
         state.uwep = mksobj(
             otyp, true, false, objectGenerationEnv({ state }),
         );
-        await refusedWest(state, /digging tool/u);
+        await refusedWest(state, /digs instead of swinging/u);
     }
 
     // hack.c domove_fight_ironbars() (1993-2016), which runs first.
@@ -489,6 +498,44 @@ test('a force-fight this port cannot answer stops by name', async () => {
     targetTerrain(underwater, VWALL);
     underwater.u.uinwater = 1;
     await refusedWest(underwater, /underwater/u);
+});
+
+// hack.c:2271 asks dig_typ(), so a wielded pick or axe stops the swing only
+// where digging would actually start. Every row here is a square dig_typ()
+// answers DIGTYP_UNDIGGABLE for, which leaves the hero swinging exactly as an
+// empty-handed one would.
+const DECLINED_DIGGING = [
+    // dig.c:180. The axe arm has no rock case, so a wall, and everything else
+    // that is neither a closed door nor a tree, is an ordinary swing.
+    { otyp: AXE, typ: VWALL, message: 'You harmlessly attack the wall.' },
+    { otyp: AXE, typ: ROOM, message: 'You attack thin air.' },
+    // dig.c:191. A pick digs rock, so what it declines is the accessible
+    // terrain the thin-air arm names.
+    { otyp: PICK_AXE, typ: ROOM, message: 'You attack thin air.' },
+    { otyp: PICK_AXE, typ: CORR, message: 'You attack thin air.' },
+    // dig.c:187, the pick's own tree answer. It sits above the IS_OBSTRUCTED()
+    // test, so on a level that is not arboreal a tree is the only obstructed
+    // square a pick swings at rather than digs.
+    { otyp: PICK_AXE, typ: TREE, message: 'You harmlessly attack the tree.' },
+];
+
+test('a digging tool swings where dig_typ finds nothing to dig', async () => {
+    for (const { otyp, typ, message } of DECLINED_DIGGING) {
+        const state = await heroInARoom();
+        targetTerrain(state, typ);
+        state.uwep = mksobj(
+            otyp, true, false, objectGenerationEnv({ state }),
+        );
+        const label = `otyp ${otyp}, typ ${typ}`;
+        const before = game.moves;
+        await forceFightWest(state);
+        assert.equal(toplines(state), message, label);
+        // The swing spends the turn, which is the half of C's behavior a
+        // refusal would have taken away along with the line.
+        assert.equal(state.context.move, 1, label);
+        assert.equal(game.moves, before, label);
+        assert.equal(state.domoveAttempting, 0, label);
+    }
 });
 
 test('an unseen web leaves the square to domove_fight_empty', async () => {

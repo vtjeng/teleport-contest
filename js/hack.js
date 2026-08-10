@@ -20,6 +20,7 @@ import {
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    DIGTYP_UNDIGGABLE,
     ECMD_OK,
     ECMD_TIME,
     EXT_ENCUMBER,
@@ -109,6 +110,7 @@ import {
     unmap_object,
     wall_angle,
 } from './display.js';
+import { dig_typ } from './dig.js';
 import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
 import { u_on_newpos } from './dungeon.js';
 import { gethungry } from './eat.js';
@@ -139,7 +141,7 @@ import {
     tunnels,
     verysmall,
 } from './mondata.js';
-import { is_axe, is_pick, objectType, sobj_at } from './obj.js';
+import { is_pick, objectType, sobj_at } from './obj.js';
 import {
     assertObjectNameable,
     assertPricedObjectNameable,
@@ -1934,27 +1936,24 @@ async function domove_fight_empty(x, y, state) {
             'force-fight against a boulder or statue',
         );
     }
-    // 2264-2273. A hero who force-fights while wielding a digging tool starts
+    // 2267-2276. A hero who force-fights while wielding a digging tool starts
     // digging instead, through dig.c use_pick_axe2(), but only when dig_typ()
-    // answers something other than DIGTYP_UNDIGGABLE. Neither function is
-    // ported -- js/const.js:1867 carries the DIGTYP_* constants and nothing
-    // else -- so the tool stops the command.
+    // answers something other than DIGTYP_UNDIGGABLE. use_pick_axe2() is not
+    // ported, so a digging answer stops the command; an undiggable one falls
+    // through to the message arms below, where C swings and spends the turn.
+    // An axe reaches that fall-through at every wall, rock, pool and furniture
+    // square, and a pick at ROOM, CORR and a tree.
     //
-    // This is dig_typ()'s own first test (dig.c:173) and no more, so it is
-    // wider than the arm it stands for, and wider than the comment here once
-    // claimed. dig.c:176-179 gives an axe DIGTYP_DOOR for a closed door and
-    // DIGTYP_TREE for a tree, and DIGTYP_UNDIGGABLE for everything else --
-    // every wall, rock, pool and furniture square included, where C swings and
-    // spends the turn. dig.c:181-191 gives a pick DIGTYP_UNDIGGABLE on ROOM,
-    // CORR and a tree. The statue and boulder arms at 181-184 are already dead
-    // here, because the arm above refuses both before this line. Narrowing the
-    // guard to dig_typ()'s answer would make an axe-wielding hero's swing at a
-    // wall live, which is new behavior needing its own recorded case; it is
-    // deferred as dig-tool-guard-refuses-where-dig_typ-answers-undiggable.
+    // C's two remaining conjuncts, !glyph_is_invisible(glyph) and
+    // !glyph_is_monster(glyph), are the "should we dig?" half and both make C
+    // swing rather than dig. Neither is ported, so this refusal is wider than
+    // C on a square whose map memory holds an unseen-monster marker or a
+    // monster that has since left it -- fail-closed, and the marker has no
+    // writer at all, as the header note above says.
     if (state.uwep
-        && (is_pick(state.uwep, state) || is_axe(state.uwep, state))) {
+        && dig_typ(state.uwep, x, y, state) !== DIGTYP_UNDIGGABLE) {
         throw new UnsupportedHeroMoveBoundaryError(
-            'force-fight while wielding a digging tool',
+            'force-fight that digs instead of swinging',
         );
     }
 

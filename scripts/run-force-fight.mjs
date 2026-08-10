@@ -32,6 +32,12 @@
 //   alone. DOORWAY_CASE is CLOSED_DOOR_CASE's pair: the same DOOR terrain,
 //   accessible this time because closed_door() is false for a doorway with no
 //   door in it.
+// - The two axe cases repeat the wall and the thin-air squares with a
+//   battle-axe in the hero's hand instead of a long sword. hack.c:2269-2276
+//   sends a force-fight to dig.c use_pick_axe2() first when dig_typ() finds
+//   something to dig, and dig.c:177-180 gives an axe nothing but a closed door
+//   or a tree, so both squares fall through to the arms above and the swing is
+//   the whole of what C does.
 // - OFF_EDGE_CASE and OFF_EDGE_DIAGONAL_CASE walk to the bottom row of the map
 //   and swing past it. That square belongs to no arm above, because
 //   move_out_of_bounds() (2584-2612) claims a force-fight aimed off the map
@@ -116,16 +122,31 @@ const MAP_EDGE_SEED = 8800070;
 // two cases are chosen for.
 const FOX_SEED = 8800009;
 const NEWT_SEED = 8800038;
+// The one level in this matrix played by a Barbarian, whose start wields a
+// battle-axe. Its room offers both terrains the axe cases need: a vertical
+// wall to the east and ordinary floor on the other three sides.
+const AXE_SEED = 8800006;
 
-function nethackrc() {
+// u_init.c ini_inv() wields the first weapon of the role's trobj[] list, so
+// the role decides what is in the hero's hand and therefore whether
+// dig_typ() has anything to say.
+const VALKYRIE = 'Valkyrie';
+// u_init.c:666-670 gives a Barbarian either Barbarian_0, whose two-handed
+// sword is wielded and whose axe becomes the secondary weapon, or
+// Barbarian_1, whose battle-axe is wielded, on `rn2(100) >= 50`. AXE_SEED
+// takes the second branch, and nothing else in the port can put an is_axe()
+// or is_pick() object in the hero's hand: wield.c dowield() and
+// doswapweapon() are unported, and so is the wield_tool() inside dig.c
+// use_pick_axe().
+const BARBARIAN = 'Barbarian';
+
+function nethackrc(role) {
     return [
-        'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,'
+        `OPTIONS=name:Forcer,role:${role},race:human,gender:female,`
         + 'align:neutral',
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         // No pet, so no monster shares the hero's turns and no monster can
-        // wander onto the square being swung at. A Valkyrie wields a long
-        // sword, which is neither is_pick() nor is_axe(), so no case starts
-        // digging instead.
+        // wander onto the square being swung at.
         'OPTIONS=pettype:none,!acoustics,!autopickup',
         // Puts the turn counter on the status line, where a spent or unspent
         // turn is visible in the recorded screen itself.
@@ -208,6 +229,34 @@ export const FORCE_FIGHT_CASES = [
         doormask: D_NODOOR,
         message: 'You attack thin air.',
         movesAfter: 4,
+    },
+    {
+        // hack.c:2269-2276 asks dig.c dig_typ() before any message arm, and
+        // dig.c:180 answers DIGTYP_UNDIGGABLE for an axe at anything that is
+        // neither a closed door nor a tree. So this swing takes the same solid
+        // arm the Valkyrie's wall case does, rather than starting to dig.
+        label: 'a wall, swung at with an axe in hand',
+        seed: AXE_SEED,
+        role: BARBARIAN,
+        walk: '',
+        command: 'Fl',
+        target: [1, 0],
+        typ: VWALL,
+        message: 'You harmlessly attack the wall.',
+        movesAfter: 2,
+    },
+    {
+        // The same axe on the thin-air arm, which is where a guard that
+        // refused every digging tool cost a line as well as a turn.
+        label: 'room floor, swung at with an axe in hand',
+        seed: AXE_SEED,
+        role: BARBARIAN,
+        walk: '',
+        command: 'Fk',
+        target: [0, -1],
+        typ: ROOM,
+        message: 'You attack thin air.',
+        movesAfter: 2,
     },
     {
         label: 'the edge of the map, straight south',
@@ -312,7 +361,10 @@ function segmentFor(entry) {
     return {
         seed: entry.seed,
         datetime: DATETIME,
-        nethackrc: nethackrc(),
+        // Only the two axe cases name a role. Every other case wants a hero
+        // whose hand holds nothing dig_typ() answers for, which is what the
+        // Valkyrie's long sword is here for.
+        nethackrc: nethackrc(entry.role ?? VALKYRIE),
         moves: keysThroughFight(entry) + REST,
     };
 }
