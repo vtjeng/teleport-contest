@@ -16,11 +16,14 @@
 // reset_needed_visuals() repainting once the loop ends. The fifth commits the
 // one compound pick whose handler this port runs.
 //
-// The last two type 'O' on its own, which doset_simple() answers with
-// options.c doset_simple_menu()'s two-page menu. Both walk to the second page
-// and leave without a pick, which is the whole of the menu this port builds:
-// the first commits an empty selection with a space and the second cancels
-// with Escape, and between them they cover '>' and '<' as well.
+// The last six type 'O' on its own, which doset_simple() answers with
+// options.c doset_simple_menu()'s two-page menu. The first two walk to the
+// second page and leave without a pick: one commits an empty selection with a
+// space and the other cancels with Escape, and between them they cover '>' and
+// '<' as well. The last four take picks, so they run the pick loop:
+// doset_simple_menu()'s three arms, doset_simple()'s do/while around them, the
+// give_opt_msg bracket that silences each toggle's message, and the two flags
+// reset_needed_visuals() spends afterwards.
 
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
@@ -105,7 +108,51 @@ const SIMPLE_DATETIME = '20270412094500';
 const PAGE_SIMPLE_OPTIONS_MENU = ' O  \x1b';
 const CANCEL_SIMPLE_OPTIONS_MENU = ' O><>\x1b\x1b';
 
-// Both simple-menu recipes set menu_headings, and the reason is a display
+// The pick loop's own seed, clock and hero, chosen independently of the two
+// bases above. These four recipes do read the map, which the paging ones do
+// not: a pick that raises go.opt_need_redraw repaints it, and the pass after
+// that has to build its menu over the repainted copy.
+const PICK_SEED = 8814277;
+const PICK_DATETIME = '20291006161200';
+
+// Three picks that split doset_simple()'s `if (flush) flush_screen(1)`, taken
+// in the order optfn_boolean() reaches their arms: page 2's 'e' is
+// 'hilite_pet', which raises go.opt_need_redraw; page 2's 'p' is 'time', which
+// raises disp.botl alone; and page 1's 'e' is 'autoopen', which raises
+// neither. The '>' before each page-2 pick moves off page 1, where every pass
+// reopens; the '>' and space at the end walk to the last page and commit
+// nothing, which is how the loop ends. The Escape is the key the recorder has
+// to read at the command prompt for the final screen to be captured.
+//
+// 'hilite_pet' is what makes the repaint visible: the recipe starts a kitten,
+// and turning the option on redraws it in inverse video. Every later pass
+// snapshots the map when its menu opens and restores that snapshot when the
+// menu is dismissed, so the inverse kitten survives to the last screen only if
+// the repaint really did land before the next menu opened.
+const SPLIT_FLUSH_PICKS = ' O>e>pe> \x1b';
+
+// 'autoopen' picked twice. The compiled-in default is on, so the first pass
+// turns it off and the second turns it back on -- and the second pass can only
+// spell its statement '!autoopen' by reading the value the first pass wrote.
+// Escape ends the loop the other way select_menu() can.
+const RETOGGLE_PICK = ' Oee\x1b\x1b';
+
+// The two picks that raise go.opt_need_glyph_reset and so ask C for a
+// reset_glyphmap(gm_optionchange): page 2's 'f' is 'hilite_pile' and its 'g' is
+// 'showrace'. C rebuilds glyphmap[] from them; this port has no such table and
+// maps each glyph as it draws it, so the repaint that follows is the whole of
+// its answer. 'showrace' is what shows whether the two agree -- it redraws the
+// hero as her race's monster letter, an 'h' for this recipe's dwarf.
+const GLYPH_RESET_PICKS = ' O>f>g> \x1b';
+
+// The give_opt_msg bracket, which needs both menus to show. 'O' turns
+// 'autoopen' off without a word and leaves; 'm' 'O' then opens doset(), where
+// page 2's 'g' is 'autopickup' and Return commits it, and that toggle does
+// print "'autopickup' option toggled on." -- but only because doset_simple()
+// restored the flag on its way out.
+const RESTORE_OPT_MSG = ' Oe\x1bmO g\r\x1b';
+
+// Every simple-menu recipe sets menu_headings, and the reason is a display
 // ceiling rather than coverage. doset_simple_menu() writes each section
 // heading as " %-30s ", so the highlighted run starts one column before the
 // first glyph. record-session.mjs writes that single leading space out
@@ -141,6 +188,20 @@ function simpleNethackrc(extra) {
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics',
         ...extra,
+        '',
+    ].join('\n');
+}
+
+// The pick recipes' base. It starts a pet, which neither base above does,
+// because the pet is what the 'hilite_pet' pick's repaint changes; without one
+// that pick would raise go.opt_need_redraw and draw the same map back.
+function pickNethackrc() {
+    return [
+        'OPTIONS=name:Optwright,role:Archeologist,race:dwarf,gender:male,'
+            + 'align:lawful',
+        'OPTIONS=!legacy,!tutorial,!splash_screen',
+        'OPTIONS=pettype:cat,!acoustics',
+        'OPTIONS=menu_headings:bold',
         '',
     ].join('\n');
 }
@@ -238,6 +299,30 @@ export function loadOptionsMenuRecipes() {
             ]),
             moves: CANCEL_SIMPLE_OPTIONS_MENU,
         },
+        {
+            seed: PICK_SEED,
+            datetime: PICK_DATETIME,
+            nethackrc: pickNethackrc(),
+            moves: SPLIT_FLUSH_PICKS,
+        },
+        {
+            seed: PICK_SEED,
+            datetime: PICK_DATETIME,
+            nethackrc: pickNethackrc(),
+            moves: RETOGGLE_PICK,
+        },
+        {
+            seed: PICK_SEED,
+            datetime: PICK_DATETIME,
+            nethackrc: pickNethackrc(),
+            moves: RESTORE_OPT_MSG,
+        },
+        {
+            seed: PICK_SEED,
+            datetime: PICK_DATETIME,
+            nethackrc: pickNethackrc(),
+            moves: GLYPH_RESET_PICKS,
+        },
     ];
     // record-session preserves the staged install between one recipe's
     // segments, and each of these leaves the recorder stopped inside a live
@@ -273,6 +358,50 @@ export async function verifyOptionsMenuSegment(segment) {
     // doset() spends no turn, so the hero must still be on the first one.
     if (game.moves !== 1)
         throw new Error('opening the options menu advanced the turn counter');
+
+    if (segment.moves === GLYPH_RESET_PICKS) {
+        // reset_needed_visuals() spends go.opt_need_glyph_reset without
+        // stopping, and the repaint that follows draws the hero from
+        // flags.showrace rather than from a rebuilt table.
+        if (game.iflags.hilite_pile !== true || game.flags.showrace !== true)
+            throw new Error('a glyph-reset pick was not applied');
+        if (game.go.opt_need_glyph_reset !== false
+            || game.go.opt_need_redraw !== false) {
+            throw new Error('reset_needed_visuals() left a repair pending');
+        }
+        return;
+    }
+
+    if (segment.moves === SPLIT_FLUSH_PICKS
+        || segment.moves === RETOGGLE_PICK
+        || segment.moves === RESTORE_OPT_MSG) {
+        // doset_simple() restores give_opt_msg on its way out, whichever way
+        // the loop ended.
+        if (game.give_opt_msg !== true)
+            throw new Error('the pick loop left the toggle message suppressed');
+        // Every pass ends with reset_needed_visuals(), so nothing is pending
+        // by the time the command returns.
+        if (game.go.opt_need_redraw !== false)
+            throw new Error('reset_needed_visuals() left a repair pending');
+        // 'autoopen' is the boolean all three recipes pick, and its compiled-in
+        // default is on. The first and third leave it off after one pick; the
+        // second picks it twice and leaves it as it found it.
+        const picks = segment.moves === RETOGGLE_PICK ? 2 : 1;
+        if (game.flags.autoopen !== (picks % 2 === 0))
+            throw new Error("the pick loop left 'autoopen' at the wrong value");
+        const splitFlush = segment.moves === SPLIT_FLUSH_PICKS;
+        if (splitFlush
+            && (game.iflags.wc_hilite_pet !== true
+                || game.flags.time !== true)) {
+            throw new Error('a pick that splits the flush was not applied');
+        }
+        // Only the third recipe reaches doset(), whose page-2 'g' is
+        // 'autopickup'; the other two must leave the simple menu's own rows
+        // alone.
+        if (game.flags.pickup !== (segment.moves === RESTORE_OPT_MSG))
+            throw new Error("the wrong menu changed 'autopickup'");
+        return;
+    }
 
     if (segment.moves === PAGE_SIMPLE_OPTIONS_MENU
         || segment.moves === CANCEL_SIMPLE_OPTIONS_MENU) {
@@ -345,8 +474,8 @@ export async function verifyOptionsMenuSegment(segment) {
 }
 
 export async function runOptionsMenuMatrix() {
-    const [stock, configured, bound, committed, classes, simple, simpleSet]
-        = loadOptionsMenuRecipes();
+    const [stock, configured, bound, committed, classes, simple, simpleSet,
+        flushSplit, retoggle, optMsg, glyphReset] = loadOptionsMenuRecipes();
     return runFreshMatrix({
         entries: [
             { label: 'stock options menu', recipe: stock },
@@ -356,6 +485,10 @@ export async function runOptionsMenuMatrix() {
             { label: 'pickup_types class menu', recipe: classes },
             { label: 'stock simple options menu', recipe: simple },
             { label: 'configured simple options menu', recipe: simpleSet },
+            { label: 'simple menu flush split', recipe: flushSplit },
+            { label: 'simple menu retoggle', recipe: retoggle },
+            { label: 'simple menu message restore', recipe: optMsg },
+            { label: 'simple menu glyph reset', recipe: glyphReset },
         ],
         summaryLabel: 'OPTIONS MENU',
         verifySegment: verifyOptionsMenuSegment,

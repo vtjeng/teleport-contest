@@ -432,8 +432,8 @@ test('idlecheckpoint reports the missing build support and goes quiet',
             topline(),
             "There is no underlying support for 'idlecheckpoint' compiled in.",
         );
-        // give_opt_msg stays off for the rest of the game, so the next toggle
-        // applies silently.
+        // give_opt_msg stays off until the next 'O' restores it, so the next
+        // toggle applies silently.
         clearTopline(state);
         assert.equal(await parseoptions(state, 'lootabc', false, false), true);
         assert.equal(state.flags.lootabc, true);
@@ -501,7 +501,6 @@ test('reset_needed_visuals() clears the prompt style and refreshes status',
 test('reset_needed_visuals() stops on each unported repair', async () => {
     const state = await startStockGame();
     for (const [flag, what] of [
-        ['opt_need_glyph_reset', 'reset_glyphmap(gm_optionchange)'],
         ['opt_reset_customcolors', 'reset_customcolors()'],
         ['opt_reset_customsymbols', 'reset_customsymbols()'],
     ]) {
@@ -522,6 +521,36 @@ test('reset_needed_visuals() stops on each unported repair', async () => {
     await reset_needed_visuals(state);
     assert.equal(state.go.opt_update_basic_palette, false);
     assert.equal(state.disp.botlx, false);
+});
+
+// C ref: options.c reset_needed_visuals()'s reset_glyphmap(gm_optionchange).
+// It rebuilds glyphmap[] from the symbol set, the level's Rogue flag and
+// iflags.wc_color; this port keeps no such table and reads all three where it
+// draws, so the flag only has to be spent. 'showrace' is the option that shows
+// it: C's hero_glyph macro picks gu.urace.mnum over u.umonnum, and the repaint
+// the same pass runs is what puts the race's letter on the map.
+test('a glyph reset repaints instead of stopping', async () => {
+    const state = await startStockGame();
+    // The flag on its own is what this port used to stop on.
+    state.go = { opt_need_glyph_reset: true };
+    await reset_needed_visuals(state);
+    assert.equal(state.go.opt_need_glyph_reset, false);
+
+    // Every C site that raises it raises go.opt_need_redraw with it, so the
+    // repaint below is what puts the new value on the map.
+    state.go = {};
+    assert.equal(await parseoptions(state, 'showrace', false, false), true);
+    assert.equal(state.flags.showrace, true);
+    assert.equal(state.go.opt_need_glyph_reset, true);
+    assert.equal(state.go.opt_need_redraw, true);
+    // The toggle's own message is still pending, and docrt() would stop to
+    // acknowledge it with a --More-- no replay input is left to dismiss.
+    // doset_simple() reaches this call with give_opt_msg off, so no message
+    // is ever pending there.
+    clearTopline(state);
+    await reset_needed_visuals(state);
+    assert.equal(state.go.opt_need_glyph_reset, false);
+    assert.equal(state.go.opt_need_redraw, false);
 });
 
 test('reset_needed_visuals() spends every flag it consumes', async () => {

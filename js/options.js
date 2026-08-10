@@ -103,6 +103,7 @@ import {
     bot,
     classify_terrain,
     docrt,
+    flush_screen,
     reglyph_darkroom,
 } from './display.js';
 import { reassign, update_inventory } from './invent.js';
@@ -3404,8 +3405,9 @@ function adjust_menu_promptstyle(state) {
 // TTY_PERM_INVENT block is not compiled, so every other preference is a no-op.
 function preference_update(state, pref) {
     if (pref === 'statuslines') {
-        // Unreachable from doset(): 'statuslines' is a CompOpt, and the
-        // compound arm of the pick loop refuses before this call.
+        // Unreachable from either menu: 'statuslines' is a CompOpt with no
+        // handler, so applyOptionMenuPick() refuses at its getlin() arm before
+        // reaching this call.
         throw new UnsupportedOptionMenuError(
             'tty_preference_update("statuslines")',
         );
@@ -3530,9 +3532,8 @@ async function optfn_boolean(state, optidx, negated, opts) {
         // arm and doset_simple() write it.  doset_simple() brackets its own
         // pick loop with FALSE at options.c:8722 and an unconditional TRUE at
         // :8733, so the suppression this arm starts lasts only until the next
-        // 'O'.  This port has no restore because doset_simple_menu() refuses
-        // its pick handling, the only thing either half of that bracket can
-        // reach; porting the picks has to bring both halves.
+        // 'O'.  This port keeps it on game state rather than in a module
+        // variable so that each runSegment() starts from C's initial TRUE.
         state.give_opt_msg = false;
         break;
     default:
@@ -3843,15 +3844,20 @@ const OPTION_HANDLERS = Object.freeze({
 // after its pick loop and doset_simple() runs after every pass of its own.
 export async function reset_needed_visuals(state) {
     const go = state.go ??= {};
-    if (go.opt_need_glyph_reset) {
-        // display.c reset_glyphmap(gm_optionchange) rebuilds the whole
-        // glyph-to-symbol map after an option changed how a class of glyphs
-        // is drawn.  js/symbols.js reset_glyphmap() covers the symbol-set
-        // switch only.
-        throw new UnsupportedOptionMenuError(
-            'reset_glyphmap(gm_optionchange)',
-        );
-    }
+    // display.c reset_glyphmap(gm_optionchange) rebuilds glyphmap[], the
+    // glyph-to-symbol-and-color table the window port prints from.  It has no
+    // port because this port keeps no such table: js/display.js maps each
+    // glyph where it draws it, from the same three inputs the C rebuild reads
+    // -- gs.symset[gc.currentgraphics], Is_rogue_level(), and iflags.wc_color,
+    // which flag.h:507 also spells `use_color`.  js/do.js:1268 records the
+    // same for reset_glyphmap(gm_levelchange).
+    //
+    // Nothing is lost by mapping late.  All four sites that raise this flag --
+    // optfn_boolean()'s two arms at options.c:5384 and :5409,
+    // optfn_roguesymset() at :3567 and optfn_symset() at :4198 -- raise
+    // go.opt_need_redraw with it, so the docrt() below repaints every square
+    // through those live values.  The flag's own clear is at the end of this
+    // function, where C clears it.
     if (go.opt_reset_customcolors || go.opt_update_basic_palette
         || go.opt_reset_customsymbols || go.opt_need_redraw) {
         if (go.opt_update_basic_palette) {
@@ -3894,6 +3900,48 @@ export async function reset_needed_visuals(state) {
     go.opt_update_basic_palette = false;
 }
 
+// C ref: the body both option menus repeat over a pick, options.c doset()
+// (8925-8958) and doset_simple_menu() (8659-8688).  The two are the same three
+// arms over the same option, and differ only where nothing here reaches: the
+// guard on `opt_set_in_config[k] = TRUE`, which has no port on either side, and
+// what each does when the player escapes the getlin() prompt, which one spells
+// as `continue` and the other as a test on the answer.
+//
+// Three of C's tests are left out because nothing above can make them false.
+// doset_simple_menu() writes `abuf[0] = '\0'` and only its getlin() arm can put
+// an ESC there, so the `abuf[0] != '\033'` half of its preference_update()
+// guard always holds once that arm is refused; its `k >= 0` half excludes the
+// help pick, which doset_simple_menu() refuses before calling this.  C's
+// `allopt[k].has_handler && allopt[k].optfn` needs the second test because
+// optlist.h leaves a handler-less entry's optfn null; every allopt[] entry this
+// port generates carries one, so has_handler decides alone.
+async function applyOptionMenuPick(state, option, helpers) {
+    if (option.opttyp === 'BoolOpt') {
+        /* boolean option */
+        const buf = (booleanOptionValue(state, option) ? '!' : '')
+            + option.name;
+        await parseoptions(state, buf, false, false, helpers);
+    } else if (option.has_handler) {
+        /* compound option */
+        const handler = OPTION_HANDLERS[option.optfn];
+        if (!handler) {
+            throw new UnsupportedOptionMenuError(
+                `optfn_${option.optfn}()'s do_handler request`,
+            );
+        }
+        await handler(state, helpers);
+        // `opt_set_in_config[k] = TRUE` follows a successful handler in both
+        // menus.  Its only reader is #saveoptions, which this port does not
+        // have, so there is no array to write.
+    } else {
+        throw new UnsupportedOptionMenuError(
+            `getlin("Set ${option.name} to what?")`,
+        );
+    }
+    if (wc_supported(option.name) || wc2_supported(option.name))
+        preference_update(state, option.name);
+}
+
 // C ref: options.c doset(), the '#optionsfull' command.
 export async function doset(state, helpers) {
     if (state.iflags?.menu_requested) {
@@ -3931,28 +3979,7 @@ export async function doset(state, helpers) {
         // doset_add_menu() gives every selectable entry an a_int of at least
         // two.  INDEXOFFSET is the 1 doset() adds at options.c:8830.
         const opt_indx = pick_list[pick_idx].value - 1 - DOSET_INDEXOFFSET;
-        const option = allopt[opt_indx];
-        if (option.opttyp === 'BoolOpt') {
-            /* boolean option */
-            const buf = (booleanOptionValue(state, option) ? '!' : '')
-                + option.name;
-            await parseoptions(state, buf, false, false, helpers);
-        } else if (option.has_handler) {
-            /* compound option */
-            const handler = OPTION_HANDLERS[option.optfn];
-            if (!handler) {
-                throw new UnsupportedOptionMenuError(
-                    `optfn_${option.optfn}()'s do_handler request`,
-                );
-            }
-            await handler(state, helpers);
-        } else {
-            throw new UnsupportedOptionMenuError(
-                `getlin("Set ${option.name} to what?")`,
-            );
-        }
-        if (wc_supported(option.name) || wc2_supported(option.name))
-            preference_update(state, option.name);
+        await applyOptionMenuPick(state, allopt[opt_indx], helpers);
     }
     // destroy_nhwindow(tmpwin) at options.c:8971: the window port dismissed
     // the menu as select_menu() answered, and this port creates no window
@@ -3978,9 +4005,11 @@ const OptS_type = Object.freeze([
     'General', 'Behavior', 'Map', 'Status', 'Advanced',
 ]);
 
-// C ref: options.c doset_simple_menu()'s help entry, `any.a_int = -2 + 1`.
-// Its pick loop subtracts the same 1 back out and compares against -2.
-const SIMPLE_HELP_A_INT = -1;
+// C ref: options.c doset_simple_menu()'s help entry, `any.a_int = -2 + 1`, and
+// the `k == -2` its pick loop compares against after subtracting the same 1
+// back out.
+const SIMPLE_HELP_K = -2;
+const SIMPLE_HELP_A_INT = SIMPLE_HELP_K + 1;
 
 // C ref: options.c doset_simple_menu()'s `k = opt_roguesymset` substitution.
 const ROGUESYMSET_INDEX = allopt.findIndex(
@@ -4079,11 +4108,8 @@ export function dosetSimpleMenuItems(state, helpers) {
     return items;
 }
 
-// C ref: options.c doset_simple_menu(), the guts of doset_simple().  Its pick
-// handling is not ported: the k == -2 help toggle, the BoolOpt arm's
-// parseoptions("[!]name"), the compound arm's optfn(do_handler) and the
-// getlin("Set %s to what?") fallback all sit behind the refusal below, which
-// stops before any of them writes state or draws.
+// C ref: options.c doset_simple_menu(), the guts of doset_simple().  It answers
+// with select_menu()'s count, which doset_simple() loops on.
 export async function doset_simple_menu(state, helpers) {
     const items = dosetSimpleMenuItems(state, helpers);
     // options.c:8642-8649: end_menu(), then the five flags
@@ -4097,16 +4123,29 @@ export async function doset_simple_menu(state, helpers) {
     state.go.opt_update_basic_palette = false;
 
     const pick = await helpers.menu(items, 'Options', PICK_ONE);
-    if (pick !== null) {
-        throw new UnsupportedOptionMenuError(
-            "doset_simple_menu()'s pick handling",
-        );
-    }
     // C returns select_menu()'s count, which is -1 for a cancelled menu and 0
     // for a commit that picked nothing; both fail doset_simple()'s
-    // `pickedone > 0` test, so this port answers 0 for either.  A pick would
-    // have answered 1, and the refusal above has already stopped it.
-    return 0;
+    // `pickedone > 0` test, so this port answers 0 for either.  C's own note
+    // covers the other side: "without the complication of a preselected entry,
+    // a PICK_ONE menu returning pick_cnt > 0 implies exactly 1".
+    if (pick === null) return 0;
+
+    const k = pick - 1;
+    if (k === SIMPLE_HELP_K) {
+        // gs.simple_options_help = !gs.simple_options_help, then
+        // `goto redo_opt_help` to rebuild the menu with a description under
+        // every row.  dosetSimpleMenuItems() does not build that shape, so
+        // this stops with the menu already dismissed and nothing applied.
+        throw new UnsupportedOptionMenuError(
+            "doset_simple_menu()'s 'show help' toggle",
+        );
+    }
+    await applyOptionMenuPick(state, allopt[k], helpers);
+    // destroy_nhwindow(tmpwin) at options.c:8694: as in doset(), the window
+    // port dismissed the menu as select_menu() answered.  C's comment there:
+    // "tear down this instance of the menu; if pick_cnt is 1, caller will
+    // immediately call us back to put up another instance".
+    return 1;
 }
 
 // C ref: options.c doset_simple(), the 'O' command.
@@ -4118,18 +4157,30 @@ export async function doset_simple(state, helpers) {
         return doset(state, helpers);
     }
     // options.c:8719 sets go.opt_phase = play_opt, which only the
-    // configuration-file error reporter reads.  :8722 and :8733 bracket the
-    // loop below with give_opt_msg, whose only reader is a message the
-    // refused pick handling would print, and :8725-8730 copy
-    // go.opt_need_redraw out before reset_needed_visuals() spends it so that
-    // a set flag ends the pass with flush_screen(1).  doset_simple_menu()
-    // clears that flag just before select_menu() and only the refused pick
-    // handling raises it again, so neither the bracket nor the flush has an
-    // effect to reproduce yet; both belong with the pick handling.
+    // configuration-file error reporter reads.
+    //
+    // :8722 and :8733 bracket the loop with give_opt_msg, which silences
+    // optfn_boolean()'s "'%s' option toggled %s." for every pick this menu
+    // applies; C's comment above the bracket is that the menu is reprocessed
+    // "with updated settings", so each row's [X] or [ ] carries the news
+    // instead.  The restore at :8733 is unconditional rather than a save and
+    // put back, which matters because the other writer -- optfn_boolean()'s
+    // idlecheckpoint arm -- also clears the flag, and that suppression ends
+    // here.
+    state.give_opt_msg = false;
     let pickedone = 0;
     do {
         pickedone = await doset_simple_menu(state, helpers);
+        // options.c:8725 copies go.opt_need_redraw out before
+        // reset_needed_visuals() spends it, so a pass whose pick asked for a
+        // repaint also ends with the map flushed and the cursor back on the
+        // hero.  C's `boolean flush` is a function-level variable it clears
+        // again after each flush; both of those stores are dead, because the
+        // copy below is the only thing that reaches the test.
+        const flush = state.go.opt_need_redraw;
         await reset_needed_visuals(state);
+        if (flush) await flush_screen(1);
     } while (pickedone > 0);
+    state.give_opt_msg = true;
     return ECMD_OK;
 }

@@ -16,15 +16,20 @@ import {
     doset_simple_menu,
     dosetSimpleMenuItems,
     longest_option_name,
+    parseoptions,
     UnsupportedOptionMenuError,
 } from '../js/options.js';
-import { ECMD_OK, PICK_ONE } from '../js/const.js';
+import { ECMD_OK, PICK_ANY, PICK_ONE } from '../js/const.js';
+import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
 import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
+import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { ttyMenuLayout } from '../js/tty_menu.js';
 import { loadOptionsMenuRecipes } from './run-options-menu.mjs';
 
 // loadOptionsMenuRecipes() returns doset()'s five recipes first and
-// doset_simple()'s two last.
+// doset_simple()'s five last. The two named here are the two that page the
+// menu without picking, so their configurations are the ones every row
+// literal below was recorded at.
 const STOCK = 5;
 const CONFIGURED = 6;
 
@@ -44,6 +49,52 @@ async function startSimpleGame(index) {
     const segment = loadOptionsMenuRecipes()[index].segments[0];
     await runSegment({ ...segment, moves: ' ' });
     return game;
+}
+
+// The row whose option name opens it, as dosetSimpleMenuItems() stored it.
+function rowFor(items, name) {
+    const row = items.find((item) => item.text.startsWith(`${name} `));
+    assert.notEqual(row, undefined, `no '${name}' row`);
+    return row;
+}
+
+// Answer each pass of doset_simple()'s loop with the named option's row, then
+// answer null, which is what the window-port seam returns for both of
+// select_menu()'s no-pick results. `passes` collects the item list each pass
+// built, so a later pass's rows can be read back.
+function pickingHelpers(names, passes = [], classPicks) {
+    return menuHelpers({
+        menu: (items, prompt, how) => {
+            if (prompt === 'Autopickup what?') {
+                // windows.c choose_classes_menu(), which
+                // handler_pickup_types() opens from inside the pick loop.
+                assert.equal(how, PICK_ANY);
+                assert.notEqual(classPicks, undefined, 'unexpected class menu');
+                return classPicks;
+            }
+            assert.equal(prompt, 'Options');
+            assert.equal(how, PICK_ONE);
+            passes.push(items);
+            const name = names[passes.length - 1];
+            return name === undefined ? null : rowFor(items, name).value;
+        },
+    });
+}
+
+// tty_clear_nhwindow(WIN_MESSAGE) keeps gt.toplines for message history and
+// hands it back as the window's current text, so a test that wants a blank
+// top line has to drop the history too.
+function clearTopline(state) {
+    clearTtyMessageWindow(state);
+    state._ttyToplines = '';
+    state._ttyPreviousMessage = '';
+    if (state.nhDisplay) state.nhDisplay.topMessage = '';
+}
+
+// putmesg() writes C's top line straight to the terminal; this port hands it
+// to the window port as topMessage and paints it at the next flush.
+function topline() {
+    return game.nhDisplay.topMessage ?? '';
 }
 
 async function simpleItemsFor(index, helpers = menuHelpers()) {
@@ -298,28 +349,39 @@ test('menu_tab_sep stops the simple menu before it is built', async () => {
     );
 });
 
-// C ref: options.c doset_simple_menu()'s pick handling, which this port
-// refuses. The refusal has to come between select_menu() answering and the
-// first arm below it, so nothing the player picked is applied.
-test('a pick stops before the menu applies it', async () => {
+// C ref: options.c doset_simple_menu()'s three unported picks. Each refusal
+// has to come between select_menu() answering and anything that would apply
+// the pick, so the game is exactly as the player left it.
+test('an unported pick stops before the menu applies it', async () => {
     const state = await startSimpleGame(STOCK);
     const items = dosetSimpleMenuItems(state, menuHelpers());
-    // 'autopickup' is a BoolOpt arm, 'pickup_types' the compound one with a
-    // handler, 'statuslines' the compound one without, and -1 the help toggle.
-    const picks = [-1, ...['autopickup', 'pickup_types', 'statuslines'].map(
-        (name) => items.find(
-            (item) => item.text.startsWith(`${name} `),
-        ).value,
-    )];
-    for (const pick of picks) {
-        const before = { ...state.flags };
+    // -1 is the help toggle; 'fruit' and 'statuslines' are the two compound
+    // rows this menu shows whose has_handler is false, so C prompts for a
+    // replacement value with getlin(); 'symset' has a handler, but no
+    // do_handler arm is ported for it.
+    const refusals = [
+        [-1, "doset_simple_menu()'s 'show help' toggle"],
+        [rowFor(items, 'fruit').value, 'getlin("Set fruit to what?")'],
+        [rowFor(items, 'statuslines').value,
+            'getlin("Set statuslines to what?")'],
+        [rowFor(items, 'symset').value,
+            "optfn_symset()'s do_handler request"],
+    ];
+    for (const [pick, what] of refusals) {
+        const before = {
+            flags: { ...state.flags }, iflags: { ...state.iflags },
+            fruit: state.svp.pl_fruit,
+        };
         await assert.rejects(
             doset_simple_menu(state, menuHelpers({ menu: () => pick })),
             (error) => error instanceof UnsupportedOptionMenuError
-                && error.what === "doset_simple_menu()'s pick handling",
-            String(pick),
+                && error.what === what,
+            what,
         );
-        assert.deepEqual({ ...state.flags }, before, String(pick));
+        assert.deepEqual({
+            flags: { ...state.flags }, iflags: { ...state.iflags },
+            fruit: state.svp.pl_fruit,
+        }, before, what);
     }
 });
 
@@ -345,3 +407,118 @@ test('an empty commit ends the loop after one menu', async () => {
     }]);
     assert.equal(state.go.opt_need_redraw, false);
 });
+
+// C ref: options.c doset_simple_menu()'s BoolOpt arm, `Sprintf(buf, "%s%s",
+// *allopt[k].addr ? "!" : "", allopt[k].name)`, and doset_simple()'s do/while
+// around it. The second pass has to read the value the first pass wrote, which
+// is the only thing that makes the "!" prefix visible.
+test('a boolean pick is applied and the next menu shows the new value',
+    async () => {
+        const state = await startSimpleGame(STOCK);
+        // The compiled-in default, which the stock recipe leaves alone.
+        assert.equal(state.flags.autoopen, true);
+        const passes = [];
+        assert.equal(
+            await doset_simple(
+                state, pickingHelpers(['autoopen', 'autoopen'], passes),
+            ),
+            ECMD_OK,
+        );
+        // Two picks, then a third menu the player leaves without picking.
+        assert.equal(passes.length, 3);
+        assert.deepEqual(
+            passes.map((items) => rowFor(items, 'autoopen').text),
+            ['autoopen                [X]', 'autoopen                [ ]',
+                'autoopen                [X]'],
+        );
+        assert.equal(state.flags.autoopen, true);
+    });
+
+// C ref: options.c doset_simple()'s `give_opt_msg = FALSE` ... `= TRUE`
+// bracket. optfn_boolean() ends with "'%s' option toggled %s." unless the flag
+// is off; this menu redraws the row instead, and the restore is what lets
+// '#optionsfull' speak again afterwards.
+test('the pick loop toggles silently and the next menu speaks again',
+    async () => {
+        const state = await startSimpleGame(STOCK);
+        clearTopline(state);
+        await doset_simple(state, pickingHelpers(['autoopen']));
+        assert.equal(topline(), '');
+        assert.equal(state.give_opt_msg, true);
+        // doset()'s pick loop reaches optfn_boolean() through the same
+        // statement, and outside the bracket it prints.
+        await parseoptions(state, 'autoopen', false, false);
+        assert.equal(topline(), "'autoopen' option toggled on.");
+    });
+
+// flush_screen() ends by clearing every gbuf entry's gnew flag, so a square
+// marked dirty beforehand tells the two arms apart: only the flushing one
+// leaves it clean.
+async function pickWithDirtySquare(name) {
+    const state = await startSimpleGame(STOCK);
+    clearTopline(state);
+    state.level.at(1, 0).gnew = 1;
+    await doset_simple(state, pickingHelpers([name]));
+    return state;
+}
+
+// The last status row, which bot() rewrites.
+function statusRow(state) {
+    const display = state.nhDisplay;
+    return display.grid[display.rows - 1].map(({ ch }) => ch).join('').trimEnd();
+}
+
+// C ref: options.c doset_simple()'s `flush = go.opt_need_redraw;` before
+// reset_needed_visuals() and `if (flush) flush_screen(1);` after it. Three
+// picks split the decision: optfn_boolean()'s 'hilite_pet' arm raises
+// go.opt_need_redraw, its 'time' arm raises disp.botl alone, and 'autoopen'
+// falls to its default and raises neither.
+test('only a pick that asked for a repaint flushes the map', async () => {
+    const redrawn = await pickWithDirtySquare('hilite_pet');
+    assert.equal(redrawn.iflags.wc_hilite_pet, true);
+    assert.equal(redrawn.level.at(1, 0).gnew, 0);
+
+    const statused = await pickWithDirtySquare('time');
+    assert.equal(statused.flags.time, true);
+    assert.equal(statused.level.at(1, 0).gnew, 1);
+    // reset_needed_visuals() still spent disp.botl, so the turn counter the
+    // option just switched on is on screen.
+    assert.match(statusRow(statused), /T:1$/u);
+
+    const quiet = await pickWithDirtySquare('autoopen');
+    assert.equal(quiet.flags.autoopen, false);
+    assert.equal(quiet.level.at(1, 0).gnew, 1);
+    assert.doesNotMatch(statusRow(quiet), /T:/u);
+});
+
+// C ref: options.c doset_simple_menu()'s compound arm, `optfn(allopt[k].idx,
+// do_handler, ...)`. 'pickup_types' is the one row on this menu whose handler
+// the port runs, and doset_simple() offers the menu again once it returns.
+test('a compound pick runs its handler and the loop offers the menu again',
+    async () => {
+        const state = await startSimpleGame(STOCK);
+        clearTopline(state);
+        const passes = [];
+        // choose_classes_menu() gives each entry the class symbol as its
+        // value, and def_char_to_objclass() turns that back into the class
+        // index optfn_pickup_types() stores.
+        const classPicks = [
+            { value: ')', count: -1 }, { value: '%', count: -1 },
+        ];
+        assert.equal(
+            await doset_simple(
+                state, pickingHelpers(['pickup_types'], passes, classPicks),
+            ),
+            ECMD_OK,
+        );
+        assert.deepEqual(state.flags.pickup_types, [WEAPON_CLASS, FOOD_CLASS]);
+        assert.equal(passes.length, 2);
+        assert.deepEqual(
+            passes.map((items) => rowFor(items, 'pickup_types').text),
+            // optfn_pickup_types()'s get_val arm is
+            // `Sprintf(opts, "%s", ocl[0] ? ocl : "all")`, so the second row
+            // carries the two class symbols with nothing around them.
+            ['pickup_types            [all]  (for autopickup)',
+                'pickup_types            [)%]  (for autopickup)'],
+        );
+    });
