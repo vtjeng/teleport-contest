@@ -121,9 +121,10 @@ import {
 } from './rng.js';
 import { dosoundsInitialLevel } from './sounds.js';
 import {
-    eatfood,
     gethungry,
+    maybe_finished_meal,
     preflightGetHungry,
+    reset_eat,
     UnsupportedHungerTransitionError,
 } from './eat.js';
 import { m_everyturn_effect } from './monmove.js';
@@ -308,33 +309,32 @@ export function u_calc_moveamt(wtcap, state = game, random = rn2) {
     if (u.umovement < 0) u.umovement = 0;
 }
 
-// C ref: allmain.c maybe_generate_rnd_mon(). New monsters receive their
-// movement only on the following allocation round because this gate follows
-// the current round's monster movement allocation.
-async function stopOccupationForRuntimeMonster(_monster, env) {
-    const { state } = env;
-    if (!state.go?.occupation) return;
-    const occupation = state.go.occupation;
-    const meal = state.context?.victual;
-    if (occupation === eatfood && meal?.usedtime >= meal?.reqtime) {
-        // C ref: eat.c maybe_finished_meal(TRUE). Clear the occupation before
-        // the final eatfood() call so done_eating()->newuhs() sees the meal as
-        // finished, then let eatfood own its object and message lifecycle.
+// C ref: allmain.c stop_occupation() (683-696). The single owner of "the hero
+// stops what they were doing", for every caller that interrupts a multi-turn
+// activity: makemon()'s and monmove.c dochugw()'s newly threatening monster,
+// and moveloop_core()'s own monster_nearby() test after a turn of the activity.
+//
+// `env` carries the display operations that differ between the live game and an
+// atomic planning clone; maybe_finished_meal() passes them straight to
+// eatfood(), which owns the finished meal's object and message lifecycle.
+export async function stop_occupation(state = game, env = {}) {
+    if (state.go?.occupation) {
+        if (!await maybe_finished_meal(true, state, env)) {
+            await env.message(`You stop ${state.go.occtxt}.`, state, env);
+        }
         state.go.occupation = null;
-        await eatfood(state, {
-            message: env.message,
-            statusRefresh: env.statusRefresh,
-        });
-    } else {
-        await env.message(`You stop ${state.go.occtxt}.`, state, env);
+        state.disp ??= {};
+        state.disp.botl = true; /* in case u.uhs changed */
+        nomul(0, state);
+    } else if ((state.multi ?? 0) >= 0) {
+        nomul(0, state);
     }
-    state.go.occupation = null;
-    state.disp ??= {};
-    state.disp.botl = true;
-    nomul(0, state);
     // C also clears CQ_CANNED. The port has no command queue.
 }
 
+// C ref: allmain.c maybe_generate_rnd_mon(). New monsters receive their
+// movement only on the following allocation round because this gate follows
+// the current round's monster movement allocation.
 export async function maybe_generate_rnd_mon(state = game, env = {}) {
     const random = env.random ?? { d, rn1, rn2, rnd, rne, rnz };
     const createMonster = env.makemon ?? makemon_runtime;
@@ -354,7 +354,10 @@ export async function maybe_generate_rnd_mon(state = game, env = {}) {
         hooks: {
             ...(env.hooks ?? {}),
             stopOccupation: env.hooks?.stopOccupation
-                ?? stopOccupationForRuntimeMonster,
+                ?? ((_monster, hookEnv) => stop_occupation(
+                    hookEnv.state,
+                    hookEnv,
+                )),
         },
         random,
         state,
@@ -1033,29 +1036,17 @@ export async function moveloop_core() {
         if (finished === 0) g.go.occupation = null;
         if (monsterNearby(g)) {
             // C ref: `if (monster_nearby()) { stop_occupation(); reset_eat(); }`
-            // at allmain.c:505-508. Which arm of stop_occupation() (684-696)
+            // at allmain.c:505-508. Which arm of stop_occupation() (683-696)
             // runs depends on whether the callback above just answered 0,
-            // because the clear at 502 precedes this test.
-            if (g.go.occupation) {
-                // Still installed: stop_occupation() prints
-                // You("stop %s.", go.occtxt) unless maybe_finished_meal()
-                // finishes the meal instead, clears go.occupation, sets
-                // disp.botl and calls nomul(0); reset_eat() then flags
-                // victual.doreset so the next bite runs do_reset_eat().
-                // Neither has a port, and the resumed meal that follows an
-                // interruption needs doeat()'s already-partly-eaten arm,
-                // which stops too.
-                throw new UnsupportedTurnBoundaryError(
-                    'an occupation interrupted by a nearby monster',
-                );
-            }
-            // Already cleared: stop_occupation() reaches none of that and
-            // takes `else if (gm.multi >= 0) nomul(0);` instead, and
-            // reset_eat() (eat.c:308-318) is guarded by victual.eating, which
-            // done_eating() zeroed on this same turn. C emits nothing here, so
-            // the turn continues. stop_occupation()'s closing
-            // cmdq_clear(CQ_CANNED) has no ported command queue.
-            nomul(0, g);
+            // because the clear at 500 precedes this test. A cleared occupation
+            // takes `else if (gm.multi >= 0) nomul(0);` and prints nothing, and
+            // reset_eat() is then inert too, because done_eating() zeroed
+            // victual.eating on the same turn.
+            await stop_occupation(g, {
+                message: ttyPline,
+                statusRefresh: () => bot(),
+            });
+            reset_eat(g);
         }
         await runmode_delay_output(g);
         return;

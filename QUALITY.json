@@ -614,7 +614,7 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "272c0c332c633a6b0ef45aef0b7f96df065f586b",
       "detail": "allmain.c stop_occupation() (684-696) runs maybe_finished_meal(), You(\"stop %s.\", go.occtxt), disp.botl and nomul(0). The port refuses instead, so both occupation boundaries end a segment where C prints \"You stop eating the food ration.\" and continues. The go.occupation repoint at 272c0c3 made the dochugw() boundary live, and the adjacency boundary predates it. Porting stop_occupation() converts both into matching output. The hard part is the dry-run architecture: its usedtime >= reqtime arm is reachable one turn per meal, when eatfood() has already raised usedtime to reqtime and returned 1, so eatfood() must run on the clone as well as live. Found by the slice that closed the go.occupation entry; opened by the orchestrator, since that brief reserved ledger writes."
     },

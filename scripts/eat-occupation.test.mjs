@@ -41,7 +41,11 @@ import {
     newuhs,
     zero_victual,
 } from '../js/eat.js';
-import { UnsupportedTurnBoundaryError, moveloop_core } from '../js/allmain.js';
+import {
+    UnsupportedTurnBoundaryError,
+    moveloop_core,
+    stop_occupation,
+} from '../js/allmain.js';
 import { set_occupation } from '../js/cmd.js';
 import { monsterNearby } from '../js/hack.js';
 import { youHear } from '../js/monmove.js';
@@ -51,6 +55,7 @@ import { runSegment } from '../js/jsmain.js';
 import {
     loadEatOccupationOptionsRecipe,
     loadEatOccupationRecipe,
+    loadOccupationInterruptRecipe,
     loadRuntimeMonsterInterruptRecipe,
 } from './run-eat-occupation.mjs';
 
@@ -188,7 +193,8 @@ test('the occupation carries the rest of the meal', async () => {
         // 900 plus one 160-point bite is still short of 1500.
         fullwarn: 0,
         eating: 1,
-        // Only reset_eat() sets doreset, and nothing ported calls it.
+        // reset_eat() is the only writer, and it runs only where
+        // moveloop_core() interrupts a meal already under way.
         doreset: 0,
     });
     // newuhs() saved the status the meal started with and moved u.uhs
@@ -394,10 +400,12 @@ test('a meal that ends beside a monster plays its last turn through',
         game.context.move = 0;
         await moveloop_core();
         assert.equal(game.go.occupation, null);
-        // stop_occupation()'s else arm is nomul(0), whose only effect visible
-        // here is the status flag it raises after moveloop_core()'s own bot()
-        // has cleared it.
+        // stop_occupation()'s else arm is nomul(0), whose two effects visible
+        // here are the status flag it raises after moveloop_core()'s own bot()
+        // has cleared it, and the multi it writes. C passes 0; a negative
+        // value there would leave the hero helpless for the turns that follow.
         assert.equal(game.disp.botl, true);
+        assert.equal(game.multi, 0);
     });
 
 test('a new hostile group member appears before it stops the meal', async () => {
@@ -428,6 +436,16 @@ test('a new hostile group member appears before it stops the meal', async () => 
     assert.equal(await boundaryFor(withPet, withPet.moves), null);
 });
 
+// The interruption matrix, by the seed and keys of the segment each arm owns.
+function interruptSegment(seed) {
+    const found = loadOccupationInterruptRecipe().segments.filter(
+        (segment) => segment.seed === seed,
+    );
+    assert.equal(found.length, 1,
+        `the interruption matrix contains one segment with seed ${seed}`);
+    return found[0];
+}
+
 test('a monster nine squares away stops the meal before it is adjacent',
     async () => {
         // monmove.c dochugw() (213, 223-235) stops the occupation for a
@@ -436,31 +454,104 @@ test('a monster nine squares away stops the meal before it is adjacent',
         // radius of nine, so it fires turns before hack.c monster_nearby()
         // (4106-4127), whose scan covers the eight adjacent squares only.
         //
-        // Recorded fresh with the C program on 2 August 2026, seed 5900020,
-        // datetime 20310203040506, the matrix's plain Valkyrie options and the
-        // keys below. C answers the food letter with
-        // "You stop eating the food ration." at T:3, one turn into a five-turn
-        // meal, and the two waits after it pass quietly at T:4 and T:5, so no
-        // monster is ever adjacent. On the map C draws, a lichen crosses from
-        // <4,7> to <4,8> while the hero stands at <13,8>: distu goes from
-        // 82 to 81, over the bound and then exactly on it, which is the "or
-        // it was too far away" clause.
-        //
-        // Until js/monmove.js dochugw() read go.occupation from the field
-        // js/cmd.js set_occupation() writes, the port emitted all six screens
-        // and finished the meal instead, ending on lesshungry()'s
-        // "You're having a hard time getting all of it down." at T:6.
-        const valkyrie = segmentFor(5820011, 'ed ');
-        const interrupted = await boundaryFor(
-            { ...valkyrie, seed: 5900020 },
-            '.ed..',
+        // C answers the food letter with "You stop eating the food ration." at
+        // T:3, one turn into a five-turn meal, and the two waits after it pass
+        // quietly at T:4 and T:5, so no monster is ever adjacent. On the map C
+        // draws, a lichen crosses from <4,7> to <4,8> while the hero stands at
+        // <13,8>: distu goes from 82 to 81, over the bound and then exactly on
+        // it, which is the "or it was too far away" clause.
+        const segment = interruptSegment(5900020);
+        assert.equal(segment.moves, '.ed..');
+        assert.equal(await boundaryFor(segment, segment.moves), null);
+        assert.equal(
+            game.nhDisplay.toplines,
+            'You stop eating the food ration.',
         );
-        assert.ok(interrupted, 'the meal reaches a fail-closed boundary');
-        assert.match(interrupted.message, /occupation interruption/u);
-        // Not the adjacency arm: allmain.c moveloop_core()'s own
-        // monster_nearby() test raises a different boundary, and reaching that
-        // one would mean dochugw() never fired.
-        assert.doesNotMatch(interrupted.message, /nearby monster/u);
+        // The turn the stop landed on. Two waits followed it, so a stop one
+        // turn late would still end at T:5 with the same top line.
+        assert.equal(game.moves, 5);
+        assert.equal(game.go.occupation, null);
+        // dochugw() calls stop_occupation() alone. Only moveloop_core():507
+        // adds reset_eat(), so the abandoned meal keeps doreset clear here.
+        assert.equal(game.context.victual.doreset, 0);
+        assert.equal(game.context.victual.eating, 1);
+        // The stop fired during the monster scan, before the turn's own bite,
+        // so start_eating()'s first bite is the only one taken.
+        assert.equal(game.context.victual.usedtime, 1);
+    });
+
+test('an adjacent monster stops the meal and flags it for reset', async () => {
+    // allmain.c moveloop_core():505-508, the other caller: the bite runs
+    // first, then monster_nearby() finds a hostile on one of the eight
+    // adjacent squares and C runs stop_occupation() and reset_eat().
+    //
+    // C answers the food letter with "You stop eating the food ration." at
+    // T:3. Before stop_occupation() had one owner this line raised
+    // UnsupportedTurnBoundaryError instead and the segment ended a screen
+    // short.
+    const segment = interruptSegment(3100021);
+    assert.equal(segment.moves, 'ed');
+    assert.equal(await boundaryFor(segment, segment.moves), null);
+    assert.equal(game.nhDisplay.toplines, 'You stop eating the food ration.');
+    assert.equal(game.go.occupation, null);
+    // start_eating()'s bite plus the one this turn's occupation call took.
+    assert.equal(game.context.victual.usedtime, 2);
+    // reset_eat() raises doreset on an interrupted meal, which is what makes
+    // the next bite of the same food run do_reset_eat().
+    assert.equal(game.context.victual.doreset, 1);
+    assert.equal(game.context.victual.eating, 1);
+    // The stop landed on the meal's second turn, one turn later than the
+    // dochugw() case above, because monster_nearby() is tested after the bite.
+    assert.equal(game.moves, 3);
+});
+
+test('an interruption on the meal\'s last turn finishes it instead',
+    async () => {
+        // eat.c maybe_finished_meal() (3876-3889) is stop_occupation()'s first
+        // act, and it answers TRUE on the one turn per meal where eatfood()
+        // has already raised usedtime to reqtime and answered "still busy".
+        // C then spends a second eatfood() call inside the interruption, which
+        // reaches done_eating() and ends the meal rather than abandoning it.
+        //
+        // This meal crossed 1500 nutrition on its fourth bite, so
+        // lesshungry() left gn.nomovemsg behind and done_eating() prints that
+        // instead of "You finish eating the food ration."; the warning forces
+        // the --More-- the segment's trailing space answers.
+        const segment = interruptSegment(3100246);
+        assert.equal(segment.moves, 'ed ');
+        assert.equal(await boundaryFor(segment, segment.moves), null);
+        assert.equal(game.nhDisplay.toplines, "You're finally finished.");
+        assert.equal(game.go.occupation, null);
+        // done_eating() zeroed the victual, so the food is gone rather than
+        // partly eaten, and reset_eat() found nothing left to flag.
+        assert.deepEqual(game.context.victual, zero_victual());
+        assert.equal(slotFor(FOOD_RATION), null);
+    });
+
+test('stop_occupation clears the occupation before the meal it hands off',
+    async () => {
+        // eat.c maybe_finished_meal()'s `if (stopping) go.occupation = 0;` is
+        // commented "for do_reset_eat", and stop_occupation() is the only
+        // caller that passes TRUE. The clear matters on exactly one route: if
+        // the food went away under a running occupation, eatfood() reaches
+        // do_reset_eat(), which calls stop_occupation() again, and a still-set
+        // go.occupation would send it straight back into eatfood().
+        // eat.c food_disappears() (394-402) is what empties the piece without
+        // clearing the occupation; js/invent.js obfree() is its only caller.
+        //
+        // Everywhere else the argument is invisible, because done_eating()
+        // clears go.occupation itself before its first observable act. That is
+        // why the assertion below reads the state left behind by the refusal
+        // rather than any message.
+        await startMeal(segmentFor(5820011, 'ed '), 'd');
+        const meal = game.context.victual;
+        meal.usedtime = meal.reqtime;
+        meal.piece = null;
+        await assert.rejects(
+            () => stop_occupation(game, recordingEnv()),
+            UnsupportedEatError,
+        );
+        assert.equal(game.go.occupation, null);
     });
 
 test('set_occupation stores the callback and refuses a timeout', () => {
@@ -574,4 +665,12 @@ test('the multi-turn matrix covers the branches this slice ports', () => {
     // The option variations replay the five-turn meal under a different
     // symbol set and message window.
     assert.equal(loadEatOccupationOptionsRecipe().segments.length, 1);
+    // allmain.c stop_occupation()'s three arms: the printing one under each of
+    // its two callers, and maybe_finished_meal()'s. The `else if (gm.multi >=
+    // 0)` arm needs no segment of its own, because C emits nothing there; the
+    // test above named for it drives moveloop_core() directly.
+    assert.deepEqual(
+        loadOccupationInterruptRecipe().segments.map(({ seed }) => seed),
+        [3100021, 3100246, 3101719, 5900020],
+    );
 });

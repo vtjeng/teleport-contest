@@ -161,6 +161,64 @@ export function loadRuntimeMonsterInterruptRecipe() {
     }, 'runtime monster occupation interruption recipe');
 }
 
+// A plain Valkyrie, on a date whose moon phase adds no startup message. The
+// scan that found these seeds first ran on 16 July 2034, where C prints
+// "Be careful!  New moon tonight." behind a --More-- and the food letter
+// answers that instead of the prompt; three days later the moon says nothing.
+function stopSegment(seed, moves) {
+    return {
+        seed,
+        datetime: '20340719102030',
+        nethackrc: nethackrc({
+            name: 'MealStop',
+            role: 'Valkyrie',
+            options: 'pettype:none,!acoustics,!autopickup,time',
+        }),
+        moves,
+    };
+}
+
+// allmain.c stop_occupation()'s printing arms, under both callers that
+// interrupt a meal already under way: moveloop_core():505-508, whose
+// monster_nearby() scans the eight adjacent squares after the turn's bite, and
+// monmove.c dochugw():223-235, whose radius is nine squares, so it fires during
+// the monster scan and that turn's bite never happens.
+//
+// The first three seeds came from an ascending scan of the port alone from
+// 3100000 in steps of three, taking the first case of each arm; the fourth is
+// the seed the go.occupation repoint used to demonstrate dochugw()'s radius,
+// which until now had only a boundary assertion behind it. No recorded session
+// supplied any of them, and all four were recorded fresh with the C program on
+// 10 August 2026.
+export function loadOccupationInterruptRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            // A hostile arrives beside the hero two bites in, so
+            // stop_occupation() prints "You stop eating the food ration." and
+            // reset_eat() flags the abandoned meal. T: stops at 3.
+            stopSegment(3100021, `${EAT_KEY}${VALKYRIE_FOOD_RATION}`),
+            // The same caller on the one turn per meal where usedtime has
+            // already reached reqtime, so maybe_finished_meal() runs eatfood()
+            // a second time and the meal ends rather than stopping. This meal
+            // crossed 1500 nutrition, so done_eating() prints lesshungry()'s
+            // gn.nomovemsg instead of "You finish eating"; the warning itself
+            // forces the --More-- the trailing space answers.
+            stopSegment(3100246,
+                `${EAT_KEY}${VALKYRIE_FOOD_RATION}${DISMISS_MORE}`),
+            // dochugw()'s own stop, which the elapsed turn runs twice: once
+            // against the planning clone and once live.
+            stopSegment(3101719, `${EAT_KEY}${VALKYRIE_FOOD_RATION}`),
+            // The same dochugw() stop with two quiet waits after it, so the
+            // turns that follow an abandoned meal are compared as well. A
+            // lichen crosses distu 82 to 81 while the hero stands at <13,8>,
+            // which is the "or it was too far away" clause, and it never
+            // becomes adjacent.
+            segment(5900020, `${EAT_KEY}${VALKYRIE_FOOD_RATION}${WAIT}`),
+        ],
+    }, 'occupation interruption recipe');
+}
+
 export async function runEatOccupationMatrix() {
     const ordinary = await runFreshMatrix({
         entries: [{
@@ -180,6 +238,15 @@ export async function runEatOccupationMatrix() {
         chunkLimit: 1,
     });
     if (!options.passed) return options;
+    const interrupted = await runFreshMatrix({
+        entries: [{
+            label: 'occupation interruption',
+            recipe: loadOccupationInterruptRecipe(),
+        }],
+        summaryLabel: 'OCCUPATION INTERRUPTION',
+        chunkLimit: 4,
+    });
+    if (!interrupted.passed) return interrupted;
     return runFreshMatrix({
         entries: [{
             label: 'runtime monster occupation interruption',

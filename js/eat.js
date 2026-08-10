@@ -774,6 +774,14 @@ function recalc_wt(env) {
     piece.owt = weight(piece, env);
 }
 
+// C ref: eat.c reset_eat() (308-319). Called when an event interrupts a meal.
+// C only raises a flag here; the reset itself waits for bite(), which is why
+// interrupting a meal on the turn it ends leaves nothing to reset.
+export function reset_eat(state = game) {
+    const meal = victual(state);
+    if (meal.eating && !meal.doreset) meal.doreset = 1;
+}
+
 // C ref: eat.c consume_oeaten() (3806-3872). Lowers how much of the food is
 // left, and never all the way to zero: an oeaten of 0 would restore the object
 // to untouched, so the last bite leaves 1 and shortens the meal instead.
@@ -801,6 +809,26 @@ export function consume_oeaten(obj, amt, state = game) {
             meal.reqtime = meal.usedtime;
         obj.oeaten = 1; /* smallest possible positive value */
     }
+}
+
+// C ref: eat.c maybe_finished_meal() (3876-3889). allmain.c stop_occupation()
+// asks this before it prints, so a meal interrupted on the turn its last bite
+// was taken ends with "You finish eating ..." rather than "You stop eating ...".
+// consume_oeaten() above is the other producer of that state: it shortens
+// reqtime to usedtime once the food runs out.
+//
+// C clears go.occupation before calling eatfood() so that done_eating() can
+// take do_reset_eat()'s place, and eatfood() uses up victual.piece from there.
+export async function maybe_finished_meal(stopping, state = game, env = {}) {
+    /* in case consume_oeaten() has decided that the food is all gone */
+    const meal = state.go?.occupation === eatfood ? victual(state) : null;
+    if (meal && meal.usedtime >= meal.reqtime) {
+        if (stopping) state.go.occupation = null; /* for do_reset_eat */
+        /* eatfood() calls done_eating() to use up svc.context.victual.piece */
+        await eatfood(state, env);
+        return true;
+    }
+    return false;
 }
 
 // C ref: eat.c newuhs() (3361-3510). Recomputes the hunger status from the
@@ -977,8 +1005,9 @@ async function bite(state, env) {
         throw new UnsupportedEatError('choke()');
     }
     if (meal.doreset) {
-        // Only reset_eat() sets doreset, and nothing ported calls it; it is
-        // the multi-turn interruption slice 3 owns.
+        // reset_eat() raises this when moveloop_core() interrupts a meal, so
+        // reaching it needs doeat()'s already-partly-eaten arm to resume that
+        // meal, which stops before it gets here.
         throw new UnsupportedEatError('do_reset_eat()');
     }
     state.force_save_hs = true;

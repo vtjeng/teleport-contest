@@ -29,7 +29,12 @@ import {
     ROOM,
     STRAT_CLOSE,
 } from './const.js';
-import { newsym } from './display.js';
+// js/allmain.js imports this file's action runners, so this edge closes an
+// import cycle. `stop_occupation` is a hoisted function declaration, which an
+// ES module cycle initializes before either module body runs; nothing here
+// reads it at module scope.
+import { stop_occupation } from './allmain.js';
+import { bot, newsym } from './display.js';
 import {
     best_target,
     dog_move,
@@ -861,7 +866,17 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 movePet: moveSimplePet,
                 preflight: assertSimpleActionState,
             }),
-        stopOccupation: () => unsupported('occupation interruption'),
+        // C ref: monmove.c dochugw():223-235. Its radius is nine squares, so
+        // this fires several turns before moveloop_core()'s own
+        // monster_nearby() test, which scans the eight adjacent squares alone.
+        // The planning pass runs the interruption against the clone -- a meal
+        // whose last bite is already taken finishes there too, which is why
+        // planningState() copies the hero's pack -- and both display operations
+        // fall silent so only the live pass writes to the terminal.
+        stopOccupation: (occupationEnv) => stop_occupation(occupationEnv.state, {
+            message: env.planning ? async () => {} : ttyPline,
+            statusRefresh: env.planning ? () => {} : () => bot(),
+        }),
     });
 }
 
