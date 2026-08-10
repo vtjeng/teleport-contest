@@ -1,0 +1,285 @@
+#!/usr/bin/env node
+
+// Record and replay the `F` force-fight prefix against the patched C
+// reference.
+//
+// cmd.c do_fight() sets svc.context.forcefight and commits a walk before the
+// direction key has even been read, and rhack() then sends the pair through
+// domove(). hack.c domove_fight_empty() answers the square: the turn is spent,
+// and one line names what the hero swung at. Which line that is depends on the
+// terrain, so a seed plus a short walk selects an arm here the way a letter
+// selects an object for `d`:
+//
+// - WALL_CASE swings east into the room's own vertical wall. accessible() is
+//   false there, so `solid` is true, and back_to_glyph() answers wall_angle(),
+//   whose eleven cmap indices all explain themselves as "wall".
+// - STONE_CASE walks out into a corridor first and swings at the rock beside
+//   it. STONE is the other half of C's `levl[x][y].seenv || IS_STWALL(typ)`
+//   test and the only terrain that reaches defsyms[S_stone].
+// - FOUNTAIN_CASE swings at a fountain. A fountain is ACCESSIBLE(), so it is
+//   IS_FURNITURE() alone that makes `solid` true -- the half of that
+//   disjunction no wall can exercise.
+// - CLOSED_DOOR_CASE swings at a closed door. monmove.c accessible() answers
+//   false for one only through its `!closed_door(x, y)` conjunct, and the case
+//   also pins the admission seam: an ordinary step at that door would reach
+//   test_move()'s autoopen route, and a force-fight never touches the door.
+// - DOUBLE_CASE presses `FF`. do_fight() cancels on the second press, and
+//   rhack()'s PREFIXCMD arm turns the ECMD_CANCEL into reset_cmd_vars().
+// - INVENTORY_CASE presses `Fi`. extcmdlist[]'s "inventory" row carries no
+//   CMD_gGF_PREFIX, so rhack():3711 reports the prefix instead of running the
+//   command.
+// - UPSTAIRS_CASE presses `F<`, the one command that adds " other than up or
+//   down" to that line.
+// - BOTH_PREFIXES_CASE presses `Fml` and MENU_FIRST_CASE presses `mFl`. A
+//   prefix may follow a prefix, and was_m_prefix latches on do_reqmenu()
+//   whichever order they arrive in, so both orders end in the same swing.
+//
+// Every case ends with `.` so that the turn the force-fight spends, and the
+// turn the three prefix refusals do not, both show up in the status line's T:
+// field as well as in the length of the random-number log.
+//
+// Seeds were found by generating D:1 with the port and reading the terrain
+// around the hero's start, and around the end of a short straight walk; no
+// recorded session was read.
+
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { validateCleanRecipe } from './diff-fresh.mjs';
+import { runFreshMatrix } from './fresh-matrix.mjs';
+
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+// A fixed Monday morning with no calendar event, so nothing competes with
+// domove_fight_empty()'s own line for the top row.
+const DATETIME = '20310203040506';
+// The turn `F` did not spend. A prefix refusal that wrongly took one, or a
+// force-fight that wrongly did not, shifts every later random-number call and
+// moves the status line's T: field.
+const REST = '.';
+
+// rm.h terrain types, repeated here rather than imported so that a case
+// declares the terrain it means in the source's own vocabulary.
+const STONE = 0;
+const VWALL = 1;
+const DOOR = 23;
+const FOUNTAIN = 28;
+
+// One seed per level shape. Each was chosen for the terrain beside the hero,
+// and for nothing else.
+const WALL_SEED = 8800004;
+const FOUNTAIN_SEED = 8800000;
+const CLOSED_DOOR_SEED = 8800127;
+const CORRIDOR_SEED = 8800032;
+
+function nethackrc() {
+    return [
+        'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,'
+        + 'align:neutral',
+        'OPTIONS=!legacy,!tutorial,!splash_screen',
+        // No pet, so no monster shares the hero's turns and no monster can
+        // wander onto the square being swung at. A Valkyrie wields a long
+        // sword, which is neither is_pick() nor is_axe(), so no case starts
+        // digging instead.
+        'OPTIONS=pettype:none,!acoustics,!autopickup',
+        // Puts the turn counter on the status line, where a spent or unspent
+        // turn is visible in the recorded screen itself.
+        'OPTIONS=time',
+        '',
+    ].join('\n');
+}
+
+export const FORCE_FIGHT_CASES = [
+    {
+        label: 'the wall of the room the hero starts in',
+        seed: WALL_SEED,
+        walk: '',
+        command: 'Fl',
+        target: [1, 0],
+        typ: VWALL,
+        message: 'You harmlessly attack the wall.',
+        movesAfter: 2,
+    },
+    {
+        label: 'the rock beside a corridor',
+        seed: CORRIDOR_SEED,
+        walk: 'jj',
+        command: 'Fj',
+        target: [0, 1],
+        typ: STONE,
+        message: 'You harmlessly attack the stone.',
+        // Two walking turns and the force-fight.
+        movesAfter: 4,
+    },
+    {
+        label: 'a fountain',
+        seed: FOUNTAIN_SEED,
+        walk: '',
+        command: 'Fh',
+        target: [-1, 0],
+        typ: FOUNTAIN,
+        message: 'You harmlessly attack the fountain.',
+        movesAfter: 2,
+    },
+    {
+        label: 'a closed door',
+        seed: CLOSED_DOOR_SEED,
+        walk: '',
+        command: 'Fl',
+        target: [1, 0],
+        typ: DOOR,
+        message: 'You harmlessly attack the closed door.',
+        movesAfter: 2,
+    },
+    {
+        label: 'the prefix pressed twice',
+        seed: WALL_SEED,
+        walk: '',
+        command: 'FF',
+        target: [1, 0],
+        typ: VWALL,
+        message: 'Double fight prefix, canceled.',
+        // Still the turn the game started on: a cancelled prefix spends none.
+        movesAfter: 1,
+    },
+    {
+        label: 'a command that takes no movement prefix',
+        seed: WALL_SEED,
+        walk: '',
+        command: 'Fi',
+        target: [1, 0],
+        typ: VWALL,
+        message:
+            "The 'F' prefix should be followed by a movement command.",
+        movesAfter: 1,
+    },
+    {
+        label: 'the staircase command, which the line calls out by name',
+        seed: WALL_SEED,
+        walk: '',
+        command: 'F<',
+        target: [1, 0],
+        typ: VWALL,
+        message: "The 'F' prefix should be followed by a movement command "
+            + 'other than up or down.',
+        movesAfter: 1,
+    },
+    {
+        label: 'the fight prefix followed by the menu prefix',
+        seed: WALL_SEED,
+        walk: '',
+        command: 'Fml',
+        target: [1, 0],
+        typ: VWALL,
+        message: 'You harmlessly attack the wall.',
+        movesAfter: 2,
+    },
+    {
+        label: 'the menu prefix followed by the fight prefix',
+        seed: WALL_SEED,
+        walk: '',
+        command: 'mFl',
+        target: [1, 0],
+        typ: VWALL,
+        message: 'You harmlessly attack the wall.',
+        movesAfter: 2,
+    },
+];
+
+// The keystrokes up to and including the command, which is where the message
+// the case names is on the top row.
+function keysThroughFight(entry) {
+    return entry.walk + entry.command;
+}
+
+function segmentFor(entry) {
+    return {
+        seed: entry.seed,
+        datetime: DATETIME,
+        nethackrc: nethackrc(),
+        moves: keysThroughFight(entry) + REST,
+    };
+}
+
+export function loadForceFightRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: FORCE_FIGHT_CASES.map(segmentFor),
+    }, 'force fight recipe');
+}
+
+function caseForSegment(segment) {
+    const found = FORCE_FIGHT_CASES.find(
+        (entry) => segmentFor(entry).moves === segment.moves
+            && entry.seed === segment.seed,
+    );
+    if (!found) {
+        throw new Error(
+            `no force-fight case for moves ${JSON.stringify(segment.moves)}`,
+        );
+    }
+    return found;
+}
+
+export async function verifyForceFightSegment(segment) {
+    const entry = caseForSegment(segment);
+    let boundary = null;
+    await runSegment(
+        { ...segment, moves: keysThroughFight(entry) },
+        { onBoundary: (error) => { boundary = error; } },
+    );
+    if (boundary) throw boundary;
+
+    const { u, level } = game;
+    const [dx, dy] = entry.target;
+    const typ = level.at(u.ux + dx, u.uy + dy)?.typ;
+    if (typ !== entry.typ) {
+        throw new Error(
+            `${entry.label}: the target square is terrain ${typ}, not `
+            + `${entry.typ}`,
+        );
+    }
+    // gt.toplines, which pline.c writes whether or not the row was repainted.
+    const toplines = game._ttyToplines ?? '';
+    if (toplines !== entry.message) {
+        throw new Error(
+            `${entry.label}: top line is ${JSON.stringify(toplines)}, not `
+            + `${JSON.stringify(entry.message)}`,
+        );
+    }
+    // gm.moves. It starts at 1 and each elapsed turn adds one, so this is
+    // where a force-fight that spent no turn, or a refusal that spent one,
+    // shows up without waiting for the trailing rest.
+    if (game.moves !== entry.movesAfter) {
+        throw new Error(
+            `${entry.label}: the game is on turn ${game.moves}, not `
+            + `${entry.movesAfter}`,
+        );
+    }
+}
+
+export async function runForceFightMatrix() {
+    return runFreshMatrix({
+        entries: [
+            { label: 'force fight', recipe: loadForceFightRecipe() },
+        ],
+        summaryLabel: 'FORCE FIGHT',
+        verifySegment: verifyForceFightSegment,
+    });
+}
+
+async function main(argv) {
+    if (argv.length) throw new Error('arguments are not accepted');
+    const result = await runForceFightMatrix();
+    return result.passed ? 0 : 1;
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
+    main(process.argv.slice(2)).then((exitCode) => {
+        process.exitCode = exitCode;
+    }).catch((error) => {
+        process.stderr.write(`force fight: ${error.message || error}\n`);
+        process.exitCode = 2;
+    });
+}

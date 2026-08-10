@@ -67,6 +67,8 @@ import {
     RUN_CRAWL,
     RUN_LEAP,
     RUN_TPORT,
+    SCORR,
+    SDOOR,
     SEE_INVIS,
     SHOCK_RES,
     SLEEP_RES,
@@ -80,6 +82,7 @@ import {
     TT_BEARTRAP,
     Upolyd,
     VIBRATING_SQUARE,
+    WEB,
     WOUNDED_LEGS,
     W_NONDIGGABLE,
     W_NONPASSWALL,
@@ -100,7 +103,10 @@ import {
     classify_terrain,
     feel_location,
     flush_screen,
+    glyph_to_cmap,
     newsym,
+    terrain_glyph,
+    unmap_object,
     wall_angle,
 } from './display.js';
 import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
@@ -116,6 +122,7 @@ import { game } from './gstate.js';
 import { doopen_indir } from './lock.js';
 import {
     amorphous,
+    attacktype,
     bigmonst,
     is_flyer,
     is_hider,
@@ -132,10 +139,11 @@ import {
     tunnels,
     verysmall,
 } from './mondata.js';
-import { is_pick, objectType, sobj_at } from './obj.js';
+import { is_axe, is_pick, objectType, sobj_at } from './obj.js';
 import {
     assertObjectNameable,
     assertPricedObjectNameable,
+    the,
     UnsupportedObjectNameError,
 } from './objnam.js';
 import {
@@ -145,9 +153,11 @@ import {
     CREDIT_CARD,
     LOCK_PICK,
     SKELETON_KEY,
+    STATUE,
     WATER_WALKING_BOOTS,
 } from './objects.js';
 import {
+    AT_EXPL,
     PM_DISPLACER_BEAST,
     PM_ELF,
     PM_GRID_BUG,
@@ -159,7 +169,13 @@ import {
 } from './monsters.js';
 import { curr_mon_load } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
-import { can_fog, closed_door, onscary, youHear } from './monmove.js';
+import {
+    accessible,
+    can_fog,
+    closed_door,
+    onscary,
+    youHear,
+} from './monmove.js';
 import {
     encumber_msg,
     pickup,
@@ -183,6 +199,7 @@ import {
     monsterVisible,
     sensesMonster,
 } from './startup_a11y.js';
+import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { S_hcdoor, S_stone, S_vcdoor } from './symbols.js';
 import {
     peek_timer,
@@ -1174,12 +1191,14 @@ function requireOrdinaryHostileMelee(monster) {
     }
 }
 
-// The destination-monster seam. C splits by is_safemon() inside do_attack()
-// (uhitm.c:461); this splits the same way, because the two arms have nothing
-// in common below that test.
+// The destination-monster seam. C splits by `is_safemon(mtmp) &&
+// !svc.context.forcefight` inside do_attack() (uhitm.c:462); this splits the
+// same way, because the two arms have nothing in common below that test. The
+// forcefight conjunct is what sends `F` at a pet down the attack arm, where
+// attack_checks() stops it, instead of down the displacement arm.
 function requireSupportedDestinationMonster(monster, x, y, state) {
     requireNoMonsterBump(monster, state);
-    if (!is_safemon(monster, state)) {
+    if (!is_safemon(monster, state) || state.context?.forcefight) {
         requireOrdinaryHostileMelee(monster);
         return;
     }
@@ -1373,6 +1392,15 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // trap, object, region or engraving on the destination first. Both
         // stop the port; the seam simply stops it one call earlier.
         requireSupportedDestinationMonster(destinationMonster, x, y, state);
+    } else if (state.context?.forcefight) {
+        // C ref: domove_core():2805-2810. A force-fight step at a square with
+        // no monster on it is answered by domove_fight_ironbars(),
+        // domove_fight_web() and domove_fight_empty(), all three of them above
+        // the u.utrap block at 2830 and above test_move() at 2843, so none of
+        // the arms below can decide it. A closed door is the clearest case:
+        // requireAutoopenClosedDoor() would ask whether the door opens for a
+        // step that never touches the door. The three fight functions carry
+        // their own refusals inside domove(); this arm is here to let them.
     } else if (heldStepIgnoresDestination(state)) {
         // The step never reaches the terrain rules at all, so this seam must
         // not consult them either. See heldStepIgnoresDestination() above.
@@ -1801,6 +1829,144 @@ export function runStopsBeforeMonster(monster, run, state) {
     return seen || sensesMonster(monster, state);
 }
 
+// C ref: hack.c domove_fight_ironbars() (1993-2016). Its whole body is the
+// TRUE arm: a force-fight at iron bars swings the wielded weapon at them
+// through hit_bars(), which can break the weapon, unwield it and free it from
+// inventory. None of that is ported, so the guard that selects the arm is what
+// stops here; every other square falls through as C's `return FALSE`.
+function domove_fight_ironbars(x, y, state) {
+    if (state.context.forcefight
+        && state.level?.at(x, y)?.typ === IRONBARS
+        && state.uwep) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'force-fight against iron bars',
+        );
+    }
+}
+
+// C ref: hack.c domove_fight_web() (2018-2113). Its whole body is the TRUE
+// arm: a force-fight at a seen web cuts or burns at it, choosing among four
+// messages by weapon skill and artifact, and drawing rn2() before any of them.
+// Nothing of that is ported, so the guard that selects the arm stops here.
+//
+// C reads the trap unconditionally and tests it inside the condition; the
+// order matters no more than it does in C, because t_at() has no side effect.
+function domove_fight_web(x, y, state) {
+    const trap = t_at(x, y, state);
+    if (state.context.forcefight && trap && trap.ttyp === WEB && trap.tseen) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'force-fight against a spider web',
+        );
+    }
+}
+
+// C ref: hack.c domove_fight_empty() (2227-2338). The hero has swung the 'F'
+// prefix at a square with nothing on it to fight. The turn is spent, one line
+// names what was there instead, and the map forgets whatever it was showing.
+// TRUE means the step is over; FALSE hands the square back to domove_core().
+//
+// C's entry condition is
+//     svc.context.forcefight
+//     || (glyph_is_invisible(glyph) && !m_at(x, y) && !svc.context.nopick)
+// Its second disjunct is a remembered 'I' the hero walked into without the
+// prefix. It cannot fire: display.c map_invisible() is the only writer of the
+// marker js/display.js glyph_is_invisible() reads and it is unported, and
+// uhitm.c attack_checks() refuses an unseen-monster attack before any square
+// could come to carry one. Spelling it out would add three terms no test can
+// decide, so this note owns it instead.
+//
+// Only the solid arm at 2300-2312 is live, and only where the terrain has a
+// remembered appearance. Every other arm stops, each named below. The off-edge
+// arm at 2249-2252 is not among them: move_out_of_bounds() answers a
+// force-fight off the map before domove_core() reaches this function, so
+// `off_edge` is constantly false at the one ported call site and the variable
+// is absent.
+async function domove_fight_empty(x, y, state) {
+    if (!state.context.forcefight) return false;
+
+    const location = state.level.at(x, y);
+
+    // 2245-2246 explo, whose consequences are the tail at 2323-2333:
+    // wake_nearto(), explum(), u.mh = -1 and rehumanize(). Nothing in this
+    // port polymorphs the hero, and none of those four is ported.
+    if (Upolyd(state.u) && attacktype(state.youmonst?.data, AT_EXPL)) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'force-fight while polymorphed into an exploding form',
+        );
+    }
+    // 2253 and 2306-2312. Underwater skips the boulder and digging tests and
+    // then takes a message arm of its own, which names an air bubble or
+    // nothing at all rather than the terrain.
+    if (state.u.uinwater) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'force-fight while underwater',
+        );
+    }
+    // 2254-2260. A boulder on the square, or a statue the map is showing, is
+    // what the hero attacks instead, and 2314 names it with objnam.c
+    // ansimpleoname(), which has no port. C finds the statue through
+    // glyph_is_statue(), a question about the glyph number in map memory that
+    // this port's presentation records cannot answer; asking sobj_at() instead
+    // refuses a statue C would have ignored because something else covers it.
+    // Both are stops.
+    if (sobj_at(BOULDER, x, y, state) || sobj_at(STATUE, x, y, state)) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'force-fight against a boulder or statue',
+        );
+    }
+    // 2264-2273. A hero who force-fights while wielding a digging tool starts
+    // digging the wall or boulder open instead, through dig.c use_pick_axe2().
+    // Neither that nor dig_typ() is ported -- js/const.js:1867 carries the
+    // DIGTYP_* constants and nothing else -- so the tool stops the command.
+    // This is dig_typ()'s own first test (dig.c:173) and no more: it is exactly
+    // as wide as the arm for a pick, and wider for an axe, which dig_typ()
+    // answers DIGTYP_UNDIGGABLE for anywhere but a closed door or a tree.
+    if (state.uwep
+        && (is_pick(state.uwep, state) || is_axe(state.uwep, state))) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'force-fight while wielding a digging tool',
+        );
+    }
+
+    // 2246-2247. `solid` is misleadingly named, as C's own comment at 2316
+    // says: it catches water, lava and furniture as well as rock and walls.
+    const solid = !accessible(x, y, state) || IS_FURNITURE(location.typ);
+    // 2318-2319. Anything else is thin air, which prints a line of its own and
+    // is left to a later slice. The test comes before unmap_object() below,
+    // where C makes it after, so that the memory rewrite never runs for a
+    // square this port is going to refuse.
+    if (!solid) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'force-fight against thin air',
+        );
+    }
+    // 2302-2305. Blind or not, this does not reveal terrain the hero has never
+    // seen; those squares are named "an unknown obstacle" instead, which is a
+    // message arm this slice leaves unported.
+    if (!(location.seenv || IS_STWALL(location.typ)
+          || location.typ === SDOOR || location.typ === SCORR)) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'force-fight against terrain with no remembered appearance',
+        );
+    }
+
+    /* about to become known empty -- remove 'I' if present */
+    unmap_object(x, y, state);
+    newsym(x, y);
+    // C re-reads glyph_at() here and marks it nhUse(); nothing reads it back.
+
+    const buf = the(CMAP_EXPLANATIONS[
+        glyph_to_cmap(terrain_glyph(location, x, y, state))
+    ]);
+    // 2321-2324. C selects the adverb from `boulder`, `solid` and `explo`.
+    // With no boulder, no explosion and `solid` true, the only reachable
+    // wording is this one.
+    await ttyPline(`You harmlessly attack ${buf}.`, state);
+
+    nomul(0, state);
+    return true;
+}
+
 // C ref: hack.c trapmove() (1549-1691), the TT_BEARTRAP arm (1565-1579) and
 // the wriggle_free: label it jumps to (1671-1680). TRUE means the hero may go
 // on to test_move(); FALSE means the step is spent struggling and the turn
@@ -1896,9 +2062,7 @@ export async function domove(state = game) {
     //
     // C's `nomul(0)` at 2790-2792 ends a multi-turn action before the attack.
     // It is gated on `!is_safemon(mtmp) || svc.context.forcefight`, so a pet
-    // displacement skips it and a hostile target takes it. Nothing in this
-    // port sets context.forcefight -- js/cmd.js:841 and js/cmd.js:917 are its
-    // only writers and both write 0 -- so is_safemon() decides it alone.
+    // displacement skips it, and a hostile target or the 'F' prefix takes it.
     if (destinationMonster) {
         requireSupportedDestinationMonster(
             destinationMonster,
@@ -1906,7 +2070,10 @@ export async function domove(state = game) {
             newy,
             state,
         );
-        if (!is_safemon(destinationMonster, state)) nomul(0, state);
+        if (!is_safemon(destinationMonster, state)
+            || state.context.forcefight) {
+            nomul(0, state);
+        }
         const attackConsumedMove = await do_attack(
             destinationMonster,
             state,
@@ -1926,6 +2093,22 @@ export async function domove(state = game) {
             state.domoveAttempting = 0;
             return;
         }
+    }
+
+    // C ref: domove_core():2805-2810, inside its `if (!displaceu)` block. The
+    // displacer-beast swap that clears that flag is refused above, so the
+    // block is entered on every step that gets this far. All three run before
+    // the u.utrap block and before test_move(), so a force-fight answers the
+    // square whatever else is true of the hero or the terrain.
+    //
+    // C's unmap_invisible(x, y) at 2812 follows them. It is ported and cannot
+    // do anything: display.c map_invisible(), the only writer of the marker it
+    // clears, is not.
+    domove_fight_ironbars(newx, newy, state);
+    domove_fight_web(newx, newy, state);
+    if (await domove_fight_empty(newx, newy, state)) {
+        state.domoveAttempting = 0;
+        return;
     }
 
     // C ref: domove_core():2830-2841. A held hero spends the step struggling

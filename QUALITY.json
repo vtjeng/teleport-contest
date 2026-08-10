@@ -1212,6 +1212,39 @@
       "status": "open",
       "from": "50f1cf638ebb0f17003c90ddbc834752a5936c13",
       "detail": "The behavior scan's reconciliation reports 10 unreconciled stops where .agents/selection.md states the count is 0. The cause is structural, not a regression: the modeled half derives its supported set from key bindings and the ported-command list, so it cannot see an unported branch INSIDE a ported command. Four confirmed instances: seed0006's options menu, seed0361's wish tail, seed0367's garlic_breath(), seed0900's count prefix. The pickup-command goal added a fifth while it was open -- 'pickup' entered ADMITTED_COMMANDS in 8c64c2f while pickup() still refused inside it -- which resolved when the second slice landed. The effect on goal selection is real: a selector that ranks from the behavior table alone gets no row for these boundaries, and the 68-step seed0361 wish-tail candidate surfaced only because a selector ranked the recorded screens by hand. Close it by making the reconciliation model a command's supported branches rather than its admission, or, if that is too costly, by having the scan report the unreconciled set as a named category the selector is told to rank by hand, and by correcting .agents/selection.md, which asserts the count is 0."
+    },
+    {
+      "id": "force-fight-thin-air",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "936915a98473b2357a307053b8c062da57f09d6b",
+      "detail": "hack.c domove_fight_empty()'s thin-air arm (2318-2319) is unported: js/hack.js refuses 'force-fight against thin air' before unmap_object(). Recorded case, which fails today and must pass when that arm lands: seed 8800000, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,!autopickup / time', moves 'Fk.'. West of the hero's start is ordinary room floor. C prints 'You attack thin air.' and spends the turn; the port ends the segment at the refusal instead. The arm also needs unmap_object()'s engraving branch, which raises UnsupportedMapMemoryError, because a ROOM square is the one place spot_shows_engravings() can be true.",
+      "notes": [
+        {
+          "text": "Correction: the ordinary room floor this case swings at is north of the hero's start, which is the direction 'Fk' names; the entry text says west.",
+          "at": "936915a98473b2357a307053b8c062da57f09d6b"
+        }
+      ]
+    },
+    {
+      "id": "force-fight-off-map-edge",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "936915a98473b2357a307053b8c062da57f09d6b",
+      "detail": "hack.c move_out_of_bounds() (2585-2610) hands a forcefight step off the map to domove_fight_empty(), whose off-edge arm (2249-2252) names 'an unknown obstacle' and spends the turn. js/hack.js move_out_of_bounds() refuses 'move out of bounds' instead. Recorded case, which fails today and must pass when that arm lands: seed 8800070, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,!autopickup / time', moves 'hjjFj.'. The three walking keys put the hero on the corridor square 15,20, the bottom row of the map, and 'Fj' swings south off it. The arm also needs directionname(xytodir()) for the flags.mention_walls line that shares move_out_of_bounds()."
+    },
+    {
+      "id": "force-fight-at-a-monster",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "936915a98473b2357a307053b8c062da57f09d6b",
+      "detail": "uhitm.c attack_checks()'s forcefight arm (203-215) returns FALSE, so 'F' at a square that does hold a monster goes on to strike it whether or not the hero can see it; js/uhitm.js:205 refuses 'force-fight attack'. This is the case just outside the force-fight-command goal, whose boundary names it. Recorded case, which fails today and must pass when the arm lands: seed 8800009, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / !acoustics,!autopickup / time', moves 'Fh.'. A hostile fox stands immediately west of the hero's start. scripts/force-fight.test.mjs pins what the refusal must keep true meanwhile: 'Fh' leaves the segment on exactly the random-number log and screen count that 'F' alone leaves, where an unprefixed 'h' kills the fox and draws."
     }
   ],
   "areas": [

@@ -651,6 +651,23 @@ function withAccessibilityMetadata(
     return glyph;
 }
 
+/**
+ * C ref: display.h glyph_to_cmap(). C recovers the cmap index from a glyph
+ * number by arithmetic; this port stores a finished presentation record
+ * instead, so terrainCmap() below records the index it drew from and this
+ * reads it back. hack.c domove_fight_empty() is the caller that needs it, to
+ * index defsyms[].explanation with glyph_to_cmap(back_to_glyph(x, y)).
+ */
+export function glyph_to_cmap(glyph) {
+    const index = glyph?.cmap;
+    if (!Number.isInteger(index)) {
+        throw new TypeError(
+            'glyph_to_cmap() needs a presentation drawn from a cmap index',
+        );
+    }
+    return index;
+}
+
 function terrainCmap(index, color, state, customizationName = null) {
     const customization = customizationName
         ? glyph_customization(customizationName, state) : null;
@@ -658,6 +675,12 @@ function terrainCmap(index, color, state, customizationName = null) {
         cmap_symbol(index, state), color, state, customization,
     );
     if (blackAndWhiteTerrainCue(index, state)) glyph.attr = ATR_INVERSE;
+    // The cmap index C keeps inside the glyph number. Non-enumerable, so that
+    // every existing copy of a presentation record -- the display buffer, map
+    // memory, the browser projection -- keeps the shape it already had, and
+    // not configurable, because this is the only writer and the record it
+    // writes to has just been built.
+    Object.defineProperty(glyph, 'cmap', { value: index });
     if (!state.a11y?.glyph_updates) return glyph;
     const kind = index >= S_stone && index <= S_trwall
         ? 'wall'
@@ -1581,6 +1604,78 @@ export function map_trap(trap, show, state = game) {
         }
     }
     if (show) show_glyph_cell(trap.tx, trap.ty, glyph);
+}
+
+// C ref: display.c map_background() (278-287). Puts the square's own terrain
+// back into map memory, and paints it when `show` is set. unmap_object() below
+// is the only ported caller, and it always passes show = 0, because the
+// caller that follows it -- hack.c domove_fight_empty() -- calls newsym().
+export function map_background(x, y, show, state = game) {
+    const location = state.level?.at(x, y);
+    if (!location) return;
+    const glyph = terrain_glyph(location, x, y, state);
+    if (state.level?.flags?.hero_memory) {
+        location.remembered_glyph = remembered_glyph_from_presentation(glyph);
+    }
+    if (show) show_glyph_cell(x, y, glyph);
+}
+
+// The refusal class for a map-memory rewrite this port cannot perform.
+// js/cmd.js failClosedCommandRefusals() lists it, so a command that reaches
+// one ends its segment on the last screen it matched.
+export class UnsupportedMapMemoryError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UnsupportedMapMemoryError';
+    }
+}
+
+// C ref: display.c unmap_object() (408-438). Forgets whatever the map showed
+// at <x,y> and puts back the terrain, the seen trap, or plain stone. hack.c
+// domove_fight_empty() calls it before it names what the hero swung at,
+// because the square is about to become known empty.
+//
+// Its engraving arm stops. engraving_to_glyph() has no standalone port -- the
+// presentation lives inside newsym()'s engravingGlyph(), which folds in the
+// erevealed test this arm performs itself -- so a square that shows an
+// engraving would need that split. spot_shows_engravings() restricts the arm
+// to CORR, ICE and ROOM, all three of them ACCESSIBLE() and none of them
+// furniture, so domove_fight_empty()'s `solid` is false on every square that
+// could reach it and its own thin-air refusal fires one call earlier.
+export function unmap_object(x, y, state = game) {
+    if (!state.level?.flags?.hero_memory) return;
+    const location = state.level.at(x, y);
+    if (!location) return;
+
+    const trap = t_at(x, y, state);
+    const covered = floorLayersCovered(location, state);
+    if (trap && trap.tseen && !covered) {
+        map_trap(trap, 0, state);
+    } else if (location.seenv) {
+        const showsEngravings = location.typ === CORR
+            || location.typ === ICE
+            || location.typ === ROOM;
+        if (showsEngravings && engr_at(x, y, state) && !covered) {
+            throw new UnsupportedMapMemoryError(
+                'forgetting a square that shows an engraving',
+            );
+        }
+        map_background(x, y, 0, state);
+        /* turn remembered dark room squares dark */
+        // C compares levl[x][y].glyph with cmap_to_glyph(S_room). The compare
+        // can only succeed on what map_background() just wrote, and
+        // back_to_glyph() writes S_room for exactly the ROOM squares this
+        // test already names, so the typ test carries the whole condition.
+        if (!location.waslit && location.typ === ROOM) {
+            location.remembered_glyph = remembered_glyph_from_presentation(
+                terrainCmap(S_stone, NO_COLOR, state),
+            );
+        }
+    } else {
+        location.remembered_glyph = remembered_glyph_from_presentation(
+            terrainCmap(S_stone, NO_COLOR, state),
+        );
+    }
 }
 
 /**

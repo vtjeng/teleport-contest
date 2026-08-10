@@ -40,7 +40,7 @@ import { doapply, reset_trapset, UnsupportedApplyError } from './apply.js';
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
 import {
-    bot, flush_screen, UnsupportedGlyphRepairError,
+    bot, flush_screen, UnsupportedGlyphRepairError, UnsupportedMapMemoryError,
 } from './display.js';
 import {
     dodown,
@@ -67,6 +67,7 @@ import { can_reach_floor, read_engr_at } from './engrave.js';
 import {
     AUTOCOMPLETE,
     CMD_M_PREFIX,
+    CMD_gGF_PREFIX,
     CMD_NOT_AVAILABLE,
     ECM_EXACTMATCH,
     ECM_IGNOREAC,
@@ -754,6 +755,11 @@ export async function parseCommand(state = game) {
 // after the prompt has painted the frames the reference program painted for
 // the same keystrokes.
 //
+// 'fight' and 'reqmenu' are the two PREFIXCMD rows this seam admits. Each
+// modifies the command typed after it, which rhack() reads without consulting
+// this list; a prefixed command the port does not own stops at its own arm
+// below, exactly as the same key does unprefixed.
+//
 // doextcmd() dispatches three commands that are deliberately absent here:
 // '#ride', whose own key is M-R (cmd.c:1833); '#twoweapon', whose own key is
 // 'X' (cmd.c:1913) and which commands_init() binds a second time to M-2
@@ -764,8 +770,8 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'reqmenu', 'options',
-    'wizwish', 'wizlevelport', '#',
+    'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'reqmenu', 'fight',
+    'options', 'wizwish', 'wizlevelport', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -784,8 +790,12 @@ const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
 // `rush` and `run`, which no `MOVEMENT_INTENTS` entry covers, so the lookup
 // below throws before any run value exists. That matters for `G`: do_run() at
 // cmd.c:1606 sets 3, the same value do_rush_<dir> sets, so this list cannot
-// tell a `G` run from a ctrl-direction rush. Porting PREFIXCMD dispatch has to
-// bring its own seam for `G`, or it will admit prefixed runs by accident.
+// tell a `G` run from a ctrl-direction rush.
+//
+// The seam that keeps them out survived the arrival of PREFIXCMD dispatch:
+// ADMITTED_COMMANDS omits `rush` and `run`, so neither key can start a command,
+// and rhack()'s prefix loop steps only into the two prefixes named there, so
+// neither can follow one either.
 export const ADMITTED_RUN_MODES = Object.freeze([0, 1, 3]);
 
 // A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s
@@ -888,6 +898,42 @@ export function set_move_cmd(dir, run, state = game) {
     }
 }
 
+// C ref: cmd.c do_reqmenu() (1574-1587), the 'm' prefix. Pressed twice it
+// cancels the command it was starting; rhack()'s PREFIXCMD arm turns the
+// ECMD_CANCEL into reset_cmd_vars().
+export async function do_reqmenu(state = game) {
+    if (state.iflags.menu_requested) {
+        const prefix = keyForCommand(commandBindings(state), 'reqmenu');
+        await ttyNorep(
+            `Double ${visibleCommandKey(prefix)} prefix, canceled.`,
+            state,
+        );
+        state.iflags.menu_requested = false;
+        return ECMD_CANCEL;
+    }
+    state.iflags.menu_requested = true;
+    return ECMD_OK;
+}
+
+// C ref: cmd.c do_fight() (1621-1634), the 'F' prefix. It commits a walk
+// before the direction key is even read, which is what lets rhack() send a
+// force-fight through domove() rather than through the command it prefixed.
+//
+// Its cancel line names the command rather than the key -- C writes
+// Norep("Double fight prefix, canceled.") literally, where do_reqmenu() above
+// formats visctrl(cmd_from_func(do_reqmenu)) into the same sentence.
+export async function do_fight(state = game) {
+    if (state.context.forcefight) {
+        await ttyNorep('Double fight prefix, canceled.', state);
+        state.context.forcefight = 0;
+        state.domoveAttempting = 0;
+        return ECMD_CANCEL;
+    }
+    state.context.forcefight = 1;
+    state.domoveAttempting |= DOMOVE_WALK;
+    return ECMD_OK;
+}
+
 // C ref: cmd.c set_move_cmd() and rhack()'s DOMOVE_WALK/DOMOVE_RUSH paths.
 // `key` is the movement key rhack() dispatched, which the failClosedCommand()
 // wrapper below needs to keep the keystroke retryable.
@@ -911,7 +957,16 @@ async function executeMovement(command, key, firstTime, state) {
     set_move_cmd(xytodir(dx, dy), run, state);
     state.context.move = 1;
 
-    if (!run) {
+    // C ref: rhack():3785-3800, which picks the walk arm or the rush arm from
+    // gd.domove_attempting rather than from the command's own run value, and
+    // tests DOMOVE_WALK first. The two agree for an unprefixed movement key,
+    // because set_move_cmd() has just derived one from the other. They part
+    // company under the 'F' prefix: do_fight() sets DOMOVE_WALK before the
+    // direction key is read, and set_move_cmd() then leaves both
+    // domove_attempting and context.run alone, so the walk arm claims the step
+    // and clears context.forcefight after it whatever run value the row holds.
+    const walking = (state.domoveAttempting & DOMOVE_WALK) !== 0;
+    if (walking) {
         if (state.multi) state.context.mv = 1;
     } else {
         if (firstTime) {
@@ -932,7 +987,7 @@ async function executeMovement(command, key, firstTime, state) {
     // stack here, so its finally still holds context.pendingCommand and the
     // keystroke stays retryable, exactly as the '#' arm's wrapper leaves it.
     await failClosedCommand(key, state, () => domove(state));
-    if (!run) state.context.forcefight = 0;
+    if (walking) state.context.forcefight = 0;
     state.iflags.menu_requested = false;
 }
 
@@ -1038,6 +1093,10 @@ export function failClosedCommandRefusals() {
         // go.opt_need_redraw reaches it under 'OPTIONS=!color' or
         // 'OPTIONS=!dark_room'.
         UnsupportedGlyphRepairError,
+        // display.c unmap_object() raises this for a square that shows an
+        // engraving, which hack.c domove_fight_empty() is the one ported
+        // caller that can reach.
+        UnsupportedMapMemoryError,
         UnsupportedHeroTimeoutBoundaryError,
         UnsupportedPositionCheckError,
         UnsupportedMonsterCreationError,
@@ -1432,6 +1491,41 @@ async function rhackCanDoExtcmd(command, state) {
     return true;
 }
 
+// C ref: rhack():3696-3722, the two messages for a command that was given a
+// prefix it does not accept. `which` is the key bound to the prefix; C's two
+// fallbacks for an unbound prefix cannot fire, because commands_init() binds
+// both prefixes this port dispatches.
+//
+// Both lines end the command. C sets res = ECMD_FAIL and its result handling
+// at 3810 turns that into reset_cmd_vars(TRUE), which the caller does here.
+async function prefixRefusedCommand(prefixCommand, entry, wasMPrefix, state) {
+    const which = visibleCommandKey(
+        keyForCommand(commandBindings(state), prefixCommand),
+    );
+    if (wasMPrefix) {
+        // custompline(SUPPRESS_HISTORY, ...) is pline() that stays out of the
+        // message history doprev_message() recalls; no message history is
+        // ported, so the two are the same line.
+        await ttyPline(
+            `The ${entry.ef_txt} command does not accept '${which}' prefix.`,
+            state,
+        );
+        return;
+    }
+    // 3712-3720. The movement prefixes name the two staircase commands as the
+    // ones a movement prefix still cannot take. extcmdlist[]'s "up" and "down"
+    // rows are reached by their keys, doup() and dodown() by '#up' and
+    // '#down', and C tests for both spellings.
+    const ch = String.fromCharCode(entry.key);
+    const up = ch === '<' || entry.ef_funct === 'doup';
+    const down = ch === '>' || entry.ef_funct === 'dodown';
+    await ttyPline(
+        `The '${which}' prefix should be followed by a movement command`
+        + `${up || down ? ' other than up or down' : ''}.`,
+        state,
+    );
+}
+
 // C ref: cmd.c doextcmd(). The do/while loop repeats only while the command
 // reached is doextlist (#?), which stays unported, so one pass covers every
 // dispatch the port can make.
@@ -1571,10 +1665,29 @@ export async function rhack(key, state = game) {
 
         let command = commandForKey(commandBindings(state), key);
         if (!await rhackCanDoExtcmd(command, state)) return;
-        if (command === 'reqmenu') {
-            state.iflags.menu_requested = true;
-            // do_reqmenu() is a PREFIXCMD, so rhack() immediately reads and
-            // dispatches the following command in the same input cycle.
+        // C ref: rhack()'s PREFIXCMD arm (3762-3772). A prefix runs its own
+        // handler, is remembered in prefix_seen, and jumps back to
+        // got_prefix_input for the command it modifies -- so a prefix may
+        // follow a prefix, and this is a loop for the same reason C uses a
+        // goto. Two of the four PREFIXCMD rows are ported: 'm' (do_reqmenu)
+        // and 'F' (do_fight). 'g' and 'G' are refused one level up, because
+        // ADMITTED_COMMANDS omits `rush` and `run`.
+        let prefixSeen = null;
+        let wasMPrefix = false;
+        while (command === 'reqmenu' || command === 'fight') {
+            const res = command === 'reqmenu'
+                ? await do_reqmenu(state)
+                : await do_fight(state);
+            // 3764-3767. A prefix pressed twice cancels the whole command.
+            if (res & ECMD_CANCEL) {
+                resetCommandVars(state);
+                return;
+            }
+            prefixSeen = command;
+            // 3770-3771. was_m_prefix latches on do_reqmenu() and is never
+            // cleared, so `Fm` and `mF` both leave the CMD_M_PREFIX rule in
+            // force for the command that follows.
+            if (command === 'reqmenu') wasMPrefix = true;
             key = await parseCommand(state);
             if (firstTime) {
                 state.context.pendingCommand =
@@ -1586,31 +1699,27 @@ export async function rhack(key, state = game) {
             }
             command = commandForKey(commandBindings(state), key);
             // C loops back to do_cmdq_extcmd for the prefixed command, so the
-            // second key gets its own can_do_extcmd() before do_reqmenu()
-            // reports a doubled prefix.
+            // next key gets its own can_do_extcmd() before anything else
+            // looks at it.
             if (!await rhackCanDoExtcmd(command, state)) return;
-            const prefixedEntry = EXTCMD_BY_NAME.get(command);
-            if (prefixedEntry
-                && !(prefixedEntry.flags & PREFIXCMD)
-                && !(prefixedEntry.flags & CMD_M_PREFIX)) {
-                const prefix = keyForCommand(
-                    commandBindings(state),
-                    'reqmenu',
-                );
-                await ttyNorep(
-                    `The ${prefixedEntry.ef_txt} command does not accept `
-                    + `'${visibleCommandKey(prefix)}' prefix.`,
-                    state,
-                );
-                resetCommandVars(state);
-                return;
-            }
-            if (command === 'reqmenu') {
-                const prefix = keyForCommand(commandBindings(state), 'reqmenu');
-                await ttyNorep(
-                    `Double ${visibleCommandKey(prefix)} prefix, canceled.`,
-                    state,
-                );
+        }
+        if (prefixSeen) {
+            // C ref: rhack():3693-3722. The command after a prefix has to
+            // carry the flag that prefix hands out, or C reports it and gives
+            // up on the whole command with ECMD_FAIL. A further prefix is
+            // exempt: the PREFIXCMD conjunct is what lets `mF` and `FG`
+            // through, and the loop above consumes only the two prefixes this
+            // port owns, so `run` and `rush` still reach it.
+            //
+            // An unbound key has no row at all; C's `tlist != 0` test above
+            // this one sends it to the bad-command path instead, which is
+            // where a missing entry falls through to below.
+            const entry = EXTCMD_BY_NAME.get(command);
+            const accepted = wasMPrefix ? CMD_M_PREFIX : CMD_gGF_PREFIX;
+            if (entry && !(entry.flags & PREFIXCMD)
+                && !(entry.flags & accepted)) {
+                await prefixRefusedCommand(prefixSeen, entry, wasMPrefix,
+                    state);
                 resetCommandVars(state);
                 return;
             }
