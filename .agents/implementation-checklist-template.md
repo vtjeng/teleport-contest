@@ -28,17 +28,21 @@ Keep `mode` at `implementation` while any checklist entry is `missing` or
 `commitChecked` match as data. Commit a checklist update in the same commit
 as the work it describes; a checklist-only commit is for opening or retiring
 the file. Before a formal review pass, the checklist evidence must apply to
-the exact committed head. After the slice closes and its evidence is recorded
+the commit being reviewed, or to an earlier one if no commit since then changed
+code a pass would read. After the slice closes and its evidence is recorded
 in existing trackers, remove the checklist or replace it for the next
 qualifying slice. Smaller slices may keep equivalent information in their
 commit messages and in the readiness attestations in `.agents/review.md`.
 
-The checklist is JSON because `scripts/audit-worktree.mjs prepare` reads it
-as data: it refuses to prepare a pass while `mode` is not `ready-for-audit`,
-while any entry's `status` is `missing` or `undecided`, or while
-`commitChecked` differs from the range head. Judgment lives in the free-text
-fields; the gate reads only `mode`, `commitChecked`, and each entry's
-`status`.
+The checklist is JSON so `scripts/audit-worktree.mjs prepare` can check it
+automatically. `prepare` will not run when `mode` is not `ready-for-audit`,
+when any entry's `status` is `missing` or `undecided`, or when `commitChecked`
+names neither the commit being reviewed nor an earlier one whose intervening
+commits changed no code a pass would read.
+
+`prepare` reads only those three fields. Everything else in the checklist is
+prose for whoever opens it next, and no check reads that prose, so a wrong or
+stale sentence there will not stop a pass.
 
 ## Fields
 
