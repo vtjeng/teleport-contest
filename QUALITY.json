@@ -9725,6 +9725,112 @@
         }
       },
       "recordedAt": "2026-08-10T17:11:30.739Z"
+    },
+    {
+      "kind": "review",
+      "head": "53663496611b74c22ddc039974eaa4abf1906a5b",
+      "auditedRange": "6327eab7dc2bad61c88cafb82d816f7f9e46147e..53663496611b74c22ddc039974eaa4abf1906a5b",
+      "level": "full",
+      "areas": [
+        "hero",
+        "monsters",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 19 raw, 17 deduplicated, 9 confirmed, 8 applied, 1 deferred, 8 rejected, 0 unverified; mutation: 1 survivors of 1 mutants. Full correctness pass over the movement-while-riding goal. Four mandatory finders; neither optional finder was triggered. No behavioral defect, but nine confirmed findings of which three were claims that would mislead the next reader into breaking something, and two of those this loop had repeated in its own records. The sharpest: deleting domove()'s riding refusal left trapmove()'s mounted-hero stop still documented as the second lock on the same door, when it is now the only one, so acting on the sentence would make a mounted hero in a bear trap print the unmounted lines where C names the steed. The pass also judged the slice's own remedy inadequate, which is what it was asked to do: the slice had found that opening a segment with a wait moves mount_steed()'s impairment roll so the hero slips and every later key walks on foot while the differential still passes, and added two assertions that test a string segmentFor() composes rather than the case table, so neither could catch what they were written for. Two justifications were wrong about C, one of them this loop's own reason for trusting the forecast: movemon() does not skip u.usteed, and monmove.c:966's mpeaceful gate is what keeps a tame steed out of mattacku(). One finding is deferred: js/mhitu.js is executed by no fresh segment, so a file that exists because of a random-number call has no recorded C evidence, and a wrong draw there shifts the PRNG log rather than a screen. The score is unchanged at 1373 screens and 118557 calls across the fixes.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2147,
+        "counts": {
+          "raw": 19,
+          "deduplicated": 17,
+          "confirmed": 9,
+          "applied": 8,
+          "deferred": 1,
+          "rejected": 8,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 2,
+          "clarity": 7,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "rejections": [
+          {
+            "summary": "The failed-pet-swap restore is unreachable dead code that the running game never executes, and the comment justifying it states a premise about C that is false for one of the six FALSE arms.",
+            "counterEvidence": "evidence refute: The headline correctness claim does not survive. The block is a byte-faithful translation of hack.c:2922-2926 (`u.ux = u.ux0, u.uy = u.uy0;` then the guarded steed write), guarded by the callee's own return value, so it cannot execute wrongly and cannot execute at all today. Nothing in it is incorrect. Counter-evidence: AGENTS.md's first implementation rule requires translating whole C functions and matching \"the C code's branches\", which is what an `if (!domove_swap_with_pet(...))` arm around an already-live call is; the 'do not prepare code for future branches' rule targets "
+          },
+          {
+            "summary": "The failed-pet-swap restore added at domove_core():2921-2926 has no test, no reachable caller, and no mutation site, so nothing in the repository distinguishes it from a wrong restore.",
+            "counterEvidence": "evidence refute: The facts are right but do not constitute a test defect. Unreachable-by-construction branches in this port are covered by the refusal that makes them unreachable, not by a test of their own. Counter-evidence: requireOrdinaryStartingPetSwap() at js/hack.js:1229-1245 is what excludes every FALSE arm, and it is testable and reachable; the restore itself has no observable behavior to pin. The finding's own text concedes the stucksteed refusal body added in the same commit is dead for the same reason, and it raises no test finding against that -- the standard is not applied consist"
+          },
+          {
+            "summary": "The newly ported failed-pet-swap restore puts the hero back at <ux0,uy0> but the tail below still runs the whole \"hero moved\" block unconditionally, where C gates it on `u.ux0 != u.ux || u.uy0 != u.uy`.",
+            "counterEvidence": "evidence refute: C's guard is real (hack.c:2964-2974 wraps u.umoved, newsym(u.ux0,u.uy0), vision_recalc(1) and invocation_message() in `if (u.ux0 != u.ux || u.uy0 != u.uy)`, and 2979 gates spoteffects on u.umoved), but no reachable path makes the port's unguarded write differ. Counter-evidence: js/hack.js:2266 `u.umoved = true;` is pre-existing and untouched by the diff. Every path that reaches it has passed test_move() and committed `u.ux = newx; u.uy = newy;` with newx = u.ux + u.dx, so u.ux0 != u.ux whenever (u.dx,u.dy) != (0,0) -- the condition C tests is satisfied. The two no-move paths n"
+          },
+          {
+            "summary": "The new mattacku() keeps C's function name but inverts C's return polarity for the one branch it implements: C returns 0 for `mtmp == u.usteed`, this returns true.",
+            "counterEvidence": "evidence refute: The polarity inversion is real (mhitu.c:530-532 returns 0 for `mtmp == u.usteed`; js/mhitu.js:60 returns true) but it is not undocumented, and nothing consumes it wrongly today. Counter-evidence: js/mhitu.js:27-30, immediately above the function and inside the same comment block that names the C reference, states the contract explicitly: \"The result is TRUE where C's mattacku() has already returned, so the caller must run none of the arms below. C distinguishes its 1 from its 0 to tell dochug() the monster died; nothing here can kill the attacker, so the callers need only the "
+          },
+          {
+            "summary": "The two assertions added to close the \"segment opened with a wait\" hole are unfalsifiable, and the failure mode that is still live -- a segment whose mount direction is wrong, leaving the whole segment walking on foot -- is unchecked for four of the five segme",
+            "counterEvidence": "evidence refute: The central claim -- that a wrong mount direction leaving a segment on foot is 'unchecked for four of the five segments' -- is false. Counter-evidence: verifyMountedMoveSegment() checks `game.u.urideturns !== mountedCase.rideTurns` and `Boolean(game.u.usteed) !== mountedCase.stillMounted` for every segment. A failed mount makes exercise_steed() unreachable, so urideturns would be 0: that fails cases 0 (21), 1 (22), 3 (4) and 4 (1), and case 2 declares stillMounted true, which a hero on foot fails. All five are covered. The gender premise is also refuted by measurement: replayi"
+          },
+          {
+            "summary": "The \"exactly one case reaches the >= 100 arm\" assertion uses `moves.length` as a proxy for the number of steps, which is invalid for exactly the segment designed to spend several turns per keystroke, and the matrix's ride-turn oracle compares a counter that wr",
+            "counterEvidence": "evidence refute: Two of the finding's three load-bearing claims are wrong on the code as written. Counter-evidence: (1) 'the matrix's ride-turn oracle ... cannot distinguish 21 from 121' is false: verifyMountedMoveSegment() compares `game.u.urideturns !== mountedCase.rideTurns`, and mountedCase.rideTurns for case 0 is 21, so a replay that ended on 121 fails the check. (2) 'Today it passes only because the run segment happens not to run' is false: case 1's `moves` is 'HL'.repeat(10)+'hl'+'#ride\\n', length 28, which the filter's first conjunct `moves.length > RIDE_TURNS_PER_SKILL_POINT` (100) ex"
+          },
+          {
+            "summary": "The zero-offset test asserts only that nothing moved, which is exactly what a silent refusal also produces, so its oracle does not support its stated claim that \"the step commits\".",
+            "counterEvidence": "causality refute: The named failure scenario is caught by the test as written, so the stated impact is not material. Counter-evidence: 'A wrong port that keeps the term but attaches it to the steed write instead of the stucksteed() gate' cannot pass: with the `(u.dx || u.dy)` term removed from the gate, the gate becomes `u.usteed && stucksteed(false, state)`, and the test sets steed.msleeping = 1 first. js/steed.js:807-815 makes stucksteed() throw UnsupportedSteedError for a helpless steed, so domove() rejects and the test fails outright. The `(u.dx || u.dy)` term is thus already pinned by thi"
+          },
+          {
+            "summary": "The one matrix case meant to spend several turns per keystroke actually spends exactly one, so no case in the matrix distinguishes \"exercise_steed() once per committed step\" from \"once per movement command\".",
+            "counterEvidence": "evidence refute: The one-step-per-keystroke measurement is right, but the problem the finding states in its category -- that no case distinguishes exercise_steed() per committed step from per movement command -- is refuted by two cases in the same table. Counter-evidence: Case 2 ('a step the wall refuses', moves 'l.') has one movement keystroke and declares rideTurns 0; a full replay confirms u.urideturns 0. Case 4 ('melee from the saddle', moves 'hhh..') has three 'h' keystrokes and declares rideTurns 1; a full replay confirms u.urideturns 1. Under a hoist that trained once per movement comma"
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "mhitu-steed-draw-has-no-recorded-case",
+            "category": "tests",
+            "trackedIn": "mhitu-steed-draw-has-no-recorded-case",
+            "summary": "js/mhitu.js is executed by none of the five fresh segments in scripts/run-mounted-move.mjs, so the range that created it has no recorded C evidence for any line of it. That matters more than an ordinary coverage gap because the file exists because of a random-number call: every monster reaching mattacku() while the hero is mounted spends rn2(2) for an orc or rn2(4) otherwise before anything else. A draw that is absent, extra or mis-ordered shifts the PRNG log rather than a screen, so only a recorded differential can see it. Deferred because closing it needs two new C recordings."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "6327eab7dc2bad61c88cafb82d816f7f9e46147e..2cb084128508cb82aefb6d21d7ea7bb327d66b1f",
+            "uncommitted audit-fix diff at 5366349"
+          ],
+          "mutants": 1,
+          "survivors": 1,
+          "byKind": {
+            "boolean": {
+              "ran": 0,
+              "killed": 0
+            },
+            "logical": {
+              "ran": 0,
+              "killed": 0
+            },
+            "relational": {
+              "ran": 1,
+              "killed": 0
+            }
+          },
+          "deltaRun": "0 mutants over the audit-fix diff, which is comments and one deleted assertion",
+          "finderConclusion": "The single survivor -- js/mhitu.js mdistu(monster, state) > 3 to >= 3 -- was adjudicated rather than accepted and the equivalence held: dist2() returns a sum of two squares and is never 3, so both forms select the same squares, and it is C own spelling of ranged. The thinness of the run was treated as the previous pass established: the mutator enumerates only the four ordering operators, so one mutant over a 186-line range is silence about most of it rather than coverage of it. Judging the rest by reading is what found the two test findings, neither of which mutation could see: the two assertions added to close the wait-first hole test a string segmentFor() composes rather than the case table, so they could not catch what they were written for; and js/mhitu.js is executed by no fresh segment at all."
+        },
+        "readiness": {
+          "boundary": "Starting event: a movement key pressed while the hero is mounted. Ending events: the step completing with the steed carried to the new square and u.urideturns raised, or, past the hundredth ride turn, use_skill(P_RIDING, 1) running. The real game executes it: scripts/run-mounted-move.mjs replays five recorded C segments over 14,297 PRNG calls and 207 screens, and seed0104 advances from 12 to 22 of its 43 screens.",
+          "sourceReview": "Every branch and helper reachable before the ending events was traced against nethack-c/upstream/: hack.c domove_core() at its three steed sites, steed.c exercise_steed(), mhitu.c mattacku() preamble and u.usteed arm, monmove.c dochug() MMOVE_MOVED, and uhitm.c jousting. The trace covered state, PRNG order and the points where the game waits for input. It found no behavioral divergence and seven claims that were wrong about C or about the port: the deleted refusal still documented as a second lock, the steed gate described as stopping a feeding steed when it passes checkfeeding FALSE, movemon() said to skip u.usteed when monmove.c:966 mpeaceful is what excludes it, every FALSE arm of domove_swap_with_pet() said to report through YMonnam() when the first prints nothing, a two-seam count that is four, and two test comments claiming guards they do not provide.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Every reachable excluded branch stops before changing state or producing output, with one deliberate exception the pass verified: mattacku() steed refusal fires after C own rn2() and after a nomul(0), which is correct because C draws first, and is safe because runSimpleMonsterAction() dry-runs each monster action against a cloned ISAAC context and a cloned hero. Excluded and verified: stucksteed() two reporting arms, pooleffects() ungrounded-steed arm, pickup_checks() riding-skill reach test, slippery_ice_fumbling() steed skater, trapmove() mounted arms, and uhitm.c jousting. One gap is recorded rather than closed: js/mhitu.js has no recorded C case."
+        }
+      },
+      "recordedAt": "2026-08-10T20:16:04.232Z"
     }
   ]
 }

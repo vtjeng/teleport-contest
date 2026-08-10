@@ -285,3 +285,5 @@ utc	event	phase	goal	detail
 2026-08-10T17:58:08.310Z	end	select	movement-while-riding	
 2026-08-10T17:58:25.862Z	start	implement	movement-while-riding	
 2026-08-10T18:52:47.480Z	end	implement	movement-while-riding	
+2026-08-10T18:54:41.769Z	start	review	movement-while-riding	
+2026-08-10T20:16:22.799Z	end	review	movement-while-riding	
