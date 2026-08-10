@@ -1292,6 +1292,45 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "wish-name-resolution",
+      "status": "open",
+      "boundary": "A wizard wish whose name the first rnd_otyp_by_namedesc() call misses is resolved by the rest of objnam.c readobjnam_postparse3() (4751-4899) rather than refused: its three further lookups on d->dn, d->un and d->origbp, the Japanese_items table, the ARMOR_CLASS \" mail\" retry that returns 6 into readobjnam()'s retry: label, spinach, the fruit loop against gf.ffruit, artifact.c artifact_name(), and the class-filtered spellings[] list; and a name artifact_name() matched is applied by the typfnd: d.name block (5345-5365) through do_name.c oname(). A name that reaches 4899 unmatched still stops, and every other refusal in js/objnam_readobjnam.js stands where it stands today.",
+      "upstreamOwners": [
+        "src/objnam.c",
+        "src/artifact.c",
+        "src/do_name.c"
+      ],
+      "forecast": {
+        "steps": 69,
+        "basis": "Capped development look-ahead at 9365d54. One contributing session, seed0361-archeologist-tour, stopped at step 68 of 366. Its stretch runs 68-136 and caps at step 137, where w prints \"What do you want to wield? [- aei or ?*]\" and wield is unported. Steps 69-136 are the getlin echo and grant lines of two further wishes, blessed +5 silver dragon scale mail and blessed amulet of life saving; both forms are carried past at HEAD by seed0360-wizard-world-tour, which grants blessed +3 gray dragon scale mail at step 74 and the byte-identical blessed amulet of life saving at step 129 before its own stop at 134. That HEAD evidence is why this is 69 and not the 37 an earlier pricing gave by capping at step 105. Ranked field, capped: wish-name resolution 69, options menu 28 (seed0006, capped at step 77 \"The kitten bites it.\"), pet cursed-object feedback 14 measured rather than read (seed1500 gains 14 then stops on lock-picking a square that holds no door; seed0004 gains zero, because its next step still refuses on a monster caught in a bear trap -- the hero's bear-trap arm is ported and the monster's is not), door unlocking tool 8, engraving about 6 of 609 raw, two-or-more objects 0, dead-monster-drops-equipped-gear 0.",
+        "sessions": [
+          "seed0361-archeologist-tour.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0361-archeologist-tour.session.json",
+            "evidence": "seed 361, datetime 20000110090000, role:Archeologist race:human gender:male align:neutral, playmode:debug, symset:DECgraphics, !autopickup. Step 68 commits \"blessed +5 Grayswandir\" to getlin() inside zap.c makewish(). readobjnam_preparse() consumes \"blessed \" and \"+5\", leaving bp=\"Grayswandir\" with d->oclass 0 and d->actualn == d->dn. readobjnam_postparse3() runs the gem loop and the \"tin\" test without matching or drawing, then rnd_otyp_by_namedesc(\"Grayswandir\", 0, 1) answers STRANGE_OBJECT with no draw because no objects[] name, description or user-called name matches; d->dn == d->actualn skips the second call, and d->un and d->origbp fail too. C falls through Japanese_items, skips the \" mail\" retry because d->oclass is 0, fails \"spinach\", walks the default one-entry fruit list, and reaches objnam.c:4876 artifact_name(d->actualn, &objtyp, TRUE), which fuzzy-matches artilist.h:170 A(\"Grayswandir\", SILVER_SABER, ...) and returns objtyp SILVER_SABER with d->name set. At typfnd: mksobj(SILVER_SABER) takes spe 5 and blessed, then 5350 oname(otmp, \"Grayswandir\", ONAME_WISH) runs exist_artifact() false, new_oname(), artifact_exists(otmp, name, TRUE, ONAME_WISH), setting oartifact, quan 1 and u.uconduct.wisharti++. The !wizard denial at 5371-5380 is skipped because playmode:debug sets wizard. The port stops instead at js/objnam_readobjnam.js:1198."
+          }
+        ]
+      },
+      "detail": "Upstream owners. objnam.c readobjnam_postparse3() 4751-4899 (about 148 lines, of which the fruit block is about 65) and the typfnd: d.name block 5345-5365; artifact.c artifact_name() 329-353; do_name.c oname() 372-426 and new_oname() 61. Roughly 260 lines of C.\n\nAlmost every helper is already ported. hacklib.c fuzzymatch() at js/hacklib.js:415; exist_artifact() at js/artifacts.js:629 and artifact_exists() at js/artifacts.js:669, with artifact_origin() and the artilist[] table; spellings[] at js/objnam_readobjnam.js:173; Japanese_items[] in js/objnam_data.js; rnd_otyp_by_namedesc(); ffruit in js/fruit.js; and xname()'s \" named <oname>\" suffix at js/objnam.js:617 and :682. Missing are artifact_name(), oname(), new_oname(), the postparse3 tail and the d.name block.\n\nA branch this goal never reaches. objnam.c:5371-5380's wishing-abuse denial is gated on !wizard, and js/objnam_readobjnam.js:1263-1266 already refuses !state.wizard because wiz_wish() is the port's only caller, so is_quest_artifact(), rn2(nartifact_exist()), obfree() and hands_obj cannot fire. Likewise oname()'s via_naming livelog arms need ONAME_VIA_NAMING, which a wish never sets; its unpaid arm needs a shop; and its set_artifact_intrinsic()/untwoweapon() arms need obj == uwep, where a wished object arrives through hold_another_object() into inventory.\n\nA prerequisite inside the goal. The \" mail\" retry returns 6, and js/objnam_readobjnam.js:1357-1362 refuses action 6 as the fail-closed backstop, so wiring readobjnam()'s retry: loop has to land even though a Grayswandir wish never takes that arm.\n\nNo random-number call lies on this path. rnd_otyp_by_namedesc() returns STRANGE_OBJECT without drawing when nothing matches, and artifact_name(), oname() and artifact_exists() are deterministic; the only draw in the stretch is mksobj()'s, which the port already makes. A mis-ordered port therefore shows as a screen mismatch rather than an rng divergence.\n\nA neighbouring refusal it retires as a by-product. js/objnam.js:802 the() refuses a capitalized name and names artifact_name() as one of the three helpers its third branch needs.\n\nCorpus reach. 34 committed wishes across 7 of 33 development sessions. Three name an artifact, in three different sessions: seed0108 step 139 Mjollnir, seed0360 step 426 blessed Mjollnir, seed0361 step 68 blessed +5 Grayswandir. Only seed0361's is reachable today; the other two sit behind those sessions' own earlier stops, so the goal opens them for later goals rather than now.\n\nOn the ranking, recorded because it was argued rather than tabulated. The rules and the carry-over calibration agree here, which they did not for options or force-fight-command: this leads on capped development look-ahead (69 against the options menu's 28) and also on corpus reach, three sessions' wishes against one session's keystroke. Nine of the 33 development sessions run playmode:debug, verified, so a wizard wish is among the more ordinary things this corpus does. The caveat the selection recorded and this loop keeps: \"ordinary in play\" and \"ordinary in this corpus\" are different populations, and only the second is measurable. If the holdout's composition differs from the development corpus's, that argument does not carry, and nobody can check it without reading the holdout.",
+      "slices": [
+        {
+          "name": "resolve a wished artifact name and apply it with oname",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "9365d5488d6005cb06506624e1323217c76c005b",
+      "openStanding": {
+        "sha": "efdd5f1",
+        "screens": 1294,
+        "rng": 118144
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
