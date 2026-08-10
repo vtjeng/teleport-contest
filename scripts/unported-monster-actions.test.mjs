@@ -2077,8 +2077,10 @@ test('a planning interruption of a finished meal writes nothing', async () => {
     game.invent = ration;
     game.go.occupation = eatfood;
     game.go.occtxt = 'eating the food ration';
-    // eat.c maybe_finished_meal():825 needs usedtime at reqtime, and
-    // eatfood():1226 increments past it before calling done_eating().
+    // js/eat.js maybe_finished_meal():825 needs usedtime at reqtime, and
+    // js/eat.js eatfood():1225 increments past it before calling
+    // done_eating(). Their C anchors are eat.c maybe_finished_meal()
+    // (3877-3889) and eat.c eatfood().
     game.context.victual = {
         ...game.context.victual,
         piece: ration,

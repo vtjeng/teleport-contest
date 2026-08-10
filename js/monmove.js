@@ -10,9 +10,13 @@
 // m_harmless_trap() needs isSpecies() below, which duplicates speciesIs() in
 // js/mondata.js; unify those two first, then the move is small.
 //
-// mon_allowflags() left for js/mon.js. The two files already import each
-// other -- js/mon.js:237 takes accessible() and onscary() from here -- so the
-// cycle this note used to cite as the reason to keep it was already paid for.
+// mon_allowflags() left for js/mon.js. The two files import each other and the
+// move widened that: js/mon.js's `from './monmove.js'` block now takes
+// accessible(), onscary(), monhaskey() and m_can_break_boulder(), the last two
+// consumed only inside the moved function, and js/monmove.js imports
+// mon_allowflags() back for mfndpos(). Every crossing happens at call time
+// rather than at module evaluation, which is why the cycle is safe rather than
+// merely pre-existing.
 
 import {
     ACCESSIBLE,

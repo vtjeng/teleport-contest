@@ -2785,7 +2785,7 @@ test('mon_allowflags separates each compound unlock, rock, and minion clause',
         assert.equal(Boolean(handlessFlags & OPENDOOR), false);
         assert.equal(Boolean(handlessFlags & UNLOCKDOOR), false);
 
-        // monmove.c monhaskey():637-641. Its second argument is C's
+        // monmove.c monhaskey() (95-103). Its second argument is C's
         // for_unlocking, and a credit card counts only when that is TRUE.
         const cardHolder = newMonster({
             data: state.mons[PM_HUMAN],
@@ -2805,7 +2805,7 @@ test('mon_allowflags separates each compound unlock, rock, and minion clause',
         assert.equal(m_can_break_boulder(giant), false);
         assert.ok(mon_allowflags(giant, { state }) & ALLOW_ROCK);
 
-        // mon.c:2113. An Angel is M2_MINION and no Rider. Left hostile it
+        // mon.c:2114. An Angel is M2_MINION and no Rider. Left hostile it
         // reaches ALLOW_SANCT through no other clause: the disposition arm
         // gives a hostile monster ALLOW_U alone.
         const minion = newMonster({ data: state.mons[PM_ANGEL] });

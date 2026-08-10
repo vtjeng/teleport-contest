@@ -68,11 +68,12 @@ function attackState(pmidx) {
 
 // monst.h:251 is `#define helpless(mon) ((mon)->msleeping || !(mon)->mcanmove)`
 // and js/const.js owns it for the eleven call sites that used to spell it out.
-// mhitm.c reads it four times, at 310, 322, 582 and 1252, more than any other
-// C file, so its unit test lives beside them.
+// The test lives here because js/mhitm.js held one of the two duplicate
+// definitions the convergence removed, so this file already imported the
+// symbol. It is not that mhitm.c reads the macro most -- it does not.
 //
 // The four rows are the truth table. The pairs cover both encodings the port
-// writes: js/monst.js:49 and :53 start a monster at false/false, js/mon.js:972
+// writes: js/monst.js:49 and :53 start a monster at false/false, js/mon.js new_were()
 // wakes one with true, and js/steed.js:743 and :749 write 0 and 1 for the same
 // two fields.
 test('helpless reads sleep and immobility and nothing else', () => {
