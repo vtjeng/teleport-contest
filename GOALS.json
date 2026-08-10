@@ -1150,6 +1150,49 @@
         "screens": 26,
         "rng": 53
       }
+    },
+    {
+      "id": "force-fight-command",
+      "status": "open",
+      "boundary": "The F force-fight prefix, so that an F-prefixed movement command at a square holding no monster reaches hack.c domove_fight_empty() and spends a turn attacking what is there. Covers cmd.c do_fight() and rhack()'s PREFIXCMD dispatch, plus every arm of domove_fight_empty() a hero who is not Underwater, not Upolyd with AT_EXPL, and not wielding a dig_typ() tool can take: the off-edge unknown_obstacle arm through move_out_of_bounds(), the solid arm naming remembered terrain, the boulder/statue arm, and the thin air arm, each followed by nomul(0), a TRUE return and a spent turn. Outside and still refused by name: use_pick_axe2() for a wielded digging tool, Underwater, the AT_EXPL explum()/rehumanize() tail, domove_fight_ironbars(), domove_fight_web(), and uhitm.c attack_checks()'s forcefight arm, which is F aimed at a square that does hold a monster.",
+      "upstreamOwners": [
+        "src/cmd.c",
+        "src/hack.c"
+      ],
+      "forecast": {
+        "steps": 39,
+        "basis": "Capped development look-ahead over the 2 sessions the census shows stopped on fight (raw unlocks 40). seed0013-rogue-friday13-combat steps 33-58 = 26, and 58 is its last recorded step, so the session would finish 59/59. seed0013-friday13-save-then-fullmoon-restore steps 33-46 = 14, capped by S save at 47. One step discounted in the number: step 58's ':' prints \"There is a doorway here.  You see here a +0 short sword.\", whose feature line was verified only at code level (js/pickup.js:264); the same line is proven end to end for a staircase in the fully matching seed0077 and seed0105, not for a doorway. Every other message in both stretches is either the goal's own output or behavior a fully matching session already proves: \"The door opens.\" by autoopen in seed0077, and i, +, backslash, ^X, s, ':' and the n vi-key in all four matching sessions.",
+        "sessions": [
+          "seed0013-rogue-friday13-combat.session.json",
+          "seed0013-friday13-save-then-fullmoon-restore.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0013-rogue-friday13-combat.session.json",
+            "evidence": "seed 13, 20001013090000, Rogue human female chaotic, no number_pad. Step 33 byte F: cmdbind_get() finds cmd.c:1722 do_fight/PREFIXCMD; svc.context.forcefight is 0 so 1631 sets it to 1 and ORs DOMOVE_WALK; rhack():3762 stores prefix_seen and loops. Step 34 byte h: do_move_west carries CMD_gGF_PREFIX so 3693 does not fire and 3785 calls domove(). domove_core() has isok() true and m_at() null, so 2805 and 2808 return FALSE and 2810 enters domove_fight_empty(): uwep is the short sword so dig_typ() skips 2267, off_edge FALSE, boulder 0, !accessible() makes solid TRUE, and 2305-2308 reads levl[x][y].seenv to print the(defsyms[glyph_to_cmap(back_to_glyph(x,y))].explanation) = \"the wall\" through 2320. Recorded rng=0 at step 33 and rng=25 at step 34, the turn the TRUE return still spends."
+          },
+          {
+            "session": "seed0013-friday13-save-then-fullmoon-restore.session.json",
+            "evidence": "Same seed, datetime, rc and input prefix as the combat session; the same four F/h pairs at steps 33-40 take the same path through cmd.c:1631, rhack():3762 and :3785, and hack.c:2810 into domove_fight_empty()'s solid arm at 2305-2320. Its stretch ends at step 47, the S save command, which is unported."
+          }
+        ]
+      },
+      "detail": "Upstream owners. cmd.c do_fight() (1622-1634, bound to F at 1722 and - at 2772) and rhack()'s PREFIXCMD/MOVEMENTCMD tail (3693-3800). hack.c domove_fight_empty() (2227-2338), move_out_of_bounds() (2585-2610) and domove_core()'s 2805-2810 block. Roughly 200 lines of C, most of whose arms refuse.\n\nWhat stops or diverges today, all verified in the tree. js/cmd.js:766 ADMITTED_COMMANDS omits 'fight', so F ends the segment at step 33; js/cmd.js:787 already records that PREFIXCMD dispatch is unported and must bring its own seam. js/cmd.js:1574-1616 already implements a PREFIXCMD arm for reqmenu, including the can_do_extcmd re-check, the \"does not accept prefix\" line and the doubled-prefix cancel, so fight is the second prefix and can follow or generalize it. js/extcmdlist_data.js:66 already carries row(0x46, \"fight\", ..., \"do_fight\", PREFIXCMD) and js/command_bindings.js:29 already binds - to fight, so only do_fight() itself and the dispatch are missing. js/cmd.js:859 and js/cmd.js:935 are the only writers of state.context.forcefight and both write 0, which is why three downstream consumers are dead code today: js/uhitm.js:205 (force-fight attack), js/hack.js:1699 (move out of bounds) and js/mon.js:1076 (mon.c:4344's arm). All three already refuse by a named class, so widening the boundary cannot produce a bare Error. js/hack.js:1853-1960 domove() has no counterpart to domove_fight_ironbars(), domove_fight_web() or domove_fight_empty(); it goes straight from the monster block to test_move().\n\nPrerequisites already present. back_to_glyph() is ported as js/display.js:1175 terrain_glyph(), which returns the cmap; defsyms[].explanation is js/symbol_data.js:215 CMAP_EXPLANATIONS, whose indices 1-11 are \"wall\"; the() is js/objnam.js:802; unmap_object(), map_object(), newsym(), sobj_at(), accessible(), IS_FURNITURE() and nomul() are all ported.\n\nPrerequisites missing. glyph_to_cmap() has no port, so the cmap must be read off terrain_glyph()'s record. ansimpleoname() has no port, so the boulder/statue arm needs it. dig_typ() has no port -- only its DIGTYP_* constants exist at js/const.js:1867-1872 -- so hack.c:2267's guard needs either the function, which is pure and safe to port in bulk, or a named refusal for a wielded digging tool.\n\nDormant-arm finding. domove_fight_empty()'s second entry condition, glyph_is_invisible(glyph) && !m_at(x,y) && !context.nopick, fires without forcefight, so the port silently skips it today. It is unreachable: display.c map_invisible() is unported and js/uhitm.js:424 refuses \"attacking an unseen monster\" before any square can carry an I. Port it with a comment rather than treating it as live.",
+      "slices": [
+        {
+          "name": "force-fight a remembered wall",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "50f1cf638ebb0f17003c90ddbc834752a5936c13",
+      "openStanding": {
+        "sha": "3771b92",
+        "screens": 1254,
+        "rng": 117940
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

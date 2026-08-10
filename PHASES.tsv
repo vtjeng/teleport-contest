@@ -245,3 +245,5 @@ utc	event	phase	goal	detail
 2026-08-10T03:20:43.528Z	end	implement	pickup-command	
 2026-08-10T03:22:17.034Z	start	review	pickup-command	
 2026-08-10T04:30:27.891Z	end	review	pickup-command	
+2026-08-10T04:32:50.035Z	start	select		
+2026-08-10T04:54:00.829Z	end	select	force-fight-command	

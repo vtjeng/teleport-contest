@@ -1203,6 +1203,15 @@
       "status": "open",
       "from": "1bb5e5f84e2d50b3ef792093513e0c35be7bc897",
       "detail": "js/invent.js addinvCore1()'s heavy-drop admission reads state.flags.pickup_burden with the same '?? MOD_ENCUMBER' fallback that js/pickup.js preflightPickupObjects() used before this pass fixed it. parseNethackrc() has no arm for pickup_burden and keeps an unported option's raw text in flags[<option name>], which for this option is the field its parsed value would occupy, so a configuration file setting it leaves a string there. The string makes 'prev_encumbr < pickupBurden' false, so prev_encumbr stays near_capacity() and C's pickup.c:1757-1758 max() is silently skipped; it diverges whenever the configured burden exceeds the current encumbrance. Unlike the pickup.js site, the comparison does not open a refusal, so this is a wrong limit rather than a missing stop. js/invent.js is outside the eeb0f46..1bb5e5f range, so it was left for a later pass. Close it by giving Stone_resistance's sibling read the same Number.isInteger() guard, or by landing the pickup_burden parse arm tracked as pickup-burden-option-has-no-parser, which would make both reads correct."
+    },
+    {
+      "id": "scan-reconciliation-blind-to-unported-branches",
+      "area": "runtime",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "50f1cf638ebb0f17003c90ddbc834752a5936c13",
+      "detail": "The behavior scan's reconciliation reports 10 unreconciled stops where .agents/selection.md states the count is 0. The cause is structural, not a regression: the modeled half derives its supported set from key bindings and the ported-command list, so it cannot see an unported branch INSIDE a ported command. Four confirmed instances: seed0006's options menu, seed0361's wish tail, seed0367's garlic_breath(), seed0900's count prefix. The pickup-command goal added a fifth while it was open -- 'pickup' entered ADMITTED_COMMANDS in 8c64c2f while pickup() still refused inside it -- which resolved when the second slice landed. The effect on goal selection is real: a selector that ranks from the behavior table alone gets no row for these boundaries, and the 68-step seed0361 wish-tail candidate surfaced only because a selector ranked the recorded screens by hand. Close it by making the reconciliation model a command's supported branches rather than its admission, or, if that is too costly, by having the scan report the unreconciled set as a named category the selector is told to rank by hand, and by correcting .agents/selection.md, which asserts the count is 0."
     }
   ],
   "areas": [
