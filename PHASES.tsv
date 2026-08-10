@@ -239,3 +239,5 @@ utc	event	phase	goal	detail
 2026-08-10T01:38:13.864Z	end	select	pickup-command	
 2026-08-10T01:38:31.662Z	start	implement	pickup-command	
 2026-08-10T02:10:29.756Z	end	implement	pickup-command	
+2026-08-10T02:12:11.157Z	start	select	pickup-command	
+2026-08-10T02:23:37.471Z	end	select	pickup-command	

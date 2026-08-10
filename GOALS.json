@@ -1132,6 +1132,11 @@
           "name": "pickup on a square with nothing to take",
           "status": "closed",
           "closedBy": "8c64c2f609890265131cf92a64c6f207e43dd450"
+        },
+        {
+          "name": "pickup on a square holding one object",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "2d9835b1e6de707104168f542d42563c2e0e0245",
