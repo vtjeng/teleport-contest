@@ -34,6 +34,7 @@ import {
     ROOM,
     SINK,
     STAIRS,
+    STONE_RES,
     WEB,
     W_QUIVER,
     W_WEP,
@@ -73,6 +74,7 @@ import {
     stackobj,
     update_inventory,
     useupall,
+    will_feel_cockatrice,
     xprname,
 } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
@@ -83,6 +85,7 @@ import {
     UnsupportedObjectOperationError,
     weight,
 } from '../js/obj.js';
+import { PM_COCKATRICE } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { add_rect_to_reg, create_region } from '../js/region.js';
 import {
@@ -2877,3 +2880,33 @@ test('a missing heavy drop owner is refused before observation or inventory',
         assert.equal(state.level.objects[10][5], null);
         assert.deepEqual(lines, []);
     });
+
+// C ref: youprop.h:65 Stone_resistance, read by invent.c
+// will_feel_cockatrice(). The macro is (HStone_resistance ||
+// EStone_resistance), so either field alone suppresses the feel. Without both
+// rows nothing tells the two fields apart, and an `&&` there would make a
+// hero resistant by one route alone feel the corpse anyway.
+const STONE_RESISTANCE_ROWS = [
+    ['neither field set, so the bare hand feels the corpse', {}, true],
+    ['the intrinsic alone resists', { intrinsic: 1 }, false],
+    ['the extrinsic alone resists', { extrinsic: 1 }, false],
+];
+
+test('will_feel_cockatrice reads both halves of Stone_resistance', () => {
+    for (const [label, property, expected] of STONE_RESISTANCE_ROWS) {
+        const state = initializedState();
+        // touch_petrifies() is a species identity test, so the corpse needs
+        // only the cockatrice's pmidx behind its corpsenm.
+        state.mons = [{ pmidx: PM_COCKATRICE }];
+        Object.assign(state.u.uprops[STONE_RES], property);
+        const corpse = instance(CORPSE, state, {
+            corpsenm: 0,
+            owt: PLACEHOLDER_CORPSE_WEIGHT,
+        });
+        // force_touch stands in for blindness, which the hero fixture has no
+        // other reason to carry.
+        assert.equal(
+            will_feel_cockatrice(corpse, true, state), expected, label,
+        );
+    }
+});

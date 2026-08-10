@@ -306,8 +306,9 @@ export function rider_corpse_revival(obj, remotely, state = game) {
     );
 }
 
-// C ref: hack.h:1243 FOLLOW(). A floor pile is walked by nexthere; a monster's
-// inventory, which this port refuses, by nobj.
+// C ref: pickup.c:56-58 FOLLOW(), whose BY_NEXTHERE bit is hack.h:1243. A
+// floor pile is walked by nexthere; a monster's inventory, which this port
+// refuses, by nobj.
 function FOLLOW(obj, qflags) {
     return (qflags & BY_NEXTHERE) ? obj.nexthere : obj.nobj;
 }
@@ -407,10 +408,20 @@ function preflightPickupObjects(selected, state) {
             'pickup() requiring a partial or failed lift',
         );
     }
-    const promptLimit = Math.max(
-        near_capacity(state),
-        state.flags?.pickup_burden ?? MOD_ENCUMBER,
-    );
+    // pickup.c:1757-1758 is `if (prev_encumbr < flags.pickup_burden)`.
+    // parseNethackrc() has no arm for pickup_burden and keeps an unported
+    // option's raw text in flags[<option name>], which for this option is the
+    // same field its parsed value would occupy. Raw text would make
+    // Math.max() NaN, every `>` against it false, and this refusal disappear,
+    // so the port would lift where C stops at ynq(). Refuse instead, until
+    // js/options.js gains the parse arm.
+    const pickupBurden = state.flags?.pickup_burden ?? MOD_ENCUMBER;
+    if (!Number.isInteger(pickupBurden)) {
+        throw new UnsupportedPickupError(
+            'pickup() with an unparsed pickup_burden',
+        );
+    }
+    const promptLimit = Math.max(near_capacity(state), pickupBurden);
     if (calc_capacity(addedWeight, state) > promptLimit) {
         throw new UnsupportedPickupError('pickup() requiring a burden prompt');
     }
@@ -714,8 +725,10 @@ export async function pickup(what, state = game) {
         }
         if (what < 0) {
             // pickup.c:763-772, "Pick %d of what?" with the n_or_more
-            // selector. js/cmd.js parses no count, so dopickup() always calls
-            // pickup(-0) and C's `count` is 0.
+            // selector. A bare `,` carries no count, but the reqmenu prefix
+            // parses one, so `m1,` arrives here with what == -1. This refusal
+            // is reachable, and is what keeps C's counted-subset selector
+            // from being silently skipped.
             throw new UnsupportedPickupError('pickup() of a counted subset');
         }
         if (costly_spot(u.ux, u.uy, state)) {

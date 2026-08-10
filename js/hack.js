@@ -2143,10 +2143,10 @@ export async function pickup_checks(state = game) {
 // #pickup command". The loot_mon() arm at 3884-3887 is not written out:
 // pickup_checks() answers -2 only from its swallowed arm, which throws above.
 export async function dopickup(state = game) {
-    // C's gc.command_count. js/cmd.js readSimpleCommand() parses no count, so
-    // this is 0 for every `,` the port dispatches and pickup(-count) is
-    // pickup(0); the read stays where C makes it rather than being written
-    // out as a constant.
+    // C's gc.command_count. A bare `,` carries no count, but the reqmenu
+    // prefix parses one, so `m1,` reaches here with commandCount 1 and
+    // pickup(-count) is not pickup(0). pickup()'s `what < 0` arm is the
+    // refusal that meets it.
     const count = Math.trunc(state.commandCount ?? 0);
     state.multi = 0; /* always reset */
 

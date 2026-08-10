@@ -36,6 +36,7 @@ import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     PICKUP_CASES,
     loadPickupCommandRecipe,
+    verifyPickupCommandSegment,
 } from './run-pickup-command.mjs';
 import {
     PICKUP_ONE_OBJECT_CASES,
@@ -71,6 +72,14 @@ test('the one-object pickup matrix keeps replay inputs only', () => {
 test('every one-object pickup case lifts what its message names', async () => {
     for (const segment of loadPickupOneObjectRecipe().segments)
         await verifyPickupOneObjectSegment(segment);
+});
+
+// The same replay for the empty-square matrix, which the recorder exercised
+// but `npm test` did not: without it the nine recorded terrain cases only ran
+// when someone re-recorded them against C.
+test('every empty-square pickup case answers its terrain', async () => {
+    for (const segment of loadPickupCommandRecipe().segments)
+        await verifyPickupCommandSegment(segment);
 });
 
 // A Valkyrie standing on ordinary room floor with nothing on the square.
@@ -244,6 +253,21 @@ test('dopickup spends no turn on a square with nothing to take', async () => {
     assert.equal(state.multi, 0);
     assert.equal(toplines(state), 'The stairs are solidly affixed.');
 });
+
+test('dopickup returns on pickup_checks answering 0, without calling pickup',
+    async () => {
+        // hack.c:3884 is `if ((ret = pickup_checks()) >= 0)`, and the test
+        // above cannot tell `>=` from `>`: on an empty square pickup() also
+        // answers 0, so both spellings return ECMD_OK. MENU_TRADITIONAL makes
+        // the two answers differ, because pickup() refuses that setting at
+        // pickup.c:793 while pickup_checks() never consults it. A `>` here
+        // would reach that refusal instead of returning.
+        const state = await heroOnAnEmptySquare();
+        squareUnderHero(state, STAIRS);
+        state.flags.menu_style = MENU_TRADITIONAL;
+        assert.equal(await dopickup(state), ECMD_OK);
+        assert.equal(toplines(state), 'The stairs are solidly affixed.');
+    });
 
 test('dopickup hands a square with something on it to pickup()', async () => {
     const state = await heroOnAnEmptySquare();

@@ -1137,10 +1137,33 @@ test('pickup stops a run before it selects anything', async () => {
     assert.equal(state.context.run, 8);
 });
 
+// pickup_object() is one C function and both arms reach it, so narrowing the
+// corpse refusal opened the corpse arm for autopickup as well as for `,`.
+// The interactive half is covered by the recorded matrix; this is the
+// autopickup half, which otherwise has no test at all -- the only corpse case
+// on this arm is a cockatrice arrival, which refuses.
+test('autopickup lifts a corpse that cannot petrify on touch', async () => {
+    const state = await heroOnAnEmptySquare();
+    const corpse = typedObjectUnderHero(state, CORPSE);
+    // A lichen fails mondata.h touch_petrifies(), so
+    // u_safe_from_fatal_corpse() answers TRUE on its st_petrifies term and
+    // both fatal_corpse_mistake() and rider_corpse_revival() return FALSE.
+    corpse.corpsenm = PM_LICHEN;
+    state.flags.pickup = true;
+
+    assert.equal(await pickup(1, state), 1);
+    assert.equal(corpse.where, OBJ_INVENT);
+    assert.equal(state.level.objects[state.u.ux][state.u.uy], null);
+    assert.equal(state._ttyToplines, `${corpse.invlet} - a lichen corpse.`);
+});
+
 // pickup.c u_safe_from_fatal_corpse() (272-281). Each row names the term
-// that answers TRUE, or the state in which every term is FALSE. The species are
-// read from monst.c: a cockatrice carries M1_TPOISON, which mondata.h
-// touch_petrifies() tests, and a lichen does not.
+// that answers TRUE, or the state in which every term is FALSE. The species
+// come from mondata.h:200-201, where touch_petrifies() is a species identity
+// test -- `ptr == &mons[PM_COCKATRICE] || ptr == &mons[PM_CHICKATRICE]` -- and
+// not a flag test, so a cockatrice passes it and a lichen does not. Anyone
+// extending this table should read the C comment at :202: Medusa fails
+// touch_petrifies() and petrifies only when eaten, through flesh_petrifies().
 const STONING_ROWS = [
     ['gloves stop the touch whatever the corpse is',
         { gloves: true, otyp: CORPSE, corpsenm: PM_COCKATRICE }, true],
@@ -1390,6 +1413,25 @@ test('an autopickup that lifts nothing leaves the pile described as untouched',
         assert.equal(state._ttyToplines, 'There are two objects here.');
     });
 
+
+// pickup.c:1757-1758 raises the burden limit to flags.pickup_burden.
+// parseNethackrc() has no arm for that option and keeps an unported option's
+// raw text in flags[<option name>], which for this one is the field its parsed
+// value would occupy. A string makes Math.max() NaN and every `>` against NaN
+// false, which would delete the burden refusal rather than widen it, so the
+// port would lift where C stops at ynq().
+test('pickup refuses an unparsed pickup_burden rather than ignoring it',
+    async () => {
+        const state = await heroOnAnEmptySquare();
+        const object = objectUnderHero(state);
+        state.flags.pickup_burden = 'overloaded';
+        await assert.rejects(
+            () => pickup(0, state),
+            (error) => error instanceof UnsupportedPickupError
+                && /unparsed pickup_burden/u.test(error.message),
+        );
+        assert.equal(object.where, OBJ_FLOOR);
+    });
 
 test('pickup refuses the object types it never learned to lift', async () => {
     // pickup.c:1826 hands an artifact to touch_artifact(), which prints and

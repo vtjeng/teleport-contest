@@ -22,12 +22,12 @@ import {
 import { game } from '../js/gstate.js';
 import { any_obj_ok } from '../js/invent.js';
 import { runSegment } from '../js/jsmain.js';
-import { newObject } from '../js/obj.js';
+import { mksobj, newObject } from '../js/obj.js';
 import { stairway_at } from '../js/stairs.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
-    FOOD_CLASS, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING, RING_CLASS,
-    RIN_PROTECTION, SPEAR, TWO_HANDED_SWORD, WEAPON_CLASS,
+    ELVEN_DAGGER, FOOD_CLASS, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
+    RING_CLASS, RIN_PROTECTION, SPEAR, TWO_HANDED_SWORD, WEAPON_CLASS,
 } from '../js/objects.js';
 import {
     DROP_CASES,
@@ -610,6 +610,45 @@ test('a timed pile member is refused before the object leaves the pack',
         assert.equal(
             pileAt(state, state.u.ux, state.u.uy).length, 1,
         );
+    });
+
+// The other answer of the same conjunct. mergable() decides which members
+// merged() can reach, so a lit or timed member the dropped object cannot merge
+// with is not a hazard and must not stop the drop. Without this row, replacing
+// `mergable(obj, member, normalized)` with `true` turns the walk into a
+// blanket refusal of every square holding a lit, timed or globby object and no
+// test notices.
+test('a timed pile member of another type does not stop the drop',
+    async () => {
+        await runSegment({ ...VALKYRIE_SEGMENT, moves: ' ' });
+        const state = game;
+        let ration = state.invent;
+        while (ration && ration.invlet !== 'd') ration = ration.nobj;
+        assert.ok(ration, 'the pack has no food ration');
+
+        // Same construction as the row above, except that the member is a
+        // dagger rather than a copy of the ration, so invent.c mergable()
+        // refuses at its otyp test before reaching the timer at 4443-4446.
+        const member = newObject({
+            ...mksobj(ELVEN_DAGGER, true, false, { state }),
+            how_lost: LOST_DROPPED,
+            nexthere: null,
+            nobj: state.level.objlist ?? null,
+            ox: state.u.ux,
+            oy: state.u.uy,
+            timed: 1,
+            where: OBJ_FLOOR,
+        });
+        state.level.objects[state.u.ux][state.u.uy] = member;
+        state.level.objlist = member;
+
+        await _dropInternals.drop(ration, state);
+        assert.equal(ration.where, OBJ_FLOOR);
+        assert.ok(!letters(state).includes('d'));
+        // Both objects sit on the square, unmerged, and the member kept its
+        // timer: the walk read it and let it be.
+        assert.equal(pileAt(state, state.u.ux, state.u.uy).length, 2);
+        assert.equal(member.timed, 1);
     });
 
 // C ref: do.c drop() (774). With flags.verbose off the object still lands but

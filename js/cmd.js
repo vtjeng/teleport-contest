@@ -1022,6 +1022,11 @@ export function failClosedCommandRefusals() {
         // run_timers() fires timers that expired while away, mon_arrive()
         // reaches rloc_to() placing a follower, and mklev() reaches makemon()
         // when the shop it generates holds a mimic.
+        // The `,` command raises UnsupportedPickupError on a second path, and
+        // now the more frequent one: runPickupCommand() -> dopickup() reaches
+        // every refusal in pickup_checks() and pickup(). Retiring the
+        // goto_level() grouping above would leave that path escaping instead
+        // of ending the segment.
         UnsupportedPickupError,
         // options.c doset() builds its whole menu before select_menu() draws
         // anything, so an unported option value stops with no output; its
@@ -1711,9 +1716,11 @@ export async function rhack(key, state = game) {
         if (command === 'pickup') {
             // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
             // three tests the '#', `search`, `eat`, `apply`, `down`, `drop`
-            // and `takeoff` arms apply. dopickup() answers ECMD_OK for every
-            // arm this slice covers, because pickup_checks() refuses a square
-            // with nothing on it without spending a turn; the cancel test is
+            // and `takeoff` arms apply. dopickup() answers ECMD_OK when
+            // pickup_checks() refuses the square, which spends no turn, and
+            // ECMD_TIME when pickup() answers 1 because it selected at least
+            // one object, which is n_tried > 0 in js/pickup.js pickup(). The
+            // ECMD_TIME test below is what spends that turn; the cancel test is
             // written out for the same reason it is in the arms above,
             // because cmd.c:3805-3809 documents (ECMD_TIME|ECMD_CANCEL) as a
             // real result. The MOVEMENTCMD and domove_attempting tests at

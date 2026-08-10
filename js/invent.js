@@ -696,16 +696,18 @@ function heroIsBlind(state) {
 export function will_feel_cockatrice(otmp, force_touch, state = game) {
     return Boolean((heroIsBlind(state) || force_touch)
         && !state.uarmg
-        && !activeStoneResistance(state)
+        && !Stone_resistance(state)
         && otmp.otyp === CORPSE
         && touch_petrifies(state.mons[otmp.corpsenm]));
 }
 
-function activeStoneResistance(state) {
+// C ref: youprop.h:65 Stone_resistance, which is
+// (HStone_resistance || EStone_resistance) and carries no `blocked` term --
+// unlike Blind() at :103, which does. js/pickup.js reads the same macro for
+// u_safe_from_fatal_corpse()'s st_resists arm, so the two must agree.
+function Stone_resistance(state) {
     const property = state.u?.uprops?.[STONE_RES];
-    return Boolean(
-        (property?.intrinsic || property?.extrinsic) && !property?.blocked,
-    );
+    return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
 // Mutation-free admission for look_here() through its first complete result.
