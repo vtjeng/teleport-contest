@@ -1257,6 +1257,38 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "monsters-deferral-sweep-2",
+      "status": "open",
+      "boundary": "Close the three monsters deferrals that need no fresh recording, and record what reading the other seven found. Read all ten before opening, per the sweep rule, and stop at the first entry needing a fresh recording once the area is below ten.",
+      "upstreamOwners": [
+        "src/dogmove.c",
+        "src/mon.c",
+        "src/monmove.c"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "Deferred-area sweep at the gate in .agents/selection.md:11; monsters holds ten open non-scope entries. A sweep unblocks no recorded session, so no session contributes and there is no forecast witness. Four of the ten name unported behavior as their own closing condition and cannot be closed by any sweep, which is recorded as Q1 in .agents/questions.md. The obligation the rule actually imposes here is one worker run, not five: read every entry, close the three that need no fresh recording, and stop at the first that does once below ten. That ends the sweep with monsters at seven. The four prior sweeps each forecast 0, delivered 0, and held the holdout.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "Ten open non-scope entries, all read before opening. Four name unported behavior as their own recorded closing condition and survive by construction: the planning clone leaks by omission (its trigger has not fired), the postmov minvis redraw (waits on monster equipment changes or monster item use), dochug() returning where C breaks into PHASE FOUR (residue is ranged_attk_available() or find_offensive() without AT_WEAP, waiting on the combat work), and minliquid-refusal-ignores-flyers (waits on mon.c:1010 burn and :1068 drown). A fifth, the five monster-pickup findings, sheds two comment fixes and a test but keeps its production gap -- refuseHeroAttack() omitting find_offensive()/use_offensive() -- until mhitu.c mattacku() lands. Two more are real and closeable but each needs a fresh recording, so the sweep rule stops there: dead-monster-drops-equipped-gear, where js/steal.js:232 refuses on obj.owornmask and the missing C is weapon.c mwepgone() (938-946) whose two callees are already ported, measured at 11 of 216 seeds behind scripts/run-hostile-melee-kill.mjs; and touch-artifact-ported-but-unwired, where js/artifacts.js touch_artifact() landed at 3d33c40 and five injections that replace it were never deleted, which is a standing violation of Port pure functions in bulk. The three closeable without a recording are dog-hunger-injections-have-no-production-supplier, dochugw-planning-display-suppression-unpinned and mon-allowflags-and-helpless-placement. The last of those has a stale record: it says helpless() is ported once and inlined three times, but it is ported twice, at js/mhitm.js:28 and js/uhitm.js:142, and inlined at js/steed.js:740 and :780, js/dog.js:650 and js/shk.js:476, so it is a duplicate port rather than only an inlining.",
+      "slices": [
+        {
+          "name": "close the three monsters entries that need no fresh recording",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "c4fbd37fd1a99ed939e99f948e0c0323630077a8",
+      "openStanding": {
+        "sha": "15f7f2b",
+        "screens": 1294,
+        "rng": 118144
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
