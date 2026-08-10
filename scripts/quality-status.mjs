@@ -5,21 +5,30 @@ import {
   closeSync,
   existsSync,
   openSync,
+  readdirSync,
   readFileSync,
   renameSync,
+  statSync,
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // `record-review --range` and `audit-worktree.mjs prepare --range` name the
 // same audited range, so they share one parser and accept one syntax.
 import { parseRange } from './audit-worktree.mjs';
+// One spelling of "a definition at column zero", shared with the duplicate
+// symbol index rather than copied, so both answer the same question about js/.
+// A shared /g regex carries lastIndex between readers, so each resets it.
+import { TOP_LEVEL_DEFINITION } from './check-duplicate-symbols.mjs';
+import { sourceFilesIn } from './check-namespace-members.mjs';
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(SCRIPT_DIR, '..');
 const QUALITY_PATH = resolve(REPO_ROOT, 'QUALITY.json');
+const UPSTREAM_SRC = resolve(REPO_ROOT, 'nethack-c', 'upstream', 'src');
+const PORT_ROOT = resolve(REPO_ROOT, 'js');
 // ROADMAP.md holds each deferred finding as prose. The ledger stores a
 // pointer to the heading that carries it.
 const DEFERRAL_EFFORTS = Object.freeze(['small', 'slice', 'undecided']);
@@ -55,9 +64,83 @@ const MUTATION_KINDS = Object.freeze([
   'relational',
 ]);
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// "Keep every area under ten" in .agents/selection.md.
+const SWEEP_THRESHOLD = 10;
 
 function fail(message) {
   throw new Error(message);
+}
+
+// Both probes below answer a question about a deferral's `blockedOn` symbol,
+// and both read a tree that does not change while the process runs, so each
+// reads its tree once and remembers each answer. `npm run quality` asks about
+// a handful of distinct symbols; measured on 10 August 2026, reading
+// nethack-c/upstream/src/ costs 18 ms and js/ 16 ms, and one symbol costs
+// about 1 ms and 7 ms against them.
+let upstreamSource = null;
+const upstreamAnswers = new Map();
+let portedNames = null;
+
+function readTree(root) {
+  if (!existsSync(root)) return '';
+  return readdirSync(root)
+    .map((name) => join(root, name))
+    .filter((path) => statSync(path).isFile())
+    .map((path) => readFileSync(path, 'utf8'))
+    .join('\n');
+}
+
+/**
+ * Does `symbol` appear anywhere in the C source?
+ *
+ * This is what stops a deferral from dodging a sweep by naming future work:
+ * a `blockedOn` the C program never mentions is a typo or an invention, and
+ * either way it excludes an entry for a blocker that does not exist. A plain
+ * mention is the test rather than a definition, because a macro a sweep waits
+ * on is defined under include/ and appears in src/ only where it is used.
+ *
+ * `git worktree add` leaves nethack-c/upstream/ empty, where every
+ * source-pinned check already fails by name. Answering TRUE there keeps this
+ * from becoming a second, more confusing report of that one problem.
+ */
+export function upstreamMentions(symbol) {
+  if (upstreamSource === null) upstreamSource = readTree(UPSTREAM_SRC);
+  if (upstreamSource === '') return true;
+  if (!upstreamAnswers.has(symbol)) {
+    upstreamAnswers.set(
+      symbol,
+      new RegExp(`\\b${escapeForRegExp(symbol)}\\b`, 'u').test(upstreamSource),
+    );
+  }
+  return upstreamAnswers.get(symbol);
+}
+
+/**
+ * Does js/ define a top-level `symbol`?
+ *
+ * AGENTS.md, "Keep each source file's port in one place", gives a ported
+ * function the name of the C function it comes from, so a definition under
+ * that name is the mechanical sign that a blocker has landed and the entry it
+ * blocks counts toward a sweep again. `deferralCounts()` says what this answer
+ * cannot tell, and why the direction it errs in is the safe one.
+ */
+export function portDefines(symbol) {
+  if (portedNames === null) {
+    const source = sourceFilesIn(PORT_ROOT)
+      .map((path) => readFileSync(path, 'utf8'))
+      .join('\n');
+    portedNames = new Set();
+    TOP_LEVEL_DEFINITION.lastIndex = 0;
+    let match;
+    while ((match = TOP_LEVEL_DEFINITION.exec(source)) !== null) {
+      portedNames.add(match[1] ?? match[2] ?? match[3]);
+    }
+  }
+  return portedNames.has(symbol);
+}
+
+function escapeForRegExp(text) {
+  return text.replaceAll(/[.*+?^${}()|[\]\\]/gu, '\\$&');
 }
 
 function validateExactNonnegativeCounts(value, fields, label) {
@@ -716,7 +799,9 @@ export function formatReviewDebt(total, current, dirty, thresholds) {
     + `${currentLines}/${thresholds.reviewChangedLines} lines) — ${totalText}`;
 }
 
-export function validateConfigShape(config) {
+// mentionsSymbol is injectable so a test can pin the blockedOn rules without
+// reading nethack-c/upstream/src/, which a worktree may not have checked out.
+export function validateConfigShape(config, mentionsSymbol = upstreamMentions) {
   if (!config || typeof config !== 'object') fail('QUALITY.json must contain an object');
   if (config.version !== 4) fail('QUALITY.json version must be 4');
   if (!SHA_PATTERN.test(config.trackingBase ?? '')) fail('trackingBase must be a full commit SHA');
@@ -828,6 +913,21 @@ export function validateConfigShape(config) {
     }
     if (typeof entry.detail !== 'string' || entry.detail.trim().length === 0) {
       fail(`${label}.detail must be nonempty`);
+    }
+    // `blockedOn` names the C symbol whose port the entry waits on, and an
+    // entry that carries one is excluded from its area's sweep count. That is
+    // why the symbol has to be real: an entry could otherwise dodge a sweep
+    // for as long as its author could invent a name. An entry that waits on
+    // nothing outside itself carries no `blockedOn` key at all.
+    if (entry.blockedOn !== undefined) {
+      if (typeof entry.blockedOn !== 'string'
+          || entry.blockedOn.trim().length === 0) {
+        fail(`${label}.blockedOn must be a nonempty symbol name`);
+      }
+      if (!mentionsSymbol(entry.blockedOn.trim())) {
+        fail(`${label}.blockedOn names ${entry.blockedOn.trim()}, which does `
+          + 'not appear in nethack-c/upstream/src/');
+      }
     }
     // Notes are the append-only half of an entry: `detail` states the claim as
     // first written, and each note corrects it without erasing it. An entry
@@ -1027,9 +1127,7 @@ function printStatus(config, head, status, verbose) {
   const homeless = openEntries.filter((entry) => !entry.area).length;
   console.log(`Open deferrals: ${openEntries.length}`
     + (homeless > 0 ? ` (${homeless} without an area)` : '') + '.');
-  for (const [area, count] of sweepCandidates(config.deferred)) {
-    console.log(`Sweep candidate: ${area} holds ${count} open deferrals.`);
-  }
+  for (const line of formatDeferralCounts(config.deferred)) console.log(line);
   const reviewDue = thresholdReached(
     review.current,
     status.dirty,
@@ -1060,7 +1158,7 @@ function parseOptions(args) {
     const key = argument.slice(2);
     if (Object.hasOwn(options, key)) fail(`${argument} was provided twice`);
     if (key === 'check' || key === 'verbose' || key === 'dry-run'
-        || key === 'health') {
+        || key === 'health' || key === 'clear') {
       options[key] = true;
       continue;
     }
@@ -1296,17 +1394,45 @@ export function openDeferrals(deferred, { area = null, status = 'open' } = {}) {
     && (!area || entry.area === area));
 }
 
+// Two exclusions, one principle: only debt a sweep can resolve counts toward
+// the ten .agents/selection.md holds every area under.
+//
 // A scope entry names unported territory a boundary goal attacks, so counting
-// it here would schedule the rest of the port as sweeps. Only debt a sweep can
-// resolve counts toward the ten .agents/selection.md holds every area under.
-export function sweepCandidates(deferred, threshold = 10) {
+// it here would schedule the rest of the port as sweeps. An entry whose
+// `blockedOn` symbol the port has not defined says the same thing in its
+// closing condition rather than in its category: it can only be retired by a
+// port the sweep threshold itself blocks, so counting it puts a permanent
+// floor under its own gate. On 10 August 2026 four of the ten monsters
+// entries were of that kind, and two sweeps that day spent six worker runs
+// for a combined zero development screens.
+//
+// blockerLanded expires the second exclusion. AGENTS.md gives a ported
+// function the name of the C function it comes from, so a definition under
+// that name is the sign that the blocker landed and the entry counts again.
+// It cannot tell a whole port from a partial one, and the port is full of
+// partial ones: js/ defines mattacku(), dochug() and postmov() while the
+// arms three of these entries wait on are still absent. So the answer errs
+// towards counting an entry that is still blocked, which costs a sweep run,
+// rather than towards excluding one that is not, which hides real debt.
+// Name the symbol the entry actually waits on, not the function the missing
+// arm sits inside.
+export function deferralCounts(deferred, blockerLanded = portDefines) {
   const counts = new Map();
   for (const entry of deferred) {
     if (entry.status !== 'open' || !entry.area) continue;
     if (entry.category === 'scope') continue;
-    counts.set(entry.area, (counts.get(entry.area) ?? 0) + 1);
+    const area = counts.get(entry.area) ?? { counted: 0, blocked: 0 };
+    if (entry.blockedOn && !blockerLanded(entry.blockedOn)) area.blocked += 1;
+    else area.counted += 1;
+    counts.set(entry.area, area);
   }
-  return [...counts.entries()].filter(([, count]) => count >= threshold);
+  return counts;
+}
+
+export function sweepCandidates(deferred, threshold = SWEEP_THRESHOLD,
+  blockerLanded = portDefines) {
+  return [...deferralCounts(deferred, blockerLanded)]
+    .filter(([, area]) => area.counted >= threshold);
 }
 
 // One line per entry, so a note's text stays out of the listing: the backlog
@@ -1320,6 +1446,34 @@ export function formatDeferralRow(entry) {
     : '';
   return `[${entry.area ?? '-'}] (${entry.category}, ${entry.effort}) `
     + `${entry.id}${notes}`;
+}
+
+/**
+ * The sweep lines both listings print, in order.
+ *
+ * Every area holding a blocked entry gets a line whether or not it is a sweep
+ * candidate, and a candidate's line says how many entries it stopped
+ * counting. An exclusion nobody can see is how a gate quietly stops firing:
+ * an area sitting at nine counted and five blocked reads one entry from a
+ * sweep on the candidate lines alone, and the reader has no way to tell that
+ * from an area holding nine and nothing else.
+ */
+export function formatDeferralCounts(deferred, blockerLanded = portDefines) {
+  const counts = deferralCounts(deferred, blockerLanded);
+  const lines = [];
+  const blocked = [...counts]
+    .filter(([, area]) => area.blocked > 0)
+    .map(([area, { blocked: count }]) => `${area} ${count}`);
+  if (blocked.length > 0) {
+    lines.push('Blocked on an unported symbol, so uncounted: '
+      + `${blocked.join(', ')}.`);
+  }
+  for (const [area, { counted, blocked: count }]
+    of sweepCandidates(deferred, SWEEP_THRESHOLD, blockerLanded)) {
+    lines.push(`Sweep candidate: ${area} holds ${counted} open deferrals`
+      + (count > 0 ? ` (${count} blocked)` : '') + '.');
+  }
+  return lines;
 }
 
 function queryLedger(command, options, config) {
@@ -1359,14 +1513,12 @@ function queryLedger(command, options, config) {
   for (const row of rows) console.log(formatDeferralRow(row));
   console.log(`${plural(rows.length, 'deferral')} (${status}`
     + `${options.area ? `, ${options.area}` : ''}).`);
-  for (const [area, count] of sweepCandidates(config.deferred)) {
-    console.log(`Sweep candidate: ${area} holds ${count} open deferrals.`);
-  }
+  for (const line of formatDeferralCounts(config.deferred)) console.log(line);
 }
 
 function deferEntry(options) {
   rejectUnknownOptions(options,
-    new Set(['id', 'area', 'category', 'effort', 'detail']));
+    new Set(['id', 'area', 'category', 'effort', 'detail', 'blocked-on']));
   for (const key of ['id', 'category', 'effort', 'detail']) {
     if (!options[key]?.trim()) fail(`--${key} is required`);
   }
@@ -1383,12 +1535,52 @@ function deferEntry(options) {
       status: 'open',
       from: resolveCommit('HEAD'),
       detail: options.detail.trim(),
+      // Absent rather than null when the entry waits on nothing, so a field
+      // in the ledger always carries a claim.
+      ...options['blocked-on'] === undefined
+        ? {} : { blockedOn: options['blocked-on'].trim() },
     });
-    // Full-shape validation rejects a bad area, category, or effort before
-    // anything is written.
+    // Full-shape validation rejects a bad area, category, effort, or
+    // blockedOn symbol before anything is written.
     validateConfigShape(config);
     writeConfig(config);
     console.log(`Deferred: ${options.id.trim()}`);
+  });
+}
+
+// A separate verb rather than a flag on note-deferral, because the two have
+// opposite contracts. A note is appended and never rewritten, which is what
+// lets a reader date a correction; `blockedOn` is one current answer, replaced
+// when the entry turns out to wait on something else and removed when it waits
+// on nothing. Folding them together would make one subcommand both
+// append-only and destructive.
+export function setDeferralBlocker(config, id, symbol) {
+  const entry = config.deferred.find((candidate) => candidate.id === id);
+  if (!entry) fail(`no deferred entry has id: ${id}`);
+  if (entry.status === 'closed') fail(`already closed: ${entry.id}`);
+  if (symbol === null) delete entry.blockedOn;
+  else entry.blockedOn = symbol;
+  // Full-shape validation rejects a symbol the C source never mentions before
+  // anything is written.
+  validateConfigShape(config);
+  return entry;
+}
+
+function blockDeferral(options) {
+  rejectUnknownOptions(options, new Set(['id', 'blocked-on', 'clear']));
+  if (!options.id?.trim()) fail('--id is required');
+  const clearing = options.clear === true;
+  if (clearing === (options['blocked-on'] !== undefined)) {
+    fail('block-deferral needs exactly one of --blocked-on <symbol> and --clear');
+  }
+  withLedgerLock(() => {
+    const config = loadConfig();
+    const entry = setDeferralBlocker(config, options.id.trim(),
+      clearing ? null : options['blocked-on'].trim());
+    writeConfig(config);
+    console.log(clearing
+      ? `Unblocked: ${entry.id}`
+      : `Blocked: ${entry.id} on ${entry.blockedOn}`);
   });
 }
 
@@ -1536,8 +1728,9 @@ function printHelp() {
   npm run quality -- areas
   npm run quality -- assign --file js/<name>.js --area <id>
   npm run quality -- defer --id <id> --category <c> --effort <small|slice> \\
-    --detail <text> [--area <id>]
+    --detail <text> [--area <id>] [--blocked-on <symbol>]
   npm run quality -- note-deferral --id <id> --note <text>
+  npm run quality -- block-deferral --id <id> <--blocked-on <symbol>|--clear>
   npm run quality -- resolve-deferral --id <id>
   npm run quality -- slice-mutants --range <base>..<head>
 
@@ -1550,6 +1743,16 @@ original claim from a later correction and date each one. The deferrals listing
 prints each entry's note count, and deferrals --id prints the notes themselves.
 areas lists the quality areas, and assign inserts a new js/ file into one, the
 write the per-chunk workflow requires as soon as the file is created.
+
+--blocked-on names the C symbol whose port the entry waits on, for an entry
+that can only be retired once other work lands. The symbol must appear in
+nethack-c/upstream/src/, and the entry stops counting toward its area's sweep
+threshold until js/ defines a function of that name. Set it only where the
+entry's closing condition names work outside the entry, and name the symbol
+the entry waits on rather than the function whose missing arm it sits in:
+js/ already defines partial ports under their C names, so a blocker named too
+loosely reads as landed the day it is written. block-deferral sets or clears
+it on an open entry; the two listings print what each area stopped counting.
 
 Status is derived from Git. The review frontier is the newest recorded
 review head, and recording a pass advances it through the --range head.
@@ -1596,6 +1799,10 @@ export function main(argv) {
   }
   if (first === 'note-deferral') {
     noteDeferral(parseOptions(rest));
+    return;
+  }
+  if (first === 'block-deferral') {
+    blockDeferral(parseOptions(rest));
     return;
   }
   if (first === 'resolve-deferral') {

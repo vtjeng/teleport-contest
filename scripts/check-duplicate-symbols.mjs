@@ -51,7 +51,12 @@ const DEFAULT_ROOT = 'js';
 // unindented `function`, `class`, `const`, `let`, or `var` is a module-level
 // definition and an indented one is not. `\b` after each keyword stops
 // `classify` and `constant` from reading as declarations.
-const TOP_LEVEL_DEFINITION = new RegExp(
+//
+// Exported because scripts/quality-status.mjs asks the same question of js/
+// for a deferral's `blockedOn` symbol, and two spellings of "a definition at
+// column zero" could answer it differently. It carries `g`, so every reader
+// resets `lastIndex` before its first `exec`.
+export const TOP_LEVEL_DEFINITION = new RegExp(
     '^(?:export\\s+)?(?:'
     + '(?:async\\s+)?function\\b\\s*\\*?\\s*([A-Za-z_$][\\w$]*)'
     + '|class\\b\\s+([A-Za-z_$][\\w$]*)'

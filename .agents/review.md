@@ -427,6 +427,14 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   `npm run quality -- deferrals` prints each entry's note count, and
   `--id <id>` prints the notes themselves. A closed entry takes no note;
   recording a deferral against its id reopens it first.
+- Record what an entry waits on with `npm run quality -- defer --blocked-on
+  <symbol>`, or `block-deferral --id <id> --blocked-on <symbol>` afterwards.
+  Set it only where the entry cannot close until other work lands, and name the
+  symbol the entry waits on rather than the function the missing arm sits
+  inside: `js/` already holds partial ports under their C names, so a blocker
+  named too loosely reads as landed the day it is written. Such an entry stops
+  counting toward the sweep threshold, so an unset field costs a sweep run and
+  a wrong one hides real debt.
 - A full correctness record also names the exact range, enabled optional
   finders, fixes, deferrals, unverified judgments, rejections and their
   counter-evidence, warnings, and validation. Record clarity separately only

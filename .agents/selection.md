@@ -15,9 +15,18 @@ names before opening a fail-closed boundary port.
 
 A deferred-area sweep resolves the open deferral entries one area has
 accumulated. `npm run quality -- deferrals` reports an area holding ten or
-more; it counts every category except `scope`, whose entries name unported
-territory a boundary goal attacks. Resolve one of that area's entries before
-opening the next boundary goal.
+more. Two kinds of entry do not count, for one reason: only debt a sweep can
+resolve belongs in the number that schedules sweeps.
+
+- A `scope` entry, whose text names unported territory a boundary goal
+  attacks.
+- An entry carrying a `blockedOn` symbol that `js/` does not yet define. The
+  field names the C symbol whose port the entry waits on, so such an entry can
+  only be retired by a port the threshold itself blocks. Once `js/` defines a
+  function of that name the entry counts again, and the listing says how many
+  entries each area stopped counting.
+
+Resolve one of the counted entries before opening the next boundary goal.
 
 Order the entries by how the port behaves at each one. An entry where the port
 skips a message-writing C branch silently comes before an entry where the port
@@ -35,7 +44,9 @@ open entry.
 An entry closes only when the behavior its record names as the closing
 condition is ported. An entry waiting on an unported command therefore survives
 the sweep. Name each surviving entry in the closing report with the behavior it
-waits on.
+waits on, and record that behavior on the entry with
+`npm run quality -- block-deferral --id <id> --blocked-on <symbol>`, so the
+next count reads what this reading found rather than repeating it.
 
 ### Fail-closed boundary ports
 

@@ -6,7 +6,10 @@ import {
   appendDeferralNote,
   assignPathToArea,
   auditMetricsFromOptions,
+  deferralCounts,
+  formatDeferralCounts,
   formatDeferralRow,
+  setDeferralBlocker,
   countReviewCommits,
   excludeGeneratedLines,
   formatMetrics,
@@ -22,7 +25,9 @@ import {
   validateAuditMetrics,
   validateAuditMutation,
   openDeferrals,
+  portDefines,
   sweepCandidates,
+  upstreamMentions,
   collectRejections,
   missingMutantTrailers,
   renderCountsSentence,
@@ -852,6 +857,101 @@ test('a malformed deferral note never reaches the ledger', () => {
   );
 });
 
+test('a deferral records and drops the symbol it waits on', () => {
+    // `find_offensive` is the symbol the monsters pickup entry waits on: C's
+    // mattacku() reaches use_offensive() through it, and the port's stand-in
+    // omits that path. The setter validates against the real C source, so the
+    // name has to be one mhitu.c holds rather than any placeholder.
+    const mentions = (symbol) => symbol === 'find_offensive';
+    const blocked = deferralLedgerConfig();
+    setDeferralBlocker(blocked, 'open-entry', 'find_offensive');
+    assert.equal(blocked.deferred[0].blockedOn, 'find_offensive');
+    // Setting it disturbs nothing else the entry says.
+    assert.deepEqual(
+        { ...blocked.deferred[0], blockedOn: undefined },
+        { ...deferralLedgerConfig().deferred[0], blockedOn: undefined },
+    );
+
+    // Clearing removes the key rather than leaving a null, so a field present
+    // in the ledger always carries a claim.
+    setDeferralBlocker(blocked, 'open-entry', null);
+    assert.equal(Object.hasOwn(blocked.deferred[0], 'blockedOn'), false);
+
+    // An unknown id is a typo, and a closed entry schedules no work, so
+    // nothing it waits on is still a claim on anyone.
+    assert.throws(
+        () => setDeferralBlocker(
+            deferralLedgerConfig(), 'no-such-entry', 'find_offensive'),
+        /no deferred entry has id: no-such-entry/u,
+    );
+    assert.throws(
+        () => setDeferralBlocker(
+            deferralLedgerConfig(), 'closed-entry', 'find_offensive'),
+        /already closed: closed-entry/u,
+    );
+
+    // The write is validated before it is returned, so an invented symbol
+    // never reaches the ledger through this route either.
+    const config = deferralLedgerConfig();
+    assert.throws(
+        () => validateConfigShape(
+            { ...config, deferred: [{ ...config.deferred[0],
+                blockedOn: 'zzyzx' }] },
+            mentions),
+        /blockedOn names zzyzx, which does not appear in nethack-c/u,
+    );
+});
+
+test('a blockedOn symbol the C source never mentions is refused', () => {
+    // `mattacku` is a real mhitu.c function and `zzyzx` is the wish this
+    // repository's own deferral entries use as a name nothing resolves, so
+    // one stands for a symbol read out of the source and the other for a
+    // symbol invented to dodge a sweep.
+    const mentions = (symbol) => symbol === 'mattacku';
+    const withBlocker = (blockedOn) => {
+        const config = deferralLedgerConfig();
+        config.deferred[0].blockedOn = blockedOn;
+        return config;
+    };
+
+    assert.doesNotThrow(
+        () => validateConfigShape(withBlocker('mattacku'), mentions));
+    // Absent says the entry waits on nothing outside itself, which is the
+    // ordinary state and must stay valid.
+    assert.doesNotThrow(
+        () => validateConfigShape(deferralLedgerConfig(), mentions));
+
+    assert.throws(
+        () => validateConfigShape(withBlocker('zzyzx'), mentions),
+        /deferred\[0\]\.blockedOn names zzyzx, which does not appear in/u,
+    );
+    // Whitespace-only and non-string are as absent as a missing key, and both
+    // would exclude the entry from every sweep for a blocker that says
+    // nothing.
+    assert.throws(
+        () => validateConfigShape(withBlocker('  '), mentions),
+        /deferred\[0\]\.blockedOn must be a nonempty symbol name/u,
+    );
+    assert.throws(
+        () => validateConfigShape(withBlocker(true), mentions),
+        /deferred\[0\]\.blockedOn must be a nonempty symbol name/u,
+    );
+});
+
+test('the two blockedOn probes read the real trees', () => {
+    // mhitu.c mattacku() is one name in both trees, which is the whole design
+    // in one value: it is a real C symbol, so a blocker may name it, and js/
+    // defines it, so naming it excludes nothing. That js/mhitu.js ports only
+    // the preamble and the steed arm is why a landed name cannot be read as a
+    // finished port. Neither fact moves: upstream is a pinned submodule, and
+    // AGENTS.md keeps a ported function under its C name.
+    assert.equal(upstreamMentions('mattacku'), true);
+    assert.equal(portDefines('mattacku'), true);
+    // A name neither tree can hold, so a typo cannot pass for a blocker.
+    assert.equal(upstreamMentions('zzyzx_blocks_nothing'), false);
+    assert.equal(portDefines('zzyzx_blocks_nothing'), false);
+});
+
 test('the deferrals listing prints a note count and never a note', () => {
   const entry = {
     id: 'an-entry', area: 'monsters', category: 'production', effort: 'small',
@@ -1021,7 +1121,8 @@ test('ledger queries flatten pass rejections and filter deferrals', () => {
     assert.deepEqual(openDeferrals(ledger, { status: 'closed' })
         .map(({ id }) => id), ['C']);
     assert.deepEqual(openDeferrals(ledger, { status: 'all' }).length, 4);
-    assert.deepEqual(sweepCandidates(ledger, 2), [['monsters', 2]]);
+    assert.deepEqual(sweepCandidates(ledger, 2),
+        [['monsters', { counted: 2, blocked: 0 }]]);
     assert.deepEqual(sweepCandidates(ledger, 3), []);
 });
 
@@ -1035,8 +1136,38 @@ test('a scope deferral never counts toward a sweep candidate', () => {
         { id: 'B', area: 'monsters', status: 'open', category: 'tests' },
         { id: 'C', area: 'monsters', status: 'open', category: 'scope' },
     ];
-    assert.deepEqual(sweepCandidates(ledger, 2), [['monsters', 2]]);
+    assert.deepEqual(sweepCandidates(ledger, 2),
+        [['monsters', { counted: 2, blocked: 0 }]]);
     assert.deepEqual(sweepCandidates(ledger, 3), []);
+});
+
+test('a blocked deferral stops counting until its blocker lands', () => {
+    // Three open production entries in one area, one of them waiting on a C
+    // symbol. The threshold of 3 is the smallest that separates the two
+    // answers: it fires on the raw count of three and stays silent on the two
+    // a sweep can actually resolve.
+    const ledger = [
+        { id: 'A', area: 'monsters', status: 'open', category: 'production' },
+        { id: 'B', area: 'monsters', status: 'open', category: 'production' },
+        {
+            id: 'C', area: 'monsters', status: 'open', category: 'production',
+            blockedOn: 'find_offensive',
+        },
+    ];
+    // No js/ read: the probe is injected, so what the port happens to define
+    // today cannot move this test.
+    const landed = (symbol) => symbol === 'mattacku';
+    assert.deepEqual(deferralCounts(ledger, landed),
+        new Map([['monsters', { counted: 2, blocked: 1 }]]));
+    assert.deepEqual(sweepCandidates(ledger, 3, landed), []);
+    assert.deepEqual(sweepCandidates(ledger, 2, landed),
+        [['monsters', { counted: 2, blocked: 1 }]]);
+
+    // AGENTS.md gives a ported function its C function's name, so a definition
+    // under that name expires the exclusion and the entry counts again.
+    const afterTheBlockerLands = (symbol) => symbol === 'find_offensive';
+    assert.deepEqual(sweepCandidates(ledger, 3, afterTheBlockerLands),
+        [['monsters', { counted: 3, blocked: 0 }]]);
 });
 
 test('the sweep threshold defaults to ten', () => {
@@ -1050,7 +1181,47 @@ test('the sweep threshold defaults to ten', () => {
         category: 'production',
     }));
     assert.deepEqual(sweepCandidates(entries(9)), []);
-    assert.deepEqual(sweepCandidates(entries(10)), [['commands', 10]]);
+    assert.deepEqual(sweepCandidates(entries(10)),
+        [['commands', { counted: 10, blocked: 0 }]]);
+});
+
+test('both listings print what an area stopped counting', () => {
+    // monsters at ten open entries, four of them blocked, is the 10 August
+    // 2026 shape this exclusion was built for: it reads six counted, which is
+    // under the threshold, so no sweep line prints for it and the blocked line
+    // is the only place its four exclusions are visible. display carries one
+    // blocked entry far below the threshold, for the same reason. commands
+    // reaches the threshold with nothing blocked, so the parenthetical stays
+    // off a line that excluded nothing; objects reaches it with two blocked,
+    // where the parenthetical says the area is really carrying twelve.
+    const area = (id, count, extra = {}) => Array.from(
+        { length: count },
+        (unused, index) => ({
+            id: `${id}-${index}`, area: id, status: 'open',
+            category: 'production', ...extra,
+        }),
+    );
+    const ledger = [
+        ...area('monsters', 6),
+        ...area('monsters', 4, { blockedOn: 'find_offensive' }),
+        ...area('display', 1, { blockedOn: 'getlev' }),
+        ...area('commands', 10),
+        ...area('objects', 10),
+        ...area('objects', 2, { blockedOn: 'set_wear' }),
+    ];
+    assert.deepEqual(formatDeferralCounts(ledger, () => false), [
+        'Blocked on an unported symbol, so uncounted: monsters 4, display 1, '
+            + 'objects 2.',
+        'Sweep candidate: commands holds 10 open deferrals.',
+        'Sweep candidate: objects holds 10 open deferrals (2 blocked).',
+    ]);
+    // Once every blocker lands nothing is excluded, monsters passes the
+    // threshold on its own entries, and the blocked line disappears.
+    assert.deepEqual(formatDeferralCounts(ledger, () => true), [
+        'Sweep candidate: monsters holds 10 open deferrals.',
+        'Sweep candidate: commands holds 10 open deferrals.',
+        'Sweep candidate: objects holds 12 open deferrals.',
+    ]);
 });
 
 test('the recorder renders the counts sentence from the metrics', () => {
