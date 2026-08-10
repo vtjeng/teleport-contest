@@ -44,6 +44,7 @@ import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { any_light_source } from './light.js';
 import { m_dowear } from './makemon_create.js';
+import { mattacku } from './mhitu.js';
 import {
     adaptMonsterActionToDochugwSignature,
     movemon_singlemon,
@@ -801,10 +802,11 @@ async function moveSimplePet(monster, after, env) {
 // range2 arms alone: AT_MAGC's castmu(), refused by assertSimpleActionState()
 // before the scan; AT_BREA, AT_SPIT and AT_GAZE, refused here; and AT_WEAP's
 // thrwmu(), which does nothing at all unless select_rwep() finds a missile.
-// mattacku()'s preamble writes nothing and draws nothing on this path: its
-// nomul(0) is behind !ranged, and the steed, swallow and underwater arms need
-// hero states this boundary already excludes.
+//
+// js/mhitu.js mattacku() carries the preamble and the steed arm, which run
+// above all of that and, for a mounted hero, spend a draw on every call.
 function refuseHeroAttack(monster, env) {
+    if (mattacku(monster, { ...env, unsupported })) return;
     if (monnear(monster, monster.mux, monster.muy))
         unsupported('monster attack on the hero');
     const species = monster.data;
@@ -840,7 +842,15 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 monFlee: () => unsupported('monster flight'),
                 monsterCanSeeHero: ordinaryMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
+                // The second of this file's two mattacku() stand-ins: C
+                // reaches mattacku() from dochug()'s standard-attack gate
+                // whether or not the monster moved first, and js/monmove.js
+                // folds the moved-then-attack path into this operation.
                 postMoveRangedAttack: (weaponUser, weaponEnv) => {
+                    if (mattacku(weaponUser, {
+                        ...weaponEnv,
+                        unsupported,
+                    })) return;
                     const selected = select_rwep(weaponUser, {
                         ...weaponEnv,
                         touchArtifact: () => unsupported(

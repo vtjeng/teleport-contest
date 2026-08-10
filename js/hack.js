@@ -202,6 +202,7 @@ import {
     monsterVisible,
     sensesMonster,
 } from './startup_a11y.js';
+import { exercise_steed, stucksteed } from './steed.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { S_hcdoor, S_stone, S_vcdoor } from './symbols.js';
 import {
@@ -2070,17 +2071,6 @@ export async function domove(state = game) {
     const newx = u.ux + u.dx;
     const newy = u.uy + u.dy;
 
-    // C ref: hack.c domove_core():2815-2818, 2874-2884, 2924-2926 and 2934.
-    // A mounted hero's step carries the steed: stucksteed() can refuse the
-    // move outright, the steed's <mx,my> follow the hero on the way out and
-    // on the way back from a failed pet swap, exercise_steed() trains the
-    // riding skill, and u_on_newpos() repositions both. None of that is
-    // ported, so a ride ends where the hero next tries to move rather than
-    // walking the steed's coordinates into a stale position in silence.
-    if (u.usteed) {
-        throw new UnsupportedHeroMoveBoundaryError('movement while riding');
-    }
-
     if (await move_out_of_bounds(newx, newy, state)) {
         state.domoveAttempting = 0;
         return;
@@ -2160,6 +2150,24 @@ export async function domove(state = game) {
         return;
     }
 
+    // C ref: domove_core():2815-2818, C's first line after unmap_invisible()
+    // and its comment "not attacking an animal, so we try to move". A steed
+    // that cannot move refuses the step, and the hero still spends the turn:
+    // nomul(0) ends any multi-turn action, and svc.context.move is left at 1,
+    // unlike the test_move() refusal further down, which clears it. C's
+    // u_rooted() test follows this one and is left out for the reason
+    // js/hack.js u_rooted() gives: no admitted path polymorphs the hero, so
+    // gy.youmonst.data->mmove is never 0.
+    //
+    // Both of stucksteed()'s reporting arms refuse in js/steed.js, so FALSE is
+    // the only answer this port produces and the body below never runs. The
+    // call is still the live seam that stops a helpless or feeding steed.
+    if ((u.dx || u.dy) && u.usteed && stucksteed(false, state)) {
+        nomul(0, state);
+        state.domoveAttempting = 0;
+        return;
+    }
+
     // C ref: domove_core():2830-2841. A held hero spends the step struggling
     // and never reaches test_move(). C passes NULL for desttrap here; the
     // adjacent-pit lookup that argument serves belongs to the other caller.
@@ -2196,14 +2204,44 @@ export async function domove(state = game) {
     if (!await in_out_region(newx, newy, { state })) return;
     u.ux = newx;
     u.uy = newy;
+
+    // C ref: domove_core():2879-2884. A ridden steed rides along on the
+    // tentative move. C's m_postmove_effect(&gy.youmonst) between the two is
+    // unported and empty for the hero: monmove.c gives it a body only for a
+    // hezrou or an uncancelled steam vortex, and no ported path polymorphs the
+    // hero into either.
+    if (u.usteed) {
+        u.usteed.mx = u.ux;
+        u.usteed.my = u.uy;
+        /* [if move attempt ends up being blocked, should training count?] */
+        exercise_steed(state); /* train riding skill */
+    }
+
     if (destinationMonster) {
-        await domove_swap_with_pet(
+        // C ref: domove_core():2921-2926. A pet that declined the swap leaves
+        // the hero where it started, and the steed with it. C's own comment
+        // says the steed write "could skip this since we're about to call
+        // u_on_newpos()", which js/dungeon.js u_on_newpos() ports.
+        //
+        // domove_swap_with_pet() below has a single `return true`: every arm
+        // that answers FALSE in C reports through do_name.c YMonnam(), and
+        // requireOrdinaryStartingPetSwap() above refuses each of them before
+        // the call. So this restore is what C does and nothing in this port
+        // reaches it; porting a FALSE arm of that helper is what makes it live.
+        if (!await domove_swap_with_pet(
             destinationMonster,
             newx,
             newy,
             state,
             { message: ttyPline },
-        );
+        )) {
+            u.ux = u.ux0;
+            u.uy = u.uy0;
+            if (u.usteed) {
+                u.usteed.mx = u.ux;
+                u.usteed.my = u.uy;
+            }
+        }
     }
 
     // C ref: domove_core():2934. The writes above are C's tentative move; this

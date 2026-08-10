@@ -1,6 +1,7 @@
 // steed.js -- Riding a saddled monster.
-// C ref: steed.c -- can_ride(), mount_steed(), landing_spot(),
-// dismount_steed(), maybewakesteed() and doride().
+// C ref: steed.c -- can_ride(), mount_steed(), exercise_steed(),
+// landing_spot(), dismount_steed(), maybewakesteed(), stucksteed() and
+// doride().
 
 import {
     ARTICLE_A,
@@ -33,6 +34,7 @@ import {
     M_AP_TYPMASK,
     N_DIRS,
     NO_KILLER_PREFIX,
+    P_RIDING,
     SLT_ENCUMBER,
     STEALTH,
     STONE_RES,
@@ -100,6 +102,7 @@ import { rn1, rn2, rnd } from './rng.js';
 import { teleds } from './teleport.js';
 import { float_down, is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
+import { use_skill } from './weapon.js';
 import { is_pole, which_armor } from './worn.js';
 
 // A steed path this port has not reached yet.
@@ -422,6 +425,34 @@ export async function mount_steed(mtmp, force, state = game) {
     state.disp ??= {};
     state.disp.botl = true;
     return true;
+}
+
+// C ref: steed.c exercise_steed(). hack.c domove_core() is its only caller,
+// which is why the `!u.usteed` guard is redundant there and kept anyway.
+//
+// u.urideturns counts the steps the hero has taken while mounted. This
+// function and js/u_init.js are its only writers, as they are in C -- nothing
+// clears it on dismount, so the count carries across mounts and a hero who
+// rides in short stretches still reaches the hundredth step.
+//
+// Below that hundredth step the counter is the whole observable effect. On it,
+// weapon.c use_skill() adds one to P_ADVANCE(P_RIDING), which nothing shows
+// until the hero types #enhance. weapon.c skill_init() starts a Knight's
+// riding at P_BASIC with 20 practice, and skills.h
+// practice_needed_to_advance(P_BASIC) is 80, so use_skill()'s
+// give_may_advance_msg() arm -- the one js/weapon.js refuses -- is 6000
+// mounted steps away, and needs a spare weapon slot as well.
+export function exercise_steed(state = game) {
+    const u = state.u;
+
+    if (!u.usteed)
+        return;
+
+    /* It takes many turns of riding to exercise skill */
+    if (++u.urideturns >= 100) {
+        u.urideturns = 0;
+        use_skill(P_RIDING, 1, state);
+    }
 }
 
 // C ref: steed.c landing_spot() (459-566). Chooses a square beside the hero

@@ -55,7 +55,6 @@ import { see_monsters, statusConditionActive } from '../js/display.js';
 import {
     UnsupportedHeroMoveBoundaryError,
     cant_squeeze_thru,
-    domove,
     invocation_message,
     notice_mon_off,
     notice_mon_on,
@@ -1155,20 +1154,6 @@ test('the status line reports Ride while mounted and Fly on a flying steed',
 
     state.u.usteed = null;
     assert.equal(statusConditionActive('ride', state.u), false);
-});
-
-test('a mounted hero cannot walk yet', async () => {
-    // hack.c domove_core() carries the steed with the hero through
-    // stucksteed(), exercise_steed() and u_on_newpos(); none of that is
-    // ported, so the step refuses rather than stranding the steed.
-    const state = await mounted();
-    state.u.dx = 1;
-    state.u.dy = 0;
-    await assert.rejects(
-        domove(state),
-        (error) => error instanceof UnsupportedHeroMoveBoundaryError
-            && /movement while riding/u.test(error.message),
-    );
 });
 
 // --- the property macros this slice copies into four files ---
