@@ -1319,8 +1319,8 @@
       "slices": [
         {
           "name": "resolve a wished artifact name and apply it with oname",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0ece1a48d2f47eb2368efa3339a444330ec6b452"
         }
       ],
       "openedAt": "9365d5488d6005cb06506624e1323217c76c005b",
