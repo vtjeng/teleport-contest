@@ -1153,7 +1153,7 @@
     },
     {
       "id": "force-fight-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "The F force-fight prefix, so that an F-prefixed movement command at a square holding no monster reaches hack.c domove_fight_empty() and spends a turn attacking what is there. Covers cmd.c do_fight() and rhack()'s PREFIXCMD dispatch, plus every arm of domove_fight_empty() a hero who is not Underwater, not Upolyd with AT_EXPL, and not wielding a dig_typ() tool can take: the off-edge unknown_obstacle arm through move_out_of_bounds(), the solid arm naming remembered terrain, the boulder/statue arm, and the thin air arm, each followed by nomul(0), a TRUE return and a spent turn. Outside and still refused by name: use_pick_axe2() for a wielded digging tool, Underwater, the AT_EXPL explum()/rehumanize() tail, domove_fight_ironbars(), domove_fight_web(), and uhitm.c attack_checks()'s forcefight arm, which is F aimed at a square that does hold a monster.",
       "upstreamOwners": [
         "src/cmd.c",
@@ -1196,8 +1196,11 @@
         "screens": 1254,
         "rng": 117940
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "a08817c4643fbef57b377c46a2764e3e037488a3",
+      "delivered": {
+        "screens": 40,
+        "rng": 204
+      }
     }
   ]
 }
