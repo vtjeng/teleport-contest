@@ -1315,6 +1315,15 @@
       "status": "open",
       "from": "0737e109838443a72b4f0459a8864a36887f4d34",
       "detail": "js/dogmove.js dog_hunger() requires three injected operations, starvePet, reportWeakPet and stopOccupation, and no production code supplies any of them. Verified: grep -rn 'starvePet|reportWeakPet' js/ filtered to exclude dogmove.js returns nothing. The consequence is a fail-open, not a fail-closed stop: a starving pet in the running game throws a bare TypeError rather than a named boundary class, so js/jsmain.js does not break the segment on it and the segment's matching prefix is discarded instead of being kept. That is the failure mode the boundary classes exist to prevent, and it is worse than a refusal. Found while converging stop_occupation() onto one owner: one of the three injections is a stop_occupation() call site, but converging that one alone does not make the arm reachable, so the slice reported it rather than half-fixing it. Close it by giving each of the three a production supplier, or, if any arm is genuinely unreachable today, by replacing the injection with a named boundary class js/cmd.js failClosedCommandRefusals() and js/jsmain.js list, so the segment ends on the last matched screen instead of losing it. A fresh case needs a pet starved to the point dog_hunger() acts, which no recorded development session reaches today."
+    },
+    {
+      "id": "record-session-signal-test-is-flaky",
+      "area": "runtime",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "57b2dfe2a6613093c54829761c277f2ccfe119fa",
+      "detail": "scripts/record-session.test.mjs's case 'fails when a complete marker stream ends with an unexpected signal' failed once during the commands-deferral-sweep-3 goal, expecting exit status 1 and observing 0, then passed three times in isolation and on a full rerun. The fake recorder writes a marker and then signals itself, so the parent can miss the signal under load; the race is in the test's harness, not in the code under test. It was observed on a run with several concurrent node processes. A flaky case in the default suite is worse than a missing one, because it teaches readers to rerun rather than investigate, and it can redden CI on an unrelated commit. Close it by making the fake recorder's signal deterministic -- have the parent wait for the marker before the child signals, or assert on the recorded stream rather than the exit status -- and by confirming the case fails when the behavior it covers is broken. Do not close it by adding a retry."
     }
   ],
   "areas": [

@@ -1242,8 +1242,8 @@
         },
         {
           "name": "pin the parsed retry that restores the fight prefix",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "57b2dfe2a6613093c54829761c277f2ccfe119fa"
         }
       ],
       "openedAt": "b880cd755d73d636ceabc69bb962297da5ed8f55",
