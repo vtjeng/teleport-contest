@@ -2045,9 +2045,13 @@ async function trapmove(_x, _y, _desttrap, state = game) {
         throw new UnsupportedHeroMoveBoundaryError('held hero movement');
     }
     // C ref: hack.c:1556 and 1569-1570. A mounted hero is named by
-    // y_monnam(u.usteed) and reported instead of the hero. domove() refuses a
-    // ride before this, so the refusal here is the second lock on the same
-    // door rather than the one that fires.
+    // y_monnam(u.usteed) and reported instead of the hero, where the lines
+    // below name the hero. This is now the only refusal on the path: the
+    // steed gate above answers false for a healthy steed and falls through to
+    // here, and what keeps u.utrap and u.usteed from being set together today
+    // is js/trap.js's own mounted refusal in dotrap(). Delete this and a
+    // mounted hero in a bear trap prints the unmounted lines instead of
+    // stopping.
     if (u.usteed) {
         throw new UnsupportedHeroMoveBoundaryError('a steed in a bear trap');
     }
@@ -2160,8 +2164,11 @@ export async function domove(state = game) {
     // gy.youmonst.data->mmove is never 0.
     //
     // Both of stucksteed()'s reporting arms refuse in js/steed.js, so FALSE is
-    // the only answer this port produces and the body below never runs. The
-    // call is still the live seam that stops a helpless or feeding steed.
+    // the only answer this port produces and the body below never runs. This
+    // call is the live seam for a helpless steed alone: it passes checkfeeding
+    // FALSE, as hack.c:2815 does, so a steed that is still eating walks on
+    // from here. Only do.c dodown() and doup() pass TRUE, and js/steed.js owns
+    // that arm.
     if ((u.dx || u.dy) && u.usteed && stucksteed(false, state)) {
         nomul(0, state);
         state.domoveAttempting = 0;
@@ -2223,11 +2230,16 @@ export async function domove(state = game) {
         // says the steed write "could skip this since we're about to call
         // u_on_newpos()", which js/dungeon.js u_on_newpos() ports.
         //
-        // domove_swap_with_pet() below has a single `return true`: every arm
-        // that answers FALSE in C reports through do_name.c YMonnam(), and
-        // requireOrdinaryStartingPetSwap() above refuses each of them before
-        // the call. So this restore is what C does and nothing in this port
-        // reaches it; porting a FALSE arm of that helper is what makes it live.
+        // domove_swap_with_pet() below has a single `return true`. Not every
+        // FALSE arm in C reports through do_name.c YMonnam() -- the first
+        // prints nothing at all -- so the reason this restore is unreachable
+        // is what refuses each arm, not what each arm says:
+        // requireOrdinaryStartingPetSwap() above covers the pit-and-boulder
+        // pin and the trapped-peaceful arm through its `monster.mtrapped`
+        // term, NODIAG and bad_rock cannot fire for the three STARTING_PETS
+        // species, and the source-square and trap checks exclude the
+        // goodpos/mundisplaceable arm. js/hack.js:1247-1254 lists them.
+        // Porting a FALSE arm of that helper is what would make this live.
         if (!await domove_swap_with_pet(
             destinationMonster,
             newx,

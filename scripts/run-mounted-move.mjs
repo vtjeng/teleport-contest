@@ -69,8 +69,12 @@ export const MOUNTED_MOVE_CASES = Object.freeze([
         stillMounted: false,
     },
     {
-        // Shift-runs, where one keystroke spends several turns inside
-        // moveloop_core() and therefore several exercise_steed() calls.
+        // Repeated rush keystrokes, each spending one turn. The label says
+        // runs, and a shift key does start a rush, but on this map each one
+        // stops after a single square -- so what this case pins is the rush
+        // command reaching domove() while mounted, not a multi-turn run
+        // accumulating several exercise_steed() calls. A case that crosses
+        // several squares on one keystroke is not recorded yet.
         label: 'shift-runs east and west',
         seed: 8815,
         gender: 'male',

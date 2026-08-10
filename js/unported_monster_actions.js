@@ -842,7 +842,10 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 monFlee: () => unsupported('monster flight'),
                 monsterCanSeeHero: ordinaryMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
-                // The second of this file's two mattacku() stand-ins: C
+                // The second of the two seams in this file that route
+                // through js/mhitu.js mattacku(); the seam at :732
+                // (dogmove.c:1286) still refuses ahead of C's steed draw, as
+                // does js/dogmove.js:891. C
                 // reaches mattacku() from dochug()'s standard-attack gate
                 // whether or not the monster moved first, and js/monmove.js
                 // folds the moved-then-attack path into this operation.

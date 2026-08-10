@@ -21,9 +21,13 @@ function m_next2u(monster, state) {
 
 // C ref: mhitu.c mattacku(), from its preamble down to the end of the
 // `else if (u.usteed)` arm. Everything below that arm -- the u.uundetected
-// block, the melee attacks, and the ranged attacks -- is refused by
-// js/unported_monster_actions.js, whose two mattacku() stand-ins call this
-// first and then apply their own stops.
+// block, the melee attacks, and the ranged attacks -- is refused elsewhere.
+// Four seams stand in for mattacku(). Two route through this module and then
+// apply their own stops: js/unported_monster_actions.js:809 and :850, which
+// are monmove.c:971 and the folded :954/:971 post-move path. Two do not, and
+// are fail-closed today: js/unported_monster_actions.js:732 (dogmove.c:1286)
+// and js/dogmove.js:891 (dogmove.c:911). Each of those owes the steed draw
+// before it stops, and must call this function when it is ported.
 //
 // The result is TRUE where C's mattacku() has already returned, so the caller
 // must run none of the arms below. C distinguishes its 1 from its 0 to tell

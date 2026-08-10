@@ -63,11 +63,14 @@ test('the mounted-move matrix contains only source-selected inputs', () => {
     assert.equal(recipe.segments.length, MOUNTED_MOVE_CASES.length);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
-        // Each segment rides first and never waits first: a wait moves
-        // mount_steed()'s impairment roll and seed 8815 then slips instead of
-        // mounting, which would leave the whole segment walking on foot.
+        // Each segment rides first: a wait moves mount_steed()'s impairment
+        // roll and seed 8815 then slips instead of mounting, which would leave
+        // the whole segment walking on foot while the differential still
+        // passed. This guards segmentFor()'s template, not the case table, so
+        // it is a weak oracle on its own; what actually catches a failed mount
+        // is `assert.ok(game.u.usteed)` in mounted() and the rideTurns and
+        // stillMounted checks in verifyMountedMoveSegment().
         assert.ok(segment.moves.startsWith(RIDE_COMMAND));
-        assert.equal(segment.moves.startsWith(`.${RIDE_COMMAND}`), false);
     }
     // Exactly one case is long enough to reach exercise_steed()'s
     // `u.urideturns >= 100` arm, and it is the one whose keys spend more than
@@ -300,8 +303,12 @@ test('mattacku() draws before it tests adjacency and refuses only when both',
 
 test('mattacku() spends no draw on the steed itself or on a hero on foot',
     async () => {
-    // mhitu.c:530-532. mon.c movemon() skips u.usteed, so C's own guard is
-    // unreachable in play; it still has to answer the way C does.
+    // mhitu.c:530-532. A ridden steed does stay in fmon with mstate
+    // MON_FLOOR and does reach dochug(); what keeps it out of mattacku() is
+    // monmove.c:966's !mtmp->mpeaceful gate, because tame implies peaceful.
+    // Conflict is the disjunct that would make the arm live, and
+    // assertSimpleScanState() refuses that today. C's own guard still has to
+    // answer the way C does.
     const state = await mounted();
     const steed = state.u.usteed;
     const forSteed = fixedRandom(0);
