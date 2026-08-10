@@ -1360,8 +1360,8 @@
       "slices": [
         {
           "name": "a mounted hero's ordinary step",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "dd804eadebc66da2001f16b9dde1d29ef6fc51ef"
         }
       ],
       "openedAt": "11229e6970db3a9468b1d9e4afdc5d75f484f0f0",
