@@ -8987,6 +8987,99 @@
         ]
       },
       "recordedAt": "2026-08-09T08:43:55.133Z"
+    },
+    {
+      "kind": "review",
+      "head": "3e8f4d9491dcfcc47d271fa8eefd7f3487c1e004",
+      "auditedRange": "eeb0f46795f047d70add9fe1fec3f74899434a0c..3e8f4d9491dcfcc47d271fa8eefd7f3487c1e004",
+      "level": "full",
+      "areas": [
+        "objects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 21 raw, 16 deduplicated, 13 confirmed, 13 applied, 0 deferred, 3 rejected, 0 unverified; mutation: 4 survivors of 36 mutants. Full correctness pass over the pickup-command goal: the , command for a square holding at most one takeable object. Four mandatory finders; neither optional finder was triggered, since the range adds only source-required iteration and no shared-state or overlapping-lifecycle change. The finding that mattered is the burden gate: the , command routed through a limit computed with Math.max(near_capacity(), flags.pickup_burden), and an rc file leaves that option as raw text, so the limit was NaN and the refusal silently disappeared rather than widening. It was reachable only through an option no scored session sets, which is why two slices, a mutation run and 17 recorded C segments all passed over it, and why the variable-trace finder rather than the score found it. Tests led again: 5 of 13 confirmed were test gaps, the seventh consecutive pass where tests lead or tie. Three of those gaps sat in work this session produced, including nine recorded segments that npm test never replayed. The score is unchanged at 1254 screens and 117940 calls across the fixes, as a set that changes no scored behavior should be. The pass also opened one new ledger entry, addinv-burden-read-accepts-unparsed-option, for the same read one level down in js/invent.js, which is outside this range.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2414,
+        "counts": {
+          "raw": 21,
+          "deduplicated": 16,
+          "confirmed": 13,
+          "applied": 13,
+          "deferred": 0,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 5,
+          "clarity": 6,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "preflightPickupObjects() in js/pickup.js computed its burden limit as Math.max(near_capacity(), flags.pickup_burden ?? MOD_ENCUMBER), the gate the `,` command newly routes through. parseNethackrc() has no arm for pickup_burden and keeps an unported option's raw text in flags[<option name>], which for this option is the field the parsed value would occupy, so OPTIONS=pickup_burden:overloaded leaves a string there. Math.max() then returns NaN and calc_capacity(...) > NaN is false for every value, so the refusal disappeared rather than widening: the port lifted the object where pickup.c:1759-1777 stops at a ynq() prompt. Fail-open, and invisible to the development score because no scored session sets the option. Fixed with a Number.isInteger() guard that refuses an unusable value before the limit is computed, keeping the boundary closed until js/options.js gains the parse arm. js/invent.js addinvCore1() holds the same read one level down, where the string makes a comparison false rather than deleting a refusal; that file is outside this range and is recorded as the deferral addinv-burden-read-accepts-unparsed-option.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Stone_resistance had two differently-written owners once this range added the second. js/pickup.js u_safe_from_fatal_corpse()'s st_resists arm reads the macro as (intrinsic || extrinsic), while js/invent.js activeStoneResistance(), read by will_feel_cockatrice(), added a `&& !blocked` term. youprop.h:65 defines Stone_resistance as (HStone_resistance || EStone_resistance) and carries no blocked term, unlike Blind() at :103 which does, so the invent.js copy was the wrong one. Renamed to Stone_resistance for the macro it ports and the term dropped. No behavior moved: nothing in js/ writes uprops[STONE_RES].blocked, and the development score is identical. The finder proposed one shared owner called from both files; the narrower fix was applied instead, because a per-file local property reader is the established idiom here -- a dozen files carry their own propertyActive() -- and the defect was the divergence, not the two call sites.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "A correctness finding that js/hack.js:2154's `if (ret >= 0)` is unpinned and its surviving mutant semantically inequivalent, filed as a correctness defect.",
+            "counterEvidence": "The adjudicator refuted the category, not the observation: js/hack.js:2154 reproduces hack.c:3884 `if ((ret = pickup_checks()) >= 0) return ret ? ECMD_TIME : ECMD_OK;` exactly, and the shipped code answers C's result on both squares the finding named. The only substantiated problem is absent test coverage, which the confirmed test-category finding at the same site reports; filing it twice double-counts one gap. The coverage gap was fixed. Do not reopen as a correctness defect without a source divergence in the shipped line, as opposed to a missing test."
+          },
+          {
+            "summary": "A readability finding that preflightPickupObjects()'s header overclaims by saying it holds everything C decides inside pickup_object(), lift_object(), pick_obj() and addinv() that can refuse, while shop billing is refused elsewhere.",
+            "counterEvidence": "pickup.c:1893-1941 pick_obj() contains no refusal at all: it computes robshop, calls addtobill() and remote_burglary(), and always returns addinv()'s result. There is therefore nothing C decides in pick_obj() that can refuse for the header to be missing. The port's shop stop is a port-side inability to bill, not a C decision, so the premise that one C refusal is handled in two places does not hold. Do not reopen without naming an early return or refusal inside pick_obj() in the C source."
+          },
+          {
+            "summary": "A readability finding that pickup()'s header misleads by saying every square with a second object stops before ownership changes, while the same paragraph documents autopick() lifting whole multi-object piles.",
+            "counterEvidence": "The sentence immediately before the limits list (js/pickup.js) already scopes the two arms by name -- autopick()'s, used by a level teleport arrival, and the `,` command's, for a square holding exactly one object it is allowed to take -- so the one-object restriction is attributed to `,` one line above. The list reads as the union of pickup()'s refusals, and other items in it are equally arm-specific in the opposite direction. Do not reopen without a reading that survives the preceding sentence."
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "ranges": [
+            "eeb0f46795f047d70add9fe1fec3f74899434a0c..1bb5e5f84e2d50b3ef792093513e0c35be7bc897",
+            "uncommitted audit-fix diff at 3e8f4d9"
+          ],
+          "mutants": 36,
+          "survivors": 4,
+          "byKind": {
+            "boolean": {
+              "ran": 5,
+              "killed": 4
+            },
+            "logical": {
+              "ran": 19,
+              "killed": 18
+            },
+            "relational": {
+              "ran": 12,
+              "killed": 10
+            }
+          },
+          "deltaRun": "2 mutants, 0 survivors over the audit-fix diff",
+          "finderConclusion": "The tests finder traced all four survivors. It confirmed the slice worker's classification of three of them -- js/pickup.js:595, :744 and :746, all one branch in pickup_object()'s corpse arm -- because preflightPickupObjects() refuses every corpse for which fatal_corpse_mistake() or rider_corpse_revival() would answer TRUE, so both answer FALSE for every object reaching the loop and pickup_object() returns 1 on every path. The fourth, js/hack.js:2154, was unclassified and turned out to be a real gap: it survived because on an empty square pickup() also answers 0, so `>=` and `>` agree there. A new test drives dopickup() on an empty square with MENU_TRADITIONAL, where pickup() refuses and the two spellings differ, and it kills the mutant. Three further gaps the mutation run could not see were found by reading: the nine recorded empty-square segments had no replay in npm test, preflight_dropx()'s new mergable() conjunct had no negative row, and the autopickup corpse arm this range made live had no test at all."
+        },
+        "readiness": {
+          "boundary": "Starting event: the `,` keystroke, or `#pickup` typed at the extended-command prompt. Ending events: the terrain message pickup_checks() prints for a square with nothing to take, with no turn spent; or the `<letter> - <object>` line pickup_prinv() prints for the one object the square held, with one turn spent. The real game executes both, confirmed by nine and eight recorded C segments replayed by the port (25,371 and 22,182 PRNG calls, 102 screens and 102 cursors in total), and by three development sessions that walked past the keystroke they previously stopped on.",
+          "sourceReview": "Every branch and helper reachable before the ending events was traced against nethack-c/upstream/: hack.c pickup_checks() (3788-3871) and dopickup() (3876-3891); pickup.c pickup() (672-910), query_objlist()'s counting loop and both early returns (1046-1077), all_but_uchain() (508-512), pickup_object() (1803-1888), u_safe_from_fatal_corpse() (272-284), fatal_corpse_mistake() (285-302) and rider_corpse_revival() (303-316). The trace covered state, PRNG order and the points where the game waits for input. Stubs and explicit stops were identified and are listed under completeness. Two source-fidelity errors the trace caught are recorded above: the Stone_resistance divergence, and a FOLLOW() citation naming hack.h:1243, which is the BY_NEXTHERE bit, rather than pickup.c:56-58. A third, in the goal's own forecast witness, attributed u_safe_from_fatal_corpse()'s answer for a Monk to the st_petrifies term when u_init.c:101-102 makes the st_gloves term answer first; it was corrected in commit c3e5435 before the pass ran.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Every reachable excluded branch refuses before changing state, consuming randomness or producing output, which the pass checked explicitly because a previous pass in this repository found a refusal that fired mid-transaction. Excluded and verified fail-closed: two or more allowed objects, which fall past pickup.c:1077 into sortloot() and create_nhwindow(); MENU_TRADITIONAL; a nonzero count, which `m1,` proves reachable and which the `what < 0` arm refuses; u.uswallow and pickup_checks()'s pool, lava and can_reach_floor() arms; pickup_object()'s OBJ_MINVENT, oartifact and SCR_SCARE_MONSTER arms; fatal_corpse_mistake()'s petrifying branch and rider_corpse_revival()'s revive_corpse(); shop squares, where costly_spot() would bill through pick_obj(); and, added by this pass, an unparsed pickup_burden. The two-object case is pinned by a differential matching all 2,881 PRNG calls and every screen before the keystroke, with no frame drawn for the command."
+        }
+      },
+      "recordedAt": "2026-08-10T04:30:13.041Z"
     }
   ]
 }
