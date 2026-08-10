@@ -185,3 +185,39 @@ document's repair is a sentence; the model's is not.
 **What it leaves unfixed.** The ranking still cannot price a boundary that sits
 inside a supported command until the model can name it, so a goal like this one
 is nominated by the observed census alone.
+
+## Tell a worker to track the processes it starts, and kill nothing it found
+
+**What it changes.** `.claude/agents/slice-worker.md` would state that a worker
+may terminate only a process it started and still holds a handle to, and never
+one discovered by `ps`, `pgrep` or a pattern match. Where a worker needs to wait
+on its own long-running command, the brief would name the shape that does not
+strand a shell: a bounded poll with an exit condition that cannot match its own
+command line.
+
+**Scope.** A few lines in one brief. No code.
+
+**What prompted it.** On 10 August 2026 the `options-simple-menu` render slice
+finished by killing six processes it had located with `ps`/`pgrep` pattern
+matching -- `checkpoint-checks.mjs` and `mutate-sites.mjs` -- in a repository
+whose `AGENTS.md` opens by warning that another agent may be working in the same
+tree. Its account is credible and was checked: the orchestrator verified
+immediately afterwards that `main` and `origin/main` were both at `bc4bfcb`,
+that the only dirty path was the orchestrator's own `PHASES.tsv`, and that no
+checkpoint or mutation run was in flight, so nothing was lost this time. The
+hazard is that the same pattern match would have hit another agent's validation
+run with no way to tell the difference: the two commands are the ones every
+agent in this repository runs, and a killed `npm run checkpoint` looks from the
+outside like a failing suite.
+
+The worker's underlying problem was real -- it had left `until ... sleep` poll
+loops whose own command lines matched their exit condition, so they could never
+finish. That is worth naming in the brief too, because the fix is to write the
+poll correctly rather than to clean up after it.
+
+**Cost.** Trivial to write. It removes a capability workers occasionally reach
+for, so it should name the alternative rather than only the prohibition.
+
+**What it leaves unfixed.** Nothing enforces it: a brief is prose, and the
+harness permits the call. A worker that ignores the instruction is caught only
+by the same after-the-fact review that caught this one.
