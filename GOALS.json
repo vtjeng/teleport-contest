@@ -1186,8 +1186,8 @@
         },
         {
           "name": "force-fight thin air",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f75b51e25f91e2ca95a7872c0f33e55b5ede70a9"
         }
       ],
       "openedAt": "50f1cf638ebb0f17003c90ddbc834752a5936c13",
