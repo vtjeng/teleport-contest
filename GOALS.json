@@ -1295,7 +1295,7 @@
     },
     {
       "id": "wish-name-resolution",
-      "status": "open",
+      "status": "closed",
       "boundary": "A wizard wish whose name the first rnd_otyp_by_namedesc() call misses is resolved by the rest of objnam.c readobjnam_postparse3() (4751-4899) rather than refused: its three further lookups on d->dn, d->un and d->origbp, the Japanese_items table, the ARMOR_CLASS \" mail\" retry that returns 6 into readobjnam()'s retry: label, spinach, the fruit loop against gf.ffruit, artifact.c artifact_name(), and the class-filtered spellings[] list; and a name artifact_name() matched is applied by the typfnd: d.name block (5345-5365) through do_name.c oname(). A name that reaches 4899 unmatched still stops, and every other refusal in js/objnam_readobjnam.js stands where it stands today.",
       "upstreamOwners": [
         "src/objnam.c",
@@ -1329,8 +1329,11 @@
         "screens": 1294,
         "rng": 118144
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "b81fd96bc7051cadcdab4af20895be4c0caa3c42",
+      "delivered": {
+        "screens": 69,
+        "rng": 24
+      }
     }
   ]
 }

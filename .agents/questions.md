@@ -29,3 +29,10 @@ Entry shape:
 - Question: should the selection rules admit a measured incidence-in-play figure alongside the capped development look-ahead, rather than only after the census is exhausted?
 - Provisional decision: the loop kept ranking by the census, so `dead-monster-drops-equipped-gear` stays a deferred entry rather than a goal.
 - Answer: (open)
+
+## Q3 (2026-08-10) two census-ranked boundary ports in a row have carried over nothing
+
+- Context: this extends Q2 from an argument to a measurement. Five goals have now closed with a holdout run. `pickup-command` delivered 26 development screens and moved the holdout 16. Every boundary port since has moved it zero: `force-fight-command` delivered 40 and moved nothing, and `wish-name-resolution` delivered 69 — its forecast exactly, the most accurate of the session — and moved nothing. The two sweeps between them forecast zero and delivered zero, which is correct for a sweep. So the ranking rule in `.agents/selection.md:58-62`, the capped development look-ahead, has now selected two consecutive ports that generalized not at all, and the one goal that did generalize was chosen before the calibration was noticed. The `wish-name-resolution` selection argued explicitly that the development corpus makes wishing ordinary — 34 wishes across 7 of 33 sessions, 9 of 33 sessions in `playmode:debug` — and recorded its own caveat that "ordinary in this corpus" and "ordinary in the holdout" are different populations it could not check. The holdout has now answered: they differ.
+- Question: should the capped development look-ahead stop being the primary ranking rule, given that it has selected two consecutive non-generalizing goals, and if so what replaces it — the fresh-seed census the same file admits only after the census is exhausted, or something else?
+- Provisional decision: the loop kept ranking by the rule and recorded the outcome. It did not switch instruments, because doing so would change the selection policy on its own authority.
+- Answer: (open)
