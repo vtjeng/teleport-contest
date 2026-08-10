@@ -23,6 +23,15 @@
 //   false for one only through its `!closed_door(x, y)` conjunct, and the case
 //   also pins the admission seam: an ordinary step at that door would reach
 //   test_move()'s autoopen route, and a force-fight never touches the door.
+// - ROOM_CASE, CORRIDOR_FLOOR_CASE and DOORWAY_CASE swing at thin air, which
+//   is C's else at 2318-2319 and the only arm that drops the "harmlessly ".
+//   engrave.h spot_shows_engravings() names CORR, ICE and ROOM, so the first
+//   two also stand for the squares where unmap_object() can meet an engraving;
+//   neither target carries one. The corridor square is unlit, which is where
+//   unmap_object()'s dark-room adjustment turns on its `typ == ROOM` conjunct
+//   alone. DOORWAY_CASE is CLOSED_DOOR_CASE's pair: the same DOOR terrain,
+//   accessible this time because closed_door() is false for a doorway with no
+//   door in it.
 // - DOUBLE_CASE presses `FF`. do_fight() cancels on the second press, and
 //   rhack()'s PREFIXCMD arm turns the ECMD_CANCEL into reset_cmd_vars().
 // - INVENTORY_CASE presses `Fi`. extcmdlist[]'s "inventory" row carries no
@@ -64,10 +73,18 @@ const REST = '.';
 const STONE = 0;
 const VWALL = 1;
 const DOOR = 23;
+const CORR = 24;
+const ROOM = 25;
 const FOUNTAIN = 28;
+// rm.h door states. A doorway with no door and a shut one are the two sides of
+// closed_door(), which is the only reason accessible() ever answers false for
+// DOOR terrain.
+const D_NODOOR = 0;
+const D_CLOSED = 4;
 
 // One seed per level shape. Each was chosen for the terrain beside the hero,
-// and for nothing else.
+// and for nothing else; where one level offers a second terrain the matrix
+// needs, a case reuses it rather than adding another seed.
 const WALL_SEED = 8800004;
 const FOUNTAIN_SEED = 8800000;
 const CLOSED_DOOR_SEED = 8800127;
@@ -129,8 +146,41 @@ export const FORCE_FIGHT_CASES = [
         command: 'Fl',
         target: [1, 0],
         typ: DOOR,
+        doormask: D_CLOSED,
         message: 'You harmlessly attack the closed door.',
         movesAfter: 2,
+    },
+    {
+        label: 'the room floor beside the hero',
+        seed: FOUNTAIN_SEED,
+        walk: '',
+        command: 'Fk',
+        target: [0, -1],
+        typ: ROOM,
+        message: 'You attack thin air.',
+        movesAfter: 2,
+    },
+    {
+        label: 'a corridor square beside the hero',
+        seed: CORRIDOR_SEED,
+        walk: 'jj',
+        command: 'Fh',
+        target: [-1, 0],
+        typ: CORR,
+        message: 'You attack thin air.',
+        // Two walking turns and the force-fight.
+        movesAfter: 4,
+    },
+    {
+        label: 'a doorway with no door in it',
+        seed: CORRIDOR_SEED,
+        walk: 'jj',
+        command: 'Fk',
+        target: [0, -1],
+        typ: DOOR,
+        doormask: D_NODOOR,
+        message: 'You attack thin air.',
+        movesAfter: 4,
     },
     {
         label: 'the prefix pressed twice',
@@ -233,11 +283,22 @@ export async function verifyForceFightSegment(segment) {
 
     const { u, level } = game;
     const [dx, dy] = entry.target;
-    const typ = level.at(u.ux + dx, u.uy + dy)?.typ;
+    const location = level.at(u.ux + dx, u.uy + dy);
+    const typ = location?.typ;
     if (typ !== entry.typ) {
         throw new Error(
             `${entry.label}: the target square is terrain ${typ}, not `
             + `${entry.typ}`,
+        );
+    }
+    // Only the two DOOR cases name one, because DOOR is the one terrain whose
+    // door state decides which message arm answers. rm.h:213-218 aliases
+    // doormask onto the field js/game.js calls `flags`, which is where a
+    // generated level's door state lands.
+    if (entry.doormask !== undefined && location.flags !== entry.doormask) {
+        throw new Error(
+            `${entry.label}: the target door state is ${location.flags}, `
+            + `not ${entry.doormask}`,
         );
     }
     // gt.toplines, which pline.c writes whether or not the row was repainted.

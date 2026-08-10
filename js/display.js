@@ -1640,8 +1640,11 @@ export class UnsupportedMapMemoryError extends Error {
 // erevealed test this arm performs itself -- so a square that shows an
 // engraving would need that split. spot_shows_engravings() restricts the arm
 // to CORR, ICE and ROOM, all three of them ACCESSIBLE() and none of them
-// furniture, so domove_fight_empty()'s `solid` is false on every square that
-// could reach it and its own thin-air refusal fires one call earlier.
+// furniture, so the squares that can reach it are exactly the ones
+// domove_fight_empty() calls thin air. That arm is live, so a force-fight at
+// an engraved square reaches this refusal; js/cmd.js
+// failClosedCommandRefusals() lists UnsupportedMapMemoryError, so the segment
+// ends there rather than the error escaping.
 export function unmap_object(x, y, state = game) {
     if (!state.level?.flags?.hero_memory) return;
     const location = state.level.at(x, y);

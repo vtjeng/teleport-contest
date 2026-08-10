@@ -1875,12 +1875,12 @@ function domove_fight_web(x, y, state) {
 // could come to carry one. Spelling it out would add three terms no test can
 // decide, so this note owns it instead.
 //
-// Only the solid arm at 2300-2312 is live, and only where the terrain has a
-// remembered appearance. Every other arm stops, each named below. The off-edge
-// arm at 2249-2252 is not among them: move_out_of_bounds() answers a
-// force-fight off the map before domove_core() reaches this function, so
-// `off_edge` is constantly false at the one ported call site and the variable
-// is absent.
+// Two message arms are live: the solid arm at 2300-2312, where the terrain has
+// a remembered appearance, and the thin-air arm at 2318-2319. Every other arm
+// stops, each named below. The off-edge arm at 2249-2252 is not among them:
+// move_out_of_bounds() answers a force-fight off the map before domove_core()
+// reaches this function, so `off_edge` is constantly false at the one ported
+// call site and the variable is absent.
 async function domove_fight_empty(x, y, state) {
     if (!state.context.forcefight) return false;
 
@@ -1918,9 +1918,11 @@ async function domove_fight_empty(x, y, state) {
     // digging the wall or boulder open instead, through dig.c use_pick_axe2().
     // Neither that nor dig_typ() is ported -- js/const.js:1867 carries the
     // DIGTYP_* constants and nothing else -- so the tool stops the command.
-    // This is dig_typ()'s own first test (dig.c:173) and no more: it is exactly
-    // as wide as the arm for a pick, and wider for an axe, which dig_typ()
-    // answers DIGTYP_UNDIGGABLE for anywhere but a closed door or a tree.
+    // This is dig_typ()'s own first test (dig.c:173) and no more, so it is
+    // wider than the arm it stands for. dig.c:178-191 answers
+    // DIGTYP_UNDIGGABLE for an axe anywhere but a closed door or a tree, and
+    // for a pick on ROOM and CORR, where C goes on to swing at thin air.
+    // Narrowing it needs dig_typ() ported.
     if (state.uwep
         && (is_pick(state.uwep, state) || is_axe(state.uwep, state))) {
         throw new UnsupportedHeroMoveBoundaryError(
@@ -1931,37 +1933,38 @@ async function domove_fight_empty(x, y, state) {
     // 2246-2247. `solid` is misleadingly named, as C's own comment at 2316
     // says: it catches water, lava and furniture as well as rock and walls.
     const solid = !accessible(x, y, state) || IS_FURNITURE(location.typ);
-    // 2318-2319. Anything else is thin air, which prints a line of its own and
-    // is left to a later slice. The test comes before unmap_object() below,
-    // where C makes it after, so that the memory rewrite never runs for a
-    // square this port is going to refuse.
-    if (!solid) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'force-fight against thin air',
-        );
-    }
-    // 2302-2305. Blind or not, this does not reveal terrain the hero has never
-    // seen; those squares are named "an unknown obstacle" instead, which is a
-    // message arm this slice leaves unported.
-    if (!(location.seenv || IS_STWALL(location.typ)
-          || location.typ === SDOOR || location.typ === SCORR)) {
-        throw new UnsupportedHeroMoveBoundaryError(
-            'force-fight against terrain with no remembered appearance',
-        );
-    }
 
     /* about to become known empty -- remove 'I' if present */
     unmap_object(x, y, state);
     newsym(x, y);
     // C re-reads glyph_at() here and marks it nhUse(); nothing reads it back.
 
-    const buf = the(CMAP_EXPLANATIONS[
-        glyph_to_cmap(terrain_glyph(location, x, y, state))
-    ]);
-    // 2321-2324. C selects the adverb from `boulder`, `solid` and `explo`.
-    // With no boulder, no explosion and `solid` true, the only reachable
-    // wording is this one.
-    await ttyPline(`You harmlessly attack ${buf}.`, state);
+    let buf;
+    if (solid) {
+        // 2302-2305. Blind or not, this does not reveal terrain the hero has
+        // never seen; those squares are named "an unknown obstacle" instead,
+        // which is a message arm this slice leaves unported.
+        if (!(location.seenv || IS_STWALL(location.typ)
+              || location.typ === SDOOR || location.typ === SCORR)) {
+            throw new UnsupportedHeroMoveBoundaryError(
+                'force-fight against terrain with no remembered appearance',
+            );
+        }
+        buf = the(CMAP_EXPLANATIONS[
+            glyph_to_cmap(terrain_glyph(location, x, y, state))
+        ]);
+    } else {
+        // 2318-2319. Everything accessible that is not furniture is thin air,
+        // which is ordinary floor, a corridor, ice, and a doorway with no
+        // closed door in it.
+        buf = 'thin air';
+    }
+
+    // 2321-2324. C's adverb is
+    //     !(boulder || solid) ? "" : !explo ? "harmlessly " : "futilely "
+    // `boulder` and `explo` are refused above, so `solid` alone chooses
+    // between the first two and no case can reach "futilely ".
+    await ttyPline(`You ${solid ? 'harmlessly ' : ''}attack ${buf}.`, state);
 
     nomul(0, state);
     return true;

@@ -1218,13 +1218,17 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "936915a98473b2357a307053b8c062da57f09d6b",
       "detail": "hack.c domove_fight_empty()'s thin-air arm (2318-2319) is unported: js/hack.js refuses 'force-fight against thin air' before unmap_object(). Recorded case, which fails today and must pass when that arm lands: seed 8800000, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,!autopickup / time', moves 'Fk.'. West of the hero's start is ordinary room floor. C prints 'You attack thin air.' and spends the turn; the port ends the segment at the refusal instead. The arm also needs unmap_object()'s engraving branch, which raises UnsupportedMapMemoryError, because a ROOM square is the one place spot_shows_engravings() can be true.",
       "notes": [
         {
           "text": "Correction: the ordinary room floor this case swings at is north of the hero's start, which is the direction 'Fk' names; the entry text says west.",
           "at": "936915a98473b2357a307053b8c062da57f09d6b"
+        },
+        {
+          "text": "Correction: the thin-air arm does not need unmap_object()'s engraving branch. Leaving that branch refused strictly narrows what the port refuses, and engrave.h spot_shows_engravings() is true for CORR and ICE as well as ROOM, all three of which the arm calls thin air. The engraved square is tracked separately as force-fight-engraved-square.",
+          "at": "32938e6015e391b36b2676d0f93b8b9e77e01014"
         }
       ]
     },
@@ -1245,6 +1249,15 @@
       "status": "open",
       "from": "936915a98473b2357a307053b8c062da57f09d6b",
       "detail": "uhitm.c attack_checks()'s forcefight arm (203-215) returns FALSE, so 'F' at a square that does hold a monster goes on to strike it whether or not the hero can see it; js/uhitm.js:205 refuses 'force-fight attack'. This is the case just outside the force-fight-command goal, whose boundary names it. Recorded case, which fails today and must pass when the arm lands: seed 8800009, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / !acoustics,!autopickup / time', moves 'Fh.'. A hostile fox stands immediately west of the hero's start. scripts/force-fight.test.mjs pins what the refusal must keep true meanwhile: 'Fh' leaves the segment on exactly the random-number log and screen count that 'F' alone leaves, where an unprefixed 'h' kills the fox and draws."
+    },
+    {
+      "id": "force-fight-engraved-square",
+      "area": "display",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "32938e6015e391b36b2676d0f93b8b9e77e01014",
+      "detail": "display.c unmap_object()'s engraving arm (422-426) is unported: js/display.js raises UnsupportedMapMemoryError for a square that shows an engraving, and hack.c domove_fight_empty()'s thin-air arm now reaches it, because engrave.h spot_shows_engravings() names CORR, ICE and ROOM, all three of which that arm calls thin air. Landing it needs engraving_to_glyph() and map_engraving() split out of newsym()'s engravingGlyph(), which folds in the erevealed test the arm performs itself. Recorded case, which fails today and must pass when that arm lands: seed 8800038, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,!autopickup / time', moves 'Fk.'. North of the hero's start is a room square carrying mklev.c:1151-1153's random graffito. The recorded C run prints 'You attack thin air.' on that key and runs on; the port ends the segment at the refusal, at 2458 PRNG calls and 2 screens against C's 2463 and 4."
     }
   ],
   "areas": [

@@ -4,7 +4,10 @@ import test from 'node:test';
 import {
     CORR,
     DOOR,
+    D_BROKEN,
     D_CLOSED,
+    D_ISOPEN,
+    D_NODOOR,
     ECMD_CANCEL,
     ECMD_OK,
     FOUNTAIN,
@@ -255,14 +258,67 @@ test('a force-fight puts the terrain back into map memory', async () => {
     assert.equal(location.remembered_glyph.ch, wall.ch);
 });
 
+// ── hack.c domove_fight_empty(), the thin-air arm ──
+
+// hack.c:2318-2319 is the else that names nothing at all, and it is the only
+// arm whose adverb at 2321-2322 is empty. Every terrain here is ACCESSIBLE()
+// and not IS_FURNITURE(), which is all `solid` asks.
+const THIN_AIR_TERRAIN = [
+    // Ordinary room floor, the square an 'F' is likeliest to land on.
+    { typ: ROOM },
+    // A corridor. engrave.h spot_shows_engravings() names CORR, ICE and ROOM,
+    // so these two and ROOM are also the squares unmap_object() can refuse.
+    { typ: CORR },
+    { typ: ICE },
+    // The three door states closed_door() answers FALSE for, which is what
+    // separates these from SOLID_TERRAIN's D_CLOSED entry on the same terrain.
+    { typ: DOOR, flags: D_NODOOR },
+    { typ: DOOR, flags: D_ISOPEN },
+    { typ: DOOR, flags: D_BROKEN },
+];
+
+test('a force-fight at an empty square attacks thin air', async () => {
+    for (const { typ, flags = 0 } of THIN_AIR_TERRAIN) {
+        const state = await heroInARoom();
+        targetTerrain(state, typ, { flags });
+        const label = `typ ${typ}, doormask ${flags}`;
+        const before = game.moves;
+        await forceFightWest(state);
+        // No "harmlessly ": that is C's !(boulder || solid) arm.
+        assert.equal(toplines(state), 'You attack thin air.', label);
+        assert.equal(state.context.move, 1, label);
+        assert.equal(game.moves, before, label);
+        assert.equal(state.domoveAttempting, 0, label);
+    }
+});
+
+test('a force-fight at an engraved square stops in unmap_object', async () => {
+    // display.c:422-426, which only ever runs for a square this arm calls thin
+    // air, so the whole force-fight route to it opened with the arm. The stop
+    // is display.c's rather than hack.c's, and js/cmd.js lists it, so the
+    // segment ends there instead of the error escaping.
+    const state = await heroInARoom();
+    targetTerrain(state, ROOM);
+    engraveAt(state, state.u.ux + WEST[0], state.u.uy + WEST[1]);
+    await assert.rejects(
+        () => forceFightWest(state),
+        (error) => error instanceof UnsupportedMapMemoryError,
+    );
+});
+
+test('an unseen empty square is thin air, not an unknown obstacle', async () => {
+    // C tests seenv at 2302 inside the solid arm, so an unremembered square
+    // reaches "an unknown obstacle" only when it is solid as well. A dark room
+    // square the hero has never seen is the ordinary way to be neither.
+    const state = await heroInARoom();
+    targetTerrain(state, ROOM, { seenv: 0 });
+    await forceFightWest(state);
+    assert.equal(toplines(state), 'You attack thin air.');
+});
+
 // ── hack.c domove_fight_empty(), the arms that stop ──
 
 test('a force-fight this port cannot answer stops by name', async () => {
-    // hack.c:2318-2319. Anything neither solid nor a boulder is thin air.
-    const air = await heroInARoom();
-    targetTerrain(air, ROOM);
-    await refusedWest(air, /thin air/u);
-
     // hack.c:2302-2305's else. Terrain that is neither remembered nor rock
     // nor a secret door is "an unknown obstacle".
     const unseen = await heroInARoom();
