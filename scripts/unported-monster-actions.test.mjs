@@ -1894,6 +1894,93 @@ test('a pet picking a weapon up refuses instead of crashing', async () => {
     }
 });
 
+// C ref: dogmove.c dog_hunger() (362-392), which dog_move() calls before it
+// does anything else. Every arm below the first needs an operation this port
+// does not own, and moveSimplePet() answers all three with a refusal. Without
+// those injections hungerOperation() raises a bare TypeError, which
+// js/jsmain.js does not convert, so a starving pet discards the segment's
+// matching prefix instead of ending the segment on it.
+//
+// dogmove.c:11 sets DOG_WEAK to 500 and :12 sets DOG_STARVE to 750, and
+// dog.c:76 initedog() starts hungrytime at 1000 plus the current turn, so
+// hungrytime 1000 with the turn counter past 1500 is the first turn C would
+// weaken a pet fed nothing since the game began.
+const PET_HUNGER_REFUSALS = [
+    {
+        // mhpmax 8 leaves newmhpmax 2, so the pet survives the penalty and C
+        // reaches pline_mon()/beg()/You_feel() and then stop_occupation().
+        name: 'confusion',
+        moves: 1501,
+        mhpmax: 8,
+        mhpmax_penalty: 0,
+        reason: 'pet hunger confusion',
+    },
+    {
+        // mhpmax 2 leaves newmhpmax 0, so DEADMONSTER() holds the moment the
+        // penalty applies and the same arm calls dog_starve() instead.
+        name: 'weakening that kills',
+        moves: 1501,
+        mhpmax: 2,
+        mhpmax_penalty: 0,
+        reason: 'pet starvation',
+    },
+    {
+        // A penalty already applied sends a pet DOG_STARVE turns past
+        // hungrytime -- 1000 + 750, so turn 1751 is the first -- to the last
+        // arm's dog_starve() with no penalty arithmetic in between.
+        name: 'starvation',
+        moves: 1751,
+        mhpmax: 8,
+        mhpmax_penalty: 5,
+        reason: 'pet starvation',
+    },
+];
+
+for (const arm of PET_HUNGER_REFUSALS) {
+    test(`a pet reaching dog_hunger ${arm.name} refuses instead of crashing`,
+        async () => {
+            const target = await prepareStartingPetAction(PM_PONY);
+            game.moves = arm.moves;
+            target.monster.mhp = target.monster.mhpmax = arm.mhpmax;
+            target.monster.mextra.edog.mhpmax_penalty = arm.mhpmax_penalty;
+            const before = completeSecondTurnSnapshot(game, target.replay);
+
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                await assert.rejects(
+                    preflightSimpleMonsterActions(game),
+                    (error) => (
+                        error instanceof UnsupportedSimpleMonsterActionError
+                        && error.reason === arm.reason
+                    ),
+                    `attempt ${attempt + 1}`,
+                );
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, target.replay),
+                    before,
+                    `attempt ${attempt + 1}`,
+                );
+                // dog_hunger() confuses the pet and rewrites both hit-point
+                // maxima before it reaches any of the three operations, so a
+                // live pet still at its starting values proves the refusal
+                // landed on the clone.
+                assert.equal(
+                    target.monster.mconf,
+                    false,
+                    `attempt ${attempt + 1}`,
+                );
+                assert.deepEqual(
+                    [
+                        target.monster.mhp,
+                        target.monster.mhpmax,
+                        target.monster.mextra.edog.mhpmax_penalty,
+                    ],
+                    [arm.mhpmax, arm.mhpmax, arm.mhpmax_penalty],
+                    `attempt ${attempt + 1}`,
+                );
+            }
+        });
+}
+
 test('simple monster movement continues through an ignored object',
     async () => {
         const target = await prepareSelectedAction();

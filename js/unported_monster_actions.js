@@ -753,8 +753,22 @@ async function moveSimplePet(monster, after, env) {
         petRangedAttack: pet_ranged_attk,
         redraw: env.planning ? () => {} : newsym,
         reportCursedStep: () => unsupported('pet cursed-object feedback'),
+        // C ref: dogmove.c dog_hunger() (362-392). Its middle arm confuses a
+        // pet that has gone DOG_WEAK turns past hungrytime, then announces the
+        // confusion through one of pline_mon(), beg() and You_feel() and calls
+        // stop_occupation(). Only the last of the four is ported, and it runs
+        // after the announcement, so the arm refuses at the announcement and
+        // this pair carries one refusal between them.
+        reportWeakPet: () => unsupported('pet hunger confusion'),
         resistsStone: () => unsupported('pet combat evaluation'),
         resistsTrapEffect,
+        // dogmove.c dog_starve() (340-358), which both of dog_hunger()'s
+        // starving arms call: the middle arm when the third of mhpmax it
+        // leaves the pet is below one hit point, and the last arm once the pet
+        // is DOG_STARVE turns past hungrytime. It prints through You_feel()
+        // and removes the pet with mondied(); neither is ported.
+        starvePet: () => unsupported('pet starvation'),
+        stopOccupation: () => unsupported('pet hunger interruption'),
         // steal.c relobj() and mdrop_obj() and do.c flooreffects() reach the
         // drop arm as ported functions with unported branches, so they refuse
         // through the caller's boundary class the way m_move() does.
