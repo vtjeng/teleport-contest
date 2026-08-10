@@ -1306,6 +1306,15 @@
       "status": "open",
       "from": "352e51452d8abf6f72ca302f0d0b6a4c8153ea94",
       "detail": "The C line citations in js/hack.js domove_fight_empty() and throughout scripts/force-fight.test.mjs are wrong against nethack-c/upstream/src/hack.c by up to seventeen lines, and non-uniformly: the Underwater buf arm is cited 2306-2312 and sits at 2289-2297, while the off-edge arm was cited 2249-2252 and sits at 2252-2256. js/uhitm.js attack_checks() and scripts/uhitm-to-hit.test.mjs have the same problem against uhitm.c, off by +2 near the top of the function and by -7 or -8 lower down. No single offset explains any of it. nethack-c/recorder/src/uhitm.c is byte-identical to upstream and no patch under nethack-c/patches/ touches either file, so this is not a patched-tree artifact; the citations were simply written against something else or drifted. Three consecutive slices have reported it and each corrected only the blocks it was already rewriting, which leaves the file mixed: some citations now correct, most still low, and no way for a reader to tell which without checking every one. That is worse than uniformly wrong. Close it by checking every C citation in js/hack.js, js/uhitm.js, scripts/force-fight.test.mjs and scripts/uhitm-to-hit.test.mjs against upstream in one pass and correcting all of them, so the next reader can trust a citation without verifying it. A script that extracts 'file.c:NNNN' citations and reports the ones whose named function does not span that line would make the pass repeatable."
+    },
+    {
+      "id": "dog-hunger-injections-have-no-production-supplier",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "0737e109838443a72b4f0459a8864a36887f4d34",
+      "detail": "js/dogmove.js dog_hunger() requires three injected operations, starvePet, reportWeakPet and stopOccupation, and no production code supplies any of them. Verified: grep -rn 'starvePet|reportWeakPet' js/ filtered to exclude dogmove.js returns nothing. The consequence is a fail-open, not a fail-closed stop: a starving pet in the running game throws a bare TypeError rather than a named boundary class, so js/jsmain.js does not break the segment on it and the segment's matching prefix is discarded instead of being kept. That is the failure mode the boundary classes exist to prevent, and it is worse than a refusal. Found while converging stop_occupation() onto one owner: one of the three injections is a stop_occupation() call site, but converging that one alone does not make the arm reachable, so the slice reported it rather than half-fixing it. Close it by giving each of the three a production supplier, or, if any arm is genuinely unreachable today, by replacing the injection with a named boundary class js/cmd.js failClosedCommandRefusals() and js/jsmain.js list, so the segment ends on the last matched screen instead of losing it. A fresh case needs a pet starved to the point dog_hunger() acts, which no recorded development session reaches today."
     }
   ],
   "areas": [

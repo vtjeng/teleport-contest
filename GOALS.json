@@ -1237,8 +1237,8 @@
         },
         {
           "name": "converge stop_occupation onto one owner and wire it",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0737e109838443a72b4f0459a8864a36887f4d34"
         },
         {
           "name": "pin the parsed retry that restores the fight prefix",
