@@ -1258,6 +1258,30 @@
       "status": "open",
       "from": "32938e6015e391b36b2676d0f93b8b9e77e01014",
       "detail": "display.c unmap_object()'s engraving arm (422-426) is unported: js/display.js raises UnsupportedMapMemoryError for a square that shows an engraving, and hack.c domove_fight_empty()'s thin-air arm now reaches it, because engrave.h spot_shows_engravings() names CORR, ICE and ROOM, all three of which that arm calls thin air. Landing it needs engraving_to_glyph() and map_engraving() split out of newsym()'s engravingGlyph(), which folds in the erevealed test the arm performs itself. Recorded case, which fails today and must pass when that arm lands: seed 8800038, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,!autopickup / time', moves 'Fk.'. North of the hero's start is a room square carrying mklev.c:1151-1153's random graffito. The recorded C run prints 'You attack thin air.' on that key and runs on; the port ends the segment at the refusal, at 2458 PRNG calls and 2 screens against C's 2463 and 4."
+    },
+    {
+      "id": "dig-tool-guard-refuses-where-dig_typ-answers-undiggable",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "aad772b235a9286428e3bd7fbcee7d679287bb32",
+      "detail": "js/hack.js domove_fight_empty() refuses every force-fight by a hero wielding a pick or an axe, which is dig.c:173 dig_typ()'s own first test and no more. C refuses only when dig_typ() answers something other than DIGTYP_UNDIGGABLE. dig.c:176-179 gives an axe DIGTYP_DOOR for a closed door and DIGTYP_TREE for a tree, and DIGTYP_UNDIGGABLE for every wall, rock, pool and furniture square, where C swings and spends the turn; dig.c:181-191 gives a pick DIGTYP_UNDIGGABLE on ROOM, CORR and a tree. So an axe-wielding hero who force-fights a wall gets 'You harmlessly attack the wall.' from C and a refusal from the port, and a pick-wielding hero who force-fights ordinary floor gets 'You attack thin air.' from C and a refusal from the port. The guard is fail-closed, so no wrong screen is produced; the port is narrower than C, not incorrect. The narrowing is cheap and does not need pick_can_reach() or conjoined_pits(): dig_typ()'s statue and boulder arms are already dead at this call site because the arm above refuses both first. What remains is, for is_axe(uwep), refuse only closed_door(x, y) or IS_TREE(typ); for is_pick(uwep), refuse only closed_door(x, y) or (!IS_TREE(typ) && IS_OBSTRUCTED(typ) && (!level.flags.arboreal || IS_WALL(typ))). It is a slice rather than a small fix because it makes an axe hero's swing at a wall live, which needs its own recorded C differential. scripts/force-fight.test.mjs's PICK_AXE/AXE row currently pins the port's refusal at a VWALL; its comment now says so. Close it by narrowing the guard and recording that case."
+    },
+    {
+      "id": "parsed-retry-forcefight-restore-untested",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "aad772b235a9286428e3bd7fbcee7d679287bb32",
+      "detail": "js/cmd.js captureParsedCommand() now records context.forcefight and restoreParsedCommand() restores it, so a parsed retry replays the force-fight the player typed rather than a plain walk. The path is reachable: the capture site inside rhack()'s prefix loop runs after do_fight() has set the flag. No test drives a retry through it, so the boolean mutant on the capture's  survives the whole suite. This is a coverage gap, not an unkillable mutant. Close it with a test that reaches the parsed-retry path with the fight prefix set -- a force-fight whose destination admission fails and is retried on the next segment through input.storage -- and asserts the retried command still force-fights. Found by the mutation run over the audit-fix diff for the 3e8f4d9..aad772b correctness pass.",
+      "notes": [
+        {
+          "text": "Correction: the sentence \"the boolean mutant on the capture s survives\" lost a backticked fragment to shell expansion when this entry was written. It should read: the boolean mutant on the capture object property forcefight: true survives the whole suite.",
+          "at": "aad772b235a9286428e3bd7fbcee7d679287bb32"
+        }
+      ]
     }
   ],
   "areas": [

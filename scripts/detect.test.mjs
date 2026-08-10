@@ -53,6 +53,7 @@ import {
     terrain_glyph,
     trap_glyph_info,
     unmap_invisible,
+    UnsupportedMapMemoryError,
 } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { nomul } from '../js/hack.js';
@@ -1666,9 +1667,15 @@ test('unmap_invisible answers false and refuses a remembered invisible glyph', (
 
     state.level.at(9, 9).remembered_glyph = { invisible_monster: true };
     assert.equal(glyph_is_invisible(state.level.at(9, 9)), true);
+    // The TRUE arm is `unmap_object(x, y); newsym(x, y); return TRUE;` and
+    // both callees now exist, but the arm has never run: map_invisible(), the
+    // only writer of the 'I' it clears, is unported. It refuses with a class
+    // js/cmd.js failClosedCommandRefusals() lists, so a caller ends the
+    // segment on it rather than letting a bare Error escape.
     assert.throws(
         () => unmap_invisible(9, 9, state),
-        /unmap_object\(\) is not ported/,
+        (error) => error instanceof UnsupportedMapMemoryError
+            && /map_invisible\(\)/u.test(error.message),
     );
 });
 

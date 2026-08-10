@@ -1541,18 +1541,20 @@ export function glyph_is_invisible(location) {
  * every adjacent square with no monster on it, to clear the remembered 'I' of
  * an invisible monster which has since moved away.
  *
- * Only the FALSE arm is ported.  The TRUE arm needs display.c unmap_object(),
- * which is not ported, so it throws rather than leaving stale memory behind.
- * It is unreachable today: glyph_is_invisible() cannot answer TRUE while
- * map_invisible(), its only writer, is unported.
+ * Only the FALSE arm is ported.  The TRUE arm is `unmap_object(x, y);
+ * newsym(x, y); return TRUE;`, and both callees now exist in this file, but
+ * it is unreachable and stays unwritten: glyph_is_invisible() cannot answer
+ * TRUE while map_invisible(), its only writer, is unported, so the arm has
+ * never run and nothing would exercise it.  It throws rather than leaving
+ * stale memory behind.
  */
 export function unmap_invisible(x, y, state = game) {
     if (!isok(x, y)) return false;
     const location = state.level?.at?.(x, y);
     if (!glyph_is_invisible(location)) return false;
-    throw new Error(
-        'unmap_invisible cannot clear a remembered invisible monster: '
-        + 'unmap_object() is not ported',
+    throw new UnsupportedMapMemoryError(
+        'clearing a remembered invisible monster, which needs map_invisible() '
+        + 'to have written one',
     );
 }
 

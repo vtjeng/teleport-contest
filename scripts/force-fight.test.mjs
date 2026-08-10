@@ -300,10 +300,18 @@ test('a force-fight at an engraved square stops in unmap_object', async () => {
     const state = await heroInARoom();
     targetTerrain(state, ROOM);
     engraveAt(state, state.u.ux + WEST[0], state.u.uy + WEST[1]);
+    // The class alone does not pin where unmap_object() sits. C calls it at
+    // 2280-2285, ahead of every message arm, so the stop must land before any
+    // line is written or any cell repainted; moving it below the arms would
+    // print first and still throw this class.
+    const before = toplines(state);
+    const painted = target(state).remembered_glyph;
     await assert.rejects(
         () => forceFightWest(state),
         (error) => error instanceof UnsupportedMapMemoryError,
     );
+    assert.equal(toplines(state), before);
+    assert.equal(target(state).remembered_glyph, painted);
 });
 
 test('an unseen empty square is thin air, not an unknown obstacle', async () => {
@@ -323,7 +331,15 @@ test('a force-fight this port cannot answer stops by name', async () => {
     // nor a secret door is "an unknown obstacle".
     const unseen = await heroInARoom();
     targetTerrain(unseen, POOL, { seenv: 0 });
+    // C reaches its "an unknown obstacle" arm after unmap_object() and
+    // newsym() have run. The port refuses instead, so the test has to run
+    // first: a refusal placed where C puts the test would fire with map memory
+    // and the display buffer already rewritten, ending the segment on a screen
+    // the port had diverged from. Assert the square is untouched.
+    const painted = target(unseen).remembered_glyph;
     await refusedWest(unseen, /no remembered appearance/u);
+    assert.equal(target(unseen).remembered_glyph, painted);
+    assert.equal(toplines(unseen), '');
 
     // hack.c:2255-2260 and 2314. objnam.c ansimpleoname() names the boulder
     // or the statue, and has no port.
@@ -341,8 +357,12 @@ test('a force-fight this port cannot answer stops by name', async () => {
         await refusedWest(state, /boulder or statue/u);
     }
 
-    // hack.c:2266-2273. dig.c use_pick_axe2() digs instead of swinging, and
-    // dig_typ()'s own first test is is_pick() or is_axe().
+    // hack.c:2266-2273. dig.c use_pick_axe2() digs instead of swinging, but
+    // only when dig_typ() answers something other than DIGTYP_UNDIGGABLE. At
+    // a VWALL it answers UNDIGGABLE for an axe (dig.c:176-179 gives an axe
+    // only a closed door or a tree), so C swings here and the port refuses.
+    // This row pins the port's refusal, not C's behavior; the divergence is
+    // recorded as dig-tool-guard-refuses-where-dig_typ-answers-undiggable.
     for (const otyp of [PICK_AXE, AXE]) {
         const state = await heroInARoom();
         targetTerrain(state, VWALL);
@@ -584,6 +604,23 @@ test('unmap_object darkens an unlit room square it just repainted',
         );
         assert.equal(unmapTarget(lit).remembered_glyph.ch, room.ch);
         assert.notEqual(room.ch, map_background_probe(lit));
+
+        // The negative case for the conjunct the port substituted for C's
+        // `lev->glyph == cmap_to_glyph(S_room)` compare. Varying waslit alone
+        // cannot show that `typ === ROOM` is doing any work: an unlit CORR
+        // must keep its own terrain, not go dark.
+        for (const typ of [CORR, FOUNTAIN]) {
+            const other = await heroWithATargetSquare(typ);
+            target(other).waslit = false;
+            const own = terrain_glyph(
+                target(other), other.u.ux + WEST[0], other.u.uy + WEST[1],
+                other,
+            );
+            assert.equal(
+                unmapTarget(other).remembered_glyph.ch, own.ch, `typ ${typ}`,
+            );
+            assert.notEqual(own.ch, map_background_probe(other), `typ ${typ}`);
+        }
     });
 
 test('unmap_object stops on a square that shows an engraving', async () => {
@@ -712,4 +749,119 @@ test('the same key without the prefix still reaches its own refusal',
             moves: 'q',
         }, { onBoundary: (error) => { boundary = error; } });
         assert.ok(boundary instanceof UnsupportedHeroCommandBoundaryError);
+    });
+
+// cmd.c rhack():3766 is `prefix_seen = tlist`, an assignment rather than a
+// first-wins latch, so the second prefix of a pair is the one its refusal
+// line names. `Fmi` and `mFi` differ only in that order and name different
+// prefixes, which is what pins the assignment. `i` has a handler, so it takes
+// cmd.c:3714's "does not accept" line rather than :3703's.
+const PREFIX_PAIR_ROWS = [
+    // `i` is dodroptypes/inventory, which carries neither prefix flag, so the
+    // refusal fires and names whichever prefix was seen last.
+    ['Fmi', "The inventory command does not accept 'm' prefix."],
+    ['mFi', "The inventory command does not accept 'F' prefix."],
+];
+
+test('the second prefix of a pair is the one the refusal names', async () => {
+    for (const [moves, message] of PREFIX_PAIR_ROWS) {
+        let boundary = null;
+        await runSegment({
+            seed: 8800004,
+            datetime: '20310203040506',
+            nethackrc: 'OPTIONS=name:Forcer,role:Valkyrie,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics,!autopickup',
+            moves,
+        }, { onBoundary: (error) => { boundary = error; } });
+        assert.equal(boundary, null, moves);
+        assert.equal(game._ttyToplines, message, moves);
+    }
+});
+
+// The route a prefixed `G` takes. Only a command's first byte passes
+// readSimpleCommand()'s ADMITTED_COMMANDS gate, so `FG` reads `G`, finds its
+// row, and passes the PREFIXCMD exemption exactly as it does in C; the arm
+// that refuses it is the bound-command-without-a-handler one, because
+// MOVEMENT_INTENTS has no `run` row. Removing that arm would turn this into an
+// unknown-command message or worse.
+test('a run command after a prefix is refused at the movement seam',
+    async () => {
+        let boundary = null;
+        await runSegment({
+            seed: 8800004,
+            datetime: '20310203040506',
+            nethackrc: 'OPTIONS=name:Forcer,role:Valkyrie,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics,!autopickup',
+            moves: 'FG',
+        }, { onBoundary: (error) => { boundary = error; } });
+        assert.ok(boundary instanceof UnsupportedHeroCommandBoundaryError);
+        assert.equal(boundary.key, 'G'.charCodeAt(0));
+        // Refused before anything was drawn or any turn spent: the welcome
+        // line the segment opened with is still the last thing written, so
+        // neither a prefix refusal nor an unknown-command line went out.
+        assert.match(game._ttyToplines, /welcome to NetHack!/u);
+        assert.equal(game.context.move, 0);
+    });
+
+// uhitm.c:462 splits do_attack() on `is_safemon(mtmp) && !svc.context
+// .forcefight`, so `F` aimed at the starting pet takes the attack arm, where
+// attack_checks() stops it, rather than the displacement arm that swaps places
+// with it. Nothing end to end can tell the two apart yet, because both arms
+// refuse, so the seam is pinned directly: the same pet, the same square, and
+// only the flag differing.
+test('force-fight sends the starting pet down the attack arm', async () => {
+    // A segment with a pet, unlike heroInARoom()'s pettype:none hero, and
+    // safe_pet on so is_safemon() can answer TRUE.
+    await runSegment({
+        seed: 8802001,
+        datetime: '20310203040506',
+        nethackrc: 'OPTIONS=name:Forcer,role:Valkyrie,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,!acoustics,!autopickup',
+        moves: '',
+    });
+    const state = game;
+    let pet = state.level.monlist;
+    while (pet && pet.m_id !== state.context.startingpet_mid) pet = pet.nmon;
+    assert.ok(pet, 'the segment generated no starting pet');
+    assert.equal(state.flags.safe_dog, true);
+
+    // Untame it while leaving it peaceful, so is_safemon() still answers TRUE
+    // and only the two arms differ in what they accept: the displacement arm
+    // refuses anything but an ordinary starting pet, while the melee arm takes
+    // a peaceful target the same way it takes a hostile one. Without that, both
+    // arms accept this monster and the seam is invisible.
+    pet.mtame = 0;
+
+    // Without the flag: the displacement arm, which no longer recognizes it.
+    state.context.forcefight = 0;
+    assert.throws(
+        () => preflightDomoveDestination(pet.mx, pet.my, state),
+        (error) => error instanceof UnsupportedHeroMoveBoundaryError,
+    );
+
+    // With it: the melee arm, which accepts it and raises nothing.
+    state.context.forcefight = 1;
+    preflightDomoveDestination(pet.mx, pet.my, state);
+});
+
+// cmd.c:3791 clears svc.context.forcefight in the DOMOVE_WALK arm, and rhack()
+// picks that arm from gd.domove_attempting, which do_fight() set, not from the
+// direction command's own run value. `L` carries run 3, so the two sources
+// disagree only here: reading the run value would take the rush arm, leave the
+// flag set, and turn the next unprefixed key into a second force-fight.
+test('a prefixed capital direction still clears the fight prefix',
+    async () => {
+        await runSegment({
+            seed: 8802001,
+            datetime: '20310203040506',
+            nethackrc: 'OPTIONS=name:Forcer,role:Valkyrie,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics,!autopickup',
+            moves: 'mFL',
+        });
+        assert.equal(game.context.forcefight, 0);
+        assert.equal(game.iflags.menu_requested, false);
     });

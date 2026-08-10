@@ -1915,14 +1915,22 @@ async function domove_fight_empty(x, y, state) {
         );
     }
     // 2264-2273. A hero who force-fights while wielding a digging tool starts
-    // digging the wall or boulder open instead, through dig.c use_pick_axe2().
-    // Neither that nor dig_typ() is ported -- js/const.js:1867 carries the
-    // DIGTYP_* constants and nothing else -- so the tool stops the command.
+    // digging instead, through dig.c use_pick_axe2(), but only when dig_typ()
+    // answers something other than DIGTYP_UNDIGGABLE. Neither function is
+    // ported -- js/const.js:1867 carries the DIGTYP_* constants and nothing
+    // else -- so the tool stops the command.
+    //
     // This is dig_typ()'s own first test (dig.c:173) and no more, so it is
-    // wider than the arm it stands for. dig.c:178-191 answers
-    // DIGTYP_UNDIGGABLE for an axe anywhere but a closed door or a tree, and
-    // for a pick on ROOM and CORR, where C goes on to swing at thin air.
-    // Narrowing it needs dig_typ() ported.
+    // wider than the arm it stands for, and wider than the comment here once
+    // claimed. dig.c:176-179 gives an axe DIGTYP_DOOR for a closed door and
+    // DIGTYP_TREE for a tree, and DIGTYP_UNDIGGABLE for everything else --
+    // every wall, rock, pool and furniture square included, where C swings and
+    // spends the turn. dig.c:181-191 gives a pick DIGTYP_UNDIGGABLE on ROOM,
+    // CORR and a tree. The statue and boulder arms at 181-184 are already dead
+    // here, because the arm above refuses both before this line. Narrowing the
+    // guard to dig_typ()'s answer would make an axe-wielding hero's swing at a
+    // wall live, which is new behavior needing its own recorded case; it is
+    // deferred as dig-tool-guard-refuses-where-dig_typ-answers-undiggable.
     if (state.uwep
         && (is_pick(state.uwep, state) || is_axe(state.uwep, state))) {
         throw new UnsupportedHeroMoveBoundaryError(
@@ -1934,6 +1942,24 @@ async function domove_fight_empty(x, y, state) {
     // says: it catches water, lava and furniture as well as rock and walls.
     const solid = !accessible(x, y, state) || IS_FURNITURE(location.typ);
 
+    // 2302-2305 decides this, below, but the test has to be read here. Blind
+    // or not, C does not reveal terrain the hero has never seen; it names such
+    // a square "an unknown obstacle" instead, which is a message arm this port
+    // leaves unported. C reaches that arm after unmap_object() and newsym()
+    // have run, so putting the port's refusal where C puts the test would let
+    // it fire after map memory and the display buffer had already been
+    // rewritten -- a stop that has changed state, which ends the segment on a
+    // screen the port has already diverged from. It is hoisted instead, which
+    // is the one place the port deliberately departs from C's order, and only
+    // on the arm it refuses.
+    if (solid
+        && !(location.seenv || IS_STWALL(location.typ)
+             || location.typ === SDOOR || location.typ === SCORR)) {
+        throw new UnsupportedHeroMoveBoundaryError(
+            'force-fight against terrain with no remembered appearance',
+        );
+    }
+
     /* about to become known empty -- remove 'I' if present */
     unmap_object(x, y, state);
     newsym(x, y);
@@ -1941,15 +1967,6 @@ async function domove_fight_empty(x, y, state) {
 
     let buf;
     if (solid) {
-        // 2302-2305. Blind or not, this does not reveal terrain the hero has
-        // never seen; those squares are named "an unknown obstacle" instead,
-        // which is a message arm this slice leaves unported.
-        if (!(location.seenv || IS_STWALL(location.typ)
-              || location.typ === SDOOR || location.typ === SCORR)) {
-            throw new UnsupportedHeroMoveBoundaryError(
-                'force-fight against terrain with no remembered appearance',
-            );
-        }
         buf = the(CMAP_EXPLANATIONS[
             glyph_to_cmap(terrain_glyph(location, x, y, state))
         ]);

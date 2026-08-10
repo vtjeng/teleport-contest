@@ -792,10 +792,13 @@ const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
 // cmd.c:1606 sets 3, the same value do_rush_<dir> sets, so this list cannot
 // tell a `G` run from a ctrl-direction rush.
 //
-// The seam that keeps them out survived the arrival of PREFIXCMD dispatch:
-// ADMITTED_COMMANDS omits `rush` and `run`, so neither key can start a command,
-// and rhack()'s prefix loop steps only into the two prefixes named there, so
-// neither can follow one either.
+// Two seams keep them out, and PREFIXCMD dispatch added the second.
+// ADMITTED_COMMANDS omits `rush` and `run`, so neither key can start a
+// command. A prefixed one is a different route: only the first byte of a
+// command passes that gate, so `FG` and `mG` read `G`, find its row, and pass
+// the PREFIXCMD exemption below exactly as they do in C. They are refused
+// further down, at the bound-command-without-a-handler arm, because
+// MOVEMENT_INTENTS has no row for `run`.
 export const ADMITTED_RUN_MODES = Object.freeze([0, 1, 3]);
 
 // A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s
@@ -994,9 +997,12 @@ async function executeMovement(command, key, firstTime, state) {
 // pendingCommand owns either one rejected physical byte which has not entered
 // cmd.c parsing, or the complete parsed state needed to retry a destination
 // admission failure. Parser UI state is deliberately absent because neither
-// kind of retry resumes inside get_count(). A parsed retry does retain the
-// reqmenu effect: rhack() has already consumed the prefix byte, so no later
-// input can reconstruct it before set_move_cmd() copies it to context.nopick.
+// kind of retry resumes inside get_count(). A parsed retry retains the effect
+// of every prefix this port owns, because rhack() has already consumed the
+// prefix byte and no later input can reconstruct it: the reqmenu effect before
+// set_move_cmd() copies it to context.nopick, and the fight effect, which is
+// context.forcefight itself. Dropping either would replay the direction key as
+// a plain walk, which is a different command from the one the player typed.
 function captureParsedCommand(key, state) {
     return {
         phase: 'parsed',
@@ -1005,6 +1011,7 @@ function captureParsedCommand(key, state) {
         lastCommandCount: state.lastCommandCount,
         multi: state.multi,
         ...(state.iflags?.menu_requested ? { menuRequested: true } : {}),
+        ...(state.context?.forcefight ? { forcefight: true } : {}),
     };
 }
 
@@ -1014,6 +1021,7 @@ function restoreParsedCommand(pending, state) {
     state.lastCommandCount = pending.lastCommandCount;
     state.multi = pending.multi;
     state.iflags.menu_requested = Boolean(pending.menuRequested);
+    state.context.forcefight = pending.forcefight ? 1 : 0;
     return pending.key;
 }
 
@@ -1936,9 +1944,12 @@ export async function rhack(key, state = game) {
             return;
         }
         if (command !== null) {
-            // A bound command whose handler the port excludes. The
-            // fresh-read seam above rejects it before parsing; reaching here
-            // means a repeat supplied it as logical input.
+            // A bound command whose handler the port excludes. Two routes
+            // reach here. A repeat can supply it as logical input, and a
+            // prefix can: only a command's first byte passes the fresh-read
+            // seam above, so `FG` and `mG` read `G`, pass the PREFIXCMD
+            // exemption, and arrive with no MOVEMENT_INTENTS row. This arm is
+            // what keeps `run` and `rush` out of the port on that route.
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
                 ADMITTED_BOUNDARY,

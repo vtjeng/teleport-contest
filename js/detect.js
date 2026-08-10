@@ -621,7 +621,9 @@ function preflightExplicitSearch(env) {
             if (monster) {
                 preflightSearchMonster(monster, env);
             } else if (glyph_is_invisible(location)) {
-                // unmap_invisible()'s TRUE arm needs unmap_object().
+                // unmap_invisible()'s TRUE arm is unwritten because
+                // map_invisible(), the only writer of the 'I' it clears, is
+                // unported, so the arm has never run.
                 throw new UnsupportedSearchError(
                     'clearing a remembered invisible monster is not ported',
                 );
