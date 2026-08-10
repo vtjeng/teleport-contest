@@ -1181,8 +1181,8 @@
       "slices": [
         {
           "name": "force-fight a remembered wall",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "a36e9cf851cf767f78801a46f39d4676a54edbe0"
         }
       ],
       "openedAt": "50f1cf638ebb0f17003c90ddbc834752a5936c13",
