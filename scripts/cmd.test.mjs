@@ -2076,6 +2076,95 @@ test('retried reqmenu movement retains its no-pick prefix', async () => {
     assert.equal(game.context.pendingCommand, undefined);
 });
 
+// The `F` sibling of the test above. The prefix effect the retry has to carry
+// is context.forcefight itself, and executeMovement()'s catch runs
+// resetCommandVars() on the refusal, so the live flag is 0 by the time the
+// next attempt starts: only captureParsedCommand()/restoreParsedCommand() can
+// put it back. Replayed as a plain walk instead, the same keystroke steps onto
+// the square rather than swinging at it, which is the difference the last
+// three assertions read.
+test('retried fight movement retains its force-fight prefix', async () => {
+    const replay = await runSegment({
+        // This independent seed supplies an ordinary adjacent square; the
+        // test replaces its contents so only retry ownership varies.
+        seed: 840006,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:PendingFightMove,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!autopickup',
+        moves: '',
+    });
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+    resetCommandVars(game);
+    const start = [game.u.ux, game.u.uy];
+    const x = start[0] + 1;
+    const y = start[1];
+    const east = game.level.at(x, y);
+    east.typ = ROOM;
+    east.flags = east.doormask = 0;
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.objects[x][y] = null;
+    game.level.traps = [];
+    game.level.regions = [];
+    game.head_engr = null;
+    // preflightDomoveDestination()'s forcefight arm admits every empty square,
+    // so a destination monster is the only admission failure a force-fight can
+    // reach. An undetected one is the monster the seam still refuses under the
+    // prefix, where a spotted hostile would be attacked and would draw. The
+    // species is immaterial -- hack.c domove_attackmon_at():1968 reads the
+    // mundetected flag -- so a newt keeps the placement cheap.
+    const hidden = newMonster({
+        m_id: 840601,
+        mx: x,
+        my: y,
+        mhp: 3,
+        mcanmove: true,
+        data: game.mons[PM_NEWT],
+    });
+    hidden.mundetected = 1;
+    game.level.monsters[x][y] = hidden;
+    game.level.monlist = hidden;
+    game.nhDisplay.pushKey(commandKeyCode('F'));
+    // `l` names the prepared square one column east of the hero.
+    game.nhDisplay.pushKey(commandKeyCode('l'));
+
+    let pendingCommand = null;
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            moveloop_core(),
+            (error) => (
+                error instanceof UnsupportedHeroMoveBoundaryError
+                && error.reason === 'attacking a hidden monster'
+            ),
+        );
+        assert.equal(game.context.pendingCommand.key, commandKeyCode('l'));
+        assert.equal(game.context.pendingCommand.forcefight, true);
+        // The refusal reset the live flag, so the capture is the only record
+        // of the prefix left when the next attempt reads it back.
+        assert.equal(game.context.forcefight, 0);
+        if (pendingCommand === null) {
+            pendingCommand = structuredClone(game.context.pendingCommand);
+        } else {
+            assert.deepEqual(game.context.pendingCommand, pendingCommand);
+        }
+        assert.deepEqual([game.u.ux, game.u.uy], start);
+        assert.deepEqual(replay.getRngSlices().at(-1), []);
+    }
+
+    game.level.monsters[x][y] = null;
+    game.level.monlist = null;
+    await moveloop_core();
+
+    // hack.c domove_fight_empty()'s thin-air arm (2314-2316): the swing spends
+    // the turn where the square is accessible and holds nothing, and the hero
+    // stays put. A retry that lost the prefix would have walked onto it in
+    // silence instead.
+    assert.deepEqual([game.u.ux, game.u.uy], start);
+    assert.equal(game._ttyToplines, 'You attack thin air.');
+    assert.equal(game.context.pendingCommand, undefined);
+});
+
 test('simple hero movement admits empty room and corridor controls',
     async () => {
         for (const terrain of [ROOM, CORR]) {

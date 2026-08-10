@@ -1279,7 +1279,7 @@
       "area": "commands",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "aad772b235a9286428e3bd7fbcee7d679287bb32",
       "detail": "js/cmd.js captureParsedCommand() now records context.forcefight and restoreParsedCommand() restores it, so a parsed retry replays the force-fight the player typed rather than a plain walk. The path is reachable: the capture site inside rhack()'s prefix loop runs after do_fight() has set the flag. No test drives a retry through it, so the boolean mutant on the capture's  survives the whole suite. This is a coverage gap, not an unkillable mutant. Close it with a test that reaches the parsed-retry path with the fight prefix set -- a force-fight whose destination admission fails and is retried on the next segment through input.storage -- and asserts the retried command still force-fights. Found by the mutation run over the audit-fix diff for the 3e8f4d9..aad772b correctness pass.",
       "notes": [
