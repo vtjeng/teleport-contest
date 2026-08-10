@@ -1246,7 +1246,7 @@
       "area": "commands",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "936915a98473b2357a307053b8c062da57f09d6b",
       "detail": "uhitm.c attack_checks()'s forcefight arm (203-215) returns FALSE, so 'F' at a square that does hold a monster goes on to strike it whether or not the hero can see it; js/uhitm.js:205 refuses 'force-fight attack'. This is the case just outside the force-fight-command goal, whose boundary names it. Recorded case, which fails today and must pass when the arm lands: seed 8800009, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / !acoustics,!autopickup / time', moves 'Fh.'. A hostile fox stands immediately west of the hero's start. scripts/force-fight.test.mjs pins what the refusal must keep true meanwhile: 'Fh' leaves the segment on exactly the random-number log and screen count that 'F' alone leaves, where an unprefixed 'h' kills the fox and draws."
     },

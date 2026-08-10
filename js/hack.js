@@ -1194,8 +1194,9 @@ function requireOrdinaryHostileMelee(monster) {
 // The destination-monster seam. C splits by `is_safemon(mtmp) &&
 // !svc.context.forcefight` inside do_attack() (uhitm.c:462); this splits the
 // same way, because the two arms have nothing in common below that test. The
-// forcefight conjunct is what sends `F` at a pet down the attack arm, where
-// attack_checks() stops it, instead of down the displacement arm.
+// forcefight conjunct is what sends `F` at a pet down the attack arm instead
+// of down the displacement arm, so the prefix swings at the pet rather than
+// swapping places with it.
 function requireSupportedDestinationMonster(monster, x, y, state) {
     requireNoMonsterBump(monster, state);
     if (!is_safemon(monster, state) || state.context?.forcefight) {

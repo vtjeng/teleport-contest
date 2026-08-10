@@ -474,7 +474,7 @@ test('the admission seam lets a force-fight past the terrain rules',
         );
     });
 
-// ── uhitm.c attack_checks(), the arm just outside this slice ──
+// ── uhitm.c attack_checks(), the arm that sends `F` at a monster ──
 
 // Seed 8800009's D:1 puts a hostile monster immediately west of the hero's
 // start. It was found by generating the level with the port and reading the
@@ -484,40 +484,51 @@ const MONSTER_RC = 'OPTIONS=name:Forcer,role:Valkyrie,race:human,'
     + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
     + '!acoustics,!autopickup';
 
-// The random-number log and the screen list belong to the running game, not
-// to the object runSegment() returns, so each measurement is read before the
-// next segment starts.
+// The random-number log, the screen list and gt.toplines belong to the running
+// game, not to the object runSegment() returns, so each measurement is read
+// before the next segment starts.
 async function monsterSeedSegment(moves) {
+    let boundary = null;
     const replay = await runSegment({
         seed: MONSTER_SEED,
         datetime: '20310203040506',
         nethackrc: MONSTER_RC,
         moves,
-    }, { onBoundary: () => {} });
+    }, { onBoundary: (error) => { boundary = error; } });
     return {
-        rng: replay.getRngLog().length,
+        rng: replay.getRngLog(),
         screens: replay.getScreens().length,
+        boundary,
+        toplines: game._ttyToplines ?? '',
     };
 }
 
-test('a force-fight at a monster refuses before anything happens',
-    async () => {
-        // uhitm.c:203-215 returns FALSE for svc.context.forcefight, sending
-        // the hero on to strike a monster she may not be able to see. That is
-        // the next slice. The stop has to come before the frame, the
-        // random-number call and the state change an attack would make, so
-        // pressing the direction key after `F` must leave the segment exactly
-        // where `F` alone left it.
-        const prefixOnly = await monsterSeedSegment('F');
-        const refused = await monsterSeedSegment('Fh');
-        assert.equal(refused.rng, prefixOnly.rng);
-        assert.equal(refused.screens, prefixOnly.screens);
+test('a force-fight at a monster strikes it', async () => {
+    // uhitm.c:201-214 returns FALSE for svc.context.forcefight, so the swing
+    // lands exactly as an unprefixed step into the same square would. The
+    // prefix's other consumers along this path cannot separate the two: the
+    // is_safemon() gate at 462 and hack.c:2791's nomul(0) already take the
+    // hostile arm without it, mon.c wakeup()'s arm at 4344 needs an
+    // undetected target, and the atk_done tail at 577-580 needs one the hero
+    // cannot spot. So `Fh` has to draw the same numbers in the same order as
+    // `h` and print the same line.
+    const prefixed = await monsterSeedSegment('Fh');
+    const plain = await monsterSeedSegment('h');
+    assert.equal(prefixed.boundary, null);
+    assert.deepEqual(prefixed.rng, plain.rng);
+    assert.equal(prefixed.toplines, 'You kill the fox!');
+    assert.equal(plain.toplines, prefixed.toplines);
 
-        // The same keystroke without the prefix does attack, so the equality
-        // above is a property of the refusal rather than of the square.
-        const attacked = await monsterSeedSegment('h');
-        assert.ok(attacked.rng > prefixOnly.rng);
-    });
+    // The prefix on its own draws nothing and spends no turn, so the equality
+    // above is the attack's doing rather than the square's.
+    const prefixOnly = await monsterSeedSegment('F');
+    assert.ok(prefixOnly.rng.length < prefixed.rng.length);
+    // One more screen than `h`, because `F` waits for the direction key, and
+    // one more than `F`, because the swing repaints. Both counts move if the
+    // step stops early.
+    assert.equal(prefixed.screens, plain.screens + 1);
+    assert.equal(prefixed.screens, prefixOnly.screens + 1);
+});
 
 // ── display.c unmap_object() and map_background() ──
 

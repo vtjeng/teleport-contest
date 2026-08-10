@@ -43,13 +43,21 @@
 //   prefix may follow a prefix, and was_m_prefix latches on do_reqmenu()
 //   whichever order they arrive in, so both orders end in the same swing.
 //
+// - MISS_MONSTER_CASE and KILL_MONSTER_CASE swing at a hostile monster, which
+//   uhitm.c do_attack() claims before any of the arms above can see the
+//   square. Both select the arm that attack_checks()'s force-fight one returns
+//   above, so the line the matrix reads is a melee line rather than a terrain
+//   one. The first leaves its target alive, which is missum(); the second
+//   takes hmon() through the kill. Neither names a terrain.
+//
 // Every case ends with `.` so that the turn the force-fight spends, and the
 // turn the three prefix refusals do not, both show up in the status line's T:
 // field as well as in the length of the random-number log.
 //
 // Seeds were found by generating D:1 with the port and reading the terrain
-// around the hero's start, and around the end of a short straight walk; no
-// recorded session was read.
+// around the hero's start, around the end of a short straight walk, and, for
+// the last two cases, the four squares beside the start; no recorded session
+// was read.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -89,6 +97,11 @@ const WALL_SEED = 8800004;
 const FOUNTAIN_SEED = 8800000;
 const CLOSED_DOOR_SEED = 8800127;
 const CORRIDOR_SEED = 8800032;
+// The two levels with a hostile monster next to the hero's start. The fox
+// survives the swing and the newt does not, which is the only difference the
+// two cases are chosen for.
+const FOX_SEED = 8800009;
+const NEWT_SEED = 8800038;
 
 function nethackrc() {
     return [
@@ -235,6 +248,25 @@ export const FORCE_FIGHT_CASES = [
         message: 'You harmlessly attack the wall.',
         movesAfter: 2,
     },
+    {
+        label: 'a hostile monster that survives the swing',
+        seed: FOX_SEED,
+        walk: '',
+        command: 'Fh',
+        // The line names the species, so it is already the evidence that a
+        // monster stood on the square: an empty one would have taken a
+        // domove_fight_empty() arm above instead.
+        message: 'You miss the fox.',
+        movesAfter: 2,
+    },
+    {
+        label: 'a hostile monster the swing kills',
+        seed: NEWT_SEED,
+        walk: '',
+        command: 'Fh',
+        message: 'You kill the newt!',
+        movesAfter: 2,
+    },
 ];
 
 // The keystrokes up to and including the command, which is where the message
@@ -272,15 +304,8 @@ function caseForSegment(segment) {
     return found;
 }
 
-export async function verifyForceFightSegment(segment) {
-    const entry = caseForSegment(segment);
-    let boundary = null;
-    await runSegment(
-        { ...segment, moves: keysThroughFight(entry) },
-        { onBoundary: (error) => { boundary = error; } },
-    );
-    if (boundary) throw boundary;
-
+// The square the case names, read off the level the replay above left behind.
+function verifyTargetTerrain(entry) {
     const { u, level } = game;
     const [dx, dy] = entry.target;
     const location = level.at(u.ux + dx, u.uy + dy);
@@ -301,6 +326,21 @@ export async function verifyForceFightSegment(segment) {
             + `not ${entry.doormask}`,
         );
     }
+}
+
+export async function verifyForceFightSegment(segment) {
+    const entry = caseForSegment(segment);
+    let boundary = null;
+    await runSegment(
+        { ...segment, moves: keysThroughFight(entry) },
+        { onBoundary: (error) => { boundary = error; } },
+    );
+    if (boundary) throw boundary;
+
+    // The two monster cases claim no terrain: uhitm.c do_attack() answers
+    // their square whatever it is made of, so naming its type would pin
+    // something the case does not depend on.
+    if (entry.typ !== undefined) verifyTargetTerrain(entry);
     // gt.toplines, which pline.c writes whether or not the row was repainted.
     const toplines = game._ttyToplines ?? '';
     if (toplines !== entry.message) {

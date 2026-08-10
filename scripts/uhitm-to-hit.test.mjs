@@ -157,7 +157,7 @@ test('attack_checks admits an ordinary hostile and clears its wait strategy',
         await hero();
         const lichen = target(PM_LICHEN, { mstrategy: STRAT_WAITMASK | 0x40 });
         assert.equal(attack_checks(lichen, game.uwep, game, REFUSING), false);
-        // uhitm.c:195 clears STRAT_CLOSE and STRAT_WAITFORU and leaves the
+        // uhitm.c:196 clears STRAT_CLOSE and STRAT_WAITFORU and leaves the
         // rest of mstrategy alone.
         assert.equal(lichen.mstrategy, 0x40);
     });
@@ -169,10 +169,17 @@ test('attack_checks stops on each state it cannot report', async () => {
             game.u.uswallow = 1;
             game.u.ustuck = mtmp;
         }],
-        ['force-fight attack', () => { game.context.forcefight = 1; }],
+        // A forced blow at a target the hero cannot spot is the one case that
+        // would reach do_attack()'s unported atk_done tail, so it stops in the
+        // arm above rather than in the unseen-monster arm below.
+        ['force-fight at a monster the hero cannot spot', (mtmp) => {
+            game.context.forcefight = 1;
+            mtmp.mx = 0;
+            mtmp.my = 0;
+        }],
         ['attacking an unseen monster', (mtmp) => { mtmp.mx = 0; mtmp.my = 0; }],
         // Both hidden states also defeat canseemon(), so reaching
-        // uhitm.c:261-292 rather than the arm above needs the hero to sense
+        // uhitm.c:254-297 rather than the arm above needs the hero to sense
         // the target some other way, exactly as C's `!canspotmon()` guard
         // demands.
         ['attacking a disguised or hidden monster', (mtmp) => {
@@ -199,7 +206,55 @@ test('attack_checks stops on each state it cannot report', async () => {
     }
 });
 
-// uhitm.c:200-201 reads monst.h:250 engulfing_u(). Every other read in
+// uhitm.c:201-214 returns FALSE above every arm below it, and that position is
+// the whole of what the 'F' prefix buys: a target that stops an ordinary step
+// is answered by the swing instead. Each state below therefore has to refuse
+// without the prefix and be admitted with it.
+test('a force-fight returns above the arms that stop an ordinary step',
+    async () => {
+        const cases = [
+            ['attacking a disguised or hidden monster', (mtmp) => {
+                mtmp.m_ap_type = 3; /* M_AP_MONSTER */
+                game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+            }],
+            ['attacking a disguised or hidden monster', (mtmp) => {
+                mtmp.mundetected = 1;
+                game.u.uprops[DETECT_MONSTERS].intrinsic = 1;
+            }],
+            ['confirming an attack on a peaceful monster', (mtmp) => {
+                mtmp.mpeaceful = 1;
+            }],
+        ];
+        for (const [reason, apply] of cases) {
+            await hero();
+            const stepped = target();
+            apply(stepped);
+            refuses(
+                () => attack_checks(stepped, game.uwep, game, REFUSING),
+                reason,
+                reason,
+            );
+
+            await hero();
+            // 0x40 is inside monst.h:187's STRAT_GOAL field, which the write
+            // has to leave alone.
+            const forced = target(PM_LICHEN, {
+                mstrategy: STRAT_WAITMASK | 0x40,
+            });
+            apply(forced);
+            game.context.forcefight = 1;
+            assert.equal(
+                attack_checks(forced, game.uwep, game, REFUSING),
+                false,
+                reason,
+            );
+            // uhitm.c:196 still runs: the arm returns below the strategy
+            // write, not above it.
+            assert.equal(forced.mstrategy, 0x40, reason);
+        }
+    });
+
+// uhitm.c:198-199 reads monst.h:250 engulfing_u(). Every other read in
 // attack_checks() answers from the state argument, and this one has to as
 // well, or a caller working on any state but the module global gets the
 // engulfer guard decided by a different hero.

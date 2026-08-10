@@ -176,25 +176,31 @@ function requireAttackOperation(env, name) {
 // C ref: uhitm.c attack_checks() (188-327). FALSE means it is fine to attack.
 // The ordinary melee case -- a spotted, undisguised, hostile target -- reaches
 // the closing `return FALSE` at 326 having done nothing but clear the wait
-// strategy at 195.
+// strategy at 196.
 //
-// Five arms stop instead of porting, and each is the whole of one C branch:
+// The force-fight arm at 201-214 is the second way through, and its position
+// is the whole of what the 'F' prefix buys: it returns FALSE above every arm
+// below, so a forced blow lands without any of the questions they ask. C's
+// body is entirely commented out; the 'I' marker it once drew moved to
+// do_attack()'s tail at 577-580, so that a target killed by the blow does not
+// blank the square's remembered contents.
 //
-//   200-201  engulfing_u(): the hero is inside the target.
-//   203-215  svc.context.forcefight. Its body is a comment, but the arm still
-//            decides the return value, and force-fight is out of this port's
-//            movement boundary.
-//   229-259  a target the hero cannot spot needs display.c map_invisible().
-//   261-292  a mimicking or hidden target needs seemimic(),
+// Four arms stop instead of porting, and each is the whole of one C branch:
+//
+//   198-199  engulfing_u(): the hero is inside the target.
+//   230-252  a target the hero cannot spot needs display.c map_invisible().
+//   254-297  a mimicking or hidden target needs seemimic(),
 //            stumble_onto_mimic() or the hiding reveal, none of them ported.
 //            C splits it into three tests; a mimic appearance or mundetected
 //            is what all three have in common, and the pair is refused
-//            together because the arm at 294-298 that follows them is the
-//            same shape.
-//   300-320  paranoid_query() for a peaceful target, and the Stormbringer
+//            together because the arm at 299-306 that follows them is the
+//            same shape. A forced blow returns above all three, as C does, and
+//            a mimic that reaches the swing stops instead at mon.c wakeup()'s
+//            own mimic arm.
+//   308-324  paranoid_query() for a peaceful target, and the Stormbringer
 //            override above it.
 //
-// C caches glyph_at(gb.bhitpos) at 221 for the three glyph tests inside those
+// C caches glyph_at(gb.bhitpos) at 220 for the three glyph tests inside those
 // arms; with every one of them stopping there is nothing left to read it.
 export function attack_checks(mtmp, wep, state = game, env = {}) {
     const unsupported = requireAttackOperation(env, 'unsupported');
@@ -202,7 +208,18 @@ export function attack_checks(mtmp, wep, state = game, env = {}) {
     mtmp.mstrategy &= ~STRAT_WAITMASK;
 
     if (engulfing_u(mtmp, state)) unsupported('attacking the engulfer');
-    if (state.context?.forcefight) unsupported('force-fight attack');
+
+    if (state.context?.forcefight) {
+        // C's own canspotmon() test here is inside the commented-out block,
+        // so this one is not C's: it is where the port pays for do_attack()'s
+        // unported tail. That tail marks an unspottable survivor with
+        // map_invisible(), and refusing the unspottable target before the
+        // blow is what keeps it out of reach. A target the hero can spot --
+        // the case 'F' is normally pressed for -- runs the whole attack.
+        if (!canSpotMonster(mtmp, state))
+            unsupported('force-fight at a monster the hero cannot spot');
+        return false;
+    }
 
     if (!canSpotMonster(mtmp, state))
         unsupported('attacking an unseen monster');
@@ -421,8 +438,16 @@ export async function do_attack(monster, state = game, env = {}) {
     await hitum(monster, state.youmonst.data.mattk[0], state, env);
     monster.mstrategy &= ~STRAT_WAITMASK;
 
-    // 570-577's map_invisible() needs svc.context.forcefight, on which
-    // attack_checks() has already stopped.
+    // 577-580. C marks the square with an 'I' when a forced blow leaves a
+    // target the hero cannot spot alive. display.c map_invisible() is
+    // unported, and nothing in this port reaches it: attack_checks() admits a
+    // force-fight only against a target the hero can spot, and the arms
+    // between there and here that could take that back stop before they get
+    // to. passive() refuses every counter-attack damage type but AD_PHYS, so
+    // no blow blinds the hero, and mhitm_knockback() refuses the knockback
+    // that could carry the target out of sight. Its glyph term is constantly
+    // false for the reason it is everywhere else: map_invisible() is the only
+    // writer of the marker it reads.
     return true;
 }
 
