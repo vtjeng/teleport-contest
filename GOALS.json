@@ -1402,6 +1402,11 @@
           "name": "carry each option's section into the table and render the simple menu",
           "status": "closed",
           "closedBy": "2501dc498fbc122bcee598f2ad42973fd9af0a58"
+        },
+        {
+          "name": "act on one pick from the simple options menu and re-offer it",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "0c93031d73f3d75fd1400dc0b7173184f981a80a",
