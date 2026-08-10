@@ -2907,6 +2907,16 @@ export function M_AP_TYPE(mon) { return (mon?.m_ap_type ?? 0) & M_AP_TYPMASK; }
 // u_at() above; C reads the one global hero, and every caller here threads the
 // state it is already working on.
 export function engulfing_u(mon, state = game) { return state?.u?.uswallow && state?.u?.ustuck === mon; }
+// C ref: monst.h:251, `#define helpless(mon) ((mon)->msleeping ||
+// !(mon)->mcanmove)`. Those two fields and no others: mfrozen, mtrapped and
+// meating look related and are separate C terms, which every caller that wants
+// one spells out beside this call the way C does.
+//
+// Both fields are written as 0/1 by some owners and as false/true by others,
+// so both operands are read for truth rather than compared.
+export function helpless(mon) {
+    return Boolean(mon.msleeping) || !mon.mcanmove;
+}
 // C ref: monst.h:285, `#define ismnum(x) ((x) >= LOW_PM && (x) < NUMMONS)`.
 // Both bounds matter: callers pass indices that can come from saved or
 // generated data (u.ulycn, corpsenm, cham), and an index at or past NUMMONS

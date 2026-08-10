@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     DETECT_MONSTERS,
+    helpless,
     IN_SIGHT,
     M_ATTK_MISS,
     ROOM,
@@ -64,6 +65,34 @@ function attackState(pmidx) {
     state.viz_array[defender.my][defender.mx] = IN_SIGHT;
     return { aggressor, defender, state };
 }
+
+// monst.h:251 is `#define helpless(mon) ((mon)->msleeping || !(mon)->mcanmove)`
+// and js/const.js owns it for the eleven call sites that used to spell it out.
+// mhitm.c reads it four times, at 310, 322, 582 and 1252, more than any other
+// C file, so its unit test lives beside them.
+//
+// The four rows are the truth table. The pairs cover both encodings the port
+// writes: js/monst.js:49 and :53 start a monster at false/false, js/mon.js:972
+// wakes one with true, and js/steed.js:743 and :749 write 0 and 1 for the same
+// two fields.
+test('helpless reads sleep and immobility and nothing else', () => {
+    assert.equal(helpless({ msleeping: false, mcanmove: true }), false);
+    assert.equal(helpless({ msleeping: true, mcanmove: true }), true);
+    assert.equal(helpless({ msleeping: 0, mcanmove: 0 }), true);
+    assert.equal(helpless({ msleeping: 1, mcanmove: 1 }), true);
+    // mfrozen, mtrapped and meating are separate C terms; a monster carrying
+    // all three and neither of the two fields above is not helpless.
+    assert.equal(
+        helpless({
+            msleeping: false,
+            mcanmove: true,
+            mfrozen: 7,
+            mtrapped: true,
+            meating: 5,
+        }),
+        false,
+    );
+});
 
 for (const pmidx of [PM_KITTEN, PM_LITTLE_DOG, PM_PONY]) {
     test(`mattackm preserves distant physical miss setup for pet ${pmidx}`,

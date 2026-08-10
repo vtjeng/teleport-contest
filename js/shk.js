@@ -10,6 +10,7 @@ import {
     ACH_SHOP,
     BUFSZ,
     DEAF,
+    helpless,
     HUNGRY,
     INVIS,
     MS_ANIMAL,
@@ -473,11 +474,9 @@ function NOTANGRY(monster) {
 
 // C ref: shk.c muteshk() (58). MS_ANIMAL is the last animal noise of
 // monflag.h's `enum ms_sounds`, so `<=` covers every species that grunts
-// rather than talks. monst.h:251 helpless() is inlined, as js/mhitm.js and
-// js/steed.js inline it.
+// rather than talks.
 function muteshk(shopkeeper) {
-    return Boolean(shopkeeper.msleeping) || !shopkeeper.mcanmove
-        || shopkeeper.data.msound <= MS_ANIMAL;
+    return helpless(shopkeeper) || shopkeeper.data.msound <= MS_ANIMAL;
 }
 
 // C ref: shk.c shop_object() (5386-5402). sounds.c dochat() calls it to decide

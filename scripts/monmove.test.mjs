@@ -105,7 +105,6 @@ import {
     m_harmless_trap,
     m_in_air,
     mfndpos,
-    mon_allowflags,
     mon_track_add,
     monhaskey,
     monflee,
@@ -118,6 +117,11 @@ import {
     should_displace,
     undesirable_disp,
 } from '../js/monmove.js';
+// mon_allowflags() is a mon.c function and lives in js/mon.js. Its cases stay
+// here because makeState() and ordinaryMonster() below build the level, hero
+// and species records they need, and mfndpos() -- the one caller C wrote it
+// for -- is tested from the same fixtures.
+import { mon_allowflags } from '../js/mon.js';
 import { bad_rock, may_dig, may_passwall } from '../js/hack.js';
 import { in_your_sanctuary } from '../js/priest.js';
 import {
@@ -2714,6 +2718,17 @@ test('mon_allowflags preserves tunnel distance and rogue-level rules', () => {
     monster.muy = 10;
     assert.equal(Boolean(mon_allowflags(monster, { state }) & ALLOW_DIG), true);
 
+    // mon.c:2077 is `dist2(...) <= 8`. Two squares on each axis is exactly 8,
+    // the last remembered-hero distance at which a needspick tunneller still
+    // prefers its weapon; three squares along one axis is 9, the first at
+    // which it digs.
+    monster.mux = 6;
+    monster.muy = 6;
+    assert.equal(Boolean(mon_allowflags(monster, { state }) & ALLOW_DIG), false);
+    monster.mux = 7;
+    monster.muy = 4;
+    assert.equal(Boolean(mon_allowflags(monster, { state }) & ALLOW_DIG), true);
+
     monster.mux = 5;
     monster.muy = 5;
     monster.mpeaceful = true;
@@ -2749,6 +2764,55 @@ test('mon_allowflags retains terrain, bars, garlic, and unicorn clauses', () => 
     state.level.flags = { noteleport: true, stasis_until: 0 };
     assert.equal(Boolean(mon_allowflags(unicorn, { state }) & NOTONL), false);
 });
+
+// Four compound conditions whose operands the cases above never separate: a
+// monster that satisfies one operand and not the other decides each clause on
+// its own, so a wrong connective or a wrong monhaskey() argument changes the
+// answer. This is the coverage the ledger entry asked for before mon_allowflags
+// moved out of js/monmove.js.
+test('mon_allowflags separates each compound unlock, rock, and minion clause',
+    () => {
+        const { state } = makeState();
+
+        // mon.c:2067-2068. can_open guards monhaskey(), so a monster that
+        // cannot work a doorknob cannot unlock the key it carries either. A
+        // floating eye is M1_NOLIMBS, which includes M1_NOHANDS.
+        const handless = newMonster({
+            data: state.mons[PM_FLOATING_EYE],
+            minvent: objectFor(state, SKELETON_KEY),
+        });
+        const handlessFlags = mon_allowflags(handless, { state });
+        assert.equal(Boolean(handlessFlags & OPENDOOR), false);
+        assert.equal(Boolean(handlessFlags & UNLOCKDOOR), false);
+
+        // monmove.c monhaskey():637-641. Its second argument is C's
+        // for_unlocking, and a credit card counts only when that is TRUE.
+        const cardHolder = newMonster({
+            data: state.mons[PM_HUMAN],
+            minvent: objectFor(state, CREDIT_CARD),
+        });
+        assert.ok(mon_allowflags(cardHolder, { state }) & UNLOCKDOOR);
+
+        // mon.c:2068's second term. The Wizard carries no key and is no
+        // Rider, so iswiz alone has to grant UNLOCKDOOR.
+        const wizard = newMonster({ data: state.mons[PM_HUMAN], iswiz: true });
+        assert.ok(mon_allowflags(wizard, { state }) & UNLOCKDOOR);
+
+        // mon.c:2094. A hill giant throws rocks and breaks no boulders -- it
+        // is no Rider, no shopkeeper, no priest, and its msound is not
+        // MS_LEADER -- so the first operand alone has to grant ALLOW_ROCK.
+        const giant = newMonster({ data: state.mons[PM_HILL_GIANT] });
+        assert.equal(m_can_break_boulder(giant), false);
+        assert.ok(mon_allowflags(giant, { state }) & ALLOW_ROCK);
+
+        // mon.c:2113. An Angel is M2_MINION and no Rider. Left hostile it
+        // reaches ALLOW_SANCT through no other clause: the disposition arm
+        // gives a hostile monster ALLOW_U alone.
+        const minion = newMonster({ data: state.mons[PM_ANGEL] });
+        const minionFlags = mon_allowflags(minion, { state });
+        assert.ok(minionFlags & ALLOW_SANCT);
+        assert.ok(minionFlags & ALLOW_U);
+    });
 
 test('mon_allowflags draws once for conflict resistance', () => {
     const { state } = makeState();

@@ -25,6 +25,7 @@ import {
     STRAT_WAITFORU,
     TELEPAT,
     W_SADDLE,
+    helpless,
     isok,
 } from './const.js';
 import {
@@ -647,8 +648,7 @@ export function keepdogs(pets_only, rawEnv = {}) {
             (monnear(mtmp, u.ux, u.uy, state) && levl_follower(mtmp, state))
             // The Wizard chases the Amulet from anywhere.
             || (u.uhave?.amulet && mtmp.iswiz))
-            // monst.h:251 helpless().
-            && (!(mtmp.msleeping || !mtmp.mcanmove) || mtmp === u.usteed)
+            && (!helpless(mtmp) || mtmp === u.usteed)
             // A monster that has not noticed the hero stays put.
             && !(mtmp.mstrategy & STRAT_WAITFORU);
 

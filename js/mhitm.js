@@ -3,6 +3,7 @@
 // physical miss reached when an ordinary starting pet considers a target.
 
 import {
+    helpless,
     M_ATTK_MISS,
 } from './const.js';
 import { game } from './gstate.js';
@@ -24,10 +25,6 @@ import { find_mac } from './worn.js';
 
 const STARTING_PETS = new Set([PM_KITTEN, PM_LITTLE_DOG, PM_PONY]);
 const STARTING_PET_ATTACK_TYPES = new Set([AT_NONE, AT_BITE, AT_KICK]);
-
-function helpless(monster) {
-    return Boolean(monster.msleeping) || !monster.mcanmove;
-}
 
 function refuse(rawEnv, reason) {
     if (typeof rawEnv.unsupported === 'function')

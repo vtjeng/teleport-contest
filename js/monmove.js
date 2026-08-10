@@ -1,15 +1,18 @@
 // Monster movement decisions, actions, and item search.
 // C ref: monmove.c.  Every function ported from that file lives here.
 //
-// Five functions here come from other C files and have not moved yet:
-//   mon.c    mon_allowflags(), m_in_air(), mfndpos(), monnear()
+// Four functions here come from other C files and have not moved yet:
+//   mon.c    m_in_air(), mfndpos(), monnear()
 //   trap.c   m_harmless_trap()
 // mfndpos() and its helpers are about 540 lines and call back into can_fog(),
 // monhaskey(), m_can_break_boulder(), closed_door(), accessible(), and
-// onscary(), all of which are monmove.c and stay here.  Moving them to
-// js/mon.js would make js/mon.js and this file import each other.
+// onscary(), all of which are monmove.c and stay here.
 // m_harmless_trap() needs isSpecies() below, which duplicates speciesIs() in
 // js/mondata.js; unify those two first, then the move is small.
+//
+// mon_allowflags() left for js/mon.js. The two files already import each
+// other -- js/mon.js:237 takes accessible() and onscary() from here -- so the
+// cycle this note used to cite as the reason to keep it was already paid for.
 
 import {
     ACCESSIBLE,
@@ -125,6 +128,7 @@ import {
     WEB,
     W_ARMS,
     W_NONDIGGABLE,
+    helpless,
     isok,
 } from './const.js';
 import { artifactTouchable, artifact_light } from './artifacts.js';
@@ -149,6 +153,7 @@ import {
     curr_mon_load,
     m_carrying,
     max_mon_load,
+    mon_allowflags,
     mon_offmap,
     mpickstuff,
     zombie_maker,
@@ -169,12 +174,9 @@ import {
     is_displacer,
     is_floater,
     is_flyer,
-    is_giant,
-    is_human,
     is_minion,
     is_rider,
     is_swimmer,
-    is_undead,
     is_unicorn,
     is_vampshifter,
     is_wanderer,
@@ -192,7 +194,6 @@ import {
     noattacks,
     nohands,
     nonliving,
-    passes_bars,
     passes_walls,
     perceives,
     resist_conflict,
@@ -241,7 +242,6 @@ import {
     S_BAT,
     S_DOG,
     S_EEL,
-    S_GHOST,
     S_HUMAN,
     S_LEPRECHAUN,
     S_LIGHT,
@@ -315,7 +315,6 @@ import {
     messageAt,
 } from './startup_a11y.js';
 import { S_poisoncloud } from './symbols.js';
-import { noteleport_level } from './teleport.js';
 import { gettrack, hastrack } from './track.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import {
@@ -643,66 +642,6 @@ export function m_can_break_boulder(monster) {
             && (monster.isshk
                 || monster.ispriest
                 || monster.data?.msound === MS_LEADER));
-}
-
-// C ref: mon.c mon_allowflags(). This returns only movement capabilities;
-// mfndpos() owns applying them to individual neighboring squares. When
-// Conflict is active, the source always makes exactly one resistance draw,
-// even for a hostile monster which already has ALLOW_U.
-export function mon_allowflags(monster, env = {}) {
-    const state = env.state ?? game;
-    const random = env.random ?? { rnd };
-    const species = monster.data;
-    const conflict = propertyActive(state, CONFLICT);
-    const canOpen = !(nohands(species) || verysmall(species));
-    const canUnlock = (canOpen && monhaskey(monster, true, state))
-        || monster.iswiz || is_rider(species);
-    const doorbuster = is_giant(species);
-    let canTunnel = tunnels(species)
-        && !on_level(state.u?.uz, state.rogue_level);
-
-    if (canTunnel && needspick(species)
-        && ((!monster.mpeaceful || conflict)
-            && dist2(monster.mx, monster.my, monster.mux, monster.muy) <= 8)) {
-        canTunnel = false;
-    }
-
-    let allowflags = 0;
-    if (monster.mtame) {
-        allowflags |= ALLOW_M | ALLOW_TRAPS | ALLOW_SANCT | ALLOW_SSM;
-    } else if (monster.mpeaceful) {
-        allowflags |= ALLOW_SANCT | ALLOW_SSM;
-    } else {
-        allowflags |= ALLOW_U;
-    }
-    if (conflict && !resist_conflict(monster, state, random))
-        allowflags |= ALLOW_U;
-    if (monster.isshk) allowflags |= ALLOW_SSM;
-    if (monster.ispriest) allowflags |= ALLOW_SSM | ALLOW_SANCT;
-    if (passes_walls(species)) allowflags |= ALLOW_ROCK | ALLOW_WALL;
-    if (throws_rocks(species) || m_can_break_boulder(monster))
-        allowflags |= ALLOW_ROCK;
-    if (canTunnel) allowflags |= ALLOW_DIG;
-    if (doorbuster) allowflags |= BUSTDOOR;
-    if (canOpen) allowflags |= OPENDOOR;
-    if (canUnlock) allowflags |= UNLOCKDOOR;
-    if (passes_bars(species)
-        && (monster !== state.u?.ustuck
-            || unsolid(state.youmonst?.data)
-            || verysmall(state.youmonst?.data))) {
-        allowflags |= ALLOW_BARS;
-    }
-    if (is_minion(species) || is_rider(species))
-        allowflags |= ALLOW_SANCT;
-    if (is_unicorn(species) && !noteleport_level(monster, state))
-        allowflags |= NOTONL;
-    if (is_human(species) || species === state.mons?.[PM_MINOTAUR])
-        allowflags |= ALLOW_SSM;
-    if ((is_undead(species) && species?.mlet !== S_GHOST)
-        || is_vampshifter(monster)) {
-        allowflags |= NOGARLIC;
-    }
-    return allowflags;
 }
 
 // C ref: mon.c m_in_air() (2128-2136). Clingers count only while concealed
@@ -2172,7 +2111,7 @@ export function m_search_items(
                 || (hides_under(monster.data) && canSee(x, y, state))) continue;
 
             const occupant = m_at(x, y, state);
-            if (occupant && (occupant.msleeping || !occupant.mcanmove
+            if (occupant && (helpless(occupant)
                 || occupant.mundetected
                 || (occupant.mappearance && !occupant.iswiz)
                 || !occupant.data?.mmove)) continue;

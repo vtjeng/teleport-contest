@@ -33,6 +33,7 @@ import {
     W_RINGL,
     W_RINGR,
     engulfing_u,
+    helpless,
     isok,
     M_AP_TYPE,
 } from './const.js';
@@ -136,11 +137,6 @@ function intrinsicProperty(hero, index) {
 function propertyPresent(hero, index) {
     const property = hero?.uprops?.[index];
     return Boolean(property?.intrinsic || property?.extrinsic);
-}
-
-// C ref: monst.h:251 helpless().
-function helpless(monster) {
-    return Boolean(monster.msleeping) || !monster.mcanmove;
 }
 
 // C ref: youprop.h:120 Hallucination, over :116-119. HHallucination is the

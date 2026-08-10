@@ -95,6 +95,7 @@ import {
     ZOMBIFY_MON,
     OVERLOADED,
     PROT_FROM_SHAPE_CHANGERS,
+    helpless,
     is_pit,
     isok,
 } from './const.js';
@@ -472,7 +473,7 @@ export function monsterNearby(state = game) {
                 continue;
             }
             if (is_hider(monster.data) && monster.mundetected) continue;
-            if (monster.msleeping || !monster.mcanmove) continue;
+            if (helpless(monster)) continue;
             if (onscary(ux, uy, monster, state)) continue;
             if (canSpotMonster(monster, state)) return true;
         }

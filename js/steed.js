@@ -53,6 +53,7 @@ import {
     W_SADDLE,
     I_SPECIAL,
     TIMEOUT,
+    helpless,
     isok,
 } from './const.js';
 import { dirtocoord, getdir, xytodir, y_n } from './cmd.js';
@@ -737,8 +738,7 @@ export async function dismount_steed(reason, state = game) {
 // number the success path can make, and it fires only for a frozen steed.
 function maybewakesteed(steed) {
     let frozen = steed.mfrozen;
-    /* monst.h:251 helpless() */
-    const wasimmobile = Boolean(steed.msleeping || !steed.mcanmove);
+    const wasimmobile = helpless(steed);
 
     steed.msleeping = 0;
     if (frozen) {
@@ -752,7 +752,7 @@ function maybewakesteed(steed) {
             steed.mfrozen = frozen;
         }
     }
-    if (wasimmobile && !(steed.msleeping || !steed.mcanmove)) {
+    if (wasimmobile && !helpless(steed)) {
         // pline("%s wakes up.", Monnam(steed)) is deferred with the rest of
         // the sleeping-pet work: nothing this port admits leaves a starting
         // pet asleep or frozen, so no recorded case can check the line.
@@ -769,7 +769,7 @@ function maybewakesteed(steed) {
 // Both messages need do_name.c YMonnam(), which is unported, so each stops
 // instead of printing. Neither is reachable behind the commands that admit a
 // mounted hero today: steed.c maybewakesteed() clears msleeping and stops on
-// any steed that was immobile when mounted, and monst.h:251 helpless() reads
+// any steed that was immobile when mounted, and js/const.js helpless() reads
 // only msleeping and mcanmove, whose remaining writers are monster creation
 // and mon.c. meating has two writers, js/dog.js and js/dogmove.js, and both
 // clear it.
@@ -777,8 +777,7 @@ export function stucksteed(checkfeeding, state = game) {
     const steed = state.u?.usteed;
 
     if (steed) {
-        /* monst.h:251 helpless() */
-        if (steed.msleeping || !steed.mcanmove) {
+        if (helpless(steed)) {
             throw new UnsupportedSteedError(
                 "stucksteed() reporting a steed that won't move",
             );

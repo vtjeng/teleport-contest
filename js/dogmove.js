@@ -19,6 +19,7 @@ import {
     DEAF,
     DISMOUNT_THROWN,
     DOGFOOD,
+    helpless,
     IS_DOOR,
     IS_OBSTRUCTED,
     IS_ROOM,
@@ -52,7 +53,7 @@ import {
     distmin,
     sgn,
 } from './hacklib.js';
-import { check_gear_next_turn } from './mon.js';
+import { check_gear_next_turn, mon_allowflags } from './mon.js';
 import { can_carry } from './moncarry.js';
 import {
     attacktype,
@@ -94,7 +95,6 @@ import {
 } from './monst.js';
 import {
     mfndpos,
-    mon_allowflags,
     mon_track_add,
     should_displace,
     undesirable_disp,
@@ -408,7 +408,7 @@ export function finish_meating(mtmp) {
 // Return MMOVE_MOVED when the pet ate, MMOVE_DIED when eating killed it,
 // and MMOVE_NOTHING for dropping, pickup, or no action.
 export async function dog_invent(monster, edog, heroDistance, rawEnv = {}) {
-    if (monster.msleeping || !monster.mcanmove || monster.meating)
+    if (helpless(monster) || monster.meating)
         return MMOVE_NOTHING;
 
     const state = rawEnv.state ?? game;

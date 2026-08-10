@@ -8,7 +8,17 @@
 
 import {
     A_CHAOTIC,
+    ALLOW_BARS,
+    ALLOW_DIG,
+    ALLOW_M,
+    ALLOW_ROCK,
+    ALLOW_SANCT,
+    ALLOW_SSM,
+    ALLOW_TRAPS,
+    ALLOW_U,
+    ALLOW_WALL,
     BOLT_LIM,
+    BUSTDOOR,
     CONFLICT,
     CORPSTAT_BURIED,
     CORPSTAT_FEMALE,
@@ -45,17 +55,22 @@ import {
     MON_MIGRATING,
     MSLOW,
     NATTK,
+    NOGARLIC,
     NORMAL_SPEED,
+    NOTONL,
     ONAME_NO_FLAGS,
+    OPENDOOR,
     PROT_FROM_SHAPE_CHANGERS,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
+    UNLOCKDOOR,
     W_AMUL,
     WT_HUMAN,
     XKILL_GIVEMSG,
     XKILL_NOCONDUCT,
     XKILL_NOCORPSE,
     XKILL_NOMSG,
+    helpless,
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
 import { night } from './calendar.js';
@@ -94,9 +109,11 @@ import {
     dmgtype,
     emits_light,
     is_female,
+    is_giant,
     is_golem,
     is_hider,
     is_human,
+    is_minion,
     is_mplayer,
     is_neuter,
     is_reviver,
@@ -108,11 +125,18 @@ import {
     is_vampshifter,
     is_were,
     monsndx,
+    needspick,
+    nohands,
     nonliving,
+    passes_bars,
+    passes_walls,
     regenerates,
+    resist_conflict,
     strongmonst,
     throws_rocks,
+    tunnels,
     unique_corpstat,
+    unsolid,
     verysmall,
     zombie_form,
 } from './mondata.js';
@@ -180,6 +204,7 @@ import {
     PM_LONG_WORM,
     PM_MAIL_DAEMON,
     PM_MEDUSA,
+    PM_MINOTAUR,
     PM_ORANGE_DRAGON,
     PM_ORC_MUMMY,
     PM_ORC_ZOMBIE,
@@ -202,12 +227,18 @@ import {
     PM_WOOD_GOLEM,
     PM_YELLOW_DRAGON,
     S_EEL,
+    S_GHOST,
     S_KOP,
     S_LICH,
     S_VAMPIRE,
     S_ZOMBIE,
 } from './monsters.js';
-import { accessible, onscary } from './monmove.js';
+import {
+    accessible,
+    m_can_break_boulder,
+    monhaskey,
+    onscary,
+} from './monmove.js';
 import { m_at, remove_monster } from './monst.js';
 import {
     clear_dknown,
@@ -238,6 +269,7 @@ import {
     sensesMonster,
 } from './startup_a11y.js';
 import { mpickobj, relobj } from './steal.js';
+import { noteleport_level } from './teleport.js';
 import { fill_pit, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { cansee } from './vision.js';
@@ -655,6 +687,69 @@ export function max_mon_load(monster) {
     return Math.max(maxLoad, 1);
 }
 
+// C ref: mon.c mon_allowflags() (2062-2126). This returns only movement
+// capabilities; mfndpos() owns applying them to individual neighboring
+// squares. When Conflict is active, the source always makes exactly one
+// resistance draw, even for a hostile monster which already has ALLOW_U.
+//
+// monhaskey() and m_can_break_boulder() stay in js/monmove.js, where their C
+// homes at monmove.c:96 and :133 put them.
+export function mon_allowflags(monster, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rnd };
+    const species = monster.data;
+    const conflict = conflictActive(state);
+    const canOpen = !(nohands(species) || verysmall(species));
+    const canUnlock = (canOpen && monhaskey(monster, true, state))
+        || monster.iswiz || is_rider(species);
+    const doorbuster = is_giant(species);
+    let canTunnel = tunnels(species)
+        && !on_level(state.u?.uz, state.rogue_level);
+
+    if (canTunnel && needspick(species)
+        && ((!monster.mpeaceful || conflict)
+            && dist2(monster.mx, monster.my, monster.mux, monster.muy) <= 8)) {
+        canTunnel = false;
+    }
+
+    let allowflags = 0;
+    if (monster.mtame) {
+        allowflags |= ALLOW_M | ALLOW_TRAPS | ALLOW_SANCT | ALLOW_SSM;
+    } else if (monster.mpeaceful) {
+        allowflags |= ALLOW_SANCT | ALLOW_SSM;
+    } else {
+        allowflags |= ALLOW_U;
+    }
+    if (conflict && !resist_conflict(monster, state, random))
+        allowflags |= ALLOW_U;
+    if (monster.isshk) allowflags |= ALLOW_SSM;
+    if (monster.ispriest) allowflags |= ALLOW_SSM | ALLOW_SANCT;
+    if (passes_walls(species)) allowflags |= ALLOW_ROCK | ALLOW_WALL;
+    if (throws_rocks(species) || m_can_break_boulder(monster))
+        allowflags |= ALLOW_ROCK;
+    if (canTunnel) allowflags |= ALLOW_DIG;
+    if (doorbuster) allowflags |= BUSTDOOR;
+    if (canOpen) allowflags |= OPENDOOR;
+    if (canUnlock) allowflags |= UNLOCKDOOR;
+    if (passes_bars(species)
+        && (monster !== state.u?.ustuck
+            || unsolid(state.youmonst?.data)
+            || verysmall(state.youmonst?.data))) {
+        allowflags |= ALLOW_BARS;
+    }
+    if (is_minion(species) || is_rider(species))
+        allowflags |= ALLOW_SANCT;
+    if (is_unicorn(species) && !noteleport_level(monster, state))
+        allowflags |= NOTONL;
+    if (is_human(species) || species === state.mons?.[PM_MINOTAUR])
+        allowflags |= ALLOW_SSM;
+    if ((is_undead(species) && species?.mlet !== S_GHOST)
+        || is_vampshifter(monster)) {
+        allowflags |= NOGARLIC;
+    }
+    return allowflags;
+}
+
 // C ref: mon.c mcalcmove(). Adjust a monster's base speed, then randomly
 // round a moving monster to a multiple of NORMAL_SPEED. The rounding draw is
 // unconditional, including when the adjusted speed already has no remainder.
@@ -968,7 +1063,7 @@ export async function new_were(monster, rawEnv = {}) {
     }
 
     set_mon_data(monster, target);
-    if (monster.msleeping || !monster.mcanmove) {
+    if (helpless(monster)) {
         monster.msleeping = false;
         monster.mfrozen = 0;
         monster.mcanmove = true;

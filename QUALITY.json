@@ -954,7 +954,7 @@
       "area": "monsters",
       "category": "simplification",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "8c80cca803b92d64afeb907e33d28664f66e9d6c",
       "detail": "Two placement leftovers found while closing the last sweep slice at `a448201`.\n\n**`mon_allowflags()` is in the wrong file.** C owns it at `mon.c:2064`, so\n`AGENTS.md` \"Keep each source file's port in one place\" puts it in `js/mon.js`;\nthe port has it at `js/monmove.js`. It carries a second copy of the\n`can_tunnel` clearing that `m_move()` also performs, which is placement only\nrather than a duplicate port -- C duplicates it too. Note that the `m_move()`\ncopy now has seven mutants killed by a dedicated test while this one has no\ncomparable coverage, so move it with a test rather than without.\n\n**`monst.h:251 helpless()` is ported once and inlined three times.** The port\nis `js/mhitm.js helpless()`. Three call sites reimplement its body inline and\ncite the same C line rather than importing it: two in `js/steed.js` and one in\n`js/dog.js`. The bodies agree today.\n\nThe second is the fourth duplicate-port finding of 6 August 2026, after\n`isok()`, `will_weld()` and `depth()`. Unlike those it is an inlining rather\nthan a second definition, so a duplicate-export report would not list it; only\nreading finds this shape."
     },
@@ -1312,7 +1312,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "0737e109838443a72b4f0459a8864a36887f4d34",
       "detail": "js/dogmove.js dog_hunger() requires three injected operations, starvePet, reportWeakPet and stopOccupation, and no production code supplies any of them. Verified: grep -rn 'starvePet|reportWeakPet' js/ filtered to exclude dogmove.js returns nothing. The consequence is a fail-open, not a fail-closed stop: a starving pet in the running game throws a bare TypeError rather than a named boundary class, so js/jsmain.js does not break the segment on it and the segment's matching prefix is discarded instead of being kept. That is the failure mode the boundary classes exist to prevent, and it is worse than a refusal. Found while converging stop_occupation() onto one owner: one of the three injections is a stop_occupation() call site, but converging that one alone does not make the arm reachable, so the slice reported it rather than half-fixing it. Close it by giving each of the three a production supplier, or, if any arm is genuinely unreachable today, by replacing the injection with a named boundary class js/cmd.js failClosedCommandRefusals() and js/jsmain.js list, so the segment ends on the last matched screen instead of losing it. A fresh case needs a pet starved to the point dog_hunger() acts, which no recorded development session reaches today.",
       "notes": [
