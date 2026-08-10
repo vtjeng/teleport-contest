@@ -249,3 +249,5 @@ utc	event	phase	goal	detail
 2026-08-10T04:54:00.829Z	end	select	force-fight-command	
 2026-08-10T04:54:26.166Z	start	implement	force-fight-command	
 2026-08-10T06:07:18.431Z	end	implement	force-fight-command	
+2026-08-10T06:08:50.426Z	start	select	force-fight-command	
+2026-08-10T06:16:59.233Z	end	select	force-fight-command	
