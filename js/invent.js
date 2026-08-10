@@ -66,9 +66,13 @@ import {
     PLNMSG_ONE_ITEM_HERE,
     P_SABER,
     P_SHORT_SWORD,
+    Upolyd,
+    W_ART,
     W_QUIVER,
 } from './const.js';
-import { ART_MJOLLNIR } from './artifacts.js';
+import {
+    ART_MJOLLNIR, confers_luck, set_artifact_intrinsic, touch_artifact,
+} from './artifacts.js';
 import { obj_resists } from './bury.js';
 import { yn_function } from './cmd.js';
 import { food_disappears } from './eat.js';
@@ -107,6 +111,7 @@ import {
     CANDELABRUM_OF_INVOCATION,
     COIN_CLASS,
     CORPSE,
+    CRYSKNIFE,
     EGG,
     FIGURINE,
     FOOD_CLASS,
@@ -139,6 +144,7 @@ import {
     is_missile,
     is_spear,
     objectType,
+    place_object,
     preflightWeight,
     weight,
 } from './obj.js';
@@ -151,6 +157,7 @@ import {
     vtense,
 } from './objnam.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
+import { is_quest_artifact } from './questpgr.js';
 import { costly_spot } from './shk.js';
 
 export const INVLET_BASIC = 52;
@@ -1989,9 +1996,15 @@ function addinvCore1(obj, env, facts) {
     } else if (obj.otyp === AMULET_OF_YENDOR
                || obj.otyp === CANDELABRUM_OF_INVOCATION
                || obj.otyp === BELL_OF_OPENING
-               || obj.otyp === SPE_BOOK_OF_THE_DEAD
-               || obj.oartifact) {
+               || obj.otyp === SPE_BOOK_OF_THE_DEAD) {
         requiredHook(env, 'addSpecialInventoryEffects', obj)(obj, env);
+    } else if (obj.oartifact) {
+        if (is_quest_artifact(obj, env.state)) {
+            // invent.c:986-989 sets u.uhave.questart and calls artitouch().
+            throw new UnsupportedObjectOperationError('quest artifact held',
+                                                      obj);
+        }
+        set_artifact_intrinsic(obj, true, W_ART, env.state);
     }
 
     // C ref: invent.c addinv_core1().  Special-level creation sets nomerge
@@ -2010,18 +2023,13 @@ function preflightAddinvCores(obj, env) {
     if (obj.otyp === AMULET_OF_YENDOR
         || obj.otyp === CANDELABRUM_OF_INVOCATION
         || obj.otyp === BELL_OF_OPENING
-        || obj.otyp === SPE_BOOK_OF_THE_DEAD
-        || obj.oartifact) {
+        || obj.otyp === SPE_BOOK_OF_THE_DEAD) {
         requiredHook(env, 'addSpecialInventoryEffects', obj);
     }
     const prize = specialPrize(obj, env.state);
     if (prize) requiredHook(env, 'recordAchievement', obj);
-    let confersLuck = obj.otyp === LUCKSTONE;
-    if (obj.oartifact && obj.otyp !== LUCKSTONE) {
-        confersLuck = Boolean(
-            requiredHook(env, 'artifactConfersLuck', obj)(obj, env),
-        );
-    }
+    const confersLuck = obj.otyp === LUCKSTONE
+        || (Boolean(obj.oartifact) && confers_luck(obj, env.state));
     if (confersLuck) requiredHook(env, 'recalculateLuck', obj);
     if (env.state.urole?.filecode === 'Arc'
         && obj.oclass === SCROLL_CLASS
@@ -2635,8 +2643,33 @@ export async function hold_another_object(
 
     if (!isBlind(normalized))
         observe_object(obj, state); /* maximize mergeability */
-    if (obj.oartifact)
-        throw new UnsupportedObjectOperationError('held artifact', obj);
+    if (obj.oartifact) {
+        /* place_object may change these */
+        const crysknife = obj.otyp === CRYSKNIFE;
+        const oerode = obj.oerodeproof;
+        const wasUpolyd = Upolyd(state.u);
+
+        /* in case touching this object turns out to be fatal */
+        place_object(obj, state.u.ux, state.u.uy, normalized);
+
+        if (!touch_artifact(obj, state.youmonst, normalized)) {
+            // invent.c:1228-1230 pulls the artifact back off the floor and
+            // drops it again through dropy().  touch_artifact() answers false
+            // only for a monster, and this caller is always the hero, so the
+            // branch stands unported behind a fail-closed stop.
+            throw new UnsupportedObjectOperationError('refused artifact', obj);
+        } else if (wasUpolyd && !Upolyd(state.u)) {
+            // 1231-1238: only the blast touch_artifact() refuses can revert
+            // the hero's form, so nothing can reach this yet.
+            throw new UnsupportedObjectOperationError('lost artifact grip',
+                                                      obj);
+        }
+        obj_extract_self(obj, normalized);
+        if (crysknife) {
+            obj.otyp = CRYSKNIFE;
+            obj.oerodeproof = oerode;
+        }
+    }
     if (propertyPresent(state, FUMBLING)) {
         throw new UnsupportedObjectOperationError('held while fumbling', obj);
     } else if (obj.otyp === CORPSE && obj.wishedfor) {

@@ -37,8 +37,10 @@ import {
     BAG_OF_TRICKS,
     BEARTRAP,
     BRASS_LANTERN,
+    BROADSWORD,
     CLOAK_OF_DISPLACEMENT,
     ELVEN_BOOTS,
+    ELVEN_DAGGER,
     FAKE_AMULET_OF_YENDOR,
     FOOD_CLASS,
     FOOD_RATION,
@@ -57,8 +59,10 @@ import {
     MAGIC_LAMP,
     MEAT_RING,
     OIL_LAMP,
+    PLATE_MAIL,
     POTION_CLASS,
     POT_SEE_INVISIBLE,
+    POT_SLEEPING,
     POT_WATER,
     RED_DRAGON_SCALE_MAIL,
     RING_CLASS,
@@ -67,6 +71,8 @@ import {
     SCALE_MAIL,
     SCROLL_CLASS,
     SCR_MAGIC_MAPPING,
+    SHORT_SWORD,
+    SILVER_SABER,
     SCR_MAIL,
     SPBOOK_CLASS,
     SPEED_BOOTS,
@@ -85,7 +91,9 @@ import {
     YELLOW_DRAGON_SCALE_MAIL,
 } from '../js/objects.js';
 import { NON_PM, SPE_LIM } from '../js/const.js';
-import { init_artifacts } from '../js/artifacts.js';
+import {
+    ART_GRAYSWANDIR, ART_STING, ART_VORPAL_BLADE, init_artifacts,
+} from '../js/artifacts.js';
 import { name_to_monplus } from '../js/mondata.js';
 import {
     PM_GRAY_DRAGON, PM_RED_DRAGON, PM_YELLOW_DRAGON, monst_globals_init,
@@ -432,7 +440,8 @@ function wishState() {
         iflags: {},
         program_state: { gameover: false, in_moveloop: true },
         moves: 1,
-        u: { uprops: [], ulevel: 1, uluck: 0 },
+        // objnam.c:5363 raises u.uconduct.wisharti for a named artifact.
+        u: { uprops: [], ulevel: 1, uluck: 0, uconduct: { wisharti: 0 } },
         urole: { ...wizard },
         wizard: true,
     };
@@ -993,11 +1002,11 @@ test('readobjnam follows the name-reshaping branches', () => {
     // which is a qualifier this port refuses; a bare "spellbook" is a class
     // word with nothing after it.
     assert.equal(wish(state, 'spellbook').refusal,
-                 'a name the first objects[] lookup does not resolve');
+                 'a wish no lookup resolves');
     // 4283-4284: the Amulet's description has to open the name or follow a
     // space, so one embedded in a word is not it.
     assert.equal(wish(state, 'brassAmulet of Yendor').refusal,
-                 'a name the first objects[] lookup does not resolve');
+                 'a wish no lookup resolves');
     // 4502-4511: "paperback" and "paperback book" are the novel; anything
     // else after it returns a null object instead.
     assert.equal(resolved('paperback'), SPE_NOVEL);
@@ -1021,13 +1030,14 @@ test('readobjnam keeps a monster name out of six object names', () => {
     assert.equal(wish(state, 'wizard lock').obj.otyp, SPE_WIZARD_LOCK);
     // "death wand" inverts to "wand of death", not the Rider.
     assert.equal(wish(state, 'death wand').obj.otyp, WAN_DEATH);
-    // These two name no object at all, so the lookup is what fails; had the
-    // exception been missing, the "master" and "ninja" rank titles would have
-    // matched instead.
+    // "master key" names no object at all, so the lookup is what fails; had
+    // the exception been missing, the "master" rank title would have matched
+    // and truncated the name.  "ninja-to" keeps its whole name too, and
+    // readobjnam_postparse3()'s Japanese_items[] row (objnam.c:3432-3446)
+    // then spells it a broadsword.
     assert.equal(reason('master key'),
-                 'a name the first objects[] lookup does not resolve');
-    assert.equal(reason('ninja-to'),
-                 'a name the first objects[] lookup does not resolve');
+                 'a wish no lookup resolves');
+    assert.equal(wish(state, 'ninja-to').obj.otyp, BROADSWORD);
     // "magenta" is a potion description; the "mage" rank must not take it.
     assert.equal(wish(state, 'magenta').obj.otyp, POT_SEE_INVISIBLE);
     // 4372-4373's own exceptions: "wand ", "spellbook ", "gauntlets ",
@@ -1045,7 +1055,7 @@ test('readobjnam keeps a monster name out of six object names', () => {
     // A bare monster name leaves no referent, so 4425-4429 puts the name back
     // and forgets the monster; the lookup then fails on its own.
     assert.equal(reason('newt'),
-                 'a name the first objects[] lookup does not resolve');
+                 'a wish no lookup resolves');
     // With a referent the monster stays, and the wish is out of boundary.
     assert.equal(reason('newt corpse'), 'a wish naming a monster type');
     // 4425-4429 puts the name back only when nothing else has been parsed:
@@ -1147,9 +1157,178 @@ test('readobjnam refuses the branches that leave the typfnd tail', () => {
     assert.equal(reason('tin of spinach'),
                  'a wish for a corpse, statue, figurine, egg or tin');
     assert.equal(reason('worthless piece of blue glass'), 'a glass-gem wish');
-    // 4260-4270's " named ", which the oname() tail cannot finish.
-    assert.equal(reason('long sword named Foo'), 'a " named " wish');
     // 4152-4174's corpse/statue/figurine gender hack.
     assert.equal(reason('statue of a gnome'),
                  'a "corpse/statue/figurine of" wish');
+});
+
+// objnam.c readobjnam_postparse3()'s tail (4751-4899) and the typfnd: d.name
+// block (5345-5365). scripts/run-wizard-wish.mjs carries the end-to-end
+// evidence; these pin the branches a screen cannot separate.
+test('readobjnam resolves a name through each arm of the postparse3 tail', () => {
+    const state = wishState();
+
+    // 4761-4771's Japanese_items[] table.  Nothing in objects[] is named
+    // "wakizashi", so the lookup above has already failed without drawing and
+    // the only draws left are mksobj()'s.
+    const japanese = wish(state, 'wakizashi');
+    assert.equal(japanese.obj.otyp, SHORT_SWORD);
+    assert.equal(japanese.draws.filter((d) => d === 'rn2(51)').length, 0);
+
+    // 4775-4781's ARMOR_CLASS retry, the arm that returns 6.  The class-word
+    // loop leaves "plate", " mail" is appended, and the second pass through
+    // readobjnam_postparse2() and readobjnam_postparse3() finds PLATE_MAIL.
+    // The lookup draw is rn2(41), the total oc_prob of the armor candidates
+    // "plate mail" collects, and it happens once: the first pass matched
+    // nothing and so drew nothing.
+    const plate = wish(state, 'plate armor');
+    assert.equal(plate.obj.otyp, PLATE_MAIL);
+    assert.equal(plate.draws[0], 'rn2(41)');
+
+    // 4873-4881's artifact_name(), which reaches a type no name or
+    // description in objects[] can: SILVER_SABER's own name is "silver
+    // saber".  d.oclass has to be 0 for the arm to run at all, so the wish
+    // carries no class word.
+    const arti = wish(state, 'Grayswandir');
+    assert.equal(arti.obj.otyp, SILVER_SABER);
+    assert.equal(arti.obj.oartifact, ART_GRAYSWANDIR);
+    assert.equal(arti.obj.oextra.oname, 'Grayswandir');
+    assert.equal(arti.obj.quan, 1);
+    assert.equal(state.u.uconduct.wisharti, 1);
+
+    // 4883-4896's class-filtered spellings[] list, which only a wish that
+    // named a class reaches.  "saber" is spellings[]'s wording for
+    // SILVER_SABER, and readobjnam_postparse1()'s unfiltered pass over the
+    // same table has already been skipped, because "weapon" left "saber"
+    // behind only after that pass ran.
+    assert.equal(wish(state, 'saber weapon').obj.otyp, SILVER_SABER);
+
+    // A name that reaches 4899 having matched nothing stops without drawing.
+    const nothing = wish(state, 'zzyzx');
+    assert.equal(nothing.refusal, 'a wish no lookup resolves');
+    assert.deepEqual(nothing.draws, []);
+});
+
+test('the typfnd: name block tells an artifact wish from a label', () => {
+    const state = wishState();
+
+    // objnam.c:5350-5353 rewrites the player's spelling to artilist[]'s, and
+    // because the type matches, 5361's pointer test is true: the object
+    // becomes the artifact and the wish counts against conduct.
+    const fuzzy = wish(state, 'elven dagger named sting');
+    assert.equal(fuzzy.obj.otyp, ELVEN_DAGGER);
+    assert.equal(fuzzy.obj.oextra.oname, 'Sting');
+    assert.equal(fuzzy.obj.oartifact, ART_STING);
+    assert.equal(state.u.uconduct.wisharti, 1);
+
+    // The same name on the wrong base type.  artifact_name() still answers
+    // Sting, but objtyp is ELVEN_DAGGER against a LONG_SWORD, so 5353 leaves
+    // d.name pointing into the wish buffer, oname() finds no artifact of that
+    // name and type to make, and 5361 is false on both operands.  The object
+    // is an ordinary long sword that happens to be called Sting.
+    const fresh = wishState();
+    const label = wish(fresh, 'long sword named Sting');
+    assert.equal(label.obj.otyp, LONG_SWORD);
+    assert.equal(label.obj.oextra.oname, 'Sting');
+    assert.equal(label.obj.oartifact, 0);
+    assert.equal(fresh.u.uconduct.wisharti, 0);
+
+    // A name no artifact carries is only a label, and 5354-5357's novel
+    // lookup leaves it alone because the type is not SPE_NOVEL.
+    const named = wish(fresh, 'long sword named Fido');
+    assert.equal(named.obj.oextra.oname, 'Fido');
+    assert.equal(named.obj.oartifact, 0);
+    assert.equal(fresh.u.uconduct.wisharti, 0);
+
+    // 5355-5357's novel arm, which replaces the player's title with the
+    // catalog's.  do_name.c:1627-1660 accepts the American spelling of
+    // _The_Colour_of_Magic_ and answers the British one.
+    const novel = wish(fresh, 'novel named The Color of Magic');
+    assert.equal(novel.obj.otyp, SPE_NOVEL);
+    assert.equal(novel.obj.oextra.oname, 'The Colour of Magic');
+    assert.equal(novel.obj.novelidx, 0);
+    // 5357 replaces d.name with the catalog's title, so 5361's pointer test
+    // can no longer see an artifact name and the novel costs no conduct.
+    assert.equal(fresh.u.uconduct.wisharti, 0);
+});
+
+// The three lookups objnam.c:4751-4758 makes after the first, and the two
+// guards that skip two of them. A wish reaches each of these only by failing
+// the one before it.
+test('readobjnam tries the description, the label and the called name', () => {
+    const state = wishState();
+
+    // A " labeled " phrase leaves d.dn holding text of its own, so the guard
+    // at 4751 admits the second lookup -- which fails here, as the first did.
+    // The wish stops rather than resolving to whatever d.typ last held.
+    assert.equal(wish(state, 'zzyzx labeled foo').refusal,
+                 'a wish no lookup resolves');
+
+    // The third lookup has no guard at all, and it is the only one that reads
+    // the " called " text.  rn2(51) is the weight total of the long swords it
+    // collects, so the draw is the evidence that the un lookup ran.
+    const called = wish(state, 'zzyzx called long sword');
+    assert.equal(called.obj.otyp, LONG_SWORD);
+    assert.equal(called.draws[0], 'rn2(51)');
+});
+
+// Two more arms of the postparse3 tail that a granted wish cannot show.
+test('readobjnam stops rather than retrying a name that already says mail', () => {
+    const state = wishState();
+    // The class-word loop leaves "mail" with d.oclass ARMOR_CLASS.  4776's
+    // strstri() finds "mail" at the front, so the retry does not fire; had it
+    // fired, appending " mail" would leave "mail" still at the front and the
+    // arm would ask for a retry for ever.
+    assert.equal(wish(state, 'mail armor').refusal,
+                 'a wish no lookup resolves');
+});
+
+test('the artifact lookup is fuzzy and runs only for a classless wish', () => {
+    const state = wishState();
+
+    // artifact_name() is called with fuzzy TRUE, so a missing space still
+    // reaches the artifact, and the object carries artilist[]'s spelling.
+    const fuzzy = wish(state, 'vorpalblade');
+    assert.equal(fuzzy.obj.otyp, LONG_SWORD);
+    assert.equal(fuzzy.obj.oextra.oname, 'Vorpal Blade');
+
+    // 4872's `!d->oclass` keeps a wish that named a class away from the
+    // artifact table: "Grayswandir weapon" is a weapon whose name matches no
+    // weapon, and the class-filtered spellings list below cannot place it
+    // either, so the wish stops.
+    assert.equal(wish(state, 'Grayswandir weapon').refusal,
+                 'a wish no lookup resolves');
+
+    // 4890's wishymatch() keeps retry_inverted, so an inverted spelling still
+    // matches once the class word is stripped.  spellings[] spells this one
+    // "potion of sleep"; the wish spells it the other way round and names the
+    // class as well, which is what carries it past
+    // readobjnam_postparse1()'s own pass over the same table.
+    assert.equal(wish(state, 'sleep potion potion').obj.otyp, POT_SLEEPING);
+});
+
+test('a second wish for one artifact still counts against conduct', () => {
+    const state = wishState();
+    assert.equal(wish(state, 'Grayswandir').obj.oartifact, ART_GRAYSWANDIR);
+    assert.equal(state.u.uconduct.wisharti, 1);
+
+    // do_name.c:385-388 refuses to make a second Grayswandir, so the saber
+    // comes back an ordinary saber with no name at all.  objnam.c:5361 still
+    // counts the wish, because its second operand asks what d.name points at
+    // rather than what the object became.
+    const second = wish(state, 'silver saber named Grayswandir');
+    assert.equal(second.obj.otyp, SILVER_SABER);
+    assert.equal(second.obj.oartifact, 0);
+    assert.equal(Boolean(second.obj.oextra?.oname), false);
+    assert.equal(second.obj.quan, 1);
+    assert.equal(state.u.uconduct.wisharti, 2);
+
+    // The same rewrite through 5353 on a fresh game does make the artifact,
+    // and the fuzzy spelling shows that 5350's artifact_name() is what
+    // supplies the name the object ends up with.
+    const fresh = wishState();
+    const named = wish(fresh, 'long sword named vorpalblade');
+    assert.equal(named.obj.oartifact, ART_VORPAL_BLADE);
+    assert.equal(named.obj.oextra.oname, 'Vorpal Blade');
+    assert.equal(fresh.u.uconduct.wisharti, 1);
 });

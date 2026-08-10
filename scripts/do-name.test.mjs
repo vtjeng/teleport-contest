@@ -11,16 +11,25 @@ import {
     monsterCommonName,
     monsterPossessive,
     noveltitle,
+    oname,
     rndmonnam,
     SIR_TERRY_NOVELS,
 } from '../js/do_name.js';
+import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
     BLINDED,
     HALLUC,
     M_AP_MONSTER,
     MD_PAD_BOGONS,
+    OBJ_FREE,
+    OBJ_INVENT,
+    ONAME_WISH,
+    PL_PSIZ,
     W_SADDLE,
+    has_oname,
 } from '../js/const.js';
+import { LONG_SWORD, objects_globals_init } from '../js/objects.js';
+import { races, roles } from '../js/roles.js';
 import {
     G_NOGEN,
     LOW_PM,
@@ -326,7 +335,10 @@ test('lookup_novel applies the configured-fruit article exception', () => {
     };
     const noArtifactState = {
         gf: { ffruit: fruit },
-        artilist: [{ otyp: 0 }],
+        // artilist[0] is the source table's unused dummy and the zero type
+        // after it is its terminator, so this is an artifact table with no
+        // artifacts in it.
+        artilist: [{ otyp: 0 }, { otyp: 0 }],
     };
     assert.deepEqual(lookup_novel('Light Fantastic', 9, {
         state: noArtifactState,
@@ -353,6 +365,18 @@ test('lookup_novel applies the configured-fruit article exception', () => {
     });
 
     artifactState.artilist[1].name = 'The Light Fantastic';
+    assert.deepEqual(lookup_novel('Light Fantastic', 9, {
+        state: artifactState,
+    }), {
+        novelidx: 1,
+        title: 'The Light Fantastic',
+    });
+
+    // objnam.c:2192 asks artifact_name() with fuzzy FALSE, so an artifact
+    // whose name differs from the fruit's only by a space is not that fruit's
+    // artifact and the article goes back in.  A fuzzy comparison here would
+    // treat the two as one name and drop it.
+    artifactState.artilist[1].name = 'LightFantastic';
     assert.deepEqual(lookup_novel('Light Fantastic', 9, {
         state: artifactState,
     }), {
@@ -390,4 +414,77 @@ test('christen_monst preflights a leashed inventory refresh', () => {
         /requires update_inventory/,
     );
     assert.equal(monster.mextra.mgivenname, 'Fido');
+});
+
+// do_name.c oname() and new_oname(). objnam.c readobjnam() is the only live
+// caller, and scripts/run-wizard-wish.mjs carries its end-to-end evidence;
+// these pin what a wish cannot show.
+function namingState() {
+    const state = {
+        flags: { initalign: 0 },
+        urole: { ...roles.find((role) => role.filecode === 'Val') },
+        urace: { ...races.find((race) => race.noun === 'human') },
+    };
+    objects_globals_init(state);
+    init_artifacts(state);
+    return state;
+}
+
+test('oname names an object and converts a matching artifact', () => {
+    const state = namingState();
+
+    // A name no artifact carries is only a label: do_name.c:394-397 writes
+    // ONAME and 399-400's artifact_exists() finds nothing to make.
+    const plain = { otyp: LONG_SWORD, oartifact: 0, where: OBJ_FREE };
+    assert.equal(oname(plain, 'Fido', ONAME_WISH, { state }), plain);
+    assert.equal(plain.oextra.oname, 'Fido');
+    assert.equal(plain.oartifact, 0);
+
+    // The artifact's own type and name together make the artifact.
+    const sword = { otyp: LONG_SWORD, oartifact: 0, where: OBJ_FREE };
+    oname(sword, 'Excalibur', ONAME_WISH, { state });
+    assert.equal(sword.oartifact, ART_EXCALIBUR);
+    assert.equal(state.artiexist[ART_EXCALIBUR].exists, 1);
+    assert.equal(state.artiexist[ART_EXCALIBUR].wish, 1);
+
+    // 385-388: a second object cannot take a name the game has already used.
+    // The would-be duplicate keeps whatever name it had, which is none.
+    const duplicate = { otyp: LONG_SWORD, oartifact: 0, where: OBJ_FREE };
+    oname(duplicate, 'Excalibur', ONAME_WISH, { state });
+    assert.equal(duplicate.oartifact, 0);
+    assert.equal(duplicate.oextra, undefined);
+
+    // The same test spares an object that is already an artifact, so naming
+    // Excalibur "Fido" changes nothing about it.
+    oname(sword, 'Fido', ONAME_WISH, { state });
+    assert.equal(sword.oextra.oname, 'Excalibur');
+
+    // 392: new_oname() drops the old name, so renaming replaces rather than
+    // appends, and an empty name clears it.
+    oname(plain, 'Rover', ONAME_WISH, { state });
+    assert.equal(plain.oextra.oname, 'Rover');
+    oname(plain, '', ONAME_WISH, { state });
+    assert.equal(has_oname(plain), false);
+});
+
+test('oname truncates a name at PL_PSIZ and stops on a held object', () => {
+    const state = namingState();
+    const obj = { otyp: LONG_SWORD, oartifact: 0, where: OBJ_FREE };
+
+    // do_name.c:381-385 keeps PL_PSIZ - 1 bytes plus the terminator, so a
+    // 70-character name comes back 62 characters long.
+    oname(obj, 'x'.repeat(70), ONAME_WISH, { state });
+    assert.equal(obj.oextra.oname.length, PL_PSIZ - 1);
+    // One byte shorter than the limit is kept whole.
+    oname(obj, 'y'.repeat(PL_PSIZ - 1), ONAME_WISH, { state });
+    assert.equal(obj.oextra.oname.length, PL_PSIZ - 1);
+    oname(obj, 'z'.repeat(PL_PSIZ - 2), ONAME_WISH, { state });
+    assert.equal(obj.oextra.oname.length, PL_PSIZ - 2);
+
+    // 424-425 refreshes the inventory window for an object the hero holds; a
+    // wish reaches hold_another_object() only after oname() has returned, so
+    // no ported caller carries one and the arm stops.
+    const held = { otyp: LONG_SWORD, oartifact: 0, where: OBJ_INVENT };
+    assert.throws(() => oname(held, 'Fido', ONAME_WISH, { state }),
+                  /update_inventory/u);
 });

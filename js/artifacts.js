@@ -7,11 +7,26 @@ import {
     A_CHAOTIC,
     A_LAWFUL,
     A_NEUTRAL,
+    ANTIMAGIC,
+    COLD_RES,
     CONFLICT,
+    DISINT_RES,
+    DRAIN_RES,
+    ENERGY_REGENERATION,
+    FIRE_RES,
+    HALF_PHDAM,
+    HALF_SPDAM,
     INVIS,
     LAST_PROP,
     LEVITATION,
     NON_PM,
+    POISON_RES,
+    PROTECTION,
+    REGENERATION,
+    SEARCHING,
+    SHOCK_RES,
+    STEALTH,
+    TELEPORT_CONTROL,
     ONAME_BONES,
     ONAME_GIFT,
     ONAME_KNOW_ARTI,
@@ -21,7 +36,10 @@ import {
     ONAME_VIA_DIP,
     ONAME_VIA_NAMING,
     ONAME_WISH,
+    Upolyd,
     W_ARM,
+    W_ART,
+    ismnum,
 } from './const.js';
 import { game } from './gstate.js';
 import {
@@ -84,6 +102,7 @@ import {
     WAR_HAMMER,
 } from './objects.js';
 
+import { fuzzymatch, lcase } from './hacklib.js';
 import { aligns } from './roles.js';
 import { rn2 } from './rng.js';
 import { CLR_BRIGHT_BLUE, CLR_RED, NO_COLOR } from './terminal.js';
@@ -193,6 +212,7 @@ const AD_PHYS = 0;
 const AD_MAGM = 1;
 const AD_FIRE = 2;
 const AD_COLD = 3;
+const AD_DISN = 5;
 const AD_ELEC = 6;
 const AD_DRST = 7;
 const AD_BLND = 11;
@@ -509,7 +529,9 @@ function isMonsterPlayer(monster) {
 // C ref: artifact.c bane_applies()/spec_applies(). touch_artifact() only asks
 // this about SPFX_DBONUS category artifacts, so none of the attack-resistance
 // cases (including their random magic-resistance check) can execute here.
-function artifactBaneApplies(artifact, monster) {
+// `yours` is spec_applies()'s own boolean, which two of the five categories
+// read; it is passed in rather than recomputed so both callers agree on it.
+function artifactBaneApplies(artifact, monster, yours, state) {
     if (!(artifact.spfx & SPFX_DBONUS)) return false;
     const species = monster.data ?? {};
     if (artifact.spfx & SPFX_DMONS)
@@ -518,17 +540,31 @@ function artifactBaneApplies(artifact, monster) {
         return species.mlet === artifact.mtype;
     if (artifact.spfx & SPFX_DFLAG1)
         return Boolean((species.mflags1 ?? 0) & artifact.mtype);
-    if (artifact.spfx & SPFX_DFLAG2)
-        return Boolean((species.mflags2 ?? 0) & artifact.mtype);
+    if (artifact.spfx & SPFX_DFLAG2) {
+        // The hero's own race counts as well as the form she is wearing, and
+        // a lycanthrope answers to M2_WERE whatever shape she is in.
+        return Boolean((species.mflags2 ?? 0) & artifact.mtype)
+            || Boolean(yours
+                && ((!Upolyd(state.u)
+                     && ((state.urace?.selfmask ?? 0) & artifact.mtype))
+                    || ((artifact.mtype & M2_WERE)
+                        && ismnum(state.u.ulycn))));
+    }
     if (artifact.spfx & SPFX_DALIGN) {
+        if (yours) return state.u.ualign.type !== artifact.alignment;
         const alignment = monsterAlignment(monster);
         return alignment === A_NONE || alignment !== artifact.alignment;
     }
     return false;
 }
 
-// C ref: artifact.c touch_artifact(), non-hero branch. Monsters either accept
-// or refuse an artifact without messages, damage, state changes, or PRNG.
+// C ref: artifact.c touch_artifact(). C's `touch_blasted` is set here and read
+// only by retouch_object(), which is unported; the blast that sets it is
+// refused below, so the flag would never leave its initial FALSE and no field
+// carries it.
+//
+// Two arms stop this port, both of them a hero's. Nothing before either draws
+// or writes, so a refused touch leaves the game where it found it.
 export function touch_artifact(obj, monster, env = game) {
     const state = artifactTables(env);
     const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
@@ -537,17 +573,26 @@ export function touch_artifact(obj, monster, env = game) {
         || !state.artilist[index].otyp) {
         throw new RangeError(`invalid artifact index ${index}`);
     }
-    if (monster === state.youmonst)
-        throw new Error('hero touch_artifact is outside the monster owner');
 
     const artifact = state.artilist[index];
+    const yours = monster === state.youmonst;
+    /* all quest artifacts are self-willed; if this ever changes, `badclass'
+       will have to be extended to explicitly include quest artifacts */
     const selfWilled = Boolean(artifact.spfx & SPFX_INTEL);
-    const specialMonster = Boolean(
-        (monster.data?.mflags3 ?? 0) & M3_COVETOUS,
-    ) || isMonsterPlayer(monster);
     let badclass = false;
     let badalign = false;
-    if (!specialMonster) {
+    if (yours) {
+        badclass = selfWilled
+            && ((artifact.role !== NON_PM
+                 && state.urole.mnum !== artifact.role)
+                || (artifact.race !== NON_PM
+                    && state.urace.mnum !== artifact.race));
+        badalign = Boolean(artifact.spfx & SPFX_RESTR)
+            && artifact.alignment !== A_NONE
+            && (artifact.alignment !== state.u.ualign.type
+                || state.u.ualign.record < 0);
+    } else if (!(Boolean((monster.data?.mflags3 ?? 0) & M3_COVETOUS)
+                 || isMonsterPlayer(monster))) {
         badclass = selfWilled
             && artifact.role !== NON_PM
             && index !== ART_EXCALIBUR;
@@ -555,12 +600,35 @@ export function touch_artifact(obj, monster, env = game) {
             && artifact.alignment !== A_NONE
             && artifact.alignment !== monsterAlignment(monster);
     }
+    /* an M3_WANTSxxx monster or a fake player leaves both false */
+    /* weapons which attack specific categories of monsters are
+       bad for them even if their alignments happen to match */
     if (!badalign)
-        badalign = artifactBaneApplies(artifact, monster);
+        badalign = artifactBaneApplies(artifact, monster, yours, state);
 
-    if (((badclass || badalign) && selfWilled) || badalign)
+    // C's `!yours` short-circuits before the rn2(4) for a monster, so only a
+    // hero out of step with the artifact spends a draw here -- and she spends
+    // it whether or not the blast follows.
+    if (((badclass || badalign) && selfWilled)
+        || (badalign && (!yours || !randomFromEnv(env)(4)))) {
+        if (!yours) return false;
+        // artifact.c:951-959 prints "You are blasted by <artifact>'s power!",
+        // rolls d(Antimagic ? 2 : 4, self_willed ? 10 : 4) plus a silver
+        // bonus, and spends it through losehp() and exercise().
+        throw new UnsupportedArtifactDisplayError('an artifact blast');
+    }
+
+    /* can pick it up unless you're totally non-synch'd with the artifact */
+    if (badclass && badalign && selfWilled) {
+        if (yours) {
+            // artifact.c:965-968 prints "<Artifact> evades your grasp!" or
+            // "<Artifact> are beyond your control!" through Tobjnam().
+            throw new UnsupportedArtifactDisplayError('an artifact that evades');
+        }
         return false;
-    return !(badclass && badalign && selfWilled);
+    }
+
+    return true;
 }
 
 // The seam every monster-side C caller of touch_artifact() reaches instead of
@@ -623,6 +691,147 @@ export function artiname(artinum, state = game) {
     if (artinum <= ART_NONARTIFACT || artinum > NROFARTIFACTS)
         return '';
     return normalized.artilist[artinum].name;
+}
+
+// C ref: artifact.c get_artifact(). C answers a pointer into artilist[] and
+// uses the dummy row at ART_NONARTIFACT for "no artifact"; this answers that
+// same row, so `=== artilist[ART_NONARTIFACT]` reads the way C's test does.
+export function get_artifact(obj, state = game) {
+    const normalized = artifactTables(state);
+    const index = Math.trunc(obj?.oartifact ?? ART_NONARTIFACT);
+    if (index > ART_NONARTIFACT && index <= NROFARTIFACTS)
+        return normalized.artilist[index];
+    return normalized.artilist[ART_NONARTIFACT];
+}
+
+/** Port of artifact.c:spec_ability(). */
+export function spec_ability(otmp, abil, state = game) {
+    const normalized = artifactTables(state);
+    const artifact = get_artifact(otmp, normalized);
+    return artifact !== normalized.artilist[ART_NONARTIFACT]
+        && (artifact.spfx & abil) !== 0;
+}
+
+/** Port of artifact.c:confers_luck(). */
+export function confers_luck(obj, state = game) {
+    /* might as well check for this too */
+    if (obj.otyp === LUCKSTONE) return true;
+
+    return Boolean(obj.oartifact) && spec_ability(obj, SPFX_LUCK, state);
+}
+
+// The extrinsic each artifact damage type grants, as the seven-way chain at
+// artifact.c:733-746 assigns it. A type absent from this map leaves C's `mask`
+// null and writes nothing, which is what an artifact with no carry effect
+// (cary.adtyp AD_PHYS) does.
+const ARTIFACT_RESISTANCE_PROPERTY = new Map([
+    [AD_FIRE, FIRE_RES],
+    [AD_COLD, COLD_RES],
+    [AD_ELEC, SHOCK_RES],
+    [AD_MAGM, ANTIMAGIC],
+    [AD_DISN, DISINT_RES],
+    [AD_DRST, POISON_RES],
+    [AD_DRLI, DRAIN_RES],
+]);
+
+// The spfx bits that are nothing but an extrinsic mask write, in the order
+// artifact.c:781-880 tests them. The bits left out each drive display or
+// vision work as well, and set_artifact_intrinsic() refuses those below.
+const ARTIFACT_SPFX_PROPERTY = [
+    [SPFX_SEARCH, SEARCHING],
+    [SPFX_STLTH, STEALTH],
+    [SPFX_REGEN, REGENERATION],
+    [SPFX_TCTRL, TELEPORT_CONTROL],
+    [SPFX_EREGEN, ENERGY_REGENERATION],
+    [SPFX_HSPDAM, HALF_SPDAM],
+    [SPFX_HPHDAM, HALF_PHDAM],
+    [SPFX_PROTECT, PROTECTION],
+];
+
+// C ref: artifact.c set_artifact_intrinsic() (715-892), the `on` half of its
+// W_ART path -- what invent.c addinv_core1() runs when an artifact enters
+// inventory. That path reads the carried fields, cary and cspfx, and skips
+// both loops that survey the rest of inventory, because each is guarded on
+// `!on`. Three groups stop this port: the spfx bits that also drive display or
+// vision, the invoked-power shutdown, which is `!on` only, and the wielded
+// SUNSWORD arm, which needs W_WEP.
+export function set_artifact_intrinsic(otmp, on, wp_mask, state = game) {
+    const normalized = artifactTables(state);
+    const oart = get_artifact(otmp, normalized);
+
+    if (oart === normalized.artilist[ART_NONARTIFACT]) return;
+    if (!on || wp_mask !== W_ART) {
+        throw new UnsupportedArtifactDisplayError(
+            'set_artifact_intrinsic() outside a carried artifact',
+        );
+    }
+
+    /* effects from the defn field */
+    const dtyp = oart.cary.adtyp;
+    const property = ARTIFACT_RESISTANCE_PROPERTY.get(dtyp);
+    if (property !== undefined)
+        extrinsicMask(normalized, property, wp_mask);
+
+    /* intrinsics from the spfx field; there could be more than one */
+    const spfx = oart.cspfx;
+    if (spfx & (SPFX_HALRES | SPFX_ESP | SPFX_WARN | SPFX_XRAY)) {
+        // 787-804 calls make_hallucinated(), 797-804 recalc_telepat_range()
+        // and see_monsters(), 823-839 see_monsters() and the warntype record,
+        // and 859-866 the vision recalculation.
+        throw new UnsupportedArtifactDisplayError(
+            'a carried artifact that changes what the hero sees',
+        );
+    }
+    for (const [bit, prop] of ARTIFACT_SPFX_PROPERTY) {
+        if (spfx & bit) extrinsicMask(normalized, prop, wp_mask);
+    }
+    // 867-872's SPFX_REFLECT arm is guarded on `wp_mask & W_WEP`, which W_ART
+    // does not carry.
+}
+
+function extrinsicMask(state, property, wp_mask) {
+    const prop = state.u.uprops[property];
+    prop.extrinsic |= wp_mask;
+}
+
+// C ref: artifact.c artifact_name(). Answers the artifact whose name the
+// player's text spells, or null. C reports the object type through a `short *`
+// out-parameter; this writes it into `otyp_p.otyp` instead, so a caller that
+// wants only the name passes null the way C passes `(short *) 0`.
+//
+// The returned string is the artilist[] entry's own name, not the caller's
+// text, so the answer carries the canonical capitalization even when the
+// player typed none. objnam.c relies on that: readobjnam()'s typfnd: tail
+// compares the two pointers to tell a wish that named an artifact from a wish
+// that merely asked for a label.
+export function artifact_name(name, otyp_p, fuzzy, state = game) {
+    // C reads artilist[] and nothing else here, so this checks only that
+    // table; artifactTables() would also demand the artiexist[] record that
+    // tracks which artifacts have been made, which this answer does not read.
+    const artilist = stateFromEnv(state).artilist;
+    if (!Array.isArray(artilist))
+        throw new Error('artifact_name requires an initialized artilist');
+    let sought = String(name);
+
+    if (lcase(sought.slice(0, 4)) === 'the ')
+        sought = sought.slice(4);
+
+    for (let index = 1; artilist[index].otyp; ++index) {
+        const art = artilist[index];
+        let aname = art.name;
+        if (lcase(aname.slice(0, 4)) === 'the ')
+            aname = aname.slice(4);
+        // C's " -" ignore set drops both spaces and dashes, so "grand master"
+        // and "grandmaster" reach the same entry.
+        if (!fuzzy
+            ? lcase(sought) === lcase(aname)
+            : fuzzymatch(sought, aname, ' -', true)) {
+            if (otyp_p) otyp_p.otyp = art.otyp;
+            return art.name;
+        }
+    }
+
+    return null;
 }
 
 /** Port of artifact.c:exist_artifact(). Artifact names compare exactly. */

@@ -207,6 +207,62 @@ export function loadWizardWishRecipe() {
             segment(4471024,
                 `${WIZWISH_KEY}potion of unholy water${NEWLINE}${WAIT}`,
                 { role: 'Valkyrie', gender: 'female', align: 'lawful' }),
+
+            // --- the names readobjnam_postparse3()'s tail resolves ---
+            // An artifact by name, which no objects[] lookup can reach:
+            // artifact.c artifact_name() matches it at objnam.c:4876 and the
+            // typfnd: tail turns the elven dagger into it.  Sting carries no
+            // SPFX_RESTR, so touch_artifact() lets any hero hold it without a
+            // draw, which leaves the wish's own rn2(nartifact_exist()) as the
+            // only new call in the segment.
+            segment(4471025, `${WIZWISH_KEY}Sting${NEWLINE}${WAIT}`,
+                { role: 'Valkyrie', gender: 'female', align: 'neutral' }),
+            // The same route with two differences the C source makes visible:
+            // artifact_name()'s fuzzymatch() ignores the space the player left
+            // out, and the name it answers is artilist[]'s own, so the object
+            // is named "Frost Brand" rather than "frostbrand".  Frost Brand is
+            // SPFX_RESTR with alignment A_NONE, which is the operand that
+            // spares it from artifact.c:926's alignment test.
+            segment(4471026, `${WIZWISH_KEY}frostbrand${NEWLINE}${WAIT}`,
+                { role: 'Archeologist' }),
+            // A restricted artifact the hero is out of step with: Vorpal Blade
+            // is A_NEUTRAL, so a lawful hero makes artifact.c:925-928 true and
+            // touch_artifact() spends the rn2(4) at 945 before deciding not to
+            // blast her.  The qualifiers ride along, on a Priest who can see
+            // the blessing.
+            segment(4471027,
+                `${WIZWISH_KEY}blessed +3 Vorpal Blade${NEWLINE}${WAIT}`,
+                { role: 'Priest', gender: 'female', align: 'lawful' }),
+            // objnam.c:4775-4781's ARMOR_CLASS retry, the one arm of
+            // readobjnam_postparse3() that returns to readobjnam()'s retry:
+            // label.  The class-name loop has already eaten " armor", leaving
+            // "plate", which matches nothing until " mail" is appended.
+            segment(4471028, `${WIZWISH_KEY}plate armor${NEWLINE}${WAIT}`,
+                { role: 'Rogue', align: 'chaotic' }),
+            // objnam.c:4761-4771's Japanese_items[] table, which is the only
+            // way to reach a short sword by that name.
+            segment(4471029, `${WIZWISH_KEY}wakizashi${NEWLINE}${WAIT}`,
+                { role: 'Samurai', align: 'lawful' }),
+            // A " named " wish on an ordinary object: objnam.c:5347-5349 finds
+            // no artifact of that name, so oname() only labels it and the
+            // inventory line carries " named Fido".
+            segment(4471030,
+                `${WIZWISH_KEY}long sword named Fido${NEWLINE}${WAIT}`,
+                { role: 'Priest', gender: 'female' }),
+            // The other half of objnam.c:5353: the name does match an
+            // artifact, and the type the player asked for is that artifact's
+            // own, so d.name is replaced by artilist[]'s pointer and oname()
+            // converts the object.
+            segment(4471031,
+                `${WIZWISH_KEY}elven dagger named Sting${NEWLINE}${WAIT}`),
+            // And the case that separates the two: the same name on the wrong
+            // base type.  artifact_name() answers Sting, objtyp is
+            // ELVEN_DAGGER rather than LONG_SWORD, so 5353 leaves d.name
+            // alone, oname() finds no artifact to make, and neither
+            // objnam.c:5362's quan/wisharti nor zap.c:6382's artifact_origin()
+            // runs -- which the missing rn2(nartifact_exist()) shows.
+            segment(4471032,
+                `${WIZWISH_KEY}long sword named Sting${NEWLINE}${WAIT}`),
         ],
     }, 'wizard wish recipe');
 }

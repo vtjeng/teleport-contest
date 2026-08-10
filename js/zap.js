@@ -7,8 +7,9 @@
 // js/zap_destroy_items.js, which the C file separates as its own group of
 // functions.
 
+import { artifact_origin } from './artifacts.js';
 import {
-    ICE, IRONBARS, Is_airlevel, Is_waterlevel,
+    ICE, IRONBARS, Is_airlevel, Is_waterlevel, ONAME_KNOW_ARTI, ONAME_WISH,
 } from './const.js';
 import { newsym } from './display.js';
 import { dropx, preflight_dropx } from './do.js';
@@ -97,7 +98,8 @@ export async function makewish(state = game) {
      *  denied.  Wishing for "nothing" requires a separate value to remain
      *  distinct.
      */
-    const bufcpy = buf;
+    // C's bufcpy holds the typed line for wish_history_add() and the three
+    // livelog strings, none of which this port writes.
     // C's `struct obj nothing` is a stack object whose address alone matters.
     const nothing = Object.freeze({});
     const otmp = readobjnam(buf, nothing, { state });
@@ -114,9 +116,12 @@ export async function makewish(state = game) {
     // wish_history_add() sits inside `#ifdef DEBUG` at zap.c:6229, and no
     // patch under nethack-c/patches/ defines DEBUG.
     if (otmp.oartifact) {
-        // 6381-6383's artifact_origin() bookkeeping.
-        throw new UnsupportedWishError('a wished-for artifact', bufcpy);
+        /* update artifact bookkeeping; doesn't produce a livelog event */
+        artifact_origin(otmp, ONAME_WISH | ONAME_KNOW_ARTI, state);
     }
+    // 6387-6388 saves u.uconduct.wisharti from before the wish only to pick
+    // one of three livelog strings with it, so nothing outside the livelog
+    // file reads it.
 
     const holdEnv = {
         state,

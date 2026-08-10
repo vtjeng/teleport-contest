@@ -22,6 +22,10 @@ import {
     LOST_THROWN,
     NON_PM,
     NUM_ATTRS,
+    A_CHAOTIC,
+    A_LAWFUL,
+    ENERGY_REGENERATION,
+    HALF_SPDAM,
     OBJ_BURIED,
     OBJ_CONTAINED,
     OBJ_DELETED,
@@ -36,6 +40,8 @@ import {
     STAIRS,
     STONE_RES,
     WEB,
+    ONAME_WISH,
+    W_ART,
     W_QUIVER,
     W_WEP,
 } from '../js/const.js';
@@ -78,6 +84,11 @@ import {
     xprname,
 } from '../js/invent.js';
 import { GameMap } from '../js/game.js';
+import { oname } from '../js/do_name.js';
+import {
+    ART_EXCALIBUR, ART_EYE_OF_THE_AETHIOPICA, ART_GRAYSWANDIR,
+    UnsupportedArtifactDisplayError, init_artifacts,
+} from '../js/artifacts.js';
 import {
     newObject,
     place_object,
@@ -85,7 +96,7 @@ import {
     UnsupportedObjectOperationError,
     weight,
 } from '../js/obj.js';
-import { PM_COCKATRICE } from '../js/monsters.js';
+import { PM_COCKATRICE, PM_KNIGHT } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { add_rect_to_reg, create_region } from '../js/region.js';
 import {
@@ -103,8 +114,15 @@ import {
     GOLD_PIECE,
     HEAVY_IRON_BALL,
     LUCKSTONE,
+    AMULET_OF_ESP,
+    AMULET_OF_YENDOR,
+    BELL_OF_OPENING,
+    CANDELABRUM_OF_INVOCATION,
+    LONG_SWORD,
     OIL_LAMP,
     SACK,
+    SILVER_SABER,
+    SPE_BOOK_OF_THE_DEAD,
     TALLOW_CANDLE,
     objects_globals_init,
 } from '../js/objects.js';
@@ -1989,15 +2007,113 @@ test('hold_another_object adds the object and prints its letter', async () => {
     assert.equal(arrows.where, OBJ_INVENT);
 });
 
+// invent.c hold_another_object() (1218-1244) stands the artifact on the floor
+// square the hero occupies, so its fixture needs a hero with a position, a
+// level under her, and the artifact tables touch_artifact() measures against.
+// The alignment is what decides whether she may hold the artifact.
+function artifactHolderState(alignment) {
+    const state = carryingState();
+    state.u.ux = 10;
+    state.u.uy = 5;
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    state.u.ualign = { type: alignment, record: 0 };
+    state.youmonst = { data: { mflags1: 0, mflags2: 0, msize: 2, mattk: [] } };
+    // Excalibur names PM_KNIGHT (artilist.h:85), so a Knight is the hero its
+    // class test accepts; its race is NON_PM, which accepts everyone.
+    state.urole = { mnum: PM_KNIGHT };
+    state.level = new GameMap();
+    state.level.at(10, 5).typ = ROOM;
+    // init_artifacts() reads flags.initalign to place the quest artifacts;
+    // index 0 is the lawful row, which leaves Excalibur's own entry alone.
+    state.flags.initalign = 0;
+    init_artifacts(state);
+    return state;
+}
+
+// invent.c addinv_core1() (984-992). An artifact that is not the hero's own
+// quest artifact grants whatever its carried fields name, through
+// artifact.c set_artifact_intrinsic(otmp, 1, W_ART).
+test('taking an artifact into inventory grants its carried intrinsics', () => {
+    const state = artifactHolderState(A_LAWFUL);
+    // artilist.h:33 gives the Eye of the Aethiopica SPFX_EREGEN and
+    // SPFX_HSPDAM to carry. This Knight's own quest artifact is unset, so
+    // is_quest_artifact() is false and the arm below it runs.
+    const amulet = instance(AMULET_OF_ESP, state, {
+        oartifact: ART_EYE_OF_THE_AETHIOPICA,
+    });
+    addinv(amulet, { state });
+    assert.equal(state.u.uprops[ENERGY_REGENERATION].extrinsic, W_ART);
+    assert.equal(state.u.uprops[HALF_SPDAM].extrinsic, W_ART);
+    assert.equal(amulet.where, OBJ_INVENT);
+
+    // Grayswandir carries nothing at all, so holding it writes no extrinsic.
+    const before = state.u.uprops.map((prop) => prop.extrinsic);
+    const saber = instance(SILVER_SABER, state, {
+        oartifact: ART_GRAYSWANDIR,
+    });
+    addinv(saber, { state });
+    assert.deepEqual(state.u.uprops.map((prop) => prop.extrinsic), before);
+
+    // The four types above the artifact arm keep their own seam: each sets a
+    // u.uhave flag and records an achievement, neither of which is ported.
+    for (const otyp of [AMULET_OF_YENDOR, CANDELABRUM_OF_INVOCATION,
+                        BELL_OF_OPENING, SPE_BOOK_OF_THE_DEAD]) {
+        assert.throws(
+            () => addinv(instance(otyp, state), { state }),
+            /addSpecialInventoryEffects/u,
+            String(otyp),
+        );
+    }
+});
+
+// invent.c hold_another_object() (1218-1244) round-trips an artifact through
+// the floor square and takes it straight back, so the object ends up in
+// inventory carrying the coordinates place_object() gave it.
+test('hold_another_object holds an artifact the hero can touch', async () => {
+    const state = artifactHolderState(A_LAWFUL);
+    const sword = instance(LONG_SWORD, state, { where: OBJ_FREE });
+    // Build the artifact the way a wish does, so the artifact tables and the
+    // object agree; naming it directly would leave artiexist[] unset.
+    oname(sword, 'Excalibur', ONAME_WISH, { state });
+    assert.equal(sword.oartifact, ART_EXCALIBUR);
+
+    assert.equal(
+        await hold_another_object(sword, null, null, null, {
+            state,
+            hooks: {
+                encumberMessage: () => {},
+                // do.c supplies remove_object() for obj_extract_self()'s
+                // floor arm, which is the half of the round trip that takes
+                // the artifact back off the square.
+                extractExternalObject: (object, env) => remove_object(object,
+                                                                      env),
+            },
+        }),
+        sword,
+    );
+    assert.equal(sword.where, OBJ_INVENT);
+    assert.equal(sword.ox, 10);
+    assert.equal(sword.oy, 5);
+    // obj_extract_self() took it off the floor again, so the square is empty.
+    assert.equal(state.level.objects[10][5], null);
+});
+
 test('hold_another_object stops on the arms it cannot finish', async () => {
+    // 1216-1244 puts an artifact on the floor to run touch_artifact().  A
+    // chaotic Knight fails Excalibur's SPFX_RESTR alignment test, and its
+    // SPFX_INTEL makes the first half of artifact.c:944 true on its own, so
+    // the blast arm is reached without its rn2(4) being evaluated.
+    const blasted = artifactHolderState(A_CHAOTIC);
+    const artifact = instance(LONG_SWORD, blasted, { oartifact: ART_EXCALIBUR });
+    await assert.rejects(
+        () => hold_another_object(artifact, null, null, null,
+                                  { state: blasted,
+                                    hooks: { encumberMessage: () => {} } }),
+        UnsupportedArtifactDisplayError,
+    );
+
     const state = carryingState();
     const env = { state, hooks: { encumberMessage: () => {} } };
-    // 1216-1244 puts an artifact on the floor to run touch_artifact().
-    const artifact = instance(OIL_LAMP, state, { oartifact: 1 });
-    await assert.rejects(
-        () => hold_another_object(artifact, null, null, null, env),
-        UnsupportedObjectOperationError,
-    );
     // 1245-1249 adds the object and drops it again while Fumbling.
     const fumbling = carryingState();
     fumbling.u.uprops[FUMBLING] = { blocked: 0, extrinsic: 0, intrinsic: 1 };
@@ -2230,14 +2346,20 @@ test('heavy-drop admission is object-specific, state-specific, and one-shot',
         }
     });
 
+// invent.c runs the artifact block at 1218 and the Fumbling test at 1245
+// before the encumbrance projection at 1258-1281, so a ball too heavy to hold
+// still stops on whichever of the two comes first.
 test('heavy artifact and Fumbling guards precede drop projection', async () => {
-    for (const [name, setup, reason] of [
-        ['artifact', (state, ball) => { ball.oartifact = 1; }, /artifact/u],
-        ['Fumbling', (state) => {
+    for (const [name, makeState, setup, reason] of [
+        // A chaotic Knight cannot touch Excalibur, so the artifact block stops
+        // the hold before the ball's weight is ever measured.
+        ['artifact', () => artifactHolderState(A_CHAOTIC),
+         (state, ball) => { ball.oartifact = ART_EXCALIBUR; }, /artifact/u],
+        ['Fumbling', () => carryingState(), (state) => {
             state.u.uprops[FUMBLING].intrinsic = 1;
         }, /fumbling/u],
     ]) {
-        const state = carryingState();
+        const state = makeState();
         state.u.acurr.a[A_STR] = 3;
         state.u.acurr.a[A_CON] = 3;
         const ball = instance(HEAVY_IRON_BALL, state);

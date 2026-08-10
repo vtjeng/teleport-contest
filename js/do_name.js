@@ -18,6 +18,8 @@ import {
     M_AP_TYPMASK,
     NEUTRAL,
     NUM_MGENDERS,
+    ONAME_SKIP_INVUPD,
+    ONAME_VIA_NAMING,
     PL_PSIZ,
     SUPPRESS_HALLUCINATION,
     SUPPRESS_INVISIBLE,
@@ -26,9 +28,12 @@ import {
     SUPPRESS_NAME,
     SUPPRESS_SADDLE,
     W_SADDLE,
+    has_oname,
 } from './const.js';
+import { artifact_exists, artifact_name, exist_artifact } from './artifacts.js';
 import { fruit_from_name } from './fruit.js';
 import { game } from './gstate.js';
+import { UnsupportedObjectOperationError, carried } from './obj.js';
 import {
     decodeUtf8ByteString,
     encodeUtf8ByteString,
@@ -85,6 +90,92 @@ const GHOST_NAMES = Object.freeze([
     'Shadowhawk',
     'Murphy',
 ]);
+
+// C ref: do_name.c new_oname() (60-77). C's two halves are an allocation and a
+// deallocation. Only the second survives translation: for a nonzero length C
+// frees the old name and allocates a buffer that oname() then copies into,
+// which in JavaScript is the assignment alone, so all this half owes is that
+// oextra exists to assign into.
+export function new_oname(obj, lth) {
+    if (lth) {
+        /* allocate oextra if necessary; otherwise get rid of old name */
+        obj.oextra ??= {};
+    } else {
+        /* zero length: the new name is empty; get rid of the old name */
+        if (has_oname(obj)) free_oname(obj);
+    }
+}
+
+// C ref: do_name.c free_oname() (80-88). C keeps oextra and clears the name
+// field; deleting the property is this port's empty ONAME.
+export function free_oname(obj) {
+    if (has_oname(obj)) delete obj.oextra.oname;
+}
+
+// C ref: do_name.c oname() (371-426). Assigns a player-given or artifact name
+// and, when the name belongs to an artifact of this object's type, turns the
+// object into that artifact through artifact_exists().
+//
+// Four arms below the artifact test stop this port. Each needs a caller that
+// readobjnam()'s wish -- oname()'s only live caller -- cannot be: the wished
+// object is fresh from mksobj(), so it is neither wielded nor secondary-wielded
+// nor owned by a shop, and ONAME_WISH carries no ONAME_VIA_NAMING bit. The
+// fifth, update_inventory(), needs the object to be in inventory, and a wish
+// reaches hold_another_object() only after this returns.
+export function oname(obj, name, oflgs, env = {}) {
+    const state = env.state ?? game;
+    const via_naming = (oflgs & ONAME_VIA_NAMING) !== 0;
+    const skip_inv_update = (oflgs & ONAME_SKIP_INVUPD) !== 0;
+
+    // C measures and truncates bytes, so a multi-byte name has to be cut on a
+    // byte boundary rather than a code-point one, as christen_monst() does.
+    const bytes = encodeUtf8ByteString(String(name));
+    let lth = bytes.length ? bytes.length + 1 : 0;
+    let text = String(name);
+    if (lth > PL_PSIZ) {
+        lth = PL_PSIZ;
+        text = decodeUtf8ByteString(bytes.slice(0, PL_PSIZ - 1));
+    }
+    /* If named artifact exists in the game, do not create another.
+       Also trying to create an artifact shouldn't de-artifact
+       it (e.g. Excalibur from prayer). In this case the object
+       will retain its current name. */
+    if (obj.oartifact || (lth && exist_artifact(obj.otyp, text, state)))
+        return obj;
+
+    new_oname(obj, lth); /* removes old name if one is present */
+    if (lth) obj.oextra.oname = text;
+
+    if (lth) artifact_exists(obj, text, true, oflgs, state);
+    if (obj.oartifact) {
+        /* can't dual-wield with artifact as secondary weapon */
+        if (obj === state.uswapwep)
+            throw new UnsupportedObjectOperationError('untwoweapon()', obj);
+        /* activate warning if you've just named your weapon "Sting" */
+        if (obj === state.uwep) {
+            throw new UnsupportedObjectOperationError(
+                'set_artifact_intrinsic()', obj,
+            );
+        }
+        /* if obj is owned by a shop, increase your bill */
+        if (obj.unpaid)
+            throw new UnsupportedObjectOperationError('alter_cost()', obj);
+        if (via_naming) {
+            // do_name.c:414-424 violates illiteracy conduct and writes a
+            // livelog event. The conduct counter is saved state, so the arm
+            // cannot be skipped the way a livelog-only arm can.
+            throw new UnsupportedObjectOperationError(
+                'naming-conduct livelog', obj,
+            );
+        }
+    }
+    if (carried(obj) && !skip_inv_update) {
+        throw new UnsupportedObjectOperationError(
+            'update_inventory() after naming', obj,
+        );
+    }
+    return obj;
+}
 
 export function christen_monst(monster, name, env = {}) {
     if (!monster || typeof monster !== 'object')
@@ -534,23 +625,10 @@ function startsWithThe(title) {
     return sameTitle(String(title).slice(0, 4), 'the ');
 }
 
-function matchingArtifactName(name, state) {
-    const candidate = startsWithThe(name) ? String(name).slice(4) : String(name);
-    for (let index = 1; state.artilist?.[index]?.otyp; ++index) {
-        const artifactName = state.artilist[index].name;
-        if (typeof artifactName !== 'string') continue;
-        const comparable = startsWithThe(artifactName)
-            ? artifactName.slice(4)
-            : artifactName;
-        if (sameTitle(candidate, comparable)) return artifactName;
-    }
-    return null;
-}
-
 function fruitNameForcesArticle(title, state) {
     if (!state.gf?.ffruit) return false;
     if (!fruit_from_name(title, true, state)) return false;
-    const artifactName = matchingArtifactName(title, state);
+    const artifactName = artifact_name(title, null, false, state);
     return !artifactName || startsWithThe(artifactName);
 }
 

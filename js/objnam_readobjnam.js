@@ -8,15 +8,20 @@
 // objnam.c's naming half -- xname(), doname(), an(), the() and their helpers
 // -- is a separate group of functions and lives in js/objnam.js.
 
-import { nartifact_exist, permapoisoned } from './artifacts.js';
 import {
-    FEMALE, GOLD_SYM, LOW_PM, MALE, NEUTRAL, NON_PM, SPE_LIM, ismnum,
+    artifact_name, nartifact_exist, permapoisoned,
+} from './artifacts.js';
+import {
+    FEMALE, GOLD_SYM, LOW_PM, MALE, NEUTRAL, NON_PM, ONAME_WISH, SPE_LIM,
+    ismnum,
 } from './const.js';
-import { makesingular } from './fruit.js';
+import { lookup_novel, oname } from './do_name.js';
+import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
 import { digit, fuzzymatch, lcase, lowc, mungspaces, strstri } from './hacklib.js';
 import { name_to_monplus } from './mondata.js';
 import { PM_GRAY_DRAGON, PM_YELLOW_DRAGON } from './monsters.js';
+import { JAPANESE_ITEMS } from './objnam_data.js';
 import {
     curseFreeObject, erosionMatters, isContainer, mksobj, objectType,
     rnd_class, weight,
@@ -463,6 +468,14 @@ export function readobjnam_init(bp, state) {
         zombify: false,
         bp, consumed: '',
         name: null,
+        // Not a field of C's struct.  C's d->name is a pointer, and the
+        // typfnd: tail at objnam.c:5361 asks which string it points at: the
+        // wish buffer, where readobjnam_postparse1() leaves the text after
+        // " named ", or an artilist[] entry's own name, where
+        // artifact_name() leaves the artifact the player spelled.  Two equal
+        // JavaScript strings cannot answer that, so the provenance is carried
+        // beside the name.  Every assignment to d.name sets this too.
+        nameIsArtiName: false,
         ftype: state?.context?.current_fruit ?? 0,
         globbuf: '',
         fruitbuf: '',
@@ -800,6 +813,7 @@ export function readobjnam_postparse1(d, env) {
     if ((p = strstri(d.bp, ' named ')) >= 0) {
         /* note: if 'name' is too long, oname() will truncate it */
         d.name = d.bp.slice(p + 7);
+        d.nameIsArtiName = false; /* C's pointer lands in the wish buffer */
         d.bp = d.bp.slice(0, p);
     }
     if ((p = strstri(d.bp, ' called ')) >= 0) {
@@ -1164,8 +1178,7 @@ export function readobjnam_postparse2(d, env) {
     return 0;
 }
 
-// C ref: objnam.c readobjnam_postparse3()'s head and its first match
-// (4726-4750).
+// C ref: objnam.c readobjnam_postparse3() (4726-4899).
 export function readobjnam_postparse3(d, env) {
     const { state } = env;
 
@@ -1187,16 +1200,162 @@ export function readobjnam_postparse3(d, env) {
         }
     }
 
-    if ((d.typ = rnd_otyp_by_namedesc(d.actualn, d.oclass, 1, env))
-        !== STRANGE_OBJECT)
+    // C compares d->dn and d->origbp with d->actualn by pointer, because all
+    // three point into the one wish buffer; this port holds them as separate
+    // strings and compares text.  The two agree on every wish.  Equal pointers
+    // always carry equal text.  Distinct pointers can carry equal text --
+    // "potion labeled potion" leaves dn and actualn reading the same -- and
+    // there C makes a lookup this port skips.  That lookup repeats the one
+    // d.actualn just made and lost, and rnd_otyp_by_namedesc() answers
+    // STRANGE_OBJECT without drawing when nothing matches, so the repeat
+    // cannot match, cannot draw and cannot be seen.
+    if (((d.typ = rnd_otyp_by_namedesc(d.actualn, d.oclass, 1, env))
+         !== STRANGE_OBJECT)
+        || (d.dn !== d.actualn
+            && ((d.typ = rnd_otyp_by_namedesc(d.dn, d.oclass, 1, env))
+                !== STRANGE_OBJECT))
+        || ((d.typ = rnd_otyp_by_namedesc(d.un, d.oclass, 1, env))
+            !== STRANGE_OBJECT)
+        || (origbp(d) !== d.actualn
+            && ((d.typ = rnd_otyp_by_namedesc(origbp(d), d.oclass, 1, env))
+                !== STRANGE_OBJECT)))
         return 2; /*goto typfnd;*/
-    // objnam.c:4751-4758 tries d.dn, d.un and d.origbp next, each with its own
-    // draw, and 4760-4899 goes on to Japanese item names, the ARMOR_CLASS
-    // " mail" retry, spinach, named fruits, artifacts and the class-filtered
-    // spellings list.  A wish that reaches here has matched nothing, so
-    // rnd_otyp_by_namedesc() answered STRANGE_OBJECT without drawing.
-    throw new UnsupportedWishError(
-        'a name the first objects[] lookup does not resolve', origbp(d));
+    d.typ = 0;
+
+    if (d.actualn) {
+        for (const j of JAPANESE_ITEMS) {
+            if (strcmpiEqual(d.actualn, j.name)) {
+                d.typ = j.otyp;
+                return 2; /*goto typfnd;*/
+            }
+        }
+    }
+    /* if we've stripped off "armor" and failed to match anything
+       in objects[], append "mail" and try again to catch misnamed
+       requests like "plate armor" and "yellow dragon scale armor" */
+    if (d.oclass === ARMOR_CLASS && strstri(d.bp, 'mail') < 0) {
+        /* modifying bp's string is ok; we're about to resort
+           to random armor if this also fails to match anything */
+        d.bp += ' mail';
+        return 6; /*goto retry;*/
+    }
+    if (strcmpiEqual(d.bp, 'spinach')) {
+        d.contents = TIN_SPINACH;
+        d.typ = TIN;
+        return 2; /*goto typfnd;*/
+    }
+    /* Fruits must not mess up the ability to wish for real objects (since
+     * you can leave a fruit in a bones file and it will be added to
+     * another person's game), so they must be checked for last, after
+     * stripping all the possible prefixes and seeing if there's a real
+     * name in there.  So we have to save the full original name.  However,
+     * it's still possible to do things like "uncursed burnt Alaska",
+     * or worse yet, "2 burned 5 course meals", so we need to loop to
+     * strip off the prefixes again, this time stripping only the ones
+     * possible on food.
+     */
+    /* Note: not strcmpi.  2 fruits, one capital, one not, are possible.
+       Also not strncmp.  We used to ignore trailing text with it, but
+       that resulted in "grapefruit" matching "grape" if the latter came
+       earlier than the former in the fruit list. */
+    {
+        let blessedf = 0, iscursedf = 0, uncursedf = 0, halfeatenf = 0;
+        let cntf = 0;
+
+        let fp = d.fruitbuf;
+        for (;;) {
+            let l;
+            // C's `!fp || !*fp`; an empty JavaScript string is falsy too.
+            if (!fp) break;
+            if (strncmpiIsPrefix(fp, 'an ')) {
+                l = 3;
+                cntf = 1;
+            } else if (strncmpiIsPrefix(fp, 'a ')) {
+                l = 2;
+                cntf = 1;
+            } else if (!cntf && digit(fp[0])) {
+                const scan = scanCount(fp, 0);
+                cntf = scan.value;
+                let at = scan.end;
+                while (fp[at] === ' ') at++;
+                fp = fp.slice(at);
+                l = 0;
+            } else if (strncmpiIsPrefix(fp, 'blessed ')) {
+                l = 8;
+                blessedf = 1;
+            } else if (strncmpiIsPrefix(fp, 'cursed ')) {
+                l = 7;
+                iscursedf = 1;
+            } else if (strncmpiIsPrefix(fp, 'uncursed ')) {
+                l = 9;
+                uncursedf = 1;
+            } else if (strncmpiIsPrefix(fp, 'partly eaten ')) {
+                l = 13;
+                halfeatenf = 1;
+            } else if (strncmpiIsPrefix(fp, 'partially eaten ')) {
+                l = 16;
+                halfeatenf = 1;
+            } else {
+                break;
+            }
+            fp = fp.slice(l);
+        }
+
+        for (let f = state.gf?.ffruit ?? null; f; f = f.nextf) {
+            /* match type: 0=none, 1=exact, 2=singular, 3=plural */
+            let ftyp = 0;
+
+            if (fp === f.fname) ftyp = 1;
+            else if (fp === makesingular(f.fname)) ftyp = 2;
+            else if (fp === makeplural(f.fname)) ftyp = 3;
+            if (ftyp) {
+                d.typ = SLIME_MOLD;
+                d.blessed = blessedf;
+                d.iscursed = iscursedf;
+                d.uncursed = uncursedf;
+                d.halfeaten = halfeatenf;
+                /* adjust count if user explicitly asked for
+                   singular amount (can't happen unless fruit
+                   has been given an already pluralized name)
+                   or for plural amount */
+                if (ftyp === 2 && !cntf) cntf = 1;
+                else if (ftyp === 3 && !cntf) cntf = 2;
+                d.cnt = cntf;
+                d.ftype = f.fid;
+                return 2; /*goto typfnd;*/
+            }
+        }
+    }
+
+    if (!d.oclass && d.actualn) {
+        const objtyp = {};
+
+        /* Perhaps it's an artifact specified by name, not type */
+        d.name = artifact_name(d.actualn, objtyp, true, state);
+        // C's d->name now points at the artilist[] entry's own name rather
+        // than into the wish buffer, and readobjnam()'s typfnd: tail reads
+        // that difference; see the note on d.nameIsArtiName.  A miss clears
+        // both, exactly as C's assignment of a null pointer does.
+        d.nameIsArtiName = d.name != null;
+        if (d.name) {
+            d.typ = objtyp.otyp;
+            return 2; /*goto typfnd;*/
+        }
+    }
+
+    /* got a class, but not specific type;
+       check alternate spellings of items with matching classes */
+    if (d.oclass && !d.typ) {
+        for (const as of spellings) {
+            if (state.objects[as.ob].oc_class === d.oclass
+                && wishymatch(d.bp, as.sp, true)) {
+                d.typ = as.ob;
+                return 2; /*goto typfnd;*/
+            }
+        }
+    }
+
+    return 0;
 }
 
 // The fields readobjnam_preparse() and readobjnam_parse_charges() can set that
@@ -1328,11 +1487,9 @@ export function readobjnam(bp, no_wish, env = {}) {
     requireSimpleWishQualifiers(d);
 
     let action = readobjnam_postparse1(d, normalized);
-    // Two refusals stand here rather than at typfnd:, because
+    // This refusal stands here rather than at typfnd:, because
     // readobjnam_postparse3() would otherwise draw first -- "gnome corpse"
-    // spends rn2(1) on CORPSE before its monster becomes visible again, and
-    // "long sword named Foo" spends rn2(51) on a sword it then declines to
-    // name.
+    // spends rn2(1) on CORPSE before its monster becomes visible again.
     if (d.mntmp >= LOW_PM
         && !(d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)) {
         // objnam.c:5026-5030 turns a wished-for pudding corpse into a glob,
@@ -1344,19 +1501,34 @@ export function readobjnam(bp, no_wish, env = {}) {
         throw new UnsupportedWishError('a wish naming a monster type',
                                        origbp(d));
     }
-    if (d.name) {
-        // objnam.c:5325-5346 runs the name through artifact_name(),
-        // lookup_novel() and oname().
-        throw new UnsupportedWishError('a " named " wish', origbp(d));
+    for (;;) {
+        /* retry: */
+        if (action === 0) /* C breaks out of the switch into retry: */
+            action = readobjnam_postparse2(d, normalized);
+        /* srch: */
+        if (action === 0 || action === 1) /* 1 is C's goto srch: */
+            action = readobjnam_postparse3(d, normalized);
+        if (action !== 6) break;
+        // readobjnam_postparse3()'s ARMOR_CLASS arm has appended " mail" to
+        // d.bp and asked for another pass.  C's `goto retry:` re-enters
+        // readobjnam_postparse2() unconditionally, which is what a 0 here
+        // arranges.  The loop terminates because the arm that returns 6
+        // requires d.bp to hold no "mail" and leaves it holding some.
+        action = 0;
     }
-    if (action === 0) /* C breaks out of the switch into retry: */
-        action = readobjnam_postparse2(d, normalized);
-    if (action === 0 || action === 1) /* 1 is C's goto srch: */
-        action = readobjnam_postparse3(d, normalized);
+    if (action === 0) {
+        // objnam.c:4959-4986: a name nothing matched falls past the end of
+        // readobjnam_postparse3() into wiztrap:, where a wizard's line is
+        // offered to wizterrainwish(), then to the "polearm" and "hammer"
+        // skill picks, and finally answers a null pointer that makewish()
+        // reports with "Nothing fitting that description exists in the game."
+        // and retries.  None of those is ported.
+        throw new UnsupportedWishError('a wish no lookup resolves', origbp(d));
+    }
     if (action !== 2) {
         // Each of C's other codes is refused where its branch is raised: 3
-        // returns d.otmp, 4 goes to `any:`, 5 to wiztrap: and 6 back to
-        // retry:.  This is the fail-closed backstop.
+        // returns d.otmp, 4 goes to `any:` and 5 to wiztrap:.  This is the
+        // fail-closed backstop.
         throw new UnsupportedWishError(`readobjnam action ${action}`,
                                        origbp(d));
     }
@@ -1500,7 +1672,40 @@ export function readobjnam(bp, no_wish, env = {}) {
 
     // objnam.c:5292-5323: poisoned, [un]trapped, empty containers, box lock
     // states, greased, diluted and the tin variety all need a qualifier or a
-    // type refused above, and 5325-5346's oname() needs d.name.
+    // type refused above.
+
+    if (d.name) {
+        let aname;
+
+        /* an artifact name might need capitalization fixing */
+        {
+            const objtyp = {};
+            aname = artifact_name(d.name, objtyp, true, state);
+            if (aname && objtyp.otyp === d.otmp.otyp) {
+                d.name = aname;
+                d.nameIsArtiName = true;
+            }
+        }
+
+        /* 3.6 tribute - fix up novel */
+        if (d.otmp.otyp === SPE_NOVEL) {
+            const novel = lookup_novel(d.name, d.otmp.novelidx, { state });
+            if (novel.title != null) {
+                d.otmp.novelidx = novel.novelidx;
+                d.name = novel.title;
+                // C's d->name now points into the novel catalog, so the
+                // pointer test below can no longer see the artifact name.
+                d.nameIsArtiName = false;
+            }
+        }
+
+        d.otmp = oname(d.otmp, d.name, ONAME_WISH, { state });
+        /* name==aname => wished for artifact (otmp->oartifact => got it) */
+        if (d.otmp.oartifact || d.nameIsArtiName) {
+            d.otmp.quan = 1;
+            state.u.uconduct.wisharti++; /* KMH, conduct */
+        }
+    }
 
     if (permapoisoned(d.otmp))
         d.otmp.opoisoned = 1;

@@ -14,17 +14,31 @@ import {
     ART_ORCRIST,
     ART_STING,
     ART_SUNSWORD,
+    ART_FROST_BRAND,
+    ART_GRAYSWANDIR,
+    ART_HEART_OF_AHRIMAN,
+    ART_ORB_OF_DETECTION,
+    ART_STORMBRINGER,
+    ART_VORPAL_BLADE,
+    ART_WEREBANE,
     AFTER_LAST_ARTIFACT,
     NROFARTIFACTS,
+    UnsupportedArtifactDisplayError,
     artifactTouchable,
     artifact_defends,
     artifact_light,
+    artifact_name,
+    confers_luck,
+    set_artifact_intrinsic,
     shade_glare,
     createArtifactTable,
     init_artifacts,
     touch_artifact,
 } from '../js/artifacts.js';
-import { A_NONE, NON_PM, W_ARM, W_ARMC } from '../js/const.js';
+import {
+    A_CHAOTIC, A_LAWFUL, A_NEUTRAL, A_NONE, ENERGY_REGENERATION, HALF_PHDAM,
+    HALF_SPDAM, LAST_PROP, NON_PM, W_ARM, W_ARMC, W_ART, W_WEP,
+} from '../js/const.js';
 import {
     AD_FIRE,
     AD_MAGM,
@@ -33,6 +47,7 @@ import {
     PM_ELF,
     PM_KITTEN,
     PM_ORC,
+    PM_WEREWOLF,
     PM_WIZARD,
 } from '../js/monsters.js';
 import {
@@ -40,6 +55,7 @@ import {
     GOLD_DRAGON_SCALES,
     GOLD_DRAGON_SCALE_MAIL,
     LONG_SWORD,
+    LUCKSTONE,
     ORCISH_DAGGER,
     SILVER_DRAGON_SCALE_MAIL,
     SILVER_SABER,
@@ -412,4 +428,269 @@ test('shade_glare answers for silver and for the undead-bane artifacts', () => {
         shade_glare({ otyp: LONG_SWORD, oartifact: ART_EXCALIBUR }, state),
         false,
     );
+});
+
+// artifact.c artifact_name(). Every expectation below is read from
+// include/artilist.h: the port cannot be checked against a recording here,
+// because a wish resolves the name long before anything reaches the screen.
+test('artifact_name matches a name exactly and then fuzzily', () => {
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+
+    // artilist.h:170 pairs Grayswandir with SILVER_SABER. The answer is the
+    // table's own string, so a lower-case request comes back capitalized --
+    // which is what objnam.c:5350-5353 relies on.
+    const otyp = {};
+    assert.equal(artifact_name('grayswandir', otyp, true, state),
+                 'Grayswandir');
+    assert.equal(otyp.otyp, SILVER_SABER);
+
+    // fuzzymatch() is called with " -", so a space the player left out or put
+    // in makes no difference; without it only strcmpi() applies.
+    assert.equal(artifact_name('vorpalblade', null, true, state),
+                 'Vorpal Blade');
+    assert.equal(artifact_name('vorpalblade', null, false, state), null);
+    assert.equal(artifact_name('vorpal blade', null, false, state),
+                 'Vorpal Blade');
+
+    // Both sides drop a leading "the ", so the four-word quest artifacts match
+    // with or without it and the answer keeps the article either way.
+    assert.equal(artifact_name('master key of thievery', null, false, state),
+                 'The Master Key of Thievery');
+    assert.equal(
+        artifact_name('The Master Key of Thievery', null, false, state),
+        'The Master Key of Thievery',
+    );
+
+    // A name no artifact carries answers null and leaves otyp alone.
+    const untouched = { otyp: SILVER_SABER };
+    assert.equal(artifact_name('zzyzx', untouched, true, state), null);
+    assert.equal(untouched.otyp, SILVER_SABER);
+});
+
+// artifact.c touch_artifact(), the hero half. artilist.h:191 makes Vorpal
+// Blade SPFX_RESTR and A_NEUTRAL with no role, race or SPFX_INTEL, so
+// alignment alone decides, and :149 makes Frost Brand SPFX_RESTR with
+// alignment A_NONE, which the second operand of artifact.c:926 spares.
+test('a hero touches an artifact her alignment matches', () => {
+    const draws = [];
+    const random = { rn2: (x) => { draws.push(x); return 1; } };
+    const heroState = (alignment, record = 0) => {
+        const state = stateFor('Val', 'neutral');
+        init_artifacts(state);
+        state.youmonst = { data: { mflags1: 0, mflags2: 0 } };
+        state.u = {
+            ualign: { type: alignment, record },
+            ulycn: NON_PM,
+            umonnum: 0,
+            umonster: 0,
+            uprops: [],
+        };
+        return state;
+    };
+    const vorpal = { oartifact: ART_VORPAL_BLADE };
+
+    // A neutral hero matches, so artifact.c:944-945 is false on both operands
+    // and no draw is spent.
+    const neutral = heroState(A_NEUTRAL);
+    assert.equal(touch_artifact(vorpal, neutral.youmonst,
+                                { state: neutral, random }), true);
+    assert.deepEqual(draws, []);
+
+    // A lawful hero does not, and Vorpal Blade is not self-willed, so the
+    // first operand stays false and the second spends rn2(4). A nonzero roll
+    // is the three-in-four case that holds the artifact anyway.
+    const lawful = heroState(A_LAWFUL);
+    assert.equal(touch_artifact(vorpal, lawful.youmonst,
+                                { state: lawful, random }), true);
+    assert.deepEqual(draws, [4]);
+
+    // A coaligned hero in the gods' bad books fails the same test: 927-928
+    // reads u.ualign.record as well as the type.
+    draws.length = 0;
+    const sinner = heroState(A_NEUTRAL, -1);
+    assert.equal(touch_artifact(vorpal, sinner.youmonst,
+                                { state: sinner, random }), true);
+    assert.deepEqual(draws, [4]);
+
+    // An A_NONE artifact reaches no alignment test at all, whatever the hero.
+    draws.length = 0;
+    const chaotic = heroState(A_CHAOTIC);
+    assert.equal(touch_artifact({ oartifact: ART_FROST_BRAND },
+                                chaotic.youmonst,
+                                { state: chaotic, random }), true);
+    assert.deepEqual(draws, []);
+});
+
+test('a hero out of step with a self-willed artifact is blasted', () => {
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+    state.youmonst = { data: { mflags1: 0, mflags2: 0 } };
+    state.u = {
+        ualign: { type: A_NEUTRAL, record: 0 },
+        ulycn: NON_PM,
+        umonnum: 0,
+        umonster: 0,
+        uprops: [],
+    };
+    // hack_artifacts() clears Excalibur's role for every hero but a Knight,
+    // so what stops this Valkyrie is the alignment alone -- and because
+    // Excalibur is SPFX_INTEL, artifact.c:944's first operand is true and the
+    // rn2(4) is never reached.
+    const random = { rn2: () => { throw new Error('unexpected draw'); } };
+    assert.throws(
+        () => touch_artifact({ oartifact: ART_EXCALIBUR }, state.youmonst,
+                             { state, random }),
+        UnsupportedArtifactDisplayError,
+    );
+});
+
+// artifact.c set_artifact_intrinsic(), the W_ART half invent.c addinv_core1()
+// runs. artilist.h:170 gives Grayswandir NO_CARY and a zero cspfx, so holding
+// it grants nothing at all; :33 gives the Eye of the Aethiopica SPFX_EREGEN
+// and SPFX_HSPDAM to carry.
+test('carrying an artifact sets the extrinsics its cary fields name', () => {
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+    state.u = { uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+        blocked: 0, extrinsic: 0, intrinsic: 0,
+    })) };
+
+    set_artifact_intrinsic({ oartifact: ART_GRAYSWANDIR }, true, W_ART, state);
+    assert.equal(state.u.uprops.every((prop) => prop.extrinsic === 0), true);
+
+    set_artifact_intrinsic({ oartifact: ART_EYE_OF_THE_AETHIOPICA }, true,
+                           W_ART, state);
+    assert.equal(state.u.uprops[ENERGY_REGENERATION].extrinsic, W_ART);
+    assert.equal(state.u.uprops[HALF_SPDAM].extrinsic, W_ART);
+    // SPFX_HPHDAM is the Orb of Fate's, not this one's.
+    assert.equal(state.u.uprops[HALF_PHDAM].extrinsic, 0);
+
+    // The Orb of Detection carries SPFX_ESP, which artifact.c:797-804 follows
+    // with recalc_telepat_range() and see_monsters().
+    assert.throws(
+        () => set_artifact_intrinsic({ oartifact: ART_ORB_OF_DETECTION }, true,
+                                     W_ART, state),
+        UnsupportedArtifactDisplayError,
+    );
+    // An ordinary object returns before reading any field.
+    set_artifact_intrinsic({ oartifact: 0 }, true, W_ART, state);
+});
+
+// artifact.c confers_luck(), which invent.c addinv_core2() reads to decide
+// whether holding the object recalculates Luck.
+test('confers_luck answers for a luckstone and for SPFX_LUCK artifacts', () => {
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+    objects_globals_init(state);
+
+    assert.equal(confers_luck({ otyp: LUCKSTONE, oartifact: 0 }, state), true);
+    // artilist.h:187 gives the Heart of Ahriman SPFX_LUCK; :170 gives
+    // Grayswandir none.
+    assert.equal(
+        confers_luck({ otyp: LUCKSTONE, oartifact: ART_HEART_OF_AHRIMAN },
+                     state),
+        true,
+    );
+    assert.equal(
+        confers_luck({ otyp: SILVER_SABER, oartifact: ART_GRAYSWANDIR },
+                     state),
+        false,
+    );
+    assert.equal(confers_luck({ otyp: SILVER_SABER, oartifact: 0 }, state),
+                 false);
+});
+
+// artifact.c touch_artifact()'s class test (922-924) and the SPFX_DFLAG2 arm
+// of spec_applies() (1026-1030) that bane_applies() reaches for the hero.
+test('a hero touches a self-willed artifact her role and kind match', () => {
+    const draws = [];
+    const random = { rn2: (x) => { draws.push(x); return 1; } };
+    const heroState = (filecode, alignmentName, raceName = 'human') => {
+        const state = stateFor(filecode, alignmentName, raceName);
+        init_artifacts(state);
+        state.youmonst = { data: { mflags1: 0, mflags2: 0 } };
+        state.u = {
+            ualign: {
+                type: aligns.find(
+                    (alignment) => alignment.name === alignmentName,
+                ).value,
+                record: 0,
+            },
+            ulycn: NON_PM,
+            umonnum: 0,
+            umonster: 0,
+            uprops: [],
+        };
+        return state;
+    };
+
+    // Stormbringer (artilist.h:98) is SPFX_INTEL with no role and no race, so
+    // both halves of 922-924 are false and a coaligned hero holds it.
+    const rogue = heroState('Rog', 'chaotic');
+    assert.equal(touch_artifact({ oartifact: ART_STORMBRINGER },
+                                rogue.youmonst, { state: rogue, random }),
+                 true);
+    assert.deepEqual(draws, []);
+
+    // The Orb of Detection names PM_ARCHEOLOGIST, and hack_artifacts() leaves
+    // that alone for any other role.  A lawful Valkyrie matches its alignment
+    // and still cannot touch it, so the class half is what decides.
+    const valkyrie = heroState('Val', 'lawful');
+    assert.throws(
+        () => touch_artifact({ oartifact: ART_ORB_OF_DETECTION },
+                             valkyrie.youmonst, { state: valkyrie, random }),
+        UnsupportedArtifactDisplayError,
+    );
+    assert.deepEqual(draws, []);
+
+    // Grimtooth is SPFX_DFLAG2 with mtype M2_ELF, and monflag.h:188 makes
+    // MH_ELF that same bit.  A chaotic human is neither an elf by form nor by
+    // race, so the bane does not apply and no draw is spent.
+    const human = heroState('Rog', 'chaotic');
+    assert.equal(touch_artifact({ oartifact: ART_GRIMTOOTH }, human.youmonst,
+                                { state: human, random }), true);
+    assert.deepEqual(draws, []);
+
+    // A chaotic elf is coaligned with Grimtooth too, but urace.selfmask
+    // carries MH_ELF, so spec_applies() answers yes and the alignment test at
+    // 945 spends its rn2(4).
+    const elf = heroState('Rog', 'chaotic', 'elf');
+    assert.equal(touch_artifact({ oartifact: ART_GRIMTOOTH }, elf.youmonst,
+                                { state: elf, random }), true);
+    assert.deepEqual(draws, [4]);
+
+    // The lycanthrope clause is separate, and reads M2_WERE rather than the
+    // hero's own kind: a human werewolf is no elf, so Grimtooth still does
+    // not apply to her.
+    draws.length = 0;
+    const lycanthrope = heroState('Rog', 'chaotic');
+    lycanthrope.u.ulycn = PM_WEREWOLF;
+    assert.equal(touch_artifact({ oartifact: ART_GRIMTOOTH },
+                                lycanthrope.youmonst,
+                                { state: lycanthrope, random }), true);
+    assert.deepEqual(draws, []);
+    // Werebane is the artifact that does read it (artilist.h:165).
+    assert.equal(touch_artifact({ oartifact: ART_WEREBANE },
+                                lycanthrope.youmonst,
+                                { state: lycanthrope, random }), true);
+    assert.deepEqual(draws, [4]);
+});
+
+test('set_artifact_intrinsic covers only a carried artifact being taken up', () => {
+    const state = stateFor('Val', 'neutral');
+    init_artifacts(state);
+    state.u = { uprops: Array.from({ length: LAST_PROP + 1 }, () => ({
+        blocked: 0, extrinsic: 0, intrinsic: 0,
+    })) };
+    const eye = { oartifact: ART_EYE_OF_THE_AETHIOPICA };
+
+    // Dropping an artifact runs the same function with `on` false, and
+    // wielding one runs it with W_WEP; both halves survey the rest of
+    // inventory or reach arms this port does not have.
+    assert.throws(() => set_artifact_intrinsic(eye, false, W_ART, state),
+                  UnsupportedArtifactDisplayError);
+    assert.throws(() => set_artifact_intrinsic(eye, true, W_WEP, state),
+                  UnsupportedArtifactDisplayError);
+    assert.equal(state.u.uprops[ENERGY_REGENERATION].extrinsic, 0);
 });

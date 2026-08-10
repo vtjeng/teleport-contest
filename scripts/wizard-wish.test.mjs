@@ -14,6 +14,7 @@ import test from 'node:test';
 import {
     UnsupportedHeroCommandBoundaryError, failClosedCommandRefusals, rhack,
 } from '../js/cmd.js';
+import { init_artifacts } from '../js/artifacts.js';
 import { A_CON, A_STR } from '../js/const.js';
 import { UnsupportedDropError } from '../js/do.js';
 import { UnsupportedObjectOperationError } from '../js/obj.js';
@@ -21,6 +22,7 @@ import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { roles } from '../js/roles.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { HEAVY_IRON_BALL, objects_globals_init } from '../js/objects.js';
@@ -59,8 +61,11 @@ function segmentFor(moves) {
 // top line as each keystroke is about to be read.
 function wishState(keys, { verbose = false } = {}) {
     const state = resetGame();
-    state.flags = { verbose };
+    // initalign is role_init()'s index into aligns[]; 0 is the lawful row.
+    // hack_artifacts() reads it, and the role, to fix up the quest artifacts.
+    state.flags = { verbose, initalign: 0 };
     state.iflags = {};
+    state.urole = { ...roles[0] };
     // readobjnam() reads the shuffled objects[] from its first block onward,
     // so even a line it refuses needs the catalog in place.  Zero choices
     // initialize every randomized description deterministically.
@@ -69,6 +74,9 @@ function wishState(keys, { verbose = false } = {}) {
     // readobjnam_postparse1() hands every name longer than two characters to
     // name_to_monplus(), which reads mons[].
     monst_globals_init(state);
+    // readobjnam_postparse3() offers every unmatched name to artifact_name(),
+    // which reads artilist[].
+    init_artifacts(state);
     state.nhDisplay = new GameDisplay(null);
     state.nhDisplay.onEmptyQueue = () => {
         throw new Error('the wish prompt asked for a key the test withheld');
@@ -82,7 +90,7 @@ function wishState(keys, { verbose = false } = {}) {
 test('the wish matrix contains only source-selected inputs', () => {
     const recipe = loadWizardWishRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 23);
+    assert.equal(recipe.segments.length, 31);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
@@ -99,14 +107,14 @@ test('the wish matrix contains only source-selected inputs', () => {
         if (opened.includes('\n'))
             assert.equal(segment.moves.at(-1), WAIT_KEY);
     }
-    // Twenty-one segments reach the command and two are refused, so exactly
-    // twenty-one set debug mode. cmd.c:2000's "wizwish" row carries WIZMODECMD,
-    // which can_do_extcmd() and extcmds_match() both read.
+    // Twenty-nine segments reach the command and two are refused, so exactly
+    // twenty-nine set debug mode. cmd.c:2000's "wizwish" row carries
+    // WIZMODECMD, which can_do_extcmd() and extcmds_match() both read.
     assert.equal(
         recipe.segments.filter(
             ({ nethackrc }) => nethackrc.includes('playmode:debug'),
         ).length,
-        21,
+        29,
     );
     assert.equal(
         extcmdlist.find(({ ef_txt }) => ef_txt === 'wizwish').flags
