@@ -81,11 +81,11 @@ test('closure recipes reach the first command without executing it', async () =>
 test('closure boundary rejects an appended unsupported command', async () => {
     const segment = loadClosureRecipe(FIRST_COMMAND_CLOSURE_FIXTURES[0])
         .segments[0];
-    // `,` is bound to a command the port does not own, so it stops at
+    // `q` is bound to dodrink(), which the port does not own, so it stops at
     // the admission seam before any dispatch. An unbound byte would not:
     // rhack()'s bad-command path answers it and returns without taking time,
     // and neither would `i`, `:` or `s`, whose dispatch the port owns.
-    const appended = `${segment.moves},`;
+    const appended = `${segment.moves}q`;
     await assert.rejects(
         verifyFirstCommandBoundary({ ...segment, moves: appended }),
         /unsupported gameplay command/u,

@@ -105,6 +105,7 @@ import {
 } from './tty_menu.js';
 import {
     domove,
+    dopickup,
     monsterNearby,
     preflightDomoveDestination,
     u_maybe_impaired,
@@ -763,8 +764,8 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'down', 'drop', 'takeoff', 'reqmenu', 'options', 'wizwish',
-    'wizlevelport', '#',
+    'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'reqmenu', 'options',
+    'wizwish', 'wizlevelport', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -1228,6 +1229,14 @@ async function runDropCommand(key, state) {
     return failClosedCommand(key, state, () => dodrop(state));
 }
 
+// C ref: hack.c dopickup(), the ',' command. Like dosearch() and doeat() it
+// returns its own ECMD_* result: pickup_checks() refuses a square with nothing
+// on it without spending a turn, and only a pickup that lifts something
+// answers ECMD_TIME.
+async function runPickupCommand(key, state) {
+    return failClosedCommand(key, state, () => dopickup(state));
+}
+
 // C ref: do_wear.c dotakeoff(). Like dosearch() and doeat() it returns its own
 // ECMD_* result, and it is the first ported command to answer ECMD_CANCEL from
 // a getobj() the player escaped: an empty pack answers ECMD_OK instead,
@@ -1468,6 +1477,8 @@ async function doextcmd(key, state) {
         return await runDownCommand(key, state);
     case 'dodrop':
         return await runDropCommand(key, state);
+    case 'dopickup':
+        return await runPickupCommand(key, state);
     case 'dotakeoff':
         return await runTakeOffCommand(key, state);
     case 'doride':
@@ -1691,6 +1702,26 @@ export async function rhack(key, state = game) {
             // divert it either, because cmd.c:1708's "drop" row carries no
             // flags at all.
             const res = await runDropCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state);
+            if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'pickup') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search`, `eat`, `apply`, `down`, `drop`
+            // and `takeoff` arms apply. dopickup() answers ECMD_OK for every
+            // arm this slice covers, because pickup_checks() refuses a square
+            // with nothing on it without spending a turn; the cancel test is
+            // written out for the same reason it is in the arms above,
+            // because cmd.c:3805-3809 documents (ECMD_TIME|ECMD_CANCEL) as a
+            // real result. The MOVEMENTCMD and domove_attempting tests at
+            // 3773-3800 cannot divert this command either, because
+            // cmd.c:1799's "pickup" row carries CMD_M_PREFIX and no movement
+            // flag; that same flag is what lets `m,` through the prefix test
+            // at 3693-3695 with iflags.menu_requested still set.
+            const res = await runPickupCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state);

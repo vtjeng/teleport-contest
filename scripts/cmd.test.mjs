@@ -3156,7 +3156,7 @@ test('dangerous hero properties reject waiting and success resets its counter', 
     assert.equal(state.did_nothing_flag, 0);
 });
 
-test('travel and pickup bytes remain atomic boundaries',
+test('travel and prefix bytes remain atomic boundaries',
     async () => {
     const cases = [
         // cmd.c dotravel() reaches dotravel_target(), which sets
@@ -3170,7 +3170,6 @@ test('travel and pickup bytes remain atomic boundaries',
         // them apart. These two pin that the earlier refusal is what holds.
         { name: 'rush prefix', key: 'g', binding: '' },
         { name: 'run prefix', key: 'G', binding: '' },
-        { name: 'pickup', key: ',', binding: '' },
     ];
     for (const commandCase of cases) {
         const replay = await runSegment({

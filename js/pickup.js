@@ -478,6 +478,15 @@ export async function pickup(what, state = game) {
         nomul(0, state);
     }
 
+    // C ref: pickup.c:747-749, where autopick() and the two interactive arms
+    // part company. Everything above this line is shared; below it, a `,`
+    // reaches query_objlist() and, past its two early returns, sortloot() and
+    // the pickup menu. The guards that follow all stand for reads autopick()
+    // makes, so this one comes first.
+    if (!autopickup) {
+        throw new UnsupportedPickupError('pickup() object selection');
+    }
+
     if (state.ga?.apelist) {
         throw new UnsupportedPickupError(
             'pickup() with autopickup exceptions',

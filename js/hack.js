@@ -20,6 +20,8 @@ import {
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    ECMD_OK,
+    ECMD_TIME,
     EXT_ENCUMBER,
     HVY_ENCUMBER,
     FAILEDUNTRAP,
@@ -33,11 +35,15 @@ import {
     HEADSTONE,
     ICE,
     IS_AIR,
+    IS_ALTAR,
     IS_DOOR,
+    IS_FOUNTAIN,
     IS_FURNITURE,
+    IS_GRAVE,
     IS_OBSTRUCTED,
     IS_SINK,
     IS_STWALL,
+    IS_THRONE,
     IS_TREE,
     IS_WALL,
     IS_WATERWALL,
@@ -64,6 +70,7 @@ import {
     SEE_INVIS,
     SHOCK_RES,
     SLEEP_RES,
+    STAIRS,
     STEALTH,
     STONE,
     STUNNED,
@@ -2055,6 +2062,101 @@ function is_door_mappear(monster) {
     return ((monster.m_ap_type ?? 0) & M_AP_TYPMASK) === M_AP_FURNITURE
         && (monster.mappearance === S_hcdoor
             || monster.mappearance === S_vcdoor);
+}
+
+// C ref: hack.c pickup_checks() (3788-3871). Reports what dopickup() should
+// do with the square the hero stands on: 0 to refuse without spending a turn,
+// -1 to run a normal pickup. C's other two results come only from its
+// swallowed arm, which this port refuses instead, so neither is returned here.
+//
+// Three of C's four refusal arms are refused rather than translated, each
+// before its arm prints anything:
+//   * the swallowed arm reads u.ustuck->minvent instead of the floor and ends
+//     in loot_mon(), a whole second command's worth of source;
+//   * the pool and lava arms turn on Wwalking, is_floater(), is_clinger(),
+//     Flying, Breathless, Underwater and likes_lava(), and both fall through
+//     to the rest of the function when none of those holds, so a refusal on
+//     the terrain alone is the only conservative reading;
+//   * the can_reach_floor() arm needs uteetering_at_seen_pit(),
+//     rider_cant_reach() and surface().
+// The !OBJ_AT arm below is the whole of what this port answers today.
+export async function pickup_checks(state = game) {
+    const u = state.u;
+
+    /* uswallow case added by GAN 01/29/87 */
+    if (u.uswallow) {
+        throw new UnsupportedPickupError('pickup_checks() inside a monster');
+    }
+    if (is_pool(u.ux, u.uy, state)) {
+        throw new UnsupportedPickupError('pickup_checks() over water');
+    }
+    if (is_lava(u.ux, u.uy, state)) {
+        throw new UnsupportedPickupError('pickup_checks() over lava');
+    }
+    // C's OBJ_AT(u.ux, u.uy), read off the per-square pile chain the way
+    // pickup.c pickup() reads it, so a supplied state rather than the module
+    // global answers for it.
+    if (!(state.level?.objects?.[u.ux]?.[u.uy] ?? null)) {
+        const lev = state.level?.at(u.ux, u.uy);
+        const typ = lev?.typ;
+
+        if (IS_THRONE(typ)) {
+            // rm.h:218 aliases `looted` onto the same field `doormask` names,
+            // which is what doorMask() reads. Nothing ported loots a throne,
+            // so the shorter line is the only one a game reaches.
+            await ttyPline(
+                `It must weigh${doorMask(lev) ? ' almost' : ''} a ton!`,
+                state,
+            );
+        } else if (IS_SINK(typ)) {
+            await ttyPline('The plumbing connects it to the floor.', state);
+        } else if (IS_GRAVE(typ)) {
+            await ttyPline("You don't need a gravestone.  Yet.", state);
+        } else if (IS_FOUNTAIN(typ)) {
+            await ttyPline(
+                `You could drink the ${hliquid('water', { state })}...`,
+                state,
+            );
+        } else if (IS_DOOR(typ) && (doorMask(lev) & D_ISOPEN)) {
+            await ttyPline("It won't come off the hinges.", state);
+        } else if (IS_ALTAR(typ)) {
+            await ttyPline(
+                'Moving the altar would be a very bad idea.', state,
+            );
+        } else if (typ === STAIRS) {
+            await ttyPline('The stairs are solidly affixed.', state);
+        } else {
+            await ttyPline('There is nothing here to pick up.', state);
+        }
+        return 0;
+    }
+    const traphere = t_at(u.ux, u.uy, state);
+    if (!can_reach_floor(Boolean(traphere && is_pit(traphere.ttyp)), state)) {
+        throw new UnsupportedPickupError(
+            'pickup_checks() by a hero who cannot reach the floor',
+        );
+    }
+    return -1; /* can do normal pickup */
+}
+
+// C ref: hack.c dopickup() (3876-3891), whose own comment calls it "the
+// #pickup command". The loot_mon() arm at 3884-3887 is not written out:
+// pickup_checks() answers -2 only from its swallowed arm, which throws above.
+export async function dopickup(state = game) {
+    // C's gc.command_count. js/cmd.js readSimpleCommand() parses no count, so
+    // this is 0 for every `,` the port dispatches and pickup(-count) is
+    // pickup(0); the read stays where C makes it rather than being written
+    // out as a constant.
+    const count = Math.trunc(state.commandCount ?? 0);
+    state.multi = 0; /* always reset */
+
+    const ret = await pickup_checks(state);
+    if (ret >= 0) {
+        // C's `ret ? ECMD_TIME : ECMD_OK`. pickup_checks() answers 1 only
+        // from the swallowed arm it refuses, so only ECMD_OK is reachable.
+        return ret ? ECMD_TIME : ECMD_OK;
+    }
+    return await pickup(-count, state) ? ECMD_TIME : ECMD_OK;
 }
 
 const LOOKAROUND_CONTINUE = 0;

@@ -223,10 +223,17 @@ function assertStillOnBothFloorChains(state, object, links) {
 
 test('pickup answers an empty square without taking anything', async () => {
     const state = await heroOnAnEmptySquare();
-    // Autopickup takes the early empty-square return; a count pickup reaches
-    // query_objlist() with an empty chain and also answers zero.
+    // Autopickup takes the early empty-square return at pickup.c:702-707.
     assert.equal(await pickup(1, state), 0);
-    assert.equal(await pickup(-1, state), 0);
+    // A count pickup is one of the two interactive arms, which this port
+    // stops at pickup.c:747-749 instead of entering. hack.c pickup_checks()
+    // keeps dopickup() off this square anyway: an empty one never reaches
+    // pickup() at all.
+    await assert.rejects(
+        () => pickup(-1, state),
+        (error) => error instanceof UnsupportedPickupError
+            && /object selection/u.test(error.message),
+    );
 });
 
 test('pickup describes the traversed D:1 staircase before returning',
