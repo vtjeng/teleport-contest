@@ -1378,7 +1378,7 @@
     },
     {
       "id": "options-simple-menu",
-      "status": "open",
+      "status": "closed",
       "boundary": "options.c doset_simple() (8704-8735) and doset_simple_menu() (8534-8702) run rather than stopping at js/options.js:3969. Covers the menu build -- the simple_options_help '?' row, the OptS_General to OptS_Advanced section loop with its blank line and heading, the '%-Nus [%s]' row for a BoolOpt and for a CompOpt or OthrOpt whose optfn answers get_val, the Is_rogue_level() roguesymset substitution, the '(for autopickup)' suffix on pickup_types, pickup_thrown, pickup_stolen and dropped_nopick, and end_menu/select_menu(PICK_ONE) -- and the pick handling -- k == -2's help toggle and its goto redo_opt_help, the BoolOpt arm's parseoptions('!name'), the compound arm's optfn(do_handler) with opt_set_in_config, and preference_update() for a wc or wc2 name -- and doset_simple()'s give_opt_msg bracket, its do/while over pickedone, and its per-pass reset_needed_visuals() and flush_screen(1). Outside and still refused by name: the iflags.menu_tab_sep format branch, getlin('Set %s to what?') for a compound option with no handler, and any optfn the port has no get_val or do_handler arm for.",
       "upstreamOwners": [
         "src/options.c"
@@ -1415,8 +1415,11 @@
         "screens": 1373,
         "rng": 118557
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "d81179dc949f49104e476abe3351ef6bf471473a",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
