@@ -1474,6 +1474,15 @@
       "from": "74c561afb73802472c7802e1f75c11f10bed3fab",
       "detail": "pray.c angrygods() cases 2-8 and its default stop by name, so a prayer whose rn2(maxanger) lands above 1 leaves the segment at the turn boundary instead of matching C. scripts/run-pray-command.mjs DEFERRED_ANGER_CASES records two recorded-ready inputs, both at seed 6120000 with datetime 20260214081500 and moves '.#pray\\ny ': a lawful Valkyrie with 'OPTIONS=name:Orison,role:Valkyrie,race:human,gender:female,align:lawful' reaches cases 4-6 (gods_angry() and rndcurse()), and a lawful Samurai with 'OPTIONS=name:Orison,role:Samurai,race:human,gender:male,align:lawful' reaches cases 2-3 (adjattrib(A_WIS,-1) and losexp()). Both currently stop with UnsupportedTurnBoundaryError 'a delayed action reached prayer reached an unported branch: angrygods()...'. Retire this when losexp(), rndcurse(), attrcurse(), punish(), summon_minion() and god_zaps_you() land.",
       "blockedOn": "angrygods"
+    },
+    {
+      "id": "status-critical-hilite-arm-untested",
+      "area": "display",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "34516deac9ec62bfc6828b6be7b8d35ad88ea9dc",
+      "detail": "js/display.js _statusFieldStyle()'s critical hilite arm has no test that configures a status-hilite rule with behavior 'critical', so three mutants survive on a live status-line path: the arm's && and the only_if_injured argument it passes to critically_low_hp(), plus the two hide_innate_value assignments behind enlightenment()'s polymorph refusal. Found while applying the pray-command correctness pass over 425364f8..b0bb30e, and pre-existing rather than introduced by it: the pass converged critically_low_hp() onto one owner, which is what exposed that nothing exercises this reader. Close it by adding a status-hilite rule with behavior 'critical' to the display tests and watching each of the three mutants die."
     }
   ],
   "areas": [
@@ -9992,6 +10001,120 @@
         }
       },
       "recordedAt": "2026-08-11T01:29:19.061Z"
+    },
+    {
+      "kind": "review",
+      "head": "34516deac9ec62bfc6828b6be7b8d35ad88ea9dc",
+      "auditedRange": "425364f83ad53262a400ae5343bee9dc9374a3e1..34516deac9ec62bfc6828b6be7b8d35ad88ea9dc",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 24 raw, 23 deduplicated, 19 confirmed, 19 applied, 0 deferred, 4 rejected, 0 unverified; mutation: 9 survivors of 147 mutants. Full four-finder audit-diff-correctness pass over the pray-command goal, verified adversarially in three batches. 24 raw findings, 23 after deduplication, 19 confirmed, 4 rejected, none left unverified; all 19 applied in 34516de. The development score is identical either side of the fixes at 1388/7765 screens and 118743/610816 calls, measured by me at b0bb30e and again at 34516de. Two confirmed findings were behavioral and both were invariants that went stale rather than code that was wrong when written: pray.c critically_low_hp() had been ported a second time while the first copy kept serving botl.c and wintty.c with C's Upolyd arm missing, and dopray()'s nomul(-3) became the port's first negative-multi call site, falsifying the reason js/uhitm.js hitum() gave for dropping C's gm.multi < 0 term. The first was converged onto one owner; the second was re-derived from uhitm.c, which reads that term after passive() and so answers only for a paralysis inflicted inside the blow, leaving the port correct for a different reason than the one it stated.",
+      "auditMetrics": {
+        "wallTimeSeconds": 4390,
+        "counts": {
+          "raw": 24,
+          "deduplicated": 23,
+          "confirmed": 19,
+          "applied": 19,
+          "deferred": 0,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 6,
+          "clarity": 9,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "pray.c critically_low_hp() was ported twice and the two copies disagreed. The goal added a canonical js/pray.js critically_low_hp() while the pre-existing private js/display.js _criticallyLowHp() stayed in place, and that copy omitted C's Upolyd arm, so a polymorphed hero read u.uhp/u.uhpmax where C reads u.mh/u.mhmax. The display copy is not dormant: it serves botl.c:2555, which asks critically_low_hp(FALSE) for the BL_HP field, and win/tty/wintty.c:4539, which asks critically_low_hp(TRUE) for the hit-point bar, so the status line and the prayer could answer differently about the same hero. AGENTS.md's Keep each game value in one place governs. Fixed by deleting _criticallyLowHp() and pointing both C sites at js/pray.js critically_low_hp() with the argument each C site passes; verified that botl.c passes FALSE and wintty.c passes TRUE. The development score is unchanged because no recorded session polymorphs, which is exactly why the divergence survived until a second port of the same function exposed it. check:duplicate-symbols fell from 287 to 285.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same defect reported independently by the variable-trace finder, which reached it from the other end: the range added a second port of one C function without deleting or repointing the first, so the port held two answers for one C value. Two finders converging on one duplicate from opposite directions is why it was treated as a defect rather than as tidying.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "Porting do_wear.c stuck_ring() left js/insight.js:539-541 refusing insight.c one_characteristic()'s Fixed_abil arm with the reason stuck_ring() ... not ported, which the same range had made false. A refusal whose stated reason no longer holds is a fail-open in waiting: it stops a path that is now portable, and the next reader has no way to tell whether the stop is still needed. Fixed by porting the arm from C and removing the refusal.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The new restricted arm of tty_yn_function() added a module-private QUITCHARS as a second copy of decl.c quitchars[], while js/const.js:2014 already exported quitchars with the same value and the same C citation. Fixed by deleting the private copy and importing the existing one.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "`yn_menuable_resp()` implements C's five-way pointer-identity test as `resp !== null`, and its comment explains the identity test without saying that the port over-approximates it.",
+            "counterEvidence": "causality refute: The divergence is unreachable and the stated impact is speculative rather than material. Counter-evidence: Every yn_function() call site in the port passes either null or one of the two module-level constants: `grep -rn 'yn_function(' js/` outside js/cmd.js returns only js/invent.js:499 (null), and inside js/cmd.js only :417 (ynchars), :451 (ynqchars), :454 (ynchars) and :617 (null, getdir). For all of them the over-approximation answers exactly what C answers. The divergence needs a caller that does not exist plus query_menu on, and even then the port fails closed -- it throws UnsupportedDirectionBoundaryError('yn_function_menu()') rather than producing wrong screens or draws, which is the port's standard treatment of an unported window path. resolution refute: The primary proposed fix does not reproduce C's semantics, and the proposed validation cannot distinguish a f"
+          },
+          {
+            "summary": "`youprop.h` `Unaware` is now spelled out twice with identical bodies under two different names — `Unaware()` in js/eat.js and `heroUnaware()` in js/monmove.js — with no shared owner.",
+            "counterEvidence": "causality refute: This is the codebase's established, pre-existing convention for youprop.h macros rather than a defect the range introduces, and no behavior differs between the copies. Counter-evidence: `grep -rn 'function Flying\\|function Levitation\\|function Blind\\|function Deaf\\|function Unchanging' js/*.js` shows the same pattern everywhere and predating this range: Flying() in js/trap.js:540, js/polyself.js:46 and js/steed.js:156; Levitation() in js/trap.js:534, js/polyself.js:54 and js/steed.js:167; Blind() in js/sounds.js:84 and js/steed.js:141; Unchanging() local to js/pray.js:169. C itself expands Unaware as a macro at each site. The AGENTS.md rules cited do not reach this: \"Keep each game value in one place\" governs C state values (gm.multi and u.uhs each have exactly one home here), and \"give each function the name of the C function it comes from\" governs ported C functions, "
+          },
+          {
+            "summary": "The new top-line gate is justified by the claim that `tty_yn_function()`'s clean_up is \"the one writer that leaves TOPLINE_NON_EMPTY\", but `js/startup_reroll.js:374` is a second writer, so the gate silently changes the message model after the reroll fallback prompt too.",
+            "counterEvidence": "evidence refute: The behavioural half of the claim does not hold. The trace requires state._pending_message to be non-empty when fallbackRerollChoice() sets toplin = TOPLINE_NON_EMPTY, and that state is unreachable. Counter-evidence: reroll_menu()'s only non-test caller is js/allmain.js:237, and js/allmain.js:226 runs `await cls()` eleven lines earlier; cls() sets `game._pending_message = ''` at js/display.js:3578. Between those points only docrt(), flush_screen(1) and bot() run, and `grep -rn \"_pending_message\" js/` shows the only writers are js/getline.js:163/263/337/400 (tty_getlin and tty_yn_function, neither reached during character creation) and js/tty_message.js:123 rememberPendingMessage, i.e. a pline — the first pline of a new game is the welcome line at js/allmain.js:260, after the reroll loop, and js/tty_message.js:123 always sets toplin to TOPLINE_NEED_MORE alongside it. With"
+          },
+          {
+            "summary": "'the accepting #pray matrix varies every term of maxanger' compares the ACCEPT_CASES `maxanger` annotations with a hard-coded copy of the same numbers, so it verifies nothing about what the segments actually compute.",
+            "counterEvidence": "causality refute: The stated impact — a case silently ceasing to exercise its term while the arithmetic goes unchecked — is contradicted by guards that already exist in the same range. Counter-evidence: scripts/pray.test.mjs:710-771 ('angrygods() sizes rn2(maxanger) from anger, luck and alignment') drives angrygods() directly and asserts the measured bound of the rn2() it draws for nine rows, including [true,1,-3,STRIDENT,4] and [true,1,-3,STRIDENT-1,6] with STRIDENT re-read from pray.c via `/#define STRIDENT (\\d+)/`, plus the truncation, floor and cap rows; so every term of pray.c:712-723 is pinned by measurement, not annotation. The sibling test at scripts/pray-matrix.test.mjs:77-80 pins the seed list, so a re-scan cannot land silently, and scripts/run-pray-command.mjs validates each recorded case against C at the random-number level regardless of the label. The residual harm is a stal"
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "ranges": [
+            "425364f83ad53262a400ae5343bee9dc9374a3e1..b0bb30ea8bab509a0bcc811a60e376cd1a88abd6"
+          ],
+          "mutants": 147,
+          "survivors": 9,
+          "byKind": {
+            "boolean": {
+              "ran": 21,
+              "killed": 20
+            },
+            "logical": {
+              "ran": 91,
+              "killed": 90
+            },
+            "relational": {
+              "ran": 35,
+              "killed": 28
+            }
+          },
+          "deltaRun": "The audit-fix diff at 34516de ran its own first wave and left four survivors, all on one pre-existing path rather than on the fixes: the two hide_innate_value assignments behind enlightenment()'s polymorph refusal, and the && plus the only_if_injured argument in js/display.js _statusFieldStyle()'s critical hilite arm. Nothing in the suite configures a status-hilite rule with behavior critical. Recorded as the deferral status-critical-hilite-arm-untested rather than fixed inside an audit-fix commit.",
+          "finderConclusion": "The readiness run over the whole frozen range killed 138 of 147. All nine survivors were already argued equivalent by the workers who wrote them, and the pass was told to judge those arguments rather than accept them. It sustained all nine: js/cmd.js:451 and :456 sit in paranoid_ynq()'s accept_q arm, which paranoid_query() never enables; js/pray.js:183 is maxhp > hplim, where the >= mutant reassigns an already-equal value; js/pray.js:303 is i < A_MAX, where the <= mutant reads one past the array and compares undefined; and js/pray.js:606, 609, 613, 614 and 645 clamp or assign at boundaries where the mutated comparison writes the value already there. I checked the first two against pray.c:130 and pray.c:270 myself before the pass ran. The run's real limitation is that its three kinds cannot delete a try/catch, which is why it said nothing about the range's most consequential test gap: runUnmulAtTurnBoundary()'s refusal conversion, whose deletion leaves the entire suite green while turning a clean boundary stop into a discarded segment. The tests finder found that by reading, and it is now pinned."
+        },
+        "readiness": {
+          "boundary": "The #pray extended command, from the keystrokes that open the extended-command prompt through the god's reply. On seed0017-samurai-altar-pray the start is step 46, which draws Are you sure you want to pray? [yn] (n), and the y at step 47; the end is step 47's screen You begin praying to Amaterasu Omikami.  You finish your prayer.--More-- with the cursor at column 72, and step 48's You feel that Amaterasu Omikami is displeased. The real game executes the whole path: that session moved from 47 to 61 of 67 screens and from 3248 to 3434 of 3465 random-number calls in the development score, and scripts/run-pray-command.mjs replays five declining segments and seven accepting ones against fresh C recordings, matching at 19059 calls, 80 screens and 80 cursors.",
+          "sourceReview": "Every branch and helper reachable before the ending events was traced against nethack-c/upstream/: pray.c dopray() (2199-2273), can_pray() (2124-2172), in_trouble() (198-288), worst_cursed_item() (288-373), critically_low_hp() (116-156), stuck_in_wall() (161-181), blocked_boulder(), prayer_done() (2276-2343) head and p_type 0 arm, gods_upset() (1435-1445) and angrygods() (703-784); hack.c unmul() (4176-4208); allmain.c moveloop_core() (379-388); eat.c gethungry() (3174); trap.c unconscious() (6775-6786); region.c region_danger(); do_wear.c stuck_ring() and unchanger(); cmd.c doextcmd(), paranoid_ynq() and paranoid_query(); and win/tty/topl.c tty_yn_function() and update_topl() (262). The trace covered state, random-number order and the points where the game waits for input. It found no behavioral divergence inside the boundary, and four C citations in the changed blocks that read low: dopray() cited as ending at 2276 when it ends at 2273, gethungry() cited at 3173 when the test is at 3174, and angrygods() and gods_upset() bracketed to include a leading comment or the next function's signature. Two claims were checked rather than accepted, and both changed the outcome: that maxanger's ternary depends only on Luck, which is false because the alignment-record term decides it whenever Luck is not positive, and that hitum()'s dropped gm.multi < 0 term was safe because nothing sets a negative multi, which this range falsified.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Every reachable excluded branch stops before changing state, consuming randomness or producing output, which the pass checked explicitly because two earlier passes in this repository each found a refusal that fired late. Excluded and verified fail-closed: prayer_done()'s p_type -2, -1, 1, 2 and 3 arms and the Inhell arm; water_prayer(); pleased(); pray_revive(); angrygods() cases 2 through 8 and its default; the wizard force-success prompt; paranoid_ynq()'s ParanoidConfirm getlin loop; and tty_yn_function()'s hash-count, preserve-case, ESC-hidden and ctrl-P branches. The one refusal that could not fail closed by construction is the afternmv callback's, because it runs inside the turn loop where js/cmd.js failClosedCommand() is off the stack; runUnmulAtTurnBoundary() converts it, and the pass found that conversion untested and pinned it. Three gaps are recorded rather than closed: angrygods-cases-above-1, which carries two recorded-ready inputs; pray-in-trouble-has-no-recorded-case, blocked on prayer_done; and status-critical-hilite-arm-untested, a pre-existing status-line test gap the critically_low_hp() convergence exposed. unmul()'s Upolyd follow-up at hack.c:4197-4201 is omitted rather than refused because no ported state can reach it: js/u_init.js is the only writer of u.umonnum and sets it equal to u.umonster, and the message's only C writer is done()'s life-saving arm."
+        }
+      },
+      "recordedAt": "2026-08-11T07:22:19.547Z"
     }
   ]
 }
