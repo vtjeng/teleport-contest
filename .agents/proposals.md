@@ -221,3 +221,34 @@ for, so it should name the alternative rather than only the prohibition.
 **What it leaves unfixed.** Nothing enforces it: a brief is prose, and the
 harness permits the call. A worker that ignores the instruction is caught only
 by the same after-the-fact review that caught this one.
+
+## Check a deferral's area against the files its record cites
+
+**What it changes.** `npm run quality` would compare each open deferral's `area`
+label against the areas that `QUALITY.json`'s own `areas[].paths` assign to the
+`js/` files the record cites, and print the disagreements. It would also gain a
+command to re-file an entry, which today has none: `assign` maps a file to an
+area and `defer --area` sets a label at creation, so a wrong label can only be
+corrected by editing `QUALITY.json` by hand.
+
+**Scope.** A path-extraction helper over each record's `detail`, a comparison
+against `areas[].paths`, one informational line beside the sweep-candidate line,
+and a `refile-deferral --id <id> --area <id>` subcommand with its test. It should
+print rather than block: a record can legitimately cite a file it does not
+propose to change, so the check reports a disagreement for a human to judge.
+
+**What prompted it.** At the close of `objects-deferral-sweep-2` the report named
+`startup` a sweep candidate at ten open entries. Two of those ten were mis-filed:
+`the mfndpos rollback restores what nothing changed` cites only `js/monmove.js`,
+and `the planning clone's object copy is still expensive` names `cloneObjects()`
+at `js/unported_monster_actions.js:322`. `QUALITY.json` assigns both files to
+`monsters`. `scripts/quality-status.mjs` counts the threshold by the recorded
+label and never checks it against the record, so the gate was scheduling a sweep
+measured at 0 recorded steps while a boundary candidate measured at 21 waited.
+Re-filing them put `startup` at 8 and `monsters` at 6, and no area at threshold.
+
+**What it leaves unfixed.** It does not decide whether a sweep's own findings
+should be able to schedule the next sweep, which is question Q5 in
+`.agents/questions.md` and is with the user. It only stops a mislabel from
+firing the gate.
+
