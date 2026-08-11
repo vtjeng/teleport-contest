@@ -1497,8 +1497,8 @@
       "slices": [
         {
           "name": "name a worn glove and retire two divergent readings",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9bc79dd868237beaccf12fccf93d26df832bd617"
         }
       ],
       "openedAt": "14f13184f03fb2edbfb297150f1beb961dcc9530",
