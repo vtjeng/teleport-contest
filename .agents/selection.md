@@ -203,6 +203,14 @@ the bytes it declined to read pushes the cap past where it belongs. A second
 behavior recurring across many sessions' stretches is scope the goal should
 include, priced in from the start.
 
+**Cap only the candidates that can still win.** Capping never raises a figure,
+so the `unlocks` column already bounds every candidate from above. Cap the
+leader, then work down the column and stop at the first candidate whose raw
+figure falls below the best capped figure: it has lost, and so has everything
+under it. Cap the top candidate opening a capability the port wholly lacks as
+well, since the preference above can promote it past a bigger figure. Leave the
+rest at their raw figures, marked raw.
+
 **Select on a measured stop.** Rank a candidate on the sessions the census
 shows stopped there. An argument that a behavior ought to matter is not a
 forecast: the pickup goal was chosen because its behavior "fires without a
