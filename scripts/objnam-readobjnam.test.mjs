@@ -39,11 +39,14 @@ import {
     BEARTRAP,
     BRASS_LANTERN,
     BROADSWORD,
+    CHEST,
     CLOAK_OF_DISPLACEMENT,
     COIN_CLASS,
     ELVEN_BOOTS,
+    EGG,
     ELVEN_DAGGER,
     FAKE_AMULET_OF_YENDOR,
+    FIGURINE,
     FOOD_CLASS,
     FOOD_RATION,
     GAUNTLETS_OF_POWER,
@@ -55,6 +58,7 @@ import {
     JADE,
     KATANA,
     LAND_MINE,
+    LARGE_BOX,
     LEATHER_ARMOR,
     LONG_SWORD,
     LUCKSTONE,
@@ -77,15 +81,19 @@ import {
     SHORT_SWORD,
     SILVER_SABER,
     SCR_MAIL,
+    SLIME_MOLD,
     SPBOOK_CLASS,
     SPEED_BOOTS,
+    SPE_DIG,
     SPE_FINGER_OF_DEATH,
     SPE_NOVEL,
     SPE_WIZARD_LOCK,
     STRANGE_OBJECT,
+    TIN,
     TOOLED_HORN,
     TOOL_CLASS,
     TOWEL,
+    TRIPE_RATION,
     VENOM_CLASS,
     WAN_DEATH,
     WAND_CLASS,
@@ -93,17 +101,23 @@ import {
     YELLOW_DRAGON_SCALES,
     YELLOW_DRAGON_SCALE_MAIL,
 } from '../js/objects.js';
-import { NON_PM, SPE_LIM } from '../js/const.js';
+import { CORPSTAT_RANDOM, NON_PM, SPE_LIM } from '../js/const.js';
 import {
     ART_GRAYSWANDIR, ART_STING, ART_VORPAL_BLADE, init_artifacts,
 } from '../js/artifacts.js';
 import { name_to_monplus } from '../js/mondata.js';
 import {
     PM_GRAY_DRAGON, PM_RED_DRAGON, PM_YELLOW_DRAGON, monst_globals_init,
+    reset_mvitals,
 } from '../js/monsters.js';
+import { mksobj } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
 import { objects_globals_init } from '../js/objects.js';
 import { roles } from '../js/roles.js';
+import {
+    CASES as RANDOM_WISH_CASES, loadRandomWishRecipe,
+} from './run-random-wish.mjs';
 import {
     CASES as CONTAINER_CASES, loadWishedContainerRecipe,
 } from './run-wished-container.mjs';
@@ -276,22 +290,30 @@ test('spellings carries the forty-six alternate spellings', () => {
     for (const row of spellings) assert.ok(row.sp.length > 0);
 });
 
-// objnam.c wrp[] and wrpsym[] (2517-2528).
+// objnam.c wrp[] and wrpsym[] (2517-2528).  Every row of both tables is read
+// off the C source here, in order.  Order is load-bearing twice over: the
+// class-word loop in readobjnam_postparse1() walks the two arrays with one
+// index, and readobjnam()'s `any:` arm indexes wrpsym[] with rn2(13), so a row
+// in the wrong place turns a wish into the wrong object rather than into a
+// failed parse.
 test('wrp and wrpsym pair the class words with their class symbols', () => {
-    assert.equal(wrp.length, 13);
-    assert.equal(wrpsym.length, 13);
-    assert.deepEqual(wrpsym.slice(0, 8), [
-        WAND_CLASS, RING_CLASS, POTION_CLASS, SCROLL_CLASS,
-        GEM_CLASS, AMULET_CLASS, SPBOOK_CLASS, SPBOOK_CLASS,
+    assert.deepEqual(wrp, [
+        'wand', 'ring', 'potion', 'scroll', 'gem',
+        'amulet', 'spellbook', 'spell book',
+        /* for non-specific wishes */
+        'weapon', 'armor', 'tool', 'food', 'comestible',
     ]);
-    // "spellbook" and "spell book" both name SPBOOK_CLASS; "food" and
-    // "comestible" both name FOOD_CLASS.
-    assert.equal(wrp[6], 'spellbook');
-    assert.equal(wrp[7], 'spell book');
-    assert.equal(wrpsym[11], FOOD_CLASS);
-    assert.equal(wrpsym[12], FOOD_CLASS);
-    assert.equal(wrp[11], 'food');
-    assert.equal(wrp[12], 'comestible');
+    assert.deepEqual(wrpsym, [
+        WAND_CLASS, RING_CLASS, POTION_CLASS,
+        SCROLL_CLASS, GEM_CLASS, AMULET_CLASS,
+        SPBOOK_CLASS, SPBOOK_CLASS, WEAPON_CLASS,
+        ARMOR_CLASS, TOOL_CLASS, FOOD_CLASS,
+        FOOD_CLASS,
+    ]);
+    // C's `rn2((int) sizeof wrpsym)` is the byte count of a char array, so the
+    // draw's bound is the row count and the two tables have to agree on it.
+    assert.equal(wrpsym.length, 13);
+    assert.equal(wrp.length, wrpsym.length);
 });
 
 // objnam.c readobjnam_init() (3933-3961).
@@ -430,6 +452,27 @@ test('readobjnam_parse_charges leaves a one-character name alone', () => {
     readobjnam_parse_charges(d);
     assert.equal(d.bp, '(');
     assert.equal(d.spesgn, 0);
+});
+
+// What a wish needs on top of wishState() before it can build a figurine or a
+// statue: mkobj.c mksobj() picks the monster with makemon.c rndmonnum(), which
+// reads dungeon.c level_difficulty() and svm.mvitals.  Depth 1 of a
+// twenty-level dungeon is where a wish is made in every recorded case.
+const DUNGEON_FIXTURE = Object.freeze({
+    astral_level: { dnum: 0, dlevel: 0 },
+    branches: [],
+    dungeons: [{
+        depth_start: 1,
+        dunlev_ureached: 1,
+        entry_lev: 1,
+        flags: { align: 0, hellish: false },
+        num_dunlevs: 20,
+    }],
+    level: { flags: { temperature: 0 } },
+    quest_dnum: 1,
+    rogue_level: { dnum: 0, dlevel: 0 },
+    sanctum_level: { dnum: 0, dlevel: 0 },
+    specialLevels: [],
 });
 
 // A wizard-mode game with a shuffled objects[] and an initialized monster
@@ -1006,9 +1049,12 @@ test('readobjnam follows the name-reshaping branches', () => {
     assert.equal(resolved('yellow dragon scales'), YELLOW_DRAGON_SCALES);
     // 4513-4519 blanks a scroll or spellbook only for an "unlabeled" wish,
     // which is a qualifier this port refuses; a bare "spellbook" is a class
-    // word with nothing after it.
-    assert.equal(wish(state, 'spellbook').refusal,
-                 'a wish no lookup resolves');
+    // word with nothing after it, so the lookup fails and objnam.c:5037 draws
+    // a spellbook of its own.  SPE_DIG is objects[]'s first spellbook and
+    // rnd() answering 1 stops the probability walk on it.
+    const book = wish(state, 'spellbook');
+    assert.equal(book.obj.otyp, SPE_DIG);
+    assert.equal(book.obj.oclass, SPBOOK_CLASS);
     // 4283-4284: the Amulet's description has to open the name or follow a
     // space, so one embedded in a word is not it.
     assert.equal(wish(state, 'brassAmulet of Yendor').refusal,
@@ -1284,9 +1330,11 @@ test('readobjnam stops rather than retrying a name that already says mail', () =
     // The class-word loop leaves "mail" with d.oclass ARMOR_CLASS.  4776's
     // strstri() finds "mail" at the front, so the retry does not fire; had it
     // fired, appending " mail" would leave "mail" still at the front and the
-    // arm would ask for a retry for ever.
-    assert.equal(wish(state, 'mail armor').refusal,
-                 'a wish no lookup resolves');
+    // arm would ask for a retry for ever.  The wish then falls into typfnd:
+    // with d.typ 0 and gets a drawn suit of armor rather than a plate mail.
+    const armor = wish(state, 'mail armor');
+    assert.equal(armor.obj.oclass, ARMOR_CLASS);
+    assert.notEqual(armor.obj.otyp, PLATE_MAIL);
 });
 
 test('the artifact lookup is fuzzy and runs only for a classless wish', () => {
@@ -1301,9 +1349,13 @@ test('the artifact lookup is fuzzy and runs only for a classless wish', () => {
     // 4872's `!d->oclass` keeps a wish that named a class away from the
     // artifact table: "Grayswandir weapon" is a weapon whose name matches no
     // weapon, and the class-filtered spellings list below cannot place it
-    // either, so the wish stops.
-    assert.equal(wish(state, 'Grayswandir weapon').refusal,
-                 'a wish no lookup resolves');
+    // either, so objnam.c:5037 draws a weapon instead of building the
+    // artifact.  ARROW is objects[]'s first weapon and rnd() answering 1 stops
+    // the probability walk on it.
+    const drawn = wish(state, 'Grayswandir weapon');
+    assert.equal(drawn.obj.otyp, ARROW);
+    assert.equal(drawn.obj.oartifact, 0);
+    assert.equal(state.u.uconduct.wisharti, 1); /* from the wish above */
 
     // 4890's wishymatch() keeps retry_inverted, so an inverted spelling still
     // matches once the class word is stripped.  spellings[] spells this one
@@ -1354,10 +1406,11 @@ test('readobjnam admits four container types and refuses three boxes', () => {
     assert.equal(wish(state, 'bag of holding').obj.otyp, BAG_OF_HOLDING);
     assert.equal(wish(state, 'bag of tricks').obj.otyp, BAG_OF_TRICKS);
 
-    // A chest and a large box take objnam.c:5142-5146's bare `break;`, where
-    // this port's spe switch ends in a `default:` that would assign d.spe
-    // over the lock state mksobj():1012-1014 has just rolled. An ice box is
-    // stocked with corpses whose timers mkbox_cnts():342-351 then stops.
+    // The three that stay outside the wish boundary. Both halves of what once
+    // stopped them are ported -- objnam.c:5141-5146's bare `break;` and
+    // mkbox_cnts():339-351's ice-box corpses -- so what is left is the
+    // recorded evidence the "a wished-for chest, large box or ice box stops
+    // the segment" deferral asks for, one fresh differential per type.
     const reason = 'a wish for a chest, large box or ice box';
     assert.equal(wish(state, 'chest').refusal, reason);
     assert.equal(wish(state, 'large box').refusal, reason);
@@ -1428,5 +1481,240 @@ test('the wished-container matrix keeps its content spread', () => {
     assert.equal(
         CONTAINER_CASES.filter(({ contents }) => contents.length === 0).length,
         4,
+    );
+});
+
+// ---------------------------------------------------------------------------
+// objnam.c readobjnam()'s `any:` label (4994-4996) and the d.typ == 0 arm of
+// its typfnd: tail (5037). An Escape at the wish prompt empties the buffer
+// (zap.c:6346-6347), which is what sends a wish down both.
+// ---------------------------------------------------------------------------
+
+// Answers `results[bound]` where the table has an entry and recordingRandom()'s
+// lowest result everywhere else, so a test can steer one draw and leave the
+// rest deterministic.
+function steeredRandom(draws, results) {
+    const base = recordingRandom(draws);
+    return {
+        ...base,
+        rn2: (x) => { base.rn2(x); return results.rn2?.[x] ?? 0; },
+        rnd: (x) => { base.rnd(x); return results.rnd?.[x] ?? 1; },
+    };
+}
+
+// mkobj()'s probability walk subtracts each type's oc_prob from rnd(total), so
+// steering that one draw to a class's cumulative weight selects the type it
+// lands on. All three below are FOOD_CLASS or TOOL_CLASS totals of 1000.
+const TRIPE_RATION_DRAW = 140; /* the class's first row, cumulative 140 */
+const SLIME_MOLD_DRAW = 387; /* cumulative 312 before it, 387 through it */
+const TIN_DRAW = 1000; /* the class's last row */
+const LARGE_BOX_DRAW = 40; /* the class's first row */
+const CHEST_DRAW = 75; /* cumulative 40 before it, 75 through it */
+const FIGURINE_DRAW = 795; /* cumulative 770 before it, 795 through it */
+
+test('an empty wish line draws its class from wrpsym[]', () => {
+    // objnam.c:4924-4925 sends a line readobjnam_preparse() answers 1 for
+    // straight to `any:`, whose rn2(13) is the first draw the wish makes.
+    const state = wishState();
+    const wand = wish(state, '');
+    assert.equal(wand.draws[0], 'rn2(13)');
+    // wrpsym[0] is WAND_CLASS, and recordingRandom() answers every rn2() 0.
+    assert.equal(wand.obj.oclass, WAND_CLASS);
+
+    // The far end of the same table, which is what pins the bound: wrpsym[12]
+    // is FOOD_CLASS, so an rn2(13) of 12 has to stay in range.
+    const food = [];
+    const last = readobjnam('', NO_WISH, {
+        state,
+        random: steeredRandom(food, { rn2: { 13: 12 } }),
+    });
+    assert.equal(last.oclass, FOOD_CLASS);
+    // wrpsym[9] is ARMOR_CLASS, one of the three rows no class word test
+    // reaches, because "armor" is stripped by readobjnam_postparse1() first.
+    const armor = [];
+    assert.equal(readobjnam('', NO_WISH, {
+        state,
+        random: steeredRandom(armor, { rn2: { 13: 9 } }),
+    }).oclass, ARMOR_CLASS);
+});
+
+test('a class word skips the any: draw', () => {
+    const state = wishState();
+    // objnam.c:4995's `if (!d.oclass)`. "potion" leaves POTION_CLASS behind
+    // and no type, so C falls past wiztrap: and `any:` into typfnd: with
+    // d.typ 0 and grants mkobj(POTION_CLASS, FALSE) -- with no rn2(13) at all.
+    const potion = wish(state, 'potion');
+    assert.equal(potion.obj.oclass, POTION_CLASS);
+    assert.equal(potion.draws.includes('rn2(13)'), false);
+    // A name that resolves to a type reaches typfnd: by `goto typfnd`, which
+    // steps over `any:` entirely; d.oclass is 0 there until 4998 sets it, so a
+    // port that ran `any:` unconditionally would draw here too.
+    const lamp = wish(state, 'magic lamp');
+    assert.equal(lamp.obj.otyp, MAGIC_LAMP);
+    assert.equal(lamp.draws.includes('rn2(13)'), false);
+    // A line of nothing but qualifiers is not the empty line: the preparse
+    // loop consumed "blessed" and so answered 0, and with no class word the
+    // wish reaches objnam.c:4992's null return instead.
+    assert.equal(wish(state, 'blessed ').refusal, 'a wish no lookup resolves');
+});
+
+test('the any: arm leaves the count at 0, so a drawn stack survives', () => {
+    // C's `goto any` steps over objnam.c:4927-4928, which is the only line
+    // that raises d.cnt from 0 to 1. The count block at 5069-5083 then reads
+    // `d.cnt > 0` and leaves mksobj()'s own quantity alone.
+    const state = wishState();
+    const stacked = [];
+    // wrpsym[8] is WEAPON_CLASS; ARROW is objects[]'s first weapon, is
+    // multigen, and mkobj.c mksobj():963 gives it rn1(6, 6) of itself.
+    const arrows = readobjnam('', NO_WISH, {
+        state,
+        random: steeredRandom(stacked, { rn2: { 13: 8 } }),
+    });
+    assert.equal(arrows.otyp, ARROW);
+    assert.equal(arrows.quan, 6); /* rn1(6, 6) answering its base */
+
+    // The same draw reached by naming the class instead: readobjnam_preparse()
+    // answers 0, d.cnt becomes 1, and 5081 overwrites the stack with it.
+    const single = wish(state, 'weapon');
+    assert.equal(single.obj.otyp, ARROW);
+    assert.equal(single.obj.quan, 1);
+});
+
+// objnam.c:5122-5185's arms for the types a draw can reach. Each is shown
+// with an explicit enchantment, because that is what separates the arm from
+// the `default:` below it: with no "+n" the tail copies otmp->spe back into
+// itself and every arm looks alike.
+test('a drawn tin is not spinach, whatever mksobj() made it', () => {
+    // objnam.c:5122's `d.otmp->spe = 0`. mkobj.c mksobj():925-937 sends every
+    // tin through eat.c set_tin_variety(), whose spinach limb sets spe 1 and
+    // whose RANDOM_TIN limb sets the negative code -(r + 1); either would name
+    // the tin wrongly if the `default:` arm copied it back out of d.spe.
+    const state = wishState();
+    const draws = [];
+    const tin = readobjnam('', NO_WISH, {
+        state,
+        random: steeredRandom(draws, { rn2: { 13: 11 }, rnd: { 1000: TIN_DRAW } }),
+    });
+    assert.equal(tin.otyp, TIN);
+    assert.equal(tin.spe, 0);
+    // What mksobj() left before the arm ran: recordingRandom()'s rn2(6) of 0
+    // takes mksobj():925's spinach branch, so spe was 1.
+    const made = [];
+    assert.equal(mksobj(TIN, true, false, {
+        state, random: recordingRandom(made),
+    }).spe, 1);
+});
+
+test('a drawn slime mold, box and figurine keep the spe C leaves them', () => {
+    const state = wishState();
+    const drawn = (text, results) => {
+        const draws = [];
+        return readobjnam(text, NO_WISH, {
+            state, random: steeredRandom(draws, results),
+        });
+    };
+
+    // objnam.c:5137-5139 assigns d.ftype, which readobjnam_init() copied from
+    // svc.context.current_fruit -- 1 in this fixture -- rather than the "+3".
+    // The `case SLIME_MOLD:` label is what this pins; its assignment repeats a
+    // value mksobj():971-975 has already set from the same field, and only
+    // objnam.c:4805-4870's unported named-fruit block can separate the two.
+    const mold = drawn('+3 zzyzx food', { rnd: { 1000: SLIME_MOLD_DRAW } });
+    assert.equal(mold.otyp, SLIME_MOLD);
+    assert.equal(mold.spe, 1);
+    // The contrast: a food type with no arm of its own takes `default:` and
+    // does get the "+3".
+    const tripe = drawn('+3 zzyzx food', { rnd: { 1000: TRIPE_RATION_DRAW } });
+    assert.equal(tripe.otyp, TRIPE_RATION);
+    assert.equal(tripe.spe, 3);
+
+    // objnam.c:5141-5146's bare `break;`, which a chest and a large box share
+    // with the skeleton key, the heavy iron ball and the iron chain.
+    const box = drawn('+3 zzyzx tool', { rnd: { 1000: LARGE_BOX_DRAW } });
+    assert.equal(box.otyp, LARGE_BOX);
+    assert.equal(box.spe, 0);
+    const chest = drawn('+3 zzyzx tool', { rnd: { 1000: CHEST_DRAW } });
+    assert.equal(chest.otyp, CHEST);
+    assert.equal(chest.spe, 0);
+});
+
+test('a drawn figurine loses the gender mksobj() rolled for it', () => {
+    // objnam.c:5147-5165 with C's P null. mkobj.c mksobj():1076-1082 gives a
+    // figurine the gender of the monster it rolled, and this arm replaces it
+    // with CORPSTAT_RANDOM. The monster machinery needs a dungeon and a
+    // monsterObject hook, which the plain wish fixture does not carry.
+    const state = wishState();
+    Object.assign(state, DUNGEON_FIXTURE);
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    reset_mvitals(state);
+    const draws = [];
+    const figurine = readobjnam('+3 zzyzx tool', NO_WISH, objectGenerationEnv({
+        state,
+        random: steeredRandom(draws, { rnd: { 1000: FIGURINE_DRAW } }),
+    }));
+    assert.equal(figurine.otyp, FIGURINE);
+    assert.equal(figurine.spe, CORPSTAT_RANDOM);
+    // The monster survives: objnam.c:5195-5245's corpsenm switch reads
+    // d.mntmp, which is NON_PM here, so it does not run and mksobj()'s own
+    // choice stands.
+    assert.notEqual(figurine.corpsenm, NON_PM);
+});
+
+test('a class wish that also names a dragon stops on a drawn tin', () => {
+    // requireSimpleRandomWishedObject(). objnam.c:5206-5245's corpsenm switch
+    // is unported, and "gray dragon food" is a wish that reaches it: the
+    // dragon passes the monster-type refusal, "food" leaves FOOD_CLASS with no
+    // type, and mkobj() can answer a tin or an egg.
+    const state = wishState();
+    const stopped = [];
+    assert.throws(() => readobjnam('gray dragon food', NO_WISH, {
+        state,
+        random: steeredRandom(stopped, { rnd: { 1000: TIN_DRAW } }),
+    }), (error) => error instanceof UnsupportedWishError
+        && error.reason === 'a random wish that drew a monster-carrying type');
+    // The same wish on a type the corpsenm switch does not name is granted,
+    // which is what keeps the refusal to the three types it is for.
+    const granted = [];
+    assert.equal(readobjnam('gray dragon food', NO_WISH, {
+        state,
+        random: steeredRandom(granted, { rnd: { 1000: TRIPE_RATION_DRAW } }),
+    }).otyp, TRIPE_RATION);
+});
+
+// The differential evidence for the random-object tail lives in
+// scripts/run-random-wish.mjs, which records fresh C output for twenty-one
+// wishes and compares complete screens, cursors and random-number calls. This
+// guards what that matrix is made of: a matrix that had lost the tin, the
+// stack or the class-word route would still pass.
+test('the random-wish matrix keeps its class and type spread', () => {
+    const recipe = loadRandomWishRecipe();
+    assert.equal(recipe.segments.length, RANDOM_WISH_CASES.length);
+    for (const segment of recipe.segments)
+        assert.equal(Object.hasOwn(segment, 'steps'), false);
+
+    // Every class wrpsym[] can name. The table holds thirteen rows and eleven
+    // distinct classes, because SPBOOK_CLASS and FOOD_CLASS each appear twice.
+    assert.deepEqual(
+        [...new Set(RANDOM_WISH_CASES.map(({ oclass }) => oclass))].sort(),
+        [...new Set(wrpsym)].sort(),
+    );
+    // The four types whose spe arm only a drawn type reaches, plus the egg
+    // that reaches `default:` and the slime mold's fruit id.
+    for (const otyp of [TIN, SLIME_MOLD, FIGURINE, CHEST, LARGE_BOX, EGG]) {
+        assert.equal(
+            RANDOM_WISH_CASES.some((entry) => entry.otyp === otyp), true,
+            `otyp ${otyp}`,
+        );
+    }
+    // At least one stack larger than the two a food or gem roll can give,
+    // which is the only shape that shows the `any:` route leaving d.cnt at 0.
+    assert.equal(
+        RANDOM_WISH_CASES.some(({ quan }) => (quan ?? 1) > 2), true,
+    );
+    // The class-word route, which reaches the same tail without an rn2(13).
+    assert.deepEqual(
+        RANDOM_WISH_CASES.filter(({ wish: text }) => text !== undefined)
+            .map(({ wish: text }) => text),
+        ['zzyzx potion'],
     );
 });

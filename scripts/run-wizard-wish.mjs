@@ -103,9 +103,10 @@ export function loadWizardWishRecipe() {
             segment(4471005, `${WIZWISH_KEY}lamp${ERASE_KEY}${ERASE_KEY}n`,
                 { role: 'Priest', gender: 'female' }),
             // Escape over a non-empty line. getline.c:88 clears the buffer and
-            // repaints the prompt instead of returning, so this stays inside
-            // the slice; an Escape over an empty line returns and grants a
-            // random wish, which is a deferred case.
+            // repaints the prompt instead of returning, so the prompt is still
+            // open when the segment ends; an Escape over an empty line returns
+            // and grants a random wish, which scripts/run-random-wish.mjs
+            // records.
             segment(4471006, `${WIZWISH_KEY}scroll${ESCAPE_KEY}ri`,
                 { role: 'Rogue', align: 'chaotic' }),
             // The kill character, which erases the whole line in place.

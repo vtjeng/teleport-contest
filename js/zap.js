@@ -42,10 +42,10 @@ export function exclam(force) {
     return (force < 0) ? '?' : (force <= 4) ? '.' : '!';
 }
 
-// C ref: zap.c makewish() (6313-6422). The Escape arm at 6346-6347, the
-// "help" arm at 6348-6352, the MAXWISHTRY retry loop at 6360-6368 and the
-// hands_obj and artifact arms all stop instead; the wishes this port grants
-// take the plain readobjnam() and hold_another_object() path between them.
+// C ref: zap.c makewish() (6313-6422). The "help" arm at 6348-6352, the
+// MAXWISHTRY retry loop at 6360-6368 and the hands_obj and artifact arms all
+// stop instead; the wishes this port grants take the plain readobjnam() and
+// hold_another_object() path between them, the Escape at 6346-6347 included.
 //
 // `tries` is 0 on every pass this port reaches, because the MAXWISHTRY loop
 // that raises it starts past the throw. That settles two of the head's tests:
@@ -82,13 +82,12 @@ export async function makewish(state = game) {
         return;
     }
 
-    const buf = mungspaces(answer);
+    let buf = mungspaces(answer);
     if (buf[0] === '\x1b') {
-        // zap.c:6346-6347 empties the buffer rather than declining, so
-        // readobjnam("") falls through readobjnam_preparse()'s empty return
-        // to `any:` and grants wrpsym[rn2(13)].  That is easy to implement
-        // backwards, so it stops here and is deferred instead.
-        throw new UnsupportedWishError('an Escape at the wish prompt', buf);
+        // zap.c:6346-6347 empties the buffer rather than declining the wish,
+        // so readobjnam("") falls through readobjnam_preparse()'s empty return
+        // to `any:` and is granted wrpsym[rn2(13)].
+        buf = '';
     } else if (lcase(buf) === 'help') {
         // 6348-6352 opens wishcmdassist()'s window and asks again.
         throw new UnsupportedWishError('the wish prompt help text', buf);
@@ -137,6 +136,15 @@ export async function makewish(state = game) {
             // mkobj.c obj_extract_self() for the pile member the landing
             // object absorbs, and that member is on the floor.
             extractExternalObject: remove_object,
+            // invent.c merged():933-942.  A wished-for object that merges
+            // into a stack the hero already carries settles any known,
+            // rknown or bknown the two disagreed on, and says so.  Only a
+            // random wish reaches this: a named one is spelled the same way
+            // twice, so the second copy agrees with the first.
+            inventoryComparisonDiscovered: () => ttyPline(
+                'You learn more about your items by comparing them.',
+                state,
+            ),
             newsym,
             preflightDropObject: preflight_dropx,
             dropObject: dropx,

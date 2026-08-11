@@ -663,7 +663,7 @@
       "area": "objects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "b5e3153930cfa62b91038c6c366be8b26e8b6ea6",
       "detail": "getline.c:97 leaves the buffer as \"\\033\" for an Escape over an empty line, and zap.c:6347 turns that into the empty string rather than a cancellation. readobjnam(\"\") then falls through readobjnam_preparse()'s empty return to the 'any:' label at objnam.c:4994, where wrpsym[rn2(13)] picks a random object class, so Escape grants a wish instead of declining one. Fresh case, recorded 2 August 2026: seed 4471006, datetime 20291105071500, OPTIONS=name:Wshr,role:Wizard,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,playmode:debug, moves \".<C-W><ESC>.\". C runs 2536 random-number calls and 5 screens; the port stops at boundary 4, the Escape, having matched 3 screens and 2517 calls, and C's first unmatched call is rn2(13) from readobjnam(objnam.c:4996). Escape over a non-empty line is a different arm and is covered by the passing matrix in scripts/run-wizard-wish.mjs, because getline.c:88 restarts the prompt there instead of returning."
     },
@@ -1409,6 +1409,10 @@
         {
           "text": "The entry describes only C's null-pointer outcome, which is the no-class-word half. A wish that carries a class word and matches no type does not reach objnam.c:4992-4993 at all: it falls past the any: label into typfnd: with d.typ 0, and objnam.c:5037 calls mkobj(d.oclass, FALSE) to grant a random object of that class. The port raises the same refusal for both, so closing this entry needs a second recorded C case whose wish carries a class word -- a wizard-mode wish for something like 'zzyzx potion' -- or the closing evidence will cover only half of what the refusal stops.",
           "at": "1f0bffd9766ce378fbea272741201efe64b0d491"
+        },
+        {
+          "text": "The class-word half is closed. objnam.c:4959-4993's wiztrap: guard, polearm and hammer picks and null return all read `!d.oclass`, so a wish carrying a class word passes every one of them, reaches `any:` -- whose own guard reads it too -- and arrives at typfnd: with d.typ 0, where objnam.c:5037 grants mkobj(d.oclass, FALSE). js/objnam_readobjnam.js readobjnam_lookup() now answers 'any' for that fall-through instead of refusing, and scripts/run-random-wish.mjs records the case the earlier note asked for: seed 5510041, datetime 20300221084500, moves '.<C-w>zzyzx potion<newline>.', which matches C call for call and screen for screen. What remains is the no-class-word half alone -- wizterrainwish(), the rnd_otyp_by_wpnskill() picks and makewish()'s MAXWISHTRY loop -- and the recorded case for it, seed 4471033, still fails.",
+          "at": "6556566543f3085552ededa644b18c1d7e655762"
         }
       ]
     },
@@ -1534,6 +1538,10 @@
         {
           "text": "Two citations in the detail above are off by one at each end, corrected here rather than rewritten there. The spe-switch arm a chest and a large box share is objnam.c:5141-5146, not 5142-5147: 5141 is 'case SKELETON_KEY:', 5146 is the bare 'break;', and 5147 opens the STATUE arm. The ice-box arm of mkbox_cnts() is mkobj.c:339-351, not 342-351: 339 is 'if (box->otyp == ICE_BOX) {', 340 the mksobj(CORPSE) call, and 348-350 the three stop_timer() calls. Everything the detail says about what those two arms do holds; only the spans were wrong. js/objnam_readobjnam.js and scripts/run-wished-container.mjs carry the corrected spans.",
           "at": "ceff7dbc77246f078dbfaa8609f6b3d2c02fbea1"
+        },
+        {
+          "text": "Reason (1) is retired: js/objnam_readobjnam.js's spe switch now carries objnam.c:5141-5146's bare break for CHEST and LARGE_BOX, so the default: arm no longer overwrites what mksobj() rolled. A drawn chest and a drawn large box are both granted and recorded in scripts/run-random-wish.mjs (seeds 5510434 and 5510077), which drives mkbox_cnts() at a maximum above 1 and matches C call for call. What still holds the three named wishes back is only this entry's stated closing condition -- a fresh differential per type in scripts/run-wished-container.mjs -- and, for the ice box alone, that it weighs more than the hero can hold: invent.c hold_another_object() takes its drop arm and raises UnsupportedObjectOperationError, so a named ice-box wish needs that drop tail too. Seed 5510561 draws one at random and stops there.",
+          "at": "6556566543f3085552ededa644b18c1d7e655762"
         }
       ]
     },

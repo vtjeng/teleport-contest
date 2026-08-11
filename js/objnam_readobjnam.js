@@ -12,8 +12,8 @@ import {
     artifact_name, nartifact_exist, permapoisoned,
 } from './artifacts.js';
 import {
-    FEMALE, GOLD_SYM, LOW_PM, MALE, NEUTRAL, NON_PM, ONAME_WISH, SPE_LIM,
-    ismnum,
+    CORPSTAT_RANDOM, FEMALE, GOLD_SYM, LOW_PM, MALE, NEUTRAL, NON_PM,
+    ONAME_WISH, SPE_LIM, ismnum,
 } from './const.js';
 import { lookup_novel, oname } from './do_name.js';
 import { makeplural, makesingular } from './fruit.js';
@@ -23,7 +23,7 @@ import { name_to_monplus } from './mondata.js';
 import { PM_GRAY_DRAGON, PM_YELLOW_DRAGON } from './monsters.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
 import {
-    curseFreeObject, erosionMatters, mksobj, objectType,
+    curseFreeObject, erosionMatters, mkobj, mksobj, objectType,
     rnd_class, weight,
 } from './obj.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -379,8 +379,11 @@ export function wishymatch(u_str, o_str, retry_inverted) {
 }
 
 // A wish this port cannot grant yet.  Every refusal below names the C line it
-// stands at, and each sits before the draw its branch would make, so a refused
-// wish spends no random number.
+// stands at.  All but one sit before the draw their branch would make, so a
+// refused wish spends no random number.  The exception is
+// requireSimpleRandomWishedObject(), which reads the type objnam.c:5037's
+// mkobj() arm has just drawn and so cannot stand any earlier; its own comment
+// names the types it stops.
 export class UnsupportedWishError extends Error {
     constructor(reason, buf) {
         super(`unsupported wish: ${reason}`);
@@ -1418,8 +1421,10 @@ function requireSimpleWishQualifiers(d) {
 // "pair of speed boots" reaches d.cnt 2 and still produces the single pair C
 // produces, so refusing on the count alone would stop a wish C completes.
 //
-// This stands after postparse3()'s lookup, which is the one draw C makes in the
-// same place, and before mksobj(), so no draw follows the stop.
+// For a wish that names a type this stands after postparse3()'s lookup, which
+// is the one draw C makes in the same place, and before mksobj(), so no draw
+// follows the stop.  For a wish that names only a class the type is not known
+// until mkobj() has drawn it, so there it stands after that draw.
 function requireSingleWishedObject(d, type, state) {
     if (d.cnt > 1 && type.oc_merge && state.wizard) {
         throw new UnsupportedWishError('a wish for more than one object',
@@ -1427,36 +1432,76 @@ function requireSingleWishedObject(d, type, state) {
     }
 }
 
+// objnam.c:4999-5023 substitutes for five wizard-only types and refuses an
+// oc_nowish one; wiz_wish() is this port's only caller, so no wish reaches
+// either.  Both arms of objnam.c:5037 pass through here before they draw.
+function requireWizardWish(d, state) {
+    if (!state.wizard) {
+        throw new UnsupportedWishError('a wish outside wizard mode',
+                                       origbp(d));
+    }
+}
+
+// The other arm of objnam.c:5037, where mkobj() picks the type instead of the
+// player naming one.  Every arm of the spe switch a draw can reach is ported,
+// so the one block left over is the corpsenm switch at objnam.c:5206-5245:
+// its five arms all sit behind ismnum(d.mntmp), which a wish naming a class
+// and a dragon -- "gray dragon food", say -- still delivers.  CORPSE cannot be
+// drawn (objects.h gives it oc_prob 0) and STATUE is ROCK_CLASS, which wrpsym[]
+// does not hold, so only a tin, an egg or a figurine can stop here.
+//
+// Unlike every other refusal in this file this one stands after a draw.
+// Nothing knows the type before mkobj() has answered it, so there is no
+// earlier place to put it.
+function requireSimpleRandomWishedObject(d) {
+    if (!ismnum(d.mntmp)) return;
+    switch (d.typ) {
+    case TIN:
+    case CORPSE:
+    case EGG:
+    case FIGURINE:
+    case STATUE:
+        throw new UnsupportedWishError(
+            'a random wish that drew a monster-carrying type', origbp(d),
+        );
+    default:
+        break;
+    }
+}
+
 function requireSimpleWishedObject(d, type, state) {
     const refuse = (reason) => {
         throw new UnsupportedWishError(reason, origbp(d));
     };
-    if (!state.wizard) {
-        /* objnam.c:4999-5023 substitutes for five wizard-only types and
-           refuses an oc_nowish one; wiz_wish() is this port's only caller. */
-        refuse('a wish outside wizard mode');
-    }
     if (type.oc_unique) {
         /* mksobj() makes an oc_unique type an artifact, which
            objnam.c:5348-5357 then measures with rn2(nartifact_exist()). */
         refuse('a wish for a unique object');
     }
     switch (d.typ) {
-    case TIN: /* objnam.c:5121-5129 and 5311-5312 */
-    case SLIME_MOLD: /* 5134-5136, the named-fruit spe */
-    case CORPSE: /* 5140-5158, which draws rn2(2) for a gender */
+    /* The five types objnam.c:5206-5245's corpsenm switch owns, plus the slime
+       mold beside them in the spe switch.  Naming one of these is how a wish
+       carries a monster -- "tin of newt", "newt corpse" -- and that arm is
+       unported, so the named forms stay outside the wish boundary until a
+       recorded case drives one.  A drawn tin, egg, figurine or slime mold is
+       inside it: requireSimpleRandomWishedObject() stops the same monster
+       carriers, and the arms of the spe switch below are ported. */
+    case TIN:
+    case SLIME_MOLD:
+    case CORPSE:
     case STATUE:
     case FIGURINE:
-    case EGG: /* 5223-5231, set_corpsenm()'s hatch timer */
+    case EGG:
         refuse('a wish for a corpse, statue, figurine, egg or tin');
         break;
-    /* Three of the seven container types, refused for two reasons.
-       objnam.c:5142-5146 gives a chest and a large box a bare `break;` in the
-       spe switch, where the `default:` arm this port ends that switch with
-       would assign d.spe over the lock state mksobj():1012-1014 has just
-       rolled.  And mkbox_cnts():339-351 stocks an ice box with mksobj(CORPSE)
-       rather than mkobj(), stopping three of each corpse's timers; no
-       recording has driven that arm. */
+    /* Three of the seven container types.  Both halves of what once stopped
+       them are ported now -- objnam.c:5141-5146's bare `break;` for a chest
+       and a large box is in the spe switch below, and mkbox_cnts():339-351's
+       ice-box corpses are in js/mkobj_container.js -- so what is left is the
+       recorded evidence the deferral entry "a wished-for chest, large box or
+       ice box stops the segment" asks for: a fresh differential per type, in
+       scripts/run-wished-container.mjs.  A drawn chest or large box is inside
+       the boundary, because scripts/run-random-wish.mjs records one. */
     case CHEST:
     case LARGE_BOX:
     case ICE_BOX:
@@ -1499,11 +1544,35 @@ export function readobjnam(bp, no_wish, env = {}) {
     /* save the [nearly] unmodified choice string */
     d.fruitbuf = d.bp;
 
-    if (readobjnam_preparse(d, state)) {
-        // objnam.c:4924-4925.  A line of nothing but qualifiers reaches
-        // `any:` and its wrpsym[rn2(13)] draw.
-        throw new UnsupportedWishError('a wish with no object name', origbp(d));
+    // C reaches the tail through two labels and they behave differently, so
+    // which one the parse jumped to has to survive the jump.  `goto typfnd`
+    // steps over `any:`; `goto any` runs it.
+    let label = 'any';
+    // objnam.c:4924-4925.  readobjnam_preparse() answering 1 -- an empty line,
+    // which is what an Escape at the wish prompt leaves -- goes straight to
+    // `any:`, past the count default, the charge parse and the whole lookup
+    // chain below.
+    if (!readobjnam_preparse(d, state)) {
+        label = readobjnam_lookup(d, normalized);
     }
+
+    if (label === 'any') {
+        /* any: */
+        // objnam.c:4994-4996.  wrpsym[] has 13 entries and C indexes it with
+        // `rn2((int) sizeof wrpsym)`, the byte count of a char array.
+        if (!d.oclass)
+            d.oclass = wrpsym[random.rn2(wrpsym.length)];
+    }
+
+    return readobjnam_typfnd(d, normalized);
+}
+
+// C ref: the part of objnam.c readobjnam() between the count default at
+// 4927-4928 and the `any:` label at 4994, which is everything the parse chain
+// drives.  Answers the label C jumps to: 'typfnd' for `goto typfnd`, 'any' for
+// falling off the end of readobjnam_postparse3() with a class word set.
+function readobjnam_lookup(d, normalized) {
+    const { state } = normalized;
 
     if (!d.cnt)
         d.cnt = 1; /* will be changed to 2 if makesingular() changes string */
@@ -1541,18 +1610,22 @@ export function readobjnam(bp, no_wish, env = {}) {
         // requires d.bp to hold no "mail" and leaves it holding some.
         action = 0;
     }
-    if (action === 0) {
-        // Two C outcomes share this stop, and the deferral that records it
-        // names both.  With no class word, objnam.c:4959-4986 falls past the
-        // end of readobjnam_postparse3() into wiztrap:, where a wizard's line
-        // is offered to wizterrainwish(), then to the "polearm" and "hammer"
-        // skill picks, and finally answers the null pointer at 4992-4993 that
-        // makewish() reports with "Nothing fitting that description exists in
-        // the game." and retries.  With a class word set and no type matched,
-        // C instead falls past `any:` into typfnd: with d.typ 0, where
-        // objnam.c:5037 calls mkobj(d.oclass, FALSE) and grants a random
-        // object of that class.  None of those is ported.
+    if (action === 0 && !d.oclass) {
+        // objnam.c:4959-4986 falls past the end of readobjnam_postparse3()
+        // into wiztrap:, where a wizard's line is offered to wizterrainwish(),
+        // then to the "polearm" and "hammer" skill picks, and finally answers
+        // the null pointer at 4992-4993 that makewish() reports with "Nothing
+        // fitting that description exists in the game." and retries.  None of
+        // those is ported.
         throw new UnsupportedWishError('a wish no lookup resolves', origbp(d));
+    }
+    if (action === 0) {
+        // The same fall-through with a class word set.  wiztrap:'s guard, the
+        // "polearm" and "hammer" block and the null return at 4992-4993 all
+        // read `!d.oclass`, so C passes every one of them and reaches `any:`,
+        // whose own guard reads it too.  What is left is typfnd: with d.typ 0,
+        // where objnam.c:5037 grants mkobj(d.oclass, FALSE).
+        return 'any';
     }
     if (action !== 2) {
         // Each of C's other codes is refused where its branch is raised: 3
@@ -1561,20 +1634,42 @@ export function readobjnam(bp, no_wish, env = {}) {
         throw new UnsupportedWishError(`readobjnam action ${action}`,
                                        origbp(d));
     }
+    return 'typfnd';
+}
+
+// C ref: objnam.c readobjnam()'s typfnd: tail (4997-5400).
+function readobjnam_typfnd(d, normalized) {
+    const { state } = normalized;
+    const random = wishRandom(normalized);
 
     /* typfnd: */
     if (d.typ)
         d.oclass = state.objects[d.typ].oc_class;
 
-    requireSimpleWishedObject(d, objectType(d.typ, state), state);
-    requireSingleWishedObject(d, objectType(d.typ, state), state);
+    requireWizardWish(d, state);
+    // Both guards below read the object's type.  A wish that named one is
+    // checked here, before mksobj() draws, so a refused wish still spends no
+    // random number.  A wish that named only a class has no type to read until
+    // objnam.c:5037's other arm has drawn one, so for that arm both guards run
+    // after the draw instead.
+    const named = d.typ !== 0;
+    if (named) {
+        requireSimpleWishedObject(d, objectType(d.typ, state), state);
+        requireSingleWishedObject(d, objectType(d.typ, state), state);
+    }
 
     /*
      * Create the object, then fine-tune it.
      */
-    d.otmp = mksobj(d.typ, true, false, normalized);
+    d.otmp = named
+        ? mksobj(d.typ, true, false, normalized)
+        : mkobj(d.oclass, false, normalized);
     d.typ = d.otmp.otyp;
     d.oclass = d.otmp.oclass; /* what we actually got */
+    if (!named) {
+        requireSimpleRandomWishedObject(d);
+        requireSingleWishedObject(d, objectType(d.typ, state), state);
+    }
 
     /* if player specified a reasonable count, maybe honor it; d.otmp->globby
        is false because a glob wish is refused in readobjnam_postparse1() */
@@ -1603,6 +1698,15 @@ export function readobjnam(bp, no_wish, env = {}) {
 
     /* set otmp->spe.  This may, or may not, use d.spe... */
     switch (d.typ) {
+    case TIN:
+        d.otmp.spe = 0; /* default: not spinach */
+        // objnam.c:5124-5130's two limbs both read d.contents, which
+        // requireSimpleWishQualifiers() refuses, so the assignment above is
+        // the whole arm here -- and it is not a formality.  mksobj() reaches
+        // eat.c set_tin_variety(obj, RANDOM_TIN), whose closing
+        // `obj->spe = -(r + 1)` leaves a negative variety code, and the
+        // `default:` arm below would copy it back out of d.spe.
+        break;
     case TOWEL:
         // d.wetness is 0 for every wish this port admits, because
         // readobjnam_preparse()'s "wet " and "moist " arms set it and
@@ -1612,10 +1716,36 @@ export function readobjnam(bp, no_wish, env = {}) {
         if (d.wetness)
             d.otmp.spe = d.wetness;
         break;
+    case SLIME_MOLD:
+        // mksobj() set the same fruit id readobjnam_init() copied into
+        // d.ftype, so on the wishes this port admits the assignment repeats
+        // what is already there.  It is C's, and it is what would apply a
+        // named fruit once objnam.c:4805-4870's fruit block is ported.
+        d.otmp.spe = d.ftype;
+        /* FALLTHRU */
     case SKELETON_KEY:
+    case CHEST:
+    case LARGE_BOX:
     case HEAVY_IRON_BALL:
     case IRON_CHAIN:
         /* objnam.c:5141-5146 breaks without assigning otmp->spe */
+        break;
+    case STATUE: /* otmp->cobj already done in mksobj() */
+    case FIGURINE:
+    case CORPSE:
+        // objnam.c:5147-5165.  C's P is `&mons[d.mntmp]` when d.mntmp names a
+        // monster, and neither arm that reaches here carries one: a named
+        // statue, figurine or corpse is refused above, and a drawn one is
+        // refused by requireSimpleRandomWishedObject().  So P is 0, the
+        // conditional chain collapses to CORPSTAT_RANDOM, and the `P &&`
+        // re-roll that would draw rn2(2) for a gender does not run.
+        // d.ishistoric is 0 -- UNSUPPORTED_WISH_FIELDS refuses it -- so 5163's
+        // CORPSTAT_HISTORIC bit is not set either.
+        //
+        // The assignment is not a no-op: mksobj() gives a statue and a
+        // figurine the gender of the monster it rolled (mkobj.c:1076-1082),
+        // and C replaces it with 0 here.
+        d.otmp.spe = CORPSTAT_RANDOM;
         break;
     /* scroll of mail:  0: delivered in-game via external event (or randomly
        for fake mail); 1: from bones or wishing; 2: written with marker */
@@ -1632,10 +1762,9 @@ export function readobjnam(bp, no_wish, env = {}) {
         d.otmp.spe = 1;
         break;
     default:
-        // objnam.c:5123-5187's other arms belong to types
-        // requireSimpleWishedObject() refuses: TIN, SLIME_MOLD, CHEST,
-        // LARGE_BOX, STATUE, FIGURINE and CORPSE.  WAN_WISHING falls through
-        // to here for a wizard, which is the only hero that reaches this code.
+        // WAN_WISHING falls through to here for a wizard, which is the only
+        // hero that reaches this code; objnam.c:5182-5185's `rn2(10) ? -1 : 0`
+        // is the non-wizard limb it skips.
         d.otmp.spe = d.spe;
         break;
     }
@@ -1699,9 +1828,12 @@ export function readobjnam(bp, no_wish, env = {}) {
         d.otmp.recharged = d.rechrg;
     }
 
-    // objnam.c:5292-5323: poisoned, [un]trapped, empty containers, box lock
-    // states, greased, diluted and the tin variety all need a qualifier or a
-    // type refused above.
+    // objnam.c:5292-5341: poisoned, [un]trapped, empty containers, box lock
+    // states, greased and diluted all need a qualifier
+    // requireSimpleWishQualifiers() refuses.  5343's tin variety needs
+    // `d.tvariety >= 0`, and the only line that raises it above RANDOM_TIN is
+    // objnam.c:4381-4387's "tin of ", which sets d.typ to TIN and so meets the
+    // named-tin refusal instead; the test short-circuits before its rn2(4).
 
     if (d.name) {
         let aname;
