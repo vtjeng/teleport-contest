@@ -591,7 +591,7 @@ function wishState() {
         // SLIME_MOLD's own oc_name (objects.h:1094), so a fruit called that is
         // caught by rnd_otyp_by_namedesc() and the named-fruit block at
         // objnam.c:4805-4870 never sees it.  The second name is already
-        // plural, which objnam.c:4855-4857's comment gives as the only way its
+        // plural, which objnam.c:4857-4860's comment gives as the only way its
         // singular arm can be reached, and its fid differs from
         // svc.context.current_fruit so a test can tell d.ftype from the
         // default readobjnam_init() copied.
@@ -670,8 +670,8 @@ function wish(state, text, makeRandom = recordingRandom) {
 // can read the goto code that function answers and the fields it wrote.
 // readobjnam() keeps neither: it turns the code into a jump and discards the
 // parse data when it returns.  The order below is readobjnam()'s own --
-// mungspaces() and the fruitbuf copy at objnam.c:4915-4926, the count default
-// at 4927-4928, readobjnam_parse_charges(), then postparse1, postparse2 and
+// mungspaces() and the fruitbuf copy at objnam.c:4919-4926, the count default
+// at 4931-4932, readobjnam_parse_charges(), then postparse1, postparse2 and
 // postparse3.  What is deliberately left out is the loop that feeds a 6 back
 // into postparse2, because the 6 itself is what one test below measures.
 function parseToPostparse3(state, text) {
@@ -691,7 +691,7 @@ function parseToPostparse3(state, text) {
     return { action: readobjnam_postparse3(d, env), d, draws };
 }
 
-// The six fields objnam.c:4858-4867 writes when a fruit name matches, gathered
+// The six fields objnam.c:4852-4866 writes when a fruit name matches, gathered
 // so one assertion can show that the other five stayed at readobjnam_init()'s
 // zero while the one under test moved.
 function fruitFacts(d) {
@@ -1557,7 +1557,7 @@ test('the named-fruit block matches three ways and sets what C sets', () => {
         return d;
     };
 
-    // ftyp 1, the exact match.  cntf stays 0 and 4866 copies it over the 1 the
+    // ftyp 1, the exact match.  cntf stays 0 and 4865 copies it over the 1 the
     // count default left, so a plain fruit wish reaches typfnd: with no count
     // at all.  d.ftype names the fruit that matched, not current_fruit.
     assert.deepEqual(fruitFacts(fruit('kiwi')),
@@ -1567,18 +1567,18 @@ test('the named-fruit block matches three ways and sets what C sets', () => {
                      { blessed: 0, cnt: 0, ftype: 2, halfeaten: 0,
                        iscursed: 0, uncursed: 0 });
 
-    // ftyp 2, makesingular() of an already-plural fruit name, which 4862-4863
+    // ftyp 2, makesingular() of an already-plural fruit name, which 4861-4862
     // answers with a count of 1.
     assert.equal(fruit('papaya').cnt, 1);
     assert.equal(fruit('papaya').ftype, 2);
 
-    // ftyp 3, makeplural() of a singular one, which 4864-4865 answers with 2.
+    // ftyp 3, makeplural() of a singular one, which 4863-4864 answers with 2.
     assert.equal(fruit('kiwis').cnt, 2);
     assert.equal(fruit('kiwis').ftype, 1);
 
-    // 4815-4836's own prefix loop, which re-strips what readobjnam_preparse()
+    // 4815-4839's own prefix loop, which re-strips what readobjnam_preparse()
     // took off d.bp: d.fruitbuf keeps the line as the player typed it.  An
-    // explicit count wins over the plural adjustment, because 4862 and 4864
+    // explicit count wins over the plural adjustment, because 4861 and 4863
     // both test `!cntf`.
     assert.equal(fruit('blessed 2 kiwis').blessed, 1);
     assert.equal(fruit('blessed 2 kiwis').cnt, 2);
