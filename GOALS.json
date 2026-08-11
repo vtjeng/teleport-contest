@@ -1502,8 +1502,8 @@
         },
         {
           "name": "admit a wished-for sack and fill it",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e1cf83f9dde32cf9960581018d4b1b0c1ba7489b"
         }
       ],
       "openedAt": "14f13184f03fb2edbfb297150f1beb961dcc9530",
