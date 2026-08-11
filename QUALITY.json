@@ -1463,7 +1463,13 @@
       "status": "open",
       "from": "a5506f0457ab9718ef0a13da8548bd817f684737",
       "detail": "in_trouble() answering nonzero has no recorded C case. Every arm needs damage, elapsed time, a cursed item or a polymorph, and a fresh start supplies none of them within the moves a recording can spend before the port stops; scripts/pray.test.mjs pins the arms from constructed states instead. The case also has no discriminating power at today's boundary: u_init.c:1005 leaves u.ublesscnt at 300, so pray.c:2148 answers p_type 0 for a hero in trouble and for one who is not, and dopray() stops at prayer_done() either way. Record one once prayer_done() lands and the prayer's own screens can differ.",
-      "blockedOn": "prayer_done"
+      "blockedOn": "pleased",
+      "notes": [
+        {
+          "text": "Repointed the blocker from prayer_done to pleased at the goal close. js/pray.js now defines prayer_done(), so the original blocker read as landed. Recording a discriminating case needs a hero whose u.ublesscnt has fallen far enough for p_type to differ, and the p_type arms that then become reachable go through pleased(), which is unported.",
+          "at": "22af913f6a17f78a8128ce5c3a7f4c106b7b6c03"
+        }
+      ]
     },
     {
       "id": "angrygods-cases-above-1",
@@ -1473,7 +1479,13 @@
       "status": "open",
       "from": "74c561afb73802472c7802e1f75c11f10bed3fab",
       "detail": "pray.c angrygods() cases 2-8 and its default stop by name, so a prayer whose rn2(maxanger) lands above 1 leaves the segment at the turn boundary instead of matching C. scripts/run-pray-command.mjs DEFERRED_ANGER_CASES records two recorded-ready inputs, both at seed 6120000 with datetime 20260214081500 and moves '.#pray\\ny ': a lawful Valkyrie with 'OPTIONS=name:Orison,role:Valkyrie,race:human,gender:female,align:lawful' reaches cases 4-6 (gods_angry() and rndcurse()), and a lawful Samurai with 'OPTIONS=name:Orison,role:Samurai,race:human,gender:male,align:lawful' reaches cases 2-3 (adjattrib(A_WIS,-1) and losexp()). Both currently stop with UnsupportedTurnBoundaryError 'a delayed action reached prayer reached an unported branch: angrygods()...'. Retire this when losexp(), rndcurse(), attrcurse(), punish(), summon_minion() and god_zaps_you() land.",
-      "blockedOn": "angrygods"
+      "blockedOn": "losexp",
+      "notes": [
+        {
+          "text": "Repointed the blocker from angrygods to losexp at the goal close. js/pray.js now defines angrygods(), so the original blocker read as landed the day the entry was written, and the entry started counting toward the commands sweep while none of the work it waits on had happened. losexp() is the first symbol the refused arms need, for cases 2-3.",
+          "at": "22af913f6a17f78a8128ce5c3a7f4c106b7b6c03"
+        }
+      ]
     },
     {
       "id": "status-critical-hilite-arm-untested",
