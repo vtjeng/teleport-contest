@@ -10219,6 +10219,100 @@
         }
       },
       "recordedAt": "2026-08-11T07:22:19.547Z"
+    },
+    {
+      "kind": "review",
+      "head": "f6a3350b845e2dd1c34a52fa69ef587969932d07",
+      "auditedRange": "34516deac9ec62bfc6828b6be7b8d35ad88ea9dc..f6a3350b845e2dd1c34a52fa69ef587969932d07",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 23 raw, 21 deduplicated, 16 confirmed, 16 applied, 0 deferred, 5 rejected, 0 unverified; mutation: 3 survivors of 11 mutants. Full four-finder audit-diff-correctness pass over objects-deferral-sweep-2, verified adversarially. 23 raw findings, 21 after deduplication, 16 confirmed, 5 rejected, none left unverified; all 16 applied in f6a3350. The development score is identical either side of the fixes at 1389/7765 screens and 118859/610816 calls, measured by me at 1792cdc and again at f6a3350, and identical session for session. One confirmed finding was behavioral: makewish() handed an async hook to hold_another_object(), which invokes it through the synchronous merged() and drops the promise, so the merge message was neither ordered before obfree() nor awaited before the inventory line. No development session merges a wish into a carried stack, so the score could never have shown it. The rest were nine falsified or misstated comments and six test gaps where the code under test could be deleted with the whole suite green. The readiness mutation left three survivors in one function and the pass resolved them as an artifact of a narrower wave, then found the real issue beside them: a range simplification whose validity depends on an object-table adjacency that nothing pinned.",
+      "auditMetrics": {
+        "wallTimeSeconds": 5391,
+        "counts": {
+          "raw": 23,
+          "deduplicated": 21,
+          "confirmed": 16,
+          "applied": 16,
+          "deferred": 0,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 6,
+          "clarity": 9,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/zap.js makewish() supplied an async inventoryComparisonDiscovered hook to hold_another_object(), which invokes it through the synchronous merged() and discards the returned promise. The message invent.c merged() (933-942) prints when a wished object merges into a carried stack -- \"You learn more about your items by comparing them.\" -- was therefore neither ordered before obfree() nor awaited before the inventory line. The hook had been added a few commits earlier because a scan found it missing, so the path is live rather than hypothetical. Fixed by awaiting addinvCore0Runtime() in hold_another_object(). It is invisible to the development score because no development session merges a wish into a carried stack, which is exactly why the pass was worth running: the defect sits on a live path the recorded set does not traverse. The apply session then built the end-to-end guard the pass had judged possibly expensive -- a Rogue wishing for an uncursed +0 dagger merges into the starting stack on all five seeds tried, and naming uncursed +0 removes the BUC and enchantment rolls that would otherwise make the merge seed-dependent. That test fails against the pre-fix ordering, so one guard now covers both this defect and the coverage gap reported beside it.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "The `takeoffContext()` contract justifies not modelling `cancelled_don` by asserting \"dragon_armor_handling()'s BLUE arm is its only reader\"; do_wear.c reads the field at nine places, six of them in the very `<X>_off()` functions the next slices of this deferral must port.",
+            "counterEvidence": "causality refute: The stated impact is not material. The clause is scoped to the write Armor_off() omits — in C's Armor_off() (908-930) the only consumer of that FALSE is dragon_armor_handling() called at 928, whose sole read is the BLUE arm — and the very next clause, \"Nothing outside this file reads the field\", is a correct global statement that presupposes further in-file readers. The port's behavior is right either way: the field is unmodelled, cancel_don() (1672) is the only writer of TRUE and is unreachable here, so the omitted FALSE write is unobservable. Counter-evidence: js/do_wear.js:113-120 states both the scoped reason and the correct global claim (\"Nothing outside this file reads the field, and every path through dotakeoff() leaves it at 0 again\"). A maintainer porting Boots_off() reads do_wear.c:262-382, where the three canc"
+          },
+          {
+            "summary": "Armor_off()'s \"tripping it changes nothing\" claim no longer holds on the path d1214f3 added: reached from unmul(), the dragon-armor guard fires after several turns have been spent and after gn.nomovemsg has been printed.",
+            "counterEvidence": "evidence refute: The trace is factually right about the five turns and the message, but it misreads the sentence and mislabels the class of bug. The sentence is scoped to Armor_off()'s own state changes, and it remains true on both entries. Counter-evidence: js/do_wear.js:200-207: the Is_dragon_armor() guard precedes `takeoffContext(state).mask &= ~W_ARM` and `setworn(null, W_ARM, ...)`, so the suit is still worn when the error is raised — exactly what \"checked before the item leaves its slot, so tripping it changes nothing\" claims. Everything the port spends before that point is C's own: do_wear.c:1930-1971 runs nomul(delay), sets gm.multi_reason, ga.afternmv and gn.nomovemsg for every suit with a delay, and hack.c unmul() (4176-4208) prints gn.nomovemsg before calling the callback. The port diverges from C nowhere before the throw, so t"
+          },
+          {
+            "summary": "Is_dragon_armor() collapses obj.h's two separate range macros into one contiguous range, nothing pins the adjacency it depends on, and js/objnam.js already models the same two C macros as two ranges.",
+            "counterEvidence": "evidence refute: The traced facts are right, but they do not support a defect in this category: the collapse produces the identical boolean for every otyp, and the claimed cross-file inconsistency is not one. Counter-evidence: js/objects.js gives GRAY_DRAGON_SCALE_MAIL 101, YELLOW_DRAGON_SCALE_MAIL 110, GRAY_DRAGON_SCALES 111, YELLOW_DRAGON_SCALES 120, PLATE_MAIL 121, so Is_dragon_armor() agrees with obj.h's disjunction on every otyp. js/objnam.js:207-214 does not spell Is_dragon_armor() at all: objnam.c suit_simple_name() (5471-5488) itself calls Is_dragon_mail() and then Is_dragon_scales() separately because the two return different strings, so the port mirrors C's own usage in both places rather than spelling one predicate two ways. causality refute: A harmless deviation whose only stated harm depends on an upstream change the port's s"
+          },
+          {
+            "summary": "`requireWizardWish()` is documented against objnam.c:4999-5023, but C guards that block with `if (d.typ && !wizard)` while the port's guard drops `d.typ &&` — and the comment's closing sentence presents the wider guard as matching C for both arms of objnam.c:5037.",
+            "counterEvidence": "evidence refute: The claimed misstatement is not in the text. js/objnam_readobjnam.js:1435-1437 reads: 'objnam.c:4999-5023 substitutes for five wizard-only types and refuses an oc_nowish one; wiz_wish() is this port's only caller, so no wish reaches either. Both arms of objnam.c:5037 pass through here before they draw.' Both sentences are true, and neither asserts that the guard equals C's condition. Counter-evidence: The closing sentence is a placement claim about fail-closed ordering, which the finding itself concedes is 'accurate about placement'; the function raises UnsupportedWishError and is a refusal, not a port of objnam.c:4999-5023, and the file header at js/objnam_readobjnam.js:381-386 frames every refusal as standing *at* a C line rather than mirroring its condition. The finding's premise is also wrong on the C side: C applies "
+          },
+          {
+            "summary": "`assert.equal(takeoffContext(game).mask, 0)` in the delayed-suit test cannot fail — the fixture never sets the mask — so the comment's claim that armoroff() clears it on both branches is unverified.",
+            "counterEvidence": "causality refute: The stated impact is impossible, so the finding is not material. Counter-evidence: `grep -n 'armoroff(' nethack-c/upstream/src/*.c include/*.h` shows exactly one call site, do_wear.c:1808, inside armor_or_accessory_off(). Line 1805 is `reset_remarm();` with C's own comment at 1804: 'none of armoroff()/Ring_/Amulet/Blindf_off() use context.takeoff.mask'. The mask is therefore always 0 on entry to armoroff() in both C and the port (js/do_wear.js:711-719 reproduces reset_remarm / select_off / mask test / reset_remarm / armoroff in that order). There is no five-turn window in which a set mask could survive, because no reachable path enters armoroff() with the mask set; the clear at do_wear.c:2005 is a no-op in every reachable state. Deleting or misplacing it changes no observable behavior. resolution refute: The fix manufact"
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "ranges": [
+            "34516deac9ec62bfc6828b6be7b8d35ad88ea9dc..1792cdcfb6d2a895fc36669882f3549a12db1158"
+          ],
+          "mutants": 11,
+          "survivors": 3,
+          "byKind": {
+            "boolean": {
+              "ran": 3,
+              "killed": 3
+            },
+            "logical": {
+              "ran": 6,
+              "killed": 5
+            },
+            "relational": {
+              "ran": 2,
+              "killed": 0
+            }
+          },
+          "deltaRun": "The audit-fix diff at f6a3350 ran 2 mutants and killed both, recorded in a Mutants trailer placed in the same final paragraph as Assisted-by: so git can read it. slice-mutants over 1792cdc..HEAD reports 1 js commit and 0 without a trailer, the first clean result in three attempts; the two earlier failures are tracked as mutants-trailer-placement-loses-the-record.",
+          "finderConclusion": "The readiness run over the frozen range left three survivors and all three sat in one function, js/obj.js Is_dragon_armor(): both bounds and the conjunction. I raised that to the pass as the sharpest lead, together with a discrepancy, since the slice worker had reported a whole-suite wave killing all three. The pass resolved it: scripts/take-off-armor.test.mjs asserts that otyp 101 and otyp 120 throw and that PLATE_MAIL at 121 comes off, which kills all three, and the survivors are an artifact of the readiness wave running 1571 tests against the suite of 3450. No coverage gap. The pass then found something better in the same place. Is_dragon_armor() collapses C two range macros into one contiguous range, which is valid only while objects.h lists otyps 101-110 and 111-120 back to back, and nothing pinned that adjacency: the generated-data check regenerates the constants from objects.h, so an upstream reordering would move both sides together and the over-wide range would pass every check while silently claiming a non-dragon suit for dragon_armor_handling() once that lands. An assertion that YELLOW_DRAGON_SCALE_MAIL plus 1 equals GRAY_DRAGON_SCALES now pins it. Two comments in the tree also claimed obj.h spells the test as one range; obj.h 347-352 is three macros and two ranges."
+        },
+        "readiness": {
+          "boundary": "A deferred-area sweep has no single user-visible boundary; each slice carries its ledger entry as its own. The four that changed reachable behavior: pressing i with a hero wearing gloves, from the keystroke to the inventory menu C paints; submitting a container at the wizard wish prompt, from the newline to the inventory line and the contents mkbox_cnts() places; pressing T on a suit with a non-zero delay, from the keystroke through five helpless turns to the finish message; and escaping an empty wish line, from the Escape to the object mkobj() builds reaching hold_another_object(). The real game executes all four, and fresh C recordings match: run-worn-glove-name.mjs 6 segments and 18196 calls, run-wished-container.mjs 13 and 34419, run-take-off-armor.mjs 17 and 51255, run-random-wish.mjs 21 and 56981.",
+          "sourceReview": "Every branch and helper reachable before those endings was traced against nethack-c/upstream/: objnam.c doname_base() (1387-1417), readobjnam() with its any arm (4994-4996), typfnd tail (5037) and spe switch (5122-5165), and readobjnam_postparse3() (4726-4899); do_wear.c armoroff() (1930-1972), Armor_off() (908-930), donning() (1571-1596) and doffing() (1601-1640); mkobj.c mksobj() (1010-1021), mkbox_cnts() (303-384) and the probability walk in mkobj() (270-301); invent.c addinv_core0 and core1 (960-1085) and merged() (933-942); eat.c set_tin_variety(); and obj.h is_poisonable() (264-268) and Is_dragon_armor() (346-352). The trace covered state, random-number order and the points where the game waits for input. It found one behavioral divergence, an async hook invoked synchronously, and nine comments the range had falsified or misstated, including two files that each claimed to be the sole writer of state.afternmv, a claim that was true of one of them until this range added the second.",
+          "completeness": "No known unsupported behavior remains inside the four boundaries. Every reachable excluded branch stops before changing state, consuming randomness or producing output. The one omission that looked like a fail-open was checked rather than assumed: C entire globby branch is omitted on the new mkobj() arm, and the walk at mkobj.c 290-292 subtracts each row oc_prob from a prob that starts at 1 or more, so a row whose oc_prob is 0 can never be the stopping row; all four GLOB_OF rows carry 0, and a test now fails if one is given a non-zero probability. Excluded and verified fail-closed: CHEST, LARGE_BOX and ICE_BOX on the wish path; ARM_HELM, ARM_GLOVES and ARM_BOOTS in armoroff(); uskin in the worn-armor naming arm; and named wishes for tin, egg, slime mold, statue, figurine and corpse. Four gaps are recorded rather than closed: the three box types, helms and gloves and boots, the unrestricted prompt arm, and wish-name-that-matches-nothing blocked on wizterrainwish."
+        }
+      },
+      "recordedAt": "2026-08-11T14:41:34.956Z"
     }
   ]
 }
