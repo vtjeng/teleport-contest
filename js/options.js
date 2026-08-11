@@ -3845,19 +3845,36 @@ const OPTION_HANDLERS = Object.freeze({
 export async function reset_needed_visuals(state) {
     const go = state.go ??= {};
     // display.c reset_glyphmap(gm_optionchange) rebuilds glyphmap[], the
-    // glyph-to-symbol-and-color table the window port prints from.  It has no
-    // port because this port keeps no such table: js/display.js maps each
-    // glyph where it draws it, from the same three inputs the C rebuild reads
-    // -- gs.symset[gc.currentgraphics], Is_rogue_level(), and iflags.wc_color,
-    // which flag.h:507 also spells `use_color`.  js/do.js:1268 records the
-    // same for reset_glyphmap(gm_levelchange).
+    // glyph-to-symbol-and-color table the window port prints from, and this
+    // port has no equivalent rebuild.
     //
-    // Nothing is lost by mapping late.  All four sites that raise this flag --
-    // optfn_boolean()'s two arms at options.c:5384 and :5409,
-    // optfn_roguesymset() at :3567 and optfn_symset() at :4198 -- raise
-    // go.opt_need_redraw with it, so the docrt() below repaints every square
-    // through those live values.  The flag's own clear is at the end of this
-    // function, where C clears it.
+    // It was briefly retired on the argument that this port keeps no such
+    // table and maps each glyph where it draws it, so the docrt() below would
+    // repaint every square through the live values.  That is false, and the
+    // correctness pass over 5366349..909a338 proved it by execution.
+    // `loc.remembered_glyph` IS that table: js/display.js
+    // remembered_glyph_from_presentation() stores an already-resolved
+    // {ch, color, decgfx, attr}, with the colour already pushed through
+    // mapColorEnabled(), and newsym()'s out-of-sight arm replays those stored
+    // fields without recomputing any of them.  So a docrt() after the toggle
+    // repaints every remembered, out-of-sight square with the presentation it
+    // was recorded under.  Turning `color` on from the `O` menu leaves a
+    // remembered door at NO_COLOR where C repaints it CLR_BROWN; hilite_pile
+    // is worse, because C carries piletop-ness as MG_OBJPILE in glyphmap[] and
+    // applies ATR_INVERSE at print time, while this port bakes the attribute
+    // in at draw time and records no piletop mark at all, so the highlight
+    // cannot be recovered later even in principle.
+    //
+    // Refusing costs seed0006 the five screens the pick loop earned, because
+    // it picks hilite_pile at step 64.  A stopped segment is worth more than a
+    // segment that runs on painting wrong cells.  Retiring this needs the
+    // memory re-derived during the repaint, not a repaint alone; that is
+    // recorded as remembered-glyph-caches-a-resolved-presentation.
+    if (go.opt_need_glyph_reset) {
+        throw new UnsupportedOptionMenuError(
+            'reset_glyphmap(gm_optionchange)',
+        );
+    }
     if (go.opt_reset_customcolors || go.opt_update_basic_palette
         || go.opt_reset_customsymbols || go.opt_need_redraw) {
         if (go.opt_update_basic_palette) {

@@ -524,33 +524,37 @@ test('reset_needed_visuals() stops on each unported repair', async () => {
 });
 
 // C ref: options.c reset_needed_visuals()'s reset_glyphmap(gm_optionchange).
-// It rebuilds glyphmap[] from the symbol set, the level's Rogue flag and
-// iflags.wc_color; this port keeps no such table and reads all three where it
-// draws, so the flag only has to be spent. 'showrace' is the option that shows
-// it: C's hero_glyph macro picks gu.urace.mnum over u.umonnum, and the repaint
-// the same pass runs is what puts the race's letter on the map.
-test('a glyph reset repaints instead of stopping', async () => {
+// C rebuilds glyphmap[] and then repaints, so remembered squares come back
+// under the new option values. This port cannot follow, because
+// js/display.js remembered_glyph_from_presentation() stores an already
+// resolved {ch, color, decgfx, attr} and newsym()'s out-of-sight arm replays
+// it without recomputing: a repaint alone would redraw remembered squares in
+// the presentation they were recorded under. The refusal was briefly retired
+// on the opposite claim and the correctness pass over 5366349..909a338
+// disproved it by execution, so it stands until map memory stores what C
+// stores. Tracked as remembered-glyph-caches-a-resolved-presentation.
+test('a glyph reset stops rather than repainting stale memory', async () => {
     const state = await startStockGame();
-    // The flag on its own is what this port used to stop on.
     state.go = { opt_need_glyph_reset: true };
-    await reset_needed_visuals(state);
-    assert.equal(state.go.opt_need_glyph_reset, false);
+    await assert.rejects(
+        () => reset_needed_visuals(state),
+        (error) => error instanceof UnsupportedOptionMenuError
+            && /reset_glyphmap\(gm_optionchange\)/u.test(error.message),
+    );
 
-    // Every C site that raises it raises go.opt_need_redraw with it, so the
-    // repaint below is what puts the new value on the map.
+    // The option that reaches it from the simple menu: showrace raises the
+    // flag through optfn_boolean(), and hilite_pile does the same, which is
+    // why seed0006 stops at its step 64 pick.
     state.go = {};
     assert.equal(await parseoptions(state, 'showrace', false, false), true);
     assert.equal(state.flags.showrace, true);
     assert.equal(state.go.opt_need_glyph_reset, true);
     assert.equal(state.go.opt_need_redraw, true);
-    // The toggle's own message is still pending, and docrt() would stop to
-    // acknowledge it with a --More-- no replay input is left to dismiss.
-    // doset_simple() reaches this call with give_opt_msg off, so no message
-    // is ever pending there.
     clearTopline(state);
-    await reset_needed_visuals(state);
-    assert.equal(state.go.opt_need_glyph_reset, false);
-    assert.equal(state.go.opt_need_redraw, false);
+    await assert.rejects(
+        () => reset_needed_visuals(state),
+        (error) => error instanceof UnsupportedOptionMenuError,
+    );
 });
 
 test('reset_needed_visuals() spends every flag it consumes', async () => {
