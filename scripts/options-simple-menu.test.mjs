@@ -27,9 +27,13 @@ import { ttyMenuLayout } from '../js/tty_menu.js';
 import { loadOptionsMenuRecipes } from './run-options-menu.mjs';
 
 // loadOptionsMenuRecipes() returns doset()'s five recipes first and
-// doset_simple()'s five last. The two named here are the two that page the
-// menu without picking, so their configurations are the ones every row
-// literal below was recorded at.
+// doset_simple()'s six last -- the count grew with the pick loop, and this
+// comment said five until the correctness pass over 5366349..909a338 counted
+// them. The two named here are the two that page the menu without picking, so
+// their configurations are the ones every row literal below was recorded at.
+// Indexing by position is why the miscount mattered: a recipe added anywhere
+// ahead of these moves them silently. Exporting them by name from
+// run-options-menu.mjs would retire the arithmetic altogether.
 const STOCK = 5;
 const CONFIGURED = 6;
 
@@ -368,9 +372,16 @@ test('an unported pick stops before the menu applies it', async () => {
             "optfn_symset()'s do_handler request"],
     ];
     for (const [pick, what] of refusals) {
+        // The trio below does not intersect what two of these arms would
+        // write: the symset arm writes state.gs, and every arm that got as far
+        // as a message would write the top line. Snapshot those too, so the
+        // assertion covers the state each refusal is actually placed to
+        // protect rather than three fields none of them touches.
         const before = {
             flags: { ...state.flags }, iflags: { ...state.iflags },
             fruit: state.svp.pl_fruit,
+            gs: JSON.stringify(state.gs ?? null),
+            topline: state._ttyToplines ?? '',
         };
         await assert.rejects(
             doset_simple_menu(state, menuHelpers({ menu: () => pick })),
@@ -379,6 +390,8 @@ test('an unported pick stops before the menu applies it', async () => {
             what,
         );
         assert.deepEqual({
+            gs: JSON.stringify(state.gs ?? null),
+            topline: state._ttyToplines ?? '',
             flags: { ...state.flags }, iflags: { ...state.iflags },
             fruit: state.svp.pl_fruit,
         }, before, what);

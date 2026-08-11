@@ -3640,6 +3640,12 @@ async function optfn_boolean(state, optidx, negated, opts) {
     /* boolean value has been toggled but some option changes can still be
        pending at this point (mainly for opt_need_redraw); give the toggled
        message now regardless */
+    // `!== false` rather than a truth test: C's give_opt_msg is a file static
+    // that starts TRUE, and this field is undefined until doset_simple()'s
+    // bracket first writes it, so undefined has to read as TRUE. Seeding it
+    // true in defaultResult() does not work -- that builds the parse result,
+    // not the game state, so the seed never reaches here and the messages
+    // stop.
     if (state.give_opt_msg !== false) {
         await ttyPline(
             `'${option.name}' option toggled ${!negated ? 'on' : 'off'}.`,
