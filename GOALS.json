@@ -1605,6 +1605,11 @@
           "name": "ask which wand to zap and in what direction",
           "status": "closed",
           "closedBy": "7aabdc24c0badea5af635928b96f2d6f93d9fa6d"
+        },
+        {
+          "name": "sleep the hero the ray hits",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "e46a7c3c3dca134f023bf8062cee87554d87dfc8",
