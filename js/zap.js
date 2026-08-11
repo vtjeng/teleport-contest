@@ -1,12 +1,16 @@
 // zap.js -- the `z` command and the wish prompt.
-// C refs: src/zap.c zappable(), zap_ok(), dozap() and makewish().
+// C refs: src/zap.c learnwand(), zappable(), zap_ok(), dozap(), zapyourself()
+// and makewish().
 //
-// dozap() is ported whole. Three of its five arms stop: backfire(),
-// zapyourself() and weffects(), which together are the wand effects
-// themselves. What runs is the command around them -- the two guards, the
-// object prompt, the shop usage fee, the charge, the direction prompt, the
-// wand that glows and fades when no direction is given, and the worn-out wand
-// that crumbles.
+// dozap() is ported whole, and so is the command around its effect arms: the
+// two guards, the object prompt, the shop usage fee, the charge, the direction
+// prompt, the wand that glows and fades when no direction is given, and the
+// worn-out wand that crumbles. Two of its five effect arms still stop:
+// backfire(), and weffects() with the whole aimed-zap machinery below it.
+//
+// The self-zap arm runs, through zapyourself(), for a wand or spell of sleep
+// alone. Every other object type zapyourself() can be handed stops in the one
+// refusal that stands where C puts `default: impossible()`.
 //
 // wizcmds.c wiz_wish() calls makewish(); potion.c, sit.c and zap.c's own
 // wand code reach it too, and none of those callers is ported.
@@ -28,14 +32,16 @@ import {
     IRONBARS,
     Is_airlevel,
     Is_waterlevel,
+    M_SEEN_SLEEP,
     nothing_happens,
     ONAME_KNOW_ARTI,
     ONAME_WISH,
+    SLEEP_RES,
     WAND_BACKFIRE_CHANCE,
     WAND_WREST_CHANCE,
 } from './const.js';
 import { getdir } from './cmd.js';
-import { newsym } from './display.js';
+import { bot, newsym } from './display.js';
 import { dropx, preflight_dropx } from './do.js';
 import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
@@ -48,15 +54,23 @@ import {
     update_inventory,
     useupall,
 } from './invent.js';
-import { nohands } from './mondata.js';
+import { monstunseesu, nohands } from './mondata.js';
+import { discover_object, observe_object } from './o_init.js';
 import { objectType, remove_object } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { NODIR, WAND_CLASS } from './objects.js';
+import {
+    NODIR,
+    SPBOOK_CLASS,
+    SPE_SLEEP,
+    WAND_CLASS,
+    WAN_SLEEP,
+} from './objects.js';
 import { The, Tobjnam, aobjnam, donameFresh, xnameFresh } from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
-import { rn1, rn2 } from './rng.js';
+import { rn1, rn2, rnd } from './rng.js';
 import { check_unpaid } from './shk.js';
+import { fall_asleep } from './timeout.js';
 import { ttyPline } from './tty_message.js';
 
 // The wish parser raises every other refusal, so the class lives with it.
@@ -77,6 +91,41 @@ function heroIsBlind(state) {
     const blinded = state.u?.uprops?.[BLINDED];
     return Boolean((blinded?.intrinsic || blinded?.extrinsic)
         && !blinded?.blocked);
+}
+
+// C ref: zap.c learnwand() (122-151), translated whole. Called once a zap's
+// effect has been observed, to turn "a wand" into "a wand of sleep" in the
+// discoveries and in the pack.
+//
+// The SPBOOK_CLASS guard is for a cast spell, which reaches zapyourself()
+// through a fake spellbook object; skipping it there keeps casting a spell
+// from rediscovering a spellbook the hero has forgotten.
+//
+// makeknown() is hack.h:1530's `discover_object((x), TRUE, TRUE, TRUE)`, whose
+// fourth argument is what credits the hero with the discovery through
+// exercise(A_WIS, TRUE). Only the arm below reaches it: a wand whose type is
+// already discovered takes observe_object() alone, which is the arm the Healer
+// takes, because u_init.c ini_inv_use_obj() discovered her wand of sleep as it
+// handed the wand over.
+export function learnwand(obj, state = game) {
+    if (obj.oclass !== SPBOOK_CLASS) {
+        /* if type already discovered, treat this item has having been seen
+           even if hero is currently blinded (skips redundant makeknown) */
+        if (objectType(obj, state).oc_name_known) {
+            observe_object(obj, state); /* will usually be dknown already */
+
+        /* otherwise discover it if item itself has been or can be seen */
+        } else {
+            /* in case it was picked up while blind and then zapped without
+               examining inventory after regaining sight (bypassing xname) */
+            if (!heroIsBlind(state))
+                observe_object(obj, state);
+            /* make the discovery iff we know what we're manipulating */
+            if (obj.dknown)
+                discover_object(obj.otyp, true, true, true, state);
+        }
+        update_inventory({ state });
+    }
 }
 
 // C ref: zap.c zappable() (2508-2522), translated whole. Answers whether the
@@ -152,9 +201,17 @@ export async function dozap(state = game) {
             );
         /* make him pay for knowing !NODIR */
     } else if (need_dir && !state.u.dx && !state.u.dy && !state.u.dz) {
-        throw new UnsupportedZapError(
-            `zapyourself() for object type ${obj.otyp}`,
-        );
+        const damage = await zapyourself(obj, true, state);
+        if (damage !== 0) {
+            // C names the killer with killer_xname() and halves the damage for
+            // a hero with physical-damage resistance through
+            // Maybe_Half_Phys(). Neither is ported, and the sleep arm is the
+            // only one zapyourself() runs, so `damage` is 0 on every path that
+            // reaches here.
+            throw new UnsupportedZapError(
+                'losehp() for a self-zap that wounds',
+            );
+        }
     } else {
         /*      Are we having fun yet?
          * weffects -> buzz(obj->otyp) -> zhitm (temple priest) ->
@@ -177,6 +234,67 @@ export async function dozap(state = game) {
         update_inventory({ state }); /* maybe used a charge */
     }
     return ECMD_TIME;
+}
+
+// C ref: youprop.h:36 Sleep_resistance, which is the plain "either source"
+// spelling: unlike Blind it has no blocking term.
+function heroResistsSleep(state) {
+    const resistance = state.u?.uprops?.[SLEEP_RES];
+    return Boolean(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+// C ref: zap.c zapyourself() (2704-3013), the effect of a wand or spell the
+// hero aimed at their own square. The frame is here whole; of its thirty-odd
+// object arms only WAN_SLEEP and SPE_SLEEP are ported, and everything else
+// falls into the single refusal below.
+//
+// C's own `default:` is `impossible("zapyourself: object %d used?")`, so one
+// arm naming the object type is the shape C already uses for a type that has
+// no business here. It covers the unported wand effects at the same time.
+//
+// `ordinary` is TRUE for a zap the hero aimed and FALSE for a wand that broke;
+// only dozap() reaches this port, so it is always TRUE today.
+//
+// `damage` is the hit points dozap() then takes off the hero. The sleep arm
+// leaves it 0, which is what makes dozap()'s losehp() unreachable.
+export async function zapyourself(obj, ordinary, state = game) {
+    let learn_it = false;
+    const damage = 0;
+
+    switch (obj.otyp) {
+    case WAN_SLEEP:
+    case SPE_SLEEP:
+        learn_it = true;
+        if (heroResistsSleep(state)) {
+            // shieldeff() is a tmp_at() animation and monstseesu() is the
+            // "monsters notice what you shrugged off" ledger; neither is
+            // ported, and the port has no hero who resists sleep yet.
+            throw new UnsupportedZapError(
+                'shieldeff() and monstseesu() for a sleep-resistant hero',
+            );
+        } else {
+            if (ordinary)
+                await ttyPline('The sleep ray hits you!', state);
+            else
+                await ttyPline('You fall asleep!', state);
+            monstunseesu(M_SEEN_SLEEP, state);
+            await fall_asleep(-rnd(50), true, state, {
+                message: ttyPline,
+                statusRefresh: () => bot(),
+            });
+        }
+        break;
+
+    default:
+        throw new UnsupportedZapError(
+            `zapyourself() for object type ${obj.otyp}`,
+        );
+    }
+    /* if effect was observable then discover the wand type provided
+       that the wand itself has been seen */
+    if (learn_it)
+        learnwand(obj, state);
+    return damage;
 }
 
 // C ref: zap.c exclam() (3546-3553). The punctuation that ends a hit message,

@@ -42,6 +42,7 @@ import {
     UnsupportedTimerCleanupError,
     attach_egg_hatch_timeout,
     attach_fig_transform_timeout,
+    fall_asleep,
     nh_timeout_elapsed_turn,
     obj_has_timer,
     obj_stop_timers,
@@ -948,4 +949,85 @@ test('obj_stop_timers rethrows a falsy value after completing its sweep', () => 
     assert.equal(target.age, 35);
     assert.equal(target.lamplit, false);
     assert.equal(other.timed, 1);
+});
+
+// A hero the instant before fall_asleep() runs: awake, free to act, and
+// carrying the leftovers of whatever immobilized them last. `multireasonbuf`
+// starts non-empty because only nomul(0) clears it, and that call happens
+// inside stop_occupation() rather than in fall_asleep() itself.
+function sleeperState(moves = 1234) {
+    return {
+        moves,
+        multi: 0,
+        multi_reason: 'the previous action',
+        multireasonbuf: 'stale',
+        nomovemsg: null,
+        context: {},
+        disp: {},
+        go: {},
+        u: { uinvulnerable: true, usleep: 0 },
+    };
+}
+
+test('fall_asleep counts the hero down and leaves a waking message ready',
+    async () => {
+    // timeout.c fall_asleep() (950-974) with the arguments zap.c:2864 passes:
+    // a negative count and a wakeup message.
+    const state = sleeperState();
+    await fall_asleep(-27, true, state);
+
+    assert.equal(state.multi, -27);
+    assert.equal(state.multi_reason, 'sleeping');
+    // Cleared by the nomul(0) inside stop_occupation(), which is the only
+    // caller that passes 0. Finding the stale value here would mean
+    // stop_occupation() never ran, or ran after nomul() had already made its
+    // `multi < nval` guard return early.
+    assert.equal(state.multireasonbuf, '');
+    // Written after nomul(), which zeroes it. trap.c unconscious() reads it,
+    // so a zero here reads back as a hero who is merely immobile.
+    assert.equal(state.u.usleep, 1234);
+    assert.equal(state.u.uinvulnerable, false);
+    assert.equal(state.nomovemsg, 'You wake up.');
+    assert.equal(state.disp.botl, true);
+
+    // hack.c unmul() prints decl.c's c_You_can_move_again instead when the
+    // caller asks for no wakeup message.
+    const quiet = sleeperState();
+    await fall_asleep(-27, false, quiet);
+    assert.equal(quiet.nomovemsg, 'You can move again.');
+});
+
+test('fall_asleep interrupts an occupation before it counts the hero down',
+    async () => {
+    // stop_occupation() is fall_asleep()'s first statement, so a hero put to
+    // sleep mid-task drops the task. Its "You stop %s." needs a message
+    // operation, which is why fall_asleep() takes one from its caller.
+    const state = sleeperState();
+    state.go = { occupation: () => 1, occtxt: 'digging' };
+    const said = [];
+    await fall_asleep(-27, true, state, {
+        message: async (line) => { said.push(line); },
+    });
+
+    assert.deepEqual(said, ['You stop digging.']);
+    assert.equal(state.go.occupation, null);
+    assert.equal(state.multi, -27);
+    assert.equal(state.u.usleep, 1234);
+});
+
+test('fall_asleep never shortens a sleep already under way', async () => {
+    // nomul()'s `if (multi < nval) return;` guard, which C's comment calls "a
+    // bug fix by ab@unido". A second sleep ray on a hero with 40 turns left
+    // cannot cut them to 27, and neither can the nomul(0) stop_occupation()
+    // makes on the way in.
+    const state = sleeperState();
+    state.multi = -40;
+    state.u.usleep = 1200;
+    await fall_asleep(-27, true, state);
+
+    assert.equal(state.multi, -40);
+    // The statements after nomul() run regardless, so the sleep is restamped
+    // even though its length did not move.
+    assert.equal(state.multi_reason, 'sleeping');
+    assert.equal(state.u.usleep, 1234);
 });

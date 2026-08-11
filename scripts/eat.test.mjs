@@ -257,38 +257,72 @@ test('gethungry follows ring charge and duplicate-protection rules',
     }
 });
 
-// eat.c gethungry():3173 spends ordinary nutrition when `!Unaware ||
-// !rn2(10)`. The port takes the first disjunct and refuses the second, so what
-// the refusal has to track is youprop.h Unaware exactly -- a negative gm.multi
-// alone is not it, and reading it as such would refuse pray.c dopray()'s three
+// eat.c gethungry():3174 spends ordinary nutrition when `!Unaware ||
+// !rn2(10)`: an insensible hero burns food at a tenth of the waking rate. What
+// picks that arm has to be youprop.h Unaware exactly -- a negative gm.multi
+// alone is not it, and reading it as such would slow pray.c dopray()'s three
 // turns, which C runs at the ordinary rate.
-test('gethungry refuses an Unaware hero and not merely an immobile one',
+test('gethungry burns nutrition slowly for an Unaware hero and not for a merely immobile one',
     async () => {
     // Each row is a hero counting a negative gm.multi down, differing only in
-    // what trap.c unconscious() and eat.c is_fainted() read.
-    for (const [name, configure] of [
+    // what trap.c unconscious() reads. eat.c is_fainted(), Unaware's other
+    // half, cannot be exercised here: a hero already at FAINTED stops at the
+    // status guard below before any draw, which the last block pins.
+    const unawareHeroes = [
         ['asleep', (s) => { s.u.usleep = 1; }],
         // The three prefixes trap.c:6783-6785 tests, spelled as C spells them.
         ['waking', (s) => { s.nomovemsg = 'You awake from your slumber.'; }],
         ['reviving', (s) => { s.nomovemsg = 'You regain consciousness.'; }],
         ['coming round', (s) => { s.nomovemsg = 'You are conscious again.'; }],
-        ['fainted', (s) => { s.u.uhs = FAINTED; }],
-    ]) {
+    ];
+    for (const [name, configure] of unawareHeroes) {
         const unaware = hungerState();
         unaware.multi = -1;
         configure(unaware);
         const draws = [];
-        await assert.rejects(
-            gethungry(unaware, {
-                random: { rn2: (bound) => { draws.push(bound); return 2; } },
-                nearCapacity: () => UNENCUMBERED,
-            }),
-            /unported unconscious or fainted metabolic rate/u,
-            name,
-        );
-        assert.deepEqual(draws, [], name);
+        // rn2(10) = 2, one of the nine values that skip the decrement. The
+        // rn2(20) = 2 that follows is even and lands on no accessory case, so
+        // this turn costs the hero nothing at all.
+        assert.equal(await gethungry(unaware, {
+            random: { rn2: (bound) => { draws.push(bound); return 2; } },
+            nearCapacity: () => UNENCUMBERED,
+        }), 0, name);
+        // The slow-rate draw comes first: C evaluates `!Unaware || !rn2(10)`
+        // before the accessorytime assignment two statements below.
+        assert.deepEqual(draws, [10, 20], name);
         assert.equal(unaware.u.uhunger, 900, name);
     }
+
+    // The tenth turn, where rn2(10) comes up 0 and the sleeping hero pays the
+    // ordinary point after all. rn2(20) = 0 is even and reaches the
+    // Slow_digestion accessory case, which this hero does not have.
+    for (const [name, configure] of unawareHeroes) {
+        const unaware = hungerState();
+        unaware.multi = -1;
+        configure(unaware);
+        const draws = [];
+        assert.equal(await gethungry(unaware, {
+            random: { rn2: (bound) => { draws.push(bound); return 0; } },
+            nearCapacity: () => UNENCUMBERED,
+        }), 1, name);
+        assert.deepEqual(draws, [10, 20], name);
+        assert.equal(unaware.u.uhunger, 899, name);
+    }
+
+    // C's `&&` chain puts the draw ahead of the three diet flags and
+    // Slow_digestion, so a sleeping hero who could not have eaten anyway still
+    // spends it. PM_GHOST carries none of the three flags.
+    const dietless = hungerState();
+    dietless.multi = -1;
+    dietless.u.usleep = 1;
+    dietless.youmonst.data = dietless.mons[PM_GHOST];
+    const dietlessDraws = [];
+    assert.equal(await gethungry(dietless, {
+        random: { rn2: (bound) => { dietlessDraws.push(bound); return 0; } },
+        nearCapacity: () => UNENCUMBERED,
+    }), 0);
+    assert.deepEqual(dietlessDraws, [10, 20]);
+    assert.equal(dietless.u.uhunger, 900);
 
     // The prayer's own state: immobile for three turns with a message waiting
     // that says nothing about waking up. C answers Unaware FALSE here, so the
@@ -316,20 +350,42 @@ test('gethungry refuses an Unaware hero and not merely an immobile one',
     }), 1);
     assert.equal(silent.u.uhunger, 899);
 
-    // Unaware needs a negative gm.multi as well as a reason. A fainted hero
-    // who is free to act is not Unaware, so this stops at the FAINTED status
-    // guard further down instead -- a different refusal for a different
-    // reason, and the one thing that separates `multi < 0` from `multi <= 0`.
-    const fainted = hungerState();
-    fainted.multi = 0;
-    fainted.u.uhs = FAINTED;
-    await assert.rejects(
-        gethungry(fainted, {
-            random: { rn2: () => 2 },
-            nearCapacity: () => UNENCUMBERED,
-        }),
-        /unported hunger-status transition/u,
-    );
+    // Unaware needs a negative gm.multi as well as a reason, which is what
+    // separates `multi < 0` from `multi <= 0`: a hero free to act this turn is
+    // awake even while a waking message is still queued behind them, so the
+    // slow-rate draw is not spent.
+    const freed = hungerState();
+    freed.multi = 0;
+    freed.nomovemsg = 'You awake from your slumber.';
+    const freedDraws = [];
+    assert.equal(await gethungry(freed, {
+        random: { rn2: (bound) => { freedDraws.push(bound); return 2; } },
+        nearCapacity: () => UNENCUMBERED,
+    }), 1);
+    assert.deepEqual(freedDraws, [20]);
+    assert.equal(freed.u.uhunger, 899);
+
+    // eat.c is_fainted() is Unaware's other half, and no hero can reach the
+    // slow rate through it: newuhs()'s FAINTING arm is unported, so a hero
+    // already at FAINTED stops at the status guard before any draw whether or
+    // not gm.multi is negative.
+    for (const multi of [0, -1]) {
+        const fainted = hungerState();
+        fainted.multi = multi;
+        fainted.u.uhs = FAINTED;
+        const faintedDraws = [];
+        await assert.rejects(
+            gethungry(fainted, {
+                random: {
+                    rn2: (bound) => { faintedDraws.push(bound); return 2; },
+                },
+                nearCapacity: () => UNENCUMBERED,
+            }),
+            /unported hunger-status transition/u,
+            `multi ${multi}`,
+        );
+        assert.deepEqual(faintedDraws, [], `multi ${multi}`);
+    }
 });
 
 test('gethungry fails closed at unported ring and status boundaries',

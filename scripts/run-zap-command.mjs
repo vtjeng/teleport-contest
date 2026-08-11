@@ -4,16 +4,17 @@
 // Every segment contains replay inputs only; runFreshMatrix() records new
 // reference output in an isolated temporary workspace.
 //
-// The command is zap.c dozap() over zap_ok(), zappable() and shk.c
-// check_unpaid(). Three of dozap()'s five effect arms stop in this port --
-// backfire(), zapyourself() and weffects() -- so every segment below reaches
-// one of the two that do not: the wand that glows and fades because no
-// direction was given, and the worn-out wand that has no charge to spend.
-// Between them they cover both of dozap()'s draws, both of its prompts, the
-// charge it spends, the turn it costs, and the wand that crumbles to dust.
+// The command is zap.c dozap() over zap_ok(), zappable(), shk.c
+// check_unpaid(), zapyourself() and learnwand(). The segments below cover the
+// three effect arms this port runs: the wand that glows and fades because no
+// direction was given, the worn-out wand that has no charge to spend, and the
+// wand of sleep aimed at the hero's own square. Between them they cover every
+// draw dozap() can spend, both of its prompts, the charge it takes, the turn
+// it costs, the wand that crumbles to dust, and both of learnwand()'s arms.
 //
-// A segment that took a direction instead would stop at the refusal, so the
-// two aimed arms are pinned by boundary assertions in zap-command.test.mjs
+// backfire() and weffects() still stop, so a segment that zapped a cursed wand
+// into its face or aimed at anything but itself would stop at the refusal.
+// Those two arms are pinned by boundary assertions in zap-command.test.mjs
 // rather than by a recording.
 
 import { resolve } from 'node:path';
@@ -37,10 +38,18 @@ export const WIZWISH_KEY = '\x17';
 export const ESCAPE_KEY = '\x1b';
 export const SPACE_KEY = ' ';
 export const WAIT = '.';
+// decl.c spkeys[NHKF_GETDIR_SELF], which cmd.c binds to '.'. getdir() answers
+// 1 with u.dx, u.dy and u.dz all zero for it, and that is the one combination
+// that sends dozap() into zapyourself(). It is the wait key as well, so a
+// segment that zaps at itself and then waits types '.' twice over.
+export const SELF_KEY = '.';
 
-// The starting wand's inventory letter, per role. u_init.c gives the Healer a
-// wand of sleep after six other slots and the Wizard a random wand after two,
-// and neither role's loadout varies with the seed.
+// The starting wand's inventory letter. u_init.c gives the Healer a wand of
+// sleep after her food, and the letter it lands on does move with the seed:
+// her apples and oranges carry UNDEF_BLESS, so a seed that blesses part of a
+// stack splits it in two and pushes everything below it down a letter. Across
+// seeds 8210001-8210060 the wand sits at 'f', 'g' or 'h'. Every seed below was
+// picked to put it at 'g'.
 export const HEALER_WAND = 'g';
 // The letter a wizard-mode wish lands on for a human Valkyrie, whose u_init.c
 // row fills a through d and leaves no gold slot.
@@ -130,8 +139,40 @@ export function loadZapCommandRecipe() {
                 `${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}${WAIT}`
                 + `${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}`,
                 { options: CLOCK }),
+            // The direction prompt answered with the self key instead, which
+            // is dozap()'s zapyourself() arm: "The sleep ray hits you!", then
+            // fall_asleep(-rnd(50), TRUE) and the whole sleep running out
+            // before the trailing wait is read. The Healer's wand type is
+            // already discovered, so learnwand() takes its observe_object()
+            // arm and the sleep's rnd(50) is the only draw the command spends.
+            segment(8210001, `${ZAP_KEY}${HEALER_WAND}${SELF_KEY}`),
+            // The same keys on another seed and another race, so neither the
+            // level nor the length of the sleep is what makes the first pass.
+            segment(8210011, `${ZAP_KEY}${HEALER_WAND}${SELF_KEY}`,
+                { race: 'human' }),
+            // A hero who cannot see is still told what hit them: zap.c:2860
+            // has no Blind guard, unlike the "glows and fades" line above.
+            segment(8210005, `${ZAP_KEY}${HEALER_WAND}${SELF_KEY}`,
+                { options: BLIND }),
         ],
     }, 'zap command recipe');
+}
+
+// The self-zap of a wand whose type the hero has not discovered, which sends
+// learnwand() down its makeknown() arm and spends the rn2(19) that
+// exercise(A_WIS, TRUE) draws. No starting loadout carries an undiscovered
+// wand -- u_init.c ini_inv_use_obj() discovers everything it hands out -- so
+// the wand is wished up in debug mode.
+export function loadZapDiscoveryRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            segment(8210002,
+                `${WIZWISH_KEY}wand of sleep\n`
+                + `${ZAP_KEY}${WISHED_WAND}${SELF_KEY}`,
+                { ...VALKYRIE, options: DEBUG }),
+        ],
+    }, 'zap discovery recipe');
 }
 
 // The charge arms, which need a wand no starting loadout carries. Each segment
@@ -196,7 +237,7 @@ export async function runZapCommandMatrix() {
         chunkLimit: 4,
     });
     if (!ordinary.passed) return ordinary;
-    return runFreshMatrix({
+    const charges = await runFreshMatrix({
         entries: [{
             label: 'zap command (charge arms)',
             recipe: loadZapChargeRecipe(),
@@ -208,6 +249,15 @@ export async function runZapCommandMatrix() {
         // segment in the same chunk restores the first instead of starting
         // fresh. The #wizwish matrix records one at a time for that reason.
         chunkLimit: 1,
+    });
+    if (!charges.passed) return charges;
+    return runFreshMatrix({
+        entries: [{
+            label: 'zap command (wand discovery)',
+            recipe: loadZapDiscoveryRecipe(),
+        }],
+        summaryLabel: 'ZAP COMMAND (WAND DISCOVERY)',
+        chunkLimit: 1, /* debug mode, as above */
     });
 }
 

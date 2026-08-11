@@ -39,9 +39,11 @@ import {
     WOUNDED_LEGS,
     ZOMBIFY_MON,
 } from './const.js';
+import { stop_occupation } from './allmain.js';
 import { artifact_light } from './artifacts.js';
 import { stone_luck } from './attrib.js';
 import { game } from './gstate.js';
+import { You_can_move_again, nomul } from './hack.js';
 import {
     candle_light_range,
     get_obj_location,
@@ -750,6 +752,39 @@ function corpseTimerEnv(env = {}) {
             throw new TypeError(`corpse timer random injection requires ${name}`);
     }
     return { state: env.state ?? game, random };
+}
+
+// C ref: timeout.c fall_asleep() (950-974). Puts the hero out for `how_long`
+// turns, which every caller passes as a negative count because that is what
+// hack.c nomul() reads as "immobile until the count reaches zero".
+//
+// Three orderings inside these five statements are load-bearing, and none of
+// them shows in a session where nothing is occupying the hero:
+//
+// - stop_occupation() runs first and calls nomul(0) itself. nomul()'s
+//   `if (multi < nval) return;` guard would otherwise silently drop that
+//   inner call, leaving the interrupted occupation's bookkeeping half done.
+// - gm.multi_reason is written after nomul(), because nomul() clears the
+//   reason when its argument is 0 -- which is exactly the call
+//   stop_occupation() just made.
+// - u.usleep is written after nomul() too, because nomul() zeroes it. This is
+//   what trap.c unconscious() reads, so writing it first would leave the
+//   sleeping hero registering as awake and eat.c gethungry() would burn
+//   nutrition at the waking rate for every turn of the sleep.
+//
+// C's `#if 0` block between nomul() and u.usleep is disabled deafness
+// bookkeeping its own comment calls broken, so nothing of it is ported.
+//
+// `env` carries stop_occupation()'s message() and statusRefresh(), which it
+// needs only when an occupation is actually running.
+export async function fall_asleep(how_long, wakeup_msg, state = game,
+                                  env = {}) {
+    await stop_occupation(state, env);
+    nomul(how_long, state);
+    state.multi_reason = 'sleeping';
+    /* early wakeup from combat won't be possible until next monster turn */
+    state.u.usleep = state.moves;
+    state.nomovemsg = wakeup_msg ? 'You wake up.' : You_can_move_again;
 }
 
 // C ref: timeout.c attach_egg_hatch_timeout(). The repeated, differently

@@ -315,18 +315,13 @@ export function preflightGetHungry(state = game, env = {}) {
     }
     if (u.uinvulnerable || state.iflags?.debug_hunger)
         return { skipped: true };
-    // C ref: eat.c gethungry():3174 `(!Unaware || !rn2(10))`. `ordinaryLoss`
-    // below is the first disjunct's answer; an Unaware hero draws rn2(10)
-    // instead and burns nutrition only one turn in ten, and no ported path
-    // produces one. A hero immobilized with a message waiting -- pray.c
-    // dopray() is the one that does -- is not Unaware and takes the ordinary
-    // cost with no draw, which is why this refuses on Unaware and not on a
-    // negative gm.multi.
-    if (Unaware(state)) {
-        throw new UnsupportedHungerTransitionError(
-            'unported unconscious or fainted metabolic rate',
-        );
-    }
+    // C ref: eat.c gethungry():3174 `(!Unaware || !rn2(10))`, the slow
+    // metabolic rate of a hero who is asleep or fainted. The draw itself
+    // belongs to gethungry(), at its source position ahead of the rn2(20), so
+    // this stays pure and only reports which hero it is admitting. A hero
+    // immobilized with a message waiting -- pray.c dopray() is one -- is not
+    // Unaware and burns nutrition at the ordinary rate with no draw.
+    const unaware = Unaware(state);
 
     if (typeof env.nearCapacity !== 'function') {
         throw new Error('gethungry requires nearCapacity');
@@ -372,6 +367,10 @@ export function preflightGetHungry(state = game, env = {}) {
         u.uhave?.amulet ? 1 : 0,
     );
     const evenLoss = ordinaryLoss + hungerLoss + conflictLoss + accessoryLoss;
+    // An Unaware hero pays `ordinaryLoss` only when rn2(10) comes up 0, so
+    // this over-states the loss for nine turns in ten. That is the safe
+    // direction: it is an upper bound on what the turn can spend, and its only
+    // job is to reject a turn whose worst case reaches an unported status.
     const maximumReachableLoss = Math.max(oddLoss, evenLoss);
     const earliestStatus = hungerStatus(
         u.uhunger - maximumReachableLoss,
@@ -424,6 +423,7 @@ export function preflightGetHungry(state = game, env = {}) {
         regenerationLoss,
         skipped: false,
         slowDigestion,
+        unaware,
     };
 }
 
@@ -445,9 +445,16 @@ export async function gethungry(state = game, env = {}) {
         ordinaryLoss,
         regenerationLoss,
         slowDigestion,
+        unaware,
     } = plan;
     const { u } = state;
-    let nutritionLoss = ordinaryLoss;
+    // C ref: eat.c gethungry():3172-3179. `ordinaryLoss` carries the three
+    // form tests and Slow_digestion, which spend nothing; the rn2(10) that
+    // precedes them does, and only for a hero who is asleep or fainted. C's
+    // `||` short-circuits, so an alert hero never reaches the draw, and C
+    // evaluates it ahead of the form tests, so a sleeping hero who could not
+    // eat anyway still spends it.
+    let nutritionLoss = (!unaware || !random.rn2(10)) ? ordinaryLoss : 0;
 
     const accessoryTime = random.rn2(20);
     if (accessoryTime % 2) {

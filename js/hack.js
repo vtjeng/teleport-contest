@@ -542,8 +542,9 @@ export function nomul(nval, state = game) {
 }
 
 // C ref: decl.c:47 c_common_strings.c_You_can_move_again, which hack.h:271
-// names You_can_move_again.
-const You_can_move_again = 'You can move again.';
+// names You_can_move_again. unmul() below falls back to it, and timeout.c
+// fall_asleep() picks it for a sleep that ends without announcing itself.
+export const You_can_move_again = 'You can move again.';
 
 // C ref: hack.c unmul() (4176-4208). "called when a non-movement, multi-turn
 // action has completed". allmain.c moveloop_core():382 is the only caller the

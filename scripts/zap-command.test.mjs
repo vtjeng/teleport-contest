@@ -4,7 +4,13 @@ import test from 'node:test';
 
 import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
-    ECMD_TIME, GETOBJ_EXCLUDE, GETOBJ_SUGGEST, ROOMOFFSET,
+    ECMD_TIME,
+    FROMOUTSIDE,
+    GETOBJ_EXCLUDE,
+    GETOBJ_SUGGEST,
+    ROOMOFFSET,
+    SLEEP_RES,
+    W_ARMH,
 } from '../js/const.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
@@ -14,6 +20,7 @@ import {
     POTION_CLASS,
     POT_WATER,
     WAND_CLASS,
+    WAN_DIGGING,
     WAN_SLEEP,
     objects_globals_init,
 } from '../js/objects.js';
@@ -25,12 +32,14 @@ import {
     ESCAPE_KEY,
     HEALER_WAND,
     PLAIN,
+    SELF_KEY,
     SPACE_KEY,
     WISHED_WAND,
     ZAP_BY_NAME,
     ZAP_KEY,
     loadZapChargeRecipe,
     loadZapCommandRecipe,
+    loadZapDiscoveryRecipe,
 } from './run-zap-command.mjs';
 
 function topLine() {
@@ -302,15 +311,13 @@ test('only a zap that chose a wand spends the turn', async () => {
 
 test('an aimed zap stops at the effect the port has not ported', async () => {
     const segment = segmentFor(`${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}`);
-    // dozap()'s self arm: getdir()'s NHKF_GETDIR_SELF key writes <0,0,0>, so
-    // the test at zap.c:2666 holds and C would call zapyourself().
-    const self = await boundaryFor(segment, `.${ZAP_KEY}${HEALER_WAND}.`);
-    assert.match(self?.message ?? '', /zapyourself\(\) for object type 432/u);
-    // A real direction instead, which is C's `else` at zap.c:2670.
+    // A real direction, which is C's `else` at zap.c:2670. The self arm beside
+    // it runs instead of stopping; 'a self-zap of sleep' below owns it.
     const aimed = await boundaryFor(segment, `.${ZAP_KEY}${HEALER_WAND}h`);
     assert.match(aimed?.message ?? '', /weffects\(\) for object type 432/u);
     // Up and down leave u.dx and u.dy at 0 and set u.dz, so only the third
-    // conjunct of zap.c:2666 separates them from the self arm above.
+    // conjunct of zap.c:2666 separates them from the self arm, and a hero who
+    // zapped upward must reach weffects() rather than fall asleep.
     for (const key of ['<', '>']) {
         const vertical =
             await boundaryFor(segment, `.${ZAP_KEY}${HEALER_WAND}${key}`);
@@ -409,6 +416,147 @@ test('a cursed wand spends the backfire draw before the direction prompt',
     assert.equal(wand.spe, 3);
 });
 
+test('a self-zap of sleep puts the hero under for rnd(50) turns', async () => {
+    // zap.c:2851-2866 into timeout.c fall_asleep(-rnd(50), TRUE). Seed 49 puts
+    // 27 at the head of the stream, which is the same length the recorded
+    // Healer sleeps for.
+    const wand = await heroCarryingWand({ spe: 4 });
+    const waited = game.moves;
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
+    initRng(49);
+    enableRngLog();
+    assert.equal(await dozap(game), ECMD_TIME);
+    // pline_The() prefixes "The " (pline.c:413-421). The sleep spends exactly
+    // one draw: the Healer's wand type is already discovered, so learnwand()
+    // takes its observe_object() arm and makeknown() is not reached.
+    assert.equal(pendingTopLine(), 'The sleep ray hits you!');
+    assert.deepEqual(getRngLog(), ['rnd(50)=27']);
+
+    // nomul() stores the countdown negative, which is how allmain.c tells an
+    // immobile hero from a hero repeating a command.
+    assert.equal(game.multi, -27);
+    assert.equal(game.multi_reason, 'sleeping');
+    // Both of these are written after nomul(), which clears them: nomul(0)
+    // from stop_occupation() clears the reason, and nomul() of any value
+    // zeroes u.usleep. u.usleep is what trap.c unconscious() reads, so a
+    // zero here would leave the sleeping hero metabolizing as if awake.
+    assert.equal(game.u.usleep, game.moves);
+    assert.equal(game.moves, waited);
+    assert.equal(game.nomovemsg, 'You wake up.');
+    // The turn and the charge are spent, and the hero takes no damage: C's
+    // losehp() arm needs a nonzero zapyourself() result, and the sleep arm
+    // leaves damage at 0.
+    assert.equal(carriedWand().spe, 3);
+    assert.equal(wand.owornmask ?? 0, 0);
+});
+
+test('a self-zap discovers an unfamiliar wand and credits the hero',
+    async () => {
+    // learnwand()'s `!oc_name_known` arm (zap.c:141-148) into hack.h:1530
+    // makeknown(), whose fourth discover_object() argument runs
+    // exercise(A_WIS, TRUE) and its rn2(19). u_init.c already discovered the
+    // Healer's wand as it handed it over, so the arm needs that undone.
+    await heroCarryingWand({ spe: 4, dknown: false });
+    game.objects[WAN_SLEEP].oc_name_known = 0;
+    game.objects[WAN_SLEEP].oc_encountered = 0;
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
+    initRng(49);
+    enableRngLog();
+    assert.equal(await dozap(game), ECMD_TIME);
+    // The discovery follows the sleep: zapyourself() runs its arm first and
+    // calls learnwand() only on the way out.
+    assert.deepEqual(getRngLog(), ['rnd(50)=27', 'rn2(19)=16']);
+    assert.equal(game.objects[WAN_SLEEP].oc_name_known, 1);
+    // observe_object() set dknown on the way past, which is what lets the
+    // `if (obj->dknown)` below it reach makeknown() on the same zap.
+    assert.equal(carriedWand().dknown, true);
+});
+
+test('a blind hero learns nothing from a wand they cannot see', async () => {
+    // The `if (!Blind)` at zap.c:145 holds observe_object() back, so dknown
+    // stays clear and the makeknown() under it is skipped: the sleep is the
+    // only thing that happens, and its draw is the only one spent.
+    const segment = segmentFor(`${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}`,
+        loadZapCommandRecipe(), BLIND);
+    await runSegment({ ...segment, moves: '.' });
+    const wand = carriedWand();
+    Object.assign(wand, { spe: 4, dknown: false });
+    game.objects[WAN_SLEEP].oc_name_known = 0;
+    game.objects[WAN_SLEEP].oc_encountered = 0;
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
+    initRng(49);
+    enableRngLog();
+    assert.equal(await dozap(game), ECMD_TIME);
+    assert.deepEqual(getRngLog(), ['rnd(50)=27']);
+    assert.equal(game.objects[WAN_SLEEP].oc_name_known, 0);
+    assert.equal(game.objects[WAN_SLEEP].oc_encountered, 0);
+    assert.equal(carriedWand().dknown, false);
+    // A blind hero is still told what hit them: zap.c:2860 has no Blind guard.
+    assert.equal(pendingTopLine(), 'The sleep ray hits you!');
+    assert.equal(game.multi, -27);
+
+    // The state zap.c:143-144's comment describes: a wand picked up while
+    // sighted and zapped after going blind. dknown is already set, so the
+    // `if (obj->dknown)` under the skipped observe_object() still holds and
+    // makeknown() runs. It is the one route to the discovery ledger that
+    // observe_object() has not marked the type encountered on first.
+    await runSegment({ ...segment, moves: '.' });
+    Object.assign(carriedWand(), { spe: 4, dknown: true });
+    game.objects[WAN_SLEEP].oc_name_known = 0;
+    game.objects[WAN_SLEEP].oc_encountered = 0;
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
+    initRng(49);
+    enableRngLog();
+    assert.equal(await dozap(game), ECMD_TIME);
+    assert.deepEqual(getRngLog(), ['rnd(50)=27', 'rn2(19)=16']);
+    assert.equal(game.objects[WAN_SLEEP].oc_name_known, 1);
+    // makeknown()'s second discover_object() argument, which is the only thing
+    // that can raise oc_encountered on this route.
+    assert.equal(game.objects[WAN_SLEEP].oc_encountered, 1);
+});
+
+test('a hero who resists sleep stops before the sleep ray is rolled',
+    async () => {
+    // zap.c:2853-2856. Sleep_resistance is youprop.h:36's plain "either
+    // source" test, so an intrinsic alone selects the arm. No race or role the
+    // port starts today has it, so it is written in directly.
+    await heroCarryingWand({ spe: 4 });
+    game.u.uprops[SLEEP_RES] = { intrinsic: FROMOUTSIDE, extrinsic: 0 };
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
+    initRng(49);
+    enableRngLog();
+    await assert.rejects(
+        () => dozap(game),
+        /shieldeff\(\) and monstseesu\(\) for a sleep-resistant hero/u,
+    );
+    // The refusal precedes the rnd(50), so the arm is chosen before the roll.
+    assert.deepEqual(getRngLog(), []);
+    // The extrinsic half selects the same arm on its own.
+    await heroCarryingWand({ spe: 4 });
+    game.u.uprops[SLEEP_RES] = { intrinsic: 0, extrinsic: W_ARMH };
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
+    await assert.rejects(
+        () => dozap(game), UnsupportedZapError,
+    );
+});
+
+test('a self-zap of anything but sleep stops where C calls impossible',
+    async () => {
+    // zapyourself()'s `default:` (zap.c:3005-3007). WAN_DIGGING is an
+    // ordinary aimed wand with an arm of its own that this port has not
+    // reached; the refusal names the type so a session that stops here says
+    // which wand it wanted.
+    await heroCarryingWand({ otyp: WAN_DIGGING, spe: 4 });
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
+    initRng(49);
+    enableRngLog();
+    await assert.rejects(
+        () => dozap(game),
+        new RegExp(`zapyourself\\(\\) for object type ${WAN_DIGGING}`, 'u'),
+    );
+    assert.deepEqual(getRngLog(), []);
+});
+
 test('zapping unpaid merchandise inside a shop stops at the usage fee',
     async () => {
     // zap.c:2653's check_unpaid(obj), which sits between the object prompt and
@@ -460,10 +608,19 @@ test('the zap matrix covers both prompts, both dispatch routes and no wand',
     // Both quitchars a recording can send, at the object prompt.
     assert.ok(typed.includes(`.${ZAP_KEY}${ESCAPE_KEY}.`));
     assert.ok(typed.includes(`.${ZAP_KEY}${SPACE_KEY}.`));
+    // The self key at the direction prompt, which is the one answer that
+    // reaches zapyourself(). Three segments type it, and each closes with the
+    // wait that proves the sleep ran itself out first.
+    assert.equal(
+        typed.filter(
+            (moves) => moves === `.${ZAP_KEY}${HEALER_WAND}${SELF_KEY}.`,
+        ).length,
+        3,
+    );
     // The seed list is the separate tripwire for a silent re-recording.
     assert.deepEqual(recipe.segments.map(({ seed }) => seed),
         [7830001, 7830011, 7830001, 7830001, 7830001, 7830002, 7830031,
-            7830001, 7830021]);
+            7830001, 7830021, 8210001, 8210011, 8210005]);
     // Exactly one segment carries a role with no wand, and it is the only one
     // whose keys stop at the command byte.
     assert.deepEqual(
@@ -508,16 +665,45 @@ test('the charge matrix reaches every arm of zappable and the dust tail',
     );
 });
 
+test('the discovery matrix zaps a wand whose type is not yet known', () => {
+    const recipe = loadZapDiscoveryRecipe();
+    assert.equal(recipe.version, 5);
+    assert.ok(recipe.segments.every(
+        (segment) => !Object.hasOwn(segment, 'steps'),
+    ));
+    // Debug mode, because the wish is the only way to hold a wand whose type
+    // is undiscovered: u_init.c ini_inv_use_obj() discovers the Healer's.
+    // The wish names no charges and no beatitude, so nothing distracts from
+    // the discovery the zap itself makes.
+    assert.deepEqual(
+        recipe.segments.map(({ moves, nethackrc, seed }) => [
+            seed,
+            /\x17([^\n]*)\n/u.exec(moves)[1],
+            moves.endsWith(`${ZAP_KEY}${WISHED_WAND}${SELF_KEY}.`),
+            nethackrc.includes('playmode:debug'),
+        ]),
+        [[8210002, 'wand of sleep', true, true]],
+    );
+});
+
 test('every zap refusal names a zap.c function the port has not ported',
     () => {
     const source = readFileSync(
         new URL('../js/zap.js', import.meta.url), 'utf8',
     );
-    // The three effect arms, and nothing else: an extra refusal in dozap()
-    // would mean an arm that C runs and this port does not.
+    // Every refusal the file carries, in source order, and nothing else: an
+    // extra one would mean an arm that C runs and this port does not.
+    //
+    // - backfire() and weffects() are two of dozap()'s five effect arms.
+    // - losehp() is dozap()'s self arm reacting to damage. zapyourself()
+    //   returns 0 for the one object type it handles, so nothing reaches it.
+    // - shieldeff() stands for the Sleep_resistance half of zapyourself()'s
+    //   WAN_SLEEP arm, which also needs monstseesu().
+    // - zapyourself() is that function's `default:`, where C calls
+    //   impossible(); it covers every object type but the two that sleep.
     assert.deepEqual(
         [...source.matchAll(/new UnsupportedZapError\(\s*[`']([^`']*)/gu)]
             .map(([, text]) => text.split('(')[0]),
-        ['backfire', 'zapyourself', 'weffects'],
+        ['backfire', 'losehp', 'weffects', 'shieldeff', 'zapyourself'],
     );
 });
