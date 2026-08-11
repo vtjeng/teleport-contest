@@ -35,56 +35,93 @@ import {
     ACID_VENOM,
     AGATE,
     AMULET_CLASS,
+    AMULET_OF_ESP,
+    AMULET_OF_GUARDING,
+    AMULET_VERSUS_POISON,
     ARMOR_CLASS,
     ARROW,
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     BEARTRAP,
+    BLINDING_VENOM,
     BRASS_LANTERN,
     BROADSWORD,
+    BULLWHIP,
     CHEST,
     CLOAK_OF_DISPLACEMENT,
+    CLOAK_OF_MAGIC_RESISTANCE,
     COIN_CLASS,
-    ELVEN_BOOTS,
+    CREAM_PIE,
+    DUNCE_CAP,
+    DWARVISH_MATTOCK,
     EGG,
     ELVEN_DAGGER,
+    ELVEN_LEATHER_HELM,
+    ELVEN_MITHRIL_COAT,
+    ENORMOUS_MEATBALL,
+    EUCALYPTUS_LEAF,
+    EXPENSIVE_CAMERA,
     FAKE_AMULET_OF_YENDOR,
+    FEDORA,
     FIGURINE,
+    FLINT,
     FOOD_CLASS,
     FOOD_RATION,
+    FORTUNE_COOKIE,
+    GAUNTLETS_OF_DEXTERITY,
     GAUNTLETS_OF_POWER,
     GEM_CLASS,
+    GRAPPLING_HOOK,
     GRAY_DRAGON_SCALES,
     GRAY_DRAGON_SCALE_MAIL,
+    HAWAIIAN_SHIRT,
     HEAVY_IRON_BALL,
     HELM_OF_TELEPATHY,
+    HORN_OF_PLENTY,
+    IRON_SHOES,
     JADE,
+    JUMPING_BOOTS,
     KATANA,
+    KELP_FROND,
     LAND_MINE,
     LARGE_BOX,
     LEATHER_ARMOR,
+    LEATHER_GLOVES,
+    LEMBAS_WAFER,
+    LEVITATION_BOOTS,
+    LOADSTONE,
     LONG_SWORD,
+    LOW_BOOTS,
     LUCKSTONE,
     MAGIC_LAMP,
+    MAGIC_MARKER,
     MEAT_RING,
+    MUMMY_WRAPPING,
     OILSKIN_SACK,
     OIL_LAMP,
+    PICK_AXE,
     PLATE_MAIL,
     POTION_CLASS,
-    POT_SEE_INVISIBLE,
+    POT_INVISIBILITY,
     POT_SLEEPING,
     POT_WATER,
     RED_DRAGON_SCALE_MAIL,
     RING_CLASS,
     RING_MAIL,
+    RIN_INCREASE_ACCURACY,
+    RIN_PROTECTION_FROM_SHAPE_CHAN,
+    ROCK,
     SACK,
     SCALE_MAIL,
     SCROLL_CLASS,
+    SCR_CHARGING,
     SCR_MAGIC_MAPPING,
+    SCR_MAIL,
+    SHIELD_OF_REFLECTION,
     SHORT_SWORD,
     SILVER_SABER,
-    SCR_MAIL,
     SLIME_MOLD,
+    SMALL_SHIELD,
     SPBOOK_CLASS,
     SPEED_BOOTS,
     SPE_DIG,
@@ -92,14 +129,19 @@ import {
     SPE_NOVEL,
     SPE_WIZARD_LOCK,
     STRANGE_OBJECT,
+    TALLOW_CANDLE,
     TIN,
+    TIN_OPENER,
     TOOLED_HORN,
     TOOL_CLASS,
+    TOUCHSTONE,
     TOWEL,
     TRIPE_RATION,
+    T_SHIRT,
     VENOM_CLASS,
-    WAN_DEATH,
     WAND_CLASS,
+    WAN_DEATH,
+    WAX_CANDLE,
     WEAPON_CLASS,
     YELLOW_DRAGON_SCALES,
     YELLOW_DRAGON_SCALE_MAIL,
@@ -251,46 +293,93 @@ test('wishymatch accepts the recorded spelling variants', () => {
     assert.equal(wishymatch('aluminum', 'aluminum', true), true);
 });
 
-// objnam.c o_ranges[] (3346-3366).
+// objnam.c o_ranges[] (3346-3366), every row read off the C source in order.
+// Order is load-bearing: readobjnam_postparse2() walks the table and stops at
+// the first row whose name the wish spells, so "gray stone" ahead of "grey
+// stone" and "gloves" ahead of "gauntlets" is what C's own comment about the
+// grey-stone check being first is protecting.
 test('o_ranges carries the nineteen wishable subranges', () => {
-    assert.equal(o_ranges.length, 19);
-    assert.deepEqual(o_ranges[0], {
-        name: 'bag', oclass: TOOL_CLASS, f_o_range: SACK,
-        l_o_range: BAG_OF_TRICKS,
-    });
-    // The row that catches a bare "lamp" before the description lookup can.
-    assert.deepEqual(o_ranges[1], {
-        name: 'lamp', oclass: TOOL_CLASS, f_o_range: OIL_LAMP,
-        l_o_range: MAGIC_LAMP,
-    });
-    // "gray stone" and "grey stone" are the last two rows and share a range.
-    assert.equal(o_ranges[17].name, 'gray stone');
-    assert.equal(o_ranges[18].name, 'grey stone');
-    assert.equal(o_ranges[18].f_o_range, LUCKSTONE);
-    assert.equal(o_ranges[17].oclass, GEM_CLASS);
-    // Every row's range runs forward, which rnd_class() relies on.
-    for (const row of o_ranges)
-        assert.ok(row.l_o_range >= row.f_o_range, row.name);
-    // Only these five classes appear in the table.
-    assert.deepEqual(
-        [...new Set(o_ranges.map((row) => row.oclass))].sort((a, b) => a - b),
-        [WEAPON_CLASS, ARMOR_CLASS, TOOL_CLASS, GEM_CLASS, VENOM_CLASS]
-            .sort((a, b) => a - b),
-    );
+    assert.deepEqual(o_ranges, [
+        ['bag', TOOL_CLASS, SACK, BAG_OF_TRICKS],
+        ['lamp', TOOL_CLASS, OIL_LAMP, MAGIC_LAMP],
+        ['candle', TOOL_CLASS, TALLOW_CANDLE, WAX_CANDLE],
+        ['horn', TOOL_CLASS, TOOLED_HORN, HORN_OF_PLENTY],
+        ['shield', ARMOR_CLASS, SMALL_SHIELD, SHIELD_OF_REFLECTION],
+        ['hat', ARMOR_CLASS, FEDORA, DUNCE_CAP],
+        ['helm', ARMOR_CLASS, ELVEN_LEATHER_HELM, HELM_OF_TELEPATHY],
+        ['gloves', ARMOR_CLASS, LEATHER_GLOVES, GAUNTLETS_OF_DEXTERITY],
+        ['gauntlets', ARMOR_CLASS, LEATHER_GLOVES, GAUNTLETS_OF_DEXTERITY],
+        ['boots', ARMOR_CLASS, LOW_BOOTS, LEVITATION_BOOTS],
+        ['shoes', ARMOR_CLASS, LOW_BOOTS, IRON_SHOES],
+        ['cloak', ARMOR_CLASS, MUMMY_WRAPPING, CLOAK_OF_DISPLACEMENT],
+        ['shirt', ARMOR_CLASS, HAWAIIAN_SHIRT, T_SHIRT],
+        ['dragon scales', ARMOR_CLASS, GRAY_DRAGON_SCALES,
+         YELLOW_DRAGON_SCALES],
+        ['dragon scale mail', ARMOR_CLASS, GRAY_DRAGON_SCALE_MAIL,
+         YELLOW_DRAGON_SCALE_MAIL],
+        ['sword', WEAPON_CLASS, SHORT_SWORD, KATANA],
+        ['venom', VENOM_CLASS, BLINDING_VENOM, ACID_VENOM],
+        ['gray stone', GEM_CLASS, LUCKSTONE, FLINT],
+        ['grey stone', GEM_CLASS, LUCKSTONE, FLINT],
+    ].map(([name, oclass, f_o_range, l_o_range]) => ({
+        name, oclass, f_o_range, l_o_range,
+    })));
 });
 
-// objnam.c spellings[] (3372-3429), counted without C's terminating null row.
+// objnam.c spellings[] (3372-3429), every row read off the C source in order,
+// without C's terminating null row.  readobjnam_postparse1() walks the whole
+// table with wishymatch() and takes the first hit, so a missing row loses a
+// spelling and a reordered one can answer with the wrong type: "grappling
+// iron", "grapnel" and "grapple" all sit behind the shorter "hook".
 test('spellings carries the forty-six alternate spellings', () => {
-    assert.equal(spellings.length, 46);
-    assert.equal(spellings[0].sp, 'pickax');
-    // "lantern" is the entry that turns a bare "lantern" into BRASS_LANTERN
-    // (objects.h:930 names it "brass lantern"), and it is a `return 2` that
-    // skips readobjnam_postparse3() entirely.
-    assert.equal(spellings.find((row) => row.sp === 'lantern').ob,
-                 BRASS_LANTERN);
-    assert.equal(spellings.at(-1).sp, 'flintstone');
-    // No row's spelling is empty; C's loop would stop there.
-    for (const row of spellings) assert.ok(row.sp.length > 0);
+    assert.deepEqual(spellings, [
+        ['pickax', PICK_AXE],
+        ['whip', BULLWHIP],
+        ['saber', SILVER_SABER],
+        ['silver sabre', SILVER_SABER],
+        ['smooth shield', SHIELD_OF_REFLECTION],
+        ['grey dragon scale mail', GRAY_DRAGON_SCALE_MAIL],
+        ['grey dragon scales', GRAY_DRAGON_SCALES],
+        ['iron ball', HEAVY_IRON_BALL],
+        ['lantern', BRASS_LANTERN],
+        ['mattock', DWARVISH_MATTOCK],
+        ['amulet of poison resistance', AMULET_VERSUS_POISON],
+        ['amulet of protection', AMULET_OF_GUARDING],
+        ['amulet of telepathy', AMULET_OF_ESP],
+        ['helm of esp', HELM_OF_TELEPATHY],
+        ['gauntlets of ogre power', GAUNTLETS_OF_POWER],
+        ['gauntlets of giant strength', GAUNTLETS_OF_POWER],
+        ['elven chain mail', ELVEN_MITHRIL_COAT],
+        ['silver shield', SHIELD_OF_REFLECTION],
+        ['potion of sleep', POT_SLEEPING],
+        ['scroll of recharging', SCR_CHARGING],
+        ['recharging', SCR_CHARGING],
+        ['stone', ROCK],
+        ['camera', EXPENSIVE_CAMERA],
+        ['tee shirt', T_SHIRT],
+        ['can', TIN],
+        ['can opener', TIN_OPENER],
+        ['kelp', KELP_FROND],
+        ['eucalyptus', EUCALYPTUS_LEAF],
+        ['lembas', LEMBAS_WAFER],
+        ['tripe', TRIPE_RATION],
+        ['cookie', FORTUNE_COOKIE],
+        ['pie', CREAM_PIE],
+        ['huge meatball', ENORMOUS_MEATBALL],
+        ['huge chunk of meat', ENORMOUS_MEATBALL],
+        ['marker', MAGIC_MARKER],
+        ['hook', GRAPPLING_HOOK],
+        ['grappling iron', GRAPPLING_HOOK],
+        ['grapnel', GRAPPLING_HOOK],
+        ['grapple', GRAPPLING_HOOK],
+        ['protection from shape shifters', RIN_PROTECTION_FROM_SHAPE_CHAN],
+        ['accuracy', RIN_INCREASE_ACCURACY],
+        ['box', LARGE_BOX],
+        ['luck stone', LUCKSTONE],
+        ['load stone', LOADSTONE],
+        ['touch stone', TOUCHSTONE],
+        ['flintstone', FLINT],
+    ].map(([sp, ob]) => ({ sp, ob })));
 });
 
 // objnam.c wrp[] and wrpsym[] (2517-2528).  Every row of both tables is read
@@ -478,10 +567,20 @@ const DUNGEON_FIXTURE = Object.freeze({
     specialLevels: [],
 });
 
+// The shuffle choice init_objects() runs under here.  o_init.c shuffle() picks
+// its swap partner as `i = j + random(o_high - j + 1)`, so answering 0 would
+// swap every entry with itself and leave objects[] holding the descriptions
+// objects.h wrote -- against which no assertion could tell a shuffled lookup
+// from a static-table read.  Answering 1 wherever the bound allows swaps each
+// entry with the next one and the last with itself, which rotates every
+// shuffled range one place left: the entry at index j ends up with the
+// description objects.h gave j + 1, and the top of each range ends up with the
+// bottom's.
+const SHIFT_DESCRIPTIONS = (bound) => (bound > 1 ? 1 : 0);
+
 // A wizard-mode game with a shuffled objects[] and an initialized monster
 // catalog: readobjnam() reads OBJ_DESCR(), which o_init.c shuffles, and calls
-// name_to_monplus(), which needs monst_globals_init().  Zero choices
-// deterministically initialize every randomized description.
+// name_to_monplus(), which needs monst_globals_init().
 function wishState() {
     const wizard = roles.find((role) => role.filecode === 'Wiz');
     const state = {
@@ -512,7 +611,7 @@ function wishState() {
         wizard: true,
     };
     objects_globals_init(state);
-    init_objects(state, () => 0);
+    init_objects(state, SHIFT_DESCRIPTIONS);
     monst_globals_init(state);
     init_artifacts(state);
     return state;
@@ -1025,33 +1124,52 @@ test('rnd_otyp_by_namedesc matches a name, a description and a partial', () => {
     const state = wishState();
     const draws = [];
     const random = recordingRandom(draws);
-    const find = (name, oclass = 0) =>
-        rnd_otyp_by_namedesc(name, oclass, 1, { state, random });
+    // 3516-3521 sums oc_prob + xtra_prob over every candidate and 3522 draws
+    // rn2() of that sum, so the bound is what the candidate set decides and the
+    // stub pinned at 0 always answers the first candidate whatever the set
+    // holds.  Each call therefore states its bound as well as its answer.
+    const find = (name, expectedDraws, oclass = 0) => {
+        draws.length = 0;
+        const otyp = rnd_otyp_by_namedesc(name, oclass, 1, { state, random });
+        assert.deepEqual(draws, expectedDraws, name);
+        return otyp;
+    };
 
-    // The objects[] name.
-    assert.equal(find('magic lamp'), MAGIC_LAMP);
-    // The " of " partial at 3499-3506: "tricks" has to reach "bag of tricks".
-    assert.equal(find('tricks'), BAG_OF_TRICKS);
-    // A shuffled description, which o_init.c assigns and objects.c does not:
-    // with every shuffle choice zero, "mud boots" lands on ELVEN_BOOTS.
-    assert.equal(find('mud boots'), ELVEN_BOOTS);
-    // The partial description at 3510-3512: "cloth" has to reach the cloak
-    // whose description is "piece of cloth".
-    assert.equal(find('cloth'), CLOAK_OF_DISPLACEMENT);
-    // The scan runs to the last objects[] entry, which is ACID_VENOM.
-    assert.equal(find('acid venom'), ACID_VENOM);
+    // The objects[] name.  objects.h:931 gives the magic lamp oc_prob 15 and
+    // no other entry answers the name, so the sole candidate makes rn2(16).
+    assert.equal(find('magic lamp', ['rn2(16)']), MAGIC_LAMP);
+    // The " of " partial at 3499-3506: "tricks" has to reach "bag of tricks",
+    // oc_prob 20 at objects.h:911.
+    assert.equal(find('tricks', ['rn2(21)']), BAG_OF_TRICKS);
+    // A shuffled description, which o_init.c assigns and objects.c does not.
+    // SHIFT_DESCRIPTIONS moves each range's descriptions one place down, and
+    // objects.h:712-717 puts the jumping boots immediately before the elven
+    // boots inside o_init.c's SPEED_BOOTS..LEVITATION_BOOTS range, so the
+    // "mud boots" objects.h wrote against ELVEN_BOOTS is worn by
+    // JUMPING_BOOTS in this game.  Every boot in that range has oc_prob 12,
+    // so the bound cannot tell them apart; the answer is the whole test.
+    assert.equal(find('mud boots', ['rn2(13)']), JUMPING_BOOTS);
+    // The partial description at 3510-3512: "cloth" reaches both the cloak
+    // wearing "piece of cloth" -- objects.h:644-649 puts the cloak of magic
+    // resistance, oc_prob 6, immediately before the cloak of displacement --
+    // and the spellbook wearing plain "cloth", which objects.h:1306-1309 makes
+    // the finger of death, oc_prob 5.  7 + 6 is the bound, and the cloak is
+    // reached first because it has the lower object number.
+    assert.equal(find('cloth', ['rn2(13)']), CLOAK_OF_MAGIC_RESISTANCE);
+    // The scan runs to the last objects[] entry, which is ACID_VENOM;
+    // objects.h:1640-1641 gives it oc_prob 500.
+    assert.equal(find('acid venom', ['rn2(501)']), ACID_VENOM);
     // 3504-3505 keeps the glob range out of the " of " partial match, so
     // neither end of it answers its monster's name.  Both ends matter: the
-    // range is tested with `<` at one end and `>` at the other.
-    assert.equal(find('gray ooze'), STRANGE_OBJECT);
-    assert.equal(find('black pudding'), STRANGE_OBJECT);
+    // range is tested with `<` at one end and `>` at the other.  A miss
+    // collects no candidate and so makes no draw.
+    assert.equal(find('gray ooze', []), STRANGE_OBJECT);
+    assert.equal(find('black pudding', []), STRANGE_OBJECT);
     // Only the objects[] name is matched with retry_inverted set, so an
     // inverted description finds nothing where the description itself works.
-    assert.equal(find('boots of mud'), STRANGE_OBJECT);
-    // Nothing matches, and no draw is made: STRANGE_OBJECT is 0.
-    draws.length = 0;
-    assert.equal(find('florble'), STRANGE_OBJECT);
-    assert.deepEqual(draws, []);
+    assert.equal(find('boots of mud', []), STRANGE_OBJECT);
+    // Nothing matches at all: STRANGE_OBJECT is 0.
+    assert.equal(find('florble', []), STRANGE_OBJECT);
 });
 
 test('rnd_otyp_by_namedesc weights its candidates by oc_prob', () => {
@@ -1141,7 +1259,10 @@ test('readobjnam keeps a monster name out of six object names', () => {
                  'a wish no lookup resolves');
     assert.equal(wish(state, 'ninja-to').obj.otyp, BROADSWORD);
     // "magenta" is a potion description; the "mage" rank must not take it.
-    assert.equal(wish(state, 'magenta').obj.otyp, POT_SEE_INVISIBLE);
+    // objects.h:1143 writes it against the potion of see invisible, and
+    // SHIFT_DESCRIPTIONS moves it one place down to the entry before it,
+    // objects.h:1141's potion of invisibility.
+    assert.equal(wish(state, 'magenta').obj.otyp, POT_INVISIBILITY);
     // 4372-4373's own exceptions: "wand ", "spellbook ", "gauntlets ",
     // "gloves " and "finger " suppress the "<foo> of <monster>" split, so
     // these three name objects rather than monsters.

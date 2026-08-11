@@ -15,11 +15,13 @@ import {
     HALLUC,
     HALLUC_RES,
     HANDS_SYM,
+    HVY_ENCUMBER,
     LAST_PROP,
     LAVAPOOL,
     LEVITATION,
     LOST_EXPLODING,
     LOST_THROWN,
+    MOD_ENCUMBER,
     NON_PM,
     NUM_ATTRS,
     A_CHAOTIC,
@@ -52,7 +54,7 @@ import {
     preflight_dropx,
     UnsupportedDropError,
 } from '../js/do.js';
-import { calc_capacity, weight_cap } from '../js/hack.js';
+import { calc_capacity, near_capacity, weight_cap } from '../js/hack.js';
 import {
     add_to_buried,
     add_to_container,
@@ -2171,6 +2173,60 @@ test('hold_another_object stops on the arms it cannot finish', async () => {
         /held object dropped/u,
     );
 });
+
+// invent.c:1258-1264 takes the encumbrance limit before addinv() as
+// max(near_capacity(), flags.pickup_burden), and each operand needs a case
+// where it is the larger.  Without both, a fixture proves only that one of
+// them is read: every other test here leaves flags.pickup_burden unset, so it
+// holds the MOD_ENCUMBER default and a hero at or below Stressed can never
+// tell the two apart.
+test('the hold limit takes the larger of the load and the burden option',
+    async () => {
+        // hack.c capacity_from_excess() answers min(trunc(excess * 2 / cap) +
+        // 1, OVERLOADED), so the hero climbs one encumbrance step per half
+        // capacity of overweight.  One inventory object carries the whole
+        // load, which keeps that arithmetic in one place; a heavy iron ball
+        // does not merge, so the lamp added below stays a separate stack.
+        const loaded = (ballastWeight, pickupBurden) => {
+            const state = carryingState();
+            if (pickupBurden !== undefined)
+                state.flags.pickup_burden = pickupBurden;
+            const ballast = instance(HEAVY_IRON_BALL, state, {
+                invlet: 'a',
+                owt: ballastWeight(weight_cap(state)),
+                where: OBJ_INVENT,
+            });
+            state.invent = ballast;
+            return state;
+        };
+        const hold = (state, obj) => hold_another_object(
+            obj, null, null, null,
+            { state, hooks: { encumberMessage: () => {} } },
+        );
+
+        // The load is the larger operand: twice capacity is an excess of one
+        // capacity, which is HVY_ENCUMBER, above the MOD_ENCUMBER the option
+        // defaults to.  One more ounce leaves her at HVY_ENCUMBER, so the
+        // strict `>` at 1272 is false and C keeps the lamp.  Reading the
+        // option alone here would compare against MOD_ENCUMBER and drop it.
+        const strained = loaded((cap) => 2 * cap);
+        assert.equal(near_capacity(strained), HVY_ENCUMBER);
+        const lamp = instance(OIL_LAMP, strained, { owt: 1 });
+        assert.equal(await hold(strained, lamp), lamp);
+        assert.equal(lamp.where, OBJ_INVENT);
+        assert.equal(near_capacity(strained), HVY_ENCUMBER);
+
+        // The option is the larger operand: one ounce short of twice capacity
+        // is MOD_ENCUMBER, and the ounce the lamp adds raises her to
+        // HVY_ENCUMBER -- which the option now permits.  Reading the load
+        // alone here would compare against MOD_ENCUMBER and drop it too.
+        const permitted = loaded((cap) => 2 * cap - 1, HVY_ENCUMBER);
+        assert.equal(near_capacity(permitted), MOD_ENCUMBER);
+        const other = instance(OIL_LAMP, permitted, { owt: 1 });
+        assert.equal(await hold(permitted, other), other);
+        assert.equal(other.where, OBJ_INVENT);
+        assert.equal(near_capacity(permitted), HVY_ENCUMBER);
+    });
 
 test('heavy-drop projection keeps exact inventory and burden boundaries',
     async () => {

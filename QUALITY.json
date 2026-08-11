@@ -709,7 +709,7 @@
       "area": "objects",
       "category": "tests",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "c138e0514b1aa47e733cdc3f73bcb83ab2150ccf",
       "detail": "Five findings from the wizard-mode-wish correctness pass, grouped because each needs the same thing: a fixture the current tests do not build. (1) scripts/inventory-substrate.test.mjs:1653 leaves hold_another_object()'s flags.pickup_burden clamp untested, every fixture being weightless or a boulder, so the clamp's own comparison is unexercised. (2) scripts/objnam-readobjnam.test.mjs:231 samples the four hand-transcribed tables rather than pinning them: 4 of 46 spellings[] rows, 2 of 19 o_ranges[] rows and part of wrp[]/wrpsym[], with no generated check against the C. (3) The find() helper at :635 asserts only the winning otyp under an rn2 stub pinned at 0, so the candidate set, which is what sets rn2's argument, is never checked. (4) The assertion at :644 advertised as the guard for the per-game shuffled description table is inert, because init_objects(state, () => 0) is the identity permutation, so it would pass against the static table too. (5) The count test at :834 pins only quan === 1, leaving readobjnam_postparse1()'s 'if (d.cnt === 1) d.cnt = 2' doubling unexercised. Closing condition: a generated table check against objnam.c for (2), a non-identity permutation for (4), and fixtures for the rest.",
       "notes": [
