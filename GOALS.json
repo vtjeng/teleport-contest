@@ -1535,7 +1535,7 @@
     },
     {
       "id": "monster-drops-equipped-gear",
-      "status": "open",
+      "status": "closed",
       "boundary": "steal.c mdrop_obj() (814-846) runs for an object whose owornmask is non-zero rather than stopping at js/steal.js:232 on 'a monster dropping an object it has equipped': worn.c extract_from_minvent()'s `if (unwornmask)` block (1404-1412) reached by a live caller for the first time -- the do_extrinsics FALSE arm, mon->misc_worn_check &= ~unwornmask, check_gear_next_turn() -- together with its `if (unwornmask & W_WEP) mwepgone(mon)` tail (1413-1415) into weapon.c mwepgone() over the already-ported setmnotwielded(); the W_ARM artifact_light()/end_burn() guard at worn.c:1398-1400; mdrop_obj()'s saddle no_charge exemption (826-832) evaluated on every drop, including its costly_spot() and in_rooms() conjuncts; the `verbosely && cansee(omx, omy)` drop line (835-836); and flooreffects()/place_object()/stackobj() (837-840). Outside and still refused by name: worn.c update_mon_extrinsics() (579-710), which mdrop_obj() reaches only at its 844-845 tail, guarded by !DEADMONSTER(mon), so only a monster that survives the drop can execute it.",
       "upstreamOwners": [
         "src/steal.c",
@@ -1570,8 +1570,11 @@
         "screens": 1389,
         "rng": 118859
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "04bed741083b4edb2756b6a6855a68b9d63168f3",
+      "delivered": {
+        "screens": 21,
+        "rng": 187
+      }
     }
   ]
 }

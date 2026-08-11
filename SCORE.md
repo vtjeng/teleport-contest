@@ -27,17 +27,22 @@ states it.
 
 ## Current standing
 
-- Development, at `80273bd` (2026-08-11): 1,388 of 7,765 screens and 118,743 of
+- Development, at `04bed74` (2026-08-11): 1,410 of 7,765 screens and 119,046 of
   610,816 random-number values, over the development set of 33 sessions, of
-  which 5 match completely.
-- Reserved holdout, last evaluated at `c338fee`: 224 of 3,640 screens, 33,427
+  which 6 match completely.
+- Reserved holdout, last evaluated at `04bed74`: 224 of 3,640 screens, 33,427
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  It has moved at each of the last few evaluations, by one or two screens,
-  while the development set has moved by tens. `docs/goal-history.md` records
-  why that gap is expected rather than a defect: goals are ranked by capped
-  development look-ahead, so each one is chosen for the development session it
-  unblocks, and carry-over to the hidden set is a by-product. The holdout
-  serves as a regression test while the development set is the target.
+  It has not moved across the last three goal closes, while the development set
+  gained 36 screens and a sixth fully matching session. `docs/goal-history.md`
+  records why that gap is expected rather than a defect: goals are ranked by
+  capped development look-ahead, so each one is chosen for the development
+  session it unblocks, and carry-over to the hidden set is a by-product. The
+  holdout serves as a regression test while the development set is the target.
+  Note one prediction that has now failed twice: commonness in ordinary play
+  does not predict carry-over. Force-fight gained 40 development screens and
+  moved the holdout by zero, and `monster-drops-equipped-gear` was chosen partly
+  because a monster dropping what it wore fires on every kill of an equipped
+  monster. It gained 21 and also moved it by zero.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,
