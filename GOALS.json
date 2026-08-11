@@ -1509,6 +1509,11 @@
           "name": "take off body armor over its delay",
           "status": "closed",
           "closedBy": "d1214f31ab16045a252ebcf282524244c60a8b65"
+        },
+        {
+          "name": "grant the random object an escaped wish asks for",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "14f13184f03fb2edbfb297150f1beb961dcc9530",
