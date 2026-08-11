@@ -26,9 +26,13 @@ import { roles } from '../js/roles.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import {
-    DAGGER, HEAVY_IRON_BALL, objects_globals_init,
+    DAGGER, GEM_CLASS, HEAVY_IRON_BALL, SACK, objects_globals_init,
 } from '../js/objects.js';
+import { readobjnam } from '../js/objnam_readobjnam.js';
 import { UnsupportedWishError, makewish } from '../js/zap.js';
+import {
+    CASES as CONTAINER_CASES, loadWishedContainerRecipe,
+} from './run-wished-container.mjs';
 import {
     ESCAPE_KEY,
     EXTCMD_KEY,
@@ -456,4 +460,55 @@ test('an unparsed pickup_burden stops a wished-for object being held',
 
 test('ordinary wish-drop refusals convert at the command seam', () => {
     assert.ok(failClosedCommandRefusals().includes(UnsupportedDropError));
+});
+
+// zap.c makewish() calls readobjnam(), whose typfnd: tail calls mksobj(). Five
+// of the seven container types reach mkobj.c mkbox_cnts() from there, and
+// nothing else on the wish path needs an obj.js hook, so before this slice the
+// call site passed only the game state. Both halves are asserted: that a wish
+// through the running game fills its container, and that the same wish without
+// the hooks stops, which is what makes the first half an assertion about the
+// call site rather than about mkbox_cnts().
+test('makewish() gives readobjnam() the object-generation hooks', async () => {
+    // mkobj.c mkbox_cnts():338 spends rn2(n + 1); a stub answering 1 puts one
+    // object in the sack, which is the roll that needs populateContainer().
+    // The state starts a turn past mkbox_cnts():324's svm.moves <= 1 arm,
+    // which would otherwise leave the sack empty and the hook unreached.
+    const { state } = wishState('');
+    state.moves = 2;
+    // requireSimpleWishedObject() refuses every wish an ordinary hero makes;
+    // wizcmds.c wiz_wish() is the only caller, so this is what it always sees.
+    state.wizard = true;
+    // mkobj.c next_ident() reads svc.context.ident, which u_init.c seeds at 1
+    // and the game raises per object; 2 is where a started game has it.
+    state.context = { ident: 2 };
+    const oneItem = {
+        rn2: (x) => (x === 2 ? 1 : 0), rnd: () => 1, rn1: (_x, y) => y,
+        rne: () => 1,
+    };
+    assert.throws(
+        () => readobjnam('sack', Object.freeze({}), { state, random: oneItem }),
+        (error) => error instanceof UnsupportedObjectOperationError
+            && /populateContainer/u.test(error.message),
+    );
+
+    // End to end, on the case scripts/run-wished-container.mjs records against
+    // C at this seed: mkbox_cnts() draws one object and boxiprobs[] lands on
+    // the gem band. Nothing on the screen shows it, because a fresh container
+    // has cknown 0 and objnam.c doname_base():1373 needs that set, so the
+    // contents have to be read out of the game.
+    const gemCase = CONTAINER_CASES.find(
+        ({ contents }) => contents.length === 1 && contents[0] === GEM_CLASS,
+    );
+    assert.ok(gemCase, 'the container matrix records a gem-filled container');
+    await runSegment(
+        loadWishedContainerRecipe().segments[CONTAINER_CASES.indexOf(gemCase)],
+    );
+    const held = [];
+    for (let obj = game.invent; obj; obj = obj.nobj)
+        if (obj.otyp === SACK) held.push(obj);
+    assert.equal(held.length, 1);
+    const inside = [];
+    for (let obj = held[0].cobj; obj; obj = obj.nobj) inside.push(obj.oclass);
+    assert.deepEqual(inside, [GEM_CLASS]);
 });

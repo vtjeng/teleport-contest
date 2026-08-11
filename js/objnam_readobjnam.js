@@ -23,7 +23,7 @@ import { name_to_monplus } from './mondata.js';
 import { PM_GRAY_DRAGON, PM_YELLOW_DRAGON } from './monsters.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
 import {
-    curseFreeObject, erosionMatters, isContainer, mksobj, objectType,
+    curseFreeObject, erosionMatters, mksobj, objectType,
     rnd_class, weight,
 } from './obj.js';
 import { is_quest_artifact } from './questpgr.js';
@@ -42,6 +42,7 @@ import {
     BLINDING_VENOM,
     BRASS_LANTERN,
     BULLWHIP,
+    CHEST,
     CLOAK_OF_DISPLACEMENT,
     CORPSE,
     CREAM_PIE,
@@ -71,6 +72,7 @@ import {
     HEAVY_IRON_BALL,
     HELM_OF_TELEPATHY,
     HORN_OF_PLENTY,
+    ICE_BOX,
     IRON_CHAIN,
     IRON_SHOES,
     KATANA,
@@ -1448,15 +1450,28 @@ function requireSimpleWishedObject(d, type, state) {
     case EGG: /* 5223-5231, set_corpsenm()'s hatch timer */
         refuse('a wish for a corpse, statue, figurine, egg or tin');
         break;
+    /* Three of the seven container types, refused for two reasons.
+       objnam.c:5142-5146 gives a chest and a large box a bare `break;` in the
+       spe switch, where the `default:` arm this port ends that switch with
+       would assign d.spe over the lock state mksobj():1012-1014 has just
+       rolled.  And mkbox_cnts():339-351 stocks an ice box with mksobj(CORPSE)
+       rather than mkobj(), stopping three of each corpse's timers; no
+       recording has driven that arm. */
+    case CHEST:
+    case LARGE_BOX:
+    case ICE_BOX:
+        refuse('a wish for a chest, large box or ice box');
+        break;
     default:
         break;
     }
-    if (isContainer({ otyp: d.typ })) {
-        /* objnam.c:5289-5299 empties a container and 5301-5310 sets its lock
-           state; mksobj() also fills a chest, which this port has not
-           verified through a wish. */
-        refuse('a wish for a container');
-    }
+    /* The other four types need nothing this tail lacks.  A sack, an oilskin
+       sack and a bag of holding reach mkbox_cnts() through mksobj() and then
+       the `default:` spe arm, which is where C sends them too; a bag of tricks
+       is not a mkbox_cnts() type at all.  objnam.c:5312's delete_contents()
+       and 5324's lock block need d.contents, d.locked, d.unlocked or
+       d.broken, and requireSimpleWishQualifiers() has already refused all
+       four. */
 }
 
 // C ref: objnam.c readobjnam() (4902-5400).  `no_wish` is the caller's

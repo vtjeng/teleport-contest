@@ -34,11 +34,13 @@ import {
     AMULET_CLASS,
     ARMOR_CLASS,
     ARROW,
+    BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     BEARTRAP,
     BRASS_LANTERN,
     BROADSWORD,
     CLOAK_OF_DISPLACEMENT,
+    COIN_CLASS,
     ELVEN_BOOTS,
     ELVEN_DAGGER,
     FAKE_AMULET_OF_YENDOR,
@@ -58,6 +60,7 @@ import {
     LUCKSTONE,
     MAGIC_LAMP,
     MEAT_RING,
+    OILSKIN_SACK,
     OIL_LAMP,
     PLATE_MAIL,
     POTION_CLASS,
@@ -101,6 +104,9 @@ import {
 import { init_objects } from '../js/o_init.js';
 import { objects_globals_init } from '../js/objects.js';
 import { roles } from '../js/roles.js';
+import {
+    CASES as CONTAINER_CASES, loadWishedContainerRecipe,
+} from './run-wished-container.mjs';
 
 // hacklib.c fuzzymatch(): "match occurs only when the end of both strings has
 // been reached", after every ignore_chars byte is skipped in both.
@@ -985,7 +991,7 @@ test('readobjnam follows the name-reshaping branches', () => {
 
     // 4448-4459: makesingular() is skipped for "tricks", which must stay
     // plural to reach "bag of tricks", but not for other plurals.
-    assert.equal(resolved('tricks'), undefined); // a container, refused below
+    assert.equal(resolved('tricks'), BAG_OF_TRICKS);
     assert.equal(wish(state, 'tricks').draws[0], 'rn2(21)');
     // 4467-4473: "armour" loses its "u" so that "leather armour" matches.
     assert.equal(resolved('leather armour'), LEATHER_ARMOR);
@@ -1331,4 +1337,96 @@ test('a second wish for one artifact still counts against conduct', () => {
     assert.equal(named.obj.oartifact, ART_VORPAL_BLADE);
     assert.equal(named.obj.oextra.oname, 'Vorpal Blade');
     assert.equal(fresh.u.uconduct.wisharti, 1);
+});
+
+// objnam.c readobjnam()'s typfnd: tail sends every type to mksobj(), and
+// mkobj.c mksobj():1010-1021 sends five of the seven container types on to
+// mkbox_cnts(). Four of the seven finish here; three do not, and each of the
+// three has its own reason.
+test('readobjnam admits four container types and refuses three boxes', () => {
+    const state = wishState();
+
+    // The three mkbox_cnts() fills through mksobj()'s SACK/BAG_OF_HOLDING
+    // arms, plus the one Is_container() counts that mkbox_cnts() never sees:
+    // mksobj():1036-1039 gives a bag of tricks rn1(18, 3) charges instead.
+    assert.equal(wish(state, 'sack').obj.otyp, SACK);
+    assert.equal(wish(state, 'oilskin sack').obj.otyp, OILSKIN_SACK);
+    assert.equal(wish(state, 'bag of holding').obj.otyp, BAG_OF_HOLDING);
+    assert.equal(wish(state, 'bag of tricks').obj.otyp, BAG_OF_TRICKS);
+
+    // A chest and a large box take objnam.c:5142-5146's bare `break;`, where
+    // this port's spe switch ends in a `default:` that would assign d.spe
+    // over the lock state mksobj():1012-1014 has just rolled. An ice box is
+    // stocked with corpses whose timers mkbox_cnts():342-351 then stops.
+    const reason = 'a wish for a chest, large box or ice box';
+    assert.equal(wish(state, 'chest').refusal, reason);
+    assert.equal(wish(state, 'large box').refusal, reason);
+    assert.equal(wish(state, 'ice box').refusal, reason);
+});
+
+// mkbox_cnts():311-336 picks the maximum from the container's own type, and
+// the sack arm at 321-327 reads the turn counter before falling through to the
+// bag of holding's unconditional 1. Reaching that through a wish is what the
+// slice added; recordingRandom() answers every rn2() with 0, so no content is
+// ever built and the draw itself is the whole observation.
+test('a wished container spends mkbox_cnts()"s count draw', () => {
+    const beforeFirstTurn = wishState();
+    // wishState() starts at moves 1, which is svm.moves <= 1: n stays 0.
+    assert.equal(beforeFirstTurn.moves, 1);
+    assert.deepEqual(wish(beforeFirstTurn, 'sack').draws.at(-1), 'rn2(1)');
+    // A bag of holding never reads the turn counter, so the same game gives
+    // it n = 1 on the very move a sack is refused contents.
+    assert.deepEqual(
+        wish(beforeFirstTurn, 'bag of holding').draws.at(-1), 'rn2(2)',
+    );
+
+    // One turn later the sack falls through to the same n = 1.
+    const afterFirstTurn = wishState();
+    afterFirstTurn.moves = 2;
+    assert.deepEqual(wish(afterFirstTurn, 'sack').draws.at(-1), 'rn2(2)');
+    assert.deepEqual(
+        wish(afterFirstTurn, 'oilskin sack').draws.at(-1), 'rn2(2)',
+    );
+    // The container type that never reaches mkbox_cnts() spends no count draw
+    // at all: rn1(18, 3) for its charges is the last thing mksobj() does.
+    assert.deepEqual(
+        wish(afterFirstTurn, 'bag of tricks').draws.at(-1), 'rn1(18,3)',
+    );
+});
+
+// The differential evidence for the container tail lives in
+// scripts/run-wished-container.mjs, which records fresh C output for twelve
+// wishes and compares complete screens, cursors and random-number calls. This
+// guards what that matrix is made of: a matrix that kept only empty containers,
+// or lost the segment that wishes before taking a turn, would still pass.
+test('the wished-container matrix keeps its content spread', () => {
+    const recipe = loadWishedContainerRecipe();
+    assert.equal(recipe.segments.length, CONTAINER_CASES.length);
+    for (const segment of recipe.segments) {
+        assert.equal(Object.hasOwn(segment, 'steps'), false);
+        // Every segment submits its wish and then waits, so the inventory
+        // line paints over a screen the reply settled.
+        assert.equal(segment.moves.endsWith('\n.'), true);
+    }
+    // Exactly one case wishes before taking a turn, which is the only way to
+    // reach mkbox_cnts():324's svm.moves <= 1 arm from a wish.
+    assert.deepEqual(
+        CONTAINER_CASES.filter(({ opened }) => !opened).map(({ wish: text }) => text),
+        ['sack'],
+    );
+    // Four of the seven container types, and eight of boxiprobs[]'s nine
+    // content classes, counting the empty container as its own outcome.
+    assert.deepEqual(
+        [...new Set(CONTAINER_CASES.map(({ otyp }) => otyp))].sort((a, b) => a - b),
+        [SACK, OILSKIN_SACK, BAG_OF_HOLDING, BAG_OF_TRICKS].sort((a, b) => a - b),
+    );
+    assert.deepEqual(
+        [...new Set(CONTAINER_CASES.flatMap(({ contents }) => contents))].sort(),
+        [COIN_CLASS, FOOD_CLASS, GEM_CLASS, POTION_CLASS, RING_CLASS,
+         SCROLL_CLASS, SPBOOK_CLASS, WAND_CLASS].sort(),
+    );
+    assert.equal(
+        CONTAINER_CASES.filter(({ contents }) => contents.length === 0).length,
+        4,
+    );
 });

@@ -21,6 +21,7 @@ import {
     prepareHeavyBallDropAdmission,
 } from './invent.js';
 import { remove_object } from './obj.js';
+import { objectGenerationEnv } from './object_generation.js';
 import { The, aobjnam, donameFresh } from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
@@ -102,7 +103,12 @@ export async function makewish(state = game) {
     // livelog strings, none of which this port writes.
     // C's `struct obj nothing` is a stack object whose address alone matters.
     const nothing = Object.freeze({});
-    const otmp = readobjnam(buf, nothing, { state });
+    // readobjnam()'s typfnd: tail calls mksobj(), which reaches the same
+    // generation machinery mklev.c and makemon() do -- mkbox_cnts() for a
+    // container is the arm a wish reaches today. The hooks obj.js requires for
+    // those arms are the ones every other mksobj() caller assembles, so this
+    // wish path assembles them the same way rather than a subset of its own.
+    const otmp = readobjnam(buf, nothing, objectGenerationEnv({ state }));
     // readobjnam() answering null -- the MAXWISHTRY retry loop at 6360-6368 --
     // and &hands_obj -- wizterrainwish() at 6374-6377 -- are both refused
     // inside it, so only the two arms below are reachable.
