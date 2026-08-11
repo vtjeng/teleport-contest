@@ -18,6 +18,8 @@ import {
     ART_GRAYSWANDIR,
     ART_HEART_OF_AHRIMAN,
     ART_ORB_OF_DETECTION,
+    ART_ORB_OF_FATE,
+    ART_SCEPTRE_OF_MIGHT,
     ART_STORMBRINGER,
     ART_VORPAL_BLADE,
     ART_WEREBANE,
@@ -52,6 +54,7 @@ import {
 } from '../js/monsters.js';
 import {
     objects_globals_init,
+    CRYSTAL_BALL,
     GOLD_DRAGON_SCALES,
     GOLD_DRAGON_SCALE_MAIL,
     LONG_SWORD,
@@ -520,6 +523,49 @@ test('a hero touches an artifact her alignment matches', () => {
                                 chaotic.youmonst,
                                 { state: chaotic, random }), true);
     assert.deepEqual(draws, []);
+
+    // The one-in-four the stub above steps over. Every other hero case in this
+    // file answers rn2() nonzero, so 944's `badalign && !rn2(4)` has never been
+    // true and the blast has never been reached from a non-self-willed
+    // artifact. 946-959 prints "You are blasted by <artifact>'s power!" and
+    // spends the damage through losehp(), so the port stops instead -- after
+    // the draw, which C makes here too.
+    const blastDraws = [];
+    const blasting = { rn2: (x) => { blastDraws.push(x); return 0; } };
+    const blasted = heroState(A_LAWFUL);
+    assert.throws(
+        () => touch_artifact(vorpal, blasted.youmonst,
+                             { state: blasted, random: blasting }),
+        UnsupportedArtifactDisplayError,
+    );
+    assert.deepEqual(blastDraws, [4]);
+});
+
+// artifact.c bane_applies()'s SPFX_DALIGN arm, which spec_applies() reaches at
+// 1032-1039. Its only artilist row is The Sceptre of Might (artilist.h:232-235)
+// and its only reachable hero case is the coaligned one: for any other
+// alignment the same row's SPFX_RESTR sets badalign at 927-928, so
+// bane_applies() is never called, and its SPFX_INTEL then short-circuits 944
+// before the rn2(4).
+test('the alignment bane spares a Cave Dweller coaligned with the Sceptre', () => {
+    const state = stateFor('Cav', 'lawful');
+    init_artifacts(state);
+    state.youmonst = { data: { mflags1: 0, mflags2: 0 } };
+    state.u = {
+        ualign: { type: A_LAWFUL, record: 0 },
+        ulycn: NON_PM,
+        umonnum: 0,
+        umonster: 0,
+        uprops: [],
+    };
+    // The Sceptre names PM_CAVE_DWELLER and A_LAWFUL, so 922-924's class test
+    // and 927-928's alignment test both leave their flags false and
+    // bane_applies() runs. Its DALIGN arm compares u.ualign.type with the
+    // artifact's own; equal means the bane does not apply, badalign stays
+    // false, and 944 is false on both operands.
+    const random = { rn2: () => { throw new Error('unexpected draw'); } };
+    assert.equal(touch_artifact({ oartifact: ART_SCEPTRE_OF_MIGHT },
+                                state.youmonst, { state, random }), true);
 });
 
 test('a hero out of step with a self-willed artifact is blasted', () => {
@@ -567,12 +613,19 @@ test('carrying an artifact sets the extrinsics its cary fields name', () => {
     assert.equal(state.u.uprops[HALF_PHDAM].extrinsic, 0);
 
     // The Orb of Detection carries SPFX_ESP, which artifact.c:797-804 follows
-    // with recalc_telepat_range() and see_monsters().
+    // with recalc_telepat_range() and see_monsters().  The refusal reads cspfx
+    // before the cary mask below it, so it leaves every extrinsic alone --
+    // which is the whole point of putting it there rather than in C's place.
+    // artilist.h:219-223 gives the Orb CARY(AD_MAGM) and SPFX_HSPDAM as well,
+    // so a refusal in C's position would have written ANTIMAGIC and
+    // HALF_SPDAM first.
+    const untouched = state.u.uprops.map((prop) => prop.extrinsic);
     assert.throws(
         () => set_artifact_intrinsic({ oartifact: ART_ORB_OF_DETECTION }, true,
                                      W_ART, state),
         UnsupportedArtifactDisplayError,
     );
+    assert.deepEqual(state.u.uprops.map((prop) => prop.extrinsic), untouched);
     // An ordinary object returns before reading any field.
     set_artifact_intrinsic({ oartifact: 0 }, true, W_ART, state);
 });
@@ -585,13 +638,30 @@ test('confers_luck answers for a luckstone and for SPFX_LUCK artifacts', () => {
     objects_globals_init(state);
 
     assert.equal(confers_luck({ otyp: LUCKSTONE, oartifact: 0 }, state), true);
-    // artilist.h:187 gives the Heart of Ahriman SPFX_LUCK; :170 gives
-    // Grayswandir none.
+    // Only two artilist rows carry SPFX_LUCK: the Tsurugi of Muramasa
+    // (artilist.h:285-289) and the Orb of Fate (:297-301). The Orb's base type
+    // is CRYSTAL_BALL, so it is the artifact half of the test that the
+    // LUCKSTONE short-circuit above cannot answer for.
+    assert.equal(
+        confers_luck({ otyp: CRYSTAL_BALL, oartifact: ART_ORB_OF_FATE },
+                     state),
+        true,
+    );
+    // The Heart of Ahriman is a LUCKSTONE artifact whose spfx is
+    // SPFX_NOGEN | SPFX_RESTR | SPFX_INTEL (artilist.h:225-226) -- no
+    // SPFX_LUCK. It answers true through the short-circuit alone, which is
+    // what tells the two halves apart.
     assert.equal(
         confers_luck({ otyp: LUCKSTONE, oartifact: ART_HEART_OF_AHRIMAN },
                      state),
         true,
     );
+    assert.equal(
+        confers_luck({ otyp: SILVER_SABER, oartifact: ART_HEART_OF_AHRIMAN },
+                     state),
+        false,
+    );
+    // artilist.h:170-172 gives Grayswandir no SPFX_LUCK either.
     assert.equal(
         confers_luck({ otyp: SILVER_SABER, oartifact: ART_GRAYSWANDIR },
                      state),

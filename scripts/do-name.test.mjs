@@ -481,6 +481,18 @@ test('oname truncates a name at PL_PSIZ and stops on a held object', () => {
     oname(obj, 'z'.repeat(PL_PSIZ - 2), ONAME_WISH, { state });
     assert.equal(obj.oextra.oname.length, PL_PSIZ - 2);
 
+    // C measures the buffer in bytes, so a name of multi-byte characters is
+    // cut on a byte boundary rather than a code-point one -- and the cut can
+    // land inside a character. 'a' plus forty e-acutes is 81 bytes; keeping
+    // PL_PSIZ - 1 of them keeps 'a', thirty whole e-acutes and the leading
+    // 0xC3 of the thirty-first, which decodeUtf8ByteString() carries as the
+    // low-surrogate escape 0xDC00 + 0xC3. A code-point truncation would have
+    // kept 62 characters instead of 32.
+    oname(obj, `a${'é'.repeat(40)}`, ONAME_WISH, { state });
+    assert.equal(obj.oextra.oname.length, 32);
+    assert.equal(obj.oextra.oname.slice(0, 31), `a${'é'.repeat(30)}`);
+    assert.equal(obj.oextra.oname.charCodeAt(31), 0xDCC3);
+
     // 424-425 refreshes the inventory window for an object the hero holds; a
     // wish reaches hold_another_object() only after oname() has returned, so
     // no ported caller carries one and the arm stops.

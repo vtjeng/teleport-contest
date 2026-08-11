@@ -11,7 +11,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { fuzzymatch, strstri } from '../js/hacklib.js';
+import { fuzzymatch, mungspaces, strstri } from '../js/hacklib.js';
 import {
     RANDOM_TIN,
     TIN_UNDEFINED,
@@ -21,6 +21,9 @@ import {
     rnd_otyp_by_namedesc,
     readobjnam_init,
     readobjnam_parse_charges,
+    readobjnam_postparse1,
+    readobjnam_postparse2,
+    readobjnam_postparse3,
     readobjnam_preparse,
     scanCount,
     spellings,
@@ -485,7 +488,21 @@ function wishState() {
         // Object and monster id 1 is reserved; startup begins from 2.
         context: { ident: 2, current_fruit: 1 },
         flags: { implicit_uncursed: true, initalign: 0, invlet_constant: true },
-        gf: { ffruit: { fid: 1, fname: 'slime mold', nextf: null } },
+        // Two fruits, neither named after an objects[] entry.  "slime mold" is
+        // SLIME_MOLD's own oc_name (objects.h:1094), so a fruit called that is
+        // caught by rnd_otyp_by_namedesc() and the named-fruit block at
+        // objnam.c:4805-4870 never sees it.  The second name is already
+        // plural, which objnam.c:4855-4857's comment gives as the only way its
+        // singular arm can be reached, and its fid differs from
+        // svc.context.current_fruit so a test can tell d.ftype from the
+        // default readobjnam_init() copied.
+        gf: {
+            ffruit: {
+                fid: 1,
+                fname: 'kiwi',
+                nextf: { fid: 2, fname: 'papayas', nextf: null },
+            },
+        },
         iflags: {},
         program_state: { gameover: false, in_moveloop: true },
         moves: 1,
@@ -548,6 +565,39 @@ function wish(state, text, makeRandom = recordingRandom) {
             return { refusal: error.reason, draws };
         throw error;
     }
+}
+
+// The chain readobjnam() drives, stopped at readobjnam_postparse3() so a test
+// can read the goto code that function answers and the fields it wrote.
+// readobjnam() keeps neither: it turns the code into a jump and discards the
+// parse data when it returns.  The order below is readobjnam()'s own --
+// mungspaces() and the fruitbuf copy at objnam.c:4915-4926, the count default
+// at 4927-4928, readobjnam_parse_charges(), then postparse1, postparse2 and
+// postparse3.  What is deliberately left out is the loop that feeds a 6 back
+// into postparse2, because the 6 itself is what one test below measures.
+function parseToPostparse3(state, text) {
+    const draws = [];
+    const env = { state, random: recordingRandom(draws) };
+    const d = readobjnam_init(text, state);
+    d.bp = mungspaces(text);
+    d.fruitbuf = d.bp;
+    assert.equal(readobjnam_preparse(d, state), 0, text);
+    if (!d.cnt) d.cnt = 1;
+    readobjnam_parse_charges(d);
+    let action = readobjnam_postparse1(d, env);
+    if (action === 0) action = readobjnam_postparse2(d, env);
+    // Every input below reaches postparse3; a chain that stopped earlier would
+    // make the assertions after this call measure nothing.
+    assert.ok(action === 0 || action === 1, `${text} reached postparse3`);
+    return { action: readobjnam_postparse3(d, env), d, draws };
+}
+
+// The six fields objnam.c:4858-4867 writes when a fruit name matches, gathered
+// so one assertion can show that the other five stayed at readobjnam_init()'s
+// zero while the one under test moved.
+function fruitFacts(d) {
+    const { blessed, cnt, ftype, halfeaten, iscursed, uncursed } = d;
+    return { blessed, cnt, ftype, halfeaten, iscursed, uncursed };
 }
 
 // mondata.c name_to_monplus() runs on every wish longer than two characters
@@ -1311,8 +1361,15 @@ test('readobjnam tries the description, the label and the called name', () => {
     const state = wishState();
 
     // A " labeled " phrase leaves d.dn holding text of its own, so the guard
-    // at 4751 admits the second lookup -- which fails here, as the first did.
-    // The wish stops rather than resolving to whatever d.typ last held.
+    // at 4751 admits the second lookup.  Its rn2(51) -- the weight total of
+    // the long swords "long sword" collects -- is the evidence it ran, because
+    // d.actualn is "zzyzx" and the first lookup answered without drawing.
+    const labeled = wish(state, 'zzyzx labeled long sword');
+    assert.equal(labeled.obj.otyp, LONG_SWORD);
+    assert.deepEqual(labeled.draws.slice(0, 1), ['rn2(51)']);
+
+    // The same phrase over a label nothing matches stops rather than resolving
+    // to whatever d.typ last held.
     assert.equal(wish(state, 'zzyzx labeled foo').refusal,
                  'a wish no lookup resolves');
 
@@ -1325,16 +1382,98 @@ test('readobjnam tries the description, the label and the called name', () => {
 });
 
 // Two more arms of the postparse3 tail that a granted wish cannot show.
+//
+// objnam.c:4775-4781's ARMOR_CLASS retry, read at the arm rather than through
+// the loop that consumes it.  Running the loop is what the whole-wish
+// assertions below do, and a wrong strstri() guard makes that loop run for
+// ever: scripts/run-test-suite.mjs passes no --test-timeout, so the runner
+// would hang instead of failing.  These two read the goto code itself, so
+// neither result depends on the loop terminating.
+test('the mail retry fires on a name without "mail" and on no other', () => {
+    const state = wishState();
+
+    // "plate" with d.oclass ARMOR_CLASS holds no "mail", so the arm appends it
+    // and asks for the retry.  6 is C's `goto retry:`.
+    const plate = parseToPostparse3(state, 'plate armor');
+    assert.equal(plate.action, 6);
+    assert.equal(plate.d.bp, 'plate mail');
+    // The first pass matched nothing, so the appending arm was reached without
+    // a lookup draw; the rn2(41) the whole wish spends belongs to pass two.
+    assert.deepEqual(plate.draws, []);
+
+    // "mail" holds "mail" at offset 0, so 4776's `strstri(...) < 0` is false
+    // and the arm is skipped.  Had it fired, appending " mail" would leave
+    // "mail" still at the front and it would ask for a retry for ever.  0 is
+    // the fall-through that sends the wish to `any:` with only its class.
+    const mail = parseToPostparse3(state, 'mail armor');
+    assert.equal(mail.action, 0);
+    assert.equal(mail.d.bp, 'mail');
+});
+
 test('readobjnam stops rather than retrying a name that already says mail', () => {
     const state = wishState();
-    // The class-word loop leaves "mail" with d.oclass ARMOR_CLASS.  4776's
-    // strstri() finds "mail" at the front, so the retry does not fire; had it
-    // fired, appending " mail" would leave "mail" still at the front and the
-    // arm would ask for a retry for ever.  The wish then falls into typfnd:
-    // with d.typ 0 and gets a drawn suit of armor rather than a plate mail.
+    // The same two arms through the whole wish: the retry loop terminates and
+    // the wish falls into typfnd: with d.typ 0, so it gets a drawn suit of
+    // armor rather than a plate mail.
     const armor = wish(state, 'mail armor');
     assert.equal(armor.obj.oclass, ARMOR_CLASS);
     assert.notEqual(armor.obj.otyp, PLATE_MAIL);
+});
+
+// objnam.c readobjnam_postparse3()'s named-fruit block (4805-4870).  Every
+// field it writes is dead to a wish: readobjnam() refuses a named SLIME_MOLD at
+// requireSimpleWishedObject() before the typfnd: tail can read any of them.  So
+// the block is measured where it runs.  A wish for the hero's own fruit is
+// ordinary play -- it is what OPTIONS=fruit exists for -- and until this test
+// the block ran under nothing at all.
+test('the named-fruit block matches three ways and sets what C sets', () => {
+    const state = wishState();
+    const fruit = (text) => {
+        const { action, d, draws } = parseToPostparse3(state, text);
+        assert.equal(action, 2, text); /* C's goto typfnd: */
+        assert.deepEqual(draws, [], text);
+        assert.equal(d.typ, SLIME_MOLD, text);
+        return d;
+    };
+
+    // ftyp 1, the exact match.  cntf stays 0 and 4866 copies it over the 1 the
+    // count default left, so a plain fruit wish reaches typfnd: with no count
+    // at all.  d.ftype names the fruit that matched, not current_fruit.
+    assert.deepEqual(fruitFacts(fruit('kiwi')),
+                     { blessed: 0, cnt: 0, ftype: 1, halfeaten: 0,
+                       iscursed: 0, uncursed: 0 });
+    assert.deepEqual(fruitFacts(fruit('papayas')),
+                     { blessed: 0, cnt: 0, ftype: 2, halfeaten: 0,
+                       iscursed: 0, uncursed: 0 });
+
+    // ftyp 2, makesingular() of an already-plural fruit name, which 4862-4863
+    // answers with a count of 1.
+    assert.equal(fruit('papaya').cnt, 1);
+    assert.equal(fruit('papaya').ftype, 2);
+
+    // ftyp 3, makeplural() of a singular one, which 4864-4865 answers with 2.
+    assert.equal(fruit('kiwis').cnt, 2);
+    assert.equal(fruit('kiwis').ftype, 1);
+
+    // 4815-4836's own prefix loop, which re-strips what readobjnam_preparse()
+    // took off d.bp: d.fruitbuf keeps the line as the player typed it.  An
+    // explicit count wins over the plural adjustment, because 4862 and 4864
+    // both test `!cntf`.
+    assert.equal(fruit('blessed 2 kiwis').blessed, 1);
+    assert.equal(fruit('blessed 2 kiwis').cnt, 2);
+    assert.equal(fruit('cursed kiwi').iscursed, 1);
+    assert.equal(fruit('uncursed kiwi').uncursed, 1);
+    assert.equal(fruit('a kiwi').cnt, 1);
+    assert.equal(fruit('an kiwi').cnt, 1);
+    // Both spellings of the half-eaten prefix.  readobjnam() refuses these two
+    // at requireSimpleWishQualifiers() long before postparse3, so the block's
+    // own halfeatenf is reachable only from here.
+    assert.equal(fruit('partly eaten kiwi').halfeaten, 1);
+    assert.equal(fruit('partially eaten kiwi').halfeaten, 1);
+
+    // A name no fruit carries leaves the block without setting d.typ, and the
+    // wish stops at the end of postparse3 instead.
+    assert.equal(wish(state, 'zzyzx').refusal, 'a wish no lookup resolves');
 });
 
 test('the artifact lookup is fuzzy and runs only for a classless wish', () => {
@@ -1618,7 +1757,10 @@ test('a drawn slime mold, box and figurine keep the spe C leaves them', () => {
     // svc.context.current_fruit -- 1 in this fixture -- rather than the "+3".
     // The `case SLIME_MOLD:` label is what this pins; its assignment repeats a
     // value mksobj():971-975 has already set from the same field, and only
-    // objnam.c:4805-4870's unported named-fruit block can separate the two.
+    // objnam.c:4805-4870's named-fruit block can separate the two.  That block
+    // is ported, but a wish it matches is refused at
+    // requireSimpleWishedObject() before the spe switch runs, so nothing can
+    // reach this arm with a d.ftype of its own.
     const mold = drawn('+3 zzyzx food', { rnd: { 1000: SLIME_MOLD_DRAW } });
     assert.equal(mold.otyp, SLIME_MOLD);
     assert.equal(mold.spe, 1);
