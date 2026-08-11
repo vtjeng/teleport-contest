@@ -1514,6 +1514,11 @@
           "name": "grant the random object an escaped wish asks for",
           "status": "closed",
           "closedBy": "03b7d63e83ea52e4f76c9c2bfee13299c4f178b9"
+        },
+        {
+          "name": "pin the wish path's untested arms and project the quest-artifact refusal",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "14f13184f03fb2edbfb297150f1beb961dcc9530",
