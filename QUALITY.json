@@ -672,13 +672,17 @@
       "area": "objects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "ce2bd7ffeae579e9bcb59aa12e86d2830ca1dcac",
       "detail": "objnam.c readobjnam() answers null when no objects[] entry matches, and zap.c makewish():6355-6368 then prints \"Nothing fitting that description exists in the game.\" and reprompts, up to MAXWISHTRY times, before falling back to a random wish. The port refuses at readobjnam_postparse3() instead, and the retry loop, its three remaining rnd_otyp_by_namedesc() calls at objnam.c:4751-4758 and the rest of readobjnam_postparse3() (4760-4899, Japanese item names, the ARMOR_CLASS \" mail\" retry, spinach, named fruits and artifacts by name) are all unported. Fresh case, recorded 2 August 2026: seed 4471015, datetime 20291105071500, OPTIONS=name:Wshr,role:Wizard,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,playmode:debug, moves \".<C-W>florble\\n.\". All 2641 random-number calls match, because the failed lookup draws nothing; the port stops at boundary 11, the submitting Enter, having matched 10 of C's 12 screens. C paints the message and reprompts with the cursor at [60,0,1].",
       "notes": [
         {
           "text": "Substance verified; one citation and one prerequisite to add.\n\nzap.c:6355 is comment text (\"otmp == &hands_obj. That includes an artifact which has been\"). The retry block the entry means is zap.c:6361-6368, inside makewish() (6313-6422), with `MAXWISHTRY` defined as 5 at zap.c:6160 and `tries` initialized at 6320. The objnam.c spans are cited correctly: 4751-4758 is the three further rnd_otyp_by_namedesc() calls, and 4760-4899 is 140 lines covering Japanese item names, the ARMOR_CLASS \" mail\" retry at 4776-4781, spinach, named fruits at 4805-4870, artifacts by name at 4872-4881, and the class-filtered spellings[] loop.\n\nSize: about 160 C lines, 148 of them inside readobjnam_postparse3(). Most of the dependencies exist -- JAPANESE_ITEMS is in js/objnam_data.js, gf.ffruit in js/fruit.js, mkobj() and mksobj() in js/obj.js -- but `artifact_name()` is not ported anywhere. `grep -rn 'artifact_name' js/` finds only a comment. The \" mail\" retry also needs C's `goto retry` back into readobjnam_postparse2() modeled as a loop, where the js driver is straight-line today.",
           "at": "ea33d804a7e785f05a3111dd72c9e02e171b441d"
+        },
+        {
+          "text": "Resolved as superseded at the objects sweep, with no code change. Two findings, the first of which I verified myself. Its central claim is false: it says the rest of readobjnam_postparse3() (4760-4899, Japanese item names, the ARMOR_CLASS mail retry, spinach, named fruits and artifacts by name) are all unported, and its own note adds that artifact_name() is not ported anywhere. All of it is ported. js/objnam_readobjnam.js:1184 opens readobjnam_postparse3() and artifact_name() is called at :1346, and scripts/run-wizard-wish.mjs already drives Japanese items, the mail retry and three artifact-by-name arms. Second, it duplicates wish-name-that-matches-nothing: both describe readobjnam() answering null and makewish() reprompting to MAXWISHTRY, differing only in recorded case (florble against zzyzx) and in that the newer entry names the blockers correctly. Retiring the stale duplicate rather than porting the same gap twice. The surviving record is wish-name-that-matches-nothing.",
+          "at": "03b7d63e83ea52e4f76c9c2bfee13299c4f178b9"
         }
       ]
     },
@@ -1413,8 +1417,13 @@
         {
           "text": "The class-word half is closed. objnam.c:4959-4993's wiztrap: guard, polearm and hammer picks and null return all read `!d.oclass`, so a wish carrying a class word passes every one of them, reaches `any:` -- whose own guard reads it too -- and arrives at typfnd: with d.typ 0, where objnam.c:5037 grants mkobj(d.oclass, FALSE). js/objnam_readobjnam.js readobjnam_lookup() now answers 'any' for that fall-through instead of refusing, and scripts/run-random-wish.mjs records the case the earlier note asked for: seed 5510041, datetime 20300221084500, moves '.<C-w>zzyzx potion<newline>.', which matches C call for call and screen for screen. What remains is the no-class-word half alone -- wizterrainwish(), the rnd_otyp_by_wpnskill() picks and makewish()'s MAXWISHTRY loop -- and the recorded case for it, seed 4471033, still fails.",
           "at": "6556566543f3085552ededa644b18c1d7e655762"
+        },
+        {
+          "text": "Blocked on wizterrainwish at the objects sweep. Its class-word half landed at 03b7d63, which ported the any: arm and the d.typ == 0 tail, and the recorded zzyzx potion case passes. What remains is the no-class-word half, which needs makewish()'s MAXWISHTRY loop, and the loop's retry path runs wizterrainwish() first: objnam.c:3554-3916, 363 lines of trap and terrain mutation that js/ does not define. The blocker names that symbol rather than readobjnam, because js/ already defines a partial readobjnam() and a blocker named for it would read as landed the day it was written.",
+          "at": "03b7d63e83ea52e4f76c9c2bfee13299c4f178b9"
         }
-      ]
+      ],
+      "blockedOn": "wizterrainwish"
     },
     {
       "id": "wish-artifact-path-test-gaps",
