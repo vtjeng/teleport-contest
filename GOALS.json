@@ -1470,7 +1470,7 @@
     },
     {
       "id": "objects-deferral-sweep-2",
-      "status": "open",
+      "status": "closed",
       "boundary": "npm run quality -- deferrals names no sweep candidate: each of the ten counted objects entries open at 14f1318 is resolved, or carries a blockedOn symbol that js/ does not define.",
       "upstreamOwners": [
         "include/obj.h",
@@ -1527,8 +1527,11 @@
         "screens": 1388,
         "rng": 118743
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "aba91847a499477fbaa054b5337b076be9c9c083",
+      "delivered": {
+        "screens": 1,
+        "rng": 116
+      }
     }
   ]
 }
