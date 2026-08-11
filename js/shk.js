@@ -2,8 +2,8 @@
 // live price-quote writes, and remembered-price queries.
 // C refs: shk.c inhishop(), inside_shop(), shop_keeper(), u_entered_shop(),
 // u_left_shop(), getprice(), get_cost(), get_cost_of_shop_item(),
-// append_price_quote(), contained_gold(), costly_spot(), shop_object(),
-// shk_owns(), mon_owns(), and shk_your().
+// append_price_quote(), contained_gold(), check_unpaid(), costly_spot(),
+// shop_object(), shk_owns(), mon_owns(), and shk_your().
 
 import {
     A_CHA,
@@ -453,6 +453,28 @@ export function contained_gold(obj, even_if_unknown) {
             value += contained_gold(otmp, even_if_unknown);
     }
     return value;
+}
+
+// C ref: shk.c check_unpaid() (5737-5742), the "used in the normal manner"
+// entry point, over check_unpaid_usage() (5686-5735). C's wrapper is one call
+// with `altusage` FALSE; the guard below is check_unpaid_usage()'s own opening
+// test (5694-5696), written here because it is the whole of what runs for
+// every object a ported command uses.
+//
+// Past that guard the hero is standing in a shop holding merchandise she has
+// not paid for, and C charges her for the charge she just spent:
+// cost_per_charge(), a `Hey!`/`Ahem.`/`Whoa!` line chosen by up to two rn2(3)
+// draws, verbalize(), exercise(A_WIS, TRUE) and a write to ESHK(shkp)->debit.
+// None of those is ported, so the tail stops as a whole.
+//
+// The `*u.ushops` term is the first entry of hack.c move_update()'s room list;
+// js/rooms.js stores it as a fixed five-entry array, so an empty list reads as
+// a zero here exactly as an empty string does in C.
+export function check_unpaid(otmp, state = game) {
+    if (!otmp.unpaid || !state.u?.ushops?.[0]
+        || (otmp.spe <= 0 && objectType(otmp, state).oc_charged))
+        return;
+    throw new UnsupportedShopError('check_unpaid_usage() billing a use fee');
 }
 
 // C ref: shk.c costly_spot().

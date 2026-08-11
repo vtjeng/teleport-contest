@@ -1,7 +1,15 @@
-// zap.js -- the wish prompt.
-// C ref: src/zap.c makewish(), so far the only row of that file.
-// wizcmds.c wiz_wish() calls it; potion.c, sit.c and zap.c's own wand code
-// reach it too, and none of those callers is ported.
+// zap.js -- the `z` command and the wish prompt.
+// C refs: src/zap.c zappable(), zap_ok(), dozap() and makewish().
+//
+// dozap() is ported whole. Three of its five arms stop: backfire(),
+// zapyourself() and weffects(), which together are the wand effects
+// themselves. What runs is the command around them -- the two guards, the
+// object prompt, the shop usage fee, the charge, the direction prompt, the
+// wand that glows and fades when no direction is given, and the worn-out wand
+// that crumbles.
+//
+// wizcmds.c wiz_wish() calls makewish(); potion.c, sit.c and zap.c's own
+// wand code reach it too, and none of those callers is ported.
 //
 // zap.c's elemental destruction of monster inventory lives in
 // js/zap_destroy_items.js, which the C file separates as its own group of
@@ -9,27 +17,167 @@
 
 import { artifact_origin } from './artifacts.js';
 import {
-    ICE, IRONBARS, Is_airlevel, Is_waterlevel, ONAME_KNOW_ARTI, ONAME_WISH,
+    BLINDED,
+    ECMD_CANCEL,
+    ECMD_OK,
+    ECMD_TIME,
+    GETOBJ_EXCLUDE,
+    GETOBJ_NOFLAGS,
+    GETOBJ_SUGGEST,
+    ICE,
+    IRONBARS,
+    Is_airlevel,
+    Is_waterlevel,
+    nothing_happens,
+    ONAME_KNOW_ARTI,
+    ONAME_WISH,
+    WAND_BACKFIRE_CHANCE,
+    WAND_WREST_CHANCE,
 } from './const.js';
+import { getdir } from './cmd.js';
 import { newsym } from './display.js';
 import { dropx, preflight_dropx } from './do.js';
 import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
+import { check_capacity } from './hack.js';
 import { lcase, mungspaces } from './hacklib.js';
 import {
+    getobj,
     hold_another_object,
     prepareHeavyBallDropAdmission,
+    update_inventory,
+    useupall,
 } from './invent.js';
-import { remove_object } from './obj.js';
+import { nohands } from './mondata.js';
+import { objectType, remove_object } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { The, aobjnam, donameFresh } from './objnam.js';
+import { NODIR, WAND_CLASS } from './objects.js';
+import { The, Tobjnam, aobjnam, donameFresh, xnameFresh } from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
-import { rn1 } from './rng.js';
+import { rn1, rn2 } from './rng.js';
+import { check_unpaid } from './shk.js';
 import { ttyPline } from './tty_message.js';
 
 // The wish parser raises every other refusal, so the class lives with it.
 export { UnsupportedWishError };
+
+// Thrown where zap.c reaches a wand effect this port has not ported.
+export class UnsupportedZapError extends Error {
+    constructor(branch) {
+        super(`zapping a wand requires ${branch}`);
+        this.name = 'UnsupportedZapError';
+        this.branch = branch;
+    }
+}
+
+// C ref: youprop.h:103 Blind, which is either source of blindness minus the
+// artifact block that cancels both.
+function heroIsBlind(state) {
+    const blinded = state.u?.uprops?.[BLINDED];
+    return Boolean((blinded?.intrinsic || blinded?.extrinsic)
+        && !blinded?.blocked);
+}
+
+// C ref: zap.c zappable() (2508-2522), translated whole. Answers whether the
+// wand still has a charge to spend and spends it, and its comment records
+// that spending is the point: "returns 1 if zap is available, 0 otherwise. it
+// removes a charge from the wand if zappable."
+//
+// The wrest arm is the only one that draws. A wand at zero charges is worth
+// one more zap with probability 1 in WAND_WREST_CHANCE, and that last zap
+// takes spe to -1, which is what makes dozap()'s tail crumble the wand.
+export async function zappable(wand, state = game) {
+    if (wand.spe < 0 || (wand.spe === 0 && rn2(WAND_WREST_CHANCE)))
+        return 0;
+    if (wand.spe === 0)
+        await ttyPline(
+            'You wrest one last charge from the worn-out wand.', state,
+        );
+    wand.spe--;
+    return 1;
+}
+
+// C ref: zap.c zap_ok() (2616-2623), the getobj() callback for the `z`
+// command. Every wand is a likely candidate and nothing else is one, so a
+// starting hero who carries a single wand sees it alone in the prompt.
+export function zap_ok(obj) {
+    if (obj && obj.oclass === WAND_CLASS)
+        return GETOBJ_SUGGEST;
+    return GETOBJ_EXCLUDE;
+}
+
+// C ref: zap.c dozap() (2625-2683), the `z` command, translated whole.
+//
+// Three of the five effect arms stop, and each one stops after everything C
+// does ahead of it has run, so the charge, the prompts and the draws that
+// select the arm all happen first:
+//
+// - backfire() throws the cursed wand up in the hero's face. The rn2 that
+//   picks it is inside the condition, so a cursed wand that does not backfire
+//   spends the draw and carries on exactly as C does.
+// - zapyourself() is one refusal rather than one per wand: C's own switch ends
+//   in `default: impossible()`, so a single arm naming the object type covers
+//   both the wand effects that are unported and the types C rejects.
+// - weffects() is the whole of the aimed-zap machinery below it.
+export async function dozap(state = game) {
+    if (nohands(state.youmonst.data)) {
+        await ttyPline(
+            "You aren't able to zap anything in your current form.", state,
+        );
+        return ECMD_OK;
+    }
+    if (await check_capacity(null, state))
+        return ECMD_OK;
+    const obj = await getobj('zap', zap_ok, GETOBJ_NOFLAGS, state);
+    if (!obj)
+        return ECMD_CANCEL;
+
+    check_unpaid(obj, state);
+
+    const need_dir = objectType(obj, state).oc_dir !== NODIR;
+    if (!await zappable(obj, state)) {
+        await ttyPline(nothing_happens, state);
+    } else if (obj.cursed && !rn2(WAND_BACKFIRE_CHANCE)) {
+        /* the wand blows up in your face! */
+        // backfire() names the wand, rolls d(spe + 2, 6) damage through
+        // losehp() and useupall()s the wreckage; exercise(A_STR, FALSE) and
+        // the early `return ECMD_TIME` that skips update_inventory() follow
+        // it.
+        throw new UnsupportedZapError('backfire() for a cursed wand');
+    } else if (need_dir && !await getdir(null, state)) {
+        if (!heroIsBlind(state))
+            await ttyPline(
+                `${The(xnameFresh(obj, state))} glows and fades.`, state,
+            );
+        /* make him pay for knowing !NODIR */
+    } else if (need_dir && !state.u.dx && !state.u.dy && !state.u.dz) {
+        throw new UnsupportedZapError(
+            `zapyourself() for object type ${obj.otyp}`,
+        );
+    } else {
+        /*      Are we having fun yet?
+         * weffects -> buzz(obj->otyp) -> zhitm (temple priest) ->
+         * attack -> hitum -> known_hitum -> ghod_hitsu ->
+         * buzz(AD_ELEC) -> destroy_items(AD_ELEC) ->
+         * useup -> obfree -> dealloc_obj -> free(obj)
+         */
+        // That chain is why C reloads `obj` from gc.current_wand afterwards
+        // and tests it for NULL below: weffects() can free the wand. This port
+        // never enters the arm, so the wand below is always the one getobj()
+        // answered and C's `obj &&` term has no reachable false case.
+        throw new UnsupportedZapError(
+            `weffects() for object type ${obj.otyp}`,
+        );
+    }
+    if (obj.spe < 0) {
+        await ttyPline(`${Tobjnam(obj, 'turn', state)} to dust.`, state);
+        useupall(obj, { state }); /* calls freeinv() -> update_inventory() */
+    } else {
+        update_inventory({ state }); /* maybe used a charge */
+    }
+    return ECMD_TIME;
+}
 
 // C ref: zap.c exclam() (3546-3553). The punctuation that ends a hit message,
 // chosen by how hard the blow landed. uhitm.c hmon_hitmon_msg_hit() is the

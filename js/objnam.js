@@ -883,6 +883,17 @@ export function aobjnam(otmp, verb, state = game) {
     return bp;
 }
 
+// C ref: objnam.c Tobjnam() (2288-2299). Its own comment: "like aobjnam, but
+// prepend 'The', not count, and use xname". zap.c dozap() names the wand that
+// crumbles with it.
+export function Tobjnam(otmp, verb, state = game) {
+    const bp = The(xnameFresh(otmp, state));
+
+    if (verb)
+        return `${bp} ${otense(otmp, verb)}`;
+    return bp;
+}
+
 // C ref: objnam.c yname() (2357-2374). "your <cxname>" for what the hero
 // carries, "the <cxname>" for what she does not, and a shopkeeper's or a
 // monster's possessive where shk_your() finds an owner.

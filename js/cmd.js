@@ -119,7 +119,7 @@ import { UnsupportedHitPointLossError } from './hack.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
 import { wiz_level_change, wiz_level_tele, wiz_wish } from './wizcmds.js';
-import { UnsupportedWishError } from './zap.js';
+import { dozap, UnsupportedWishError, UnsupportedZapError } from './zap.js';
 import { dotwoweapon, UnsupportedTwoWeaponError } from './wield.js';
 import { dotalk, UnsupportedChatError } from './sounds.js';
 import {
@@ -823,8 +823,8 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'reqmenu', 'fight',
-    'options', 'wizwish', 'wizlevelport', '#',
+    'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'zap', 'reqmenu',
+    'fight', 'options', 'wizwish', 'wizlevelport', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -1167,6 +1167,11 @@ export function failClosedCommandRefusals() {
         // reach it, so leaving it out would discard every screen the wish
         // prompt already matched instead of stopping on the last of them.
         UnsupportedWishError,
+        // zap.c dozap() raises this from its three effect arms. Each one
+        // stops after the command has already spent a charge and painted its
+        // prompts, so the segment has to end on them rather than lose the
+        // screens they matched.
+        UnsupportedZapError,
         // invent.c hold_another_object(), which makewish() calls unguarded,
         // raises this from its drop, artifact, Fumbling and autoquiver arms.
         // A wish heavy or numerous enough to push near_capacity() past
@@ -1349,6 +1354,14 @@ async function runEatCommand(key, state) {
 // direction prompt answers ECMD_CANCEL.
 async function runApplyCommand(key, state) {
     return failClosedCommand(key, state, () => doapply(state));
+}
+
+// C ref: zap.c dozap(). Like dosearch() and doeat() it returns its own ECMD_*
+// result: ECMD_OK for the two guards above the object prompt, ECMD_CANCEL for
+// an escaped object prompt, and ECMD_TIME once a wand has been chosen, whether
+// or not it had a charge left to spend.
+async function runZapCommand(key, state) {
+    return failClosedCommand(key, state, () => dozap(state));
 }
 
 // C ref: do.c dodown(). Like dosearch() and doeat() it returns its own ECMD_*
@@ -1647,6 +1660,8 @@ async function doextcmd(key, state) {
         return await runEatCommand(key, state);
     case 'doapply':
         return await runApplyCommand(key, state);
+    case 'dozap':
+        return await runZapCommand(key, state);
     case 'dodown':
         return await runDownCommand(key, state);
     case 'dodrop':
@@ -1858,6 +1873,22 @@ export async function rhack(key, state = game) {
             // and for the three use_stethoscope() guards, and ECMD_TIME for a
             // second listen in the same move.
             const res = await runApplyCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state);
+            if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'zap') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the '#', `search`, `eat` and `apply` arms apply.
+            // dozap() reaches all three: ECMD_OK for nohands() and
+            // check_capacity(), ECMD_CANCEL for an escaped object prompt, and
+            // ECMD_TIME for every arm past it. The MOVEMENTCMD and
+            // domove_attempting tests at 3773-3800 cannot divert it, because
+            // cmd.c:2004's "zap" row carries no flags at all -- which is also
+            // why an 'm' or 'F' prefix is refused ahead of this arm.
+            const res = await runZapCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state);
