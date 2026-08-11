@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BLINDED,
     IN_SIGHT,
+    I_SPECIAL,
     LOST_DROPPED,
     LOST_NONE,
     LOST_STOLEN,
@@ -13,7 +14,11 @@ import {
     OBJ_FREE,
     OBJ_MINVENT,
     ROOM,
+    ROOMOFFSET,
+    SHOPBASE,
+    W_ARMH,
     W_SADDLE,
+    W_WEP,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { count_unpaid } from '../js/invent.js';
@@ -27,11 +32,15 @@ import {
 import { init_objects } from '../js/o_init.js';
 import {
     APPLE,
+    ARMOR_CLASS,
     FIGURINE,
     FOOD_CLASS,
     OIL_LAMP,
+    ORCISH_DAGGER,
+    ORCISH_HELM,
     POTION_CLASS,
     POT_BOOZE,
+    WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -58,6 +67,9 @@ function object(overrides = {}) {
         cursed: false,
         corpsenm: NON_PM,
         timed: 0,
+        // obj.js newObject() zeroes owornmask, and steal.c mdrop_obj() reads
+        // it before extract_from_minvent() clears it.
+        owornmask: 0,
         known: true,
         dknown: true,
         bknown: true,
@@ -74,6 +86,10 @@ function monster(overrides = {}) {
         data: { mattk: [] },
         minvent: null,
         mtame: false,
+        // One hit point is the smallest value !DEADMONSTER() admits, so the
+        // default carrier is alive; mdrop_obj()'s tail reads it.
+        mhp: 1,
+        misc_worn_check: 0,
         mx: CARRIER_X,
         my: CARRIER_Y,
         ...overrides,
@@ -87,6 +103,9 @@ function state(overrides = {}) {
         u: {
             uswallow: false,
             ustuck: null,
+            // The Dungeons of Doom level 1, which is what shk.c inhishop()
+            // compares a shopkeeper's recorded shoplevel against.
+            uz: { dnum: 0, dlevel: 1 },
             uprops: {
                 [BLINDED]: {
                     intrinsic: 0,
@@ -358,6 +377,7 @@ function refuse(reason) {
 // can see, with the message and redraw owners recorded rather than drawn.
 function dropFixture({
     carried = {},
+    carrier: carrierOverrides = {},
     verbose = true,
     isgd = false,
     seen = true,
@@ -391,6 +411,7 @@ function dropFixture({
         mx: DROP_X,
         my: DROP_Y,
         minvent: held,
+        ...carrierOverrides,
     });
     held.ocarry = carrier;
 
@@ -617,7 +638,7 @@ test('a drop merges past a pile member it cannot join', async () => {
     assert.notEqual(mergeable.where, OBJ_FLOOR);
 });
 
-test('relobj and mdrop_obj stop on the arms that are not ported', async () => {
+test('relobj stops on the vault guard arm that is not ported', async () => {
     const guard = dropFixture({ isgd: true });
     await assert.rejects(
         relobj(guard.carrier, 0, true, guard.env),
@@ -625,17 +646,219 @@ test('relobj and mdrop_obj stop on the arms that are not ported', async () => {
             && error.reason === "a vault guard's gold vanishing",
     );
     assert.equal(guard.held.where, OBJ_MINVENT);
+});
 
-    // mdrop_obj()'s saddle exemption and update_mon_extrinsics() both need an
-    // object the monster still has equipped.
-    const worn = dropFixture({ carried: { owornmask: W_SADDLE } });
+// ── mdrop_obj() with an object the monster had equipped ──
+
+// A helmet the monster wears, which is the mask the one recorded equipped
+// drop carries: an orcish helm off a dead goblin, W_ARMH per prop.h:103.
+const WORN_HELM = { owornmask: W_ARMH, oclass: ARMOR_CLASS, otyp: ORCISH_HELM };
+
+test("a dead monster's worn armor lands on the floor", async () => {
+    // The slice's common case: mon.c m_detach() forces mhp to 0 before its
+    // relobj(), so DEADMONSTER() holds and mdrop_obj()'s 844 tail is skipped.
+    const { carrier, held, gameState, env } = dropFixture({
+        carried: WORN_HELM,
+        // The helmet is the only thing worn, so misc_worn_check carries just
+        // its bit and has to come back empty apart from I_SPECIAL.
+        carrier: { mhp: 0, misc_worn_check: W_ARMH },
+    });
+
+    await relobj(carrier, 0, false, env);
+
+    assert.equal(carrier.minvent, null);
+    assert.equal(held.where, OBJ_FLOOR);
+    assert.equal(held.ox, DROP_X);
+    assert.equal(held.oy, DROP_Y);
+    assert.equal(gameState.level.objects[DROP_X][DROP_Y], held);
+    // worn.c extract_from_minvent():1403 clears owornmask, :1409 clears the
+    // worn bit, and :1411 check_gear_next_turn() sets I_SPECIAL so the
+    // monster reconsiders its gear on its next move.
+    assert.equal(held.owornmask, 0);
+    assert.equal(carrier.misc_worn_check, I_SPECIAL);
+});
+
+test('a surviving monster stops after the equipment reaches the floor',
+    async () => {
+        // steal.c:844 runs update_mon_extrinsics() only for !DEADMONSTER(),
+        // and C orders it after place_object() deliberately. Both live hit
+        // point counts refuse; 1 and 2 together pin the comparison rather
+        // than only its boundary.
+        for (const mhp of [1, 2]) {
+            const alive = dropFixture({
+                carried: WORN_HELM,
+                carrier: { mhp, misc_worn_check: W_ARMH },
+            });
+            await assert.rejects(
+                relobj(alive.carrier, 0, false, alive.env),
+                (error) => error instanceof RefusedRelease
+                    && error.reason
+                        === 'a surviving monster losing gear it had equipped',
+            );
+            // The refusal sits at the tail, so the drop already happened.
+            assert.equal(alive.held.where, OBJ_FLOOR);
+            assert.equal(alive.carrier.misc_worn_check, I_SPECIAL);
+        }
+    });
+
+test('a surviving monster dropping unworn gear does not reach that stop',
+    async () => {
+        // Same live monster, owornmask 0: steal.c:844's second conjunct keeps
+        // an ordinary drop clear of the unported call.
+        const { carrier, held, env } = dropFixture({
+            carrier: { mhp: 1 },
+        });
+
+        await relobj(carrier, 0, false, env);
+
+        assert.equal(held.where, OBJ_FLOOR);
+        assert.equal(carrier.misc_worn_check, 0);
+    });
+
+test('a dropped wielded weapon stops on mwepgone', async () => {
+    // worn.c extract_from_minvent():1413-1415 calls weapon.c mwepgone(), which
+    // is unported. No monster in the running port wields anything, so this is
+    // reached only through the unit path, and the refusal exists so that the
+    // first widening of the wield boundary ends a segment rather than throwing.
+    const wielder = dropFixture({
+        // A stack of two. objnam.c doname_base():1571 takes the "(wielded)"
+        // phrasing for any quan != 1, which keeps the name off body_part(HAND)
+        // and out of the hero's form; nothing here turns on which phrasing the
+        // name gets.
+        carried: {
+            owornmask: W_WEP,
+            oclass: WEAPON_CLASS,
+            otyp: ORCISH_DAGGER,
+            quan: 2,
+        },
+        carrier: { mhp: 0, misc_worn_check: 0 },
+    });
+
     await assert.rejects(
-        relobj(worn.carrier, 0, true, worn.env),
+        relobj(wielder.carrier, 0, false, wielder.env),
         (error) => error instanceof RefusedRelease
-            && error.reason
-                === 'a monster dropping an object it has equipped',
+            && error.reason === 'a monster dropping the weapon it wields',
     );
-    assert.equal(worn.held.where, OBJ_MINVENT);
+    // mwepgone() runs after obj_extract_self(), so the weapon has left minvent
+    // but has not been placed.
+    assert.equal(wielder.held.where, OBJ_FREE);
+});
+
+// ── mdrop_obj()'s saddle no_charge exemption (steal.c 826-832) ──
+
+// The smallest level shape shk.c costly_spot() calls billable, laid over the
+// drop square: one shop room holding the drop square, the hero's square, and
+// the shopkeeper's own square, with the resident recording that room number.
+// The shopkeeper stands east of the carrier so that costly_spot()'s last test,
+// which exempts the square the shopkeeper occupies, does not fire on the drop.
+const SHOP_ROOMNO = ROOMOFFSET;
+const KEEPER_X = DROP_X + 1;
+
+function makeShopAroundDrop(gameState) {
+    gameState.level.flags.has_shop = true;
+    const squares = [[DROP_X, DROP_Y], [DROP_X - 1, DROP_Y], [KEEPER_X, DROP_Y]];
+    for (const [x, y] of squares) {
+        Object.assign(gameState.level.at(x, y), {
+            typ: ROOM,
+            roomno: SHOP_ROOMNO,
+            edge: false,
+        });
+    }
+    gameState.level.rooms[SHOP_ROOMNO - ROOMOFFSET] = {
+        rtype: SHOPBASE,
+        resident: {
+            isshk: true,
+            mx: KEEPER_X,
+            my: DROP_Y,
+            mextra: {
+                eshk: {
+                    shoproom: SHOP_ROOMNO,
+                    shoplevel: { ...gameState.u.uz },
+                    shk: { x: KEEPER_X, y: DROP_Y },
+                },
+            },
+        },
+    };
+}
+
+// A saddled tame steed dying on a shop square the hero is also inside. The
+// `no_charge: false` on the saddle is what a shop's own stock carries; the
+// exemption is what sets it.
+function saddleFixture({ carried = {}, carrier = {} } = {}) {
+    const fixture = dropFixture({
+        carried: { owornmask: W_SADDLE, no_charge: false, ...carried },
+        carrier: { mhp: 0, mtame: true, misc_worn_check: W_SADDLE, ...carrier },
+    });
+    makeShopAroundDrop(fixture.gameState);
+    return fixture;
+}
+
+test("a dead steed's saddle is not charged for inside the hero's shop",
+    async () => {
+        const { carrier, held, env } = saddleFixture();
+
+        await relobj(carrier, 0, false, env);
+
+        assert.equal(held.where, OBJ_FLOOR);
+        assert.equal(held.no_charge, true);
+    });
+
+test('every reachable conjunct of the saddle exemption is required',
+    async () => {
+        // steal.c:828-831 is a six-term conjunction. Each case below falsifies
+        // exactly one term and leaves the rest as the passing case has them,
+        // so dropping any of these terms fails here.
+        const cases = [
+            // unwornmask and (unwornmask & W_SADDLE) cannot be falsified apart
+            // from each other: an unworn saddle has no W_SADDLE bit either.
+            ['a saddle the steed was not wearing',
+                { carried: { owornmask: 0 }, carrier: { misc_worn_check: 0 } }],
+            // (unwornmask & W_SADDLE) alone: a helmet worn by the same tame
+            // steed in the same shop is billed as usual.
+            ['a worn mask that is not W_SADDLE',
+                { carried: WORN_HELM, carrier: { misc_worn_check: W_ARMH } }],
+            // mon->mtame: a hostile monster's saddle stays billable.
+            ['an untamed carrier', { carrier: { mtame: false } }],
+        ];
+
+        for (const [name, overrides] of cases) {
+            const fixture = saddleFixture(overrides);
+            await relobj(fixture.carrier, 0, false, fixture.env);
+            assert.equal(fixture.held.where, OBJ_FLOOR, name);
+            assert.equal(fixture.held.no_charge, false, name);
+        }
+
+        // costly_spot(omx, omy): shk.c:5362 excludes the square the shopkeeper
+        // occupies, so a drop there is uncharged before the exemption is asked.
+        const onKeeper = saddleFixture();
+        const keeper = onKeeper.gameState.level.rooms[0].resident;
+        Object.assign(keeper, { mx: DROP_X, my: DROP_Y });
+        Object.assign(keeper.mextra.eshk.shk, { x: DROP_X, y: DROP_Y });
+        await relobj(onKeeper.carrier, 0, false, onKeeper.env);
+        assert.equal(onKeeper.held.no_charge, false);
+
+        // strchr(in_rooms(u.ux, u.uy, SHOPBASE), roomno): the hero has to be
+        // inside the same shop. DROP_X - 2 is outside the three shop squares
+        // makeShopAroundDrop() lays down, so in_rooms() answers nothing.
+        const heroOutside = saddleFixture();
+        heroOutside.gameState.u.ux = DROP_X - 2;
+        await relobj(heroOutside.carrier, 0, false, heroOutside.env);
+        assert.equal(heroOutside.held.no_charge, false);
+    });
+
+test('an unpaid saddle stops before the exemption can read it', async () => {
+    // The remaining conjunct, !obj->unpaid, cannot be reached as false. C's
+    // mdrop_obj() names the object first, at steal.c:823, and objnam.c
+    // doname_base()'s shop-price suffix has no port: js/objnam.js
+    // preflightDoname() refuses any unpaid object. So no drop of an unpaid
+    // saddle gets as far as steal.c:829, and this pins where it does stop.
+    const unpaid = saddleFixture({ carried: { unpaid: true } });
+
+    await assert.rejects(
+        relobj(unpaid.carrier, 0, false, unpaid.env),
+        /shop price suffix/u,
+    );
+    assert.equal(unpaid.held.where, OBJ_MINVENT);
 });
 
 test('a monster release needs an unsupported operation', async () => {

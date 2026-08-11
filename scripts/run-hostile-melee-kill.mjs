@@ -43,9 +43,10 @@
 //   Tourist/male/neutral,     seeds 6600000-6600599: 52 adjacent,  5 killed.
 //
 // Eleven of those adjacent seeds killed a monster that died still wearing or
-// wielding something, and stopped at steal.c mdrop_obj()'s equipped-object
-// refusal in js/steal.js. That arm is recorded as the deferral
-// dead-monster-drops-equipped-gear and is deliberately absent below.
+// wielding something, which stopped at steal.c mdrop_obj()'s equipped-object
+// refusal when this matrix was written. That arm is ported now and belongs to
+// scripts/run-monster-equipped-drop.mjs, which selects its own seeds for it;
+// the rows below stay on kills that leave nothing equipped behind.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
