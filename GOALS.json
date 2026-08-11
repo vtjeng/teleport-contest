@@ -1452,8 +1452,8 @@
         },
         {
           "name": "let the prayer finish and anger the god",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d0d5f4effb4b4b33367fb5f5161bee276d8999b9"
         }
       ],
       "openedAt": "13e0097cc4c5e16f86fb5784f413de2fe667ac9e",
