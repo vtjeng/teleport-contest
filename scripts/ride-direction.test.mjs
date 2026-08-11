@@ -473,29 +473,38 @@ test('yn_function stops on a query too long for QBUFSZ', async () => {
     );
 });
 
-test('a restricted response set stops before the prompt paints', async () => {
+test('the response sets tty_yn_function still refuses stop before it paints',
+    async () => {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
     const row = topLine();
-    // Every yn_function() caller other than getdir() passes a response string,
-    // which reaches tty_yn_function()'s do/while loop; none of it is ported.
-    await assert.rejects(
-        yn_function('Force the mount to succeed?', 'yn', 'n', true, game),
-        /restricted response set/u,
-    );
-    // doride()'s debug-mode question goes through y_n(), so it reaches the
-    // same guard rather than a hand-written wizard test.
-    await assert.rejects(
-        y_n('Force the mount to succeed?', game),
-        /restricted response set/u,
-    );
-    // The guard precedes show_topl(), so neither call painted a query.
+    // topl.c:397-408 reads three things out of `resp` before the prompt is
+    // built, and each one has a reader this port lacks: '#' turns digits into
+    // yn_number, an uppercase letter suppresses the lowc() on the answer, and
+    // an <esc> hides the responses that follow it from the prompt.
+    for (const [resp, reason] of [
+        ['yn#', /yn_number/u],
+        ['yN', /preserving case/u],
+        [`yn\u001bq`, /hidden responses/u],
+    ]) {
+        await assert.rejects(
+            yn_function('Force the mount to succeed?', resp, 'n', false, game),
+            reason,
+        );
+    }
+    // All three guards precede show_topl(), so none of them painted a query.
     assert.equal(topLine(), row);
-    // getdir() itself always passes a null response, so this refusal is not on
-    // its path: the same query with `null` gets past the guard and fails at
+    // "yn" itself carries none of the three, so it gets past them and fails at
     // the spent input queue instead.
     await assert.rejects(
-        yn_function('Force the mount to succeed?', null, '\0', false, game),
-        (error) => !/restricted response set/u.test(error.message),
+        yn_function('Force the mount to succeed?', 'yn', 'n', false, game),
+        /Input queue empty/u,
+    );
+    // y_n() adds addcmdq TRUE on top, which cmdq_add_key(CQ_REPEAT) refuses;
+    // that guard sits after the read, so it needs an answer first.
+    game.nhDisplay.pushKey('y'.charCodeAt(0));
+    await assert.rejects(
+        y_n('Force the mount to succeed?', game),
+        /cmdq_add_key\(CQ_REPEAT\)/u,
     );
 });
 
@@ -508,7 +517,13 @@ async function rideOnce(answer, mutate = () => {}) {
     await runSegment({ ...promptSegment(), moves: `.${RIDE_COMMAND}` });
     const display = game.nhDisplay;
     const readKey = display.readKey;
-    display.readKey = async () => answer.charCodeAt(0);
+    // The last key of `answer` repeats, so a single-key case answers every
+    // read and a two-key case can answer getdir() and then the debug-mode
+    // question behind it.
+    const keys = [...answer];
+    display.readKey = async () => (
+        keys.length > 1 ? keys.shift() : keys[0]
+    ).charCodeAt(0);
     mutate(game);
     try {
         return { result: await doride(game), error: null };
@@ -539,13 +554,15 @@ test('a direction that leaves the map cancels instead of mounting',
 });
 
 test('debug mode asks whether to force the mount', async () => {
-    // doride()'s `wizard && y_n("Force the mount to succeed?")`. y_n() passes
-    // ynchars, and tty_yn_function() covers only the unrestricted arm, so the
-    // question stops there rather than at mount_steed(). No recording can
-    // reach it: ROADMAP.md records that a playmode:debug recording needs a
-    // sysconf naming the running user, which is uncommitted.
-    const forced = await rideOnce('l', (state) => { state.wizard = true; });
-    assert.match(forced.error?.message ?? '', /restricted response set/u);
+    // doride()'s `wizard && y_n("Force the mount to succeed?")`. The question
+    // is asked and answered -- 'l' takes getdir(), 'y' takes the question --
+    // and then y_n()'s addcmdq TRUE stops at cmdq_add_key(CQ_REPEAT), so the
+    // command still never reaches mount_steed() with forcemount set. No
+    // recording can reach it either: ROADMAP.md records that a playmode:debug
+    // recording needs a sysconf naming the running user, which is
+    // uncommitted.
+    const forced = await rideOnce('ly', (state) => { state.wizard = true; });
+    assert.match(forced.error?.message ?? '', /cmdq_add_key\(CQ_REPEAT\)/u);
     game.wizard = false;
 
     // Without debug mode the same keystroke skips the question entirely and

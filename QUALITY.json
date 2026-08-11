@@ -1448,6 +1448,16 @@
           "at": "13e0097cc4c5e16f86fb5784f413de2fe667ac9e"
         }
       ]
+    },
+    {
+      "id": "pray-in-trouble-has-no-recorded-case",
+      "area": "commands",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "a5506f0457ab9718ef0a13da8548bd817f684737",
+      "detail": "in_trouble() answering nonzero has no recorded C case. Every arm needs damage, elapsed time, a cursed item or a polymorph, and a fresh start supplies none of them within the moves a recording can spend before the port stops; scripts/pray.test.mjs pins the arms from constructed states instead. The case also has no discriminating power at today's boundary: u_init.c:1005 leaves u.ublesscnt at 300, so pray.c:2148 answers p_type 0 for a hero in trouble and for one who is not, and dopray() stops at prayer_done() either way. Record one once prayer_done() lands and the prayer's own screens can differ.",
+      "blockedOn": "prayer_done"
     }
   ],
   "areas": [

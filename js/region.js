@@ -12,12 +12,15 @@ import {
     DRAWBRIDGE_UP,
     IS_LAVA,
     IS_POOL,
+    MAGICAL_BREATHING,
     PLNMSG_ENVELOPED_IN_GAS,
+    POISON_RES,
     ROWNO,
     isok,
 } from './const.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { breathless, nonliving } from './mondata.js';
 import { PM_FOG_CLOUD } from './monsters.js';
 import { rn2 } from './rng.js';
 import { S_cloud, S_poisoncloud } from './symbols.js';
@@ -702,6 +705,34 @@ export function visible_region_at(x, y, state = game) {
         if (inside_region(region, x, y)) return region;
     }
     return null;
+}
+
+// C ref: region.c region_danger() (1340-1362). pray.c in_trouble() asks
+// whether a region the hero stands in is worth a prayer. C counts the
+// qualifying regions and returns whether the count is nonzero; counting past
+// the first cannot change that answer, so this returns on the first one.
+//
+// Only INSIDE_GAS_CLOUD is understood, and the one this port creates is the
+// harmless arg === 0 cloud. C draws that distinction nowhere here: a
+// zero-damage cloud is a trouble just as a poisonous one is, and
+// fix_worst_trouble()'s TROUBLE_REGION arm calls region_safety() for both.
+export function region_danger(state = game) {
+    for (const region of state.level?.regions ?? []) {
+        if (!region.hero_inside) continue;
+        if (callbackName(region.inside_f) !== INSIDE_GAS_CLOUD) continue;
+        // Breathless and Poison_resistance are read through the youmonst
+        // record and u.uprops the same way heroIsBlind() above reads BLINDED.
+        if (nonliving(state.youmonst?.data)
+            || breathless(state.youmonst?.data)
+            || state.u?.uprops?.[MAGICAL_BREATHING]?.intrinsic
+            || state.u?.uprops?.[MAGICAL_BREATHING]?.extrinsic)
+            continue;
+        if (state.u?.uprops?.[POISON_RES]?.intrinsic
+            || state.u?.uprops?.[POISON_RES]?.extrinsic)
+            continue;
+        return true;
+    }
+    return false;
 }
 
 // C ref: read.c valid_cloud_pos().

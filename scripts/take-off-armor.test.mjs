@@ -11,11 +11,13 @@ import {
     GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_SUGGEST,
     GLIB,
+    LEFT_HANDED,
     INVIS,
     M_SEEN_ELEC,
     M_SEEN_MAGR,
     M_SEEN_NOTHING,
     PARANOID_REMOVE,
+    RIGHT_HANDED,
     W_AMUL,
     W_ARM,
     W_ARMC,
@@ -38,17 +40,20 @@ import {
     equip_ok,
     inaccessible_equipment,
     select_off,
+    stuck_ring,
     takeoff_ok,
+    unchanger,
 } from '../js/do_wear.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { monstunseesu } from '../js/mondata.js';
-import { M1_SEE_INVIS } from '../js/monsters.js';
-import { setworn } from '../js/worn.js';
+import { M1_SEE_INVIS, PM_ACID_BLOB } from '../js/monsters.js';
+import { bimanual, setworn } from '../js/worn.js';
 import {
     AMULET_CLASS,
     AMULET_OF_ESP,
+    AMULET_OF_UNCHANGING,
     ARMOR_CLASS,
     BLINDFOLD,
     CLOAK_OF_DISPLACEMENT,
@@ -60,10 +65,12 @@ import {
     LEATHER_JACKET,
     LENSES,
     LONG_SWORD,
+    QUARTERSTAFF,
     LOW_BOOTS,
     PLATE_MAIL,
     RING_CLASS,
     RIN_ADORNMENT,
+    RIN_LEVITATION,
     SPLINT_MAIL,
     TOOL_CLASS,
     WEAPON_CLASS,
@@ -1101,4 +1108,86 @@ test('taking armor off clears what monsters had seen it resist',
     pet.mx = mx;
     pet.my = my;
     assert.equal(clears(), true);
+});
+
+// C ref: do_wear.c stuck_ring() (2656-2683) and unchanger() (2685-2692). Both
+// exist for pray.c in_trouble(), which asks whether a levitation ring can come
+// off and whether a worn item is holding the hero's shape. Neither is on the
+// 'T' path this file otherwise covers, so they are exercised here directly.
+test('stuck_ring names the worn item that holds a ring on', async () => {
+    const segment = segmentFor(TAKEOFF_KEY);
+    await runSegment({ ...segment, moves: WAIT });
+    const ring = { otyp: RIN_LEVITATION, cursed: 0, oclass: RING_CLASS };
+    const other = { otyp: RIN_ADORNMENT, cursed: 1, oclass: RING_CLASS };
+
+    // Neither a missing ring nor one of the wrong type is stuck.
+    assert.equal(stuck_ring(null, RIN_LEVITATION, game), null);
+    assert.equal(stuck_ring(other, RIN_LEVITATION, game), null);
+    // Nothing in the way: the ring comes off.
+    game.uright = ring;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), null);
+
+    // do_wear.c:2670. A welded weapon holds the ring on the hand that grips
+    // it. wield.c welded() needs a cursed weapon, and u_init.c:1223 clears
+    // cursed on every starting object, so the weapon is supplied here.
+    const sword = { otyp: LONG_SWORD, oclass: WEAPON_CLASS, cursed: 1 };
+    game.uwep = sword;
+    assert.equal(bimanual(sword, game), false);
+    assert.equal(game.u.uhandedness, RIGHT_HANDED);
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), sword);
+    // One hand is enough for a one-handed weapon, and you.h:566 says which:
+    // the right hand for a right-handed hero.
+    game.uright = null;
+    game.uleft = ring;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), null);
+    game.u.uhandedness = LEFT_HANDED;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), sword);
+    game.u.uhandedness = RIGHT_HANDED;
+    // A two-handed weapon holds both, so the hand no longer decides.
+    const staff = { otyp: QUARTERSTAFF, oclass: WEAPON_CLASS, cursed: 1 };
+    game.uwep = staff;
+    assert.equal(bimanual(staff, game), true);
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), staff);
+    // Uncursed, it welds to nothing and holds nothing.
+    staff.cursed = 0;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), null);
+
+    // do_wear.c:2672-2679, outermost first: cursed gloves, then the ring
+    // itself, then slippery gloves.
+    game.uarmg = { otyp: LEATHER_GLOVES, cursed: 1, oclass: ARMOR_CLASS };
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), game.uarmg);
+    game.uarmg.cursed = 0;
+    ring.cursed = 1;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), ring);
+    ring.cursed = 0;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), null);
+    game.u.uprops[GLIB].intrinsic = 5;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), game.uarmg);
+    game.uarmg = null;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), null);
+    game.u.uprops[GLIB].intrinsic = 0;
+
+    // do_wear.c:2667-2669: a limbless form needs all three of the amulet, its
+    // type and its curse before the amulet is what holds the ring on.
+    game.youmonst.data = game.mons[PM_ACID_BLOB];
+    game.uamul = { otyp: AMULET_OF_UNCHANGING, cursed: 0 };
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), null);
+    game.uamul.cursed = 1;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), game.uamul);
+    game.uamul.otyp = AMULET_OF_ESP;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), null);
+    game.uleft = null;
+    game.uamul = null;
+});
+
+test('unchanger finds only a worn amulet of unchanging', async () => {
+    const segment = segmentFor(TAKEOFF_KEY);
+    await runSegment({ ...segment, moves: WAIT });
+    assert.equal(unchanger(game), null);
+    game.uamul = { otyp: AMULET_OF_ESP, cursed: 0 };
+    assert.equal(unchanger(game), null);
+    // Its curse is in_trouble()'s business, not this function's.
+    game.uamul.otyp = AMULET_OF_UNCHANGING;
+    assert.equal(unchanger(game), game.uamul);
+    game.uamul = null;
 });

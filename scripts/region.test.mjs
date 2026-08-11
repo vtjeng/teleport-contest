@@ -6,11 +6,13 @@ import {
     DB_LAVA,
     DB_MOAT,
     DRAWBRIDGE_UP,
+    MAGICAL_BREATHING,
+    POISON_RES,
     ROOM,
 } from '../js/const.js';
 import { GameMap } from '../js/game.js';
 import { newMonster, place_monster } from '../js/monst.js';
-import { PM_FOG_CLOUD } from '../js/monsters.js';
+import { M1_BREATHLESS, M2_UNDEAD, PM_FOG_CLOUD } from '../js/monsters.js';
 import {
     UnsupportedRegionCallbackError,
     UnsupportedRegionOperationError,
@@ -21,6 +23,7 @@ import {
     in_out_region,
     inside_gas_cloud,
     m_in_out_region,
+    region_danger,
     run_regions,
     valid_cloud_pos,
 } from '../js/region.js';
@@ -629,4 +632,57 @@ test('transition callback preflight keeps memberships atomic', async () => {
     );
     assert.equal(leaving.hero_inside, true);
     assert.equal(messages, 0);
+});
+
+// C ref: region.c region_danger() (1340-1362). pray.c in_trouble() asks it
+// whether the hero is standing in something a prayer should fix.
+test('region_danger counts only a gas cloud the hero cannot shrug off', () => {
+    const state = regionState();
+    state.level.regions = [];
+    state.youmonst = { data: { mflags1: 0, mflags2: 0, mlet: 0, pmidx: -1 } };
+
+    // No region at all, and a region the hero is outside.
+    assert.equal(region_danger(state), false);
+    const cloud = pointRegion(2, 2, { inside_f: 0, hero_inside: false });
+    state.level.regions.push(cloud);
+    assert.equal(region_danger(state), false);
+    cloud.hero_inside = true;
+    assert.equal(region_danger(state), true);
+
+    // "the only type of region we understand is gas_cloud".
+    cloud.inside_f = 1; /* expire_gas_cloud */
+    assert.equal(region_danger(state), false);
+    cloud.inside_f = 0;
+
+    // "completely harmless if you don't need to breathe". Both halves of
+    // Breathless and both halves of nonliving() answer for themselves.
+    state.u.uprops[MAGICAL_BREATHING] = { intrinsic: 1, extrinsic: 0 };
+    assert.equal(region_danger(state), false);
+    state.u.uprops[MAGICAL_BREATHING] = { intrinsic: 0, extrinsic: 1 };
+    assert.equal(region_danger(state), false);
+    state.u.uprops[MAGICAL_BREATHING] = { intrinsic: 0, extrinsic: 0 };
+    assert.equal(region_danger(state), true);
+    state.youmonst.data = { mflags1: M1_BREATHLESS, mflags2: 0, mlet: 0 };
+    assert.equal(region_danger(state), false);
+    state.youmonst.data = { mflags1: 0, mflags2: M2_UNDEAD, mlet: 0 };
+    assert.equal(region_danger(state), false);
+    state.youmonst.data = { mflags1: 0, mflags2: 0, mlet: 0, pmidx: -1 };
+    assert.equal(region_danger(state), true);
+
+    // "not harmful enough to be a prayer-level trouble" for a resistant hero,
+    // from either source.
+    state.u.uprops[POISON_RES] = { intrinsic: 1, extrinsic: 0 };
+    assert.equal(region_danger(state), false);
+    state.u.uprops[POISON_RES] = { intrinsic: 0, extrinsic: 1 };
+    assert.equal(region_danger(state), false);
+    state.u.uprops[POISON_RES] = { intrinsic: 0, extrinsic: 0 };
+    assert.equal(region_danger(state), true);
+
+    // C counts every region the hero is inside and answers on the total, so a
+    // second cloud behind a harmless one still has to be found.
+    cloud.inside_f = 1;
+    state.level.regions.push(pointRegion(2, 2, {
+        inside_f: 0, hero_inside: true,
+    }));
+    assert.equal(region_danger(state), true);
 });

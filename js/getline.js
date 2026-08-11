@@ -62,6 +62,9 @@ const ESC = 0x1B;
 // signed cast is the only route to that arm.
 const EOF_BYTE = 0xFF;
 const CTRL_P = 0x10;
+// C ref: decl.c:96 `const char quitchars[] = " \r\n\033";`.  Escape is tested
+// ahead of this set in tty_yn_function(), so only the first three reach it.
+const QUITCHARS = ' \r\n\x1B';
 
 // C ref: win/tty/getline.c's file-static suppress_history, which the two
 // public entry points set before calling hooked_tty_getlin().
@@ -267,26 +270,28 @@ async function hooked_tty_getlin(query, hook, state) {
     return text;
 }
 
-// C ref: win/tty/topl.c tty_yn_function() (363-550).  Covers the
-// `resp == (char *) 0` arm alone, which is the one that accepts any single
-// keystroke and returns it: the prompt is written, one key is read, and the
-// function jumps straight to clean_up.  Every response-restricted caller --
-// y_n(), ynq(), the '#' count reader and the ctrl-P reprompt loop between
-// them -- stops at the guard below instead.
+// C ref: win/tty/topl.c tty_yn_function() (363-550).  Two arms.  With
+// `resp == (char *) 0` any single keystroke is accepted and returned: the
+// prompt is written, one key is read, and the function jumps straight to
+// clean_up.  With a response set, the prompt names the allowed keys and their
+// default and a loop rejects everything else.
 //
-// `def` is unread on this arm; C names it because clean_up is shared with the
-// restricted arm, where quitchars and Escape resolve to it.
+// Three parts of the restricted arm have no ported reader and stop instead,
+// each where C reads them out of `resp` and so before the prompt paints:
+//   a set holding '#', which turns digits into a count in yn_number;
+//   a set holding an uppercase letter, which suppresses lowc() on the answer;
+//   a set holding <esc>, whose tail names responses the prompt hides.
+// The ctrl-P reprompt inside the loop stops as well, for the same reason
+// hooked_tty_getlin()'s does: tty_doprev_message() has no port.
+//
+// `def` is unread on the unrestricted arm; C names it because clean_up is
+// shared, and on the restricted arm quitchars and Escape resolve to it.
 export async function tty_yn_function(query, resp, def, state = game) {
-    if (resp !== null) {
-        throw new UnsupportedGetlinBoundaryError(
-            'tty_yn_function() with a restricted response set',
-        );
-    }
     const display = state.nhDisplay;
     if (!display) throw new Error('a yn prompt requires an initialized display');
 
     // yn_number is only read back by the restricted arm's '#' count handling,
-    // which is refused above, so the port keeps no field for it.
+    // which is refused below, so the port keeps no field for it.
     if (display.toplin === TOPLINE_NEED_MORE && !state._ttyMessageStopped)
         await dismissPendingTtyMessage(state);
     // topl.c:391 clears WIN_STOP and WIN_NOSTOP whether or not more() ran.
@@ -296,9 +301,34 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // reason hooked_tty_getlin() gives above: the state is read only once the
     // top line has wrapped, and inread only gates tty_doprev_message().
 
-    // Sprintf(prompt, "%s ", query) followed by
-    // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s", prompt).
-    const prompt = `${query} `;
+    // Both arms end in the same
+    // custompline(OVERRIDE_MSGTYPE | SUPPRESS_HISTORY, "%s", prompt); they
+    // differ only in the prompt they build for it.  The restricted arm's
+    // trailing space is already in the string, "in case of reprompt".
+    let prompt;
+    if (resp !== null) {
+        if (resp.includes('#')) {
+            throw new UnsupportedGetlinBoundaryError(
+                'tty_yn_function() counting digits into yn_number',
+            );
+        }
+        /* normally we force lowercase, but if any uppercase letters
+           are present in the allowed response, preserve case */
+        if (/[A-Z]/u.test(resp)) {
+            throw new UnsupportedGetlinBoundaryError(
+                'tty_yn_function() preserving case in the answer',
+            );
+        }
+        /* any acceptable responses that follow <esc> aren't displayed */
+        if (resp.includes('\x1B')) {
+            throw new UnsupportedGetlinBoundaryError(
+                'tty_yn_function() with hidden responses after <esc>',
+            );
+        }
+        prompt = `${query} [${resp}]${def ? ` (${def})` : ''} `;
+    } else {
+        prompt = `${query} `;
+    }
     if (state.u?.ux) await flush_screen(1);
     // remember_topl() moves whatever the top line held into history and
     // empties gt.toplines; show_topl() then repaints from column zero.
@@ -309,13 +339,65 @@ export async function tty_yn_function(query, resp, def, state = game) {
     display.toplin = TOPLINE_NEED_MORE;
     state._ttyPreviousMessage = prompt;
 
-    const q = await readchar(state);
+    // Every key below is the byte readchar() returns, as on the unrestricted
+    // arm; `def` arrives as the one-character string its callers spell.
+    const defByte = def ? def.charCodeAt(0) : 0;
+    let q;
+    if (resp === null) {
+        q = await readchar(state);
+    } else {
+        do { /* loop until we get valid input */
+            q = await readchar(state);
+            /* !preserve_case */
+            if (q >= 0x41 && q <= 0x5A) q |= 0x20; /* lowc() */
+            if (q === CTRL_P) {
+                // Both ctrl-P arms replay message history through
+                // tty_doprev_message() and then repaint the prompt; neither is
+                // ported.  `doprev` is only ever set inside them, so the
+                // `else if (doprev)` reprompt below cannot be reached either.
+                throw new UnsupportedGetlinBoundaryError(
+                    'ctrl-P recalls message history at a yn prompt',
+                );
+            }
+            if (q === ESC) {
+                if (resp.includes('q')) q = 'q'.charCodeAt(0);
+                else if (resp.includes('n')) q = 'n'.charCodeAt(0);
+                else q = defByte;
+                break;
+            } else if (QUITCHARS.includes(String.fromCharCode(q))) {
+                q = defByte;
+                break;
+            }
+            // digit_ok is `allow_num && digit(q)`, and allow_num is false on
+            // every set that reaches here, so it and the '#' count arm below
+            // it are both constantly false: a '#' answered to a set without
+            // '#' fails this test and rings instead.
+            if (!resp.includes(String.fromCharCode(q))) {
+                // tty_nhbell(), which writes no cell and moves no cursor.
+                q = 0;
+            }
+        } while (!q);
+    }
 
     // clean_up: gt.toplines is rewritten as the prompt followed by the key,
     // so message recall shows the answered prompt rather than the bare query.
     state._ttyToplines = `${prompt}${key2txt(q)}`;
     display.toplines = state._ttyToplines;
     display.topMessage = state._ttyToplines;
+    // The answer itself is not drawn: C's `addtopl(rtmp)` at topl.c:541 is
+    // commented out in favour of rewriting gt.toplines.  The prompt stays on
+    // the physical line, and js/display.js _buildScreenOutput() repaints row 0
+    // from _pending_message, so the restricted arm has to leave it there or
+    // the next flush erases an answered prompt C keeps.  TOPLINE_NON_EMPTY is
+    // what stops the next message treating that line as one awaiting
+    // --More--, exactly as topl.c update_topl():262 does.
+    //
+    // C keeps the unrestricted arm's prompt on the line in the same way, and
+    // the port does not: getdir() clears it immediately, and the eat prompt's
+    // recorded sessions and its two focused tests are pinned to the '' this
+    // arm has always written.  Correcting that belongs with whichever slice
+    // next owns invent.c getobj().
+    if (resp !== null) state._pending_message = prompt;
     display.toplin = TOPLINE_NON_EMPTY;
     // `if (wins[WIN_MESSAGE]->cury) tty_clear_nhwindow(WIN_MESSAGE)` closes
     // clean_up.  cury is nonzero only for a prompt that wrapped onto a second

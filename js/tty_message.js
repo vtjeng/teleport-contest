@@ -241,7 +241,16 @@ async function ttyPlineCore(message, state, noRepeat) {
     const deathMessage = next.startsWith('You die');
     const columns = state.nhDisplay?.cols ?? 80;
     const stoppedAtEntry = Boolean(state._ttyMessageStopped);
-    const current = state._pending_message ?? '';
+    // C ref: topl.c update_topl():262-279. Both the share-the-line arm and the
+    // more() below it are gated on `ttyDisplay->toplin == TOPLINE_NEED_MORE`
+    // (or WIN_STOP), not on the line merely being occupied. Every message the
+    // port writes leaves NEED_MORE behind, so this reads as before for them;
+    // tty_yn_function()'s clean_up is the one writer that leaves
+    // TOPLINE_NON_EMPTY, and a message after an answered prompt replaces the
+    // line rather than sharing it or stopping for --More--.
+    const occupied = state._pending_message ?? '';
+    const current = state.nhDisplay?.toplin === TOPLINE_NON_EMPTY
+        ? '' : occupied;
     const priorTopline = state._ttyToplines ?? current;
     // update_topl() assigns `notdied` inside the last operand of its same-line
     // condition.  A long prior/death combination short-circuits before that

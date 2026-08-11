@@ -501,20 +501,20 @@ test('an unknown extended command answers with the initiator and the text',
 
 test('a named command with no ported handler stops the segment, not the key',
     async () => {
-    // cmd.c doextcmd()'s switch dispatches six handlers and this port throws
-    // on the rest. '#pray' is an ordinary non-WIZMODECMD row, so extcmds_match()
-    // finds it and can_do_extcmd() admits it; only the switch refuses. Borrow
-    // an existing segment's seed and options, because no matrix segment can
-    // hold these keys: C prays and the port does not.
+    // cmd.c doextcmd()'s switch dispatches the handlers this port owns and
+    // throws on the rest. '#sit' is an ordinary non-WIZMODECMD row, so
+    // extcmds_match() finds it and can_do_extcmd() admits it; only the switch
+    // refuses. Borrow an existing segment's seed and options, because no
+    // matrix segment can hold these keys: C sits down and the port does not.
     const base = segmentFor(`${EXTCMD_KEY}xyzzy${NEWLINE_KEY}`);
-    const moves = `.${EXTCMD_KEY}pray${NEWLINE_KEY}`;
+    const moves = `.${EXTCMD_KEY}sit${NEWLINE_KEY}`;
     let boundary = null;
     const replay = await runSegment(
         { ...base, moves }, { onBoundary: (error) => { boundary = error; } },
     );
 
     assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(boundary.message, /the extended command 'pray' is not ported/u);
+    assert.match(boundary.message, /the extended command 'sit' is not ported/u);
 
     // resetCommandVars() runs before the throw, so the turn is given up
     // rather than half-spent.

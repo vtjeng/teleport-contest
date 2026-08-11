@@ -94,6 +94,7 @@ import { doattributes, UnsupportedEnlightenmentError } from './insight.js';
 import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
 import { UnsupportedObjectNameError } from './objnam.js';
 import { doset_simple, UnsupportedOptionMenuError } from './options.js';
+import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedShopError } from './shk.js';
 import { dovspell, UnsupportedSpellDisplayError } from './spell.js';
 import {
@@ -359,19 +360,26 @@ export function key2txt(c) {
 }
 
 // C ref: cmd.c yn_menuable_resp(). The C test compares `resp` against five
-// specific string literals by address, so no response set the port could build
-// at run time would match; a null `resp`, which is what getdir() passes,
-// answers FALSE on the address comparisons alone.
+// specific string literals by address. Two of them, ynchars and ynqchars, are
+// exactly what paranoid_ynq() passes, so the address test succeeds and the
+// answer is iflags.query_menu; getdir()'s null `resp` matches none of the
+// five and answers FALSE on the address comparisons alone. C also requires
+// iflags.window_inited, which is true from tty_init_nhwindows() onward and so
+// on every path that can reach a prompt at all.
 function yn_menuable_resp(resp, state) {
     return resp !== null && Boolean(state.iflags?.query_menu);
 }
 
-// C ref: cmd.c yn_function() (5471-5578). Covers the arm getdir() reaches. No
-// command queue is ported, so the `addcmdq && cmdq_pop()` branch and the
-// cmdq_add_key() below it never run; iflags.debug_fuzzer is never set; and
-// yn_function_menu() declines a null `resp`, leaving the window port's
-// tty_yn_function() as the only reader. The `resp && *resp && res &&
-// !strchr(resp, res)` repair at 5567 cannot run for a null `resp` either.
+// C ref: cmd.c yn_function() (5471-5578). No command queue is ported, so the
+// `addcmdq && cmdq_pop()` branch and the cmdq_add_key() below it never run,
+// and iflags.debug_fuzzer is never set, leaving the window port's
+// tty_yn_function() as the only reader.
+//
+// The `resp && *resp && res && !strchr(resp, res)` repair at 5567 has no work
+// to do for either caller. A null `resp` fails its first test. For a restricted
+// set, tty_yn_function() returns only a character of `resp` or `def`, and both
+// ported callers pass a `def` that is in their set, so the paniclog() and
+// impossible() inside it stay unreachable.
 export async function yn_function(query, resp, def, addcmdq, state = game) {
     state.iflags ??= {};
     // "most recent pline is clobbered". Nothing in the port reads last_msg
@@ -401,12 +409,58 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
     return res;
 }
 
-// C ref: hack.h:1329 y_n(), over decl.c ynchars[]. Every restricted response
-// set stops inside tty_yn_function(); this is here so its one ported caller,
-// steed.c doride()'s debug-mode question, can be written as C writes it.
+// C ref: hack.h:1329 y_n(), over decl.c ynchars[]. Its one ported caller,
+// steed.c doride()'s debug-mode question, still stops: y_n() passes
+// addcmdq TRUE and yn_function() refuses that above.
 const ynchars = 'yn';
 export async function y_n(query, state = game) {
     return yn_function(query, ynchars, 'n', true, state);
+}
+
+// C ref: cmd.c paranoid_ynq() (5587-5650). "for paranoid_confirm:quit,die,
+// attack,&c prompting; allows yes, n|no, or q|quit; result is one of 'y' or
+// 'n' or 'q'; ESC yields 'q'".
+//
+// `be_paranoid` is ParanoidConfirm at every call site, not the caller's own
+// paranoia bit: the caller tests its own bit before asking at all. C's
+// PARANOID_CONFIRM arm reads a whole line through getlin() and reprompts with
+// "\"Yes\" or \"No\": " up to five times, which is a different prompt, a
+// different reader and a different history entry from the single-key arm; it
+// stops rather than being approximated.
+//
+// C's `char c` is a key byte here, which is what yn_function() answers and
+// what readchar() below it produces, so the comparisons are against codes.
+//
+// accept_q has no caller: paranoid_query() below is the port's only entry and
+// passes FALSE, so the ynqchars arm and the `!accept_q` half of the fold are
+// carried for the shape of the C function rather than for a path a game
+// reaches.
+const KEY_N = 'n'.charCodeAt(0);
+const KEY_Q = 'q'.charCodeAt(0);
+const KEY_Y = 'y'.charCodeAt(0);
+const ynqchars = 'ynq';
+async function paranoid_ynq(be_paranoid, prompt, accept_q, state = game) {
+    let c = KEY_N; /* default result */
+
+    if (be_paranoid) {
+        throw new UnsupportedGetlinBoundaryError(
+            'paranoid_ynq() reading "yes" or "no" under paranoid_confirm',
+        );
+    } else if (accept_q) {
+        /* 'y', 'n', or 'q' */
+        c = await yn_function(prompt, ynqchars, 'n', false, state);
+    } else {
+        /* 'y' or 'n' */
+        c = await yn_function(prompt, ynchars, 'n', false, state);
+    }
+    if (c !== KEY_Y && (c !== KEY_Q || !accept_q)) c = KEY_N;
+    return c;
+}
+
+// C ref: cmd.c paranoid_query() (5652-5657). "result is True for yes; n|no and
+// ESC yield False".
+export async function paranoid_query(be_paranoid, prompt, state = game) {
+    return await paranoid_ynq(be_paranoid, prompt, false, state) === KEY_Y;
 }
 
 // C ref: cmd.c move_funcs[N_DIRS_Z][N_MOVEMODES] (2070-2082), named by the
@@ -1125,6 +1179,10 @@ export function failClosedCommandRefusals() {
         // steed, and for a monster on the target square, all three of which
         // continue into a function this goal leaves unported.
         UnsupportedChatError,
+        // pray.c dopray() raises this once can_pray() has printed "You begin
+        // praying to <god>.", which is where C schedules prayer_done() and
+        // this port stops.
+        UnsupportedPrayerError,
     ];
 }
 
@@ -1593,6 +1651,9 @@ async function doextcmd(key, state) {
     case 'doride':
         // C ref: steed.c doride(), which returns its own ECMD_* result.
         return await doride(state);
+    case 'dopray':
+        // C ref: pray.c dopray(), which returns its own ECMD_* result.
+        return await dopray(state);
     case 'dotwoweapon':
         return await runTwoWeaponCommand(key, state);
     case 'dotalk':

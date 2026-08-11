@@ -5,7 +5,8 @@
 //        Armor_off() (908-930), fingers_or_gloves() (59-65),
 //        cancel_doff() (1642-1659), count_worn_stuff() (1731-1766),
 //        armor_or_accessory_off() (1768-1829), dotakeoff() (1831-1855),
-//        cursed() (1891-1917), armoroff() (1919-2008), select_off()
+//        cursed() (1891-1917), armoroff() (1919-2008), stuck_ring()
+//        (2656-2683), unchanger() (2685-2692), select_off()
 //        (2694-2821), reset_remarm() (3012-3018), inaccessible_equipment()
 //        (3338-3400), equip_ok() (3402-3447) and takeoff_ok() (3470-3475).
 //
@@ -27,6 +28,7 @@ import {
     GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    LEFT_HANDED,
     PARANOID_REMOVE,
     W_ACCESSORY,
     W_ARM,
@@ -48,12 +50,13 @@ import {
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
 import { getobj } from './invent.js';
-import { cvt_prop_to_mseenres, monstunseesu } from './mondata.js';
+import { cvt_prop_to_mseenres, monstunseesu, nolimbs } from './mondata.js';
 import { PM_ARCHEOLOGIST } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import { is_shield, objectType, set_bknown } from './obj.js';
 import {
     AMULET_CLASS,
+    AMULET_OF_UNCHANGING,
     ARMOR_CLASS,
     ARM_BOOTS,
     ARM_GLOVES,
@@ -452,6 +455,50 @@ function is_boots(obj, state) {
 function is_gloves(obj, state) {
     return obj.oclass === ARMOR_CLASS
         && objectType(obj, state).oc_subtyp === ARM_GLOVES;
+}
+
+// C ref: you.h:566 RING_ON_PRIMARY. The ring worn on the hand that also holds
+// the weapon; u_init.c gives nine heroes in ten RIGHT_HANDED.
+function RING_ON_PRIMARY(state) {
+    return state.u.uhandedness === LEFT_HANDED ? state.uleft : state.uright;
+}
+
+// C ref: do_wear.c stuck_ring() (2656-2683). Answers the worn item that stops
+// `ring` coming off, or null when nothing does. pray.c in_trouble() is the
+// only caller this port has; it asks about levitation rings, and the answer
+// only matters when the ring is worn and is that type.
+//
+// C opens with an impossible() for a ring that is worn in neither slot. Both
+// callers pass uleft or uright literally, so the diagnostic is unreachable and
+// this port drops it rather than inventing a message sink for it.
+export function stuck_ring(ring, otyp, state = game) {
+    if (ring && ring.otyp === otyp) {
+        /* reasons ring can't be removed match those checked by select_off();
+           limbless case has extra checks because ordinarily it's temporary */
+        if (nolimbs(state.youmonst?.data) && state.uamul
+            && state.uamul.otyp === AMULET_OF_UNCHANGING
+            && state.uamul.cursed)
+            return state.uamul;
+        if (welded(state.uwep, state)
+            && (ring === RING_ON_PRIMARY(state)
+                || bimanual(state.uwep, state)))
+            return state.uwep;
+        if (state.uarmg && state.uarmg.cursed) return state.uarmg;
+        if (ring.cursed) return ring;
+        /* normally outermost layer is processed first, but slippery gloves
+           wears off quickly so uncurse ring itself before handling those */
+        if (state.uarmg && Glib(state)) return state.uarmg;
+    }
+    /* either no ring or not right type or nothing prevents its removal */
+    return null;
+}
+
+// C ref: do_wear.c unchanger() (2685-2692). The worn item that confers
+// Unchanging; pray.c in_trouble() is its only caller.
+export function unchanger(state = game) {
+    if (state.uamul && state.uamul.otyp === AMULET_OF_UNCHANGING)
+        return state.uamul;
+    return null;
 }
 
 // The slot-to-mask chain do_wear.c:2786-2812 spells out, restricted to the
