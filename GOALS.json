@@ -1517,8 +1517,8 @@
         },
         {
           "name": "pin the wish path's untested arms and project the quest-artifact refusal",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "7b3e4d002aedc9fe37e693c935f7dac038a05a50"
         }
       ],
       "openedAt": "14f13184f03fb2edbfb297150f1beb961dcc9530",
