@@ -1608,8 +1608,8 @@
         },
         {
           "name": "sleep the hero the ray hits",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "14de854ba8ae83d320c0105644400bdad18e4478"
         }
       ],
       "openedAt": "e46a7c3c3dca134f023bf8062cee87554d87dfc8",
