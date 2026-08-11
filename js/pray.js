@@ -1,15 +1,18 @@
-// pray.js -- the hero's deity, the troubles a prayer would fix, and the #pray
-// command through the three-turn wait it schedules.
+// pray.js -- the hero's deity, the troubles a prayer would fix, the #pray
+// command, and the prayer a god answers by taking offence.
 //
 // C ref: src/pray.c critically_low_hp() (116-156), stuck_in_wall() (161-181),
 //        in_trouble() (198-284), worst_cursed_item() (288-346),
+//        angrygods() (703-784), gods_upset() (1434-1445),
 //        blocked_boulder() (2677-2719), can_pray() (2124-2173),
-//        dopray() (2199-2276), u_gname() (2524) and align_gname() (2530).
+//        dopray() (2199-2276), prayer_done() (2276-2343), u_gname() (2524)
+//        and align_gname() (2530).
 //
-// prayer_done() (2276-2343) and everything it reaches -- pleased(),
-// angrygods(), water_prayer(), pray_revive() -- are not ported. dopray()
-// schedules it through ga.afternmv exactly as C does, and the stop moves with
-// it to hack.c unmul(), three turns later.
+// prayer_done() covers its head and the gp.p_type == 0 arm; angrygods() covers
+// cases 0 and 1 of its switch and the trailing rnz(300). pleased(),
+// water_prayer(), pray_revive(), godvoice(), gods_angry() and everything the
+// remaining angrygods() cases reach are not ported, and each site that would
+// enter one stops by name.
 
 import {
     A_CHAOTIC,
@@ -27,6 +30,7 @@ import {
     ECMD_TIME,
     EXT_ENCUMBER,
     HALLUC,
+    HALLUC_RES,
     HUNGRY,
     HVY_ENCUMBER,
     IS_ALTAR,
@@ -60,6 +64,7 @@ import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { near_capacity, nomul } from './hack.js';
+import { change_luck } from './moveloop_preamble.js';
 import {
     attacktype_fordmg,
     is_demon,
@@ -80,7 +85,7 @@ import {
     SADDLE,
 } from './objects.js';
 import { region_danger } from './region.js';
-import { rn2 } from './rng.js';
+import { rn2, rnz } from './rng.js';
 import { Punished } from './steed.js';
 import { is_pool_or_lava } from './trap.js';
 import { ttyPline } from './tty_message.js';
@@ -127,6 +132,10 @@ export const TROUBLE_HUNGRY = -8;
 export const TROUBLE_STUNNED = -9;
 export const TROUBLE_CONFUSED = -10;
 export const TROUBLE_HALLUCINATION = -11;
+
+// C ref: pray.c:67 `#define STRIDENT 4`, the alignment record from which a god
+// weighs the hero's bad luck at a third rather than in full.
+const STRIDENT = 4;
 
 // C ref: pray.c:39 `#define Cursed_obj(obj, typ)`.
 function Cursed_obj(obj, typ) {
@@ -506,16 +515,134 @@ export async function dopray(state = game) {
 }
 
 // C ref: pray.c prayer_done() (2276-2343), the ga.afternmv callback dopray()
-// installs, and everything it reaches: pleased(), angrygods(), water_prayer()
-// and pray_revive(). None of that is ported, so this is where the prayer
-// stops -- three turns after dopray() returns, at hack.c unmul()'s call, not
-// at the command.
+// installs. Restricted to the head and the gp.p_type == 0 arm: a fresh hero
+// carries u.ublesscnt 300 from u_init.c:1005 and can_pray() answers 0 for
+// every prayer that finds no trouble, so that is the arm ordinary play
+// reaches. Each of the other five stops by name.
 //
-// js/allmain.js runUnmulAtTurnBoundary() is what keeps that stop retryable.
-// The callback runs from inside the once-per-turn block, so js/cmd.js
-// failClosedCommand() is no longer on the stack to convert what it raises.
-async function prayer_done() {
-    throw new UnsupportedPrayerError('prayer_done()');
+// C's return value distinguishes the Inhell arm from the rest, and only
+// moveloop_core()'s occupation loop reads an afternmv result; unmul() discards
+// it. Nothing is returned here.
+export async function prayer_done(state = game) {
+    state.u.uinvulnerable = false;
+    if (state.gp.p_type === -2) {
+        // Praying at an unaligned altar: wake_nearby(), adjalign(-2) and,
+        // outside Gehennom, "Nothing else happens."
+        throw new UnsupportedPrayerError("prayer_done()'s Moloch arm");
+    } else if (state.gp.p_type === -1) {
+        // Praying while polymorphed into an undead creature: godvoice(),
+        // rehumanize() and losehp(rnd(20)).
+        throw new UnsupportedPrayerError("prayer_done()'s undead arm");
+    }
+    if (In_hell(state.u.uz, state)) {
+        // "Since you are in Gehennom, %s can't help you." plus an rnl() roll
+        // against u.ualign.record that decides whether angrygods() runs.
+        throw new UnsupportedPrayerError("prayer_done()'s Gehennom arm");
+    }
+
+    if (state.gp.p_type === 0) {
+        // C guards water_prayer(FALSE) with `on_altar() && u.ualign.type !=
+        // alignment`. can_pray() only reaches p_type 0 by way of u.ublesscnt,
+        // so an altar-standing hero can arrive here; water_prayer() blesses
+        // and curses the potions underfoot and is not ported.
+        if (on_altar(state) && state.u.ualign.type !== state.gp.p_aligntyp)
+            throw new UnsupportedPrayerError('water_prayer()');
+        state.u.ublesscnt += rnz(250);
+        change_luck(-3, state);
+        await gods_upset(state.u.ualign.type, state);
+    } else if (state.gp.p_type === 1) {
+        // "too naughty": straight into angrygods() with no luck or timer
+        // penalty first.
+        throw new UnsupportedPrayerError("prayer_done()'s p_type 1 arm");
+    } else if (state.gp.p_type === 2) {
+        // A coaligned hero on a cross-aligned altar: water_prayer() decides
+        // between the p_type 0 penalties and pleased().
+        throw new UnsupportedPrayerError("prayer_done()'s p_type 2 arm");
+    } else {
+        // Coaligned and in good standing: pray_revive(), water_prayer(TRUE)
+        // and pleased(), which is the whole reward half of pray.c.
+        throw new UnsupportedPrayerError('pleased()');
+    }
+}
+
+// C ref: pray.c gods_upset() (1434-1445). "The g_align god is upset with you."
+// Anger at the hero's own god accumulates; anger at another god is spent.
+export async function gods_upset(g_align, state = game) {
+    if (g_align === state.u.ualign.type) state.u.ugangr++;
+    else if (state.u.ugangr) state.u.ugangr--;
+    await angrygods(g_align, state);
+}
+
+// C ref: youprop.h:119-120 Hallucination, the bare HALLUC intrinsic minus
+// either form of Halluc_resistance.
+function Hallucination(state) {
+    const halluc = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(halluc?.intrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+// C ref: pray.c angrygods() (703-784). How badly a god reacts is
+// `rn2(maxanger)`, and maxanger grows with the anger already stored and with
+// bad luck, so the first prayer of a game -- one point of anger and the three
+// points of luck prayer_done() has just taken -- lands on rn2(4).
+//
+// Only cases 0 and 1, the pair that merely tells the hero the god is
+// displeased, are ported. Cases 2 through 8 and the default reach adjattrib(),
+// losexp(), rndcurse(), attrcurse(), punish(), summon_minion() and
+// god_zaps_you(); each stops by name below.
+export async function angrygods(resp_god, state = game) {
+    let maxanger;
+    const { u } = state;
+
+    if (In_hell(u.uz, state)) resp_god = A_NONE;
+    u.ublessed = 0; /* lose divine protection */
+
+    const Luck = (u.uluck ?? 0) + (u.moreluck ?? 0);
+    /* changed from tmp = u.ugangr + abs (u.uluck) -- rph */
+    /* added test for alignment diff -dlc */
+    if (resp_god !== u.ualign.type) {
+        maxanger = Math.trunc(u.ualign.record / 2)
+            + (Luck > 0 ? Math.trunc(-Luck / 3) : -Luck);
+    } else {
+        maxanger = 3 * u.ugangr
+            + ((Luck > 0 || u.ualign.record >= STRIDENT)
+                ? Math.trunc(-Luck / 3)
+                : -Luck);
+    }
+    if (maxanger < 1) maxanger = 1; /* possible if bad align & good luck */
+    else if (maxanger > 15) maxanger = 15; /* be reasonable */
+
+    switch (rn2(maxanger)) {
+    case 0:
+    case 1:
+        await ttyPline(
+            `You feel that ${align_gname(resp_god, state)} is `
+            + `${Hallucination(state) ? 'bummed' : 'displeased'}.`,
+            state,
+        );
+        break;
+    case 2:
+    case 3:
+        throw new UnsupportedPrayerError(
+            "angrygods()'s \"Thou must relearn thy lessons!\"",
+        );
+    case 6:
+        // C punishes an unpunished hero here and falls through to the curse
+        // arm below when the hero already carries a ball and chain.
+        throw new UnsupportedPrayerError("angrygods()'s punishment");
+    case 4:
+    case 5:
+        throw new UnsupportedPrayerError("angrygods()'s curses");
+    case 7:
+    case 8:
+        throw new UnsupportedPrayerError("angrygods()'s summoned minion");
+    default:
+        throw new UnsupportedPrayerError("angrygods()'s lightning bolt");
+    }
+    /* even though this might not be in response to prayer, set pray timer */
+    const new_ublesscnt = rnz(300);
+    if (new_ublesscnt > u.ublesscnt) u.ublesscnt = new_ublesscnt;
 }
 
 // C ref: decl.c Moloch.

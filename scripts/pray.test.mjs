@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
@@ -16,6 +17,7 @@ import {
     EXT_ENCUMBER,
     FROMOUTSIDE,
     HALLUC,
+    HALLUC_RES,
     HUNGRY,
     HVY_ENCUMBER,
     PASSES_WALLS,
@@ -44,7 +46,7 @@ import { game } from '../js/gstate.js';
 import { near_capacity } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_ACID_BLOB, PM_GHOUL, PM_HORNED_DEVIL } from '../js/monsters.js';
-import { getRngLog } from '../js/rng.js';
+import { enableRngLog, getRngLog } from '../js/rng.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     AMULET_OF_UNCHANGING,
@@ -83,10 +85,13 @@ import {
     TROUBLE_UNUSEABLE_HANDS,
     TROUBLE_WOUNDED_LEGS,
     UnsupportedPrayerError,
+    angrygods,
     can_pray,
     critically_low_hp,
     dopray,
+    gods_upset,
     in_trouble,
+    prayer_done,
     stuck_in_wall,
     worst_cursed_item,
 } from '../js/pray.js';
@@ -102,6 +107,10 @@ const NETHACKRC = [
 ].join('\n');
 const DATETIME = '20260214081500';
 const SEED = 4410003;
+
+const PRAY_C = readFileSync(
+    new URL('../nethack-c/upstream/src/pray.c', import.meta.url), 'utf8',
+);
 
 async function startedGame(moves = '') {
     await runSegment({
@@ -621,55 +630,296 @@ test('worst_cursed_item() follows the source precedence order', async () => {
 });
 
 // The real consumer: the #pray command, dispatched from the extended-command
-// prompt, confirmed, and waited out over the three turns nomul(-3) buys.
-test('#pray confirms, waits three turns, and stops at prayer_done()',
-    async () => {
-        let boundary = null;
-        await runSegment(
-            { seed: SEED, datetime: DATETIME, nethackrc: NETHACKRC,
-                moves: '.#pray\ny' },
-            { onBoundary: (error) => { boundary = error; } },
-        );
-        // The named refusal, and the name is prayer_done(): with debug mode
-        // off, pray.c:2235's wizard test must not divert the command into the
-        // force-success prompt instead. The class is the turn boundary rather
-        // than the command one, because hack.c unmul() calls the callback from
-        // inside allmain.c's once-per-turn block, with js/cmd.js
-        // failClosedCommand() long off the stack.
-        assert.equal(boundary?.name, 'UnsupportedTurnBoundaryError');
-        assert.match(boundary.message, /a delayed action reached .*prayer_done\(\)/u);
-        // can_pray() ran and answered the arm the goal turns on: an ordinary
-        // hero away from an altar prays to her own god, is in no trouble, and
-        // is refused for time (u_init.c:1005 leaves u.ublesscnt at 300, and
-        // pray.c:2152 tests `u.ublesscnt > 0` when p_trouble is 0).
-        assert.equal(game.gp.p_aligntyp, A_LAWFUL);
-        assert.equal(game.gp.p_trouble, 0);
-        assert.equal(game.gp.p_type, 0);
-        // dopray():2216 breaks atheism once the confirmation is answered.
-        assert.equal(game.u.uconduct.gnostic, 1);
+// prompt, confirmed, waited out over its three turns, and answered.
+//
+// The final ' ' answers the --More-- that angrygods()'s line raises: the two
+// prayer messages together are 49 columns, and topl.c cannot fit a third on
+// the same line. Without it the segment would end on that prompt with the
+// rnz(300) below it unspent.
+test('#pray runs its three turns and the god takes offence', async () => {
+    let boundary = null;
+    enableRngLog();
+    await runSegment(
+        { seed: SEED, datetime: DATETIME, nethackrc: NETHACKRC,
+            moves: '.#pray\ny ' },
+        { onBoundary: (error) => { boundary = error; } },
+    );
+    // Nothing stopped: with debug mode off, pray.c:2235's wizard test must not
+    // divert the command into the force-success prompt, and rn2(maxanger)
+    // landed on one of the two cases the port owns.
+    assert.equal(boundary, null);
+    // can_pray() answered the arm the goal turns on: an ordinary hero away
+    // from an altar prays to her own god, is in no trouble, and is refused for
+    // time (u_init.c:1005 leaves u.ublesscnt at 300, and pray.c:2152 tests
+    // `u.ublesscnt > 0` when p_trouble is 0).
+    assert.equal(game.gp.p_aligntyp, A_LAWFUL);
+    assert.equal(game.gp.p_trouble, 0);
+    assert.equal(game.gp.p_type, 0);
+    // dopray():2216 breaks atheism once the confirmation is answered.
+    assert.equal(game.u.uconduct.gnostic, 1);
+    // role.c:503 names Tyr as the Valkyrie's lawful god, and angrygods()'s
+    // case 0/1 line replaced the pair the top line had been holding.
+    assert.equal(game._pending_message, 'You feel that Tyr is displeased.');
 
-        // nomul(-3) bought three turns and moveloop_core() spent all three.
-        // moveloop_preamble() starts svm.moves at 1, so one leading wait plus
-        // the turn #pray charges plus two counted down reach 5.
-        assert.equal(game.moves, 5);
-        // u_init.c:1005 starts u.ublesscnt at 300 and allmain.c:328 spends one
-        // on each of those four elapsed turns.
-        assert.equal(game.u.ublesscnt, 300 - 4);
-        // unmul() zeroed the count and spent the message before the callback
-        // stopped, exactly as it does when the callback succeeds. role.c:503
-        // names Tyr as the Valkyrie's lawful god, so the top line holds both
-        // of the prayer's messages.
-        assert.equal(game.multi, 0);
-        assert.equal(game.nomovemsg, null);
-        assert.equal(game.multi_reason, null);
-        assert.equal(
-            game._pending_message,
-            'You begin praying to Tyr.  You finish your prayer.',
+    // nomul(-3) bought three turns and moveloop_core() spent all three: one
+    // leading wait plus one turn charged to #pray plus two more counted down.
+    assert.equal(game.moves, 5);
+    // unmul() cleared everything dopray() left for it, so the next
+    // multi-turn action starts from nothing.
+    assert.equal(game.multi, 0);
+    assert.equal(game.nomovemsg, null);
+    assert.equal(game.multi_reason, null);
+    assert.equal(game.afternmv, null);
+
+    // prayer_done()'s p_type 0 arm, in the order pray.c:2317-2320 runs it.
+    // change_luck(-3) from Luck 0: moonphase 7 is neither full nor new, so
+    // moveloop_preamble() adjusted nothing first.
+    assert.equal(game.flags.moonphase, 7);
+    assert.equal(game.u.uluck, -3);
+    // gods_upset() raised the hero's own god's anger from 0.
+    assert.equal(game.u.ugangr, 1);
+
+    // The draw sequence is what pins the arithmetic. rnz(250) reports its five
+    // internal draws and its own result; angrygods() then draws
+    // rn2(maxanger). u.ualign.record is the Valkyrie's initrecord of 0, which
+    // is below STRIDENT, so pray.c:717 weighs the whole of the three luck
+    // points it has just lost: 3 * 1 + 3 = 6.
+    const log = getRngLog();
+    const prayerDraws = log.slice(log.findIndex(
+        (entry) => entry === 'rnz(250)=413',
+    ));
+    assert.equal(game.u.ualign.record, 0);
+    assert.deepEqual(prayerDraws, [
+        'rnz(250)=413',
+        'rn2(6)=1',
+        'rn2(1000)=961', 'rn2(4)=2', 'rne(4)=1', 'rn2(2)=0', 'rnz(300)=152',
+    ]);
+    // u.ublesscnt is 300 at u_init.c:1005 and allmain.c:328 spends one per
+    // elapsed turn. moveloop_preamble() starts svm.moves at 1, so the five it
+    // reaches above cost four decrements. prayer_done() then adds rnz(250),
+    // and angrygods() raises the total to rnz(300) only when that is larger --
+    // it is not, so the sum stands.
+    assert.equal(game.u.ublesscnt, 300 - 4 + 413);
+});
+
+// pray.c:725 decides how badly the god reacts, and every term of maxanger
+// comes from state a live prayer sets. Driving angrygods() directly is the
+// only way to reach the combinations one seed cannot, and the bound of the
+// rn2() it draws reports maxanger exactly. Cases the port refuses still draw
+// first, so the bound is readable either way.
+test('angrygods() sizes rn2(maxanger) from anger, luck and alignment',
+    async () => {
+        await startedGame();
+        // pray.c:67 `#define STRIDENT 4`, re-read here so a change to the
+        // source constant fails this test rather than being absorbed by it.
+        const STRIDENT = Number(
+            /#define STRIDENT (\d+)/u.exec(PRAY_C)[1],
         );
-        // ga.afternmv is cleared before the callback runs, so the refusal
-        // leaves nothing scheduled behind it.
-        assert.equal(game.afternmv, null);
+        // Each row: [own god?, u.ugangr, Luck, u.ualign.record, bound].
+        for (const [coaligned, ugangr, luck, record, bound] of [
+            // The recorded Samurai prayer: one point of anger, the three luck
+            // points prayer_done() just took, and an initrecord of 10 at or
+            // above STRIDENT, so -Luck/3 rather than -Luck. 3*1 + 1.
+            [true, 1, -3, 10, 4],
+            // The two rows that straddle STRIDENT, which pray.c:717 tests with
+            // `>=`. A record of exactly 4 still takes the /3 arm; one point
+            // lower pays the whole of the bad luck, 3*1 + 3.
+            [true, 1, -3, STRIDENT, 4],
+            [true, 1, -3, STRIDENT - 1, 6],
+            // Good luck takes the /3 arm whatever the record is, and C's
+            // integer division truncates toward zero: 3*2 + (-7/3) = 6 - 2.
+            [true, 2, 7, 0, 4],
+            // A different god reads half the alignment record instead of the
+            // anger: 10/2 + 3.
+            [false, 5, -3, 10, 8],
+            // ... and halves it toward zero, then subtracts: 11/2 + (-6/3).
+            [false, 5, 6, 11, 3],
+            // pray.c:721 floors the result at 1, and its test is `< 1`, so
+            // the row that separates it from `< 0` is the one that lands on
+            // exactly 0: no anger and no luck either way. rn2(0) would return
+            // without drawing at all.
+            [true, 0, 0, 0, 1],
+            // The floor also catches a negative, which is what C's comment
+            // ("possible if bad align & good luck") is about.
+            [true, 0, 9, 0, 1],
+            // pray.c:723 caps it at 15. 3*10 + 10 is 40.
+            [true, 10, -10, 0, 15],
+        ]) {
+            const label = `coaligned=${coaligned} ugangr=${ugangr} `
+                + `Luck=${luck} record=${record}`;
+            game.u.ugangr = ugangr;
+            game.u.uluck = luck;
+            game.u.moreluck = 0;
+            game.u.ualign.record = record;
+            // A row that lands on case 0 or 1 leaves its line on the top row,
+            // and the next row's would stop for a --More-- no key answers.
+            clearTtyMessageWindow(game);
+            const before = getRngLog().length;
+            await angrygods(
+                coaligned ? A_LAWFUL : A_CHAOTIC, game,
+            ).catch((error) => {
+                // Cases 2 through 8 and the default are refused by name, and
+                // every one of them draws rn2(maxanger) first.
+                assert.ok(error instanceof UnsupportedPrayerError, label);
+            });
+            assert.match(
+                getRngLog()[before],
+                new RegExp(`^rn2\\(${bound}\\)=`, 'u'),
+                label,
+            );
+            // pray.c:710 strips divine protection whichever case is drawn.
+            assert.equal(game.u.ublessed, 0, label);
+        }
     });
+
+// pray.c:1436-1440. Anger at the hero's own god accumulates and anger at any
+// other god is spent, and only the first of those can raise maxanger.
+test('gods_upset() moves u.ugangr toward the god it names', async () => {
+    await startedGame();
+    game.u.ualign.record = 0;
+    game.u.uluck = 0;
+    game.u.moreluck = 0;
+
+    const upset = async (align) => {
+        // angrygods() runs on every call; clear the line it may leave so the
+        // next call's message does not stop for a --More-- no key answers.
+        clearTtyMessageWindow(game);
+        return gods_upset(align, game).catch((error) => {
+            assert.ok(error instanceof UnsupportedPrayerError);
+        });
+    };
+
+    game.u.ugangr = 0;
+    await upset(A_LAWFUL);
+    assert.equal(game.u.ugangr, 1);
+    await upset(A_LAWFUL);
+    assert.equal(game.u.ugangr, 2);
+    // A different god spends stored anger instead of adding to it.
+    await upset(A_CHAOTIC);
+    assert.equal(game.u.ugangr, 1);
+    await upset(A_CHAOTIC);
+    assert.equal(game.u.ugangr, 0);
+    // ... and the `else if (u.ugangr)` guard stops it going negative.
+    await upset(A_CHAOTIC);
+    assert.equal(game.u.ugangr, 0);
+});
+
+// pray.c:727-730 picks its adjective from Hallucination, which youprop.h:120
+// reads as the bare HALLUC intrinsic minus either form of Halluc_resistance.
+test('angrygods() calls a god bummed rather than displeased when hallucinating',
+    async () => {
+        await startedGame();
+        game.u.ugangr = 0;
+        game.u.uluck = 9;
+        game.u.moreluck = 0;
+        game.u.ualign.record = 0;
+        // maxanger floors at 1, so rn2(1) is 0 and case 0 always runs.
+        game.u.uprops[HALLUC].intrinsic = 5;
+        await angrygods(A_LAWFUL, game);
+        assert.equal(game._pending_message, 'You feel that Tyr is bummed.');
+
+        // youprop.h:120 is HHallucination alone, not the usual
+        // intrinsic-or-extrinsic pair: a worn source does not make the hero
+        // hallucinate for this message.
+        clearTtyMessageWindow(game);
+        game.u.uprops[HALLUC].intrinsic = 0;
+        game.u.uprops[HALLUC].extrinsic = FROMOUTSIDE;
+        await angrygods(A_LAWFUL, game);
+        assert.equal(game._pending_message, 'You feel that Tyr is displeased.');
+        game.u.uprops[HALLUC].extrinsic = 0;
+        game.u.uprops[HALLUC].intrinsic = 5;
+
+        // Resistance from either side cancels it, extrinsic included.
+        clearTtyMessageWindow(game);
+        game.u.uprops[HALLUC_RES].extrinsic = FROMOUTSIDE;
+        await angrygods(A_LAWFUL, game);
+        assert.equal(game._pending_message, 'You feel that Tyr is displeased.');
+        game.u.uprops[HALLUC_RES].extrinsic = 0;
+        game.u.uprops[HALLUC].intrinsic = 0;
+    });
+
+// pray.c:779-782 sets the pray timer whichever case ran, and only upward.
+test('angrygods() raises u.ublesscnt to rnz(300) but never lowers it',
+    async () => {
+        await startedGame();
+        game.u.ugangr = 0;
+        game.u.uluck = 9;
+        game.u.moreluck = 0;
+        game.u.ualign.record = 0;
+
+        game.u.ublesscnt = 0;
+        await angrygods(A_LAWFUL, game);
+        const raised = game.u.ublesscnt;
+        assert.ok(raised > 0, 'rnz(300) raised an empty timer');
+
+        // A timer already past anything rnz(300) can return stays put. rnz()
+        // multiplies by at most 1000 * 4 ^ 5 through its rne(4) tail.
+        game.u.ublesscnt = 300 * 1000 * 4 ** 5;
+        const untouched = game.u.ublesscnt;
+        await angrygods(A_LAWFUL, game);
+        assert.equal(game.u.ublesscnt, untouched);
+    });
+
+// Everything prayer_done() does not own stops by name, at the arm C would
+// have taken. Each row leaves the hero exactly where can_pray() would.
+test('prayer_done() refuses every arm outside gp.p_type 0', async () => {
+    await startedGame();
+    for (const [p_type, pattern] of [
+        [-2, /Moloch arm/u],
+        [-1, /undead arm/u],
+        [1, /p_type 1 arm/u],
+        [2, /p_type 2 arm/u],
+        [3, /pleased\(\)/u],
+    ]) {
+        game.gp = { p_type, p_aligntyp: A_LAWFUL };
+        game.u.uinvulnerable = true;
+        await assert.rejects(prayer_done(game), pattern, `p_type ${p_type}`);
+        // pray.c:2280 clears invulnerability before any arm is chosen, so the
+        // shimmering light dopray() raised is gone even on a refused arm.
+        assert.equal(game.u.uinvulnerable, false, `p_type ${p_type}`);
+    }
+
+    // pray.c:2308 puts Gehennom ahead of every p_type but -2 and -1.
+    // dungeon.c In_hell() reads the dungeon's `hellish` flag, which
+    // dat/dungeon.lua sets on exactly one branch.
+    game.gp = { p_type: 0, p_aligntyp: A_LAWFUL };
+    const uz = game.u.uz;
+    const hellDnum = game.dungeons.findIndex((d) => d?.flags?.hellish);
+    assert.ok(hellDnum >= 0, 'the dungeon list holds a hellish branch');
+    game.u.uz = { dnum: hellDnum, dlevel: 1 };
+    await assert.rejects(prayer_done(game), /Gehennom arm/u);
+    game.u.uz = uz;
+
+    // pray.c:2316 reaches water_prayer() only for a hero who is both standing
+    // on an altar and praying to another alignment. Neither half alone does
+    // it, so all three combinations are here.
+    const here = game.level.at(game.u.ux, game.u.uy);
+    const wasTyp = here.typ;
+    const wasMask = here.altarmask;
+    here.typ = ALTAR;
+    here.altarmask = Align2amask(A_CHAOTIC);
+    game.gp = { p_type: 0, p_aligntyp: A_CHAOTIC };
+    await assert.rejects(prayer_done(game), /water_prayer\(\)/u);
+
+    for (const [name, typ, aligntyp] of [
+        ['a coaligned altar', ALTAR, game.u.ualign.type],
+        ['no altar at all', wasTyp, A_CHAOTIC],
+    ]) {
+        here.typ = typ;
+        game.gp = { p_type: 0, p_aligntyp: aligntyp };
+        // The ported path prints, so clear the line each pass or the next
+        // message stops for a --More-- no key answers.
+        clearTtyMessageWindow(game);
+        await prayer_done(game).catch((error) => {
+            // angrygods() can still refuse whichever case its rn2() draws;
+            // what must not happen is the water_prayer() stop.
+            assert.ok(error instanceof UnsupportedPrayerError, name);
+            assert.doesNotMatch(error.message, /water_prayer/u, name);
+        });
+    }
+    here.typ = wasTyp;
+    here.altarmask = wasMask;
+});
 
 test('#pray asks its confirmation with the response set and default C shows',
     async () => {
