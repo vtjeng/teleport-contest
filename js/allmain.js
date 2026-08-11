@@ -77,6 +77,7 @@ import {
     overexert_hp,
     projected_capacity,
     runmode_delay_output,
+    unmul,
 } from './hack.js';
 import { encumber_msg } from './pickup.js';
 import {
@@ -508,6 +509,29 @@ async function runDomoveAtTurnBoundary(state) {
     }
 }
 
+// allmain.c:383 calls unmul() from inside the once-per-turn block, so the
+// ga.afternmv callback it runs is as far outside js/cmd.js failClosedCommand()
+// as the deferred goto above. pray.c prayer_done() is the callback the port
+// installs and it refuses six of its seven arms by name; without this
+// conversion the first one reached would escape runSegment() as a hard failure
+// and discard every screen the segment had already matched.
+async function runUnmulAtTurnBoundary(state) {
+    try {
+        await unmul(null, state);
+    } catch (error) {
+        if (!failClosedCommandRefusals().some(
+            (type) => error instanceof type,
+        )) {
+            throw error;
+        }
+        const boundary = new UnsupportedTurnBoundaryError(
+            `a delayed action reached ${error.message}`,
+        );
+        boundary.reason = error.reason;
+        throw boundary;
+    }
+}
+
 function propertyActive(state, property) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic);
@@ -751,6 +775,31 @@ async function finishElapsedTurn(
         message: planning ? async () => {} : ttyPline,
     });
     maybeWipeHeroEngraving(state, random);
+
+    // C ref: allmain.c moveloop_core() (379-388), the last statement of the
+    // once-per-turn block. C's two intervening blocks -- the u.uevent.udemigod
+    // countdown into intervene(), and movebubbles()/fumaroles() -- have no port
+    // and could not act on this level anyway, so this stays last here too.
+    //
+    // "when immobile, count is in turns": nomul() with a negative value buys
+    // that many turns during which moveloop_core() reads no key, and this is
+    // what spends them. runmode_delay_output() draws one animation frame per
+    // turn, exactly as it does for a run.
+    if ((state.multi ?? 0) < 0) {
+        // A burdened hero's planning clone runs this whole block before the
+        // live pass does, the way js/allmain.js:661-662 guards region upkeep:
+        // counting on the clone would spend a turn of the wait twice and print
+        // its release message from a state that is thrown away.
+        if (planning)
+            elapsedTurnBoundary('burdened multi-cycle immobility countdown');
+        await runmode_delay_output(state);
+        if (++state.multi === 0) { /* finished yet? */
+            await runUnmulAtTurnBoundary(state);
+            /* if unmul caused a level change, take it now */
+            if (state.u.utotype)
+                elapsedTurnBoundary('a level change deferred by unmul()');
+        }
+    }
 }
 
 

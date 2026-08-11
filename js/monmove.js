@@ -320,7 +320,7 @@ import {
 } from './startup_a11y.js';
 import { S_poisoncloud } from './symbols.js';
 import { gettrack, hastrack } from './track.js';
-import { is_lava, is_pool, t_at } from './trap.js';
+import { is_lava, is_pool, t_at, unconscious } from './trap.js';
 import {
     check_in_air,
     fixed_tele_trap,
@@ -1337,14 +1337,14 @@ function fleesLight(monster, normalized) {
         && couldSee(monster.mx, monster.my);
 }
 
+// C ref: youprop.h:399 Unaware. js/trap.js unconscious() holds the pending-
+// message half; eat.c is_fainted() is `u.uhs == FAINTED`. A hero counting a
+// negative gm.multi down is immobilized but not necessarily insensible, which
+// is why the message test cannot be dropped: pray.c dopray() leaves "You finish
+// your prayer." there, and its three turns are heard and seen normally.
 function heroUnaware(state) {
-    if (Math.trunc(state.multi ?? 0) >= 0) return false;
-    const noMoveMessage = state.nomovemsg ?? state.gn?.nomovemsg ?? '';
-    const unconscious = Boolean(state.u?.usleep
-        || noMoveMessage.startsWith('You awake')
-        || noMoveMessage.startsWith('You regain con')
-        || noMoveMessage.startsWith('You are consci'));
-    return unconscious || state.u?.uhs === FAINTED;
+    return Math.trunc(state.multi ?? 0) < 0
+        && (unconscious(state) || state.u?.uhs === FAINTED);
 }
 
 function heroDeaf(state) {

@@ -621,8 +621,8 @@ test('worst_cursed_item() follows the source precedence order', async () => {
 });
 
 // The real consumer: the #pray command, dispatched from the extended-command
-// prompt, confirmed, and stopped where C schedules prayer_done().
-test('#pray confirms, enters can_pray(), and stops at prayer_done()',
+// prompt, confirmed, and waited out over the three turns nomul(-3) buys.
+test('#pray confirms, waits three turns, and stops at prayer_done()',
     async () => {
         let boundary = null;
         await runSegment(
@@ -632,9 +632,12 @@ test('#pray confirms, enters can_pray(), and stops at prayer_done()',
         );
         // The named refusal, and the name is prayer_done(): with debug mode
         // off, pray.c:2235's wizard test must not divert the command into the
-        // force-success prompt instead.
-        assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-        assert.match(boundary.message, /prayer_done\(\)/u);
+        // force-success prompt instead. The class is the turn boundary rather
+        // than the command one, because hack.c unmul() calls the callback from
+        // inside allmain.c's once-per-turn block, with js/cmd.js
+        // failClosedCommand() long off the stack.
+        assert.equal(boundary?.name, 'UnsupportedTurnBoundaryError');
+        assert.match(boundary.message, /a delayed action reached .*prayer_done\(\)/u);
         // can_pray() ran and answered the arm the goal turns on: an ordinary
         // hero away from an altar prays to her own god, is in no trouble, and
         // is refused for time (u_init.c:1005 leaves u.ublesscnt at 300, and
@@ -642,17 +645,30 @@ test('#pray confirms, enters can_pray(), and stops at prayer_done()',
         assert.equal(game.gp.p_aligntyp, A_LAWFUL);
         assert.equal(game.gp.p_trouble, 0);
         assert.equal(game.gp.p_type, 0);
-        // u_init.c:1005 starts u.ublesscnt at 300 and allmain.c:328 spends one
-        // per elapsed turn, so the single leading wait leaves 299.
-        assert.equal(game.u.ublesscnt, 299);
-        // role.c:503 names Tyr as the Valkyrie's lawful god.
-        assert.equal(game._pending_message, 'You begin praying to Tyr.');
         // dopray():2216 breaks atheism once the confirmation is answered.
         assert.equal(game.u.uconduct.gnostic, 1);
-        // The stop precedes nomul(-3), so nothing is left counting down for
-        // an unmul() that is not ported.
-        assert.equal(game.multi ?? 0, 0);
-        assert.equal(game.nomovemsg ?? null, null);
+
+        // nomul(-3) bought three turns and moveloop_core() spent all three.
+        // moveloop_preamble() starts svm.moves at 1, so one leading wait plus
+        // the turn #pray charges plus two counted down reach 5.
+        assert.equal(game.moves, 5);
+        // u_init.c:1005 starts u.ublesscnt at 300 and allmain.c:328 spends one
+        // on each of those four elapsed turns.
+        assert.equal(game.u.ublesscnt, 300 - 4);
+        // unmul() zeroed the count and spent the message before the callback
+        // stopped, exactly as it does when the callback succeeds. role.c:503
+        // names Tyr as the Valkyrie's lawful god, so the top line holds both
+        // of the prayer's messages.
+        assert.equal(game.multi, 0);
+        assert.equal(game.nomovemsg, null);
+        assert.equal(game.multi_reason, null);
+        assert.equal(
+            game._pending_message,
+            'You begin praying to Tyr.  You finish your prayer.',
+        );
+        // ga.afternmv is cleared before the callback runs, so the refusal
+        // leaves nothing scheduled behind it.
+        assert.equal(game.afternmv, null);
     });
 
 test('#pray asks its confirmation with the response set and default C shows',
@@ -860,6 +876,31 @@ test('dopray() stops at the debug-mode force-success prompt', async () => {
         game.wizard = false;
     }
 });
+
+// pray.c:2265-2270, the arm dopray() takes after scheduling the wait: a hero
+// whose god has nothing against her is made invulnerable for the three turns
+// and told so. u.ublesscnt is what keeps can_pray() off gp.p_type 3 for every
+// prayer a fresh hero can make, so a game long enough to spend it down is what
+// this stands in for.
+test('dopray() stops at the shimmering light with the wait already set',
+    async () => {
+        await startedGame('.#pray\n');
+        // u_init.c:1005 leaves this at 300 and allmain.c:328 spends one a
+        // turn; at 0, pray.c:2152's `u.ublesscnt > 0` fails and a hero with no
+        // trouble, no bad luck and no angry god reaches p_type 3.
+        game.u.ublesscnt = 0;
+        game.nhDisplay.pushKey('y'.charCodeAt(0));
+        await assert.rejects(
+            dopray(game),
+            (error) => error instanceof UnsupportedPrayerError
+                && /pre-prayer invulnerability/u.test(error.message),
+        );
+        assert.equal(game.gp.p_type, 3);
+        // C runs nomul(-3) and the three assignments before this test, so the
+        // wait is already scheduled when the stop happens.
+        assert.equal(game.multi, -3);
+        assert.equal(game.nomovemsg, 'You finish your prayer.');
+    });
 
 // cmd.c paranoid_query() and win/tty/topl.c tty_yn_function()'s restricted
 // arm. The #pray confirmation is their only ported consumer, so they are

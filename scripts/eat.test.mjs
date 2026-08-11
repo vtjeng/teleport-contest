@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     A_STR,
     CONFLICT,
+    FAINTED,
     FROMFORM,
     FROMOUTSIDE,
     HEALTHY_TIN,
@@ -256,23 +257,83 @@ test('gethungry follows ring charge and duplicate-protection rules',
     }
 });
 
-test('gethungry fails closed at unported awareness and status boundaries',
+// eat.c gethungry():3173 spends ordinary nutrition when `!Unaware ||
+// !rn2(10)`. The port takes the first disjunct and refuses the second, so what
+// the refusal has to track is youprop.h Unaware exactly -- a negative gm.multi
+// alone is not it, and reading it as such would refuse pray.c dopray()'s three
+// turns, which C runs at the ordinary rate.
+test('gethungry refuses an Unaware hero and not merely an immobile one',
     async () => {
-    const immobile = hungerState();
-    immobile.multi = -1;
-    const immobileDraws = [];
+    // Each row is a hero counting a negative gm.multi down, differing only in
+    // what trap.c unconscious() and eat.c is_fainted() read.
+    for (const [name, configure] of [
+        ['asleep', (s) => { s.u.usleep = 1; }],
+        // The three prefixes trap.c:6783-6785 tests, spelled as C spells them.
+        ['waking', (s) => { s.nomovemsg = 'You awake from your slumber.'; }],
+        ['reviving', (s) => { s.nomovemsg = 'You regain consciousness.'; }],
+        ['coming round', (s) => { s.nomovemsg = 'You are conscious again.'; }],
+        ['fainted', (s) => { s.u.uhs = FAINTED; }],
+    ]) {
+        const unaware = hungerState();
+        unaware.multi = -1;
+        configure(unaware);
+        const draws = [];
+        await assert.rejects(
+            gethungry(unaware, {
+                random: { rn2: (bound) => { draws.push(bound); return 2; } },
+                nearCapacity: () => UNENCUMBERED,
+            }),
+            /unported unconscious or fainted metabolic rate/u,
+            name,
+        );
+        assert.deepEqual(draws, [], name);
+        assert.equal(unaware.u.uhunger, 900, name);
+    }
+
+    // The prayer's own state: immobile for three turns with a message waiting
+    // that says nothing about waking up. C answers Unaware FALSE here, so the
+    // turn costs the ordinary point and draws only the rn2(20) accessory roll.
+    const praying = hungerState();
+    praying.multi = -3;
+    praying.nomovemsg = 'You finish your prayer.';
+    const prayingDraws = [];
+    // rn2(20) = 2 is even and lands on no accessory case, so the only cost is
+    // the ordinary decrement the refusal used to suppress.
+    assert.equal(await gethungry(praying, {
+        random: { rn2: (bound) => { prayingDraws.push(bound); return 2; } },
+        nearCapacity: () => UNENCUMBERED,
+    }), 1);
+    assert.deepEqual(prayingDraws, [20]);
+    assert.equal(praying.u.uhunger, 899);
+
+    // A hero with no message scheduled at all: C's `gn.nomovemsg &&` guard
+    // makes trap.c unconscious() answer FALSE, so this is not Unaware either.
+    const silent = hungerState();
+    silent.multi = -1;
+    assert.equal(await gethungry(silent, {
+        random: { rn2: () => 2 },
+        nearCapacity: () => UNENCUMBERED,
+    }), 1);
+    assert.equal(silent.u.uhunger, 899);
+
+    // Unaware needs a negative gm.multi as well as a reason. A fainted hero
+    // who is free to act is not Unaware, so this stops at the FAINTED status
+    // guard further down instead -- a different refusal for a different
+    // reason, and the one thing that separates `multi < 0` from `multi <= 0`.
+    const fainted = hungerState();
+    fainted.multi = 0;
+    fainted.u.uhs = FAINTED;
     await assert.rejects(
-        gethungry(immobile, {
-            random: {
-                rn2: (bound) => { immobileDraws.push(bound); return 2; },
-            },
+        gethungry(fainted, {
+            random: { rn2: () => 2 },
             nearCapacity: () => UNENCUMBERED,
         }),
-        /unported unconscious or immobile state/u,
+        /unported hunger-status transition/u,
     );
-    assert.deepEqual(immobileDraws, []);
-    assert.equal(immobile.u.uhunger, 900);
+});
 
+test('gethungry fails closed at unported ring and status boundaries',
+    async () => {
     const missingRing = hungerState();
     missingRing.uleft = { otyp: RIN_ADORNMENT, spe: 1 };
     missingRing.objects[RIN_ADORNMENT] = undefined;

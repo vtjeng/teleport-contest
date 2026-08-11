@@ -50,7 +50,7 @@ import {
 } from '../js/monsters.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { float_vs_flight } from '../js/polyself.js';
-import { t_at } from '../js/trap.js';
+import { t_at, unconscious } from '../js/trap.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     check_in_air,
@@ -698,6 +698,40 @@ test('check_in_air answers the hero from Levitation and Flying', async () => {
     assert.equal(check_in_air(game.youmonst, TOOKPLUNGE, game), true);
     game.u.uprops[LEVITATION].intrinsic = 0;
     assert.equal(check_in_air(game.youmonst, 0, game), false);
+});
+
+// C ref: trap.c unconscious() (6775-6786). Not about traps, but trap.c owns it
+// and this file already owns trap.c's other hero-state helpers. It is the
+// larger half of youprop.h:399 Unaware, and pray.c dopray() is what makes it
+// reachable: a praying hero is immobilized with a message waiting, and C reads
+// that message to tell "cannot move" apart from "was not there".
+test('unconscious needs a negative multi and a reason to be insensible', () => {
+    // Each row: what the hero's state says, and what C answers.
+    for (const [name, state, expected] of [
+        ['awake and free', { multi: 0 }, false],
+        // The multi test comes first and is `>= 0`, so a hero who is asleep
+        // but not counting anything down is not unconscious here. 0 rather
+        // than a positive value: `>= 0` and `> 0` differ only at 0.
+        ['asleep with multi 0', { multi: 0, u: { usleep: 1 } }, false],
+        ['asleep with a counted repeat', { multi: 4, u: { usleep: 1 } }, false],
+        ['asleep and immobile', { multi: -1, u: { usleep: 1 } }, true],
+        // The three prefixes trap.c:6783-6785 tests, spelled as C spells them.
+        // Each is the only one its row matches, so a test that required more
+        // than one would answer FALSE.
+        ['waking', { multi: -1, nomovemsg: 'You awake from your slumber.' },
+         true],
+        ['reviving', { multi: -1, nomovemsg: 'You regain consciousness.' },
+         true],
+        ['coming round', { multi: -1, nomovemsg: 'You are conscious again.' },
+         true],
+        // pray.c's own message, and what the whole test exists to separate:
+        // immobile, awake, and hearing everything.
+        ['praying', { multi: -3, nomovemsg: 'You finish your prayer.' }, false],
+        // C's `gn.nomovemsg &&` guard: a null pointer is not a prefix match.
+        ['immobile in silence', { multi: -1 }, false],
+    ]) {
+        assert.equal(unconscious(state), expected, name);
+    }
 });
 
 test('the wounded-legs timeout counts down and stops where heal_legs begins',

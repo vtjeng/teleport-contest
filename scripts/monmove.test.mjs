@@ -4581,6 +4581,15 @@ test('monflee selects every light-flight message in source order', async () => {
         message: { kind: 'frightened' },
     });
 
+    // youprop.h:399 needs both halves. A fainted hero who is not counting a
+    // negative gm.multi down is awake for this, which is what separates the
+    // macro from a test on eat.c is_fainted() alone.
+    state.multi = 0;
+    assert.deepEqual(await lightMessage({}, 0), {
+        calls: [10],
+        message: { kind: 'bright-light' },
+    });
+
     state.multi = 0;
     state.u.uhs = 0;
     assert.deepEqual(await lightMessage({}, 0), {

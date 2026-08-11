@@ -544,6 +544,25 @@ export function Flying(state) {
                    && !flying.blocked);
 }
 
+// C ref: trap.c unconscious() (6775-6786). The larger half of youprop.h:399
+// Unaware, which is `gm.multi < 0 && (unconscious() || is_fainted())`; eat.c
+// is_fainted() is the other half and is one field read, so each caller spells
+// Unaware out around this.
+//
+// C reads the pending gn.nomovemsg to tell an immobilized hero apart from an
+// insensible one: only the three messages that announce coming round mean the
+// hero was not there for what happened. A hero with no message scheduled has
+// gn.nomovemsg NULL, and C's `gn.nomovemsg &&` makes that answer FALSE.
+export function unconscious(state = game) {
+    if (Math.trunc(state.multi ?? 0) >= 0) return false;
+
+    const nomovemsg = state.nomovemsg ?? '';
+    return Boolean(state.u?.usleep)
+        || nomovemsg.startsWith('You awake')
+        || nomovemsg.startsWith('You regain con')
+        || nomovemsg.startsWith('You are consci');
+}
+
 // C ref: trap.c set_utrap() (1030-1043). The `!u.utrap ^ !tim` test fires only
 // when the hero enters or leaves a trap, so releasing an untrapped hero writes
 // no status-line flag of its own; float_vs_flight() writes one regardless.

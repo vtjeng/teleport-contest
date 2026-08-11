@@ -541,6 +541,53 @@ export function nomul(nval, state = game) {
     endRunning(state);
 }
 
+// C ref: decl.c:47 c_common_strings.c_You_can_move_again, which hack.h:271
+// names You_can_move_again.
+const You_can_move_again = 'You can move again.';
+
+// C ref: hack.c unmul() (4176-4208). "called when a non-movement, multi-turn
+// action has completed". allmain.c moveloop_core():382 is the only caller the
+// port reaches: it counts a negative gm.multi up and calls this on the turn the
+// count runs out. What nomul()'s negative caller left behind -- the message and
+// the ga.afternmv callback -- is spent here and then cleared, so the next
+// immobilizing action starts from nothing.
+//
+// C follows the message with a second one for a hero who was life-saved out of
+// green slime, gated on `Upolyd && !strncmpi(gn.nomovemsg, "You survived that
+// ", 18)`. Both halves are unreachable: js/u_init.js is the port's only writer
+// of u.umonnum and sets it equal to u.umonster, and the one C writer of that
+// message is done()'s life-saving arm, which is not ported. It is left out
+// rather than refused because no ported state can reach it to be refused.
+export async function unmul(msg_override, state = game) {
+    state.disp ??= {};
+    state.disp.botl = true;
+    state.multi = 0; /* caller will usually have done this already */
+    // C's two guards are pointer tests and its third is a character test, so
+    // the empty string travels through the first two and is silenced by the
+    // third. That is a real distinction, not a hypothetical one: do_wear.c:2401
+    // and polyself.c:225 call unmul("") precisely to run the callback without
+    // a message, and dothrow.c, detect.c, apply.c, pickup.c and artifact.c all
+    // leave an empty gn.nomovemsg behind for the same reason. Reading either
+    // guard as a truthiness test would print You_can_move_again for all of
+    // them, so both compare against null.
+    if (msg_override != null) state.nomovemsg = msg_override;
+    else if (state.nomovemsg == null) state.nomovemsg = You_can_move_again;
+    if (state.nomovemsg) await ttyPline(state.nomovemsg, state);
+    state.nomovemsg = null;
+    state.u.usleep = 0;
+    state.multi_reason = null;
+    state.multireasonbuf = '';
+
+    if (state.afternmv) {
+        const f = state.afternmv;
+
+        /* clear afternmv before calling it (to override the
+           encumbrance hack for levitation--see weight_cap()) */
+        state.afternmv = null;
+        await f(state);
+    }
+}
+
 // C ref: hack.c u_rooted() (1693-1705). TRUE for a hero whose current form
 // cannot move at all, which do.c dodown() and doup() and sit.c dosit() test
 // before anything else. mmove is the permonst speed field, so only a

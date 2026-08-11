@@ -43,6 +43,7 @@ import {
     spoteffects,
     switch_terrain,
     terrain_changed_under_hero,
+    unmul,
 } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { M1_FLY, PM_GRID_BUG } from '../js/monsters.js';
@@ -478,6 +479,84 @@ test('nomul with a nonzero request leaves the multi reason fields alone',
     assert.equal(state.multi, -3);
     assert.equal(state.multi_reason, 'frozen');
     assert.equal(state.multireasonbuf, 'frozen by a spell');
+});
+
+// hack.c unmul() (4176-4208) ends what nomul() with a negative value began.
+// A synthetic state is enough: ttyPline() leaves the composed line in
+// _pending_message when no display is attached.
+function unmulState(overrides = {}) {
+    return runState({
+        multi: -1, context: { run: 0, travel: 0, travel1: 0, mv: 0, move: 1 },
+        ...overrides,
+    });
+}
+
+test('unmul releases the hero and prints the message that was waiting',
+    async () => {
+        const state = unmulState({ nomovemsg: 'You finish your prayer.' });
+        state.disp.botl = false;
+        await unmul(null, state);
+        // hack.c:4178-4179: disp.botl unconditionally, and multi zeroed here
+        // even though every caller has already done it.
+        assert.equal(state.disp.botl, true);
+        assert.equal(state.multi, 0);
+        assert.equal(state._pending_message, 'You finish your prayer.');
+        // hack.c:4203-4205 leaves nothing behind for the next wait.
+        assert.equal(state.nomovemsg, null);
+        assert.equal(state.u.usleep, 0);
+        assert.equal(state.multi_reason, null);
+        assert.equal(state.multireasonbuf, '');
+    });
+
+test('unmul falls back to You_can_move_again and prefers an override',
+    async () => {
+        // hack.c:4183-4184: decl.c:47's shared string is what a caller who
+        // scheduled no message gets.
+        const silent = unmulState();
+        await unmul(null, silent);
+        assert.equal(silent._pending_message, 'You can move again.');
+
+        // hack.c:4181-4182: msg_override replaces whatever was scheduled.
+        const overridden = unmulState({ nomovemsg: 'You finish your prayer.' });
+        await unmul('You wake up.', overridden);
+        assert.equal(overridden._pending_message, 'You wake up.');
+    });
+
+test('unmul prints nothing for an empty scheduled message', async () => {
+    // hack.c:4183 tests the pointer and :4185 tests `*gn.nomovemsg`, so an
+    // empty string reaches the second guard and is silenced there rather than
+    // being replaced by You_can_move_again. do_wear.c:2401 and polyself.c:225
+    // call unmul("") for exactly that, and pickup.c:3009, detect.c:1262 and
+    // artifact.c:1361 leave an empty message behind for the same reason.
+    for (const [name, scheduled, override] of [
+        ['an empty scheduled message', '', null],
+        ['an empty override', 'You finish your prayer.', ''],
+    ]) {
+        const state = unmulState({ nomovemsg: scheduled });
+        await unmul(override, state);
+        assert.equal(state._pending_message ?? null, null, name);
+        assert.equal(state.nomovemsg, null, name);
+    }
+});
+
+test('unmul clears afternmv before running it', async () => {
+    // hack.c:4207-4213 copies the callback out and zeroes the global before
+    // the call, so a callback that schedules another delayed action is not
+    // overwritten when this one returns.
+    const state = unmulState({ nomovemsg: '' });
+    const seen = [];
+    state.afternmv = (called) => {
+        seen.push(called.afternmv);
+        called.afternmv = () => seen.push('rescheduled');
+    };
+    await unmul(null, state);
+    assert.deepEqual(seen, [null]);
+    assert.equal(typeof state.afternmv, 'function');
+
+    // With nothing scheduled the call is skipped entirely.
+    const idle = unmulState({ nomovemsg: '' });
+    await unmul(null, idle);
+    assert.equal(idle.afternmv ?? null, null);
 });
 
 test('end_running frees the travel map whether or not a run was going', () => {

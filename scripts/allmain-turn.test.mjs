@@ -35,6 +35,7 @@ import {
     OVERLOADED,
     PIT,
     PROT_FROM_SHAPE_CHANGERS,
+    RUN_STEP,
     SATIATED,
     SEARCHING,
     DOOR,
@@ -778,6 +779,73 @@ test('first wait reaches the next prompt through live turn upkeep', async () => 
     assert.ok(knownSpells.every((spell) => spell.sp_know === 19999));
 });
 
+// allmain.c:379-388. Every turn of an immobile wait draws a frame; only the
+// turn that brings gm.multi back to zero releases the hero.
+test('the immobility countdown draws a frame a turn and releases at zero',
+    async () => {
+        // Each row: the gm.multi the turn starts on, the gm.multi it ends on,
+        // how many frames runmode_delay_output() drew, and whether unmul()
+        // ran. The last row is the boundary of allmain.c:380's `gm.multi < 0`:
+        // a hero who is free to act counts nothing down and draws no frame.
+        for (const [multi, ended, frames, released] of [
+            [-3, -2, 1, false],
+            [-1, 0, 1, true],
+            [0, 0, 0, false],
+        ]) {
+            await runSegment(firstTurnInput({
+                seed: 2026080901,
+                datetime: '20260809120000',
+                name: 'Immobile',
+                role: 'Healer',
+                race: 'human',
+                gender: 'female',
+                align: 'neutral',
+                command: '',
+            }));
+            // No keys were typed, so the welcome line is still waiting; take
+            // it off the top line the way cmd.c parse() would before the
+            // first command, or unmul()'s message stops for a --More--.
+            clearTtyMessageWindow(game);
+            // What pray.c dopray() leaves behind. The message is what keeps
+            // trap.c unconscious() FALSE, so the turn runs at the ordinary
+            // rate rather than stopping in eat.c gethungry().
+            game.multi = multi;
+            game.multi_reason = 'praying';
+            game.nomovemsg = 'You finish your prayer.';
+            // RUN_STEP draws on every call; the default RUN_LEAP would draw
+            // only on the seventh turn and hide the difference here.
+            game.flags.runmode = RUN_STEP;
+            let drawn = 0;
+            game._animationFrameHook = () => { drawn++; };
+            game.context.move = 1;
+            // The released turn ends at rhack(), which reads a key.
+            game.nhDisplay.pushKey('.'.charCodeAt(0));
+            try {
+                await moveloop_core();
+            } finally {
+                game._animationFrameHook = null;
+            }
+
+            assert.equal(drawn, frames, `multi ${multi}`);
+            assert.equal(game.multi, ended, `multi ${multi}`);
+            // unmul() runs only at zero, and everything it clears stays put
+            // until then.
+            assert.equal(
+                game.nomovemsg,
+                released ? null : 'You finish your prayer.',
+                `multi ${multi}`,
+            );
+            assert.equal(
+                game.multi_reason, released ? null : 'praying', `multi ${multi}`,
+            );
+            if (released) {
+                assert.match(
+                    game._ttyToplines ?? '', /You finish your prayer\./u,
+                );
+            }
+        }
+    });
+
 test('fainting boundaries stop before any elapsed-turn mutation',
     async () => {
     const cases = [
@@ -1489,6 +1557,22 @@ test('burdened multi-cycle upkeep stops before region and search work',
                     };
                     game.level.flags.noautosearch = false;
                     game.multi = 0;
+                },
+            ],
+            [
+                // allmain.c:380-388 counts a negative gm.multi up and, at
+                // zero, prints through unmul(). The clone would spend one turn
+                // of the wait and print from state that is thrown away, so it
+                // stops the way region upkeep above it does.
+                'immobility countdown',
+                'burdened multi-cycle immobility countdown',
+                () => {
+                    // What pray.c dopray() leaves behind. The message matters:
+                    // it is what keeps trap.c unconscious() FALSE, so eat.c
+                    // gethungry() does not refuse the turn first.
+                    game.multi = -3;
+                    game.multi_reason = 'praying';
+                    game.nomovemsg = 'You finish your prayer.';
                 },
             ],
             [

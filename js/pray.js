@@ -1,14 +1,15 @@
 // pray.js -- the hero's deity, the troubles a prayer would fix, and the #pray
-// command up to the point where the prayer becomes a three-turn wait.
+// command through the three-turn wait it schedules.
 //
 // C ref: src/pray.c critically_low_hp() (116-156), stuck_in_wall() (161-181),
 //        in_trouble() (198-284), worst_cursed_item() (288-346),
 //        blocked_boulder() (2677-2719), can_pray() (2124-2173),
-//        dopray() (2199-2273), u_gname() (2524) and align_gname() (2530).
+//        dopray() (2199-2276), u_gname() (2524) and align_gname() (2530).
 //
 // prayer_done() (2276-2343) and everything it reaches -- pleased(),
 // angrygods(), water_prayer(), pray_revive() -- are not ported. dopray()
-// stops where C schedules that function through ga.afternmv.
+// schedules it through ga.afternmv exactly as C does, and the stop moves with
+// it to hack.c unmul(), three turns later.
 
 import {
     A_CHAOTIC,
@@ -23,6 +24,7 @@ import {
     CONFUSION,
     DEAF,
     ECMD_OK,
+    ECMD_TIME,
     EXT_ENCUMBER,
     HALLUC,
     HUNGRY,
@@ -57,7 +59,7 @@ import { stuck_ring, unchanger } from './do_wear.js';
 import { In_hell } from './dungeon.js';
 import { freehand } from './engrave.js';
 import { game } from './gstate.js';
-import { near_capacity } from './hack.js';
+import { near_capacity, nomul } from './hack.js';
 import {
     attacktype_fordmg,
     is_demon,
@@ -438,15 +440,7 @@ export async function can_pray(praying, state = game) {
         : true;
 }
 
-// C ref: pray.c dopray() (2199-2273), the '#pray' command.
-//
-// Everything through can_pray() is here. The four statements C runs next --
-// nomul(-3), gm.multi_reason, gn.nomovemsg and ga.afternmv = prayer_done --
-// exist only to schedule prayer_done() three turns later, and neither
-// prayer_done() nor hack.c unmul(), which calls it, is ported. Writing
-// multi = -3 with nothing to count it back up would hang allmain.c
-// moveloop_core() on a hero who can never act, so the stop precedes the group
-// rather than splitting it.
+// C ref: pray.c dopray() (2199-2276), the '#pray' command.
 export async function dopray(state = game) {
     /*
      * If ParanoidPray is set, confirm prayer to avoid accidental slips
@@ -483,9 +477,44 @@ export async function dopray(state = game) {
         // written.
         throw new UnsupportedPrayerError('the wizard force-success prompt');
     }
-    // dopray():2260-2263 is `nomul(-3); gm.multi_reason = "praying";
-    // gn.nomovemsg = "You finish your prayer."; ga.afternmv = prayer_done;`,
-    // and :2265-2272 the shimmering-light arm and `return ECMD_TIME`.
+    // The prayer itself is a three-turn wait. nomul() writes gm.multi, and
+    // allmain.c moveloop_core() counts it back up one turn at a time and calls
+    // hack.c unmul() when it reaches zero; unmul() prints nomovemsg and runs
+    // the callback. state.afternmv is C's ga.afternmv, and this is its only
+    // writer; it is stored flat beside state.nomovemsg and state.multi_reason,
+    // the two globals dopray() sets alongside it. No segment boundary can fall
+    // between the write and the read, because moveloop_core() reads no key
+    // while gm.multi is negative, so it needs no save handling -- decl.c:175
+    // leaves C's copy out of the save file for the same reason.
+    nomul(-3, state);
+    state.multi_reason = 'praying';
+    state.nomovemsg = 'You finish your prayer.';
+    state.afternmv = prayer_done;
+
+    if (state.gp.p_type === 3 && !In_hell(state.u.uz, state)) {
+        // dopray():2265-2270 prints "You are surrounded by a shimmering
+        // light." for an unblinded hero and sets u.uinvulnerable, which
+        // prayer_done() then clears before taking pleased(). Nothing on this
+        // arm is ported, so it stops before the message; the four statements
+        // above have already run, which is where C runs them.
+        throw new UnsupportedPrayerError(
+            "dopray()'s pre-prayer invulnerability",
+        );
+    }
+
+    return ECMD_TIME;
+}
+
+// C ref: pray.c prayer_done() (2276-2343), the ga.afternmv callback dopray()
+// installs, and everything it reaches: pleased(), angrygods(), water_prayer()
+// and pray_revive(). None of that is ported, so this is where the prayer
+// stops -- three turns after dopray() returns, at hack.c unmul()'s call, not
+// at the command.
+//
+// js/allmain.js runUnmulAtTurnBoundary() is what keeps that stop retryable.
+// The callback runs from inside the once-per-turn block, so js/cmd.js
+// failClosedCommand() is no longer on the stack to convert what it raises.
+async function prayer_done() {
     throw new UnsupportedPrayerError('prayer_done()');
 }
 
