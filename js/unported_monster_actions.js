@@ -742,18 +742,18 @@ async function moveSimplePet(monster, after, env) {
         eatObject: () => unsupported('pet eating'),
         maxPassiveDamage: () => unsupported('pet combat evaluation'),
         mayCrossRegion: assertSimpleDestination,
-        // Both of dog_invent()'s arms print and repaint through these two
-        // seams: the carry arm through dogmove.c pline_xy(), and the drop arm
-        // through steal.c mdrop_obj() and relobj(). The planning scan replays
-        // the same turn against the live display afterwards, so it must
-        // produce neither. Removing either injection because one arm no longer
-        // needs it writes the other arm's line and repaint on a turn the scan
+        // Three printing sites share these two seams: dog_invent()'s carry arm
+        // through dogmove.c pline_xy(), its drop arm through steal.c
+        // mdrop_obj() and relobj(), and dog_move()'s cursed-step line through
+        // pline.c pline_mon(). The planning scan replays the same turn against
+        // the live display afterwards, so it must produce neither a message
+        // nor a repaint. Removing either injection because one site no longer
+        // needs it writes the others' lines and repaints on a turn the scan
         // may still refuse.
         message: env.planning ? async () => {} : ttyPline,
         monsterReflects: () => unsupported('pet combat evaluation'),
         petRangedAttack: pet_ranged_attk,
         redraw: env.planning ? () => {} : newsym,
-        reportCursedStep: () => unsupported('pet cursed-object feedback'),
         // C ref: dogmove.c dog_hunger() (360-394). Its middle arm confuses a
         // pet that has gone DOG_WEAK turns past hungrytime, then announces the
         // confusion through one of pline_mon(), beg() and You_feel() and calls

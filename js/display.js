@@ -1128,6 +1128,14 @@ export function object_glyph_info(obj, state = game) {
             color = state.mons[obj.corpsenm].mcolor;
     }
     const glyph = glyphPresentation(symbol, color, state);
+    // display.h obj_to_glyph() lands in one of the four glyph ranges
+    // glyph_is_object() unions at display.h:877-879: ordinary object, generic
+    // object, statue, and body. Every branch above produces one of those four,
+    // so every presentation this function returns answers that macro TRUE.
+    // This port stores presentations rather than glyph numbers, so it carries
+    // the fact as a mark, which remembered_glyph_from_presentation() copies
+    // into map memory for glyph_is_object() to read back.
+    glyph.objectGlyph = true;
     // display.h obj_to_glyph() numbers a generic object into the leading
     // FIRST_OBJECT-1 slots of the object glyph ranges, which is the whole of
     // what glyph_is_generic_object() recognizes. This port stores
@@ -1435,6 +1443,11 @@ export function remembered_glyph_from_presentation(glyph, trap = null) {
     // collide after symbol customization, so retain the trap identity needed
     // by detect.c:find_trap() in the same canonical memory record.
     if (trap) remembered.trapType = trap.ttyp;
+    // The two object marks are equally canonical and equally uncopyable from
+    // presentation: `ch` and `color` cannot say "an object is remembered
+    // here" once symbol customization lets an object and a piece of terrain
+    // draw the same cell.
+    if (glyph.objectGlyph) remembered.objectGlyph = true;
     if (glyph.genericObject) remembered.genericObject = true;
     if (glyph.attr) remembered.attr = glyph.attr;
     if (glyph.displayColor) remembered.displayColor = glyph.displayColor;
@@ -1695,6 +1708,27 @@ export function unmap_object(x, y, state = game) {
  */
 export function glyph_is_generic_object(location) {
     return Boolean(location?.remembered_glyph?.genericObject);
+}
+
+/**
+ * C ref: display.h glyph_is_object() (877-879), the union of
+ * glyph_is_normal_object(), glyph_is_generic_object(), glyph_is_statue() and
+ * glyph_is_body(). C asks it of the glyph number in levl[x][y].glyph; the port
+ * asks it of the mark object_glyph_info() puts on every object presentation
+ * and remembered_glyph_from_presentation() carries into map memory.
+ *
+ * The mark answers for the whole union rather than one of its four terms
+ * because object_glyph_info() is the single producer of every object
+ * presentation this port stores, statues and corpses included, and map memory
+ * is written only by handing one of its results to
+ * remembered_glyph_from_presentation().
+ *
+ * dogmove.c dog_move() is the caller: it asks whether the hero remembers an
+ * object where a pet has just stepped, which is exactly the question glyph_at()
+ * could not answer there because the pet is already on the square.
+ */
+export function glyph_is_object(location) {
+    return Boolean(location?.remembered_glyph?.objectGlyph);
 }
 
 /**

@@ -19,6 +19,8 @@ import {
     DEAF,
     DISMOUNT_THROWN,
     DOGFOOD,
+    HALLUC,
+    HALLUC_RES,
     helpless,
     IS_DOOR,
     IS_OBSTRUCTED,
@@ -41,8 +43,11 @@ import {
     UNDEF,
     W_ARMS,
 } from './const.js';
-import { newsym } from './display.js';
-import { capitalizedMonsterName } from './do_name.js';
+import { glyph_is_object, newsym, vobj_at } from './display.js';
+import {
+    capitalizedAlwaysVisibleMonsterName,
+    capitalizedMonsterName,
+} from './do_name.js';
 import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
 import { game } from './gstate.js';
@@ -61,8 +66,11 @@ import {
     haseyes,
     herbivorous,
     is_animal,
+    is_floater,
+    is_flyer,
     is_swimmer,
     likes_lava,
+    locomotion,
     mindless,
     needspick,
     nohands,
@@ -102,7 +110,7 @@ import {
 import { may_dig } from './hack.js';
 import { sobj_at, splitobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { distant_name, donameFresh } from './objnam.js';
+import { distant_name, donameFresh, vtense } from './objnam.js';
 import {
     BALL_CLASS,
     BOULDER,
@@ -213,6 +221,16 @@ function heroDeaf(state) {
     const deafness = state.u?.uprops?.[DEAF];
     return Boolean(deafness?.intrinsic || deafness?.extrinsic)
         && !deafness?.blocked;
+}
+
+// C ref: youprop.h:120 Hallucination, over :115-119. The comment at :115 says
+// hallucination is solely a timeout, so the positive term is the intrinsic
+// alone with no worn mask; Halluc_resistance is the intrinsic or the
+// extrinsic.
+function Hallucination(state) {
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic);
 }
 
 function monsterOffMap(monster) {
@@ -1251,9 +1269,39 @@ export async function dog_move(monster, after, rawEnv = {}) {
                 env,
                 'canSeeMonster',
             )(monster, state)))) {
-            await petMoveOperation(env, 'reportCursedStep')(
-                monster,
-                { ...env, wasSeen },
+            // C ref: dogmove.c:1299-1312. Describe the top item of the pile
+            // rather than the cursed item that made the pet reluctant. C
+            // avoids glyph_at() here on purpose, as its comment at 1299-1301
+            // says: place_monster() above has already put the pet on the
+            // square, so glyph_at() would answer with the pet. The question is
+            // whether the hero's map memory holds an object there.
+            const remembersObject = !Hallucination(state)
+                && Boolean(state.level?.flags?.hero_memory)
+                && glyph_is_object(state.level.at(nextX, nextY));
+            const top = remembersObject ? vobj_at(nextX, nextY, state) : null;
+            // decl.h:36 aliases `something` to the string "something".
+            const what = top
+                ? distant_name(top, donameFresh, state)
+                : 'something';
+            // C ref: pline.c pline_mon() (138-150). It is plain pline() behind
+            // set_msg_xy(mtmp->mx, mtmp->my), which only the accessiblemsg
+            // option reads back; messageAt() carries that coordinate the same
+            // way js/mon.js wake_msg() does for mon.c:4325. place_monster()
+            // has already moved the pet, so mx and my are the destination.
+            const message = env.message ?? ttyPline;
+            await message(
+                messageAt(
+                    `${capitalizedAlwaysVisibleMonsterName(monster, state)}`
+                    + ` ${vtense(null, locomotion(monster.data, 'step'))}`
+                    + ' reluctantly '
+                    + ((is_flyer(monster.data) || is_floater(monster.data))
+                        ? 'over' : 'onto')
+                    + ` ${what}.`,
+                    monster.mx,
+                    monster.my,
+                    state,
+                ),
+                state,
             );
         }
         mon_track_add(monster, originX, originY);

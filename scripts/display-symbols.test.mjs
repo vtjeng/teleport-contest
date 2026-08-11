@@ -1116,6 +1116,9 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
         color: CLR_YELLOW,
         decgfx: false,
         displayCh: null,
+        // display.h glyph_is_object(): map memory records that an object, not
+        // the monster standing over it, is what the hero remembers here.
+        objectGlyph: true,
     });
 
     state.level.monsters[x][y] = null;
@@ -1128,6 +1131,7 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
         ch: ')',
         color: CLR_YELLOW,
         dec: false,
+        objectGlyph: true,
     });
 });
 
@@ -3275,9 +3279,10 @@ test('object mimics use display_monster zeroobj glyph and corpse metadata', () =
         dec: false,
     };
     // display.h obj_to_glyph() numbers a generic object into the range
-    // glyph_is_generic_object() recognizes, which object_glyph_info() carries
-    // as a mark on the presentation. The map's disp_* fields hold no such
-    // mark, so only the presentation comparison below expects it.
+    // glyph_is_generic_object() recognizes, and every case here into the wider
+    // range glyph_is_object() recognizes; object_glyph_info() carries both as
+    // marks on the presentation. The map's disp_* fields hold no such mark, so
+    // only the presentation comparison below expects them.
     const cases = [
         {
             otyp: POT_BOOZE,
@@ -3330,7 +3335,9 @@ test('object mimics use display_monster zeroobj glyph and corpse metadata', () =
         fake.mextra = mcorpsenm === undefined ? null : { mcorpsenm };
         assert.deepEqual(
             monster_glyph_info(fake, state),
-            generic ? { ...expected, genericObject: true } : expected,
+            generic
+                ? { ...expected, objectGlyph: true, genericObject: true }
+                : { ...expected, objectGlyph: true },
             `${otyp}`,
         );
         state.level.monsters[x][y] = fake;
@@ -4205,9 +4212,11 @@ test('unobserved floor objects use the source generic class glyph', () => {
         ch: '!',
         color: NO_COLOR,
         dec: false,
-        // display.h obj_to_glyph() numbers this into the generic range, and
-        // display.c see_nearby_objects() reads the mark back out of map
-        // memory to decide whether a nearer look needs a redraw.
+        // display.h obj_to_glyph() numbers this into the object range that
+        // dogmove.c dog_move() asks glyph_is_object() about, and within it the
+        // generic range that display.c see_nearby_objects() reads back out of
+        // map memory to decide whether a nearer look needs a redraw.
+        objectGlyph: true,
         genericObject: true,
     });
 
@@ -4216,6 +4225,8 @@ test('unobserved floor objects use the source generic class glyph', () => {
         ch: '!',
         color: state.objects[POT_BOOZE].oc_color,
         dec: false,
+        // An identified potion leaves the generic range but stays an object.
+        objectGlyph: true,
     });
 });
 

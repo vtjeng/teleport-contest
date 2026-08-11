@@ -10,6 +10,8 @@ import {
     CONFLICT,
     DISMOUNT_THROWN,
     DOGFOOD,
+    HALLUC,
+    HALLUC_RES,
     LAVAPOOL,
     MANFOOD,
     M_ATTK_MISS,
@@ -17,6 +19,7 @@ import {
     MMOVE_DONE,
     MMOVE_MOVED,
     MMOVE_NOTHING,
+    OBJ_FLOOR,
     POOL,
     ROOM,
     STONE,
@@ -36,6 +39,7 @@ import {
     score_targ,
 } from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
+import { init_objects } from '../js/o_init.js';
 import { initrack, settrack } from '../js/track.js';
 import {
     M1_SWIM,
@@ -43,6 +47,7 @@ import {
     M2_ROCKTHROW,
     MS_LEADER,
     MONSTER_TEMPLATES,
+    PM_BAT,
     PM_FIRE_ELEMENTAL,
     PM_FLOATING_EYE,
     PM_GIANT_ANT,
@@ -55,7 +60,10 @@ import {
     BOULDER,
     CREDIT_CARD,
     FOOD_CLASS,
+    objects_globals_init,
     PICK_AXE,
+    ROCK,
+    ROCK_CLASS,
     SADDLE,
     SKELETON_KEY,
 } from '../js/objects.js';
@@ -1157,6 +1165,25 @@ test('dog_move unleashes a pet before attacking the hero', async () => {
     assert.deepEqual(events, ['message', 'unleash', 'attack']);
 });
 
+// C ref: dogmove.c dog_move():1298-1312. Each case below fixes one term of
+// `"%s %s reluctantly %s %s."` and leaves the rest at the values the shared
+// helper sets.
+function cursedStepEnv(state, destination, overrides = {}) {
+    return movementEnv(state, {
+        findPositions: fixedCandidates([{
+            ...destination,
+            info: 0, // An ordinary candidate carries no occupancy flags.
+        }]),
+        cursedObjectAt: (x, y) => (
+            x === destination.x && y === destination.y
+        ),
+        // canseemon() before the step; C's second call is only consulted when
+        // this one is false.
+        canSeeMonster: () => true,
+        ...overrides,
+    });
+}
+
 test('dog_move reports a cursed landing seen before movement', async () => {
     const { state, monster } = activePetState();
     const destination = { x: 6, y: 5 };
@@ -1166,34 +1193,229 @@ test('dog_move reports a cursed landing seen before movement', async () => {
     };
     const events = [];
     const cursedChecks = [];
+    const lines = [];
 
-    const result = await dog_move(monster, false, movementEnv(state, {
-        findPositions: fixedCandidates([{
-            ...destination,
-            info: 0, // An ordinary candidate carries no occupancy flags.
-        }]),
-        cursedObjectAt(x, y, checkedState) {
-            assert.equal(checkedState, state);
-            cursedChecks.push([x, y]);
-            return x === destination.x && y === destination.y;
+    const result = await dog_move(monster, false, cursedStepEnv(
+        state,
+        destination,
+        {
+            cursedObjectAt(x, y, checkedState) {
+                assert.equal(checkedState, state);
+                cursedChecks.push([x, y]);
+                return x === destination.x && y === destination.y;
+            },
+            canSeeMonster(subject) {
+                events.push(`see:${subject.mx},${subject.my}`);
+                // Seen at its origin only, which is the `wasseen` half of
+                // dogmove.c:1298.
+                return subject.mx === 5;
+            },
+            async message(text) {
+                events.push(`report:${monster.mx},${monster.my}`);
+                lines.push(text);
+            },
         },
-        canSeeMonster(subject) {
-            events.push(`see:${subject.mx},${subject.my}`);
-            return subject.mx === 5;
-        },
-        reportCursedStep(subject, env) {
-            assert.equal(env.wasSeen, true);
-            events.push(`report:${subject.mx},${subject.my}`);
-        },
-    }));
+    ));
 
     assert.equal(result, MMOVE_MOVED);
     assert.deepEqual(cursedChecks, [[destination.x, destination.y]]);
+    // C calls canseemon() once before place_monster() and again after it only
+    // when the first answered FALSE, so a pet seen at its origin asks once.
     assert.deepEqual(events, [
         'see:5,5',
         'report:6,5',
     ]);
+    // This state sets no level.flags.hero_memory, so dogmove.c:1302 keeps o at
+    // 0 and decl.h:36 `something` fills the last term. A little dog is neither
+    // a flyer nor a floater, so locomotion() falls through to "step" and the
+    // choice at 1309-1310 is "onto".
+    assert.deepEqual(lines, [
+        'Your little dog steps reluctantly onto something.',
+    ]);
 });
+
+// A pet one step west of a two-item pile whose lower item is the cursed one,
+// with the hero remembering an object at that square. dogmove.c:1299-1301
+// names the top of the pile, not the item that made the pet reluctant.
+function rememberedPileState() {
+    const setup = activePetState();
+    const { state } = setup;
+    const destination = { x: 6, y: 5 };
+    const top = {
+        otyp: ROCK,
+        oclass: ROCK_CLASS,
+        quan: 1,
+        // Unobserved, so that distant_name()'s suppression of xname_flags()'s
+        // `if (!Blind && !gd.distantname)` write is visible below.
+        dknown: false,
+        ox: destination.x,
+        oy: destination.y,
+        where: OBJ_FLOOR,
+        cursed: false,
+        nexthere: {
+            otyp: BOULDER,
+            oclass: ROCK_CLASS,
+            quan: 1,
+            cursed: true,
+            nexthere: null,
+        },
+    };
+    state.level.objects[destination.x][destination.y] = top;
+    setup.top = top;
+    state.level.flags = { hero_memory: true };
+    // Map memory holding an object is what glyph_is_object() answers to.
+    state.level.at(destination.x, destination.y).remembered_glyph = {
+        objectGlyph: true,
+    };
+    // distant_name() -> donameFresh() -> xnameFresh() reads the object
+    // catalog, the hero's blindness, and the discoveries list. Zero choices
+    // initialize every randomized description deterministically.
+    objects_globals_init(state);
+    init_objects(state, () => 0);
+    state.u.uprops = [];
+    state.flags = {};
+    return { ...setup, destination };
+}
+
+test('dog_move names the remembered top item of the pile it steps onto',
+    async () => {
+        const { state, monster, destination, top } = rememberedPileState();
+        const lines = [];
+
+        const result = await dog_move(monster, false, cursedStepEnv(
+            state,
+            destination,
+            { message: async (text) => { lines.push(text); } },
+        ));
+
+        assert.equal(result, MMOVE_MOVED);
+        assert.deepEqual(lines, [
+            'Your little dog steps reluctantly onto a rock.',
+        ]);
+        // dogmove.c:1305 formats through distant_name(), not doname()
+        // directly. This square is outside cansee(), so objnam.c
+        // distant_name() raises gd.distantname and xname_flags():627 makes
+        // neither the dknown write nor the discoveries entry. Naming a pile
+        // the pet stepped on must not identify it for the hero.
+        assert.equal(top.dknown, false);
+        assert.equal(state.gd?.distantname ?? 0, 0);
+    });
+
+test('dog_move will not name a pile on a level that keeps no hero memory',
+    async () => {
+        const { state, monster, destination } = rememberedPileState();
+        // dogmove.c:1302 tests svl.level.flags.hero_memory separately from the
+        // glyph, because map_object() writes levl[x][y].glyph only when the
+        // flag is set, leaving a stale glyph readable behind it.
+        state.level.flags.hero_memory = false;
+        const lines = [];
+
+        const result = await dog_move(monster, false, cursedStepEnv(
+            state,
+            destination,
+            { message: async (text) => { lines.push(text); } },
+        ));
+
+        assert.equal(result, MMOVE_MOVED);
+        assert.deepEqual(lines, [
+            'Your little dog steps reluctantly onto something.',
+        ]);
+    });
+
+test('dog_move keeps a hallucinating hero from naming the pile', async () => {
+    const { state, monster, destination } = rememberedPileState();
+    // youprop.h:120 Hallucination: the intrinsic timeout with no resistance.
+    state.u.uprops[HALLUC] = { intrinsic: 1000 };
+    const lines = [];
+
+    const result = await dog_move(monster, false, cursedStepEnv(
+        state,
+        destination,
+        { message: async (text) => { lines.push(text); } },
+    ));
+
+    assert.equal(result, MMOVE_MOVED);
+    assert.deepEqual(lines, [
+        'Your little dog steps reluctantly onto something.',
+    ]);
+});
+
+// youprop.h:118-119 Halluc_resistance is the intrinsic or the extrinsic, and
+// either one alone puts the hero back on the naming branch.
+for (const source of ['intrinsic', 'extrinsic']) {
+    test(`dog_move names the pile again once ${source} resistance blocks `
+        + 'hallucination', async () => {
+        const { state, monster, destination } = rememberedPileState();
+        state.u.uprops[HALLUC] = { intrinsic: 1000 };
+        state.u.uprops[HALLUC_RES] = { [source]: 1 };
+        const lines = [];
+
+        const result = await dog_move(monster, false, cursedStepEnv(
+            state,
+            destination,
+            { message: async (text) => { lines.push(text); } },
+        ));
+
+        assert.equal(result, MMOVE_MOVED);
+        assert.deepEqual(lines, [
+            'Your little dog steps reluctantly onto a rock.',
+        ]);
+    });
+}
+
+// dogmove.c:1309-1310 chooses "over" for `is_flyer(mtmp->data) ||
+// is_floater(mtmp->data)`, and mondata.c locomotion() answers a different verb
+// for each of the two. A floating eye satisfies both terms -- monsters.h gives
+// it S_EYE and M1_FLY -- so it cannot tell the disjunction from a conjunction;
+// the bat below has M1_FLY without S_EYE and does.
+for (const { pmidx, name, verb } of [
+    { pmidx: PM_FLOATING_EYE, name: 'floating eye', verb: 'floats' },
+    { pmidx: PM_BAT, name: 'bat', verb: 'flies' },
+]) {
+    test(`dog_move sends a ${name} over the pile instead of onto it`,
+        async () => {
+            const { state, monster } = activePetState();
+            monster.data = state.mons[pmidx];
+            const destination = { x: 6, y: 5 };
+            state.level.objects[destination.x][destination.y] = {
+                cursed: true,
+                nexthere: null,
+            };
+            const lines = [];
+
+            const result = await dog_move(monster, false, cursedStepEnv(
+                state,
+                destination,
+                { message: async (text) => { lines.push(text); } },
+            ));
+
+            assert.equal(result, MMOVE_MOVED);
+            assert.deepEqual(lines, [
+                `Your ${name} ${verb} reluctantly over something.`,
+            ]);
+        });
+}
+
+test('dog_move stays silent when the pet is unseen before and after',
+    async () => {
+        const { state, monster } = activePetState();
+        const destination = { x: 6, y: 5 };
+        state.level.objects[destination.x][destination.y] = {
+            cursed: true,
+            nexthere: null,
+        };
+
+        const result = await dog_move(monster, false, cursedStepEnv(
+            state,
+            destination,
+            {
+                canSeeMonster: () => false,
+                message: () => assert.fail('an unseen step must not print'),
+            },
+        ));
+
+        assert.equal(result, MMOVE_MOVED);
+    });
 
 test('dog_move applies the source leashed-pet reposition quirk', async () => {
     // activePetState puts the hero at (7,5); this pet at (12,5) has squared

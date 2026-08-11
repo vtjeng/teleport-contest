@@ -2321,28 +2321,6 @@ test('simple preflight keeps starting-pet owner seams retryable',
                     return target;
                 },
             },
-            {
-                name: 'dog cursed-object feedback',
-                reason: 'pet cursed-object feedback',
-                prepare: async () => {
-                    const target = await prepareStartingPetAction(
-                        PM_LITTLE_DOG,
-                    );
-                    const object = floorObject(
-                        target.destinationX,
-                        target.heroY,
-                        9101,
-                        ROCK,
-                    );
-                    object.cursed = true;
-                    installObject(target, object);
-                    game.viz_array[target.heroY][target.monsterX]
-                        |= IN_SIGHT;
-                    game.viz_array[target.heroY][target.destinationX]
-                        |= IN_SIGHT;
-                    return target;
-                },
-            },
         ];
 
         for (const actionCase of cases) {
@@ -2364,6 +2342,41 @@ test('simple preflight keeps starting-pet owner seams retryable',
                 );
             }
         }
+    });
+
+// C ref: dogmove.c dog_move():1298-1312, which prints through pline.c
+// pline_mon(). This scan runs the same turn against a clone, and the live
+// movemon() adapter runs it again afterwards, so the scan's env.message is a
+// no-op: a printing scan would put the line on the top line twice. Before the
+// report was ported this setup refused with `pet cursed-object feedback`, and
+// the refusal is what this replaces.
+test('a planned cursed step prints nothing and leaves the live state alone',
+    async () => {
+        const target = await prepareStartingPetAction(PM_LITTLE_DOG);
+        // A rock is the cheapest floor object that dogfood() rejects, so the
+        // pet steps onto the pile reluctantly rather than eating it.
+        const object = floorObject(
+            target.destinationX,
+            target.heroY,
+            9101,
+            ROCK,
+        );
+        object.cursed = true;
+        installObject(target, object);
+        // canseemon() before and after the step, which is what dogmove.c:1298
+        // tests, needs both squares lit and in sight.
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        game.viz_array[target.heroY][target.destinationX] |= IN_SIGHT;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const messagesBefore = [...game.nhDisplay.messages];
+
+        await preflightSimpleMonsterActions(game);
+
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
+        assert.deepEqual([...game.nhDisplay.messages], messagesBefore);
     });
 
 test('a planned pet pickup leaves the live object graph untouched',

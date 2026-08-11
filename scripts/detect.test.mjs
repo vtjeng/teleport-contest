@@ -292,6 +292,10 @@ function rememberedGlyphContract(glyph, trapType = null) {
         displayCh: glyph.displayCh ?? null,
     };
     if (trapType !== null) remembered.trapType = trapType;
+    // display.h glyph_is_object(): an object presentation carries the mark
+    // into memory even when a custom symbol makes it look like terrain, which
+    // is the collision this file's clutter case constructs.
+    if (glyph.objectGlyph) remembered.objectGlyph = true;
     if (glyph.attr) remembered.attr = glyph.attr;
     if (glyph.displayColor)
         remembered.displayColor = glyph.displayColor;
