@@ -36,13 +36,16 @@
 // through pickup.c look_here() when the hero steps onto it and through
 // dolook() on the ':' that follows.
 //
-// Two arms of mdrop_obj() are deliberately absent, because no input reaches
+// Three arms of mdrop_obj() are deliberately absent, because no input reaches
 // them. The saddle no_charge exemption at 826-832 needs a tame saddled steed
 // dying inside a shop the hero also stands in. The W_WEP tail of
-// extract_from_minvent() needs a monster that has wielded its weapon, which
-// this port refuses one step earlier, at 'monster wield action' in
-// js/unported_monster_actions.js. Both are covered by scripts/steal.test.mjs
-// alone and neither has a recorded case.
+// extract_from_minvent() (1414-1415) needs a monster that has wielded its
+// weapon, which this port refuses one step earlier, at 'monster wield action'
+// in js/unported_monster_actions.js. Its end_burn() arm (1399-1400) needs a
+// monster wearing lit gold dragon scales or scale mail, which mdrop_obj()
+// refuses one call earlier still, when distant_name() names a lamplit worn
+// object. All three are covered by scripts/steal.test.mjs alone and none has a
+// recorded case.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

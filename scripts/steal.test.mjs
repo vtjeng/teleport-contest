@@ -16,6 +16,7 @@ import {
     ROOM,
     ROOMOFFSET,
     SHOPBASE,
+    W_ARM,
     W_ARMH,
     W_SADDLE,
     W_WEP,
@@ -23,6 +24,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { count_unpaid } from '../js/invent.js';
 import { AT_ENGL } from '../js/monsters.js';
+import { UnsupportedObjectNameError } from '../js/objnam.js';
 import {
     mpickobj,
     preflight_mpickobj,
@@ -35,6 +37,7 @@ import {
     ARMOR_CLASS,
     FIGURINE,
     FOOD_CLASS,
+    GOLD_DRAGON_SCALE_MAIL,
     OIL_LAMP,
     ORCISH_DAGGER,
     ORCISH_HELM,
@@ -744,6 +747,41 @@ test('a dropped wielded weapon stops on mwepgone', async () => {
     assert.equal(wielder.held.where, OBJ_FREE);
 });
 
+test('a dropped lamplit suit of armor stops before its light is ended',
+    async () => {
+        // worn.c extract_from_minvent():1399-1400 ends the light on a worn
+        // object that artifact_light() recognizes, and js/worn.js asks for the
+        // endArtifactLight hook there. mdrop_obj() supplies no such hook, so
+        // something ahead of that arm has to stop this drop, and it is
+        // steal.c:823's distant_name(): the port's doname() refuses any lamplit
+        // worn object, which is wider than the arm's own W_ARM test, before
+        // extract_from_minvent() is reached. Remove that refusal and this drop
+        // throws worn.js's bare "worn requires endArtifactLight" Error, which
+        // js/jsmain.js does not recognize as a boundary.
+        const lit = dropFixture({
+            // Gold dragon scale mail worn as W_ARM is what artifact.c
+            // artifact_light():2268-2270 calls lit armor; nothing else a
+            // monster can wear qualifies.
+            carried: {
+                owornmask: W_ARM,
+                oclass: ARMOR_CLASS,
+                otyp: GOLD_DRAGON_SCALE_MAIL,
+                lamplit: true,
+            },
+            carrier: { mhp: 0, misc_worn_check: W_ARM },
+        });
+
+        await assert.rejects(
+            relobj(lit.carrier, 0, false, lit.env),
+            (error) => error instanceof UnsupportedObjectNameError
+                && error.branch === 'lit worn-object suffix',
+        );
+        // The name is taken first, so the suit has not left minvent and still
+        // carries the mask extract_from_minvent() would have read.
+        assert.equal(lit.held.where, OBJ_MINVENT);
+        assert.equal(lit.held.owornmask, W_ARM);
+    });
+
 // ── mdrop_obj()'s saddle no_charge exemption (steal.c 826-832) ──
 
 // The smallest level shape shk.c costly_spot() calls billable, laid over the
@@ -753,6 +791,12 @@ test('a dropped wielded weapon stops on mwepgone', async () => {
 // which exempts the square the shopkeeper occupies, does not fire on the drop.
 const SHOP_ROOMNO = ROOMOFFSET;
 const KEEPER_X = DROP_X + 1;
+
+// A second shop, for the case that separates membership from non-emptiness.
+// The next room number after the one around the drop, on a square west of
+// every square makeShopAroundDrop() lays down.
+const OTHER_SHOP_ROOMNO = ROOMOFFSET + 1;
+const OTHER_SHOP_X = DROP_X - 3;
 
 function makeShopAroundDrop(gameState) {
     gameState.level.flags.has_shop = true;
@@ -844,6 +888,26 @@ test('every reachable conjunct of the saddle exemption is required',
         heroOutside.gameState.u.ux = DROP_X - 2;
         await relobj(heroOutside.carrier, 0, false, heroOutside.env);
         assert.equal(heroOutside.held.no_charge, false);
+
+        // The same conjunct with a non-empty answer: a hero standing in a
+        // different shop. in_rooms() returns that shop's room number, so a
+        // port that only asked whether the hero is in some shop would exempt
+        // the saddle here; C's strchr() and this port's .includes() both ask
+        // whether the drop square's own room is among them.
+        const otherShop = saddleFixture();
+        Object.assign(
+            otherShop.gameState.level.at(OTHER_SHOP_X, DROP_Y),
+            { typ: ROOM, roomno: OTHER_SHOP_ROOMNO, edge: false },
+        );
+        // in_rooms() reads a room's rtype through goodRoomType() and nothing
+        // else, so the second shop needs no resident to be answered for
+        // SHOPBASE.
+        otherShop.gameState.level.rooms[OTHER_SHOP_ROOMNO - ROOMOFFSET] = {
+            rtype: SHOPBASE,
+        };
+        otherShop.gameState.u.ux = OTHER_SHOP_X;
+        await relobj(otherShop.carrier, 0, false, otherShop.env);
+        assert.equal(otherShop.held.no_charge, false);
     });
 
 test('an unpaid saddle stops before the exemption can read it', async () => {

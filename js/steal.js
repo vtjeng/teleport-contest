@@ -218,13 +218,27 @@ function dropEnv(rawEnv = {}) {
     return { ...rawEnv, state };
 }
 
-// The one WornEnv hook extract_from_minvent() can ask mdrop_obj() for.
-// weapon.c mwepgone() has no port, and nothing in the running game can reach
-// it from here: owornmask gains W_WEP only in weapon.c mon_wield_item(), whose
-// two callers both stop first, at 'monster wield action' and 'pet weapon
-// selection' in js/unported_monster_actions.js. Without this key the W_WEP
-// tail would throw worn.js's bare "worn requires mwepgone" Error the first
-// time that boundary widens, discarding a segment instead of ending it.
+// Passing do_extrinsics false leaves two WornEnv hooks extract_from_minvent()
+// can ask mdrop_obj() for. Neither has a port, and each would throw worn.js's
+// bare "worn requires ..." Error, which js/jsmain.js does not recognize as a
+// boundary, so a segment would be discarded rather than ended.
+//
+// endArtifactLight, at worn.c 1399-1400, wants a lamplit W_ARM object that
+// artifact_light() recognizes, and gets no key because mdrop_obj() stops one
+// call earlier: js/objnam.js refuses 'lit worn-object suffix' for any lamplit
+// worn object, a wider condition than that arm's, when distant_name() names the
+// object below. Further out, js/makemon_create.js m_dowear_type() omits
+// worn.c 973-975's begin_burn(), so nothing a monster wears is lamplit to begin
+// with. scripts/steal.test.mjs pins the near gate, which is the one that holds.
+//
+// mwepgone, at worn.c 1414-1415, wants a W_WEP object, and nothing refuses a
+// wielded weapon's name, so that arm needs the key below. In the port only
+// js/weapon.js mon_wield_item() puts W_WEP on a monster's object, and its one
+// call site in js/unported_monster_actions.js refuses at 'monster wield action'
+// for every selection that would reach the assignment. C is wider on both
+// counts: mon_wield_item() has ten callers, and mthrowu.c:894 sets W_WEP on a
+// tethered weapon returning to its thrower without calling it at all. The key
+// is what makes the first widening of either route end a segment.
 //
 // Composed at the call site rather than in dropEnv(), as the stackobj()
 // comment below does, so every other call in this function keeps running on
@@ -272,7 +286,13 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
     //
     // Seam: C's last conjunct is strchr() over the room-number C string
     // in_rooms() returns. The port's in_rooms() returns those numbers as an
-    // array, so the membership test is .includes().
+    // array, so the membership test is .includes(). The two forms disagree at
+    // one input. strchr(s, '\0') finds the terminator and returns a non-null
+    // pointer, so C is true for roomno 0 whatever the string holds, while
+    // .includes(0) on an array without 0 is false. costly_spot() is what rules
+    // that input out, as C's own comment below says: it returns false unless
+    // shk.c inside_shop() answers with a room number, and inside_shop() answers
+    // NO_ROOM for every roomno under ROOMOFFSET.
     if (unwornmask && mon.mtame && (unwornmask & W_SADDLE) !== 0
         && !obj.unpaid && costly_spot(omx, omy, state)
         /* being at costly_spot guarantees lev->roomno is not 0 */
@@ -305,10 +325,16 @@ export async function mdrop_obj(mon, obj, verbosely, rawEnv = {}) {
     /* do this last, after placing obj on floor; removing steed's saddle
        throws rider, possibly inflicting fatal damage and producing bones; this
        is why we had to call extract_from_minvent() with do_intrinsics=FALSE */
-    // worn.c update_mon_extrinsics() (579-710) has no port, so a monster that
-    // survives losing equipment stops here. A dead one does not: DEADMONSTER()
-    // is exactly what keeps the common case -- the hero's kill emptying a
-    // corpse's pack through mon.c m_detach() -- clear of the unported call.
+    // worn.c update_mon_extrinsics() (579-712) has only a partial port:
+    // js/makemon_create.js updateMonsterArmorEffects() covers the INVIS arm for
+    // a mummy wrapping and the FAST arm for speed boots, which is what
+    // creation-time gear carries, and discard_minvent() calls it on the same
+    // !DEADMONSTER() arm this refusal stands on. Equipment outside that set
+    // reaches neither arm, so a monster that survives losing it stops here.
+    // Whoever ports the rest owns both copies: move them into js/worn.js under
+    // the C name rather than adding a third. A dead monster does not stop:
+    // DEADMONSTER() is exactly what keeps the common case -- the hero's kill
+    // emptying a corpse's pack through mon.c m_detach() -- clear of that call.
     if (!(mon.mhp < 1) /* !DEADMONSTER() */ && unwornmask)
         unsupported('a surviving monster losing gear it had equipped');
 }
