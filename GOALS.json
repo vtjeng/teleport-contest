@@ -1560,8 +1560,8 @@
       "slices": [
         {
           "name": "drop a dead monster's worn armor onto the floor",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "902dec6a414b001921e9d1dbb74e0c66a138a5e8"
         }
       ],
       "openedAt": "469a9cb197fd96687b9f101fd6b4fa9a821a0932",

@@ -336,3 +336,4 @@ utc	event	phase	goal	detail
 2026-08-11T15:23:58.677Z	start	select	monster-drops-equipped-gear	
 2026-08-11T15:36:09.835Z	end	select	monster-drops-equipped-gear	
 2026-08-11T15:36:09.870Z	start	implement	monster-drops-equipped-gear	
+2026-08-11T16:14:16.077Z	end	implement	monster-drops-equipped-gear	
