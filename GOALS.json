@@ -1449,6 +1449,11 @@
           "name": "confirm the prayer and enter its occupation",
           "status": "closed",
           "closedBy": "e2af82ac653e7fff4505cbc8f918a444f12a493d"
+        },
+        {
+          "name": "let the prayer finish and anger the god",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "13e0097cc4c5e16f86fb5784f413de2fe667ac9e",
