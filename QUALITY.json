@@ -1627,6 +1627,15 @@
       "status": "open",
       "from": "902dec6a414b001921e9d1dbb74e0c66a138a5e8",
       "detail": "weapon.c mwepgone() (seven lines: take MON_WEP(mon), and if there is one call setmnotwielded(mon, mwep) and set mon->weapon_check = NEED_WEAPON) has no port. js/steal.js:236 supplies it to worn.c extract_from_minvent()'s W_WEP tail as a named refusal, \"a monster dropping the weapon it wields\", rather than leaving the hook absent: without it a W_WEP object reaching requiredHook() at js/worn.js:392 would throw a bare Error, which js/jsmain.js does not treat as a boundary, so the segment would be discarded rather than ended on its last matching screen.\n\nIt is not merely untested, it is unreachable, and that is why it is deferred rather than ported. owornmask gains W_WEP in exactly one place, js/weapon.js:994 inside mon_wield_item(), and that function's only two callers both stop first: js/unported_monster_actions.js:892 refuses \"monster wield action\" whenever select_hwep() picks a weapon the monster is not already wielding, and :794 refuses \"pet weapon selection\" on the dogmove.c dog_invent() route. Creation does not wield either -- makemon.c mongets() only calls mpickobj(), and a grep of makemon.c for weapon_check, mon_wield_item and MON_WEP returns nothing. So no C recording can reach the drop: a session that kills a weapon-wielding monster stops at the wield refusal, several turns earlier.\n\nThe goal detail of monster-drops-equipped-gear instructed the worker to close this with a fresh differential killing an orc or gnome lord carrying an orcish dagger. That instruction is unfollowable for the reason above; the slice-selector falsified it and the orchestrator and the slice-worker each confirmed it independently before the slice was cut.\n\nNo blockedOn is set deliberately. The natural candidate, mon_wield_item, is already defined in js/weapon.js as a partial port, so a blocker naming it would read as landed the day it was written -- the failure the block-deferral help warns about, which has bitten this repository three times. The entry therefore counts toward the monsters sweep threshold, which is honest: it is real debt, not work waiting on someone else.\n\nCost today: zero recorded steps. Nothing in the development set drops a wielded weapon, and nothing can until the wield boundary moves.\n\nClosing condition: a monster that dies wielding a weapon drops it, with mwepgone() ported over the already-ported setmnotwielded() (js/weapon.js:802) and NEED_WEAPON (js/const.js near :2692), proved by a fresh recorded differential -- which becomes possible only once js/unported_monster_actions.js:892 and :794 admit a wield. Note for whoever takes it: setmnotwielded() is async, so mwepgone() must be, which forces extract_from_minvent() from synchronous to asynchronous and ripples through its ten call sites in scripts/worn.test.mjs."
+    },
+    {
+      "id": "you-hear-skips-the-unaware-wording",
+      "area": "world-effects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "1435470b81b2d80750c4d065c52796a45a04439b",
+      "detail": "js/sounds.js:167 paints ambient lines with a hard-coded \"You hear \" prefix instead of going through pline.c You_hear(), so it skips that function's Unaware branch: C paints \"You dream that you hear ...\" for a hero who is asleep or fainted (pline.c:446-447). js/mon.js:1290 carries the same defect.\n\nThe branch was unreachable until the zap-command goal. fall_asleep() sets u.usleep, so unconscious() answers true and Unaware holds for the ~27 turns a self-zap of sleep costs, which is the first state in the port where an ambient line and an insensible hero can coincide. C's own commented-out block at timeout.c:959-960 names the coupling, which is why it is worth recording rather than leaving to be rediscovered.\n\nIt costs nothing measurable today, and that was checked rather than assumed: no development session records a \"dream that you hear\" line -- grep -c over all 33 session files returns 0 -- and seed0016, the one session that sleeps, records no ambient line at all during the sleep. So this is a live divergence with no observed instance, not a latent one and not a scored loss.\n\nLeft unfixed at the zap goal's audit deliberately: js/sounds.js is outside that goal's reviewed range, the fix ports two new You_hear() branches and changes what is rendered, and AGENTS.md wants a fresh C recording before that counts as complete.\n\nClosing condition: ambient lines route through a ported You_hear() that selects C's Unaware wording, with js/mon.js:1290's copy converged onto the same owner, proved by a fresh recorded differential in which a sleeping hero is on a level whose acoustics produce an ambient line -- a fountain level with acoustics enabled and a self-zap of sleep is the cheapest shape. Whoever takes it should check first whether the ambient draw itself is gated on the hero being awake, because if it is, the wording branch may be unreachable from ordinary play and belongs as a named refusal instead."
     }
   ],
   "areas": [
@@ -10415,6 +10424,99 @@
         }
       },
       "recordedAt": "2026-08-11T17:36:10.675Z"
+    },
+    {
+      "kind": "review",
+      "head": "1435470b81b2d80750c4d065c52796a45a04439b",
+      "auditedRange": "eccdb8bb8fae8f65f39dc7130a5c50ddecbda599..1435470b81b2d80750c4d065c52796a45a04439b",
+      "level": "full",
+      "areas": [
+        "objects",
+        "monsters",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 17 raw, 16 deduplicated, 13 confirmed, 12 applied, 1 deferred, 3 rejected, 0 unverified; mutation: 1 survivors of 9 mutants. Full four-finder pass over the zap-command goal, the port's first zap of any kind. 17 raw findings, 16 after deduplication, 13 confirmed, 3 rejected, none unverified; 12 applied in 1435470 and 1 deferred. The development score is identical either side at 1431/7765 screens and 120151/610816 calls, because nothing behavioural changed. Seven confirmed findings were comments that were false, self-contradicting or cited the wrong C statements, and five were untested lines whose deletion left the whole suite green. The sharpest was one this range caused: hack.c overexert_hp()'s refusal was justified by a comment saying none of its three statements was ported, and this range ported fall_asleep(). It stays refused, and the apply session found the gate the pass itself had missed -- js/allmain.js refuses a hero immobile and burdened at once, which the fainting arm produces by construction, so porting it would relocate the stop inside one round rather than win a screen, while spending a new draw and changing what overexertion() returns to a caller in uhitm.c. The deferred finding is a live divergence this range made reachable: ambient lines skip C's Unaware wording for a sleeping hero, with no observed instance in any development session.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3477,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 16,
+          "confirmed": 13,
+          "applied": 12,
+          "deferred": 1,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 5,
+          "clarity": 7,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/sounds.js paints ambient lines with a hard-coded \"You hear \" prefix instead of routing through pline.c You_hear(), so it skips that function Unaware branch: C paints \"You dream that you hear ...\" for a hero who is asleep or fainted, at pline.c 446-447. js/mon.js carries the same defect. This range made the branch reachable for the first time, because timeout.c fall_asleep() sets u.usleep, so unconscious() answers true and Unaware holds for the roughly 27 turns a self-zap of sleep costs; C own commented-out block at timeout.c 959-960 names the coupling. It costs nothing measurable today, and that was checked rather than assumed: no development session records a \"dream that you hear\" line across all 33 session files, and seed0016, the one session that sleeps, records no ambient line during the sleep. Deferred rather than applied because js/sounds.js is outside the reviewed range, the fix ports two new You_hear() branches and changes what is rendered, and AGENTS.md wants a fresh C recording before that counts as complete.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "The failClosedCommandRefusals() note for UnsupportedZapError attributes it to \"dozap()'s three effect arms\" only, though zapyourself() raises it at two further sites — including the one arm reachable today.",
+            "counterEvidence": "evidence refute: The note is not false at the level it speaks. Every UnsupportedZapError surfaces from one of dozap()'s effect arms: `grep -rn 'zapyourself(' js/*.js` shows js/zap.js:204 is the port's only call site of zapyourself(), inside dozap()'s fourth effect arm, so the throws at js/zap.js:272 and :289 propagate out of that arm exactly as the backfire() throw at :196 and the weffects() throw at :226 do out of arms two and five. The cmd.js note explains why the class must end a segment ('stops after the command has already spent a charge and painted its prompts'), which holds for all five sites, and it names where the command stops, not which function holds the throw statement. Counter-evidence: js/zap.js:204 `const damage = await zapyourself(obj, true, state);` is the sole caller (grep over js/*.js), so the two zapyourself() throws "
+          },
+          {
+            "summary": "The cursed-apple refusal reports 'fall_asleep() for a cursed apple' as its reason, but fall_asleep() is ported by this range; the real blockers are verbalize(), You_hear() and Soundeffect().",
+            "counterEvidence": "evidence refute: The refusal string is a statement of what the arm requires, not a claim that fall_asleep() is unported, and fall_asleep() is still genuinely required by the arm. The finding's own replacement list of 'real blockers' is wrong on two of three members. Counter-evidence: js/eat.js:277-283 builds the message as `eating requires ${reason}`, so the text reads 'eating requires fall_asleep() for a cursed apple', which eat.c:2595 confirms (`fall_asleep(-rn1(11, 20), TRUE);`). You_hear() is ported: js/monmove.js:1358 exports youHear() with the full pline.c:441-448 logic. Soundeffect() compiles to nothing without a sound library (nethack-c/upstream/include/sndprocs.h:272 `#define Soundeffect(seid, vol)`). `grep -rn 'function verbalize' js/` returns nothing, so verbalize() alone is unported. causality refute: The anchored line is unto"
+          },
+          {
+            "summary": "zapyourself() declares `const damage = 0` while its own doc calls damage the value the arms produce and C declares it a mutable `int damage = 0` that eight arms assign.",
+            "counterEvidence": "evidence refute: The load-bearing part of the claim is contradicted by the file itself. Counter-evidence: The finding says the const is left 'with nothing in the function or its doc explaining why the C-faithful shape is disallowed', but js/zap.js:258-259 — which the finding quotes — reads '`damage` is the hit points dozap() then takes off the hero. The sleep arm leaves it 0, which is what makes dozap()'s losehp() unreachable.' That is precisely the bound it says is missing. The finding also claims dozap()'s guard is 'provably dead, which a reader of dozap() alone cannot determine'; js/zap.js:206-210 states inside dozap() that 'the sleep arm is the only one zapyourself() runs, so `damage` is 0 on every path that reaches here.' Both stated gaps are already documented at the two sites the finding names. causality refute: No behavior of the "
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "you-hear-skips-the-unaware-wording",
+            "category": "production",
+            "trackedIn": "you-hear-skips-the-unaware-wording",
+            "summary": "js/sounds.js paints ambient lines with a hard-coded \"You hear \" prefix instead of routing through pline.c You_hear(), so it skips that function Unaware branch: C paints \"You dream that you hear ...\" for a hero who is asleep or fainted, at pline.c 446-447. js/mon.js carries the same defect. This range made the branch reachable for the first time, because timeout.c fall_asleep() sets u.usleep, so unconscious() answers true and Unaware holds for the roughly 27 turns a self-zap of sleep costs; C own commented-out block at timeout.c 959-960 names the coupling. It costs nothing measurable today, and that was checked rather than assumed: no development session records a \"dream that you hear\" line across all 33 session files, and seed0016, the one session that sleeps, records no ambient line during the sleep. Deferred rather than applied because js/sounds.js is outside the reviewed range, the fix ports two new You_hear() branches and changes what is rendered, and AGENTS.md wants a fresh C recording before that counts as complete."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "eccdb8bb8fae8f65f39dc7130a5c50ddecbda599..fe282c9c92fa4580f9daf26699eba7278bf09799"
+          ],
+          "mutants": 9,
+          "survivors": 1,
+          "byKind": {
+            "boolean": {
+              "ran": 4,
+              "killed": 3
+            },
+            "logical": {
+              "ran": 3,
+              "killed": 3
+            },
+            "relational": {
+              "ran": 2,
+              "killed": 2
+            }
+          },
+          "deltaRun": "The audit-fix diff at 1435470 produced no mutants: its three js/ files carry comment changes only, and the rest is tests. Its Mutants trailer sits in the same final paragraph as Audit-fix-for and Assisted-by, and all three parse under git interpret-trailers, which is the first range in four where that check needed no correction.",
+          "finderConclusion": "The readiness run left exactly one survivor, js/zap.js let learn_it = false changed to true, which the slice worker had predicted and argued unkillable: zapyourself() only live arm assigns TRUE as its first statement and both other reachable paths throw before the if (learn_it), while C initializer matters because several refused arms leave it FALSE. I passed that argument to the pass to judge rather than accept, and it stands; it becomes observable the moment a second zapyourself() arm lands. The more useful observation is the same as the previous range: mutation reached almost none of what the pass found. Thirteen findings confirmed, of which seven were false or self-contradicting comments and six were untested lines, and no mutation kind addresses a comment. Five of the six test gaps were lines whose deletion left the entire suite green, including dozap() check_capacity() guard and zapyourself() monstunseesu() call."
+        },
+        "readiness": {
+          "boundary": "Pressing z with a wand in inventory, from the keystroke through the object prompt and the direction prompt to a self-zap that puts the hero to sleep for 27 turns and wakes her. The real game executes it: seed0016-healer-newmoon-eat-zap now matches 3656 of 3656 random-number calls, 34 of 36 screens and 36 of 36 cursors, and four fresh C recordings pass at strict parity including attributes and animation frames, covering a gnome Healer, a human Healer, a blind Healer and a wizard-mode wish for an undiscovered wand of sleep across 18 segments.",
+          "sourceReview": "Every branch reachable before those endings was traced against nethack-c/upstream/: zap.c dozap() (2625-2683), zap_ok() (2616-2623), zappable() (2508-2522), zapyourself() (2705-3013) frame and WAN_SLEEP arm (2851-2866), learnwand() (123-151) both arms; timeout.c fall_asleep() (951-974); eat.c gethungry() around the (!Unaware || !rn2(10)) disjunct at 3174 and the rn2(20) at 3191; hack.c nomul(), unmul() and overexert_hp() (3034-3047); shk.c check_unpaid() (5737-5742) and check_unpaid_usage() (5687-5733); objnam.c Tobjnam(). The trace covered state, random-number order and the points where the game waits for input. It found no behavioural divergence inside the boundary and thirteen defects of record: seven comments that were false, self-contradicting or cited the wrong C statements, and six untested lines. Fifteen C citations were re-derived, three more than the pass itself listed.",
+          "completeness": "No known unsupported behaviour remains inside the boundary. Excluded and verified fail-closed: weffects(), backfire(), every zapyourself() arm but the sleep one behind a single default: refusal naming the otyp, the Sleep_resistance TRUE arm, dozap() losehp() arm, and check_unpaid_usage() billing tail. One arm was re-examined rather than assumed: hack.c overexert_hp() fainting arm, whose refusal comment this range falsified by porting fall_asleep(). It stays refused, and the reason is now recorded correctly: js/allmain.js refuses a hero who is immobile and burdened at once, and the fainting arm produces exactly that pair by construction, so porting it would relocate the stop inside one round rather than win a screen, while spending a new rn2(2) and changing what overexertion() returns to a caller in uhitm.c. Two gaps are recorded rather than closed: you-hear-skips-the-unaware-wording, a live divergence this range made reachable with no observed instance, and eat.c is_fainted(), the other half of Unaware, unreachable until newuhs() FAINTING arm lands."
+        }
+      },
+      "recordedAt": "2026-08-11T21:12:47.097Z"
     }
   ]
 }
