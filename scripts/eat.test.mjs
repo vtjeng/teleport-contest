@@ -350,10 +350,13 @@ test('gethungry burns nutrition slowly for an Unaware hero and not for a merely 
     }), 1);
     assert.equal(silent.u.uhunger, 899);
 
-    // Unaware needs a negative gm.multi as well as a reason, which is what
-    // separates `multi < 0` from `multi <= 0`: a hero free to act this turn is
-    // awake even while a waking message is still queued behind them, so the
-    // slow-rate draw is not spent.
+    // A hero free to act this turn is awake even while a waking message is
+    // still queued behind them, so the slow-rate draw is not spent. Which of
+    // the two tests rejects the state is not decided here: trap.c
+    // unconscious() returns FALSE for a non-negative gm.multi before eat.c's
+    // own `gm.multi < 0` term is consulted, so either one alone answers this
+    // case. eat.c's term is load-bearing only for is_fainted(), the half the
+    // block below shows is unreachable.
     const freed = hungerState();
     freed.multi = 0;
     freed.nomovemsg = 'You awake from your slumber.';

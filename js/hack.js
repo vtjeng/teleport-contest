@@ -319,11 +319,22 @@ export async function check_capacity(str, state = game) {
 // costs: one hit point, or consciousness when there is not one to spare.
 //
 // Upolyd is constantly false in this port, so C's `int *hp` is always
-// &u.uhp. Only the `*hp <= 1` arm stops: it prints, exercises Constitution
-// through attrib.c exercise(A_CON, FALSE) and calls fall_asleep(-10, FALSE),
-// none of which is ported. `refuse` is the caller's own boundary, because
-// hack.c overexertion() and allmain.c moveloop_core() reach this from
-// different commands and stop at different classes.
+// &u.uhp. Only the `*hp <= 1` arm (3042-3046) stops, and no longer for want of
+// the three statements it runs: You("pass out from exertion!"), attrib.c
+// exercise(A_CON, FALSE) and timeout.c fall_asleep(-10, FALSE) are all ported.
+// What stops it is the state it would leave behind. Both callers reach this
+// only from HVY_ENCUMBER upward, so a hero who faints here is immobile and
+// still overloaded, and js/allmain.js refuses that pair at its `burdened
+// multi-cycle immobility countdown` boundary: a burdened turn is planned on a
+// clone first, and the clone reaches that boundary in the same round the faint
+// would run in. Running the arm would also spend exercise()'s rn2(2) here and
+// make overexertion() below return `gm.multi < 0` for the first time, which
+// uhitm.c do_attack() (533) reads to abandon the attack. It needs a fresh C
+// case, not a comment change.
+//
+// `refuse` is the caller's own boundary, because hack.c overexertion() and
+// allmain.c moveloop_core() reach this from different commands and stop at
+// different classes.
 export function overexert_hp(state, refuse) {
     if (typeof refuse !== 'function')
         throw new TypeError('overexert_hp requires a refusal');

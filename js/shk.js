@@ -456,16 +456,26 @@ export function contained_gold(obj, even_if_unknown) {
 }
 
 // C ref: shk.c check_unpaid() (5737-5742), the "used in the normal manner"
-// entry point, over check_unpaid_usage() (5686-5735). C's wrapper is one call
+// entry point, over check_unpaid_usage() (5687-5733). C's wrapper is one call
 // with `altusage` FALSE; the guard below is check_unpaid_usage()'s own opening
-// test (5694-5696), written here because it is the whole of what runs for
-// every object a ported command uses.
+// test (5695-5697).
 //
-// Past that guard the hero is standing in a shop holding merchandise she has
-// not paid for, and C charges her for the charge she just spent:
-// cost_per_charge(), a `Hey!`/`Ahem.`/`Whoa!` line chosen by up to two rn2(3)
-// draws, verbalize(), exercise(A_WIS, TRUE) and a write to ESHK(shkp)->debit.
-// None of those is ported, so the tail stops as a whole.
+// C returns silently twice more past that guard: when shop_keeper() finds no
+// keeper for the room or inhishop() finds it away (5698-5700), and when
+// cost_per_charge() prices the use at zero (5701-5702). Neither is ported, so
+// this refusal is deliberately wider than the set C bills for, and a hero in a
+// shop whose keeper is absent or dead stops here where C charges nothing.
+//
+// What it refuses is the tail, for the arms `altusage` FALSE can reach:
+// cost_per_charge(), then a line whose lead-ins are drawn for -- two rn2(3)
+// draws choosing `Hey!  ` and `Ahem.  ` in the default arm (5719-5724), one
+// rn2(2) choosing the library scolding for a spellbook (5705-5709), and no
+// draw at all for a potion of oil (5710-5711) -- then verbalize() and
+// exercise(A_WIS, TRUE) behind `!Deaf && !muteshk(shkp)` (5727-5731), then an
+// unconditional `ESHK(shkp)->debit += tmp` (5732). The `Whoa!  ` and
+// `Watch it!  ` lead-ins belong to the emptying arm at 5712-5718, which only
+// an `altusage` TRUE caller reaches. None of this is ported, so the tail stops
+// as a whole.
 //
 // The `*u.ushops` term is the first entry of hack.c move_update()'s room list;
 // js/rooms.js stores it as a fixed five-entry array, so an empty list reads as

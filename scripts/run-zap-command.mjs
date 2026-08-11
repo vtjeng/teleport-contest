@@ -127,7 +127,7 @@ export function loadZapCommandRecipe() {
             // u_init.c rolls the Wizard's wand type from the seed, and a
             // NODIR one would send dozap() into weffects() instead.
             segment(7830031, `${ZAP_KEY}${ESCAPE_KEY}`, WIZARD),
-            // The same keys on a hero who cannot see: zap.c:2663's `!Blind`
+            // The same keys on a hero who cannot see: zap.c:2654's `!Blind`
             // holds back the "glows and fades" line, so the zap spends its
             // charge and its turn and says nothing at all.
             segment(7830001, `${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}`,

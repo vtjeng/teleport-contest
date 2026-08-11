@@ -3,10 +3,15 @@
 // and makewish().
 //
 // dozap() is ported whole, and so is the command around its effect arms: the
-// two guards, the object prompt, the shop usage fee, the charge, the direction
-// prompt, the wand that glows and fades when no direction is given, and the
-// worn-out wand that crumbles. Two of its five effect arms still stop:
-// backfire(), and weffects() with the whole aimed-zap machinery below it.
+// two guards, the object prompt, the charge, the direction prompt, the wand
+// that glows and fades when no direction is given, and the worn-out wand that
+// crumbles. Two of its five effect arms still stop: backfire(), and weffects()
+// with the whole aimed-zap machinery below it.
+//
+// The shop usage fee stops the command earlier than any of them. check_unpaid()
+// runs between the object prompt and the charge, and js/shk.js raises
+// UnsupportedShopError there for merchandise the hero has not paid for, so a
+// zap in a shop ends the segment before an effect arm is chosen at all.
 //
 // The self-zap arm runs, through zapyourself(), for a wand or spell of sleep
 // alone. Every other object type zapyourself() can be handed stops in the one
@@ -158,17 +163,24 @@ export function zap_ok(obj) {
 
 // C ref: zap.c dozap() (2625-2683), the `z` command, translated whole.
 //
-// Three of the five effect arms stop, and each one stops after everything C
-// does ahead of it has run, so the charge, the prompts and the draws that
-// select the arm all happen first:
+// Two of the five effect arms stop, and each one stops after everything C does
+// ahead of it has run, so the charge, the prompts and the draws that select
+// the arm all happen first:
 //
 // - backfire() throws the cursed wand up in the hero's face. The rn2 that
 //   picks it is inside the condition, so a cursed wand that does not backfire
 //   spends the draw and carries on exactly as C does.
-// - zapyourself() is one refusal rather than one per wand: C's own switch ends
-//   in `default: impossible()`, so a single arm naming the object type covers
-//   both the wand effects that are unported and the types C rejects.
 // - weffects() is the whole of the aimed-zap machinery below it.
+//
+// The self-zap arm runs and returns ECMD_TIME for a wand or spell of sleep,
+// which is the arm the recorded Healer takes. It stops only inside
+// zapyourself(), which owns one refusal for every other object type in place
+// of C's `default: impossible()` and a second for a sleep-resistant hero.
+// dozap()'s own losehp() throw below that call cannot fire while zapyourself()
+// returns 0 damage.
+//
+// check_unpaid() stops the command earlier than any effect arm; the file
+// header says what that costs.
 export async function dozap(state = game) {
     if (nohands(state.youmonst.data)) {
         await ttyPline(

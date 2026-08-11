@@ -4,28 +4,35 @@ import test from 'node:test';
 
 import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
+    ECMD_OK,
     ECMD_TIME,
+    EXT_ENCUMBER,
     FROMOUTSIDE,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
+    M_SEEN_SLEEP,
     ROOMOFFSET,
     SLEEP_RES,
     W_ARMH,
 } from '../js/const.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
+import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { Tobjnam } from '../js/objnam.js';
 import {
+    NODIR,
     POTION_CLASS,
     POT_WATER,
     WAND_CLASS,
     WAN_DIGGING,
+    WAN_LIGHT,
     WAN_SLEEP,
     objects_globals_init,
 } from '../js/objects.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { check_unpaid, UnsupportedShopError } from '../js/shk.js';
+import { m_canseeu } from '../js/vision.js';
 import { dozap, UnsupportedZapError, zap_ok, zappable } from '../js/zap.js';
 import {
     BLIND,
@@ -106,6 +113,29 @@ async function heroCarryingWand(changes = {}) {
     return wand;
 }
 
+// Load the pack to a chosen encumbrance, the way eat-prompt.test.mjs does.
+// hack.c capacity_from_excess() answers `trunc(excess * 2 / wc) + 1`, where
+// excess is the pack's weight less the carrying capacity, so `level` covers
+// the excesses from `(level - 1) * wc / 2` up to `level * wc / 2` and the
+// target below aims at the middle of that band. The wand's own slot absorbs
+// the difference, and inv_weight() reports what the pack weighs today, so the
+// Healer's gold needs no separate arithmetic here.
+function loadPackTo(level) {
+    const capacity = weight_cap(game);
+    const target = Math.trunc(capacity * (1 + (2 * level - 1) / 4));
+    const wand = carriedWand();
+    assert.ok(wand, 'the Healer carries a wand');
+    wand.owt += target - (inv_weight(game) + capacity);
+    assert.equal(near_capacity(game), level);
+}
+
+// Every monster the level generated, in mon.c fmon order.
+function levelMonsters() {
+    const monsters = [];
+    for (let mon = game.level.monlist; mon; mon = mon.nmon) monsters.push(mon);
+    return monsters;
+}
+
 // Queue the keys dozap()'s prompts will read, then run it off the command
 // loop the way eat-prompt.test.mjs runs doeat().
 function typeAtPrompts(...keys) {
@@ -168,7 +198,7 @@ test('zappable wrests a last charge when the draw lands on zero', async () => {
 });
 
 test('zappable spends a charge from a wand that has one', async () => {
-    // Both disjuncts false, so zap.c:2521 runs alone: no draw, no message,
+    // Both disjuncts false, so zap.c:2520 runs alone: no draw, no message,
     // one charge gone. 4 is the low end of the rn1(5,4) range mksobj() rolls
     // for a wand's UNDEF_SPE.
     const wand = await liveGame(4);
@@ -186,7 +216,7 @@ function shopState(ushops) {
 }
 
 test('check_unpaid bills only for unpaid merchandise used in a shop', () => {
-    // shk.c:5694-5696, the guard check_unpaid() reaches through
+    // shk.c:5695-5697, the guard check_unpaid() reaches through
     // check_unpaid_usage(otmp, FALSE). Each case below flips one conjunct.
     // ROOMOFFSET is the lowest room number in_rooms() will report, so it is
     // the smallest value hack.c move_update() can put at the head of the shop
@@ -205,6 +235,19 @@ test('check_unpaid bills only for unpaid merchandise used in a shop', () => {
     // Unpaid and inside the shop, but with no charge left to be billed for.
     // objects[WAN_SLEEP].oc_charged is 1, which is what makes this arm apply.
     check_unpaid(charged({ unpaid: true, spe: 0 }), shopState(IN_SHOP));
+
+    // The same spe on an object type that is not sold by the charge:
+    // objects[POT_WATER].oc_charged is 0, so C's third conjunct is false
+    // however low spe reads and the fee applies. This is the row that holds
+    // the conjunct itself, since every wand above carries oc_charged 1.
+    assert.equal(shopState(IN_SHOP).objects[POT_WATER].oc_charged, 0);
+    assert.throws(
+        () => check_unpaid(
+            { otyp: POT_WATER, oclass: POTION_CLASS, spe: 0, unpaid: true },
+            shopState(IN_SHOP),
+        ),
+        UnsupportedShopError,
+    );
 
     // All three conjuncts false: C charges a usage fee, which needs
     // cost_per_charge(), verbalize() and the shopkeeper's debit. spe 1 is the
@@ -260,6 +303,33 @@ test('the zap command is admitted and shares its extcmdlist row with dozap',
     assert.ok(failClosedCommandRefusals().includes(UnsupportedZapError));
 });
 
+test('an overloaded hero is refused before the object prompt opens',
+    async () => {
+    // zap.c:2636's check_capacity((char *) 0), the second of dozap()'s two
+    // guards and the second of the two ECMD_OK results the command can
+    // return. hack.c:4398-4408 refuses at EXT_ENCUMBER and takes You_cant()'s
+    // default line for a null argument. No key is queued, so a dozap() that
+    // reached getobj() would empty the input queue instead of returning.
+    //
+    // The nohands() guard above it needs no case of its own: Upolyd is
+    // constantly false in this port, so gy.youmonst.data is always the hero's
+    // own species and nohands() is always false.
+    await heroCarryingWand({ spe: 4 });
+    loadPackTo(EXT_ENCUMBER);
+    assert.equal(await dozap(game), ECMD_OK);
+    assert.equal(
+        pendingTopLine(), "You can't do that while carrying so much stuff.",
+    );
+
+    // One band below it the command runs to the end, so the guard really is
+    // `>=` on EXT_ENCUMBER rather than on any load at all.
+    await heroCarryingWand({ spe: 4 });
+    loadPackTo(EXT_ENCUMBER - 1);
+    typeAtPrompts(HEALER_WAND, ESCAPE_KEY);
+    assert.equal(await dozap(game), ECMD_TIME);
+    assert.equal(pendingTopLine(), 'The wand of sleep glows and fades.');
+});
+
 test('the zap command asks for an object and then for a direction',
     async () => {
     const segment = segmentFor(`${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}`);
@@ -311,12 +381,12 @@ test('only a zap that chose a wand spends the turn', async () => {
 
 test('an aimed zap stops at the effect the port has not ported', async () => {
     const segment = segmentFor(`${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}`);
-    // A real direction, which is C's `else` at zap.c:2670. The self arm beside
+    // A real direction, which is C's `else` at zap.c:2665. The self arm beside
     // it runs instead of stopping; 'a self-zap of sleep' below owns it.
     const aimed = await boundaryFor(segment, `.${ZAP_KEY}${HEALER_WAND}h`);
     assert.match(aimed?.message ?? '', /weffects\(\) for object type 432/u);
     // Up and down leave u.dx and u.dy at 0 and set u.dz, so only the third
-    // conjunct of zap.c:2666 separates them from the self arm, and a hero who
+    // conjunct of zap.c:2657 separates them from the self arm, and a hero who
     // zapped upward must reach weffects() rather than fall asleep.
     for (const key of ['<', '>']) {
         const vertical =
@@ -330,8 +400,31 @@ test('an aimed zap stops at the effect the port has not ported', async () => {
     assert.equal(WAN_SLEEP, 432);
 });
 
+test('a NODIR wand is never asked which way to point', async () => {
+    // zap.c:2644 sets need_dir from objects[].oc_dir, and the two arms at 2653
+    // and 2657 both test it: for a wand C aims nowhere there is no direction
+    // prompt and no self-zap, and the command falls through to weffects().
+    // Only the wand letter is queued, so a direction prompt that opened would
+    // have no key to read and would fail this case rather than pass it.
+    await heroCarryingWand({ otyp: WAN_LIGHT, spe: 4 });
+    // The wand of sleep every other case zaps is RAY, which is what makes the
+    // same keys open a direction prompt above.
+    assert.equal(game.objects[WAN_LIGHT].oc_dir, NODIR);
+    assert.notEqual(game.objects[WAN_SLEEP].oc_dir, NODIR);
+    typeAtPrompts(HEALER_WAND);
+    initRng(49);
+    enableRngLog();
+    await assert.rejects(
+        () => dozap(game),
+        new RegExp(`weffects\\(\\) for object type ${WAN_LIGHT}`, 'u'),
+    );
+    // zappable() spent the charge on the way past and drew nothing for it.
+    assert.equal(carriedWand().spe, 3);
+    assert.deepEqual(getRngLog(), []);
+});
+
 test('a wand with no charge left says so and crumbles', async () => {
-    // zap.c:2655-2656 and the tail at 2679-2681. zappable() answers 0 for a
+    // zap.c:2645-2646 and the tail at 2677-2679. zappable() answers 0 for a
     // wand already past its last charge, so the direction prompt never opens:
     // one keystroke drives the whole command, and useupall() takes the wand
     // out of the pack.
@@ -352,7 +445,7 @@ test('a wand with no charge left says so and crumbles', async () => {
 });
 
 test('a worn-out wand that loses its draw is kept, not crumbled', async () => {
-    // The `else` at zap.c:2681-2682, which is what separates `spe < 0` from
+    // The `else` at zap.c:2680-2681, which is what separates `spe < 0` from
     // `spe <= 0`: a wand whose wrest draw missed still reads 0, and C keeps
     // it. Seed 1 is the same losing draw the zappable() test above uses.
     await heroCarryingWand({ spe: 0 });
@@ -367,7 +460,7 @@ test('a worn-out wand that loses its draw is kept, not crumbled', async () => {
 
 test('a blind hero is told nothing when the direction prompt is cancelled',
     async () => {
-    // zap.c:2663's `if (!Blind)`. OPTIONS:blind is the one source of blindness
+    // zap.c:2654's `if (!Blind)`. OPTIONS:blind is the one source of blindness
     // the port can reach today, and it raises HBlinded alone, so the helper
     // that reads it has to take either source rather than both.
     const segment = segmentFor(`${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}`,
@@ -390,7 +483,7 @@ test('a blind hero is told nothing when the direction prompt is cancelled',
 
 test('a cursed wand spends the backfire draw before the direction prompt',
     async () => {
-    // zap.c:2657. The draw sits inside the condition, so it is spent whether
+    // zap.c:2647. The draw sits inside the condition, so it is spent whether
     // or not it selects backfire(), and only a cursed wand spends it.
     // WAND_BACKFIRE_CHANCE is 100 (hack.h:1410); seed 1 puts 45 at the head of
     // the stream and seed 167 is the first below 200 that puts 0 there.
@@ -422,10 +515,27 @@ test('a self-zap of sleep puts the hero under for rnd(50) turns', async () => {
     // Healer sleeps for.
     const wand = await heroCarryingWand({ spe: 4 });
     const waited = game.moves;
+    // mondata.c monstunseesu() (1579-1581) clears M_SEEN_SLEEP from every
+    // living monster that can see the hero. Nothing in the port reads
+    // seen_resistance yet, so these two monsters are the only thing that can
+    // show the call happened. The first is put beside the hero, which is all
+    // m_canseeu() reads besides Invis and u.uinwater; the second stays where
+    // the level put it, out of the hero's line of sight, and is what shows the
+    // call is selective rather than a sweep of the whole list.
+    const [watcher, distant] = levelMonsters();
+    assert.ok(watcher && distant, 'the level generated two monsters');
+    watcher.mx = game.u.ux + 1;
+    watcher.my = game.u.uy;
+    assert.equal(m_canseeu(watcher, game), true);
+    assert.equal(m_canseeu(distant, game), false);
+    watcher.seen_resistance = M_SEEN_SLEEP;
+    distant.seen_resistance = M_SEEN_SLEEP;
     typeAtPrompts(HEALER_WAND, SELF_KEY);
     initRng(49);
     enableRngLog();
     assert.equal(await dozap(game), ECMD_TIME);
+    assert.equal(watcher.seen_resistance, 0);
+    assert.equal(distant.seen_resistance, M_SEEN_SLEEP);
     // pline_The() prefixes "The " (pline.c:413-421). The sleep spends exactly
     // one draw: the Healer's wand type is already discovered, so learnwand()
     // takes its observe_object() arm and makeknown() is not reached.
@@ -473,7 +583,7 @@ test('a self-zap discovers an unfamiliar wand and credits the hero',
 });
 
 test('a blind hero learns nothing from a wand they cannot see', async () => {
-    // The `if (!Blind)` at zap.c:145 holds observe_object() back, so dknown
+    // The `if (!Blind)` at zap.c:143 holds observe_object() back, so dknown
     // stays clear and the makeknown() under it is skipped: the sleep is the
     // only thing that happens, and its draw is the only one spent.
     const segment = segmentFor(`${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}`,
@@ -517,7 +627,7 @@ test('a blind hero learns nothing from a wand they cannot see', async () => {
 
 test('a hero who resists sleep stops before the sleep ray is rolled',
     async () => {
-    // zap.c:2853-2856. Sleep_resistance is youprop.h:36's plain "either
+    // zap.c:2854-2857. Sleep_resistance is youprop.h:36's plain "either
     // source" test, so an intrinsic alone selects the arm. No race or role the
     // port starts today has it, so it is written in directly.
     await heroCarryingWand({ spe: 4 });
@@ -542,7 +652,7 @@ test('a hero who resists sleep stops before the sleep ray is rolled',
 
 test('a self-zap of anything but sleep stops where C calls impossible',
     async () => {
-    // zapyourself()'s `default:` (zap.c:3005-3007). WAN_DIGGING is an
+    // zapyourself()'s `default:` (zap.c:3004-3006). WAN_DIGGING is an
     // ordinary aimed wand with an arm of its own that this port has not
     // reached; the refusal names the type so a session that stops here says
     // which wand it wanted.
@@ -559,19 +669,44 @@ test('a self-zap of anything but sleep stops where C calls impossible',
 
 test('zapping unpaid merchandise inside a shop stops at the usage fee',
     async () => {
-    // zap.c:2653's check_unpaid(obj), which sits between the object prompt and
+    // zap.c:2642's check_unpaid(obj), which sits between the object prompt and
     // the charge. A wand the hero has not paid for still has charges, so
-    // shk.c:5694-5696 falls through to the fee C would bill.
-    await heroCarryingWand({ unpaid: true });
+    // shk.c:5695-5697 falls through -- into the port's refusal, which is wider
+    // than the fee: this level has no shopkeeper, so C would return at 5700
+    // and bill nothing. What the case pins is where the command stops, not
+    // that C would charge here.
+    const wand = await heroCarryingWand({ unpaid: true, spe: 4 });
     game.u.ushops[0] = ROOMOFFSET;
     typeAtPrompts(HEALER_WAND);
+    initRng(49);
+    enableRngLog();
     await assert.rejects(
         () => dozap(game), UnsupportedShopError,
     );
+    // C calls check_unpaid() above zappable(), so the refusal precedes the
+    // charge and every draw the command could take.
+    assert.equal(wand.spe, 4);
+    assert.deepEqual(getRngLog(), []);
+
+    // The last charge is what that order is worth. Reversed, zappable() would
+    // take spe to 0 first and shk.c:5696's `(spe <= 0 && oc_charged)` conjunct
+    // would then excuse the fee, so the command would run to the end: the
+    // self-zap key queued below would be read and the hero would fall asleep
+    // in a shop C bills.
+    const lastCharge = await heroCarryingWand({ unpaid: true, spe: 1 });
+    game.u.ushops[0] = ROOMOFFSET;
+    typeAtPrompts(HEALER_WAND, SELF_KEY);
+    initRng(49);
+    enableRngLog();
+    await assert.rejects(
+        () => dozap(game), UnsupportedShopError,
+    );
+    assert.equal(lastCharge.spe, 1);
+    assert.deepEqual(getRngLog(), []);
 });
 
 test('a zap under perm_invent stops at the inventory window', async () => {
-    // zap.c:2682's update_inventory(), whose comment reads "maybe used a
+    // zap.c:2681's update_inventory(), whose comment reads "maybe used a
     // charge". It does nothing while the permanent-inventory window is off,
     // so the only way to show the call happens is to turn the window on: the
     // port has no owner for it and must stop rather than skip the redraw.
