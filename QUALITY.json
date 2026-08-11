@@ -1495,6 +1495,15 @@
       "status": "open",
       "from": "34516deac9ec62bfc6828b6be7b8d35ad88ea9dc",
       "detail": "js/display.js _statusFieldStyle()'s critical hilite arm has no test that configures a status-hilite rule with behavior 'critical', so three mutants survive on a live status-line path: the arm's && and the only_if_injured argument it passes to critically_low_hp(), plus the two hide_innate_value assignments behind enlightenment()'s polymorph refusal. Found while applying the pray-command correctness pass over 425364f8..b0bb30e, and pre-existing rather than introduced by it: the pass converged critically_low_hp() onto one owner, which is what exposed that nothing exercises this reader. Close it by adding a status-hilite rule with behavior 'critical' to the display tests and watching each of the three mutants die."
+    },
+    {
+      "id": "pick-lock-refuses-a-square-with-no-door",
+      "area": "commands",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "14f13184f03fb2edbfb297150f1beb961dcc9530",
+      "detail": "js/lock.js:184 throws UnsupportedLockError('a square that holds no door') for every chosen square whose typ is not a door, standing for lock.c pick_lock()'s `if (!IS_DOOR(door->typ))` arm at 578-593. C does not refuse there: it initializes res = PICKLOCK_DID_NOTHING, records oldglyph and update_mapseen_for(cc.x, cc.y), calls feel_location(cc.x, cc.y), raises res to PICKLOCK_LEARNED_SOMETHING when the glyph or svl.lastseentyp[cc.x][cc.y] changed, then prints You(\"%s no lock on the drawbridge.\", Blind ? \"feel\" : \"see\") when is_drawbridge_wall(cc.x, cc.y) >= 0 and You(\"%s no door there.\", Blind ? \"feel\" : \"see\") otherwise, and returns res.\n\nThe port's header comment at js/lock.js:110-120 already lists this arm among what it does not cover, so the refusal is deliberate; what was not known until now is what it costs. It is the measured cap on the pet-cursed-object-feedback candidate: in seed1500-rogue-explore-move, step 25 applies a lock pick, step 26 answers getdir() with l, and step 27 records \"You see no door there.\", so that candidate's stretch on this session ends at 14 steps instead of running the 27 that remain. No development session stops here first, so it is not rankable as a goal on its own.\n\nClosing condition: pick_lock()'s non-door arm prints C's line and returns C's res, with the drawbridge sibling either ported or refused under its own name, proved by a fresh differential that applies a lock pick at a square holding no door. Whoever ports pet cursed-object feedback should close this alongside it, or that goal will stop here."
     }
   ],
   "areas": [
