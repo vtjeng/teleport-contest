@@ -396,7 +396,11 @@ export async function tty_yn_function(query, resp, def, state = game) {
     // the port does not: getdir() clears it immediately, and the eat prompt's
     // recorded sessions and its two focused tests are pinned to the '' this
     // arm has always written.  Correcting that belongs with whichever slice
-    // next owns invent.c getobj().
+    // next owns invent.c getobj().  A fresh differential now measures the
+    // difference rather than only predicting it: the QUALITY.json deferral
+    // getobj-prompt-leaves-the-top-line-in-c-only carries the case, a take-off
+    // answered at the prompt whose delay lets runmode_delay_output() flush an
+    // animation frame while C is still showing the query.
     if (resp !== null) state._pending_message = prompt;
     display.toplin = TOPLINE_NON_EMPTY;
     // `if (wins[WIN_MESSAGE]->cury) tty_clear_nhwindow(WIN_MESSAGE)` closes

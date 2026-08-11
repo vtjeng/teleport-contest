@@ -1532,6 +1532,15 @@
           "at": "ceff7dbc77246f078dbfaa8609f6b3d2c02fbea1"
         }
       ]
+    },
+    {
+      "id": "getobj-prompt-leaves-the-top-line-in-c-only",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "1b76eeb15adc1574b19a99566459d5933fd73f8b",
+      "detail": "win/tty/topl.c keeps an answered yn_function() prompt on the physical top line. js/getline.js hooked_tty_getlin() sets _pending_message only on its restricted arm (js/getline.js:400), so the unrestricted arm that invent.c getobj() uses leaves row 0 blank and the next flush paints nothing there. js/getline.js:395-399 already records the divergence and assigns it to the slice that next owns getobj(); this entry adds the first case that measures it.\n\nReachable since do_wear.c armoroff()'s delayed branch was ported: a prompted take-off of a suit spends several helpless turns, and hack.c runmode_delay_output() flushes an animation frame in the middle of them, while C still shows the prompt.\n\nCase, expected to fail until the prompt is retained: node scripts/diff-fresh.mjs --seed 7710133 --datetime 20310203040506 --role Knight --gender male --align lawful --name TakeOff --options \"pettype:none,!acoustics,!autopickup,!legacy,!tutorial,!splash_screen\" --moves \".Tc.\" -- it reports \"First animation mismatch at boundary 4 (segment 1, step 4, key c): Frame 1, cell row 1, column 1 (ch): C: W / JS: (space)\", the W of \"What do you want to take off? [cdef or ?*]\". Everything else matches: PRNG 2609/2609, 5 screens, 5 cursors.\n\nTurn arithmetic decides whether a frame is drawn at all: flags.runmode defaults to RUN_LEAP, so runmode_delay_output() draws only on turns where svm.moves % 7 == 0, and the five turns a ring mail costs from this input sequence span moves 3 to 7. A shorter delay or a different number of leading waits can miss the frame entirely, which is why the take-off matrix keeps its delayed segments on the roles that need no prompt."
     }
   ],
   "areas": [

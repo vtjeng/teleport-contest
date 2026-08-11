@@ -122,6 +122,7 @@ import {
     GLOB_OF_GREEN_SLIME,
     GLASS,
     GOLD_PIECE,
+    GRAY_DRAGON_SCALE_MAIL,
     HEAVY_IRON_BALL,
     HELM_OF_OPPOSITE_ALIGNMENT,
     HORN_OF_PLENTY,
@@ -182,6 +183,7 @@ import {
     WOOD,
     WORM_TOOTH,
     UNICORN_HORN,
+    YELLOW_DRAGON_SCALES,
 } from './objects.js';
 import {
     G_NOCORPSE,
@@ -753,6 +755,17 @@ export function is_wet_towel(obj) {
 export function is_shield(obj, state = game) {
     return obj.oclass === ARMOR_CLASS
         && objectType(obj, state).oc_armcat === ARM_SHIELD;
+}
+
+// C ref: obj.h Is_dragon_scales() (346-347), Is_dragon_mail() (348-350) and
+// Is_dragon_armor() (351). objects.h lists the ten scale mails at otyp 101-110
+// and the ten scale heaps at 111-120, so C's two range tests cover one
+// contiguous block between them. Only the combined macro has a caller here:
+// do_wear.c Armor_off() needs it to tell the suits dragon_armor_handling()
+// acts on from the ones it takes `default: break;` for.
+export function Is_dragon_armor(obj) {
+    return obj.otyp >= GRAY_DRAGON_SCALE_MAIL
+        && obj.otyp <= YELLOW_DRAGON_SCALES;
 }
 
 // C ref: obj.h is_axe() (217-219). Reads the same field is_pick() below does.

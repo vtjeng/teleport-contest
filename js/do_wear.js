@@ -14,9 +14,9 @@
 // js/u_init_inventory_attrs.js, beside the startup code that first calls it.
 //
 // The 'A' occupation spine -- do_takeoff(), take_off(),
-// better_not_take_that_off() and doddoremarm() -- is not ported, and neither
-// is armoroff()'s delayed branch at do_wear.c:1930-1972. Every refusal below
-// names the C function it stops in front of.
+// better_not_take_that_off() and doddoremarm() -- is not ported. armoroff()'s
+// delayed branch at do_wear.c:1930-1972 is ported for a suit only. Every
+// refusal below names the C function it stops in front of.
 
 import {
     ECMD_CANCEL,
@@ -49,11 +49,17 @@ import {
 } from './const.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
+import { nomul } from './hack.js';
 import { getobj } from './invent.js';
 import { cvt_prop_to_mseenres, monstunseesu, nolimbs } from './mondata.js';
 import { PM_ARCHEOLOGIST } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
-import { is_shield, objectType, set_bknown } from './obj.js';
+import {
+    Is_dragon_armor,
+    is_shield,
+    objectType,
+    set_bknown,
+} from './obj.js';
 import {
     AMULET_CLASS,
     AMULET_OF_UNCHANGING,
@@ -73,7 +79,6 @@ import {
     FEDORA,
     HAWAIIAN_SHIRT,
     LEATHER_CLOAK,
-    LEATHER_JACKET,
     LENSES,
     MEAT_RING,
     OILSKIN_CLOAK,
@@ -108,10 +113,12 @@ export class UnsupportedTakeOffError extends Error {
 
 // C ref: context.h struct takeoff_info (51-57), reached through
 // svc.context.takeoff. Only `mask` is modelled: `what` and `delay` are written
-// by do_takeoff(), `disrobing` by take_off(), and `cancelled_don` by
-// cancel_don(), and all three of those functions belong to the unported 'A'
-// spine and to armoroff()'s delayed branch. Nothing outside this file reads
-// the field, and every path through dotakeoff() leaves it at 0 again.
+// by do_takeoff() and `disrobing` by take_off(), all in the unported 'A'
+// spine. `cancelled_don` is written by cancel_don(), which cancel_doff() below
+// cannot reach, and by Armor_off(), which leaves it out because
+// dragon_armor_handling()'s BLUE arm is its only reader and that arm is
+// refused. Nothing outside this file reads the field, and every path through
+// dotakeoff() leaves it at 0 again.
 function takeoffContext(state) {
     state.context ??= {};
     state.context.takeoff ??= { mask: 0 };
@@ -127,9 +134,13 @@ export function reset_remarm(state = game) {
 
 // C ref: do_wear.c cancel_doff() (1642-1659), supplied to setworn() through
 // the worn.js hook of the same name. C's donning() test at 1656 reads
-// ga.afternmv, which only the delayed don and doff branches assign; both stop
-// unported, so cancel_don() cannot be reached and the mask clear is the whole
-// of it here.
+// ga.afternmv and svc.context.takeoff.what. Nothing writes `what` -- only the
+// unported 'A' spine does -- and armoroff()'s delayed branch, the port's one
+// writer of ga.afternmv, is spent by the time any setworn() runs: unmul()
+// clears the callback before calling it, so Armor_off()'s own setworn() sees
+// it null. No other setworn() can run in between, because moveloop_core()
+// reads no key while gm.multi is negative. donning() is therefore always FALSE
+// here, cancel_don() cannot be reached, and the mask clear is the whole of it.
 function cancel_doff(obj, slotmask, env) {
     takeoffContext(env.state).mask &= ~slotmask;
 }
@@ -170,18 +181,27 @@ async function off_msg(otmp, state) {
         await ttyPline(`You were wearing ${donameFresh(otmp, state)}.`, state);
 }
 
-// C ref: do_wear.c Armor_off() (908-930). objects.h gives every suit but
-// LEATHER_JACKET an oc_delay of 1 or more, and armoroff() stops on a non-zero
-// delay before it reaches here, so a leather jacket is the only suit this
-// function can be handed. That settles both of C's tails at 920-928 without
-// porting either: artifact_light() answers TRUE only for gold dragon scales
-// and mail, and dragon_armor_handling() has an arm for the other seven colors
-// and their mail and takes `default: break;` for everything else. The guard
-// is checked before the item leaves its slot, so tripping it changes nothing.
+// C ref: do_wear.c Armor_off() (908-930). armoroff() reaches this both
+// immediately, for the leather jacket that is the one suit with an oc_delay of
+// 0, and through hack.c unmul() several turns later for every other suit.
+//
+// Both of C's tails at 920-928 belong to dragon armor alone, so the guard
+// settles them without porting either. artifact_light() answers TRUE for no
+// other suit -- gold dragon scales and mail are its only armor -- which leaves
+// `was_arti_light` FALSE and C's end_burn() arm dead. dragon_armor_handling()
+// has an arm for eight of the ten colors, in scales and in mail, and takes
+// `default: break;` for everything else; grey and silver dragon armor takes
+// that default too but is refused with the rest of the block, because obj.h
+// spells the test as one range and separating those two would buy nothing that
+// a ported dragon_armor_handling() will not deliver anyway.
+//
+// The guard is checked before the item leaves its slot, so tripping it changes
+// nothing. C's `svc.context.takeoff.cancelled_don = FALSE` between the two is
+// left out; see takeoffContext() for why the field is not modelled.
 function Armor_off(state) {
     const otmp = state.uarm;
 
-    if (otmp.otyp !== LEATHER_JACKET) {
+    if (Is_dragon_armor(otmp)) {
         throw new UnsupportedTakeOffError(
             `Armor_off() for otyp ${otmp.otyp}`,
         );
@@ -581,11 +601,8 @@ export async function select_off(otmp, state = game) {
     return 0;
 }
 
-// C ref: do_wear.c armoroff() (1919-2008). Only the no-delay branch at
-// 1973-2005 is ported: the moment `delay` computed at 1923 is non-zero, C
-// enters nomul(delay) with an afternmv callback and a nomovemsg, which this
-// goal leaves out. Nothing has been drawn or changed when that stop fires --
-// cursed() above it prints only on the arm that already returned.
+// C ref: do_wear.c armoroff() (1919-2008). Both branches are ported, the
+// delayed one at 1930-1972 for a suit only.
 export async function armoroff(otmp, state = game) {
     const delay = -objectType(otmp, state).oc_delay;
 
@@ -593,40 +610,72 @@ export async function armoroff(otmp, state = game) {
     /* this used to make assumptions about which types of armor had
        delays and which didn't; now both are handled for all types */
     if (delay) {
-        throw new UnsupportedTakeOffError(
-            `armoroff() delay ${delay} for otyp ${otmp.otyp}`,
-        );
+        // C's switch at 1933-1965 carries an arm for all seven categories.
+        // Three of them cannot arrive: objects.h gives every shield, every
+        // cloak and both shirts an oc_delay of 0. Of the four that can,
+        // ARM_HELM would need Helmet_off()'s other nine arms and ARM_GLOVES
+        // and ARM_BOOTS need Gloves_off() (646-732) and Boots_off()
+        // (262-382), none of which is ported. The test sits above nomul() so
+        // that a refused category stops before anything is written; C's own
+        // `default: impossible()` arm cannot be reached, because every
+        // ARMOR_CLASS entry in objects.h carries one of the seven categories.
+        if (objectType(otmp, state).oc_subtyp !== ARM_SUIT) {
+            throw new UnsupportedTakeOffError(
+                'armoroff() delayed branch for armor category '
+                + `${objectType(otmp, state).oc_subtyp}`,
+            );
+        }
+        // allmain.c moveloop_core() counts gm.multi back up one turn at a
+        // time and calls hack.c unmul() on the turn it reaches zero; unmul()
+        // prints gn.nomovemsg and runs the ga.afternmv callback. No segment
+        // boundary can fall between this write and that read, because
+        // moveloop_core() reads no key while gm.multi is negative, so none of
+        // the three needs save handling -- decl.c:175 leaves C's ga.afternmv
+        // out of the save file for the same reason.
+        nomul(delay, state);
+        state.multi_reason = 'disrobing';
+        /* case ARM_SUIT */
+        const what = suit_simple_name(otmp, state);
+
+        state.afternmv = Armor_off;
+        // C guards the two lines below with `if (what)`, which only its
+        // impossible() arm can fail; suit_simple_name() always answers a
+        // string, so the guard is vacuous once ARM_SUIT is the only arm.
+        /* sizeof offdelaybuf == 60; increase it if this becomes longer */
+        state.nomovemsg = `You finish taking off your ${what}.`;
+    } else {
+        /* no delay so no '(*afternmv)()' or 'nomovemsg' */
+        switch (objectType(otmp, state).oc_subtyp) {
+        case ARM_SUIT:
+            Armor_off(state);
+            break;
+        case ARM_SHIELD:
+            Shield_off(state);
+            break;
+        case ARM_HELM:
+            Helmet_off(state);
+            break;
+        // C's ARM_GLOVES and ARM_BOOTS arms at 1985-1990 are absent rather
+        // than stopped. objects.h gives every pair of gloves an oc_delay of 1
+        // and every pair of boots an oc_delay of 2, so the delayed branch
+        // above always takes them first, and select_off() stops on either
+        // slot earlier still.
+        case ARM_CLOAK:
+            Cloak_off(state);
+            break;
+        case ARM_SHIRT:
+            Shirt_off(state);
+            break;
+        default:
+            throw new UnsupportedTakeOffError(
+                'armoroff() for armor category '
+                + `${objectType(otmp, state).oc_subtyp}`,
+            );
+        }
+        /* We want off_msg() after removing the item to
+           avoid "You were wearing ____ (being worn)." */
+        await off_msg(otmp, state);
     }
-    /* no delay so no '(*afternmv)()' or 'nomovemsg' */
-    switch (objectType(otmp, state).oc_subtyp) {
-    case ARM_SUIT:
-        Armor_off(state);
-        break;
-    case ARM_SHIELD:
-        Shield_off(state);
-        break;
-    case ARM_HELM:
-        Helmet_off(state);
-        break;
-    // C's ARM_GLOVES and ARM_BOOTS arms at 1985-1990 are absent rather than
-    // stopped. objects.h gives every pair of gloves an oc_delay of 1 and
-    // every pair of boots an oc_delay of 2, so the delay test above always
-    // stops first, and select_off() stops on either slot earlier still.
-    case ARM_CLOAK:
-        Cloak_off(state);
-        break;
-    case ARM_SHIRT:
-        Shirt_off(state);
-        break;
-    default:
-        throw new UnsupportedTakeOffError(
-            'armoroff() for armor category '
-            + `${objectType(otmp, state).oc_subtyp}`,
-        );
-    }
-    /* We want off_msg() after removing the item to
-       avoid "You were wearing ____ (being worn)." */
-    await off_msg(otmp, state);
     takeoffContext(state).mask = 0;
     return 1;
 }

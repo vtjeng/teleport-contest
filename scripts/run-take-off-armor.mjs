@@ -7,7 +7,9 @@
 // The command is do_wear.c dotakeoff(), which reaches count_worn_stuff(),
 // invent.c getobj() through takeoff_ok() and equip_ok(),
 // armor_or_accessory_off(), select_off(), cursed(), armoroff() and one of
-// Armor_off(), Cloak_off(), Helmet_off(), Shield_off() and Shirt_off().
+// Armor_off(), Cloak_off(), Helmet_off(), Shield_off() and Shirt_off(). For a
+// suit whose oc_delay is not 0 the last of those is reached several turns
+// later, through hack.c nomul() and allmain.c moveloop_core() into unmul().
 //
 // Roles are chosen for the armor they start in, because u_init.c is the only
 // way this port can put armor on a hero: 'W' is unported, and a wish delivers
@@ -77,6 +79,15 @@ const MONK = { role: 'Monk', gender: 'male' }; // a gloves, b robe
 const PRIEST = { role: 'Priest', align: 'chaotic' }; // b robe, c small shield
 const KNIGHT = { role: 'Knight', gender: 'male', align: 'lawful' };
 // Knight: c ring mail, d helmet, e small shield, f leather gloves
+// The two roles below wear the delayed suits. objects.h gives every suit but
+// the leather jacket a non-zero oc_delay, and armoroff() spends it as helpless
+// turns before Armor_off() runs; the two here are the widest spread u_init.c
+// offers, 5 turns against 3. They also split objnam.c suit_simple_name(): its
+// " mail" test answers "mail" for splint mail and neither test matches
+// "leather armor", so the Caveman's message ends "your suit."
+const SAMURAI = { role: 'Samurai', gender: 'male', align: 'lawful' };
+// Samurai: c splint mail, oc_delay 5
+const CAVEMAN = { role: 'Caveman' }; // e leather armor, oc_delay 3
 
 export function loadTakeOffRecipe() {
     return validateCleanRecipe({
@@ -89,6 +100,13 @@ export function loadTakeOffRecipe() {
             segment(7710101, TAKEOFF_KEY, WIZARD),
             segment(7710112, TAKEOFF_KEY, TOURIST),
             segment(7710103, TAKEOFF_KEY, VALKYRIE),
+            // The same arm for a suit whose oc_delay is not 0, so armoroff()
+            // takes its delayed branch: nomul(-5) buys five turns in which
+            // moveloop_core() reads no key, and unmul() prints the message and
+            // runs Armor_off() on the last of them. The wait before the 'T'
+            // puts the fifth turn on a multiple of 7, so runmode_delay_output()
+            // also draws one animation frame in the middle of the removal.
+            segment(7710113, TAKEOFF_KEY, SAMURAI),
             // Two worn pieces, so the prompt arm fires; the fedora leaves
             // Narmorpieces at 1, so the second 'T' takes the no-prompt arm.
             // Helmet_off() is the one <X>_off() with a side effect this goal
@@ -145,6 +163,17 @@ export function loadTakeOffOptionsRecipe() {
             // cmd.c:1886's takeoff row carries no CMD_M_PREFIX, so rhack()
             // reports the prefix rather than running the command.
             segment(7710124, `m${TAKEOFF_KEY}`, KNIGHT, PET_AND_CLOCK),
+            // A delayed removal with a pet on the level and the clock shown:
+            // the three turns the leather armor costs are turns the dog moves
+            // in and the counter advances through, so a delay spent wrongly
+            // shows up in both. suit_simple_name() answers "suit" here.
+            segment(7710114, TAKEOFF_KEY, CAVEMAN, PET_AND_CLOCK),
+            // flags.verbose off against a delayed removal. The message comes
+            // from gn.nomovemsg through unmul() rather than from off_msg(),
+            // which armoroff() calls only on its no-delay branch, so this one
+            // is printed where the Wizard's "You were wearing" line above is
+            // not.
+            segment(7710125, TAKEOFF_KEY, SAMURAI, TERSE),
         ],
     }, 'take off armor options recipe');
 }

@@ -722,8 +722,15 @@ export function assertPricedObjectNameable(obj, state = game) {
 // C ref: objnam.c doname(), the owornmask suffixes. Amulets, armor, and worn
 // tools are answered inside its class switch; the wielded, alternate-weapon,
 // and quiver phrases follow the charge and lit text, which is the order the
-// port assembles them in too. doffing() and donning() cannot hold here,
-// because no Wear or Take-off is in progress while a name is formatted.
+// port assembles them in too.
+//
+// objnam.c:1391-1395 prefers " (being doffed)" or " (being donned)" over
+// " (being worn)" while a Wear or Take-off is under way, and its own comment
+// names a perm_invent redraw as the case that reaches it. do_wear.c
+// armoroff()'s delayed branch does leave ga.afternmv set for as long as the
+// removal takes, so doffing() can hold in C. Neither can hold here: nothing
+// in this port redraws inventory on its own, and moveloop_core() reads no key
+// while gm.multi is negative, so no name is formatted in that window.
 function wornSuffix(obj, type, state) {
     const mask = obj.owornmask ?? 0;
     if (!mask) return '';
