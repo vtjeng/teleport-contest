@@ -1653,6 +1653,11 @@
           "name": "report a pet stepping onto a cursed object",
           "status": "closed",
           "closedBy": "e78b986f21d3625d5d1f09c678626801d4177eca"
+        },
+        {
+          "name": "run pick_lock()'s non-door arm",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "df872e416c15dcf26fdb6ae95a94eff1952f5de0",
