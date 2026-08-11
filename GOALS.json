@@ -1504,6 +1504,11 @@
           "name": "admit a wished-for sack and fill it",
           "status": "closed",
           "closedBy": "e1cf83f9dde32cf9960581018d4b1b0c1ba7489b"
+        },
+        {
+          "name": "take off body armor over its delay",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "14f13184f03fb2edbfb297150f1beb961dcc9530",
