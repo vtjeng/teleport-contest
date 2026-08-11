@@ -45,10 +45,12 @@ deliberately:
   the `SCORE.md` entry are the orchestrator's: append none, and put the score
   and validation evidence in your report instead.
 
-Outside code and tests you write exactly one thing: the `QUALITY.json` area
-each new `js/` file belongs to, assigned with `npm run quality -- assign
+Outside code and tests you write two things: the `QUALITY.json` area each new
+`js/` file belongs to, assigned with `npm run quality -- assign
 --file <path> --area <id>` as soon as you create the file, as
-"Per-chunk workflow" requires. The goal list in `GOALS.json` and the review and
+"Per-chunk workflow" requires; and a deferral, recorded with
+`npm run quality -- defer` when validation leaves a case outside the goal's
+limit. The goal list in `GOALS.json` and the review and
 simplification entries in `QUALITY.json` belong to the orchestrator, including
 on the last slice of a goal.
 
@@ -58,6 +60,11 @@ case. If the chunk looks like it needs a pass, say so in your report.
 
 Never run `scripts/score-holdout.mjs` and never touch `sessions/holdout/`,
 directly or through a subagent.
+
+Kill only a process you started. Never kill one you found with `ps` or
+`pgrep`: another agent works in this tree, and a pattern match cannot tell its
+`npm run checkpoint` from yours. To wait on your own command, poll a bounded
+number of times for a condition its own command line cannot satisfy.
 
 ## Subagents
 

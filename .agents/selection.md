@@ -9,7 +9,11 @@ closing a goal triggers.)
 ## Choosing a goal
 
 We have two categories of goals. Clear every deferred-area sweep the report
-names before opening a fail-closed boundary port.
+names before opening a fail-closed boundary port. Never run two sweeps in a
+row: a sweep files new deferrals as it reads, so it can otherwise schedule its
+own successor forever. When the goal that just closed was a sweep, open a
+boundary port even if the report names an area. Sweep ids end in
+`-deferral-sweep` or `-deferral-sweep-<n>`.
 
 ### Deferred-area sweeps
 

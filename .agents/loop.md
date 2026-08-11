@@ -26,9 +26,9 @@ Four agents run that loop, and no agent performs more than one of these jobs.
   fresh case with the C reference program and replay it as
   `.agents/validation.md` requires, and commit the result. A worker that
   cannot reach that state commits nothing and reports what blocked it, so the
-  slice stays queued. It runs no formal review pass, reads no threshold,
-  and records nothing in the quality ledger. `.claude/agents/slice-worker.md`
-  is its brief.
+  slice stays queued. It does not run a formal review pass or read a threshold.
+  In the quality ledger it records deferrals only.
+  `.claude/agents/slice-worker.md` is its brief.
 - The **orchestrator** spawns the other three, measures independently what the
   worker landed, and owns every formal review pass.
 
