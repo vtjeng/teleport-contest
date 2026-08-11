@@ -103,11 +103,26 @@ test('fails on a nonzero recorder exit', async (t) => {
 });
 
 test('fails when a complete marker stream ends with an unexpected signal', async (t) => {
+    // The marker below completes the recording, so record-session.mjs
+    // onMarker() calls finish() and terminateChild(true) sends SIGTERM. A fake
+    // recorder that raised SIGUSR2 straight after the write was racing that
+    // SIGTERM: whichever signal reached it first is the one `close` reports,
+    // and under CI load the SIGTERM won, leaving a death the reader accepts as
+    // the shutdown it asked for. Waiting for SIGTERM makes the order explicit
+    // -- the process cannot die before the parent has asked it to, and it
+    // always dies of SIGUSR2 when it does. That pins the stricter half of the
+    // reader's guard, which is that an intentional shutdown excuses SIGTERM
+    // and SIGKILL alone and not whatever signal happens to arrive next.
+    // A signal listener alone does not hold Node's event loop open, so the
+    // read on stdin is what keeps this process alive to receive the SIGTERM;
+    // record-session.mjs never ends stdin on this path, because finish() runs
+    // in place of the branch that would.
     const fakeSource = String.raw`
 const fs = require('node:fs');
 const marker = '\x1b]7777;KIND=input;SEQ=1;ANIM=0;CX=0;CY=0;LEN=0\x07';
+process.stdin.resume();
+process.on('SIGTERM', () => process.kill(process.pid, 'SIGUSR2'));
 fs.writeSync(1, marker);
-process.kill(process.pid, 'SIGUSR2');
 `;
     const result = await runWithFakeRecorder(t, fakeSource, {
         moves: '',

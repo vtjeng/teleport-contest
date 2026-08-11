@@ -951,7 +951,7 @@
       "area": null,
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "6b79b0772025291f5b54f1c948b8b7c9c4c2da3e",
       "detail": "`scripts/record-session.test.mjs`, \"fails when a complete marker stream ends\nwith an unexpected signal\", races. Its fake recorder writes a complete input\nmarker to fd 1 with `fs.writeSync(1, marker)` and then immediately runs\n`process.kill(process.pid, 'SIGUSR2')`, so the parent's observation of the\nmarker on the pipe against its observation of the signal death is an ordering\nthe test does not control.\n\nObserved once on CI during the `monsters-deferral-sweep` artifact-touch slice:\nthe run reported status 0 where the test asserts 1. It passes locally, and a\nre-dispatch of the identical commit passed (run 31129020658, head 6b79b077), so\nthe failure is load-dependent rather than a defect in the recorder.\n\nA flaky test costs more than the minutes it wastes: it teaches the next agent\nto re-run a red suite instead of reading it, which is the habit most likely to\nlet a real regression through.\n\nThe fix is to make the ordering explicit rather than probable -- have the fake\nrecorder wait for the parent to acknowledge the marker before signalling, or\nhave the assertion accept either interleaving while still requiring the signal\nto be reported. Decide which from `scripts/record-session.mjs`'s own reader,\nbecause only one of those is faithful to what the production path guarantees.\n\n`scripts/` is not area-owned, so this entry carries no area."
     },
