@@ -121,7 +121,7 @@ When a fresh differential fails:
 
 ## Facts about the measuring tools
 
-These four are settled and keep being re-derived. Each has cost a wrong
+These five are settled and keep being re-derived. Each has cost a wrong
 conclusion at least once.
 
 - **`rngMatched` compares positionally over the whole log.**
@@ -130,6 +130,15 @@ conclusion at least once.
   C's still-running ones, so a matched-call count can fall while correctness
   rises. When a count moves the wrong way, measure the first-divergence index
   before concluding anything.
+- **`scripts/record-session.mjs` clears the install directory only before a
+  chunk's first segment.** Line 445 guards `clearStaleState()` on
+  `isFirstSegment`, so a save/restore session can end segment 0 with
+  save-and-quit and restore that save in segment 1. A `playmode:debug` game the
+  recorder terminates also leaves a save behind, so a second debug segment in
+  the same chunk restores the first game. The recording fails a few keys into
+  that segment. Pass `chunkLimit: 1` for any recipe holding a debug segment;
+  other segments batch normally. Clearing between segments would break
+  save/restore recording.
 - **`game.rng` does not exist.** Count draws through the replay object's
   `getRngLog()`. An assertion written against `game.rng?.log?.length ?? 0`
   compares 0 with 0 and passes whatever the code does.
