@@ -315,7 +315,7 @@ export function preflightGetHungry(state = game, env = {}) {
     }
     if (u.uinvulnerable || state.iflags?.debug_hunger)
         return { skipped: true };
-    // C ref: eat.c gethungry():3173 `(!Unaware || !rn2(10))`. `ordinaryLoss`
+    // C ref: eat.c gethungry():3174 `(!Unaware || !rn2(10))`. `ordinaryLoss`
     // below is the first disjunct's answer; an Unaware hero draws rn2(10)
     // instead and burns nutrition only one turn in ten, and no ported path
     // produces one. A hero immobilized with a message waiting -- pray.c
@@ -1263,7 +1263,7 @@ async function done_eating(message, state, env) {
     if (state.nomovemsg) {
         if (message) await plineMessage(state.nomovemsg, state);
         // C's `gn.nomovemsg = 0` assigns NULL to a `const char *`. The number
-        // 0 is not that: js/monmove.js heroUnaware() resolves this field with
+        // 0 is not that: js/trap.js unconscious() resolves this field with
         // `??`, which passes 0 through to String.prototype.startsWith.
         state.nomovemsg = null;
     } else if (message) {

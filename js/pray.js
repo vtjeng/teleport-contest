@@ -3,9 +3,9 @@
 //
 // C ref: src/pray.c critically_low_hp() (116-156), stuck_in_wall() (161-181),
 //        in_trouble() (198-284), worst_cursed_item() (288-346),
-//        angrygods() (703-784), gods_upset() (1434-1445),
+//        angrygods() (704-784), gods_upset() (1436-1443),
 //        blocked_boulder() (2677-2719), can_pray() (2124-2173),
-//        dopray() (2199-2276), prayer_done() (2276-2343), u_gname() (2524)
+//        dopray() (2199-2273), prayer_done() (2276-2343), u_gname() (2524)
 //        and align_gname() (2530).
 //
 // prayer_done() covers its head and the gp.p_type == 0 arm; angrygods() covers
@@ -449,7 +449,7 @@ export async function can_pray(praying, state = game) {
         : true;
 }
 
-// C ref: pray.c dopray() (2199-2276), the '#pray' command.
+// C ref: pray.c dopray() (2199-2273), the '#pray' command.
 export async function dopray(state = game) {
     /*
      * If ParanoidPray is set, confirm prayer to avoid accidental slips
@@ -551,8 +551,11 @@ export async function prayer_done(state = game) {
         change_luck(-3, state);
         await gods_upset(state.u.ualign.type, state);
     } else if (state.gp.p_type === 1) {
-        // "too naughty": straight into angrygods() with no luck or timer
-        // penalty first.
+        // "too naughty". pray.c:2323-2325 runs the same on_altar()
+        // water_prayer(FALSE) call the p_type 0 arm above does, then
+        // angrygods(u.ualign.type). What it skips relative to p_type 0 is the
+        // pair of penalties between them, u.ublesscnt += rnz(250) and
+        // change_luck(-3).
         throw new UnsupportedPrayerError("prayer_done()'s p_type 1 arm");
     } else if (state.gp.p_type === 2) {
         // A coaligned hero on a cross-aligned altar: water_prayer() decides
@@ -565,7 +568,7 @@ export async function prayer_done(state = game) {
     }
 }
 
-// C ref: pray.c gods_upset() (1434-1445). "The g_align god is upset with you."
+// C ref: pray.c gods_upset() (1436-1443). "The g_align god is upset with you."
 // Anger at the hero's own god accumulates; anger at another god is spent.
 export async function gods_upset(g_align, state = game) {
     if (g_align === state.u.ualign.type) state.u.ugangr++;
@@ -582,7 +585,7 @@ function Hallucination(state) {
         && !(resistance?.intrinsic || resistance?.extrinsic);
 }
 
-// C ref: pray.c angrygods() (703-784). How badly a god reacts is
+// C ref: pray.c angrygods() (704-784). How badly a god reacts is
 // `rn2(maxanger)`, and maxanger grows with the anger already stored and with
 // bad luck, so the first prayer of a game -- one point of anger and the three
 // points of luck prayer_done() has just taken -- lands on rn2(4).

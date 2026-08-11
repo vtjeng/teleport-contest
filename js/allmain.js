@@ -787,9 +787,10 @@ async function finishElapsedTurn(
     // turn, exactly as it does for a run.
     if ((state.multi ?? 0) < 0) {
         // A burdened hero's planning clone runs this whole block before the
-        // live pass does, the way js/allmain.js:661-662 guards region upkeep:
-        // counting on the clone would spend a turn of the wait twice and print
-        // its release message from a state that is thrown away.
+        // live pass does, the way the `burdened multi-cycle region upkeep`
+        // guard above does: counting on the clone would spend a turn of the
+        // wait twice and print its release message from a state that is thrown
+        // away.
         if (planning)
             elapsedTurnBoundary('burdened multi-cycle immobility countdown');
         await runmode_delay_output(state);
@@ -1078,8 +1079,12 @@ export async function moveloop_core() {
     // compiled out for the recorder's Unix build.
     //
     // The `gm.multi >= 0` guard is what suspends an occupation while the hero
-    // is helpless; nomul() with a negative value is its only writer, and every
-    // ported caller passes 0.
+    // is helpless. nomul() with a negative value is the only writer that can
+    // fail it, and js/pray.js dopray()'s `nomul(-3)` is the port's one such
+    // caller. It cannot yet reach this guard: the block below returns before
+    // rhack(), so no command starts while an occupation is set, and no ported
+    // occupation makes multi negative on its own. The guard is written out
+    // because it is C's.
     if ((g.multi ?? 0) >= 0 && g.go?.occupation) {
         let finished;
         try {

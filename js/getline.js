@@ -15,7 +15,7 @@
 // autocompletion arms below are the ones that write the expansion ahead of an
 // unmoved cursor and erase a stale expansion in place.
 
-import { BUFSZ, COLNO } from './const.js';
+import { BUFSZ, COLNO, quitchars } from './const.js';
 import {
     ECM_EXACTMATCH,
     ECM_IGNOREAC,
@@ -62,9 +62,6 @@ const ESC = 0x1B;
 // signed cast is the only route to that arm.
 const EOF_BYTE = 0xFF;
 const CTRL_P = 0x10;
-// C ref: decl.c:96 `const char quitchars[] = " \r\n\033";`.  Escape is tested
-// ahead of this set in tty_yn_function(), so only the first three reach it.
-const QUITCHARS = ' \r\n\x1B';
 
 // C ref: win/tty/getline.c's file-static suppress_history, which the two
 // public entry points set before calling hooked_tty_getlin().
@@ -364,7 +361,10 @@ export async function tty_yn_function(query, resp, def, state = game) {
                 else if (resp.includes('n')) q = 'n'.charCodeAt(0);
                 else q = defByte;
                 break;
-            } else if (QUITCHARS.includes(String.fromCharCode(q))) {
+            } else if (quitchars.includes(String.fromCharCode(q))) {
+                // decl.c:96 quitchars[] is " \r\n\033". Escape is tested by
+                // the arm above, so only space, carriage return and line feed
+                // reach this one.
                 q = defByte;
                 break;
             }

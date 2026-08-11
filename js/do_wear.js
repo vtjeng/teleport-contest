@@ -464,8 +464,9 @@ function RING_ON_PRIMARY(state) {
 }
 
 // C ref: do_wear.c stuck_ring() (2656-2683). Answers the worn item that stops
-// `ring` coming off, or null when nothing does. pray.c in_trouble() is the
-// only caller this port has; it asks about levitation rings, and the answer
+// `ring` coming off, or null when nothing does. This port has C's two callers:
+// pray.c in_trouble() asks about levitation rings, and insight.c
+// one_characteristic() asks about sustain-ability rings. Either way the answer
 // only matters when the ring is worn and is that type.
 //
 // C opens with an impossible() for a ring that is worn in neither slot. Both

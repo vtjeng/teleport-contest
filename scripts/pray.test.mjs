@@ -37,7 +37,9 @@ import {
     W_SADDLE,
     isok,
 } from '../js/const.js';
+import { UnsupportedTurnBoundaryError } from '../js/allmain.js';
 import { paranoid_query } from '../js/cmd.js';
+import { bot } from '../js/display.js';
 import {
     UnsupportedGetlinBoundaryError,
     tty_yn_function,
@@ -412,6 +414,50 @@ test('critically_low_hp() applies the divisor its rank selects', async () => {
     assert.equal(check(1, 5, 5, false), true);
 });
 
+// pray.c critically_low_hp() has three C call sites: pray.c:220 in_trouble(),
+// botl.c:2555's BL_HP hilite and win/tty/wintty.c:4539's hit-point bar. All
+// three read u.mh and u.mhmax for a polymorphed hero, so the status line and
+// the god have to answer alike about the same hero. js/display.js used to
+// carry a second copy with no Upolyd term, which answered differently here.
+test('critically_low_hp() reads a polymorphed hero as the status line does',
+    async () => {
+        const u = (await startedGame()).u;
+        // Upolyd is `u.umonnum != u.umonster`; js/u_init.js is its only writer
+        // and sets the two equal, so the form is set here by hand.
+        u.umonnum = PM_ACID_BLOB;
+        game.youmonst.data = game.mons[PM_ACID_BLOB];
+        // pray.c:133-137: experience level 1 is rank 0, which divides by 5. So
+        // the form's 3 of 40 is critical (3 <= 5) while the hero's own 40 of
+        // 40 is not, and only a reader that takes u.mh answers TRUE.
+        u.ulevel = 1;
+        u.mh = 3;
+        u.mhmax = 40;
+        u.uhp = 40;
+        u.uhpmax = 40;
+        assert.equal(critically_low_hp(false, game), true);
+        assert.equal(critically_low_hp(true, game), true);
+
+        // wintty.c:4539 dashes the hit-point bar's title when
+        // critically_low_hp(TRUE) answers TRUE. A status line reading u.uhp
+        // would leave the padding blank.
+        game.iflags.wc2_hitpointbar = true;
+        const title = () => game.nhDisplay.grid[22]
+            .map(({ ch }) => ch).join('').slice(0, 32);
+        await bot();
+        assert.equal(title(), '[Orison the Stripling - - - - -]');
+
+        // The two status-line call sites differ only in the argument, so an
+        // undamaged form is where they part: pray.c:123 returns FALSE before
+        // the divisor test when curhp is not below maxhp, while the same hero
+        // is critical for botl.c's hilite because 5 <= 5.
+        u.mh = 5;
+        u.mhmax = 5;
+        assert.equal(critically_low_hp(true, game), false);
+        assert.equal(critically_low_hp(false, game), true);
+        await bot();
+        assert.equal(title(), '[Orison the Stripling          ]');
+    });
+
 // pray.c stuck_in_wall() counts the eight neighbours and answers TRUE only for
 // eight. Secret doors and secret corridors are the two obstructed types that
 // do not count.
@@ -521,54 +567,53 @@ test('stuck_in_wall() counts a boulder that would be pushed off the map',
         game.level.objects[u.ux + 1][u.uy] = null;
     });
 
-// pray.c worst_cursed_item() walks a fixed precedence list. Each step below
-// adds the item the previous step's answer outranked, so the answer has to
-// move exactly one place down the list.
+// pray.c worst_cursed_item() walks a fixed precedence list. The walk below
+// wears the whole list at once and then takes it off from the top, so every
+// adjacent pair of the else-if chain is decided with both of its items
+// present. Removing an item as the next one is added would leave each pair
+// untested, which is how a swapped pair of branches gets through.
 test('worst_cursed_item() follows the source precedence order', async () => {
     await startedGame();
     assert.equal(worst_cursed_item(game), null);
 
     const cursed = (otyp) => object(otyp, { cursed: 1 });
-    // Arbitrary object types: this function reads `cursed` and, for the two
-    // named exceptions below, `otyp`.
-    game.uarmg = cursed(1000);
-    assert.equal(worst_cursed_item(game), game.uarmg);
-    game.uarms = cursed(1001);
-    assert.equal(worst_cursed_item(game), game.uarmg);
-    game.uarmg = null;
-    assert.equal(worst_cursed_item(game), game.uarms);
-    game.uarmc = cursed(1002);
-    game.uarms = null;
-    assert.equal(worst_cursed_item(game), game.uarmc);
-    game.uarm = cursed(1003);
-    game.uarmc = null;
-    assert.equal(worst_cursed_item(game), game.uarm);
-    game.uarmh = cursed(1004);
-    game.uarm = null;
-    assert.equal(worst_cursed_item(game), game.uarmh);
-    // pray.c:318-320: a cursed helm of opposite alignment is skipped, because
-    // uncursing it would change which god the hero is praying to.
-    game.uarmh.otyp = HELM_OF_OPPOSITE_ALIGNMENT;
-    assert.equal(worst_cursed_item(game), null);
-    game.uarmf = cursed(1005);
-    assert.equal(worst_cursed_item(game), game.uarmf);
-    game.uarmh = null;
-    game.uarmu = cursed(1006);
-    game.uarmf = null;
-    assert.equal(worst_cursed_item(game), game.uarmu);
-    game.uamul = cursed(1007);
-    game.uarmu = null;
-    assert.equal(worst_cursed_item(game), game.uamul);
-    game.uleft = cursed(1008);
-    game.uamul = null;
-    assert.equal(worst_cursed_item(game), game.uleft);
-    game.uright = cursed(1009);
-    game.uleft = null;
-    assert.equal(worst_cursed_item(game), game.uright);
-    game.ublindf = cursed(1010);
-    game.uright = null;
-    assert.equal(worst_cursed_item(game), game.ublindf);
-    game.ublindf = null;
+    // pray.c:303-329's worn chain, highest precedence first. The otyp values
+    // are arbitrary and distinct: every branch reads `cursed` alone, except
+    // the helmet's, whose second term is checked below. The two weapon
+    // branches, pray.c:300 and :331, come after this walk because they need a
+    // welded weapon rather than a worn one.
+    const chain = [
+        ['uarmg', 1000], ['uarms', 1001], ['uarmc', 1002], ['uarm', 1003],
+        ['uarmh', 1004], ['uarmf', 1005], ['uarmu', 1006], ['uamul', 1007],
+        ['uleft', 1008], ['uright', 1009], ['ublindf', 1010],
+    ];
+    // Put the chain on from the top down. The gloves outrank every later
+    // addition, so no addition may move the answer.
+    for (const [slot, otyp] of chain) {
+        game[slot] = cursed(otyp);
+        assert.equal(worst_cursed_item(game), game.uarmg, `wearing ${slot}`);
+    }
+
+    // Take them off from the top. Each removal leaves every lower-ranked item
+    // in place, so the answer landing on exactly the next slot is what pins
+    // one adjacent pair of the chain.
+    for (let i = 0; i < chain.length; ++i) {
+        const next = chain[i + 1];
+        game[chain[i][0]] = null;
+        assert.equal(
+            worst_cursed_item(game), next ? game[next[0]] : null,
+            `after removing ${chain[i][0]}`,
+        );
+        // pray.c:315-316: a cursed helm of opposite alignment is skipped,
+        // because uncursing it would change which god the hero is praying to.
+        // Checked while the helm is the highest-ranked item left, so the
+        // answer has to fall past it to the boots.
+        if (next?.[0] === 'uarmh') {
+            game.uarmh.otyp = HELM_OF_OPPOSITE_ALIGNMENT;
+            assert.equal(worst_cursed_item(game), game.uarmf);
+            game.uarmh.otyp = 1004;
+        }
+    }
 
     // pray.c:300 puts a welded weapon first, but only while a right-hand ring
     // or a two-handed grip makes it interfere; otherwise pray.c:325 picks it
@@ -923,21 +968,63 @@ test('prayer_done() refuses every arm outside gp.p_type 0', async () => {
 
 test('#pray asks its confirmation with the response set and default C shows',
     async () => {
+        const prompt = 'Are you sure you want to pray? [yn] (n)';
+        const row0 = () => game.nhDisplay.grid[0]
+            .map(({ ch }) => ch).join('').trimEnd();
         await startedGame('.#pray\n');
         // topl.c:409-414 builds the prompt as query, " [", resp, "]", " (",
         // def, ")". paranoid_ynq() passes decl.c ynchars[] and 'n', so a set
         // or default the port got wrong would show here.
-        assert.equal(
-            game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd(),
-            'Are you sure you want to pray? [yn] (n)',
-        );
+        assert.equal(row0(), prompt);
+
+        // topl.c:541's addtopl(rtmp) is commented out, so tty_yn_function()'s
+        // clean_up never echoes the answer and never wipes the query: the
+        // physical top line still carries the prompt after the key is read.
+        // js/display.js repaints row 0 from _pending_message on the next
+        // flush, so the answered prompt survives only while getline.js keeps
+        // that field set.
+        await startedGame('.#pray\nn');
+        assert.equal(row0(), prompt);
     });
+
+// js/allmain.js runUnmulAtTurnBoundary() converts a refusal raised by the
+// ga.afternmv callback into a turn boundary. Without it the first
+// prayer_done() or angrygods() stop escapes runSegment() as a hard failure and
+// the scorer discards every screen the segment had already matched instead of
+// stopping on the last of them. QUALITY.json's angrygods-cases-above-1
+// deferral supplies the input; the assertions name the boundary class alone
+// and no C screen, which is what keeps them inside that deferral's terms.
+test('an afternmv refusal ends the segment instead of escaping it', async () => {
+    let boundary = null;
+    let replay;
+    await assert.doesNotReject(async () => {
+        // This seed's rn2(maxanger) lands on angrygods()'s curse arm, which
+        // the port refuses. '.' waits, '#pray\n' asks, 'y' confirms, and the
+        // trailing ' ' spends the last of nomul(-3)'s three turns, which is
+        // when unmul() runs the callback.
+        replay = await runSegment({
+            seed: 6120000,
+            datetime: DATETIME,
+            nethackrc: NETHACKRC,
+            moves: '.#pray\ny ',
+        }, { onBoundary: (error) => { boundary = error; } });
+    }, 'a refused afternmv must not escape runSegment()');
+    assert.ok(boundary instanceof UnsupportedTurnBoundaryError);
+    assert.match(boundary.message, /^a delayed action reached /u);
+    // What the conversion buys: the frames matched before the refusal survive.
+    assert.ok(replay.getScreens().length > 0);
+});
 
 test('a declined #pray spends no move and breaks no conduct', async () => {
     await startedGame('.#pray\nn');
     // dopray():2211 returns ECMD_OK before the conduct counter moves.
     assert.equal(game.u.uconduct.gnostic, 0);
     assert.equal(game.gp?.p_type, undefined);
+    // cmd.c rhack() spends a turn only for ECMD_TIME, and allmain.c
+    // moveloop_core() counts one per turn from the 1 a started game holds. The
+    // '.' wait is the segment's one ECMD_TIME command, so a declined prayer
+    // that returned ECMD_TIME instead would leave 3 here.
+    assert.equal(game.moves, 2);
 });
 
 // pray.c:212 and :236-239 are the two arms only a polymorphed hero reaches.
@@ -1188,6 +1275,30 @@ test('tty_yn_function folds the answer only over A-Z', async () => {
     // `||` rather than an `&&`, which no response set holds.
     assert.equal(await ask('a@', '@'), '@'.charCodeAt(0));
 });
+
+// topl.c tty_yn_function()'s read loop has four exits. The Escape arm at
+// 463-470 and the answer that falls out of the bottom are covered above; these
+// are the other two, and each of them decides which key answers the #pray
+// confirmation.
+test('tty_yn_function rereads an invalid key and quits on quitchars',
+    async () => {
+        await startedGame();
+        const ask = async (resp, ...keys) => {
+            for (const key of keys)
+                game.nhDisplay.pushKey(key.charCodeAt(0));
+            return tty_yn_function('Ring?', resp, 'n', game);
+        };
+        // topl.c:475-477: a key outside `resp` rings the bell and sets q to 0,
+        // which fails the `while (!q)` test and reads again. 'z' is outside
+        // 'yn' and is not one of quitchars, so only the reread can reach the
+        // 'y' queued behind it.
+        assert.equal(await ask('yn', 'z', 'y'), 'y'.charCodeAt(0));
+        // topl.c:471-473: decl.c quitchars[] is " \r\n\033", and each of the
+        // three that are not Escape answers `def`, here 'n'. Nothing else is
+        // queued, so a wrong exit would exhaust the input instead.
+        for (const quitchar of [' ', '\r', '\n'])
+            assert.equal(await ask('yn', quitchar), 'n'.charCodeAt(0));
+    });
 
 test('tty_yn_function stops on the response sets it cannot read', async () => {
     await startedGame();

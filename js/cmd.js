@@ -1179,9 +1179,16 @@ export function failClosedCommandRefusals() {
         // steed, and for a monster on the target square, all three of which
         // continue into a function this goal leaves unported.
         UnsupportedChatError,
-        // pray.c dopray() raises this once can_pray() has printed "You begin
-        // praying to <god>.", which is where C schedules prayer_done() and
-        // this port stops.
+        // pray.c raises this from three functions. dopray() reaches
+        // failClosedCommand() through the '#pray' keystroke, at the wizard
+        // force-success prompt and at the pre-prayer invulnerability arm.
+        // prayer_done()'s unported arms and angrygods()'s cases 2 through 8
+        // and default run three turns later, from the ga.afternmv callback
+        // unmul() invokes, with rhack() off the stack; js/allmain.js
+        // runUnmulAtTurnBoundary() reads this same list to convert those at
+        // the turn boundary. Prune this entry only once all three functions
+        // have stopped raising the class, because dropping it early costs the
+        // turn-boundary conversion too.
         UnsupportedPrayerError,
     ];
 }

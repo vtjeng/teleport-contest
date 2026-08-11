@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     A_CHA,
     A_CHAOTIC,
+    A_DEX,
     A_LAWFUL,
     A_NEUTRAL,
     A_NONE,
@@ -30,7 +31,14 @@ import {
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { ARMOR_CLASS, DAGGER, TOWEL, WEAPON_CLASS } from '../js/objects.js';
+import {
+    ARMOR_CLASS,
+    DAGGER,
+    RIN_SUSTAIN_ABILITY,
+    RING_CLASS,
+    TOWEL,
+    WEAPON_CLASS,
+} from '../js/objects.js';
 import { ROOMOFFSET, SHOPBASE } from '../js/const.js';
 import { costly_spot } from '../js/shk.js';
 
@@ -183,24 +191,44 @@ test('a dry towel prints its name and a wet one stops', async () => {
     );
 });
 
-// youprop.h:385 defines Fixed_abil as the extrinsic alone; there is no
-// HFixed_abil term. An intrinsic in that slot must leave the characteristics
-// printing rather than reaching the unported stuck_ring() stop.
-test('Fixed_abil reads the extrinsic alone', async () => {
+// insight.c one_characteristic():862-866 hides a characteristic's base and
+// peak only when Fixed_abil holds *and* stuck_ring() names something that
+// keeps a ring of sustain ability on. youprop.h:385 defines Fixed_abil as the
+// extrinsic alone; there is no HFixed_abil term, so an intrinsic in that slot
+// leaves the values on show however the rings sit.
+test('Fixed_abil hides base and peak only through a stuck ring', async () => {
     const state = await readyGame();
-    state.u.uprops[FIXED_ABIL] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
-    assert.ok(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
-            ' Your strength is'),
-        'an intrinsic-only Fixed_abil must not stop the window',
+    // A peak above the current value is what makes the parenthesis appear:
+    // one_characteristic() prints "peak:" when abase != apeak. This hero's
+    // Dexterity is 9 and its race limit is the uninteresting 18, so +3 is the
+    // smallest change that puts a visible clause on the line.
+    state.u.amax.a[A_DEX] = state.u.acurr.a[A_DEX] + 3;
+    const dexterity = () => statusLine(
+        enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        ' Your dexterity is',
     );
+    const shown = ' Your dexterity is 9 (current; peak:12).';
+    const hidden = ' Your dexterity is 9.';
+    assert.equal(dexterity(), shown, 'no Fixed_abil hides nothing');
+
+    state.u.uprops[FIXED_ABIL] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    // do_wear.c stuck_ring() answers the ring itself when it is cursed, which
+    // is the shortest route to a stuck ring: no gloves, no welded weapon.
+    state.uright = {
+        otyp: RIN_SUSTAIN_ABILITY, oclass: RING_CLASS, quan: 1, cursed: 1,
+    };
+    assert.equal(dexterity(), shown, 'an intrinsic-only Fixed_abil is FALSE');
 
     state.u.uprops[FIXED_ABIL] = { intrinsic: 0, extrinsic: 1, blocked: 0 };
-    assert.throws(
-        () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
-        (error) => error instanceof UnsupportedEnlightenmentError
-            && error.branch === 'stuck_ring()',
-    );
+    assert.equal(dexterity(), hidden, 'a cursed ring on the right hand sticks');
+
+    // C asks about both hands, so the left slot alone must hide them too.
+    state.uleft = state.uright;
+    state.uright = null;
+    assert.equal(dexterity(), hidden, 'a cursed ring on the left hand sticks');
+
+    state.uleft.cursed = 0;
+    assert.equal(dexterity(), shown, 'an uncursed ring comes off at will');
 });
 
 // insight.c enlightenment() describes a polymorphed hero's form and reads the

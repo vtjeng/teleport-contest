@@ -181,6 +181,10 @@ import {
     trap_to_defsym,
 } from './symbols.js';
 import { t_at } from './trap.js';
+// pray.c owns critically_low_hp(); botl.c:2555 and wintty.c:4539 are two of
+// its three C call sites, so the status line reads the one port in js/pray.js
+// rather than keeping a second copy here.
+import { critically_low_hp } from './pray.js';
 import { visible_region_at } from './region.js';
 import {
     M1_HUMANOID,
@@ -2329,7 +2333,9 @@ function _statusHitpointBarTitle() {
     let bar = _statusTitle()
         .slice(0, STATUS_HP_BAR_WIDTH)
         .padEnd(STATUS_HP_BAR_WIDTH);
-    if (_criticallyLowHp(true)) {
+    // C ref: wintty.c:4539 asks critically_low_hp(TRUE) before dashing the
+    // unfilled half of the bar.
+    if (critically_low_hp(true)) {
         const chars = [...bar];
         for (let index = chars.length - 1; index >= 1; index -= 2) {
             if (chars[index] === ' ' && chars[index - 1] === ' ') {
@@ -3107,18 +3113,6 @@ export function xlev_to_rank(xlev) {
     return xlev <= 2 ? 0 : xlev <= 30 ? Math.trunc((xlev + 2) / 4) : 8;
 }
 
-function _criticallyLowHp(onlyIfInjured) {
-    const u = game.u;
-    const current = u?.uhp ?? 0;
-    let maximum = u?.uhpmax ?? 0;
-    if (onlyIfInjured && current >= maximum) return false;
-    maximum = Math.min(maximum, 15 * (u?.ulevel ?? 1));
-    const rank = xlev_to_rank(u?.ulevel ?? 1);
-    const divisor = rank <= 1 ? 5
-        : rank <= 3 ? 6 : rank <= 5 ? 7 : rank <= 7 ? 8 : 9;
-    return current <= 5 || current * divisor <= maximum;
-}
-
 function _statusFieldData(field, valueSnapshot = null) {
     const u = game.u;
     const attrs = [
@@ -3238,7 +3232,8 @@ function _statusFieldStyle(field, valueSnapshot = null) {
         if (rule.behavior === 'always') {
             selected = rule;
         } else if (rule.behavior === 'critical') {
-            if (field === 'hitpoints' && _criticallyLowHp(false)) {
+            // C ref: botl.c:2555 asks critically_low_hp(FALSE) for BL_HP.
+            if (field === 'hitpoints' && critically_low_hp(false)) {
                 selected = rule;
                 critical = true;
                 persistent = false;

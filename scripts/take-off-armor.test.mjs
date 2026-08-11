@@ -1153,15 +1153,19 @@ test('stuck_ring names the worn item that holds a ring on', async () => {
     assert.equal(stuck_ring(ring, RIN_LEVITATION, game), null);
 
     // do_wear.c:2672-2679, outermost first: cursed gloves, then the ring
-    // itself, then slippery gloves.
+    // itself, then slippery gloves. Every pair below holds both of its
+    // candidates at once, so swapping two branches changes an answer.
     game.uarmg = { otyp: LEATHER_GLOVES, cursed: 1, oclass: ARMOR_CLASS };
+    ring.cursed = 1;
+    // do_wear.c:2672 runs before :2674, so cursed gloves beat a cursed ring.
     assert.equal(stuck_ring(ring, RIN_LEVITATION, game), game.uarmg);
     game.uarmg.cursed = 0;
-    ring.cursed = 1;
+    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), ring);
+    // do_wear.c:2676-2678 puts the ring's own curse ahead of slippery gloves,
+    // against the outermost-first order, because Glib wears off quickly.
+    game.u.uprops[GLIB].intrinsic = 5;
     assert.equal(stuck_ring(ring, RIN_LEVITATION, game), ring);
     ring.cursed = 0;
-    assert.equal(stuck_ring(ring, RIN_LEVITATION, game), null);
-    game.u.uprops[GLIB].intrinsic = 5;
     assert.equal(stuck_ring(ring, RIN_LEVITATION, game), game.uarmg);
     game.uarmg = null;
     assert.equal(stuck_ring(ring, RIN_LEVITATION, game), null);

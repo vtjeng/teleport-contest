@@ -551,17 +551,20 @@ export function double_punch(state = game, random = { rn2 }) {
 //   go.override_confirmation  written only by attack_checks()'s Stormbringer
 //                             arm, which stops; do_attack() records the same.
 //   gm.multi < 0              a passive counter-attack that paralysed the hero.
-//                             `nomul()` in js/hack.js is the only writer of
-//                             state.multi that can store a negative value, and
-//                             every one of its 19 call sites in js/ passes 0.
-//                             The six other writers -- finishCommandParse(),
-//                             resetCommandVars(), executeMovement(), rhack()
-//                             and restoreParsedCommand() in js/cmd.js, and
-//                             endRunning() in js/hack.js -- store a repeat
-//                             count, COLNO, or zero, and the last of those only
-//                             replays a value one of the others had stored. So
-//                             nothing in js/ can make state.multi negative,
-//                             however many writers it acquires.
+//                             C reads it after the passive() call above, so it
+//                             answers TRUE only for a paralysis inflicted
+//                             during this call. Two facts keep it false. The
+//                             hero cannot already be counting a negative multi:
+//                             allmain.c moveloop_core() reads no key then, so
+//                             no attack command can begin -- js/pray.js
+//                             dopray()'s `nomul(-3)` is the port's one writer
+//                             of a negative value, and the three turns it buys
+//                             pass without reaching rhack(). And nothing this
+//                             function calls can turn it negative: uhitm.c's
+//                             paralysing arm is AD_PLYS in passive()'s second
+//                             switch, and passive() below stops for every
+//                             damage type but AD_PHYS before reaching it.
+//                             Port that arm and this term becomes live.
 //   u.umortality > oldumort   the hero killed by that counter-attack and then
 //                             life-saved. `grep -rn 'umortality' js/` returns
 //                             one hit, js/u_init.js:214, which initializes it

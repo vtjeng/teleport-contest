@@ -643,8 +643,19 @@ export async function pickup(what, state = game) {
         throw new UnsupportedPickupError('pickup() inside a monster');
     }
     if (autopickup && Math.trunc(state.multi ?? 0) < 0) {
-        // unconscious() is HERO_FAINTED || u.usleep || ...; the elapsed-turn
-        // boundary refuses every state that sets it.
+        // C's guard is `autopickup && gm.multi < 0 && unconscious()`
+        // (pickup.c:685), whose arm sets iflags.prev_decor = STONE and returns
+        // 0 without checking the square. This port refuses on the first term
+        // alone, which over-approximates: js/trap.js unconscious() also wants
+        // u.usleep or one of trap.c:6783-6785's three coming-round messages,
+        // and the port's one negative-multi state -- js/pray.js dopray()'s
+        // nomul(-3), whose nomovemsg is "You finish your prayer." -- has
+        // neither, so C picks up where this stops. Nothing reaches the
+        // difference: allmain.c moveloop_core() reads no key while the prayer
+        // counts down, so no command calls pickup() then, and refusing costs a
+        // segment its tail rather than a wrong screen. C's own two routes to
+        // the arm are the random teleport and the levitation timeout that
+        // pickup.c:680-684 names; port the arm with whichever lands first.
         throw new UnsupportedPickupError('pickup() while helpless');
     }
     state.gp ??= {};

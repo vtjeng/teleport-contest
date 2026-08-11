@@ -100,9 +100,11 @@ import { hasUnportedConfigStatement, oc_to_str } from './options.js';
 import {
     DUNCE_CAP,
     GAUNTLETS_OF_POWER,
+    RIN_SUSTAIN_ABILITY,
     SHIELD_OF_REFLECTION,
     TOWEL,
 } from './objects.js';
+import { stuck_ring } from './do_wear.js';
 import { align_gname, u_gname } from './pray.js';
 import { is_ammo } from './obj.js';
 import { body_part } from './polyself.js';
@@ -533,12 +535,23 @@ function one_characteristic(mode, final, attrindx, state, lines) {
 
     /* being polymorphed or wearing certain cursed items prevents the hero
        from reliably tracking changes to characteristics */
-    // youprop.h:385 defines Fixed_abil as the extrinsic alone; there is no
-    // HFixed_abil term, so an intrinsic in this slot leaves the macro FALSE
-    // and C prints the characteristic normally.
-    if (state.u.uprops?.[FIXED_ABIL]?.extrinsic) {
-        // stuck_ring() needs the welded-ring rules, which are not ported.
-        throw new UnsupportedEnlightenmentError('stuck_ring()');
+    // insight.c:860-866. The `else` matters: a polymorphed hero's values are
+    // hidden whatever the rings do. youprop.h:385 defines Fixed_abil as the
+    // extrinsic alone -- there is no HFixed_abil term -- so an intrinsic in
+    // this slot leaves the macro FALSE and C prints the values normally, and
+    // even the extrinsic hides nothing unless do_wear.c stuck_ring() names
+    // something keeping a ring of sustain ability on.
+    //
+    // enlightenment() below refuses a polymorphed hero before any of this
+    // runs, so the first arm cannot execute yet; it is written out for the
+    // same reason the past-tense `final` arms are, which this file's header
+    // gives. The Fixed_abil arm is live.
+    if (Upolyd(state.u)) {
+        hide_innate_value = true;
+    } else if (state.u.uprops?.[FIXED_ABIL]?.extrinsic) {
+        if (stuck_ring(state.uleft, RIN_SUSTAIN_ABILITY, state)
+            || stuck_ring(state.uright, RIN_SUSTAIN_ABILITY, state))
+            hide_innate_value = true;
     }
     switch (attrindx) {
     case A_STR:
@@ -564,7 +577,12 @@ function one_characteristic(mode, final, attrindx, state, lines) {
         return; /* impossible */
     }
     /* note: final disclosure includes MAGICENLIGHTENTMENT */
-    if (mode & MAGICENLIGHTENMENT) hide_innate_value = false;
+    // Neither term can decide anything yet: enlightenment() admits
+    // BASICENLIGHTENMENT alone, so the mask is 0, and it refuses a polymorphed
+    // hero. Both are written as insight.c:892 has them so the magic sections
+    // and polyself find the statement already correct.
+    if ((mode & MAGICENLIGHTENMENT) && !Upolyd(state.u))
+        hide_innate_value = false;
 
     const acurrent = effective_attribute(state, attrindx);
     let valubuf = attrval(attrindx, acurrent);
