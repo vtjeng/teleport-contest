@@ -27,13 +27,13 @@ states it.
 
 ## Current standing
 
-- Development, at `04bed74` (2026-08-11): 1,410 of 7,765 screens and 119,046 of
+- Development, at `841f2c9` (2026-08-11): 1,431 of 7,765 screens and 120,151 of
   610,816 random-number values, over the development set of 33 sessions, of
   which 6 match completely.
-- Reserved holdout, last evaluated at `04bed74`: 224 of 3,640 screens, 33,427
+- Reserved holdout, last evaluated at `841f2c9`: 224 of 3,640 screens, 33,427
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  It has not moved across the last three goal closes, while the development set
-  gained 36 screens and a sixth fully matching session. `docs/goal-history.md`
+  It has not moved across the last four goal closes, while the development set
+  gained 57 screens and a sixth fully matching session. `docs/goal-history.md`
   records why that gap is expected rather than a defect: goals are ranked by
   capped development look-ahead, so each one is chosen for the development
   session it unblocks, and carry-over to the hidden set is a by-product. The

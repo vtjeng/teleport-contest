@@ -1578,7 +1578,7 @@
     },
     {
       "id": "zap-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "cmd.c dispatches `z` into zap.c dozap() (2627-2683) rather than stopping at js/cmd.js:900's repeated-command boundary: dozap()'s nohands() and check_capacity() guards, getobj(\"zap\", zap_ok, GETOBJ_NOFLAGS) over zap_ok() (2618-2624), shk.c check_unpaid(), zappable() (2514-2523) including its spe == 0 rn2(WAND_WREST_CHANCE) wrest draw, the wrest line and the spe-- that follows, getdir() (already ported at js/cmd.js:613), and dozap()'s `need_dir && !u.dx && !u.dy && !u.dz` self-zap arm into zapyourself(obj, TRUE) (2705-3013) restricted to its WAN_SLEEP/SPE_SLEEP case (2851-2866): the Sleep_resistance test, pline_The(\"sleep ray hits you!\"), monstunseesu(M_SEEN_SLEEP), and timeout.c fall_asleep(-rnd(50), TRUE) (950-974) with its stop_occupation(), nomul(), gm.multi_reason, u.usleep = svm.moves and gn.nomovemsg = \"You wake up.\"; then dozap()'s zero-damage return past losehp(), zap.c learnwand() (123-151) over the already-ported observe_object()/discover_object(), and update_inventory(). Outside and still refused by name: dozap()'s backfire() arm; its weffects() arm (3431-3474) and everything below it -- zapnodir(), zap_updown(), bhit(), bhitm(), bhito(), ubuzz()/buzz(), zap_dig(), zap_steed(); and every zapyourself() case other than WAN_SLEEP/SPE_SLEEP.",
       "upstreamOwners": [
         "src/zap.c",
@@ -1618,8 +1618,11 @@
         "screens": 1410,
         "rng": 119046
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "841f2c96f3d9713e5ffb3145711c47bca1a7740d",
+      "delivered": {
+        "screens": 21,
+        "rng": 1105
+      }
     }
   ]
 }
