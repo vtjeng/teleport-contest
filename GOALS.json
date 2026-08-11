@@ -1420,6 +1420,45 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "pray-command",
+      "status": "open",
+      "boundary": "The #pray extended command runs pray.c dopray() (2199-2276) rather than stopping at js/cmd.js:1611: the ParanoidPray paranoid_query() confirmation, u.uconduct.gnostic, can_pray(TRUE) (2124-2172) including in_trouble() (198-288) and worst_cursed_item() (288-373) in full, the You(\"begin praying to %s.\") line, and nomul(-3) with gm.multi_reason, gn.nomovemsg and ga.afternmv = prayer_done; the negative-multi countdown at allmain.c:380-388 into hack.c unmul(); and prayer_done() (2276-2343) restricted to the gp.p_type == 0 arm, with water_prayer() skipped because on_altar() is false, u.ublesscnt += rnz(250), change_luck(-3), and gods_upset() (1436-1445) into angrygods() (704-800) taking rn2(maxanger) cases 0 and 1 and the trailing rnz(300). Outside and still refused by name: p_type -2, -1, 1, 2 and 3, the Inhell arm, wizard's force-success prompt, pleased(), water_prayer(), pray_revive(), and every angrygods() case above 1.",
+      "upstreamOwners": [
+        "src/pray.c",
+        "src/hack.c",
+        "src/allmain.c"
+      ],
+      "forecast": {
+        "steps": 21,
+        "basis": "Capped development look-ahead at 13e0097, one contributing session. seed0017-samurai-altar-pray stops at step 46 of 67; its stretch runs 46-66 and no cap fires, so the session would finish 67/67. Read step by step against the port's refusal sites rather than by message text: 47-48 are the prayer itself; 49-51 print \"Unknown command ' '.\" ported at js/cmd.js:1969; 52-54 are '.' waits; 55-56 and 59-63 are i, backslash and ^X, whose exact inverse-heading forms are carried by all five fully matching sessions and whose Samurai inventory holds no suffix js/objnam.js preflightDoname() refuses -- katana \"(weapon in right hand)\" with u.twoweap false, wakizashi \"(alternate weapon; not wielded)\", ya \"(in quiver)\", splint mail \"(being worn)\"; 57 prints \"You don't know any spells right now.\", so there is no spell menu and no indented-inverse-heading ceiling; 64-65 are s; 66 is ':'.\n\nRanked field, capped, with two figures measured this run rather than read: pray 21; pet melee combat at most 18, and 1 if scoped to the evaluation alone; save 17 over 2 sessions; fire at most 17; pet cursed-object feedback 14; zap 10, corrected down from 22; a monster dropping equipped gear 9, corrected down from 21 and measured by removing the js/steal.js:232 refusal under a Node load hook and re-running the scan, which moved seed0104 from 22/43 to 31/43 and stopped it on the same gloves branch; engraving about 6 of 609 raw; #rub 2; #l, #name, doapply type 101 and the container wish 1 each.\n\nHonest risk: the goal's own C is larger than its 21 steps. in_trouble() and worst_cursed_item() together are about 175 lines of state tests that must all be right to prove p_trouble is 0, and hack.c unmul() plus the allmain.c negative-multi countdown are new machinery no ported command uses today. The forecast is not at risk from that; the slice count is.",
+        "sessions": [
+          "seed0017-samurai-altar-pray.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0017-samurai-altar-pray.session.json",
+            "evidence": "seed 17, datetime 20000801190000, OPTIONS=role:Samurai,race:human,gender:male,align:lawful,autopickup,pickup_types:%,!tutorial,suppress_alert:3.4.3,symset:DECgraphics,runmode:walk. Step 46's newline completes the #pray extended command and the port stops at js/cmd.js:1611. In C, flags.paranoia_bits holds its options.c:7173 default of PARANOID_PRAY|PARANOID_SWIM|PARANOID_TRAP, which js/options.js:369 already reproduces, so ParanoidPray is TRUE and dopray():2207 prints the recorded 'Are you sure you want to pray? [yn] (n)'. Step 47's y takes u.uconduct.gnostic from 0 and enters can_pray(TRUE): the hero stands on a plain room square, not an altar, so gp.p_aligntyp = u.ualign.type = A_LAWFUL and 'You begin praying to Amaterasu Omikami.' prints through align_gname(), already ported at js/pray.js:12. in_trouble() answers 0 -- full HP 15(15), not Stoned, Slimed, Strangled, Sick, Punished, polymorphed or trapped, u.uhs NOT_HUNGRY, no cursed worn item and no steed. u.ublesscnt is still its u_init.c:1005 value of 300, so can_pray()'s not-in-trouble test is true and gp.p_type = 0. dopray() then runs nomul(-3), sets multi_reason 'praying', nomovemsg 'You finish your prayer.' and ga.afternmv = prayer_done, and returns ECMD_TIME; three turns elapse inside the step, which is why the recorded rng for step 47 carries dog_move, m_move, mcalcmove, maybe_generate_rnd_mon and dosounds alongside the prayer. allmain.c:382's ++gm.multi == 0 reaches hack.c unmul(), which prints nomovemsg and calls prayer_done(); its p_type == 0 arm skips water_prayer() because on_altar() is false, draws rnz(250) at pray.c:2319 -- recorded as prayer_done(pray.c:2319) -- calls change_luck(-3), and gods_upset() raises u.ugangr and calls angrygods(A_LAWFUL), whose rn2(maxanger) at pray.c:725 is the recorded angrygods(pray.c:725) and lands on case 0 or 1, printing the recorded 'You feel that Amaterasu Omikami is displeased.' at step 48, followed by rnz(300) at pray.c:780, recorded as angrygods(pray.c:780)."
+          }
+        ]
+      },
+      "detail": "Traced findings. align_gname() and u_gname() are already ported in js/pray.js (38 lines), so the file exists and the god name needs no work. nomul() is ported at js/hack.js:529 and already accepts a negative nval. What is missing is hack.c unmul() -- a grep for unmul across js/ returns nothing -- and the allmain.c:380-388 arm that counts a negative multi back to zero. ga.afternmv has no ported writer either: js/do_wear.js:127 records that the delayed don and doff branches, its only other C users, both stop rather than assign it. That machinery must land before the first commit, because dopray() returns ECMD_TIME without ever reaching prayer_done() otherwise.\n\nThe C branch is narrow by construction. u.ublesscnt starts at 300, so every fresh character who prays without being in trouble takes p_type 0; the other four p_type values need a damaged, polymorphed, Gehennom-bound or altar-standing hero and stay refused. angrygods() likewise executes only cases 0 and 1; cases 2-8 and the default reach losexp(), rndcurse(), punish(), summon_minion() and god_zaps_you(), none of them ported.\n\nWhy this goal rather than the two priced above it. Both were verified by measurement and both collapsed. monster-drops-equipped-gear was priced at 21 by two consecutive selections; removing the js/steal.js:232 refusal under a Node load hook, with no repository file touched, carries seed0104 from 22/43 to 31/43 and then stops it at js/objnam.js:278 on a worn-gloves naming branch, so it is worth 9. zap was priced at 22; seed0016's step 24 lists an uncursed +1 pair of leather gloves being worn, so the same branch stops it, and its step 26 spell menu carries the unmatchable indented inverse heading, so it is worth 10. Both ceilings belong to objnam.c rather than to the goals they capped, and are recorded as doname-refuses-any-worn-gloves.\n\nThe pet-combat ceiling that was expected inside seed0104 does not fire there. seed0103 stops on pet combat evaluation at its dismount step because its pony meets a kobold zombie, mattackm(mhitm.c:441) in its recorded rng; seed0104's pony has no monster on any candidate square at steps 30, 40 or 41, and steps 23-30 replayed clean.",
+      "slices": [
+        {
+          "name": "confirm the prayer and enter its occupation",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "13e0097cc4c5e16f86fb5784f413de2fe667ac9e",
+      "openStanding": {
+        "sha": "d81179d",
+        "screens": 1373,
+        "rng": 118557
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

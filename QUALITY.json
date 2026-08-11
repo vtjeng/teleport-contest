@@ -1433,6 +1433,21 @@
       "status": "open",
       "from": "909a33867c20979af08204837e3c90d561016965",
       "detail": "js/display.js remembered_glyph_from_presentation() stores an already-resolved presentation -- {ch, color, decgfx, attr} -- with the colour already pushed through mapColorEnabled() and, for a piletop, ATR_INVERSE already baked in from the live iflags.hilite_pile. newsym()'s out-of-sight arm replays those stored fields and recomputes none of them. C keeps the unresolved glyph number in levl[x][y].glyph and resolves it through glyphmap[] at print time, which is why reset_glyphmap() followed by docrt() repaints remembered squares under the new option values. This port cannot do that: a docrt() after an option toggle repaints every remembered, out-of-sight square with the presentation it was recorded under. Proved by execution during the correctness pass over 5366349..909a338: with OPTIONS=!color, walking until a door is remembered and out of sight, then picking the color row from the O menu, in-sight cells recolour correctly while the door stays NO_COLOR where C repaints it CLR_BROWN. hilite_pile is the worse case, because C carries piletop-ness as the MG_OBJPILE bit in glyphmap[] and wintty.c applies ATR_INVERSE at every print, while this port records no piletop mark at all -- so once a pile is remembered un-highlighted the highlight cannot be recovered even in principle. The consequence today is only a refusal: reset_needed_visuals() throws reset_glyphmap(gm_optionchange), which costs seed0006 five screens because it picks hilite_pile at step 64. Close it by re-deriving loc.remembered_glyph from the level during the repaint, so map memory stores what C stores rather than a finished presentation; that is a display-subsystem change, not an options one. Do not close it by retiring the refusal again: that was tried at 0f7b6cf on the argument that this port keeps no glyph table, and the argument is false."
+    },
+    {
+      "id": "doname-refuses-any-worn-gloves",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "13e0097cc4c5e16f86fb5784f413de2fe667ac9e",
+      "detail": "js/objnam.js:278 preflightDoname() refuses 'embedded or gloved armor suffix' whenever (obj.owornmask & W_ARMOR) && (obj === state.u?.uskin || obj.owornmask & W_ARMG). Worn gloves alone therefore stop any command that names the hero's inventory, and three roles start wearing them: Knight (+0 leather gloves, u_init.c:96), Healer (+1, u_init.c:78) and Monk (u_init.c:102). The consequence is that  cannot list its own pack for those heroes. No development session stops here first, so it is not rankable as a goal on its own, but it is the measured ceiling on two candidates that were priced high and are not: removing the js/steal.js:232 refusal under a Node load hook carries seed0104 from 22/43 to only 31/43 before this branch stops it, so monster-drops-equipped-gear is worth 9 rather than the 21 it was priced at; and seed0016's step 24 lists 'b - an uncursed +1 pair of leather gloves (being worn)', so zap is worth 10 rather than 22. It also falsifies the movement-while-riding forecast's claim that seed0104's steps 31-42 were all admitted commands proven by the fully matching sessions. Close it by porting objnam.c doname_base()'s W_ARMG arm, which is what supplies the suffix the port refuses. Whoever does should re-price both candidates afterwards, because each would then be worth roughly what it was originally read at.",
+      "notes": [
+        {
+          "text": "Two backticked fragments in this entry were eaten by shell expansion when it was written. The sentence about the affected command should read: the consequence is that the inventory command cannot list its own pack for those heroes. The closing condition should read: close it by porting objnam.c doname_base()s W_ARMG arm, which supplies the suffix the port refuses.",
+          "at": "13e0097cc4c5e16f86fb5784f413de2fe667ac9e"
+        }
+      ]
     }
   ],
   "areas": [
