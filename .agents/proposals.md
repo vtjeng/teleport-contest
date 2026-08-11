@@ -182,9 +182,9 @@ both need the third state.
 **Cost.** Moderate, and it touches the instrument selection depends on. The
 document's repair is a sentence; the model's is not.
 
-**What it leaves unfixed.** The ranking still cannot price a boundary that sits
-inside a supported command until the model can name it, so a goal like this one
-is nominated by the observed census alone.
+**What it leaves unfixed.** The ranking still cannot put a figure on a boundary
+that sits inside a supported command until the model can name it, so a goal like
+this one is nominated by the observed census alone.
 
 ## Check a deferral's area against the files its record cites
 

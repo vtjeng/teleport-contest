@@ -76,12 +76,6 @@ forecast of 0. Queue it with `--forecast-steps 0` and a `--forecast-basis`
 naming the census: its seed range, how many games it counted, and how many
 stopped on the boundary.
 
-Five goal closes in a row left the holdout counts unchanged, and
-`docs/goal-history.md` reads those zeros as one account: the counts move only
-where the port gains behavior it cannot yet perform at all, and they held
-wherever a goal improved behavior it already performs. Prefer a boundary that
-opens a capability the port wholly lacks.
-
 ## Opening the goal
 
 **Record the forecast when the goal opens and the delivery when it closes.**
@@ -158,6 +152,16 @@ prompt answers, count prefixes, and menu selections. To measure what a
 candidate change earns, apply it and re-run the scan; the difference between
 the two runs' step counts is the measurement.
 
+**A later segment's screens ride on the earlier ones.** A segment is one run of
+the game, with its own seed and keystrokes, replayed by its own `runSegment()`
+call; a session is one or more of them in order. The runner concatenates every
+segment's output and compares it positionally
+(`frozen/ps_test_runner.mjs:371`). A segment that emits fewer screens than C
+recorded shifts every later segment out of alignment, and those segments score
+nothing however well the port replays them. So in a session with more than one
+segment, a candidate that stops short of finishing the segment earns nothing
+from the segments after it. Within a segment, partial progress scores normally.
+
 ### Reading the reconciliation before you rank
 
 The observed and modeled halves are derived by different routes, so the report
@@ -205,15 +209,21 @@ flagging: an optimistic forecast costs a mis-selected goal, a conservative
 one costs ranking precision. Read its ambiguous count too: a command hiding in
 the bytes it declined to read pushes the cap past where it belongs. A second
 behavior recurring across many sessions' stretches is scope the goal should
-include, priced in from the start.
+include, counted in the forecast from the start.
+
+**The forecast cannot see what the player does not type.** The behavior table
+counts the commands a session's remaining input still needs. Some behavior runs
+without a command: the hero dies, a monster acts, a trap fires. None of it
+reaches the table. To verify a forecast, read C's recorded screens from the stop
+to the end of the stretch and look for one. seed0030 shows why. Its hero dies at
+step 74, and while `end.c done()` stood unported the table still credited the
+engraving move with every screen after that death.
 
 **Cap only the candidates that can still win.** Capping never raises a figure,
 so the `unlocks` column already bounds every candidate from above. Cap the
 leader, then work down the column and stop at the first candidate whose raw
 figure falls below the best capped figure: it has lost, and so has everything
-under it. Cap the top candidate opening a capability the port wholly lacks as
-well, since the preference above can promote it past a bigger figure. Leave the
-rest at their raw figures, marked raw.
+under it. Leave the rest at their raw figures.
 
 **Select on a measured stop.** Rank a candidate on the sessions the census
 shows stopped there. An argument that a behavior ought to matter is not a
