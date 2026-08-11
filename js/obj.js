@@ -757,10 +757,12 @@ export function is_shield(obj, state = game) {
         && objectType(obj, state).oc_armcat === ARM_SHIELD;
 }
 
-// C ref: obj.h Is_dragon_scales() (346-347), Is_dragon_mail() (348-350) and
-// Is_dragon_armor() (351). objects.h lists the ten scale mails at otyp 101-110
-// and the ten scale heaps at 111-120, so C's two range tests cover one
-// contiguous block between them. Only the combined macro has a caller here:
+// C ref: obj.h Is_dragon_scales() (347-348), Is_dragon_mail() (349-351) and
+// Is_dragon_armor() (352), which ORs the other two. objects.h lists the ten
+// scale mails at otyp 101-110 and the ten scale heaps at 111-120, so those two
+// ranges abut and one test over the pair answers the same for every otyp.
+// scripts/take-off-armor.test.mjs pins that adjacency, which is the whole of
+// what the merge assumes. Only the combined macro has a caller here:
 // do_wear.c Armor_off() needs it to tell the suits dragon_armor_handling()
 // acts on from the ones it takes `default: break;` for.
 export function Is_dragon_armor(obj) {

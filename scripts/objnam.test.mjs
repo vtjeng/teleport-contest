@@ -3,6 +3,7 @@ import test from 'node:test';
 
 import {
     ART_GIANTSLAYER,
+    ART_GRIMTOOTH,
     init_artifacts,
 } from '../js/artifacts.js';
 import {
@@ -50,6 +51,7 @@ import {
     gloves_simple_name,
     helm_simple_name,
     distant_name,
+    isPoisonable,
     just_an,
     suit_simple_name,
     UnsupportedObjectNameError,
@@ -89,6 +91,7 @@ import {
     LONG_SWORD,
     MUMMY_WRAPPING,
     OBJ_DESCR,
+    ORCISH_DAGGER,
     POT_HEALING,
     POT_WATER,
     RED_DRAGON_SCALE_MAIL,
@@ -1059,6 +1062,30 @@ test('BUC, poison, erosion, and enchantment prefixes retain source order', () =>
         donameFresh(damaged, state),
         'a poisoned rusty corroded +2 dart',
     );
+});
+
+// obj.h is_poisonable() (264-268) admits an object on either of two terms, and
+// only the first repeats is_multigen() (260-263) word for word. The second,
+// artifact.c permapoisoned() (2837-2840), answers TRUE for ART_GRIMTOOTH
+// alone. Nothing else in the tree exercises it, so without this the port could
+// drop that disjunct and every test would still pass.
+test('is_poisonable admits an ammunition skill or Grimtooth', () => {
+    const state = namingState();
+    // objects.h PROJECTILE("dart", ... -P_DART ...): WEAPON_CLASS with an
+    // oc_skill inside is_multigen()'s [-P_SHURIKEN, -P_BOW] window.
+    assert.equal(isPoisonable(objectOf(state, DART), state), true);
+    // objects.h WEAPON("orcish dagger", ... P_DAGGER ...): WEAPON_CLASS, but
+    // oc_skill 1 is outside that window, so the first term rejects it.
+    const orcish = objectOf(state, ORCISH_DAGGER);
+    assert.equal(isPoisonable(orcish, state), false);
+    // Grimtooth is that same orcish dagger, and the second term alone admits
+    // it. artifact.c mk_artifact() sets opoisoned from the same predicate.
+    orcish.oartifact = ART_GRIMTOOTH;
+    assert.equal(isPoisonable(orcish, state), true);
+    // The term is about the artifact and not about the object's class: any
+    // other artifact leaves it rejected.
+    orcish.oartifact = ART_GIANTSLAYER;
+    assert.equal(isPoisonable(orcish, state), false);
 });
 
 test('Cleric and Samurai naming applies role state at xname boundaries', () => {

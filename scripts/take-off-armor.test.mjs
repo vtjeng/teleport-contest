@@ -46,6 +46,7 @@ import {
 } from '../js/do_wear.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
+import { Is_dragon_armor } from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
 import { monstunseesu } from '../js/mondata.js';
 import { M1_SEE_INVIS, PM_ACID_BLOB } from '../js/monsters.js';
@@ -63,6 +64,7 @@ import {
     CLOAK_OF_MAGIC_RESISTANCE,
     ELVEN_MITHRIL_COAT,
     FEDORA,
+    GRAY_DRAGON_SCALES,
     GRAY_DRAGON_SCALE_MAIL,
     HAWAIIAN_SHIRT,
     LEATHER_ARMOR,
@@ -80,6 +82,7 @@ import {
     TOOL_CLASS,
     WEAPON_CLASS,
     YELLOW_DRAGON_SCALES,
+    YELLOW_DRAGON_SCALE_MAIL,
 } from '../js/objects.js';
 import {
     ESCAPE_KEY,
@@ -1056,9 +1059,11 @@ test('the type guards inside the ported <X>_off arms hold', async () => {
     const before = refusalWitness(replay);
 
     // Armor_off(): every suit is removed except dragon scales and dragon
-    // scale mail, whose removal runs dragon_armor_handling(). obj.h spells
-    // that as one range over otyp, so the two ends of it are what the guard
-    // turns on, and the suit one past the top end must still come off.
+    // scale mail, whose removal runs dragon_armor_handling(). js/obj.js
+    // Is_dragon_armor() answers for a single range over otyp, so the two ends
+    // of it are what the guard turns on, and the suit one past the top end
+    // must still come off. The test below pins that range against the two
+    // obj.h spells.
     for (const otyp of [GRAY_DRAGON_SCALE_MAIL, YELLOW_DRAGON_SCALES]) {
         game.uarm = { oclass: ARMOR_CLASS, otyp, owornmask: W_ARM };
         assert.throws(
@@ -1082,6 +1087,28 @@ test('the type guards inside the ported <X>_off arms hold', async () => {
     cloak.otyp = originalOtyp;
     assert.equal(cloak.otyp, CLOAK_OF_MAGIC_RESISTANCE, 'and unedited');
     assert.deepEqual(refusalWitness(replay), before);
+});
+
+test('Is_dragon_armor() spans the two obj.h ranges and nothing else', () => {
+    // obj.h:347-352 writes Is_dragon_armor() as Is_dragon_scales() OR
+    // Is_dragon_mail(), two range tests over otyp. js/obj.js merges them into
+    // one range, which is equivalent only while objects.h leaves the ten scale
+    // mails (101-110) and the ten scale heaps (111-120) back to back. obj.h
+    // states neither range's neighbour, so the adjacency is a property of the
+    // generated js/objects.js, and the assertion below is its only pin.
+    assert.equal(GRAY_DRAGON_SCALES, YELLOW_DRAGON_SCALE_MAIL + 1,
+                 'objects.h still leaves no otyp between the two blocks');
+
+    // Walk from the otyp below the first scale mail to PLATE_MAIL, the suit
+    // one past the last scale heap that Armor_off() above takes off, so the
+    // sweep covers both ends of each obj.h range and a neighbour outside it.
+    for (let otyp = GRAY_DRAGON_SCALE_MAIL - 1; otyp <= PLATE_MAIL; otyp++) {
+        const disjunction =
+            (otyp >= GRAY_DRAGON_SCALES && otyp <= YELLOW_DRAGON_SCALES)
+            || (otyp >= GRAY_DRAGON_SCALE_MAIL
+                && otyp <= YELLOW_DRAGON_SCALE_MAIL);
+        assert.equal(Is_dragon_armor({ otyp }), disjunction, `otyp ${otyp}`);
+    }
 });
 
 test('a paranoid_confirmation game stops rather than guessing', async () => {

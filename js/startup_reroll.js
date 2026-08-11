@@ -245,9 +245,13 @@ function identifiedStartingObjectName(obj, state) {
 
     // objnam.c:686 is `if (is_poisonable(obj) && obj->opoisoned)`. This file
     // used to spell the macro out as `WEAPON_CLASS || is_weptool()`, which is
-    // neither of obj.h:264-268's two disjuncts: C admits only the multigen
-    // skill window inside WEAPON_CLASS, and admits a permapoisoned object of
-    // any class.
+    // neither of obj.h:264-268's two disjuncts: C admits the multigen skill
+    // window, and widens it with permapoisoned(). C reaches 686 only from
+    // `case WEAPON_CLASS:` of the switch on obj->oclass at 670, so
+    // permapoisoned() widens the test within WEAPON_CLASS and not across
+    // classes. The call below carries no class test because artifact.c
+    // permapoisoned() answers TRUE for Grimtooth alone, an orcish dagger; a
+    // permapoisoned non-weapon would need the switch arm this file lacks.
     if (isPoisonable(obj, state) && obj.opoisoned) prefixes.push('poisoned');
     if (obj.oclass === O.WEAPON_CLASS
         || obj.oclass === O.ARMOR_CLASS

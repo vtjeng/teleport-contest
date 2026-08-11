@@ -489,12 +489,14 @@ export async function dopray(state = game) {
     // The prayer itself is a three-turn wait. nomul() writes gm.multi, and
     // allmain.c moveloop_core() counts it back up one turn at a time and calls
     // hack.c unmul() when it reaches zero; unmul() prints nomovemsg and runs
-    // the callback. state.afternmv is C's ga.afternmv, and this is its only
-    // writer; it is stored flat beside state.nomovemsg and state.multi_reason,
-    // the two globals dopray() sets alongside it. No segment boundary can fall
-    // between the write and the read, because moveloop_core() reads no key
-    // while gm.multi is negative, so it needs no save handling -- decl.c:175
-    // leaves C's copy out of the save file for the same reason.
+    // the callback. state.afternmv is C's ga.afternmv; js/do_wear.js
+    // armoroff() writes it too, with the Armor_off callback, and cancel_doff()
+    // there records why the two never overlap. It is stored flat beside
+    // state.nomovemsg and state.multi_reason, the two globals dopray() sets
+    // alongside it. No segment boundary can fall between the write and the
+    // read, because moveloop_core() reads no key while gm.multi is negative,
+    // so it needs no save handling -- decl.c:175 leaves C's copy out of the
+    // save file for the same reason.
     nomul(-3, state);
     state.multi_reason = 'praying';
     state.nomovemsg = 'You finish your prayer.';

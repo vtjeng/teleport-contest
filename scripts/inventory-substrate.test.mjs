@@ -2011,6 +2011,63 @@ test('hold_another_object adds the object and prints its letter', async () => {
     assert.equal(arrows.where, OBJ_INVENT);
 });
 
+// invent.c hold_another_object() reaches merged() through addinv_core0() at
+// 1273, and merged() prints "You learn more about your items by comparing
+// them." at 938-941 before obfree() at 944 -- both of them before prinv() at
+// 1287.  ttyPline() can stop for a --More--, so a merge that did not wait for
+// the message would free the object and print the inventory line while C was
+// still holding the top line.
+test('hold_another_object waits for the comparison message', async () => {
+    const state = carryingState();
+    const lines = [];
+    let releaseMessage;
+    const messageGate = new Promise((resolve) => {
+        releaseMessage = resolve;
+    });
+    let comparisonCalls = 0;
+    // Three arrows the hero carries unidentified and two more that are known:
+    // the `known` disagreement is what makes merged() discover something.
+    const carried = instance(ARROW, state, { known: false, quan: 3 });
+    addinv(carried, { state });
+    const incoming = instance(ARROW, state, { known: true, quan: 2 });
+    const env = {
+        state,
+        hooks: {
+            message: (text) => lines.push(text),
+            encumberMessage: () => {},
+            inventoryComparisonDiscovered() {
+                ++comparisonCalls;
+                return messageGate;
+            },
+        },
+    };
+
+    let settled = false;
+    const pending = hold_another_object(
+        incoming, 'Oops!  %s to the floor!', 'The arrows drop', null, env,
+    ).then((result) => {
+        settled = true;
+        return result;
+    });
+    // Enough turns of the microtask queue that anything not blocked on the
+    // gate has finished; the count is arbitrary and only has to be generous.
+    for (let tick = 0; tick < 20; ++tick) await Promise.resolve();
+
+    assert.equal(comparisonCalls, 1);
+    assert.equal(settled, false);
+    assert.deepEqual(lines, [], 'prinv() has not run yet');
+    assert.notEqual(incoming.where, OBJ_DELETED, 'obfree() has not run yet');
+
+    releaseMessage();
+    assert.equal(await pending, carried);
+    assert.equal(incoming.where, OBJ_DELETED);
+    assert.equal(carried.quan, 5);
+    // prinv() at 1287 prints the quantity that arrived, oquan, while the
+    // merged stack holds five. The enchantment appears because the merge set
+    // the carried stack's `known`, the discovery the message announces.
+    assert.deepEqual(lines, ['a - 2 +0 arrows']);
+});
+
 // invent.c hold_another_object() (1218-1244) stands the artifact on the floor
 // square the hero occupies, so its fixture needs a hero with a position, a
 // level under her, and the artifact tables touch_artifact() measures against.

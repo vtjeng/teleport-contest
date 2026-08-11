@@ -2386,10 +2386,15 @@ export function addinv(obj, env = {}, prepared = null) {
     return addinvCore0(obj, env, prepared, true);
 }
 
-// Live pickup counterpart of addinv().  It preserves the synchronous API for
+// Live counterpart of addinv_core0().  It leaves the synchronous API to
 // generation and startup callers while allowing invent.c merged()'s pline()
-// to suspend before obfree() and the addinv_core0() tail.
-export async function addinv_runtime(obj, env = {}, prepared = null) {
+// to suspend before obfree() and the addinv_core0() tail.  Every live caller
+// belongs here: C prints that message before it frees the incoming object and
+// before its own caller's prinv(), and only an awaited merge reproduces that
+// order.
+async function addinvCore0Runtime(
+    obj, env = {}, prepared = null, updatePermInvent,
+) {
     const context = beginAddinv(obj, env, prepared);
     if (!context) return null;
     const { normalized, state } = context;
@@ -2420,7 +2425,12 @@ export async function addinv_runtime(obj, env = {}, prepared = null) {
             inserted = true;
         }
     }
-    return finishAddinv(context, obj, inserted);
+    return finishAddinv(context, obj, inserted, updatePermInvent);
+}
+
+// C ref: invent.c addinv(), which is addinv_core0(obj, NULL, TRUE).
+export async function addinv_runtime(obj, env = {}, prepared = null) {
+    return addinvCore0Runtime(obj, env, prepared, true);
 }
 
 export function addinv_nomerge(obj, env = {}) {
@@ -2535,10 +2545,12 @@ export async function prinv(prefix, obj, quan, env = {}) {
 // initoptions_init() starts flags.pickup_burden at MOD_ENCUMBER, but
 // parseNethackrc() has no arm for the option and leaves an unported option's
 // raw text in flags[<option name>] -- for this option, the very field the
-// parsed value would occupy. Text loses every `<` against it, so the max()
-// would silently collapse to `current` and this port would hold an object C
-// drops. Refuse until js/options.js gains the parse arm, the way
-// js/pickup.js pickup() already does.
+// parsed value would occupy. Raw text would make Math.max() NaN, and every `>`
+// against NaN is false, so both callers' capacity tests --
+// projectsHeavyBallDrop()'s calc_capacity() one and hold_another_object()'s
+// `near_capacity(state) > prev_encumbr` -- would go false and this port would
+// hold an object C drops. Refuse until js/options.js gains the parse arm, the
+// way js/pickup.js pickup() already does.
 function encumbranceLimit(current, state, obj) {
     const pickupBurden = state.flags?.pickup_burden ?? MOD_ENCUMBER;
     if (!Number.isInteger(pickupBurden)) {
@@ -2707,7 +2719,7 @@ export async function hold_another_object(
         /* C copies drop_arg into a local buffer here, because addinv() could
            recycle the obuf[] doname() built it in; JavaScript strings need no
            such copy */
-        obj = addinvCore0(obj, normalized, null, false);
+        obj = await addinvCore0Runtime(obj, normalized, null, false);
         if (inv_cnt(false, state) > INVLET_BASIC
             || ((obj.otyp !== LOADSTONE || !obj.cursed)
                 && near_capacity(state) > prev_encumbr)) {

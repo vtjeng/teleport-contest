@@ -977,6 +977,18 @@ test('readobjnam refuses a count above one', () => {
     assert.deepEqual(many.draws, ['rn2(31)']);
     for (const text of ['a long sword', 'the long sword', '1 long sword'])
         assert.equal(wish(state, text).obj.otyp, LONG_SWORD, text);
+
+    // The other arm of objnam.c:5037.  "potions" leaves a class word and no
+    // type, so nothing can read oc_merge until mkobj() has drawn one; the same
+    // guard therefore stands after that draw, and a refused class wish has
+    // already spent random numbers where a refused named one spends the lookup
+    // draw alone.
+    const drawn = wish(state, '3 potions');
+    assert.equal(drawn.refusal, 'a wish for more than one object');
+    assert.notDeepEqual(drawn.draws, []);
+    // A count of one on that same arm is granted, so what the guard turns on
+    // is the count and not the class word.
+    assert.equal(wish(state, '1 potion').obj.oclass, POTION_CLASS);
 });
 
 // The count a plural name produces, which readobjnam_preparse() never sees.
@@ -1768,6 +1780,7 @@ function steeredRandom(draws, results) {
 const TRIPE_RATION_DRAW = 140; /* the class's first row, cumulative 140 */
 const SLIME_MOLD_DRAW = 387; /* cumulative 312 before it, 387 through it */
 const TIN_DRAW = 1000; /* the class's last row */
+const EGG_DRAW = 225; /* cumulative 140 before it, 225 through it */
 const LARGE_BOX_DRAW = 40; /* the class's first row */
 const CHEST_DRAW = 75; /* cumulative 40 before it, 75 through it */
 const FIGURINE_DRAW = 795; /* cumulative 770 before it, 795 through it */
@@ -1923,25 +1936,41 @@ test('a drawn figurine loses the gender mksobj() rolled for it', () => {
     assert.notEqual(figurine.corpsenm, NON_PM);
 });
 
-test('a class wish that also names a dragon stops on a drawn tin', () => {
+test('a class wish that also names a dragon stops on every drawn carrier', () => {
     // requireSimpleRandomWishedObject(). objnam.c:5206-5245's corpsenm switch
     // is unported, and "gray dragon food" is a wish that reaches it: the
     // dragon passes the monster-type refusal, "food" leaves FOOD_CLASS with no
-    // type, and mkobj() can answer a tin or an egg.
+    // type, and mkobj() can answer a tin or an egg.  Three of the switch's five
+    // labels are reachable this way and each needs its own draw; CORPSE and
+    // STATUE are not, CORPSE because objects.h gives it oc_prob 0 and STATUE
+    // because it is ROCK_CLASS, which wrpsym[] does not hold.
     const state = wishState();
-    const stopped = [];
-    assert.throws(() => readobjnam('gray dragon food', NO_WISH, {
-        state,
-        random: steeredRandom(stopped, { rnd: { 1000: TIN_DRAW } }),
-    }), (error) => error instanceof UnsupportedWishError
-        && error.reason === 'a random wish that drew a monster-carrying type');
+    Object.assign(state, DUNGEON_FIXTURE);
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    reset_mvitals(state);
+    const carriers = [
+        ['gray dragon food', TIN_DRAW],
+        ['gray dragon food', EGG_DRAW],
+        // A figurine is TOOL_CLASS, so its wish has to name that class.
+        ['gray dragon tool', FIGURINE_DRAW],
+    ];
+    for (const [text, draw] of carriers) {
+        const stopped = [];
+        assert.throws(() => readobjnam(text, NO_WISH, objectGenerationEnv({
+            state,
+            random: steeredRandom(stopped, { rnd: { 1000: draw } }),
+        })), (error) => error instanceof UnsupportedWishError
+            && error.reason
+                === 'a random wish that drew a monster-carrying type',
+        `${text} at ${draw}`);
+    }
     // The same wish on a type the corpsenm switch does not name is granted,
     // which is what keeps the refusal to the three types it is for.
     const granted = [];
-    assert.equal(readobjnam('gray dragon food', NO_WISH, {
+    assert.equal(readobjnam('gray dragon food', NO_WISH, objectGenerationEnv({
         state,
         random: steeredRandom(granted, { rnd: { 1000: TRIPE_RATION_DRAW } }),
-    }).otyp, TRIPE_RATION);
+    })).otyp, TRIPE_RATION);
 });
 
 // The differential evidence for the random-object tail lives in

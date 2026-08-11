@@ -134,13 +134,17 @@ export function reset_remarm(state = game) {
 
 // C ref: do_wear.c cancel_doff() (1642-1659), supplied to setworn() through
 // the worn.js hook of the same name. C's donning() test at 1656 reads
-// ga.afternmv and svc.context.takeoff.what. Nothing writes `what` -- only the
-// unported 'A' spine does -- and armoroff()'s delayed branch, the port's one
-// writer of ga.afternmv, is spent by the time any setworn() runs: unmul()
-// clears the callback before calling it, so Armor_off()'s own setworn() sees
-// it null. No other setworn() can run in between, because moveloop_core()
-// reads no key while gm.multi is negative. donning() is therefore always FALSE
-// here, cancel_don() cannot be reached, and the mask clear is the whole of it.
+// ga.afternmv and svc.context.takeoff.what. Neither can be true here.
+// donning() (1571-1597) and doffing() (1599-1640) compare ga.afternmv against
+// the fourteen `<X>_on`/`<X>_off` armor callbacks and nothing else, so any
+// other callback pending -- js/pray.js prayer_done() is the port's only other
+// one -- leaves both FALSE whatever the slot. Of the fourteen this port
+// installs one, Armor_off, in armoroff()'s delayed branch, and unmul() clears
+// state.afternmv before invoking it, so Armor_off()'s own setworn() sees it
+// null. doffing()'s `what` arms need svc.context.takeoff.what, which nothing
+// writes -- only the unported 'A' spine does. donning() is therefore always
+// FALSE here, cancel_don() cannot be reached, and the mask clear is the whole
+// of it.
 function cancel_doff(obj, slotmask, env) {
     takeoffContext(env.state).mask &= ~slotmask;
 }
@@ -191,9 +195,10 @@ async function off_msg(otmp, state) {
 // `was_arti_light` FALSE and C's end_burn() arm dead. dragon_armor_handling()
 // has an arm for eight of the ten colors, in scales and in mail, and takes
 // `default: break;` for everything else; grey and silver dragon armor takes
-// that default too but is refused with the rest of the block, because obj.h
-// spells the test as one range and separating those two would buy nothing that
-// a ported dragon_armor_handling() will not deliver anyway.
+// that default too but is refused with the rest of the block, because
+// js/obj.js Is_dragon_armor() answers for obj.h's whole disjunction and
+// separating those two would buy nothing that a ported
+// dragon_armor_handling() will not deliver anyway.
 //
 // The guard is checked before the item leaves its slot, so tripping it changes
 // nothing. C's `svc.context.takeoff.cancelled_don = FALSE` between the two is

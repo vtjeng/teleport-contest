@@ -60,10 +60,13 @@ import {
     DART,
     DWARVISH_MATTOCK,
     EGG,
+    EUCALYPTUS_LEAF,
     FIGURINE,
     FLINT,
     FOOD_RATION,
     GEM_CLASS,
+    GLOB_OF_BLACK_PUDDING,
+    GLOB_OF_GRAY_OOZE,
     GOLD_PIECE,
     LANCE,
     LONG_SWORD,
@@ -1477,6 +1480,40 @@ test('mkobj walks a nontrivial initialized class probability boundary', () => {
         ...random,
     });
     assert.equal(apple.otyp, APPLE);
+    random.done();
+});
+
+test('mkobj steps over the globs objects.h gives no probability', () => {
+    // objnam.c readobjnam() omits the whole `if (d.otmp->globby)` block at
+    // 5042-5070, and on the mkobj() arm of 5037 nothing refuses a glob first.
+    // The omission is safe because objects.h:1066-1074 gives all four
+    // GLOB_OF_* rows oc_prob 0, and mkobj()'s cumulative walk subtracts each
+    // row's oc_prob and advances while the remainder stays positive, so a row
+    // worth 0 can never be the one it stops on.
+    const state = initializedState();
+    const foodClass = state.objects[GLOB_OF_GRAY_OOZE].oc_class;
+    const firstFood = state.svb.bases[foodClass];
+    // The four globs are contiguous, so all four share one cumulative
+    // position: the first probability unit no earlier row has claimed.
+    let globBoundary = 1;
+    for (let otyp = firstFood; otyp < GLOB_OF_GRAY_OOZE; ++otyp)
+        globBoundary += state.objects[otyp].oc_prob;
+    for (let otyp = GLOB_OF_GRAY_OOZE; otyp <= GLOB_OF_BLACK_PUDDING; ++otyp)
+        assert.equal(state.objects[otyp].oc_prob, 0, `otyp ${otyp}`);
+
+    const total = state.go.oclass_prob_totals[foodClass];
+    const random = scriptedRandom([
+        // Aim the walk straight at the first glob's position.
+        { name: 'rnd', args: [total], result: globBoundary },
+        { name: 'rnd', args: [2], result: 1 }, // next_ident increment
+        // mksobj()'s FOOD_CLASS quantity roll; 0 is the arm that gives 2.
+        { name: 'rn2', args: [6], result: 0 },
+    ]);
+    const drawn = mkobj(foodClass, false, { state, ...random });
+    // EUCALYPTUS_LEAF is the next row carrying any probability: the walk
+    // passes the four globs and the equally improbable kelp frond.
+    assert.equal(drawn.otyp, EUCALYPTUS_LEAF);
+    assert.equal(drawn.globby, false);
     random.done();
 });
 

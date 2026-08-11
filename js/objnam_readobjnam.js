@@ -379,11 +379,14 @@ export function wishymatch(u_str, o_str, retry_inverted) {
 }
 
 // A wish this port cannot grant yet.  Every refusal below names the C line it
-// stands at.  All but one sit before the draw their branch would make, so a
-// refused wish spends no random number.  The exception is
-// requireSimpleRandomWishedObject(), which reads the type objnam.c:5037's
-// mkobj() arm has just drawn and so cannot stand any earlier; its own comment
-// names the types it stops.
+// stands at.  Whether a refusal stands before or after its branch's draw
+// follows from whether it has to read the object's type.  objnam.c:5037's
+// mkobj() arm settles the type in the draw itself, so the two refusals that
+// read it -- requireSimpleRandomWishedObject() and
+// requireSingleWishedObject() -- stand after that draw, and a wish they refuse
+// has already spent random numbers.  Every other refusal, including
+// requireSingleWishedObject() on the mksobj() arm where the player named the
+// type, stands before its branch's draw and spends none.
 export class UnsupportedWishError extends Error {
     constructor(reason, buf) {
         super(`unsupported wish: ${reason}`);
@@ -1647,11 +1650,16 @@ function readobjnam_typfnd(d, normalized) {
         d.oclass = state.objects[d.typ].oc_class;
 
     requireWizardWish(d, state);
-    // Both guards below read the object's type.  A wish that named one is
+    // The two arms of objnam.c:5037 are screened by different pairs, and only
+    // requireSingleWishedObject() is in both.  A wish that named a type is
     // checked here, before mksobj() draws, so a refused wish still spends no
     // random number.  A wish that named only a class has no type to read until
-    // objnam.c:5037's other arm has drawn one, so for that arm both guards run
-    // after the draw instead.
+    // mkobj() has drawn one, so its pair runs after the draw, below.  There
+    // requireSimpleRandomWishedObject() replaces requireSimpleWishedObject():
+    // the type names the latter refuses -- a container, a unique, a slime mold
+    // -- are what a player may spell, and a draw needs only the five
+    // monster-carrying types screened.  A drawn slime mold is granted where a
+    // named one is refused.
     const named = d.typ !== 0;
     if (named) {
         requireSimpleWishedObject(d, objectType(d.typ, state), state);
@@ -1671,8 +1679,16 @@ function readobjnam_typfnd(d, normalized) {
         requireSingleWishedObject(d, objectType(d.typ, state), state);
     }
 
-    /* if player specified a reasonable count, maybe honor it; d.otmp->globby
-       is false because a glob wish is refused in readobjnam_postparse1() */
+    /* if player specified a reasonable count, maybe honor it */
+    // objnam.c:5042-5070's glob block is left out because d.otmp->globby is
+    // false on both arms of 5037, for two different reasons.  A named glob is
+    // refused in readobjnam_postparse1(), which the mksobj() arm always runs
+    // through.  A drawn one is impossible: objects.h gives all four GLOB_OF_*
+    // rows oc_prob 0, and mkobj()'s cumulative walk stops only where the
+    // remainder runs out, which a row worth 0 cannot do -- so the mkobj() arm
+    // needs no refusal, and does not reach postparse1() to get one.
+    // js/obj.js mksobj() is the port's only writer of globby, at its
+    // isPudding() arm.
     if (d.cnt > 0) {
         if (objectType(d.typ, state).oc_merge
             /* quantity isn't restricted when debugging; the three
@@ -1692,7 +1708,7 @@ function readobjnam_typfnd(d, normalized) {
     // objnam.c:5097-5098 leaves a wizard's requested enchantment alone, capped
     // only by the SPE_LIM readobjnam_parse_charges() has already applied.  The
     // 5099-5117 clamps against rnd(5), Luck and the rolled spe belong to the
-    // non-wizard hero requireSimpleWishedObject() refuses above.
+    // non-wizard hero requireWizardWish() refuses above, on both arms.
     if (d.spesgn === -1)
         d.spe = -d.spe;
 
@@ -1719,8 +1735,13 @@ function readobjnam_typfnd(d, normalized) {
     case SLIME_MOLD:
         // mksobj() set the same fruit id readobjnam_init() copied into
         // d.ftype, so on the wishes this port admits the assignment repeats
-        // what is already there.  It is C's, and it is what would apply a
-        // named fruit once objnam.c:4805-4870's fruit block is ported.
+        // what is already there.  objnam.c:4805-4870's fruit scan is ported,
+        // in readobjnam_postparse3() above, and it does set d.ftype to a
+        // matched fruit's fid; what keeps that out of here is
+        // requireSimpleWishedObject()'s SLIME_MOLD case, which refuses every
+        // named form before mksobj() runs.  So only a drawn slime mold
+        // arrives, still carrying svc.context.current_fruit.  Lift that
+        // refusal and this line is what applies the named fruit.
         d.otmp.spe = d.ftype;
         /* FALLTHRU */
     case SKELETON_KEY:
@@ -1786,7 +1807,9 @@ function readobjnam_typfnd(d, normalized) {
             break;
         default:
             // objnam.c:5206-5245's TIN, CORPSE, EGG, FIGURINE and STATUE arms
-            // belong to types requireSimpleWishedObject() refuses.
+            // belong to types one of the two refusals above stops:
+            // requireSimpleWishedObject() when the player named the type,
+            // requireSimpleRandomWishedObject() when mkobj() drew it.
             break;
         }
     }

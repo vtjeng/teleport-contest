@@ -299,7 +299,10 @@ test('source-derived startup names cover monster food and charge forms', () => {
 // obj.h:264-268 admits an object on either of two terms: is_multigen()'s
 // three, or permapoisoned(). This file used to spell that as
 // `WEAPON_CLASS || is_weptool()`, which admits objects C rejects; the last
-// two cases below are the ones that separate the two readings.
+// two cases below are the ones that separate the two readings. Both turn on
+// the is_multigen() term alone -- no starting object is an artifact, so the
+// permapoisoned() term is unreachable from a reroll menu and is pinned in
+// scripts/objnam.test.mjs instead.
 test('the startup poisoned prefix needs both the flag and a weapon', () => {
     const state = rerollState();
     // objects.h PROJECTILE("arrow", ... -P_BOW ...): WEAPON_CLASS with a

@@ -34,6 +34,9 @@ import {
     CASES as CONTAINER_CASES, loadWishedContainerRecipe,
 } from './run-wished-container.mjs';
 import {
+    CASES as RANDOM_WISH_CASES, loadRandomWishRecipe,
+} from './run-random-wish.mjs';
+import {
     ESCAPE_KEY,
     EXTCMD_KEY,
     WAIT_KEY,
@@ -461,6 +464,79 @@ test('an unparsed pickup_burden stops a wished-for object being held',
 test('ordinary wish-drop refusals convert at the command seam', () => {
     assert.ok(failClosedCommandRefusals().includes(UnsupportedDropError));
 });
+
+// zap.c:6346-6347. An Escape over an empty wish line empties the buffer rather
+// than declining the wish, so readobjnam("") falls past
+// readobjnam_preparse()'s empty return to `any:` and is granted
+// wrpsym[rn2(13)]. Every case of the random-wish matrix but one presses that
+// key, and that matrix needs the C recorder, so nothing in `npm test` reaches
+// the line: restoring the refusal it replaced, or routing the empty line to
+// the "nothing" sentinel instead, would ship green.
+test('an Escape at the wish prompt grants a random object', async () => {
+    // CASES[0] carries no `wish` text, which is what makes moves() press
+    // Escape; the assertion below fails rather than passing vacuously if the
+    // matrix is ever reordered.
+    const escaped = loadRandomWishRecipe().segments[0];
+    assert.equal(escaped.moves, `.${WIZWISH_KEY}${ESCAPE_KEY}.`);
+    const boundaries = [];
+    await runSegment(escaped, { onBoundary: (error) => boundaries.push(error) });
+    assert.deepEqual(boundaries, []);
+    // zap.c:6390 spends the wish whatever readobjnam() answered.
+    assert.equal(game.u.uconduct.wishes, 1);
+    // next_ident() hands out rising ids, so the wished object is the newest.
+    let granted = null;
+    for (let obj = game.invent; obj; obj = obj.nobj)
+        if (!granted || obj.o_id > granted.o_id) granted = obj;
+    assert.equal(granted.oclass, RANDOM_WISH_CASES[0].oclass);
+    assert.equal(granted.otyp, RANDOM_WISH_CASES[0].otyp);
+});
+
+// invent.c merged():938-941 prints "You learn more about your items by
+// comparing them." when a merge settles a known, rknown or bknown the two
+// stacks disagreed on, and 944 frees the incoming object only afterwards; the
+// prinv() its caller runs is later still. makewish() supplies that pline as a
+// hook, and no recorded segment merges a wish into a carried stack, so without
+// this the text could be changed to anything and the suite would stay green.
+test('a wish that merges into a carried stack announces the comparison',
+    async () => {
+        // The Rogue starts with a stack of uncursed +0 daggers and the wished
+        // one arrives unidentified, so `known` is what the merge settles.
+        // Naming "uncursed +0" keeps mksobj()'s own BUC and enchantment rolls
+        // out of it, which would otherwise make the merge seed-dependent.
+        const recorded = loadWizardWishRecipe().segments[0];
+        const rogue = {
+            ...recorded,
+            nethackrc: `${recorded.nethackrc}OPTIONS=role:Rogue\n`,
+        };
+        const daggerStack = () => {
+            let found = null;
+            for (let obj = game.invent; obj; obj = obj.nobj)
+                if (obj.otyp === DAGGER) found = obj;
+            return found;
+        };
+        // The same game without the wish, so the count below is derived from
+        // u_init.c rather than written down.
+        await runSegment({ ...rogue, moves: WAIT_KEY });
+        const started = daggerStack().quan;
+
+        const boundaries = [];
+        await runSegment({
+            ...rogue,
+            moves: `.${WIZWISH_KEY}uncursed +0 dagger\n${WAIT_KEY}`,
+        }, { onBoundary: (error) => boundaries.push(error) });
+        assert.deepEqual(boundaries, []);
+        // The message is still on the top line, holding a --More--, which is
+        // where C leaves it: prinv()'s letter line has not painted over it,
+        // and obfree() has not run either.
+        assert.equal(
+            topLine(),
+            'You learn more about your items by comparing them.--More--',
+        );
+        // The wished dagger joined the carried stack, which gains one dagger
+        // and the `known` the merge discovered.
+        assert.equal(daggerStack().quan, started + 1);
+        assert.equal(daggerStack().known, true);
+    });
 
 // zap.c makewish() calls readobjnam(), whose typfnd: tail calls mksobj(). Five
 // of the seven container types reach mkobj.c mkbox_cnts() from there, and
