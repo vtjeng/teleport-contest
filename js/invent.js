@@ -2025,6 +2025,12 @@ function preflightAddinvCores(obj, env) {
         || obj.otyp === BELL_OF_OPENING
         || obj.otyp === SPE_BOOK_OF_THE_DEAD) {
         requiredHook(env, 'addSpecialInventoryEffects', obj);
+    } else if (obj.oartifact && is_quest_artifact(obj, env.state)) {
+        // The next arm of the same if/else chain in addinvCore1(), projected
+        // here for the reason the four otyps above are: addinv() clears
+        // no_charge and how_lost before addinv_core1() runs, so the refusal
+        // raised there would stop with the object already changed.
+        throw new UnsupportedObjectOperationError('quest artifact held', obj);
     }
     const prize = specialPrize(obj, env.state);
     if (prize) requiredHook(env, 'recordAchievement', obj);

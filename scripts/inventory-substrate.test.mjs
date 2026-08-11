@@ -87,6 +87,7 @@ import { GameMap } from '../js/game.js';
 import { oname } from '../js/do_name.js';
 import {
     ART_EXCALIBUR, ART_EYE_OF_THE_AETHIOPICA, ART_GRAYSWANDIR,
+    ART_MAGIC_MIRROR_OF_MERLIN,
     UnsupportedArtifactDisplayError, init_artifacts,
 } from '../js/artifacts.js';
 import {
@@ -119,6 +120,7 @@ import {
     BELL_OF_OPENING,
     CANDELABRUM_OF_INVOCATION,
     LONG_SWORD,
+    MIRROR,
     OIL_LAMP,
     SACK,
     SILVER_SABER,
@@ -2011,7 +2013,7 @@ test('hold_another_object adds the object and prints its letter', async () => {
 // square the hero occupies, so its fixture needs a hero with a position, a
 // level under her, and the artifact tables touch_artifact() measures against.
 // The alignment is what decides whether she may hold the artifact.
-function artifactHolderState(alignment) {
+function artifactHolderState(alignment, questarti = 0) {
     const state = carryingState();
     state.u.ux = 10;
     state.u.uy = 5;
@@ -2020,7 +2022,10 @@ function artifactHolderState(alignment) {
     state.youmonst = { data: { mflags1: 0, mflags2: 0, msize: 2, mattk: [] } };
     // Excalibur names PM_KNIGHT (artilist.h:85), so a Knight is the hero its
     // class test accepts; its race is NON_PM, which accepts everyone.
-    state.urole = { mnum: PM_KNIGHT };
+    // hack_artifacts() reads urole.questarti, so the caller's choice has to be
+    // in place before init_artifacts() below; 0 is C's "no quest artifact",
+    // which its `if (questArtifact)` guard skips.
+    state.urole = { mnum: PM_KNIGHT, questarti };
     state.level = new GameMap();
     state.level.at(10, 5).typ = ROOM;
     // init_artifacts() reads flags.initalign to place the quest artifacts;
@@ -2064,6 +2069,40 @@ test('taking an artifact into inventory grants its carried intrinsics', () => {
             String(otyp),
         );
     }
+});
+
+// invent.c addinv_core1() (985-990) raises u.uhave.questart and calls
+// artitouch() for the hero's own quest artifact.  Neither is ported, so the
+// port refuses -- and the refusal has to leave the object as it found it.
+// addinv_core0() reaches addinv_core1() only after clearing no_charge and
+// how_lost, so preflight_addinv() carries the test, the way it already carries
+// the four special otyps beside it in the same if/else chain.
+test('a quest artifact is refused before addinv changes the object', () => {
+    // The Knight's questarti is 25 (js/roles.js:158), the Magic Mirror of
+    // Merlin, whose base type is MIRROR (artilist.h:255-258).
+    const state = artifactHolderState(A_LAWFUL, ART_MAGIC_MIRROR_OF_MERLIN);
+    const mirror = instance(MIRROR, state, {
+        how_lost: LOST_THROWN,
+        oartifact: ART_MAGIC_MIRROR_OF_MERLIN,
+    });
+    assert.throws(() => preflight_addinv(mirror, { state }),
+                  /quest artifact held/u);
+    assert.throws(() => addinv(mirror, { state }), /quest artifact held/u);
+    // addinv_core0()'s own writes are what the projection stands in front of:
+    // invent.c:1067-1071 clears how_lost, and the port does it in beginAddinv()
+    // between the preflight and addinv_core1().
+    assert.equal(mirror.how_lost, LOST_THROWN);
+    assert.equal(mirror.where, OBJ_FREE);
+    assert.equal(state.invent, null);
+
+    // Grayswandir is nobody's quest artifact, so the same preflight admits it
+    // and the object still reaches inventory.
+    const saber = instance(SILVER_SABER, state, {
+        oartifact: ART_GRAYSWANDIR,
+    });
+    assert.equal(preflight_addinv(saber, { state }).object, saber);
+    addinv(saber, { state });
+    assert.equal(saber.where, OBJ_INVENT);
 });
 
 // invent.c hold_another_object() (1218-1244) round-trips an artifact through
