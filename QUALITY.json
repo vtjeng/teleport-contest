@@ -9861,6 +9861,96 @@
         }
       },
       "recordedAt": "2026-08-10T20:16:04.232Z"
+    },
+    {
+      "kind": "review",
+      "head": "425364f83ad53262a400ae5343bee9dc9374a3e1",
+      "auditedRange": "53663496611b74c22ddc039974eaa4abf1906a5b..425364f83ad53262a400ae5343bee9dc9374a3e1",
+      "level": "full",
+      "areas": [
+        "startup",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 9 raw, 8 deduplicated, 6 confirmed, 6 applied, 0 deferred, 2 rejected, 0 unverified; mutation: 805 survivors of 879 mutants. Full correctness pass over the options-simple-menu goal. Four mandatory finders; neither optional finder was triggered. Two production findings sharing one root cause, and together the most consequential this ledger holds: the range retired a display refusal on the claim that this port keeps no glyph-to-symbol-and-color table, and loc.remembered_glyph is exactly that table. The pass proved it by execution -- turning color on from the O menu leaves a remembered out-of-sight door at NO_COLOR where C repaints it CLR_BROWN -- so a clean fail-closed stop had become a silent wrong screen on a row the menu lists. hilite_pile is the worse half, because this port records no piletop mark at all and cannot re-highlight a remembered pile even in principle. Restoring the refusal costs the goal every development screen it had earned, since seed0006 picks hilite_pile at step 64, and that is the right trade: a stopped segment is worth more than one that runs on painting wrong cells. The underlying representation gap -- map memory storing a resolved presentation where C stores an unresolved glyph number -- is recorded as the new ledger entry remembered-glyph-caches-a-resolved-presentation, which is a display-subsystem goal rather than a finding of this range. The pass earned its place twice over on method. The goal's own trace had been wrong about the same function, so every claim from it was re-checked rather than carried, which is what surfaced the defect. And the mutation numbers said it first: 805 survivors sound alarming and 803 are boolean flips in a generated table pinned byte for byte by check:options, but of the two in hand-written code, one the slice never reported was the tell -- after the retirement opt_need_glyph_reset was written in four places and read nowhere. One finding was tried and reverted rather than applied, and the comment records why: the offered fix for give_opt_msg's three-valued read seeds a field in the parse result rather than the game state, so it never reaches the read and silences four toggle messages. The score ends where the goal began, at 1373 screens.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2063,
+        "counts": {
+          "raw": 9,
+          "deduplicated": 8,
+          "confirmed": 6,
+          "applied": 6,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 2,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The range retired js/options.js reset_needed_visuals()'s reset_glyphmap(gm_optionchange) refusal on the claim that this port keeps no glyph-to-symbol-and-color table, so a docrt() repaint would answer the whole question. The claim is false and the pass proved it by execution rather than argument. loc.remembered_glyph IS that table: remembered_glyph_from_presentation() stores an already-resolved {ch, color, decgfx, attr}, with the colour already pushed through mapColorEnabled(), and newsym()'s out-of-sight arm replays those fields without recomputing any of them. Measured: with OPTIONS=!color, walking until a door is remembered and out of sight and then picking the color row from the O menu, in-sight cells recolour correctly while the door stays NO_COLOR where C repaints it CLR_BROWN. hilite_pile is the worse half, and is a second confirmed finding with the same root: C carries piletop-ness as MG_OBJPILE in glyphmap[] and applies ATR_INVERSE at every print, while this port bakes the attribute in at draw time and records no piletop mark at all, so a remembered pile cannot be re-highlighted even in principle. That converted a clean fail-closed stop into a silent wrong screen on a row the O menu lists and the range's own recipe picks. Fixed by restoring the refusal, which costs seed0006 the five screens the pick loop earned because it picks hilite_pile at step 64; the development score returns from 1378 to 1373. The test asserting the repaint was inverted rather than deleted so the refusal has an oracle. The mutation survivor at js/options.js:4120 was the tell: after the retirement opt_need_glyph_reset was written in four places and read nowhere.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same retirement loses hilite_pile, and this half cannot be recovered later even in principle. C carries piletop-ness as the MG_OBJPILE bit that reset_glyphmap() stores in glyphmap[], and wintty.c applies ATR_INVERSE from that bit at every print, so a repaint re-highlights remembered piles. This port bakes ATR_INVERSE into remembered_glyph.attr at draw time from the live iflags.hilite_pile (js/display.js:1136-1142) and records no piletop mark at all, so after the toggle a remembered pile is redrawn with the attribute it had before, and nothing in map memory says it was ever a pile. hilite_pile is a row on the recorded first page of the simple menu and the range own recipe picks it deliberately, so any game where the hero walked past a pile before opening O showed the pile un-highlighted where C shows it inverse. Closed by the same restored refusal.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "The `helpers.menu` callback now has two contradictory positional contracts inside js/cmd.js -- `(items, how, prompt)` for the spell menu at line 1201, `(items, prompt, how)` for the options menus at line 1399 -- and selectTtyMenu() silently ignores a",
+            "counterEvidence": "evidence refute: The claim of a single contradicted `helpers.menu` contract does not survive reading js/cmd.js: each command builds its own helper bundle for its own consumer. Counter-evidence: js/cmd.js already carried four distinct helper shapes before this range -- `(items)` at 1177, `(items, how, prompt)` at 1201, `(lines)` at 1248, `(lines, prompt)` at 1364 -- each declared at its own `failClosedCommand()` site with a comment naming the C function it serves. The options bundle at 1399 is a fifth, separate object; its only consumers are js/"
+          },
+          {
+            "summary": "verifyOptionsMenuSegment() dispatches on exact `segment.moves` string equality and falls through to a doset()-shaped default; a simple-menu recipe that misses its branch is \"verified\" by assertions that pass vacuously.",
+            "counterEvidence": "evidence refute: The premise that a mis-dispatched recipe is 'verified' while nothing is checked is wrong: verifySegment is a supplement to a full C differential, which runs for every recipe regardless of which branch it lands in. Counter-evidence: scripts/fresh-matrix.mjs:63-72 calls `verifySegment(segment)` and then `runDifferentialFn(chunk)`, and aborts on `!result.passed`; the summary at :91-92 counts PRNG calls, screens and cursors, i.e. every screen and cursor of every recipe is compared against the freshly recorded C run. A recipe that f"
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "ranges": [
+            "53663496611b74c22ddc039974eaa4abf1906a5b..909a33867c20979af08204837e3c90d561016965",
+            "uncommitted audit-fix diffs at 57a84f4 and 425364f"
+          ],
+          "mutants": 879,
+          "survivors": 805,
+          "byKind": {
+            "boolean": {
+              "ran": 812,
+              "killed": 9
+            },
+            "logical": {
+              "ran": 41,
+              "killed": 39
+            },
+            "relational": {
+              "ran": 26,
+              "killed": 26
+            }
+          },
+          "deltaRun": "0 mutants over each audit-fix diff",
+          "finderConclusion": "The headline ratio is misleading and the pass said so: 803 of the 805 survivors are boolean flips in the regenerated js/optlist_data.js, whose every column is pinned by check:options re-expanding include/optlist.h through clang and comparing byte for byte, so an assertion there would only restate the generated file. That reason was adjudicated and held. The two survivors in hand-written code both mattered. js/options.js:3941 is genuinely unkillable, because tty_preference_update() has one live arm whose option is a CompOpt with no handler, so the getlin refusal fires first. js/options.js:4120 was never reported by the slice and turned out to be the tell for the range's one production defect: after the glyph-reset refusal was retired, opt_need_glyph_reset was written in four places and read nowhere, so flipping it changed nothing. A dead flag was visible in the mutation numbers before anyone traced the behaviour."
+        },
+        "readiness": {
+          "boundary": "Starting event: the O keystroke. Ending events: the two-page simple options menu drawn under the Options prompt, and, after a pick, the menu re-offered with the new value in its [X] column, or the map repainted when the loop ends by empty commit or Escape. The real game executes both: scripts/run-options-menu.mjs replays the matrix and seed0006 advanced from step 49 to 54.",
+          "sourceReview": "Every branch and helper reachable before those endings was traced against nethack-c/upstream/: options.c doset_simple_menu() and doset_simple() whole, longest_option_name(), optionValue(), parseoptions() and optfn_boolean(), optfn_pickup_types() through choose_classes_menu(), preference_update(), reset_needed_visuals(), and display.c reset_glyphmap() where the range retired a refusal. The trace covered state, PRNG order and the points where the game waits for input. The goal's own traced findings had been wrong about reset_glyphmap -- they asserted seed0006 toggles no option raising the flag when hilite_pile raises it and seed0006 picks it -- so every claim from that trace was re-checked rather than carried, which is what surfaced the production defect.",
+          "completeness": "No known unsupported behavior remains inside the boundary, and the one branch that had been opened without support is closed again. Every reachable excluded branch stops before changing state or producing output: the k == -2 help toggle, getlin() for a compound row with no handler, any optfn with no do_handler arm, menu_tab_sep, and the restored reset_glyphmap refusal. Their placement was verified rather than accepted, and the refusal test now snapshots state.gs and the top line -- the state those arms would actually write -- rather than three fields none of them touches. Three ceilings are recorded rather than closed: the inverse heading beginning on a space, the class-menu status rows, and the resolved-presentation map memory."
+        }
+      },
+      "recordedAt": "2026-08-11T01:29:19.061Z"
     }
   ]
 }
