@@ -1423,7 +1423,7 @@
     },
     {
       "id": "pray-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "The #pray extended command runs pray.c dopray() (2199-2276) rather than stopping at js/cmd.js:1611: the ParanoidPray paranoid_query() confirmation, u.uconduct.gnostic, can_pray(TRUE) (2124-2172) including in_trouble() (198-288) and worst_cursed_item() (288-373) in full, the You(\"begin praying to %s.\") line, and nomul(-3) with gm.multi_reason, gn.nomovemsg and ga.afternmv = prayer_done; the negative-multi countdown at allmain.c:380-388 into hack.c unmul(); and prayer_done() (2276-2343) restricted to the gp.p_type == 0 arm, with water_prayer() skipped because on_altar() is false, u.ublesscnt += rnz(250), change_luck(-3), and gods_upset() (1436-1445) into angrygods() (704-800) taking rn2(maxanger) cases 0 and 1 and the trailing rnz(300). Outside and still refused by name: p_type -2, -1, 1, 2 and 3, the Inhell arm, wizard's force-success prompt, pleased(), water_prayer(), pray_revive(), and every angrygods() case above 1.",
       "upstreamOwners": [
         "src/pray.c",
@@ -1462,8 +1462,11 @@
         "screens": 1373,
         "rng": 118557
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "80273bd09b24e9317299d390ec98486b6769a9bd",
+      "delivered": {
+        "screens": 15,
+        "rng": 186
+      }
     }
   ]
 }

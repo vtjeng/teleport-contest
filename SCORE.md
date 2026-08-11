@@ -27,17 +27,17 @@ states it.
 
 ## Current standing
 
-- Development, at `afd1984` (2026-08-08): 1,228 of 7,765 screens and 117,887 of
+- Development, at `80273bd` (2026-08-11): 1,388 of 7,765 screens and 118,743 of
   610,816 random-number values, over the development set of 33 sessions, of
-  which 4 match completely.
-- Reserved holdout, last evaluated at `afd1984`: 207 of 3,640 screens, 32,682
+  which 5 match completely.
+- Reserved holdout, last evaluated at `c338fee`: 224 of 3,640 screens, 33,427
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  **It moved at this evaluation**, after fifteen goals at exactly 195. An
-  authorized attribution run at `74c622c` shows the cause was `do.c dodrop()`
-  and not the `dosounds` bare-`Error` fix; `docs/goal-history.md` records what
-  fifteen such results say about effect size, capability and reachability, and
-  why a boundary port moving the hidden set makes the earlier "blocked upstream"
-  reading at best incomplete.
+  It has moved at each of the last few evaluations, by one or two screens,
+  while the development set has moved by tens. `docs/goal-history.md` records
+  why that gap is expected rather than a defect: goals are ranked by capped
+  development look-ahead, so each one is chosen for the development session it
+  unblocks, and carry-over to the hidden set is a by-product. The holdout
+  serves as a regression test while the development set is the target.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,
