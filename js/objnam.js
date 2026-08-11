@@ -14,7 +14,7 @@ import {
 } from './artifacts.js';
 import {
     BLINDED, CORPSTAT_HISTORIC, HALLUC, HALLUC_RES, HAND, NON_PM, P_BOW,
-    W_AMUL, W_ARMG, W_ARMOR, W_QUIVER, W_RING, W_RINGL, W_RINGR, W_SADDLE,
+    W_AMUL, W_ARMOR, W_QUIVER, W_RING, W_RINGL, W_RINGR, W_SADDLE,
     W_SWAPWEP, W_TOOL, W_WEP,
 } from './const.js';
 import {
@@ -61,6 +61,10 @@ import {
     record_price_quote,
     shk_your,
 } from './shk.js';
+// wield.js holds the port's single reading of youprop.h:112 Glib. It imports
+// naming helpers from this file in turn; the cycle is safe because neither
+// side calls the other during module evaluation.
+import { Glib } from './wield.js';
 
 export class UnsupportedObjectNameError extends Error {
     constructor(branch, obj) {
@@ -89,7 +93,9 @@ function monsterObjectName(obj, state) {
     if (obj.corpsenm === NON_PM) return 'thing';
     return state.mons?.[obj.corpsenm]?.pmnames?.[2] ?? 'monster';
 }
-function isPoisonable(obj, state) {
+// C ref: obj.h is_poisonable() (264-268). The first disjunct repeats
+// is_multigen()'s three terms verbatim, so it is written as that call here.
+export function isPoisonable(obj, state) {
     return isMultigen(obj, state) || permapoisoned(obj);
 }
 // C ref: objnam.h GemStone(). Its argument is an object type, not an object.
@@ -273,9 +279,14 @@ function preflightDoname(obj, type, state, allowLiveShopPrice) {
         unsupported('two-weapon suffix', obj);
     if ((obj.owornmask & W_WEP) && obj.otyp === AKLYS)
         unsupported('tethered weapon suffix', obj);
-    if ((obj.owornmask & W_ARMOR) && (obj === state.u?.uskin
-        || obj.owornmask & W_ARMG))
-        unsupported('embedded or gloved armor suffix', obj);
+    // objnam.c:1391 names uskin " (embedded in your skin)" instead of
+    // " (being worn)". wornSuffix() below emits only the latter, so dragon
+    // scales fused to a polymorphed hero must still refuse. Only two lines
+    // set uskin: polyself.c break_armor():656, which fuses them, and
+    // worn.c setworn():80, which restores the fusion from a saved game.
+    // Neither is ported, so nothing reaches this today.
+    if ((obj.owornmask & W_ARMOR) && obj === state.u?.uskin)
+        unsupported('skin-embedded armor suffix', obj);
     if (obj.owornmask && obj.lamplit)
         unsupported('lit worn-object suffix', obj);
     // C names a container's contents only when it holds some; counting them
@@ -722,6 +733,16 @@ function wornSuffix(obj, type, state) {
         || (classForSuffix === ARMOR_CLASS && (mask & W_ARMOR))
         || (classForSuffix === TOOL_CLASS && (mask & (W_TOOL | W_SADDLE)))) {
         suffix += ' (being worn)';
+        // objnam.c:1404-1406. Slippery fingers are a condition of the hero,
+        // not of the gloves, but C describes worn gloves as slippery while she
+        // has them: Concat(bp, 1, "; slippery)") backs up over the closing
+        // paren it just wrote, turning "(being worn)" into
+        // "(being worn; slippery)". C guards that with bp_eos[-1] == ')' at
+        // :1401 in case the name overran BUFSZ and lost the paren. This port
+        // builds names as JavaScript strings with no length bound, so the
+        // paren is always the last character here and the guard is vacuous.
+        if (obj === state.uarmg && Glib(state))
+            suffix = `${suffix.slice(0, -1)}; slippery)`;
     }
     if (mask & W_WEP) {
         // C uses the alternate phrasing for stacks, for wielded ammo and

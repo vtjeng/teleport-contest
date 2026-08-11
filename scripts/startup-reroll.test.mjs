@@ -295,6 +295,11 @@ test('source-derived startup names cover monster food and charge forms', () => {
 // mkobj.c:1174 is the only generator that reaches a starting object, and it
 // poisons under is_multigen() (obj.h:260-263), so every poisoned object a
 // reroll menu can show is WEAPON_CLASS ammunition and no weapon-tool.
+//
+// obj.h:264-268 admits an object on either of two terms: is_multigen()'s
+// three, or permapoisoned(). This file used to spell that as
+// `WEAPON_CLASS || is_weptool()`, which admits objects C rejects; the last
+// two cases below are the ones that separate the two readings.
 test('the startup poisoned prefix needs both the flag and a weapon', () => {
     const state = rerollState();
     // objects.h PROJECTILE("arrow", ... -P_BOW ...): WEAPON_CLASS with a
@@ -320,6 +325,31 @@ test('the startup poisoned prefix needs both the flag and a weapon', () => {
             object(state, O.POT_WATER, { opoisoned: 1 }), state,
         ),
         'an uncursed potion of water',
+    );
+    // objects.h WEAPON("dagger", ... P_DAGGER ...) gives oc_skill 1, outside
+    // is_multigen()'s [-P_SHURIKEN, -P_BOW] window, and no dagger but
+    // Grimtooth is permapoisoned. WEAPON_CLASS on its own is not enough for
+    // C, so a poisoned plain dagger keeps no prefix. A Rogue and a Samurai
+    // both start with daggers, so this is the shape the reroll menu would
+    // misname first.
+    assert.equal(
+        identifiedStartingObjectName(
+            object(state, O.DAGGER, { opoisoned: 1, spe: 0 }), state,
+        ),
+        'a +0 dagger',
+    );
+    // The weapon-tool half of the old reading. objects.h TOOL("pick-axe",
+    // ... P_PICK_AXE ...) makes is_weptool() true, but a pick-axe is
+    // TOOL_CLASS, so is_multigen()'s first term fails before its skill window
+    // is consulted. An Archeologist starts with one.
+    assert.equal(
+        identifiedStartingObjectName(
+            object(state, O.PICK_AXE, { opoisoned: 1, spe: 0 }), state,
+        ),
+        // The trailing "(0:0)" is objnam.c:1479-1486's `goto charges` arm,
+        // which every oc_charged tool a known starting item reaches; it has
+        // nothing to do with the poison prefix this test is about.
+        'a +0 pick-axe (0:0)',
     );
 });
 

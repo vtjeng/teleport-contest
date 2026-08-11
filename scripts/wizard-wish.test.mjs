@@ -15,7 +15,7 @@ import {
     UnsupportedHeroCommandBoundaryError, failClosedCommandRefusals, rhack,
 } from '../js/cmd.js';
 import { init_artifacts } from '../js/artifacts.js';
-import { A_CON, A_STR } from '../js/const.js';
+import { A_CON, A_STR, MOD_ENCUMBER } from '../js/const.js';
 import { UnsupportedDropError } from '../js/do.js';
 import { UnsupportedObjectOperationError } from '../js/obj.js';
 import { WIZMODECMD, extcmdlist } from '../js/extcmdlist_data.js';
@@ -25,7 +25,9 @@ import { runSegment } from '../js/jsmain.js';
 import { roles } from '../js/roles.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
-import { HEAVY_IRON_BALL, objects_globals_init } from '../js/objects.js';
+import {
+    DAGGER, HEAVY_IRON_BALL, objects_globals_init,
+} from '../js/objects.js';
 import { UnsupportedWishError, makewish } from '../js/zap.js';
 import {
     ESCAPE_KEY,
@@ -386,6 +388,70 @@ test('an excluded heavy-ball drop refuses before wish state changes',
             ['rnd(2)'],
         );
         assert.doesNotMatch(topLine(), /Oops!/u);
+    });
+
+// invent.c:1261-1264 raises the hold limit to flags.pickup_burden, exactly as
+// pickup.c:1757-1758 does for a lift. parseNethackrc() has no arm for that
+// option and keeps an unported option's raw text in the field its parsed value
+// would occupy, so `prev_encumbr < flags.pickup_burden` compares a number with
+// a string, answers false, and silently deletes the max(). The hero would then
+// hold an object C makes her drop. Both readers refuse instead: the projection
+// prepareHeavyBallDropAdmission() runs first, and hold_another_object()'s own
+// read second.
+test('an unparsed pickup_burden stops a wished-for object being held',
+    async () => {
+        const recorded = loadWizardWishRecipe().segments[0];
+        // "stressed" is what a real config file writes. js/options.js has no
+        // parse arm for the option, so parseNethackrc() leaves that word in
+        // flags.pickup_burden -- the field the parsed MOD_ENCUMBER would
+        // occupy -- which is the whole reason the guard exists.
+        const unparsed = recorded.nethackrc.replace(
+            'OPTIONS=', 'OPTIONS=pickup_burden:stressed\nOPTIONS=',
+        );
+        const wish = async (nethackrc, typed) => {
+            const boundaries = [];
+            await runSegment(
+                { ...recorded, nethackrc, moves: `.${WIZWISH_KEY}${typed}\n.` },
+                { onBoundary: (error) => boundaries.push(error) },
+            );
+            return boundaries;
+        };
+        const heldTypes = () => {
+            const held = [];
+            for (let obj = game.invent; obj; obj = obj.nobj) held.push(obj.otyp);
+            return held;
+        };
+
+        // A dagger is far too light for the burden arithmetic to stop, so
+        // only the guard can. prepareHeavyBallDropAdmission() returns early
+        // for everything but a single heavy iron ball, so this reaches
+        // hold_another_object()'s own read, after zap.c:6402 has already
+        // counted the wish.
+        let boundaries = await wish(unparsed, 'dagger');
+        assert.equal(boundaries.length, 1);
+        assert.ok(boundaries[0] instanceof UnsupportedHeroCommandBoundaryError);
+        assert.match(boundaries[0].message, /unparsed pickup_burden/u);
+        assert.equal(game.u.uconduct.wishes, 1);
+        assert.equal(heldTypes().includes(DAGGER), false);
+
+        // A heavy iron ball reaches the projection instead. It runs before
+        // doname() records discovery and before the conduct counter moves, so
+        // the stop is one step earlier and the counter proves which read
+        // raised it.
+        boundaries = await wish(unparsed, 'heavy iron ball');
+        assert.equal(boundaries.length, 1);
+        assert.match(boundaries[0].message, /unparsed pickup_burden/u);
+        assert.equal(game.u.uconduct.wishes, 0);
+        assert.equal(heldTypes().includes(HEAVY_IRON_BALL), false);
+
+        // The control: the same dagger wish without the option in the config
+        // file is held, so the guard and not the wish path is what stopped it.
+        boundaries = await wish(recorded.nethackrc, 'dagger');
+        assert.deepEqual(boundaries, []);
+        // options.c initoptions_init() starts the option at MOD_ENCUMBER,
+        // which is what an rc file that never names it leaves behind.
+        assert.equal(game.flags.pickup_burden, MOD_ENCUMBER);
+        assert.equal(heldTypes().includes(DAGGER), true);
     });
 
 test('ordinary wish-drop refusals convert at the command seam', () => {

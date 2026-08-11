@@ -40,6 +40,7 @@ import { nhgetch } from './input.js';
 import * as M from './monsters.js';
 import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
 import { isContainer, is_weptool, objectType } from './obj.js';
+import { isPoisonable } from './objnam.js';
 import * as O from './objects.js';
 import { rn2_on_display_rng } from './rng.js';
 import { NO_COLOR } from './terminal.js';
@@ -242,10 +243,12 @@ function identifiedStartingObjectName(obj, state) {
         }
     }
 
-    if (obj.opoisoned
-        && (obj.oclass === O.WEAPON_CLASS || is_weptool(obj, state))) {
-        prefixes.push('poisoned');
-    }
+    // objnam.c:686 is `if (is_poisonable(obj) && obj->opoisoned)`. This file
+    // used to spell the macro out as `WEAPON_CLASS || is_weptool()`, which is
+    // neither of obj.h:264-268's two disjuncts: C admits only the multigen
+    // skill window inside WEAPON_CLASS, and admits a permapoisoned object of
+    // any class.
+    if (isPoisonable(obj, state) && obj.opoisoned) prefixes.push('poisoned');
     if (obj.oclass === O.WEAPON_CLASS
         || obj.oclass === O.ARMOR_CLASS
         || is_weptool(obj, state)) {

@@ -1165,7 +1165,7 @@
       "area": "objects",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "3a78bc1521733ca3dd82705b0c222e936015c721",
       "detail": "js/startup_reroll.js:245 is a divergent duplicate of obj.h is_poisonable(). It reads WEAPON_CLASS || is_weptool, where C is (WEAPON_CLASS && the multigen-skill window) || permapoisoned. The two disagree on any weptool that is not multigen, and on any permapoisoned object outside WEAPON_CLASS.\n\nThe divergence is unreachable today: only is_multigen objects and Grimtooth ever carry opoisoned, so no reachable input distinguishes the two readings. It is recorded rather than fixed because the objects sweep that found it nearly committed a test pinning the wrong behavior before checking the macro, which is the second time in this repository a test has been written against a duplicate's divergent reading rather than against C.\n\nThis is the thirteenth duplicate port found here in eight days, and the third whose copies disagree rather than merely repeat. AGENTS.md, \"Keep each source file's port in one place\", puts the survivor in the file obj.h names.\n\nClosing condition: one port of is_poisonable() reading C's condition, with the startup_reroll.js call site pointing at it, and the development score verified identical session by session."
     },
@@ -1234,7 +1234,7 @@
       "area": "objects",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "1bb5e5f84e2d50b3ef792093513e0c35be7bc897",
       "detail": "js/invent.js addinvCore1()'s heavy-drop admission reads state.flags.pickup_burden with the same '?? MOD_ENCUMBER' fallback that js/pickup.js preflightPickupObjects() used before this pass fixed it. parseNethackrc() has no arm for pickup_burden and keeps an unported option's raw text in flags[<option name>], which for this option is the field its parsed value would occupy, so a configuration file setting it leaves a string there. The string makes 'prev_encumbr < pickupBurden' false, so prev_encumbr stays near_capacity() and C's pickup.c:1757-1758 max() is silently skipped; it diverges whenever the configured burden exceeds the current encumbrance. Unlike the pickup.js site, the comparison does not open a refusal, so this is a wrong limit rather than a missing stop. js/invent.js is outside the eeb0f46..1bb5e5f range, so it was left for a later pass. Close it by giving Stone_resistance's sibling read the same Number.isInteger() guard, or by landing the pickup_burden parse arm tracked as pickup-burden-option-has-no-parser, which would make both reads correct."
     },
@@ -1445,7 +1445,7 @@
       "area": "objects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "13e0097cc4c5e16f86fb5784f413de2fe667ac9e",
       "detail": "js/objnam.js:278 preflightDoname() refuses 'embedded or gloved armor suffix' whenever (obj.owornmask & W_ARMOR) && (obj === state.u?.uskin || obj.owornmask & W_ARMG). Worn gloves alone therefore stop any command that names the hero's inventory, and three roles start wearing them: Knight (+0 leather gloves, u_init.c:96), Healer (+1, u_init.c:78) and Monk (u_init.c:102). The consequence is that  cannot list its own pack for those heroes. No development session stops here first, so it is not rankable as a goal on its own, but it is the measured ceiling on two candidates that were priced high and are not: removing the js/steal.js:232 refusal under a Node load hook carries seed0104 from 22/43 to only 31/43 before this branch stops it, so monster-drops-equipped-gear is worth 9 rather than the 21 it was priced at; and seed0016's step 24 lists 'b - an uncursed +1 pair of leather gloves (being worn)', so zap is worth 10 rather than 22. It also falsifies the movement-while-riding forecast's claim that seed0104's steps 31-42 were all admitted commands proven by the fully matching sessions. Close it by porting objnam.c doname_base()'s W_ARMG arm, which is what supplies the suffix the port refuses. Whoever does should re-price both candidates afterwards, because each would then be worth roughly what it was originally read at.",
       "notes": [
@@ -1504,6 +1504,15 @@
       "status": "open",
       "from": "14f13184f03fb2edbfb297150f1beb961dcc9530",
       "detail": "js/lock.js:184 throws UnsupportedLockError('a square that holds no door') for every chosen square whose typ is not a door, standing for lock.c pick_lock()'s `if (!IS_DOOR(door->typ))` arm at 578-593. C does not refuse there: it initializes res = PICKLOCK_DID_NOTHING, records oldglyph and update_mapseen_for(cc.x, cc.y), calls feel_location(cc.x, cc.y), raises res to PICKLOCK_LEARNED_SOMETHING when the glyph or svl.lastseentyp[cc.x][cc.y] changed, then prints You(\"%s no lock on the drawbridge.\", Blind ? \"feel\" : \"see\") when is_drawbridge_wall(cc.x, cc.y) >= 0 and You(\"%s no door there.\", Blind ? \"feel\" : \"see\") otherwise, and returns res.\n\nThe port's header comment at js/lock.js:110-120 already lists this arm among what it does not cover, so the refusal is deliberate; what was not known until now is what it costs. It is the measured cap on the pet-cursed-object-feedback candidate: in seed1500-rogue-explore-move, step 25 applies a lock pick, step 26 answers getdir() with l, and step 27 records \"You see no door there.\", so that candidate's stretch on this session ends at 14 steps instead of running the 27 that remain. No development session stops here first, so it is not rankable as a goal on its own.\n\nClosing condition: pick_lock()'s non-door arm prints C's line and returns C's res, with the drawbridge sibling either ported or refused under its own name, proved by a fresh differential that applies a lock pick at a square holding no door. Whoever ports pet cursed-object feedback should close this alongside it, or that goal will stop here."
+    },
+    {
+      "id": "reroll-menu-names-objects-with-its-own-doname-port",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "21a7accf838e86708dd92d0633965c98c90cfdbd",
+      "detail": "js/startup_reroll.js identifiedStartingObjectName() (207-274) is an independent port of objnam.c xname() and doname_base(), separate from js/objnam.js. It exists because invent.c reroll_menu():2580-2581 raises iflags.override_ID and gd.distantname around its doname(otmp) calls, and js/objnam.js preflightXname() refuses on override_ID.\n\nThe copy diverges from doname_base() and carries no refusal, so it answers a wrong string rather than stopping. The divergence measured this run is the whole owornmask suffix block, objnam.c:1387-1447: identifiedStartingObjectName() emits no worn suffix at all. allmain.c:816-820 calls u_init_inventory_attrs() before reroll_menu(), and u_init.c ini_inv():134-153 calls setworn() for every starting armor piece, so every worn mask is already set when C names them. C therefore prints 'an uncursed +1 pair of leather gloves (being worn)' for a Healer where this port prints the same line without the suffix, and likewise for every worn weapon, amulet and quivered stack. scripts/startup-reroll.test.mjs pins the suffixless form today.\n\nNothing measures the divergence: instrumenting the function with a stderr write and running scripts/score-development.mjs printed it zero times across all 33 development sessions, because no session answers 'n' at 'Is this ok?'. The objects-deferral-sweep-2 slice that pointed this file's is_poisonable() reading at js/objnam.js isPoisonable() fixed only that one expression and left the rest.\n\nClosing it means either giving js/objnam.js doname a path that honors override_ID and distantname and deleting this copy, or reconciling the copy arm by arm against objnam.c:1221-1751. The first is the smaller of the two and removes a duplicate port; AGENTS.md, 'Keep each source file's port in one place', prefers it."
     }
   ],
   "areas": [

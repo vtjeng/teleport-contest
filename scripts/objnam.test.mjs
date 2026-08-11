@@ -23,10 +23,13 @@ import {
     PIT,
     ROOM,
     ROWNO,
+    GLIB,
     W_RINGR,
     W_WEP,
     W_AMUL,
     W_ARM,
+    W_ARMG,
+    W_ARMH,
     W_TOOL,
     W_SWAPWEP,
     W_QUIVER,
@@ -109,6 +112,7 @@ import {
     CROSSBOW_BOLT,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
+import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
 
 function deferred() {
     let resolve;
@@ -848,6 +852,90 @@ test('worn and wielded suffixes follow doname()\'s owornmask branches', () => {
     assert.match(worn(DIAMOND, W_QUIVER), / \(in quiver pouch\)$/u);
     assert.match(worn(DART, W_QUIVER), / \(at the ready\)$/u);
     assert.match(worn(LONG_SWORD, W_QUIVER), / \(at the ready\)$/u);
+});
+
+// The differential evidence for doname_base()'s ARMOR_CLASS worn arm lives in
+// scripts/run-worn-glove-name.mjs, which records fresh C output for six starts
+// and compares complete screens, cursors and random-number calls. This guards
+// what that matrix is made of, because a matrix that lost its enchantment
+// spread or its bare-handed control would still pass.
+test('the worn-glove matrix keeps its enchantment spread and control', () => {
+    const recipe = loadWornGloveNameRecipe();
+    assert.equal(recipe.segments.length, CASES.length);
+    for (const segment of recipe.segments) {
+        assert.equal(Object.hasOwn(segment, 'steps'), false);
+        // Every segment presses 'i' and nothing else that takes a turn.
+        assert.equal(segment.moves, '.i.');
+    }
+    // u_init.c gives the three glove-wearing roles +1, +0 and +2, which is
+    // the whole reason all three are in the matrix.
+    assert.deepEqual(
+        CASES.filter(({ spe }) => spe !== null)
+            .map(({ role, spe }) => [role, spe]),
+        [['Knight', 0], ['Healer', 1], ['Monk', 2], ['Healer', 1], ['Monk', 2]],
+    );
+    // The control shares the Knight's seed, so the two differ in the starting
+    // kit and in nothing else.
+    const control = CASES.find(({ spe }) => spe === null);
+    const knight = CASES.find(({ role }) => role === 'Knight');
+    assert.equal(control.role, 'Valkyrie');
+    assert.equal(control.seed, knight.seed);
+    assert.equal(control.datetime, knight.datetime);
+});
+
+// C ref: objnam.c doname_base():1400-1407. Slippery fingers are a property of
+// the hero, not of the gloves, so no differential can reach this clause:
+// js/wield.js:102 records that nothing in the port grants Glib, and the three
+// roles that start in a pair start with dry hands. scripts/run-worn-glove-name
+// .mjs records what C paints for those three; only a unit test can set Glib.
+test('worn gloves take the slippery clause and nothing else does', () => {
+    const state = namingState();
+    const gloves = objectOf(state, LEATHER_GLOVES,
+        { owornmask: W_ARMG, bknown: true, known: true, spe: 0 });
+    const helmet = objectOf(state, DWARVISH_IRON_HELM,
+        { owornmask: W_ARMH, bknown: true, known: true, spe: 0 });
+    state.uarmg = gloves;
+    state.uarmh = helmet;
+
+    // Dry hands: the ARMOR_CLASS arm ends at C:1394's " (being worn)".
+    assert.match(donameFresh(gloves, state), / \(being worn\)$/u);
+
+    // youprop.h:112 makes Glib the bare intrinsic field, with no extrinsic
+    // source, so setting the timeout alone leaves the name unchanged.
+    state.u.uprops[GLIB] = { extrinsic: 1 };
+    assert.match(donameFresh(gloves, state), / \(being worn\)$/u);
+
+    // C:1406's Concat(bp, 1, "; slippery)") backs up over the paren it just
+    // wrote, so the phrase gains a clause rather than a second parenthesis.
+    state.u.uprops[GLIB] = { intrinsic: 1 };
+    assert.match(donameFresh(gloves, state), / \(being worn; slippery\)$/u);
+
+    // C tests `obj == uarmg`, not the mask, so a second pair of gloves the
+    // hero is not wearing in that slot stays dry even while she is slippery.
+    const spare = objectOf(state, LEATHER_GLOVES,
+        { owornmask: W_ARMG, bknown: true, known: true, spe: 0 });
+    assert.match(donameFresh(spare, state), / \(being worn\)$/u);
+    // And the clause belongs to the glove slot alone: a slippery hero's helm
+    // is described no differently.
+    assert.match(donameFresh(helmet, state), / \(being worn\)$/u);
+});
+
+// C ref: objnam.c doname_base():1391, the `(obj == uskin)` arm of the same
+// conditional. wornSuffix() emits only " (being worn)", so this one branch of
+// the ARMOR_CLASS arm still has to stop.
+test('armor fused to the hero\'s skin still refuses', () => {
+    const state = namingState();
+    const scales = objectOf(state, RED_DRAGON_SCALES,
+        { owornmask: W_ARM, bknown: true, known: true, spe: 0 });
+    state.u.uskin = scales;
+    assert.throws(
+        () => donameFresh(scales, state),
+        (error) => error instanceof UnsupportedObjectNameError
+            && error.branch === 'skin-embedded armor suffix',
+    );
+    // The refusal is uskin's alone. Ordinary worn scales name themselves.
+    state.u.uskin = null;
+    assert.match(donameFresh(scales, state), / \(being worn\)$/u);
 });
 
 // C ref: objnam.c doname_base() (1221-1751). `grep -n twoweap` over objnam.c
