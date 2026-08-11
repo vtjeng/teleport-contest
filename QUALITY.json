@@ -10353,6 +10353,68 @@
         }
       },
       "recordedAt": "2026-08-11T14:41:34.956Z"
+    },
+    {
+      "kind": "review",
+      "head": "eccdb8bb8fae8f65f39dc7130a5c50ddecbda599",
+      "auditedRange": "f6a3350b845e2dd1c34a52fa69ef587969932d07..eccdb8bb8fae8f65f39dc7130a5c50ddecbda599",
+      "level": "full",
+      "areas": [
+        "objects"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 6 raw, 5 deduplicated, 4 confirmed, 4 applied, 0 deferred, 0 rejected, 1 unverified; mutation: 1 survivors of 10 mutants. Full four-finder pass over the monster-drops-equipped-gear boundary port, one commit changing 71 lines of one file. 6 raw findings, 5 after deduplication, 4 confirmed and all 4 applied, none rejected, and one left unverified when its adjudicator died. I judged that one myself and applied it too, so eccdb8b carries five fixes; counts.applied records only the confirmed set, as the schema requires. The development score is identical either side at 1410/7765 screens and 119046/610816 calls. No production behaviour changed: three findings were false statements about what gates the port's unported arms, one was a missing test for a C-to-JS translation seam, and the unverified one was that seam's comment claiming a faithful translation when C's strchr on a NUL byte and the port's includes(0) disagree at exactly one input. The apply session corrected the pass itself on the sharpest finding: the endArtifactLight hook is held unreachable by a nearer and wider refusal than the pass identified, because mdrop_obj() names the object through distant_name() before extracting it, so the recommended extra refusal would have been unreachable code.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3032,
+        "counts": {
+          "raw": 6,
+          "deduplicated": 5,
+          "confirmed": 4,
+          "applied": 4,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 1
+        },
+        "categories": {
+          "production": 0,
+          "tests": 1,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "rejections": [],
+        "deferrals": [],
+        "mutation": {
+          "ranges": [
+            "f6a3350b845e2dd1c34a52fa69ef587969932d07..d3d4c8c523bca9e34631af710ce9c98abd056bea"
+          ],
+          "mutants": 10,
+          "survivors": 1,
+          "byKind": {
+            "boolean": {
+              "ran": 3,
+              "killed": 2
+            },
+            "logical": {
+              "ran": 6,
+              "killed": 6
+            },
+            "relational": {
+              "ran": 1,
+              "killed": 1
+            }
+          },
+          "deltaRun": "The audit-fix diff at eccdb8b produced no mutants: its js/ change is comment text only, and the two new assertions are tests. Its trailer sits in the same final paragraph as Assisted-by:, so git reads it.",
+          "finderConclusion": "The readiness run left exactly one survivor, js/steal.js:265:43, the silently argument, which the slice worker had predicted and argued unkillable. I passed that argument to the pass to judge rather than accept. It holds: silently is read only by extract_from_minvent() update_mon_extrinsics() call, which do_extrinsics false makes unreachable by C own argument at steal.c 841-843, every caller of mdrop_obj() passes the same false, and scripts/worn.test.mjs:330-353 covers both values directly. A whole-suite wave cannot decide it either. The more useful observation is what the mutation run could not see at all: three of the four confirmed findings are false statements in comments, and the fourth is a missing test for a translation seam. No mutation kind reaches any of those, which is why a range this small still repaid a full four-finder pass."
+        },
+        "readiness": {
+          "boundary": "The hero melee killing blow on a monster wearing armour, from the keystroke to the kill line and the armour lying on the square, read back by pickup.c look_here() and dolook(). The real game executes it: seed0104-knight-ride-combat finishes 43/43 screens and 3223/3223 calls and became the sixth fully matching session, and scripts/run-monster-equipped-drop.mjs records 7 fresh segments over Valkyrie, Samurai and Rogue matching at 19301 calls, 29 screens and 29 cursors on independently chosen seeds.",
+          "sourceReview": "Every branch reachable before that ending was traced against nethack-c/upstream/: steal.c mdrop_obj() (812-846) and relobj() (875-899); worn.c extract_from_minvent() (1377-1416) and update_mon_extrinsics() (579-712); mon.c m_detach() and check_gear_next_turn(); weapon.c mwepgone() and mon_wield_item(); shk.c costly_spot() and inside_shop(); rooms.c in_rooms(). The trace covered state, random-number order and the points where the game waits for input. It found no behavioural divergence and four false or incomplete statements about what gates the unported arms, three of which this range wrote. The pass itself was wrong on one of them and the apply session corrected it against C: the endArtifactLight hook is held unreachable not by makemon_create m_dowear_type() missing begin_burn, as the pass argued from a trace that called extract_from_minvent() directly, but by js/objnam.js preflightDoname() refusing any lamplit worn object inside distant_name(), which mdrop_obj() calls first and which is strictly wider than the arm test.",
+          "completeness": "No known unsupported behaviour remains inside the boundary. The one deliberate departure from the usual ordering is that the tail refusal now fires after the object has been extracted and placed, because C puts update_mon_extrinsics() after the drop for its own stated reason; the pass confirmed that ordering against steal.c 841-845. Excluded and verified fail-closed: update_mon_extrinsics() behind the DEADMONSTER guard, and mwepgone() supplied as a named refusal so a widened wield boundary ends a segment rather than throwing an untyped Error. The endArtifactLight arm is unreachable through a proper boundary rather than a bare Error, now pinned by a test that fails with the crash if the near gate is removed. Two gaps stay recorded rather than closed: mwepgone-has-no-reachable-consumer, and the saddle exemption, which ships unreachable in the running game with unit cover and a comment naming what would exercise it. roomno cannot be 0 at the in_rooms test: costly_spot() answers only through inside_shop(), which returns NO_ROOM for any roomno below ROOMOFFSET, so C strchr on a NUL and the port includes(0) cannot disagree there."
+        }
+      },
+      "recordedAt": "2026-08-11T17:36:10.675Z"
     }
   ]
 }
