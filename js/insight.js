@@ -8,9 +8,17 @@
 // doattributes(), align_str(), piousness(), and ustatusline().
 //
 // `doattributes()` is the only ported caller, so `mode` is BASICENLIGHTENMENT,
-// or BASICENLIGHTENMENT | MAGICENLIGHTENMENT under playmode:explore, and
-// `final` is ENL_GAMEINPROGRESS. `enlightenment()` refuses every other pair,
-// which is what keeps end-of-game disclosure out. The `final` parameter is
+// or BASICENLIGHTENMENT | MAGICENLIGHTENMENT under playmode:explore and
+// playmode:debug, and `final` is ENL_GAMEINPROGRESS. `enlightenment()` guards
+// `final` and the hero's form alone: it refuses any `final` other than
+// ENL_GAMEINPROGRESS, which is what keeps end-of-game disclosure out, and
+// refuses a polymorphed hero. `mode` is unchecked, because its two bits pick
+// the same sections here that they pick at insight.c:405-423. The next caller
+// to arrive gets no refusal from that: the potion of enlightenment
+// (potion.c:710), the wand and spell (zap.c do_enlightenment_effect()), a
+// quaffed fountain's self-knowledge (fountain.c:290) and an invoked artifact
+// (artifact.c:2163) all pass MAGICENLIGHTENMENT alone, a mode no differential
+// has covered, so each owns validating its own call. The `final` parameter is
 // still threaded through the sections, so the signatures and call shapes match
 // the C, but it is provably always ENL_GAMEINPROGRESS: no past-tense arm in
 // this file has ever executed, and none has been validated. A site that

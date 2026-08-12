@@ -596,7 +596,7 @@ export async function bhit(
 
         const mtmp = m_at(x, y, state);
         const ttmp = t_at(x, y, state);
-        if (!mtmp && ttmp && ttmp.ttyp === WEB && random.rn2(3) !== 0) {
+        if (!mtmp && ttmp && ttmp.ttyp === WEB && random.rn2(3) === 0) {
             if (cansee(x, y, state)) {
                 await ttyPline(
                     `${Yname2(obj, state)} gets stuck in a web!`,

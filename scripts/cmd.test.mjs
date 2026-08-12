@@ -12,6 +12,9 @@ import {
     UnsupportedTurnBoundaryError,
 } from '../js/allmain.js';
 import {
+    cmdq_add_ec,
+    cmdq_peek,
+    extcmdRow,
     failClosedCommandRefusals,
     MAX_COMMAND_COUNT,
     parseCommand,
@@ -28,6 +31,7 @@ import {
     BEAR_TRAP,
     COLNO,
     CORR,
+    CQ_CANNED,
     CROSSWALL,
     DBWALL,
     DO_MOVE,
@@ -3065,6 +3069,22 @@ test('rhack clears menu and no-pickup prefix state on every entry', async () => 
         assert.equal(state.context.nopick, 0);
         assert.equal(state.context.move, 1);
     }
+});
+
+test('rhack runs a queued command even when it was given a key', async () => {
+    // cmd.c:3642 pops the queue before anything else on every rhack() call;
+    // `firsttime` gates only the parse below it. allmain.c:530 is the one
+    // caller that passes a nonzero key -- the counted-repeat re-entry -- so a
+    // command queued while gm.multi is still positive runs there instead of
+    // the repeated key.
+    const state = resetParserTestGame('');
+    cmdq_add_ec(CQ_CANNED, extcmdRow('wait'), state);
+    // 3 is ^C, unbound in cmd.c's command table, so were the key consulted
+    // the bad-command path would answer it: a pline and no turn spent.
+    await rhack(3, state);
+    assert.equal(state.context.move, 1, 'the queued wait spent the turn');
+    assert.equal(state._pending_message ?? '', '');
+    assert.equal(cmdq_peek(CQ_CANNED, state), null, 'the queue was drained');
 });
 
 test('monster_nearby applies hostility, concealment, helplessness, and sensing', () => {

@@ -179,26 +179,29 @@ test('bhit() draws for a rock and asks whether it may skip', async () => {
     assert.deepEqual(draws, []);
 });
 
-test('bhit() catches a missile in a web on two draws out of three', async () => {
-    // zap.c:3931-3944. The web arm needs an empty square, a WEB trap and
-    // `!rn2(3)` to be false, and it breaks without backing the position up.
+test('bhit() catches a missile in a web on one draw in three', async () => {
+    // zap.c:3928-3939. The web arm needs an empty square, a WEB trap and
+    // `!rn2(3)` to be true -- that is, rn2(3) == 0, the one draw in three --
+    // and it breaks without backing the position up.
     const web = corridor(6);
     web.level.traps = [{ tx: 3, ty: 4, ttyp: WEB, tseen: false }];
     const seen = [];
-    const random = { rn2: (n) => { seen.push(n); return 2; }, rnd: () => 1 };
+    const random = { rn2: (n) => { seen.push(n); return 0; }, rnd: () => 1 };
     await bhit(1, 0, 8, THROWN_WEAPON, null, null,
         { obj: missile(web, ARROW) }, web, random);
     assert.deepEqual(seen, [3]);
     assert.deepEqual(web.bhitpos, { x: 3, y: 4 });
     assert.equal(web.level.traps[0].tseen, true);
-    // The one draw in three that answers 0 lets the missile fly past.
-    const through = corridor(6);
-    through.level.traps = [{ tx: 3, ty: 4, ttyp: WEB, tseen: false }];
-    await bhit(1, 0, 8, THROWN_WEAPON, null, null,
-        { obj: missile(through, ARROW) }, through,
-        { rn2: () => 0, rnd: () => 1 });
-    assert.deepEqual(through.bhitpos, { x: 6, y: 4 });
-    assert.equal(through.level.traps[0].tseen, false);
+    // The two draws in three that answer nonzero let the missile fly past.
+    for (const draw of [1, 2]) {
+        const through = corridor(6);
+        through.level.traps = [{ tx: 3, ty: 4, ttyp: WEB, tseen: false }];
+        await bhit(1, 0, 8, THROWN_WEAPON, null, null,
+            { obj: missile(through, ARROW) }, through,
+            { rn2: () => draw, rnd: () => 1 });
+        assert.deepEqual(through.bhitpos, { x: 6, y: 4 });
+        assert.equal(through.level.traps[0].tseen, false);
+    }
 });
 
 test('bhit() stops when a monster stands in the flight path', async () => {

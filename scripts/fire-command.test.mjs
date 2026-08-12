@@ -88,28 +88,40 @@ test('the queued swap puts the launcher in the hand', async () => {
     }
 });
 
+// The two volley sizes each seed produces, in order. throw_obj():231 ends the
+// multishot arithmetic with rnd(multishot), so every bonus above that draw --
+// the skill bonus, multishot_class_bonus() and the racial-bow bonus -- moves
+// these numbers. They are C's, not the port's: scripts/run-fire-command.mjs
+// records these same segments with the C reference and compares every screen,
+// and a volley above one names its own size on the top line ("You shoot 2
+// flint stones."), which is one of the screens it compares.
+const VOLLEY_SIZES = new Map([
+    [7810001, [1, 2]], // human Ranger, arrows from a bow
+    [7810002, [2, 1]], // Caveman, flint stones from a sling
+    [7810003, [2, 1]], // elven Ranger, elven arrows from an elven bow
+]);
+
 test('a volley leaves the quiver and lands on the floor', async () => {
     for (const segment of segments()) {
+        const [firstVolley, secondVolley] = VOLLEY_SIZES.get(segment.seed);
         await runSegment({ ...segment, moves: AFTER_SWAP });
         const before = game.uquiver.quan;
         const otyp = game.uquiver.otyp;
 
         await runSegment({ ...segment, moves: AFTER_FIRST_SHOT });
         const afterFirst = game.uquiver.quan;
-        // throw_obj():231 draws rnd() for the volley size and :265 splits one
-        // missile off the stack per shot, so at least one and at most the
-        // whole stack leaves the quiver.
-        assert.ok(afterFirst < before,
-            `${role(segment)} fired nothing`);
-        assert.ok(before - afterFirst <= before);
+        // throw_obj():265 splits one missile off the stack per shot, so the
+        // stack falls by exactly the volley size.
+        assert.equal(before - afterFirst, firstVolley,
+            `${role(segment)} fired the wrong number of missiles`);
         // Every missile that left is somewhere on the level, because
         // throwit() ends at place_object() and nothing here can break one.
         assert.equal(countOnFloor(otyp), before - afterFirst,
             `${role(segment)} lost a missile between the hand and the floor`);
 
         await runSegment({ ...segment, moves: AFTER_SECOND_SHOT });
-        assert.ok(game.uquiver.quan < afterFirst,
-            `${role(segment)} fired nothing the second time`);
+        assert.equal(afterFirst - game.uquiver.quan, secondVolley,
+            `${role(segment)} fired the wrong number the second time`);
         assert.equal(countOnFloor(otyp), before - game.uquiver.quan);
     }
 });

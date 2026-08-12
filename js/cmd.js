@@ -1332,8 +1332,11 @@ export function failClosedCommandRefusals() {
 // captured `func` from the '#' row before calling doextcmd(), and the
 // reassignment at 3750 replaces `tlist` alone, so the test at 3821 compares
 // doextcmd() with dokick() and passes. Only the key bound to kick keeps the
-// square. The kick arm in rhack() below is therefore the one caller that does
-// not come through here.
+// square. The kick arm in rhack() below is therefore the one command-result
+// arm that does not come through here; the five arms whose handler answers a
+// boolean rather than an ECMD code share this tail like the rest. The
+// movement arms set context.move themselves because C returns at 3785-3800,
+// before this tail runs at all.
 function commandTookTime(state) {
     state.context.move = 1;
     clear_kickedloc(state);
@@ -1889,9 +1892,11 @@ export async function rhack(key, state = game) {
         // reaches the reset-and-return below.
         //
         // A queued command is not a parsed one: no key exists to replay, so
-        // it neither captures a pendingCommand nor counts a dispatch, and a
-        // fail-closed refusal it raises ends the segment where it stands.
-        const queued = firstTime ? cmdq_pop(state) : null;
+        // it captures no pendingCommand, and a fail-closed refusal it raises
+        // ends the segment where it stands. On a fresh entry it counts no
+        // dispatch either, because only a key read from parse() sets
+        // newLogicalCommand.
+        const queued = cmdq_pop(state);
         let cmdqCommand = null;
         if (queued) {
             if (queued.typ === CMDQ_EXTCMD && queued.ec_entry) {
@@ -2263,29 +2268,42 @@ export async function rhack(key, state = game) {
         // predates the command queue and stays: every one of them is reachable
         // only from a typed key, and rhack() has just drained the queue to
         // read that key, so the clear the reset now performs has nothing to
-        // discard.
+        // discard. The fold covers the reset argument alone; the ECMD_TIME
+        // tail at 3818-3825 is shared with every other arm through
+        // commandTookTime(), so a wrapper that spends a turn forgets the
+        // kicked square exactly as the ECMD arms do.
+        //
+        // One fold here is wider than the reset argument and is left as it
+        // stands: for an elapsed command C runs no reset_cmd_vars() at all,
+        // where these arms run one and then put context.move back, so multi,
+        // context.run, context.mv and domove_attempting are zeroed on a path
+        // that C leaves alone. Nothing reaches it today. dolook() is the only
+        // one of the five whose own exits can answer ECMD_TIME (invent.c:4160,
+        // :4248 and :4314, each for a blind hero), no ported code writes
+        // u.uprops[BLINDED], and ddoinv()'s other C exit, itemactions() at
+        // invent.c:2998, is refused in js/invent.js before it can answer.
         if (command === 'inventory') {
             const elapsed = await runInventoryCommand(key, state);
             resetCommandVars(state);
-            if (elapsed) state.context.move = 1;
+            if (elapsed) commandTookTime(state);
             return;
         }
         if (command === 'showspells') {
             const elapsed = await runShowspellsCommand(key, state);
             resetCommandVars(state);
-            if (elapsed) state.context.move = 1;
+            if (elapsed) commandTookTime(state);
             return;
         }
         if (command === 'known') {
             const elapsed = await runKnownCommand(key, state);
             resetCommandVars(state);
-            if (elapsed) state.context.move = 1;
+            if (elapsed) commandTookTime(state);
             return;
         }
         if (command === 'attributes') {
             const elapsed = await runAttributesCommand(key, state);
             resetCommandVars(state);
-            if (elapsed) state.context.move = 1;
+            if (elapsed) commandTookTime(state);
             return;
         }
         if (command === 'look') {
@@ -2294,7 +2312,7 @@ export async function rhack(key, state = game) {
             // a sighted hero, which reaches reset_cmd_vars(); only ECMD_TIME
             // puts context.move back to TRUE.
             resetCommandVars(state);
-            if (elapsed) state.context.move = 1;
+            if (elapsed) commandTookTime(state);
             return;
         }
         if (Object.hasOwn(MOVEMENT_INTENTS, command)) {

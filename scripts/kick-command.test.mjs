@@ -2,7 +2,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { LA_UP, STAIRS, WOUNDED_LEGS } from '../js/const.js';
+import { BLINDED, DUST, LA_UP, STAIRS, WOUNDED_LEGS } from '../js/const.js';
+import { commandKeyCode } from '../js/command_bindings.js';
+import { dist2 } from '../js/hacklib.js';
+import { engr_at, make_engr_at } from '../js/engrave.js';
+import { rhack } from '../js/cmd.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -11,6 +15,7 @@ import {
     KICK_EXT,
     SEARCH,
     VALKYRIE_CHARACTER,
+    kickCaseFor,
     kickSegment,
     loadKickCommandRecipe,
 } from './run-kick-command.mjs';
@@ -97,6 +102,18 @@ test('the matrix holds replay inputs only', () => {
         recipe.segments.map(({ seed }) => seed),
         [6600001, 6600001, 6600007, 6600006, 6600001, 6600001, 6600001],
     );
+});
+
+test('every matrix segment is verified against its own case', () => {
+    // loadKickCommandRecipe() builds one segment per case, in order, so the
+    // two must line up by index. `martial` and `lowDex` share a seed and the
+    // same keys, so a lookup keyed on those alone answers both segments with
+    // `martial` and never checks the Valkyrie against her own expectations.
+    const { segments } = loadKickCommandRecipe();
+    assert.equal(segments.length, KICK_CASES.length);
+    segments.forEach((segment, index) => {
+        assert.equal(kickCaseFor(segment).label, KICK_CASES[index].label);
+    });
 });
 
 test('the matrix separates the three terms of kick_dumb()\'s test', () => {
@@ -296,6 +313,24 @@ test('a kicked square is remembered, and every later command forgets it',
     const prompted = await replay(MONK(), `${KICK_EXT}h`);
     assert.equal(prompted.toplines, 'You kick at empty space.');
     assert.deepEqual(prompted.kickedloc, { x: 0, y: 0 });
+
+    // cmd.c:3821 once more, this time through an arm whose handler answers a
+    // boolean rather than an ECMD code. invent.c look_here() returns
+    // ECMD_TIME only for a blind hero (invent.c:4160, :4248, :4314), and
+    // nothing ported writes u.uprops[BLINDED] yet, so the timeout is set on
+    // the replayed game rather than earned in it. 100 is any nonzero
+    // remaining timeout; the value never counts down here.
+    const blind = await replay(VALKYRIE(), `${KICK}h`);
+    assert.deepEqual(blind.kickedloc, { x: game.u.ux - 1, y: game.u.uy });
+    game.u.uprops[BLINDED].intrinsic = 100;
+    game.nhDisplay.pushKey(commandKeyCode(':'));
+    // A blind look prints the feel line, the staircase this hero stands on
+    // and "You feel no objects here.", so the spaces answer the --More--
+    // between them; any left over stay queued and are never read.
+    for (const space of '   ') game.nhDisplay.pushKey(commandKeyCode(space));
+    await rhack(0, game);
+    assert.equal(game.context.move, 1, 'the blind look spent the turn');
+    assert.deepEqual(game.gk.kickedloc, { x: 0, y: 0 });
 });
 
 test('a direction prompt answering nothing spends no turn', async () => {
@@ -312,7 +347,8 @@ test('a direction prompt answering nothing spends no turn', async () => {
     }
 });
 
-test('the kick wakes the neighbourhood before it examines the square', () => {
+test('the kick wakes the neighbourhood before it examines the square',
+    async () => {
     // dokick.c:1383-1384 run above all five target tests, so an arm refused
     // below them has still paid for both. mon.c wake_nearby() is the reason
     // the radius grows with experience level.
@@ -322,4 +358,39 @@ test('the kick wakes the neighbourhood before it examines the square', () => {
         lineOf(MON_C, 4369),
         'wake_nearto_core(u.ux, u.uy, u.ulevel * 20, petcall);',
     );
+
+    // Neither call reaches a screen or a draw count in this room, so the two
+    // are pinned on the state they leave: the sleep flag mon.c
+    // wake_nearto_core() clears, and the engraving engrave.c wipe_engr_at()
+    // rubs at. The kick is driven a key at a time so that the setup can sit
+    // between the level and the command.
+    await replay(MONK(), '');
+    const asleep = [];
+    for (let monster = game.level.monlist; monster; monster = monster.nmon) {
+        monster.msleeping = true;
+        asleep.push({
+            monster,
+            near: dist2(monster.mx, monster.my, game.u.ux, game.u.uy)
+                < game.u.ulevel * 20,
+        });
+    }
+    // This seed puts one monster one square from the hero and three across
+    // the level, so the radius has a case on each side of it.
+    assert.equal(asleep.filter(({ near }) => near).length, 1);
+    assert.equal(asleep.filter(({ near }) => !near).length, 3);
+    // "Elbereth" holds eight non-blank bytes, and wipeout_text() replaces one
+    // byte per count, so two counts always change it.
+    make_engr_at(game.u.ux, game.u.uy, 'Elbereth', null, game.moves, DUST,
+        { state: game });
+
+    for (const key of `${KICK}h   `)
+        game.nhDisplay.pushKey(commandKeyCode(key));
+    await rhack(0, game);
+
+    for (const { monster, near } of asleep) {
+        assert.equal(Boolean(monster.msleeping), !near,
+            `the monster at ${monster.mx},${monster.my}`);
+    }
+    assert.notEqual(engr_at(game.u.ux, game.u.uy, game).engr_txt[0],
+        'Elbereth');
 });

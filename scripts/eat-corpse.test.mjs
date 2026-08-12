@@ -28,12 +28,19 @@ import {
     POISON_RES,
     STONE_RES,
 } from '../js/const.js';
-import { corpse_intrinsic, doeat } from '../js/eat.js';
+import { corpse_intrinsic, doeat, vegetarian } from '../js/eat.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { acidic, is_giant, poisonous, your_race } from '../js/mondata.js';
+import {
+    acidic,
+    is_giant,
+    poisonous,
+    vegan,
+    your_race,
+} from '../js/mondata.js';
 import {
     PM_ACID_BLOB,
+    PM_BROWN_PUDDING,
     PM_COCKATRICE,
     PM_FIRE_GIANT,
     PM_FLOATING_EYE,
@@ -173,6 +180,32 @@ test('eating a domestic animal is a bad idea but costs no luck', async () => {
         FROMOUTSIDE,
     );
     assert.equal(game.u.uluck, before.uluck);
+});
+
+test('a pudding is vegetarian without being vegan', async () => {
+    // eat.c:1870 and :1877 ask two different questions, and mondata.h:239-241
+    // is where the answers part: vegetarian() adds S_PUDDING, the black
+    // pudding excepted, to vegan()'s set. That makes a brown pudding the only
+    // meal that tells the two conducts apart -- and monsters.h:2093 gives it
+    // G_NOCORPSE, so no recording can put one in the pack and only a retyped
+    // corpse reaches it.
+    let before = null;
+    const { stopped } = await eatRetypedCorpse(BARBARIAN, (corpse) => {
+        corpse.corpsenm = PM_BROWN_PUDDING;
+        // monsters.h:2100 gives it M1_ACID, which would send the meal down
+        // eatcorpse()'s acid arm and its losehp(); the resistance closes that
+        // arm and leaves the conducts as the only thing this case moves.
+        game.u.uprops[ACID_RES].intrinsic = 1;
+        before = { ...game.u.uconduct };
+    });
+    assert.equal(stopped, null, `${stopped?.message}`);
+    assert.equal(vegan(game.mons[PM_BROWN_PUDDING]), false);
+    assert.equal(vegetarian(game.mons[PM_BROWN_PUDDING]), true);
+    // eat.c:1871 counted the animal product; eat.c:1882's
+    // violated_vegetarian(), which is what would have counted the other and
+    // made a Monk feel guilty, never ran.
+    assert.equal(game.u.uconduct.unvegan, before.unvegan + 1);
+    assert.equal(game.u.uconduct.unvegetarian, before.unvegetarian);
 });
 
 test('an acidic corpse burns the hero and silences the taste line',

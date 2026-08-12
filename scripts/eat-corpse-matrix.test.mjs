@@ -56,12 +56,12 @@ test('the corpse matrix carries replay inputs only', () => {
     }
 });
 
-test('the corpse matrix separates both diet tests eatcorpse() makes', () => {
+test('the corpse matrix reaches both sides of the diet tests, not between',
+    () => {
     // eat.c:1870 and :1877 ask vegan() and vegetarian() about the corpse, and
     // :1985 asks whether the hero's own form is herbivorous or carnivorous.
     // The first two decide the conducts and violated_vegetarian(); the third
-    // decides `palatable`. A matrix that moved only one of them would pass
-    // with the other wrong.
+    // decides `palatable`.
     assert.match(eatLine(1870), /^if \(!vegan\(&mons\[mnum\]\)\)$/u);
     assert.match(eatLine(1877), /^if \(!vegetarian\(&mons\[mnum\]\)\) \{$/u);
 
@@ -71,8 +71,14 @@ test('the corpse matrix separates both diet tests eatcorpse() makes', () => {
     ]);
     assert.ok(diets.some(([isVegan]) => isVegan), 'no vegan corpse');
     assert.ok(diets.some(([isVegan]) => !isVegan), 'no meat corpse');
-    // The lichen is the only species here for which the two answers agree,
-    // which is what makes it the case that skips violated_vegetarian().
+    // What the matrix cannot do, stated as an assertion so that a re-recording
+    // which changed it fails here: mondata.h:239-241 makes vegetarian() differ
+    // from vegan() for a pudding other than the black one alone, and no
+    // pudding leaves a corpse (monsters.h:2081-2114 gives every S_PUDDING row
+    // G_NOCORPSE), so every
+    // case answers both questions the same way and swapping the two calls
+    // would move nothing here. scripts/eat-corpse.test.mjs separates them on a
+    // retyped corpse instead.
     assert.ok(diets.every(([isVegan, isVeggie]) => isVegan === isVeggie));
 
     // Exactly one case is the Monk, whose role monster is the reason

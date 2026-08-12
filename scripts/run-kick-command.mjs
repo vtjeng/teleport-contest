@@ -166,6 +166,27 @@ export function loadKickCommandRecipe() {
     }, 'kick command recipe');
 }
 
+// The case a recipe segment came from. `martial` and `lowDex` share a seed
+// and the same keys on purpose and differ only in the role, which reaches the
+// segment as its nethackrc, so the role belongs in the key: without it the
+// search answers both segments with the first case and the second is never
+// checked against its own expectations.
+export function kickCaseFor(recipeSegment) {
+    const spec = KICK_CASES.find((entry) => {
+        const segment = kickSegment(entry);
+        return segment.seed === recipeSegment.seed
+            && segment.moves === recipeSegment.moves
+            && segment.nethackrc === recipeSegment.nethackrc;
+    });
+    if (!spec) {
+        throw new Error(
+            `no case owns seed ${recipeSegment.seed} typing `
+            + JSON.stringify(recipeSegment.moves),
+        );
+    }
+    return spec;
+}
+
 // The screens show the message each kick printed and the turn it spent. What
 // they cannot show is which of kick_dumb()'s two arms produced it: a hero who
 // took the strain arm carries do.c set_wounded_legs()'s timeout and its
@@ -173,16 +194,7 @@ export function loadKickCommandRecipe() {
 // neither. The status line does show a changed Dx, so this checks the timeout,
 // which nothing on the screen reports.
 export async function verifyKickSegment(recipeSegment) {
-    const spec = KICK_CASES.find(
-        ({ seed, moves }) => seed === recipeSegment.seed
-            && moves === recipeSegment.moves,
-    );
-    if (!spec) {
-        throw new Error(
-            `no case owns seed ${recipeSegment.seed} typing `
-            + JSON.stringify(recipeSegment.moves),
-        );
-    }
+    const spec = kickCaseFor(recipeSegment);
     await runSegment(recipeSegment);
     // set_wounded_legs() writes 5 + rnd(5) and timeout.c counts it down one
     // per turn, so the exact value depends on how many turns follow the kick;
