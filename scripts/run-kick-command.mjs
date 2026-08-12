@@ -1,0 +1,229 @@
+#!/usr/bin/env node
+
+// Run the checked-in matrix for the kick command through fresh C recordings.
+// Every segment contains replay inputs only; runFreshMatrix() records new
+// reference output in an isolated temporary workspace.
+//
+// The command is dokick.c dokick(), which cmd.c rhack() reaches from '^D' and
+// doextcmd() reaches from '#kick'. One arm of it is ported: kick_nondoor()'s
+// final else at :1251, which calls kick_dumb() (:863-878) on the empty floor
+// beside the hero. Both of kick_dumb()'s arms are here, and so are both of
+// dokick()'s no-direction exits.
+//
+// kick_dumb()'s test at :867 is `martial() || ACURR(A_DEX) >= 16 || rn2(3)`,
+// three terms whose short circuits decide whether the rn2(3) is drawn at all.
+// A matrix that varied only the message would pass with the draw in the wrong
+// place, so the four kicking cases below separate the terms:
+//
+//   * `martial` and `lowDex` are the same seed, the same direction and the
+//     same Dexterity of 11. Only the role differs, and skills.h:81
+//     martial_bonus() is true for the Monk alone, so the Valkyrie draws the
+//     rn2(3) immediately after her exercise() and the Monk does not.
+//   * `highDex` is a Valkyrie who rolled 16, the lowest value the second term
+//     accepts, so her kick skips the draw as the Monk's does.
+//   * `strain` is the third term landing on 0, which is the only way into
+//     :872-874: a second exercise() and the rnd(5) inside set_wounded_legs().
+//
+// Whole-turn draw counts cannot separate these: the monsters that move after
+// the hero differ by role and by seed. scripts/kick-command.test.mjs asserts
+// the position of each draw in the turn instead.
+//
+// Seeds were chosen by generating D:1 with the port and reading the squares
+// around the hero, not by copying any recorded session. Scanning upward from
+// 6600001, these are the first seeds that offer what each case needs: a
+// neighbouring square of plain room floor with no monster and no object on it,
+// and, for `highDex` and `strain`, the Dexterity or the draw the case is named
+// for. The scan also rejects a seed whose search reaches an unported branch of
+// monster movement, which is why `strain` is 6600006 rather than 6600005: on
+// 6600005 a monster steps onto a trap on the turn after the kick.
+
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+import { A_DEX, WOUNDED_LEGS } from '../js/const.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { validateCleanRecipe } from './diff-fresh.mjs';
+import { runFreshMatrix } from './fresh-matrix.mjs';
+
+const SCRIPT_PATH = fileURLToPath(import.meta.url);
+// A fixed Friday afternoon, away from the calendar dates that add a startup
+// message of their own.
+const DATETIME = '20240517131415';
+
+// cmd.c:2765 binds 'k' to kick as well, but commands_init() gives the row its
+// C('d') key first; '^D' is what a default binding types.
+export const KICK = '\x04';
+// cmd.c doextcmd()'s prompt takes the command name and a newline. The "kick"
+// row carries no AUTOCOMPLETE flag, so the whole name has to be typed.
+export const KICK_EXT = '#kick\n';
+// decl.c quitchars[] holds ESC, which getdir() answers with 0.
+export const ESCAPE = '\x1b';
+// cmd.c binds '.' to NHKF_GETDIR_SELF at the direction prompt, which writes
+// <0,0,0> and sends dokick() out through its second cancel at :1320.
+export const SELF = '.';
+// A search after every kick. It spends a turn of its own, so the turn counter
+// on the screen after it separates a kick that spent one from a kick that did
+// not. donull() would print its own safety-prevention line over the kick's.
+export const SEARCH = 's';
+
+// `time` puts the turn counter on the status line, which is what separates
+// dokick()'s ECMD_TIME from its ECMD_CANCEL. `showexp` is a second status
+// field that must not move with it.
+const PLAIN = 'pettype:none,!acoustics,!autopickup,time,showexp';
+
+function nethackrc({ name, role, race, gender, align }) {
+    return [
+        `OPTIONS=name:${name},role:${role},race:${race},gender:${gender},`
+        + `align:${align}`,
+        'OPTIONS=!legacy,!tutorial,!splash_screen',
+        `OPTIONS=${PLAIN}`,
+        '',
+    ].join('\n');
+}
+
+const MONK = {
+    name: 'Kicker', role: 'Monk', race: 'human', gender: 'male',
+    align: 'lawful',
+};
+export const VALKYRIE_CHARACTER = Object.freeze({
+    name: 'Kicker', role: 'Valkyrie', race: 'human', gender: 'female',
+    align: 'lawful',
+});
+
+// One replay segment on the matrix's fixed clock and rc. The recipe builds
+// every case with it, and scripts/kick-command.test.mjs builds the refusal
+// cases the matrix cannot hold, because C prints where the port stops.
+export function kickSegment({ seed, character, moves }) {
+    return {
+        seed,
+        datetime: DATETIME,
+        nethackrc: nethackrc(character),
+        moves,
+    };
+}
+
+// Each case names the direction that seed leaves as plain floor and the
+// wounded-leg state the kick has to end in, so a re-recording that moved the
+// hero into a different room fails the differential instead of quietly
+// kicking a wall.
+export const KICK_CASES = Object.freeze([
+    {
+        label: 'martial',
+        seed: 6600001,
+        character: MONK,
+        moves: `${KICK}h${SEARCH}`,
+        strained: false,
+    },
+    {
+        label: 'lowDex',
+        seed: 6600001,
+        character: VALKYRIE_CHARACTER,
+        moves: `${KICK}h${SEARCH}`,
+        strained: false,
+    },
+    {
+        label: 'highDex',
+        seed: 6600007,
+        character: VALKYRIE_CHARACTER,
+        moves: `${KICK}h${SEARCH}`,
+        strained: false,
+    },
+    {
+        label: 'strain',
+        seed: 6600006,
+        character: VALKYRIE_CHARACTER,
+        moves: `${KICK}h${SEARCH}`,
+        strained: true,
+    },
+    {
+        label: 'extendedPrompt',
+        seed: 6600001,
+        character: MONK,
+        moves: `${KICK_EXT}h${SEARCH}`,
+        strained: false,
+    },
+    {
+        label: 'cancelSelf',
+        seed: 6600001,
+        character: MONK,
+        moves: `${KICK}${SELF}${SEARCH}`,
+        strained: false,
+    },
+    {
+        label: 'cancelEscape',
+        seed: 6600001,
+        character: MONK,
+        moves: `${KICK}${ESCAPE}${SEARCH}`,
+        strained: false,
+    },
+]);
+
+export function loadKickCommandRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: KICK_CASES.map(kickSegment),
+    }, 'kick command recipe');
+}
+
+// The screens show the message each kick printed and the turn it spent. What
+// they cannot show is which of kick_dumb()'s two arms produced it: a hero who
+// took the strain arm carries do.c set_wounded_legs()'s timeout and its
+// Dexterity penalty afterwards, and one who took the other arm carries
+// neither. The status line does show a changed Dx, so this checks the timeout,
+// which nothing on the screen reports.
+export async function verifyKickSegment(recipeSegment) {
+    const spec = KICK_CASES.find(
+        ({ seed, moves }) => seed === recipeSegment.seed
+            && moves === recipeSegment.moves,
+    );
+    if (!spec) {
+        throw new Error(
+            `no case owns seed ${recipeSegment.seed} typing `
+            + JSON.stringify(recipeSegment.moves),
+        );
+    }
+    await runSegment(recipeSegment);
+    // set_wounded_legs() writes 5 + rnd(5) and timeout.c counts it down one
+    // per turn, so the exact value depends on how many turns follow the kick;
+    // whether it is running at all is what separates the two arms.
+    const timeout = game.u.uprops[WOUNDED_LEGS]?.intrinsic ?? 0;
+    if (spec.strained !== (timeout > 0)) {
+        throw new Error(
+            `${spec.label}: wounded-legs timeout is ${timeout}, which does `
+            + 'not match the kick_dumb() arm this case names',
+        );
+    }
+    // set_wounded_legs() spends one point of temporary Dexterity with the
+    // timeout, and only with it.
+    const dexPenalty = game.u.atemp[A_DEX];
+    if (spec.strained !== (dexPenalty < 0)) {
+        throw new Error(
+            `${spec.label}: atemp[A_DEX] is ${dexPenalty}, which does not `
+            + 'match the arm this case names',
+        );
+    }
+}
+
+export async function runKickCommandMatrix() {
+    return runFreshMatrix({
+        entries: [{ label: 'kick command', recipe: loadKickCommandRecipe() }],
+        summaryLabel: 'KICK COMMAND',
+        verifySegment: verifyKickSegment,
+    });
+}
+
+async function main(argv) {
+    if (argv.length) throw new Error('arguments are not accepted');
+    const result = await runKickCommandMatrix();
+    return result.passed ? 0 : 1;
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === SCRIPT_PATH) {
+    main(process.argv.slice(2)).then((exitCode) => {
+        process.exitCode = exitCode;
+    }).catch((error) => {
+        process.stderr.write(`kick command: ${error.message || error}\n`);
+        process.exitCode = 2;
+    });
+}

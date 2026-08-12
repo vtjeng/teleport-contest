@@ -117,6 +117,7 @@ import {
 // declaration is used, and only at call time, so neither module reads the
 // other during evaluation.
 import { cmdq_clear } from './cmd.js';
+import { clear_kickedloc } from './dokick.js';
 import { dig_typ } from './dig.js';
 import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
 import { u_on_newpos } from './dungeon.js';
@@ -2132,15 +2133,28 @@ async function trapmove(_x, _y, _desttrap, state = game) {
     return false;
 }
 
-// C ref: hack.c domove(). This remains the narrow ordinary-floor subset; the
-// movement goal will replace its collision and terrain branches in source
+// C ref: hack.c domove() (2693-2709), the three-statement bracket around
+// domove_core(). Only its last statement is here: C's maybe_smudge_engr() and
+// `domove_attempting = 0` both sit inside domove_core() below, at the exits
+// they belong to, because this port never tracked domove_succeeded. The
+// kickedloc clear cannot be split that way -- C runs it on every exit
+// domove_core() takes, including the ones that print a refusal and move
+// nobody -- so it stays where C put it, above the one return this function
+// has.
+export async function domove(state = game) {
+    await domove_core(state);
+    clear_kickedloc(state);
+}
+
+// C ref: hack.c domove_core(). This remains the narrow ordinary-floor subset;
+// the movement goal will replace its collision and terrain branches in source
 // order without changing the command intent established by cmd.c. It requires
 // established u.dx/u.dy and context.move = 1. Success updates the position and
 // leaves that turn flag untouched; a blocked step sets it to 0 and cancels
-// multi, context.mv, and context.run. moveloop_core() calls this directly only
-// for already-established movement intent. Like hack.c, a changed hero
+// multi, context.mv, and context.run. moveloop_core() calls domove() directly
+// only for already-established movement intent. Like hack.c, a changed hero
 // position sets u.umoved for the subsequent turn effects.
-export async function domove(state = game) {
+async function domove_core(state = game) {
     const u = state.u;
     const newx = u.ux + u.dx;
     const newy = u.uy + u.dy;
