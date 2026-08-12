@@ -10856,6 +10856,106 @@
         }
       },
       "recordedAt": "2026-08-12T02:05:44.327Z"
+    },
+    {
+      "kind": "review",
+      "head": "07c6d4b73e568aaeb98b9559290590636392a554",
+      "auditedRange": "52c65135eefcdc190e7f18d9abbfd2683963184c..07c6d4b73e568aaeb98b9559290590636392a554",
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "generation",
+        "monsters",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 18 raw, 16 deduplicated, 11 confirmed, 11 applied, 0 deferred, 5 rejected, 0 unverified; mutation: 162 survivors of 367 mutants. Counts: 18 raw, 16 deduplicated, 11 confirmed, 11 applied, 0 deferred, 5 rejected, 0 unverified, 0 warnings. Full pass, five finders: correctness, readability, tests, variable-trace and the concurrency finder, enabled because the range made enlightenment() async and introduced the cmd.c command queue as shared mutable state. Range mutation at head: 367 mutants, 205 killed, 162 survived, a 55.9 per cent first-wave kill rate; survivors concentrated in js/dothrow.js (94), js/eat.js (21) and js/cmd.js (17), most of them first-wave artefacts because a test file reaching a module only through another js/ module is excluded from the first wave. One production defect: js/zap.js:599 inverted zap.c:3930 rn2(3), so a thrown missile stuck to a web on two draws in three where C sticks it on one. scripts/bhit.test.mjs asserted the inverted condition, so the oracle certified the defect instead of catching it -- a test pinned to the code rather than to the C source. The corrected test was observed failing against the old line before the fix landed. The rest were structural: rhack() gated the command-queue pop on firstTime where cmd.c:3642 pops unconditionally; five boolean-wrapper arms bypassed the new clear_kickedloc(); two comments asserted guarantees the code no longer provided; and four test oracles proved less than they claimed, including a tautological assert.ok(before - afterFirst <= before). The development score is identical before and after the audit fix at 9/33 sessions, 1512/7765 screens, 120847/610816 calls and 1531/7765 cursors, so none of the eleven findings changed a recorded path; the web arm is unreachable in every development session, which is why the defect survived to a formal pass. Audit-fix mutation: 7 mutants, 7 killed, 0 survived. Note that mutate-sites does not rewrite === into !==, so the exact defect has no mutant of its own and no mutation run could have found it; the integer mutants on that operand cover the branch but not the inversion. Two ledger entries added: a note on eat-corpse-arms-without-a-fresh-case recording that every S_PUDDING row carries G_NOCORPSE (monsters.h:2081-2114), so no C recording can reach the pudding arm, and bhit-web-arm-without-a-fresh-case, because the corrected web arm still has no fresh C differential.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1700,
+        "counts": {
+          "raw": 18,
+          "deduplicated": 16,
+          "confirmed": 11,
+          "applied": 11,
+          "deferred": 0,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 6,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/zap.js:599 inverted zap.c:3930. C sticks a thrown missile to a web on `!rn2(3)`, one draw in three; the port entered the arm when rn2(3) was non-zero, two in three. The arm consumes randomness and prints a line, so any session that threw into a web would desynchronise the PRNG stream from that point. It reached a formal pass because no development session throws into a web, and because scripts/bhit.test.mjs asserted the inverted condition: the oracle was pinned to the code rather than to the C source, so breaking the line did fail the test and the test still certified the defect. Fixed to `random.rn2(3) === 0`, matching the `allow_skip = random.rn2(3) === 0` spelling ten lines earlier in the same function. The corrected test was observed failing against the old line first, and now covers all three draws rather than two. No mutation run could have found this: mutate-sites does not rewrite === into !==, so the inversion has no mutant of its own.",
+            "foundBy": [
+              "correctness",
+              "tests",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/cmd.js:1894 restated as a comment contradiction rather than a behavior divergence.",
+            "counterEvidence": "causality refute: duplicates the behavior form of the same site, which was confirmed and applied. The comment correction rides with that fix, so this adds no separable material impact."
+          },
+          {
+            "summary": "js/dokick.js:94 re-spells Levitation() locally while js/dothrow.js, added in the same range, imports it.",
+            "counterEvidence": "causality refute: a per-file macro-ownership convention the range follows deliberately, cited at the site. No behavior differs between the two spellings."
+          },
+          {
+            "summary": "The converged depth() dropped the null-tolerant behaviour of the deleted js/hacklib.js copy.",
+            "counterEvidence": "evidence refute: the deleted copy had no reachable null caller, so the tolerance guarded nothing."
+          },
+          {
+            "summary": "js/eat.js:1214 is the first mutating use of hungerProperty(), an accessor named for hunger.",
+            "counterEvidence": "evidence refute: the accessor returns the property record itself, so the |= FROMOUTSIDE write lands exactly where C writes it. Naming is a clarity matter already covered elsewhere."
+          },
+          {
+            "summary": "useupf() shop refusal covers only the non-mon_moving half of C billing branch.",
+            "counterEvidence": "evidence refute: invent.c:4775 selects with strchr(u.urooms, *in_rooms(...)), not by mon_moving, and js/invent.js:1452 reproduces that outer conjunction exactly, so no subset guard exists."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "52c65135eefcdc190e7f18d9abbfd2683963184c..3a3c57efc7a75d65195d33111c149586ddbcabe0"
+          ],
+          "mutants": 367,
+          "survivors": 162,
+          "byKind": {
+            "relational": {
+              "ran": 84,
+              "killed": 34
+            },
+            "logical": {
+              "ran": 234,
+              "killed": 144
+            },
+            "boolean": {
+              "ran": 49,
+              "killed": 27
+            }
+          },
+          "deltaRun": "The audit-fix diff at 07c6d4b mutated 7 and killed 7, all on js/zap.js:599, all killed by scripts/bhit.test.mjs in the first wave. Note that mutate-sites does not rewrite === into !==, so the corrected inversion has no mutant of its own and no mutation run could have found the defect; the integer mutants on that operand cover the branch but not the inversion. The comment-only changes to js/cmd.js and js/insight.js yield 0 sites.",
+          "note": "First wave only. Survivors concentrate in js/dothrow.js (94), js/eat.js (21) and js/cmd.js (17). Most are first-wave artefacts: a test file reaching a module only through another js/ module is excluded, and scripts/fire-command.test.mjs reaches js/dothrow.js through js/jsmain.js. They are not individually accounted for, so js/dothrow.js remains the least test-pinned code in the range. The audit-fix diff mutated 7 and killed 7.",
+          "finderConclusion": "The 162 first-wave survivors were given to the finders as the range's weakest evidence, ranked ahead of its achievements, and the tests finder reached four of them: the tautological assert.ok(before - afterFirst <= before) in fire-command.test.mjs, the eat-corpse matrix that never separates vegan() from vegetarian(), a kick test asserting only C source text, and a run-kick-command.mjs case lookup keyed on a seed the martial and lowDex cases share. None of the four was found by the mutation run itself, because each is a weak oracle rather than an unmutated line. The survivors in js/dothrow.js remain unaccounted for individually and js/dothrow.js is still the least test-pinned code in the range; that is carried forward, not closed by this pass."
+        },
+        "readiness": {
+          "boundary": "The starting and ending events are user-visible and the real game executes each path: every ported unit was proven by a recorded development session advancing through it, not by a unit test. seed0107 reaches 98 of 98 screens, seed1150 51 of 51 and seed0200 39 of 40, each measured by the orchestrator with npm run checkpoint at the merge commit rather than taken from a worker report.",
+          "sourceReview": "Each slice worker traced its own C against nethack-c/upstream/ and reported branch, state and PRNG order. The orchestrator verified every slice outcome independently and checked specific claims at source (display.c 1077-1097, wintty.c 2728-2733, insight.c 1334-1463, frozen/terminal.js 679-685, zap.c 3928-3930, mutate-sites formatTrailer). The orchestrator did not personally re-trace all 4,249 changed lines, which is why the pass was run. Three worker claims were found wrong and corrected during the session: that feel_location() holds a demotion identical to newsym()s, that invent.c display_pickinv() owns the menu clip, and a transposed Mutants trailer. The applying agent refuted four further finding details at source, including a claim that #wizintrinsic calls enlightenment(MAGICENLIGHTENMENT).",
+          "completeness": "No known unsupported behavior remains reachable inside the boundary without a stop: every excluded branch refuses by name through failClosedCommandRefusals() or an equivalent class, placed to fire before state changes, randomness or output. Two gaps are recorded rather than closed: the corrected bhit web arm has no fresh C differential (bhit-web-arm-without-a-fresh-case), and eatcorpse()s pudding arm cannot be reached by any C recording because every S_PUDDING row carries G_NOCORPSE (monsters.h:2081-2114). A pre-existing fold in the five boolean-wrapper arms remains: for an elapsed command C runs no reset_cmd_vars() at all, while those arms run one and restore context.move. It is unreachable until make_blinded() or a blindfold is ported and is recorded in the comment at js/cmd.js:2277-2285."
+        }
+      },
+      "recordedAt": "2026-08-12T21:37:33.689Z"
     }
   ]
 }

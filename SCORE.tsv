@@ -171,3 +171,4 @@ utc	sha	event	sessions_passed	sessions_total	screens_matched	screens_total	rng_m
 2026-08-12T18:35:01.285Z	1f6da71	goal	9	33	1496	7765	120590	610816	1514	7765					finish-seed1150 closed; seed1150 complete at 51/51
 2026-08-12T18:43:14.832Z	d53bdf2	slice	9	33	1499	7765	120786	610816	1517	7765					seed0200 23 to 26 of 40; kick slice queued for the 39/40 ceiling
 2026-08-12T20:08:30.109Z	3d16325	goal	9	33	1512	7765	120847	610816	1531	7765					finish-seed0200 closed at its 39/40 serializer ceiling; RNG 3822/3822
+2026-08-12T21:37:57.345Z	07c6d4b	window	9	33	1512	7765	120847	610816	1531	7765					full correctness pass 52c65135..07c6d4b; 11 of 18 confirmed and applied; score identical
