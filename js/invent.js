@@ -9,6 +9,7 @@ import {
     BLINDED,
     BUFSZ,
     CONTAINED_SYM,
+    CQ_CANNED,
     FUMBLING,
     GOLD_SYM,
     HALLUC,
@@ -75,7 +76,7 @@ import {
     ART_MJOLLNIR, confers_luck, set_artifact_intrinsic, touch_artifact,
 } from './artifacts.js';
 import { obj_resists } from './bury.js';
-import { yn_function } from './cmd.js';
+import { cmdq_clear, cmdq_pop, yn_function } from './cmd.js';
 import { food_disappears } from './eat.js';
 import { makeplural } from './fruit.js';
 import { digit } from './hacklib.js';
@@ -379,12 +380,20 @@ export function any_obj_ok(obj) {
 // choice sets, and no ported callback gives one -- any_obj_ok() above,
 // apply_ok(), eat_ok() and takeoff_ok() all answer an exclusion for null.
 //
-// Five of C's inputs cannot arrive. cmdq_pop() answers NULL and cmdq_add_key()
-// has nothing to add to while no command queue is ported; gi.in_doagain is
-// always false for the same reason; flags.invlet_constant is checked below
-// because reassign() is unported; and iflags.force_invmenu stops rather than
-// take an untested arm. The '?' and '*' menu and the '-' hands answer stop
-// too, each naming what it would need.
+// Four of C's inputs cannot arrive. gi.in_doagain is always false, because
+// #repeat and its ^A binding are unported and do_repeat() is the only writer
+// of that flag; cmdq_add_key(CQ_REPEAT) has no CQ_REPEAT queue to add to for
+// the same reason; flags.invlet_constant is checked below because reassign()
+// is unported; and iflags.force_invmenu stops rather than take an untested
+// arm. The '?' and '*' menu and the '-' hands answer stop too, each naming
+// what it would need.
+//
+// The fifth, C's cmdq_pop() at 1779, now has a queue to read. Nothing ported
+// pushes a node any caller of this function could meet -- dothrow.c dofire()
+// pushes two extended commands and rhack() runs both before either reaches
+// getobj() -- so a node found here is one this port cannot answer, and C's
+// own "didn't find what we were looking for" arm at 1817-1818, which discards
+// the rest of the canned sequence, is the shape of the refusal.
 //
 // GETOBJ_PROMPT does not stop: its only effect is the `forceprompt` term that
 // steers the "You don't have anything to <foo>." return below. GETOBJ_ALLOWCNT
@@ -393,6 +402,12 @@ export function any_obj_ok(obj) {
 // selection's count -- and the first, third and fourth sit behind arms that
 // already stop, so the digit at :1940 is where this port's refusal sits.
 export async function getobj(word, obj_ok, ctrlflags, state = game) {
+    if (cmdq_pop(state)) {
+        cmdq_clear(CQ_CANNED, state);
+        throw new UnsupportedObjectPromptError(
+            'the object prompt has a queued answer',
+        );
+    }
     let otmp = null;
     let ilet = '';
     // C's bp starts at buf and the hands/self arm may advance it past a "- "
@@ -558,7 +573,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         }
         /* the "can only throw one at a time" arm reads cntgiven too. */
         state.disp.botl = true; /* May have changed the amount of money */
-        /* cmdq_add_int()/cmdq_add_key(CQ_REPEAT): no command queue is ported */
+        /* cmdq_add_int()/cmdq_add_key(CQ_REPEAT): no CQ_REPEAT queue */
         /* verify the chosen object */
         if (!otmp) {
             await ttyPline("You don't have that object.", state);

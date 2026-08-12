@@ -11,6 +11,7 @@ import {
     A_DEX,
     CLAIRVOYANT,
     COLNO,
+    CQ_CANNED,
     EXT_ENCUMBER,
     FAST,
     HVY_ENCUMBER,
@@ -65,7 +66,7 @@ import {
 } from './startup_skills.js';
 import { reroll_menu } from './startup_reroll.js';
 import { ttyLegacyIntroduction } from './legacy_startup.js';
-import { failClosedCommandRefusals, rhack } from './cmd.js';
+import { cmdq_clear, failClosedCommandRefusals, rhack } from './cmd.js';
 import { deferred_goto } from './do.js';
 import {
     domove,
@@ -346,7 +347,9 @@ export async function stop_occupation(state = game, env = {}) {
     } else if ((state.multi ?? 0) >= 0) {
         nomul(0, state);
     }
-    // C also clears CQ_CANNED. The port has no command queue.
+    // allmain.c:695. Outside both arms above, so an interruption that finds
+    // no occupation and a negative multi still discards a canned sequence.
+    cmdq_clear(CQ_CANNED, state);
 }
 
 // C ref: allmain.c maybe_generate_rnd_mon(). New monsters receive their

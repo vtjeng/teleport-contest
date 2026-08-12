@@ -1759,6 +1759,36 @@
       "from": "8d694710a8be30c1e5f28240fd09eaa98141bfb7",
       "detail": "insight.c weapon_insight():1436-1462 closes the two-weapon report with 'You can enhance skill(s) with ...' whenever can_advance() holds for the primary, the secondary, or the two-weapon skill, and its six-argument Sprintf at :1452 produces five documented shapes. No fresh C case reaches any of them, so the whole block is pinned only by constructed cases in scripts/insight.test.mjs.\n\nweapon.c can_advance():1156-1168 needs P_ADVANCE(skill) >= practice_needed_to_advance(P_SKILL(skill)) -- skills.h:106 makes that 20 points at P_UNSKILLED and 80 at P_BASIC -- and u.weapon_slots >= slots_required(skill). A fresh hero has 0 of both: u_init.c sets u.weapon_slots to 2 only in pauper_reinit():884, and weapon.c add_weapon_skill():1444 is what grants slots, on a level gain. Practice comes from use_skill(), which uhitm.c:1498 calls once per melee hit that beats minimal damage, so the cheapest single-skill summary is 20 such hits plus an experience level, and the multi-skill shapes need 80 more for the primary. That is far past what a fresh differential over a D:1 start can arrange, and the port has no shortcut: weapon.c enhance_weapon_skill():1329 is unported, and js/weapon.js can_advance() raises UnsupportedWeaponSkillError for the wizard-mode 'Advance skills without practice?' path at :1163.\n\nCost today: zero recorded steps. No development session two-weapons with skill credits to spend.\n\nClosing condition: once enhance_weapon_skill() lands, its wizard-mode speedy path can set the three skills directly; record a debug segment per shape -- but note that insight.c doattributes():2014 makes a debug game's ^X a MAGICENLIGHTENMENT window, so the summary also needs attributes_enlightenment() before a fresh case can compare it.",
       "blockedOn": "enhance_weapon_skill"
+    },
+    {
+      "id": "fire-missile-reaching-a-monster",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5c878a0b30fd7343a96269616b2629d3ed43ead7",
+      "detail": "zap.c bhit() stops at `m_at(x,y)` for a thrown weapon rather than continuing into the monster arm at 3990-4001, so no shot the `f` command fires can hit anything. The arm needs dothrow.c thitmonst() (2011-2390), a 380-line function over artifact.c find_mac(), weapon.c omon_adj(), dothrow.c tmiss() and gem_accept(), and uhitm.c hmon(); it also needs uhitm.c shade_miss() and display.c glyph_at(), which bhit() consults first and either of which can clear the monster and let the missile fly on.\n\nA fresh C case reaches it trivially -- fire east at a pet and answer the confirmation -- so this is a scope limit, not an unreachable branch. The port stops before the first tmp_at() of the square the monster stands on, so a segment that fires into one keeps every screen it had already matched.\n\nCost today: zero recorded steps. seed1150-caveman-explore-move fires down an empty corridor, and scripts/run-fire-command.mjs sets pettype:none so no matrix segment can reach it either.\n\nClosing condition: port thitmonst() and its helpers, then add a matrix segment that fires at an adjacent pet and one that fires at a hostile, and drop the m_at() refusal in bhit().",
+      "blockedOn": "thitmonst"
+    },
+    {
+      "id": "fire-missile-that-breaks-on-landing",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5c878a0b30fd7343a96269616b2629d3ed43ead7",
+      "detail": "dothrow.c throwit():1780-1795 asks breaktest() for every missile that lands on hard ground and then breaks the ones that answer TRUE. breaktest() itself is ported, because its obj_resists() draw is part of the RNG stream whichever way it answers; what follows it is not. breakmsg() (2612-2650) and breakobj() (2479-2578) need potion.c potionbreathe(), apply.c release_camera_demon(), explode.c explode(), trap.c erode_obj() and shk.c check_shop_obj(), and the flash-and-delay sequence above them opens a second tmp_at() frame.\n\nNo valid input can reach it through the ported command set. `f` fires the quiver, and only ammunition ever gets there: filling the quiver with something breakable needs doquiver_core() (`Q`), and throwing one directly needs dothrow() (`t`); neither is ported. A C case reaches it in two keys, so the branch is reachable upstream and merely out of this port's reach.\n\nCost today: zero recorded steps, and no development session throws a breakable object. breaktest() is pinned instead by scripts/dothrow.test.mjs, which drives its three arms -- the obj_resists() chance, the GLASS material test, and the object-type switch -- from a fixed draw with the objects.c materials asserted alongside.\n\nClosing condition: port `t` (dothrow) or `Q` (doquiver_core), then breakobj() and breakmsg(); add a matrix segment that throws a potion at a wall and one that throws a flint stone, so the two sides of the breaktest() answer are compared against C in the same recording.",
+      "blockedOn": "breakobj"
+    },
+    {
+      "id": "fire-with-an-empty-quiver",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5c878a0b30fd7343a96269616b2629d3ed43ead7",
+      "detail": "dothrow.c dofire():536-556. When the quiver is empty and autoquiver is off, C prints one of four lines and then falls through to `res = doquiver_core(\"fire\")` at :551, which prompts \"What do you want to ready?\" and can spend a turn of its own. The port prints C's \"You have no ammunition readied.\" and stops at doquiver_core(), so the line is written but no boundary ever captures it: the segment ends before the message window flushes.\n\nEvery other arm of that block ends in unported code too. A wielded polearm goes to use_pole(), a wielded bullwhip to use_whip(), a secondary polearm queues [doswapweapon, dofire] and the requeued dofire() then reaches use_pole() anyway, and flags.autoquiver on reaches autoquiver() (:387-441). A launcher found by find_launcher() elsewhere in the pack queues dowield(), which is unported as well.\n\nCost today: zero recorded steps. No development session fires with an empty quiver; scripts/run-fire-command.mjs recorded a Wizard segment for this arm and dropped it, because C's fifth screen is doquiver_core()'s prompt.\n\nClosing condition: port doquiver_core() and autoquiver(); the Wizard segment (seed 7810004, moves '.f .') is then a one-line addition to the fire matrix.",
+      "blockedOn": "doquiver_core"
     }
   ],
   "areas": [
@@ -1816,6 +1846,7 @@
         "js/corpstat.js",
         "js/do_name.js",
         "js/do_wear.js",
+        "js/dothrow.js",
         "js/eat.js",
         "js/fruit.js",
         "js/invent.js",

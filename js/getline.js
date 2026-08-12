@@ -437,8 +437,9 @@ export async function tty_get_ext_cmd(state = game) {
 
     suppress_history = true;
     // The prompt is the raw initiator byte; only the unknown-command message
-    // below renders it through visctrl(). gi.in_doagain is always false while
-    // no command queue is ported, so the completion hook is always supplied.
+    // below renders it through visctrl(). gi.in_doagain is always false --
+    // cmd.c do_repeat() is its only writer and #repeat is unported -- so the
+    // completion hook is always supplied.
     const buf = mungspaces(await hooked_tty_getlin(
         String.fromCharCode(extcmdChar),
         (base) => ext_cmd_getlin_hook(base, state),

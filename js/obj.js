@@ -131,6 +131,7 @@ import {
     KELP_FROND,
     LARGE_BOX,
     LEASH,
+    LEATHER,
     LEVITATION_BOOTS,
     LIQUID,
     LOADSTONE,
@@ -157,6 +158,7 @@ import {
     RIN_TELEPORTATION,
     ROCK,
     ROCK_CLASS,
+    RUBBER_HOSE,
     SACK,
     SCROLL_CLASS,
     SCR_MAIL,
@@ -733,6 +735,15 @@ export function matching_launcher(ammo, launcher, state = game) {
 // C ref: obj.h ammo_and_launcher() (244).
 export function ammo_and_launcher(ammo, launcher, state = game) {
     return is_ammo(ammo, state) && matching_launcher(ammo, launcher, state);
+}
+
+// C ref: obj.h is_flimsy() (418-420). Whether an object is too soft to make a
+// noticeable impact when it lands; hack.c impact_disturbs_zombies() is the
+// caller. LEATHER is the material enum's dividing line: everything at or below
+// it is liquid, wax, vegetable, flesh, paper, cloth or leather.
+export function is_flimsy(obj, state = game) {
+    return objectType(obj, state).oc_material <= LEATHER
+        || obj.otyp === RUBBER_HOSE;
 }
 
 // C ref: obj.h is_missile() (245-248). A tool qualifies here where is_launcher()

@@ -8,7 +8,10 @@ import {
     visibleCommandKey,
 } from './command_bindings.js';
 import {
+    CMDQ_EXTCMD,
+    CMDQ_KEY,
     COLNO,
+    CQ_CANNED,
     DIR_ERR,
     ECMD_CANCEL,
     ECMD_FAIL,
@@ -39,7 +42,11 @@ import { doapply, reset_trapset, UnsupportedApplyError } from './apply.js';
 import { UnsupportedArtifactDisplayError } from './artifacts.js';
 import { dosearch, UnsupportedSearchError } from './detect.js';
 import {
-    bot, flush_screen, UnsupportedGlyphRepairError, UnsupportedMapMemoryError,
+    bot,
+    flush_screen,
+    UnsupportedGlyphRepairError,
+    UnsupportedMapMemoryError,
+    UnsupportedTransientDisplayError,
 } from './display.js';
 import {
     dodown,
@@ -97,6 +104,7 @@ import { doset_simple, UnsupportedOptionMenuError } from './options.js';
 import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
 import { UnsupportedShopError } from './shk.js';
+import { dofire, UnsupportedThrowError } from './dothrow.js';
 import { dosit, UnsupportedSitError } from './sit.js';
 import { dovspell, UnsupportedSpellDisplayError } from './spell.js';
 import {
@@ -121,8 +129,18 @@ import { UnsupportedHitPointLossError } from './hack.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
 import { wiz_level_change, wiz_level_tele, wiz_wish } from './wizcmds.js';
-import { dozap, UnsupportedWishError, UnsupportedZapError } from './zap.js';
-import { dotwoweapon, UnsupportedTwoWeaponError } from './wield.js';
+import {
+    dozap,
+    UnsupportedBhitError,
+    UnsupportedWishError,
+    UnsupportedZapError,
+} from './zap.js';
+import {
+    doswapweapon,
+    dotwoweapon,
+    UnsupportedTwoWeaponError,
+    UnsupportedWieldError,
+} from './wield.js';
 import { dotalk, UnsupportedChatError } from './sounds.js';
 import {
     clearTtyMessageWindow,
@@ -372,9 +390,11 @@ function yn_menuable_resp(resp, state) {
     return resp !== null && Boolean(state.iflags?.query_menu);
 }
 
-// C ref: cmd.c yn_function() (5471-5578). No command queue is ported, so the
-// `addcmdq && cmdq_pop()` branch and the cmdq_add_key() below it never run,
-// and iflags.debug_fuzzer is never set, leaving the window port's
+// C ref: cmd.c yn_function() (5471-5578). Both queue arms sit behind
+// `addcmdq`, which the refusal below still rejects, so neither the
+// cmdq_pop() at 5496 nor the cmdq_add_key(CQ_REPEAT) at 5543 can run.
+// getdir() is the port's other caller and passes addcmdq FALSE, exactly as C
+// does at 3989. iflags.debug_fuzzer is never set, leaving the window port's
 // tty_yn_function() as the only reader.
 //
 // The `resp && *resp && res && !strchr(resp, res)` repair at 5567 has no work
@@ -403,7 +423,7 @@ export async function yn_function(query, resp, def, addcmdq, state = game) {
     const res = await tty_yn_function(query, resp, def, state);
     if (addcmdq) {
         throw new UnsupportedDirectionBoundaryError(
-            'cmdq_add_key(CQ_REPEAT) has no command queue',
+            'cmdq_add_key(CQ_REPEAT) has no CQ_REPEAT queue',
         );
     }
     // "in case we're called via getdir() which sets input_state".
@@ -609,11 +629,24 @@ export async function get_adjacent_loc(prompt, emsg, x, y, cc, state = game) {
 // reaches help_dir(), which builds an NHW_TEXT window whenever cmdassist is
 // set, which it is by default; and confdir() stops for an impaired hero.
 //
-// Three of C's own inputs cannot arrive at all: cmdq_pop() answers NULL while
-// no command queue is ported, gi.in_doagain and readchar_queue are always
-// empty, and iflags.debug_fuzzer is never set.
+// Two of C's own inputs cannot arrive at all: gi.in_doagain and
+// readchar_queue are always empty, and iflags.debug_fuzzer is never set.
 export async function getdir(s, state = game) {
     const u = state.u;
+    // C ref: getdir():3962-3981. A queued direction answers the prompt and
+    // jumps to got_dirsym, skipping the prompt itself, the message-window
+    // clear and the CQ_REPEAT record below. Nothing ported pushes a CMDQ_DIR
+    // or CMDQ_KEY node -- dothrow.c dofire()'s swap-and-retry arm pushes two
+    // extended commands and rhack() has consumed both by the time throw_obj()
+    // asks for a direction -- so any node found here is one this port cannot
+    // answer, and C's own impossible() arm is the shape of the refusal.
+    const queued = cmdq_pop(state);
+    if (queued) {
+        cmdq_clear(CQ_CANNED, state);
+        throw new UnsupportedDirectionBoundaryError(
+            'the direction prompt has a queued answer',
+        );
+    }
     // retry: -- only the '^R' arm jumps back here, and it is refused below.
     state.program_state.input_state = 'getdir';
     const dirsym = await yn_function(
@@ -631,7 +664,7 @@ export async function getdir(s, state = game) {
             "'^R' repaints the screen and reissues the direction prompt",
         );
     }
-    // cmdq_add_key(CQ_REPEAT, dirsym): no command queue is ported.
+    // cmdq_add_key(CQ_REPEAT, dirsym): no CQ_REPEAT queue is ported.
 
     const spkeys = commandBindings(state).specialKeys;
     // cmd.c:4021-4090 tests NHKF_GETDIR_SELF first and evaluates movecmd()
@@ -826,7 +859,7 @@ export async function parseCommand(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'zap', 'reqmenu',
-    'fight', 'options', 'wizwish', 'wizlevelport', '#',
+    'fight', 'options', 'wizwish', 'wizlevelport', 'fire', 'swap', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -914,12 +947,71 @@ export function reset_occupations(state = game) {
     reset_trapset(state);
 }
 
-// C ref: cmd.c reset_cmd_vars(). Command queues and travel-map ownership stay
-// with their future subsystems; this resets the state already owned here.
+// ── command queue ──
+//
+// C ref: cmd.c cmdq_add_ec() (252-270), cmdq_pop() (406-420), cmdq_peek()
+// (422-427) and cmdq_clear() (429-442), over gc.command_queue[NUM_CQS]
+// (decl.h:225). A command can push a canned sequence of further commands and
+// return; rhack() then runs one node per call, ahead of reading any key, so
+// "time passes normally when doing queued actions" (hack.h:172-173).
+//
+// Only CQ_CANNED is represented. C's other queue, CQ_REPEAT, is a
+// write-only recording buffer during ordinary play: cmdq_pop() reads it only
+// while gi.in_doagain is set, and cmd.c do_repeat() (1636-1660) is the sole
+// writer of that flag. #repeat and its ^A binding are unported, so every
+// CQ_REPEAT write C makes -- rhack():3735, getdir():4018, yn_function():5543,
+// getobj():2052-2053 -- would go into a list nothing can ever read. Each of
+// those sites says so where it stands.
+//
+// Only CMDQ_EXTCMD nodes are produced. cmdq_add_key(), cmdq_add_dir(),
+// cmdq_add_int() and cmdq_add_userinput() have no ported caller: of the four
+// call sites that reach a ported command, dothrow.c dofire()'s swap-and-retry
+// arm (568-570) pushes two extended commands and nothing else, and the three
+// arms that push keys or directions belong to click_to_cmd(), iactions.c and
+// dofire()'s own find_launcher() arm, all unported. rhack() below still
+// classifies a non-extcmd node the way C does, because the queue is state and
+// a future adder must not silently change what a stale node means.
+function commandQueue(state) {
+    state.command_queue ??= [[], []];
+    return state.command_queue;
+}
+
+// C appends at the tail and pops from the head, so a canned sequence runs in
+// the order it was pushed.
+export function cmdq_add_ec(q, entry, state = game) {
+    if (!entry || typeof entry.ef_txt !== 'string') {
+        throw new TypeError('cmdq_add_ec() requires an extcmdlist row');
+    }
+    commandQueue(state)[q].push({ typ: CMDQ_EXTCMD, ec_entry: entry });
+}
+
+// C ref: cmd.c cmdq_pop(). It picks its own queue -- CQ_REPEAT while
+// gi.in_doagain, CQ_CANNED otherwise -- and gi.in_doagain is always false
+// here, so this reads CQ_CANNED unconditionally.
+export function cmdq_pop(state = game) {
+    return commandQueue(state)[CQ_CANNED].shift() ?? null;
+}
+
+export function cmdq_peek(q, state = game) {
+    return commandQueue(state)[q][0] ?? null;
+}
+
+export function cmdq_clear(q, state = game) {
+    commandQueue(state)[q].length = 0;
+}
+
+// C ref: cmd.c reset_cmd_vars(). Travel-map ownership stays with its future
+// subsystem; this resets the state already owned here.
 // context.pendingCommand is the JS retry owner rather than a C command
 // variable, so this reset deliberately preserves it until rhack() either
 // completes that command or reaches a non-retryable result.
-export function resetCommandVars(state = game) {
+//
+// `resetCmdq` is C's parameter, and dropping it would break a canned
+// sequence: rhack() passes FALSE for a command that answered plain ECMD_OK
+// (3815, when gm.multi >= 0), which is exactly how dofire() returns after
+// queueing [doswapweapon, dofire], and TRUE everywhere else so a cancelled or
+// failed command discards the rest of the sequence.
+export function resetCommandVars(state = game, resetCmdq = true) {
     state.context ??= {};
     state.iflags ??= {};
     state.context.run = 0;
@@ -932,6 +1024,10 @@ export function resetCommandVars(state = game) {
     state.domoveAttempting = 0;
     state.multi = 0;
     state.iflags.menu_requested = false;
+    if (resetCmdq) {
+        cmdq_clear(CQ_CANNED, state);
+        // cmdq_clear(CQ_REPEAT): no CQ_REPEAT queue is ported.
+    }
 }
 
 // C ref: cmd.c set_move_cmd() (1386-1399), over the decl.c direction arrays
@@ -1123,6 +1219,15 @@ export function failClosedCommandRefusals() {
         // both of which stop before the command prints anything or draws its
         // rnd(20).
         UnsupportedTwoWeaponError,
+        // The `f` command's three files. dothrow.c collects every branch of
+        // the throw itself, wield.c the ones ready_weapon() reaches when the
+        // swap-and-retry arm puts a launcher in the hero's hand, zap.c the
+        // ones bhit() meets along the missile's flight, and display.c the one
+        // transient-glyph style bhit() never opens.
+        UnsupportedThrowError,
+        UnsupportedWieldError,
+        UnsupportedBhitError,
+        UnsupportedTransientDisplayError,
         UnsupportedHitPointLossError,
         UnsupportedArtifactDisplayError,
         UnsupportedDropError,
@@ -1569,6 +1674,16 @@ const EXTCMD_BY_NAME = new Map(
     extcmdlist.map((entry) => [entry.ef_txt, entry]),
 );
 
+// C ref: cmd.c ext_func_tab_from_func() (cmd.c:5766-5777), which cmdq_add_ec()
+// applies to the function pointer its caller names. This port names the row by
+// its ef_txt instead, because that is what commandForKey() answers and what
+// rhack() dispatches on.
+export function extcmdRow(name) {
+    const entry = EXTCMD_BY_NAME.get(name);
+    if (!entry) throw new Error(`no extcmdlist row named ${name}`);
+    return entry;
+}
+
 // C ref: cmd.c rhack() at 3688-3692, the can_do_extcmd() call rhack() makes
 // for the row the pressed key is bound to, ahead of the prefix tests and the
 // dispatch below. A refusal reset_cmd_vars(TRUE)s and leaves res at ECMD_OK,
@@ -1728,7 +1843,25 @@ export async function rhack(key, state = game) {
     let newLogicalCommand = !firstTime;
     let retryableBoundary = false;
     try {
-        if (firstTime) {
+        // C ref: rhack():3642-3657. The queue is consulted first, ahead of
+        // both the pending-command retry and any key read, and `firsttime`
+        // was captured before it. A CMDQ_EXTCMD node jumps straight to the
+        // dispatch with the queued row in hand; every other node type is
+        // reduced to a key, which for the three that carry none is 0 and
+        // reaches the reset-and-return below.
+        //
+        // A queued command is not a parsed one: no key exists to replay, so
+        // it neither captures a pendingCommand nor counts a dispatch, and a
+        // fail-closed refusal it raises ends the segment where it stands.
+        const queued = firstTime ? cmdq_pop(state) : null;
+        let cmdqCommand = null;
+        if (queued) {
+            if (queued.typ === CMDQ_EXTCMD && queued.ec_entry) {
+                cmdqCommand = queued.ec_entry.ef_txt;
+            } else {
+                key = queued.typ === CMDQ_KEY ? queued.key : 0;
+            }
+        } else if (firstTime) {
             const pending = state.context.pendingCommand;
             if (pending?.phase === 'physical') {
                 resetCommandVars(state);
@@ -1753,6 +1886,9 @@ export async function rhack(key, state = game) {
                     captureParsedCommand(key, state);
                 newLogicalCommand = true;
             }
+            // parse() cannot push a canned command here: click_to_cmd() is
+            // its only pusher and no mouse input is ported, so C's
+            // `!key && cmdq_peek(CQ_CANNED)` retry at 3655 never fires.
         }
 
         // Count one dispatch per logical parsed command. A retained parsed
@@ -1763,12 +1899,16 @@ export async function rhack(key, state = game) {
                 (state._commandDispatchCount ?? 0) + 1;
         }
 
-        if (!key || key === 0xFF || key === ESC) {
+        if (!cmdqCommand && (!key || key === 0xFF || key === ESC)) {
             resetCommandVars(state);
             return;
         }
 
-        let command = commandForKey(commandBindings(state), key);
+        // C ref: rhack():3682-3685. A queued extended command supplies its own
+        // table row, and the `goto do_cmdq_extcmd` that brings it here skips
+        // the binding lookup entirely.
+        let command = cmdqCommand
+            ?? commandForKey(commandBindings(state), key);
         if (!await rhackCanDoExtcmd(command, state)) return;
         // C ref: rhack()'s PREFIXCMD arm (3762-3772). A prefix runs its own
         // handler, is remembered in prefix_seen, and jumps back to
@@ -1843,7 +1983,7 @@ export async function rhack(key, state = game) {
             );
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state);
+                resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) state.context.move = 1;
             return;
         }
@@ -1859,7 +1999,7 @@ export async function rhack(key, state = game) {
             const res = await runSearchCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state);
+                resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) state.context.move = 1;
             return;
         }
@@ -1873,7 +2013,7 @@ export async function rhack(key, state = game) {
             const res = await runEatCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state);
+                resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) state.context.move = 1;
             return;
         }
@@ -1887,7 +2027,7 @@ export async function rhack(key, state = game) {
             const res = await runApplyCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state);
+                resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) state.context.move = 1;
             return;
         }
@@ -1903,7 +2043,7 @@ export async function rhack(key, state = game) {
             const res = await runZapCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state);
+                resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) state.context.move = 1;
             return;
         }
@@ -1922,7 +2062,7 @@ export async function rhack(key, state = game) {
             const res = await runDownCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state);
+                resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) state.context.move = 1;
             return;
         }
@@ -1939,7 +2079,7 @@ export async function rhack(key, state = game) {
             const res = await runDropCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state);
+                resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) state.context.move = 1;
             return;
         }
@@ -1961,7 +2101,7 @@ export async function rhack(key, state = game) {
             const res = await runPickupCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state);
+                resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) state.context.move = 1;
             return;
         }
@@ -1977,7 +2117,44 @@ export async function rhack(key, state = game) {
             const res = await runTakeOffCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
-                resetCommandVars(state);
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'fire') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the arms above apply. dofire() reaches all three:
+            // ECMD_CANCEL when throw_obj() is given no direction, ECMD_OK for
+            // an empty quiver and for the swap-and-retry arm that queues its
+            // own continuation, and ECMD_TIME for the shot itself. The
+            // ECMD_OK arm is why the reset below must be told not to clear
+            // the queue -- it is the one that leaves [doswapweapon, dofire]
+            // standing for the next two rhack() calls.
+            //
+            // extcmdlist[]'s "fire" row carries no flags at all, so neither
+            // the prefix test at 3693-3695 nor the MOVEMENTCMD and
+            // domove_attempting tests at 3773-3800 can divert it.
+            const res = await failClosedCommand(
+                key, state, () => dofire(state),
+            );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) state.context.move = 1;
+            return;
+        }
+        if (command === 'swap') {
+            // C ref: rhack()'s result handling, the same three tests. Both of
+            // doswapweapon()'s guards answer ECMD_FAIL, and ready_weapon()
+            // supplies the rest: ECMD_TIME for the swap that happens and
+            // ECMD_OK only when both slots were already empty. cmd.c:1917's
+            // "swap" row carries no flags either.
+            const res = await failClosedCommand(
+                key, state, () => doswapweapon(state),
+            );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
             if (res & ECMD_TIME) state.context.move = 1;
             return;
         }
@@ -1990,7 +2167,7 @@ export async function rhack(key, state = game) {
             // divert it: extcmdlist[]'s "options" row carries IFBURIED,
             // GENERALCMD and CMD_M_PREFIX and no movement flag.
             await runOptionsCommand(key, state);
-            resetCommandVars(state);
+            resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'wizwish') {
@@ -2003,7 +2180,7 @@ export async function rhack(key, state = game) {
             // either: extcmdlist[]'s "wizwish" row carries IFBURIED,
             // CMD_M_PREFIX and WIZMODECMD and none of the movement flags.
             await runWishCommand(key, state);
-            resetCommandVars(state);
+            resetCommandVars(state, state.multi < 0);
             return;
         }
         if (command === 'wizlevelport') {
@@ -2016,9 +2193,15 @@ export async function rhack(key, state = game) {
             // "The wizlevelport command does not accept 'm' prefix." -- and
             // the row holds no movement flag.
             await runLevelTeleCommand(key, state);
-            resetCommandVars(state);
+            resetCommandVars(state, state.multi < 0);
             return;
         }
+        // These five wrappers answer a boolean rather than an ECMD code, so
+        // each folds C's two result arms into one unconditional reset. That
+        // predates the command queue and stays: every one of them is reachable
+        // only from a typed key, and rhack() has just drained the queue to
+        // read that key, so the clear the reset now performs has nothing to
+        // discard.
         if (command === 'inventory') {
             const elapsed = await runInventoryCommand(key, state);
             resetCommandVars(state);
@@ -2073,10 +2256,10 @@ export async function rhack(key, state = game) {
         // C ref: cmd.c rhack()'s bad-command path. Its custompline() differs
         // from pline() only in SUPPRESS_HISTORY, which keeps the line out of
         // the message history that doprev_message() recalls; no message
-        // history is ported. Its cmdq_clear(CQ_CANNED) and
-        // cmdq_clear(CQ_REPEAT) have no queue to clear while no command queue
-        // is ported, and iflags.sanity_no_check suppresses only the debug
-        // sanity check.
+        // history is ported. Its cmdq_clear(CQ_REPEAT) has no ported queue to
+        // clear, and iflags.sanity_no_check suppresses only the debug sanity
+        // check.
+        cmdq_clear(CQ_CANNED, state);
         await ttyPline(`Unknown command '${visibleCommandKey(key)}'.`, state);
         state.context.move = 0;
         state.multi = 0;
