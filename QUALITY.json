@@ -10581,6 +10581,121 @@
         }
       },
       "recordedAt": "2026-08-11T21:12:47.097Z"
+    },
+    {
+      "kind": "review",
+      "head": "52c65135eefcdc190e7f18d9abbfd2683963184c",
+      "auditedRange": "1435470b81b2d80750c4d065c52796a45a04439b..52c65135eefcdc190e7f18d9abbfd2683963184c",
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "generation",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 22 raw, 20 deduplicated, 16 confirmed, 16 applied, 0 deferred, 4 rejected, 0 unverified; mutation: 0 survivors of 40 mutants. Two production defects and one wrong refusal were introduced by this goal and fixed in its audit-fix commit 52c6513. The one that mattered is same_remembered_glyph(): the goal's own slice-selector had flagged the coarseness as a known residual and the code comment said so, but nobody had asked whether it was observable. It is, on the single path the goal made live, where it decides whether applying a lock pick costs a turn. Two finders reached it independently from different directions. The development score is identical before and after the audit fix at 1458/7765 screens, 120419/610816 calls, 1484/7765 cursors and 7 of 33 sessions, so none of the sixteen findings changed a recorded path; the goal's whole +27 screens came from the two implementation commits. Applying the sixteen took a further 2521 seconds beyond the pass's own 3221.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3221,
+        "counts": {
+          "raw": 22,
+          "deduplicated": 20,
+          "confirmed": 16,
+          "applied": 16,
+          "deferred": 0,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 7,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "same_remembered_glyph() answered \"unchanged\" for two remembered corpses C calls changed, because it compared a drawn presentation where C compares a glyph number. display.h corpse_to_glyph() encodes corpsenm, so a jackal corpse and a sewer-rat corpse carry different numbers while sharing symbol and colour; the finder executed both against the worktree and got byte-identical records. lock.c:584 is the sole consumer, and its result reaches doapply() at apply.c:4288 as the ECMD_TIME choice, so a wrong answer costs or saves a whole turn of monster movement and random-number draws. Fixed by stamping objectGlyphId in object_glyph_info(), carrying otyp, oclass, corpsenm and statue gender with a pile-top suffix, copying it as a non-enumerable sidecar in remembered_glyph_from_presentation(), and adding it to REMEMBERED_GLYPH_IDENTITY_FIELDS. The end-to-end C recording needs a pile top to change while the hero cannot see the square, which could not be arranged; that gap is recorded as pick-lock-lookalike-pile-top-has-no-fresh-case.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same same_remembered_glyph() defect reached independently from the object side: two floor objects of different otyp that draw with one class symbol and colour compared equal, where C compares objnum_to_glyph(otyp) values that differ. The finder proved it by probe, mapping an otyp 2 object, blinding the hero, replacing it with otyp 21 of the same class and colour, and applying a lock pick: the remembered record was byte-identical and doapply() returned ECMD_OK where C returns ECMD_TIME. One adjudicator refuted this on causality as a duplicate of the corpse finding while the mandatory source-trace lens confirmed it, so it stands as its own record of a second reachable case. Fixed by the same objectGlyphId change, and pinned separately by an ARROW versus CROSSBOW_BOLT test.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "reglyph_darkroom() refused more than its justification supported. Only two of C's four arms at display.c:1826-1848 need GLYPH_NOTHING; the two behind dark_room and colour need only the cmap index this same range added, so a remembered lit corridor kept S_litcorr where C rewrites it to S_corr, and an O-menu lit_corridor toggle repainted out-of-sight corridor cells in CLR_WHITE where C paints the terminal default. Fixed by running display.c:1831-1833 and 1842-1844 inside the non-refused branch, keeping the refusal for the two GLYPH_NOTHING arms, and adding C's third gate term Is_rogue_level(), which the port had ignored.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The pet cursed-step report hallucinated only the pile name. do_name.c noit_mon_nam() passes SUPPRESS_SADDLE|SUPPRESS_IT without SUPPRESS_HALLUCINATION, so x_monnam()'s do_hallu arm replaces the pet's name with rndmonnam() and draws twice from the display RNG; the port printed the true species name, drew nothing, and the committed test pinned that wrong string. Fixed by raising UnsupportedMonsterNameError from alwaysVisibleMonsterName() under Hallucination, which fails closed before any message or draw and also covers hack.c domove_swap_with_pet() at 2170, whose C line omits the same flag. The port rather than the refusal was rejected because peffect_hallucination() is unported, so the path is unreachable today.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "REMEMBERED_GLYPH_IDENTITY_FIELDS claims to list \"every field of a remembered record that carries part of the glyph number C would have stored\", but omits a11yIdentity and a11ySubject, which remembered_glyph_from_presentation()'s own doc thirty lines above calls canonical remembered-glyph state alongside cmap.",
+            "counterEvidence": "evidence refute: The claimed contradiction between the two comments does not exist on reading, and the `invisible_monster` complaint is not a defect. Counter-evidence: js/display.js:1428-1432 does not attribute glyph-number content to the accessibility sidecars: it says \"the first is what C's glyph number carries for a piece of terrain, the other two describe hero-memory mimics and hiders\". That is consistent with, not opposite to, the list comment at js/display.js:1478-1480, which claims only glyph-number fields. `invisible_monster` is the port's stand-in for C's GLYPH_INVISIBLE range (js/display.js:1723-1730 glyph_is_invisible() reads it), so it genuinely 'carries part of the glyph number C would have stored'; that map_invisible() is unported makes it dormant, not misdescribed. causality refute: The only material half of the finding is the object-identity coarseness already raised as f"
+          },
+          {
+            "summary": "The new `_map_location()` background arm calls `map_background()`, which writes `remembered_glyph` unconditionally and so drops display.c:251-253's `glyph_is_unexplored(lev->glyph) || glyph_is_cmap(lev->glyph)` guard. C leaves an object-layer memory alone there; the port replaces it with terrain, and lock.c pick_lock()'s new `same_remembered_glyph()` test reads exactly that value to decide whether",
+            "counterEvidence": "evidence refute: The finding attributes to map_background() a guard that belongs to a different C function, and the port matches C exactly. Counter-evidence: nethack-c/upstream/src/display.c:278-287 is map_background() in full: `int glyph = back_to_glyph(x, y); if (svl.level.flags.hero_memory) levl[x][y].glyph = glyph; if (show) show_glyph(x, y, glyph);` — there is no glyph_is_unexplored/glyph_is_cmap guard. The quoted guard at 251-253 and the `!cansee && !waslit` correction at 242-250 are inside magic_map_background() (232-258), which _map_location() (448-472) never calls; _map_location()'s else arm calls map_background(x, y, show). js/display.js:1809-1816 reproduces map_background() line for line. Consequently, on the finding's own probe C also overwrites the stale object memory with back_to_glyph()=S_room and then rewrites it to S_darkroom at display.c:894-897, so C returns PICKLOCK_L"
+          },
+          {
+            "summary": "The cursed-step block reaches its printer through `env.message ?? ttyPline` instead of petMoveOperation(env, 'message'), so a caller that omits the injection silently prints to the live display where every other pet operation throws.",
+            "counterEvidence": "causality refute: The stated hazard neither is new nor can fire in production, and the premise that this seam is the only fallback is false. Counter-evidence: js/dogmove.js:444 already reads `const message = rawEnv.message ?? ttyPline;` inside dog_invent(), and dog_move() passes its own `env` straight into dog_invent() at js/dogmove.js:964-969. So the very env whose injection the finding worries about already falls back to ttyPline at a site that runs earlier in the same call, and it did so before this range. The only production supplier, js/unported_monster_actions.js:753, always sets `message`, so the new fallback is unreachable in the running game: no message is written, no screen is repainted, and no turn changes. resolution refute: The proposed change does not restore the property it is meant to restore. Counter-evidence: Replacing only js/dogmove.js:1291 with petMoveOperation(env, "
+          },
+          {
+            "summary": "`const oldglyph = door.remembered_glyph` captures a live reference rather than a snapshot, and same_remembered_glyph()'s `before === after` fast path silently converts any in-place mutation of a remembered record into the answer \"unchanged\".",
+            "counterEvidence": "evidence refute: Refuted: the mechanism the finding names cannot produce the failure it describes, and the invariant it asks to be documented is already documented at the line it quotes. Counter-evidence: The `before === after` fast path at js/display.js:1501 is semantically redundant, not load-bearing. If before and after are the same object, the field loop at :1503-1505 compares before[field] against itself for all eleven names and the rgb comparison at :1506-1510 sees one array reference on both sides, so the function returns true with or without the fast path. An in-place mutation is therefore invisible because `oldglyph` at js/lock.js:198 aliases the record, which is inherent to capturing a reference, and removing the fast path changes nothing about it. The invariant is also stated where the finding says it is missing: the docstring at js/display.js:1487-1490 reads 'this port stores"
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "1435470b81b2d80750c4d065c52796a45a04439b..e03060d8606c7aabc15cd469b071815e49cb7db7",
+            "1435470b81b2d80750c4d065c52796a45a04439b..52c65135eefcdc190e7f18d9abbfd2683963184c"
+          ],
+          "mutants": 40,
+          "survivors": 0,
+          "byKind": {
+            "relational": {
+              "ran": 2,
+              "killed": 2
+            },
+            "logical": {
+              "ran": 32,
+              "killed": 32
+            },
+            "boolean": {
+              "ran": 6,
+              "killed": 6
+            }
+          },
+          "deltaRun": "The audit-fix diff at 52c6513 mutated 10 and killed 10. Its first run left two survivors, the new reglyph_darkroom() loop’s x < COLNO and y < ROWNO bounds, unkillable because a null-location guard made the extra iteration a no-op; deleting that guard killed both. The guard was dead code in the new loop rather than an existing one: makeCoordinateGrid() in js/game.js fills every cell of the COLNO x ROWNO grid with a truthy makeLocation(), so at() answers non-null for every in-bounds coordinate, which the orchestrator verified rather than accepted.",
+          "finderConclusion": "The readiness run over the frozen range mutated 31 and killed 31 before the pass ran, the first range in this loop to enter a correctness pass with no survivors; re-run over the recorded range including the audit fixes, it mutated 40 and killed 40. The pass then confirmed 16 findings, of which seven were untested lines that mutation cannot reach because no operator, boolean or bound is wrong there: the code is absent, not incorrect. The clearest case is the startup reglyph_darkroom() call, which can be deleted with the whole suite green while being what makes S_darkroom draw its byte for the 22 DECgraphics sessions. A clean mutation run measures the tests over the lines that exist and says nothing about the lines that should."
+        },
+        "readiness": {
+          "boundary": "Two user-visible paths. First, a pet stepping onto a square holding a cursed object, from the pet move through the report line to the screen it paints; seed1500-rogue-explore-move executes it and the port matches C on it, and four fresh C recordings cover it directly. Second, applying a lock pick, credit card or skeleton key and answering the direction prompt with a square that holds no door, from the keystroke through the prompt to the message and the turn the command costs or does not cost; five fresh C recordings cover it over 15 segments. The real game executes both: seed1500 now matches 40 of 40 screens, 2768 of 2768 random-number calls and 40 of 40 cursors, the seventh of 33 development sessions to match completely.",
+          "sourceReview": "Every branch and helper reachable before those endings was traced against nethack-c/upstream/: lock.c pick_lock() 578-593; dogmove.c dog_move() 1298-1312; pline.c pline_mon() 138-150; dungeon.c update_mapseen_for() 2941-2947, update_lastseentyp() and recalc_mapseen(); display.c feel_location() 859-901 with the _map_location macro 448-472 and the dark-room tail 893-900, reglyph_darkroom() 1826-1848 and its call site at options.c initoptions_finish():7347; engrave.c engr_can_be_felt() 291-313; apply.c doapply() 4288; do_name.c noit_Monnam() and noit_mon_nam() 1054-1089 and x_monnam()’s do_hallu arm; defsym.h:113. The trace covered state, random-number order and the points where the game waits for input. It found three C citations in the changed code wrong and corrected them: recalc_mapseen() closes at dungeon.c:3261 rather than 3278 and update_lastseentyp() sits at 3192 rather than 3191; display.c:1845-1847 is in the else arm rather than behind the option gate; and feel_location()’s new header stated a caller contract false for js/hack.js:1718, which passes a DOOR square.",
+          "completeness": "No known unsupported behavior remains inside either boundary. Excluded and verified fail-closed: feel_location()’s Underwater, Levitation and Punished bc_felt states behind one guard; its sensed-monster tail, whose UnsupportedMapMemoryError is hoisted above every map-memory write so the stop leaves the map untouched; reglyph_darkroom()’s two GLYPH_NOTHING arms and the rogue level; pick_lock()’s monster and door-mimic arms at 560-577, its container branch, its interrupted-attempt resume and the doormask default arm; and alwaysVisibleMonsterName() under Hallucination. Three gaps are recorded rather than closed: pick-lock-drawbridge-message-has-no-fresh-case, because create_drawbridge() is reached only from Castle and Medusa description files no ported level generates; pick-lock-lookalike-pile-top-has-no-fresh-case, because the pile top must change while the hero cannot see the square; and feel-location-ported-twice, the duplicate partial port in js/detect.js, which carries a reachable lit_corridor divergence and a corrected note replacing the pass’s \"strict subset\" claim."
+        }
+      },
+      "recordedAt": "2026-08-12T02:05:44.327Z"
     }
   ]
 }
