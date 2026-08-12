@@ -1774,6 +1774,49 @@
         "screens": 25,
         "rng": 149
       }
+    },
+    {
+      "id": "finish-seed0200",
+      "status": "open",
+      "boundary": "cmd.c rhack() carries seed0200 from its stop at step 23 to the end of the session, rather than refusing the corpse at js/eat.js:1561 and the kick command at js/cmd.js:826.",
+      "upstreamOwners": [
+        "eat.c eatcorpse()",
+        "dokick.c dokick()"
+      ],
+      "forecast": {
+        "steps": 16,
+        "basis": "Directed selection with field-wide costing skipped by the user. Measured at 8d69471: seed0200 matched 23 of its 40 recorded screens and stopped at step 23 on eat.c eatcorpse(), with dokick.c dokick() behind it at step 26; step 30 is unreachable because a judge-supplied serializer drops the attributes of a heading s leading spaces, so the 16 reachable screens, not 17, finish the session.",
+        "sessions": [
+          "seed0200-monk-north-search"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0200-monk-north-search",
+            "evidence": "Step 23 refuses at js/eat.js:1561 with UnsupportedEatError(eatcorpse()); scripts/diff-fresh.mjs names the first unmatched call as rn2(20) from eatcorpse(eat.c:1887). Step 26 refuses key 0x04 at js/cmd.js:826, where ADMITTED_COMMANDS omits kick, so the port never prints In what direction?; C runs dokick.c dokick() 1257 into kick_dumb() 863. A look-ahead over C s recorded screens from step 22 to the end is clear of deaths: HP holds at 14(14) and T advances 13 to 22."
+          }
+        ]
+      },
+      "detail": "Measured at 8d69471 in a worktree, not inferred. The port matched 23 of\nseed0200 s 40 screens and stopped at step 23 on the key k answering the\nWhat do you want to eat? prompt. Steps 0-22 all matched on cells, cursor\nand RNG; the port simply produced nothing from 23 onward.\n\nTwo owners divide the work. eat.c eatcorpse() 1853-2018 with cprefx(),\nmaybe_cannibal(), cpostfx() and corpse_intrinsic(), worth steps 23-25 and\n196 RNG calls. dokick.c dokick() 1257-1470 into kick_nondoor() 974 and\nkick_dumb() 863-878, worth steps 26-39 and the remaining 61 calls.\n\nThe forecast is 16 screens, not 17, because step 30 can never match. C\nrecords the spell menu heading as an inverse run beginning four columns\nbefore its first glyph; serialize() in frozen/terminal.js:679-685 finds a\nrow s first column by scanning for the first non-space character and jumps\npast those cells, losing their attributes, while\nfrozen/screen-decode.mjs:144 counts inverse on a space as visible. The\nfile is judge-supplied and must not change, so 39 of 40 is the ceiling.\nQUALITY.json records it as the open deferral\nan indented inverse menu heading cannot match.",
+      "slices": [
+        {
+          "name": "eat a corpse",
+          "status": "closed",
+          "closedBy": "d53bdf2d0362d0a9d3f9a022bff37bb8ecc1b2e4"
+        },
+        {
+          "name": "kick at empty space",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "d53bdf2d0362d0a9d3f9a022bff37bb8ecc1b2e4",
+      "openStanding": {
+        "sha": "1f6da71",
+        "screens": 1496,
+        "rng": 120590
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
