@@ -394,6 +394,14 @@ function assertStatusTextStyle(
     return start;
 }
 
+// Every status row rendered below reaches botl.c describe_level(), which asks
+// dungeon.c depth() for svd.dungeons[u.uz.dnum].depth_start. The Dungeons of
+// Doom is dungeon 0 and starts at depth 1, so the Dlvl field equals u.uz.dlevel
+// wherever this fills a fixture's dungeon list.
+function dungeonsOfDoom() {
+    return [{ depth_start: 1 }];
+}
+
 function statusRenderingState() {
     const state = resetGame();
     state.nhDisplay = new GameDisplay(null);
@@ -405,6 +413,7 @@ function statusRenderingState() {
         oclass: state.objects[otyp].oc_class,
     });
     state.level.at(7, 4).typ = STAIRS;
+    state.dungeons = dungeonsOfDoom();
     state.flags = {
         female: false,
         showexp: true,
@@ -949,9 +958,11 @@ test('UTF-8 hero and pet overrides survive zero raw optional symbols', async () 
         state.level.at(7, 4).typ = ROOM;
         state.flags = {};
         state.sysopt = { accessibility: 1 };
+        state.dungeons = dungeonsOfDoom();
         state.u = {
             ux: heroAtCell ? 7 : 1,
             uy: heroAtCell ? 4 : 1,
+            uz: { dnum: 0, dlevel: 1 },
             umonnum: 0,
         };
         state.urace = { mnum: 1 };
@@ -5397,6 +5408,7 @@ test('optional status fields preserve tty placement and overflow shrinking', asy
         oclass: state.objects[otyp].oc_class,
     });
     state.level.at(7, 4).typ = STAIRS;
+    state.dungeons = dungeonsOfDoom();
     state.flags = {
         weaponstatus: true,
         armorstatus: true,
@@ -6007,6 +6019,7 @@ test('disabled status updates retain blank reserved tty rows', async () => {
 test('status uses source attribute order and exceptional strength text', async () => {
     const state = resetGame();
     state.nhDisplay = new GameDisplay(null);
+    state.dungeons = dungeonsOfDoom();
     state.flags = { female: false, showexp: true, time: true };
     state.urole = {
         name: { m: 'Barbarian' },
@@ -6015,7 +6028,7 @@ test('status uses source attribute order and exceptional strength text', async (
     state.u = {
         ux: 0,
         uy: 0,
-        uz: { dlevel: 1 },
+        uz: { dnum: 0, dlevel: 1 },
         ulevel: 1,
         uexp: 42,
         uhp: 16,
@@ -6157,6 +6170,7 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
         + 'OPTIONS=hilite_status:'
         + 'condition/blind/bright-magenta&inverse',
     );
+    state.dungeons = dungeonsOfDoom();
     state.flags = options.flags;
     state.iflags = options.iflags;
     state.urole = {
@@ -6167,7 +6181,7 @@ test('status highlights, condition filters, and hitpoint bar reach the grid', as
     state.u = {
         ux: 0,
         uy: 0,
-        uz: { dlevel: 1 },
+        uz: { dnum: 0, dlevel: 1 },
         ulevel: 1,
         uexp: 0,
         uhp: 16,
@@ -6473,6 +6487,72 @@ test('status highlight rules preserve source matching and precedence', async () 
     );
 });
 
+// botl.c get_hilite()'s BL_TH_CRITICALHP arm asks critically_low_hp(FALSE) for
+// BL_HP, and on a match sets crit_hp, which its loop head then uses to skip
+// every later rule that is not itself a criticalhp rule.
+test('a criticalhp hilite follows pray.c and outranks later rules', async () => {
+    const state = statusRenderingState();
+    const install = (rules) => {
+        const parsed = parseNethackrc(`OPTIONS=hilite_status:${rules}`);
+        state.iflags = { ...parsed.iflags, wc2_statuslines: 2 };
+    };
+    const hpStyle = () => {
+        const row = terminalRow(state, 23);
+        const column = row.indexOf('HP:');
+        return state.nhDisplay.grid[23][column];
+    };
+    // pray.c critically_low_hp() reads u.uhp and u.uhpmax only when Upolyd is
+    // false, which you.h:554 spells (u.umonnum != u.umonster). The fixture
+    // above leaves u.umonnum at 0, so u.umonster matches it here.
+    state.u.umonster = 0;
+
+    install('hitpoints/criticalhp/red&bold');
+
+    // At experience level 1 the divisor is 5 and hplim is 15, so 16 of 16 hit
+    // points clears both of critically_low_hp()'s tests: 16 > 5, and 16*5 is
+    // above the 15 that maxhp is clamped to. The rule must not fire.
+    await bot();
+    assert.deepEqual(
+        { color: hpStyle().color, attr: hpStyle().attr },
+        { color: NO_COLOR, attr: ATR_NONE },
+        'a hero above the critical threshold takes no criticalhp hilite',
+    );
+
+    // 3 of 3 is critically low by the "curhp <= 5" test while leaving the hero
+    // uninjured, which is the case the FALSE argument selects: passing TRUE
+    // would return early on !(curhp < maxhp).
+    state.u.uhp = 3;
+    state.u.uhpmax = 3;
+    await bot();
+    assert.deepEqual(
+        { color: hpStyle().color, attr: hpStyle().attr },
+        { color: CLR_RED, attr: ATR_BOLD },
+        'an uninjured hero at 3 of 3 hit points still takes the hilite',
+    );
+
+    // A percentage rule that also matches at 10% sits after the criticalhp
+    // rule; C's crit_hp skip keeps the criticalhp colour.
+    state.u.uhp = 3;
+    state.u.uhpmax = 30;
+    install('hitpoints/criticalhp/red&bold/<50%/yellow');
+    await bot();
+    assert.deepEqual(
+        { color: hpStyle().color, attr: hpStyle().attr },
+        { color: CLR_RED, attr: ATR_BOLD },
+        'a matching later percentage rule cannot displace a criticalhp match',
+    );
+
+    // The same two rules in the other order: the percentage rule matches
+    // first, and the criticalhp rule that follows still replaces it.
+    install('hitpoints/<50%/yellow/criticalhp/red&bold');
+    await bot();
+    assert.deepEqual(
+        { color: hpStyle().color, attr: hpStyle().attr },
+        { color: CLR_RED, attr: ATR_BOLD },
+        'a criticalhp match replaces an earlier percentage match',
+    );
+});
+
 test('title formatting and matching use source byte limits', async () => {
     const state = statusRenderingState();
     state.urole = {
@@ -6740,6 +6820,7 @@ test('three-line status clips the map around a bottom-row hero', async () => {
     const state = resetGame();
     state.nhDisplay = new GameDisplay(null);
     state.level = new GameMap();
+    state.dungeons = dungeonsOfDoom();
     state.flags = {};
     state.iflags = { wc2_statuslines: 3 };
     state.urole = {
@@ -6749,7 +6830,7 @@ test('three-line status clips the map around a bottom-row hero', async () => {
     state.u = {
         ux: 1,
         uy: 20,
-        uz: { dlevel: 1 },
+        uz: { dnum: 0, dlevel: 1 },
         ulevel: 1,
         uhp: 12,
         uhpmax: 12,

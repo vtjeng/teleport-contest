@@ -831,7 +831,7 @@
       "area": "generation",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "5fdcb62d0f72fc5208554dc45f109d7f7f4ec441",
       "detail": "js/mkmaze.js attributes u_on_upstairs() to mklev.c although the source and JavaScript owners are stairs.c and js/stairs.js."
     },
@@ -981,7 +981,7 @@
       "area": "generation",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "2fcd795c3ca62e17f54ae1df21c8396590c6c4dd",
       "detail": "`dungeon.c depth()` has two live ports whose bodies **differ**, and one module\nimports both:\n\n- `js/dungeon.js depth(level, state = game)` threads `state`. This is the\n  correct owner by file name: C defines the function in `dungeon.c`.\n- `js/hacklib.js depth(uz)` ignores any state argument and reads the\n  module-global `game`. `js/hacklib.js` is the wrong home, the same\n  skeleton-leftover shape as the duplicate `isok()` that `1af25e7` converged.\n\n`js/mklev.js` binds both under aliases in separate statements, `depth as\ndungeon_depth` from `./dungeon.js` and `depth as depth_of_level` from\n`./hacklib.js`, so a reader of either call site sees a plausible name and no\nsign that two implementations are in play.\n\nThey disagree in three ways. At `js/mklev.js initialize_themeroom_branch()`,\nwhich takes `state = game`, the `depth_of_level` call reads the level from the\npassed state and `depth_start` from the module-global `game`. When\n`depth_start` is 0 the `hacklib` copy returns `dlevel` through a `|| 1` and the\n`dungeon` copy returns `dlevel - 1`. When the dungeon is missing the `hacklib`\ncopy returns a default and the `dungeon` copy throws.\n\nThis is a latent hazard rather than a demonstrated bug: no path was found today\nwhere the passed state differs from the module global. It becomes live the\nmoment one does, and it will not announce itself, because both copies answer\nplausibly.\n\n`1af25e7` converged the two duplicates the ledger happened to record and swept\nfor no others. Resolve this one the same way -- one owner in `js/dungeon.js`,\n`js/mklev.js` repointed, the alias removed -- and confirm an identical\ndevelopment score, which is the only evidence a behavior-preserving move needs."
     },
@@ -1557,7 +1557,7 @@
       "area": "display",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "34516deac9ec62bfc6828b6be7b8d35ad88ea9dc",
       "detail": "js/display.js _statusFieldStyle()'s critical hilite arm has no test that configures a status-hilite rule with behavior 'critical', so three mutants survive on a live status-line path: the arm's && and the only_if_injured argument it passes to critically_low_hp(), plus the two hide_innate_value assignments behind enlightenment()'s polymorph refusal. Found while applying the pray-command correctness pass over 425364f8..b0bb30e, and pre-existing rather than introduced by it: the pass converged critically_low_hp() onto one owner, which is what exposed that nothing exercises this reader. Close it by adding a status-hilite rule with behavior 'critical' to the display tests and watching each of the three mutants die."
     },

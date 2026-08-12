@@ -62,7 +62,12 @@ function rerollState({ role = M.PM_HEALER, lootabc = false } = {}) {
         menu_headings: { attr: 1, color: 8 },
     };
     game.urole = { mnum: role, filecode: role === M.PM_CLERIC ? 'Pri' : 'Hea' };
+    // botl.c describe_level() reaches dungeon.c depth(), which reads
+    // svd.dungeons[u.uz.dnum].depth_start. The hero starts on the first level
+    // of the Dungeons of Doom, which is dungeon 0 and starts at depth 1.
+    game.dungeons = [{ depth_start: 1 }];
     game.u = {
+        uz: { dnum: 0, dlevel: 1 },
         acurr: { a: [9, 11, 16, 10, 12, 17] },
         abon: { a: [0, 0, 0, 0, 0, 0] },
         atemp: { a: [0, 0, 0, 0, 0, 0] },

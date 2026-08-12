@@ -44,6 +44,12 @@ function preambleState(datetime, keys = '') {
         // A distinct dungeon number proves that allmain.c only copies dlevel.
         uz0: { dnum: 9, dlevel: 2 },
     };
+    // botl.c describe_level() reaches dungeon.c depth(), which reads
+    // svd.dungeons[u.uz.dnum].depth_start. Tests below leave the hero in
+    // dungeon 3 or move it to dungeon 0, so the list runs to index 3; giving
+    // each entry depth_start 1 keeps the status row's Dlvl equal to
+    // u.uz.dlevel whichever branch a test picks.
+    game.dungeons = Array.from({ length: 4 }, () => ({ depth_start: 1 }));
     // This arbitrary seed is unrelated to development recordings.
     initRng(618033);
     enableRngLog();

@@ -10,7 +10,7 @@ import { GameMap } from './game.js';
 import {
     Can_fall_thru,
     at_dgn_entrance,
-    depth as dungeon_depth,
+    depth,
     dungeon_branch,
     level_difficulty,
     on_level,
@@ -36,7 +36,6 @@ import {
     mksink,
 } from './room_features.js';
 import { in_rooms } from './rooms.js';
-import { depth as depth_of_level } from './hacklib.js';
 import { oinit } from './o_init.js';
 import {
     objectGenerationEnv,
@@ -282,7 +281,7 @@ function clear_level_structures() {
 // C ref: mkmap.c litstate_rnd()
 function litstate_rnd(litstate, random = rn2, randomOneBased = rnd) {
     if (litstate < 0) {
-        const d = depth_of_level(game.u?.uz);
+        const d = depth(game.u?.uz);
         return (randomOneBased(1 + Math.abs(d)) < 11 && random(77)) ? true : false;
     }
     return !!litstate;
@@ -320,7 +319,7 @@ export function fill_special_room(croom, env = {}) {
 
         switch (croom.rtype) {
         case VAULT: {
-            const amountRange = Math.abs(dungeon_depth(state.u?.uz, state)) * 100;
+            const amountRange = Math.abs(depth(state.u?.uz, state)) * 100;
             for (let x = croom.lx; x <= croom.hx; ++x) {
                 for (let y = croom.ly; y <= croom.hy; ++y) {
                     mkgold(randomOneBased(amountRange, 51), x, y, normalized);
@@ -479,8 +478,8 @@ async function makelevel(specialLevelLoader = null) {
     // `room_threshold` counts the rooms a level must have before it can spare
     // one: four when the level carries a dungeon branch, three otherwise, plus
     // one more when a vault was placed above.
-    const u_depth = depth_of_level(g.u.uz);
-    if (u_depth > 1 && u_depth < depth_of_level(g.medusa_level)
+    const u_depth = depth(g.u.uz);
+    if (u_depth > 1 && u_depth < depth(g.medusa_level)
         && g.level.nroom >= room_threshold && rn2(u_depth) < 3) {
         do_mkroom(SHOPBASE, g);
     } else if (u_depth > 4 && !rn2(6)) {
@@ -569,11 +568,11 @@ function mk_knox_portal(x, y) {
     /* Already set or 2/3 chance of deferring until a later level. */
     if (source.dnum < g.n_dgns || rn2(3)) return;
 
-    const u_depth = depth_of_level(g.u.uz);
+    const u_depth = depth(g.u.uz);
     if (!(g.u.uz.dnum === g.oracle_level.dnum /* in main dungeon */
           && !at_dgn_entrance('The Quest', g) /* but not Quest's entry */
           && u_depth > 10                     /* beneath 10 */
-          && u_depth < depth_of_level(g.medusa_level))) /* above Medusa */
+          && u_depth < depth(g.medusa_level))) /* above Medusa */
         return;
 
     throw new UnsupportedSpecialRoomError(
@@ -2487,7 +2486,7 @@ function finddpos(cc, dir, aroom) {
 }
 
 function maybe_sdoor(chance) {
-    const d = depth_of_level(game.u?.uz);
+    const d = depth(game.u?.uz);
     return (d > 2) && !rn2(Math.max(2, chance));
 }
 
@@ -3326,7 +3325,7 @@ export function populateSupplyChest(position, env) {
         const objectClass = extraClasses[random(extraClasses.length)];
         let obj = mkobj(objectClass, false, env);
         if (objectClass === SPBOOK_NO_NOVEL) {
-            const maxPass = dungeon_depth(state.u.uz, state) > 2 ? 2 : 3;
+            const maxPass = depth(state.u.uz, state) > 2 ? 2 : 3;
             for (let pass = 1; pass <= maxPass; ++pass) {
                 const candidate = mkobj(objectClass, false, env);
                 if (state.objects[obj.otyp].oc_level
@@ -3396,7 +3395,7 @@ export function fill_ordinary_room(croom, bonusItems) {
         if (!rn2(60)) mksink(croom, env);
         if (!rn2(60)) mkaltar(croom, env);
 
-        chance = 80 - dungeon_depth(state.u.uz, state) * 2;
+        chance = 80 - depth(state.u.uz, state) * 2;
         if (chance < 2) chance = 2;
         if (!rn2(chance)) mkgrave(croom, env);
 
@@ -3449,7 +3448,7 @@ export function fill_ordinary_room(croom, bonusItems) {
             );
         }
 
-        if (!rn2(27 + 3 * Math.abs(dungeon_depth(state.u.uz, state)))) {
+        if (!rn2(27 + 3 * Math.abs(depth(state.u.uz, state)))) {
             const engraving = random_engraving();
             if (engraving.text) {
                 do {

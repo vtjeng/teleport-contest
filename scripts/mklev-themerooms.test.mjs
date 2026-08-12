@@ -104,6 +104,10 @@ function resetThemeroomLevel() {
     resetGame();
     game.level = new GameMap();
     game.u = { uz: { dnum: 0, dlevel: 1 } };
+    // mkmap.c litstate_rnd() reaches dungeon.c depth(), which reads
+    // svd.dungeons[u.uz.dnum].depth_start. The Dungeons of Doom is dungeon 0
+    // and starts at depth 1, so the hero is at depth 1 here.
+    game.dungeons = [{ depth_start: 1 }];
     game.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     init_rect();
 }
@@ -284,6 +288,8 @@ test('themeroom generation connects selection, map placement, and filler region'
     resetGame();
     game.level = new GameMap();
     game.u = { uz: { dnum: 0, dlevel: 1 } };
+    // Dungeon 0 starting at depth 1, as resetThemeroomLevel() explains.
+    game.dungeons = [{ depth_start: 1 }];
     game.smeq = new Array(MAXNROFROOMS + 1).fill(0);
     const calls = [];
     // At difficulty one, all 30 eligible descriptors have positive frequency,

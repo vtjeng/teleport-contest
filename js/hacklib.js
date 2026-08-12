@@ -1,7 +1,5 @@
 // hacklib.js — Utility functions.
-// C ref: hacklib.c, dungeon.c helpers
-
-import { game } from './gstate.js';
+// C ref: hacklib.c
 
 const utf8Encoder = new TextEncoder();
 
@@ -502,14 +500,6 @@ export function online2(x0, y0, x1, y1) {
     const dx = x0 - x1;
     const dy = y0 - y1;
     return !dy || !dx || dy === dx || dy === -dx;
-}
-
-export function depth(uz) {
-    const dnum = uz?.dnum ?? 0;
-    const dlevel = uz?.dlevel ?? 1;
-    const dungeon = game?.dungeons?.[dnum];
-    if (!dungeon) return dlevel;
-    return (dungeon.depth_start || 1) + dlevel - 1;
 }
 
 // C ref: rn2(x) already in rng.js — re-export not needed

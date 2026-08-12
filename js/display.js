@@ -10,7 +10,7 @@ import { game } from './gstate.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
 import { effective_attribute } from './attrib.js';
 import { near_capacity } from './hack.js';
-import { on_level, update_lastseentyp } from './dungeon.js';
+import { depth, on_level, update_lastseentyp } from './dungeon.js';
 import { money_cnt } from './invent.js';
 import { cansee, seenv_matrix, vision_recalc } from './vision.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
@@ -77,7 +77,6 @@ import { rankOf } from './roles.js';
 import { is_flyer } from './mondata.js';
 import { m_at } from './monst.js';
 import {
-    depth as dungeonDepth,
     dist2,
     encodeUtf8ByteString,
     mungspaces,
@@ -2825,7 +2824,7 @@ function _statusLevelDescription(u, short = false) {
     // wintty.c shrink_dlvl() replaces everything before the colon, including
     // special-level descriptions such as "Tutorial", with the short label.
     const label = short ? 'Dl' : tutorial ? 'Tutorial' : 'Dlvl';
-    return `${label}:${dungeonDepth(u.uz)}`;
+    return `${label}:${depth(u.uz)}`;
 }
 
 function _statusVitals(u) {

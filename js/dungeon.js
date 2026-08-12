@@ -521,6 +521,10 @@ function add_level(newLevel, state) {
     state.sp_levchn = state.specialLevels[0] ?? null;
 }
 
+// C ref: dungeon.c depth(). The absolute depth of a level, counting from the
+// start of the branch it belongs to. C reads svd.dungeons[] unguarded, so a
+// caller reaching here before init_dungeons() has filled that array is a bug
+// in the caller, and this throws rather than inventing a depth for it.
 export function depth(level, state = game) {
     return state.dungeons[level.dnum].depth_start + level.dlevel - 1;
 }
