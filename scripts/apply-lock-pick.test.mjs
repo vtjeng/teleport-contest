@@ -17,12 +17,18 @@ import {
     ECMD_OK,
     ECMD_TIME,
     HWALL,
+    OBJ_FLOOR,
     ROOM,
+    STONE,
     TT_BEARTRAP,
     TT_PIT,
     u_at,
 } from '../js/const.js';
-import { glyph_is_object } from '../js/display.js';
+import {
+    glyph_is_object,
+    object_glyph_info,
+    remembered_glyph_from_presentation,
+} from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -35,7 +41,14 @@ import {
 } from '../js/lock.js';
 import { newMonster } from '../js/monst.js';
 import { M1_NOHANDS, S_FELINE } from '../js/monsters.js';
-import { CREDIT_CARD, LOCK_PICK, SKELETON_KEY } from '../js/objects.js';
+import {
+    ARROW,
+    CREDIT_CARD,
+    CROSSBOW_BOLT,
+    LOCK_PICK,
+    SKELETON_KEY,
+    WEAPON_CLASS,
+} from '../js/objects.js';
 import { S_darkroom, S_room } from '../js/symbols.js';
 import {
     APPLY_KEY,
@@ -281,6 +294,86 @@ test('a square with no door is felt rather than picked', async () => {
     assert.equal(glyph_is_object(pile), true);
 });
 
+test('a felt square whose recorded terrain type is new spends the turn',
+    async () => {
+    // lock.c:583-585 spends the turn when either the glyph or
+    // svl.lastseentyp[x][y] changed. The wall case above turns on neither, so
+    // this one moves only the second: STONE is dungeon.c's zeroed value for a
+    // square the hero has never had underfoot, and feel_location() ->
+    // _map_location() -> update_lastseentyp() writes the wall's own typ over
+    // it. Nothing else in the repository separates the two operands.
+    await standBeside(5200108, `${APPLY_KEY}${LOCK_PICK_SLOT}k`, '');
+    const x = game.u.ux;
+    const y = game.u.uy - 1;
+    const wall = game.level.at(x, y);
+    assert.equal(wall.typ, HWALL);
+    const wallMemory = wall.remembered_glyph;
+    game.level.lastseentyp[x][y] = STONE;
+    answer(LOCK_PICK_SLOT, 'k');
+    assert.equal(await doapply(game), ECMD_TIME);
+    // The glyph really did not move, so the lastseentyp disjunct is the only
+    // operand that could have answered.
+    assert.equal(wall.remembered_glyph.cmap, wallMemory.cmap);
+    assert.equal(game.level.lastseentyp[x][y], HWALL);
+});
+
+test('a remembered pile whose top has changed to a lookalike spends the turn',
+    async () => {
+    // lock.c:583-584 compares two glyph numbers, and display.h
+    // normal_obj_to_glyph() numbers an object by otyp, so two objects of one
+    // class and one colour are two different glyph numbers. ARROW and
+    // CROSSBOW_BOLT are both WEAPON_CLASS with the same objects[].oc_color,
+    // so they draw one ')' in one colour and only the otyp separates them.
+    //
+    // The setup is built by hand because the pile top has to change while the
+    // hero cannot see it; the deferred entry
+    // pick-lock-lookalike-pile-top-has-no-fresh-case records that no C
+    // recording reaches it yet.
+    //
+    // Both halves put an arrow on the square the matrix's own segment already
+    // points at, and differ only in which object the hero remembers there.
+    const arrowOnTheFloor = () => {
+        const x = game.u.ux + 1;
+        const y = game.u.uy;
+        assert.ok(game.level.objects[x][y], 'the segment leaves a pile here');
+        const arrow = {
+            otyp: ARROW,
+            oclass: WEAPON_CLASS,
+            quan: 1,
+            dknown: true,
+            where: OBJ_FLOOR,
+            ox: x,
+            oy: y,
+            nexthere: null,
+        };
+        game.level.objects[x][y] = arrow;
+        return { x, y, arrow };
+    };
+
+    await standBeside(5200108, `jj${APPLY_KEY}${LOCK_PICK_SLOT}l`, 'jj');
+    const { x, y, arrow } = arrowOnTheFloor();
+    const arrowGlyph = object_glyph_info(arrow, game);
+    const boltGlyph = object_glyph_info(
+        { ...arrow, otyp: CROSSBOW_BOLT }, game,
+    );
+    assert.equal(arrowGlyph.ch, boltGlyph.ch);
+    assert.equal(arrowGlyph.color, boltGlyph.color);
+    game.level.at(x, y).remembered_glyph
+        = remembered_glyph_from_presentation(boltGlyph);
+    answer(LOCK_PICK_SLOT, 'l');
+    assert.equal(await doapply(game), ECMD_TIME);
+    assert.equal(pendingTopLine(), 'You see no door there.');
+
+    // The same square remembering the object that is really there is
+    // unchanged, which is the answer the matrix's recorded segment pins.
+    await standBeside(5200108, `jj${APPLY_KEY}${LOCK_PICK_SLOT}l`, 'jj');
+    arrowOnTheFloor();
+    game.level.at(x, y).remembered_glyph
+        = remembered_glyph_from_presentation(arrowGlyph);
+    answer(LOCK_PICK_SLOT, 'l');
+    assert.equal(await doapply(game), ECMD_OK);
+});
+
 test('a blind hero feels rather than sees', async () => {
     // lock.c:589-592 chooses the verb from Blind. The matrix records this
     // through the 'blind' roleplay conduct; here the hero is blinded in place
@@ -515,6 +608,34 @@ test('pick_lock names its three answers as lock.c does', () => {
     assert.equal(PICKLOCK_LEARNED_SOMETHING, -1);
     assert.equal(PICKLOCK_DID_NOTHING, 0);
     assert.equal(PICKLOCK_DID_SOMETHING, 1);
+});
+
+test('booting a segment points the dark-room symbol at the room symbol',
+    async () => {
+    // options.c initoptions_finish():7347 calls reglyph_darkroom(), whose tail
+    // (display.c:1850-1853) is what collapses S_darkroom and S_room onto one
+    // byte. Without it defsym.h:113 leaves S_darkroom its own ASCII '.', so
+    // every square feel_location() moves to S_darkroom would draw the wrong
+    // character under a symbol set that gives S_room anything else.
+    const { segments } = loadApplyLockPickRecipe();
+    const decorated = segments.find(
+        (segment) => /symset:DECgraphics/.test(segment.nethackrc),
+    );
+    const plain = segments.find(
+        (segment) => !/symset:/.test(segment.nethackrc),
+    );
+    assert.ok(decorated && plain, 'the matrix boots under both symbol sets');
+
+    for (const [label, segment] of [['plain', plain], ['DEC', decorated]]) {
+        await runSegment({ ...segment, moves: '.' });
+        assert.equal(
+            game.gs.showsyms[S_darkroom], game.gs.showsyms[S_room], label,
+        );
+    }
+    // Under DECgraphics S_room is the DEC middle dot rather than ASCII '.',
+    // so this leg distinguishes the collapse from a coincidence: with the
+    // startup call gone, S_darkroom would still be '.' here.
+    assert.notEqual(game.gs.showsyms[S_darkroom], '.'.charCodeAt(0));
 });
 
 test('the matrix covers both live arms and both cancel keys', () => {

@@ -38,6 +38,7 @@ import {
     pet_ranged_attk,
     score_targ,
 } from '../js/dogmove.js';
+import { UnsupportedMonsterNameError } from '../js/do_name.js';
 import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
 import { initrack, settrack } from '../js/track.js';
@@ -67,6 +68,7 @@ import {
     SADDLE,
     SKELETON_KEY,
 } from '../js/objects.js';
+import { loadPetCursedStepRecipe } from './run-pet-cursed-step.mjs';
 
 function petState() {
     const level = new GameMap();
@@ -1322,22 +1324,31 @@ test('dog_move will not name a pile on a level that keeps no hero memory',
         ]);
     });
 
-test('dog_move keeps a hallucinating hero from naming the pile', async () => {
+test('dog_move stops rather than name a hallucinated pet', async () => {
     const { state, monster, destination } = rememberedPileState();
     // youprop.h:120 Hallucination: the intrinsic timeout with no resistance.
     state.u.uprops[HALLUC] = { intrinsic: 1000 };
-    const lines = [];
 
-    const result = await dog_move(monster, false, cursedStepEnv(
-        state,
-        destination,
-        { message: async (text) => { lines.push(text); } },
-    ));
-
-    assert.equal(result, MMOVE_MOVED);
-    assert.deepEqual(lines, [
-        'Your little dog steps reluctantly onto something.',
-    ]);
+    // dogmove.c:1302 gates only the pile lookup on !Hallucination, so the
+    // last term of the line really is `something` here. The pet's own name is
+    // not: noit_mon_nam() (do_name.c:1056-1058) passes x_monnam() no
+    // SUPPRESS_HALLUCINATION, so :950-955 replaces "your little dog" with
+    // rndmonnam()'s bogus name and draws from the display RNG to choose it.
+    // js/do_name.js has no bogus-name arm, so it refuses instead, and the
+    // refusal has to precede the message rather than print a wrong one.
+    await assert.rejects(
+        () => dog_move(monster, false, cursedStepEnv(
+            state,
+            destination,
+            {
+                message: () => assert.fail(
+                    'the refusal precedes the cursed-step line',
+                ),
+            },
+        )),
+        (error) => error instanceof UnsupportedMonsterNameError
+            && error.reason === "noit_Monnam()'s hallucinated bogus name",
+    );
 });
 
 // youprop.h:118-119 Halluc_resistance is the intrinsic or the extrinsic, and
@@ -1416,6 +1427,32 @@ test('dog_move stays silent when the pet is unseen before and after',
 
         assert.equal(result, MMOVE_MOVED);
     });
+
+test('the cursed-step matrix covers the four terms its header names', () => {
+    const { segments } = loadPetCursedStepRecipe();
+    // Four segments over four seeds, one per term of `%s %s reluctantly %s
+    // %s.` that a C recording can vary: which pet walks, the class of the top
+    // item, whether its appearance is already known, and the near or far
+    // branch of distant_name(). The count is asserted so that deleting a case
+    // has to be deliberate.
+    assert.equal(segments.length, 4);
+    assert.equal(new Set(segments.map((segment) => segment.seed)).size, 4);
+    for (const segment of segments) {
+        // Every segment is a pure run of searches: the hero spends turns
+        // without moving, so nothing but the pet's own walk reaches the line.
+        assert.match(segment.moves, /^s+$/u);
+        // Without this the hero picks the level's objects up on her way past
+        // and the pet has nothing to be reluctant about.
+        assert.match(segment.nethackrc, /!autopickup/);
+        assert.match(segment.nethackrc, /role:Valkyrie/);
+    }
+    // The search count is the turn the line prints on for its seed, found by
+    // recording fresh C walks; a changed count silently retargets the case.
+    assert.deepEqual(
+        segments.map((segment) => [segment.seed, segment.moves.length]),
+        [[5407, 4], [2209, 12], [2351, 28], [4333, 33]],
+    );
+});
 
 test('dog_move applies the source leashed-pet reposition quirk', async () => {
     // activePetState puts the hero at (7,5); this pet at (12,5) has squared

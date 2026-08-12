@@ -357,12 +357,30 @@ export function x_monnam(
     }
 }
 
-// C ref: do_name.c noit_Monnam(). ARTICLE_YOUR becomes "your" for an
-// unnamed tame monster and "the" otherwise; a given name has no article.
+// C ref: do_name.c noit_Monnam() (1082-1089) over noit_mon_nam()
+// (1053-1060). ARTICLE_YOUR becomes "your" for an unnamed tame monster and
+// "the" otherwise; a given name has no article.
+//
+// noit_mon_nam() passes x_monnam() SUPPRESS_IT, and SUPPRESS_SADDLE as well
+// for a named monster. SUPPRESS_HALLUCINATION is not among them, so
+// do_name.c:861 raises do_hallu for a hallucinating hero and :950-955 replaces
+// the whole name with rndmonnam(), which draws rn2_on_display_rng() once per
+// rejected species and once more for the gender (do_name.c:1399-1407).
+// monsterCommonName() below has no bogus-name arm and draws nothing, so this
+// stops rather than printing the true species name and skipping the draws.
 export function alwaysVisibleMonsterName(
     monster,
     state = game,
 ) {
+    // youprop.h:116-120 Hallucination: the intrinsic timeout alone, defeated
+    // by either half of Halluc_resistance.
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    if (state.u?.uprops?.[HALLUC]?.intrinsic
+        && !(resistance?.intrinsic || resistance?.extrinsic)) {
+        throw new UnsupportedMonsterNameError(
+            "noit_Monnam()'s hallucinated bogus name",
+        );
+    }
     let name = monsterCommonName(monster, state);
     if (monster.mtame
         && !monster.mextra?.mgivenname

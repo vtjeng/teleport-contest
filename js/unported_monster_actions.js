@@ -742,14 +742,21 @@ async function moveSimplePet(monster, after, env) {
         eatObject: () => unsupported('pet eating'),
         maxPassiveDamage: () => unsupported('pet combat evaluation'),
         mayCrossRegion: assertSimpleDestination,
-        // Three printing sites share these two seams: dog_invent()'s carry arm
-        // through dogmove.c pline_xy(), its drop arm through steal.c
-        // mdrop_obj() and relobj(), and dog_move()'s cursed-step line through
-        // pline.c pline_mon(). The planning scan replays the same turn against
-        // the live display afterwards, so it must produce neither a message
-        // nor a repaint. Removing either injection because one site no longer
-        // needs it writes the others' lines and repaints on a turn the scan
-        // may still refuse.
+        // Three printing sites share the `message` seam: dog_invent()'s carry
+        // arm through dogmove.c pline_xy(), its drop arm through steal.c
+        // mdrop_obj(), and dog_move()'s cursed-step line through pline.c
+        // pline_mon(). Two of those three also repaint through the `redraw`
+        // seam -- the carry arm at js/dogmove.js dog_invent()'s
+        // obj_extract_self(), and the drop arm through js/steal.js relobj()'s
+        // tail. The cursed-step line repaints nothing, matching C, where
+        // dogmove.c:1296-1312 calls no newsym().
+        //
+        // The planning scan replays the same turn against the live display
+        // afterwards, so it must produce neither a message nor a repaint.
+        // Removing `message` because one of its three sites no longer needs it
+        // writes the other two's lines, and removing `redraw` because one of
+        // its two no longer needs it repaints for the other, on a turn the
+        // scan may still refuse.
         message: env.planning ? async () => {} : ttyPline,
         monsterReflects: () => unsupported('pet combat evaluation'),
         petRangedAttack: pet_ranged_attk,

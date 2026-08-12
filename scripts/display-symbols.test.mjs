@@ -132,7 +132,9 @@ import {
     NUMMONS,
     PM_GOBLIN,
     PM_GARTER_SNAKE,
+    PM_JACKAL,
     PM_LURKER_ABOVE,
+    PM_SEWER_RAT,
     PM_ROCK_PIERCER,
     PM_TENGU,
     S_FELINE,
@@ -212,6 +214,7 @@ import {
     object_class_symbol,
     S_hwall,
     S_arrow_trap,
+    S_engroom,
     S_room,
     S_corr,
     S_darkroom,
@@ -1277,10 +1280,35 @@ test('feel_location stops on a sensed monster and a distant square', () => {
     state.u.uprops[DETECT_MONSTERS] = {
         intrinsic: 0, extrinsic: 1, blocked: 0,
     };
+    // C runs this test last, after set_seenv(), _map_location() and the
+    // dark-room rewrite; the port hoists it above all three so the stop
+    // leaves the map exactly as it found it. Nothing else holds the hoist in
+    // place, so the square is read back here field by field. `seenv`,
+    // `remembered_glyph` and `lastseentyp` are the three map-memory writes,
+    // and `disp_ch` is the drawn cell a show_glyph_cell() below the guard
+    // would have painted.
+    const square = state.level.at(x, y);
+    const rememberedBefore = square.remembered_glyph ?? null;
+    const cellBefore = {
+        seenv: square.seenv ?? null,
+        disp_ch: square.disp_ch ?? null,
+        disp_color: square.disp_color ?? null,
+        lastseentyp: state.level.lastseentyp?.[x]?.[y] ?? null,
+    };
     assert.throws(
         () => feel_location(x, y, state),
         UnsupportedMapMemoryError,
     );
+    // Compared by identity: every map-memory write replaces the record with a
+    // fresh object, so a surviving reference means no write happened.
+    assert.equal(square.remembered_glyph ?? null, rememberedBefore);
+    assert.deepEqual({
+        seenv: square.seenv ?? null,
+        disp_ch: square.disp_ch ?? null,
+        disp_color: square.disp_color ?? null,
+        lastseentyp: state.level.lastseentyp?.[x]?.[y] ?? null,
+    }, cellBefore);
+
     // Without the sensing the same square is felt normally.
     state.u.uprops[DETECT_MONSTERS] = {
         intrinsic: 0, extrinsic: 0, blocked: 0,
@@ -1322,6 +1350,86 @@ test('reglyph_darkroom points S_darkroom at S_room or at nothing', () => {
     state.flags.dark_room = true;
     reglyph_darkroom(state);
     assert.equal(state.gs.showsyms[S_darkroom], state.gs.showsyms[S_room]);
+
+    // display.c:1836-1837 puts Is_rogue_level() beside the two options, so the
+    // rogue level takes the GLYPH_NOTHING arm whatever they say.
+    state.u = { ...state.u, uz: { dnum: 3, dlevel: 15 } };
+    state.rogue_level = { dnum: 3, dlevel: 15 };
+    assert.throws(() => reglyph_darkroom(state), UnsupportedGlyphRepairError);
+});
+
+test('reglyph_darkroom repairs the corridor and room squares it can decide',
+    () => {
+    // display.c:1831-1833 and 1842-1844, the two arms the else branches reach
+    // with 'dark_room' and colour both on. options.c reaches them from
+    // reset_needed_visuals() (8999) after an `O`-menu 'lit_corridor' toggle,
+    // which is a repaint of remembered, out-of-sight squares only: C rewrites
+    // levl[x][y].glyph here and leaves the screen to docrt().
+    const state = feelingHeroBeside(7, 4);
+    state.iflags = { ...(state.iflags ?? {}), wc_color: true };
+    // The row is clear of the hero at <6,4>, so nothing here is adjacent to
+    // her and the squares differ only in the terms the two arms read.
+    const row = 6;
+    const remember = (x, apply) => {
+        const square = state.level.at(x, row);
+        apply(square);
+        square.remembered_glyph = remembered_glyph_from_presentation(
+            terrain_glyph(square, x, row, state),
+        );
+        return square;
+    };
+    // back_to_glyph() answers S_litcorr for a corridor while 'lit_corridor'
+    // is on, and reset_glyphmap() colours it CLR_WHITE so it stays visibly
+    // distinct from the dark corridor symbol.
+    state.flags.lit_corridor = true;
+    const corridor = remember(10, (square) => {
+        square.typ = CORR;
+        square.waslit = false;
+    });
+    assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
+    assert.equal(corridor.remembered_glyph.color, CLR_WHITE);
+    const seenCorridor = remember(18, (square) => {
+        square.typ = CORR;
+        square.waslit = false;
+    });
+    state.flags.lit_corridor = false;
+
+    // 1842-1844 needs all three of seenv, waslit and !cansee, so each of the
+    // last two squares drops one of them.
+    const room = remember(12, (square) => {
+        square.typ = ROOM;
+        square.waslit = true;
+        square.seenv = SVALL;
+    });
+    const unseenRoom = remember(14, (square) => {
+        square.typ = ROOM;
+        square.waslit = true;
+        square.seenv = 0;
+    });
+    const unlitRoom = remember(16, (square) => {
+        square.typ = ROOM;
+        square.waslit = false;
+        square.seenv = SVALL;
+    });
+    assert.equal(room.remembered_glyph.cmap, S_room);
+
+    // cansee() reads viz_array; only <18,6> is in sight.
+    state.viz_array = [];
+    state.viz_array[row] = [];
+    state.viz_array[row][18] = IN_SIGHT;
+
+    reglyph_darkroom(state);
+
+    // The whole point of the corridor arm: C repaints the cell in the
+    // terminal default rather than in CLR_WHITE.
+    assert.equal(corridor.remembered_glyph.cmap, S_corr);
+    assert.equal(corridor.remembered_glyph.color, NO_COLOR);
+    assert.equal(room.remembered_glyph.cmap, S_darkroom);
+    // A square the hero can see is repainted by docrt() from what is really
+    // there, so C leaves its memory alone.
+    assert.equal(seenCorridor.remembered_glyph.cmap, S_litcorr);
+    assert.equal(unseenRoom.remembered_glyph.cmap, S_room);
+    assert.equal(unlitRoom.remembered_glyph.cmap, S_room);
 });
 
 test('same_remembered_glyph separates S_room from S_darkroom', () => {
@@ -1389,6 +1497,96 @@ test('same_remembered_glyph separates S_room from S_darkroom', () => {
     assert.equal(same_remembered_glyph(plain, coloured([1, 2, 3])), false);
 });
 
+test('same_remembered_glyph separates each part of a glyph number', () => {
+    // lock.c:584 answers "changed" whenever the two glyph numbers differ, so
+    // every part of a glyph number this port keeps has to separate a pair on
+    // its own. Each case below changes exactly one term of a presentation
+    // that is otherwise identical, so a term dropped from the comparison
+    // leaves its case answering "unchanged".
+    const base = { ch: '.', color: NO_COLOR, dec: false };
+    const from = (extra, trap = null) => remembered_glyph_from_presentation(
+        { ...base, ...extra }, trap,
+    );
+    const reference = from({});
+    const cases = [
+        // terrainCmap() stamps `cmap`, which is what cmap_to_glyph() encodes
+        // for a piece of terrain. S_room is an arbitrary index: any value
+        // separates a terrain record from one carrying none.
+        ['cmap', from({ cmap: S_room })],
+        // object_glyph_info() stamps `objectGlyphId`, which is what
+        // display.h normal_obj_to_glyph() encodes. The string below is the
+        // shape that function writes for an ordinary object.
+        ['objectGlyphId', from({ objectGlyphId: 'obj:1' })],
+        ['ch', from({ ch: '#' })],
+        ['color', from({ color: CLR_RED })],
+        // `dec` is the presentation term; `decgfx` is the remembered one.
+        ['decgfx', from({ dec: true })],
+        // The two browser projection fields, which a SYMBOLS customization
+        // fills in and the terminal draw does not.
+        ['displayCh', from({ displayCh: 'x' })],
+        ['displayColor', from({ displayColor: CLR_RED })],
+        ['attr', from({ attr: ATR_INVERSE })],
+        // The trap identity comes from the second argument rather than from
+        // the presentation. PIT is one arbitrary ttyp.
+        ['trapType', from({}, { ttyp: PIT })],
+        ['objectGlyph', from({ objectGlyph: true })],
+        ['genericObject', from({ genericObject: true })],
+        // Nothing writes `invisible_monster` yet: it stands for C's
+        // GLYPH_INVISIBLE range, which only the unported map_invisible()
+        // fills, so this pair is built on the record rather than through a
+        // presentation.
+        ['invisible_monster', { ...reference, invisible_monster: true }],
+    ];
+    for (const [field, other] of cases) {
+        assert.equal(same_remembered_glyph(reference, other), false, field);
+        assert.equal(same_remembered_glyph(other, reference), false, field);
+    }
+});
+
+test('same_remembered_glyph separates two objects that draw the same cell',
+    () => {
+    // display.h obj_to_glyph() (963-968) numbers a corpse by corpsenm and an
+    // ordinary object by otyp, so C's `door->glyph != oldglyph` at lock.c:584
+    // answers "changed" for two objects of one class and one colour. This
+    // port stores a presentation, which cannot tell them apart on its own.
+    const state = visibleCellState();
+    const corpse = (corpsenm) => remembered_glyph_from_presentation(
+        object_glyph_info({
+            otyp: CORPSE,
+            oclass: state.objects[CORPSE].oc_class,
+            corpsenm,
+            dknown: true,
+        }, state),
+    );
+    // monst.c gives PM_JACKAL and PM_SEWER_RAT the same mcolor, so their
+    // corpses draw one '%' in one colour; C compares GLYPH_BODY_OFF + 12
+    // against GLYPH_BODY_OFF + 88.
+    const jackal = corpse(PM_JACKAL);
+    const rat = corpse(PM_SEWER_RAT);
+    assert.equal(jackal.ch, rat.ch);
+    assert.equal(jackal.color, rat.color);
+    assert.equal(same_remembered_glyph(jackal, rat), false);
+    // Two records for the same species are the same glyph number.
+    assert.equal(same_remembered_glyph(jackal, corpse(PM_JACKAL)), true);
+
+    // The same holds one range up: ARROW and CROSSBOW_BOLT are both
+    // WEAPON_CLASS with the same objects[].oc_color, and C numbers them
+    // GLYPH_OBJ_OFF + 18 against GLYPH_OBJ_OFF + 23.
+    const weapon = (otyp) => remembered_glyph_from_presentation(
+        object_glyph_info({
+            otyp,
+            oclass: state.objects[otyp].oc_class,
+            dknown: true,
+        }, state),
+    );
+    const arrow = weapon(ARROW);
+    const bolt = weapon(CROSSBOW_BOLT);
+    assert.equal(arrow.ch, bolt.ch);
+    assert.equal(arrow.color, bolt.color);
+    assert.equal(same_remembered_glyph(arrow, bolt), false);
+    assert.equal(same_remembered_glyph(arrow, weapon(ARROW)), true);
+});
+
 test('feel_location keeps its four tactile-state terms apart', () => {
     // display.c:769-771 and 776-891. Each state has its own single writer in
     // js/, so each is set on its own here; a guard that had folded them into
@@ -1442,6 +1640,74 @@ test('feel_location reveals only an engraving that can be felt', () => {
     }
 });
 
+test('feel_location maps a seen trap, and an object above it', () => {
+    // display.c _map_location() (455-458) tries the object layer first, then a
+    // tseen trap, then the engraving, then the background. pick_lock() can
+    // name any adjacent square, so a trapped one is squarely within reach of
+    // the widened function.
+    const x = 7;
+    const y = 4;
+    const state = feelingHeroBeside(x, y);
+    const square = state.level.at(x, y);
+    square.typ = ROOM;
+    // PIT is one ordinary floor trap; its ttyp is what map_trap() keeps
+    // beside the presentation.
+    const trap = { ttyp: PIT, tx: x, ty: y, tseen: 1 };
+    state.level.traps = [trap];
+    const trapGlyph = trap_glyph_info(trap, state);
+
+    feel_location(x, y, state);
+    assert.equal(square.remembered_glyph.cmap, trapGlyph.cmap);
+    assert.equal(square.remembered_glyph.trapType, PIT);
+    assert.equal(square.disp_ch, trapGlyph.ch);
+
+    // An object on the same square takes the arm above, and the trap identity
+    // does not travel with a record that no longer represents the trap.
+    state.level.objects[x][y] = {
+        otyp: ARROW,
+        oclass: WEAPON_CLASS,
+        dknown: true,
+        where: OBJ_FLOOR,
+        ox: x,
+        oy: y,
+        nexthere: null,
+    };
+    feel_location(x, y, state);
+    assert.equal(square.remembered_glyph.objectGlyph, true);
+    assert.equal(square.remembered_glyph.trapType ?? null, null);
+    assert.equal(square.remembered_glyph.cmap ?? null, null);
+});
+
+test('feel_location writes a felt engraving to memory only under hero_memory',
+    () => {
+    // display.c map_engraving() (313-320) guards its memory write with
+    // svl.level.flags.hero_memory and draws either way, so a level that keeps
+    // no memory still shows the engraving under the hero's fingers.
+    const x = 7;
+    const y = 4;
+    for (const heroMemory of [true, false]) {
+        const state = feelingHeroBeside(x, y);
+        state.level.flags.hero_memory = heroMemory;
+        const square = state.level.at(x, y);
+        square.typ = ROOM;
+        // BURN is one of the engraving types engr_can_be_felt() admits, so
+        // feel_location() reveals it before _map_location() reads it back.
+        make_engr_at(x, y, 'X', 'X', 0, BURN, { state });
+
+        feel_location(x, y, state);
+        assert.equal(
+            square.disp_ch,
+            cmap_symbol(S_engroom, state).ch,
+            `hero_memory ${heroMemory}`,
+        );
+        assert.equal(
+            square.remembered_glyph?.cmap ?? null,
+            heroMemory ? S_engroom : null,
+            `hero_memory ${heroMemory}`,
+        );
+    }
+});
+
 test('feel_location darkens a lit room only under dark_room and colour', () => {
     // display.c:894-897. A square the hero has seen lit keeps S_room unless
     // both options are on; only `!lev->waslit` reaches the rewrite otherwise.
@@ -1457,6 +1723,23 @@ test('feel_location darkens a lit room only under dark_room and colour', () => {
     assert.equal(floor.remembered_glyph.cmap, S_room);
 
     state.flags.dark_room = true;
+    feel_location(x, y, state);
+    assert.equal(floor.remembered_glyph.cmap, S_darkroom);
+
+    // C's second operand is `flags.dark_room && iflags.use_color`, so turning
+    // colour off puts a square the hero has seen lit back out of reach of the
+    // rewrite however 'dark_room' stands. Under OPTIONS=!color the port still
+    // reaches here: js/jsmain.js runs reglyph_darkroom() before any level
+    // exists, so its refusal does not fire, and showsyms[S_darkroom] is
+    // pointed at the SYM_NOTHING byte -- which is why losing this operand
+    // would erase the square from the map rather than merely recolour it.
+    state.iflags = { ...state.iflags, wc_color: false };
+    feel_location(x, y, state);
+    assert.equal(floor.remembered_glyph.cmap, S_room);
+
+    // The `!lev->waslit` half still fires without colour, because C's two
+    // operands are joined by `||`.
+    floor.waslit = false;
     feel_location(x, y, state);
     assert.equal(floor.remembered_glyph.cmap, S_darkroom);
 });
