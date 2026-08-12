@@ -1,10 +1,14 @@
 // mhitu.js -- Monsters attacking the hero.
-// C ref: mhitu.c -- mattacku(), its preamble and its u.usteed arm.
+// C ref: mhitu.c -- mattacku(), its preamble and its u.usteed arm, and
+// magic_negation().
 
+import { PROTECTION, W_AMUL, W_ARMOR } from './const.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { dist2 } from './hacklib.js';
-import { is_orc } from './mondata.js';
+import { is_minion, is_orc } from './mondata.js';
+import { PM_ALIGNED_CLERIC } from './monsters.js';
+import { AMULET_OF_GUARDING, getObjects } from './objects.js';
 
 // C ref: hack.h distu() and mdistu(). mdistu() is distu() applied to a
 // monster's own square, with no long-worm handling of its own.
@@ -72,4 +76,64 @@ export function mattacku(monster, { state = game, random, unsupported }) {
         }
     }
     return false;
+}
+
+// C ref: mhitu.c magic_negation() (1088-1137). "armor that sufficiently covers
+// the body might be able to block magic"; the answer is the magic-cancellation
+// factor, 0 through 3.
+//
+// This covers the `mon == &gy.youmonst` half. insight.c:1800 is the only caller
+// this port reaches and it passes the hero, and `is_you` is what makes C's
+// `if (is_you || gotprot) continue;` end every loop iteration early. That
+// leaves worn.c protects() and obj.c is_weptool() -- the whole apparatus the
+// monster half needs -- unreached. uhitm.c:86 is the C caller that passes a
+// monster; no ported path reaches it, so this throws instead of answering a
+// cancellation factor it did not compute.
+export function magic_negation(mon, state = game) {
+    if (mon !== state.youmonst) {
+        throw new TypeError('magic_negation() covers only the hero; the'
+            + ' monster half needs worn.c protects()');
+    }
+    const { u } = state;
+    const objects = getObjects(state);
+    let mc = 0;
+    let via_amul = false;
+    const gotprot = Boolean(u.uprops?.[PROTECTION]?.extrinsic);
+
+    for (let o = state.invent; o; o = o.nobj) {
+        const wornmask = o.owornmask ?? 0;
+        /* a_can field is only applicable for armor (which must be worn) */
+        if ((wornmask & W_ARMOR) !== 0) {
+            const armpro = objects[o.otyp].a_can;
+            if (armpro > mc) mc = armpro;
+        } else if ((wornmask & W_AMUL) !== 0) {
+            // C assigns rather than accumulates, so a second worn amulet would
+            // overwrite the first. Only one amulet slot exists, so the two
+            // spellings cannot differ; ported as written.
+            via_amul = (o.otyp === AMULET_OF_GUARDING);
+        }
+        /* if we've already confirmed Protection, skip additional checks */
+        /* (is_you ends every iteration here, so the rest of C's loop body --
+           the wearmask and protects() calls -- belongs to the monster half) */
+    }
+
+    if (gotprot) {
+        /* extrinsic Protection increases mc by 1 (2 for amulet of guarding);
+           multiple sources don't provide multiple increments */
+        mc += via_amul ? 2 : 1;
+        if (mc > 3)
+            mc = 3;
+    } else if (mc < 1) {
+        /* intrinsic Protection is weaker (play balance; obtaining divine
+           protection is too easy); it confers minimum mc 1 instead of 0 */
+        if ((u.uprops?.[PROTECTION]?.intrinsic && u.ublessed > 0)
+            || u.uspellprot
+            /* aligned priests and angels have innate intrinsic Protection */
+            // Indexed without a guard on purpose: an absent catalog would make
+            // two undefineds compare equal and answer 1 where C answers 0.
+            || mon.data === state.mons[PM_ALIGNED_CLERIC]
+            || is_minion(mon.data))
+            mc = 1;
+    }
+    return mc;
 }

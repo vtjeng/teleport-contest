@@ -562,7 +562,9 @@ async function verifySkill(recipeSegment) {
 
     // wintty.c:2728-2733 cuts a stored line whose length plus its two padding
     // cells exceeds the terminal width.
-    const lines = enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, game);
+    const lines = await enlightenment(
+        BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, game,
+    );
     const longest = Math.max(...lines.map((line) => line.length));
     if ((longest + 2 > game.nhDisplay.cols) !== clipped) {
         throw new Error(
