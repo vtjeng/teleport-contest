@@ -268,15 +268,9 @@ function preflightDoname(obj, type, state, allowLiveShopPrice) {
         unsupported('price quote suffix', obj);
     if (obj.owornmask & (W_RING | W_RINGL | W_RINGR))
         unsupported('worn-ring suffix', obj);
-    // doname_base() reads u.twoweap in exactly two places, both inside a
-    // wielded-slot arm: objnam.c:1562 derives twoweap_primary for W_WEP, which
-    // :1575 and :1593 consume, and :1614 chooses the W_SWAPWEP phrasing.
-    // wornSuffix() below omits both, so those two slots must still refuse. No
-    // other worn mask carries a u.twoweap term -- armor, rings, the amulet and
-    // the quiver are phrased the same either way -- so refusing them was wider
-    // than C.
-    if ((obj.owornmask & (W_WEP | W_SWAPWEP)) && state.u?.twoweap)
-        unsupported('two-weapon suffix', obj);
+    // objnam.c:1563 and :1592. wornSuffix() below ports the "wielded in" and
+    // "weapon in" arms of that word choice; "tethered to" would also have to
+    // follow the aklys back to the hand it is attached to, so it still stops.
     if ((obj.owornmask & W_WEP) && obj.otyp === AKLYS)
         unsupported('tethered weapon suffix', obj);
     // objnam.c:1391 names uskin " (embedded in your skin)" instead of
@@ -751,13 +745,22 @@ function wornSuffix(obj, type, state) {
         if (obj === state.uarmg && Glib(state))
             suffix = `${suffix.slice(0, -1)}; slippery)`;
     }
+    // objnam.c:1561 also requires !gm.mrg_to_wielded, which pickup.c:1881-1882
+    // raises only while pickup_prinv() names a stack that just merged into the
+    // wielded weapon. Nothing here owns that flag: js/pickup.js:461 refuses
+    // that merge outright, so the guard is always true at this point.
     if (mask & W_WEP) {
+        // objnam.c:1562. The primary of a dual-wield keeps the hand phrasing
+        // even when the alternate test below would otherwise take it, and
+        // reads "wielded in" rather than "weapon in".
+        const twoweapPrimary = obj === state.uwep && Boolean(state.u.twoweap);
         // C uses the alternate phrasing for stacks, for wielded ammo and
         // missiles, and for non-weapons that are not weapon-tools.
-        const alternate = obj.quan !== 1
+        const alternate = (obj.quan !== 1
             || (obj.oclass === WEAPON_CLASS
                 ? (is_ammo(obj, state) || is_missile(obj, state))
-                : !is_weptool(obj, state));
+                : !is_weptool(obj, state)))
+            && !twoweapPrimary;
         if (alternate) {
             suffix += ' (wielded)';
         } else {
@@ -766,11 +769,25 @@ function wornSuffix(obj, type, state) {
                 ? makeplural(hand)
                 : `${state.u.uhandedness === RIGHT_HANDED ? 'right' : 'left'
                 } ${hand}`;
-            suffix += ` (weapon in ${hands})`;
+            // objnam.c:1591-1595. The "tethered to" arm of the same choice is
+            // an AKLYS, which preflightDoname() refuses above.
+            suffix += ` (${twoweapPrimary ? 'wielded in' : 'weapon in'
+            } ${hands})`;
         }
     }
-    if (mask & W_SWAPWEP)
-        suffix += ` (alternate weapon${obj.quan === 1 ? '' : 's'}; not wielded)`;
+    if (mask & W_SWAPWEP) {
+        // objnam.c:1613-1621. The secondary names the other hand from the
+        // primary, so URIGHTY picks "left" here where :1586 picked "right".
+        if (state.u.twoweap) {
+            const side = state.u.uhandedness === RIGHT_HANDED
+                ? 'left' : 'right';
+            const hand = body_part(HAND, state.youmonst);
+            suffix += ` (wielded in ${side} ${hand})`;
+        } else {
+            suffix += ` (alternate weapon${obj.quan === 1 ? '' : 's'
+            }; not wielded)`;
+        }
+    }
     if (mask & W_QUIVER) {
         // C's Qtyp: 1 is bow ammo, 2 is anything small enough for the pouch,
         // and 3 is everything else.

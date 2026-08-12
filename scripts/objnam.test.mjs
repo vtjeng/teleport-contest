@@ -108,6 +108,7 @@ import {
     TIN,
     AMULET_OF_ESP,
     BLINDFOLD,
+    AKLYS,
     ARROW,
     TWO_HANDED_SWORD,
     DAGGER,
@@ -941,53 +942,154 @@ test('armor fused to the hero\'s skin still refuses', () => {
     assert.match(donameFresh(scales, state), / \(being worn\)$/u);
 });
 
-// C ref: objnam.c doname_base() (1221-1751). `grep -n twoweap` over objnam.c
-// returns four lines, all inside that function: :1562 derives
-// twoweap_primary from `obj == uwep && u.twoweap`, :1575 and :1593 consume
-// it, and :1614 picks the W_SWAPWEP phrasing. Every other worn mask is
-// phrased the same whether or not two-weapon combat is on, so only the two
-// wielded slots may refuse while u.twoweap is set.
-test('only the two wielded slots refuse while two-weaponing', () => {
+// A right-handed humanoid hero holding a long sword and a dagger, the pair
+// the tests below dual-wield. `u.twoweap` is left off; each test sets it.
+// C ref: objnam.c doname_base() (1561-1621), the W_WEP and W_SWAPWEP arms.
+// `grep -n twoweap` over objnam.c returns four lines, all inside that
+// function: :1562 derives twoweap_primary from `obj == uwep && u.twoweap`,
+// :1575 and :1593 consume it, and :1614 picks the W_SWAPWEP phrasing.
+function dualWieldState(primaryOtyp = LONG_SWORD, primaryOverrides = {}) {
     const state = namingState();
     state.youmonst = {
         data: { mflags1: M1_HUMANOID, msize: MZ_MEDIUM, mattk: [] },
     };
     state.u.uhandedness = RIGHT_HANDED;
+    state.u.twoweap = false;
+    state.uwep = objectOf(state, primaryOtyp, {
+        owornmask: W_WEP, bknown: true, known: true, spe: 0,
+        ...primaryOverrides,
+    });
+    state.uswapwep = objectOf(state, DAGGER, {
+        owornmask: W_SWAPWEP, bknown: true, known: true, spe: 0,
+    });
+    return state;
+}
+
+test('a dual-wielded pair names one hand each', () => {
+    const state = dualWieldState();
+
+    // Off: the pair names itself the way any other wielded weapon and
+    // secondary do, which is what C:1594 and C:1619 say.
+    assert.match(donameFresh(state.uwep, state), / \(weapon in right hand\)$/u);
+    assert.match(donameFresh(state.uswapwep, state),
+        / \(alternate weapon; not wielded\)$/u);
+
+    // On: C:1593 answers "wielded in" where C:1594 answered "weapon in", and
+    // C:1615-1616 gives the secondary the hand the primary did not take.
     state.u.twoweap = true;
-    const worn = (otyp, mask, overrides = {}) => donameFresh(
-        objectOf(state, otyp, { owornmask: mask, bknown: true, ...overrides }),
-        state,
-    );
+    assert.match(donameFresh(state.uwep, state),
+        / \(wielded in right hand\)$/u);
+    assert.match(donameFresh(state.uswapwep, state),
+        / \(wielded in left hand\)$/u);
+});
 
-    // W_WEP: C:1593 would answer "wielded in" instead of "weapon in", and
-    // C:1575's `&& !twoweap_primary` would keep a stack out of the
-    // "(wielded)" arm. wornSuffix() has neither term.
-    assert.throws(
-        () => worn(LONG_SWORD, W_WEP),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'two-weapon suffix',
-    );
-    // W_SWAPWEP: C:1614-1616 would answer "wielded in left hand".
-    assert.throws(
-        () => worn(DAGGER, W_SWAPWEP),
-        (error) => error instanceof UnsupportedObjectNameError
-            && error.branch === 'two-weapon suffix',
-    );
+// C:1586 and C:1616 read URIGHTY from opposite sides of the same hero, so a
+// left-handed hero swaps both phrases at once. u_init.c:395 makes one hero in
+// ten left-handed.
+test('a left-handed hero holds the primary in the left hand', () => {
+    const state = dualWieldState();
+    state.u.uhandedness = LEFT_HANDED;
+    state.u.twoweap = true;
+    assert.match(donameFresh(state.uwep, state), / \(wielded in left hand\)$/u);
+    assert.match(donameFresh(state.uswapwep, state),
+        / \(wielded in right hand\)$/u);
 
-    // The masks C phrases identically either way. Each is named here with
-    // two-weapon combat on and matches what the same object produces with it
-    // off, which is what the branches above this test pin.
+    // With the flag off only the primary carries a hand, and it is still the
+    // left one: C:1586 is the same expression in both arms.
+    state.u.twoweap = false;
+    assert.match(donameFresh(state.uwep, state), / \(weapon in left hand\)$/u);
+});
+
+// C:1575's `&& !twoweap_primary` is what keeps the primary out of the
+// "(wielded)" arm. Its comment at :1566-1570 says so: dual-wielded ammo and
+// missiles take "the regular phrasing ... to contrast with secondary weapon's
+// 'in left hand'".
+test('a stacked or ammo primary keeps the hand phrasing while dual-wielding',
+    () => {
+        // A stack of daggers, the quan != 1 half of C:1571.
+        const stacked = dualWieldState(DAGGER, { quan: 3 });
+        assert.match(donameFresh(stacked.uwep, stacked), / \(wielded\)$/u);
+        stacked.u.twoweap = true;
+        assert.match(donameFresh(stacked.uwep, stacked),
+            / \(wielded in right hand\)$/u);
+
+        // A single arrow, the is_ammo() half. One item, so only the class
+        // test at C:1572-1573 sends it to the alternate phrasing.
+        const ammo = dualWieldState(ARROW);
+        assert.match(donameFresh(ammo.uwep, ammo), / \(wielded\)$/u);
+        ammo.u.twoweap = true;
+        assert.match(donameFresh(ammo.uwep, ammo),
+            / \(wielded in right hand\)$/u);
+    });
+
+// C:1562 tests `obj == uwep`, not the mask. Only one object can be uwep, so a
+// second one carrying W_WEP is not the primary of anything.
+test('only uwep is the two-weapon primary', () => {
+    const state = dualWieldState();
+    state.u.twoweap = true;
+    const impostor = objectOf(state, LONG_SWORD, {
+        owornmask: W_WEP, bknown: true, known: true, spe: 0,
+    });
+    assert.match(donameFresh(impostor, state), / \(weapon in right hand\)$/u);
+    // And without twoweap_primary to hold it back, a stack takes C:1576.
+    const stack = objectOf(state, DAGGER, {
+        owornmask: W_WEP, bknown: true, known: true, spe: 0, quan: 3,
+    });
+    assert.match(donameFresh(stack, state), / \(wielded\)$/u);
+});
+
+// C:1619's plur(obj->quan) belongs to the alternate-weapon phrasing alone.
+// C:1615's dual-wield phrasing names a hand and never a count.
+test('the secondary pluralizes only while it is the alternate weapon', () => {
+    const state = dualWieldState();
+    state.uswapwep.quan = 3;
+    assert.match(donameFresh(state.uswapwep, state),
+        / \(alternate weapons; not wielded\)$/u);
+    state.u.twoweap = true;
+    assert.match(donameFresh(state.uswapwep, state),
+        / \(wielded in left hand\)$/u);
+});
+
+// C:1581-1583 answers makeplural(body_part(HAND)) for a bimanual weapon in
+// either arm, so the hand phrasing loses its side. wield.c:786 refuses to
+// start two-weapon combat with one, so only the flag-off half occurs in play.
+test('a bimanual primary names both hands', () => {
+    const state = dualWieldState(TWO_HANDED_SWORD);
+    assert.match(donameFresh(state.uwep, state), / \(weapon in hands\)$/u);
+    state.u.twoweap = true;
+    assert.match(donameFresh(state.uwep, state), / \(wielded in hands\)$/u);
+});
+
+// Every other worn mask is phrased the same whether or not two-weapon combat
+// is on, so turning the flag on must leave all of them alone.
+test('two-weapon combat renames no other worn slot', () => {
+    const state = dualWieldState();
+    state.u.twoweap = true;
+    const worn = (otyp, mask) => donameFresh(
+        objectOf(state, otyp, { owornmask: mask, bknown: true }), state,
+    );
     assert.match(worn(AMULET_OF_ESP, W_AMUL), / \(being worn\)$/u);
     assert.match(worn(LEATHER_ARMOR, W_ARM), / \(being worn\)$/u);
     assert.match(worn(BLINDFOLD, W_TOOL), / \(being worn\)$/u);
     assert.match(worn(ARROW, W_QUIVER), / \(in quiver\)$/u);
+});
 
-    // With two-weapon combat off the same two slots name themselves, so the
-    // refusal above is the flag's doing and not the mask's.
-    state.u.twoweap = false;
-    assert.match(worn(LONG_SWORD, W_WEP), / \(weapon in right hand\)$/u);
-    assert.match(
-        worn(DAGGER, W_SWAPWEP), / \(alternate weapon; not wielded\)$/u,
+// C:1592's "tethered to" arm of the same word choice. An aklys is attached to
+// the hand by a thong, and naming it that way is not ported.
+test('a wielded aklys still refuses', () => {
+    const state = dualWieldState(AKLYS);
+    assert.throws(
+        () => donameFresh(state.uwep, state),
+        (error) => error instanceof UnsupportedObjectNameError
+            && error.branch === 'tethered weapon suffix',
+    );
+    // The refusal follows the object into two-weapon combat, where C would
+    // still print "tethered to" rather than "wielded in".
+    state.u.twoweap = true;
+    assert.throws(
+        () => donameFresh(state.uwep, state),
+        (error) => error instanceof UnsupportedObjectNameError
+            && error.branch === 'tethered weapon suffix',
     );
 });
 

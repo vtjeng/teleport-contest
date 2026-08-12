@@ -4,7 +4,7 @@
 // Every segment contains replay inputs only; runFreshMatrix() records new
 // reference output in an isolated temporary workspace.
 //
-// Four groups of cases:
+// Six groups of cases:
 //
 // - TIME_COST_CASES settle wield.c dotwoweapon()'s single draw. It ends
 //   `(rnd(20) > ACURR(A_DEX)) ? ECMD_TIME : ECMD_OK`, so one draw decides
@@ -24,6 +24,9 @@
 //   objnam.c doname_base()'s owornmask suffixes are formatted with u.twoweap
 //   set. It reads the flag only for W_WEP (:1562) and W_SWAPWEP (:1614), so
 //   every other worn mask has to name itself unchanged.
+// - INVENTORY_CASES open the inventory menu, where invent.c ddoinv() names
+//   both wielded slots side by side. Each case selects one arm of the two
+//   word choices at objnam.c:1591-1595 and :1613-1621.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,6 +38,7 @@ import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { could_twoweap } from '../js/mondata.js';
 import { FEDORA, KATANA, SHORT_SWORD } from '../js/objects.js';
+import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { bimanual } from '../js/worn.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
@@ -45,6 +49,8 @@ const DATETIME = '20310203040506';
 const WAIT = '.';
 // cmd.c extcmdlist[] binds '#' to doextcmd(); "twoweapon" names row 0x58.
 const TWOWEAPON = '#twoweapon\n';
+// 'i' opens the inventory menu through invent.c ddoinv(); escape closes it.
+const INVENTORY = 'i\x1b';
 
 // Recorded C results for each seed: the rnd(20) the C log attributes to
 // dotwoweapon(wield.c:861), and the Dexterity its status line shows. `costs`
@@ -136,6 +142,32 @@ export const WEAPONSTATUS_CASES = [
 // oc_delay of 0, which is what do_wear.c armoroff() admits today.
 export const NAMING_CASES = [
     { who: 'archeologist', seed: REFUSAL_SEED, takeOff: 'c', otyp: FEDORA },
+];
+
+// objnam.c:1571-1595 and :1613-1621 are two word choices over the same hero,
+// and the inventory menu shows both at once. `twoweapon` picks the arm;
+// `lefty` states which way URIGHTY reads, since :1586 and :1616 take opposite
+// sides of it.
+//
+// 7710205 is the first seed at or above 7710200 whose Samurai u_init.c:395
+// draw comes up LEFT_HANDED and whose start the port already replays. That
+// draw is character creation's own rn2(10), so a scan of starts is the only
+// way to find one; every other case reuses REFUSAL_SEED.
+export const INVENTORY_CASES = [
+    // Flag clear: ":1594 weapon in right hand" over ":1619 alternate weapon;
+    // not wielded". The control that shows what the flag changes.
+    { who: 'samurai', seed: REFUSAL_SEED, twoweapon: false, lefty: false },
+    // Flag set over the same start: ":1593 wielded in right hand" over
+    // ":1615 wielded in left hand".
+    { who: 'samurai', seed: REFUSAL_SEED, twoweapon: true, lefty: false },
+    // The same pair for a left-handed hero, where both phrases swap hands.
+    { who: 'samurai', seed: 7710205, twoweapon: true, lefty: true },
+    // The Rogue's stack of daggers in the secondary slot, which is the only
+    // starting loadout that has one. Flag clear, so :1619's plur(obj->quan)
+    // reads "alternate weapons".
+    { who: 'rogue', seed: REFUSAL_SEED, twoweapon: false, lefty: false },
+    // The same stack with the flag set: :1615 names a hand and no count.
+    { who: 'rogue', seed: REFUSAL_SEED, twoweapon: true, lefty: false },
 ];
 
 // Each case names the can_twoweapon() arm its role reaches and the state that
@@ -238,6 +270,25 @@ export function loadTwoWeaponNamingRecipe() {
     return validateCleanRecipe({
         version: 5,
         segments: NAMING_CASES.map((entry) => namingSegment(entry)),
+    });
+}
+
+// The command when the case wants it, then the inventory menu and the escape
+// that closes it. No trailing wait: ddoinv() costs no time, so a later turn
+// would only repeat screens the other groups already compare.
+function inventorySegment({ seed, who, twoweapon }) {
+    return {
+        seed,
+        datetime: DATETIME,
+        nethackrc: nethackrc(who),
+        moves: `${WAIT}${twoweapon ? TWOWEAPON : ''}${INVENTORY}`,
+    };
+}
+
+export function loadTwoWeaponInventoryRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: INVENTORY_CASES.map((entry) => inventorySegment(entry)),
     });
 }
 
@@ -373,6 +424,59 @@ async function verifyNaming(recipeSegment) {
     }
 }
 
+async function verifyInventory(recipeSegment) {
+    // Two Samurai cases share a nethackrc and differ only in whether the
+    // command runs, so this group is matched on the whole segment.
+    const found = INVENTORY_CASES.find((entry) => {
+        const built = inventorySegment(entry);
+        return built.seed === recipeSegment.seed
+            && built.moves === recipeSegment.moves
+            && built.nethackrc === recipeSegment.nethackrc;
+    });
+    if (!found) throw new Error(`no inventory case for ${recipeSegment.seed}`);
+    const { who, twoweapon, lefty } = found;
+
+    // Stop with the menu still unopened, and check that the hero really is in
+    // the state whose arm this case was chosen for.
+    await runSegment({
+        ...recipeSegment,
+        moves: `${WAIT}${twoweapon ? TWOWEAPON : ''}`,
+    });
+    if (Boolean(game.u.twoweap) !== twoweapon) {
+        throw new Error(
+            `${who} reached the menu with two-weapon combat `
+            + `${game.u.twoweap ? 'on' : 'off'}`,
+        );
+    }
+    // objnam.c:1586 and :1616 read URIGHTY, so a case that lost its
+    // handedness would compare the wrong pair of hands.
+    const handedness = lefty ? LEFT_HANDED : RIGHT_HANDED;
+    if (game.u.uhandedness !== handedness) {
+        throw new Error(
+            `the ${who} at seed ${recipeSegment.seed} is not `
+            + `${lefty ? 'left' : 'right'}-handed`,
+        );
+    }
+    if (!game.uwep || !game.uswapwep)
+        throw new Error(`${who} does not hold two weapons`);
+    // objnam.c:1571 splits on quan, and :1619 pluralizes on it. The Rogue is
+    // here for the stacked secondary; the Samurai for the singular one.
+    const stacked = game.uswapwep.quan > 1;
+    if (stacked !== (who === 'rogue')) {
+        throw new Error(
+            `${who}'s secondary holds ${game.uswapwep.quan}, the wrong count `
+            + 'for the arm this case selects',
+        );
+    }
+
+    // Open and close the menu. ddoinv() costs no time, so the turn counter
+    // has to sit where the command before it left it.
+    const movesBefore = game.moves;
+    await runSegment(recipeSegment);
+    if (game.moves !== movesBefore)
+        throw new Error('the inventory menu spent a move');
+}
+
 async function verifyWeaponStatus(recipeSegment) {
     // Stop one keystroke before the Enter. The option has to be on, or the
     // field would be missing from the screen rather than merely wrong.
@@ -394,12 +498,15 @@ async function verifyWeaponStatus(recipeSegment) {
 }
 
 // Routes a segment to the group it belongs to. The time-cost group is the one
-// with its own seeds; the other three share REFUSAL_SEED and are told apart by
-// the nethackrc, which names a different role or sets a different option for
-// every case.
+// with its own seeds; the naming and inventory groups are the ones whose moves
+// carry a command letter after the extended command; the rest share
+// REFUSAL_SEED and are told apart by the nethackrc, which names a different
+// role or sets a different option for every case.
 export async function verifyTwoWeaponCommandSegment(recipeSegment) {
     if (TIME_COST_CASES.some((e) => e.seed === recipeSegment.seed))
         await verifyTimeCost(recipeSegment);
+    else if (recipeSegment.moves.endsWith(INVENTORY))
+        await verifyInventory(recipeSegment);
     else if (recipeSegment.moves.includes('T'))
         await verifyNaming(recipeSegment);
     else if (WEAPONSTATUS_CASES.some(
@@ -428,6 +535,8 @@ export async function runTwoWeaponCommandMatrix() {
               recipe: loadTwoWeaponStatusRecipe() },
             { label: 'twoweapon worn naming',
               recipe: loadTwoWeaponNamingRecipe() },
+            { label: 'twoweapon inventory naming',
+              recipe: loadTwoWeaponInventoryRecipe() },
         ],
         summaryLabel: 'TWOWEAPON COMMAND',
         verifySegment: verifyTwoWeaponCommandSegment,

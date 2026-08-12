@@ -3,9 +3,11 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    INVENTORY_CASES,
     REFUSAL_CASES,
     TIME_COST_CASES,
     loadTwoWeaponCommandRecipe,
+    loadTwoWeaponInventoryRecipe,
     loadTwoWeaponNamingRecipe,
     loadTwoWeaponRefusalRecipe,
     loadTwoWeaponStatusRecipe,
@@ -105,6 +107,45 @@ test('every refusal case cites the wield.c line that opens its arm', () => {
     }
 });
 
+test('the inventory matrix names both hands on both sides of the flag', () => {
+    const recipe = loadTwoWeaponInventoryRecipe();
+    assert.equal(recipe.version, 5);
+    // Every segment ends by opening and closing the inventory menu, which is
+    // where invent.c ddoinv() formats both wielded slots at once.
+    assert.ok(recipe.segments.every(
+        ({ moves }) => moves.endsWith('i\u001b'),
+    ));
+    // objnam.c:1562 and :1614 both read u.twoweap, so an arm on each side of
+    // it has to be recorded or the change would look inert.
+    const withCommand = recipe.segments.filter(
+        ({ moves }) => moves.includes('#twoweapon\n'),
+    );
+    assert.ok(withCommand.length >= 1, 'no case turns two-weapon combat on');
+    assert.ok(withCommand.length < recipe.segments.length,
+        'no case leaves two-weapon combat off');
+    // :1586 and :1616 read URIGHTY. u_init.c:395 fixes handedness at
+    // character creation, so a second seed is the only way to see it false.
+    assert.ok(
+        INVENTORY_CASES.some(({ lefty }) => lefty),
+        'no case is left-handed',
+    );
+    assert.ok(
+        new Set(INVENTORY_CASES.filter(({ lefty }) => lefty)
+            .map(({ seed }) => seed))
+            .size === 1,
+        'the left-handed case shares a seed with the right-handed ones',
+    );
+    // :1619's plur(obj->quan) needs a secondary slot holding more than one
+    // object, which u_init.c gives the Rogue alone.
+    assert.deepEqual(recipe.segments.map(roleOf), [
+        'Samurai/human/male',
+        'Samurai/human/male',
+        'Samurai/human/male',
+        'Rogue/human/male',
+        'Rogue/human/male',
+    ]);
+});
+
 test('only the weapon-status matrix turns the status field on', () => {
     // wield.c set_twoweap() marks the status line dirty only under this
     // option, so it is the one group whose screens can show "Dual-weps".
@@ -118,6 +159,7 @@ test('only the weapon-status matrix turns the status field on', () => {
     for (const recipe of [loadTwoWeaponCommandRecipe(),
                           loadTwoWeaponSwitchRecipe(),
                           loadTwoWeaponNamingRecipe(),
+                          loadTwoWeaponInventoryRecipe(),
                           loadTwoWeaponRefusalRecipe()]) {
         assert.ok(recipe.segments.every(
             ({ nethackrc }) => !nethackrc.includes('weaponstatus'),
@@ -131,6 +173,7 @@ test('every #twoweapon case reaches the arm it was chosen for',
                               loadTwoWeaponSwitchRecipe(),
                               loadTwoWeaponRefusalRecipe(),
                               loadTwoWeaponStatusRecipe(),
+                              loadTwoWeaponInventoryRecipe(),
                               loadTwoWeaponNamingRecipe()]) {
             for (const segment of recipe.segments)
                 await verifyTwoWeaponCommandSegment(segment);
