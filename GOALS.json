@@ -1759,8 +1759,8 @@
         },
         {
           "name": "report magic enlightenment under explore mode",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "6621f18c535290a20995cce5f0bf6130e945c515"
         }
       ],
       "openedAt": "479ce81a5337114db23dcc34d85df6987ddaf967",
