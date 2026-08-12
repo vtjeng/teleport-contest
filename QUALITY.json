@@ -1759,6 +1759,33 @@
       "from": "8d694710a8be30c1e5f28240fd09eaa98141bfb7",
       "detail": "insight.c weapon_insight():1436-1462 closes the two-weapon report with 'You can enhance skill(s) with ...' whenever can_advance() holds for the primary, the secondary, or the two-weapon skill, and its six-argument Sprintf at :1452 produces five documented shapes. No fresh C case reaches any of them, so the whole block is pinned only by constructed cases in scripts/insight.test.mjs.\n\nweapon.c can_advance():1156-1168 needs P_ADVANCE(skill) >= practice_needed_to_advance(P_SKILL(skill)) -- skills.h:106 makes that 20 points at P_UNSKILLED and 80 at P_BASIC -- and u.weapon_slots >= slots_required(skill). A fresh hero has 0 of both: u_init.c sets u.weapon_slots to 2 only in pauper_reinit():884, and weapon.c add_weapon_skill():1444 is what grants slots, on a level gain. Practice comes from use_skill(), which uhitm.c:1498 calls once per melee hit that beats minimal damage, so the cheapest single-skill summary is 20 such hits plus an experience level, and the multi-skill shapes need 80 more for the primary. That is far past what a fresh differential over a D:1 start can arrange, and the port has no shortcut: weapon.c enhance_weapon_skill():1329 is unported, and js/weapon.js can_advance() raises UnsupportedWeaponSkillError for the wizard-mode 'Advance skills without practice?' path at :1163.\n\nCost today: zero recorded steps. No development session two-weapons with skill credits to spend.\n\nClosing condition: once enhance_weapon_skill() lands, its wizard-mode speedy path can set the three skills directly; record a debug segment per shape -- but note that insight.c doattributes():2014 makes a debug game's ^X a MAGICENLIGHTENMENT window, so the summary also needs attributes_enlightenment() before a fresh case can compare it.",
       "blockedOn": "enhance_weapon_skill"
+    },
+    {
+      "id": "eat-corpse-arms-without-a-fresh-case",
+      "area": "objects",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "3e84eb06fbef013aa00100858d71ed1a71e5e4a4",
+      "detail": "eat.c maybe_cannibal()'s penalty (779-785), cprefx()'s domestic-animal arm (814-827) and eatcorpse()'s acidic arm (1924-1927) are ported and have no fresh C differential.\n\nNo dungeon level one start the port can replay puts the hero beside their own race, beside the pet whose corpse they could take, or beside an acidic species that leaves one. Wishing for a corpse would supply all three directly, and js/objnam_readobjnam.js:1590 refuses it: objnam.c readobjnam()'s monster-naming arm is unported, so #wizwish diverges before the meal. A scan of seeds 7331000-7334200 for a Valkyrie, a Monk, a Barbarian, an orcish Rogue, a gnomish Wizard and a dwarvish Valkyrie found a hostile adjacent at the start in 130 of them and not one gnome, dwarf, elf or human among the species; the two acidic species that leave a corpse, mons[PM_ACID_BLOB] and mons[PM_BABY_YELLOW_DRAGON], appeared at no start either, and the acid blob conveys MR_ACID and MR_STONE, so eating one would stop at givit() in any case.\n\nscripts/eat-corpse.test.mjs pins all three by replaying the matrix's Barbarian goblin segment (seed 7331694, moves '  nFlFlFlFlFll,.') as far as the pickup, retyping the corpse in inventory to PM_HUMAN, PM_LITTLE_DOG or PM_ACID_BLOB, and answering the #eat prompt. Expected: 'You cannibal!  You will regret this!' with HAggravate_monster raised and luck down 2 to 5; 'You feel that eating the little dog was a bad idea.' with the same flag and no luck change; and 'You have a very bad case of stomach acid.' with one rnd(15) and no taste line. A retyped corpse shows which arm the port takes, not that C takes the same one."
+    },
+    {
+      "id": "eat-corpse-rot-illness-arms",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "3e84eb06fbef013aa00100858d71ed1a71e5e4a4",
+      "detail": "eatcorpse()'s two illness arms stop by name. The tainted arm (eat.c:1892-1922) needs make_sick() with an rn1(10, 10) timeout, corpse_xname(otmp, 'rotted', CXN_NORMAL) and maybe_cannibal(mnum, FALSE); the mildly sickening arm (1939-1943) needs youprop.h:68 Sick_resistance, whose third term is mondata.c defended(&gy.youmonst, AD_DISE) over a wielded artifact or worn dragon scales. The second stop sits one line above C's rn2(5), because the arm cannot be decided without that predicate, so both fail closed with nothing drawn and nothing printed.\n\nReaching either needs (svm.moves - age) / (10 + rn2(20)) above 3. scripts/run-eat-corpse.mjs's two waited cases (seeds 7331404 and 7331780) wait 34 turns after the kill and land on 1, which is what makes eat.c:1989's extra draw reachable; about 130 waited turns would exceed 3 for every divisor, and the port stops on an ordinary monster attack roughly 20 turns in. scripts/eat-corpse.test.mjs reaches the tainted stop by setting the carried corpse's age 400 turns back, which puts rotted above 5 whatever the draw is."
+    },
+    {
+      "id": "eat-corpse-effects-beyond-the-default-arm",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "3e84eb06fbef013aa00100858d71ed1a71e5e4a4",
+      "detail": "cpostfx() (eat.c:1127-1319) ports its default arm and the intrinsic check that follows it. Fourteen species arms stop by name above that: the wraith's pluslvl(), the three human were-forms' set_ulycn(), the nurse's full heal, the stalker's invisibility, the three bats' make_stunned(), the three mimics' nomul() and appearance change, the quantum mechanic's HFast toggle, the lizard's capped timeouts, the four shapechangers' polyself(), the displacer beast, the disenchanter's attrcurse(), the Riders and the two mind flayers. Inside the check, make_hallucinated(), eye_of_newt_buzz(), gainstr() and givit() stop too, so any corpse whose species conveys a resistance, teleport, teleport control or telepathy ends the segment after corpse_intrinsic() has drawn for it -- the killer bee and the acid blob are the two such species a dungeon level one hero meets.\n\neatcorpse() also stops at rottenfood() (1950), which is 1 in 7 of every fresh rotting corpse, and at the glob, green slime and petrifying arms it refuses before drawing. scripts/eat-corpse.test.mjs pins the rottenfood stop through a corpse marked orotten, which is the branch of that condition C reaches without the rn2(7)."
     }
   ],
   "areas": [
