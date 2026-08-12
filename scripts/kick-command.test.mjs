@@ -1,0 +1,325 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+import { LA_UP, STAIRS, WOUNDED_LEGS } from '../js/const.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import {
+    KICK,
+    KICK_CASES,
+    KICK_EXT,
+    SEARCH,
+    VALKYRIE_CHARACTER,
+    kickSegment,
+    loadKickCommandRecipe,
+} from './run-kick-command.mjs';
+
+function cSource(file) {
+    return readFileSync(
+        new URL(`../nethack-c/upstream/${file}`, import.meta.url), 'utf8',
+    ).split('\n');
+}
+// split('\n') is zero-based and C line numbers are one-based.
+const DOKICK_C = cSource('src/dokick.c');
+const CMD_C = cSource('src/cmd.c');
+const HACK_C = cSource('src/hack.c');
+const MON_C = cSource('src/mon.c');
+const SKILLS_H = cSource('include/skills.h');
+const lineOf = (source, number) => source[number - 1].trim();
+
+// Every case runs from the same fixed clock and rc the matrix records with, so
+// a test and its recorded reference cannot drift apart. Two cases share seed
+// 6600001 and the same keys and differ only in the role, so the lookup is by
+// label; loadKickCommandRecipe() builds one segment per case, in order.
+function segmentFor(label) {
+    const index = KICK_CASES.findIndex((entry) => entry.label === label);
+    assert.ok(index >= 0, `the matrix has a case named ${label}`);
+    const segment = loadKickCommandRecipe().segments[index];
+    assert.equal(segment.seed, KICK_CASES[index].seed);
+    assert.equal(segment.moves, KICK_CASES[index].moves);
+    return segment;
+}
+
+// Replay one matrix segment, or a prefix of one, and report what the port
+// stopped on. A refused arm ends the segment through onBoundary rather than
+// throwing, which is the same contract the scorer sees.
+async function replay(segment, moves) {
+    let boundary = null;
+    const nhGame = await runSegment(
+        { ...segment, moves },
+        { onBoundary: (error) => { boundary = error; } },
+    );
+    return {
+        boundary,
+        rngLog: nhGame.getRngLog() ?? [],
+        draws: (nhGame.getRngLog() ?? []).length,
+        toplines: game._ttyToplines ?? '',
+        turns: game.moves,
+        kickedloc: game.gk?.kickedloc ?? null,
+    };
+}
+
+// The Monk of seed 6600001 has plain floor to the west and a monster to the
+// north.
+const MONK = () => segmentFor('martial');
+// The Valkyrie of the same seed starts in a different room: plain floor west,
+// wall north.
+const VALKYRIE = () => segmentFor('lowDex');
+// The Valkyrie of seed 6600007 has a doorway to the south-east.
+const DOOR_VALKYRIE = () => segmentFor('highDex');
+// Seed 6600002 leaves an object on the plain floor north-west of its Valkyrie,
+// which is the only one of these four refusals no matrix seed offers. It is a
+// refusal, so it stays out of the recorded matrix; the deferral
+// kick-targets-beyond-empty-floor records its inputs alongside the other three.
+const OBJECT_PILE = () => kickSegment({
+    seed: 6600002, character: VALKYRIE_CHARACTER, moves: `${KICK}y`,
+});
+
+test('the matrix holds replay inputs only', () => {
+    const recipe = loadKickCommandRecipe();
+    // Version 5 recipes contain replay inputs and no recorded C answers.
+    assert.equal(recipe.version, 5);
+    assert.ok(recipe.segments.every(
+        (segment) => !Object.hasOwn(segment, 'steps'),
+    ));
+    for (const segment of recipe.segments) {
+        assert.match(segment.nethackrc, /OPTIONS=name:Kicker,/u);
+        // Every case ends with a search, so a kick that wrongly spent or
+        // wrongly saved a turn moves the counter on the screen after it.
+        assert.ok(segment.moves.endsWith(SEARCH));
+    }
+    // The seed list is the tripwire for a silent re-recording. Each seed was
+    // found by scanning upward from 6600001 for a start with the neighbouring
+    // terrain and the Dexterity its case needs, so a changed seed means a
+    // changed case.
+    assert.deepEqual(
+        recipe.segments.map(({ seed }) => seed),
+        [6600001, 6600001, 6600007, 6600006, 6600001, 6600001, 6600001],
+    );
+});
+
+test('the matrix separates the three terms of kick_dumb()\'s test', () => {
+    // dokick.c:867 is the line the matrix exists to pin. Its three terms
+    // short-circuit in order, so which of them answers TRUE decides whether
+    // the rn2(3) is drawn -- and therefore where every later draw lands.
+    assert.equal(
+        lineOf(DOKICK_C, 867),
+        'if (martial() || ACURR(A_DEX) >= 16 || rn2(3)) {',
+    );
+    assert.equal(lineOf(DOKICK_C, 866), 'exercise(A_DEX, FALSE);');
+    assert.equal(lineOf(DOKICK_C, 868), 'You("kick at empty space.");');
+    assert.equal(
+        lineOf(DOKICK_C, 872),
+        'pline("Dumb move!  You strain a muscle.");',
+    );
+    assert.equal(lineOf(DOKICK_C, 873), 'exercise(A_STR, FALSE);');
+    assert.equal(
+        lineOf(DOKICK_C, 874),
+        'set_wounded_legs(RIGHT_SIDE, 5 + rnd(5));',
+    );
+    // skills.h:81 is the whole first term: the Monk and the Samurai are the
+    // two roles it answers TRUE for.
+    assert.equal(
+        lineOf(SKILLS_H, 81),
+        '#define martial_bonus() (Role_if(PM_SAMURAI) || Role_if(PM_MONK))',
+    );
+
+    const byLabel = new Map(KICK_CASES.map((entry) => [entry.label, entry]));
+    const martial = byLabel.get('martial');
+    const lowDex = byLabel.get('lowDex');
+    // The first term is isolated only while these two agree on everything
+    // else. Same seed, same keys; only the role differs.
+    assert.equal(martial.seed, lowDex.seed);
+    assert.equal(martial.moves, lowDex.moves);
+    assert.equal(martial.character.role, 'Monk');
+    assert.equal(lowDex.character.role, 'Valkyrie');
+    // Exactly one case takes the strain arm, and it is the only case whose
+    // verifier expects wounded legs.
+    assert.deepEqual(
+        KICK_CASES.filter(({ strained }) => strained).map(
+            ({ label }) => label,
+        ),
+        ['strain'],
+    );
+});
+
+test('kicking empty floor prints one line and spends the turn', async () => {
+    // dokick.c:1251, kick_nondoor()'s final else, through kick_dumb():868.
+    const before = await replay(MONK(), '');
+    const after = await replay(MONK(), `${KICK}h`);
+    assert.equal(after.boundary, null);
+    assert.equal(after.toplines, 'You kick at empty space.');
+    assert.equal(after.turns, before.turns + 1);
+    assert.equal(lineOf(DOKICK_C, 1251), 'kick_dumb(x, y);');
+});
+
+// The draws one kick turn made, in order. Everything before the launch's own
+// total belongs to startup, and the hero's command is the first thing the turn
+// runs, so the kick's draws head this slice. A whole-turn count cannot stand
+// in for it: monster movement follows the kick and differs between roles.
+async function kickTurnDraws(segment, moves) {
+    const base = await replay(segment, '');
+    const kicked = await replay(segment, moves);
+    return { kicked, draws: kicked.rngLog.slice(base.draws) };
+}
+
+test('martial() keeps the rn2(3) out of a Monk\'s kick', async () => {
+    // The Monk and the Valkyrie of seed 6600001 both roll Dexterity below 16,
+    // so the second term of :867 answers FALSE for both and only
+    // martial_bonus() separates them.
+    const monk = await kickTurnDraws(MONK(), `${KICK}h`);
+    const valkyrie = await kickTurnDraws(VALKYRIE(), `${KICK}h`);
+    assert.equal(monk.kicked.toplines, 'You kick at empty space.');
+    assert.equal(valkyrie.kicked.toplines, 'You kick at empty space.');
+    // exercise(A_DEX, FALSE) at :866 is the first draw of the turn for both.
+    assert.match(monk.draws[0], /^rn2\(2\)=/u);
+    assert.match(valkyrie.draws[0], /^rn2\(2\)=/u);
+    // The Valkyrie pays for the third term immediately afterwards. The Monk
+    // does not: his next draw belongs to the monsters that move after him.
+    assert.match(valkyrie.draws[1], /^rn2\(3\)=[12]$/u);
+    assert.doesNotMatch(monk.draws[1], /^rn2\(3\)=/u);
+});
+
+test('the strain arm wounds a leg and the ordinary arm does not', async () => {
+    // dokick.c:872-874. Seed 6600006 is the case whose rn2(3) lands on 0.
+    const strain = await kickTurnDraws(segmentFor('strain'), `${KICK}h`);
+    assert.equal(strain.kicked.boundary, null);
+    assert.equal(strain.kicked.toplines, 'Dumb move!  You strain a muscle.');
+    // :866, :867, :873 and :874 in that order: the Dexterity exercise, the
+    // rn2(3) that landed on 0, the Strength exercise, and the rnd(5) inside
+    // set_wounded_legs().
+    assert.match(strain.draws[0], /^rn2\(2\)=/u);
+    assert.equal(strain.draws[1], 'rn2(3)=0');
+    assert.match(strain.draws[2], /^rn2\(2\)=/u);
+    assert.match(strain.draws[3], /^rnd\(5\)=/u);
+    // set_wounded_legs(RIGHT_SIDE, 5 + rnd(5)) writes a timeout of 6 through
+    // 10 and takes a point of temporary Dexterity with it.
+    const wounded = game.u.uprops[WOUNDED_LEGS].intrinsic;
+    assert.ok(wounded >= 6 && wounded <= 10, `timeout ${wounded}`);
+    assert.equal(game.u.atemp[3], -1); /* A_DEX */
+
+    const plain = await replay(MONK(), `${KICK}h`);
+    assert.equal(plain.toplines, 'You kick at empty space.');
+    assert.equal(game.u.uprops[WOUNDED_LEGS].intrinsic, 0);
+    assert.equal(game.u.atemp[3], 0);
+});
+
+test('an unported target stops the command before it draws or prints',
+    async () => {
+    // Each refusal must leave the turn, the PRNG and the top line exactly as
+    // the direction prompt left them, because the segment keeps every frame
+    // matched so far and the next replay resumes from the same keystroke.
+    const cases = [
+        [MONK(), `${KICK}k`, /monster arm/u],
+        [VALKYRIE(), `${KICK}k`, /wall and upward-stairs arm/u],
+        [DOOR_VALKYRIE(), `${KICK}n`, /door arm/u],
+        [OBJECT_PILE(), `${KICK}y`, /object-pile arm/u],
+    ];
+    for (const [segment, moves, reason] of cases) {
+        const base = await replay(segment, '');
+        const kick = await replay(segment, moves);
+        assert.ok(kick.boundary, `${moves} refused`);
+        assert.match(kick.boundary.message, reason);
+        assert.equal(kick.draws, base.draws, `${moves} drew nothing`);
+        assert.equal(kick.turns, base.turns, `${moves} spent no turn`);
+        // getdir()'s prompt is the last thing written; no kick message
+        // followed it.
+        assert.match(kick.toplines, /^In what direction\?/u);
+    }
+});
+
+test('sixteen points of Dexterity are enough to skip the rn2(3)',
+    async () => {
+    // :867's second term. The Valkyrie of seed 6600007 rolled exactly 16,
+    // which is the boundary the comparison sits on: at 15 she would draw.
+    const highDex = await kickTurnDraws(DOOR_VALKYRIE(), `${KICK}h`);
+    assert.equal(highDex.kicked.toplines, 'You kick at empty space.');
+    assert.match(highDex.draws[0], /^rn2\(2\)=/u);
+    assert.doesNotMatch(highDex.draws[1], /^rn2\(3\)=/u);
+});
+
+test('a strained muscle refuses the next kick', async () => {
+    // dokick.c:1279, the Wounded_legs guard, reached from the state the strain
+    // arm left behind. This is the only guard a replay can reach without
+    // polymorphing the hero or loading her down.
+    const first = await replay(segmentFor('strain'), `${KICK}h`);
+    assert.equal(first.toplines, 'Dumb move!  You strain a muscle.');
+    const second = await replay(segmentFor('strain'), `${KICK}h${KICK}`);
+    assert.ok(second.boundary, 'the second kick was refused');
+    assert.match(second.boundary.message, /wounded-legs guard/u);
+    // The guard runs above getdir(), so the second '^D' prints no prompt of
+    // its own and the strain line is still the last thing written.
+    assert.equal(second.toplines, 'Dumb move!  You strain a muscle.');
+    assert.equal(second.turns, first.turns);
+});
+
+test('kicking the staircase the hero stepped off refuses', async () => {
+    // dokick.c:1242-1249. The hero starts on the up staircase, so one step
+    // west and a kick east is the shortest way to reach that arm. LA_UP is
+    // what sends it to kick_ouch() instead of kick_dumb().
+    const base = await replay(MONK(), '');
+    assert.equal(base.boundary, null);
+    const start = game.level.at(game.u.ux, game.u.uy);
+    assert.equal(start.typ, STAIRS);
+    assert.equal(start.ladder, LA_UP);
+
+    const kicked = await replay(MONK(), `h${KICK}l`);
+    assert.ok(kicked.boundary, 'the staircase kick was refused');
+    assert.match(kicked.boundary.message, /wall and upward-stairs arm/u);
+    assert.match(kicked.toplines, /^In what direction\?/u);
+});
+
+test('a kicked square is remembered, and every later command forgets it',
+    async () => {
+    // dokick.c:1325 writes gk.kickedloc, monmove.c m_avoid_kicked_loc() reads
+    // it, and two sites clear it. This is the only state the kick leaves
+    // behind that no screen reports.
+    assert.equal(
+        lineOf(HACK_C, 2708), 'gk.kickedloc.x = 0, gk.kickedloc.y = 0;',
+    );
+    assert.equal(lineOf(CMD_C, 3821), 'if (func != dokick) {');
+
+    const kick = await replay(VALKYRIE(), `${KICK}h`);
+    assert.deepEqual(kick.kickedloc, { x: game.u.ux - 1, y: game.u.uy });
+
+    // cmd.c rhack():3821, reached through the search arm.
+    const searched = await replay(VALKYRIE(), `${KICK}h${SEARCH}`);
+    assert.deepEqual(searched.kickedloc, { x: 0, y: 0 });
+
+    // hack.c domove():2708, reached by stepping east afterwards.
+    const moved = await replay(VALKYRIE(), `${KICK}hl`);
+    assert.deepEqual(moved.kickedloc, { x: 0, y: 0 });
+
+    // The same rhack() test with `func` still holding doextcmd(), which is
+    // what the '#' key's row supplies: '#kick' forgets the square at once.
+    const prompted = await replay(MONK(), `${KICK_EXT}h`);
+    assert.equal(prompted.toplines, 'You kick at empty space.');
+    assert.deepEqual(prompted.kickedloc, { x: 0, y: 0 });
+});
+
+test('a direction prompt answering nothing spends no turn', async () => {
+    // dokick.c:1318-1321, both cancels. ESC leaves getdir() at 0; '.' writes
+    // <0,0,0> and dokick() tests u.dx and u.dy itself.
+    const base = await replay(MONK(), '');
+    for (const answer of ['\x1b', '.']) {
+        const cancelled = await replay(MONK(), `${KICK}${answer}`);
+        assert.equal(cancelled.boundary, null);
+        assert.equal(cancelled.turns, base.turns);
+        assert.equal(cancelled.draws, base.draws);
+        // Nothing was kicked, so nothing was recorded to avoid.
+        assert.equal(cancelled.kickedloc, null);
+    }
+});
+
+test('the kick wakes the neighbourhood before it examines the square', () => {
+    // dokick.c:1383-1384 run above all five target tests, so an arm refused
+    // below them has still paid for both. mon.c wake_nearby() is the reason
+    // the radius grows with experience level.
+    assert.equal(lineOf(DOKICK_C, 1383), 'wake_nearby(FALSE);');
+    assert.equal(lineOf(DOKICK_C, 1384), 'u_wipe_engr(2);');
+    assert.equal(
+        lineOf(MON_C, 4369),
+        'wake_nearto_core(u.ux, u.uy, u.ulevel * 20, petcall);',
+    );
+});

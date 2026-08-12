@@ -1826,6 +1826,22 @@
       "status": "open",
       "from": "3e84eb06fbef013aa00100858d71ed1a71e5e4a4",
       "detail": "cpostfx() (eat.c:1127-1319) ports its default arm and the intrinsic check that follows it. Fourteen species arms stop by name above that: the wraith's pluslvl(), the three human were-forms' set_ulycn(), the nurse's full heal, the stalker's invisibility, the three bats' make_stunned(), the three mimics' nomul() and appearance change, the quantum mechanic's HFast toggle, the lizard's capped timeouts, the four shapechangers' polyself(), the displacer beast, the disenchanter's attrcurse(), the Riders and the two mind flayers. Inside the check, make_hallucinated(), eye_of_newt_buzz(), gainstr() and givit() stop too, so any corpse whose species conveys a resistance, teleport, teleport control or telepathy ends the segment after corpse_intrinsic() has drawn for it -- the killer bee and the acid blob are the two such species a dungeon level one hero meets.\n\neatcorpse() also stops at rottenfood() (1950), which is 1 in 7 of every fresh rotting corpse, and at the glob, green slime and petrifying arms it refuses before drawing. scripts/eat-corpse.test.mjs pins the rottenfood stop through a corpse marked orotten, which is the branch of that condition C reaches without the rn2(7)."
+    },
+    {
+      "id": "kick-targets-beyond-empty-floor",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "d53bdf2d0362d0a9d3f9a022bff37bb8ecc1b2e4",
+      "detail": "dokick() ports one target: kick_nondoor()'s final else at dokick.c:1251, which reaches kick_dumb(). Twenty-seven refusals above and around it stop by name, each at its own condition and so before that arm draws, prints or writes. dokick()'s nine no-kick guards (:1265-1310) all need the shared display_nhwindow(WIN_MESSAGE, TRUE) at :1314; the steed one needs kick_steed() as well. Its target tests refuse the engulfed rn2(3) at :1334, the levitation bracing block at :1355-1370, the monster arm at :1406 (maybe_kick_monster() and kick_monster()), the off-the-map arm at :1386, the pool and lava arm at :1444, the object pile at :1452 (kick_object()) and the door at :1465 (kick_door()). kick_nondoor() refuses the secret door and secret corridor above their rn2(30), the throne, altar, fountain, grave, iron bars, tree and sink arms, and the wall and upward-stairs arm at :1248; kick_dumb() refuses its own floating recoil at :876-877, which needs hurtle(). kick_ouch() (:880-906) is what most of the rest need, so it is the single largest unblock.\n\nThree cases sit just outside this slice and are recorded here rather than in the passing matrix, because C prints where the port stops. All three use the matrix rc and datetime 20240517131415. Kicking north with the Monk of seed 6600001 ('^D' then 'k') reaches the monster arm, because a monster stands there. Kicking north with the Valkyrie of the same seed reaches the wall arm, whose kick_ouch() opens with the rn2(2) of exercise(A_DEX, FALSE) and prints 'Ouch!  That hurts!' from dokick.c:886. Kicking south-east with the Valkyrie of seed 6600007 ('^D' then 'n') reaches kick_door() on a doorway. scripts/kick-command.test.mjs pins all three as refusals that spend no turn, draw no random number and leave getdir()'s prompt as the last line written.",
+      "blockedOn": "kick_ouch",
+      "notes": [
+        {
+          "text": "A fourth case joins the three above: kicking north-west with the Valkyrie of seed 6600002 ('^D' then 'y') reaches the object-pile arm, because level generation left an object on that square. It is the one refusal no matrix seed offers, so scripts/kick-command.test.mjs builds its segment through kickSegment() rather than reading it out of the recipe. A fifth, dokick.c:1242-1249's upward staircase, needs no seed of its own: the hero starts on the up staircase, so one step west and a kick east reaches it.",
+          "at": "d53bdf2d0362d0a9d3f9a022bff37bb8ecc1b2e4"
+        }
+      ]
     }
   ],
   "areas": [
@@ -2033,6 +2049,7 @@
         "js/cmd.js",
         "js/command_bindings.js",
         "js/do.js",
+        "js/dokick.js",
         "js/extcmdlist_data.js",
         "js/getline.js",
         "js/hack.js",

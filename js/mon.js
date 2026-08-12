@@ -1240,6 +1240,18 @@ export async function wake_nearto(x, y, distance, rawEnv = {}) {
     await disturbBuriedZombies(x, y, rawEnv);
 }
 
+// C ref: mon.c wake_nearby() (4366-4370). It is `wake_nearto_core(u.ux, u.uy,
+// u.ulevel * 20, petcall)`, so the noise a kick makes carries further as the
+// hero gains experience levels. The petcall parameter is absent for the same
+// reason wake_nearto() above lacks it: C's wake_nearto() at 4401-4405 passes
+// FALSE too, and that shared specialization is what this port translated. The
+// only ported caller, dokick.c dokick() at 1383, also passes FALSE.
+export async function wake_nearby(rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    return wake_nearto(state.u.ux, state.u.uy, state.u.ulevel * 20,
+                       { ...rawEnv, state });
+}
+
 async function wakeNearForWereHowl(x, y, distance, normalized) {
     return wake_nearto(x, y, distance, {
         ...normalized,
