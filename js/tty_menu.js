@@ -405,6 +405,18 @@ export function ttyMenuLayout(display, spec, pageIndex = 0) {
     const pageSize = Math.min(52, Math.max(1, display.rows - 1));
     assignMenuAccelerators(spec, pageSize);
     const allLines = menuLines(spec);
+    // wintty.c:2728-2733 cuts off any line too long to fit, in the same pass
+    // that assigns accelerators. The cut is destructive: it shortens the
+    // stored string that is later drawn, not merely the width the menu window
+    // reserves. It also lands two cells short of the terminal, at
+    // `curr->str[ttyDisplay->cols - 2] = 0`, because `len` counts one padding
+    // cell on each side. So a line of exactly cols - 2 characters survives
+    // whole and one of cols - 1 loses its last character.
+    for (const line of allLines) {
+        const text = String(line.text ?? '');
+        if (text.length + 2 > display.cols)
+            line.text = text.slice(0, display.cols - 2);
+    }
     const pageCount = Math.max(1, Math.ceil(allLines.length / pageSize));
     if (pageIndex < 0 || pageIndex >= pageCount)
         throw new RangeError(`invalid tty menu page ${pageIndex}`);

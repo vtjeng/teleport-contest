@@ -27,17 +27,27 @@
 // - INVENTORY_CASES open the inventory menu, where invent.c ddoinv() names
 //   both wielded slots side by side. Each case selects one arm of the two
 //   word choices at objnam.c:1591-1595 and :1613-1621.
+// - SKILL_CASES press `^X` while two-weapon combat is on, so insight.c
+//   weapon_insight() takes its two-weapon branch (1334-1463) instead of the
+//   single-weapon one above it.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { A_DEX } from '../js/const.js';
+import {
+    A_DEX,
+    BASICENLIGHTENMENT,
+    ENL_GAMEINPROGRESS,
+    P_TWO_WEAPON_COMBAT,
+} from '../js/const.js';
 import { effective_attribute } from '../js/attrib.js';
 import { weapon_status } from '../js/display.js';
 import { game } from '../js/gstate.js';
+import { enlightenment } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
 import { could_twoweap } from '../js/mondata.js';
 import { FEDORA, KATANA, SHORT_SWORD } from '../js/objects.js';
+import { P_SKILL, weapon_type } from '../js/startup_skills.js';
 import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { bimanual } from '../js/worn.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
@@ -51,6 +61,12 @@ const WAIT = '.';
 const TWOWEAPON = '#twoweapon\n';
 // 'i' opens the inventory menu through invent.c ddoinv(); escape closes it.
 const INVENTORY = 'i\x1b';
+// cmd.c extcmdlist[] row 0x18 is "attributes", which calls insight.c
+// doattributes(). Its window runs to two pages, so the space turns to the
+// second one -- the page the skill lines fall on -- and the escape dismisses
+// it from there.
+const ATTRIBUTES_KEY = '\x18';
+const ATTRIBUTES = `${ATTRIBUTES_KEY} \x1b`;
 
 // Recorded C results for each seed: the rnd(20) the C log attributes to
 // dotwoweapon(wield.c:861), and the Dexterity its status line shows. `costs`
@@ -168,6 +184,31 @@ export const INVENTORY_CASES = [
     { who: 'rogue', seed: REFUSAL_SEED, twoweapon: false, lefty: false },
     // The same stack with the flag set: :1615 names a hand and no count.
     { who: 'rogue', seed: REFUSAL_SEED, twoweapon: true, lefty: false },
+];
+
+// insight.c weapon_insight():1334-1463, the arm that reports weapon skill
+// while u.twoweap is set. All three roles whose starting loadout
+// can_twoweapon() accepts land on the same pair of comparisons, and no valid
+// input can move them: u_init.c skill_init() sets every carried weapon's
+// skill to P_BASIC and leaves P_TWO_WEAPON_COMBAT at P_UNSKILLED for every
+// role that lists it, so `twoskl < sklvl` at :1362 and `twoskl < sklvl2` at
+// :1395 are the only arms a fresh C start reaches. QUALITY.json carries the
+// deferral for the rest of the branch.
+//
+// What the three cases do separate is the skill names the two arms
+// interpolate, and with them the length of the stored menu line: only the
+// Samurai's secondary line is long enough for wintty.c:2728-2733 to cut.
+export const SKILL_CASES = [
+    // katana over short sword. "Your skill in short sword is also limited by
+    // being unskilled with two weapons." stores 79 characters, two more than
+    // tty_end_menu() leaves room for, so C's screen drops its final period.
+    { who: 'samurai', seed: REFUSAL_SEED, clipped: true },
+    // bullwhip over pick-axe, the weapon-tool secondary. Its longest line is
+    // 76 characters, so nothing is cut and the period stays.
+    { who: 'archeologist', seed: REFUSAL_SEED, clipped: false },
+    // short sword over a stack of daggers. weapon_type() reads the stack's
+    // type, so the count never reaches the skill name.
+    { who: 'rogue', seed: REFUSAL_SEED, clipped: false },
 ];
 
 // Each case names the can_twoweapon() arm its role reaches and the state that
@@ -289,6 +330,25 @@ export function loadTwoWeaponInventoryRecipe() {
     return validateCleanRecipe({
         version: 5,
         segments: INVENTORY_CASES.map((entry) => inventorySegment(entry)),
+    });
+}
+
+// The command, then the attributes window, then a wait. ^X spends no time, so
+// the trailing wait is what shows that: a move wrongly spent there would move
+// every screen after it.
+function skillSegment({ seed, who }) {
+    return {
+        seed,
+        datetime: DATETIME,
+        nethackrc: nethackrc(who),
+        moves: `${WAIT}${TWOWEAPON}${ATTRIBUTES}${WAIT}`,
+    };
+}
+
+export function loadTwoWeaponSkillRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: SKILL_CASES.map((entry) => skillSegment(entry)),
     });
 }
 
@@ -477,6 +537,49 @@ async function verifyInventory(recipeSegment) {
         throw new Error('the inventory menu spent a move');
 }
 
+async function verifySkill(recipeSegment) {
+    const { who, clipped } = caseFor(SKILL_CASES, recipeSegment);
+
+    // Stop with the command issued and the window still unopened.
+    await runSegment({ ...recipeSegment, moves: `${WAIT}${TWOWEAPON}` });
+    if (!game.u.twoweap)
+        throw new Error(`${who} did not enter two-weapon combat`);
+
+    // insight.c:1390 skips the secondary comparison when both hands train the
+    // same skill, which no starting loadout does.
+    const wtype = weapon_type(game.uwep, game);
+    const wtype2 = weapon_type(game.uswapwep, game);
+    if (wtype === wtype2)
+        throw new Error(`${who} trains one skill with both hands`);
+    // :1362 and :1395, the two comparisons this group is recorded for.
+    const twoskl = P_SKILL(P_TWO_WEAPON_COMBAT, game);
+    if (twoskl >= P_SKILL(wtype, game) || twoskl >= P_SKILL(wtype2, game))
+        throw new Error(`${who} does not reach insight.c:1362 and :1395`);
+    // :1440. Every fresh hero has 0 practice and 0 weapon slots, so the
+    // summary block stays silent and the recorded window shows two lines.
+    if (game.u.weapon_slots !== 0)
+        throw new Error(`${who} starts with ${game.u.weapon_slots} slots`);
+
+    // wintty.c:2728-2733 cuts a stored line whose length plus its two padding
+    // cells exceeds the terminal width.
+    const lines = enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, game);
+    const longest = Math.max(...lines.map((line) => line.length));
+    if ((longest + 2 > game.nhDisplay.cols) !== clipped) {
+        throw new Error(
+            `${who}'s longest attributes line is ${longest} characters, `
+            + `which tty_end_menu() ${clipped ? 'does not cut' : 'cuts'}`,
+        );
+    }
+
+    // doattributes() returns ECMD_OK, so the window costs no time.
+    const movesBefore = game.moves;
+    await runSegment({
+        ...recipeSegment, moves: `${WAIT}${TWOWEAPON}${ATTRIBUTES}`,
+    });
+    if (game.moves !== movesBefore)
+        throw new Error('the attributes window spent a move');
+}
+
 async function verifyWeaponStatus(recipeSegment) {
     // Stop one keystroke before the Enter. The option has to be on, or the
     // field would be missing from the screen rather than merely wrong.
@@ -498,8 +601,8 @@ async function verifyWeaponStatus(recipeSegment) {
 }
 
 // Routes a segment to the group it belongs to. The time-cost group is the one
-// with its own seeds; the naming and inventory groups are the ones whose moves
-// carry a command letter after the extended command; the rest share
+// with its own seeds; the naming, inventory and skill groups are the ones
+// whose moves carry a command key after the extended command; the rest share
 // REFUSAL_SEED and are told apart by the nethackrc, which names a different
 // role or sets a different option for every case.
 export async function verifyTwoWeaponCommandSegment(recipeSegment) {
@@ -507,6 +610,8 @@ export async function verifyTwoWeaponCommandSegment(recipeSegment) {
         await verifyTimeCost(recipeSegment);
     else if (recipeSegment.moves.endsWith(INVENTORY))
         await verifyInventory(recipeSegment);
+    else if (recipeSegment.moves.includes(ATTRIBUTES_KEY))
+        await verifySkill(recipeSegment);
     else if (recipeSegment.moves.includes('T'))
         await verifyNaming(recipeSegment);
     else if (WEAPONSTATUS_CASES.some(
@@ -537,6 +642,8 @@ export async function runTwoWeaponCommandMatrix() {
               recipe: loadTwoWeaponNamingRecipe() },
             { label: 'twoweapon inventory naming',
               recipe: loadTwoWeaponInventoryRecipe() },
+            { label: 'twoweapon skill report',
+              recipe: loadTwoWeaponSkillRecipe() },
         ],
         summaryLabel: 'TWOWEAPON COMMAND',
         verifySegment: verifyTwoWeaponCommandSegment,

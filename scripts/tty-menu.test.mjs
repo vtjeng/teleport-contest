@@ -777,3 +777,41 @@ test('tty_end_menu assigns a fresh accelerator run to every page', () => {
     assert.equal(explicit[0].selector, '?');
     assert.equal(explicit[1].selector, 'a');
 });
+
+// C ref: wintty.c tty_end_menu():2728-2733. `len` counts one padding cell on
+// each side of the stored line, and a line that overflows is cut in place at
+// `ttyDisplay->cols - 2` rather than at `cols`. That leaves the boundary
+// asymmetric, which is what the four lengths below separate.
+test('tty_end_menu cuts an over-wide stored line at cols - 2', () => {
+    const state = menuState();
+    const cols = state.nhDisplay.cols;
+    // 78 is `cols - 2`, the longest line that survives whole: 78 + 2 is not
+    // greater than 80. 79 is the first that is cut, and it loses exactly one
+    // character. 120 is cut to the same 78 as 79, so the cut is to a fixed
+    // width rather than by a fixed amount.
+    const spec = {
+        lines: [
+            'a'.repeat(cols - 3),
+            'b'.repeat(cols - 2),
+            'c'.repeat(cols - 1),
+            'd'.repeat(120),
+        ],
+        overlay: false,
+    };
+
+    const layout = ttyMenuLayout(state.nhDisplay, spec);
+    assert.deepEqual(layout.lines.map((line) => line.text.length),
+        [cols - 3, cols - 2, cols - 2, cols - 2]);
+    // The kept prefix is the head of the original line, not a re-fill.
+    assert.equal(layout.lines[3].text, 'd'.repeat(cols - 2));
+    // cw->cols takes `len`, which the cut sets to exactly ttyDisplay->cols.
+    assert.equal(layout.maxrow, spec.lines.length + 1);
+    assert.equal(layout.firstColumn, 0);
+
+    // The cut reaches the drawn cells, not just the width the window
+    // reserves: the last column of the 120-character line is blank, because
+    // the menu starts at column 1 and the line ends after 78 more.
+    renderTtyMenu(state, spec);
+    assert.equal(rowText(state, 3), ` ${'d'.repeat(cols - 2)}`);
+    assert.equal(state.nhDisplay.grid[3][cols - 1].ch, ' ');
+});

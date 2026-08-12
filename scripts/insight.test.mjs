@@ -34,11 +34,25 @@ import { runSegment } from '../js/jsmain.js';
 import {
     ARMOR_CLASS,
     DAGGER,
+    KATANA,
+    LONG_SWORD,
     RIN_SUSTAIN_ABILITY,
     RING_CLASS,
+    SHORT_SWORD,
     TOWEL,
     WEAPON_CLASS,
 } from '../js/objects.js';
+import {
+    P_BASIC,
+    P_EXPERT,
+    P_ISRESTRICTED,
+    P_LONG_SWORD,
+    P_SHORT_SWORD,
+    P_SKILLED,
+    P_TWO_WEAPON_COMBAT,
+    P_UNSKILLED,
+} from '../js/const.js';
+import { skillSlot } from '../js/startup_skills.js';
 import { ROOMOFFSET, SHOPBASE } from '../js/const.js';
 import { costly_spot } from '../js/shk.js';
 
@@ -440,5 +454,286 @@ test('the autopickup line stops on a configured exception list', async () => {
         statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, plain),
             ' Autopickup '),
         ' Autopickup is on for all types.',
+    );
+});
+
+// insight.c weapon_insight():1334-1463, the arm that reports weapon skill
+// while u.twoweap is set. Its comparisons turn on values that no ported
+// command can move: u_init.c skill_init() fixes every skill at character
+// creation, weapon.c enhance_weapon_skill() needs practice and weapon slots a
+// fresh hero has neither of, and cmd.c dispatches neither dowield() nor
+// doswapweapon(), so the hero's hands hold the pair u_init.c put there. Every
+// fresh C start therefore lands on `twoskl < sklvl` at :1362 with
+// `wtype2 != wtype`, which scripts/run-twoweapon-command.mjs records against
+// C; the states around it are built here instead. QUALITY.json carries the
+// deferral.
+function wielded(otyp) {
+    return { otyp, oclass: WEAPON_CLASS, quan: 1, spe: 0, known: true };
+}
+
+async function skillReport({
+    primary = KATANA,
+    secondary = SHORT_SWORD,
+    skills,
+    weaponSlots = 0,
+    wizard = false,
+}) {
+    const state = await readyGame();
+    state.wizard = wizard;
+    state.u.twoweap = true;
+    state.u.weapon_slots = weaponSlots;
+    state.uwep = wielded(primary);
+    state.uswapwep = wielded(secondary);
+    for (const entry of skills) {
+        const slot = skillSlot(entry.skill, state);
+        slot.skill = entry.level;
+        // P_EXPERT leaves room to advance above every level used below, so
+        // only `advance` decides can_advance() at :1437-1439.
+        slot.max_skill = entry.max ?? P_EXPERT;
+        slot.advance = entry.advance ?? 0;
+    }
+    const lines = enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state);
+    const wielding = lines.indexOf(' You are wielding two weapons at once.');
+    assert.notEqual(wielding, -1, 'the hero is not reported as two-weaponing');
+    // status_enlightenment() closes with the blank separator that opens the
+    // Miscellaneous section, so the skill report is what lies between.
+    return lines.slice(wielding + 1, lines.indexOf('', wielding));
+}
+
+// :1362 and :1367 are the two directions of the same comparison, and they
+// swap which skill the sentence blames. `sklvlbuf` at :1372 is the primary's
+// own level name, which only the second direction prints.
+test('the two-weapon report blames whichever skill lags', async () => {
+    assert.deepEqual(
+        await skillReport({
+            skills: [
+                { skill: P_LONG_SWORD, level: P_BASIC },
+                { skill: P_SHORT_SWORD, level: P_BASIC },
+                { skill: P_TWO_WEAPON_COMBAT, level: P_UNSKILLED },
+            ],
+        }),
+        [
+            ' Your skill in long sword is limited by being unskilled with'
+                + ' two weapons.',
+            ' Your skill in short sword is also limited by being unskilled'
+                + ' with two weapons.',
+        ],
+    );
+
+    // The other direction. :1376 sets `also2` where :1366 set `also`, so the
+    // "also" still lands on the second line and not the first.
+    assert.deepEqual(
+        await skillReport({
+            skills: [
+                { skill: P_LONG_SWORD, level: P_BASIC },
+                { skill: P_SHORT_SWORD, level: P_BASIC },
+                { skill: P_TWO_WEAPON_COMBAT, level: P_SKILLED },
+            ],
+        }),
+        [
+            ' Your two weapon skill is limited by being basic with'
+                + ' long sword.',
+            ' Your two weapon skill is also limited by being basic with'
+                + ' short sword.',
+        ],
+    );
+});
+
+// :1371-1374 and :1404-1407. A restricted skill has no level name to print,
+// so both comparisons fall back to "having no skill" instead.
+test('a restricted weapon skill reads "having no skill"', async () => {
+    assert.deepEqual(
+        await skillReport({
+            skills: [
+                { skill: P_LONG_SWORD, level: P_ISRESTRICTED },
+                { skill: P_SHORT_SWORD, level: P_ISRESTRICTED },
+                { skill: P_TWO_WEAPON_COMBAT, level: P_UNSKILLED },
+            ],
+        }),
+        [
+            ' Your two weapon skill is limited by having no skill with'
+                + ' long sword.',
+            ' Your two weapon skill is also limited by having no skill with'
+                + ' short sword.',
+        ],
+    );
+});
+
+// :1377-1380 and :1409-1422. Equal levels leave nothing to blame, so the
+// report folds the two-weapon skill into the sentence the single-weapon arm
+// above would have printed, and :1417's `also3` turns the second line into an
+// enl_msg() whose verb comes from `hav2` rather than a you_have()/you_are().
+test('matching skill levels fold "and two weapons" into the line',
+    async () => {
+        assert.deepEqual(
+            await skillReport({
+                skills: [
+                    { skill: P_LONG_SWORD, level: P_BASIC },
+                    { skill: P_SHORT_SWORD, level: P_BASIC },
+                    { skill: P_TWO_WEAPON_COMBAT, level: P_BASIC },
+                ],
+            }),
+            [
+                ' You have basic skill with long sword and two weapons.',
+                ' You also have basic skill with short sword and'
+                    + ' two weapons.',
+            ],
+        );
+
+        // :1314 and :1344 make `hav` and `hav2` false at P_UNSKILLED, which
+        // swaps every "have" for "are" and "skill with" for "in".
+        assert.deepEqual(
+            await skillReport({
+                skills: [
+                    { skill: P_LONG_SWORD, level: P_UNSKILLED },
+                    { skill: P_SHORT_SWORD, level: P_UNSKILLED },
+                    { skill: P_TWO_WEAPON_COMBAT, level: P_UNSKILLED },
+                ],
+            }),
+            [
+                ' You are unskilled in long sword and two weapons.',
+                ' You also are unskilled in short sword and two weapons.',
+            ],
+        );
+    });
+
+// :1350-1358. A hero two-weaponing without access to the skill reads
+// "restricted" rather than skill_level_name()'s "Unknown", and :1351 then
+// compares as though the skill were unskilled.
+test('a restricted two-weapon skill reads "restricted"', async () => {
+    assert.deepEqual(
+        await skillReport({
+            skills: [
+                { skill: P_LONG_SWORD, level: P_BASIC },
+                { skill: P_SHORT_SWORD, level: P_BASIC },
+                { skill: P_TWO_WEAPON_COMBAT,
+                  level: P_ISRESTRICTED, max: P_ISRESTRICTED },
+            ],
+        }),
+        [
+            ' Your skill in long sword is limited by being restricted with'
+                + ' two weapons.',
+            ' Your skill in short sword is also limited by being restricted'
+                + ' with two weapons.',
+        ],
+    );
+});
+
+// :1390 skips the whole secondary comparison when both hands train one skill,
+// and :1438 forces `a2` false for the same reason, so the summary can name at
+// most the primary and the two-weapon skill.
+test('one skill in both hands leaves a single comparison', async () => {
+    assert.deepEqual(
+        await skillReport({
+            // A katana and a long sword are both P_LONG_SWORD.
+            primary: KATANA,
+            secondary: LONG_SWORD,
+            weaponSlots: 5,
+            skills: [
+                // 80 is practice_needed_to_advance(P_BASIC), and 5 slots
+                // cover the 2 that slots_required() asks at P_BASIC.
+                { skill: P_LONG_SWORD, level: P_BASIC, advance: 80 },
+                { skill: P_TWO_WEAPON_COMBAT, level: P_BASIC, advance: 80 },
+            ],
+        }),
+        [
+            ' You have basic skill with long sword and two weapons.',
+            ' You can enhance skills with long sword and also with'
+                + ' two weapons.',
+        ],
+    );
+});
+
+// :1440-1461. The five shapes the six-argument Sprintf produces, selected by
+// which of a1, a2 and ab are set. Every case shares one base state, so the
+// only thing that moves between them is which skills have the practice.
+test('the enhancement summary names one, two or three skills', async () => {
+    const base = {
+        weaponSlots: 5,
+        skills: [
+            { skill: P_LONG_SWORD, level: P_BASIC },
+            { skill: P_SHORT_SWORD, level: P_BASIC },
+            { skill: P_TWO_WEAPON_COMBAT, level: P_BASIC },
+        ],
+    };
+    // practice_needed_to_advance(P_BASIC) is 2 * 2 * 20; one point short
+    // leaves can_advance() false at :1437-1439.
+    const advanced = (...names) => ({
+        ...base,
+        skills: base.skills.map((entry) => ({
+            ...entry, advance: names.includes(entry.skill) ? 80 : 79,
+        })),
+    });
+    const summary = async (...names) =>
+        (await skillReport(advanced(...names))).at(-1);
+
+    // Case 5: all three, with no "also"s and no repeated "with".
+    assert.equal(
+        await summary(P_LONG_SWORD, P_SHORT_SWORD, P_TWO_WEAPON_COMBAT),
+        ' You can enhance skills with long sword, short sword, and'
+            + ' two weapons.',
+    );
+    // Case 2: primary and secondary.
+    assert.equal(
+        await summary(P_LONG_SWORD, P_SHORT_SWORD),
+        ' You can enhance skills with long sword and also with short sword.',
+    );
+    // Case 3: primary and two-weapon, where the empty secondary name has to
+    // leave no gap behind it.
+    assert.equal(
+        await summary(P_LONG_SWORD, P_TWO_WEAPON_COMBAT),
+        ' You can enhance skills with long sword and also with two weapons.',
+    );
+    // Case 4: secondary and two-weapon, where the empty primary name comes
+    // first and its separator has to stay empty too.
+    assert.equal(
+        await summary(P_SHORT_SWORD, P_TWO_WEAPON_COMBAT),
+        ' You can enhance skills with short sword and also with two weapons.',
+    );
+    // Case 1, twice: a single skill drops the plural and both separators.
+    assert.equal(
+        await summary(P_TWO_WEAPON_COMBAT),
+        ' You can enhance skill with two weapons.',
+    );
+    assert.equal(
+        await summary(P_SHORT_SWORD),
+        ' You can enhance skill with short sword.',
+    );
+    // None: :1440 prints nothing at all, so the report ends on the secondary
+    // comparison.
+    assert.equal(
+        await summary(),
+        ' You also have basic skill with short sword and two weapons.',
+    );
+});
+
+// :1437-1439 ask can_advance() with `speedy` FALSE, so weapon.c:1163's
+// wizard-mode "advance skills without practice" shortcut never reaches the
+// report: a wizard is told what an ordinary hero would be told. js/weapon.js
+// raises UnsupportedWeaponSkillError for that shortcut rather than porting it,
+// which is what makes the argument observable here.
+//
+// The window itself is driven through enlightenment() rather than `^X`,
+// because insight.c doattributes():2014-2015 turns a wizard's `^X` into a
+// MAGICENLIGHTENMENT window that js/insight.js:923 refuses. Only the skill
+// report is read: the wizard-gated lines elsewhere in the window are not
+// ported, so the rest of this state's C output is not claimed to match.
+test('the enhancement summary never takes the wizard shortcut', async () => {
+    assert.deepEqual(
+        await skillReport({
+            wizard: true,
+            weaponSlots: 5,
+            skills: [
+                { skill: P_LONG_SWORD, level: P_BASIC, advance: 80 },
+                { skill: P_SHORT_SWORD, level: P_BASIC, advance: 80 },
+                { skill: P_TWO_WEAPON_COMBAT, level: P_BASIC, advance: 80 },
+            ],
+        }),
+        [
+            ' You have basic skill with long sword and two weapons.',
+            ' You also have basic skill with short sword and two weapons.',
+            ' You can enhance skills with long sword, short sword, and'
+                + ' two weapons.',
+        ],
     );
 });

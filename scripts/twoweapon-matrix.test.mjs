@@ -5,11 +5,13 @@ import test from 'node:test';
 import {
     INVENTORY_CASES,
     REFUSAL_CASES,
+    SKILL_CASES,
     TIME_COST_CASES,
     loadTwoWeaponCommandRecipe,
     loadTwoWeaponInventoryRecipe,
     loadTwoWeaponNamingRecipe,
     loadTwoWeaponRefusalRecipe,
+    loadTwoWeaponSkillRecipe,
     loadTwoWeaponStatusRecipe,
     loadTwoWeaponSwitchRecipe,
     verifyTwoWeaponCommandSegment,
@@ -146,6 +148,29 @@ test('the inventory matrix names both hands on both sides of the flag', () => {
     ]);
 });
 
+test('the skill matrix opens the attributes window on both hands', () => {
+    const recipe = loadTwoWeaponSkillRecipe();
+    assert.equal(recipe.version, 5);
+    // Every segment turns two-weapon combat on, opens the attributes window,
+    // pages to the second page -- where insight.c weapon_insight() writes --
+    // dismisses it, and waits, so a wrongly spent move shifts a screen.
+    assert.ok(recipe.segments.every(
+        ({ moves }) => moves === '.#twoweapon\n\u0018 \u001b.',
+    ));
+    // The three starts can_twoweapon() accepts. insight.c:1362 and :1395 are
+    // the only comparisons any of them reaches, so what separates the cases
+    // is the skill names, and with them the width of the stored menu line.
+    assert.deepEqual(recipe.segments.map(roleOf), [
+        'Samurai/human/male',
+        'Archeologist/human/male',
+        'Rogue/human/male',
+    ]);
+    // wintty.c:2729 cuts only the Samurai's, which is what puts a cut and an
+    // uncut window side by side in one recorded group.
+    assert.deepEqual(SKILL_CASES.map(({ clipped }) => clipped),
+        [true, false, false]);
+});
+
 test('only the weapon-status matrix turns the status field on', () => {
     // wield.c set_twoweap() marks the status line dirty only under this
     // option, so it is the one group whose screens can show "Dual-weps".
@@ -160,7 +185,8 @@ test('only the weapon-status matrix turns the status field on', () => {
                           loadTwoWeaponSwitchRecipe(),
                           loadTwoWeaponNamingRecipe(),
                           loadTwoWeaponInventoryRecipe(),
-                          loadTwoWeaponRefusalRecipe()]) {
+                          loadTwoWeaponRefusalRecipe(),
+                          loadTwoWeaponSkillRecipe()]) {
         assert.ok(recipe.segments.every(
             ({ nethackrc }) => !nethackrc.includes('weaponstatus'),
         ));
@@ -174,7 +200,8 @@ test('every #twoweapon case reaches the arm it was chosen for',
                               loadTwoWeaponRefusalRecipe(),
                               loadTwoWeaponStatusRecipe(),
                               loadTwoWeaponInventoryRecipe(),
-                              loadTwoWeaponNamingRecipe()]) {
+                              loadTwoWeaponNamingRecipe(),
+                              loadTwoWeaponSkillRecipe()]) {
             for (const segment of recipe.segments)
                 await verifyTwoWeaponCommandSegment(segment);
         }
