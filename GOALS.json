@@ -1656,8 +1656,8 @@
         },
         {
           "name": "run pick_lock()'s non-door arm",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e5ba840572c3bcd08d01adeaf1fb901b9231c6d5"
         }
       ],
       "openedAt": "df872e416c15dcf26fdb6ae95a94eff1952f5de0",
