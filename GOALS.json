@@ -1696,8 +1696,8 @@
       "slices": [
         {
           "name": "sit on an object, on the stairs, or on the floor",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e6c213530212f5313f3811dc0b5f5468b716bda7"
         }
       ],
       "openedAt": "5ad7fe96ebe2b77eeee9d467c597daca05a66e41",
