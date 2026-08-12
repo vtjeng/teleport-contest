@@ -1,142 +1,75 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every entry is done, no-effect-yet or cannot-occur. lock.c pick_lock()'s `!IS_DOOR(door->typ)` arm runs in the production game through apply.c doapply(); display.c feel_location() covers its whole reachable-floor branch; dungeon.c update_mapseen_for() and engrave.c engr_can_be_felt() are ported; options.c initoptions_finish() calls reglyph_darkroom(). Five fresh C differentials cover the arm -- a seen wall, lit room floor, the same square under DECgraphics, room floor holding an object, and a blind hero -- and all fifteen segments of scripts/run-apply-lock-pick.mjs match C on every screen, cursor and random-number call. The development standing moved from 1445/7765 screens, 120248/610816 calls, 1471/7765 cursors and 6/33 sessions to 1458/7765, 120419/610816, 1484/7765 and 7/33, with only seed1500-rogue-explore-move changing.",
-  "commitChecked": "e5ba840572c3bcd08d01adeaf1fb901b9231c6d5",
+  "reason": "Three goals closed: sit-command, finish-seed1150 and finish-seed0200. Every ported unit runs in the production game -- each was proven by a development session advancing, not by a unit test alone. This checklist was written after the work rather than before it: the five slices ran as parallel workers in separate worktrees and no shared checklist was created when the range passed 500 lines, which AGENTS.md requires. It is reconstructed from the workers reports and the orchestrator independent measurements at each merge commit.",
+  "commitChecked": "9e68fa664e6b2fc48da96c720295ee89ecdb979f",
   "boundary": {
-    "goalId": "pet-step-onto-cursed-object",
-    "startingCommit": "8e1a8135cbf75be1657a37320dd608f33d730bb0",
-    "startingEvent": "The hero applies a lock pick, a credit card or a skeleton key and answers doapply()'s direction prompt with an adjacent square whose typ is not a door, so lock.c pick_lock() reaches its `if (!IS_DOOR(door->typ))` arm at 578.",
-    "endingEvent": "pick_lock() returns and apply.c doapply():4288 turns that return into ECMD_TIME or ECMD_OK. The observable boundary is the screen that carries \"You see no door there.\" (or its Blind and drawbridge forms) plus whatever the turn that follows draws.",
-    "validInputs": "The `a` command with LOCK_PICK, CREDIT_CARD or SKELETON_KEY in inventory, and any getdir() answer naming an adjacent square that holds no monster and no door. Blind and sighted heroes both. The target square may be wall, stone, room floor, corridor, furniture, a drawbridge wall, or floor holding an object or a seen trap.",
-    "observables": "The top line, the complete 24x80 screen with attributes, the cursor, the random-number log, loc.remembered_glyph and loc.seenv at the chosen square, svl.lastseentyp at that square and at the hero's own square, engraving erevealed bits, and whether the turn advances.",
-    "exclusions": "pick_lock()'s monster and door-mimic arms (560-577), its container branch, its interrupted-attempt resume and the doormask switch's default arm; recalc_mapseen()'s mapseen chain, which writes only mptr->feat.* that this port does not model; feel_location()'s Levitation Rules (777-858), its Underwater return (769-771) and its Punished bc_felt block (865-891); reglyph_darkroom()'s repair loop (1820-1849), which needs a full logical glyph identity and belongs to the open deferral remembered-glyph-caches-a-resolved-presentation."
+    "goalId": "sit-command, finish-seed1150, finish-seed0200",
+    "startingCommit": "52c65135eefcdc190e7f18d9abbfd2683963184c",
+    "startingEvent": "cmd.c rhack() receives one of the keys these slices made live: the extended command #sit, f (fire), ^D (kick), the k answering doeat()s What do you want to eat? prompt for a corpse, ^X under playmode:explore, or i where a two-weaponing hero opens the inventory menu.",
+    "endingEvent": "The command returns its ECMD_* result to rhack() and the next input boundary draws. For the three named sessions the observable end is the final recorded screen: seed0107 step 97, seed1150 step 50, seed0200 step 39.",
+    "validInputs": "The recorded inputs of the three development sessions, plus the fresh C differentials committed as scripts/run-twoweapon-command.mjs, run-menu-line-clip.mjs, run-corridor-memory.mjs, run-attributes-command.mjs, run-fire-command.mjs, run-eat-corpse.mjs and run-kick-command.mjs.",
+    "observables": "Complete 24x80 screens with attributes, cursor positions, the positional PRNG log, and persisted state across segments. Measured by npm run checkpoint at every merge commit by the orchestrator, not taken from any worker report.",
+    "exclusions": "seed0200 step 30 can never match: frozen/terminal.js serialize() at 679-685 drops the attributes of a rows leading spaces, and that file is judge-supplied. Recorded as the open deferral an indented inverse menu heading cannot match. The goal forecast 16 screens rather than 17 for that reason."
   },
-  "candidateListMethod": {
-    "upstreamEntryPoints": "lock.c pick_lock() 578-593; dungeon.c update_mapseen_for() 2942-2947 and update_lastseentyp() 2925-2938 and recalc_mapseen() 3075-3200; display.c feel_location() 736-905 with the _map_location() macro 448-472; display.c reglyph_darkroom() 1816-1854; options.c initoptions_finish() 7347.",
-    "dispatchTablesAndCatalogs": "The layer order inside _map_location() (object, seen trap, engraving, background) and defsym.h's cmap table, whose S_room (19, '.', CLR_GRAY) and S_darkroom (20, '.', CLR_BLACK) entries are what reglyph_darkroom()'s tail collapses onto one byte.",
-    "reachableHelpers": "Read every callee of pick_lock()'s arm and of feel_location()'s reachable-floor branch: vobj_at(), t_at(), engr_at(), engr_can_be_felt(), spot_shows_engravings(), map_object(), map_trap(), map_engraving(), map_background(), back_to_glyph(), update_lastseentyp(), visible_region_at(), show_region(), sensemon()/display_monster(), can_reach_floor(), set_seenv(), is_drawbridge_wall(). Each is listed as an entry below with its port or its stop.",
-    "javascriptCrossCheck": "grep -rn \"UnsupportedLockError\" js/; grep -rn \"feel_location\" js/; grep -rn \"reglyph_darkroom|S_darkroom\" js/; grep -rn \"remembered_glyph\" js/; grep -rn \"update_lastseentyp|update_mapseen_for\" js/; grep -rn \"is_drawbridge_wall\" js/.",
-    "remainingLimits": "No development session and no recordable C case within the port's reach puts a DBWALL next to the hero, so the drawbridge message pair is proved from the C source text alone. A furniture mimic disguised as S_darkroom is likewise uncovered by any development session, which is the one way the new startup reglyph_darkroom() call could be observed outside this arm."
-  },
+  "candidateListMethod": "Each slice was scoped from a measurement taken in a read-only worktree before any code was written: the port replayed against the recorded session, the first divergence located, and the owning C function identified by reading nethack-c/upstream/. Candidates below are the ported units named in those measurements plus the subsystems each dragged in.",
   "entries": [
     {
-      "candidate": "lock.c pick_lock() 578-593, the `!IS_DOOR(door->typ)` arm",
-      "reachability": "Reached from apply.c doapply():4288 once get_adjacent_loc() names an adjacent non-hero square holding no seen monster and no door mimic. Draws no random numbers itself; the turn its return value buys is what draws the next turn's.",
-      "owner": "js/lock.js pick_lock()",
-      "effects": "Reads the remembered glyph, calls update_mapseen_for() and feel_location(), raises res to PICKLOCK_LEARNED_SOMETHING when either changed, prints one You() line, and returns res.",
-      "evidence": "lock.c 578-593. Ported at js/lock.js. Proved by five fresh differentials and by seed1500-rogue-explore-move, which now passes 40/40.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "sit.c dosit() 399-565, the guard chain, the OBJ_AT pile arm, the typ == STAIRS arm and the final else",
+      "reachability": "Reached from cmd.c rhack() through doextcmd() for #sit. Runs live at seed0107 step 85.",
+      "owner": "js/sit.js dosit()",
+      "effects": "Prints the sit message, may use up a cream pie through invent.c useupf(), returns ECMD_TIME. The trap arm and the lava, ice, drawbridge, throne and egg-laying arms refuse by name.",
+      "status": "done"
     },
     {
-      "candidate": "dungeon.c update_mapseen_for() 2942-2947",
-      "reachability": "First statement of the arm. recalc_mapseen() writes svl.lastseentyp in one place only, update_lastseentyp(u.ux, u.uy) at 3191-3192 behind !Levitation; every other write is to mptr->feat.* and mptr->flags, consumed by the #overview annotation this port does not have.",
-      "owner": "js/dungeon.js update_mapseen_for(), new; update_lastseentyp() already live at js/dungeon.js:1322",
-      "effects": "Writes svl.lastseentyp at the hero's own square and returns svl.lastseentyp at the target square.",
-      "evidence": "dungeon.c 2942-2947 and 3175-3197. Ported at js/dungeon.js beside update_lastseentyp(), pinned by scripts/dungeon.test.mjs.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "objnam.c doname_base() W_WEP arm 1561-1611 and W_SWAPWEP arm 1613-1621",
+      "reachability": "Reached whenever a two-weaponing hero names a wielded object. Runs live at seed0107 step 86.",
+      "owner": "js/objnam.js wornSuffix()",
+      "effects": "Pure naming; no randomness, no state change. The aklys tethered-to arm, the skin-embedded armor suffix and the lit worn-object suffix stay unported.",
+      "status": "done"
     },
     {
-      "candidate": "display.c feel_location() 859-901, the reachable-floor branch",
-      "reachability": "lock.c:583 calls it unconditionally for a hero who is not levitating, not underwater and not punished. js/display.js:1470 already covers a narrower slice of the same branch for hack.c test_move().",
-      "owner": "js/display.js feel_location()",
-      "effects": "Sets seenv, reveals a feelable engraving, runs _map_location(x, y, 1), applies the dark-room and lit-corridor memory rewrites, and draws a sensed monster on top.",
-      "evidence": "display.c 859-905. Widened at js/display.js; the object arm, the dark-room tail and the corridor tail each have a test that fails without them.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "insight.c weapon_insight() two-weapon branch 1334-1463, and win/tty/wintty.c tty_end_menu() line cut 2728-2733",
+      "reachability": "Reached from ^X. Runs live at seed0107 step 92. The cut is destructive and asymmetric: it cuts at cols - 2, so a line of exactly cols - 2 is untouched and cols - 1 is cut.",
+      "owner": "js/insight.js weapon_insight(), js/tty_menu.js ttyMenuLayout()",
+      "effects": "Writes enlightenment lines; no randomness. Three comparison arms and the can_advance summary have no fresh C case and are recorded as two deferrals.",
+      "status": "done"
     },
     {
-      "candidate": "display.c _map_location() 448-472",
-      "reachability": "Called by feel_location()'s reachable-floor branch with show = 1. Its four arms are all reachable at an adjacent square: a floor object is common, a seen trap is ordinary, a felt engraving needs engrave.c which the port has, and background is the default.",
-      "owner": "js/display.js _map_location(), new, built from the existing map_object/map_trap/map_background material",
-      "effects": "Writes one layer into map memory and onto the screen, then update_lastseentyp(), then show_region() for a visible gas cloud.",
-      "evidence": "display.c 448-472; display.h covers_objects()/covers_traps(); engrave.h spot_shows_engravings(). Ported at js/display.js as _map_location(), with map_object() beside map_trap() and map_background(). The object arm is covered by the object-east fresh case; the engraving arm reuses engravingGlyph().",
-      "status": "done",
-      "remaining": ""
+      "candidate": "display.c newsym() 1077-1097, all four branches of the cant-see-the-location tail",
+      "reachability": "Reached on every redraw of a remembered square out of sight. Runs live across seed1150 steps 27-33 and in three other lit_corridor sessions.",
+      "owner": "js/display.js newsym()",
+      "effects": "Demotes a remembered S_litcorr to S_corr and S_room to DARKROOMSYM. No randomness. The rogue arm is ported though unreachable today.",
+      "status": "done"
     },
     {
-      "candidate": "display.c feel_location() 893-897, the dark-room and lit-corridor memory rewrite",
-      "reachability": "Fires for every lit ROOM square a sighted hero picks, because flags.dark_room and iflags.use_color are both on by default. It is what makes this arm return PICKLOCK_LEARNED_SOMETHING in the witness session.",
-      "owner": "js/display.js feel_location()",
-      "effects": "Rewrites the remembered glyph from S_room to S_darkroom (or S_stone with !dark_room) and redraws it; rewrites S_litcorr to S_corr for an unlit corridor.",
-      "evidence": "display.c 893-900. Both arms ported. The room arm is what makes the lit-floor fresh case spend a turn; the corridor arm is pinned by a focused test.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "insight.c attributes_enlightenment() 1487, three of its 519 lines, plus enlightenment() 428-447 and mhitu.c magic_negation()",
+      "reachability": "Reached from ^X when doattributes() 2008 sets MAGICENLIGHTENMENT, which explore mode does. Runs live at seed1150 step 45.",
+      "owner": "js/insight.js attributes_enlightenment(), js/mhitu.js magic_negation()",
+      "effects": "Writes three lines and the reminder block. 53 property rows and 15 guards refuse every other line by name, so a condition outside the three stops rather than printing nothing. Recorded as the deferral attributes-enlightenment-covers-three-lines.",
+      "status": "done"
     },
     {
-      "candidate": "levl[x][y].glyph identity in map memory",
-      "reachability": "lock.c:584 compares door->glyph before and after feel_location(). Once reglyph_darkroom() has run, S_room and S_darkroom render as the same byte in the same colour, so no comparison of presentations can answer the question.",
-      "owner": "js/display.js remembered_glyph_from_presentation() and a new same_remembered_glyph()",
-      "effects": "Carries terrainCmap()'s cmap index into the remembered record, and compares two records the way C compares two glyph numbers.",
-      "evidence": "display.h cmap_to_glyph(); js/display.js:687 attaches `cmap` to every terrain presentation already, and :1429 drops it. remembered_glyph_from_presentation() carries terrainCmap()'s cmap index, and same_remembered_glyph() compares two records the way C compares two glyph numbers. Coarser than C only for two objects that draw alike.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "dothrow.c dofire() and everything it reaches; wield.c ready_weapon()/doswapweapon(); zap.c bhit(); display.c tmp_at(); the cmd.c command queue",
+      "reachability": "Reached from f. Runs live at seed1150 steps 34-38. dofire() does no work itself: it pushes doswapweapon and a re-entrant dofire onto CQ_CANNED and returns.",
+      "owner": "js/dothrow.js, js/wield.js, js/zap.js, js/cmd.js, js/display.js, js/allmain.js, js/hack.js, js/invent.js, js/obj.js",
+      "effects": "Draws rnd(2) at dothrow.c:233 and per-shot calls through splitobj, next_ident and obj_resists. Sixteen branches refuse by name. The queue changed four sites that previously asserted no queue existed; nomul()s new cmdq_clear is a live tripwire for any future command that queues and then calls nomul.",
+      "status": "done"
     },
     {
-      "candidate": "display.c reglyph_darkroom() 1850-1853, the showsyms tail",
-      "reachability": "options.c initoptions_finish():7347 runs it once at startup, before any level exists. Its repair loop therefore has nothing to match, because no square carries a remembered glyph yet.",
-      "owner": "js/display.js reglyph_darkroom(), called from js/jsmain.js",
-      "effects": "Sets gs.showsyms[S_darkroom] to gs.showsyms[S_room] under dark_room and colour, and to the SYM_NOTHING symbol otherwise.",
-      "evidence": "display.c 1850-1853; options.c 7347; defsym.h 113 gives S_darkroom's own default byte, '.', which is what the port draws today. Both arms ported and called from js/jsmain.js at initoptions_finish()'s position. The DECgraphics fresh case fails without it.",
-      "status": "done",
-      "remaining": ""
+      "candidate": "eat.c eatcorpse() 1853-2018 with cprefx(), maybe_cannibal(), cpostfx(), corpse_intrinsic(), intrinsic_possible() and violated_vegetarian(); objnam.c corpse_xname() and the_unique_pm(); mkobj.c peek_at_iced_corpse_age(); mon.c adj_erinys()",
+      "reachability": "Reached from e answered with a corpse. Runs live at seed0200 steps 23-24.",
+      "owner": "js/eat.js, js/objnam.js, js/obj.js, js/mondata.js, js/monsters.js, js/u_init.js, js/attrib.js, js/mon.js",
+      "effects": "Draws rn2(20) at eat.c:1887, rn2(7) at :1949 and rn2(5) at :1996. adj_erinys() permanently rewrites the monster catalog; the restore that replays it from u.ualign.abuse is deliberately unported and a note at the function says the restore slice must call it. Tainted, poisonous, petrifying and species arms refuse by name across three deferrals.",
+      "status": "done"
     },
     {
-      "candidate": "lock.c 588-592, the drawbridge and no-door message pair",
-      "reachability": "is_drawbridge_wall(cc.x, cc.y) >= 0 needs a DBWALL beside the hero, because IS_DOOR is already false here. No level this port generates holds a drawbridge.",
-      "owner": "js/lock.js pick_lock(); is_drawbridge_wall() already live at js/startup_a11y.js:1065",
-      "effects": "One You() line in one of four forms.",
-      "evidence": "lock.c 588-592; dbridge.c 137-162. Both ported. The no-door pair has fresh cases for sighted and blind; the drawbridge pair is pinned by a constructed state and recorded as the deferred entry pick-lock-drawbridge-message-has-no-fresh-case.",
-      "status": "done",
-      "remaining": ""
-    },
-    {
-      "candidate": "display.c feel_location() 902-905, the sensed-monster tail",
-      "reachability": "sensemon() needs telepathy, monster detection or warning. pick_lock() refuses any monster on the square before it reaches this arm, and hack.c test_move()'s caller passes a wall or stone square.",
-      "owner": "None",
-      "effects": "None inside the boundary.",
-      "evidence": "display.c 902-905; js/lock.js refuses m_at() at :181. sensemon() needs telepathy, monster detection or a warning match. js/lock.js:181 refuses any monster on the square and hack.c test_move() passes wall or stone, so no ported caller can supply one. Stops as UnsupportedMapMemoryError, hoisted above every write so the stop leaves the map untouched.",
-      "status": "cannot-occur",
-      "remaining": ""
-    },
-    {
-      "candidate": "display.c feel_location() 769-771 and 776-858, Underwater and the Levitation Rules",
-      "reachability": "u.uinwater has one writer, js/hack.js set_uinwater(), and both call sites pass false. can_reach_floor(FALSE) answers false only for states js/detect.js:255-283 has already shown no running game can reach.",
-      "owner": "None",
-      "effects": "None inside the boundary.",
-      "evidence": "display.c 769-771, 776-858; the enumeration at js/detect.js:255-283. Stops by name in one guard with the Punished terms. The four states behind it are enumerated at js/detect.js:255-283, each with its single writer in js/.",
-      "status": "cannot-occur",
-      "remaining": ""
-    },
-    {
-      "candidate": "display.c feel_location() 865-891, the Punished bc_felt block",
-      "reachability": "state.uball and state.uchain have one writer, js/worn.js setworn(), and no call site passes W_BALL or W_CHAIN.",
-      "owner": "None",
-      "effects": "None inside the boundary.",
-      "evidence": "display.c 865-891; js/detect.js:249-283. Same guard. js/worn.js setworn() is the only writer of state.uball and state.uchain and no call site passes W_BALL or W_CHAIN.",
-      "status": "cannot-occur",
-      "remaining": ""
-    },
-    {
-      "candidate": "display.c feel_location() 763-767, the remembered invisible monster",
-      "reachability": "glyph_is_invisible() reads a marker map_invisible() writes, and map_invisible() is not ported, so the predicate is always false.",
-      "owner": "js/display.js glyph_is_invisible(), already live at :1552",
-      "effects": "None yet.",
-      "evidence": "js/display.js:1544-1556. Ported. glyph_is_invisible() reads a marker only map_invisible() writes, and map_invisible() is unported, so the early return never fires.",
-      "status": "no-effect-yet",
-      "remaining": ""
-    },
-    {
-      "candidate": "dungeon.c recalc_mapseen() 3075-3200, the mapseen chain",
-      "reachability": "Runs on every update_mapseen_for() call, but writes only mptr->feat.* and mptr->flags, read by the #overview annotation this port does not have, plus the one lastseentyp write already covered above.",
-      "owner": "None",
-      "effects": "None observable inside the boundary.",
-      "evidence": "dungeon.c 3095-3200; js/dungeon.js:1163 and js/do.js:1106 record that the port keeps no mapseen chain.",
-      "status": "no-effect-yet",
-      "remaining": ""
+      "candidate": "dokick.c dokick() 1257-1470, kick_nondoor() and kick_dumb(), with gk.kickedloc and both C sites that clear it",
+      "reachability": "Reached from ^D, which needed kick added to ADMITTED_COMMANDS at js/cmd.js:826 as well as a dispatch arm. Runs live at seed0200 steps 26-27.",
+      "owner": "js/dokick.js, js/cmd.js, js/mon.js, js/hack.js",
+      "effects": "kick_dumb() draws exercise(A_DEX, FALSE) -> attrib.c:509 rn2(2); martial() short-circuits the rn2(3) for a Monk. Writing gk.kickedloc required splitting the ports flattened domove() into domove()/domove_core() so every exit clears it, because its reader js/monmove.js m_avoid_kicked_loc() was already live. Twenty-seven arms refuse by name.",
+      "status": "done"
     }
   ],
   "missingWorkByOwner": [],
-  "sourceReview": "Complete for the boundary. lock.c 540-593, dungeon.c 2925-2947 and 3075-3200, display.c 270-366, 440-472, 720-905, 940-1105 and 1816-1854, options.c 7335-7350, dbridge.c 137-173, engrave.c 291-313 and engrave.h 44-54 were read line by line against the port. Every branch reachable through the ending event is an entry above; the three feel_location() blocks that stop do so before any write, and the mapseen chain is proved to have no observable effect rather than assumed to. Two known departures from C are recorded in the code: same_remembered_glyph() is coarser than a glyph-number comparison for two objects whose presentations coincide, and reglyph_darkroom()'s repair loop still refuses rather than running, which the ledger tracks as remembered-glyph-caches-a-resolved-presentation."
+  "sourceReview": "Attestations, with their basis and their limits stated rather than asserted flat.\n\nBOUNDARY. The starting and ending events above are user-visible and the real game executes each path: every one was proven by a recorded development session advancing through it, not by a unit test. seed0107 reaches 98 of 98 screens, seed1150 51 of 51 and seed0200 39 of 40, each measured by the orchestrator with npm run checkpoint at the merge commit rather than taken from a worker report.\n\nSOURCE REVIEW. Each slice worker traced its own C against nethack-c/upstream/ and reported branch, state and PRNG order; the orchestrator verified the measured outcome of every slice independently and checked several specific claims at source (display.c 1077-1097, wintty.c 2728-2733, insight.c 1334-1463, frozen/terminal.js 679-685, mutate-sites.mjs formatTrailer). The orchestrator did NOT personally re-trace all 4,249 changed lines. Two worker claims were found wrong during the session and corrected: that feel_location() holds a demotion identical to newsym()'s (it does not, it carries its own !waslit term), and that invent.c display_pickinv() owns the menu clip (tty_end_menu() does). Stubs, stops and partial implementations are identified per entry above.\n\nCOMPLETENESS. No known unsupported behavior remains reachable inside the boundary without a stop: every excluded branch refuses by name through failClosedCommandRefusals() or an equivalent class, and the refusals were placed to fire before state changes, randomness or output -- the enlightenment slice states this explicitly for its 53 property rows, and the eat slice placed its rot-illness stop above C rn2(5) rather than at it for exactly this reason. The weakest evidence in the range, stated plainly for the reviewers: js/dothrow.js is the least test-pinned code here. Its mutation first wave left 125 survivors, 94 in that file; hand diagnosis showed most are first-wave artefacts because scripts/fire-command.test.mjs reaches the module through js/jsmain.js and is excluded from the first wave, but the sampled whole-suite escalation drew only 3 of 125 and killed 1, a 33 per cent rate with a 95 per cent interval of 6 to 79. Those survivors are not individually accounted for. Two kick survivors are genuinely reachable and uncovered: near_capacity(state) > SLT_ENCUMBER needs a hero at exactly Burdened, and resetCommandVars(state, state.multi < 0) in the swap arm needs a swap dispatched from dofire()s canned queue. Three duplications are known and unresolved: js/eat.js private vegan/vegetarian pair against js/mondata.js, js/dogfood.js effectiveCorpseAge() against the new peek_at_iced_corpse_age(), and js/objnam.js corpseDoname() against the newly ported corpse_xname()."
 }
