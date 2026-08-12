@@ -3,7 +3,7 @@
 // C refs: mon.c movemon(), mcalcmove(), mpickstuff(), curr_mon_load(),
 // max_mon_load(), zombie_maker(), unstuck(), mon_leaving_level(), m_detach(),
 // mlifesaver(), lifesaved_monster(), logdeadmon(), mondead(), corpse_chance(),
-// make_corpse(), mondied(), monkilled(), killed() and xkilled();
+// make_corpse(), mondied(), monkilled(), killed(), xkilled() and adj_erinys();
 // mthrowu.c m_carrying(); do_name.c safe_oname().
 
 import {
@@ -144,18 +144,28 @@ import {
 import {
     AD_DCAY,
     AD_DGST,
+    AD_DRST,
     AD_FIRE,
     AD_RBRE,
     AD_RUST,
     AD_SEDU,
+    AD_SPEL,
     AD_SSEX,
     AD_STCK,
     AT_BOOM,
     AT_ENGL,
     AT_HUGS,
+    AT_MAGC,
+    AT_WEAP,
     G_FREQ,
     G_NOCORPSE,
     G_UNIQ,
+    M1_AMPHIBIOUS,
+    M1_FLY,
+    M1_REGEN,
+    M1_SEE_INVIS,
+    M1_TPORT,
+    M1_TPORT_CNTRL,
     M2_COLLECT,
     MS_GUARDIAN,
     MS_LEADER,
@@ -173,6 +183,7 @@ import {
     PM_DWARF_ZOMBIE,
     PM_ELF_MUMMY,
     PM_ELF_ZOMBIE,
+    PM_ERINYS,
     PM_ETTIN_MUMMY,
     PM_ETTIN_ZOMBIE,
     PM_FLESH_GOLEM,
@@ -2326,4 +2337,63 @@ export function maybe_unhide_at(x, y, state = game) {
             'maybe_unhide_at() over a hidden hero',
         );
     }
+}
+
+// C ref: mon.c adj_erinys() (5921-5966), "make erinyes more dangerous based on
+// your alignment abuse". Nine thresholds rewrite mons[PM_ERINYS] in place, and
+// the level and difficulty at the end are recomputed from u.ualign.abuse on
+// every call rather than from the argument. attrib.c adjalign() is one of its
+// two callers and the only one this port has; the other is restore.c:727, which
+// replays the whole rewrite after a restore because none of it is saved.
+//
+// The rewrite is a game-state change rather than a pure calculation, so it
+// belongs to whichever game owns the catalog: monsters.js monst_globals_init()
+// gives each game its own deep copy of the frozen templates, which is what
+// makes a write here as private to one game as C's mons[] is to one process.
+// The port has no save or restore -- js/save.js is savelev() alone, and
+// dorecover() has no port -- so restore.c:727 has no owner to disagree with
+// yet. When restore lands it has to call this after the monsters are restored.
+export function adj_erinys(abuse, state = game) {
+    const pm = state.mons[PM_ERINYS];
+
+    if (abuse > 5) {
+        pm.mflags1 |= M1_SEE_INVIS;
+    }
+    if (abuse > 10) {
+        pm.mflags1 |= M1_AMPHIBIOUS;
+    }
+    if (abuse > 15) {
+        pm.mflags1 |= M1_FLY;
+    }
+    if (abuse > 20) {
+        /* more powerful attack */
+        pm.mattk[0].damn = 3;
+    }
+    if (abuse > 25) {
+        pm.mflags1 |= M1_REGEN;
+    }
+    if (abuse > 30) {
+        pm.mflags1 |= M1_TPORT_CNTRL;
+    }
+    if (abuse > 35) {
+        /* second attack */
+        pm.mattk[1].aatyp = AT_WEAP;
+        pm.mattk[1].adtyp = AD_DRST;
+        pm.mattk[1].damn = 3;
+        pm.mattk[1].damd = 4;
+    }
+    if (abuse > 40) {
+        pm.mflags1 |= M1_TPORT;
+    }
+    if (abuse > 50) {
+        /* third (spellcasting) attack */
+        pm.mattk[2].aatyp = AT_MAGC;
+        pm.mattk[2].adtyp = AD_SPEL;
+        pm.mattk[2].damn = 3;
+        pm.mattk[2].damd = 4;
+    }
+
+    /* also adjust level and difficulty */
+    pm.mlevel = Math.min(7 + state.u.ualign.abuse, 50);
+    pm.difficulty = Math.min(10 + Math.trunc(state.u.ualign.abuse / 3), 25);
 }

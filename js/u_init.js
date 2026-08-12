@@ -176,7 +176,10 @@ function zeroHero(roleplay) {
         amax: { a: zeroAttributes() },
         atemp: zeroAttributes(),
         atime: zeroAttributes(),
-        ualign: { type: 0, record: 0 },
+        // C ref: align.h struct align (10-14). `abuse` counts alignment losses
+        // and never falls; attrib.c adjalign()'s `n < 0` arm is its only
+        // writer, and mon.c adj_erinys() and makemon.c's erinys guard read it.
+        ualign: { type: 0, record: 0, abuse: 0 },
         ualignbase: [0, 0],
         uluck: 0,
         moreluck: 0,

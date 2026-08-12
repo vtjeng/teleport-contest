@@ -6,6 +6,7 @@ import { experience } from '../js/exper.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
+    adj_erinys,
     corpse_chance,
     killed,
     m_detach,
@@ -38,11 +39,24 @@ import {
 import {
     AD_DCAY,
     AD_DGST,
+    AD_DRST,
     AD_FIRE,
     AD_PHYS,
     AD_RBRE,
     AD_RUST,
+    AD_SPEL,
+    AT_MAGC,
+    AT_NONE,
+    AT_WEAP,
+    M1_AMPHIBIOUS,
+    M1_FLY,
+    M1_REGEN,
+    M1_SEE_INVIS,
+    M1_TPORT,
+    M1_TPORT_CNTRL,
+    monst_globals_init,
     NON_PM,
+    PM_ERINYS,
     PM_ARCH_LICH,
     PM_CAVE_SPIDER,
     PM_CHAMELEON,
@@ -494,13 +508,88 @@ test('adjalign raises the record to the moves-based ceiling', async () => {
         game.moves = 1;
     }
 
-    refuses(
-        () => adjalign(-1, game),
-        'ability change requires adjalign() with a loss, '
-        + 'which reaches mon.c adj_erinys()',
-    );
-    assert.equal(u.ualign.record, 12, 'the loss changed nothing');
+    // A loss lowers the record with no floor and raises the abuse count,
+    // which starts at zero and has no other writer.
+    assert.equal(u.ualign.abuse, 0);
+    adjalign(-1, game);
+    assert.equal(u.ualign.record, 11);
+    assert.equal(u.ualign.abuse, 1);
+    adjalign(-4, game);
+    assert.equal(u.ualign.record, 7);
+    assert.equal(u.ualign.abuse, 5);
 });
+
+// mon.c adj_erinys() (5921-5966). Nine thresholds, each strictly greater than
+// its bound, plus a level and a difficulty that track u.ualign.abuse. The
+// function only ever sets bits, so every case starts from a fresh catalog:
+// monst_globals_init() is what a new game runs, and running it here is what
+// lets one abuse be measured without the ones before it.
+test('adj_erinys arms the erinys one alignment-abuse threshold at a time',
+    async () => {
+        await hero();
+        const u = game.u;
+        // monst.c gives the erinys level 7, difficulty 10, one 2d4 AT_WEAP
+        // attack and no second or third one.
+        const template = monst_globals_init(game)[PM_ERINYS];
+        const baseFlags = template.mflags1;
+
+        function armAt(abuse) {
+            monst_globals_init(game);
+            u.ualign.abuse = abuse;
+            adj_erinys(abuse, game);
+            return game.mons[PM_ERINYS];
+        }
+
+        // Abuse 0 must leave the record exactly as monst.c wrote it.
+        const fresh = armAt(0);
+        assert.equal(fresh.mflags1, baseFlags);
+        assert.equal(fresh.mlevel, 7);
+        assert.equal(fresh.difficulty, 10);
+        assert.equal(fresh.mattk[0].damn, 2);
+        assert.equal(fresh.mattk[1].aatyp, AT_NONE);
+        assert.equal(fresh.mattk[2].aatyp, AT_NONE);
+
+        // Each flag threshold, one abuse below and one above. The pair is what
+        // separates `>` from `>=`, and the accumulated mask is what shows the
+        // higher thresholds stay shut at the lower abuse.
+        let expected = baseFlags;
+        for (const [bound, flag] of [
+            [5, M1_SEE_INVIS], [10, M1_AMPHIBIOUS], [15, M1_FLY],
+            [25, M1_REGEN], [30, M1_TPORT_CNTRL], [40, M1_TPORT],
+        ]) {
+            assert.equal(armAt(bound).mflags1, expected,
+                `abuse ${bound} sets no new flag`);
+            expected |= flag;
+            assert.equal(armAt(bound + 1).mflags1, expected,
+                `abuse ${bound + 1} arms it`);
+        }
+
+        // 20 leaves the first attack at its monst.c strength and 21 raises it.
+        assert.equal(armAt(20).mattk[0].damn, 2);
+        assert.equal(armAt(21).mattk[0].damn, 3);
+
+        // 35 leaves the second attack empty and 36 fills it.
+        assert.equal(armAt(35).mattk[1].aatyp, AT_NONE);
+        assert.deepEqual(armAt(36).mattk[1],
+            { aatyp: AT_WEAP, adtyp: AD_DRST, damn: 3, damd: 4 });
+
+        // 50 leaves the third attack empty and 51 fills it.
+        assert.equal(armAt(50).mattk[2].aatyp, AT_NONE);
+        assert.deepEqual(armAt(51).mattk[2],
+            { aatyp: AT_MAGC, adtyp: AD_SPEL, damn: 3, damd: 4 });
+
+        // The level and the difficulty follow u.ualign.abuse rather than the
+        // argument, and both saturate.
+        assert.equal(armAt(5).mlevel, 12, '7 + abuse');
+        assert.equal(armAt(5).difficulty, 11, '10 + abuse/3');
+        assert.equal(armAt(51).mlevel, 50, 'min(7 + 51, 50)');
+        assert.equal(armAt(51).difficulty, 25, 'min(10 + 51/3, 25)');
+
+        // The catalog is per-game, so the next game starts from the templates.
+        monst_globals_init(game);
+        assert.equal(game.mons[PM_ERINYS].mflags1, baseFlags);
+        u.ualign.abuse = 0;
+    });
 
 // mon.c unstuck() (3437-3467). The holder's re-hold cooldown is the only
 // observable effect on the supported path.

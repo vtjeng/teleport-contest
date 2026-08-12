@@ -13,8 +13,9 @@ import {
     ART_EYES_OF_THE_OVERWORLD, find_artifact, permapoisoned,
 } from './artifacts.js';
 import {
-    BLINDED, CORPSTAT_HISTORIC, HALLUC, HALLUC_RES, HAND, NON_PM, P_BOW,
-    W_AMUL, W_ARMOR, W_QUIVER, W_RING, W_RINGL, W_RINGR, W_SADDLE,
+    BLINDED, CORPSTAT_HISTORIC, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
+    CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, HALLUC, HALLUC_RES, HAND, NON_PM,
+    P_BOW, W_AMUL, W_ARMOR, W_QUIVER, W_RING, W_RINGL, W_RINGR, W_SADDLE,
     W_SWAPWEP, W_TOOL, W_WEP,
 } from './const.js';
 import {
@@ -22,13 +23,19 @@ import {
 } from './fruit.js';
 import { tin_details } from './eat.js';
 import { game } from './gstate.js';
-import { dist2, highc, lowc, strcasecpy } from './hacklib.js';
+import {
+    digit, dist2, highc, lowc, mungspaces, s_suffix, strcasecpy,
+} from './hacklib.js';
 import { get_obj_location } from './light.js';
 import { cansee } from './vision.js';
 import { body_part } from './polyself.js';
 import { RIGHT_HANDED } from './u_init.js';
 import { bimanual } from './worn.js';
-import { PM_CLERIC, PM_SAMURAI } from './monsters.js';
+import {
+    G_UNIQ, PM_CLERIC, PM_HIGH_CLERIC, PM_LONG_WORM_TAIL, PM_SAMURAI,
+    PM_WIZARD_OF_YENDOR,
+} from './monsters.js';
+import { type_is_pname } from './mondata.js';
 import { observe_object } from './o_init.js';
 import {
     erosionMatters, hasContents, isBox, isCandle, isContainer,
@@ -807,28 +814,133 @@ function wornSuffix(obj, type, state) {
     return suffix;
 }
 
+// C ref: objnam.c the_unique_pm() (1801-1821). "Unique" for naming: a species
+// whose one member deserves "the", which excludes the personally named ones
+// because they deserve their bare name instead.
+export function the_unique_pm(species) {
+    /* even though monsters with personal names are unique, we want to
+       describe them as "Name" rather than "the Name" */
+    if (type_is_pname(species)) return false;
+
+    let uniq = Boolean(species.geno & G_UNIQ);
+    /* high priest is unique if it includes "of <deity>", otherwise not
+       (caller needs to handle the 1st possibility; we assume the 2nd);
+       worm tail should be irrelevant but is included for completeness */
+    if (species.pmidx === PM_HIGH_CLERIC
+        || species.pmidx === PM_LONG_WORM_TAIL)
+        uniq = false;
+    /* Wizard no longer needs this; he's flagged as unique these days */
+    if (species.pmidx === PM_WIZARD_OF_YENDOR)
+        uniq = true;
+    return uniq;
+}
+
+// C ref: objnam.c corpse_xname() (1823-1919), "<mnam> corpse" with the article
+// and the adjective placed to suit the monster's name. C builds the answer in
+// the obuf[] that xname() would have used, so aobjnam() can still write into
+// the prefix area; this port returns the string and has no such buffer.
+//
+// The glob arm stops. Its input is a globby object that is not a CORPSE, which
+// only shrink_glob() and eat.c's glob meal produce, and neither is ported.
+export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
+    const omndx = otmp.corpsenm;
+    /* override quantity if greater than 1 */
+    const ignore_quan = (cxn_flags & CXN_SINGULAR) !== 0;
+    /* suppress "the" from "the unique monster corpse" */
+    let no_prefix = (cxn_flags & CXN_NO_PFX) !== 0;
+    /* include "the" for "the woodchuck corpse" */
+    let the_prefix = (cxn_flags & CXN_PFX_THE) !== 0;
+    /* include "an" for "an ogre corpse" */
+    let any_prefix = (cxn_flags & CXN_ARTICLE) !== 0;
+    /* leave off suffix (do_name() appends "corpse" itself) */
+    const omit_corpse = (cxn_flags & CXN_NOCORPSE) !== 0;
+    let possessive = false;
+    const glob = otmp.otyp !== CORPSE && otmp.globby;
+    let mnam;
+
+    if (glob) {
+        unsupported('corpse_xname() for a glob', otmp);
+    } else if (omndx === NON_PM) { /* paranoia */
+        mnam = 'thing';
+    } else {
+        // C's obj_pmname(); monsterObjectName() above is this port's reading of
+        // it, and covers do_name.c:1355's NEUTRAL arm alone.
+        mnam = monsterObjectName(otmp, state);
+        const species = state.mons[omndx];
+        if (the_unique_pm(species) || type_is_pname(species)) {
+            mnam = s_suffix(mnam);
+            possessive = true;
+            /* don't precede personal name like "Medusa" with an article */
+            if (type_is_pname(species))
+                no_prefix = true;
+            /* always precede non-personal unique monster name like
+               "Oracle" with "the" unless explicitly overridden */
+            else if (the_unique_pm(species) && !no_prefix)
+                the_prefix = true;
+        }
+    }
+    if (no_prefix)
+        the_prefix = any_prefix = false;
+    else if (the_prefix)
+        any_prefix = false; /* mutually exclusive */
+
+    let nambuf = '';
+    /* can't use the() the way we use an() below because any capitalized
+       Name causes it to assume a personal name and return Name as-is */
+    if (the_prefix)
+        nambuf += 'the ';
+
+    if (!adjective) {
+        /* normal case:  newt corpse */
+        nambuf += mnam;
+    } else {
+        /* adjective positioning depends upon format of monster name */
+        nambuf += possessive
+            ? `${mnam} ${adjective}` /* Medusa's cursed partly eaten corpse */
+            : `${adjective} ${mnam}`; /* cursed partly eaten troll corpse */
+        /* in case adjective has a trailing space, squeeze it out */
+        nambuf = mungspaces(nambuf);
+        /* doname() might include a count in the adjective argument;
+           if so, don't prepend an article */
+        if (digit(adjective[0]))
+            any_prefix = false;
+    }
+
+    if (!omit_corpse) {
+        nambuf += ' corpse';
+        /* makeplural(nambuf) => append "s" to "corpse" */
+        if (otmp.quan > 1 && !ignore_quan) {
+            nambuf += 's';
+            any_prefix = false; /* avoid "a newt corpses" */
+        }
+    }
+
+    if (any_prefix)
+        nambuf = an(nambuf);
+    return nambuf;
+}
+
 // C ref: objnam.c cxname() (1922-1930). xname() drops a corpse's monster
-// type, so a corpse goes to corpse_xname() instead; that helper is unported
-// and no wish this port grants makes a corpse.
+// type, so a corpse goes to corpse_xname() instead.
 export function cxname(obj, state = game) {
     if (obj.otyp === CORPSE)
-        unsupported('corpse_xname() for cxname()', obj);
+        return corpse_xname(obj, null, CXN_NORMAL, state);
     return xnameFresh(obj, state);
 }
 
 // C ref: objnam.c singular() (2087-2105). Names one item of a stack by
 // running the caller's namer with quan temporarily set to 1. C swaps xname()
 // for cxname() on a corpse, because xname() would drop the monster type.
-// cxname() is ported above, but it refuses a corpse itself, needing
-// corpse_xname(), which is not. So the swap stops here rather than routing a
-// corpse into a helper that would throw one frame later.
 export function singular(otmp, func, state) {
-    if (otmp.otyp === CORPSE && func === xnameFresh)
-        throw new UnsupportedObjectNameError('cxname() for singular()', otmp);
+    /* using xname for corpses does not give the monster type */
+    let namer = func;
+    if (otmp.otyp === CORPSE && namer === xnameFresh)
+        namer = cxname;
+
     const savequan = otmp.quan;
     otmp.quan = 1;
     try {
-        return func(otmp, state);
+        return namer(otmp, state);
     } finally {
         otmp.quan = savequan;
     }
