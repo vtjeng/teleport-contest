@@ -1674,7 +1674,7 @@
     },
     {
       "id": "sit-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "cmd.c rhack() dispatches the extended command #sit into sit.c dosit() (400-563) rather than stopping at js/cmd.js:1692's unported-extended-command boundary.\n\nCovers dosit()'s guard chain at 402-433 -- t_at(u.ux, u.uy), levl[u.ux][u.uy].typ, the u.usteed, hider, can_reach_floor(FALSE), u.ustuck and pool/gremlin arms -- and its OBJ_AT arm at 435-462: the uteetering_at_seen_pit(trap) || uescaped_shaft(trap) precipice test, obj = svl.level.objects[u.ux][u.uy], the S_DRAGON coin-hoard and TOWEL arms, the slithy() choice between coiling and sitting, You(\"sit on %s.\", the(xname(obj))), and the tail chain amorphous() \"It's squishy...\", CREAM_PIE with its Soundeffect and useupf(), and the !(Is_box(obj) || oc_material == CLOTH) \"It's not very comfortable...\" line, then the fall-through to return ECMD_TIME at 563.\n\nOutside and still refused by name: dosit()'s trap arm at 463-500 (bear trap, spiked and plain pit, web, lava, infloor and buried ball), and the lava, ice, DRAWBRIDGE_DOWN, IS_THRONE with throne_sit_effect(), and lays_eggs()/lay_an_egg() arms at 501-562.",
       "upstreamOwners": [
         "src/sit.c"
@@ -1706,8 +1706,8 @@
         },
         {
           "name": "report two-weapon skill, and clip the over-wide menu line",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "55ee5ab4a469d33673637b737c50e1fbdfb20633"
         }
       ],
       "openedAt": "5ad7fe96ebe2b77eeee9d467c597daca05a66e41",
@@ -1716,8 +1716,11 @@
         "screens": 1458,
         "rng": 120419
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "55ee5ab4a469d33673637b737c50e1fbdfb20633",
+      "delivered": {
+        "screens": 13,
+        "rng": 22
+      }
     }
   ]
 }
