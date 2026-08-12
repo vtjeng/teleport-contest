@@ -359,3 +359,5 @@ utc	event	phase	goal	detail
 2026-08-12T05:58:48.027Z	start	select	sit-command	directed goal; slice division only
 2026-08-12T06:09:02.140Z	end	select	sit-command	one slice; six corrections to the queued record
 2026-08-12T06:09:02.170Z	start	implement	sit-command	
+2026-08-12T07:40:58.227Z	end	implement	sit-command	sit slice closed at e6c2135; the next slice selection ran after it
+2026-08-12T07:40:58.257Z	start	implement	sit-command	two-weapon suffix
