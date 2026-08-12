@@ -187,12 +187,11 @@ test('singular names one item and restores the stack quantity', () => {
     const apples = food(current, APPLE, { quan: 6, dknown: 1, known: 1 });
     assert.equal(singular(apples, xnameFresh, current), 'apple');
     assert.equal(apples.quan, 6);
-    // A corpse would need cxname() to keep the monster type, which is
-    // unported, so the swap stops rather than answering "corpse".
-    const corpse = food(current, CORPSE, { corpsenm: PM_LICHEN });
-    assert.throws(() => singular(corpse, xnameFresh, current), {
-        name: 'UnsupportedObjectNameError',
-    });
+    // C swaps xname() for cxname() on a corpse, which keeps the monster type
+    // xname() would drop, and the swapped namer still sees quan == 1.
+    const corpse = food(current, CORPSE, { corpsenm: PM_LICHEN, quan: 3 });
+    assert.equal(singular(corpse, xnameFresh, current), 'lichen corpse');
+    assert.equal(corpse.quan, 3);
 });
 
 // C ref: eat.c obj_nutrition() (322-334).

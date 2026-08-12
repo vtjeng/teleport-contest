@@ -55,6 +55,9 @@ import { SPFX_LUCK } from './artifacts.js';
 // the other's exports only inside function bodies, so the cycle resolves.
 import { see_monsters } from './display.js';
 import { game } from './gstate.js';
+// js/mon.js imports adjalign() from this file; both sides use the other's
+// exports only inside function bodies, so the cycle resolves.
+import { adj_erinys } from './mon.js';
 import {
     PM_AMOROUS_DEMON,
     PM_ARCHEOLOGIST,
@@ -975,24 +978,24 @@ export function ALIGNLIM(state = game) {
 // lowers it without a floor and separately raises u.ualign.abuse, which never
 // falls.
 //
-// The whole `n < 0` arm stops. Its second half calls mon.c adj_erinys(), which
-// permanently rewrites mons[PM_ERINYS] -- flags, attacks, level and difficulty
-// -- and restore.c:727 replays that rewrite from u.ualign.abuse on every
-// restore because it is derived rather than saved. This port has no owner for
-// that replay, so porting the mutation alone would leave a species record that
-// survives one segment and reverts at the next. The refusal sits above both
-// writes rather than at C's call, and its condition is C's: `newabuse` is
-// `u.ualign.abuse - n` with `n < 0` and `abuse` unsigned, so 1305's
-// `newabuse > u.ualign.abuse` cannot fail and every negative `n` reaches
-// adj_erinys().
+// `newabuse` is C's `unsigned newabuse = u.ualign.abuse - n`, and with `n < 0`
+// that subtraction adds. u.ualign.abuse starts at 0 in js/u_init.js and this is
+// its only writer, so it stays a small non-negative count and 1307's
+// `newabuse > u.ualign.abuse` is true on every negative `n`. Nothing shrinks
+// it, so C's unsigned wrap at 2^32 has no reachable input either.
 export function adjalign(n, state = game) {
     const u = state.u;
     const newalign = u.ualign.record + n;
 
     if (n < 0) {
-        throw new UnsupportedAbilityChangeError(
-            'adjalign() with a loss, which reaches mon.c adj_erinys()',
-        );
+        const newabuse = u.ualign.abuse - n;
+
+        if (newalign < u.ualign.record)
+            u.ualign.record = newalign;
+        if (newabuse > u.ualign.abuse) {
+            u.ualign.abuse = newabuse;
+            adj_erinys(newabuse, state);
+        }
     } else if (newalign > u.ualign.record) {
         u.ualign.record = newalign;
         if (u.ualign.record > ALIGNLIM(state))

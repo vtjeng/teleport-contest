@@ -1650,10 +1650,13 @@ test('aobjnam names the object and agrees the verb with it', () => {
     lamp.quan = 1;
     assert.equal(otense(lamp, 'drop'), 'drops');
     // cxname() answers xname() for everything but a corpse, whose monster
-    // type xname() would drop; corpse_xname() is unported.
+    // type xname() would drop; corpse_xname() supplies it instead, and CXN_
+    // NORMAL leaves the quantity to say "corpses".
     assert.equal(cxname(lamp, state), 'lamp');
     const corpse = objectOf(state, CORPSE, { corpsenm: PM_NEWT });
-    assert.throws(() => cxname(corpse, state), UnsupportedObjectNameError);
+    assert.equal(cxname(corpse, state), 'newt corpse');
+    corpse.quan = 2;
+    assert.equal(cxname(corpse, state), 'newt corpses');
 });
 
 // objnam.c yname() (2357-2374) and Yname2() (2376-2383). wield.c

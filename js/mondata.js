@@ -211,6 +211,15 @@ export function eggs_in_water(species) {
 export function regenerates(species) { return flag1(species, M.M1_REGEN); }
 export function perceives(species) { return flag1(species, M.M1_SEE_INVIS); }
 export function can_teleport(species) { return flag1(species, M.M1_TPORT); }
+export function control_teleport(species) {
+    return flag1(species, M.M1_TPORT_CNTRL);
+}
+// mondata.h:84-86. Three species by identity rather than by a flag.
+export function telepathic(species) {
+    return species?.pmidx === M.PM_FLOATING_EYE
+        || species?.pmidx === M.PM_MIND_FLAYER
+        || species?.pmidx === M.PM_MASTER_MIND_FLAYER;
+}
 export function acidic(species) { return flag1(species, M.M1_ACID); }
 export function poisonous(species) { return flag1(species, M.M1_POIS); }
 export function carnivorous(species) { return flag1(species, M.M1_CARNIVORE); }
@@ -894,6 +903,12 @@ function isLongWorm(species) {
     return species?.pmidx === M.PM_BABY_LONG_WORM
         || species?.pmidx === M.PM_LONG_WORM
         || species?.pmidx === M.PM_LONG_WORM_TAIL;
+}
+
+// mondata.h:102. gu.urace.selfmask is the one M2 bit that names the hero's own
+// race, so this asks whether the species is one of the hero's own kind.
+export function your_race(species, state = game) {
+    return ((species?.mflags2 ?? 0) & (state.urace?.selfmask ?? 0)) !== 0;
 }
 
 // C ref: mondata.c same_race(). Growth-family comparison is intentionally

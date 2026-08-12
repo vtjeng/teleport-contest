@@ -203,7 +203,7 @@ test('u_init_misc clears hero state and preserves only roleplay options', async 
     assert.equal(state.disp.botl, true);
     assert.equal(state.u.ublesscnt, 300);
     assert.deepEqual(state.u.ualignbase, [0, 0]);
-    assert.deepEqual(state.u.ualign, { type: 0, record: 10 });
+    assert.deepEqual(state.u.ualign, { type: 0, record: 10, abuse: 0 });
     assert.deepEqual(
         [state.u.nv_range, state.u.xray_range,
             state.u.unblind_telepat_range],

@@ -1819,6 +1819,26 @@ function objectLocationIsIce(x, y, state) {
             && ((location.flags ?? 0) & DB_UNDER) === DB_ICE);
 }
 
+// C ref: mkobj.c ROT_ICE_ADJUSTMENT (2391), "rotting on ice takes 2 times as
+// long". obj_timer_checks() below multiplies a pending timeout by it.
+const ROT_ICE_ADJUSTMENT = 2;
+
+// C ref: mkobj.c peek_at_iced_corpse_age() (2422-2438). The age a rot
+// calculation should use: a corpse resting on ice has aged at half speed, so
+// the stored age is moved forward by the half of the elapsed time that did not
+// count. "must be same as obj_timer_checks() for off ice".
+export function peek_at_iced_corpse_age(otmp, state = game) {
+    let retval = Math.trunc(otmp.age ?? 0);
+
+    if (otmp.otyp === CORPSE && otmp.on_ice) {
+        /* Adjust the age; must be same as obj_timer_checks() for off ice */
+        const age = Math.trunc(state.moves ?? 0) - Math.trunc(otmp.age ?? 0);
+        retval += Math.trunc(age * (ROT_ICE_ADJUSTMENT - 1)
+            / ROT_ICE_ADJUSTMENT);
+    }
+    return retval;
+}
+
 // C ref: mkobj.c obj_timer_checks(). Corpse rot and revival timers run at
 // half speed on ice; moving a corpse onto or off ice adjusts both its pending
 // timeout and age so later source calculations see the same elapsed time.
