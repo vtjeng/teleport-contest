@@ -5,6 +5,7 @@ import test from 'node:test';
 import {
   appendDeferralNote,
   assignPathToArea,
+  refileDeferralArea,
   auditMetricsFromOptions,
   deferralCounts,
   formatDeferralCounts,
@@ -814,6 +815,103 @@ test('a deferral note appends without disturbing what the entry already says', (
     () => appendDeferralNote(
       deferralLedgerConfig(), 'closed-entry', 'x', 'a'.repeat(40)),
     /already closed: closed-entry; reopen it by recording a deferral/u,
+  );
+});
+
+test('re-filing an entry moves its area and records the move', () => {
+  // Two areas, because a re-file needs somewhere to go. 'display' owns
+  // js/display.js, which the moved entry's detail never mentions: an area's
+  // file list plays no part in which area an entry is filed under, so the
+  // move below succeeds without the two agreeing.
+  const config = deferralLedgerConfig();
+  config.areas.push({
+    id: 'display', label: 'Display', paths: ['js/display.js'],
+  });
+
+  const { entry, previous } = refileDeferralArea(
+    config, 'open-entry', 'display', 'the detail cites only display files',
+    'c'.repeat(40));
+  assert.equal(previous, 'monsters');
+  assert.equal(entry.area, 'display');
+  // The move is recorded rather than silent, because area decides which goal
+  // runs next and a label that changed with no trace is the drift this
+  // command exists to stop. The composed text carries both ends of the move;
+  // the operator's reason follows it.
+  assert.deepEqual(entry.notes, [{
+    text: 'Re-filed from monsters to display. '
+      + 'the detail cites only display files',
+    at: 'c'.repeat(40),
+  }]);
+  // Only `area` and `notes` move. The claim as first written survives, so a
+  // reader can still tell what the entry originally asserted.
+  assert.deepEqual(
+    { ...entry, area: undefined, notes: undefined },
+    { ...deferralLedgerConfig().deferred[0], area: undefined, notes: undefined },
+  );
+
+  const fresh = () => {
+    const next = deferralLedgerConfig();
+    next.areas.push({ id: 'display', label: 'Display', paths: [] });
+    return next;
+  };
+  // An unknown id is a typo; creating an entry is defer's job.
+  assert.throws(
+    () => refileDeferralArea(fresh(), 'no-such-entry', 'display', 'why',
+      'c'.repeat(40)),
+    /no deferred entry has id: no-such-entry/u,
+  );
+  // A closed entry counts toward no sweep, so its label decides nothing.
+  assert.throws(
+    () => refileDeferralArea(fresh(), 'closed-entry', 'display', 'why',
+      'c'.repeat(40)),
+    /already closed: closed-entry/u,
+  );
+  // An unknown area would validate away to null and silently un-file the
+  // entry, so it is refused by name before the write.
+  assert.throws(
+    () => refileDeferralArea(fresh(), 'open-entry', 'no-such-area', 'why',
+      'c'.repeat(40)),
+    /no area has id: no-such-area/u,
+  );
+  // A re-file to the area the entry already carries writes a note recording a
+  // move that did not happen. Refusing keeps the note list honest.
+  assert.throws(
+    () => refileDeferralArea(fresh(), 'open-entry', 'monsters', 'why',
+      'c'.repeat(40)),
+    /already filed under monsters/u,
+  );
+});
+
+test('refile-deferral is reachable as a command and requires its reason', () => {
+  const run = (args) => {
+    try {
+      main(args);
+    } catch (error) {
+      return String(error?.message ?? '');
+    }
+    return '';
+  };
+
+  // No entry in QUALITY.json is named 'no-such-deferral', so the command
+  // reaches the re-filer and stops there, before any write.
+  assert.match(
+    run(['refile-deferral', '--id', 'no-such-deferral', '--area', 'display',
+      '--note', 'a reason']),
+    /no deferred entry has id: no-such-deferral/u,
+  );
+  // --note is required, which is the design decision this command carries:
+  // every other ledger mutation records provenance, and a bare re-file would
+  // not. The check runs before the ledger is read.
+  assert.match(
+    run(['refile-deferral', '--id', 'no-such-deferral', '--area', 'display']),
+    /--note is required/u,
+  );
+  // --detail belongs to defer. Refusing it shows the assertions above are not
+  // vacuous.
+  assert.match(
+    run(['refile-deferral', '--id', 'x', '--area', 'y', '--note', 'z',
+      '--detail', 'w']),
+    /unknown option: --detail/u,
   );
 });
 

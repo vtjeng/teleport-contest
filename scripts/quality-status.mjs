@@ -1623,6 +1623,55 @@ function noteDeferral(options) {
   });
 }
 
+// An entry's area decides which sweep counts it, and deferralCounts() is the
+// only reader that matters: a wrong label moves an entry between the numbers
+// that schedule the next goal. Until this verb existed the only correction was
+// a hand edit of QUALITY.json, which leaves no trace that the entry moved. The
+// move is therefore appended as a note beside the operator's reason, so a
+// later reader can tell an entry that was always filed here from one that was
+// moved, and date the move. Correcting the entry's prose stays note-deferral's
+// job; this verb touches `area` and nothing else.
+export function refileDeferralArea(config, id, areaId, reason, at) {
+  const entry = config.deferred.find((candidate) => candidate.id === id);
+  if (!entry) fail(`no deferred entry has id: ${id}`);
+  if (entry.status === 'closed') {
+    fail(`already closed: ${entry.id}; a closed entry counts toward no sweep, `
+      + 'so its area decides nothing');
+  }
+  if (!config.areas.some((area) => area.id === areaId)) {
+    fail(`no area has id: ${areaId}`);
+  }
+  const previous = entry.area;
+  if (previous === areaId) {
+    fail(`${entry.id} is already filed under ${areaId}`);
+  }
+  entry.area = areaId;
+  entry.notes = [...entry.notes ?? [], {
+    text: `Re-filed from ${previous ?? 'no area'} to ${areaId}. ${reason}`,
+    at,
+  }];
+  // Full-shape validation rejects an unknown area or a malformed note before
+  // anything is written.
+  validateConfigShape(config);
+  return { entry, previous };
+}
+
+function refileDeferral(options) {
+  rejectUnknownOptions(options, new Set(['id', 'area', 'note']));
+  for (const key of ['id', 'area', 'note']) {
+    if (!options[key]?.trim()) fail(`--${key} is required`);
+  }
+  withLedgerLock(() => {
+    const config = loadConfig();
+    const { entry, previous } = refileDeferralArea(
+      config, options.id.trim(), options.area.trim(), options.note.trim(),
+      resolveCommit('HEAD'));
+    writeConfig(config);
+    console.log(`Re-filed ${entry.id}: ${previous ?? '(no area)'} `
+      + `-> ${entry.area}.`);
+  });
+}
+
 // The one QUALITY.json write the per-chunk workflow asks of a worker:
 // assigning each new js/ file to an area as soon as the file is created.
 // A subcommand makes that write without hand-editing the ledger. Validation
@@ -1730,6 +1779,7 @@ function printHelp() {
   npm run quality -- defer --id <id> --category <c> --effort <small|slice> \\
     --detail <text> [--area <id>] [--blocked-on <symbol>]
   npm run quality -- note-deferral --id <id> --note <text>
+  npm run quality -- refile-deferral --id <id> --area <id> --note <text>
   npm run quality -- block-deferral --id <id> <--blocked-on <symbol>|--clear>
   npm run quality -- resolve-deferral --id <id>
   npm run quality -- slice-mutants --range <base>..<head>
@@ -1741,8 +1791,12 @@ appends a correction to an open entry, stamped with the commit it was written
 at; it never rewrites what the entry already says, so a reader can tell an
 original claim from a later correction and date each one. The deferrals listing
 prints each entry's note count, and deferrals --id prints the notes themselves.
-areas lists the quality areas, and assign inserts a new js/ file into one, the
-write the per-chunk workflow requires as soon as the file is created.
+refile-deferral moves an open entry to another area, which is the label
+deferralCounts() reads when it decides whether an area has reached its sweep
+threshold; it requires a reason and appends the move as a note, so a label that
+changed leaves a trace. areas lists the quality areas, and assign inserts a new
+js/ file into one, the write the per-chunk workflow requires as soon as the
+file is created.
 
 --blocked-on names the C symbol whose port the entry waits on, for an entry
 that can only be retired once other work lands. The symbol must appear in
@@ -1799,6 +1853,10 @@ export function main(argv) {
   }
   if (first === 'note-deferral') {
     noteDeferral(parseOptions(rest));
+    return;
+  }
+  if (first === 'refile-deferral') {
+    refileDeferral(parseOptions(rest));
     return;
   }
   if (first === 'block-deferral') {
