@@ -186,32 +186,44 @@ document's repair is a sentence; the model's is not.
 that sits inside a supported command until the model can name it, so a goal like
 this one is nominated by the observed census alone.
 
-## Check a deferral's area against the files its record cites
+## Check that a deferral cites a symbol its file defines
 
-**What it changes.** `npm run quality` would compare each open deferral's `area`
-label against the areas that `QUALITY.json`'s own `areas[].paths` assign to the
-`js/` files the record cites, and print the disagreements. It would also gain a
-command to re-file an entry, which today has none: `assign` maps a file to an
-area and `defer --area` sets a label at creation, so a wrong label can only be
-corrected by editing `QUALITY.json` by hand.
+**What it changes.** `npm run quality` would extract each open deferral's
+`js/<file>.js <symbol>()` pairs from its `detail`, read the file, and print
+every pair whose file does not define that symbol.
 
-**Scope.** A path-extraction helper over each record's `detail`, a comparison
-against `areas[].paths`, one informational line beside the sweep-candidate line,
-and a `refile-deferral --id <id> --area <id>` subcommand with its test. It should
-print rather than block: a record can legitimately cite a file it does not
-propose to change, so the check reports a disagreement for a human to judge.
+**Scope.** A regex over each record's `detail` and one informational line beside
+the sweep-candidate line. It prints, rather than blocking: a record may name a
+symbol the file has yet to define.
 
-**What prompted it.** At the close of `objects-deferral-sweep-2` the report named
-`startup` a sweep candidate at ten open entries. Two of those ten were mis-filed:
-`the mfndpos rollback restores what nothing changed` cites only `js/monmove.js`,
-and `the planning clone's object copy is still expensive` names `cloneObjects()`
-at `js/unported_monster_actions.js:322`. `QUALITY.json` assigns both files to
-`monsters`. `scripts/quality-status.mjs` counts the threshold by the recorded
-label and never checks it against the record, so the gate was scheduling a sweep
-measured at 0 recorded steps while a boundary candidate measured at 21 waited.
-Re-filing them put `startup` at 8 and `monsters` at 6, and no area at threshold.
+**What prompted it.** Three entries went stale on 11 August 2026.
+`wlt-mkmaze-owner-comment` closed because the file had been corrected on 3
+August and the entry never was. A correctness pass falsified
+`feel-location-ported-twice`'s "strict subset" claim. And `earth_sense()'s
+notice is refused rather than printed` cites `js/mklev.js place_lregion()`,
+which is defined at `js/mkmaze.js:92`.
 
-**What it leaves unfixed.** It only stops a mislabel from firing the gate.
-`.agents/selection.md` separately bars two sweeps in a row, so a mislabel now
-costs at most one goal's ordering.
+**The measurement.** This entry first proposed comparing an entry's `area` label
+against the areas `areas[].paths` assign to the files its record cites. At
+`4930664`, over 92 open entries, that check flags 15 of the 59 citing a path,
+and most of the 15 are sound: `pick-lock-lookalike-pile-top-has-no-fresh-case`
+is filed under `commands` and cites `js/display.js`, where the helper lives. The
+symbol check examines 47 pairs and flags 2 real issues.
+
+The two find different faults. The area check finds a correct citation under a
+wrong label, which is what mis-schedules a sweep. The symbol check finds a wrong
+citation, which misleads a reader. Neither finds the other's fault:
+`cloneObjects()` does appear in `js/unported_monster_actions.js`, so the symbol
+check passes both entries whose `startup` label prompted this proposal.
+
+**What has landed.** `refile-deferral --id <id> --area <id> --note <text>` at
+`ea2494d`, the second half of this entry. Before it, `assign` mapped a file to an
+area and `defer --area` set a label at creation, so a wrong label needed a hand
+edit of `QUALITY.json`.
+
+**What it leaves unfixed.** Two findings from 47 pairs is a small sample, and
+both surfaced on one day. The check reads only entries that cite a symbol; 33 of
+the 92 open entries cite no `js/` path. Dropping the area check gives up the
+one failure with a demonstrated cost: a mislabel once scheduled a sweep measured
+at 0 recorded steps ahead of a boundary goal measured at 21.
 
