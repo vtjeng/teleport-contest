@@ -1777,7 +1777,7 @@
     },
     {
       "id": "finish-seed0200",
-      "status": "open",
+      "status": "closed",
       "boundary": "cmd.c rhack() carries seed0200 from its stop at step 23 to the end of the session, rather than refusing the corpse at js/eat.js:1561 and the kick command at js/cmd.js:826.",
       "upstreamOwners": [
         "eat.c eatcorpse()",
@@ -1805,8 +1805,8 @@
         },
         {
           "name": "kick at empty space",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "3d1632571a91345c5d4789070ce0ff1c0bae536b"
         }
       ],
       "openedAt": "d53bdf2d0362d0a9d3f9a022bff37bb8ecc1b2e4",
@@ -1815,8 +1815,11 @@
         "screens": 1496,
         "rng": 120590
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "3d1632571a91345c5d4789070ce0ff1c0bae536b",
+      "delivered": {
+        "screens": 16,
+        "rng": 257
+      }
     }
   ]
 }
