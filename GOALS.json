@@ -1724,7 +1724,7 @@
     },
     {
       "id": "finish-seed1150",
-      "status": "open",
+      "status": "closed",
       "boundary": "cmd.c rhack() carries seed1150 from its stop at step 34 to the end of the session, rather than refusing the fire command at js/cmd.js:902 and leaving a remembered corridor lit at js/display.js newsym().",
       "upstreamOwners": [
         "display.c newsym()",
@@ -1754,8 +1754,8 @@
         },
         {
           "name": "fire the quivered ammunition",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "1f6da71279bdbbb341d6fda5a0b84b6298301fa2"
         },
         {
           "name": "report magic enlightenment under explore mode",
@@ -1769,8 +1769,11 @@
         "screens": 1471,
         "rng": 120441
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "1f6da71279bdbbb341d6fda5a0b84b6298301fa2",
+      "delivered": {
+        "screens": 25,
+        "rng": 149
+      }
     }
   ]
 }
