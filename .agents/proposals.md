@@ -227,3 +227,79 @@ the 92 open entries cite no `js/` path. Dropping the area check gives up the
 one failure with a demonstrated cost: a mislabel once scheduled a sweep measured
 at 0 recorded steps ahead of a boundary goal measured at 21.
 
+## Report the screen serializer's dropped leading-space attributes upstream
+
+**What it changes.** An issue opened on `github.com/davidbau/teleport-contest`
+would report that `serialize()` in `frozen/terminal.js` writes a row's leading
+spaces without their attributes, so a menu heading the port draws correctly
+decodes to the wrong grid. No file in this repository changes. Both places the
+fix could go belong to the judge, and the issue would name both:
+
+- `frozen/terminal.js:679-684` chooses a row's first column by scanning for the
+  first cell whose character is not a space, then emits a cursor-forward jump
+  when that column exceeds 4 and literal padding otherwise. Both arms run ahead
+  of the row's first SGR sequence, so a leading run of attributed spaces decodes
+  as default-attribute spaces. Selecting the first cell that is not a
+  default-attribute space would preserve the run, which is what C records:
+  `\x1b[20C\x1b[7m    Name` jumps to the start of the highlighted run and prints
+  its spaces literally. `screensVisuallyEqual()` in `frozen/ps_test_runner.mjs`
+  compares the two sides after decoding each to a 24x80 grid, so this changes
+  only what a contestant's bytes decode to, and every recorded C screen stays
+  valid. It would also expose ports that omit the highlighting: cells the
+  serializer erases today would begin to differ, so screens that pass now could
+  fail.
+- `frozen/screen-decode.mjs:144` sets `SPACE_VISIBLE_ATTRS = 0x1 | 0x4`, so
+  `diffCell()` counts inverse and underline on a space and reports `attr`.
+  Removing inverse from that mask would end the mismatch without touching the
+  serializer, at the price of a heading drawn with no highlight at all scoring
+  as correct. `docs/API.md:288-291` presents the current mask as deliberate,
+  "Inverse-video and underline DO matter on a space", and `docs/API.md:272-276`
+  promises that two screens match when "every cell renders the same pixels,
+  regardless of how the underlying byte sequence got there". The serializer is
+  the end that departs from that published contract. The issue would say so and
+  leave the choice to the organizers.
+
+**Scope.** One issue holding the reproduction, the two candidate fix sites, and
+the measured impact. `AGENTS.md`, "When to stop and ask the user", requires the
+user's authorization before anything is published outside this repository, so
+this entry stops at the proposal.
+
+**What prompted it.** The open deferral `an indented inverse menu heading cannot
+match`, area `display`, records the ceiling the port has to live with. It
+settles nothing about whether the organizers should hear of it. Both arms
+reproduce against the frozen files alone, with no game code loaded:
+
+```
+C recorded : "\x1b[20C\x1b[7m    Name\x1b[0m"     spell menu, jump arm
+JS emitted : "\x1b[24C\x1b[7mName\x1b[0m"
+  cols 20-23  attr  C={ch:" ", attr:1}  JS={ch:" ", attr:0}   4 cells differ
+
+C recorded : "\x1b[7m General\x1b[0m"             options menu, padding arm
+JS emitted : " \x1b[7mGeneral\x1b[0m"
+  col 0       attr  C={ch:" ", attr:1}  JS={ch:" ", attr:0}   1 cell differs
+```
+
+Twelve recorded screens across nine development sessions carry the spell menu's
+heading, one to three per session, counted by matching `\x1b[<n>C\x1b[7m` before
+a run of spaces over `sessions/`. `seed0200-monk-north-search` holds one of them
+among 40 steps, so it caps at 39 however correct the rest of the port is. The
+options-menu heading, which `options.c:8584` formats as `" %-30s "`, cost one
+earlier goal 15 of its 28 forecast steps, measured during the
+`options-simple-menu` goal and recorded in that deferral's note.
+
+**Cost.** Small to write. Two checks come first: whether someone has reported
+this already, and whether the issue tracker is the channel the organizers want.
+`README.md:467` answers the second for contestants in general, directing
+questions to an issue on the repository it tells readers to fork,
+`davidbau/teleport-contest` at `README.md:34`, which is also this repository's
+`upstream` remote.
+
+**What it leaves unfixed.** An accepted issue changes no session already
+recorded, and this port's ceiling stands until a corrected scorer runs. Neither
+fix is backward-compatible with scores already published: `README.md:460-463`
+states that public scores recompute on every push and held-out scores when the
+two-hour cron fires, so a serializer fix moves every row whose port omits the
+highlighting, and a comparator fix moves every row whose port draws it. Nothing
+here weighs a scoring change against a corpus recorded under the current
+behavior, which is the organizers' call.
+
