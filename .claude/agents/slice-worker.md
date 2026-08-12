@@ -66,6 +66,10 @@ Kill only a process you started. Never kill one you found with `ps` or
 `npm run checkpoint` from yours. To wait on your own command, poll a bounded
 number of times for a condition its own command line cannot satisfy.
 
+Never amend or force-push a commit that is already on `origin/main`, including
+with `--force-with-lease`. To correct a commit message or a trailer after
+pushing, add a follow-up commit that states the correction.
+
 ## Subagents
 
 Spawn subagents where they help you finish the slice (e.g., for searching
