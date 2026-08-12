@@ -6,6 +6,9 @@ import {
     BURN,
     DUST,
     ENGRAVE,
+    ENGR_BLOOD,
+    HEADSTONE,
+    MARK,
     FLYING,
     HOLE,
     ICE,
@@ -19,6 +22,7 @@ import {
 import {
     can_reach_floor,
     engr_at,
+    engr_can_be_felt,
     make_engr_at,
     read_engr_at,
     wipe_engr_at,
@@ -167,6 +171,18 @@ test('can_reach_floor preserves hiding, flight, size, and seen-pit gates', () =>
     shaft.u.uprops[FLYING].extrinsic = 0;
     shaft.youmonst.data.msize = MZ_HUGE;
     assert.equal(can_reach_floor(true, shaft), true);
+});
+
+test('engr_can_be_felt admits only writing that cuts or scorches', () => {
+    // engrave.c:291-313. Its switch lists three types that can be felt and
+    // three that cannot; display.c feel_location():860 reads the answer.
+    for (const engr_type of [ENGRAVE, HEADSTONE, BURN])
+        assert.equal(engr_can_be_felt({ engr_type }), true, `${engr_type}`);
+    for (const engr_type of [DUST, MARK, ENGR_BLOOD])
+        assert.equal(engr_can_be_felt({ engr_type }), false, `${engr_type}`);
+    // engr_at() answers null for a square with no engraving, and C's callers
+    // guard on that before asking; the port answers false rather than throwing.
+    assert.equal(engr_can_be_felt(null), false);
 });
 
 test('wipeout_text ages the teleport-niche message in source call order', () => {

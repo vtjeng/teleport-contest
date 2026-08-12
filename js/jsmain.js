@@ -14,7 +14,10 @@ import {
     MAX_COMMAND_COUNT,
     UnsupportedHeroCommandBoundaryError,
 } from './cmd.js';
-import { UnsupportedStatusRefreshError } from './display.js';
+import {
+    UnsupportedStatusRefreshError,
+    reglyph_darkroom,
+} from './display.js';
 import { UnsupportedEarthSenseError } from './dungeon.js';
 import { UnsupportedHeroMoveBoundaryError } from './hack.js';
 import { UnsupportedSpecialRoomError } from './mkroom.js';
@@ -326,6 +329,16 @@ export class NethackGame {
         // C ref: options.c:initoptions_finish() runs after the complete
         // configuration has been parsed and before player selection.
         initoptions_finish(opts, g);
+
+        // options.c:initoptions_finish():7347. This is where gs.showsyms gains
+        // its entry for S_darkroom: defsym.h gives that cmap its own default
+        // byte, and reglyph_darkroom() replaces it with the S_room byte under
+        // 'dark_room' and colour, or with the SYM_NOTHING byte otherwise. No
+        // level exists yet, so its repair loop has nothing to match.
+        //
+        // The reset_glyphmap(gm_optionchange) that follows it in C rebuilds a
+        // table this port does not keep; js/display.js records why.
+        reglyph_darkroom(g);
 
         // tty_init_nhwindows() precedes plnamesuffix() and any role menus.
         // Install the capture surface before reproducing that visible input

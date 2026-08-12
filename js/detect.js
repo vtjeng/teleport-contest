@@ -5,7 +5,6 @@
 import {
     A_WIS,
     BLINDED,
-    BURN,
     CORR,
     DOOR,
     D_CLOSED,
@@ -13,7 +12,6 @@ import {
     D_NODOOR,
     ECMD_OK,
     ECMD_TIME,
-    ENGRAVE,
     GPCOORDS_COMFULL,
     GPCOORDS_COMPASS,
     GPCOORDS_MAP,
@@ -21,7 +19,6 @@ import {
     GPCOORDS_SCREEN,
     HALLUC,
     HALLUC_RES,
-    HEADSTONE,
     M_AP_TYPE,
     SCORR,
     SDOOR,
@@ -46,7 +43,11 @@ import {
     unmap_invisible,
 } from './display.js';
 import { on_level } from './dungeon.js';
-import { can_reach_floor, engr_at } from './engrave.js';
+import {
+    can_reach_floor,
+    engr_at,
+    engr_can_be_felt,
+} from './engrave.js';
 import { game } from './gstate.js';
 import { nomul } from './hack.js';
 import { hides_under, is_hider } from './mondata.js';
@@ -295,10 +296,7 @@ function defaultFeelSearchLocation(x, y, env) {
     location.seenv = (location.seenv ?? 0)
         | seenv_matrix[1 - dy][dx + 1];
     const engraving = engr_at(x, y, state);
-    if (engraving
-        && [ENGRAVE, HEADSTONE, BURN].includes(engraving.engr_type)) {
-        engraving.erevealed = 1;
-    }
+    if (engraving && engr_can_be_felt(engraving)) engraving.erevealed = 1;
 
     const layer = mappedSearchLayer(x, y, state);
     const { glyph } = layer;

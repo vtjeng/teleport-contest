@@ -20,13 +20,23 @@ import {
 } from './const.js';
 import { acurrstr, effective_attribute, exercise } from './attrib.js';
 import { get_adjacent_loc } from './cmd.js';
-import { feel_newsym, newsym } from './display.js';
+import {
+    feel_location,
+    feel_newsym,
+    newsym,
+    same_remembered_glyph,
+} from './display.js';
+import { update_mapseen_for } from './dungeon.js';
 import { game } from './gstate.js';
 import { m_at } from './monst.js';
 import { nohands } from './mondata.js';
 import { encumber_msg } from './pickup.js';
 import { rn2, rnl } from './rng.js';
-import { messageAt } from './startup_a11y.js';
+import {
+    heroIsBlind,
+    is_drawbridge_wall,
+    messageAt,
+} from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { recalc_block_point } from './vision.js';
 
@@ -105,7 +115,8 @@ export const PICKLOCK_DID_SOMETHING = 1;
 //
 // Covered: the entry with autounlock FALSE, the interrupted-attempt test,
 // get_adjacent_loc()'s prompt and both of its refusals, the pit refusal that
-// opens the adjacent-square branch, and three arms of the doormask switch.
+// opens the adjacent-square branch, the whole `!IS_DOOR(door->typ)` arm, and
+// three arms of the doormask switch.
 //
 // Not covered, each stopping by name: every autounlock caller, which arrives
 // with coordinates or a container and needs flags.autounlock, ynq(),
@@ -114,10 +125,8 @@ export const PICKLOCK_DID_SOMETHING = 1;
 // attempt, which needs lock_action(), is_magic_key() and the picklock()
 // occupation; the container branch, which needs can_reach_floor(), safe_qbuf()
 // and ynq(); the monster and door-mimic arms, which need mon_nam(),
-// verbalize(), stumble_onto_mimic() and maybe_absorb_item(); the square that
-// is not a door, which needs update_mapseen_for(), feel_location() and
-// is_drawbridge_wall(); and the switch's default arm with the tail below it,
-// which is the whole lock-picking attempt.
+// verbalize(), stumble_onto_mimic() and maybe_absorb_item(); and the switch's
+// default arm with the tail below it, which is the whole lock-picking attempt.
 //
 // The monster refusal is deliberately wider than C's two arms: C falls
 // through to the doormask switch for a monster that is neither seen nor a door
@@ -180,8 +189,40 @@ export async function pick_lock(pick, rx, ry, container, state = game) {
     const door = state.level.at(cc.x, cc.y);
     if (m_at(cc.x, cc.y, state))
         throw new UnsupportedLockError('a monster on the chosen square');
-    if (!IS_DOOR(door.typ))
-        throw new UnsupportedLockError('a square that holds no door');
+
+    // lock.c:578-593. Nothing is unlocked here: the hero learns what the
+    // square really holds, and whether that was news decides whether the
+    // attempt costs a turn.
+    if (!IS_DOOR(door.typ)) {
+        let res = PICKLOCK_DID_NOTHING;
+        const oldglyph = door.remembered_glyph;
+        const oldlastseentyp = update_mapseen_for(cc.x, cc.y, state);
+
+        /* this is probably only relevant when blind */
+        feel_location(cc.x, cc.y, state);
+        // C compares two glyph numbers; same_remembered_glyph() explains why
+        // this port cannot compare the records with `!==`. The common answer
+        // for a sighted hero beside a lit room square is that the glyph did
+        // change, because feel_location()'s tail moves map memory from S_room
+        // to S_darkroom; a wall square the hero already sees changes neither.
+        // update_mapseen_for() above has already built svl.lastseentyp, so
+        // this index needs no guard of its own.
+        if (!same_remembered_glyph(oldglyph, door.remembered_glyph)
+            || state.level.lastseentyp[cc.x][cc.y] !== oldlastseentyp)
+            res = PICKLOCK_LEARNED_SOMETHING;
+
+        const blind = heroIsBlind(state);
+        if (is_drawbridge_wall(cc.x, cc.y, state))
+            await ttyPline(
+                `You ${blind ? 'feel' : 'see'} no lock on the drawbridge.`,
+                state,
+            );
+        else
+            await ttyPline(
+                `You ${blind ? 'feel' : 'see'} no door there.`, state,
+            );
+        return res;
+    }
 
     // lock.c:594-647. C switches on the whole doormask, so a door carrying
     // D_TRAPPED or D_LOCKED beside one of these three values lands on

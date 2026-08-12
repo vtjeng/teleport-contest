@@ -20,6 +20,7 @@ import {
     ROGUESET,
     BLCORNER,
     BRCORNER,
+    BURN,
     CONFUSION,
     CORR,
     CROSSWALL,
@@ -62,6 +63,7 @@ import {
     SLIMED,
     STAIRS,
     STONE,
+    SYM_NOTHING,
     STONED,
     STRANGLED,
     STUNNED,
@@ -87,6 +89,7 @@ import {
     classify_terrain,
     cls,
     docrt,
+    feel_location,
     feel_newsym,
     flush_screen,
     glyph_is_generic_object,
@@ -96,18 +99,22 @@ import {
     newsym,
     object_glyph_info,
     random_object_glyph_info,
+    reglyph_darkroom,
     remembered_glyph_from_presentation,
+    same_remembered_glyph,
     see_nearby_objects,
     show_glyph_cell,
     terrain_glyph,
     timebot,
     trap_glyph_info,
     tty_capacity_status,
+    UnsupportedGlyphRepairError,
+    UnsupportedMapMemoryError,
     UnsupportedStatusRefreshError,
     weapon_status,
 } from '../js/display.js';
 import { rndmonnam } from '../js/do_name.js';
-import { make_engr_at } from '../js/engrave.js';
+import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -194,6 +201,7 @@ import {
 import {
     SYMBOL_INDEX_BY_NAME,
     SYM_OFF_P,
+    SYM_OFF_X,
 } from '../js/symbol_data.js';
 import {
     cmap_symbol,
@@ -205,6 +213,10 @@ import {
     S_hwall,
     S_arrow_trap,
     S_room,
+    S_corr,
+    S_darkroom,
+    S_litcorr,
+    S_stone,
     S_brdnstair,
     S_brupstair,
     S_cloud,
@@ -1151,7 +1163,14 @@ test('feel_newsym draws the occupant when sighted and the terrain when blind',
         state.level.at(x, y).typ = ROOM;
         state.u = { ux: x - 1, uy: y, umonnum: 0, uprops: [] };
         state.urace = { mnum: 0 };
-        state.flags = {};
+        // options.c optlist.h gives 'dark_room' the initial value TRUE and
+        // 'color' is on by default, which is the pair feel_location()'s tail
+        // at display.c:894-897 reads.
+        state.flags = { dark_room: true };
+        // engrave.c can_reach_floor(), which feel_location() consults before
+        // it feels anything, reads the hero's form: no flags, medium size
+        // (monst.h MZ_MEDIUM), no attacks. u_init.c:275 builds the real one.
+        state.youmonst = { data: { mflags1: 0, msize: 2, mattk: [] } };
         state.mons = [{ mlet: S_HUMAN, mcolor: CLR_RED }];
         state.objects = [];
         initialize_symbols_from_options({ flags: {} }, state);
@@ -1174,11 +1193,304 @@ test('feel_newsym draws the occupant when sighted and the terrain when blind',
 
         state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
         feel_newsym(x, y, state);
-        // The blind hero feels floor, not the cat standing on it.
+        // The blind hero feels floor, not the cat standing on it. The symbol
+        // is still S_room's byte: this state never ran reglyph_darkroom(), so
+        // showsyms[S_darkroom] is still defsym.h:113's own '.'.
         assert.equal(state.level.at(x, y).disp_ch, '.');
+        // display.c:894-897. The square is ROOM and unlit, so map memory moves
+        // off S_room whatever 'dark_room' says; with it on, to S_darkroom.
+        assert.equal(state.level.at(x, y).remembered_glyph.cmap, S_darkroom);
         // display.c seenv_matrix[1 - dy][dx + 1] for a step due east.
         assert.equal(state.level.at(x, y).seenv, 0x80);
+
+        // With 'dark_room' off the same square becomes S_stone, which draws a
+        // space rather than a floor symbol.
+        state.flags.dark_room = false;
+        state.level.at(x, y).remembered_glyph = null;
+        newsym(x, y);
+        feel_newsym(x, y, state);
+        assert.equal(state.level.at(x, y).remembered_glyph.cmap, S_stone);
+        assert.equal(state.level.at(x, y).disp_ch, ' ');
     });
+
+// A hero standing one step west of <x,y>, blind, on her own feet, with
+// 'dark_room' and colour on: the state display.c feel_location()'s
+// reachable-floor branch needs, minus whatever the square itself holds.
+function feelingHeroBeside(x, y) {
+    const state = resetGame();
+    state.level = new GameMap();
+    state.u = {
+        ux: x - 1,
+        uy: y,
+        umonnum: 0,
+        uprops: [],
+    };
+    state.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    state.urace = { mnum: 0 };
+    state.flags = { dark_room: true };
+    // engrave.c can_reach_floor() reads the hero's form: no flags, medium
+    // size (monst.h MZ_MEDIUM), no attacks.
+    state.youmonst = { data: { mflags1: 0, msize: 2, mattk: [] } };
+    state.mons = [{ mlet: S_HUMAN, mcolor: CLR_RED }];
+    state.objects = [];
+    initialize_symbols_from_options({ flags: {} }, state);
+    return state;
+}
+
+test('feel_location darkens a remembered lit corridor', () => {
+    // display.c:898-900, the second arm of the same tail. A corridor
+    // remembered as lit but recorded as never permanently lit goes back to
+    // the dark corridor symbol.
+    const x = 7;
+    const y = 4;
+    const state = feelingHeroBeside(x, y);
+    const corridor = state.level.at(x, y);
+    corridor.typ = CORR;
+    corridor.waslit = false;
+    state.flags.lit_corridor = true; // makes back_to_glyph() answer S_litcorr
+    feel_location(x, y, state);
+    assert.equal(corridor.remembered_glyph.cmap, S_corr);
+    assert.equal(corridor.disp_ch, cmap_symbol(S_corr, state).ch);
+
+    // A corridor the hero has seen lit keeps the lit symbol, because C's
+    // condition is `!lev->waslit`.
+    corridor.waslit = true;
+    corridor.remembered_glyph = null;
+    feel_location(x, y, state);
+    assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
+});
+
+test('feel_location stops on a sensed monster and a distant square', () => {
+    const x = 7;
+    const y = 4;
+    const state = feelingHeroBeside(x, y);
+    state.level.at(x, y).typ = ROOM;
+    // display.c:902-905 finishes with display_monster() for a monster the
+    // hero senses. Detect_monsters is the cheapest of sensemon()'s operands.
+    state.level.monsters[x][y] = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE, mflags1: 0 },
+        mx: x,
+        my: y,
+        minvis: false,
+        mundetected: false,
+    };
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 0, extrinsic: 1, blocked: 0,
+    };
+    assert.throws(
+        () => feel_location(x, y, state),
+        UnsupportedMapMemoryError,
+    );
+    // Without the sensing the same square is felt normally.
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 0, extrinsic: 0, blocked: 0,
+    };
+    feel_location(x, y, state);
+    assert.equal(state.level.at(x, y).remembered_glyph.cmap, S_darkroom);
+
+    // C's comment restricts the square to the hero's own or one adjacent to
+    // it; this port asserts that rather than assuming it.
+    assert.throws(() => feel_location(x + 2, y, state), /adjacent square/);
+});
+
+test('reglyph_darkroom points S_darkroom at S_room or at nothing', () => {
+    // display.c:1850-1853. The tail is what makes a dark room square draw the
+    // same byte as a lit one, and options.c initoptions_finish():7347 is where
+    // it first runs -- before any level exists, which is why the repair-loop
+    // refusal asks for a level first.
+    const state = resetGame();
+    state.flags = { dark_room: true };
+    state.iflags = { ...(state.iflags ?? {}), wc_color: true };
+    initialize_symbols_from_options({ flags: {} }, state);
+    // defsym.h:113 gives S_darkroom its own '.', which is not what C draws.
+    assert.equal(state.gs.showsyms[S_darkroom], '.'.charCodeAt(0));
+    reglyph_darkroom(state);
+    assert.equal(state.gs.showsyms[S_darkroom], state.gs.showsyms[S_room]);
+
+    // With either option off C points it at the SYM_NOTHING byte instead.
+    state.flags.dark_room = false;
+    reglyph_darkroom(state);
+    assert.equal(
+        state.gs.showsyms[S_darkroom],
+        state.gs.showsyms[SYM_OFF_X + SYM_NOTHING],
+    );
+
+    // Once a level exists the repair loop would have squares to rewrite, and
+    // this port cannot run it.
+    state.level = new GameMap();
+    assert.throws(() => reglyph_darkroom(state), UnsupportedGlyphRepairError);
+    state.flags.dark_room = true;
+    reglyph_darkroom(state);
+    assert.equal(state.gs.showsyms[S_darkroom], state.gs.showsyms[S_room]);
+});
+
+test('same_remembered_glyph separates S_room from S_darkroom', () => {
+    // lock.c:584 asks whether map memory changed. Once reglyph_darkroom() has
+    // run, the two room cmaps draw one byte in one colour, so only the cmap
+    // index the record carries can answer.
+    const x = 7;
+    const y = 4;
+    const state = feelingHeroBeside(x, y);
+    state.iflags = { ...(state.iflags ?? {}), wc_color: true };
+    reglyph_darkroom(state);
+    const floor = state.level.at(x, y);
+    floor.typ = ROOM;
+    floor.waslit = true;
+
+    const lit = remembered_glyph_from_presentation(
+        terrain_glyph(floor, x, y, state),
+    );
+    assert.equal(lit.cmap, S_room);
+    // A second record for the same square is a different object holding the
+    // same identity, which is what C's `oldglyph != door->glyph` would call
+    // unchanged.
+    const again = remembered_glyph_from_presentation(
+        terrain_glyph(floor, x, y, state),
+    );
+    assert.notEqual(lit, again);
+    assert.equal(same_remembered_glyph(lit, again), true);
+
+    floor.remembered_glyph = lit;
+    feel_location(x, y, state);
+    const dark = floor.remembered_glyph;
+    assert.equal(dark.cmap, S_darkroom);
+    // Same drawn cell, different glyph.
+    assert.equal(dark.ch, lit.ch);
+    assert.equal(dark.color, lit.color);
+    assert.equal(dark.decgfx, lit.decgfx);
+    assert.equal(same_remembered_glyph(lit, dark), false);
+
+    // A missing record on either side is a change; two missing records are not.
+    assert.equal(same_remembered_glyph(null, dark), false);
+    assert.equal(same_remembered_glyph(dark, null), false);
+    assert.equal(same_remembered_glyph(null, null), true);
+
+    // `rgb` reaches a remembered record from a SYMBOLS colour customization,
+    // and is the one identity field held in an array. The arbitrary triples
+    // below differ in their last component only, so a comparison that stopped
+    // at the length would call them equal.
+    const coloured = (rgb) => remembered_glyph_from_presentation({
+        ch: '.', color: NO_COLOR, dec: false, rgb,
+    });
+    assert.equal(
+        same_remembered_glyph(coloured([1, 2, 3]), coloured([1, 2, 3])), true,
+    );
+    assert.equal(
+        same_remembered_glyph(coloured([1, 2, 3]), coloured([1, 2, 4])), false,
+    );
+    assert.equal(
+        same_remembered_glyph(coloured([1, 2, 3]), coloured([1, 2])), false,
+    );
+    // One side customized and the other not is also a change.
+    const plain = remembered_glyph_from_presentation({
+        ch: '.', color: NO_COLOR, dec: false,
+    });
+    assert.equal(same_remembered_glyph(coloured([1, 2, 3]), plain), false);
+    assert.equal(same_remembered_glyph(plain, coloured([1, 2, 3])), false);
+});
+
+test('feel_location keeps its four tactile-state terms apart', () => {
+    // display.c:769-771 and 776-891. Each state has its own single writer in
+    // js/, so each is set on its own here; a guard that had folded them into
+    // one condition would let three of the four through.
+    const x = 7;
+    const y = 4;
+    for (const set of [
+        (state) => { state.u.uinwater = true; },
+        (state) => { state.uball = { where: OBJ_FLOOR }; },
+        (state) => { state.uchain = { where: OBJ_FLOOR }; },
+        // engrave.c can_reach_floor()'s levitation gate.
+        (state) => {
+            state.u.uprops[LEVITATION] = {
+                intrinsic: 1, extrinsic: 0, blocked: 0,
+            };
+        },
+    ]) {
+        const state = feelingHeroBeside(x, y);
+        state.level.at(x, y).typ = ROOM;
+        set(state);
+        assert.throws(
+            () => feel_location(x, y, state),
+            /unsupported tactile floor state/,
+        );
+    }
+
+    // C passes FALSE, so a hero teetering at the edge of a pit she can see
+    // still feels the square beside her. can_reach_floor(TRUE) would refuse.
+    const state = feelingHeroBeside(x, y);
+    state.level.at(x, y).typ = ROOM;
+    state.level.traps = [{
+        ttyp: PIT, tx: state.u.ux, ty: state.u.uy, tseen: 1,
+    }];
+    feel_location(x, y, state);
+    assert.equal(state.level.at(x, y).remembered_glyph.cmap, S_darkroom);
+});
+
+test('feel_location reveals only an engraving that can be felt', () => {
+    // display.c:859-860 through engrave.c engr_can_be_felt(). Dust cannot be
+    // read by touch, so feeling the square must not mark it revealed.
+    const x = 7;
+    const y = 4;
+    for (const [engr_type, revealed] of [[DUST, false], [BURN, true]]) {
+        const state = feelingHeroBeside(x, y);
+        state.level.at(x, y).typ = ROOM;
+        make_engr_at(x, y, 'X', 'X', 0, engr_type, { state });
+        feel_location(x, y, state);
+        assert.equal(
+            Boolean(engr_at(x, y, state).erevealed), revealed, `${engr_type}`,
+        );
+    }
+});
+
+test('feel_location darkens a lit room only under dark_room and colour', () => {
+    // display.c:894-897. A square the hero has seen lit keeps S_room unless
+    // both options are on; only `!lev->waslit` reaches the rewrite otherwise.
+    const x = 7;
+    const y = 4;
+    const state = feelingHeroBeside(x, y);
+    state.iflags = { ...(state.iflags ?? {}), wc_color: true };
+    const floor = state.level.at(x, y);
+    floor.typ = ROOM;
+    floor.waslit = true;
+    state.flags.dark_room = false;
+    feel_location(x, y, state);
+    assert.equal(floor.remembered_glyph.cmap, S_room);
+
+    state.flags.dark_room = true;
+    feel_location(x, y, state);
+    assert.equal(floor.remembered_glyph.cmap, S_darkroom);
+});
+
+test('feel_location paints a gas cloud only for a hero who can see it', () => {
+    // display.c:470-471. _map_location()'s region tail is `show && !Blind`,
+    // and feel_location() always passes show = 1, so blindness is the whole
+    // condition. The square is stone rather than room floor because the
+    // dark-room rewrite at 894-897 would otherwise redraw over the cloud --
+    // as it does in C, which is why the observable case is one the tail
+    // leaves alone.
+    const x = 7;
+    const y = 4;
+    for (const blind of [true, false]) {
+        const state = feelingHeroBeside(x, y);
+        state.level.at(x, y).typ = STONE;
+        if (!blind) state.u.uprops[BLINDED] = null;
+        const cloud = create_region();
+        add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
+        cloud.visible = true;
+        cloud.glyph = S_poisoncloud;
+        add_region(cloud, state, { deferVisual: true });
+
+        feel_location(x, y, state);
+        assert.equal(
+            state.level.at(x, y).disp_ch,
+            cmap_symbol(blind ? S_stone : S_poisoncloud, state).ch,
+            `blind ${blind}`,
+        );
+        // Either way the region is presentation only: map memory holds what
+        // the hero felt underneath it.
+        assert.equal(state.level.at(x, y).remembered_glyph.cmap, S_stone);
+    }
+});
 
 test('hallucinated map_object paths preserve presentation, memory, and RNG', () => {
     const cases = [

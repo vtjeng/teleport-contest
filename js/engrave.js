@@ -68,6 +68,14 @@ export function engr_at(x, y, state = game) {
     return null;
 }
 
+// C ref: engrave.c engr_can_be_felt() (291-313). Only writing that cuts or
+// scorches the floor survives being read by touch; dust, blood and a wand's
+// mark do not. display.c feel_location():860 is the caller that reveals such
+// an engraving to a hero who cannot see it.
+export function engr_can_be_felt(engraving) {
+    return [ENGRAVE, HEADSTONE, BURN].includes(engraving?.engr_type);
+}
+
 function asciiCaseFold(value) {
     return String(value).replace(/[A-Z]/g, (character) =>
         String.fromCharCode(character.charCodeAt(0) + 32));

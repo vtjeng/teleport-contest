@@ -1345,6 +1345,29 @@ export function update_lastseentyp(
     return typ;
 }
 
+// C ref: dungeon.c update_mapseen_for() (2941-2947), which recalculates the
+// whole level's #overview data and hands back svl.lastseentyp at one square.
+// lock.c pick_lock():580 is the caller, and it wants only the return value.
+//
+// recalc_mapseen() (3075-3200) writes svl.lastseentyp in exactly one place,
+// update_lastseentyp(u.ux, u.uy) at 3191, behind !Levitation and applied to
+// the hero's own square. Everything else it writes is mptr->feat.* and
+// mptr->flags, read only by the #overview annotation this port does not have;
+// its per-square loop calls count_feat_lastseentyp(), which reads
+// svl.lastseentyp and writes none of it. So the chain cannot change the value
+// this function returns for any square except the hero's own, and pick_lock()
+// never asks about that one -- lock.c:429 sends cc == u.ux,u.uy down the
+// container branch, which js/lock.js:170 refuses.
+export function update_mapseen_for(x, y, state = game) {
+    // The default canseemon() is left in place: update_lastseentyp()'s monster
+    // arm needs a furniture mimic standing on the hero's own square, and the
+    // only monster that can share it is an engulfer, which is displaying its
+    // own insides rather than a piece of furniture.
+    if (!heroLevitating(state))
+        update_lastseentyp(state.u.ux, state.u.uy, state);
+    return state.level?.lastseentyp?.[x]?.[y] ?? STONE;
+}
+
 // C ref: dungeon.c induced_align(). Special-level and dungeon alignment masks
 // each get their own short-circuiting percentage check before the fallback.
 export function induced_align(pct, state = game, random = rn2) {

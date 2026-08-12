@@ -50,6 +50,7 @@ import {
     u_on_newpos,
     UnsupportedEarthSenseError,
     update_lastseentyp,
+    update_mapseen_for,
 } from '../js/dungeon.js';
 import { GameMap } from '../js/game.js';
 import { game, resetGame } from '../js/gstate.js';
@@ -178,6 +179,38 @@ test('update_lastseentyp remembers a raised drawbridge underlay', () => {
     // DB_MOAT is 0, so a drawbridge that records no underlay at all spans
     // water, which is also what C's db_under_typ() default answers.
     assert.equal(read({ typ: DRAWBRIDGE_UP }), MOAT);
+});
+
+test('update_mapseen_for reads one square and refreshes the hero\'s own', () => {
+    // dungeon.c:2941-2947. recalc_mapseen() writes svl.lastseentyp in one
+    // place, update_lastseentyp(u.ux, u.uy) at 3191 behind !Levitation, so the
+    // whole observable effect is the hero's own square plus the read.
+    const state = resetGame();
+    state.level = new GameMap();
+    state.u = { ux: 4, uy: 4, uprops: [] };
+    state.level.at(4, 4).typ = ROOM;
+    state.level.at(5, 4).typ = CORR;
+
+    // Nothing has been seen yet, so the array does not exist and C's zeroed
+    // svl.lastseentyp reads STONE.
+    assert.equal(update_mapseen_for(5, 4, state), STONE);
+    assert.equal(state.level.lastseentyp[4][4], ROOM);
+    // The read square itself is untouched: only the hero's own is refreshed.
+    assert.equal(state.level.lastseentyp[5][4], STONE);
+
+    // Once the target has been seen, the value read back is the one already
+    // recorded there, which is what lock.c:580 compares against afterwards.
+    update_lastseentyp(5, 4, state);
+    assert.equal(update_mapseen_for(5, 4, state), CORR);
+
+    // A levitating hero cannot feel her own square, so C skips the write.
+    state.level.at(4, 4).typ = CORR;
+    state.u.uprops[LEVITATION] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    update_mapseen_for(5, 4, state);
+    assert.equal(state.level.lastseentyp[4][4], ROOM);
+    state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    update_mapseen_for(5, 4, state);
+    assert.equal(state.level.lastseentyp[4][4], CORR);
 });
 
 test('induced_align short-circuits special, dungeon, then random masks', () => {

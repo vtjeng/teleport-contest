@@ -63,6 +63,10 @@ const PLAIN = 'pettype:none,!acoustics,!autopickup,time,showexp';
 const DECORATED =
     'pettype:none,!acoustics,!autopickup,time,showexp,symset:DECgraphics,'
     + 'msg_window:reversed';
+// options.c optlist.h `blind` is the roleplay conduct that starts the hero
+// blind and keeps her that way, which is the only way a recording can reach
+// the Blind half of lock.c:589-592 on the first turn of a game.
+const BLIND = `${PLAIN},blind`;
 
 // Every segment opens and closes with a wait, so a command that wrongly spent
 // or wrongly saved a turn shows up in the screen after it.
@@ -111,6 +115,34 @@ export function loadApplyLockPickRecipe() {
             // The first case again under a different symbol set and message
             // window, which redraw the door and the message differently.
             segment(5200108, `l${APPLY_PICK}k`, DECORATED),
+
+            // lock.c:578-593, the arm for a square that holds no door. Its
+            // return value is the whole point: PICKLOCK_LEARNED_SOMETHING
+            // spends the turn and PICKLOCK_DID_NOTHING does not, and `time`
+            // puts that difference on the status line.
+            //
+            // A wall the hero already sees from inside a lit room. Nothing
+            // about it is news, so no turn is spent. Seed 5200108 puts the
+            // Rogue's upstairs in the top-left corner of her room, so the
+            // wall is one step north with no walk at all.
+            segment(5200108, `${APPLY_PICK}k`),
+            // Plain lit room floor. display.c:894-897 moves map memory from
+            // S_room to S_darkroom for any lit room square while 'dark_room'
+            // and colour are on, so this one costs a turn even though nothing
+            // visible changes.
+            segment(5200108, `l${APPLY_PICK}j`),
+            // The same square under DECgraphics, where S_room draws the DEC
+            // middle dot. options.c initoptions_finish():7347 has already
+            // pointed S_darkroom at the S_room byte, so the redraw must not
+            // change the symbol.
+            segment(5200108, `l${APPLY_PICK}j`, DECORATED),
+            // Room floor holding an object, which is _map_location()'s first
+            // arm rather than its background arm: the object has to survive
+            // being felt, and nothing changes, so no turn is spent.
+            segment(5200108, `jj${APPLY_PICK}l`),
+            // A blind hero, who is told she feels rather than sees, and who
+            // does learn the square because she remembered nothing there.
+            segment(5200108, `${APPLY_PICK}l`, BLIND),
         ],
     }, 'apply lock pick recipe');
 }

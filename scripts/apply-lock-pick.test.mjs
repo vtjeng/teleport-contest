@@ -4,6 +4,10 @@ import test from 'node:test';
 import { doapply } from '../js/apply.js';
 import { get_adjacent_loc } from '../js/cmd.js';
 import {
+    BLINDED,
+    DBWALL,
+    DB_SOUTH,
+    DRAWBRIDGE_UP,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
@@ -12,11 +16,13 @@ import {
     D_TRAPPED,
     ECMD_OK,
     ECMD_TIME,
+    HWALL,
     ROOM,
     TT_BEARTRAP,
     TT_PIT,
     u_at,
 } from '../js/const.js';
+import { glyph_is_object } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -30,6 +36,7 @@ import {
 import { newMonster } from '../js/monst.js';
 import { M1_NOHANDS, S_FELINE } from '../js/monsters.js';
 import { CREDIT_CARD, LOCK_PICK, SKELETON_KEY } from '../js/objects.js';
+import { S_darkroom, S_room } from '../js/symbols.js';
 import {
     APPLY_KEY,
     ESCAPE_KEY,
@@ -220,7 +227,7 @@ test('a hero in a pit cannot reach over its edge', async () => {
     assert.equal(pendingTopLine(), 'You cannot lock an open door.');
 });
 
-test('the hero\'s own square and a square with no door both stop', async () => {
+test('the hero\'s own square stops', async () => {
     // lock.c:429, the container branch: the self key zeroes u.dx and u.dy, so
     // get_adjacent_loc() answers the hero's own position.
     await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
@@ -230,17 +237,88 @@ test('the hero\'s own square and a square with no door both stop', async () => {
         (error) => error instanceof UnsupportedLockError
             && error.branch === "a lock at the hero's own square",
     );
+});
 
-    // lock.c:578-593. Pointing south from the same square names plain room
-    // floor, which C feels rather than picks.
-    await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}k`, 'l');
-    assert.equal(game.level.at(game.u.ux, game.u.uy + 1).typ, ROOM);
+test('a square with no door is felt rather than picked', async () => {
+    // lock.c:578-593. Every case here is recorded in the matrix; the
+    // assertions name the state each one turns on, which the recorded screens
+    // show only through the turn counter.
+
+    // Lit room floor south of the hero. display.c:894-897 moves map memory
+    // from S_room to S_darkroom because 'dark_room' and colour are both on,
+    // so lock.c:584 sees a changed glyph and the attempt costs a turn.
+    await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}j`, 'l');
+    const floor = game.level.at(game.u.ux, game.u.uy + 1);
+    assert.equal(floor.typ, ROOM);
+    assert.equal(floor.remembered_glyph.cmap, S_room);
     answer(LOCK_PICK_SLOT, 'j');
-    await assert.rejects(
-        () => doapply(game),
-        (error) => error instanceof UnsupportedLockError
-            && error.branch === 'a square that holds no door',
-    );
+    assert.equal(await doapply(game), ECMD_TIME);
+    assert.equal(pendingTopLine(), 'You see no door there.');
+    assert.equal(floor.remembered_glyph.cmap, S_darkroom);
+
+    // A wall the hero already sees. feel_location() rewrites nothing there --
+    // its two tail arms name ROOM and CORR -- so the answer is
+    // PICKLOCK_DID_NOTHING and no turn is spent.
+    await standBeside(5200108, `${APPLY_KEY}${LOCK_PICK_SLOT}k`, '');
+    const wall = game.level.at(game.u.ux, game.u.uy - 1);
+    assert.equal(wall.typ, HWALL);
+    const wallMemory = wall.remembered_glyph;
+    answer(LOCK_PICK_SLOT, 'k');
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(pendingTopLine(), 'You see no door there.');
+    assert.equal(wall.remembered_glyph.cmap, wallMemory.cmap);
+
+    // Room floor holding an object, which is _map_location()'s first arm.
+    // The object has to stay in map memory: replacing it with floor would
+    // both change the cell and wrongly spend the turn.
+    await standBeside(5200108, `jj${APPLY_KEY}${LOCK_PICK_SLOT}l`, 'jj');
+    const pile = game.level.at(game.u.ux + 1, game.u.uy);
+    assert.equal(pile.typ, ROOM);
+    assert.ok(game.level.objects[game.u.ux + 1][game.u.uy]);
+    answer(LOCK_PICK_SLOT, 'l');
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(pendingTopLine(), 'You see no door there.');
+    assert.equal(glyph_is_object(pile), true);
+});
+
+test('a blind hero feels rather than sees', async () => {
+    // lock.c:589-592 chooses the verb from Blind. The matrix records this
+    // through the 'blind' roleplay conduct; here the hero is blinded in place
+    // so the same square answers both ways.
+    await standBeside(5200108, `${APPLY_KEY}${LOCK_PICK_SLOT}l`, '');
+    game.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    answer(LOCK_PICK_SLOT, 'l');
+    assert.equal(await doapply(game), ECMD_TIME);
+    assert.equal(pendingTopLine(), 'You feel no door there.');
+});
+
+test('a drawbridge wall names the drawbridge instead of the door', async () => {
+    // lock.c:588-591. is_drawbridge_wall() answers >= 0 only for a DOOR or a
+    // DBWALL beside a drawbridge, and IS_DOOR is already false in this arm, so
+    // the square has to be DBWALL. No level this port generates holds a
+    // drawbridge and no recordable C case within reach of the port puts one
+    // beside the hero, so this builds the pair by hand; the deferred entry
+    // pick-lock-drawbridge-message-has-no-fresh-case records that gap.
+    for (const blind of [false, true]) {
+        await standBeside(5200108, `${APPLY_KEY}${LOCK_PICK_SLOT}k`, '');
+        const x = game.u.ux;
+        const y = game.u.uy - 1;
+        game.level.at(x, y).typ = DBWALL;
+        // dbridge.c is_drawbridge_wall() walks the four neighbours looking for
+        // a drawbridge whose DB_DIR names this square's side of it.
+        const bridge = game.level.at(x, y - 1);
+        bridge.typ = DRAWBRIDGE_UP;
+        bridge.flags = DB_SOUTH;
+        if (blind) {
+            game.u.uprops[BLINDED] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+        }
+        answer(LOCK_PICK_SLOT, 'k');
+        await doapply(game);
+        assert.equal(
+            pendingTopLine(),
+            `You ${blind ? 'feel' : 'see'} no lock on the drawbridge.`,
+        );
+    }
 });
 
 test('a monster on the chosen square stops before the door is read',
@@ -441,10 +519,16 @@ test('pick_lock names its three answers as lock.c does', () => {
 
 test('the matrix covers both live arms and both cancel keys', () => {
     const { segments } = loadApplyLockPickRecipe();
-    // Ten segments over six seeds. The count is asserted so that deleting a
-    // case has to be deliberate.
-    assert.equal(segments.length, 10);
+    // Fifteen segments over six seeds: ten for the doormask switch and five
+    // for the `!IS_DOOR` arm. The count is asserted so that deleting a case
+    // has to be deliberate.
+    assert.equal(segments.length, 15);
     assert.equal(new Set(segments.map((s) => s.seed)).size, 6);
+    // One segment starts the hero blind, which is the only way a recording
+    // reaches lock.c:589-592's "feel" half.
+    assert.equal(
+        segments.filter((s) => /,blind\b/.test(s.nethackrc)).length, 1,
+    );
     // Every segment applies the lock pick from slot `e`, and every one opens
     // and closes with a wait so a wrongly spent turn shows on the status line.
     for (const segment of segments) {

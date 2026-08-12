@@ -28,7 +28,11 @@ export function makeLocation() {
         disp_browser_attr: null,
         gnew: 0,           // dirty flag for flush_glyph_buf
         glyph_symidx: -1,  // S_* symbol index
-        remembered_glyph: undefined,  // { ch, color, decgfx, symidx }
+        // C ref: rm.h struct rm's `glyph`. js/display.js
+        // remembered_glyph_from_presentation() builds it: a drawn
+        // presentation, plus the canonical marks a presentation cannot carry
+        // -- `cmap`, `trapType`, `objectGlyph`, `genericObject`.
+        remembered_glyph: undefined,
     };
 }
 
