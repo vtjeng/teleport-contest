@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
   "reason": "Every entry is done, no-effect-yet or cannot-occur. lock.c pick_lock()'s `!IS_DOOR(door->typ)` arm runs in the production game through apply.c doapply(); display.c feel_location() covers its whole reachable-floor branch; dungeon.c update_mapseen_for() and engrave.c engr_can_be_felt() are ported; options.c initoptions_finish() calls reglyph_darkroom(). Five fresh C differentials cover the arm -- a seen wall, lit room floor, the same square under DECgraphics, room floor holding an object, and a blind hero -- and all fifteen segments of scripts/run-apply-lock-pick.mjs match C on every screen, cursor and random-number call. The development standing moved from 1445/7765 screens, 120248/610816 calls, 1471/7765 cursors and 6/33 sessions to 1458/7765, 120419/610816, 1484/7765 and 7/33, with only seed1500-rogue-explore-move changing.",
-  "commitChecked": "8e1a8135cbf75be1657a37320dd608f33d730bb0",
+  "commitChecked": "e5ba840572c3bcd08d01adeaf1fb901b9231c6d5",
   "boundary": {
     "goalId": "pet-step-onto-cursed-object",
     "startingCommit": "8e1a8135cbf75be1657a37320dd608f33d730bb0",
