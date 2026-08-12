@@ -4,17 +4,22 @@
 // you_have(), attrval(), fmt_elapsed_time(), enlightenment(),
 // background_enlightenment(), basics_enlightenment(),
 // characteristics_enlightenment(), one_characteristic(),
-// status_enlightenment(), weapon_insight(), doattributes(), align_str(),
-// piousness(), and ustatusline().
+// status_enlightenment(), weapon_insight(), attributes_enlightenment(),
+// doattributes(), align_str(), piousness(), and ustatusline().
 //
-// `doattributes()` is the only ported caller, so `mode` is BASICENLIGHTENMENT
-// alone and `final` is ENL_GAMEINPROGRESS. `enlightenment()` refuses every
-// other pair, which is what keeps end-of-game disclosure and the magic
-// sections out. The `final` parameter is still threaded through the sections,
-// so the signatures and call shapes match the C, but it is provably always
-// ENL_GAMEINPROGRESS: no past-tense arm in this file has ever executed, and
-// none has been validated. A site that collapses C's three-way choice on
-// `final` says so in a comment, so end-of-game disclosure can find it.
+// `doattributes()` is the only ported caller, so `mode` is BASICENLIGHTENMENT,
+// or BASICENLIGHTENMENT | MAGICENLIGHTENMENT under playmode:explore, and
+// `final` is ENL_GAMEINPROGRESS. `enlightenment()` refuses every other pair,
+// which is what keeps end-of-game disclosure out. The `final` parameter is
+// still threaded through the sections, so the signatures and call shapes match
+// the C, but it is provably always ENL_GAMEINPROGRESS: no past-tense arm in
+// this file has ever executed, and none has been validated. A site that
+// collapses C's three-way choice on `final` says so in a comment, so
+// end-of-game disclosure can find it.
+//
+// attributes_enlightenment() covers three of its branches -- the piousness
+// line, the magic-cancellation line, and the can_pray() line -- and refuses
+// every other one by name. Its own comment says which.
 //
 // C interleaves add_menu_str() with the walk that produces each line. Nothing
 // between them waits for input or draws, so this collects the finished list
@@ -36,52 +41,101 @@ import {
     AC_MAX,
     ACH_RNK1,
     ACH_RNK8,
+    ACID_RES,
+    ADORNED,
+    AGGRAVATE_MONSTER,
+    ANTIMAGIC,
     BASICENLIGHTENMENT,
     BLINDED,
+    BLND_RES,
+    CLAIRVOYANT,
+    COLD_RES,
+    CONFLICT,
     CONFUSION,
     DEAF,
+    DETECT_MONSTERS,
+    DISINT_RES,
+    DISPLACED,
+    DRAIN_RES,
     ENL_GAMEINPROGRESS,
     EXT_ENCUMBER,
     FAST,
+    FIRE_RES,
     FIXED_ABIL,
     FLYING,
+    FREE_ACTION,
     FULL_MOON,
     FUMBLING,
     GLIB,
+    HALF_PHDAM,
+    HALF_SPDAM,
     HALLUC,
+    HALLUC_RES,
     HANDED,
     HUNGER,
     HVY_ENCUMBER,
     In_endgame,
     In_quest,
+    INFRAVISION,
     INVIS,
+    INVULNERABLE,
     Is_bigroom,
     Is_knox_level,
     Is_rogue_level,
+    ismnum,
+    JUMPING,
     LEVITATION,
+    LIFESAVED,
+    LOW_PM,
     M_AP_NOTHING,
+    MAGICAL_BREATHING,
     MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
     N_ACH,
     NEW_MOON,
+    NO_SPELL,
     OVERLOADED,
     P_ISRESTRICTED,
     P_NONE,
     P_SKILLED,
     P_TWO_WEAPON_COMBAT,
     P_UNSKILLED,
+    PASSES_WALLS,
     plur,
+    POISON_RES,
+    POLYMORPH,
+    POLYMORPH_CONTROL,
+    PROT_FROM_SHAPE_CHANGERS,
+    PROTECTION,
+    REFLECTING,
+    REGENERATION,
+    SEARCHING,
+    SEE_INVIS,
+    SHOCK_RES,
     SICK,
+    SICK_RES,
+    SLEEP_RES,
     SLEEPY,
     SLIMED,
+    SLOW_DIGESTION,
     SLT_ENCUMBER,
+    STEALTH,
+    STONE_RES,
     STONED,
     STR18,
     STRANGLED,
     STUNNED,
+    SWIMMING,
+    TELEPAT,
+    TELEPORT,
+    TELEPORT_CONTROL,
+    UNCHANGING,
     UNENCUMBERED,
     Upolyd,
     VOMITING,
+    WARN_OF_MON,
+    WARN_UNDEAD,
+    WARNING,
     WOUNDED_LEGS,
     WWALKING,
 } from './const.js';
@@ -100,14 +154,28 @@ import { an } from './objnam.js';
 import { hasUnportedConfigStatement, oc_to_str } from './options.js';
 import {
     DUNCE_CAP,
+    DWARVISH_CLOAK,
     GAUNTLETS_OF_POWER,
+    GREEN_DRAGON_SCALE_MAIL,
+    GREEN_DRAGON_SCALES,
     RIN_SUSTAIN_ABILITY,
+    ROBE,
     SHIELD_OF_REFLECTION,
     TOWEL,
 } from './objects.js';
+import { confers_luck } from './artifacts.js';
 import { stuck_ring } from './do_wear.js';
-import { align_gname, u_gname } from './pray.js';
-import { is_ammo } from './obj.js';
+import { magic_negation } from './mhitu.js';
+import {
+    amphibious,
+    breathless,
+    hates_silver,
+    is_clinger,
+    lays_eggs,
+} from './mondata.js';
+import { align_gname, can_pray, u_gname } from './pray.js';
+import { spellid } from './spell.js';
+import { is_ammo, isMetallic } from './obj.js';
 import { body_part } from './polyself.js';
 import { visible_region_at } from './region.js';
 import {
@@ -149,6 +217,8 @@ const are = 'are ';
 const were = 'were ';
 const have = 'have ';
 const had = 'had ';
+const can = 'can ';
+const could = 'could ';
 
 // C ref: insight.c enlght_line()'s contra[].
 const contra = Object.freeze([
@@ -190,6 +260,19 @@ function hasProperty(state, propidx) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
+// hasProperty() widened by the blocked field. attributes_enlightenment() has
+// arms that fire on `.blocked` alone -- BLevitation, BFlying, BStealth,
+// BInvis, BClairvoyant and the Eyes of the Overworld arm of BBlinded -- so a
+// stop for one of those properties has to notice a hero who carries only the
+// blocking term. Every macro this widening covers is a subset of it, with the
+// two exceptions the hasProperty() comment above names, so a stop built on it
+// still only ever fires early.
+function propertyInPlay(state, propidx) {
+    const property = state.u.uprops?.[propidx];
+    return Boolean(property?.intrinsic || property?.extrinsic
+        || property?.blocked);
+}
+
 // C ref: insight.c enlght_out(). ge.en_via_menu is TRUE for every ^X, so each
 // line becomes an add_menu_str() entry.
 function enlght_out(lines, buf) {
@@ -217,6 +300,16 @@ function you_are(lines, final, attr, ps) {
 
 function you_have(lines, final, attr, ps) {
     enl_msg(lines, final, You_, have, had, attr, ps);
+}
+
+function you_can(lines, final, attr, ps) {
+    enl_msg(lines, final, You_, can, could, attr, ps);
+}
+
+// C ref: insight.c you_have_X(). Its past-tense argument is the empty string
+// rather than `had`, so under final disclosure the line reads "You <X>."
+function you_have_X(lines, final, something) {
+    enl_msg(lines, final, You_, have, '', something, '');
 }
 
 // C ref: insight.c align_str().
@@ -913,15 +1006,222 @@ function status_enlightenment(mode, final, state, lines) {
     }
 }
 
+// youprop.h:69 widens Sick_resistance with defended(&gy.youmonst, AD_DISE).
+// mondata.c defended() answers that from a wielded artifact whose defn.adtyp is
+// AD_DISE -- artilist.h holds none, so artifact.c:663 is the only AD_DISE in
+// the tree -- or from worn dragon armor, where artifact.c defends() maps
+// AD_DISE to green scales alone. So the extra term reduces to the worn suit.
+function greenDragonSuit(state) {
+    return Boolean(state.uarm
+        && (state.uarm.otyp === GREEN_DRAGON_SCALES
+            || state.uarm.otyp === GREEN_DRAGON_SCALE_MAIL));
+}
+
+// Every property attributes_enlightenment() reports, in the order its lines
+// appear. A hero on D:1 who has just started carries none of them, and each
+// line needs wording -- from_what(), enlght_combatinc(), enlght_halfdmg(),
+// x_monnam(), makeplural() -- that this slice does not port, so their presence
+// stops the command rather than dropping a line C would have printed.
+//
+// Plain rows use propertyInPlay(), which is a superset of the macro named
+// beside them, so those stops only ever fire early. Two rows read state outside
+// u.uprops and carry their own predicate. A third pair, Swimming and Flying,
+// would need one for `u.usteed && is_swimmer/is_flyer(u.usteed->data)`, and are
+// safe only by ordering: enlightenment() runs status_enlightenment() first,
+// exactly as insight.c:416-421 does, and that function's u.usteed stop refuses
+// a mounted hero before this table is read.
+const UNPORTED_ATTRIBUTE_PROPERTIES = Object.freeze([
+    [INVULNERABLE, 'Invulnerable'],
+    [ANTIMAGIC, 'Antimagic'],
+    [FIRE_RES, 'Fire_resistance'],
+    [COLD_RES, 'Cold_resistance'],
+    [SLEEP_RES, 'Sleep_resistance'],
+    [DISINT_RES, 'Disint_resistance'],
+    [SHOCK_RES, 'Shock_resistance'],
+    [POISON_RES, 'Poison_resistance'],
+    [ACID_RES, 'Acid_resistance'],
+    [DRAIN_RES, 'Drain_resistance'],
+    [SICK_RES, 'Sick_resistance',
+        (state) => propertyInPlay(state, SICK_RES) || greenDragonSuit(state)],
+    [STONE_RES, 'Stone_resistance'],
+    [HALLUC_RES, 'Halluc_resistance'],
+    [BLINDED, 'the Eyes of the Overworld and blind See_invisible arms'],
+    [BLND_RES, 'Blnd_resist'],
+    [SEE_INVIS, 'See_invisible'],
+    [TELEPAT, 'Blind_telepat'],
+    [WARNING, 'Warning'],
+    [WARN_OF_MON, 'Warn_of_mon'],
+    [WARN_UNDEAD, 'Undead_warning'],
+    [SEARCHING, 'Searching'],
+    [CLAIRVOYANT, 'Clairvoyant'],
+    [INFRAVISION, 'Infravision'],
+    [DETECT_MONSTERS, 'Detect_monsters'],
+    [ADORNED, 'Adornment'],
+    [INVIS, 'Invisible'],
+    [DISPLACED, 'Displaced'],
+    [STEALTH, 'Stealth'],
+    [AGGRAVATE_MONSTER, 'Aggravate_monster'],
+    [CONFLICT, 'Conflict'],
+    [JUMPING, 'Jumping'],
+    [TELEPORT, 'Teleportation'],
+    [TELEPORT_CONTROL, 'Teleport_control'],
+    [LEVITATION, 'BLevitation'],
+    [FLYING, 'BFlying'],
+    [WWALKING, 'Wwalking'],
+    [SWIMMING, 'Swimming'],
+    // youprop.h:275-281 defines Breathless and Amphibious with a permonst
+    // term, so a form that needs no air escapes a u.uprops-only stop.
+    [MAGICAL_BREATHING, 'Breathless and Amphibious',
+        (state) => propertyInPlay(state, MAGICAL_BREATHING)
+            || breathless(state.youmonst?.data)
+            || amphibious(state.youmonst?.data)],
+    [PASSES_WALLS, 'Passes_walls'],
+    [REGENERATION, 'Regeneration'],
+    [SLOW_DIGESTION, 'Slow_digestion'],
+    [PROTECTION, 'Protection'],
+    [HALF_PHDAM, 'Half_physical_damage'],
+    [HALF_SPDAM, 'Half_spell_damage'],
+    [PROT_FROM_SHAPE_CHANGERS, 'Protection_from_shape_changers'],
+    [UNCHANGING, 'Unchanging'],
+    [POLYMORPH, 'Polymorph'],
+    [POLYMORPH_CONTROL, 'Polymorph_control'],
+    [FAST, 'Fast'],
+    [REFLECTING, 'Reflecting'],
+    [FREE_ACTION, 'Free_action'],
+    [FIXED_ABIL, 'Fixed_abil'],
+    [LIFESAVED, 'Lifesaved'],
+]);
+
+// C ref: insight.c attributes_enlightenment() (1487-2005), "intrinsics and the
+// like, other non-obvious capabilities". C's `mode` parameter is UNUSED, so
+// this port drops it as background_enlightenment() does.
+//
+// Three of its lines are covered:
+//
+//   the piousness() line          insight.c:1509-1513
+//   the magic-cancellation line   insight.c:1800-1808
+//   the can_pray() line           insight.c:1949-1953, the !u.ugangr arm.
+//                                 C's :1946 spelling of the same Sprintf is
+//                                 inside `#if 0`, so :1949 is the live one
+//
+// Every other line stops by name, either through the property table above or
+// through one of the guards below. The polymorphed region, insight.c:1858-1893,
+// is refused further up by enlightenment(). The `#ifdef DEBUG` named-fruit
+// block at insight.c:1955 is not compiled into the recorder --
+// nethack-c/recorder/include/config.h defines DEBUG_MIGRATING_MONS and no bare
+// DEBUG -- so it has no branch to refuse.
+async function attributes_enlightenment(final, state, lines) {
+    const { u } = state;
+
+    // Debug mode reshapes lines across three sections at once, and only three
+    // of the sites are here: insight.c:1516, :1916 and :1949. The rest are
+    // :701 in background_enlightenment() and :1026, :1068, :1090, :1121,
+    // :1160, :1173, :1184, :1207, :1234 and :1244 in status_enlightenment().
+    // This stop still covers all of them: doattributes():2014-2015 sets
+    // MAGICENLIGHTENMENT for every wizard, so no debug hero reaches the window
+    // without arriving here. The sections above have appended their lines by
+    // then, and throwing discards the whole list unshown.
+    if (state.wizard)
+        throw new UnsupportedEnlightenmentError('debug mode');
+
+    for (const [propidx, branch, present] of UNPORTED_ATTRIBUTE_PROPERTIES) {
+        if (present ? present(state) : propertyInPlay(state, propidx))
+            throw new UnsupportedEnlightenmentError(branch);
+    }
+    if (u.uevent?.uhand_of_elbereth)
+        throw new UnsupportedEnlightenmentError('the hofe_titles[] line');
+    // insight.c's five item_resistance_message() calls read
+    // zap.c u_adtyp_resistance_obj(), whose 99% arm needs an extrinsic the
+    // matching resistance row above already refuses. Its 90% arm needs only a
+    // worn dwarvish cloak, and nothing else in this function notices one.
+    if (state.uarmc?.otyp === DWARVISH_CLOAK)
+        throw new UnsupportedEnlightenmentError('item_resistance_message()');
+    if (u.uedibility)
+        throw new UnsupportedEnlightenmentError('the detrimental-food line');
+    if (u.umconf)
+        throw new UnsupportedEnlightenmentError('the confuse-monsters line');
+    if (is_clinger(state.youmonst?.data))
+        throw new UnsupportedEnlightenmentError('the ceiling-clinging lines');
+    if (u.uhitinc || u.udaminc || u.uspellprot)
+        throw new UnsupportedEnlightenmentError('enlght_combatinc()');
+    // youprop.h:407 Half_gas_damage, the only property here with no u.uprops
+    // slot at all.
+    if (state.ublindf?.otyp === TOWEL && state.ublindf.spe > 0)
+        throw new UnsupportedEnlightenmentError('the poison-gas line');
+    // insight.c:1815-1830 enters on knowing any spell but prints only when
+    // cast_adj is non-empty, so both terms belong to the stop.
+    if (spellid(0, state) > NO_SPELL
+        && ((state.uarm && isMetallic(state.uarm, state))
+            || state.uarmc?.otyp === ROBE))
+        throw new UnsupportedEnlightenmentError('the spell-casting line');
+    if (lays_eggs(state.youmonst?.data) && state.flags.female)
+        throw new UnsupportedEnlightenmentError('the lay-eggs line');
+    if (ismnum(u.ulycn))
+        throw new UnsupportedEnlightenmentError('the werecreature line');
+    /* youprop.h:404 Hate_silver */
+    if (u.ulycn >= LOW_PM || hates_silver(state.youmonst?.data))
+        throw new UnsupportedEnlightenmentError('the harmed-by-silver line');
+    /* you.h:464 `#define Luck (u.uluck + u.moreluck)` */
+    if (u.uluck || u.moreluck)
+        throw new UnsupportedEnlightenmentError('the luck lines');
+    // insight.c:1926 asks `carrying(LUCKSTONE) || stone_luck(TRUE)`.
+    // artifact.c confers_luck() answers TRUE for a luckstone and for every
+    // artifact stone_luck() counts, so scanning it refuses wherever either C
+    // term holds and never later.
+    for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+        if (confers_luck(otmp, state)) {
+            throw new UnsupportedEnlightenmentError(
+                'the luck-does-not-time-out lines',
+            );
+        }
+    }
+    if (u.ugangr)
+        throw new UnsupportedEnlightenmentError('the angry-god line');
+    // insight.c:1975-1997 leaves `p` NULL, and prints nothing, only while the
+    // game is in progress and the hero has never died.
+    if (u.umortality)
+        throw new UnsupportedEnlightenmentError('the have-been-killed line');
+
+    /*\
+     *  Attributes
+    \*/
+    enlght_out(lines, '');
+    enlght_out(lines, final ? 'Final Attributes:' : 'Attributes:');
+
+    let buf = piousness(true, 'aligned', state);
+    if (u.ualign.record >= 0)
+        you_are(lines, final, buf, '');
+    else
+        you_have(lines, final, buf, '');
+
+    let armpro = magic_negation(state.youmonst, state);
+    if (armpro > 0) {
+        /* magic cancellation factor, conferred by worn armor */
+        const mc_types = ['' /*ordinary*/, 'warded', 'guarded', 'protected'];
+        /* sanity check */
+        if (armpro >= mc_types.length)
+            armpro = mc_types.length - 1;
+        you_are(lines, final, mc_types[armpro], '');
+    }
+
+    /*
+     * We need to suppress this when the game is over, because death
+     * can change the value calculated by can_pray(), potentially
+     * resulting in a false claim that you could have prayed safely.
+     */
+    if (!final) {
+        buf = `${await can_pray(false, state) ? '' : 'not '}safely pray`;
+        you_can(lines, final, buf, '');
+    }
+}
+
 // C ref: insight.c enlightenment(). Builds the whole window's lines. C
 // creates the menu window first and destroys it last; this port opens no
 // window until the list is complete, so an unported branch leaves the screen
 // untouched.
-export function enlightenment(mode, final, state = game) {
+export async function enlightenment(mode, final, state = game) {
     if (final !== ENL_GAMEINPROGRESS)
         throw new UnsupportedEnlightenmentError('end-of-game disclosure');
-    if (mode !== BASICENLIGHTENMENT)
-        throw new UnsupportedEnlightenmentError('attributes_enlightenment()');
     if (Upolyd(state.u))
         throw new UnsupportedEnlightenmentError('a polymorphed hero');
 
@@ -932,19 +1232,50 @@ export function enlightenment(mode, final, state = game) {
         && state.urole.name.f) ? state.urole.name.f
         : state.urole.name.m}'s attributes:`);
 
-    /* role, race, alignment, deities, dungeon level, time, experience */
-    background_enlightenment(final, state, lines);
-    /* hit points, energy points, armor class, gold */
-    basics_enlightenment(final, state, lines);
-    /* strength, dexterity, &c */
-    characteristics_enlightenment(mode, final, state, lines);
-    /* expanded status line information */
+    /* background and characteristics; ^X or end-of-game disclosure */
+    if (mode & BASICENLIGHTENMENT) {
+        /* role, race, alignment, deities, dungeon level, time, experience */
+        background_enlightenment(final, state, lines);
+        /* hit points, energy points, armor class, gold */
+        basics_enlightenment(final, state, lines);
+        /* strength, dexterity, &c */
+        characteristics_enlightenment(mode, final, state, lines);
+    }
+    /* expanded status line information, including things which aren't
+       included there due to space considerations;
+       shown for both basic and magic enlightenment */
     status_enlightenment(mode, final, state, lines);
+    /* remaining attributes; shown for potion,&c or wizard mode and
+       explore mode ^X or end of game disclosure */
+    if (mode & MAGICENLIGHTENMENT) {
+        /* intrinsics and other traditional enlightenment feedback */
+        await attributes_enlightenment(final, state, lines);
+    }
 
     enlght_out(lines, ''); /* separator */
     enlght_out(lines, 'Miscellaneous:');
-    /* the reminder block between the heading and the elapsed time is gated
-       on wizard, discover, or final, none of which an ordinary ^X sets */
+    /* reminder to player and/or information for dumplog */
+    // C's `(wizard || discover || final)` and its inner `wizard ? "debug" :
+    // "explore"` both collapse to the explore-mode arm. `final` is constantly
+    // ENL_GAMEINPROGRESS, and a debug hero cannot arrive: doattributes() sets
+    // MAGICENLIGHTENMENT for one, and attributes_enlightenment() then stops
+    // above this line. Porting debug mode restores both terms here.
+    if ((mode & BASICENLIGHTENMENT) !== 0 && state.discover) {
+        you_are(lines, final, 'running in explore mode', '');
+
+        if (!state.flags.bones) {
+            /* mention not saving bones iff hero just died */
+            // The " and storing" half needs final == ENL_GAMEOVERDEAD.
+            you_have_X(lines, final, 'disabled loading of bones levels');
+        } else if (!state.u.uroleplay.numbones) {
+            enl_msg(lines, final, You_, "haven't encountered",
+                "didn't encounter", ' any bones levels', '');
+        } else {
+            const count = state.u.uroleplay.numbones;
+            you_have_X(lines, final,
+                `encountered ${count} bones level${plur(count)}`);
+        }
+    }
     enl_msg(lines, final, 'Total elapsed playing time ', 'is', 'was',
         fmt_elapsed_time(final, state), '');
     return lines;
@@ -1072,7 +1403,7 @@ export async function ustatusline(state = game) {
 export async function doattributes(state = game, { menu } = {}) {
     if (typeof menu !== 'function')
         throw new TypeError('doattributes needs a menu owner');
-    const lines = enlightenment(
+    const lines = await enlightenment(
         BASICENLIGHTENMENT
             | ((state.wizard || state.discover) ? MAGICENLIGHTENMENT : 0),
         ENL_GAMEINPROGRESS,

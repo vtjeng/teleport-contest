@@ -22,8 +22,11 @@ import {
     BASICENLIGHTENMENT,
     ENL_GAMEINPROGRESS,
     EXT_ENCUMBER,
+    FIRE_RES,
     FIXED_ABIL,
     HVY_ENCUMBER,
+    LEVITATION,
+    MAGICENLIGHTENMENT,
     MOD_ENCUMBER,
     OVERLOADED,
     SLT_ENCUMBER,
@@ -32,12 +35,22 @@ import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
+    M1_BREATHLESS,
+    M1_OVIPAROUS,
+    M2_DEMON,
+} from '../js/monsters.js';
+import {
     ARMOR_CLASS,
     DAGGER,
+    DWARVISH_CLOAK,
+    GREEN_DRAGON_SCALE_MAIL,
+    GREEN_DRAGON_SCALES,
     KATANA,
     LONG_SWORD,
+    LUCKSTONE,
     RIN_SUSTAIN_ABILITY,
     RING_CLASS,
+    RING_MAIL,
     SHORT_SWORD,
     TOWEL,
     WEAPON_CLASS,
@@ -53,7 +66,7 @@ import {
     P_UNSKILLED,
 } from '../js/const.js';
 import { skillSlot } from '../js/startup_skills.js';
-import { ROOMOFFSET, SHOPBASE } from '../js/const.js';
+import { ROOMOFFSET, SHOPBASE, W_ARM, W_ARMC } from '../js/const.js';
 import { costly_spot } from '../js/shk.js';
 
 test('align_str names the four alignments insight.c switches on', () => {
@@ -156,14 +169,20 @@ test('weapon_insight pluralizes a wielded stack', async () => {
         otyp: DAGGER, oclass: WEAPON_CLASS, quan: 2, spe: 0, known: true,
     };
     assert.equal(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
             ' You are wielding'),
         ' You are wielding daggers.',
     );
 
     state.uwep.quan = 1;
     assert.equal(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
             ' You are wielding'),
         ' You are wielding a dagger.',
     );
@@ -177,7 +196,10 @@ test('weapon_insight reports a wielded class name with "some"', async () => {
         otyp: 0, oclass: ARMOR_CLASS, quan: 1, spe: 0, known: true,
     };
     assert.equal(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
             ' You are wielding'),
         ' You are wielding some armor.',
     );
@@ -192,13 +214,16 @@ test('a dry towel prints its name and a wet one stops', async () => {
         otyp: TOWEL, oclass: 8 /* TOOL_CLASS */, quan: 1, spe: 0, known: true,
     };
     assert.equal(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
             ' You are wielding'),
         ' You are wielding a towel.',
     );
 
     state.uwep.spe = 1;
-    assert.throws(
+    await assert.rejects(
         () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
         (error) => error instanceof UnsupportedEnlightenmentError
             && error.branch === 'is_wet_towel()',
@@ -217,13 +242,13 @@ test('Fixed_abil hides base and peak only through a stuck ring', async () => {
     // Dexterity is 9 and its race limit is the uninteresting 18, so +3 is the
     // smallest change that puts a visible clause on the line.
     state.u.amax.a[A_DEX] = state.u.acurr.a[A_DEX] + 3;
-    const dexterity = () => statusLine(
-        enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+    const dexterity = async () => statusLine(
+        await enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
         ' Your dexterity is',
     );
     const shown = ' Your dexterity is 9 (current; peak:12).';
     const hidden = ' Your dexterity is 9.';
-    assert.equal(dexterity(), shown, 'no Fixed_abil hides nothing');
+    assert.equal(await dexterity(), shown, 'no Fixed_abil hides nothing');
 
     state.u.uprops[FIXED_ABIL] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
     // do_wear.c stuck_ring() answers the ring itself when it is cursed, which
@@ -231,18 +256,22 @@ test('Fixed_abil hides base and peak only through a stuck ring', async () => {
     state.uright = {
         otyp: RIN_SUSTAIN_ABILITY, oclass: RING_CLASS, quan: 1, cursed: 1,
     };
-    assert.equal(dexterity(), shown, 'an intrinsic-only Fixed_abil is FALSE');
+    assert.equal(await dexterity(), shown,
+        'an intrinsic-only Fixed_abil is FALSE');
 
     state.u.uprops[FIXED_ABIL] = { intrinsic: 0, extrinsic: 1, blocked: 0 };
-    assert.equal(dexterity(), hidden, 'a cursed ring on the right hand sticks');
+    assert.equal(await dexterity(), hidden,
+        'a cursed ring on the right hand sticks');
 
     // C asks about both hands, so the left slot alone must hide them too.
     state.uleft = state.uright;
     state.uright = null;
-    assert.equal(dexterity(), hidden, 'a cursed ring on the left hand sticks');
+    assert.equal(await dexterity(), hidden,
+        'a cursed ring on the left hand sticks');
 
     state.uleft.cursed = 0;
-    assert.equal(dexterity(), shown, 'an uncursed ring comes off at will');
+    assert.equal(await dexterity(), shown,
+        'an uncursed ring comes off at will');
 });
 
 // insight.c enlightenment() describes a polymorphed hero's form and reads the
@@ -255,12 +284,15 @@ test('a polymorphed hero stops the attributes window', async () => {
     // The same hero unpolymorphed reaches the window, so the throw below
     // belongs to this guard and not to an earlier stop.
     assert.ok(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
             ' You are'),
     );
 
     state.u.umonnum = state.u.umonster + 1;
-    assert.throws(
+    await assert.rejects(
         () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
         (error) => error instanceof UnsupportedEnlightenmentError
             && error.branch === 'a polymorphed hero',
@@ -273,7 +305,7 @@ test('a polymorphed hero stops the attributes window', async () => {
 test('OPTIONS=deaf reaches the deafness stop', async () => {
     const state = await readyGame('deaf');
     assert.equal(state.u.uroleplay.deaf, true);
-    assert.throws(
+    await assert.rejects(
         () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
         (error) => error instanceof UnsupportedEnlightenmentError
             && error.branch === 'the deafness status',
@@ -310,7 +342,7 @@ test('every encumbrance level prints its own adjective', async () => {
         ballast.owt = 0;
         ballast.owt = excess - inv_weight(state);
         assert.equal(near_capacity(state), cap, `weight for ${line}`);
-        const lines = enlightenment(
+        const lines = await enlightenment(
             BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
         );
         assert.equal(
@@ -327,7 +359,10 @@ test('the autopickup line reports the pickup_types class list', async () => {
     const state = await readyGame();
     assert.equal(state.flags.pickup, false);
     assert.equal(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
             ' Autopickup '),
         ' Autopickup is off.',
     );
@@ -337,7 +372,10 @@ test('the autopickup line reports the pickup_types class list', async () => {
     state.flags.pickup = true;
     state.flags.pickup_thrown = true;
     assert.equal(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
             ' Autopickup '),
         ' Autopickup is on for all types.',
     );
@@ -345,14 +383,20 @@ test('the autopickup line reports the pickup_types class list', async () => {
     // Two classes, quoted, with the thrown suffix the restriction now earns.
     state.flags.pickup_types = [WEAPON_CLASS, ARMOR_CLASS];
     assert.equal(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
             ' Autopickup '),
         " Autopickup is on for ')[' plus thrown.",
     );
 
     state.flags.pickup_thrown = false;
     assert.equal(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
             ' Autopickup '),
         " Autopickup is on for ')['.",
     );
@@ -395,7 +439,9 @@ test('the autopickup line reports a shop instead of the class list',
         state.flags.pickup_types = [WEAPON_CLASS];
         assert.equal(
             statusLine(
-                enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+                await enlightenment(
+                    BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+                ),
                 ' Autopickup ',
             ),
             ' Autopickup is on, but temporarily disabled while inside'
@@ -409,7 +455,9 @@ test('the autopickup line reports a shop instead of the class list',
         assert.equal(costly_spot(state.u.ux, state.u.uy, state), false);
         assert.equal(
             statusLine(
-                enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
+                await enlightenment(
+                    BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+                ),
                 ' Autopickup ',
             ),
             " Autopickup is on for ')' plus thrown.",
@@ -423,7 +471,7 @@ test('the autopickup line reports a shop instead of the class list',
 test('the autopickup line stops on a configured pickup_types', async () => {
     const state = await readyGame('autopickup,pickup_types:$"');
     assert.equal(state.flags.pickup_types, '$"');
-    assert.throws(
+    await assert.rejects(
         () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
         (error) => error instanceof UnsupportedEnlightenmentError
             && error.branch === "parseoptions() to interpret 'pickup_types'",
@@ -441,7 +489,7 @@ test('the autopickup line stops on a configured exception list', async () => {
     );
     assert.deepEqual(state.unportedConfigStatements, ['autopickup_exception']);
     assert.equal(state.ga?.apelist, undefined);
-    assert.throws(
+    await assert.rejects(
         () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
         (error) => error instanceof UnsupportedEnlightenmentError
             && error.branch === 'cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION()',
@@ -451,7 +499,10 @@ test('the autopickup line stops on a configured exception list', async () => {
     // what makes the stop above a statement test rather than a blanket one.
     const plain = await readyGame('autopickup');
     assert.equal(
-        statusLine(enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, plain),
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, plain,
+            ),
             ' Autopickup '),
         ' Autopickup is on for all types.',
     );
@@ -492,7 +543,9 @@ async function skillReport({
         slot.max_skill = entry.max ?? P_EXPERT;
         slot.advance = entry.advance ?? 0;
     }
-    const lines = enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state);
+    const lines = await enlightenment(
+        BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+    );
     const wielding = lines.indexOf(' You are wielding two weapons at once.');
     assert.notEqual(wielding, -1, 'the hero is not reported as two-weaponing');
     // status_enlightenment() closes with the blank separator that opens the
@@ -735,5 +788,274 @@ test('the enhancement summary never takes the wizard shortcut', async () => {
             ' You can enhance skills with long sword, short sword, and'
                 + ' two weapons.',
         ],
+    );
+});
+
+// A live explore-mode game, which is what insight.c doattributes():2014-2015
+// turns into a MAGICENLIGHTENMENT window. The Caveman and the Tourist are the
+// only two roles whose starting state reaches attributes_enlightenment()'s
+// output at all: the rest hold an XL1 intrinsic, a steed, a robe or a cloak
+// that stops it. The Caveman's leather armor makes magic_negation() answer 1
+// and the Tourist's Hawaiian shirt makes it answer 0.
+async function readyExploreGame(role = 'Caveman') {
+    await runSegment({
+        seed: 8810073,
+        datetime: '2026-03-04 10:00:00',
+        nethackrc: `OPTIONS=name:Insight,role:${role},race:human,`
+            + 'gender:male,align:neutral,!legacy,!tutorial,!splash_screen,'
+            + 'pettype:none\nOPTIONS=playmode:explore\n',
+        moves: '',
+    });
+    return game;
+}
+
+const MAGIC = BASICENLIGHTENMENT | MAGICENLIGHTENMENT;
+
+function attributeSection(lines) {
+    const start = lines.indexOf('Attributes:');
+    return start === -1 ? [] : lines.slice(start + 1, lines.indexOf('', start));
+}
+
+// The three attributes_enlightenment() lines the port covers, together, in the
+// order insight.c emits them. The fresh matrix records the same window against
+// C; this pins it without a recorder so a change is caught by `npm test`.
+test('the magic half prints the three lines the port covers', async () => {
+    const state = await readyExploreGame();
+    const lines = await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state);
+    assert.deepEqual(attributeSection(lines), [
+        // piousness(TRUE, "aligned") at a Caveman's role.c initrecord of 0.
+        ' You are nominally aligned.',
+        // mc_types[1], from the leather armor's objects.c a_can of 1.
+        ' You are warded.',
+        // u.ublesscnt is 300, so pray.c:2151 answers "too soon" and can_pray()
+        // is FALSE; enlght_line() then contracts " can not " to " can't ".
+        " You can't safely pray.",
+    ]);
+    // insight.c:1800 skips the whole block when the factor is 0, so the
+    // Tourist's window carries the same section one line shorter. Without the
+    // `> 0` the section would show mc_types[0], an empty "You are .".
+    const tourist = await readyExploreGame('Tourist');
+    assert.deepEqual(
+        attributeSection(await enlightenment(MAGIC, ENL_GAMEINPROGRESS,
+            tourist)),
+        [' You are nominally aligned.', " You can't safely pray."],
+    );
+
+    // enlightenment():428-447's reminder block, which only explore mode and
+    // debug mode reach.
+    assert.deepEqual(lines.slice(lines.indexOf('Miscellaneous:') + 1), [
+        ' You are running in explore mode.',
+        " You haven't encountered any bones levels.",
+        ' Total elapsed playing time is none.',
+    ]);
+});
+
+// insight.c:1509-1513. piousness() names how far the record has moved, and the
+// sign of the record picks you_are() over you_have(). No role starts with a
+// record C's recorder can put anywhere but 0 and 10, and every initrecord-10
+// role stops the window for another reason, so both other arms need this test.
+test('the piousness line names the record and picks its verb', async () => {
+    const state = await readyExploreGame();
+    const piousLine = async () => (
+        attributeSection(await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state))
+    )[0];
+    assert.equal(await piousLine(), ' You are nominally aligned.');
+
+    // insight.c:3243-3246: above 8 is "devoutly" from 14 and "fervently" from
+    // 9, so 10 is the arm every initrecord-10 role would have shown.
+    state.u.ualign.record = 10;
+    assert.equal(await piousLine(), ' You are fervently aligned.');
+
+    // A negative record takes you_have(), and piousness()'s showneg arm drops
+    // the "aligned" suffix along with its space: insight.c:3264 appends the
+    // suffix only when the record is not negative.
+    state.u.ualign.record = -5;
+    assert.equal(await piousLine(), ' You have sinned.');
+});
+
+// insight.c:1949. u_init.c:382 fixes u.ublesscnt at 300 and allmain.c spends
+// one per turn, so the empty half of C's ternary is 300 turns away from any
+// recorded start.
+test('the prayer line drops "not" when a prayer would be safe', async () => {
+    const state = await readyExploreGame();
+    state.u.ublesscnt = 0;
+    const lines = await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state);
+    assert.equal(attributeSection(lines).at(-1), ' You can safely pray.');
+    // pray.c:2160 reaches p_type 3 only through the "not in trouble" arm, so
+    // the line above is the safe-prayer answer and not a coincidence.
+    assert.equal(state.gp.p_type, 3);
+});
+
+// insight.c:416-421 gates the two halves of the window on separate mode bits,
+// and enlightenment():428 gates the reminder block on the basic one alone.
+test('each mode bit selects its own half of the window', async () => {
+    const state = await readyExploreGame();
+    const basic = await enlightenment(
+        BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+    );
+    assert.ok(basic.includes('Background:'));
+    assert.ok(!basic.includes('Attributes:'));
+    // The reminder block belongs to the basic half, so explore mode still
+    // announces itself without any magic section above it.
+    assert.ok(basic.includes(' You are running in explore mode.'));
+
+    const magicOnly = await enlightenment(
+        MAGICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+    );
+    assert.ok(!magicOnly.includes('Background:'));
+    assert.ok(!magicOnly.includes('Characteristics:'));
+    assert.ok(magicOnly.includes('Attributes:'));
+    // The reminder block is gated on BASICENLIGHTENMENT even in explore mode.
+    assert.ok(!magicOnly.includes(' You are running in explore mode.'));
+    assert.ok(magicOnly.includes('Status:'));
+});
+
+// enlightenment():435-446. Only the first two arms are reachable from a
+// recorded start; u.uroleplay.numbones needs a bones file to have been loaded.
+test('the bones reminder chooses between its three arms', async () => {
+    const state = await readyExploreGame();
+    const bonesLine = async () => (
+        await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state)
+    ).find((line) => line.includes('bones level'));
+    assert.equal(await bonesLine(), " You haven't encountered any bones"
+        + ' levels.');
+
+    state.u.uroleplay.numbones = 1;
+    assert.equal(await bonesLine(), ' You have encountered 1 bones level.');
+    state.u.uroleplay.numbones = 2;
+    assert.equal(await bonesLine(), ' You have encountered 2 bones levels.');
+
+    // !bones wins over any count, because C tests it first.
+    state.flags.bones = false;
+    assert.equal(
+        await bonesLine(), ' You have disabled loading of bones levels.',
+    );
+});
+
+// Each stop below reads something outside u.uprops, so a table row built on
+// the property alone would let its line slip through and print a window C
+// would have filled differently.
+test('the magic half stops on conditions no property records', async () => {
+    const state = await readyExploreGame();
+    const branchOf = async () => {
+        try {
+            await enlightenment(MAGIC, ENL_GAMEINPROGRESS, state);
+        } catch (error) {
+            assert.ok(error instanceof UnsupportedEnlightenmentError);
+            return error.branch;
+        }
+        return null;
+    };
+    assert.equal(await branchOf(), null, 'the plain hero reaches the window');
+
+    // youprop.h:69 adds defended(&gy.youmonst, AD_DISE), which artifact.c:663
+    // answers for green dragon scales and for no other armor.
+    state.uarm = { otyp: GREEN_DRAGON_SCALE_MAIL, owornmask: W_ARM };
+    assert.equal(await branchOf(), 'Sick_resistance');
+    state.uarm = { otyp: GREEN_DRAGON_SCALES, owornmask: W_ARM };
+    assert.equal(await branchOf(), 'Sick_resistance');
+    state.uarm = null;
+
+    // zap.c u_adtyp_resistance_obj()'s 90% arm, which needs no property at all.
+    state.uarmc = { otyp: DWARVISH_CLOAK, owornmask: W_ARMC };
+    assert.equal(await branchOf(), 'item_resistance_message()');
+    state.uarmc = null;
+
+    // insight.c:1926 `carrying(LUCKSTONE) || stone_luck(TRUE)`. A luckstone
+    // moves neither u.uluck nor u.moreluck, so only the scan finds it.
+    state.invent = { otyp: LUCKSTONE, quan: 1, nobj: state.invent };
+    assert.equal(await branchOf(), 'the luck-does-not-time-out lines');
+    state.invent = state.invent.nobj;
+
+    // youprop.h:275-281 reads the permonst for Breathless and Amphibious.
+    state.youmonst.data.mflags1 |= M1_BREATHLESS;
+    assert.equal(await branchOf(), 'Breathless and Amphibious');
+    state.youmonst.data.mflags1 &= ~M1_BREATHLESS;
+
+    // youprop.h:27 Fire_resistance is (HFire_resistance || EFire_resistance),
+    // so each field alone has to stop; FIRE_RES has no status_enlightenment()
+    // row above, which is what makes this table the one that answers.
+    for (const field of ['intrinsic', 'extrinsic']) {
+        state.u.uprops[FIRE_RES] = {
+            intrinsic: 0, extrinsic: 0, blocked: 0, [field]: 1,
+        };
+        assert.equal(await branchOf(), 'Fire_resistance', field);
+    }
+    state.u.uprops[FIRE_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+
+    // insight.c:1688 and :1707 fire on the blocked field alone, which
+    // hasProperty()'s intrinsic-or-extrinsic answer would miss. Levitation is
+    // where that shows: a hero carrying only the blocking term walks past
+    // status_enlightenment()'s row and lands here.
+    state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 1 };
+    assert.equal(await branchOf(), 'BLevitation');
+    state.u.uprops[LEVITATION] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+
+    // insight.c:1975-1997 prints nothing while the game is in progress and the
+    // hero has never died, so the count alone decides.
+    state.u.umortality = 1;
+    assert.equal(await branchOf(), 'the have-been-killed line');
+    state.u.umortality = 0;
+
+    // insight.c:1770, :1782 and :1784 each print their own enlght_combatinc()
+    // line, so any one of the three counters alone has to stop the window.
+    for (const field of ['uhitinc', 'udaminc', 'uspellprot']) {
+        state.u[field] = 1;
+        assert.equal(await branchOf(), 'enlght_combatinc()', field);
+        state.u[field] = 0;
+    }
+
+    // youprop.h:407 Half_gas_damage needs a damp or wet towel: obj.h reads the
+    // enchantment, so a dry one worn over the eyes prints nothing.
+    state.ublindf = { otyp: TOWEL, spe: 0 };
+    assert.equal(await branchOf(), null, 'a dry towel damps no gas');
+    state.ublindf.spe = 1;
+    assert.equal(await branchOf(), 'the poison-gas line');
+    state.ublindf = null;
+
+    // insight.c:1879 needs the form and the gender together, so neither term
+    // alone may stop the window.
+    state.youmonst.data.mflags1 |= M1_OVIPAROUS;
+    assert.equal(await branchOf(), null, 'an egg-laying form on a male hero');
+    state.flags.female = true;
+    assert.equal(await branchOf(), 'the lay-eggs line');
+    state.youmonst.data.mflags1 &= ~M1_OVIPAROUS;
+    assert.equal(await branchOf(), null, 'a female hero who lays no eggs');
+    state.flags.female = false;
+
+    // youprop.h:404 Hate_silver is a lycanthrope *or* a form that hates
+    // silver; mondata.c hates_silver() counts every demon.
+    state.youmonst.data.mflags2 |= M2_DEMON;
+    assert.equal(await branchOf(), 'the harmed-by-silver line');
+    state.youmonst.data.mflags2 &= ~M2_DEMON;
+
+    // you.h:464 `#define Luck (u.uluck + u.moreluck)`, and insight.c:1918
+    // reports u.moreluck on its own, so either field alone has to stop.
+    for (const field of ['uluck', 'moreluck']) {
+        state.u[field] = 1;
+        assert.equal(await branchOf(), 'the luck lines', field);
+        state.u[field] = 0;
+    }
+
+    // insight.c:1815-1830 needs both a known spell and armor that changes the
+    // casting chance, so neither term alone may stop the window.
+    state.uarm = { otyp: RING_MAIL, owornmask: W_ARM };
+    assert.equal(await branchOf(), null, 'metallic armor with no spells');
+    state.svs.spl_book[0] = { sp_id: 1, sp_lev: 1, sp_know: 100 };
+    assert.equal(await branchOf(), 'the spell-casting line');
+    state.uarm = null;
+    assert.equal(await branchOf(), null, 'a spell with no armor to blame');
+});
+
+// insight.c takes a different shape in debug mode at eleven sites across three
+// sections, and doattributes():2014-2015 routes a wizard through the same
+// MAGICENLIGHTENMENT door explore mode uses.
+test('debug mode stops the magic half', async () => {
+    const state = await readyExploreGame();
+    state.wizard = true;
+    await assert.rejects(
+        () => enlightenment(MAGIC, ENL_GAMEINPROGRESS, state),
+        (error) => error instanceof UnsupportedEnlightenmentError
+            && error.branch === 'debug mode',
     );
 });
