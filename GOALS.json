@@ -1721,6 +1721,56 @@
         "screens": 13,
         "rng": 22
       }
+    },
+    {
+      "id": "finish-seed1150",
+      "status": "open",
+      "boundary": "cmd.c rhack() carries seed1150 from its stop at step 34 to the end of the session, rather than refusing the fire command at js/cmd.js:902 and leaving a remembered corridor lit at js/display.js newsym().",
+      "upstreamOwners": [
+        "display.c newsym()",
+        "dothrow.c dofire()",
+        "wield.c doswapweapon()",
+        "insight.c attributes_enlightenment()"
+      ],
+      "forecast": {
+        "steps": 24,
+        "basis": "Directed selection with field-wide costing skipped by the user. Measured at 8d69471: seed1150 matches 27 of its 51 recorded screens and produces 34, stopping at step 34 on f with no RNG divergence, so the 24 screens that finish the session are owned by display.c newsym(), dothrow.c dofire() with wield.c doswapweapon(), and insight.c attributes_enlightenment().",
+        "sessions": [
+          "seed1150-caveman-explore-move"
+        ],
+        "witnesses": [
+          {
+            "session": "seed1150-caveman-explore-move",
+            "evidence": "Steps 27-33 mismatch on one to two corridor cells, C emitting no colour where the port emits 15, owned by display.c newsym() 1079-1097. Step 34 refuses key f at js/cmd.js:902 in readSimpleCommand(); C runs dothrow.c dofire() 468 into its cmdq_add_ec swap-and-retry arm at 566-570. Step 45 needs insight.c attributes_enlightenment() 1487. A look-ahead over C s recorded screens from step 33 to the end is clear of deaths: HP holds at 16(16) and T advances 22 to 26."
+          }
+        ]
+      },
+      "detail": "Measured at 8d69471 in a worktree, not inferred. The port produces 34 of\nseed1150 s 51 screens and matches 27: steps 27-33 are drawn with the\ncorridor glyph # in colour 15 where C emits no colour, and steps 34-50 are\nnever reached. Three owners divide the remaining work, and they compound\nrather than add, because the port is fail-closed.\n\ndisplay.c newsym() 1077-1097, the can-t-see-the-location tail, demotes a\nremembered S_litcorr to S_corr once the square leaves sight. The port\npromotes correctly and never demotes. Worth 7 screens alone and a\nmultiplier on the rest.\n\ndothrow.c dofire() 468 takes the swap-and-retry arm, queueing\ndoswapweapon and a re-entrant dofire on CQ_CANNED; wield.c doswapweapon()\n460 and ready_weapon() 168 print the two prinv lines, then throw_obj() 86,\nmultishot_class_bonus() 190 with its rnd(2) at 233, and throwit() 1510\nwith bhit() at zap.c:3827. Needs a command queue, which five comments in\njs/ assert does not exist. Worth 73 of the 149 owed RNG calls.\n\ninsight.c attributes_enlightenment() 1487 under MAGICENLIGHTENMENT, which\ndoattributes() 2008 sets because playmode is explore. This hero reaches\nthree of its 519 lines: piousness(), magic_negation() 1800-1808 and\ncan_pray() 1943-1953, plus the discover reminder block at 428-447.\njs/insight.js:801 refuses it today. Worth nothing until the other two land.",
+      "slices": [
+        {
+          "name": "darken a remembered corridor once it leaves sight",
+          "status": "closed",
+          "closedBy": "479ce81a5337114db23dcc34d85df6987ddaf967"
+        },
+        {
+          "name": "fire the quivered ammunition",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "report magic enlightenment under explore mode",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "479ce81a5337114db23dcc34d85df6987ddaf967",
+      "openStanding": {
+        "sha": "55ee5ab",
+        "screens": 1471,
+        "rng": 120441
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
