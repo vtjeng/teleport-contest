@@ -27,6 +27,8 @@
 import { artifact_origin } from './artifacts.js';
 import {
     BLINDED,
+    DISP_END,
+    DISP_FLASH,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -35,22 +37,36 @@ import {
     GETOBJ_SUGGEST,
     ICE,
     IRONBARS,
+    IS_SINK,
+    IS_WATERWALL,
     Is_airlevel,
     Is_waterlevel,
+    LAVAWALL,
     M_SEEN_SLEEP,
     nothing_happens,
     ONAME_KNOW_ARTI,
     ONAME_WISH,
     SLEEP_RES,
+    THROWN_WEAPON,
     WAND_BACKFIRE_CHANCE,
     WAND_WREST_CHANCE,
+    WEB,
+    ZAP_POS,
+    isok,
 } from './const.js';
 import { getdir } from './cmd.js';
-import { bot, newsym } from './display.js';
+import {
+    bot,
+    glyph_is_invisible,
+    newsym,
+    obj_to_glyph,
+    tmp_at,
+    unmap_object,
+} from './display.js';
 import { dropx, preflight_dropx } from './do.js';
 import { tty_getlin } from './getline.js';
 import { game } from './gstate.js';
-import { check_capacity } from './hack.js';
+import { check_capacity, nh_delay_output } from './hack.js';
 import { lcase, mungspaces } from './hacklib.js';
 import {
     getobj,
@@ -61,20 +77,33 @@ import {
 } from './invent.js';
 import { monstunseesu, nohands } from './mondata.js';
 import { discover_object, observe_object } from './o_init.js';
-import { objectType, remove_object } from './obj.js';
+import { is_pick, objectType, remove_object } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
+    HEAVY_IRON_BALL,
     NODIR,
+    ROCK,
     SPBOOK_CLASS,
     SPE_SLEEP,
     WAND_CLASS,
     WAN_SLEEP,
 } from './objects.js';
-import { The, Tobjnam, aobjnam, donameFresh, xnameFresh } from './objnam.js';
+import {
+    The,
+    Tobjnam,
+    Yname2,
+    aobjnam,
+    donameFresh,
+    xnameFresh,
+} from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
 import { rn1, rn2, rnd } from './rng.js';
-import { check_unpaid } from './shk.js';
+import { m_at } from './monst.js';
+import { check_unpaid, inside_shop } from './shk.js';
+import { closed_door } from './monmove.js';
+import { is_pool, t_at } from './trap.js';
+import { cansee } from './vision.js';
 import { fall_asleep } from './timeout.js';
 import { ttyPline } from './tty_message.js';
 
@@ -459,4 +488,182 @@ export async function makewish(state = game) {
         heavyDropAdmission,
     );
     state.u.ublesscnt += rn1(100, 50); /* the gods take notice */
+}
+
+// ── bhit ──
+//
+// C ref: zap.c bhit() (3827-4139) and skiprange() (3578-3590). The distance
+// effect shared by a thrown weapon, a kicked object, an immediate wand, a
+// flashed light and an applied mirror: it walks the ray one square at a time,
+// draws the transient glyph, and stops at the first monster, wall or closed
+// door. gb.bhitpos, which C leaves at the final square, is the port's
+// `state.bhitpos`; every caller reads it after the call rather than the return
+// value, which is the monster hit.
+//
+// Only THROWN_WEAPON is ported, because dothrow.c throwit() is bhit()'s only
+// ported caller. Everything the other five call types reach -- zap_map(),
+// bhitpile(), flash_hits_mon(), hits_bars(), doorlock() -- belongs to the
+// commands that use them.
+//
+// Nine branches inside the thrown-weapon walk stop, each at its own condition
+// and before it changes anything: a shopkeeper catching a pick-axe, a lit
+// object lighting the squares it passes, iron bars, a rock skipping over
+// water, a monster in the path, and a heavy iron ball's four range limits.
+// thitmonst() is the largest of them and is what makes the monster arm stop:
+// it is dothrow.c's own 380-line function over find_mac(), omon_adj(),
+// gem_accept() and hmon(), and none of that is ported.
+export class UnsupportedBhitError extends Error {
+    constructor(branch) {
+        super(`zap.c bhit() reached ${branch}`);
+        this.name = 'UnsupportedBhitError';
+        this.branch = branch;
+    }
+}
+
+// C ref: zap.c skiprange() (3578-3590). Picks the range window over which a
+// thrown rock may skip. Its rnd() draws are part of the stream whether or not
+// any water lies ahead, so the caller runs it for every thrown rock.
+export function skiprange(range, random = { rnd }) {
+    const tr = Math.trunc(range / 4);
+    const tmp = range - (tr > 0 ? random.rnd(tr) : 0);
+    let skipend = tmp - Math.trunc(tmp / 4) * random.rnd(3);
+    if (skipend >= tmp) skipend = tmp - 1;
+    return { skipstart: tmp, skipend };
+}
+
+export async function bhit(
+    ddx,
+    ddy,
+    range,
+    weapon,
+    fhitm,
+    fhito,
+    pobj,
+    state = game,
+    random = { rn2, rnd },
+) {
+    const obj = pobj.obj;
+    let allow_skip = false;
+    let skiprange_start = 0;
+    let skiprange_end = 0;
+
+    if (weapon !== THROWN_WEAPON) {
+        throw new UnsupportedBhitError(`call type ${weapon}`);
+    }
+    if (fhitm || fhito) {
+        // Only ZAPPED_WAND supplies either callback; C passes null for a
+        // thrown weapon at dothrow.c:1665-1666.
+        throw new UnsupportedBhitError('an object or monster callback');
+    }
+    state.bhitpos = { x: state.u.ux, y: state.u.uy };
+
+    if (obj && obj.otyp === ROCK) {
+        ({ skipstart: skiprange_start, skipend: skiprange_end } =
+            skiprange(range, random));
+        allow_skip = random.rn2(3) === 0;
+    }
+
+    await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
+
+    while (range-- > 0) {
+        state.bhitpos.x += ddx;
+        state.bhitpos.y += ddy;
+        const x = state.bhitpos.x;
+        const y = state.bhitpos.y;
+
+        if (!isok(x, y)) {
+            state.bhitpos.x -= ddx;
+            state.bhitpos.y -= ddy;
+            break;
+        }
+
+        if (is_pick(obj, state) && inside_shop(x, y, state)) {
+            // shkcatch() belongs to js/shk.js's unported half.
+            throw new UnsupportedBhitError('shkcatch()');
+        }
+
+        const typ = state.level.at(x, y).typ;
+
+        /* WATER aka "wall of water" stops items */
+        if (IS_WATERWALL(typ) || typ === LAVAWALL) break;
+
+        if (obj.lamplit) {
+            throw new UnsupportedBhitError('show_transient_light()');
+        }
+        if (typ === IRONBARS) {
+            throw new UnsupportedBhitError('hits_bars()');
+        }
+
+        const mtmp = m_at(x, y, state);
+        const ttmp = t_at(x, y, state);
+        if (!mtmp && ttmp && ttmp.ttyp === WEB && random.rn2(3) !== 0) {
+            if (cansee(x, y, state)) {
+                await ttyPline(
+                    `${Yname2(obj, state)} gets stuck in a web!`,
+                    state,
+                );
+                ttmp.tseen = true;
+                newsym(x, y);
+            }
+            // iflags.returning_missile: no ported object returns to the hand,
+            // so `was_returning` is always null and its two arms are inert.
+            break;
+        }
+
+        /*
+         * skipping rocks
+         *
+         * skiprange_start is only set if this is a thrown rock
+         */
+        if (skiprange_start && range === skiprange_start && allow_skip) {
+            if (is_pool(x, y, state) && !mtmp) {
+                throw new UnsupportedBhitError('a rock skipping over water');
+            } else if (skiprange_start > skiprange_end + 1) {
+                --skiprange_start;
+            }
+        }
+        // C's `if (in_skip)` block below this cannot run: in_skip is set only
+        // by the arm that stops just above, so its branches -- another bounce
+        // and a monster the rock passes over -- are unreachable.
+
+        if (mtmp) {
+            // shade_miss(), the mimic-as-object test and glyph_at() can all
+            // clear mtmp and let the missile continue, so this stops ahead of
+            // them rather than inside the arm they guard.
+            throw new UnsupportedBhitError('thitmonst()');
+        }
+
+        if (!ZAP_POS(typ) || closed_door(x, y, state)) {
+            state.bhitpos.x -= ddx;
+            state.bhitpos.y -= ddy;
+            break;
+        }
+        /* 'I' present but no monster: erase; do this before tmp_at() */
+        if (glyph_is_invisible(state.level.at(x, y)) && cansee(x, y, state)) {
+            unmap_object(x, y, state);
+            newsym(x, y);
+        }
+        await tmp_at(x, y, state);
+        await nh_delay_output(state);
+        if (IS_SINK(typ))
+            break; /* physical objects fall onto sink */
+
+        /* limit range of ball so hero won't make an invalid move */
+        if (range > 0 && obj.otyp === HEAVY_IRON_BALL) {
+            throw new UnsupportedBhitError('a heavy iron ball in flight');
+        }
+
+        // C clears point_blank here, "affects passing through iron bars". Its
+        // only reader is the hits_bars() call that stops above, so the port
+        // keeps neither the variable nor this assignment.
+    }
+
+    await tmp_at(DISP_END, 0, state);
+    // pay_for_damage("destroy"): only a zapped wand can break a shop door.
+    // transient_light_cleanup(): only a lit object registers a transient
+    // light, and the arm that would have shown one stops above.
+    //
+    // The return value is the monster the missile hit. It is always null here,
+    // because the arm that would name one stops.
+    return null;
 }

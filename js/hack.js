@@ -20,6 +20,7 @@ import {
     D_LOCKED,
     D_NODOOR,
     D_TRAPPED,
+    CQ_CANNED,
     DIGTYP_UNDIGGABLE,
     ECMD_OK,
     ECMD_TIME,
@@ -111,6 +112,11 @@ import {
     unmap_object,
     wall_angle,
 } from './display.js';
+// cmd.c owns the command queue and js/cmd.js already imports this file, so
+// this pair of modules forms an import cycle. Only the hoisted function
+// declaration is used, and only at call time, so neither module reads the
+// other during evaluation.
+import { cmdq_clear } from './cmd.js';
 import { dig_typ } from './dig.js';
 import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
 import { u_on_newpos } from './dungeon.js';
@@ -528,8 +534,12 @@ export function endRunning(state = game) {
 }
 
 // C ref: hack.c nomul() (4160-4173). Interrupts a multi-turn action: a run, a
-// travel, or a counted repeat. Its cmdq_clear(CQ_CANNED) has no ported command
-// queue, so it is not represented here.
+// travel, or a counted repeat. Its trailing cmdq_clear(CQ_CANNED) is what
+// hack.h:174 means by "the queue will get cleared if hero is interrupted",
+// and it runs for every nval, not only a positive one: a canned sequence that
+// spans a turn is abandoned the moment anything interrupts the hero. That is
+// why wield.c doswapweapon() zeroes gm.multi by assignment rather than
+// through this function.
 //
 // gm.multi_reason and gm.multireasonbuf have no ported reader. They are
 // written anyway because they are the reason string for the interrupted
@@ -550,6 +560,7 @@ export function nomul(nval, state = game) {
         state.multireasonbuf = '';
     }
     endRunning(state);
+    cmdq_clear(CQ_CANNED, state);
 }
 
 // C ref: decl.c:47 c_common_strings.c_You_can_move_again, which hack.h:271
@@ -2353,7 +2364,7 @@ export async function domove(state = game) {
 // makes the patched tty capture one animation frame and return immediately
 // whenever NETHACK_NO_DELAY is set, which is how every recording runs, so the
 // frame capture is the whole of its observable behavior.
-async function nh_delay_output(state) {
+export async function nh_delay_output(state = game) {
     await state._animationFrameHook?.();
 }
 

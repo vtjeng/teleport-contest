@@ -1769,6 +1769,36 @@
       "from": "5c878a0b30fd7343a96269616b2629d3ed43ead7",
       "detail": "insight.c attributes_enlightenment() is 519 lines and js/insight.js ports\nthree of them: the piousness() line at :1509, the magic-cancellation line\nat :1800 and the can_pray() line at :1949. Every other line stops by name,\nthrough UNPORTED_ATTRIBUTE_PROPERTIES or one of the guards beside it, so a\nhero who would earn one gets no window at all rather than a short one.\n\nTwo valid C cases just outside that limit, both recorded and both failing:\n\n  seed 8151003, OPTIONS=name:Enlight,role:Knight,race:human,gender:male,\n  align:lawful,!legacy,!tutorial,!splash_screen / playmode:explore,\n  pettype:none, keys <esc> ^X <space> <esc>. C prints \"You can jump.\"\n  above the magic-cancellation line, from insight.c:1681; the port stops\n  on the JUMPING row. Expected failure: JS produces 4 screens against\n  C's 10, the first mismatch at step 3, the ^X.\n\n  seed 8151006, the same options with role:Priest,race:human,gender:male,\n  align:neutral. C prints \"Your spell casting is enhanced by wearing a\n  robe.\" from insight.c:1815-1830; the port stops on the spell-casting\n  guard. The same case is the only recorded route to a magic-cancellation\n  factor above 1: the Priest's robe has objects.c a_can 2, so C's line\nreads \"You are guarded.\" and mhitu.c magic_negation() answers 2.\n\nNeither is in scripts/run-attributes-command.mjs, because recording them\nwould fail the differential. What pins the refusals instead is\nscripts/insight.test.mjs \"the magic half stops on conditions no property\nrecords\" and \"debug mode stops the magic half\", and what pins the unreached\nmagic-cancellation factors is scripts/mhitu.test.mjs, which drives\nmagic_negation() to 0, 1, 2 and 3 directly.\n\nCost today: zero recorded steps. seed1150-caveman-explore-move is the only\ndevelopment session that opens the window in explore mode, and its Caveman\ntakes the ported branches.\n\nClosing condition: port from_what() (insight.c:250-330), which every\nrefused resistance and capability line needs for its \"because of\" clause,\nthen enlght_combatinc(), enlght_halfdmg(), item_resistance_message() and\nthe spell-casting block. Add the two cases above to\nscripts/run-attributes-command.mjs SKILL-style rows as each lands, and keep\nthe constructed stops as their paired negatives for whatever is still out.",
       "blockedOn": "from_what"
+    },
+    {
+      "id": "fire-missile-reaching-a-monster",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5c878a0b30fd7343a96269616b2629d3ed43ead7",
+      "detail": "zap.c bhit() stops at `m_at(x,y)` for a thrown weapon rather than continuing into the monster arm at 3990-4001, so no shot the `f` command fires can hit anything. The arm needs dothrow.c thitmonst() (2011-2390), a 380-line function over artifact.c find_mac(), weapon.c omon_adj(), dothrow.c tmiss() and gem_accept(), and uhitm.c hmon(); it also needs uhitm.c shade_miss() and display.c glyph_at(), which bhit() consults first and either of which can clear the monster and let the missile fly on.\n\nA fresh C case reaches it trivially -- fire east at a pet and answer the confirmation -- so this is a scope limit, not an unreachable branch. The port stops before the first tmp_at() of the square the monster stands on, so a segment that fires into one keeps every screen it had already matched.\n\nCost today: zero recorded steps. seed1150-caveman-explore-move fires down an empty corridor, and scripts/run-fire-command.mjs sets pettype:none so no matrix segment can reach it either.\n\nClosing condition: port thitmonst() and its helpers, then add a matrix segment that fires at an adjacent pet and one that fires at a hostile, and drop the m_at() refusal in bhit().",
+      "blockedOn": "thitmonst"
+    },
+    {
+      "id": "fire-missile-that-breaks-on-landing",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5c878a0b30fd7343a96269616b2629d3ed43ead7",
+      "detail": "dothrow.c throwit():1780-1795 asks breaktest() for every missile that lands on hard ground and then breaks the ones that answer TRUE. breaktest() itself is ported, because its obj_resists() draw is part of the RNG stream whichever way it answers; what follows it is not. breakmsg() (2612-2650) and breakobj() (2479-2578) need potion.c potionbreathe(), apply.c release_camera_demon(), explode.c explode(), trap.c erode_obj() and shk.c check_shop_obj(), and the flash-and-delay sequence above them opens a second tmp_at() frame.\n\nNo valid input can reach it through the ported command set. `f` fires the quiver, and only ammunition ever gets there: filling the quiver with something breakable needs doquiver_core() (`Q`), and throwing one directly needs dothrow() (`t`); neither is ported. A C case reaches it in two keys, so the branch is reachable upstream and merely out of this port's reach.\n\nCost today: zero recorded steps, and no development session throws a breakable object. breaktest() is pinned instead by scripts/dothrow.test.mjs, which drives its three arms -- the obj_resists() chance, the GLASS material test, and the object-type switch -- from a fixed draw with the objects.c materials asserted alongside.\n\nClosing condition: port `t` (dothrow) or `Q` (doquiver_core), then breakobj() and breakmsg(); add a matrix segment that throws a potion at a wall and one that throws a flint stone, so the two sides of the breaktest() answer are compared against C in the same recording.",
+      "blockedOn": "breakobj"
+    },
+    {
+      "id": "fire-with-an-empty-quiver",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "5c878a0b30fd7343a96269616b2629d3ed43ead7",
+      "detail": "dothrow.c dofire():536-556. When the quiver is empty and autoquiver is off, C prints one of four lines and then falls through to `res = doquiver_core(\"fire\")` at :551, which prompts \"What do you want to ready?\" and can spend a turn of its own. The port prints C's \"You have no ammunition readied.\" and stops at doquiver_core(), so the line is written but no boundary ever captures it: the segment ends before the message window flushes.\n\nEvery other arm of that block ends in unported code too. A wielded polearm goes to use_pole(), a wielded bullwhip to use_whip(), a secondary polearm queues [doswapweapon, dofire] and the requeued dofire() then reaches use_pole() anyway, and flags.autoquiver on reaches autoquiver() (:387-441). A launcher found by find_launcher() elsewhere in the pack queues dowield(), which is unported as well.\n\nCost today: zero recorded steps. No development session fires with an empty quiver; scripts/run-fire-command.mjs recorded a Wizard segment for this arm and dropped it, because C's fifth screen is doquiver_core()'s prompt.\n\nClosing condition: port doquiver_core() and autoquiver(); the Wizard segment (seed 7810004, moves '.f .') is then a one-line addition to the fire matrix.",
+      "blockedOn": "doquiver_core"
     }
   ],
   "areas": [
@@ -1826,6 +1856,7 @@
         "js/corpstat.js",
         "js/do_name.js",
         "js/do_wear.js",
+        "js/dothrow.js",
         "js/eat.js",
         "js/fruit.js",
         "js/invent.js",

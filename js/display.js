@@ -27,6 +27,8 @@ import {
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
     LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
     SLIMED, STONED, STR18, STRANGLED, STUNNED, OBJ_FLOOR,
+    BACKTRACK, DISP_ALL, DISP_ALWAYS, DISP_BEAM, DISP_CHANGE, DISP_END,
+    DISP_FLASH, DISP_FREEMEM, DISP_TETHER,
     P_DAGGER, P_KNIFE, P_AXE, P_PICK_AXE, P_SHORT_SWORD, P_SABER,
     P_CLUB, P_MACE, P_MORNING_STAR, P_FLAIL, P_HAMMER,
     P_QUARTERSTAFF, P_POLEARMS, P_SPEAR, P_TRIDENT, P_LANCE,
@@ -1210,21 +1212,30 @@ export function object_glyph_info(obj, state = game) {
     );
 }
 
+// C ref: display.h obj_to_glyph() (963-968) over statue_to_glyph() (950-961)
+// and random_obj_to_glyph() (933-936). What one object looks like on screen
+// right now: the statue test comes first and carries its own hallucination
+// arm, so a hallucinated statue draws a random monster rather than a random
+// object. Every branch consumes the display RNG exactly as the macro does.
+export function obj_to_glyph(obj, state = game, displayRandom = undefined) {
+    if (obj.otyp === STATUE) {
+        return heroHallucinating(state)
+            ? hallucinated_statue_glyph_info(state, displayRandom)
+            : object_glyph_info(obj, state);
+    }
+    return heroHallucinating(state)
+        ? random_object_glyph_info(state, displayRandom)
+        : object_glyph_info(obj, state);
+}
+
 // C ref: display.c map_object(). Return the transient presentation separately
 // from levl[x][y].glyph because hallucinated statues use a random monster on
-// screen but a separately drawn random object in map memory.
+// screen but a separately drawn random object in map memory. The shown half is
+// obj_to_glyph() itself, which is what C passes to show_glyph() here.
 function mappedObjectGlyphInfo(obj, state) {
-    if (!heroHallucinating(state)) {
-        const glyph = object_glyph_info(obj, state);
-        return { shown: glyph, remembered: glyph };
-    }
-
-    if (obj.otyp !== STATUE) {
-        const glyph = random_object_glyph_info(state);
-        return { shown: glyph, remembered: glyph };
-    }
-
-    const shown = hallucinated_statue_glyph_info(state);
+    const shown = obj_to_glyph(obj, state);
+    if (obj.otyp !== STATUE || !heroHallucinating(state))
+        return { shown, remembered: shown };
     // map_object() gates this memory-only draw independently from its caller's
     // later decision to persist remembered output. The shown statue glyph has
     // already consumed every draw required when hero memory is disabled.
@@ -2434,6 +2445,129 @@ export function reglyph_darkroom(state = game) {
     showsyms[S_darkroom] = darkroomInColor
         ? showsyms[S_room]
         : showsyms[SYM_OFF_X + SYM_NOTHING];
+}
+
+// ── tmp_at ──
+//
+// C ref: display.c tmp_at() (1174-1296) over its `struct tmp_glyph` (1165-1171)
+// and TMP_AT_MAX_GLYPHS (1163). Temporarily places glyphs on the screen for a
+// beam, a flash, or a tethered missile, and takes them back down again. C
+// calls nh_delay_output() nowhere in here; every caller decides for itself
+// whether to pause between frames.
+//
+// The frame stack is C's function-static `tglyph`, a linked list whose head is
+// the innermost effect in progress. It lives on game state for the same reason
+// flush_screen()'s `delay_flushing` does: a module variable would carry one
+// segment's unfinished effect into the next, and js/gstate.js resetGame()
+// replaces game state for every runSegment().
+const TMP_AT_MAX_GLYPHS = COLNO * 2;
+
+function tmpAtStack(state) {
+    state.tmp_at_stack ??= [];
+    return state.tmp_at_stack;
+}
+
+// C ref: display.c tether_glyph() (1123-1132). Only DISP_TETHER draws it, and
+// nothing ported opens that style, so the one caller below refuses instead.
+// Reproducing it needs zapdir_to_glyph(), which has no port.
+function tether_glyph() {
+    throw new UnsupportedTransientDisplayError('tether_glyph()');
+}
+
+// A transient-display branch this port has not translated. js/cmd.js
+// failClosedCommandRefusals() lists it, so a segment keeps every frame the
+// command already matched instead of failing hard.
+export class UnsupportedTransientDisplayError extends Error {
+    constructor(what) {
+        super(`display.c tmp_at() reached ${what}`);
+        this.name = 'UnsupportedTransientDisplayError';
+        this.what = what;
+    }
+}
+
+export async function tmp_at(x, y, state = game) {
+    const stack = tmpAtStack(state);
+
+    switch (x) {
+    case DISP_BEAM:
+    case DISP_ALL:
+    case DISP_TETHER:
+    case DISP_FLASH:
+    case DISP_ALWAYS:
+        // C allocates a nested frame when one is already open; a plain array
+        // push is the same list operation with the head at the end.
+        stack.push({ saved: [], style: x, glyph: y });
+        await flush_screen(0); /* flush buffered glyphs */
+        return;
+
+    case DISP_FREEMEM: /* in case game ends with tmp_at() in progress */
+        stack.length = 0;
+        return;
+
+    default:
+        break;
+    }
+
+    if (!stack.length) {
+        // C's panic("tmp_at: tglyph not initialized").
+        throw new Error('tmp_at: tglyph not initialized');
+    }
+    const tglyph = stack[stack.length - 1];
+
+    switch (x) {
+    case DISP_CHANGE:
+        tglyph.glyph = y;
+        break;
+
+    case DISP_END:
+        if (tglyph.style === DISP_BEAM || tglyph.style === DISP_ALL) {
+            /* Erase (reset) from source to end */
+            for (const spot of tglyph.saved) newsym(spot.x, spot.y);
+        } else if (tglyph.style === DISP_TETHER) {
+            if (y === BACKTRACK && tglyph.saved.length > 1) {
+                throw new UnsupportedTransientDisplayError(
+                    'a tethered weapon backtracking to the hero',
+                );
+            }
+            for (const spot of tglyph.saved) newsym(spot.x, spot.y);
+        } else { /* DISP_FLASH or DISP_ALWAYS */
+            if (tglyph.saved.length) /* been called at least once */
+                newsym(tglyph.saved[0].x, tglyph.saved[0].y);
+        }
+        stack.pop();
+        break;
+
+    default: /* do it */
+        if (!isok(x, y)) break;
+        if (tglyph.style === DISP_BEAM || tglyph.style === DISP_ALL) {
+            if (tglyph.style !== DISP_ALL && !cansee(x, y, state)) break;
+            if (tglyph.saved.length >= TMP_AT_MAX_GLYPHS)
+                break; /* too many locations */
+            /* save pos for later erasing */
+            tglyph.saved.push({ x, y });
+        } else if (tglyph.style === DISP_TETHER) {
+            if (tglyph.saved.length >= TMP_AT_MAX_GLYPHS)
+                break; /* too many locations */
+            if (tglyph.saved.length) {
+                const prev = tglyph.saved[tglyph.saved.length - 1];
+                show_glyph_cell(prev.x, prev.y, tether_glyph(prev.x, prev.y));
+            }
+            /* save pos for later use or erasure */
+            tglyph.saved.push({ x, y });
+        } else { /* DISP_FLASH/ALWAYS */
+            if (tglyph.saved.length) {
+                /* not first call, so reset previous pos */
+                newsym(tglyph.saved[0].x, tglyph.saved[0].y);
+                tglyph.saved.length = 0; /* display is presently up to date */
+            }
+            if (!cansee(x, y, state) && tglyph.style !== DISP_ALWAYS) break;
+            tglyph.saved.push({ x, y });
+        }
+
+        show_glyph_cell(x, y, tglyph.glyph); /* show it */
+        await flush_screen(0);               /* make sure it shows up */
+        break;
+    }
 }
 
 // ── Status lines ──

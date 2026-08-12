@@ -1,0 +1,737 @@
+// dothrow.js -- the `f` command: shoot the readied ammunition.
+// C refs: src/dothrow.c multishot_class_bonus(), throw_obj(), ok_to_throw(),
+// find_launcher(), dofire(), throwing_weapon(), throwit(), throwit_return(),
+// throwit_mon_hit() and breaktest().
+//
+// dofire() is the entry point and it has two shapes. When the launcher is
+// already wielded it goes straight to throw_obj(). When the launcher is in
+// the secondary slot instead -- the Caveman's sling, with the club in hand --
+// it queues [doswapweapon, dofire] and returns without spending time, so the
+// swap costs its own turn and the shot happens on the next one, after the
+// monsters have moved. js/cmd.js owns that queue.
+//
+// throw_obj() decides how many missiles leave the hand, prints "You shoot 2
+// flint stones." and calls throwit() once per shot; throwit() flies each one
+// with zap.c bhit() and puts it down where it lands.
+//
+// The unported branches are collected under UnsupportedThrowError. The three
+// largest are thitmonst(), which is this C file's own 380-line function for a
+// missile that reaches a monster; breakobj() with breakmsg(), for a missile
+// that shatters; and dothrow.c's whole thrown-and-return family -- Mjollnir,
+// an aklys and a boomerang -- which needs boomhit() and sho_obj_return_to_u().
+// dowield(), doquiver_core(), autoquiver(), use_pole() and use_whip() stop for
+// the same reason: each is a command in its own right.
+
+import {
+    A_CON,
+    A_DEX,
+    BOLT_LIM,
+    CONFUSION,
+    CQ_CANNED,
+    ECMD_CANCEL,
+    ECMD_OK,
+    ECMD_TIME,
+    FUMBLING,
+    IS_SOFT,
+    Is_airlevel,
+    LARGEST_INT,
+    is_hole,
+    LOST_THROWN,
+    P_CROSSBOW,
+    P_DART,
+    P_DAGGER,
+    P_EXPERT,
+    P_KNIFE,
+    P_SHURIKEN,
+    P_SKILLED,
+    P_SLING,
+    P_SPEAR,
+    SLT_ENCUMBER,
+    STUNNED,
+    THROWN_WEAPON,
+    W_WEP,
+} from './const.js';
+import { acurrstr, effective_attribute, exercise } from './attrib.js';
+import { obj_resists } from './bury.js';
+import { cmdq_add_ec, extcmdRow, getdir } from './cmd.js';
+import { newsym } from './display.js';
+import { canletgo, flooreffects } from './do.js';
+import { u_wipe_engr } from './engrave.js';
+import { game } from './gstate.js';
+import {
+    calc_capacity,
+    check_capacity,
+    disturb_buried_zombies,
+} from './hack.js';
+import { freeinv, stackobj } from './invent.js';
+import { obj_sheds_light } from './light.js';
+import { nohands, notake, throws_rocks, touch_petrifies } from './mondata.js';
+import {
+    PM_CAVE_DWELLER,
+    PM_CLERIC,
+    PM_DWARF,
+    PM_ELF,
+    PM_GNOME,
+    PM_HEALER,
+    PM_HUMAN,
+    PM_MONK,
+    PM_NINJA,
+    PM_ORC,
+    PM_RANGER,
+    PM_ROGUE,
+    PM_SAMURAI,
+    PM_TOURIST,
+    PM_WIZARD,
+} from './monsters.js';
+import {
+    ammo_and_launcher,
+    is_ammo,
+    is_flimsy,
+    is_wet_towel,
+    matching_launcher,
+    obj_no_longer_held,
+    objectType,
+    place_object,
+    remove_object,
+    splitobj,
+} from './obj.js';
+import {
+    ACID_VENOM,
+    AKLYS,
+    ARMOR_CLASS,
+    BLINDING_VENOM,
+    BOOMERANG,
+    BOULDER,
+    BULLWHIP,
+    COIN_CLASS,
+    CORPSE,
+    CREAM_PIE,
+    EGG,
+    ELVEN_ARROW,
+    ELVEN_BOW,
+    EXPENSIVE_CAMERA,
+    GEM_CLASS,
+    GLASS,
+    HEAVY_IRON_BALL,
+    MELON,
+    ORCISH_ARROW,
+    ORCISH_BOW,
+    POTION_CLASS,
+    POT_WATER,
+    STRANGE_OBJECT,
+    VENOM_CLASS,
+    WEAPON_CLASS,
+    YA,
+    YUMI,
+} from './objects.js';
+import { singular, the, xnameFresh } from './objnam.js';
+import { encumber_msg } from './pickup.js';
+import { rn2, rnd } from './rng.js';
+import { stairway_at } from './stairs.js';
+import { P_SKILL, weapon_type } from './startup_skills.js';
+import { Levitation, is_lava, is_pool, t_at } from './trap.js';
+import { ttyPline } from './tty_message.js';
+import { cansee } from './vision.js';
+import { welded } from './wield.js';
+import { is_pole } from './worn.js';
+import { bhit } from './zap.js';
+
+// C refs: youprop.h Confusion (84), Stunned (81) and Fumbling (129). Each is
+// the union of the intrinsic and extrinsic halves of one property; none of the
+// three has a blocking source. Defined here beside their one caller, the
+// multishot gate, the way js/wield.js keeps Glib beside can_twoweapon().
+function propertyHeld(state, property) {
+    const held = state.u?.uprops?.[property];
+    return Boolean(held?.intrinsic || held?.extrinsic);
+}
+
+// A branch of dothrow.c this port has not translated. js/cmd.js
+// failClosedCommandRefusals() lists it, so the segment keeps every frame the
+// command already matched instead of failing hard.
+export class UnsupportedThrowError extends Error {
+    constructor(what) {
+        super(`dothrow.c reached ${what}`);
+        this.name = 'UnsupportedThrowError';
+        this.what = what;
+    }
+}
+
+// C ref: dothrow.c:290-294 AutoReturn(). A weapon that comes back to the hand
+// when thrown: an aklys or Valkyrie's Mjollnir in the primary slot, or a
+// boomerang from anywhere. Everything the flag turns on is unported, so the
+// callers below refuse rather than read it.
+function autoReturns(obj, wmask) {
+    if (!obj) return false;
+    // C's test is `otyp == AKLYS || (oartifact == ART_MJOLLNIR &&
+    // Role_if(PM_VALKYRIE))`. Any artifact answers the second half here: the
+    // caller stops either way, and an artifact reaches its own refusal one
+    // test later, so widening it cannot admit an unported object.
+    return (((wmask & W_WEP) !== 0 && (obj.otyp === AKLYS || obj.oartifact))
+        || obj.otyp === BOOMERANG);
+}
+
+// C ref: dothrow.c multishot_class_bonus() (37-83). The role-specific extra
+// missile: low-tech gear for a Caveman, shuriken for a Monk, anything but a
+// dagger for a Ranger, a dagger for a Rogue, and the racial bow and arrow for
+// a Ninja or Samurai. `launcher` may be null.
+export function multishot_class_bonus(pm, ammo, launcher, state = game) {
+    let multishot = 0;
+    const skill = objectType(ammo, state).oc_skill;
+
+    switch (pm) {
+    case PM_CAVE_DWELLER:
+        /* give bonus for low-tech gear */
+        if (skill === -P_SLING || skill === P_SPEAR)
+            multishot++;
+        break;
+    case PM_MONK:
+        /* allow higher volley count despite skill limitation */
+        if (skill === -P_SHURIKEN)
+            multishot++;
+        break;
+    case PM_RANGER:
+        /* arbitrary; encourage use of other missiles beside daggers */
+        if (skill !== P_DAGGER)
+            multishot++;
+        break;
+    case PM_ROGUE:
+        /* possibly should add knives... */
+        if (skill === P_DAGGER)
+            multishot++;
+        break;
+    case PM_NINJA:
+        if (skill === -P_SHURIKEN || skill === -P_DART)
+            multishot++;
+        /* FALLTHRU */
+    case PM_SAMURAI:
+        /* role-specific launcher and its ammo */
+        if (ammo.otyp === YA && launcher && launcher.otyp === YUMI)
+            multishot++;
+        break;
+    default:
+        break; /* No bonus */
+    }
+
+    return multishot;
+}
+
+// C ref: dothrow.c breaktest() (2581-2610). Whether an object that has just
+// hit something hard is going to break. It is asked before anything breaks,
+// so its rn2(100) through obj_resists() is part of every landing missile's
+// stream even when the answer is no.
+export function breaktest(obj, env = {}) {
+    const state = env.state ?? game;
+    let nonbreakchance = 1; /* chance for non-artifacts to resist */
+
+    /* crystal plate mail and helm of brilliance crack four times first */
+    if (obj.oclass === ARMOR_CLASS
+        && objectType(obj, state).oc_material === GLASS) {
+        nonbreakchance = 90;
+    }
+
+    if (obj_resists(obj, nonbreakchance, 99, env)) return false;
+    if (objectType(obj, state).oc_material === GLASS && !obj.oartifact
+        && obj.oclass !== GEM_CLASS) {
+        return true;
+    }
+    switch (obj.oclass === POTION_CLASS ? POT_WATER : obj.otyp) {
+    case EXPENSIVE_CAMERA:
+    case POT_WATER: /* really, all potions */
+    case EGG:
+    case CREAM_PIE:
+    case MELON:
+    case ACID_VENOM:
+    case BLINDING_VENOM:
+        return true;
+    default:
+        return false;
+    }
+}
+
+// C ref: dothrow.c ok_to_throw() (295-317), "common to dothrow() and
+// dofire()". Answers whether the hero can throw at all and hands back the
+// count prefix as a shot limit.
+async function ok_to_throw(state) {
+    const shotlimit = Math.min(
+        Math.max(state.commandCount ?? 0, 0),
+        LARGEST_INT,
+    );
+    state.multi = 0; /* reset; it's been used up */
+
+    const youmonst = state.youmonst?.data ?? state.mons[state.u.umonnum];
+    if (notake(youmonst)) {
+        await ttyPline(
+            'You are physically incapable of throwing or shooting anything.',
+            state,
+        );
+        return { ok: false, shotlimit };
+    } else if (nohands(youmonst)) {
+        /* not body_part(HAND) */
+        await ttyPline("You can't throw or shoot without hands.", state);
+        return { ok: false, shotlimit };
+    }
+    if (await check_capacity(null, state)) return { ok: false, shotlimit };
+    return { ok: true, shotlimit };
+}
+
+// C ref: dothrow.c find_launcher() (443-462). "look through hero inventory
+// for launcher matching ammo, avoiding known cursed items."
+export function find_launcher(ammo, state = game) {
+    if (!ammo) return null;
+
+    let oX = null;
+    for (let otmp = state.invent; otmp; otmp = otmp.nobj) {
+        if (otmp.cursed && otmp.bknown)
+            continue; /* known to be cursed, so skip */
+        if (ammo_and_launcher(ammo, otmp, state)) {
+            if (otmp.bknown)
+                return otmp; /* known-B or known-U */
+            if (!oX)
+                oX = otmp; /* unknown-BUC; used if no known-BU item found */
+        }
+    }
+    return oX;
+}
+
+// C ref: dothrow.c dofire() (468-586), "the #fire command -- throw from the
+// quiver or use wielded polearm".
+export async function dofire(state = game) {
+    const { ok, shotlimit } = await ok_to_throw(state);
+    if (!ok) return ECMD_OK;
+
+    let obj = state.uquiver ?? null;
+
+    /* if wielding a throw-and-return weapon, throw it if quiver is empty
+       or has ammo rather than missiles */
+    if (state.uwep && autoReturns(state.uwep, state.uwep.owornmask, state)
+        && (!obj || is_ammo(obj, state))) {
+        throw new UnsupportedThrowError('firing a thrown-and-return weapon');
+    } else if (!obj) {
+        if (!state.flags.autoquiver) {
+            if (state.uwep && is_pole(state.uwep, state)) {
+                throw new UnsupportedThrowError('use_pole()');
+            } else if (state.uwep && state.uwep.otyp === BULLWHIP) {
+                throw new UnsupportedThrowError('use_whip()');
+            } else if (state.iflags.fireassist
+                       && state.uswapwep && is_pole(state.uswapwep, state)
+                       && !(state.uswapwep.cursed
+                            && state.uswapwep.bknown)) {
+                /* we have a known not-cursed polearm as swap weapon.
+                   swap to it and retry */
+                cmdq_add_ec(CQ_CANNED, extcmdRow('swap'), state);
+                cmdq_add_ec(CQ_CANNED, extcmdRow('fire'), state);
+                return ECMD_OK; /* haven't taken any time yet */
+            } else {
+                await ttyPline('You have no ammunition readied.', state);
+            }
+        } else {
+            throw new UnsupportedThrowError('autoquiver()');
+        }
+    }
+
+    /* if autoquiver is disabled or has failed, prompt for missile */
+    if (!obj) {
+        throw new UnsupportedThrowError('doquiver_core()');
+    }
+
+    /* C's fourth conjunct here is `!skip_fireassist`, which only the
+       thrown-and-return arm above sets, and that arm stops. */
+    if (state.uquiver && is_ammo(state.uquiver, state)
+        && state.iflags.fireassist) {
+        if (state.uwep && is_pole(state.uwep, state)) {
+            /* C asks could_pole_mon() whether anything is in reach and falls
+               through to the launcher tests below when nothing is. Both
+               answers stop here: use_pole() is unported either way, and
+               could_pole_mon() prompts for a target of its own. */
+            throw new UnsupportedThrowError('use_pole()');
+        }
+        /* Try to find a launcher */
+        if (ammo_and_launcher(state.uquiver, state.uwep, state)) {
+            obj = state.uquiver;
+        } else if (ammo_and_launcher(state.uquiver, state.uswapwep, state)) {
+            /* swap weapons and retry fire */
+            cmdq_add_ec(CQ_CANNED, extcmdRow('swap'), state);
+            cmdq_add_ec(CQ_CANNED, extcmdRow('fire'), state);
+            return ECMD_OK;
+        } else if (find_launcher(state.uquiver, state)) {
+            /* wield launcher, retry fire */
+            throw new UnsupportedThrowError('dowield()');
+        }
+    }
+
+    /* C's `return (res == ECMD_TIME) ? res : altres`, where `res` is
+       ECMD_TIME only when doquiver_core() spent a turn unwielding something
+       to fill the quiver. That is the one arm above that stops, so the throw's
+       own result is the whole answer here. */
+    return obj ? await throw_obj(obj, shotlimit, state) : ECMD_CANCEL;
+}
+
+// C ref: dothrow.c throw_obj() (85-286), "throw the selected object, asking
+// for direction". Decides the volley size, announces it, and hands each
+// missile to throwit().
+export async function throw_obj(obj, shotlimit, state = game) {
+    const save_osplit = { ...(state.context.objsplit ?? {}) };
+    let res = ECMD_TIME;
+    let unsplitTarget = obj;
+
+    /* ask "in what direction?" */
+    if (!await getdir(null, state)) {
+        /* No direction specified, so cancel the throw */
+        res = ECMD_CANCEL; /* no time passes */
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
+    }
+
+    if (obj.oclass === COIN_CLASS && obj !== state.uquiver) {
+        throw new UnsupportedThrowError('throw_gold()');
+    }
+
+    if (!await canletgo(obj, 'throw', state)) {
+        res = ECMD_OK;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
+    }
+    if (obj.oartifact) {
+        /* is_art(obj, ART_MJOLLNIR) and its two messages */
+        throw new UnsupportedThrowError('throwing an artifact');
+    }
+    if (obj.otyp === BOULDER
+        && !throws_rocks(state.youmonst?.data
+            ?? state.mons[state.u.umonnum])) {
+        await ttyPline("It's too heavy.", state);
+        res = ECMD_TIME;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
+    }
+    if (!state.u.dx && !state.u.dy && !state.u.dz) {
+        await ttyPline('You cannot throw an object at yourself.', state);
+        res = ECMD_OK;
+        return finishThrowObj(res, unsplitTarget, save_osplit, state);
+    }
+    u_wipe_engr(2, { state });
+    if (!state.uarmg && obj.otyp === CORPSE
+        && touch_petrifies(state.mons[obj.corpsenm])) {
+        throw new UnsupportedThrowError('instapetrify()');
+    }
+    if (welded(obj, state)) {
+        throw new UnsupportedThrowError('weldmsg()');
+    }
+    if (is_wet_towel(obj, state)) {
+        throw new UnsupportedThrowError('dry_a_towel()');
+    }
+
+    /* Multishot calculations
+     * (potential volley of up to N missiles; default for N is 1)
+     */
+    let multishot = 1;
+    const skill = objectType(obj, state).oc_skill;
+    if (obj.quan > 1 /* no point checking if there's only 1 */
+        /* ammo requires corresponding launcher be wielded */
+        && (is_ammo(obj, state)
+            ? matching_launcher(obj, state.uwep, state)
+            /* otherwise any stackable (non-ammo) weapon */
+            : obj.oclass === WEAPON_CLASS)
+        && !(propertyHeld(state, CONFUSION)
+            || propertyHeld(state, STUNNED))) {
+        /* some roles don't get a volley bonus until becoming expert */
+        const role = state.urole.mnum;
+        const weakmultishot = (role === PM_WIZARD || role === PM_CLERIC
+            || (role === PM_HEALER && skill !== P_KNIFE)
+            || (role === PM_TOURIST && skill !== -P_DART)
+            /* poor dexterity also inhibits multishot */
+            || propertyHeld(state, FUMBLING)
+            || effective_attribute(state, A_DEX) <= 6);
+
+        /* Bonus if the player is proficient in this weapon... */
+        switch (P_SKILL(weapon_type(obj, state), state)) {
+        case P_EXPERT:
+            multishot++;
+            /* FALLTHRU */
+        case P_SKILLED:
+            if (!weakmultishot)
+                multishot++;
+            break;
+        default: /* basic or unskilled: no bonus */
+            break;
+        }
+        /* ...or is using a special weapon for their role... */
+        multishot += multishot_class_bonus(role, obj, state.uwep, state);
+
+        /* ...or using their race's special bow; no bonus for spears */
+        if (!weakmultishot) {
+            switch (state.urace.mnum) {
+            case PM_ELF:
+                if (obj.otyp === ELVEN_ARROW && state.uwep
+                    && state.uwep.otyp === ELVEN_BOW)
+                    multishot++;
+                break;
+            case PM_ORC:
+                if (obj.otyp === ORCISH_ARROW && state.uwep
+                    && state.uwep.otyp === ORCISH_BOW)
+                    multishot++;
+                break;
+            case PM_GNOME:
+                /* arbitrary; there isn't any gnome-specific gear */
+                if (skill === -P_CROSSBOW)
+                    multishot++;
+                break;
+            case PM_HUMAN:
+            case PM_DWARF:
+            default:
+                break; /* No bonus */
+            }
+
+            /* the quest artifact launcher bonus; no ported hero holds one */
+            if (state.uwep && state.uwep.oartifact
+                && ammo_and_launcher(obj, state.uwep, state)) {
+                throw new UnsupportedThrowError('is_quest_artifact()');
+            }
+        }
+
+        /* crossbows are slow to load; high strength loads them quickly */
+        if (multishot > 1 && skill === -P_CROSSBOW
+            && ammo_and_launcher(obj, state.uwep, state)
+            && acurrstr(state) < (state.urace.mnum === PM_GNOME ? 16 : 18)) {
+            multishot = rnd(multishot);
+        }
+
+        multishot = rnd(multishot);
+        if (multishot > obj.quan)
+            multishot = obj.quan;
+        if (shotlimit > 0 && multishot > shotlimit)
+            multishot = shotlimit;
+    }
+
+    state.m_shot ??= {};
+    state.m_shot.s = Boolean(ammo_and_launcher(obj, state.uwep, state));
+    /* give a message if shooting more than one, or if player
+       attempted to specify a count */
+    if (multishot > 1 || shotlimit > 0) {
+        /* "You shoot N arrows." or "You throw N daggers." */
+        await ttyPline(
+            `You ${state.m_shot.s ? 'shoot' : 'throw'} ${multishot} `
+            + `${multishot === 1
+                ? singular(obj, xnameFresh, state) : xnameFresh(obj, state)}.`,
+            state,
+        );
+    }
+
+    const wep_mask = obj.owornmask;
+    let oldslot = null;
+    state.m_shot.o = obj.otyp;
+    state.m_shot.n = multishot;
+    for (state.m_shot.i = 1;
+        state.m_shot.i <= state.m_shot.n;
+        state.m_shot.i++) {
+        const twoweap = state.u.twoweap;
+        /* split this object off from its slot if necessary */
+        let otmp;
+        if (obj.quan > 1) {
+            otmp = splitobj(obj, 1, { state });
+        } else {
+            otmp = obj;
+            if (otmp.owornmask) {
+                throw new UnsupportedThrowError('remove_worn_item()');
+            }
+            oldslot = obj.nobj;
+            /* obj will leave inventory and may be freed by throwit */
+            obj = null;
+            unsplitTarget = null;
+        }
+        freeinv(otmp, { state });
+        await throwit(otmp, wep_mask, twoweap, oldslot, state);
+        await encumber_msg(state);
+    }
+    state.m_shot.n = 0;
+    state.m_shot.i = 0;
+    state.m_shot.o = STRANGE_OBJECT;
+    state.m_shot.s = false;
+
+    return finishThrowObj(res, unsplitTarget, save_osplit, state);
+}
+
+// C ref: throw_obj()'s `unsplit_stack:` label (270-285). It puts a partly
+// thrown stack back together, and only for a stack the throw split away from
+// a parent that is not the quiver. dofire() always throws from the quiver, so
+// the test is written out and the undo behind it stops: unsplitobj() has no
+// port, and reaching it would mean this port had grown a caller C's `f` does
+// not have.
+function finishThrowObj(res, obj, save_osplit, state) {
+    if (obj && obj !== state.uquiver
+        && (obj.o_id === save_osplit.parent_oid
+            || obj.o_id === save_osplit.child_oid)) {
+        throw new UnsupportedThrowError('unsplitobj()');
+    }
+    return res;
+}
+
+// C ref: dothrow.c throwit() (1507-1849), "throw an object, NB: obj may be
+// consumed in the process". Sends one missile on its way and disposes of it
+// where it stops.
+export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
+    const u = state.u;
+
+    if ((obj.cursed || obj.greased) && (u.dx || u.dy) && rn2(7) === 0) {
+        /* misfire or slip: both messages, and the scattered direction */
+        throw new UnsupportedThrowError('a cursed or greased missile slipping');
+    }
+
+    /* C reads u.mh instead of u.uhp for a polymorphed hero and exempts the
+       air level; Upolyd is constantly false in this port, and Is_airlevel()
+       is checked here rather than assumed. */
+    if ((u.dx || u.dy || u.dz < 1)
+        && calc_capacity(obj.owt, state) > SLT_ENCUMBER
+        && u.uhp < 10 && u.uhp !== u.uhpmax
+        && obj.owt > u.uhp * 2
+        && !Is_airlevel(u.uz)) {
+        await ttyPline(
+            `You have so little stamina, ${the(xnameFresh(obj, state))}`
+            + ' drops from your grasp.',
+            state,
+        );
+        await exercise(A_CON, false, state, { rn2 },
+            { encumberMessage: encumber_msg });
+        u.dx = 0;
+        u.dy = 0;
+        u.dz = 1;
+    }
+
+    state.thrownobj = obj;
+    state.thrownobj.how_lost = LOST_THROWN;
+    if (autoReturns(obj, wep_mask, state)) {
+        throw new UnsupportedThrowError('iflags.returning_missile');
+    }
+
+    if (u.uswallow) {
+        throw new UnsupportedThrowError('throwing while swallowed');
+    } else if (u.dz) {
+        /* toss_up(), hitfloor() and potionhit() are the three arms */
+        throw new UnsupportedThrowError('throwing straight up or down');
+    } else if (obj.otyp === BOOMERANG) {
+        throw new UnsupportedThrowError('boomhit()');
+    }
+
+    /* crossbow range is independent of strength */
+    const crossbowing = Boolean(ammo_and_launcher(obj, state.uwep, state)
+        && weapon_type(state.uwep, state) === P_CROSSBOW);
+    const urange = Math.trunc((crossbowing ? 18 : acurrstr(state)) / 2);
+    let range = obj.otyp === HEAVY_IRON_BALL
+        ? urange - Math.trunc(obj.owt / 100)
+        : urange - Math.trunc(obj.owt / 40);
+    if (obj === state.uball) {
+        throw new UnsupportedThrowError('throwing the attached iron ball');
+    }
+    if (range < 1)
+        range = 1;
+
+    if (is_ammo(obj, state)) {
+        if (ammo_and_launcher(obj, state.uwep, state)) {
+            if (crossbowing)
+                range = BOLT_LIM;
+            else
+                range++;
+        } else if (obj.oclass !== GEM_CLASS) {
+            /* "You aren't wielding a bow, so you throw your arrow by hand." */
+            throw new UnsupportedThrowError('throwing ammo without a launcher');
+        }
+    }
+
+    if (Is_airlevel(u.uz) || Levitation(state)) {
+        /* action, reaction: hurtle() throws the hero the other way */
+        throw new UnsupportedThrowError('the recoil of a weightless throw');
+    }
+
+    if (obj.otyp === BOULDER)
+        range = 20; /* you must be giant */
+
+    if (u.uinwater)
+        range = 1;
+
+    const pobj = { obj };
+    const mon = await bhit(u.dx, u.dy, range, THROWN_WEAPON, null, null,
+        pobj, state);
+    obj = pobj.obj;
+    state.thrownobj = obj; /* obj may be null now */
+
+    if (!obj) {
+        /* throwit_return(FALSE) leaves gt.thrownobj alone, and the line
+           above has already set it to the null bhit() answered with. */
+        return;
+    }
+
+    if (mon) {
+        /* throwit_mon_hit() calls thitmonst(); bhit() stops ahead of it */
+        throw new UnsupportedThrowError('throwit_mon_hit()');
+    }
+
+    const bx = state.bhitpos.x;
+    const by = state.bhitpos.y;
+    if ((!IS_SOFT(state.level.at(bx, by).typ)
+        && breaktest(obj, { state }))
+        || obj.oclass === VENOM_CLASS) {
+        throw new UnsupportedThrowError('breakobj()');
+    }
+    if (is_pool(bx, by, state) || is_lava(bx, by, state)) {
+        /* "Splash!" or "Plop!", then flooreffects() drowns or burns it */
+        throw new UnsupportedThrowError('a missile landing in water or lava');
+    }
+    if (flooreffects(obj, bx, by, 'fall', {
+        state,
+        unsupported: (what) => {
+            throw new UnsupportedThrowError(what);
+        },
+    })) {
+        state.thrownobj = null;
+        return;
+    }
+    obj_no_longer_held(obj);
+    /* snuff_candle(): bhit() stops for a lit object before it can get here */
+    if (shipsAway(bx, by, state)) {
+        throw new UnsupportedThrowError('ship_object()');
+    }
+    state.thrownobj = null;
+    place_object(obj, bx, by, { state });
+    /* container contents might break */
+    if (!IS_SOFT(state.level.at(bx, by).typ)) {
+        if (obj.cobj) {
+            throw new UnsupportedThrowError('container_impact_dmg()');
+        }
+        impact_disturbs_zombies(obj, true, state);
+    }
+    /* charge for items thrown out of shop; shk takes possession for items
+       thrown into one. C's `obj != uball` third conjunct is settled above,
+       where the attached iron ball stops. `*u.ushops` is the first entry of
+       the room list naming the shops the hero stands in, as js/do.js
+       dropx() reads it. */
+    if (state.u.ushops?.[0] || obj.unpaid) {
+        throw new UnsupportedThrowError('check_shop_obj()');
+    }
+
+    /* stackobj() merges the landing missile into a compatible floor pile,
+       which extracts the object it merged with; invent.c obj_extract_self()
+       takes that operation from its caller, as js/do.js dropx() does. */
+    stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
+    if (cansee(bx, by, state))
+        newsym(bx, by);
+    if (obj_sheds_light(obj, state))
+        state.vision_full_recalc = 1;
+}
+
+// C ref: dokick.c down_gate() (1942-1975), reduced to the question
+// ship_object() asks it first: is there anywhere below this square for a
+// falling object to go? Everything ship_object() then does is unported, so
+// the caller stops when the answer is yes.
+function shipsAway(x, y, state) {
+    const stway = stairway_at(x, y, state);
+    if (stway && !stway.up) return true;
+    const ttmp = t_at(x, y, state);
+    return Boolean(ttmp && ttmp.tseen && is_hole(ttmp.ttyp));
+}
+
+// C ref: hack.c impact_disturbs_zombies() (1786-1794) over obj.h is_flimsy()
+// (418-420). A heavy landing wakes buried zombies; a light or soft object
+// leaves them alone.
+export function impact_disturbs_zombies(obj, violent, state = game) {
+    /* if object won't make a noticeable impact, let buried zombies rest */
+    if (obj.owt < (violent ? 10 : 100) || is_flimsy(obj, state))
+        return;
+
+    disturb_buried_zombies(obj.ox, obj.oy, state);
+}
