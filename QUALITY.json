@@ -230,6 +230,10 @@
         {
           "text": "Correction to a claim made *about* this entry, not by it. The commit message of\n`adc4ea5` states that `updateMonsterArmorEffects()` in `js/makemon_create.js`\ndrops eight arms of `worn.c update_mon_extrinsics()`. That figure is\nunsupported: reading `worn.c` finds no grouping of that function's cases\nyielding eight, and it was most likely miscounted from the off-switch's eight\nresistance cases, which are a different block. Do not carry the number forward.\n\nWhat is verified, and what this entry's own text already says more weakly:\n`updateMonsterArmorEffects()` handles exactly two object types, `MUMMY_WRAPPING`\nand `SPEED_BOOTS`, against C's fourteen named cases plus `default:`.\n\nOne consequence is worth stating because it is invisible from this entry.\n`monster.mextrinsics` is initialized to 0 in `js/monst.js` and never written\nanywhere in `js/`; it is only read, by `js/muse.js`, `js/weapon.js` and\n`js/mondata.js`. C's `default:` arm is `mon->mextrinsics |= res_to_mr(which)`,\nso every property that reaches it confers nothing here. A monster created\nwearing an alchemy smock has no acid resistance, and nothing refuses.",
           "at": "c446940dde15fc44571a2db6f9812860feb7c5a2"
+        },
+        {
+          "text": "Correction: the omission is in js/monmove.js postmov(), which keeps the C name and sits at line 2281. There is no postSimpleMove() anywhere in js/ or scripts/, and js/unported_monster_actions.js exports one function, unportedMinliquidReason(). The claim itself holds and is marked in place: js/monmove.js:2446 reads 'monmove.c:1683-1687 repeats newsym() when mtmp->minvis is set. ROADMAP.md records why no case can reach that arm.' Verified with grep at 0bc1205.",
+          "at": "0bc1205ac88d1569a3065ce387d018554fa424d5"
         }
       ],
       "blockedOn": "update_mon_extrinsics"
