@@ -1884,6 +1884,24 @@
       "status": "open",
       "from": "3a3c57efc7a75d65195d33111c149586ddbcabe0",
       "detail": "zap.c bhit()'s web arm (3928-3939) is ported and has no fresh C differential. The port had the guard inverted -- `rn2(3) !== 0` where C is `!rn2(3)` -- from the slice that added bhit() until the audit of 52c65135..3a3c57e, and scripts/bhit.test.mjs asserted the inverted form, so nothing in the suite could see it. The line is now `random.rn2(3) === 0` and scripts/bhit.test.mjs pins all three draws over a hand-built corridor: rn2(3) == 0 stops the missile on the web with ttmp->tseen set, 1 and 2 fly through to the far end with the trap unseen.\n\nA fresh case needs a WEB on a straight line from the hero, within the range throwit() passes bhit(), with no monster between, and a missile to throw or fire. The three fire-matrix seeds (7810001-7810003) fire down open floor with no trap in the path, so scripts/run-fire-command.mjs's 11788 PRNG calls never reach the arm. No seed scan for a web in a firing line has been run; the natural search is the one scripts/run-kick-command.mjs describes, scanning upward from a base seed for a start whose neighbouring squares carry a WEB, with a Ranger or any hero holding daggers. Only the caught branch is observable beyond the draw: it prints '<Your> arrow gets stuck in a web!', sets ttmp->tseen, repaints the square and leaves the object on the web instead of at full range."
+    },
+    {
+      "id": "throw-a-corpse-while-stone-resistant",
+      "area": "objects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "e167ab7d45dfcea3fde3ed72e97216806f81c3c0",
+      "detail": "dothrow.c throw_obj():139-140 guards the bare-handed corpse branch on four conjuncts: !uarmg && obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance. js/dothrow.js:409-411 carries the first three and throws UnsupportedThrowError('instapetrify()'). A stone-resistant hero throwing a cockatrice or chickatrice corpse bare-handed therefore stops the segment where C prints \"You throw ... with your bare ...\" and proceeds. Strictly more refusing, so it costs frames rather than producing a wrong screen, and the port carries no comment recording the missing conjunct. Found while writing scripts/dothrow.test.mjs assertions from the C source rather than from the port; the formal correctness pass over 52c65135..07c6d4b had the file in scope and did not raise it."
+    },
+    {
+      "id": "throw-into-water-or-lava-refuses-too-widely",
+      "area": "objects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "e167ab7d45dfcea3fde3ed72e97216806f81c3c0",
+      "detail": "dothrow.c throwit():1794-1802 reaches its water and lava handling under !Deaf && !Underwater, and treats lava only when is_lava(x, y) && !is_flammable(obj). js/dothrow.js:671 refuses on is_pool || is_lava alone, so it stops for a flammable object over lava and for a Deaf or Underwater hero, cases C carries through flooreffects(). Strictly more refusing, so it costs frames rather than producing a wrong screen, but the comment at the site mentions only the message and flooreffects() and does not record that the guard is wider than C. Found while writing scripts/dothrow.test.mjs assertions from the C source."
     }
   ],
   "areas": [
