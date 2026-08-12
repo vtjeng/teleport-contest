@@ -95,7 +95,9 @@ import { dodiscovered, UnsupportedDiscoveryDisplayError } from './o_init.js';
 import { UnsupportedObjectNameError } from './objnam.js';
 import { doset_simple, UnsupportedOptionMenuError } from './options.js';
 import { dopray, UnsupportedPrayerError } from './pray.js';
+import { UnsupportedHideError } from './mon.js';
 import { UnsupportedShopError } from './shk.js';
+import { dosit, UnsupportedSitError } from './sit.js';
 import { dovspell, UnsupportedSpellDisplayError } from './spell.js';
 import {
     UnsupportedWeaponSkillError,
@@ -1195,6 +1197,13 @@ export function failClosedCommandRefusals() {
         // have stopped raising the class, because dropping it early costs the
         // turn-boundary conversion too.
         UnsupportedPrayerError,
+        // sit.c dosit() raises this from the eleven terrain and trap arms it
+        // leaves unported, each at its own condition and so before that arm
+        // has printed anything or changed the hero.
+        UnsupportedSitError,
+        // mon.c maybe_unhide_at() raises this from inside invent.c
+        // delobj_core(), which sit.c's cream-pie arm reaches through useupf().
+        UnsupportedHideError,
     ];
 }
 
@@ -1676,6 +1685,9 @@ async function doextcmd(key, state) {
     case 'dopray':
         // C ref: pray.c dopray(), which returns its own ECMD_* result.
         return await dopray(state);
+    case 'dosit':
+        // C ref: sit.c dosit(), which returns its own ECMD_* result.
+        return await dosit(state);
     case 'dotwoweapon':
         return await runTwoWeaponCommand(key, state);
     case 'dotalk':

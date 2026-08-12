@@ -60,6 +60,7 @@ import {
     freeinv,
     getobj,
     useup,
+    useupf,
 } from './invent.js';
 import { is_rider, is_were, metallivorous } from './mondata.js';
 import {
@@ -92,7 +93,7 @@ import {
     S_VORTEX,
 } from './monsters.js';
 import {
-    carried, costly_alteration, objectType, splitobj, weight,
+    carried, costly_alteration, objectType, remove_object, splitobj, weight,
 } from './obj.js';
 import { singular, the, xnameFresh } from './objnam.js';
 import {
@@ -1195,12 +1196,15 @@ function eatOperations(state, statusRefresh, message = ttyPline) {
     return {
         state,
         // C ref: mkobj.c weight()'s partly-eaten arms, which reach eat.c
-        // eaten_stat() through this port's object env. No other hook is
-        // reachable: an ordinary comestible carries no timer, no light, no
-        // shop bill and no worn mask, so freeinv(), addinv_nomerge(),
-        // splitobj() and obfree() each take their hookless path, and a hook
-        // this meal did need would stop the command rather than be skipped.
-        hooks: { eatenStat: eaten_stat },
+        // eaten_stat() through this port's object env, and mkobj.c
+        // remove_object(), which done_eating() reaches through useupf() ->
+        // delobj() -> delobj_core() -> obj_extract_self() for a meal the hero
+        // ate off the floor. No other hook is reachable: an ordinary
+        // comestible carries no timer, no light, no shop bill and no worn
+        // mask, so freeinv(), addinv_nomerge(), splitobj() and obfree() each
+        // take their hookless path, and a hook this meal did need would stop
+        // the command rather than be skipped.
+        hooks: { eatenStat: eaten_stat, extractExternalObject: remove_object },
         message,
         endRunning,
         // newuhs() resolves this only when the meal moves the hunger status,
@@ -1286,9 +1290,7 @@ async function done_eating(message, state, env) {
     await fpostfx(piece, state, env);
 
     if (carried(piece)) useup(piece, env);
-    else {
-        throw new UnsupportedEatError('useupf() for a floor meal');
-    }
+    else useupf(piece, 1, env);
 
     state.context.victual = zero_victual();
 }

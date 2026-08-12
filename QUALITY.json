@@ -1710,6 +1710,25 @@
       "status": "open",
       "from": "95b43f9e615d8e7d7d6997e6f49b049bd416ded1",
       "detail": "lock.c pick_lock():583-584 compares two glyph numbers, and display.h normal_obj_to_glyph() numbers an ordinary object by otyp, so two objects of one class and one colour are two different glyph numbers and the attempt costs a turn. js/display.js object_glyph_info() now stamps that identity onto the presentation as objectGlyphId and same_remembered_glyph() compares it, and scripts/apply-lock-pick.test.mjs pins both answers -- an arrow on the floor under a remembered crossbow bolt spends the turn, the same arrow on both sides does not. No fresh C differential covers either.\n\nThe setup needs a remembered pile whose top has changed to a lookalike while the hero could not see the square, then an apply of a lock pick at it. A sighted hero beside a lit room square keeps her memory current through newsym() every turn, so the change has to happen out of sight: a pet picking the top item off an adjacent pile, or a kill that leaves a corpse, while the hero is blind or the square is dark. Nothing in the port reaches that yet -- pet pickup is dog_invent()'s carry arm, whose recorded matrix does not place the pet next to the hero on the turn she applies -- and a natural-seed scan for it would multiply the roughly 1/1000 rate at which a seed reaches the cursed-step line by the chance that the pile top is a lookalike of what was remembered.\n\nCost today: zero recorded steps. No development session applies a lock pick at a square whose remembered pile top has changed.\n\nClosing condition: a segment in scripts/run-apply-lock-pick.mjs records a hero applying a lock pick at a square whose remembered top object differs from the one now there and draws the same cell, matching C call for call, and the constructed case in scripts/apply-lock-pick.test.mjs keeps its paired negative."
+    },
+    {
+      "id": "sit-amorphous-corpse-has-no-fresh-case",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "16449c2c04bb6689e2065f15c50ff630ea827672",
+      "detail": "sit.c dosit():458-459 answers pline(\"It's squishy...\") for a CORPSE whose mons[corpsenm] carries M1_AMORPHOUS, and takes the not-very-comfortable tail at :470-472 for every other corpse. Only the second half has a fresh C differential: scripts/run-sit-command.mjs records seed 5800074, where the Valkyrie kills the lichen beside her and sits on its corpse. The squishy half is pinned only by a constructed state in scripts/sit-command.test.mjs, which sets corpsenm to PM_ACID_BLOB on an object placed under the hero.\n\nTwo routes to a recorded case are closed today. objnam.c readobjnam() cannot parse a corpse name: a debug wish for 'acid blob corpse' reaches rnd_otyp_by_namedesc() (objnam.c:3522), which js/objnam_readobjnam.js does not port, so the wish diverges before the sit. And no amorphous corpse reaches a D:1 floor: a scan of 10000 seeds (5400001 upward) found every generated corpse to be a mktrap() victim of a humanoid species, sharing its square with the trap that killed it, and a scan of 400 seeds found the only amorphous species D:1 generates to be the fog cloud, which monst.c gives G_NOCORPSE, and the mimics, which a level-1 hero cannot kill. A debug level teleport to D:5 through D:8 over 2000 seeds each, killing whatever amorphous monster arrived beside the hero with eight forced attacks, produced no amorphous corpse either; a diagnostic rerun at D:6 shows why, since all but two of its candidates were mimics that survived the eight attacks and both acid blobs died leaving nothing, which mon.c corpse_chance() makes a coin flip.\n\nCost today: zero recorded steps. No development session sits on an amorphous corpse.\n\nClosing condition: either readobjnam()'s corpse branch lands, making a debug wish for 'acid blob corpse' replayable, or a wider level-teleport scan finds a seed whose adjacent acid blob dies leaving a corpse; then add that segment to scripts/run-sit-command.mjs and keep the constructed case as its paired negative."
+    },
+    {
+      "id": "sit-teetering-at-a-seen-pit-has-no-differential",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "16449c2c04bb6689e2065f15c50ff630ea827672",
+      "detail": "The case just outside this goal's boundary: sit.c dosit():437-439 skips the object arm when trap.c uteetering_at_seen_pit() is true, and the command falls into the trap arm at :466-504, which this port refuses. C instead prints You(\"sit down.\") and calls dotrap(trap, VIASITTING), dropping the hero back into the pit.\n\nThe fresh C case is recorded and reproducible: seed 5600134, datetime 20240517131415, OPTIONS=name:Sitter,role:Valkyrie,race:human,gender:female,align:lawful with pettype:none,!acoustics,!autopickup,time,showexp, moves 'lhhhda#sit\\nm.'. The 'l' falls into the pit one step east of the upstairs; three 'h' climbs bring u.utrap to 0 and print 'You crawl to the edge of the pit.' without leaving the square; 'da' drops the Valkyrie's spear, which tumbles into the pit; and the '#sit' then reads a seen pit under a pile.\n\nThe port cannot replay it. hack.c's trap activation is unported, so js/hack.js raises UnsupportedHeroMoveBoundaryError on the very first 'l' and the segment ends 15 keys before the sit. The recipe is therefore not in scripts/run-sit-command.mjs, which must stay green. What the port's own behaviour at the boundary is pinned by instead is the constructed pair in scripts/sit-command.test.mjs: a seen PIT with tseen set and u.utrap 0 under a food ration diverts dosit() into the refused trap arm, and the same square with u.utrap set and u.utraptype TT_PIT is not teetering and takes the object arm.\n\nCost today: zero recorded steps.\n\nClosing condition: once dotrap() and the pit arm of the trap chain land, add the recipe above to scripts/run-sit-command.mjs and check that C and the port agree through the second fall.",
+      "blockedOn": "dotrap"
     }
   ],
   "areas": [
@@ -1921,6 +1940,7 @@
         "js/hack.js",
         "js/input.js",
         "js/lock.js",
+        "js/sit.js",
         "js/tty_menu.js",
         "js/tty_message.js",
         "js/uhitm.js",

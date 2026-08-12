@@ -201,6 +201,13 @@ export function locomotion(species, fallback) {
         ? 0 : 1);
 }
 
+export function lays_eggs(species) { return flag1(species, M.M1_OVIPAROUS); }
+// mondata.h:78-79. An egg layer that is an S_EEL swimmer lays in water, which
+// is what keeps sit.c's underwater and in_water arms from stopping an eel.
+export function eggs_in_water(species) {
+    return lays_eggs(species) && species?.mlet === M.S_EEL
+        && is_swimmer(species);
+}
 export function regenerates(species) { return flag1(species, M.M1_REGEN); }
 export function perceives(species) { return flag1(species, M.M1_SEE_INVIS); }
 export function can_teleport(species) { return flag1(species, M.M1_TPORT); }

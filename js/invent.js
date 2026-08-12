@@ -67,6 +67,7 @@ import {
     P_SABER,
     P_SHORT_SWORD,
     Upolyd,
+    u_at,
     W_ART,
     W_QUIVER,
 } from './const.js';
@@ -94,7 +95,9 @@ import {
     S_vodbridge,
     S_vodoor,
 } from './symbols.js';
-import { touch_petrifies } from './mondata.js';
+import { hides_under, touch_petrifies } from './mondata.js';
+import { UnsupportedHideError, maybe_unhide_at } from './mon.js';
+import { newsym } from './display.js';
 import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
 import { is_ice } from './terrain.js';
@@ -146,6 +149,7 @@ import {
     objectType,
     place_object,
     preflightWeight,
+    splitobj,
     weight,
 } from './obj.js';
 import {
@@ -158,7 +162,7 @@ import {
 } from './objnam.js';
 import { ILLOBJ_CLASS, MAXOCLASSES } from './objects.js';
 import { is_quest_artifact } from './questpgr.js';
-import { costly_spot } from './shk.js';
+import { UnsupportedShopError, costly_spot } from './shk.js';
 
 export const INVLET_BASIC = 52;
 export const NOINVSYM = '#';
@@ -1389,13 +1393,6 @@ export function delobj(obj, env = {}) {
 // C ref: invent.c delobj_core() (1435-1462). `force` is TRUE only when
 // reviving a Rider corpse, so every call this port makes passes FALSE and
 // spends zap.c obj_resists()'s rn2(100) before deleting anything.
-//
-// 1457-1460's map update stops. It needs mon.c maybe_unhide_at(), which
-// js/teleport.js:962 records as unported, and it is reached only for a floor
-// object; the one wired caller, mon.c xkilled()'s treasure drop, hands over an
-// object mkobj() has just made and never placed, so obj->where is OBJ_FREE.
-// The refusal sits above obj_extract_self() so a floor object cannot be
-// unlinked and then stranded.
 export function delobj_core(obj, force, env = {}) {
     const normalized = inventoryEnv(env);
     /* "obj_resists(obj,0,0) protects the Amulet, the invocation tools,
@@ -1404,12 +1401,45 @@ export function delobj_core(obj, force, env = {}) {
         obj.in_use = 0; /* "in case caller has set this to 1" */
         return;
     }
-    /* "floor object's coordinates are always up to date" */
     const update_map = (obj.where === OBJ_FLOOR);
-    if (update_map)
-        throw new UnsupportedObjectOperationError('delobjFloorUnhide', obj);
     obj_extract_self(obj, normalized);
+    if (update_map) {
+        /* "floor object's coordinates are always up to date" */
+        maybe_unhide_at(obj.ox, obj.oy, normalized.state);
+        // No test distinguishes this call from its absence: the port paints
+        // the map from level state at the next flush, so the square a floor
+        // delete vacated is already redrawn by the time any screen is
+        // compared. It is here because C draws it here.
+        newsym(obj.ox, obj.oy);
+    }
     obfree(obj, null, normalized); /* "frees contents also" */
+}
+
+// C ref: invent.c useupf() (4760-4783). "uses up an object that's on the
+// floor, charging for it as necessary".
+//
+// Both of C's shop calls stop by name: addtobill() and stolen_value() are
+// shk.c's billing, which no ported command reaches. The hideunder() tail stops
+// the same way, and its throw cannot fire at all: delobj() above it runs
+// maybe_unhide_at() over the same square, and that refuses on u.uundetected
+// alone, so a hidden hero never returns from the delete. What the tail's last
+// term still decides is the hider who is not hidden, whom it must leave alone.
+export function useupf(obj, numused, env = {}) {
+    const normalized = inventoryEnv(env);
+    const state = normalized.state;
+    const at_u = u_at(obj.ox, obj.oy, state);
+
+    /* "burn_floor_objects() keeps an object pointer that it tries to
+     * useupf() multiple times, so obj must survive if plural" */
+    const otmp = (obj.quan > numused)
+        ? splitobj(obj, numused, normalized)
+        : obj;
+    if (!state.context?.mon_moving && costly_spot(otmp.ox, otmp.oy, state)) {
+        throw new UnsupportedShopError('useupf() charging for shop goods');
+    }
+    delobj(otmp, normalized);
+    if (at_u && state.u.uundetected && hides_under(state.youmonst?.data))
+        throw new UnsupportedHideError('useupf() rehiding the hero');
 }
 
 function hasTextExtra(obj, field) {

@@ -71,6 +71,7 @@ import {
     XKILL_NOCORPSE,
     XKILL_NOMSG,
     helpless,
+    u_at,
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
 import { night } from './calendar.js';
@@ -2287,4 +2288,42 @@ export async function xkilled(mtmp, xkill_flags, state = game, env = {}) {
 
     /* "malign was already adjusted for u.ualign.type and randomization" */
     adjalign(mtmp.malign, state);
+}
+
+// A hiding path this port has not translated. mon.c hideunder() is what every
+// one of them ends in; js/cmd.js failClosedCommandRefusals() lists this class
+// so the segment keeps the frames the command already matched.
+export class UnsupportedHideError extends Error {
+    constructor(what) {
+        super(`hiding reached an unported branch: ${what}`);
+        this.name = 'UnsupportedHideError';
+    }
+}
+
+// C ref: mon.c maybe_unhide_at() (4696-4720), "reveal a hiding monster at x,y,
+// either under nonexistent object, or an eel out of water".
+//
+// The lookup and the early return are ported whole. The one call the guard
+// makes, hideunder(), is not: js/makemon_create.js holds a level-creation
+// subset of it that answers only for the object-concealing spiders and snakes
+// mklev() places, and the message sequencing hideunder() owns for a hider the
+// hero can see is unported. The stop is therefore taken on `undetected` alone,
+// one term wider than C's guard, which also wants a hides_under() species with
+// nothing left to hide under or an eel out of water.
+export function maybe_unhide_at(x, y, state = game) {
+    const monster = m_at(x, y, state);
+    if (monster) {
+        if (monster.mundetected) {
+            throw new UnsupportedHideError(
+                'maybe_unhide_at() over a hidden monster',
+            );
+        }
+        return;
+    }
+    if (!u_at(x, y, state)) return;
+    if (state.u?.uundetected) {
+        throw new UnsupportedHideError(
+            'maybe_unhide_at() over a hidden hero',
+        );
+    }
 }
