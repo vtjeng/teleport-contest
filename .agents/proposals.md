@@ -303,3 +303,146 @@ highlighting, and a comparator fix moves every row whose port draws it. Nothing
 here weighs a scoring change against a corpus recorded under the current
 behavior, which is the organizers' call.
 
+## Draw the sample from the survivors a report names
+
+**What it changes.** `main()` in `scripts/mutate-sites.mjs` would apply
+`--sample` after `--from-report` narrows the target set. The draw runs first
+today: `--from-report` contributes only its file list to the options
+(`options.paths = reportFilter.paths`, line 2720), `collectTargets()` draws the
+sample from every mutant in those whole files (lines 2635-2649), and
+`narrowToReport()` then discards each drawn mutant the report did not list
+(line 2733). A request for `n` therefore returns about `n` times the share of
+those files' mutants that survived the first wave. Moving the draw into
+`main()` below `population` makes the sampling frame the survivor list, which
+is the population the printed interval already names.
+
+**Scope.** The draw and the key construction that carries it move out of
+`collectTargets()` into `main()`; `sampleItems()` is unchanged. The test "a
+sample cuts the target set down and repeats with its seed" at
+`scripts/mutate-sites.integration.mjs:2862-2877` calls
+`collectTargets({ paths, sample })` directly and moves with them, and the
+combination needs a test of its own. `grep -rn -- "--sample" scripts/ .agents/
+.claude/` finds the flag in two `parseArgs()` assertions and one comment, so
+nothing exercises it through `main()` and no agent brief mentions it. Under
+`--range`, `--file` and `--worktree` the narrowing is the identity and the draw
+indexes the same list in the same order, so a given seed selects the same
+mutants it selects today and no recorded figure moves.
+
+**What prompted it.** A slice worker escalated a survivor list with
+`npm run mutate -- --from-report <path> --whole-suite --sample 24`, intending
+to judge 24 of the 125 first-wave survivors that report listed. The run drew 3.
+`d5e382b` records the outcome: 1 killed of 3, "a 33.3% kill rate with a 95%
+interval of 6.1% to 79.2% for the 125". Calling `main()` on a synthetic report
+reproduces the arithmetic: `js/regen.js` holds 72 mutants, and a report listing
+5 of them with `--sample 24` prints `sample: 2 of 5 mutant(s)`, matching the
+1.7 expected when a draw of 24 from 72 meets a list of 5.
+
+Three mutants decide little, and the escalation existed to decide something
+specific: whether 94 survivors in one new module were real gaps or artefacts of
+the first wave, which judges a mutant only by the test files that import its
+module directly. `killRateInterval(1, 3)` returns 6.1% to 79.2%, and the same
+kill rate over the 24 requested returns 18.0% to 53.3%. The header at lines
+71-72 promises "a 95% Wilson interval for the population the sample was drawn
+from", while the line the run prints ends "for the 125 in the target set", a
+population the draw did not come from. The count drawn is printed, so the
+shortfall is visible to a reader who compares it against the request. The
+request appears nowhere in the output, and the seed on that same line repeats
+the reduced draw exactly.
+
+**Cost.** Small, and confined to one function. The alternative, refusing
+`--sample` alongside `--from-report`, costs a line in `parseArgs()` and
+forecloses the only affordable escalation of a long survivor list: 125
+survivors under `--whole-suite` is the run this sample replaced, abandoned at
+about an hour.
+
+**What it leaves unfixed.** This entry cannot settle whether an already
+recorded figure came from this combination, because neither record keeps the
+command that produced it. `formatTrailer()` prints `ran/killed` and the kinds,
+and `QUALITY.json`'s mutation block holds `mutants`, `survivors`, `byKind` and
+`finderConclusion`, which `validateAuditMutation()` in
+`scripts/quality-status.mjs` admits with no field for the population, the
+sample size, or the seed. The 177 `Mutants:`
+trailers on main and the 47 mutation blocks in `QUALITY.json` therefore read
+alike whether a run enumerated its target set or drew a tenth of it. Only prose
+separates the two, as in `d5e382b`'s "the trailer below is a sample, not a
+census".
+
+## Serialise mutation runs across parallel workers
+
+**What it changes.** `.claude/agents/slice-worker.md` would state that
+`npm run mutate` holds one lock for the whole host, that exit status 2 means
+another run owns it, and that a refused worker finishes the rest of its slice
+before escalating again. The refusal in `scripts/mutate-sites.mjs` would report
+how long the incumbent has held the lock, beside the pid it already reports.
+The lock stays as it is, because both resources it protects belong to the host.
+
+`acquireMutationLock()` takes `/run/user/<uid>/teleport-mutate.lock` (lines
+185-189) and writes an `owner.json` holding the pid, the process start time and
+the run's systemd unit names. `runInMutationCgroup()` takes it at line 684,
+ahead of every unit it creates, so every invocation pays it, including one
+stopped early by `--enumerate-only`. The first resource is the host's memory
+and task budget. `startMutationSlice()` caps each run's aggregate slice at
+`MemoryMax=8G`, `MemorySwapMax=0` and `TasksMax=512` (lines 520-530), and each
+test wave inside that slice at 1 GiB and 64 tasks (lines 1543-1545). Every unit
+name carries the owner's pid, so two runs' units cannot collide; their budgets
+would. The second resource is recovery: an acquirer that finds a dead owner
+reads the slice name from `owner.json`, stops that slice, resets its failed wave
+scopes and reverts its runtime drop-in (lines 455-461, and
+`stopMutationSlice()` at 588-606). Refusing a contender before it creates a unit
+is what leaves one recoverable unit set on the host at a time.
+
+A second concurrent run would also return little. The header's 6 August
+measurement (lines 111-126) puts three mutation lanes at a 40.71 s median
+against two lanes at 40.68 s on a 5-core host, so the machine saturates near two
+lanes and two runs at once would divide the same throughput between them.
+
+**Scope.** Two sentences under "Mutation-test the lines you changed" in
+`.claude/agents/slice-worker.md`, one `statSync()` call and one clause in the
+two refusal messages at lines 424-425 and 452-453, and the assertion in
+`scripts/mutate-sites.integration.mjs` that already matches
+`/another mutation run owns/`. The acquisition, reclaim and teardown paths are
+untouched.
+
+**What prompted it.** `d5e382b` records the incumbent side of a collision on 12
+August 2026: a whole-suite escalation over 125 survivors "was started and
+abandoned at about an hour, because it runs the entire 3,477-test suite once
+per mutant and was holding the shared lock against another worktree." The
+waiting side left no trace in the repository. By the session's own account,
+four slice workers ran in separate worktrees while one of them re-attempted the
+same mutation command in a shell retry loop for about 90 minutes, with no
+source edit in that period.
+
+The refusal behaves well. Holding a lock at a private path through
+`TELEPORT_MUTATION_LOCK` and running `node scripts/mutate-sites.mjs --file
+js/regen.js --enumerate-only` against it exits 2, prints `mutate-sites: another
+mutation run owns <path> (pid <pid>)` on stderr and writes nothing to stdout,
+so a caller cannot mistake contention for a clean sweep. It reports no age, so
+a contender cannot judge whether the wait is two minutes or an hour, and it
+refuses `--enumerate-only`, which runs no test.
+
+The two verdicts cost very different amounts, which is what makes a collision
+expensive. A first wave runs only the test files that import the mutated module
+directly, while a `--whole-suite` escalation runs the entire suite once per
+surviving mutant. The script's 30 July figures put the first wave at 1.36 s
+and 0.14 s per mutant on two ranges, against 12.7 s and 13.0 s per mutant
+through the suite. Runs during the 12 August session measured 2.34 s per mutant
+on a scoped first wave and 4.78 s per mutant amortised over a 367-mutant range
+run, against a 51.7 s baseline for the suite; those three figures are recorded
+nowhere in the repository.
+
+**Cost.** Small, and mostly prose. The judgement the brief asks of a worker
+cannot be enforced, so a worker that spins anyway is refused as cheaply as
+before.
+
+**What it leaves unfixed.** Nothing here reduces the price of a whole-suite
+escalation. Deliberate serialisation removes the idle waiting and leaves the
+hour of test time, since one full suite runs for each surviving mutant either
+way. The lever that would remove the escalation sits upstream of the lock: a
+module that a test file imports directly has its mutants judged in the cheap
+first wave. `d5e382b` measured what its absence costs, with 94 of its 125
+first-wave survivors in `js/dothrow.js`, whose direct test file exercises four
+pure functions while `scripts/fire-command.test.mjs` covers the command path
+through `js/jsmain.js`.
+A refused worker also gains no queue position here, and still decides for
+itself when to come back.
+
