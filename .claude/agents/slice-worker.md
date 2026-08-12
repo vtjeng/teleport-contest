@@ -72,8 +72,14 @@ pushing, add a follow-up commit that states the correction.
 
 ## Subagents
 
-Spawn subagents where they help you finish the slice (e.g., for searching
-upstream source code, reading a long C function, checking a naming convention).
+Spawn subagents where they help you finish the slice, and pin each one to
+Sonnet: `Explore` with `model: sonnet` to locate code, call sites, and naming
+conventions, or `sonnet-worker` to classify against a rubric you supply. Verify
+each pointer a subagent returns by opening the file.
+
+Read the C you port yourself. A subagent returns a paraphrase, and a branch it
+drops leaves no trace in that paraphrase.
+
 Pass every restriction in this document to each subagent you spawn, including
 the ban on `scripts/score-holdout.mjs` and `sessions/holdout/`.
 
