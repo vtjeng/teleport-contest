@@ -2188,7 +2188,43 @@ export function newsym(x, y) {
         }
         show_glyph_cell(x, y, shown);
     } else if (loc.remembered_glyph) {
-        // Out of sight but remembered — show remembered glyph
+        // display.c:1077-1097, the tail of newsym()'s "can't see the
+        // location" arm. A square remembered as lit that the hero cannot see
+        // now was either lit only by night vision or darkened out of sight,
+        // and either way the memory is corrected before it is drawn. C's
+        // comment at 1075 keeps these tests here rather than in
+        // back_to_glyph(), because they hold only while the square is out of
+        // sight; back_to_glyph() runs on the sighted pass too and would undo
+        // its own promotion.
+        const cmap = loc.remembered_glyph.cmap;
+        let darkened = null;
+        if (on_level(game.u?.uz, game.rogue_level)) {
+            // display.c:1078-1085.
+            if (cmap === S_litcorr && loc.typ === CORR)
+                darkened = terrainCmap(S_corr, NO_COLOR, game);
+            else if (cmap === S_room && loc.typ === ROOM && !loc.waslit)
+                darkened = terrainCmap(S_stone, NO_COLOR, game);
+        } else if (!loc.waslit
+                   || (game.flags?.dark_room && game.iflags?.wc_color)) {
+            // display.c:1086-1093.
+            if (cmap === S_litcorr && loc.typ === CORR)
+                darkened = terrainCmap(S_corr, NO_COLOR, game);
+            else if (cmap === S_room && loc.typ === ROOM)
+                // sym.h:96 resolves DARKROOMSYM to S_darkroom here: its other
+                // arm is the rogue level, which the branch above has taken.
+                // defsym.h:114 gives that cmap CLR_BLACK, which
+                // recorderMapColor() folds onto the terminal default.
+                darkened = terrainCmap(S_darkroom, CLR_BLACK, game);
+        }
+        if (darkened) {
+            // C assigns levl[x][y].glyph inside the show_glyph() argument, so
+            // the correction outlives the draw exactly as the promotion does.
+            loc.remembered_glyph
+                = remembered_glyph_from_presentation(darkened);
+            show_glyph_cell(x, y, darkened);
+            return;
+        }
+        // display.c:1094-1095, the show_mem label: memory as it stands.
         show_glyph_cell(x, y, {
             ch: loc.remembered_glyph.ch,
             color: loc.remembered_glyph.color,

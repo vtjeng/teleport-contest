@@ -1274,6 +1274,143 @@ test('feel_location darkens a remembered lit corridor', () => {
     assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
 });
 
+// display.c newsym() corrects map memory only on the pass where the square is
+// out of sight, so every case below needs a sighted pass to lay the memory
+// down and an unsighted one to correct it. newsym() reads the module-global
+// game, which resetGame() inside visibleCellState() has just made current.
+function seeThenLoseSight(x, y, state) {
+    state.viz_array[y][x] = IN_SIGHT;
+    newsym(x, y);
+    state.viz_array[y][x] = 0;
+    newsym(x, y);
+}
+
+test('newsym darkens a remembered lit corridor once it leaves sight', () => {
+    // display.c:1086-1089. 'lit_corridor' makes back_to_glyph()
+    // (display.c:2302) answer S_litcorr for a corridor square in sight; the
+    // pass where the same square is out of sight puts S_corr back.
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y });
+    const corridor = state.level.at(x, y);
+    corridor.typ = CORR;
+    corridor.lit = false; // never permanently lit, so waslit stays false
+    state.flags.lit_corridor = true;
+
+    newsym(x, y);
+    assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
+    // defsym.h:116-117 colours both corridor cmaps CLR_GRAY, so
+    // reset_glyphmap() (display.c:2938-2940) recolours the lit one to
+    // CLR_WHITE while the two draw the same byte.
+    assert.equal(corridor.disp_color, CLR_WHITE);
+
+    state.viz_array[y][x] = 0;
+    newsym(x, y);
+    assert.equal(corridor.remembered_glyph.cmap, S_corr);
+    // recorderMapColor() folds S_corr's CLR_GRAY onto the terminal default.
+    assert.equal(corridor.disp_color, NO_COLOR);
+    assert.equal(corridor.disp_ch, cmap_symbol(S_corr, state).ch);
+
+    // C's outer condition is `!lev->waslit || (flags.dark_room &&
+    // iflags.use_color)`. A corridor the hero saw permanently lit keeps the
+    // lit symbol while either half of that pair is off.
+    corridor.lit = true;
+    state.flags.dark_room = false;
+    state.iflags = { ...state.iflags, wc_color: true };
+    seeThenLoseSight(x, y, state);
+    assert.equal(corridor.waslit, true);
+    assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
+
+    state.flags.dark_room = true;
+    state.iflags = { ...state.iflags, wc_color: false };
+    seeThenLoseSight(x, y, state);
+    assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
+
+    // Both halves on, and the same square darkens despite waslit.
+    state.iflags = { ...state.iflags, wc_color: true };
+    seeThenLoseSight(x, y, state);
+    assert.equal(corridor.remembered_glyph.cmap, S_corr);
+});
+
+test('newsym replaces a remembered room floor with DARKROOMSYM', () => {
+    // display.c:1090-1092. sym.h:96 resolves DARKROOMSYM to S_darkroom off
+    // the rogue level, which is the only place this arm runs: the rogue arm
+    // above it uses S_stone instead.
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y }); // typ is already ROOM
+    const room = state.level.at(x, y);
+    room.lit = true;
+    state.flags.dark_room = true;
+    state.iflags = { ...state.iflags, wc_color: true };
+
+    newsym(x, y);
+    assert.equal(room.remembered_glyph.cmap, S_room);
+    state.viz_array[y][x] = 0;
+    newsym(x, y);
+    assert.equal(room.remembered_glyph.cmap, S_darkroom);
+    // reglyph_darkroom() has not run over this state, so S_darkroom still
+    // carries defsym.h:114's own byte; only the cmap index is asserted here.
+    // The pair drawing alike is scripts/display-symbols.test.mjs's
+    // 'reglyph_darkroom points S_darkroom at S_room or at nothing'.
+
+    // 'dark_room' off leaves a room square the hero saw lit alone, because
+    // the outer condition's other half, `!lev->waslit`, is false too.
+    state.flags.dark_room = false;
+    seeThenLoseSight(x, y, state);
+    assert.equal(room.waslit, true);
+    assert.equal(room.remembered_glyph.cmap, S_room);
+
+    // An unlit room square passes `!lev->waslit` and darkens with
+    // 'dark_room' still off.
+    room.lit = false;
+    seeThenLoseSight(x, y, state);
+    assert.equal(room.waslit, false);
+    assert.equal(room.remembered_glyph.cmap, S_darkroom);
+});
+
+test('newsym uses the rogue level pair of darkening rules', () => {
+    // display.c:1078-1085. The rogue level has no dark part of a room: an
+    // unlit room square becomes S_stone, and a room square the hero saw lit
+    // is left alone however 'dark_room' and colour stand.
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y });
+    // visibleCellState() puts the hero on dungeon level 1 of dnum 0.
+    state.rogue_level = { dnum: 0, dlevel: 1 };
+    state.flags.dark_room = true;
+    state.iflags = { ...state.iflags, wc_color: true };
+    const square = state.level.at(x, y);
+
+    square.lit = false;
+    seeThenLoseSight(x, y, state);
+    assert.equal(square.remembered_glyph.cmap, S_stone);
+
+    square.lit = true;
+    seeThenLoseSight(x, y, state);
+    assert.equal(square.remembered_glyph.cmap, S_room);
+
+    // The corridor half is the same on both levels.
+    square.typ = CORR;
+    square.lit = false;
+    state.flags.lit_corridor = true;
+    seeThenLoseSight(x, y, state);
+    assert.equal(square.remembered_glyph.cmap, S_corr);
+
+    // Both halves of `lev->glyph == cmap_to_glyph(S_litcorr) && lev->typ ==
+    // CORR` are load-bearing. A corridor square the hero remembers an object
+    // on satisfies the second and fails the first, and C leaves that memory
+    // alone: only a square remembered as a lit corridor is corrected.
+    state.level.objects[x][y] = { otyp: SPEAR, oclass: WEAPON_CLASS };
+    seeThenLoseSight(x, y, state);
+    assert.equal(square.remembered_glyph.objectGlyph, true);
+    assert.equal(
+        square.remembered_glyph.ch, object_glyph_info(
+            state.level.objects[x][y], state,
+        ).ch,
+    );
+});
+
 test('feel_location stops on a sensed monster and a distant square', () => {
     const x = 7;
     const y = 4;
