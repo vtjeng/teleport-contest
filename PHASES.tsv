@@ -356,3 +356,6 @@ utc	event	phase	goal	detail
 2026-08-11T21:41:12.299Z	start	select	pet-step-onto-cursed-object	
 2026-08-11T21:52:00.396Z	end	select	pet-step-onto-cursed-object	
 2026-08-11T21:52:00.425Z	start	implement	pet-step-onto-cursed-object	
+2026-08-12T05:58:48.027Z	start	select	sit-command	directed goal; slice division only
+2026-08-12T06:09:02.140Z	end	select	sit-command	one slice; six corrections to the queued record
+2026-08-12T06:09:02.170Z	start	implement	sit-command	

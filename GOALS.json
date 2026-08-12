@@ -1671,6 +1671,43 @@
         "screens": 27,
         "rng": 268
       }
+    },
+    {
+      "id": "sit-command",
+      "status": "open",
+      "boundary": "cmd.c rhack() dispatches the extended command #sit into sit.c dosit() (400-563) rather than stopping at js/cmd.js:1692's unported-extended-command boundary.\n\nCovers dosit()'s guard chain at 402-433 -- t_at(u.ux, u.uy), levl[u.ux][u.uy].typ, the u.usteed, hider, can_reach_floor(FALSE), u.ustuck and pool/gremlin arms -- and its OBJ_AT arm at 435-462: the uteetering_at_seen_pit(trap) || uescaped_shaft(trap) precipice test, obj = svl.level.objects[u.ux][u.uy], the S_DRAGON coin-hoard and TOWEL arms, the slithy() choice between coiling and sitting, You(\"sit on %s.\", the(xname(obj))), and the tail chain amorphous() \"It's squishy...\", CREAM_PIE with its Soundeffect and useupf(), and the !(Is_box(obj) || oc_material == CLOTH) \"It's not very comfortable...\" line, then the fall-through to return ECMD_TIME at 563.\n\nOutside and still refused by name: dosit()'s trap arm at 463-500 (bear trap, spiked and plain pit, web, lava, infloor and buried ball), and the lava, ice, DRAWBRIDGE_DOWN, IS_THRONE with throne_sit_effect(), and lays_eggs()/lay_an_egg() arms at 501-562.",
+      "upstreamOwners": [
+        "src/sit.c"
+      ],
+      "forecast": {
+        "steps": 13,
+        "basis": "Directed selection at 5ad7fe9 with field-wide costing skipped by the user: seed0107 matches 85 of its 98 recorded screens and stops at step 85 on the extended command #sit, so the 13 screens that finish the session are owned by sit.c dosit().",
+        "sessions": [
+          "seed0107-samurai-twoweapon-enhance.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0107-samurai-twoweapon-enhance.session.json",
+            "evidence": "seed 107, datetime 20000110090000, nethackrc OPTIONS=name:Bushi,role:Samurai,race:human,gender:male,align:lawful; one segment, stop at step 85 of 98 on the \"\\n\" that submits the #sit typed over steps 78-84. C path traced at source. The hero has no steed, is not polymorphed, and is neither levitating nor engulfed, so can_reach_floor(FALSE) is true and u.ustuck is null; the square is ordinary lit room floor rather than a pool, so no guard at sit.c:405-433 fires. Step 97 of the same session answers dolook with \"You see here a lichen corpse.\", so svl.level.objects[u.ux][u.uy] holds one lichen corpse and OBJ_AT is true, while t_at() finds no trap there, making uteetering_at_seen_pit() and uescaped_shaft() both false and sending 435 into the object arm. youmonst.data->mlet is S_HUMAN rather than S_DRAGON, the object is a CORPSE rather than a TOWEL, and slithy(human) is false, so 452 prints You(\"sit on %s.\", the(xname(obj))). objnam.c:2097 records that xname on a corpse omits the monster type -- singular() swaps in cxname for exactly that reason -- which is why C's recorded line reads \"the corpse\" and not \"the lichen corpse\". include/monsters.h:1614 gives lichen mflags1 M1_BREATHLESS|M1_NOEYES|M1_NOLIMBS|M1_NOHEAD|M1_MINDLESS|M1_NOTAKE with no M1_AMORPHOUS, so amorphous() is false and no \"It's squishy...\" prints; the object is not a CREAM_PIE, and a corpse is neither Is_box() nor oc_material CLOTH, so 461 appends \"It's not very comfortable...\" to the same top line, reproducing C's recorded screen exactly. dosit() then falls through to return ECMD_TIME at 563, and the recorded step spends 5 random-number calls on the turn that follows."
+          }
+        ]
+      },
+      "detail": "Traced at 5ad7fe9 against nethack-c/upstream/src/sit.c and js/.\n\nThe stop. js/cmd.js:1692 throws UnsupportedHeroCommandBoundaryError for every extended command whose ef_funct the dispatch switch above it does not name. js/extcmdlist_data.js:128 already carries row(0xF3, \"sit\", \"sit down\", \"dosit\", AUTOCOMPLETE), so the table entry, the autocomplete and the prompt echo all work today; only the handler is missing. There is no js/sit.js.\n\nThe naming finding, which decides the one message this goal must get right. C prints You(\"sit on %s.\", the(xname(obj))) at sit.c:452, and objnam.c:2097 explains the result: singular() swaps xname for cxname because \"using xname for corpses does not give the monster type\". So the sit line reads \"the corpse\" while dolook on the same object reads \"a lichen corpse\". seed0107 records both, 12 steps apart, at steps 85 and 97. A port that reached for doname() would match neither.\n\nHelpers the common path needs, all already in js/: t_at (js/trap.js:258), can_reach_floor (js/detect.js:47), uteetering_at_seen_pit and uescaped_shaft (js/trap.js, consumed today by js/engrave.js:210), xname (js/objnam.js xnameBase/xnameFresh), the (js/objnam.js:830), amorphous (js/mondata.js), isBox (js/obj.js:682), slithy (js/mondata.js:167). What is missing is js/sit.js and dosit() itself.\n\nFresh differentials the recorded session cannot supply, since seed0107 exercises one arm of a wide switch: sitting on bare floor, which takes the final else and prints \"Having fun sitting on the %s?\" through surface(); sitting on a cloth or boxed object, which suppresses the not-very-comfortable tail; and sitting while levitating, which returns early with \"You tumble in place.\" The trap, lava, ice, drawbridge, throne and egg-laying arms stay refused by name under this goal and need no case.",
+      "slices": [
+        {
+          "name": "sit on an object, on the stairs, or on the floor",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "5ad7fe96ebe2b77eeee9d467c597daca05a66e41",
+      "openStanding": {
+        "sha": "e11346f",
+        "screens": 1458,
+        "rng": 120419
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
