@@ -1701,8 +1701,8 @@
         },
         {
           "name": "name the two wielded weapons in the inventory menu",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "cef0c19ecdc0b55189ff8001d6bbf99aa8b512d7"
         },
         {
           "name": "report two-weapon skill, and clip the over-wide menu line",
