@@ -1626,7 +1626,7 @@
     },
     {
       "id": "pet-step-onto-cursed-object",
-      "status": "open",
+      "status": "closed",
       "boundary": "dogmove.c dog_move()'s cursemsg[chi] report at 1298-1312 runs rather than stopping at js/unported_monster_actions.js:756, and lock.c pick_lock()'s `if (!IS_DOOR(door->typ))` arm at 578-593 runs rather than stopping at js/lock.js:184.\n\nCovers, on the pet side: the `o = (!Hallucination && svl.level.flags.hero_memory && glyph_is_object(levl[nix][niy].glyph)) ? vobj_at(nix, niy) : 0` selection at 1302-1304; distant_name(o, doname) with the `something` fallback at 1305; and pline_mon() (pline.c 138-150) including its set_msg_xy(mtmp->mx, mtmp->my), printing \"%s %s reluctantly %s %s.\" at 1307-1311 from noit_Monnam(mtmp), vtense((char *) 0, locomotion(mtmp->data, \"step\")), and the (is_flyer(mtmp->data) || is_floater(mtmp->data)) ? \"over\" : \"onto\" choice.\n\nCovers, on the lock side: res = PICKLOCK_DID_NOTHING with oldglyph; update_mapseen_for(cc.x, cc.y) (dungeon.c 2943-2949) with update_lastseentyp() (dungeon.c 2927-2938); feel_location(cc.x, cc.y); the `door->glyph != oldglyph || svl.lastseentyp[cc.x][cc.y] != oldlastseentyp` test that raises res to PICKLOCK_LEARNED_SOMETHING; and both You() lines, the drawbridge one behind is_drawbridge_wall(cc.x, cc.y) >= 0 and \"%s no door there.\" otherwise, each in its Blind and non-Blind form.\n\nOutside and still refused by name: dog_move()'s ALLOW_M, ALLOW_MDISP and ALLOW_U arms and dog_eat(); trap.c trapeffect_bear_trap()'s monster arm (1525-1559) and mintrap()'s trapped tail, refused at js/trap_effects.js:491; pick_lock()'s monster and door-mimic arms (560-577), its container branch, its interrupted-attempt resume, and the doormask switch's default arm; and dungeon.c recalc_mapseen()'s mapseen chain, which this call site provably cannot observe.",
       "upstreamOwners": [
         "src/dogmove.c",
@@ -1666,8 +1666,11 @@
         "screens": 1431,
         "rng": 120151
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "e11346f0cc1e8faf3527fc41fe829922976a0da3",
+      "delivered": {
+        "screens": 27,
+        "rng": 268
+      }
     }
   ]
 }

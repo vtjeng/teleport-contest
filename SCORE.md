@@ -27,13 +27,13 @@ states it.
 
 ## Current standing
 
-- Development, at `841f2c9` (2026-08-11): 1,431 of 7,765 screens and 120,151 of
+- Development, at `e11346f` (2026-08-11): 1,458 of 7,765 screens and 120,419 of
   610,816 random-number values, over the development set of 33 sessions, of
-  which 6 match completely.
-- Reserved holdout, last evaluated at `841f2c9`: 224 of 3,640 screens, 33,427
+  which 7 match completely.
+- Reserved holdout, last evaluated at `52c6513`: 224 of 3,640 screens, 33,427
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  It has not moved across the last four goal closes, while the development set
-  gained 57 screens and a sixth fully matching session. `docs/goal-history.md`
+  It has not moved across the last five goal closes, while the development set
+  gained 84 screens and two more fully matching sessions. `docs/goal-history.md`
   records why that gap is expected rather than a defect: goals are ranked by
   capped development look-ahead, so each one is chosen for the development
   session it unblocks, and carry-over to the hidden set is a by-product. The
@@ -43,6 +43,12 @@ states it.
   moved the holdout by zero, and `monster-drops-equipped-gear` was chosen partly
   because a monster dropping what it wore fires on every kill of an equipped
   monster. It gained 21 and also moved it by zero.
+  `pet-step-onto-cursed-object` adds a second observation, from a different
+  direction. It was chosen on an exactly measured 27 rather than on commonness,
+  and it carried `seed1500-rogue-explore-move` all the way to a complete match,
+  the seventh of 33. Finishing a development session outright moved the holdout
+  by zero as well, so neither commonness in play nor completing a session
+  predicts carry-over.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,
