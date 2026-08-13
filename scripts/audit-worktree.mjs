@@ -48,6 +48,12 @@ prepare creates an isolated worktree at the exact reviewed commit, initializes
 the pinned NetHack source without fetching, checks the current implementation
 checklist when one exists, and snapshots the audit prompt.
 
+A checklist that covers the range is used, and --no-checklist-reason is refused
+while one does. When none covers it, --no-checklist-reason records the stated
+exception with the commit the existing checklist stopped at. Pass the manifest
+to npm run quality -- record-review --manifest so the recorded pass keeps that
+disposition; the manifest itself goes with cleanup.
+
 check verifies that the prepared files have not changed and prints the manual
 codex exec command. cleanup removes only a clean worktree that matches the
 manifest; it refuses to discard audit changes.`;
@@ -250,6 +256,22 @@ export function ancestorCoverageReason(commitChecked, changed, ownedPaths) {
         + 'own no QUALITY.json area';
 }
 
+/**
+ * Whether a checklist naming `commitChecked` covers `head`, and the gap to
+ * record when it covers through an accepted ancestor rather than exactly.
+ *
+ * The whole coverage rule lives here. validateChecklist() refuses a checklist
+ * that does not cover the range, and prepare refuses to bypass one that does;
+ * both ask this function, so the two gates cannot disagree about what covering
+ * means and open a hole between them.
+ */
+export function checklistCoverage(commitChecked, head, acceptsAncestor) {
+    if (commitChecked === head) return { covers: true, gap: null };
+    const reason = acceptsAncestor(commitChecked);
+    if (!reason) return { covers: false, gap: null };
+    return { covers: true, gap: { commitChecked, reason } };
+}
+
 // The checklist is JSON so this gate reads fields as data. Its predecessor
 // regexed hand-written prose, and 29 of the 32 checklist versions committed
 // before 2026-08-01 failed its own patterns through wording drift.
@@ -291,15 +313,16 @@ export function validateChecklist(text, head, acceptsAncestor = () => null) {
             'implementation checklist mode is not ready-for-audit',
         );
     }
-    if (checklist.commitChecked === head) return null;
-    const reason = acceptsAncestor(checklist.commitChecked);
-    if (!reason) {
+    const coverage = checklistCoverage(
+        checklist.commitChecked, head, acceptsAncestor,
+    );
+    if (!coverage.covers) {
         throw new Error(
             `implementation checklist covers ${checklist.commitChecked}, `
                 + `not ${head}`,
         );
     }
-    return { commitChecked: checklist.commitChecked, reason };
+    return coverage.gap;
 }
 
 /** Ancestry within one repository, treating a commit as its own ancestor. */
@@ -350,6 +373,36 @@ function ancestorAcceptorFor(root, head) {
             changedPathsIn(root, commitChecked, head),
             ownedPaths,
         );
+    };
+}
+
+/**
+ * What the bypass gate needs to know about a checklist standing in its way:
+ * whether it covers the range, and the commit it names when it does not.
+ *
+ * Only the coverage question is asked here. The status, mode, and completeness
+ * checks in validateChecklist() decide whether a checklist may be *used*, and a
+ * checklist that does not cover the range is not going to be used; refusing a
+ * bypass over its mode would rebuild the dead end this route exists to open.
+ */
+function checklistCoverageOnDisk(path, head, acceptsAncestor) {
+    const text = readUtf8(path, 'implementation checklist');
+    let parsed;
+    try {
+        parsed = JSON.parse(text);
+    } catch (error) {
+        throw new Error(
+            `implementation checklist is not valid JSON: ${error.message}`,
+        );
+    }
+    // Recorded as written, so an exception names what the checklist claimed
+    // even when the claim was a revision expression rather than a commit.
+    const commitChecked = typeof parsed.commitChecked === 'string'
+        ? parsed.commitChecked
+        : null;
+    return {
+        commitChecked,
+        ...checklistCoverage(commitChecked, head, acceptsAncestor),
     };
 }
 
@@ -677,19 +730,62 @@ export function prepareAuditWorktree({
     );
     const checklistSourcePath = join(root, safeChecklistPath);
     const checklistExists = existsSync(checklistSourcePath);
+    const acceptsAncestor = ancestorAcceptorFor(root, head);
     let promptSnapshotText = promptText.trimEnd();
-    if (checklistExists) {
-        if (noChecklistReason !== null) {
-            throw new Error(
-                'cannot bypass the current implementation checklist',
+    if (noChecklistReason !== null) {
+        // The checklist a bypass has to answer for: the named one when it
+        // exists, and otherwise the default one, which --checklist must not
+        // route around by naming a path that holds nothing.
+        //
+        // A checklist that covers the range is a plan for exactly this work, so
+        // it is used. One that does not cover it will not be read by the pass
+        // either way, and refusing here left no honest move: on 12 August 2026
+        // both routes closed over a checklist 38 commits behind, and the pass
+        // went ahead behind a checklist written after the work it describes.
+        const blockingPath = checklistExists ? safeChecklistPath
+            : (existsSync(join(root, DEFAULT_CHECKLIST))
+                ? DEFAULT_CHECKLIST
+                : null);
+        let notCovering = null;
+        if (blockingPath) {
+            const coverage = checklistCoverageOnDisk(
+                join(root, blockingPath), head, acceptsAncestor,
             );
+            if (coverage.covers) {
+                throw new Error(
+                    `${blockingPath} covers the range head; use it instead of `
+                    + 'bypassing it',
+                );
+            }
+            notCovering = {
+                path: blockingPath,
+                commitChecked: coverage.commitChecked,
+            };
         }
+        checklist = {
+            sourcePath: null,
+            snapshotPath: null,
+            reason: noChecklistReason.trim(),
+            // The checklist that exists but stops short of the range, or null
+            // when none exists at all. A pass records both, so a later reader
+            // can tell a range that never had a plan from one whose plan ran
+            // out before it.
+            notCovering,
+        };
+        promptSnapshotText += '\n\n'
+            + '## Implementation checklist exception\n\n'
+            + `${checklist.reason}`;
+        if (notCovering?.commitChecked) {
+            promptSnapshotText += `\n\n${notCovering.path} covers `
+                + `${notCovering.commitChecked}, which is not this range's `
+                + 'head, so it does not describe the work under review.';
+        }
+    } else if (checklistExists) {
         const text = readUtf8(
             checklistSourcePath,
             'implementation checklist',
         );
-        const coverage = validateChecklist(
-            text, head, ancestorAcceptorFor(root, head));
+        const coverage = validateChecklist(text, head, acceptsAncestor);
         checklist = {
             sourcePath: checklistSourcePath,
             snapshotPath: null,
@@ -703,27 +799,10 @@ export function prepareAuditWorktree({
             + '## Implementation checklist snapshot\n\n'
             + text.trimEnd();
     } else {
-        if (noChecklistReason === null) {
-            throw new Error(
-                `no ${checklistPath} exists in the main worktree; `
-                + 'provide --no-checklist-reason for a qualifying small slice',
-            );
-        }
-        const defaultChecklistPath = join(root, DEFAULT_CHECKLIST);
-        if (safeChecklistPath !== DEFAULT_CHECKLIST
-            && existsSync(defaultChecklistPath)) {
-            throw new Error(
-                `${DEFAULT_CHECKLIST} exists; use it instead of bypassing it`,
-            );
-        }
-        checklist = {
-            sourcePath: null,
-            snapshotPath: null,
-            reason: noChecklistReason.trim(),
-        };
-        promptSnapshotText += '\n\n'
-            + '## Implementation checklist exception\n\n'
-            + `${checklist.reason}`;
+        throw new Error(
+            `no ${checklistPath} exists in the main worktree; `
+            + 'provide --no-checklist-reason for a qualifying small slice',
+        );
     }
     promptSnapshotText += '\n';
 
@@ -731,7 +810,10 @@ export function prepareAuditWorktree({
     const worktreePath = join(workRoot, 'worktree');
     const manifestPath = join(workRoot, MANIFEST_NAME);
     const promptSnapshotPath = join(workRoot, 'prompt.md');
-    const checklistSnapshotPath = checklistExists
+    // Keyed on the checklist the pass will read, not on one merely existing: a
+    // bypass leaves a non-covering checklist on disk, and snapshotting it would
+    // hand the reviewer a plan for other work and make `check` validate it.
+    const checklistSnapshotPath = checklist.sourcePath
         ? join(workRoot, 'implementation-checklist.json')
         : null;
     const mutationReportPath = join(workRoot, 'mutation-report.json');
@@ -814,6 +896,47 @@ export function prepareAuditWorktree({
         cleanFailedPreparation(root, workRoot, worktreePath);
         throw error;
     }
+}
+
+/**
+ * The checklist disposition a finished pass records, read from the manifest
+ * `prepare` wrote for it.
+ *
+ * The manifest sits under a temporary root that `cleanup` deletes, so the copy
+ * `npm run quality -- record-review --manifest` writes into QUALITY.json is the
+ * only durable one. Nothing in the returned record is hand-written, which is
+ * the point: an operator can decline to pass the manifest, but cannot pass one
+ * and describe its checklist as something other than what prepare decided.
+ *
+ * `covers` false means the pass read a range no implementation checklist
+ * covered, and `reason` is the exception its operator stated. `path` and
+ * `commitChecked` then name the checklist that stopped short, or are null when
+ * there was none at all.
+ */
+export function passChecklistFromManifest(manifestPath, range) {
+    const manifest = loadManifest(manifestPath);
+    if (manifest.range !== range) {
+        throw new Error(
+            `audit manifest covers ${manifest.range}, not the recorded range `
+            + `${range}`,
+        );
+    }
+    const { checklist } = manifest;
+    if (!checklist.sourcePath) {
+        return {
+            covers: false,
+            path: checklist.notCovering?.path ?? null,
+            commitChecked: checklist.notCovering?.commitChecked ?? null,
+            reason: checklist.reason,
+        };
+    }
+    return {
+        covers: true,
+        path: relative(manifest.repositoryRoot, checklist.sourcePath),
+        // A checklist that covers exactly names the head and records no gap.
+        commitChecked: checklist.coverage?.commitChecked ?? manifest.head,
+        reason: checklist.coverage?.reason ?? null,
+    };
 }
 
 export function shellQuote(value) {
@@ -1011,6 +1134,8 @@ async function main(args) {
         process.stdout.write(
             `Prepared ${prepared.manifest.range}\n`
             + `Manifest: ${prepared.manifestPath}\n`
+            + 'Record the finished pass with npm run quality -- record-review '
+            + `--manifest ${prepared.manifestPath}\n`
             + `${auditCommand(prepared.manifest)}\n`,
         );
         return;

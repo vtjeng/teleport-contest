@@ -17,7 +17,9 @@ import { fileURLToPath } from 'node:url';
 
 // `record-review --range` and `audit-worktree.mjs prepare --range` name the
 // same audited range, so they share one parser and accept one syntax.
-import { parseRange } from './audit-worktree.mjs';
+// passChecklistFromManifest() reads the prepared manifest, whose temporary
+// root cleanup deletes; the recorded pass is the durable copy.
+import { parseRange, passChecklistFromManifest } from './audit-worktree.mjs';
 // One spelling of "a definition at column zero", shared with the duplicate
 // symbol index rather than copied, so both answer the same question about js/.
 // A shared /g regex carries lastIndex between readers, so each resets it.
@@ -354,6 +356,41 @@ export function validateAuditMutation(mutation) {
     fail('auditMetrics.mutation.finderConclusion must be nonempty');
   }
   return mutation;
+}
+
+/**
+ * Check one pass's checklist record: what plan stood behind the range it read.
+ *
+ * `scripts/audit-worktree.mjs prepare` decides whether the implementation
+ * checklist covers the range; the recorder copies that decision out of the
+ * manifest, so this validates a shape rather than an operator's claim. It is
+ * separate from auditMetrics, which is the auditor's own findings record: a
+ * pass has a checklist disposition whether or not it also recorded the three
+ * readiness attestations, and 83 of the 118 passes stored on 12 August 2026
+ * recorded none.
+ *
+ * `covers` false is a pass that read a range no checklist covered. That is
+ * allowed, and `reason` is what makes it legible; the field exists so a later
+ * reader learns it from QUALITY.json rather than from a deleted temporary
+ * directory.
+ */
+export function validatePassChecklist(checklist) {
+  if (!checklist || typeof checklist !== 'object' || Array.isArray(checklist)) {
+    fail('pass checklist must be an object');
+  }
+  if (typeof checklist.covers !== 'boolean') {
+    fail('pass checklist.covers must be a boolean');
+  }
+  for (const key of ['path', 'commitChecked', 'reason']) {
+    if (checklist[key] !== null && typeof checklist[key] !== 'string') {
+      fail(`pass checklist.${key} must be a string or null`);
+    }
+  }
+  if (!checklist.covers
+      && (checklist.reason === null || checklist.reason.trim().length === 0)) {
+    fail('a pass recorded with no covering checklist must state why');
+  }
+  return checklist;
 }
 
 export function validateAuditMetrics(metrics, {
@@ -1017,6 +1054,10 @@ export function validateConfigShape(config, mentionsSymbol = upstreamMentions) {
         fail(`pass auditedRange ends at ${rangeHead}; expected pass head ${pass.head}`);
       }
     }
+    // Passes recorded before the recorder read the prepared manifest carry no
+    // checklist record. The ledger is append-only, so theirs cannot be
+    // reconstructed; only new passes can name what stood behind them.
+    if (pass.checklist !== undefined) validatePassChecklist(pass.checklist);
     if (pass.auditMetrics !== undefined) validateAuditMetrics(pass.auditMetrics);
     if (passIndex >= config.legacyPassCount && pass.auditMetrics === undefined) {
       fail('new quality passes require structured auditMetrics');
@@ -1282,6 +1323,7 @@ export function passOptionNames(kind) {
     'audit-metrics',
     'audit-metrics-file',
     'areas',
+    'manifest',
     'dry-run',
     ...(kind === 'review' ? ['level'] : []),
   ]);
@@ -1348,10 +1390,17 @@ function preparePass(kind, options) {
     () => changedPathsIn(rangeBase, head),
   );
 
+  // The manifest names its own range, so a pass cannot borrow another
+  // preparation's checklist disposition.
+  const checklist = options.manifest === undefined ? null
+    : validatePassChecklist(passChecklistFromManifest(
+      resolve(REPO_ROOT, options.manifest), `${rangeBase}..${head}`));
+
   const pass = {
     kind,
     head,
     auditedRange: `${rangeBase}..${head}`,
+    ...(checklist ? { checklist } : {}),
     ...(kind === 'review' ? { level: options.level } : {}),
     areas,
     outcome: options.outcome,
@@ -1374,6 +1423,11 @@ function preparePass(kind, options) {
   console.log(`  audited range: ${rangeBase}..${head}`);
   console.log(`  ${kind} frontier: ${frontier} -> ${head}`);
   console.log(`  area labels: ${areas.join(', ')}`);
+  if (checklist) {
+    console.log(checklist.covers
+      ? `  checklist: ${checklist.path} covers the range`
+      : `  checklist: none covering the range. ${checklist.reason}`);
+  }
   if (options['dry-run']) {
     console.log('Dry run: QUALITY.json was not changed.');
   } else {
@@ -1863,11 +1917,11 @@ function printHelp() {
   npm run quality -- record-review --range <base>..<head> \\
     --level <light|full> --outcome <changed|no-change> --evidence <text> \\
     <--audit-metrics <json>|--audit-metrics-file <path>> \\
-    [--head <commit>] [--dry-run]
+    [--head <commit>] [--manifest <path>] [--dry-run]
   npm run quality -- record-simplification \\
     --range <base>..<head> --outcome <changed|no-change> --evidence <text> \\
     <--audit-metrics <json>|--audit-metrics-file <path>> \\
-    [--head <commit>] [--dry-run]
+    [--head <commit>] [--manifest <path>] [--dry-run]
   npm run quality -- rejections
   npm run quality -- deferrals [--area <id>] [--status open|closed|all] [--id <id>]
   npm run quality -- pass --head <sha or prefix>
@@ -1913,6 +1967,14 @@ and deferral routing; areas carry no frontiers of their own.
 --range is the commit range the audit actually read. Its base must be at or
 before the frontier, so no unaudited commit becomes reviewed history.
 --head, when given, must name the same commit as the range head.
+
+--manifest names the audit manifest that scripts/audit-worktree.mjs prepare
+wrote for this range, and copies its checklist disposition into the pass: the
+implementation checklist that covered the range, or, when none did, the
+exception prepare recorded and the commit the existing checklist stopped at.
+That manifest goes with cleanup, so the pass is where the disposition lasts.
+Pass --manifest for every pass prepared with that tool; the recorded checklist
+is read back with pass --head.
 
 Audit metrics must list one rejections entry, with summary and counterEvidence,
 for every rejected finding, and one deferrals entry, with summary and a
