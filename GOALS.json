@@ -1979,6 +1979,42 @@
         "screens": 7,
         "rng": 0
       }
+    },
+    {
+      "id": "armor-wear",
+      "status": "open",
+      "boundary": "The W command, from getobj(\"wear\", wear_ok, GETOBJ_PROMPT) through canwearobj(), setworn(obj, mask), the ga.afternmv assignment and the nomul(-oc_delay)/unmul(\"\") fork, ending when the slot's *_on() callback returns. Two testable conditions bound it: no ported line lies under accessory_or_armor_on()'s armor == FALSE, so the ring, amulet and eyewear arms at 2249-2350 and 2404-2419 stay refused and doputon() stays unported; and inside each *_on() the port covers the switch arms falling through to a bare break and refuses every arm that calls outside do_wear.c by otyp, the shape Cloak_off(), Helmet_off() and Shirt_off() already use.",
+      "upstreamOwners": [
+        "do_wear.c dowear() 2432-2452",
+        "do_wear.c accessory_or_armor_on() 2209-2431 armor arm",
+        "do_wear.c canwearobj() 2030-2208",
+        "do_wear.c wear_ok() 3465-3471",
+        "do_wear.c already_wearing() 2011-2029",
+        "do_wear.c on_msg() 76-105",
+        "do_wear.c Armor_on() 887-908",
+        "do_wear.c Boots_on() 187-261",
+        "do_wear.c Cloak_on() 326-382",
+        "do_wear.c Helmet_on() 434-517",
+        "do_wear.c Gloves_on() 576-607",
+        "do_wear.c Shield_on() 705-732",
+        "do_wear.c Shirt_on() 759-777"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "Opened to answer .agents/questions.md Q6, answered 2026-08-11: run the experiment once, spend one goal on a command the development-session ranking rule cannot nominate, and read the holdout at the authorized evaluation that closes it. wear carries supports 1551 screens across 6 sessions and unlocks 0 across 0 sessions, measured fresh at 43a5171, so no development session stops on it first and the capped look-ahead cannot nominate it. The delivery reading at the close is the holdout, not the development score, which is forecast to move by 0. .agents/selection.md keeps ranking on unlocks; this changes no rule.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "Source witness, standing in for the forecast witness the census cannot supply: accessory_or_armor_on() at 2233 with armor TRUE, then 2381-2397 setworn(obj, mask), ga.afternmv = Armor_on, delay = -objects[otyp].oc_delay, then nomul(delay) or unmul(\"\") plus on_msg(obj). A starting character reaches it because dowear() 2438 needs !verysmall() && !nohands(), true for every recorded role with Upolyd FALSE; getobj() answers an ARMOR_CLASS object with owornmask 0, so 2213's already_wearing is not taken; and in canwearobj() cantweararm() is FALSE, welded(uwep) is FALSE because every role's starting weapon is uncursed, and for a suit uarmc == 0 && uarm == 0 selects W_ARM at 2189. Both delay arms are reachable on D:1: a Valkyrie starts with uarms set and uarm clear (u_init.c:160-164), ring mail's oc_delay is 5 and leather armor's 3 (objects.h:589, :595), giving nomul(-delay) with gn.nomovemsg = \"You finish your dressing maneuver.\"; a small shield's oc_delay is 0 (objects.h:653), so a role with uarms clear takes unmul(\"\") plus on_msg() immediately. Judge the close on that pair. Traced findings: canwearobj() must land before the first W commit, since wear_ok() is one line over the already-ported equip_ok() (js/do_wear.js:386) and its only unported dependency is canwearobj(), refused at js/do_wear.js:411. The multi-turn donning machinery is already ported: armoroff() (js/do_wear.js:611) sets state.afternmv = Armor_off and handles both the delayed and no-delay paths, so the fork reuses existing wiring; off_msg() is ported at :183, while on_msg(), already_wearing(), silly_thing() and cantweararm() are not. Branches a starting character never reaches: the HELM_OF_OPPOSITE_ALIGNMENT arm at 2226-2237 needs qstart_level.dnum == u.uz.dnum, so it is Quest-only, and canwearobj()'s has_horns, slithy and S_CENTAUR arms all sit behind Upolyd, false in every recorded session. The accessory confound is excluded deliberately: dowear() 2445 and doputon() 2470 share accessory_or_armor_on() in C, and puton has left unlocks 0 for 231 raw over 3 sessions, so leaving the accessory arms refused is what keeps the development forecast at 0 and stops a holdout movement being credited to screens the ordinary rule would have bought anyway. Roughly 540 lines of C read, about 400 porting, so AGENTS.md puts this near the checklist threshold; expect several slices. Runner-up, set aside only for this goal and the largest measured development forecast on the board: mhitu.c mattacku(), 186 raw unlocks over seed0004 at step 52, capped at 151 by hack.c moverock() at \"With great effort you move the boulder.\"",
+      "slices": [],
+      "openedAt": "0fc4e5f17fc9188a77f0f36c6b95ede1a215c476",
+      "openStanding": {
+        "sha": "c10d3d1",
+        "screens": 1538,
+        "rng": 121032
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
