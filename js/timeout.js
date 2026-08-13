@@ -42,6 +42,7 @@ import {
 import { stop_occupation } from './allmain.js';
 import { artifact_light } from './artifacts.js';
 import { stone_luck } from './attrib.js';
+import { heal_legs } from './do.js';
 import { game } from './gstate.js';
 import { You_can_move_again, nomul } from './hack.js';
 import {
@@ -268,16 +269,13 @@ export function preflight_nh_timeout_elapsed_turn(state = game) {
         const timeout = Math.trunc(u.uprops[index]?.intrinsic ?? 0) & TIMEOUT;
         if (timeout === 0) continue;
         // WOUNDED_LEGS is the only property this port gives a timeout:
-        // do.c set_wounded_legs() sets it, for trap.c's bear trap. Its
-        // countdown at timeout.c:670-671 is ported below, so a count above 1
-        // is admitted. A count of exactly 1 reaches the expiry switch on this
-        // turn, and WOUNDED_LEGS' case there is do.c heal_legs(), which is
-        // not ported.
-        if (index === WOUNDED_LEGS && timeout > 1) continue;
+        // do.c set_wounded_legs() sets it, for trap.c's bear trap. Both its
+        // countdown at timeout.c:670-671 and the do.c heal_legs() its expiry
+        // reaches at timeout.c:774 are ported below, so any count is admitted.
+        // Every other index would reach an unported case of the same switch.
+        if (index === WOUNDED_LEGS) continue;
         throw new UnsupportedHeroTimeoutBoundaryError(
-            index === WOUNDED_LEGS
-                ? 'heal_legs() for an expiring wounded-legs timeout'
-                : `no active property timeout at index ${index}`,
+            `no active property timeout at index ${index}`,
         );
     }
     const due = state.gt?.timer_base;
@@ -324,29 +322,39 @@ export function adjust_timeout_luck(state = game) {
     return true;
 }
 
-// C ref: timeout.c nh_timeout() (670-672), the per-property countdown. C
-// decrements every property whose TIMEOUT field is nonzero and runs a switch on
-// each one that reaches zero. An invulnerable hero never arrives, because the
-// caller returns first exactly as timeout.c:621 does; every other hero has been
-// through the preflight, which admits no property but WOUNDED_LEGS and refuses
-// the turn any count would reach zero, so the switch is unreachable and the
-// countdown is the whole of what remains.
-function decrement_property_timeouts(state) {
+// C ref: timeout.c nh_timeout() (669-945), the per-property countdown and the
+// expiry switch under it. C decrements every property whose TIMEOUT field is
+// nonzero and runs the switch on each one that reaches zero. An invulnerable
+// hero never arrives, because the caller returns first exactly as
+// timeout.c:621 does; every other hero has been through the preflight, which
+// admits no property but WOUNDED_LEGS, so timeout.c:774 is the only case of
+// that switch this loop can enter.
+//
+// C reads find_delayed_killer() at 672 before switching, but only its STONED,
+// SLIMED and SICK cases use the result and none of the three is admitted here.
+async function decrement_property_timeouts(state, env) {
     for (const property of state.u?.uprops ?? []) {
-        if ((Math.trunc(property?.intrinsic ?? 0) & TIMEOUT) !== 0)
-            --property.intrinsic;
+        if ((Math.trunc(property?.intrinsic ?? 0) & TIMEOUT) === 0) continue;
+        if ((--property.intrinsic & TIMEOUT) !== 0) continue;
+        // C ref: timeout.c:774-777.
+        await heal_legs(state, env);
+        await stop_occupation(state, env);
     }
 }
 
 // Source-ordered elapsed-turn owner. The remaining admitted timeout state is
 // source-inert after the live luck prefix and the property countdown.
-export function nh_timeout_elapsed_turn(state = game) {
+//
+// `env` carries the message() that heal_legs() writes its line through and the
+// statusRefresh() stop_occupation() may need, because the elapsed turn is dry
+// run on a cloned state first and that pass has to stay silent.
+export async function nh_timeout_elapsed_turn(state = game, env = {}) {
     preflight_nh_timeout_elapsed_turn(state);
     adjust_timeout_luck(state);
     /* "things past this point could kill you" -- timeout.c:621-622, below the
        basal-luck block and above every branch nh_timeout() has left. */
     if (state.u?.uinvulnerable) return;
-    decrement_property_timeouts(state);
+    await decrement_property_timeouts(state, env);
 }
 
 // C inserts before the first timer whose expiry is greater than or equal to

@@ -81,7 +81,8 @@ export function loadHeroBearTrapRecipe() {
             // `(u.dx && u.dy) || !rn2(5)` skips, and ten of them are not
             // enough here, so the hero is still held when the segment ends.
             // Ten is also the ceiling: rn1(10, 10) gives the wounded legs ten
-            // to nineteen turns, and timeout.c's expiry needs heal_legs().
+            // to nineteen turns, and the expiry belongs to the recovery matrix
+            // in scripts/run-wounded-legs.mjs rather than to this one.
             walk({ seed: 395, moves: 'j hhhhhhhhhh' }),
             // A diagonal walk onto the trap rather than an orthogonal one, so
             // that no single approach direction carries the arm.

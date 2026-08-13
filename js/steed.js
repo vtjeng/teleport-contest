@@ -651,8 +651,10 @@ export async function dismount_steed(reason, state = game) {
     /* While riding, Wounded_legs refers to the steed's legs;
        after dismounting, it reverts to the hero's legs. */
     if (repair_leg_damage) {
-        // do.c heal_legs() prints "Your leg feels better." and clears the
-        // timeout; it is unported, which is the whole basis for this stop.
+        // C calls heal_legs(1) here. js/do.js ports that function's how == 0
+        // arm alone, and how is what decides both of its remaining branches --
+        // the dismount says nothing and gives no encumbrance feedback -- so
+        // there is nothing to call, which is the whole basis for this stop.
         // The property is live -- do.c set_wounded_legs(), reached from trap.c
         // trapeffect_bear_trap()'s hero arm, writes it -- but mount_steed()
         // refuses a hero who already carries the wound, so arriving here needs

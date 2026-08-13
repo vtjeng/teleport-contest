@@ -1,12 +1,12 @@
 {
-  "mode": "implementation",
-  "reason": "The goal bear-trap-capture's second slice has landed: trap.c mintrap()'s mtmp->mtrapped arm is ported for the bear trap, monmove.c m_move()'s prologue calls it, and trap.c trapname() exists in js/trap.js. js/trap_effects.js:811's refusal and the resolveTrappedMonster injection are gone, and js/unported_monster_actions.js's 'a trapped monster' gate now reads the square rather than the mtrapped bit. Two entries remain missing: do.c heal_legs() and the timeout.c nh_timeout() case that reaches it, which is slice 3 and carries 120 of the goal's 137 steps.",
-  "commitChecked": "ecf01a88f06f10efcf2f3377e96f132e6b89d630",
+  "mode": "ready-for-audit",
+  "reason": "Every entry is done, cannot-occur or later with its evidence, and no entry is missing or undecided. The goal's last refusal is gone: js/do.js heal_legs() ends the hero's bear-trap wound and js/timeout.js reaches it from timeout.c nh_timeout()'s expiry switch, which js/allmain.js:684 runs every turn. The production game executes it -- seed0004-feeding-pony now matches step 51, 'Your leg feels better.  Your movements are now unencumbered.' with Dexterity back to 9 and Burdened gone -- and five fresh C recordings in scripts/run-wounded-legs.mjs match it call for call and screen for screen over both encumbrance outcomes. Every excluded branch stops before changing state, spending randomness or writing: heal_legs()'s two other arms have no ported caller and js/steed.js refuses the one that would, and mintrap()'s pit and metallivore machinery is refused at the top of the arm. The delivered figure is far below the forecast and the reason is recorded in sourceReview: the goal's own honest risk fired one step past the boundary, on an owner outside it.",
+  "commitChecked": "5268be9144983ef08de5cbd88249288c22e34377",
   "boundary": {
     "goalId": "bear-trap-capture",
     "startingCommit": "8a25741772d30ee7d90b8c261bb1ab65a0fef8d4",
     "startingEvent": "A monster completes a move onto a square holding a bear trap, so monmove.c postmov() calls mintrap() and its already-ported dispatch reaches trapeffect_selector(); or, for the third slice, any turn on which the hero's wounded-legs timeout counts down to zero in timeout.c nh_timeout(), which js/allmain.js:684 reaches every turn.",
-    "endingEvent": "The trapped monster pulls free at mintrap()'s !rn2(40), and the hero's own bear-trap wound ends with heal_legs() drawing 'Your leg feels better.  Your movements are now unencumbered.' In seed0004-feeding-pony the boundary runs from step 34 to step 170; step 171 types a count prefix, which js/cmd.js:1920 refuses through readSimpleCommand(), and that refusal is the cap rather than part of this goal.",
+    "endingEvent": "The trapped monster pulls free at mintrap()'s !rn2(40), and the hero's own bear-trap wound ends with heal_legs() drawing 'Your leg feels better.  Your movements are now unencumbered.' In seed0004-feeding-pony the boundary was measured as steps 34 to 170; step 171 types a count prefix, which js/cmd.js:1920 refuses through readSimpleCommand(), and that refusal is the cap rather than part of this goal. The session in fact stops at step 52, on an owner outside this goal that the look-ahead misread; sourceReview records which one and how the reading went wrong.",
     "validInputs": "Any seed, date and options whose D:1 places a bear trap a monster can walk onto, plus the hero walking onto one. seed0004-feeding-pony is the only development session that reaches the boundary: seed 4, datetime 20260414173108, OPTIONS=symset:DECgraphics, one segment. autopickup is off by its optlist.h:184 default, so js/hack.js:918 cannot interfere.",
     "observables": "Every screen, cursor and random-number call from the monster's completed move through the escape, and from the wounded-legs countdown through heal_legs(). The order-sensitive ones are d(2,4) at trap.c:1554, which C spends eleven keystrokes after the pline_mon() at 1534 suspends on a --More--, and the per-turn rn2(40) at trap.c:3751.",
     "exclusions": "The count prefix at step 171 and everything after it, including hack.c moverock() at step 203 and #loot at 238. dog.c keepdogs()'s trapped-follower line, refused at js/dog.js:657, which needs a level change while a pet is trapped. heal_legs()'s how == 1 dismount and how == 2 petrification arms. trapeffect_bear_trap()'s two remaining hero branches, the mounted arm at C 1507-1511 and the iron-shoes line at C 1517-1518, which preflight_dotrap() refuses ahead of the move. mintrap()'s pit and metallivore machinery, which no bear trap reaches."
@@ -130,11 +130,11 @@
     {
       "candidate": "do.c heal_legs(), the how == 0 arm (C 2448-2486)",
       "reachability": "Called only from timeout.c nh_timeout()'s WOUNDED_LEGS case when the count reaches zero.",
-      "owner": "None. js/timeout.js:277-280 raises UnsupportedHeroTimeoutBoundaryError('heal_legs() for an expiring wounded-legs timeout'), which nh_timeout_elapsed_turn() at js/timeout.js:343-344 reaches every turn from js/allmain.js:684.",
+      "owner": "js/do.js heal_legs(), beside set_wounded_legs(). It takes no `how`, because how == 0 is the only value a ported caller passes and it is what decides both of the function's remaining branches.",
       "effects": "Clears the wound, writes 'Your leg feels better.  Your movements are now unencumbered.' and calls encumber_msg().",
-      "evidence": "do.c:2448-2486. js/do.js:1446-1450 already records that heal_legs() is unported and that js/timeout.js stops the segment on the turn the count would reach zero. seed0004 step 51 is this event; Burdened stands from step 27 to step 50.",
-      "status": "missing",
-      "remaining": "Slice 3, which carries 120 of the goal's 137 steps."
+      "evidence": "do.c:2448-2486. seed0004 step 51 is this event, drawing that line with Dx back to 9 and Burdened gone; the port now matches it. Burdened stands from step 27 to step 50.",
+      "status": "done",
+      "remaining": "None. scripts/run-wounded-legs.mjs records five fresh C cases in which the countdown runs out: two burdened Knights whose recovery draws both halves of the line and three heroes whose load never crossed a threshold and whose line therefore stands alone, one of them already free of the trap. All five match call for call and screen for screen. scripts/wounded-legs.test.mjs pins the branches no case reaches: the Wounded_legs guard, either half of it alone, the mounted suppression at C 2461, the Dexterity floor at C 2454, and encumber_msg() at C 2484, which the matrix cannot separate from allmain.c:208's because a burdened hero opens a second once-per-turn round inside the same keystroke."
     },
     {
       "candidate": "heal_legs()'s plural line (C 2464)",
@@ -143,25 +143,25 @@
       "effects": "Would pluralise the body part through makeplural().",
       "evidence": "do.c:2464. set_wounded_legs() at trap.c:1520 writes one side bit, rn2(2) ? RIGHT_SIDE : LEFT_SIDE, so the condition is false and the line stays singular, matching the recording.",
       "status": "cannot-occur",
-      "remaining": "None inside this boundary. Port the test with the function; it simply does not fire here."
+      "remaining": "None inside this boundary. The line is ported and scripts/wounded-legs.test.mjs pins all three side values against it, including that objnam.c vtense() moves the verb with the noun: one leg feels better and two feel better."
     },
     {
       "candidate": "heal_legs()'s how == 1 dismount and how == 2 petrification arms (C 2461, 2483)",
       "reachability": "Require a dismount or a petrification, neither of which this goal reaches.",
-      "owner": "None.",
+      "owner": "None. js/do.js heal_legs() drops C's `how` and resolves both of its tests the way 0 resolves them, so there is nothing for a how == 1 or how == 2 caller to call.",
       "effects": "None inside this boundary.",
-      "evidence": "do.c:2461 and 2483.",
+      "evidence": "do.c:2461 and 2483. steed.c dismount_steed()'s heal_legs(1) is the only such caller anywhere near this boundary and js/steed.js refuses it ahead of the call, above a comment naming this decision; petrification has no ported caller at all.",
       "status": "later",
-      "remaining": "Out of scope; the goal's detail excludes them."
+      "remaining": "Out of scope; the goal's detail excludes them. Whoever ports either arm restores the argument and lifts js/steed.js's stop with it."
     },
     {
       "candidate": "timeout.c nh_timeout()'s WOUNDED_LEGS case (C 774)",
       "reachability": "Every turn, as the intrinsic counts down.",
-      "owner": "Partially: js/timeout.js counts the intrinsic down and stops at zero instead of calling heal_legs().",
-      "effects": "Reaches heal_legs() at zero.",
-      "evidence": "timeout.c:774, with js/timeout.js:277-280 and js/allmain.js:684.",
-      "status": "missing",
-      "remaining": "Slice 3, with heal_legs() itself."
+      "owner": "js/timeout.js decrement_property_timeouts(), which now carries C's `!(--upp->intrinsic & TIMEOUT)` expiry test and the case under it, reached from nh_timeout_elapsed_turn() and js/allmain.js:684.",
+      "effects": "Reaches heal_legs() at zero, then stop_occupation().",
+      "evidence": "timeout.c:774-777. The preflight at js/timeout.js admits no property but WOUNDED_LEGS, so no other case of that switch is reachable; C's find_delayed_killer() at 672 is read only by the STONED, SLIMED and SICK cases and none is admitted.",
+      "status": "done",
+      "remaining": "None. The refusal is gone and both halves of the case are exercised: the five fresh cases in scripts/run-wounded-legs.mjs reach heal_legs() through js/allmain.js, and scripts/wounded-legs.test.mjs pins stop_occupation() separately through the run it ends, which nothing else on this path clears."
     },
     {
       "candidate": "dog.c keepdogs()'s trapped-follower line",
@@ -173,15 +173,6 @@
       "remaining": "Out of scope; the goal's detail excludes it."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "js/timeout.js and js/do.js, the hero's wounded legs",
-      "candidates": [
-        "do.c heal_legs(), the how == 0 arm (C 2448-2486)",
-        "timeout.c nh_timeout()'s WOUNDED_LEGS case (C 774)"
-      ],
-      "next": "Slice 3. Correct independently of slices 1 and 2, but earns nothing until they carry seed0004 past step 50. Worth steps 51-170, one hundred and twenty screens, and it is the goal's payer."
-    }
-  ],
-  "sourceReview": "Every branch and helper reachable inside the boundary was traced against nethack-c/upstream/ rather than inferred, by the slice-selector at a4e9d83 and recorded here at 8a25741. The trace covered state, message order and random-number order: d(2,4) at trap.c:1554 sits eleven keystrokes after the pline_mon() at 1534 suspends, and rn2(40) at trap.c:3751 recurs once per trapped turn. Stubs, stops and partial implementations are identified individually above: four refusal sites (js/trap_effects.js:491 and :811, js/unported_monster_actions.js:229-230, js/timeout.js:277-280), one injection standing in for a real function (resolveTrappedMonster at js/unported_monster_actions.js:712, seam js/monmove.js:2503), one function absent from js/ entirely (trapname()), and one partial port that counts down but does not act (js/timeout.js's WOUNDED_LEGS handling). Two claims in the goal's own detail were corrected by this reading and are corrected here: the detail says lifting the trap arm without the unported_monster_actions.js gate 'earns nothing', but C's log shows that gate firing at the pony's next action at step 46, so slice 1 earns steps 34-45; and the detail's four refusal sites omit that trapname() has five refusing callers of which this goal lifts none, because each of the other four needs its own surrounding branch. Slice 1 landed the monster arm at 1525-1558 entire; the four refusal sites it names are now three, js/trap_effects.js:491 having been replaced by the arm itself. Two of the arm's six branches are recorded as cannot-occur rather than done because this boundary cannot reach them, and each carries the specific upstream condition that prevents it. Slice 2 landed the mtrapped arm, m_move()'s prologue and trapname(). One claim in this file's own candidate list was corrected by porting it: mintrap()'s mtrapped arm can return neither Trap_Killed_Mon nor Trap_Moved_Mon, so m_move():1736's death arm is dead in C as well as in the port and is carried with a comment rather than tested. The refusal sites this goal opened with are down to one, js/timeout.js:277-280, which slice 3 lifts."
+  "missingWorkByOwner": [],
+  "sourceReview": "Every branch and helper reachable inside the boundary was traced against nethack-c/upstream/ rather than inferred, by the slice-selector at a4e9d83 and recorded here at 8a25741. The trace covered state, message order and random-number order: d(2,4) at trap.c:1554 sits eleven keystrokes after the pline_mon() at 1534 suspends, and rn2(40) at trap.c:3751 recurs once per trapped turn. Stubs, stops and partial implementations are identified individually above: four refusal sites (js/trap_effects.js:491 and :811, js/unported_monster_actions.js:229-230, js/timeout.js:277-280), one injection standing in for a real function (resolveTrappedMonster at js/unported_monster_actions.js:712, seam js/monmove.js:2503), one function absent from js/ entirely (trapname()), and one partial port that counts down but does not act (js/timeout.js's WOUNDED_LEGS handling). Two claims in the goal's own detail were corrected by this reading and are corrected here: the detail says lifting the trap arm without the unported_monster_actions.js gate 'earns nothing', but C's log shows that gate firing at the pony's next action at step 46, so slice 1 earns steps 34-45; and the detail's four refusal sites omit that trapname() has five refusing callers of which this goal lifts none, because each of the other four needs its own surrounding branch. Slice 1 landed the monster arm at 1525-1558 entire; the four refusal sites it names are now three, js/trap_effects.js:491 having been replaced by the arm itself. Two of the arm's six branches are recorded as cannot-occur rather than done because this boundary cannot reach them, and each carries the specific upstream condition that prevents it. Slice 2 landed the mtrapped arm, m_move()'s prologue and trapname(). One claim in this file's own candidate list was corrected by porting it: mintrap()'s mtrapped arm can return neither Trap_Killed_Mon nor Trap_Moved_Mon, so m_move():1736's death arm is dead in C as well as in the port and is carried with a comment rather than tested. Slice 3 landed heal_legs() and the timeout case that reaches it, and the refusal sites this goal opened with are now none. THE FORECAST'S HONEST RISK FIRED, ONE STEP PAST THE BOUNDARY RATHER THAN PARTWAY THROUGH IT. Slice 3 was measured at 120 of the goal's 137 steps, steps 51 to 170 of seed0004-feeding-pony, and delivered one: the session now matches 52 of 409 screens and stops at step 52, where C draws 'The kobold misses!' and js/unported_monster_actions.js refuses 'monster attack on the hero'. That owner is mhitu.c mattacku(), which no owner of this goal names and which was already refusing before any of these three slices. The look-ahead read steps 52-53 as hero melee; step 53, 'You kill the kobold!', is the hero's, but step 52 is the kobold's, and no capping rule in .agents/selection.md would have caught the difference without resolving each message to the function that writes it. Nothing about heal_legs() is implicated: step 51 matches, and the five fresh recordings carry the recovery through fifteen further turns apiece."
 }

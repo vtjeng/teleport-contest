@@ -36,10 +36,7 @@ import {
     HIGH_BOOTS,
     IRON_SHOES,
 } from '../js/objects.js';
-import {
-    UnsupportedHeroTimeoutBoundaryError,
-    nh_timeout_elapsed_turn,
-} from '../js/timeout.js';
+import { nh_timeout_elapsed_turn } from '../js/timeout.js';
 import {
     PM_BLACK_PUDDING,
     PM_DUST_VORTEX,
@@ -162,8 +159,9 @@ test('every matrix segment springs its bear trap and replays to its last key',
             );
             // rn1(10, 10)'s base is pinned against its own draw by the test
             // below; what this asserts is the matrix invariant that keeps the
-            // expiry out of reach, since heal_legs() would refuse the turn a
-            // count reached zero.
+            // expiry out of reach, so that every segment here ends with the
+            // wound still standing. The recovery has its own matrix in
+            // scripts/run-wounded-legs.mjs.
             assert.ok(
                 (woundedLegs().intrinsic & TIMEOUT) > 0,
                 `segment ${index} still has wounded legs`,
@@ -198,9 +196,10 @@ test('the hero arm draws d(2,4), rn1(4,4), rn2(2), rn1(10,10) and rn2(2)',
         // the side from the draw rather than naming a constant is what pins
         // that polarity: nothing else in the port can tell the two apart,
         // because hack.c weight_cap() subtracts WT_WOUNDEDLEG_REDUCT for
-        // either alike and do.c heal_legs(), whose line names the leg, is
-        // unported. This seed draws 0, so the RIGHT_SIDE arm stays unexercised
-        // -- every matrix segment draws 0 -- but a swapped pair still fails.
+        // either alike and do.c heal_legs()'s line names the leg only when
+        // both are wounded. This seed draws 0, so the RIGHT_SIDE arm stays
+        // unexercised -- every matrix segment draws 0 -- but a swap still
+        // fails.
         assert.equal(
             woundedLegs().extrinsic,
             values[2] ? RIGHT_SIDE : LEFT_SIDE,
@@ -734,26 +733,32 @@ test('unconscious needs a negative multi and a reason to be insensible', () => {
     }
 });
 
-test('the wounded-legs timeout counts down and stops where heal_legs begins',
+test('the wounded-legs timeout counts down and then reaches heal_legs',
     async () => {
         await heroOnLevelOne();
         woundedLegs().intrinsic = 3;
         woundedLegs().extrinsic = RIGHT_SIDE;
+        game.u.atemp[A_DEX] = -1; // what set_wounded_legs() charged
 
-        nh_timeout_elapsed_turn(game);
+        await nh_timeout_elapsed_turn(game);
         assert.equal(woundedLegs().intrinsic & TIMEOUT, 2);
-        nh_timeout_elapsed_turn(game);
+        // Nothing happens until the count runs out: the side bit stands and
+        // the point of Dexterity is still spent.
+        assert.equal(woundedLegs().extrinsic, RIGHT_SIDE);
+        assert.equal(game.u.atemp[A_DEX], -1);
+        await nh_timeout_elapsed_turn(game);
         assert.equal(woundedLegs().intrinsic & TIMEOUT, 1);
 
         // timeout.c:670-671 decrements first and runs the expiry switch on the
-        // property that reaches zero. WOUNDED_LEGS' case there is heal_legs().
-        assert.throws(
-            () => nh_timeout_elapsed_turn(game),
-            (error) => error instanceof UnsupportedHeroTimeoutBoundaryError
-                && error.reason.includes('heal_legs()'),
-        );
-        // The refusal precedes the countdown, so the turn can be retried.
-        assert.equal(woundedLegs().intrinsic & TIMEOUT, 1);
+        // property that reaches zero. WOUNDED_LEGS' case there is heal_legs(),
+        // which clears both halves of the condition and gives the point back.
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        await nh_timeout_elapsed_turn(game);
+        assert.equal(woundedLegs().intrinsic & TIMEOUT, 0);
+        assert.equal(woundedLegs().extrinsic, 0);
+        assert.equal(game.u.atemp[A_DEX], 0);
+        assert.equal(game._ttyToplines, 'Your leg feels better.');
     });
 
 test('preflight_dotrap refuses a mounted hero before the trap is entered',

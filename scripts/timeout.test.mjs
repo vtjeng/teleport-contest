@@ -83,79 +83,86 @@ test('timeout globals reset source-owned fields without replacing owners', () =>
     assert.equal(state.svt.timer_id, 1);
 });
 
-test('elapsed-turn timeout upkeep admits only source-inert timeout state', () => {
-    const state = timerState(2);
-    state.u = {
-        uinvulnerable: false,
-        mtimedone: 0,
-        ucreamed: 0,
-        usptime: 0,
-        ugallop: 0,
-        uprops: [{ intrinsic: 0 }, { intrinsic: 0x01000000 }],
-    };
-    start_timer(100, TIMER_OBJECT, ROT_CORPSE, { timed: 0 }, state);
-    assert.doesNotThrow(() => nh_timeout_elapsed_turn(state));
+test('elapsed-turn timeout upkeep admits only source-inert timeout state',
+    async () => {
+        const state = timerState(2);
+        state.u = {
+            uinvulnerable: false,
+            mtimedone: 0,
+            ucreamed: 0,
+            usptime: 0,
+            ugallop: 0,
+            uprops: [{ intrinsic: 0 }, { intrinsic: 0x01000000 }],
+        };
+        start_timer(100, TIMER_OBJECT, ROT_CORPSE, { timed: 0 }, state);
+        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
 
-    // Each scalar the guard names must stop the turn on its own. The guard
-    // returns early when uinvulnerable is set, so these all run with it false.
-    for (const field of ['mtimedone', 'ucreamed', 'usptime', 'ugallop']) {
-        state.u[field] = 1;
-        assert.throws(
-            () => nh_timeout_elapsed_turn(state),
-            new RegExp(`zero ${field}`, 'u'),
-            field,
+        // Each scalar the guard names must stop the turn on its own. The
+        // guard returns early when uinvulnerable is set, so these all run
+        // with it false.
+        for (const field of ['mtimedone', 'ucreamed', 'usptime', 'ugallop']) {
+            state.u[field] = 1;
+            await assert.rejects(
+                nh_timeout_elapsed_turn(state),
+                new RegExp(`zero ${field}`, 'u'),
+                field,
+            );
+            state.u[field] = 0;
+        }
+        // Invulnerability precedes every scalar, so the same state passes
+        // with it.
+        state.u.mtimedone = 1;
+        state.u.uinvulnerable = true;
+        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        state.u.uinvulnerable = false;
+        state.u.mtimedone = 0;
+
+        state.u.uprops[0].intrinsic = 3;
+        await assert.rejects(
+            nh_timeout_elapsed_turn(state),
+            /no active property timeout at index 0/u,
         );
-        state.u[field] = 0;
-    }
-    // Invulnerability precedes every scalar, so the same state passes with it.
-    state.u.mtimedone = 1;
-    state.u.uinvulnerable = true;
-    assert.doesNotThrow(() => nh_timeout_elapsed_turn(state));
-    state.u.uinvulnerable = false;
-    state.u.mtimedone = 0;
+        state.u.uprops[0].intrinsic = 0;
+        state.gt.timer_base.timeout = 2;
+        await assert.rejects(
+            nh_timeout_elapsed_turn(state),
+            /no timer due by move 2/u,
+        );
+    });
 
-    state.u.uprops[0].intrinsic = 3;
-    assert.throws(
-        () => nh_timeout_elapsed_turn(state),
-        /no active property timeout at index 0/u,
-    );
-    state.u.uprops[0].intrinsic = 0;
-    state.gt.timer_base.timeout = 2;
-    assert.throws(
-        () => nh_timeout_elapsed_turn(state),
-        /no timer due by move 2/u,
-    );
-});
+test('elapsed-turn timeout upkeep preserves invulnerability short circuit',
+    async () => {
+        const state = timerState(2);
+        const uprops = [];
+        // WOUNDED_LEGS is the only property this port gives a timeout, so it
+        // is the only index at which timeout.c:670-671's countdown is
+        // observable. Five turns is an arbitrary count above the expiry.
+        uprops[WOUNDED_LEGS] = { intrinsic: 5, extrinsic: RIGHT_SIDE };
+        state.u = { uinvulnerable: true, mtimedone: 5, uprops };
 
-test('elapsed-turn timeout upkeep preserves invulnerability short circuit', () => {
-    const state = timerState(2);
-    const uprops = [];
-    // WOUNDED_LEGS is the only property this port gives a timeout, so it is
-    // the only index at which timeout.c:670-671's countdown is observable.
-    // Five turns is an arbitrary count above the one the preflight refuses.
-    uprops[WOUNDED_LEGS] = { intrinsic: 5, extrinsic: RIGHT_SIDE };
-    state.u = { uinvulnerable: true, mtimedone: 5, uprops };
+        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        // timeout.c:621-622 returns above the countdown, so the count stands.
+        assert.equal(uprops[WOUNDED_LEGS].intrinsic, 5);
 
-    assert.doesNotThrow(() => nh_timeout_elapsed_turn(state));
-    // timeout.c:621-622 returns above the countdown, so the count stands.
-    assert.equal(uprops[WOUNDED_LEGS].intrinsic, 5);
+        // One turn left is the count that would expire and reach heal_legs()
+        // on an ordinary turn. Invulnerability keeps this state untouched too,
+        // and silently: C reaches neither the loop nor its switch. Without the
+        // short circuit heal_legs() would run here, and this synthetic hero
+        // has neither the temporary attributes nor the pack it reads.
+        uprops[WOUNDED_LEGS].intrinsic = 1;
+        await assert.doesNotReject(nh_timeout_elapsed_turn(state));
+        assert.equal(uprops[WOUNDED_LEGS].intrinsic, 1);
 
-    // One turn left is the count the preflight refuses for heal_legs(). It too
-    // is untouched, and silently: C reaches neither the loop nor its switch.
-    uprops[WOUNDED_LEGS].intrinsic = 1;
-    assert.doesNotThrow(() => nh_timeout_elapsed_turn(state));
-    assert.equal(uprops[WOUNDED_LEGS].intrinsic, 1);
+        // The same state without invulnerability does count down. Without this
+        // the two above would also pass on a port that never counts at all.
+        state.u.uinvulnerable = false;
+        state.u.mtimedone = 0;
+        uprops[WOUNDED_LEGS].intrinsic = 5;
+        await nh_timeout_elapsed_turn(state);
+        assert.equal(uprops[WOUNDED_LEGS].intrinsic, 4);
+    });
 
-    // The same state without invulnerability does count down. Without this the
-    // two assertions above would also pass on a port that never counts at all.
-    state.u.uinvulnerable = false;
-    state.u.mtimedone = 0;
-    uprops[WOUNDED_LEGS].intrinsic = 5;
-    nh_timeout_elapsed_turn(state);
-    assert.equal(uprops[WOUNDED_LEGS].intrinsic, 4);
-});
-
-test('move-600 timeout luck uses basal role and luckstone gates', () => {
+test('move-600 timeout luck uses basal role and luckstone gates', async () => {
     const state = timerState(600);
     state.flags = { moonphase: 0, friday13: false };
     state.svq = { quest_status: {} };
@@ -174,7 +181,7 @@ test('move-600 timeout luck uses basal role and luckstone gates', () => {
         uluck: 0,
     };
 
-    nh_timeout_elapsed_turn(state);
+    await nh_timeout_elapsed_turn(state);
     assert.equal(state.u.uluck, 1);
 
     state.moves = 1200;
@@ -186,16 +193,16 @@ test('move-600 timeout luck uses basal role and luckstone gates', () => {
         cursed: false,
         nobj: null,
     };
-    nh_timeout_elapsed_turn(state);
+    await nh_timeout_elapsed_turn(state);
     assert.equal(state.u.uluck, 3, 'blessed luckstone retains good luck');
 
     state.invent.blessed = false;
     state.invent.cursed = true;
-    nh_timeout_elapsed_turn(state);
+    await nh_timeout_elapsed_turn(state);
     assert.equal(state.u.uluck, 2, 'cursed luckstone lets good luck time out');
 });
 
-test('fedora basal luck requires both the role and worn helmet', () => {
+test('fedora basal luck requires both the role and worn helmet', async () => {
     const state = timerState(600);
     state.flags = { moonphase: 0, friday13: false };
     state.svq = { quest_status: {} };
@@ -214,13 +221,13 @@ test('fedora basal luck requires both the role and worn helmet', () => {
 
     state.urole = { mnum: PM_HEALER };
     state.uarmh = { otyp: FEDORA };
-    nh_timeout_elapsed_turn(state);
+    await nh_timeout_elapsed_turn(state);
     assert.equal(state.u.uluck, 0, 'another role gets no fedora baseline');
 
     state.urole.mnum = PM_ARCHEOLOGIST;
     state.uarmh = null;
     state.u.uluck = 1;
-    nh_timeout_elapsed_turn(state);
+    await nh_timeout_elapsed_turn(state);
     assert.equal(state.u.uluck, 0, 'Archeologist must wear the fedora');
 });
 

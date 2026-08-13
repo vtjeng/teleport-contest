@@ -681,7 +681,12 @@ async function finishElapsedTurn(
         state.disp.time_botl = true;
     }
 
-    nh_timeout_elapsed_turn(state);
+    // do.c heal_legs() writes a line and reads the hero's load, so the dry run
+    // takes the silent pair that every other display operation here takes.
+    await nh_timeout_elapsed_turn(state, {
+        message: planning ? silentMessage : ttyPline,
+        statusRefresh: planning ? () => {} : () => bot(),
+    });
     // Full planning remains specific to the burdened multi-allocation path.
     // An unburdened clone returns just after random monster generation above,
     // which is the newly async lifecycle that also needs atomic preflight.

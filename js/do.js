@@ -7,6 +7,7 @@
 
 import {
     A_DEX,
+    BOTH_SIDES,
     CORR,
     DIR_DOWN,
     DOOR,
@@ -25,6 +26,7 @@ import {
     In_quest,
     In_tutorial,
     LADDER,
+    LEG,
     LEVITATION,
     LFILE_EXISTS,
     LOST_DROPPED,
@@ -111,7 +113,7 @@ import { PM_ROGUE, PM_TOURIST } from './monsters.js';
 import {
     is_pick, place_object, remove_object, set_bknown,
 } from './obj.js';
-import { donameFresh } from './objnam.js';
+import { donameFresh, vtense } from './objnam.js';
 import {
     BOULDER,
     CORPSE,
@@ -1446,8 +1448,7 @@ function temperature_change_msg(prev_temperature, state = game) {
 // this function looks smaller than its effect: hack.c weight_cap() subtracts
 // WT_WOUNDEDLEG_REDUCT per side bit, attrib.c exerchk() exercises Dexterity
 // down while the condition lasts, and timeout.c nh_timeout() counts the
-// intrinsic down and calls heal_legs() at zero. heal_legs() is not ported, so
-// js/timeout.js stops the segment on the turn the count would reach zero.
+// intrinsic down and calls heal_legs() below at zero.
 //
 // C's comment notes that a mounted hero's steed takes the wound instead and
 // that the caller adjusts its own messages; the hit-point loss is likewise the
@@ -1470,4 +1471,45 @@ export async function set_wounded_legs(side, timex, state = game) {
     // wound to the other leg does not heal the first.
     wounded.extrinsic |= side;
     await encumber_msg(state);
+}
+
+// C ref: do.c heal_legs() (2448-2486), the how == 0 arm. C's argument picks
+// between an ordinary recovery (0), a dismount (1) and the petrification
+// countdown (2), and it is read at C 2461 and 2483 to suppress the message and
+// the encumbrance feedback. Only timeout.c nh_timeout()'s WOUNDED_LEGS case is
+// ported and it passes 0, so both tests are resolved here in the direction 0
+// takes; steed.c dismount_steed()'s heal_legs(1) stays refused at js/steed.js.
+//
+// The caller has already counted HWounded_legs down to zero, so youprop.h:138
+// Wounded_legs is true here only through the side bits EWounded_legs holds.
+// Both fields are cleared together because 5.0 heals both legs at once.
+//
+// C's undoing of set_wounded_legs() is deliberately partial: that function
+// spends a point of temporary Dexterity unconditionally but this one restores
+// one only while the total is still negative, so a hero whose Dexterity was
+// raised in between keeps the gain.
+export async function heal_legs(state = game, { message = ttyPline } = {}) {
+    const u = state.u;
+    const wounded = u.uprops[WOUNDED_LEGS];
+    if (!wounded.intrinsic && !wounded.extrinsic) return;
+
+    state.disp ??= {};
+    state.disp.botl = true;
+    if (u.atemp[A_DEX] < 0) ++u.atemp[A_DEX];
+
+    // C ref: do.c:2461-2469. A mounted hero's wound belongs to the steed, so
+    // nothing is said about the hero's own legs.
+    if (!u.usteed) {
+        let legs = body_part(LEG, state.youmonst);
+        if ((wounded.extrinsic & BOTH_SIDES) === BOTH_SIDES)
+            legs = makeplural(legs);
+        await message(`Your ${legs} ${vtense(legs, 'feel')} better.`, state);
+    }
+
+    wounded.intrinsic = 0;
+    wounded.extrinsic = 0;
+
+    // C ref: do.c:2473-2484. Wounded legs cost carrying capacity, so healing
+    // them can lift an encumbrance the hero has been carrying.
+    await encumber_msg(state, { message });
 }
