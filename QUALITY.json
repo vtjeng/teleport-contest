@@ -2161,6 +2161,78 @@
       "status": "open",
       "from": "a2189e120e05c7baa192d2ccb574234371c7a5d7",
       "detail": "The armor-wear goal holds accessory_or_armor_on()'s `armor == FALSE` half refused, so doputon() stays unported. C shares that function between dowear() and doputon(), and equip_ok() only downplays an accessory for the W command rather than excluding it, so typing a ring, an amulet or a blindfold letter at the W prompt reaches the refused half from a keystroke.\n\njs/do_wear.js accessory_or_armor_on() raises UnsupportedWearError(\"accessory_or_armor_on() accessories\") for it, before anything is worn. C instead runs do_wear.c:2239-2353: a ring asks \"Which ring-finger, Right or Left?\" through getdir()-free yn_function(), an amulet goes through Amulet_on() and eyewear through Blindf_on().\n\nCase, expected to fail until the accessory half is ported: node scripts/diff-fresh.mjs --seed 7720141 --datetime 20310203040506 --role Valkyrie --gender female --align neutral --name Wear --options \"pettype:none,!acoustics,!autopickup,time,showexp,playmode:debug,!legacy,!tutorial,!splash_screen\" --moves \".^Wring of adornment\\nWe.\" where ^W is C(w), the wizwish key. C answers the W with \"What do you want to wear? [*]\" and the e with \"Which ring-finger, Right or Left? [rl]\"; the port stops on the e with 22 of C's 24 screens. PRNG matches positionally at 2705/2705, which is the artifact \"Facts about the measuring tools\" in .agents/validation.md warns about rather than agreement.\n\nClosing condition: doputon() and the ring, amulet and eyewear arms are ported or refused under their own names, and a recorded C case that puts a ring on with W and with P matches call for call and screen for screen. scripts/wear-armor.test.mjs pins the stop."
+    },
+    {
+      "id": "m-dowear-armor-fit-rules-have-two-homes",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "fc5613417808880f893c983a735b402db3772876",
+      "detail": "js/makemon_create.js keeps private slipsArmor(), cantWearArmor() and wrappingAllowed() that worn.c m_dowear()'s port still calls, beside the canonical js/mondata.js cantweararm() and js/obj.js WrappingAllowed() this slice landed, and the two pairs disagree: cantWearArmor() omits breakarm()'s PM_MARILITH and PM_WINGED_GARGOYLE term (mondata.c breakarm()), so it lets those two forms wear a suit that C refuses them. One C rule with two homes and two answers. Closes when the private copies are deleted and the m_dowear() port calls the two functions C's own m_dowear() names, with a fresh recorded case covering a monster of an affected species. That changes monster behavior, so .agents/review.md returns it to implementation rather than an audit fix. Confirmed by the correctness pass over b035d790..fc56134."
+    },
+    {
+      "id": "wear-prompt-answered-with-a-non-armor-letter-stops",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "fc5613417808880f893c983a735b402db3772876",
+      "detail": "Answering the new W prompt with an inventory letter that is neither armor nor an accessory -- three of the Valkyrie's four letters -- reaches js/invent.js getobj()'s UnsupportedObjectPromptError('silly_thing()') stop and ends the segment. C prints 'That is a silly thing to wear.' and asks again. The stop is a named fail-closed refusal, so it is permitted, but the case appears in neither the fresh-case matrix nor the ledger. Closes when scripts/run-wear-armor.mjs records the case (a seed-7720100 Valkyrie typing .TWd. reproduces it) and a test pins the boundary by name. Confirmed by the correctness pass over b035d790..fc56134."
+    },
+    {
+      "id": "getobj-async-callback-unpinned-at-three-sites",
+      "area": "objects",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "fc5613417808880f893c983a735b402db3772876",
+      "detail": "The slice made js/invent.js getobj()'s obj_ok callback awaited at four sites, and the suite exercises one. Dropping the await at the hands/self probe, at the gold arm, or at the final verification leaves the whole suite green, and the last of those is not cosmetic: an unawaited promise never equals GETOBJ_EXCLUDE, so a non-armor letter would continue past the silly_thing() stop instead of raising it. Closes when each of the three sites has an assertion that fails against a dropped await: the gold arm is reachable by answering W with the money letter, which must print 'You cannot wear gold.', and the verification site by the non-armor letter case above. Confirmed by the correctness pass over b035d790..fc56134."
+    },
+    {
+      "id": "takeoff-mask-clear-has-no-discriminating-case",
+      "area": "objects",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "fc5613417808880f893c983a735b402db3772876",
+      "detail": "scripts/wear-armor.test.mjs asserts game.context.takeoff.mask is 0 after a W, but armoroff() sets the slot bit and the matching <X>_off() clears it, so the preceding T already leaves the mask at 0 and nothing on the W path raises it: deleting accessory_or_armor_on()'s own clear keeps the suite green. The assertion now carries a comment saying so. Closes when a case reaches W with the mask still set, which needs an interrupted delayed take-off or the unported A spine, and the assertion fails without the clear. Confirmed by the correctness pass over b035d790..fc56134."
+    },
+    {
+      "id": "full-complement-guard-pins-one-of-eleven-slots",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "fc5613417808880f893c983a735b402db3772876",
+      "detail": "scripts/wear-armor.test.mjs's test of dowear()'s full-complement guard leaves exactly one of the eleven slot conjuncts empty, ublindf, so the other ten are unpinned: deleting the uleft, uright and uamul terms from the guard passes the whole suite. Closes when the test loops over the eleven fields, empties each in turn with the other ten filled, and asserts the getobj() prompt for every iteration, keeping the all-filled case on the guard's own message. Confirmed by the correctness pass over b035d790..fc56134."
+    },
+    {
+      "id": "canwearobj-silence-pinned-for-one-of-seven-arms",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "fc5613417808880f893c983a735b402db3772876",
+      "detail": "canwearobj() silence under noisy=false is pinned for exactly one of its seven filled-slot arms, the shield: dropping the noisy guard from the helmet or the suit arm leaves both the wear and take-off suites green, even though prompt building calls canwearobj() for every armor in the pack and a leaked message there would corrupt the top line. Closes when the silent pass loops over all seven categories, filling each slot in turn and asserting GETOBJ_DOWNPLAY together with an empty pending top line. Confirmed by the correctness pass over b035d790..fc56134."
+    },
+    {
+      "id": "wrapping-allowed-conjuncts-unpinned",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "fc5613417808880f893c983a735b402db3772876",
+      "detail": "WrappingAllowed() is tested only with FALSE witnesses that the mlet and monster-index exclusions already reject, so three of the macro five conjuncts are unpinned: humanoid(), the MZ_SMALL to MZ_HUGE size window, and the noncorporeal test. Closes when the test adds a FALSE witness that each untested conjunct alone rejects -- a non-humanoid such as PM_LICHEN, a noncorporeal humanoid such as PM_GHOST, and forms above and below the size window -- plus a TRUE witness at each window edge. Confirmed by the correctness pass over b035d790..fc56134."
+    },
+    {
+      "id": "has-horns-threshold-unpinned",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "fc5613417808880f893c983a735b402db3772876",
+      "detail": "The has_horns() test asserts a two-horned and a hornless form only, though its title claims the four two-horned and four one-horned forms, so the predicate threshold is unpinned: rewriting it as num_horns(species) greater than 1 passes the suite. Closes when the test asserts num_horns() and has_horns() for a one-horned form such as a unicorn or ki-rin, or the title is corrected to what it checks. Confirmed by the correctness pass over b035d790..fc56134."
     }
   ],
   "areas": [

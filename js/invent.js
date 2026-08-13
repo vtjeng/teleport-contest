@@ -380,9 +380,11 @@ export function any_obj_ok(obj) {
 // choice sets, and no ported callback gives one -- any_obj_ok() above,
 // apply_ok(), eat_ok() and takeoff_ok() all answer an exclusion for null.
 //
-// Every `obj_ok` answer below is awaited. do_wear.c wear_ok() reaches
-// canwearobj(), whose refusals write messages, so that one callback is async
-// where the rest are ordinary functions.
+// Every `obj_ok` answer below is awaited. do_wear.c equip_ok() reaches
+// canwearobj(), whose refusals write messages, so equip_ok() is async and both
+// callbacks over it -- wear_ok() and takeoff_ok() -- return promises.
+// any_obj_ok() above, apply_ok() and eat_ok() are still plain functions, so the
+// await is what lets one set of call sites serve both kinds.
 //
 // Four of C's inputs cannot arrive. gi.in_doagain is always false, because
 // #repeat and its ^A binding are unported and do_repeat() is the only writer

@@ -75,12 +75,12 @@
     },
     {
       "candidate": "canwearobj()'s `otmp->owornmask & W_ARMOR` arm, already_wearing(c_that_)",
-      "reachability": "Runs silently for every already-worn armor while getobj() builds the prompt, and noisily only if such an object is somehow selected.",
+      "reachability": "Unreachable from either caller. Both pre-empt it: equip_ok() returns GETOBJ_EXCLUDE_INACCESS on `Boolean(removing) !== is_worn` before its canwearobj() call, so prompt building never passes a worn piece; and accessory_or_armor_on()'s own head test returns on `owornmask & (W_ACCESSORY | W_ARMOR)` before its call, so a selected worn piece never arrives either. grep over nethack-c/upstream/src/ finds exactly those two callers.",
       "owner": "js/do_wear.js canwearobj() and already_wearing()",
-      "effects": "Returns ok false with mask 0; the message is suppressed under noisy false.",
-      "evidence": "do_wear.c:2069-2073. The Valkyrie fixtures wear a suit and a shield at game start, so the silent path runs on the live W of every recorded case; already_wearing()'s c_that_ punctuation branch is pinned by four tests in scripts/wear-armor.test.mjs.",
-      "status": "done",
-      "remaining": "None."
+      "effects": "None in the running game.",
+      "evidence": "do_wear.c:2069-2073, pre-empted at 3418-3420 and 2213-2216. C keeps the arm defensively and the port carries it under the whole-function rule. The 'You are already wearing that!' line the recordings contain comes from accessory_or_armor_on()'s own already_wearing(c_that_), not from this arm; already_wearing()'s c_that_ punctuation branch is pinned by four direct tests, and this arm by the direct canwearobj() call in scripts/wear-armor.test.mjs, not by any recorded frame.",
+      "status": "cannot-occur",
+      "remaining": "None. The correctness pass over b035d790..fc56134 caught this entry claiming the opposite -- that the silent path ran on the live W of every recorded case -- which was the orchestrator's reading error, not the port's."
     },
     {
       "candidate": "canwearobj()'s welded() && bimanual() arm for a suit or shirt",

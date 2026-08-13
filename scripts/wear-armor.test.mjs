@@ -22,6 +22,9 @@ import {
     W_ARMH,
     W_ARMS,
     W_ARMU,
+    W_AMUL,
+    W_RINGL,
+    W_RINGR,
     W_SWAPWEP,
     W_TOOL,
 } from '../js/const.js';
@@ -210,9 +213,15 @@ test('W puts the shield back on and spends one turn', async () => {
     // accessory_or_armor_on() answers ECMD_TIME, so rhack() sets context.move
     // and the move loop advances the clock by one.
     assert.equal(game.moves, movesAfterRemoval + 1);
-    // unmul("") clears the callback it just ran, and the tail of
-    // accessory_or_armor_on() clears takeoff.mask.
+    // unmul("") clears the callback it just ran.
     assert.equal(game.afternmv ?? null, null);
+    // The mask assertion below proves less than it looks. armoroff() sets the
+    // slot bit and Shield_off() clears it again, so the preceding T leaves the
+    // mask at 0 and nothing on the W path ever raises it: deleting
+    // accessory_or_armor_on()'s own clear keeps this green. Making it
+    // discriminating needs a W that follows a doff which left the mask set,
+    // which needs an interrupted delayed take-off or the unported 'A' spine --
+    // takeoff-mask-clear-has-no-discriminating-case in the ledger.
     assert.equal(game.context.takeoff.mask, 0);
 });
 
@@ -848,10 +857,14 @@ test('on_msg prints only when flags.verbose is on', async () => {
     assert.equal(takePendingTopLine(), '');
     game.flags.verbose = true;
 
-    // The accessory arm calls invent.c prinv(), which is unported. It is
-    // reached by a ring or an amulet whatever flags.verbose says, and by
-    // eyewear only when verbose is off.
-    for (const mask of [W_ARMS | 0x00010000 /* W_RING */, 0x00040000]) {
+    // The accessory arm calls invent.c prinv(), which is unported. do_wear.c:80
+    // tests `owornmask & (W_RING | W_AMUL)`, and obj.h spells W_RING as
+    // W_RINGL | W_RINGR, so all three bits take this arm whatever
+    // flags.verbose says; eyewear takes it only when verbose is off. Naming the
+    // constants is the point: these were written as the literals 0x00010000 and
+    // 0x00040000, the first labelled W_RING when const.js gives that value to
+    // W_AMUL, so neither ring bit was pinned at all.
+    for (const mask of [W_ARMS | W_AMUL, W_RINGL, W_RINGR]) {
         await assert.rejects(
             () => on_msg({ ...shield, owornmask: mask }, game),
             /on_msg\(\) prinv\(\)/,

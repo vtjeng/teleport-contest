@@ -155,10 +155,17 @@ export class UnsupportedTakeOffError extends Error {
     }
 }
 
-// The same fail-closed boundary for the 'W' half of do_wear.c. The two stay
-// apart because equip_ok() is the only function either side shares, and it
-// reaches canwearobj() on the wearing pass alone: `T` and `R` pass
-// removing TRUE and return before it.
+// The same fail-closed boundary for the 'W' half of do_wear.c. The halves share
+// three functions, not one: equip_ok(), which reaches canwearobj() on the
+// wearing pass alone because `T` and `R` pass removing TRUE and return before
+// it; takeoffContext(), whose mask accessory_or_armor_on() clears; and
+// setwornEnv(), whose hook set every setworn() call takes. What separates the
+// classes is ownership rather than isolation: the wear spine raises
+// UnsupportedWearError for every branch it owns, while setwornEnv()'s
+// setArtifactIntrinsic hook keeps the take-off name. A `W` cannot reach that
+// hook today only because accessory_or_armor_on() refuses obj.oartifact above
+// setworn(); relaxing that refusal would let a wear command raise the take-off
+// class, so move the hook's name with it.
 export class UnsupportedWearError extends Error {
     constructor(what) {
         super(`wear reached an unported branch: ${what}`);
@@ -389,9 +396,14 @@ function Helmet_off(state) {
 //
 // The `known` write is the whole of what the callback does, and it is what
 // distinguishes a shield Shield_on() finished donning from one setworn()
-// merely moved: objects.h gives every shield oc_uses_known 0, so u_init.c
-// ini_inv_adjust_obj() leaves a starting shield at known 0 and its inventory
-// line hides the enchantment until the hero has worn it herself.
+// merely moved. Reading it takes care, because the two ways a shield enters
+// the pack disagree. objects.h's ARMOR macro (418-427) passes uskn 1 in its
+// BITS (42), so every armor row carries oc_uses_known 1, and u_init.c
+// ini_inv_adjust_obj() (1215-1216) therefore marks a *starting* shield known
+// before the hero has worn anything. mkobj.c mksobj() (864) does the opposite
+// -- `obj->known = oc_uses_known ? 0 : 1` -- so only a shield the game creates
+// later, a wished-for one in these recordings, arrives at known 0 with its
+// enchantment hidden. That is the one that witnesses this write.
 function Shield_on(state) {
     if (!is_shield(state.uarms, state)) {
         throw new UnsupportedWearError(
