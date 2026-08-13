@@ -3899,33 +3899,6 @@ function writeStatusRows(
     }
 }
 
-// ── Serialize terminal grid for screen comparison ──
-export function serialize_terminal_grid(display) {
-    let output = '';
-    let lastRow = 0;
-    for (let r = 0; r < display.rows; r++) {
-        for (let c = 0; c < display.cols; c++) {
-            if (display.grid[r][c].ch !== ' ') { lastRow = r; break; }
-        }
-    }
-    for (let r = 0; r <= lastRow; r++) {
-        let lastCol = -1;
-        for (let c = display.cols - 1; c >= 0; c--) {
-            if (display.grid[r][c].ch !== ' ') { lastCol = c; break; }
-        }
-        if (lastCol < 0) { if (r < lastRow) output += '\n'; continue; }
-        let firstCol = 0;
-        for (let c = 0; c <= lastCol; c++) {
-            if (display.grid[r][c].ch !== ' ') { firstCol = c; break; }
-        }
-        if (firstCol > 4) output += `\x1b[${firstCol}C`;
-        else if (firstCol > 0) output += ' '.repeat(firstCol);
-        for (let c = firstCol; c <= lastCol; c++) output += display.grid[r][c].ch;
-        if (r < lastRow) output += '\n';
-    }
-    return output;
-}
-
 // ── Build screen output ──
 function _buildScreenOutput() {
     const display = game?.nhDisplay;
