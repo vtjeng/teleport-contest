@@ -80,8 +80,9 @@ proposal.
 
 ## Print the remaining unenforced advisories
 
-**What it changes.** Four checks that turn prose rules into printed numbers
-(`node scripts/goal-log.mjs calibration`, a fifth, landed on 2 August 2026):
+**What it changes.** Three checks that turn prose rules into printed numbers.
+Two others have landed: `node scripts/goal-log.mjs calibration` on 2 August
+2026, and the per-goal gate in `scripts/score-holdout.mjs` on 12 August.
 
 - `npm run quality` warns when dirty-tree changed lines exceed 500 while no
   `.agents/implementation-checklist.json` exists, the checklist-creation
@@ -92,10 +93,6 @@ proposal.
 - A turn-end warning prints `git log --oneline origin/main..HEAD` when
   commits sit unpushed, the push rule in `.agents/workflow.md`,
   "Pushing and CI".
-- `scripts/score-holdout.mjs` takes a required `--goal <id>` and refuses a
-  second evaluation for the same goal without a recorded override, the
-  one-evaluation-per-goal rule in `AGENTS.md`. This one needs a decision
-  on where the per-goal record lives before implementation.
 
 **Scope.** Each item is a small addition to an existing script and its test
 file; the first adds one subcommand.
