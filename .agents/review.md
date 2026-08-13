@@ -373,6 +373,12 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   `scripts/audit-worktree.mjs prepare` takes. The recorder stores it as the
   pass's `auditedRange`. Pass `--head` only to restate the range head; it must
   name the same commit.
+- Pass `--manifest <path>` with the path `prepare` printed, so the pass records
+  whether an implementation checklist covered the range. The recorder stores
+  the answer as the pass's `checklist`, and a pass prepared with
+  `--no-checklist-reason` records that reason there. Without `--manifest` the
+  pass carries no such field, and a later reader cannot tell a range that had a
+  covering plan from one that did not.
 - The range base must be at or before the frontier, the newest recorded
   head of the pass's kind. The recorder refuses a range that starts after
   it, because recording that pass would turn the skipped commits into
