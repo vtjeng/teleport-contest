@@ -386,3 +386,5 @@ utc	event	phase	goal	detail
 2026-08-13T15:01:59.824Z	start	implement	display-deferral-sweep	newsym mtrapped write
 2026-08-13T15:57:56.066Z	end	implement	display-deferral-sweep	newsym mtrapped write closed at a6b2a82; screens held at 1531
 2026-08-13T15:57:56.107Z	start	implement	display-deferral-sweep	bot_disabled status rows, the 7-screen payer
+2026-08-13T16:46:07.062Z	end	implement	display-deferral-sweep	bot_disabled closed at 268f695; screens 1531 to 1538
+2026-08-13T16:46:07.089Z	start	review	display-deferral-sweep	full correctness pass over the sweep

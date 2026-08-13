@@ -1964,8 +1964,8 @@
         },
         {
           "name": "both status rows stay blank while a full-screen menu owns the screen",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "268f695ccac15c2ccc86d328ee97f206e3d38105"
         }
       ],
       "openedAt": "3a8f243bba4b82c63938fad98197fccdd60981b2",
