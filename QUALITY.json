@@ -642,13 +642,17 @@
       "area": "commands",
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "ab28567e37a6e40c47583075c7e898adf306d5b6",
       "detail": "`dungeon.c earth_sense()` (1543-1565) is ported into `js/dungeon.js` with every\ngate, but the one line those gates lead to --\n`You(\"sense something below your %s.\", makeplural(body_part(FOOT)))` -- raises\n`UnsupportedEarthSenseError` instead of printing. That is fail-closed, and it\nreplaces a fail-open omission, but the line is still unported.\n\nThe blocker is shape, not source. `u_on_newpos()` is synchronous, and so are\n`js/mklev.js place_lregion()` and `u_on_upstairs()`, which call it while the\nlevel is being created; this port's message owner, `js/tty_message.js\nttyPline()`, is async. Printing here means making level creation async, which\nis why the port was declined inside a deferral sweep rather than attempted.\n\nThe branch is live rather than dormant, and its gate is the hero's race. Over\nthe 40 D:1 levels the port generates for seeds 7200000-7200039 it buried 215\nobjects, 27 of them under a ROOM square, through js/themeroom_fill.js's\n`Buried zombies` and `Buried treasure` fills; `js/hack.js domove()` has called\n`u_on_newpos()` since 36562b9, so a dwarf hero reaches the notice by walking\nonto one. No development session runs a dwarf -- the 33 use elf, gnome and\nhuman -- so nothing recorded reaches it.\n\nNo fresh case is recorded, because none was found. A search over seeds\n7400000-7400149 for a dwarf Archeologist looked for a buried ROOM or CORR\nsquare reachable from the starting square by one or two straight walks through\nsquares holding no monster, object or trap, and found none in 150 levels: the\nfills put their burials inside a themed room the hero does not start beside.\nClosing this needs either a longer path found by a real search, or a recorded\nC case built some other way, and then the async conversion above.",
       "notes": [
         {
           "text": "Correction to the blocker paragraph: place_lregion() lives in js/mkmaze.js at line 92, not js/mklev.js, which references u_on_newpos() nowhere. The synchronous-caller argument is unaffected and was re-checked: js/mkmaze.js:218 calls u_on_newpos() from inside put_lregion_here(), which place_lregion() reaches, as that file's header at line 34 states, and js/stairs.js:89 and :101 call it from u_on_upstairs() and u_on_dnstairs(). So the two synchronous callers are js/mkmaze.js and js/stairs.js. Verified with grep at 889a310.",
           "at": "889a310d7f18346d9880f37dea3bd54dc7ac32dd"
+        },
+        {
+          "text": "Superseded by \"earth_sense() cannot print from its synchronous callers\". Closed to retire a citation, not because the work was done: earth_sense()'s notice is still refused rather than printed, and the successor carries the same evidence and closing condition. The detail here cites js/mklev.js place_lregion(), which lives at js/mkmaze.js:92, and a deferral's detail is written once and never rewritten, so the citation check reported the stale pair on every npm run quality while this entry stayed open. Read the successor, not this record, for the current state.",
+          "at": "7388be80d94ec1cc31c15c3fade3552d85754a0a"
         }
       ]
     },
@@ -1906,6 +1910,15 @@
       "status": "open",
       "from": "e167ab7d45dfcea3fde3ed72e97216806f81c3c0",
       "detail": "dothrow.c throwit():1794-1802 reaches its water and lava handling under !Deaf && !Underwater, and treats lava only when is_lava(x, y) && !is_flammable(obj). js/dothrow.js:671 refuses on is_pool || is_lava alone, so it stops for a flammable object over lava and for a Deaf or Underwater hero, cases C carries through flooreffects(). Strictly more refusing, so it costs frames rather than producing a wrong screen, but the comment at the site mentions only the message and flooreffects() and does not record that the guard is wider than C. Found while writing scripts/dothrow.test.mjs assertions from the C source."
+    },
+    {
+      "id": "earth_sense() cannot print from its synchronous callers",
+      "area": "commands",
+      "category": "production",
+      "effort": "undecided",
+      "status": "open",
+      "from": "7388be80d94ec1cc31c15c3fade3552d85754a0a",
+      "detail": "`dungeon.c earth_sense()` (1543-1565) is ported into `js/dungeon.js` with every\ngate, but the one line those gates lead to --\n`You(\"sense something below your %s.\", makeplural(body_part(FOOT)))` -- raises\n`UnsupportedEarthSenseError` instead of printing. That is fail-closed, and it\nreplaces a fail-open omission, but the line is still unported.\n\nThe blocker is shape, not source. `u_on_newpos()` is synchronous, and so are\nits two callers: `js/mkmaze.js` calls it at 218 from inside\n`put_lregion_here()`, which `place_lregion()` at `js/mkmaze.js:92` reaches, and\n`js/stairs.js` calls it at 89 and 101 from `u_on_upstairs()` and\n`u_on_dnstairs()`. This port's message owner, `js/tty_message.js ttyPline()`,\nis async. Printing here means making level creation async, which is why the\nport was declined inside a deferral sweep rather than attempted.\n\nThe branch is live rather than dormant, and its gate is the hero's race. Over\nthe 40 D:1 levels the port generates for seeds 7200000-7200039 it buried 215\nobjects, 27 of them under a ROOM square, through js/themeroom_fill.js's\n`Buried zombies` and `Buried treasure` fills; `js/hack.js domove()` has called\n`u_on_newpos()` since 36562b9, so a dwarf hero reaches the notice by walking\nonto one. No development session runs a dwarf -- the 33 use elf, gnome and\nhuman -- so nothing recorded reaches it.\n\nNo fresh case is recorded, because none was found. A search over seeds\n7400000-7400149 for a dwarf Archeologist looked for a buried ROOM or CORR\nsquare reachable from the starting square by one or two straight walks through\nsquares holding no monster, object or trap, and found none in 150 levels: the\nfills put their burials inside a themed room the hero does not start beside.\nClosing this needs either a longer path found by a real search, or a recorded\nC case built some other way, and then the async conversion above.\n\nThis entry restates earth_sense()'s notice is refused rather than printed, whose detail named the wrong file for\nplace_lregion() and could not be corrected in place. Nothing else changed: the evidence, the\nmeasurements and the closing condition are its own."
     }
   ],
   "areas": [
