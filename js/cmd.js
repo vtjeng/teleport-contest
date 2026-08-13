@@ -55,7 +55,8 @@ import {
     UnsupportedLevelChangeError,
 } from './do.js';
 import {
-    dotakeoff, reset_remarm, UnsupportedTakeOffError,
+    dotakeoff, dowear, reset_remarm, UnsupportedTakeOffError,
+    UnsupportedWearError,
 } from './do_wear.js';
 import { reset_pick, UnsupportedLockError } from './lock.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
@@ -864,9 +865,9 @@ export async function parseCommand(state = game) {
 // the typed names work.
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
-    'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'zap', 'reqmenu',
-    'fight', 'options', 'wizwish', 'wizlevelport', 'fire', 'swap', 'kick',
-    '#',
+    'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'wear', 'zap',
+    'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport', 'fire', 'swap',
+    'kick', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -1217,6 +1218,10 @@ export function failClosedCommandRefusals() {
         // objects[].oc_delay is non-zero and for the slots whose <X>_off()
         // is unported, in both cases before anything is drawn or removed.
         UnsupportedTakeOffError,
+        // do_wear.c dowear() raises this for every slot but the shield's and
+        // for accessory_or_armor_on()'s accessory half, all of them before
+        // setworn() writes.
+        UnsupportedWearError,
         // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
         // and done_eating() and lesshungry() call it from doeat().
         UnsupportedHungerTransitionError,
@@ -1542,6 +1547,14 @@ async function runTakeOffCommand(key, state) {
     return failClosedCommand(key, state, () => dotakeoff(state));
 }
 
+// C ref: do_wear.c dowear(). Like dotakeoff() it returns its own ECMD_*
+// result, and reaches all three: ECMD_OK for both of its guards and for a
+// canwearobj() refusal, ECMD_CANCEL for an escaped getobj() prompt, and
+// ECMD_TIME for the piece that goes on.
+async function runWearCommand(key, state) {
+    return failClosedCommand(key, state, () => dowear(state));
+}
+
 // C ref: wizcmds.c wiz_level_change(). Like dosearch() and doeat() it returns
 // its own ECMD_* result; #levelchange never spends a turn, so that result is
 // always ECMD_OK.
@@ -1837,6 +1850,8 @@ async function doextcmd(key, state) {
         return await runPickupCommand(key, state);
     case 'dotakeoff':
         return await runTakeOffCommand(key, state);
+    case 'dowear':
+        return await runWearCommand(key, state);
     case 'doride':
         // C ref: steed.c doride(), which returns its own ECMD_* result.
         return await doride(state);
@@ -2167,6 +2182,22 @@ export async function rhack(key, state = game) {
             // domove_attempting tests at 3773-3800 cannot divert it, because
             // cmd.c:1886's "takeoff" row carries no flags at all.
             const res = await runTakeOffCommand(key, state);
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'wear') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the `takeoff` arm above applies. dowear() reaches
+            // all three: ECMD_CANCEL when the getobj() prompt is escaped,
+            // ECMD_OK for a form that cannot wear armor, for a hero already
+            // wearing everything and for every canwearobj() refusal, and
+            // ECMD_TIME for the piece that goes on. The MOVEMENTCMD and
+            // domove_attempting tests at 3773-3800 cannot divert it, because
+            // cmd.c:1932's "wear" row carries no flags at all.
+            const res = await runWearCommand(key, state);
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
                 resetCommandVars(state, state.multi < 0);

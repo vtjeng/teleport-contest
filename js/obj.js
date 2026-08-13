@@ -33,6 +33,8 @@ import {
     P_DART,
     P_NONE,
     P_PICK_AXE,
+    P_SABER,
+    P_SHORT_SWORD,
     P_SHURIKEN,
     P_SPEAR,
     RANDOM_TIN,
@@ -52,9 +54,12 @@ import { rndmonnum } from './makemon.js';
 import {
     can_be_hatched,
     dead_species,
+    humanoid,
     is_female,
     is_male,
     is_neuter,
+    monsndx,
+    noncorporeal,
     undead_to_corpse,
 } from './mondata.js';
 // copy_oextra() below reads copy_mextra(), as mkobj.c:438 does. js/mon.js
@@ -86,7 +91,13 @@ import {
     AMULET_OF_STRANGULATION,
     AMULET_OF_YENDOR,
     ARMOR_CLASS,
+    ARM_BOOTS,
+    ARM_CLOAK,
+    ARM_GLOVES,
+    ARM_HELM,
     ARM_SHIELD,
+    ARM_SHIRT,
+    ARM_SUIT,
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
     BALL_CLASS,
@@ -189,8 +200,13 @@ import {
 } from './objects.js';
 import {
     G_NOCORPSE,
+    MZ_HUGE,
+    MZ_SMALL,
     PM_GRAY_OOZE,
     PM_HUMAN,
+    PM_MARILITH,
+    PM_WINGED_GARGOYLE,
+    S_CENTAUR,
 } from './monsters.js';
 
 export const SPBOOK_NO_NOVEL = -SPBOOK_CLASS;
@@ -766,6 +782,64 @@ export function is_wet_towel(obj) {
 export function is_shield(obj, state = game) {
     return obj.oclass === ARMOR_CLASS
         && objectType(obj, state).oc_armcat === ARM_SHIELD;
+}
+
+// The other six armor-category macros obj.h spells the same way as
+// is_shield() above: obj.h is_helmet() (283-284), is_boots() (285-287),
+// is_gloves() (288-290), is_cloak() (291-293), is_shirt() (294-296) and
+// is_suit() (297-298). do_wear.c canwearobj() tests all seven in one chain, so
+// they arrive together.
+export function is_helmet(obj, state = game) {
+    return obj.oclass === ARMOR_CLASS
+        && objectType(obj, state).oc_armcat === ARM_HELM;
+}
+
+export function is_boots(obj, state = game) {
+    return obj.oclass === ARMOR_CLASS
+        && objectType(obj, state).oc_armcat === ARM_BOOTS;
+}
+
+export function is_gloves(obj, state = game) {
+    return obj.oclass === ARMOR_CLASS
+        && objectType(obj, state).oc_armcat === ARM_GLOVES;
+}
+
+export function is_cloak(obj, state = game) {
+    return obj.oclass === ARMOR_CLASS
+        && objectType(obj, state).oc_armcat === ARM_CLOAK;
+}
+
+export function is_shirt(obj, state = game) {
+    return obj.oclass === ARMOR_CLASS
+        && objectType(obj, state).oc_armcat === ARM_SHIRT;
+}
+
+export function is_suit(obj, state = game) {
+    return obj.oclass === ARMOR_CLASS
+        && objectType(obj, state).oc_armcat === ARM_SUIT;
+}
+
+// C ref: obj.h WrappingAllowed() (443-446). A mummy wrapping fits more forms
+// than any other cloak, so do_wear.c canwearobj() exempts it from the
+// cantweararm() refusal for every form listed here.
+export function WrappingAllowed(species) {
+    return humanoid(species)
+        && species.msize >= MZ_SMALL && species.msize <= MZ_HUGE
+        && !noncorporeal(species) && species.mlet !== S_CENTAUR
+        && monsndx(species) !== PM_WINGED_GARGOYLE
+        && monsndx(species) !== PM_MARILITH;
+}
+
+// C ref: obj.h is_sword() (223-226). The objects[] field C calls oc_skill is
+// stored under its union alias oc_subtyp here, as is_axe() below also reads
+// it. P_SHORT_SWORD through P_SABER is the contiguous run of sword skills;
+// do_wear.c canwearobj() uses this only to choose between "sword" and "weapon"
+// in the messages that refuse a suit, a shirt, a shield or gloves to a hero
+// holding a welded weapon.
+export function is_sword(obj, state = game) {
+    const skill = objectType(obj, state).oc_subtyp;
+    return obj.oclass === WEAPON_CLASS
+        && skill >= P_SHORT_SWORD && skill <= P_SABER;
 }
 
 // C ref: obj.h Is_dragon_scales() (347-348), Is_dragon_mail() (349-351) and

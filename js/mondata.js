@@ -1347,6 +1347,14 @@ export function breakarm(species) {
         || speciesIs(species, M.PM_MARILITH, M.PM_WINGED_GARGOYLE);
 }
 
+// C ref: mondata.h cantweararm() (133), the two tests above taken together:
+// a form that would burst a suit of armor and one that would let it slide off
+// both fail to wear one. do_wear.c canwearobj() asks it about the hero's form
+// before a suit, a cloak or a shirt.
+export function cantweararm(species) {
+    return breakarm(species) || sliparm(species);
+}
+
 // C ref: mondata.c cantvomit(). Rats, mice, and horses cannot vomit.
 export function cantvomit(species) {
     if (species.mlet === M.S_RODENT
@@ -1372,6 +1380,13 @@ export function num_horns(species) {
     default:
         return 0;
     }
+}
+
+// C ref: mondata.h has_horns() (56), which is num_horns() above tested for a
+// positive count. do_wear.c canwearobj() asks it before letting a polymorphed
+// hero put a helmet on.
+export function has_horns(species) {
+    return num_horns(species) > 0;
 }
 
 // C ref: mondata.c dmgtype_fromattack(). C returns a pointer into mattk[] and

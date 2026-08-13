@@ -380,6 +380,10 @@ export function any_obj_ok(obj) {
 // choice sets, and no ported callback gives one -- any_obj_ok() above,
 // apply_ok(), eat_ok() and takeoff_ok() all answer an exclusion for null.
 //
+// Every `obj_ok` answer below is awaited. do_wear.c wear_ok() reaches
+// canwearobj(), whose refusals write messages, so that one callback is async
+// where the rest are ordinary functions.
+//
 // Four of C's inputs cannot arrive. gi.in_doagain is always false, because
 // #repeat and its ^A binding are unported and do_repeat() is the only writer
 // of that flag; cmdq_add_key(CQ_REPEAT) has no CQ_REPEAT queue to add to for
@@ -425,7 +429,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
     let inaccess = 0;
 
     /* is "hands"/"self" a valid thing to do this action on? */
-    switch (obj_ok(null, state)) {
+    switch (await obj_ok(null, state)) {
     case GETOBJ_SUGGEST: /* treat as likely candidate */
         allownone = true;
         prefix.push(HANDS_SYM);
@@ -454,7 +458,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
        inventory letters */
     for (const item of sortlootByInvlet(state)) {
         letters.push(item.invlet);
-        switch (obj_ok(item, state)) {
+        switch (await obj_ok(item, state)) {
         case GETOBJ_EXCLUDE_INACCESS:
             /* remove inaccessible things */
             letters.pop();
@@ -562,7 +566,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
             /* guard against the [hypothetical] chance of having more
                than one invent slot of gold and picking the non-'$' one */
             || (otmp && otmp.oclass === COIN_CLASS)) {
-            if (otmp && obj_ok(otmp, state) <= GETOBJ_EXCLUDE) {
+            if (otmp && (await obj_ok(otmp, state)) <= GETOBJ_EXCLUDE) {
                 await ttyPline(`You cannot ${word} gold.`, state);
                 return null;
             }
@@ -582,7 +586,7 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         /* C's `cnt < 0L || otmp->quan < cnt` needs a count as well. */
         break;
     }
-    if (obj_ok(otmp, state) === GETOBJ_EXCLUDE) {
+    if ((await obj_ok(otmp, state)) === GETOBJ_EXCLUDE) {
         // C answers silly_thing(word, otmp), which for every word but "call"
         // prints silly_thing_to. Only a letter the prompt did not suggest
         // arrives here, because the suggested set holds no excluded object:

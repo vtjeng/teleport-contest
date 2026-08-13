@@ -46,7 +46,7 @@ import {
 } from '../js/do_wear.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
-import { Is_dragon_armor } from '../js/obj.js';
+import { Is_dragon_armor, is_boots, is_gloves } from '../js/obj.js';
 import { runSegment } from '../js/jsmain.js';
 import { monstunseesu } from '../js/mondata.js';
 import { M1_SEE_INVIS, PM_ACID_BLOB } from '../js/monsters.js';
@@ -94,7 +94,7 @@ import {
     loadTakeOffRecipe,
 } from './run-take-off-armor.mjs';
 
-const { Armor_off, Cloak_off, is_boots, is_gloves, reset_remarm,
+const { Armor_off, Cloak_off, reset_remarm,
     takeoffContext, setwornEnv } = _doWearInternals;
 
 function topLine() {
@@ -442,16 +442,16 @@ test('equip_ok classifies what the T prompt may offer', async () => {
     await runSegment({ ...segment, moves: WAIT });
 
     // The hands/self choice, which getobj() asks about with a null object.
-    assert.equal(takeoff_ok(null, game), GETOBJ_EXCLUDE);
+    assert.equal(await takeoff_ok(null, game), GETOBJ_EXCLUDE);
 
     // Worn armor is suggested; the same object once unworn is excluded as
     // inaccessible, which is the answer that keeps its letter out of the
     // prompt without stopping getobj() from returning it.
     const shield = game.uarms;
-    assert.equal(takeoff_ok(shield, game), GETOBJ_SUGGEST);
+    assert.equal(await takeoff_ok(shield, game), GETOBJ_SUGGEST);
     const wornmask = shield.owornmask;
     shield.owornmask = 0;
-    assert.equal(takeoff_ok(shield, game), GETOBJ_EXCLUDE_INACCESS);
+    assert.equal(await takeoff_ok(shield, game), GETOBJ_EXCLUDE_INACCESS);
     shield.owornmask = wornmask;
 
     // A worn accessory is downplayed rather than suggested: 'T' is the armor
@@ -460,20 +460,20 @@ test('equip_ok classifies what the T prompt may offer', async () => {
     const ring = {
         oclass: RING_CLASS, otyp: RIN_ADORNMENT, owornmask: W_RINGL,
     };
-    assert.equal(takeoff_ok(ring, game), GETOBJ_DOWNPLAY);
+    assert.equal(await takeoff_ok(ring, game), GETOBJ_DOWNPLAY);
     // ... and the reverse for 'P' and 'R', which pass accessory TRUE.
-    assert.equal(equip_ok(ring, true, true, game), GETOBJ_SUGGEST);
-    assert.equal(equip_ok(shield, true, true, game), GETOBJ_DOWNPLAY);
+    assert.equal(await equip_ok(ring, true, true, game), GETOBJ_SUGGEST);
+    assert.equal(await equip_ok(shield, true, true, game), GETOBJ_DOWNPLAY);
     const amulet = {
         oclass: AMULET_CLASS, otyp: AMULET_OF_ESP, owornmask: W_AMUL,
     };
-    assert.equal(equip_ok(amulet, true, true, game), GETOBJ_SUGGEST);
+    assert.equal(await equip_ok(amulet, true, true, game), GETOBJ_SUGGEST);
 
     // Two of the wearable exceptions outside the three classes: a blindfold
     // and lenses are tools, and C lists them so 'P' and 'R' can reach them.
     for (const otyp of [BLINDFOLD, LENSES]) {
         assert.equal(
-            equip_ok(
+            await equip_ok(
                 { oclass: TOOL_CLASS, otyp, owornmask: W_TOOL },
                 true, true, game,
             ),
@@ -483,22 +483,23 @@ test('equip_ok classifies what the T prompt may offer', async () => {
     }
     // A worn tool that is none of the four exceptions is excluded outright.
     assert.equal(
-        equip_ok(
+        await equip_ok(
             { oclass: TOOL_CLASS, otyp: 0, owornmask: W_TOOL },
             true, true, game,
         ),
         GETOBJ_EXCLUDE,
     );
 
-    // The wear side needs canwearobj(), which is unported. It is reached with
-    // removing FALSE and an unworn piece, because the is_worn test above
-    // answers first for anything already on.
-    assert.throws(
-        () => equip_ok(
+    // The wear side runs canwearobj(). It is reached with removing FALSE and
+    // an unworn piece, because the is_worn test above answers first for
+    // anything already on. The Knight already wears a helmet, so a second one
+    // is downplayed; the food ration in the same pack is excluded outright.
+    assert.equal(
+        await equip_ok(
             { oclass: ARMOR_CLASS, otyp: FEDORA, owornmask: 0 },
             false, false, game,
         ),
-        /canwearobj\(\)/,
+        GETOBJ_DOWNPLAY,
     );
 });
 
@@ -518,14 +519,14 @@ test('equip_ok hides a piece another piece covers', async () => {
     game.uarmu = shirt;
 
     // A cloak covers the suit, and cloak or suit covers the shirt.
-    assert.equal(takeoff_ok(cloak, game), GETOBJ_SUGGEST);
-    assert.equal(takeoff_ok(suit, game), GETOBJ_EXCLUDE_INACCESS);
-    assert.equal(takeoff_ok(shirt, game), GETOBJ_EXCLUDE_INACCESS);
+    assert.equal(await takeoff_ok(cloak, game), GETOBJ_SUGGEST);
+    assert.equal(await takeoff_ok(suit, game), GETOBJ_EXCLUDE_INACCESS);
+    assert.equal(await takeoff_ok(shirt, game), GETOBJ_EXCLUDE_INACCESS);
     game.uarmc = null;
-    assert.equal(takeoff_ok(suit, game), GETOBJ_SUGGEST);
-    assert.equal(takeoff_ok(shirt, game), GETOBJ_EXCLUDE_INACCESS);
+    assert.equal(await takeoff_ok(suit, game), GETOBJ_SUGGEST);
+    assert.equal(await takeoff_ok(shirt, game), GETOBJ_EXCLUDE_INACCESS);
     game.uarm = null;
-    assert.equal(takeoff_ok(shirt, game), GETOBJ_SUGGEST);
+    assert.equal(await takeoff_ok(shirt, game), GETOBJ_SUGGEST);
 
     // only_if_known_cursed narrows "covered" to "covered by something known
     // to be cursed", which is how a ring under gloves is judged: C passes

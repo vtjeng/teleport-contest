@@ -1,21 +1,26 @@
-// do_wear.js -- Taking one worn piece of armor off with the 'T' command.
+// do_wear.js -- Putting one piece of armor on with 'W' and taking one off
+// with 'T'.
 //
-// C ref: src/do_wear.c off_msg() (67-72), Cloak_off() (382-431),
-//        Helmet_off() (517-564), Shield_off() (732-756), Shirt_off() (777-794),
-//        Armor_off() (908-930), fingers_or_gloves() (59-65),
-//        cancel_doff() (1642-1659), count_worn_stuff() (1731-1766),
-//        armor_or_accessory_off() (1768-1829), dotakeoff() (1831-1855),
-//        cursed() (1891-1917), armoroff() (1919-2008), stuck_ring()
-//        (2656-2683), unchanger() (2685-2692), select_off()
-//        (2694-2821), reset_remarm() (3012-3018), inaccessible_equipment()
-//        (3338-3400), equip_ok() (3402-3447) and takeoff_ok() (3470-3475).
+// C ref: src/do_wear.c on_msg() (75-99), off_msg() (67-72), Cloak_off()
+//        (382-431), Helmet_off() (517-564), Shield_on() (704-730),
+//        Shield_off() (732-756), Shirt_off() (777-794), Armor_off()
+//        (908-930), fingers_or_gloves() (59-65), cancel_doff() (1642-1659),
+//        count_worn_stuff() (1731-1766), armor_or_accessory_off()
+//        (1768-1829), dotakeoff() (1831-1855), cursed() (1891-1917),
+//        armoroff() (1919-2008), already_wearing() (2010-2014), canwearobj()
+//        (2029-2206), accessory_or_armor_on() (2208-2428), dowear()
+//        (2430-2450), stuck_ring() (2656-2683), unchanger() (2685-2692),
+//        select_off() (2694-2821), reset_remarm() (3012-3018),
+//        inaccessible_equipment() (3338-3400), equip_ok() (3402-3447),
+//        wear_ok() (3463-3468) and takeoff_ok() (3470-3475).
 //
 // do_wear.c find_ac() was ported earlier and lives in
 // js/u_init_inventory_attrs.js, beside the startup code that first calls it.
 //
 // The 'A' occupation spine -- do_takeoff(), take_off(),
 // better_not_take_that_off() and doddoremarm() -- is not ported. armoroff()'s
-// delayed branch at do_wear.c:1930-1972 is ported for a suit only. Every
+// delayed branch at do_wear.c:1930-1972 is ported for a suit only, and
+// accessory_or_armor_on() puts armor on for the shield slot only. Every
 // refusal below names the C function it stops in front of.
 
 import {
@@ -23,21 +28,34 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FINGER,
+    FOOT,
     GETOBJ_DOWNPLAY,
     GETOBJ_EXCLUDE,
     GETOBJ_EXCLUDE_INACCESS,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    HEAD,
     LEFT_HANDED,
+    LEG,
     PARANOID_REMOVE,
+    TT_BEARTRAP,
+    TT_BURIEDBALL,
+    TT_INFLOOR,
+    TT_LAVA,
+    Upolyd,
     W_ACCESSORY,
+    W_AMUL,
     W_ARM,
     W_ARMC,
+    W_ARMF,
+    W_ARMG,
     W_ARMH,
     W_ARMOR,
     W_ARMS,
     W_ARMU,
     W_RING,
+    W_TOOL,
+    W_WEAPONS,
     W_WEP,
     WORN_AMUL,
     WORN_ARMOR,
@@ -46,17 +64,39 @@ import {
     WORN_HELMET,
     WORN_SHIELD,
     WORN_SHIRT,
+    plur,
 } from './const.js';
+import { surface } from './dungeon.js';
 import { makeplural } from './fruit.js';
 import { game } from './gstate.js';
-import { nomul } from './hack.js';
-import { getobj } from './invent.js';
-import { cvt_prop_to_mseenres, monstunseesu, nolimbs } from './mondata.js';
-import { PM_ARCHEOLOGIST } from './monsters.js';
+import { nomul, unmul } from './hack.js';
+import { getobj, update_inventory } from './invent.js';
+import { racial_exception } from './makemon_create.js';
+import {
+    cantweararm,
+    cvt_prop_to_mseenres,
+    has_horns,
+    monstunseesu,
+    nohands,
+    nolimbs,
+    num_horns,
+    slithy,
+    verysmall,
+} from './mondata.js';
+import { MZ_SMALL, PM_ARCHEOLOGIST, S_CENTAUR } from './monsters.js';
 import { change_luck } from './moveloop_preamble.js';
 import {
     Is_dragon_armor,
+    WrappingAllowed,
+    is_boots,
+    is_cloak,
+    is_flimsy,
+    is_gloves,
+    is_helmet,
     is_shield,
+    is_shirt,
+    is_suit,
+    is_sword,
     objectType,
     set_bknown,
 } from './obj.js';
@@ -64,13 +104,12 @@ import {
     AMULET_CLASS,
     AMULET_OF_UNCHANGING,
     ARMOR_CLASS,
-    ARM_BOOTS,
-    ARM_GLOVES,
-    ARM_HELM,
     ARM_SHIELD,
     ARM_SHIRT,
     ARM_SUIT,
     ARM_CLOAK,
+    ARM_HELM,
+    BATTLE_AXE,
     BLINDFOLD,
     CLOAK_OF_MAGIC_RESISTANCE,
     CLOAK_OF_PROTECTION,
@@ -78,9 +117,11 @@ import {
     DWARVISH_CLOAK,
     FEDORA,
     HAWAIIAN_SHIRT,
+    HELM_OF_OPPOSITE_ALIGNMENT,
     LEATHER_CLOAK,
     LENSES,
     MEAT_RING,
+    MUMMY_WRAPPING,
     OILSKIN_CLOAK,
     ORCISH_CLOAK,
     RING_CLASS,
@@ -89,9 +130,12 @@ import {
     T_SHIRT,
 } from './objects.js';
 import {
+    an,
     cloak_simple_name,
     donameFresh,
     gloves_simple_name,
+    helm_simple_name,
+    obj_is_pname,
     suit_simple_name,
     the,
     xnameFresh,
@@ -110,6 +154,32 @@ export class UnsupportedTakeOffError extends Error {
         this.name = 'UnsupportedTakeOffError';
     }
 }
+
+// The same fail-closed boundary for the 'W' half of do_wear.c. The two stay
+// apart because equip_ok() is the only function either side shares, and it
+// reaches canwearobj() on the wearing pass alone: `T` and `R` pass
+// removing TRUE and return before it.
+export class UnsupportedWearError extends Error {
+    constructor(what) {
+        super(`wear reached an unported branch: ${what}`);
+        this.name = 'UnsupportedWearError';
+    }
+}
+
+// C ref: do_wear.c:10-15, the file's shared message fragments. C compares
+// `cc == c_that_` by pointer in already_wearing() below; no other caller
+// passes a string that reads "that", so comparing the text answers the same.
+const c_armor = 'armor';
+const c_suit = 'suit';
+const c_shirt = 'shirt';
+const c_cloak = 'cloak';
+const c_gloves = 'gloves';
+const c_boots = 'boots';
+const c_shield = 'shield';
+const c_weapon = 'weapon';
+const c_sword = 'sword';
+const c_axe = 'axe';
+const c_that_ = 'that';
 
 // C ref: context.h struct takeoff_info (51-57), reached through
 // svc.context.takeoff. Only `mask` is modelled: `what` and `delay` are written
@@ -183,6 +253,39 @@ export function setwornEnv(state = game) {
 async function off_msg(otmp, state) {
     if (state.flags.verbose)
         await ttyPline(`You were wearing ${donameFresh(otmp, state)}.`, state);
+}
+
+// C ref: do_wear.c on_msg() (75-99), the line 'W' prints for a piece of
+// armor whose oc_delay is 0. accessory_or_armor_on() calls it after setworn(),
+// so xname() reports the item as worn -- but xname() carries no "(being worn)"
+// suffix and no enchantment, which is why the message names a plain "small
+// shield" where off_msg()'s doname() names an "uncursed +3 small shield".
+async function on_msg(otmp, state) {
+    if ((otmp.owornmask & (W_RING | W_AMUL)) !== 0
+        || ((otmp.owornmask & W_TOOL) !== 0 && !state.flags.verbose)) {
+        // C shows add-to-inventory feedback for a ring, an amulet or terse
+        // eyewear through invent.c prinv(), which is unported. Only
+        // doputon() can reach it, and accessory_or_armor_on() below refuses
+        // every accessory one frame earlier.
+        throw new UnsupportedWearError('on_msg() prinv()');
+    }
+
+    if (state.flags.verbose) {
+        /* call xname() before obj_is_pname(); formatting obj's name
+           might set obj->dknown and that affects the pname test */
+        const otmp_name = xnameFresh(otmp, state);
+        // A towel is eyewear, so the prinv() arm above takes it whenever
+        // flags.verbose is off and Blindf_on() puts it on when verbose is on;
+        // the suffix is kept because it costs only body_part().
+        const how = otmp.otyp === TOWEL
+            ? ` around your ${body_part(HEAD, state.youmonst)}` : '';
+
+        await ttyPline(
+            `You are now wearing ${obj_is_pname(otmp)
+                ? the(otmp_name) : an(otmp_name)}${how}.`,
+            state,
+        );
+    }
 }
 
 // C ref: do_wear.c Armor_off() (908-930). armoroff() reaches this both
@@ -275,6 +378,31 @@ function Helmet_off(state) {
         break;
     }
     setworn(null, W_ARMH, setwornEnv(state));
+    return 0;
+}
+
+// C ref: do_wear.c Shield_on() (704-730), the ga.afternmv callback
+// accessory_or_armor_on() installs for the shield slot. Like Shield_off()
+// below, C's switch exists only to catch a shield type nobody has taught it
+// about: every one of its nine labels falls through to a bare break, and
+// obj.h is_shield() answers for exactly those nine.
+//
+// The `known` write is the whole of what the callback does, and it is what
+// distinguishes a shield Shield_on() finished donning from one setworn()
+// merely moved: objects.h gives every shield oc_uses_known 0, so u_init.c
+// ini_inv_adjust_obj() leaves a starting shield at known 0 and its inventory
+// line hides the enchantment until the hero has worn it herself.
+function Shield_on(state) {
+    if (!is_shield(state.uarms, state)) {
+        throw new UnsupportedWearError(
+            `Shield_on() for otyp ${state.uarms.otyp}`,
+        );
+    }
+    if (!state.uarms.known) {
+        /* shield's +/- evident because of status line AC */
+        state.uarms.known = true;
+        update_inventory({ state });
+    }
     return 0;
 }
 
@@ -379,11 +507,250 @@ export function inaccessible_equipment(
     return false;
 }
 
+// C ref: do_wear.c already_wearing() (2010-2014). C picks the closing
+// punctuation by comparing `cc` with the c_that_ pointer; see the string
+// declarations above for why comparing the text answers the same.
+async function already_wearing(cc, state) {
+    await ttyPline(
+        `You are already wearing ${cc}${cc === c_that_ ? '!' : '.'}`, state,
+    );
+}
+
+// C ref: do_wear.c canwearobj() (2029-2206). Answers whether the hero can put
+// `otmp` on, and for the arms that say yes, which slot it goes in.
+//
+// C hands the slot back through a `long *mask` out-parameter it writes only on
+// those arms, leaving the caller's own initial 0 standing everywhere else;
+// this returns the pair instead, with `mask` 0 on every refusal.
+//
+// `noisy` decides whether a refusal explains itself, and both values are live.
+// equip_ok() passes FALSE, so building the 'W' prompt runs every arm below in
+// silence once per armor object in the pack; accessory_or_armor_on() passes
+// TRUE for the object the player actually chose.
+export async function canwearobj(otmp, noisy, state = game) {
+    let err = 0;
+    let mask = 0;
+    const youmonst = state.youmonst;
+    const data = youmonst.data;
+
+    /* this is the same check as for 'W' (dowear), but different message,
+       in case we get here via 'P' (doputon) */
+    if (verysmall(data) || nohands(data)) {
+        if (noisy) {
+            await ttyPline(
+                "You can't wear any armor in your current form.", state,
+            );
+        }
+        return { ok: false, mask };
+    }
+
+    const which = is_cloak(otmp, state) ? c_cloak
+        : is_shirt(otmp, state) ? c_shirt
+            : is_suit(otmp, state) ? c_suit
+                : null;
+    if (which && cantweararm(data)
+        /* same exception for cloaks as used in m_dowear() */
+        && (which !== c_cloak
+            || (otmp.otyp !== MUMMY_WRAPPING
+                ? data.msize !== MZ_SMALL
+                : !WrappingAllowed(data)))
+        && racial_exception(youmonst, otmp) < 1) {
+        if (noisy)
+            await ttyPline(`The ${which} will not fit on your body.`, state);
+        return { ok: false, mask };
+    } else if (otmp.owornmask & W_ARMOR) {
+        if (noisy) await already_wearing(c_that_, state);
+        return { ok: false, mask };
+    }
+
+    if (welded(state.uwep, state) && bimanual(state.uwep, state)
+        && (is_suit(otmp, state) || is_shirt(otmp, state))) {
+        if (noisy) {
+            await ttyPline(
+                'You cannot do that while holding your '
+                + `${is_sword(state.uwep, state) ? c_sword : c_weapon}.`,
+                state,
+            );
+        }
+        return { ok: false, mask };
+    }
+
+    if (is_helmet(otmp, state)) {
+        if (state.uarmh) {
+            if (noisy) {
+                await already_wearing(
+                    an(helm_simple_name(state.uarmh, state)), state,
+                );
+            }
+            err++;
+        } else if (Upolyd(state.u) && has_horns(data)
+                   && !is_flimsy(otmp, state)) {
+            /* (flimsy exception matches polyself handling) */
+            if (noisy) {
+                await ttyPline(
+                    `The ${helm_simple_name(otmp, state)} won't fit over `
+                    + `your horn${plur(num_horns(data))}.`,
+                    state,
+                );
+            }
+            err++;
+        } else mask = W_ARMH;
+    } else if (is_shield(otmp, state)) {
+        if (state.uarms) {
+            if (noisy) await already_wearing(an(c_shield), state);
+            err++;
+        } else if (state.uwep && bimanual(state.uwep, state)) {
+            if (noisy) {
+                await ttyPline(
+                    'You cannot wear a shield while wielding a two-handed '
+                    + `${is_sword(state.uwep, state) ? c_sword
+                        : state.uwep.otyp === BATTLE_AXE ? c_axe
+                            : c_weapon}.`,
+                    state,
+                );
+            }
+            err++;
+        } else if (state.u.twoweap) {
+            if (noisy) {
+                await ttyPline(
+                    'You cannot wear a shield while wielding two weapons.',
+                    state,
+                );
+            }
+            err++;
+        } else mask = W_ARMS;
+    } else if (is_boots(otmp, state)) {
+        if (state.uarmf) {
+            if (noisy) await already_wearing(c_boots, state);
+            err++;
+        } else if (Upolyd(state.u) && slithy(data)) {
+            if (noisy)
+                await ttyPline('You have no feet...', state); /* not FOOT */
+            err++;
+        } else if (Upolyd(state.u) && data.mlet === S_CENTAUR) {
+            /* break_armor() pushes boots off for centaurs, so don't let
+               dowear() put them back on;
+               makeplural(body_part(FOOT)) would yield "rear hooves" here,
+               which sounds odd, so use hard-coded "hooves" */
+            if (noisy) {
+                await ttyPline(
+                    `You have too many hooves to wear ${c_boots}.`, state,
+                );
+            }
+            err++;
+        } else if (state.u.utrap
+                   && (state.u.utraptype === TT_BEARTRAP
+                       || state.u.utraptype === TT_INFLOOR
+                       || state.u.utraptype === TT_LAVA
+                       || state.u.utraptype === TT_BURIEDBALL)) {
+            if (state.u.utraptype === TT_BEARTRAP) {
+                if (noisy) {
+                    await ttyPline(
+                        `Your ${body_part(FOOT, youmonst)} is trapped!`, state,
+                    );
+                }
+            } else if (state.u.utraptype === TT_INFLOOR
+                       || state.u.utraptype === TT_LAVA) {
+                if (noisy) {
+                    await ttyPline(
+                        `Your ${makeplural(body_part(FOOT, youmonst))} are `
+                        + `stuck in the ${surface(
+                            state.u.ux, state.u.uy, state,
+                        )}!`,
+                        state,
+                    );
+                }
+            } else { /*TT_BURIEDBALL*/
+                if (noisy) {
+                    await ttyPline(
+                        `Your ${body_part(LEG, youmonst)} is attached to the `
+                        + 'buried ball!',
+                        state,
+                    );
+                }
+            }
+            err++;
+        } else mask = W_ARMF;
+    } else if (is_gloves(otmp, state)) {
+        if (state.uarmg) {
+            if (noisy) await already_wearing(c_gloves, state);
+            err++;
+        } else if (welded(state.uwep, state)) {
+            if (noisy) {
+                await ttyPline(
+                    'You cannot wear gloves over your '
+                    + `${is_sword(state.uwep, state) ? c_sword : c_weapon}.`,
+                    state,
+                );
+            }
+            err++;
+        } else if (Glib(state)) {
+            /* prevent slippery bare fingers from transferring to
+               gloved fingers */
+            if (noisy) {
+                await ttyPline(
+                    `Your ${fingers_or_gloves(false, state)} are too slippery `
+                    + `to pull on ${gloves_simple_name(otmp, state)}.`,
+                    state,
+                );
+            }
+            err++;
+        } else mask = W_ARMG;
+    } else if (is_shirt(otmp, state)) {
+        if (state.uarm || state.uarmc || state.uarmu) {
+            if (state.uarmu) {
+                if (noisy) await already_wearing(an(c_shirt), state);
+            } else {
+                if (noisy) {
+                    await ttyPline(
+                        "You can't wear that over your "
+                        + `${(state.uarm && !state.uarmc) ? c_armor
+                            : cloak_simple_name(state.uarmc, state)}.`,
+                        state,
+                    );
+                }
+            }
+            err++;
+        } else mask = W_ARMU;
+    } else if (is_cloak(otmp, state)) {
+        if (state.uarmc) {
+            if (noisy) {
+                await already_wearing(
+                    an(cloak_simple_name(state.uarmc, state)), state,
+                );
+            }
+            err++;
+        } else mask = W_ARMC;
+    } else if (is_suit(otmp, state)) {
+        if (state.uarmc) {
+            if (noisy) {
+                await ttyPline(
+                    'You cannot wear armor over a '
+                    + `${cloak_simple_name(state.uarmc, state)}.`,
+                    state,
+                );
+            }
+            err++;
+        } else if (state.uarm) {
+            if (noisy) await already_wearing('some armor', state);
+            err++;
+        } else mask = W_ARM;
+    } else {
+        // C's final else answers invent.c silly_thing("wear", otmp), which
+        // js/invent.js:592 also stops in front of. Nothing reaches it: both
+        // callers test oclass == ARMOR_CLASS before calling, and every
+        // ARMOR_CLASS row in objects.h carries one of the seven armor
+        // categories above.
+        throw new UnsupportedWearError('silly_thing()');
+    }
+    return { ok: err === 0, mask };
+}
+
 // C ref: do_wear.c equip_ok() (3402-3447). C's `removing && !
 // gi.item_action_in_progress` test at 3439 loses its second term here:
 // ia_dotakeoff() is the only function that raises the flag and it is unported,
 // so gi.item_action_in_progress is always FALSE.
-export function equip_ok(obj, removing, accessory, state = game) {
+export async function equip_ok(obj, removing, accessory, state = game) {
     if (!obj) return GETOBJ_EXCLUDE;
 
     /* ignore for putting on if already worn, or removing if not worn */
@@ -405,10 +772,11 @@ export function equip_ok(obj, removing, accessory, state = game) {
         return GETOBJ_DOWNPLAY;
 
     /* armor we can't wear, e.g. from polyform */
-    if (obj.oclass === ARMOR_CLASS && !removing) {
-        // C ref: do_wear.c:3434 canwearobj(). Only wear_ok() and puton_ok()
-        // reach this, and 'W' and 'P' are unported.
-        throw new UnsupportedTakeOffError('canwearobj()');
+    // C's `long dummymask` is what this discards: the slot canwearobj() picks
+    // matters only to accessory_or_armor_on(), which asks for itself.
+    if (obj.oclass === ARMOR_CLASS && !removing
+        && !(await canwearobj(obj, false, state)).ok) {
+        return GETOBJ_DOWNPLAY;
     }
 
     /* removing inaccessible equipment */
@@ -424,8 +792,13 @@ export function equip_ok(obj, removing, accessory, state = game) {
     return GETOBJ_SUGGEST;
 }
 
+// C ref: do_wear.c wear_ok() (3463-3468), the getobj() callback for 'W'.
+export async function wear_ok(obj, state = game) {
+    return equip_ok(obj, false, false, state);
+}
+
 // C ref: do_wear.c takeoff_ok() (3470-3475), the getobj() callback for 'T'.
-export function takeoff_ok(obj, state = game) {
+export async function takeoff_ok(obj, state = game) {
     return equip_ok(obj, true, false, state);
 }
 
@@ -467,19 +840,6 @@ export async function cursed(otmp, state = game) {
         return 1;
     }
     return 0;
-}
-
-// C ref: obj.h is_boots() (285-287) and is_gloves() (288-290), beside
-// js/obj.js is_shield(). Both read the objects[] field stored here under its
-// oc_subtyp union alias.
-function is_boots(obj, state) {
-    return obj.oclass === ARMOR_CLASS
-        && objectType(obj, state).oc_subtyp === ARM_BOOTS;
-}
-
-function is_gloves(obj, state) {
-    return obj.oclass === ARMOR_CLASS
-        && objectType(obj, state).oc_subtyp === ARM_GLOVES;
 }
 
 // C ref: you.h:566 RING_ON_PRIMARY. The ring worn on the hand that also holds
@@ -685,6 +1045,124 @@ export async function armoroff(otmp, state = game) {
     return 1;
 }
 
+// C ref: do_wear.c accessory_or_armor_on() (2208-2428), shared in C by
+// dowear('W') and doputon('P'). This port admits the armor half only.
+//
+// The armor tail at 2355-2404 is ported for the shield slot: it is the one
+// slot whose <X>_on() needs nothing outside do_wear.c, and objects.h gives all
+// nine shields an oc_delay of 0, so it always takes C's immediate arm.
+async function accessory_or_armor_on(obj, state = game) {
+    if (obj.owornmask & (W_ACCESSORY | W_ARMOR)) {
+        await already_wearing(c_that_, state);
+        return ECMD_OK;
+    }
+    const armor = obj.oclass === ARMOR_CLASS;
+
+    // C also classifies the object as a ring, an amulet or eyewear here and
+    // runs the accessory block at 2239-2353 for it. Leaving that block
+    // refused is what keeps doputon() unported, so the three tests would
+    // have no reader; C's own last arm, "You can't wear that!", sits behind
+    // them and is refused with them.
+    if (!armor)
+        throw new UnsupportedWearError('accessory_or_armor_on() accessories');
+
+    /* checks which are performed prior to actually touching the item */
+    const worn = await canwearobj(obj, true, state);
+
+    if (!worn.ok) return ECMD_OK;
+
+    if (obj.otyp === HELM_OF_OPPOSITE_ALIGNMENT
+        && state.qstart_level?.dnum === state.u.uz.dnum) { /* in quest */
+        // do_wear.c:2230-2237 zeroes u.ublessed, calls makeknown() and
+        // redraws AC before returning ECMD_TIME without wearing the helm.
+        // No ported path descends the Quest branch, so nothing reaches it.
+        throw new UnsupportedWearError('accessory_or_armor_on() quest helm');
+    }
+
+    // C ref: do_wear.c:2355 retouch_object(&obj, FALSE), on the same
+    // derivation js/apply.js:219-232 and js/eat.js:2095-2105 record for
+    // doapply() and doeat(): artifact.c retouch_object() answers 1 with no
+    // side effect for every object that is not an artifact.
+    if (obj.oartifact)
+        throw new UnsupportedWearError('retouch_object() for an artifact');
+
+    /* if the armor is wielded, release it for wearing (won't be
+       welded even if cursed; that only happens for weapons/weptools) */
+    if (obj.owornmask & W_WEAPONS) {
+        // do_wear.c:2363-2364 remove_worn_item(), which js/dothrow.js:550 also
+        // stops in front of. Nothing puts armor in a weapon slot here: 'w',
+        // 'x' and 'Q' are unported and u_init.c wields only weapons.
+        throw new UnsupportedWearError('remove_worn_item()');
+    }
+    /*
+     * C sets obj->known in the afternmv action rather than here, so that a
+     * nymph who steals the armor mid-donning leaves the hero ignorant of its
+     * enchantment; Shield_on() above is that action for this slot.
+     */
+    // do_wear.c:2375 `gw.wasinwater = u.uinwater` is deliberately not
+    // written. Boots_on() (do_wear.c:196) is its only reader, W_ARMF is
+    // refused just below, and copying u.uinwater here would give that value a
+    // second home with nothing to read it. It belongs beside a ported
+    // Boots_on().
+
+    // C's chain at 2377-2393 chooses the callback by comparing `obj` against
+    // the slot pointers setworn() has just filled. `mask` names the same slot
+    // one statement earlier, so testing it here refuses the six unported
+    // slots before anything is written -- the shape armoroff()'s delayed
+    // branch uses above. C's own last arm is a panic() for a mask that
+    // matches no slot, which canwearobj() cannot produce.
+    if (worn.mask !== W_ARMS) {
+        throw new UnsupportedWearError(
+            `accessory_or_armor_on() for slot mask ${worn.mask}`,
+        );
+    }
+    const delay = -objectType(obj, state).oc_delay;
+
+    if (delay) {
+        // do_wear.c:2396-2399 spends the delay as helpless turns: nomul(delay)
+        // with gm.multi_reason "dressing up" and gn.nomovemsg "You finish
+        // your dressing maneuver.", and moveloop_core() runs the callback
+        // through unmul() on the turn the count reaches zero, the way
+        // armoroff() already does for a suit. No shield can reach it --
+        // objects.h gives all nine oc_delay 0 -- so it is stopped rather than
+        // ported, above setworn() so that widening the mask test cannot
+        // silently drop C's arm.
+        throw new UnsupportedWearError(
+            `accessory_or_armor_on() delayed branch for otyp ${obj.otyp}`,
+        );
+    }
+    setworn(obj, worn.mask, setwornEnv(state));
+    /* if there's no delay, we'll execute 'afternmv' immediately */
+    state.afternmv = Shield_on;
+    /* call afternmv, clear it+nomovemsg+multi_reason */
+    await unmul('', state);
+    await on_msg(obj, state);
+    takeoffContext(state).mask = 0;
+    return ECMD_TIME;
+}
+
+// C ref: do_wear.c dowear() (2430-2450), the 'W' command.
+export async function dowear(state = game) {
+    /* cantweararm() checks for suits of armor, not what we want here;
+       verysmall() or nohands() checks for shields, gloves, etc... */
+    if (verysmall(state.youmonst.data) || nohands(state.youmonst.data)) {
+        await ttyPline("Don't even bother.", state);
+        return ECMD_OK;
+    }
+    if (state.uarm && state.uarmu && state.uarmc && state.uarmh && state.uarms
+        && state.uarmg && state.uarmf
+        && state.uleft && state.uright && state.uamul && state.ublindf) {
+        /* 'W' message doesn't mention accessories */
+        await ttyPline(
+            'You are already wearing a full complement of armor.', state,
+        );
+        return ECMD_OK;
+    }
+    const otmp = await getobj('wear', wear_ok, GETOBJ_NOFLAGS, state);
+
+    return otmp ? accessory_or_armor_on(otmp, state) : ECMD_CANCEL;
+}
+
 // C ref: do_wear.c armor_or_accessory_off() (1768-1829), shared by
 // dotakeoff('T') and doremring('R').
 export async function armor_or_accessory_off(obj, state = game) {
@@ -779,11 +1257,13 @@ export const _doWearInternals = Object.freeze({
     Cloak_off,
     Helmet_off,
     Shield_off,
+    Shield_on,
     Shirt_off,
+    accessory_or_armor_on,
+    already_wearing,
     cancel_doff,
-    is_boots,
-    is_gloves,
     off_msg,
+    on_msg,
     reset_remarm,
     takeoffContext,
     setwornEnv,
