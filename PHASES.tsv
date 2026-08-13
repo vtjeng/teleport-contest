@@ -361,3 +361,8 @@ utc	event	phase	goal	detail
 2026-08-12T06:09:02.170Z	start	implement	sit-command	
 2026-08-12T07:40:58.227Z	end	implement	sit-command	sit slice closed at e6c2135; the next slice selection ran after it
 2026-08-12T07:40:58.257Z	start	implement	sit-command	two-weapon suffix
+2026-08-13T04:06:17.045Z	start	select		
+2026-08-13T04:20:49.472Z	end	select		
+2026-08-13T04:20:49.501Z	start	implement	objects-deferral-sweep-3	
+2026-08-13T06:11:04.988Z	end	implement	objects-deferral-sweep-3	fprefx Mac-arm slice closed at 2bba12d; screens 1512 to 1513
+2026-08-13T06:11:05.016Z	start	implement	objects-deferral-sweep-3	dothrow guard narrowings

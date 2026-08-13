@@ -1820,6 +1820,56 @@
         "screens": 16,
         "rng": 257
       }
+    },
+    {
+      "id": "objects-deferral-sweep-3",
+      "status": "open",
+      "boundary": "npm run quality -- deferrals names no sweep candidate for objects: every counted entry that reading shows to be small is resolved, starting with eat.c fprefx()'s platform arms, where the port prints \"Core dumped.\" at js/eat.js:1739 on the first bite of an apple that C answers \"Delicious!  Must be a Macintosh!\", and every surviving entry carries the blockedOn symbol its reading found.",
+      "upstreamOwners": [
+        "eat.c fprefx()",
+        "dothrow.c throw_obj()",
+        "dothrow.c throwit()",
+        "objnam.c doname_base()"
+      ],
+      "forecast": {
+        "steps": 1,
+        "basis": "Measured at d939955, not read. node scripts/score-development.mjs puts the standing at 1512/7765 screens and 9/33 sessions. seed0016 scores 34/36 screens with 3656/3656 random-number calls matched and no boundary; a per-screen diff in a scoring workspace shows exactly two misses, step 7 and step 26. Step 7 is fprefx()'s apple line, one of this area's ten counted entries. Step 26 is the spell-menu heading, the judge-side serialize() ceiling recorded as the open display deferral \"an indented inverse menu heading cannot match\", which no game code can fix, so seed0016 cannot PASS and the sweep's entire recorded value is one screen and zero calls. Neither the MACOS arm (eat.c:2183-2184) nor the non-hallucinating UNIX arm (2188-2190) draws; the rnd(100) at 2193 sits in the hallucinating half. The other nine counted entries stand behind no stopped session and are worth 0 recorded steps. Like objects-deferral-sweep-2 (forecast 1, delivered 1), this goal is scheduled by the threshold, not priced by look-ahead.",
+        "sessions": [
+          "seed0016-healer-newmoon-eat-zap.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0016-healer-newmoon-eat-zap.session.json",
+            "evidence": "seed 16, datetime 20000205090000, OPTIONS=name:Healix,role:Healer,race:gnome,gender:male,align:neutral / !autopickup,!tutorial / suppress_alert:3.4.3 / symset:DECgraphics / disclose:yi ya yv yg yc yo. One segment, 36 steps, no boundary. Step 6 is \"e\" and C draws \"What do you want to eat? [j or ?*]\"; step 7 is \"j\" and spends 7 calls. C path: doeat() -> start_eating() -> fprefx() (eat.c:2099). The item is an APPLE from u_init.c:87 { APPLE, 0, FOOD_CLASS, 5, 5, 0 }: the bless field is a literal 0 rather than UNDEF_BLESS, so otmp->cursed is false and the cursed-apple arm at 2176-2177 cannot fire; Hallucination is false and the hero is not undead, so control falls to default: and reaches 2179. include/config1.h:43-45 defines MACOS whenever __APPLE__ and __MACH__ hold, include/config.h:18 defines UNIX and nothing undefines it (config1.h:64 is guarded by MACOS9 or __BEOS__, neither defined), and nethack-c/build-recorder.sh forces clang and on Darwin copies sys/unix/hints/macosx-minimal, so the recording build has both macros; nethack-c/patches/006-nomux-capture.patch rewrites a MACOS-guarded TIMED_DELAY test, which only a build with MACOS live needs. C therefore takes 2183-2184, pline(\"Delicious!  Must be a Macintosh!\"), and never reaches the UNIX arm at 2187-2190. The port takes js/eat.js:1736-1739 and prints \"Core dumped.\" Screen 7 is the only cell mismatch in the session apart from the step-26 heading ceiling; all 3656 calls and all 36 cursors already match."
+          }
+        ]
+      },
+      "detail": "Measured at d939955 against nethack-c/upstream/ and js/, not inferred.\n\nThe sweep is due and correctly counted. `objects` holds 16 open entries: 2\n`scope`, 4 carrying a `blockedOn` symbol js/ does not define (wizterrainwish,\nthitmonst, breakobj, doquiver_core, each found only inside refusal strings and\nheader comments in js/dothrow.js and js/zap.js), and 10 counted.\n\nThe paying entry's citations have drifted, and the port carries the claim they\nrefute. `fprefx-takes-the-linux-apple-arm` cites js/eat.js:1139-1141 and\n:1159-1161; the apple arm now sits at js/eat.js:1736-1739 and the hallucination\nrefusal at :1715-1724. The comment at js/eat.js:1737-1738 reads \"The #ifdef UNIX\narm. The recorder builds for Linux, so this is the arm an apple or a pear\ntakes.\" The recording build defines MACOS as well, so C takes eat.c:2183-2184\ninstead. Anyone who lifts the hallucination guard on that comment's reasoning\nimplements the Linux rnd(100) and desynchronises the log, which costs more than\nthe one wrong line.\n\nTwo entries are one-conjunct guard corrections, both strictly more refusing than\nC. js/dothrow.js:409-411 carries three of throw_obj()'s four conjuncts and omits\n!Stone_resistance (dothrow.c:139-140). js/dothrow.js:672-674 refuses on\nis_pool || is_lava where throwit() (dothrow.c:1794-1802) reaches the sound under\n!Deaf && !Underwater and treats lava only when !is_flammable(obj). Neither costs\na recorded screen, so both read after fprefx under the ordering rule.\n\nOne test entry became closable. `twoweapon-stacked-primary-has-no-replayable-case`\nwas unblocked by d5e382b, which ported wield.c doswapweapon() and gave it an\nrhack() arm; its note at 2f1a55f records the recipe replaying to 17 screens with\nno boundary. What remains is a C recording and an INVENTORY_CASES row in\nscripts/run-twoweapon-command.mjs.\n\nClosing those four takes `objects` from 10 counted to 6, which clears the gate.\nThe rule then requires reading the rest and closing whatever reading shows to be\nsmall, stopping at the first entry that needs a fresh recording, a state-owner\nchange, or an unsettled decision.\n\nEntries the reading expects to survive, with the blocker to record on each.\n`eat-corpse-arms-without-a-fresh-case` needs a wished-for corpse, refused at\njs/objnam_readobjnam.js:1498; block it on objnam.c readobjnam()'s monster-naming\narm. `eat-corpse-effects-beyond-the-default-arm` is cpostfx() 1129-1319, fourteen\nspecies arms plus givit(), gainstr() and make_hallucinated(); its record states no\nclosing condition, so it is a decision rather than a sweep item.\n`armoroff-refuses-helms-gloves-and-boots-over-their-delay` needs Helmet_off()'s\nnine arms (48 lines) and a fresh recorded helm take-off; gloves and boots stay\nunreachable because select_off() stops them earlier. The wished-for chest entry\nneeds three fresh differentials and, for the ice box alone,\nhold_another_object()'s drop tail. `bhit-web-arm-without-a-fresh-case` needs a\nseed scan for a web in a firing line.\n\nRunner-up, set aside because the sweep rule leaves no discretion: dungeon.c\nprint_dungeon(bymenu=TRUE) 2290-2420 with print_branch() and tport_menu(),\nrefused at js/teleport.js:1233. It stops seed0373 at 41/124, seed0383 at 41/219\nand seed2600 at 19/38. A capping read shrinks it well below its 198 raw stretch:\nseed0373 caps two steps in, at step 44's quest-branch arrival, which needs\nspecial-level generation the port has no sp_lev loader for.",
+      "slices": [
+        {
+          "name": "take the MACOS apple arm in fprefx() and re-scope its guard to the hallucinating pear",
+          "status": "closed",
+          "closedBy": "2bba12d573691db2de737d82850b701b0f774638"
+        },
+        {
+          "name": "narrow the two dothrow.c refusals to the guards C actually carries",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "replay the two-weapon stacked-primary case against C in INVENTORY_CASES",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "d939955e795236d2263b61d59c532ab9deaff347",
+      "openStanding": {
+        "sha": "07c6d4b",
+        "screens": 1512,
+        "rng": 120847
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
