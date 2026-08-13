@@ -464,31 +464,101 @@ async function trapeffect_dart_trap(mtmp, trap, _trflags, env) {
         : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
 }
 
-// C ref: trap.c trapeffect_bear_trap() (1478-1560), hero arm (1489-1524). The
-// monster arm (1525-1559) stops the scan. Every owner it reads is present now
-// -- a_your[] above, and mon.c m_in_air() and pline.c You_hear() through the
-// env mintrap() proves -- so what stops it is scope rather than a gap, and a
-// monster it catches leaves mtrapped set, which mintrap()'s tail refuses in
-// turn.
+// C ref: trap.c trapeffect_bear_trap() (1478-1560), hero arm (1489-1524) and
+// monster arm (1525-1558), both ported.
 //
-// Two of the hero arm's branches stop as well, and both are refused ahead of
-// the move by preflight_dotrap() rather than here, so that no refusal lands
-// after feeltrap() has repainted or set_utrap() has written u.utrap: the
-// mounted arm at 1507-1511 needs s_suffix(mon_nam()) and mbodypart(), and the
-// iron-shoes line at 1517-1518 needs Yname2(). `dmg` is rolled before either
-// of them, at C's position, because the roll happens whether or not the branch
-// that spends it is taken.
+// Two of the hero arm's branches stop, and both are refused ahead of the move
+// by preflight_dotrap() rather than here, so that no refusal lands after
+// feeltrap() has repainted or set_utrap() has written u.utrap: the mounted arm
+// at 1507-1511 needs s_suffix(mon_nam()) and mbodypart(), and the iron-shoes
+// line at 1517-1518 needs Yname2(). `dmg` is rolled before either of them, at
+// C's position, because the roll happens whether or not the branch that spends
+// it is taken.
+//
+// The monster arm's own d(2, 4) sits where C spends it, after the catch
+// message rather than before: the hero arm's roll leads its messages and this
+// one trails them. C blocks inside pline_mon() at 1534 until the hero clears
+// the --More--, and only then evaluates thitm()'s argument at 1554, so the
+// draw lands in the keystroke that dismissed the message and not in the one
+// that moved the monster. The port reaches the same order by awaiting the
+// message seam, which suspends in the live pass and returns at once in the
+// cloned planning pass, leaving the draw at the same position in both.
 async function trapeffect_bear_trap(mtmp, trap, trflags, env) {
     const { state } = env;
     const random = env.random;
     const message = requireTrapOperation(env, 'message');
-    const unsupported = requireTrapOperation(env, 'unsupported');
     const is_you = mtmp === state.youmonst;
     const forcetrap = (trflags & FORCETRAP) !== 0
         || (trflags & FAILEDUNTRAP) !== 0
         || (is_you && (trflags & VIASITTING) !== 0);
 
-    if (!is_you) unsupported('a monster caught in a bear trap');
+    if (!is_you) {
+        // The two owners the hero arm never reads, so neither can move to the
+        // top of the function: dotrap()'s heroTrapEnv() binds neither. Both
+        // are resolved before the mtrapped write below, so a missing
+        // injection throws with nothing yet changed or drawn.
+        const mInAir = requireTrapOperation(env, 'mInAir');
+        const youHear = requireTrapOperation(env, 'youHear');
+        const mptr = mtmp.data;
+        const in_sight = canSeeMonster(mtmp, state) || mtmp === state.u?.usteed;
+        let trapkilled = false;
+
+        if (mptr.msize > MZ_SMALL && !amorphous(mptr) && !mInAir(mtmp, state)
+            && !is_whirly(mptr) && !unsolid(mptr)) {
+            // C assigns 1 to an unsigned bitfield; js/monst.js and
+            // js/makemon_create.js both keep mtrapped as a boolean.
+            mtmp.mtrapped = true;
+            if (in_sight) {
+                await message(
+                    messageAt(
+                        `${capitalizedMonsterName(mtmp, state)} is caught in`
+                        + ` ${a_your[trap.madeby_u ? 1 : 0]} bear trap!`,
+                        mtmp.mx,
+                        mtmp.my,
+                        state,
+                    ),
+                    state,
+                    env,
+                );
+                seetrap(trap, env);
+            } else if (mptr === state.mons[PM_OWLBEAR]
+                       || mptr === state.mons[PM_BUGBEAR]) {
+                // Soundeffect() is a tty-sound hook and writes nothing to the
+                // terminal the recorder captures, as in
+                // trapeffect_sqky_board() above.
+                const heard = youHear('the roaring of an angry bear!', state);
+                if (heard) await message(heard, state, env);
+            }
+        } else if (forcetrap) {
+            if (in_sight) {
+                await message(
+                    messageAt(
+                        `${capitalizedMonsterName(mtmp, state)} evades`
+                        + ` ${a_your[trap.madeby_u ? 1 : 0]} bear trap!`,
+                        mtmp.mx,
+                        mtmp.my,
+                        state,
+                    ),
+                    state,
+                    env,
+                );
+                seetrap(trap, env);
+            }
+        }
+        if (mtmp.mtrapped && !wearing_iron_shoes(mtmp, state)) {
+            trapkilled = await thitm(
+                0,
+                mtmp,
+                null,
+                random.d(2, 4),
+                false,
+                env,
+            );
+        }
+
+        return trapkilled ? Trap_Killed_Mon
+            : mtmp.mtrapped ? Trap_Caught_Mon : Trap_Effect_Finished;
+    }
 
     const dmg = random.d(2, 4);
 
@@ -645,11 +715,11 @@ async function trapeffect_pit(mtmp, trap, trflags, env) {
 
 // The trap types whose trapeffect_*() body has no arm in the port yet. C
 // dispatches all of them; each stops the scan before the effect changes state,
-// draws, or writes a message. BEAR_TRAP and PIT are absent because their own
-// bodies now own the refusal: the bear trap's hero arm and the pit's monster
-// arm are ported, and the other arm of each stops there. SPIKED_PIT stays
-// here even though C sends it to trapeffect_pit() as well, because neither
-// arm's spike handling is ported.
+// draws, or writes a message. BEAR_TRAP is absent because both of its arms are
+// ported. PIT is absent because its own body owns the refusal: its monster arm
+// is ported and its hero arm stops there. SPIKED_PIT stays here even though C
+// sends it to trapeffect_pit() as well, because neither arm's spike handling
+// is ported.
 const UNPORTED_TRAP_EFFECTS = Object.freeze(new Set([
     ARROW_TRAP,
     ROCKTRAP,

@@ -1,7 +1,7 @@
 {
   "mode": "implementation",
-  "reason": "The goal bear-trap-capture has just opened and none of its three slices has landed. Twelve entries are missing: the six branches of trapeffect_bear_trap()'s monster arm, the BEAR_TRAP-reachable subset of mintrap()'s mtrapped arm with trapname(), m_move()'s mtrapped prologue, and heal_legs() with the nh_timeout() case that reaches it. This checklist replaces the one that covered sit-command, finish-seed1150 and finish-seed0200, whose slices closed and whose evidence is recorded in GOALS.json, SCORE.tsv and QUALITY.json.",
-  "commitChecked": "8a25741772d30ee7d90b8c261bb1ab65a0fef8d4",
+  "reason": "The goal bear-trap-capture's first slice has landed: trapeffect_bear_trap()'s monster arm (C 1525-1558) is ported and js/trap_effects.js:491's refusal is gone. Six entries remain missing: the BEAR_TRAP-reachable subset of mintrap()'s mtrapped arm with trapname(), m_move()'s mtrapped prologue, and heal_legs() with the nh_timeout() case that reaches it. This checklist replaces the one that covered sit-command, finish-seed1150 and finish-seed0200, whose slices closed and whose evidence is recorded in GOALS.json, SCORE.tsv and QUALITY.json.",
+  "commitChecked": "1841a5e519002ef6d7330e94bc054395ccdfd75b",
   "boundary": {
     "goalId": "bear-trap-capture",
     "startingCommit": "8a25741772d30ee7d90b8c261bb1ab65a0fef8d4",
@@ -22,56 +22,56 @@
     {
       "candidate": "trapeffect_bear_trap() monster arm, the size and substance gate (C 1526-1532)",
       "reachability": "Entered whenever the trapped creature is not the hero. Catches only when msize > MZ_SMALL && !amorphous(mptr) && !m_in_air(mtmp) && !is_whirly(mptr) && !unsolid(mptr).",
-      "owner": "None. js/trap_effects.js:491 refuses the whole arm with unsupported('a monster caught in a bear trap').",
+      "owner": "js/trap_effects.js trapeffect_bear_trap(), the `!is_you` arm.",
       "effects": "Sets mtmp->mtrapped = 1 on a catch; on a miss the arm falls through to the damage line with no capture.",
       "evidence": "trap.c:1525-1532. PM_PONY satisfies every conjunct: monsters.h:1002-1009.",
-      "status": "missing",
-      "remaining": "Slice 1. Port the gate with both outcomes, and record a fresh case covering a medium-or-larger monster and a small one."
+      "status": "done",
+      "remaining": "None. Both outcomes are recorded fresh in scripts/run-monster-bear-trap.mjs: five Knight segments whose MZ_MEDIUM pony is held, and one Valkyrie segment whose MZ_SMALL kobold zombie crosses the same trap untouched. scripts/monster-bear-trap.test.mjs pins the four substance conjuncts one at a time; is_whirly() is dead behind m_in_air() because all seven whirly species are M1_FLY, so that one case reaches trapeffect_selector() directly."
     },
     {
       "candidate": "The in-sight catch message and map update (C 1533-1538)",
       "reachability": "in_sight is true, so pline_mon(mtmp, \"%s is caught in %s bear trap!\", Monnam(mtmp), a_your[trap->madeby_u]) runs and seetrap() reveals the trap.",
-      "owner": "None; behind the same refusal.",
+      "owner": "js/trap_effects.js trapeffect_bear_trap(), the `!is_you` arm.",
       "effects": "Writes a message and updates the map. C suspends here on a --More--, which is why the d(2,4) at 1554 lands eleven keystrokes later.",
       "evidence": "trap.c:1533-1538. seed0004 step 45 draws 'The saddled pony is caught in a bear trap!'",
-      "status": "missing",
-      "remaining": "Slice 1. The message must suspend where C suspends, and the port runs each monster turn twice -- once in the silent cloned plan through preflightSimpleMonsterActions() and once live -- so the roll must sit at C's position in both passes while only the live pass blocks."
+      "status": "done",
+      "remaining": "None. All five Knight segments in scripts/run-monster-bear-trap.mjs draw 'The saddled pony is caught in a bear trap!' and expose the trap, and each ends on the space that clears the --More-- so that the d(2, 4) at C 1554 lands in the step the space owns rather than never being spent."
     },
     {
       "candidate": "The out-of-sight owlbear and bugbear arm (C 1539-1543)",
       "reachability": "in_sight is false and the monster is an owlbear or a bugbear, giving Soundeffect() and You_hear() instead of the pline.",
-      "owner": "None; behind the same refusal.",
+      "owner": "js/trap_effects.js trapeffect_bear_trap(), the `!is_you` arm.",
       "effects": "Writes a message; draws nothing.",
-      "evidence": "trap.c:1539-1543.",
-      "status": "missing",
-      "remaining": "Slice 1. Port it with the arm; a fresh case for an unseen catch pins that the damage is still spent when no message is written."
+      "evidence": "trap.c:1539-1543. Inside this boundary the arm needs an owlbear or a bugbear on dungeon level one, and makemon.c rndmonst():1671-1682 rejects both through montoostrong(): the owlbear is difficulty 7 and the bugbear difficulty 5 against a maxmlev derived from level_difficulty() 1. Neither appeared anywhere in the 12,000-seed scan behind this slice.",
+      "status": "cannot-occur",
+      "remaining": "None inside this boundary. The arm is ported and scripts/monster-bear-trap.test.mjs pins it on both species, including that an unseen ordinary monster takes no line at all while still spending the damage roll."
     },
     {
       "candidate": "The forcetrap evasion arm (C 1545-1552)",
       "reachability": "Reached when the size and substance gate fails and forcetrap is set.",
-      "owner": "None; behind the same refusal.",
+      "owner": "js/trap_effects.js trapeffect_bear_trap(), the `!is_you` arm.",
       "effects": "Writes an 'evades' message.",
-      "evidence": "trap.c:1545-1552.",
-      "status": "missing",
-      "remaining": "Slice 1. Port it with the arm. seed0004 does not reach it, so it needs either a fresh case or a source-read test."
+      "evidence": "trap.c:1545-1552. monmove.c postmov():1509 passes NO_TRAP_FLAGS, and mintrap()'s only FORCETRAP callers are muse.c:410 and muse.c:3140, both behind js/unported_monster_actions.js's item-use refusal, so `forcetrap` is false for every monster this boundary admits.",
+      "status": "cannot-occur",
+      "remaining": "None inside this boundary. The arm is ported and scripts/monster-bear-trap.test.mjs pins its message, its seetrap() call, its in_sight gate and that it holds and hurts nothing."
     },
     {
       "candidate": "The damage line and its iron-shoes guard (C 1553-1554)",
       "reachability": "Runs unless wearing_iron_shoes(mtmp) holds. A saddled pony wears W_SADDLE and no iron shoes, so it runs.",
-      "owner": "None; behind the same refusal.",
+      "owner": "js/trap_effects.js trapeffect_bear_trap(), the `!is_you` arm.",
       "effects": "thitm(0, mtmp, NULL, d(2,4), FALSE). This is the arm's only random-number call and its position in the log is the slice's hardest constraint.",
       "evidence": "trap.c:1553-1554. seed0004 step 45 opens with d(2,4)=3 @ trapeffect_bear_trap(trap.c:1554).",
-      "status": "missing",
-      "remaining": "Slice 1. Place the draw at C's position relative to the suspended message."
+      "status": "done",
+      "remaining": "None for the damage line: every Knight segment in scripts/run-monster-bear-trap.mjs records d(2, 4) @ trapeffect_bear_trap(trap.c:1554) in the step its trailing space owns, which pins the roll's position behind the suspended message and not merely its existence. The guard's true branch has no fresh case, because no monster this boundary generates wears iron shoes; scripts/monster-bear-trap.test.mjs pins it on a fixture instead."
     },
     {
       "candidate": "The arm's three-way return (C 1556-1558)",
       "reachability": "Always, on leaving the arm.",
-      "owner": "None; behind the same refusal.",
+      "owner": "js/trap_effects.js trapeffect_bear_trap(), the `!is_you` arm.",
       "effects": "Returns Trap_Killed_Mon, Trap_Caught_Mon or Trap_Effect_Finished, which postmov() reads.",
       "evidence": "trap.c:1556-1558. The identical return already works for trapeffect_dart_trap()'s monster arm at js/trap_effects.js:418-465, so the Trap_Killed_Mon path back through postmov() is proven in the running game.",
-      "status": "missing",
-      "remaining": "Slice 1. Follow the dart trap's precedent."
+      "status": "done",
+      "remaining": "None. All three answers are recorded fresh in scripts/run-monster-bear-trap.mjs: Trap_Caught_Mon in four segments, Trap_Killed_Mon in seed 7008529 where the roll empties the pony and postmov():1510-1513 turns it into MMOVE_DIED, and Trap_Effect_Finished in the kobold-zombie segment."
     },
     {
       "candidate": "mintrap()'s mtmp->mtrapped arm, the BEAR_TRAP-reachable subset (C 3741-3789)",
@@ -175,18 +175,6 @@
   ],
   "missingWorkByOwner": [
     {
-      "group": "js/trap_effects.js trapeffect_bear_trap() monster arm",
-      "candidates": [
-        "trapeffect_bear_trap() monster arm, the size and substance gate (C 1526-1532)",
-        "The in-sight catch message and map update (C 1533-1538)",
-        "The out-of-sight owlbear and bugbear arm (C 1539-1543)",
-        "The forcetrap evasion arm (C 1545-1552)",
-        "The damage line and its iron-shoes guard (C 1553-1554)",
-        "The arm's three-way return (C 1556-1558)"
-      ],
-      "next": "Slice 1. Port C 1525-1558 entire, lifting js/trap_effects.js:491, and record a fresh case in which a monster walks onto a hidden bear trap. Worth steps 34-45 of seed0004, twelve recorded screens."
-    },
-    {
       "group": "js/trap_effects.js mintrap() and js/monmove.js m_move(), the trapped monster's turns",
       "candidates": [
         "mintrap()'s mtmp->mtrapped arm, the BEAR_TRAP-reachable subset (C 3741-3789)",
@@ -204,5 +192,5 @@
       "next": "Slice 3. Correct independently of slices 1 and 2, but earns nothing until they carry seed0004 past step 50. Worth steps 51-170, one hundred and twenty screens, and it is the goal's payer."
     }
   ],
-  "sourceReview": "Every branch and helper reachable inside the boundary was traced against nethack-c/upstream/ rather than inferred, by the slice-selector at a4e9d83 and recorded here at 8a25741. The trace covered state, message order and random-number order: d(2,4) at trap.c:1554 sits eleven keystrokes after the pline_mon() at 1534 suspends, and rn2(40) at trap.c:3751 recurs once per trapped turn. Stubs, stops and partial implementations are identified individually above: four refusal sites (js/trap_effects.js:491 and :811, js/unported_monster_actions.js:229-230, js/timeout.js:277-280), one injection standing in for a real function (resolveTrappedMonster at js/unported_monster_actions.js:712, seam js/monmove.js:2503), one function absent from js/ entirely (trapname()), and one partial port that counts down but does not act (js/timeout.js's WOUNDED_LEGS handling). Two claims in the goal's own detail were corrected by this reading and are corrected here: the detail says lifting the trap arm without the unported_monster_actions.js gate 'earns nothing', but C's log shows that gate firing at the pony's next action at step 46, so slice 1 earns steps 34-45; and the detail's four refusal sites omit that trapname() has five refusing callers of which this goal lifts none, because each of the other four needs its own surrounding branch."
+  "sourceReview": "Every branch and helper reachable inside the boundary was traced against nethack-c/upstream/ rather than inferred, by the slice-selector at a4e9d83 and recorded here at 8a25741. The trace covered state, message order and random-number order: d(2,4) at trap.c:1554 sits eleven keystrokes after the pline_mon() at 1534 suspends, and rn2(40) at trap.c:3751 recurs once per trapped turn. Stubs, stops and partial implementations are identified individually above: four refusal sites (js/trap_effects.js:491 and :811, js/unported_monster_actions.js:229-230, js/timeout.js:277-280), one injection standing in for a real function (resolveTrappedMonster at js/unported_monster_actions.js:712, seam js/monmove.js:2503), one function absent from js/ entirely (trapname()), and one partial port that counts down but does not act (js/timeout.js's WOUNDED_LEGS handling). Two claims in the goal's own detail were corrected by this reading and are corrected here: the detail says lifting the trap arm without the unported_monster_actions.js gate 'earns nothing', but C's log shows that gate firing at the pony's next action at step 46, so slice 1 earns steps 34-45; and the detail's four refusal sites omit that trapname() has five refusing callers of which this goal lifts none, because each of the other four needs its own surrounding branch. Slice 1 landed the monster arm at 1525-1558 entire; the four refusal sites it names are now three, js/trap_effects.js:491 having been replaced by the arm itself. Two of the arm's six branches are recorded as cannot-occur rather than done because this boundary cannot reach them, and each carries the specific upstream condition that prevents it."
 }
