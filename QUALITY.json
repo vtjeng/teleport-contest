@@ -11228,6 +11228,160 @@
         }
       },
       "recordedAt": "2026-08-13T08:14:11.990Z"
+    },
+    {
+      "kind": "review",
+      "head": "e211e5ef56fa04d2eb00c8490da2a3d9b40a0971",
+      "auditedRange": "eb3a08485cd14e7ce8dec0bbc4c30e04da03f11a..e211e5ef56fa04d2eb00c8490da2a3d9b40a0971",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "be3159974239b4c6cf67435e56d709948e36cf51",
+        "reason": "the checklist covers be315997, an ancestor of the range head; the 3 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "monsters",
+        "world-effects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 20 raw, 18 deduplicated, 13 confirmed, 6 applied, 7 deferred, 5 rejected, 0 unverified; mutation: 0 survivors of 23 mutants. Full pass, five finders: correctness, readability, tests, variable-trace, and the concurrency finder, enabled because the range threaded an env through nh_timeout_elapsed_turn() so heal_legs() stays silent in the planning clone, which is reentrant control flow over shared mutable state. Enabling it paid: it found the range's one production defect, a clone that shared command_queue with the live game and so let a dry run discard a canned command sequence on every turn a burdened hero's wounded-legs timeout expired. That class has cost this port nine prior defects and every earlier one was found by its symptom; this is the first found by review. The performance finder stayed off and no finder disputed it. Six findings applied, seven deferred with closing conditions, five rejected with counter-evidence. Two rejections are worth carrying forward because they will look like defects again: heal_legs() keeping C's name while porting one arm is what AGENTS.md prescribes rather than a hazard, and trapname()'s surviving sibling list in js/startup_a11y.js is a recorded decision rather than an oversight, because those sites index the list with values that can be absent while trap_to_defsym() throws on them. The development score is identical before and after the audit fixes at 9/33 sessions, 1531/7765 screens, 121032/610816 calls and 1549/7765 cursors, so none of the six applied findings changed a recorded path. The goal itself delivered 18 screens against a forecast of 137, which is a forecast defect rather than a code defect and is recorded with the goal: its capping read classified seed0004 step 52 as hero melee when C draws the kobold's own attack there, owned by mhitu.c mattacku(), which was refusing before this goal opened.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2859,
+        "counts": {
+          "raw": 20,
+          "deduplicated": 18,
+          "confirmed": 13,
+          "applied": 6,
+          "deferred": 7,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 7,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/unported_monster_actions.js planningState() shared command_queue with the live game. The function isolates the dry-run clone by naming about thirty fields to copy and nobody had named that one, so the plan and the game held one array. cmdq_clear() empties an array in place, and this range's WOUNDED_LEGS case calls stop_occupation() gated on nothing, unlike every other route into it, which needs an active occupation. So on any turn a burdened hero's wounded-legs timeout expires -- seed0004-feeding-pony step 51, the goal's own scenario -- the dry run discarded a canned command sequence the game had pending, from js/dothrow.js's swap-and-fire push. No recorded session shows it because the live pass repeats the identical clear. QUALITY.json records nine prior production defects of exactly this shape, two of them introduced by the fix for a previous one, and every one was found by its symptom rather than by review; this is the first found by review, by the concurrency finder enabled for that reason. Fixed by copying both queues in planningState(). The regression test was written first and observed emptying the live queue, and deleting the copy again fails it.",
+            "foundBy": [
+              "concurrency",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/display.js newsym() has no port of display.c:1013-1024's mtrapped branch, which sets trap->tseen for a displayed monster held in a bear trap, a pit or a web before filing the remembered glyph. grep -c mtrapped js/display.js returns 0, and both newsym() sites test trap?.tseen with no mtrapped term. A catch the hero did not watch therefore leaves the trap unremembered where C remembers it: kill the monster before its next m_move() and C redraws the trap glyph while the port redraws floor, with the map memory wrong for the rest of the level. The defect predates this range, but the range is what made it reachable in ordinary play, because before it no monster could stay trapped across turns. Every segment in scripts/run-monster-bear-trap.mjs catches its pony in sight, where trapeffect_bear_trap()'s own seetrap() has already set tseen, which is why the validation could not see it. Deferred rather than fixed: .agents/review.md returns a finding that needs a new upstream branch to implementation, and display.c owns none of this goal, so this pass does not claim to cover it.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/do.js:1491 heal_legs() keeps C's name and an unqualified signature while implementing only the how == 0 arm, so a how == 1 or how == 2 caller would get silently wrong behaviour instead of a refusal.",
+            "counterEvidence": "evidence refute: no caller can reach the claimed divergence, and the pattern objected to is the one AGENTS.md prescribes -- 'Give each function the name of the C function it comes from. If it covers only part of that function, keep the name and say which branches it covers in a comment.' The one C caller that passes a non-zero how, steed.c dismount_steed(), is refused at js/steed.js before it can call, and no other ported caller exists. Do not reopen without a ported caller that reaches heal_legs() with how != 0."
+          },
+          {
+            "summary": "js/timeout.js:340 decrement_property_timeouts() drops C's `switch (upp - u.uprops)` dispatch key and runs the WOUNDED_LEGS body for whatever property expires, so correctness rests on a whitelist enforced elsewhere.",
+            "counterEvidence": "evidence refute: the correctness half is unreachable and the readability half misdescribes the code. nh_timeout_elapsed_turn() calls preflight_nh_timeout_elapsed_turn(state) as its first statement and decrement_property_timeouts(state, env) as its last, two statements apart in the same function, so the whitelist is not remote from the body it guards. Do not reopen without a property that reaches the body while the preflight admits it."
+          },
+          {
+            "summary": "js/timeout.js:351 nh_timeout_elapsed_turn()'s `env = {}` default lets the silent-clone contract degrade to live terminal output with no error, in a codebase that otherwise throws for a missing operation.",
+            "counterEvidence": "causality refute: the range adds no caller that omits env, and the defaulting is the established pattern here rather than a deviation this change introduced. grep for nh_timeout_elapsed_turn across js/ returns one production caller, js/allmain.js:686, which passes the silent pair explicitly when planning. Do not reopen without a production caller that omits env on a planning path."
+          },
+          {
+            "summary": "js/trap.js:721 trapname()'s comment implies the trap-name list is now single-sourced, while a hand-written duplicate of the same 25 strings survives in js/startup_a11y.js.",
+            "counterEvidence": "evidence refute: the comment does not claim what the finding reads into it. It says defsyms[].explanation is generated as CMAP_EXPLANATIONS, 'so this reads the table the symbol set is built from rather than a copy of it' -- a statement about what trapname() reads, not a claim that no other copy exists anywhere. The surviving copy is a recorded decision: those sites index the list with values that can legitimately be absent while trap_to_defsym() throws on 0 and undefined, so folding them needs a new guard at each site. Do not reopen without showing the two lists can diverge in a way that changes a screen."
+          },
+          {
+            "summary": "js/unported_monster_actions.js:240 the `heldBy &&` short-circuit silently admits an mtrapped monster standing on no trap, a case the comment above presents as exhaustively enumerated.",
+            "counterEvidence": "evidence refute: the mechanical reading is right -- the short-circuit does admit that combination -- but the state is not C-attested, and without a reachable case there is no readability problem. Both C sites the finding cites clear mtrapped in the same breath as removing the trap, so a monster holding mtrapped over an empty square is not a state C produces. Do not reopen without a C path that leaves mtrapped set with no trap under the monster."
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "newsym-does-not-mark-a-trap-seen-under-a-held-monster",
+            "category": "production",
+            "summary": "js/display.js newsym() has no port of display.c:1013-1024's mtrapped branch, which sets trap->tseen for a displayed monster held in a bear trap, a pit or a web before filing the remembered glyph. grep -c mtrapped js/display.js returns 0, and both newsym() sites test trap?.tseen with no mtrapped term. A catch the hero did not watch therefore leaves the trap unremembered where C remembers it: kill the monster before its next m_move() and C redraws the trap glyph while the port redraws floor, with the map memory wrong for the rest of the level. The defect predates this range, but the range is what made it reachable in ordinary play, because before it no monster could stay trapped across turns. Every segment in scripts/run-monster-bear-trap.mjs catches its pony in sight, where trapeffect_bear_trap()'s own seetrap() has already set tseen, which is why the validation could not see it. Deferred rather than fixed: .agents/review.md returns a finding that needs a new upstream branch to implementation, and display.c owns none of this goal, so this pass does not claim to cover it.",
+            "trackedIn": "newsym-does-not-mark-a-trap-seen-under-a-held-monster"
+          },
+          {
+            "id": "bear-trap-in-sight-usteed-disjunct-untested",
+            "category": "tests",
+            "summary": "trap.c:1527 decides in_sight with canseemon(mtmp) || (mtmp == u.usteed); every case decides it through canSeeMonster() alone, so the second disjunct is unexercised.",
+            "trackedIn": "bear-trap-in-sight-usteed-disjunct-untested"
+          },
+          {
+            "id": "bear-trap-more-suspension-oracle-cannot-fail",
+            "category": "tests",
+            "summary": "The test pinning this goal's hardest constraint, d(2,4) landing after the --More-- at trap.c:1534, uses a message double that never suspends, so its oracle accepts an implementation that rolls before waiting.",
+            "trackedIn": "bear-trap-more-suspension-oracle-cannot-fail"
+          },
+          {
+            "id": "mintrap-seetrap-hole-disjunct-untested",
+            "category": "tests",
+            "summary": "The seetrap() gate ported from trap.c:3743-3745 admits a pit, a bear trap, a hole and a web; its tests cover the bear trap and the web, so the HOLE disjunct has no case.",
+            "trackedIn": "mintrap-seetrap-hole-disjunct-untested"
+          },
+          {
+            "id": "silent-escape-refusal-has-no-case",
+            "category": "tests",
+            "summary": "The silent-escape refusal is the one refusal in mintrap()'s arm that fires after state has been written, below seetrap() and inside the !rn2(40) roll, and no test reaches it.",
+            "trackedIn": "silent-escape-refusal-has-no-case"
+          },
+          {
+            "id": "m-move-planning-silencing-untested",
+            "category": "tests",
+            "summary": "The planning-pass silencing added to m_move()'s mtrapped prologue, message and redraw replaced by no-ops when env.planning is set, is exercised by no test -- the same seam whose command_queue sibling was this range's production defect.",
+            "trackedIn": "m-move-planning-silencing-untested"
+          },
+          {
+            "id": "nh-timeout-env-seam-untested",
+            "category": "tests",
+            "summary": "No test passes an env to nh_timeout_elapsed_turn(), so the silent-clone seam threaded through it into heal_legs() and encumber_msg() is unpinned on the message side.",
+            "trackedIn": "nh-timeout-env-seam-untested"
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "eb3a08485cd14e7ce8dec0bbc4c30e04da03f11a..bd50af37573e4d5e0bedbdb99c6925b6ffe628e7",
+            "bd50af37573e4d5e0bedbdb99c6925b6ffe628e7..e211e5ef56fa04d2eb00c8490da2a3d9b40a0971"
+          ],
+          "mutants": 23,
+          "survivors": 0,
+          "byKind": {
+            "relational": {
+              "ran": 2,
+              "killed": 2
+            },
+            "logical": {
+              "ran": 16,
+              "killed": 16
+            },
+            "boolean": {
+              "ran": 5,
+              "killed": 5
+            }
+          },
+          "deltaRun": "The audit-fix delta bd50af3..e211e5e yields 0 sites. Its js/ changes are four comment corrections and one added object-literal field, `command_queue: state.command_queue?.map((queue) => [...queue])`, which carries no operator the mutator rewrites. The production defect the delta fixes therefore has no mutant of its own, and its regression test is the whole of its evidence.",
+          "note": "First wave only, over 463 tests in 17 files. The clean sweep is weaker evidence than it looks and the pass was told so: the previous slice found a `|| tt === WEB` mutant surviving purely on operator precedence, because `a || b || c && d` still answers true for a bear trap and only a WEB case distinguishes it.",
+          "finderConclusion": "The tests finder was given the empty survivor list and that precedence warning, and it returned seven confirmed findings the mutation run could not have produced, because each is a weak oracle rather than an unmutated line. The sharpest is the matrix oracle: expected.freed and expected.killed asserted the same two facts, so the repository's only recording of the bear-trap escape had no assertion that the escape happened, and a killed pony would have passed as a freed one. Applying that fix surfaced a further gap the pass did not find -- no screen on either side carries C:3771's escape line, because the freed segment's pony is out of sight by the turn the roll lands, so trapname()'s only consumer in this goal has no end-to-end coverage at all. That is filed as bear-trap-escape-message-has-no-case, outside this pass's seven deferrals. The other six are branch and seam gaps: the u.usteed disjunct of in_sight, the HOLE disjunct of the seetrap() gate, the silent-escape refusal that fires after state is written, the --More-- ordering oracle whose message double never suspends, the unexercised planning-pass silencing in m_move()'s prologue, and the unpinned message half of the nh_timeout_elapsed_turn() env seam."
+        },
+        "readiness": {
+          "boundary": "The range runs from a monster completing a move onto a bear trap, so monmove.c postmov() calls mintrap() and its ported dispatch reaches trapeffect_selector(), through to the monster pulling free at mintrap()'s !rn2(40); and from the hero's wounded-legs timeout counting down in timeout.c nh_timeout(), reached every turn from js/allmain.js, to do.c heal_legs() drawing 'Your leg feels better.  Your movements are now unencumbered.' The running game executes both. seed0004-feeding-pony advanced from 34 to 52 of its 409 screens across the three slices, and the orchestrator measured each step: 1513 to 1525 on the catch, to 1530 on the trapped turns, to 1531 on the recovery. Two fresh recorded matrices back it: scripts/run-monster-bear-trap.mjs at 6 segments, 22907 calls, 191 screens and 191 cursors, and scripts/run-wounded-legs.mjs at 5 segments, 14543 calls, 91 screens and 91 cursors, all matching.",
+          "sourceReview": "Every branch and helper reachable inside the boundary was traced against nethack-c/upstream/ and recorded per candidate in .agents/implementation-checklist.json, which the pass read as the author's claim set and checked. The trace covered state, message order and random-number order. Two order facts decide the range and were verified directly: C suspends inside pline_mon() at trap.c:1534 and spends thitm()'s d(2,4) at 1554 eleven keystrokes later, and a lava-style short-circuit means a bear trap never evaluates mintrap()'s is_pit() disjunct, so the escape condition reduces to !rn2(40). Stubs, stops and partial implementations are identified individually: four refusals were lifted, one injection deleted, one function absent from js/ ported (trapname()'s live line), and one partial port left partial on purpose (heal_legs() without C's how argument, since no ported caller passes anything but 0). Two dead-code claims were checked rather than assumed -- !is_whirly is unreachable because all seven whirly species are M1_FLY and m_in_air() answers first, and C's own i == Trap_Killed_Mon at monmove.c:1736 is unreachable in C too.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Each reachable excluded branch stops before changing state, consuming randomness or producing output, with one exception the pass found and this record names: js/trap_effects.js's silent-escape refusal sits below seetrap() and inside the !rn2(40) roll, so a monster held on an unported type that fails the roll passes seetrap() with no stop, and a comment claiming a general fence there has been corrected to say so. The excluded work is recorded rather than skipped: mintrap()'s pit and metallivore machinery stay refused at C's own positions, heal_legs()'s dismount and petrification arms stay behind js/steed.js's stop, trapname()'s hallucinating branch is unported, and dog.c keepdogs()'s trapped-follower line is outside the boundary. One production gap inside the drawn result is deferred rather than closed, newsym-does-not-mark-a-trap-seen-under-a-held-monster, and the pass does not claim to cover it."
+        }
+      },
+      "recordedAt": "2026-08-13T14:22:44.187Z"
     }
   ]
 }
