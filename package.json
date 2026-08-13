@@ -18,6 +18,7 @@
     "check:symbols": "node scripts/generate-symbol-data.mjs --check",
     "check:themerooms": "node scripts/generate-themeroom-data.mjs --check",
     "checkpoint": "node scripts/checkpoint-checks.mjs",
+    "coverage-report": "node scripts/coverage-report.mjs",
     "mutate": "node scripts/mutate-sites.mjs",
     "quality": "node scripts/quality-status.mjs",
     "score": "bash frozen/score.sh",

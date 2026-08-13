@@ -1,0 +1,58 @@
+name: Coverage
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Reporting only. This job publishes the js/ lines that neither the test suite
+# nor the development score executes, as a selector for where a new assertion
+# would have nothing to compete with. It sets no threshold, and the only way it
+# fails is if a population could not be measured at all -- never because some
+# number was too low. See the header comment in scripts/coverage-report.mjs for
+# why coverage must not become a target here.
+#
+# Deliberately separate from score.yml so the 20-minute scoring job keeps its
+# own budget. This one runs the suite and the score again under
+# NODE_V8_COVERAGE, which took 1 minute 23 seconds locally on 12 August 2026.
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # The suite reads nethack-c/upstream through the source-pinned tests
+          # and the seven generated-data checks.
+          submodules: true
+          # scripts/mutate-sites.mjs resolves a review range through git, so
+          # its tests run `git rev-list <newest js/ commit>~1..HEAD` and
+          # `git blame`. The default depth-1 checkout has no parent commit to
+          # name, and those tests fail with `unknown revision`.
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      # No `npm ci`: the repository has no dependencies, and every other
+      # workflow and every agent relies on that staying true.
+      - name: Report js/ lines neither population executes
+        run: node scripts/coverage-report.mjs | tee coverage-report.txt
+
+      - name: Summarize
+        run: |
+          {
+            echo '## js/ lines neither oracle executes'
+            echo
+            echo 'A selector for where tests are worth writing, not a quality'
+            echo 'score. The full listing is the `coverage-report` artifact.'
+            echo
+            echo '```'
+            head -n 30 coverage-report.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload report
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report
+          path: coverage-report.txt
