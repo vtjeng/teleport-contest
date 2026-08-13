@@ -389,3 +389,6 @@ utc	event	phase	goal	detail
 2026-08-13T16:46:07.062Z	end	implement	display-deferral-sweep	bot_disabled closed at 268f695; screens 1531 to 1538
 2026-08-13T16:46:07.089Z	start	review	display-deferral-sweep	full correctness pass over the sweep
 2026-08-13T18:49:50.985Z	end	review	display-deferral-sweep	full correctness pass recorded through b035d79; 7 confirmed, 3 applied, 4 deferred
+2026-08-13T18:55:56.688Z	start	review		scoped simplification pass over eb3a084..3ffdb94ecee20f603a0a0ca8cb9f25a6387d96fe
+2026-08-13T20:10:20.238Z	end	review		scoped simplification pass over eb3a084..3ffdb94; 28 raw, 23 deduplicated, 10 confirmed, 4 applied through 43a5171, 6 deferred, 13 rejected; not recordable in the ledger, whose simplification frontier stands at e153d07
+2026-08-13T20:10:20.268Z	start	select		no goal queued; the last close was a sweep, so a boundary port comes next

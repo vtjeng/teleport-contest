@@ -2092,6 +2092,60 @@
       "status": "open",
       "from": "3c74ca60da133d209b2937c5185623e91bfe8edf",
       "detail": "js/dogmove.js heroDeaf() (:220-224) diverges from youprop.h:125 in two ways at once. C is Deaf = (HDeaf || EDeaf || u.uroleplay.deaf): three terms, no blocked term. The dogmove copy reads (intrinsic || extrinsic) && !blocked, dropping the roleplay conduct C carries and adding a blocked term C does not have. js/apply.js heroDeaf() (:80-84) spells the same macro correctly, which is how the divergence was spotted.\n\nBoth errors push the same way, toward a message C does not write. The single caller is js/dogmove.js:1144, the leashed-pet arm of dog_move()'s trap handling: C runs whimper() under if (!Deaf), so a hero who set OPTIONS=roleplay:deaf hears the port's whimper where C stays silent, and a hero whose deafness is blocked does the same. AGENTS.md ranks a silently wrong screen worse than a refusal, and this is one.\n\nFound by the simplification pass over eb3a084..3ffdb94, inside a proposal to fold the eight Deaf copies into one module. That proposal was rejected on architecture, and correctly: js/display.js:2946-2958 records the port's deliberate convention that a youprop.h macro is expanded once per C file that expands it, with five copies of Flying kept for the same reason and scripts/dismount-steed.test.mjs pinning them together. The convention is not the defect; this copy's contents are.\n\nClosing condition: js/dogmove.js heroDeaf() spells youprop.h:125's three terms and no others, matching js/apply.js; a case pins a roleplay:deaf hero with a leashed pet beside a trap and asserts no whimper, failing when the conduct term is dropped; and a fresh recorded C case with OPTIONS=roleplay:deaf matches call for call and screen for screen, or a stated reason why the port cannot reach one."
+    },
+    {
+      "id": "finish-elapsed-turn-env-shapes-duplicated",
+      "area": "startup",
+      "category": "simplification",
+      "effort": "small",
+      "status": "open",
+      "from": "43a517137ed0777610fc017d8cbc71d39de655aa",
+      "detail": "js/allmain.js finishElapsedTurn() re-derives the planning/live pair once per callee env: the silent stand-in is written as an inline async closure, as the named silentMessage, and as a bare sync closure, and three statusRefresh slots take three different shapes. The display sweep added the sixth message copy and a third statusRefresh shape. Closes when the function derives turnMessage, turnNorep and turnStatusRefresh once at the top of its body and every env literal reads them, with the development score identical. Confirmed by the simplification pass over eb3a084..3ffdb94 and not applied there."
+    },
+    {
+      "id": "menu-heading-style-copied-in-four-wrappers",
+      "area": "commands",
+      "category": "simplification",
+      "effort": "small",
+      "status": "open",
+      "from": "43a517137ed0777610fc017d8cbc71d39de655aa",
+      "detail": "js/cmd.js spells the heading-entry restyle -- entries.map over entry.heading applying menuTitleStyle()'s titleAttr and titleColor -- byte-identically in runInventoryCommand(), runShowspellsCommand(), runKnownCommand() and runEnhanceCommand(), and each copy calls the accessor twice per entry inside the loop. js/tty_menu.js owns menuTitleStyle() but owns no way to apply it to headings, so wintty.c add_menu_heading()'s rule has five change sites. Closes when js/tty_menu.js exports one menuHeadingStyle(state, entries) and the four wrappers call it. Confirmed by the simplification pass over eb3a084..3ffdb94 and not applied there."
+    },
+    {
+      "id": "unused-import-specifiers-name-dead-symbols",
+      "area": "display",
+      "category": "simplification",
+      "effort": "small",
+      "status": "open",
+      "from": "43a517137ed0777610fc017d8cbc71d39de655aa",
+      "detail": "Twenty-one import specifiers name symbols the importing file never reads: seventeen weapon-skill constants in js/display.js's ./const.js import (P_DAGGER through P_WHIP, while weapon_status() reads only the other seven), dmonsfree in js/allmain.js, IS_STWALL in js/monmove.js, MMOVE_NOTHING in js/unported_monster_actions.js, and MON_FLOOR in scripts/unported-monster-actions.test.mjs. Each is a false lead for a reader tracing a C port and a change site for a rename; check-relative-imports.mjs and check-namespace-members.mjs catch neither. Closes when the specifiers are deleted, no import statement disappears, and the suite and score are identical. Confirmed by the simplification pass over eb3a084..3ffdb94 and not applied there."
+    },
+    {
+      "id": "mintrap-env-literal-spelled-twice-in-monmove",
+      "area": "monsters",
+      "category": "simplification",
+      "effort": "small",
+      "status": "open",
+      "from": "43a517137ed0777610fc017d8cbc71d39de655aa",
+      "detail": "js/monmove.js builds the injected-owner env for mintrap() twice, in postmov() and in m_move()'s prologue, each spelling the same five keys (heroDeaf, mInAir, message, redraw, youHear) plus the same planning-seam ternaries. js/trap_effects.js mintrap() proves that key list at run time, and the list moved during this range when message left its proof loop, so a future change to it has two change sites and a miss surfaces only as a TypeError inside a monster's turn. Closes when one module-local builder in js/monmove.js owns the literal and both call sites use it, with the development score identical. Confirmed by the simplification pass over eb3a084..3ffdb94 and not applied there."
+    },
+    {
+      "id": "erase-menu-or-text-takes-a-display-it-derives",
+      "area": "commands",
+      "category": "simplification",
+      "effort": "small",
+      "status": "open",
+      "from": "43a517137ed0777610fc017d8cbc71d39de655aa",
+      "detail": "js/tty_menu.js erase_menu_or_text() refuses any state but the module-level game and then takes the display to repair as a separate parameter, so the only screen it may touch is passed in rather than derived from game.nhDisplay, which is where its own bot() call writes. The signature admits a display belonging to another game, and the caller-side contract that prevents that is written nowhere; all three call sites re-derive the value the function already knows. Closes when the parameter is dropped and the display is derived below the guard. Confirmed by the simplification pass over eb3a084..3ffdb94 and not applied there."
+    },
+    {
+      "id": "options-menu-recipes-addressed-by-position",
+      "area": "startup",
+      "category": "simplification",
+      "effort": "small",
+      "status": "open",
+      "from": "43a517137ed0777610fc017d8cbc71d39de655aa",
+      "detail": "scripts/run-options-menu.mjs loadOptionsMenuRecipes() returns an unnamed thirteen-element array that four consumers index by position: runOptionsMenuMatrix()'s destructure, whose elision hole silently encodes skipping the deferred glyph-reset recipe; its parallel twelve-entry label list; STOCK and CONFIGURED in scripts/options-simple-menu.test.mjs; and bracket indexes in scripts/options-menu.test.mjs and scripts/options-toggle.test.mjs. The comment at options-simple-menu.test.mjs records that a miscount already happened and names this fix. Closes when the recipes carry names, a lookup by name is exported, and the index arithmetic is gone. Confirmed by the simplification pass over eb3a084..3ffdb94 and not applied there."
     }
   ],
   "areas": [
