@@ -30,7 +30,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { game } from '../js/gstate.js';
-import { COIN_CLASS } from '../js/objects.js';
+import { COIN_CLASS, POTION_CLASS, WAND_CLASS } from '../js/objects.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
@@ -152,6 +152,45 @@ const GLYPH_RESET_PICKS = ' O>f>g> \x1b';
 // restored the flag on its way out.
 const RESTORE_OPT_MSG = ' Oe\x1bmO g\r\x1b';
 
+// The last two recipes are about the status rows rather than about an option.
+//
+// windows.c select_menu() (1861) raises gb.bot_disabled for as long as a menu
+// owns the screen, and botl.c bot() (255) returns on it without writing the
+// status window and without clearing disp.botl or disp.botlx. What that
+// protects is the moment between two windows: wintty.c erase_menu_or_text()
+// (966-984) repairs a dismissed full-screen menu with `docrt(); flush_screen(1)`,
+// display.c cls() blanks the status rows along with the rest of the screen, and
+// docrt_flags() sets disp.botlx without painting them again. So the class menu
+// that replaces the options menu draws over two blank rows, and they stay blank
+// until doset_simple()'s reset_needed_visuals() spends disp.botlx once the
+// command is over.
+//
+// Neither of the recipes above reaches that. Both of the ones that open the
+// class menu toggle a boolean first, and the --More-- their message raises
+// repaints the status rows through ttyPline() before the class menu is drawn.
+// These two pick 'pickup_types' as the loop's first act instead:
+// doset_simple() keeps give_opt_msg off for its whole loop, so no message
+// intervenes and the blank rows reach the screen.
+//
+// Their own seed, clock and heroes, chosen independently of the bases above.
+// Page 1's 'o' is 'pickup_types' in both.
+const BLANK_STATUS_SEED = 5063317;
+const BLANK_STATUS_DATETIME = '20300719101500';
+// '!' and '/' are group accelerators, the potion and wand classes, committed
+// with Return. The first Escape ends doset_simple()'s loop, which is what
+// makes the status rows come back; the second is the key the recorder has to
+// read at the command prompt for the repainted screen to be captured.
+const BLANK_STATUS_CLASS_MENU = ' Oo!/\r\x1b\x1b';
+
+// The same shape over a three-row status window, which is the other height
+// wintty.c tty_create_nhwindow() gives WIN_STATUS and so the other answer
+// js/display.js status_window_rows() can return. '=' selects the ring class
+// and the first Escape abandons the class menu, which leaves the incoming
+// (empty) list standing; the remaining two end the loop and the command.
+const THREE_LINE_SEED = 7104529;
+const THREE_LINE_DATETIME = '20321208134500';
+const THREE_LINE_CLASS_MENU = ' Oo=\x1b\x1b\x1b';
+
 // Every simple-menu recipe sets menu_headings, and the reason is a display
 // ceiling rather than coverage. doset_simple_menu() writes each section
 // heading as " %-30s ", so the highlighted run starts one column before the
@@ -202,6 +241,24 @@ function pickNethackrc() {
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:cat,!acoustics',
         'OPTIONS=menu_headings:bold',
+        '',
+    ].join('\n');
+}
+
+// The blank-status recipes' base. `statuslines` is the one thing the two
+// disagree about, because it is the height of the window whose rows they are
+// about; the heroes differ so that either row's first cell names its own
+// recipe when a mismatch prints it.
+function blankStatusNethackrc(statuslines) {
+    return [
+        statuslines === 3
+            ? 'OPTIONS=name:Trioline,role:Samurai,race:human,gender:male,'
+                + 'align:lawful'
+            : 'OPTIONS=name:Blanksmith,role:Priest,race:elf,gender:female,'
+                + 'align:chaotic',
+        'OPTIONS=!legacy,!tutorial,!splash_screen',
+        'OPTIONS=pettype:none,!acoustics',
+        `OPTIONS=menu_headings:bold,statuslines:${statuslines}`,
         '',
     ].join('\n');
 }
@@ -323,6 +380,18 @@ export function loadOptionsMenuRecipes() {
             nethackrc: pickNethackrc(),
             moves: GLYPH_RESET_PICKS,
         },
+        {
+            seed: BLANK_STATUS_SEED,
+            datetime: BLANK_STATUS_DATETIME,
+            nethackrc: blankStatusNethackrc(2),
+            moves: BLANK_STATUS_CLASS_MENU,
+        },
+        {
+            seed: THREE_LINE_SEED,
+            datetime: THREE_LINE_DATETIME,
+            nethackrc: blankStatusNethackrc(3),
+            moves: THREE_LINE_CLASS_MENU,
+        },
     ];
     // record-session preserves the staged install between one recipe's
     // segments, and each of these leaves the recorder stopped inside a live
@@ -359,16 +428,26 @@ export async function verifyOptionsMenuSegment(segment) {
     if (game.moves !== 1)
         throw new Error('opening the options menu advanced the turn counter');
 
-    if (segment.moves === GLYPH_RESET_PICKS) {
-        // reset_needed_visuals() spends go.opt_need_glyph_reset without
-        // stopping, and the repaint that follows draws the hero from
-        // flags.showrace rather than from a rebuilt table.
-        if (game.iflags.hilite_pile !== true || game.flags.showrace !== true)
-            throw new Error('a glyph-reset pick was not applied');
-        if (game.go.opt_need_glyph_reset !== false
-            || game.go.opt_need_redraw !== false) {
-            throw new Error('reset_needed_visuals() left a repair pending');
-        }
+    if (segment.moves === BLANK_STATUS_CLASS_MENU
+        || segment.moves === THREE_LINE_CLASS_MENU) {
+        const escaped = segment.moves === THREE_LINE_CLASS_MENU;
+        // Committing the class menu writes the two classes picked, in
+        // flags.inv_order order; escaping it leaves the incoming list
+        // standing, and the configuration file set none.
+        assert.deepEqual(
+            game.flags.pickup_types,
+            escaped ? [] : [POTION_CLASS, WAND_CLASS],
+            'the class menu left the wrong pickup_types',
+        );
+        // The status rows only stay blank because bot() declined to write
+        // them, so the flag it declined on has to be back down and the update
+        // it declined has to have been spent by the time the command returns.
+        if (game.gb.bot_disabled !== false)
+            throw new Error('select_menu() left bot() disabled');
+        if (game.disp.botl !== false || game.disp.botlx !== false)
+            throw new Error('the command returned with the status still dirty');
+        if (game.iflags.wc2_statuslines !== (escaped ? 3 : 2))
+            throw new Error('the recipe ran at the wrong status height');
         return;
     }
 
@@ -473,9 +552,18 @@ export async function verifyOptionsMenuSegment(segment) {
     }
 }
 
+// GLYPH_RESET_PICKS is deliberately absent from the entries below. 57a84f4
+// restored reset_needed_visuals()'s reset_glyphmap(gm_optionchange) refusal
+// after 0f7b6cf had wrongly retired it, and from then on this port stops at
+// that recipe's first pick, so no differential over it can pass. The recipe
+// stays defined above as the case just outside the limit; its inputs and
+// expected failure are recorded on the deferral
+// remembered-glyph-caches-a-resolved-presentation, which owns the repaint that
+// would let it run again.
 export async function runOptionsMenuMatrix() {
     const [stock, configured, bound, committed, classes, simple, simpleSet,
-        flushSplit, retoggle, optMsg, glyphReset] = loadOptionsMenuRecipes();
+        flushSplit, retoggle, optMsg, , blankStatus,
+        blankStatusThree] = loadOptionsMenuRecipes();
     return runFreshMatrix({
         entries: [
             { label: 'stock options menu', recipe: stock },
@@ -488,7 +576,11 @@ export async function runOptionsMenuMatrix() {
             { label: 'simple menu flush split', recipe: flushSplit },
             { label: 'simple menu retoggle', recipe: retoggle },
             { label: 'simple menu message restore', recipe: optMsg },
-            { label: 'simple menu glyph reset', recipe: glyphReset },
+            { label: 'blank status under a class menu', recipe: blankStatus },
+            {
+                label: 'blank three-row status under a class menu',
+                recipe: blankStatusThree,
+            },
         ],
         summaryLabel: 'OPTIONS MENU',
         verifySegment: verifyOptionsMenuSegment,

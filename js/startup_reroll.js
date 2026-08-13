@@ -46,9 +46,9 @@ import { rn2_on_display_rng } from './rng.js';
 import { NO_COLOR } from './terminal.js';
 import {
     menuTitleStyle,
-    selectTtyMenu,
     ttyMenuLayout,
 } from './tty_menu.js';
+import { select_menu } from './windows.js';
 
 const REPROMPT = Symbol('reroll menu needs an explicit choice');
 const REROLL_QUERY = 'Reroll this character?';
@@ -387,7 +387,7 @@ async function fallbackRerollChoice(state) {
 export async function reroll_menu(state = game, options = {}) {
     const spec = buildRerollMenuSpec(state, options);
     const fullScreen = ttyMenuLayout(state.nhDisplay, spec).fullScreen;
-    let choice = await selectTtyMenu(
+    let choice = await select_menu(
         state,
         spec,
     );

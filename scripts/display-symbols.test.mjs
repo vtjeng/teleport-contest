@@ -7111,6 +7111,52 @@ test('timebot refreshes the turn counter and leaves the rest of the row',
         );
     });
 
+// C ref: botl.c bot() (254-256). The gb.bot_disabled test returns before the
+// status window is written and before disp.botl, disp.botlx and disp.time_botl
+// are cleared, so the update it skipped is still pending for the next enabled
+// pass. windows.c select_menu() (1861) and getlin() (1898) are the two writers
+// of the flag.
+test('bot leaves the status row and the pending flag alone while disabled',
+    async () => {
+        await timedStartup();
+        const before = statusRow();
+        // Four points off a Valkyrie's starting hit points, enough to change
+        // the HP field this row carries.
+        game.u.uhp -= 4;
+        game.disp.botl = true;
+        (game.gb ??= {}).bot_disabled = true;
+
+        await bot();
+
+        assert.equal(statusRow(), before);
+        assert.equal(game.disp.botl, true);
+
+        // The same call once the menu that raised the flag has gone.
+        game.gb.bot_disabled = false;
+        await bot();
+
+        assert.notEqual(statusRow(), before);
+        assert.equal(game.disp.botl, false);
+    });
+
+// C ref: botl.c timebot() (276-278), the same early return over the turn
+// counter's own refresh path.
+test('timebot leaves the turn counter and disp.time_botl alone while disabled',
+    async () => {
+        await timedStartup();
+        const before = statusRow();
+        game.moves += 1;
+        game.disp.botl = false;
+        game.disp.botlx = false;
+        game.disp.time_botl = true;
+        (game.gb ??= {}).bot_disabled = true;
+
+        await timebot();
+
+        assert.equal(statusRow(), before);
+        assert.equal(game.disp.time_botl, true);
+    });
+
 test('timebot shifts the fields a widened turn counter displaces',
     async () => {
         // wintty.c check_fields() re-lays every field out from the cached

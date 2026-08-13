@@ -4,7 +4,7 @@
 
 import { ECMD_OK, MAXULEV } from './const.js';
 import { pluslvl, UnsupportedExperienceChangeError } from './exper.js';
-import { tty_getlin } from './getline.js';
+import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
 import { encumber_msg } from './pickup.js';
@@ -94,7 +94,7 @@ export function scanLevelArgument(buf) {
 // nothing, and C's `if (newlevel < 1) newlevel = 1` clamp belongs to the loop
 // that refusal replaces.
 export async function wiz_level_change(state = game) {
-    const buf = mungspaces(await tty_getlin(
+    const buf = mungspaces(await getlin(
         'To what experience level do you want to be set?',
         state,
     ));

@@ -4,8 +4,76 @@
 
 import { PICK_ANY } from './const.js';
 import { def_char_to_objclass } from './drawing.js';
+import { tty_getlin } from './getline.js';
+import { game } from './gstate.js';
 import { MAXOCLASSES } from './objects.js';
 import { OBJCLASS_EXPLANATIONS } from './symbol_data.js';
+import { selectTtyMenu } from './tty_menu.js';
+
+// C ref: decl.c:233, which initializes gb.bot_disabled to FALSE, and
+// include/decl.h:218, which declares it.  Only select_menu() and getlin()
+// below raise it in a running game; end.c panic() (403) raises it for good on
+// the way out, which this port has no counterpart for because a refusal ends
+// the segment instead of unwinding through a shutdown path.
+//
+// The field lives on `state.gb` and nothing else owns it.  js/gstate.js
+// resetGame() builds a fresh game object for every segment, so a field that
+// was never assigned reads as undefined; both writers below normalize that to
+// C's initial FALSE, and botl.c bot() and timebot() in js/display.js read it
+// with `=== true` so the unset state cannot be mistaken for a raised flag.
+function bot_disabled_is_set(state) {
+    return state.gb?.bot_disabled === true;
+}
+
+// C ref: windows.c select_menu() (1856-1866), the interface-independent
+// wrapper every core caller of a menu goes through -- options.c, cmd.c,
+// pickup.c and role.c among them, none of which calls the window port's
+// tty_select_menu() directly.
+//
+// C's `winid window` names a window this port does not create; its `how` rides
+// in `spec.how`, which js/tty_menu.js selectTtyMenu() already reads; and its
+// `menu_item **menu_list` out-parameter is the return value here, so C's
+// returned count has no separate carrier.
+//
+// The body is the whole point: gb.bot_disabled stays raised for as long as the
+// menu owns the screen, so the status rows a full-screen menu covered stay
+// blank until the menu is gone.  wintty.c erase_menu_or_text() (966-984) runs
+// inside win_select_menu(), and its docrt()+flush_screen(1) repair reaches
+// bot() while the flag is up.
+export async function select_menu(state, spec) {
+    state.gb ??= {};
+    const old_bot_disabled = bot_disabled_is_set(state);
+
+    state.gb.bot_disabled = true;
+    const reslt = await selectTtyMenu(state, spec);
+    state.gb.bot_disabled = old_bot_disabled;
+    return reslt;
+}
+
+// C ref: windows.c getlin() (1868-1902), the same wrapper for a typed line.
+//
+// Covers 1897-1900, the arm that reaches the window port.  The command-queue
+// arm at 1873-1895 drains cmdq_pop() into the answer and returns before the
+// prompt is ever drawn; no ported caller of this function queues keys, and
+// js/cmd.js cmdq_pop() has no writer that could feed one, so porting it would
+// add a branch nothing can enter.  program_state.in_getlin, set and cleared
+// around the same call, has no reader in js/ either -- its C readers are the
+// save and hangup paths this port does not run.
+//
+// The flag matters here for the reason getline.c:19-23 spells out: the prompt
+// goes out through custompline(), which reaches flush_screen() and therefore
+// bot().  js/getline.js hooked_tty_getlin() ports that flush_screen(1) call,
+// so a status update left pending when the prompt opens waits for the answer
+// instead of repainting underneath it.
+export async function getlin(query, state = game) {
+    state.gb ??= {};
+    const old_bot_disabled = bot_disabled_is_set(state);
+
+    state.gb.bot_disabled = true;
+    const bufp = await tty_getlin(query, state);
+    state.gb.bot_disabled = old_bot_disabled;
+    return bufp;
+}
 
 // C ref: windows.c choose_classes_menu() (1644-1761).
 //

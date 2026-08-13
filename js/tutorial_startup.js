@@ -14,7 +14,8 @@ import {
 import { mklev } from './mklev.js';
 import { place_lregion } from './mkmaze.js';
 import { objectGenerationHooks } from './object_generation.js';
-import { menuTitleStyle, selectTtyMenu } from './tty_menu.js';
+import { menuTitleStyle } from './tty_menu.js';
+import { select_menu } from './windows.js';
 import {
     dismissPendingTtyMessage,
     ttyPline,
@@ -80,7 +81,7 @@ export async function ask_do_tutorial(state = game) {
     await dismissPendingTtyMessage(state);
     let repeated = false;
     for (;;) {
-        const answer = await selectTtyMenu(
+        const answer = await select_menu(
             state,
             buildTutorialMenuSpec(state, repeated),
         );

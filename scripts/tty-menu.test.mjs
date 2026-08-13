@@ -343,7 +343,7 @@ test('NHW_MENU text restores partial and full byte-window regions', async () => 
     }
 });
 
-test('narrow tty menus overlay the right half and restore it on dismissal', () => {
+test('narrow tty menus overlay the right half and restore it on dismissal', async () => {
     const state = menuState();
     const layout = ttyMenuLayout(state.nhDisplay, confirmation);
     assert.deepEqual(
@@ -362,11 +362,11 @@ test('narrow tty menus overlay the right half and restore it on dismissal', () =
         [47, 7],
     );
 
-    dismissTtyMenu(state, rendered);
+    await dismissTtyMenu(state, rendered);
     assert.equal(rowText(state, 4), 'NetHack, Copyright 1985-2026');
 });
 
-test('corner rendering reserves the extra docorner row until dismissal', () => {
+test('corner rendering reserves the extra docorner row until dismissal', async () => {
     const state = menuState();
     const spec = confirmation;
     const layout = ttyMenuLayout(state.nhDisplay, spec);
@@ -381,7 +381,7 @@ test('corner rendering reserves the extra docorner row until dismissal', () => {
         'Z',
     );
 
-    dismissTtyMenu(state, rendered);
+    await dismissTtyMenu(state, rendered);
     assert.equal(
         state.nhDisplay.grid[layout.maxrow][layout.firstColumn].ch,
         'Z',
@@ -404,47 +404,93 @@ test('a 24-row role menu becomes full-screen', () => {
     );
 });
 
-test('a full-screen gameplay menu restores its base frame on dismissal', () => {
-    const state = menuState();
-    state.nhDisplay.setCell(12, 5, '@', 3, 1);
-    state.nhDisplay.setCell(30, 22, 'S', 4, 2);
-    state.nhDisplay.setCursor(12, 5);
-    const lines = Array.from({ length: 21 }, (_, index) => `line ${index}`);
-    const rendered = renderTtyMenu(state, {
-        title: 'Full-screen gameplay menu',
-        lines,
+// C ref: wintty.c erase_menu_or_text() (966-984) repairs a full-screen menu
+// with `docrt(); flush_screen(1)`.  display.c cls() blanks the whole physical
+// screen, docrt_flags() replays the map alone and sets disp.botlx, and
+// flush_screen() spends that flag on bot().  So a map cell comes back from the
+// remembered frame and a status cell does not: only bot() can write the status
+// rows, and it writes them from the status window's own data.
+test('a full-screen gameplay menu restores its map and repaints its status',
+    async () => {
+        const state = menuState();
+        state.nhDisplay.setCell(12, 5, '@', 3, 1);
+        // Row 22 is the first of the two-row status window on a 24-row
+        // terminal, which is where docrt()'s cls() and bot() disagree with a
+        // plain frame restore.
+        state.nhDisplay.setCell(30, 22, 'S', 4, 2);
+        state.nhDisplay.setCursor(12, 5);
+        const lines = Array.from({ length: 21 }, (_, index) => `line ${index}`);
+        const rendered = renderTtyMenu(state, {
+            title: 'Full-screen gameplay menu',
+            lines,
+        });
+
+        await dismissTtyMenu(state, rendered);
+
+        assert.deepEqual(
+            [
+                state.nhDisplay.grid[5][12].ch,
+                state.nhDisplay.grid[5][12].color,
+                state.nhDisplay.grid[5][12].attr,
+            ],
+            ['@', 3, 1],
+        );
+        // CLR_GRAY (7) and no attribute are what Terminal.clearRow() leaves.
+        // This reset game has no hero, so bot() lays out two empty status
+        // rows and column 30 keeps the blank.
+        assert.deepEqual(
+            [
+                state.nhDisplay.grid[22][30].ch,
+                state.nhDisplay.grid[22][30].color,
+                state.nhDisplay.grid[22][30].attr,
+            ],
+            [' ', 7, 0],
+        );
+        // bot() ran, so it spent the disp.botlx that docrt_flags() set.
+        assert.equal(state.disp.botlx, false);
+        assert.deepEqual(
+            [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
+            [12, 5],
+        );
     });
 
-    dismissTtyMenu(state, rendered);
+// C ref: botl.c bot() (254-256), the gb.bot_disabled early return, reached
+// through wintty.c erase_menu_or_text()'s flush_screen(1).  windows.c
+// select_menu() (1861) holds the flag up for as long as a menu owns the
+// screen, so the status rows a full-screen menu covered stay blank while the
+// command that opened it puts a second window in their place.
+test('a full-screen menu dismissed under bot_disabled leaves the status blank',
+    async () => {
+        const state = menuState();
+        // Row 21 is the map's last row and rows 22 and 23 are the two-row
+        // status window: the blanking has to reach both status rows and stop
+        // at the map.
+        state.nhDisplay.setCell(30, 21, 'M', 4, 2);
+        state.nhDisplay.setCell(30, 22, 'S', 4, 2);
+        state.nhDisplay.setCell(30, 23, 'T', 4, 2);
+        const lines = Array.from({ length: 21 }, (_, index) => `line ${index}`);
+        const rendered = renderTtyMenu(state, {
+            title: 'Full-screen gameplay menu',
+            lines,
+        });
+        state.gb = { bot_disabled: true };
 
-    assert.deepEqual(
-        [
-            state.nhDisplay.grid[5][12].ch,
-            state.nhDisplay.grid[5][12].color,
-            state.nhDisplay.grid[5][12].attr,
-        ],
-        ['@', 3, 1],
-    );
-    assert.deepEqual(
-        [
-            state.nhDisplay.grid[22][30].ch,
-            state.nhDisplay.grid[22][30].color,
-            state.nhDisplay.grid[22][30].attr,
-        ],
-        ['S', 4, 2],
-    );
-    assert.deepEqual(
-        [state.nhDisplay.cursorCol, state.nhDisplay.cursorRow],
-        [12, 5],
-    );
-});
+        await dismissTtyMenu(state, rendered);
+
+        assert.equal(state.nhDisplay.grid[21][30].ch, 'M');
+        assert.equal(rowText(state, 22), '');
+        assert.equal(rowText(state, 23), '');
+        // bot() returned before clearing it, so the pending repaint survives
+        // for the next enabled pass.
+        assert.equal(state.disp.botlx, true);
+    });
 
 // C ref: wintty.c process_menu_window() turns a page inside the window
 // tty_display_nhwindow() already opened, so the base window
 // tty_dismiss_nhwindow() repairs with docrt() is the one the first page
 // covered, not the page a later one replaced.
 test('a paged full-screen menu restores the frame its first page covered',
-    () => {
+    async () => {
         const state = menuState();
         state.nhDisplay.setCell(12, 5, '@', 3, 1);
         state.nhDisplay.setCursor(12, 5);
@@ -457,7 +503,7 @@ test('a paged full-screen menu restores the frame its first page covered',
         assert.equal(first.layout.fullScreen, true);
         const second = renderTtyMenu(state, spec, 1, first);
 
-        dismissTtyMenu(state, second);
+        await dismissTtyMenu(state, second);
 
         assert.deepEqual(
             [
@@ -720,7 +766,7 @@ test('PICK_NONE refuses every selection and ends only on a dismissal', async () 
     );
 });
 
-test('a highlighted line drops its style across a compressed space run', () => {
+test('a highlighted line drops its style across a compressed space run', async () => {
     // record-session.mjs turns every run of at least five spaces into
     // cursor-forward movement, which never carries the highlight; a shorter
     // run stays literal and keeps it.
@@ -734,7 +780,7 @@ test('a highlighted line drops its style across a compressed space run', () => {
     for (let index = 0; index < 12; ++index)
         attrs.push(state.nhDisplay.grid[0][startColumn + index].attr);
     assert.deepEqual(attrs, [1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1]);
-    dismissTtyMenu(state, rendered);
+    await dismissTtyMenu(state, rendered);
 });
 
 // C ref: wintty.c tty_end_menu()'s accelerator loop. It runs over every

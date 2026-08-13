@@ -78,7 +78,7 @@ import {
 } from './do.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { engr_at } from './engrave.js';
-import { tty_getlin } from './getline.js';
+import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import {
     invocation_message,
@@ -1210,7 +1210,7 @@ export async function level_tele(state = game) {
     // C's `*buf = '\0'` before getlin() matters only under EDIT_GETLIN, which
     // include/config.h:655 leaves undefined, so tty_getlin() ignores whatever
     // the buffer held and this port has nothing to clear.
-    const buf = await tty_getlin(qbuf, state);
+    const buf = await getlin(qbuf, state);
     if (buf === '*') {
         throw new UnsupportedLevelChangeError(
             'level_tele() random_levtport for "*"',

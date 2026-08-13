@@ -3,6 +3,7 @@
 // process_menu_window(), process_text_window(), dmore(), and
 // tty_select_menu().
 
+import { bot, status_window_rows, timebot } from './display.js';
 import { game } from './gstate.js';
 import { tty_getlin } from './getline.js';
 import {
@@ -43,7 +44,7 @@ import {
     CLR_GRAY,
     NO_COLOR,
 } from './terminal.js';
-import { menuitem_invert_test } from './windows.js';
+import { menuitem_invert_test, select_menu } from './windows.js';
 
 // C ref: win/tty/wintty.c process_menu_window()'s MENU_SEARCH arm, which
 // calls tty_getlin("Search for:") and skips an empty or Escaped answer.
@@ -163,6 +164,60 @@ function restoreRegion(display, firstColumn, snapshot) {
             );
         }
     }
+}
+
+// C ref: win/tty/wintty.c erase_menu_or_text() (966-984).  Covers the
+// `cw->offx == 0 && !cw->offy && !clear` branch alone, which is
+// `docrt(); flush_screen(1)` and which every full-screen menu and text window
+// this port dismisses takes.  The other three branches stay at their call
+// sites: `clear` is role selection's term_clear_screen() and a nonzero offx is
+// docorner(), which each caller already spells as a clear or a rectangle
+// restore.
+//
+// `snapshot` and `baseCursor` are the port's stand-in for docrt(): C's cls()
+// blanks the physical screen and clears the glyph buffer, docrt_flags() then
+// replays every remembered glyph through show_glyph(), and flush_screen(1)
+// prints them and homes the cursor on the hero.  Restoring the frame the
+// window covered reaches the same screen without the whole-screen rebuild
+// js/display.js flush_screen() would perform, which would paint over a menu
+// that has already been drawn.
+//
+// Two things the restore alone cannot reproduce follow it, and they are what
+// makes the status rows behave:
+//
+//   - cls() blanks the status rows along with everything else and nothing in
+//     docrt_flags() paints them again, so they are blank on leaving docrt().
+//   - docrt_flags()'s post_map block (display.c:466) sets disp.botlx, and
+//     flush_screen()'s first act (display.c:2235-2239) is to spend it on
+//     bot().  While js/windows.js select_menu() or getlin() holds
+//     gb.bot_disabled, that bot() returns without writing and without
+//     clearing disp.botlx, so the rows stay blank until the menu is gone.
+//
+// js/display.js bot() and timebot() paint the module-level game rather than a
+// supplied state, the same constraint js/options.js:3911 records for docrt(),
+// so this branch refuses any other state instead of repairing the wrong
+// screen.  Every production caller passes the module-level game; a focused
+// test that supplies its own state keeps its window off column zero and takes
+// the docorner() branch, which needs neither.
+async function erase_menu_or_text(state, display, snapshot, baseCursor) {
+    if (state !== game) {
+        throw new Error(
+            'erase_menu_or_text requires the module-level game',
+        );
+    }
+    restoreRegion(display, 0, snapshot);
+    display.setCursor(...baseCursor);
+
+    // wintty.c pins wins[WIN_STATUS] to the bottom of the terminal and sizes
+    // it at status_window_rows() rows, so counting up from the last row is
+    // what names the rows term_clear_screen() blanks and nothing repaints.
+    for (let row = 0; row < status_window_rows(); ++row)
+        clearRow(display, display.rows - 1 - row);
+    state.disp ??= {};
+    state.disp.botlx = true;
+
+    if (state.disp.botl || state.disp.botlx) await bot();
+    else if (state.disp.time_botl) await timebot();
 }
 
 // C ref: win/tty/wintty.c compress_str(). tty_putstr() applies this to menu
@@ -315,8 +370,7 @@ export async function displayTtyMenuTextWindow(
     const response = await xwaitforspace(state);
 
     if (layout.fullRepair) {
-        restoreRegion(display, 0, snapshot);
-        display.setCursor(...baseCursor);
+        await erase_menu_or_text(state, display, snapshot, baseCursor);
     } else {
         restoreRegion(display, layout.repairColumn, snapshot);
     }
@@ -543,7 +597,7 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
 // `rendered.base`, `rendered.snapshot` and `rendered.baseCursor` all describe
 // the frame the menu covered when it opened; `rendered.layout` describes the
 // page on screen and has no part in the repair.
-export function dismissTtyMenu(state = game, rendered) {
+export async function dismissTtyMenu(state = game, rendered) {
     const display = state.nhDisplay;
     if (!display || !rendered) return;
     if (rendered.base.fullScreen) {
@@ -551,8 +605,9 @@ export function dismissTtyMenu(state = game, rendered) {
             display.clearScreen();
             state._ttyBaseCursorRow = 0;
         } else {
-            restoreRegion(display, 0, rendered.snapshot);
-            display.setCursor(...rendered.baseCursor);
+            await erase_menu_or_text(
+                state, display, rendered.snapshot, rendered.baseCursor,
+            );
         }
     } else if (state.program_state?.in_role_selection) {
         // Role selection overlays the base window's startup text, which tty
@@ -660,8 +715,7 @@ export async function displayTtyTextWindow(state = game, lines) {
         response = await dmore(state, display, lastRow);
     }
 
-    restoreRegion(display, 0, snapshot);
-    display.setCursor(...baseCursor);
+    await erase_menu_or_text(state, display, snapshot, baseCursor);
     return response;
 }
 
@@ -916,7 +970,7 @@ async function selectOneTtyMenu(state, spec) {
                 pendingCount = null;
                 continue;
             }
-            dismissTtyMenu(state, rendered);
+            await dismissTtyMenu(state, rendered);
             return explicit.value;
         }
 
@@ -926,7 +980,7 @@ async function selectOneTtyMenu(state, spec) {
         // A mapped key can resolve to a unique group accelerator.  The C
         // dispatcher maps it before its fallback group-accelerator branch.
         if (groupChoices.has(ch)) {
-            dismissTtyMenu(state, rendered);
+            await dismissTtyMenu(state, rendered);
             return groupChoices.get(ch);
         }
 
@@ -935,7 +989,7 @@ async function selectOneTtyMenu(state, spec) {
                 pendingCount = null;
                 continue;
             }
-            dismissTtyMenu(state, rendered);
+            await dismissTtyMenu(state, rendered);
             return spec.cancelValue ?? null;
         }
         if (ch >= '0' && ch <= '9') {
@@ -960,7 +1014,7 @@ async function selectOneTtyMenu(state, spec) {
                 const match = pickOneSearchEntries(state, spec)
                     .find((entry) => pmatchi(pattern, entry.text));
                 if (match) {
-                    dismissTtyMenu(state, rendered);
+                    await dismissTtyMenu(state, rendered);
                     return match.value;
                 }
             }
@@ -972,7 +1026,7 @@ async function selectOneTtyMenu(state, spec) {
             pendingCount = null;
             // process_menu_window()'s '\0', '\n', and '\r' cases set
             // finished = TRUE unconditionally, the same commit Space takes.
-            dismissTtyMenu(state, rendered);
+            await dismissTtyMenu(state, rendered);
             return hasEmptyCompletion
                 ? emptyCompletion : (spec.cancelValue ?? null);
         }
@@ -986,7 +1040,7 @@ async function selectOneTtyMenu(state, spec) {
             } else if (ch === ' ') {
                 // process_menu_window()'s MENU_NEXT_PAGE arm: on the last
                 // page a space finishes the menu, while '>' does not.
-                dismissTtyMenu(state, rendered);
+                await dismissTtyMenu(state, rendered);
                 return hasEmptyCompletion
                     ? emptyCompletion : (spec.cancelValue ?? null);
             }
@@ -1192,7 +1246,7 @@ async function selectAnyTtyMenu(state, spec) {
                 pendingCount = null;
                 continue;
             }
-            dismissTtyMenu(state, rendered);
+            await dismissTtyMenu(state, rendered);
             return spec.cancelValue ?? null;
         }
 
@@ -1219,7 +1273,7 @@ async function selectAnyTtyMenu(state, spec) {
         const commandCount = pendingCount;
 
         if (code === 10 || code === 13) {
-            dismissTtyMenu(state, rendered);
+            await dismissTtyMenu(state, rendered);
             return allItems
                 .filter((item) => item.selected)
                 .map((item) => ({ value: item.value, count: item.count }));
@@ -1232,7 +1286,7 @@ async function selectAnyTtyMenu(state, spec) {
                     state, workingSpec, pageIndex, rendered,
                 );
             } else if (ch === ' ') {
-                dismissTtyMenu(state, rendered);
+                await dismissTtyMenu(state, rendered);
                 return allItems
                     .filter((item) => item.selected)
                     .map((item) => ({ value: item.value, count: item.count }));
@@ -1490,7 +1544,10 @@ export function applyRoleFilterSelection(state = game, selected) {
 }
 
 export async function resetRoleFilteringTty(state = game) {
-    const selected = await selectTtyMenu(
+    // role.c reset_role_filtering() (2757) reaches this menu through
+    // select_menu() like every other core caller, even though this port keeps
+    // the builder beside the other role menus rather than in js/role.js.
+    const selected = await select_menu(
         state,
         buildRoleFilterMenuSpec(state),
     );

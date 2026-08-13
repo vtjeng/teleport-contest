@@ -64,7 +64,7 @@ import {
     unmap_object,
 } from './display.js';
 import { dropx, preflight_dropx } from './do.js';
-import { tty_getlin } from './getline.js';
+import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import { check_capacity, nh_delay_output } from './hack.js';
 import { lcase, mungspaces } from './hacklib.js';
@@ -377,7 +377,7 @@ export async function makewish(state = game) {
     // include/config.h defines only DEBUG_MIGRATING_MONS and no patch under
     // nethack-c/patches/ defines DEBUG, so wish_history[0] is permanently
     // NULL. The `m` prefix therefore reaches getlin() like every other wish.
-    const answer = await tty_getlin(promptbuf, state);
+    const answer = await getlin(promptbuf, state);
 
     if (state.iflags?.term_gone) {
         // The terminal is gone, so C abandons the wish and marks it for a

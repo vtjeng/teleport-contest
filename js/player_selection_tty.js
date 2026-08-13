@@ -41,8 +41,8 @@ import { NO_COLOR } from './terminal.js';
 import {
     menuTitleStyle,
     resetRoleFilteringTty,
-    selectTtyMenu,
 } from './tty_menu.js';
+import { select_menu } from './windows.js';
 import { ttyPlayerNameAndSuffix } from './tty_startup.js';
 
 const ASPECT_TITLE = Object.freeze({
@@ -505,7 +505,7 @@ export async function ttyPlayerSelection(state = game, random) {
                 shownMessages = await flushSelectionMessages(
                     state, context, shownMessages,
                 );
-                const choice = await selectTtyMenu(state, spec);
+                const choice = await select_menu(state, spec);
                 if (choice?.kind === 'filter') {
                     const selected = await resetRoleFilteringTty(state);
                     context = continue_player_selection(
@@ -526,7 +526,7 @@ export async function ttyPlayerSelection(state = game, random) {
                 shownMessages = await flushSelectionMessages(
                     state, context, shownMessages,
                 );
-                const response = await selectTtyMenu(state, spec);
+                const response = await select_menu(state, spec);
                 context = answer_player_selection_confirmation(
                     state, context, response, random,
                 );

@@ -3542,8 +3542,17 @@ function _statusLine3DetailsLayout({ initialTtyRefresh }) {
     return { ...row.finish(), fields, hungerX };
 }
 
+// C ref: win/tty/wintty.c tty_create_nhwindow()'s NHW_STATUS arm (896-914),
+// which clamps iflags.wc2_statuslines into 2..3 and sizes wins[WIN_STATUS] at
+// that many rows, pinned to the bottom of the terminal.  Every reader of the
+// status window's height goes through this: statusLayouts() produces one entry
+// per row and writeStatusRows() writes them at display.rows - count.
+export function status_window_rows() {
+    return game.iflags?.wc2_statuslines === 3 ? 3 : 2;
+}
+
 function statusLayouts({ initialTtyRefresh = false } = {}) {
-    const count = game.iflags?.wc2_statuslines === 3 ? 3 : 2;
+    const count = status_window_rows();
     if (game.iflags?.status_updates === false) {
         return Array.from({ length: count }, () => ({ text: '', owners: [] }));
     }
@@ -3551,7 +3560,7 @@ function statusLayouts({ initialTtyRefresh = false } = {}) {
     // stores inv_weight()'s result in gw.wc, so layout retries and highlight
     // selection must reuse this snapshot rather than recomputing live state.
     const capacity = game.u ? near_capacity(game) : 0;
-    return game.iflags?.wc2_statuslines === 3
+    return count === 3
         ? [
             _statusLine1Layout(false),
             _statusLine3VitalsLayout(capacity),
@@ -4077,7 +4086,21 @@ export async function cls() {
 }
 
 // ── bot ──
+
+// C ref: botl.c bot() (253-272).
+//
+// The gb.bot_disabled test at 254-256 returns before the status window is
+// written *and* before disp.botl, disp.botlx and disp.time_botl are cleared,
+// so the pending update survives the suppressed pass and the next enabled
+// bot() still paints it.  js/windows.js select_menu() and getlin() are the two
+// writers of the flag.
+//
+// C's remaining guards -- u.uhp != -1, gy.youmonst.data and
+// suppress_map_output() -- cover dosave(), pre-initialization and the
+// save/restore/hangup states this port does not enter.
 export async function bot({ initialTtyRefresh = false } = {}) {
+    if (game.gb?.bot_disabled === true)
+        return;
     const optionalSnapshot = game.iflags?.wc2_statuslines === 3
         ? JSON.stringify(_optionalStatusEntries().map(
             ({ field, text }) => [field, text],
@@ -4111,9 +4134,12 @@ export async function bot({ initialTtyRefresh = false } = {}) {
 // disp.botl and disp.botlx are both clear, which is the turn counter moving
 // with nothing else marked dirty.
 //
-// gb.bot_disabled has no ported writer, and suppress_map_output() covers the
-// save, restore and hangup states this port does not enter.
+// The gb.bot_disabled test at 276-278 returns before disp.time_botl is
+// cleared, exactly as bot() does above; suppress_map_output() covers the save,
+// restore and hangup states this port does not enter.
 export async function timebot() {
+    if (game.gb?.bot_disabled === true)
+        return;
     if (game.flags?.time && game.iflags?.status_updates !== false) {
         // VIA_WINDOWPORT() is true for the tty: wintty.c sets both
         // WC2_HILITE_STATUS and WC2_FLUSH_STATUS in tty_procs.wincap2, so C

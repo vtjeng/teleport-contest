@@ -117,8 +117,9 @@ import {
     enhance_weapon_skill,
 } from './weapon.js';
 import {
-    displayTtyTextWindow, menuTitleStyle, selectTtyMenu,
+    displayTtyTextWindow, menuTitleStyle,
 } from './tty_menu.js';
+import { select_menu } from './windows.js';
 import {
     domove,
     dopickup,
@@ -1391,7 +1392,7 @@ async function runInventoryCommand(key, state) {
     return failClosedCommand(key, state, () => ddoinv(state, {
         // invent.c display_pickinv() ends its menu with no prompt and asks
         // select_menu() for PICK_ONE; Escape answers null.
-        menu: (items) => selectTtyMenu(state, {
+        menu: (items) => select_menu(state, {
             // add_menu_heading() draws a class heading with
             // iflags.menu_headings, which menuTitleStyle() reads.
             items: items.map((item) => (item.heading
@@ -1415,7 +1416,7 @@ async function runShowspellsCommand(key, state) {
         // spell.c dospellmenu() ends its menu with end_menu(prompt) and asks
         // select_menu() for PICK_ONE, or PICK_NONE when only one spell is
         // known; Escape answers null either way.
-        menu: (items, how, prompt) => selectTtyMenu(state, {
+        menu: (items, how, prompt) => select_menu(state, {
             // add_menu_heading() draws the column heading with
             // iflags.menu_headings, and allmain.c hands the same style to
             // tty_end_menu()'s prompt line through adjust_menu_promptstyle().
@@ -1462,7 +1463,7 @@ async function runAttributesCommand(key, state) {
         // the window carries no prompt line, and asks select_menu() for
         // PICK_NONE; every line is an add_menu_str() entry with no selector or
         // highlight. Escape answers null.
-        menu: (lines) => selectTtyMenu(state, {
+        menu: (lines) => select_menu(state, {
             lines,
             how: PICK_NONE,
             cancelValue: null,
@@ -1595,7 +1596,7 @@ async function runEnhanceCommand(key, state) {
         // add_menu_heading(), which draws it with iflags.menu_headings;
         // menuTitleStyle() reads that style. end_menu()'s prompt line takes
         // the same style through allmain.c adjust_menu_promptstyle().
-        menu: (lines, prompt) => selectTtyMenu(state, {
+        menu: (lines, prompt) => select_menu(state, {
             lines: lines.map((line) => (line.heading
                 ? {
                     ...line,
@@ -1630,7 +1631,7 @@ async function runOptionsCommand(key, state) {
         // doset() asks for PICK_ANY, where Escape answers null and an empty
         // commit answers []; doset_simple_menu() asks for PICK_ONE, where
         // both of those answer null.
-        menu: (items, prompt, how) => selectTtyMenu(state, {
+        menu: (items, prompt, how) => select_menu(state, {
             items,
             how,
             title: prompt,
