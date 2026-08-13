@@ -10,6 +10,7 @@ import {
   deferralCounts,
   formatDeferralCounts,
   formatDeferralRow,
+  formatStaleAnchors,
   setDeferralBlocker,
   countReviewCommits,
   excludeGeneratedLines,
@@ -27,6 +28,7 @@ import {
   validateAuditMutation,
   openDeferrals,
   portDefines,
+  portFileDefines,
   sweepCandidates,
   upstreamMentions,
   collectRejections,
@@ -1320,6 +1322,80 @@ test('both listings print what an area stopped counting', () => {
         'Sweep candidate: commands holds 10 open deferrals.',
         'Sweep candidate: objects holds 12 open deferrals.',
     ]);
+});
+
+test('a stale anchor reports a landed blocker and an undefined citation', () => {
+    // Every detail below is a real ledger sentence, shortened. The two probes
+    // are injected, so what js/ defines today cannot move this test: only
+    // mkmaze.js defines place_lregion(), and only dotrap() has landed.
+    const fileDefines = (file, symbol) => file === 'mkmaze.js'
+        && symbol === 'place_lregion';
+    const blockerLanded = (symbol) => symbol === 'dotrap';
+    const ledger = [
+        // The shape nearly every citing entry has: the file that defines the
+        // symbol. It must stay silent, or the check reports the whole ledger.
+        {
+            id: 'right-file', status: 'open',
+            detail: '`js/mkmaze.js place_lregion()` is synchronous.',
+        },
+        // The 12 August 2026 finding. Its second sentence cites the same pair
+        // through a line anchor, and one wrong pair is one repair, so the pair
+        // prints once.
+        {
+            id: 'wrong-file', status: 'open',
+            detail: 'and so are `js/mklev.js place_lregion()` and\n'
+                + '`u_on_upstairs()`, which call it while `js/mklev.js:92\n'
+                + 'place_lregion()` builds the level.',
+        },
+        // Words between the path and the symbol usually change the claim. This
+        // sentence says the file's comment mentions postmov(), which
+        // js/monmove.js defines; adjacency is what keeps it out.
+        {
+            id: 'prose-gap', status: 'open',
+            detail: 'the comment in `js/unported_monster_actions.js` says '
+                + '`postmov()` calls `mintrap()` "after the move".',
+        },
+        // A closed entry schedules nothing, so nobody reads its citations.
+        {
+            id: 'closed', status: 'closed',
+            detail: '`js/mklev.js place_lregion()` is synchronous.',
+        },
+        // The blocker half, both ways round. dotrap() has landed, so the entry
+        // silently counts toward its area's sweep again and the reader is told;
+        // conjoined_pits() has not, so it stays blocked and silent.
+        { id: 'blocker-landed', status: 'open', blockedOn: 'dotrap', detail: 'x' },
+        { id: 'still-blocked', status: 'open', blockedOn: 'conjoined_pits', detail: 'x' },
+    ];
+    // Blockers first, then citations: the two answer different questions and a
+    // reader scanning for one should not have to sort them apart.
+    assert.deepEqual(formatStaleAnchors(ledger, { blockerLanded, fileDefines }), [
+        'Blocker landed, so recheck the entry: dotrap [blocker-landed].',
+        'Cited but not defined there: js/mklev.js place_lregion() [wrong-file].',
+    ]);
+    // The same ledger prints no line when both probes answer that everything
+    // is in place, which pins the two lines above to the two faults.
+    assert.deepEqual(
+        formatStaleAnchors(ledger, { blockerLanded: () => false,
+            fileDefines: () => true }),
+        [],
+    );
+});
+
+test('the citation probe reads the real js/ tree', () => {
+    // mkmaze.c place_lregion() is the pair this check was built for: the
+    // ledger cites it as js/mklev.js. AGENTS.md, "Keep each source file's port
+    // in one place", puts a C file's functions in the JavaScript file named
+    // for it, so js/mkmaze.js is where the port must live and js/mklev.js can
+    // never define it.
+    assert.equal(portFileDefines('mkmaze.js', 'place_lregion'), true);
+    assert.equal(portFileDefines('mklev.js', 'place_lregion'), false);
+    // js/ holds no such file, which is the answer a citation to a renamed or
+    // invented file needs.
+    assert.equal(portFileDefines('zzyzx_defines_nothing.js', 'place_lregion'),
+        false);
+    // The file-blind probe still answers for the whole tree, which is what a
+    // blockedOn asks; the two now read one index.
+    assert.equal(portDefines('place_lregion'), true);
 });
 
 test('the recorder renders the counts sentence from the metrics', () => {
