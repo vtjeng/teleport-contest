@@ -381,3 +381,6 @@ utc	event	phase	goal	detail
 2026-08-13T11:44:15.587Z	end	implement	bear-trap-capture	heal_legs closed at 937aa31; screens 1530 to 1531, forecast 120
 2026-08-13T11:44:15.614Z	start	review	bear-trap-capture	full correctness pass over the goal
 2026-08-13T14:23:00.188Z	end	review	bear-trap-capture	full correctness pass recorded through e211e5e; 13 confirmed, 6 applied, 7 deferred
+2026-08-13T14:45:31.808Z	start	select		
+2026-08-13T15:01:59.796Z	end	select		
+2026-08-13T15:01:59.824Z	start	implement	display-deferral-sweep	newsym mtrapped write

@@ -1928,6 +1928,54 @@
         "screens": 18,
         "rng": 185
       }
+    },
+    {
+      "id": "display-deferral-sweep",
+      "status": "open",
+      "boundary": "Every counted display deferral is either closed or recorded as blocked on a C symbol js/ does not define, closing at least the two silent divergences: js/display.js newsym() sets trap.tseen for a BEAR_TRAP, is_pit() or WEB under a displayed mtrapped monster at both call sites as display.c newsym() 1013-1024 does, and both status rows stay blank while a full-screen menu owns the screen as gb.bot_disabled makes them at windows.c:1861 and :1898 with botl.c:255 and :277.",
+      "upstreamOwners": [
+        "display.c newsym() 1013-1024",
+        "pager.c 468-476",
+        "windows.c select_menu() 1855-1865",
+        "windows.c getlin() 1867-1901",
+        "botl.c bot() 254-256",
+        "botl.c timebot() 276-278",
+        "wintty.c erase_menu_or_text() 966-984"
+      ],
+      "forecast": {
+        "steps": 7,
+        "basis": "Measured per-cell at 3a8f243 in the scorer's own workspace, not estimated from a stretch. score-development reports seed0006 at screens 49/123 with cursors 64/123, so 15 of its 64 emitted screens mismatch. A cell diff using frozen/screen-decode.mjs attributes exactly 7 of them (0-based steps 50-56) to C blanking both status rows under a full-screen menu, 84 differing cells each, all kind=ch. The other 8, plus seed0016 step 26 and seed0200 step 30, are the frozen serialize() leading-space attribute ceiling and are unrecoverable in game code. No capping read applies: the 7 screens sit behind seed0006's existing stop at step 64, not ahead of it, so the goal claims no stretch. The newsym() entry is worth 0 recorded screens today and is scheduled first because it is a silent divergence rather than a refusal.",
+        "sessions": [
+          "seed0006-wizard-water-demon.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0006-wizard-water-demon.session.json",
+            "evidence": "seed 6, datetime 20260503024327, nethackrc OPTIONS=symset:DECgraphics, default menu_overlay. At 0-based steps 50-56 the hero is inside choose_classes_menu(\"Autopickup what?\"), reached from the O menu's pickup_types handler. C runs it through windows.c select_menu() (1855-1865), which sets gb.bot_disabled=TRUE for the duration, so botl.c bot() (254-256) and timebot() (276-278) return before writing the status lines and the full-screen menu window leaves rows 22-23 blank. Measured: C's rows 22-23 are all spaces across those 7 screens while the port renders \"Hextra the Evoker ... Neutral\" and \"Dlvl:1 $:0 HP:11(11) Pw:7(7) AC:9 Xp:1\"."
+          }
+        ]
+      },
+      "detail": "Measured at 3a8f243 against nethack-c/upstream/ and js/, not inferred. The\nselector expected to propose world-effects and the per-cell measurement moved it\nto display.\n\nWHY DISPLAY RATHER THAN WORLD-EFFECTS. Both areas print as sweep candidates,\nworld-effects at 13 counted entries and display at 10. world-effects was set\naside because its cheap wins are the wrong kind: four of its five small entries\nare tests -- fixture cases for trap.c:1527's u.usteed disjunct, trap.c:3743's\nHOLE disjunct, the d(2,4) ordering oracle and the silent-escape refusal -- and\n.agents/selection.md ranks a tests entry below every refusal, so a sweep opening\nwith them would invert the rule it is meant to follow, for 0 measured screens.\nDisplay's ordering and its value coincide: the two entries the rule puts first\nare a silent wrong-map-memory defect and the only measured recoverable screens\neither area has.\n\nTHE TWO LEAD ENTRIES, BOTH SILENT DIVERGENCES.\n\n1. newsym() does not mark a trap seen under a held monster. grep -c mtrapped\n   js/display.js returns 0. Both newsym sites, js/display.js:2089-2103 and the\n   state-parameterised sibling at :1673-1678, compute t_at(x, y) and go straight\n   to trap?.tseen. display.c newsym() 1013-1024 sets trap->tseen for BEAR_TRAP,\n   is_pit() or WEB under a displayed mtrapped monster before filing the\n   remembered glyph, and pager.c 468-476 repeats the write. Cost today is 0\n   development screens: seed0004 is the one session with a bear-trapped pet and\n   it stops at step 52 on mhitu.c mattacku() while its trap events are at step\n   83 and later. It is first because the port skips a state-writing C branch\n   silently, which AGENTS.md forbids, rather than stopping on a named refusal.\n\n2. Both status rows should stay blank while a full-screen menu owns the screen.\n   js/display.js:4089 already carries the comment \"gb.bot_disabled has no ported\n   writer\". C sets it in windows.c select_menu() 1855-1865 and getlin()\n   1867-1901, and botl.c bot() 254-256 and timebot() 276-278 return before\n   writing when it is set; decl.c:233, end.c:403 and wintty.c\n   erase_menu_or_text() 966-984 complete the mechanism. About 40 lines of C\n   across six files.\n\nTHE LOAD-BEARING JUDGEMENT. The bot_disabled mechanism is separable from the\ngnew dirty-bbox discipline that flush_screen() needs, so the 7 screens do not\nrequire converting _buildScreenOutput(). If the sweep finds them inseparable,\nthat entry survives and the forecast drops to 0. Whoever takes the slice should\nsettle that first.\n\nWHAT SURVIVES, AND WHY. Three counted entries wait on machinery js/ has no port\nof: show_glyph, print_glyph, reset_glyph_bbox, select_menu and getlin each\nreturn 0 top-level definitions. \"flush_screen() rebuilds the whole screen\" and\n\"two more gaps on the same wrapped top line\" should carry blockedOn show_glyph\nrather than counting. Their owners -- display.c flush_screen() 2207-2266,\nunmap_object() 422-426, feel_location(), topl.c 322 and 340 -- are named for the\nreading, not for this goal's commits.\n\nONE ENTRY NO GAME CODE CAN EVER CLOSE. \"an indented inverse menu heading cannot\nmatch\" is the frozen serialize() leading-space attribute ceiling: AGENTS.md\nforbids changing js/terminal.js and the judge replaces it, and it is filed\nupstream as issue 18. Measured cost, 10 currently-wrong emitted screens -- 8 in\nseed0006, 1 each in seed0016 and seed0200. It permanently occupies a slot in a\nthreshold that schedules work, which the closing report should state.\n\nA RECORD THAT IS WRONG IN TWO CHECKABLE DETAILS. The\nfull-screen-menu-dismissal-repaints-status note says seed0006's steps 50-56 \"all\nseven mismatch on row 23 column 1\"; the measurement shows 84 differing cells\nacross both status rows. It also says \"steps 71-75 past the menu match\", which\nis unobservable because the port emits only 64 steps.\n\nWHAT OWNS SEED0006'S ACTUAL STOP. remembered-glyph-caches-a-resolved-presentation\nowns the stop at step 64. Closing it would move the stop to autopickup at step\n95, but that is a display-subsystem change of its own and the stretch beyond is\nheavily ceilinged by the serialize() entry above.\n\nDisplay's other records were re-checked and are accurate: js/detect.js:203\ndefaultFeelSearchLocation, js/getline.js:334, and UnsupportedMapMemoryError at\njs/display.js:1605, :1802 and :1911 are all still live. Unlike the last two\nsweeps, this one should expect to spend its budget closing rather than\ncorrecting.\n\nDOES CLOSING DROP DISPLAY BELOW TEN? Only if the sweep both closes and blocks.\nClosing the two lead entries takes 10 to 8; blocking the two show_glyph entries\ntakes it to 6. Closing alone leaves 8, and two new filings put it straight back,\nbecause display is the area every screen-bearing pass files against. Even at 6,\none slot is permanently occupied by an entry no game code can close.\n\nTWO WORLD-EFFECTS FINDINGS MEASURED HERE, to carry into that sweep when it runs.\nyou-hear-skips-the-unaware-wording is stale: js/monmove.js:1359-1365 already\nports all three arms of pline.c You_hear() 435-451 including the Unaware branch,\nso the remaining work is converging js/sounds.js:168 and js/mon.js:1314 onto it\nrather than a new port. And mention-decor-opening-screen's claim that\n\"describe_decor() and iflags.prev_decor still have no owner\" is false:\njs/pickup.js:150-266 ports the bounded branch and owns prev_decor, and its\nrefusal is scoped to \"mention_decor outside the initial D:1 staircase\", which\nadmits the very case the entry says diverges, so re-running its recorded recipe\nmay close it outright.",
+      "slices": [
+        {
+          "name": "newsym() marks a trap seen under a held monster",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "both status rows stay blank while a full-screen menu owns the screen",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "3a8f243bba4b82c63938fad98197fccdd60981b2",
+      "openStanding": {
+        "sha": "43fd9a2",
+        "screens": 1531,
+        "rng": 121032
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
