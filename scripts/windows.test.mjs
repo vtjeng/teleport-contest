@@ -87,3 +87,36 @@ test('getlin restores an outer suppression rather than clearing it',
 
         assert.equal(state.gb.bot_disabled, true);
     });
+
+// The wrappers only suppress the status rows for callers that go through them,
+// so who imports what is part of the behaviour. C gets this for free:
+// select_menu() is the entry every core caller already uses, and only
+// process_menu_window()'s own MENU_SEARCH prompt reaches tty_getlin directly.
+// The port had to route its call sites through new wrappers, and a site left
+// reaching the tty layer directly is invisible to every other test here --
+// reverting one such site leaves the suite byte-identical. This case is the
+// only thing that fails when a caller is half-converted.
+test('only the wrappers reach the tty menu and prompt entry points',
+    async () => {
+        const { readFileSync, readdirSync } = await import('node:fs');
+        const importers = (symbol) => readdirSync('js')
+            .filter((name) => name.endsWith('.js'))
+            .filter((name) => {
+                const source = readFileSync(`js/${name}`, 'utf8');
+                // Import statements only: the same identifiers appear in
+                // comments across the port, which a plain search would count.
+                return [...source.matchAll(/^import[\s\S]*?from\s+'[^']+';/gmu)]
+                    .some((match) => new RegExp(`\\b${symbol}\\b`, 'u')
+                        .test(match[0]));
+            })
+            .sort();
+
+        // js/tty_menu.js defines selectTtyMenu, so it never imports it.
+        assert.deepEqual(importers('selectTtyMenu'), ['windows.js'],
+            'js/windows.js select_menu() is the only route to the tty menu');
+        // js/tty_menu.js is C's MENU_SEARCH exception; js/getline.js defines
+        // the entry rather than importing it.
+        assert.deepEqual(importers('tty_getlin'),
+            ['tty_menu.js', 'windows.js'],
+            'js/windows.js getlin() is the only other route to a typed line');
+    });

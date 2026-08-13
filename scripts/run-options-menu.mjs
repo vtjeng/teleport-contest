@@ -430,13 +430,17 @@ export async function verifyOptionsMenuSegment(segment) {
 
     if (segment.moves === BLANK_STATUS_CLASS_MENU
         || segment.moves === THREE_LINE_CLASS_MENU) {
-        const escaped = segment.moves === THREE_LINE_CLASS_MENU;
+        // Two independent properties of the recipe, which one boolean used to
+        // conflate because the only three-row recipe is also the only escaping
+        // one. Read each from the thing that decides it.
+        const escapedClassMenu = segment.moves === THREE_LINE_CLASS_MENU;
+        const statusRows = /statuslines:3/u.test(segment.nethackrc) ? 3 : 2;
         // Committing the class menu writes the two classes picked, in
         // flags.inv_order order; escaping it leaves the incoming list
         // standing, and the configuration file set none.
         assert.deepEqual(
             game.flags.pickup_types,
-            escaped ? [] : [POTION_CLASS, WAND_CLASS],
+            escapedClassMenu ? [] : [POTION_CLASS, WAND_CLASS],
             'the class menu left the wrong pickup_types',
         );
         // The status rows only stay blank because bot() declined to write
@@ -446,7 +450,7 @@ export async function verifyOptionsMenuSegment(segment) {
             throw new Error('select_menu() left bot() disabled');
         if (game.disp.botl !== false || game.disp.botlx !== false)
             throw new Error('the command returned with the status still dirty');
-        if (game.iflags.wc2_statuslines !== (escaped ? 3 : 2))
+        if (game.iflags.wc2_statuslines !== statusRows)
             throw new Error('the recipe ran at the wrong status height');
         return;
     }
