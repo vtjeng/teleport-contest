@@ -3,7 +3,7 @@
 // process_menu_window(), process_text_window(), dmore(), and
 // tty_select_menu().
 
-import { bot, status_window_rows, timebot } from './display.js';
+import { bot, status_window_rows } from './display.js';
 import { game } from './gstate.js';
 import { tty_getlin } from './getline.js';
 import {
@@ -216,8 +216,10 @@ async function erase_menu_or_text(state, display, snapshot, baseCursor) {
     state.disp ??= {};
     state.disp.botlx = true;
 
-    if (state.disp.botl || state.disp.botlx) await bot();
-    else if (state.disp.time_botl) await timebot();
+    // display.c:2235-2239 dispatches three ways, but docrt_flags()'s post_map
+    // block has just set disp.botlx on the line above, exactly as display.c:466
+    // does, so the first arm always wins here and timebot() is unreachable.
+    await bot();
 }
 
 // C ref: win/tty/wintty.c compress_str(). tty_putstr() applies this to menu

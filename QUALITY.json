@@ -2083,6 +2083,15 @@
       "status": "open",
       "from": "9ec6bd240cee8bb3445ba617e12baf997e4489e4",
       "detail": "In 'the unwatched matrix segment is caught over an unmapped trap' in scripts/monster-bear-trap.test.mjs, the closing assert.equal(Boolean(mapped.tseen), true, 'display.c:1023') is satisfied by trap.c seetrap() on the monster's next m_move() rather than by the newsym() write it names, so the seventh recorded segment does not pin the behaviour its assertion cites. This is the same catching-up mechanism that makes the newsym() write unobservable in a replay: dochug()'s mpeaceful disjunct sends a pet through m_move() on the turn the hero walks into sight. Found by the correctness pass over e211e5e..0bd635c. Closing condition: the assertion is taken at a point before the held monster's next m_move(), or the case is rewritten around a monster that does not get one, so that only the newsym() write can satisfy it; deleting that write must fail the case."
+    },
+    {
+      "id": "dogmove-deaf-copy-diverged-from-youprop",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "3c74ca60da133d209b2937c5185623e91bfe8edf",
+      "detail": "js/dogmove.js heroDeaf() (:220-224) diverges from youprop.h:125 in two ways at once. C is Deaf = (HDeaf || EDeaf || u.uroleplay.deaf): three terms, no blocked term. The dogmove copy reads (intrinsic || extrinsic) && !blocked, dropping the roleplay conduct C carries and adding a blocked term C does not have. js/apply.js heroDeaf() (:80-84) spells the same macro correctly, which is how the divergence was spotted.\n\nBoth errors push the same way, toward a message C does not write. The single caller is js/dogmove.js:1144, the leashed-pet arm of dog_move()'s trap handling: C runs whimper() under if (!Deaf), so a hero who set OPTIONS=roleplay:deaf hears the port's whimper where C stays silent, and a hero whose deafness is blocked does the same. AGENTS.md ranks a silently wrong screen worse than a refusal, and this is one.\n\nFound by the simplification pass over eb3a084..3ffdb94, inside a proposal to fold the eight Deaf copies into one module. That proposal was rejected on architecture, and correctly: js/display.js:2946-2958 records the port's deliberate convention that a youprop.h macro is expanded once per C file that expands it, with five copies of Flying kept for the same reason and scripts/dismount-steed.test.mjs pinning them together. The convention is not the defect; this copy's contents are.\n\nClosing condition: js/dogmove.js heroDeaf() spells youprop.h:125's three terms and no others, matching js/apply.js; a case pins a roleplay:deaf hero with a leashed pet beside a trap and asserts no whimper, failing when the conduct term is dropped; and a fresh recorded C case with OPTIONS=roleplay:deaf matches call for call and screen for screen, or a stated reason why the port cannot reach one."
     }
   ],
   "areas": [

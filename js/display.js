@@ -4074,7 +4074,7 @@ export async function cls() {
 export async function bot({ initialTtyRefresh = false } = {}) {
     if (game.gb?.bot_disabled === true)
         return;
-    const optionalSnapshot = game.iflags?.wc2_statuslines === 3
+    const optionalSnapshot = status_window_rows() === 3
         ? JSON.stringify(_optionalStatusEntries().map(
             ({ field, text }) => [field, text],
         ))
