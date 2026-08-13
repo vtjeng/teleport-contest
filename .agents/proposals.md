@@ -80,12 +80,9 @@ proposal.
 
 ## Print the remaining unenforced advisories
 
-**What it changes.** Five checks that turn prose rules into printed numbers
-(`node scripts/goal-log.mjs calibration`, a sixth, landed on 2 August 2026):
+**What it changes.** Four checks that turn prose rules into printed numbers
+(`node scripts/goal-log.mjs calibration`, a fifth, landed on 2 August 2026):
 
-- `scripts/phase-log.mjs --summary --goal <id>` prints elapsed wall time
-  since the last slice close that improved the development score, so the
-  six-hour goal budget in `.agents/loop.md` becomes a printed figure.
 - `npm run quality` warns when dirty-tree changed lines exceed 500 while no
   `.agents/implementation-checklist.json` exists, the checklist-creation
   trigger in `.agents/implementation-checklist-template.md`.
