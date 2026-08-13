@@ -1876,7 +1876,7 @@
     },
     {
       "id": "bear-trap-capture",
-      "status": "open",
+      "status": "closed",
       "boundary": "trap.c trapeffect_bear_trap()'s monster arm (1525-1558) catches a monster, mintrap()'s mtmp->mtrapped arm (3741-3789) and monmove.c m_move()'s prologue (1733-1742) run the turns it spends trapped until it pulls free, and do.c heal_legs() (2448-2486), reached from timeout.c nh_timeout()'s WOUNDED_LEGS case (774), ends the hero's own bear-trap wound -- rather than stopping at js/trap_effects.js:491's \"a monster caught in a bear trap\", js/trap_effects.js:811's \"a monster escaping a trap\", js/unported_monster_actions.js:230's \"a trapped monster\", or js/timeout.js:279's \"heal_legs() for an expiring wounded-legs timeout\".",
       "upstreamOwners": [
         "trap.c trapeffect_bear_trap() 1525-1558",
@@ -1923,8 +1923,11 @@
         "screens": 1513,
         "rng": 120847
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "43fd9a2a967e70640f10daf8685d36e0e4c02e1a",
+      "delivered": {
+        "screens": 18,
+        "rng": 185
+      }
     }
   ]
 }

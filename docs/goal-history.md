@@ -508,6 +508,42 @@ a hook wired, four derivations, a new fresh matrix for `allmain.c:342-344` which
 had none, and the first test in the repository that pins a refusal *class* rather
 than its message.
 
+## A capping read must resolve each message to the C function that writes it
+
+`bear-trap-capture` forecast 137 development screens and delivered 18. The two
+small slices met their forecasts to the screen -- 12 for the catch, 5 for the
+trapped turns -- and the slice carrying 120 of the 137 delivered 1.
+
+The port is not at fault. `do.c heal_legs()` is correct: `seed0004-feeding-pony`
+step 51 matches, with C's `Your leg feels better.  Your movements are now
+unencumbered.`, Dexterity back from 8 to 9 and `Burdened` gone from the status
+row. The session then stops one step later, at step 52, where C draws `The
+kobold misses!` -- a monster attack on the hero, owned by `mhitu.c mattacku()`,
+which was already refusing before the goal opened and which no owner of the goal
+names.
+
+The capping read is what failed, and the way it failed is repeatable. It
+classified steps 52-53 as "hero melee". Step 53, `You kill the kobold!`, is the
+hero's; step 52 is the kobold's. Both look like melee in a message stream, and
+nothing short of resolving each recorded line to the C function that writes it
+separates them. The honest cap was step 51, which makes the goal worth 18 rather
+than 137 -- close to what it delivered.
+
+This is the second recorded instance. The `pray-command` close missed by six for
+the same reason: its forecast read `seed0017`'s remaining twenty steps as all
+reachable, and six of them needed `options.c optfn_pickup_types()` rather than
+anything in `pray.c`. Appendix A of `.agents/selection.md` already says to cap at
+the first message implying an unported behavior; what both misses show is that
+**a message implies its writer, and the writer is not always the actor the
+message names.** A line about a monster may be written by the hero's code and a
+line about the hero by the monster's. Resolve the owner before counting the step.
+
+The rest of the goal was sound, and its cost was not the forecast. Three slices
+lifted four fail-closed refusals and deleted an injection; the correctness pass
+over them confirmed thirteen findings, including a state leak in the planning
+clone that nine earlier defects of the same shape had only ever surfaced by
+symptom.
+
 ## Holdout carry-over does not track the development look-ahead, and that is settled
 
 Five goals have closed with a holdout run. Three were boundary ports:
