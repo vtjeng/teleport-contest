@@ -1959,8 +1959,8 @@
       "slices": [
         {
           "name": "newsym() marks a trap seen under a held monster",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "a6b2a820f695eb11afae88d0bec47686cb14c401"
         },
         {
           "name": "both status rows stay blank while a full-screen menu owns the screen",
