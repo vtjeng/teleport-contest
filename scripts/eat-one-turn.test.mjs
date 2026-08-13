@@ -42,6 +42,7 @@ import test from 'node:test';
 import {
     ECMD_TIME,
     FAINTED,
+    HALLUC,
     HUNGER,
     HUNGRY,
     NOT_HUNGRY,
@@ -80,6 +81,7 @@ import {
     GENERIC_FOOD,
     LEMBAS_WAFER,
     METAL,
+    PEAR,
     SPRIG_OF_WOLFSBANE,
     TIN,
     VEGGY,
@@ -99,6 +101,7 @@ import {
 import { isMetallic, newObject, weight } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { singular, xnameFresh } from '../js/objnam.js';
+import { getRngLog } from '../js/rng.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -703,7 +706,7 @@ test('the meal message is the one fprefx chose', async () => {
     const slotsBefore = inv_cnt(false, game);
 
     await runSegment({ ...apples, moves: '.ek' });
-    assert.equal(topLine(), 'Core dumped.');
+    assert.equal(topLine(), 'Delicious!  Must be a Macintosh!');
     // touchfood() split one apple off the stack and addinv_nomerge() put the
     // bite back under its own letter; useup() then took that letter away, so
     // the slot count is where it started and the stack is one shorter.
@@ -720,6 +723,125 @@ test('the meal message is the one fprefx chose', async () => {
     assert.equal(topLine(), 'This sprig of wolfsbane is delicious!');
     assert.equal(slotFor(SPRIG_OF_WOLFSBANE), null);
     assert.equal(inv_cnt(false, game), wolfsbaneSlots - 1);
+});
+
+// Eat what one inventory slot holds, without the closing wait that would clear
+// fprefx()'s message off the top line. doeat() reads the letter from the same
+// key queue the replay uses. The message buffer is emptied first so that a
+// message left by the replay cannot satisfy an assertion below on its own.
+async function eatSlot(obj) {
+    game.nhDisplay.toplines = '';
+    game.nhDisplay.pushKey(obj.invlet.charCodeAt(0));
+    return doeat(game);
+}
+
+// The message the meal wrote. pline() fills gt.toplines at once but tty topl.c
+// paints row 0 at the following key wait, which these constructed cases never
+// reach because they call doeat() directly instead of replaying keys. Reading
+// the buffer therefore checks the same string a replay would paint, one step
+// earlier. Assertions on the painted row read topLine() instead.
+function mealMessage() {
+    return game.nhDisplay.toplines;
+}
+
+// How many random numbers a call drew.
+async function drawsFor(run) {
+    const before = (getRngLog() ?? []).length;
+    await run();
+    return (getRngLog() ?? []).length - before;
+}
+
+// Retype the Healer's apple stack in place. The two FOOD() rows at
+// objects.h:1080 and :1082-1083 differ only in oc_prob and oc_color, so the
+// pear carries the apple's oc_delay 1, oc_weight 2, oc_nutrition 50 and VEGGY
+// material and the meal keeps its shape; the arm fprefx() takes is the only
+// thing that moves. No u_init.c row holds a pear and no ported command picks
+// one up, so this is how a pear reaches fprefx() at all.
+function retypeApplesToPears() {
+    const pears = slotFor(APPLE);
+    pears.otyp = PEAR;
+    pears.owt = weight(pears, { state: game });
+    return pears;
+}
+
+// C ref: eat.c fprefx()'s default arm (2170-2213). Both platform arms are
+// compiled into the build that recorded the reference sessions, and C writes
+// the Mac test first, so an apple never reaches the Unix arm and a pear always
+// does. config.h:18 defines UNIX and the only #undef of it, config1.h:64-67,
+// needs MACOS9 or __BEOS__; config1.h:43-45 defines MACOS from __APPLE__ and
+// __MACH__, which the clang that build-recorder.sh:42-46 insists on supplies
+// on the Darwin host its :31-35 branch configures. C's own comment at
+// 2180-2182 states the consequence: the apple takes the Mac message and "the
+// '#if UNIX' code will still kick in for pear".
+test('fprefx sends an apple to the Mac arm and a pear to the Unix arm',
+    async () => {
+        const apples = segmentFor('ek');
+        await runSegment({ ...apples, moves: '.ek' });
+        // eat.c:2184, with the two spaces C writes after "Delicious!".
+        assert.equal(topLine(), 'Delicious!  Must be a Macintosh!');
+
+        await runSegment({ ...apples, moves: '.' });
+        await eatSlot(retypeApplesToPears());
+        // eat.c:2190, the sober half of the Unix arm.
+        assert.equal(mealMessage(), 'Core dumped.');
+    });
+
+// C ref: eat.c fprefx()'s two platform arms again (2179-2202), read for the
+// Hallucination tests they do and do not carry. The Mac arm has none, so a
+// hallucinating hero eating an apple gets the same string and the same draws
+// as a sober one. The Unix arm's hallucinating half (2191-2201) holds the
+// rnd(100) at 2193, the only draw anywhere in fprefx()'s default arm, so it is
+// the only path this port still refuses.
+test('hallucination reaches the draw through the pear alone', async () => {
+    const apples = segmentFor('ek');
+    // youprop.h:115-116 makes HHallucination the timeout by itself, so any
+    // nonzero count is as hallucinating as any other, and youprop.h:119-120
+    // subtracts a Halluc_resistance the Healer has no source of.
+    const hallucinate = () => { game.u.uprops[HALLUC].intrinsic = 1; };
+
+    await runSegment({ ...apples, moves: '.' });
+    const soberDraws = await drawsFor(() => eatSlot(slotFor(APPLE)));
+    assert.equal(mealMessage(), 'Delicious!  Must be a Macintosh!');
+    // touchfood() splits one apple off a stack of six, and mkobj.c
+    // next_ident()'s rnd(2) is the whole meal's only draw.
+    assert.equal(soberDraws, 1);
+
+    await runSegment({ ...apples, moves: '.' });
+    hallucinate();
+    const hallucinatingDraws = await drawsFor(() => eatSlot(slotFor(APPLE)));
+    // The Mac arm has no Hallucination test at all: same string, same draw.
+    assert.equal(mealMessage(), 'Delicious!  Must be a Macintosh!');
+    assert.equal(hallucinatingDraws, soberDraws);
+
+    await runSegment({ ...apples, moves: '.' });
+    hallucinate();
+    const pears = retypeApplesToPears();
+    await assert.rejects(eatSlot(pears), /hallucinating pear/u);
+});
+
+// C ref: eat.c fprefx()'s give_feedback pline (2205-2212). Once the Mac arm
+// answers the apple, this pline carries the only wordings left in the default
+// arm that Hallucination changes, and neither of them draws.
+test('give_feedback swaps in its hallucinating wording', async () => {
+    // The Priest's sprig of wolfsbane is a stack of one, so touchfood() never
+    // splits it and the whole meal draws nothing at all.
+    const priest = segmentFor('ef');
+    const eatSprig = async (hallucinating) => {
+        await runSegment({ ...priest, moves: '.' });
+        if (hallucinating) game.u.uprops[HALLUC].intrinsic = 1;
+        const draws = await drawsFor(
+            () => eatSlot(slotFor(SPRIG_OF_WOLFSBANE)),
+        );
+        assert.equal(draws, 0, 'give_feedback draws nothing either way');
+        return mealMessage();
+    };
+
+    // eat.c:2212's two operands, the uncursed half of the ternary. The cursed
+    // half is not tested here because doeat() (3027-3031) sends every cursed
+    // food except a fortune cookie to rottenfood() instead of fprefx().
+    assert.equal(await eatSprig(false),
+        'This sprig of wolfsbane is delicious!');
+    assert.equal(await eatSprig(true), 'This sprig of wolfsbane is gnarly!');
 });
 
 test('a meal that crosses 1000 nutrition writes Satiated to the status line',
@@ -904,9 +1026,9 @@ test('the option variations reach the same meal', async () => {
     // Healer's inventory by one slot.
     const [withPet, decorated] = loadEatOneTurnOptionsRecipe().segments;
     await runSegment({ ...withPet, moves: '.el' });
-    assert.equal(topLine(), 'Core dumped.');
+    assert.equal(topLine(), 'Delicious!  Must be a Macintosh!');
     await runSegment({ ...decorated, moves: '.ek' });
-    assert.equal(topLine(), 'Core dumped.');
+    assert.equal(topLine(), 'Delicious!  Must be a Macintosh!');
 });
 
 test('the one-turn matrix covers the branches this slice ports', () => {

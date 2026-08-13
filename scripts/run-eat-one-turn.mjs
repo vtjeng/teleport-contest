@@ -12,6 +12,14 @@
 // of more than one draws mkobj.c next_ident()'s rnd(2) through touchfood()'s
 // splitobj(); a single item draws nothing at all; and a food older than thirty
 // turns reaches doeat()'s rn2(7) rot test.
+//
+// Every segment that eats an apple needs a recorder built on Darwin, the host
+// that produced the reference sessions. eat.c fprefx() (2179-2190) answers an
+// apple from its `#if defined(MACOS9) || defined(MACOS)` arm, and
+// include/config1.h:43-45 defines MACOS from clang's __APPLE__ and __MACH__
+// alone, so a recorder built by build-recorder.sh's Linux branch compiles that
+// arm out and prints the Unix arm's "Core dumped." for an apple instead. The
+// wolfsbane segment is the one here that does not depend on the host.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -98,7 +106,7 @@ export function loadEatOneTurnRecipe() {
         version: 5,
         segments: [
             // One apple out of a stack: touchfood() splits it, which draws
-            // rnd(2), and fprefx() takes the apple's #ifdef UNIX arm. 900
+            // rnd(2), and fprefx() takes the apple's MACOS arm. 900
             // nutrition plus 50 stays inside NOT_HUNGRY, so the status line
             // does not move.
             segment(4510001, `${EAT_KEY}${HEALER_APPLES}`),

@@ -1712,41 +1712,55 @@ async function fprefx(otmp, state) {
         // smell flee.
         throw new UnsupportedEatError('garlic_breath()');
     default:
-        if (Hallucination(state)) {
-            // Hallucination changes four of this arm's wordings -- "primo"
-            // for "yummy", "grody!" for "terrible!", "gnarly!" for
-            // "delicious!", and the apple's joke for a wording rnd(100)
-            // picks between three of. Nothing reachable on dungeon level one
-            // makes the hero hallucinate, so none of it has a recordable
-            // case, and the draw would silently shift the stream if wrong.
-            throw new UnsupportedEatError(
-                "fprefx()'s hallucinating feedback",
-            );
-        }
         if (otmp.otyp === SLIME_MOLD && !otmp.cursed
             && otmp.spe === state.context.current_fruit) {
-            // "My, this is a yummy <fruit>!" No role starts with a slime mold,
-            // and picking one up off the floor needs the unported autopickup
-            // and pickup commands, so no recorded case can check the wording
-            // or the fruit name singular() would format.
+            // "My, this is a yummy <fruit>!", or "primo" while hallucinating.
+            // No role starts with a slime mold, and picking one up off the
+            // floor needs the unported autopickup and pickup commands, so no
+            // recorded case can check either wording or the fruit name
+            // singular() would format.
             throw new UnsupportedEatError("fprefx()'s slime mold arm");
         } else if (otmp.otyp === APPLE && otmp.cursed
             && !propertyActive(state, SLEEP_RES)) {
             /* skip core joke; feedback deferred til fpostfx() */
+        } else if (otmp.otyp === APPLE) {
+            // The `#if defined(MACOS9) || defined(MACOS)` arm (2179-2185).
+            // build-recorder.sh:31-35 configures its Darwin host through
+            // sys/unix, so config.h:18 leaves UNIX defined while
+            // config1.h:43-45 adds MACOS on top of it from clang's __APPLE__
+            // and __MACH__; config1.h:64-67, the one #undef of UNIX, needs
+            // MACOS9 or __BEOS__. Both arms are therefore compiled, and C's
+            // comment at 2180-2182 says what their order then means: the
+            // apple is answered here, and "the '#if UNIX' code will still
+            // kick in for pear". Hallucination changes nothing on this arm.
+            await ttyPline('Delicious!  Must be a Macintosh!', state);
         } else if (otmp.otyp === APPLE || otmp.otyp === PEAR) {
-            // The #ifdef UNIX arm. The recorder builds for Linux, so this is
-            // the arm an apple or a pear takes.
+            // The `#ifdef UNIX` arm (2187-2202). C tests the apple here too,
+            // but the MACOS arm above has already answered it, so the pear is
+            // the only food that arrives.
+            if (Hallucination(state)) {
+                // rnd(100) (2193) picks between three segmentation-fault
+                // wordings, and it is the only draw anywhere in this default
+                // arm. No u_init.c row holds a pear and picking one up needs
+                // the unported pickup commands, so no recorded case can check
+                // it; a wrong string would cost one screen, but a draw taken
+                // where C takes none shifts every call after it.
+                throw new UnsupportedEatError("fprefx()'s hallucinating pear");
+            }
             await ttyPline('Core dumped.', state);
         } else {
+            // A fortune cookie is the only food that reaches this line
+            // cursed: doeat() (3027-3031) exempts it by otyp and sends every
+            // other cursed food to rottenfood() instead of to fprefx().
             await ttyPline(
                 `This ${singular(otmp, xnameFresh, state)} is ${
                     otmp.cursed
-                        ? 'terrible!'
+                        ? (Hallucination(state) ? 'grody!' : 'terrible!')
                         : (otmp.otyp === CRAM_RATION
                             || otmp.otyp === K_RATION
                             || otmp.otyp === C_RATION)
                             ? 'bland.'
-                            : 'delicious!'
+                            : (Hallucination(state) ? 'gnarly!' : 'delicious!')
                 }`,
                 state,
             );
