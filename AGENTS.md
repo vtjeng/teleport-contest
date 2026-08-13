@@ -44,12 +44,14 @@ Only these commands may access `sessions/holdout/`:
 - `node scripts/score-holdout.mjs --check` confirms that the directory contains
   the expected number of session files without reading their contents. It
   reports only the file count.
-- `node scripts/score-holdout.mjs` runs the JavaScript port against all holdout
-  sessions and compares its screens and random-number calls with the recorded C
-  results. It reports only combined counts for sessions, screens, and
+- `node scripts/score-holdout.mjs --goal <id>` runs the JavaScript port against
+  all holdout sessions and compares its screens and random-number calls with the
+  recorded C results. It reports only combined counts for sessions, screens, and
   random-number calls. Only the orchestrator may run it. The user authorizes one
   evaluation at the close of each goal in advance; an evaluation at any other
-  time needs explicit authorization for that specific run.
+  time needs explicit authorization for that specific run. The script refuses a
+  second evaluation for a goal that already has one, unless
+  `--despite-prior-evaluation <reason>` records why this run was authorized.
 
 The holdout result measures whether completed work generalizes to unseen
 sessions. In contrast, implementation decisions come from the C source and
