@@ -1,0 +1,223 @@
+{
+  "mode": "ready-for-audit",
+  "reason": "The first slice of armor-wear, wear-zero-delay-shield, landed whole at 8c55d3f: W and #wear reach do_wear.c, canwearobj() answers every armor slot, and a zero-delay shield is worn through setworn(W_ARMS), unmul('') and Shield_on(). All 22 entries below are done (9), cannot-occur (10), later (2) or no-effect-yet (1) with evidence, and missingWorkByOwner is empty. The six unported slots and the delayed nomul() arm are refused above setworn(), so no excluded branch writes state, draws randomness or prints. commitChecked names 8c55d3f; 68675c1 after it changes GOALS.json and PHASES.tsv only.",
+  "commitChecked": "8c55d3f4a18f8bdbdf7a040897dde04b5f73d99e",
+  "boundary": {
+    "goalId": "armor-wear",
+    "startingCommit": "a2189e120e05c7baa192d2ccb574234371c7a5d7",
+    "startingEvent": "The hero types W, or #wear, at rhack()'s command dispatch, which js/cmd.js now admits and routes to do_wear.c dowear().",
+    "endingEvent": "Shield_on() has returned and on_msg() has printed 'You are now wearing a small shield.', with the status line's AC redrawn and the game back at the next command prompt. An escaped getobj() prompt ends the boundary at ECMD_CANCEL instead, spending no turn.",
+    "validInputs": "W or #wear answered with a shield's letter, or escaped. The 12 fresh cases in scripts/run-wear-armor.mjs cover a Valkyrie whose starting shield was taken off first, wizard-mode wished shields that reach Shield_on() with known still 0, and Barbarian starts whose two-handed sword or battle-axe drives canwearobj()'s bimanual refusal, chosen by u_init.c:666's rn2(100).",
+    "observables": "The getobj() prompt's letter set, on_msg()'s wording, the status line's AC, the inventory window's '(being worn)' suffix and enchantment, the turn counter, and the random-number log, which must stay empty across this path: no branch inside the boundary draws.",
+    "exclusions": "accessory_or_armor_on()'s armor == FALSE half, which the goal's boundary excludes so that doputon() stays unported; the six non-shield slots and the delayed nomul() arm, both refused above setworn(); the Quest helm arm; retouch_object() for an artifact; remove_worn_item() for armor in a weapon slot; and flags.verbose off, which cannot have a fresh case while getobj-prompt-leaves-the-top-line-in-c-only stands open."
+  },
+  "candidateListMethod": {
+    "upstreamEntryPoints": "do_wear.c dowear() 2432-2452 and its whole call tree: wear_ok() 3463-3469 over equip_ok() 3402-3447, accessory_or_armor_on() 2209-2431, canwearobj() 2030-2208, already_wearing() 2011-2014, on_msg() 76-105 and Shield_on() 705-732.",
+    "dispatchTablesAndCatalogs": "objects.h's nine SHIELD rows 653-679, read for oc_delay, which is 0 for every one of them; the ARMOR macro at 418-427, whose BITS passes uskn 1 for every armor row, which is why u_init.c:1215 marks a starting shield known; and js/cmd.js's ADMITTED_COMMANDS and the extended-command ef_funct switch, the two tables that decide whether W is reachable at all.",
+    "reachableHelpers": "Every call inside dowear()'s tree was followed to a ported owner or a named refusal. The pure obj.h and mondata.h macros canwearobj() needs -- is_helmet, is_boots, is_gloves, is_cloak, is_shirt, is_suit, is_sword, WrappingAllowed, cantweararm, has_horns -- arrived as one bulk batch under AGENTS.md's pure-function rule, and objnam.c obj_is_pname() replaced the inline refusal yname() carried.",
+    "javascriptCrossCheck": "grep -n '^export function|^export async function|^function|^async function' js/do_wear.js enumerated the file's 33 owners; git show --stat 8c55d3f listed the ten files the slice touched; npm run quality -- slice-mutants --range a2189e1..8c55d3f confirmed the Mutants trailer; and npm run checkpoint at 8c55d3f reported the suite, the seven generated-data checks and the development score together.",
+    "remainingLimits": "Two. The list is built from do_wear.c's static call tree, so a caller reaching these functions from outside that file would not appear in it; js/invent.js getobj() is the one such caller and its callback contract changed in this slice, which is why the entry below names it. And flags.verbose off is unexercised end to end, so on_msg()'s silent arm rests on a direct unit call rather than on a recorded frame."
+  },
+  "entries": [
+    {
+      "candidate": "dowear()'s verysmall() || nohands() guard, printing 'Don't even bother.'",
+      "reachability": "Runs first on every W. Both macros read gy.youmonst.data, which for an unpolymorphed hero is the role's own permonst.",
+      "owner": "js/do_wear.js dowear()",
+      "effects": "One message, no turn, no draw.",
+      "evidence": "do_wear.c:2437-2441. Every recorded role is human, elf, dwarf, gnome or orc in normal form, all of which have hands and are larger than MZ_TINY, and Upolyd is false in every recorded session, so the guard is false. The line is ported rather than refused because it costs nothing to carry.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "dowear()'s full-complement guard, printing 'You are already wearing a full complement of armor.'",
+      "reachability": "Needs all eleven slots filled, four of which are accessories: uleft, uright, uamul and ublindf.",
+      "owner": "js/do_wear.js dowear()",
+      "effects": "One message, no turn, no draw.",
+      "evidence": "do_wear.c:2442-2447. The port cannot fill an accessory slot at all -- doputon() is unported and accessory_or_armor_on()'s accessory half is refused -- so the conjunction cannot become true, whatever armor the hero collects.",
+      "status": "cannot-occur",
+      "remaining": "None. It becomes reachable only when the accessory half lands, which this goal's boundary excludes."
+    },
+    {
+      "candidate": "getobj('wear', wear_ok, GETOBJ_NOFLAGS) and dowear()'s ECMD_CANCEL on an escaped prompt",
+      "reachability": "Every W that passes both guards.",
+      "owner": "js/do_wear.js dowear(), over js/invent.js getobj()",
+      "effects": "Draws the prompt and its letter set; an escape returns ECMD_CANCEL and spends no turn.",
+      "evidence": "do_wear.c:2449-2451. The flag is GETOBJ_NOFLAGS, not GETOBJ_PROMPT as the goal's boundary text says; the code was ported from the C. One of the 12 fresh cases escapes the prompt, and its screens and cursor positions match.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "wear_ok() over equip_ok(obj, FALSE, FALSE), the letter filter",
+      "reachability": "Called once per inventory object while getobj() builds the prompt.",
+      "owner": "js/do_wear.js wear_ok() and equip_ok()",
+      "effects": "Chooses each object's letter class; no state change.",
+      "evidence": "do_wear.c:3463-3469 over 3402-3447. equip_ok() was already ported; the slice deleted its canwearobj() refusal, which was reachable only through wear_ok() and puton_ok(). equip_ok()'s comment records that C's `removing && !gi.item_action_in_progress` loses its second term because ia_dotakeoff() is unported and the flag is always FALSE.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "canwearobj()'s own verysmall() || nohands() guard, 'You can't wear any armor in your current form.'",
+      "reachability": "First test in canwearobj(), reached both silently from equip_ok() and noisily from accessory_or_armor_on().",
+      "owner": "js/do_wear.js canwearobj()",
+      "effects": "Returns ok false with mask 0; one message when noisy.",
+      "evidence": "do_wear.c:2046-2051. False for the same reason as dowear()'s copy; C keeps both because P can reach this one without passing the other.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "canwearobj()'s cantweararm() arm for a cloak, shirt or suit, 'The %s will not fit on your body.'",
+      "reachability": "Needs cantweararm(youmonst.data), which is breakarm() || sliparm().",
+      "owner": "js/do_wear.js canwearobj()",
+      "effects": "Returns ok false with mask 0; one message when noisy.",
+      "evidence": "do_wear.c:2053-2068. Both macros are false for every unpolymorphed player race. The port carries the whole arm including the mummy-wrapping exception and racial_exception(), which it reaches through the same monster-argument signature js/makemon_create.js already exports rather than through a second copy.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "canwearobj()'s `otmp->owornmask & W_ARMOR` arm, already_wearing(c_that_)",
+      "reachability": "Runs silently for every already-worn armor while getobj() builds the prompt, and noisily only if such an object is somehow selected.",
+      "owner": "js/do_wear.js canwearobj() and already_wearing()",
+      "effects": "Returns ok false with mask 0; the message is suppressed under noisy false.",
+      "evidence": "do_wear.c:2069-2073. The Valkyrie fixtures wear a suit and a shield at game start, so the silent path runs on the live W of every recorded case; already_wearing()'s c_that_ punctuation branch is pinned by four tests in scripts/wear-armor.test.mjs.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "canwearobj()'s welded() && bimanual() arm for a suit or shirt",
+      "reachability": "Needs welded(uwep), which requires a cursed wielded weapon.",
+      "owner": "js/do_wear.js canwearobj()",
+      "effects": "Returns ok false with mask 0; one message when noisy.",
+      "evidence": "do_wear.c:2063-2068. Every role's starting weapon is uncursed, and no ported path curses a wielded one: the port has no w, x or Q command and no curse-item effect that reaches uwep.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "canwearobj()'s is_shield arm, all four outcomes: uarms filled, a bimanual weapon, u.twoweap, and *mask = W_ARMS",
+      "reachability": "The live path of this slice.",
+      "owner": "js/do_wear.js canwearobj()",
+      "effects": "Sets mask to W_ARMS, or returns ok false with one message.",
+      "evidence": "do_wear.c:2084-2100. Three of the four are recorded fresh: the mask assignment in every wearing case, the uarms refusal where a shield is still worn, and the bimanual refusal on the Barbarian starts, whose two-handed sword or battle-axe u_init.c:666's rn2(100) picks -- which is what pins is_sword()'s two words. u.twoweap has no ported writer, so its arm is dead until #twoweapon lands.",
+      "status": "done",
+      "remaining": "None. The u.twoweap conjunct is unreachable rather than unported; nothing writes that field."
+    },
+    {
+      "candidate": "canwearobj()'s is_helmet, is_boots, is_gloves, is_shirt, is_cloak and is_suit arms, and their mask assignments",
+      "reachability": "Every one runs silently while getobj() builds the prompt, for any such armor in the pack.",
+      "owner": "js/do_wear.js canwearobj()",
+      "effects": "Sets mask to W_ARMH, W_ARMF, W_ARMG, W_ARMU, W_ARMC or W_ARM. No state is written here; the slot is refused later, above setworn().",
+      "evidence": "do_wear.c:2078-2196. The port carries all six arms line for line, including the Upolyd horn, slithy and centaur branches and the four u.utraptype branches, none of which a recorded session reaches. The wearing itself is refused in accessory_or_armor_on() by a mask test placed above setworn().",
+      "status": "later",
+      "remaining": "Each slot's first effect is its own <X>_on() callback, which this goal's later slices port. Every helmet but two, all gloves and all boots carry a non-zero oc_delay, so the slice that takes them must port the nomul() arm as well."
+    },
+    {
+      "candidate": "canwearobj()'s final else, invent.c silly_thing('wear', otmp)",
+      "reachability": "An ARMOR_CLASS object matching none of the seven armor categories.",
+      "owner": "js/do_wear.js canwearobj(), refused with UnsupportedWearError",
+      "effects": "None; the refusal precedes every write.",
+      "evidence": "do_wear.c:2196-2199. Both callers test oclass === ARMOR_CLASS first, and every ARMOR_CLASS row in objects.h carries one of the seven categories, so no object reaches it. js/invent.js:592 stops in front of silly_thing() for the same reason.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "accessory_or_armor_on()'s head: the already-worn test and the armor/ring/amulet/eyewear classification",
+      "reachability": "Every object getobj() returns.",
+      "owner": "js/do_wear.js accessory_or_armor_on()",
+      "effects": "already_wearing(c_that_) and ECMD_OK for an object already worn.",
+      "evidence": "do_wear.c:2213-2223. The armor arm is ported; the other three classifications are refused together, which is the goal's stated boundary and what keeps doputon() unported.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "accessory_or_armor_on()'s accessory half, C 2239-2353, and its trailing 'You can't wear that!'",
+      "reachability": "W answered with a ring, amulet or eyewear letter.",
+      "owner": "js/do_wear.js accessory_or_armor_on(), refused with UnsupportedWearError",
+      "effects": "None; the refusal precedes every write.",
+      "evidence": "do_wear.c:2239-2353. Deliberately excluded: puton now carries 231 raw unlocks over three sessions, so leaving this half refused is what holds this goal's development forecast at 0 and keeps the holdout reading at its close attributable. Recorded as the deferral wear-answered-with-an-accessory-stops, the case just outside the goal's limit, where C asks 'Which ring-finger, Right or Left? [rl]'.",
+      "status": "later",
+      "remaining": "The accessory half belongs to a puton goal, not to this one."
+    },
+    {
+      "candidate": "accessory_or_armor_on()'s HELM_OF_OPPOSITE_ALIGNMENT arm",
+      "reachability": "Needs qstart_level.dnum == u.uz.dnum, so the hero must be inside the Quest.",
+      "owner": "js/do_wear.js accessory_or_armor_on(), refused with UnsupportedWearError",
+      "effects": "None; the refusal precedes every write.",
+      "evidence": "do_wear.c:2226-2237. No ported path descends into the Quest, so u.uz.dnum can never equal qstart_level.dnum.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "retouch_object(&obj, FALSE) and remove_worn_item() for armor held in a weapon slot",
+      "reachability": "retouch_object() runs on every wearing; remove_worn_item() needs owornmask & W_WEAPONS.",
+      "owner": "js/do_wear.js accessory_or_armor_on(), refused for an artifact and for a weapon-slot mask",
+      "effects": "None; both refusals precede every write.",
+      "evidence": "do_wear.c:2355 and 2363-2364. artifact.c retouch_object() answers 1 with no side effect for every non-artifact, the derivation js/apply.js and js/eat.js already record for doapply() and doeat(), so the live path is unaffected and only an artifact is refused. Nothing puts armor in a weapon slot: w, x and Q are unported and u_init.c wields only weapons.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "gw.wasinwater = u.uinwater, written just before setworn()",
+      "reachability": "Every armor wearing.",
+      "owner": "None; deliberately not written, with the reason at the site.",
+      "effects": "None inside this boundary.",
+      "evidence": "do_wear.c:2375. Boots_on() at do_wear.c:196 is the field's only reader and W_ARMF is refused, so copying u.uinwater here would give that value a second home with nothing to read it -- which 'Keep each game value in one place' in AGENTS.md forbids. It belongs beside a ported Boots_on().",
+      "status": "no-effect-yet",
+      "remaining": "Land it with Boots_on(), whose slice must also carry the delayed nomul() arm."
+    },
+    {
+      "candidate": "The delayed arm: delay = -oc_delay, nomul(delay), multi_reason 'dressing up' and nomovemsg 'You finish your dressing maneuver.'",
+      "reachability": "Any armor whose oc_delay is non-zero.",
+      "owner": "js/do_wear.js accessory_or_armor_on(), refused with UnsupportedWearError above setworn()",
+      "effects": "None; the refusal precedes every write.",
+      "evidence": "do_wear.c:2394-2399. No shield can reach it: objects.h:653-679 gives all nine shields oc_delay 0, so the arm is unreachable inside this boundary rather than merely untaken. It is stopped above setworn() so that widening the mask test later cannot silently drop C's arm.",
+      "status": "cannot-occur",
+      "remaining": "The next slice that takes a delayed slot ports it, alongside the take-off side's open deferral armoroff-refuses-helms-gloves-and-boots-over-their-delay."
+    },
+    {
+      "candidate": "setworn(obj, W_ARMS), afternmv = Shield_on, unmul(''), Shield_on() and its known/update_inventory arm",
+      "reachability": "The live path of this slice.",
+      "owner": "js/do_wear.js accessory_or_armor_on() and Shield_on(), over js/worn.js setworn() and js/hack.js unmul()",
+      "effects": "Fills uarms, updates AC, sets obj.known, redraws the inventory window, spends the turn, returns ECMD_TIME.",
+      "evidence": "do_wear.c:2376-2401 and 705-732. All 12 fresh cases match, and the wished-shield cases are what prove Shield_on() itself ran rather than setworn() alone: mksobj() leaves known 0 where u_init.c:1215 sets it, so the inventory names 'a small shield' before the W and 'a +2 small shield (being worn)' after. Shield_on()'s `state.uarms.known = true` was broken and one test failed.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "Shield_on()'s default arm, impossible(unknown_type, c_shield, otyp)",
+      "reachability": "A shield whose otyp matches none of the nine cases.",
+      "owner": "js/do_wear.js Shield_on()",
+      "effects": "None.",
+      "evidence": "do_wear.c:711-722 lists all nine shield otyps that objects.h:653-679 defines, so the default cannot be selected by any object the game can create.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "on_msg(), both arms: prinv() for rings, amulets and non-verbose eyewear, and the verbose 'You are now wearing %s%s.'",
+      "reachability": "The verbose arm on every armor wearing; the prinv() arm only for accessories.",
+      "owner": "js/do_wear.js on_msg(), over js/objnam.js obj_is_pname()",
+      "effects": "One message, or none when flags.verbose is off.",
+      "evidence": "do_wear.c:76-105. The prinv() arm cannot occur while accessories are refused. The verbose arm is recorded in every wearing case; obj_is_pname() replaced the inline refusal yname() carried and answers false for every non-artifact, and C's ordering comment -- xname() before obj_is_pname(), because formatting can set dknown -- is preserved. on_msg()'s `if (state.flags.verbose)` was broken and three tests failed.",
+      "status": "done",
+      "remaining": "flags.verbose off has no end-to-end case. With it on, on_msg() overwrites the prompt; with it off nothing does, and the port clears a top line C leaves standing -- the open deferral getobj-prompt-leaves-the-top-line-in-c-only, which now carries this witness. scripts/wear-armor.test.mjs calls on_msg() directly instead."
+    },
+    {
+      "candidate": "svc.context.takeoff.mask = svc.context.takeoff.what = 0L after a successful wearing",
+      "reachability": "Every armor wearing.",
+      "owner": "js/do_wear.js accessory_or_armor_on(), through takeoffContext()",
+      "effects": "Clears the take-off mask.",
+      "evidence": "do_wear.c:2402. The port clears mask alone because svc.context.takeoff.what has no JavaScript home: takeoffContext() records that only the unported A spine writes it, and doffing()'s what arms are unreachable without it. That is a documented absence rather than a dropped assignment.",
+      "status": "done",
+      "remaining": "None. Landing the A command has to give `what` an owner and this clear a second half."
+    },
+    {
+      "candidate": "js/invent.js getobj()'s obj_ok callback contract, made asynchronous",
+      "reachability": "Every getobj() call in the port, not only W's.",
+      "owner": "js/invent.js getobj() and its four call sites",
+      "effects": "None on its own; it lets a callback print, which canwearobj() does when noisy.",
+      "evidence": "The change is forced by C: canwearobj() writes messages, and wear_ok() reaches it through equip_ok(). Four call sites and about 15 assertions in scripts/take-off-armor.test.mjs moved with it. This is the one entry whose blast radius exceeds do_wear.c, which is why the candidate method names it as a limit.",
+      "status": "done",
+      "remaining": "None, but it is the entry a correctness pass should read first, since it changes a shared contract that every command's prompt depends on."
+    }
+  ],
+  "missingWorkByOwner": [],
+  "sourceReview": "Every branch and helper reachable from dowear() through Shield_on()'s return was traced against nethack-c/upstream/src/do_wear.c at commit 16ff591, covering state writes and random-number order. The path draws no random number at any point, which the 12 fresh cases confirm at 30,539 recorded calls, all matching. canwearobj() was read whole because C's whole-function rule and its single *mask consumer force it to land intact, and each of its seven slot arms was classified above. Stops, partial implementations and absences are identified individually: seven UnsupportedWearError refusals, all placed above setworn() so that no excluded branch writes state, draws randomness or prints; one deliberate non-write, gw.wasinwater, with its reason at the site; one field with no JavaScript home, svc.context.takeoff.what; and one shared contract change, getobj()'s callback signature, whose reach beyond do_wear.c is recorded as a limit of this list. Two mutants survive with reasons in the commit body: js/cmd.js's state.multi < 0, which only chooses whether to clear an always-empty command queue and which seven sibling rhack() arms carry identically, and js/do_wear.js's fingers_or_gloves(false), whose two answers coincide because the arm above it has already returned for a filled glove slot -- the reason C passes FALSE at do_wear.c:2153."
+}
