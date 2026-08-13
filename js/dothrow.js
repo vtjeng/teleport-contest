@@ -695,6 +695,14 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
                hints nethack-c/build-recorder.sh selects define no SND_LIB_*
                backend, so sndprocs.h:193-201 leaves SND_LIB_INTEGRATED unset
                and the empty definition at :272 is the live one. */
+            /* weight() raises UnsupportedObjectOperationError for a food the
+               hero has bitten: js/obj.js requires an eatenStat hook to read
+               oeaten, and js/eat.js is its only provider, which this file
+               cannot import without closing the cycle
+               dothrow -> eat -> cmd -> dothrow. js/cmd.js
+               failClosedCommandRefusals() lists the class, so a partly eaten
+               food thrown into liquid ends the segment there rather than
+               escaping as an uncaught error. */
             await ttyPline(
                 weight(obj, { state }) > WT_SPLASH_THRESHOLD
                     ? 'Splash!' : 'Plop!',

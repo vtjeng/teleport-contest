@@ -1285,13 +1285,16 @@ export function failClosedCommandRefusals() {
         // prompts, so the segment has to end on them rather than lose the
         // screens they matched.
         UnsupportedZapError,
-        // invent.c hold_another_object(), which makewish() calls unguarded,
-        // raises this from its drop, artifact, Fumbling and autoquiver arms.
-        // A wish heavy or numerous enough to push near_capacity() past
-        // flags.pickup_burden reaches the drop arm: a boulder does it on any
-        // hero. js/allmain.js elapsedTurnPlanningRefusals() already lists the
-        // class, and the note above says a class both paths can reach belongs
-        // in both.
+        // Two paths raise this. invent.c hold_another_object(), which
+        // makewish() calls unguarded, raises it from its drop, artifact,
+        // Fumbling and autoquiver arms. A wish heavy or numerous enough to
+        // push near_capacity() past flags.pickup_burden reaches the drop arm:
+        // a boulder does it on any hero. dothrow.c throwit() raises it from
+        // the weight() call that picks Splash! or Plop!, for a food the hero
+        // has bitten, because js/dothrow.js cannot supply the eatenStat hook
+        // without an import cycle. js/allmain.js
+        // elapsedTurnPlanningRefusals() already lists the class, and the note
+        // above says a class several paths can reach belongs in each.
         UnsupportedObjectOperationError,
         // sounds.c dochat() reaches this for a shop's merchandise, for a
         // steed, and for a monster on the target square, all three of which

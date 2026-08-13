@@ -88,7 +88,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject } from '../js/obj.js';
+import { UnsupportedObjectOperationError, newObject } from '../js/obj.js';
 import {
     AKLYS,
     ARROW,
@@ -106,6 +106,7 @@ import {
     ELVEN_ARROW,
     ELVEN_BOW,
     FLINT,
+    FOOD_RATION,
     GLASS,
     IRON,
     LEATHER,
@@ -687,6 +688,11 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
             /landing in water/u,
         );
         assert.equal(splash._ttyToplines, 'Splash!');
+        // rm.h:129 puts POOL at 16 and DRAWBRIDGE_UP at 19, so IS_POOL and
+        // with it IS_SOFT (rm.h:140) hold here, and dothrow.c:1780's
+        // `!IS_SOFT(...) && breaktest(obj)` short-circuits before breaktest().
+        // The sound itself has no roll, so a pool landing draws nothing.
+        assert.deepEqual(draws(), []);
 
         // The same pool, at exactly WT_SPLASH_THRESHOLD: C wants strictly
         // more than the threshold, so nine darts only plop.
@@ -699,17 +705,39 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
             /landing in water/u,
         );
         assert.equal(plop._ttyToplines, 'Plop!');
+        assert.deepEqual(draws(), []);
 
-        // One dart more clears it.
+        // One dart more clears it. The fixture carries a deliberately stale
+        // owt of 1: mkobj.c weight() recomputes `oc_weight * quan` as 10,
+        // so this case says Splash! only if the port asks weight() rather
+        // than reading the cached field, which would answer 1 and plop.
         const heavier = arena();
         heavier.level.at(9, 4).typ = POOL;
         heavier._ttyToplines = '';
         await assert.rejects(
-            () => throwit(item(heavier, DART, { quan: 10, owt: 10 }),
+            () => throwit(item(heavier, DART, { quan: 10, owt: 1 }),
                 0, false, null, heavier),
             /landing in water/u,
         );
         assert.equal(heavier._ttyToplines, 'Splash!');
+        assert.deepEqual(draws(), []);
+
+        // The same weight() call refuses for a food the hero has bitten:
+        // js/obj.js needs an eatenStat hook to read oeaten and js/eat.js is
+        // its only provider, which js/dothrow.js cannot import without
+        // closing a cycle. The stop must come before any output, and
+        // js/cmd.js failClosedCommandRefusals() is what turns it into a
+        // segment end rather than a crash.
+        const bitten = arena();
+        bitten.level.at(9, 4).typ = POOL;
+        bitten._ttyToplines = '';
+        await assert.rejects(
+            () => throwit(item(bitten, FOOD_RATION, { oeaten: 400 }),
+                0, false, null, bitten),
+            UnsupportedObjectOperationError,
+        );
+        assert.equal(bitten._ttyToplines, '');
+        assert.deepEqual(draws(), []);
 
         // Lava sounds only for what will not burn. An iron dagger will not.
         const lava = arena();
@@ -720,6 +748,12 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
             /landing on lava/u,
         );
         assert.equal(lava._ttyToplines, 'Splash!');
+        // rm.h:76 puts LAVAPOOL at 20, outside IS_POOL, so IS_SOFT is false
+        // and dothrow.c:1780 does call breaktest(), which asks
+        // obj_resists(obj, 1, 99) (dothrow.c:2592) and spends its rn2(100).
+        // A lava landing therefore draws where a pool landing does not, and
+        // it draws before the sound.
+        assert.deepEqual(draws(), ['rn2(100)']);
 
         // A wooden club over the same lava is flammable, so C says nothing
         // and leaves the burning to flooreffects() -> lava_damage().
@@ -731,6 +765,9 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
             /landing on lava/u,
         );
         assert.equal(burns._ttyToplines, '');
+        // Silent, but not draw-free: breaktest() runs for lava whatever the
+        // object is made of, and is_flammable() only decides the sound.
+        assert.deepEqual(draws(), ['rn2(100)']);
 
         // youprop.h Deaf (125) has three sources and the roleplay conduct is
         // the one a game can start with. A deaf hero hears no splash.
@@ -743,6 +780,7 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
             /landing in water/u,
         );
         assert.equal(conduct._ttyToplines, '');
+        assert.deepEqual(draws(), []);
 
         // ...and neither does one deafened by the property itself.
         const deafened = arena();
@@ -754,6 +792,7 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
             /landing in water/u,
         );
         assert.equal(deafened._ttyToplines, '');
+        assert.deepEqual(draws(), []);
 
         // youprop.h Underwater (279) is u.uinwater, which dothrow.c:1637 has
         // already read to cut the range to 1: the missile lands at column 2,
@@ -768,9 +807,9 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
         );
         assert.equal(submerged.bhitpos.x, 2);
         assert.equal(submerged._ttyToplines, '');
-
-        // Nothing above draws: breaktest() is skipped for both liquids
-        // because IS_SOFT() covers them, and the sound itself has no roll.
+        // Draw-free because this pool skips breaktest(), not because the
+        // Underwater gate suppressed anything: that gate owns the sound
+        // alone.
         assert.deepEqual(draws(), []);
     });
 
@@ -989,12 +1028,13 @@ test('throw_obj() refuses the throws C answers with a message', async () => {
 });
 
 test('throw_obj() lets gloves carry a petrifying corpse', async () => {
-    // dothrow.c:139-140, `!uarmg && obj->otyp == CORPSE
-    // && touch_petrifies(...) && !Stone_resistance`. Gloved hands fail the
-    // first conjunct, so the cockatrice corpse leaves them unharmed;
-    // instapetrify() is what a hero without them would reach. The port carries
-    // the first three conjuncts and refuses there, so a stone-resistant hero
-    // -- whom C would let throw bare-handed -- is untested and unported.
+    // dothrow.c:139-143, `!uarmg && obj->otyp == CORPSE
+    // && touch_petrifies(...) && !Stone_resistance`. The port carries all
+    // four conjuncts. The gloved case below fails the first, so the
+    // cockatrice corpse leaves those hands unharmed; the two stone-resistant
+    // cases fail the fourth, which is what C grants a hero who cannot be
+    // petrified. instapetrify() is the half that stays unported, and it is
+    // where a bare-handed hero without the resistance stops.
     const gloved = arena();
     gloved.uarmg = item(gloved, LEATHER_GLOVES, { owt: 10 });
     const corpse = item(gloved, CORPSE,

@@ -78,6 +78,7 @@ import {
     FLESH,
     FOOD_CLASS,
     FOOD_RATION,
+    FORTUNE_COOKIE,
     GENERIC_FOOD,
     LEMBAS_WAFER,
     METAL,
@@ -816,7 +817,22 @@ test('hallucination reaches the draw through the pear alone', async () => {
     await runSegment({ ...apples, moves: '.' });
     hallucinate();
     const pears = retypeApplesToPears();
-    await assert.rejects(eatSlot(pears), /hallucinating pear/u);
+    let refusal = null;
+    // Measure the refusal the way the two meals above are measured, catching
+    // it inside the callback so the count is still read. C draws twice here:
+    // touchfood()'s next_ident() rnd(2) and then eat.c:2193's rnd(100). The
+    // port must stop between them, so it spends exactly what a sober apple
+    // spends and nothing more -- a refusal that fired late would show up as
+    // an extra draw rather than as a wrong string.
+    const pearDraws = await drawsFor(async () => {
+        try {
+            await eatSlot(pears);
+        } catch (error) {
+            refusal = error;
+        }
+    });
+    assert.match(String(refusal?.message), /hallucinating pear/u);
+    assert.equal(pearDraws, soberDraws);
 });
 
 // C ref: eat.c fprefx()'s give_feedback pline (2205-2212). Once the Mac arm
@@ -836,12 +852,36 @@ test('give_feedback swaps in its hallucinating wording', async () => {
         return mealMessage();
     };
 
-    // eat.c:2212's two operands, the uncursed half of the ternary. The cursed
-    // half is not tested here because doeat() (3027-3031) sends every cursed
-    // food except a fortune cookie to rottenfood() instead of fprefx().
+    // eat.c:2212's two operands, the uncursed half of the ternary.
     assert.equal(await eatSprig(false),
         'This sprig of wolfsbane is delicious!');
     assert.equal(await eatSprig(true), 'This sprig of wolfsbane is gnarly!');
+
+    // eat.c:2207's two operands, the cursed half. One food reaches them: the
+    // otyp test at doeat() (3027-3031) exempts a fortune cookie from the
+    // diversion that sends every other cursed food to rottenfood() before
+    // fprefx() runs, so the cookie is the only object that carries
+    // otmp->cursed into this pline. fpostfx() then stops on outrumor(), which
+    // this port does not carry, but the pline has already written the string.
+    const eatCursedCookie = async (hallucinating) => {
+        await runSegment({ ...priest, moves: '.' });
+        if (hallucinating) game.u.uprops[HALLUC].intrinsic = 1;
+        const cookie = slotFor(SPRIG_OF_WOLFSBANE);
+        cookie.otyp = FORTUNE_COOKIE;
+        cookie.cursed = 1;
+        cookie.owt = weight(cookie, { state: game });
+        try {
+            await eatSlot(cookie);
+        } catch (error) {
+            assert.match(String(error.message), /outrumor/u);
+        }
+        return mealMessage();
+    };
+
+    assert.equal(await eatCursedCookie(false),
+        'This fortune cookie is terrible!');
+    assert.equal(await eatCursedCookie(true),
+        'This fortune cookie is grody!');
 });
 
 test('a meal that crosses 1000 nutrition writes Satiated to the status line',
