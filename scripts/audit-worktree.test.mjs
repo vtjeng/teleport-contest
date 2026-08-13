@@ -20,6 +20,7 @@ import {
     cleanupAuditWorktree,
     parseAuditArgs,
     parseRange,
+    passChecklistFromManifest,
     prepareAuditWorktree,
     runReadiness,
     validateChecklist,
@@ -577,6 +578,18 @@ test('a committed checklist can ride with the pass that reviews its slice',
                 + ', an ancestor of the range head; the 1 path(s) changed '
                 + 'between them own no QUALITY.json area',
         });
+        // The pass record projects the same gap. The manifest goes with
+        // cleanup, so QUALITY.json is where a reader finds it later.
+        assert.deepEqual(
+            passChecklistFromManifest(prepared.manifestPath,
+                `${fixture.base}..${fixture.head}`),
+            {
+                covers: true,
+                path: '.agents/implementation-checklist.json',
+                commitChecked: fixture.implementation,
+                reason: prepared.manifest.checklist.coverage.reason,
+            },
+        );
         // check re-decides the question rather than trusting that record.
         assert.doesNotThrow(() => checkAuditWorktree({
             manifestPath: prepared.manifestPath,
@@ -642,6 +655,168 @@ test('a checklist ahead of its head is refused without a ledger to consult',
         assert.throws(
             () => prepare(fixture),
             /implementation checklist covers .*, not /u,
+        );
+    });
+
+// The reason a real pass needed on 12 August 2026, when both routes closed at
+// once over a checklist 38 commits behind with production work in between.
+const EXCEPTION_REASON = 'the eight ported units landed as separate slices, '
+    + 'each with its own fresh differential; no checklist guided them';
+
+function prepareWithReason(fixture, extra = {}) {
+    return prepareAuditWorktree({
+        range: `${fixture.base}..${fixture.head}`,
+        skill: 'audit-diff-correctness',
+        skillPath: fixture.skillPath,
+        promptPath: fixture.promptPath,
+        repositoryRoot: fixture.repositoryRoot,
+        temporaryRoot: fixture.temporaryRoot,
+        noChecklistReason: EXCEPTION_REASON,
+        ...extra,
+    });
+}
+
+// The remedy for the dead end above. Both routes past the gate closed at once,
+// so the pass ran behind a checklist written after the work it described, and
+// nothing but its author's candour recorded that. A checklist that cannot cover
+// the range will not be read by the pass either way; saying so is the honest
+// alternative.
+test('a checklist that cannot cover the range may be bypassed with a reason',
+    t => {
+        const fixture = makeCommittedChecklistFixture(t,
+            { gapTouchesProduction: true });
+
+        // Using it is still refused, on the unchanged coverage rule: the head
+        // commit changed js/game.js, the fixture ledger's one area-owned path.
+        assert.throws(
+            () => prepare(fixture),
+            /implementation checklist covers .*, not /u,
+        );
+
+        const prepared = prepareWithReason(fixture);
+        t.after(() => cleanupAuditWorktree({
+            manifestPath: prepared.manifestPath,
+            repositoryRoot: fixture.repositoryRoot,
+        }));
+        // The exception names the checklist that stopped short, so a reader
+        // never has to guess whether one existed at all.
+        assert.deepEqual(prepared.manifest.checklist, {
+            sourcePath: null,
+            snapshotPath: null,
+            reason: EXCEPTION_REASON,
+            notCovering: {
+                path: '.agents/implementation-checklist.json',
+                commitChecked: fixture.implementation,
+            },
+        });
+        // Nothing snapshots a checklist the pass will not read: check would
+        // otherwise revalidate a plan for other work and refuse the worktree.
+        assert.equal(
+            existsSync(join(prepared.manifest.workRoot,
+                'implementation-checklist.json')),
+            false,
+        );
+        assert.doesNotThrow(() => checkAuditWorktree({
+            manifestPath: prepared.manifestPath,
+            repositoryRoot: fixture.repositoryRoot,
+        }));
+    });
+
+// The narrowing must not open the gate. A checklist that covers the range is a
+// plan for exactly this work, whether it names the head or an accepted
+// ancestor, and pointing --checklist at a path that holds nothing must not
+// route around it either.
+test('a covering checklist still refuses to be bypassed', t => {
+    // Names the head exactly, so it covers by the equality test.
+    const exact = makeFixture(t);
+    assert.throws(
+        () => prepareWithReason(exact),
+        /implementation-checklist\.json covers the range head; use it instead/u,
+    );
+    // Names an ancestor whose gap owns no area, so it covers by
+    // ancestorCoverageReason(). Both gates ask the same function.
+    const ancestor = makeCommittedChecklistFixture(t);
+    assert.throws(
+        () => prepareWithReason(ancestor),
+        /implementation-checklist\.json covers the range head; use it instead/u,
+    );
+    // --checklist naming a path that holds nothing still answers to the
+    // default checklist, which here covers the range.
+    assert.throws(
+        () => prepareWithReason(exact,
+            { checklistPath: '.agents/other-checklist.json' }),
+        /implementation-checklist\.json covers the range head; use it instead/u,
+    );
+});
+
+test('a range with no checklist at all records an exception naming none', t => {
+    const fixture = makeFixture(t);
+    rmSync(join(fixture.repositoryRoot, '.agents',
+        'implementation-checklist.json'));
+    const prepared = prepareWithReason(fixture);
+    t.after(() => cleanupAuditWorktree({
+        manifestPath: prepared.manifestPath,
+        repositoryRoot: fixture.repositoryRoot,
+    }));
+
+    assert.equal(prepared.manifest.checklist.notCovering, null);
+    assert.deepEqual(
+        passChecklistFromManifest(prepared.manifestPath,
+            `${fixture.base}..${fixture.head}`),
+        {
+            covers: false,
+            path: null,
+            commitChecked: null,
+            reason: EXCEPTION_REASON,
+        },
+    );
+});
+
+// The manifest sits under a temporary root that cleanup deletes, so the pass
+// record is the only durable copy of what stood behind the range.
+test('the pass record carries each checklist disposition out of the manifest',
+    t => {
+        const exact = makeFixture(t);
+        const covering = prepare(exact);
+        t.after(() => cleanupAuditWorktree({
+            manifestPath: covering.manifestPath,
+            repositoryRoot: exact.repositoryRoot,
+        }));
+        const exactRange = `${exact.base}..${exact.head}`;
+        assert.deepEqual(
+            passChecklistFromManifest(covering.manifestPath, exactRange),
+            {
+                covers: true,
+                path: '.agents/implementation-checklist.json',
+                // A checklist that covers exactly records no gap, so the head
+                // it named is the range head.
+                commitChecked: exact.head,
+                reason: null,
+            },
+        );
+        // A manifest prepared for another range cannot lend its disposition.
+        assert.throws(
+            () => passChecklistFromManifest(covering.manifestPath,
+                `${exact.base}..${exact.base}`),
+            /audit manifest covers .*, not the recorded range/u,
+        );
+
+        const behind = makeCommittedChecklistFixture(t,
+            { gapTouchesProduction: true });
+        const exception = prepareWithReason(behind);
+        t.after(() => cleanupAuditWorktree({
+            manifestPath: exception.manifestPath,
+            repositoryRoot: behind.repositoryRoot,
+        }));
+        assert.deepEqual(
+            passChecklistFromManifest(exception.manifestPath,
+                `${behind.base}..${behind.head}`),
+            {
+                covers: false,
+                path: '.agents/implementation-checklist.json',
+                commitChecked: behind.implementation,
+                reason: EXCEPTION_REASON,
+            },
         );
     });
 
