@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "All three slices of bear-trap-capture have landed: trapeffect_bear_trap()'s monster arm at ecc8fb9, mintrap()'s mtrapped arm with m_move()'s prologue and trapname() at 09650f9, and heal_legs() with its nh_timeout() case at 937aa31. Every entry is done (9), cannot-occur (5) or later (3) with evidence, and missingWorkByOwner is empty. commitChecked names 937aa31, the last commit that changed code a pass would read; the orchestrator records committed after it change only GOALS.json, PHASES.tsv and this field.",
-  "commitChecked": "937aa31cd4b85eea907e6533d647c850ce555953",
+  "reason": "All three slices of bear-trap-capture have landed -- trapeffect_bear_trap()'s monster arm at ecc8fb9, mintrap()'s mtrapped arm with m_move()'s prologue and trapname() at 09650f9, and heal_legs() with its nh_timeout() case at 937aa31 -- and the goal's correctness pass has been applied at be31599. Every entry is done (9), cannot-occur (5) or later (3) with evidence, and missingWorkByOwner is empty. commitChecked names be31599, the last commit that changed code a pass would read; 8b32a21 after it changes one test file and the quality ledger.",
+  "commitChecked": "be3159974239b4c6cf67435e56d709948e36cf51",
   "boundary": {
     "goalId": "bear-trap-capture",
     "startingCommit": "8a25741772d30ee7d90b8c261bb1ab65a0fef8d4",
