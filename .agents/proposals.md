@@ -262,3 +262,41 @@ through `js/jsmain.js`.
 A refused worker also gains no queue position here, and still decides for
 itself when to come back.
 
+
+## Report a deferral whose area owns none of the files it cites
+
+**What it changes.** `npm run quality` would compare each open deferral's
+`area` label against the areas that `areas[].paths` assign to the `js/` files
+its `detail` cites, and print every entry whose label matches none of them. It
+would print beside the citation line that landed at `565f700`, and would not
+block.
+
+**Scope.** One comparison over records the citation check already parses, plus
+a suppression rule and its test. `refile-deferral --id <id> --area <id> --note
+<text>` landed at `ea2494d` and already moves an entry once someone knows it is
+mislabelled, so only the detection is missing.
+
+**What prompted it.** The area label decides scheduling. `deferralCounts()`
+totals open entries per area and `npm run quality` prints the largest as a
+sweep candidate, so a wrong label inflates one area and deflates another. A
+mislabel once scheduled a sweep measured at 0 recorded steps ahead of a
+boundary goal measured at 21. Correcting a single blocker on 12 August 2026
+moved `commands` from 10 counted entries to 9 and dropped it out of candidacy,
+which shows how little it takes to change what the loop does next.
+
+This check and the citation check find different faults. The citation check
+finds a wrong citation, which misleads a reader. The area check finds a correct
+citation under a wrong label, which mis-schedules work.
+
+**Cost.** Small to compute, and the whole difficulty sits in the suppression
+rule. Measured at `4930664` over 92 open entries, the naive comparison flagged
+15 of the 59 that cite a path, and most of the 15 were sound: an entry filed
+under one area often cites a helper that lives in another, as
+`pick-lock-lookalike-pile-top-has-no-fresh-case` does when it is filed under
+`commands` and cites `js/display.js`. "Flag only when no cited file maps to the
+entry's area" is the candidate rule. The ledger has since grown to 108 open
+entries, so that flag rate needs measuring again before the rule is chosen.
+
+**What it leaves unfixed.** A check that reads `detail` cannot see an entry
+that cites no path at all. Of the 92 open entries measured at `4930664`, 33
+cited none, and those keep whatever label they were filed under.
