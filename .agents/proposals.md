@@ -224,6 +224,44 @@ A refused worker also gains no queue position here, and still decides for
 itself when to come back.
 
 
+## Stop a blank line hiding a `Mutants:` trailer
+
+**What it changes.** `mutate-sites --emit-trailer` would print its line with no
+trailing blank, or `sliceMutants()` would fall back to scanning the message body
+for `^Mutants: ` when `%(trailers:key=Mutants)` returns nothing. Either way a
+commit that recorded its mutation run stops reading as one that skipped it.
+
+**Scope.** One line in `scripts/mutate-sites.mjs`'s trailer emission, or one
+fallback in `sliceMutants()` at `scripts/quality-status.mjs:1880-1894` beside the
+`git log --format=%H%x09%(trailers:key=Mutants,...)` call at :1886, plus its test.
+
+**What prompted it.** `1f3e323`, on 13 August 2026, carries
+`Mutants: 7/7 kind=boolean,logical,relational` at line 51 of its message, and
+`npm run quality -- slice-mutants --range 07c6d4b7..7ae4ef6` reports it as
+`no Mutants trailer`. Git parses only the last paragraph as trailers, and that
+commit separates its `Mutants:` line from `Assisted-by: Claude Code` with a
+blank line, so `git log -1 --format='%(trailers)'` returns `Assisted-by` alone.
+`2bba12d`, two commits earlier, puts the two lines adjacent and both parse. The
+mutation run had happened and killed 7 of 7 with no survivors, which reading the
+message settled in a minute; the check could not see it.
+
+The failure is silent in the direction that matters. `.agents/review.md` makes
+the trailer the record a slice closes on, and says the orchestrator "checks the
+record in place of inspecting for it" — so a false `no Mutants trailer` spends
+exactly the inspection the check exists to replace. The sibling entry above,
+"Print the remaining unenforced advisories", proposes running this check from
+`npm run checkpoint`; doing that first would print this false positive on every
+checkpoint until the trailer parses.
+
+**Cost.** Very small either way. The emission fix is one line and prevents new
+cases; the fallback also rescues the commits already written, of which the
+13 August range holds one.
+
+**What it leaves unfixed.** Neither repairs a commit that carries no record at
+all, and neither can tell a truthful trailer from a wrong one: the count is
+copied from a run nobody re-executes. A trailer that says `7/7` when the run
+found survivors reads exactly like one that does not.
+
 ## Report a deferral whose area owns none of the files it cites
 
 **What it changes.** `npm run quality` would compare each open deferral's
