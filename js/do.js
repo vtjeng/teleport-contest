@@ -1484,10 +1484,13 @@ export async function set_wounded_legs(side, timex, state = game) {
 // Wounded_legs is true here only through the side bits EWounded_legs holds.
 // Both fields are cleared together because 5.0 heals both legs at once.
 //
-// C's undoing of set_wounded_legs() is deliberately partial: that function
-// spends a point of temporary Dexterity unconditionally but this one restores
-// one only while the total is still negative, so a hero whose Dexterity was
-// raised in between keeps the gain.
+// C's two halves of the temporary-Dexterity ledger are guarded differently,
+// and neither is unconditional. set_wounded_legs() spends a point only when no
+// wound was already live (do.c:2427-2428, `if (!Wounded_legs) ATEMP(A_DEX)--`),
+// so a second wound taken before the first expires costs nothing and merely
+// extends the timeout. This function gives one back only while the temporary
+// total is still negative (do.c:2453-2454), so a hero whose Dexterity was
+// raised in between keeps the gain. Across one wound the two cancel exactly.
 export async function heal_legs(state = game, { message = ttyPline } = {}) {
     const u = state.u;
     const wounded = u.uprops[WOUNDED_LEGS];

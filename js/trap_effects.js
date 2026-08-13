@@ -917,9 +917,14 @@ export async function mintrap(monster, mintrapflags, rawEnv = {}) {
         if (is_pit(tt)) unsupported('a monster escaping a pit');
 
         // 3742-3749. Seeing a held monster reveals what holds it. C's
-        // disjunction admits a pit, a bear trap, a hole and a web; the two
-        // refusals above leave the bear trap and the web, and a held monster
-        // on any other trap type stops at the escape message below.
+        // disjunction admits a pit, a bear trap, a hole and a web. Only the
+        // pit refusal precedes this test, so a hole and a web reach it and
+        // seetrap() runs for them too. The escape-message refusal below is no
+        // general fence for the rest: it sits inside the `!rn2(40)` roll and
+        // the visibility test, so a monster held on an unported type that
+        // fails the roll -- 39 turns in 40 -- runs to the return having passed
+        // seetrap() with no stop at all. A general fence would have to sit
+        // above this line.
         if (!trap.tseen && cansee(monster.mx, monster.my, state)
             && canSeeMonster(monster, state)
             && (is_pit(tt) || tt === BEAR_TRAP || tt === HOLE || tt === WEB))

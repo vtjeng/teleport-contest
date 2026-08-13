@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     A_DEX,
     BOTH_SIDES,
+    CQ_CANNED,
     LEFT_SIDE,
     RIGHT_SIDE,
     SLT_ENCUMBER,
@@ -19,6 +20,9 @@ import { near_capacity } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { nh_timeout_elapsed_turn } from '../js/timeout.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
+import {
+    preflightSimpleMonsterActions,
+} from '../js/unported_monster_actions.js';
 import { loadWoundedLegsRecipe } from './run-wounded-legs.mjs';
 
 // The keys every segment is allowed to spend: five compass directions for the
@@ -265,10 +269,11 @@ test('heal_legs says nothing to a mounted hero but still heals', async () => {
 });
 
 test('heal_legs gives back one point of Dexterity and no more', async () => {
-    // do.c:2454-2455. set_wounded_legs() spends a point unconditionally but
-    // this restores one only while the total is still negative, so the two are
-    // deliberately not inverses. Each row is a temporary Dexterity the hero
-    // could hold when the count runs out.
+    // do.c:2453-2454. set_wounded_legs() spends a point only for a fresh wound
+    // (do.c:2427-2428) and this restores one only while the total is still
+    // negative, so the two guards differ and the pair is not a plain inverse.
+    // Each row is a temporary Dexterity the hero could hold when the count
+    // runs out.
     for (const [before, after] of [
         [-2, -1], // two wounds' worth, or one plus another drain
         [-1, 0],  // the ordinary case, one bear trap
@@ -301,3 +306,57 @@ test('the expiring timeout interrupts what the hero was doing', async () => {
     assert.equal(wounded.intrinsic & TIMEOUT, 0);
     assert.equal(game.context.run, 0);
 });
+
+test('the planning clone leaves the live canned command queue alone',
+    async () => {
+        // The interruption above is why this case exists. stop_occupation()
+        // reaches cmdq_clear(CQ_CANNED) through nomul(0) and again
+        // unconditionally at allmain.c:352, and cmdq_clear() empties the array
+        // in place. Every other route into stop_occupation() from the dry run
+        // is gated on an active occupation; this one is gated on nothing, so
+        // it fires on any turn a wounded-legs timeout expires -- which is a
+        // burdened hero's ordinary turn.
+        //
+        // planningState() isolates state by naming fields, so a field nobody
+        // named is shared. If command_queue is shared, the dry run discards a
+        // canned sequence the live game had pending. It stays invisible in a
+        // replay because the live pass then repeats the same clear.
+        const wounded = await unwoundedHeroOnLevelOne();
+        wounded.intrinsic = 1;
+        wounded.extrinsic = LEFT_SIDE;
+        // cmd.c cmdq_add_ec() pushes rows like these; only their identity
+        // matters here, so the queue is loaded directly. The live game has
+        // already materialized command_queue by this point, through
+        // readSimpleCommand()'s cmdq_pop(), so the clone's `??=` cannot give
+        // itself a private one.
+        const canned = [{ ec_name: 'swap' }, { ec_name: 'fire' }];
+        assert.ok(game.command_queue, 'the live queue must already exist');
+        game.command_queue[CQ_CANNED].push(...canned);
+        let reachedRound = false;
+        // The planning round is aborted once it has been inspected: a full
+        // round on this fixture goes on to plan the whole level and does not
+        // return, and everything this case is about has already happened by
+        // the time the round begins.
+        const inspected = new Error('planning round inspected');
+
+        await assert.rejects(
+            () => preflightSimpleMonsterActions(game, {
+                advanceRound(planned) {
+                    reachedRound = true;
+                    // The clone must hold its own queues. cmdq_clear() empties
+                    // an array in place, so a shared one is a live write
+                    // however the dry run reaches it, and by this point the
+                    // clone has already cleared its own copy.
+                    assert.notStrictEqual(planned.command_queue,
+                        game.command_queue);
+                    assert.notStrictEqual(planned.command_queue[CQ_CANNED],
+                        game.command_queue[CQ_CANNED]);
+                    throw inspected;
+                },
+            }),
+            (error) => error === inspected,
+        );
+
+        assert.ok(reachedRound, 'the planning round must have run');
+        assert.deepEqual(game.command_queue[CQ_CANNED], canned);
+    });

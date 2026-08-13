@@ -148,7 +148,7 @@
     {
       "candidate": "heal_legs()'s how == 1 dismount and how == 2 petrification arms (C 2461, 2483)",
       "reachability": "Require a dismount or a petrification, neither of which this goal reaches.",
-      "owner": "None. js/do.js heal_legs() drops C's `how` and resolves both of its tests the way 0 resolves them, so there is nothing for a how == 1 or how == 2 caller to call.",
+      "owner": "None. js/do.js heal_legs() drops C's how and resolves both of its tests the way 0 resolves them. That is exact for the encumbrance test at do.c:2483, which how alone decides. It is not the whole story for the message test at do.c:2461, which reads !u.usteed && how != 2: resolving how != 2 as 0 does yields TRUE, which is what a how == 1 caller also needs, and the dismount is silent through the u.usteed conjunct instead, because steed.c clears u.usteed at :658 after calling heal_legs(1) at :655. Only how == 2 suppresses the line through how.",
       "effects": "None inside this boundary.",
       "evidence": "do.c:2461 and 2483. steed.c dismount_steed()'s heal_legs(1) is the only such caller anywhere near this boundary and js/steed.js refuses it ahead of the call, above a comment naming this decision; petrification has no ported caller at all.",
       "status": "later",

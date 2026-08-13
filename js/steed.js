@@ -652,9 +652,16 @@ export async function dismount_steed(reason, state = game) {
        after dismounting, it reverts to the hero's legs. */
     if (repair_leg_damage) {
         // C calls heal_legs(1) here. js/do.js ports that function's how == 0
-        // arm alone, and how is what decides both of its remaining branches --
-        // the dismount says nothing and gives no encumbrance feedback -- so
-        // there is nothing to call, which is the whole basis for this stop.
+        // arm alone. What how decides is narrower than it looks: do.c:2461's
+        // message test is `!u.usteed && how != 2`, so only the petrification
+        // value suppresses the line, and the dismount is silent through the
+        // first conjunct instead -- steed.c clears u.usteed at :658, after the
+        // heal_legs(1) call at :655. do.c:2483's `if (how == 0)` is the one
+        // test how alone decides, and it suppresses the encumbrance feedback
+        // for 1 and 2 both. So a how == 1 caller needs this function's ported
+        // body with encumber_msg() suppressed, which means restoring the
+        // argument rather than re-deriving the branch, and that is the basis
+        // for this stop.
         // The property is live -- do.c set_wounded_legs(), reached from trap.c
         // trapeffect_bear_trap()'s hero arm, writes it -- but mount_steed()
         // refuses a hero who already carries the wound, so arriving here needs
