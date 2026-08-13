@@ -11718,6 +11718,161 @@
         }
       },
       "recordedAt": "2026-08-13T18:49:36.893Z"
+    },
+    {
+      "kind": "review",
+      "head": "fc5613417808880f893c983a735b402db3772876",
+      "auditedRange": "b035d7900cd6a5365022ff0a5a2d612605e1d3a4..fc5613417808880f893c983a735b402db3772876",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "8c55d3f4a18f8bdbdf7a040897dde04b5f73d99e",
+        "reason": "the checklist covers 8c55d3f4, an ancestor of the range head; the 3 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "monsters",
+        "commands",
+        "display"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 22 raw, 19 deduplicated, 13 confirmed, 5 applied, 8 deferred, 6 rejected, 0 unverified; mutation: 2 survivors of 72 mutants. Full pass over the armor-wear goal's first slice, with the concurrency finder enabled for the getobj() callback contract and the performance finder left off as source-required traversal. The five applied fixes landed in e3d1ecb, after this record and outside this range, so they stand as correctness debt for the next range, which starts at this frontier and covers them; all five are documentation or test naming, and the development score holds at 1538 screens throughout. The pass's own instruction to treat .agents/implementation-checklist.json as a claim rather than evidence paid for itself with the first confirmed finding: the entry for canwearobj()'s already-worn arm claimed the silent path runs on every recorded case, when equip_ok() and accessory_or_armor_on() each return before their own canwearobj() call, so the arm is dead in the port and in C. Two production defects are deferred rather than fixed. The heavier one is a rule with two homes: js/makemon_create.js's private armor-fit copies, which worn.c m_dowear() still calls, omit breakarm()'s PM_MARILITH and PM_WINGED_GARGOYLE term that the canonical pair landed here carries, so the two disagree about whether those forms can wear a suit. Repointing m_dowear() changes monster behavior and needs a fresh recorded case, which returns it to implementation. Six findings were rejected on substance, including two framings of the silly_thing() stop as newly reachable, refuted by js/zap.js already reaching an equivalent hand-typed exclusion; the third framing, that the case is simply unrecorded, was confirmed and is deferred.",
+      "auditMetrics": {
+        "wallTimeSeconds": 6600,
+        "counts": {
+          "raw": 22,
+          "deduplicated": 19,
+          "confirmed": 13,
+          "applied": 5,
+          "deferred": 8,
+          "rejected": 6,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 7,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/makemon_create.js keeps private slipsArmor(), cantWearArmor() and wrappingAllowed() that worn.c m_dowear()'s port calls, beside the canonical js/mondata.js cantweararm() and js/obj.js WrappingAllowed() this slice landed. The copies disagree: cantWearArmor() omits breakarm()'s PM_MARILITH and PM_WINGED_GARGOYLE term, so it lets those two forms wear a suit C refuses them. One C rule, two homes, two answers. Deferred rather than fixed because repointing m_dowear() changes monster behavior and needs a fresh recorded case, which .agents/review.md returns to implementation.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "Answering the new W prompt with an inventory letter that is neither armor nor an accessory -- three of the Valkyrie's four -- reaches js/invent.js getobj()'s UnsupportedObjectPromptError(silly_thing()) stop and ends the segment, where C prints \"That is a silly thing to wear.\" and asks again. The stop is a named fail-closed refusal, so the port is permitted to take it, but the case appears in neither the fresh-case matrix nor the ledger. Deferred because closing it needs a fresh C recording.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/cmd.js:1221 [readability] The failClosedCommandRefusals() entry for UnsupportedWearError claims every raise happens \"before setworn() writes\", but two of the nine raise sites -- on_msg() and Shield_on() -- run after setworn() and after unmul() has fired the afternmv callback.",
+            "counterEvidence": "evidence refute: The finding misquotes the comment it anchors to. js/cmd.js:1221-1224 reads 'do_wear.c dowear() raises this for every slot but the shield's and for accessory_or_armor_on()'s accessory half, all of them before setworn() writes' -- 'all of them' is quantified over the two raises it names, not over all nine sites, and both named raises (js/do_wear.js:1114 and :1067) do precede setworn() at :1134. The two post-setworn sites cannot execute: after setworn(obj, W_ARMS) the object's owornmask is W_ARMS, so on_msg()'s W_RING|W_AMUL|W_TOOL test at js/do_wear.js:264-265 is false, and canwearobj() assigns W_ARMS only inside its is_shield() arm (js/do_wear.js:598-621), so Shield_on()'s guard at :396 cannot fire. No execution raises UnsupportedWearError after state is written, which is the invariant the comment asserts. Counter-evidence: js/cmd.js:1221-1224 scopes 'all of them' to the two raise sites it names, both at js/do_wear.js:1067 and :1114, above setworn() at :1134; the four omitted refusals (silly_thing at :744, quest helm at :1079, artifact at :1087, weapon slot at :1095) also sit above setworn(), and the two genuinely post-setworn sites (:270, :397) are unreachable beca"
+          },
+          {
+            "summary": "js/do_wear.js:557 [variable-trace] canwearobj()'s new hero call to racial_exception() reads youmonst.data, but C reaches it through raceptr(), which for an unpolymorphed hero returns the race's permonst rather than the role's.",
+            "counterEvidence": "causality refute: No input can make the two operands answer differently, so the deviation is harmless in the causality sense. racial_exception() returns non-zero only for PM_HOBBIT (worn.c:1364-1366); no player race (human, elf, dwarf, gnome, orc) and no role permonst is a hobbit, so both readings answer 0 for every unpolymorphed hero, and when Upolyd is true C's raceptr() returns mtmp->data, which is exactly what the port reads. The arm is additionally gated by cantweararm(youmonst.data): sliparm() (mondata.c:632-635) and breakarm() (:640-646) are both false for every role permonst, which the port's own test acknowledges ('Upolyd is constantly false in this port', scripts/wear-armor.test.mjs:690-691). The checklist's claim is about reusing one exported helper rather than a second copy, not about raceptr() equivalence. Counter-evidence: worn.c:1364 returns non-zero only for &mons[PM_HOBBIT]; no player race or role permonst is a hobbit, and for Upolyd true mondata.c:1362-1363 returns mtmp->data, the value the port already reads -- so C and the port answer 0 (or the same 1) for every reachable input, and cantweararm() short-circuits the arm anyway for every unpolymorphed hero. | reso"
+          },
+          {
+            "summary": "js/do_wear.js:1070 [readability] canwearobj()'s result is bound to a variable named `worn` in accessory_or_armor_on(), so the may-wear answer reads as a statement that the object is already worn -- three lines below C's genuine already-worn test.",
+            "counterEvidence": "evidence refute: The name asserts nothing false. canwearobj()'s contract is documented immediately above it at js/do_wear.js:519-529 ('Answers whether the hero can put otmp on, and for the arms that say yes, which slot it goes in ... this returns the pair instead, with mask 0 on every refusal'), and every use is through a field -- worn.ok at :1072, worn.mask at :1114, :1116 and :1134 -- so the binding never reads as a claim that the object is worn. The genuine already-worn test at :1055-1058 returns before the binding is created, so the two cannot be confused at run time. This is a taste preference about an identifier, not a defect. Counter-evidence: js/do_wear.js:519-529 documents the returned pair directly above the binding, and all four uses are field accesses (.ok/.mask), so no reader following the code reaches a false statement. | causality refute: Nothing in the range's behavior is introduced or exposed by the identifier, and the causality lens explicitly refutes style concerns. The pass is correctness-centered and directs naming preferences to the clarity audit. Counter-evidence: The finding itself reports no behavioral consequence; renaming the binding changes no branch, no"
+          },
+          {
+            "summary": "js/invent.js:384 [concurrency] The comment that documents getobj()'s new awaited-callback contract states the opposite of the invariant the code actually relies on: it says wear_ok() is async because canwearobj()'s refusals write messages, when equip_ok() hard-codes noisy=FALSE so no obj_ok answer inside getobj() can print or draw. The one place a reviewer checks \"can a callback now interleave with a draw?\" answers \"yes\" where the truth is \"no\".",
+            "counterEvidence": "evidence refute: The comment is not backwards. canwearobj()'s refusals genuinely do write messages -- 22 `if (noisy)` arms between js/do_wear.js:538 and :745 await ttyPline() or already_wearing() -- which is exactly why canwearobj() is declared async, why equip_ok() and wear_ok() propagate it, and why getobj() must await. The note explains why the callback returns a promise; it does not say a callback prints during getobj()'s loop. The invariant the finding says is unrecorded is recorded, one file over and in the right place: js/do_wear.js:526-529 states 'equip_ok() passes FALSE, so building the W prompt runs every arm below in silence once per armor object in the pack'. Counter-evidence: js/do_wear.js:526-529 documents the noisy-FALSE silence invariant explicitly, and the 22 `if (noisy)` arms in canwearobj() make the comment's stated cause ('whose refusals write messages') literally true. | causality refute: Nothing in the range makes callback output possible, and the predicted harm is already fenced by committed tests rather than by nothing. scripts/wear-armor.test.mjs:498 asserts takePendingTopLine() is empty after a silent canwearobj() call, and :932 asserts 'the prompt filter "
+          },
+          {
+            "summary": "js/invent.js:589 [correctness] Admitting W widens the unported `silly_thing()` stop from a corner case to a one-keystroke path, and neither the comment that reasons about which callbacks reach it nor the slice's deferral list was updated.",
+            "counterEvidence": "evidence refute: The mechanism (wear_ok() answers GETOBJ_EXCLUDE for a weapon/food letter, and js/invent.js:596 throws) traces correctly, but the problem as stated in its category does not survive. The stop is a named fail-closed refusal listed in js/cmd.js failClosedCommandRefusals() (UnsupportedObjectPromptError at js/cmd.js:1228), and AGENTS.md states outright that 'a silent skip of a C branch is a defect; a named stop is not'. No ported output changes. Counter-evidence: The premise that this stop was a 'corner case' before the range is false. js/zap.js:187-191 zap_ok() returns GETOBJ_EXCLUDE for every carried object that is not a WAND_CLASS item, and 'zap' was already in ADMITTED_COMMANDS before this range (js/cmd.js:868 shows it beside the newly inserted 'wear'). A hero carrying one wand gets suggested === 1, so getobj() prompts, and typing any other inventory letter reaches js/invent.js:596 in one keystroke plus a letter. zap_ok() excludes strictly more of a pack than wear_ok() does (everything but wands), which also refutes the 'unlike apply_ok -- a minority of a pack' contrast. Separately, apply_ok()'s fallback at js/apply.js:159 is GETOBJ_EXCLUDE_SELECTABLE, not GETOBJ_EXC"
+          },
+          {
+            "summary": "scripts/wear-armor.test.mjs:1056 [tests] Answering the W prompt with a weapon or food letter newly reaches js/invent.js:592's silly_thing() stop from two keystrokes, but that case has no test, no deferral entry and no update to the site comment, which still enumerates only apply_ok() and takeoff_ok() as the callbacks that can exclude a typed letter.",
+            "counterEvidence": "evidence refute: The central factual claim is wrong. The finding asserts that 'before this slice no ported callback could return GETOBJ_EXCLUDE for a hand-typed letter and after it one can', and builds the whole 'newly reachable' case on it. A ported callback already did. Counter-evidence: js/zap.js:187-191 zap_ok() returns GETOBJ_EXCLUDE for every carried object that is not a WAND_CLASS item, and 'zap' sits in ADMITTED_COMMANDS at js/cmd.js:868 -- present before this range. A hero carrying a wand reaches the prompt (suggested === 1, so the 'You don't have anything to zap.' early return at js/invent.js:513-519 is not taken), and typing any other inventory letter lands on js/invent.js:589-596. So js/invent.js:596 was reachable from `z` plus a letter before 8c55d3f, and zap_ok() excludes strictly more of a pack than wear_ok() does. The comment the finding quotes never named zap_ok() either, so its incompleteness predates the range rather than being caused by it. | causality refute: The range adds a second command with a property the port already had; it does not create the reachable stop, and it changes no ported output for the input in question. The residual -- an incomplete comment"
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "wear-prompt-answered-with-a-non-armor-letter-stops",
+            "trackedIn": "wear-prompt-answered-with-a-non-armor-letter-stops",
+            "category": "production",
+            "summary": "Answering the new W prompt with an inventory letter that is neither armor nor an accessory -- three of the Valkyrie's four -- reaches js/invent.js getobj()'s UnsupportedObjectPromptError(silly_thing()) stop and ends the segment, where C prints \"That is a silly thing to wear.\" and asks again. The stop is a named fail-closed refusal, so the port is permitted to take it, but the case appears in neither the fresh-case matrix nor the ledger. Deferred because closing it needs a fresh C recording."
+          },
+          {
+            "id": "m-dowear-armor-fit-rules-have-two-homes",
+            "trackedIn": "m-dowear-armor-fit-rules-have-two-homes",
+            "category": "production",
+            "summary": "js/makemon_create.js keeps private slipsArmor(), cantWearArmor() and wrappingAllowed() that worn.c m_dowear()'s port calls, beside the canonical js/mondata.js cantweararm() and js/obj.js WrappingAllowed() this slice landed. The copies disagree: cantWearArmor() omits breakarm()'s PM_MARILITH and PM_WINGED_GARGOYLE term, so it lets those two forms wear a suit C refuses them. One C rule, two homes, two answers. Deferred rather than fixed because repointing m_dowear() changes monster behavior and needs a fresh recorded case, which .agents/review.md returns to implementation."
+          },
+          {
+            "id": "getobj-async-callback-unpinned-at-three-sites",
+            "trackedIn": "getobj-async-callback-unpinned-at-three-sites",
+            "category": "tests",
+            "summary": "Three of getobj()'s four awaited obj_ok sites are unpinned; dropping the await at the verification site would carry a non-armor letter past the silly_thing() stop."
+          },
+          {
+            "id": "takeoff-mask-clear-has-no-discriminating-case",
+            "trackedIn": "takeoff-mask-clear-has-no-discriminating-case",
+            "category": "tests",
+            "summary": "The takeoff.mask assertion after a W is vacuous: the preceding T already leaves the mask at 0 and nothing on the W path raises it."
+          },
+          {
+            "id": "full-complement-guard-pins-one-of-eleven-slots",
+            "trackedIn": "full-complement-guard-pins-one-of-eleven-slots",
+            "category": "tests",
+            "summary": "dowear()'s full-complement guard is tested with only ublindf empty, so the other ten conjuncts are unpinned."
+          },
+          {
+            "id": "canwearobj-silence-pinned-for-one-of-seven-arms",
+            "trackedIn": "canwearobj-silence-pinned-for-one-of-seven-arms",
+            "category": "tests",
+            "summary": "canwearobj()'s noisy=false silence is pinned for the shield arm alone, though prompt building calls it for every armor in the pack."
+          },
+          {
+            "id": "wrapping-allowed-conjuncts-unpinned",
+            "trackedIn": "wrapping-allowed-conjuncts-unpinned",
+            "category": "tests",
+            "summary": "WrappingAllowed()'s FALSE witnesses are all rejected by earlier conjuncts, leaving humanoid(), the size window and noncorporeal() unpinned."
+          },
+          {
+            "id": "has-horns-threshold-unpinned",
+            "trackedIn": "has-horns-threshold-unpinned",
+            "category": "tests",
+            "summary": "The has_horns() test asserts no one-horned form, so the predicate threshold is unpinned."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "b035d7900cd6a5365022ff0a5a2d612605e1d3a4..fc5613417808880f893c983a735b402db3772876"
+          ],
+          "mutants": 72,
+          "survivors": 2,
+          "byKind": {
+            "boolean": {
+              "ran": 11,
+              "killed": 10
+            },
+            "logical": {
+              "ran": 53,
+              "killed": 53
+            },
+            "relational": {
+              "ran": 8,
+              "killed": 7
+            }
+          },
+          "deltaRun": "The five applied fixes landed in e3d1ecb, after this record, so they sit outside the recorded range and stand as correctness debt for the next one, which starts at this frontier. They hold no mutable site in any case: every js/ change in that commit is comment text, which npm run checkpoint measured as 0 survivors of 0 mutants over the uncommitted js/ diff before the commit.",
+          "finderConclusion": "The tests finder was given both survivors with the reasons claimed for them and judged the reasons sound, so neither survivor became a finding. It returned seven other findings instead, none of which a mutation run could have produced, because each is an assertion that cannot fail rather than an unmutated line: a vacuous takeoff.mask check, a full-complement guard tested with one of eleven conjuncts empty, silence pinned for one of canwearobj()'s seven arms, WrappingAllowed() FALSE witnesses that earlier conjuncts already reject, an unpinned has_horns() threshold, and three getobj() await sites where dropping the await leaves the whole suite green. That last one is the sharpest: it is the shared contract the pass was asked to read first, and the mutation run could not see it because an omitted await removes no mutable site."
+        }
+      },
+      "recordedAt": "2026-08-13T23:08:05.989Z"
     }
   ]
 }

@@ -395,3 +395,5 @@ utc	event	phase	goal	detail
 2026-08-13T20:26:42.902Z	end	select	armor-wear	armor-wear opened; forecast 0 development steps by construction, the Q6 experiment
 2026-08-13T20:36:56.150Z	start	implement	armor-wear	wear-zero-delay-shield: W through canwearobj(), setworn(W_ARMS), unmul("") and Shield_on()
 2026-08-13T21:58:30.891Z	end	implement	armor-wear	wear-zero-delay-shield closed at 8c55d3f; score unchanged at 1538 screens, the goal's forecast
+2026-08-13T22:07:32.276Z	start	review	armor-wear	full correctness pass over b035d790..8c55d3f, at the slice boundary before the gate forces one mid-slice
+2026-08-13T23:08:16.107Z	end	review	armor-wear	full correctness pass recorded through fc56134; 22 raw, 19 deduplicated, 13 confirmed, 5 applied at e3d1ecb, 8 deferred, 6 rejected
