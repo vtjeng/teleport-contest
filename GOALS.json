@@ -1913,8 +1913,8 @@
         },
         {
           "name": "the hero's wounded legs heal when the timeout expires",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "937aa31cd4b85eea907e6533d647c850ce555953"
         }
       ],
       "openedAt": "8a25741772d30ee7d90b8c261bb1ab65a0fef8d4",

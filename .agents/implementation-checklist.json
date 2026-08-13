@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every entry is done, cannot-occur or later with its evidence, and no entry is missing or undecided. The goal's last refusal is gone: js/do.js heal_legs() ends the hero's bear-trap wound and js/timeout.js reaches it from timeout.c nh_timeout()'s expiry switch, which js/allmain.js:684 runs every turn. The production game executes it -- seed0004-feeding-pony now matches step 51, 'Your leg feels better.  Your movements are now unencumbered.' with Dexterity back to 9 and Burdened gone -- and five fresh C recordings in scripts/run-wounded-legs.mjs match it call for call and screen for screen over both encumbrance outcomes. Every excluded branch stops before changing state, spending randomness or writing: heal_legs()'s two other arms have no ported caller and js/steed.js refuses the one that would, and mintrap()'s pit and metallivore machinery is refused at the top of the arm. The delivered figure is far below the forecast and the reason is recorded in sourceReview: the goal's own honest risk fired one step past the boundary, on an owner outside it.",
-  "commitChecked": "5268be9144983ef08de5cbd88249288c22e34377",
+  "reason": "All three slices of bear-trap-capture have landed: trapeffect_bear_trap()'s monster arm at ecc8fb9, mintrap()'s mtrapped arm with m_move()'s prologue and trapname() at 09650f9, and heal_legs() with its nh_timeout() case at 937aa31. Every entry is done (9), cannot-occur (5) or later (3) with evidence, and missingWorkByOwner is empty. commitChecked names 937aa31, the last commit that changed code a pass would read; the orchestrator records committed after it change only GOALS.json, PHASES.tsv and this field.",
+  "commitChecked": "937aa31cd4b85eea907e6533d647c850ce555953",
   "boundary": {
     "goalId": "bear-trap-capture",
     "startingCommit": "8a25741772d30ee7d90b8c261bb1ab65a0fef8d4",
