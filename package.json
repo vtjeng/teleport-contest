@@ -9,6 +9,7 @@
     "test:all": "node scripts/run-test-suite.mjs all",
     "check:duplicate-symbols": "node scripts/check-duplicate-symbols.mjs",
     "check:namespace-members": "node scripts/check-namespace-members.mjs",
+    "check:relative-imports": "node scripts/check-relative-imports.mjs",
     "check:extcmds": "node scripts/generate-extcmds.mjs --check",
     "check:monsters": "node scripts/generate-monsters.mjs --check",
     "check:objects": "node scripts/generate-objects.mjs --check",

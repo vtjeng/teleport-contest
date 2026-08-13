@@ -80,6 +80,15 @@ export function checkpointCommands(focusedTests = [], {
         command: 'npm',
         args: ['run', 'check:namespace-members'],
     });
+    // Also static, and about what leaves this repository rather than what runs
+    // in it: the judge imports js/ with no node_modules and no import map, so
+    // one bare or `node:` specifier fails the submission at load time. See
+    // scripts/check-relative-imports.mjs.
+    commands.push({
+        label: 'static sources (check:relative-imports)',
+        command: 'npm',
+        args: ['run', 'check:relative-imports'],
+    });
     // Informational: a name defined twice is sometimes a module-private helper
     // that genuinely differs from its namesake, and only a reader who knows the
     // C function can tell that from a divergent duplicate port. The listing
