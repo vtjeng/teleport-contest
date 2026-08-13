@@ -32,10 +32,12 @@ import {
     A_STR,
     CONFUSION,
     CQ_CANNED,
+    DEAF,
     ECMD_OK,
     ECMD_TIME,
     FUMBLING,
     LAST_PROP,
+    LAVAPOOL,
     LEVITATION,
     OBJ_FREE,
     OBJ_INVENT,
@@ -46,9 +48,11 @@ import {
     P_SKILLED,
     P_SLING,
     ROOM,
+    STONE_RES,
     STUNNED,
     TIMER_OBJECT,
     TRAPDOOR,
+    WT_SPLASH_THRESHOLD,
     W_SWAPWEP,
     W_WEP,
     ZOMBIFY_MON,
@@ -91,6 +95,7 @@ import {
     BOOMERANG,
     BOW,
     BULLWHIP,
+    CLUB,
     CORPSE,
     CREAM_PIE,
     CROSSBOW,
@@ -102,6 +107,7 @@ import {
     ELVEN_BOW,
     FLINT,
     GLASS,
+    IRON,
     LEATHER,
     LEATHER_ARMOR,
     LEATHER_GLOVES,
@@ -114,6 +120,7 @@ import {
     SHURIKEN,
     SLING,
     SPEAR,
+    WOOD,
     YA,
     YUMI,
     objects_globals_init,
@@ -635,14 +642,135 @@ test('throwit() breaks what lands hard and drowns what lands wet',
         const dagger = item(survives, DAGGER);
         await throwit(dagger, 0, false, null, survives);
         assert.deepEqual(pileAt(survives, 9, 4), [dagger]);
-        // :1796. Water is IS_SOFT, so the object never reaches breaktest();
-        // the pool is what stops it, and it costs no draw.
+        // :1794-1802. Water is IS_SOFT, so the object never reaches
+        // breaktest(); it sounds the landing and then hands the object to
+        // do.c flooreffects(), whose trap.c water_damage() arm is what stops
+        // the port. Neither the sound nor the handover costs a draw.
         const wet = arena();
         wet.level.at(9, 4).typ = POOL;
         await assert.rejects(
             () => throwit(item(wet, DAGGER), 0, false, null, wet),
-            /water or lava/u,
+            /landing in water/u,
         );
+        assert.deepEqual(draws(), []);
+    });
+
+test('throwit() sounds a landing in liquid exactly where C sounds it',
+    async () => {
+        // dothrow.c:1794-1802, `!Deaf && !Underwater` over
+        // `is_pool(x, y) || (is_lava(x, y) && !is_flammable(obj))`, then
+        // weight.h:11's WT_SPLASH_THRESHOLD of 9 picking the word. Both
+        // liquids leave the object to flooreffects() afterwards, so each case
+        // below reads the message the throw printed on its way to that
+        // refusal.
+        //
+        // mkobj.c is_flammable() (2270-2286) selects on oc_material, so the
+        // two rows that decide the lava cases are asserted first: a dagger is
+        // IRON, above WOOD and not PLASTIC, and a club is WOOD.
+        const materials = arena();
+        assert.equal(materials.objects[DAGGER].oc_material, IRON);
+        assert.equal(materials.objects[CLUB].oc_material, WOOD);
+        // mkobj.c weight() ends at `wt * obj->quan`, so a dart's oc_weight of
+        // 1 puts the threshold at a countable stack size: nine darts weigh
+        // exactly WT_SPLASH_THRESHOLD and ten weigh one more. A dagger's 10 is
+        // over it on its own.
+        assert.equal(materials.objects[DAGGER].oc_weight, 10);
+        assert.equal(materials.objects[DART].oc_weight, 1);
+        assert.equal(WT_SPLASH_THRESHOLD, 9);
+
+        // A pool sounds for any object heavy enough, whatever it is made of.
+        const splash = arena();
+        splash.level.at(9, 4).typ = POOL;
+        splash._ttyToplines = '';
+        await assert.rejects(
+            () => throwit(item(splash, DAGGER), 0, false, null, splash),
+            /landing in water/u,
+        );
+        assert.equal(splash._ttyToplines, 'Splash!');
+
+        // The same pool, at exactly WT_SPLASH_THRESHOLD: C wants strictly
+        // more than the threshold, so nine darts only plop.
+        const plop = arena();
+        plop.level.at(9, 4).typ = POOL;
+        plop._ttyToplines = '';
+        await assert.rejects(
+            () => throwit(item(plop, DART, { quan: 9, owt: 9 }),
+                0, false, null, plop),
+            /landing in water/u,
+        );
+        assert.equal(plop._ttyToplines, 'Plop!');
+
+        // One dart more clears it.
+        const heavier = arena();
+        heavier.level.at(9, 4).typ = POOL;
+        heavier._ttyToplines = '';
+        await assert.rejects(
+            () => throwit(item(heavier, DART, { quan: 10, owt: 10 }),
+                0, false, null, heavier),
+            /landing in water/u,
+        );
+        assert.equal(heavier._ttyToplines, 'Splash!');
+
+        // Lava sounds only for what will not burn. An iron dagger will not.
+        const lava = arena();
+        lava.level.at(9, 4).typ = LAVAPOOL;
+        lava._ttyToplines = '';
+        await assert.rejects(
+            () => throwit(item(lava, DAGGER), 0, false, null, lava),
+            /landing on lava/u,
+        );
+        assert.equal(lava._ttyToplines, 'Splash!');
+
+        // A wooden club over the same lava is flammable, so C says nothing
+        // and leaves the burning to flooreffects() -> lava_damage().
+        const burns = arena();
+        burns.level.at(9, 4).typ = LAVAPOOL;
+        burns._ttyToplines = '';
+        await assert.rejects(
+            () => throwit(item(burns, CLUB), 0, false, null, burns),
+            /landing on lava/u,
+        );
+        assert.equal(burns._ttyToplines, '');
+
+        // youprop.h Deaf (125) has three sources and the roleplay conduct is
+        // the one a game can start with. A deaf hero hears no splash.
+        const conduct = arena();
+        conduct.level.at(9, 4).typ = POOL;
+        conduct.u.uroleplay = { deaf: true };
+        conduct._ttyToplines = '';
+        await assert.rejects(
+            () => throwit(item(conduct, DAGGER), 0, false, null, conduct),
+            /landing in water/u,
+        );
+        assert.equal(conduct._ttyToplines, '');
+
+        // ...and neither does one deafened by the property itself.
+        const deafened = arena();
+        deafened.level.at(9, 4).typ = POOL;
+        deafened.u.uprops[DEAF].intrinsic = 1;
+        deafened._ttyToplines = '';
+        await assert.rejects(
+            () => throwit(item(deafened, DAGGER), 0, false, null, deafened),
+            /landing in water/u,
+        );
+        assert.equal(deafened._ttyToplines, '');
+
+        // youprop.h Underwater (279) is u.uinwater, which dothrow.c:1637 has
+        // already read to cut the range to 1: the missile lands at column 2,
+        // so that is where this pool goes.
+        const submerged = arena();
+        submerged.level.at(2, 4).typ = POOL;
+        submerged.u.uinwater = 1;
+        submerged._ttyToplines = '';
+        await assert.rejects(
+            () => throwit(item(submerged, DAGGER), 0, false, null, submerged),
+            /landing in water/u,
+        );
+        assert.equal(submerged.bhitpos.x, 2);
+        assert.equal(submerged._ttyToplines, '');
+
+        // Nothing above draws: breaktest() is skipped for both liquids
+        // because IS_SOFT() covers them, and the sound itself has no roll.
         assert.deepEqual(draws(), []);
     });
 
@@ -883,6 +1011,33 @@ test('throw_obj() lets gloves carry a petrifying corpse', async () => {
     bare.uquiver = deadly;
     aimEast(bare);
     await assert.rejects(() => throw_obj(deadly, 0, bare), /instapetrify/u);
+
+    // Stone resistance fails the fourth conjunct on its own, so the same
+    // bare-handed throw of the same corpse costs nothing and lands.
+    const immune = arena();
+    const harmless = item(immune, CORPSE,
+        { corpsenm: PM_COCKATRICE, owt: 30 });
+    carry(immune, harmless);
+    immune.uquiver = harmless;
+    immune.u.uprops[STONE_RES].intrinsic = 1;
+    aimEast(immune);
+    immune._ttyToplines = '';
+    assert.equal(await throw_obj(harmless, 0, immune), ECMD_TIME);
+    assert.deepEqual(pileAt(immune, immune.bhitpos.x, 4), [harmless]);
+    // C's message belongs to the branch this hero skips, so it must not
+    // appear; the throw itself prints nothing.
+    assert.doesNotMatch(immune._ttyToplines, /bare/u);
+    // The extrinsic half of youprop.h Stone_resistance (63-65) reads the same
+    // way. Nothing this port equips grants it, so the assertion is what keeps
+    // the union honest.
+    const worn = arena();
+    const spare = item(worn, CORPSE, { corpsenm: PM_COCKATRICE, owt: 30 });
+    carry(worn, spare);
+    worn.uquiver = spare;
+    worn.u.uprops[STONE_RES].extrinsic = 1;
+    aimEast(worn);
+    assert.equal(await throw_obj(spare, 0, worn), ECMD_TIME);
+    assert.deepEqual(pileAt(worn, worn.bhitpos.x, 4), [spare]);
 });
 
 test('throw_obj() opens the multishot block only for a stack it can volley',

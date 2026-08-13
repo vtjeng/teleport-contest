@@ -7,13 +7,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { W_QUIVER, W_SWAPWEP, W_WEP } from '../js/const.js';
+import { CORR, MOAT, W_QUIVER, W_SWAPWEP, W_WEP } from '../js/const.js';
 import {
     CANCEL_MOVES,
     FIRE_MOVES,
+    LIQUID_MOVES,
+    loadFireBesideLiquidRecipe,
     loadFireCancelRecipe,
     loadFireCommandRecipe,
 } from './run-fire-command.mjs';
+import { ARROW } from '../js/objects.js';
 import { ammo_and_launcher } from '../js/obj.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -202,3 +205,27 @@ test('a cancelled direction prompt fires nothing and costs nothing',
         assert.equal(game.uquiver.quan, quivered);
         assert.equal(game.moves, moves + 1);
     });
+
+test('a shot that lands short of water makes no sound', async () => {
+    const [segment] = loadFireBesideLiquidRecipe().segments;
+    await runSegment({ ...segment, moves: LIQUID_MOVES });
+
+    // The walk ends on the corridor square the recipe was built around, with
+    // the moat two squares south of it. dothrow.c:1794-1802 reads only where
+    // the missile lands, so this hero is close enough to a pool for a guard
+    // that read the hero's surroundings, or the flight, to sound.
+    assert.deepEqual([game.u.ux, game.u.uy], [57, 7]);
+    assert.equal(game.level.at(game.u.ux, game.u.uy + 2).typ, MOAT);
+
+    // The shot goes the other way, down a corridor that stays dry, and the
+    // arrow is on it rather than in the moat.
+    const landed = pileAt(50, 7);
+    assert.equal(landed.length, 1);
+    assert.equal(landed[0].otyp, ARROW);
+    assert.equal(game.level.at(50, 7).typ, CORR);
+    assert.equal(pileAt(game.u.ux, game.u.uy + 2).length, 0);
+
+    // weight.h:11 puts an arrow under WT_SPLASH_THRESHOLD, so the message a
+    // wrongly wide guard would print here is "Plop!".
+    assert.doesNotMatch(game._ttyToplines ?? '', /Splash!|Plop!/u);
+});

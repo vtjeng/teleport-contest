@@ -13,7 +13,7 @@
 // in the same segment finds the launcher already wielded and takes
 // dothrow.c:564-565 straight to throw_obj().
 //
-// What the four segments separate:
+// What the five segments separate:
 //
 // - FIRE_CASES' three shooting roles pick different arms of
 //   dothrow.c multishot_class_bonus() (37-83) and of throw_obj()'s racial
@@ -32,6 +32,14 @@
 // The Caveman segment is the shape development session
 // seed1150-caveman-explore-move reaches at its step 34, recorded from a
 // different seed so that the matrix and the session cannot share an accident.
+//
+// LIQUID_CASE covers dothrow.c throwit():1794-1802, the sound a missile makes
+// when it lands in water or lava. C reads the landing square, not the flight,
+// so this segment walks to a corridor two squares from a moat and then shoots
+// along the corridor: the volley passes nothing wet and C says nothing. Aiming
+// the same shot south instead puts the arrow in the moat, which is the case
+// this segment cannot carry, because C goes on into trap.c water_damage() --
+// see the deferral throw-into-water-or-lava-refuses-too-widely.
 //
 // Two branches the `f` command owns have no segment here, because C carries
 // them straight into code this port has not reached. An empty quiver prints
@@ -60,6 +68,8 @@ const FIRE = 'f';
 // it (wield.c:492).
 const SWAP_MORE = '  ';
 const EAST = 'l';
+const WEST = 'h';
+const SOUTHWEST = 'b';
 const ESCAPE = '\u001B'; // cmd.c NHKF_ESC
 const SELF = '.';
 
@@ -84,6 +94,21 @@ export const FIRE_CASES = [
 
 export const CANCEL_CASE = { who: 'ranger', seed: 7810005 };
 
+// The seed came from a scan of 7320000-7322999 for a D:1 the port generates
+// with a liquid square a missile can land on. Nothing else puts water or lava
+// under a thrown object at this depth: mklev.c makelevel():1371 reaches
+// do_mkroom(SWAMP) at 1371-1372 only below depth 15, and wizard terrain wishes
+// are unported.
+// The scan walked each level from the hero's start and simulated zap.c bhit();
+// 7320232 was the nearest hit, a Water-surrounded vault themeroom whose moat
+// ring sits two squares south of a corridor six steps from where the hero
+// arrives.
+export const LIQUID_CASE = { who: 'ranger', seed: 7320232 };
+
+// Four steps west and two southwest reach that corridor square. The shot then
+// goes west, along the corridor and away from the moat.
+const WALK_TO_MOAT_EDGE = `${WEST.repeat(4)}${SOUTHWEST.repeat(2)}`;
+
 // pettype:none keeps the pet out of the flight path and out of the message
 // window; !acoustics keeps dosounds() from adding a line between the swap and
 // the shot; the three startup options skip the windows that would otherwise
@@ -103,6 +128,11 @@ export const FIRE_MOVES =
     `${WAIT}${FIRE}${SWAP_MORE}${EAST}${WAIT}${FIRE}${EAST}${WAIT}`;
 export const CANCEL_MOVES =
     `${WAIT}${FIRE}${SWAP_MORE}${ESCAPE}${WAIT}${FIRE}${SELF}`;
+// The Escape here is CANCEL_MOVES' first no-time return used as a tool: it
+// leaves the bow wielded without spending an arrow, so the walk that follows
+// starts from a full quiver and the only shot in the segment is the last one.
+export const LIQUID_MOVES = `${WAIT}${FIRE}${SWAP_MORE}${ESCAPE}`
+    + `${WALK_TO_MOAT_EDGE}${FIRE}${WEST}${WAIT}`;
 
 function segment({ seed, who, moves }) {
     return { seed, datetime: DATETIME, nethackrc: nethackrc(who), moves };
@@ -121,6 +151,13 @@ export function loadFireCancelRecipe() {
     return validateCleanRecipe({
         version: 5,
         segments: [segment({ ...CANCEL_CASE, moves: CANCEL_MOVES })],
+    });
+}
+
+export function loadFireBesideLiquidRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [segment({ ...LIQUID_CASE, moves: LIQUID_MOVES })],
     });
 }
 
@@ -147,6 +184,10 @@ export async function runFireCommandMatrix() {
         entries: [
             { label: 'fire volleys', recipe: loadFireCommandRecipe() },
             { label: 'fire cancelled', recipe: loadFireCancelRecipe() },
+            {
+                label: 'fire beside liquid',
+                recipe: loadFireBesideLiquidRecipe(),
+            },
         ],
         summaryLabel: 'FIRE COMMAND',
         verifySegment: verifyFireCommandSegment,

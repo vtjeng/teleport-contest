@@ -1898,18 +1898,30 @@
       "area": "objects",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "e167ab7d45dfcea3fde3ed72e97216806f81c3c0",
-      "detail": "dothrow.c throw_obj():139-140 guards the bare-handed corpse branch on four conjuncts: !uarmg && obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance. js/dothrow.js:409-411 carries the first three and throws UnsupportedThrowError('instapetrify()'). A stone-resistant hero throwing a cockatrice or chickatrice corpse bare-handed therefore stops the segment where C prints \"You throw ... with your bare ...\" and proceeds. Strictly more refusing, so it costs frames rather than producing a wrong screen, and the port carries no comment recording the missing conjunct. Found while writing scripts/dothrow.test.mjs assertions from the C source rather than from the port; the formal correctness pass over 52c65135..07c6d4b had the file in scope and did not raise it."
+      "detail": "dothrow.c throw_obj():139-140 guards the bare-handed corpse branch on four conjuncts: !uarmg && obj->otyp == CORPSE && touch_petrifies(&mons[obj->corpsenm]) && !Stone_resistance. js/dothrow.js:409-411 carries the first three and throws UnsupportedThrowError('instapetrify()'). A stone-resistant hero throwing a cockatrice or chickatrice corpse bare-handed therefore stops the segment where C prints \"You throw ... with your bare ...\" and proceeds. Strictly more refusing, so it costs frames rather than producing a wrong screen, and the port carries no comment recording the missing conjunct. Found while writing scripts/dothrow.test.mjs assertions from the C source rather than from the port; the formal correctness pass over 52c65135..07c6d4b had the file in scope and did not raise it.",
+      "notes": [
+        {
+          "text": "Fixed here. js/dothrow.js throw_obj() now carries the fourth conjunct as propertyHeld(state, STONE_RES), the union youprop.h:63-65 spells, so a stone-resistant hero throws a cockatrice corpse bare-handed and the throw runs to its landing instead of stopping at instapetrify(). scripts/dothrow.test.mjs \"throw_obj() lets gloves carry a petrifying corpse\" now drives all four conjuncts and both halves of the union. No fresh C case covers the new branch: it needs a petrifying corpse and stone resistance at the same time, and no role, race or reachable item grants the second at level 1. That gap is recorded separately as stone-resistant-corpse-throw-has-no-recordable-case.",
+          "at": "4394e0ea8e2d69e2d737190ab2aa65c01c728882"
+        }
+      ]
     },
     {
       "id": "throw-into-water-or-lava-refuses-too-widely",
       "area": "objects",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "e167ab7d45dfcea3fde3ed72e97216806f81c3c0",
-      "detail": "dothrow.c throwit():1794-1802 reaches its water and lava handling under !Deaf && !Underwater, and treats lava only when is_lava(x, y) && !is_flammable(obj). js/dothrow.js:671 refuses on is_pool || is_lava alone, so it stops for a flammable object over lava and for a Deaf or Underwater hero, cases C carries through flooreffects(). Strictly more refusing, so it costs frames rather than producing a wrong screen, but the comment at the site mentions only the message and flooreffects() and does not record that the guard is wider than C. Found while writing scripts/dothrow.test.mjs assertions from the C source."
+      "detail": "dothrow.c throwit():1794-1802 reaches its water and lava handling under !Deaf && !Underwater, and treats lava only when is_lava(x, y) && !is_flammable(obj). js/dothrow.js:671 refuses on is_pool || is_lava alone, so it stops for a flammable object over lava and for a Deaf or Underwater hero, cases C carries through flooreffects(). Strictly more refusing, so it costs frames rather than producing a wrong screen, but the comment at the site mentions only the message and flooreffects() and does not record that the guard is wider than C. Found while writing scripts/dothrow.test.mjs assertions from the C source.",
+      "notes": [
+        {
+          "text": "Fixed here. js/dothrow.js throwit() now spells dothrow.c:1794-1802 exactly: !Deaf && !Underwater over is_pool(x,y) || (is_lava(x,y) && !is_flammable(obj)), with the word chosen by mkobj.c weight() against weight.h:11 WT_SPLASH_THRESHOLD. The object then goes to do.c flooreffects() as C sends it, so the stop moved inward to flooreffects()s own water and lava arms and no guard here is wider than C. Two fresh differentials measured the move on a Water-surrounded vault themeroom found by scanning seeds 7320000-7322999. Seed 7320232, Ranger, moves \".f  <ESC>hhhhbbfj\": 2854 of Cs 2877 calls and 13 of 14 screens match, and Cs first unmatched call is rn2(20) from water_damage(trap.c:4771). Seed 7321043, moves \".f  <ESC>jjnjfk.\": 2676 of 2702 calls and 11 of 13 screens match, and Cs first unmatched call is rn2(100) from obj_resists(zap.c:1469), which lava_damage(trap.c:4582) asks first. Replaying both against the pre-change js/dothrow.js gives byte-identical reports, so the narrowing costs and gains no recorded frame. The two remaining stops are recorded as a-missile-landing-in-water-stops-at-water-damage and a-missile-landing-on-lava-stops-at-lava-damage.",
+          "at": "4394e0ea8e2d69e2d737190ab2aa65c01c728882"
+        }
+      ]
     },
     {
       "id": "earth_sense() cannot print from its synchronous callers",
@@ -1919,6 +1931,36 @@
       "status": "open",
       "from": "7388be80d94ec1cc31c15c3fade3552d85754a0a",
       "detail": "`dungeon.c earth_sense()` (1543-1565) is ported into `js/dungeon.js` with every\ngate, but the one line those gates lead to --\n`You(\"sense something below your %s.\", makeplural(body_part(FOOT)))` -- raises\n`UnsupportedEarthSenseError` instead of printing. That is fail-closed, and it\nreplaces a fail-open omission, but the line is still unported.\n\nThe blocker is shape, not source. `u_on_newpos()` is synchronous, and so are\nits two callers: `js/mkmaze.js` calls it at 218 from inside\n`put_lregion_here()`, which `place_lregion()` at `js/mkmaze.js:92` reaches, and\n`js/stairs.js` calls it at 89 and 101 from `u_on_upstairs()` and\n`u_on_dnstairs()`. This port's message owner, `js/tty_message.js ttyPline()`,\nis async. Printing here means making level creation async, which is why the\nport was declined inside a deferral sweep rather than attempted.\n\nThe branch is live rather than dormant, and its gate is the hero's race. Over\nthe 40 D:1 levels the port generates for seeds 7200000-7200039 it buried 215\nobjects, 27 of them under a ROOM square, through js/themeroom_fill.js's\n`Buried zombies` and `Buried treasure` fills; `js/hack.js domove()` has called\n`u_on_newpos()` since 36562b9, so a dwarf hero reaches the notice by walking\nonto one. No development session runs a dwarf -- the 33 use elf, gnome and\nhuman -- so nothing recorded reaches it.\n\nNo fresh case is recorded, because none was found. A search over seeds\n7400000-7400149 for a dwarf Archeologist looked for a buried ROOM or CORR\nsquare reachable from the starting square by one or two straight walks through\nsquares holding no monster, object or trap, and found none in 150 levels: the\nfills put their burials inside a themed room the hero does not start beside.\nClosing this needs either a longer path found by a real search, or a recorded\nC case built some other way, and then the async conversion above.\n\nThis entry restates earth_sense()'s notice is refused rather than printed, whose detail named the wrong file for\nplace_lregion() and could not be corrected in place. Nothing else changed: the evidence, the\nmeasurements and the closing condition are its own."
+    },
+    {
+      "id": "stone-resistant-corpse-throw-has-no-recordable-case",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "4394e0ea8e2d69e2d737190ab2aa65c01c728882",
+      "detail": "dothrow.c throw_obj():139-143 skips its bare-handed corpse branch when Stone_resistance holds, and js/dothrow.js now skips it too, so the port lets that hero throw a cockatrice, chickatrice or Medusa corpse and land it. Only scripts/dothrow.test.mjs covers the branch; no fresh C case does.\n\nReaching it needs two things at once, and ordinary play at level 1 supplies neither. The corpse needs a petrifying monster killed or wished for, and js/objnam_readobjnam.js:1498 refuses readobjnam()s monster-naming arm, which is the same blocker eat-corpse-arms-without-a-fresh-case carries. Stone resistance has three sources in C and none of them is reachable here: polyself.c:71 PROPSET from resist_from_form(MR_STONE), eat.c givit() from a corpse that conveys MR_STONE -- every one of which petrifies the eater who does not already have it -- and wizcmds.c wiz_intrinsic(), the #wizintrinsic command. js/ ports none of the three; extcmdlist_data.js:165 carries wiz_intrinsic only as a table row.\n\nClose this with a debug-mode recording that grants the intrinsic and wishes for the corpse, once both commands are ported. What it would prove is that the throw spends the turn, prints nothing, and leaves the corpse on the landing square.",
+      "blockedOn": "wiz_intrinsic"
+    },
+    {
+      "id": "a-missile-landing-in-water-stops-at-water-damage",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "4394e0ea8e2d69e2d737190ab2aa65c01c728882",
+      "detail": "do.c flooreffects():272-287 answers a pool by calling trap.c water_damage(obj, NULL, FALSE) and reporting whether it destroyed the object. js/do.js:385 raises \"an object landing in water\" instead, which is now the first stop a thrown missile meets over water: js/dothrow.js throwit() sounds Splash! or Plop! exactly where C does and then hands the object over.\n\njs/trap_water_damage.js ports water_damage() only for the rust traps forced monster-equipment path. A free object on the floor takes the other route: splash_lit(), the can-of-grease and towel arms, the greased and container arms, the !force && (Luck + 5) > rn2(20) protection roll at trap.c:4771 -- the first draw C makes that the port does not -- and then the class arms down to erode_obj().\n\nFresh case, recorded here: seed 7320232, datetime 20000110090000, OPTIONS=name:Splash,role:Ranger,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics, moves \".f  <ESC>hhhhbbfj\". The hero walks six steps to a corridor square two north of a Water-surrounded vault themerooms moat and shoots south into it. Expected failure today: 2854 of Cs 2877 calls and 13 of 14 screens match, and the segment ends on the \"j\" key where C draws rn2(20) from water_damage(trap.c:4771). scripts/run-fire-command.mjs LIQUID_CASE holds the same setup aimed west, which lands dry and matches strictly.",
+      "blockedOn": "water_damage"
+    },
+    {
+      "id": "a-missile-landing-on-lava-stops-at-lava-damage",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "4394e0ea8e2d69e2d737190ab2aa65c01c728882",
+      "detail": "do.c flooreffects():270-271 answers a lava square with trap.c lava_damage(obj, x, y). js/do.js:384 raises \"an object landing on lava\" instead, which is now the first stop a thrown missile meets over lava: js/dothrow.js throwit() applies C's !is_flammable(obj) test to the sound and then hands the object over either way.\n\nlava_damage() (trap.c:4576-4615) asks zap.c obj_resists() first, destroys anything softer than DRAGON_HIDE that is not a scroll, a spellbook, fireproof, or a container -- printing \"It burns up!\" for a thrown object -- and otherwise falls through to fire_damage(). None of that is ported.\n\nFresh case, recorded here: seed 7321043, datetime 20000110090000, OPTIONS=name:Splash,role:Ranger,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics, moves \".f  <ESC>jjnjfk.\". The hero walks four steps and shoots north; a Blocked center themeroom's lava sits exactly at the arrow's range, so the volley lands on it rather than flying past. Expected failure today: 2676 of C's 2702 calls and 11 of 13 screens match, and the segment ends on the \"k\" key where C draws rn2(100) from obj_resists(zap.c:1469), lava_damage()'s first question. An iron arrow is not flammable, so this case also pins that the port prints Plop! before the stop, as C does.",
+      "blockedOn": "lava_damage"
     }
   ],
   "areas": [

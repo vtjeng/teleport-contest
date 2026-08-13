@@ -28,6 +28,7 @@ import {
     BOLT_LIM,
     CONFUSION,
     CQ_CANNED,
+    DEAF,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -47,8 +48,10 @@ import {
     P_SLING,
     P_SPEAR,
     SLT_ENCUMBER,
+    STONE_RES,
     STUNNED,
     THROWN_WEAPON,
+    WT_SPLASH_THRESHOLD,
     W_WEP,
 } from './const.js';
 import { acurrstr, effective_attribute, exercise } from './attrib.js';
@@ -85,6 +88,7 @@ import {
 } from './monsters.js';
 import {
     ammo_and_launcher,
+    isFlammable,
     is_ammo,
     is_flimsy,
     is_wet_towel,
@@ -94,6 +98,7 @@ import {
     place_object,
     remove_object,
     splitobj,
+    weight,
 } from './obj.js';
 import {
     ACID_VENOM,
@@ -136,13 +141,22 @@ import { welded } from './wield.js';
 import { is_pole } from './worn.js';
 import { bhit } from './zap.js';
 
-// C refs: youprop.h Confusion (84), Stunned (81) and Fumbling (129). Each is
-// the union of the intrinsic and extrinsic halves of one property; none of the
-// three has a blocking source. Defined here beside their one caller, the
-// multishot gate, the way js/wield.js keeps Glib beside can_twoweapon().
+// C refs: youprop.h Confusion (84), Stunned (81), Fumbling (129) and
+// Stone_resistance (65). Each is the union of the intrinsic and extrinsic
+// halves of one property; none of the four has a blocking source. Defined here
+// beside their callers -- the multishot gate and the bare-handed corpse gate --
+// the way js/wield.js keeps Glib beside can_twoweapon().
 function propertyHeld(state, property) {
     const held = state.u?.uprops?.[property];
     return Boolean(held?.intrinsic || held?.extrinsic);
+}
+
+// C ref: youprop.h Deaf (125), `HDeaf || EDeaf || u.uroleplay.deaf`. The third
+// term is the deaf conduct, which only `OPTIONS=roleplay:deaf` sets and nothing
+// clears; js/display.js statusConditionActive() spells the same union for the
+// status line.
+function Deaf(state) {
+    return propertyHeld(state, DEAF) || Boolean(state.u?.uroleplay?.deaf);
 }
 
 // A branch of dothrow.c this port has not translated. js/cmd.js
@@ -407,7 +421,12 @@ export async function throw_obj(obj, shotlimit, state = game) {
     }
     u_wipe_engr(2, { state });
     if (!state.uarmg && obj.otyp === CORPSE
-        && touch_petrifies(state.mons[obj.corpsenm])) {
+        && touch_petrifies(state.mons[obj.corpsenm])
+        && !propertyHeld(state, STONE_RES)) {
+        /* C prints "You throw <the corpse> with your bare hands." and then
+           calls instapetrify(), which is the unported half. A stone-resistant
+           hero fails the fourth conjunct and throws in silence, so the guard
+           has to carry it or the throw stops for a hero C never harms. */
         throw new UnsupportedThrowError('instapetrify()');
     }
     if (welded(obj, state)) {
@@ -668,10 +687,25 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         || obj.oclass === VENOM_CLASS) {
         throw new UnsupportedThrowError('breakobj()');
     }
-    if (is_pool(bx, by, state) || is_lava(bx, by, state)) {
-        /* "Splash!" or "Plop!", then flooreffects() drowns or burns it */
-        throw new UnsupportedThrowError('a missile landing in water or lava');
+    if (!Deaf(state) && !u.uinwater) {
+        /* Some sound effects when item lands in water or lava */
+        if (is_pool(bx, by, state)
+            || (is_lava(bx, by, state) && !isFlammable(obj, state))) {
+            /* Soundeffect(se_splash, 50) expands to nothing. The minimal
+               hints nethack-c/build-recorder.sh selects define no SND_LIB_*
+               backend, so sndprocs.h:193-201 leaves SND_LIB_INTEGRATED unset
+               and the empty definition at :272 is the live one. */
+            await ttyPline(
+                weight(obj, { state }) > WT_SPLASH_THRESHOLD
+                    ? 'Splash!' : 'Plop!',
+                state,
+            );
+        }
     }
+    /* flooreffects() owns everything the liquid then does to the object:
+       trap.c lava_damage() for a lava square and trap.c water_damage() for a
+       pool. Neither is ported for a free object, so js/do.js flooreffects()
+       raises the refusal for both and this site no longer has to. */
     if (flooreffects(obj, bx, by, 'fall', {
         state,
         unsupported: (what) => {
