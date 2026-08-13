@@ -1931,7 +1931,7 @@
     },
     {
       "id": "display-deferral-sweep",
-      "status": "open",
+      "status": "closed",
       "boundary": "Every counted display deferral is either closed or recorded as blocked on a C symbol js/ does not define, closing at least the two silent divergences: js/display.js newsym() sets trap.tseen for a BEAR_TRAP, is_pit() or WEB under a displayed mtrapped monster at both call sites as display.c newsym() 1013-1024 does, and both status rows stay blank while a full-screen menu owns the screen as gb.bot_disabled makes them at windows.c:1861 and :1898 with botl.c:255 and :277.",
       "upstreamOwners": [
         "display.c newsym() 1013-1024",
@@ -1974,8 +1974,11 @@
         "screens": 1531,
         "rng": 121032
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "c10d3d1067d24b1f44585533ba69b443034eb22e",
+      "delivered": {
+        "screens": 7,
+        "rng": 0
+      }
     }
   ]
 }
