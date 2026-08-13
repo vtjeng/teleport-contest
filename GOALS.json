@@ -1908,8 +1908,8 @@
         },
         {
           "name": "a trapped monster spends its turns in the trap and pulls free",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "09650f9f31e4f9fcdbe4896fa4a495320c434fdc"
         },
         {
           "name": "the hero's wounded legs heal when the timeout expires",
