@@ -1903,8 +1903,8 @@
       "slices": [
         {
           "name": "a monster is caught in a bear trap",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "ecc8fb954b8c9b39196cbaad4e7f0d0e559cacbb"
         },
         {
           "name": "a trapped monster spends its turns in the trap and pulls free",

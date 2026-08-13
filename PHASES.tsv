@@ -374,3 +374,5 @@ utc	event	phase	goal	detail
 2026-08-13T08:39:53.134Z	start	select		
 2026-08-13T09:23:55.882Z	end	select		
 2026-08-13T09:23:55.910Z	start	implement	bear-trap-capture	monster caught in a bear trap
+2026-08-13T10:15:45.807Z	end	implement	bear-trap-capture	monster catch closed at ecc8fb9; screens 1513 to 1525
+2026-08-13T10:15:45.835Z	start	implement	bear-trap-capture	trapped monster turns and escape
