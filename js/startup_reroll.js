@@ -17,8 +17,6 @@ import {
     TOPLINE_SPECIAL_PROMPT,
 } from './const.js';
 import {
-    docrt,
-    flush_screen,
     get_strength_str as strengthText,
     hallucinated_statue_glyph_info,
     object_glyph_info,
@@ -44,10 +42,7 @@ import { isPoisonable } from './objnam.js';
 import * as O from './objects.js';
 import { rn2_on_display_rng } from './rng.js';
 import { NO_COLOR } from './terminal.js';
-import {
-    menuTitleStyle,
-    ttyMenuLayout,
-} from './tty_menu.js';
+import { menuTitleStyle } from './tty_menu.js';
 import { select_menu } from './windows.js';
 
 const REPROMPT = Symbol('reroll menu needs an explicit choice');
@@ -386,18 +381,17 @@ async function fallbackRerollChoice(state) {
 // chooses to reroll, matching invent.c:reroll_menu().
 export async function reroll_menu(state = game, options = {}) {
     const spec = buildRerollMenuSpec(state, options);
-    const fullScreen = ttyMenuLayout(state.nhDisplay, spec).fullScreen;
+    // invent.c reroll_menu() 2552-2614 performs no repair of its own: the whole
+    // of it is select_menu() -> tty_dismiss_nhwindow() -> erase_menu_or_text(),
+    // whose docrt() and flush_screen(1) run while gb.bot_disabled is still
+    // raised, so bot() returns at botl.c:255 before clearing disp.botlx. A
+    // second repair here would run with the flag already lowered, repaint the
+    // status rows at the moment C leaves them blank, and spend the disp.botlx
+    // that C carries forward.
     let choice = await select_menu(
         state,
         spec,
     );
-    // tty_dismiss_nhwindow() repairs a full-screen gameplay menu with
-    // docrt()+flush_screen(). Corner menus restore their saved rectangle in
-    // dismissTtyMenu() and must not perform this extra redraw.
-    if (fullScreen) {
-        await docrt();
-        await flush_screen(1);
-    }
     if (choice === REPROMPT) choice = await fallbackRerollChoice(state);
     if (choice !== 'y') return false;
 

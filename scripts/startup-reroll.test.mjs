@@ -587,7 +587,8 @@ test('reroll choice increments only for y and supports cancel fallback', async (
     }
 });
 
-test('full-screen reroll dismissal redraws gameplay before continuing', async () => {
+test('full-screen reroll dismissal leaves the status rows for the next paint',
+    async () => {
     const state = rerollState();
     state.iflags.menu_overlay = false;
     state.invent = object(state, O.APPLE);
@@ -600,7 +601,18 @@ test('full-screen reroll dismissal redraws gameplay before continuing', async ()
     state.nhDisplay.pushKey('p'.charCodeAt(0));
 
     assert.equal(await reroll_menu(state, { displayRandom: () => 0 }), false);
-    assert.match(rowText(state, 22), /^RedrawTest the /u);
+    // invent.c reroll_menu() repairs nothing of its own: select_menu() ->
+    // tty_dismiss_nhwindow() -> erase_menu_or_text() is the whole repair, and
+    // it runs while gb.bot_disabled is raised, so bot() returns at botl.c:255
+    // before clearing the flags. C therefore leaves both status rows blank
+    // here with disp.botlx still set, and the next pline()'s flush_screen(1)
+    // paints them. A second repair in reroll_menu() would paint them now and
+    // spend the botlx C carries forward.
+    assert.equal(rowText(state, 22), '');
+    assert.equal(rowText(state, 23), '');
+    assert.equal(state.disp.botlx, true);
+    // The map is restored either way, which is what docrt() inside the
+    // dismissal does.
     assert.doesNotMatch(rowText(state, 0), /Reroll this character/u);
 });
 
