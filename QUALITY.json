@@ -2047,6 +2047,42 @@
       "status": "open",
       "from": "be3159974239b4c6cf67435e56d709948e36cf51",
       "detail": "No test passes an env to nh_timeout_elapsed_turn(), so the silent-clone seam this range threaded through it into heal_legs() and encumber_msg() is unpinned on the message side. scripts/wounded-legs.test.mjs now pins the state-isolation half through the command_queue leak case, but nothing asserts that the line arrives through the injected seam rather than the live display. Found by the correctness pass over eb3a084..bd50af3. Closing condition: a direct case calls nh_timeout_elapsed_turn(state, { message, statusRefresh }) on a hero whose count expires and asserts the line arrived through the injected recorder and not through game._ttyToplines, and a paired case runs the burdened Knight segment through the planning path and asserts the live display is unchanged while the same state changes were computed."
+    },
+    {
+      "id": "three-row-status-blanking-untested",
+      "area": "display",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "9ec6bd240cee8bb3445ba617e12baf997e4489e4",
+      "detail": "js/tty_menu.js erase_menu_or_text()'s blanking loop reads status_window_rows(), which 268f695 extracted to be the single owner of the status window's height, and every test that reaches the loop runs at the default two rows. Hardcoding the count, or dropping the wc2_statuslines === 3 read, would leave a three-row status window with its top row unblanked after every full-screen dismissal, a per-cell mismatch on every such frame for a player running statuslines:3, with the committed suite still green. The only guard is the THREE_LINE recipe in scripts/run-options-menu.mjs, which needs the patched C recorder and does not run under npm test. Found by the correctness pass over e211e5e..0bd635c. Closing condition: a case in scripts/tty-menu.test.mjs sets wc2_statuslines to 3, dismisses a full-screen window and asserts all three rows blank, and fails when the row count is hardcoded to 2."
+    },
+    {
+      "id": "text-window-repair-untested-on-status-rows",
+      "area": "display",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "9ec6bd240cee8bb3445ba617e12baf997e4489e4",
+      "detail": "268f695 re-pointed displayTtyTextWindow() and displayTtyMenuTextWindow()'s fullRepair arm at erase_menu_or_text(), so both now call bot() on dismissal where they previously restored a saved snapshot. No test touches the status rows for either caller, so the widened repair they gained is unasserted. The worker's own note says the two agree today only because writeStatusRows() clears each row before writing it, which makes this the assertion that would catch a future bot() that renders only dirty fields. Found by the correctness pass over e211e5e..0bd635c. Closing condition: a case per caller dismisses a full-screen text window with the status rows dirty and asserts what C leaves, blank rows with the pending flag, distinguishing the repair from a snapshot restore."
+    },
+    {
+      "id": "newsym-trap-type-filter-unpinned",
+      "area": "display",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "9ec6bd240cee8bb3445ba617e12baf997e4489e4",
+      "detail": "The ARROW_TRAP case of 'newsym maps no trap the hero has no held monster to read' in scripts/monster-bear-trap.test.mjs inspects a trap newsym() never reads, so C's physical-trap filter at display.c:1021, tt === BEAR_TRAP || is_pit(tt) || tt === WEB, is pinned by nothing. Widening or narrowing that disjunction would mark the wrong trap types seen under a held monster with the suite still green. Found by the correctness pass over e211e5e..0bd635c. Closing condition: a case places a held monster on a trap type outside the filter, an arrow trap or a magic trap, on a square the hero sees, calls newsym() and asserts tseen stays false, paired with the existing bear-trap case that asserts it becomes true."
+    },
+    {
+      "id": "unwatched-catch-assertion-credits-seetrap",
+      "area": "display",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "9ec6bd240cee8bb3445ba617e12baf997e4489e4",
+      "detail": "In 'the unwatched matrix segment is caught over an unmapped trap' in scripts/monster-bear-trap.test.mjs, the closing assert.equal(Boolean(mapped.tseen), true, 'display.c:1023') is satisfied by trap.c seetrap() on the monster's next m_move() rather than by the newsym() write it names, so the seventh recorded segment does not pin the behaviour its assertion cites. This is the same catching-up mechanism that makes the newsym() write unobservable in a replay: dochug()'s mpeaceful disjunct sends a pet through m_move() on the turn the hero walks into sight. Found by the correctness pass over e211e5e..0bd635c. Closing condition: the assertion is taken at a point before the held monster's next m_move(), or the case is rewritten around a monster that does not get one, so that only the newsym() write can satisfy it; deleting that write must fail the case."
     }
   ],
   "areas": [
