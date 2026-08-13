@@ -682,11 +682,27 @@ test('every matrix segment reaches a bear trap and replays to its last key',
                      (trap) => trap.tx === mon.mx && trap.ty === mon.my,
                  )) onTrap = mon;
              }
+             // An empty trap square is all a killed and a freed victim have
+             // in common, so each arm below names the fact only its own
+             // outcome produces. Asserting the absence alone would let either
+             // segment pass as the other, and this matrix is the repository's
+             // only recording of the escape.
+             let survivor = null;
+             for (let mon = game.level.monlist; mon; mon = mon.nmon)
+                 if (mon.mnum === PM_PONY) survivor = mon;
+             // terminal.serialize() strings, the same text the judge compares.
+             const screens = replay.getScreens();
              if (expected.killed) {
                  assert.equal(onTrap, null,
                               `segment ${segment.seed} empties its victim`);
                  assert.equal(live.some((trap) => trap.tseen), true,
                               `segment ${segment.seed} exposes the trap`);
+                 // thitm()'s d(2,4) took the pony to zero, so it is gone from
+                 // the level chain and mvitals has counted it.
+                 assert.equal(survivor, null,
+                              `segment ${segment.seed} leaves no live pony`);
+                 assert.ok(game.mvitals[PM_PONY].died > 0,
+                           `segment ${segment.seed} counts the death`);
                  continue;
              }
              if (expected.freed) {
@@ -697,6 +713,23 @@ test('every matrix segment reaches a bear trap and replays to its last key',
                               `segment ${segment.seed} frees its victim`);
                  assert.equal(live.some((trap) => trap.tseen), true,
                               `segment ${segment.seed} leaves the trap seen`);
+                 // The escape itself, which the assertions above cannot see:
+                 // the pony is alive and no longer held. Its message is not
+                 // assertable here and no case in the repository asserts it:
+                 // C's line at 3771 needs canseemon(), and this segment's
+                 // pony is out of sight by the turn the roll frees it, so no
+                 // captured screen carries "pulls free" on either side. That
+                 // gap is recorded as a deferral rather than papered over.
+                 assert.ok(survivor,
+                           `segment ${segment.seed} keeps its pony alive`);
+                 assert.equal(Boolean(survivor.mtrapped), false,
+                              `segment ${segment.seed} releases its pony`);
+                 assert.ok(
+                     screens.every(
+                         (screen) => !screen.includes('pulls free of the'),
+                     ),
+                     `segment ${segment.seed} frees its pony unseen`,
+                 );
                  continue;
              }
              assert.ok(onTrap, `segment ${segment.seed} leaves a victim`);

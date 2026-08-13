@@ -1974,6 +1974,69 @@
       "status": "open",
       "from": "bd50af37573e4d5e0bedbdb99c6925b6ffe628e7",
       "detail": "display.c newsym() (1013-1024), inside its `if (cansee(x, y))` arm, marks the trap under a displayed monster seen: `if (mon->mtrapped) { struct trap *trap = t_at(x, y); int tt = trap ? trap->ttyp : NO_TRAP; if (tt == BEAR_TRAP || is_pit(tt) || tt == WEB) trap->tseen = 1; }`, then runs _map_location() so the remembered glyph is the trap. pager.c:466-473 repeats the write, and its comment names the mechanism: 'newsym lets you know of the trap'. js/display.js has no mtrapped term anywhere -- grep -c mtrapped js/display.js returns 0 -- and both newsym() sites, js/display.js:2089-2103 and the state-parameterised sibling at :1673-1678, compute `t_at(x, y)` and then test `trap?.tseen` with no mtrapped clause.\n\nThe gap costs a wrong screen and wrong map memory. js/trap_effects.js:508-524 sets mtmp.mtrapped and calls seetrap() only when in_sight, so a catch the hero did not watch leaves trap.tseen false. The hero then walks into view: C sets tseen and files the trap glyph into memory, the port files the floor glyph. If the monster leaves the square before its next m_move() -- the hero kills it -- C redraws the trap and the port redraws floor, and the memory stays wrong for the rest of the level. The port only sets tseen at the monster's next m_move(), through js/monmove.js:2506's mintrap() and js/trap_effects.js:923-926's seetrap().\n\nFound by the correctness pass over eb3a084..bd50af3 and confirmed against the C source. It is old, not introduced by that range, but the range is what made it reachable in ordinary play: before it, a monster could not stay trapped across turns. Every Knight segment in scripts/run-monster-bear-trap.mjs catches the pony in sight, where trapeffect_bear_trap()'s own seetrap() has already set tseen, which is why the validation could not see it.\n\nDeferred rather than fixed in the goal's audit-fix commit because .agents/review.md returns a finding to Implementation when it 'requires a new upstream function family or branch': newsym()'s mtrapped arm is a branch no goal has ported, and display.c is not among bear-trap-capture's owners. The pass therefore does not claim to cover it.\n\nClosing condition: js/display.js newsym() carries display.c:1017-1023's write at both sites, for BEAR_TRAP, is_pit() and WEB, before it computes the remembered glyph; a unit case with a visible mtrapped monster on an unseen bear trap asserts trap.tseen and the remembered trap glyph; and a fresh recorded C case catches a monster out of sight, brings the hero into view and kills it in one blow, matching C's trap glyph on the vacated square. The write draws nothing and spends no random-number call, so it costs no frame."
+    },
+    {
+      "id": "bear-trap-escape-message-has-no-case",
+      "area": "world-effects",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "be3159974239b4c6cf67435e56d709948e36cf51",
+      "detail": "trap.c mintrap():3771-3772 writes \"%s pulls free of the %s.\" through trapname(BEAR_TRAP, FALSE), and nothing in the repository asserts it. Measured at be31599: the only segment in scripts/run-monster-bear-trap.mjs whose roll frees its victim is seed 7005082, and no captured screen on either side contains \"pulls free\" -- C's line needs canseemon() and that pony is out of sight by the turn the roll lands. The five other matrix segments never escape. seed0004-feeding-pony's own escape at step 83 is silent for the same reason. So trapname()'s only consumer in the port has no end-to-end coverage at all, and the matrix test now asserts the silence rather than the line. Closing condition: a fresh recorded C case keeps a trapped monster in the hero's sight across the 1-in-40 roll -- roughly 60 waiting turns gives about 80 per cent -- and matches C's escape line call for call and screen for screen; bound and record the search domain first, as .agents/validation.md requires."
+    },
+    {
+      "id": "bear-trap-in-sight-usteed-disjunct-untested",
+      "area": "world-effects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "be3159974239b4c6cf67435e56d709948e36cf51",
+      "detail": "trap.c:1527 decides in_sight with canseemon(mtmp) || (mtmp == u.usteed). Every case in scripts/monster-bear-trap.test.mjs decides it through canSeeMonster() alone, so the second disjunct is unexercised. Found by the correctness pass over eb3a084..bd50af3. Closing condition: one fixture case with a blinded-to pony and game.u.usteed set to it asserts the ordinary catch line and seetrap()'s exposure, resetting u.usteed afterwards as scripts/wounded-legs.test.mjs already does for its mounted case."
+    },
+    {
+      "id": "bear-trap-more-suspension-oracle-cannot-fail",
+      "area": "world-effects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "be3159974239b4c6cf67435e56d709948e36cf51",
+      "detail": "The test at scripts/monster-bear-trap.test.mjs pinning this goal's hardest constraint -- d(2,4) at trap.c:1554 landing after the --More-- that pline_mon() raises at 1534 -- uses a message double that never suspends, so its oracle accepts an implementation that rolls before waiting for the hero. Found by the correctness pass over eb3a084..bd50af3. Closing condition: either give the ordering test a seam that really suspends (a message returning a promise the test releases) and assert the draw has not happened until it is released, or assert the step the draw lands in against replay.getRngSlices(), using the turn already recorded in MATRIX_OUTCOME -- the slice for the catch turn must hold no d(2,4) and the slice the trailing space owns must hold it."
+    },
+    {
+      "id": "mintrap-seetrap-hole-disjunct-untested",
+      "area": "world-effects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "be3159974239b4c6cf67435e56d709948e36cf51",
+      "detail": "The seetrap() gate ported from trap.c:3743-3745 admits a pit, a bear trap, a hole and a web. Its test in scripts/monster-bear-trap.test.mjs covers the bear trap and a sibling covers the web, so the tt === HOLE disjunct has no case. Found by the correctness pass over eb3a084..bd50af3. Closing condition: a fixture case with ttyp HOLE, tseen false, the monster visible and the escape roll scripted nonzero asserts trap.tseen and one redraw at the monster's square, as the bear-trap case does."
+    },
+    {
+      "id": "silent-escape-refusal-has-no-case",
+      "area": "world-effects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "be3159974239b4c6cf67435e56d709948e36cf51",
+      "detail": "js/trap_effects.js refuses a silent escape -- unsupported('a monster escaping a trap silently') -- for a held monster on a trap that is neither a bear trap nor a web, and no test reaches it. It is the one refusal of the three in that arm that fires after state has already been written: it sits below seetrap() and inside the !rn2(40) roll. Found by the correctness pass over eb3a084..bd50af3. Closing condition: a case with a held monster on MAGIC_TRAP, which is C's own reachable silent type, the roll scripted to 0 and the monster in sight, asserts the refusal reason and what has already happened when it fires -- the rn2(40) spent and tseen's value -- or, if the intent is a refusal ahead of any write, the guard moves above seetrap() and the case asserts nothing was spent."
+    },
+    {
+      "id": "m-move-planning-silencing-untested",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "be3159974239b4c6cf67435e56d709948e36cf51",
+      "detail": "The planning-pass silencing this range added to monmove.c m_move()'s mtrapped prologue -- message and redraw replaced by no-ops when env.planning is set -- is exercised by no test. Found by the correctness pass over eb3a084..bd50af3, alongside the confirmed production leak that the same clone shared command_queue with the live game, so this seam is exactly the class that has cost the port nine defects. Closing condition: the frozen-state case in scripts/unported-monster-actions.test.mjs gains a fixture that makes the planning pass want to write -- a trap with tseen false on a square the hero can see with the monster visible, so seetrap() fires in the clone, and a second case with an injected rn2(40) answering 0 so the escape line fires -- and asserts completeSecondTurnSnapshot() is unchanged in both."
+    },
+    {
+      "id": "nh-timeout-env-seam-untested",
+      "area": "hero",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "be3159974239b4c6cf67435e56d709948e36cf51",
+      "detail": "No test passes an env to nh_timeout_elapsed_turn(), so the silent-clone seam this range threaded through it into heal_legs() and encumber_msg() is unpinned on the message side. scripts/wounded-legs.test.mjs now pins the state-isolation half through the command_queue leak case, but nothing asserts that the line arrives through the injected seam rather than the live display. Found by the correctness pass over eb3a084..bd50af3. Closing condition: a direct case calls nh_timeout_elapsed_turn(state, { message, statusRefresh }) on a hero whose count expires and asserts the line arrived through the injected recorder and not through game._ttyToplines, and a paired case runs the burdened Knight segment through the planning path and asserts the live display is unchanged while the same state changes were computed."
     }
   ],
   "areas": [
