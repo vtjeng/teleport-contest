@@ -393,3 +393,5 @@ utc	event	phase	goal	detail
 2026-08-13T20:10:20.238Z	end	review		scoped simplification pass over eb3a084..3ffdb94; 28 raw, 23 deduplicated, 10 confirmed, 4 applied through 43a5171, 6 deferred, 13 rejected; not recordable in the ledger, whose simplification frontier stands at e153d07
 2026-08-13T20:10:20.268Z	start	select		no goal queued; the last close was a sweep, so a boundary port comes next
 2026-08-13T20:26:42.902Z	end	select	armor-wear	armor-wear opened; forecast 0 development steps by construction, the Q6 experiment
+2026-08-13T20:36:56.150Z	start	implement	armor-wear	wear-zero-delay-shield: W through canwearobj(), setworn(W_ARMS), unmul("") and Shield_on()
+2026-08-13T21:58:30.891Z	end	implement	armor-wear	wear-zero-delay-shield closed at 8c55d3f; score unchanged at 1538 screens, the goal's forecast
