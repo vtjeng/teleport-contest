@@ -186,47 +186,6 @@ document's repair is a sentence; the model's is not.
 that sits inside a supported command until the model can name it, so a goal like
 this one is nominated by the observed census alone.
 
-## Check that a deferral cites a symbol its file defines
-
-**What it changes.** `npm run quality` would extract each open deferral's
-`js/<file>.js <symbol>()` pairs from its `detail`, read the file, and print
-every pair whose file does not define that symbol.
-
-**Scope.** A regex over each record's `detail` and one informational line beside
-the sweep-candidate line. It prints, rather than blocking: a record may name a
-symbol the file has yet to define.
-
-**What prompted it.** Three entries went stale on 11 August 2026.
-`wlt-mkmaze-owner-comment` closed because the file had been corrected on 3
-August and the entry never was. A correctness pass falsified
-`feel-location-ported-twice`'s "strict subset" claim. And `earth_sense()'s
-notice is refused rather than printed` cites `js/mklev.js place_lregion()`,
-which is defined at `js/mkmaze.js:92`.
-
-**The measurement.** This entry first proposed comparing an entry's `area` label
-against the areas `areas[].paths` assign to the files its record cites. At
-`4930664`, over 92 open entries, that check flags 15 of the 59 citing a path,
-and most of the 15 are sound: `pick-lock-lookalike-pile-top-has-no-fresh-case`
-is filed under `commands` and cites `js/display.js`, where the helper lives. The
-symbol check examines 47 pairs and flags 2 real issues.
-
-The two find different faults. The area check finds a correct citation under a
-wrong label, which is what mis-schedules a sweep. The symbol check finds a wrong
-citation, which misleads a reader. Neither finds the other's fault:
-`cloneObjects()` does appear in `js/unported_monster_actions.js`, so the symbol
-check passes both entries whose `startup` label prompted this proposal.
-
-**What has landed.** `refile-deferral --id <id> --area <id> --note <text>` at
-`ea2494d`, the second half of this entry. Before it, `assign` mapped a file to an
-area and `defer --area` set a label at creation, so a wrong label needed a hand
-edit of `QUALITY.json`.
-
-**What it leaves unfixed.** Two findings from 47 pairs is a small sample, and
-both surfaced on one day. The check reads only entries that cite a symbol; 33 of
-the 92 open entries cite no `js/` path. Dropping the area check gives up the
-one failure with a demonstrated cost: a mislabel once scheduled a sweep measured
-at 0 recorded steps ahead of a boundary goal measured at 21.
-
 ## Serialise mutation runs across parallel workers
 
 **What it changes.** `.claude/agents/slice-worker.md` would state that

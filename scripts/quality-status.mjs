@@ -12,7 +12,7 @@ import {
   unlinkSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // `record-review --range` and `audit-worktree.mjs prepare --range` name the
@@ -71,15 +71,15 @@ function fail(message) {
   throw new Error(message);
 }
 
-// Both probes below answer a question about a deferral's `blockedOn` symbol,
-// and both read a tree that does not change while the process runs, so each
-// reads its tree once and remembers each answer. `npm run quality` asks about
-// a handful of distinct symbols; measured on 10 August 2026, reading
+// The probes below answer a question about a symbol a deferral names, and each
+// reads a tree that does not change while the process runs, so each reads its
+// tree once and remembers what it found. `npm run quality` asks about a
+// handful of distinct symbols; measured on 10 August 2026, reading
 // nethack-c/upstream/src/ costs 18 ms and js/ 16 ms, and one symbol costs
 // about 1 ms and 7 ms against them.
 let upstreamSource = null;
 const upstreamAnswers = new Map();
-let portedNames = null;
+let portedDefinitions = null;
 
 function readTree(root) {
   if (!existsSync(root)) return '';
@@ -115,6 +115,26 @@ export function upstreamMentions(symbol) {
   return upstreamAnswers.get(symbol);
 }
 
+// Every top-level definition in js/, by file name. Two questions read it: what
+// js/ defines anywhere, and what one file defines, so one index answers both
+// and neither can drift from the other's spelling of "a definition".
+function portIndex() {
+  if (portedDefinitions === null) {
+    portedDefinitions = new Map();
+    for (const path of sourceFilesIn(PORT_ROOT)) {
+      const source = readFileSync(path, 'utf8');
+      const names = new Set();
+      TOP_LEVEL_DEFINITION.lastIndex = 0;
+      let match;
+      while ((match = TOP_LEVEL_DEFINITION.exec(source)) !== null) {
+        names.add(match[1] ?? match[2] ?? match[3]);
+      }
+      portedDefinitions.set(basename(path), names);
+    }
+  }
+  return portedDefinitions;
+}
+
 /**
  * Does js/ define a top-level `symbol`?
  *
@@ -125,18 +145,24 @@ export function upstreamMentions(symbol) {
  * cannot tell, and why the direction it errs in is the safe one.
  */
 export function portDefines(symbol) {
-  if (portedNames === null) {
-    const source = sourceFilesIn(PORT_ROOT)
-      .map((path) => readFileSync(path, 'utf8'))
-      .join('\n');
-    portedNames = new Set();
-    TOP_LEVEL_DEFINITION.lastIndex = 0;
-    let match;
-    while ((match = TOP_LEVEL_DEFINITION.exec(source)) !== null) {
-      portedNames.add(match[1] ?? match[2] ?? match[3]);
-    }
+  for (const names of portIndex().values()) {
+    if (names.has(symbol)) return true;
   }
-  return portedNames.has(symbol);
+  return false;
+}
+
+/**
+ * Does `file`, a bare js/ file name, define a top-level `symbol`?
+ *
+ * A deferral cites the port by file and symbol together. AGENTS.md, "Keep each
+ * source file's port in one place", puts a C file's functions in the
+ * JavaScript file named for it and keeps each function's C name, so
+ * `js/mkmaze.js place_lregion()` is the one spelling of that pair that can be
+ * right. A file js/ does not hold answers FALSE, which is what a citation
+ * naming a renamed or invented file needs.
+ */
+export function portFileDefines(file, symbol) {
+  return portIndex().get(file)?.has(symbol) ?? false;
 }
 
 function escapeForRegExp(text) {
@@ -1128,6 +1154,7 @@ function printStatus(config, head, status, verbose) {
   console.log(`Open deferrals: ${openEntries.length}`
     + (homeless > 0 ? ` (${homeless} without an area)` : '') + '.');
   for (const line of formatDeferralCounts(config.deferred)) console.log(line);
+  for (const line of formatStaleAnchors(config.deferred)) console.log(line);
   const reviewDue = thresholdReached(
     review.current,
     status.dirty,
@@ -1472,6 +1499,76 @@ export function formatDeferralCounts(deferred, blockerLanded = portDefines) {
     of sweepCandidates(deferred, SWEEP_THRESHOLD, blockerLanded)) {
     lines.push(`Sweep candidate: ${area} holds ${counted} open deferrals`
       + (count > 0 ? ` (${count} blocked)` : '') + '.');
+  }
+  return lines;
+}
+
+// A citation of the port inside a deferral's prose: a js/ file, an optional
+// line anchor, and the symbol, with nothing between them but quoting and
+// whitespace. Requiring that adjacency is what holds the false flags down.
+// Prose that puts words between the two usually states something other than
+// "this file defines this symbol": "`js/unported_monster_actions.js` says
+// `postmov()` calls `mintrap()`", or "cmd.c dispatches neither dowield() nor
+// doswapweapon() in js/cmd.js". Over the 108 open entries of 12 August 2026,
+// admitting a gap of up to two words raised the flag count from one to three,
+// and both added flags had those shapes. Carries `g`, so every reader resets
+// `lastIndex`.
+const CITED_PORT_SYMBOL = new RegExp(
+  '\\bjs/([\\w-]+\\.js)'
+  + '(?::\\d+(?:-\\d+)?)?'
+  + '[`\'"]*\\s+[`\'"]*'
+  + '([A-Za-z_$][\\w$]*)\\(\\)',
+  'gu',
+);
+
+/**
+ * The lines that report an open deferral pointing at js/ code that is not
+ * there, in the order they print.
+ *
+ * Both kinds mislead a reader of the ledger, and `.agents/selection.md` reads
+ * the ledger to choose what the loop works on next. A landed blocker costs
+ * more: `deferralCounts()` counts the entry toward its area's sweep again
+ * without saying so, so an entry that named the wrong symbol can schedule a
+ * sweep that cannot resolve it. A citation no definition backs costs a reader
+ * instead. `earth_sense()'s notice is refused rather than printed` points at
+ * `js/mklev.js place_lregion()` for a function defined at `js/mkmaze.js:92`,
+ * and a hand-written note is what corrected it.
+ *
+ * Neither line blocks. A record may name a symbol the file has yet to define,
+ * and an entry whose blocker has landed may still have work left, in which
+ * case the repair is to name the symbol it now waits on. Both probes are
+ * injectable, so a test can pin the wording without reading js/.
+ *
+ * Only `detail` is scanned. A note is the append-only correction of a detail,
+ * so it quotes a wrong citation about as often as it writes one, and flagging
+ * a correction for the text it corrects would report a repair as a defect.
+ */
+export function formatStaleAnchors(deferred, {
+  blockerLanded = portDefines,
+  fileDefines = portFileDefines,
+} = {}) {
+  const open = deferred.filter((entry) => entry.status === 'open');
+  const lines = [];
+  for (const entry of open) {
+    const blocker = entry.blockedOn?.trim();
+    if (blocker && blockerLanded(blocker)) {
+      lines.push(`Blocker landed, so recheck the entry: ${blocker} `
+        + `[${entry.id}].`);
+    }
+  }
+  for (const entry of open) {
+    const flagged = new Set();
+    CITED_PORT_SYMBOL.lastIndex = 0;
+    let match;
+    while ((match = CITED_PORT_SYMBOL.exec(entry.detail)) !== null) {
+      const [, file, symbol] = match;
+      const pair = `js/${file} ${symbol}()`;
+      // One entry cites one pair several times when it argues from it, and
+      // the reader has one thing to fix either way.
+      if (flagged.has(pair) || fileDefines(file, symbol)) continue;
+      flagged.add(pair);
+      lines.push(`Cited but not defined there: ${pair} [${entry.id}].`);
+    }
   }
   return lines;
 }
