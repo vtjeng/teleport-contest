@@ -12,13 +12,23 @@
 // d(2, 4) it spends at 1554, the kill line monkilled() adds when that roll
 // empties the victim, and the corpse and vacated square the death leaves.
 //
-// EVERY SEGMENT ENDS ON A SPACE, and that is the point of the matrix rather
-// than a detail of it. C's pline_mon() at 1534 suspends on a --More-- when a
-// line already stands unread, and thitm()'s argument at 1554 is not evaluated
-// until the hero clears it. A segment that stopped at the catch would record
-// the message and none of the roll. The space is what carries each recording
-// across that suspension, so the d(2, 4) lands in the step the space owns and
-// the log pins its position rather than only its existence.
+// Two segments carry on past the catch, into mintrap()'s mtmp->mtrapped arm
+// (3741-3789), which monmove.c m_move() reaches at :1734 on every move of an
+// already-held monster. What those record is the rn2(40) at 3751 recurring
+// once per move -- twice in a turn the faster pony gets two moves in -- and,
+// in seed 7005082, the roll of zero at step 15 that frees it and writes
+// "The saddled pony pulls free of the bear trap." through trapname().
+//
+// EVERY SEGMENT CLEARS ITS --More-- WITH A SPACE, and that is the point of the
+// matrix rather than a detail of it. C's pline_mon() at 1534 suspends on a
+// --More-- when a line already stands unread, and thitm()'s argument at 1554
+// is not evaluated until the hero clears it. A segment that stopped at the
+// catch would record the message and none of the roll. The space is what
+// carries each recording across that suspension, so the d(2, 4) lands in the
+// step the space owns and the log pins its position rather than only its
+// existence. It is also what lets the held turns after it happen at all:
+// js/tty_message.js:78 xwaitforspace() ignores an `s`, so searches appended
+// before the space would spend no turn and draw nothing.
 //
 // The matrix spreads over what changes which branch of C:1526-1557 runs:
 // whether the victim is over MZ_SMALL, which is the whole size gate; whether
@@ -44,6 +54,15 @@
 // plain floor, corridor and open doorway from the hero's start to a square
 // beside that trap, and each move count is the smallest round number past the
 // catch it was chosen for.
+//
+// The escape needed no second scan. Its search domain was the four seeds above
+// whose pony survives its catch, each extended by ninety searches and read
+// back from the port's own rn2(40) draws, which are C's while the two agree.
+// Two of the four hold the pony in sight long enough to matter, and 7005082's
+// roll of zero lands at step 15, inside the thirty-two held turns the port
+// reaches before an unrelated pet-combat boundary ends it. `held` on each
+// entry below is that boundary, not a round number: one search more and the
+// segment would record a screen the port cannot answer.
 //
 // Two branches of the arm have no segment here, and
 // scripts/monster-bear-trap.test.mjs pins both against mintrap() directly.
@@ -75,13 +94,14 @@ function nethackrc(role, gender, align, pettype) {
 // A Knight, whose pet is the saddled pony of C's role.c:209, walking to the
 // trap and then standing still. `tail` is what follows the walk: searches
 // while the pet moves, then the space that clears the --More-- the catch line
-// raises.
-function knight({ seed, walk, turns, tail = ' ' }) {
+// raises. `held` is how many more searches follow that space, one per turn the
+// pony then spends in the trap.
+function knight({ seed, walk, turns, tail = ' ', held = 0 }) {
     return {
         seed,
         datetime: DATETIME,
         nethackrc: nethackrc('Knight', 'male', 'lawful', 'horse'),
-        moves: `${walk}${'s'.repeat(turns)}${tail}`,
+        moves: `${walk}${'s'.repeat(turns)}${tail}${'s'.repeat(held)}`,
     };
 }
 
@@ -94,8 +114,11 @@ export function loadMonsterBearTrapRecipe() {
             // lands after the space. The four differ in how far the hero walks
             // and in how much else the catch turn carries, so no one record
             // stands alone for the message or the roll.
-            knight({ seed: 7000039, walk: 'l', turns: 6 }), // caught on turn 5
-            knight({ seed: 7005082, walk: 'j', turns: 6 }), // on turn 6
+            // caught on turn 5, then held for eight more
+            knight({ seed: 7000039, walk: 'l', turns: 6, held: 8 }),
+            // caught on turn 6 and free again at step 15, which is the one
+            // recording in this repository of "pulls free of the bear trap."
+            knight({ seed: 7005082, walk: 'j', turns: 6, held: 32 }),
             knight({ seed: 7010149, walk: 'llll', turns: 6 }), // on turn 9
             // on turn 25
             knight({ seed: 7007646, walk: 'lllllljjjbjjn', turns: 12 }),

@@ -58,9 +58,11 @@ function baseEnv(events) {
         // dochug() calls m_move(), which owns the mintrap() and meating
         // prologue and the tame dog_move() dispatch. This double stands in
         // for m_move() so these cases keep asserting dochug()'s ordering
-        // around it. m_move()'s own prologue is covered in monmove.test.mjs.
+        // around it. m_move()'s own prologue is covered in monmove.test.mjs,
+        // against the real mintrap(); `trappedPrologue` is this file's own
+        // stand-in for monmove.c:1733-1742 and names no production seam.
         moveMonster: async (subject, moveEnv) => {
-            if (await moveEnv.resolveTrappedMonster(subject, moveEnv))
+            if (await moveEnv.trappedPrologue(subject, moveEnv))
                 return MMOVE_NOTHING;
             if (subject.meating) {
                 --subject.meating;
@@ -94,7 +96,7 @@ function baseEnv(events) {
         attackHero: () => events.push('attack'),
         wakeMessage: () => events.push('wake-message'),
         monsterCanSeeHero: () => true,
-        resolveTrappedMonster: () => false,
+        trappedPrologue: () => false,
         setApparentHero: () => events.push('apparxy'),
         wipeEngraving: () => events.push('wipe'),
     };
@@ -198,7 +200,7 @@ test('pet dochug returns a still-trapped result without entering postmov',
         },
         movePet: () => assert.fail('a still-trapped pet cannot move'),
         postMonsterMove: () => assert.fail('a trapped pet bypasses postmov'),
-        resolveTrappedMonster: () => {
+        trappedPrologue: () => {
             events.push('trap');
             return true;
         },

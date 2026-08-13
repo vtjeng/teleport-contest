@@ -6,9 +6,11 @@ import {
     COULD_SEE,
     FORCETRAP,
     IN_SIGHT,
+    PIT,
     Trap_Caught_Mon,
     Trap_Effect_Finished,
     Trap_Killed_Mon,
+    WEB,
     W_ARMF,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
@@ -24,11 +26,13 @@ import {
     PM_JACKAL,
     PM_OWLBEAR,
     PM_PONY,
+    PM_RUST_MONSTER,
     PM_WATER_ELEMENTAL,
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
 import { CORPSE, IRON_SHOES } from '../js/objects.js';
 import { canSeeMonster } from '../js/startup_a11y.js';
+import { trapname } from '../js/trap.js';
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';
 import { loadMonsterBearTrapRecipe } from './run-monster-bear-trap.mjs';
 
@@ -433,18 +437,192 @@ test('a hero-made bear trap is named as the hero own', async () => {
     assert.deepEqual(evaderEnv.lines, ['The jackal evades your bear trap!']);
 });
 
+// trap.c mintrap():3751 and :3788. A held monster spends one rn2(40) per
+// completed move and stays held on every nonzero roll, writing nothing and
+// drawing nothing. The 39-in-40 side is what seed0004-feeding-pony spends
+// from step 46 to step 82, so it is the arm's common case by a wide margin.
+test('a trapped monster spends its turn in the trap', async () => {
+    await hero();
+    const { mon, trap } = victimInBearTrap(PM_PONY, 13, { mtrapped: true });
+    trap.tseen = true;
+
+    // rn2(40) of 1 is the smallest roll that keeps the monster held; 0 is the
+    // only one that frees it.
+    const env = bearEnv([1]);
+    assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon, 'trap.c:3788');
+    assert.deepEqual(env.bounds, ['rn2(40)'], 'one escape roll and no other');
+    assert.deepEqual(env.lines, [], 'a held monster is not reported again');
+    assert.deepEqual(env.redraws, [], 'and nothing is repainted');
+    assert.equal(mon.mtrapped, true, 'still held');
+    assert.equal(mon.mhp, 13, 'the trap bites once, at the catch');
+});
+
+// trap.c:3751 and :3770-3774. The escape itself: rn2(40) of 0 frees the
+// monster and, while the hero can watch, writes the line trapname() names the
+// trap in. No development session draws it -- seed0004's own escape at step 83
+// is silent because canseemon() has gone false by then -- so this pins the
+// wording against C and scripts/run-monster-bear-trap.mjs records it fresh.
+test('a trapped monster pulls free of the bear trap', async () => {
+    await hero();
+    const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13, {
+        mtrapped: true,
+    });
+    trap.tseen = true;
+    assert.equal(canSeeMonster(mon, game), true, 'the hero watches');
+
+    const env = bearEnv([0]);
+    assert.equal(await mintrap(mon, 0, env), Trap_Effect_Finished,
+                 'trap.c:3788 with mtrapped cleared');
+    assert.deepEqual(env.bounds, ['rn2(40)']);
+    assert.deepEqual(env.lines, ['The pony pulls free of the bear trap.']);
+    assert.equal(mon.mtrapped, false, 'trap.c:3775');
+    assert.equal(trap.tseen, true, 'the trap stays on the map');
+    assert.deepEqual(env.redraws, [], 'freeing a monster repaints nothing');
+
+    // C:3766. Out of sight the same roll frees the monster silently, so the
+    // message is the hero's view rather than part of the escape.
+    const unseen = victimInBearTrap(PM_PONY, 13, { mtrapped: true });
+    unseen.trap.tseen = true;
+    blind_to(unseen.x, unseen.y);
+    const unseenEnv = bearEnv([0]);
+    assert.equal(await mintrap(unseen.mon, 0, unseenEnv),
+                 Trap_Effect_Finished);
+    assert.deepEqual(unseenEnv.bounds, ['rn2(40)'], 'the roll still happens');
+    assert.deepEqual(unseenEnv.lines, []);
+    assert.equal(unseen.mon.mtrapped, false);
+
+    // The escape leaves the square it was held on, which is what m_move()'s
+    // prologue then lets the monster move off.
+    assert.equal(m_at(x, y, game), mon, 'the monster has not moved yet');
+});
+
+// trap.c:3771-3772 passes trap->ttyp to trapname(), and C's condition admits
+// a web beside the bear trap. The two names come from
+// defsyms[trap_to_defsym(ttyp)].explanation, so this is what would break if
+// trapname() indexed that table by one place.
+test('the escape line names the trap it frees the monster from', async () => {
+    await hero();
+    assert.equal(trapname(BEAR_TRAP), 'bear trap');
+    assert.equal(trapname(WEB), 'web');
+
+    // The web is left unmapped, because C:3745 admits it beside the bear trap
+    // and the hole: seeing a held monster reveals whichever of the four holds
+    // it. That is the whole difference between this case and a bear trap.
+    const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13, {
+        mtrapped: true,
+    });
+    trap.ttyp = WEB;
+    const env = bearEnv([0]);
+    assert.equal(await mintrap(mon, 0, env), Trap_Effect_Finished);
+    assert.deepEqual(env.lines, ['The pony pulls free of the web.']);
+    assert.equal(trap.tseen, true, 'C:3745 admits a web');
+    assert.deepEqual(env.redraws, [`${x},${y}`]);
+});
+
+// trap.c:3742-3749. Coming upon an obviously held monster reveals what holds
+// it, which is the one write this arm makes on a turn that frees nobody.
+test('watching a held monster reveals the trap under it', async () => {
+    await hero();
+    const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13, {
+        mtrapped: true,
+    });
+    assert.equal(trap.tseen, false, 'the trap starts unmapped');
+
+    const env = bearEnv([1]);
+    assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon);
+    assert.equal(trap.tseen, true, "seetrap()'s write");
+    assert.deepEqual(env.redraws, [`${x},${y}`], "and seetrap()'s draw");
+
+    // The same turn with the hero unable to see the square leaves the trap
+    // unmapped: C:3742 wants cansee() and canseemon() together.
+    const unseen = victimInBearTrap(PM_PONY, 13, { mtrapped: true });
+    blind_to(unseen.x, unseen.y);
+    const unseenEnv = bearEnv([1]);
+    assert.equal(await mintrap(unseen.mon, 0, unseenEnv), Trap_Caught_Mon);
+    assert.equal(unseen.trap.tseen, false, 'nothing revealed');
+    assert.deepEqual(unseenEnv.redraws, []);
+
+    // The two conjuncts apart. An invisible monster on a square the hero can
+    // still see satisfies cansee() and fails canseemon(), and C:3742 wants
+    // both: the hero has not come upon an obviously trapped monster, so the
+    // trap stays hidden. The same gate silences the escape line at C:3766.
+    const invisible = victimInBearTrap(PM_PONY, 13, {
+        minvis: true,
+        mtrapped: true,
+    });
+    assert.equal(canSeeMonster(invisible.mon, game), false, 'not seen');
+    const invisibleEnv = bearEnv([0]);
+    assert.equal(await mintrap(invisible.mon, 0, invisibleEnv),
+                 Trap_Effect_Finished);
+    assert.equal(invisible.trap.tseen, false, 'nothing revealed');
+    assert.deepEqual(invisibleEnv.redraws, []);
+    assert.deepEqual(invisibleEnv.lines, [], 'and nothing written');
+    assert.equal(invisible.mon.mtrapped, false, 'yet it pulls free');
+});
+
+// trap.c:3751-3758 and :3775-3787, the two blocks a bear trap never reaches.
+// Each is refused rather than ported, at C's own position: the pit refusal
+// leads the arm because is_pit() changes the escape condition itself, and the
+// metallivore refusal is the `else` of that escape, exactly where C puts it.
+test('the pit and metallivore blocks are refused, not ported', async () => {
+    await hero();
+
+    // is_pit() opens C's second escape disjunct, the boulder block and the
+    // "climbs out of the pit" line, all of which need m_easy_escape_pit() and
+    // fill_pit().
+    const pit = victimInBearTrap(PM_PONY, 13, { mtrapped: true });
+    pit.trap.ttyp = PIT;
+    const pitEnv = bearEnv([0]);
+    await assert.rejects(
+        mintrap(pit.mon, 0, pitEnv),
+        (error) => error.message === 'a monster escaping a pit',
+    );
+    assert.deepEqual(pitEnv.bounds, [], 'refused ahead of the escape roll');
+    assert.equal(pit.trap.tseen, false, 'and ahead of seetrap()');
+    assert.equal(pit.mon.mtrapped, true, 'nothing freed');
+
+    // metallivorous(). monsters.h:2147-2154 gives the rust monster
+    // M1_METALLIVORE, and C:3777-3782 has it eat the bear trap through
+    // deltrap() and start meating. C reaches that branch only as the `else` of
+    // the escape, so the refusal follows the escape roll rather than leading
+    // it, and the trap is still on the level when it fires.
+    const eater = victimInBearTrap(PM_RUST_MONSTER, 13, { mtrapped: true });
+    eater.trap.tseen = true;
+    const eaterEnv = bearEnv([1]);
+    await assert.rejects(
+        mintrap(eater.mon, 0, eaterEnv),
+        (error) => error.message === 'a monster eating a trap',
+    );
+    assert.deepEqual(eaterEnv.bounds, ['rn2(40)'], "C's own order");
+    assert.equal(game.level.traps.includes(eater.trap), true, 'not eaten');
+    assert.equal(eater.mon.mtrapped, true, 'and still held');
+
+    // The other side of that order: the same metallivore on the roll that
+    // frees it never reaches the branch, so it pulls free like anything else.
+    const freed = victimInBearTrap(PM_RUST_MONSTER, 13, { mtrapped: true });
+    freed.trap.tseen = true;
+    const freedEnv = bearEnv([0]);
+    assert.equal(await mintrap(freed.mon, 0, freedEnv), Trap_Effect_Finished);
+    assert.deepEqual(freedEnv.lines,
+                     ['The rust monster pulls free of the bear trap.']);
+    assert.equal(freed.mon.mtrapped, false);
+});
+
 // What each matrix segment is recorded for, measured by replaying it in the
 // port: the turn on which the trap fires, and the state the arm leaves behind.
-// `caught` names the branch of C:1530 the segment takes.
+// `caught` names the branch of C:1530 the segment takes; `freed` names
+// mintrap():3751's, and only a segment whose escape roll comes up sets it.
 const MATRIX_OUTCOME = Object.freeze({
-    7000039: { turn: 5, caught: true, killed: false },
-    7005082: { turn: 6, caught: true, killed: false },
-    7010149: { turn: 9, caught: true, killed: false },
-    7007646: { turn: 25, caught: true, killed: false },
+    7000039: { turn: 5, caught: true, killed: false, freed: false },
+    // Eight held turns end at step 15 with a roll of zero, which is what
+    // leaves this segment's pony off its trap at the last key.
+    7005082: { turn: 6, caught: true, killed: false, freed: true },
+    7010149: { turn: 9, caught: true, killed: false, freed: false },
+    7007646: { turn: 25, caught: true, killed: false, freed: false },
     // The roll empties the pony, so nothing stands on the trap afterwards.
-    7008529: { turn: 32, caught: true, killed: true },
+    7008529: { turn: 32, caught: true, killed: true, freed: false },
     // The kobold zombie crosses the trap instead of being held by it.
-    7002077: { turn: 31, caught: false, killed: false },
+    7002077: { turn: 31, caught: false, killed: false, freed: false },
 });
 
 // Every segment has to carry the recording across the --More-- that C's
@@ -509,6 +687,16 @@ test('every matrix segment reaches a bear trap and replays to its last key',
                               `segment ${segment.seed} empties its victim`);
                  assert.equal(live.some((trap) => trap.tseen), true,
                               `segment ${segment.seed} exposes the trap`);
+                 continue;
+             }
+             if (expected.freed) {
+                 // mintrap():3775 clears mtrapped, and m_move()'s prologue
+                 // then lets the turn carry on, so the pony walks off the
+                 // square it was held on. The trap it left stays mapped.
+                 assert.equal(onTrap, null,
+                              `segment ${segment.seed} frees its victim`);
+                 assert.equal(live.some((trap) => trap.tseen), true,
+                              `segment ${segment.seed} leaves the trap seen`);
                  continue;
              }
              assert.ok(onTrap, `segment ${segment.seed} leaves a victim`);

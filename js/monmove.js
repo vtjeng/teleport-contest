@@ -125,6 +125,7 @@ import {
     TEMPLE,
     TRAPDOOR,
     TRAPNUM,
+    Trap_Caught_Mon,
     Trap_Killed_Mon,
     Trap_Moved_Mon,
     UNLOCKDOOR,
@@ -2482,10 +2483,6 @@ export async function m_move(monster, rawEnv = {}) {
     // bare TypeError that ELAPSED_TURN_PLANNING_REFUSALS does not convert, so
     // it would escape runSegment() and discard the segment rather than stop it.
     const random = rawEnv.random ?? { d, rn1, rn2, rnd, rne, rnl, rnz };
-    const resolveTrappedMonster = requireMoveOperation(
-        rawEnv,
-        'resolveTrappedMonster',
-    );
     const resistsTrapEffect = requireMoveOperation(
         rawEnv,
         'resistsTrapEffect',
@@ -2497,11 +2494,38 @@ export async function m_move(monster, rawEnv = {}) {
     const oldX = monster.mx;
     const oldY = monster.my;
 
-    // C ref: m_move() prologue.  mintrap() runs first, then the meating
-    // countdown, then hides_under (which the boundary rejects), then
-    // set_apparxy(), then the tame dispatch.
-    if (monster.mtrapped && await resolveTrappedMonster(monster, env))
-        return MMOVE_NOTHING;
+    // C ref: monmove.c:1733-1742, m_move()'s prologue.  mintrap() runs first,
+    // then the meating countdown, then hides_under (which the boundary
+    // rejects), then set_apparxy(), then the tame dispatch.
+    //
+    // The two seams postmov() resolves for its own mintrap() call: the cloned
+    // planning scan must write neither the message window nor the map, and it
+    // replays the same turn against the live display afterwards.
+    if (monster.mtrapped) {
+        const redraw = env.planning ? () => {} : (rawEnv.redraw ?? newsym);
+        const trapResult = await mintrap(monster, NO_TRAP_FLAGS, {
+            ...env,
+            heroDeaf,
+            mInAir: m_in_air,
+            message: env.planning
+                ? async () => {}
+                : (rawEnv.message ?? ttyPline),
+            redraw,
+            youHear,
+        });
+        // C:1736-1738.  Carried because C carries it, though no mintrap()
+        // answer reaches it: the call above enters either the `!trap` arm,
+        // which returns Trap_Effect_Finished, or the `mtmp->mtrapped` arm,
+        // whose only two answers are trap.c:3789's Trap_Caught_Mon and
+        // Trap_Effect_Finished.  A monster is killed by a trap it walks onto,
+        // through postmov()'s mintrap() call, not by one already holding it.
+        if (trapResult === Trap_Killed_Mon) {
+            redraw(monster.mx, monster.my);
+            return MMOVE_DIED; /* it died */
+        }
+        if (trapResult === Trap_Caught_Mon)
+            return MMOVE_NOTHING; /* still in trap, so didn't move */
+    }
     if (monster.meating) {
         --monster.meating;
         if (monster.meating <= 0) finishEating(monster);

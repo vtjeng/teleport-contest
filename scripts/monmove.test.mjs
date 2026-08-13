@@ -1447,8 +1447,7 @@ test('m_move hands postmov the tunneling capability it computed', async () => {
         const result = await m_move(monster, {
             state,
             random: { rn2: () => 0 },
-            resolveTrappedMonster: () => false,
-            finishEating: () => {},
+                finishEating: () => {},
             movePet: () => assert.fail('hostile monster is not a pet'),
             resistsTrapEffect: () => false,
             itemSearchInLine: () => false,
@@ -1513,24 +1512,45 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
     {
         const { state } = makeState();
         const monster = ordinaryMonster(state, { mtrapped: true });
-        const events = [];
+        // monmove.c:1734 hands the monster to the real mintrap(), so this
+        // case needs a real trap under it. The trap is already seen, which
+        // shuts trap.c:3742's seetrap() gate on its first conjunct, and
+        // rn2(40) answers nonzero, which shuts the escape at 3751. mintrap()
+        // then returns Trap_Caught_Mon at 3788 and the prologue stops here.
+        state.level.traps.push({
+            tx: 4, ty: 4, ttyp: BEAR_TRAP, tseen: true, madeby_u: false,
+        });
+        const bounds = [];
+        const draw = (bound) => {
+            bounds.push(bound);
+            return 1;
+        };
         assert.equal(
             await m_move(monster, {
                 state,
-                random: { rn2: () => assert.fail('trapped path RNG') },
-                resolveTrappedMonster: () => {
-                    events.push('trap');
-                    return true;
+                random: {
+                    d: draw,
+                    rn1: draw,
+                    rn2: draw,
+                    rnd: draw,
+                    rne: draw,
+                    rnl: draw,
                 },
                 finishEating: () => assert.fail('trapped path eating'),
                 movePet: () => assert.fail('trapped path pet move'),
                 resistsTrapEffect: () => false,
                 postMonsterMove: () => assert.fail('trapped path postmov'),
                 unsupported: (reason) => assert.fail(reason),
+                heroDeaf: () => false,
+                mInAir: () => false,
+                youHear: () => null,
+                message: async () => assert.fail('a held monster writes none'),
+                redraw: () => assert.fail('a held monster redraws nothing'),
             }),
             MMOVE_NOTHING,
         );
-        assert.deepEqual(events, ['trap']);
+        assert.deepEqual(bounds, [40], 'the escape roll at trap.c:3751');
+        assert.equal(monster.mtrapped, true, 'still held');
     }
 
     {
@@ -1541,8 +1561,6 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
             await m_move(monster, {
                 state,
                 random: { rn2: () => assert.fail('eating path RNG') },
-                resolveTrappedMonster: () =>
-                    assert.fail('untrapped eating path trap resolution'),
                 finishEating: (subject) => {
                     assert.equal(subject, monster);
                     events.push('finish');
@@ -1566,8 +1584,6 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
             await m_move(monster, {
                 state,
                 random: { rn2: () => assert.fail('eating path RNG') },
-                resolveTrappedMonster: () =>
-                    assert.fail('untrapped eating path trap resolution'),
                 finishEating: () => assert.fail('still eating'),
                 movePet: () => assert.fail('eating path pet move'),
                 resistsTrapEffect: () => false,
@@ -1595,8 +1611,6 @@ test('m_move owns trapped, eating, and tame prologue order', async () => {
             await m_move(monster, {
                 state,
                 random: { rn2: () => assert.fail('tame dispatch RNG') },
-                resolveTrappedMonster: () =>
-                    assert.fail('untrapped tame path trap resolution'),
                 finishEating: () => assert.fail('tame path eating'),
                 movePet(subject, after) {
                     assert.equal(subject, monster);
@@ -1650,7 +1664,6 @@ test('m_move pins source candidate order and reservoir tie-breaking',
     const result = await m_move(monster, {
         state,
         random,
-        resolveTrappedMonster: () => false,
         finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
         resistsTrapEffect: () => false,
@@ -1688,7 +1701,6 @@ test('m_move ordinary path reports no moves from a sealed square', async () => {
     const result = await m_move(monster, {
         state,
         random: { rn2: () => 0 },
-        resolveTrappedMonster: () => false,
         finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
         resistsTrapEffect: () => false,
@@ -1755,8 +1767,7 @@ test('m_move reads unicorn line avoidance from the returned candidate count',
             const result = await m_move(unicorn, {
                 state,
                 random: { rn2: () => 0 },
-                resolveTrappedMonster: () => false,
-                finishEating: () => {},
+                        finishEating: () => {},
                 movePet: () => { throw new Error('unexpected pet mover'); },
                 resistsTrapEffect: () => false,
                 noTeleportLevel: (subject) => noteleport_level(subject, state),
@@ -1809,8 +1820,7 @@ test('m_move item search requires the complete approach and line predicate',
         await m_move(approaching, {
             state: aligned,
             random: { rn2: () => 0 },
-            resolveTrappedMonster: () => false,
-        finishEating: () => {},
+            finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
             resistsTrapEffect: () => false,
             itemSearchInLine() {
@@ -1841,8 +1851,7 @@ test('m_move item search requires the complete approach and line predicate',
             m_move(searching, {
                 state: offLine,
                 random: { rn2: () => 0 },
-                resolveTrappedMonster: () => false,
-        finishEating: () => {},
+                finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
                 resistsTrapEffect: () => false,
                 itemSearchInLine: () => false,
@@ -1869,8 +1878,7 @@ test('m_move item search requires the complete approach and line predicate',
             m_move(nonApproaching, {
                 state: confused,
                 random: { rn2: () => 0 },
-                resolveTrappedMonster: () => false,
-        finishEating: () => {},
+                finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
                 resistsTrapEffect: () => false,
                 itemSearchInLine: () => true,
@@ -1900,8 +1908,7 @@ test('m_move item-search gate preserves peaceful and rogue-level order',
         const result = await m_move(monster, {
             state,
             random: sequenceRandom([0], calls),
-            resolveTrappedMonster: () => false,
-        finishEating: () => {},
+            finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
             resistsTrapEffect: () => false,
             itemSearchInLine: () => assert.fail(
@@ -1989,7 +1996,6 @@ test('m_move spends an attack on an empty displacement image', async () => {
         random: sequenceRandom([1, 1, 2], calls),
         couldSee: () => true,
         itemSearchInLine: () => true,
-        resolveTrappedMonster: () => false,
         finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
         resistsTrapEffect: () => false,
@@ -2032,8 +2038,7 @@ test('m_move sends a rejected candidate through postmov as no movement',
         const result = await m_move(monster, {
             state,
             random: { rn2: () => 0 },
-            resolveTrappedMonster: () => false,
-        finishEating: () => {},
+            finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
             resistsTrapEffect: () => false,
             avoidKicked: () => true,
@@ -2077,8 +2082,7 @@ test('m_move item search requires the complete approach and line predicate',
         await m_move(approaching, {
             state: aligned,
             random: { rn2: () => 0 },
-            resolveTrappedMonster: () => false,
-        finishEating: () => {},
+            finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
             resistsTrapEffect: () => false,
             itemSearchInLine() {
@@ -2109,8 +2113,7 @@ test('m_move item search requires the complete approach and line predicate',
             m_move(searching, {
                 state: offLine,
                 random: { rn2: () => 0 },
-                resolveTrappedMonster: () => false,
-        finishEating: () => {},
+                finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
                 resistsTrapEffect: () => false,
                 itemSearchInLine: () => false,
@@ -2137,8 +2140,7 @@ test('m_move item search requires the complete approach and line predicate',
             m_move(nonApproaching, {
                 state: confused,
                 random: { rn2: () => 0 },
-                resolveTrappedMonster: () => false,
-        finishEating: () => {},
+                finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
                 resistsTrapEffect: () => false,
                 itemSearchInLine: () => true,
@@ -2168,8 +2170,7 @@ test('m_move item-search gate preserves peaceful and rogue-level order',
         const result = await m_move(monster, {
             state,
             random: sequenceRandom([0], calls),
-            resolveTrappedMonster: () => false,
-        finishEating: () => {},
+            finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
             resistsTrapEffect: () => false,
             itemSearchInLine: () => assert.fail(
@@ -2257,7 +2258,6 @@ test('m_move spends an attack on an empty displacement image', async () => {
         random: sequenceRandom([1, 1, 2], calls),
         couldSee: () => true,
         itemSearchInLine: () => true,
-        resolveTrappedMonster: () => false,
         finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
         resistsTrapEffect: () => false,
@@ -2298,8 +2298,7 @@ test('m_move delegates the selected region crossing before map mutation',
         const result = await m_move(monster, {
             state,
             random: { rn2: () => 0 },
-            resolveTrappedMonster: () => false,
-        finishEating: () => {},
+            finishEating: () => {},
         movePet: () => { throw new Error('unexpected pet mover'); },
             resistsTrapEffect: () => false,
             unsupported: (reason) => assert.fail(reason),

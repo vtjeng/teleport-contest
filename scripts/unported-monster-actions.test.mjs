@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     ALTAR,
     ARROW_TRAP,
+    BEAR_TRAP,
     BLINDED,
     BURN,
     BURN_OBJECT,
@@ -48,6 +49,7 @@ import {
     TIMER_OBJECT,
     W_NONDIGGABLE,
     W_NONPASSWALL,
+    WEB,
     W_WEP,
 } from '../js/const.js';
 import { eatfood } from '../js/eat.js';
@@ -1679,6 +1681,61 @@ test('simple preflight refuses each turn-preamble state on its own',
             completeSecondTurnSnapshot(game, clean.replay),
             before,
         );
+    });
+
+// trap.c mintrap()'s mtmp->mtrapped arm, which monmove.c m_move() reaches at
+// :1734, is ported for the bear trap alone, so the gate reads the square under
+// the monster rather than its mtrapped bit. A pit needs fill_pit() and
+// m_easy_escape_pit(); a web reaches C:3771's message but not the seetrap()
+// path that puts a monster in one, and every remaining type escapes with no
+// line at all.
+test('simple preflight admits a monster held in a bear trap alone',
+    async () => {
+        const held = await prepareSelectedAction();
+        held.monster.mtrapped = true;
+        game.level.traps.push({
+            tx: held.monsterX,
+            ty: held.heroY,
+            ttyp: BEAR_TRAP,
+            tseen: true,
+        });
+        const before = completeSecondTurnSnapshot(game, held.replay);
+
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, held.replay),
+                before,
+                `bear trap, attempt ${attempt + 1}`,
+            );
+        }
+
+        for (const [label, ttyp] of [['pit', PIT], ['web', WEB]]) {
+            const other = await prepareSelectedAction();
+            other.monster.mtrapped = true;
+            game.level.traps.push({
+                tx: other.monsterX,
+                ty: other.heroY,
+                ttyp,
+                tseen: true,
+            });
+            const otherBefore = completeSecondTurnSnapshot(
+                game, other.replay,
+            );
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => (
+                    error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === 'a trapped monster'
+                ),
+                label,
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, other.replay),
+                otherBefore,
+                label,
+            );
+        }
     });
 
 test('simple preflight admits source-inert monster inventory', async () => {

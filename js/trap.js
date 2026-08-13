@@ -1,6 +1,6 @@
 // trap.js -- Trap allocation and map ownership.
 // C ref: trap.c -- t_at(), hole_destination(), maketrap(), choose_trapnote(),
-// set_utrap(), reset_utrap(), fill_pit(), float_down().
+// set_utrap(), reset_utrap(), fill_pit(), float_down(), trapname().
 
 import {
     BEAR_TRAP,
@@ -80,6 +80,8 @@ import { BOULDER } from './objects.js';
 import { check_here, encumber_msg } from './pickup.js';
 import { float_vs_flight } from './polyself.js';
 import { rn1, rn2, rnd, rne } from './rng.js';
+import { CMAP_EXPLANATIONS } from './symbol_data.js';
+import { trap_to_defsym } from './symbols.js';
 import { is_ice, set_levltyp } from './terrain.js';
 import { spot_stop_timers } from './timeout.js';
 
@@ -703,4 +705,23 @@ export async function float_down(hmask, emask, state = game) {
     // stands for the whole of pickup() at this boundary.
     await check_here(false, state);
     return 1;
+}
+
+// C ref: trap.c trapname() (7099-7155), the live return at 7154 alone.
+//
+// C's second parameter, `override`, only suppresses the hallucinating branch
+// at 7106-7152. That branch draws rn2_on_display_rng() once and can build a
+// name from the hero's role and rank, so it is unported and the parameter is
+// left off rather than carried dead: every caller here formats the true name.
+// Monnam(), which shares mintrap()'s escape line at C 3771-3772, carries the
+// same gap -- js/do_name.js monsterCommonName() drops the saddle adjective for
+// a hallucinating hero and returns the true species name -- so the line as a
+// whole is correct exactly while the hero is not hallucinating.
+//
+// defsyms[].explanation is generated as CMAP_EXPLANATIONS, so this reads the
+// table the symbol set is built from rather than a copy of it. trap_to_defsym()
+// rejects NO_TRAP and anything at or past TRAPNUM, which is C's own indexable
+// range.
+export function trapname(ttyp) {
+    return CMAP_EXPLANATIONS[trap_to_defsym(ttyp)];
 }

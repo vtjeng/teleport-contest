@@ -1,7 +1,7 @@
 {
   "mode": "implementation",
-  "reason": "The goal bear-trap-capture's first slice has landed: trapeffect_bear_trap()'s monster arm (C 1525-1558) is ported and js/trap_effects.js:491's refusal is gone. Six entries remain missing: the BEAR_TRAP-reachable subset of mintrap()'s mtrapped arm with trapname(), m_move()'s mtrapped prologue, and heal_legs() with the nh_timeout() case that reaches it. This checklist replaces the one that covered sit-command, finish-seed1150 and finish-seed0200, whose slices closed and whose evidence is recorded in GOALS.json, SCORE.tsv and QUALITY.json.",
-  "commitChecked": "1841a5e519002ef6d7330e94bc054395ccdfd75b",
+  "reason": "The goal bear-trap-capture's second slice has landed: trap.c mintrap()'s mtmp->mtrapped arm is ported for the bear trap, monmove.c m_move()'s prologue calls it, and trap.c trapname() exists in js/trap.js. js/trap_effects.js:811's refusal and the resolveTrappedMonster injection are gone, and js/unported_monster_actions.js's 'a trapped monster' gate now reads the square rather than the mtrapped bit. Two entries remain missing: do.c heal_legs() and the timeout.c nh_timeout() case that reaches it, which is slice 3 and carries 120 of the goal's 137 steps.",
+  "commitChecked": "ecf01a88f06f10efcf2f3377e96f132e6b89d630",
   "boundary": {
     "goalId": "bear-trap-capture",
     "startingCommit": "8a25741772d30ee7d90b8c261bb1ab65a0fef8d4",
@@ -16,7 +16,7 @@
     "dispatchTablesAndCatalogs": "defsyms[].explanation, which trapname() indexes through trap_to_defsym(); it is generated as CMAP_EXPLANATIONS in js/symbol_data.js:215. monsters.h's SIZ() rows decide the msize gate; PM_PONY at monsters.h:1002-1009 is SIZ(1300, 250, MS_NEIGH, MZ_MEDIUM) with M1_ANIMAL|M1_NOHANDS|M1_HERBIVORE and no M1_FLY.",
     "reachableHelpers": "Read each C function line by line and resolved every call against js/. The monster arm's helpers are all ported: wearing_iron_shoes() at js/trap_effects.js:150, thitm() at :348, seetrap() at :209, a_your[]/A_Your[] at :129-130, m_in_air() at js/monmove.js:653, Monnam() as capitalizedMonsterName() at js/do_name.js:238, set_msg_xy() as messageAt() at js/startup_a11y.js:294. heal_legs()'s are too: body_part() at js/polyself.js:187, vtense() at js/objnam.js:529, makeplural() at js/fruit.js:293, encumber_msg() at js/pickup.js:80. Short-circuits were traced rather than assumed: for BEAR_TRAP, is_pit() is false throughout, so C's `!rn2(40) || (is_pit(...) && m_easy_escape_pit(...))` never evaluates its second disjunct.",
     "javascriptCrossCheck": "grep for each C function name across js/ to separate a missing port from a partial one under the same name; grep for 'unsupported(' and the boundary error classes in js/trap_effects.js, js/unported_monster_actions.js and js/timeout.js to enumerate the refusal sites; grep for resolveTrappedMonster to find the injection at js/unported_monster_actions.js:712 and its seam at js/monmove.js:2503; grep for trapname across js/ returned no definition and five refusing callers.",
-    "remainingLimits": "The escape message is the weakest evidence. seed0004's escape at step 83 is silent because canseemon() is false by then, and no screen in its 409 steps contains 'pulls free', so trapname()'s only consumer in this goal fires in no development session and needs a fresh case that keeps a trapped monster visible across a 1-in-40 roll. Getting a bear trap into a fresh case at all is unsolved for every slice: apply.c set_trap() is unported at js/apply.js:93, doapply() refuses the tool by object type at js/apply.js:275, and wizgenesis and wizmap are unported, so a seed search is the only route and its domain must be recorded first. A monster cannot be commanded onto a trap: a pet that has seen it avoids it through mon_knows_traps(), and displacing a pet swaps it onto the hero's square."
+    "remainingLimits": "The escape message was the weakest evidence and is no longer. seed0004's own escape at step 83 is silent because canseemon() is false by then, and no screen in its 409 steps contains 'pulls free', so the line needed a fresh case that keeps a trapped monster visible across a 1-in-40 roll. Its search domain was the four already-recorded catch seeds whose pony survives, each extended by ninety searches and read back from the port's own rn2(40) draws; seed 7005082's roll of zero lands at step 15, inside the thirty-two held turns the port reaches before an unrelated pet-combat boundary. No new seeds were scanned. Getting a bear trap into a fresh case at all remains seed-search-only: apply.c set_trap() is unported at js/apply.js:93, doapply() refuses the tool by object type at js/apply.js:275, and wizgenesis and wizmap are unported. A monster still cannot be commanded onto a trap: a pet that has seen it avoids it through mon_knows_traps(), and displacing a pet swaps it onto the hero's square."
   },
   "entries": [
     {
@@ -76,47 +76,47 @@
     {
       "candidate": "mintrap()'s mtmp->mtrapped arm, the BEAR_TRAP-reachable subset (C 3741-3789)",
       "reachability": "Runs on every completed move of an already-trapped monster. For a bear trap the escape condition reduces to !rn2(40).",
-      "owner": "None. js/trap_effects.js:811 refuses it with unsupported('a monster escaping a trap') inside the otherwise ported mintrap().",
+      "owner": "js/trap_effects.js mintrap(), the `monster.mtrapped` arm.",
       "effects": "Spends rn2(40) every turn and, on success, frees the monster and writes '%s pulls free of the %s.' through trapname().",
       "evidence": "trap.c:3741-3789. seed0004 spends the per-turn rn2(40) @ mintrap(trap.c:3751) from step 46, and the escape roll lands at step 83.",
-      "status": "missing",
-      "remaining": "Slice 2. About 20 of the arm's 49 lines are reachable."
+      "status": "done",
+      "remaining": "None. scripts/run-monster-bear-trap.mjs holds two segments that carry on past the catch: seed 7000039 records eight held turns and seed 7005082 thirty-two, whose recorded steps 9-14 each spend rn2(40) @ mintrap(trap.c:3751) -- twice over in the turns the faster pony gets two moves in -- and whose step 15 is the roll of zero that frees it and draws 'The saddled pony pulls free of the bear trap.' scripts/monster-bear-trap.test.mjs pins the held turn, the escape, the silent out-of-sight escape and seetrap()'s two conjuncts apart."
     },
     {
       "candidate": "mintrap()'s pit machinery: the sobj_at(BOULDER), fill_pit() and m_easy_escape_pit() block (C 3751-3758)",
       "reachability": "Guarded by is_pit(), which is false for BEAR_TRAP, and C's disjunction short-circuits past it.",
-      "owner": "None, and none needed.",
+      "owner": "None, and none needed. js/trap_effects.js mintrap() refuses is_pit() at the top of the mtrapped arm, ahead of seetrap() and of the rn2(40).",
       "effects": "None inside this boundary.",
       "evidence": "trap.c:3751-3758 with rm.h's is_pit(). The port's comment at js/trap_effects.js:794-798 names fill_pit(), deltrap() and m_easy_escape_pit() as the arm's blockers; for a bear trap all three are dead.",
       "status": "cannot-occur",
-      "remaining": "None. Slice 2 must keep it refused ahead of any state write rather than port it."
+      "remaining": "None. Refused rather than ported, and scripts/monster-bear-trap.test.mjs pins that the refusal precedes both the escape roll and seetrap()'s write."
     },
     {
       "candidate": "mintrap()'s metallivore deltrap() branch (C 3781-3787)",
       "reachability": "Requires metallivorous(mtmp->data). A pony is not.",
-      "owner": "None, and none needed.",
+      "owner": "None, and none needed. js/trap_effects.js mintrap() refuses metallivorous() at the top of the mtrapped arm.",
       "effects": "None inside this boundary.",
       "evidence": "trap.c:3781-3787 with mondata.h metallivorous().",
       "status": "cannot-occur",
-      "remaining": "None. Keep it refused."
+      "remaining": "None. Refused rather than ported, on a rust-monster fixture in scripts/monster-bear-trap.test.mjs that shows the trap still on the level."
     },
     {
       "candidate": "m_move()'s mtrapped prologue (C 1733-1742)",
       "reachability": "Runs at the top of every trapped monster's move, before it can step anywhere.",
-      "owner": "None. js/unported_monster_actions.js:229-230 refuses with unsupported('a trapped monster') before dochug() runs at all, and js/unported_monster_actions.js:712 binds resolveTrappedMonster: () => false as a stand-in at the seam js/monmove.js:2503.",
+      "owner": "js/monmove.js m_move(), the prologue at its top.",
       "effects": "Decides whether the monster moves this turn.",
       "evidence": "monmove.c:1733-1742. The gate fires at the pony's next action, which C's log puts at step 46, so it does not truncate slice 1's stretch.",
-      "status": "missing",
-      "remaining": "Slice 2. Delete the injection in the same commit as its replacement, and re-key the gate on t_at(mx, my) rather than on mtrapped, so a monster in a pit or a web still refuses."
+      "status": "done",
+      "remaining": "None. The injection is deleted and the gate at js/unported_monster_actions.js reads t_at(mx, my), so a monster held in a pit or a web still refuses ahead of dochug(). C's `i == Trap_Killed_Mon` arm is carried but unreachable: neither of mintrap()'s two arms that a held monster enters can answer it. scripts/monmove.test.mjs drives the prologue against the real mintrap(), and scripts/unported-monster-actions.test.mjs pins the re-keyed gate on all three trap types."
     },
     {
       "candidate": "trapname()'s non-hallucinating body (C 7154)",
       "reachability": "Reached by mintrap()'s escape line at C 3771-3772.",
-      "owner": "None anywhere in js/; five sites refuse on its absence.",
+      "owner": "js/trap.js trapname().",
       "effects": "Returns defsyms[trap_to_defsym(ttyp)].explanation.",
       "evidence": "trap.c:7099-7155, live line 7154. The data exists generated as CMAP_EXPLANATIONS in js/symbol_data.js:215.",
-      "status": "missing",
-      "remaining": "Slice 2, with its consumer. Hand-written copies of the same list sit in js/detect.js:82 (TRAP_NAMES) and js/startup_a11y.js:204 (TRAP_DESCRIPTIONS); 'Keep each game value in one place' forbids a fourth, and whether to fold those two in is a judgment call reaching into two other systems."
+      "status": "done",
+      "remaining": "None for the live line. It reads the generated CMAP_EXPLANATIONS through js/symbols.js trap_to_defsym(), so no fourth copy of the list exists; js/detect.js's hand-written TRAP_NAMES is deleted and its one call site now calls trapname(). js/startup_a11y.js's TRAP_DESCRIPTIONS is left, because its three sites index the list with values that may be absent while trap_to_defsym() throws on those, so folding them needs a guard at each and changes accessibility paths this goal does not exercise."
     },
     {
       "candidate": "trapname()'s hallucinating branch (C 7106-7152)",
@@ -125,7 +125,7 @@
       "effects": "Draws rn2_on_display_rng() and reads role and rank.",
       "evidence": "trap.c:7106-7152. Because it draws, trapname() is not a pure-function-bulk candidate under AGENTS.md's own test.",
       "status": "later",
-      "remaining": "Out of scope. No session in this goal hallucinates."
+      "remaining": "Out of scope. No session in this goal hallucinates, and the port does not refuse it: js/trap.js trapname() returns the true name, as js/do_name.js monsterCommonName() already does for the Monnam() that shares mintrap()'s escape line. The line is correct exactly while the hero is not hallucinating, which the comment on trapname() states."
     },
     {
       "candidate": "do.c heal_legs(), the how == 0 arm (C 2448-2486)",
@@ -175,15 +175,6 @@
   ],
   "missingWorkByOwner": [
     {
-      "group": "js/trap_effects.js mintrap() and js/monmove.js m_move(), the trapped monster's turns",
-      "candidates": [
-        "mintrap()'s mtmp->mtrapped arm, the BEAR_TRAP-reachable subset (C 3741-3789)",
-        "m_move()'s mtrapped prologue (C 1733-1742)",
-        "trapname()'s non-hallucinating body (C 7154)"
-      ],
-      "next": "Slice 2, which depends on slice 1 because nothing can be trapped until the catch runs. Lifts js/unported_monster_actions.js:229-230 and js/trap_effects.js:811 and deletes the resolveTrappedMonster injection. Worth steps 46-50, five screens."
-    },
-    {
       "group": "js/timeout.js and js/do.js, the hero's wounded legs",
       "candidates": [
         "do.c heal_legs(), the how == 0 arm (C 2448-2486)",
@@ -192,5 +183,5 @@
       "next": "Slice 3. Correct independently of slices 1 and 2, but earns nothing until they carry seed0004 past step 50. Worth steps 51-170, one hundred and twenty screens, and it is the goal's payer."
     }
   ],
-  "sourceReview": "Every branch and helper reachable inside the boundary was traced against nethack-c/upstream/ rather than inferred, by the slice-selector at a4e9d83 and recorded here at 8a25741. The trace covered state, message order and random-number order: d(2,4) at trap.c:1554 sits eleven keystrokes after the pline_mon() at 1534 suspends, and rn2(40) at trap.c:3751 recurs once per trapped turn. Stubs, stops and partial implementations are identified individually above: four refusal sites (js/trap_effects.js:491 and :811, js/unported_monster_actions.js:229-230, js/timeout.js:277-280), one injection standing in for a real function (resolveTrappedMonster at js/unported_monster_actions.js:712, seam js/monmove.js:2503), one function absent from js/ entirely (trapname()), and one partial port that counts down but does not act (js/timeout.js's WOUNDED_LEGS handling). Two claims in the goal's own detail were corrected by this reading and are corrected here: the detail says lifting the trap arm without the unported_monster_actions.js gate 'earns nothing', but C's log shows that gate firing at the pony's next action at step 46, so slice 1 earns steps 34-45; and the detail's four refusal sites omit that trapname() has five refusing callers of which this goal lifts none, because each of the other four needs its own surrounding branch. Slice 1 landed the monster arm at 1525-1558 entire; the four refusal sites it names are now three, js/trap_effects.js:491 having been replaced by the arm itself. Two of the arm's six branches are recorded as cannot-occur rather than done because this boundary cannot reach them, and each carries the specific upstream condition that prevents it."
+  "sourceReview": "Every branch and helper reachable inside the boundary was traced against nethack-c/upstream/ rather than inferred, by the slice-selector at a4e9d83 and recorded here at 8a25741. The trace covered state, message order and random-number order: d(2,4) at trap.c:1554 sits eleven keystrokes after the pline_mon() at 1534 suspends, and rn2(40) at trap.c:3751 recurs once per trapped turn. Stubs, stops and partial implementations are identified individually above: four refusal sites (js/trap_effects.js:491 and :811, js/unported_monster_actions.js:229-230, js/timeout.js:277-280), one injection standing in for a real function (resolveTrappedMonster at js/unported_monster_actions.js:712, seam js/monmove.js:2503), one function absent from js/ entirely (trapname()), and one partial port that counts down but does not act (js/timeout.js's WOUNDED_LEGS handling). Two claims in the goal's own detail were corrected by this reading and are corrected here: the detail says lifting the trap arm without the unported_monster_actions.js gate 'earns nothing', but C's log shows that gate firing at the pony's next action at step 46, so slice 1 earns steps 34-45; and the detail's four refusal sites omit that trapname() has five refusing callers of which this goal lifts none, because each of the other four needs its own surrounding branch. Slice 1 landed the monster arm at 1525-1558 entire; the four refusal sites it names are now three, js/trap_effects.js:491 having been replaced by the arm itself. Two of the arm's six branches are recorded as cannot-occur rather than done because this boundary cannot reach them, and each carries the specific upstream condition that prevents it. Slice 2 landed the mtrapped arm, m_move()'s prologue and trapname(). One claim in this file's own candidate list was corrected by porting it: mintrap()'s mtrapped arm can return neither Trap_Killed_Mon nor Trap_Moved_Mon, so m_move():1736's death arm is dead in C as well as in the port and is carried with a comment rather than tested. The refusal sites this goal opened with are down to one, js/timeout.js:277-280, which slice 3 lifts."
 }

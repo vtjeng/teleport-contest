@@ -57,7 +57,7 @@ import { LENSES } from './objects.js';
 import { visible_region_at } from './region.js';
 import { rn2, rnl } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
-import { t_at } from './trap.js';
+import { t_at, trapname } from './trap.js';
 import {
     dismissPendingTtyMessage,
     ttyPline,
@@ -76,37 +76,6 @@ export class UnsupportedSearchError extends Error {
         this.name = 'UnsupportedSearchError';
     }
 }
-
-// C's trap names come from defsyms[trap_to_defsym(ttyp)].explanation.
-// Index zero is NO_TRAP and is never passed by find_trap().
-const TRAP_NAMES = Object.freeze([
-    '',
-    'arrow trap',
-    'dart trap',
-    'falling rock trap',
-    'squeaky board',
-    'bear trap',
-    'land mine',
-    'rolling boulder trap',
-    'sleeping gas trap',
-    'rust trap',
-    'fire trap',
-    'pit',
-    'spiked pit',
-    'hole',
-    'trap door',
-    'teleportation trap',
-    'level teleporter',
-    'magic portal',
-    'web',
-    'statue trap',
-    'magic trap',
-    'anti-magic field',
-    'polymorph trap',
-    'vibrating square',
-    'trapped door',
-    'trapped chest',
-]);
 
 function propertyActiveUnblocked(hero, propertyIndex) {
     const property = hero?.uprops?.[propertyIndex];
@@ -440,10 +409,11 @@ function normalizeSearchEnv(rawEnv = {}) {
         // owns along with the end_running(TRUE) inside it.
         nomulZero: operation('nomulZero', ({ state }) => nomul(0, state)),
         message: operation('message', defaultMessage),
-        trapName: operation(
-            'trapName',
-            (trap) => TRAP_NAMES[trap.ttyp] ?? 'trap',
-        ),
+        // C ref: detect.c:1956, trapname(trap->ttyp, FALSE). A hallucinating
+        // hero needs the branch js/trap.js trapname() leaves unported, which
+        // requireInjected() above demands an injection for, so the default
+        // only ever formats the true name.
+        trapName: operation('trapName', (trap) => trapname(trap.ttyp)),
     };
     return env;
 }

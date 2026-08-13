@@ -11,6 +11,7 @@
 // Delete this file once ported coverage makes the boundary unnecessary.
 
 import {
+    BEAR_TRAP,
     BURN,
     CONFLICT,
     CORR,
@@ -111,7 +112,7 @@ import {
     canSpotMonster,
 } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
-import { is_lava, is_pool } from './trap.js';
+import { is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import {
     cansee,
@@ -226,8 +227,19 @@ function assertSimpleActionState(monster, state) {
         unsupported('quest wait strategy');
     if (monster.mfrozen)
         unsupported('inconsistent frozen monster state');
-    if (monster.mtrapped)
-        unsupported('a trapped monster');
+    // trap.c mintrap()'s mtmp->mtrapped arm, which monmove.c m_move()'s
+    // prologue reaches at :1734, is ported for the bear trap alone. mtrapped
+    // does not say which trap holds the monster, so the gate reads the square:
+    // a pit needs fill_pit() and m_easy_escape_pit(), and every other trap type
+    // that can hold one reaches C:3771's `else` with no line at all, which
+    // messageAt() cannot reproduce. mintrap() refuses each of those again from
+    // inside, before its first write; this gate is what keeps the refusal ahead
+    // of dochug() so no turn is half-spent on it.
+    if (monster.mtrapped) {
+        const heldBy = t_at(monster.mx, monster.my, state);
+        if (heldBy && heldBy.ttyp !== BEAR_TRAP)
+            unsupported('a trapped monster');
+    }
     if (monster.mconf || monster.mstun || monster.meating)
         unsupported('altered monster movement state');
 
@@ -709,7 +721,6 @@ async function moveSimpleOrdinary(monster, env) {
         ...env,
         ...doorVisionOperations(env),
         mayCrossRegion: assertSimpleDestination,
-        resolveTrappedMonster: () => false,
         resistsTrapEffect,
         // mon.c can_touch_safely() asks artifact.c touch_artifact() about
         // every item a monster considers, and that function can blast the
