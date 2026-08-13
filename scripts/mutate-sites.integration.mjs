@@ -60,6 +60,7 @@ import {
     runMutantsParallel,
     runMutationQueue,
     sampleItems,
+    sampleTargets,
     SITE_KINDS,
     startMutationSlice,
     stopMutationSlice,
@@ -2864,9 +2865,11 @@ test('a sample cuts the target set down and repeats with its seed', () => {
         targets.flatMap((target) => target.sites.map((site) =>
             `${target.path}:${site.offset}:${site.replacement}`));
     const paths = ['js/lock.js', 'js/regen.js'];
-    const drawn = collectTargets({ paths, sample: 6, seed: 5 });
-    const again = collectTargets({ paths, sample: 6, seed: 5 });
     const whole = collectTargets({ paths });
+    // 6 of the several dozen these two files hold: small enough that the draw
+    // has to discard most of the set, large enough to span both files.
+    const drawn = sampleTargets(whole, 6, 5);
+    const again = sampleTargets(whole, 6, 5);
 
     assert.equal(mutants(drawn).length, 6);
     assert.deepEqual(mutants(drawn), mutants(again));
@@ -2874,6 +2877,67 @@ test('a sample cuts the target set down and repeats with its seed', () => {
     for (const mutant of mutants(drawn))
         assert.equal(mutants(whole).includes(mutant), true);
     assert.equal(mutants(whole).length > 6, true);
+    // A file the draw missed leaves the set rather than sitting in it with an
+    // empty site list, which the report would print as a file measuring
+    // nothing. A draw of 1 can reach only one of the two files.
+    const single = sampleTargets(whole, 1, 5);
+    assert.equal(single.length, 1);
+    assert.equal(mutants(single).length, 1);
+    // A request the population cannot fill returns the population itself.
+    const over = sampleTargets(whole, mutants(whole).length + 1, 5);
+    assert.deepEqual(mutants(over), mutants(whole));
+});
+
+test('--sample draws from the survivors --from-report names, not their files',
+    () => {
+    // --from-report contributes only its file list to the target options, so a
+    // draw taken before the narrowing runs over every mutant in those whole
+    // files and the survivor list then discards most of what it drew. The
+    // sampling frame has to be the survivor list, which is the population the
+    // kill-rate interval names.
+    const [whole] = collectTargets({ paths: ['js/regen.js'] });
+    // A survivor list of 5 spread evenly through the file. The file has to
+    // hold enough mutants for 5 to be a small minority: at 25 a draw over the
+    // whole file would expect a fifth of what it was asked for.
+    assert.equal(whole.sites.length >= 25, true);
+    const stride = Math.floor(whole.sites.length / 5);
+    const survivors = [0, 1, 2, 3, 4].map((n) => ({
+        path: 'js/regen.js', ...whole.sites[n * stride],
+    }));
+    const root = mkdtempSync(join(tmpdir(), 'mutate-sites-sample-'));
+    try {
+        // reportFromResult() writes the file, so the fixture cannot drift from
+        // the schema siteFilterFromReport() accepts.
+        const path = join(root, 'report.json');
+        writeFileSync(path, `${JSON.stringify(reportFromResult(
+            { survivors, timeoutRecords: [], resourceLimitRecords: [] },
+            null))}\n`);
+        const drew = (sample, seed) => {
+            const run = runDirectMain(['--from-report', path,
+                '--sample', String(sample), '--seed', String(seed),
+                '--enumerate-only']);
+            assert.equal(run.status, 0, run.stderr);
+            const line = /^sample: (\d+) of (\d+) mutant\(s\)/mu
+                .exec(run.stdout);
+            assert.notEqual(line, null, run.stdout);
+            return { drawn: Number(line[1]), population: Number(line[2]) };
+        };
+
+        // Three seeds, because the draw a single seed happens to take could
+        // pass by luck. Each must draw the whole request out of the 5 the
+        // report names, never a share of them.
+        for (const seed of [1, 5, 7]) {
+            assert.deepEqual(drew(3, seed), { drawn: 3, population: 5 },
+                `seed ${seed}`);
+            // A request larger than the survivor list runs all of it. Drawing
+            // before the narrowing returned 1, 2 and 3 of the 5 at these three
+            // seeds, and 0 of them at two of the seeds when 3 were requested.
+            assert.deepEqual(drew(24, seed), { drawn: 5, population: 5 },
+                `seed ${seed}`);
+        }
+    } finally {
+        rmSync(root, { recursive: true, force: true });
+    }
 });
 
 test('the report breaks the kill rate down by mutation kind', () => {

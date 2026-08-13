@@ -66,7 +66,9 @@
 //
 // `--sample <n>` draws n mutants uniformly at random from the whole target set
 // and runs only those, which is how to estimate a kill rate over a population
-// too large to run. `--seed <k>`
+// too large to run. Alongside `--from-report` the target set is the survivor
+// list, so the draw bounds an escalation of that list rather than of the files
+// holding it. `--seed <k>`
 // sets the draw, and the report names the seed it used, so a sample can be
 // repeated exactly. The report gives the kill rate with a 95% Wilson interval
 // for the population the sample was drawn from.
@@ -2608,7 +2610,7 @@ export function parseArgs(argv) {
  * reported line number always addresses the file on disk.
  */
 export function collectTargets({ range = null, paths = [], worktree = false,
-    kinds = null, sample = null, seed = 1 }, root = REPO_ROOT) {
+    kinds = null }, root = REPO_ROOT) {
     let scope;
     if (worktree) scope = uncommittedJsLines(root);
     else if (range) scope = survivingRangeLines(range, root);
@@ -2629,22 +2631,33 @@ export function collectTargets({ range = null, paths = [], worktree = false,
             tests: covering.get(path) ?? [],
         });
     }
-    const selected = kinds
-        ? targets.filter((target) => target.sites.length)
-        : targets;
-    if (sample === null) return selected;
+    return kinds ? targets.filter((target) => target.sites.length) : targets;
+}
+
+/**
+ * Draw `sample` mutants uniformly at random from `targets`, dropping the files
+ * the draw left with nothing.
+ *
+ * `main()` calls this on the target set the run reports on, after
+ * `--from-report` has narrowed that set to the survivors the report names.
+ * Drawing any earlier would sample a wider set and then discard most of the
+ * draw, so a request for n would yield n times the surviving share, and the
+ * interval `formatReport()` prints would name a population the sample never
+ * came from.
+ */
+export function sampleTargets(targets, sample, seed) {
+    const key = (path, site) => `${path}:${site.offset}:${site.replacement}`;
     // Draw across the whole target set at once, so the sample spans every file
     // in proportion to how many mutants each holds.
     const drawn = new Set(sampleItems(
-        selected.flatMap((target) =>
-            target.sites.map((site) => `${target.path}:${site.offset}:`
-                + `${site.replacement}`)),
+        targets.flatMap((target) =>
+            target.sites.map((site) => key(target.path, site))),
         sample, seed));
-    return selected
+    return targets
         .map((target) => ({
             ...target,
-            sites: target.sites.filter((site) => drawn.has(
-                `${target.path}:${site.offset}:${site.replacement}`)),
+            sites: target.sites.filter(
+                (site) => drawn.has(key(target.path, site))),
         }))
         .filter((target) => target.sites.length);
 }
@@ -2724,13 +2737,14 @@ export async function main(argv) {
             sites: target.sites.filter(
                 (site) => reportFilter.matches(target.path, site)) }))
         : list);
-    const population = narrowToReport(
-        collectTargets({ ...options, sample: null }));
+    // The draw sits below the narrowing, so the population it samples is the
+    // one the report's kill-rate interval names.
+    const population = narrowToReport(collectTargets(options));
     const populationMutants = population
         .reduce((n, target) => n + target.sites.length, 0);
     const targets = options.sample === null
         ? population
-        : narrowToReport(collectTargets(options));
+        : sampleTargets(population, options.sample, options.seed);
     if (options.sample !== null) {
         console.log(`sample: ${targets.reduce((n, t) => n + t.sites.length, 0)} `
             + `of ${populationMutants} mutant(s) across `
