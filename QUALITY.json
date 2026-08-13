@@ -11064,6 +11064,98 @@
         }
       },
       "recordedAt": "2026-08-12T21:37:33.689Z"
+    },
+    {
+      "kind": "review",
+      "head": "eb3a08485cd14e7ce8dec0bbc4c30e04da03f11a",
+      "auditedRange": "07c6d4b73e568aaeb98b9559290590636392a554..eb3a08485cd14e7ce8dec0bbc4c30e04da03f11a",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "9e68fa664e6b2fc48da96c720295ee89ecdb979f",
+        "reason": "The goal changed 102 production lines in one area across three slices in a single agent session, under every AGENTS.md threshold that requires a checklist; the existing checklist stopped at 9e68fa6, before this range."
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 13 raw, 13 deduplicated, 8 confirmed, 8 applied, 0 deferred, 5 rejected, 0 unverified; mutation: 0 survivors of 7 mutants. Full pass, four finders: correctness, readability, tests and variable-trace. The performance and concurrency finders were not enabled and no finder disputed that: the range adds two guard conjuncts, a message selection and a recorded case, with no shared mutable state and no asynchronous or lifecycle change. The pass confirmed no production defect, which is the result that matters here -- the two ported guards and the platform arm survived four perspectives and a clean 7-of-7 mutation run. Six of the eight confirmed findings were assertions that could not fail, and the one that mattered most was the liquid-sound test's single trailing assert.deepEqual(draws(), []): arena() calls initRng() and clears the log, so that assertion inspected only the last of eight cases and the comment justifying it stated a false premise, that IS_SOFT() covers both liquids. rm.h:76 puts LAVAPOOL at 20, outside IS_POOL's 16 to 19, so a lava landing does reach breaktest() and does spend obj_resists()'s rn2(100). The port was right and the test was blind: every case now asserts its own draws, and the two lava cases assert the draw C takes. The development score is identical before and after the audit fix at 9/33 sessions, 1513/7765 screens, 120847/610816 calls and 1531/7765 cursors, so none of the eight findings changed a recorded path; the range's own single screen was seed0016 step 7, delivered by the fprefx() commit before this pass ran.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2013,
+        "counts": {
+          "raw": 13,
+          "deduplicated": 13,
+          "confirmed": 8,
+          "applied": 8,
+          "deferred": 0,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 6,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "rejections": [
+          {
+            "summary": "js/dothrow.js:144 propertyHeld()'s doc comment enumerates four properties and two call sites while the same commit adds a fifth property, DEAF, and a third call site through Deaf().",
+            "counterEvidence": "evidence refute: the comment does not state the contract the finding attributes to it. js/dothrow.js:144-148 enumerates the four youprop.h macros propertyHeld stands in for, and the two gates it names are exactly the callers of those four: :425 reads STONE_RES for the bare-handed corpse gate and :450-451 and :458 read CONFUSION, STUNNED and FUMBLING for the multishot gate. DEAF is never claimed to be one of the four; its complete C union, including the u.uroleplay.deaf term, is spelled in Deaf()'s own comment at :154-157. Do not reopen without a reading of :144-148 that shows it claiming to enumerate every caller of propertyHeld rather than the four macros it replaces."
+          },
+          {
+            "summary": "js/dothrow.js:158 Deaf()'s comment names js/display.js as the one other place spelling C's Deaf union, while six other modules carry their own copy under four names.",
+            "counterEvidence": "evidence refute: the comment names js/display.js as a place that spells the same union, not as the only one. js/dothrow.js:154-157 reads 'js/display.js statusConditionActive() spells the same union for the status line' -- an example, with no 'only' and no 'the other'. The finding's own inventory is also incomplete: grep for uroleplay across js/ additionally returns js/apply.js:80 heroDeaf() and js/dogmove.js:220 heroDeaf(), so the union is spelled in nine other modules rather than the six it lists. Do not reopen without a quotation from the comment asserting exclusivity."
+          },
+          {
+            "summary": "The port models two different C build configurations with no single statement of which it targets: js/eat.js takes the MACOS arm while js/tty_startup.js:27 hard-codes a Unix version banner.",
+            "counterEvidence": "evidence refute: the port models one build and records it in two places. js/eat.js:1727-1736, added by this range, states the build from primary sources: build-recorder.sh:31-35, config.h:18, config1.h:43-45 and the MACOS9/__BEOS__ guard at :64-67. The QUALITY.json apple entry carries the same analysis and explicitly demotes the banner -- 'The startup banner is corroboration but not proof, and this entry does not rest on it.' The banner in js/tty_startup.js:22-28 is one fixed recorded-startup string, and frozen/ps_test_runner.mjs:68-80 collapses any Version line before comparing, so it models nothing. Do not reopen without evidence that the two files imply different values for a macro the port branches on."
+          },
+          {
+            "summary": "scripts/run-twoweapon-command.mjs:556 verifyInventory() destructures stack with no default while every sibling field has one, so a case omitting it fails with a message naming the same slot on both sides of the comparison.",
+            "counterEvidence": "causality refute: the mechanics are real -- an omitted field gives null !== undefined and both operands render through ?? 'neither' -- but the impact is not material. All six INVENTORY_CASES entries at :183-211 spell stack explicitly, and three spell it as stack: null for exactly the no-stack situation the finding says a maintainer would express by omission, so the file's own convention already answers the hypothesised mistake and the contradictory string cannot fire for any existing case or for one written by copying an existing one. resolution refute: the proposed validation cannot distinguish fixed from faulty, because verifyInventory() is reached only through runTwoWeaponCommandMatrix() and adding a seventh case fails first on the six-role list at scripts/twoweapon-matrix.test.mjs:141-149, so the observed failure would be the role list rather than the predicted message. Do not reopen without a case that reaches the message, which needs a fresh C recording of a temporary recipe."
+          },
+          {
+            "summary": "scripts/twoweapon-matrix.test.mjs:164's segment-uniqueness assertion compares whole serialized segments while verifyInventory() matches on the seed, moves and nethackrc triple, so the guard is weaker than the invariant its comment claims.",
+            "counterEvidence": "evidence refute: the central premise is wrong. inventorySegment() at scripts/run-twoweapon-command.mjs:346-356 destructures only { seed, who, twoweapon, swap = false } and emits datetime: DATETIME, the module constant declared at :60; it does not thread datetime from the case, contrary to the finding's claim. The segment therefore carries no field a case can vary outside the match key, so whole-segment uniqueness is equivalent to match-key uniqueness rather than weaker than it. Do not reopen without a field that inventorySegment() threads from the case and the match key omits."
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "ranges": [
+            "07c6d4b73e568aaeb98b9559290590636392a554..7ae4ef6630b8982bd2b45b4b8e0427cc4e5fd5c1",
+            "7ae4ef6630b8982bd2b45b4b8e0427cc4e5fd5c1..eb3a084"
+          ],
+          "mutants": 7,
+          "survivors": 0,
+          "byKind": {
+            "relational": {
+              "ran": 1,
+              "killed": 1
+            },
+            "logical": {
+              "ran": 6,
+              "killed": 6
+            },
+            "boolean": {
+              "ran": 0,
+              "killed": 0
+            }
+          },
+          "deltaRun": "The audit-fix commit eb3a084 yields 0 sites: its js/ changes are comments in js/dothrow.js and js/cmd.js, and its production lines are unchanged. The window run's 7 mutants all sit in js/dothrow.js and scripts/dothrow.test.mjs killed all 7 in the first wave.",
+          "note": "First wave only, and the clean result proves less than it appears to. js/eat.js contributed no mutable site at all across 52 changed lines, because the platform arms compare with === and the mutator does not rewrite === into !==. The whole of this range's eat.c work therefore carries no mutation evidence either way, which is why the pass was told to judge those lines by reading.",
+          "finderConclusion": "The tests finder was given the empty survivor list and the reason it was empty, and it found what the mutation run structurally could not: four of the eight confirmed findings are assertions that cannot fail. The liquid-sound test asserted draws once after its last case while arena() clears the log between cases, so seven of eight cases -- both lava cases among them -- had their draw counts checked by nothing; every fixture in it gave the missile an owt equal to oc_weight * quan, so no assertion separated the ported weight() call from a read of the cached field; fprefx()'s cursed operands had no test at all, confirmed by a string mutant that left the suite green; and the hallucinating pear asserted its refusal without measuring the draws that decide whether the refusal fires before or after eat.c:2193's rn2. None of the four is an unmutated line; each is a weak oracle, which is the class of defect a mutation run cannot report."
+        },
+        "readiness": {
+          "boundary": "The range runs from cmd.c rhack() receiving one of two keys to the message the command writes. Eating: `e` answered with the letter of an apple, a pear, or a give_feedback food, ending at the line fprefx() writes on the top line. Throwing: `f` at a quivered missile, ending at the Splash! or Plop! a landing in liquid sounds, or at the refusal that stands in for flooreffects(). The running game executes both. seed0016-healer-newmoon-eat-zap gains its step 7 in the development score, which moved 1512 to 1513 across the range and is the eating path end to end; a fresh Ranger recording (seed 7320232) replays the throwing path to 15 of 15 screens and cursors with 2897 matched calls. The third commit adds a recorded case for objnam.c doname_base() and changes no production line: a Rogue recording (seed 7710103) replays `x`, `#twoweapon` and `i` to 17 of 17 screens and cursors with 2461 matched calls.",
+          "sourceReview": "Every branch and helper reachable before each ending event was traced against nethack-c/upstream/. eat.c fprefx() 2170-2213: the default arm's platform branches were settled from config.h:18, config1.h:43-45 and :64-67, build-recorder.sh:31-35 and :42-46, and patch 006's MACOS-guarded TIMED_DELAY rewrite, and the give_feedback ternary at 2203-2213 was read operand by operand, including doeat() 3027-3031 to establish which foods reach it cursed. dothrow.c throw_obj() 139-143 was read conjunct by conjunct and throwit() 1780-1802 likewise, together with rm.h:129, :130 and :140 for IS_POOL, IS_LAVA and IS_SOFT, breaktest() 2582-2600 for the draw a lava landing spends, and mkobj.c weight() and is_flammable() 2270-2286. PRNG order was traced explicitly: the pear's refusal must sit between touchfood()'s next_ident() rnd(2) and eat.c:2193's rnd(100), and a lava landing must spend obj_resists()'s rn2(100) before the sound while a pool landing spends nothing. The stops inside the boundary are named and reachable: UnsupportedThrowError for instapetrify(), breakobj() and thitmonst(); UnsupportedEatError for fprefx()'s hallucinating pear and for fpostfx()'s outrumor(); and UnsupportedObjectOperationError from the weight() call for a partly eaten food, which js/dothrow.js cannot avoid without closing the import cycle dothrow to eat to cmd to dothrow.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Each reachable excluded branch stops before changing state, consuming randomness or producing output, and the pass added a test for the one that had none: a bitten food thrown into a pool now asserts the refusal class with an empty top line and an empty draw log. The unported work behind the narrowed guards is recorded rather than silently skipped -- flooreffects()'s water_damage() and lava_damage() arms as two new deferrals in the commands area, and throw_obj()'s instapetrify() as stone-resistant-corpse-throw-has-no-recordable-case, blocked on wiz_intrinsic because C grants stone resistance only through polyself.c:71, eat.c givit() and #wizintrinsic and js/ ports none. One branch inside the boundary is reachable and untested by construction: fprefx()'s hallucinating pear draws where C draws, and no recorded case can reach it because no u_init.c row holds a pear and the pickup commands are unported; it is pinned by the draw count the port must not spend rather than by the string it would print."
+        }
+      },
+      "recordedAt": "2026-08-13T08:14:11.990Z"
     }
   ]
 }

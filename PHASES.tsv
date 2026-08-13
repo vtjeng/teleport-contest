@@ -368,3 +368,6 @@ utc	event	phase	goal	detail
 2026-08-13T06:11:05.016Z	start	implement	objects-deferral-sweep-3	dothrow guard narrowings
 2026-08-13T07:03:06.883Z	end	implement	objects-deferral-sweep-3	dothrow guard narrowings closed at 1f3e323; screens held at 1513
 2026-08-13T07:03:06.913Z	start	implement	objects-deferral-sweep-3	two-weapon stacked primary
+2026-08-13T07:22:33.532Z	end	implement	objects-deferral-sweep-3	two-weapon case closed at 7ae4ef6; all three slices closed
+2026-08-13T07:22:33.559Z	start	review	objects-deferral-sweep-3	full correctness pass over 07c6d4b7..7ae4ef6
+2026-08-13T08:14:30.721Z	end	review	objects-deferral-sweep-3	full correctness pass recorded through eb3a084; 8 confirmed, 0 production defects
