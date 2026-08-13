@@ -11428,6 +11428,146 @@
         }
       },
       "recordedAt": "2026-08-13T14:22:44.187Z"
+    },
+    {
+      "kind": "review",
+      "head": "b035d7900cd6a5365022ff0a5a2d612605e1d3a4",
+      "auditedRange": "e211e5ef56fa04d2eb00c8490da2a3d9b40a0971..b035d7900cd6a5365022ff0a5a2d612605e1d3a4",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "be3159974239b4c6cf67435e56d709948e36cf51",
+        "reason": "The sweep changed 194 production lines in one area across two slices in a single agent session, under every AGENTS.md threshold that requires a checklist; the checklist on disk covers bear-trap-capture, which closed before this range opened."
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "monsters",
+        "commands",
+        "display"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 15 raw, 15 deduplicated, 7 confirmed, 3 applied, 4 deferred, 8 rejected, 0 unverified; mutation: 0 survivors of 15 mutants. Full pass, five finders: correctness, readability, tests, variable-trace, and the concurrency finder, enabled because the range converted dismissTtyMenu() to async across fourteen call sites and changed when the status rows paint relative to menu teardown. The concurrency finder returned nothing, which is the useful answer: no missed await moved a frame. The pass was asked to check the wrapper re-routing first, and that is where its one production defect was. In C, select_menu() is the entry every core caller already uses, so raising a flag inside it covers options.c, cmd.c, pickup.c and role.c for two lines; the port had no such wrapper and had to build one and re-route thirteen call sites, and reroll_menu() kept its own repair after being re-routed. Three findings applied, four deferred with closing conditions, eight rejected with counter-evidence. Two rejections are worth carrying forward: the remaining injected-helper bypass in choose_classes_menu() lives in a test file and cannot move a scored screen, and js/legacy_startup.js's fourth copy of the dismissal repair sits on a different C path, com_pager() through display_nhwindow(), where gb.bot_disabled is never raised. That fourth copy is duplication this pass leaves standing and a scoped simplification pass should read. The development score is identical before and after the audit fixes at 9/33 sessions, 1538/7765 screens, 121032/610816 calls and 1549/7765 cursors.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3091,
+        "counts": {
+          "raw": 15,
+          "deduplicated": 15,
+          "confirmed": 7,
+          "applied": 3,
+          "deferred": 4,
+          "rejected": 8,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 5,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/startup_reroll.js reroll_menu() kept the docrt() and flush_screen(1) it had performed for itself after 268f695 re-routed it through select_menu(), so the full-screen repair ran twice and the second copy ran with gb.bot_disabled already lowered. It repainted the status rows at the one moment C leaves them blank and spent the disp.botlx C carries forward. invent.c reroll_menu() 2552-2614 performs no repair of its own: select_menu() -> tty_dismiss_nhwindow() -> erase_menu_or_text() is the whole of it, and that runs while the flag is raised so bot() returns at botl.c:255 before clearing the flags. This is the one site of thirteen where the sweep left a caller half-converted, and it is the question the pass was asked to check first. No captured frame differs today because vpline()'s flush_screen(1) repaints the rows before the next keystroke; the divergence is in state C carries forward. An existing test pinned it rather than catching it, asserting the painted status row, which passed only because of the duplicate repair; it now asserts the blank rows and the pending botlx. Fixed by deleting the block, with the corrected assertions observed failing against the restored defect.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/cmd.js:1634 The invariant the whole range establishes — every menu reaches the screen through `select_menu()` — has an unmarked bypass at `choose_classes_menu()`'s injected `helpers.menu`, and a live test already injects the unwrapped `selectTtyMenu` there.",
+            "counterEvidence": "causality refute: The stated impact cannot occur at head, and the range did not make it likelier. Production routing is complete and mechanically checkable, the opposite of 'enforced by nothing'. The single cited bypass lives in a test file the range does not touch and cannot move a scored screen or an RNG call; the injected-helper shape at js/windows.js:91-92 is pre-existing and unchanged. What is left is speculative future risk plus a request for comments, i.e. the prose polish this pass defers to the clarity audit. Counter-evidence: grep -rn 'selectTtyMenu' js/ returns exactly three lines: js/tty_menu.js:1347 (definition), js/windows.js:11 (import), js/windows.js:48 (sole call). git diff e211e5ef..0bd635cf -- scripts/options-toggle.test.mjs and -- js/options.js are both empty."
+          },
+          {
+            "summary": "js/tty_menu.js:202 The range unified three inline copies of the full-screen dismissal repair but left a fourth in `js/legacy_startup.js`, whose comment now asserts the opposite of what the new `erase_menu_or_text()` implements for the same C branch.",
+            "counterEvidence": "causality refute: The range neither changes this code nor changes its behaviour: js/legacy_startup.js has no line in the diff, so the finding is anchored to unchanged code. The C path it describes also differs from the one the range ports: com_pager() reaches the text window through display_nhwindow(), not select_menu(), so gb.bot_disabled is never raised there and nothing about the new deferral mechanism applies. Whatever divergence the plain restore carries is pre-existing, independent of gb.bot_disabled, and belongs to whichever goal owns the legacy pager -- the causality lens refutes pre-existing defects the range did not introduce or worsen. Counter-evidence: git diff e211e5ef56fa04d2eb00c8490da2a3d9b40a0971..0bd635cf2a539da39442817fd9574b9d82fd5b29 -- js/legacy_startup.js produces no output (0 lines). windows.c raises gb.bot_disabled only in select_menu() (1861) and getlin() (1898)"
+          },
+          {
+            "summary": "js/tty_menu.js:203 The new `state !== game` guard silently revokes the state-parameterized contract of three exported functions (`dismissTtyMenu`, `displayTtyTextWindow`, `displayTtyMenuTextWindow`), all of which still advertise `state = game` and none of which documents the new requirement.",
+            "counterEvidence": "causality refute: No caller, production or test, can reach the throw, so the impact is speculative. Every production caller passes the module-level game, and the one test the finding cites as proof of a 'state-parameterized' contract uses the `confirmation` spec, which is a narrow overlay menu: dismissTtyMenu() takes the docorner branch and never calls erase_menu_or_text(). Throwing before any state change or output is also the port's fail-closed rule working as intended -- painting the module game's status rows onto a foreign display is the alternative -- and the constraint is written down at the single site that enforces it (js/tty_menu.js:196-201). The residual complaint, that a maintainer might delete the guard, is a hypothesis, not an exposed defect. Counter-evidence: scripts/tty-menu.test.mjs:567-580 passes `foreign` to selectTtyMenu with `confirmation`, whose ttyMenuLayout gives a"
+          },
+          {
+            "summary": "js/tty_menu.js:217 `erase_menu_or_text()` reimplements `docrt_flags()`'s post_map block — the status blanking and `disp.botlx = true` — without `docrt_flags()`'s own `!u.ux` guard that the port's `docrt()` carries, and the C citation at the site points at the wrong function, which is what hides the omission.",
+            "counterEvidence": "evidence refute: The C reading is right but the divergence is unreachable, which is the fact the evidence lens asks for. C's docrt_flags() does return at display.c:1717-1718 before cls() and before the post_map block that sets disp.botlx (1763-1769), and js/tty_menu.js:214-217 carries no equivalent guard. But no caller can reach it with u.ux unset outside role selection: reroll_menu() runs after u_on_upstairs() and after docrt()/flush_screen()/bot() in js/allmain.js:225-238; maybe_do_tutorial() runs from js/jsmain.js:392, after newgame() and moveloop_preamble(); displayTtyTextWindow()'s only production caller is js/cmd.js:1446, inside moveloop; and the role-selection menus take dismissTtyMenu()'s in_role_selection branch at js/tty_menu.js:604. The finding concedes this itself. The wrong C citation at js/tty_menu.js:190 (display.c:466 is inside the _map_location macro, 448-472, not the po"
+          },
+          {
+            "summary": "js/tty_menu.js:220 `erase_menu_or_text()`'s `else if (state.disp.time_botl) await timebot()` is unreachable: `state.disp.botlx = true` three lines above makes the preceding condition unconditionally true.",
+            "counterEvidence": "causality refute: The impact is nil, because the port is faithfully transcribing a C dispatch that is equally forced down the same arm. C's erase_menu_or_text() calls docrt(); flush_screen(1); docrt_flags() sets disp.botlx = TRUE at display.c:1769, and flush_screen()'s dispatch at display.c:2235-2239 is the identical `if (disp.botl || disp.botlx) bot(); else if (disp.time_botl) timebot();`, so C's timebot() arm is dead on this path too. Reproducing both arms is what AGENTS.md asks for -- match the C function's branches -- and no behaviour, RNG call or screen cell depends on it. A reviewer who follows the comment at js/tty_menu.js:187-191 to display.c:2235-2239 finds the same shape. Counter-evidence: display.c:2235-2239 reads `if (disp.botl || disp.botlx) bot(); else if (disp.time_botl) timebot();` and is reached from erase_menu_or_text() only after docrt_flags() has set disp.botlx at dis"
+          },
+          {
+            "summary": "js/windows.js:47 `select_menu()` and `getlin()` raise `state.gb.bot_disabled`, but the only two readers — `bot()` and `timebot()` — test `game.gb.bot_disabled`, so the suppression is silently inert for any state other than the module-level game, and both files' comments read as if the flag were properly threaded.",
+            "counterEvidence": "causality refute: The stated impact does not hold in the port as it stands. Counter-evidence: js/gstate.js resetGame() reassigns the module-level `game` and returns that same object, and every production entry passes it: js/jsmain.js:254 `const g = resetGame()` then :378 ttyPlayerSelection(g); js/allmain.js:190 `const g = game` then :238 reroll_menu(g); js/cmd.js's menu sites take rhack()'s state, which is the module game. So state === game on every production path and the suppression is never inert in a running game. The claim that 'a future refactor that starts threading state into bot() would flip live behavior' fails for the same reason, since the threaded object would be the same one. The range also does not leave the constraint unrecorded: erase_menu_or_text() (js/tty_menu.js:196-201, 207-211) documents it and throws for a foreign state, so the full-screen path cannot silently repa"
+          },
+          {
+            "summary": "js/windows.js:58 The stated reason for leaving `getlin()`'s command-queue arm (windows.c:1875-1895) unported — \"js/cmd.js cmdq_pop() has no writer that could feed one\" — is factually false, and the real C semantics of that arm are destructive, not merely a shortcut.",
+            "counterEvidence": "evidence refute: The disputed sentence has a true reading and the claimed divergence is impossible in the port's reachable states. Counter-evidence: js/windows.js:57-59 reads 'no ported caller of this function queues keys, and js/cmd.js cmdq_pop() has no writer that could feed one' — 'one' takes 'keys' as its antecedent, and that is verifiably true: `grep -rn cmdq_add_key js/` returns only comments recording that CQ_REPEAT is unported (js/cmd.js:401,432,673; js/invent.js:385,576). No cmdq_add_key exists, so no CMDQ_KEY node can ever exist and windows.c's got_cmdq arm is genuinely unenterable. The residual C behavior (windows.c:1875-1889 pops a non-KEY head node and frees it) needs a getlin caller to run while CQ_CANNED is non-empty; the finding's own trace shows the only writer, js/dothrow.js:335-336/367-368, pushes two extcmd nodes and returns ECMD_OK immediately, and the only commands "
+          },
+          {
+            "summary": "scripts/run-options-menu.mjs:565 `runOptionsMenuMatrix()` destructures the recipe array with an elision (`optMsg, , blankStatus`) to skip a deliberately-retained recipe, so every later binding depends on an invisible hole that nothing asserts.",
+            "counterEvidence": "evidence refute: The claimed silent failure mode is impossible; the hole is self-protecting. Counter-evidence: I reproduced the scenario: with the glyph-reset recipe deleted and the elision left in place, `blankStatus` binds the three-row recipe and `blankStatusThree` binds undefined, and runFreshMatrix's first act on that entry is chunkRecipe() -> validateCleanRecipe(undefined) (scripts/fresh-matrix.mjs:12, scripts/diff-fresh.mjs:307-310), which threw `fresh matrix recipe must be a clean v5 session with at least one segment` in my run after the first entry printed. The matrix aborts with a named exception rather than reporting success, so 'the matrix would go green while covering nothing' does not happen."
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "three-row-status-blanking-untested",
+            "trackedIn": "three-row-status-blanking-untested",
+            "category": "tests",
+            "summary": "erase_menu_or_text()'s blanking loop reads status_window_rows(), and every test reaching it runs at the default two rows, so the three-row branch is guarded only by a recipe that needs the patched C recorder and does not run under npm test."
+          },
+          {
+            "id": "text-window-repair-untested-on-status-rows",
+            "trackedIn": "text-window-repair-untested-on-status-rows",
+            "category": "tests",
+            "summary": "displayTtyTextWindow() and displayTtyMenuTextWindow()'s fullRepair arm were re-pointed at erase_menu_or_text() and now call bot() on dismissal, and no test touches the status rows for either caller."
+          },
+          {
+            "id": "newsym-trap-type-filter-unpinned",
+            "trackedIn": "newsym-trap-type-filter-unpinned",
+            "category": "tests",
+            "summary": "The ARROW_TRAP case inspects a trap newsym() never reads, so C's physical-trap filter at display.c:1021 is pinned by nothing."
+          },
+          {
+            "id": "unwatched-catch-assertion-credits-seetrap",
+            "trackedIn": "unwatched-catch-assertion-credits-seetrap",
+            "category": "tests",
+            "summary": "The unwatched-catch assertion citing display.c:1023 is satisfied by trap.c seetrap() on the monster's next m_move() rather than by the newsym() write it names."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "e211e5ef56fa04d2eb00c8490da2a3d9b40a0971..0bd635cf2a539da39442817fd9574b9d82fd5b29",
+            "0bd635cf2a539da39442817fd9574b9d82fd5b29..b035d7900cd6a5365022ff0a5a2d612605e1d3a4"
+          ],
+          "mutants": 15,
+          "survivors": 0,
+          "byKind": {
+            "relational": {
+              "ran": 1,
+              "killed": 1
+            },
+            "logical": {
+              "ran": 7,
+              "killed": 7
+            },
+            "boolean": {
+              "ran": 7,
+              "killed": 7
+            }
+          },
+          "deltaRun": "The audit-fix delta 0bd635c..b035d79 yields 0 sites. Its only js/ change deletes four lines and three imports from js/startup_reroll.js; the rest is one test file, one runner and the quality ledger.",
+          "note": "First wave only, over 756 tests in 28 files. One mutant in the window run was unkillable by construction until the code was rewritten: the blanking loop bound addressed a row Terminal.setCell() ignores, so < against <= was unobservable. Counting up from the last row made it reachable, and a new assertion kills it.",
+          "finderConclusion": "The tests finder returned five of the seven confirmed findings, none of which a mutation run could produce, because each is an oracle that cannot fail rather than an unmutated line. The sharpest names a gap the mutation result actively concealed: reverting one re-routed call site leaves the entire suite byte-identical, so nothing asserted that any caller reaches the screen through select_menu() or getlin(). That is now a source-level case in scripts/windows.test.mjs which scans import statements and fails naming the offending file. The other four are deferred with closing conditions."
+        },
+        "readiness": {
+          "boundary": "The range runs from a monster becoming visible while held in a trap, where display.c newsym() marks the trap seen, and from a full-screen menu opening, where windows.c select_menu() raises gb.bot_disabled, through to that menu’s dismissal repairing the screen with the status rows still blank. The running game executes both. The development score moved 1531 to 1538 across the range, the goal’s forecast of 7 exactly, and seed0006 steps 50-56 fell from 84 differing cells each to 0, measured per cell with frozen/screen-decode.mjs. Two fresh recorded matrices back it: scripts/run-monster-bear-trap.mjs at 7 segments and 302 screens, and scripts/run-options-menu.mjs at 12 segments and 197 screens, all matching.",
+          "sourceReview": "Every branch and helper reachable inside the boundary was traced against nethack-c/upstream/. display.c newsym() 1013-1024 was read with its _map_location macro at 448-472, which carries no mtrapped term and is why only one port site takes the write. windows.c select_menu() 1856-1866 and getlin() 1868-1902 were read with botl.c bot() 253-272 and timebot() 276-278 to establish that the early return precedes the flag clear, which is what defers the repaint rather than dropping it, and with wintty.c erase_menu_or_text() 966-984 and tty_create_nhwindow()’s NHW_STATUS sizing. The re-routing was checked in both directions against C’s own callers in options.c, cmd.c, pickup.c and role.c, and against process_menu_window()’s MENU_SEARCH prompt, the single C site reaching tty_getlin directly. Three arms are deliberately unported with a comment at each site: getlin()’s command-queue arm, program_state.in_getlin, and end.c panic()’s write.",
+          "completeness": "No known unsupported behavior remains inside the boundary, and the one half-converted caller the pass found is fixed rather than deferred. Excluded work is recorded: the eight remaining seed0006 mismatches are the frozen serialize() attribute ceiling that no game code can recover, filed upstream as issue 18; seed0006’s stop at step 64 belongs to remembered-glyph-caches-a-resolved-presentation, outside this goal; and getlin()’s raised flag suppresses nothing today because no ported command reaches a typed-line prompt with the status dirty, which is stated at the site and left without a deferral because there is no failing case. Four test gaps inside the boundary are deferred with closing conditions rather than closed."
+        }
+      },
+      "recordedAt": "2026-08-13T18:49:36.893Z"
     }
   ]
 }
