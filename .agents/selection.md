@@ -88,8 +88,7 @@ so compare a slice's delivery against the slice and the goal's against the
 goal. Retire a ranking statistic from selection when the last three closed
 goals in `GOALS.json` each delivered less than a tenth of its forecast. Use it
 again only in a goal entry whose `--forecast-basis` states how those three
-closes corrected it. The goal budget in `.agents/loop.md` bounds what a missed
-forecast can cost.
+closes corrected it.
 
 **A goal may be larger than one agent session.** It then closes through several
 behavior slices, each closed on its own. A goal may list the slices it is known

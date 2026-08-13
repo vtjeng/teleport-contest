@@ -3,8 +3,7 @@
 // Owns PHASES.tsv, the wall-clock record of loop phases. The orchestrator
 // appends a start and an end row around selection, each worker run, and each
 // formal review pass, so the next process audit reads measured phase time in
-// place of commit-gap proxies, and the six-hour goal budget in
-// .agents/loop.md is judged against a file rather than recollection.
+// place of commit-gap proxies.
 // A `validate` row pair is the only record of validation time: SCORE.tsv
 // carried a scoring run's wall seconds until 2026-08-02 and now carries none.
 

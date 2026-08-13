@@ -1,9 +1,8 @@
 # Continuous operation
 
 This file holds the loop that runs implementation: the four agent roles, the
-orchestrator's steps, question triage, phase logging, the goal budget, the
-wakeup discipline under `/loop`, and the report each worker iteration owes the
-user. Only the orchestrator follows this file. `.agents/workflow.md` defines
+orchestrator's steps, question triage, phase logging, the wakeup discipline
+under `/loop`, and the report each worker iteration owes the user. Only the orchestrator follows this file. `.agents/workflow.md` defines
 the vocabulary this file uses, and `.agents/review.md` states when a formal
 review pass is due and how to run and record one.
 
@@ -102,14 +101,8 @@ Mark phase boundaries as they happen: `node scripts/phase-log.mjs start
 each worker run (`implement`), and each formal review pass (`review`).
 `validate` rows are optional and are the only record of validation time, now
 that a scoring run appends no `SCORE.tsv` row.
-`node scripts/phase-log.mjs --summary` totals the phases; judge the goal budget
-against it, and commit `PHASES.tsv` with the work that ended the phase.
-
-A goal carries a budget. When six hours of wall clock pass without a slice
-closing on a measured development-screen gain, close the goal where it
-stands with `node scripts/goal-log.mjs close-goal` and continue at step 1. A slice closing with a measured gain resets the budget.
-Closing on budget is a measurement of the forecast; it needs no user
-decision and does not stop the loop.
+`node scripts/phase-log.mjs --summary` totals the phases; commit `PHASES.tsv`
+with the work that ended the phase.
 
 Spawn a subagent only at the step that calls for one, and spawn a fresh one
 each time: a worker to take the next queued slice from queued to closed, a
