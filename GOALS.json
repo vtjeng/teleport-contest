@@ -1823,7 +1823,7 @@
     },
     {
       "id": "objects-deferral-sweep-3",
-      "status": "open",
+      "status": "closed",
       "boundary": "npm run quality -- deferrals names no sweep candidate for objects: every counted entry that reading shows to be small is resolved, starting with eat.c fprefx()'s platform arms, where the port prints \"Core dumped.\" at js/eat.js:1739 on the first bite of an apple that C answers \"Delicious!  Must be a Macintosh!\", and every surviving entry carries the blockedOn symbol its reading found.",
       "upstreamOwners": [
         "eat.c fprefx()",
@@ -1858,8 +1858,8 @@
         },
         {
           "name": "replay the two-weapon stacked-primary case against C in INVENTORY_CASES",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "682dbacfc7f364bf5234d94f162a3b837b5e0228"
         }
       ],
       "openedAt": "d939955e795236d2263b61d59c532ab9deaff347",
@@ -1868,8 +1868,11 @@
         "screens": 1512,
         "rng": 120847
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "682dbacfc7f364bf5234d94f162a3b837b5e0228",
+      "delivered": {
+        "screens": 1,
+        "rng": 0
+      }
     }
   ]
 }
