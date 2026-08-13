@@ -26,7 +26,9 @@
 //   every other worn mask has to name itself unchanged.
 // - INVENTORY_CASES open the inventory menu, where invent.c ddoinv() names
 //   both wielded slots side by side. Each case selects one arm of the two
-//   word choices at objnam.c:1591-1595 and :1613-1621.
+//   word choices at objnam.c:1591-1595 and :1613-1621, and the stacked-primary
+//   case also selects the `&& !twoweap_primary` conjunct at :1575 that decides
+//   between them and " (wielded)".
 // - SKILL_CASES press `^X` while two-weapon combat is on, so insight.c
 //   weapon_insight() takes its two-weapon branch (1334-1463) instead of the
 //   single-weapon one above it.
@@ -61,6 +63,12 @@ const WAIT = '.';
 const TWOWEAPON = '#twoweapon\n';
 // 'i' opens the inventory menu through invent.c ddoinv(); escape closes it.
 const INVENTORY = 'i\x1b';
+// cmd.c:1884 binds 'x' to "swap", which is wield.c doswapweapon(). It prints
+// two object names in one turn -- ready_weapon()'s prinv() at wield.c:226 for
+// the new primary and :492's for the new secondary -- so the first waits
+// behind a --More-- that the space dismisses. Without the space the ten
+// letters of "#twoweapon" are swallowed by that prompt and never reach rhack().
+const SWAP = 'x ';
 // cmd.c extcmdlist[] row 0x18 is "attributes", which calls insight.c
 // doattributes(). Its window runs to two pages, so the space turns to the
 // second one -- the page the skill lines fall on -- and the escape dismisses
@@ -163,7 +171,10 @@ export const NAMING_CASES = [
 // objnam.c:1571-1595 and :1613-1621 are two word choices over the same hero,
 // and the inventory menu shows both at once. `twoweapon` picks the arm;
 // `lefty` states which way URIGHTY reads, since :1586 and :1616 take opposite
-// sides of it.
+// sides of it. `stack` names the slot that has to hold more than one object,
+// because :1571 splits the primary's phrasing on quan and :1619 pluralizes the
+// secondary's on it; `swap` moves the Rogue's stack from one slot to the other
+// before the menu opens.
 //
 // 7710205 is the first seed at or above 7710200 whose Samurai u_init.c:395
 // draw comes up LEFT_HANDED and whose start the port already replays. That
@@ -172,18 +183,32 @@ export const NAMING_CASES = [
 export const INVENTORY_CASES = [
     // Flag clear: ":1594 weapon in right hand" over ":1619 alternate weapon;
     // not wielded". The control that shows what the flag changes.
-    { who: 'samurai', seed: REFUSAL_SEED, twoweapon: false, lefty: false },
+    { who: 'samurai', seed: REFUSAL_SEED, twoweapon: false, lefty: false,
+      stack: null },
     // Flag set over the same start: ":1593 wielded in right hand" over
     // ":1615 wielded in left hand".
-    { who: 'samurai', seed: REFUSAL_SEED, twoweapon: true, lefty: false },
+    { who: 'samurai', seed: REFUSAL_SEED, twoweapon: true, lefty: false,
+      stack: null },
     // The same pair for a left-handed hero, where both phrases swap hands.
-    { who: 'samurai', seed: 7710205, twoweapon: true, lefty: true },
+    { who: 'samurai', seed: 7710205, twoweapon: true, lefty: true,
+      stack: null },
     // The Rogue's stack of daggers in the secondary slot, which is the only
     // starting loadout that has one. Flag clear, so :1619's plur(obj->quan)
     // reads "alternate weapons".
-    { who: 'rogue', seed: REFUSAL_SEED, twoweapon: false, lefty: false },
+    { who: 'rogue', seed: REFUSAL_SEED, twoweapon: false, lefty: false,
+      stack: 'secondary' },
     // The same stack with the flag set: :1615 names a hand and no count.
-    { who: 'rogue', seed: REFUSAL_SEED, twoweapon: true, lefty: false },
+    { who: 'rogue', seed: REFUSAL_SEED, twoweapon: true, lefty: false,
+      stack: 'secondary' },
+    // The same stack swapped into the primary slot, where :1571's `quan != 1`
+    // sends it to :1576's " (wielded)" unless :1575's `&& !twoweap_primary`
+    // holds it back. This case records both sides of that conjunct over one
+    // object: the swap's own screen names the stack while u.twoweap is still
+    // clear, and the menu names it again as ":1593 wielded in right hand"
+    // once the command has set the flag. No other starting loadout and
+    // command put a stack in the wielded slot at all.
+    { who: 'rogue', seed: REFUSAL_SEED, twoweapon: true, lefty: false,
+      swap: true, stack: 'primary' },
 ];
 
 // insight.c weapon_insight():1334-1463, the arm that reports weapon skill
@@ -314,15 +339,17 @@ export function loadTwoWeaponNamingRecipe() {
     });
 }
 
-// The command when the case wants it, then the inventory menu and the escape
-// that closes it. No trailing wait: ddoinv() costs no time, so a later turn
-// would only repeat screens the other groups already compare.
-function inventorySegment({ seed, who, twoweapon }) {
+// The swap when the case wants it, then the command when the case wants it,
+// then the inventory menu and the escape that closes it. No trailing wait:
+// ddoinv() costs no time, so a later turn would only repeat screens the other
+// groups already compare.
+function inventorySegment({ seed, who, twoweapon, swap = false }) {
     return {
         seed,
         datetime: DATETIME,
         nethackrc: nethackrc(who),
-        moves: `${WAIT}${twoweapon ? TWOWEAPON : ''}${INVENTORY}`,
+        moves: `${WAIT}${swap ? SWAP : ''}${twoweapon ? TWOWEAPON : ''}`
+            + `${INVENTORY}`,
     };
 }
 
@@ -494,13 +521,13 @@ async function verifyInventory(recipeSegment) {
             && built.nethackrc === recipeSegment.nethackrc;
     });
     if (!found) throw new Error(`no inventory case for ${recipeSegment.seed}`);
-    const { who, twoweapon, lefty } = found;
+    const { who, twoweapon, lefty, swap = false, stack } = found;
 
     // Stop with the menu still unopened, and check that the hero really is in
     // the state whose arm this case was chosen for.
     await runSegment({
         ...recipeSegment,
-        moves: `${WAIT}${twoweapon ? TWOWEAPON : ''}`,
+        moves: `${WAIT}${swap ? SWAP : ''}${twoweapon ? TWOWEAPON : ''}`,
     });
     if (Boolean(game.u.twoweap) !== twoweapon) {
         throw new Error(
@@ -519,13 +546,16 @@ async function verifyInventory(recipeSegment) {
     }
     if (!game.uwep || !game.uswapwep)
         throw new Error(`${who} does not hold two weapons`);
-    // objnam.c:1571 splits on quan, and :1619 pluralizes on it. The Rogue is
-    // here for the stacked secondary; the Samurai for the singular one.
-    const stacked = game.uswapwep.quan > 1;
-    if (stacked !== (who === 'rogue')) {
+    // objnam.c:1571 splits the primary's phrasing on quan and :1619
+    // pluralizes the secondary's on it, so which slot the stack sits in is
+    // what selects the arm. The Samurai holds a single object in each.
+    const stacked = game.uwep.quan > 1 ? 'primary'
+        : game.uswapwep.quan > 1 ? 'secondary' : null;
+    if (stacked !== stack) {
         throw new Error(
-            `${who}'s secondary holds ${game.uswapwep.quan}, the wrong count `
-            + 'for the arm this case selects',
+            `${who} holds ${game.uwep.quan} and ${game.uswapwep.quan}, so the `
+            + `stack is in the ${stacked ?? 'neither'} slot rather than the `
+            + `${stack ?? 'neither'} one this case selects`,
         );
     }
 

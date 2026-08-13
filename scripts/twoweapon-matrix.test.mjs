@@ -145,7 +145,27 @@ test('the inventory matrix names both hands on both sides of the flag', () => {
         'Samurai/human/male',
         'Rogue/human/male',
         'Rogue/human/male',
+        'Rogue/human/male',
     ]);
+    // :1575's `&& !twoweap_primary` is the whole reason a dual-wielded stack
+    // reads ":1593 wielded in <hand>" rather than ":1576 (wielded)", and only
+    // a stack in the primary slot reaches it. u_init.c starts every stack in
+    // the secondary slot, so a case has to move one across.
+    assert.ok(
+        INVENTORY_CASES.some(
+            ({ stack, twoweapon }) => stack === 'primary' && twoweapon,
+        ),
+        'no case dual-wields a stacked primary',
+    );
+    // verifyInventory() matches a recipe segment back to its case on the whole
+    // segment, so two cases that build the same one would both be verified
+    // against whichever is listed first, and the second's claims about the
+    // hero would never be checked.
+    assert.equal(
+        new Set(recipe.segments.map((segment) => JSON.stringify(segment))).size,
+        recipe.segments.length,
+        'two inventory cases build the same segment',
+    );
 });
 
 test('the skill matrix opens the attributes window on both hands', () => {
