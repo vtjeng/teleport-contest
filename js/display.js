@@ -43,6 +43,7 @@ import {
     DB_FLOOR, DB_ICE, DB_LAVA, DB_MOAT, DB_UNDER,
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
     IS_STWALL, isok, u_at,
+    BEAR_TRAP, NO_TRAP, WEB, is_pit,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
     WM_MASK, WM_C_OUTER, WM_C_INNER,
     WM_W_LEFT, WM_W_RIGHT, WM_W_TOP, WM_W_BOTTOM,
@@ -2082,11 +2083,38 @@ export function newsym(x, y) {
         }
     }
 
+    // display.c:1013, `mon && (see_it || (!worm_tail && Detect_monsters))`.
+    // C evaluates this before _map_location() files the remembered glyph, so
+    // it is hoisted above the layer choice below rather than computed with
+    // the rest of the monster presentation. No worm_tail operand: long worms
+    // have no port, so is_worm_tail() is constantly false here.
+    const shouldDisplayMonster = Boolean(
+        monster && (monsterDirectlyVisible || monsterSensed),
+    );
+
     const covered = floorLayersCovered(loc, game);
     const object = covered
         ? null : game.level?.objects?.[x]?.[y] ?? null;
     if (object) observeNearbyObject(object, x, y, game);
-    const trap = covered ? null : t_at(x, y, game);
+    const trapAt = t_at(x, y, game);
+    // display.c:1014-1023. Seeing a monster held in a physical trap tells the
+    // hero what holds it, and C writes that before _map_location() picks the
+    // remembered glyph, so the first frame that shows the monster already
+    // remembers the trap under it. trap.c mintrap():3742-3749 repeats the
+    // write on the held monster's next move and pager.c:468-476 on a farlook,
+    // but neither runs when the hero sees the monster and then empties the
+    // square before it moves again.
+    //
+    // Two differences from the layer choice below, both C's: the trap is read
+    // through t_at() rather than through covers_traps(), so water over the
+    // square does not suppress the write; and the hero's own square cannot
+    // reach it, because C runs this in the `else` of `if (u_at(x, y))` and the
+    // port's m_at() answers null wherever the hero stands.
+    const tt = trapAt ? trapAt.ttyp : NO_TRAP;
+    if (shouldDisplayMonster && monster.mtrapped
+        && (tt === BEAR_TRAP || is_pit(tt) || tt === WEB))
+        trapAt.tseen = true;
+    const trap = covered ? null : trapAt;
     const mapsLocation = visible
         || (game.u?.ux === x && game.u?.uy === y);
     let underlying;
@@ -2127,9 +2155,6 @@ export function newsym(x, y) {
 
     // Only update display/memory if cell is IN_SIGHT (lit and visible)
     if (visible) {
-        const shouldDisplayMonster = Boolean(
-            monster && (monsterDirectlyVisible || monsterSensed),
-        );
         const mimicAppearanceType = monster?.m_ap_type & M_AP_TYPMASK;
         // PHYSICALLY_SEEN mimicry presents the disguise before any sensed real
         // monster presentation. Object disguises therefore own their complete

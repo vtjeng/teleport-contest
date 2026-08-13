@@ -64,13 +64,37 @@
 // entry below is that boundary, not a round number: one search more and the
 // segment would record a screen the port cannot answer.
 //
-// Two branches of the arm have no segment here, and
-// scripts/monster-bear-trap.test.mjs pins both against mintrap() directly.
-// FORCETRAP's "evades" line at 1545-1552 needs trap.c openfallingtrap() or a
-// failed untrap, neither of which anything ported calls. The out-of-sight arms
-// at 1539-1543 need the catch to happen where the hero cannot watch: 12,000
-// scanned seeds produced five catches and every one of them was in sight,
-// because the pet that walks onto the trap is the one following the hero.
+// The unwatched catch needed its own scan of the same 7,000,000 to 7,011,999
+// band, under the same clock and the same Knight, because the filter is a
+// different one: of the seeds whose level one the port can build, 1,063 put a
+// BEAR_TRAP on it and eighteen of those put it on an *unlit* square, which is
+// the only place a square two steps from the hero is out of sight. Seven of
+// the eighteen leave the trap within a dozen steps of the hero's start; of
+// those seven, three replay past forty turns without meeting a boundary, and
+// 7003206 is the one whose pony crosses its trap while the hero stands two
+// squares off. The walk and the search count were then read off the port's own
+// state, prefix by prefix, as the first pair leaving `mtrapped` set with
+// `tseen` clear.
+//
+// FORCETRAP's "evades" line at 1545-1552 has no segment here, and
+// scripts/monster-bear-trap.test.mjs pins it against mintrap() directly: it
+// needs trap.c openfallingtrap() or a failed untrap, neither of which anything
+// ported calls.
+//
+// THE LAST SEGMENT IS THE SILENT SIDE OF C:1533, and it is here because the
+// five seeds above cannot reach it. Every one of them catches its pony in a
+// lit room, where in_sight is true and the arm writes its line and calls
+// seetrap(); the `else` at 1539 is dead for a pony, which is neither owlbear
+// nor bugbear, so an unwatched catch spends the d(2, 4) and says nothing at
+// all. What that leaves behind is a monster held over a trap the hero has
+// never been told about, which is the one state display.c newsym()'s
+// mtrapped arm (1014-1023) exists to resolve. Seed 7003206 puts the bear trap
+// in an *unlit* room, so standing two squares away leaves it out of sight
+// while the pony still wanders onto it; the walk stops two squares short for
+// that reason and never searches beside the trap, because dosearch() would
+// map it before the pony arrived. The last `l` steps the hero back into
+// sight, and it is the frame that newsym() writes the trap into map memory
+// on.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -146,6 +170,25 @@ export function loadMonsterBearTrapRecipe() {
                 datetime: DATETIME,
                 nethackrc: nethackrc('Valkyrie', 'female', 'neutral', 'dog'),
                 moves: `jbhhhhhhbhhhhh${'s'.repeat(40)} `,
+            },
+            // C:1533 with in_sight false, and then display.c newsym()
+            // (1013-1024) resolving what it left. Nine steps west put the hero
+            // at <24,5> in an unlit room, two squares from the bear trap at
+            // <26,6> and past it, so the pony trails back across the trap
+            // rather than reaching it ahead of the hero. It is caught on the
+            // 98th search with nothing written and nothing drawn, and the `l`
+            // that follows steps the hero to <25,5>, where the pony is
+            // adjacent and the trap under it is marked seen. The two searches
+            // after it record that the map keeps what that frame wrote.
+            //
+            // No space anywhere in the keys, which is the assertion: an
+            // unwatched catch raises no --More--, so nothing suspends and the
+            // searches run straight through it.
+            {
+                seed: 7003206,
+                datetime: DATETIME,
+                nethackrc: nethackrc('Knight', 'male', 'lawful', 'horse'),
+                moves: `hhhhhhhhh${'s'.repeat(98)}lss`,
             },
         ],
     }, 'monster bear trap recipe');

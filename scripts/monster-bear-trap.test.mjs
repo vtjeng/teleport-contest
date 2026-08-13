@@ -2,21 +2,30 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ARROW_TRAP,
     BEAR_TRAP,
     COULD_SEE,
     FORCETRAP,
     IN_SIGHT,
     PIT,
+    SPIKED_PIT,
     Trap_Caught_Mon,
     Trap_Effect_Finished,
     Trap_Killed_Mon,
     WEB,
     W_ARMF,
 } from '../js/const.js';
+import { newsym } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { accessible, m_in_air } from '../js/monmove.js';
-import { m_at, newMonster, place_monster } from '../js/monst.js';
+import {
+    m_at,
+    newMonster,
+    place_monster,
+    remove_monster,
+} from '../js/monst.js';
+import { trap_to_defsym } from '../js/symbols.js';
 import {
     MZ_SMALL,
     NON_PM,
@@ -34,6 +43,7 @@ import { CORPSE, IRON_SHOES } from '../js/objects.js';
 import { canSeeMonster } from '../js/startup_a11y.js';
 import { trapname } from '../js/trap.js';
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';
+import { cansee } from '../js/vision.js';
 import { loadMonsterBearTrapRecipe } from './run-monster-bear-trap.mjs';
 
 // The same Valkyrie scripts/monster-pit.test.mjs uses, so both read the same
@@ -145,6 +155,13 @@ function bearEnv(rolls = [], fallback = 1) {
 // scripts/monster-pit.test.mjs does, so that `in_sight` is false at C:1527.
 function blind_to(x, y) {
     game.viz_array[y][x] &= ~(COULD_SEE | IN_SIGHT);
+}
+
+// The other half of blind_to(): the square the hero has walked back into view
+// of. vision.c vision_recalc() sets these two bits and then calls newsym() for
+// the square, which is the sequence display.c:1013-1024 runs under.
+function watch_again(x, y) {
+    game.viz_array[y][x] |= COULD_SEE | IN_SIGHT;
 }
 
 // trap.c trapeffect_bear_trap():1530-1538 and :1553-1557, the arm's common
@@ -286,6 +303,74 @@ test('a bear trap out of sight is silent but still bites', async () => {
     assert.equal(trap.tseen, false, 'the trap stays unmapped');
     assert.equal(mon.mtrapped, true, 'but the trap still holds it');
     assert.equal(mon.mhp, 8);
+});
+
+// display.c newsym():1013-1024. A catch the hero did not watch leaves the trap
+// off the map, and the hero learns it from the held monster itself: newsym()
+// marks the trap seen before _map_location() picks the remembered glyph, so
+// the first frame that shows the monster already remembers the trap under it.
+// pager.c:468-476 makes the same write on a farlook and names the mechanism,
+// "newsym lets you know of the trap".
+test('newsym maps the trap under a monster the hero finds held', async () => {
+    await hero();
+    const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13);
+    blind_to(x, y);
+    const env = bearEnv([5]);
+    assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon);
+    assert.equal(mon.mtrapped, true, 'held');
+    assert.equal(trap.tseen, false, 'and unwatched, so trap.c:1537 was skipped');
+
+    // The hero walks into view: vision.c vision_recalc() ends in newsym() for
+    // every square whose visibility changed.
+    watch_again(x, y);
+    newsym(x, y);
+    assert.equal(trap.tseen, true, 'display.c:1023');
+    assert.equal(game.level.at(x, y).remembered_glyph.cmap,
+                 trap_to_defsym(BEAR_TRAP),
+                 'display.c:1024, the trap under the monster');
+});
+
+// display.c:1014 and :1017. The write needs a held monster over one of the
+// three trap types C names; every other square newsym() paints keeps whatever
+// the hero already knew.
+test('newsym maps no trap the hero has no held monster to read', async () => {
+    await hero();
+
+    // display.c:1014, mon->mtrapped. The pony stands on the same unseen bear
+    // trap without being held by it, which mintrap() leaves possible whenever
+    // the trap has already closed on something else.
+    const loose = victimInBearTrap(PM_PONY, 13);
+    newsym(loose.x, loose.y);
+    assert.equal(loose.trap.tseen, false, 'nothing is holding it');
+
+    // display.c:1013, the monster itself. An unseen trap with no monster on it
+    // is the ordinary case of every square the hero walks past.
+    const bare = victimInBearTrap(PM_PONY, 13);
+    remove_monster(bare.x, bare.y, game);
+    newsym(bare.x, bare.y);
+    assert.equal(bare.trap.tseen, false, 'and nothing to read it from');
+
+    // display.c:1017. is_pit() and WEB carry the other two arms; an arrow trap
+    // is one of the types outside all three, and stays unmapped under a
+    // monster the trap is recorded as holding.
+    const arrow = victimInBearTrap(PM_PONY, 13);
+    arrow.trap.ttyp = ARROW_TRAP;
+    arrow.mon.mtrapped = true;
+    newsym(arrow.x, arrow.y);
+    assert.equal(arrow.trap.tseen, false, 'an arrow trap is not physical');
+
+    // The rest of C:1017's membership: both types trap.h:113 is_pit() names,
+    // and WEB. Only the write is asserted here; the remembered glyph the write
+    // feeds is the case above, whose square is the one this fixture leaves
+    // free of the starting room's objects.
+    for (const [ttyp, label] of [[PIT, 'is_pit() PIT'],
+        [SPIKED_PIT, 'is_pit() SPIKED_PIT'], [WEB, 'WEB']]) {
+        const held = victimInBearTrap(PM_PONY, 13);
+        held.trap.ttyp = ttyp;
+        held.mon.mtrapped = true;
+        newsym(held.x, held.y);
+        assert.equal(held.trap.tseen, true, label);
+    }
 });
 
 // trap.c:1539-1543. Out of sight, an owlbear or a bugbear is heard instead of
@@ -623,23 +708,28 @@ const MATRIX_OUTCOME = Object.freeze({
     7008529: { turn: 32, caught: true, killed: true, freed: false },
     // The kobold zombie crosses the trap instead of being held by it.
     7002077: { turn: 31, caught: false, killed: false, freed: false },
+    // The one unwatched catch. C:1533 is false, so no line is written and no
+    // --More-- is raised, which is why this segment carries no space.
+    7003206: {
+        turn: 107, caught: true, killed: false, freed: false, silent: true,
+    },
 });
 
-// Every segment has to carry the recording across the --More-- that C's
-// pline_mon() raises at 1534, or the d(2, 4) at 1554 is never spent and the
-// matrix records the message alone.
+// Every watched segment has to carry the recording across the --More-- that
+// C's pline_mon() raises at 1534, or the d(2, 4) at 1554 is never spent and
+// the matrix records the message alone.
 test('every matrix segment ends on the key that clears the --More--',
      async () => {
          const { segments } = loadMonsterBearTrapRecipe();
-         assert.equal(segments.length, 6);
+         assert.equal(segments.length, 7);
          for (const segment of segments) {
-             assert.ok(MATRIX_OUTCOME[segment.seed],
+             const outcome = MATRIX_OUTCOME[segment.seed];
+             assert.ok(outcome,
                        `segment ${segment.seed} has a measured outcome`);
-             assert.ok(segment.moves.includes(' '),
-                       `segment ${segment.seed} clears a --More--`);
+             assert.equal(segment.moves.includes(' '), !outcome.silent,
+                          `segment ${segment.seed} clears a --More--`);
              assert.ok(
-                 segment.moves.length
-                     > MATRIX_OUTCOME[segment.seed].turn,
+                 segment.moves.length > outcome.turn,
                  `segment ${segment.seed} runs past its catch`,
              );
          }
@@ -650,7 +740,7 @@ test('every matrix segment ends on the key that clears the --More--',
              segments.filter(
                  ({ nethackrc }) => nethackrc.includes('role:Knight'),
              ).length,
-             5,
+             6,
          );
      });
 
@@ -738,4 +828,40 @@ test('every matrix segment reaches a bear trap and replays to its last key',
              assert.equal(onTrap.data.msize > MZ_SMALL, expected.caught,
                           `segment ${segment.seed} matches its size gate`);
          }
+     });
+
+// The setup display.c newsym():1014-1023 exists for, in a running game rather
+// than a fixture: a pony held over a trap the hero has never been told about.
+// The unlit room is what makes it reachable. Only the walk that stops two
+// squares short leaves the trap dark while the pony still crosses it, so the
+// hero's own position is this segment's whole subject and the assertions below
+// pin it rather than the catch.
+test('the unwatched matrix segment is caught over an unmapped trap',
+     async () => {
+         const segment = loadMonsterBearTrapRecipe().segments.find(
+             ({ seed }) => seed === 7003206,
+         );
+         // Everything before the `lss` that walks the hero back into sight.
+         const unwatched = segment.moves.slice(0, -3);
+
+         await runSegment({ ...segment, moves: unwatched });
+         const trap = game.level.traps.find((t) => t.ttyp === BEAR_TRAP);
+         let pony = null;
+         for (let mon = game.level.monlist; mon; mon = mon.nmon)
+             if (mon.mnum === PM_PONY) pony = mon;
+         assert.deepEqual([pony.mx, pony.my], [trap.tx, trap.ty],
+                          'the pony is standing on the bear trap');
+         assert.equal(Boolean(pony.mtrapped), true, 'trap.c:1532 held it');
+         assert.equal(cansee(trap.tx, trap.ty, game), false,
+                      'and the hero could not watch');
+         assert.equal(Boolean(trap.tseen), false,
+                      'so trap.c:1537 left the trap off the map');
+
+         // The last three keys. The hero steps to an adjacent square, which is
+         // where newsym() reads the held pony and marks what holds it.
+         await runSegment(segment);
+         const mapped = game.level.traps.find((t) => t.ttyp === BEAR_TRAP);
+         assert.equal(cansee(mapped.tx, mapped.ty, game), true,
+                      'the hero is watching now');
+         assert.equal(Boolean(mapped.tseen), true, 'display.c:1023');
      });
