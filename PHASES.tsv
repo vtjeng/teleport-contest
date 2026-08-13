@@ -372,3 +372,5 @@ utc	event	phase	goal	detail
 2026-08-13T07:22:33.559Z	start	review	objects-deferral-sweep-3	full correctness pass over 07c6d4b7..7ae4ef6
 2026-08-13T08:14:30.721Z	end	review	objects-deferral-sweep-3	full correctness pass recorded through eb3a084; 8 confirmed, 0 production defects
 2026-08-13T08:39:53.134Z	start	select		
+2026-08-13T09:23:55.882Z	end	select		
+2026-08-13T09:23:55.910Z	start	implement	bear-trap-capture	monster caught in a bear trap
