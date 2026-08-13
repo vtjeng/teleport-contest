@@ -366,3 +366,5 @@ utc	event	phase	goal	detail
 2026-08-13T04:20:49.501Z	start	implement	objects-deferral-sweep-3	
 2026-08-13T06:11:04.988Z	end	implement	objects-deferral-sweep-3	fprefx Mac-arm slice closed at 2bba12d; screens 1512 to 1513
 2026-08-13T06:11:05.016Z	start	implement	objects-deferral-sweep-3	dothrow guard narrowings
+2026-08-13T07:03:06.883Z	end	implement	objects-deferral-sweep-3	dothrow guard narrowings closed at 1f3e323; screens held at 1513
+2026-08-13T07:03:06.913Z	start	implement	objects-deferral-sweep-3	two-weapon stacked primary

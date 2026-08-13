@@ -1853,8 +1853,8 @@
         },
         {
           "name": "narrow the two dothrow.c refusals to the guards C actually carries",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "1f3e323f6edb2fc313b42a4fcf586a7cc4723f7f"
         },
         {
           "name": "replay the two-weapon stacked-primary case against C in INVENTORY_CASES",
