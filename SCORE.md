@@ -27,28 +27,40 @@ states it.
 
 ## Current standing
 
-- Development, at `c10d3d1` (2026-08-13): 1,538 of 7,765 screens and 121,032 of
+- Development, at `28ee8bf` (2026-08-14): 1,657 of 7,765 screens and 124,279 of
   610,816 random-number values, over the development set of 33 sessions, of
   which 9 match completely.
-- Reserved holdout, last evaluated at `c10d3d1`: 224 of 3,640 screens, 33,427
+- Reserved holdout, last evaluated at `28ee8bf`: 249 of 3,640 screens, 34,361
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  It has not moved across the last eleven goal closes, while the development
-  set gained 164 screens and four more fully matching sessions. `docs/goal-history.md`
-  records why that gap is expected rather than a defect: goals are ranked by
-  capped development look-ahead, so each one is chosen for the development
-  session it unblocks, and carry-over to the hidden set is a by-product. The
-  holdout serves as a regression test while the development set is the target.
-  Note one prediction that has now failed twice: commonness in ordinary play
-  does not predict carry-over. Force-fight gained 40 development screens and
-  moved the holdout by zero, and `monster-drops-equipped-gear` was chosen partly
-  because a monster dropping what it wore fires on every kill of an equipped
-  monster. It gained 21 and also moved it by zero.
-  `pet-step-onto-cursed-object` adds a second observation, from a different
-  direction. It was chosen on an exactly measured 27 rather than on commonness,
-  and it carried `seed1500-rogue-explore-move` all the way to a complete match,
-  the seventh of 33. Finishing a development session outright moved the holdout
-  by zero as well, so neither commonness in play nor completing a session
-  predicts carry-over.
+  It moved for the second and third times in this file's history at the last
+  two goal closes, after eleven flat ones: `armor-wear` took it to 234 and
+  `monster-melee-attack` to 249. `docs/goal-history.md` records why a small gap
+  is expected rather than a defect: goals are ranked by capped development
+  look-ahead, so each one is chosen for the development session it unblocks,
+  and carry-over to the hidden set is a by-product.
+
+  Three observations now bear on what carries over, and they point the same
+  way. Commonness in ordinary play does not predict it: force-fight gained 40
+  development screens and moved the holdout by zero, and
+  `monster-drops-equipped-gear`, chosen partly because a monster dropping what
+  it wore fires on every kill of an equipped monster, gained 21 and also moved
+  it by zero. Finishing a development session outright does not predict it
+  either: `pet-step-onto-cursed-object` was chosen on an exactly measured 27
+  and carried `seed1500-rogue-explore-move` to a complete match, the seventh of
+  33, while moving the holdout by zero.
+
+  What has moved it is a startup path and a large behavior port.
+  `armor-wear` took it 224 to 234, but that goal also fixed `set_wear()`, which
+  runs at startup for every session; `throw-command` was then run under a
+  constraint of touching no startup path, and moved the holdout by zero on both
+  screens and random-number calls, which is evidence the 10 came from the
+  startup fix rather than from porting an ordinary command.
+  `monster-melee-attack` is the first ordinary behavior port to move it: 234 to
+  249 screens and 33,674 to 34,361 calls. Against its own development gain the
+  carry-over is about a quarter as large in proportion, 1.53 per cent of the
+  development total against 0.41 per cent of the holdout's, which is what a
+  behavior ranked against the development set and then measured on unseen
+  sessions should look like.
 
 Per-event history lives in `SCORE.tsv`. The longer evidence behind any row
 lives in that row's commit message and in `QUALITY.json`: validation runs,

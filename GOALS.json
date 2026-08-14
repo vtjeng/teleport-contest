@@ -2129,7 +2129,7 @@
     },
     {
       "id": "monster-melee-attack",
-      "status": "open",
+      "status": "closed",
       "boundary": "A monster that dochug() sends to mhitu.c mattacku() while monnear(mtmp, mtmp->mux, mtmp->muy) holds carries its melee attack through to the hero's hit points: the to-hit differential (709-718), the NATTK loop's AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT arm (794-821) and its non-range2 AT_WEAP arm (883-925), through missmu(), hitmu(), mhitm_adtyping() and mdamageu(). Two testable conditions bound it. First, every arm of mattacku() that the hero's own state gates stays refused, so no ported line lies under u.uswallow (520-528), u.uundetected (551-660), the S_MIMIC and M_AP_OBJECT hero-mimic blocks (663-706), u.uinvulnerable (743-755), the summonmu() gate (729-741), or any range2 arm. Second, inside the loop the port covers exactly the two aatyp arms named, so AT_HUGS, AT_ENGL, AT_EXPL, AT_GAZE and AT_MAGC refuse, and inside mhitm_adtyping() (uhitm.c:4786-4831) only AD_PHYS and AD_ELEC have a ported arm, so every other adtyp refuses at the switch.",
       "upstreamOwners": [
         "mhitu.c mattacku() 491-952",
@@ -2188,8 +2188,11 @@
         "screens": 1538,
         "rng": 121032
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "28ee8bfd3754296a987d0b209667a1bc9eb8beb0",
+      "delivered": {
+        "screens": 119,
+        "rng": 3247
+      }
     }
   ]
 }
