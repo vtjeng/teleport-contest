@@ -19,7 +19,8 @@ import { PM_GIANT_RAT, PM_STONE_GIANT } from '../js/monsters.js';
 import { newMonster } from '../js/monst.js';
 import { mksobj, mksobj_at } from '../js/obj.js';
 import { BOULDER, WAN_STRIKING } from '../js/objects.js';
-import { blocking_terrain, lined_up, linedup } from '../js/mthrowu.js';
+import { blocking_terrain, lined_up, linedup, m_lined_up }
+    from '../js/mthrowu.js';
 
 // The same Valkyrie several other suites replay: a lit starting room on
 // dungeon level one, with the hero standing in it.
@@ -131,6 +132,22 @@ test('linedup rejects a ray that is neither straight nor diagonal',
         );
         assert.equal(
             linedup(state.u.ux, y, state.u.ux + 8, y, 2,
+                { state, random: noDraw() }),
+            false,
+        );
+        // The same boundary up the column. distmin() takes the larger of the
+        // two displacements, so a horizontal pair alone leaves its second
+        // argument free: only a ray whose y displacement is the larger one
+        // says that the origin it measures from is <0,0>.
+        setCouldSee(state, state.u.ux, y - 7, true);
+        setCouldSee(state, state.u.ux, y - 8, true);
+        assert.equal(
+            linedup(state.u.ux, y, state.u.ux, y - 7, 2,
+                { state, random: noDraw() }),
+            true,
+        );
+        assert.equal(
+            linedup(state.u.ux, y, state.u.ux, y - 8, 2,
                 { state, random: noDraw() }),
             false,
         );
@@ -359,6 +376,32 @@ test('m_lined_up lets a polymorphed hero conceal herself', async () => {
     state.u.umonnum = state.u.umonster;
     state.u.uundetected = false;
     state.youmonst.m_ap_type = M_AP_NOTHING;
+});
+
+// mthrowu.c:1392-1393, `utarget ? (ignore_boulders ? 1 : 2) : 0`. Every
+// ported caller arrives through lined_up(), so the hero is always the target
+// and the trailing 0 is chosen by nothing. It is what a monster shooting at
+// another monster would get, and C is strict there: no boulder is ever
+// shot around.
+test('m_lined_up gives a monster target no boulder allowance', async () => {
+    const state = await hero();
+    const y = state.u.uy;
+    const shooterX = state.u.ux + 3;
+    const targetX = state.u.ux + 1;
+    clearRow(state, state.u.ux, shooterX, y);
+    const shooter = attacker(state, shooterX, y, state.u.ux, y);
+    const target = attacker(state, targetX, y, state.u.ux, y);
+
+    // Neither end is the hero's square, so linedup() asks clear_path(), which
+    // reads the index vision_reset() built and not this cleared row: the sight
+    // test fails and boulderhandling is what decides the rest. Mode 0 returns
+    // there and spends nothing; mode 1 would walk the unobstructed row and
+    // answer TRUE, and any other mode would reach `rn2(2 + boulderspots)`,
+    // which noDraw() would report.
+    assert.equal(
+        m_lined_up(target, shooter, { state, random: noDraw() }),
+        false,
+    );
 });
 
 test('lined_up aims at the believed hero square, not the real one',
