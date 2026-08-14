@@ -178,7 +178,11 @@ export function get_shop_item(type, random) {
 // Every list but shktools reaches its name without drawing, so a wrong name
 // shows up only on the screen. The hardware store is the exception: its arm
 // draws rn2(names_avail) on every pass of the loop.
-function nameshk(shk, initialNames, normalized) {
+//
+// Exported for scripts/mkroom-shop.test.mjs, which is the only way to see
+// which name that draw selects: eshk.shknam reaches neither the screen nor the
+// random-number stream, so a recording pins the draw and not its result.
+export function nameshk(shk, initialNames, normalized) {
     const { random, state } = normalized;
     const eshk = shk.mextra?.eshk;
     if (!eshk) throw new Error('nameshk requires shopkeeper extension data');

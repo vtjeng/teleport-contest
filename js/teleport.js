@@ -1024,11 +1024,28 @@ export function mnexto(monster, _rlocflags = 0, env = {}) {
         coordinate.y,
         state,
     );
-    // Both ported callers reach set_apparxy()'s early returns and consume no
-    // RNG. allmain.c invokes this before the first turn, with an undisplaced,
-    // visible hero, so the zero-displacement return answers; dog.c
-    // mon_arrive() has already written the hero's own square into mux/muy, so
-    // the `u_at(mx, my)` return answers whatever the monster is.
+    // C's rloc_to() ends in set_apparxy(). Three ported callers reach this
+    // function, and each takes one of set_apparxy()'s two early returns and
+    // draws nothing, so the pair of assignments below writes what the source
+    // would have written:
+    //
+    // - js/dog.js mon_arrive() has already written the hero's own square into
+    //   mux/muy, so monmove.c:2211's `u_at(mx, my)` clause holds whatever the
+    //   monster is.
+    // - js/allmain.js newgame() moves the monster mklev() left on the arrival
+    //   staircase. That one still carries js/monst.js's `mux: 0`, because
+    //   makemon() skips set_apparxy() while in_mklev is set, so :2211 fails.
+    //   It reaches :2233 instead: makemon() gave it mcansee, the hero is
+    //   neither invisible nor displaced nor underwater, so displ is 0.
+    // - js/do.js u_collide_m() moves a monster off the square the hero landed
+    //   on. One that came down with her passed through mon_arrive() and takes
+    //   :2211; one mklev() left on the staircase takes :2233, exactly as the
+    //   caller above.
+    //
+    // Nothing here enforces that. A caller whose monster is blind, or one
+    // reached while the hero is invisible, displaced or underwater, would take
+    // set_apparxy()'s displacement path and spend an rn2 this stand-in does
+    // not.
     relocated.mux = state.u.ux;
     relocated.muy = state.u.uy;
     return relocated;

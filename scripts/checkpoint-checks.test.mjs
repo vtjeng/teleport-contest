@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 
 import {
     checkpointCommands,
+    compareScoreToBaseline,
     parseCheckpointArgs,
     runCheckpointChecks,
     summarizeDevelopmentScore,
@@ -11,6 +12,7 @@ import {
     summarizeMutation,
     summarizeReviewGate,
 } from './checkpoint-checks.mjs';
+import { readBaseline } from './score-baseline.mjs';
 
 test('the checkpoint surfaces the review gate without gating on it', () => {
     const gate = checkpointCommands([]).find(
@@ -318,6 +320,134 @@ test('development score summary keeps the checkpoint aggregates', () => {
         '1/2 sessions fully matched; RNG 15/30; screens 3/6; '
             + 'cursors 4/6; speed 80+0.10/turn',
     );
+});
+
+// One scoring run's stdout, in the shape score-development.mjs prints it: a
+// human-readable run, the marker, then the JSON. `sessions` maps a session
+// name to its matched screens and random-number calls.
+function scorerOutput(sessions) {
+    return [
+        'human-readable scorer output',
+        `__RESULTS_JSON__${JSON.stringify({
+            results: Object.entries(sessions).map(
+                ([session, { screens, rngCalls }]) => ({
+                    session,
+                    metrics: {
+                        screens: { matched: screens },
+                        rngCalls: { matched: rngCalls },
+                    },
+                }),
+            ),
+        })}`,
+    ].join('\n');
+}
+
+// The committed ratchet, with every session reporting exactly what it holds.
+// Building the input from score-baseline.json rather than from literals is
+// what keeps these cases honest as the ratchet advances.
+function baselineRun(baseline) {
+    const run = {};
+    for (const [session, { screens, rngCalls }] of Object.entries(baseline))
+        run[session] = { screens, rngCalls };
+    return run;
+}
+
+test('the score check passes a run that meets the ratchet', () => {
+    const baseline = readBaseline();
+    assert.ok(Object.keys(baseline).length > 0, 'the ratchet holds sessions');
+    assert.deepEqual(
+        compareScoreToBaseline(scorerOutput(baselineRun(baseline))),
+        { passed: true },
+    );
+
+    // One matched screen above the ratchet is a rise, not a drop. Together
+    // with the case below this decides `now < was` against `now <= was`, which
+    // differ only on the session that matched exactly its baseline.
+    const [first] = Object.keys(baseline);
+    const raised = baselineRun(baseline);
+    raised[first].screens += 1;
+    assert.deepEqual(
+        compareScoreToBaseline(scorerOutput(raised)), { passed: true },
+    );
+});
+
+test('the score check fails on a one-screen drop in a single session', () => {
+    const baseline = readBaseline();
+    const [first] = Object.keys(baseline);
+    const dropped = baselineRun(baseline);
+    dropped[first].screens -= 1;
+
+    assert.deepEqual(compareScoreToBaseline(scorerOutput(dropped)), {
+        passed: false,
+        detail: `${first} screens ${baseline[first].screens} -> `
+            + `${baseline[first].screens - 1}`,
+    });
+});
+
+test('the score check watches random-number matches as well as screens', () => {
+    // RATCHET_METRICS holds both, and a session can keep every screen while
+    // the state behind them drifts, so a run that only watched screens would
+    // pass this one.
+    const baseline = readBaseline();
+    const [first] = Object.keys(baseline);
+    const dropped = baselineRun(baseline);
+    dropped[first].rngCalls -= 1;
+
+    assert.deepEqual(compareScoreToBaseline(scorerOutput(dropped)), {
+        passed: false,
+        detail: `${first} rngCalls ${baseline[first].rngCalls} -> `
+            + `${baseline[first].rngCalls - 1}`,
+    });
+});
+
+test('the score check fails on a session the run did not score', () => {
+    const baseline = readBaseline();
+    const [first] = Object.keys(baseline);
+    const absent = baselineRun(baseline);
+    delete absent[first];
+
+    assert.deepEqual(compareScoreToBaseline(scorerOutput(absent)), {
+        passed: false,
+        detail: `${first} was not scored`,
+    });
+});
+
+test('the score check abstains when it cannot read the scorer output', () => {
+    // Neither arm answers `passed: false`. A scoring run that never reached
+    // its marker, or printed something JSON.parse refuses, carries no ratchet
+    // evidence, so the verdict falls back to the scorer's own exit status.
+    assert.deepEqual(compareScoreToBaseline('the scorer crashed'), {});
+    assert.deepEqual(
+        compareScoreToBaseline('__RESULTS_JSON__ {not json'), {},
+    );
+});
+
+test('a summarize verdict decides a check the command called green', () => {
+    const output = [];
+    const passed = runCheckpointChecks([
+        {
+            label: 'development score',
+            command: 'node',
+            args: ['score'],
+            capture: true,
+            summarize: () => ({ passed: false, detail: 'seedX screens 9 -> 8' }),
+        },
+        {
+            // No verdict of its own, so the exit status decides. The scorer's
+            // own status is nonzero here and the check still has to fail on
+            // its own account above rather than borrowing this one.
+            label: 'full test suite',
+            command: 'npm',
+            args: ['test'],
+        },
+    ], {
+        run: (command) => ({ status: command === 'npm' ? 3 : 0, stdout: '' }),
+        output: (line) => output.push(line),
+    });
+
+    assert.equal(passed, false);
+    assert.equal(output.at(-2), 'FAIL  development score: seedX screens 9 -> 8');
+    assert.equal(output.at(-1), 'FAIL  full test suite');
 });
 
 test('checkpoint parser rejects missing or unknown options', () => {

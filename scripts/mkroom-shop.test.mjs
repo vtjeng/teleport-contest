@@ -105,7 +105,7 @@ import {
 } from '../js/shtypes_data.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { timeout_globals_init } from '../js/timeout.js';
-import { shkveg, stock_room, veggy_item } from '../js/shknam.js';
+import { nameshk, shkveg, stock_room, veggy_item } from '../js/shknam.js';
 import {
     loadLevelTeleportArrivalRecipe,
     verifyLevelTeleportArrival,
@@ -847,22 +847,30 @@ test("a general store's keeper spends shkinit()'s rn2(5) on a charging scroll",
         const cases = [
             // rn2(5) came up non-zero: the keeper carries SCR_CHARGING (342).
             {
-                seed: 7331075, walk: 'hhjjjnjjjj', keeper: 'Akranes',
+                seed: 7331075, walk: 'hhjjjnjjjj',
                 inventory: [342, 438, 417, 307, 221, 417], stocked: 24,
             },
             // rn2(5) came up 0: no scroll of charging, and every later draw
             // in the shop moves with it.
             {
                 seed: 7330791, walk: 'llllullllllllllllllljjll',
-                keeper: 'Akureyri',
                 inventory: [438, 417, 307, 308, 221], stocked: 16,
             },
         ];
-        for (const { seed, walk, keeper, inventory, stocked } of cases) {
+        for (const { seed, walk, inventory, stocked } of cases) {
             const shop = await descendToShop(seed, walk);
             assert.equal(shop.index, GENERAL_STORE, `seed ${seed}`);
             assert.deepEqual(shop.pack, inventory, `seed ${seed} keeper pack`);
-            assert.equal(shop.keeper, keeper, `seed ${seed} name`);
+            // nameshk() indexes shkgeneral by name_wanted without drawing, so
+            // the name follows from C's formula. It cannot be read off the
+            // differential: eshk.shknam reaches neither the screen nor the
+            // random-number stream, so a literal here would only repeat what
+            // this port produced.
+            assert.equal(
+                shop.keeper,
+                shkgeneral[name_wanted(shop.shk) % shkgeneral.length],
+                `seed ${seed} name`,
+            );
             assert.equal(shop.stockedSquares, stocked, `seed ${seed} stock`);
         }
     });
@@ -905,6 +913,54 @@ test("a hardware store's keeper is named by a draw, not by name_wanted",
             assert.ok(!shop.pack.includes(TOUCHSTONE), `seed ${seed} stone`);
         }
     });
+
+test('the hardware store hands its draw straight to shktools', () => {
+    // shknam.c nameshk():518-520 is `shname = shktools[rn2(names_avail)]`,
+    // and it is the one selection in this function a recording cannot check:
+    // the draw is in the random-number stream, the name it indexes never
+    // leaves eshk.shknam, and the test above can only say that the drawn name
+    // differs from the one name_wanted would have chosen. Calling nameshk()
+    // with the draw fixed is what says which entry each value takes.
+    //
+    // m_id 8 on D:1 of dungeon 0, with ubirthday 0, puts name_wanted at
+    // 8 + 1 + (0 % 13) - (0 % 5) = 9. It is odd, so shk->female starts true
+    // and :519's `shk->female = 0` has something to clear; and shktools[9] is
+    // "Hyeghu", which no case below expects, so a port that fell through to
+    // the `name_wanted < names_avail` branch would answer it three times.
+    const cases = [
+        // The first entry. An index shifted up by one cannot produce it.
+        [0, 'Ymla', false],
+        // The one entry carrying a '-' prefix, which the test at the foot of
+        // C's loop reads to put female back after :519 cleared it.
+        [22, '-Zlaw', true],
+        // The last entry. A bound of names_avail - 1 can never reach it.
+        [39, 'Telloc Cyaj', false],
+    ];
+    for (const [drawn, expected, female] of cases) {
+        const bounds = [];
+        const shk = { m_id: 8, mextra: { eshk: { shknam: '' } } };
+        const state = {
+            ubirthday: 0,
+            u: { uz: { dnum: 0, dlevel: 1 } },
+            dungeons: [{ ledger_start: 0 }],
+            level: { monlist: null },
+        };
+        nameshk(shk, shktools, {
+            state,
+            random: {
+                rn2: (bound) => {
+                    bounds.push(bound);
+                    return drawn;
+                },
+            },
+        });
+        assert.equal(shk.mextra.eshk.shknam, expected, `draw ${drawn}`);
+        assert.equal(shk.female, female, `draw ${drawn} female`);
+        // One draw, over the whole list. No other list reaches this arm, and
+        // the loop runs once because nothing on the level shares the name.
+        assert.deepEqual(bounds, [shktools.length], `draw ${drawn} bound`);
+    }
+});
 
 test("a jewelers' keeper gets a touchstone and spends rn2(2) on the scroll",
     async () => {
@@ -1009,11 +1065,16 @@ test('each newly stocked shop type stocks only the classes its iprobs[] names',
 
 // The two rows that share shkbooks, and the tribute novel only they stock.
 // Each seed and walk below is a segment of scripts/run-shop-books.mjs, which
-// records the same inputs with the C reference program; the D:2 map it
-// compares carries one glyph per stocked square, so the class counts asserted
-// here are pinned cell for cell by those matching runs. The novel's title is
-// not: it never reaches the screen, and what the recording pins is the
-// rn2(41) that do_name.c noveltitle() draws for it.
+// records the same inputs with the C reference program and matches every
+// random number the stocking draws.
+//
+// The map does not corroborate the counts. The hero arrives on D:2's upstairs
+// and stops there, and none of these four shops holds a square the recorded
+// screen draws, so the differential pins the stream that chose each object and
+// not the glyph it became. The counts below are this port's reading of that
+// shared stream. The novel's title stands on the same footing: it never
+// reaches the screen either, and what the recording holds is the rn2(41) that
+// do_name.c noveltitle() draws for it.
 const BOOKSHOP_CASES = [
     // shtypes[2], the second-hand bookstore: 90% SCROLL_CLASS, 10%
     // SPBOOK_CLASS. Twenty-six scrolls and three spellbooks.
@@ -1158,9 +1219,10 @@ test('a shop mimic is disguised by the arm its own depth selects', async () => {
 
 // The three rows whose stock is not one object class per iprobs[] entry. Each
 // seed and walk below is a segment of scripts/run-shop-deli-wand-health.mjs,
-// which records the same inputs with the C reference program; the D:2 map it
-// compares carries one glyph per stocked square, so the object types asserted
-// here are pinned cell for cell by those matching runs.
+// which records the same inputs with the C reference program and matches every
+// random number the stocking draws. As in the bookstore block above, the map
+// does not corroborate the object types: the hero stops on D:2's upstairs and
+// the recorded screen draws none of the shop's stocked squares.
 const DELICATESSEN = 5;
 const HEALTH_FOOD_STORE = 10;
 
