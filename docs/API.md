@@ -38,7 +38,7 @@ Then it compares positionally:
 |---|---|
 | **PRNG** | Every entry in `rngLog` is positionally checked against the C trace. Format and ordering are exact. |
 | **Screen** | Every entry in `screens` is decoded into a 24×80 cell grid and cell-compared against the recorded C frame. Two encodings that produce the same pixels match. |
-| **Cursor** | Tiebreaker only — match if you can. |
+| **Cursor** | Tiebreaker only: match if you can. |
 | **Animation frames** | **Supplemental, not part of ranking.** If your port calls `await game.animationFrame()` between intermediate display states (zap beams, thrown objects, hurtle steps, runmode-walk travel), each captured frame is positionally checked against C's. Reported on the leaderboard as a separate `Anim%` column. See "Animation frames" below. |
 
 **Partial credit:** your score is the number of steps where the
@@ -48,12 +48,12 @@ need to pass the whole session. Across the public corpus
 (44 sessions, 11,284 steps) and the held-out pool (44 sessions,
 10,538 steps), your headline metric is the *total fraction of
 matched screens*. PRNG matching is reported alongside as advisory
-progress — it's the structural prerequisite for screens to match,
+progress: it's the structural prerequisite for screens to match,
 but it doesn't earn points on its own. Passing whole sessions
 (every screen and every PRNG call matched) is the strict-perfect
 tiebreaker.
 
-## `input` — what the harness gives you
+## `input`: what the harness gives you
 
 ```js
 {
@@ -72,14 +72,14 @@ tiebreaker.
 ```
 
 That's all. **The recorded screens, cursors, and RNG calls are not
-passed in** — you can't peek at the answer key. You have to actually
+passed in**. You can't peek at the answer key. You have to actually
 port the game.
 
-## `opts.storage` — cross-segment persistence
+## `opts.storage`: cross-segment persistence
 
 Save files, bones, the record/scoreboard file, and any other game
-state that must survive across segments of a session — or across a
-browser page reload — flow through a single Web-Storage-shaped
+state that must survive across segments of a session (or across a
+browser page reload) flow through a single Web-Storage-shaped
 object the harness gives you in `input.storage`:
 
 ```js
@@ -98,7 +98,7 @@ gets correct multi-segment scoring and browser save/restore from one
 implementation.
 
 If your port doesn't have save/restore yet, just ignore `storage`;
-the field sits unused and your single-segment scoring is unaffected.
+the field is unused and your single-segment scoring is unaffected.
 
 ## Per-segment isolation
 
@@ -115,11 +115,11 @@ for (const segment of session.segments) {
 
 Each call returns a self-contained game. `getScreens()`,
 `getRngLog()`, `getCursors()`, and `getAnimationFramesByStep()`
-should cover **only that segment** — the harness concatenates them
+should cover **only that segment**. The harness concatenates them
 itself. Persistent C-side state (save file, bones, record) lives in
 `storage`; nothing else needs to cross the segment boundary.
 
-## `game` — what you return
+## `game`: what you return
 
 Any object with the following methods. Their cumulative output across
 all segments of a session is what gets compared.
@@ -148,20 +148,20 @@ all segments of a session is what gets compared.
 
 ### `getScreens()`
 
-One string per **input boundary** — that is, every time C's
-`tty_nhgetch()` blocks waiting for the next key. The first frame is
-the initial state before any key. Each subsequent frame is the
-terminal state after consuming one key from `moves`.
+One string per **input boundary**: every time C's `tty_nhgetch()`
+blocks waiting for the next key. The first frame is the initial
+state before any key. Each subsequent frame is the terminal state
+after consuming one key from `moves`.
 
 A frame is the visible terminal contents. Format isn't tightly
-specified — both your output and the recorded ground truth are
+specified: both your output and the recorded ground truth are
 canonicalized before comparison (see *Screen comparator* below).
 The provided `frozen/terminal.js` has a `serialize()` method that
 produces the canonical format directly from a 24×80 grid; the
 provided `js/jsmain.js` capture hook calls it for you.
 
-If you implement your own terminal, output anything that — after
-canonicalization — matches the recorded screen.
+If you implement your own terminal, output anything that, after
+canonicalization, matches the recorded screen.
 
 ### `getRngLog()`
 
@@ -188,10 +188,10 @@ C-side recordings carry).
 
 ### `getCursors()`
 
-Currently scored as a tiebreaker only — match it if you can; not
+Currently scored as a tiebreaker only: match it if you can; not
 required for a session to pass.
 
-### Animation frames — supplemental, optional
+### Animation frames: supplemental, optional
 
 NetHack draws **intermediate animation frames** during certain
 actions: zap beams travelling across the dungeon, thrown objects in
@@ -227,14 +227,14 @@ frame). That single call:
    step writes over them.
 
 **Same code in every runtime.** Contestant code always writes
-`await game.animationFrame()` — there is no `mode` parameter, no
-feature detection, no separate code path. Inside the canonical
-implementation the yield uses `requestAnimationFrame` when one is
-available (so the browser actually paints between frames in
-`/play/<owner>/`) and falls back to a microtask yield in Node
-(judge sandbox + local `score.sh`), where the Terminal is a pure
-data structure and there is no paint loop to wait for. That choice
-is invisible to your code.
+the same parameterless `await game.animationFrame()` call on a
+single code path. There is no `mode` parameter and no feature
+detection. Inside the canonical implementation the yield
+uses `requestAnimationFrame` when one is available (so the browser
+actually paints between frames in `/play/<owner>/`) and falls back
+to a microtask yield in Node (judge sandbox + local `score.sh`),
+where the Terminal is a pure data structure and there is no paint
+loop to wait for. That choice is invisible to your code.
 
 **Animation frames are scored separately and are not part of the
 official ranking.** They contribute a supplemental `Anim%` column on
@@ -260,11 +260,11 @@ in the scorer):
 
 | File | Why frozen |
 |---|---|
-| `frozen/ps_test_runner.mjs` | The scoring runner — same one ships in your fork so you can self-test. |
+| `frozen/ps_test_runner.mjs` | The same scoring runner is included in your fork so you can self-test. |
 | `frozen/session_loader.mjs` | Normalizes session JSON to the v5 shape passed to `runSegment`. |
 
-Everything else in `js/` — including `js/jsmain.js`, `js/rng.js`,
-`js/display.js`, `js/const.js` — is yours to edit, replace, or
+Everything else in `js/` (including `js/jsmain.js`, `js/rng.js`,
+`js/display.js`, `js/const.js`) is yours to edit, replace, or
 restructure.
 
 ## Screen comparator
@@ -276,12 +276,12 @@ every cell renders the same pixels, regardless of how the underlying
 byte sequence got there:
 
 - **Version banner** lines (`Version X.Y.Z … built …`) are collapsed
-  to a sentinel before decoding — the build timestamp varies by C
+  to a sentinel before decoding: the build timestamp varies by C
   build and would otherwise punish contestants for not pinning to a
   moving target.
 - **Cursor-forward escapes** (`\x1b[NC`), **SGR (color/attribute)
   state transitions**, and **SI/SO charset shifts** all fall out of
-  the decode automatically — they affect cursor/state, not pixel
+  the decode automatically: they affect cursor/state, not pixel
   output, so encodings that differ but produce the same grid match.
 - **DEC line-drawing** glyphs are translated to their Unicode
   equivalents during decode.
@@ -294,7 +294,7 @@ See `frozen/screen-decode.mjs` for the decoder and the per-cell
 diff used by both the runner (`frozen/ps_test_runner.mjs`) and the
 Session Viewer (`tools/session-viewer/`).
 
-## Scoring isolation — the sandbox
+## Scoring isolation: the sandbox
 
 Your `runSegment` runs in a Node child process spawned with
 `--permission` and a tight `--allow-fs-read` whitelist (just your
@@ -328,7 +328,7 @@ only differences:
 - Local self-test only sees the 44 public sessions. The official run
   also scores against 44 held-out sessions you never see.
 
-## Worked example — minimal `runSegment`
+## Worked example: minimal `runSegment`
 
 ```js
 // Hypothetical minimal implementation that just plays the keys and
@@ -377,27 +377,27 @@ same.
 underneath and produce the same log entry format. If your PRNG values
 differ from C's, you fail.
 
-**Can I replace `js/terminal.js`?** No — it's frozen.
+**Can I replace `js/terminal.js`?** No, it's frozen.
 
-**Can I replace `js/storage.js`?** No — it's frozen too. Use its
+**Can I replace `js/storage.js`?** No, it's frozen too. Use its
 `vfsReadFile` / `vfsWriteFile` / `vfsDeleteFile` / `vfsListFiles`
 API for save files, bones, the topten record, and anything else
 that needs to survive a `#quit`/restart or save/restore. State
 written via this VFS persists across segments within one session
-(both browser and Node sandbox) and resets between sessions —
-that's the multi-segment contract the judge depends on.
+(both browser and Node sandbox) and resets between sessions: that's
+the multi-segment contract the judge depends on.
 
 **Can I replace `js/display.js`?** Yes. It builds your in-game screens.
 Just make sure they compare equal (after canonicalization) to C's.
 
 **Can I add new files under `js/`?** Yes. Anything that helps.
 
-**Can I import from outside `js/`?** Only what your fork ships:
+**Can I import from outside `js/`?** Only what your fork includes:
 `frozen/`, `nethack-c/upstream/` (read-only reference), and node
 built-ins. The sandbox blocks anything else.
 
 **Does `runSegment` get a fresh process per call?** Per *session*,
-yes. Per *segment* within a session, no — you get the previous
+yes. Per *segment* within a session, no: you get the previous
 segment's `game` as `prevGame`.
 
 **What if my code throws?** That session is marked errored and the
