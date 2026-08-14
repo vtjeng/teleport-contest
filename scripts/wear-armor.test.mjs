@@ -1041,12 +1041,6 @@ test('set_wear runs the startup callbacks and stops on the slots it cannot',
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, WAIT);
 
-    // A second call over the Valkyrie's own gear is a no-op, because
-    // ini_inv_adjust_obj():1215-1216 already set known on her shield.
-    assert.equal(game.uarms.known, true);
-    set_wear(game);
-    assert.equal(game.uarms.known, true);
-
     // The four accessory slots do_wear.c:1544-1551 would run first. Each is
     // tested on its own so that no one of them can hide the others.
     for (const field of ['ublindf', 'uright', 'uleft', 'uamul']) {
@@ -1055,26 +1049,47 @@ test('set_wear runs the startup callbacks and stops on the slots it cannot',
             refusal(UnsupportedWearError, 'set_wear() accessories'), field);
         game[field] = null;
     }
-    // The three slots whose callbacks this port carries and whose startup
-    // types it covers: gloves for the Healer, Knight and Monk, a helmet for
-    // the Knight and a fedora for the Archeologist. Each callback reveals the
-    // enchantment a wished piece would still be hiding, which is what shows
-    // that set_wear() reached it rather than skipping the slot.
+    // The seven armor calls at do_wear.c:1553-1565, one seeded piece each.
+    // Every callback this port carries reveals the enchantment a wished piece
+    // would still be hiding, and that `known` write is the only mark any of
+    // them leaves; a starting piece cannot witness it, because
+    // ini_inv_adjust_obj():1215-1216 marks every worn piece known before the
+    // preamble ever calls set_wear(). So each slot below is seeded at known
+    // false, and deleting any one of the seven calls turns exactly the
+    // matching assertion red.
     //
-    // Boots join them at do_wear.c:1558-1559 even though no role's gear can
-    // reach that call. The test below this one is what shows that; this is
-    // what shows the call is C's own rather than a refusal standing in front
-    // of a ported function.
+    // The types are the ones each callback carries, and the six that a role
+    // can start in are the type that role starts in: the Tourist's shirt, the
+    // Rogue's and Caveman's suit, the Monk's and Priest's robe, the Healer's,
+    // Knight's and Monk's gloves, the Knight's helmet and the Valkyrie's,
+    // Knight's and Priest's shield. Boots are the exception at
+    // do_wear.c:1558-1559: no role's gear can reach that call -- the test
+    // below this one is what shows that -- and low boots stand in to show the
+    // call is C's own rather than a refusal in front of a ported function.
+    const startingShield = game.uarms;
+
+    game.uarmu = armor(T_SHIRT, { known: false });
+    game.uarm = armor(LEATHER_ARMOR, { known: false });
+    game.uarmc = armor(ROBE, { known: false });
     game.uarmf = armor(LOW_BOOTS, { known: false });
     game.uarmg = armor(LEATHER_GLOVES, { known: false });
     game.uarmh = armor(HELMET, { known: false });
+    game.uarms = armor(SMALL_SHIELD, { known: false });
     set_wear(game);
+    assert.equal(game.uarmu.known, true, 'Shirt_on() ran');
+    assert.equal(game.uarm.known, true, 'Armor_on() ran');
+    assert.equal(game.uarmc.known, true, 'Cloak_on() ran');
     assert.equal(game.uarmf.known, true, 'Boots_on() ran');
     assert.equal(game.uarmg.known, true, 'Gloves_on() ran');
     assert.equal(game.uarmh.known, true, 'Helmet_on() ran');
+    assert.equal(game.uarms.known, true, 'Shield_on() ran');
+    game.uarmu = null;
+    game.uarm = null;
+    game.uarmc = null;
     game.uarmf = null;
     game.uarmg = null;
     game.uarmh = null;
+    game.uarms = startingShield;
 
     // A boot type Boots_on() cannot run still stops set_wear(), which is the
     // one caller with no frame above it to hoist the question into.
