@@ -13,14 +13,15 @@
 // moveloop_core(), with "You finish your dressing maneuver." in place of
 // on_msg().
 //
-// The suit, cloak, shirt and shield are the four slots this port puts armor
-// into, and their callbacks are Armor_on(), Cloak_on(), Shirt_on() and
-// Shield_on(). Every role that starts with one of them starts with it already
-// worn (u_init.c ini_inv_use_obj()), so the segments below either take the
-// piece off with the already-ported 'T' first or wish for a second one.
-// Wishing is also the only way this port can hold armor it has never worn:
-// mksobj() leaves obj->known 0 for armor where u_init.c sets it to 1, so a
-// wished piece hides its enchantment until its callback reveals it.
+// All seven armor slots are filled here, through Armor_on(), Cloak_on(),
+// Shirt_on(), Shield_on(), Helmet_on(), Gloves_on() and Boots_on(). Every role
+// that starts with one of those pieces starts with it already worn (u_init.c
+// ini_inv_use_obj()), so the segments below either take the piece off with the
+// already-ported 'T' first or wish for a second one. Wishing is also the only
+// way this port can hold armor it has never worn: mksobj() leaves obj->known 0
+// for armor where u_init.c sets it to 1, so a wished piece hides its
+// enchantment until its callback reveals it. Boots are the one slot no role
+// starts in at all, so a wish is the only way to reach Boots_on().
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -400,6 +401,75 @@ export function loadWearWishRecipe() {
             // "helmet". The Archeologist's eight starting items put the wished
             // pot at `i`.
             wishSegment(7720194, '+0 dented pot', `${WEAR_KEY}j`, ARCHEOLOGIST),
+            // do_wear.c:575-603 Gloves_on(), and the first thing ever to
+            // witness its `known` write: the three roles that start in leather
+            // gloves get them through ini_inv_adjust_obj():1215-1216, which
+            // sets known before the hero has worn anything, so until a 'W'
+            // could reach the callback the line had nothing to turn over.
+            //
+            // objects.h gives all four gloves an oc_delay of 1 (686-697), so
+            // this is the delayed arm: setworn() moves AC by the pair's a_ac
+            // of 1 plus the +2 on the turn the 'W' is typed, C prints no
+            // on_msg() at all, and the countdown ends on the next turn with
+            // "You finish your dressing maneuver." The two inventory windows
+            // read "a pair of leather gloves" and then "a +2 pair of leather
+            // gloves (being worn)"; u_init.c:772 gives a Valkyrie
+            // knows_class(ARMOR_CLASS), which marks every non-magical armor
+            // type known, so the name does not depend on o_init.c's shuffle of
+            // the four glove descriptions.
+            segment(7720211,
+                `${WISH_KEY}+2 leather gloves\n`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}e`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}`,
+                VALKYRIE, DEBUG),
+            // canwearobj()'s is_gloves filled-slot arm at do_wear.c:2139-2142,
+            // reached for the first time by a hero whose gloves are starting
+            // gear rather than wished for. already_wearing(c_gloves) prints
+            // "You are already wearing gloves." and no turn is spent.
+            //
+            // The Monk's letters are seed-dependent, as the Tourist's are:
+            // u_init.c:699-703 adds a spellbook chosen by rn2(90) and then a
+            // magic marker or an oil lamp on !rn2(4) or !rn2(10), so the count
+            // of starting stacks varies. At this seed he gets neither extra
+            // and the wished pair lands at `j`.
+            wishSegment(7720213, '+0 leather gloves', `${WEAR_KEY}j`, MONK),
+            // do_wear.c:186-259 Boots_on(), on the two bare-break labels whose
+            // a_ac differs: objects.h gives low boots ac 9 and iron shoes ac 8
+            // (700-703), so the ARMOR macro's `10 - ac` makes their a_ac 1 and
+            // 2. A Valkyrie's boots slot starts empty, as every role's does,
+            // so no 'T' is needed and the wished pair is the only letter
+            // wear_ok() suggests.
+            //
+            // All ten boots carry an oc_delay of 2, the longest delay outside
+            // the suit slot, so this is the widest window in the matrix in
+            // which C leaves the answered "What do you want to wear?" prompt
+            // standing with nothing printed over it. The prompt is answered
+            // with the turn counter at T:2 and the callback prints with it at
+            // T:4, so the window clears the svm.moves % 7 == 0 turn that would
+            // flush a RUN_LEAP animation frame onto that prompt -- the
+            // divergence the QUALITY.json deferral
+            // getobj-prompt-leaves-the-top-line-in-c-only measures. One
+            // leading wait is enough here where the Caveman's three-turn suit
+            // needed three; both recordings draw no animation frame at all.
+            segment(7720221,
+                `${WISH_KEY}+1 low boots\n`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}e`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}`,
+                VALKYRIE, DEBUG),
+            segment(7720223,
+                `${WISH_KEY}+0 iron shoes\n`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}e`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}`,
+                VALKYRIE, DEBUG),
+            // canwearobj()'s is_boots filled-slot arm at do_wear.c:2103-2106,
+            // which needs boots already on and so needs two wishes: the low
+            // boots go on over the two helpless turns, and the iron shoes at
+            // `f` then draw already_wearing(c_boots), "You are already wearing
+            // boots.", with AC left where the first pair put it.
+            segment(7720225,
+                `${WISH_KEY}+1 low boots\n${WEAR_KEY}e`
+                + `${WISH_KEY}+0 iron shoes\n${WEAR_KEY}f`,
+                VALKYRIE, DEBUG),
         ],
     }, 'wear armor wish recipe');
 }

@@ -1,7 +1,8 @@
 // do_wear.js -- Putting one piece of armor on with 'W' and taking one off
 // with 'T'.
 //
-// C ref: src/do_wear.c on_msg() (75-99), off_msg() (67-72), Cloak_on()
+// C ref: src/do_wear.c on_msg() (75-99), off_msg() (67-72), Boots_on()
+//        (186-259), Cloak_on()
 //        (325-380), Cloak_off()
 //        (382-431), Helmet_on() (433-515), Helmet_off() (517-564),
 //        Gloves_on() (575-603), Shield_on() (704-730),
@@ -23,9 +24,9 @@
 //
 // The 'A' occupation spine -- do_takeoff(), take_off(),
 // better_not_take_that_off() and doddoremarm() -- is not ported. armoroff()'s
-// delayed branch at do_wear.c:1930-1972 is ported for a suit only, and
-// accessory_or_armor_on() puts armor into the suit, cloak, shirt, shield and
-// helmet slots. Every refusal below names the C function it stops in front of.
+// delayed branch at do_wear.c:1930-1972 is ported for a suit only, while
+// accessory_or_armor_on() fills all seven armor slots. Every refusal below
+// names the C function it stops in front of.
 
 import {
     ECMD_CANCEL,
@@ -125,9 +126,14 @@ import {
     HAWAIIAN_SHIRT,
     HELMET,
     HELM_OF_OPPOSITE_ALIGNMENT,
+    HIGH_BOOTS,
+    IRON_SHOES,
+    JUMPING_BOOTS,
+    KICKING_BOOTS,
     LEATHER_CLOAK,
     LEATHER_GLOVES,
     LENSES,
+    LOW_BOOTS,
     MEAT_RING,
     MUMMY_WRAPPING,
     OILSKIN_CLOAK,
@@ -394,6 +400,77 @@ function Armor_off(state) {
     return 0;
 }
 
+// The boots Boots_on() answers with a bare break, C's five labels at
+// do_wear.c:193-198. Two of them still change what the game does, and both do
+// it outside this switch, so each was checked on its own before being carried
+// rather than refused with the five arms that print, draw or call away.
+//
+// JUMPING_BOOTS has an oc_oprop of JUMPING (objects.h:712-714), so worn.c
+// setworn() raises EJumping one statement before this callback runs. C reads
+// that extrinsic in two places: apply.c jump() (1895, 1993-2001) and
+// insight.c:1683. Neither can diverge here. `jump` is absent from js/cmd.js
+// ADMITTED_COMMANDS, so the command cannot start; and insight.c runs
+// attributes_enlightenment() only under MAGICENLIGHTENMENT, where
+// js/insight.js holds a JUMPING row that stops the window by name rather than
+// dropping C's line.
+//
+// KICKING_BOOTS has an oc_oprop of 0 (objects.h:718-720), so setworn() raises
+// nothing and C reads the type by otyp instead, at dokick.c:10, :41 and :1328.
+// The first of those is dokick.c's martial() macro, ported at js/dokick.js:127
+// and live: kick_dumb() short-circuits its rn2(3) on it, so a kicking hero in
+// these boots draws what C draws. The other two are unported and read by
+// nothing -- kickdmg() has no ported caller, and js/dokick.js:316 leaves
+// dokick()'s avrg_attrib uncomputed because every arm that would read it is
+// refused.
+//
+// That is the test HELM_OF_TELEPATHY failed and these two pass. Its extrinsic
+// feeds display.h sensemon(), which is ported and read on an ordinary turn
+// from four call sites, against a C redraw that is not ported, so it stays out
+// of PLAIN_HELMETS_ON below.
+const PLAIN_BOOTS_ON = new Set([
+    LOW_BOOTS, IRON_SHOES, HIGH_BOOTS, JUMPING_BOOTS, KICKING_BOOTS,
+]);
+
+// C ref: do_wear.c Boots_on() (186-259), the ga.afternmv callback
+// accessory_or_armor_on() installs for the boots slot, and the call set_wear()
+// below makes for a hero who starts in boots. No role does, so that second
+// caller cannot reach it today.
+//
+// objects.h gives all ten boots an oc_delay of 2 (700-727), so this never runs
+// on the turn the 'W' is typed: nomul(-2) spends two helpless turns first and
+// allmain.c moveloop_core() reaches the callback through unmul().
+//
+// The five types PLAIN_BOOTS_ON leaves out all reach outside do_wear.c.
+// WATER_WALKING_BOOTS calls spoteffects() and makeknown(); SPEED_BOOTS
+// makeknown() and You_feel(); ELVEN_BOOTS toggle_stealth(); FUMBLE_BOOTS
+// incr_itimeout(&HFumbling, rnd(20)), the one arm anywhere on this port's 'W'
+// spine that would draw a random number; and LEVITATION_BOOTS float_up(),
+// spoteffects() and float_vs_flight(). accessory_or_armor_on() hoists the
+// refusal above setworn() for the reason the cloak and helmet refusals give:
+// by the time this callback runs the boots are worn, AC has moved and the two
+// helpless turns are spent.
+//
+// C's `oldprop` at 189-190 is read only by those refused arms, so it is not
+// computed -- the reasoning Cloak_on() and Gloves_on() below already record
+// for their own copies.
+//
+// C's `uarmf &&` at 254 is left out, as Helmet_on()'s equivalent guard is.
+// C's own comment at 253 says what it is for: float_up() inside the
+// LEVITATION_BOOTS arm can drop the boots down a sink. That arm is refused and
+// no arm here empties the slot, so port it and the guard comes back with it.
+function Boots_on(state) {
+    const otyp = state.uarmf.otyp;
+
+    if (!PLAIN_BOOTS_ON.has(otyp))
+        throw new UnsupportedWearError(`Boots_on() for otyp ${otyp}`);
+    if (!state.uarmf.known) {
+        /* boots' +/- evident because of status line AC */
+        state.uarmf.known = true;
+        update_inventory({ state });
+    }
+    return 0;
+}
+
 // The cloaks each half of the slot handles with a bare `break`, which is not
 // the same list twice. Cloak_off() has seven such labels at do_wear.c:393-400;
 // Cloak_on() has five at 332-337, because two types do something on the way on
@@ -560,18 +637,25 @@ function Helmet_off(state) {
     return 0;
 }
 
-// C ref: do_wear.c Gloves_on() (575-603). set_wear() below is its only caller
-// here: accessory_or_armor_on() refuses W_ARMG above setworn(), so no 'W'
-// installs this callback, and the three roles that start in leather gloves --
-// Healer, Knight and Monk (u_init.c:78, :57, :63) -- are what makes the
-// function live at all.
+// C ref: do_wear.c Gloves_on() (575-603). Two callers ask: set_wear() below,
+// for the leather gloves a Healer, Knight or Monk starts in (u_init.c:78, :57,
+// :63), and accessory_or_armor_on(), which hoists the type question above
+// setworn() because objects.h gives all four gloves an oc_delay of 1 (686-697),
+// so the callback itself runs a turn after the slot and the status line have
+// already moved.
 //
 // C's other three labels all reach outside do_wear.c: GAUNTLETS_OF_FUMBLING
 // draws rnd(20) into HFumbling, GAUNTLETS_OF_POWER calls makeknown() and
-// redraws the status line, and GAUNTLETS_OF_DEXTERITY calls adj_abon(). No
-// role starts in a pair, so all three are refused. C's `oldprop` at 578 is
-// read only by the fumbling arm, so it is not computed -- the reasoning
-// Cloak_off() above already records for its own copy.
+// redraws the status line, and GAUNTLETS_OF_DEXTERITY calls adj_abon(). All
+// three are refused. C's `oldprop` at 578 is read only by the fumbling arm, so
+// it is not computed -- the reasoning Cloak_off() above already records for its
+// own copy.
+//
+// Until 'W' could reach this callback the `known` write had no witness at all:
+// u_init.c ini_inv_adjust_obj() (1215-1216) sets known on every starting piece,
+// and the three roles above are the only heroes who had gloves. A wished pair
+// arrives from mkobj.c mksobj() (864) with known 0, and is the first thing to
+// turn the line over.
 //
 // C's known tail at 598-601 carries no `uarmg &&` guard, unlike Helmet_on()'s
 // and Cloak_on()'s, because nothing in this switch can empty the slot.
@@ -703,11 +787,13 @@ export function set_wear(state = game) {
     if (state.uarmu) Shirt_on(state);
     if (state.uarm) Armor_on(state);
     if (state.uarmc) Cloak_on(state);
-    if (state.uarmf) {
-        // do_wear.c:1558-1559 Boots_on() (186-261). No role starts in boots,
-        // and the goal that owns this file refuses W_ARMF above setworn().
-        throw new UnsupportedWearError('set_wear() Boots_on()');
-    }
+    // do_wear.c:1558-1559. No role's starting gear fills W_ARMF -- u_init.c
+    // names boots nowhere, and scripts/wear-armor.test.mjs walks every role to
+    // show it -- so nothing reaches this call. It is a call rather than a
+    // refusal because Boots_on() is ported: a refusal standing in front of a
+    // ported function would stop a game C finishes if a role ever gained
+    // boots, which is the opposite of what a fail-closed boundary is for.
+    if (state.uarmf) Boots_on(state);
     if (state.uarmg) Gloves_on(state);
     if (state.uarmh) Helmet_on(state);
     if (state.uarms) Shield_on(state);
@@ -1383,26 +1469,28 @@ async function accessory_or_armor_on(obj, state = game) {
      * enchantment; Armor_on() and Shield_on() above are those actions.
      */
     // do_wear.c:2375 `gw.wasinwater = u.uinwater` is deliberately not
-    // written. Boots_on() (do_wear.c:196) is its only reader, W_ARMF is
-    // refused just below, and copying u.uinwater here would give that value a
-    // second home with nothing to read it. It belongs beside a ported
-    // Boots_on().
+    // written. Boots_on() (do_wear.c:210-215) is its only reader, and that
+    // read sits inside the WATER_WALKING_BOOTS arm the W_ARMF case below
+    // refuses by otyp, so copying u.uinwater here would give that value a
+    // second home with nothing to read it. It belongs with a ported
+    // water-walking arm.
 
     // C's chain at 2377-2393 chooses the callback by comparing `obj` against
     // the slot pointers setworn() has just filled. `mask` names the same slot
-    // one statement earlier, so switching on it here refuses the three
-    // unported slots, and the two callback arms that reach outside
-    // do_wear.c, before anything is written -- the shape armoroff()'s delayed
-    // branch uses above. C's own last arm is a panic() for a mask that
-    // matches no slot, which canwearobj() cannot produce.
+    // one statement earlier, so switching on it here answers all seven slots
+    // and refuses the callback arms that reach outside do_wear.c before
+    // anything is written -- the shape armoroff()'s delayed branch uses above.
     //
-    // Both otyp refusals below are hoisted out of their callback rather than
-    // left in it, because a callback runs too late to stop anything: by then
+    // Every otyp refusal below is hoisted out of its callback rather than left
+    // in it, because a callback runs too late to stop anything: by then
     // setworn() has moved AC, and on the delayed arm the helpless turns are
     // spent as well. Above setworn() a refusal leaves the hero as it found
     // her, which is what the slot test already does. Armor_off() and
     // Cloak_off() keep their copies inline because each is checked before the
-    // piece leaves its slot.
+    // piece leaves its slot. Boots_on(), Helmet_on() and Gloves_on() keep a
+    // copy of their question as well as being hoisted here, because set_wear()
+    // reaches them with whatever u_init.c wore and has no frame above it to
+    // hoist into.
     let afternmv;
 
     switch (worn.mask) {
@@ -1432,6 +1520,20 @@ async function accessory_or_armor_on(obj, state = game) {
             throw new UnsupportedWearError(`Helmet_on() for otyp ${obj.otyp}`);
         afternmv = Helmet_on;
         break;
+    case W_ARMG:
+        // Gloves_on()'s other three arms, which draw rnd(20) into HFumbling,
+        // call makeknown(), or adjust an ability score.
+        if (obj.otyp !== LEATHER_GLOVES)
+            throw new UnsupportedWearError(`Gloves_on() for otyp ${obj.otyp}`);
+        afternmv = Gloves_on;
+        break;
+    case W_ARMF:
+        // Boots_on()'s other five arms, which walk on water, speed the hero
+        // up, toggle stealth, draw rnd(20) into HFumbling, or levitate.
+        if (!PLAIN_BOOTS_ON.has(obj.otyp))
+            throw new UnsupportedWearError(`Boots_on() for otyp ${obj.otyp}`);
+        afternmv = Boots_on;
+        break;
     case W_ARMU:
         afternmv = Shirt_on;
         break;
@@ -1439,9 +1541,13 @@ async function accessory_or_armor_on(obj, state = game) {
         afternmv = Shield_on;
         break;
     default:
-        throw new UnsupportedWearError(
-            `accessory_or_armor_on() for slot mask ${worn.mask}`,
-        );
+        // do_wear.c:2392-2393 panic("wearing armor not worn as armor?").
+        // Unreachable rather than unported: canwearobj() answers ok true only
+        // out of an arm that has set one of the seven masks above, and answers
+        // mask 0 with ok false, which returned several statements ago. C
+        // spells the same guarantee as a panic, so this throws rather than
+        // raising the fail-closed class the refusals above use.
+        throw new Error(`wearing armor not worn as armor? [${worn.mask}]`);
     }
 
     setworn(obj, worn.mask, setwornEnv(state));
@@ -1586,6 +1692,7 @@ export async function dotakeoff(state = game) {
 export const _doWearInternals = Object.freeze({
     Armor_off,
     Armor_on,
+    Boots_on,
     Cloak_off,
     Cloak_on,
     Gloves_on,
