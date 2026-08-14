@@ -57,10 +57,9 @@ The orchestrator repeats, without returning to the user between its steps:
    implementation until the required pass has run, its confirmed findings
    are applied, and its entry is recorded. `.agents/review.md`, "When a
    correctness pass is due", defines the gate.
-4. When a slice closes, append its `SCORE.tsv` row with `node
-   scripts/score-log.mjs --append`, in the commit that records the closure in
-   `GOALS.json`. Its `sha` and figures come from step 2's measurement, and
-   `.agents/scoring.md`, "Score evidence", governs the rest. Continue at
+4. When a slice closes, append its `SCORE.tsv` row as `.agents/scoring.md`,
+   "Score evidence", requires, in the commit that records the closure in
+   `GOALS.json`. Its `sha` and figures are step 2's measurement. Continue at
    step 1. When the last slice of the goal closes, satisfy the readiness
    requirements in `.agents/review.md` and run the goal's full correctness
    pass, then continue at step 1.

@@ -33,7 +33,8 @@ rows that name those files.
 You own one slice: the source it ports, the code and tests it changes, the
 recipes or scripts that validate them, and the commits that land them.
 `.agents/loop.md` assigns the rest of the loop to
-the orchestrator and the two selectors.
+the orchestrator and the two selectors. Read it to learn which steps are not
+yours; editing it is one of them. Report a gap you find in it instead.
 
 Two of their steps appear inside instructions you are told to read. Skip both
 deliberately:
