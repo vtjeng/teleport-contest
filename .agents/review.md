@@ -260,7 +260,7 @@ does; none means the line is unpinned. Restore it, and record which line you
 deleted and what failed.
 
 A search for a message string answers less than it appears to. A refusal
-comment quotes the C message it refuses, so the text sits in commentary as
+comment quotes the C message it refuses, so the text appears in commentary as
 often as in code, and a message assembled by interpolation matches no literal
 search at all. Read the emitting site.
 

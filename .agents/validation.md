@@ -126,8 +126,8 @@ conclusion at least once.
 
 - **`rngMatched` compares positionally over the whole log.**
   `frozen/ps_test_runner.mjs` walks both logs to their full length. A segment
-  that stops early therefore scores its *next* segment's startup calls against
-  C's still-running ones, so a matched-call count can fall while correctness
+  that stops early scores its *next* segment's startup calls against C's
+  still-running ones, so a matched-call count can fall while correctness
   rises. When a count moves the wrong way, measure the first-divergence index
   before concluding anything.
 - **`scripts/record-session.mjs` clears the install directory only before a

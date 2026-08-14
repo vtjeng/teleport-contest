@@ -216,8 +216,8 @@ When choosing new cases:
 
 - Choose the smallest repeatable set of cases that together covers the behavior
   and outcomes in the current goal. Save the inputs for each case.
-- Cover each meaningful branch in the C code that belongs to the current goal,
-  including less common branches.
+- Cover each branch in the C code that belongs to the current goal, including
+  less common branches.
 - When the goal has an explicit limit, run a representative case just outside
   that limit. If the current goal says how the program should handle that case,
   add a passing test for the specified result. If the case belongs to future

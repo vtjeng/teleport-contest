@@ -17,7 +17,7 @@ for a validated handoff on an open slice. A scoring run appends nothing itself.
 Take a row's figures from a run of the tree the named commit holds: a run over
 uncommitted work states a figure that no later run of that commit reproduces.
 A later row supersedes an earlier one by position, so no row is rewritten.
-Combine coincident events into one row recording the most significant one. The
+Combine coincident events into one row recording the most important one. The
 `note` column holds a brief prediction, an anomaly, or nothing. Fill the four
 holdout columns only on a row whose own event ran an authorized evaluation; an
 empty cell means no new holdout evidence. Longer evidence lives in the commit
@@ -34,7 +34,7 @@ protocol below when a review of the source, implementation diff, and
 development evidence confirms that behavior was special-cased to a recorded
 session (fixture-specific) or hardcoded, and passed the development checks that
 way. Anything may prompt that review. A holdout figure that moves little or not
-at all does not prompt one by itself: the holdout guards against a significant
+at all does not prompt one by itself: the holdout guards against a large
 inadvertent regression, and a goal that does not move it is ordinary.
 
 ## Generalization failure protocol
