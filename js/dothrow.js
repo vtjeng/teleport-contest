@@ -45,10 +45,14 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_PROMPT,
     GETOBJ_SUGGEST,
+    HEAD,
     IS_SOFT,
     Is_airlevel,
+    Is_waterlevel,
     LARGEST_INT,
+    ZAP_POS,
     is_hole,
+    isok,
     LOST_THROWN,
     P_CROSSBOW,
     P_DART,
@@ -73,6 +77,7 @@ import { obj_resists } from './bury.js';
 import { cmdq_add_ec, extcmdRow, getdir } from './cmd.js';
 import { newsym } from './display.js';
 import { canletgo, flooreffects } from './do.js';
+import { ceiling, surface } from './dungeon.js';
 import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import {
@@ -83,6 +88,7 @@ import {
 import { freeinv, getobj, stackobj } from './invent.js';
 import { obj_sheds_light } from './light.js';
 import { nohands, notake, throws_rocks, touch_petrifies } from './mondata.js';
+import { closed_door } from './monmove.js';
 import {
     PM_CAVE_DWELLER,
     PM_CLERIC,
@@ -145,8 +151,9 @@ import {
     YA,
     YUMI,
 } from './objects.js';
-import { singular, the, xnameFresh } from './objnam.js';
+import { an, helm_simple_name, singular, the, xnameFresh } from './objnam.js';
 import { encumber_msg } from './pickup.js';
+import { body_part } from './polyself.js';
 import { rn2, rnd } from './rng.js';
 import { stairway_at } from './stairs.js';
 import { P_SKILL, weapon_type } from './startup_skills.js';
@@ -487,8 +494,18 @@ export async function throw_obj(obj, shotlimit, state = game) {
         return finishThrowObj(res, unsplitTarget, save_osplit, state);
     }
 
+    /*
+     * Throwing gold is usually for getting rid of it when
+     * a leprechaun approaches, or for bribing an oncoming
+     * angry monster.  So throw the whole object.
+     *
+     * If the gold is in quiver, throw one coin at a time,
+     * possibly using a sling.
+     */
     if (obj.oclass === COIN_CLASS && obj !== state.uquiver) {
-        throw new UnsupportedThrowError('throw_gold()');
+        /* throw_gold will unsplit the stack itself if necessary and may have
+           freed the object, so don't route through unsplit_stack here */
+        return await throw_gold(obj, state);
     }
 
     if (!await canletgo(obj, 'throw', state)) {
@@ -868,4 +885,129 @@ export function impact_disturbs_zombies(obj, violent, state = game) {
         return;
 
     disturb_buried_zombies(obj.ox, obj.oy, state);
+}
+
+// C ref: dothrow.c throw_gold() (2655-2731). The coin arm of throw_obj(), and
+// the one arm `t` can reach that `f` cannot: C guards it on
+// `obj->oclass == COIN_CLASS && obj != uquiver`, and dofire() always throws
+// the quiver. The whole stack leaves the hand at once, so there is no volley
+// and no split, and throwit() is never involved.
+//
+// The tail from flooreffects() down looks like throwit()'s and is not it.
+// throwit() also calls obj_no_longer_held(), container_impact_dmg(),
+// impact_disturbs_zombies() and check_shop_obj(), and guards its newsym() with
+// cansee(); throw_gold() does none of that, calls sellobj() instead of
+// check_shop_obj(), and calls newsym() unconditionally. The two tails are kept
+// separate because sharing one would draw the wrong screen.
+//
+// Four branches inside this function stop. Each is C's own call to a function
+// no part of this port has translated:
+//
+// - unsplitobj(), for a self-throw of a stack the prompt's count had split.
+//   `t` reaches getobj() with GETOBJ_ALLOWCNT, so a count is accepted, but
+//   splitobj() runs in getobj() rather than here; the test is written out
+//   because C's comment calls it essential for gold.
+// - mondata.c digests(), for the message a swallowed hero sees. do_name.c
+//   mon_nam() names the engulfer and digests() decides whether the gold
+//   disappears into it or into its entrails. js/do.js drop() stops on the same
+//   pair, and js/dungeon.js surface() on digests() and enfolds().
+// - dokick.c ghitm() (295-407), for gold a monster in the flight path catches:
+//   likes_gold(), wakeup(), setmangry(), finish_meating() and the shopkeeper's
+//   bribe accounting. Unreachable from here today, exactly as throwit()'s
+//   own monster arm is, because js/zap.js bhit() stops for a monster in the
+//   path before it can return one.
+// - shk.c sellobj(), for gold that lands on a shop's floor.
+async function throw_gold(obj, state = game) {
+    const u = state.u;
+
+    if (!u.dx && !u.dy && !u.dz) {
+        await ttyPline('You cannot throw gold at yourself.', state);
+        /* If we tried to throw part of a stack, force it to merge back
+           together (same as in throw_obj).  Essential for gold. */
+        const objsplit = state.context.objsplit ?? {};
+        if (obj.o_id === objsplit.parent_oid
+            || obj.o_id === objsplit.child_oid) {
+            throw new UnsupportedThrowError('unsplitobj()');
+        }
+        return ECMD_CANCEL;
+    }
+    freeinv(obj, { state });
+    if (u.uswallow) {
+        throw new UnsupportedThrowError('digests() for a swallowed hero');
+    }
+
+    if (u.dz) {
+        if (u.dz < 0 && !Is_airlevel(u.uz) && !u.uinwater
+            && !Is_waterlevel(u.uz)) {
+            await ttyPline(
+                `The gold hits the ${ceiling(u.ux, u.uy, state)}, then falls `
+                + `back on top of your ${body_part(HEAD, state.youmonst)}.`,
+                state,
+            );
+            /* some self damage? */
+            if (state.uarmh) {
+                await ttyPline(
+                    'Fortunately, you are wearing '
+                    + `${an(helm_simple_name(state.uarmh, state))}!`,
+                    state,
+                );
+            }
+        }
+        state.bhitpos = { x: u.ux, y: u.uy };
+    } else {
+        /* consistent with range for normal objects */
+        const range = Math.trunc(acurrstr(state) / 2)
+            - Math.trunc(obj.owt / 40);
+
+        /* see if the gold has a place to move into */
+        const odx = u.ux + u.dx;
+        const ody = u.uy + u.dy;
+        if (!isok(odx, ody)
+            || !ZAP_POS(state.level.at(odx, ody).typ)
+            || closed_door(odx, ody, state)) {
+            state.bhitpos = { x: u.ux, y: u.uy };
+        } else {
+            const pobj = { obj };
+            const mon = await bhit(u.dx, u.dy, range, THROWN_WEAPON, null, null,
+                pobj, state);
+            obj = pobj.obj;
+            if (!obj)
+                return ECMD_TIME; /* object is gone */
+            if (mon) {
+                /* ghitm() answers whether the monster caught the gold; both
+                   answers stop, because the arm that keeps the gold flying
+                   has already woken and angered the monster. */
+                throw new UnsupportedThrowError('ghitm()');
+            } else {
+                if (shipsAway(state.bhitpos.x, state.bhitpos.y, state))
+                    throw new UnsupportedThrowError('ship_object()');
+            }
+        }
+    }
+
+    if (flooreffects(obj, state.bhitpos.x, state.bhitpos.y, 'fall', {
+        state,
+        unsupported: (what) => {
+            throw new UnsupportedThrowError(what);
+        },
+    }))
+        return ECMD_TIME;
+    if (u.dz > 0) {
+        await ttyPline(
+            'The gold hits the '
+            + `${surface(state.bhitpos.x, state.bhitpos.y, state)}.`,
+            state,
+        );
+    }
+    place_object(obj, state.bhitpos.x, state.bhitpos.y, { state });
+    /* `*u.ushops` is the first entry of the room list naming the shops the
+       hero stands in, as js/do.js dropx() reads it. */
+    if (u.ushops?.[0])
+        throw new UnsupportedThrowError('sellobj()');
+    /* stackobj() merges the landing gold into a compatible floor pile, which
+       extracts the object it merged with; invent.c obj_extract_self() takes
+       that operation from its caller, as throwit() above does. */
+    stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
+    newsym(state.bhitpos.x, state.bhitpos.y);
+    return ECMD_TIME;
 }

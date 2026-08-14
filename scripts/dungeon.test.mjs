@@ -25,9 +25,13 @@ import {
     MOAT,
     POOL,
     ROOM,
+    ROOMOFFSET,
     SDOOR,
+    SHOPBASE,
     STAIRS,
     STONE,
+    TEMPLE,
+    VAULT,
     VWALL,
 } from '../js/const.js';
 import { DUNGEON_DATA } from '../js/dungeon_data.js';
@@ -36,6 +40,7 @@ import {
     Can_dig_down,
     Can_fall_thru,
     Invocation_lev,
+    ceiling,
     depth,
     find_level,
     induced_align,
@@ -628,6 +633,90 @@ test('earth_sense refuses only the state its notice would speak for', () => {
     const polymorphed = earthSenseState(ROOM, [10, 10]);
     polymorphed.u.umonnum = polymorphed.u.umonster + 1;
     u_on_newpos(10, 10, polymorphed);
+});
+
+// 10,10 is interior, so isok() plays no part in any ceiling() result. `rtype`
+// puts the square in a room of that kind, which is what hack.c in_rooms()
+// answers with: ROOMOFFSET is the first room number a map square can carry.
+function ceilingState(typ, {
+    rtype = null,
+    uz = { dnum: 0, dlevel: 1 },
+    water_level,
+    fire_level,
+    earth_level,
+    quest_dnum,
+    uinwater = false,
+} = {}) {
+    const state = {
+        u: { ux: 5, uy: 5, uz, uinwater },
+        level: new GameMap(),
+        water_level,
+        fire_level,
+        earth_level,
+        quest_dnum,
+    };
+    const location = state.level.at(10, 10);
+    location.typ = typ;
+    if (rtype !== null) {
+        location.roomno = ROOMOFFSET;
+        state.level.rooms = [{ rtype }];
+    }
+    return state;
+}
+
+// dungeon.c ceiling() (1713-1746), every arm in its C branch order. The game
+// reaches only the "ceiling" arm today -- scripts/throw-gold.test.mjs pins
+// that one through dothrow.c throw_gold() -- so the rest are read off the C
+// source here.
+test('ceiling names every overhead in the C branch order', () => {
+    const QUEST = { dnum: 7, dlevel: 3 };
+    for (const [label, typ, options, noun] of [
+        // The three room arms win over every terrain and level test below.
+        ['vault', ROOM, { rtype: VAULT }, "vault's ceiling"],
+        ['temple', ROOM, { rtype: TEMPLE }, "temple's ceiling"],
+        ['shop', ROOM, { rtype: SHOPBASE }, "shop's ceiling"],
+        // in_rooms() accepts any rtype above SHOPBASE as a shop.
+        ['bookshop', ROOM, { rtype: SHOPBASE + 3 }, "shop's ceiling"],
+        // A vault on the water level is still a vault.
+        ['vault on the water level', ROOM, {
+            rtype: VAULT,
+            uz: { dnum: 1, dlevel: 2 },
+            water_level: { dnum: 1, dlevel: 2 },
+        }, "vault's ceiling"],
+        ['water level', ROOM, {
+            uz: { dnum: 1, dlevel: 2 },
+            water_level: { dnum: 1, dlevel: 2 },
+        }, 'water above'],
+        // IS_AIR(typ) is AIR or CLOUD, and it is read off lev->typ rather
+        // than through SURFACE_AT().
+        ['air', AIR, {}, 'sky'],
+        ['cloud', CLOUD, {}, 'sky'],
+        ['fire level', ROOM, {
+            uz: { dnum: 2, dlevel: 4 }, fire_level: { dnum: 2, dlevel: 4 },
+        }, 'flames above'],
+        // In_quest() compares the dungeon number alone.
+        ['quest', ROOM, { uz: QUEST, quest_dnum: QUEST.dnum },
+            'expanse above'],
+        ['underwater', ROOM, { uinwater: true }, "water's surface"],
+        ['room', ROOM, {}, 'ceiling'],
+        ['wall', VWALL, {}, 'ceiling'],
+        ['door', DOOR, {}, 'ceiling'],
+        ['secret door', SDOOR, {}, 'ceiling'],
+        // IS_ROOM(typ) is `typ >= ROOM`, so a corridor falls past it and
+        // reaches the last arm, as solid rock does.
+        ['corridor', CORR, {}, 'rock cavern'],
+        ['solid rock', STONE, {}, 'rock cavern'],
+        // The earth plane's rooms are carved out of rock, so they lose the
+        // IS_ROOM() arm; a wall there keeps it.
+        ['room on the earth level', ROOM, {
+            uz: { dnum: 5, dlevel: 1 }, earth_level: { dnum: 5, dlevel: 1 },
+        }, 'rock cavern'],
+        ['wall on the earth level', VWALL, {
+            uz: { dnum: 5, dlevel: 1 }, earth_level: { dnum: 5, dlevel: 1 },
+        }, 'ceiling'],
+    ]) {
+        assert.equal(ceiling(10, 10, ceilingState(typ, options)), noun, label);
+    }
 });
 
 // 10,10 is interior, so isok() plays no part in any surface() result, and the

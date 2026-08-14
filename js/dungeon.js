@@ -40,8 +40,11 @@ import {
     ROWNO,
     ROOM,
     SDOOR,
+    SHOPBASE,
     STONE,
+    TEMPLE,
     Upolyd,
+    VAULT,
     VISITED,
     isok,
 } from './const.js';
@@ -55,6 +58,10 @@ import { strstri } from './hacklib.js';
 import { place_lregion } from './mkmaze.js';
 import { cmap_to_type } from './mkroom.js';
 import { within_bounded_area } from './rect.js';
+// js/rooms.js reaches this file through js/hack.js, which this file already
+// imports. Both sides use the other's exports only inside function bodies, so
+// the cycle resolves.
+import { in_rooms } from './rooms.js';
 // js/stairs.js imports depth() and on_level() from this file. Both sides use
 // the other's exports only inside function bodies, so the cycle resolves.
 import { On_stairs, stairway_at } from './stairs.js';
@@ -1275,6 +1282,59 @@ function db_under_typ(mask) {
 function surface_typ(location) {
     if (location?.typ !== DRAWBRIDGE_UP) return location?.typ;
     return db_under_typ(location.flags || location.drawbridgemask || 0);
+}
+
+// C ref: dungeon.c ceiling() (1713-1746). Names what is overhead at <x,y> for
+// a message, the way surface() below names what is underfoot. Every arm is
+// ported: unlike surface()'s engulfed arm, none of them needs mondata.c.
+//
+// The three room arms come first and win over every terrain test, so a shop or
+// a temple keeps its own ceiling even on the levels the later arms rename. C
+// reads the first character of the room-number string in_rooms() returns; the
+// port's in_rooms() returns those numbers as an array, and every entry it can
+// hold is at least ROOMOFFSET, so a non-empty array is the same answer.
+//
+// C reads `lev->typ` directly here rather than through SURFACE_AT(), so a
+// closed drawbridge is IS_DOOR() and reports "ceiling" rather than reporting
+// what the bridge spans. surface_typ() is deliberately not used.
+//
+// Is_waterlevel(), Is_firelevel(), In_quest() and Is_earthlevel() are spelled
+// out against `state` for the reason has_ceiling() gives above, and Underwater
+// is youprop.h:279's whole macro, `u.uinwater`.
+export function ceiling(x, y, state = game) {
+    const location = state.level?.at(x, y);
+    let what;
+
+    /* other room types will no longer exist when we're interested --
+     * see check_special_room()
+     */
+    if (in_rooms(x, y, VAULT, state).length)
+        what = "vault's ceiling";
+    else if (in_rooms(x, y, TEMPLE, state).length)
+        what = "temple's ceiling";
+    else if (in_rooms(x, y, SHOPBASE, state).length)
+        what = "shop's ceiling";
+    else if (on_level(state.u?.uz, state.water_level))
+        /* water plane has no surface; its air bubbles aren't below sky */
+        what = 'water above';
+    else if (IS_AIR(location?.typ))
+        what = 'sky';
+    else if (on_level(state.u?.uz, state.fire_level))
+        what = 'flames above';
+    else if (state.u?.uz?.dnum === state.quest_dnum)
+        /* just in case; try to avoid in caller if you can */
+        what = 'expanse above';
+    else if (state.u?.uinwater)
+        what = "water's surface";
+    else if ((IS_ROOM(location?.typ)
+        && !on_level(state.u?.uz, state.earth_level))
+        || IS_WALL(location?.typ) || IS_DOOR(location?.typ)
+        || location?.typ === SDOOR)
+        what = 'ceiling';
+    else
+        what = 'rock cavern';
+
+    return what;
 }
 
 // C ref: dungeon.c surface() (1749-1788). Every arm but the first is ported.
