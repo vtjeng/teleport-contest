@@ -307,6 +307,105 @@ test('the expiring timeout interrupts what the hero was doing', async () => {
     assert.equal(game.context.run, 0);
 });
 
+// The seam nh_timeout_elapsed_turn() threads through to heal_legs() and
+// encumber_msg(). The elapsed turn is dry run on a cloned state before it is
+// run live, and that pass has to write nothing; the env is how it stays
+// silent. Both halves are asserted here, because a seam that ignores its
+// argument and a seam that has no default are the same mistake seen from
+// either side.
+test('the elapsed turn writes its recovery line through the seam it is given',
+    async () => {
+        const injected = await unwoundedHeroOnLevelOne();
+        injected.intrinsic = 1; // one turn left, so this turn runs it out
+        injected.extrinsic = LEFT_SIDE;
+        game.u.atemp[A_DEX] = -1;
+        const recorded = [];
+
+        await nh_timeout_elapsed_turn(game, {
+            message: async (text) => { recorded.push(text); },
+            statusRefresh: () => {},
+        });
+
+        assert.deepEqual(recorded, ['Your leg feels better.']);
+        assert.equal(game._ttyToplines, '',
+                     'and nothing reached the live display');
+        // The state changes happen either way; only where the line went moved.
+        assert.equal(injected.intrinsic & TIMEOUT, 0);
+        assert.equal(injected.extrinsic, 0);
+        assert.equal(game.u.atemp[A_DEX], 0);
+
+        // With no env the same call takes heal_legs()'s own default, which is
+        // js/tty_message.js ttyPline, and the line lands on the live display.
+        const live = await unwoundedHeroOnLevelOne();
+        live.intrinsic = 1;
+        live.extrinsic = LEFT_SIDE;
+        game.u.atemp[A_DEX] = -1;
+
+        await nh_timeout_elapsed_turn(game);
+
+        assert.equal(game._ttyToplines, 'Your leg feels better.');
+        assert.equal(live.intrinsic & TIMEOUT, 0);
+        assert.equal(game.u.atemp[A_DEX], 0);
+    });
+
+test('the planning round heals the clone and leaves the live hero alone',
+    async () => {
+        // The burdened Knight, one key short of its recovery, taken through
+        // js/unported_monster_actions.js preflightSimpleMonsterActions() --
+        // the production dry run. Its advanceRound is where allmain.c's
+        // once-per-turn block runs on the clone, and the silent pair supplied
+        // here is the one the live call site passes when planning.
+        const [knight] = loadWoundedLegsRecipe().segments;
+        await runSegment({ ...knight, moves: knight.moves.slice(0, 11) });
+        clearTtyMessageWindow(game);
+        game._ttyToplines = '';
+        const live = woundedLegs();
+        assert.ok(live.extrinsic, 'the walk-in wounded a leg');
+        // What the turn under test starts from: one tick left on the count.
+        // The Knight is two short of that at this key, and how many keys it
+        // takes is not what this case is about.
+        live.intrinsic = 1;
+        game.u.atemp[A_DEX] = -1;
+
+        const recorded = [];
+        let reachedRound = false;
+        const inspected = new Error('planning round inspected');
+
+        await assert.rejects(
+            () => preflightSimpleMonsterActions(game, {
+                async advanceRound(planned) {
+                    reachedRound = true;
+                    await nh_timeout_elapsed_turn(planned, {
+                        message: async (text) => { recorded.push(text); },
+                        statusRefresh: () => {},
+                    });
+                    const clone = planned.u.uprops[WOUNDED_LEGS];
+                    // The same state changes the live pass will make.
+                    assert.equal(clone.intrinsic & TIMEOUT, 0);
+                    assert.equal(clone.extrinsic, 0);
+                    assert.equal(planned.u.atemp[A_DEX], 0);
+                    // A burdened hero crosses back to UNENCUMBERED as the
+                    // wound heals, so encumber_msg() adds its own line behind
+                    // heal_legs()'s. ttyPline() would join the two on one top
+                    // line; the recorder keeps them as written.
+                    assert.deepEqual(recorded, [
+                        'Your leg feels better.',
+                        'Your movements are now unencumbered.',
+                    ]);
+                    throw inspected;
+                },
+            }),
+            (error) => error === inspected,
+        );
+
+        assert.ok(reachedRound, 'the planning round must have run');
+        // Nothing the round computed reached the live game.
+        assert.equal(game._ttyToplines, '');
+        assert.equal(live.intrinsic, 1);
+        assert.ok(live.extrinsic);
+        assert.equal(game.u.atemp[A_DEX], -1);
+    });
+
 test('the planning clone leaves the live canned command queue alone',
     async () => {
         // The interruption above is why this case exists. stop_occupation()

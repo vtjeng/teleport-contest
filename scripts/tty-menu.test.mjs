@@ -11,6 +11,7 @@ import { parseNethackrc } from '../js/options.js';
 import { ttyPline } from '../js/tty_message.js';
 import {
     displayTtyMenuTextWindow,
+    displayTtyTextWindow,
     dismissTtyMenu,
     renderTtyMenu,
     selectTtyMenu,
@@ -483,6 +484,83 @@ test('a full-screen menu dismissed under bot_disabled leaves the status blank',
         // bot() returned before clearing it, so the pending repaint survives
         // for the next enabled pass.
         assert.equal(state.disp.botlx, true);
+    });
+
+// C ref: wintty.c tty_create_nhwindow()'s NHW_STATUS arm (896-914) sizes
+// wins[WIN_STATUS] at iflags.wc2_statuslines rows and pins it to the bottom of
+// the terminal, so cls() leaves three blank rows rather than two under
+// statuslines:3.  Every other case in this file runs at the default two and
+// cannot see the third, which is what makes a hardcoded 2 in
+// erase_menu_or_text()'s loop invisible: it would leave the top status row
+// carrying whatever the covered frame held, on every full-screen dismissal.
+test('a full-screen menu blanks all three status rows under statuslines:3',
+    async () => {
+        const state = menuState();
+        state.iflags = { ...state.iflags, wc2_statuslines: 3 };
+        // With three status rows on a 24-row terminal the status window is
+        // rows 21 to 23 and the map's last row is 20.  Row 21 is the one only
+        // a three-row window reaches; row 20 is the boundary the loop must not
+        // cross.
+        state.nhDisplay.setCell(30, 20, 'M', 4, 2);
+        state.nhDisplay.setCell(30, 21, 'X', 4, 2);
+        state.nhDisplay.setCell(30, 22, 'S', 4, 2);
+        state.nhDisplay.setCell(30, 23, 'T', 4, 2);
+        const lines = Array.from({ length: 21 }, (_, index) => `line ${index}`);
+        const rendered = renderTtyMenu(state, {
+            title: 'Full-screen gameplay menu',
+            lines,
+        });
+        // bot_disabled keeps botl.c bot() from repainting the rows the repair
+        // blanked, which is what leaves the blanking itself observable.
+        state.gb = { bot_disabled: true };
+
+        await dismissTtyMenu(state, rendered);
+
+        assert.equal(state.nhDisplay.grid[20][30].ch, 'M', 'the map is intact');
+        assert.equal(rowText(state, 21), '');
+        assert.equal(rowText(state, 22), '');
+        assert.equal(rowText(state, 23), '');
+        assert.equal(state.disp.botlx, true);
+    });
+
+// C ref: wintty.c tty_dismiss_nhwindow()'s NHW_TEXT and NHW_MENU arms, which
+// both end in erase_menu_or_text().  A column-zero window takes its
+// `docrt(); flush_screen(1)` branch, and cls() inside docrt() blanks the status
+// rows that nothing in docrt_flags() paints again.  A repair that restored the
+// covered frame instead would hand back whatever those rows held, so each
+// caller is dismissed here with the status rows dirty and asserted to leave
+// them blank with the repaint still pending.
+test('a full-screen text window leaves the status rows blank and pending',
+    async () => {
+        for (const [label, open] of [
+            ['NHW_TEXT', (state) => displayTtyTextWindow(state, [
+                { text: 'Text window line one' },
+                { text: 'Text window line two' },
+            ])],
+            // menu_overlay false is what makes ttyMenuTextLayout() clear the
+            // screen and take offx to 0, which is this caller's fullRepair arm.
+            ['NHW_MENU text', (state) => displayTtyMenuTextWindow(state, [
+                'Things that are here:',
+                'a dart',
+            ])],
+        ]) {
+            const state = menuState(' ');
+            state.iflags = { menu_overlay: false };
+            state.nhDisplay.setCell(30, 10, '@', 3, 1);
+            // The two-row status window of a 24-row terminal.
+            state.nhDisplay.setCell(30, 22, 'S', 4, 2);
+            state.nhDisplay.setCell(30, 23, 'T', 4, 2);
+            state.gb = { bot_disabled: true };
+
+            await open(state);
+
+            assert.equal(state.nhDisplay.grid[10][30].ch, '@',
+                         `${label} restores the frame it covered`);
+            assert.equal(rowText(state, 22), '', `${label} blanks row 22`);
+            assert.equal(rowText(state, 23), '', `${label} blanks row 23`);
+            assert.equal(state.disp.botlx, true,
+                         `${label} leaves the repaint pending`);
+        }
     });
 
 // C ref: wintty.c process_menu_window() turns a page inside the window
