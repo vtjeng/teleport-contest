@@ -36,6 +36,7 @@ import {
     P_SABER,
     P_SHORT_SWORD,
     P_SHURIKEN,
+    P_SLING,
     P_SPEAR,
     RANDOM_TIN,
     REVIVE_MON,
@@ -751,6 +752,15 @@ export function matching_launcher(ammo, launcher, state = game) {
 // C ref: obj.h ammo_and_launcher() (244).
 export function ammo_and_launcher(ammo, launcher, state = game) {
     return is_ammo(ammo, state) && matching_launcher(ammo, launcher, state);
+}
+
+// C ref: obj.h uslinging() (269). Whether the hero holds a sling, which is
+// what makes a gem worth throwing and an ordinary weapon not. The macro reads
+// the global uwep rather than taking an object, so the hero state is the only
+// argument here.
+export function uslinging(state = game) {
+    return Boolean(state.uwep)
+        && objectType(state.uwep, state).oc_subtyp === P_SLING;
 }
 
 // C ref: obj.h is_flimsy() (418-420). Whether an object is too soft to make a

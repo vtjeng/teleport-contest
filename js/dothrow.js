@@ -1,7 +1,13 @@
-// dothrow.js -- the `f` command: shoot the readied ammunition.
+// dothrow.js -- the `f` command, which shoots the readied ammunition, and the
+// `t` command, which asks which object to throw.
 // C refs: src/dothrow.c multishot_class_bonus(), throw_obj(), ok_to_throw(),
-// find_launcher(), dofire(), throwing_weapon(), throwit(), throwit_return(),
-// throwit_mon_hit() and breaktest().
+// throw_ok(), dothrow(), find_launcher(), dofire(), throwing_weapon(),
+// throwit(), throwit_return(), throwit_mon_hit() and breaktest().
+//
+// dothrow() is three calls: ok_to_throw() asks whether the hero can throw at
+// all, getobj() runs the prompt over throw_ok()'s per-object classification,
+// and throw_obj() throws what came back. Everything past that point is shared
+// with `f`, so `t` differs from `f` only in how the missile is chosen.
 //
 // dofire() is the entry point and it has two shapes. When the launcher is
 // already wielded it goes straight to throw_obj(). When the launcher is in
@@ -25,6 +31,7 @@
 import {
     A_CON,
     A_DEX,
+    A_STR,
     BOLT_LIM,
     CONFUSION,
     CQ_CANNED,
@@ -33,6 +40,11 @@ import {
     ECMD_OK,
     ECMD_TIME,
     FUMBLING,
+    GETOBJ_ALLOWCNT,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_EXCLUDE,
+    GETOBJ_PROMPT,
+    GETOBJ_SUGGEST,
     IS_SOFT,
     Is_airlevel,
     LARGEST_INT,
@@ -49,11 +61,13 @@ import {
     P_SPEAR,
     SLT_ENCUMBER,
     STONE_RES,
+    STR19,
     STUNNED,
     THROWN_WEAPON,
     WT_SPLASH_THRESHOLD,
     W_WEP,
 } from './const.js';
+import { ART_MJOLLNIR } from './artifacts.js';
 import { acurrstr, effective_attribute, exercise } from './attrib.js';
 import { obj_resists } from './bury.js';
 import { cmdq_add_ec, extcmdRow, getdir } from './cmd.js';
@@ -66,7 +80,7 @@ import {
     check_capacity,
     disturb_buried_zombies,
 } from './hack.js';
-import { freeinv, stackobj } from './invent.js';
+import { freeinv, getobj, stackobj } from './invent.js';
 import { obj_sheds_light } from './light.js';
 import { nohands, notake, throws_rocks, touch_petrifies } from './mondata.js';
 import {
@@ -84,6 +98,7 @@ import {
     PM_ROGUE,
     PM_SAMURAI,
     PM_TOURIST,
+    PM_VALKYRIE,
     PM_WIZARD,
 } from './monsters.js';
 import {
@@ -98,6 +113,7 @@ import {
     place_object,
     remove_object,
     splitobj,
+    uslinging,
     weight,
 } from './obj.js';
 import {
@@ -170,17 +186,18 @@ export class UnsupportedThrowError extends Error {
     }
 }
 
-// C ref: dothrow.c:290-294 AutoReturn(). A weapon that comes back to the hand
+// C ref: dothrow.c:30-34 AutoReturn(). A weapon that comes back to the hand
 // when thrown: an aklys or Valkyrie's Mjollnir in the primary slot, or a
-// boomerang from anywhere. Everything the flag turns on is unported, so the
-// callers below refuse rather than read it.
-function autoReturns(obj, wmask) {
+// boomerang from anywhere. dofire() and throwit() refuse everything the flag
+// turns on, but throw_ok() below only classifies with it, so the Mjollnir
+// half is spelled out rather than widened to any artifact: widening would
+// suggest a wielded artifact that C downplays, and the prompt would show it.
+function autoReturns(obj, wmask, state = game) {
     if (!obj) return false;
-    // C's test is `otyp == AKLYS || (oartifact == ART_MJOLLNIR &&
-    // Role_if(PM_VALKYRIE))`. Any artifact answers the second half here: the
-    // caller stops either way, and an artifact reaches its own refusal one
-    // test later, so widening it cannot admit an unported object.
-    return (((wmask & W_WEP) !== 0 && (obj.otyp === AKLYS || obj.oartifact))
+    return (((wmask & W_WEP) !== 0
+        && (obj.otyp === AKLYS
+            || (obj.oartifact === ART_MJOLLNIR
+                && state.urole.mnum === PM_VALKYRIE)))
         || obj.otyp === BOOMERANG);
 }
 
@@ -286,6 +303,81 @@ async function ok_to_throw(state) {
     }
     if (await check_capacity(null, state)) return { ok: false, shotlimit };
     return { ok: true, shotlimit };
+}
+
+// C ref: dothrow.c throw_ok() (315-348), "getobj callback for object to be
+// thrown". Its answer for each carried object is the whole of what the `t`
+// prompt shows: getobj() lists every GETOBJ_SUGGEST letter between the
+// brackets and hides every GETOBJ_DOWNPLAY one behind `?*`. The arms are
+// ordered, and the order is visible -- the wielded-weapon arm below runs
+// before the WEAPON_CLASS arm, which is why a Valkyrie is offered her spare
+// dagger and not the spear in her hand.
+export function throw_ok(obj, state = game) {
+    if (!obj) return GETOBJ_EXCLUDE;
+
+    if (obj.bknown && welded(obj, state)) /* not a candidate if known stuck */
+        return GETOBJ_DOWNPLAY;
+
+    if (autoReturns(obj, obj.owornmask, state)
+        /* to get here, obj is boomerang or is uwep and (alkys or Mjollnir) */
+        /* ACURR(A_STR) is effective_attribute(), which keeps Strength in the
+           3..125 encoding STR19() writes; acurrstr() would already have
+           folded that down to 3..25 and could never reach the bound. */
+        && (obj.oartifact !== ART_MJOLLNIR
+            || effective_attribute(state, A_STR) >= STR19(25)))
+        return GETOBJ_SUGGEST;
+
+    if (obj.quan === 1 && (obj === state.uwep
+        || (obj === state.uswapwep && state.u.twoweap)))
+        return GETOBJ_DOWNPLAY;
+
+    if (obj.oclass === COIN_CLASS)
+        return GETOBJ_SUGGEST;
+
+    if (!uslinging(state) && obj.oclass === WEAPON_CLASS)
+        return GETOBJ_SUGGEST;
+    /* Possible extension: exclude weapons that make no sense to throw,
+       such as whips, bows, slings, rubber hoses. */
+
+    if (uslinging(state) && obj.oclass === GEM_CLASS)
+        return GETOBJ_SUGGEST;
+
+    if (throws_rocks(state.youmonst?.data ?? state.mons[state.u.umonnum])
+        && obj.otyp === BOULDER)
+        return GETOBJ_SUGGEST;
+
+    return GETOBJ_DOWNPLAY;
+}
+
+// C ref: dothrow.c dothrow() (350-376), "the #throw command". It calls three
+// functions and nothing else.
+export async function dothrow(state = game) {
+    /*
+     * Since some characters shoot multiple missiles at one time,
+     * allow user to specify a count prefix for 'f' or 't' to limit
+     * number of items thrown (to avoid possibly hitting something
+     * behind target after killing it, or perhaps to conserve ammo).
+     *
+     * Prior to 3.3.0, command ``3t'' meant ``t(shoot) t(shoot) t(shoot)''
+     * and took 3 turns.  Now it means ``t(shoot at most 3 missiles)''.
+     *
+     * [3.6.0:  shot count setup has been moved into ok_to_throw().]
+     *
+     * That count is always zero here. js/cmd.js readSimpleCommand() reads a
+     * single byte and refuses a digit ahead of a command, so `3t` never
+     * reaches this function and ok_to_throw() only ever reads a cleared
+     * command_count.
+     */
+    const { ok, shotlimit } = await ok_to_throw(state);
+    if (!ok) return ECMD_OK;
+
+    const obj = await getobj(
+        'throw', throw_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT, state,
+    );
+    /* it is also possible to throw food */
+    /* (or jewels, or iron balls... ) */
+
+    return obj ? await throw_obj(obj, shotlimit, state) : ECMD_CANCEL;
 }
 
 // C ref: dothrow.c find_launcher() (443-462). "look through hero inventory

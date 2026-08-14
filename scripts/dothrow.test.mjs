@@ -35,7 +35,11 @@ import {
     DEAF,
     ECMD_OK,
     ECMD_TIME,
+    ECMD_CANCEL,
     FUMBLING,
+    GETOBJ_DOWNPLAY,
+    GETOBJ_EXCLUDE,
+    GETOBJ_SUGGEST,
     LAST_PROP,
     LAVAPOOL,
     LEVITATION,
@@ -60,10 +64,12 @@ import {
 import {
     breaktest,
     dofire,
+    dothrow,
     find_launcher,
     impact_disturbs_zombies,
     multishot_class_bonus,
     throw_obj,
+    throw_ok,
     throwit,
 } from '../js/dothrow.js';
 import { GameMap } from '../js/game.js';
@@ -73,6 +79,7 @@ import {
     PM_COCKATRICE,
     PM_ELF,
     PM_FLOATING_EYE,
+    PM_GIANT,
     PM_GIANT_ANT,
     PM_HEALER,
     PM_HUMAN,
@@ -93,6 +100,7 @@ import {
     AKLYS,
     ARROW,
     BOOMERANG,
+    BOULDER,
     BOW,
     BULLWHIP,
     CLUB,
@@ -103,11 +111,13 @@ import {
     CRYSTAL_PLATE_MAIL,
     DAGGER,
     DART,
+    DIAMOND,
     ELVEN_ARROW,
     ELVEN_BOW,
     FLINT,
     FOOD_RATION,
     GLASS,
+    GOLD_PIECE,
     IRON,
     LEATHER,
     LEATHER_ARMOR,
@@ -118,14 +128,19 @@ import {
     ORCISH_ARROW,
     ORCISH_BOW,
     POT_WATER,
+    QUARTERSTAFF,
+    SHORT_SWORD,
     SHURIKEN,
     SLING,
     SPEAR,
+    SCR_IDENTIFY,
+    WAR_HAMMER,
     WOOD,
     YA,
     YUMI,
     objects_globals_init,
 } from '../js/objects.js';
+import { ART_MJOLLNIR } from '../js/artifacts.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { HeadlessTerminal } from '../js/terminal.js';
@@ -1596,4 +1611,263 @@ test('dofire() finds a launcher for the quivered ammo', async () => {
     carry(packed, spare, loose);
     packed.uquiver = loose;
     await assert.rejects(() => dofire(packed), /dowield/u);
+});
+
+// ── the `t` command ──
+//
+// throw_ok() is the whole visible surface of `t`: getobj() prints every
+// GETOBJ_SUGGEST letter between the brackets and hides every GETOBJ_DOWNPLAY
+// one behind `?*`, so each test below names the arm it selects and the arm it
+// would fall into if that one were moved or dropped.
+
+// An inventory the prompt can be built over. getobj() needs invlet_constant
+// set, a message window, and somewhere to put disp.botl.
+function pack(state, ...items) {
+    items.forEach((entry, index) => {
+        entry.invlet = 'abcdefghijklmnop'[index];
+    });
+    carry(state, ...items);
+    state.flags.invlet_constant = 1;
+    state.flags.verbose = 1;
+    state.disp = {};
+    state._ttyToplines = '';
+    return items;
+}
+
+// The top line as the terminal holds it. yn_function() writes the prompt
+// straight to the window rather than through pline(), so _ttyToplines cannot
+// see it.
+function promptOf(state) {
+    return state.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
+}
+
+// cmd.c NHKF_ESC, one of the quitchars getobj() answers with Never_mind.
+const ESCAPE_KEY = '\u001B';
+
+// Answer the prompts `keys` spells, then leave spaces behind it so that a
+// --More-- cannot swallow a later answer. The returned array collects the top
+// line as each of those keys is read: the object prompt is painted straight to
+// the window rather than through pline(), and getdir()'s prompt overwrites it
+// one keystroke later, so it is legible only while its own answer is pending.
+function type(state, keys) {
+    const terminal = state.nhDisplay;
+    terminal.clearInputQueue();
+    for (const ch of keys) terminal.pushKey(ch.charCodeAt(0));
+    for (let i = 0; i < 8; i++) terminal.pushKey(' '.charCodeAt(0));
+    const prompts = [];
+    const readKey = terminal.readKey.bind(terminal);
+    terminal.readKey = (options) => {
+        prompts.push(promptOf(state));
+        return readKey(options);
+    };
+    return prompts;
+}
+
+test('throw_ok() excludes the hands and downplays what is not a missile',
+    () => {
+        const state = arena();
+        // dothrow.c:319-320. getobj() asks the callback about the null object
+        // first, and GETOBJ_EXCLUDE is what keeps "- " out of the prompt.
+        assert.equal(throw_ok(null, state), GETOBJ_EXCLUDE);
+        // :347, the fall-through every object that is not gold, a weapon, a
+        // slung gem or a boulder reaches.
+        assert.equal(
+            throw_ok(item(state, FOOD_RATION), state), GETOBJ_DOWNPLAY,
+        );
+    });
+
+test('throw_ok() downplays a weapon known to be welded before anything else',
+    () => {
+        // dothrow.c:322-323, the first arm. A cursed wielded stack of two
+        // daggers passes every later test: quan is not 1, so :330-331 does not
+        // catch it, and :336-337 would suggest it.
+        const state = arena();
+        const stuck = item(state, DAGGER,
+            { quan: 2, cursed: 1, bknown: 1, owornmask: W_WEP });
+        state.uwep = stuck;
+        assert.equal(throw_ok(stuck, state), GETOBJ_DOWNPLAY);
+        // wield.c welded() wants the object in the primary slot, so the same
+        // cursed stack carried loose is an ordinary missile.
+        const loose = arena();
+        const spare = item(loose, DAGGER, { quan: 2, cursed: 1, bknown: 1 });
+        assert.equal(throw_ok(spare, loose), GETOBJ_SUGGEST);
+        // C's first conjunct is `obj->bknown`: a curse the hero has not
+        // noticed leaves the weapon looking throwable.
+        const unknown = arena();
+        const hidden = item(unknown, DAGGER,
+            { quan: 2, cursed: 1, owornmask: W_WEP });
+        unknown.uwep = hidden;
+        assert.equal(throw_ok(hidden, unknown), GETOBJ_SUGGEST);
+    });
+
+test('throw_ok() suggests a returning weapon out of the wielding hand', () => {
+    // dothrow.c:325-328 runs before :330-331, so an aklys in hand is offered
+    // where any other single wielded weapon is hidden.
+    const state = arena();
+    const aklys = item(state, AKLYS, { owornmask: W_WEP });
+    state.uwep = aklys;
+    assert.equal(throw_ok(aklys, state), GETOBJ_SUGGEST);
+    // AutoReturn()'s W_WEP conjunct: the same aklys carried loose falls
+    // through to the WEAPON_CLASS arm, which happens to suggest it too, so
+    // the discriminating case is a single wielded club.
+    const club = arena();
+    const held = item(club, CLUB, { owornmask: W_WEP });
+    club.uwep = held;
+    assert.equal(throw_ok(held, club), GETOBJ_DOWNPLAY);
+});
+
+test('throw_ok() weighs Mjollnir against the wielder and her strength', () => {
+    // dothrow.c:325-328. AutoReturn()'s Mjollnir half needs a Valkyrie, and
+    // the caller then needs ACURR(A_STR) >= STR19(25), which attrib.h:37
+    // defines as 125: 18/** Strength tops out at 118, so only gauntlets of
+    // power reach it.
+    const weak = arena({ role: PM_VALKYRIE, str: 124 });
+    const mjollnir = item(weak, WAR_HAMMER,
+        { oartifact: ART_MJOLLNIR, owornmask: W_WEP });
+    weak.uwep = mjollnir;
+    // Falls past :325 to :330-331, the single wielded weapon.
+    assert.equal(throw_ok(mjollnir, weak), GETOBJ_DOWNPLAY);
+
+    const strong = arena({ role: PM_VALKYRIE, str: 125 });
+    const hammer = item(strong, WAR_HAMMER,
+        { oartifact: ART_MJOLLNIR, owornmask: W_WEP });
+    strong.uwep = hammer;
+    assert.equal(throw_ok(hammer, strong), GETOBJ_SUGGEST);
+
+    // AutoReturn()'s Role_if(PM_VALKYRIE): the same hammer in a Samurai's
+    // hand does not return, so the strength test is never consulted.
+    const samurai = arena({ role: PM_SAMURAI, str: 125 });
+    const borrowed = item(samurai, WAR_HAMMER,
+        { oartifact: ART_MJOLLNIR, owornmask: W_WEP });
+    samurai.uwep = borrowed;
+    assert.equal(throw_ok(borrowed, samurai), GETOBJ_DOWNPLAY);
+});
+
+test('throw_ok() hides a single wielded weapon and shows a stacked one', () => {
+    // dothrow.c:330-331, the arm that decides what a starting hero sees. It
+    // wants quan == 1, so a stack in the same slot is suggested instead.
+    const state = arena();
+    const spear = item(state, SPEAR, { owornmask: W_WEP });
+    state.uwep = spear;
+    assert.equal(throw_ok(spear, state), GETOBJ_DOWNPLAY);
+
+    const stacked = arena();
+    const pair = item(stacked, SPEAR, { quan: 2, owornmask: W_WEP });
+    stacked.uwep = pair;
+    assert.equal(throw_ok(pair, stacked), GETOBJ_SUGGEST);
+
+    // The secondary slot needs u.twoweap as well, which is why a Samurai's
+    // wakizashi is offered and his katana is not.
+    const swap = arena();
+    const wakizashi = item(swap, SHORT_SWORD, { owornmask: W_SWAPWEP });
+    swap.uswapwep = wakizashi;
+    assert.equal(throw_ok(wakizashi, swap), GETOBJ_SUGGEST);
+    swap.u.twoweap = true;
+    assert.equal(throw_ok(wakizashi, swap), GETOBJ_DOWNPLAY);
+});
+
+test('throw_ok() suggests gold, weapons without a sling and gems with one',
+    () => {
+        // dothrow.c:333-345, in C's order. Gold is unconditional.
+        const state = arena();
+        assert.equal(throw_ok(item(state, GOLD_PIECE), state), GETOBJ_SUGGEST);
+        // :336-337 and :341-342 read uslinging() in opposite directions, so
+        // one sling swaps both answers.
+        const barehanded = arena();
+        assert.equal(
+            throw_ok(item(barehanded, DAGGER), barehanded), GETOBJ_SUGGEST,
+        );
+        assert.equal(
+            throw_ok(item(barehanded, DIAMOND), barehanded), GETOBJ_DOWNPLAY,
+        );
+        const slinger = arena();
+        const sling = item(slinger, SLING, { owornmask: W_WEP });
+        slinger.uwep = sling;
+        assert.equal(throw_ok(item(slinger, DAGGER), slinger),
+            GETOBJ_DOWNPLAY);
+        assert.equal(throw_ok(item(slinger, DIAMOND), slinger),
+            GETOBJ_SUGGEST);
+    });
+
+test('throw_ok() suggests a boulder only to a form that throws rocks', () => {
+    // dothrow.c:336-337 has already declined the boulder, which is a
+    // ROCK_CLASS object, so :344-345 is the only arm that can offer it.
+    const human = arena();
+    assert.equal(throw_ok(item(human, BOULDER), human), GETOBJ_DOWNPLAY);
+    const giant = arena();
+    giant.youmonst.data = giant.mons[PM_GIANT];
+    assert.equal(throw_ok(item(giant, BOULDER), giant), GETOBJ_SUGGEST);
+    // The arm's second conjunct: a giant's other objects are classified as
+    // anyone else's are.
+    assert.equal(throw_ok(item(giant, FOOD_RATION), giant), GETOBJ_DOWNPLAY);
+});
+
+test('dothrow() prompts with the suggested letters and throws the answer',
+    async () => {
+        // dothrow.c:368-375. The prompt is getobj()'s, built over throw_ok():
+        // the wielded spear is downplayed and the spare dagger suggested.
+        const state = arena();
+        const spear = item(state, SPEAR, { owornmask: W_WEP });
+        state.uwep = spear;
+        const dagger = item(state, DAGGER);
+        const ration = item(state, FOOD_RATION);
+        pack(state, spear, dagger, ration);
+        const prompts = type(state, 'bl');
+        assert.equal(await dothrow(state), ECMD_TIME);
+        assert.equal(prompts[0], 'What do you want to throw? [b or ?*]');
+        // The dagger left the pack and landed east of the hero.
+        assert.deepEqual(
+            [state.invent.invlet, state.invent.nobj.invlet], ['a', 'c'],
+        );
+        assert.deepEqual(pileAt(state, state.bhitpos.x, 4), [dagger]);
+    });
+
+test('dothrow() prompts with [*] when nothing is suggested', async () => {
+    // invent.c:1932's `buf ? ... : " [*]"`, which only a pack with no
+    // suggested letter reaches. A Wizard's quarterstaff is downplayed by
+    // dothrow.c:330-331 and her scroll by :347, and GETOBJ_PROMPT is what
+    // stops getobj() answering "You don't have anything to throw." instead.
+    const state = arena({ role: PM_WIZARD });
+    const staff = item(state, QUARTERSTAFF, { owornmask: W_WEP });
+    state.uwep = staff;
+    const scroll = item(state, SCR_IDENTIFY);
+    pack(state, staff, scroll);
+    const prompts = type(state, 'bl');
+    assert.equal(await dothrow(state), ECMD_TIME);
+    assert.equal(prompts[0], 'What do you want to throw? [*]');
+    // A downplayed letter typed by hand is still accepted and thrown.
+    assert.equal(state.invent.invlet, 'a');
+    assert.equal(state.invent.nobj, null);
+    assert.deepEqual(pileAt(state, state.bhitpos.x, 4), [scroll]);
+});
+
+test('dothrow() answers an escaped prompt with ECMD_CANCEL', async () => {
+    // dothrow.c:375's `obj ? throw_obj(...) : ECMD_CANCEL`. getobj() answers
+    // null for a quit character and prints Never_mind on the way out.
+    const state = arena();
+    const dagger = item(state, DAGGER);
+    pack(state, dagger);
+    type(state, '\u001B');
+    assert.equal(await dothrow(state), ECMD_CANCEL);
+    assert.match(state._ttyToplines, /Never mind\./u);
+    assert.equal(state.invent, dagger);
+    // No direction was asked for, so throw_obj() never ran.
+    assert.equal(draws().length, 0);
+});
+
+test('dothrow() stops at ok_to_throw() before drawing a prompt', async () => {
+    // dothrow.c:368. The three refusals are ok_to_throw()'s, already covered
+    // through dofire(); what `t` adds is that getobj() is not reached, so the
+    // pack is never classified and no prompt is drawn.
+    const state = arena();
+    state.youmonst.data = state.mons[PM_FLOATING_EYE];
+    const dagger = item(state, DAGGER);
+    pack(state, dagger);
+    const prompts = type(state, 'al');
+    assert.equal(await dothrow(state), ECMD_OK);
+    assert.match(state._ttyToplines, /physically incapable/u);
+    // Not one key was read, so getobj() never drew a prompt.
+    assert.deepEqual(prompts, []);
+    assert.equal(state.nhDisplay.inputQueueLength, 10);
+    assert.equal(state.invent, dagger);
 });

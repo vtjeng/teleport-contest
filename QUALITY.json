@@ -2376,6 +2376,26 @@
       "status": "open",
       "from": "7ef17555b6bd7450a35ad8232f4d200683a91545",
       "detail": "Three wish tests build hard-coded key prefixes but locate their segment with wishSegmentFor(), bypassing the wishSegmentTyping() guard added in the same commit for exactly that hazard: a prefix that drifts from the recorded segment then tests a different case in silence. Closes when the three call the guard, or when the guard is folded into wishSegmentFor() so the bypass is unavailable. Confirmed by the goal-closing correctness pass over fc56134..21ef982."
+    },
+    {
+      "id": "throw-a-single-worn-or-readied-object",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "3b3b8fa4530e27783e9795281bf216950fbacda2",
+      "detail": "dothrow.c throw_obj():254-262. When the chosen slot holds exactly one object, C hands it to do_wear.c remove_worn_item(otmp, FALSE) if it carries an owornmask and then throws it; js/dothrow.js:641 raises UnsupportedThrowError('remove_worn_item()') instead.\n\nu_init.c ini_inv() puts a role's first weapon in uwep, its second in uswapwep and its ammunition in the quiver, so this stops the most ordinary throw there is: a Valkyrie, Knight, Samurai or Rogue answering the prompt with the spare weapon it offers her. Only a stack escapes, because throw_obj():254 splits a missile off it and the split object carries no mask, and only an object outside all three slots -- a scroll, a food ration, the Samurai's third weapon -- has no mask to start with. The f command shares the refusal and never reaches it: dofire() always throws the quiver, and every recorded quiver holds a stack.\n\nFresh case, recorded here: seed 3140022, datetime 20000110090000, OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics, moves '.tbl.'. The Valkyrie throws her spare dagger, slot b and the alternate weapon, east across an empty room. Expected failure today: 2777 of C's 2798 calls and 4 of 6 screens match, and the segment ends on the 'l' key where the port raises the refusal.\n\nClosing condition: port do_wear.c remove_worn_item() with the setnotworn() and useup-slot work behind it, then add that Valkyrie segment to scripts/run-throw-command.mjs beside the Samurai one.",
+      "blockedOn": "remove_worn_item"
+    },
+    {
+      "id": "throw-prompt-answered-with-a-menu-request",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "3b3b8fa4530e27783e9795281bf216950fbacda2",
+      "detail": "invent.c getobj()'s redo_menu block (1966-1998). '?' hands display_pickinv() the suggested-letter subset getobj() built and '*' hands it the getobj_hands_txt() extra choice; js/invent.js:561 raises UnsupportedObjectPromptError('display_pickinv() with a letter subset') for both. The refusal is older than the t command and shared with every ported object prompt -- d, W, T, a and e -- so lifting it belongs to invent.c's port rather than to dothrow.c's.\n\nCost today: 3 of the 7 t commands in the development sessions, which stop at that answer rather than at anything dothrow.c owns; seed0014's cream pie, the only recorded throw that reaches a monster, is one of them.\n\nFresh case, recorded here: seed 3140022, datetime 20000110090000, OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics, moves '.t?'. Expected failure today: all 2777 of C's calls and 3 of C's 4 screens match, and the segment ends on the '?' key. C's fourth screen is the one-line subset listing 'b - a +0 dagger (alternate weapon; not wielded).--More--', which is display_pickinv() over the single suggested letter rather than a menu window.\n\nClosing condition: port display_pickinv()'s letter-subset and hands/self arms, then extend scripts/run-throw-command.mjs's Valkyrie segment with '?' and the Wizard segment with '*', whose empty suggestion set takes the other branch.",
+      "blockedOn": "display_pickinv"
     }
   ],
   "areas": [

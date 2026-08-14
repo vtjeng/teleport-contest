@@ -105,7 +105,7 @@ import { doset_simple, UnsupportedOptionMenuError } from './options.js';
 import { dopray, UnsupportedPrayerError } from './pray.js';
 import { UnsupportedHideError } from './mon.js';
 import { UnsupportedShopError } from './shk.js';
-import { dofire, UnsupportedThrowError } from './dothrow.js';
+import { dofire, dothrow, UnsupportedThrowError } from './dothrow.js';
 import { dosit, UnsupportedSitError } from './sit.js';
 import {
     clear_kickedloc,
@@ -866,8 +866,8 @@ export async function parseCommand(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'wear', 'zap',
-    'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport', 'fire', 'swap',
-    'kick', '#',
+    'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport', 'fire', 'throw',
+    'swap', 'kick', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, an uncounted one-square walk, an `
@@ -2224,6 +2224,29 @@ export async function rhack(key, state = game) {
             // domove_attempting tests at 3773-3800 can divert it.
             const res = await failClosedCommand(
                 key, state, () => dofire(state),
+            );
+            if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
+            else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
+                resetCommandVars(state, state.multi < 0);
+            if (res & ECMD_TIME) commandTookTime(state);
+            return;
+        }
+        if (command === 'throw') {
+            // C ref: rhack()'s result handling at cmd.c:3810-3818, the same
+            // three tests the `fire` arm above applies. dothrow() reaches all
+            // three: ECMD_CANCEL when the object prompt is escaped, ECMD_OK
+            // for each of ok_to_throw()'s three refusals and for the throws
+            // throw_obj() answers with a message, and ECMD_TIME for the throw
+            // itself. Nothing here queues a continuation, so the ECMD_OK arm
+            // has no queue to preserve -- but it is spelled the same way as
+            // `fire`'s, because both read rhack()'s one test.
+            //
+            // extcmdlist[]'s "throw" row (cmd.c:1901) carries no flags at
+            // all, so neither the prefix test at 3693-3695 nor the
+            // MOVEMENTCMD and domove_attempting tests at 3773-3800 can divert
+            // it.
+            const res = await failClosedCommand(
+                key, state, () => dothrow(state),
             );
             if (res & (ECMD_CANCEL | ECMD_FAIL)) resetCommandVars(state);
             else if ((res & (ECMD_OK | ECMD_TIME)) === ECMD_OK)
