@@ -425,3 +425,6 @@ utc	event	phase	goal	detail
 2026-08-14T08:14:52.719Z	end	implement	throw-command	throw-command-gold closed at 5490a10; t has no refusal of its own left
 2026-08-14T08:15:51.473Z	start	review	throw-command	goal-closing correctness pass over 21ef982..d114520a3f565a6329a5cd07f022289ee0313862
 2026-08-14T09:13:13.996Z	end	review	throw-command	goal-closing pass recorded through d114520; 19 raw, 17 deduplicated, 11 confirmed, 6 applied, 5 deferred, 6 rejected
+2026-08-14T09:31:43.354Z	start	select		sweep goal, user-scheduled after throw-command
+2026-08-14T09:47:00.412Z	end	select	objects-deferral-sweep-4	objects-deferral-sweep-4 opened; 22 counted read, 6 to close in 2 slices, 3 re-blocked
+2026-08-14T09:47:00.444Z	start	implement	objects-deferral-sweep-4	weptool-charge-suffix

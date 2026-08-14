@@ -2224,7 +2224,8 @@
       "effort": "slice",
       "status": "open",
       "from": "fc5613417808880f893c983a735b402db3772876",
-      "detail": "scripts/wear-armor.test.mjs asserts game.context.takeoff.mask is 0 after a W, but armoroff() sets the slot bit and the matching <X>_off() clears it, so the preceding T already leaves the mask at 0 and nothing on the W path raises it: deleting accessory_or_armor_on()'s own clear keeps the suite green. The assertion now carries a comment saying so. Closes when a case reaches W with the mask still set, which needs an interrupted delayed take-off or the unported A spine, and the assertion fails without the clear. Confirmed by the correctness pass over b035d790..fc56134."
+      "detail": "scripts/wear-armor.test.mjs asserts game.context.takeoff.mask is 0 after a W, but armoroff() sets the slot bit and the matching <X>_off() clears it, so the preceding T already leaves the mask at 0 and nothing on the W path raises it: deleting accessory_or_armor_on()'s own clear keeps the suite green. The assertion now carries a comment saying so. Closes when a case reaches W with the mask still set, which needs an interrupted delayed take-off or the unported A spine, and the assertion fails without the clear. Confirmed by the correctness pass over b035d790..fc56134.",
+      "blockedOn": "doddoremarm"
     },
     {
       "id": "full-complement-guard-pins-one-of-eleven-slots",
@@ -2395,7 +2396,7 @@
       "status": "open",
       "from": "3b3b8fa4530e27783e9795281bf216950fbacda2",
       "detail": "invent.c getobj()'s redo_menu block (1966-1998). '?' hands display_pickinv() the suggested-letter subset getobj() built and '*' hands it the getobj_hands_txt() extra choice; js/invent.js:561 raises UnsupportedObjectPromptError('display_pickinv() with a letter subset') for both. The refusal is older than the t command and shared with every ported object prompt -- d, W, T, a and e -- so lifting it belongs to invent.c's port rather than to dothrow.c's.\n\nCost today: 3 of the 7 t commands in the development sessions, which stop at that answer rather than at anything dothrow.c owns; seed0014's cream pie, the only recorded throw that reaches a monster, is one of them.\n\nFresh case, recorded here: seed 3140022, datetime 20000110090000, OPTIONS=name:Probe,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics, moves '.t?'. Expected failure today: all 2777 of C's calls and 3 of C's 4 screens match, and the segment ends on the '?' key. C's fourth screen is the one-line subset listing 'b - a +0 dagger (alternate weapon; not wielded).--More--', which is display_pickinv() over the single suggested letter rather than a menu window.\n\nClosing condition: port display_pickinv()'s letter-subset and hands/self arms, then extend scripts/run-throw-command.mjs's Valkyrie segment with '?' and the Wizard segment with '*', whose empty suggestion set takes the other branch.",
-      "blockedOn": "display_pickinv"
+      "blockedOn": "message_menu"
     },
     {
       "id": "throw-gold-caught-by-a-monster",
@@ -2415,7 +2416,13 @@
       "status": "open",
       "from": "5d3099940103ba2825c1c538251df9088f9f260b",
       "detail": "invent.c getobj()'s count block (1888-1913 and 2034-2043). A digit typed at any object prompt is read by get_count() and, when the count is smaller than the stack, split off with splitobj() before the object is returned. js/invent.js raises UnsupportedObjectPromptError('the object prompt requires get_count() and splitobj()') on the first digit. The refusal is older than the t command and shared with every ported object prompt, d, W, T, a and e included, so lifting it belongs to invent.c's port rather than to dothrow.c's, exactly as the sibling entry throw-prompt-answered-with-a-menu-request states for ? and *.\n\nIt is what makes dothrow.c throw_gold()'s unsplitobj() branch (2665-2667) unreachable. Nothing else in the port splits a coin stack, so obj->o_id matches neither svc.context.objsplit.parent_oid nor child_oid when a thrown purse comes back to the hero, and js/dothrow.js throw_gold() never raises its UnsupportedThrowError('unsplitobj()'). Two mutants on that disjunction survive scripts/mutate-sites.mjs for the same reason; the commit that added throw_gold() records them.\n\nFresh case, recorded here: seed 6120001, datetime 20000110090000, OPTIONS=name:Volley,role:Healer,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics, moves '.t5$.'. The Healer splits 5 coins off her 1911 and throws them at herself, which is the shortest input that reaches unsplitobj(). Expected failure today: 2315 of C's 2316 calls and 3 of 6 screens match, and the segment ends on the '5' key. C's later screens show $:1906 while the direction prompt is open and $:1911 again after 'You cannot throw gold at yourself.', which is the merge unsplitobj() performs. The sibling '.t5$l' throws the split stack east instead and leaves $:1906 standing, so it separates the split from the merge.\n\nClosing condition: port get_count() and getobj()'s count handling, then add both segments to scripts/run-throw-gold.mjs and drop throw_gold()'s unsplitobj() refusal in favour of the port.",
-      "blockedOn": "getobj"
+      "blockedOn": "get_count",
+      "notes": [
+        {
+          "text": "Blocked on get_count rather than on getobj, which the previous blocker named. js/invent.js getobj() exists but carries no count block, so the blocker read as landed the day getobj() was ported. C is invent.c:1938 get_count(NULL, ilet, LARGEST_INT, &tmpcnt, GC_SAVEHIST); splitobj is already ported at js/obj.js:556, so get_count is the missing piece. Caveat for whoever reads this next: js/cmd.js:722 defines getCount, a partial port of cmd.c get_count() for parse()s prefix path, and renaming it to the C spelling would make this blocker read as landed while the invent.c call is still absent.",
+          "at": "2ebb984982d975f0fe2a2801c6360cbe70e86eb6"
+        }
+      ]
     },
     {
       "id": "throw-gold-at-a-monster-stops-under-the-wrong-name",

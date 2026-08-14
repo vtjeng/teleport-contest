@@ -2084,6 +2084,45 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "objects-deferral-sweep-4",
+      "status": "open",
+      "boundary": "Every counted objects deferral has been read, and each one the reading showed to be small is closed. The lead entry is the area's only silent divergence: js/objnam.js:1152 tests raw obj.oclass === TOOL_CLASS where objnam.c doname_base():1382 switches on is_weptool(obj) ? WEAPON_CLASS : obj->oclass, so a weapon-tool takes the charged-tool arm and gains a ' (0:0)' suffix C never prints. Every surviving entry either carries the blockedOn symbol the reading found or is named in the closing report with the slice it needs. Checkable by running npm run quality -- deferrals --area objects and confirming each still-open counted entry has one or the other, and by comparing js/objnam.js's class switch against objnam.c:1382.",
+      "upstreamOwners": [
+        "objnam.c doname_base() 1382 and the charges: label at 1484",
+        "obj.h is_weptool() 249-250",
+        "obj.h WrappingAllowed() 443-446",
+        "do_wear.c dowear() full-complement guard",
+        "do_wear.c canwearobj()"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "Measured at 2ebb984 rather than estimated. The one counted entry that can move a screen is weptool-inventory-lines-add-a-charge-count, and it cannot move one yet: a scan of every recorded screen of all 33 development sessions for the five weptool names a D:1 hero can carry found exactly one object line, seed0361 step 354, 'e - a +0 pick-axe (alternate weapon; not wielded)' with no (0:0). The other 36 hits are the literal text of the autopickup-types menu row. seed0361 stops at step 137 with every screen it emits already matching, so the defect sits 217 steps beyond the port's reach. Every other counted entry is a test gap or an unported arm behind a refusal no development session reaches. objects-deferral-sweep-2 and -3 each forecast 1 and delivered 1; this one has no paying entry at all, so a flat score is the expected result rather than a failure. A sweep is scheduled by the deferral threshold rather than priced by look-ahead.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "Six entries close in two slices. Slice one is the weptool fix, its own slice because it is production with a fresh differential already recorded at seed 7720165: js/objnam.js:1101 already computes classForModifiers = is_weptool(obj, state) ? WEAPON_CLASS : obj.oclass, and js/objnam.js:745 uses the same expression for the worn suffix, but the charge-suffix condition 50 lines below reads raw obj.oclass. Slice two closes five test entries that all live in scripts/wear-armor.test.mjs, so one body of evidence closes them together: wear-refusal-tests-do-not-pin-the-error-class (13 assert.rejects, none naming a class), full-complement-guard-pins-one-of-eleven-slots, canwearobj-silence-pinned-for-one-of-seven-arms, wrapping-allowed-conjuncts-unpinned and wish-tests-skip-their-own-typing-guard. Three entries were re-blocked before the goal opened, each on a symbol the reading found rather than the one already named: throw-prompt-answered-with-a-menu-request on message_menu, since js/invent.js display_pickinv covers only the branch i reaches and the letter-subset arm is refused; throw-prompt-answered-with-a-count on get_count, since js/invent.js getobj() carries no count block; and takeoff-mask-clear-has-no-discriminating-case on doddoremarm. Thirteen entries survive as slices, thirteen of the fourteen survivors being unported C arms a sweep cannot touch, so the area still prints as a candidate afterwards and 'never run two sweeps in a row' sends the loop to a boundary port next. Three findings for the closing report rather than the ledger, which has no amend command: wear-magic-boots-stop and wear-gauntlets-stop are recorded at effort undecided and the reading settles both as slices, needing makeknown(), toggle_stealth(), incr_itimeout(), float_up() and adj_abon(), none defined in js/; eat-corpse-effects-beyond-the-default-arm still records no closing condition; and eat-corpse-arms-without-a-fresh-case stays counted rather than taking the blocker the previous sweep intended, because every helper on its path is already partly ported under its C name and any symbol chosen would read as landed the day it was written.",
+      "slices": [
+        {
+          "name": "weptool-charge-suffix",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "wear-armor-test-gaps",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "2ebb984982d975f0fe2a2801c6360cbe70e86eb6",
+      "openStanding": {
+        "sha": "fe988c9",
+        "screens": 1538,
+        "rng": 121032
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
