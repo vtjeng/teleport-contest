@@ -34,7 +34,6 @@ import {
     D_ISOPEN,
     D_NODOOR,
     DRAWBRIDGE_DOWN,
-    DRAWBRIDGE_UP,
     CORR,
     IRONBARS,
     IS_ALTAR,
@@ -102,6 +101,7 @@ import { UnsupportedHideError, maybe_unhide_at } from './mon.js';
 import { newsym } from './display.js';
 import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
+import { is_drawbridge_wall } from './startup_a11y.js';
 import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { game } from './gstate.js';
@@ -206,10 +206,11 @@ export function dfeature_at(x, y, state = game) {
             cmap = S_vcdoor;
             break;
         }
-        // C overrides the door description for an open drawbridge.
-        // dbridge.c is_drawbridge_wall() is not ported; a DOOR square can
-        // only sit beside a drawbridge, so this stop is reachable.
-        throwIfDrawbridgeUnported(x, y, state);
+        /* override door description for open drawbridge */
+        if (is_drawbridge_wall(x, y, state)) {
+            dfeature = 'open drawbridge portcullis';
+            cmap = -1;
+        }
     } else if (IS_FOUNTAIN(ltyp)) {
         cmap = S_fountain;
     } else if (IS_THRONE(ltyp)) {
@@ -243,22 +244,6 @@ export function dfeature_at(x, y, state = game) {
 
     if (cmap >= 0) dfeature = CMAP_EXPLANATIONS[cmap];
     return dfeature || null;
-}
-
-// dbridge.c is_drawbridge_wall() is unported. It answers false everywhere no
-// drawbridge exists, which is every level this port generates, so the stop
-// fires only once drawbridge generation arrives.
-function throwIfDrawbridgeUnported(x, y, state) {
-    for (let row = -1; row <= 1; ++row) {
-        for (let column = -1; column <= 1; ++column) {
-            const typ = state.level?.at(x + column, y + row)?.typ;
-            if (typ === DRAWBRIDGE_UP || typ === DRAWBRIDGE_DOWN) {
-                throw new UnsupportedFeatureDescriptionError(
-                    'is_drawbridge_wall()',
-                );
-            }
-        }
-    }
 }
 
 // C ref: invent.c names[]. Indexed by object class.

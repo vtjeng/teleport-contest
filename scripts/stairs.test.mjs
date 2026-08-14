@@ -3,7 +3,10 @@ import test from 'node:test';
 
 import {
     CORR,
+    DB_EAST,
+    DB_WEST,
     DOOR,
+    DRAWBRIDGE_UP,
     FOUNTAIN,
     GRAVE,
     IRONBARS,
@@ -237,6 +240,29 @@ test('dfeature_at names the features invent.c reads from a square',
             `door mask ${mask}`,
         );
     }
+    // invent.c:4061 overrides all five door texts when the square is a
+    // drawbridge portcullis. dbridge.c is_drawbridge_wall():148 answers for
+    // the bridge east of the door only when that bridge faces west, so the
+    // two masks below sit either side of that one test. Keep the mask at
+    // D_LOCKED, the last case above, to show the override outranks it.
+    const bridge = state.level.at(x + 1, y);
+    const originalBridgeTyp = bridge.typ;
+    bridge.typ = DRAWBRIDGE_UP;
+    bridge.flags = DB_WEST;
+    assert.equal(
+        dfeature_at(x, y, state),
+        'open drawbridge portcullis',
+        'a west-facing bridge east of the door makes it a portcullis',
+    );
+    bridge.flags = DB_EAST;
+    assert.equal(
+        dfeature_at(x, y, state),
+        'closed door',
+        'a bridge facing away leaves the door text alone',
+    );
+    bridge.typ = originalBridgeTyp;
+    bridge.flags = 0;
+
     square.typ = originalTyp;
     square.doormask = 0;
 });

@@ -388,8 +388,11 @@ export function getmattk(magr, mdef, indx, prev_result, rawEnv = {}) {
 // for mattacku()".
 //
 // C also sets gb.bhitpos to the hero's square and clears gn.notonhead, which
-// do_attack() does for the mirror case. Neither has a ported reader: their
-// consumers are hitmu() and the passive counter-attacks behind it.
+// do_attack() does for the mirror case. Neither has a ported reader. hitmu()
+// reads neither; the consumers are mattacku()'s own u_at(gb.bhitpos.x,
+// gb.bhitpos.y) test at mhitu.c:782 and the passive counter-attacks. That
+// test is tautologically false, because the only write between here and it,
+// the steed retaliation at mhitu.c:545, returns on every path out of :547.
 export function calc_mattacku_vars(mtmp, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const seeMonster = rawEnv.canSeeMonster ?? canSeeMonster;

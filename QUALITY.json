@@ -213,13 +213,17 @@
       "area": "monsters",
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "roadmap",
       "detail": "The correctness pass over `5879bed..2fea8eb` confirmed fourteen findings; three\nwere applied there and eleven were recorded here. Four of the eleven are closed\nat `247675b`, which pinned each by breaking the line it covers and watching the\ntest fail: `select_postmove_object_action()`'s `carryamt`, `panicattk`'s\n`range.scared` condition, `dochug()`'s `!noattacks(monster.data)` term, and\n`pickupState()`'s false claim that a gnome is `M2_GREEDY`. The rest divide into\nthree groups.\n\n**A production gap.** `refuseHeroAttack()` is presented as a complete stand-in\nfor `mhitu.c mattacku()` on the range2 path, but it enumerates only `AT_BREA`,\n`AT_SPIT`, `AT_GAZE` and `AT_WEAP` and omits `mattacku()`'s\n`find_offensive()`/`use_offensive()` path, so a monster that would use an\noffensive item is admitted where C acts. Fix it with the combat work, which is\nwhere `mattacku()` lands.\n\n**An assertion that does not discriminate**, verified by mutation with the\nsuite green: `refuseHeroAttack()`'s `AT_WEAP` arm, the `select_rwep()` check,\nhas no test while its three siblings do.\n\n**Comments that misdescribe their code:** `is_drawbridge_wall()`'s export\ncontradicts `js/invent.js:207`, which still documents the same predicate as\nunported; `postSimpleMove()` reads injected message and redraw owners for the\nmovement notice then hardcodes `ttyPline`/`newsym` for the pickup; and the\ncomment calling `mattacku()`'s preamble inert cites `!ranged`, which C computes\nfrom the hero's real position, where the guard below tests something else.",
       "notes": [
         {
           "text": "Correction from the `monsters` deferral sweep recorded at `adc4ea5`. One of the\nfive sub-findings is dead: `postSimpleMove()` no longer exists, so the claim\nthat it reads injected message and redraw owners for the movement notice and\nthen hardcodes `ttyPline`/`newsym` for the pickup has no subject. Four remain.\n\nThe `is_drawbridge_wall()` sub-finding keeps its substance and loses its anchor.\nThe comment calling the predicate unported now sits in `js/invent.js` twice, at\n`:199-200` and at `:237-239`, and `is_drawbridge_wall()` is exported from\n`js/startup_a11y.js` and read by `js/hack.js`, so the contradiction the\nsub-finding names is still live. Cite the symbols.",
           "at": "abcb414175ceed06c5d38f8a6cf24051aa098b25"
+        },
+        {
+          "text": "All four surviving sub-findings are now settled, so this entry closes.\n\nTwo lost their subject when db92431 landed mattacku() and deleted refuseHeroAttack(). 'grep -rn refuseHeroAttack js/' returns nothing. The production gap, that refuseHeroAttack() omitted mattacku()'s find_offensive()/use_offensive() path and so admitted a monster where C acts, is closed by construction: js/mhitu.js:549 calls find_offensive() on the range2 path and refuses. The undiscriminating assertion, refuseHeroAttack()'s AT_WEAP select_rwep() check having no test while its siblings do, has no subject; select_rwep()'s remaining caller is js/unported_monster_actions.js:848, a different site with a different question.\n\nThe third, the comment calling mattacku()'s preamble inert while citing !ranged, also lost its subject: the preamble is ported. Its substance is answered. js/mhitu.js:397 computes ranged from mdistu(), the hero's real position, and range2 from monnear(mtmp, mtmp.mux, mtmp.muy), the believed position, matching mhitu.c:453-454 term for term.\n\nThe fourth, is_drawbridge_wall()'s export contradicting js/invent.js's comments calling the same predicate unported, is fixed in this commit rather than merely re-cited.",
+          "at": "a119cd09c0955aefab4fd896b1dfe9948d171a56"
         }
       ],
       "blockedOn": "find_offensive"
@@ -2478,7 +2482,13 @@
       "status": "open",
       "from": "a9ba71a093e6c2192f888083f9d1c36a60ed5050",
       "detail": "mhitu.c mattacku()'s melee arms stop at hitmu() (1143-1267), so a monster that rolls a hit ends the segment instead of taking hit points off the hero. Fresh case: seed 880042, datetime 20250612101500, nethackrc OPTIONS=name:Melee,role:Healer,race:human,gender:female,align:neutral / OPTIONS=!legacy,!tutorial,!splash_screen / OPTIONS=pettype:none, moves ' ' followed by 'llllllhhhhhh' twelve times. C replies 'The sewer rat bites!' on step 13 after the near miss on step 10 that scripts/run-monster-melee-miss.mjs pins; the port emits fourteen screens and stops with 'a monster landing a hit on the hero'. The refusal precedes hitmu()'s d(damn, damd), so the JavaScript random-number log holds the step's rnd(20) and nothing after it. Retire this with hitmu(), mdamageu() and uhitm.c mhitm_adtyping()'s AD_PHYS and AD_ELEC arms.",
-      "blockedOn": "hitmu"
+      "blockedOn": "mhitm_ad_phys",
+      "notes": [
+        {
+          "text": "The blocker landed and the entry survives it, so blockedOn moves rather than clearing. b2ec1be8 ported hitmu(), mdamageu() and mhitm_adtyping()'s AD_ELEC arm. The recorded case is a sewer rat bite, which is AT_BITE with AD_PHYS, so the stop this entry describes moved from hitmu() to the mhitm_adtyping() switch at uhitm.c:4786. The detail above still names hitmu() as the stop; that is now the original claim rather than the current one. Retire the entry with the AD_PHYS arm, not before.",
+          "at": "a119cd09c0955aefab4fd896b1dfe9948d171a56"
+        }
+      ]
     },
     {
       "id": "monster-melee-armed-swing",
@@ -2506,7 +2516,13 @@
       "effort": "small",
       "status": "open",
       "from": "2be53e4a3ad91647d70605ad98bf4f34727fd02a",
-      "detail": "js/mthrowu.js was created in this range to hold linedup(), m_lined_up() and lined_up(), extracted from the terrain-walk approximation js/monmove.js monsterItemSearchInLine() had been using. Five of the window mutation run seventeen survivors sit in that file, at lines 41, 116, 117 twice and 118, and none carries a recorded reason: the slice commit reasoned about twelve survivors and named eight sites, all elsewhere. The clear_path() arm, which is the one branch whose behavior the extraction actually changed, is reached by no test, and m_lined_up() hero-concealment gate including the rn2(25) written out to preserve call ordering is exercised by none either. Closes when each of the five has either a test that kills it or a recorded reason no test can. Confirmed by the correctness pass over 0d7678c..2be53e4."
+      "detail": "js/mthrowu.js was created in this range to hold linedup(), m_lined_up() and lined_up(), extracted from the terrain-walk approximation js/monmove.js monsterItemSearchInLine() had been using. Five of the window mutation run seventeen survivors sit in that file, at lines 41, 116, 117 twice and 118, and none carries a recorded reason: the slice commit reasoned about twelve survivors and named eight sites, all elsewhere. The clear_path() arm, which is the one branch whose behavior the extraction actually changed, is reached by no test, and m_lined_up() hero-concealment gate including the rn2(25) written out to preserve call ordering is exercised by none either. Closes when each of the five has either a test that kills it or a recorded reason no test can. Confirmed by the correctness pass over 0d7678c..2be53e4.",
+      "notes": [
+        {
+          "text": "The citation lost its anchor; the substance stands. db92431 deleted js/monmove.js monsterItemSearchInLine(), so 'grep -rn monsterItemSearchInLine js/ scripts/' returns nothing. Its caller now reads lined_up() directly at js/monmove.js:2534, through the rawEnv.itemSearchInLine injection point. Cite that line. The five unreasoned survivors in js/mthrowu.js and the untested clear_path() arm are unchanged by the rename.",
+          "at": "a119cd09c0955aefab4fd896b1dfe9948d171a56"
+        }
+      ]
     },
     {
       "id": "mattacku-planning-silence-is-unpinned",
@@ -2544,6 +2560,15 @@
       "from": "a0d0194a17ab85763c06e8dc1465b4315a2feae2",
       "detail": "mhitu.c mdamageu() (1901-1927) refuses at 'the hero dying of a monster attack' where C calls done_in_by(mtmp, DIED), so a blow that takes the hero's last hit point ends the segment instead of ending the game. This is the goal's declared fail-closed edge: done_in_by() owns svk.killer, the tombstone and the whole of end.c, and js/hack.js losehp() already stops on the same boundary. Case just outside the limit, recorded rather than searched because a natural death takes tens of turns: scripts/mhitu.test.mjs 'mdamageu stops at the hero's death and not one hit point above it' drives it directly -- a grid bug's 1d1 bite against a hero left at one hit point -- and asserts the refusal, while the row above it, at two hit points, asserts the hero survives at one. The expected failure in a fresh C run is that C prints 'You die...' and a tombstone where the port emits its last matching screen and stops. Retire this with end.c done_in_by().",
       "blockedOn": "done_in_by"
+    },
+    {
+      "id": "bhitpos-is-stored-in-two-places",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "a119cd09c0955aefab4fd896b1dfe9948d171a56",
+      "detail": "C's single gb.bhitpos global has two JavaScript homes. js/zap.js:558 and js/dothrow.js:792 read and write state.bhitpos; js/dog.js:320 reads and writes state.gb.bhitpos. AGENTS.md requires one JavaScript location per C state value. Neither location is wrong on its own, and no ported path yet writes one and reads the other, so this is latent rather than live: bhitp.c's readers reach it through buzz() and throwit() only. mhitu.c calc_mattacku_vars() (459) writes it too, and js/mhitu.js deliberately ports no write because mattacku()'s own reader at mhitu.c:782 is tautologically false; that third writer is the one that will force the choice. Closes when the two names collapse into one, with the C global named in a comment at the surviving site."
     }
   ],
   "areas": [
