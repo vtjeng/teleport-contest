@@ -19,6 +19,7 @@ import {
     HMON_APPLIED,
     HMON_MELEE,
     IS_DOOR,
+    M_ATTK_HIT,
     M_SEEN_ELEC,
     NATTK,
     P_BARE_HANDED_COMBAT,
@@ -121,6 +122,7 @@ import {
     AT_HUGS,
     AT_KICK,
     AT_NONE,
+    AT_TUCH,
     AT_WEAP,
     PM_BARBARIAN,
     PM_BLACK_PUDDING,
@@ -1441,12 +1443,80 @@ export async function mhitm_ad_elec(
     }
 }
 
+// C ref: uhitm.c mhitm_ad_phys() (3980-4200), the `mdef == &gy.youmonst` arm
+// (4021-4127) as far as its hand-to-hand path (4038-4040 and 4122-4126). An
+// ordinary blow landing on the hero prints its line and records the hit; the
+// damage is the roll hitmu() already made, which this arm leaves alone.
+//
+// C's other two arms are the hero's own physical attack (uhitm) and one monster
+// hitting another (mhitm). Neither has a caller here, for the reasons
+// mhitm_ad_elec() gives above: js/uhitm.js damageum() is unported and
+// js/mhitm.js mattackm() stops long before any damage type.
+//
+// Two pieces of the hero's arm stop where C acts:
+//
+//   AT_HUGS (4023-4037) sets u.ustuck and holds the hero. mhitu.c mattacku()
+//     refuses its own AT_HUGS arm first, at js/mhitu.js:626, so no ported path
+//     spells this attack. C's whole condition is kept rather than a bare aatyp
+//     test, so the stop sits exactly where C's branch begins.
+//   AT_WEAP with something wielded (4041-4121) is the armed blow: dmgval(),
+//     the gauntlets of power, artifact_hit(), the silver and pudding-splitting
+//     arms, rustm() and the poison tail. That is this slice's fail-closed edge.
+//
+// An AT_WEAP attacker holding nothing is not that edge. It falls to the last
+// arm with everyone else and prints hitmsg()'s default verb, which is what
+// mattacku()'s AT_WEAP arm leaves behind when mon_wield_item() finds it no
+// weapon to wield.
+//
+// Neither mhm->specialdmg nor gm.mhitu_dieroll is read here, and js/mhitu.js
+// said otherwise until this landed. specialdmg's two readers, 3992 and 3995,
+// sit inside the `magr == &gy.youmonst` arm that opens at 3988; the dieroll's,
+// 4069 and 4107, sit inside the AT_WEAP block that opens at 4041. Both arrive
+// with work this slice does not do.
+export async function mhitm_ad_phys(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    const pd = mdef.data;
+
+    if (magr === state.youmonst) {
+        /* uhitm */
+        unsupported("the hero's own physical attack");
+    } else if (mdef === state.youmonst) {
+        /* mhitu */
+        if (mattk.aatyp === AT_HUGS && !sticks(pd)) {
+            unsupported('a monster grabbing the hero');
+        } else { /* hand to hand weapon */
+            const otmp = magr.mw; /* MON_WEP(magr) */
+
+            if (mattk.aatyp === AT_WEAP && otmp) {
+                unsupported("a monster's wielded weapon landing on the hero");
+            } else if (mattk.aatyp !== AT_TUCH || mhm.damage !== 0
+                       || magr !== state.u.ustuck) {
+                await hitmsg(magr, mattk, state, env);
+                /* C's mhitm_knockback() reads this at 5338, past the stop at
+                   js/uhitm.js:1689, and hitmu() returns it only for a `done`
+                   this arm never sets. It is written because C writes it, and
+                   because the two callers that will read it are the next work
+                   on this function. */
+                mhm.hitflags |= M_ATTK_HIT;
+            }
+        }
+    } else {
+        /* mhitm */
+        unsupported('one monster hitting another');
+    }
+}
+
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
 // selects the function that applies it. C's switch is written out in full so
 // that the arms this port has not reached name the uhitm.c function a later
 // slice puts in their place, and so that adding one is a one-line edit.
-//
-// AD_PHYS refuses here too: mhitm_ad_phys() (3980-4200) is its own slice.
 //
 // C's `default` is not a refusal. An adtyp with no arm -- AD_MAGM, AD_DISN,
 // AD_SPC1, AD_SPC2, AD_CLRC, AD_SPEL and AD_RBRE -- silently loses its damage,
@@ -1468,7 +1538,9 @@ export async function mhitm_adtyping(
     case AD_LEGS: unported('mhitm_ad_legs'); break;
     case AD_WERE: unported('mhitm_ad_were'); break;
     case AD_HEAL: unported('mhitm_ad_heal'); break;
-    case AD_PHYS: unported('mhitm_ad_phys'); break;
+    case AD_PHYS:
+        await mhitm_ad_phys(magr, mattk, mdef, mhm, state, env);
+        break;
     case AD_FIRE: unported('mhitm_ad_fire'); break;
     case AD_COLD: unported('mhitm_ad_cold'); break;
     case AD_ELEC:
@@ -1559,9 +1631,12 @@ export async function missum(
 // written at 5399, both past the stop above; it is left off the signature
 // rather than accepted and ignored.
 //
-// The hero as defender never passes the damage-type gate below. hitmu() calls
-// mhitm_adtyping() first, and that refuses every adtyp except AD_ELEC, which
-// this gate rejects. So the whole `u_def` tail is one refusal.
+// The hero as defender reaches the `u_def` refusal below whenever an AD_PHYS
+// AT_CLAW, AT_KICK, AT_BUTT or AT_WEAP blow lands on him and rn2(6) answers 0,
+// so roughly one such hit in six stops there. QUALITY.json's
+// monster-melee-knockback-on-the-hero-stops records that case and the seed that
+// reaches it. An AT_BITE, AT_STNG, AT_TUCH or AT_TENT blow never does: the gate
+// at 5273-5277 excludes all four.
 export function mhitm_knockback(
     magr,
     mdef,

@@ -111,6 +111,7 @@ import {
 import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import { stairway_find_dir } from '../js/stairs.js';
 import {
+    AD_FIRE,
     AT_CLAW,
     AT_NONE,
     M1_NEEDPICK,
@@ -3962,7 +3963,13 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
         data: {
             mmove: 12,
             mattk: [
-                { aatyp: AT_CLAW, adtyp: 0, damn: 1, damd: 2 },
+                // AD_FIRE, not AD_PHYS: this test needs the monster's turn to
+                // stop somewhere, and uhitm.c mhitm_adtyping() now carries
+                // AD_PHYS through to the hero's hit points. AD_FIRE is the
+                // nearest damage type it still refuses, and a clawing fire
+                // attack is an ordinary pairing (mhitm_ad_fire()'s own
+                // callers include AT_CLAW species).
+                { aatyp: AT_CLAW, adtyp: AD_FIRE, damn: 1, damd: 2 },
                 ...Array.from({ length: 5 }, () => ({
                     aatyp: AT_NONE, adtyp: 0, damn: 0, damd: 0,
                 })),
@@ -3997,7 +4004,7 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
     // names the branch it could not take.
     await assert.rejects(
         moveloop_core(),
-        /uhitm\.c mhitm_ad_phys\(\)/u,
+        /uhitm\.c mhitm_ad_fire\(\)/u,
     );
     assert.equal(game.u.umovement, 24);
     assert.equal(monster.movement, 12);

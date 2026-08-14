@@ -7,7 +7,7 @@ import { domove } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
 import { mattacku } from '../js/mhitu.js';
 import { m_at } from '../js/monst.js';
-import { PM_GOBLIN, PM_JACKAL } from '../js/monsters.js';
+import { PM_ACID_BLOB, PM_GOBLIN, PM_JACKAL } from '../js/monsters.js';
 import { UnsupportedSimpleMonsterActionError }
     from '../js/unported_monster_actions.js';
 import { UnsupportedSteedError, exercise_steed } from '../js/steed.js';
@@ -86,10 +86,18 @@ function attackerAt(state, species, dx, dy) {
 // mon_wield_item() are the two owners a distant or armed attacker reaches
 // before any refusal; both are inert for these fixtures, which carry no
 // inventory.
+//
+// `message` and `statusRefresh` are here because a landed blow now prints
+// through hitmsg() and mdamageu() and then refreshes the status rows. The
+// lines it wrote are hung on the env so a caller can read them back.
 function steedTestEnv(state, random) {
+    const lines = [];
     return {
         state,
         random,
+        lines,
+        message: async (text) => { lines.push(text); },
+        statusRefresh: async () => {},
         unsupported: refuser(),
         throwRangedWeapon: () => {},
         wieldMonsterItem: async () => 0,
@@ -313,13 +321,18 @@ test('mattacku() draws before it tests adjacency and refuses only when both',
     }
     // The same neighbour with a nonzero draw is C's fall-through to the arms
     // that attack the rider. That is the AT_WEAP melee arm, whose to-hit test
-    // this random source always passes, so the blow lands and stops inside
-    // hitmu() on its own damage type, AD_PHYS.
-    await assert.rejects(
-        () => mattacku(near, steedTestEnv(state, fixedRandom(1))),
-        (error) => error instanceof UnsupportedSimpleMonsterActionError
-            && /mhitm_ad_phys/u.test(error.message),
-    );
+    // this random source always passes, so the blow lands on the rider. The
+    // goblin holds nothing, so uhitm.c mhitm_ad_phys():4122-4126 prints
+    // hitmsg()'s default verb and hitmu() takes the damage off the rider.
+    const rider = steedTestEnv(state, fixedRandom(1));
+    const uhpBefore = state.u.uhp;
+    assert.equal(await mattacku(near, rider), false);
+    assert.deepEqual(rider.lines, ['The goblin hits!']);
+    // fixedRandom()'s d() answers 1, so the whole of a 1d4 blow is one point.
+    assert.equal(state.u.uhp, uhpBefore - 1);
+    // The steed draw a goblin makes is rn2(2), and mhitm_knockback()'s pair
+    // follows it; a nonzero rn2(6) is what keeps the knockback out of the way.
+    assert.deepEqual(rider.random.bounds, [2, 3, 6]);
 });
 
 test('mattacku() spends no draw on the steed itself or on a hero on foot',
@@ -342,14 +355,21 @@ test('mattacku() spends no draw on the steed itself or on a hero on foot',
     const onFoot = fixedRandom(0);
     const attacker = attackerAt(state, PM_GOBLIN, 1, 0);
     // A hero on foot skips the steed draw entirely and falls straight through
-    // to the melee arm, whose landed blow stops on AD_PHYS inside hitmu()
-    // without any rn2() of its own.
+    // to the melee arm. The blow lands, and this random source then answers
+    // uhitm.c:5269's rn2(6) with the one value in six that lets
+    // mhitm_knockback() past its chance gate, so the turn stops at the u_def
+    // arm that would push the hero across the map. QUALITY.json's
+    // monster-melee-knockback-on-the-hero-stops carries that gap.
+    const stopped = steedTestEnv(state, onFoot);
     await assert.rejects(
-        () => mattacku(attacker, steedTestEnv(state, onFoot)),
+        () => mattacku(attacker, stopped),
         (error) => error instanceof UnsupportedSimpleMonsterActionError
-            && /mhitm_ad_phys/u.test(error.message),
+            && error.reason === 'knocking the hero back',
     );
-    assert.deepEqual(onFoot.bounds, []);
+    // No rn2(2): the steed arm is what a hero on foot skips. The pair that
+    // remains is mhitm_knockback()'s own, and the blow's line came first.
+    assert.deepEqual(onFoot.bounds, [3, 6]);
+    assert.deepEqual(stopped.lines, ['The goblin hits!']);
 });
 
 test('mattacku() ends a multi-turn action for an adjacent attacker only',
@@ -357,23 +377,27 @@ test('mattacku() ends a multi-turn action for an adjacent attacker only',
     // mhitu.c:512-513, `if (!ranged) nomul(0)`, where mhitu.c:453 sets
     // `ranged = (mdistu(mtmp) > 3)`. dist2() never returns 3, so the squares
     // that end a run are exactly m_next2u()'s.
+    // Both fixtures are acid blobs, whose mattk[0] is {AT_NONE, AD_ACID}.
+    // mattacku()'s switch has no arm for AT_NONE, so neither one reaches
+    // missmu() or hitmu(), and those two call stop_occupation() themselves
+    // (mhitu.c:99 and :1265). An attacker that struck would end the run either
+    // way; one that never swings leaves the preamble as the only candidate.
     const state = await mounted();
-    const near = attackerAt(state, PM_GOBLIN, 1, 0);
-    const far = attackerAt(state, PM_GOBLIN, 5, 0);
+    const near = attackerAt(state, PM_ACID_BLOB, 1, 0);
+    const far = attackerAt(state, PM_ACID_BLOB, 5, 0);
 
     // hack.c nomul() ends a run through endRunning(), which is the effect a
     // recorded case can see; its own `multi < nval` guard makes a negative
     // count the wrong thing to watch.
     state.context.run = 1;
-    await mattacku(far, steedTestEnv(state, fixedRandom(1)));
+    const distant = steedTestEnv(state, fixedRandom(1));
+    await mattacku(far, distant);
     assert.equal(state.context.run, 1, 'a distant attacker leaves the run');
+    assert.deepEqual(distant.lines, []);
 
-    // The adjacent attacker ends the run in the preamble and stops at hitmu()
-    // afterwards, so the interruption has to be read through the refusal.
-    await assert.rejects(
-        () => mattacku(near, steedTestEnv(state, fixedRandom(1))),
-        (error) => error instanceof UnsupportedSimpleMonsterActionError,
-    );
+    const adjacent = steedTestEnv(state, fixedRandom(1));
+    assert.equal(await mattacku(near, adjacent), false);
+    assert.deepEqual(adjacent.lines, []);
     assert.equal(state.context.run, 0);
 });
 

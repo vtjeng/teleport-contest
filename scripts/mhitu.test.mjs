@@ -33,6 +33,7 @@ import {
     mswings_verb,
     mtrapped_in_pit,
 } from '../js/mhitu.js';
+import { sticks } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     monst_globals_init,
@@ -42,11 +43,13 @@ import {
     AT_BUTT,
     AT_CLAW,
     AT_EXPL,
+    AT_HUGS,
     AT_KICK,
     AT_NONE,
     AT_STNG,
     AT_TENT,
     AT_TUCH,
+    AT_WEAP,
     M1_THICK_HIDE,
     NON_PM,
     PM_ALIGNED_CLERIC,
@@ -63,6 +66,7 @@ import {
     PM_OWLBEAR,
     PM_PONY,
     PM_PESTILENCE,
+    PM_PYTHON,
     PM_SEWER_RAT,
     PM_SOLDIER_ANT,
     PM_VAMPIRE,
@@ -82,6 +86,7 @@ import {
     LONG_SWORD,
     objects_globals_init,
 } from '../js/objects.js';
+import { mhitm_ad_phys } from '../js/uhitm.js';
 import { UnsupportedSimpleMonsterActionError }
     from '../js/unported_monster_actions.js';
 
@@ -312,12 +317,29 @@ function meleeEnv(state, rolls, extra = {}) {
     };
 }
 
-// uhitm.c mhitm_adtyping() dispatches a landed blow on its damage type, and
-// this slice ports AD_ELEC alone. Every fixture monster below except the grid
-// bug does AD_PHYS, so its landed blow stops here.
-const PHYS_HIT_STOP = 'uhitm.c mhitm_ad_phys()';
+// What an AD_PHYS blow says and what it costs, for the fixtures below. Every
+// one of them is unarmed, so uhitm.c mhitm_ad_phys():4122-4126 prints
+// hitmsg()'s verb and hitmu() takes the rolled damage off the hero.
+//
+// meleeEnv()'s d() answers its first argument, so every 1dN blow below costs
+// exactly one hit point unless the test overrides d().
+function physHit(said) {
+    return { lines: [said], cost: 1 };
+}
 
-test('mattacku prints the miss its to-hit test loses and stops on a hit',
+// uhitm.c mhitm_ad_phys():4041-4121, the armed blow. It is the one arm of the
+// hero's own that this slice leaves unported, so an attacker holding a weapon
+// stops where an unarmed one lands.
+const ARMED_HIT_STOP = "a monster's wielded weapon landing on the hero";
+
+// The draws one landed AD_PHYS blow makes, in order: the to-hit roll
+// (mhitu.c:806), hitmu()'s damage roll (mhitu.c:1187), and
+// mhitm_knockback()'s pair (uhitm.c:5258 and :5269).
+function physHitBounds(toHitBound, damn, damd) {
+    return [`rnd(${toHitBound})`, `d(${damn},${damd})`, 'rn2(3)', 'rn2(6)'];
+}
+
+test('mattacku prints the miss its to-hit test loses and the hit it wins',
     async () => {
     // mhitu.c:806-812. `tmp = AC_VALUE(u.uac) + 10 + m_lev`; this Valkyrie
     // wears AC 6 and a sewer rat is level 0, so tmp is 16 and rnd(20) decides.
@@ -341,14 +363,16 @@ test('mattacku prints the miss its to-hit test loses and stops on a hit',
     assert.deepEqual(quiet.lines, ['The sewer rat misses!']);
     state.flags.verbose = true;
 
-    // One below tmp is C's `tmp > j`, the hit side, and hitmu() is the
-    // fail-closed edge this slice stops at.
+    // One below tmp is C's `tmp > j`, the hit side. A sewer rat's mattk[0] is
+    // {AT_BITE, AD_PHYS, 1d3}, so hitmsg():195-197 picks "bites" and the
+    // rolled damage comes off the hero.
     const hit = meleeEnv(state, [15]);
-    await assert.rejects(
-        () => mattacku(rat, hit.env),
-        (error) => error instanceof UnsupportedSimpleMonsterActionError
-            && error.reason === PHYS_HIT_STOP,
-    );
+    const before = state.u.uhp;
+    assert.equal(await mattacku(rat, hit.env), false);
+    const bite = physHit('The sewer rat bites!');
+    assert.deepEqual(hit.lines, bite.lines);
+    assert.deepEqual(hit.bounds, physHitBounds(20, 1, 3));
+    assert.equal(state.u.uhp, before - bite.cost);
 });
 
 test('mattacku widens the to-hit die for each later attack', async () => {
@@ -421,12 +445,12 @@ test('mattacku adjusts the differential for the states C names', async () => {
 
     // mhitu.c:711, a helpless hero is four easier to hit, which turns the
     // same roll back into a hit. nomul()'s guard keeps gm.multi where it is.
+    // Seventeen misses in the sibling test above and lands here, so the line
+    // that appears is the whole evidence that the four points were added.
     state.multi = -3;
     const helpless = meleeEnv(state, [17]);
-    await assert.rejects(
-        () => mattacku(rat, helpless.env),
-        (error) => error.reason === PHYS_HIT_STOP,
-    );
+    assert.equal(await mattacku(rat, helpless.env), false);
+    assert.deepEqual(helpless.lines, physHit('The sewer rat bites!').lines);
     state.multi = 0;
 });
 
@@ -538,12 +562,15 @@ test('mattacku swings a wielded weapon and adds its to-hit bonus',
 
     // mhitu.c:906-907 subtracts the bonus again, so a second attack in the
     // same turn is not compounded. One attack is all a goblin has, so the
-    // observable half is that 17 now hits.
+    // observable half is that 17 now hits -- on uhitm.c:4041's `AT_WEAP &&
+    // otmp`, this slice's fail-closed edge, so the swing line is printed and
+    // the blow itself is not.
     const raised = meleeEnv(state, [17]);
     await assert.rejects(
         () => mattacku(goblin, raised.env),
-        (error) => error.reason === PHYS_HIT_STOP,
+        (error) => error.reason === ARMED_HIT_STOP,
     );
+    assert.deepEqual(raised.lines, ['The goblin swings his long sword.']);
 });
 
 test('mswings_verb picks its verb from the weapon and the range', async () => {
@@ -728,10 +755,8 @@ test('mattacku reads an invisible hero and a blocked invisibility apart',
     // youprop.h:198 defeats it with the blocked bit, and the same roll hits.
     state.u.uprops[INVIS].blocked = 1;
     const blocked = meleeEnv(state, [15]);
-    await assert.rejects(
-        () => mattacku(rat, blocked.env),
-        (error) => error.reason === PHYS_HIT_STOP,
-    );
+    assert.equal(await mattacku(rat, blocked.env), false);
+    assert.deepEqual(blocked.lines, physHit('The sewer rat bites!').lines);
     state.u.uprops[INVIS] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
 });
 
@@ -759,30 +784,36 @@ test('mattacku keeps a pitted attacker biting and stops it kicking',
     assert.deepEqual(kick.bounds, ['rnd(21)']);
     assert.deepEqual(kick.lines, ['The pony misses!']);
 
-    // Out of the pit the kick rolls first and lands.
+    // Out of the pit the kick rolls first and lands, and the bite behind it
+    // lands too. Both of the pony's attacks are AD_PHYS, so the turn spends
+    // hitmu()'s whole sequence twice over.
     pony.mtrapped = false;
     const freed = meleeEnv(state, [1]);
-    await assert.rejects(
-        () => mattacku(pony, freed.env),
-        (error) => error.reason === PHYS_HIT_STOP,
-    );
+    assert.equal(await mattacku(pony, freed.env), false);
     // hitmu() rolls the blow's base damage, mhitu.c:1187, before handing the
-    // attack to its damage type; a pony's kick is 1d6.
-    assert.deepEqual(freed.bounds, ['rnd(20)', 'd(1,6)']);
+    // attack to its damage type; a pony's kick is 1d6 and its bite 1d2.
+    assert.deepEqual(freed.bounds, [
+        ...physHitBounds(20, 1, 6), ...physHitBounds(21, 1, 2),
+    ]);
+    // hitmsg():198-202 and :195-197. The two verbs differ, so C's `again`
+    // term at :77 stays empty even though the slots are adjacent.
+    assert.deepEqual(freed.lines, ['The pony kicks!', 'The pony bites!']);
     state.level.traps.length = 0;
 });
 
 test('mattacku carries a landed kick to hitmu for an ordinary hero',
     async () => {
     // mhitu.c:809-811. A landed kick reaches hitmu() only when the defender
-    // is not thick-skinned, and no hero this port can build is, so the kick
-    // stops on the same edge every other attack does.
+    // is not thick-skinned, and no hero this port can build is, so a pony's
+    // AT_KICK prints hitmsg()'s kick verb rather than being dropped.
+    //
+    // hitmsg():199-201 also chooses the punctuation from the same test, so
+    // this pins the exclamation mark a thick-skinned defender would lose.
     const state = await meleeHero();
     const pony = meleeAttacker(state, PM_PONY, 1, 0, { m_lev: 0 });
-    await assert.rejects(
-        () => mattacku(pony, meleeEnv(state, [1]).env),
-        (error) => error.reason === PHYS_HIT_STOP,
-    );
+    const kicked = meleeEnv(state, [1]);
+    assert.equal(await mattacku(pony, kicked.env), false);
+    assert.deepEqual(kicked.lines, ['The pony kicks!', 'The pony bites!']);
 });
 
 test('mattacku lets an armed attacker reach its hand-to-hand arm', async () => {
@@ -1341,12 +1372,152 @@ test('hitmu stops for an attacker that was hiding under something',
         () => mattacku(eel, meleeEnv(state, [1], sensed).env),
         (error) => error.reason === 'a hit by a monster that was hiding',
     );
-    // Detected, the same eel reaches its own damage type instead.
+    // Detected, the same eel's bite reaches mhitm_ad_phys() and lands. Its
+    // mattk[1] is {AT_TUCH, AD_WRAP, 0d0}, an arm mhitm_adtyping() still
+    // refuses, so the turn prints the bite and then stops.
     eel.mundetected = 0;
+    const seen = meleeEnv(state, [1]);
     await assert.rejects(
-        () => mattacku(eel, meleeEnv(state, [1]).env),
-        (error) => error.reason === PHYS_HIT_STOP,
+        () => mattacku(eel, seen.env),
+        (error) => error.reason === 'uhitm.c mhitm_ad_wrap()',
     );
+    assert.deepEqual(seen.lines, ['The giant eel bites!']);
+});
+
+// ---- uhitm.c mhitm_ad_phys() ----
+
+// The function called on its own, which is the only way to reach three of its
+// branches. C's `magr == &gy.youmonst` and monster-versus-monster arms have no
+// ported caller at all; the held-touch guard at :4122-4123 needs u.ustuck
+// pointing at the attacker, and js/mon.js set_ustuck()'s one ported caller
+// passes null.
+function physEnv(state) {
+    const lines = [];
+    return {
+        lines,
+        env: {
+            state,
+            message: async (text) => { lines.push(text); },
+            unsupported: (reason) => {
+                throw new UnsupportedSimpleMonsterActionError(reason);
+            },
+        },
+    };
+}
+
+// mhitu.c hitmu():1149-1153 builds this record and only mhm.damage arrives
+// with a value; the rest start where C starts them.
+function physMhm(damage) {
+    return {
+        damage,
+        hitflags: M_ATTK_MISS,
+        permdmg: 0,
+        specialdmg: 0,
+        done: false,
+    };
+}
+
+test('mhitm_ad_phys silences only a held touch that costs nothing', async () => {
+    // uhitm.c:4122-4123, `mattk->aatyp != AT_TUCH || mhm->damage != 0
+    // || magr != u.ustuck`. A python's mattk[1] is {AT_TUCH, AD_PHYS, 0d0},
+    // the attack C gives a snake for keeping hold of a hero it has already
+    // grabbed, so all three terms go false together only for that snake while
+    // it is u.ustuck. Every other combination prints and records the hit.
+    const state = await meleeHero();
+    const python = meleeAttacker(state, PM_PYTHON, 1, 0);
+    const [bite, touch] = python.data.mattk;
+    assert.equal(touch.aatyp, AT_TUCH, 'mattk[1] is the holding touch');
+    assert.equal(touch.damn, 0, 'and it rolls no damage of its own');
+    assert.equal(bite.aatyp, AT_BITE);
+
+    const held = async (mattk, damage, ustuck) => {
+        state.u.ustuck = ustuck;
+        const { lines, env } = physEnv(state);
+        const mhm = physMhm(damage);
+        await mhitm_ad_phys(python, mattk, state.youmonst, mhm, state, env);
+        state.u.ustuck = null;
+        return { lines, hitflags: mhm.hitflags };
+    };
+
+    // All three false: C prints nothing and leaves hitflags at M_ATTK_MISS,
+    // so the hero holds still with no line repeated each turn.
+    assert.deepEqual(await held(touch, 0, python),
+        { lines: [], hitflags: M_ATTK_MISS });
+    // Each term on its own is enough to restore the line. Damage first,
+    assert.deepEqual(await held(touch, 1, python),
+        { lines: ['The python touches you!'], hitflags: M_ATTK_HIT });
+    // then a touch from a snake that has not grabbed the hero,
+    assert.deepEqual(await held(touch, 0, null),
+        { lines: ['The python touches you!'], hitflags: M_ATTK_HIT });
+    // then an attack that is not a touch at all, from the same held snake.
+    assert.deepEqual(await held(bite, 0, python),
+        { lines: ['The python bites!'], hitflags: M_ATTK_HIT });
+});
+
+test('mhitm_ad_phys stops on a wielded weapon and not on an empty hand',
+    async () => {
+    // uhitm.c:4041, `mattk->aatyp == AT_WEAP && otmp`. Both terms have to
+    // hold: mattacku()'s AT_WEAP arm reaches hitmu() with MON_WEP(mtmp) still
+    // null whenever mon_wield_item() found the monster nothing to wield, and
+    // that blow takes the last arm with every bare-handed one.
+    const state = await meleeHero();
+    const goblin = meleeAttacker(state, PM_GOBLIN, 1, 0);
+    const weap = goblin.data.mattk[0];
+    assert.equal(weap.aatyp, AT_WEAP);
+    const sword = mksobj(LONG_SWORD, false, false, { state });
+    sword.nobj = null;
+
+    const swing = async (mattk, wielded) => {
+        goblin.mw = wielded;
+        const { lines, env } = physEnv(state);
+        const mhm = physMhm(1);
+        const thrown = await mhitm_ad_phys(
+            goblin, mattk, state.youmonst, mhm, state, env,
+        ).then(() => null, (error) => error);
+        goblin.mw = null;
+        return { lines, hitflags: mhm.hitflags, reason: thrown?.reason };
+    };
+
+    assert.deepEqual(await swing(weap, sword),
+        { lines: [], hitflags: M_ATTK_MISS, reason: ARMED_HIT_STOP });
+    // hitmsg()'s default verb, :221-222, is what an AT_WEAP blow prints.
+    assert.deepEqual(await swing(weap, null),
+        { lines: ['The goblin hits!'], hitflags: M_ATTK_HIT, reason: undefined });
+    // The weapon alone decides nothing: a species that claws while holding a
+    // sword still claws, because C reads otmp only under AT_WEAP.
+    const claw = { aatyp: AT_CLAW, adtyp: AD_PHYS, damn: 1, damd: 4 };
+    assert.deepEqual(await swing(claw, sword),
+        { lines: ['The goblin hits!'], hitflags: M_ATTK_HIT, reason: undefined });
+});
+
+test('mhitm_ad_phys stops on the three arms no ported path reaches',
+    async () => {
+    // uhitm.c:4023, `mattk->aatyp == AT_HUGS && !sticks(pd)`, and the two
+    // outer arms at :3988 and :4128. mattacku() refuses AT_HUGS at
+    // js/mhitu.js:626 and neither outer arm has a ported caller, so these are
+    // fail-closed guards rather than reachable stops.
+    const state = await meleeHero();
+    const python = meleeAttacker(state, PM_PYTHON, 1, 0);
+    const hugs = python.data.mattk[2];
+    assert.equal(hugs.aatyp, AT_HUGS);
+    // mondata.h sticks() is the second half of C's condition, and it reads the
+    // defender. No hero this port can build wraps, holds or hugs, so the
+    // condition rests on the aatyp alone.
+    assert.equal(sticks(state.youmonst.data), false);
+
+    const refused = async (magr, mattk, mdef) => {
+        const { env } = physEnv(state);
+        return mhitm_ad_phys(magr, mattk, mdef, physMhm(1), state, env)
+            .then(() => null, (error) => error.reason);
+    };
+
+    assert.equal(await refused(python, hugs, state.youmonst),
+        'a monster grabbing the hero');
+    assert.equal(await refused(state.youmonst, hugs, python),
+        "the hero's own physical attack");
+    const rat = meleeAttacker(state, PM_SEWER_RAT, 0, 1);
+    assert.equal(await refused(python, python.data.mattk[0], rat),
+        'one monster hitting another');
 });
 
 test('mdamageu stops at the hero\'s death and not one hit point above it',
