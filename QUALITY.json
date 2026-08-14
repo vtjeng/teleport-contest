@@ -2232,7 +2232,7 @@
       "area": "objects",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "fc5613417808880f893c983a735b402db3772876",
       "detail": "scripts/wear-armor.test.mjs's test of dowear()'s full-complement guard leaves exactly one of the eleven slot conjuncts empty, ublindf, so the other ten are unpinned: deleting the uleft, uright and uamul terms from the guard passes the whole suite. Closes when the test loops over the eleven fields, empties each in turn with the other ten filled, and asserts the getobj() prompt for every iteration, keeping the all-filled case on the guard's own message. Confirmed by the correctness pass over b035d790..fc56134."
     },
@@ -2241,7 +2241,7 @@
       "area": "objects",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "fc5613417808880f893c983a735b402db3772876",
       "detail": "canwearobj() silence under noisy=false is pinned for exactly one of its seven filled-slot arms, the shield: dropping the noisy guard from the helmet or the suit arm leaves both the wear and take-off suites green, even though prompt building calls canwearobj() for every armor in the pack and a leaked message there would corrupt the top line. Closes when the silent pass loops over all seven categories, filling each slot in turn and asserting GETOBJ_DOWNPLAY together with an empty pending top line. Confirmed by the correctness pass over b035d790..fc56134."
     },
@@ -2250,7 +2250,7 @@
       "area": "objects",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "fc5613417808880f893c983a735b402db3772876",
       "detail": "WrappingAllowed() is tested only with FALSE witnesses that the mlet and monster-index exclusions already reject, so three of the macro five conjuncts are unpinned: humanoid(), the MZ_SMALL to MZ_HUGE size window, and the noncorporeal test. Closes when the test adds a FALSE witness that each untested conjunct alone rejects -- a non-humanoid such as PM_LICHEN, a noncorporeal humanoid such as PM_GHOST, and forms above and below the size window -- plus a TRUE witness at each window edge. Confirmed by the correctness pass over b035d790..fc56134."
     },
@@ -2347,7 +2347,7 @@
       "area": "objects",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "7ef17555b6bd7450a35ad8232f4d200683a91545",
       "detail": "Every otyp-refusal assertion added across the armor-wear slices matches on message text alone, never on the error class, so swapping UnsupportedWearError for a plain Error leaves the whole suite green while turning a fail-closed boundary into a crash. The confusion is invited by the code itself: accessory_or_armor_on() deliberately throws a plain Error for C panic() about eleven lines from the otyp refusals. Closes when each refusal assertion names the class as well as the text. Confirmed by the goal-closing correctness pass over fc56134..21ef982."
     },
@@ -2374,7 +2374,7 @@
       "area": "objects",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "7ef17555b6bd7450a35ad8232f4d200683a91545",
       "detail": "Three wish tests build hard-coded key prefixes but locate their segment with wishSegmentFor(), bypassing the wishSegmentTyping() guard added in the same commit for exactly that hazard: a prefix that drifts from the recorded segment then tests a different case in silence. Closes when the three call the guard, or when the guard is folded into wishSegmentFor() so the bypass is unavailable. Confirmed by the goal-closing correctness pass over fc56134..21ef982."
     },

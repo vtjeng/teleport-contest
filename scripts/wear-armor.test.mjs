@@ -33,6 +33,7 @@ import {
     W_TOOL,
 } from '../js/const.js';
 import {
+    UnsupportedWearError,
     _doWearInternals,
     canwearobj,
     dowear,
@@ -42,15 +43,19 @@ import {
 } from '../js/do_wear.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
-import { enlightenment } from '../js/insight.js';
+import { UnsupportedEnlightenmentError, enlightenment } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
 import { cantweararm, has_horns, num_horns } from '../js/mondata.js';
 import {
+    MZ_HUGE,
+    MZ_SMALL,
     PM_ELF,
     PM_FIRE_GIANT,
+    PM_GHOST,
     PM_GNOME,
     PM_HOBBIT,
     PM_IMP,
+    PM_LEPRECHAUN,
     PM_LICHEN,
     PM_MARILITH,
     PM_MINOTAUR,
@@ -136,7 +141,7 @@ import {
     WATER_WALKING_BOOTS,
     WEAPON_CLASS,
 } from '../js/objects.js';
-import { obj_is_pname } from '../js/objnam.js';
+import { UnsupportedObjectNameError, obj_is_pname } from '../js/objnam.js';
 import { find_ac } from '../js/u_init_inventory_attrs.js';
 import {
     ESCAPE_KEY,
@@ -189,6 +194,9 @@ function seedSegmentFor(seed, recipe = loadWearRecipe()) {
     return found;
 }
 
+// The same, over the wish matrix. This is for the tests that cut the keys they
+// replay out of the segment itself; one that spells its own keys has to take
+// wishSegmentTyping() below instead, or nothing checks that the two agree.
 function wishSegmentFor(seed) {
     return seedSegmentFor(seed, loadWearWishRecipe());
 }
@@ -240,6 +248,31 @@ function inventoryLetter(invlet) {
 // obj.h macros below read.
 function species(pmidx) {
     return game.mons[pmidx];
+}
+
+// A validator for assert.rejects() and assert.throws() that pins the class of
+// a fail-closed boundary as well as the branch it names. The text alone --
+// all a bare RegExp compares -- reads the same on any Error at all, and the
+// class is what decides the outcome: js/cmd.js failClosedCommandRefusals()
+// lists UnsupportedWearError, and a class missing from that list escapes as a
+// hard failure that discards every frame the segment had already matched.
+// Nothing about the swap is hypothetical, either. The same switch that raises
+// the otyp refusals below throws a plain Error sixteen lines further down, for
+// C's panic() at do_wear.c:2392-2393.
+//
+// `branch` is the text the boundary names, matched inside the class's own
+// "<verb> reached an unported branch: " prefix, which is what an unanchored
+// RegExp over the same literal compared.
+function refusal(cls, branch) {
+    return (error) => {
+        assert.ok(error instanceof cls,
+            `expected ${cls.name}, got ${error?.constructor?.name}: `
+            + `${error?.message}`);
+        assert.ok(error.message.includes(branch),
+            `expected a message naming ${JSON.stringify(branch)}, got `
+            + `${JSON.stringify(error?.message)}`);
+        return true;
+    };
 }
 
 test('the wear command is admitted and shares its row with dowear', () => {
@@ -355,11 +388,10 @@ test('Shield_on reveals a wished shield\'s enchantment', async () => {
     // mksobj() leaves obj->known 0 for armor, where u_init.c
     // ini_inv_adjust_obj() sets it to 1, so a wished shield is the only one
     // this port holds with the enchantment still hidden.
-    const segment = wishSegmentFor(7720121);
     // The wish text holds an 'i', so the prefix is spelled out rather than
     // cut at the first inventory key.
     const prefix = `${OFF}${WISH_KEY}+2 small shield\n`;
-    assert.ok(segment.moves.startsWith(prefix), 'the matrix types this wish');
+    const segment = wishSegmentTyping(7720121, prefix);
 
     await runSegment({ ...segment, moves: prefix });
     let wished = null;
@@ -389,11 +421,10 @@ test('Armor_on reveals a wished suit\'s enchantment on either arm',
         [7720134, '+2 leather jacket', LEATHER_JACKET],
     ];
     for (const [seed, wish, otyp] of cases) {
-        const segment = seedSegmentFor(seed, loadWearWishRecipe());
         // The wish text of the first case holds an 'i', so both prefixes are
         // spelled out rather than cut at the first inventory key.
         const prefix = `${WAIT}${WISH_KEY}${wish}\n`;
-        assert.ok(segment.moves.startsWith(prefix), `seed ${seed} wish`);
+        const segment = wishSegmentTyping(seed, prefix);
 
         await runSegment({ ...segment, moves: prefix });
         let wished = null;
@@ -655,7 +686,7 @@ test('an accessory answered at the W prompt stops', async () => {
 
     await assert.rejects(
         () => accessory_or_armor_on(ring, game),
-        /accessory_or_armor_on\(\) accessories/,
+        refusal(UnsupportedWearError, 'accessory_or_armor_on() accessories'),
     );
     assert.equal(game.uleft ?? null, null);
     assert.equal(game.uright ?? null, null);
@@ -750,7 +781,7 @@ test('the seven cloaks Cloak_on cannot run are refused unwritten',
 
         await assert.rejects(
             () => accessory_or_armor_on(obj, game),
-            new RegExp(`Cloak_on\\(\\) for otyp ${otyp}`),
+            refusal(UnsupportedWearError, `Cloak_on() for otyp ${otyp}`),
             `otyp ${otyp}`,
         );
         assert.equal(game.uarmc ?? null, null, `otyp ${otyp}`);
@@ -795,7 +826,7 @@ test('the six helmets Helmet_on cannot run are refused unwritten',
 
         await assert.rejects(
             () => accessory_or_armor_on(obj, game),
-            new RegExp(`Helmet_on\\(\\) for otyp ${otyp}`),
+            refusal(UnsupportedWearError, `Helmet_on() for otyp ${otyp}`),
             `otyp ${otyp}`,
         );
         assert.equal(game.uarmh ?? null, null, `otyp ${otyp}`);
@@ -807,7 +838,7 @@ test('the six helmets Helmet_on cannot run are refused unwritten',
         // frame above that one to hoist a refusal into.
         game.uarmh = armor(otyp, { dknown: 1, spe: 0, known: false });
         assert.throws(() => Helmet_on(game),
-            new RegExp(`Helmet_on\\(\\) for otyp ${otyp}`));
+            refusal(UnsupportedWearError, `Helmet_on() for otyp ${otyp}`));
         assert.equal(game.uarmh.known, false, `otyp ${otyp}`);
         game.uarmh = null;
     }
@@ -858,7 +889,7 @@ test('the five boots Boots_on cannot run are refused unwritten', async () => {
 
         await assert.rejects(
             () => accessory_or_armor_on(obj, game),
-            new RegExp(`Boots_on\\(\\) for otyp ${otyp}`),
+            refusal(UnsupportedWearError, `Boots_on() for otyp ${otyp}`),
             `otyp ${otyp}`,
         );
         assert.equal(game.uarmf ?? null, null, `otyp ${otyp}`);
@@ -870,7 +901,7 @@ test('the five boots Boots_on cannot run are refused unwritten', async () => {
         // frame above that one to hoist a refusal into.
         game.uarmf = armor(otyp, { dknown: 1, spe: 0, known: false });
         assert.throws(() => Boots_on(game),
-            new RegExp(`Boots_on\\(\\) for otyp ${otyp}`));
+            refusal(UnsupportedWearError, `Boots_on() for otyp ${otyp}`));
         assert.equal(game.uarmf.known, false, `otyp ${otyp}`);
         game.uarmf = null;
     }
@@ -941,7 +972,8 @@ test('the two boots C leaves bare raise state no ported reader misuses',
     assert.equal(game.u.uprops[JUMPING].extrinsic & W_ARMF, W_ARMF,
         'setworn() raised EJumping');
     await assert.rejects(
-        () => enlightenment(MAGIC, ENL_GAMEINPROGRESS, game), /Jumping/,
+        () => enlightenment(MAGIC, ENL_GAMEINPROGRESS, game),
+        refusal(UnsupportedEnlightenmentError, 'Jumping'),
     );
     // The ordinary ^X reads no property table at all, in C or here.
     assert.ok(Array.isArray(
@@ -1013,7 +1045,8 @@ test('set_wear runs the startup callbacks and stops on the slots it cannot',
     // tested on its own so that no one of them can hide the others.
     for (const field of ['ublindf', 'uright', 'uleft', 'uamul']) {
         game[field] = { oclass: AMULET_CLASS, otyp: AMULET_OF_ESP };
-        assert.throws(() => set_wear(game), /set_wear\(\) accessories/, field);
+        assert.throws(() => set_wear(game),
+            refusal(UnsupportedWearError, 'set_wear() accessories'), field);
         game[field] = null;
     }
     // The three slots whose callbacks this port carries and whose startup
@@ -1041,7 +1074,7 @@ test('set_wear runs the startup callbacks and stops on the slots it cannot',
     // one caller with no frame above it to hoist the question into.
     game.uarmf = armor(SPEED_BOOTS, { known: false });
     assert.throws(() => set_wear(game),
-        new RegExp(`Boots_on\\(\\) for otyp ${SPEED_BOOTS}`));
+        refusal(UnsupportedWearError, `Boots_on() for otyp ${SPEED_BOOTS}`));
     assert.equal(game.uarmf.known, false);
     game.uarmf = null;
 });
@@ -1129,7 +1162,7 @@ test('the three gauntlets Gloves_on cannot run are refused unwritten',
 
         await assert.rejects(
             () => accessory_or_armor_on(obj, game),
-            new RegExp(`Gloves_on\\(\\) for otyp ${otyp}`),
+            refusal(UnsupportedWearError, `Gloves_on() for otyp ${otyp}`),
             `otyp ${otyp}`,
         );
         assert.equal(game.uarmg ?? null, null, `otyp ${otyp}`);
@@ -1140,7 +1173,7 @@ test('the three gauntlets Gloves_on cannot run are refused unwritten',
         // no frame above it to hoist into.
         game.uarmg = armor(otyp, { known: false });
         assert.throws(() => Gloves_on(game),
-            new RegExp(`Gloves_on\\(\\) for otyp ${otyp}`));
+            refusal(UnsupportedWearError, `Gloves_on() for otyp ${otyp}`));
         assert.equal(game.uarmg.known, false, `otyp ${otyp}`);
         game.uarmg = null;
     }
@@ -1160,8 +1193,8 @@ test('Helmet_on reveals a wished helmet\'s enchantment on either arm',
     // takes unmul("") and on_msg() on the spot and moves u.uac by 1 plus its
     // enchantment; the orcish helm's oc_delay of 1 spends a turn under
     // nomul(-1) and prints "You finish your dressing maneuver." instead.
-    const pot = wishSegmentFor(7720176);
     const potKeys = `${WAIT}${WISH_KEY}+2 dented pot\n`;
+    const pot = wishSegmentTyping(7720176, potKeys);
 
     await runSegment({ ...pot, moves: potKeys });
     const acBefore = game.u.uac;
@@ -1175,8 +1208,8 @@ test('Helmet_on reveals a wished helmet\'s enchantment on either arm',
     assert.equal(game.u.uac, acBefore - 3, 'a_ac 1 plus the +2');
     assert.equal(game.afternmv ?? null, null, 'oc_delay 0 ran it at once');
 
-    const helm = wishSegmentFor(7720185);
     const helmKeys = `${WAIT}${WISH_KEY}+1 orcish helm\n`;
+    const helm = wishSegmentTyping(7720185, helmKeys);
 
     await runSegment({ ...helm, moves: `${helmKeys}${WEAR_KEY}e` });
     // The countdown reaches zero inside the same elapsed turn, so by the time
@@ -1282,12 +1315,10 @@ test('a second helmet is refused by the name of the one worn', async () => {
     // canwearobj()'s is_helmet arm at do_wear.c:2110-2114 through
     // objnam.c helm_simple_name() (5513-5525), which answers "helmet" for a
     // metallic hat and "hat" for the rest. The fedora is CLOTH.
-    const segment = wishSegmentFor(7720194);
+    const keys = `${WAIT}${WISH_KEY}+0 dented pot\n${WEAR_KEY}j`;
+    const segment = wishSegmentTyping(7720194, keys);
 
-    await runSegment({
-        ...segment,
-        moves: `${WAIT}${WISH_KEY}+0 dented pot\n${WEAR_KEY}j`,
-    });
+    await runSegment({ ...segment, moves: keys });
     assert.equal(topLine(), 'You are already wearing a hat.');
     assert.equal(game.uarmh.otyp, FEDORA, 'the fedora is still the one worn');
 });
@@ -1303,7 +1334,7 @@ test('the branches accessory_or_armor_on cannot run name themselves',
         () => accessory_or_armor_on(
             armor(HELM_OF_OPPOSITE_ALIGNMENT, { dknown: 1 }), game,
         ),
-        /accessory_or_armor_on\(\) quest helm/,
+        refusal(UnsupportedWearError, 'accessory_or_armor_on() quest helm'),
     );
     // Outside the Quest branch the same helm reaches the otyp refusal in the
     // W_ARMH arm instead, one frame later and still above setworn().
@@ -1312,7 +1343,8 @@ test('the branches accessory_or_armor_on cannot run name themselves',
         () => accessory_or_armor_on(
             armor(HELM_OF_OPPOSITE_ALIGNMENT, { dknown: 1 }), game,
         ),
-        new RegExp(`Helmet_on\\(\\) for otyp ${HELM_OF_OPPOSITE_ALIGNMENT}`),
+        refusal(UnsupportedWearError,
+            `Helmet_on() for otyp ${HELM_OF_OPPOSITE_ALIGNMENT}`),
     );
     delete game.qstart_level;
 
@@ -1321,14 +1353,14 @@ test('the branches accessory_or_armor_on cannot run name themselves',
         () => accessory_or_armor_on(
             armor(SMALL_SHIELD, { dknown: 1, oartifact: 1 }), game,
         ),
-        /retouch_object\(\) for an artifact/,
+        refusal(UnsupportedWearError, 'retouch_object() for an artifact'),
     );
     // do_wear.c:2363-2364 remove_worn_item(), for armor held in a weapon slot.
     await assert.rejects(
         () => accessory_or_armor_on(
             armor(SMALL_SHIELD, { dknown: 1, owornmask: W_SWAPWEP }), game,
         ),
-        /remove_worn_item\(\)/,
+        refusal(UnsupportedWearError, 'remove_worn_item()'),
     );
     // Armor_on()'s dragon-armor tails, refused above setworn() rather than
     // inside the callback so that the suit never reaches a slot. Gray is one
@@ -1341,7 +1373,7 @@ test('the branches accessory_or_armor_on cannot run name themselves',
     for (const otyp of [GRAY_DRAGON_SCALES, GOLD_DRAGON_SCALE_MAIL]) {
         await assert.rejects(
             () => accessory_or_armor_on(armor(otyp, { dknown: 1 }), game),
-            new RegExp(`Armor_on\\(\\) for otyp ${otyp}`),
+            refusal(UnsupportedWearError, `Armor_on() for otyp ${otyp}`),
         );
         assert.equal(game.uarm ?? null, null, `otyp ${otyp}`);
         assert.equal(game.multi ?? 0, 0, `otyp ${otyp}`);
@@ -1393,16 +1425,27 @@ test('both of dowear\'s guards answer before the prompt', async () => {
         "You don't have anything else to wear.");
     game.youmonst.data = hero;
 
-    // Ten of the eleven slots filled is one short of the second guard.
+    // The second guard is a conjunction of all eleven slots, so any one of
+    // them left empty has to keep it quiet on its own; testing a single slot
+    // would leave the other ten deletable in silence. What the guard cannot
+    // do is decide the answer alone: getobj() reports the pack, and the
+    // fedoras below are not in it, so every iteration ends at the same
+    // "nothing else to wear" whichever slot is the empty one. The Valkyrie's
+    // own shield stays out of the prompt throughout, because equip_ok() reads
+    // its owornmask rather than uarms.
     const filled = ['uarm', 'uarmu', 'uarmc', 'uarmh', 'uarms', 'uarmg',
         'uarmf', 'uleft', 'uright', 'uamul', 'ublindf'];
     const saved = filled.map((field) => game[field] ?? null);
     for (const field of filled) game[field] = armor(FEDORA);
-    game.ublindf = null;
-    assert.equal(await dowear(game), ECMD_CANCEL);
-    assert.equal(takePendingTopLine(),
-        "You don't have anything else to wear.");
-    game.ublindf = armor(FEDORA);
+    for (const empty of filled) {
+        game[empty] = null;
+        assert.equal(await dowear(game), ECMD_CANCEL, empty);
+        assert.equal(takePendingTopLine(),
+            "You don't have anything else to wear.", empty);
+        game[empty] = armor(FEDORA);
+    }
+    // All eleven filled is the guard's own case, and the only one of the
+    // twelve that answers ECMD_OK.
     assert.equal(await dowear(game), ECMD_OK);
     assert.equal(takePendingTopLine(),
         'You are already wearing a full complement of armor.');
@@ -1809,14 +1852,15 @@ test('on_msg prints only when flags.verbose is on', async () => {
     for (const mask of [W_ARMS | W_AMUL, W_RINGL, W_RINGR]) {
         await assert.rejects(
             () => on_msg({ ...shield, owornmask: mask }, game),
-            /on_msg\(\) prinv\(\)/,
+            refusal(UnsupportedWearError, 'on_msg() prinv()'),
             `mask ${mask}`,
         );
     }
     const towel = { oclass: TOOL_CLASS, otyp: 0, owornmask: W_TOOL, quan: 1 };
     game.flags.verbose = false;
     await assert.rejects(
-        () => on_msg(towel, game), /on_msg\(\) prinv\(\)/,
+        () => on_msg(towel, game),
+        refusal(UnsupportedWearError, 'on_msg() prinv()'),
     );
     game.flags.verbose = true;
 });
@@ -1842,7 +1886,8 @@ test('Shield_on stops for a slot holding something that is not a shield',
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
     game.uarms = armor(FEDORA, { owornmask: W_ARMS, dknown: 1 });
-    assert.throws(() => Shield_on(game), /Shield_on\(\) for otyp 92/);
+    assert.throws(() => Shield_on(game),
+        refusal(UnsupportedWearError, 'Shield_on() for otyp 92'));
     game.uarms = null;
 });
 
@@ -1854,7 +1899,8 @@ test('Shirt_on stops for a slot holding something that is not a shirt',
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
     game.uarmu = armor(FEDORA, { owornmask: W_ARMU, dknown: 1 });
-    assert.throws(() => Shirt_on(game), /Shirt_on\(\) for otyp 92/);
+    assert.throws(() => Shirt_on(game),
+        refusal(UnsupportedWearError, 'Shirt_on() for otyp 92'));
 
     // Both shirts pass, and each sets the known bit. No recorded case reaches
     // that write: every shirt this port can hold arrives from u_init.c with
@@ -1924,13 +1970,33 @@ test('wear_ok classifies what the W prompt may offer', async () => {
     );
 
     // Armor the hero cannot wear is downplayed rather than suggested, which
-    // is the whole reason equip_ok() calls canwearobj() at all. The Valkyrie
-    // is still wearing nothing here, so a second shield needs one on.
-    game.uarms = armor(SMALL_SHIELD, { owornmask: W_ARMS, dknown: 1 });
-    assert.equal(await wear_ok(armor(ELVEN_SHIELD, { dknown: 1 }), game),
-        GETOBJ_DOWNPLAY);
-    assert.equal(takePendingTopLine(), '', 'the prompt filter stays silent');
-    game.uarms = null;
+    // is the whole reason equip_ok() calls canwearobj() at all. It asks with
+    // noisy FALSE, once for every armor object in the pack, so a refusal that
+    // printed anything would put it on the top line before the prompt was
+    // raised. All seven of canwearobj()'s filled-slot arms sit on that path,
+    // and each carries its own `if (noisy)`, so each is asked here with its
+    // own slot filled and nothing else on. The Valkyrie is wearing nothing at
+    // this point, so every row below supplies both pieces.
+    const slots = [
+        ['uarmh', W_ARMH, FEDORA, ORCISH_HELM],
+        ['uarms', W_ARMS, SMALL_SHIELD, ELVEN_SHIELD],
+        ['uarmf', W_ARMF, LOW_BOOTS, IRON_SHOES],
+        ['uarmg', W_ARMG, LEATHER_GLOVES, LEATHER_GLOVES],
+        ['uarmu', W_ARMU, HAWAIIAN_SHIRT, T_SHIRT],
+        ['uarmc', W_ARMC, LEATHER_CLOAK, ROBE],
+        // The suit arm reads uarmc before uarm, so the cloak slot has to be
+        // empty for this row to reach already_wearing("some armor").
+        ['uarm', W_ARM, LEATHER_ARMOR, RING_MAIL],
+    ];
+    for (const [field, mask, worn, offered] of slots) {
+        const savedSlot = game[field] ?? null;
+        game[field] = armor(worn, { owornmask: mask, dknown: 1 });
+        assert.equal(await wear_ok(armor(offered, { dknown: 1 }), game),
+            GETOBJ_DOWNPLAY, field);
+        assert.equal(takePendingTopLine(), '',
+            `the prompt filter stays silent for ${field}`);
+        game[field] = savedSlot;
+    }
 });
 
 test('the obj.h armor macros answer for exactly one category each',
@@ -2000,14 +2066,46 @@ test('WrappingAllowed and cantweararm answer for the forms C names',
     // A fire giant is bigmonst(), which is breakarm()'s first test.
     assert.equal(cantweararm(species(PM_FIRE_GIANT)), true);
 
-    assert.equal(WrappingAllowed(species(PM_VALKYRIE)), true);
+    // One TRUE witness at each end of the size window C names, so that
+    // narrowing either bound turns one of them FALSE: a gnome sits on
+    // MZ_SMALL and a fire giant on MZ_HUGE. Their msize is asserted rather
+    // than described, because the whole point of the pair is where they sit.
+    assert.equal(species(PM_GNOME).msize, MZ_SMALL);
+    assert.equal(WrappingAllowed(species(PM_GNOME)), true);
+    assert.equal(species(PM_FIRE_GIANT).msize, MZ_HUGE);
     assert.equal(WrappingAllowed(species(PM_FIRE_GIANT)), true);
-    // The four forms C excludes by name or by symbol.
+    // A Valkyrie is MZ_HUMAN, between the two.
+    assert.equal(WrappingAllowed(species(PM_VALKYRIE)), true);
+
+    // One FALSE witness per conjunct, each rejected by that conjunct alone:
+    // every other term of the macro answers TRUE for it, so deleting the
+    // named term makes exactly this line fail.
+    //
+    // A lichen is S_FUNGUS, MZ_SMALL and corporeal, so humanoid() is the only
+    // term that turns it away.
+    assert.equal(WrappingAllowed(species(PM_LICHEN)), false);
+    // A leprechaun is a corporeal humanoid one size below the window:
+    // monsters.h:660-666 gives it MZ_TINY and M1_HUMANOID.
+    assert.equal(WrappingAllowed(species(PM_LEPRECHAUN)), false);
+    // A ghost is a humanoid of MZ_HUMAN, so noncorporeal() -- mondata.h:31,
+    // `mlet == S_GHOST` -- is the only term that turns it away.
+    assert.equal(WrappingAllowed(species(PM_GHOST)), false);
+    // The four forms C excludes by name or by symbol. A plains centaur is a
+    // corporeal MZ_LARGE humanoid, so S_CENTAUR alone rejects it; a marilith
+    // and a winged gargoyle likewise reach their own PM_ tests.
     assert.equal(WrappingAllowed(species(PM_PLAINS_CENTAUR)), false);
     assert.equal(WrappingAllowed(species(PM_MARILITH)), false);
     assert.equal(WrappingAllowed(species(PM_WINGED_GARGOYLE)), false);
-    // A gnome is humanoid and exactly MZ_SMALL, so it passes the lower bound.
-    assert.equal(WrappingAllowed(species(PM_GNOME)), true);
+
+    // The upper bound has no witness in the catalog: 14 rows sit above
+    // MZ_HUGE -- monsters.h spells a fifteenth, the shimmering dragon, inside
+    // an `#if 0` -- and every one of them is a worm or a dragon that
+    // humanoid() has already turned away, so no permonst row can falsify
+    // `msize <= MZ_HUGE` on its own. A copied row with the size raised is
+    // what pins it, the same device the canwearobj() test above uses to reach
+    // verysmall() with a form the catalog has no row for.
+    const gigantic = { ...species(PM_VALKYRIE), msize: MZ_HUGE + 1 };
+    assert.equal(WrappingAllowed(gigantic), false);
 });
 
 test('has_horns counts the four two-horned and four one-horned forms',
@@ -2031,7 +2129,7 @@ test('obj_is_pname answers FALSE for a non-artifact and stops for one',
     assert.equal(obj_is_pname({}), false);
     assert.throws(
         () => obj_is_pname({ oartifact: 1 }),
-        /obj_is_pname\(\) for an artifact/,
+        refusal(UnsupportedObjectNameError, 'obj_is_pname() for an artifact'),
     );
 });
 
