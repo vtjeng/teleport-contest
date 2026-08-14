@@ -2264,6 +2264,25 @@
           "at": "d7b07a2e5d4b42586a17dad1cbf47367f0b40467"
         }
       ]
+    },
+    {
+      "id": "wear-oilskin-and-smock-cloaks-stop",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "3779f8e6ac9aebae09691d7b940e4287a779fc11",
+      "detail": "The armor-wear goal admits only the arms of do_wear.c Cloak_on() that fall to a bare break. Five of the twelve cloak types do; the other seven reach outside do_wear.c, and js/do_wear.js accessory_or_armor_on() refuses them by otyp above setworn(), so a refused cloak is neither worn nor announced and the command spends no turn.\n\nTwo of the seven a wizard-mode wish reaches with no other unported machinery in the way. OILSKIN_CLOAK at do_wear.c:365-367 prints pline(\"%s very tightly.\", Tobjnam(uarmc, \"fit\")); ALCHEMY_SMOCK at 369-371 sets EAcid_resistance |= WORN_CLOAK. The remaining five need makeknown(), toggle_stealth(), toggle_displacement(), or newsym() with the See_invisible messages, so each waits on work of its own.\n\nCases just outside the goal's limit, expected to fail until those arms are ported. Both are a Wizard, male human neutral, name Wear, datetime 20310203040506, seed 7720148, options \"pettype:none,!acoustics,!autopickup,time,showexp,playmode:debug,!legacy,!tutorial,!splash_screen\". With moves \".T^W+0 oilskin cloak\\nWn.\" -- ^W is C(w), the wizwish key -- C prints \"The slippery cloak fits very tightly.--More--\" and then on_msg()'s \"You are now wearing a slippery cloak.\"; the port stops on the \"n\" with UnsupportedWearError(\"Cloak_on() for otyp 142\"). With moves \".T^W+0 alchemy smock\\nWn.\" C wears it, moves AC from 10 to 9 and prints \"You are now wearing an apron.\"; the port stops with UnsupportedWearError(\"Cloak_on() for otyp 144\").\n\nClosing condition: Cloak_on()'s other seven arms are ported or refused under their own names, and a recorded C case that wears an oilskin cloak and an alchemy smock with W matches call for call and screen for screen. scripts/wear-armor.test.mjs pins the stop for all seven types."
+    },
+    {
+      "id": "shirt-known-write-has-no-recorded-case",
+      "area": "objects",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "3779f8e6ac9aebae09691d7b940e4287a779fc11",
+      "detail": "do_wear.c Shirt_on() (758-775) lands whole in this slice, and the Tourist segments in scripts/run-wear-armor.mjs run it end to end. Its \"known\" write at 770-773 is the one line no recorded case witnesses, because every shirt this port can hold already has known 1: u_init.c ini_inv_adjust_obj() (1215-1216) sets it for starting gear, and a wish is the only other source.\n\nA wished shirt cannot be recorded today. zap.c makewish() (6417-6419) evaluates The(aobjnam(otmp, verb)) as an argument to hold_another_object() for every wish, and objnam.c the() (2171-2231) sends a name beginning with a capital letter down its proper-noun arm, which js/objnam.js the() refuses. Both shirt names are capitalized -- objects.h:603 \"Hawaiian shirt\" and :606 \"T-shirt\" -- so every shirt wish stops there. C's arm needs rumors.c CapitalMon(), whose init_CapMons() scans the whole monster catalog, plus fruit_from_name() and artifact_name(); none is ported.\n\nCase, expected to fail until that arm lands: a Tourist, male human neutral, name Wear, datetime 20310203040506, seed 7720145, options \"pettype:none,!acoustics,!autopickup,time,showexp,playmode:debug,!legacy,!tutorial,!splash_screen\", moves \".T^W+2 T-shirt\\ni^[Woi^[.\" where ^W is C(w) and ^[ is Escape. C wishes the shirt into the pack at \"o\", wears it, moves AC from 10 to 8 on the enchantment alone -- objects.h gives both shirts ac 10, so a_ac is 0 -- and shows \"o - a +2 T-shirt (being worn)\". The port stops on the newline that ends the wish, with 14 of C's 22 screens and UnsupportedObjectNameError(\"the() for a name that may be a proper noun\").\n\nscripts/wear-armor.test.mjs calls Shirt_on() directly for both shirt types instead, which pins the write but not the path that reaches it. Closing condition: the() answers for a capitalized name and the case above matches call for call and screen for screen.",
+      "blockedOn": "CapitalMon"
     }
   ],
   "areas": [

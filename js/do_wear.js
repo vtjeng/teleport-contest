@@ -1,9 +1,11 @@
 // do_wear.js -- Putting one piece of armor on with 'W' and taking one off
 // with 'T'.
 //
-// C ref: src/do_wear.c on_msg() (75-99), off_msg() (67-72), Cloak_off()
+// C ref: src/do_wear.c on_msg() (75-99), off_msg() (67-72), Cloak_on()
+//        (325-380), Cloak_off()
 //        (382-431), Helmet_off() (517-564), Shield_on() (704-730),
-//        Shield_off() (732-756), Shirt_off() (777-794), Armor_on() (886-906),
+//        Shield_off() (732-756), Shirt_on() (758-775), Shirt_off() (777-794),
+//        Armor_on() (886-906),
 //        Armor_off() (908-930), fingers_or_gloves() (59-65),
 //        cancel_doff() (1642-1659),
 //        count_worn_stuff() (1731-1766), armor_or_accessory_off()
@@ -21,8 +23,8 @@
 // The 'A' occupation spine -- do_takeoff(), take_off(),
 // better_not_take_that_off() and doddoremarm() -- is not ported. armoroff()'s
 // delayed branch at do_wear.c:1930-1972 is ported for a suit only, and
-// accessory_or_armor_on() puts armor into the shield and suit slots only.
-// Every refusal below names the C function it stops in front of.
+// accessory_or_armor_on() puts armor into the suit, cloak, shirt and shield
+// slots only. Every refusal below names the C function it stops in front of.
 
 import {
     ECMD_CANCEL,
@@ -386,13 +388,54 @@ function Armor_off(state) {
     return 0;
 }
 
-// Cloak_off()'s seven `break` labels at do_wear.c:393-400, the types whose
-// removal has no effect beyond leaving the slot. Every cloak carries an
-// oc_delay of 0, so unlike the other slots all twelve types reach Cloak_off().
-const PLAIN_CLOAKS = new Set([
+// The cloaks each half of the slot handles with a bare `break`, which is not
+// the same list twice. Cloak_off() has seven such labels at do_wear.c:393-400;
+// Cloak_on() has five at 332-337, because two types do something on the way on
+// that they do not do on the way off: CLOAK_OF_PROTECTION calls makeknown()
+// and OILSKIN_CLOAK prints through Tobjnam(). Wearing either through the
+// take-off list would run neither, so the two sets are named apart even though
+// five of their members coincide.
+//
+// Every cloak carries an oc_delay of 0 (objects.h:611-650), so all twelve
+// types reach Cloak_off(), and Cloak_on() always runs on the turn the 'W' is
+// typed rather than several turns later.
+const PLAIN_CLOAKS_OFF = new Set([
     ORCISH_CLOAK, DWARVISH_CLOAK, CLOAK_OF_PROTECTION,
     CLOAK_OF_MAGIC_RESISTANCE, OILSKIN_CLOAK, ROBE, LEATHER_CLOAK,
 ]);
+const PLAIN_CLOAKS_ON = new Set([
+    ORCISH_CLOAK, DWARVISH_CLOAK, CLOAK_OF_MAGIC_RESISTANCE, ROBE,
+    LEATHER_CLOAK,
+]);
+
+// C ref: do_wear.c Cloak_on() (325-380), the ga.afternmv callback
+// accessory_or_armor_on() installs for the cloak slot.
+//
+// C's switch has no statement of its own for the five types PLAIN_CLOAKS_ON
+// names, and every other arm -- including C's `default:` impossible() --
+// reaches outside do_wear.c. accessory_or_armor_on() therefore refuses the
+// other seven by otyp above setworn(), which is why no switch survives here:
+// hoisting is what keeps the refusal honest, because by the time this callback
+// runs unmul() has already worn the cloak and moved AC. Armor_on()'s
+// dragon-armor guard sits there for the same reason.
+//
+// C's `oldprop` at 328 is read only by the arms that refusal stops --
+// toggle_stealth(), toggle_displacement() and the invisibility test -- so it
+// is not computed, which is the reasoning Cloak_off() below already records.
+//
+// The `known` write is the whole of what is left, and it is what tells a cloak
+// this callback finished donning from one setworn() merely moved. Only a cloak
+// the game creates after startup witnesses it: mkobj.c mksobj() (864) leaves
+// obj->known 0 for armor where u_init.c ini_inv_adjust_obj() (1215-1216) sets
+// it to 1.
+function Cloak_on(state) {
+    if (state.uarmc && !state.uarmc.known) { /* no known instance of !uarmc */
+        /* cloak's +/- evident because of status line AC */
+        state.uarmc.known = true;
+        update_inventory({ state });
+    }
+    return 0;
+}
 
 // C ref: do_wear.c Cloak_off() (382-431). C computes `oldprop` at 385 for
 // toggle_stealth(), toggle_displacement() and the invisibility arm, and runs
@@ -402,7 +445,7 @@ const PLAIN_CLOAKS = new Set([
 function Cloak_off(state) {
     const otyp = state.uarmc.otyp;
 
-    if (!PLAIN_CLOAKS.has(otyp)) {
+    if (!PLAIN_CLOAKS_OFF.has(otyp)) {
         // ELVEN_CLOAK and CLOAK_OF_DISPLACEMENT need toggle_stealth() and
         // toggle_displacement(); MUMMY_WRAPPING and CLOAK_OF_INVISIBILITY
         // need the See_invisible messages and newsym(); ALCHEMY_SMOCK clears
@@ -489,6 +532,30 @@ function Shield_off(state) {
     }
     takeoffContext(state).mask &= ~W_ARMS;
     setworn(null, W_ARMS, setwornEnv(state));
+    return 0;
+}
+
+// C ref: do_wear.c Shirt_on() (758-775), the ga.afternmv callback
+// accessory_or_armor_on() installs for the shirt slot, and the one <X>_on()
+// this port carries whole: both of C's labels fall to a bare break, so no
+// shirt type has to be refused, and objects.h gives both an oc_delay of 0
+// (603-608), so unmul("") always runs this on the turn the 'W' is typed.
+//
+// A shirt is the one slot whose wearing the status line cannot witness. The
+// ARMOR macro stores 10 - ac, and objects.h gives both shirts ac 10, so a
+// shirt's a_ac is 0 and find_ac() moves u.uac only by the enchantment. The
+// message and the inventory window's "(being worn)" suffix are the rest of
+// what the wearing shows.
+function Shirt_on(state) {
+    const otyp = state.uarmu.otyp;
+
+    if (otyp !== HAWAIIAN_SHIRT && otyp !== T_SHIRT)
+        throw new UnsupportedWearError(`Shirt_on() for otyp ${otyp}`);
+    if (!state.uarmu.known) {
+        /* shirt's +/- evident because of status line AC */
+        state.uarmu.known = true;
+        update_inventory({ state });
+    }
     return 0;
 }
 
@@ -1120,12 +1187,12 @@ export async function armoroff(otmp, state = game) {
 // C ref: do_wear.c accessory_or_armor_on() (2208-2428), shared in C by
 // dowear('W') and doputon('P'). This port admits the armor half only.
 //
-// The armor tail at 2355-2404 is ported for the shield and suit slots, the
-// two whose <X>_on() needs nothing outside do_wear.c. Between them they take
-// both arms of C's fork: objects.h gives all nine shields an oc_delay of 0 and
-// the leather jacket the same, so those reach unmul("") and on_msg() on the
-// spot, while every other suit spends three to five turns under nomul() first
-// and prints C's "You finish your dressing maneuver." instead of on_msg().
+// The armor tail at 2355-2404 is ported for the suit, cloak, shirt and shield
+// slots. Only the suit reaches C's delayed arm: objects.h gives all nine
+// shields, all twelve cloaks and both shirts an oc_delay of 0, and the leather
+// jacket alone among suits, so those reach unmul("") and on_msg() on the spot,
+// while every other suit spends one to five turns under nomul() first and
+// prints C's "You finish your dressing maneuver." instead of on_msg().
 async function accessory_or_armor_on(obj, state = game) {
     if (obj.owornmask & (W_ACCESSORY | W_ARMOR)) {
         await already_wearing(c_that_, state);
@@ -1182,28 +1249,50 @@ async function accessory_or_armor_on(obj, state = game) {
 
     // C's chain at 2377-2393 chooses the callback by comparing `obj` against
     // the slot pointers setworn() has just filled. `mask` names the same slot
-    // one statement earlier, so testing it here refuses the five unported
-    // slots before anything is written -- the shape armoroff()'s delayed
+    // one statement earlier, so switching on it here refuses the three
+    // unported slots, and the two callback arms that reach outside
+    // do_wear.c, before anything is written -- the shape armoroff()'s delayed
     // branch uses above. C's own last arm is a panic() for a mask that
     // matches no slot, which canwearobj() cannot produce.
-    if (worn.mask !== W_ARMS && worn.mask !== W_ARM) {
+    //
+    // Both otyp refusals below are hoisted out of their callback rather than
+    // left in it, because a callback runs too late to stop anything: by then
+    // setworn() has moved AC, and on the delayed arm the helpless turns are
+    // spent as well. Above setworn() a refusal leaves the hero as it found
+    // her, which is what the slot test already does. Armor_off() and
+    // Cloak_off() keep their copies inline because each is checked before the
+    // piece leaves its slot.
+    let afternmv;
+
+    switch (worn.mask) {
+    case W_ARM:
+        // Armor_on()'s two tails belong to dragon armor.
+        if (Is_dragon_armor(obj))
+            throw new UnsupportedWearError(`Armor_on() for otyp ${obj.otyp}`);
+        afternmv = Armor_on;
+        break;
+    case W_ARMC:
+        // Cloak_on()'s other seven arms, which makeknown(), toggle stealth or
+        // displacement, redraw the hero, print, or set EAcid_resistance.
+        if (!PLAIN_CLOAKS_ON.has(obj.otyp))
+            throw new UnsupportedWearError(`Cloak_on() for otyp ${obj.otyp}`);
+        afternmv = Cloak_on;
+        break;
+    case W_ARMU:
+        afternmv = Shirt_on;
+        break;
+    case W_ARMS:
+        afternmv = Shield_on;
+        break;
+    default:
         throw new UnsupportedWearError(
             `accessory_or_armor_on() for slot mask ${worn.mask}`,
         );
     }
-    // Armor_on()'s two tails belong to dragon armor, and the refusal is
-    // hoisted here rather than left in the callback because the callback runs
-    // too late to stop anything: on the delayed arm below the suit is already
-    // worn and its helpless turns already spent by the time it fires. Above
-    // setworn(), the refusal leaves the hero as it found her, which is what
-    // the mask test one statement earlier already does. Armor_off() can keep
-    // its own copy because it is checked before the suit leaves its slot.
-    if (worn.mask === W_ARM && Is_dragon_armor(obj))
-        throw new UnsupportedWearError(`Armor_on() for otyp ${obj.otyp}`);
 
     setworn(obj, worn.mask, setwornEnv(state));
     /* if there's no delay, we'll execute 'afternmv' immediately */
-    state.afternmv = worn.mask === W_ARM ? Armor_on : Shield_on;
+    state.afternmv = afternmv;
 
     const delay = -objectType(obj, state).oc_delay;
 
@@ -1344,10 +1433,12 @@ export const _doWearInternals = Object.freeze({
     Armor_off,
     Armor_on,
     Cloak_off,
+    Cloak_on,
     Helmet_off,
     Shield_off,
     Shield_on,
     Shirt_off,
+    Shirt_on,
     accessory_or_armor_on,
     already_wearing,
     cancel_doff,

@@ -13,14 +13,14 @@
 // moveloop_core(), with "You finish your dressing maneuver." in place of
 // on_msg().
 //
-// The shield and the suit are the two slots this port puts armor into, and
-// their callbacks are Shield_on() and Armor_on(). Every role that starts with
-// either starts with it already worn (u_init.c ini_inv_use_obj()), so the
-// segments below either take the piece off with the already-ported 'T' first
-// or wish for a second one. Wishing is also the only way this port can hold
-// armor it has never worn: mksobj() leaves obj->known 0 for armor where
-// u_init.c sets it to 1, so a wished piece hides its enchantment until its
-// callback reveals it.
+// The suit, cloak, shirt and shield are the four slots this port puts armor
+// into, and their callbacks are Armor_on(), Cloak_on(), Shirt_on() and
+// Shield_on(). Every role that starts with one of them starts with it already
+// worn (u_init.c ini_inv_use_obj()), so the segments below either take the
+// piece off with the already-ported 'T' first or wish for a second one.
+// Wishing is also the only way this port can hold armor it has never worn:
+// mksobj() leaves obj->known 0 for armor where u_init.c sets it to 1, so a
+// wished piece hides its enchantment until its callback reveals it.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -99,9 +99,21 @@ const SAMURAI = { role: 'Samurai', gender: 'male', align: 'lawful' };
 const CAVEMAN = { role: 'Caveman' };
 // The one role u_init.c starts with money -- u.umoney0 = rnd(1000) at
 // u_init.c:756 -- which is what getobj()'s gold arm needs. Her Hawaiian shirt
-// at `h` is her only worn piece, so the 'T' before the 'W' needs no letter and
-// leaves one letter for the prompt to suggest.
+// is her only worn piece, so the 'T' before the 'W' needs no letter and
+// leaves one letter for the prompt to suggest. Which letter that is depends on
+// the seed: u_init.c Tourist[]:152 asks for ten UNDEF_TYP comestibles and
+// ini_inv() creates them one at a time, so the number of food stacks ahead of
+// the shirt varies.
 const TOURIST = { role: 'Tourist', gender: 'male' };
+// The two roles that start in a cloak whose Cloak_on() falls to a bare break.
+// u_init.c gives the Wizard a cloak of magic resistance at `b` and the Monk a
+// +1 robe at `b`; ini_inv_use_obj():1257 discovers a starting item whose type
+// has a description and whose known bit is set, so the Wizard's cloak names
+// itself in full whatever appearance o_init.c dealt it that seed. The Monk
+// also starts in leather gloves at `a`, which is what puts both his 'T' and
+// his 'W' on the prompt arm rather than the silent one.
+const WIZARD = { role: 'Wizard', gender: 'male' };
+const MONK = { role: 'Monk', gender: 'male' };
 
 // Take the starting shield off, then put it back on. `c` is the shield's
 // invlet and the only letter wear_ok() suggests once it is off.
@@ -175,6 +187,26 @@ export function loadWearRecipe() {
             // "You cannot wear gold." Both end the command without a turn.
             segment(7720108, `${TAKEOFF_KEY}${WEAR_KEY}d`, VALKYRIE),
             segment(7720109, `${TAKEOFF_KEY}${WEAR_KEY}$`, TOURIST),
+            // do_wear.c:332-337, the cloak arms that fall to a bare break, and
+            // 758-775 Shirt_on(). All three pieces carry an oc_delay of 0, so
+            // each takes unmul("") and on_msg() on the turn the 'W' is typed.
+            //
+            // The Wizard's cloak of magic resistance is the plainest of the
+            // three: one worn piece, so the 'T' needs no letter, and AC moves
+            // by the cloak's own 1 on the same screen as the message.
+            segment(7720151, `${TAKEOFF_KEY}${WEAR_KEY}b`, WIZARD),
+            // The Monk reaches the same arm through both prompts, because his
+            // gloves stay on throughout. His robe is +1, which is what
+            // separates on_msg()'s xname() -- "You are now wearing a robe." --
+            // from the inventory window's "+1 robe" and from off_msg()'s
+            // doname() one command earlier.
+            segment(7720152, `${TAKEOFF_KEY}b${WEAR_KEY}b`, MONK),
+            // The shirt, and the one wearing in this matrix the status line
+            // cannot witness: objects.h gives both shirts ac 10, so a +0
+            // Hawaiian shirt has a_ac 0 and find_ac() leaves u.uac at 10 with
+            // it on and with it off. The message and the "(being worn)" suffix
+            // are the whole of what changes.
+            segment(7720153, `${TAKEOFF_KEY}${WEAR_KEY}k`, TOURIST),
         ],
     }, 'wear armor recipe');
 }
@@ -245,6 +277,38 @@ export function loadWearWishRecipe() {
                 + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}e`
                 + `${INVENTORY_KEY}${ESCAPE_KEY}`,
                 VALKYRIE, DEBUG),
+            // The Cloak_on() witness, on both of the cloak types objects.h
+            // gives kn 1 and no description, so neither name depends on
+            // o_init.c's shuffle of the other four. The leather cloak reads
+            // "a leather cloak" before the 'W' and "a +2 leather cloak
+            // (being worn)" after it, with AC moving by 3.
+            segment(7720158,
+                `${TAKEOFF_KEY}${WISH_KEY}+2 leather cloak\n`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}o`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}`,
+                WIZARD, DEBUG),
+            // The same witness for a robe, and then canwearobj()'s shirt
+            // refusal at do_wear.c:2158-2167 over the cloak it has just put
+            // on: uarm is empty, so only the cloak_simple_name() half of that
+            // conditional can answer and the Tourist is told about a robe.
+            // The 'T' has to come first, because a shirt under a cloak is
+            // exactly what the refusal forbids.
+            segment(7720155,
+                `${TAKEOFF_KEY}${WISH_KEY}+1 robe\n`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}p`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}m`,
+                TOURIST, DEBUG),
+            // canwearobj()'s cloak refusal at do_wear.c:2172-2174, which reads
+            // the same cloak_simple_name(): the Monk keeps his robe on and is
+            // told about a robe rather than about a cloak.
+            wishSegment(7720156, '+0 leather cloak', `${WEAR_KEY}l`, MONK),
+            // The c_armor half of the shirt refusal, which needs a suit and no
+            // cloak. No role starts that way, so the leather jacket -- the one
+            // suit with oc_delay 0 -- is wished for and worn first.
+            segment(7720157,
+                `${TAKEOFF_KEY}${WISH_KEY}+0 leather jacket\n`
+                + `${WEAR_KEY}l${WEAR_KEY}i`,
+                TOURIST, DEBUG),
         ],
     }, 'wear armor wish recipe');
 }

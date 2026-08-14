@@ -69,9 +69,15 @@ import {
     AMULET_OF_ESP,
     ARMOR_CLASS,
     BATTLE_AXE,
+    CLOAK_OF_DISPLACEMENT,
+    CLOAK_OF_INVISIBILITY,
+    CLOAK_OF_MAGIC_RESISTANCE,
+    CLOAK_OF_PROTECTION,
     CORNUTHAUM,
+    DWARVISH_CLOAK,
     DWARVISH_MATTOCK,
     DWARVISH_MITHRIL_COAT,
+    ELVEN_CLOAK,
     ELVEN_LEATHER_HELM,
     ELVEN_MITHRIL_COAT,
     ELVEN_SHIELD,
@@ -87,6 +93,8 @@ import {
     LONG_SWORD,
     LOW_BOOTS,
     MUMMY_WRAPPING,
+    OILSKIN_CLOAK,
+    ORCISH_CLOAK,
     ORCISH_HELM,
     RING_CLASS,
     RING_MAIL,
@@ -98,6 +106,7 @@ import {
     SPEAR,
     TOOL_CLASS,
     TWO_HANDED_SWORD,
+    T_SHIRT,
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { obj_is_pname } from '../js/objnam.js';
@@ -114,8 +123,8 @@ import {
     loadWearWishRecipe,
 } from './run-wear-armor.mjs';
 
-const { Armor_on, Shield_on, accessory_or_armor_on, already_wearing, on_msg }
-    = _doWearInternals;
+const { Armor_on, Cloak_on, Shield_on, Shirt_on, accessory_or_armor_on,
+    already_wearing, on_msg } = _doWearInternals;
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -179,6 +188,14 @@ async function setup(segment, moves) {
 
 function armor(otyp, extra = {}) {
     return { oclass: ARMOR_CLASS, otyp, owornmask: 0, quan: 1, ...extra };
+}
+
+// The pack object carrying an invlet. gi.invent is a linked list on `nobj`.
+function inventoryLetter(invlet) {
+    for (let obj = game.invent; obj; obj = obj.nobj) {
+        if (obj.invlet === invlet) return obj;
+    }
+    return null;
 }
 
 // A permonst row from the loaded catalog, which is what canwearobj() and the
@@ -436,6 +453,118 @@ test('a suit takes its whole delay before the hero is free', async () => {
     }
 });
 
+test('W puts a cloak and a shirt back on', async () => {
+    // do_wear.c Cloak_on() (325-380) and Shirt_on() (758-775), reached through
+    // the same spine as the shield. Each role below starts in the piece, so
+    // the 'T' is what empties the slot for the 'W' to fill again.
+    const cases = [
+        // The Wizard's cloak of magic resistance. u_init.c
+        // ini_inv_use_obj():1257 discovers a starting item whose type carries
+        // a description, so the message names the type and not the
+        // appearance o_init.c dealt this seed. a_ac is 10 - 9 = 1 and spe is
+        // 0, so AC moves by 1.
+        [7720151, `${TAKEOFF_KEY}`, `${WEAR_KEY}b`,
+            'You are now wearing a cloak of magic resistance.', 'uarmc', 1],
+        // The Monk's +1 robe, chosen at both prompts because his gloves stay
+        // on. on_msg() formats with xname(), which shows no enchantment where
+        // off_msg()'s doname() one command earlier shows "+1". a_ac is 2 and
+        // spe is 1, so AC moves by 3.
+        [7720152, `${TAKEOFF_KEY}b`, `${WEAR_KEY}b`,
+            'You are now wearing a robe.', 'uarmc', 3],
+        // The Tourist's Hawaiian shirt, the one wearing in this matrix that
+        // moves no AC: objects.h gives both shirts ac 10, so the ARMOR macro's
+        // 10 - ac leaves a_ac 0 and a +0 shirt changes nothing find_ac() adds.
+        [7720153, `${TAKEOFF_KEY}`, `${WEAR_KEY}k`,
+            'You are now wearing a Hawaiian shirt.', 'uarmu', 0],
+    ];
+    for (const [seed, off, on, message, field, acDelta] of cases) {
+        const segment = seedSegmentFor(seed);
+
+        await runSegment({ ...segment, moves: `${WAIT}${off}` });
+        assert.equal(game[field] ?? null, null, `seed ${seed}: T emptied it`);
+        const acAfterRemoval = game.u.uac;
+
+        await runSegment({ ...segment, moves: `${WAIT}${off}${on}` });
+        assert.equal(topLine(), message, `seed ${seed}`);
+        assert.ok(game[field], `seed ${seed}: the piece is worn again`);
+        assert.equal(game.u.uac, acAfterRemoval - acDelta, `seed ${seed}`);
+        // Both slots carry oc_delay 0 for every type, so unmul("") ran the
+        // callback and cleared it before the command returned.
+        assert.equal(game.afternmv ?? null, null, `seed ${seed}`);
+        // The clock is not compared here. svm.moves is incremented when the
+        // next command starts, so where it stands when a segment's keys run
+        // out depends on how many of them the prompts ate -- the Monk answers
+        // one for his 'T' and the Wizard answers none. The turn counter these
+        // three roles show on every recorded frame is what
+        // scripts/run-wear-armor.mjs compares, and the Valkyrie's shield above
+        // is what pins the count itself.
+    }
+});
+
+test('Cloak_on reveals a wished cloak\'s enchantment', async () => {
+    // do_wear.c:375-378. mkobj.c mksobj() leaves obj->known 0 for armor where
+    // u_init.c ini_inv_adjust_obj() sets it to 1, so a wished cloak is the
+    // only one this port holds with the enchantment still hidden.
+    const cases = [
+        // The Wizard's wished +2 leather cloak, worn where her own cloak was.
+        [7720158, 'o', 2, 3],
+        // The Tourist's wished +1 robe, over an emptied shirt slot.
+        [7720155, 'p', 1, 3],
+    ];
+    for (const [seed, letter, spe, acDelta] of cases) {
+        const segment = wishSegmentFor(seed);
+        const before = segment.moves.slice(0, segment.moves.indexOf(WEAR_KEY));
+
+        await runSegment({ ...segment, moves: before });
+        const cloak = inventoryLetter(letter);
+        assert.ok(cloak, `seed ${seed}: the wish landed at ${letter}`);
+        assert.equal(cloak.known ?? false, false, `seed ${seed}`);
+        assert.equal(cloak.spe, spe, `seed ${seed}`);
+        const acBefore = game.u.uac;
+
+        await runSegment({
+            ...segment, moves: `${before}${WEAR_KEY}${letter}`,
+        });
+        const worn = inventoryLetter(letter);
+        assert.equal(worn.known, true, `seed ${seed}: Cloak_on() ran`);
+        assert.equal(game.uarmc, worn, `seed ${seed}`);
+        assert.equal(game.u.uac, acBefore - acDelta, `seed ${seed}`);
+    }
+});
+
+test('canwearobj refuses a cloak and a shirt over what covers them',
+    async () => {
+    // do_wear.c:2157-2177, both arms, each recorded fresh. Neither spends a
+    // turn, and the cloak's name comes from objnam.c cloak_simple_name(),
+    // which answers "robe" for a robe and "cloak" for everything else this
+    // port can wear.
+    const cases = [
+        // A second cloak while the Monk's robe is on.
+        [7720156, 'l', 'You are already wearing a robe.'],
+        // A shirt under the robe the Tourist has just put on. uarm is empty,
+        // so the conditional at 2165-2166 takes its cloak_simple_name() half.
+        [7720155, 'm', "You can't wear that over your robe."],
+        // The same refusal's other half: a suit and no cloak names c_armor.
+        [7720157, 'i', "You can't wear that over your armor."],
+    ];
+    for (const [seed, letter, expected] of cases) {
+        const segment = wishSegmentFor(seed);
+        const moves = segment.moves.slice(
+            0, segment.moves.lastIndexOf(`${WEAR_KEY}${letter}`),
+        );
+
+        await runSegment({ ...segment, moves });
+        const before = game.moves;
+
+        await runSegment({
+            ...segment, moves: `${moves}${WEAR_KEY}${letter}`,
+        });
+        assert.equal(topLine(), expected, `seed ${seed}`);
+        assert.equal(game.moves, before, `seed ${seed}`);
+        assert.equal(game.context.move, 0, `seed ${seed}`);
+    }
+});
+
 test('canwearobj refuses a slot that is already filled', async () => {
     // do_wear.c:2085-2088 for this slot, and do_wear.c:2214-2216 for the worn
     // object answered at the prompt. Neither spends a turn.
@@ -494,7 +623,7 @@ test('an accessory answered at the W prompt stops', async () => {
     assert.equal(game.uright ?? null, null);
 });
 
-test('the five slots this port does not don are refused unwritten',
+test('the three slots this port does not don are refused unwritten',
     async () => {
     // do_wear.c:2377-2393. The test sits above setworn(), so a refused slot
     // leaves the hero exactly as it found her. Each object below is the
@@ -505,8 +634,6 @@ test('the five slots this port does not don are refused unwritten',
         [FEDORA, W_ARMH, 'uarmh'],
         [LOW_BOOTS, W_ARMF, 'uarmf'],
         [LEATHER_GLOVES, W_ARMG, 'uarmg'],
-        [HAWAIIAN_SHIRT, W_ARMU, 'uarmu'],
-        [LEATHER_CLOAK, W_ARMC, 'uarmc'],
     ];
     for (const [otyp, mask, field] of slots) {
         const obj = armor(otyp, { dknown: 1 });
@@ -519,15 +646,38 @@ test('the five slots this port does not don are refused unwritten',
         assert.equal(game[field] ?? null, null, `otyp ${otyp}`);
         assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
     }
-    // The shield and the suit are the two that go through, and they take
-    // opposite arms of C's fork: the shield's oc_delay is 0, so unmul() runs
-    // Shield_on() before the call returns, while leather armor's is 3, so
-    // Armor_on() is still pending when it does.
-    const shield = armor(SMALL_SHIELD, { dknown: 1, spe: 0 });
-    assert.equal(await accessory_or_armor_on(shield, game), ECMD_TIME);
-    assert.equal(game.uarms, shield);
-    assert.equal(game.afternmv ?? null, null);
+    // The four that go through, each installing its own callback. Only the
+    // suit reaches C's delayed arm: objects.h gives every shield, every cloak
+    // and both shirts an oc_delay of 0, so unmul() runs their callback before
+    // the call returns, while leather armor's 3 leaves Armor_on() pending.
+    //
+    // obj.known separates the three callbacks from one another. Each reads its
+    // own slot field -- Shield_on() uarms, Cloak_on() uarmc, Shirt_on() uarmu
+    // -- so installing the wrong one for a slot leaves the write undone or
+    // throws on an empty slot, whatever the mask says.
+    const worn = [
+        [SMALL_SHIELD, W_ARMS, 'uarms', 'a small shield'],
+        [LEATHER_CLOAK, W_ARMC, 'uarmc', 'a leather cloak'],
+        [HAWAIIAN_SHIRT, W_ARMU, 'uarmu', 'a Hawaiian shirt'],
+    ];
+    for (const [otyp, mask, field, name] of worn) {
+        // A fresh segment per slot: canwearobj() refuses a shirt under a
+        // cloak, so the three cannot be worn onto the same hero in a row.
+        await setup(segment, OFF);
+        const obj = armor(otyp, { dknown: 1, spe: 0, known: false });
 
+        assert.equal(await accessory_or_armor_on(obj, game), ECMD_TIME,
+            `otyp ${otyp}`);
+        assert.equal(game[field], obj, `otyp ${otyp}`);
+        assert.equal(obj.owornmask & mask, mask, `otyp ${otyp}`);
+        assert.equal(obj.known, true, `otyp ${otyp}`);
+        // unmul("") ran the callback and cleared it again.
+        assert.equal(game.afternmv ?? null, null, `otyp ${otyp}`);
+        assert.equal(takePendingTopLine(), `You are now wearing ${name}.`,
+            `otyp ${otyp}`);
+    }
+
+    await setup(segment, OFF);
     const suit = armor(LEATHER_ARMOR, { dknown: 1, spe: 0 });
     assert.equal(await accessory_or_armor_on(suit, game), ECMD_TIME);
     assert.equal(game.uarm, suit);
@@ -536,6 +686,52 @@ test('the five slots this port does not don are refused unwritten',
     assert.equal(game.multi, -3, 'objects.h gives leather armor oc_delay 3');
     assert.equal(game.multi_reason, 'dressing up');
     assert.equal(game.nomovemsg, 'You finish your dressing maneuver.');
+});
+
+test('the seven cloaks Cloak_on cannot run are refused unwritten',
+    async () => {
+    // do_wear.c:338-373. Five of Cloak_on()'s labels fall to a bare break;
+    // the other seven makeknown(), toggle stealth or displacement, redraw the
+    // hero, print, or set EAcid_resistance, all outside do_wear.c. The refusal
+    // is hoisted above setworn(), so a refused cloak never reaches the slot
+    // and its oc_delay 0 never gets the chance to run the callback.
+    //
+    // Two of the seven are the cases just outside this goal's stated limit,
+    // recorded as the QUALITY.json deferral wear-oilskin-and-smock-cloaks-stop:
+    // a wished oilskin cloak, which C answers with "fits very tightly", and a
+    // wished alchemy smock, which C wears while setting EAcid_resistance.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    for (const otyp of [CLOAK_OF_PROTECTION, ELVEN_CLOAK,
+        CLOAK_OF_DISPLACEMENT, MUMMY_WRAPPING, CLOAK_OF_INVISIBILITY,
+        OILSKIN_CLOAK, ALCHEMY_SMOCK]) {
+        const obj = armor(otyp, { dknown: 1, spe: 0 });
+
+        await assert.rejects(
+            () => accessory_or_armor_on(obj, game),
+            new RegExp(`Cloak_on\\(\\) for otyp ${otyp}`),
+            `otyp ${otyp}`,
+        );
+        assert.equal(game.uarmc ?? null, null, `otyp ${otyp}`);
+        assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
+    }
+    // The five that go on. Two of them, CLOAK_OF_PROTECTION and
+    // OILSKIN_CLOAK, are absent here and present in Cloak_off()'s own set:
+    // reusing that set would wear both with their on-behavior missing. The
+    // message is not asserted, because four of the twelve cloak appearances
+    // are shuffled by o_init.c and the magic resistance one is among them.
+    for (const otyp of [ORCISH_CLOAK, DWARVISH_CLOAK,
+        CLOAK_OF_MAGIC_RESISTANCE, ROBE, LEATHER_CLOAK]) {
+        // A fresh segment per type, so each wearing starts from an empty
+        // cloak slot and an empty top line.
+        await setup(segment, OFF);
+        const obj = armor(otyp, { dknown: 1, spe: 0, known: false });
+
+        assert.equal(await accessory_or_armor_on(obj, game), ECMD_TIME,
+            `otyp ${otyp}`);
+        assert.equal(game.uarmc, obj, `otyp ${otyp}`);
+        assert.equal(obj.known, true, `otyp ${otyp}`);
+    }
 });
 
 test('the branches accessory_or_armor_on cannot run name themselves',
@@ -1088,6 +1284,51 @@ test('Shield_on stops for a slot holding something that is not a shield',
     game.uarms = armor(FEDORA, { owornmask: W_ARMS, dknown: 1 });
     assert.throws(() => Shield_on(game), /Shield_on\(\) for otyp 92/);
     game.uarms = null;
+});
+
+test('Shirt_on stops for a slot holding something that is not a shirt',
+    async () => {
+    // do_wear.c:767-768 reports impossible() for an otyp outside the two
+    // objects.h defines. No ported path can arrive, because canwearobj()
+    // picks the callback by is_shirt(), which answers for exactly those two.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    game.uarmu = armor(FEDORA, { owornmask: W_ARMU, dknown: 1 });
+    assert.throws(() => Shirt_on(game), /Shirt_on\(\) for otyp 92/);
+
+    // Both shirts pass, and each sets the known bit. No recorded case reaches
+    // that write: every shirt this port can hold arrives from u_init.c with
+    // known already 1, and a wished one cannot be recorded because
+    // zap.c makewish() formats it through objnam.c the(), whose proper-noun
+    // arm both capitalized shirt names take and this port refuses. Tracked as
+    // the QUALITY.json deferral shirt-known-write-has-no-recorded-case.
+    for (const otyp of [HAWAIIAN_SHIRT, T_SHIRT]) {
+        game.uarmu = armor(otyp, { owornmask: W_ARMU, dknown: 1,
+            known: false });
+        assert.equal(Shirt_on(game), 0, `otyp ${otyp}`);
+        assert.equal(game.uarmu.known, true, `otyp ${otyp}`);
+    }
+    game.uarmu = null;
+});
+
+test('Cloak_on answers for an empty cloak slot', async () => {
+    // do_wear.c:375, C's own "no known instance of !uarmc here". Nothing in
+    // this port reaches it: accessory_or_armor_on() installs the callback one
+    // statement after setworn() fills the slot, and every cloak's oc_delay is
+    // 0, so unmul("") runs it before any other code can empty the slot.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    assert.equal(game.uarmc ?? null, null, 'a Valkyrie starts without a cloak');
+    assert.equal(Cloak_on(game), 0);
+
+    // With a cloak in the slot the same call sets obj->known instead, and
+    // leaves it alone when it is already set.
+    const cloak = armor(LEATHER_CLOAK, { dknown: 1, spe: 2, known: false });
+    await accessory_or_armor_on(cloak, game);
+    assert.equal(cloak.known, true, 'the oc_delay 0 arm ran the callback');
+    cloak.known = false;
+    assert.equal(Cloak_on(game), 0);
+    assert.equal(cloak.known, true);
 });
 
 test('wear_ok classifies what the W prompt may offer', async () => {
