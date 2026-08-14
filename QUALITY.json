@@ -2513,7 +2513,7 @@
       "area": "monsters",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "2be53e4a3ad91647d70605ad98bf4f34727fd02a",
       "detail": "mattacku() three planning-silence guards, on message, redraw and statusRefresh, are pinned by no test: deleting all three lets the planning clone print every miss to the live terminal, and the whole suite stays green. runSimpleMonsterAction() runs each monster turn twice, once against a clone and then live, so this is the defect class that would double-print every monster miss while the development score stayed green unless a recorded session happened to show the second copy. Closes when a test asserts the planning pass emits no text for a miss and fails when a guard is removed. Confirmed by the correctness pass over 0d7678c..2be53e4."
     },
@@ -2534,6 +2534,16 @@
       "status": "open",
       "from": "2be53e4a3ad91647d70605ad98bf4f34727fd02a",
       "detail": "scripts/unported-monster-actions.test.mjs still builds a one-entry mattk array, the exact hazard this range fixed in scripts/cmd.test.mjs after it crashed at index 1: C allocates six slots and getmattk() reads them by index, so if a refusal order ever shifts past index 0 the fixture throws a TypeError rather than exercising the arm under test. Closes when the fixture allocates six entries as C does. Confirmed by the correctness pass over 0d7678c..2be53e4."
+    },
+    {
+      "id": "hero-death-inside-mdamageu-stops",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "a0d0194a17ab85763c06e8dc1465b4315a2feae2",
+      "detail": "mhitu.c mdamageu() (1901-1927) refuses at 'the hero dying of a monster attack' where C calls done_in_by(mtmp, DIED), so a blow that takes the hero's last hit point ends the segment instead of ending the game. This is the goal's declared fail-closed edge: done_in_by() owns svk.killer, the tombstone and the whole of end.c, and js/hack.js losehp() already stops on the same boundary. Case just outside the limit, recorded rather than searched because a natural death takes tens of turns: scripts/mhitu.test.mjs 'mdamageu stops at the hero's death and not one hit point above it' drives it directly -- a grid bug's 1d1 bite against a hero left at one hit point -- and asserts the refusal, while the row above it, at two hit points, asserts the hero survives at one. The expected failure in a fresh C run is that C prints 'You die...' and a tombstone where the port emits its last matching screen and stops. Retire this with end.c done_in_by().",
+      "blockedOn": "done_in_by"
     }
   ],
   "areas": [
