@@ -415,3 +415,7 @@ utc	event	phase	goal	detail
 2026-08-14T04:02:15.156Z	end	implement	armor-wear	wear-gloves-and-boots closed at 93ee77d; all seven armor slots live
 2026-08-14T04:04:06.526Z	start	review	armor-wear	goal-closing correctness pass over fc56134..21ef982, the four unreviewed slices
 2026-08-14T04:45:21.622Z	end	review	armor-wear	goal-closing correctness pass recorded through 21ef982; 26 raw, 19 deduplicated, 15 confirmed, 10 applied, 5 deferred, 4 rejected
+2026-08-14T05:27:53.765Z	start	select		unlocks-0 disambiguation goal, user-approved; sweep queued after it
+2026-08-14T05:46:35.191Z	end	select	throw-command	throw-command opened; disambiguation run, forecast 0 by construction
+2026-08-14T05:57:46.117Z	start	implement	throw-command	throw-command-front-end: dothrow(), throw_ok() and uslinging()
+2026-08-14T06:55:52.482Z	end	implement	throw-command	throw-command-front-end closed at ec1a0f0; t reaches the live throwit()

@@ -2044,6 +2044,38 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "throw-command",
+      "status": "open",
+      "boundary": "The t command: dothrow.c dothrow() (351-376), reached through the ported ok_to_throw() and getobj(\"throw\", throw_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT), handing the chosen object to the ported throw_obj(); plus throw_obj()'s coin arm throw_gold() (2655-2731), the one arm t can reach and f cannot, since C guards it on obj->oclass == COIN_CLASS && obj != uquiver and dofire() always passes uquiver. Two testable conditions bound it: dothrow() calls exactly three functions, so the front end is complete when ok_to_throw(), getobj() and throw_obj() are wired and no fourth call exists at 368-375; and every arm of throw_obj() and throwit() that f already reaches or refuses keeps the behavior it has today, so the only refusal removed is throw_gold() at js/dothrow.js:399 and the only one added is dokick.c ghitm() for gold a monster catches.",
+      "upstreamOwners": [
+        "dothrow.c dothrow() 351-376",
+        "dothrow.c throw_ok() 316-348",
+        "dothrow.c throw_gold() 2655-2731"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "Disambiguation run the user approved on 2026-08-14, separating armor-wear's two changes. armor-wear moved the holdout 224 to 234 screens and 33427 to 33674 calls, but it landed both W and allmain.c:73's set_wear(), which runs at startup for every game, so an aggregate reading cannot say which moved. throw carries supports 1018 screens across 4 sessions and unlocks 0 across 0 sessions, measured fresh at 0d1ee96, so the ranking rule cannot nominate it and the development forecast is 0 by construction. The delivery reading is the holdout. The goal deliberately touches no startup path, so the reading is attributable to a player command alone: t's whole effect path is already live and scored through f, which runs the same throw_obj() and throwit(). A slice that discovers otherwise disqualifies the goal for this purpose and must report it at close rather than absorb it. After this goal the loop runs a deferred-area sweep, then returns to ordinary development-set ranking; the capped census leader waiting there is mhitu.c mattacku() at 119 steps, which corrects the 151 recorded at armor-wear's close.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "Source witness in place of a forecast witness: a starting character reaches dothrow() at 368 because ok_to_throw() needs only !notake() and !nohands(), true for every recorded role with Upolyd FALSE, and check_capacity(NULL) FALSE, which holds for any hero not Stressed. getobj() then classifies each slot through throw_ok(); the governing arms for a starting character are !uslinging() && oclass == WEAPON_CLASS giving GETOBJ_SUGGEST at 341-342, since no role starts wielding a sling, and oclass == COIN_CLASS at 338-339 for the starting gold. The AutoReturn arm at 327-330 short-circuits on its first conjunct for every starting inventory, so ACURR(A_STR) >= STR19(25) is never evaluated. Judge the close on the recorded t prompts: C records 'What do you want to throw? [$bmn or ?*]' at seed0004 step 335, '[$bj or ?*]' at seed0014 step 500, '[a or ?*]' at seed0108 step 51 and '[*]' at seed0360 step 355, four throw_ok() classifications of four starting inventories. Traced findings. The real ceiling is getobj(), not throwit(): js/invent.js:555-563 refuses ? and * at any object prompt, and of the 7 recorded t commands 4 complete inside this goal's surface while 3 stop at that menu refusal, including seed0014's cream pie, the only recorded throw reaching a monster. That refusal is pre-existing and shared with the live d, W, T, a and e commands. thitmonst() is deliberately out of scope: js/dothrow.js:680 refuses throwit_mon_hit() whenever bhit() returns a monster, and folding in thitmonst() would lift a refusal inside the already-live f command, blurring the attribution this goal exists to produce. throw_gold()'s tail is already present in js/dothrow.js, so only dokick.c ghitm() needs a new refusal. GETOBJ_ALLOWCNT is not new: js/do.js:468 already passes it for d. Expect 250-400 JS lines including tests, with nothing crossing a file boundary.",
+      "slices": [
+        {
+          "name": "throw-command-front-end",
+          "status": "closed",
+          "closedBy": "ec1a0f056f534fe403fc7bb1cf0100505df1e787"
+        }
+      ],
+      "openedAt": "0d1ee96abfed909eb9319d577db1077b9fac75a3",
+      "openStanding": {
+        "sha": "5f40faf",
+        "screens": 1538,
+        "rng": 121032
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
