@@ -1982,7 +1982,7 @@
     },
     {
       "id": "armor-wear",
-      "status": "open",
+      "status": "closed",
       "boundary": "The W command, from getobj(\"wear\", wear_ok, GETOBJ_PROMPT) through canwearobj(), setworn(obj, mask), the ga.afternmv assignment and the nomul(-oc_delay)/unmul(\"\") fork, ending when the slot's *_on() callback returns. Two testable conditions bound it: no ported line lies under accessory_or_armor_on()'s armor == FALSE, so the ring, amulet and eyewear arms at 2249-2350 and 2404-2419 stay refused and doputon() stays unported; and inside each *_on() the port covers the switch arms falling through to a bare break and refuses every arm that calls outside do_wear.c by otyp, the shape Cloak_off(), Helmet_off() and Shirt_off() already use.",
       "upstreamOwners": [
         "do_wear.c dowear() 2432-2452",
@@ -2039,8 +2039,11 @@
         "screens": 1538,
         "rng": 121032
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "5f40faf972b667d16f6c66dbf917ab3c6ff811c4",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
