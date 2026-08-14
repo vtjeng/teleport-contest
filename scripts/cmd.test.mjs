@@ -21,6 +21,7 @@ import {
     resetCommandVars,
     rhack,
     UnsupportedHeroCommandBoundaryError,
+    UnsupportedHeroCommandBranchBoundaryError,
 } from '../js/cmd.js';
 import {
     UnsupportedEatError,
@@ -2891,9 +2892,14 @@ test('a count prefix is retained before parsing or command dispatch',
     const initialDispatches = game._commandDispatchCount;
     game.nhDisplay.pushKey(commandKeyCode('3'));
     game.nhDisplay.pushKey(commandKeyCode('.'));
+    // The admission seam refuses the count's leading digit before any command
+    // is dispatched, so this is the plain boundary and never the branch
+    // subclass failClosedCommand() raises from below a dispatched command.
+    // scripts/scan-sessions.mjs isCommandRefusal() separates the two.
     await assert.rejects(
         moveloop_core(),
         (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && !(error instanceof UnsupportedHeroCommandBranchBoundaryError)
             && error.key === commandKeyCode('3'),
     );
     const rejected = heroCommandRetrySnapshot(replay);
@@ -4104,6 +4110,15 @@ test('a refusal below domove() reaches the player as a command boundary',
                 assert.ok(
                     error instanceof UnsupportedHeroCommandBoundaryError,
                     `${error.constructor.name} is not a command boundary`,
+                );
+                // And the subclass that says the refusal came from below a
+                // dispatched command rather than from the admission seam.
+                // scripts/scan-sessions.mjs isCommandRefusal() reads this to
+                // decide whether the recorded byte can name the behavior the
+                // port stopped on; here it cannot, because `l` is admitted.
+                assert.ok(
+                    error instanceof UnsupportedHeroCommandBranchBoundaryError,
+                    `${error.constructor.name} is not a branch boundary`,
                 );
                 assert.equal(error.key, moveKey);
                 assert.equal(

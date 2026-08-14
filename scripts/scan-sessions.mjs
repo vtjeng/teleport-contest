@@ -21,6 +21,12 @@
 // the commands the port dispatches. A session's debt, `supports` and `unlocks`
 // all come from that model.
 //
+// The recorded input cannot name every behavior, because the supported set
+// admits a command by its FIRST BYTE alone: a branch below a command the port
+// dispatches has no byte of its own to be missing from that set. The port
+// names those itself, and isCommandRefusal() below reads which case a stop is
+// from the boundary class js/cmd.js raised.
+//
 // RECONCILED. The two halves are computed by different routes over the same
 // replay, so they can disagree, and a disagreement nobody sees is what this
 // script exists to prevent. Both read the recorded cursor to decide whether a
@@ -90,6 +96,7 @@ import {
     ADMITTED_RUN_MODES,
     MOVEMENT_INTENTS,
     UnsupportedHeroCommandBoundaryError,
+    UnsupportedHeroCommandBranchBoundaryError,
 } from '../js/cmd.js';
 import { commandForKey } from '../js/command_bindings.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
@@ -327,6 +334,24 @@ export function ceilingFor(row) {
 }
 
 /**
+ * Whether the port refused the COMMAND, which is the one kind of stop the
+ * recorded input can name for itself.
+ *
+ * `supportedCommands()` resolves each recorded byte against ADMITTED_COMMANDS,
+ * which admits a command by its first byte alone. A refusal at that byte is
+ * therefore a behavior the model derives from the recording. A refusal below it
+ * is not: failClosedCommand() raises js/cmd.js
+ * UnsupportedHeroCommandBranchBoundaryError inside a command the port did
+ * dispatch, so it refuses a branch rather than the command and no recorded byte
+ * stands for it. A boundary raised outside any command is that same case and
+ * always was.
+ */
+export function isCommandRefusal(boundary) {
+    return boundary instanceof UnsupportedHeroCommandBoundaryError
+        && !(boundary instanceof UnsupportedHeroCommandBranchBoundaryError);
+}
+
+/**
  * Replay one session once, collecting both halves of the report.
  *
  * The observed half is fixed at the first boundary: after that the port is
@@ -381,8 +406,7 @@ export async function scanSession(file) {
             const step = steps[stopIndex];
             stop = {
                 boundary: boundary.message,
-                commandRefusal:
-                    boundary instanceof UnsupportedHeroCommandBoundaryError,
+                commandRefusal: isCommandRefusal(boundary),
                 key: step?.key ?? null,
                 command: resolvedCommand(step?.key),
                 // Whether the refused byte began a command, read the way
@@ -401,21 +425,28 @@ export async function scanSession(file) {
                     ],
                 },
             };
+            // A stop that is not a command refusal names a behavior the input
+            // stream cannot: the port reached a behavior it has not ported,
+            // either outside any command or inside one it dispatched. Its
+            // first use is the step the port never consumed. Only the FIRST
+            // such behavior per session is visible, because the port stops
+            // there and never reports what stands behind it; that censoring is
+            // why `unlocks` is an upper bound.
+            //
+            // This sits inside the first-boundary block because `at` is only
+            // meaningful for that boundary. `screensEmitted` stops growing
+            // once a session has stopped, so a later segment's boundary would
+            // enter at the step the FIRST one stopped on, in a segment it
+            // never ran in -- and would sort ahead of the behavior actually
+            // measured there, taking that behavior's `unlocks` with it.
+            if (!isCommandRefusal(boundary))
+                behavioral = { member: boundary.message, at: screensEmitted };
         }
         const issued = commandsIssued(steps);
         answers += issued.answers;
         ambiguous += issued.ambiguous;
         for (const { index, command } of issued.commands)
             issuedAll.push({ index: stepOffset + index, command });
-        // A stop that is not a command refusal names a behavior the input
-        // stream cannot: the port reached a behavior it has not ported. Its
-        // first use is the step the port never consumed. Only the FIRST such
-        // behavior per session is visible, because the port stops there and
-        // never reports what stands behind it; that censoring is why `unlocks`
-        // is an upper bound.
-        if (boundary && !(boundary instanceof UnsupportedHeroCommandBoundaryError)
-            && behavioral === null)
-            behavioral = { member: boundary.message, at: screensEmitted };
         stepOffset += steps.length;
         completedContexts.push(contextFor(
             steps.slice(1).map((entry) => entry.key ?? '').join(''),
@@ -601,9 +632,11 @@ export function stopPointAgreement(rows) {
  * Sort every stopped session into how its observed stop meets its modeled
  * earliest behavior.
  *
- * - `carried`: the boundary is not a command refusal, so the model has no way
- *   to derive it from the recorded input and carries the port's own message
- *   instead. The two agree by construction.
+ * - `carried`: the boundary is not a command refusal, by isCommandRefusal()'s
+ *   test, so the model has no way to derive it from the recorded input and
+ *   carries the port's own message instead. The two agree by construction.
+ *   Both shapes land here: a boundary raised outside any command, and one
+ *   raised below a command the port dispatched.
  * - `alike`: a command refusal whose refused byte resolves, through the
  *   session's bindings, to the behavior the model names.
  * - `differing`: a command refusal the two name differently. The model reads
@@ -614,9 +647,9 @@ export function stopPointAgreement(rows) {
  * - `unreconciled`: the model has no behavior at the step the port refused.
  *   That means it believes the port supports what the port just refused, and
  *   no row of the behavior table stands for the stop. Any row here needs a
- *   human. A counted rush would land here: `readSimpleCommand()` refuses the
- *   count's leading digit, which is bound to no command and so is never debt,
- *   while `ADMITTED_RUN_MODES` admits the rush that follows it.
+ *   human. The count prefix is the standing case: `readSimpleCommand()`
+ *   refuses the count's leading digit, which is bound to no command and so is
+ *   never debt, while the command the count modifies is admitted.
  */
 export function reconcile(rows) {
     const carried = [];
@@ -805,8 +838,8 @@ function reportReconciliation(rows, ranking) {
     }
     console.log(
         `  ${String(carried.length).padStart(3)} stops the model carries as `
-        + "themselves, the boundary being the port's own message rather than a "
-        + 'command refusal',
+        + "themselves, the port's own message naming a behavior no recorded "
+        + 'byte can',
     );
     console.log(
         `  ${String(alike.length).padStart(3)} command refusals the refused `

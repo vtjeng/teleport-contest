@@ -4,7 +4,10 @@ import test from 'node:test';
 import {
     ADMITTED_COMMANDS,
     MOVEMENT_INTENTS,
+    UnsupportedHeroCommandBoundaryError,
+    UnsupportedHeroCommandBranchBoundaryError,
 } from '../js/cmd.js';
+import { UnsupportedHeroMoveBoundaryError } from '../js/hack.js';
 import {
     DEVELOPMENT_DIR,
     aheadStretch,
@@ -20,6 +23,7 @@ import {
     executedCommands,
     extendedCommandAt,
     formatReplayContext,
+    isCommandRefusal,
     legend,
     main,
     rankCandidates,
@@ -318,6 +322,36 @@ test('the supported set is every command the port dispatches', () => {
     assert.equal(supported.has('travel'), false);
 });
 
+// isCommandRefusal() reads the class js/cmd.js raised and never the message,
+// so each case below carries the shortest reason that identifies the seam it
+// stands for. 0x71 is `q`, an admitted command byte, and is the same in the
+// first two cases on purpose: nothing in the recording tells them apart.
+test('isCommandRefusal separates a refused command from a refused branch',
+    () => {
+    // The dispatch seam. readSimpleCommand() refuses a byte ADMITTED_COMMANDS
+    // does not admit, and supportedCommands() reads that same set, so the
+    // model derives this stop from the recording by itself.
+    assert.equal(
+        isCommandRefusal(new UnsupportedHeroCommandBoundaryError(
+            'the repeated-command boundary', 0x71)),
+        true,
+    );
+    // failClosedCommand()'s seam, below a command that was dispatched. The
+    // gate admits the first byte, so the model reads the command as supported
+    // and can name nothing at the step the port stopped on.
+    assert.equal(
+        isCommandRefusal(new UnsupportedHeroCommandBranchBoundaryError(
+            'an unported branch of this command: quaffing a potion', 0x71)),
+        false,
+    );
+    // A boundary raised outside any command was never derivable either, and
+    // is the case the branch refusal joins.
+    assert.equal(
+        isCommandRefusal(new UnsupportedHeroMoveBoundaryError('engraving')),
+        false,
+    );
+});
+
 test('only the bytes read at a command position count as commands', () => {
     // Every recorded step carries the byte consumed and the screen that byte
     // produced, so the state a byte was read in is the previous step's screen.
@@ -524,9 +558,18 @@ test('dedupeMessages collapses consecutive identical lines only', () => {
     assert.deepEqual(dedupeMessages([]), []);
 });
 
-// The four cases below are the shapes the 33 development sessions produce
-// today: 12 carried, 9 alike, 11 differing and 0 unreconciled.
+// The cases below are the shapes the 33 development sessions produce. Two of
+// them reach `carried`: a boundary raised outside any command, and one raised
+// below a command the port dispatched, which isCommandRefusal() sorts with it
+// because neither is derivable from the recorded input. How many sessions each
+// shape holds moves with every behavior that gets ported, so the report prints
+// those counts and this comment does not.
 test('reconcile sorts each stop by how the two halves name it', () => {
+    // The port's own message. A carried row carries it in both halves, and
+    // reconcile() only ever compares it with itself, so the tail of the real
+    // level-teleport message is abbreviated here.
+    const branchBoundary = 'unsupported hero command: an unported branch of '
+        + 'this command: unsupported level change';
     const rows = [
         // Carried. seed0004's shape: the port refuses inside a move, so the
         // boundary is its own message and the model has no way to derive it
@@ -542,6 +585,21 @@ test('reconcile sorts each stop by how the two halves name it', () => {
             behaviors: [
                 { member: 'unsupported hero move: floor object pile', at: 26 },
             ],
+        },
+        // Carried too, from inside a command the port did dispatch.
+        // seed0373's shape: `#levelport` runs, and js/cmd.js
+        // failClosedCommand() refuses the branch below it. The refused byte is
+        // the `\n` that dispatches the extended command, which the binding
+        // table names `rushsouth`, and no byte at all names the branch -- so
+        // the port's own message is the only behavior available.
+        {
+            file: 'carried-branch',
+            boundary: branchBoundary,
+            commandRefusal: false,
+            command: 'rushsouth',
+            screensEmitted: 41,
+            recordedSteps: 124,
+            behaviors: [{ member: branchBoundary, at: 41 }],
         },
         // Alike. seed0016's shape: the refused byte `a` binds to `apply`, and
         // the model names `apply` at the same step.
@@ -616,7 +674,8 @@ test('reconcile sorts each stop by how the two halves name it', () => {
         },
     ];
     const { carried, alike, differing, unreconciled } = reconcile(rows);
-    assert.deepEqual(carried.map((row) => row.file), ['carried']);
+    assert.deepEqual(carried.map((row) => row.file),
+        ['carried', 'carried-branch']);
     assert.deepEqual(alike.map((row) => row.file), ['alike']);
     assert.deepEqual(differing.map((row) => row.file), ['differing']);
     assert.deepEqual(unreconciled.map((row) => row.file),

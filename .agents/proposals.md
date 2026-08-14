@@ -102,48 +102,6 @@ the end of the log so a tail read stays valid while agents migrate.
 **What it leaves unfixed.** The checkpoint's output volume: the log keeps
 its 14,491 lines on disk, and an agent that opens it whole still drowns.
 
-## Give the session scan a notion of partial command support
-
-**What it changes.** `scripts/scan-sessions.mjs` would model a command the port
-dispatches but refuses partway through, so such a stop earns a row in the
-behavior table and can be aimed at with `--ahead=`.
-
-**Scope.** The model that resolves recorded bytes to command names and tests
-them against the port's supported-command set, plus the reconciliation section
-that reports the disagreement, plus `.agents/selection.md:132-137`.
-
-**What prompted it.** Slice 1 of `experience-level-gain`, at `984da15`, produced
-the first partially supported command. It added `levelchange` to the supported
-set while `adjabil()`'s gain branch stays refused, so the model names each
-session's next unmet *command* while the port stops mid-command. Two
-consequences, each measured:
-
-- The behavior table carries no row for the `adjabil()` boundary, so its
-  `unlocks` reads 0 and the boundary never reaches the ranking. Only the
-  observed boundary census names it.
-- `--ahead` cannot be aimed at it. The boundary string returns "No session stops
-  first on ...", and the modeled name measures the wrong stretch:
-  `--ahead=takeoff` prints `seed0361` steps 40..43, where the stretch that
-  slice opens is 22..40. The 66-step ceiling for slice 2 had to be computed by
-  hand from the
-  reconciliation section's paired indices.
-
-`.agents/selection.md:133-137` calls a stop with no modeled behavior at the
-refused step "the serious case", says the model believes the port supports what
-the port just refused, and asserts "That count is 0 today." Running
-`node scripts/scan-sessions.mjs` at `984da15` prints five `UNRECONCILED` rows,
-one per session in this goal, so the count is 5. The reason is benign and the
-port is correct -- each stop is the welcome screen for the level whose innate
-entry `adjabil()` refuses -- but the document's sentence and the scan's model
-both need the third state.
-
-**Cost.** Moderate, and it touches the instrument selection depends on. The
-document's repair is a sentence; the model's is not.
-
-**What it leaves unfixed.** The ranking still cannot put a figure on a boundary
-that sits inside a supported command until the model can name it, so a goal like
-this one is nominated by the observed census alone.
-
 ## Serialise mutation runs across parallel workers
 
 **What it changes.** `.claude/agents/slice-worker.md` would state that

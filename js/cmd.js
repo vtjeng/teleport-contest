@@ -170,6 +170,27 @@ export class UnsupportedHeroCommandBoundaryError extends Error {
     }
 }
 
+// A branch the port has not reached, inside a command it did dispatch.
+// failClosedCommand() below raises this by converting the owner's refusal;
+// every other raiser of the parent class refused a command at its first byte,
+// before dispatching it at all.
+//
+// The distinction has one consumer, scripts/scan-sessions.mjs, and it is not
+// cosmetic there. That scan models what a session still owes the port by
+// resolving the recorded bytes against ADMITTED_COMMANDS, which admits a
+// command by its first byte alone. So the recorded input can name a command
+// the port refuses to dispatch, and can never name a branch below one it
+// dispatches: a stop here has to carry the port's own message as the
+// behavior, the way a boundary raised outside any command does.
+//
+// The class body is empty because the identity is the whole addition. It
+// keeps the parent's `name`, which labels the contract every other consumer
+// reads -- js/jsmain.js ends the segment on it and leaves the keystroke
+// retryable -- and that contract is identical here. The cause is what
+// differs, and the message states it.
+export class UnsupportedHeroCommandBranchBoundaryError
+    extends UnsupportedHeroCommandBoundaryError {}
+
 // A cmd.c getdir() or yn_function() path this port has not reached yet. Most
 // of these are raised after the prompt has painted and the answering key has
 // been read, so the segment keeps its matching prefix rather than the
@@ -1359,7 +1380,9 @@ function commandTookTime(state) {
 // A command whose port is complete except for branches that are not, such as
 // an object name doname() cannot format yet. Those throw their owner's error;
 // converting it here keeps the segment's supported prefix and leaves the
-// keystroke retryable, the same contract the admission seam provides.
+// keystroke retryable, the same contract the admission seam provides. The
+// branch subclass records which of the two seams stopped the command, for the
+// reason its declaration gives.
 async function failClosedCommand(key, state, run) {
     try {
         return await run();
@@ -1368,7 +1391,7 @@ async function failClosedCommand(key, state, run) {
             (type) => error instanceof type,
         )) {
             resetCommandVars(state);
-            throw new UnsupportedHeroCommandBoundaryError(
+            throw new UnsupportedHeroCommandBranchBoundaryError(
                 `an unported branch of this command: ${error.message}`,
                 key,
             );
