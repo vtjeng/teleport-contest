@@ -1861,16 +1861,36 @@ function assignEntry(options) {
   });
 }
 
-/** Parse `git log --format=%H%x09<Mutants trailer>` rows for the check. */
+// A record line, anchored so that a sentence naming another commit's figure
+// is a reference rather than this commit's own record.
+const MUTANTS_RECORD = /^Mutants:[ \t]*\S/mu;
+
+/**
+ * Parse `git log --format=%x1e%H%x09%B` records for the check.
+ *
+ * Each record is a separator, the SHA, a tab, and the whole message. The
+ * message keeps that tab, so the subject line starts with it and no subject
+ * can read as a record.
+ *
+ * Git's own `%(trailers:key=Mutants)` reads only the message's final
+ * paragraph, so a record a blank line above `Assisted-by:` is present to a
+ * reader and absent to the tool; five commits in this history, 1f3e323 among
+ * them, recorded a mutation run that the check then called missing. Scanning
+ * the whole message finds the record wherever the worker put it, and leaves no
+ * reason to rewrite a pushed message to move it.
+ */
 export function missingMutantTrailers(logOutput) {
-  if (!logOutput) return { commits: 0, missing: [] };
-  const rows = logOutput.split('\n').filter(Boolean).map((line) => {
-    const [sha, trailer = ''] = line.split('\t');
-    return { sha, trailer: trailer.trim() };
-  });
+  const records = logOutput.split('\x1e')
+    .filter((record) => record.trim())
+    .map((record) => {
+      const tab = record.indexOf('\t');
+      return { sha: record.slice(0, tab).trim(), message: record.slice(tab) };
+    });
   return {
-    commits: rows.length,
-    missing: rows.filter((row) => !row.trailer).map((row) => row.sha),
+    commits: records.length,
+    missing: records
+      .filter((record) => !MUTANTS_RECORD.test(record.message))
+      .map((record) => record.sha),
   };
 }
 
@@ -1881,13 +1901,16 @@ function sliceMutants(options) {
   rejectUnknownOptions(options, new Set(['range']));
   if (!options.range?.trim()) fail('--range <base>..<head> is required');
   const revisions = parseRange(options.range.trim());
+  // Whole messages are bulky: the 591 js/ commits to 1305c8d print 876 KB,
+  // against execFileSync's 1 MiB default, so the buffer is raised rather than
+  // left to overflow on a range wider than a review window.
   const output = git([
     'log',
-    '--format=%H%x09%(trailers:key=Mutants,valueonly,separator=%x2C)',
+    '--format=%x1e%H%x09%B',
     `${resolveCommit(revisions.base)}..${resolveCommit(revisions.head)}`,
     '--',
     'js',
-  ]);
+  ], { maxBuffer: 1e8 });
   const { commits, missing } = missingMutantTrailers(output);
   for (const sha of missing) console.log(`no Mutants trailer: ${sha}`);
   console.log(`${plural(commits, 'js commit')} in range, `

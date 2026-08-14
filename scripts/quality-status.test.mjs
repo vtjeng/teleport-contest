@@ -1417,20 +1417,44 @@ test('the recorder renders the counts sentence from the metrics', () => {
             + '1 deferred, 3 rejected, 0 unverified.');
 });
 
-test('slice-mutants parsing separates trailered from bare commits', () => {
-    // Two js commits: the first carries the trailer mutate-sites emits, the
-    // second has an empty trailer column, the shape git prints for a commit
-    // without one. Only the second is missing.
-    const output = [
-        `${'a'.repeat(40)}\tMutants: 36/36 kind=relational,logical,boolean`,
-        `${'b'.repeat(40)}\t`,
-    ].join('\n');
-    assert.deepEqual(missingMutantTrailers(output),
-        { commits: 2, missing: ['b'.repeat(40)] });
-    // An empty log means an empty range, never a failure.
-    assert.deepEqual(missingMutantTrailers(''),
-        { commits: 0, missing: [] });
-});
+test('slice-mutants finds a Mutants record wherever the message holds it',
+    () => {
+        // Five js commits, in the shape `git log --format=%x1e%H%x09%B`
+        // prints: a record separator, the SHA, a tab, then the whole message.
+        //
+        // The first puts the record in the final paragraph, where git's own
+        // trailer parser reads it. The second is the placement that lost five
+        // real records, 1f3e323 among them: a blank line separates `Mutants:`
+        // from `Assisted-by:`, so git parses the last paragraph alone and
+        // reports the record absent. The third mentions another commit's
+        // figure inside a sentence, which is a reference rather than this
+        // commit's own record. The fourth ran no mutation at all, and the
+        // fifth has the key with no figures after it, which the previous
+        // parser also counted as missing because git returned an empty value.
+        const output = [
+            `${'a'.repeat(40)}\tPort one function\n\n`
+                + 'Mutants: 36/36 kind=relational,logical,boolean\n'
+                + 'Assisted-by: Claude Code\n',
+            `${'b'.repeat(40)}\tPort another function\n\n`
+                + 'Mutants: 7/7 kind=relational,logical,boolean\n\n'
+                + 'Assisted-by: Claude Code\n',
+            `${'c'.repeat(40)}\tAdjust a comment\n\n`
+                + 'The earlier Mutants: 7/7 run covers these lines.\n\n'
+                + 'Assisted-by: Claude Code\n',
+            `${'d'.repeat(40)}\tRelocate a helper\n\n`
+                + 'Assisted-by: Claude Code\n',
+            `${'e'.repeat(40)}\tPort a third function\n\n`
+                + 'Mutants:\n'
+                + 'Assisted-by: Claude Code\n',
+        ].map((record) => `\x1e${record}`).join('\n');
+        assert.deepEqual(missingMutantTrailers(output), {
+            commits: 5,
+            missing: ['c'.repeat(40), 'd'.repeat(40), 'e'.repeat(40)],
+        });
+        // An empty log means an empty range, never a failure.
+        assert.deepEqual(missingMutantTrailers(''),
+            { commits: 0, missing: [] });
+    });
 
 test('recorded readiness attestations must carry all three statements', () => {
     // The three keys review.md defines; whitespace-only text is as absent as
