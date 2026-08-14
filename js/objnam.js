@@ -732,8 +732,9 @@ export function assertPricedObjectNameable(obj, state = game) {
 // holds only for the suit, whose armoroff() leaves ga.afternmv at Armor_off;
 // armoroff() refuses the other delayed slots. Donning holds for every slot
 // whose oc_delay is non-zero, which accessory_or_armor_on() now reaches for
-// four of them: the suit at 3 to 5 turns, the helmet at 1 for all but the
-// fedora and the dented pot, the gloves at 1 and the boots at 2. Neither ever
+// four of them: the suit at 1 to 5 turns, since both mithril-coats carry
+// oc_delay 1 where the other suits carry 3 or 5; the helmet at 1 for all but
+// the fedora and the dented pot; the gloves at 1 and the boots at 2. Neither ever
 // reaches a name, because
 // nothing in this port redraws inventory on its own and moveloop_core() reads
 // no key while gm.multi is negative, so nothing is formatted inside either

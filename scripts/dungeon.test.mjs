@@ -705,6 +705,13 @@ test('ceiling names every overhead in the C branch order', () => {
         // IS_ROOM(typ) is `typ >= ROOM`, so a corridor falls past it and
         // reaches the last arm, as solid rock does.
         ['corridor', CORR, {}, 'rock cavern'],
+        // A raised drawbridge is the case that decides whether ceiling() reads
+        // lev->typ directly or through SURFACE_AT(). DRAWBRIDGE_UP is 19
+        // (rm.h:75), so it is neither IS_DOOR(), which rm.h:121 defines as
+        // `typ == DOOR`, nor IS_WALL(), which rm.h:117 caps at DBWALL, and it
+        // falls to the last arm. Through SURFACE_AT() it would answer for the
+        // terrain the bridge spans instead.
+        ['raised drawbridge', DRAWBRIDGE_UP, {}, 'rock cavern'],
         ['solid rock', STONE, {}, 'rock cavern'],
         // The earth plane's rooms are carved out of rock, so they lose the
         // IS_ROOM() arm; a wall there keeps it.

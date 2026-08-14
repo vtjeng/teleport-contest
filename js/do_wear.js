@@ -239,8 +239,9 @@ export function reset_remarm(state = game) {
 // Of the fourteen this port installs eight: the seven `<X>_on` callbacks, and
 // Armor_off in armoroff()'s delayed branch. Only four of them open a window,
 // because only a non-zero oc_delay makes accessory_or_armor_on() count down:
-// the suit at 3 to 5 turns, the helmet at 1 for every type but the fedora and
-// the dented pot, the gloves at 1 and the boots at 2. The cloak, the shirt,
+// the suit at 1 to 5 turns, since both mithril-coats carry oc_delay 1 where
+// the other suits carry 3 or 5; the helmet at 1 for every type but the fedora
+// and the dented pot; the gloves at 1 and the boots at 2. The cloak, the shirt,
 // the shield and those two helmets are consumed by unmul('') in the same
 // statement sequence that installs them, so they are never pending when
 // anything else runs. Doffing stays the suit's alone, because armoroff()

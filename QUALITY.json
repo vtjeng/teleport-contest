@@ -2416,6 +2416,33 @@
       "from": "5d3099940103ba2825c1c538251df9088f9f260b",
       "detail": "invent.c getobj()'s count block (1888-1913 and 2034-2043). A digit typed at any object prompt is read by get_count() and, when the count is smaller than the stack, split off with splitobj() before the object is returned. js/invent.js raises UnsupportedObjectPromptError('the object prompt requires get_count() and splitobj()') on the first digit. The refusal is older than the t command and shared with every ported object prompt, d, W, T, a and e included, so lifting it belongs to invent.c's port rather than to dothrow.c's, exactly as the sibling entry throw-prompt-answered-with-a-menu-request states for ? and *.\n\nIt is what makes dothrow.c throw_gold()'s unsplitobj() branch (2665-2667) unreachable. Nothing else in the port splits a coin stack, so obj->o_id matches neither svc.context.objsplit.parent_oid nor child_oid when a thrown purse comes back to the hero, and js/dothrow.js throw_gold() never raises its UnsupportedThrowError('unsplitobj()'). Two mutants on that disjunction survive scripts/mutate-sites.mjs for the same reason; the commit that added throw_gold() records them.\n\nFresh case, recorded here: seed 6120001, datetime 20000110090000, OPTIONS=name:Volley,role:Healer,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics, moves '.t5$.'. The Healer splits 5 coins off her 1911 and throws them at herself, which is the shortest input that reaches unsplitobj(). Expected failure today: 2315 of C's 2316 calls and 3 of 6 screens match, and the segment ends on the '5' key. C's later screens show $:1906 while the direction prompt is open and $:1911 again after 'You cannot throw gold at yourself.', which is the merge unsplitobj() performs. The sibling '.t5$l' throws the split stack east instead and leaves $:1906 standing, so it separates the split from the merge.\n\nClosing condition: port get_count() and getobj()'s count handling, then add both segments to scripts/run-throw-gold.mjs and drop throw_gold()'s unsplitobj() refusal in favour of the port.",
       "blockedOn": "getobj"
+    },
+    {
+      "id": "throw-gold-at-a-monster-stops-under-the-wrong-name",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "d114520a3f565a6329a5cd07f022289ee0313862",
+      "detail": "throw_gold() carries a correctly named ghitm() refusal that no input can reach: js/zap.js bhit() raises UnsupportedBhitError with the branch name thitmonst() for any monster in the flight path before it can return one, so a gold throw at a monster stops under a name belonging to throwit() rather than to this caller. The ghitm() refusal is therefore dead code and the reachable stop misnames its C function. Closes when bhit() distinguishes its callers, which touches the path the live f command shares, so it belongs to a slice that owns bhit() rather than to a wear or throw front end. Confirmed by the goal-closing correctness pass over 21ef982..d114520."
+    },
+    {
+      "id": "throw-gold-range-has-no-oracle",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "d114520a3f565a6329a5cd07f022289ee0313862",
+      "detail": "throw_gold()'s range expression, ACURRSTR/2 minus owt/40, is unpinned: the only recorded segment that reaches bhit() is stopped by a wall two squares out, so every computed range of 2 or more produces identical screens. Closes when a segment gives the gold a clear flight path longer than the computed range, so the coins stop where the range says rather than where the wall does. Confirmed by the goal-closing correctness pass over 21ef982..d114520."
+    },
+    {
+      "id": "throw-gold-landing-tail-is-unpinned",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "d114520a3f565a6329a5cd07f022289ee0313862",
+      "detail": "Two calls in throw_gold()'s landing tail can be deleted with the whole suite green. stackobj() and its extractExternalObject hook are unexercised because no recorded segment lands gold on a square that already holds gold, and the framesPerStep assertion named as the discriminator for the odx/ody guard does not discriminate it, since both the wall and the closed-door case pass unchanged when the guard falls through to bhit(). Closes when a segment lands gold on an existing pile and the guard has an assertion that fails when it falls through. Confirmed by the goal-closing correctness pass over 21ef982..d114520."
     }
   ],
   "areas": [

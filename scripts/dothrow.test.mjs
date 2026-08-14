@@ -996,9 +996,12 @@ test('throwit() reads the stamina test differently in each direction',
     });
 
 test('throw_obj() refuses the throws C answers with a message', async () => {
-    // dothrow.c:112-113. Gold is thrown whole unless it is quivered, and the
-    // port stops at throw_gold(); a dagger reaches that test only through its
-    // second half, so a dagger that is not the quivered stack passes it.
+    // dothrow.c:112-113. Gold is thrown whole unless it is quivered, so
+    // throw_obj() dispatches to throw_gold() on the first half of that test;
+    // a dagger reaches it only through the second half, and a dagger that is
+    // not the quivered stack passes. This case pins the dispatch rather than
+    // a refusal: throw_gold() has been ported since 5d30999, and the arms that
+    // still stop are inside it.
     const loose = arena();
     const dagger = item(loose, DAGGER);
     carry(loose, dagger);

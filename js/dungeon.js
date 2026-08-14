@@ -1294,9 +1294,14 @@ function surface_typ(location) {
 // port's in_rooms() returns those numbers as an array, and every entry it can
 // hold is at least ROOMOFFSET, so a non-empty array is the same answer.
 //
-// C reads `lev->typ` directly here rather than through SURFACE_AT(), so a
-// closed drawbridge is IS_DOOR() and reports "ceiling" rather than reporting
-// what the bridge spans. surface_typ() is deliberately not used.
+// C reads `lev->typ` directly here rather than through SURFACE_AT(), which
+// decides what a raised drawbridge answers. DRAWBRIDGE_UP is 19 (rm.h:75), so
+// it is neither IS_DOOR(), which rm.h:121 defines as `typ == DOOR`, nor
+// IS_WALL(), which rm.h:117 caps at DBWALL; it therefore falls past every arm
+// of the disjunction below and answers "rock cavern". Reading it through
+// SURFACE_AT() instead would substitute the terrain the bridge spans, which
+// for a drawbridge over ordinary floor would answer "ceiling". surface_typ()
+// is deliberately not used, and the two answers differ.
 //
 // Is_waterlevel(), Is_firelevel(), In_quest() and Is_earthlevel() are spelled
 // out against `state` for the reason has_ceiling() gives above, and Underwater
