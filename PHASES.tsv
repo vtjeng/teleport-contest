@@ -413,3 +413,5 @@ utc	event	phase	goal	detail
 2026-08-14T03:16:17.496Z	end	select	armor-wear	wear-gloves-and-boots queued; expected to close the goal
 2026-08-14T03:16:17.535Z	start	implement	armor-wear	wear-gloves-and-boots: Boots_on() and the two remaining slot cases
 2026-08-14T04:02:15.156Z	end	implement	armor-wear	wear-gloves-and-boots closed at 93ee77d; all seven armor slots live
+2026-08-14T04:04:06.526Z	start	review	armor-wear	goal-closing correctness pass over fc56134..21ef982, the four unreviewed slices
+2026-08-14T04:45:21.622Z	end	review	armor-wear	goal-closing correctness pass recorded through 21ef982; 26 raw, 19 deduplicated, 15 confirmed, 10 applied, 5 deferred, 4 rejected

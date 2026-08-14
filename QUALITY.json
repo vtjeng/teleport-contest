@@ -12016,6 +12016,123 @@
         }
       },
       "recordedAt": "2026-08-13T23:08:05.989Z"
+    },
+    {
+      "kind": "review",
+      "head": "21ef982a4892b12da7f04808e00a55855a8fc6d5",
+      "auditedRange": "fc5613417808880f893c983a735b402db3772876..21ef982a4892b12da7f04808e00a55855a8fc6d5",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "93ee77dbfc1a37a2d7be53a943bb3474df0d9766",
+        "reason": "the checklist covers 93ee77db, an ancestor of the range head; the 4 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 26 raw, 19 deduplicated, 15 confirmed, 10 applied, 5 deferred, 4 rejected, 0 unverified; mutation: 0 survivors of 12 mutants. Goal-closing pass over the four unreviewed slices of armor-wear, with both optional finders left off: the getobj() callback contract that justified concurrency last time is in the previous range, and no unbounded work is added. Ten findings applied in 2255ec6 and 84510d7, all documentation, so production behavior is unchanged and the development score holds at 1538 screens. The pass found one dominant pattern rather than scattered defects: six of the ten corrections are comments that were true when written and false one or two commits later in the same range, because each slice updated a comment the next slice invalidated -- js/cmd.js still claimed the helmet, glove and boot slots refuse wholesale after the slices that made them live, cancel_doff() reasoned from two installed callbacks where there are now eight and from one donning window where there are four, and accessory_or_armor_on()'s own header claimed four ported slots and one delayed arm. A seventh was mine, from this goal's earlier audit fix, where I wrote that neither ring bit was pinned when one was. The single production finding is deferred with the site documenting it: set_wear() runs from moveloop_preamble, upstream of both fail-closed converters, so a refusal there ends the segment outright rather than at a boundary with its matching prefix -- unreachable today, but the exposure grows with every refusal added to an <X>_on(). Four rejections are recorded with counter-evidence, two of them claiming Cloak_on() and Armor_on() silently skip C arms at startup, refuted because gi.initial_don makes the arms in question return without acting.",
+      "auditMetrics": {
+        "wallTimeSeconds": 5400,
+        "counts": {
+          "raw": 26,
+          "deduplicated": 19,
+          "confirmed": 15,
+          "applied": 10,
+          "deferred": 5,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 4,
+          "clarity": 10,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/do_wear.js set_wear() runs from js/moveloop_preamble.js, upstream of both js/cmd.js failClosedCommandRefusals() and js/allmain.js elapsedTurnPlanningRefusals(), so an UnsupportedWearError raised there is a hard failure rather than a fail-closed boundary: the segment ends outright instead of ending at a boundary with its matching prefix intact. Nothing reaches one today, because the accessory test cannot fire and no starting worn piece reaches a refused otyp, but every refusal added to an <X>_on() widens the exposure and the startup path is the one place the port has no converter. Deferred rather than fixed because the converter is its own work; the site now records the gap and names the entry.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/do_wear.js:514 [correctness] Cloak_on() and Armor_on() carry no otyp guard of their own, unlike Boots_on(), Helmet_on(), Gloves_on() and Shirt_on(). Their only unhoisted caller is set_wear(), so for those two slots the startup path is fail-open: an unported C arm would be skipped silently instead of stopping at a named refusal.",
+            "counterEvidence": "evidence refute: The category is correctness, and no reachable state produces the claimed silent skip. Counter-evidence: set_wear() is called only from js/moveloop_preamble.js:71 with the gear u_init.c ini_inv_use_obj() wore, and u_init.c's thirteen trobj tables give the suit slot only LEATHER_JACKET, RING_MAIL/ORCISH_RING_MAIL, LEATHER_ARMOR and SPLINT_MAIL, and the cloak slot only ROBE, CLOAK_OF_MAGIC_RESISTANCE and CLOAK_OF_DISPLACEMENT/ELVEN_CLOAK. do_wear.c dragon_armor_handling() (798+) takes `default: break` for every one of those suits and artifact_light() is FALSE for all of them, so C's Armor_on() does nothing the port omits; do_wear.c toggle_stealth():111-112 and toggle_displacement():153-154 both return under gi.initial_don, so C's Cloak_on() does nothing for the two Ranger types either. The 'W' path refuses both slots above setworn() at js/do_wear.js:1499-1500 and :1506-1507, and zap.c poly_obj() — C's only other set_wear() caller — is unported. The finding concedes \"Not reachable today\"; there is no state, reachable or constructible by the running game, in which the port's Armor_on() or Cloak_on() diverges from C. | causality refute: The stated impact is not material "
+          },
+          {
+            "summary": "js/do_wear.js:789 [variable-trace] set_wear() calls Cloak_on() and Armor_on() with no otyp guard, while it calls Boots_on(), Gloves_on() and Helmet_on() which each keep one — so the startup path silently skips C arms for two of the seven slots instead of stopping by name.",
+            "counterEvidence": "evidence refute: The trace is accurate but the claimed defect — a silently skipped C branch — cannot occur on any path the running game has. Counter-evidence: The probe reaches Cloak_on()/Armor_on() only by assigning game.uarmc and game.uarm directly. In the game, set_wear()'s inputs are bounded by u_init.c ini_inv_use_obj(), whose thirteen trobj tables give the cloak slot only ROBE, CLOAK_OF_MAGIC_RESISTANCE and CLOAK_OF_DISPLACEMENT/ELVEN_CLOAK and the suit slot only LEATHER_JACKET, RING_MAIL/ORCISH_RING_MAIL, LEATHER_ARMOR and SPLINT_MAIL. For every one of those, C's Cloak_on() and Armor_on() do exactly what the port does: dragon_armor_handling() takes `default: break` and artifact_light() is FALSE for all four suits, and toggle_stealth()/toggle_displacement() return at do_wear.c:111-112 and :153-154 under gi.initial_don for the two Ranger cloaks. The 'W' path refuses both slots by otyp above setworn(). No C branch is skipped, so AGENTS.md's silent-skip rule is not engaged. | causality refute: No material impact within the range; the asymmetry is defensive style, not divergence. Counter-evidence: The finding's own live example — a Ranger's cloak of displacement through set_wear("
+          },
+          {
+            "summary": "js/do_wear.js:796 [readability] set_wear()'s comment justifies calling Boots_on() rather than refusing on the grounds that a refusal \"would stop a game C finishes\", but Boots_on() itself refuses five of the ten boot types, including the one whose C arm is a no-op at the initial don.",
+            "counterEvidence": "evidence refute: The traced facts are right — js/do_wear.js:463 throws for any otyp outside PLAIN_BOOTS_ON, and do_wear.c:227-229 gives ELVEN_BOOTS only toggle_stealth(), which returns at :112 while gi.initial_don is set — but the claimed problem, that the comment reads as a guarantee that the boots slot is safe at startup, is not what the file says. Counter-evidence: The comment at js/do_wear.js:790-795 asserts only that a call is preferable to a refusal in front of a ported function; a call is strictly more permissive than a refusal, so the sentence is true wherever it applies and vacuous elsewhere. The file states the opposite of the claimed guarantee in three places: js/do_wear.js:433-450 names all five refused boot types (WATER_WALKING_BOOTS, SPEED_BOOTS, ELVEN_BOOTS, FUMBLE_BOOTS, LEVITATION_BOOTS) sixty lines above; the accessory_or_armor_on() hoist comment says 'Boots_on(), Helmet_on() and Gloves_on() keep a copy of their question as well as being hoisted here, because set_wear() reaches them with whatever u_init.c wore and has no frame above it to hoist into'; and scripts/wear-armor.test.mjs:1038-1044 asserts directly that a SPEED_BOOTS in uarmf still stops set_wear(). Not"
+          },
+          {
+            "summary": "js/moveloop_preamble.js:12 [readability] Wiring set_wear() into the preamble creates a new import cycle between js/moveloop_preamble.js and js/do_wear.js, with no note at either end.",
+            "counterEvidence": "evidence refute: The two import statements exist as described and both bindings are hoisted function declarations, but a mutual import edge is this codebase's norm rather than a hazard a file is expected to flag, so no concrete problem is shown. Counter-evidence: Enumerating the module graph over js/*.js finds 76 mutually importing pairs, among them do_wear.js <-> wield.js, invent.js <-> cmd.js, hack.js <-> display.js and eat.js <-> objnam.js. Only about ten files carry a note about the cycle they sit in (js/getline.js:12, js/light.js:236, js/eat.js:1776, js/allmain.js:833, js/hacklib.js:135, js/unported_monster_actions.js:34, js/cmd.js:228, js/cmd.js:1302, js/trap_effects.js:11, js/hack.js:116). Both modules load cleanly and no top-level read crosses the edge. | causality refute: The claim that the range makes these two modules mutually dependent for the first time is true only of this particular pair; js/do_wear.js was already inside a cycle before the range, so the hazard is pre-existing. Counter-evidence: js/wield.js:14 imports setwornEnv from './do_wear.js' while js/do_wear.js:160 imports Glib and welded from './wield.js' — a two-cycle that predates fc56134. js/do_wear.js:78 a"
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "set-wear-refusals-do-not-fail-closed",
+            "trackedIn": "set-wear-refusals-do-not-fail-closed",
+            "category": "production",
+            "summary": "js/do_wear.js set_wear() runs from js/moveloop_preamble.js, upstream of both js/cmd.js failClosedCommandRefusals() and js/allmain.js elapsedTurnPlanningRefusals(), so an UnsupportedWearError raised there is a hard failure rather than a fail-closed boundary: the segment ends outright instead of ending at a boundary with its matching prefix intact. Nothing reaches one today, because the accessory test cannot fire and no starting worn piece reaches a refused otyp, but every refusal added to an <X>_on() widens the exposure and the startup path is the one place the port has no converter. Deferred rather than fixed because the converter is its own work; the site now records the gap and names the entry."
+          },
+          {
+            "id": "wear-refusal-tests-do-not-pin-the-error-class",
+            "trackedIn": "wear-refusal-tests-do-not-pin-the-error-class",
+            "category": "tests",
+            "summary": "Every otyp-refusal assertion matches on message text alone, so swapping UnsupportedWearError for a plain Error leaves the suite green while turning a fail-closed boundary into a crash -- a confusion the code invites, since accessory_or_armor_on() throws a plain Error for C panic() eleven lines away."
+          },
+          {
+            "id": "set-wear-test-pins-three-of-seven-callbacks",
+            "trackedIn": "set-wear-test-pins-three-of-seven-callbacks",
+            "category": "tests",
+            "summary": "The test named for set_wear() pins three of its seven callback calls; the shield assertion is tautological and four of the calls can be deleted with no test failing anywhere."
+          },
+          {
+            "id": "set-wear-refusal-test-cannot-see-the-boundary",
+            "trackedIn": "set-wear-refusal-test-cannot-see-the-boundary",
+            "category": "tests",
+            "summary": "set_wear() refusals are covered by a direct assert.throws that passes identically whether the refusal ends the segment on a named boundary or escapes runSegment entirely."
+          },
+          {
+            "id": "wish-tests-skip-their-own-typing-guard",
+            "trackedIn": "wish-tests-skip-their-own-typing-guard",
+            "category": "tests",
+            "summary": "Three wish tests build hard-coded key prefixes but locate their segment with wishSegmentFor(), bypassing the wishSegmentTyping() guard added in the same commit for that hazard."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "fc5613417808880f893c983a735b402db3772876..21ef982a4892b12da7f04808e00a55855a8fc6d5"
+          ],
+          "mutants": 12,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 6,
+              "killed": 6
+            },
+            "logical": {
+              "ran": 6,
+              "killed": 6
+            }
+          },
+          "deltaRun": "The audit-fix commit 2255ec6 lands after this range and yields 0 mutation sites: seven of its eight changes are comment text and the eighth is a test comment, which npm run checkpoint measured as 0 survivors of 0 mutants over the uncommitted js/ diff before the commit.",
+          "finderConclusion": "The tests finder was told the clean 12-of-12 result was weak evidence here, because much of the range is Set literals, switch cases and comments carrying no mutable operator, and to look for assertions that cannot fail rather than unmutated lines. It did exactly that and returned five findings a mutation run could not have produced: a tautological shield assertion, four of set_wear()s seven calls deletable with the suite green, refusal assertions that never name the error class, a refusal test that cannot distinguish a named boundary from an escaped throw, and three wish tests bypassing a guard added in the same commit for that hazard."
+        }
+      },
+      "recordedAt": "2026-08-14T04:45:04.998Z"
     }
   ]
 }
