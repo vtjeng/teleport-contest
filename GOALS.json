@@ -2016,6 +2016,11 @@
           "name": "wear-delayed-suit",
           "status": "closed",
           "closedBy": "5f9170230412cdee95ca4a698ad98c06e1df3e18"
+        },
+        {
+          "name": "wear-cloak-and-shirt",
+          "status": "closed",
+          "closedBy": "6595460a0b51475b065b94b849e385984da12ec3"
         }
       ],
       "openedAt": "0fc4e5f17fc9188a77f0f36c6b95ede1a215c476",

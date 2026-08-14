@@ -404,3 +404,4 @@ utc	event	phase	goal	detail
 2026-08-14T00:25:45.440Z	start	select	armor-wear	third slice of armor-wear
 2026-08-14T00:36:23.498Z	end	select	armor-wear	wear-cloak-and-shirt queued; grouping plan: helmet next, then gloves and boots
 2026-08-14T00:36:23.526Z	start	implement	armor-wear	wear-cloak-and-shirt: Cloak_on() bare-break arms and Shirt_on() whole
+2026-08-14T01:14:02.442Z	end	implement	armor-wear	wear-cloak-and-shirt closed at 6595460; score unchanged at 1538 screens, the goal's forecast
