@@ -451,3 +451,5 @@ utc	event	phase	goal	detail
 2026-08-14T20:48:32.157Z	end	review	monster-melee-attack	9 of 15 confirmed, 9 applied, no production defect; recorded at 28ee8bf
 2026-08-14T21:11:00.718Z	start	implement	tests-deferral-burndown	five worktree-isolated lanes over 37 actionable tests deferrals
 2026-08-14T22:13:10.010Z	end	implement	tests-deferral-burndown	five lanes closed 23 of 37, left 14 with reasons, filed 9 new; development unmoved
+2026-08-14T22:56:36.613Z	start	select	counted-command-occupation	boundary port after a sweep; counted-command-occupation queued at 34 capped steps
+2026-08-14T22:56:36.644Z	end	select	counted-command-occupation	runner-up pet melee at 19 capped, queued next

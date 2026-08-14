@@ -2220,6 +2220,48 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "counted-command-occupation",
+      "status": "open",
+      "boundary": "A digit typed as the first byte of a command opens a count, and the counted command runs as an occupation. cmd.c parse() (5096-5150) hands the digit to the already-ported get_count() (5010-5089) and sets gm.multi = gc.command_count - 1; rhack() calls set_occupation(func, tlist->f_text, gm.multi) at 3728-3729; cmd.c timed_occupation() (172-178) counts gm.multi down inside allmain.c moveloop_core()'s occupation arm (484-509) until it answers 0 or monster_nearby() stops it. Two conditions bound it. First, extcmdlist[] carries occupation text on exactly two of its 170 rows, 's'/searching at cmd.c:1846-1847 and '.'/waiting at :1930-1931, both already dispatched, so a count before any other row still refuses and no ported line lies under moveloop_core()'s non-occupation gm.multi > 0 arm (515-531): counted movement, lookaround(), end_running() and svc.context.mv stay unported. Second, js/cmd.js set_occupation()'s 'if (xtime) throw' at :260 is replaced by C's timed_occupation() install and nothing else in that function changes, so the untimed occupations eat.c, lock.c and do_wear.c already install keep their present behavior.",
+      "upstreamOwners": [
+        "cmd.c parse()",
+        "cmd.c rhack()",
+        "cmd.c set_occupation()",
+        "cmd.c timed_occupation()",
+        "cmd.c reset_cmd_vars()",
+        "allmain.c moveloop_core()",
+        "detect.c dosearch()"
+      ],
+      "forecast": {
+        "steps": 34,
+        "basis": "Capped look-ahead over the two count-prefix stops, which are the reconciliation's two remaining no-modeled-behavior rows and so carry no behavior-table row of their own; their stretches were capped by hand, which .agents/selection.md requires deciding before ranking. seed0004-feeding-pony stops at 171 of 409 with a ceiling of 67 to the modeled #loot at 238, capped to 32 at step 203 where hack.c dopush() prints 'With %s effort you move %s.'; grep -rn 'moverock|great effort' js/*.js returns nothing, verified by the orchestrator. seed0900-tourist-explore-actions stops at 11 of 84 with a ceiling of 73, capped to 2 at step 13 where the little dog's dog_move() ALLOW_M arm reaches mattackm() and the port refuses. 32 + 2 = 34. Beyond the forecast the goal is a prerequisite for two more sessions: seed0007 types 7 counted searches from step 223 and seed0012 types 6 from step 221, both far past their present stops of 50 and 24. Across the development set every count is a counted 's', 23 of them in four sessions, and none is a counted movement, so the narrow boundary costs nothing. Competing capped figures at 82e97b4: pet melee 19, wizgenesis 13, options menu 13, engraving interaction 6 from 609 raw, level_tele '?' 4 from 198 raw, puton 4, #loot 1, #rub 1.",
+        "sessions": [
+          "seed0004-feeding-pony",
+          "seed0900-tourist-explore-actions"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Seed 4, datetime 20260414173108, OPTIONS=symset:DECgraphics, no debug. Step 171's byte is 9, the first digit of '9s'. num_pad is off, so parse() at 5112-5119 calls get_count(NULL, 0, LARGEST_INT, &gc.command_count, GC_NOFLAGS), which consumes 9, returns s, and leaves gc.command_count 9 and gm.multi 8 at 5142-5144. rhack() finds the 's' row, f_text 'searching', ef_funct dosearch; go.occupation is clear and gm.multi nonzero, so 3728-3729 installs timed_occupation(). The port refuses one step earlier, at the digit, in js/cmd.js:962. Screens 171-202 all carry an empty message row and the status line is byte-identical at both ends at HP:16(16) $:4 Xp:1, so no second behavior fires inside the stretch."
+          },
+          {
+            "session": "seed0900-tourist-explore-actions",
+            "evidence": "Seed 900, datetime 20000110090000, Tourist, playmode:explore, msg_window:reversed. Step 11's byte is 2, the first digit of '20s'; same parse() path. C echoes 'Count: 20' only at step 12, because get_count() prints once cnt exceeds 9 at 5070-5081, which is why the stretch is worth exactly two screens. It ends at step 13, where the little dog's dog_move() ALLOW_M arm at dogmove.c:1102-1151 reaches mattackm() and the port refuses at js/unported_monster_actions.js:772."
+          }
+        ]
+      },
+      "detail": "get_count() and parse() are already ported at js/cmd.js:743 and :837 and already reachable after a prefix at :2026; only the first byte of a command is refused. js/cmd.js readSimpleCommand() at :943-966 exists specifically to classify the first byte before get_count() can consume a prefix byte or expose transient count output, so the refusal has to move behind the count echo without corrupting the pendingCommand physical and parsed replay machinery at :1190-1202 and :1955-1975. js/cmd.js set_occupation() throws on a nonzero xtime with a comment saying the call cannot happen because this port's command boundary parses no count; that comment goes stale the moment the first slice lands, verified present by the orchestrator. The occupation loop, monster_nearby(), stop_occupation() and reset_eat() in js/allmain.js:1096-1123 are already ported, so the goal adds no turn-loop machinery. Only about 25 lines of C are unported: timed_occupation() plus the two-line set_occupation() call site.",
+      "slices": [],
+      "openedAt": "82e97b4a33faa905e30ba54a4cd233aa4dca83f0",
+      "openStanding": {
+        "sha": "9c97ee3",
+        "screens": 1657,
+        "rng": 124279
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
