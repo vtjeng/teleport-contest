@@ -299,39 +299,3 @@ entries, so that flag rate needs measuring again before the rule is chosen.
 **What it leaves unfixed.** A check that reads `detail` cannot see an entry
 that cites no path at all. Of the 92 open entries measured at `4930664`, 33
 cited none, and those keep whatever label they were filed under.
-
-## Say that naming a path does not make `git checkout --` safe
-
-**What it changes.** `AGENTS.md`, "Restore paths by name", would say what a named
-restore actually does. Today it forbids `git checkout -- .`, `git checkout HEAD
--- .` and `git restore .`, then says "Name the paths you mean to restore",
-which reads as though the named form is the safe alternative. It is not: `git
-checkout -- js/do_wear.js` restores that file to HEAD and discards every
-uncommitted change in it. The section's own closing paragraph -- staged work
-survives as an unreachable blob, unstaged work is gone -- applies to the named
-form exactly as it does to the bare one, but sits under a heading that has just
-recommended naming paths.
-
-**Scope.** A paragraph in `AGENTS.md` and, if the recipe is wanted, one sentence
-naming the safe way to undo a deliberate edit: copy the file to the scratchpad
-first, or read the prior content back with `git show <ref>:<path>`, both of
-which the "Git and GitHub" rules already prefer over `git stash`.
-
-**What prompted it.** The `wear-gloves-and-boots` worker destroyed its own
-uncommitted work twice on 13 August 2026, both times with `git checkout --
-<path>` while undoing a break-and-observe mutation -- the exact operation the
-testing rules require every new test to perform. It recovered `js/do_wear.js`
-and `scripts/run-wear-armor.mjs` from its own conversation and worked from
-scratchpad copies thereafter, and reported the trap unprompted. Break-and-
-observe runs once per new assertion, so every worker meets this operation
-several times per slice.
-
-**Cost.** Very small, and prose only. No script, no check, no settings change.
-Extending `.claude/settings.json`'s deny list to the named form was considered
-and rejected here: the named form is the correct tool for discarding an edit
-deliberately, and denying it would push agents toward worse alternatives.
-
-**What it leaves unfixed.** Nothing detects the mistake. A worker that runs the
-named form still loses the file, and the only recovery is the conversation or a
-scratchpad copy it had the foresight to make. A check cannot help, because the
-command is legitimate; only the habit of copying first protects the work.

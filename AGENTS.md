@@ -262,32 +262,42 @@ line. Git writes a separate submodule gitdir under
 other worktree. It costs 31 MiB for the working tree and 170 MiB for that
 gitdir.
 
-### Restore paths by name
-
-Never run `git checkout -- .`, `git checkout HEAD -- .`, or `git restore .`.
-Name the paths you mean to restore. A bare restore discards every uncommitted
-change in the tree, including another agent's work in progress.
-`.claude/settings.json` denies these commands, so a tool call that tries one is
-refused. Its deny message sits inside a single-quoted shell string, so it can
-hold no apostrophe; an apostrophe there breaks the hook, and a broken hook fails
-every Bash call.
-
-If you run one anyway, staged work survives as an unreachable blob:
-`git fsck --unreachable` lists it and `git cat-file -p <sha>` prints it back.
-Unstaged work is gone.
-
 ### Stage paths by name
 
-Never run `git add -A`, `git add --all`, `git add -u`,
-`git add --update`, or `git add .`. These commands can stage another agent's
-in-progress changes from the shared working tree.
-
-Stage only the paths the current work intentionally changed:
+Stage the paths the current work changed:
 
 `git add path/one path/two`
 
+Avoid the whole-tree forms (`git add -A`, `git add --all`, `git add -u`,
+`git add --update`, `git add .`), since they also stage any other in-progress
+changes from the shared working tree.
+
 Before committing, inspect `git diff --cached --name-only` and confirm that
 every staged path belongs to the commit.
+
+Staging also protects work in progress. A restore keeps staged changes and
+discards unstaged ones; the next section identifies when that matters.
+
+### Make temporary edits safely
+
+Watching a new test fail means making a temporary edit to a production line, in
+a file that also holds the rest of an uncommitted slice, then putting the line
+back. Reverse the edit the way you made it: a text edit that restores the line
+touches nothing else in the file.
+
+Git can do it instead, with one precondition. `git checkout -- <path>` and
+`git restore <path>` rewrite the whole path from the index, discarding every
+edit made since the last `git add` on it. Stage the file before you make the
+temporary edit, ensuring that `git restore <path>` undoes only that edit.
+
+Avoid `git checkout HEAD -- <path>`, because it rewrites the index and discards
+the staged version. Avoid `git checkout -- .`, `git checkout HEAD -- .` and
+`git restore .`, because they touch every file in the tree, including unrelated
+work by another agent; `.claude/settings.json` denies all three.
+
+A staged version can still be recovered after `git checkout HEAD -- <path>`:
+`git fsck --unreachable` lists it and `git cat-file -p <sha>` prints it. A
+version that was never staged is gone.
 
 ### When to stop and ask the user
 
