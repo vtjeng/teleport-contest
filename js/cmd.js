@@ -1218,10 +1218,14 @@ export function failClosedCommandRefusals() {
         // objects[].oc_delay is non-zero and for the slots whose <X>_off()
         // is unported, in both cases before anything is drawn or removed.
         UnsupportedTakeOffError,
-        // do_wear.c dowear() raises this for the helmet, glove and boot slots,
-        // for the cloak and suit types whose <X>_on() reaches outside
-        // do_wear.c, and for accessory_or_armor_on()'s accessory half, all of
-        // them before setworn() writes.
+        // do_wear.c accessory_or_armor_on() raises this above setworn() for
+        // the accessory half, the quest helm, an artifact, armor held in a
+        // weapon slot, and the suit, cloak, helmet, glove and boot otyps whose
+        // <X>_on() reaches outside do_wear.c. No slot refuses wholesale: all
+        // seven reach a callback. on_msg() raises it for prinv().
+        // set_wear() raises it too, from moveloop_preamble() rather than from
+        // a command, so that one raiser is outside everything this list
+        // converts; js/do_wear.js set_wear() records why that is tolerable.
         UnsupportedWearError,
         // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
         // and done_eating() and lesshungry() call it from doeat().

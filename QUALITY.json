@@ -2331,6 +2331,51 @@
       "status": "open",
       "from": "aba9f0052daad93849190df93633224cc6d4becb",
       "detail": "The same limit for the glove slot. Of do_wear.c Gloves_on()'s four types only LEATHER_GLOVES falls to a bare break; the other three reach outside do_wear.c, and js/do_wear.js accessory_or_armor_on() refuses them by otyp above setworn().\n\nGAUNTLETS_OF_FUMBLING at do_wear.c:584-587 calls incr_itimeout(&HFumbling, rnd(20)). GAUNTLETS_OF_POWER at 588-591 calls makeknown() and redraws the status line, where attrib.h ACURR(A_STR) then answers 25 for as long as the pair is worn. GAUNTLETS_OF_DEXTERITY at 592-594 calls attrib.c adj_abon().\n\nCase just outside the goal's limit, recorded here, expected to fail until the arm is ported. A Valkyrie, female human neutral, name Wear, datetime 20310203040506, seed 7720231, options \"pettype:none,!acoustics,!autopickup,time,showexp,playmode:debug,!legacy,!tutorial,!splash_screen\", moves \".^W+0 gauntlets of power\\nWe.\" where ^W is C(w), the wizwish key. C wears them over the type's oc_delay of 1, moving the turn counter from T:2 to T:3, AC from 6 to 5 and the Strength field from St:17 to St:25, and prints \"You finish your dressing maneuver.\" -- the pair is named \"a pair of old gloves\" throughout, because the three magical glove types keep o_init.c's shuffled descriptions where knows_class(ARMOR_CLASS) marks the non-magical ones known. The port stops on the \"e\" with UnsupportedWearError(\"Gloves_on() for otyp 161\"), one frame above setworn(), with 26 of C's 28 screens and the slot, AC, Strength and clock untouched.\n\nClosing condition: Gloves_on()'s other three arms are ported or refused under their own names, which needs attrib.c adj_abon() and ABON(), and a recorded C case that wears each with W matches call for call and screen for screen. scripts/wear-armor.test.mjs pins the stop for all three types."
+    },
+    {
+      "id": "set-wear-refusals-do-not-fail-closed",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7ef17555b6bd7450a35ad8232f4d200683a91545",
+      "detail": "js/do_wear.js set_wear() runs from js/moveloop_preamble.js, upstream of both js/cmd.js failClosedCommandRefusals() and js/allmain.js elapsedTurnPlanningRefusals(), so an UnsupportedWearError raised there is a hard failure rather than a fail-closed boundary: the segment ends outright instead of ending at a boundary with its matching prefix intact. Nothing reaches one today, because the accessory test cannot fire and no starting worn piece reaches a refused otyp, but every refusal added to an <X>_on() widens the exposure and the startup path is the one place the port has no converter. Closes when the preamble wraps the call in a converter of the shape js/allmain.js uses, or when a recorded case shows a startup refusal ending the segment on a named boundary. Confirmed by the goal-closing correctness pass over fc56134..21ef982."
+    },
+    {
+      "id": "wear-refusal-tests-do-not-pin-the-error-class",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7ef17555b6bd7450a35ad8232f4d200683a91545",
+      "detail": "Every otyp-refusal assertion added across the armor-wear slices matches on message text alone, never on the error class, so swapping UnsupportedWearError for a plain Error leaves the whole suite green while turning a fail-closed boundary into a crash. The confusion is invited by the code itself: accessory_or_armor_on() deliberately throws a plain Error for C panic() about eleven lines from the otyp refusals. Closes when each refusal assertion names the class as well as the text. Confirmed by the goal-closing correctness pass over fc56134..21ef982."
+    },
+    {
+      "id": "set-wear-test-pins-three-of-seven-callbacks",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7ef17555b6bd7450a35ad8232f4d200683a91545",
+      "detail": "The test named for set_wear() pins three of its seven armor callback calls. The shield assertion is tautological -- known is asserted true, set_wear() is called, known is asserted true again -- and the Shirt_on, Armor_on, Cloak_on and Shield_on calls can each be deleted from set_wear() with no test failing anywhere. Closes when each of the seven calls has an assertion that fails when that call alone is removed, which for the zero-delay slots means seeding known false first. Confirmed by the goal-closing correctness pass over fc56134..21ef982."
+    },
+    {
+      "id": "set-wear-refusal-test-cannot-see-the-boundary",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7ef17555b6bd7450a35ad8232f4d200683a91545",
+      "detail": "set_wear() refusals are covered only by a direct assert.throws, which passes identically whether the refusal ends the segment on a named boundary or escapes runSegment entirely. It is the latter, which set-wear-refusals-do-not-fail-closed records. Closes with that entry, or sooner by asserting through runSegment what a startup refusal actually does to a segment rather than asserting that a function throws. Confirmed by the goal-closing correctness pass over fc56134..21ef982."
+    },
+    {
+      "id": "wish-tests-skip-their-own-typing-guard",
+      "area": "objects",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "7ef17555b6bd7450a35ad8232f4d200683a91545",
+      "detail": "Three wish tests build hard-coded key prefixes but locate their segment with wishSegmentFor(), bypassing the wishSegmentTyping() guard added in the same commit for exactly that hazard: a prefix that drifts from the recorded segment then tests a different case in silence. Closes when the three call the guard, or when the guard is folded into wishSegmentFor() so the bypass is unavailable. Confirmed by the goal-closing correctness pass over fc56134..21ef982."
     }
   ],
   "areas": [

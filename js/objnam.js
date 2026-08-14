@@ -728,10 +728,13 @@ export function assertPricedObjectNameable(obj, state = game) {
 // objnam.c:1391-1395 prefers " (being doffed)" or " (being donned)" over
 // " (being worn)" while a Wear or Take-off is under way, and its own comment
 // names a perm_invent redraw as the case that reaches it. Both windows are
-// open in this port and each lasts the suit's oc_delay in turns: do_wear.c
-// armoroff() leaves ga.afternmv at Armor_off while a suit comes off, so
-// doffing() holds, and accessory_or_armor_on() leaves it at Armor_on while
-// one goes on, so donning() holds. Neither ever reaches a name, because
+// open in this port, and there are more of them than there once were. Doffing
+// holds only for the suit, whose armoroff() leaves ga.afternmv at Armor_off;
+// armoroff() refuses the other delayed slots. Donning holds for every slot
+// whose oc_delay is non-zero, which accessory_or_armor_on() now reaches for
+// four of them: the suit at 3 to 5 turns, the helmet at 1 for all but the
+// fedora and the dented pot, the gloves at 1 and the boots at 2. Neither ever
+// reaches a name, because
 // nothing in this port redraws inventory on its own and moveloop_core() reads
 // no key while gm.multi is negative, so nothing is formatted inside either
 // window.

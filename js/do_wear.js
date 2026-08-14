@@ -236,13 +236,18 @@ export function reset_remarm(state = game) {
 // svc.context.takeoff.what, which nothing writes; only the unported 'A' spine
 // does.
 //
-// Of the fourteen this port installs two, both for the suit slot: Armor_off,
-// in armoroff()'s delayed branch, and Armor_on, in accessory_or_armor_on()'s.
-// So donning(obj) can only answer TRUE for obj === state.uarm, and only while
-// one of those two counts down. What decides the invariant is therefore which
-// callers reach this hook during that window, because js/worn.js setworn()
-// runs it for the item a slot already holds and skips it when the slot is
-// empty.
+// Of the fourteen this port installs eight: the seven `<X>_on` callbacks, and
+// Armor_off in armoroff()'s delayed branch. Only four of them open a window,
+// because only a non-zero oc_delay makes accessory_or_armor_on() count down:
+// the suit at 3 to 5 turns, the helmet at 1 for every type but the fedora and
+// the dented pot, the gloves at 1 and the boots at 2. The cloak, the shirt,
+// the shield and those two helmets are consumed by unmul('') in the same
+// statement sequence that installs them, so they are never pending when
+// anything else runs. Doffing stays the suit's alone, because armoroff()
+// refuses the other delayed slots. What decides the invariant is therefore
+// which callers reach this hook during one of those four windows, because
+// js/worn.js setworn() runs it for the item a slot already holds and skips it
+// when the slot is empty.
 //
 // Nothing does. allmain.c moveloop_core() reads no key while gm.multi is
 // negative, so no command runs inside either window, and the port's setworn()
@@ -497,10 +502,18 @@ const PLAIN_CLOAKS_ON = new Set([
 // C's switch has no statement of its own for the five types PLAIN_CLOAKS_ON
 // names, and every other arm -- including C's `default:` impossible() --
 // reaches outside do_wear.c. accessory_or_armor_on() therefore refuses the
-// other seven by otyp above setworn(), which is why no switch survives here:
-// hoisting is what keeps the refusal honest, because by the time this callback
-// runs unmul() has already worn the cloak and moved AC. Armor_on()'s
-// dragon-armor guard sits there for the same reason.
+// other seven by otyp above setworn(): hoisting is what keeps the refusal
+// honest, because by the time this callback runs unmul() has already worn the
+// cloak and moved AC. Armor_on()'s dragon-armor guard sits there for the same
+// reason.
+//
+// No switch survives here even so, and that is a second decision rather than a
+// consequence of the first. set_wear() reaches this callback at startup with
+// whatever u_init.c wore, which for a Ranger or an elf Ranger is a cloak the
+// hoisted test would refuse -- so a guard here would stop a game C finishes.
+// It is safe to have none because the arms those cloaks take, toggle_stealth()
+// and toggle_displacement(), return without acting while gi.initial_don is
+// set; set_wear()'s own comment carries that derivation.
 //
 // C's `oldprop` at 328 is read only by the arms that refusal stops --
 // toggle_stealth(), toggle_displacement() and the invisibility test -- so it
@@ -776,6 +789,17 @@ function Shirt_off(state) {
 // when she is an elf (u_init.c:233), and at the initial don Cloak_on() is the
 // `known` write for those two types as much as for the five plain ones.
 // Whoever ports either toggle brings initial_don with it.
+// Every refusal below is a hard failure rather than a fail-closed boundary,
+// and that is a property of where this runs rather than a choice. js/cmd.js
+// failClosedCommandRefusals() converts these classes for a command and
+// js/allmain.js does the same for an elapsed turn; both are downstream of
+// js/moveloop_preamble.js, which calls this before either exists. So a
+// refusal here ends the segment outright instead of ending it at a boundary
+// with its matching prefix intact. Nothing reaches one today -- the accessory
+// test below cannot fire, and the startup test walks the roles to show no
+// worn piece reaches a refused otyp -- but the exposure grows with every
+// refusal added to an <X>_on(), which is why it is written down rather than
+// left to be rediscovered. Tracked as set-wear-refusals-do-not-fail-closed.
 export function set_wear(state = game) {
     if (state.ublindf || state.uright || state.uleft || state.uamul) {
         // do_wear.c:1544-1551 Blindf_on(), Ring_on() twice and Amulet_on().
@@ -787,9 +811,13 @@ export function set_wear(state = game) {
     if (state.uarmu) Shirt_on(state);
     if (state.uarm) Armor_on(state);
     if (state.uarmc) Cloak_on(state);
-    // do_wear.c:1558-1559. No role's starting gear fills W_ARMF -- u_init.c
-    // names boots nowhere, and scripts/wear-armor.test.mjs walks every role to
-    // show it -- so nothing reaches this call. It is a call rather than a
+    // do_wear.c:1558-1559. No role's starting gear fills W_ARMF: u_init.c
+    // names boots nowhere but in the elven discovery list at :825, and
+    // scripts/wear-armor.test.mjs pins the worn set of every distinct starting
+    // configuration -- thirteen rows covering the eleven roles that differ,
+    // plus the two racial substitutions; the Caveman and the Rogue share one
+    // row because both start in leather armor and nothing else. So nothing
+    // reaches this call. It is a call rather than a
     // refusal because Boots_on() is ported: a refusal standing in front of a
     // ported function would stop a game C finishes if a role ever gained
     // boots, which is the opposite of what a fail-closed boundary is for.
@@ -1414,12 +1442,15 @@ export async function armoroff(otmp, state = game) {
 // C ref: do_wear.c accessory_or_armor_on() (2208-2428), shared in C by
 // dowear('W') and doputon('P'). This port admits the armor half only.
 //
-// The armor tail at 2355-2404 is ported for the suit, cloak, shirt and shield
-// slots. Only the suit reaches C's delayed arm: objects.h gives all nine
-// shields, all twelve cloaks and both shirts an oc_delay of 0, and the leather
-// jacket alone among suits, so those reach unmul("") and on_msg() on the spot,
-// while every other suit spends one to five turns under nomul() first and
-// prints C's "You finish your dressing maneuver." instead of on_msg().
+// The armor tail at 2355-2404 is ported for all seven slots; the callback arms
+// that reach outside do_wear.c are refused by otyp above setworn(), so no slot
+// refuses wholesale. objects.h decides which of C's two arms a piece takes:
+// all nine shields, all twelve cloaks, both shirts, the leather jacket among
+// suits, and the fedora and dented pot among helmets carry oc_delay 0 and
+// reach unmul("") and on_msg() on the spot. Every other suit, every other
+// helmet, and all four gloves and ten boots spend one to five turns under
+// nomul() first and print C's "You finish your dressing maneuver." instead of
+// on_msg() -- the message a wearing prints depends on the delay, not the slot.
 async function accessory_or_armor_on(obj, state = game) {
     if (obj.owornmask & (W_ACCESSORY | W_ARMOR)) {
         await already_wearing(c_that_, state);

@@ -819,10 +819,12 @@ test('the six helmets Helmet_on cannot run are refused unwritten',
     assert.equal(game.uarmh.known, true);
     game.uarmh = null;
 
-    // The six that go on. Five carry an oc_delay of 1, so each leaves
-    // Helmet_on() pending under nomul(-1) rather than running it at once; the
-    // dented pot is the one that takes unmul("") immediately, which is why the
-    // fedora and it are the pair Helmet_off() already admits.
+    // Of the six that go on, four carry an oc_delay of 1 and are the ones this
+    // loop drives: each leaves Helmet_on() pending under nomul(-1) rather than
+    // running it at once. The other two, the fedora and the dented pot, carry
+    // oc_delay 0 and take unmul("") on the spot, which is the pair Helmet_off()
+    // already admits; they are covered by the Luck test and the recorded
+    // dented-pot segment instead of here.
     for (const otyp of [HELMET, ELVEN_LEATHER_HELM, DWARVISH_IRON_HELM,
         ORCISH_HELM]) {
         await setup(segment, OFF);
@@ -1802,7 +1804,8 @@ test('on_msg prints only when flags.verbose is on', async () => {
     // flags.verbose says; eyewear takes it only when verbose is off. Naming the
     // constants is the point: these were written as the literals 0x00010000 and
     // 0x00040000, the first labelled W_RING when const.js gives that value to
-    // W_AMUL, so neither ring bit was pinned at all.
+    // W_AMUL. The second is W_RINGR, so one ring bit was covered and only
+    // W_RINGL reached no case; naming the constants is what makes that visible.
     for (const mask of [W_ARMS | W_AMUL, W_RINGL, W_RINGR]) {
         await assert.rejects(
             () => on_msg({ ...shield, owornmask: mask }, game),
