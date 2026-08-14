@@ -800,6 +800,13 @@ function Shirt_off(state) {
 // worn piece reaches a refused otyp -- but the exposure grows with every
 // refusal added to an <X>_on(), which is why it is written down rather than
 // left to be rediscovered. Tracked as set-wear-refusals-do-not-fail-closed.
+//
+// This function is synchronous and the seven calls below are not awaited,
+// while js/hack.js unmul() awaits the same callbacks. Both are correct today
+// because every <X>_on() is a plain function: awaiting one is a no-op, and not
+// awaiting one loses nothing. The day a callback needs to print through
+// ttyPline() it becomes async, and then this caller silently stops waiting for
+// it while the other still does. Make both await it, or neither.
 export function set_wear(state = game) {
     if (state.ublindf || state.uright || state.uleft || state.uamul) {
         // do_wear.c:1544-1551 Blindf_on(), Ring_on() twice and Amulet_on().
