@@ -113,9 +113,20 @@ function m_next2u(monster, state) {
 // PM_AMOROUS_DEMON test at :1976, which is the whole answer for all of them
 // and is 0. An aggressor that passes it refuses, because the rest of the
 // function needs polyself.c poly_gender(), sysopt.seduce and the AD_SSEX /
-// AD_SEDU / AD_SITM damage types, none of which is ported. The three tests C
-// runs before :1976 can also answer 0 for a nymph, so the refusal is narrower
-// than C's TRUE, never wider.
+// AD_SEDU / AD_SITM damage types, none of which is ported.
+//
+// That refusal is a fail-closed stop, not the boundary of C's nonzero answer.
+// It is wider, in three directions, because it tests the species alone:
+//
+//   C's :1976-1977 is a disjunction, and its second half also demands an adtyp
+//     of AD_SEDU, AD_SSEX or AD_SITM. An amorous demon's claw carries
+//     ATTK(AT_CLAW, AD_PHYS, 1, 3) (monsters.h:2922-2923), for which C returns
+//     0 at :1978 and hitmsg() prints its default verb, while this refuses.
+//   C's :1969-1970 returns 0 for an unseen aggressor's AD_SEDU attack.
+//   C's :1980 returns 0 for an amorous demon whose gender matches the hero's.
+//
+// A caller that needs C's answer rather than a stop therefore has to complete
+// this function; it cannot read the refusal as "C would have said yes".
 export function could_seduce(magr, mdef, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
@@ -125,6 +136,9 @@ export function could_seduce(magr, mdef, mattk, rawEnv = {}) {
        for seduction, both pass the could_seduce() test;
        incubi/succubi have three attacks, their claw attacks for damage
        don't pass the test */
+    // C's comment describes both halves of its :1976-1977 test. Only the
+    // species half is ported, so the claw attacks its last line excuses refuse
+    // here instead of falling through.
     const pagr = magr.data;
     if (pagr.mlet === M.S_NYMPH
         || pagr === state.mons?.[M.PM_AMOROUS_DEMON]) {
@@ -185,10 +199,14 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
     /* Note: if opposite gender, "seductively";
        if same gender, "engagingly" for nymph, normal msg for others. */
     // C's first arm prints "%s smiles at you seductively." for a nonzero
-    // could_seduce(). The call is made for the boundary it carries, not for an
-    // answer: could_seduce() either answers 0 or refuses, and it refuses at
-    // exactly the aggressors C answers nonzero for, so the arm has no
-    // reachable spelling here and is left out rather than written dead.
+    // could_seduce(). It is left out because no route into hitmsg() can reach
+    // it, which is a fact about the callers rather than about the call below.
+    // uhitm.c mhitm_ad_phys() and mhitm_ad_elec() are the only two, and both
+    // pass a non-null mattk whose adtyp is AD_PHYS or AD_ELEC. mhitu.c:1977
+    // then holds for every aggressor, so C returns 0 at :1978 and the arm has
+    // no reachable spelling. The call stays for the refusal it carries, which
+    // is wider than C's nonzero set rather than equal to it; could_seduce()
+    // above says in which directions.
     could_seduce(mtmp, state.youmonst, mattk, { ...env, state });
 
     switch (mattk.aatyp) {

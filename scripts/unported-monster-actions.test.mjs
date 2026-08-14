@@ -2457,6 +2457,12 @@ test('a planned monster attack writes nothing to the live display',
         // guard that stopped working would print and repaint every monster
         // attack twice over, with the development score green unless a
         // recorded session happened to show the second copy.
+        //
+        // This case decides two of the three. A grid bug is no eel, so the
+        // newsym() gate is out of its reach; what decides that one is
+        // 'mattacku reveals an eel the moment it strikes' in
+        // scripts/mhitu.test.mjs, which runs one fixture with the flag off and
+        // then on.
         const target = await prepareSelectedAction({
             adjacentHero: true,
             pmidx: PM_GRID_BUG,
@@ -3231,4 +3237,52 @@ test('a planned distant pet pickup writes nothing to frozen live state',
         guard.assertNoLeak(assert);
         assert.equal(game.gd.distantname, 0);
         assert.equal(dagger.where, OBJ_FLOOR);
+    });
+
+test('a planned monster blow writes nothing to frozen live state',
+    async () => {
+        // mhitu.c mattacku()'s hit path, which none of the cases above
+        // reaches: each stages a distant monster or a pet, and only an
+        // adjacent hostile swings. The blow writes decl.h:457-458's gh pair
+        // through hitmsg(), u.uhp and disp.botl through mdamageu(), and
+        // go.occupation, multi and the canned command queue through
+        // allmain.c stop_occupation().
+        //
+        // Seeding gh is what makes the leak reachable, as it is for gd in the
+        // case above. hitmsgState()'s `state.gh ??= {}` creates the pair on
+        // the clone's own root when the live game has none, so a first-ever
+        // blow writes nothing shared whether or not planningState() copies the
+        // field; gh is absent in a fresh game and present in a played one.
+        const target = await prepareSelectedAction({ adjacentHero: true });
+        // hitmu() refuses an attacker the hero cannot spot before it reaches
+        // any of those writes, and display.h canseemon() wants the attacker's
+        // square in sight as well as seen.
+        game.viz_array[target.heroY][target.monsterX] |= COULD_SEE | IN_SIGHT;
+        // mhitu.c:806's `tmp > rnd(20)`, where tmp carries the attacker's
+        // level. Thirty puts the differential past every roll, so the plan
+        // lands the bite whatever the cloned PRNG answers.
+        target.monster.m_lev = 30;
+        // The pair hitmsg() would leave behind after this monster's own first
+        // slot, which is the state a played game arrives with.
+        game.gh = {
+            hitmsg_mid: target.monster.m_id,
+            hitmsg_prev: target.monster.data.mattk[0],
+        };
+        const ghBefore = { ...game.gh };
+        const uhpBefore = game.u.uhp;
+        const botlBefore = game.disp.botl;
+        const guard = freezeLiveState(game);
+        assertDetectorReachedTheGraph(guard);
+
+        await preflightSimpleMonsterActions(game);
+
+        guard.assertNoLeak(assert);
+        // The freeze is the detector, and it is also what shows the case
+        // arrives: dropping gh from planningState() makes the plan throw a
+        // TypeError inside hitmsgState(), which it can only do by reaching
+        // hitmsg(). These three restate the fields the blow writes, so a leak
+        // onto one of freezeLiveState()'s declared exclusions still shows.
+        assert.deepEqual(game.gh, ghBefore);
+        assert.equal(game.u.uhp, uhpBefore);
+        assert.equal(game.disp.botl, botlBefore);
     });

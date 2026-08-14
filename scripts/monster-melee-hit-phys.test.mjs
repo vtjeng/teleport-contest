@@ -45,13 +45,33 @@ test('the matrix covers both of hitmsg()\'s reachable verbs', () => {
         .flat().map((event) => event.says);
     assert.ok(said.some((line) => / bites!$/u.test(line)));
     assert.ok(said.some((line) => / hits!$/u.test(line)));
-    // Every landed blow has to cost hit points. hitmu():1214-1258 is what
-    // turns the roll into damage, and a port that printed the line and
-    // stopped short of mdamageu() would satisfy the verbs alone.
-    const landed = [...MONSTER_MELEE_HIT_PHYS_EVENTS.values()]
-        .flat().filter((event) => /(bites|hits)!$/u.test(event.says));
+    // Every landed blow has to cost hit points. hitmu():1214-1258 turns the
+    // roll into damage, and a port that printed the line and stopped short of
+    // mdamageu() would satisfy the verbs alone. What decides that against the
+    // port is verifyMonsterMeleeHitPhysSegment(), which compares each row's
+    // uhp with the hit points the replay left; it reads these rows as its
+    // oracle, so the rows themselves have to record damage. This is that
+    // check, and it runs on the table alone.
+    //
+    // A table weakened to what such a port leaves records the hero at full
+    // health throughout -- 13 for the Healer, 16 for the Valkyrie -- so the
+    // fall from row to row is what rules it out. A constant bound does not: 16
+    // sits above the Healer's maximum, and both her landed rows satisfy it
+    // while recording no damage at all. Rows run in key order and neither walk
+    // heals or raises a maximum, so a landed row is strictly below the row
+    // before it. A seed's first row has none and rests on the verifier alone.
+    const bySeed = [...MONSTER_MELEE_HIT_PHYS_EVENTS.values()];
+    const landed = bySeed.flat()
+        .filter((event) => /(bites|hits)!$/u.test(event.says));
+    // Four: two blows per seed, which the row comments name individually.
     assert.equal(landed.length, 4);
-    assert.ok(landed.every((event) => event.uhp < 16));
+    for (const rows of bySeed) {
+        for (let i = 1; i < rows.length; i += 1) {
+            if (!/(bites|hits)!$/u.test(rows[i].says)) continue;
+            assert.ok(rows[i].uhp < rows[i - 1].uhp,
+                `${rows[i].says} at ${rows[i].keys} keys cost nothing`);
+        }
+    }
 });
 
 test('each physical hit segment reaches the lines it is here for', async () => {

@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BEAR_TRAP,
     BLINDED,
+    CQ_CANNED,
     HALF_PHDAM,
     INVIS,
     M_ATTK_HIT,
@@ -22,6 +23,12 @@ import {
     W_ARMU,
 } from '../js/const.js';
 import { midnight } from '../js/calendar.js';
+import {
+    cmdq_add_ec,
+    cmdq_peek,
+    extcmdRow,
+    set_occupation,
+} from '../js/cmd.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -53,6 +60,7 @@ import {
     M1_THICK_HIDE,
     NON_PM,
     PM_ALIGNED_CLERIC,
+    PM_AMOROUS_DEMON,
     PM_BARROW_WIGHT,
     PM_CLERIC,
     PM_GIANT_EEL,
@@ -718,6 +726,22 @@ test('could_seduce answers zero for every aggressor the port admits',
         () => could_seduce(nymph, state.youmonst, null, refuse),
         (error) => error.reason === 'a seductive monster attack',
     );
+
+    // The refusal is wider than C's nonzero answer, which is what makes it a
+    // stop rather than the arm's boundary. mhitu.c:1976-1977 is a disjunction
+    // and the port tests only its species half, so an amorous demon's claw --
+    // its second and third slots, ATTK(AT_CLAW, AD_PHYS, 1, 3) at
+    // monsters.h:2922-2923 -- refuses here where C returns 0 at :1978 and
+    // hitmsg() prints "hits". Completing the adtyp half would land that blow
+    // instead, and this is where that change has to be argued.
+    const demon = meleeAttacker(state, PM_AMOROUS_DEMON, -1, 1);
+    const claw = demon.data.mattk[1];
+    assert.equal(claw.aatyp, AT_CLAW);
+    assert.equal(claw.adtyp, AD_PHYS);
+    assert.throws(
+        () => could_seduce(demon, state.youmonst, claw, refuse),
+        (error) => error.reason === 'a seductive monster attack',
+    );
 });
 
 test('mattacku clamps a differential its rolls drove to zero', async () => {
@@ -845,6 +869,21 @@ test('mattacku reveals an eel the moment it strikes', async () => {
     assert.equal(await mattacku(eel, reveal.env), false);
     assert.equal(eel.minvis, false);
     assert.deepEqual(painted, [[eel.mx, eel.my]]);
+
+    // The same site under a planning clone. js/unported_monster_actions.js
+    // replays every monster turn twice, once against the clone and then live,
+    // so mattacku() binds newsym() to a no-op while env.planning is set; an
+    // ungated call would repaint each striking eel's square twice. This is
+    // the only newsym() mattacku() reaches, and the clone is where the
+    // suppression has to hold, so the same fixture runs again with the flag
+    // on. Clearing minvis is state rather than display, and still happens.
+    eel.minvis = true;
+    const planned = meleeEnv(state, [20, 21], {
+        planning: true,
+        redraw: () => assert.fail('a planned reveal repaints nothing'),
+    });
+    assert.equal(await mattacku(eel, planned.env), false);
+    assert.equal(eel.minvis, false);
 
     // A visible eel has nothing to reveal, and neither has an invisible
     // non-eel: both terms are needed.
@@ -1229,6 +1268,23 @@ test('hitmu reduces damage for a negative armor class and not for zero',
     assert.equal(state.u.uhp, before);
     state.invent = state.invent.nobj;
 
+    // mhitu.c:1210-1211, the floor under the reduction. A grid bug's 1d1 bite
+    // rolls one -- meleeEnv()'s d() answers its first argument -- and the
+    // second rnd(4) answers four, so the reduction exceeds the roll. C leaves
+    // one point rather than a negative number, and the hero pays it. Without
+    // the two clamp lines mhm.damage is -3, which fails hitmu()'s
+    // `mhm.damage > 0` and skips mdamageu() altogether; `mhm.damage = 0`
+    // skips it too. Both spellings cost the hero nothing, so the exact value
+    // is what this asserts, not its sign.
+    before = state.u.uhp;
+    const floored = meleeEnv(state, [1, 1, 4]);
+    assert.equal(await mattacku(bug, floored.env), false);
+    assert.deepEqual(floored.bounds, [
+        'rnd(4)', 'rnd(20)', 'd(1,1)', 'rn2(10)', 'rn2(20)', 'rn2(3)',
+        'rn2(6)', 'rnd(4)',
+    ]);
+    assert.equal(state.u.uhp, before - 1);
+
     // Armor class zero is the non-negative side of C's test, so neither the
     // preamble nor the damage spends a draw on it.
     state.u.uac = 0;
@@ -1513,6 +1569,30 @@ test('mhitm_ad_phys stops on the three arms no ported path reaches',
 
     assert.equal(await refused(python, hugs, state.youmonst),
         'a monster grabbing the hero');
+
+    // The second term decides the arm on its own. A defender that sticks
+    // sends C past :4023 to the hand-to-hand arm, which lands the blow and
+    // prints hitmsg()'s default verb at :221-222; a bare
+    // `mattk->aatyp == AT_HUGS` test would refuse there instead. No role can
+    // carry an AT_HUGS attack, so the form is fabricated from the hero's own,
+    // as the thick-hide and passiveum cases in this file do. mondata.h
+    // sticks() answers on the attack list alone, so one slot is enough.
+    const ordinary = state.youmonst.data;
+    state.youmonst.data = {
+        ...ordinary,
+        mattk: [{ aatyp: AT_HUGS, adtyp: AD_PHYS, damn: 1, damd: 2 },
+            ...ordinary.mattk.slice(1)],
+    };
+    assert.equal(sticks(state.youmonst.data), true);
+    const grappled = physEnv(state);
+    const grabbed = physMhm(1);
+    await mhitm_ad_phys(
+        python, hugs, state.youmonst, grabbed, state, grappled.env,
+    );
+    assert.deepEqual(grappled.lines, ['The python hits!']);
+    assert.equal(grabbed.hitflags, M_ATTK_HIT);
+    state.youmonst.data = ordinary;
+
     assert.equal(await refused(state.youmonst, hugs, python),
         "the hero's own physical attack");
     const rat = meleeAttacker(state, PM_SEWER_RAT, 0, 1);
@@ -1586,6 +1666,56 @@ test('a thwarted bite leaves the status line alone and a landed one marks it',
     assert.deepEqual(refreshes, ['bot']);
     state.multi = 0;
     state.invent = state.invent.nobj;
+});
+
+test('a landed blow and a missed one each end a multi-turn action',
+    async () => {
+    // allmain.c stop_occupation() (683-696), which mhitu.c reaches from
+    // hitmu():1265 and from missmu():99. It prints "You stop <occtxt>.",
+    // clears go.occupation, and discards a canned command sequence at
+    // allmain.c:695, outside both of its arms.
+    //
+    // A helpless hero is what makes the last of those attributable to these
+    // two calls rather than to the preamble: mattacku() runs nomul(0) for an
+    // adjacent attacker, and nomul() clears CQ_CANNED itself, but hack.c:4161
+    // returns at `gm.multi < nval` before reaching that line.
+    const state = await meleeHero();
+    const rat = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    // cmd.c set_occupation() owns the three go fields. `() => 1` is an
+    // occupation that answers "still busy"; any callback but eat.c eatfood()
+    // sends stop_occupation() down its "You stop" arm instead of
+    // maybe_finished_meal()'s finished-meal one, and eatfood() is the port's
+    // only installer, so the callback is fabricated the way
+    // scripts/allmain-turn.test.mjs fabricates one.
+    const interrupted = () => {
+        set_occupation(() => 1, 'waiting', 0, state);
+        cmdq_add_ec(CQ_CANNED, extcmdRow('fire'), state);
+        state.multi = -3;
+        state.disp.botl = false;
+    };
+
+    // The differential is this Valkyrie's AC 6, plus 10, plus a level-zero
+    // rat, plus the 4 a helpless hero gives away at mhitu.c:711-712: 20. So a
+    // roll of 19 is the hit side of `tmp > j` and 20 is the miss side.
+    interrupted();
+    const landed = meleeEnv(state, [19]);
+    assert.equal(await mattacku(rat, landed.env), false);
+    assert.deepEqual(landed.lines,
+        ['The sewer rat bites!', 'You stop waiting.']);
+    assert.equal(state.go.occupation, null);
+    assert.equal(cmdq_peek(CQ_CANNED, state), null);
+
+    interrupted();
+    const missed = meleeEnv(state, [20]);
+    assert.equal(await mattacku(rat, missed.env), false);
+    assert.deepEqual(missed.lines,
+        ['The sewer rat just misses!', 'You stop waiting.']);
+    assert.equal(state.go.occupation, null);
+    assert.equal(cmdq_peek(CQ_CANNED, state), null);
+    // mdamageu():1908 raises disp.botl on the landed side, so only the miss
+    // leaves stop_occupation() as its one writer.
+    assert.equal(state.disp.botl, true);
+    state.multi = 0;
 });
 
 test('a landed blow wakes a sleeping hero on the roll C spends', async () => {
