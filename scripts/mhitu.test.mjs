@@ -1285,6 +1285,19 @@ test('hitmu reduces damage for a negative armor class and not for zero',
     ]);
     assert.equal(state.u.uhp, before - 1);
 
+    // The clamp's own boundary, which the case above does not reach. There
+    // the reduction overshoots to -3, where `mhm.damage < 1` and a mutant
+    // `mhm.damage < 0` both fire and both leave one point. They disagree at
+    // exactly zero and nowhere else: the same 1d1 bite rolls one and the
+    // second rnd(4) answers one, so C's `< 1` pays a point while `< 0` leaves
+    // zero, fails hitmu()'s `mhm.damage > 0`, and skips mdamageu() entirely.
+    // The mutation run over 2be53e4..d0612ef reported this line as a
+    // survivor with no recorded reason.
+    before = state.u.uhp;
+    const atZero = meleeEnv(state, [1, 1, 1]);
+    assert.equal(await mattacku(bug, atZero.env), false);
+    assert.equal(state.u.uhp, before - 1);
+
     // Armor class zero is the non-negative side of C's test, so neither the
     // preamble nor the damage spends a draw on it.
     state.u.uac = 0;
