@@ -71,15 +71,19 @@ import {
     BATTLE_AXE,
     CORNUTHAUM,
     DWARVISH_MATTOCK,
+    DWARVISH_MITHRIL_COAT,
     ELVEN_LEATHER_HELM,
     ELVEN_MITHRIL_COAT,
     ELVEN_SHIELD,
     FEDORA,
+    GOLD_DRAGON_SCALE_MAIL,
+    GRAY_DRAGON_SCALES,
     HAWAIIAN_SHIRT,
     HELM_OF_OPPOSITE_ALIGNMENT,
     LEATHER_ARMOR,
     LEATHER_CLOAK,
     LEATHER_GLOVES,
+    LEATHER_JACKET,
     LONG_SWORD,
     LOW_BOOTS,
     MUMMY_WRAPPING,
@@ -97,6 +101,7 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 import { obj_is_pname } from '../js/objnam.js';
+import { find_ac } from '../js/u_init_inventory_attrs.js';
 import {
     ESCAPE_KEY,
     SPACE_KEY,
@@ -109,7 +114,7 @@ import {
     loadWearWishRecipe,
 } from './run-wear-armor.mjs';
 
-const { Shield_on, accessory_or_armor_on, already_wearing, on_msg }
+const { Armor_on, Shield_on, accessory_or_armor_on, already_wearing, on_msg }
     = _doWearInternals;
 
 function topLine() {
@@ -140,12 +145,15 @@ function segmentFor(moves, recipe = loadWearRecipe()) {
     return found;
 }
 
-function wishSegmentFor(seed) {
-    const found = loadWearWishRecipe().segments.find(
-        (segment) => segment.seed === seed,
-    );
-    assert.ok(found, `the wish matrix contains seed ${seed}`);
+// The same, by seed, for the cases two segments type the same keys in.
+function seedSegmentFor(seed, recipe = loadWearRecipe()) {
+    const found = recipe.segments.find((segment) => segment.seed === seed);
+    assert.ok(found, `the matrix contains a segment with seed ${seed}`);
     return found;
+}
+
+function wishSegmentFor(seed) {
+    return seedSegmentFor(seed, loadWearWishRecipe());
 }
 
 // Replay a matrix segment's character and options with different keys, and
@@ -258,6 +266,35 @@ test('#wear reaches the same handler as W', async () => {
     assert.ok(game.uarms);
 });
 
+test('the two letters getobj turns away answer differently', async () => {
+    // invent.c getobj(). A letter the prompt did not suggest reaches the
+    // verification at 2071-2073 and invent.c silly_thing(); the money letter
+    // is answered one loop earlier, at 2035-2041, and never reaches it. Both
+    // answers end the command with no turn spent.
+    //
+    // Each assertion below also pins the `await` in front of the obj_ok()
+    // call that decides it. Dropped, the verification's comparison sees a
+    // pending promise, never equals GETOBJ_EXCLUDE, and hands the food ration
+    // to accessory_or_armor_on(), whose non-armor arm stops the segment;
+    // dropped at the gold arm, `promise <= GETOBJ_EXCLUDE` is false and the
+    // gold falls through to the silly-thing line instead.
+    const cases = [
+        [`${TAKEOFF_KEY}${WEAR_KEY}d`, 'That is a silly thing to wear.'],
+        [`${TAKEOFF_KEY}${WEAR_KEY}$`, 'You cannot wear gold.'],
+    ];
+    for (const [moves, expected] of cases) {
+        const segment = segmentFor(moves);
+
+        await runSegment({ ...segment, moves: OFF });
+        const before = game.moves;
+
+        await runSegment({ ...segment, moves: `${WAIT}${moves}` });
+        assert.equal(topLine(), expected, moves);
+        assert.equal(game.moves, before, moves);
+        assert.equal(game.context.move, 0, moves);
+    }
+});
+
 test('Shield_on reveals a wished shield\'s enchantment', async () => {
     // do_wear.c:725-728, the whole of what the callback does. mkobj.c
     // mksobj() leaves obj->known 0 for armor, where u_init.c
@@ -283,6 +320,120 @@ test('Shield_on reveals a wished shield\'s enchantment', async () => {
     assert.ok(game.uarms, 'the wished shield is worn');
     assert.equal(game.uarms.spe, 2);
     assert.equal(game.uarms.known, true, 'Shield_on() set obj->known');
+});
+
+test('Armor_on reveals a wished suit\'s enchantment on either arm',
+    async () => {
+    // do_wear.c:891-894. A Valkyrie's suit slot starts empty, so no 'T' is
+    // needed; the wish is the only way to reach a suit whose obj->known is
+    // still 0, and each seed below takes a different arm of C's fork on the
+    // way to the same write. The dwarvish mithril-coat's oc_delay is 1 and
+    // the leather jacket's 0.
+    const cases = [
+        [7720133, '+2 dwarvish mithril-coat', DWARVISH_MITHRIL_COAT],
+        [7720134, '+2 leather jacket', LEATHER_JACKET],
+    ];
+    for (const [seed, wish, otyp] of cases) {
+        const segment = seedSegmentFor(seed, loadWearWishRecipe());
+        // The wish text of the first case holds an 'i', so both prefixes are
+        // spelled out rather than cut at the first inventory key.
+        const prefix = `${WAIT}${WISH_KEY}${wish}\n`;
+        assert.ok(segment.moves.startsWith(prefix), `seed ${seed} wish`);
+
+        await runSegment({ ...segment, moves: prefix });
+        let wished = null;
+        for (let o = game.invent; o; o = o.nobj)
+            if (o.otyp === otyp) wished = o;
+        assert.ok(wished, `seed ${seed} delivered the suit`);
+        assert.equal(wished.known, false, `seed ${seed} hid the enchantment`);
+        assert.equal(wished.owornmask, 0, `seed ${seed} delivered to the pack`);
+
+        await runSegment({ ...segment, moves: `${prefix}${WEAR_KEY}e` });
+        assert.ok(game.uarm, `seed ${seed} wore the suit`);
+        assert.equal(game.uarm.otyp, otyp, `seed ${seed}`);
+        assert.equal(game.uarm.spe, 2, `seed ${seed}`);
+        assert.equal(game.uarm.known, true, `seed ${seed} ran Armor_on()`);
+        // Both arms end with the callback spent and the hero free again.
+        assert.equal(game.afternmv ?? null, null, `seed ${seed}`);
+        assert.equal(game.multi ?? 0, 0, `seed ${seed}`);
+    }
+});
+
+test('the suit\'s oc_delay chooses which arm of the fork runs', async () => {
+    // do_wear.c:2395-2403 for the suit slot. The delayed arm prints no
+    // on_msg(): C announces the piece only through gn.nomovemsg, several
+    // turns later. Adding an on_msg() there by symmetry with the shield path
+    // would be wrong, so both halves are pinned here.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+
+    // objects.h:594 gives leather armor an oc_ac of 8 and an oc_delay of 3,
+    // so find_ac() counts 10 - 8 for it and nomul() buys three turns.
+    // find_ac() is called here rather than read off u.uac because botl.c
+    // bot() is what refreshes that field and only the move loop runs it.
+    find_ac(game);
+    const acBefore = game.u.uac;
+    const delayed = armor(LEATHER_ARMOR, { dknown: 1, spe: 0 });
+    assert.equal(await accessory_or_armor_on(delayed, game), ECMD_TIME);
+    assert.equal(takePendingTopLine(), '', 'the delayed arm prints nothing');
+    // setworn() runs before nomul(), so the AC the suit buys is already spent
+    // although the hero has three helpless turns ahead of her, and setworn()
+    // has already asked for the status line to be redrawn. That is the mirror
+    // image of 'T', where armoroff() moves the AC only when Armor_off() finally
+    // runs.
+    assert.equal(game.disp.botl, true, 'setworn() asked for a redraw');
+    find_ac(game);
+    assert.equal(game.u.uac, acBefore - 2);
+    assert.equal(game.multi, -3);
+    assert.equal(game.nomovemsg, 'You finish your dressing maneuver.');
+
+    // The other arm, reached only by the one suit with an oc_delay of 0.
+    await setup(segment, OFF);
+    const immediate = armor(LEATHER_JACKET, { dknown: 1, spe: 0 });
+    assert.equal(await accessory_or_armor_on(immediate, game), ECMD_TIME);
+    assert.equal(takePendingTopLine(), 'You are now wearing a leather jacket.');
+    assert.equal(game.multi ?? 0, 0, 'nomul() was not called');
+    assert.equal(game.nomovemsg ?? null, null, 'unmul("") cleared it');
+    assert.equal(game.afternmv ?? null, null, 'unmul("") ran the callback');
+});
+
+test('a suit takes its whole delay before the hero is free', async () => {
+    // The delayed arm end to end, through allmain.c moveloop_core(): every
+    // turn of the countdown passes without reading a key, and unmul() prints
+    // gn.nomovemsg on the turn it runs out. The Caveman's leather armor takes
+    // 3 turns and the Samurai's splint mail 5 (objects.h:594 and :565); each
+    // role wears exactly one piece, so the 'T' that clears the slot needs no
+    // letter and takes the same delay again.
+    // The AC each suit buys is 10 minus its objects.h oc_ac: 8 for leather
+    // armor and 4 for splint mail, against the bare hero's 10.
+    const cases = [[7720131, 3, 8], [7720132, 5, 4]];
+    for (const [seed, delay, ac] of cases) {
+        const segment = seedSegmentFor(seed);
+        // The two segments open with different numbers of waits, so the
+        // prefix is read off the matrix rather than rebuilt here.
+        const off = segment.moves.slice(
+            0, segment.moves.indexOf(TAKEOFF_KEY) + 1,
+        );
+
+        await runSegment({ ...segment, moves: off });
+        assert.equal(game.uarm ?? null, null, `seed ${seed} emptied the slot`);
+        assert.match(statusRow(), /AC:10 /, `seed ${seed} bare`);
+        const movesAfterRemoval = game.moves;
+
+        await runSegment({ ...segment, moves: `${off}${WEAR_KEY}e` });
+        assert.ok(game.uarm, `seed ${seed} wore the suit again`);
+        assert.equal(game.uarm.owornmask & W_ARM, W_ARM, `seed ${seed}`);
+        assert.equal(topLine(), 'You finish your dressing maneuver.',
+            `seed ${seed}`);
+        assert.match(statusRow(), new RegExp(`AC:${ac} `), `seed ${seed}`);
+        // The clock advances by exactly the suit's oc_delay, because the turn
+        // the command spends is the first the countdown consumes. The already
+        // differentially verified 'T' half agrees: the same two roles take 3
+        // and 5 turns to undress in scripts/run-take-off-armor.mjs.
+        assert.equal(game.moves, movesAfterRemoval + delay, `seed ${seed}`);
+        assert.equal(game.afternmv ?? null, null, `seed ${seed}`);
+        assert.equal(game.multi ?? 0, 0, `seed ${seed}`);
+    }
 });
 
 test('canwearobj refuses a slot that is already filled', async () => {
@@ -343,7 +494,7 @@ test('an accessory answered at the W prompt stops', async () => {
     assert.equal(game.uright ?? null, null);
 });
 
-test('the six slots this port does not don are refused unwritten',
+test('the five slots this port does not don are refused unwritten',
     async () => {
     // do_wear.c:2377-2393. The test sits above setworn(), so a refused slot
     // leaves the hero exactly as it found her. Each object below is the
@@ -356,7 +507,6 @@ test('the six slots this port does not don are refused unwritten',
         [LEATHER_GLOVES, W_ARMG, 'uarmg'],
         [HAWAIIAN_SHIRT, W_ARMU, 'uarmu'],
         [LEATHER_CLOAK, W_ARMC, 'uarmc'],
-        [LEATHER_ARMOR, W_ARM, 'uarm'],
     ];
     for (const [otyp, mask, field] of slots) {
         const obj = armor(otyp, { dknown: 1 });
@@ -369,10 +519,23 @@ test('the six slots this port does not don are refused unwritten',
         assert.equal(game[field] ?? null, null, `otyp ${otyp}`);
         assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
     }
-    // The shield is the one that goes through.
+    // The shield and the suit are the two that go through, and they take
+    // opposite arms of C's fork: the shield's oc_delay is 0, so unmul() runs
+    // Shield_on() before the call returns, while leather armor's is 3, so
+    // Armor_on() is still pending when it does.
     const shield = armor(SMALL_SHIELD, { dknown: 1, spe: 0 });
     assert.equal(await accessory_or_armor_on(shield, game), ECMD_TIME);
     assert.equal(game.uarms, shield);
+    assert.equal(game.afternmv ?? null, null);
+
+    const suit = armor(LEATHER_ARMOR, { dknown: 1, spe: 0 });
+    assert.equal(await accessory_or_armor_on(suit, game), ECMD_TIME);
+    assert.equal(game.uarm, suit);
+    assert.equal(game.uarm.owornmask & W_ARM, W_ARM);
+    assert.equal(game.afternmv, Armor_on, 'the callback is still pending');
+    assert.equal(game.multi, -3, 'objects.h gives leather armor oc_delay 3');
+    assert.equal(game.multi_reason, 'dressing up');
+    assert.equal(game.nomovemsg, 'You finish your dressing maneuver.');
 });
 
 test('the branches accessory_or_armor_on cannot run name themselves',
@@ -412,22 +575,45 @@ test('the branches accessory_or_armor_on cannot run name themselves',
         ),
         /remove_worn_item\(\)/,
     );
-    // do_wear.c:2396-2399, the delayed branch. Every shield carries oc_delay
-    // 0, so only a doctored objects[] row can reach it.
-    const shieldType = game.objects[SMALL_SHIELD];
-    const delay = shieldType.oc_delay;
-    shieldType.oc_delay = 1;
-    try {
+    // Armor_on()'s dragon-armor tails, refused above setworn() rather than
+    // inside the callback so that the suit never reaches a slot. Gray is one
+    // of the two colours dragon_armor_handling() has no arm for -- its switch
+    // at do_wear.c:806-883 names the other eight, in scales and in mail, and
+    // says so at 807-808 -- and
+    // artifact_light() answers TRUE for gold alone, so gray scales trip
+    // neither tail in C and are refused anyway, exactly as Armor_off() refuses
+    // them. Gold dragon scale mail is the one that trips both.
+    for (const otyp of [GRAY_DRAGON_SCALES, GOLD_DRAGON_SCALE_MAIL]) {
         await assert.rejects(
-            () => accessory_or_armor_on(armor(SMALL_SHIELD, { dknown: 1 }),
-                game),
-            /delayed branch for otyp 150/,
+            () => accessory_or_armor_on(armor(otyp, { dknown: 1 }), game),
+            new RegExp(`Armor_on\\(\\) for otyp ${otyp}`),
         );
-    } finally {
-        shieldType.oc_delay = delay;
+        assert.equal(game.uarm ?? null, null, `otyp ${otyp}`);
+        assert.equal(game.multi ?? 0, 0, `otyp ${otyp}`);
     }
     assert.equal(game.uarms ?? null, null,
         'every refusal left the slot empty');
+});
+
+test('Armor_on answers for an empty suit slot', async () => {
+    // do_wear.c:889-890, C's own "no known instances of !uarm here but play
+    // it safe". Nothing in this port reaches it: accessory_or_armor_on() is
+    // the one place that installs the callback and it does so one statement
+    // after setworn() fills the slot, and moveloop_core() reads no key while
+    // the countdown runs, so no command can empty the slot before unmul()
+    // arrives.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, OFF);
+    assert.equal(game.uarm ?? null, null, 'a Valkyrie starts without a suit');
+    assert.equal(Armor_on(game), 0);
+
+    // With a suit in the slot the same call sets obj->known instead.
+    const suit = armor(LEATHER_JACKET, { dknown: 1, spe: 2, known: false });
+    await accessory_or_armor_on(suit, game);
+    assert.equal(suit.known, true, 'the oc_delay 0 arm ran the callback');
+    suit.known = false;
+    assert.equal(Armor_on(game), 0);
+    assert.equal(suit.known, true);
 });
 
 test('both of dowear\'s guards answer before the prompt', async () => {

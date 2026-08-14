@@ -1642,6 +1642,10 @@
         {
           "text": "A second case, found while porting the W command, needs no animation frame to show the divergence. on_msg() is the only line a successful W prints and flags.verbose gates it, so with verbose off nothing overwrites the answered prompt and the stale query is the whole of what the screens differ by.\n\nCase, expected to fail until the prompt is retained: node scripts/diff-fresh.mjs --seed 7720111 --datetime 20310203040506 --role Valkyrie --gender female --align neutral --name Wear --options \"pettype:none,!acoustics,!autopickup,!verbose,time,!legacy,!tutorial,!splash_screen\" --moves \".TWc.\" -- it reports \"First screen mismatch at boundary 5 (segment 1, step 5, key c): Cell row 1, column 1 (ch): C: W / JS: (space)\", the W of \"What do you want to wear? [c or ?*]\". Everything else matches: PRNG 2645/2645, 6 screens, 6 cursors, cursor values match.\n\nscripts/run-wear-armor.mjs therefore carries no !verbose segment, and says so in the comment where one would sit; scripts/wear-armor.test.mjs calls on_msg() directly for that arm instead. The W command is the second getobj() caller to meet this, after the T command the entry was opened for.",
           "at": "a2189e120e05c7baa192d2ccb574234371c7a5d7"
+        },
+        {
+          "text": "A third case, found while porting the delayed arm of the W command. do_wear.c accessory_or_armor_on() prints no on_msg() for a suit whose oc_delay is not 0 -- C announces it only through gn.nomovemsg several turns later -- so with flags.verbose on, and not only off, nothing overwrites the answered prompt while the countdown runs. Any animation frame runmode_delay_output() flushes inside that window shows it.\n\nCase, expected to fail until the prompt is retained: node scripts/diff-fresh.mjs --seed 7720131 --datetime 20310203040506 --role Caveman --gender female --align neutral --name Wear --options \"pettype:dog,!acoustics,!autopickup,time,showexp,!legacy,!tutorial,!splash_screen\" --moves \".TWe.\" -- it reports \"First animation mismatch at boundary 5 (segment 1, step 5, key e): Frame 1, cell row 1, column 1 (ch): C: W / JS: (space)\", the W of \"What do you want to wear? [e or ?*]\". Everything else matches: PRNG 3013/3013, 6 screens, 6 cursors, cursor values match.\n\nscripts/run-wear-armor.mjs keeps this seed with two extra leading waits instead, which moves the three-turn countdown from turns 6-8 to 8-10 and so off the multiple of 7 RUN_LEAP needs; the Samurai segment beside it clears turn 7 without help. The comment there names this entry. Both roles still take a frame during the T half, which needs no prompt.",
+          "at": "6d42af2159887c15018748df5e8356b7e7343048"
         }
       ]
     },
@@ -2176,9 +2180,15 @@
       "area": "objects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "fc5613417808880f893c983a735b402db3772876",
-      "detail": "Answering the new W prompt with an inventory letter that is neither armor nor an accessory -- three of the Valkyrie's four letters -- reaches js/invent.js getobj()'s UnsupportedObjectPromptError('silly_thing()') stop and ends the segment. C prints 'That is a silly thing to wear.' and asks again. The stop is a named fail-closed refusal, so it is permitted, but the case appears in neither the fresh-case matrix nor the ledger. Closes when scripts/run-wear-armor.mjs records the case (a seed-7720100 Valkyrie typing .TWd. reproduces it) and a test pins the boundary by name. Confirmed by the correctness pass over b035d790..fc56134."
+      "detail": "Answering the new W prompt with an inventory letter that is neither armor nor an accessory -- three of the Valkyrie's four letters -- reaches js/invent.js getobj()'s UnsupportedObjectPromptError('silly_thing()') stop and ends the segment. C prints 'That is a silly thing to wear.' and asks again. The stop is a named fail-closed refusal, so it is permitted, but the case appears in neither the fresh-case matrix nor the ledger. Closes when scripts/run-wear-armor.mjs records the case (a seed-7720100 Valkyrie typing .TWd. reproduces it) and a test pins the boundary by name. Confirmed by the correctness pass over b035d790..fc56134.",
+      "notes": [
+        {
+          "text": "Closed by porting the stop rather than by pinning it. invent.c silly_thing() (2093-2131) is two arms once its OBSOLETE_HANDLING block is discounted, and the arm getobj() needs is one pline() of decl.c:43 \"That is a silly thing to %s.\", so js/invent.js getobj() now prints that and returns null where it raised UnsupportedObjectPromptError. The Amulet of Yendor arm needs word == \"call\", which only the unported do_name.c docallcmd() passes, and it is left out with the otmp parameter that exists for it alone.\n\nThe case is recorded as scripts/run-wear-armor.mjs seed 7720108, a Valkyrie typing .TWd. -- her food ration, which wear_ok() excludes and the prompt still accepts by hand -- and it matches C: the matrix reports PASS over 18 segments, 47920 PRNG calls, 248 screens, 248 cursors and 2 animation frames. scripts/wear-armor.test.mjs \"the two letters getobj turns away answer differently\" pins the line and the turn it does not spend.",
+          "at": "6d42af2159887c15018748df5e8356b7e7343048"
+        }
+      ]
     },
     {
       "id": "getobj-async-callback-unpinned-at-three-sites",
@@ -2187,7 +2197,13 @@
       "effort": "slice",
       "status": "open",
       "from": "fc5613417808880f893c983a735b402db3772876",
-      "detail": "The slice made js/invent.js getobj()'s obj_ok callback awaited at four sites, and the suite exercises one. Dropping the await at the hands/self probe, at the gold arm, or at the final verification leaves the whole suite green, and the last of those is not cosmetic: an unawaited promise never equals GETOBJ_EXCLUDE, so a non-armor letter would continue past the silly_thing() stop instead of raising it. Closes when each of the three sites has an assertion that fails against a dropped await: the gold arm is reachable by answering W with the money letter, which must print 'You cannot wear gold.', and the verification site by the non-armor letter case above. Confirmed by the correctness pass over b035d790..fc56134."
+      "detail": "The slice made js/invent.js getobj()'s obj_ok callback awaited at four sites, and the suite exercises one. Dropping the await at the hands/self probe, at the gold arm, or at the final verification leaves the whole suite green, and the last of those is not cosmetic: an unawaited promise never equals GETOBJ_EXCLUDE, so a non-armor letter would continue past the silly_thing() stop instead of raising it. Closes when each of the three sites has an assertion that fails against a dropped await: the gold arm is reachable by answering W with the money letter, which must print 'You cannot wear gold.', and the verification site by the non-armor letter case above. Confirmed by the correctness pass over b035d790..fc56134.",
+      "notes": [
+        {
+          "text": "Two of the three sites are now pinned, by scripts/wear-armor.test.mjs \"the two letters getobj turns away answer differently\" over two new matrix segments. Seed 7720109 answers W with a Tourist s money letter, which must print \"You cannot wear gold.\"; drop the await at the gold arm and `promise <= GETOBJ_EXCLUDE` is false, so the gold falls through to the verification below and prints the silly-thing line instead. Seed 7720108 answers W with a Valkyrie s food ration; drop the await at the verification and the comparison never equals GETOBJ_EXCLUDE, so the ration reaches accessory_or_armor_on(), whose non-armor arm stops the segment.\n\nThe hands/self probe is still unpinned and cannot be pinned from the W command. Its switch acts only on GETOBJ_DOWNPLAY, GETOBJ_EXCLUDE_INACCESS, GETOBJ_EXCLUDE_SELECTABLE and GETOBJ_EXCLUDE_NONINVENT; equip_ok() answers GETOBJ_EXCLUDE for a null object, which falls to `default: break;`, and so does a pending promise, so W, T, P and R all leave the site unobservable. eat_ok() is the one ported callback that can answer GETOBJ_EXCLUDE_NONINVENT, and only with getobj_else set, which needs the hero to decline floor food -- js/eat.js floorfood() refuses that prompt today. This site therefore closes with a slice that owns eat.c floorfood() or another getobj() caller whose callback answers something other than GETOBJ_EXCLUDE for a null object.",
+          "at": "6d42af2159887c15018748df5e8356b7e7343048"
+        }
+      ]
     },
     {
       "id": "takeoff-mask-clear-has-no-discriminating-case",

@@ -3,8 +3,9 @@
 //
 // C ref: src/do_wear.c on_msg() (75-99), off_msg() (67-72), Cloak_off()
 //        (382-431), Helmet_off() (517-564), Shield_on() (704-730),
-//        Shield_off() (732-756), Shirt_off() (777-794), Armor_off()
-//        (908-930), fingers_or_gloves() (59-65), cancel_doff() (1642-1659),
+//        Shield_off() (732-756), Shirt_off() (777-794), Armor_on() (886-906),
+//        Armor_off() (908-930), fingers_or_gloves() (59-65),
+//        cancel_doff() (1642-1659),
 //        count_worn_stuff() (1731-1766), armor_or_accessory_off()
 //        (1768-1829), dotakeoff() (1831-1855), cursed() (1891-1917),
 //        armoroff() (1919-2008), already_wearing() (2010-2014), canwearobj()
@@ -20,8 +21,8 @@
 // The 'A' occupation spine -- do_takeoff(), take_off(),
 // better_not_take_that_off() and doddoremarm() -- is not ported. armoroff()'s
 // delayed branch at do_wear.c:1930-1972 is ported for a suit only, and
-// accessory_or_armor_on() puts armor on for the shield slot only. Every
-// refusal below names the C function it stops in front of.
+// accessory_or_armor_on() puts armor into the shield and suit slots only.
+// Every refusal below names the C function it stops in front of.
 
 import {
     ECMD_CANCEL,
@@ -211,17 +212,42 @@ export function reset_remarm(state = game) {
 
 // C ref: do_wear.c cancel_doff() (1642-1659), supplied to setworn() through
 // the worn.js hook of the same name. C's donning() test at 1656 reads
-// ga.afternmv and svc.context.takeoff.what. Neither can be true here.
+// ga.afternmv and svc.context.takeoff.what, and the mask clear below is the
+// whole of the function when it answers FALSE.
+//
 // donning() (1571-1597) and doffing() (1599-1640) compare ga.afternmv against
 // the fourteen `<X>_on`/`<X>_off` armor callbacks and nothing else, so any
 // other callback pending -- js/pray.js prayer_done() is the port's only other
-// one -- leaves both FALSE whatever the slot. Of the fourteen this port
-// installs one, Armor_off, in armoroff()'s delayed branch, and unmul() clears
-// state.afternmv before invoking it, so Armor_off()'s own setworn() sees it
-// null. doffing()'s `what` arms need svc.context.takeoff.what, which nothing
-// writes -- only the unported 'A' spine does. donning() is therefore always
-// FALSE here, cancel_don() cannot be reached, and the mask clear is the whole
-// of it.
+// one -- leaves both FALSE whatever the slot. doffing()'s remaining arms need
+// svc.context.takeoff.what, which nothing writes; only the unported 'A' spine
+// does.
+//
+// Of the fourteen this port installs two, both for the suit slot: Armor_off,
+// in armoroff()'s delayed branch, and Armor_on, in accessory_or_armor_on()'s.
+// So donning(obj) can only answer TRUE for obj === state.uarm, and only while
+// one of those two counts down. What decides the invariant is therefore which
+// callers reach this hook during that window, because js/worn.js setworn()
+// runs it for the item a slot already holds and skips it when the slot is
+// empty.
+//
+// Nothing does. allmain.c moveloop_core() reads no key while gm.multi is
+// negative, so no command runs inside either window, and the port's setworn()
+// callers divide cleanly: js/u_init_inventory_use.js dresses the hero before
+// the first turn; setuwep(), setuswapwep() and setuqwep() name weapon slots,
+// whose occupant cannot also be state.uarm because accessory_or_armor_on()
+// refuses W_WEAPONS above setworn(); the five `<X>_off()` above need a 'T';
+// and accessory_or_armor_on() needs a 'W' and, for W_ARM, a canwearobj() that
+// answered its mask only because state.uarm was already empty. unmul() clears
+// state.afternmv before invoking it, so the callback that ends either window
+// sees it null.
+//
+// C's own donning() test earns its keep on paths this port does not have. The
+// 'A' spine reaches it through doffing()'s svc.context.takeoff.what arms,
+// which is what C's I_SPECIAL guard at 1656 exists to hold off, and
+// steal.c remove_worn_item() (213-263) is what strips a hero a nymph robs
+// while she is helpless -- although that one calls cancel_don() itself at 219
+// before Armor_off() ever reaches this hook. Port the 'A' spine or a monster
+// that disrobes the hero and cancel_don() has to come with it.
 function cancel_doff(obj, slotmask, env) {
     takeoffContext(env.state).mask &= ~slotmask;
 }
@@ -293,6 +319,40 @@ async function on_msg(otmp, state) {
             state,
         );
     }
+}
+
+// C ref: do_wear.c Armor_on() (886-906), the ga.afternmv callback
+// accessory_or_armor_on() installs for the suit slot. The leather jacket is
+// the one suit objects.h gives an oc_delay of 0, so it alone reaches this
+// through unmul("") on the turn the 'W' is typed; every other suit spends
+// three to five helpless turns first and arrives through allmain.c
+// moveloop_core() instead.
+//
+// C's two tails at 895-904 both belong to dragon armor, so
+// accessory_or_armor_on() refuses Is_dragon_armor() above setworn() and
+// neither is ported -- the same pair Armor_off() below settles the same way,
+// and for the same reason: dragon_armor_handling() has an arm for eight of
+// the ten colors and artifact_light() answers TRUE for gold dragon scales and
+// mail alone. Refusing above setworn() rather than here is what keeps the
+// delayed arm honest, because by the time this runs the suit is worn and the
+// helpless turns are already spent.
+//
+// The `known` write is the whole of what the callback does. C's comment at
+// do_wear.c:2366-2372 says why it waits until here rather than running beside
+// setworn(): a nymph who steals the suit mid-donning must leave the hero
+// ignorant of its enchantment. As with Shield_on() below, only a suit the
+// game creates after startup witnesses the write, because mkobj.c mksobj()
+// (864) leaves obj->known 0 for armor where u_init.c ini_inv_adjust_obj()
+// (1215-1216) sets it to 1.
+function Armor_on(state) {
+    if (!state.uarm) /* no known instances of !uarm here but play it safe */
+        return 0;
+    if (!state.uarm.known) {
+        /* suit's +/- evident because of status line AC */
+        state.uarm.known = true;
+        update_inventory({ state });
+    }
+    return 0;
 }
 
 // C ref: do_wear.c Armor_off() (908-930). armoroff() reaches this both
@@ -1060,9 +1120,12 @@ export async function armoroff(otmp, state = game) {
 // C ref: do_wear.c accessory_or_armor_on() (2208-2428), shared in C by
 // dowear('W') and doputon('P'). This port admits the armor half only.
 //
-// The armor tail at 2355-2404 is ported for the shield slot: it is the one
-// slot whose <X>_on() needs nothing outside do_wear.c, and objects.h gives all
-// nine shields an oc_delay of 0, so it always takes C's immediate arm.
+// The armor tail at 2355-2404 is ported for the shield and suit slots, the
+// two whose <X>_on() needs nothing outside do_wear.c. Between them they take
+// both arms of C's fork: objects.h gives all nine shields an oc_delay of 0 and
+// the leather jacket the same, so those reach unmul("") and on_msg() on the
+// spot, while every other suit spends three to five turns under nomul() first
+// and prints C's "You finish your dressing maneuver." instead of on_msg().
 async function accessory_or_armor_on(obj, state = game) {
     if (obj.owornmask & (W_ACCESSORY | W_ARMOR)) {
         await already_wearing(c_that_, state);
@@ -1109,7 +1172,7 @@ async function accessory_or_armor_on(obj, state = game) {
     /*
      * C sets obj->known in the afternmv action rather than here, so that a
      * nymph who steals the armor mid-donning leaves the hero ignorant of its
-     * enchantment; Shield_on() above is that action for this slot.
+     * enchantment; Armor_on() and Shield_on() above are those actions.
      */
     // do_wear.c:2375 `gw.wasinwater = u.uinwater` is deliberately not
     // written. Boots_on() (do_wear.c:196) is its only reader, W_ARMF is
@@ -1119,36 +1182,49 @@ async function accessory_or_armor_on(obj, state = game) {
 
     // C's chain at 2377-2393 chooses the callback by comparing `obj` against
     // the slot pointers setworn() has just filled. `mask` names the same slot
-    // one statement earlier, so testing it here refuses the six unported
+    // one statement earlier, so testing it here refuses the five unported
     // slots before anything is written -- the shape armoroff()'s delayed
     // branch uses above. C's own last arm is a panic() for a mask that
     // matches no slot, which canwearobj() cannot produce.
-    if (worn.mask !== W_ARMS) {
+    if (worn.mask !== W_ARMS && worn.mask !== W_ARM) {
         throw new UnsupportedWearError(
             `accessory_or_armor_on() for slot mask ${worn.mask}`,
         );
     }
+    // Armor_on()'s two tails belong to dragon armor, and the refusal is
+    // hoisted here rather than left in the callback because the callback runs
+    // too late to stop anything: on the delayed arm below the suit is already
+    // worn and its helpless turns already spent by the time it fires. Above
+    // setworn(), the refusal leaves the hero as it found her, which is what
+    // the mask test one statement earlier already does. Armor_off() can keep
+    // its own copy because it is checked before the suit leaves its slot.
+    if (worn.mask === W_ARM && Is_dragon_armor(obj))
+        throw new UnsupportedWearError(`Armor_on() for otyp ${obj.otyp}`);
+
+    setworn(obj, worn.mask, setwornEnv(state));
+    /* if there's no delay, we'll execute 'afternmv' immediately */
+    state.afternmv = worn.mask === W_ARM ? Armor_on : Shield_on;
+
     const delay = -objectType(obj, state).oc_delay;
 
     if (delay) {
-        // do_wear.c:2396-2399 spends the delay as helpless turns: nomul(delay)
-        // with gm.multi_reason "dressing up" and gn.nomovemsg "You finish
-        // your dressing maneuver.", and moveloop_core() runs the callback
-        // through unmul() on the turn the count reaches zero, the way
-        // armoroff() already does for a suit. No shield can reach it --
-        // objects.h gives all nine oc_delay 0 -- so it is stopped rather than
-        // ported, above setworn() so that widening the mask test cannot
-        // silently drop C's arm.
-        throw new UnsupportedWearError(
-            `accessory_or_armor_on() delayed branch for otyp ${obj.otyp}`,
-        );
+        // do_wear.c:2396-2399 spends the delay as helpless turns, and
+        // allmain.c moveloop_core() runs the callback through unmul() on the
+        // turn the count reaches zero -- the wiring armoroff()'s delayed
+        // branch above already uses, with the message and the callback
+        // swapped for the wearing pair. Note what this arm does not do: C
+        // prints no on_msg() here, so a suit that takes any time to put on is
+        // announced only by "You finish your dressing maneuver.", while the
+        // AC it buys appeared on the status line several turns earlier, when
+        // setworn() ran. That is the mirror image of 'T'.
+        nomul(delay, state);
+        state.multi_reason = 'dressing up';
+        state.nomovemsg = 'You finish your dressing maneuver.';
+    } else {
+        /* call afternmv, clear it+nomovemsg+multi_reason */
+        await unmul('', state);
+        await on_msg(obj, state);
     }
-    setworn(obj, worn.mask, setwornEnv(state));
-    /* if there's no delay, we'll execute 'afternmv' immediately */
-    state.afternmv = Shield_on;
-    /* call afternmv, clear it+nomovemsg+multi_reason */
-    await unmul('', state);
-    await on_msg(obj, state);
     takeoffContext(state).mask = 0;
     return ECMD_TIME;
 }
@@ -1266,6 +1342,7 @@ export async function dotakeoff(state = game) {
 
 export const _doWearInternals = Object.freeze({
     Armor_off,
+    Armor_on,
     Cloak_off,
     Helmet_off,
     Shield_off,

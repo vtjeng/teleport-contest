@@ -63,6 +63,7 @@ import {
     HANDS_SYM,
     Never_mind,
     quitchars,
+    silly_thing_to,
     STONE_RES,
     PLNMSG_ONE_ITEM_HERE,
     P_SABER,
@@ -589,16 +590,30 @@ export async function getobj(word, obj_ok, ctrlflags, state = game) {
         break;
     }
     if ((await obj_ok(otmp, state)) === GETOBJ_EXCLUDE) {
-        // C answers silly_thing(word, otmp), which for every word but "call"
-        // prints silly_thing_to. Only a letter the prompt did not suggest
-        // arrives here, because the suggested set holds no excluded object:
-        // eat_ok() excludes only COIN_CLASS and the gold arm above returns
-        // first, any_obj_ok() excludes nothing that is carried, and apply_ok()
-        // and takeoff_ok() exclude what the player can still type by hand.
-        throw new UnsupportedObjectPromptError('silly_thing()');
+        // Only a letter the prompt did not suggest arrives here, because the
+        // suggested set holds no excluded object: eat_ok() excludes only
+        // COIN_CLASS and the gold arm above returns first, any_obj_ok()
+        // excludes nothing that is carried, and apply_ok(), takeoff_ok() and
+        // wear_ok() exclude what the player can still type by hand.
+        await silly_thing(word, state);
+        return null;
     }
     /* split_otmp: cntgiven is never set, for the reason the LRS arm gives. */
     return otmp;
+}
+
+// C ref: invent.c silly_thing() (2093-2131). Its OBSOLETE_HANDLING block at
+// 2097-2122 is compiled out -- nothing in the tree defines that macro -- so
+// the live body is a two-arm choice, and C's `word` is the verb the prompt
+// asked with.
+//
+// The arm this leaves out is the Amulet of Yendor's, which needs word ==
+// "call". do_name.c docallcmd() is its one C caller and is unported, so no
+// ported caller can supply that word; C's `otmp` parameter exists only for
+// that arm and is left out with it. The other C caller of the same format
+// string is read.c:559.
+async function silly_thing(word, state) {
+    await ttyPline(silly_thing_to.replace('%s', word), state);
 }
 
 // compactify() and invletter_value() are staticfn in invent.c and have no

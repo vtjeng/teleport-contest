@@ -338,6 +338,9 @@ export const NO_KILLER_PREFIX = 2;
 export const nothing_happens = "Nothing happens.";
 export const nothing_seems_to_happen = "Nothing seems to happen.";
 export const thats_enough_tries = "That's enough tries!";
+// A pline() format rather than a finished line: invent.c silly_thing() and
+// read.c:559 both substitute the verb the command prompted with.
+export const silly_thing_to = 'That is a silly thing to %s.';
 export const something = "something";
 export const Never_mind = "Never mind.";
 

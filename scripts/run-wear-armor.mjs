@@ -5,17 +5,22 @@
 // reference output in an isolated temporary workspace.
 //
 // The command is do_wear.c dowear(), which reaches invent.c getobj() through
-// wear_ok() and equip_ok(), then accessory_or_armor_on(), canwearobj(),
-// worn.c setworn(), hack.c unmul() and the ga.afternmv callback it runs, which
-// for this slot is Shield_on(), and finally on_msg().
+// wear_ok() and equip_ok(), then accessory_or_armor_on(), canwearobj() and
+// worn.c setworn(). From there the command forks on the piece's oc_delay:
+// oc_delay 0 runs hack.c unmul() and the ga.afternmv callback on the spot and
+// then on_msg(), while any other value spends the delay under nomul() and
+// reaches the same callback several turns later, through allmain.c
+// moveloop_core(), with "You finish your dressing maneuver." in place of
+// on_msg().
 //
-// The shield is the one slot this port puts armor into. Every role that starts
-// with a shield starts with it already worn (u_init.c ini_inv_use_obj()), so
-// the segments below either take that shield off with the already-ported 'T'
-// first or wish for a second piece. Wishing is also the only way this port can
-// hold armor it has never worn: mksobj() leaves obj->known 0 for armor where
-// u_init.c sets it to 1, so a wished shield hides its enchantment until
-// Shield_on() reveals it.
+// The shield and the suit are the two slots this port puts armor into, and
+// their callbacks are Shield_on() and Armor_on(). Every role that starts with
+// either starts with it already worn (u_init.c ini_inv_use_obj()), so the
+// segments below either take the piece off with the already-ported 'T' first
+// or wish for a second one. Wishing is also the only way this port can hold
+// armor it has never worn: mksobj() leaves obj->known 0 for armor where
+// u_init.c sets it to 1, so a wished piece hides its enchantment until its
+// callback reveals it.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -85,10 +90,26 @@ const VALKYRIE = { role: 'Valkyrie' };
 // weapon this role wields -- and therefore which word canwearobj() chooses --
 // is a property of the seed. The two seeds below are the two answers.
 const BARBARIAN = { role: 'Barbarian', gender: 'male', align: 'neutral' };
+// The two roles that start in a suit whose oc_delay is not 0, which is what
+// sends 'W' down C's nomul() arm. objects.h gives splint mail 5 and leather
+// armor 3, the widest spread u_init.c offers. Both roles carry the suit at
+// `e`, and it is the one armor piece they wear, so the 'T' that clears the
+// slot needs no letter of its own.
+const SAMURAI = { role: 'Samurai', gender: 'male', align: 'lawful' };
+const CAVEMAN = { role: 'Caveman' };
+// The one role u_init.c starts with money -- u.umoney0 = rnd(1000) at
+// u_init.c:756 -- which is what getobj()'s gold arm needs. Her Hawaiian shirt
+// at `h` is her only worn piece, so the 'T' before the 'W' needs no letter and
+// leaves one letter for the prompt to suggest.
+const TOURIST = { role: 'Tourist', gender: 'male' };
 
 // Take the starting shield off, then put it back on. `c` is the shield's
 // invlet and the only letter wear_ok() suggests once it is off.
 const OFF_THEN_ON = `${TAKEOFF_KEY}${WEAR_KEY}c`;
+// The same round trip for the two suits above, at their own invlet. Each half
+// spends the suit's oc_delay in turns during which moveloop_core() reads no
+// key, so the 'W' is not seen until the 'T' has finished.
+const SUIT_OFF_THEN_ON = `${TAKEOFF_KEY}${WEAR_KEY}e`;
 
 export function loadWearRecipe() {
     return validateCleanRecipe({
@@ -123,6 +144,37 @@ export function loadWearRecipe() {
             // cmd.c:1932's wear row carries no CMD_M_PREFIX, so rhack()
             // reports the prefix rather than running the command.
             segment(7720107, `m${WEAR_KEY}`, VALKYRIE),
+            // do_wear.c:2396-2399, the delayed arm, at both ends of the
+            // spread u_init.c offers. The AC field moves on the turn the 'W'
+            // is typed, because setworn() runs before nomul(); the pet then
+            // moves through three or five turns the hero cannot act in, and
+            // the last of them prints "You finish your dressing maneuver."
+            // and nothing else. C prints no on_msg() on this arm, so the
+            // message that announces a small shield has no counterpart here.
+            //
+            // The Caveman opens with two extra waits, and they are load
+            // bearing. Nothing overwrites the answered "What do you want to
+            // wear?" between the prompt and that closing message, so any
+            // animation frame runmode_delay_output() flushes inside the
+            // countdown lands on a top line the QUALITY.json deferral
+            // getobj-prompt-leaves-the-top-line-in-c-only already measures:
+            // C still shows the query where this port has cleared it. Under
+            // the default RUN_LEAP that frame needs svm.moves % 7 == 0, so
+            // the waits move the three-turn window off turn 7 -- from 6-8 to
+            // 8-10 -- and the Samurai's five-turn window at 8-12 clears turn
+            // 7 on its own. Both roles still take a frame during the 'T'
+            // half, which needs no prompt and so shows the same blank line in
+            // both programs.
+            segment(7720131, `${WAIT}${WAIT}${SUIT_OFF_THEN_ON}`, CAVEMAN,
+                PET),
+            segment(7720132, SUIT_OFF_THEN_ON, SAMURAI, PET),
+            // The two letters getobj() itself turns away. `d` is the
+            // Valkyrie's food ration, which wear_ok() excludes but the prompt
+            // still accepts by hand, so invent.c silly_thing() answers; the
+            // Tourist's `$` reaches the gold arm one loop earlier and answers
+            // "You cannot wear gold." Both end the command without a turn.
+            segment(7720108, `${TAKEOFF_KEY}${WEAR_KEY}d`, VALKYRIE),
+            segment(7720109, `${TAKEOFF_KEY}${WEAR_KEY}$`, TOURIST),
         ],
     }, 'wear armor recipe');
 }
@@ -173,6 +225,26 @@ export function loadWearWishRecipe() {
             // shield lands at `f`.
             wishSegment(7720123, '+0 small shield', `${WEAR_KEY}e`, BARBARIAN),
             wishSegment(7720124, '+0 small shield', `${WEAR_KEY}f`, BARBARIAN),
+            // The Armor_on() witness, on each arm of the fork. A Valkyrie
+            // starts with the suit slot empty, so no 'T' is needed and the
+            // wished suit is the only letter wear_ok() suggests. objects.h
+            // gives the dwarvish mithril-coat an oc_delay of 1, the shortest
+            // non-zero one, so its countdown runs out on the very next turn;
+            // the leather jacket is the one suit with oc_delay 0 and so the
+            // one that takes unmul("") and on_msg() immediately. The
+            // inventory windows either side of the 'W' show obj->known
+            // turning over: "a dwarvish mithril-coat" becomes "a +2 dwarvish
+            // mithril-coat (being worn)".
+            segment(7720133,
+                `${WISH_KEY}+2 dwarvish mithril-coat\n`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}e`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}`,
+                VALKYRIE, DEBUG),
+            segment(7720134,
+                `${WISH_KEY}+2 leather jacket\n`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}e`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}`,
+                VALKYRIE, DEBUG),
         ],
     }, 'wear armor wish recipe');
 }
