@@ -2257,7 +2257,13 @@
       "effort": "small",
       "status": "open",
       "from": "89e41131ba863d9191ff7cfef478a958542c307f",
-      "detail": "node scripts/scan-sessions.mjs now reports one UNRECONCILED stop: seed0900-tourist-explore-actions.session.json at step 11, key \"2\", where the model names no behavior at all. .agents/selection.md, \"Reading the reconciliation before you rank\", states that count is 0 today and calls this the serious case: the model believes the port supports what the port just refused, so no candidate stands for that stop and the behavior table holds no row for it. Ranking a goal while it stands is ranking on an incomplete table. Closes when the reason the model counts that key as supported is found and either the model or the behavior table accounts for the stop, or selection.md is corrected to describe the count it actually reports. Must be settled before the next goal is ranked, which is the close of armor-wear. Found by the slice-selector while measuring armor-wear at 89e4113."
+      "detail": "node scripts/scan-sessions.mjs now reports one UNRECONCILED stop: seed0900-tourist-explore-actions.session.json at step 11, key \"2\", where the model names no behavior at all. .agents/selection.md, \"Reading the reconciliation before you rank\", states that count is 0 today and calls this the serious case: the model believes the port supports what the port just refused, so no candidate stands for that stop and the behavior table holds no row for it. Ranking a goal while it stands is ranking on an incomplete table. Closes when the reason the model counts that key as supported is found and either the model or the behavior table accounts for the stop, or selection.md is corrected to describe the count it actually reports. Must be settled before the next goal is ranked, which is the close of armor-wear. Found by the slice-selector while measuring armor-wear at 89e4113.",
+      "notes": [
+        {
+          "text": "The count has grown from one stop to eight. Measured by the slice-selector at d7b07a2 while selecting armor-wear slice three, where the reconciliation section reports 8 stops with no modeled behavior at the step the port refused, against the 1 recorded when this entry was opened at 89e4113. The entry title understates it. Whatever is drifting is drifting fast, over commits that only added the W command, so the likelier cause is the model that decides which commands count as supported rather than the port refusing more.",
+          "at": "d7b07a2e5d4b42586a17dad1cbf47367f0b40467"
+        }
+      ]
     }
   ],
   "areas": [

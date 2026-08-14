@@ -159,9 +159,9 @@
       "reachability": "Every armor wearing.",
       "owner": "None; deliberately not written, with the reason at the site.",
       "effects": "None inside this boundary.",
-      "evidence": "do_wear.c:2375. Boots_on() at do_wear.c:196 is the field's only reader and W_ARMF is refused, so copying u.uinwater here would give that value a second home with nothing to read it -- which 'Keep each game value in one place' in AGENTS.md forbids. It belongs beside a ported Boots_on().",
+      "evidence": "do_wear.c:2375. Its only reader is Boots_on()'s WATER_WALKING_BOOTS arm at 196-215, where C's own comment says the field is 'init'd in accessory_or_armor_on() and only used here'. That arm calls spoteffects() and makeknown(), both outside do_wear.c, so this goal refuses it by otyp. Copying u.uinwater here would give the value a second home with nothing to read it, which 'Keep each game value in one place' in AGENTS.md forbids.",
       "status": "no-effect-yet",
-      "remaining": "Land it with Boots_on(), whose slice must also carry the delayed nomul() arm."
+      "remaining": "Not with Boots_on(). This entry previously said to land the write alongside that callback; that was wrong, and the slice-selector for slice three caught it. Boots_on()'s bare-break arms carry no reader, so after the boots slot lands the field still has none. It closes with the slice that ports the WATER_WALKING_BOOTS arm itself, which needs spoteffects()."
     },
     {
       "candidate": "The delayed arm: delay = -oc_delay, nomul(delay), multi_reason 'dressing up' and nomovemsg 'You finish your dressing maneuver.'",
