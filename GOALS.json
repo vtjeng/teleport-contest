@@ -2021,6 +2021,11 @@
           "name": "wear-cloak-and-shirt",
           "status": "closed",
           "closedBy": "6595460a0b51475b065b94b849e385984da12ec3"
+        },
+        {
+          "name": "wear-helmet",
+          "status": "closed",
+          "closedBy": "7ddbe6c55e84bbf369c449935629b302a0b455a1"
         }
       ],
       "openedAt": "0fc4e5f17fc9188a77f0f36c6b95ede1a215c476",
