@@ -12723,6 +12723,104 @@
         }
       },
       "recordedAt": "2026-08-14T15:39:25.643Z"
+    },
+    {
+      "kind": "review",
+      "head": "d0612ef0b8b7db48dc3137831247a5fb02a1ed2f",
+      "auditedRange": "2be53e4a3ad91647d70605ad98bf4f34727fd02a..d0612ef0b8b7db48dc3137831247a5fb02a1ed2f",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "28c62d09650a6718211a22ad9ae8d88731e992e0",
+        "reason": "the checklist covers 28c62d09, an ancestor of the range head; the 4 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "monsters",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 15 raw, 14 deduplicated, 9 confirmed, 9 applied, 0 deferred, 5 rejected, 0 unverified; mutation: 3 survivors of 43 mutants. Counts: 15 raw, 14 deduplicated, 9 confirmed, 9 applied, 5 rejected, 0 unverified, no warnings; mutation: 43 mutants, 40 killed, 3 survived, all relational, one of them a real gap now closed. Goal-closing pass for monster-melee-attack, covering its last two slices plus the orchestrator's bookkeeping, with the concurrency finder enabled because mhitm_adtyping() and mhitm_ad_phys() are async across every caller and the range adds output to a path runSimpleMonsterAction() executes twice per turn. No production defect was found: every fix is a comment, a test, or a ledger correction. Two findings were errors in the checklist the orchestrator wrote, and the sharper of them is the pass's most useful result: mattacku()'s AT_HUGS arm was recorded cannot-occur on the reason that sum[] never leaves M_ATTK_MISS, which expired the moment slice two landed hitmu(), since M_ATTK_MISS is 0x0 and hitmu() now returns M_ATTK_HIT. It is a live fail-closed stop, filed as monster-melee-crush-on-the-hero-stops. Three of the seven remaining findings had reasoning the fix agent showed to be wrong while still fixing the defect, and one proposed fix was declined as a behavior change outside audit scope. The orchestrator then found the clamp fix closed two substitutions that were not the reported mutant and added the boundary case at b07bd28. Applied in 7ff9ea3, 9386d39 and b07bd28.",
+      "auditMetrics": {
+        "counts": {
+          "raw": 15,
+          "deduplicated": 14,
+          "confirmed": 9,
+          "applied": 9,
+          "deferred": 0,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "mutation": {
+          "ranges": [
+            "2be53e4a3ad91647d70605ad98bf4f34727fd02a..d0612ef0b8b7db48dc3137831247a5fb02a1ed2f"
+          ],
+          "mutants": 43,
+          "survivors": 3,
+          "byKind": {
+            "boolean": {
+              "ran": 8,
+              "killed": 8
+            },
+            "logical": {
+              "ran": 23,
+              "killed": 23
+            },
+            "relational": {
+              "ran": 12,
+              "killed": 9
+            }
+          },
+          "deltaRun": "The three audit-fix commits land after this range and change no production line: 7ff9ea3 touches the checklist and the ledger, 9386d39 changes js/mhitu.js comments alone, and b07bd28 adds a test. Each reports 0 mutants over its uncommitted js/ diff.",
+          "finderConclusion": "One survivor, the damage clamp's `mhm.damage < 1`, was a real test gap and is closed at b07bd28. The other two are equivalent and carry their reasons in the code: mdamageu()'s `n < 0`, which no ported caller reaches, and its `u.uhp > u.uhpmax`, which needs a caller that reduces uhpmax and has none."
+        },
+        "finders": [
+          "correctness",
+          "readability",
+          "tests",
+          "concurrency",
+          "variable-trace"
+        ],
+        "readiness": {
+          "boundary": "Starts where monmove.c dochug() calls mhitu.c mattacku() for a monster standing adjacent to the hero, which js/monmove.js reaches on the monster's own turn inside moveloop. Ends when the hero's hit points have changed and the status line shows it, or when missmu() has printed its miss. The running game executes the path: scripts/run-monster-melee-hit-elec.mjs and scripts/run-monster-melee-hit-phys.mjs replay fresh C recordings through it, the latter at 2 segments, 7,440 PRNG calls, 291 screens and 291 cursors, re-run by the orchestrator at 28c62d0.",
+          "sourceReview": "mhitu.c mattacku() was read over 491-951 and every branch paired with a js/mhitu.js line, a named refusal, or a recorded reason for an omission, in .agents/implementation-checklist.json's 30 entries. The call tree was followed into calc_mattacku_vars(), getmattk(), could_seduce(), missmu(), mswings(), hitmsg(), magic_negation(), hitmu(), mdamageu() and passiveum(), and across into uhitm.c mhitm_adtyping(), mhitm_ad_elec(), mhitm_ad_phys() and mhitm_knockback(). PRNG order was checked at the three drawing points inside the boundary: AC_VALUE()'s conditional draw, the per-slot rnd(20), and hitmu()'s d(damn, damd), each below every refusal that could skip it. Three claims that omit C code rather than stop it were re-derived rather than accepted: the u_at(gb.bhitpos) test at mhitu.c:782, the NATTK loop's DEADMONSTER guard, and the SYSOPT_SEDUCE block.",
+          "completeness": "No known unsupported behavior remains inside the boundary. The goal's two testable conditions were verified at 28c62d0 rather than inferred: all five hero-state arms still refuse at js/mhitu.js:510, :513, :516, :543 and :548, and `grep -c \"unported('mhitm_ad\" js/uhitm.js` answers 37 with exactly AD_PHYS and AD_ELEC ported. Every reachable excluded branch stops before changing state, drawing, or printing: mhitm_ad_phys()'s armed blow at uhitm.c:4041, its AT_HUGS arm at :4023 keeping C's whole condition, mhitm_knockback() at js/uhitm.js:1689, and the hero's death in mdamageu() ahead of done_in_by(). One departure from the goal's headline sentence is deliberate and recorded: an armed monster's blow does not reach the hero's hit points."
+        },
+        "wallTimeSeconds": 2880,
+        "agentCount": 7,
+        "categories": {
+          "production": 0,
+          "tests": 6,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "rejections": [
+          {
+            "summary": "js/invent.js:104 — the is_drawbridge_wall import advertises a dbridge.c predicate from a file whose own rationale for holding it is now false.",
+            "counterEvidence": "Both load-bearing claims are wrong. js/lock.js:37 already imports the predicate and calls it at :215, so this range makes js/invent.js the third cross-module importer rather than the second. And js/startup_a11y.js:1062 says the function lives there because that file held its FIRST caller, which is still true."
+          },
+          {
+            "summary": "js/mhitu.js:192 — hitmsg()'s could_seduce() call refuses every blow from an incubus or succubus, where C returns 0 and the ordinary verb prints.",
+            "counterEvidence": "The adjudicator ran an adjacent uncancelled PM_AMOROUS_DEMON through mattacku() in the audit worktree. It stops at the summonmu() gate at js/mhitu.js:544-547, above the NATTK loop, because monsters.h:2934 gives the row M2_DEMON. hitmsg() is never entered, so the blow cannot reach the claimed refusal."
+          },
+          {
+            "summary": "js/uhitm.js:1406 — the two arms hitmu() reaches fall back to the module-level rn2() when env.random is missing, while mattacku() refuses outright without one.",
+            "counterEvidence": "The proposed fix changes two of eight sites and leaves the six the finding predicts will be copied, relocating the concern rather than settling it. Its validation cannot discriminate: no caller in the running game can construct the env it requires, so the test would demonstrate only that the documented default exists."
+          },
+          {
+            "summary": "js/uhitm.js:1628 — naming hitmu() as a hero-defender caller leaves the size-test paragraph reading as a claim about the hero's own size.",
+            "counterEvidence": "js/uhitm.js:1623-1626 asserts only about the hero as attacker: MZ_HUMAN is 2, so the target must be msize <= 0, which is what uhitm.c:5324-5325 and monflag.h:177-183 give. The paragraph makes no claim in the defender direction."
+          },
+          {
+            "summary": "scripts/monster-melee-hit-elec.test.mjs:36 — the matrix coverage tests assert only over module-level event tables, so no port code executes.",
+            "counterEvidence": "The mechanism was confirmed, and the finding still fails on consequence: a sibling test in the same file, each shock hit segment reaches the line it is here for, replays every prefix through runSegment() inside verifyMonsterMeleeHitElecSegment() and compares game._ttyToplines and game.u.uhp to each row exactly. Running the file with magic_negation() returning 0 gives 2 pass and 1 fail, that verifier being the failure, so the mutant is killed. Relocating the assertions into the verifier would duplicate comparisons it already makes while removing the only guard on the recorded matrix own coverage, which is what these two tests are for. The hit-point half of the same finding was confirmed separately against scripts/monster-melee-hit-phys.test.mjs:54 and applied; the elec file carries no hit-point assertion, so the uhp bound the adjudicator quoted belongs to the phys file and is already rewritten."
+          }
+        ]
+      },
+      "recordedAt": "2026-08-14T20:45:05.746Z"
     }
   ]
 }
