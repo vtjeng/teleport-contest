@@ -74,6 +74,21 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(monsterExports.AD_PEST, 38);
     assert.equal(monsterExports.AD_FAMN, 39);
     assert.equal(monsterExports.AD_HEAL, 27);
+    // monattk.h:55-56, :59, :62-63, :65, :67, :79, :83 and :91-92. Every one
+    // of these names an arm of uhitm.c mhitm_adtyping() (4786-4831), the
+    // switch js/uhitm.js dispatches a landed melee hit through; each arm the
+    // port has not reached refuses under the constant that selects it.
+    assert.equal(monsterExports.AD_SLOW, 13);
+    assert.equal(monsterExports.AD_PLYS, 14);
+    assert.equal(monsterExports.AD_LEGS, 17);
+    assert.equal(monsterExports.AD_SGLD, 20);
+    assert.equal(monsterExports.AD_SITM, 21);
+    assert.equal(monsterExports.AD_TLPT, 23);
+    assert.equal(monsterExports.AD_CONF, 25);
+    assert.equal(monsterExports.AD_DETH, 37);
+    assert.equal(monsterExports.AD_ENCH, 41);
+    assert.equal(monsterExports.AD_SAMU, 252);
+    assert.equal(monsterExports.AD_CURS, 253);
     assert.equal(monsterExports.M1_CLING, 0x00000010);
     assert.equal(monsterExports.M1_HIDE, 0x00000100);
     assert.equal(M1_NOHANDS, 0x00002000);
@@ -113,7 +128,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        'bec75878e3509f37af0cc5d6ca0893c555a9b72406aaa218f85f3f2fa315957c',
+        '14c75dd48789d9db9191f2716a614a1c5b92ef922f186526ec72d596101212f2',
     );
 });
 

@@ -3997,7 +3997,7 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
     // names the branch it could not take.
     await assert.rejects(
         moveloop_core(),
-        /landing a hit on the hero/u,
+        /uhitm\.c mhitm_ad_phys\(\)/u,
     );
     assert.equal(game.u.umovement, 24);
     assert.equal(monster.movement, 12);

@@ -19,6 +19,7 @@ import {
     HMON_APPLIED,
     HMON_MELEE,
     IS_DOOR,
+    M_SEEN_ELEC,
     NATTK,
     P_BARE_HANDED_COMBAT,
     P_BASIC,
@@ -27,6 +28,7 @@ import {
     P_NONE,
     P_SKILLED,
     P_WHIP,
+    SHOCK_RES,
     STRAT_WAITMASK,
     STUNNED,
     W_ARMG,
@@ -45,6 +47,12 @@ import { u_wipe_engr } from './engrave.js';
 import { game } from './gstate.js';
 import { doorless_door } from './hack.js';
 import { sgn } from './hacklib.js';
+// js/mhitu.js imports mhitm_adtyping() and mhitm_knockback() from this file,
+// so this edge closes an import cycle, exactly as mhitu.c and uhitm.c call
+// into each other. Both bindings are hoisted function declarations, which an
+// ES module cycle initializes before either module body runs, and nothing here
+// reads them at module scope.
+import { hitmsg, magic_negation } from './mhitu.js';
 import { killed, wakeup } from './mon.js';
 import {
     amorphous,
@@ -57,6 +65,7 @@ import {
     mon_hates_light,
     mon_hates_silver,
     monsndx,
+    monstunseesu,
     noncorporeal,
     sticks,
     thick_skinned,
@@ -64,7 +73,48 @@ import {
 import { monflee } from './monmove.js';
 import { m_at } from './monst.js';
 import {
+    AD_ACID,
+    AD_BLND,
+    AD_COLD,
+    AD_CONF,
+    AD_CORR,
+    AD_CURS,
+    AD_DCAY,
+    AD_DETH,
+    AD_DGST,
+    AD_DISE,
+    AD_DRCO,
+    AD_DRDX,
+    AD_DREN,
+    AD_DRIN,
+    AD_DRLI,
+    AD_DRST,
+    AD_ELEC,
+    AD_ENCH,
+    AD_FAMN,
+    AD_FIRE,
+    AD_HALU,
+    AD_HEAL,
+    AD_LEGS,
+    AD_PEST,
     AD_PHYS,
+    AD_PLYS,
+    AD_POLY,
+    AD_RUST,
+    AD_SAMU,
+    AD_SEDU,
+    AD_SGLD,
+    AD_SITM,
+    AD_SLEE,
+    AD_SLIM,
+    AD_SLOW,
+    AD_SSEX,
+    AD_STCK,
+    AD_STON,
+    AD_STUN,
+    AD_TLPT,
+    AD_WERE,
+    AD_WRAP,
     AT_BUTT,
     AT_CLAW,
     AT_ENGL,
@@ -167,6 +217,47 @@ function requireAttackOperation(env, name) {
     if (typeof operation !== 'function')
         throw new TypeError(`do_attack requires ${name}`);
     return operation;
+}
+
+// C ref: uhitm.c mhitm_mgc_atk_negated() (74-98). Whether the defender's
+// magic cancellation thwarts the attack before its damage type is applied.
+//
+// `verbosely` is C's. Every ported call site passes TRUE, and so do most of
+// C's; mhitm_ad_dren():2422, mhitm_ad_drst():3126 and mhitm_ad_stck():3310 are
+// three of the arms that pass FALSE, and none of them is ported.
+//
+// The draw is unconditional once the attacker is uncancelled, so a defender
+// with no cancellation at all still spends it: `rn2(10) >= 0` is always true,
+// which is why an unarmored hero is never spared and the roll still shows in
+// the log.
+export async function mhitm_mgc_atk_negated(
+    magr,
+    mdef,
+    verbosely,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+
+    /* mcan doesn't apply to youmonst; hero can't be cancelled */
+    if (magr !== state.youmonst && magr.mcan)
+        return true; /* no message if attacker has been cancelled */
+
+    const armpro = magic_negation(mdef, state);
+    const negated = !(random.rn2(10) >= 3 * armpro);
+    if (negated) {
+        /* attack has been thwarted by negation, aka magical cancellation */
+        if (verbosely) {
+            // C's second arm, `else if (gv.vis && canseemon(mdef))`, announces
+            // a monster defender's escape. magic_negation() above covers the
+            // hero alone and throws for a monster, so that arm is unreachable
+            // and is left out rather than restated.
+            await message('You avoid harm.', state);
+        }
+        return true;
+    }
+    return false;
 }
 
 // C ref: uhitm.c attack_checks() (188-327). FALSE means it is fine to attack.
@@ -1294,6 +1385,134 @@ async function hmon_hitmon(mon, obj, thrown, dieroll, state = game, env = {}) {
 function first_weapon_hit() {
 }
 
+// C ref: uhitm.c mhitm_ad_elec() (2683-2739), the `mdef == &gy.youmonst` arm.
+// A shock attack landing on the hero: the attack's own message, the magic
+// cancellation test, and the item destruction a high-level attacker adds.
+//
+// C's other two arms are the hero's own shock attack (uhitm) and one monster
+// shocking another (mhitm). Neither has a caller here: js/uhitm.js damageum()
+// is unported and js/mhitm.js mattackm() stops long before any damage type, so
+// both refuse.
+export async function mhitm_ad_elec(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const random = env.random ?? { rn2 };
+    const message = requireAttackOperation(env, 'message');
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    // C's `orig_dmg` is the damage as it stood on entry, which only the three
+    // destroy_items() calls read. All three refuse below, so nothing here
+    // outlives mhm.damage.
+
+    if (magr === state.youmonst) {
+        /* uhitm */
+        unsupported("the hero's own shock attack");
+    } else if (mdef === state.youmonst) {
+        /* mhitu */
+        await hitmsg(magr, mattk, state, env);
+        if (!await mhitm_mgc_atk_negated(magr, mdef, true, state, env)) {
+            await message('You get zapped!', state);
+            if (propertyPresent(state.u, SHOCK_RES)) {
+                // youprop.h:44 Shock_resistance. The arm prints "The zap
+                // doesn't shock you!" and then records the resistance through
+                // mondata.c monstseesu(), which is unported -- js/mondata.js
+                // carries monstunseesu() alone -- so the whole arm stops
+                // before its first line rather than printing and forgetting.
+                unsupported('a shock-resistant hero shrugging off an attack');
+            } else {
+                monstunseesu(M_SEEN_ELEC, state);
+            }
+            if (magr.m_lev > random.rn2(20)) {
+                // zap.c destroy_items() for the hero's own pack. Only the
+                // monster half is ported (js/zap_destroy_items.js), and it
+                // covers fire alone.
+                unsupported("electricity destroying the hero's items");
+            }
+        } else {
+            mhm.damage = 0;
+        }
+    } else {
+        /* mhitm */
+        unsupported('one monster shocking another');
+    }
+}
+
+// C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type
+// selects the function that applies it. C's switch is written out in full so
+// that the arms this port has not reached name the uhitm.c function a later
+// slice puts in their place, and so that adding one is a one-line edit.
+//
+// AD_PHYS refuses here too: mhitm_ad_phys() (3980-4200) is its own slice.
+//
+// C's `default` is not a refusal. An adtyp with no arm -- AD_MAGM, AD_DISN,
+// AD_SPC1, AD_SPC2, AD_CLRC, AD_SPEL and AD_RBRE -- silently loses its damage,
+// and mhitu.c hitmu() then lands a blow that prints nothing and costs no hit
+// points. That is C's behavior, not a gap, so it is ported.
+export async function mhitm_adtyping(
+    magr,
+    mattk,
+    mdef,
+    mhm,
+    state = game,
+    env = {},
+) {
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    const unported = (name) => unsupported(`uhitm.c ${name}()`);
+
+    switch (mattk.adtyp) {
+    case AD_STUN: unported('mhitm_ad_stun'); break;
+    case AD_LEGS: unported('mhitm_ad_legs'); break;
+    case AD_WERE: unported('mhitm_ad_were'); break;
+    case AD_HEAL: unported('mhitm_ad_heal'); break;
+    case AD_PHYS: unported('mhitm_ad_phys'); break;
+    case AD_FIRE: unported('mhitm_ad_fire'); break;
+    case AD_COLD: unported('mhitm_ad_cold'); break;
+    case AD_ELEC:
+        await mhitm_ad_elec(magr, mattk, mdef, mhm, state, env);
+        break;
+    case AD_ACID: unported('mhitm_ad_acid'); break;
+    case AD_STON: unported('mhitm_ad_ston'); break;
+    case AD_SSEX: unported('mhitm_ad_ssex'); break;
+    case AD_SITM:
+    case AD_SEDU: unported('mhitm_ad_sedu'); break;
+    case AD_SGLD: unported('mhitm_ad_sgld'); break;
+    case AD_TLPT: unported('mhitm_ad_tlpt'); break;
+    case AD_BLND: unported('mhitm_ad_blnd'); break;
+    case AD_CURS: unported('mhitm_ad_curs'); break;
+    case AD_DRLI: unported('mhitm_ad_drli'); break;
+    case AD_RUST: unported('mhitm_ad_rust'); break;
+    case AD_CORR: unported('mhitm_ad_corr'); break;
+    case AD_DCAY: unported('mhitm_ad_dcay'); break;
+    case AD_DREN: unported('mhitm_ad_dren'); break;
+    case AD_DRST:
+    case AD_DRDX:
+    case AD_DRCO: unported('mhitm_ad_drst'); break;
+    case AD_DRIN: unported('mhitm_ad_drin'); break;
+    case AD_STCK: unported('mhitm_ad_stck'); break;
+    case AD_WRAP: unported('mhitm_ad_wrap'); break;
+    case AD_PLYS: unported('mhitm_ad_plys'); break;
+    case AD_SLEE: unported('mhitm_ad_slee'); break;
+    case AD_SLIM: unported('mhitm_ad_slim'); break;
+    case AD_ENCH: unported('mhitm_ad_ench'); break;
+    case AD_SLOW: unported('mhitm_ad_slow'); break;
+    case AD_CONF: unported('mhitm_ad_conf'); break;
+    case AD_POLY: unported('mhitm_ad_poly'); break;
+    case AD_DISE: unported('mhitm_ad_dise'); break;
+    case AD_SAMU: unported('mhitm_ad_samu'); break;
+    case AD_DETH: unported('mhitm_ad_deth'); break;
+    case AD_PEST: unported('mhitm_ad_pest'); break;
+    case AD_FAMN: unported('mhitm_ad_famn'); break;
+    case AD_DGST: unported('mhitm_ad_dgst'); break;
+    case AD_HALU: unported('mhitm_ad_halu'); break;
+    default:
+        mhm.damage = 0;
+    }
+}
+
 // C ref: uhitm.c missum() (5197-5214). Reports a swing that did not land and
 // wakes the target.
 //
@@ -1321,27 +1540,42 @@ export async function missum(
     if (!helpless(mdef)) await wakeup(mdef, true, { ...env, state });
 }
 
-// C ref: uhitm.c mhitm_knockback() (5245-5372), for the hero as attacker.
-// Whether a solid blow sends the target staggering backwards.
+// C ref: uhitm.c mhitm_knockback() (5245-5372). Whether a solid blow sends the
+// target staggering backwards.
 //
 // Both of its draws happen before anything is decided: rn2(3) picks a distance
 // the caller may never use, and rn2(chance) rejects five hits in six. The two
-// are why hmon_hitmon() defers the call until it knows the target survived.
+// are why hmon_hitmon() defers the call until it knows the target survived,
+// while mhitu.c hitmu() makes the call unconditionally.
 //
 // C reaches the size test at 5324-5326 only for a target two size classes
 // smaller than the attacker -- for an unpolymorphed hero that means MZ_TINY --
 // and everything past it stops here: is_blunt_weapon(), unsolid(),
 // m_is_steadfast() and the mhurtle() that does the knocking back have no port.
 //
-// C's `u_def` half and its `hitflags` parameter belong to mhitu.c's and
-// mhitm.c's calls, which have no port: hmon_hitmon():1927 passes gy.youmonst as
-// the attacker, so the defender is never the hero, and *hitflags is first read
-// at 5337 and first written at 5399, both past the stop. Neither is carried.
-function mhitm_knockback(magr, mdef, mattk, weapon_used, state, env, random) {
+// Two callers reach this: hmon_hitmon():1927, where the hero is the attacker,
+// and hitmu():1200, where the hero is the defender. C's `hitflags`
+// out-parameter serves neither, because it is first read at 5337 and first
+// written at 5399, both past the stop above; it is left off the signature
+// rather than accepted and ignored.
+//
+// The hero as defender never passes the damage-type gate below. hitmu() calls
+// mhitm_adtyping() first, and that refuses every adtyp except AD_ELEC, which
+// this gate rejects. So the whole `u_def` tail is one refusal.
+export function mhitm_knockback(
+    magr,
+    mdef,
+    mattk,
+    weapon_used,
+    state,
+    env,
+    random,
+) {
     const unsupported = requireAttackOperation(env, 'unsupported');
     random.rn2(3); /* knockdistance: 67%: 1 step, 33%: 2 steps */
     let chance = 6; /* 1/6 chance of attack knocking back a monster */
     const u_agr = (magr === state.youmonst);
+    const u_def = (mdef === state.youmonst);
     /* MON_WEP(magr) is magr->mw */
     const wep = weapon_used ? (u_agr ? state.uwep : magr.mw) : null;
 
@@ -1366,12 +1600,19 @@ function mhitm_knockback(magr, mdef, mattk, weapon_used, state, env, random) {
     /* decide where the first step will place the target; not accurate
        for being knocked out of saddle but doesn't need to be; used for
        test_move() and for message before actual hurtle */
-    const defx = mdef.mx;
-    const defy = mdef.my;
+    const defx = u_def ? state.u.ux : mdef.mx;
+    const defy = u_def ? state.u.uy : mdef.my;
     const dx = sgn(defx - (u_agr ? state.u.ux : magr.mx));
     const dy = sgn(defy - (u_agr ? state.u.uy : magr.my));
 
     /* can't move most targets into or out of a doorway diagonally */
+    if (u_def) {
+        // C tests hack.c test_move(..., TEST_MOVE) here, and everything past
+        // it knocks the hero across the map through dothrow.c hurtle(). None
+        // of that is ported, and no ported path reaches this line: see the
+        // damage-type note above.
+        unsupported('knocking the hero back');
+    }
     /* subset of test_move() */
     if (!isok(defx + dx, defy + dy)) return false;
     const here = state.level?.at(defx, defy);

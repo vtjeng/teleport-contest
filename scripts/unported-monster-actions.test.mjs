@@ -66,6 +66,7 @@ import {
     PM_FOG_CLOUD,
     PM_GIANT_RAT,
     PM_GNOME,
+    PM_GRID_BUG,
     PM_GREMLIN,
     PM_KITTEN,
     PM_LITTLE_DOG,
@@ -2307,7 +2308,12 @@ test('a starting pony targets at range and later refusal stays retryable',
         await assert.rejects(
             preflightSimpleMonsterActions(game),
             (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'a monster landing a hit on the hero',
+                // The later attacker's square is left out of viz_array above,
+                // so its landed blow stops on hitmu()'s map_invisible()
+                // boundary rather than on its damage type. Which boundary is
+                // incidental here; that the refusal repeats is the point.
+                && error.reason
+                    === 'a hit by a monster the hero cannot spot',
         );
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
@@ -2440,6 +2446,45 @@ test('a planned cursed step prints nothing and leaves the live state alone',
             before,
         );
         assert.deepEqual([...game.nhDisplay.messages], messagesBefore);
+    });
+
+test('a planned monster attack writes nothing to the live display',
+    async () => {
+        // mattacku() gates three display operations on env.planning: the
+        // pline_mon() every message goes through, the newsym() that reveals a
+        // striking eel, and the bot() its damage asks for. The scan runs each
+        // monster turn twice, once here against the clone and then live, so a
+        // guard that stopped working would print and repaint every monster
+        // attack twice over, with the development score green unless a
+        // recorded session happened to show the second copy.
+        const target = await prepareSelectedAction({
+            adjacentHero: true,
+            pmidx: PM_GRID_BUG,
+        });
+        // A grid bug's {AT_BITE, AD_ELEC, 1d1} is the one landed melee attack
+        // the port carries through to the hero's hit points, so this is the
+        // widest the planned output gets: hitmsg(), "You get zapped!" or "You
+        // avoid harm.", and mdamageu()'s status write.
+        target.monster.m_lev = 0;
+        // display.h canseemon() wants the attacker's square in sight, and
+        // hitmu() refuses an attacker the hero cannot spot before it reaches
+        // any of the three operations.
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        // AC_VALUE() of a positive armor class is itself, so a differential of
+        // 30 beats every rnd(20) and the plan lands its blow whatever the
+        // cloned PRNG answers.
+        game.u.uac = 20;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+
+        await preflightSimpleMonsterActions(game);
+
+        // The snapshot carries the terminal grid, the message list, the
+        // cursor and disp, which is every surface those three operations
+        // reach.
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
     });
 
 test('a planned pet pickup leaves the live object graph untouched',

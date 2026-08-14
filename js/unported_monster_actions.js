@@ -523,6 +523,11 @@ function planningState(state) {
         // extcmdlist entries and need no deepening.
         command_queue: state.command_queue?.map((queue) => [...queue]),
         gd: { ...(state.gd ?? {}) },
+        // decl.h:457-458's hitmsg_mid and hitmsg_prev, which mhitu.c hitmsg()
+        // writes and missmu() clears on every monster attack the scan replays.
+        // The two answer whether a monster's next blow says "again", and the
+        // dry run's copy must not decide the live pass's answer.
+        gh: { ...(state.gh ?? {}) },
         gb: state.gb ? {
             ...state.gb,
             bhitpos: { ...(state.gb.bhitpos ?? {}) },

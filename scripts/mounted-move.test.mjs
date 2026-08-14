@@ -50,7 +50,14 @@ function ridingSlot(state) {
 // reach their hit side and stop there.
 function fixedRandom(value) {
     const bounds = [];
-    return { bounds, rn2: (x) => { bounds.push(x); return value; }, rnd: () => 1 };
+    return {
+        bounds,
+        // hitmu() rolls the blow's base damage through d(); no case here lands
+        // one, so the answer only has to be a number.
+        d: () => 1,
+        rn2: (x) => { bounds.push(x); return value; },
+        rnd: () => 1,
+    };
 }
 
 function refuser() {
@@ -306,11 +313,12 @@ test('mattacku() draws before it tests adjacency and refuses only when both',
     }
     // The same neighbour with a nonzero draw is C's fall-through to the arms
     // that attack the rider. That is the AT_WEAP melee arm, whose to-hit test
-    // this random source always passes, so it stops at hitmu() instead.
+    // this random source always passes, so the blow lands and stops inside
+    // hitmu() on its own damage type, AD_PHYS.
     await assert.rejects(
         () => mattacku(near, steedTestEnv(state, fixedRandom(1))),
         (error) => error instanceof UnsupportedSimpleMonsterActionError
-            && /landing a hit/u.test(error.message),
+            && /mhitm_ad_phys/u.test(error.message),
     );
 });
 
@@ -334,11 +342,12 @@ test('mattacku() spends no draw on the steed itself or on a hero on foot',
     const onFoot = fixedRandom(0);
     const attacker = attackerAt(state, PM_GOBLIN, 1, 0);
     // A hero on foot skips the steed draw entirely and falls straight through
-    // to the melee arm, which stops at hitmu() without any rn2() of its own.
+    // to the melee arm, whose landed blow stops on AD_PHYS inside hitmu()
+    // without any rn2() of its own.
     await assert.rejects(
         () => mattacku(attacker, steedTestEnv(state, onFoot)),
         (error) => error instanceof UnsupportedSimpleMonsterActionError
-            && /landing a hit/u.test(error.message),
+            && /mhitm_ad_phys/u.test(error.message),
     );
     assert.deepEqual(onFoot.bounds, []);
 });

@@ -1,15 +1,17 @@
 // mhitu.js -- Monsters attacking the hero.
-// C ref: mhitu.c -- missmu(), mswings_verb(), mswings(), getmattk(),
-// calc_mattacku_vars(), mtrapped_in_pit(), mattacku(), magic_negation() and
-// could_seduce().
+// C ref: mhitu.c -- hitmsg(), missmu(), mswings_verb(), mswings(), getmattk(),
+// calc_mattacku_vars(), mtrapped_in_pit(), mattacku(), magic_negation(),
+// could_seduce(), hitmu(), mdamageu() and passiveum().
 
 import {
     BLINDED,
     CONFLICT,
+    HALF_PHDAM,
     INVIS,
     M_AP_NOTHING,
     M_AP_OBJECT,
     M_AP_TYPE,
+    M_ATTK_HIT,
     M_ATTK_MISS,
     NATTK,
     NEED_HTH_WEAPON,
@@ -19,24 +21,35 @@ import {
     TT_PIT,
     W_AMUL,
     W_ARMOR,
+    Upolyd,
     is_pit,
     u_at,
 } from './const.js';
+// js/unported_monster_actions.js already imports allmain.js across the same
+// cycle and records why it is safe: `stop_occupation` is a hoisted function
+// declaration, initialized before either module body runs, and nothing here
+// reads it at module scope.
+import { stop_occupation } from './allmain.js';
 import { ART_SNICKERSNEE } from './artifacts.js';
+import { midnight } from './calendar.js';
 import { bot, newsym } from './display.js';
-import { capitalizedMonsterName } from './do_name.js';
+import { capitalizedMonsterName, monsterPossessive } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { nomul } from './hack.js';
+import { nomul, showdamage } from './hack.js';
 import { dist2 } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
 import {
+    hides_under,
     is_animal,
     is_demon,
     is_minion,
     is_orc,
+    is_undead,
+    is_vampshifter,
     is_were,
     mhis,
+    mon_hates_blessings,
     perceives,
     thick_skinned,
     touch_petrifies,
@@ -52,6 +65,7 @@ import {
     getObjects,
 } from './objects.js';
 import { xnameFresh } from './objnam.js';
+import { is_quest_artifact } from './questpgr.js';
 import { rn2 } from './rng.js';
 import {
     canSeeMonster,
@@ -60,6 +74,7 @@ import {
 } from './startup_a11y.js';
 import { t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
+import { mhitm_adtyping, mhitm_knockback } from './uhitm.js';
 import { cansee } from './vision.js';
 import { hitval } from './weapon.js';
 import { is_pole } from './worn.js';
@@ -118,22 +133,122 @@ export function could_seduce(magr, mdef, mattk, rawEnv = {}) {
     return 0;
 }
 
+// allmain.c stop_occupation(), which mhitu.c calls from missmu() at :99 and
+// from hitmu() at :1266. It is imported rather than resolved from the env,
+// because the env this file is handed carries a `stopOccupation` key that
+// js/unported_monster_actions.js binds twice with opposite meanings -- once to
+// the real function for dochugw()'s interruption and once to a refusal for a
+// pet's hunger -- and neither binding is meant for these two call sites.
+//
+// What the env does own is the pair of display operations that differ between
+// the live game and the atomic planning clone, so those are forwarded.
+function mattackuStopOccupation(env) {
+    return stop_occupation(env.state, {
+        message: env.message,
+        statusRefresh: env.statusRefresh,
+    });
+}
+
+// C ref: decl.h:457-458, the `gh` globals hitmsg() writes and missmu() clears.
+// decl.c:400-401 starts them at 0 and NULL, and neither appears in save.c, so
+// a restored game starts from those values again; this port therefore keeps
+// them on the game state and out of `input.storage`.
+//
+// C's hitmsg_prev is a `struct attack *` into the attacker's own mattk[], and
+// its one reader asks whether this attack sits immediately after it in that
+// array. getmattk() hands back mptr->mattk[indx] itself, so the JavaScript
+// pointer is the same array element and the question is answered by finding it
+// in the current attacker's list.
+function hitmsgState(state) {
+    state.gh ??= {};
+    state.gh.hitmsg_mid ??= 0;
+    state.gh.hitmsg_prev ??= null;
+    return state.gh;
+}
+
+// C ref: mhitu.c hitmsg() (28-81). "monster hits hero"; the line every landed
+// blow prints before its damage type acts.
+//
+// The `again` term is C's `mattk == gh.hitmsg_prev + 1`. It can only be true
+// inside one mattacku() NATTK loop: a landed blow at slot i leaves prev at i,
+// the next turn starts again at slot 0, and any miss in between clears prev
+// through missmu(). No monster this slice admits has two attacks, so it never
+// prints yet; it is ported rather than deferred because the state it reads is
+// the state missmu() already clears.
+export async function hitmsg(mtmp, mattk, state = game, env = {}) {
+    const message = requireMattackuOperation(env, 'message');
+    const gh = hitmsgState(state);
+    let punct = '!';
+    let verb;
+    let Monst_name = capitalizedMonsterName(mtmp, state);
+
+    /* Note: if opposite gender, "seductively";
+       if same gender, "engagingly" for nymph, normal msg for others. */
+    // C's first arm prints "%s smiles at you seductively." for a nonzero
+    // could_seduce(). The call is made for the boundary it carries, not for an
+    // answer: could_seduce() either answers 0 or refuses, and it refuses at
+    // exactly the aggressors C answers nonzero for, so the arm has no
+    // reachable spelling here and is left out rather than written dead.
+    could_seduce(mtmp, state.youmonst, mattk, { ...env, state });
+
+    switch (mattk.aatyp) {
+    case M.AT_BITE:
+        verb = 'bites';
+        break;
+    case M.AT_KICK:
+        if (thick_skinned(state.youmonst.data))
+            punct = '.';
+        verb = 'kicks';
+        break;
+    case M.AT_STNG:
+        verb = 'stings';
+        break;
+    case M.AT_BUTT:
+        verb = 'butts';
+        break;
+    case M.AT_TUCH:
+        verb = 'touches you';
+        break;
+    case M.AT_TENT:
+        verb = 'tentacles suck your brain';
+        /* s_suffix(Monst_name) */
+        Monst_name = monsterPossessive(mtmp, state, true);
+        break;
+    case M.AT_EXPL:
+    case M.AT_BOOM:
+        verb = 'explodes';
+        break;
+    default:
+        verb = 'hits';
+    }
+    /* if a monster hits more than once with similar attack, say so */
+    const prevIndex = gh.hitmsg_prev
+        ? mtmp.data.mattk.indexOf(gh.hitmsg_prev) : -1;
+    const again = (mtmp.m_id === gh.hitmsg_mid
+                   && prevIndex >= 0
+                   && mtmp.data.mattk[prevIndex + 1] === mattk
+                   && mattk.aatyp === gh.hitmsg_prev.aatyp) ? ' again' : '';
+    await message(`${Monst_name} ${verb}${again}${punct}`, state);
+
+    gh.hitmsg_mid = mtmp.m_id;
+    gh.hitmsg_prev = mattk;
+}
+
 // C ref: mhitu.c missmu() (84-100). "monster missed you".
 //
 // C opens with map_invisible() for a monster the hero cannot spot. That
 // function is unported (js/display.js:1778 documents the gap), and the name
 // this prints would be "it" for the same monster, which
 // capitalizedMonsterName() cannot spell either, so the pair refuses together.
-//
-// gh.hitmsg_mid and gh.hitmsg_prev, which C clears here, are hitmsg()'s
-// "<foo> bites again" state. hitmsg() runs only for a landed hit, which
-// refuses, so neither has a ported reader yet.
 async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
     const message = requireMattackuOperation(rawEnv, 'message');
-    const stopOccupation = requireMattackuOperation(rawEnv, 'stopOccupation');
     const spotMonster = rawEnv.canSpotMonster ?? canSpotMonster;
+    const gh = hitmsgState(state);
+
+    gh.hitmsg_mid = 0;
+    gh.hitmsg_prev = null;
 
     if (!spotMonster(mtmp, state))
         unsupported('a miss by a monster the hero cannot spot');
@@ -153,7 +268,7 @@ async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
         );
     }
 
-    await stopOccupation(rawEnv);
+    await mattackuStopOccupation(rawEnv);
 }
 
 // C ref: mhitu.c mswings_verb() (104-126). "strike types P|S|B: Pierce
@@ -307,21 +422,19 @@ function AC_VALUE(ac, random) {
 // monster dies (e.g. 'yellow light'), 0 otherwise".
 //
 // The result is TRUE where C returns 1, which nothing reachable here can
-// produce: every arm that kills the attacker is behind hitmu(), gulpmu(),
-// explmu() or gazemu(), and all four refuse. So every reachable exit answers
-// false, including the steed's own arm, which mhitu.c:532 returns 0 from.
+// produce: hitmu() answers M_ATTK_HIT on both of its paths, and gulpmu(),
+// explmu() and gazemu() all refuse. So every reachable exit answers false,
+// including the steed's own arm, which mhitu.c:532 returns 0 from.
 //
 // No ported caller reads the value today. dochug() awaits it and discards it,
 // which is faithful to C only because C's callers act on a bit this port
 // cannot yet set; the value is kept rather than dropped so that the arm which
-// will set it has somewhere to report, and so the signature does not change
-// under whoever ports hitmu().
+// will set it has somewhere to report.
 //
 // Ported: the preamble, the u.usteed arm, the armor-class differential, the
 // eel-reveal, find_offensive()'s FALSE answer, the NATTK loop, and, inside it,
 // the AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT arm and the
-// non-range2 AT_WEAP arm, each as far as its to-hit test. The miss side is
-// complete through missmu(); the hit side stops at hitmu().
+// non-range2 AT_WEAP arm, each through hitmu() or missmu().
 //
 // Refused where C acts: the hero-concealment blocks (u.uundetected, the
 // S_MIMIC and M_AP_OBJECT arms), summonmu(), u.uinvulnerable, use_offensive(),
@@ -346,8 +459,12 @@ export async function mattacku(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const u = state.u;
     const random = rawEnv.random;
-    if (typeof random?.rn2 !== 'function' || typeof random?.rnd !== 'function')
-        throw new TypeError('mattacku requires an rn2 and rnd random source');
+    if (typeof random?.rn2 !== 'function' || typeof random?.rnd !== 'function'
+        || typeof random?.d !== 'function') {
+        throw new TypeError(
+            'mattacku requires an rn2, rnd and d random source',
+        );
+    }
     const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
     // pline_mon(), newsym() and bot(). The planning scan replays the same turn
     // against the live display afterwards, so a dry run must produce none of
@@ -486,7 +603,7 @@ export async function mattacku(monster, rawEnv = {}) {
                         }
                         if (mattk.aatyp !== M.AT_KICK
                             || !thick_skinned(state.youmonst.data)) {
-                            unsupported('a monster landing a hit on the hero');
+                            sum[i] = await hitmu(monster, mattk, env);
                         }
                     } else {
                         await missmu(monster, tmp === j, mattk, env);
@@ -568,11 +685,12 @@ export async function mattacku(monster, rawEnv = {}) {
                         tmp += hittmp;
                         await mswings(monster, mon_currwep, bash, env);
                     }
-                    // C also stores the roll in gm.mhitu_dieroll, which only
-                    // hitmu() reads.
+                    // C also stores the roll in gm.mhitu_dieroll, whose only
+                    // readers are uhitm.c mhitm_ad_phys():4069 and :4107, and
+                    // mhitm_adtyping() refuses AD_PHYS.
                     const j = random.rnd(20 + i);
                     if (tmp > j)
-                        unsupported('a monster landing a hit on the hero');
+                        sum[i] = await hitmu(monster, mattk, env);
                     else
                         await missmu(monster, tmp === j, mattk, env);
                     /* KMH -- Don't accumulate to-hit bonuses */
@@ -592,11 +710,18 @@ export async function mattacku(monster, rawEnv = {}) {
             break;
         }
         if (state.disp?.botl) await statusRefresh();
-        // C then wakes a sleeping hero on a landed hit, returns 1 for a dead
-        // attacker and breaks for a teleported one. All three read sum[i],
-        // which stays M_ATTK_MISS for every arm above: the only writers are
-        // hitmu(), gulpmu(), explmu(), gazemu(), castmu() and buzzmu(), and
-        // each of those refuses.
+        /* give player a chance of waking up before dying -kaa */
+        if (sum[i] === M_ATTK_HIT) { /* successful attack */
+            if (u.usleep && u.usleep < state.moves && !random.rn2(10)) {
+                state.multi = -1;
+                state.nomovemsg = 'The combat suddenly awakens you.';
+            }
+        }
+        // C follows this with `return 1` for a dead attacker and `break` for a
+        // teleported one, reading M_ATTK_AGR_DIED and M_ATTK_AGR_DONE out of
+        // sum[i]. Neither bit can be set: hitmu() is the only writer of sum[i]
+        // and both of its exits answer M_ATTK_HIT, while gulpmu(), explmu(),
+        // gazemu(), castmu() and buzzmu() all refuse above.
     }
     return false;
 }
@@ -659,4 +784,205 @@ export function magic_negation(mon, state = game) {
             mc = 1;
     }
     return mc;
+}
+
+// youprop.h:339-341 Half_physical_damage, spelled out here because each C
+// file's port expands its own macros; js/trap_effects.js:158 expands the same
+// one. It is the intrinsic or the extrinsic, with no blocking term.
+function Half_physical_damage(state) {
+    const halved = state.u?.uprops?.[HALF_PHDAM];
+    return Boolean(halved?.intrinsic || halved?.extrinsic);
+}
+
+// C ref: mhitu.c hitmu() (1143-1267). "monster hits you; returns MM_ flags".
+//
+// Every reachable exit answers M_ATTK_HIT. The damage path ends in passiveum(),
+// which returns M_ATTK_HIT for an unpolymorphed hero, and the no-damage path
+// assigns it outright, so mattacku()'s `sum[i]` never carries M_ATTK_AGR_DIED
+// or M_ATTK_AGR_DONE and mattacku() still answers false.
+//
+// Ported: the base damage roll, mhitm_adtyping(), mhitm_knockback(), the
+// negative-armor-class reduction, mdamageu() and passiveum().
+//
+// Refused where C acts: map_invisible() for an unspottable attacker, which
+// missmu() refuses for the same reason; the block that reveals an attacker
+// hidden under an object, which needs doname(), Amonnam() and tp_sensemon();
+// and, inside mdamageu(), the hero's own death.
+//
+// One piece of C is absent rather than refused: mhm.permdmg's whole block
+// (1229-1259), which drains permanent hit points. Death's life-force drain is
+// its only writer, that is uhitm.c mhitm_ad_deth(), and mhitm_adtyping()
+// refuses AD_DETH above. The field is still initialized, because the mhm
+// record is C's and every arm of that switch may write it.
+//
+// mhm.specialdmg has no ported reader either. It is a silver or blessed bonus
+// the AD_PHYS arm applies, so it lands with mhitm_ad_phys().
+async function hitmu(mtmp, mattk, env) {
+    const state = env.state;
+    const random = env.random;
+    const unsupported = requireMattackuOperation(env, 'unsupported');
+    const spotMonster = env.canSpotMonster ?? canSpotMonster;
+    const mdat = mtmp.data;
+    const olduasmon = state.youmonst.data;
+    let res;
+    const mhm = {
+        damage: 0,
+        hitflags: M_ATTK_MISS,
+        permdmg: 0,
+        specialdmg: 0,
+        done: false,
+    };
+
+    if (!spotMonster(mtmp, state))
+        unsupported('a hit by a monster the hero cannot spot');
+
+    /*  If the monster is undetected & hits you, you should know where
+     *  the attack came from.
+     */
+    if (mtmp.mundetected && (hides_under(mdat) || mdat.mlet === M.S_EEL))
+        unsupported('a hit by a monster that was hiding');
+
+    /*  First determine the base damage done */
+    mhm.damage = random.d(mattk.damn, mattk.damd);
+    if ((is_undead(mdat) || is_vampshifter(mtmp)) && midnight(state))
+        mhm.damage += random.d(mattk.damn, mattk.damd); /* extra dmg */
+
+    await mhitm_adtyping(mtmp, mattk, state.youmonst, mhm, state, env);
+
+    mhitm_knockback(mtmp, state.youmonst, mattk, Boolean(mtmp.mw) /* MON_WEP */,
+        state, env, random);
+
+    if (mhm.done)
+        return mhm.hitflags;
+
+    if ((Upolyd(state.u) ? state.u.mh : state.u.uhp) < 1) {
+        /* already dead? call rehumanize() or done_in_by() as appropriate */
+        await mdamageu(mtmp, 1, state, env);
+        mhm.damage = 0;
+    }
+
+    /*  Negative armor class reduces damage done instead of fully protecting
+     *  against hits.
+     */
+    if (mhm.damage && state.u.uac < 0) {
+        mhm.damage -= random.rnd(-state.u.uac);
+        if (mhm.damage < 1)
+            mhm.damage = 1;
+    }
+
+    if (mhm.damage > 0) {
+        /* [Half_physical_damage isn't applied to mhm.permdmg] */
+        if (Half_physical_damage(state)
+            /* Mitre of Holiness, even if not currently blessed */
+            || (state.urole?.mnum === M.PM_CLERIC && state.uarmh
+                && is_quest_artifact(state.uarmh, state)
+                && mon_hates_blessings(mtmp)))
+            mhm.damage = Math.trunc((mhm.damage + 1) / 2);
+
+        await mdamageu(mtmp, mhm.damage, state, env);
+    }
+
+    if (mhm.damage)
+        res = await passiveum(olduasmon, mtmp, mattk, state, env);
+    else
+        res = M_ATTK_HIT;
+    await mattackuStopOccupation(env);
+    return res;
+}
+
+// C ref: mhitu.c mdamageu() (1901-1927). "mtmp hits you for n points damage".
+//
+// The hero's death is the goal's declared fail-closed edge: done_in_by() owns
+// the killer string, the tombstone and the whole end of game, none of which is
+// ported. js/hack.js losehp() stops on the same boundary.
+async function mdamageu(mtmp, n, state, env) {
+    const unsupported = requireMattackuOperation(env, 'unsupported');
+    const message = requireMattackuOperation(env, 'message');
+
+    if (n < 0) {
+        // C calls impossible() and continues with n = 0. No ported caller can
+        // reach it: hitmu() calls this with 1 or with a damage it has already
+        // clamped above zero.
+        unsupported('mdamageu() for negative damage');
+    }
+
+    state.disp ??= {};
+    state.disp.botl = true;
+    if (Upolyd(state.u)) {
+        // u.mh, u.mhmax and rehumanize() belong to polyself.c, which is not
+        // ported; js/regen.js:52 records that Upolyd() is constantly false.
+        unsupported('damage to a polymorphed hero');
+    }
+    state.u.uhp -= n;
+    await showdamage(n, state, { message });
+    /* caller might have reduced uhpmax before calling mdamageu() */
+    if (state.u.uhp > state.u.uhpmax)
+        state.u.uhp = state.u.uhpmax;
+    if (state.u.uhp < 1)
+        unsupported('the hero dying of a monster attack');
+}
+
+// C ref: mhitu.c passiveum() (2434-2615), as far as `if (!Upolyd)` at 2519.
+// The hero's own passive counter-attack against the monster that just hit.
+//
+// An unpolymorphed hero costs nothing here. olduasmon is the role's permonst,
+// whose mattk[1] is NO_ATTK: aatyp AT_NONE ends the search, damn and damd are
+// both zero so tmp is zero and no die is rolled, and adtyp AD_PHYS takes the
+// switch's default arm. The absence of any passiveum() site in seed0004's
+// step-91 and step-92 random-number log is that path, observed.
+//
+// The three arms below therefore need a polymorphed hero, and so does
+// everything after the `!Upolyd` return: the second switch, its rn2(3) guard
+// and uhitm.c-style assess_dmg().
+//
+// `mattk` is the blow that landed, and C reads it in one place: the AD_STON
+// arm's attk_protection(mattk->aatyp), which decides whether the attacker's
+// gloves saved it from a cockatrice. That arm refuses, so the parameter is
+// carried for the signature rather than read.
+async function passiveum(olduasmon, mtmp, mattk, state, env) {
+    const random = env.random;
+    const unsupported = requireMattackuOperation(env, 'unsupported');
+    let i;
+    let oldu_mattk = null;
+
+    /*
+     * mattk      == mtmp's attack that hit you;
+     * oldu_mattk == your passive counterattack (even if mtmp's attack
+     *               has already caused you to revert to normal form).
+     */
+    for (i = 0; !oldu_mattk; i++) {
+        if (i >= NATTK)
+            return M_ATTK_HIT;
+        if (olduasmon.mattk[i].aatyp === M.AT_NONE
+            || olduasmon.mattk[i].aatyp === M.AT_BOOM)
+            oldu_mattk = olduasmon.mattk[i];
+    }
+    /* Note: C's `tmp` is not always used. Its value feeds only the arms below
+       and the polymorphed tail, all of which stop, but the draw is C's and has
+       to happen where C makes it -- the same treatment js/uhitm.js passive()
+       gives the mirror-image function. */
+    if (oldu_mattk.damn)
+        random.d(oldu_mattk.damn, oldu_mattk.damd);
+    else if (oldu_mattk.damd)
+        random.d(olduasmon.mlevel + 1, oldu_mattk.damd);
+
+    /* These affect the enemy even if you were "killed" (rehumanized) */
+    switch (oldu_mattk.adtyp) {
+    case M.AD_ACID: /* acid blob */
+        unsupported("a hero form's passive acid");
+        break;
+    case M.AD_STON: /* cockatrice */
+        unsupported("a hero form's passive petrification");
+        break;
+    case M.AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
+        unsupported("a hero form's passive disenchantment");
+        break;
+    default:
+        break;
+    }
+    if (!Upolyd(state.u))
+        return M_ATTK_HIT;
+
+    /* These affect the enemy only if you are still a monster */
+    return unsupported("a polymorphed hero's passive counter-attack");
 }
