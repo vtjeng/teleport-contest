@@ -163,17 +163,43 @@ from the segments after it. Within a segment, partial progress scores normally.
 
 ### Reading the reconciliation before you rank
 
-The observed and modeled halves are derived by different routes, so the report
-states where they disagree. Where a refused-command census row has no
-counterpart in the behavior table, it names a command no session issued, and
-ranking it would be an error: `rushsouth` stands at 8 sessions and 2,179 steps
-there because `\n` is Ctrl-J, which the binding table names `rushsouth` while
-those sessions were stopped inside an extended-command prompt. A stop with no
-modeled behavior at the step the port refused is the serious case: the model
-believes the port supports what the port just refused, so no candidate stands
-for that stop at all. That count is 0 today. If it is not, the behavior table
-holds no row for that stop, so find why the model counts that command as
-supported before you rank.
+The report answers two questions about each session from one replay, and
+labels every figure with the question it came from. The observed estimate
+states where the port stopped: it replays each session to its first refusal,
+then reports the boundary raised, the byte refused, and how many recorded
+screens went undrawn. The modeled estimate states what the session still
+needs: it differences the session's whole recorded input against the commands
+the port dispatches, and the report calls the result that session's debt.
+Those debts are the rows of the behavior table, whose `supports` and `unlocks`
+columns the next section ranks.
+
+Two censuses sort the observed stops. The boundary census groups them by the
+boundary the port raised. The refused command census groups them by the
+command the refused byte is bound to. Each row of either census carries the
+sessions in its group and the screens standing behind them.
+
+The refused command census resolves each refused byte through the session's
+binding model, which answers for every byte, including the roughly half that
+answer prompts, pick menu entries, or dismiss `--More--`. Both estimates
+therefore read the recorded cursor, which rests on the hero exactly while the
+game waits for a command, and the census labels any row whose byte began no
+command. Never rank a labelled row. At `28c62d0` four of them carry 1,596
+screens between them, the largest `open` at 699, where a session answered the
+apply prompt with the inventory letter `o`, which is also bound to `open`.
+
+The reconciliation section lists the rows the two estimates still name
+differently, under "Refused-command census rows the behavior table cannot
+hold". Read a row's arrow, which gives the behavior the modeled estimate
+names, before ranking it.
+
+Explain every stop with no modeled behavior at the step the port refused
+before you rank. Most have a harmless explanation: `supportedCommands()` reads
+`ADMITTED_COMMANDS`, which gates only a command's first byte, so a command the
+port dispatches and then refuses deeper still counts as supported. The serious
+explanation is a command the report cannot model, such as the count prefix
+`seed0900` opens at step 11, which leaves the behavior table with no row for
+that stop. The report listed nine such stops at `28c62d0`: seven on an
+unported branch of a dispatched command, and two on the count prefix.
 
 ### Ranking the behavior table
 

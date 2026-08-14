@@ -15,6 +15,7 @@ import {
     censusBy,
     commandsIssued,
     cursorState,
+    refusedCommandKey,
     dedupeMessages,
     executedCommands,
     extendedCommandAt,
@@ -193,6 +194,46 @@ test('censusBy names an unbound keystroke rather than dropping it', () => {
     const rows = [{ command: null, recordedSteps: 1953, screensEmitted: 1 }];
     assert.deepEqual(censusBy(rows, 'command'), [
         { key: '(none)', sessions: 1, ceiling: 1952 },
+    ]);
+});
+
+test('the refused command census labels a byte that answered a prompt', () => {
+    // seed0360 is the standing case: it stopped on "o" while answering the
+    // apply prompt, and "o" is bound to `open`. Filing 699 screens under
+    // `open` would offer a ranking candidate no session issued.
+    assert.equal(
+        refusedCommandKey({ command: 'open', keyCursor: 'answer' }),
+        'open (the byte answered a prompt)',
+    );
+    // A byte whose role cannot be read is labelled apart from both, because a
+    // polymorphed or engulfed hero draws a glyph the cursor test cannot match.
+    assert.equal(
+        refusedCommandKey({ command: 'open', keyCursor: 'ambiguous' }),
+        "open (the byte's role could not be read)",
+    );
+    // A byte that did begin a command keeps its bare name, so the row stays
+    // rankable.
+    assert.equal(
+        refusedCommandKey({ command: 'open', keyCursor: 'command' }),
+        'open',
+    );
+    // An unbound key has no name to label; censusBy files it under (none).
+    assert.equal(
+        refusedCommandKey({ command: null, keyCursor: 'command' }),
+        null,
+    );
+});
+
+test('censusBy groups by a key function as well as a field name', () => {
+    // Two sessions stopping on the same command, one of them answering a
+    // prompt, must not share a row: ceilings 20 and 5 stay apart.
+    const rows = [
+        { command: 'open', keyCursor: 'command', recordedSteps: 30, screensEmitted: 10 },
+        { command: 'open', keyCursor: 'answer', recordedSteps: 10, screensEmitted: 5 },
+    ];
+    assert.deepEqual(censusBy(rows, refusedCommandKey), [
+        { key: 'open', sessions: 1, ceiling: 20 },
+        { key: 'open (the byte answered a prompt)', sessions: 1, ceiling: 5 },
     ]);
 });
 
@@ -522,6 +563,7 @@ test('reconcile sorts each stop by how the two halves name it', () => {
             boundary: "unsupported hero command: the extended command 'pray' is not ported",
             commandRefusal: true,
             command: 'rushsouth',
+            keyCursor: 'answer',
             screensEmitted: 46,
             recordedSteps: 67,
             behaviors: [{ member: '#pray', at: 46 }],
@@ -582,39 +624,46 @@ test('reconcile sorts each stop by how the two halves name it', () => {
 });
 
 test('refusalsWithoutBehavior groups the census rows nothing can rank', () => {
-    // The `rushsouth` row of the real refused-command census: eight sessions
-    // whose refused byte is a getlin terminator. Two are shown here, one
-    // standing behind 21 steps and one behind 83, both naming `#levelchange`,
-    // plus a third naming a different behavior so the count suffix is
-    // exercised. The unbound `\r` row groups under `(none)`.
+    // The `rushsouth` row of the real refused-command census: sessions whose
+    // refused byte is a getlin terminator, so the cursor rested on a prompt and
+    // the census labels the row rather than filing it under `rushsouth`. Two
+    // are shown here, one standing behind 21 steps and one behind 83, both
+    // naming `#levelchange`, plus a third naming a different behavior so the
+    // count suffix is exercised. The unbound `\r` row groups under `(none)`,
+    // having no command name to label.
     const differing = [
         {
             command: 'rushsouth',
+            keyCursor: 'answer',
             screensEmitted: 46,
             recordedSteps: 67,
             behaviors: [{ member: '#levelchange', at: 46 }],
         },
         {
             command: 'rushsouth',
+            keyCursor: 'answer',
             screensEmitted: 15,
             recordedSteps: 98,
             behaviors: [{ member: '#levelchange', at: 15 }],
         },
         {
             command: 'rushsouth',
+            keyCursor: 'answer',
             screensEmitted: 13,
             recordedSteps: 303,
             behaviors: [{ member: '#wizwish', at: 13 }],
         },
         {
             command: null,
+            keyCursor: 'answer',
             screensEmitted: 9,
             recordedSteps: 25,
             behaviors: [{ member: '#name', at: 9 }],
         },
     ];
     const groups = refusalsWithoutBehavior(differing);
-    assert.deepEqual(groups.map((group) => group.key), ['rushsouth', '(none)']);
+    assert.deepEqual(groups.map((group) => group.key),
+        ['rushsouth (the byte answered a prompt)', '(none)']);
     // 21 + 83 + 290 recorded steps stand behind the three rushsouth sessions.
     assert.equal(groups[0].sessions, 3);
     assert.equal(groups[0].ceiling, 394);

@@ -23,12 +23,13 @@
 //
 // RECONCILED. The two halves are computed by different routes over the same
 // replay, so they can disagree, and a disagreement nobody sees is what this
-// script exists to prevent. The refused-command census resolves the refused
-// byte through the binding table alone; the model reads the recorded cursor
-// first, so it can tell a command from a byte answering a prompt. Where they
-// disagree the census names a command no session issued and no row of the
-// behavior table can carry, and the reconciliation section says so instead of
-// leaving the row to be found by running two scans and diffing them by hand.
+// script exists to prevent. Both read the recorded cursor to decide whether a
+// byte began a command, so the census labels a refused byte that answered a
+// prompt instead of filing it under the command sharing that byte: Enter is
+// 0x0A, and so is Ctrl-J, the rush form of `j`. They can still name different
+// behaviors for a stop whose byte did begin a command, and the reconciliation
+// section says so instead of leaving the row to be found by running two scans
+// and diffing them by hand.
 //
 // `supports` counts screens that stop matching if a port matching every
 // recorded screen loses this behavior. That is every screen from the behavior's
@@ -384,6 +385,13 @@ export async function scanSession(file) {
                     boundary instanceof UnsupportedHeroCommandBoundaryError,
                 key: step?.key ?? null,
                 command: resolvedCommand(step?.key),
+                // Whether the refused byte began a command, read the way
+                // commandsIssued() reads it: from the cursor the step before.
+                // Step 0 has no predecessor, so its role cannot be read; say so
+                // rather than let cursorState()'s missing-step answer stand in.
+                keyCursor: stopIndex > 0
+                    ? cursorState(steps[stopIndex - 1])
+                    : 'ambiguous',
                 message: recordedTopLine(step),
                 context: {
                     segments: [
@@ -425,6 +433,7 @@ export async function scanSession(file) {
         commandRefusal: stop?.commandRefusal ?? false,
         key: stop?.key ?? null,
         command: stop?.command ?? null,
+        keyCursor: stop?.keyCursor ?? null,
         message: stop?.message ?? '',
         stopContext: stop?.context ?? null,
         behavioral,
@@ -483,12 +492,36 @@ function isSupported(command, supported) {
     return supported.has(command.slice(EXTENDED_COMMAND_KEY.length));
 }
 
-// Group observed rows by a caller-chosen field, carrying the summed ceiling so
-// the output states how much of the set each class stands in front of.
+/**
+ * The refused command census key for one observed row.
+ *
+ * `row.command` resolves the refused byte through the session's binding model,
+ * which answers for every byte, including the roughly half that answer
+ * prompts. Enter is 0x0A, and so is Ctrl-J, the rush form of the `j` direction
+ * key, so a session that pressed Enter to answer a prompt would otherwise be
+ * filed under `rushsouth` and read as a ranking candidate.
+ *
+ * cursorState() already decides whether a byte began a command, and the
+ * modeled half uses it for exactly this. Applying it here labels the row
+ * instead of dropping it, so the reconciliation section still sees the
+ * disagreement it exists to surface.
+ */
+export function refusedCommandKey(row) {
+    if (row.command == null) return null;
+    if (row.keyCursor === 'command') return row.command;
+    if (row.keyCursor === 'ambiguous')
+        return `${row.command} (the byte's role could not be read)`;
+    return `${row.command} (the byte answered a prompt)`;
+}
+
+// Group observed rows by a caller-chosen field or key function, carrying the
+// summed ceiling so the output states how much of the set each class stands in
+// front of.
 export function censusBy(rows, field) {
+    const keyOf = typeof field === 'function' ? field : (row) => row[field];
     const groups = new Map();
     for (const row of rows) {
-        const key = row[field] ?? '(none)';
+        const key = keyOf(row) ?? '(none)';
         const group = groups.get(key) ?? { key, sessions: 0, ceiling: 0 };
         group.sessions += 1;
         group.ceiling += ceilingFor(row);
@@ -614,7 +647,9 @@ export function reconcile(rows) {
 export function refusalsWithoutBehavior(differing) {
     const groups = new Map();
     for (const row of differing) {
-        const key = row.command ?? '(none)';
+        // Key by the census's own label, so a row printed here is the row a
+        // reader finds in the census rather than its unlabelled name.
+        const key = refusedCommandKey(row) ?? '(none)';
         const group = groups.get(key)
             ?? { key, sessions: 0, ceiling: 0, modeled: new Map() };
         group.sessions += 1;
@@ -723,7 +758,7 @@ function reportStops(rows) {
     for (const [title, field] of [
         ['\nBoundary census, observed (sessions, screens standing behind it)',
             'boundary'],
-        ['\nRefused command census, observed', 'command'],
+        ['\nRefused command census, observed', refusedCommandKey],
     ]) {
         console.log(title);
         for (const group of censusBy(rows, field)) {
@@ -798,11 +833,11 @@ function reportReconciliation(rows, ranking) {
     if (differing.length) {
         console.log(
             '\n  Refused-command census rows the behavior table cannot hold. '
-            + 'The census\n  resolves the refused byte through the binding '
-            + 'table alone; the model reads\n  the recorded cursor first, so a '
-            + 'byte answering a prompt is not a command to\n  it. Where the two '
-            + 'differ, the census row names a command no session issued,\n  and '
-            + 'the behavior it stands in for is the one after the arrow.\n',
+            + 'The census resolves\n  the refused byte through the binding '
+            + 'model; the model reads the recorded\n  cursor and names the '
+            + 'behavior after the arrow. A row the census labelled as\n  '
+            + 'answering a prompt differs for that reason; an unlabelled one '
+            + 'differs for\n  another, so read its arrow before you rank it.\n',
         );
         for (const group of refusalsWithoutBehavior(differing)) {
             const named = [...group.modeled.entries()]
