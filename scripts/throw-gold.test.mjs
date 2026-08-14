@@ -14,17 +14,21 @@ import test from 'node:test';
 
 import {
     HELM_MOVES,
+    LANDING_PURSE,
     PURSE,
     THROW_GOLD_CASES,
+    THROW_GOLD_LANDING_CASES,
     loadThrowGoldHelmRecipe,
+    loadThrowGoldLandingRecipe,
     loadThrowGoldRecipe,
 } from './run-throw-gold.mjs';
 import { COIN_CLASS, HELMET } from '../js/objects.js';
 import { ZAP_POS } from '../js/const.js';
+import { acurrstr } from '../js/attrib.js';
 import { closed_door } from '../js/monmove.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { On_stairs } from '../js/stairs.js';
+import { On_stairs, stairway_at } from '../js/stairs.js';
 
 // cmd.c:2000 binds C('w') to the "wizwish" row. Spelled from its code point
 // so no raw control character sits in this file.
@@ -40,6 +44,14 @@ function segmentFor(label) {
     const index = THROW_GOLD_CASES.findIndex((entry) => entry.label === label);
     assert.ok(index >= 0, `no case labelled ${label}`);
     return segments()[index];
+}
+
+function landingSegmentFor(label) {
+    const index = THROW_GOLD_LANDING_CASES.findIndex(
+        (entry) => entry.label === label,
+    );
+    assert.ok(index >= 0, `no landing case labelled ${label}`);
+    return loadThrowGoldLandingRecipe().segments[index];
 }
 
 function topLine() {
@@ -118,6 +130,120 @@ test('every gold segment starts from the same hero and clock', () => {
     assert.ok(all.every(({ nethackrc }) => nethackrc.includes('pettype:none')));
     assert.ok(all.every(({ nethackrc }) => nethackrc.includes('role:Healer')));
 });
+
+test('the landing recipe is the second seed and turns autopickup off', () => {
+    const recipe = loadThrowGoldLandingRecipe();
+    assert.equal(recipe.version, 5);
+    assert.ok(recipe.segments.every(
+        (segment) => !Object.hasOwn(segment, 'steps'),
+    ));
+    assert.deepEqual(THROW_GOLD_LANDING_CASES.map(({ label }) => label), [
+        'range', 'pile', 'stairs guard',
+    ]);
+    assert.deepEqual(THROW_GOLD_LANDING_CASES.map(({ moves }) => moves), [
+        '.t$h', '.kt$>', '.hkkkkkkkkllkt$l',
+    ]);
+    // The three squares these segments need -- six clear squares in a line, a
+    // floor gold pile one step away and a reachable downstairs -- are not on
+    // the seven-segment seed's D:1.
+    assert.ok(recipe.segments.every(({ seed }) => seed === 6120907));
+    assert.ok(segments().every(({ seed }) => seed !== 6120907));
+    // Without this the `pile` hero would pocket the heap she is meant to
+    // stand on, and the square would hold nothing for stackobj() to merge.
+    assert.ok(recipe.segments.every(
+        ({ nethackrc }) => nethackrc.includes('!autopickup'),
+    ));
+});
+
+test('gold stops where the range says rather than where the wall does',
+    async () => {
+        const segment = landingSegmentFor('range');
+        await runSegment({ ...segment, moves: '.' });
+        const beforeMoves = game.moves;
+        const { ux, uy } = game.u;
+
+        // dothrow.c:2696 is ACURRSTR / 2 - obj->owt / 40. This Healer rolled
+        // St:9, and 1292 coins weigh (1292 + 50) / 100 = 13, so the range is
+        // 9 / 2 - 13 / 40 = 4 - 0 = 4. Both operands are asserted because the
+        // expression is what this segment exists to measure.
+        assert.equal(acurrstr(game), 9);
+        assert.equal(purseInPack().owt, 13);
+        assert.equal(purseInPack().quan, LANDING_PURSE);
+
+        // Six squares of room floor run west, two more than the range, so a
+        // range of 5 or 6 would land the coins further out instead of on the
+        // same square. The seventh is the wall that would otherwise be the
+        // only thing deciding where the flight ends.
+        for (let step = 1; step <= 6; ++step)
+            assert.ok(ZAP_POS(game.level.at(ux - step, uy).typ), `step ${step}`);
+        assert.ok(!ZAP_POS(game.level.at(ux - 7, uy).typ));
+        for (let step = 1; step <= 6; ++step)
+            assert.deepEqual(coinsAt(ux - step, uy), [], `step ${step}`);
+
+        const replay = await runSegment({ ...segment, moves: segment.moves });
+        assert.equal(topLine(), '');
+        assert.deepEqual(coinsAt(ux - 4, uy), [LANDING_PURSE]);
+        // The two squares on either side of the landing square, so a range of
+        // 3, 5 or 6 fails here rather than passing on the pile alone.
+        assert.deepEqual(coinsAt(ux - 3, uy), []);
+        assert.deepEqual(coinsAt(ux - 5, uy), []);
+        assert.deepEqual(coinsAt(ux - 6, uy), []);
+        assert.equal(game.moves, beforeMoves + 1);
+        // bhit() flashes the missile once per square it enters, so the frame
+        // count is the range counted a second way.
+        assert.deepEqual(framesPerStep(replay), [0, 0, 0, 0, 4]);
+    });
+
+test('gold landing on a pile merges into it', async () => {
+    const segment = landingSegmentFor('pile');
+    // mklev() left a small heap one square north; !autopickup is what lets the
+    // hero stand on it. 4 is what this seed's mkgold() rolled.
+    const PILE = 4;
+    await runSegment({ ...segment, moves: '.k' });
+    const beforeMoves = game.moves;
+    const { ux, uy } = game.u;
+    assert.deepEqual(coinsAt(ux, uy), [PILE]);
+    assert.equal(purseInPack().quan, LANDING_PURSE);
+
+    await runSegment({ ...segment, moves: segment.moves });
+    assert.equal(topLine(), 'The gold hits the floor.');
+    assert.equal(purseInPack(), null);
+    // dothrow.c:2728 stackobj(). One stack, not two: the purse and the heap
+    // are the same object afterwards. Drop stackobj(), or the
+    // extractExternalObject hook that unlinks the absorbed member, and this
+    // square keeps two entries.
+    assert.deepEqual(coinsAt(ux, uy), [LANDING_PURSE + PILE]);
+    assert.equal(game.moves, beforeMoves + 1);
+});
+
+test('the guard keeps a throw at a wall from asking ship_object()',
+    async () => {
+        const segment = landingSegmentFor('stairs guard');
+        await runSegment({ ...segment, moves: '.hkkkkkkkkllk' });
+        const beforeMoves = game.moves;
+        const { ux, uy } = game.u;
+
+        // The walk ends on the downstairs, which is the one D:1 square
+        // dokick.c down_gate() answers for. The `wall` and `closed door`
+        // segments both throw from the upstairs, where the guard and bhit()
+        // put the coins on the same square and spend the same turn.
+        const stairs = stairway_at(ux, uy, game);
+        assert.ok(stairs);
+        assert.equal(stairs.up, false);
+        // dothrow.c:2702's first conjunct, one square east.
+        assert.ok(!ZAP_POS(game.level.at(ux + 1, uy).typ));
+
+        await runSegment({ ...segment, moves: segment.moves });
+        assert.equal(topLine(), '');
+        // With the guard the coins never reach bhit(), so ship_object() at
+        // :2715 is never asked whether they should fall to Dlvl 2. Let the
+        // guard fall through and bhit() returns this same square with no
+        // monster, the port stops at its ship_object() branch, and the
+        // command spends no turn and drops no coins.
+        assert.deepEqual(coinsAt(ux, uy), [LANDING_PURSE]);
+        assert.equal(purseInPack(), null);
+        assert.equal(game.moves, beforeMoves + 1);
+    });
 
 test('the prompt offers the purse and the hero starts on the upstairs',
     async () => {

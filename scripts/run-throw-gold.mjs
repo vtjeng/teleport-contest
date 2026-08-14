@@ -42,6 +42,28 @@
 // wearing it. Wishing gold onto the Knight instead stops in the port, at
 // mkobj.c next_ident() inside the wish itself.
 //
+// Three more segments share a second seed, because none of the four squares
+// the seven above aim at can carry them. Each one settles a line of the
+// landing tail that the seven leave with two possible answers:
+//
+// - `range`  2696 and 2708. The seven leave the range expression unmeasured:
+//            the only one that calls bhit() is stopped by a wall two squares
+//            out, so every computed range of 2 or more lands the coins on the
+//            same square. Here six squares of room floor run west of the hero
+//            and the coins stop on the fourth, which is where
+//            ACURRSTR/2 - owt/40 says rather than where the wall does.
+// - `pile`   2728. stackobj() merges the landing coins into a compatible floor
+//            pile. The hero steps north onto the level's own small heap --
+//            !autopickup is what lets her stand on it -- and throws the purse
+//            straight down onto it, so the square ends with one stack rather
+//            than two.
+// - `stairs` 2701-2704 again, but from a square that makes the guard's own
+//            work visible. The guard's two segments above both stand on the
+//            upstairs, where skipping bhit() and running it are
+//            indistinguishable; here the hero walks to the downstairs, and
+//            the guard is what keeps ship_object() at 2715 from being asked
+//            whether the coins should fall to Dlvl 2.
+//
 // Three arms of throw_gold() have no segment here.
 //
 // A monster in the flight path reaches dokick.c ghitm() at 2712 -- see the
@@ -98,11 +120,21 @@ const WIZWISH_KEY = String.fromCharCode(0x17);
 // what the seed produces rather than trusting the number.
 const SEED = 6120001;
 
+// The same scan, continued, for the three squares the landing segments need:
+// a straight run of clear floor at least two squares longer than the computed
+// range, a floor gold pile one step away, and a downstairs reachable by
+// orthogonal steps with a wall beside it. 6120907 is the first seed above
+// 6120000 offering all three at once. Its Healer rolled St:9, so
+// ACURRSTR/2 - owt/40 is 4 for a purse of 1292 coins weighing
+// (1292 + 50) / 100 = 13.
+const LANDING_SEED = 6120907;
+
 // Every segment throws the Healer's whole starting purse, which u_init.c rolls
 // as rn1(1000, 1001) at 678-680. Wizard mode draws ahead of that roll, so the
 // same seed funds the helmet game differently; both amounts are read off the
 // recorded status line rather than predicted.
 export const PURSE = { normal: 1911, debug: 1878 };
+export const LANDING_PURSE = 1292;
 
 export const THROW_GOLD_CASES = [
     { label: 'self', moves: `${WAIT}${THROW}${GOLD}${SELF}` },
@@ -117,6 +149,20 @@ export const THROW_GOLD_CASES = [
     },
 ];
 
+// The walk to the downstairs, read off the port's own D:1 for LANDING_SEED:
+// one step west out of the fountain column, eight north up the corridor, two
+// east into the far room and one more north onto the stairs.
+const WALK_TO_DOWNSTAIRS = `${WEST}${NORTH.repeat(8)}${EAST.repeat(2)}${NORTH}`;
+
+export const THROW_GOLD_LANDING_CASES = [
+    { label: 'range', moves: `${WAIT}${THROW}${GOLD}${WEST}` },
+    { label: 'pile', moves: `${WAIT}${NORTH}${THROW}${GOLD}${DOWN}` },
+    {
+        label: 'stairs guard',
+        moves: `${WAIT}${WALK_TO_DOWNSTAIRS}${THROW}${GOLD}${EAST}`,
+    },
+];
+
 // A wish, the wear it needs, then the throw. `l` is the letter the wished
 // helmet takes in the Healer's pack; verifyThrowGoldHelmSegment() asserts it.
 // The trailing wait paints a screen over the second message, so a turn the
@@ -127,22 +173,25 @@ export const HELM_MOVES = `${WAIT}${WIZWISH_KEY}helmet${NEWLINE}Wl`
 // pettype:none keeps the pet out of the flight path -- a monster there reaches
 // ghitm(), which is out of scope -- and !acoustics keeps dosounds() from
 // adding a line between the commands. The three startup options skip the
-// windows that would otherwise swallow the leading wait.
-function nethackrc({ role, gender, align, debug = false }) {
+// windows that would otherwise swallow the leading wait. `keepGold` turns
+// autopickup off, which is what lets the `pile` segment's hero stand on a heap
+// of coins instead of adding them to her purse.
+function nethackrc({ role, gender, align, debug = false, keepGold = false }) {
     return [
         `OPTIONS=name:Volley,role:${role},race:human,gender:${gender},`
         + `align:${align}`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
-        `OPTIONS=pettype:none,!acoustics${debug ? ',playmode:debug' : ''}`,
+        `OPTIONS=pettype:none,!acoustics${debug ? ',playmode:debug' : ''}`
+        + `${keepGold ? ',!autopickup' : ''}`,
         '',
     ].join('\n');
 }
 
 const HEALER = { role: 'Healer', gender: 'female', align: 'neutral' };
 
-function segment(moves, options = HEALER) {
+function segment(moves, options = HEALER, seed = SEED) {
     return {
-        seed: SEED, datetime: DATETIME, nethackrc: nethackrc(options), moves,
+        seed, datetime: DATETIME, nethackrc: nethackrc(options), moves,
     };
 }
 
@@ -151,6 +200,18 @@ export function loadThrowGoldRecipe() {
         version: 5,
         segments: THROW_GOLD_CASES.map(({ moves }) => segment(moves)),
     }, 'throw gold recipe');
+}
+
+// All three landing segments share !autopickup, not just the one that needs
+// it, so that a single nethackrc describes the recipe and the walk to the
+// downstairs cannot quietly pocket something it steps on.
+export function loadThrowGoldLandingRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: THROW_GOLD_LANDING_CASES.map(({ moves }) => segment(
+            moves, { ...HEALER, keepGold: true }, LANDING_SEED,
+        )),
+    }, 'throw gold landing recipe');
 }
 
 export function loadThrowGoldHelmRecipe() {
@@ -176,9 +237,12 @@ export async function verifyThrowGoldSegment(recipeSegment) {
     if (!gold) throw new Error(`seed ${recipeSegment.seed} carries no gold`);
     if (gold.oclass !== COIN_CLASS)
         throw new Error(`slot $ holds oclass ${gold.oclass}`);
-    const expected = PURSE[
-        recipeSegment.nethackrc.includes('playmode:debug') ? 'debug' : 'normal'
-    ];
+    const expected = recipeSegment.seed === LANDING_SEED
+        ? LANDING_PURSE
+        : PURSE[
+            recipeSegment.nethackrc.includes('playmode:debug')
+                ? 'debug' : 'normal'
+        ];
     if (gold.quan !== expected)
         throw new Error(`slot $ holds ${gold.quan} gold, expected ${expected}`);
     // COIN_CLASS is throw_ok()'s own arm at dothrow.c:338-339, so the prompt
@@ -199,6 +263,10 @@ export async function runThrowGoldMatrix() {
     return runFreshMatrix({
         entries: [
             { label: 'throw gold', recipe: loadThrowGoldRecipe() },
+            {
+                label: 'throw gold landing',
+                recipe: loadThrowGoldLandingRecipe(),
+            },
             { label: 'throw gold helmet', recipe: loadThrowGoldHelmRecipe() },
         ],
         summaryLabel: 'THROW GOLD',
