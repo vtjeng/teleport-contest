@@ -1,12 +1,12 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Four slices of armor-wear have landed, through 7ddbe6c. W fills five of the seven slots -- shield, suit, cloak, shirt and helmet -- and set_wear() now runs the startup callbacks C runs at allmain.c:73, which fixed a live defect: the port opened every Archeologist at Luck 0 where C opens at 1. Only the first slice has had a correctness pass, recorded through fc56134; the three since are unreviewed at 4 of 10 commits and 515 of 1000 lines against the gate, and the goal close will carry them. All 26 entries are done (13), cannot-occur (10), later (2) or no-effect-yet (1) with evidence, and missingWorkByOwner is empty.",
-  "commitChecked": "7ddbe6c55e84bbf369c449935629b302a0b455a1",
+  "reason": "All five slices of armor-wear have landed, through 93ee77d. W fills every one of the seven armor slots, the slot-mask refusal is gone, and set_wear() runs the startup callbacks C runs at allmain.c:73 -- which fixed a live defect, the port opening every Archeologist at Luck 0 where C opens at 1. Four of the five slices are unreviewed, at 5 of 10 commits and 642 of 1000 lines against the gate, and the goal-closing correctness pass covers them. All 27 entries are done (15), cannot-occur (10), later (1) or no-effect-yet (1) with evidence, and missingWorkByOwner is empty. Two departures from the goal boundary literal wording stand and are deliberate: HELM_OF_TELEPATHY is a bare break in C that the port refuses, because setworn() raises an extrinsic whose ported reader C feeds through a moveloop arm this port lacks; and FEDORA change_luck(1) calls outside do_wear.c yet is ported, because refusing it would leave Luck stranded at -1 with no ported path back.",
+  "commitChecked": "93ee77dbfc1a37a2d7be53a943bb3474df0d9766",
   "boundary": {
     "goalId": "armor-wear",
     "startingCommit": "a2189e120e05c7baa192d2ccb574234371c7a5d7",
     "startingEvent": "The hero types W, or #wear, at rhack()'s command dispatch, which js/cmd.js now admits and routes to do_wear.c dowear().",
-    "endingEvent": "For a zero-delay piece, Shield_on() or Armor_on() has returned and on_msg() has printed 'You are now wearing ...'. For a delayed suit the boundary runs further: setworn() moves AC on the turn W is issued, nomul(-oc_delay) spends three or five helpless turns during which the pet moves and the counter advances, and the boundary ends when unmul() runs Armor_on() and prints 'You finish your dressing maneuver.' -- with no on_msg() line, which is the mirror image of T. An escaped prompt ends at ECMD_CANCEL, and a non-armor letter now ends at C's 'That is a silly thing to wear.' rather than at a refusal.",
+    "endingEvent": "For a zero-delay piece, Shield_on() or Armor_on() has returned and on_msg() has printed 'You are now wearing ...'. For a delayed suit the boundary runs further: setworn() moves AC on the turn W is issued, nomul(-oc_delay) spends three or five helpless turns during which the pet moves and the counter advances, and the boundary ends when unmul() runs Armor_on() and prints 'You finish your dressing maneuver.' -- with no on_msg() line, which is the mirror image of T. An escaped prompt ends at ECMD_CANCEL, and a non-armor letter now ends at C's 'That is a silly thing to wear.' rather than at a refusal. All seven slots now reach a callback; gloves and boots are delayed at oc_delay 1 and 2, so like the suit they print no on_msg() and end at the finish message.",
     "validInputs": "W or #wear answered with a shield's or a suit's letter, with a non-armor or money letter, or escaped. 18 fresh segments in scripts/run-wear-armor.mjs cover them: the Valkyrie's shield taken off and put back, wizard-mode wished shields and suits that reach the *_on() callbacks with known still 0, Barbarian starts whose bimanual weapon drives canwearobj()'s shield refusal, a Caveman's leather armor at oc_delay 3 and a Samurai's splint mail at 5, a wished leather jacket at oc_delay 0, a food-ration letter and a money letter.",
     "observables": "The getobj() prompt's letter set, on_msg()'s wording, the status line's AC, the inventory window's '(being worn)' suffix and enchantment, the turn counter, and the random-number log, which must stay empty across this path: no branch inside the boundary draws.",
     "exclusions": "accessory_or_armor_on()'s armor == FALSE half, which the goal's boundary excludes so that doputon() stays unported; the four remaining slots, refused by the mask test above setworn(); Armor_on()'s dragon_armor_handling() and artifact_light() tails, refused by an Is_dragon_armor() guard hoisted above setworn() for the same reason; the Quest helm arm; retouch_object() for an artifact; remove_worn_item() for armor in a weapon slot; and flags.verbose off, which still has no end-to-end case."
@@ -104,10 +104,10 @@
       "candidate": "canwearobj()'s is_boots and is_gloves arms, and their mask assignments",
       "reachability": "Every one runs silently while getobj() builds the prompt, for any such armor in the pack.",
       "owner": "js/do_wear.js canwearobj()",
-      "effects": "Sets mask to W_ARMF or W_ARMG. No state is written here; the slot is refused later, above setworn().",
+      "effects": "Sets mask to W_ARMF or W_ARMG, and both now reach setworn() and their callbacks.",
       "evidence": "do_wear.c:2078-2196. The port carries all six arms line for line, including the Upolyd horn, slithy and centaur branches and the four u.utraptype branches, none of which a recorded session reaches. The wearing itself is refused in accessory_or_armor_on() by a mask test placed above setworn().",
-      "status": "later",
-      "remaining": "is_helmet left this entry with slice four. Both remaining slots are wish-only for a W: select_off() refuses them, so T cannot clear either. Gloves_on() is already ported for LEATHER_GLOVES, because set_wear() reaches it at startup for every Healer, Knight and Monk; what remains for the glove slot is its other three types and the W route itself."
+      "status": "done",
+      "remaining": "None. The filled-slot arms of both went live for the first time with slice five and are recorded: a Monk wished a second pair of gloves draws already_wearing(c_gloves), a Valkyrie in low boots trying iron shoes draws the boots equivalent."
     },
     {
       "candidate": "canwearobj()'s final else, invent.c silly_thing('wear', otmp)",
@@ -173,11 +173,11 @@
       "remaining": "None for the suit. The take-off side's armoroff-refuses-helms-gloves-and-boots-over-their-delay is still open and now has this arm's shape to follow."
     },
     {
-      "candidate": "setworn(obj, mask), the afternmv choice, and the ported callbacks Shield_on(), Armor_on(), Cloak_on(), Shirt_on(), Helmet_on() and Gloves_on()",
+      "candidate": "setworn(obj, mask), the afternmv choice, and the seven ported callbacks",
       "reachability": "The live path of this slice.",
-      "owner": "js/do_wear.js accessory_or_armor_on() and the six callbacks, over js/worn.js setworn() and js/hack.js unmul()",
+      "owner": "js/do_wear.js accessory_or_armor_on() and the seven callbacks, over js/worn.js setworn() and js/hack.js unmul()",
       "effects": "Fills the slot, updates AC, sets obj.known, redraws the inventory window, spends the turn, returns ECMD_TIME. For the Archeologist fedora it also moves Luck by one.",
-      "evidence": "do_wear.c:2376-2404, 705-732 and 886-906. The second slice restored C's statement order -- setworn(), then the afternmv chain, then the delay fork -- which the first had inverted to keep the delay test above setworn(). All 18 fresh cases match. The wished cases are what prove the callback ran rather than setworn() alone: mksobj() leaves known 0 where u_init.c:1215 sets it. Slice three turned the slot test into a switch that both refuses the unported slots and picks the callback, which is C at 2377-2393 one statement earlier. Cloak_on() keeps no switch of its own: its seven unported arms are refused by otyp above setworn(), because every cloak has oc_delay 0 and unmul() would otherwise run the callback after AC had already moved.",
+      "evidence": "do_wear.c:2376-2404, 705-732 and 886-906. The second slice restored C's statement order -- setworn(), then the afternmv chain, then the delay fork -- which the first had inverted to keep the delay test above setworn(). All 18 fresh cases match. The wished cases are what prove the callback ran rather than setworn() alone: mksobj() leaves known 0 where u_init.c:1215 sets it. Slice three turned the slot test into a switch that both refuses the unported slots and picks the callback, which is C at 2377-2393 one statement earlier. Cloak_on() keeps no switch of its own: its seven unported arms are refused by otyp above setworn(), because every cloak has oc_delay 0 and unmul() would otherwise run the callback after AC had already moved. With all seven masks answered by slice five, the switch default became C panic(\"wearing armor not worn as armor?\") -- a plain Error rather than a refusal, because canwearobj() cannot produce a mask that reaches it.",
       "status": "done",
       "remaining": "None."
     },
@@ -252,6 +252,15 @@
       "evidence": "do_wear.c:433-515. FEDORA, HELMET, DENTED_POT, ELVEN_LEATHER_HELM, DWARVISH_IRON_HELM and ORCISH_HELM are carried. HELM_OF_TELEPATHY is refused despite being a bare break inside the switch: objects.h:485 gives it oc_oprop TELEPAT, so setworn() raises ETelepat and recalc_telepat_range() sets u.unblind_telepat_range one statement earlier, and C feeds that state through allmain.c moveloop_core():462-466's Unblind_telepat arm, which this port does not have -- the helm would match on its wearing turn and diverge on the next. HELM_OF_CAUTION, HELM_OF_BRILLIANCE, CORNUTHAUM and the HELM_OF_OPPOSITE_ALIGNMENT/DUNCE_CAP pair are refused for reaching outside do_wear.c.",
       "status": "done",
       "remaining": "The refused six close with the subsystems they reach. wear-cornuthaum-and-dunce-cap-stop records C's answers for two of them."
+    },
+    {
+      "candidate": "Boots_on() and Gloves_on(): five bare-break boot labels and LEATHER_GLOVES ported, eight arms refused",
+      "reachability": "Every W answered with boots or gloves. Both slots are delayed -- gloves oc_delay 1, boots 2 -- so neither ever reaches on_msg().",
+      "owner": "js/do_wear.js Boots_on() and Gloves_on(), with the otyp refusals hoisted into accessory_or_armor_on()",
+      "effects": "The known write and its inventory redraw, after a one- or two-turn countdown ending in the finish message.",
+      "evidence": "do_wear.c:186-259 and 575-603. LOW_BOOTS, IRON_SHOES, HIGH_BOOTS, JUMPING_BOOTS and KICKING_BOOTS are carried; WATER_WALKING_BOOTS, SPEED_BOOTS, ELVEN_BOOTS, FUMBLE_BOOTS, LEVITATION_BOOTS and the three gauntlets are refused for reaching outside do_wear.c. The two extrinsic-raising bare breaks were decided by the HELM_OF_TELEPATHY test rather than by its answer, and both resolved the other way: objects.h:718-720 gives KICKING_BOOTS oc_oprop 0, so setworn() raises nothing and dokick.c reads the otyp directly through the ported js/dokick.js martial(); EJumping's insight.c reader runs only under MAGICENLIGHTENMENT, where the port already stops, and jump is not in ADMITTED_COMMANDS. A differential outside the wear matrix at seed 7720242 confirmed the kick path draws what C draws, worn and barefoot.",
+      "status": "done",
+      "remaining": "The eight refused arms close with the subsystems they reach; wear-magic-boots-stop and wear-gauntlets-stop record C answers for them."
     }
   ],
   "missingWorkByOwner": [],

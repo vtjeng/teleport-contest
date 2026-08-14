@@ -2026,6 +2026,11 @@
           "name": "wear-helmet",
           "status": "closed",
           "closedBy": "7ddbe6c55e84bbf369c449935629b302a0b455a1"
+        },
+        {
+          "name": "wear-gloves-and-boots",
+          "status": "closed",
+          "closedBy": "93ee77dbfc1a37a2d7be53a943bb3474df0d9766"
         }
       ],
       "openedAt": "0fc4e5f17fc9188a77f0f36c6b95ede1a215c476",

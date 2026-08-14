@@ -409,3 +409,7 @@ utc	event	phase	goal	detail
 2026-08-14T01:47:35.621Z	end	select	armor-wear	wear-helmet queued; FEDORA's change_luck settled on the RNG log through lock.c rnl(20)
 2026-08-14T01:47:35.648Z	start	implement	armor-wear	wear-helmet: Helmet_on() with seven ported labels and five refused
 2026-08-14T02:44:52.910Z	end	implement	armor-wear	wear-helmet closed at 7ddbe6c; found and fixed the Archeologist's missing startup Luck
+2026-08-14T03:06:16.017Z	start	select	armor-wear	fifth slice of armor-wear
+2026-08-14T03:16:17.496Z	end	select	armor-wear	wear-gloves-and-boots queued; expected to close the goal
+2026-08-14T03:16:17.535Z	start	implement	armor-wear	wear-gloves-and-boots: Boots_on() and the two remaining slot cases
+2026-08-14T04:02:15.156Z	end	implement	armor-wear	wear-gloves-and-boots closed at 93ee77d; all seven armor slots live
