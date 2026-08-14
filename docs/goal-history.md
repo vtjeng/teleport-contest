@@ -219,7 +219,7 @@ forecast exactly (21 steps predicted, 21 delivered), and the holdout returned
 195 of 3,640 screens and 32,614 of 182,022 values for the fifth evaluation
 running.
 
-This zero says more than the eight before it. Each of those left its
+This zero is better evidence than the eight before it. Each of those left its
 contributing session unfinished, so a reader could argue the holdout saw only
 a fragment of the capability. This one took
 `seed0105-valk-chat-lamp-ration` from 9 of 30 screens to 30 of 30, the first
@@ -574,8 +574,8 @@ arrives in the first few dozen turns; `F` and wishes do not. On that reading the
 capped look-ahead measures the right quantity (where sessions first stop)
 over a population that has drifted ahead of the holdout's.
 
-**The user settled it: finish the development set first, and use the holdout
-as a regression test.** So the capped development look-ahead stays the primary
+**The user decided to finish the development set first and use the holdout as
+a regression test.** So the capped development look-ahead stays the primary
 ranking rule, and `.agents/scoring.md` already says what the holdout is for:
 it guards against a large inadvertent regression, and a goal that does not
 move it is ordinary. Do not re-derive the calibration above, do not re-rank
