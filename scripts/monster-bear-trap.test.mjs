@@ -6,7 +6,9 @@ import {
     BEAR_TRAP,
     COULD_SEE,
     FORCETRAP,
+    HOLE,
     IN_SIGHT,
+    MAGIC_TRAP,
     PIT,
     SPIKED_PIT,
     Trap_Caught_Mon,
@@ -15,6 +17,7 @@ import {
     WEB,
     W_ARMF,
 } from '../js/const.js';
+import { rhack } from '../js/cmd.js';
 import { newsym } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -41,7 +44,7 @@ import {
 import { mksobj } from '../js/obj.js';
 import { CORPSE, IRON_SHOES } from '../js/objects.js';
 import { canSeeMonster } from '../js/startup_a11y.js';
-import { trapname } from '../js/trap.js';
+import { t_at, trapname } from '../js/trap.js';
 import { mintrap, trapeffect_selector } from '../js/trap_effects.js';
 import { cansee } from '../js/vision.js';
 import { loadMonsterBearTrapRecipe } from './run-monster-bear-trap.mjs';
@@ -74,7 +77,16 @@ function victimInBearTrap(pmidx, mhp, { madeby_u = false, ...overrides } = {}) {
         [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
         const x = game.u.ux + dx;
         const y = game.u.uy + dy;
-        if (!accessible(x, y, game) || m_at(x, y, game)) continue;
+        // One trap per square. t_at() answers with the first entry in
+        // game.level.traps that matches, so a second fixture on a square an
+        // earlier one already trapped would be read past: newsym() and
+        // mintrap() would inspect the earlier trap while the case asserted
+        // on the later one. Skipping trapped squares keeps the trap a case
+        // asserts on the trap the port reads. The hero of this fixture has
+        // all eight neighbours accessible, and the longest case below builds
+        // six victims.
+        if (!accessible(x, y, game) || m_at(x, y, game) || t_at(x, y, game))
+            continue;
         const species = game.mons[pmidx];
         const mon = newMonster({
             cham: NON_PM,
@@ -213,6 +225,43 @@ test('the bear trap damage roll follows the message that suspends',
          assert.deepEqual(unseenEnv.linesAtDraw, [0]);
      });
 
+// The same order, decided by a seam that really suspends. bearEnv()'s message
+// double resolves at once, so `linesAtDraw` above counts only where the line
+// was written relative to the draw, not whether the arm waited for it: an
+// implementation that started the message and rolled without awaiting it
+// records the same [1]. C's pline_mon() blocks inside the --More-- until the
+// hero clears it, and the draw at 1554 belongs to the keystroke that cleared
+// it, so nothing may be spent while the message is still standing.
+test('the bear trap damage roll waits for the --More-- to be cleared',
+     async () => {
+         await hero();
+         const { mon, trap } = victimInBearTrap(PM_PONY, 13);
+
+         const env = bearEnv([5]);
+         let clear;
+         const cleared = new Promise((resolve) => { clear = resolve; });
+         env.message = async (text) => {
+             env.lines.push(text);
+             await cleared;
+         };
+
+         const caught = mintrap(mon, 0, env);
+         // setImmediate fires after the whole microtask queue, so everything
+         // the arm can reach without the hero has run by the time this returns.
+         await new Promise((resolve) => { setImmediate(resolve); });
+         assert.deepEqual(env.lines, ['The pony is caught in a bear trap!'],
+                          'the line stands unread');
+         assert.deepEqual(env.bounds, [], 'and nothing has been spent');
+         assert.equal(mon.mhp, 13, 'nor taken off the victim');
+         assert.equal(trap.tseen, false, "seetrap() waits behind it too");
+
+         clear();
+         assert.equal(await caught, Trap_Caught_Mon);
+         assert.deepEqual(env.bounds, ['d(2,4)'], 'the draw lands after it');
+         assert.equal(mon.mhp, 8, 'd(2, 4) of 5 off thirteen hit points');
+         assert.equal(trap.tseen, true, "and seetrap()'s write lands too");
+     });
+
 // trap.c:1530. MZ_SMALL is the floor, and a monster at or below it walks out
 // of an ordinary bear trap with nothing written, nothing drawn, nothing spent
 // and nothing held.
@@ -305,6 +354,41 @@ test('a bear trap out of sight is silent but still bites', async () => {
     assert.equal(mon.mhp, 8);
 });
 
+// trap.c:1527, `in_sight = canseemon(mtmp) || (mtmp == u.usteed)`. The second
+// disjunct is what the case above cannot reach: the hero always knows what is
+// happening to his own mount, whether or not he can see it. Every other case
+// in this file decides in_sight through canseemon() alone, so this is the one
+// that keeps the disjunct from being deleted.
+test('a bear trap under the hero own steed is reported unseen', async () => {
+    await hero();
+    // The steed stands beside the hero rather than under him, because a mount
+    // shares the hero's square and blind_to() could not then take the square
+    // out of sight without taking the hero's own square with it. C reads
+    // nothing but the identity `mtmp == u.usteed`, so the square is free to
+    // differ. Tameness is left alone for the same reason: nothing in the arm
+    // reads it, and js/do_name.js monsterCommonName() has no "your" form.
+    const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13);
+    blind_to(x, y);
+    assert.equal(canSeeMonster(mon, game), false, 'the hero cannot watch');
+    game.u.usteed = mon;
+
+    try {
+        const env = bearEnv([5]);
+        assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon);
+        assert.deepEqual(env.lines, ['The pony is caught in a bear trap!'],
+                         'C:1534 writes the ordinary catch line');
+        assert.equal(trap.tseen, true, "and C:1537 runs seetrap()");
+        assert.deepEqual(env.redraws, [`${x},${y}`], "seetrap()'s draw");
+        assert.deepEqual(env.heard, [],
+                         'C:1539 is the else of this branch, so no roar');
+        assert.equal(mon.mhp, 8, 'the bite is unchanged');
+    } finally {
+        // scripts/wounded-legs.test.mjs clears the same field for the same
+        // reason: game is module state shared by every case in the file.
+        game.u.usteed = null;
+    }
+});
+
 // display.c newsym():1013-1024. A catch the hero did not watch leaves the trap
 // off the map, and the hero learns it from the held monster itself: newsym()
 // marks the trap seen before _map_location() picks the remembered glyph, so
@@ -352,10 +436,14 @@ test('newsym maps no trap the hero has no held monster to read', async () => {
 
     // display.c:1017. is_pit() and WEB carry the other two arms; an arrow trap
     // is one of the types outside all three, and stays unmapped under a
-    // monster the trap is recorded as holding.
+    // monster the trap is recorded as holding. This is the case that refuses a
+    // wider disjunction, so the t_at() assertion in front of it records that
+    // newsym() reads this trap rather than an earlier fixture's.
     const arrow = victimInBearTrap(PM_PONY, 13);
     arrow.trap.ttyp = ARROW_TRAP;
     arrow.mon.mtrapped = true;
+    assert.equal(t_at(arrow.x, arrow.y, game), arrow.trap,
+                 'display.c:1016 reads this trap');
     newsym(arrow.x, arrow.y);
     assert.equal(arrow.trap.tseen, false, 'an arrow trap is not physical');
 
@@ -645,6 +733,79 @@ test('watching a held monster reveals the trap under it', async () => {
     assert.equal(invisible.mon.mtrapped, false, 'yet it pulls free');
 });
 
+// trap.c:3744, the disjunct between the bear trap and the web. A hole holds a
+// monster only by inheritance: dig.c digactualhole() calls maketrap() on the
+// square (dig.c:689), which rewrites an existing pit's ttyp in place, and the
+// monster branch below it (dig.c:801-805) returns without migrating a victim
+// that is ungrounded, a long worm, or MZ_HUGE or larger -- leaving mtrapped
+// set over what is now a HOLE. Nothing else in the C source writes mtrapped
+// for a hole, which is why this fixture builds the state rather than playing
+// to it.
+test('a hole under a held monster is revealed like a bear trap', async () => {
+    await hero();
+    const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13, {
+        mtrapped: true,
+    });
+    trap.ttyp = HOLE;
+    assert.equal(canSeeMonster(mon, game), true, 'the hero watches');
+    assert.equal(trap.tseen, false, 'the hole starts unmapped');
+
+    // rn2(40) of 1 is the smallest roll that keeps the monster held, so the
+    // turn ends inside C:3789 with seetrap()'s write as its only effect.
+    const env = bearEnv([1]);
+    assert.equal(await mintrap(mon, 0, env), Trap_Caught_Mon);
+    assert.equal(trap.tseen, true, "C:3744 admits a hole, so seetrap() ran");
+    assert.deepEqual(env.redraws, [`${x},${y}`], "and seetrap()'s draw");
+    assert.deepEqual(env.bounds, ['rn2(40)'], 'one escape roll');
+    assert.deepEqual(env.lines, [], 'nothing is written');
+    assert.equal(mon.mtrapped, true, 'and the hole still holds it');
+});
+
+// js/trap_effects.js refuses the escape of a held monster on a trap that is
+// neither a bear trap nor a web, because C:3767 calls set_msg_xy() and then
+// writes no line at all, and messageAt() cannot leave a cursor hint standing
+// for whatever prints next. The refusal sits inside the roll and the
+// visibility test, at C's own position, so it fires with work already done --
+// which is what this case pins.
+test('a silent escape is refused with the roll already spent', async () => {
+    await hero();
+
+    // The hole of the case above, one roll further on. This is the reachable
+    // silent type: is_pit() is refused ahead of seetrap(), and a bear trap and
+    // a web both have a line, so C:3766-3773's silent path needs a hole.
+    const { mon, trap, x, y } = victimInBearTrap(PM_PONY, 13, {
+        mtrapped: true,
+    });
+    trap.ttyp = HOLE;
+    // rn2(40) of 0 is the only roll that frees a monster from a non-pit.
+    const env = bearEnv([0]);
+    await assert.rejects(
+        mintrap(mon, 0, env),
+        (error) => error.message === 'a monster escaping a trap silently',
+    );
+    assert.deepEqual(env.bounds, ['rn2(40)'], 'the roll is already spent');
+    assert.equal(trap.tseen, true, "and seetrap()'s write already stands");
+    assert.deepEqual(env.redraws, [`${x},${y}`], 'as does its draw');
+    assert.equal(mon.mtrapped, true, 'C:3771 has not been reached');
+    assert.deepEqual(env.lines, [], 'and nothing was written');
+
+    // A magic trap takes the same refusal, and shows the two gates apart:
+    // C:3742-3745 does not admit it, so tseen is still false when the refusal
+    // fires, while the roll above it has been spent either way. No C site
+    // writes mtrapped for a magic trap, so only the refusal's position is
+    // under test here.
+    const magic = victimInBearTrap(PM_PONY, 13, { mtrapped: true });
+    magic.trap.ttyp = MAGIC_TRAP;
+    const magicEnv = bearEnv([0]);
+    await assert.rejects(
+        mintrap(magic.mon, 0, magicEnv),
+        (error) => error.message === 'a monster escaping a trap silently',
+    );
+    assert.deepEqual(magicEnv.bounds, ['rn2(40)']);
+    assert.equal(magic.trap.tseen, false, 'C:3745 leaves a magic trap out');
+    assert.deepEqual(magicEnv.redraws, [], 'so nothing was drawn');
+});
+
 // trap.c:3751-3758 and :3775-3787, the two blocks a bear trap never reaches.
 // Each is refused rather than ported, at C's own position: the pit refusal
 // leads the arm because is_pit() changes the escape condition itself, and the
@@ -857,11 +1018,30 @@ test('the unwatched matrix segment is caught over an unmapped trap',
          assert.equal(Boolean(trap.tseen), false,
                       'so trap.c:1537 left the trap off the map');
 
-         // The last three keys. The hero steps to an adjacent square, which is
-         // where newsym() reads the held pony and marks what holds it.
-         await runSegment(segment);
-         const mapped = game.level.traps.find((t) => t.ttyp === BEAR_TRAP);
-         assert.equal(cansee(mapped.tx, mapped.ty, game), true,
+         // The `l` of the segment's last three keys, run as the hero's own half
+         // of the turn and stopped there. cmd.c rhack() is what allmain.c
+         // moveloop_core() dispatches a command through, and the monster scan
+         // is the *next* iteration's advanceElapsedTurn(), so nothing between
+         // the two touches the trap.
+         //
+         // Stopping matters, because trap.c mintrap():3742-3749 sets the same
+         // bit from the pony's next m_move() the moment the hero can see it.
+         // Replaying the whole segment therefore cannot tell display.c:1023
+         // from that catching-up write: the assertion below is taken before any
+         // m_move() the hero's arrival makes visible, so only newsym() can
+         // satisfy it. game.moves is the witness -- an elapsed turn, and with
+         // it the monster scan, would have advanced it.
+         const beforeStep = game.moves;
+         game.nhDisplay.pushKey('l'.charCodeAt(0));
+         // moveloop_core() sets this before every command dispatch, and
+         // domove() requires it.
+         game.context.move = 1;
+         await rhack(0, game);
+
+         assert.equal(game.moves, beforeStep,
+                      'no elapsed turn, so the pony has not moved');
+         assert.equal(Boolean(pony.mtrapped), true, 'and is still held');
+         assert.equal(cansee(trap.tx, trap.ty, game), true,
                       'the hero is watching now');
-         assert.equal(Boolean(mapped.tseen), true, 'display.c:1023');
+         assert.equal(Boolean(trap.tseen), true, 'display.c:1023');
      });
