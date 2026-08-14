@@ -33,6 +33,7 @@ import {
     canwearobj,
     dowear,
     equip_ok,
+    set_wear,
     wear_ok,
 } from '../js/do_wear.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
@@ -74,7 +75,10 @@ import {
     CLOAK_OF_MAGIC_RESISTANCE,
     CLOAK_OF_PROTECTION,
     CORNUTHAUM,
+    DENTED_POT,
+    DUNCE_CAP,
     DWARVISH_CLOAK,
+    DWARVISH_IRON_HELM,
     DWARVISH_MATTOCK,
     DWARVISH_MITHRIL_COAT,
     ELVEN_CLOAK,
@@ -82,10 +86,17 @@ import {
     ELVEN_MITHRIL_COAT,
     ELVEN_SHIELD,
     FEDORA,
+    GAUNTLETS_OF_DEXTERITY,
+    GAUNTLETS_OF_FUMBLING,
+    GAUNTLETS_OF_POWER,
     GOLD_DRAGON_SCALE_MAIL,
     GRAY_DRAGON_SCALES,
     HAWAIIAN_SHIRT,
+    HELMET,
+    HELM_OF_BRILLIANCE,
+    HELM_OF_CAUTION,
     HELM_OF_OPPOSITE_ALIGNMENT,
+    HELM_OF_TELEPATHY,
     LEATHER_ARMOR,
     LEATHER_CLOAK,
     LEATHER_GLOVES,
@@ -96,6 +107,7 @@ import {
     OILSKIN_CLOAK,
     ORCISH_CLOAK,
     ORCISH_HELM,
+    ORCISH_RING_MAIL,
     RING_CLASS,
     RING_MAIL,
     RIN_ADORNMENT,
@@ -104,6 +116,7 @@ import {
     SILVER_SABER,
     SMALL_SHIELD,
     SPEAR,
+    SPLINT_MAIL,
     TOOL_CLASS,
     TWO_HANDED_SWORD,
     T_SHIRT,
@@ -123,8 +136,8 @@ import {
     loadWearWishRecipe,
 } from './run-wear-armor.mjs';
 
-const { Armor_on, Cloak_on, Shield_on, Shirt_on, accessory_or_armor_on,
-    already_wearing, on_msg } = _doWearInternals;
+const { Armor_on, Cloak_on, Gloves_on, Helmet_on, Shield_on, Shirt_on,
+    accessory_or_armor_on, already_wearing, on_msg } = _doWearInternals;
 
 function topLine() {
     return game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd();
@@ -623,7 +636,7 @@ test('an accessory answered at the W prompt stops', async () => {
     assert.equal(game.uright ?? null, null);
 });
 
-test('the three slots this port does not don are refused unwritten',
+test('the two slots this port does not don are refused unwritten',
     async () => {
     // do_wear.c:2377-2393. The test sits above setworn(), so a refused slot
     // leaves the hero exactly as it found her. Each object below is the
@@ -631,7 +644,6 @@ test('the three slots this port does not don are refused unwritten',
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
     const slots = [
-        [FEDORA, W_ARMH, 'uarmh'],
         [LOW_BOOTS, W_ARMF, 'uarmf'],
         [LEATHER_GLOVES, W_ARMG, 'uarmg'],
     ];
@@ -646,19 +658,21 @@ test('the three slots this port does not don are refused unwritten',
         assert.equal(game[field] ?? null, null, `otyp ${otyp}`);
         assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
     }
-    // The four that go through, each installing its own callback. Only the
-    // suit reaches C's delayed arm: objects.h gives every shield, every cloak
-    // and both shirts an oc_delay of 0, so unmul() runs their callback before
-    // the call returns, while leather armor's 3 leaves Armor_on() pending.
+    // The five that go through, each installing its own callback. Only the
+    // suit reaches C's delayed arm here: objects.h gives every shield, every
+    // cloak, both shirts and the dented pot an oc_delay of 0, so unmul() runs
+    // their callback before the call returns, while leather armor's 3 leaves
+    // Armor_on() pending.
     //
-    // obj.known separates the three callbacks from one another. Each reads its
-    // own slot field -- Shield_on() uarms, Cloak_on() uarmc, Shirt_on() uarmu
-    // -- so installing the wrong one for a slot leaves the write undone or
-    // throws on an empty slot, whatever the mask says.
+    // obj.known separates the four callbacks from one another. Each reads its
+    // own slot field -- Shield_on() uarms, Cloak_on() uarmc, Shirt_on() uarmu,
+    // Helmet_on() uarmh -- so installing the wrong one for a slot leaves the
+    // write undone or throws on an empty slot, whatever the mask says.
     const worn = [
         [SMALL_SHIELD, W_ARMS, 'uarms', 'a small shield'],
         [LEATHER_CLOAK, W_ARMC, 'uarmc', 'a leather cloak'],
         [HAWAIIAN_SHIRT, W_ARMU, 'uarmu', 'a Hawaiian shirt'],
+        [DENTED_POT, W_ARMH, 'uarmh', 'a dented pot'],
     ];
     for (const [otyp, mask, field, name] of worn) {
         // A fresh segment per slot: canwearobj() refuses a shirt under a
@@ -734,6 +748,279 @@ test('the seven cloaks Cloak_on cannot run are refused unwritten',
     }
 });
 
+test('the six helmets Helmet_on cannot run are refused unwritten',
+    async () => {
+    // do_wear.c:448-505. Six of Helmet_on()'s twelve labels are carried: the
+    // fedora, which changes Luck, and the five that fall to a bare break. The
+    // six below are refused, and the last of them is the one C's own switch
+    // also answers with a bare break: the helm of telepathy needs no arm here
+    // because objects.h:485 gives it TELEPAT as its oc_oprop, so setworn()
+    // raises the extrinsic that display.h sensemon() reads. Wearing one would
+    // change what the hero senses with no arm in this file to blame.
+    //
+    // The refusal is hoisted above setworn(), so a refused helmet never
+    // reaches the slot and never spends its oc_delay.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    for (const otyp of [HELM_OF_CAUTION, HELM_OF_BRILLIANCE, CORNUTHAUM,
+        DUNCE_CAP, HELM_OF_OPPOSITE_ALIGNMENT, HELM_OF_TELEPATHY]) {
+        await setup(segment, OFF);
+        const obj = armor(otyp, { dknown: 1, spe: 0 });
+
+        await assert.rejects(
+            () => accessory_or_armor_on(obj, game),
+            new RegExp(`Helmet_on\\(\\) for otyp ${otyp}`),
+            `otyp ${otyp}`,
+        );
+        assert.equal(game.uarmh ?? null, null, `otyp ${otyp}`);
+        assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
+        assert.equal(game.multi ?? 0, 0, `otyp ${otyp}`);
+
+        // Helmet_on() asks the same question again for its other caller.
+        // set_wear() reaches it with whatever u_init.c wore, and there is no
+        // frame above that one to hoist a refusal into.
+        game.uarmh = armor(otyp, { dknown: 1, spe: 0, known: false });
+        assert.throws(() => Helmet_on(game),
+            new RegExp(`Helmet_on\\(\\) for otyp ${otyp}`));
+        assert.equal(game.uarmh.known, false, `otyp ${otyp}`);
+        game.uarmh = null;
+    }
+    // The same direct call for a type it carries, which is what pins C's own
+    // `return 0` at do_wear.c:514. Both of its callers discard the value, so
+    // nothing else in the port would notice it changing.
+    game.uarmh = armor(HELMET, { dknown: 1, spe: 0, known: false });
+    assert.equal(Helmet_on(game), 0);
+    assert.equal(game.uarmh.known, true);
+    game.uarmh = null;
+
+    // The six that go on. Five carry an oc_delay of 1, so each leaves
+    // Helmet_on() pending under nomul(-1) rather than running it at once; the
+    // dented pot is the one that takes unmul("") immediately, which is why the
+    // fedora and it are the pair Helmet_off() already admits.
+    for (const otyp of [HELMET, ELVEN_LEATHER_HELM, DWARVISH_IRON_HELM,
+        ORCISH_HELM]) {
+        await setup(segment, OFF);
+        const obj = armor(otyp, { dknown: 1, spe: 0, known: false });
+
+        assert.equal(await accessory_or_armor_on(obj, game), ECMD_TIME,
+            `otyp ${otyp}`);
+        assert.equal(game.uarmh, obj, `otyp ${otyp}`);
+        assert.equal(game.afternmv, Helmet_on, `otyp ${otyp}`);
+        assert.equal(game.multi, -1, `otyp ${otyp}`);
+        assert.equal(obj.known ?? false, false,
+            `the callback has not run yet for otyp ${otyp}`);
+    }
+});
+
+test('the fedora is worth a point of Luck to an Archeologist alone',
+    async () => {
+    // do_wear.c:437-439, the one <X>_on() arm in this port that changes
+    // something other than obj->known, and the reason scripts/run-wear-armor.mjs
+    // walks a hero into a door: rnd.c rnl() hides a single point from every
+    // range of 15 or less.
+    //
+    // set_wear() is what gives an Archeologist the point before her first
+    // command; ini_inv_use_obj() only calls setworn().
+    const fedoraSegment = segmentFor(`${TAKEOFF_KEY}c${WEAR_KEY}c`);
+
+    await runSegment({ ...fedoraSegment, moves: WAIT });
+    assert.equal(game.u.uluck, 1, 'set_wear() ran Helmet_on() at startup');
+    await runSegment({ ...fedoraSegment, moves: `${WAIT}${TAKEOFF_KEY}c` });
+    assert.equal(game.u.uluck, 0, 'Helmet_off() took the point back');
+    await runSegment({
+        ...fedoraSegment,
+        moves: `${WAIT}${TAKEOFF_KEY}c${WEAR_KEY}c`,
+    });
+    assert.equal(game.u.uluck, 1, 'the W put it back');
+    assert.equal(topLine(), 'You are now wearing a fedora.');
+
+    // Any other role wears the same hat for nothing. A Valkyrie's helmet slot
+    // starts empty, so no 'T' is needed.
+    const valkyrie = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(valkyrie, WAIT);
+    const luckBefore = game.u.uluck;
+    const hat = armor(FEDORA, { dknown: 1, spe: 0 });
+
+    assert.equal(await accessory_or_armor_on(hat, game), ECMD_TIME);
+    assert.equal(game.uarmh, hat);
+    assert.equal(game.u.uluck, luckBefore, 'no point for a Valkyrie');
+});
+
+test('set_wear runs the startup callbacks and stops on the slots it cannot',
+    async () => {
+    // do_wear.c set_wear() (1537-1568) with a Null argument, which allmain.c
+    // moveloop_preamble():73 is the only caller of. Its inputs are bounded by
+    // u_init.c: ini_inv_use_obj() fills armor slots and nothing else.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, WAIT);
+
+    // A second call over the Valkyrie's own gear is a no-op, because
+    // ini_inv_adjust_obj():1215-1216 already set known on her shield.
+    assert.equal(game.uarms.known, true);
+    set_wear(game);
+    assert.equal(game.uarms.known, true);
+
+    // The four accessory slots do_wear.c:1544-1551 would run first. Each is
+    // tested on its own so that no one of them can hide the others.
+    for (const field of ['ublindf', 'uright', 'uleft', 'uamul']) {
+        game[field] = { oclass: AMULET_CLASS, otyp: AMULET_OF_ESP };
+        assert.throws(() => set_wear(game), /set_wear\(\) accessories/, field);
+        game[field] = null;
+    }
+    // do_wear.c:1558-1559 Boots_on(), which no role's starting gear reaches.
+    game.uarmf = armor(LOW_BOOTS, { known: true });
+    assert.throws(() => set_wear(game), /set_wear\(\) Boots_on\(\)/);
+    game.uarmf = null;
+
+    // The three slots whose callbacks this port carries and whose startup
+    // types it covers: gloves for the Healer, Knight and Monk, a helmet for
+    // the Knight and a fedora for the Archeologist. Each callback reveals the
+    // enchantment a wished piece would still be hiding, which is what shows
+    // that set_wear() reached it rather than skipping the slot.
+    game.uarmg = armor(LEATHER_GLOVES, { known: false });
+    game.uarmh = armor(HELMET, { known: false });
+    set_wear(game);
+    assert.equal(game.uarmg.known, true, 'Gloves_on() ran');
+    assert.equal(game.uarmh.known, true, 'Helmet_on() ran');
+    game.uarmg = null;
+    game.uarmh = null;
+});
+
+test('no starting hero reaches a slot or a type set_wear refuses',
+    async () => {
+    // The premise every refusal in set_wear() rests on. u_init.c decides which
+    // slots ini_inv_use_obj() fills and with what, so the list below is what
+    // makes "no role starts in boots" and "no role starts in a worn ring,
+    // amulet or blindfold" checkable rather than asserted -- and it is what
+    // will fail first if a role's gear changes.
+    //
+    // One row per distinct worn-armor configuration, plus the two races that
+    // substitute a worn piece at u_init.c:226-249: an elf Ranger's cloak of
+    // displacement becomes an elven cloak, and an orc Barbarian's ring mail
+    // becomes orcish ring mail. The Knight is the only role that fills four
+    // slots, and the only one besides the Archeologist that starts in a
+    // helmet; both of his are types Helmet_on() carries.
+    const starts = [
+        ['Archeologist', 'human', 'female', 'neutral',
+            { uarm: LEATHER_JACKET, uarmh: FEDORA }],
+        ['Barbarian', 'orc', 'male', 'chaotic', { uarm: ORCISH_RING_MAIL }],
+        ['Healer', 'human', 'female', 'neutral', { uarmg: LEATHER_GLOVES }],
+        ['Knight', 'human', 'male', 'lawful', {
+            uarm: RING_MAIL, uarmh: HELMET, uarmg: LEATHER_GLOVES,
+            uarms: SMALL_SHIELD,
+        }],
+        ['Monk', 'human', 'male', 'neutral',
+            { uarmc: ROBE, uarmg: LEATHER_GLOVES }],
+        ['Priest', 'human', 'female', 'neutral',
+            { uarmc: ROBE, uarms: SMALL_SHIELD }],
+        ['Ranger', 'human', 'female', 'neutral',
+            { uarmc: CLOAK_OF_DISPLACEMENT }],
+        ['Ranger', 'elf', 'female', 'chaotic', { uarmc: ELVEN_CLOAK }],
+        ['Rogue', 'human', 'female', 'chaotic', { uarm: LEATHER_ARMOR }],
+        ['Samurai', 'human', 'male', 'lawful', { uarm: SPLINT_MAIL }],
+        ['Tourist', 'human', 'male', 'neutral', { uarmu: HAWAIIAN_SHIRT }],
+        ['Valkyrie', 'human', 'female', 'neutral', { uarms: SMALL_SHIELD }],
+        ['Wizard', 'human', 'male', 'neutral',
+            { uarmc: CLOAK_OF_MAGIC_RESISTANCE }],
+    ];
+    const SLOTS = ['uarm', 'uarmc', 'uarmu', 'uarmh', 'uarmg', 'uarmf',
+        'uarms', 'ublindf', 'uleft', 'uright', 'uamul'];
+    // One seed for every row: what varies here is the role, not the dungeon.
+    // 7720300 is outside the matrix's own seeds so that reordering it cannot
+    // point this test at a recorded case.
+    const seed = 7720300;
+    for (const [role, race, gender, align, expected] of starts) {
+        const label = `${role}/${race}`;
+        const nethackrc = [
+            `OPTIONS=name:Wear,role:${role},race:${race},gender:${gender},`
+            + `align:${align}`,
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            'OPTIONS=pettype:none,!acoustics,!autopickup,time,showexp',
+            '',
+        ].join('\n');
+        const segment = { seed, datetime: '20310203040506', nethackrc };
+
+        assert.equal(await boundaryFor(segment, WAIT), null, label);
+        for (const slot of SLOTS) {
+            assert.equal(game[slot]?.otyp ?? null, expected[slot] ?? null,
+                `${label} ${slot}`);
+        }
+        // Only the Archeologist's fedora makes set_wear() do anything a
+        // startup setworn() had not already done.
+        assert.equal(game.u.uluck, role === 'Archeologist' ? 1 : 0, label);
+    }
+});
+
+test('Gloves_on stops for the three pairs it cannot run', async () => {
+    // do_wear.c:584-596. GAUNTLETS_OF_FUMBLING draws rnd(20) into HFumbling,
+    // GAUNTLETS_OF_POWER calls makeknown(), and GAUNTLETS_OF_DEXTERITY calls
+    // adj_abon(); u_init.c gives no role a pair, so all three are refused.
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, WAIT);
+    for (const otyp of [GAUNTLETS_OF_FUMBLING, GAUNTLETS_OF_POWER,
+        GAUNTLETS_OF_DEXTERITY]) {
+        game.uarmg = armor(otyp, { known: false });
+        assert.throws(() => Gloves_on(game),
+            new RegExp(`Gloves_on\\(\\) for otyp ${otyp}`));
+        assert.equal(game.uarmg.known, false, `otyp ${otyp}`);
+    }
+    game.uarmg = armor(LEATHER_GLOVES, { known: false });
+    assert.equal(Gloves_on(game), 0);
+    assert.equal(game.uarmg.known, true);
+    game.uarmg = null;
+});
+
+test('Helmet_on reveals a wished helmet\'s enchantment on either arm',
+    async () => {
+    // The two wish segments the matrix records. mkobj.c mksobj():864 leaves a
+    // wished piece with obj->known 0, so the write Helmet_on() makes is
+    // visible in the inventory window either side of the 'W'.
+    //
+    // objects.h gives the dented pot an oc_delay of 0 and an ac of 9, so it
+    // takes unmul("") and on_msg() on the spot and moves u.uac by 1 plus its
+    // enchantment; the orcish helm's oc_delay of 1 spends a turn under
+    // nomul(-1) and prints "You finish your dressing maneuver." instead.
+    const pot = wishSegmentFor(7720176);
+    const potKeys = `${WAIT}${WISH_KEY}+2 dented pot\n`;
+
+    await runSegment({ ...pot, moves: potKeys });
+    const acBefore = game.u.uac;
+    const wished = inventoryLetter('e');
+    assert.equal(wished.otyp, DENTED_POT);
+    assert.equal(wished.known ?? false, false, 'a wished pot hides its +2');
+
+    await runSegment({ ...pot, moves: `${potKeys}${WEAR_KEY}e` });
+    assert.equal(topLine(), 'You are now wearing a dented pot.');
+    assert.equal(game.uarmh.known, true);
+    assert.equal(game.u.uac, acBefore - 3, 'a_ac 1 plus the +2');
+    assert.equal(game.afternmv ?? null, null, 'oc_delay 0 ran it at once');
+
+    const helm = wishSegmentFor(7720185);
+    const helmKeys = `${WAIT}${WISH_KEY}+1 orcish helm\n`;
+
+    await runSegment({ ...helm, moves: `${helmKeys}${WEAR_KEY}e` });
+    // The countdown reaches zero inside the same elapsed turn, so by the time
+    // the segment stops the callback has run and printed. What separates this
+    // arm from the pot's is the message: C prints no on_msg() here.
+    assert.equal(topLine(), 'You finish your dressing maneuver.');
+    assert.equal(game.uarmh.otyp, ORCISH_HELM);
+    assert.equal(game.uarmh.known, true);
+    assert.equal(game.multi ?? 0, 0);
+});
+
+test('a second helmet is refused by the name of the one worn', async () => {
+    // canwearobj()'s is_helmet arm at do_wear.c:2110-2114 through
+    // objnam.c helm_simple_name() (5513-5525), which answers "helmet" for a
+    // metallic hat and "hat" for the rest. The fedora is CLOTH.
+    const segment = wishSegmentFor(7720194);
+
+    await runSegment({
+        ...segment,
+        moves: `${WAIT}${WISH_KEY}+0 dented pot\n${WEAR_KEY}j`,
+    });
+    assert.equal(topLine(), 'You are already wearing a hat.');
+    assert.equal(game.uarmh.otyp, FEDORA, 'the fedora is still the one worn');
+});
+
 test('the branches accessory_or_armor_on cannot run name themselves',
     async () => {
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
@@ -747,13 +1034,14 @@ test('the branches accessory_or_armor_on cannot run name themselves',
         ),
         /accessory_or_armor_on\(\) quest helm/,
     );
-    // Outside the Quest branch the same helm reaches the slot refusal.
+    // Outside the Quest branch the same helm reaches the otyp refusal in the
+    // W_ARMH arm instead, one frame later and still above setworn().
     game.qstart_level = { dnum: game.u.uz.dnum + 1, dlevel: 11 };
     await assert.rejects(
         () => accessory_or_armor_on(
             armor(HELM_OF_OPPOSITE_ALIGNMENT, { dknown: 1 }), game,
         ),
-        /accessory_or_armor_on\(\) for slot mask/,
+        new RegExp(`Helmet_on\\(\\) for otyp ${HELM_OF_OPPOSITE_ALIGNMENT}`),
     );
     delete game.qstart_level;
 

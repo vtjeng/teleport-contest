@@ -3,11 +3,12 @@
 //
 // C ref: src/do_wear.c on_msg() (75-99), off_msg() (67-72), Cloak_on()
 //        (325-380), Cloak_off()
-//        (382-431), Helmet_off() (517-564), Shield_on() (704-730),
+//        (382-431), Helmet_on() (433-515), Helmet_off() (517-564),
+//        Gloves_on() (575-603), Shield_on() (704-730),
 //        Shield_off() (732-756), Shirt_on() (758-775), Shirt_off() (777-794),
 //        Armor_on() (886-906),
 //        Armor_off() (908-930), fingers_or_gloves() (59-65),
-//        cancel_doff() (1642-1659),
+//        set_wear() (1537-1568), cancel_doff() (1642-1659),
 //        count_worn_stuff() (1731-1766), armor_or_accessory_off()
 //        (1768-1829), dotakeoff() (1831-1855), cursed() (1891-1917),
 //        armoroff() (1919-2008), already_wearing() (2010-2014), canwearobj()
@@ -23,8 +24,8 @@
 // The 'A' occupation spine -- do_takeoff(), take_off(),
 // better_not_take_that_off() and doddoremarm() -- is not ported. armoroff()'s
 // delayed branch at do_wear.c:1930-1972 is ported for a suit only, and
-// accessory_or_armor_on() puts armor into the suit, cloak, shirt and shield
-// slots only. Every refusal below names the C function it stops in front of.
+// accessory_or_armor_on() puts armor into the suit, cloak, shirt, shield and
+// helmet slots. Every refusal below names the C function it stops in front of.
 
 import {
     ECMD_CANCEL,
@@ -118,15 +119,20 @@ import {
     CLOAK_OF_PROTECTION,
     DENTED_POT,
     DWARVISH_CLOAK,
+    DWARVISH_IRON_HELM,
+    ELVEN_LEATHER_HELM,
     FEDORA,
     HAWAIIAN_SHIRT,
+    HELMET,
     HELM_OF_OPPOSITE_ALIGNMENT,
     LEATHER_CLOAK,
+    LEATHER_GLOVES,
     LENSES,
     MEAT_RING,
     MUMMY_WRAPPING,
     OILSKIN_CLOAK,
     ORCISH_CLOAK,
+    ORCISH_HELM,
     RING_CLASS,
     ROBE,
     TOWEL,
@@ -459,6 +465,68 @@ function Cloak_off(state) {
     return 0;
 }
 
+// The helmets Helmet_on() answers with a bare break. C's list at
+// do_wear.c:441-446 holds six labels; HELM_OF_TELEPATHY is left out of this
+// one, because its arm is bare only inside the switch. objects.h:485 gives the
+// type an oc_oprop of TELEPAT, so worn.c setworn() raises ETelepat one
+// statement earlier and recalc_telepat_range() sets u.unblind_telepat_range to
+// BOLT_LIM squared. display.h sensemon(), ported at js/startup_a11y.js:1632,
+// reads both, so the hero would start sensing every non-mindless monster
+// within eight squares -- through hack.c domove_core()'s run test, mon.c's
+// dknown clear and teleport.c's arrival tests, all of which call it. C feeds
+// that state a redraw this port does not have, allmain.c moveloop_core()'s
+// `Unblind_telepat` arm at 462-466, so a telepathy helm would diverge on the
+// turn after it went on. It joins the five arms refused by otyp below.
+const PLAIN_HELMETS_ON = new Set([
+    HELMET, DENTED_POT, ELVEN_LEATHER_HELM, DWARVISH_IRON_HELM, ORCISH_HELM,
+]);
+
+// The helmet types Helmet_on() carries. Two callers ask: set_wear() below,
+// for the helmet a new game starts in, and accessory_or_armor_on(), which
+// hoists the question above setworn() because objects.h gives every helmet
+// but the fedora and the dented pot an oc_delay of 1, so the callback itself
+// runs a turn after the slot and the status line have already moved.
+function helmetOnPorted(otyp) {
+    return otyp === FEDORA || PLAIN_HELMETS_ON.has(otyp);
+}
+
+// C ref: do_wear.c Helmet_on() (433-515), reached both as the ga.afternmv
+// callback accessory_or_armor_on() installs for the helmet slot and once per
+// new game from set_wear() below.
+//
+// The FEDORA arm is the only <X>_on() arm this port carries that does anything
+// beyond revealing an enchantment, and change_luck(1) is invisible until a
+// caller asks rnd.c rnl() for a range over 15: at 15 or below rnl() folds the
+// adjustment to (abs(Luck) + 1) / 3 * sgn(Luck), which is 0 for a single
+// point. lock.c doopen_indir():904 asks for rnl(20), so an Archeologist who
+// walks into a closed door -- hack.c:1097, no command needed -- draws one
+// extra rn2(38) at rnd.c:143 and a shifted result while her hat is on.
+//
+// C's `uarmh &&` at 510 is left out. Its own comment at 509 says why it is
+// there: uchangealign() inside the HELM_OF_OPPOSITE_ALIGNMENT arm can empty
+// the slot. That arm is refused, and no other arm here touches uarmh, so the
+// slot is still filled. Port that arm and the guard comes back with it.
+function Helmet_on(state) {
+    const otyp = state.uarmh.otyp;
+
+    if (!helmetOnPorted(otyp))
+        throw new UnsupportedWearError(`Helmet_on() for otyp ${otyp}`);
+
+    switch (otyp) {
+    case FEDORA:
+        if (state.urole?.mnum === PM_ARCHEOLOGIST) change_luck(1, state);
+        break;
+    default: /* PLAIN_HELMETS_ON, C's bare-break labels at 441-446 */
+        break;
+    }
+    if (!state.uarmh.known) {
+        /* helmet's +/- evident because of status line AC */
+        state.uarmh.known = true;
+        update_inventory({ state });
+    }
+    return 0;
+}
+
 // C ref: do_wear.c Helmet_off() (517-564). C's uarmh is still worn while the
 // switch runs, so the FEDORA arm reads the hero's role and not the helmet.
 //
@@ -478,16 +546,45 @@ function Helmet_off(state) {
 
     switch (otyp) {
     case FEDORA:
-        // Helmet_on()'s matching change_luck(1) at do_wear.c:525 is never
-        // run for a starting fedora: u_init.c ini_inv_use_obj() calls
-        // setworn() directly, so an Archeologist loses a point of Luck the
-        // first time she takes her hat off.
+        // The mirror of Helmet_on()'s change_luck(1) at do_wear.c:439, and a
+        // starting Archeologist has already had that point: u_init.c
+        // ini_inv_use_obj() only calls setworn(), but set_wear() below runs
+        // the callback over the finished gear before the first turn. So the
+        // 'T' takes her from Luck 1 to Luck 0 rather than to Luck -1.
         if (state.urole?.mnum === PM_ARCHEOLOGIST) change_luck(-1, state);
         break;
     default: /* DENTED_POT, one of C's plain break labels at 528-533 */
         break;
     }
     setworn(null, W_ARMH, setwornEnv(state));
+    return 0;
+}
+
+// C ref: do_wear.c Gloves_on() (575-603). set_wear() below is its only caller
+// here: accessory_or_armor_on() refuses W_ARMG above setworn(), so no 'W'
+// installs this callback, and the three roles that start in leather gloves --
+// Healer, Knight and Monk (u_init.c:78, :57, :63) -- are what makes the
+// function live at all.
+//
+// C's other three labels all reach outside do_wear.c: GAUNTLETS_OF_FUMBLING
+// draws rnd(20) into HFumbling, GAUNTLETS_OF_POWER calls makeknown() and
+// redraws the status line, and GAUNTLETS_OF_DEXTERITY calls adj_abon(). No
+// role starts in a pair, so all three are refused. C's `oldprop` at 578 is
+// read only by the fumbling arm, so it is not computed -- the reasoning
+// Cloak_off() above already records for its own copy.
+//
+// C's known tail at 598-601 carries no `uarmg &&` guard, unlike Helmet_on()'s
+// and Cloak_on()'s, because nothing in this switch can empty the slot.
+function Gloves_on(state) {
+    const otyp = state.uarmg.otyp;
+
+    if (otyp !== LEATHER_GLOVES)
+        throw new UnsupportedWearError(`Gloves_on() for otyp ${otyp}`);
+    if (!state.uarmg.known) {
+        /* gloves' +/- evident because of status line AC */
+        state.uarmg.known = true;
+        update_inventory({ state });
+    }
     return 0;
 }
 
@@ -570,6 +667,50 @@ function Shirt_off(state) {
     takeoffContext(state).mask &= ~W_ARMU;
     setworn(null, W_ARMU, setwornEnv(state));
     return 0;
+}
+
+// C ref: do_wear.c set_wear() (1537-1568), which allmain.c
+// moveloop_preamble():73 runs once per new game as `set_wear((struct obj *) 0)`
+// "for side-effects of starting gear". Only that arm is here: C's parameter
+// selects one object instead of all of them, and zap.c poly_obj():1948 is the
+// only caller that passes one, so the parameter has no reader and is left out.
+//
+// The point of the function is that u_init.c ini_inv_use_obj() (1262-1281)
+// dresses the hero with bare setworn() calls, which move the slots, the
+// extrinsics and the status line but run none of the <X>_on() callbacks. For
+// six of the seven slots that costs nothing here, because every type a new
+// game can start in falls to a callback whose whole body is a `known` write
+// that u_init.c ini_inv_adjust_obj():1215-1216 has already made true. The
+// seventh is the helmet: an Archeologist starts in a fedora, and Helmet_on()
+// gives her the point of Luck that Helmet_off() takes back.
+//
+// C's gi.initial_don is not modelled. It has exactly two readers, both in
+// do_wear.c -- toggle_stealth() at 112 and toggle_displacement() at 154 -- and
+// both return before doing anything while it is TRUE. That is what makes the
+// cloak call below complete without the arms accessory_or_armor_on() refuses
+// for 'W': a Ranger starts in a cloak of displacement, or in an elven cloak
+// when she is an elf (u_init.c:233), and at the initial don Cloak_on() is the
+// `known` write for those two types as much as for the five plain ones.
+// Whoever ports either toggle brings initial_don with it.
+export function set_wear(state = game) {
+    if (state.ublindf || state.uright || state.uleft || state.uamul) {
+        // do_wear.c:1544-1551 Blindf_on(), Ring_on() twice and Amulet_on().
+        // ini_inv_use_obj() fills only the seven armor slots, so a new game
+        // leaves all four of these empty; no role's starting gear includes a
+        // worn ring, amulet or blindfold.
+        throw new UnsupportedWearError('set_wear() accessories');
+    }
+    if (state.uarmu) Shirt_on(state);
+    if (state.uarm) Armor_on(state);
+    if (state.uarmc) Cloak_on(state);
+    if (state.uarmf) {
+        // do_wear.c:1558-1559 Boots_on() (186-261). No role starts in boots,
+        // and the goal that owns this file refuses W_ARMF above setworn().
+        throw new UnsupportedWearError('set_wear() Boots_on()');
+    }
+    if (state.uarmg) Gloves_on(state);
+    if (state.uarmh) Helmet_on(state);
+    if (state.uarms) Shield_on(state);
 }
 
 // C ref: do_wear.c count_worn_stuff() (1731-1766). C stores its two counts in
@@ -1278,6 +1419,19 @@ async function accessory_or_armor_on(obj, state = game) {
             throw new UnsupportedWearError(`Cloak_on() for otyp ${obj.otyp}`);
         afternmv = Cloak_on;
         break;
+    case W_ARMH:
+        // Helmet_on()'s other six arms, which see_monsters(), adjust the
+        // spellcasting bonus or Charisma, change alignment, curse the helm --
+        // or, for the helm of telepathy, leave the switch bare and change what
+        // the hero senses through the extrinsic setworn() has just raised.
+        // This copy of the question is what a helmet needs and a shield does
+        // not: objects.h gives every helmet but the fedora and the dented pot
+        // an oc_delay of 1, so Helmet_on()'s own guard would not run until the
+        // turn after the slot and the status line had moved.
+        if (!helmetOnPorted(obj.otyp))
+            throw new UnsupportedWearError(`Helmet_on() for otyp ${obj.otyp}`);
+        afternmv = Helmet_on;
+        break;
     case W_ARMU:
         afternmv = Shirt_on;
         break;
@@ -1434,7 +1588,9 @@ export const _doWearInternals = Object.freeze({
     Armor_on,
     Cloak_off,
     Cloak_on,
+    Gloves_on,
     Helmet_off,
+    Helmet_on,
     Shield_off,
     Shield_on,
     Shirt_off,

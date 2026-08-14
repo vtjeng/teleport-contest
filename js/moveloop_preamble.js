@@ -9,6 +9,7 @@ import {
     NORMAL_SPEED,
 } from './const.js';
 import { friday_13th, phase_of_the_moon } from './calendar.js';
+import { set_wear } from './do_wear.js';
 import { game } from './gstate.js';
 import { update_inventory } from './invent.js';
 import {
@@ -62,10 +63,12 @@ export async function moveloop_preamble(
         state.program_state.beyond_savefile_load = 1;
         state.context.rndencode = rnd(9000);
 
-        // C calls set_wear(NULL) here. ini_inv_use_obj() is the sole startup
-        // wearer and selects armor only; use_initial_inventory() has already
-        // passed those items through setworn(), establishing the same slots,
-        // extrinsics, and status values before this new-game path begins.
+        // C ref: allmain.c:73 set_wear((struct obj *) 0), "for side-effects of
+        // starting gear". u_init.c ini_inv_use_obj() dressed the hero with
+        // bare setworn() calls, so this is where the <X>_on() callbacks run
+        // over the finished gear; do_wear.c set_wear() lists what each one
+        // does for the types a new game can start in.
+        set_wear(state);
         preflight_initial_pickup(state);
         reset_justpicked(state.invent);
         await pickup(1, state);

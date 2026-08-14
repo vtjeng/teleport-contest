@@ -114,6 +114,11 @@ const TOURIST = { role: 'Tourist', gender: 'male' };
 // his 'W' on the prompt arm rather than the silent one.
 const WIZARD = { role: 'Wizard', gender: 'male' };
 const MONK = { role: 'Monk', gender: 'male' };
+// The one role that starts in a helmet whose Helmet_on() does more than reveal
+// an enchantment: do_wear.c:438-439 gives an Archeologist a point of Luck for
+// her fedora. She wears a leather jacket at `b` as well, so count_worn_stuff()
+// finds two pieces and the 'T' needs the fedora's own letter, `c`.
+const ARCHEOLOGIST = { role: 'Archeologist' };
 
 // Take the starting shield off, then put it back on. `c` is the shield's
 // invlet and the only letter wear_ok() suggests once it is off.
@@ -122,6 +127,44 @@ const OFF_THEN_ON = `${TAKEOFF_KEY}${WEAR_KEY}c`;
 // spends the suit's oc_delay in turns during which moveloop_core() reads no
 // key, so the 'W' is not seen until the 'T' has finished.
 const SUIT_OFF_THEN_ON = `${TAKEOFF_KEY}${WEAR_KEY}e`;
+
+// The three segments that make Helmet_on()'s change_luck(1) observable, and
+// the only ones in this file whose evidence is the random-number log rather
+// than the screen.
+//
+// Luck reaches the log through rnd.c rnl(x) alone. For x of 15 or less rnl()
+// folds the adjustment to (abs(Luck) + 1) / 3 * sgn(Luck) at rnd.c:128, which
+// is 0 for a single point, so every other rnl() in the port is blind to the
+// fedora. rnd.c:143 then spends one extra rn2(37 + abs(adjustment)) whenever
+// the adjustment survives, and shifts the result. lock.c doopen_indir():904
+// asks for rnl(20), the one call over 15 this port makes, and hack.c:1097
+// reaches it when a hero with flags.autoopen walks into a closed door -- no
+// command needed.
+//
+// Seed 7720207 supplies that door. Direct setup cannot: nothing the port can
+// type digs, unlocks or closes a door, so the door has to be generated, and
+// the roll needs it CLOSED and not LOCKED. Scanning seeds 7720200 to 7720239
+// for an Archeologist at this datetime found one whose start has such a door
+// two steps away, over lit room squares holding no monster, object or trap.
+const DOOR_SEED = 7720207;
+// East one square, then south onto the door on the room's lower wall. C
+// refuses a diagonal step into a doorway, so both steps are orthogonal.
+const WALK_INTO_DOOR = 'lj';
+const LUCK_SEGMENTS = [
+    // Luck 1: the hat is on, so rnl(20) draws the extra rn2(38). This is the
+    // segment that found the bug the slice fixed -- before set_wear() ran the
+    // startup callbacks the port opened at Luck 0 and drew no rn2 here, while
+    // C drew one, on a walk that touches no armor command at all.
+    segment(DOOR_SEED, WALK_INTO_DOOR, ARCHEOLOGIST),
+    // Luck 0: Helmet_off()'s change_luck(-1) has cancelled the startup point,
+    // so the same roll draws rnl(20) alone.
+    segment(DOOR_SEED, `${TAKEOFF_KEY}c${WALK_INTO_DOOR}`, ARCHEOLOGIST),
+    // Luck 1 again, and the reason this file has a door in it: only
+    // Helmet_on() can put the point back, and only the 'W' command can reach
+    // Helmet_on() for a hero who has taken her hat off.
+    segment(DOOR_SEED, `${TAKEOFF_KEY}c${WEAR_KEY}c${WALK_INTO_DOOR}`,
+        ARCHEOLOGIST),
+];
 
 export function loadWearRecipe() {
     return validateCleanRecipe({
@@ -207,6 +250,21 @@ export function loadWearRecipe() {
             // it on and with it off. The message and the "(being worn)" suffix
             // are the whole of what changes.
             segment(7720153, `${TAKEOFF_KEY}${WEAR_KEY}k`, TOURIST),
+            // do_wear.c:433-515 Helmet_on(), the arm an ordinary game reaches.
+            // objects.h:454-456 gives the fedora an oc_delay of 0, so unmul("")
+            // runs the callback and on_msg() prints on the turn the 'W' is
+            // typed, and an ac of 10, so its a_ac is 0 and find_ac() leaves
+            // u.uac where it was. The two messages and the turn counter are
+            // the whole of what this wearing shows.
+            //
+            // No inventory window here, although it is what would show the
+            // "(being worn)" suffix: an Archeologist carries a pick-axe, and
+            // the QUALITY.json deferral weptool-inventory-lines-add-a-charge-
+            // count names the divergence that puts in the window. The wished
+            // dented pot below carries the suffix instead, on a Valkyrie,
+            // whose starting pack holds no weapon-tool.
+            segment(7720165, `${TAKEOFF_KEY}c${WEAR_KEY}c`, ARCHEOLOGIST),
+            ...LUCK_SEGMENTS,
         ],
     }, 'wear armor recipe');
 }
@@ -309,6 +367,39 @@ export function loadWearWishRecipe() {
                 `${TAKEOFF_KEY}${WISH_KEY}+0 leather jacket\n`
                 + `${WEAR_KEY}l${WEAR_KEY}i`,
                 TOURIST, DEBUG),
+            // The Helmet_on() witness on each arm of the fork, for a Valkyrie,
+            // whose helmet slot starts empty so that no 'T' is needed and the
+            // wished piece is the only letter wear_ok() suggests.
+            //
+            // objects.h:467-469 gives the dented pot an oc_delay of 0 and an
+            // ac of 9, so it takes unmul("") and on_msg() at once and moves
+            // u.uac by its own 1 plus its enchantment. The two inventory
+            // windows show obj->known turning over: mkobj.c mksobj():864
+            // leaves a wished piece unknown, so it reads "a dented pot" before
+            // the 'W' and "a +2 dented pot (being worn)" after it.
+            segment(7720176,
+                `${WISH_KEY}+2 dented pot\n`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}e`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}`,
+                VALKYRIE, DEBUG),
+            // objects.h:447-449 gives the orcish helm an oc_delay of 1, the
+            // shortest non-zero one, so this is the delayed arm: setworn()
+            // moves AC on the turn the 'W' is typed, C prints no on_msg(), and
+            // the countdown runs out on the very next turn with "You finish
+            // your dressing maneuver." That turn is the fourth of the segment,
+            // clear of the svm.moves % 7 == 0 frame the Caveman segment above
+            // has to step around.
+            segment(7720185,
+                `${WISH_KEY}+1 orcish helm\n`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}${WEAR_KEY}e`
+                + `${INVENTORY_KEY}${ESCAPE_KEY}`,
+                VALKYRIE, DEBUG),
+            // canwearobj()'s is_helmet filled-slot arm at do_wear.c:2110-2114,
+            // which names the worn piece through helm_simple_name(): the
+            // fedora is CLOTH, so objnam.c:5513-5525 answers "hat" rather than
+            // "helmet". The Archeologist's eight starting items put the wished
+            // pot at `i`.
+            wishSegment(7720194, '+0 dented pot', `${WEAR_KEY}j`, ARCHEOLOGIST),
         ],
     }, 'wear armor wish recipe');
 }
