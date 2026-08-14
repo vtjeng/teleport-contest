@@ -32,13 +32,13 @@ Entry shape:
   frontier gap be recordable without advancing the frontier, or should the loop
   only ever run simplification from the frontier?
 - Provisional decision: the pass leaves no ledger record. Its ten confirmed
-  findings are durable elsewhere — four in the two commit messages, six as
+  findings are durable elsewhere: four in the two commit messages, six as
   ledger deferrals (`finish-elapsed-turn-env-shapes-duplicated`,
   `menu-heading-style-copied-in-four-wrappers`,
   `unused-import-specifiers-name-dead-symbols`,
   `mintrap-env-literal-spelled-twice-in-monmove`,
   `erase-menu-or-text-takes-a-display-it-derives`,
-  `options-menu-recipes-addressed-by-position`) — so nothing was lost but the
+  `options-menu-recipes-addressed-by-position`). So nothing was lost but the
   thirteen rejections, which the next pass will re-derive. Recording it with a
   base of `e153d07` was rejected as dishonest: the pass never read those
   commits.

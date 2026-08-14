@@ -99,8 +99,8 @@ Capturing a child's stdout replaces `stdio: 'inherit'`, which streamed live
 progress; the TTY case has to keep streaming, and the summary must stay at
 the end of the log so a tail read stays valid while agents migrate.
 
-**What it leaves unfixed.** The checkpoint's output volume: the log keeps
-its 14,491 lines on disk, and an agent that opens it whole still drowns.
+**What it leaves unfixed.** The log still keeps its 14,491 lines on disk, and
+an agent that opens it whole still drowns.
 
 ## Serialise mutation runs across parallel workers
 
@@ -205,11 +205,11 @@ message settled in a minute; the check could not see it.
 
 The failure is silent in the direction that matters. `.agents/review.md` makes
 the trailer the record a slice closes on, and says the orchestrator "checks the
-record in place of inspecting for it" — so a false `no Mutants trailer` spends
-exactly the inspection the check exists to replace. The sibling entry above,
-"Print the remaining unenforced advisories", proposes running this check from
-`npm run checkpoint`; doing that first would print this false positive on every
-checkpoint until the trailer parses.
+record in place of inspecting for it". A false `no Mutants trailer` sends the
+orchestrator back to exactly the inspection the check exists to replace. The
+sibling entry above, "Print the remaining unenforced advisories", proposes
+running this check from `npm run checkpoint`; doing that first would print this
+false positive on every checkpoint until the trailer parses.
 
 **Cost.** Very small either way. The emission fix is one line and prevents new
 cases; the fallback also rescues the commits already written, of which the

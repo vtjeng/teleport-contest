@@ -46,8 +46,8 @@ report what the reading found, because the ledger has no command that amends an
 open entry.
 
 An entry closes only when the behavior its record names as the closing
-condition is ported. An entry waiting on an unported command therefore survives
-the sweep. Name each surviving entry in the closing report with the behavior it
+condition is ported. An entry waiting on an unported command survives the
+sweep. Name each surviving entry in the closing report with the behavior it
 waits on, and record that behavior on the entry with
 `npm run quality -- block-deferral --id <id> --blocked-on <symbol>`, so the
 next count reads what this reading found rather than repeating it.
@@ -83,7 +83,7 @@ Record the capped forecast and the sessions it covers with
 `node scripts/goal-log.mjs queue-goal --forecast-steps <n>
 --forecast-basis <text> --sessions <csv>`; `open-goal` captures the score
 standing, and `close-goal` records delivered figures beside the forecast
-from the score log. A slice earns a fraction of what its whole behavior does,
+from the score log. A slice scores a fraction of what its whole behavior does,
 so compare a slice's delivery against the slice and the goal's against the
 goal. Retire a ranking statistic from selection when the last three closed
 goals in `GOALS.json` each delivered less than a tenth of its forecast. Use it
@@ -148,7 +148,7 @@ The steps standing behind a boundary are an upper bound. They do not predict
 how many steps porting that boundary will unblock. Sessions blocked on one
 owner routinely block again on another, and the keystrokes after a stop include
 prompt answers, count prefixes, and menu selections. To measure what a
-candidate change earns, apply it and re-run the scan; the difference between
+candidate change unblocks, apply it and re-run the scan; the difference between
 the two runs' step counts is the measurement.
 
 **A later segment's screens ride on the earlier ones.** A segment is one run of
@@ -158,7 +158,7 @@ segment's output and compares it positionally
 (`frozen/ps_test_runner.mjs:371`). A segment that emits fewer screens than C
 recorded shifts every later segment out of alignment, and those segments score
 nothing however well the port replays them. So in a session with more than one
-segment, a candidate that stops short of finishing the segment earns nothing
+segment, a candidate that stops short of finishing the segment scores nothing
 from the segments after it. Within a segment, partial progress scores normally.
 
 ### Reading the reconciliation before you rank
@@ -181,8 +181,8 @@ sessions in its group and the screens standing behind them.
 The refused command census resolves each refused byte through the session's
 binding model, which answers for every byte, including the roughly half that
 answer prompts, pick menu entries, or dismiss `--More--`. Both estimates
-therefore read the recorded cursor, which rests on the hero exactly while the
-game waits for a command, and the census labels any row whose byte began no
+read the recorded cursor, which rests on the hero exactly while the game
+waits for a command, and the census labels any row whose byte began no
 command. Never rank a labelled row. At `28c62d0` four of them carry 1,596
 screens between them, the largest `open` at 699, where a session answered the
 apply prompt with the inventory letter `o`, which is also bound to `open`.
@@ -211,7 +211,7 @@ screen are insufficient: different C and JavaScript branches can produce the
 same visible screen. A session that does not execute the proposed branch
 contributes zero; rename or widen the goal to the branch it actually executes.
 
-**Rank by the look-ahead forecast.** The port is fail-closed: a session earns
+**Rank by the look-ahead forecast.** The port is fail-closed: a session scores
 no screen past its first stop, so a candidate pays what it unblocks. Start
 from `unlocks`, the recorded steps running from a stopped session's boundary
 to its next unmet behavior. This file calls that run the session's **stretch**.
@@ -258,5 +258,5 @@ closing the dart-miss path would unblock `seed1500`, which stops earlier, on
 pet cursed-object feedback. `docs/goal-history.md` preserves both.
 
 **Rank on development look-ahead.** The sealed holdout guards against a
-significant inadvertent regression. Do not rank, re-rank, or reopen a goal on a
+large inadvertent regression. Do not rank, re-rank, or reopen a goal on a
 holdout figure, and do not read an unmoved holdout as a failed goal.
