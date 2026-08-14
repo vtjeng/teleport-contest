@@ -443,3 +443,7 @@ utc	event	phase	goal	detail
 2026-08-14T16:07:48.412Z	end	select	monster-melee-attack	monster-melee-hit-elec queued; AD_ELEC alone, AD_PHYS deferred to slice 3
 2026-08-14T16:07:48.445Z	start	implement	monster-melee-attack	monster-melee-hit-elec: hitmu() through mhitm_ad_elec()
 2026-08-14T17:28:08.861Z	end	implement	monster-melee-attack	monster-melee-hit-elec closed at b2ec1be; development 1577 to 1657 screens, the full forecast 80
+2026-08-14T17:57:50.729Z	start	select	monster-melee-attack	third slice: the AD_PHYS arm
+2026-08-14T17:57:50.760Z	end	select	monster-melee-attack	monster-melee-hit-phys queued; hand-to-hand only, AT_WEAP is the fail-closed edge; census forecast 0
+2026-08-14T17:57:50.832Z	start	implement	monster-melee-attack	monster-melee-hit-phys: mhitm_ad_phys()'s mdef arm, hand to hand
+2026-08-14T19:04:25.291Z	end	implement	monster-melee-attack	monster-melee-hit-phys closed at 28c62d0; development unmoved at 1657 screens, the forecast of zero

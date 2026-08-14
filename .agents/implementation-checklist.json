@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "The AD_PHYS arm has not landed. js/uhitm.js:1471 is still `case AD_PHYS: unported('mhitm_ad_phys')`, which the goal statement names as a closing condition, and the queued slice monster-melee-hit-phys is the work. Two further limits apply to this file rather than to the code. It was opened at 7d62df5, after the goal's first two slices had already landed 1,651 changed production lines across eight files, measured by `git diff --numstat a9ba71a..a119cd0 -- js/` with the generated js/monsters.js excluded. Its entries were therefore written against reviewed code rather than ahead of it; the 500-line trigger was passed inside slice one alone and the file should have existed then. And its entries cover mattacku()'s own branches, hitmu(), mdamageu() and passiveum() in full, but treat the thirty-eight unported arms of mhitm_adtyping() as one entry rather than thirty-eight, because the goal's boundary refuses all but two of them at a single switch.",
-  "commitChecked": "7d62df5c5c01cc8fe5fbf77ab9245b1037402d5c",
+  "mode": "ready-for-audit",
+  "reason": "All three slices of monster-melee-attack have landed, through 28c62d0, and the goal's two testable conditions were verified at that commit rather than taken from a worker's report. Condition one: all five arms the hero's own state gates still refuse, at js/mhitu.js:510, :513, :516, :543 and :548. Condition two: `grep -c \"unported('mhitm_ad\" js/uhitm.js` answers 37, and exactly AD_PHYS and AD_ELEC have a ported arm. Every entry is done (16), cannot-occur (10), no-effect-yet (2) or later (1) with evidence, and missingWorkByOwner is empty. Two limits apply to this file rather than to the code. It was opened at 7d62df5, after the goal's first two slices had already landed 1,651 changed production lines across eight files, measured by `git diff --numstat a9ba71a..a119cd0 -- js/` with the generated js/monsters.js excluded, so its entries were written against reviewed code rather than ahead of it; the 500-line trigger was passed inside slice one alone and the file should have existed then. And its entries treat the thirty-seven unported arms of mhitm_adtyping() as one entry, because the goal's boundary refuses all of them at a single switch, so this file does not record which a recorded session would reach first. One departure from the goal's headline sentence is deliberate: an armed monster's blow does not reach the hero's hit points, because mhitm_ad_phys()'s AT_WEAP block at uhitm.c:4041-4121 refuses. The goal's two testable conditions do not cover it, AGENTS.md defers rare cases the goal does not name, and 98 seeds scanned for the first slice opened with no armed attacker.",
+  "commitChecked": "28c62d09",
   "boundary": {
     "goalId": "monster-melee-attack",
     "startingCommit": "a9ba71a093e6c2192f888083f9d1c36a60ed5050, which is db92431's parent and so the last commit before the goal's first slice",
@@ -229,11 +229,11 @@
     {
       "candidate": "mhitm_adtyping()'s AD_PHYS arm",
       "reachability": "The most common damage type in the early dungeon: the sewer rat's ATTK(AT_BITE, AD_PHYS, 1, 3) reaches it, as do every claw and butt attack.",
-      "owner": "None. js/uhitm.js:1471 refuses.",
-      "effects": "None yet; the refusal precedes hitmsg() and the mhm->hitflags write.",
-      "evidence": "uhitm.c:3985-4200, of which 4021-4022, 4038-4040 and 4122-4126 are the hand-to-hand path this goal needs. The goal statement names AD_PHYS as a closing condition. The queued slice monster-melee-hit-phys is the work.",
-      "status": "missing",
-      "remaining": "Port the mdef arm's hand-to-hand path, with uhitm.c:4041's `AT_WEAP && otmp` as the fail-closed edge. Record a fresh differential past step 13 of the seed 880042 case, plus a second seed on a different hitmsg() verb."
+      "owner": "js/uhitm.js mhitm_ad_phys(), the mdef arm's hand-to-hand path",
+      "effects": "hitmsg()'s line, the mhm->hitflags write, and the damage that reaches mdamageu().",
+      "evidence": "uhitm.c:3985-4200, of which 4038-4040 and 4122-4126 are the hand-to-hand path, under the `aatyp != AT_TUCH || damage != 0 || magr != u.ustuck` guard. Landed at 78a0330 with uhitm.c:4041's `AT_WEAP && otmp` as the fail-closed edge, keeping C's whole `AT_HUGS && !sticks(pd)` condition so the AT_HUGS stop sits where C's branch begins. Pinned by scripts/run-monster-melee-hit-phys.mjs: 2 segments, 7,440 PRNG calls, 291 screens, 291 cursors, verified by the orchestrator. The development score did not move, which was the forecast.",
+      "status": "done",
+      "remaining": "None for this goal. The armed blow at uhitm.c:4041-4121 stays refused and is its own goal, since it brings gm.mhitu_dieroll, dmgval integration, rustm() and the artifact and poison refusals together."
     },
     {
       "candidate": "mhitm_adtyping()'s other thirty-eight adtyp arms",
@@ -247,11 +247,11 @@
     {
       "candidate": "mhitm_knockback()'s gate and its u_def tail",
       "reachability": "The gate runs on every AD_PHYS blow. Its u_def tail needs AD_PHYS with AT_CLAW, AT_KICK, AT_BUTT or AT_WEAP.",
-      "owner": "js/uhitm.js mhitm_knockback(), refusing at :1614 and past the msize test at :1637",
-      "effects": "None while AD_PHYS refuses above it.",
-      "evidence": "uhitm.c:5245-5372. The gate at :5273-5277 excludes AT_BITE, so the queued slice's own bite case never reaches the tail, but a clawing monster will once AD_PHYS lands. hitflags is first read at :5338, below the msize test at :5325-5326 where the port already refuses, so the current signature stays correct.",
+      "owner": "js/uhitm.js mhitm_knockback(), refusing at :1689 and past the msize test",
+      "effects": "The refusal precedes the push, so no state changes and no draw is lost.",
+      "evidence": "uhitm.c:5245-5372. The gate at :5273-5277 admits AD_PHYS with AT_CLAW, AT_KICK, AT_BUTT or AT_WEAP and excludes AT_BITE, so roughly one such blow in six now stops here; 11 of 400 scanned fresh walks end there. hitflags is first read at :5338, below the msize test at :5325-5326, so the current signature stays correct. Seed 6610034 is the recorded case, and it shows the refusal is conservative: C prints its message with rn2(6) == 0, then declines the push itself at the msize test, because a goblin is MZ_SMALL against an MZ_HUMAN hero. The port stops two tests above the one C answers on.",
       "status": "later",
-      "remaining": "The queued slice must file the newly reachable stop at :1614 with npm run quality -- defer, naming the C line and the odds. Porting the u_def head belongs to the weapon slice, which is the first with a case that consumes it."
+      "remaining": "Filed as monster-melee-knockback-on-the-hero-stops, blocked on hurtle. The first effect sits past this goal's ending event, and the common early-game case declines on size anyway, so what is genuinely missing is test_move()'s hero-knockback caller and hurtle()."
     },
     {
       "candidate": "mdamageu(), through disp.botl",
@@ -281,15 +281,6 @@
       "remaining": "Test coverage. Five mutation survivors in js/mthrowu.js carry no recorded reason, and the clear_path() arm, the one branch the extraction actually changed, is reached by no test. Filed as mthrowu-extraction-has-no-covering-test."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "js/uhitm.js mhitm_ad_phys()",
-      "candidates": [
-        "mhitm_adtyping()'s AD_PHYS arm",
-        "mhitm_knockback()'s gate and its u_def tail"
-      ],
-      "next": "Take the queued slice monster-melee-hit-phys: port mhitm_ad_phys()'s mdef arm for the hand-to-hand path, keep uhitm.c:4041's `AT_WEAP && otmp` as the fail-closed edge, file the knockback stop that becomes reachable at js/uhitm.js:1614, and resolve monster-melee-hit-edge when the fresh sewer-rat differential lands."
-    }
-  ],
-  "sourceReview": "mhitu.c mattacku() was read top to bottom over 491-951 at 7d62df5, and every branch it contains is paired above with a js/mhitu.js line, a named refusal, or a recorded reason for an omission. Its call tree was followed into calc_mattacku_vars(), mtrapped_in_pit(), getmattk(), could_seduce(), missmu(), mswings(), mswings_verb(), hitmsg(), magic_negation(), hitmu(), mdamageu() and passiveum(), and across into uhitm.c mhitm_adtyping(), mhitm_ad_elec(), mhitm_ad_phys() and mhitm_knockback(), and into muse.c find_offensive() and mthrowu.c's three lined-up predicates. Random-number order was checked at the three points that draw inside the boundary: AC_VALUE()'s conditional draw, the per-slot rnd(20), and hitmu()'s d(damn, damd), each of which sits below every refusal that could otherwise skip it. Three claims that omit code rather than stop it were re-derived from source rather than accepted: the u_at(gb.bhitpos) test at :782, whose only intervening write at :545 returns on every path out of :547; the NATTK loop's DEADMONSTER guard, which no ported counterattack can trigger; and the SYSOPT_SEDUCE block, dead in this build. One reachable path inside the boundary is not yet implemented, the AD_PHYS arm, and it is the sole entry in missingWorkByOwner."
+  "missingWorkByOwner": [],
+  "sourceReview": "mhitu.c mattacku() was read top to bottom over 491-951 at 7d62df5, and every branch it contains is paired above with a js/mhitu.js line, a named refusal, or a recorded reason for an omission. Its call tree was followed into calc_mattacku_vars(), mtrapped_in_pit(), getmattk(), could_seduce(), missmu(), mswings(), mswings_verb(), hitmsg(), magic_negation(), hitmu(), mdamageu() and passiveum(), and across into uhitm.c mhitm_adtyping(), mhitm_ad_elec(), mhitm_ad_phys() and mhitm_knockback(), and into muse.c find_offensive() and mthrowu.c's three lined-up predicates. Random-number order was checked at the three points that draw inside the boundary: AC_VALUE()'s conditional draw, the per-slot rnd(20), and hitmu()'s d(damn, damd), each of which sits below every refusal that could otherwise skip it. Three claims that omit code rather than stop it were re-derived from source rather than accepted: the u_at(gb.bhitpos) test at :782, whose only intervening write at :545 returns on every path out of :547; the NATTK loop's DEADMONSTER guard, which no ported counterattack can trigger; and the SYSOPT_SEDUCE block, dead in this build. Every reachable path inside the boundary is now implemented or refused before it changes state, draws, or prints. The AD_PHYS arm, the last one outstanding when this file was opened, landed at 78a0330; its own AT_WEAP block stays refused at uhitm.c:4041, which is the one place an armed monster's blow stops short of the goal's headline sentence."
 }

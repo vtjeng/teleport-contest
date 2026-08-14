@@ -2175,6 +2175,11 @@
           "name": "monster-melee-hit-elec",
           "status": "closed",
           "closedBy": "b2ec1be8ba3d96218ac402e3efe1206062709345"
+        },
+        {
+          "name": "monster-melee-hit-phys",
+          "status": "closed",
+          "closedBy": "28c62d09650a6718211a22ad9ae8d88731e992e0"
         }
       ],
       "openedAt": "0ecbb166929d646533bf939fa300ad20e887ef13",
