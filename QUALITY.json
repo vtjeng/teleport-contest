@@ -2600,6 +2600,16 @@
           "at": "57a028c57f7303d5d1ee00c11919c73c1858ee47"
         }
       ]
+    },
+    {
+      "id": "monster-melee-crush-on-the-hero-stops",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7312050c4131a851757c0bd7a687531ecb89558b",
+      "detail": "mhitu.c mattacku()'s AT_HUGS arm (823-831) became reachable when slice two landed hitmu(). C's gate is (!range2 && i >= 2 && sum[i-1] && sum[i-2]) || mtmp == u.ustuck, and M_ATTK_MISS is 0x0 at monattk.h:108, so while hitmu() refused, sum[] stayed all zeros and the gate was always false; hitmu() now returns M_ATTK_HIT, so a monster whose third slot is AT_HUGS reaches js/mhitu.js:626 once its first two slots both land. The port keeps C's whole gate rather than a bare aatyp test, so the stop sits where C's branch begins and precedes failed_grab() and the hitmu() call behind it. The goal's boundary excludes the arm, so this is fail-closed rather than a defect. Two things close it: porting failed_grab() and the AT_HUGS hitmu() call, and re-judging the four mutation survivors recorded on this gate, whose reason was that sum[] never leaves M_ATTK_MISS and expired with slice two. Found by the goal-closing correctness pass over 2be53e4..d0612ef.",
+      "blockedOn": "failed_grab"
     }
   ],
   "areas": [

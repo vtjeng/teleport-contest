@@ -1,6 +1,6 @@
 {
   "mode": "ready-for-audit",
-  "reason": "All three slices of monster-melee-attack have landed, through 28c62d0, and the goal's two testable conditions were verified at that commit rather than taken from a worker's report. Condition one: all five arms the hero's own state gates still refuse, at js/mhitu.js:510, :513, :516, :543 and :548. Condition two: `grep -c \"unported('mhitm_ad\" js/uhitm.js` answers 37, and exactly AD_PHYS and AD_ELEC have a ported arm. Every entry is done (16), cannot-occur (10), no-effect-yet (2) or later (1) with evidence, and missingWorkByOwner is empty. Two limits apply to this file rather than to the code. It was opened at 7d62df5, after the goal's first two slices had already landed 1,651 changed production lines across eight files, measured by `git diff --numstat a9ba71a..a119cd0 -- js/` with the generated js/monsters.js excluded, so its entries were written against reviewed code rather than ahead of it; the 500-line trigger was passed inside slice one alone and the file should have existed then. And its entries treat the thirty-seven unported arms of mhitm_adtyping() as one entry, because the goal's boundary refuses all of them at a single switch, so this file does not record which a recorded session would reach first. One departure from the goal's headline sentence is deliberate: an armed monster's blow does not reach the hero's hit points, because mhitm_ad_phys()'s AT_WEAP block at uhitm.c:4041-4121 refuses. The goal's two testable conditions do not cover it, AGENTS.md defers rare cases the goal does not name, and 98 seeds scanned for the first slice opened with no armed attacker.",
+  "reason": "All three slices of monster-melee-attack have landed, through 28c62d0, and the goal's two testable conditions were verified at that commit rather than taken from a worker's report. Condition one: all five arms the hero's own state gates still refuse, at js/mhitu.js:510, :513, :516, :543 and :548. Condition two: `grep -c \"unported('mhitm_ad\" js/uhitm.js` answers 37, and exactly AD_PHYS and AD_ELEC have a ported arm. Every entry is done (16), cannot-occur (10), no-effect-yet (2) or later (2) with evidence, and missingWorkByOwner is empty. The goal-closing pass corrected two entries in this file: a count of the refused mhitm_adtyping() arms that read thirty-eight against this note's own thirty-seven, and the AT_HUGS arm, recorded as cannot-occur on the reason that sum[] never leaves M_ATTK_MISS, which expired when slice two landed hitmu(). Two limits apply to this file rather than to the code. It was opened at 7d62df5, after the goal's first two slices had already landed 1,651 changed production lines across eight files, measured by `git diff --numstat a9ba71a..a119cd0 -- js/` with the generated js/monsters.js excluded, so its entries were written against reviewed code rather than ahead of it; the 500-line trigger was passed inside slice one alone and the file should have existed then. And its entries treat the thirty-seven unported arms of mhitm_adtyping() as one entry, because the goal's boundary refuses all of them at a single switch, so this file does not record which a recorded session would reach first. One departure from the goal's headline sentence is deliberate: an armed monster's blow does not reach the hero's hit points, because mhitm_ad_phys()'s AT_WEAP block at uhitm.c:4041-4121 refuses. The goal's two testable conditions do not cover it, AGENTS.md defers rare cases the goal does not name, and 98 seeds scanned for the first slice opened with no armed attacker.",
   "commitChecked": "28c62d09650a6718211a22ad9ae8d88731e992e0",
   "boundary": {
     "goalId": "monster-melee-attack",
@@ -16,7 +16,7 @@
     "dispatchTablesAndCatalogs": "monst.c's mons[] attack arrays, read through include/monsters.h, which fix each monster's six NATTK slots and so decide which aatyp and adtyp arms a recorded session can reach. include/monattk.h's AT_ and AD_ constants, six of which this goal added to scripts/generate-monsters.mjs and js/monsters.js. The sewer rat's ATTK(AT_BITE, AD_PHYS, 1, 3) at monsters.h:891 and the newt's and grid bug's rows are the ones the recorded corpus reaches first.",
     "reachableHelpers": "Every call inside mattacku()'s tree was followed to a ported owner or a named refusal, by reading mhitu.c 491-951 top to bottom and pairing each branch with a js/mhitu.js line. The pure predicates the loop needs (m_next2u, mdistu, AC_VALUE, Half_physical_damage, mtrapped_in_pit, mswings_verb, magic_negation) arrived as ported functions under their C names. dist2() is a squared distance and never answers 3, which is what makes m_next2u()'s `<= 2` the same set of squares as mattacku()'s `!ranged`.",
     "javascriptCrossCheck": "grep -n 'unsupported(|^export async function|^export function|^async function|^function |^// C ref' js/mhitu.js enumerated that file's owners and all twenty-two named refusals. git show HEAD:js/uhitm.js | grep -n 'unported(|^export async function|^export function' did the same for the uhitm side without touching the worker's tree. git log --oneline db92431^..HEAD listed the goal's nine commits. npm run quality -- --check reported the gate and the open deferrals. npm run checkpoint at 7d62df5 ran the suite, the seven generated-data checks and the development score together.",
-    "remainingLimits": "Four. The list is built from mattacku()'s static call tree, so a caller reaching these functions from outside mhitu.c would not appear in it; js/dogmove.js dog_move()'s usteed arm and pet_ranged_attk() are the two such seams and both are named in entries below. The AT_WEAP arm has no fresh end-to-end case: 98 seeds were scanned for the miss slice and none opened with an armed AT_WEAP attacker, so mswings() is unit-pinned only, filed as monster-melee-armed-swing blocked on thrwmu. The thirty-eight refused adtyp arms are one entry, not thirty-eight, so this file does not record which of them a recorded session would reach first. And the mutation run over slice two produced few mutable sites relative to its diff, so hand-broken lines recorded in the slice commit bodies stand in for part of that coverage."
+    "remainingLimits": "Four. The list is built from mattacku()'s static call tree, so a caller reaching these functions from outside mhitu.c would not appear in it; js/dogmove.js dog_move()'s usteed arm and pet_ranged_attk() are the two such seams and both are named in entries below. The AT_WEAP arm has no fresh end-to-end case: 98 seeds were scanned for the miss slice and none opened with an armed AT_WEAP attacker, so mswings() is unit-pinned only, filed as monster-melee-armed-swing blocked on thrwmu. The thirty-seven refused adtyp arms are one entry, not thirty-seven, so this file does not record which of them a recorded session would reach first. And the mutation run over slice two produced few mutable sites relative to its diff, so hand-broken lines recorded in the slice commit bodies stand in for part of that coverage."
   },
   "entries": [
     {
@@ -155,13 +155,22 @@
       "remaining": "None through the to-hit test. What follows a hit is the hitmu() entries below."
     },
     {
-      "candidate": "The AT_HUGS, AT_GAZE, AT_EXPL, AT_ENGL and AT_MAGC arms",
+      "candidate": "The AT_GAZE, AT_EXPL, AT_ENGL and AT_MAGC arms",
       "reachability": "Each needs a monster carrying that attack type adjacent to the hero.",
-      "owner": "js/mhitu.js mattacku(), refusing at :626, :634, :638, :642 and :709",
+      "owner": "js/mhitu.js mattacku(), refusing at :634, :638, :642 and :711",
       "effects": "None; every refusal precedes its arm's first draw and first message.",
-      "evidence": "mhitu.c:823-845, 926-935. The goal's boundary excludes all five. sum[] never leaves M_ATTK_MISS while these refuse, which is the recorded reason for four mutation survivors on the AT_HUGS gate.",
+      "evidence": "mhitu.c:832-845, 926-935. The goal's boundary excludes all four.",
       "status": "cannot-occur",
       "remaining": "None."
+    },
+    {
+      "candidate": "The AT_HUGS arm, whose gate reads the two preceding attacks' results",
+      "reachability": "Live since slice two. C's gate is `(!range2 && i >= 2 && sum[i-1] && sum[i-2]) || mtmp == u.ustuck`, and M_ATTK_MISS is 0x0 (monattk.h:108), so while hitmu() refused, sum[] stayed all zeros and the gate was always false. hitmu() now returns M_ATTK_HIT, so a monster whose third slot is AT_HUGS reaches the refusal once its first two slots both land.",
+      "owner": "js/mhitu.js mattacku(), refusing at :626",
+      "effects": "None; the refusal precedes failed_grab() and the hitmu() call behind it.",
+      "evidence": "mhitu.c:823-831. The goal's boundary excludes the arm. The port keeps C's whole gate rather than a bare aatyp test, so the stop sits where C's branch begins. The four mutation survivors recorded on this gate carried the reason that sum[] never leaves M_ATTK_MISS; that reason expired with slice two and the survivors need re-judging against the live gate.",
+      "status": "later",
+      "remaining": "Filed as monster-melee-crush-on-the-hero-stops. The goal-closing pass found this entry recorded as cannot-occur on the expired sum[] reason."
     },
     {
       "candidate": "The AT_WEAP arm's non-range2 half, through mon_wield_item() and mswings()",
@@ -236,13 +245,13 @@
       "remaining": "None for this goal. The armed blow at uhitm.c:4041-4121 stays refused and is its own goal, since it brings gm.mhitu_dieroll, dmgval integration, rustm() and the artifact and poison refusals together."
     },
     {
-      "candidate": "mhitm_adtyping()'s other thirty-eight adtyp arms",
+      "candidate": "mhitm_adtyping()'s other thirty-seven adtyp arms",
       "reachability": "Each needs a monster carrying that damage type.",
       "owner": "js/uhitm.js mhitm_adtyping(), refusing at the switch",
       "effects": "None; each refusal is the first statement of its case.",
       "evidence": "uhitm.c:4781-4832. The goal's boundary refuses every adtyp but AD_PHYS and AD_ELEC, and the switch is where it does so, one named refusal per case.",
       "status": "cannot-occur",
-      "remaining": "None for this goal. This entry stands for thirty-eight C functions and does not record which a recorded session would reach first, which is the third limit named above."
+      "remaining": "None for this goal. This entry stands for thirty-seven C functions and does not record which a recorded session would reach first, which is the third limit named above."
     },
     {
       "candidate": "mhitm_knockback()'s gate and its u_def tail",
