@@ -29,6 +29,7 @@ import {
     LADDER,
     LAVAPOOL,
     LS_OBJECT,
+    MMOVE_DONE,
     MMOVE_NOTHING,
     MON_FLOOR,
     NATTK,
@@ -101,7 +102,9 @@ import {
     TRIPE_RATION,
     WAX_CANDLE,
 } from '../js/objects.js';
+import { m_move } from '../js/monmove.js';
 import { create_region } from '../js/region.js';
+import { canSeeMonster } from '../js/startup_a11y.js';
 import {
     clear_path,
     recalc_block_point,
@@ -1747,6 +1750,130 @@ test('simple preflight admits a monster held in a bear trap alone',
             );
         }
     });
+
+// monmove.c m_move()'s mtrapped prologue hands mintrap() a `redraw` and a
+// `message`, and js/monmove.js replaces both with no-ops while the planning
+// clone runs. Neither replacement has a default behind it: the planning scan
+// passes m_move() an env of `{ state, random, planning }` alone, so dropping
+// either guard falls through to js/display.js newsym() and js/tty_message.js
+// ttyPline().
+//
+// newsym() reads the module-level `game` rather than the state it is called
+// about, and display.c:1014-1023 -- js/display.js:2112-2114 -- writes tseen
+// straight onto whatever trap holds a visible monster there. So a clone that
+// repaints does not merely paint the live screen: it maps the live trap, on a
+// turn the scan may still refuse.
+//
+// The reveal is the half a case can reach without controlling the escape roll:
+// trap.c:3742-3749 calls seetrap() on any turn a hero comes upon an obviously
+// held monster, whatever rn2(40) then answers.
+test('a planned trap reveal writes nothing to the live display', async () => {
+    const target = await prepareSelectedAction();
+    target.monster.mtrapped = true;
+    // trap.c:3742 wants cansee() at the monster's square and display.h
+    // canseemon() wants it in sight as well as seen, so both bits are set;
+    // prepareSelectedAction() leaves only COULD_SEE.
+    game.viz_array[target.heroY][target.monsterX] |= COULD_SEE | IN_SIGHT;
+    game.level.traps.push({
+        // Unmapped, which is the conjunct that opens C:3742. The sibling case
+        // above uses tseen true, so it never reaches seetrap() at all.
+        tx: target.monsterX,
+        ty: target.heroY,
+        ttyp: BEAR_TRAP,
+        tseen: false,
+    });
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    let planned = null;
+
+    await preflightSimpleMonsterActions(game, {
+        advanceRound(state) {
+            planned = state;
+            return true;
+        },
+    });
+
+    // seetrap() writes tseen and then repaints, so a clone whose trap came
+    // back mapped is a clone that reached the repaint. Without this the case
+    // would pass on a scan that never got near the prologue.
+    assert.equal(planned?.level.traps[0].tseen, true, 'the clone mapped it');
+    assert.equal(game.level.traps[0].tseen, false, 'the live map did not');
+    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
+});
+
+// The escape line is the other half of the same prologue, and no scan can
+// reach it: trap.c:3751 opens on `!rn2(40)` and preflightSimpleMonsterActions()
+// draws from a clone of the game's own PRNG, which a test cannot answer for.
+// So this drives m_move() itself, with planning set and the escape roll
+// injected.
+//
+// It supplies a message of its own, which the planning scan does not. The
+// guard reads `env.planning ? no-op : (rawEnv.message ?? ttyPline)`, so either
+// shape shows it dropped; a recorder shows it as the call that was made, where
+// the ttyPline() default surfaces instead as the input-queue error of a
+// --More-- nobody answers. The redraw half of the same prologue is the reveal
+// case above, which supplies no redraw and watches newsym() map the live trap.
+test('a planned escape line writes nothing to the live display', async () => {
+    const target = await prepareSelectedAction();
+    target.monster.mtrapped = true;
+    // The prologue's next gate. One turn of meating left ends m_move() at
+    // monmove.c:1743 with MMOVE_DONE, before set_apparxy() and mfndpos() draw
+    // anything more, so the injected random below answers the escape roll
+    // alone.
+    target.monster.meating = 1;
+    game.viz_array[target.heroY][target.monsterX] |= COULD_SEE | IN_SIGHT;
+    game.level.traps.push({
+        tx: target.monsterX,
+        ty: target.heroY,
+        ttyp: BEAR_TRAP,
+        // Mapped already, which shuts C:3742's first conjunct: this case is
+        // about the line at :3768-3769, not about the reveal above.
+        tseen: true,
+    });
+    // C:3766 writes nothing for a monster the hero cannot watch, so a fixture
+    // that failed this would assert the silence of a turn that was silent
+    // anyway.
+    assert.equal(canSeeMonster(target.monster, game), true);
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const written = [];
+
+    const status = await m_move(target.monster, {
+        state: game,
+        planning: true,
+        message: async (line) => { written.push(line); },
+        // mintrap() proves the whole set trapeffect_selector() can dispatch
+        // to before its first write, so all five are supplied even though the
+        // held arm draws only rn2. 0 is the one answer trap.c:3751 frees the
+        // monster on; every other value keeps it held and never reaches the
+        // line. The other four fail loudly, so a fixture that started drawing
+        // them could not pass quietly.
+        random: {
+            rn2: () => 0,
+            rn1: () => assert.fail('the held arm draws rn2 alone'),
+            rnd: () => assert.fail('the held arm draws rn2 alone'),
+            rne: () => assert.fail('the held arm draws rn2 alone'),
+            rnl: () => assert.fail('the held arm draws rn2 alone'),
+        },
+        finishEating: () => {},
+        movePet: () => assert.fail('an ordinary monster is not a pet'),
+        resistsTrapEffect: () => false,
+        unsupported: (reason) => assert.fail(reason),
+    });
+
+    assert.equal(status, MMOVE_DONE, 'the prologue ran and the meal ended');
+    // The escape arm is what prints, so this is what shows the case arrived at
+    // the message rather than stopping short of it.
+    assert.equal(target.monster.mtrapped, false, 'trap.c:3775');
+    assert.deepEqual(written, [], 'the escape line at trap.c:3768-3769');
+    // The recorder above is what decides the guard; this is the net under it,
+    // for anything else the planned prologue might put on the live screen.
+    // Only the display half is compared, because the escape is a real write to
+    // the monster this case hands m_move() and the rest of the snapshot
+    // records it.
+    assert.deepEqual(
+        completeSecondTurnSnapshot(game, target.replay).display,
+        before.display,
+    );
+});
 
 test('simple preflight admits source-inert monster inventory', async () => {
     const target = await prepareSelectedAction();
