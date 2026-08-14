@@ -419,3 +419,7 @@ utc	event	phase	goal	detail
 2026-08-14T05:46:35.191Z	end	select	throw-command	throw-command opened; disambiguation run, forecast 0 by construction
 2026-08-14T05:57:46.117Z	start	implement	throw-command	throw-command-front-end: dothrow(), throw_ok() and uslinging()
 2026-08-14T06:55:52.482Z	end	implement	throw-command	throw-command-front-end closed at ec1a0f0; t reaches the live throwit()
+2026-08-14T07:12:30.560Z	start	select	throw-command	second slice: throw_gold()
+2026-08-14T07:28:12.409Z	end	select	throw-command	throw-command-gold queued; the no-starting-gold premise was wrong, Healer and Tourist both start with it
+2026-08-14T07:28:12.467Z	start	implement	throw-command	throw-command-gold: throw_gold() whole plus dungeon.c ceiling()
+2026-08-14T08:14:52.719Z	end	implement	throw-command	throw-command-gold closed at 5490a10; t has no refusal of its own left

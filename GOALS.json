@@ -2066,6 +2066,11 @@
           "name": "throw-command-front-end",
           "status": "closed",
           "closedBy": "ec1a0f056f534fe403fc7bb1cf0100505df1e787"
+        },
+        {
+          "name": "throw-command-gold",
+          "status": "closed",
+          "closedBy": "5490a10603d458a80babddf097dc4a1c495b1cda"
         }
       ],
       "openedAt": "0d1ee96abfed909eb9319d577db1077b9fac75a3",
