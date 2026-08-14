@@ -433,3 +433,5 @@ utc	event	phase	goal	detail
 2026-08-14T10:45:02.595Z	end	implement	objects-deferral-sweep-4	wear-armor-test-gaps closed at df9fe1c; all six closable entries resolved
 2026-08-14T10:45:51.049Z	start	review	objects-deferral-sweep-4	goal-closing correctness pass over d114520..0d7678c4b24ac325660b63d3941376c26f250195
 2026-08-14T11:46:09.794Z	end	review	objects-deferral-sweep-4	goal-closing pass recorded through 0d7678c; 17 raw, 10 deduplicated, 9 confirmed, 9 applied, 1 rejected
+2026-08-14T12:03:23.683Z	start	select		boundary port after the sweep
+2026-08-14T12:17:00.915Z	end	select	monster-melee-attack	monster-melee-attack opened; forecast 119 capped steps, census settled first

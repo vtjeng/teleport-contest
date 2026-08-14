@@ -2126,6 +2126,54 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "monster-melee-attack",
+      "status": "open",
+      "boundary": "A monster that dochug() sends to mhitu.c mattacku() while monnear(mtmp, mtmp->mux, mtmp->muy) holds carries its melee attack through to the hero's hit points: the to-hit differential (709-718), the NATTK loop's AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT arm (794-821) and its non-range2 AT_WEAP arm (883-925), through missmu(), hitmu(), mhitm_adtyping() and mdamageu(). Two testable conditions bound it. First, every arm of mattacku() that the hero's own state gates stays refused, so no ported line lies under u.uswallow (520-528), u.uundetected (551-660), the S_MIMIC and M_AP_OBJECT hero-mimic blocks (663-706), u.uinvulnerable (743-755), the summonmu() gate (729-741), or any range2 arm. Second, inside the loop the port covers exactly the two aatyp arms named, so AT_HUGS, AT_ENGL, AT_EXPL, AT_GAZE and AT_MAGC refuse, and inside mhitm_adtyping() (uhitm.c:4786-4831) only AD_PHYS and AD_ELEC have a ported arm, so every other adtyp refuses at the switch.",
+      "upstreamOwners": [
+        "mhitu.c mattacku() 491-952",
+        "mhitu.c calc_mattacku_vars() 447-463",
+        "mhitu.c getmattk() 309-444",
+        "mhitu.c mtrapped_in_pit() 466-479",
+        "mhitu.c hitmsg() 28-81",
+        "mhitu.c missmu() 84-100",
+        "mhitu.c mswings_verb() 104-126",
+        "mhitu.c mswings() 129-141",
+        "mhitu.c could_seduce() 1933-1984",
+        "mhitu.c hitmu() 1143-1267",
+        "mhitu.c mdamageu() 1901-1927",
+        "mhitu.c passiveum() 2434-2615",
+        "mhitu.c assess_dmg() 2354-2366",
+        "uhitm.c mhitm_mgc_atk_negated() 74-98",
+        "uhitm.c mhitm_adtyping() 4781-4832",
+        "uhitm.c mhitm_ad_phys() 3980-4200",
+        "uhitm.c mhitm_ad_elec() 2683-2739",
+        "muse.c find_offensive() 1420-1594"
+      ],
+      "forecast": {
+        "steps": 119,
+        "basis": "Capped per .agents/selection.md at HEAD 0ecbb16 rather than inherited: cap the leader, work down the raw column, stop at the first raw below the best cap. mattacku() melee is 186 raw capped to 119; engraving interaction is 609 raw capped to 6 on seed0030 step 29's The kitten bites the newt., unported pet combat evaluation; puton is 322 raw capped to 4, since two of its three sessions are unreconciled stops that never reach the model's step; wizgenesis is 148 raw capped to 13 on seed5002's The bolt of fire bounces!, zap.c buzz() unported. Everything at 33 raw and below loses to 119. The 119 corrects the 151 recorded at armor-wear's close, which capped on hack.c moverock() and missed the earlier count prefix. Stated as an upper bound rather than a measurement: the pet combat evaluation refusal costs no RNG, so the log cannot exclude it firing silently inside the stretch, though the pet's six logged moves are all ordinary movement scoring and the stretch carries no pet message. The true measurement is applying the change and re-running the scan.",
+        "sessions": [
+          "seed0004-feeding-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony",
+            "evidence": "Seed 4, datetime 20260414173108, nethackrc OPTIONS=symset:DECgraphics alone, so num_pad off, verbose on, Upolyd false and u.usteed unset at the stop. The recorded RNG log at step 52 reads rnd(20)=18 @ mattacku(mhitu.c:912), which is the AT_WEAP arm test `if (tmp > (j = gm.mhitu_dieroll = rnd(20 + i)))` taking the missmu() else and printing The kobold misses!; the kobold mattk[0] is {AT_WEAP, AD_PHYS, 1d4}. Steps 91, 92 and 96 log rnd(20) @ mattacku(mhitu.c:806), the AT_CLAW..AT_TENT to-hit test, then d(1,1) @ hitmu(mhitu.c:1187), mhitm_mgc_atk_negated(uhitm.c:87) and mhitm_ad_elec(uhitm.c:2718), from grid bugs whose mattk[0] is {AT_BITE, AD_ELEC, 1d1}; step 96 You avoid harm. is mhitm_mgc_atk_negated() mdef == youmonst arm. The stretch runs 52 to 237 raw and caps at step 171, key 9 opening the count prefix 9s, which js/cmd.js readSimpleCommand() refuses because unboundCommandKey() excludes digits with num_pad off, giving 52..170 inclusive, 119 steps."
+          }
+        ]
+      },
+      "detail": "The census reconciliation was settled before this ranking. Eight unreconciled stops stand at HEAD, and seven track progress rather than drift: scan-sessions.mjs supportedCommands() gates only a command's first byte, so a goal that converts a whole-command refusal into a deeper branch refusal makes the model book that command as supported. Only puton is inflated by it, and the winner's session is reconciled. Prerequisites already landed: magic_negation() at js/mhitu.js:92, mon_wield_item() and select_hwep() in js/weapon.js, mhitm_knockback() at js/uhitm.js:1340, plus dmgval, which_armor, set_ustuck, showdamage, stop_occupation, exercise and nomul. One prerequisite must land before the first commit: muse.c find_offensive() sits between the u.uinvulnerable gate and the attack loop at mhitu.c:758 and is unported. A jackal or grid bug returns FALSE at its is_animal || mindless guard, but a kobold passes every guard and reaches the inventory loop, so the goal needs either that loop or a refusal for any minvent item that would set gm.m.has_offense; it spent no RNG at seed0004 step 52, which witnesses that the kobold's dagger sets nothing. Branches to refuse rather than port: map_invisible() opens both missmu() and hitmu(), is unported at js/detect.js:541 and is unreachable here because canspotmon() is true for a lit-room kobold; done_in_by() under mdamageu()'s u.uhp < 1 is the natural fail-closed edge. passiveum() costs nothing for an unpolymorphed hero, its olduasmon loop landing on the first AT_NONE entry for tmp = 0, which the absence of any passiveum site in the step-91 and 92 log confirms. mhitm_ad_elec()'s destroy_items call sits behind magr->m_lev > rn2(20) and a grid bug's mlevel is 0, so the roll happens and the call never does. About 700 lines of C to read and 400-450 porting, the size of armor-wear, so AGENTS.md puts it at the checklist threshold and it should expect several slices. What it opens: seed0004's next boundary is get_count() at step 171, and porting the count prefix afterwards would open 67 more steps there plus 73 of seed0900's 84, and would retire the one genuinely puzzling unreconciled stop in the census.",
+      "slices": [],
+      "openedAt": "0ecbb166929d646533bf939fa300ad20e887ef13",
+      "openStanding": {
+        "sha": "b6efea6",
+        "screens": 1538,
+        "rng": 121032
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

@@ -2281,6 +2281,10 @@
         {
           "text": "The count has grown from one stop to eight. Measured by the slice-selector at d7b07a2 while selecting armor-wear slice three, where the reconciliation section reports 8 stops with no modeled behavior at the step the port refused, against the 1 recorded when this entry was opened at 89e4113. The entry title understates it. Whatever is drifting is drifting fast, over commits that only added the W command, so the likelier cause is the model that decides which commands count as supported rather than the port refusing more.",
           "at": "d7b07a2e5d4b42586a17dad1cbf47367f0b40467"
+        },
+        {
+          "text": "Settled at 0ecbb16, and the count is 8 rather than the 1 this entry opened on. Seven of the eight are not drift at all: scan-sessions.mjs supportedCommands() reads ADMITTED_COMMANDS, which its own comment at :440 says gates only the FIRST byte of a command, so the moment a goal converts a whole-command refusal into a deeper branch refusal the model books that command as supported and reconcile() files the stop as unreconciled. The seven are options, attributes, apply, eat and wizlevelport, each stopping on an unported branch of a command the port now dispatches. The growth from 1 to 8 therefore tracks progress. The eighth is the original: seed0900 step 11, key 2 opening the count prefix 20s with num_pad off, where js/cmd.js unboundCommandKey() refuses the digit because get_count() consumes it and the model has no concept of a count prefix. The ranking is not invalidated: the inflation only pushes a behavior later than the port truly stops, which affects one candidate, puton at 322 raw, whose two unreconciled sessions contribute 0 of that; the winner and the other capped candidates are all reconciled sessions. What remains for this entry is the correction to .agents/selection.md, which states the count is 0 today.",
+          "at": "0ecbb166929d646533bf939fa300ad20e887ef13"
         }
       ]
     },
