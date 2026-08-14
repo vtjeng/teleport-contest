@@ -295,6 +295,10 @@ the staged version. Avoid `git checkout -- .`, `git checkout HEAD -- .` and
 `git restore .`, because they touch every file in the tree, including unrelated
 work by another agent; `.claude/settings.json` denies all three.
 
+Write that file's deny message without an apostrophe. It sits inside a
+single-quoted shell string, where an apostrophe ends the string early and
+leaves a hook that denies every Bash call.
+
 A staged version can still be recovered after `git checkout HEAD -- <path>`:
 `git fsck --unreachable` lists it and `git cat-file -p <sha>` prints it. A
 version that was never staged is gone.
