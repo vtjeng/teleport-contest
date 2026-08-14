@@ -3919,6 +3919,14 @@ test('a survivor report round-trips into a targeted re-run filter', () => {
     // The sibling mutant on the same line but another column stays excluded.
     assert.equal(filter.matches('js/bounds.js',
         { line: 21, column: 10, replacement: '11' }), false);
+    // The column alone can be the whole difference. exper.js experience()
+    // writes its repeat-kill loop as one `for` line holding two `>`
+    // comparisons, so that line carries two `>` -> `>=` mutants which share
+    // everything but their column; one dies on scripts/mon-kill.test.mjs and
+    // the other survives every test. An identity blind to the column would
+    // escalate the killed one in place of the survivor.
+    assert.equal(filter.matches('js/bounds.js',
+        { line: 21, column: 30, replacement: '<=' }), false);
     // A future schema bump must refuse rather than misread.
     assert.throws(
         () => siteFilterFromReport({ ...report, version: 4 }),
