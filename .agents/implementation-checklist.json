@@ -1,22 +1,22 @@
 {
   "mode": "ready-for-audit",
-  "reason": "The first slice of armor-wear, wear-zero-delay-shield, landed whole at 8c55d3f: W and #wear reach do_wear.c, canwearobj() answers every armor slot, and a zero-delay shield is worn through setworn(W_ARMS), unmul('') and Shield_on(). All 22 entries below are done (9), cannot-occur (10), later (2) or no-effect-yet (1) with evidence, and missingWorkByOwner is empty. The six unported slots and the delayed nomul() arm are refused above setworn(), so no excluded branch writes state, draws randomness or prints. commitChecked names 8c55d3f; 68675c1 after it changes GOALS.json and PHASES.tsv only.",
-  "commitChecked": "8c55d3f4a18f8bdbdf7a040897dde04b5f73d99e",
+  "reason": "Two slices of armor-wear have landed. wear-zero-delay-shield at 8c55d3f brought W and canwearobj() whole; wear-delayed-suit at 5f91702 added Armor_on() and the delayed nomul(-oc_delay) fork, so W now wears both a shield and a suit and the delay arm is live rather than refused. Its correctness pass covers only the first slice, recorded through fc56134; the second is unreviewed and sits at 2 of 10 commits against the gate. All 24 entries are done (11), cannot-occur (10), later (2) or no-effect-yet (1) with evidence, and missingWorkByOwner is empty. The four remaining slots and the accessory half are refused above setworn(), so no excluded branch writes state, draws randomness or prints.",
+  "commitChecked": "5f9170230412cdee95ca4a698ad98c06e1df3e18",
   "boundary": {
     "goalId": "armor-wear",
     "startingCommit": "a2189e120e05c7baa192d2ccb574234371c7a5d7",
     "startingEvent": "The hero types W, or #wear, at rhack()'s command dispatch, which js/cmd.js now admits and routes to do_wear.c dowear().",
-    "endingEvent": "Shield_on() has returned and on_msg() has printed 'You are now wearing a small shield.', with the status line's AC redrawn and the game back at the next command prompt. An escaped getobj() prompt ends the boundary at ECMD_CANCEL instead, spending no turn.",
-    "validInputs": "W or #wear answered with a shield's letter, or escaped. The 12 fresh cases in scripts/run-wear-armor.mjs cover a Valkyrie whose starting shield was taken off first, wizard-mode wished shields that reach Shield_on() with known still 0, and Barbarian starts whose two-handed sword or battle-axe drives canwearobj()'s bimanual refusal, chosen by u_init.c:666's rn2(100).",
+    "endingEvent": "For a zero-delay piece, Shield_on() or Armor_on() has returned and on_msg() has printed 'You are now wearing ...'. For a delayed suit the boundary runs further: setworn() moves AC on the turn W is issued, nomul(-oc_delay) spends three or five helpless turns during which the pet moves and the counter advances, and the boundary ends when unmul() runs Armor_on() and prints 'You finish your dressing maneuver.' -- with no on_msg() line, which is the mirror image of T. An escaped prompt ends at ECMD_CANCEL, and a non-armor letter now ends at C's 'That is a silly thing to wear.' rather than at a refusal.",
+    "validInputs": "W or #wear answered with a shield's or a suit's letter, with a non-armor or money letter, or escaped. 18 fresh segments in scripts/run-wear-armor.mjs cover them: the Valkyrie's shield taken off and put back, wizard-mode wished shields and suits that reach the *_on() callbacks with known still 0, Barbarian starts whose bimanual weapon drives canwearobj()'s shield refusal, a Caveman's leather armor at oc_delay 3 and a Samurai's splint mail at 5, a wished leather jacket at oc_delay 0, a food-ration letter and a money letter.",
     "observables": "The getobj() prompt's letter set, on_msg()'s wording, the status line's AC, the inventory window's '(being worn)' suffix and enchantment, the turn counter, and the random-number log, which must stay empty across this path: no branch inside the boundary draws.",
-    "exclusions": "accessory_or_armor_on()'s armor == FALSE half, which the goal's boundary excludes so that doputon() stays unported; the six non-shield slots and the delayed nomul() arm, both refused above setworn(); the Quest helm arm; retouch_object() for an artifact; remove_worn_item() for armor in a weapon slot; and flags.verbose off, which cannot have a fresh case while getobj-prompt-leaves-the-top-line-in-c-only stands open."
+    "exclusions": "accessory_or_armor_on()'s armor == FALSE half, which the goal's boundary excludes so that doputon() stays unported; the four remaining slots, refused by the mask test above setworn(); Armor_on()'s dragon_armor_handling() and artifact_light() tails, refused by an Is_dragon_armor() guard hoisted above setworn() for the same reason; the Quest helm arm; retouch_object() for an artifact; remove_worn_item() for armor in a weapon slot; and flags.verbose off, which still has no end-to-end case."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "do_wear.c dowear() 2432-2452 and its whole call tree: wear_ok() 3463-3469 over equip_ok() 3402-3447, accessory_or_armor_on() 2209-2431, canwearobj() 2030-2208, already_wearing() 2011-2014, on_msg() 76-105 and Shield_on() 705-732.",
-    "dispatchTablesAndCatalogs": "objects.h's nine SHIELD rows 653-679, read for oc_delay, which is 0 for every one of them; the ARMOR macro at 418-427, whose BITS passes uskn 1 for every armor row, which is why u_init.c:1215 marks a starting shield known; and js/cmd.js's ADMITTED_COMMANDS and the extended-command ef_funct switch, the two tables that decide whether W is reachable at all.",
+    "upstreamEntryPoints": "do_wear.c dowear() 2432-2452 and its whole call tree: wear_ok() 3463-3469 over equip_ok() 3402-3447, accessory_or_armor_on() 2209-2431, canwearobj() 2030-2208, already_wearing() 2011-2014, on_msg() 76-105 and Shield_on() 705-732. The second slice adds Armor_on() 886-906 and invent.c silly_thing() 2093-2131, the latter reached from getobj() rather than from do_wear.c.",
+    "dispatchTablesAndCatalogs": "objects.h's nine SHIELD rows 653-679, read for oc_delay, which is 0 for every one of them; the ARMOR macro at 418-427, whose BITS passes uskn 1 for every armor row, which is why u_init.c:1215 marks a starting shield known; and js/cmd.js's ADMITTED_COMMANDS and the extended-command ef_funct switch, the two tables that decide whether W is reachable at all. objects.h's suit rows were read the same way for oc_delay: leather armor 3, splint mail 5, dwarvish mithril-coat 1 and leather jacket 0, which is the one suit taking the immediate arm.",
     "reachableHelpers": "Every call inside dowear()'s tree was followed to a ported owner or a named refusal. The pure obj.h and mondata.h macros canwearobj() needs -- is_helmet, is_boots, is_gloves, is_cloak, is_shirt, is_suit, is_sword, WrappingAllowed, cantweararm, has_horns -- arrived as one bulk batch under AGENTS.md's pure-function rule, and objnam.c obj_is_pname() replaced the inline refusal yname() carried.",
-    "javascriptCrossCheck": "grep -n '^export function|^export async function|^function|^async function' js/do_wear.js enumerated the file's 33 owners; git show --stat 8c55d3f listed the ten files the slice touched; npm run quality -- slice-mutants --range a2189e1..8c55d3f confirmed the Mutants trailer; and npm run checkpoint at 8c55d3f reported the suite, the seven generated-data checks and the development score together.",
-    "remainingLimits": "Two. The list is built from do_wear.c's static call tree, so a caller reaching these functions from outside that file would not appear in it; js/invent.js getobj() is the one such caller and its callback contract changed in this slice, which is why the entry below names it. And flags.verbose off is unexercised end to end, so on_msg()'s silent arm rests on a direct unit call rather than on a recorded frame."
+    "javascriptCrossCheck": "grep -n '^export function|^export async function|^function|^async function' js/do_wear.js enumerated the file's 33 owners; git show --stat 8c55d3f listed the ten files the slice touched; npm run quality -- slice-mutants --range a2189e1..8c55d3f confirmed the Mutants trailer; and npm run checkpoint at 8c55d3f reported the suite, the seven generated-data checks and the development score together. For the second slice, git show --stat 5f91702 listed seven files, npm run quality -- slice-mutants --range 6d42af2..5f91702 confirmed the trailer, and npm run checkpoint at 5f91702 reported the suite, the generated-data checks and an unchanged development score.",
+    "remainingLimits": "Two. The list is built from do_wear.c's static call tree, so a caller reaching these functions from outside that file would not appear in it; js/invent.js getobj() is the one such caller and its callback contract changed in this slice, which is why the entry below names it. And flags.verbose off is unexercised end to end, so on_msg()'s silent arm rests on a direct unit call rather than on a recorded frame. A third limit now applies: the mutation run over the second slice produced only three sites, so most of its diff carries no mutable operator and the eleven hand-broken lines recorded in its commit body are what stands in for that coverage."
   },
   "entries": [
     {
@@ -101,20 +101,20 @@
       "remaining": "None. The u.twoweap conjunct is unreachable rather than unported; nothing writes that field."
     },
     {
-      "candidate": "canwearobj()'s is_helmet, is_boots, is_gloves, is_shirt, is_cloak and is_suit arms, and their mask assignments",
+      "candidate": "canwearobj()'s is_helmet, is_boots, is_gloves, is_shirt and is_cloak arms, and their mask assignments",
       "reachability": "Every one runs silently while getobj() builds the prompt, for any such armor in the pack.",
       "owner": "js/do_wear.js canwearobj()",
-      "effects": "Sets mask to W_ARMH, W_ARMF, W_ARMG, W_ARMU, W_ARMC or W_ARM. No state is written here; the slot is refused later, above setworn().",
+      "effects": "Sets mask to W_ARMH, W_ARMF, W_ARMG, W_ARMU or W_ARMC. No state is written here; the slot is refused later, above setworn().",
       "evidence": "do_wear.c:2078-2196. The port carries all six arms line for line, including the Upolyd horn, slithy and centaur branches and the four u.utraptype branches, none of which a recorded session reaches. The wearing itself is refused in accessory_or_armor_on() by a mask test placed above setworn().",
       "status": "later",
-      "remaining": "Each slot's first effect is its own <X>_on() callback, which this goal's later slices port. Every helmet but two, all gloves and all boots carry a non-zero oc_delay, so the slice that takes them must port the nomul() arm as well."
+      "remaining": "Each remaining slot's first effect is its own <X>_on() callback. The is_suit arm has left this entry: its W_ARM mask now reaches setworn() and Armor_on(). Boots_on() additionally needs gw.wasinwater, still unwritten; Helmet_on() and Cloak_on() reach outside do_wear.c."
     },
     {
       "candidate": "canwearobj()'s final else, invent.c silly_thing('wear', otmp)",
       "reachability": "An ARMOR_CLASS object matching none of the seven armor categories.",
-      "owner": "js/do_wear.js canwearobj(), refused with UnsupportedWearError",
+      "owner": "js/do_wear.js canwearobj(). js/invent.js getobj() now ports silly_thing() rather than refusing it.",
       "effects": "None; the refusal precedes every write.",
-      "evidence": "do_wear.c:2196-2199. Both callers test oclass === ARMOR_CLASS first, and every ARMOR_CLASS row in objects.h carries one of the seven categories, so no object reaches it. js/invent.js:592 stops in front of silly_thing() for the same reason.",
+      "evidence": "do_wear.c:2196-2199. Both callers test oclass === ARMOR_CLASS first, and every ARMOR_CLASS row in objects.h carries one of the seven categories, so no object reaches canwearobj()'s copy. getobj()'s own silly_thing() call is a different matter and is now live: see the entry below.",
       "status": "cannot-occur",
       "remaining": "None."
     },
@@ -165,19 +165,19 @@
     },
     {
       "candidate": "The delayed arm: delay = -oc_delay, nomul(delay), multi_reason 'dressing up' and nomovemsg 'You finish your dressing maneuver.'",
-      "reachability": "Any armor whose oc_delay is non-zero.",
-      "owner": "js/do_wear.js accessory_or_armor_on(), refused with UnsupportedWearError above setworn()",
-      "effects": "None; the refusal precedes every write.",
-      "evidence": "do_wear.c:2394-2399. No shield can reach it: objects.h:653-679 gives all nine shields oc_delay 0, so the arm is unreachable inside this boundary rather than merely untaken. It is stopped above setworn() so that widening the mask test later cannot silently drop C's arm.",
-      "status": "cannot-occur",
-      "remaining": "The next slice that takes a delayed slot ports it, alongside the take-off side's open deferral armoroff-refuses-helms-gloves-and-boots-over-their-delay."
+      "reachability": "Any armor whose oc_delay is non-zero. Live for the suit slot; no shield can reach it, because objects.h:653-679 gives all nine oc_delay 0.",
+      "owner": "js/do_wear.js accessory_or_armor_on()",
+      "effects": "Spends oc_delay helpless turns after setworn() has already moved AC, then runs Armor_on() through unmul() and prints the finish message. It prints no on_msg().",
+      "evidence": "do_wear.c:2394-2399. Recorded fresh at oc_delay 3 (Caveman leather armor) and 5 (Samurai splint mail), both matching C: the clock advances by exactly oc_delay, not 1 + oc_delay, because the turn the command spends is the first the countdown consumes. The already-recorded T half shows the same arithmetic for the same two roles.",
+      "status": "done",
+      "remaining": "None for the suit. The take-off side's armoroff-refuses-helms-gloves-and-boots-over-their-delay is still open and now has this arm's shape to follow."
     },
     {
-      "candidate": "setworn(obj, W_ARMS), afternmv = Shield_on, unmul(''), Shield_on() and its known/update_inventory arm",
+      "candidate": "setworn(obj, mask), the afternmv choice, unmul(''), Shield_on() and Armor_on() with their known/update_inventory arms",
       "reachability": "The live path of this slice.",
-      "owner": "js/do_wear.js accessory_or_armor_on() and Shield_on(), over js/worn.js setworn() and js/hack.js unmul()",
-      "effects": "Fills uarms, updates AC, sets obj.known, redraws the inventory window, spends the turn, returns ECMD_TIME.",
-      "evidence": "do_wear.c:2376-2401 and 705-732. All 12 fresh cases match, and the wished-shield cases are what prove Shield_on() itself ran rather than setworn() alone: mksobj() leaves known 0 where u_init.c:1215 sets it, so the inventory names 'a small shield' before the W and 'a +2 small shield (being worn)' after. Shield_on()'s `state.uarms.known = true` was broken and one test failed.",
+      "owner": "js/do_wear.js accessory_or_armor_on(), Shield_on() and Armor_on(), over js/worn.js setworn() and js/hack.js unmul()",
+      "effects": "Fills uarms or uarm, updates AC, sets obj.known, redraws the inventory window, spends the turn, returns ECMD_TIME.",
+      "evidence": "do_wear.c:2376-2404, 705-732 and 886-906. The second slice restored C's statement order -- setworn(), then the afternmv chain, then the delay fork -- which the first had inverted to keep the delay test above setworn(). All 18 fresh cases match. The wished cases are what prove the callback ran rather than setworn() alone: mksobj() leaves known 0 where u_init.c:1215 sets it.",
       "status": "done",
       "remaining": "None."
     },
@@ -215,7 +215,25 @@
       "effects": "None on its own; it lets a callback print, which canwearobj() does when noisy.",
       "evidence": "The change is forced by C: canwearobj() writes messages, and wear_ok() reaches it through equip_ok(). Four call sites and about 15 assertions in scripts/take-off-armor.test.mjs moved with it. This is the one entry whose blast radius exceeds do_wear.c, which is why the candidate method names it as a limit.",
       "status": "done",
-      "remaining": "None, but it is the entry a correctness pass should read first, since it changes a shared contract that every command's prompt depends on."
+      "remaining": "Two of the four await sites are now pinned by recorded cases -- the money letter, which must print 'You cannot wear gold.', and the food-ration letter, which must reach silly_thing(). The hands/self probe cannot be pinned from any ported command: equip_ok() answers GETOBJ_EXCLUDE for a null object, which falls to the switch's default exactly as a pending promise would. Tracked as getobj-async-callback-unpinned-at-three-sites."
+    },
+    {
+      "candidate": "Armor_on() and its dragon_armor_handling() and artifact_light() tails",
+      "reachability": "The ga.afternmv callback for the suit slot, run by unmul() immediately for a zero-delay suit and by moveloop_core() on the last countdown turn for a delayed one.",
+      "owner": "js/do_wear.js Armor_on(), with the dragon-armor refusal hoisted into accessory_or_armor_on()",
+      "effects": "Sets obj.known and redraws the inventory window. Nothing else: both C tails belong to dragon armor.",
+      "evidence": "do_wear.c:886-906. The refusal is hoisted above setworn() rather than left in the callback because the callback runs too late to stop anything -- on the delayed arm the suit is already worn and its helpless turns already spent. Armor_off() keeps its own copy because it is checked before the suit leaves its slot. dragon_armor_handling()'s switch at 806-883 names grey and silver as 'no extra effect', so the Is_dragon_armor() guard is stricter than C for those two, the same tradeoff Armor_off() documents.",
+      "status": "done",
+      "remaining": "None. The dragon-armor tails land with a slice that owns dragon scales."
+    },
+    {
+      "candidate": "invent.c silly_thing() as getobj() reaches it, for a hand-typed letter the prompt did not suggest",
+      "reachability": "Any inventory letter that wear_ok() excludes -- three of the Valkyrie four -- typed at the W prompt.",
+      "owner": "js/invent.js silly_thing() and getobj()",
+      "effects": "Prints decl.c:43's 'That is a silly thing to %s.' and returns null, so dowear() answers ECMD_CANCEL and spends no turn.",
+      "evidence": "invent.c:2093-2131. Recorded fresh as seed 7720108, a Valkyrie typing .TWd. at her food ration, matching C. The OBSOLETE_HANDLING block has no definition anywhere in the tree, and the Amulet arm needs word == 'call' from the unported do_name.c docallcmd(), so both are left out with the otmp parameter that exists for the latter alone. Before this slice the site raised UnsupportedObjectPromptError and ended the segment.",
+      "status": "done",
+      "remaining": "None."
     }
   ],
   "missingWorkByOwner": [],
