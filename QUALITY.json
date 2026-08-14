@@ -12347,6 +12347,67 @@
         }
       },
       "recordedAt": "2026-08-14T09:13:13.941Z"
+    },
+    {
+      "kind": "review",
+      "head": "0d7678c4b24ac325660b63d3941376c26f250195",
+      "auditedRange": "d114520a3f565a6329a5cd07f022289ee0313862..0d7678c4b24ac325660b63d3941376c26f250195",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "93ee77dbfc1a37a2d7be53a943bb3474df0d9766",
+        "reason": "A deferred-area sweep closes ledger entries rather than implementing a behavior slice, and no implementation checklist covers it. The goal's one production change is a single expression in js/objnam.js; the rest is test work in scripts/wear-armor.test.mjs."
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "generation"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 17 raw, 10 deduplicated, 9 confirmed, 9 applied, 0 deferred, 1 rejected, 0 unverified; mutation: 0 survivors of 2 mutants. Goal-closing pass over objects-deferral-sweep-4, both optional finders left off. All nine confirmed findings are applied in 9253d09; one of the nine is a ledger note rather than a code change, recording that closing weptool-inventory-lines-add-a-charge-count left the identical divergence live in js/startup_reroll.js with no open entry naming it. Production behavior is unchanged and the development score holds at 1538 screens. Two findings are against my own audit fix from the previous goal's pass, and both are the same mistake in different forms: I corrected the suit donning window from 3-to-5 to 1-to-5 without enumerating the table, when the leather jacket carries oc_delay 0 and the real spread is 0 to 5 at {0:1, 1:2, 3:2, 5:30}; and I defended ceiling() reading lev->typ with a drawbridge-over-floor example that proves nothing, since only DB_ICE makes SURFACE_AT() answer differently. The test row I added in that commit carried the matching defect: I had watched it fail against a wrong expectation rather than against the alternative implementation, and with no mask set it would have passed under either reading. It now sets DB_ICE, verified by switching ceiling()'s IS_ROOM test to surface_typ() and watching the row fail. The single rejection argued that scripts/startup-reroll.test.mjs now certifies a string the port is known to get wrong; the counter-evidence is that the string is the recorded C output for a menu no development session reaches, and the duplicate port that produces it has its own ledger entry.",
+      "auditMetrics": {
+        "wallTimeSeconds": 5400,
+        "counts": {
+          "raw": 17,
+          "deduplicated": 10,
+          "confirmed": 9,
+          "applied": 9,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 0,
+          "tests": 3,
+          "clarity": 6,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [],
+        "rejections": [
+          {
+            "summary": "scripts/startup-reroll.test.mjs:368 [tests] This assertion now certifies a string the port is known to get wrong: after bbf4515 fixed doname(), 'a +0 pick-axe (0:0)' is a divergence from C rather than merely the port's answer, and it is pinned as a passing expectation.",
+            "counterEvidence": "evidence refute: The trace of the string is right but the defect is not. Pinning this file's known-wrong output is the recorded, deliberate practice for the deferral that owns the copy, and the assertion now says so in place. Counter-evidence: QUALITY.json:1618, the open entry reroll-menu-names-objects-with-its-own-doname-port, already states that identifiedStartingObjectName() \"diverges from doname_base() and carries no refusal, so it answers a wrong string rather than stopping\" and that \"scripts/startup-reroll.test.mjs pins the suffixless form today\" -- so the same test file already pins a different known-wrong string by design, as the ledger records. The assertion at scripts/startup-reroll.test.mjs:357-369 carries an eleven-line comment naming objnam.c doname_base():1382, the `charges:` label at :1484 that the pick-axe never reaches, the owning deferral, and the fact that js/objnam.js was corrected separately. AGENTS.md's rule about keeping expected failures out of the passing suite is written for fresh recorded C cases (\"record its inputs and expected failure as a deferred entry\"), not for a unit assertion pinning a deferred port's current output. | causality refute: Neither th"
+          }
+        ],
+        "deferrals": [],
+        "mutation": {
+          "ranges": [
+            "d114520a3f565a6329a5cd07f022289ee0313862..0d7678c4b24ac325660b63d3941376c26f250195"
+          ],
+          "mutants": 2,
+          "survivors": 0,
+          "byKind": {
+            "logical": {
+              "ran": 2,
+              "killed": 2
+            }
+          },
+          "deltaRun": "The audit-fix commit 9253d09 lands after this range and yields 0 mutation sites: its js/ changes are comment text, which npm run checkpoint measured as 0 survivors of 0 mutants over the uncommitted diff before the commit.",
+          "finderConclusion": "The tests finder was told a clean 2-of-2 result was close to no evidence here, because one boolean expression is the range's whole mutable surface and the test commit changed no js/ line at all, and to look for assertions that cannot fail instead. It did, and its sharpest finding was against the previous pass's own audit fix: the raised-drawbridge row added there could not fail under the substitution it claimed to decide, because with no drawbridge mask set SURFACE_AT() resolves to MOAT, which answers rock cavern exactly as reading lev->typ does. Only DB_ICE discriminates the two routes. It also found a test comment claiming a dagger case pins the throw_gold() dispatch that no mutation of the guard could reach, and one wish test replaying a segment with a key prefix cut from a different recording."
+        }
+      },
+      "recordedAt": "2026-08-14T11:46:09.737Z"
     }
   ]
 }
