@@ -2111,8 +2111,8 @@
         },
         {
           "name": "wear-armor-test-gaps",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "df9fe1c6e25c8e60f319d965964c4e37df5110dc"
         }
       ],
       "openedAt": "2ebb984982d975f0fe2a2801c6360cbe70e86eb6",

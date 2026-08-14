@@ -430,3 +430,4 @@ utc	event	phase	goal	detail
 2026-08-14T09:47:00.444Z	start	implement	objects-deferral-sweep-4	weptool-charge-suffix
 2026-08-14T10:16:42.894Z	end	implement	objects-deferral-sweep-4	weptool-charge-suffix closed at bbf4515; the area's silent divergence is gone
 2026-08-14T10:16:42.927Z	start	implement	objects-deferral-sweep-4	wear-armor-test-gaps: five entries in scripts/wear-armor.test.mjs
+2026-08-14T10:45:02.595Z	end	implement	objects-deferral-sweep-4	wear-armor-test-gaps closed at df9fe1c; all six closable entries resolved
