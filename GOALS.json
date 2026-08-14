@@ -2193,6 +2193,26 @@
         "screens": 119,
         "rng": 3247
       }
+    },
+    {
+      "id": "tests-deferral-burndown",
+      "status": "queued",
+      "boundary": "Every open tests-category deferral that is not blocked on an unported symbol has been read and disposed of: closed against the C source or the port behavior it cites, or left open carrying a blockedOn symbol or a stated reason. A reader tests the boundary by running npm run quality -- --check and confirming that world-effects, objects, commands and display no longer appear as sweep candidates, and that no tests-category entry outside the blocked set remains open without a recorded disposition. The development score must be identical before and after at 9/33 sessions, 1657/7765 screens and 124279/610816 random-number values, because no entry in scope changes production behavior.",
+      "upstreamOwners": [
+        "scripts/*.test.mjs across nine quality areas"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "A deferral sweep cut by category rather than by area, run because the tests category is where the correctness passes keep finding claimed coverage the suite does not have. 38 of the 47 open tests entries are actionable now; 30 are effort small. Forecast 0 recorded steps: no development session stops on a test. Measured effect on the sweep report rather than on the score: clearing the actionable tests entries drops world-effects 13 to 7, objects 13 to 8, commands 12 to 7 and display 11 to 6, taking all four below the threshold of 10, and leaves monsters at 11 and startup at 11 still above it. Sweeps file new deferrals as they read, so the closing count will be higher than 38 closes implies.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
