@@ -110,7 +110,12 @@ import {
     BLINDFOLD,
     AKLYS,
     ARROW,
+    ATHAME,
+    GRAPPLING_HOOK,
+    MAGIC_MARKER,
+    PICK_AXE,
     TWO_HANDED_SWORD,
+    UNICORN_HORN,
     DAGGER,
     DIAMOND,
     CROSSBOW_BOLT,
@@ -1352,6 +1357,55 @@ test('known charges and partly used candles use object-specific suffixes', () =>
     assert.equal(
         donameFresh(candle, state),
         'a partly used candle',
+    );
+});
+
+// C ref: objnam.c doname_base():1382, the switch on
+// `is_weptool(obj) ? WEAPON_CLASS : obj->oclass`. A weapon-tool takes the
+// WEAPON_CLASS arm at :1418, which appends the enchantment to the prefix and
+// breaks, so it never reaches the `charges:` label at :1484 even though the
+// WEPTOOL macro at objects.h:892-897 gives every weapon-tool oc_charged 1.
+// objects.h has exactly three WEPTOOL rows -- pick-axe (1007), grappling hook
+// (1010) and unicorn horn (1013) -- and this pins all three, because the class
+// test rather than any one object decides the arm.
+test('weapon-tools take the enchantment and no charge count', () => {
+    const state = namingState();
+    // A recharge count and a nonzero enchantment would both be visible in a
+    // "(recharged:spe)" suffix, so a weapon-tool that carries them and still
+    // prints none shows the `charges:` label was skipped rather than empty.
+    const charged = { known: true, recharged: 1, spe: 2 };
+    assert.equal(
+        donameFresh(objectOf(state, PICK_AXE, charged), state),
+        'a +2 pick-axe',
+    );
+    assert.equal(
+        donameFresh(objectOf(state, GRAPPLING_HOOK, charged), state),
+        'a +2 grappling hook',
+    );
+    assert.equal(
+        donameFresh(objectOf(state, UNICORN_HORN, charged), state),
+        'a +2 unicorn horn',
+    );
+    // :1421 guards the enchantment on `known`, and chargedSuffix() is not
+    // reached either way, so an unidentified weapon-tool is the bare name.
+    assert.equal(
+        donameFresh(objectOf(state, PICK_AXE, { known: false }), state),
+        'a pick-axe',
+    );
+
+    // objects.h:968 TOOL("magic marker", ...) passes chrg 1 with the TOOL
+    // macro's P_NONE skill, so it is oc_charged but not a weapon-tool: it
+    // stays on the TOOL_CLASS arm and reaches `charges:` through :1483.
+    assert.equal(
+        donameFresh(objectOf(state, MAGIC_MARKER, charged), state),
+        'a magic marker (1:2)',
+    );
+    // objects.h:212 WEAPON("athame", ...) is oc_charged too, since the WEAPON
+    // macro at 114-119 passes chrg 1 for every weapon. Its class alone keeps
+    // it off the charge arm, which is what the weapon-tool test above shares.
+    assert.equal(
+        donameFresh(objectOf(state, ATHAME, charged), state),
+        'a +2 athame',
     );
 });
 

@@ -1098,9 +1098,14 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
         );
     }
     if (obj.greased) modifiers.push('greased');
-    const classForModifiers = is_weptool(obj, state)
-        ? WEAPON_CLASS : obj.oclass;
-    switch (classForModifiers) {
+    // C ref: objnam.c doname_base():1382. One switch on
+    // `is_weptool(obj) ? WEAPON_CLASS : obj->oclass` picks both the prefix
+    // words below and the parenthesized suffix further down, so a weapon-tool
+    // takes the enchantment prefix and never reaches the `charges:` label at
+    // :1484. This port splits that switch into a prefix switch and a suffix
+    // chain; both read this one value.
+    const nameClass = is_weptool(obj, state) ? WEAPON_CLASS : obj.oclass;
+    switch (nameClass) {
     case WEAPON_CLASS:
     case ARMOR_CLASS:
         if (base.startsWith('poisoned ') && obj.opoisoned) {
@@ -1149,8 +1154,8 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
         if (obj.lamplit) base += ' (lit)';
     } else if (obj.otyp === POT_OIL && obj.lamplit) {
         base += ' (lit)';
-    } else if (obj.oclass === WAND_CLASS
-        || (obj.oclass === TOOL_CLASS && type.oc_charged)) {
+    } else if (nameClass === WAND_CLASS
+        || (nameClass === TOOL_CLASS && type.oc_charged)) {
         base += chargedSuffix(obj, type);
     }
     base += wornSuffix(obj, type, state);

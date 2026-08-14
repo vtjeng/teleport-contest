@@ -354,9 +354,17 @@ test('the startup poisoned prefix needs both the flag and a weapon', () => {
         identifiedStartingObjectName(
             object(state, O.PICK_AXE, { opoisoned: 1, spe: 0 }), state,
         ),
-        // The trailing "(0:0)" is objnam.c:1479-1486's `goto charges` arm,
-        // which every oc_charged tool a known starting item reaches; it has
-        // nothing to do with the poison prefix this test is about.
+        // The trailing "(0:0)" is this file's divergence rather than C's
+        // text. objnam.c doname_base():1382 switches on
+        // `is_weptool(obj) ? WEAPON_CLASS : obj->oclass`, so the pick-axe
+        // that invent.c reroll_menu():2581 names with doname() takes the
+        // WEAPON_CLASS arm and never reaches the `charges:` label at :1484.
+        // js/startup_reroll.js names objects with its own port of
+        // doname_base() and still tests obj.oclass here; the deferral
+        // reroll-menu-names-objects-with-its-own-doname-port owns that whole
+        // copy and prefers deleting it to reconciling it arm by arm.
+        // js/objnam.js doname() was corrected separately. This test is about
+        // the poison prefix, which the suffix does not touch.
         'a +0 pick-axe (0:0)',
     );
 });
