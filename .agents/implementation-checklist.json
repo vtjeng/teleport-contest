@@ -1,268 +1,295 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "All five slices of armor-wear have landed, through 93ee77d. W fills every one of the seven armor slots, the slot-mask refusal is gone, and set_wear() runs the startup callbacks C runs at allmain.c:73 -- which fixed a live defect, the port opening every Archeologist at Luck 0 where C opens at 1. Four of the five slices are unreviewed, at 5 of 10 commits and 642 of 1000 lines against the gate, and the goal-closing correctness pass covers them. All 27 entries are done (15), cannot-occur (10), later (1) or no-effect-yet (1) with evidence, and missingWorkByOwner is empty. Two departures from the goal boundary literal wording stand and are deliberate: HELM_OF_TELEPATHY is a bare break in C that the port refuses, because setworn() raises an extrinsic whose ported reader C feeds through a moveloop arm this port lacks; and FEDORA change_luck(1) calls outside do_wear.c yet is ported, because refusing it would leave Luck stranded at -1 with no ported path back.",
-  "commitChecked": "93ee77dbfc1a37a2d7be53a943bb3474df0d9766",
+  "mode": "implementation",
+  "reason": "The AD_PHYS arm has not landed. js/uhitm.js:1471 is still `case AD_PHYS: unported('mhitm_ad_phys')`, which the goal statement names as a closing condition, and the queued slice monster-melee-hit-phys is the work. Two further limits apply to this file rather than to the code. It was opened at 7d62df5, after the goal's first two slices had already landed 1,651 changed production lines across eight files, measured by `git diff --numstat a9ba71a..a119cd0 -- js/` with the generated js/monsters.js excluded. Its entries were therefore written against reviewed code rather than ahead of it; the 500-line trigger was passed inside slice one alone and the file should have existed then. And its entries cover mattacku()'s own branches, hitmu(), mdamageu() and passiveum() in full, but treat the thirty-eight unported arms of mhitm_adtyping() as one entry rather than thirty-eight, because the goal's boundary refuses all but two of them at a single switch.",
+  "commitChecked": "7d62df5c5c01cc8fe5fbf77ab9245b1037402d5c",
   "boundary": {
-    "goalId": "armor-wear",
-    "startingCommit": "a2189e120e05c7baa192d2ccb574234371c7a5d7",
-    "startingEvent": "The hero types W, or #wear, at rhack()'s command dispatch, which js/cmd.js now admits and routes to do_wear.c dowear().",
-    "endingEvent": "For a zero-delay piece, Shield_on() or Armor_on() has returned and on_msg() has printed 'You are now wearing ...'. For a delayed suit the boundary runs further: setworn() moves AC on the turn W is issued, nomul(-oc_delay) spends three or five helpless turns during which the pet moves and the counter advances, and the boundary ends when unmul() runs Armor_on() and prints 'You finish your dressing maneuver.' -- with no on_msg() line, which is the mirror image of T. An escaped prompt ends at ECMD_CANCEL, and a non-armor letter now ends at C's 'That is a silly thing to wear.' rather than at a refusal. All seven slots now reach a callback; gloves and boots are delayed at oc_delay 1 and 2, so like the suit they print no on_msg() and end at the finish message.",
-    "validInputs": "W or #wear answered with a shield's or a suit's letter, with a non-armor or money letter, or escaped. 18 fresh segments in scripts/run-wear-armor.mjs cover them: the Valkyrie's shield taken off and put back, wizard-mode wished shields and suits that reach the *_on() callbacks with known still 0, Barbarian starts whose bimanual weapon drives canwearobj()'s shield refusal, a Caveman's leather armor at oc_delay 3 and a Samurai's splint mail at 5, a wished leather jacket at oc_delay 0, a food-ration letter and a money letter.",
-    "observables": "The getobj() prompt's letter set, on_msg()'s wording, the status line's AC, the inventory window's '(being worn)' suffix and enchantment, the turn counter, and the random-number log, which must stay empty across this path: no branch inside the boundary draws.",
-    "exclusions": "accessory_or_armor_on()'s armor == FALSE half, which the goal's boundary excludes so that doputon() stays unported; the four remaining slots, refused by the mask test above setworn(); Armor_on()'s dragon_armor_handling() and artifact_light() tails, refused by an Is_dragon_armor() guard hoisted above setworn() for the same reason; the Quest helm arm; retouch_object() for an artifact; remove_worn_item() for armor in a weapon slot; and flags.verbose off, which still has no end-to-end case."
+    "goalId": "monster-melee-attack",
+    "startingCommit": "a9ba71a093e6c2192f888083f9d1c36a60ed5050, which is db92431's parent and so the last commit before the goal's first slice",
+    "startingEvent": "monmove.c dochug() calls mhitu.c mattacku() for a monster standing where monnear(mtmp, mtmp->mux, mtmp->muy) holds, which js/monmove.js reaches on the monster's own turn inside moveloop.",
+    "endingEvent": "The hero's hit points have changed and the status line shows it, or the attack missed and missmu() has printed its line. For a landed blow the boundary runs through hitmu(), mhitm_adtyping() and mdamageu() to disp.botl and the passive counter-attack, ending when mattacku() returns its M_ATTK_ flags to dochug().",
+    "validInputs": "Any input sequence that leaves a hostile monster adjacent to the hero at the top of its turn. The recorded cases reach it by walking the hero into a corridor and back so that a sewer rat, a newt or a grid bug closes. Character choices matter only through AC and hit points, which set the to-hit differential and the damage the hero survives.",
+    "observables": "The hit or miss message, the hero's hit points and the status line that shows them, the random-number log through find_roll_to_hit()'s rnd(20), hitmu()'s d(damn, damd) and mdamageu()'s arithmetic, and the screen and cursor after disp.botl. The planning clone runs every monster turn twice, so a message printed outside an env.planning-gated operation appears twice and is an observable defect.",
+    "exclusions": "Every arm the hero's own state gates: u.uswallow (520-528), u.uundetected (551-660), the S_MIMIC and M_AP_OBJECT hero-mimic blocks (663-706), u.uinvulnerable (743-755) and the summonmu() gate (729-741). Every range2 arm. Inside the NATTK loop, AT_HUGS, AT_ENGL, AT_EXPL, AT_GAZE and AT_MAGC. Inside mhitm_adtyping(), every adtyp but AD_PHYS and AD_ELEC. Inside mhitm_ad_phys(), the AT_WEAP && otmp block at uhitm.c:4041-4121. mhitm_knockback() past its msize test at uhitm.c:5325. passiveum() past `if (!Upolyd)` at 2519. The hero's death, which mdamageu() refuses ahead of done_in_by()."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "do_wear.c dowear() 2432-2452 and its whole call tree: wear_ok() 3463-3469 over equip_ok() 3402-3447, accessory_or_armor_on() 2209-2431, canwearobj() 2030-2208, already_wearing() 2011-2014, on_msg() 76-105 and Shield_on() 705-732. The second slice adds Armor_on() 886-906 and invent.c silly_thing() 2093-2131, the latter reached from getobj() rather than from do_wear.c.",
-    "dispatchTablesAndCatalogs": "objects.h's nine SHIELD rows 653-679, read for oc_delay, which is 0 for every one of them; the ARMOR macro at 418-427, whose BITS passes uskn 1 for every armor row, which is why u_init.c:1215 marks a starting shield known; and js/cmd.js's ADMITTED_COMMANDS and the extended-command ef_funct switch, the two tables that decide whether W is reachable at all. objects.h's suit rows were read the same way for oc_delay: leather armor 3, splint mail 5, dwarvish mithril-coat 1 and leather jacket 0, which is the one suit taking the immediate arm.",
-    "reachableHelpers": "Every call inside dowear()'s tree was followed to a ported owner or a named refusal. The pure obj.h and mondata.h macros canwearobj() needs -- is_helmet, is_boots, is_gloves, is_cloak, is_shirt, is_suit, is_sword, WrappingAllowed, cantweararm, has_horns -- arrived as one bulk batch under AGENTS.md's pure-function rule, and objnam.c obj_is_pname() replaced the inline refusal yname() carried.",
-    "javascriptCrossCheck": "grep -n '^export function|^export async function|^function|^async function' js/do_wear.js enumerated the file's 33 owners; git show --stat 8c55d3f listed the ten files the slice touched; npm run quality -- slice-mutants --range a2189e1..8c55d3f confirmed the Mutants trailer; and npm run checkpoint at 8c55d3f reported the suite, the seven generated-data checks and the development score together. For the second slice, git show --stat 5f91702 listed seven files, npm run quality -- slice-mutants --range 6d42af2..5f91702 confirmed the trailer, and npm run checkpoint at 5f91702 reported the suite, the generated-data checks and an unchanged development score.",
-    "remainingLimits": "Two. The list is built from do_wear.c's static call tree, so a caller reaching these functions from outside that file would not appear in it; js/invent.js getobj() is the one such caller and its callback contract changed in this slice, which is why the entry below names it. And flags.verbose off is unexercised end to end, so on_msg()'s silent arm rests on a direct unit call rather than on a recorded frame. A third limit now applies: the mutation run over the second slice produced only three sites, so most of its diff carries no mutable operator and the eleven hand-broken lines recorded in its commit body are what stands in for that coverage."
+    "upstreamEntryPoints": "mhitu.c mattacku() (491-951) and its whole call tree: calc_mattacku_vars() (447-463), mtrapped_in_pit() (466-479), getmattk() (309-444), could_seduce() (1933-1984), missmu() (84-100), mswings() (129-141), mswings_verb() (104-126), hitmsg() (28-81), magic_negation() (1088-1137), hitmu() (1143-1267), mdamageu() (1901-1927) and passiveum() (2434-2615). From hitmu() the tree crosses into uhitm.c: mhitm_adtyping() (4781-4832), mhitm_ad_elec() (2683-2739), mhitm_ad_phys() (3985-4200) and mhitm_knockback() (5245-5372). Two more files supply reachable helpers: muse.c find_offensive() (1420-1594) and mthrowu.c linedup(), m_lined_up() and lined_up().",
+    "dispatchTablesAndCatalogs": "monst.c's mons[] attack arrays, read through include/monsters.h, which fix each monster's six NATTK slots and so decide which aatyp and adtyp arms a recorded session can reach. include/monattk.h's AT_ and AD_ constants, six of which this goal added to scripts/generate-monsters.mjs and js/monsters.js. The sewer rat's ATTK(AT_BITE, AD_PHYS, 1, 3) at monsters.h:891 and the newt's and grid bug's rows are the ones the recorded corpus reaches first.",
+    "reachableHelpers": "Every call inside mattacku()'s tree was followed to a ported owner or a named refusal, by reading mhitu.c 491-951 top to bottom and pairing each branch with a js/mhitu.js line. The pure predicates the loop needs (m_next2u, mdistu, AC_VALUE, Half_physical_damage, mtrapped_in_pit, mswings_verb, magic_negation) arrived as ported functions under their C names. dist2() is a squared distance and never answers 3, which is what makes m_next2u()'s `<= 2` the same set of squares as mattacku()'s `!ranged`.",
+    "javascriptCrossCheck": "grep -n 'unsupported(|^export async function|^export function|^async function|^function |^// C ref' js/mhitu.js enumerated that file's owners and all twenty-two named refusals. git show HEAD:js/uhitm.js | grep -n 'unported(|^export async function|^export function' did the same for the uhitm side without touching the worker's tree. git log --oneline db92431^..HEAD listed the goal's nine commits. npm run quality -- --check reported the gate and the open deferrals. npm run checkpoint at 7d62df5 ran the suite, the seven generated-data checks and the development score together.",
+    "remainingLimits": "Four. The list is built from mattacku()'s static call tree, so a caller reaching these functions from outside mhitu.c would not appear in it; js/dogmove.js dog_move()'s usteed arm and pet_ranged_attk() are the two such seams and both are named in entries below. The AT_WEAP arm has no fresh end-to-end case: 98 seeds were scanned for the miss slice and none opened with an armed AT_WEAP attacker, so mswings() is unit-pinned only, filed as monster-melee-armed-swing blocked on thrwmu. The thirty-eight refused adtyp arms are one entry, not thirty-eight, so this file does not record which of them a recorded session would reach first. And the mutation run over slice two produced few mutable sites relative to its diff, so hand-broken lines recorded in the slice commit bodies stand in for part of that coverage."
   },
   "entries": [
     {
-      "candidate": "dowear()'s verysmall() || nohands() guard, printing 'Don't even bother.'",
-      "reachability": "Runs first on every W. Both macros read gy.youmonst.data, which for an unpolymorphed hero is the role's own permonst.",
-      "owner": "js/do_wear.js dowear()",
-      "effects": "One message, no turn, no draw.",
-      "evidence": "do_wear.c:2437-2441. Every recorded role is human, elf, dwarf, gnome or orc in normal form, all of which have hands and are larger than MZ_TINY, and Upolyd is false in every recorded session, so the guard is false. The line is ported rather than refused because it costs nothing to carry.",
-      "status": "cannot-occur",
-      "remaining": "None."
+      "candidate": "calc_mattacku_vars(), setting ranged, range2, foundyou and youseeit, then gb.bhitpos and gn.notonhead",
+      "reachability": "Runs first on every mattacku() call, before any branch or random-number call.",
+      "owner": "js/mhitu.js calc_mattacku_vars()",
+      "effects": "No output, no randomness. C writes two globals the port does not.",
+      "evidence": "mhitu.c:447-463. The port computes ranged from mdistu(), the hero's real square, and range2 from monnear(mtmp, mtmp.mux, mtmp.muy), the square the monster believes the hero occupies, matching :453-454 term for term. It ports neither global write, because gb.bhitpos has no ported reader: hitmu() reads neither, and mattacku()'s own u_at(gb.bhitpos.x, gb.bhitpos.y) test at :782 is tautologically false, the only intervening write being the steed retaliation at :545, which returns on every path out of :547.",
+      "status": "done",
+      "remaining": "None for this goal. The two JavaScript homes gb.bhitpos already has, state.bhitpos and state.gb.bhitpos, are filed as bhitpos-is-stored-in-two-places."
     },
     {
-      "candidate": "dowear()'s full-complement guard, printing 'You are already wearing a full complement of armor.'",
-      "reachability": "Needs all eleven slots filled, four of which are accessories: uleft, uright, uamul and ublindf.",
-      "owner": "js/do_wear.js dowear()",
-      "effects": "One message, no turn, no draw.",
-      "evidence": "do_wear.c:2442-2447. The port cannot fill an accessory slot at all -- doputon() is unported and accessory_or_armor_on()'s accessory half is refused -- so the conjunction cannot become true, whatever armor the hero collects.",
-      "status": "cannot-occur",
-      "remaining": "None. It becomes reachable only when the accessory half lands, which this goal's boundary excludes."
-    },
-    {
-      "candidate": "getobj('wear', wear_ok, GETOBJ_NOFLAGS) and dowear()'s ECMD_CANCEL on an escaped prompt",
-      "reachability": "Every W that passes both guards.",
-      "owner": "js/do_wear.js dowear(), over js/invent.js getobj()",
-      "effects": "Draws the prompt and its letter set; an escape returns ECMD_CANCEL and spends no turn.",
-      "evidence": "do_wear.c:2449-2451. The flag is GETOBJ_NOFLAGS, not GETOBJ_PROMPT as the goal's boundary text says; the code was ported from the C. One of the 12 fresh cases escapes the prompt, and its screens and cursor positions match.",
+      "candidate": "The `if (!ranged) nomul(0);` preamble",
+      "reachability": "Every call where the attacker is within three squares, which is every case this goal covers.",
+      "owner": "js/mhitu.js mattacku()",
+      "effects": "Clears the hero's occupation and multi-turn state; no randomness.",
+      "evidence": "mhitu.c:512-513. nomul() returns early at hack.c:4161 when gm.multi < nval, which is what leaves u.uinvulnerable and u.usleep set for the two arms below that read them. Pinned by 'an adjacent attacker still balks at an invulnerable hero' in scripts/mhitu.test.mjs, which sets state.multi = -3.",
       "status": "done",
       "remaining": "None."
     },
     {
-      "candidate": "wear_ok() over equip_ok(obj, FALSE, FALSE), the letter filter",
-      "reachability": "Called once per inventory object while getobj() builds the prompt.",
-      "owner": "js/do_wear.js wear_ok() and equip_ok()",
-      "effects": "Chooses each object's letter class; no state change.",
-      "evidence": "do_wear.c:3463-3469 over 3402-3447. equip_ok() was already ported; the slice deleted its canwearobj() refusal, which was reachable only through wear_ok() and puton_ok(). equip_ok()'s comment records that C's `removing && !gi.item_action_in_progress` loses its second term because ia_dotakeoff() is unported and the flag is always FALSE.",
+      "candidate": "The DEADMONSTER(mtmp) and Underwater guards",
+      "reachability": "DEADMONSTER runs after nomul(0), which cannot kill the attacker. Underwater needs the hero submerged.",
+      "owner": "js/mhitu.js mattacku()",
+      "effects": "Returns 1 or 0; no output, no randomness.",
+      "evidence": "mhitu.c:514-517. No ported path submerges the hero: there is no water to enter, and u.uinwater has no ported writer.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "The u.uswallow block, including its u.uinvulnerable arm",
+      "reachability": "Needs the hero swallowed, which needs AT_ENGL to have landed.",
+      "owner": "js/mhitu.js mattacku(), refusing",
+      "effects": "None; the refusal precedes every effect.",
+      "evidence": "mhitu.c:520-528. The goal's boundary excludes it. AT_ENGL refuses inside the NATTK loop at js/mhitu.js:642, so u.uswallow is never set.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "The u.usteed block: the steed's own attack, the orc-steals-horse rn2 and the steed's retaliation",
+      "reachability": "Needs u.usteed, which needs a ported #ride.",
+      "owner": "js/mhitu.js mattacku(), returning false for mtmp == u.usteed and refusing the rest",
+      "effects": "The refusal precedes the rn2(is_orc ? 2 : 4) draw at :534, so no randomness is consumed.",
+      "evidence": "mhitu.c:529-549. C returns 0 when the attacker is the hero's own steed at :531-532, which the port returns as false; an earlier draft returned true and the slice-one correctness pass corrected it. Riding is unported, so u.usteed is never set. js/dogmove.js dog_move()'s usteed arm and pet_ranged_attk() are the two seams that would reach this.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "The u.uundetected block, its is_hider ceiling arm and its eel arm",
+      "reachability": "Needs the hero hiding, which needs polymorph or a trapper.",
+      "owner": "js/mhitu.js mattacku(), refusing at :510",
+      "effects": "None; the refusal precedes map_invisible() and the u.uundetected write.",
+      "evidence": "mhitu.c:551-660. The goal's boundary excludes it. u.uundetected has no ported writer, because polymorph is unported.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "The S_MIMIC and M_AP_OBJECT hero-mimic blocks",
+      "reachability": "Needs the hero polymorphed into a mimic or appearing as an object.",
+      "owner": "js/mhitu.js mattacku(), refusing at :513 and :516",
+      "effects": "None; both refusals precede their messages and their gm.multi writes.",
+      "evidence": "mhitu.c:663-706. The goal's boundary excludes both. U_AP_TYPE has no ported writer.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "The to-hit differential: tmp from AC_VALUE(), the gm.multi, Invis, mtmp->mtrapped and tmp <= 0 adjustments",
+      "reachability": "Runs on every call that reaches it, before the NATTK loop and before any attack's own draw.",
+      "owner": "js/mhitu.js mattacku()",
+      "effects": "Computes an integer; no output, no randomness except AC_VALUE()'s draw for a negative AC.",
+      "evidence": "mhitu.c:709-719. AC_VALUE() at hack.h draws only when the hero's AC is negative, which no recorded start reaches. The four adjustments are ported in C's order, which is what keeps the rnd(20) below at the same log position.",
       "status": "done",
       "remaining": "None."
     },
     {
-      "candidate": "canwearobj()'s own verysmall() || nohands() guard, 'You can't wear any armor in your current form.'",
-      "reachability": "First test in canwearobj(), reached both silently from equip_ok() and noisily from accessory_or_armor_on().",
-      "owner": "js/do_wear.js canwearobj()",
-      "effects": "Returns ok false with mask 0; one message when noisy.",
-      "evidence": "do_wear.c:2046-2051. False for the same reason as dowear()'s copy; C keeps both because P can reach this one without passing the other.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "canwearobj()'s cantweararm() arm for a cloak, shirt or suit, 'The %s will not fit on your body.'",
-      "reachability": "Needs cantweararm(youmonst.data), which is breakarm() || sliparm().",
-      "owner": "js/do_wear.js canwearobj()",
-      "effects": "Returns ok false with mask 0; one message when noisy.",
-      "evidence": "do_wear.c:2053-2068. Both macros are false for every unpolymorphed player race. The port carries the whole arm including the mummy-wrapping exception and racial_exception(), which it reaches through the same monster-argument signature js/makemon_create.js already exports rather than through a second copy.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "canwearobj()'s `otmp->owornmask & W_ARMOR` arm, already_wearing(c_that_)",
-      "reachability": "Unreachable from either caller. Both pre-empt it: equip_ok() returns GETOBJ_EXCLUDE_INACCESS on `Boolean(removing) !== is_worn` before its canwearobj() call, so prompt building never passes a worn piece; and accessory_or_armor_on()'s own head test returns on `owornmask & (W_ACCESSORY | W_ARMOR)` before its call, so a selected worn piece never arrives either. grep over nethack-c/upstream/src/ finds exactly those two callers.",
-      "owner": "js/do_wear.js canwearobj() and already_wearing()",
-      "effects": "None in the running game.",
-      "evidence": "do_wear.c:2069-2073, pre-empted at 3418-3420 and 2213-2216. C keeps the arm defensively and the port carries it under the whole-function rule. The 'You are already wearing that!' line the recordings contain comes from accessory_or_armor_on()'s own already_wearing(c_that_), not from this arm; already_wearing()'s c_that_ punctuation branch is pinned by four direct tests, and this arm by the direct canwearobj() call in scripts/wear-armor.test.mjs, not by any recorded frame.",
-      "status": "cannot-occur",
-      "remaining": "None. The correctness pass over b035d790..fc56134 caught this entry claiming the opposite -- that the silent path ran on the live W of every recorded case -- which was the orchestrator's reading error, not the port's."
-    },
-    {
-      "candidate": "canwearobj()'s welded() && bimanual() arm for a suit or shirt",
-      "reachability": "Needs welded(uwep), which requires a cursed wielded weapon.",
-      "owner": "js/do_wear.js canwearobj()",
-      "effects": "Returns ok false with mask 0; one message when noisy.",
-      "evidence": "do_wear.c:2063-2068. Every role's starting weapon is uncursed, and no ported path curses a wielded one: the port has no w, x or Q command and no curse-item effect that reaches uwep.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "canwearobj()'s is_shield arm, all four outcomes: uarms filled, a bimanual weapon, u.twoweap, and *mask = W_ARMS",
-      "reachability": "The live path of this slice.",
-      "owner": "js/do_wear.js canwearobj()",
-      "effects": "Sets mask to W_ARMS, or returns ok false with one message.",
-      "evidence": "do_wear.c:2084-2100. Three of the four are recorded fresh: the mask assignment in every wearing case, the uarms refusal where a shield is still worn, and the bimanual refusal on the Barbarian starts, whose two-handed sword or battle-axe u_init.c:666's rn2(100) picks -- which is what pins is_sword()'s two words. u.twoweap has no ported writer, so its arm is dead until #twoweapon lands.",
-      "status": "done",
-      "remaining": "None. The u.twoweap conjunct is unreachable rather than unported; nothing writes that field."
-    },
-    {
-      "candidate": "canwearobj()'s is_boots and is_gloves arms, and their mask assignments",
-      "reachability": "Every one runs silently while getobj() builds the prompt, for any such armor in the pack.",
-      "owner": "js/do_wear.js canwearobj()",
-      "effects": "Sets mask to W_ARMF or W_ARMG, and both now reach setworn() and their callbacks.",
-      "evidence": "do_wear.c:2078-2196. The port carries all six arms line for line, including the Upolyd horn, slithy and centaur branches and the four u.utraptype branches, none of which a recorded session reaches. The wearing itself is refused in accessory_or_armor_on() by a mask test placed above setworn().",
-      "status": "done",
-      "remaining": "None. The filled-slot arms of both went live for the first time with slice five and are recorded: a Monk wished a second pair of gloves draws already_wearing(c_gloves), a Valkyrie in low boots trying iron shoes draws the boots equivalent."
-    },
-    {
-      "candidate": "canwearobj()'s final else, invent.c silly_thing('wear', otmp)",
-      "reachability": "An ARMOR_CLASS object matching none of the seven armor categories.",
-      "owner": "js/do_wear.js canwearobj(). js/invent.js getobj() now ports silly_thing() rather than refusing it.",
-      "effects": "None; the refusal precedes every write.",
-      "evidence": "do_wear.c:2196-2199. Both callers test oclass === ARMOR_CLASS first, and every ARMOR_CLASS row in objects.h carries one of the seven categories, so no object reaches canwearobj()'s copy. getobj()'s own silly_thing() call is a different matter and is now live: see the entry below.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "accessory_or_armor_on()'s head: the already-worn test and the armor/ring/amulet/eyewear classification",
-      "reachability": "Every object getobj() returns.",
-      "owner": "js/do_wear.js accessory_or_armor_on()",
-      "effects": "already_wearing(c_that_) and ECMD_OK for an object already worn.",
-      "evidence": "do_wear.c:2213-2223. The armor arm is ported; the other three classifications are refused together, which is the goal's stated boundary and what keeps doputon() unported.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "accessory_or_armor_on()'s accessory half, C 2239-2353, and its trailing 'You can't wear that!'",
-      "reachability": "W answered with a ring, amulet or eyewear letter.",
-      "owner": "js/do_wear.js accessory_or_armor_on(), refused with UnsupportedWearError",
-      "effects": "None; the refusal precedes every write.",
-      "evidence": "do_wear.c:2239-2353. Deliberately excluded: puton now carries 231 raw unlocks over three sessions, so leaving this half refused is what holds this goal's development forecast at 0 and keeps the holdout reading at its close attributable. Recorded as the deferral wear-answered-with-an-accessory-stops, the case just outside the goal's limit, where C asks 'Which ring-finger, Right or Left? [rl]'.",
-      "status": "later",
-      "remaining": "The accessory half belongs to a puton goal, not to this one."
-    },
-    {
-      "candidate": "accessory_or_armor_on()'s HELM_OF_OPPOSITE_ALIGNMENT arm",
-      "reachability": "Needs qstart_level.dnum == u.uz.dnum, so the hero must be inside the Quest.",
-      "owner": "js/do_wear.js accessory_or_armor_on(), refused with UnsupportedWearError",
-      "effects": "None; the refusal precedes every write.",
-      "evidence": "do_wear.c:2226-2237. No ported path descends into the Quest, so u.uz.dnum can never equal qstart_level.dnum.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "retouch_object(&obj, FALSE) and remove_worn_item() for armor held in a weapon slot",
-      "reachability": "retouch_object() runs on every wearing; remove_worn_item() needs owornmask & W_WEAPONS.",
-      "owner": "js/do_wear.js accessory_or_armor_on(), refused for an artifact and for a weapon-slot mask",
-      "effects": "None; both refusals precede every write.",
-      "evidence": "do_wear.c:2355 and 2363-2364. artifact.c retouch_object() answers 1 with no side effect for every non-artifact, the derivation js/apply.js and js/eat.js already record for doapply() and doeat(), so the live path is unaffected and only an artifact is refused. Nothing puts armor in a weapon slot: w, x and Q are unported and u_init.c wields only weapons.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "gw.wasinwater = u.uinwater, written just before setworn()",
-      "reachability": "Every armor wearing.",
-      "owner": "None; deliberately not written, with the reason at the site.",
-      "effects": "None inside this boundary.",
-      "evidence": "do_wear.c:2375. Its only reader is Boots_on()'s WATER_WALKING_BOOTS arm at 196-215, where C's own comment says the field is 'init'd in accessory_or_armor_on() and only used here'. That arm calls spoteffects() and makeknown(), both outside do_wear.c, so this goal refuses it by otyp. Copying u.uinwater here would give the value a second home with nothing to read it, which 'Keep each game value in one place' in AGENTS.md forbids.",
+      "candidate": "The invisible-eel reveal at mhitu.c:721-727",
+      "reachability": "Needs an S_EEL monster that is invisible on a square the hero can see.",
+      "owner": "js/mhitu.js mattacku()",
+      "effects": "One pline and a newsym; no randomness.",
+      "evidence": "mhitu.c:721-727. Ported rather than refused, because it costs nothing to carry and sits in the middle of the branch order. No recorded session generates an eel, so it does not execute.",
       "status": "no-effect-yet",
-      "remaining": "Not with Boots_on(). This entry previously said to land the write alongside that callback; that was wrong, and the slice-selector for slice three caught it. Boots_on()'s bare-break arms carry no reader, so after the boots slot lands the field still has none. It closes with the slice that ports the WATER_WALKING_BOOTS arm itself, which needs spoteffects()."
-    },
-    {
-      "candidate": "The delayed arm: delay = -oc_delay, nomul(delay), multi_reason 'dressing up' and nomovemsg 'You finish your dressing maneuver.'",
-      "reachability": "Any armor whose oc_delay is non-zero. Live for the suit slot; no shield can reach it, because objects.h:653-679 gives all nine oc_delay 0.",
-      "owner": "js/do_wear.js accessory_or_armor_on()",
-      "effects": "Spends oc_delay helpless turns after setworn() has already moved AC, then runs Armor_on() through unmul() and prints the finish message. It prints no on_msg().",
-      "evidence": "do_wear.c:2394-2399. Recorded fresh at oc_delay 3 (Caveman leather armor) and 5 (Samurai splint mail), both matching C: the clock advances by exactly oc_delay, not 1 + oc_delay, because the turn the command spends is the first the countdown consumes. The already-recorded T half shows the same arithmetic for the same two roles.",
-      "status": "done",
-      "remaining": "None for the suit. The take-off side's armoroff-refuses-helms-gloves-and-boots-over-their-delay is still open and now has this arm's shape to follow."
-    },
-    {
-      "candidate": "setworn(obj, mask), the afternmv choice, and the seven ported callbacks",
-      "reachability": "The live path of this slice.",
-      "owner": "js/do_wear.js accessory_or_armor_on() and the seven callbacks, over js/worn.js setworn() and js/hack.js unmul()",
-      "effects": "Fills the slot, updates AC, sets obj.known, redraws the inventory window, spends the turn, returns ECMD_TIME. For the Archeologist fedora it also moves Luck by one.",
-      "evidence": "do_wear.c:2376-2404, 705-732 and 886-906. The second slice restored C's statement order -- setworn(), then the afternmv chain, then the delay fork -- which the first had inverted to keep the delay test above setworn(). All 18 fresh cases match. The wished cases are what prove the callback ran rather than setworn() alone: mksobj() leaves known 0 where u_init.c:1215 sets it. Slice three turned the slot test into a switch that both refuses the unported slots and picks the callback, which is C at 2377-2393 one statement earlier. Cloak_on() keeps no switch of its own: its seven unported arms are refused by otyp above setworn(), because every cloak has oc_delay 0 and unmul() would otherwise run the callback after AC had already moved. With all seven masks answered by slice five, the switch default became C panic(\"wearing armor not worn as armor?\") -- a plain Error rather than a refusal, because canwearobj() cannot produce a mask that reaches it.",
-      "status": "done",
       "remaining": "None."
     },
     {
-      "candidate": "Shield_on()'s default arm, impossible(unknown_type, c_shield, otyp)",
-      "reachability": "A shield whose otyp matches none of the nine cases.",
-      "owner": "js/do_wear.js Shield_on()",
-      "effects": "None.",
-      "evidence": "do_wear.c:711-722 lists all nine shield otyps that objects.h:653-679 defines, so the default cannot be selected by any object the game can create.",
+      "candidate": "The summonmu() gate for demons and lycanthropes",
+      "reachability": "Needs a demon or were-creature attacker that is not cancelled and not shapechanged.",
+      "owner": "js/mhitu.js mattacku(), refusing at :543",
+      "effects": "None; the refusal precedes summonmu()'s draws.",
+      "evidence": "mhitu.c:729-741. The goal's boundary excludes it. The refusal sits above the block rather than inside summonmu(), so the guard's own reads happen first, as C does.",
       "status": "cannot-occur",
       "remaining": "None."
     },
     {
-      "candidate": "on_msg(), both arms: prinv() for rings, amulets and non-verbose eyewear, and the verbose 'You are now wearing %s%s.'",
-      "reachability": "The verbose arm on every armor wearing; the prinv() arm only for accessories.",
-      "owner": "js/do_wear.js on_msg(), over js/objnam.js obj_is_pname()",
-      "effects": "One message, or none when flags.verbose is off.",
-      "evidence": "do_wear.c:76-105. The prinv() arm cannot occur while accessories are refused. The verbose arm is recorded in every wearing case; obj_is_pname() replaced the inline refusal yname() carried and answers false for every non-artifact, and C's ordering comment -- xname() before obj_is_pname(), because formatting can set dknown -- is preserved. on_msg()'s `if (state.flags.verbose)` was broken and three tests failed.",
-      "status": "done",
-      "remaining": "flags.verbose off has no end-to-end case. With it on, on_msg() overwrites the prompt; with it off nothing does, and the port clears a top line C leaves standing -- the open deferral getobj-prompt-leaves-the-top-line-in-c-only, which now carries this witness. scripts/wear-armor.test.mjs calls on_msg() directly instead."
+      "candidate": "The u.uinvulnerable arm at mhitu.c:743-755",
+      "reachability": "Needs the hero mid-prayer. The preamble's nomul(0) does not clear the flag when gm.multi < nval, so this is reachable for an adjacent attacker.",
+      "owner": "js/mhitu.js mattacku(), refusing at :548",
+      "effects": "None; the refusal precedes the message and the u.ustuck release.",
+      "evidence": "mhitu.c:743-755. The goal's boundary excludes it. The slice-one correctness pass established that it is reachable rather than dead, and scripts/mhitu.test.mjs pins that with state.multi = -3.",
+      "status": "cannot-occur",
+      "remaining": "None. It becomes live when prayer lands, and the refusal is what holds until then."
     },
     {
-      "candidate": "svc.context.takeoff.mask = svc.context.takeoff.what = 0L after a successful wearing",
-      "reachability": "Every armor wearing.",
-      "owner": "js/do_wear.js accessory_or_armor_on(), through takeoffContext()",
-      "effects": "Clears the take-off mask.",
-      "evidence": "do_wear.c:2402. The port clears mask alone because svc.context.takeoff.what has no JavaScript home: takeoffContext() records that only the unported A spine writes it, and doffing()'s what arms are unreachable without it. That is a documented absence rather than a dropped assignment.",
+      "candidate": "find_offensive() and the use_offensive() path",
+      "reachability": "Runs on every call that reaches it, including the range2 path, which the port previously skipped entirely.",
+      "owner": "js/muse.js find_offensive() for its FALSE answer; js/mhitu.js:557 refuses a TRUE one",
+      "effects": "find_offensive() calls lined_up(), which can draw rn2(25); the port keeps that call where C runs it.",
+      "evidence": "muse.c:1420-1594 and mhitu.c:758-762. Ported for FALSE only, because use_offensive(), the sole reader of what it selects, is unported. Refusing a TRUE answer is fail-closed. This closed the production gap that refuseHeroAttack() had left, which admitted such a monster where C acts.",
       "status": "done",
-      "remaining": "None. Landing the A command has to give `what` an owner and this clear a second half."
+      "remaining": "None for this goal. use_offensive() belongs to monster item use."
     },
     {
-      "candidate": "js/invent.js getobj()'s obj_ok callback contract, made asynchronous",
-      "reachability": "Every getobj() call in the port, not only W's.",
-      "owner": "js/invent.js getobj() and its four call sites",
-      "effects": "None on its own; it lets a callback print, which canwearobj() does when noisy.",
-      "evidence": "The change is forced by C: canwearobj() writes messages, and wear_ok() reaches it through equip_ok(). Four call sites and about 15 assertions in scripts/take-off-armor.test.mjs moved with it. This is the one entry whose blast radius exceeds do_wear.c, which is why the candidate method names it as a limit.",
+      "candidate": "getmattk()'s substitution arms",
+      "reachability": "Runs once per NATTK slot, before each attack is used.",
+      "owner": "js/mhitu.js getmattk(), partially, refusing every substitution",
+      "effects": "None; each refusal precedes the rewrite it would perform.",
+      "evidence": "mhitu.c:309-444. Two arms, the cancelled-weapon and lich-touch rewrites, refuse one term earlier than C evaluates; the slice-one correctness pass confirmed that refusing early skips no C side effect, because the skipped terms are pure reads. SYSOPT_SEDUCE is off in this build, so the first substitution block is omitted rather than refused.",
       "status": "done",
-      "remaining": "Two of the four await sites are now pinned by recorded cases -- the money letter, which must print 'You cannot wear gold.', and the food-ration letter, which must reach silly_thing(). The hands/self probe cannot be pinned from any ported command: equip_ok() answers GETOBJ_EXCLUDE for a null object, which falls to the switch's default exactly as a pending promise would. Tracked as getobj-async-callback-unpinned-at-three-sites."
+      "remaining": "None. The omission of the SYSOPT_SEDUCE block rests on the build flag rather than on a runtime guard, which is why could_seduce() is ported and refuses at js/mhitu.js:131."
     },
     {
-      "candidate": "Armor_on() and its dragon_armor_handling() and artifact_light() tails",
-      "reachability": "The ga.afternmv callback for the suit slot, run by unmul() immediately for a zero-delay suit and by moveloop_core() on the last countdown turn for a delayed one.",
-      "owner": "js/do_wear.js Armor_on(), with the dragon-armor refusal hoisted into accessory_or_armor_on()",
-      "effects": "Sets obj.known and redraws the inventory window. Nothing else: both C tails belong to dragon armor.",
-      "evidence": "do_wear.c:886-906. The refusal is hoisted above setworn() rather than left in the callback because the callback runs too late to stop anything -- on the delayed arm the suit is already worn and its helpless turns already spent. Armor_off() keeps its own copy because it is checked before the suit leaves its slot. dragon_armor_handling()'s switch at 806-883 names grey and silver as 'no extra effect', so the Is_dragon_armor() guard is stricter than C for those two, the same tradeoff Armor_off() documents.",
-      "status": "done",
-      "remaining": "None. The dragon-armor tails land with a slice that owns dragon scales."
+      "candidate": "The NATTK loop's DEADMONSTER guard and its `i > 0` u_at(gb.bhitpos) test",
+      "reachability": "Both run on every slot after the first.",
+      "owner": "js/mhitu.js mattacku()",
+      "effects": "A continue; no output, no randomness.",
+      "evidence": "mhitu.c:771-783. The DEADMONSTER guard covers a counterattack having killed the attacker, and every counterattack sits behind code that refuses, so the attacker is always alive. The u_at test is tautologically false, as the calc_mattacku_vars() entry records. Both are omissions rather than stops, so both were re-derived from source rather than taken on trust.",
+      "status": "no-effect-yet",
+      "remaining": "None."
     },
     {
-      "candidate": "invent.c silly_thing() as getobj() reaches it, for a hand-typed letter the prompt did not suggest",
-      "reachability": "Any inventory letter that wear_ok() excludes -- three of the Valkyrie four -- typed at the W prompt.",
-      "owner": "js/invent.js silly_thing() and getobj()",
-      "effects": "Prints decl.c:43's 'That is a silly thing to %s.' and returns null, so dowear() answers ECMD_CANCEL and spends no turn.",
-      "evidence": "invent.c:2093-2131. Recorded fresh as seed 7720108, a Valkyrie typing .TWd. at her food ration, matching C. The OBSOLETE_HANDLING block has no definition anywhere in the tree, and the Amulet arm needs word == 'call' from the unported do_name.c docallcmd(), so both are left out with the otmp parameter that exists for the latter alone. Before this slice the site raised UnsupportedObjectPromptError and ended the segment.",
+      "candidate": "The AT_CLAW, AT_KICK, AT_BITE, AT_STNG, AT_TUCH, AT_BUTT and AT_TENT arm, through its to-hit test",
+      "reachability": "The common case: any adjacent hostile monster with a hand-to-hand attack slot.",
+      "owner": "js/mhitu.js mattacku()",
+      "effects": "One rnd(20) per slot, then missmu() or hitmu().",
+      "evidence": "mhitu.c:794-821. This is the goal's first named arm. Pinned end to end by scripts/run-monster-melee-miss.mjs: 2 segments, 6068 PRNG calls, 160 screens, 160 cursors, all matching fresh C recordings.",
+      "status": "done",
+      "remaining": "None through the to-hit test. What follows a hit is the hitmu() entries below."
+    },
+    {
+      "candidate": "The AT_HUGS, AT_GAZE, AT_EXPL, AT_ENGL and AT_MAGC arms",
+      "reachability": "Each needs a monster carrying that attack type adjacent to the hero.",
+      "owner": "js/mhitu.js mattacku(), refusing at :626, :634, :638, :642 and :709",
+      "effects": "None; every refusal precedes its arm's first draw and first message.",
+      "evidence": "mhitu.c:823-845, 926-935. The goal's boundary excludes all five. sum[] never leaves M_ATTK_MISS while these refuse, which is the recorded reason for four mutation survivors on the AT_HUGS gate.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "The AT_WEAP arm's non-range2 half, through mon_wield_item() and mswings()",
+      "reachability": "Needs an adjacent monster wielding a weapon.",
+      "owner": "js/mhitu.js mattacku() and mswings()",
+      "effects": "mon_wield_item() can change the monster's wielded weapon; mswings() prints one line; then the same rnd(20).",
+      "evidence": "mhitu.c:883-925. Ported, but with no fresh end-to-end case: 98 seeds were scanned and none opened with an armed AT_WEAP attacker. mswings() and mswings_verb() are unit-pinned against the C strike-type table instead. Filed as monster-melee-armed-swing, blocked on thrwmu.",
+      "status": "done",
+      "remaining": "A recorded case. The gap is a validation gap rather than an implementation one, and the deferral holds it."
+    },
+    {
+      "candidate": "The AT_BREA and AT_SPIT arms, and every range2 arm",
+      "reachability": "Needs a ranged attacker, which dochug() reaches by a different path.",
+      "owner": "js/mhitu.js mattacku(), refusing at :646 and :650",
+      "effects": "None.",
+      "evidence": "mhitu.c:873-882. The goal's boundary excludes every range2 arm.",
+      "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "missmu(), including its nearmiss wording and its gh globals",
+      "reachability": "Every slot whose to-hit test fails.",
+      "owner": "js/mhitu.js missmu()",
+      "effects": "One message, a stop_occupation() call, and a clear of the hitmsg globals.",
+      "evidence": "mhitu.c:84-100. Two arms refuse: a miss by a monster the hero cannot spot at :254 and a miss by an invisible monster the hero can see at :256. The first is a real boundary rather than a fixture artifact, because map_invisible() is unported and the fixture corridor is unlit.",
       "status": "done",
       "remaining": "None."
     },
     {
-      "candidate": "set_wear(NULL) at allmain.c:73, and the startup callbacks it runs over the finished gear",
-      "reachability": "Every new game, before the first command, for whatever the role starts wearing.",
-      "owner": "js/do_wear.js set_wear(), called from js/moveloop_preamble.js",
-      "effects": "Runs each worn item's <X>_on() for its side effects. For an Archeologist that is Helmet_on()'s change_luck(1) on her fedora, so she opens at Luck 1.",
-      "evidence": "allmain.c:73, 'for side-effects of starting gear'. Its absence was a live defect rather than a gap: the port opened every Archeologist at Luck 0 where C opens at 1, which rnd.c rnl(x>15) makes observable through the extra rn2(37+abs(adjustment)) at line 143. Recorded at seed 7720207: an Archeologist walking two steps into a closed door reaches lock.c doopen_indir()'s rnl(20), and the port drew one call fewer than C. Three segments now pin it -- hat on, hat off, hat off and back on through W -- two of which failed before this slice.",
+      "candidate": "hitmsg(), including its `again` repeat-attack term",
+      "reachability": "Every landed blow.",
+      "owner": "js/mhitu.js hitmsg()",
+      "effects": "One message; no randomness.",
+      "evidence": "mhitu.c:28-81, over the gh globals at decl.h:457-458. The `again` term at js/mhitu.js:225-230 has never printed, and the comment at :174-177 records that: it needs one monster landing two blows in a turn, which needs AD_PHYS, since AD_ELEC monsters in the recorded corpus carry one attack slot.",
       "status": "done",
-      "remaining": "gi.initial_don is deliberately not modelled: its only two readers, toggle_stealth() and toggle_displacement(), return before acting while it is set, which is why a Ranger's cloak of displacement passes through the ported Cloak_on() at startup while W still refuses it. A thirteen-role startup test pins the whole worn set so those refusals rest on a checked premise."
+      "remaining": "A case that prints `again`. The queued AD_PHYS slice is the first that can reach it."
     },
     {
-      "candidate": "Helmet_on()s twelve otyp labels: six ported, six refused",
-      "reachability": "Every W answered with a helmet, and every startup fedora through set_wear().",
-      "owner": "js/do_wear.js Helmet_on(), with the otyp refusal hoisted into accessory_or_armor_on()",
-      "effects": "For the six ported labels, the known write and its inventory redraw, plus change_luck(1) for an Archeologist fedora.",
-      "evidence": "do_wear.c:433-515. FEDORA, HELMET, DENTED_POT, ELVEN_LEATHER_HELM, DWARVISH_IRON_HELM and ORCISH_HELM are carried. HELM_OF_TELEPATHY is refused despite being a bare break inside the switch: objects.h:485 gives it oc_oprop TELEPAT, so setworn() raises ETelepat and recalc_telepat_range() sets u.unblind_telepat_range one statement earlier, and C feeds that state through allmain.c moveloop_core():462-466's Unblind_telepat arm, which this port does not have -- the helm would match on its wearing turn and diverge on the next. HELM_OF_CAUTION, HELM_OF_BRILLIANCE, CORNUTHAUM and the HELM_OF_OPPOSITE_ALIGNMENT/DUNCE_CAP pair are refused for reaching outside do_wear.c.",
+      "candidate": "magic_negation(), over a_can and owornmask",
+      "reachability": "Read by hitmu() on every landed blow.",
+      "owner": "js/mhitu.js magic_negation()",
+      "effects": "Returns an integer; no output, no randomness.",
+      "evidence": "mhitu.c:1088-1137. The a_can and owornmask wiring was verified against the C before hitmu() was written: ring mail answers 1 for the seed0004 Knight.",
       "status": "done",
-      "remaining": "The refused six close with the subsystems they reach. wear-cornuthaum-and-dunce-cap-stop records C's answers for two of them."
+      "remaining": "None."
     },
     {
-      "candidate": "Boots_on() and Gloves_on(): five bare-break boot labels and LEATHER_GLOVES ported, eight arms refused",
-      "reachability": "Every W answered with boots or gloves. Both slots are delayed -- gloves oc_delay 1, boots 2 -- so neither ever reaches on_msg().",
-      "owner": "js/do_wear.js Boots_on() and Gloves_on(), with the otyp refusals hoisted into accessory_or_armor_on()",
-      "effects": "The known write and its inventory redraw, after a one- or two-turn countdown ending in the finish message.",
-      "evidence": "do_wear.c:186-259 and 575-603. LOW_BOOTS, IRON_SHOES, HIGH_BOOTS, JUMPING_BOOTS and KICKING_BOOTS are carried; WATER_WALKING_BOOTS, SPEED_BOOTS, ELVEN_BOOTS, FUMBLE_BOOTS, LEVITATION_BOOTS and the three gauntlets are refused for reaching outside do_wear.c. The two extrinsic-raising bare breaks were decided by the HELM_OF_TELEPATHY test rather than by its answer, and both resolved the other way: objects.h:718-720 gives KICKING_BOOTS oc_oprop 0, so setworn() raises nothing and dokick.c reads the otyp directly through the ported js/dokick.js martial(); EJumping's insight.c reader runs only under MAGICENLIGHTENMENT, where the port already stops, and jump is not in ADMITTED_COMMANDS. A differential outside the wear matrix at seed 7720242 confirmed the kick path draws what C draws, worn and barefoot.",
+      "candidate": "hitmu()'s preamble: the cannot-spot and was-hiding refusals, then d(damn, damd)",
+      "reachability": "Every landed blow.",
+      "owner": "js/mhitu.js hitmu()",
+      "effects": "The two refusals precede the damage roll; the roll itself draws.",
+      "evidence": "mhitu.c:1143-1267. Both refusals sit above d(damn, damd) at js/mhitu.js:840 and :846, which is what the slice-one brief required of the fail-closed edge and what slice two preserved when it lifted the edge.",
       "status": "done",
-      "remaining": "The eight refused arms close with the subsystems they reach; wear-magic-boots-stop and wear-gauntlets-stop record C answers for them."
+      "remaining": "None."
+    },
+    {
+      "candidate": "mhitm_adtyping()'s AD_ELEC arm",
+      "reachability": "Needs an adjacent monster with an AD_ELEC attack slot.",
+      "owner": "js/uhitm.js mhitm_ad_elec()",
+      "effects": "Shock damage, its message, and the hero's hit points.",
+      "evidence": "uhitm.c:2683-2739, the mdef == &gy.youmonst arm. Landed in slice two and pinned by scripts/run-monster-melee-hit-elec.mjs; the development score moved 1577 to 1657 of 7765 screens, the slice's full forecast.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "mhitm_adtyping()'s AD_PHYS arm",
+      "reachability": "The most common damage type in the early dungeon: the sewer rat's ATTK(AT_BITE, AD_PHYS, 1, 3) reaches it, as do every claw and butt attack.",
+      "owner": "None. js/uhitm.js:1471 refuses.",
+      "effects": "None yet; the refusal precedes hitmsg() and the mhm->hitflags write.",
+      "evidence": "uhitm.c:3985-4200, of which 4021-4022, 4038-4040 and 4122-4126 are the hand-to-hand path this goal needs. The goal statement names AD_PHYS as a closing condition. The queued slice monster-melee-hit-phys is the work.",
+      "status": "missing",
+      "remaining": "Port the mdef arm's hand-to-hand path, with uhitm.c:4041's `AT_WEAP && otmp` as the fail-closed edge. Record a fresh differential past step 13 of the seed 880042 case, plus a second seed on a different hitmsg() verb."
+    },
+    {
+      "candidate": "mhitm_adtyping()'s other thirty-eight adtyp arms",
+      "reachability": "Each needs a monster carrying that damage type.",
+      "owner": "js/uhitm.js mhitm_adtyping(), refusing at the switch",
+      "effects": "None; each refusal is the first statement of its case.",
+      "evidence": "uhitm.c:4781-4832. The goal's boundary refuses every adtyp but AD_PHYS and AD_ELEC, and the switch is where it does so, one named refusal per case.",
+      "status": "cannot-occur",
+      "remaining": "None for this goal. This entry stands for thirty-eight C functions and does not record which a recorded session would reach first, which is the third limit named above."
+    },
+    {
+      "candidate": "mhitm_knockback()'s gate and its u_def tail",
+      "reachability": "The gate runs on every AD_PHYS blow. Its u_def tail needs AD_PHYS with AT_CLAW, AT_KICK, AT_BUTT or AT_WEAP.",
+      "owner": "js/uhitm.js mhitm_knockback(), refusing at :1614 and past the msize test at :1637",
+      "effects": "None while AD_PHYS refuses above it.",
+      "evidence": "uhitm.c:5245-5372. The gate at :5273-5277 excludes AT_BITE, so the queued slice's own bite case never reaches the tail, but a clawing monster will once AD_PHYS lands. hitflags is first read at :5338, below the msize test at :5325-5326 where the port already refuses, so the current signature stays correct.",
+      "status": "later",
+      "remaining": "The queued slice must file the newly reachable stop at :1614 with npm run quality -- defer, naming the C line and the odds. Porting the u_def head belongs to the weapon slice, which is the first with a case that consumes it."
+    },
+    {
+      "candidate": "mdamageu(), through disp.botl",
+      "reachability": "Every landed blow that survives the damage roll.",
+      "owner": "js/mhitu.js mdamageu()",
+      "effects": "Takes hit points and sets disp.botl, which redraws the status line. Both the message and the redraw route through env.planning-gated injected operations, because the planning clone runs each monster turn twice.",
+      "evidence": "mhitu.c:1901-1927. Three arms refuse: negative damage at js/mhitu.js:909, a polymorphed hero at :917 and the hero dying at :925. The death refusal is filed as hero-death-inside-mdamageu-stops, blocked on done_in_by.",
+      "status": "done",
+      "remaining": "None. The death arm is the boundary and stays refused."
+    },
+    {
+      "candidate": "passiveum(), as far as `if (!Upolyd)`",
+      "reachability": "Runs after each landed blow.",
+      "owner": "js/mhitu.js passiveum()",
+      "effects": "None for an unpolymorphed hero.",
+      "evidence": "mhitu.c:2434-2615, ported to 2519. Four arms refuse: a hero form's passive acid at js/mhitu.js:975, petrification at :978, disenchantment at :981 and the general polymorphed counter-attack at :990. No recorded session polymorphs the hero.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "linedup(), m_lined_up() and lined_up(), extracted into js/mthrowu.js",
+      "reachability": "Reached from find_offensive() on every mattacku() call, and from js/monmove.js on the monster's move.",
+      "owner": "js/mthrowu.js",
+      "effects": "m_lined_up()'s hero-concealment gate can draw rn2(25).",
+      "evidence": "mthrowu.c. The extraction replaced a terrain-walk approximation that js/monmove.js had used, and the development score was bit-identical across that swap measured alone. The caller now reads lined_up() directly at js/monmove.js:2534.",
+      "status": "done",
+      "remaining": "Test coverage. Five mutation survivors in js/mthrowu.js carry no recorded reason, and the clear_path() arm, the one branch the extraction actually changed, is reached by no test. Filed as mthrowu-extraction-has-no-covering-test."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "Every branch and helper reachable from dowear() through Shield_on()'s return was traced against nethack-c/upstream/src/do_wear.c at commit 16ff591, covering state writes and random-number order. The path draws no random number at any point, which the 12 fresh cases confirm at 30,539 recorded calls, all matching. canwearobj() was read whole because C's whole-function rule and its single *mask consumer force it to land intact, and each of its seven slot arms was classified above. Stops, partial implementations and absences are identified individually: seven UnsupportedWearError refusals, all placed above setworn() so that no excluded branch writes state, draws randomness or prints; one deliberate non-write, gw.wasinwater, with its reason at the site; one field with no JavaScript home, svc.context.takeoff.what; and one shared contract change, getobj()'s callback signature, whose reach beyond do_wear.c is recorded as a limit of this list. Two mutants survive with reasons in the commit body: js/cmd.js's state.multi < 0, which only chooses whether to clear an always-empty command queue and which seven sibling rhack() arms carry identically, and js/do_wear.js's fingers_or_gloves(false), whose two answers coincide because the arm above it has already returned for a filled glove slot -- the reason C passes FALSE at do_wear.c:2153."
+  "missingWorkByOwner": [
+    {
+      "group": "js/uhitm.js mhitm_ad_phys()",
+      "candidates": [
+        "mhitm_adtyping()'s AD_PHYS arm",
+        "mhitm_knockback()'s gate and its u_def tail"
+      ],
+      "next": "Take the queued slice monster-melee-hit-phys: port mhitm_ad_phys()'s mdef arm for the hand-to-hand path, keep uhitm.c:4041's `AT_WEAP && otmp` as the fail-closed edge, file the knockback stop that becomes reachable at js/uhitm.js:1614, and resolve monster-melee-hit-edge when the fresh sewer-rat differential lands."
+    }
+  ],
+  "sourceReview": "mhitu.c mattacku() was read top to bottom over 491-951 at 7d62df5, and every branch it contains is paired above with a js/mhitu.js line, a named refusal, or a recorded reason for an omission. Its call tree was followed into calc_mattacku_vars(), mtrapped_in_pit(), getmattk(), could_seduce(), missmu(), mswings(), mswings_verb(), hitmsg(), magic_negation(), hitmu(), mdamageu() and passiveum(), and across into uhitm.c mhitm_adtyping(), mhitm_ad_elec(), mhitm_ad_phys() and mhitm_knockback(), and into muse.c find_offensive() and mthrowu.c's three lined-up predicates. Random-number order was checked at the three points that draw inside the boundary: AC_VALUE()'s conditional draw, the per-slot rnd(20), and hitmu()'s d(damn, damd), each of which sits below every refusal that could otherwise skip it. Three claims that omit code rather than stop it were re-derived from source rather than accepted: the u_at(gb.bhitpos) test at :782, whose only intervening write at :545 returns on every path out of :547; the NATTK loop's DEADMONSTER guard, which no ported counterattack can trigger; and the SYSOPT_SEDUCE block, dead in this build. One reachable path inside the boundary is not yet implemented, the AD_PHYS arm, and it is the sole entry in missingWorkByOwner."
 }
