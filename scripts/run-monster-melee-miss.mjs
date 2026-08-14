@@ -19,10 +19,12 @@
 // allmain.c stop_occupation().
 //
 // The seeds were found by recording candidate walks with the C reference and
-// keeping the ones whose first mattacku() event is a miss. Anything later than
-// the first event is unreachable: the port stops at hitmu(), so a seed whose
-// monsters land a blow before they miss one measures the refusal instead.
-// Its domain and yield:
+// keeping the ones whose first mattacku() event is a miss. That selection was
+// made while the port still stopped at hitmu(), so a seed whose monsters
+// landed a blow before they missed one measured the refusal instead; a landed
+// AD_PHYS blow runs through to the hero's hit points now, and
+// scripts/run-monster-melee-hit-phys.mjs is where it is pinned. Its domain and
+// yield:
 //
 //   Valkyrie and Healer, female, human, pettype:none, datetimes
 //   20250612101500, 20260318164500, 20251104093000 and 20250612101500 again,
@@ -81,8 +83,10 @@ export function loadMonsterMeleeMissRecipe() {
             },
             // "The sewer rat just misses!" on step 10: mhitu.c:88-90's
             // `nearmiss`, where the roll equals the differential exactly.
-            // The walk is cut to thirteen keys because the same rat lands a
-            // blow on step 13, which is the refusal this slice installs.
+            // Thirteen keys is all a miss matrix needs, because the same rat
+            // lands a blow on step 13. That blow and the rest of this walk
+            // belong to scripts/run-monster-melee-hit-phys.mjs, which replays
+            // the whole of it.
             {
                 seed: 880042,
                 datetime: '20250612101500',

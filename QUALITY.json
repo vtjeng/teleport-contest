@@ -2470,7 +2470,7 @@
       "area": "runtime",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "eb3f9bd52b86167d4906096f80a520ce7742c4c3",
       "detail": "The AGENTS.md git rewrite at 3b3b8fa deleted the only record of a live constraint: .claude/settings.json wraps the deny message in a single-quoted shell string, so an apostrophe in it closes the string mid-JSON and the broken hook denies every Bash call. The same commit rewrote that message and pointed its new text back at the section that lost the warning, and a grep over the tree finds no surviving copy. The reviewer confirmed the failure mode empirically: an unterminated single quote exits 2, which is the deny path. Deferred rather than applied because AGENTS.md is an instruction document and the user approved the trim; the proposed fix is one sentence restoring the constraint beside the existing settings.json reference. Closes when the user accepts or rejects that sentence. Confirmed by the goal-closing correctness pass over 21ef982..d114520."
     },
@@ -2479,7 +2479,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "a9ba71a093e6c2192f888083f9d1c36a60ed5050",
       "detail": "mhitu.c mattacku()'s melee arms stop at hitmu() (1143-1267), so a monster that rolls a hit ends the segment instead of taking hit points off the hero. Fresh case: seed 880042, datetime 20250612101500, nethackrc OPTIONS=name:Melee,role:Healer,race:human,gender:female,align:neutral / OPTIONS=!legacy,!tutorial,!splash_screen / OPTIONS=pettype:none, moves ' ' followed by 'llllllhhhhhh' twelve times. C replies 'The sewer rat bites!' on step 13 after the near miss on step 10 that scripts/run-monster-melee-miss.mjs pins; the port emits fourteen screens and stops with 'a monster landing a hit on the hero'. The refusal precedes hitmu()'s d(damn, damd), so the JavaScript random-number log holds the step's rnd(20) and nothing after it. Retire this with hitmu(), mdamageu() and uhitm.c mhitm_adtyping()'s AD_PHYS and AD_ELEC arms.",
       "blockedOn": "mhitm_ad_phys",
@@ -2559,7 +2559,13 @@
       "status": "open",
       "from": "a0d0194a17ab85763c06e8dc1465b4315a2feae2",
       "detail": "mhitu.c mdamageu() (1901-1927) refuses at 'the hero dying of a monster attack' where C calls done_in_by(mtmp, DIED), so a blow that takes the hero's last hit point ends the segment instead of ending the game. This is the goal's declared fail-closed edge: done_in_by() owns svk.killer, the tombstone and the whole of end.c, and js/hack.js losehp() already stops on the same boundary. Case just outside the limit, recorded rather than searched because a natural death takes tens of turns: scripts/mhitu.test.mjs 'mdamageu stops at the hero's death and not one hit point above it' drives it directly -- a grid bug's 1d1 bite against a hero left at one hit point -- and asserts the refusal, while the row above it, at two hit points, asserts the hero survives at one. The expected failure in a fresh C run is that C prints 'You die...' and a tombstone where the port emits its last matching screen and stops. Retire this with end.c done_in_by().",
-      "blockedOn": "done_in_by"
+      "blockedOn": "done_in_by",
+      "notes": [
+        {
+          "text": "This became the commonest stop in ordinary play when uhitm.c mhitm_ad_phys() landed. Before it, an AD_PHYS blow refused at the mhitm_adtyping() switch and cost the hero nothing, so only AD_ELEC could kill him. Measured over 400 fresh Valkyrie seeds (6610001-6610400, datetime 20260907114500, pettype:none, 144 steps south and north), 22 now end here -- twice the 11 that end at the knockback refusal and more than any other single owner in that domain.",
+          "at": "57a028c57f7303d5d1ee00c11919c73c1858ee47"
+        }
+      ]
     },
     {
       "id": "bhitpos-is-stored-in-two-places",
@@ -2569,6 +2575,31 @@
       "status": "open",
       "from": "a119cd09c0955aefab4fd896b1dfe9948d171a56",
       "detail": "C's single gb.bhitpos global has two JavaScript homes. js/zap.js:558 and js/dothrow.js:792 read and write state.bhitpos; js/dog.js:320 reads and writes state.gb.bhitpos. AGENTS.md requires one JavaScript location per C state value. Neither location is wrong on its own, and no ported path yet writes one and reads the other, so this is latent rather than live: bhitp.c's readers reach it through buzz() and throwit() only. mhitu.c calc_mattacku_vars() (459) writes it too, and js/mhitu.js deliberately ports no write because mattacku()'s own reader at mhitu.c:782 is tautologically false; that third writer is the one that will force the choice. Closes when the two names collapse into one, with the C global named in a comment at the surviving site."
+    },
+    {
+      "id": "monster-melee-knockback-on-the-hero-stops",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "57a028c57f7303d5d1ee00c11919c73c1858ee47",
+      "detail": "uhitm.c mhitm_knockback()'s u_def arm at :5295-5297 needs hack.c test_move(..., TEST_MOVE) and then dothrow.c hurtle() to push the hero; js/uhitm.js:1689 refuses instead. mhitm_adtyping()'s AD_PHYS arm made that reachable: the gate at :5273-5277 admits AT_CLAW, AT_KICK, AT_BUTT and AT_WEAP, so one landed blow in six from such an attacker now stops the segment, where every AD_PHYS blow used to stop earlier at the adtyping switch. AT_BITE, AT_STNG, AT_TUCH and AT_TENT are excluded by that gate and never reach it. Measured over 400 fresh Valkyrie seeds (6610001-6610400, datetime 20260907114500, pettype:none, 144 steps south and north), 11 stopped here. Fresh case: seed 6610034 of that domain with a leading space before the walk. C at step 46 prints 'You miss the goblin.  The goblin hits!' and logs rn2(3)=1 and rn2(6)=0 at mhitm_knockback(uhitm.c:5258 and :5269), then declines the push at the msize test on :5325 because a goblin is MZ_SMALL against an MZ_HUMAN hero and 1 > 2 + 1 is false. C runs all 146 screens; the port emits 46 and stops with 'knocking the hero back', and prints nothing on the last one because the refusal fires in the planning pass where messages are silenced. Two things follow for whoever retires this. The refusal sits above the size test C actually answers on, so the common early-game case is a stop the port could decline instead; and no case can be built at all until test_move()'s hero-knockback caller and hurtle() land.",
+      "blockedOn": "hurtle"
+    },
+    {
+      "id": "held-touch-silence-has-no-recordable-case",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "57a028c57f7303d5d1ee00c11919c73c1858ee47",
+      "detail": "uhitm.c mhitm_ad_phys():4122-4123 keeps a held touch silent: an AT_TUCH attack that rolls no damage from the monster already holding the hero prints nothing and records no hit. scripts/mhitu.test.mjs pins all four combinations of the three terms by calling mhitm_ad_phys() directly, and no fresh C case can reach the silent one. Two reasons. The only species whose mattk carries {AT_TUCH, AD_PHYS, 0d0} are the python, the guardian naga and the giant eel's neighbours, all far above monmax_difficulty() on dungeon level 1, which monst.h:259 caps at (level_difficulty() + u.ulevel) / 2; and u.ustuck has to point at that attacker, which needs mon.c set_ustuck()'s AT_HUGS caller, refused at js/mhitu.js:626. Record a case once a monster can grab the hero.",
+      "notes": [
+        {
+          "text": "The species list above is loose. The five species carrying an {AT_TUCH, AD_PHYS} attack are the quivering blob (difficulty 6), the violet fungus (5), the python (8), the ghost (12) and the guardian naga (17); the giant eel named there has {AT_TUCH, AD_WRAP} instead and does not belong. The lowest of the five is still five above the cap of 1 that dungeon level 1 allows, so the conclusion stands.",
+          "at": "57a028c57f7303d5d1ee00c11919c73c1858ee47"
+        }
+      ]
     }
   ],
   "areas": [
