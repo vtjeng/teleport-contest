@@ -2443,6 +2443,15 @@
       "status": "open",
       "from": "d114520a3f565a6329a5cd07f022289ee0313862",
       "detail": "Two calls in throw_gold()'s landing tail can be deleted with the whole suite green. stackobj() and its extractExternalObject hook are unexercised because no recorded segment lands gold on a square that already holds gold, and the framesPerStep assertion named as the discriminator for the odx/ody guard does not discriminate it, since both the wall and the closed-door case pass unchanged when the guard falls through to bhit(). Closes when a segment lands gold on an existing pile and the guard has an assertion that fails when it falls through. Confirmed by the goal-closing correctness pass over 21ef982..d114520."
+    },
+    {
+      "id": "deny-hook-apostrophe-constraint-has-no-written-home",
+      "area": "runtime",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "eb3f9bd52b86167d4906096f80a520ce7742c4c3",
+      "detail": "The AGENTS.md git rewrite at 3b3b8fa deleted the only record of a live constraint: .claude/settings.json wraps the deny message in a single-quoted shell string, so an apostrophe in it closes the string mid-JSON and the broken hook denies every Bash call. The same commit rewrote that message and pointed its new text back at the section that lost the warning, and a grep over the tree finds no surviving copy. The reviewer confirmed the failure mode empirically: an unterminated single quote exits 2, which is the deny path. Deferred rather than applied because AGENTS.md is an instruction document and the user approved the trim; the proposed fix is one sentence restoring the constraint beside the existing settings.json reference. Closes when the user accepts or rejects that sentence. Confirmed by the goal-closing correctness pass over 21ef982..d114520."
     }
   ],
   "areas": [
@@ -12200,6 +12209,131 @@
         }
       },
       "recordedAt": "2026-08-14T04:45:04.998Z"
+    },
+    {
+      "kind": "review",
+      "head": "d114520a3f565a6329a5cd07f022289ee0313862",
+      "auditedRange": "21ef982a4892b12da7f04808e00a55855a8fc6d5..d114520a3f565a6329a5cd07f022289ee0313862",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "93ee77dbfc1a37a2d7be53a943bb3474df0d9766",
+        "reason": "Two slice-selectors judged this goal outside the checklist template's three conditions: one C file's port (dothrow.c) with one pure helper from dungeon.c, one game system, roughly 300 production lines against the 500-line threshold, and one worker session per slice. The pass is asked to judge that call."
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "generation",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 19 raw, 17 deduplicated, 11 confirmed, 6 applied, 5 deferred, 6 rejected, 0 unverified; mutation: 5 survivors of 29 mutants. Goal-closing pass over the two slices of throw-command, with both optional finders left off: nothing here changes asynchronous control flow and nothing adds unbounded work. Six findings applied in eb3f9bd, all documentation apart from one test row, so production behavior is unchanged and the development score holds at 1538 screens. Four of the six corrected comments that state something false about C, and two of those were mine from the previous goal's audit-fix commit: I wrote the suit donning window as 3 to 5 turns in two files while the sibling comment I edited in the same commit said one to five, and both mithril-coats carry oc_delay 1. The sharpest finding is ceiling()'s new header, which had the drawbridge case backwards in both halves, claiming DRAWBRIDGE_UP is IS_DOOR() and answers ceiling when rm.h:121 defines IS_DOOR as typ == DOOR and the square falls through to rock cavern; the test that claimed to walk every arm had no drawbridge row, which is why nothing caught it, and it now has one that was observed failing against the old claim. One production finding is deferred: throw_gold()'s ghitm() refusal is dead code while the stop a gold throw at a monster actually reaches names thitmonst(), a function throw_gold() never calls, and separating them means teaching bhit() to distinguish its callers on the path the live f command shares. One clarity finding is deferred pending the user, because the fix restores a sentence to AGENTS.md that the user had just approved removing.",
+      "auditMetrics": {
+        "wallTimeSeconds": 6000,
+        "counts": {
+          "raw": 19,
+          "deduplicated": 17,
+          "confirmed": 11,
+          "applied": 6,
+          "deferred": 5,
+          "rejected": 6,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 4,
+          "clarity": 6,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "throw_gold() carries a correctly named ghitm() refusal that no input can reach, because js/zap.js bhit() raises UnsupportedBhitError naming thitmonst() -- a function throw_gold() never calls -- for any monster in the flight path before it can return one. The ghitm() refusal is dead code and the reachable stop misnames its C function. Deferred rather than fixed because teaching bhit() to distinguish its callers touches the path the live f command shares, which .agents/review.md returns to implementation.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "GOALS.json:2051 [readability] The throw-command goal's boundary states as a testable closing condition that \"the only one added is dokick.c ghitm()\"; the delivered slices added four new refusal names inside throw_gold(), and the goal is being closed against that condition in this pass.",
+            "counterEvidence": "causality refute: Anchored to changed code, but the stated impact does not survive: the deviation is already on the permanent record inside this range, in the exact terms the finding asks for. Counter-evidence: d114520, the head of the reviewed range, states in its body: \"The goal's boundary text says the only refusal added is dokick.c ghitm(); four are added, all inside throw_gold()'s own body, so the goal's second condition still holds and the count is what needs amending.\" The finding cites 5490a10 and stops there. The boundary is an at-open forecast, not a live contract: .agents/loop.md:68-69 and .agents/selection.md:85 say `close-goal` records delivered figures beside the forecast, and the one goal actually closed in this range (0d1ee96, armor-wear) added only `closedAt` and `delivered` — no process step amends boundary prose. The boundary's testable condition is that every arm of throw_obj() and throwit() reachable from f keeps its behavior; all four new refusals sit inside throw_gold(), which f cannot reach because dofire() always passes uquiver, so the condition itself is not violated. | resolution refute: The prescribed action is already performed for the part of the close"
+          },
+          {
+            "summary": "js/dothrow.js:913 [variable-trace] throw_gold()'s header lists js/dungeon.js surface() alongside genuine named refusals, but surface()'s engulfed arm throws a bare `Error`, which failClosedCommandRefusals() does not convert; surface()'s own header still claims a single caller that this range makes a fifth.",
+            "counterEvidence": "causality refute: Neither the bare Error nor the stale header is changed or newly falsified by this range; both were already in the stated condition at the base commit, and the one in-range line makes no claim about error classes. Counter-evidence: `git show 21ef982a:js/dungeon.js | grep -n \"only caller is invent.c look_here\"` returns line 1282, so the header text is unchanged by the range, and at that same base `git show 21ef982a:js/sit.js`, `:js/do_wear.js` and `:js/invent.js` already call surface() at 252, 1023 and 869 — the \"only caller\" claim was already false three times over before this range added a fourth call site. The bare Error at js/dungeon.js:1355 is likewise untouched: the js/dungeon.js diff in 5d30999 consists solely of new imports and ceiling(). The only in-range anchor, js/dothrow.js:913, says \"js/do.js drop() stops on the same pair, and js/dungeon.js surface() on digests() and enfolds()\" — a statement about which unported C helpers each needs, not about error classes — and its own caller refuses u.uswallow at js/dothrow.js:935, before the surface() call at :998, so nothing became reachable. | resolution refute: The primary fix edits lines this range does not chan"
+          },
+          {
+            "summary": "js/dothrow.js:941 [correctness] throw_gold() decides two of the four conjuncts guarding C's ceiling message from the module-global `game` instead of its own `state` argument, because js/const.js Is_airlevel()/Is_waterlevel() ignore the caller's state entirely.",
+            "counterEvidence": "evidence refute: The mechanical claim about the helpers is accurate, but the divergence it predicts is impossible in the running game and unreachable in every state the repository actually constructs. Counter-evidence: js/const.js:2940 and :2943 do read `game?.water_level` / `game?.air_level`, but js/jsmain.js:254 makes `game` the live state (`const g = resetGame();` and every subsequent init call threads `g`), so in production `state === game` and the two spellings cannot disagree — the finding concedes this. In the test direction the divergence is equally unproducible today: scripts/dothrow.test.mjs arena() sets no `water_level` or `air_level`, and the module-level `game` from js/gstate.js starts as `{}` and is never given one, so both `Is_waterlevel(u.uz)` and a state-threaded `on_level(state.u.uz, state.water_level)` answer false, exactly as C answers on an ordinary level. No existing or added test observes a difference; the expected-vs-actual trace requires hand-planting `state.water_level` on a synthetic arena, which is the finding's own proposed test rather than an observed defect. | causality refute: The spelling is the port's pre-existing, uniformly applied idiom, not some"
+          },
+          {
+            "summary": "js/dothrow.js:956 [correctness] This range widens the pre-existing state.bhitpos / state.gb.bhitpos split: throw_gold() becomes the first writer of state.bhitpos outside js/zap.js, and it writes it on two paths that never call bhit() at all.",
+            "counterEvidence": "evidence refute: The two writes are the faithful translation of C's own writes in the same function, so the premise that throw_gold() is doing something anomalous does not survive a source read. Counter-evidence: dothrow.c throw_gold() writes gb.bhitpos directly on exactly these two arms — `gb.bhitpos.x = u.ux; gb.bhitpos.y = u.uy;` at 2691-2692 under `if (u.dz)` and again at 2703-2704 when the pre-flight check fails — and then reads it back at 2719, 2721, 2723, 2724 and 2727. js/dothrow.js:956 and :968 mirror that, and js/dothrow.js already read `state.bhitpos` at :792-793 before this range, so the new code writes the same home its own file already reads. `grep -rn \"bhitpos\" js/` shows the split unchanged in shape: two property names, `state.bhitpos` owned by js/zap.js and js/dothrow.js and `state.gb.bhitpos` by js/dog.js, js/dogmove.js and js/unported_monster_actions.js. No third home, no new name, and the finding itself reports no live divergence. | causality refute: The defect is pre-existing, is explicitly out of the reviewed range, and the range does not worsen it in any observable way. Counter-evidence: Both names and all their existing writers exist at the base commit; this"
+          },
+          {
+            "summary": "js/dothrow.js:956 [readability] throw_gold() is the first function outside js/zap.js bhit() to write `state.bhitpos`, which breaks the ownership rule js/zap.js states for that value, while the same C global gb.bhitpos also lives under a second name, `state.gb.bhitpos`, in three other files.",
+            "counterEvidence": "evidence refute: The cited ownership rule does not say what the finding needs it to say, and the hazard it projects is speculative rather than traced. Counter-evidence: js/zap.js:499-501 reads in full: \"gb.bhitpos, which C leaves at the final square, is the port's `state.bhitpos`; every caller reads it after the call rather than the return value, which is the monster hit.\" That is an identity plus a read convention for bhit()'s result; it states no exclusive-writer rule, so writing state.bhitpos from throw_gold() breaks nothing it declares. C itself writes gb.bhitpos from throw_gold() at dothrow.c:2691-2692 and 2703-2704, so the new writes are the port's obligation, not a deviation. The forward hazard is hypothetical: the monster arm the finding worries about is refused today at js/dothrow.js:680, and no code exists that reads the wrong copy. | causality refute: Same pre-existing duplication as [6], with no name, home or file added by this range. Counter-evidence: Every writer of state.gb.bhitpos (js/dog.js:319-321, js/dogmove.js:242-244 and :913-915) and its only reader (js/unported_monster_actions.js:532) predate the range and are untouched by it; the diff adds only two writes to"
+          },
+          {
+            "summary": "js/dothrow.js:1011 [tests] throw_gold()'s unconditional newsym() — the exact call risk 1 warns could be borrowed from throwit()'s cansee()-guarded tail — can be deleted or wrapped in cansee() with no test failing.",
+            "counterEvidence": "causality refute: The stated impact rests on a mechanism the C source contradicts, so the risk the finding says is unguarded cannot occur. Counter-evidence: display.c newsym()'s not-seen branch (nethack-c/upstream/src/display.c:1038-1090) never displays an object: for a square the hero cannot see it re-shows remembered map memory or darkens a remembered-lit glyph, and the object layer is reached only inside the `if (cansee(x, y))` half at 953-1037. A cansee()-guarded newsym() therefore draws the same glyph as C's unconditional one for coins landing where the hero cannot see, so the claimed 'screen mismatch on a common throw (up a corridor, into the dark)' does not exist. The other mutant, outright deletion, does change a visible square — and that one the goal's recorded C matrix does catch, since all eight segments land the coins in sight and the differential compares full screens. | resolution refute: The proposed test cannot produce the discrimination it promises. Counter-evidence: The suggested dark-square segment is asked to make the cansee() variant 'fail for the right reason', but on an unseen square C's newsym() draws no gold at all (display.c:1038-1090), so an assertion tha"
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "deny-hook-apostrophe-constraint-has-no-written-home",
+            "trackedIn": "deny-hook-apostrophe-constraint-has-no-written-home",
+            "category": "clarity",
+            "summary": "The AGENTS.md git rewrite deleted the only record that the deny message sits in a single-quoted shell string, in the same commit that rewrote that message and pointed readers back at the section which lost the warning."
+          },
+          {
+            "id": "throw-gold-at-a-monster-stops-under-the-wrong-name",
+            "trackedIn": "throw-gold-at-a-monster-stops-under-the-wrong-name",
+            "category": "production",
+            "summary": "throw_gold() carries a correctly named ghitm() refusal that no input can reach, because js/zap.js bhit() raises UnsupportedBhitError naming thitmonst() -- a function throw_gold() never calls -- for any monster in the flight path before it can return one. The ghitm() refusal is dead code and the reachable stop misnames its C function. Deferred rather than fixed because teaching bhit() to distinguish its callers touches the path the live f command shares, which .agents/review.md returns to implementation."
+          },
+          {
+            "id": "throw-gold-range-has-no-oracle",
+            "trackedIn": "throw-gold-range-has-no-oracle",
+            "category": "tests",
+            "summary": "throw_gold()'s ACURRSTR/2 minus owt/40 range is unpinned: the only segment reaching bhit() is stopped by a wall two squares out, so every range of 2 or more passes."
+          },
+          {
+            "id": "throw-gold-landing-tail-is-unpinned",
+            "trackedIn": "throw-gold-landing-tail-is-unpinned",
+            "category": "tests",
+            "summary": "stackobj() and its extractExternalObject hook can both be deleted with the suite green, because no segment lands gold on a square already holding gold."
+          },
+          {
+            "id": "throw-gold-landing-tail-is-unpinned",
+            "trackedIn": "throw-gold-landing-tail-is-unpinned",
+            "category": "tests",
+            "summary": "The framesPerStep assertion named as the discriminator for the odx/ody guard does not discriminate it: both the wall and the closed-door case pass unchanged when the guard falls through to bhit()."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "21ef982a4892b12da7f04808e00a55855a8fc6d5..d114520a3f565a6329a5cd07f022289ee0313862"
+          ],
+          "mutants": 29,
+          "survivors": 5,
+          "byKind": {
+            "logical": {
+              "ran": 25,
+              "killed": 22
+            },
+            "relational": {
+              "ran": 4,
+              "killed": 2
+            }
+          },
+          "deltaRun": "The audit-fix commit eb3f9bd lands after this range and yields 0 mutation sites: five of its six changes are comment text and the sixth adds a table row to a test, which npm run checkpoint measured as 0 survivors of 0 mutants over the uncommitted js/ diff before the commit.",
+          "finderConclusion": "The tests finder was given all five survivors with the reason claimed for each and told that a survivor with a wrong reason is a test gap. It accepted the two equivalent-mutant reasons and the js/cmd.js multi reason, and turned the js/dothrow.js:966-967 pair into a different finding: the guard those mutants sit on has no discriminating assertion, because the framesPerStep check named for it passes whether the guard fires or falls through to bhit(). It returned three further findings a mutation run could not produce, each an oracle that cannot fail rather than an unmutated line: an unpinned range expression, a deletable stackobj() call, and a unit test still asserting a refusal that 5d30999 had made live."
+        }
+      },
+      "recordedAt": "2026-08-14T09:13:13.941Z"
     }
   ]
 }

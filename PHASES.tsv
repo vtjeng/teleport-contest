@@ -423,3 +423,5 @@ utc	event	phase	goal	detail
 2026-08-14T07:28:12.409Z	end	select	throw-command	throw-command-gold queued; the no-starting-gold premise was wrong, Healer and Tourist both start with it
 2026-08-14T07:28:12.467Z	start	implement	throw-command	throw-command-gold: throw_gold() whole plus dungeon.c ceiling()
 2026-08-14T08:14:52.719Z	end	implement	throw-command	throw-command-gold closed at 5490a10; t has no refusal of its own left
+2026-08-14T08:15:51.473Z	start	review	throw-command	goal-closing correctness pass over 21ef982..d114520a3f565a6329a5cd07f022289ee0313862
+2026-08-14T09:13:13.996Z	end	review	throw-command	goal-closing pass recorded through d114520; 19 raw, 17 deduplicated, 11 confirmed, 6 applied, 5 deferred, 6 rejected
