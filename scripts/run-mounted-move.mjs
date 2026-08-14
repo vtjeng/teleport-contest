@@ -114,6 +114,27 @@ export const MOUNTED_MOVE_CASES = Object.freeze([
         rideTurns: 1,
         stillMounted: true,
     },
+    {
+        // Three steps south and two searches, which walk the same kobold to
+        // five squares off and then stand still while it acts.
+        //
+        // mhitu.c:533-534 spends `rn2(is_orc(mtmp->data) ? 2 : 4)` on every
+        // monster that reaches mattacku(), before it asks m_next2u() whether
+        // the attacker is near enough to go for the horse. A kobold is not an
+        // orc, so the draw is rn2(4), and from five squares away C's `&&`
+        // short-circuits into no attack at all: the draw lands in the log and
+        // the turn continues. That is what makes this segment the recorded
+        // evidence for js/mhitu.js, which the five cases above reach not once.
+        //
+        // The two searches are what let the kobold act twice without the
+        // hero's own keys changing the distance between them.
+        label: 'a hostile acts at range while the hero rides',
+        seed: 6128,
+        gender: 'female',
+        moves: 'jjjss',
+        rideTurns: 3,
+        stillMounted: true,
+    },
 ]);
 
 // The direction that answers doride()'s getdir() with the saddled pony's
