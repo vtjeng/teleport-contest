@@ -2165,7 +2165,13 @@
         ]
       },
       "detail": "The census reconciliation was settled before this ranking. Eight unreconciled stops stand at HEAD, and seven track progress rather than drift: scan-sessions.mjs supportedCommands() gates only a command's first byte, so a goal that converts a whole-command refusal into a deeper branch refusal makes the model book that command as supported. Only puton is inflated by it, and the winner's session is reconciled. Prerequisites already landed: magic_negation() at js/mhitu.js:92, mon_wield_item() and select_hwep() in js/weapon.js, mhitm_knockback() at js/uhitm.js:1340, plus dmgval, which_armor, set_ustuck, showdamage, stop_occupation, exercise and nomul. One prerequisite must land before the first commit: muse.c find_offensive() sits between the u.uinvulnerable gate and the attack loop at mhitu.c:758 and is unported. A jackal or grid bug returns FALSE at its is_animal || mindless guard, but a kobold passes every guard and reaches the inventory loop, so the goal needs either that loop or a refusal for any minvent item that would set gm.m.has_offense; it spent no RNG at seed0004 step 52, which witnesses that the kobold's dagger sets nothing. Branches to refuse rather than port: map_invisible() opens both missmu() and hitmu(), is unported at js/detect.js:541 and is unreachable here because canspotmon() is true for a lit-room kobold; done_in_by() under mdamageu()'s u.uhp < 1 is the natural fail-closed edge. passiveum() costs nothing for an unpolymorphed hero, its olduasmon loop landing on the first AT_NONE entry for tmp = 0, which the absence of any passiveum site in the step-91 and 92 log confirms. mhitm_ad_elec()'s destroy_items call sits behind magr->m_lev > rn2(20) and a grid bug's mlevel is 0, so the roll happens and the call never does. About 700 lines of C to read and 400-450 porting, the size of armor-wear, so AGENTS.md puts it at the checklist threshold and it should expect several slices. What it opens: seed0004's next boundary is get_count() at step 171, and porting the count prefix afterwards would open 67 more steps there plus 73 of seed0900's 84, and would retire the one genuinely puzzling unreconciled stop in the census.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "monster-melee-miss",
+          "status": "closed",
+          "closedBy": "e99760bfeedcac0f6a208d66bf140805f022b09a"
+        }
+      ],
       "openedAt": "0ecbb166929d646533bf939fa300ad20e887ef13",
       "openStanding": {
         "sha": "b6efea6",

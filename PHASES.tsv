@@ -435,3 +435,5 @@ utc	event	phase	goal	detail
 2026-08-14T11:46:09.794Z	end	review	objects-deferral-sweep-4	goal-closing pass recorded through 0d7678c; 17 raw, 10 deduplicated, 9 confirmed, 9 applied, 1 rejected
 2026-08-14T12:03:23.683Z	start	select		boundary port after the sweep
 2026-08-14T12:17:00.915Z	end	select	monster-melee-attack	monster-melee-attack opened; forecast 119 capped steps, census settled first
+2026-08-14T12:29:43.485Z	start	implement	monster-melee-attack	monster-melee-miss: mattacku() through both arms' to-hit tests and missmu()
+2026-08-14T14:12:27.836Z	end	implement	monster-melee-attack	monster-melee-miss closed at e99760b; development 1538 to 1577 screens, the forecast 39 exactly
