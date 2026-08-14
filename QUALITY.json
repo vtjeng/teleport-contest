@@ -2489,6 +2489,51 @@
       "from": "a9ba71a093e6c2192f888083f9d1c36a60ed5050",
       "detail": "mhitu.c mswings() (129-141) is ported and unit-pinned by scripts/mhitu.test.mjs, but no fresh C recording reaches it: an armed attacker that misses is preceded, in every seed scanned, by a boundary this slice does not own. Fresh case: seed 880033, datetime 20250612101500, nethackrc OPTIONS=name:Melee,role:Healer,race:human,gender:female,align:neutral / OPTIONS=!legacy,!tutorial,!splash_screen / OPTIONS=pettype:none, moves ' ' followed by 'llllllhhhhhh' twelve times. C prints 'The goblin thrusts his crude dagger.' on step 39; the port stops on step 20 with 'monster ranged weapon action', which is thrwmu()'s select_rwep() finding a missile. Domain scanned: 98 seeds across Valkyrie and Healer over four datetimes; 11 opened with a melee miss and none of those was an armed AT_WEAP one. Retire this once thrwmu() lands, then re-scan for an armed miss.",
       "blockedOn": "thrwmu"
+    },
+    {
+      "id": "dochug-post-move-drops-two-of-c-three-terms",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "2be53e4a3ad91647d70605ad98bf4f34727fd02a",
+      "detail": "monmove.c:944-949 breaks out of the post-move switch on `!nearby && (ranged_attk_available(mtmp) || attacktype(mdat, AT_WEAP) || find_offensive(mtmp))`, reaching PHASE FOUR mattacku(). js/monmove.js keeps only the attacktype(AT_WEAP) term, and js/unported_monster_actions.js folds the same condition the same way. Both omissions were unavoidable before this range, since neither ranged_attk_available() nor find_offensive() existed in js/; find_offensive() now does, so the port silently skips a call C makes and a monster that would have attacked after moving does not. Closes when the disjunction is restored in C order, so the short-circuit and therefore the draw order match, and ranged_attk_available() is ported or refused. Needs a fresh recorded case because it changes which monsters reach mattacku() after moving. Confirmed by the correctness pass over 0d7678c..2be53e4."
+    },
+    {
+      "id": "mthrowu-extraction-has-no-covering-test",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "2be53e4a3ad91647d70605ad98bf4f34727fd02a",
+      "detail": "js/mthrowu.js was created in this range to hold linedup(), m_lined_up() and lined_up(), extracted from the terrain-walk approximation js/monmove.js monsterItemSearchInLine() had been using. Five of the window mutation run seventeen survivors sit in that file, at lines 41, 116, 117 twice and 118, and none carries a recorded reason: the slice commit reasoned about twelve survivors and named eight sites, all elsewhere. The clear_path() arm, which is the one branch whose behavior the extraction actually changed, is reached by no test, and m_lined_up() hero-concealment gate including the rn2(25) written out to preserve call ordering is exercised by none either. Closes when each of the five has either a test that kills it or a recorded reason no test can. Confirmed by the correctness pass over 0d7678c..2be53e4."
+    },
+    {
+      "id": "mattacku-planning-silence-is-unpinned",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "2be53e4a3ad91647d70605ad98bf4f34727fd02a",
+      "detail": "mattacku() three planning-silence guards, on message, redraw and statusRefresh, are pinned by no test: deleting all three lets the planning clone print every miss to the live terminal, and the whole suite stays green. runSimpleMonsterAction() runs each monster turn twice, once against a clone and then live, so this is the defect class that would double-print every monster miss while the development score stayed green unless a recorded session happened to show the second copy. Closes when a test asserts the planning pass emits no text for a miss and fails when a guard is removed. Confirmed by the correctness pass over 0d7678c..2be53e4."
+    },
+    {
+      "id": "melee-comments-assert-more-than-they-check",
+      "area": "monsters",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "2be53e4a3ad91647d70605ad98bf4f34727fd02a",
+      "detail": "Six comments the melee slice added state something the code does not support, each verified by the correctness pass over 0d7678c..2be53e4 and left unfixed here because each needs its own reading rather than a word change. missmu() resolves stopOccupation from an env key js/unported_monster_actions.js binds twice with opposite meanings, one of them a refusal, and neither binding names missmu() as a consumer. missmu() second refusal, `if (mtmp.minvis)`, has no comment, no C counterpart and no test; its real owner is js/do_name.js monsterCommonName(), which never emits C x_monnam() invisible adjective. getmattk() drops C `attk != alt_attk_buf` guard from the is_home_elemental block with no note, so a conditional test reads as unconditional. activeHeroProperty() comment documents two properties where three use it, the third being CONFLICT. scripts/monsters.test.mjs cites five wrong monattk.h lines for six new constants and names a reader for AD_DRIN that does not exist. scripts/mthrowu.test.mjs assertion labelled C leading !isok() never reaches the off-map guard, answering TRUE through IS_OBSTRUCTED(STONE) instead. Closes when each is corrected against the source it cites. Confirmed by that pass."
+    },
+    {
+      "id": "monster-fixture-builds-a-one-entry-mattk-array",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "2be53e4a3ad91647d70605ad98bf4f34727fd02a",
+      "detail": "scripts/unported-monster-actions.test.mjs still builds a one-entry mattk array, the exact hazard this range fixed in scripts/cmd.test.mjs after it crashed at index 1: C allocates six slots and getmattk() reads them by index, so if a refusal order ever shifts past index 0 the fixture throws a TypeError rather than exercising the arm under test. Closes when the fixture allocates six entries as C does. Confirmed by the correctness pass over 0d7678c..2be53e4."
     }
   ],
   "areas": [

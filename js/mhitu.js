@@ -308,8 +308,14 @@ function AC_VALUE(ac, random) {
 //
 // The result is TRUE where C returns 1, which nothing reachable here can
 // produce: every arm that kills the attacker is behind hitmu(), gulpmu(),
-// explmu() or gazemu(), and all four refuse. The callers still read it,
-// because C's own callers do.
+// explmu() or gazemu(), and all four refuse. So every reachable exit answers
+// false, including the steed's own arm, which mhitu.c:532 returns 0 from.
+//
+// No ported caller reads the value today. dochug() awaits it and discards it,
+// which is faithful to C only because C's callers act on a bit this port
+// cannot yet set; the value is kept rather than dropped so that the arm which
+// will set it has somewhere to report, and so the signature does not change
+// under whoever ports hitmu().
 //
 // Ported: the preamble, the u.usteed arm, the armor-class differential, the
 // eel-reveal, find_offensive()'s FALSE answer, the NATTK loop, and, inside it,
@@ -331,9 +337,11 @@ function AC_VALUE(ac, random) {
 //     clears u.uswallow and no ported path sets it, so only the steed arm of
 //     that if/else chain can be taken.
 //
-// Two seams still owe the steed draw and stop before it:
-// js/unported_monster_actions.js:732 (dogmove.c:1286) and js/dogmove.js:891
-// (dogmove.c:911). Both must call this function when they are ported.
+// Two seams still owe the steed draw and stop before it, named by symbol
+// because line numbers rot and both citations here were already wrong once:
+// js/dogmove.js dog_move()'s `monster === state.u.usteed` arm (dogmove.c:911)
+// and js/dogmove.js pet_ranged_attk() (dogmove.c:1286). Both must call this
+// function when they are ported.
 export async function mattacku(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const u = state.u;
@@ -363,7 +371,7 @@ export async function mattacku(monster, rawEnv = {}) {
     if (u.usteed) {
         if (monster === u.usteed)
             /* Your steed won't attack you */
-            return true;
+            return false;
         /* Orcs like to steal and eat horses and the like */
         if (!random.rn2(is_orc(mdat) ? 2 : 4)
             && m_next2u(monster, state)) {

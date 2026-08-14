@@ -385,17 +385,44 @@ test('mattacku adjusts the differential for the states C names', async () => {
     state.multi = 0;
 });
 
+test('an adjacent attacker still balks at an invulnerable hero', async () => {
+    // The case the sibling test's comment once said could not happen. Prayer
+    // is the only thing that sets u.uinvulnerable, and it leaves gm.multi
+    // negative; hack.c:4161 nomul() returns at `gm.multi < nval` before the
+    // line that clears the flag, so mattacku()'s preamble calling nomul(0)
+    // clears nothing and an adjacent attacker reaches mhitu.c:743 exactly as
+    // a distant one does.
+    const state = await meleeHero();
+    const adjacent = meleeAttacker(state, PM_SEWER_RAT, 1, 0);
+    state.u.uinvulnerable = true;
+    state.multi = -3;
+    await assert.rejects(
+        () => mattacku(adjacent, meleeEnv(state, [17]).env),
+        (error) => error.reason === 'a monster balking at an invulnerable hero',
+    );
+    // The flag survives, which is what distinguishes this from the preamble
+    // having cleared it and the refusal firing for another reason.
+    assert.equal(state.u.uinvulnerable, true);
+    assert.equal(state.multi, -3);
+});
+
 test('mattacku refuses each arm the slice leaves unported', async () => {
     const state = await meleeHero();
-    // mhitu.c:743-755, the invulnerable hero. Only a monster four or more
-    // squares away can reach it: hack.c nomul(), which mattacku()'s preamble
-    // runs for every closer attacker, clears u.uinvulnerable itself.
+    // mhitu.c:743-755, the invulnerable hero. A monster four or more squares
+    // away reaches it because mattacku()'s preamble never calls nomul() for
+    // it. A closer attacker reaches it too whenever gm.multi is negative,
+    // which is the only state that sets u.uinvulnerable in the first place:
+    // hack.c:4161 nomul() returns at `gm.multi < nval` before the line that
+    // clears the flag, and prayer leaves gm.multi negative throughout. The
+    // adjacent case below is the one that matters, and an earlier version of
+    // this comment claimed it could not happen.
     const distant = meleeAttacker(state, PM_SEWER_RAT, 4, 0);
     state.u.uinvulnerable = true;
     await assert.rejects(
         () => mattacku(distant, meleeEnv(state, [17]).env),
         (error) => error.reason === 'a monster balking at an invulnerable hero',
     );
+
     state.u.uinvulnerable = false;
 
     // mhitu.c:817-820, wildmiss(). The attacker guessed a square the hero is

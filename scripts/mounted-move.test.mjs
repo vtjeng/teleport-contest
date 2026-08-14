@@ -325,7 +325,9 @@ test('mattacku() spends no draw on the steed itself or on a hero on foot',
     const state = await mounted();
     const steed = state.u.usteed;
     const forSteed = fixedRandom(0);
-    assert.equal(await mattacku(steed, steedTestEnv(state, forSteed)), true);
+    // mhitu.c:532 returns 0 here, and the port's contract is that TRUE means
+    // C returned 1, so the steed's own arm answers false and spends no draw.
+    assert.equal(await mattacku(steed, steedTestEnv(state, forSteed)), false);
     assert.deepEqual(forSteed.bounds, []);
 
     state.u.usteed = null;

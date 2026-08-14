@@ -875,9 +875,10 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 // it from dochug()'s standard-attack gate whether or not the
                 // monster moved first, and js/monmove.js folds the
                 // moved-then-attack path into the second operation. Two
-                // further seams still refuse ahead of C's steed draw:
-                // js/unported_monster_actions.js:732 (dogmove.c:1286) and
-                // js/dogmove.js:891 (dogmove.c:911).
+                // further seams still refuse ahead of C's steed draw, named by
+                // symbol because both line citations here were wrong:
+                // js/dogmove.js dog_move()'s usteed arm (dogmove.c:911) and
+                // js/dogmove.js pet_ranged_attk() (dogmove.c:1286).
                 attackHero: attackHeroWithMattacku,
                 monFlee: () => unsupported('monster flight'),
                 monsterCanSeeHero: ordinaryMonsterCanSeeHero,
