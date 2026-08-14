@@ -205,11 +205,11 @@ message settled in a minute; the check could not see it.
 
 The failure is silent in the direction that matters. `.agents/review.md` makes
 the trailer the record a slice closes on, and says the orchestrator "checks the
-record in place of inspecting for it". So a false `no Mutants trailer` spends
-exactly the inspection the check exists to replace. The sibling entry above,
-"Print the remaining unenforced advisories", proposes running this check from
-`npm run checkpoint`; doing that first would print this false positive on every
-checkpoint until the trailer parses.
+record in place of inspecting for it". A false `no Mutants trailer` sends the
+orchestrator back to exactly the inspection the check exists to replace. The
+sibling entry above, "Print the remaining unenforced advisories", proposes
+running this check from `npm run checkpoint`; doing that first would print this
+false positive on every checkpoint until the trailer parses.
 
 **Cost.** Very small either way. The emission fix is one line and prevents new
 cases; the fallback also rescues the commits already written, of which the

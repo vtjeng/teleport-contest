@@ -148,7 +148,7 @@ The steps standing behind a boundary are an upper bound. They do not predict
 how many steps porting that boundary will unblock. Sessions blocked on one
 owner routinely block again on another, and the keystrokes after a stop include
 prompt answers, count prefixes, and menu selections. To measure what a
-candidate change scores, apply it and re-run the scan; the difference between
+candidate change unblocks, apply it and re-run the scan; the difference between
 the two runs' step counts is the measurement.
 
 **A later segment's screens ride on the earlier ones.** A segment is one run of
