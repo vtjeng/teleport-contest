@@ -31,6 +31,7 @@ import {
     LS_OBJECT,
     MMOVE_NOTHING,
     MON_FLOOR,
+    NATTK,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     NORMAL_SPEED,
@@ -58,7 +59,9 @@ import { new_light_source } from '../js/light.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     AT_BREA,
+    AT_CLAW,
     AT_GAZE,
+    AT_NONE,
     AT_SPIT,
     AT_WEAP,
     PM_CAVE_SPIDER,
@@ -2740,10 +2743,17 @@ test('an in-range monster with a ranged attack stops the scan', async () => {
     // arms are AT_BREA's breamu(), AT_SPIT's spitmu() and AT_GAZE's gazemu().
     // None is ported, and dochug()'s gate used to admit an adjacent attacker
     // only, so these three passed through in silence.
-    for (const [name, aatyp, reason] of [
-        ['breath', AT_BREA, 'a monster breathing at the hero'],
-        ['spit', AT_SPIT, 'a monster spitting at the hero'],
-        ['gaze', AT_GAZE, 'a monster gazing at the hero'],
+    // `slot` is the mattk index the ranged attack occupies. The first three
+    // rows put it at index 0, where mattacku()'s loop finds it on its first
+    // pass. The fourth puts it in the last slot, which is what makes the
+    // six-slot fixture below load-bearing: the loop has to walk every slot
+    // C allocates to reach it.
+    for (const [name, aatyp, reason, slot] of [
+        ['breath', AT_BREA, 'a monster breathing at the hero', 0],
+        ['spit', AT_SPIT, 'a monster spitting at the hero', 0],
+        ['gaze', AT_GAZE, 'a monster gazing at the hero', 0],
+        ['last-slot breath', AT_BREA, 'a monster breathing at the hero',
+            NATTK - 1],
     ]) {
         const target = await prepareSelectedAction();
         // The fixture leaves exactly one legal step. Closing it makes
@@ -2753,10 +2763,26 @@ test('an in-range monster with a ranged attack stops the scan', async () => {
         const step = game.level.at(target.destinationX, target.heroY);
         step.typ = STONE;
         step.flags = step.doormask = 0;
-        target.monster.data = {
-            ...target.monster.data,
-            mattk: [{ aatyp, adtyp: 0, damn: 1, damd: 2 }],
-        };
+        // permonst.h:48 gives every species NATTK slots and mhitu.c
+        // mattacku():581 indexes all six through getmattk(), so the unused
+        // ones are spelled out rather than left off the end. A fixture that
+        // stops at the attack under test hands getmattk() an undefined slot
+        // the moment the loop steps past it, and the case then reports a
+        // TypeError in place of the refusal it asserts.
+        const mattk = Array.from({ length: NATTK }, () => (
+            { aatyp: AT_NONE, adtyp: 0, damn: 0, damd: 0 }
+        ));
+        // damn 1 and damd 2 are the smallest dice that make this a real
+        // attack; nothing on the path to the refusal rolls them.
+        mattk[slot] = { aatyp, adtyp: 0, damn: 1, damd: 2 };
+        // A hand-to-hand attack in slot 0, which is where the catalog puts
+        // one on the species that carry both. mattacku():613 gates the
+        // AT_CLAW arm on !range2, so at three squares it does nothing and
+        // refuses nothing, leaving the loop to carry on to the ranged attack.
+        if (slot > 0) {
+            mattk[0] = { aatyp: AT_CLAW, adtyp: 0, damn: 1, damd: 2 };
+        }
+        target.monster.data = { ...target.monster.data, mattk };
         const before = completeSecondTurnSnapshot(game, target.replay);
 
         await assert.rejects(

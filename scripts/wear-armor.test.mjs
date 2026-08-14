@@ -61,6 +61,7 @@ import {
     PM_MINOTAUR,
     PM_PLAINS_CENTAUR,
     PM_VALKYRIE,
+    PM_WHITE_UNICORN,
     PM_WINGED_GARGOYLE,
 } from '../js/monsters.js';
 import {
@@ -2113,14 +2114,20 @@ test('WrappingAllowed and cantweararm answer for the forms C names',
     assert.equal(WrappingAllowed(gigantic), false);
 });
 
-test('has_horns counts the four two-horned and four one-horned forms',
-    async () => {
-    // mondata.h:56 over mondata.c num_horns().
+test('has_horns holds from one horn up, not from two', async () => {
+    // mondata.h:56 is `(num_horns(ptr) > 0)` over mondata.c num_horns():678.
+    // scripts/mondata-pure.test.mjs pins all nine num_horns() arms; what is
+    // left here is where has_horns() puts its threshold, and only a
+    // one-horned form separates `> 0` from `> 1`. The white unicorn is one of
+    // the four rows num_horns():686-689 answers 1 for; the minotaur is one of
+    // the four at 681-684 answering 2; the valkyrie falls to the default 0.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, WAIT);
 
     assert.equal(num_horns(species(PM_MINOTAUR)), 2);
     assert.equal(has_horns(species(PM_MINOTAUR)), true);
+    assert.equal(num_horns(species(PM_WHITE_UNICORN)), 1);
+    assert.equal(has_horns(species(PM_WHITE_UNICORN)), true);
     assert.equal(num_horns(species(PM_VALKYRIE)), 0);
     assert.equal(has_horns(species(PM_VALKYRIE)), false);
 });
