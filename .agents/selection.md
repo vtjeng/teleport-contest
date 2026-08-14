@@ -168,8 +168,10 @@ labels every figure with the question it came from. The observed estimate
 states where the port stopped: it replays each session to its first refusal,
 then reports the boundary raised, the byte refused, and how many recorded
 screens went undrawn. The modeled estimate states what the session still
-needs: it differences the session's whole recorded input against the commands
-the port dispatches, and the report calls the result that session's debt.
+needs, from two sources. It differences the session's whole recorded input
+against the commands the port dispatches. It then adds the boundaries the port
+raised inside a command it did dispatch, which no keystroke names. The report
+calls the result that session's debt.
 Those debts are the rows of the behavior table, whose `supports` and `unlocks`
 columns the next section ranks.
 
@@ -192,14 +194,10 @@ differently, under "Refused-command census rows the behavior table cannot
 hold". Read a row's arrow, which gives the behavior the modeled estimate
 names, before ranking it.
 
-Explain every stop with no modeled behavior at the step the port refused
-before you rank. Most have a harmless explanation: `supportedCommands()` reads
-`ADMITTED_COMMANDS`, which gates only a command's first byte, so a command the
-port dispatches and then refuses deeper still counts as supported. The serious
-explanation is a command the report cannot model, such as the count prefix
-`seed0900` opens at step 11, which leaves the behavior table with no row for
-that stop. The report listed nine such stops at `28c62d0`: seven on an
-unported branch of a dispatched command, and two on the count prefix.
+The report also lists stops where the modeled estimate names no behavior at
+the step the port refused. No behavior table row stands for such a stop, so
+decide what to do with each one before you rank. Two remain at `0063528`, both
+sessions that opened a count prefix, which the report has no way to represent.
 
 ### Ranking the behavior table
 
