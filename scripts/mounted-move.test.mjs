@@ -45,15 +45,47 @@ function ridingSlot(state) {
 
 // A random source that answers every rn2() with one fixed value and records
 // the bounds it was asked for, which is how the two mattacku() draws are told
-// apart without reading the live PRNG.
+// apart without reading the live PRNG. rnd() answers 1, the lowest roll a
+// twenty-sided to-hit test can produce, so mattacku()'s melee arms always
+// reach their hit side and stop there.
 function fixedRandom(value) {
     const bounds = [];
-    return { bounds, rn2: (x) => { bounds.push(x); return value; } };
+    return { bounds, rn2: (x) => { bounds.push(x); return value; }, rnd: () => 1 };
 }
 
 function refuser() {
     return (reason) => {
         throw new UnsupportedSimpleMonsterActionError(reason);
+    };
+}
+
+// mattacku() runs past the steed arm now, so every fixture below states the
+// fields the armor-class differential and the attack loop read. mux and muy
+// are the hero's own square, which is what set_apparxy() leaves behind for a
+// monster that has not been fooled.
+function attackerAt(state, species, dx, dy) {
+    return {
+        data: state.mons[species],
+        mx: state.u.ux + dx,
+        my: state.u.uy + dy,
+        mux: state.u.ux,
+        muy: state.u.uy,
+        m_lev: 0,
+        mcansee: true,
+    };
+}
+
+// The operations mattacku() resolves below the steed arm. thrwmu() and
+// mon_wield_item() are the two owners a distant or armed attacker reaches
+// before any refusal; both are inert for these fixtures, which carry no
+// inventory.
+function steedTestEnv(state, random) {
+    return {
+        state,
+        random,
+        unsupported: refuser(),
+        throwRangedWeapon: () => {},
+        wieldMonsterItem: async () => 0,
     };
 }
 
@@ -237,25 +269,17 @@ test('every monster that reaches mattacku() spends a draw on the steed',
     async () => {
     // mhitu.c:534, `!rn2(is_orc(mtmp->data) ? 2 : 4)`. The bound is the whole
     // point: an orc goes for the horse twice as often as anything else.
+    // Five squares away both attackers believe they are out of reach, so the
+    // steed draw is the only one either spends.
     const state = await mounted();
-    const attacker = {
-        data: state.mons[PM_GOBLIN], mx: state.u.ux + 5, my: state.u.uy,
-    };
+    const attacker = attackerAt(state, PM_GOBLIN, 5, 0);
     const orcish = fixedRandom(1); // a nonzero draw declines the steed
-    assert.equal(
-        mattacku(attacker, { state, random: orcish, unsupported: refuser() }),
-        false,
-    );
+    assert.equal(await mattacku(attacker, steedTestEnv(state, orcish)), false);
     assert.deepEqual(orcish.bounds, [2]);
 
-    const jackal = {
-        data: state.mons[PM_JACKAL], mx: state.u.ux + 5, my: state.u.uy,
-    };
+    const jackal = attackerAt(state, PM_JACKAL, 5, 0);
     const plain = fixedRandom(1);
-    assert.equal(
-        mattacku(jackal, { state, random: plain, unsupported: refuser() }),
-        false,
-    );
+    assert.equal(await mattacku(jackal, steedTestEnv(state, plain)), false);
     assert.deepEqual(plain.bounds, [4]);
 });
 
@@ -265,39 +289,28 @@ test('mattacku() draws before it tests adjacency and refuses only when both',
     // you.h:560 m_next2u() is `distu <= 2`, and dist2() squares, so the
     // boundary sits on the diagonal neighbour: dx and dy of one apiece make
     // exactly 2, and the next square out makes 4.
-    const far = {
-        data: state.mons[PM_GOBLIN], mx: state.u.ux + 5, my: state.u.uy,
-    };
-    const near = {
-        data: state.mons[PM_GOBLIN], mx: state.u.ux + 1, my: state.u.uy,
-    };
-    const diagonal = {
-        data: state.mons[PM_GOBLIN], mx: state.u.ux - 1, my: state.u.uy - 1,
-    };
+    const far = attackerAt(state, PM_GOBLIN, 5, 0);
+    const near = attackerAt(state, PM_GOBLIN, 1, 0);
+    const diagonal = attackerAt(state, PM_GOBLIN, -1, -1);
 
     const spared = fixedRandom(0);
-    assert.equal(
-        mattacku(far, { state, random: spared, unsupported: refuser() }),
-        false,
-    );
+    assert.equal(await mattacku(far, steedTestEnv(state, spared)), false);
     assert.deepEqual(spared.bounds, [2], 'the draw happens either way');
 
     for (const attacker of [near, diagonal]) {
-        assert.throws(
-            () => mattacku(attacker, {
-                state, random: fixedRandom(0), unsupported: refuser(),
-            }),
+        await assert.rejects(
+            () => mattacku(attacker, steedTestEnv(state, fixedRandom(0))),
             (error) => error instanceof UnsupportedSimpleMonsterActionError
                 && /steed/u.test(error.message),
         );
     }
     // The same neighbour with a nonzero draw is C's fall-through to the arms
-    // that attack the rider, which this port refuses further down instead.
-    assert.equal(
-        mattacku(near, {
-            state, random: fixedRandom(1), unsupported: refuser(),
-        }),
-        false,
+    // that attack the rider. That is the AT_WEAP melee arm, whose to-hit test
+    // this random source always passes, so it stops at hitmu() instead.
+    await assert.rejects(
+        () => mattacku(near, steedTestEnv(state, fixedRandom(1))),
+        (error) => error instanceof UnsupportedSimpleMonsterActionError
+            && /landing a hit/u.test(error.message),
     );
 });
 
@@ -312,20 +325,18 @@ test('mattacku() spends no draw on the steed itself or on a hero on foot',
     const state = await mounted();
     const steed = state.u.usteed;
     const forSteed = fixedRandom(0);
-    assert.equal(
-        mattacku(steed, { state, random: forSteed, unsupported: refuser() }),
-        true,
-    );
+    assert.equal(await mattacku(steed, steedTestEnv(state, forSteed)), true);
     assert.deepEqual(forSteed.bounds, []);
 
     state.u.usteed = null;
     const onFoot = fixedRandom(0);
-    const attacker = {
-        data: state.mons[PM_GOBLIN], mx: state.u.ux + 1, my: state.u.uy,
-    };
-    assert.equal(
-        mattacku(attacker, { state, random: onFoot, unsupported: refuser() }),
-        false,
+    const attacker = attackerAt(state, PM_GOBLIN, 1, 0);
+    // A hero on foot skips the steed draw entirely and falls straight through
+    // to the melee arm, which stops at hitmu() without any rn2() of its own.
+    await assert.rejects(
+        () => mattacku(attacker, steedTestEnv(state, onFoot)),
+        (error) => error instanceof UnsupportedSimpleMonsterActionError
+            && /landing a hit/u.test(error.message),
     );
     assert.deepEqual(onFoot.bounds, []);
 });
@@ -336,17 +347,22 @@ test('mattacku() ends a multi-turn action for an adjacent attacker only',
     // `ranged = (mdistu(mtmp) > 3)`. dist2() never returns 3, so the squares
     // that end a run are exactly m_next2u()'s.
     const state = await mounted();
-    const near = { data: state.mons[PM_GOBLIN], mx: state.u.ux + 1, my: state.u.uy };
-    const far = { data: state.mons[PM_GOBLIN], mx: state.u.ux + 5, my: state.u.uy };
+    const near = attackerAt(state, PM_GOBLIN, 1, 0);
+    const far = attackerAt(state, PM_GOBLIN, 5, 0);
 
     // hack.c nomul() ends a run through endRunning(), which is the effect a
     // recorded case can see; its own `multi < nval` guard makes a negative
     // count the wrong thing to watch.
     state.context.run = 1;
-    mattacku(far, { state, random: fixedRandom(1), unsupported: refuser() });
+    await mattacku(far, steedTestEnv(state, fixedRandom(1)));
     assert.equal(state.context.run, 1, 'a distant attacker leaves the run');
 
-    mattacku(near, { state, random: fixedRandom(1), unsupported: refuser() });
+    // The adjacent attacker ends the run in the preamble and stops at hitmu()
+    // afterwards, so the interruption has to be read through the refusal.
+    await assert.rejects(
+        () => mattacku(near, steedTestEnv(state, fixedRandom(1))),
+        (error) => error instanceof UnsupportedSimpleMonsterActionError,
+    );
     assert.equal(state.context.run, 0);
 });
 

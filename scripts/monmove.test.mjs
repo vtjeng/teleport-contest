@@ -110,7 +110,6 @@ import {
     monflee,
     monnear,
     m_move,
-    monsterItemSearchInLine,
     onscary,
     postmov,
     set_apparxy,
@@ -121,6 +120,7 @@ import {
 // here because makeState() and ordinaryMonster() below build the level, hero
 // and species records they need, and mfndpos() -- the one caller C wrote it
 // for -- is tested from the same fixtures.
+import { lined_up } from '../js/mthrowu.js';
 import { mon_allowflags } from '../js/mon.js';
 import { bad_rock, may_dig, may_passwall } from '../js/hack.js';
 import { in_your_sanctuary } from '../js/priest.js';
@@ -1924,7 +1924,7 @@ test('m_move item-search gate preserves peaceful and rogue-level order',
         assert.deepEqual(calls, [10]);
     });
 
-test('monster item-search line check preserves visibility and boulder draws',
+test('m_move item-search line check preserves visibility and boulder draws',
     () => {
         const { locations, state } = makeState();
         const monster = ordinaryMonster(state, {
@@ -1941,7 +1941,7 @@ test('monster item-search line check preserves visibility and boulder draws',
         const noDraw = {
             rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
         };
-        assert.equal(monsterItemSearchInLine(monster, {
+        assert.equal(lined_up(monster, {
             state, random: noDraw,
         }), true);
 
@@ -1954,7 +1954,7 @@ test('monster item-search line check preserves visibility and boulder draws',
             { typ: DOOR, flags: D_CLOSED },
         ]) {
             locations.set('8,8', blocking);
-            assert.equal(monsterItemSearchInLine(monster, {
+            assert.equal(lined_up(monster, {
                 state, random: noDraw,
             }), false);
         }
@@ -1962,7 +1962,7 @@ test('monster item-search line check preserves visibility and boulder draws',
 
         // A boulder-only ray reaches the conditional linedup(..., 2) draw.
         const calls = [];
-        assert.equal(monsterItemSearchInLine(monster, {
+        assert.equal(lined_up(monster, {
             state,
             random: sequenceRandom([2], calls),
         }), false);
@@ -1970,7 +1970,7 @@ test('monster item-search line check preserves visibility and boulder draws',
 
         state.level.objects[7][7] = null;
         locations.set('6,6', { typ: STONE, flags: 0 });
-        assert.equal(monsterItemSearchInLine(monster, {
+        assert.equal(lined_up(monster, {
             state, random: noDraw,
         }), false);
     });

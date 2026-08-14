@@ -37,6 +37,8 @@ import {
     dmgtype_fromattack,
     gender,
     hates_blessings,
+    mhis,
+    pronoun_gender,
     hates_light,
     is_watch,
     is_wooden,
@@ -700,3 +702,80 @@ test('the mondata.h predicates mon.c reads answer from the species record',
         assert.equal(extra_nasty(M.MONSTER_TEMPLATES[M.PM_MINOTAUR]), true);
         assert.equal(extra_nasty(M.MONSTER_TEMPLATES[M.PM_NEWT]), false);
     });
+
+// mondata.c pronoun_gender() is not pure: its PRONOUN_HALLU arm draws rn2(4).
+// It is pinned here anyway, beside gender(), because the two answer the same
+// three-row table from different inputs and drift apart silently otherwise.
+test('pronoun_gender picks the row role.c genders[] holds', () => {
+    const state = {};
+    M.monst_globals_init(state);
+    state.u = { uprops: [] };
+    // youprop.h:116-120 through js/mondata.js hallucinatingHero(): the
+    // intrinsic timeout alone, defeated by either half of the resistance.
+    const HALLUC = 23;
+    const HALLUC_RES = 24;
+    state.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 0 };
+    state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
+    const spotted = { canSpotMonster: () => true, state };
+    const unspotted = { canSpotMonster: () => false, state };
+    const noDraw = {
+        ...spotted,
+        random: { rn2: () => assert.fail('unexpected draw') },
+    };
+    // you.h:317-320.
+    const PRONOUN_NORMAL = 0;
+    const PRONOUN_NO_IT = 1;
+    const PRONOUN_HALLU = 2;
+    // monflag.h enum mgender: MALE 0, FEMALE 1, NEUTRAL 2, and the fourth
+    // row role.c:692 adds for hallucination.
+    const gnome = { data: state.mons[M.PM_GNOME], female: false };
+    const gnomeLady = { data: state.mons[M.PM_GNOME], female: true };
+    const rat = { data: state.mons[M.PM_SEWER_RAT], female: true };
+    const golem = { data: state.mons[M.PM_STRAW_GOLEM], female: false };
+
+    // mondata.c:1205-1209. A humanoid answers its own sex; anything else,
+    // and anything M2_NEUTER, answers neuter however it was born. A straw
+    // golem is both humanoid and neuter, so it separates the two tests.
+    assert.equal(pronoun_gender(gnome, PRONOUN_NORMAL, noDraw), 0);
+    assert.equal(pronoun_gender(gnomeLady, PRONOUN_NORMAL, noDraw), 1);
+    assert.equal(pronoun_gender(rat, PRONOUN_NORMAL, noDraw), 2);
+    assert.equal(pronoun_gender(golem, PRONOUN_NORMAL, noDraw), 2);
+    // The G_UNIQ term is separate from both its neighbours: the Chromatic
+    // Dragon is the one species that is unique without being humanoid or
+    // carrying a personal name, so it answers its own sex where an ordinary
+    // dragon would answer neuter.
+    const tiamat = { data: state.mons[M.PM_CHROMATIC_DRAGON], female: true };
+    assert.equal(pronoun_gender(tiamat, PRONOUN_NORMAL, noDraw), 1);
+
+    // mondata.c:1201-1202. A monster the hero cannot spot is neuter unless
+    // PRONOUN_NO_IT overrides the test.
+    assert.equal(pronoun_gender(gnomeLady, PRONOUN_NORMAL,
+        { ...unspotted, random: noDraw.random }), 2);
+    assert.equal(pronoun_gender(gnomeLady, PRONOUN_NO_IT,
+        { ...unspotted, random: noDraw.random }), 1);
+
+    // mondata.c:1199-1200. Hallucination scrambles the row, and only with
+    // PRONOUN_HALLU set. It is the one draw here, and it is rn2(4) because
+    // genders[] has a fourth row for it.
+    state.u.uprops[HALLUC].intrinsic = 1;
+    assert.equal(pronoun_gender(gnome, PRONOUN_NORMAL, noDraw), 0);
+    const bounds = [];
+    assert.equal(pronoun_gender(gnome, PRONOUN_HALLU, {
+        ...spotted,
+        random: { rn2: (bound) => { bounds.push(bound); return 3; } },
+    }), 3);
+    assert.deepEqual(bounds, [4]);
+    // Either half of Halluc_resistance puts it back.
+    state.u.uprops[HALLUC_RES].extrinsic = 1;
+    assert.equal(pronoun_gender(gnome, PRONOUN_HALLU, noDraw), 0);
+    state.u.uprops[HALLUC_RES].extrinsic = 0;
+    state.u.uprops[HALLUC_RES].intrinsic = 1;
+    assert.equal(pronoun_gender(gnome, PRONOUN_HALLU, noDraw), 0);
+    state.u.uprops[HALLUC].intrinsic = 0;
+    state.u.uprops[HALLUC_RES].intrinsic = 0;
+
+    // you.h:324 mhis(), which is the possessive column of the same rows.
+    assert.equal(mhis(gnome, noDraw), 'his');
+    assert.equal(mhis(gnomeLady, noDraw), 'her');
+    assert.equal(mhis(rat, noDraw), 'its');
+});

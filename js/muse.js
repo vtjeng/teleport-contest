@@ -5,6 +5,13 @@
 import {
     MFAST,
     MS_SILENT,
+    M_SEEN_ACID,
+    M_SEEN_COLD,
+    M_SEEN_ELEC,
+    M_SEEN_FIRE,
+    M_SEEN_MAGR,
+    M_SEEN_REFL,
+    M_SEEN_SLEEP,
     NON_PM,
     OBJ_FLOOR,
     P_DAGGER,
@@ -21,7 +28,7 @@ import {
 import { game } from './gstate.js';
 import { dist2 } from './hacklib.js';
 import {
-    acidic, attacktype, breathless, has_head, is_animal, is_floater,
+    acidic, attacktype, breathless, dmgtype, has_head, is_animal, is_floater,
     is_unicorn, is_vampshifter, mindless, needspick, nohands, nonliving,
     passes_walls, slimeproof, throws_rocks, touch_petrifies, verysmall,
 } from './mondata.js';
@@ -32,7 +39,9 @@ import {
     sobj_at,
 } from './obj.js';
 import * as O from './objects.js';
-import { onscary } from './monmove.js';
+import { monnear, onscary } from './monmove.js';
+import { lined_up } from './mthrowu.js';
+import { in_your_sanctuary } from './priest.js';
 import { rn2 } from './rng.js';
 import { t_at } from './trap.js';
 import { mwelded } from './wield.js';
@@ -247,6 +256,90 @@ export function select_fresh_monster_item_action(monster, rawEnv = {}) {
         }
     }
     return select_misc_action(monster, rawEnv);
+}
+
+// C ref: muse.c find_offensive() (1420-1594). "Select an offensive
+// item/action for a monster. Returns TRUE iff one is found."
+//
+// Partial, and deliberately only ever answers FALSE. C reports its choice
+// through gm.m.offensive and gm.m.has_offense, whose sole reader is
+// use_offensive(); that function is not ported, so every arm that would set
+// has_offense refuses here instead. What the port therefore covers is exactly
+// the FALSE answer: the five guards above the inventory loop, and the loop's
+// rejection of every item that is not an offensive one. C's `nomore(x)` skip
+// cannot fire, because has_offense never becomes nonzero.
+//
+// Four arms refuse on the object type ahead of conditions C also tests.
+// MUSE_WAN_UNDEAD_TURNING needs invent.c carrying() and a corpse ray;
+// MUSE_WAN_TELEPORTATION needs onscary(), hero_behind_chokepoint() and
+// stairway_at(); and MUSE_SCR_EARTH and MUSE_CAMERA each end in a draw --
+// !rn2(10) and !rn2(6) -- that a refusing port must not spend. Refusing early
+// stops a monster C would have let past; it never lets one past that C stops.
+export function find_offensive(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const unsupported = rawEnv.unsupported;
+    if (typeof unsupported !== 'function')
+        throw new TypeError('find_offensive requires an unsupported operation');
+    const species = mtmp.data;
+    const u = state.u;
+    const seenres = (mask) => (mtmp.seen_resistance & mask) !== 0;
+    const refuse = () => unsupported('monster offensive item use');
+
+    if (mtmp.mpeaceful || is_animal(species) || mindless(species)
+        || nohands(species)) {
+        return false;
+    }
+    if (u?.uswallow) return false;
+    if (in_your_sanctuary(mtmp, 0, 0, state)) return false;
+    if (dmgtype(species, M.AD_HEAL)
+        && !state.uwep && !state.uarmu && !state.uarm && !state.uarmh
+        && !state.uarms && !state.uarmg && !state.uarmc && !state.uarmf) {
+        return false;
+    }
+    /* all offensive items require orthogonal or diagonal targeting */
+    if (!lined_up(mtmp, rawEnv)) return false;
+
+    const reflection_skip = seenres(M_SEEN_REFL) /* m_seenres() */
+        || monnear(mtmp, mtmp.mux, mtmp.muy, state);
+    // C also reads which_armor(mtmp, W_ARMH) here. Its one consumer is the
+    // MUSE_SCR_EARTH arm's hard_helmet() test, which this refuses ahead of.
+    /* this picks the last viable item rather than prioritizing choices */
+    for (let obj = mtmp.minvent; obj; obj = obj.nobj) {
+        const otyp = obj.otyp;
+        if (!reflection_skip) {
+            if ((otyp === O.WAN_DEATH && obj.spe > 0 && !seenres(M_SEEN_MAGR))
+                || (otyp === O.WAN_SLEEP && obj.spe > 0
+                    && (state.multi ?? 0) >= 0 && !seenres(M_SEEN_SLEEP))
+                || (otyp === O.WAN_FIRE && obj.spe > 0
+                    && !seenres(M_SEEN_FIRE))
+                || (otyp === O.FIRE_HORN && obj.spe > 0 && can_blow(mtmp)
+                    && !seenres(M_SEEN_FIRE))
+                || (otyp === O.WAN_COLD && obj.spe > 0
+                    && !seenres(M_SEEN_COLD))
+                || (otyp === O.FROST_HORN && obj.spe > 0 && can_blow(mtmp)
+                    && !seenres(M_SEEN_COLD))
+                || (otyp === O.WAN_LIGHTNING && obj.spe > 0
+                    && !seenres(M_SEEN_ELEC))
+                || (otyp === O.WAN_MAGIC_MISSILE && obj.spe > 0
+                    && !seenres(M_SEEN_MAGR))) {
+                refuse();
+            }
+        }
+        if ((otyp === O.WAN_UNDEAD_TURNING && obj.spe > 0)
+            || (otyp === O.WAN_STRIKING && obj.spe > 0
+                && !seenres(M_SEEN_MAGR))
+            || (otyp === O.WAN_TELEPORTATION && obj.spe > 0)
+            || (otyp === O.POT_PARALYSIS && (state.multi ?? 0) >= 0)
+            || (otyp === O.POT_BLINDNESS && !attacktype(species, AT_GAZE))
+            || otyp === O.POT_CONFUSION
+            || (otyp === O.POT_SLEEPING && !seenres(M_SEEN_SLEEP))
+            || (otyp === O.POT_ACID && !seenres(M_SEEN_ACID))
+            || otyp === O.SCR_EARTH
+            || (otyp === O.EXPENSIVE_CAMERA && obj.spe > 0)) {
+            refuse();
+        }
+    }
+    return false;
 }
 
 function resistsStoning(monster) {

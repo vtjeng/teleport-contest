@@ -1375,8 +1375,14 @@ test('simple preflight rejects every selected excluded action atomically',
     async () => {
         const cases = [
             {
+                // mhitu.c mattacku() carries the melee arms through their
+                // to-hit test now, so this fixture reaches missmu().
+                // prepareSelectedAction() rewrites the route as unlit ROOM
+                // and raises COULD_SEE alone, so display.h cansee() and with
+                // it canspotmon() are false, and missmu() stops at
+                // map_invisible(), which is unported.
                 name: 'hero attack',
-                reason: 'monster attack on the hero',
+                reason: 'a miss by a monster the hero cannot spot',
                 prepare: () => prepareSelectedAction({
                     adjacentHero: true,
                 }),
@@ -2301,7 +2307,7 @@ test('a starting pony targets at range and later refusal stays retryable',
         await assert.rejects(
             preflightSimpleMonsterActions(game),
             (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'monster attack on the hero',
+                && error.reason === 'a monster landing a hit on the hero',
         );
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
@@ -2683,10 +2689,10 @@ test('an in-range monster with a ranged attack stops the scan', async () => {
     // arms are AT_BREA's breamu(), AT_SPIT's spitmu() and AT_GAZE's gazemu().
     // None is ported, and dochug()'s gate used to admit an adjacent attacker
     // only, so these three passed through in silence.
-    for (const [name, aatyp] of [
-        ['breath', AT_BREA],
-        ['spit', AT_SPIT],
-        ['gaze', AT_GAZE],
+    for (const [name, aatyp, reason] of [
+        ['breath', AT_BREA, 'a monster breathing at the hero'],
+        ['spit', AT_SPIT, 'a monster spitting at the hero'],
+        ['gaze', AT_GAZE, 'a monster gazing at the hero'],
     ]) {
         const target = await prepareSelectedAction();
         // The fixture leaves exactly one legal step. Closing it makes
@@ -2706,7 +2712,7 @@ test('an in-range monster with a ranged attack stops the scan', async () => {
             preflightSimpleMonsterActions(game),
             (error) => (
                 error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'monster ranged attack on the hero'
+                && error.reason === reason
             ),
             name,
         );

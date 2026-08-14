@@ -13,6 +13,8 @@ import {
     FEMALE,
     FIRE_RES,
     G_GENOD,
+    HALLUC,
+    HALLUC_RES,
     M_SEEN_ACID,
     M_SEEN_COLD,
     M_SEEN_DISINT,
@@ -30,6 +32,8 @@ import {
     NO_TRAP,
     NUM_MGENDERS,
     POISON_RES,
+    PRONOUN_HALLU,
+    PRONOUN_NO_IT,
     REFLECTING,
     SHOCK_RES,
     SLEEP_RES,
@@ -50,7 +54,7 @@ import { dist2, highc } from './hacklib.js';
 import * as M from './monsters.js';
 import { ALCHEMY_SMOCK } from './objects.js';
 import { rn2, rnd } from './rng.js';
-import { roles } from './roles.js';
+import { genders, roles } from './roles.js';
 import { is_fshk } from './shk.js';
 // monstunseesu() below reads m_canseeu(), which reads perceives() from this
 // file; the two modules reach each other the way this file and js/dungeon.js
@@ -1457,6 +1461,55 @@ export function gender(monster) {
     // similarly named M2_NEUTER is the species flag is_neuter() tests.
     if (is_neuter(monster.data)) return NEUTRAL;
     return monster.female ? FEMALE : MALE;
+}
+
+// youprop.h:116-120 Hallucination: the intrinsic timeout, defeated by either
+// half of Halluc_resistance.
+function hallucinatingHero(state) {
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(state.u?.uprops?.[HALLUC]?.intrinsic
+        && !(resistance?.intrinsic || resistance?.extrinsic));
+}
+
+// C ref: mondata.c pronoun_gender() (1191-1210). Which row of role.c genders[]
+// a monster's pronouns come from: 0 male, 1 female, 2 neuter, and 3 -- "they"
+// -- when PRONOUN_HALLU lets hallucination scramble the answer. That last arm
+// spends the only draw here, so it is the reason this is not a pure lookup.
+//
+// canspotmon() lives in js/startup_a11y.js, which reaches this file through
+// js/display.js, so the caller supplies it, as mons_see_trap() above does for
+// m_cansee(). PRONOUN_NO_IT skips it, which is why the operation is demanded
+// inside the branch rather than at the top.
+export function pronoun_gender(mtmp, pg_flags, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2 };
+    const override_vis = (pg_flags & PRONOUN_NO_IT) !== 0;
+    const hallu_rand = (pg_flags & PRONOUN_HALLU) !== 0;
+
+    if (hallu_rand && hallucinatingHero(state)) return random.rn2(4); /* 0..3 */
+    if (!override_vis) {
+        const canSpotMonster = env.canSpotMonster;
+        if (typeof canSpotMonster !== 'function') {
+            throw new TypeError(
+                'pronoun_gender requires the canSpotMonster owner',
+            );
+        }
+        if (!canSpotMonster(mtmp, state)) return NEUTRAL;
+    }
+    if (is_neuter(mtmp.data)) return NEUTRAL;
+    // C returns the `unsigned female:1` bitfield here, so it yields the same
+    // 0 or 1 gender() converts a JavaScript boolean into.
+    return (humanoid(mtmp.data) || (mtmp.data.geno & M.G_UNIQ)
+            || type_is_pname(mtmp.data))
+        ? (mtmp.female ? FEMALE : MALE)
+        : NEUTRAL;
+}
+
+// C ref: you.h:324 mhis(), a monster's possessive pronoun. It passes
+// PRONOUN_HALLU alone, so an unspotted monster is "its" and a hallucinating
+// hero may see "their".
+export function mhis(mtmp, env = {}) {
+    return genders[pronoun_gender(mtmp, PRONOUN_HALLU, env)].his;
 }
 
 // C ref: mondata.c big_little_match().

@@ -64,10 +64,7 @@ import {
     verysmall,
 } from './mondata.js';
 import {
-    AT_BREA,
-    AT_GAZE,
     AT_MAGC,
-    AT_SPIT,
     AT_WEAP,
     PM_ERINYS,
     PM_GELATINOUS_CUBE,
@@ -88,7 +85,6 @@ import {
     m_avoid_soko_push_loc,
     m_everyturn_effect,
     m_move,
-    monnear,
 } from './monmove.js';
 import { select_fresh_monster_item_action } from './muse.js';
 import { newObject } from './obj.js';
@@ -830,34 +826,36 @@ async function moveSimplePet(monster, after, env) {
     });
 }
 
-// C ref: mhitu.c mattacku(). dochug()'s standard-attack gate admits a monster
-// anywhere inside BOLT_LIM, and what it may do there depends on whether it
-// believes it is adjacent. An adjacent attacker reaches the melee arms, which
-// are not ported at all. A monster that only thinks it is near reaches the
-// range2 arms alone: AT_MAGC's castmu(), refused by assertSimpleActionState()
-// before the scan; AT_BREA, AT_SPIT and AT_GAZE, refused here; and AT_WEAP's
-// thrwmu(), which does nothing at all unless select_rwep() finds a missile.
+// C ref: mthrowu.c thrwmu() (566-...), the head that mattacku()'s range2
+// AT_WEAP arm reaches. thrwmu() is not ported, and the port lets a monster
+// past only where C's own head returns without acting: select_rwep() finds no
+// missile.
 //
-// js/mhitu.js mattacku() carries the preamble and the steed arm, which run
-// above all of that and, for a mounted hero, spend a draw on every call.
-function refuseHeroAttack(monster, env) {
-    if (mattacku(monster, { ...env, unsupported })) return;
-    if (monnear(monster, monster.mux, monster.muy))
-        unsupported('monster attack on the hero');
-    const species = monster.data;
-    if (attacktype(species, AT_BREA)
-        || attacktype(species, AT_SPIT)
-        || attacktype(species, AT_GAZE)) {
-        unsupported('monster ranged attack on the hero');
-    }
-    if (attacktype(species, AT_WEAP)) {
-        const selected = select_rwep(monster, {
-            ...env,
-            touchArtifact: () =>
-                unsupported('monster artifact weapon selection'),
-        });
-        if (selected) unsupported('monster ranged weapon action');
-    }
+// C reaches that answer twice. It first sets weapon_check to
+// NEED_RANGED_WEAPON and calls mon_wield_item(), whose ranged branch runs
+// select_rwep() and, finding nothing, leaves weapon_check at NEED_WEAPON and
+// returns 0; thrwmu() then calls select_rwep() itself and returns. This runs
+// the selection once and writes the same weapon_check, because
+// runSimpleMonsterAction() binds mon_wield_item()'s selectRangedWeapon
+// operation to a refusal and going through it would stop every monster C
+// leaves alone.
+function throwRangedWeapon(monster, env) {
+    const selected = select_rwep(monster, {
+        ...env,
+        touchArtifact: () => unsupported('monster artifact weapon selection'),
+    });
+    if (selected) unsupported('monster ranged weapon action');
+    if (monster.weapon_check === NEED_WEAPON || !monster.mw)
+        monster.weapon_check = NEED_WEAPON;
+}
+
+// The dochug() operation that mhitu.c mattacku() sits behind. Everything it
+// still refuses -- the hero-concealment blocks, summonmu(), u.uinvulnerable,
+// use_offensive(), wildmiss(), hitmu() and every aatyp arm outside the two
+// melee ones -- refuses from inside mattacku() itself, so this seam adds only
+// the operations that file cannot import.
+function attackHeroWithMattacku(monster, env) {
+    return mattacku(monster, { ...env, throwRangedWeapon, unsupported });
 }
 
 // Execute one already-preflighted monster action. The same function is used
@@ -873,35 +871,18 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
         // One dochug() now serves both, as in C. m_move() picks the mover.
         dochug: (subject, actionEnv) => dochug(subject, {
                 ...actionEnv,
-                attackHero: refuseHeroAttack,
+                // Both of this file's seams onto mhitu.c mattacku(). C reaches
+                // it from dochug()'s standard-attack gate whether or not the
+                // monster moved first, and js/monmove.js folds the
+                // moved-then-attack path into the second operation. Two
+                // further seams still refuse ahead of C's steed draw:
+                // js/unported_monster_actions.js:732 (dogmove.c:1286) and
+                // js/dogmove.js:891 (dogmove.c:911).
+                attackHero: attackHeroWithMattacku,
                 monFlee: () => unsupported('monster flight'),
                 monsterCanSeeHero: ordinaryMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
-                // The second of the two seams in this file that route
-                // through js/mhitu.js mattacku(); the seam at :732
-                // (dogmove.c:1286) still refuses ahead of C's steed draw, as
-                // does js/dogmove.js:891. C
-                // reaches mattacku() from dochug()'s standard-attack gate
-                // whether or not the monster moved first, and js/monmove.js
-                // folds the moved-then-attack path into this operation.
-                postMoveRangedAttack: (weaponUser, weaponEnv) => {
-                    if (mattacku(weaponUser, {
-                        ...weaponEnv,
-                        unsupported,
-                    })) return;
-                    const selected = select_rwep(weaponUser, {
-                        ...weaponEnv,
-                        touchArtifact: () => unsupported(
-                            'monster artifact weapon selection',
-                        ),
-                    });
-                    if (selected)
-                        unsupported('monster ranged weapon action');
-                    if (weaponUser.weapon_check === NEED_WEAPON
-                        || !weaponUser.mw) {
-                        weaponUser.weapon_check = NEED_WEAPON;
-                    }
-                },
+                postMoveRangedAttack: attackHeroWithMattacku,
                 selectRangedWeapon: () =>
                     unsupported('monster ranged weapon selection'),
                 usePreMoveItems: (itemUser, itemEnv) => {

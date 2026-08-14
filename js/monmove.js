@@ -253,6 +253,7 @@ import {
     S_NYMPH,
     S_VAMPIRE,
 } from './monsters.js';
+import { lined_up } from './mthrowu.js';
 import { searches_for_item } from './muse.js';
 import { isCandle, isContainer, objectType, sobj_at } from './obj.js';
 import {
@@ -301,7 +302,6 @@ import {
     TOOL_CLASS,
     TOWEL,
     VENOM_CLASS,
-    WAN_STRIKING,
     WEAPON_CLASS,
 } from './objects.js';
 import {
@@ -2195,71 +2195,6 @@ function requireMoveOperation(env, name) {
     return operation;
 }
 
-function lineTerrain(monster, state) {
-    const goalX = monster.mux;
-    const goalY = monster.muy;
-    const deltaX = goalX - monster.mx;
-    const deltaY = goalY - monster.my;
-    if ((!deltaX && !deltaY)
-        || !online2(goalX, goalY, monster.mx, monster.my)
-        || distmin(deltaX, deltaY, 0, 0) >= BOLT_LIM) {
-        return { blocked: false, clear: false, boulders: 0 };
-    }
-
-    const stepX = Math.sign(deltaX);
-    const stepY = Math.sign(deltaY);
-    let x = monster.mx;
-    let y = monster.my;
-    let boulders = 0;
-    do {
-        x += stepX;
-        y += stepY;
-        const location = state.level?.at(x, y);
-        if (!location || IS_OBSTRUCTED(location.typ)
-            || IS_WATERWALL(location.typ)
-            || location.typ === LAVAWALL
-            || closed_door(x, y, state)) {
-            return { blocked: true, clear: false, boulders };
-        }
-        if (sobj_at(BOULDER, x, y, state)) boulders++;
-    } while (x !== goalX || y !== goalY);
-    return { blocked: false, clear: boulders === 0, boulders };
-}
-
-// C refs: mthrowu.c lined_up()/linedup(), as used only by m_move()'s item
-// search admission. The current fresh-game boundary cannot polymorph the hero,
-// so m_lined_up()'s Upolyd concealment draw is not reachable here.
-export function monsterItemSearchInLine(monster, env = {}) {
-    const state = env.state ?? game;
-    const random = env.random ?? { rn2 };
-    const terrain = lineTerrain(monster, state);
-    if (!online2(monster.mx, monster.my, monster.mux, monster.muy)
-        || distmin(
-            monster.mx,
-            monster.my,
-            monster.mux,
-            monster.muy,
-        ) >= BOLT_LIM) {
-        return false;
-    }
-
-    const goalIsHero = monster.mux === state.u.ux
-        && monster.muy === state.u.uy;
-    if ((goalIsHero && couldsee(monster.mx, monster.my, state))
-        || (!goalIsHero && terrain.clear)) {
-        return true;
-    }
-    if (terrain.blocked
-        || (!terrain.clear && terrain.boulders === 0)) {
-        return false;
-    }
-
-    const ignoresBoulders = throws_rocks(monster.data)
-        || Boolean(m_carrying(monster, WAN_STRIKING, state));
-    return ignoresBoulders
-        || random.rn2(2 + terrain.boulders) < 2;
-}
-
 // The door masks that leave postmov()'s door block with nothing to do.  Three
 // of the block's four arms test D_LOCKED or D_CLOSED and the fourth tests
 // whole-mask equality with D_CLOSED, so a monster standing on a doorless,
@@ -2596,9 +2531,7 @@ export async function m_move(monster, rawEnv = {}) {
     const passesPeacefulGate = !monster.mpeaceful || !random.rn2(10);
     if (passesPeacefulGate
         && !on_level(state.u?.uz, state.rogue_level)) {
-        const linedUp = (
-            rawEnv.itemSearchInLine ?? monsterItemSearchInLine
-        )(monster, env);
+        const linedUp = (rawEnv.itemSearchInLine ?? lined_up)(monster, env);
         const throwRange = throws_rocks(state.youmonst?.data)
             ? 20
             : Math.trunc(effective_attribute(state, A_STR) / 2) + 1;

@@ -65,6 +65,15 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(monsterExports.AD_STCK, 19);
     assert.equal(monsterExports.AD_WRAP, 28);
     assert.equal(monsterExports.AD_POLY, 43);
+    // monattk.h:56, :78, :82, :83 and :32. mhitu.c getmattk() reads the first
+    // four to decide whether to substitute an attack and mattacku()'s loop
+    // reads AD_DRIN; muse.c find_offensive():1435 reads AD_HEAL.
+    assert.equal(monsterExports.AD_DREN, 16);
+    assert.equal(monsterExports.AD_DRIN, 32);
+    assert.equal(monsterExports.AD_DISE, 33);
+    assert.equal(monsterExports.AD_PEST, 38);
+    assert.equal(monsterExports.AD_FAMN, 39);
+    assert.equal(monsterExports.AD_HEAL, 27);
     assert.equal(monsterExports.M1_CLING, 0x00000010);
     assert.equal(monsterExports.M1_HIDE, 0x00000100);
     assert.equal(M1_NOHANDS, 0x00002000);
@@ -104,7 +113,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        'a611e8e6f4f26fcc09d27f482eda4882e3863538a9d75461e25ba9eb69a41b71',
+        'bec75878e3509f37af0cc5d6ca0893c555a9b72406aaa218f85f3f2fa315957c',
     );
 });
 

@@ -9,13 +9,27 @@ import {
     W_WEP,
 } from '../js/const.js';
 import {
+    COULD_SEE,
+    M_SEEN_ACID,
+    M_SEEN_MAGR,
+    M_SEEN_REFL,
+    M_SEEN_SLEEP,
+    ROOM,
+} from '../js/const.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import {
     can_blow,
     cures_stoning,
+    find_offensive,
     mcould_eat_tin,
     searches_for_item,
     select_fresh_monster_item_action,
     select_misc_action,
 } from '../js/muse.js';
+import { mksobj } from '../js/obj.js';
+import { UnsupportedSimpleMonsterActionError }
+    from '../js/unported_monster_actions.js';
 import {
     M1_ANIMAL,
     M1_BREATHLESS,
@@ -27,6 +41,8 @@ import {
     PM_GHOST,
     PM_GNOME,
     PM_HUMAN,
+    PM_JACKAL,
+    PM_NURSE,
     PM_KI_RIN,
     PM_LIZARD,
     PM_STONE_GOLEM,
@@ -43,28 +59,42 @@ import {
     CORPSE,
     DAGGER,
     EGG,
+    EXPENSIVE_CAMERA,
     FIRE_HORN,
     FOOD_RATION,
+    FROST_HORN,
     GLOB_OF_GREEN_SLIME,
     LARGE_BOX,
     LONG_SWORD,
     POT_ACID,
     POT_BLINDNESS,
+    POT_CONFUSION,
+    POT_PARALYSIS,
+    POT_SLEEPING,
     POT_HEALING,
     POT_GAIN_LEVEL,
     POT_INVISIBILITY,
     POT_POLYMORPH,
     POT_SPEED,
+    SCR_EARTH,
     SCR_FIRE,
     SCR_SCARE_MONSTER,
     TIN,
     TIN_OPENER,
     UNICORN_HORN,
+    WAN_COLD,
+    WAN_DEATH,
     WAN_DIGGING,
+    WAN_FIRE,
+    WAN_LIGHTNING,
     WAN_MAGIC_MISSILE,
     WAN_MAKE_INVISIBLE,
     WAN_POLYMORPH,
+    WAN_SLEEP,
     WAN_SPEED_MONSTER,
+    WAN_STRIKING,
+    WAN_TELEPORTATION,
+    WAN_UNDEAD_TURNING,
     objects_globals_init,
 } from '../js/objects.js';
 
@@ -565,4 +595,324 @@ test('searches_for_item checks an own-square floor scare first', () => {
     state.level.objects[monster.mx][monster.my] = scare;
 
     assert.equal(searches_for_item(monster, object, state), false);
+});
+
+// ---- muse.c find_offensive() ----
+
+// A live Valkyrie in the lit starting room. find_offensive() reads
+// in_your_sanctuary(), monnear() and lined_up(), which all need a real map
+// and hero, so this half of the file cannot use makeState()'s bare catalogs.
+const OFFENSIVE_DATETIME = '20260214031500';
+const OFFENSIVE_RC = [
+    'OPTIONS=name:Lich,role:Valkyrie,race:human,gender:female,align:neutral',
+    'OPTIONS=!legacy,!tutorial,!splash_screen',
+    'OPTIONS=pettype:none,!acoustics,time',
+    '',
+].join('\n');
+
+async function offensiveHero() {
+    await runSegment({
+        seed: 7710044,
+        datetime: OFFENSIVE_DATETIME,
+        nethackrc: OFFENSIVE_RC,
+        moves: '',
+    });
+    return game;
+}
+
+// An attacker beside the hero, believing the hero is where the hero is, and
+// carrying whatever the case hands it.
+function offensiveMonster(state, pmidx, minvent = null, overrides = {}) {
+    return newMonster({
+        data: state.mons[pmidx],
+        m_id: 7100,
+        mx: state.u.ux + 1,
+        my: state.u.uy,
+        mux: state.u.ux,
+        muy: state.u.uy,
+        mcansee: true,
+        minvent,
+        ...overrides,
+    });
+}
+
+function offensiveEnv(state) {
+    return {
+        state,
+        unsupported: (reason) => {
+            throw new UnsupportedSimpleMonsterActionError(reason);
+        },
+        random: { rn2: (bound) => assert.fail(`unexpected rn2(${bound})`) },
+    };
+}
+
+function carried(state, otyp, overrides = {}) {
+    const obj = mksobj(otyp, false, false, { state });
+    obj.nobj = null;
+    Object.assign(obj, overrides);
+    return obj;
+}
+
+test('find_offensive declines above the loop for each guard C names',
+    async () => {
+    const state = await offensiveHero();
+    const env = offensiveEnv(state);
+    // muse.c:1428-1430. A peaceful, animal, mindless or handless attacker
+    // never gets as far as its pack, so an offensive item in it is ignored.
+    // A wand of striking sits in the half no reflection skips, so it is
+    // selected whatever the attacker's distance.
+    const wand = carried(state, WAN_STRIKING, { spe: 3 });
+    const gnome = offensiveMonster(state, PM_GNOME, wand);
+    // The gnome itself passes every guard and is refused for the wand.
+    assert.throws(() => find_offensive(gnome, env),
+        (error) => error.reason === 'monster offensive item use');
+
+    gnome.mpeaceful = true;
+    assert.equal(find_offensive(gnome, env), false);
+    gnome.mpeaceful = false;
+
+    const jackal = offensiveMonster(state, PM_JACKAL, wand);
+    assert.equal(find_offensive(jackal, env), false); // is_animal()
+    const golem = offensiveMonster(state, PM_STONE_GOLEM, wand);
+    assert.equal(find_offensive(golem, env), false); // mindless()
+
+    // muse.c:1431. A swallowed hero ends it before the sanctuary test.
+    state.u.uswallow = 1;
+    assert.equal(find_offensive(gnome, env), false);
+    state.u.uswallow = 0;
+
+    // muse.c:1439. lined_up() is the last guard, and an attacker that
+    // believes the hero is on its own square is never lined up.
+    gnome.mux = gnome.mx;
+    gnome.muy = gnome.my;
+    assert.equal(find_offensive(gnome, env), false);
+});
+
+test('find_offensive skips the reflectable half for an adjacent attacker',
+    async () => {
+    const state = await offensiveHero();
+    const env = offensiveEnv(state);
+    // muse.c:1443-1444. reflection_skip is TRUE for any attacker standing
+    // next to where it thinks the hero is, which kills the wand-and-horn
+    // half outright: a wand of magic missile in hand selects nothing.
+    const wand = carried(state, WAN_MAGIC_MISSILE, { spe: 3 });
+    const adjacent = offensiveMonster(state, PM_GNOME, wand);
+    assert.equal(find_offensive(adjacent, env), false);
+
+    // Three squares out the same attacker with the same wand reaches that
+    // half and is refused. lined_up() sits above the loop, so the row it
+    // fires along has to be open and the attacker's own square in view.
+    for (let x = state.u.ux; x <= state.u.ux + 3; ++x) {
+        const location = state.level.at(x, state.u.uy);
+        location.typ = ROOM;
+        location.flags = 0;
+        location.doormask = 0;
+        location.wall_info = 0;
+    }
+    state.viz_array[state.u.uy][state.u.ux + 3] |= COULD_SEE;
+    const distant = offensiveMonster(state, PM_GNOME, wand, {
+        mx: state.u.ux + 3,
+    });
+    assert.throws(() => find_offensive(distant, env),
+        (error) => error.reason === 'monster offensive item use');
+
+    // Having watched the hero reflect a ray sets the same skip at any
+    // distance, and the wand is the only offensive item it holds.
+    distant.seen_resistance = M_SEEN_REFL;
+    assert.equal(find_offensive(distant, env), false);
+});
+
+test('find_offensive reads the conditions C attaches to each item',
+    async () => {
+    const state = await offensiveHero();
+    const env = offensiveEnv(state);
+    const gnome = offensiveMonster(state, PM_GNOME);
+
+    // muse.c:1497-1502. A wand of striking needs a charge and an unreflected
+    // hero; either failing leaves the pack inert.
+    gnome.minvent = carried(state, WAN_STRIKING, { spe: 0 });
+    assert.equal(find_offensive(gnome, env), false);
+    gnome.minvent = carried(state, WAN_STRIKING, { spe: 2 });
+    assert.throws(() => find_offensive(gnome, env),
+        (error) => error.reason === 'monster offensive item use');
+    gnome.seen_resistance = M_SEEN_MAGR;
+    assert.equal(find_offensive(gnome, env), false);
+    gnome.seen_resistance = 0;
+
+    // muse.c:1522-1526. A potion of blindness is useless to a gazer, which
+    // is the one condition that reads the attacker's own species.
+    gnome.minvent = carried(state, POT_BLINDNESS);
+    assert.throws(() => find_offensive(gnome, env),
+        (error) => error.reason === 'monster offensive item use');
+    const eye = offensiveMonster(state, PM_FLOATING_EYE, gnome.minvent);
+    assert.equal(find_offensive(eye, env), false);
+
+    // muse.c:1517-1521. A paralysis potion is skipped while the hero is
+    // already helpless.
+    gnome.minvent = carried(state, POT_PARALYSIS);
+    assert.throws(() => find_offensive(gnome, env),
+        (error) => error.reason === 'monster offensive item use');
+    state.multi = -2;
+    assert.equal(find_offensive(gnome, env), false);
+    state.multi = 0;
+
+    // An ordinary carried item is not offensive at all, which is what makes
+    // the FALSE answer the common one.
+    gnome.minvent = carried(state, DAGGER);
+    assert.equal(find_offensive(gnome, env), false);
+});
+
+// One row per arm of find_offensive()'s inventory loop, in source order, each
+// naming the muse.c line it stands for. `reflected` puts the attacker three
+// squares out so that the wand-and-horn half above `reflection_skip` runs;
+// every other row is adjacent, where C skips it.
+//
+// The two control rows are the point of the table: an ordinary dagger that
+// satisfies every *condition* an arm attaches to its object type, without
+// being any of those types. C leaves it alone, so an arm that stopped reading
+// the type would be visible here and nowhere else.
+const OFFENSIVE_ARMS = [
+    // muse.c:1449-1453
+    { name: 'wand of death', otyp: WAN_DEATH, spe: 1, distant: true },
+    { name: 'spent wand of death', otyp: WAN_DEATH, spe: 0, distant: true,
+        refuses: false },
+    { name: 'seen-resistant wand of death', otyp: WAN_DEATH, spe: 1,
+        distant: true, monster: { seen_resistance: M_SEEN_MAGR },
+        refuses: false },
+    // muse.c:1455-1459
+    { name: 'wand of sleep', otyp: WAN_SLEEP, spe: 1, distant: true },
+    { name: 'spent wand of sleep', otyp: WAN_SLEEP, spe: 0, distant: true,
+        refuses: false },
+    { name: 'wand of sleep at a helpless hero', otyp: WAN_SLEEP, spe: 1,
+        distant: true, multi: -1, refuses: false },
+    // muse.c:1461-1465
+    { name: 'wand of fire', otyp: WAN_FIRE, spe: 1, distant: true },
+    { name: 'spent wand of fire', otyp: WAN_FIRE, spe: 0, distant: true,
+        refuses: false },
+    // muse.c:1467-1471
+    { name: 'fire horn', otyp: FIRE_HORN, spe: 1, distant: true },
+    { name: 'spent fire horn', otyp: FIRE_HORN, spe: 0, distant: true,
+        refuses: false },
+    // muse.c:1473-1477
+    { name: 'wand of cold', otyp: WAN_COLD, spe: 1, distant: true },
+    { name: 'spent wand of cold', otyp: WAN_COLD, spe: 0, distant: true,
+        refuses: false },
+    // muse.c:1479-1483
+    { name: 'frost horn', otyp: FROST_HORN, spe: 1, distant: true },
+    { name: 'spent frost horn', otyp: FROST_HORN, spe: 0, distant: true,
+        refuses: false },
+    // muse.c:1485-1489
+    { name: 'wand of lightning', otyp: WAN_LIGHTNING, spe: 1, distant: true },
+    { name: 'spent wand of lightning', otyp: WAN_LIGHTNING, spe: 0, distant: true,
+        refuses: false },
+    // muse.c:1491-1495
+    { name: 'wand of magic missile', otyp: WAN_MAGIC_MISSILE, spe: 1,
+        distant: true },
+    { name: 'spent wand of magic missile', otyp: WAN_MAGIC_MISSILE, spe: 0, distant: true,
+        refuses: false },
+    // The whole half above is skipped for an adjacent attacker.
+    { name: 'wand of magic missile up close', otyp: WAN_MAGIC_MISSILE, spe: 1,
+        refuses: false },
+    // muse.c:1497-1499
+    { name: 'wand of undead turning', otyp: WAN_UNDEAD_TURNING, spe: 1 },
+    { name: 'spent wand of undead turning', otyp: WAN_UNDEAD_TURNING, spe: 0,
+        refuses: false },
+    // muse.c:1500-1505
+    { name: 'wand of striking', otyp: WAN_STRIKING, spe: 1 },
+    // muse.c:1506-1516
+    { name: 'wand of teleportation', otyp: WAN_TELEPORTATION, spe: 1 },
+    { name: 'spent wand of teleportation', otyp: WAN_TELEPORTATION, spe: 0,
+        refuses: false },
+    // muse.c:1517-1521
+    { name: 'potion of paralysis', otyp: POT_PARALYSIS },
+    // muse.c:1522-1526
+    { name: 'potion of blindness', otyp: POT_BLINDNESS },
+    // muse.c:1527-1531
+    { name: 'potion of confusion', otyp: POT_CONFUSION },
+    // muse.c:1532-1537
+    { name: 'potion of sleeping', otyp: POT_SLEEPING },
+    { name: 'potion of sleeping against a sleep-resistant hero',
+        otyp: POT_SLEEPING, monster: { seen_resistance: M_SEEN_SLEEP },
+        refuses: false },
+    // muse.c:1538-1543
+    { name: 'potion of acid', otyp: POT_ACID },
+    { name: 'potion of acid against an acid-resistant hero', otyp: POT_ACID,
+        monster: { seen_resistance: M_SEEN_ACID }, refuses: false },
+    // muse.c:1548-1560
+    { name: 'scroll of earth', otyp: SCR_EARTH },
+    // muse.c:1561-1568
+    { name: 'expensive camera', otyp: EXPENSIVE_CAMERA, spe: 1 },
+    { name: 'spent expensive camera', otyp: EXPENSIVE_CAMERA, spe: 0,
+        refuses: false },
+    // The controls.
+    { name: 'enchanted dagger up close', otyp: DAGGER, spe: 3,
+        refuses: false },
+    { name: 'enchanted dagger at range', otyp: DAGGER, spe: 3, distant: true,
+        refuses: false },
+];
+
+test('find_offensive selects on the object type and its own conditions',
+    async () => {
+    const state = await offensiveHero();
+    const env = offensiveEnv(state);
+    // lined_up() sits above the loop, so the row a distant attacker fires
+    // along has to be open and its own square in view.
+    for (let x = state.u.ux; x <= state.u.ux + 3; ++x) {
+        const location = state.level.at(x, state.u.uy);
+        location.typ = ROOM;
+        location.flags = 0;
+        location.doormask = 0;
+        location.wall_info = 0;
+    }
+    state.viz_array[state.u.uy][state.u.ux + 3] |= COULD_SEE;
+
+    for (const arm of OFFENSIVE_ARMS) {
+        const item = carried(state, arm.otyp,
+            arm.spe === undefined ? {} : { spe: arm.spe });
+        const gnome = offensiveMonster(state, PM_GNOME, item, {
+            mx: state.u.ux + (arm.distant ? 3 : 1),
+            ...(arm.monster ?? {}),
+        });
+        state.multi = arm.multi ?? 0;
+        const refuses = arm.refuses ?? true;
+        if (refuses) {
+            assert.throws(() => find_offensive(gnome, env),
+                (error) => error.reason === 'monster offensive item use',
+                arm.name);
+        } else {
+            assert.equal(find_offensive(gnome, env), false, arm.name);
+        }
+        state.multi = 0;
+    }
+});
+
+test('find_offensive declines for a nurse beside an unarmed, unarmored hero',
+    async () => {
+    // muse.c:1434-1438. AD_HEAL plus a hero with nothing wielded and nothing
+    // worn is the one guard that reads the hero's own gear.
+    const state = await offensiveHero();
+    const env = offensiveEnv(state);
+    const wand = carried(state, WAN_STRIKING, { spe: 2 });
+    const nurse = offensiveMonster(state, PM_NURSE, wand);
+    const worn = ['uwep', 'uarmu', 'uarm', 'uarmh', 'uarms', 'uarmg',
+        'uarmc', 'uarmf'];
+    const saved = Object.fromEntries(worn.map((slot) => [slot, state[slot]]));
+    for (const slot of worn) state[slot] = null;
+    assert.equal(find_offensive(nurse, env), false);
+
+    // Any one of the eight slots being filled sends the nurse on to the loop,
+    // which is what makes this a conjunction rather than a species test.
+    for (const slot of worn) {
+        state[slot] = { otyp: DAGGER };
+        assert.throws(() => find_offensive(nurse, env),
+            (error) => error.reason === 'monster offensive item use', slot);
+        state[slot] = null;
+    }
+    for (const slot of worn) state[slot] = saved[slot];
+
+    // The same wand in a gnome's pack is selected whatever the hero wears,
+    // so the guard is the nurse's damage type and not the empty slots.
+    const gnome = offensiveMonster(state, PM_GNOME, wand);
+    assert.throws(() => find_offensive(gnome, env),
+        (error) => error.reason === 'monster offensive item use');
 });

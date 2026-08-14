@@ -2469,6 +2469,26 @@
       "status": "open",
       "from": "eb3f9bd52b86167d4906096f80a520ce7742c4c3",
       "detail": "The AGENTS.md git rewrite at 3b3b8fa deleted the only record of a live constraint: .claude/settings.json wraps the deny message in a single-quoted shell string, so an apostrophe in it closes the string mid-JSON and the broken hook denies every Bash call. The same commit rewrote that message and pointed its new text back at the section that lost the warning, and a grep over the tree finds no surviving copy. The reviewer confirmed the failure mode empirically: an unterminated single quote exits 2, which is the deny path. Deferred rather than applied because AGENTS.md is an instruction document and the user approved the trim; the proposed fix is one sentence restoring the constraint beside the existing settings.json reference. Closes when the user accepts or rejects that sentence. Confirmed by the goal-closing correctness pass over 21ef982..d114520."
+    },
+    {
+      "id": "monster-melee-hit-edge",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "a9ba71a093e6c2192f888083f9d1c36a60ed5050",
+      "detail": "mhitu.c mattacku()'s melee arms stop at hitmu() (1143-1267), so a monster that rolls a hit ends the segment instead of taking hit points off the hero. Fresh case: seed 880042, datetime 20250612101500, nethackrc OPTIONS=name:Melee,role:Healer,race:human,gender:female,align:neutral / OPTIONS=!legacy,!tutorial,!splash_screen / OPTIONS=pettype:none, moves ' ' followed by 'llllllhhhhhh' twelve times. C replies 'The sewer rat bites!' on step 13 after the near miss on step 10 that scripts/run-monster-melee-miss.mjs pins; the port emits fourteen screens and stops with 'a monster landing a hit on the hero'. The refusal precedes hitmu()'s d(damn, damd), so the JavaScript random-number log holds the step's rnd(20) and nothing after it. Retire this with hitmu(), mdamageu() and uhitm.c mhitm_adtyping()'s AD_PHYS and AD_ELEC arms.",
+      "blockedOn": "hitmu"
+    },
+    {
+      "id": "monster-melee-armed-swing",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "a9ba71a093e6c2192f888083f9d1c36a60ed5050",
+      "detail": "mhitu.c mswings() (129-141) is ported and unit-pinned by scripts/mhitu.test.mjs, but no fresh C recording reaches it: an armed attacker that misses is preceded, in every seed scanned, by a boundary this slice does not own. Fresh case: seed 880033, datetime 20250612101500, nethackrc OPTIONS=name:Melee,role:Healer,race:human,gender:female,align:neutral / OPTIONS=!legacy,!tutorial,!splash_screen / OPTIONS=pettype:none, moves ' ' followed by 'llllllhhhhhh' twelve times. C prints 'The goblin thrusts his crude dagger.' on step 39; the port stops on step 20 with 'monster ranged weapon action', which is thrwmu()'s select_rwep() finding a missile. Domain scanned: 98 seeds across Valkyrie and Healer over four datetimes; 11 opened with a melee miss and none of those was an armed AT_WEAP one. Retire this once thrwmu() lands, then re-scan for an armed miss.",
+      "blockedOn": "thrwmu"
     }
   ],
   "areas": [
@@ -2618,6 +2638,7 @@
         "js/monmove.js",
         "js/monst.js",
         "js/monsters.js",
+        "js/mthrowu.js",
         "js/muse.js",
         "js/priest.js",
         "js/shk.js",

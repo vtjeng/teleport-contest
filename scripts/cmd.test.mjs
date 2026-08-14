@@ -112,6 +112,7 @@ import { runSegment, segmentIterationLimit } from '../js/jsmain.js';
 import { stairway_find_dir } from '../js/stairs.js';
 import {
     AT_CLAW,
+    AT_NONE,
     M1_NEEDPICK,
     M1_TUNNEL,
     PM_DISPLACER_BEAST,
@@ -3956,7 +3957,17 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
     const monster = {
         // dochug()'s standard-attack gate reads noattacks(mdat), so an
         // attackless species would walk past the boundary this test names.
-        data: { mmove: 12, mattk: [{ aatyp: AT_CLAW }] },
+        // permonst.h:48 gives every species NATTK slots and mhitu.c
+        // mattacku() indexes all six, so the empty ones are spelled out.
+        data: {
+            mmove: 12,
+            mattk: [
+                { aatyp: AT_CLAW, adtyp: 0, damn: 1, damd: 2 },
+                ...Array.from({ length: 5 }, () => ({
+                    aatyp: AT_NONE, adtyp: 0, damn: 0, damd: 0,
+                })),
+            ],
+        },
         movement: 12, mhp: 1, nmon: null,
         // C's mcanmove is a bitfield every real monster carries. Without it
         // assertSimpleActionState() returns early and never checks anything,
@@ -3964,6 +3975,10 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
         mcanmove: true,
         mx: game.u.ux + 1,
         my: game.u.uy,
+        // mhitu.c:710. The monster's level is added straight into the
+        // armor-class differential, and thirty beats every rnd(20), so this
+        // fixture always reaches hitmu() rather than sometimes missing.
+        m_lev: 30,
     };
     game.level.monlist = monster;
     game.u.umovement = 24;
@@ -3982,7 +3997,7 @@ test('moveloop blocks an actionable monster before fast-hero state changes', asy
     // names the branch it could not take.
     await assert.rejects(
         moveloop_core(),
-        /monster attack on the hero/u,
+        /landing a hit on the hero/u,
     );
     assert.equal(game.u.umovement, 24);
     assert.equal(monster.movement, 12);
