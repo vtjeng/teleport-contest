@@ -2106,8 +2106,8 @@
       "slices": [
         {
           "name": "weptool-charge-suffix",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "bbf45158358bfdbc390123cd86c7a4eadff0ddb9"
         },
         {
           "name": "wear-armor-test-gaps",

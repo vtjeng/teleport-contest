@@ -428,3 +428,5 @@ utc	event	phase	goal	detail
 2026-08-14T09:31:43.354Z	start	select		sweep goal, user-scheduled after throw-command
 2026-08-14T09:47:00.412Z	end	select	objects-deferral-sweep-4	objects-deferral-sweep-4 opened; 22 counted read, 6 to close in 2 slices, 3 re-blocked
 2026-08-14T09:47:00.444Z	start	implement	objects-deferral-sweep-4	weptool-charge-suffix
+2026-08-14T10:16:42.894Z	end	implement	objects-deferral-sweep-4	weptool-charge-suffix closed at bbf4515; the area's silent divergence is gone
+2026-08-14T10:16:42.927Z	start	implement	objects-deferral-sweep-4	wear-armor-test-gaps: five entries in scripts/wear-armor.test.mjs
