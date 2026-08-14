@@ -2087,7 +2087,7 @@
     },
     {
       "id": "objects-deferral-sweep-4",
-      "status": "open",
+      "status": "closed",
       "boundary": "Every counted objects deferral has been read, and each one the reading showed to be small is closed. The lead entry is the area's only silent divergence: js/objnam.js:1152 tests raw obj.oclass === TOOL_CLASS where objnam.c doname_base():1382 switches on is_weptool(obj) ? WEAPON_CLASS : obj->oclass, so a weapon-tool takes the charged-tool arm and gains a ' (0:0)' suffix C never prints. Every surviving entry either carries the blockedOn symbol the reading found or is named in the closing report with the slice it needs. Checkable by running npm run quality -- deferrals --area objects and confirming each still-open counted entry has one or the other, and by comparing js/objnam.js's class switch against objnam.c:1382.",
       "upstreamOwners": [
         "objnam.c doname_base() 1382 and the charges: label at 1484",
@@ -2121,8 +2121,11 @@
         "screens": 1538,
         "rng": 121032
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "b6efea6209aebb4679fa770614012a2d181f0c0f",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
