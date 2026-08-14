@@ -1,8 +1,18 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { COULD_SEE, D_CLOSED, DOOR, LAVAWALL, MOAT, ROOM, STONE }
-    from '../js/const.js';
+import {
+    COULD_SEE,
+    D_CLOSED,
+    DOOR,
+    LAVAWALL,
+    MOAT,
+    M_AP_MONSTER,
+    M_AP_NOTHING,
+    M_AP_OBJECT,
+    ROOM,
+    STONE,
+} from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { PM_GIANT_RAT, PM_STONE_GIANT } from '../js/monsters.js';
@@ -83,7 +93,13 @@ test('blocking_terrain answers for each terrain mthrowu.c names', async () => {
     state.level.at(x, y).typ = LAVAWALL;
     assert.equal(blocking_terrain(x, y, state), true);
 
-    // C's leading !isok(x, y). Column zero is off the playable map.
+    // C's leading !isok(x, y), which js/mthrowu.js reads as an absent cell.
+    // GameMap.at() answers null outside [0, COLNO) x [0, ROWNO), so a
+    // negative column is what reaches that arm; column zero, which C's isok()
+    // also rejects, still has a cell in the port and is turned away one test
+    // later by IS_OBSTRUCTED(STONE).
+    assert.equal(blocking_terrain(-1, y, state), true);
+    assert.equal(state.level.at(0, y).typ, STONE, 'column zero is rock');
     assert.equal(blocking_terrain(0, y, state), true);
 });
 
@@ -138,6 +154,42 @@ test('linedup reads couldsee() for a ray aimed at the hero', async () => {
         false,
     );
 });
+
+// mthrowu.c:1349-1351, `(u_at(ax, ay) ? couldsee(bx, by)
+// : clear_path(ax, ay, bx, by))`. The two answers are not interchangeable, and
+// the clear_path() half is the branch this file's extraction from
+// js/monmove.js changed: the terrain walk it replaced answered from the map,
+// while clear_path() answers from the transparency index vision_reset() built.
+// Only a ray that does not start on the hero's square reaches it, which is
+// every monster-versus-monster call.
+test('linedup reads clear_path() for a ray that misses the hero square',
+    async () => {
+        const state = await hero();
+        const y = state.u.uy;
+        // Two squares east of the hero, so the ray is three long and well
+        // inside BOLT_LIM.
+        const targetX = state.u.ux + 3;
+        clearRow(state, state.u.ux, targetX, y);
+        setCouldSee(state, targetX, y, true);
+
+        // From the hero's own square the couldsee() arm answers TRUE for the
+        // bit just set.
+        assert.equal(
+            linedup(state.u.ux, y, targetX, y, 0,
+                { state, random: noDraw() }),
+            true,
+        );
+        // One square east, with the same target, the same cleared row and the
+        // same bit, the answer flips: clear_path() reads the index this test
+        // never rebuilt, and the row it was carved through is still opaque
+        // there. Same inputs, opposite answers, is what pins the condition
+        // rather than either arm.
+        assert.equal(
+            linedup(state.u.ux + 1, y, targetX, y, 0,
+                { state, random: noDraw() }),
+            false,
+        );
+    });
 
 test('linedup handles boulders per its three boulderhandling modes',
     async () => {
@@ -232,6 +284,81 @@ test('lined_up picks boulderhandling from the attacker itself', async () => {
     wand.nobj = null;
     rat.minvent = wand;
     assert.equal(lined_up(rat, { state, random: noDraw() }), true);
+});
+
+// mthrowu.c m_lined_up():1384-1387, the gate this port writes out at
+// js/mthrowu.js:115-119. No running game reaches it -- Upolyd is false for
+// every hero the port produces -- so the rn2(25) beside it is spent by nothing
+// and the whole gate is scored by no session. It is written out rather than
+// dropped because a skipped draw would shift every later call in the turn once
+// polymorph lands, and that is exactly the kind of line a test has to pin,
+// since nothing else can.
+//
+// Each case names the answer it separates. The three terms are `rn2(25)`, then
+// `u.uundetected`, then the appearance test, and the last two are a
+// disjunction inside the conjunction, so the rows below walk both.
+test('m_lined_up lets a polymorphed hero conceal herself', async () => {
+    const state = await hero();
+    const y = state.u.uy;
+    const monsterX = state.u.ux + 3;
+    clearRow(state, state.u.ux, monsterX, y);
+    // With the attacker's own square seen, linedup() answers TRUE and spends
+    // no draw, so every rn2() below is the gate's own.
+    setCouldSee(state, monsterX, y, true);
+    const rat = attacker(state, monsterX, y, state.u.ux, y);
+
+    // you.h Upolyd() is `u.umonnum != u.umonster`, and it is the conjunct
+    // ahead of the draw: an ordinary hero never rolls at all.
+    assert.equal(state.u.umonnum, state.u.umonster, 'the hero starts herself');
+    assert.equal(lined_up(rat, { state, random: noDraw() }), true);
+
+    state.u.uundetected = false;
+    state.youmonst.m_ap_type = M_AP_NOTHING;
+    // Any species but the hero's own turns Upolyd() TRUE; the giant rat is
+    // the one this file already loads.
+    state.u.umonnum = PM_GIANT_RAT;
+    assert.notEqual(state.u.umonnum, state.u.umonster);
+
+    for (const [label, roll, uundetected, apType, expected] of [
+        // A roll of 0 shuts the gate whatever follows it, and the hidden hero
+        // beside it is what separates C's `&&` from an `||`: with an `||` the
+        // concealment alone would close the gate on a turn C leaves open.
+        ['roll 0 with the hero hidden', 0, true, M_AP_NOTHING, true],
+        // 1 is the smallest roll that opens the gate; 24 is the largest the
+        // bound produces, and both must behave alike.
+        ['roll 1 and hidden', 1, true, M_AP_NOTHING, false],
+        ['roll 24 and hidden', 24, true, M_AP_NOTHING, false],
+        // Not hidden and wearing no appearance: the disjunction's second half
+        // is what an `&&` in its place would demand, and there is none here.
+        ['visible and undisguised', 1, false, M_AP_NOTHING, true],
+        // C excuses M_AP_MONSTER by name -- a hero who looks like a monster is
+        // still a target -- so this is the row that separates
+        // `!= M_AP_MONSTER` from `== M_AP_MONSTER`, and the appearance
+        // conjunction from a disjunction.
+        ['visible and disguised as a monster', 1, false, M_AP_MONSTER, true],
+        // An object appearance is neither excused value, so the gate closes.
+        ['visible and disguised as an object', 1, false, M_AP_OBJECT, false],
+    ]) {
+        state.u.uundetected = uundetected;
+        state.youmonst.m_ap_type = apType;
+        const bounds = [];
+        assert.equal(
+            lined_up(rat, {
+                state,
+                random: {
+                    rn2: (bound) => { bounds.push(bound); return roll; },
+                },
+            }),
+            expected,
+            label,
+        );
+        assert.deepEqual(bounds, [25], label);
+    }
+
+    // Left as the fixture found it, since every case below shares this game.
+    state.u.umonnum = state.u.umonster;
+    state.u.uundetected = false;
+    state.youmonst.m_ap_type = M_AP_NOTHING;
 });
 
 test('lined_up aims at the believed hero square, not the real one',
