@@ -439,3 +439,7 @@ utc	event	phase	goal	detail
 2026-08-14T14:12:27.836Z	end	implement	monster-melee-attack	monster-melee-miss closed at e99760b; development 1538 to 1577 screens, the forecast 39 exactly
 2026-08-14T14:29:17.245Z	start	review	monster-melee-attack	gate DUE at 1074/1000 lines; correctness pass over 0d7678c..2be53e4a3ad91647d70605ad98bf4f34727fd02a before slice 2
 2026-08-14T15:39:25.696Z	end	review	monster-melee-attack	gate-triggered pass recorded through 2be53e4; 21 raw, 21 deduplicated, 19 confirmed, 7 applied, 12 deferred, 2 rejected
+2026-08-14T15:55:24.105Z	start	select	monster-melee-attack	second slice: the landing hit
+2026-08-14T16:07:48.412Z	end	select	monster-melee-attack	monster-melee-hit-elec queued; AD_ELEC alone, AD_PHYS deferred to slice 3
+2026-08-14T16:07:48.445Z	start	implement	monster-melee-attack	monster-melee-hit-elec: hitmu() through mhitm_ad_elec()
+2026-08-14T17:28:08.861Z	end	implement	monster-melee-attack	monster-melee-hit-elec closed at b2ec1be; development 1577 to 1657 screens, the full forecast 80

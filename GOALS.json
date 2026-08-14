@@ -2170,6 +2170,11 @@
           "name": "monster-melee-miss",
           "status": "closed",
           "closedBy": "e99760bfeedcac0f6a208d66bf140805f022b09a"
+        },
+        {
+          "name": "monster-melee-hit-elec",
+          "status": "closed",
+          "closedBy": "b2ec1be8ba3d96218ac402e3efe1206062709345"
         }
       ],
       "openedAt": "0ecbb166929d646533bf939fa300ad20e887ef13",
