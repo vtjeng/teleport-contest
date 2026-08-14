@@ -2196,7 +2196,7 @@
     },
     {
       "id": "tests-deferral-burndown",
-      "status": "queued",
+      "status": "open",
       "boundary": "Every open tests-category deferral that is not blocked on an unported symbol has been read and disposed of: closed against the C source or the port behavior it cites, or left open carrying a blockedOn symbol or a stated reason. A reader tests the boundary by running npm run quality -- --check and confirming that world-effects, objects, commands and display no longer appear as sweep candidates, and that no tests-category entry outside the blocked set remains open without a recorded disposition. The development score must be identical before and after at 9/33 sessions, 1657/7765 screens and 124279/610816 random-number values, because no entry in scope changes production behavior.",
       "upstreamOwners": [
         "scripts/*.test.mjs across nine quality areas"
@@ -2209,8 +2209,12 @@
       },
       "detail": "",
       "slices": [],
-      "openedAt": null,
-      "openStanding": null,
+      "openedAt": "1305c8dee4d316ad4064109a4ddee12d71393526",
+      "openStanding": {
+        "sha": "28ee8bf",
+        "screens": 1657,
+        "rng": 124279
+      },
       "closedAt": null,
       "delivered": null
     }
