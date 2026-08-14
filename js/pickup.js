@@ -736,10 +736,10 @@ export async function pickup(what, state = game) {
         }
         if (what < 0) {
             // pickup.c:763-772, "Pick %d of what?" with the n_or_more
-            // selector. A bare `,` carries no count, but the reqmenu prefix
-            // parses one, so `m1,` arrives here with what == -1. This refusal
-            // is reachable, and is what keeps C's counted-subset selector
-            // from being silently skipped.
+            // selector. parse() collects the count whether or not a prefix
+            // ran, so both `1,` and `m1,` arrive here with what == -1. This
+            // refusal is reachable, and is what keeps C's counted-subset
+            // selector from being silently skipped.
             throw new UnsupportedPickupError('pickup() of a counted subset');
         }
         if (costly_spot(u.ux, u.uy, state)) {

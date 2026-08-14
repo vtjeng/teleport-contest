@@ -1500,8 +1500,9 @@ async function runAttributesCommand(key, state) {
 // the search itself already distinguish ECMD_OK from ECMD_TIME.
 //
 // extcmdlist[]'s "searching" occupation text would make rhack() call
-// set_occupation() under a count. This boundary parses no count, so multi is 0
-// and that call cannot happen; `wait`, the only other command carrying an
+// set_occupation() under a count. rhack() below refuses every command whose
+// count left gm.multi above 0, so this handler runs only with multi at 0 and
+// that call cannot happen; `wait`, the only other command carrying an
 // occupation text, is admitted on the same terms.
 async function runSearchCommand(key, state) {
     return failClosedCommand(key, state, () => dosearch(state));
