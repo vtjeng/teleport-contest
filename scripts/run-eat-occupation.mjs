@@ -102,9 +102,16 @@ export function loadEatOccupationRecipe() {
             // The pack holds four, so touchfood() splits one off and draws
             // mkobj.c next_ident()'s rnd(2).
             segment(5820023, `${EAT_KEY}${RANGER_CRAM_RATION}`, RANGER),
-            // Two three-turn meals in a row, so the occupation is installed,
-            // run down and cleared twice and svc.context.victual is reused
-            // after done_eating() zeroed it.
+            // A second meal begun on the heels of the first, which is as far
+            // as two cram rations reach. The first leaves the hero at 1694
+            // nutrition, so the second meal's fprefx() label and
+            // lesshungry()'s nearly-full warning do not share the top line and
+            // more() asks for a key this segment does not supply: it ends with
+            // svc.context.victual holding the new meal at usedtime 0 and slot
+            // h an unbitten cram ration. Supplying that key would reach
+            // paranoid_query(), because the hero is SATIATED when the meal
+            // starts. loadTwoMealRecipe() below is where two meals both
+            // finish.
             segment(5820041,
                 [`${EAT_KEY}${RANGER_CRAM_RATION}`,
                     `${EAT_KEY}${RANGER_CRAM_RATION}`].join(WAIT),
@@ -122,6 +129,54 @@ export function loadEatOccupationRecipe() {
                 + `${EAT_KEY}${VALKYRIE_FOOD_RATION}`),
         ],
     }, 'eat occupation recipe');
+}
+
+// Two meals in one segment, both of which finish, so the occupation is
+// installed, run down and cleared twice and svc.context.victual is reused
+// after done_eating() zeroed it.
+//
+// No role's starting pack reaches that. A hero begins at 900 nutrition, and
+// any food of more than one turn that u_init.c hands out leaves her too full
+// for a second helping: after one cram ration she stands at 1694, where
+// lesshungry() prints its nearly-full warning on the next meal's first bite
+// and, with victual.canchoke set by the SATIATED start and two bites still to
+// go, asks paranoid_query() whether to continue. objects.h:1105 gives the
+// pancake oc_delay 2 and nutrition 200, so two of them run the occupation
+// twice and end at 1291, below the 1500 that warning needs; and the meal's
+// last bite is its second, which is what would keep paranoid_query() away even
+// if the warning did print.
+//
+// A pancake reaches the pack only through a debug wish, because no role starts
+// with one, and js/objnam_readobjnam.js refuses a wish for more than one
+// object, so the segment wishes twice and invent.c merged() joins the two into
+// a single stack.
+const DEBUG = `${PLAIN},showexp,playmode:debug`;
+// wizcmds.c binds ^W to #wizwish, and readobjnam() reads the line the prompt
+// collects, so each wish is the key, the name and a newline.
+const PANCAKE_WISH = '\x17pancake\n';
+// u_init.c's fixed object order gives the Valkyrie a through d, so the merged
+// stack of wished pancakes takes e.
+const WISHED_PANCAKES = 'e';
+
+// scripts/record-session.mjs clears the install directory only before a
+// chunk's first segment, and a debug game the recorder terminates leaves a
+// save behind, so this debug segment needs its own recipe and a fresh install.
+export function loadTwoMealRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            // 5821001 is the first seed of an ascending scan from that number
+            // whose two meals both run to their end: of the eight scanned,
+            // two stopped at a --More-- these keys do not answer and two
+            // reached a monster branch this port does not have. No recorded
+            // session supplied it.
+            segment(5821001,
+                `${PANCAKE_WISH}${PANCAKE_WISH}`
+                + `${EAT_KEY}${WISHED_PANCAKES}${WAIT}`
+                + `${EAT_KEY}${WISHED_PANCAKES}`,
+                {}, DEBUG),
+        ],
+    }, 'two meal recipe');
 }
 
 export function loadEatOccupationOptionsRecipe() {
@@ -229,6 +284,15 @@ export async function runEatOccupationMatrix() {
         chunkLimit: 5,
     });
     if (!ordinary.passed) return ordinary;
+    const twoMeals = await runFreshMatrix({
+        entries: [{
+            label: 'two meals in one segment',
+            recipe: loadTwoMealRecipe(),
+        }],
+        summaryLabel: 'TWO MEALS IN ONE SEGMENT',
+        chunkLimit: 1,
+    });
+    if (!twoMeals.passed) return twoMeals;
     const options = await runFreshMatrix({
         entries: [{
             label: 'eat multi-turn food (option variations)',

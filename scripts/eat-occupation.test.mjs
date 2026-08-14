@@ -32,7 +32,7 @@ import {
     NOT_HUNGRY,
     SATIATED,
 } from '../js/const.js';
-import { CRAM_RATION, FOOD_RATION } from '../js/objects.js';
+import { CRAM_RATION, FOOD_RATION, PANCAKE } from '../js/objects.js';
 import {
     UnsupportedEatError,
     doeat,
@@ -53,10 +53,12 @@ import { the } from '../js/objnam.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import {
+    EAT_KEY,
     loadEatOccupationOptionsRecipe,
     loadEatOccupationRecipe,
     loadOccupationInterruptRecipe,
     loadRuntimeMonsterInterruptRecipe,
+    loadTwoMealRecipe,
 } from './run-eat-occupation.mjs';
 
 // Locate a segment by its seed and the keys it types, so reordering the matrix
@@ -224,6 +226,64 @@ test('a meal that stays under the choking threshold says it finished',
         );
         assert.equal(slotFor(CRAM_RATION).quan, beforeRations - 1);
     });
+
+test('a second meal in the same segment runs to its end', async () => {
+    // The recorded pair. scripts/run-eat-occupation.mjs loadTwoMealRecipe()
+    // states why two wished pancakes are what a hero can eat one after the
+    // other, and the turn counts and the closing message below were read off
+    // the C recording of that segment rather than assumed.
+    const [segment] = loadTwoMealRecipe().segments;
+    // The keys the segment types, spelled out here so that a matrix edit that
+    // changes them fails in this test rather than silently pointing it at a
+    // different case.
+    const WISHES = '\x17pancake\n\x17pancake\n';
+    assert.equal(segment.moves, `.${WISHES}${EAT_KEY}e.${EAT_KEY}e.`);
+
+    // Both wishes land before any turn passes: C's recording shows T:2 on the
+    // status row of every wish screen.
+    await runSegment({ ...segment, moves: `.${WISHES}` });
+    assert.equal(game.moves, 2);
+    assert.equal(slotFor(PANCAKE).quan, 2, 'the two wishes merged into a stack');
+    const beforeHunger = game.u.uhunger;
+
+    // Through the first meal and the wait after it, the state the second meal
+    // starts from. C's recording shows T:5 on the meal's closing screen and
+    // T:6 after the wait.
+    await runSegment({ ...segment, moves: `.${WISHES}${EAT_KEY}e.` });
+    assert.equal(game.moves, 6);
+    assert.equal(slotFor(PANCAKE).quan, 1);
+    // Two bites of 200/2 nutrition each, less gethungry()'s point on each of
+    // the four turns between T:2 and T:6.
+    assert.equal(game.u.uhunger, beforeHunger + 2 * 100 - 4);
+    assert.deepEqual(game.context.victual, zero_victual());
+
+    // Both meals, stopping before the closing wait so the second meal's own
+    // messages are still on the top line. C's recording shows T:9 there.
+    await runSegment({ ...segment, moves: `.${WISHES}${EAT_KEY}e.${EAT_KEY}e` });
+    assert.equal(game.moves, 9);
+    assert.equal(slotFor(PANCAKE), null, 'the second pancake was eaten too');
+    assert.equal(game.u.uhunger, beforeHunger + 4 * 100 - 7);
+    // The same two messages the first meal printed, from a victual struct
+    // done_eating() had already zeroed once: fprefx()'s give_feedback label
+    // and done_eating()'s "You finish %s %s.".
+    assert.equal(
+        game._ttyToplines,
+        'This pancake is delicious!  You finish eating the pancake.',
+    );
+    assert.deepEqual(game.context.victual, zero_victual());
+    assert.equal(game.go.occupation, null);
+    // Neither meal reaches 1500 nutrition, so lesshungry() never wrote
+    // gn.nomovemsg and done_eating() took its "You finish eating" arm both
+    // times; the field is still unset here rather than set and cleared, which
+    // is what the null-coalescing reads. This pins that nothing was left
+    // behind for a later reader, not done_eating()'s clearing, which the
+    // gn.nomovemsg test below covers. No segment can pin the clearing through
+    // a second meal: the only writer is the 1500-nutrition warning, and a hero
+    // who has crossed 1500 stays above it for the hundreds of quiet turns that
+    // no port-side segment survives, so every later meal prints that same
+    // warning message whether or not the field was cleared.
+    assert.equal(game.nomovemsg ?? null, null);
+});
 
 test('newuhs holds back the comment on a boundary the meal crosses',
     async () => {
