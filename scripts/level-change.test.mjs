@@ -40,6 +40,7 @@ import {
     SLEEP_RES,
     STEALTH,
     TELEPORT_CONTROL,
+    TIMEOUT,
     WARNING,
 } from '../js/const.js';
 import { xlev_to_rank } from '../js/display.js';
@@ -395,6 +396,58 @@ test('adjabil grants an innate ability above level 1 and prints its gainstr',
     // attrib.c:1068-1070 passes the whole span to add_weapon_skill(), which
     // adds that many slots rather than one per call. 5 - 2 is 3.
     assert.equal(monk.u.weapon_slots, 3);
+});
+
+// attrib.c:1050 gates You_feel() on !(*(abil->ability) & INTRINSIC & ~mask),
+// so an entry announces nothing when the hero already holds its property from
+// another source, and announces itself when what the property holds is a
+// timeout rather than a source. Neither state is reachable in the port today:
+// the two C paths that set FROMOUTSIDE on a property an innate entry grants
+// above experience level 1 are wizcmds.c wiz_intrinsic() (:949), which nothing
+// under js/ implements, and eat.c givit(), which js/eat.js:1442 refuses; and
+// nothing ported writes a timeout into prop.intrinsic at all. So both states
+// below are constructed, and the pair is what decides the two halves of the
+// expression -- the gain above pins `& ~mask`, because a hero who holds the
+// property from this very mask and nothing else must still be told.
+test('adjabil is silent for a property already held from elsewhere',
+    async () => {
+    // mon_abil[] { 3, &HPoison_resistance, "healthy", "" }, the one entry in
+    // the tables that a role gains at a level low enough for a session to
+    // reach, standing at FROMOUTSIDE before the gain: the bit prayer, a
+    // throne, wiz_intrinsic() and a corpse all set.
+    const monk = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_MONK, filecode: 'Mon' },
+    });
+    monk.u.uprops[POISON_RES].intrinsic = FROMOUTSIDE;
+    const messages = [];
+    await adjabil(2, 3, monk, { message: (text) => { messages.push(text); } });
+    // The gain itself is not suppressed, only its announcement: FROMEXPER
+    // joins the bit that was already there.
+    assert.deepEqual(
+        [...intrinsicsOf(monk)], [[POISON_RES, FROMOUTSIDE | FROMEXPER]],
+    );
+    assert.deepEqual(messages, []);
+
+    // The same entry with a timeout in the low bits instead, which is what a
+    // temporary resistance leaves in the same long (prop.h:135, TIMEOUT
+    // 0x00ffffff). C masks those bits off with INTRINSIC, so the hero is told.
+    // 20 is an arbitrary count of turns remaining; any value inside TIMEOUT
+    // and outside INTRINSIC exercises the same masking.
+    const timed = heroState({
+        role: { ...ARCHEOLOGIST, mnum: PM_MONK, filecode: 'Mon' },
+    });
+    timed.u.uprops[POISON_RES].intrinsic = 20;
+    const timedMessages = [];
+    await adjabil(2, 3, timed, {
+        message: (text) => { timedMessages.push(text); },
+    });
+    assert.deepEqual(
+        [...intrinsicsOf(timed)], [[POISON_RES, 20 | FROMEXPER]],
+    );
+    assert.deepEqual(timedMessages, ['You feel healthy!']);
+    // The low bits are still the timeout they were; the gain adds a source bit
+    // and touches nothing below it.
+    assert.equal(timed.u.uprops[POISON_RES].intrinsic & TIMEOUT, 20);
 });
 
 // attrib.c:1051 gates You_feel() on a non-empty gainstr, so an entry with an
