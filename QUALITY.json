@@ -12478,6 +12478,175 @@
         }
       },
       "recordedAt": "2026-08-14T11:46:09.737Z"
+    },
+    {
+      "kind": "review",
+      "head": "2be53e4a3ad91647d70605ad98bf4f34727fd02a",
+      "auditedRange": "0d7678c4b24ac325660b63d3941376c26f250195..2be53e4a3ad91647d70605ad98bf4f34727fd02a",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "93ee77dbfc1a37a2d7be53a943bb3474df0d9766",
+        "reason": "The goal's checklist is not yet open. Its first slice landed at 2,634 insertions across five subsystems and the review gate went DUE on that slice alone, so this pass covers one slice rather than a goal, and the orchestrator is writing the checklist against what landed rather than forecasting it."
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "generation",
+        "monsters"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 21 raw, 21 deduplicated, 19 confirmed, 7 applied, 12 deferred, 2 rejected, 0 unverified; mutation: 17 survivors of 174 mutants. Gate-triggered pass over the first slice of monster-melee-attack, which went DUE at 1,074 production lines on that slice alone, with the concurrency finder enabled because the range makes mattacku() async across every caller and adds output to a path runSimpleMonsterAction() executes twice per turn. Seven findings applied in 85e7e9a. The one production defect fixed is a real divergence: mattacku() returned true from the steed's own arm where mhitu.c:532 returns 0, contradicting the return contract the same commit had written three lines of comment to establish, with the mounted-move test asserting the wrong value. The sharpest correction is to a test's own justification rather than to code. The invulnerability case said only a monster four or more squares away can reach mhitu.c:743, because the preamble's nomul(0) clears u.uinvulnerable for anything closer; hack.c:4161 returns at gm.multi < nval before the line that clears the flag, and prayer, the only thing that sets the flag, leaves gm.multi negative throughout, so an adjacent attacker reaches it too. That claim had passed from the worker through the orchestrator's brief into a committed test comment unchallenged, and the reviewer disproved it by running a probe. There is now a standalone case for it, observed failing against a nomul() with its early return removed. Two production findings are deferred together: monmove.c:944-949's three-term disjunction is folded to its AT_WEAP term in two places, which was unavoidable before this range and is now a silent skip because find_offensive() exists, and restoring it changes which monsters reach mattacku() after moving. The mutation record needed correcting too: the window run found seventeen survivors where the slice reasoned about twelve, and five of the six unaccounted sit in the new js/mthrowu.js, which holds the functions freshly extracted from the approximation monsterItemSearchInLine() had used.",
+      "auditMetrics": {
+        "wallTimeSeconds": 7200,
+        "counts": {
+          "raw": 21,
+          "deduplicated": 21,
+          "confirmed": 19,
+          "applied": 7,
+          "deferred": 12,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 6,
+          "clarity": 10,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "mattacku() returned true from the steed own arm where mhitu.c:532 returns 0, contradicting the return contract the same commit had written three lines of comment to establish. The mounted-move test expected the wrong value.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "monmove.c:944-949 breaks out of the post-move switch on !nearby && (ranged_attk_available(mtmp) || attacktype(mdat, AT_WEAP) || find_offensive(mtmp)), reaching PHASE FOUR mattacku(). The port keeps only the attacktype(AT_WEAP) term, in js/monmove.js and again in js/unported_monster_actions.js MMOVE_MOVED fold. Both omissions were unavoidable before this range, since neither other term existed in js/; find_offensive() now does, so the port silently skips a call C makes and a monster that would have attacked after moving does not. Deferred rather than fixed because restoring the disjunction changes which monsters reach mattacku() after moving and needs a fresh recorded case.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "monmove.c:944-949 breaks out of the post-move switch on !nearby && (ranged_attk_available(mtmp) || attacktype(mdat, AT_WEAP) || find_offensive(mtmp)), reaching PHASE FOUR mattacku(). The port keeps only the attacktype(AT_WEAP) term, in js/monmove.js and again in js/unported_monster_actions.js MMOVE_MOVED fold. Both omissions were unavoidable before this range, since neither other term existed in js/; find_offensive() now does, so the port silently skips a call C makes and a monster that would have attacked after moving does not. Deferred rather than fixed because restoring the disjunction changes which monsters reach mattacku() after moving and needs a fresh recorded case.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/unported_monster_actions.js:885 [readability] The new comment presents js/monmove.js's moved-then-attack fold as a faithful restatement of C, but the JavaScript gate implements only one of C's three disjuncts — and the disjunct it omits, find_offensive(), is the function this very range ports.",
+            "counterEvidence": "evidence refute: The comment does not make the claim the finding attributes to it. Counter-evidence: js/unported_monster_actions.js:874-880 reads \"Both of this file's seams onto mhitu.c mattacku(). C reaches it from dochug()'s standard-attack gate whether or not the monster moved first, and js/monmove.js folds the moved-then-attack path into the second operation.\" Every clause is true: monmove.c:948's break does fall into PHASE FOUR's gate at :966-971, and js/monmove.js does fold that path into postMoveRangedAttack. The comment states where the seam sits; it never asserts that the fold's gate reproduces C's disjunction, so it is not \"a faithful restatement\" that a reviewer could be misled by in the way claimed. The substantive defect -- the missing ranged_attk_available() and find_offensive() disjuncts -- is finding 9's, anchored in js/monmove.js, not a property of this prose. | causality refute: The sentence is carried over from the base rather than introduced here, and the code it describes is unchanged. Counter-evidence: git show 0d7678c:js/unported_monster_actions.js:881-887 alre"
+          },
+          {
+            "summary": "scripts/unported-monster-actions.test.mjs:1385 [tests] The 'hero attack' row's expected refusal reason is decided by a live-PRNG to-hit roll that lands exactly on tmp == j, and the comment attributes the outcome solely to the fixture's unlit square, so the row no longer observes the exclusion it is named for.",
+            "counterEvidence": "causality refute: The row is causally changed by the range but the stated impact is not material. Counter-evidence: The headline claim — 'the row no longer observes the exclusion it is named for' — is false: the row still enters mattacku()'s melee arm through the 'hero attack' seam and still refuses atomically, which is the property the enclosing test asserts. If the roll ever flipped, `assert.rejects` with a reason predicate fails loudly and prints the actual reason ('a monster landing a hit on the hero'), which is a legible diagnosis rather than a misdirection to the atomicity assertion. Being pinned to a specific draw is the normal condition of every end-to-end row in this deterministic-seed suite — the sibling row at :2307 was updated in the same range for the same reason — so nothing here distinguishes this fixture as defective. The port's behavior is correct on both sides of the boundary. | resolution refute: The proposed fixes are not implementable as stated and the validation only relocates the arbitrariness. Counter-evidence: js/mhitu.js:471 draws `const j = random.rnd(20 + "
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "dochug-post-move-drops-two-of-c-three-terms",
+            "trackedIn": "dochug-post-move-drops-two-of-c-three-terms",
+            "category": "production",
+            "summary": "monmove.c:944-949 breaks out of the post-move switch on !nearby && (ranged_attk_available(mtmp) || attacktype(mdat, AT_WEAP) || find_offensive(mtmp)), reaching PHASE FOUR mattacku(). The port keeps only the attacktype(AT_WEAP) term, in js/monmove.js and again in js/unported_monster_actions.js MMOVE_MOVED fold. Both omissions were unavoidable before this range, since neither other term existed in js/; find_offensive() now does, so the port silently skips a call C makes and a monster that would have attacked after moving does not. Deferred rather than fixed because restoring the disjunction changes which monsters reach mattacku() after moving and needs a fresh recorded case."
+          },
+          {
+            "id": "dochug-post-move-drops-two-of-c-three-terms",
+            "trackedIn": "dochug-post-move-drops-two-of-c-three-terms",
+            "category": "production",
+            "summary": "monmove.c:944-949 breaks out of the post-move switch on !nearby && (ranged_attk_available(mtmp) || attacktype(mdat, AT_WEAP) || find_offensive(mtmp)), reaching PHASE FOUR mattacku(). The port keeps only the attacktype(AT_WEAP) term, in js/monmove.js and again in js/unported_monster_actions.js MMOVE_MOVED fold. Both omissions were unavoidable before this range, since neither other term existed in js/; find_offensive() now does, so the port silently skips a call C makes and a monster that would have attacked after moving does not. Deferred rather than fixed because restoring the disjunction changes which monsters reach mattacku() after moving and needs a fresh recorded case."
+          },
+          {
+            "id": "mthrowu-extraction-has-no-covering-test",
+            "trackedIn": "mthrowu-extraction-has-no-covering-test",
+            "category": "tests",
+            "summary": "linedup() clear_path() arm, the one branch the extraction from monsterItemSearchInLine() actually changed, is reached by no test."
+          },
+          {
+            "id": "mthrowu-extraction-has-no-covering-test",
+            "trackedIn": "mthrowu-extraction-has-no-covering-test",
+            "category": "tests",
+            "summary": "m_lined_up() hero-concealment gate, including the rn2(25) written out to preserve call ordering, is exercised by no test and carries four unreasoned mutation survivors."
+          },
+          {
+            "id": "mattacku-planning-silence-is-unpinned",
+            "trackedIn": "mattacku-planning-silence-is-unpinned",
+            "category": "tests",
+            "summary": "mattacku() three planning-silence guards are pinned by no test: deleting all three lets the planning clone print every miss to the live terminal with the suite green."
+          },
+          {
+            "id": "melee-comments-assert-more-than-they-check",
+            "trackedIn": "melee-comments-assert-more-than-they-check",
+            "category": "clarity",
+            "summary": "missmu() resolves stopOccupation from an env key bound twice with opposite meanings, one a refusal, and neither binding names missmu() as a consumer."
+          },
+          {
+            "id": "melee-comments-assert-more-than-they-check",
+            "trackedIn": "melee-comments-assert-more-than-they-check",
+            "category": "clarity",
+            "summary": "missmu() second refusal on mtmp.minvis has no comment, no C counterpart and no test; its real owner is js/do_name.js monsterCommonName(), which never emits C invisible adjective."
+          },
+          {
+            "id": "melee-comments-assert-more-than-they-check",
+            "trackedIn": "melee-comments-assert-more-than-they-check",
+            "category": "clarity",
+            "summary": "getmattk() drops C attk != alt_attk_buf guard from the is_home_elemental block with no comment, so a conditional test reads as unconditional."
+          },
+          {
+            "id": "melee-comments-assert-more-than-they-check",
+            "trackedIn": "melee-comments-assert-more-than-they-check",
+            "category": "clarity",
+            "summary": "activeHeroProperty() comment documents two properties where three use it; the third is CONFLICT."
+          },
+          {
+            "id": "melee-comments-assert-more-than-they-check",
+            "trackedIn": "melee-comments-assert-more-than-they-check",
+            "category": "clarity",
+            "summary": "scripts/monsters.test.mjs cites five wrong monattk.h lines for six new constants and names a reader for AD_DRIN that does not exist."
+          },
+          {
+            "id": "melee-comments-assert-more-than-they-check",
+            "trackedIn": "melee-comments-assert-more-than-they-check",
+            "category": "tests",
+            "summary": "scripts/mthrowu.test.mjs assertion labelled C leading !isok() never reaches the off-map guard, answering TRUE through IS_OBSTRUCTED(STONE) instead."
+          },
+          {
+            "id": "monster-fixture-builds-a-one-entry-mattk-array",
+            "trackedIn": "monster-fixture-builds-a-one-entry-mattk-array",
+            "category": "tests",
+            "summary": "scripts/unported-monster-actions.test.mjs still builds a one-entry mattk array, the hazard this range fixed in scripts/cmd.test.mjs after it crashed at index 1."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "0d7678c4b24ac325660b63d3941376c26f250195..2be53e4a3ad91647d70605ad98bf4f34727fd02a"
+          ],
+          "mutants": 174,
+          "survivors": 17,
+          "byKind": {
+            "boolean": {
+              "ran": 15,
+              "killed": 12
+            },
+            "logical": {
+              "ran": 131,
+              "killed": 121
+            },
+            "relational": {
+              "ran": 28,
+              "killed": 24
+            }
+          },
+          "deltaRun": "The audit-fix commit 85e7e9a lands after this range and yields 1 mutant with 0 survivors over its uncommitted js/ diff, measured by npm run checkpoint before the commit; its only production change is the steed arm returning false.",
+          "finderConclusion": "The window run found seventeen survivors where the slice own record reasoned about twelve and named eight sites, and .agents/review.md makes the later run the record. The six unaccounted survivors were handed to the tests finder as the priority, five of them in the new js/mthrowu.js which holds the functions freshly extracted from an approximation. The finder confirmed both: the clear_path() arm the extraction actually changed is reached by no test, and m_lined_up() concealment gate including its ordering-preserving rn2(25) is exercised by none. It also found the defect class the concurrency risk predicted, which no mutation run could produce, since it is an absent test rather than an unmutated line: mattacku() three planning-silence guards can all be deleted with the suite green, which would double-print every monster miss."
+        }
+      },
+      "recordedAt": "2026-08-14T15:39:25.643Z"
     }
   ]
 }

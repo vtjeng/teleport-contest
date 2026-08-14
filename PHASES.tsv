@@ -437,3 +437,5 @@ utc	event	phase	goal	detail
 2026-08-14T12:17:00.915Z	end	select	monster-melee-attack	monster-melee-attack opened; forecast 119 capped steps, census settled first
 2026-08-14T12:29:43.485Z	start	implement	monster-melee-attack	monster-melee-miss: mattacku() through both arms' to-hit tests and missmu()
 2026-08-14T14:12:27.836Z	end	implement	monster-melee-attack	monster-melee-miss closed at e99760b; development 1538 to 1577 screens, the forecast 39 exactly
+2026-08-14T14:29:17.245Z	start	review	monster-melee-attack	gate DUE at 1074/1000 lines; correctness pass over 0d7678c..2be53e4a3ad91647d70605ad98bf4f34727fd02a before slice 2
+2026-08-14T15:39:25.696Z	end	review	monster-melee-attack	gate-triggered pass recorded through 2be53e4; 21 raw, 21 deduplicated, 19 confirmed, 7 applied, 12 deferred, 2 rejected
