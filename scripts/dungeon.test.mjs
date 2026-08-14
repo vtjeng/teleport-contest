@@ -639,6 +639,7 @@ test('earth_sense refuses only the state its notice would speak for', () => {
 // puts the square in a room of that kind, which is what hack.c in_rooms()
 // answers with: ROOMOFFSET is the first room number a map square can carry.
 function ceilingState(typ, {
+    drawbridgemask = null,
     rtype = null,
     uz = { dnum: 0, dlevel: 1 },
     water_level,
@@ -657,6 +658,7 @@ function ceilingState(typ, {
     };
     const location = state.level.at(10, 10);
     location.typ = typ;
+    if (drawbridgemask !== null) location.drawbridgemask = drawbridgemask;
     if (rtype !== null) {
         location.roomno = ROOMOFFSET;
         state.level.rooms = [{ rtype }];
@@ -705,13 +707,18 @@ test('ceiling names every overhead in the C branch order', () => {
         // IS_ROOM(typ) is `typ >= ROOM`, so a corridor falls past it and
         // reaches the last arm, as solid rock does.
         ['corridor', CORR, {}, 'rock cavern'],
-        // A raised drawbridge is the case that decides whether ceiling() reads
-        // lev->typ directly or through SURFACE_AT(). DRAWBRIDGE_UP is 19
-        // (rm.h:75), so it is neither IS_DOOR(), which rm.h:121 defines as
-        // `typ == DOOR`, nor IS_WALL(), which rm.h:117 caps at DBWALL, and it
-        // falls to the last arm. Through SURFACE_AT() it would answer for the
-        // terrain the bridge spans instead.
-        ['raised drawbridge', DRAWBRIDGE_UP, {}, 'rock cavern'],
+        // A raised drawbridge decides whether ceiling() reads lev->typ
+        // directly or through SURFACE_AT(). DRAWBRIDGE_UP is 19 (rm.h:75), so
+        // it is neither IS_DOOR(), which rm.h:121 defines as `typ == DOOR`,
+        // nor IS_WALL(), which rm.h:117 caps at DBWALL, and it falls to the
+        // last arm. Only DB_ICE discriminates the two routes: db_under_typ()
+        // answers MOAT (17), LAVAPOOL (20) and STONE (0) for the other three
+        // under-types, and all three fall past IS_ROOM at ROOM (25), so a row
+        // without the ice mask would pass under either reading. ICE is 33 and
+        // IS_ROOM admits it, so this row answers "rock cavern" today and would
+        // answer "ceiling" if ceiling() were switched to surface_typ().
+        ['raised drawbridge over ice', DRAWBRIDGE_UP, { drawbridgemask: DB_ICE },
+            'rock cavern'],
         ['solid rock', STONE, {}, 'rock cavern'],
         // The earth plane's rooms are carved out of rock, so they lose the
         // IS_ROOM() arm; a wall there keeps it.

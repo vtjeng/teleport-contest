@@ -1386,7 +1386,7 @@ test('weapon-tools take the enchantment and no charge count', () => {
         donameFresh(objectOf(state, UNICORN_HORN, charged), state),
         'a +2 unicorn horn',
     );
-    // :1421 guards the enchantment on `known`, and chargedSuffix() is not
+    // :1422 guards the enchantment on `known`, and chargedSuffix() is not
     // reached either way, so an unidentified weapon-tool is the bare name.
     assert.equal(
         donameFresh(objectOf(state, PICK_AXE, { known: false }), state),
@@ -1395,7 +1395,8 @@ test('weapon-tools take the enchantment and no charge count', () => {
 
     // objects.h:968 TOOL("magic marker", ...) passes chrg 1 with the TOOL
     // macro's P_NONE skill, so it is oc_charged but not a weapon-tool: it
-    // stays on the TOOL_CLASS arm and reaches `charges:` through :1483.
+    // stays on the TOOL_CLASS arm and reaches `charges:` through the
+    // `goto charges` at :1480-1481.
     assert.equal(
         donameFresh(objectOf(state, MAGIC_MARKER, charged), state),
         'a magic marker (1:2)',

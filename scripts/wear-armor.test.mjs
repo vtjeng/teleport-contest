@@ -646,7 +646,12 @@ test('canwearobj refuses a slot that is already filled', async () => {
     assert.equal(topLine(), 'You are already wearing a shield.');
     assert.equal(game.context.move, 0);
 
-    const thatSegment = wishSegmentFor(7720125);
+    // `before` was cut from seed 7720122's segment above, so this replay is
+    // only valid while 7720125 records the same prefix. wishSegmentTyping()
+    // checks that rather than leaving the two recordings to drift apart in
+    // silence, which is the hazard wish-tests-skip-their-own-typing-guard was
+    // filed for.
+    const thatSegment = wishSegmentTyping(7720125, before);
     await runSegment({ ...thatSegment, moves: `${before}${WEAR_KEY}c` });
     // already_wearing(c_that_) is the one call that ends in '!'.
     assert.equal(topLine(), 'You are already wearing that!');

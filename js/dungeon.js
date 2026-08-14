@@ -1299,9 +1299,13 @@ function surface_typ(location) {
 // it is neither IS_DOOR(), which rm.h:121 defines as `typ == DOOR`, nor
 // IS_WALL(), which rm.h:117 caps at DBWALL; it therefore falls past every arm
 // of the disjunction below and answers "rock cavern". Reading it through
-// SURFACE_AT() instead would substitute the terrain the bridge spans, which
-// for a drawbridge over ordinary floor would answer "ceiling". surface_typ()
-// is deliberately not used, and the two answers differ.
+// SURFACE_AT() instead would substitute the terrain the bridge spans, and for
+// three of the four under-types that changes nothing: dbridge.c db_under_typ()
+// answers MOAT (17) for DB_MOAT, LAVAPOOL (20) for DB_LAVA and STONE (0) for
+// DB_FLOOR, and all three fall past IS_ROOM, whose floor is ROOM (25). Only
+// DB_ICE differs, because it answers ICE (33), which IS_ROOM admits and which
+// would make this function say "ceiling". surface_typ() is deliberately not
+// used, and DB_ICE is the case that decides it.
 //
 // Is_waterlevel(), Is_firelevel(), In_quest() and Is_earthlevel() are spelled
 // out against `state` for the reason has_ceiling() gives above, and Underwater

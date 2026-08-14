@@ -732,9 +732,11 @@ export function assertPricedObjectNameable(obj, state = game) {
 // holds only for the suit, whose armoroff() leaves ga.afternmv at Armor_off;
 // armoroff() refuses the other delayed slots. Donning holds for every slot
 // whose oc_delay is non-zero, which accessory_or_armor_on() now reaches for
-// four of them: the suit at 1 to 5 turns, since both mithril-coats carry
-// oc_delay 1 where the other suits carry 3 or 5; the helmet at 1 for all but
-// the fedora and the dented pot; the gloves at 1 and the boots at 2. Neither ever
+// four of them: the suit at 0 to 5 turns, spread as objects.h gives it, with
+// the leather jacket at 0 opening no window at all, both mithril-coats at 1,
+// leather and studded leather armor at 3 and the remaining thirty rows at 5;
+// the helmet at 1 for all but the fedora and the dented pot; the gloves at 1
+// and the boots at 2. Neither ever
 // reaches a name, because
 // nothing in this port redraws inventory on its own and moveloop_core() reads
 // no key while gm.multi is negative, so nothing is formatted inside either
@@ -1102,8 +1104,11 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
     // `is_weptool(obj) ? WEAPON_CLASS : obj->oclass` picks both the prefix
     // words below and the parenthesized suffix further down, so a weapon-tool
     // takes the enchantment prefix and never reaches the `charges:` label at
-    // :1484. This port splits that switch into a prefix switch and a suffix
-    // chain; both read this one value.
+    // :1484. This port splits that switch three ways rather than two: the
+    // prefix switch below, the suffix chain further down, and wornSuffix() at
+    // :745, which holds the switch's AMULET_CLASS, ARMOR_CLASS and TOOL_CLASS
+    // worn arms. All three derive the class the same way; wornSuffix() computes
+    // it for itself because it is called from elsewhere too.
     const nameClass = is_weptool(obj, state) ? WEAPON_CLASS : obj.oclass;
     switch (nameClass) {
     case WEAPON_CLASS:
