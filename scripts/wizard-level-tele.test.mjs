@@ -181,7 +181,7 @@ test('the command table binds C(v) to the row wiz_level_tele() serves', () => {
         ),
         'wizlevelport',
     );
-    // readSimpleCommand() refuses every command outside this list before any
+    // admitParsedCommand() refuses every command outside this list before any
     // handler runs, so the key reaches rhack()'s arm only once it is here.
     assert.ok(ADMITTED_COMMANDS.includes('wizlevelport'));
 });

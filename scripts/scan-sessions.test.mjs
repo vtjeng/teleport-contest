@@ -328,7 +328,7 @@ test('the supported set is every command the port dispatches', () => {
 // first two cases on purpose: nothing in the recording tells them apart.
 test('isCommandRefusal separates a refused command from a refused branch',
     () => {
-    // The dispatch seam. readSimpleCommand() refuses a byte ADMITTED_COMMANDS
+    // The dispatch seam. admitParsedCommand() refuses a byte ADMITTED_COMMANDS
     // does not admit, and supportedCommands() reads that same set, so the
     // model derives this stop from the recording by itself.
     assert.equal(
@@ -628,9 +628,9 @@ test('reconcile sorts each stop by how the two halves name it', () => {
         },
         // Unreconciled. The port refused at step 12 and the model's earliest
         // behavior sits at 40, so it believes the port supports the refused
-        // byte. A counted rush would land here: readSimpleCommand() refuses
-        // the count's leading digit, which binds to no command and so is never
-        // debt, while ADMITTED_RUN_MODES admits the rush that follows it.
+        // byte. A counted rush would land here: the port consumes the count
+        // and refuses the rush the digits precede, while ADMITTED_RUN_MODES
+        // admits that same rush uncounted and so reads it as supported.
         {
             file: 'unreconciled-late',
             boundary: 'unsupported hero command: the repeated-command boundary',

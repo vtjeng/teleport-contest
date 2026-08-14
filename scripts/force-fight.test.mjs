@@ -914,8 +914,8 @@ test('the second prefix of a pair is the one the refusal names', async () => {
     }
 });
 
-// The route a prefixed `G` takes. Only a command's first byte passes
-// readSimpleCommand()'s ADMITTED_COMMANDS gate, so `FG` reads `G`, finds its
+// The route a prefixed `G` takes. Only a fresh-read command passes
+// admitParsedCommand()'s ADMITTED_COMMANDS gate, so `FG` reads `G`, finds its
 // row, and passes the PREFIXCMD exemption exactly as it does in C; the arm
 // that refuses it is the bound-command-without-a-handler one, because
 // MOVEMENT_INTENTS has no `run` row. Removing that arm would turn this into an

@@ -370,10 +370,10 @@ export async function dothrow(state = game) {
      *
      * [3.6.0:  shot count setup has been moved into ok_to_throw().]
      *
-     * That count is always zero here. js/cmd.js readSimpleCommand() reads a
-     * single byte and refuses a digit ahead of a command, so `3t` never
-     * reaches this function and ok_to_throw() only ever reads a cleared
-     * command_count.
+     * That count is 0 or 1 here. js/cmd.js parse() collects it, and rhack()
+     * refuses any command whose count left gm.multi above 0, so `3t` never
+     * reaches this function; `1t` does, and ok_to_throw() reads its 1 as a
+     * one-missile shot limit.
      */
     const { ok, shotlimit } = await ok_to_throw(state);
     if (!ok) return ECMD_OK;

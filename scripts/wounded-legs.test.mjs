@@ -426,7 +426,7 @@ test('the planning clone leaves the live canned command queue alone',
         // cmd.c cmdq_add_ec() pushes rows like these; only their identity
         // matters here, so the queue is loaded directly. The live game has
         // already materialized command_queue by this point, through
-        // readSimpleCommand()'s cmdq_pop(), so the clone's `??=` cannot give
+        // rhack()'s own cmdq_pop(), so the clone's `??=` cannot give
         // itself a private one.
         const canned = [{ ec_name: 'swap' }, { ec_name: 'fire' }];
         assert.ok(game.command_queue, 'the live queue must already exist');

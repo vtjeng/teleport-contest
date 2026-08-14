@@ -524,16 +524,12 @@ test('a named command with no ported handler stops the segment, not the key',
     assert.equal(game.multi, 0);
     assert.equal(topLine(), '');
 
-    // What the single-key boundaries promise does not hold here. They stop
-    // before the keystroke is consumed, so replaying it reproduces the
-    // command; this one stops after hooked_tty_getlin() has already eaten
+    // What the pre-dispatch boundaries promise does not hold here. They stop
+    // before the command runs, so restoring the parsed command reproduces the
+    // same refusal; this one stops after hooked_tty_getlin() has already eaten
     // "pray\n". pendingCommand therefore names '#' alone, which on a retry
     // would reopen an empty prompt rather than repeat the command.
-    assert.deepEqual(
-        { phase: game.context.pendingCommand?.phase,
-            key: game.context.pendingCommand?.key },
-        { phase: 'parsed', key: EXTCMD_KEY.charCodeAt(0) },
-    );
+    assert.equal(game.context.pendingCommand?.key, EXTCMD_KEY.charCodeAt(0));
     // A segment that runs to the end records one screen per key plus the one
     // the game starts on. The refusal paints nothing, so this one is short by
     // exactly the screen the command would have drawn.

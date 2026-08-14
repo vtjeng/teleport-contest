@@ -2921,6 +2921,16 @@
       "status": "open",
       "from": "02fba14de00c81097a0da72119cece782d770ccd",
       "detail": "js/mthrowu.js blocking_terrain():40-41 reads an absent GameMap cell as C's leading !isok(x, y) at mthrowu.c:1284, and the two are not the same set. cmd.c isok():4329 is x >= 1 && x <= COLNO - 1 && y >= 0 && y <= ROWNO - 1, so C rejects column zero; js/game.js GameMap.at():78-81 rejects only x < 0 and x >= COLNO, so column zero has a cell and the port falls through to IS_OBSTRUCTED(levl[0][y].typ). The answers agree today for one reason only: mklev never puts anything but rock in column zero, and IS_OBSTRUCTED(STONE) is TRUE, so both sides answer TRUE. js/const.js:2028 already exports an isok() that matches C exactly; the fix is to call it. Filed as production rather than tests, and filed rather than fixed, because the burn-down lane that found it was forbidden to move production behavior. scripts/mthrowu.test.mjs now covers both coordinates and says which arm each one reaches, so the fix has a test waiting for it. Found by the tests deferral burn-down."
+    },
+    {
+      "id": "counted-non-occupation-command",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "73d802e3c44723cf820b4501d32b3da33adf767a",
+      "detail": "A count of 2 or more before any extcmdlist[] row other than the two carrying occupation text refuses at js/cmd.js rhack(), where cmd.c parse():5142-5144 has left gm.multi above 0. C spends such a count in one of two places, and neither is ported: rhack():3728-3729 installs timed_occupation() for a row with f_text, and allmain.c moveloop_core():515-531 repeats the command for every other row.\n\nTwo recorded cases sit just outside the goal and cannot match the C reference yet. Both were recorded at seed 9310001, datetime 20260814101500, a Valkyrie with pettype:none and !acoustics, moves prefixed by the space that dismisses startup output; the count digits are typed at a prompt whose row 0 already reads 'Be careful!  New moon tonight.'.\n\n1. ' 12i'. C paints 'Count: 12' at the second digit and then opens the inventory once: doinv() answers ECMD_OK, so rhack():3814 reaches reset_cmd_vars() and zeroes gm.multi before moveloop_core() can repeat anything. The port stops at the 'i' with 4 of C's 5 screens, its message row still holding 'Count: 12'.\n2. ' 3>'. No echo, because get_count():5069 withholds it below 10. C answers 'You can't go down here.' once, again through the ECMD_OK arm. The port stops at the '>' with 3 of C's 4 screens.\n\nBoth are correct in C through code this port already owns, so the refusal costs real behavior. It is deliberate: admitting them would send an uncounted command down moveloop_core()'s non-occupation gm.multi > 0 arm, which no recorded session has executed.\n\nscripts/cmd.test.mjs 'a count of 2 or more refuses on a row this port would dispatch' pins the present refusal for both inputs. Close this by moving both into scripts/run-count-prefix.mjs with the slice that ports timed_occupation() and rhack()'s set_occupation() call site, and by extending that matrix with a counted 's' and a counted '.'.",
+      "blockedOn": "timed_occupation"
     }
   ],
   "areas": [

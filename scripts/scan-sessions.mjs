@@ -247,9 +247,13 @@ export function extendedCommandAt(steps, index) {
  * Every command the port dispatches today, named from js/cmd.js rather than
  * copied, so this scan cannot drift from the boundary it measures.
  *
- * `readSimpleCommand()` admits ADMITTED_COMMANDS, a movement command whose run
+ * `admitParsedCommand()` admits ADMITTED_COMMANDS, a movement command whose run
  * mode is one of ADMITTED_RUN_MODES, Escape, and a byte bound to no command.
  * The last two carry no command name and so cannot appear as debt.
+ *
+ * It answers for the command byte alone. A command this set names is still
+ * refused when the count typed ahead of it left more than one repetition, so a
+ * stop on such a step reads as unreconciled rather than as debt.
  */
 export function supportedCommands() {
     const supported = new Set(ADMITTED_COMMANDS);
@@ -477,8 +481,9 @@ export async function scanSession(file) {
 /**
  * Every command the port demonstrably ran, taken from the sessions themselves.
  *
- * `supportedCommands()` reads `ADMITTED_COMMANDS`, which gates only the FIRST
- * byte of a command. An extended command reaches its handler through
+ * `supportedCommands()` reads `ADMITTED_COMMANDS`, which gates only the COMMAND
+ * byte, never the count typed ahead of it. An extended command reaches its
+ * handler through
  * `doextcmd()` and never appears in that list, so porting one leaves it reading
  * as debt. A command issued before the step the port stopped on is one the port
  * executed, which settles the question without a second table to maintain.
@@ -647,9 +652,9 @@ export function stopPointAgreement(rows) {
  * - `unreconciled`: the model has no behavior at the step the port refused.
  *   That means it believes the port supports what the port just refused, and
  *   no row of the behavior table stands for the stop. Any row here needs a
- *   human. The count prefix is the standing case: `readSimpleCommand()`
- *   refuses the count's leading digit, which is bound to no command and so is
- *   never debt, while the command the count modifies is admitted.
+ *   human. The count prefix is the standing case: the port now consumes the
+ *   count's digits and refuses the command byte they precede, which the model
+ *   reads as supported because it has no count dimension.
  */
 export function reconcile(rows) {
     const carried = [];
