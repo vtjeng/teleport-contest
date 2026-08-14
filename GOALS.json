@@ -2253,7 +2253,13 @@
         ]
       },
       "detail": "get_count() and parse() are already ported at js/cmd.js:743 and :837 and already reachable after a prefix at :2026; only the first byte of a command is refused. js/cmd.js readSimpleCommand() at :943-966 exists specifically to classify the first byte before get_count() can consume a prefix byte or expose transient count output, so the refusal has to move behind the count echo without corrupting the pendingCommand physical and parsed replay machinery at :1190-1202 and :1955-1975. js/cmd.js set_occupation() throws on a nonzero xtime with a comment saying the call cannot happen because this port's command boundary parses no count; that comment goes stale the moment the first slice lands, verified present by the orchestrator. The occupation loop, monster_nearby(), stop_occupation() and reset_eat() in js/allmain.js:1096-1123 are already ported, so the goal adds no turn-loop machinery. Only about 25 lines of C are unported: timed_occupation() plus the two-line set_occupation() call site.",
-      "slices": [],
+      "slices": [
+        {
+          "name": "count-prefix-admission",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "82e97b4a33faa905e30ba54a4cd233aa4dca83f0",
       "openStanding": {
         "sha": "9c97ee3",
