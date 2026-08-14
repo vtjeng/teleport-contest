@@ -2047,7 +2047,7 @@
     },
     {
       "id": "throw-command",
-      "status": "open",
+      "status": "closed",
       "boundary": "The t command: dothrow.c dothrow() (351-376), reached through the ported ok_to_throw() and getobj(\"throw\", throw_ok, GETOBJ_PROMPT | GETOBJ_ALLOWCNT), handing the chosen object to the ported throw_obj(); plus throw_obj()'s coin arm throw_gold() (2655-2731), the one arm t can reach and f cannot, since C guards it on obj->oclass == COIN_CLASS && obj != uquiver and dofire() always passes uquiver. Two testable conditions bound it: dothrow() calls exactly three functions, so the front end is complete when ok_to_throw(), getobj() and throw_obj() are wired and no fourth call exists at 368-375; and every arm of throw_obj() and throwit() that f already reaches or refuses keeps the behavior it has today, so the only refusal removed is throw_gold() at js/dothrow.js:399 and the only one added is dokick.c ghitm() for gold a monster catches.",
       "upstreamOwners": [
         "dothrow.c dothrow() 351-376",
@@ -2079,8 +2079,11 @@
         "screens": 1538,
         "rng": 121032
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "fe988c985a469edfcef941ed45f4261fe6be2513",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
