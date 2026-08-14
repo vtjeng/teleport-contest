@@ -397,3 +397,7 @@ utc	event	phase	goal	detail
 2026-08-13T21:58:30.891Z	end	implement	armor-wear	wear-zero-delay-shield closed at 8c55d3f; score unchanged at 1538 screens, the goal's forecast
 2026-08-13T22:07:32.276Z	start	review	armor-wear	full correctness pass over b035d790..8c55d3f, at the slice boundary before the gate forces one mid-slice
 2026-08-13T23:08:16.107Z	end	review	armor-wear	full correctness pass recorded through fc56134; 22 raw, 19 deduplicated, 13 confirmed, 5 applied at e3d1ecb, 8 deferred, 6 rejected
+2026-08-13T23:29:21.220Z	start	select	armor-wear	second slice of armor-wear
+2026-08-13T23:36:53.196Z	end	select	armor-wear	wear-delayed-suit queued: Armor_on() and the nomul(-oc_delay) fork
+2026-08-13T23:36:53.227Z	start	implement	armor-wear	wear-delayed-suit: W on a suit through nomul(-oc_delay), unmul() and Armor_on()
+2026-08-14T00:17:05.212Z	end	implement	armor-wear	wear-delayed-suit closed at 5f91702; score unchanged at 1538 screens, the goal's forecast

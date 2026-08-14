@@ -2011,6 +2011,11 @@
           "name": "wear-zero-delay-shield",
           "status": "closed",
           "closedBy": "8c55d3f4a18f8bdbdf7a040897dde04b5f73d99e"
+        },
+        {
+          "name": "wear-delayed-suit",
+          "status": "closed",
+          "closedBy": "5f9170230412cdee95ca4a698ad98c06e1df3e18"
         }
       ],
       "openedAt": "0fc4e5f17fc9188a77f0f36c6b95ede1a215c476",
