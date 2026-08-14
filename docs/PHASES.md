@@ -65,9 +65,9 @@ tangle of monolithic files and hand-tuned constants will need to
 rewrite far more to match 5.1, and the diff penalty will weigh
 heavily on the result.
 
-We frame Phase 2 as a **maintainability contest**: its leaderboard
-rewards code that was designed for change, and the design lock-in
-happens at the Phase 1 freeze.
+This is why we frame Phase 2 as a **maintainability contest**: its
+leaderboard rewards code that was designed for change, and the
+design lock-in happens at the Phase 1 freeze.
 
 ### Final ranking
 
@@ -80,7 +80,7 @@ Throughout both phases, the judges can spotlight any team's
 pipeline writeup on the public leaderboard. After Phase 2, a
 separate **Best Method** award is judged on the quality and
 reproducibility of the writeup (independent of where you placed in
-the parity ranking). The award aims to capture and share the actual
+the parity ranking). The award exists to capture and share the actual
 techniques that worked.
 
 ## What "public source code" means

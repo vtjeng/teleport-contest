@@ -160,8 +160,8 @@ The provided `frozen/terminal.js` has a `serialize()` method that
 produces the canonical format directly from a 24×80 grid; the
 provided `js/jsmain.js` capture hook calls it for you.
 
-If you implement your own terminal, output anything that, after
-canonicalization, matches the recorded screen.
+If you implement your own terminal, output anything that (after
+canonicalization) matches the recorded screen.
 
 ### `getRngLog()`
 
@@ -188,8 +188,8 @@ C-side recordings carry).
 
 ### `getCursors()`
 
-Currently scored as a tiebreaker only: match it if you can; not
-required for a session to pass.
+Currently scored as a tiebreaker only. Match it if you can, but it
+is not required for a session to pass.
 
 ### Animation frames: supplemental, optional
 
@@ -227,9 +227,9 @@ frame). That single call:
    step writes over them.
 
 **Same code in every runtime.** Contestant code always writes
-the same parameterless `await game.animationFrame()` call on a
-single code path. There is no `mode` parameter and no feature
-detection. Inside the canonical implementation the yield
+the same parameterless `await game.animationFrame()` call: there is
+no `mode` parameter, no feature detection, no separate code path.
+Inside the canonical implementation the yield
 uses `requestAnimationFrame` when one is available (so the browser
 actually paints between frames in `/play/<owner>/`) and falls back
 to a microtask yield in Node (judge sandbox + local `score.sh`),

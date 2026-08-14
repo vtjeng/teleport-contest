@@ -3,7 +3,7 @@
 Commit 600113b moved this analysis out of ROADMAP.md on 2026-08-01, when
 goal state moved to GOALS.json. This is analysis for goal selection, read
 when choosing work, and it is on no mandatory reading path. The falsified
-predictions and measured overstatements recorded here are the record
+predictions and measured overstatements recorded here are what
 later entries in this file depend on: do not re-derive them.
 
 Twelve goal-closure rows in `SCORE.tsv` carry a holdout figure. Holdout
@@ -51,7 +51,7 @@ opened.
 This finding narrows to `supports`. The instrument measured this behavior
 correctly: `supports` ranked it first, and the behavior really was the port's
 largest single dependency; the column measures what depends on a boundary,
-which is not what porting that boundary produces. Unblocking a boundary moves a
+which is not what porting that boundary earns. Unblocking a boundary moves a
 session to the next one. Expect a goal's gain to track the screens between its
 boundary and the next stop in the same sessions, which `scripts/scan-sessions.mjs`
 reports as `unlocks`, an upper bound. Whoever next selects a goal should treat
@@ -80,8 +80,8 @@ trap goal predicted 46 and delivered 8, `#ride` predicted 82 and delivered
 The bound held above the delivered figure in all three measurements,
 overstating by 5.8, 4.8 and 26 times. The largest of the three ratios came
 from `eat`'s first slice, because a session whose whole visible debt is one
-command has had the least opportunity to reveal what else it needs. So
-`.agents/selection.md` ranks candidates by the look-ahead forecast that
+command has had the least opportunity to reveal what else it needs.
+`.agents/selection.md` therefore ranks candidates by the look-ahead forecast that
 starts from `unlocks` and caps each stopped session's
 stretch, and lists the six mechanisms that break the bound. `supports`
 stays in the `scripts/scan-sessions.mjs` report as context. Do not re-derive
@@ -192,7 +192,7 @@ That decision stands and this entry is not an argument against it. It records
 the price: ranking on development look-ahead selects boundaries the recorded
 players happened to reach, and a boundary reached by one rare keystroke cannot
 move an eleven-session holdout however much behavior it adds. Seven zeros now
-say that about effect size, capability, and reachability.
+say that about effect size, capability, and reachability in turn.
 
 `twoweapon-command` closed on 7 August 2026 and is the eighth zero. It met its
 forecast exactly (25 steps predicted, 25 delivered, `seed0107` from 15 to 40
@@ -219,9 +219,9 @@ forecast exactly (21 steps predicted, 21 delivered), and the holdout returned
 195 of 3,640 screens and 32,614 of 182,022 values for the fifth evaluation
 running.
 
-Each of the eight zeros before this one left its contributing session
-unfinished, so a reader could argue the holdout saw only a fragment of the
-capability. This one is different: it took
+This zero says more than the eight before it. Each of those left its
+contributing session unfinished, so a reader could argue the holdout saw only
+a fragment of the capability. This one took
 `seed0105-valk-chat-lamp-ration` from 9 of 30 screens to 30 of 30, the first
 time a goal has carried a development session from partial to complete, and
 raised the fully matching count from 2 to 3. A whole session finished end to
@@ -452,14 +452,14 @@ moved the holdout by nothing. The twelve screens came from `dodrop()`.
 The argument was clean and wrong. "A named class can only add output" is true and
 was never the question; whether any hidden session actually reached that throw
 was, and none did. Reasoning about which of two changes caused an effect, when
-one measurement separates them, is a thing to measure rather than argue. It is
+one measurement separates them, is a thing to measure rather than argue. This is
 the same lesson the census reads taught five times over, applied here to a
 holdout figure instead of a step count.
 
 What the measurement actually says is more interesting than what the argument
 claimed. A boundary port moved the holdout, which no boundary port had done in
-fifteen goals. So the reading established at `hero-combat`, that the hidden
-sessions stop upstream of everything being ported and never reach it, is at
+fifteen goals. So the reading established at `hero-combat` (that the hidden
+sessions stop upstream of everything being ported and never reach it) is at
 best incomplete. They reached `drop`. Whatever the 5.4 per cent represents, it is
 not a wall that ported behavior cannot touch.
 
@@ -487,7 +487,7 @@ unported C: converting it would have declared `makemon()` unported when it was
 merely unwired. **Four were unreachable**, and carry derivations rather than
 refusal classes nothing can raise.
 
-The premise for the first slice was three facts, each verified: the class is in
+The premise for the first slice was three facts, each verified: the class sits in
 the command-seam list, it is absent from the turn-loop list, and the caller
 runs outside a converting `try`. All three were true and the conclusion drawn
 from them was false, because nothing raises the class: C gates every refused
@@ -503,7 +503,7 @@ instruments (fresh recordings, seed scans, per-session diffs) exist precisely
 to close that gap. The rule that keeps earning its place is the narrow one:
 **measure the thing you are about to claim, not the thing next to it.**
 
-What the goal produced instead of conversions are a C function ported and
+What the goal produced instead of conversions were a C function ported and
 corrected, a hook wired, four derivations, a new fresh matrix for
 `allmain.c:342-344` which had none, and the first test in the repository that
 pins a refusal *class* rather than its message.
@@ -574,8 +574,8 @@ arrives in the first few dozen turns; `F` and wishes do not. On that reading the
 capped look-ahead measures the right quantity (where sessions first stop)
 over a population that has drifted ahead of the holdout's.
 
-**The user decided to finish the development set first and use the holdout as
-a regression test.** So the capped development look-ahead stays the primary
+**The user settled it: finish the development set first, and use the holdout
+as a regression test.** So the capped development look-ahead stays the primary
 ranking rule, and `.agents/scoring.md` already says what the holdout is for:
 it guards against a large inadvertent regression, and a goal that does not
 move it is ordinary. Do not re-derive the calibration above, do not re-rank
