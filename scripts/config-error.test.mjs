@@ -635,11 +635,11 @@ const SILENT_BOOLEAN_ROWS = new Set(allopt
 // for one that carries none, and optfn_boolean() (5213), which skips its whole
 // value block for empty_optstr and leaves the row taking !negated at 5285.
 test('a boolean whose separator ends the statement takes the negation', () => {
-    // sortpack starts On and autodig starts Off, so the four spellings cover a
-    // negation that changes the flag and one that does not.  Both rows store
-    // in flags under their own name, and neither had a handler of its own
-    // before this: a name-keyed dispatch sent them to the compound arm, which
-    // stored the empty string and stopped the read on the negated spelling.
+    // sortpack starts On and autodig starts Off, so the rows below cover a
+    // negation that changes the flag and one that does not.  string_for_opt()
+    // finds a trailing '=' the same way it finds a trailing ':'.  Both options
+    // store in flags under their own name, which is what makes the value
+    // visible here.
     for (const [statement, sortpack, autodig] of [
         ['OPTIONS=sortpack:', true, false],
         ['OPTIONS=!sortpack:', false, false],
@@ -666,10 +666,10 @@ test('a boolean whose separator ends the statement takes the negation', () => {
     }
 });
 
-// C ref: options.c optfn_boolean() (5233-5237) again, over the whole table
-// rather than the rows whose storage this port owns.  parseoptions() reaches
-// the handler through allopt[matchidx].optfn, so the row's type decides
-// whether the message is emitted.
+// C ref: options.c optfn_boolean() (5233-5237) again, this time over the whole
+// table.  parseoptions() reaches the handler through allopt[matchidx].optfn,
+// so the row's type decides whether the message is emitted, whatever the port
+// does with the value afterwards.
 test('an unreadable boolean value reports for every row that rejects one',
     () => {
         // Six rows compiled their storage away, three are set_wiznofuz and
