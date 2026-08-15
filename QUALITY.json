@@ -3215,6 +3215,22 @@
       "status": "open",
       "from": "87aea385fa99030cb985cb50875e2ceeabc07bc2",
       "detail": "options.c parseoptions():621-623 calls duplicate_opt_detection(matchidx), which returns allopt[matchidx].dupdetected++ while go.opt_initial and go.opt_from_file both hold, and reports through complain_about_duplicate() for any row whose optlist.h dupeok is No. js/options.js keeps no such counter: optionState.seen covers role, race, gender and alignment alone, for parse_role_opt()'s own duplicate arm. A fresh C recording at this entry's commit shows the gap directly: an rc holding OPTIONS=menu_headings then OPTIONS=menu_headings: reports 'compound option specified multiple times: menu_headings.' before the second statement's own message, and the port reports only the second. Three such pairs made C count nine errors where the port counted six, which shifts config_error_done()'s summary row as well. optfn_playmode() reads the same flag -- 'if (duplicate || negated) return optn_err' -- so a second playmode statement is applied here where C refuses it. Closing it needs a per-row counter in parseNethackrc()'s optionState, one call in applyOption() ahead of the dispatch, and the message complain_about_duplicate() builds from the row's opttyp."
+    },
+    {
+      "id": "unburdened-live-pass-has-no-preflight",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "e5b48a44ccbb015bf54c488e6d837199fd231f95",
+      "detail": "js/allmain.js finishElapsedTurn()'s unburdened path returns at the randomMonsterOnly gate, so run_regions(), automatic_search() and exerchk() run live with no dry run behind them. js/allmain.js:766-775 already documents preflightTrap() raising plain Errors on that path, which escape runSegment() and discard the segment's matching prefix rather than stopping on a boundary. This is the same shape as the entry 145cf2d resolved, one seam further down, and unlike that one it is not stale: 453dc10's shortened round covers maybe_generate_rnd_mon() and stops before these three. Found by the live-monster-refusal-preflight worker while proving the seam above it, and covered by no entry open at that time. It is not an rc-parser entry, so it belongs to the sweep whichever way Q8 is answered.",
+      "blockedOn": "activate_statue_trap",
+      "notes": [
+        {
+          "text": "Read against the code at e5b48a4 rather than taken from the record. The structural half holds: js/allmain.js:690 returns at the randomMonsterOnly gate, so the clone never reaches run_regions(), automatic_search() or exerchk(). The exposure half does not. run_regions() is a no-op with an empty state.level.regions, which is the D:1 case, and carries its own atomic preflight; exerchk() returns at moves < nextCheck with next_attrib_check starting at 600; automatic_search() reduces to preflightTrap(), whose only two throwing branches are the activateStatueTrap operation and the hallucination block's four requireInjected() calls. js/allmain.js:766-775 already records that neither is recordable: a statue trap needs level_difficulty() >= 8 or a Statuary room, and no D:1 Statuary across seeds 1-6000 placed one in reach. So no fresh end-to-end differential can witness it and it cannot close as a behavior slice. Blocked on trap.c activate_statue_trap(), which js/ does not define.",
+          "at": "e5b48a44ccbb015bf54c488e6d837199fd231f95"
+        }
+      ]
     }
   ],
   "areas": [
