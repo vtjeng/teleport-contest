@@ -3786,11 +3786,20 @@ function _statusFieldStyle(field, valueSnapshot = null) {
     return selected?.style ?? null;
 }
 
-// C ref: win/tty/wintty.c condattr() (4920-4952), which reads back the
-// gc.cond_hilites[] bits botl.c parse_condition() set.  Those bits are
-// cumulative across statements, so this replays every rule naming the
-// condition in configuration-file order: `clearAttributes` is the `&= ~mask`
-// sweep "none" performs over all six entries, `attrib` the `|= mask` bits.
+// C refs: win/tty/wintty.c condattr() (4920-4952) and condcolor() (4907-4918),
+// which read back the gc.cond_hilites[] bits botl.c parse_condition() set.
+// Those bits are cumulative across statements, so this replays every rule
+// naming the condition in configuration-file order: `clearAttributes` is the
+// `&= ~mask` sweep "none" performs over all six entries, `attrib` the
+// `|= mask` bits.
+//
+// condcolor() scans the array from index 0 and returns the first entry holding
+// the condition, so the lowest color index wins however the statements were
+// ordered.  A rule whose color is null is a group that failed on a bad color
+// after committing its attributes; C never ran its
+// `gc.cond_hilites[coloridx] |= conditions_bitmask`, so it offers no index to
+// find.  With none left, condcolor() falls out of its loop and answers
+// NO_COLOR.
 function _statusConditionStyle(option) {
     if (!game.iflags?.hilite_delta) return null;
     const colors = new Set();
@@ -3800,12 +3809,15 @@ function _statusConditionStyle(option) {
         if (rule.field !== 'condition'
             || !rule.conditions.includes(option)) continue;
         matched = true;
-        colors.add(rule.style.color);
+        if (rule.style.color !== null) colors.add(rule.style.color);
         if (rule.style.clearAttributes) attrib = HL_UNDEF;
         attrib |= rule.style.attrib;
     }
-    return matched
-        ? { color: Math.min(...colors), attrib } : null;
+    if (!matched) return null;
+    return {
+        color: colors.size ? Math.min(...colors) : NO_COLOR,
+        attrib,
+    };
 }
 
 function _statusOwnerStyle(owner) {

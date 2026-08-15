@@ -2064,8 +2064,43 @@ test('a condition rule reads its colors and attributes its own way', () => {
         " * Line 1: Unknown color 'mauve'.",
         ' * Line 1: bad color 16.',
     ]);
+    // The bad color was the group's first subfield, so C had written nothing
+    // to gc.cond_hilites[] before it returned FALSE.
     assert.deepEqual(rejected.iflags.status_hilites, []);
     assert.equal(rejected.iflags.hilite_delta, 0);
+
+    // With an attribute ahead of it, C has already ORed that attribute's
+    // entry, and the only write it skips is the
+    // `gc.cond_hilites[coloridx] |= conditions_bitmask` below the loop.  A
+    // null color is the port's record of that skip.
+    const partial = parseNethackrc(
+        'OPTIONS=hilite_status:condition/blind/inverse+mauve\n',
+    );
+    assert.deepEqual(partial.configErrorFrame.output, [
+        '\nOPTIONS=hilite_status:condition/blind/inverse+mauve',
+        " * Line 1: Unknown color 'mauve'.",
+        ' * Line 1: bad color 16.',
+    ]);
+    assert.deepEqual(partial.iflags.status_hilites, [{
+        field: 'condition',
+        conditions: ['blind'],
+        style: { attrib: HL_INVERSE, clearAttributes: false, color: null },
+    }]);
+    // parse_status_hl1() still answers FALSE, so its duration is skipped and
+    // the bits stay dormant until something else turns highlighting on.
+    assert.equal(partial.iflags.hilite_delta, 0);
+
+    // "none" is the other write the loop can make before the bad color, and
+    // it survives the same way: the sweep is recorded with no attribute bit
+    // and no color index beside it.
+    const swept = parseNethackrc(
+        'OPTIONS=hilite_status:condition/blind/none+mauve\n',
+    );
+    assert.deepEqual(swept.iflags.status_hilites, [{
+        field: 'condition',
+        conditions: ['blind'],
+        style: { attrib: HL_UNDEF, clearAttributes: true, color: null },
+    }]);
 
     const cleared = parseNethackrc(
         'OPTIONS=hilite_status:condition/blind/bold&none&underline\n',

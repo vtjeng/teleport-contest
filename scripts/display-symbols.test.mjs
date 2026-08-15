@@ -5721,23 +5721,60 @@ test('a status highlight draws only the attributes tty can emit', async () => {
     }
 });
 
-// C ref: botl.c parse_condition() writes gc.cond_hilites[], one array entry
-// per attribute, and wintty.c condattr() reads the entries back for the
-// condition being drawn.  Those entries outlive the statement that set them,
-// which is what distinguishes the three rows below.
+// C refs: botl.c parse_condition() writes gc.cond_hilites[], one array entry
+// per attribute and one per colour, and wintty.c condattr() (4920-4952) and
+// condcolor() (4907-4918) read the entries back for the condition being drawn.
+// Those entries outlive the statement that set them, which is what
+// distinguishes the accumulating rows below.  condcolor() scans from index 0
+// and returns the first entry holding the condition, so the lowest colour
+// index wins whichever statement named it.
 test('a condition highlight replays the bits each rule set and cleared',
     async () => {
-        for (const [statements, expected, label] of [
+        for (const [statements, expected, color, label] of [
             [['condition/blind/bold&underline'],
-                ATR_BOLD | ATR_UNDERLINE, 'one rule'],
+                ATR_BOLD | ATR_UNDERLINE, NO_COLOR, 'one rule'],
             // Without "none" the second statement only adds to the first.
             [['condition/blind/bold', 'condition/blind/underline'],
-                ATR_BOLD | ATR_UNDERLINE, 'two rules accumulate'],
+                ATR_BOLD | ATR_UNDERLINE, NO_COLOR, 'two rules accumulate'],
             // "none" clears all six entries for these conditions, so the
             // bits the earlier statement set are gone and only the name
             // behind it survives.
             [['condition/blind/bold&underline', 'condition/blind/none&inverse'],
-                ATR_INVERSE, 'a later none discards the earlier bits'],
+                ATR_INVERSE, NO_COLOR, 'a later none discards the earlier bits'],
+            // CLR_RED is 1 and CLR_BLUE is 4, so the array entry condcolor()
+            // reaches first is red's whichever statement named it.  "Last one
+            // wins" and "first one wins" each answer one of these two rows
+            // wrongly.
+            [['condition/blind/blue', 'condition/blind/red'],
+                ATR_NONE, CLR_RED, 'the lower colour index wins'],
+            [['condition/blind/red', 'condition/blind/blue'],
+                ATR_NONE, CLR_RED, 'and does so in either order'],
+            // A group that fails on a bad colour keeps the attributes C has
+            // already ORed into gc.cond_hilites[] and skips only
+            // `gc.cond_hilites[coloridx] |= conditions_bitmask`, so the
+            // condition is drawn inverse with no colour of its own.
+            [['condition/blind/bold', 'condition/blind/inverse+mauve'],
+                ATR_BOLD | ATR_INVERSE, NO_COLOR,
+                'a group that failed on its colour keeps its attributes'],
+            // The same failed group beside a rule that did name a colour:
+            // condcolor() still answers red, because the failed group left no
+            // entry of its own for the scan to reach first.
+            [['condition/blind/red', 'condition/blind/inverse+mauve'],
+                ATR_INVERSE, CLR_RED,
+                'and contributes no colour index of its own'],
+            // "none" clears all six entries before the bad colour ends the
+            // group, so the earlier statement's bold is gone even though the
+            // statement holding the sweep failed.
+            [['condition/blind/bold', 'condition/blind/none+mauve'],
+                ATR_NONE, NO_COLOR,
+                'a failed group still performs its none sweep'],
+            // With the failed group the only rule naming the condition, no
+            // entry below CLR_MAX holds it and condcolor() runs out of its
+            // loop.  The hitpoints rule is there to give parse_status_hl1() a
+            // statement it accepts, so the duration is set at all.
+            [['hitpoints/always/red', 'condition/blind/inverse+mauve'],
+                ATR_INVERSE, NO_COLOR,
+                'a condition with no colour entry at all answers NO_COLOR'],
         ]) {
             const options = parseNethackrc(`${statements
                 .map((rule) => `OPTIONS=hilite_status:${rule}`)
@@ -5754,9 +5791,10 @@ test('a condition highlight replays the bits each rule set and cleared',
 
             assertStatusTextStyle(state, 23, 'Blind', {
                 attr: expected,
-                // No rule names a colour, so parse_condition() leaves its
-                // coloridx at the NO_COLOR it opened with.
-                color: NO_COLOR,
+                // NO_COLOR is what condcolor() answers when no entry below
+                // CLR_MAX holds the condition, which is also where
+                // parse_condition() leaves coloridx when no rule names one.
+                color,
             }, { label });
         }
     });

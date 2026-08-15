@@ -1301,7 +1301,12 @@ function statusHiliteFieldCName(field) {
 // C ref: botl.c splitsubfields() (2685-2726).  It splits str in place on '+'
 // and '&', so a trailing separator contributes no field while a leading or
 // doubled one contributes an empty one.  Its -1 answer, spelled null here,
-// needs fifteen separators and is silent; both callers below drop the group.
+// needs fifteen separators and is silent.  Two of the three callers below drop
+// the group on it: parseStatusHiliteAction() is C's `if (sf < 1) return
+// FALSE;` and str2conditionbitmask() is C's 0UL.  parse_condition() is the
+// third, and C gives it no such guard, so its `for (i = 0; i < sf; ++i)` runs
+// no iteration and the group is kept with whatever color and attributes the
+// group before it left.
 function splitsubfields(str, maxsf = 0) {
     const limit = maxsf === 0 ? MAX_SUBFIELDS : Math.min(maxsf, MAX_SUBFIELDS);
     if (!str.includes('+') && !str.includes('&')) return [str];
@@ -1410,11 +1415,31 @@ function str2conditionbitmask(result, str) {
     return [...selected];
 }
 
-// C's hsbuf[] is a fixed 21-entry array of strings that parse_status_hl1()
-// blanks before it fills, so a read past the last group answers the empty
-// string rather than running off the end.
+// C's hsbuf[] is a fixed MAX_THRESH-entry array of strings that
+// parse_status_hl1() blanks before it fills, so an unwritten group inside the
+// array answers the empty string.
+//
+// Index MAX_THRESH is not inside it.  parse_status_hl1()'s `fldnum++` on '/'
+// is unguarded and its loop only stops once fldnum has already reached
+// MAX_THRESH, so hsbuf[20] is the last entry ever written; a statement that
+// fills every group then leaves parse_status_hl2()'s `while (s[sidx][0])` and
+// parse_condition()'s reading hsbuf[21], one past the end of the array.  This
+// port answers the empty string there instead, which ends the group loop.
 function statusHiliteField(s, index) {
     return s[index] ?? '';
+}
+
+// One accepted or partly accepted condition group, standing for the
+// gc.cond_hilites[] entries parse_condition() has written for it by the time
+// the group ends.  win/tty/wintty.c condattr() and condcolor() read those
+// entries back, which js/display.js _statusConditionStyle() replays from the
+// rules recorded here.
+function pushConditionRule(result, conditions, style) {
+    result.iflags.status_hilites.push({
+        field: 'condition',
+        conditions,
+        style,
+    });
 }
 
 // C ref: botl.c parse_condition() (3232-3348).  Its color index is set once,
@@ -1473,14 +1498,25 @@ function parse_condition(result, s, fieldIndex) {
             // rule: the last color named wins.
             if (color >= CLR_MAX) {
                 configErrorAdd(result, `bad color ${color}`);
+                // Every attribute subfield ahead of this one has already
+                // reached gc.cond_hilites[], and those entries are indexed
+                // past CLR_MAX, so the only write C skips is
+                // `gc.cond_hilites[coloridx] |= conditions_bitmask` below the
+                // loop.  A null color records that skip: the group keeps its
+                // attributes and contributes no color index for condcolor()
+                // to find.  A group that reached no attribute subfield first
+                // wrote nothing at all, and gets no rule.
+                if (attrib !== HL_UNDEF || clearAttributes) {
+                    pushConditionRule(result, conditions, {
+                        attrib, clearAttributes, color: null,
+                    });
+                }
                 return false;
             }
             coloridx = color;
         }
-        result.iflags.status_hilites.push({
-            field: 'condition',
-            conditions,
-            style: { attrib, clearAttributes, color: coloridx },
+        pushConditionRule(result, conditions, {
+            attrib, clearAttributes, color: coloridx,
         });
         accepted = true;
         sidx += 1;
