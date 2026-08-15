@@ -2361,7 +2361,7 @@
       "area": "startup",
       "category": "simplification",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "43a517137ed0777610fc017d8cbc71d39de655aa",
       "detail": "scripts/run-options-menu.mjs loadOptionsMenuRecipes() returns an unnamed thirteen-element array that four consumers index by position: runOptionsMenuMatrix()'s destructure, whose elision hole silently encodes skipping the deferred glyph-reset recipe; its parallel twelve-entry label list; STOCK and CONFIGURED in scripts/options-simple-menu.test.mjs; and bracket indexes in scripts/options-menu.test.mjs and scripts/options-toggle.test.mjs. The comment at options-simple-menu.test.mjs records that a miscount already happened and names this fix. Closes when the recipes carry names, a lookup by name is exported, and the index arithmetic is gone. Confirmed by the simplification pass over eb3a084..3ffdb94 and not applied there."
     },

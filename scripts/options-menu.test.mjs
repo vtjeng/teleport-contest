@@ -34,7 +34,13 @@ import {
 } from '../js/const.js';
 import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
 import { ttyMenuLayout } from '../js/tty_menu.js';
-import { loadOptionsMenuRecipes } from './run-options-menu.mjs';
+import { optionsMenuRecipe } from './run-options-menu.mjs';
+
+// The two recipes that page doset() without picking, named the way
+// run-options-menu.mjs names them. Every row literal below was recorded at one
+// of these two configurations.
+const STOCK = 'stock options menu';
+const CONFIGURED = 'configured options menu';
 
 // global.h enum optset_restrictions, the values doset() passes around.
 const SET_IN_CONFIG = 1;
@@ -53,8 +59,8 @@ function menuHelpers(overrides = {}) {
 
 // Start each configuration's game and stop on the first command prompt, which
 // is where the recorded runs type 'm' then 'O'.
-async function startConfiguredGame(index) {
-    const segment = loadOptionsMenuRecipes()[index].segments[0];
+async function startConfiguredGame(name) {
+    const segment = optionsMenuRecipe(name).segments[0];
     await runSegment({ ...segment, moves: ' ' });
     return game;
 }
@@ -62,7 +68,7 @@ async function startConfiguredGame(index) {
 // The stock configuration with extra configuration-file lines appended, for
 // the settings the recorded recipes do not carry.
 async function startGameWithConfig(...lines) {
-    const segment = loadOptionsMenuRecipes()[0].segments[0];
+    const segment = optionsMenuRecipe(STOCK).segments[0];
     await runSegment({
         ...segment,
         nethackrc: segment.nethackrc + lines.map((line) => `${line}\n`).join(''),
@@ -71,8 +77,8 @@ async function startGameWithConfig(...lines) {
     return game;
 }
 
-async function menuItemsFor(index, helpers = menuHelpers()) {
-    const state = await startConfiguredGame(index);
+async function menuItemsFor(name, helpers = menuHelpers()) {
+    const state = await startConfiguredGame(name);
     return dosetMenuItems(state, helpers, !state.iflags.cmdassist);
 }
 
@@ -110,7 +116,7 @@ function selectable(item) {
 
 test('the stock menu lists doset()\'s three sections in source order',
     async () => {
-        const items = await menuItemsFor(0);
+        const items = await menuItemsFor(STOCK);
         // 5 help lines + 1 heading + 131 booleans that survive the window-port
         // filter + blank + heading + 47 compounds + blank + heading + 7 other.
         assert.equal(items.length, 150);
@@ -145,7 +151,7 @@ test('the stock menu lists doset()\'s three sections in source order',
 
 test('pass 0 lists the booleans a running game cannot change, indented',
     async () => {
-        const items = await menuItemsFor(0);
+        const items = await menuItemsFor(STOCK);
         const indented = items
             .filter((item) => item.text.startsWith('    ')
                 && hasValueColumn(item.text))
@@ -174,7 +180,7 @@ test('pass 0 lists the booleans a running game cannot change, indented',
 
 test('every boolean is spelled with its own terminology vocabulary',
     async () => {
-        const items = await menuItemsFor(0);
+        const items = await menuItemsFor(STOCK);
         // options.c booleanterms[][]: column 0 is false/true, column 1 is
         // off/on, and column 3 is "excluded from build"/"included".
         // optlist.h gives bgcolors and sounds Term_Off and voices
@@ -216,7 +222,7 @@ test('longest_option_name measures only the passes it is asked for', () => {
 });
 
 test('the window-port filter hides what tty does not advertise', async () => {
-    const items = await menuItemsFor(0);
+    const items = await menuItemsFor(STOCK);
     // win/tty/wintty.c tty_procs.wincap holds WC_COLOR, WC_HILITE_PET,
     // WC_INVERSE and WC_EIGHT_BIT_IN, so those four options are shown.
     for (const name of ['color', 'hilite_pet', 'use_inverse', 'eight_bit_tty'])
@@ -235,7 +241,7 @@ test('the window-port filter hides what tty does not advertise', async () => {
 });
 
 test('each compound and other option reports its live value', async () => {
-    const items = await menuItemsFor(0);
+    const items = await menuItemsFor(STOCK);
     // Every pair is the value column the C reference printed for this
     // configuration; scripts/run-options-menu.mjs records it.
     const expected = {
@@ -311,7 +317,7 @@ test('each compound and other option reports its live value', async () => {
 });
 
 test('a configured session reaches the menu\'s value column', async () => {
-    const items = await menuItemsFor(1);
+    const items = await menuItemsFor(CONFIGURED);
     // !cmdassist drops doset()'s five-line help block.
     assert.equal(items.length, 145);
     assert.equal(itemText(items, 'view help for options menu'), null);
@@ -335,7 +341,7 @@ test('a configured session reaches the menu\'s value column', async () => {
 });
 
 test('the menu refuses an option whose value it cannot derive', async () => {
-    const state = await startConfiguredGame(0);
+    const state = await startConfiguredGame(STOCK);
     // parseNethackrc() keeps an unported compound option's raw text under
     // flags[<option name>]; one of the shown options stores its parsed value
     // in that same field, so that one is caught by type instead.
@@ -396,7 +402,7 @@ test('the menu refuses an option whose value it cannot derive', async () => {
 // runOptionsCommand() passes and proves the seam between the two files.
 test("the 'O' command wires the real count_bind_keys() into the menu",
     async () => {
-        const segment = loadOptionsMenuRecipes()[0].segments[0];
+        const segment = optionsMenuRecipe(STOCK).segments[0];
         let boundary = null;
         await runSegment(
             {
@@ -428,7 +434,7 @@ test("the 'O' command wires the real count_bind_keys() into the menu",
 // set any.a_int = (indexoffset == 0) ? 0 : i + 1 + indexoffset. doset()'s
 // pick loop subtracts the 1 back off, so the number has to be exact.
 test('each selectable item carries its own allopt[] identifier', async () => {
-    const items = await menuItemsFor(0);
+    const items = await menuItemsFor(STOCK);
     const identifier = (name) => items.find(
         (item) => item.text.trim().startsWith(`${name} `),
     )?.value;
@@ -458,7 +464,7 @@ test('each selectable item carries its own allopt[] identifier', async () => {
 // listing it: an option needs a guard exactly when parseNethackrc() can leave
 // raw text under flags[<option name>].
 test('every shown compound option guards its unparsed raw text', async () => {
-    const state = await startConfiguredGame(0);
+    const state = await startConfiguredGame(STOCK);
     const shown = new Set(dosetMenuItems(state, menuHelpers(), false)
         .map((item) => item.text.trim())
         .map((text) => text.slice(0, text.indexOf('[')).trim())
@@ -553,7 +559,7 @@ test('the menu refuses the tab-separated layout menu_tab_sep asks for',
         );
         // With the flag itself on, C drops the four-space indent and formats
         // every line "%s%s\t[%s]". That branch is not ported.
-        const state = await startConfiguredGame(0);
+        const state = await startConfiguredGame(STOCK);
         state.iflags.menu_tab_sep = true;
         assert.throws(
             () => dosetMenuItems(state, menuHelpers(), false),
@@ -606,7 +612,7 @@ test('each Other settings count refuses a statement the parse dropped',
 
 test('the m prefix routes doset_simple() to doset() exactly once',
     async () => {
-        const state = await startConfiguredGame(0);
+        const state = await startConfiguredGame(STOCK);
         const calls = [];
         const helpers = menuHelpers({
             // selectTtyMenu() answers a PICK_ANY commit with the pick list
@@ -664,8 +670,8 @@ test('the m prefix routes doset_simple() to doset() exactly once',
     });
 
 test('tty_end_menu() restarts its accelerators on every page', async () => {
-    const state = await startConfiguredGame(0);
-    const items = await menuItemsFor(0);
+    const state = await startConfiguredGame(STOCK);
+    const items = await menuItemsFor(STOCK);
     const spec = {
         title: 'Set what options?',
         items,
@@ -690,7 +696,7 @@ test('tty_end_menu() restarts its accelerators on every page', async () => {
 
 test('the scores line spells only the parts that are switched on',
     async () => {
-        const state = await startConfiguredGame(0);
+        const state = await startConfiguredGame(STOCK);
         // options.c optfn_scores()'s get_val arm builds its value from three
         // independent fields. initoptions_init() starts them at 3, 2 and
         // FALSE, and the "scores" option that changes them is unported, so
@@ -720,7 +726,7 @@ test('the scores line spells only the parts that are switched on',
     });
 
 test('versinfo names each requested part and joins them with +', async () => {
-    const state = await startConfiguredGame(0);
+    const state = await startConfiguredGame(STOCK);
     // options.c optfn_versinfo()'s get_val arm, over the three bits
     // version.h defines: 1 number, 2 name, 4 branch. version.c
     // status_version() drops the branch for this release build, and names
@@ -745,7 +751,7 @@ test('versinfo names each requested part and joins them with +', async () => {
 });
 
 test('only the primary symset reports its handler', async () => {
-    const state = await startConfiguredGame(0);
+    const state = await startConfiguredGame(STOCK);
     // options.c optfn_symset() appends ", handler=<name>" from symbols.c
     // known_handling[]; optfn_roguesymset() has no such tail. Both append
     // ", active" only for the set gc.currentgraphics points at.

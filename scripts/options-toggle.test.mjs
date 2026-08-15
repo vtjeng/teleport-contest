@@ -40,7 +40,11 @@ import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import { selectTtyMenu } from '../js/tty_menu.js';
 import { cansee, vision_recalc } from '../js/vision.js';
-import { loadOptionsMenuRecipes } from './run-options-menu.mjs';
+import { optionsMenuRecipe } from './run-options-menu.mjs';
+
+// The recipe every test below starts from, named the way
+// run-options-menu.mjs names it.
+const STOCK = 'stock options menu';
 
 // Start the stock configuration and stop on the first command prompt, which
 // is where the recorded run types 'm' then 'O'. The top line is cleared the
@@ -50,7 +54,7 @@ import { loadOptionsMenuRecipes } from './run-options-menu.mjs';
 // would open a --More--; nothing below may reach nhgetch(), because the
 // replay queue is empty by then and the wait would never end.
 async function startStockGame() {
-    const segment = loadOptionsMenuRecipes()[0].segments[0];
+    const segment = optionsMenuRecipe(STOCK).segments[0];
     await runSegment({ ...segment, moves: ' ' });
     clearTopline(game);
     return game;
@@ -59,7 +63,7 @@ async function startStockGame() {
 // The same configuration with extra lines appended, for the option values
 // that stock options leave at their compiled-in defaults.
 async function startGameWithConfig(...lines) {
-    const segment = loadOptionsMenuRecipes()[0].segments[0];
+    const segment = optionsMenuRecipe(STOCK).segments[0];
     await runSegment({
         ...segment,
         nethackrc: segment.nethackrc + lines.map((line) => `${line}\n`).join(''),

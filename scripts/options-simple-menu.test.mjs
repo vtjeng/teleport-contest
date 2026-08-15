@@ -24,18 +24,15 @@ import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
 import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import { ttyMenuLayout } from '../js/tty_menu.js';
-import { loadOptionsMenuRecipes } from './run-options-menu.mjs';
+import { optionsMenuRecipe } from './run-options-menu.mjs';
 
-// loadOptionsMenuRecipes() returns doset()'s five recipes first and
-// doset_simple()'s six last -- the count grew with the pick loop, and this
-// comment said five until the correctness pass over 5366349..909a338 counted
-// them. The two named here are the two that page the menu without picking, so
-// their configurations are the ones every row literal below was recorded at.
-// Indexing by position is why the miscount mattered: a recipe added anywhere
-// ahead of these moves them silently. Exporting them by name from
-// run-options-menu.mjs would retire the arithmetic altogether.
-const STOCK = 5;
-const CONFIGURED = 6;
+// The two recipes that page the simple menu without picking, so their
+// configurations are the ones every row literal below was recorded at. They
+// were addressed by position until this file's constants went stale -- the
+// correctness pass over 5366349..909a338 found the comment here miscounting
+// doset()'s recipes -- and run-options-menu.mjs now names them instead.
+const STOCK = 'stock simple options menu';
+const CONFIGURED = 'configured simple options menu';
 
 function menuHelpers(overrides = {}) {
     return {
@@ -49,8 +46,8 @@ function menuHelpers(overrides = {}) {
 
 // Start one configuration's game and stop on the first command prompt, which
 // is where the recorded runs type 'O'.
-async function startSimpleGame(index) {
-    const segment = loadOptionsMenuRecipes()[index].segments[0];
+async function startSimpleGame(name) {
+    const segment = optionsMenuRecipe(name).segments[0];
     await runSegment({ ...segment, moves: ' ' });
     return game;
 }
@@ -101,8 +98,8 @@ function topline() {
     return game.nhDisplay.topMessage ?? '';
 }
 
-async function simpleItemsFor(index, helpers = menuHelpers()) {
-    return dosetSimpleMenuItems(await startSimpleGame(index), helpers);
+async function simpleItemsFor(name, helpers = menuHelpers()) {
+    return dosetSimpleMenuItems(await startSimpleGame(name), helpers);
 }
 
 function selectable(item) {

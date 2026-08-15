@@ -263,9 +263,14 @@ function blankStatusNethackrc(statuslines) {
     ].join('\n');
 }
 
+// Every recipe carries the name its consumers ask for: runOptionsMenuMatrix()
+// labels its entries with it, and the three focused options test files start
+// their game from the recipe of that name. Nothing addresses a recipe by
+// position, so a recipe inserted anywhere in this list moves no other.
 export function loadOptionsMenuRecipes() {
     const segments = [
         {
+            name: 'stock options menu',
             seed: 4210041,
             datetime: DATETIME,
             nethackrc: nethackrc([]),
@@ -273,6 +278,7 @@ export function loadOptionsMenuRecipes() {
             moves: ' ' + OPEN_FULL_OPTIONS_MENU,
         },
         {
+            name: 'configured options menu',
             seed: 4210041,
             datetime: DATETIME,
             // Every option here is one parseNethackrc() interprets, so the
@@ -287,6 +293,7 @@ export function loadOptionsMenuRecipes() {
             moves: ' ' + OPEN_FULL_OPTIONS_MENU,
         },
         {
+            name: 'rebound options menu',
             seed: 4210041,
             datetime: DATETIME,
             // Four shapes of BINDINGS statement, none of them touching the
@@ -309,6 +316,7 @@ export function loadOptionsMenuRecipes() {
             moves: ' ' + OPEN_FULL_OPTIONS_MENU,
         },
         {
+            name: 'committed options menu',
             seed: 4210041,
             datetime: DATETIME,
             // Stock options again, so the menu pages -- and with them the
@@ -317,6 +325,7 @@ export function loadOptionsMenuRecipes() {
             moves: ' ' + COMMIT_BOOLEAN_PICKS,
         },
         {
+            name: 'pickup_types class menu',
             seed: 4210041,
             datetime: DATETIME,
             // Stock options once more, for the same reason.
@@ -324,6 +333,7 @@ export function loadOptionsMenuRecipes() {
             moves: ' ' + EDIT_PICKUP_TYPES,
         },
         {
+            name: 'stock simple options menu',
             seed: SIMPLE_SEED,
             datetime: SIMPLE_DATETIME,
             nethackrc: simpleNethackrc([
@@ -333,6 +343,7 @@ export function loadOptionsMenuRecipes() {
             moves: PAGE_SIMPLE_OPTIONS_MENU,
         },
         {
+            name: 'configured simple options menu',
             seed: SIMPLE_SEED,
             datetime: SIMPLE_DATETIME,
             // Every boolean the simple menu shows whose name parseNethackrc()
@@ -357,36 +368,51 @@ export function loadOptionsMenuRecipes() {
             moves: CANCEL_SIMPLE_OPTIONS_MENU,
         },
         {
+            name: 'simple menu flush split',
             seed: PICK_SEED,
             datetime: PICK_DATETIME,
             nethackrc: pickNethackrc(),
             moves: SPLIT_FLUSH_PICKS,
         },
         {
+            name: 'simple menu retoggle',
             seed: PICK_SEED,
             datetime: PICK_DATETIME,
             nethackrc: pickNethackrc(),
             moves: RETOGGLE_PICK,
         },
         {
+            name: 'simple menu message restore',
             seed: PICK_SEED,
             datetime: PICK_DATETIME,
             nethackrc: pickNethackrc(),
             moves: RESTORE_OPT_MSG,
         },
         {
+            name: 'simple menu glyph reset',
+            // 57a84f4 restored reset_needed_visuals()'s
+            // reset_glyphmap(gm_optionchange) refusal after 0f7b6cf had
+            // wrongly retired it, and from then on this port stops at this
+            // recipe's first pick, so no differential over it can pass. It
+            // stays defined here as the case just outside the options-menu
+            // limit; its inputs and expected failure are recorded on the
+            // deferral remembered-glyph-caches-a-resolved-presentation, which
+            // owns the repaint that would let it run again.
+            outsideTheLimit: true,
             seed: PICK_SEED,
             datetime: PICK_DATETIME,
             nethackrc: pickNethackrc(),
             moves: GLYPH_RESET_PICKS,
         },
         {
+            name: 'blank status under a class menu',
             seed: BLANK_STATUS_SEED,
             datetime: BLANK_STATUS_DATETIME,
             nethackrc: blankStatusNethackrc(2),
             moves: BLANK_STATUS_CLASS_MENU,
         },
         {
+            name: 'blank three-row status under a class menu',
             seed: THREE_LINE_SEED,
             datetime: THREE_LINE_DATETIME,
             nethackrc: blankStatusNethackrc(3),
@@ -396,10 +422,25 @@ export function loadOptionsMenuRecipes() {
     // record-session preserves the staged install between one recipe's
     // segments, and each of these leaves the recorder stopped inside a live
     // menu, so each gets its own recipe and fresh install.
-    return segments.map((segment, index) => validateCleanRecipe({
-        version: 5,
-        segments: [segment],
-    }, `options menu recipe ${index + 1}`));
+    return segments.map(({ name, outsideTheLimit = false, ...segment }) => ({
+        name,
+        outsideTheLimit,
+        recipe: validateCleanRecipe({
+            version: 5,
+            segments: [segment],
+        }, name),
+    }));
+}
+
+// The recipe of that name, for a caller that wants one configuration rather
+// than the whole matrix. Throws rather than return undefined, so a name that
+// stops matching fails where it is asked for.
+export function optionsMenuRecipe(name) {
+    const entry = loadOptionsMenuRecipes().find(
+        (candidate) => candidate.name === name,
+    );
+    if (!entry) throw new Error(`no options menu recipe named '${name}'`);
+    return entry.recipe;
 }
 
 // The eight booleans the committing recipe picks, in the order doset() walks
@@ -556,36 +597,13 @@ export async function verifyOptionsMenuSegment(segment) {
     }
 }
 
-// GLYPH_RESET_PICKS is deliberately absent from the entries below. 57a84f4
-// restored reset_needed_visuals()'s reset_glyphmap(gm_optionchange) refusal
-// after 0f7b6cf had wrongly retired it, and from then on this port stops at
-// that recipe's first pick, so no differential over it can pass. The recipe
-// stays defined above as the case just outside the limit; its inputs and
-// expected failure are recorded on the deferral
-// remembered-glyph-caches-a-resolved-presentation, which owns the repaint that
-// would let it run again.
+// Every recipe but the one marked outsideTheLimit, which the port refuses at
+// its first pick; the recipe itself carries why.
 export async function runOptionsMenuMatrix() {
-    const [stock, configured, bound, committed, classes, simple, simpleSet,
-        flushSplit, retoggle, optMsg, , blankStatus,
-        blankStatusThree] = loadOptionsMenuRecipes();
     return runFreshMatrix({
-        entries: [
-            { label: 'stock options menu', recipe: stock },
-            { label: 'configured options menu', recipe: configured },
-            { label: 'rebound options menu', recipe: bound },
-            { label: 'committed options menu', recipe: committed },
-            { label: 'pickup_types class menu', recipe: classes },
-            { label: 'stock simple options menu', recipe: simple },
-            { label: 'configured simple options menu', recipe: simpleSet },
-            { label: 'simple menu flush split', recipe: flushSplit },
-            { label: 'simple menu retoggle', recipe: retoggle },
-            { label: 'simple menu message restore', recipe: optMsg },
-            { label: 'blank status under a class menu', recipe: blankStatus },
-            {
-                label: 'blank three-row status under a class menu',
-                recipe: blankStatusThree,
-            },
-        ],
+        entries: loadOptionsMenuRecipes()
+            .filter((entry) => !entry.outsideTheLimit)
+            .map(({ name, recipe }) => ({ label: name, recipe })),
         summaryLabel: 'OPTIONS MENU',
         verifySegment: verifyOptionsMenuSegment,
     });
