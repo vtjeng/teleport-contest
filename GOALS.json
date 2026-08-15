@@ -2339,8 +2339,8 @@
         },
         {
           "name": "status-hilite-rules-still-fail-closed",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b0b2a78b12e002c514496c347dc0a6ee84a5c893"
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",

@@ -3134,6 +3134,15 @@
       "status": "open",
       "from": "431e9bc298ac7c2e6416d1da71f90861777af19b",
       "detail": "The port answers Return with \"Unknown command '^M'.\" where C runs a command. Asked with the '&' command, the patched C program answers '<enter> rush south (screen down) (#rushsouth).', so byte 13 carries a movement binding that cmd.c extcmdlist[] does not supply: its rushsouth row has key '\\0' in C and 0x00 in js/extcmdlist_data.js alike, so the binding is installed elsewhere, in cmd.c reset_commands() or the key map it builds, and that site is the one to read.\n\nMeasured at seed 8814401 and 20010704081500 with an rc that produces no configuration error, so nothing consumes the key before the game does. C answers the first Return with a blank top line and a random call, rn2(12) from mcalcmove() (mon.c:1164); the port answers with the message and no random call. The turn counter does not move for it: with OPTIONS=time and the keys Return, Return, '.', C shows T:1, T:1, T:1 and T:2, so the two Returns spend movement points without ending a turn.\n\nThis is not a configuration path. It was found while choosing a key to dismiss a configuration-error screen for status-hilite-rules-still-fail-closed, and the fixtures that slice commits use Return only where getret() consumes it."
+    },
+    {
+      "id": "status-hilite-menu-rows-unported",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "b0b2a78b12e002c514496c347dc0a6ee84a5c893",
+      "detail": "js/options.js count_status_hilites() at :3403 throws UnsupportedOptionMenuError as soon as any hilite rule exists, and two option-menu readers call it: the hilite_status row at :3544 and o_status_hilites at :3689. So an rc that sets hilite_status and then opens the options menu still loses the whole segment, one function past the parser b0b2a78 fixed. Closing it needs botl.c count_status_hilites()'s gather pass, which the port already reaches, and no unported C. It is the live successor to status-hilite-rules-still-fail-closed, which reported it."
     }
   ],
   "areas": [
