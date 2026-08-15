@@ -2276,6 +2276,66 @@
         "screens": 17,
         "rng": 771
       }
+    },
+    {
+      "id": "startup-deferral-sweep",
+      "status": "open",
+      "boundary": "Every open startup deferral outside the scope category is read against its C source. An entry closes only when the behavior its record names as its closing condition is ported. A surviving entry carries a blockedOn naming the C symbol it waits on, so the next count reads this reading rather than repeating it. Testable against C: no counted startup entry may remain whose closing condition needs only C the port already holds.",
+      "upstreamOwners": [
+        "options.c optfn_pickup_burden()",
+        "cfgfiles.c cnf_line_AUTOPICKUP_EXCEPTION()",
+        "cmd.c bind_key()",
+        "pickup.c pickup()",
+        "allmain.c moveloop_preamble()",
+        "objnam.c doname_base()"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "A sweep is scheduled by the deferral threshold rather than priced by look-ahead, and this zero is measured. No boundary-census row at 97a2b11 names a startup deferral: the 14 counted entries name engraving interaction, level_tele() print_dungeon(), pet combat evaluation, the repeated-command admission list, nh_timeout, reset_glyphmap, doapply() type 101, #loot, #rub, garlic_breath(), door unlocking, #name and optfn_pickup_types(). A census over all 33 rc blocks finds none setting pickup_burden, autounlock, fruit or statuslines and none carrying an AUTOPICKUP_EXCEPTION statement; the only related line is one OPTIONS=autopickup,pickup_types:%. No hero starts on an engraving: the three engraving lines in 7,765 recorded screens sit at seed0012 step 220, seed0030 step 23 and seed2200 step 229. No hero starts on a floor object, since the scan reports 22 clean stops and 11 input-exhausted runs with no hard failure. No contributing sessions, so no forecast-witness is owed. A non-zero delivery would mean a hidden session, not a mis-forecast.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "One entry's exposure is live and outranks the rest. set-wear-refusals-do-not-fail-closed calls the exposure theoretical because nothing reached moveloop_preamble() upstream of the converters. That stopped being true: js/moveloop_preamble.js:72 calls preflight_initial_pickup(state), which throws UnsupportedPickupError at js/pickup.js:243 for a floor object or an engraving under the hero. The orchestrator verified the escape at 97a2b11 rather than accepting it on report: js/jsmain.js:521 wraps nhGame.start() in a catch that returns only for 'Input queue empty' and rethrows everything else, and every boundary-to-prefix conversion sits in the moveloop_core() loop below, which a throwing preamble never reaches. Such a hero loses the whole segment rather than its matching prefix, which is the shape AGENTS.md forbids. This also retires the note on the sibling test entry, set-wear-refusal-test-cannot-see-the-boundary, which argued that no legal input produces a startup refusal to assert through runSegment(); the initial-pickup arm produces one and names a reproducing seed, 9300030.\n\nThe engraving entry is now smaller than its record. Its note says 5273187 wired allmain.c:73-75; what the note omits is that the arm is a named refusal rather than silence, so it no longer has the forbidden shape. engrave.c read_engr_at() is ported at js/engrave.js:231 and already called from js/cmd.js:1745 and js/tutorial_startup.js:217, so C's pickup.c:702-709 early return needs a call site rather than a port.\n\nThree of the four residues in options-config-error-and-parser-residue are small and the fourth is a slice. count_apes() at js/options.js:2814 cites the port's own gap as a fact about the game, which cfgfiles.c:1313 disproves; a fourth row in UNPORTED_CONFIG_STATEMENTS at js/options.js:2306 closes it. createCommandBindingModel() omits bind_key()'s INTERNALCMD skip, two lines. The non-fatal config error is the slice: optfn_versinfo() returns optn_silenterr and optfn_sortloot() and optfn_msg_window() return optn_err while the game plays on, and the port throws.\n\noptfn_pickup_burden() (options.c:3256-3300) is a six-way switch on lowc(*op) mapping u, b, s, n, o or t, and l to UNENCUMBERED through OVERLOADED, about 25 lines with a config_error_add() default. Its entry's note is current: the burden clamp in preflightPickupObjects() guards the site, and js/invent.js's sibling read is still unparsed.\n\nTwo test entries share one obstacle and close together. 'the pickup naming conversion is unpinned end to end' and elapsed-turn-planning-message-choice-unpinned both fail because advanceElapsedTurn() and finishElapsedTurn() are module-private to js/allmain.js. One driveable seam retires both, and that is a state-owner decision, so it is its own slice.\n\nFour entries should survive with a blockedOn recorded. 'an explicit autounlock setting is refused' waits on autokey. simple-menu-compound-option-has-no-getlin waits on getlin inside a menu-driven command, plus optfn_fruit() and optfn_statuslines(). reroll-menu-names-objects-with-its-own-doname-port waits on doname() honoring override_ID, which js/objnam.js:262 still refuses, before js/startup_reroll.js:207-274 can be deleted. counted-occupation-full-health-interrupt needs a fresh C case and three async conversions, and is the direct successor to the goal that just closed.\n\nExpected disposition: seven entries close cheaply, two more on one seam, four survive with a blocker recorded, taking startup from 14 counted to four to six and off the candidate list. Unlike commands it cannot bounce back, because it holds no blocked entries to unblock.",
+      "slices": [
+        {
+          "name": "startup-refusals-fail-closed",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "initial-pickup-engraving-call-site",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "config-parser-residue",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "non-fatal-config-error",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "elapsed-turn-seam-for-two-tests",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "startup-simplification-pair",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",
+      "openStanding": {
+        "sha": "0fcfb88",
+        "screens": 1674,
+        "rng": 125050
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
