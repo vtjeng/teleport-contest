@@ -843,6 +843,23 @@ export function formatMetrics(metrics, includeCommits = true) {
   return parts.join(', ');
 }
 
+/**
+ * Report simplification as coverage rather than as a position.
+ *
+ * The oldest uncovered commit is where a pass that wants to reduce the debt
+ * would start, which is what a frontier used to say. It is derived here rather
+ * than stored, because passes may cover any ranges in any order.
+ */
+export function formatSimplificationCoverage(coverage) {
+  if (coverage.commits === 0) {
+    return 'Simplification: every commit since the enforcement base is covered.';
+  }
+  const lines = coverage.additions + coverage.deletions;
+  return `Simplification: ${plural(coverage.commits, 'commit')} uncovered, `
+    + `${plural(lines, 'changed line')}; oldest uncovered `
+    + `${shortSha(coverage.oldestUncovered)}.`;
+}
+
 export function formatReviewDebt(total, current, dirty, thresholds) {
   const dirtySuffix = hasChanges(dirty)
     ? ` + worktree (${formatMetrics(dirty, false)})`
@@ -1078,11 +1095,20 @@ function allReviewHeads(config) {
     .map((pass) => pass.head));
 }
 
-// One frontier per pass kind: the newest recorded head, floored at the
-// enforcement base. Every pass covers the whole diff since the previous one
-// and reviewers read the range's full diff either way. Deferrals carry their
-// own area labels; passes recorded before 2026-08-01 keep per-area `bases`
-// maps and `areas` lists as inert history.
+// Correctness keeps one frontier: the newest recorded review head, floored at
+// the enforcement base. Its gate asserts that every commit before it was read,
+// so a gapless chain of ranges is the whole claim, and a range starting after
+// the frontier is refused.
+//
+// Simplification asserts less and so records more. A simplification pass reads
+// recently changed code rather than everything since the last pass, so a
+// frontier point cannot express what it covered without either refusing the
+// pass or marking unread commits as read. Its coverage is instead the union of
+// every recorded pass's audited range, and its debt is what falls outside that
+// union. Recording a scoped pass therefore marks no commit it did not read.
+//
+// Deferrals carry their own area labels; passes recorded before 2026-08-01 keep
+// per-area `bases` maps and `areas` lists as inert history.
 function validateHistory(config, head) {
   if (!isAncestor(config.trackingBase, config.enforcementBase)) {
     fail('trackingBase must be an ancestor of enforcementBase');
@@ -1090,26 +1116,114 @@ function validateHistory(config, head) {
   if (!isAncestor(config.enforcementBase, head)) {
     fail('enforcementBase must be an ancestor of HEAD');
   }
-  const frontiers = {
-    review: config.enforcementBase,
-    simplification: config.enforcementBase,
-  };
+  let reviewFrontier = config.enforcementBase;
 
   for (const pass of config.passes) {
     if (!isAncestor(pass.head, head)) {
       fail(`pass head ${pass.head} is not an ancestor of HEAD`);
     }
+    if (pass.kind !== 'review') continue;
     if (pass.auditedRange !== undefined) {
       const { base } = parseRange(pass.auditedRange);
-      validateAuditedRangeCoverage(pass.kind, base, frontiers[pass.kind],
-        isAncestor);
+      validateAuditedRangeCoverage(pass.kind, base, reviewFrontier, isAncestor);
     }
-    if (isAncestor(frontiers[pass.kind], pass.head)) {
-      frontiers[pass.kind] = pass.head;
-    }
+    if (isAncestor(reviewFrontier, pass.head)) reviewFrontier = pass.head;
   }
 
-  return frontiers;
+  return { review: reviewFrontier };
+}
+
+/**
+ * The commits every recorded simplification pass read, as one set.
+ *
+ * A pass records the range it audited, so its coverage is exactly that range's
+ * commits. Passes recorded before `auditedRange` existed covered everything
+ * since the previous frontier, which chains to `enforcementBase..head`; reading
+ * them that way reproduces what they meant without editing them.
+ *
+ * `revList(base, head)` answers the commits in `base..head`, injected so this
+ * stays testable without a repository.
+ */
+export function simplificationCoveredSet(passes, enforcementBase, revList) {
+  const covered = new Set();
+  for (const pass of passes) {
+    if (pass.kind !== 'simplification') continue;
+    const range = pass.auditedRange === undefined
+      ? { base: enforcementBase, head: pass.head }
+      : parseRange(pass.auditedRange);
+    for (const sha of revList(range.base, range.head)) covered.add(sha);
+  }
+  return covered;
+}
+
+/**
+ * Split a `git log --numstat` stream into one entry per commit.
+ *
+ * One call answers every commit's own stats, where a call per commit would be
+ * one process per commit. `\x01` opens each record because no path holds it.
+ */
+export function parsePerCommitNumstat(output) {
+  const commits = new Map();
+  let current = null;
+  for (const line of output.split('\n')) {
+    if (line.startsWith('\x01')) {
+      current = { additions: 0, deletions: 0 };
+      commits.set(line.slice(1), current);
+      continue;
+    }
+    if (!line || current === null) continue;
+    const [added, deleted] = line.split('\t');
+    if (added === '-' || deleted === '-') continue;
+    const addedCount = Number.parseInt(added, 10);
+    const deletedCount = Number.parseInt(deleted, 10);
+    if (!Number.isInteger(addedCount) || !Number.isInteger(deletedCount)) {
+      fail(`invalid numstat counts: ${line}`);
+    }
+    current.additions += addedCount;
+    current.deletions += deletedCount;
+  }
+  return commits;
+}
+
+/**
+ * What simplification has not read: the commits touching owned paths that no
+ * recorded pass covered, with the lines they changed and the oldest of them.
+ *
+ * Generated outputs are subtracted per commit for the reason the review gate
+ * subtracts them: one regenerated table dwarfs the hand-written change beside
+ * it and would report debt nobody can read.
+ */
+function simplificationCoverage(config, head, covered, area) {
+  const paths = areaMetricPaths(area);
+  const perCommit = parsePerCommitNumstat(git([
+    'log', '--format=%x01%H', '--numstat', `${config.enforcementBase}..${head}`,
+    '--', ...paths,
+  ]));
+  const generatedPaths = generatedOutputPaths(area);
+  const perCommitGenerated = generatedPaths.length === 0 ? new Map()
+    : parsePerCommitNumstat(git([
+      'log', '--format=%x01%H', '--numstat',
+      `${config.enforcementBase}..${head}`, '--', ...generatedPaths,
+    ]));
+
+  // git log answers newest first, so the last uncovered commit it names is the
+  // oldest one.
+  let commits = 0;
+  let additions = 0;
+  let deletions = 0;
+  let oldestUncovered = null;
+  for (const [sha, stats] of perCommit) {
+    if (covered.has(sha)) continue;
+    const generated = perCommitGenerated.get(sha)
+      ?? { additions: 0, deletions: 0 };
+    commits += 1;
+    additions += stats.additions - generated.additions;
+    deletions += stats.deletions - generated.deletions;
+    oldestUncovered = sha;
+  }
+  return {
+    commits, additions, deletions, oldestUncovered, covered: covered.size,
+  };
 }
 
 function currentBase(frontier, enforcementBase) {
@@ -1155,10 +1269,19 @@ function buildStatus(config, head) {
     current: committedMetrics(enforcedBase, head, union, reviewHeads),
   };
 
+  const covered = simplificationCoveredSet(
+    config.passes,
+    config.enforcementBase,
+    (base, passHead) => {
+      const output = git(['rev-list', `${base}..${passHead}`]);
+      return output ? output.split('\n') : [];
+    },
+  );
+
   return {
     review,
     dirty: workingTreeMetrics(union),
-    simplificationFrontier: frontiers.simplification,
+    simplification: simplificationCoverage(config, head, covered, union),
     unassigned: unassignedJsFiles(config),
   };
 }
@@ -1180,10 +1303,7 @@ function printStatus(config, head, status, verbose) {
   const { review } = status;
   console.log(`Review since ${shortSha(review.frontier)}: ${formatReviewDebt(
     review.total, review.current, status.dirty, config.thresholds)}`);
-  if (verbose) {
-    console.log(`Simplification frontier: ${
-      shortSha(status.simplificationFrontier)}`);
-  }
+  if (verbose) console.log(formatSimplificationCoverage(status.simplification));
   if (status.unassigned.length > 0) {
     console.log(`Unassigned js/ files: ${status.unassigned.join(', ')}`);
   }
@@ -1378,11 +1498,16 @@ function preparePass(kind, options) {
       + 'worktree changes');
   }
 
-  const frontier = frontiers[kind];
-  if (!isAncestor(frontier, head)) {
-    fail(`head ${head} does not cover the existing ${kind} frontier ${frontier}`);
+  // Correctness must extend its frontier; simplification records the range it
+  // read, wherever that sits. A simplification pass that covers older commits
+  // than the last one is ordinary, not an error.
+  if (kind === 'review') {
+    const frontier = frontiers.review;
+    if (!isAncestor(frontier, head)) {
+      fail(`head ${head} does not cover the existing ${kind} frontier ${frontier}`);
+    }
+    validateAuditedRangeCoverage(kind, rangeBase, frontier, isAncestor);
   }
-  validateAuditedRangeCoverage(kind, rangeBase, frontier, isAncestor);
 
   const areas = passAreas(
     config,
@@ -1421,7 +1546,9 @@ function preparePass(kind, options) {
 
   console.log(`${options['dry-run'] ? 'Would record' : 'Recorded'} ${kind} pass through ${head}:`);
   console.log(`  audited range: ${rangeBase}..${head}`);
-  console.log(`  ${kind} frontier: ${frontier} -> ${head}`);
+  console.log(kind === 'review'
+    ? `  review frontier: ${frontiers.review} -> ${head}`
+    : `  simplification coverage: + ${rangeBase}..${head}`);
   console.log(`  area labels: ${areas.join(', ')}`);
   if (checklist) {
     console.log(checklist.covers

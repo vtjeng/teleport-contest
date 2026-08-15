@@ -16,6 +16,9 @@ import {
   excludeGeneratedLines,
   formatMetrics,
   formatReviewDebt,
+  formatSimplificationCoverage,
+  parsePerCommitNumstat,
+  simplificationCoveredSet,
   excludeRelocatedLines,
   parseAuditFixCommitLog,
   parseNumstat,
@@ -602,7 +605,78 @@ test('an audited range must start at or before the frontier', () => {
   // Auditing more than the frontier requires is safe: a base older than the
   // frontier re-reads reviewed commits and skips nothing.
   assert.doesNotThrow(() => validateAuditedRangeCoverage(
-    'simplification', OLDEST, MIDDLE, ancestorCheck));
+    'review', OLDEST, MIDDLE, ancestorCheck));
+});
+
+// Simplification reads recently changed code rather than everything since the
+// last pass, so its coverage is the union of the ranges its passes recorded.
+// A pass predating `auditedRange` covered everything since the previous
+// frontier, which chains to enforcementBase..head.
+test('simplification coverage unions the ranges its passes recorded', () => {
+  const BASE = 'e'.repeat(40);
+  const A = 'a'.repeat(40);
+  const B = 'b'.repeat(40);
+  const C = 'c'.repeat(40);
+  // A stub commit graph: each range answers the commits an operator would see.
+  const ranges = new Map([
+    [`${BASE}..${A}`, ['a1', 'a2']],
+    [`${B}..${C}`, ['c1', 'c2']],
+    [`${A}..${B}`, ['b1']],
+  ]);
+  const revList = (base, head) => ranges.get(`${base}..${head}`) ?? [];
+
+  // A legacy pass carries no auditedRange and is read as enforcementBase..head.
+  // A ranged pass covers exactly what it names, wherever that sits: the B..C
+  // pass starts after the legacy pass's head, which is the case the old
+  // single-frontier model had to refuse.
+  const covered = simplificationCoveredSet([
+    { kind: 'simplification', head: A },
+    { kind: 'simplification', head: C, auditedRange: `${B}..${C}` },
+    // A review pass contributes nothing: the two kinds track separately.
+    { kind: 'review', head: B, auditedRange: `${A}..${B}` },
+  ], BASE, revList);
+
+  assert.deepEqual([...covered].sort(), ['a1', 'a2', 'c1', 'c2']);
+  // b1 falls between the two simplification passes and stays debt, which is
+  // the whole point: recording the later pass marked no commit it did not read.
+  assert.equal(covered.has('b1'), false);
+});
+
+// One `git log --numstat` answers every commit's own stats, so the uncovered
+// set can be summed without one process per commit.
+test('per-commit numstat splits one log stream into its commits', () => {
+  const commits = parsePerCommitNumstat([
+    '\x01aaa',
+    '3\t1\tjs/options.js',
+    '10\t0\tjs/display.js',
+    '',
+    '\x01bbb',
+    '-\t-\tjs/binary.png',
+    '2\t2\tjs/cmd.js',
+  ].join('\n'));
+
+  assert.deepEqual([...commits.keys()], ['aaa', 'bbb']);
+  assert.deepEqual(commits.get('aaa'), { additions: 13, deletions: 1 });
+  // A binary file reports '-' for both counts and contributes no lines.
+  assert.deepEqual(commits.get('bbb'), { additions: 2, deletions: 2 });
+});
+
+test('simplification coverage reports the oldest commit no pass read', () => {
+  assert.equal(
+    formatSimplificationCoverage({
+      commits: 0, additions: 0, deletions: 0, oldestUncovered: null,
+    }),
+    'Simplification: every commit since the enforcement base is covered.',
+  );
+  // 12 + 5 changed lines, and the oldest uncovered commit is where a pass that
+  // wanted to reduce the debt would start.
+  assert.equal(
+    formatSimplificationCoverage({
+      commits: 3, additions: 12, deletions: 5, oldestUncovered: 'f'.repeat(40),
+    }),
+    'Simplification: 3 commits uncovered, 17 changed lines; '
+      + 'oldest uncovered ffffffff.',
+  );
 });
 
 test('a stored audited range must end at the pass head', () => {

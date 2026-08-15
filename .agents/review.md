@@ -379,18 +379,25 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   `--no-checklist-reason` records that reason there. Without `--manifest` the
   pass carries no such field, and a later reader cannot tell a range that had a
   covering plan from one that did not.
-- The range base must be at or before the frontier, the newest recorded
-  head of the pass's kind. The recorder refuses a range that starts after
+- A correctness range's base must be at or before the review frontier, the
+  newest recorded review head. The recorder refuses a range that starts after
   it, because recording that pass would turn the skipped commits into
   reviewed history; the refusal names the frontier and the base it received.
   A base older than the frontier re-reads reviewed commits and is harmless.
+  This applies to correctness alone. A simplification pass records the range it
+  read and nothing else: its coverage is the union of every recorded range, and
+  the commits outside that union are its debt. A scoped pass is therefore
+  recordable wherever it sits, and recording one marks no commit it did not
+  read. Correctness keeps the single frontier because its gate asserts gapless
+  coverage; simplification has no gate and asserts only what it read.
 - Advance a review frontier only through the exact integrated commit that a
   recorded pass covered. An audit-fix commit recorded as its own pass's range
   head carries no debt; one applied after the pass was recorded remains debt
   until a later correctness pass covers it.
-  Correctness does not create simplification debt; the dashboard may show the
-  last simplification frontier for context. Separate clarity and copyedit
-  passes are not ledger records.
+  Correctness does not create simplification debt; the dashboard shows the
+  simplification coverage for context, as the uncovered commit and line counts
+  and the oldest uncovered commit. Separate clarity and copyedit passes are not
+  ledger records.
 - For every new correctness or simplification record, include elapsed wall time;
   raw, deduplicated, confirmed, applied, deferred, rejected, and unverified
   counts; confirmed totals by production, tests, clarity, simplification, and
