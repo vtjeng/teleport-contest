@@ -90,6 +90,11 @@ import {
     NO_COLOR,
 } from './terminal.js';
 import {
+    config_error_add,
+    config_error_init,
+    config_error_nextline,
+} from './cfgfiles.js';
+import {
     DEFAULT_FRUIT,
     normalize_initial_fruit,
 } from './fruit.js';
@@ -116,7 +121,11 @@ import { ttyPline } from './tty_message.js';
 import { vision_recalc } from './vision.js';
 import { sourceGlyphName } from './glyph_ids.js';
 import { allopt } from './optlist_data.js';
-import { AUTOCOMP_ADJ, extcmdlist } from './extcmdlist_data.js';
+import {
+    AUTOCOMP_ADJ,
+    INTERNALCMD,
+    extcmdlist,
+} from './extcmdlist_data.js';
 import {
     DEFAULT_PRIMARY_SYMBOLS,
     SYM_OFF_O,
@@ -444,13 +453,31 @@ function defaultResult() {
         // cfgfiles.c append to a list the options menu counts, so the count
         // has to know the statement was there; see UNPORTED_CONFIG_STATEMENTS.
         unportedConfigStatements: [],
+        // C ref: cfgfiles.c config_error_data, the frame rcfile() (1943) opens
+        // around the configuration read.  parseNethackrc() feeds it one line
+        // at a time; js/jsmain.js closes it with config_error_done() and
+        // prints what it holds.
+        configErrorFrame: config_error_init(),
     };
     applyBooleanOptionDefaults(result);
     return result;
 }
 
+// The port's fail-closed stop for a configuration path it has not ported.
+// C has no such thing: every error the rc read produces is a config error that
+// leaves the game running, so a call here says the port cannot follow C rather
+// than that C refused the statement.  configErrorAdd() below is the ported
+// answer, and each site that moves from one to the other has had its C branch
+// read.
 function optionError(lineNumber, message) {
     throw new Error(`nethackrc line ${lineNumber}: ${message}`);
+}
+
+// C ref: pline.c config_error_add(), reached from an option handler.
+// parseoptions() carries on with the rest of the statement and the rest of the
+// file afterwards, and js/jsmain.js prints what accumulated.
+function configErrorAdd(result, message) {
+    config_error_add(result.configErrorFrame, message);
 }
 
 // The recorder's C locale treats only the six ASCII bytes below as
@@ -490,12 +517,15 @@ function mungspaces(value) {
 // backslash continues onto the next non-comment text with one separating
 // space.  Ignored lines without their own continuation terminate a pending
 // logical line, matching the parser's p->buf lifetime.
-function logicalConfigLines(rc) {
+//
+// This yields rather than returns a list, because parse_conf_file() alternates
+// between reading a line and handing a completed statement to its proc.  An
+// error the proc reports is stamped with the line and text the frame is
+// holding at that moment, and both move on the next physical line.
+function* logicalConfigLines(rc, frame) {
     const input = encodeUtf8Text(rc);
-    const logical = [];
     let buffered = null;
     let cursor = 0;
-    let lineNumber = 0;
     let skip = false;
 
     while (cursor < input.length) {
@@ -528,12 +558,14 @@ function logicalConfigLines(rc) {
         if (newline < 0
             && cLength >= CONFIG_BUFFER_BYTE_CAPACITY - 2) {
             // parse_conf_buf() reports this non-fatally, then discards input
-            // through the next visible newline.
+            // through the next visible newline.  The error lands on whichever
+            // line config_error_nextline() last accepted, because this one
+            // never reaches it.
+            config_error_add(frame, 'Line too long, skipping');
             skip = true;
             continue;
         }
 
-        lineNumber += 1;
         let line = chunk.slice(0, newline >= 0 ? newline : cLength);
         const continued = line.at(-1) === 0x5C;
         if (continued) {
@@ -543,6 +575,11 @@ function logicalConfigLines(rc) {
         } else {
             while ([0x20, 0x09, 0x0D].includes(line.at(-1))) line.pop();
         }
+        // parse_conf_buf() reports the line to the error frame here, before
+        // the leading whitespace is stepped over, so a reported line keeps its
+        // indent.  A false answer abandons the rest of the file.
+        if (!config_error_nextline(frame, decodeUtf8ByteString(line))) return;
+        const lineNumber = frame.line_num;
         while (line[0] === 0x20 || line[0] === 0x09) line.shift();
 
         const ignored = line.length === 0 || line[0] === 0x23;
@@ -557,13 +594,12 @@ function logicalConfigLines(rc) {
         }
         if (continued || (ignored && !hadBuffered)) continue;
 
-        logical.push({
+        yield {
             line: decodeUtf8ByteString(buffered),
             lineNumber,
-        });
+        };
         buffered = null;
     }
-    return logical;
 }
 
 function splitNameAndValue(option) {
@@ -1685,6 +1721,23 @@ function bindingSeparator(bindings) {
     return separator;
 }
 
+// C ref: cmd.c bind_key() (2661-2728).  It strips a trailing "(param)" before
+// matching extcmdlist[] case-insensitively, passes over an INTERNALCMD row so
+// the loop runs out, and answers TRUE for the reserved name "nothing" without
+// looking at the table at all.  A FALSE answer is what makes parsebindings()
+// report an unknown command.
+function bind_key_matches(command) {
+    if (command.toLowerCase() === 'nothing') return true;
+    const parameter = command.indexOf('(');
+    const closing = command.lastIndexOf(')');
+    const name = (parameter >= 0 && closing > parameter)
+        ? command.slice(0, parameter) : command;
+    return extcmdlist.some((entry) => (
+        entry.ef_txt.toLowerCase() === name.toLowerCase()
+        && (entry.flags & INTERNALCMD) === 0
+    ));
+}
+
 function applyMenuBinding(result, binding, lineNumber) {
     const colon = binding.indexOf(':');
     if (colon < 0) return;
@@ -1703,6 +1756,14 @@ function applyMenuBinding(result, binding, lineNumber) {
                 key,
                 command: commandName,
             });
+            return;
+        }
+        // parsebindings() reports whatever bind_key() would not bind and
+        // leaves the key holding what it already had.
+        if (!bind_key_matches(commandName)) {
+            configErrorAdd(
+                result, `Unknown key binding command '${commandName}'`,
+            );
             return;
         }
         // Keep gameplay bindings in source application order.
@@ -1794,23 +1855,29 @@ const PICKUP_BURDEN_LEVELS = Object.freeze(new Map([
 ]));
 
 // optlist.h:573 gives pickup_burden negateok No, so parseoptions() answers a
-// negation with bad_negation() before the handler runs. The handler then reads
-// its value with string_for_env_opt(name, opts, FALSE), whose mandatory
-// parameter makes a spelling with no value the "Missing parameter" config
-// error rather than a default. This port stops on each of those errors.
-function setPickupBurden(result, value, negated, lineNumber) {
+// negation with bad_negation() before the handler runs; that check is still
+// unported and stops here. The handler then reads its value with
+// string_for_env_opt(name, opts, FALSE), whose mandatory parameter makes a
+// spelling with no value string_for_opt()'s "Missing parameter" config error
+// rather than a default, and both that and an unmatched letter return
+// optn_err with flags.pickup_burden untouched.
+function setPickupBurden(result, option, value, negated, lineNumber) {
     if (negated) {
         optionError(
             lineNumber,
             "negated compound option 'pickup_burden' is not supported",
         );
     }
-    if (!value) optionError(lineNumber, "'pickup_burden' requires a value");
+    if (!value) {
+        configErrorAdd(result, `Missing parameter for '${option}'`);
+        return;
+    }
     const level = PICKUP_BURDEN_LEVELS.get(lowc(value[0]));
     if (level === undefined) {
-        optionError(
-            lineNumber, `unknown pickup_burden parameter '${value}'`,
+        configErrorAdd(
+            result, `Unknown pickup_burden parameter '${value}'`,
         );
+        return;
     }
     result.flags.pickup_burden = level;
 }
@@ -2221,7 +2288,7 @@ function applyOption(result, optionState, option, lineNumber) {
     } else if (name === 'runmode') {
         setRunmode(result, value, negated, lineNumber);
     } else if (name === 'pickup_burden') {
-        setPickupBurden(result, value, negated, lineNumber);
+        setPickupBurden(result, option, value, negated, lineNumber);
     } else if (name === 'pile_limit') {
         setPileLimit(result, value, negated, lineNumber);
     } else if (name === 'msg_window') {
@@ -2235,16 +2302,20 @@ function applyOption(result, optionState, option, lineNumber) {
         if (!value) {
             tmp = negated ? 's' : 'f';
         } else if (negated) {
-            optionError(
-                lineNumber, "the 'msg_window' option may not be negated",
+            configErrorAdd(
+                result,
+                'The msg_window option may not both have a value and be'
+                + ' negated.',
             );
+            return;
         } else {
-            tmp = value[0].toLowerCase();
+            tmp = lowc(value[0]);
         }
         if (!'scfr'.includes(tmp)) {
-            optionError(
-                lineNumber, `unknown msg_window parameter '${value}'`,
+            configErrorAdd(
+                result, `Unknown msg_window parameter '${value}'`,
             );
+            return;
         }
         result.iflags.prevmsg_window = tmp;
     } else if (name === 'sortloot') {
@@ -2252,24 +2323,65 @@ function applyOption(result, optionState, option, lineNumber) {
         // lowercased first letter and rejects anything else. optlist.h gives
         // sortloot negateok No, so parseoptions() answers a negation with
         // bad_negation() before the handler runs, which is why the handler
-        // declares its negated argument UNUSED. The handler then re-reads the
-        // value with string_for_env_opt(name, opts, FALSE), so a spelling
-        // with no value is the "Missing parameter" config error rather than a
-        // default. This port stops on each of those errors.
+        // declares its negated argument UNUSED. That check is still unported.
         if (negated) {
             optionError(
                 lineNumber,
                 `negated compound option '${name}' is not supported`,
             );
         }
-        if (!value) optionError(lineNumber, "'sortloot' requires a value");
-        const c = value[0].toLowerCase();
+        // The handler re-reads the value with
+        // string_for_env_opt(name, opts, FALSE); its mandatory parameter makes
+        // a spelling without one string_for_opt()'s "Missing parameter" error
+        // over the whole statement text, and the handler then returns optn_err
+        // without touching flags.sortloot.
+        if (!value) {
+            configErrorAdd(result, `Missing parameter for '${option}'`);
+            return;
+        }
+        const c = lowc(value[0]);
         if (!'nlf'.includes(c)) {
-            optionError(
-                lineNumber, `unknown sortloot parameter '${value}'`,
+            configErrorAdd(
+                result, `Unknown sortloot parameter '${value}'`,
             );
+            return;
         }
         result.flags.sortloot = c;
+    } else if (name === 'versinfo') {
+        // C ref: options.c optfn_versinfo()'s do_set arm.  optlist.h:816 gives
+        // it negateok No, so parseoptions() has already answered a negation
+        // with bad_negation() and the handler's own negation arm is dead on
+        // this path; the port still stops on that check.
+        if (negated) {
+            optionError(
+                lineNumber,
+                `negated compound option '${name}' is not supported`,
+            );
+        }
+        // string_for_opt(opts, FALSE) reports the missing parameter itself,
+        // and the handler then adds a second error naming the default it does
+        // not actually store.  nomakedefs.git_branch is null in a release
+        // build (js/version.js records the same reading), so have_branch is
+        // false and the default is VI_NUMBER.
+        if (!value) {
+            configErrorAdd(result, `Missing parameter for '${option}'`);
+            configErrorAdd(
+                result, "'versinfo' requires a value; defaulting to 1",
+            );
+            return;
+        }
+        // atoi() answers 0 for text that starts with no digits, and the guard
+        // is `!val || (val & ~7) != 0`, which admits exactly 1 through 7.
+        const versinfo = Number.parseInt(value, 10);
+        if (!Number.isInteger(versinfo) || versinfo < 1 || versinfo > 7) {
+            configErrorAdd(
+                result,
+                "'versinfo' must be one of 1, 2, 4, or the sum of two or all"
+                + ' three of those',
+            );
+            return;
+        }
+        result.flags.versinfo = versinfo;
     } else if (HANDLED_BOOLEAN_OPTIONS.has(name)) {
         applyBooleanOption(result, name, value, negated, lineNumber);
     } else if (value != null) {
@@ -2288,16 +2400,6 @@ function applyOption(result, optionState, option, lineNumber) {
         }
         else if (name === 'suppress_alert') {
             result.flags.suppress_alert = value;
-        } else if (name === 'versinfo') {
-            const versinfo = Number.parseInt(value, 10);
-            if (!Number.isInteger(versinfo)
-                || versinfo < 1 || versinfo > 7) {
-                optionError(
-                    lineNumber,
-                    "'versinfo' must be a bitmask from 1 through 7",
-                );
-            }
-            result.flags.versinfo = versinfo;
         } else if (name === 'statuslines') {
             // options.c:optfn_statuslines() uses atoi() and accepts only the
             // two window-port layouts supported by tty.
@@ -2438,7 +2540,7 @@ export function parseNethackrc(rc, random = rn2) {
     // section gate is active. An empty [] header clears both.
     let chosenSection = null;
     let currentSection = null;
-    const lines = logicalConfigLines(rc);
+    const lines = logicalConfigLines(rc, result.configErrorFrame);
     for (const configLine of lines) {
         const { lineNumber } = configLine;
         // parse_conf_buf() calls handle_config_section() on every logical

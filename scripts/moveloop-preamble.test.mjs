@@ -36,6 +36,11 @@ function preambleState(datetime, keys = '') {
     game.iflags = {
         menu_overlay: true,
         menu_headings: { attr: 1, color: 8 },
+        // Every boundary below sits inside the move loop, long after
+        // tty_init_nhwindows() called setftty(); without cbreak,
+        // xwaitforspace() would read only Return and Enter, as it does for
+        // the configuration errors printed before the window system starts.
+        cbreak: true,
     };
     game.program_state = {};
     game.context = { move: 17 };

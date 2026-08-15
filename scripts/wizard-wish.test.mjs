@@ -75,7 +75,10 @@ function wishState(keys, { verbose = false } = {}) {
     // initalign is role_init()'s index into aligns[]; 0 is the lawful row.
     // hack_artifacts() reads it, and the role, to fix up the quest artifacts.
     state.flags = { verbose, initalign: 0 };
-    state.iflags = {};
+    // The --More-- the verbose announcement needs is dismissed with a space,
+    // which xwaitforspace() accepts only once setftty() raised iflags.cbreak
+    // inside tty_init_nhwindows(); every wish happens well after that.
+    state.iflags = { cbreak: true };
     state.urole = { ...roles[0] };
     // readobjnam() reads the shuffled objects[] from its first block onward,
     // so even a line it refuses needs the catalog in place.  Zero choices

@@ -31,6 +31,10 @@ function tutorialState(keys = '', overrides = {}) {
     game.iflags = {
         menu_overlay: true,
         menu_headings: { attr: 1, color: 8 },
+        // The tutorial query runs after tty_init_nhwindows() called setftty(),
+        // so xwaitforspace() here accepts the quitchars[] set rather than the
+        // Return-only set the pre-window configuration errors get.
+        cbreak: true,
     };
     game.program_state = {};
     game.specialLevels = [{

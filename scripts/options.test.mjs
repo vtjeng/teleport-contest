@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { config_error_done } from '../js/cfgfiles.js';
 import { parseNethackrc } from '../js/options.js';
 import {
     EXT_ENCUMBER,
@@ -214,25 +215,30 @@ test('pickup_burden parsing follows optfn_pickup_burden switch', () => {
     assert.equal(parseNethackrc('').flags.pickup_burden, MOD_ENCUMBER);
 
     // string_for_env_opt(name, opts, FALSE) makes the value mandatory, so
-    // both spellings without one are the "Missing parameter" config error.
+    // both spellings without one are the "Missing parameter" config error,
+    // which names the whole statement and leaves the MOD_ENCUMBER default.
     for (const rc of ['OPTIONS=pickup_burden', 'OPTIONS=pickup_burden:']) {
-        assert.throws(
-            () => parseNethackrc(rc),
-            /pickup_burden.*requires a value/u,
-            rc,
-        );
+        const parsed = parseNethackrc(rc);
+        assert.equal(parsed.flags.pickup_burden, MOD_ENCUMBER, rc);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${rc}`,
+            ` * Line 1: Missing parameter for '${rc.slice('OPTIONS='.length)}'.`,
+        ], rc);
     }
     // A letter outside "ubsnotl" falls to the handler's config_error_add()
     // default. 'x' is the first letter of no burden name.
-    assert.throws(
-        () => parseNethackrc('OPTIONS=pickup_burden:xyzzy'),
-        /unknown pickup_burden parameter 'xyzzy'/u,
-    );
+    const unknown = parseNethackrc('OPTIONS=pickup_burden:xyzzy');
+    assert.equal(unknown.flags.pickup_burden, MOD_ENCUMBER);
+    assert.deepEqual(unknown.configErrorFrame.output, [
+        '\nOPTIONS=pickup_burden:xyzzy',
+        " * Line 1: Unknown pickup_burden parameter 'xyzzy'.",
+    ]);
     // string_for_opt() returns everything after the colon without trimming,
     // so a leading space is the byte the switch reads and no arm matches it.
-    assert.throws(
-        () => parseNethackrc('OPTIONS=pickup_burden: stressed'),
-        /unknown pickup_burden parameter ' stressed'/u,
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=pickup_burden: stressed')
+            .configErrorFrame.output.at(-1),
+        " * Line 1: Unknown pickup_burden parameter ' stressed'.",
     );
     // optlist.h:573 gives the option negateok No, so parseoptions() rejects
     // every negated spelling before optfn_pickup_burden() runs.
@@ -1509,10 +1515,37 @@ test('showvers and versinfo preserve the release-build status selection', () => 
     assert.equal(parsed.flags.showvers, true);
     assert.equal(parsed.flags.versinfo, 3);
     assert.equal(parseNethackrc('OPTIONS=versinfo:7').flags.versinfo, 7);
-    assert.throws(
-        () => parseNethackrc('OPTIONS=versinfo:8'),
-        /versinfo.*1 through 7/u,
-    );
+    // One is the smallest value the mask admits. It is also the value
+    // initoptions_init() already stored, so accepting it has to be read off
+    // the empty error list rather than off flags.versinfo.
+    const lowest = parseNethackrc('OPTIONS=versinfo:1');
+    assert.equal(lowest.flags.versinfo, 1);
+    assert.deepEqual(lowest.configErrorFrame.output, []);
+
+    // C ref: options.c optfn_versinfo()'s `!val || (val & ~7) != 0` guard.
+    // Eight is the smallest value with a bit outside the mask; text with no
+    // leading digit is atoi()'s zero, which the same guard rejects. Either way
+    // optn_silenterr leaves flags.versinfo at initoptions_init()'s VI_NUMBER.
+    for (const value of ['8', 'abc']) {
+        const rejected = parseNethackrc(`OPTIONS=versinfo:${value}`);
+        assert.equal(rejected.flags.versinfo, 1, value);
+        assert.deepEqual(rejected.configErrorFrame.output, [
+            `\nOPTIONS=versinfo:${value}`,
+            " * Line 1: 'versinfo' must be one of 1, 2, 4, or the sum of two or"
+            + ' all three of those.',
+        ], value);
+    }
+
+    // string_for_opt(opts, FALSE) reports the missing parameter before the
+    // handler adds its own message, so a bare name raises two errors on one
+    // line and the offending line is echoed only once.
+    const missing = parseNethackrc('OPTIONS=versinfo');
+    assert.equal(missing.flags.versinfo, 1);
+    assert.deepEqual(missing.configErrorFrame.output, [
+        '\nOPTIONS=versinfo',
+        " * Line 1: Missing parameter for 'versinfo'.",
+        " * Line 1: 'versinfo' requires a value; defaulting to 1.",
+    ]);
 });
 
 test('prefix options validate their source suffixes', () => {
@@ -1581,23 +1614,99 @@ test('symbol assignments accept exactly the source symbol catalog', () => {
 test('sortloot keeps one letter and refuses every other spelling', () => {
     assert.equal(parseNethackrc('OPTIONS=sortloot:full\n').flags.sortloot, 'f');
     assert.equal(parseNethackrc('OPTIONS=sortloot:N\n').flags.sortloot, 'n');
-    assert.throws(() => parseNethackrc('OPTIONS=sortloot:x\n'),
-        /unknown sortloot parameter/u);
+
+    // optn_err leaves flags.sortloot at the 'l' initoptions_init() (7205)
+    // stored, and the game plays on: the two strings below are exactly what
+    // config_erradd() hands pline(), which is raw_print() this early.
+    const rejected = parseNethackrc('OPTIONS=sortloot:x\n');
+    assert.equal(rejected.flags.sortloot, 'l');
+    assert.deepEqual(rejected.configErrorFrame.output, [
+        '\nOPTIONS=sortloot:x',
+        " * Line 1: Unknown sortloot parameter 'x'.",
+    ]);
+
     // string_for_opt() answers empty_optstr with a "Missing parameter for"
     // config error when the value is missing, which is what optfn_sortloot()
     // asks for by re-reading it with val_optional FALSE; it then returns
     // optn_err rather than choosing a default. Both value-less spellings
     // reach that, including the bare name, which before this fell past the
     // arm to applyBooleanOption() and stored `true` over the 'l' default.
-    for (const line of ['OPTIONS=sortloot:\n', 'OPTIONS=sortloot\n']) {
-        assert.throws(() => parseNethackrc(line),
-            /'sortloot' requires a value/u, line);
+    // The message quotes the whole statement, because string_for_opt() has
+    // only `opts` to name it by.
+    for (const [line, statement] of [
+        ['OPTIONS=sortloot:\n', 'sortloot:'],
+        ['OPTIONS=sortloot\n', 'sortloot'],
+    ]) {
+        const parsed = parseNethackrc(line);
+        assert.equal(parsed.flags.sortloot, 'l', line);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${line.trimEnd()}`,
+            ` * Line 1: Missing parameter for '${statement}'.`,
+        ], line);
     }
+
     // optlist.h gives sortloot negateok No, so parseoptions() answers a
     // negation with bad_negation() before optfn_sortloot() runs, whatever
-    // value follows.
+    // value follows.  That check is a config error in C too, but the port
+    // still stops on it.
     assert.throws(() => parseNethackrc('OPTIONS=!sortloot:none\n'),
         /negated compound option 'sortloot'/u);
+});
+
+// C ref: cfgfiles.c config_erradd() (1543-1589) and config_error_done()
+// (1591-1621), whose pline() calls are what a session sees.  Line numbers
+// count physical lines, the offending line is echoed once however many errors
+// it raises, and the count line closes the read.
+test('a configuration error is reported the way config_erradd() prints it',
+    () => {
+        const parsed = parseNethackrc([
+            '# a comment, which parse_conf_buf() counts as a line',
+            'OPTIONS=sortloot:x,sortloot:y',
+            '',
+            'OPTIONS=sortloot:full',
+            '',
+        ].join('\n'));
+        // parseoptions() recurses into the comma suffix first, so the
+        // rightmost element of line 2 is rejected first.
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            '\nOPTIONS=sortloot:x,sortloot:y',
+            " * Line 2: Unknown sortloot parameter 'y'.",
+            " * Line 2: Unknown sortloot parameter 'x'.",
+        ]);
+        // Parsing continued past both errors.
+        assert.equal(parsed.flags.sortloot, 'f');
+
+        assert.equal(config_error_done(parsed.configErrorFrame, {}), 2);
+        assert.deepEqual(parsed.configErrorFrame.output.at(-1),
+            '\n2 errors in .nethackrc.\n');
+    });
+
+// C ref: cfgfiles.c config_error_done(), the `if (n)` guard.  A clean file
+// prints nothing and, in js/jsmain.js, waits for no key.
+test('a configuration file without errors reports none', () => {
+    const parsed = parseNethackrc('OPTIONS=sortloot:full\n');
+    assert.equal(config_error_done(parsed.configErrorFrame, {}), 0);
+    assert.deepEqual(parsed.configErrorFrame.output, []);
+});
+
+// C ref: cfgfiles.c parse_conf_buf():1707-1710, which reports an overlong line
+// before config_error_nextline() has counted it.  A first line that overflows
+// therefore carries no line number and no offending text, which is the one
+// path that reaches config_erradd()'s `line_num > 0` false arm.
+test('an overlong first line is reported without a line number', () => {
+    // parse_conf_buf() reads into a 4 * BUFSZ buffer and gives up when the
+    // 1024 bytes it read hold no newline; 1200 clears that with room to spare.
+    const parsed = parseNethackrc(`OPTIONS=${'z'.repeat(1200)}\nOPTIONS=time\n`);
+    assert.deepEqual(parsed.configErrorFrame.output, [
+        '\n',
+        ' * Line too long, skipping.',
+    ]);
+    // The line after it is read normally: p->skip clears on the newline the
+    // overlong line's tail carries.
+    assert.equal(parsed.flags.time, true);
+    assert.equal(config_error_done(parsed.configErrorFrame, {}), 1);
+    assert.equal(parsed.configErrorFrame.output.at(-1),
+        '\n1 error in .nethackrc.\n');
 });
 
 // C ref: options.c optfn_msg_window()'s do_set arm under PREV_MSGS, which is
@@ -1612,8 +1721,14 @@ test('msg_window keeps one letter and answers its value-less spellings', () => {
             .iflags.prevmsg_window,
         'c',
     );
-    assert.throws(() => parseNethackrc('OPTIONS=msg_window:x\n'),
-        /unknown msg_window parameter/u);
+    // The default arm leaves iflags.prevmsg_window at the 's' that
+    // initoptions_init() stores for a tty build and answers optn_err.
+    const rejected = parseNethackrc('OPTIONS=msg_window:x\n');
+    assert.equal(rejected.iflags.prevmsg_window, 's');
+    assert.deepEqual(rejected.configErrorFrame.output, [
+        '\nOPTIONS=msg_window:x',
+        " * Line 1: Unknown msg_window parameter 'x'.",
+    ]);
     // parseoptions() reads every option's value with string_for_opt(opts,
     // TRUE), so a value-less msg_window reaches the handler as empty_optstr
     // rather than as a config error, and its `tmp = negated ? 's' : 'f'` arm
@@ -1628,9 +1743,15 @@ test('msg_window keeps one letter and answers its value-less spellings', () => {
         parseNethackrc('OPTIONS=!msg_window\n').iflags.prevmsg_window, 's',
     );
     // bad_negation() inside the handler: a negation that carries a value is
-    // the one negation optfn_msg_window() itself rejects.
-    assert.throws(() => parseNethackrc('OPTIONS=!msg_window:full\n'),
-        /may not be negated/u);
+    // the one negation optfn_msg_window() itself rejects, and its wording is
+    // the "both have a value and" variant because parseoptions() passes TRUE.
+    const negated = parseNethackrc('OPTIONS=!msg_window:full\n');
+    assert.equal(negated.iflags.prevmsg_window, 's');
+    assert.deepEqual(negated.configErrorFrame.output, [
+        '\nOPTIONS=!msg_window:full',
+        ' * Line 1: The msg_window option may not both have a value and be'
+        + ' negated.',
+    ]);
 });
 
 // C ref: cfgfiles.c config_line_stmt[], whose AUTOCOMPLETE, MSGTYPE and

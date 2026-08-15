@@ -1721,10 +1721,11 @@ async function runOptionsCommand(key, state) {
 // The first loop counts every entry the player bound whose command sits on a
 // key other than its extcmdlist[] one. C reads that key through bind->cmd,
 // the row bind_key() matched after stripping any `(param)` suffix; this port
-// stores the stripped name, so EXTCMD_BY_NAME looks the row back up. A name
-// bind_key() would have rejected has no row and, as in C, contributes
-// nothing. The second loop counts every command whose compiled-in key no
-// entry holds.
+// stores the stripped name, so EXTCMD_BY_NAME looks the row back up. Every
+// name reaching model.bindings has a row, because js/options.js reports the
+// rest as parsebindings()'s unknown-command config error rather than binding
+// them. The second loop counts every command whose compiled-in key no entry
+// holds.
 export function count_bind_keys(state = game) {
     const model = commandBindings(state);
     let nbinds = 0;

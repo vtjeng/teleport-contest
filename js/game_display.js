@@ -28,6 +28,13 @@ export class GameDisplay {
             );
         }
 
+        // Recorder patch 006 tracks tty_raw_print() output with its own row
+        // and column, because ttyDisplay -- the struct whose curx and cury the
+        // capture normally reads -- does not exist before
+        // tty_init_nhwindows() or after exit_nhwindows().  js/tty_rawprint.js
+        // owns every write; nothing clears `active`, matching the patch.
+        this.nomuxRaw = { active: false, row: 0, col: 0 };
+
         // NetHack-specific message state
         this.topMessage = null;
         this.toplines = '';

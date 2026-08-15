@@ -1090,6 +1090,10 @@
         {
           "text": "Three of the four residues are closed; only the non-fatal config error is left, and it is what the entry now waits on. count_apes() was fixed in 65d1bba, which added the AUTOPICKUP_EXCEPTION row to UNPORTED_CONFIG_STATEMENTS and the refusal inside count_apes(); e269420 added the menu-count test it had lacked. createCommandBindingModel() gained bind_key()'s INTERNALCMD skip in 6605941. The boolean stored as the string 'true' is unchanged. A sibling divergence found while reading bind_key() is also unchanged and is deliberate: a `bind` statement naming a command in no extcmdlist[] row still binds the key in this port, where C leaves it alone, and cmd.c count_bind_keys() compensates by looking the name up before comparing (js/cmd.js:1721-1727).",
           "at": "e269420ec4d27bcef84c0d68f2440cc14998a235"
+        },
+        {
+          "text": "The non-fatal config error, this entry's fourth residue, is ported: optfn_sortloot(), optfn_versinfo() and optfn_msg_window() now reach cfgfiles.c config_error_add() instead of throwing, the errors are raw-printed through win/tty/wintty.c tty_raw_print() and dismissed at config_error_done()'s wait_synch(), and three fresh differentials match C on every random-number call and cursor. optfn_pickup_burden() and parsebindings()'s unknown-command error went the same way.\n\nThe entry stays open on its second residue, which no part of this slice touched: an unhandled compound option's value is still stored raw, so OPTIONS=<name>:true leaves the string 'true' in result.flags[name] (js/options.js applyOption()'s final else). No blockedOn is recorded because that residue waits on no single C symbol -- it is retired one optfn_ handler at a time, whichever option a reader of that flag needs.\n\nThe note at e269420 counted three of four residues closed while also reporting this one unchanged; the enumeration it gives names only two fixes plus a test.",
+          "at": "fb143cda293f3066ceae49493c84c2c70e120e2e"
         }
       ]
     },
@@ -2992,6 +2996,33 @@
       "from": "9db664b12c2687f758d3b2732de344d1b3175e00",
       "detail": "engrave.c wipe_engr_at() (283-287) advances ep->engr_txt[actual_text] past\nevery leading space wipeout_text() left, and js/engrave.js:394-398 ports that\nwith .replace(/^ +/u, ''). engrave.c save_engravings() (1565-1567) rewinds the\nsame pointer to engr_text_space(ep) whenever it writes an engraving, so those\ncharacters come back. allmain.c newgame():838 calls save_currentstate() under\nINSURANCE, which include/config.h:435 defines and optlist.h:225 leaves on by\ndefault through flags.ins_chkpt, and do.c:1382 savelev() reaches\nsave_engravings(). Every new game therefore reads its engravings unstripped.\ndo.c:1969 and cmd.c:1064 repeat the rewind on each level change, so the strip is\nstill observable between a u_wipe_engr() and the next checkpoint and must stay.\n\nThe port has no save_currentstate(), so it keeps the strip and prints one\ncharacter too few.\n\nReproduce with 'node scripts/diff-fresh.mjs --seed 118228 --datetime\n20270311094500 --nethackrc-file <rc> --moves \" \"' where the rc reads\n\n  OPTIONS=name:Engraver,role:Valkyrie,race:human,gender:female,align:neutral\n  OPTIONS=!legacy,!tutorial,!splash_screen\n\n2800 PRNG calls match either side and both boundaries are drawn; one cell of the\nsecond screen differs, row 0 column 51. C prints You read: \" c aerariun\". and\nthe port prints You read: \"c aerariun\". The five wipeout draws at\nengrave.c:134-135 turn position 0 of \"ad aerarium\" into '?' and then into ' ',\nwhich is what makes the strip fire. Ten sibling seeds -- 100778, 101086, 106755,\n108457, 110419, 111580, 116336, 116864, 119282 and 119999 on the same rc and\ndatetime -- leave position 0 alone and match exactly, so about one hero in\neleven who starts on an engraving hits this.\n\nClose it by porting save_engravings()'s pointer rewind at the point\nallmain.c:838 checkpoints a new game.",
       "blockedOn": "save_engravings"
+    },
+    {
+      "id": "config-error-summary-names-an-unknowable-path",
+      "area": "startup",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "fb143cda293f3066ceae49493c84c2c70e120e2e",
+      "detail": "cfgfiles.c config_error_done() (1609-1615) closes a configuration read with\n\n    pline(\"\\\\n%d error%s %s %s.\\\\n\", n, plur(n), cmdline ? \"on\" : \"in\",\n          *config_error_data->source ? config_error_data->source : configfile);\n\nand `configfile` is the absolute path fopen_config_file() opened, which on UNIX\nis \"$HOME/.nethackrc\". runSegment() receives the configuration as text and no\npath, so the port cannot learn $HOME and js/cfgfiles.js get_configfile() answers\nwith the bare default name instead.\n\nMeasured, not inferred: three fresh differentials over rc files that trip a\nconfig error (bad sortloot value; an over-long line; eight assorted errors)\nmatch C on every random-number call, every cursor and every other cell, and\ndiverge only at the first character of that path. Seed 3310277 at\n19960229180000 reports `Cell row 20, column 13 (ch): C \"/\", JS \".\"` with\nPRNG 3150/3150 and cursors matching.\n\nOne row of one screen per affected segment is the whole cost, and no port can\nrecover it. ask_do_tutorial() prints nh_basename() of the same value and is\nunaffected, which is why js/tutorial_startup.js already matched."
+    },
+    {
+      "id": "parseoptions-level-config-errors-still-fail-closed",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "fb143cda293f3066ceae49493c84c2c70e120e2e",
+      "detail": "The non-fatal config error now works end to end, but only for the errors an\noption handler raises. options.c parseoptions() raises five more before or\naround the handler, and each one is still js/options.js optionError(), which\nthrows and loses the whole segment where C reports and plays on:\n\n- `bad_negation()` for an option whose optlist.h negateok is No (options.c:627).\n- `config_error_add(\"Unknown option '%s'\", opts)` (689).\n- the ambiguous-prefix message (585-587).\n- `\"Empty statement\"` (536) and `\"Option too long, max length is %i characters\"`\n  (523).\n- `complain_about_duplicate()` (6791-6806) through\n  `duplicate_opt_detection()` (6782), which the port does not have at all: a\n  repeated compound option is applied silently where C first prints\n  \"compound option specified multiple times: <name>\".\n\nThe duplicate one is measured. A fresh differential at seed 3310277,\n19960229180000 over an rc repeating versinfo, msg_window and pickup_burden\nmatches C for every other message and diverges by exactly the three\n\"specified multiple times\" lines, leaving the raw cursor three rows short\n(C [0,34,1], JS [0,31,1]).\n\nPorting it needs two more columns in the generated option table: `dupok`,\nwhich suppresses the complaint, and `alias`, which\ncomplain_about_duplicate() appends as \" (via alias: %s)\". js/optlist_data.js\ncarries neither, so scripts/generate-options.mjs and its check:options\ncomparison have to grow them first."
+    },
+    {
+      "id": "config-error-message-truncation-unported",
+      "area": "startup",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "fb143cda293f3066ceae49493c84c2c70e120e2e",
+      "detail": "js/cfgfiles.js config_error_add() keeps the whole message. C truncates twice\nbefore it reaches a screen:\n\n- pline.c vconfig_error_add() formats into a BIGBUFSZ buffer and then writes\n  `buf[BUFSZ - 1] = '\\\\0'`, cutting the message at 255 bytes.\n- pline.c vpline() (212-225) cuts anything still longer than BUFSZ - 1 and\n  rewrites the tail as `...` plus the final three characters, so a long\n  offending line echoed by `pline(\"\\\\n%s\", origline)` arrives elided rather\n  than merely clipped. origline holds up to 4 * BUFSZ bytes, so a\n  1023-character configuration line reaches this.\n\nNothing shorter than 256 bytes can tell the difference, and the recorded\nscreens truncate at 80 columns anyway, so this shows up only in a message the\nport would raw-print onto a second and third row where C prints one. No\ndevelopment session has such a line; a fresh case would need an rc statement\nof its own."
     }
   ],
   "areas": [
@@ -3000,6 +3031,7 @@
       "label": "Startup and options",
       "paths": [
         "js/allmain.js",
+        "js/cfgfiles.js",
         "js/jsmain.js",
         "js/legacy_startup.js",
         "js/options.js",
@@ -3008,6 +3040,7 @@
         "js/player_selection_tty.js",
         "js/startup_a11y.js",
         "js/startup_reroll.js",
+        "js/tty_rawprint.js",
         "js/tty_startup.js",
         "js/tutorial_startup.js"
       ],

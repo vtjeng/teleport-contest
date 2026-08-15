@@ -29,6 +29,12 @@ import {
     UnsupportedTurnBoundaryError,
 } from './allmain.js';
 import { parseNethackrc } from './options.js';
+import { config_error_done } from './cfgfiles.js';
+import {
+    nomux_get_cursor,
+    tty_raw_print,
+    tty_wait_synch,
+} from './tty_rawprint.js';
 import { initoptions_finish } from './fruit.js';
 import { GameDisplay } from './game_display.js';
 import { setStorageForTesting } from './storage.js';
@@ -244,7 +250,7 @@ export class NethackGame {
         const term = disp?.terminal || disp;
         this._pendingAnimFrames.push({
             screen: term?.serialize ? term.serialize() : '',
-            cursor: disp ? [disp.cursorCol ?? 0, disp.cursorRow ?? 0, 1] : null,
+            cursor: disp ? [...nomux_get_cursor(disp), 1] : null,
         });
         if (typeof requestAnimationFrame === 'function') {
             await new Promise((resolve) => requestAnimationFrame(resolve));
@@ -271,11 +277,30 @@ export class NethackGame {
         initRng(this._seed);
         enableRngLog();
 
+        // choose_windows(DEFAULT_WINDOW_SYS) (unixmain.c:104) installs the tty
+        // window procs long before init_nhwindows(), so raw_print() already
+        // reaches the terminal while initoptions() reads the configuration
+        // file.  A configuration error printed there is the first thing a
+        // session can see, and it waits for a key, so both the surface and the
+        // boundary capture have to exist by now.
+        if (this._pendingDisplay) {
+            g.nhDisplay = this._pendingDisplay;
+            this._pendingDisplay = null;
+        }
+        this._installCaptureHook();
+
         // Parse nethackrc
         const opts = parseNethackrc(this._nethackrc);
         g.plname = opts.name ?? '';
         g.flags = { ...opts.flags };
         g.iflags = { ...opts.iflags };
+        // C ref: sys/share/unixtty.c setftty() (251-259).  iflags is a static
+        // struct and no option writes cbreak, so it is false until
+        // tty_init_nhwindows() raises it -- which js/tty_startup.js
+        // renderTtyStartupBanner() does below.  Between here and there,
+        // js/tty_message.js xwaitforspace() reads only Return and Enter, which
+        // is what the configuration errors reported just after this wait on.
+        g.iflags.cbreak = false;
         g.a11y = { ...opts.a11y };
         g.roleFilter = {
             roles: [...(opts.roleFilter?.roles ?? [])],
@@ -295,6 +320,18 @@ export class NethackGame {
         }));
         g.unportedConfigStatements = [...opts.unportedConfigStatements];
         if (opts.tutorial_set) g.tutorial_set_in_config = true;
+
+        // C ref: cfgfiles.c rcfile():1945, the config_error_done() that closes
+        // the configuration read.  Each queued string is one pline() C already
+        // made during the read; nothing observes the terminal in between, so
+        // emitting them here leaves the same shadow screen behind.  A nonzero
+        // count then blocks for a key, which is a session's first input
+        // boundary whenever a configuration file has an error in it.
+        if (config_error_done(opts.configErrorFrame, g)) {
+            for (const line of opts.configErrorFrame.output)
+                tty_raw_print(g, line);
+            await tty_wait_synch(g);
+        }
 
         // The rc parser owns roleplay options until u_init_misc() preserves
         // them across its source memset boundary.
@@ -343,14 +380,8 @@ export class NethackGame {
         // table this port does not keep; js/display.js records why.
         reglyph_darkroom(g);
 
-        // tty_init_nhwindows() precedes plnamesuffix() and any role menus.
-        // Install the capture surface before reproducing that visible input
-        // boundary; explicit configurations proceed without reading a key.
-        if (this._pendingDisplay) {
-            g.nhDisplay = this._pendingDisplay;
-            this._pendingDisplay = null;
-        }
-        this._installCaptureHook();
+        // tty_init_nhwindows() precedes plnamesuffix() and any role menus, and
+        // clears the terminal over whatever the configuration read printed.
         renderTtyStartupBanner(g);
 
         // Unix calls set_playmode() after init_nhwindows() and before
@@ -420,7 +451,11 @@ export class NethackGame {
             nhGame._screens.push(term?.serialize ? term.serialize() : '');
             nhGame._rngSlices.push(slice);
 
-            const cursor = disp ? [disp.cursorCol ?? 0, disp.cursorRow ?? 0, 1] : null;
+            // Recorder patch 006 reads the cursor through nomux_get_cursor(),
+            // which answers with its raw-print row and column once
+            // tty_raw_print() has been used -- and nothing turns that back off
+            // for the rest of the segment.
+            const cursor = disp ? [...nomux_get_cursor(disp), 1] : null;
             nhGame._cursors.push(cursor);
 
             // Commit animation frames accumulated since the previous

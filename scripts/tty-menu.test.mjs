@@ -249,7 +249,7 @@ test('NHW_MENU text emits ASCII at recorder-byte columns', async () => {
 test('NHW_MENU text honors disabled overlays and refuses a paged boundary',
     async () => {
         const state = menuState(' ');
-        state.iflags = { menu_overlay: false };
+        state.iflags = { ...state.iflags, menu_overlay: false };
         const boundaries = [];
         state._preNhgetchHook = () => boundaries.push({
             first: rowText(state, 0),
@@ -316,7 +316,7 @@ test('NHW_MENU text restores partial and full byte-window regions', async () => 
         ['full', false, 'a \u20ac and \ud83d\ude00'],
     ]) {
         const state = menuState(' ');
-        state.iflags = { menu_overlay: overlay };
+        state.iflags = { ...state.iflags, menu_overlay: overlay };
         // Row zero belongs to WIN_MESSAGE, so begin after the caller has
         // cleared it. Distinct attributes pin restoration as well as text.
         state.nhDisplay.clearRow(0);
@@ -545,7 +545,7 @@ test('a full-screen text window leaves the status rows blank and pending',
             ])],
         ]) {
             const state = menuState(' ');
-            state.iflags = { menu_overlay: false };
+            state.iflags = { ...state.iflags, menu_overlay: false };
             state.nhDisplay.setCell(30, 10, '@', 3, 1);
             // The two-row status window of a 24-row terminal.
             state.nhDisplay.setCell(30, 22, 'S', 4, 2);
@@ -738,9 +738,10 @@ test('an invalid PICK_ONE key preserves a pending count', async () => {
 
 test('mapped page commands paginate PICK_ONE and defaults remain available', async () => {
     const state = menuState('><#z');
-    state.iflags = parseNethackrc(
-        'OPTIONS=menu_next_page:#',
-    ).iflags;
+    state.iflags = {
+        ...state.iflags,
+        ...parseNethackrc('OPTIONS=menu_next_page:#').iflags,
+    };
     const footers = [];
     state._preNhgetchHook = () => footers.push(
         Array.from({ length: state.nhDisplay.rows }, (_, row) => (
@@ -774,9 +775,10 @@ test('mapped page commands paginate PICK_ONE and defaults remain available', asy
 
 test('PICK_ONE explicit choices beat mappings and deselection updates markers', async () => {
     const explicit = menuState('#');
-    explicit.iflags = parseNethackrc(
-        'OPTIONS=menu_next_page:#',
-    ).iflags;
+    explicit.iflags = {
+        ...explicit.iflags,
+        ...parseNethackrc('OPTIONS=menu_next_page:#').iflags,
+    };
     assert.equal(await selectTtyMenu(explicit, {
         title: 'Synthetic collision',
         titleAttr: 0,
@@ -784,9 +786,10 @@ test('PICK_ONE explicit choices beat mappings and deselection updates markers', 
     }), 'hash');
 
     const grouped = menuState('#');
-    grouped.iflags = parseNethackrc(
-        'OPTIONS=menu_next_page:#',
-    ).iflags;
+    grouped.iflags = {
+        ...grouped.iflags,
+        ...parseNethackrc('OPTIONS=menu_next_page:#').iflags,
+    };
     assert.equal(await selectTtyMenu(grouped, {
         title: 'Synthetic group collision',
         titleAttr: 0,
@@ -796,9 +799,10 @@ test('PICK_ONE explicit choices beat mappings and deselection updates markers', 
     }), 'a');
 
     const deselected = menuState('#\n');
-    deselected.iflags = parseNethackrc(
-        'OPTIONS=menu_deselect_all:#',
-    ).iflags;
+    deselected.iflags = {
+        ...deselected.iflags,
+        ...parseNethackrc('OPTIONS=menu_deselect_all:#').iflags,
+    };
     const markers = [];
     deselected._preNhgetchHook = () => markers.push(
         rowText(deselected, 4).slice(41),

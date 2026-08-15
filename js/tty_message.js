@@ -71,19 +71,30 @@ function restoreRows(display, snapshot) {
     }
 }
 
-// C ref: win/tty/getline.c xwaitforspace(), called with decl.c quitchars[].
-// Returns morc, the key that ended the wait.  ttyDisplay->dismiss_more starts
-// at 0, which matches no key a session can send, so only quitchars[] and the
-// unconditional CR and LF dismiss the prompt.
-export async function xwaitforspace(state = game) {
+// C ref: decl.c quitchars[] (" \r\n\033"), the set more() and dmore() pass to
+// xwaitforspace().  The Escape it ends with is matched by the arm above the
+// membership test, exactly as in C.
+const QUITCHARS = ' \r\n\u001B';
+
+// C ref: win/tty/getline.c xwaitforspace().  Returns morc, the key that ended
+// the wait.  ttyDisplay->dismiss_more starts at 0, which matches no key a
+// session can send, so only `s` and the unconditional CR and LF dismiss the
+// prompt.
+export async function xwaitforspace(state = game, s = QUITCHARS) {
     for (;;) {
         const code = await nhgetch(state);
-        // tty_nhgetch() maps NUL to Escape.  quitchars[] is " \r\n\033";
-        // all other keys ring the bell and leave this boundary unchanged.
-        if (code === 0 || code === 10 || code === 13
-            || code === 27 || code === 32) {
+        if (code === 10 || code === 13) return code;
+        // sys/share/unixtty.c setftty():258 raises iflags.cbreak inside
+        // tty_init_nhwindows(); a caller reached before that -- getret() on
+        // the startup configuration errors -- reads every other key and keeps
+        // waiting, where a caller reached after it accepts `s` as well.
+        if (!state.iflags?.cbreak) continue;
+        // Escape has its own arm above the membership test, so it dismisses
+        // the prompt whatever `s` holds.  tty_nhgetch() already substituted it
+        // for NUL.  All other keys ring the bell and leave this boundary
+        // unchanged.
+        if (code === 27 || s.includes(String.fromCharCode(code)))
             return code;
-        }
     }
 }
 
