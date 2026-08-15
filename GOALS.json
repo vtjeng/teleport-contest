@@ -2324,8 +2324,8 @@
         },
         {
           "name": "startup-simplification-pair",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0fb53add75286c89fba10e2f96bf5bed815fbeb3"
         },
         {
           "name": "fixed-clock-literal-check",

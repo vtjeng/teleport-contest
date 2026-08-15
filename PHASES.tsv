@@ -473,3 +473,5 @@ utc	event	phase	goal	detail
 2026-08-15T07:29:27.920Z	end	implement	startup-deferral-sweep	non-fatal-config-error closed at 4b782b1; 837 insertions across five subsystems, three new deferrals filed
 2026-08-15T07:48:23.228Z	start	implement	startup-deferral-sweep	
 2026-08-15T08:31:52.093Z	end	implement	startup-deferral-sweep	
+2026-08-15T08:32:24.442Z	start	implement	startup-deferral-sweep	
+2026-08-15T09:09:32.168Z	end	implement	startup-deferral-sweep	
