@@ -9,6 +9,7 @@ import test from 'node:test';
 
 import { GameDisplay } from '../js/game_display.js';
 import { runSegment } from '../js/jsmain.js';
+import { allopt } from '../js/optlist_data.js';
 import { parseNethackrc } from '../js/options.js';
 import { ATR_INVERSE, ATR_NONE, NO_COLOR } from '../js/terminal.js';
 import { nomux_get_cursor, tty_raw_print } from '../js/tty_rawprint.js';
@@ -520,9 +521,8 @@ test('a negated boolean with a parameter reports and sets nothing', () => {
 // for every row whose optlist.h valok is No, and C returns optn_silenterr
 // before `*(allopt[optidx].addr) = !negated`, so the option keeps its previous
 // value and the rest of the file is read.  menucolors is the only BoolOpt row
-// whose valok is Yes, and this port never passes it to booleanValue(), because
-// applyOption() keeps a value on menucolors in its compound-preservation arm.
-// Every row that reaches the arm therefore reports.
+// whose valok is Yes; its value stands instead, which the whole-table sweep
+// below covers.
 test('a boolean value C cannot read reports and sets nothing', () => {
     for (const [statement, reported] of [
         // config_error_add() quotes `opts`: the whole trimmed,
@@ -614,4 +614,155 @@ test('a boolean value C cannot read reports and sets nothing', () => {
     assert.equal(continuedAfterValue.flags.time, false);
     assert.equal(continuedAfterValue.flags.showexp, true);
     assert.equal(continuedAfterValue.configErrorFrame.num_errors, 1);
+});
+
+// global.h enum optset_restrictions.  optfn_boolean():5207 retreats on this
+// one for the whole of a configuration-file read, because go.opt_initial is
+// true throughout.
+const SET_WIZNOFUZ = 6;
+
+// The three exits optfn_boolean() takes before `*(allopt[optidx].addr)` that
+// report nothing at all: a row whose #ifdef arm compiled its storage away
+// (5203), one that must not come from a configuration file (5207), and one
+// whose optlist.h valok lets an unreadable value stand (5233).
+const SILENT_BOOLEAN_ROWS = new Set(allopt
+    .filter((option) => option.opttyp === 'BoolOpt'
+        && (!option.addr || option.setwhere === SET_WIZNOFUZ || option.valok))
+    .map((option) => option.name));
+
+// C refs: options.c string_for_opt() (6664-6673), whose `!colon || !*++colon`
+// answers empty_optstr for a statement that ends on its separator as well as
+// for one that carries none, and optfn_boolean() (5213), which skips its whole
+// value block for empty_optstr and leaves the row taking !negated at 5285.
+test('a boolean whose separator ends the statement takes the negation', () => {
+    // sortpack starts On and autodig starts Off, so the four spellings cover a
+    // negation that changes the flag and one that does not.  Both rows store
+    // in flags under their own name, and neither had a handler of its own
+    // before this: a name-keyed dispatch sent them to the compound arm, which
+    // stored the empty string and stopped the read on the negated spelling.
+    for (const [statement, sortpack, autodig] of [
+        ['OPTIONS=sortpack:', true, false],
+        ['OPTIONS=!sortpack:', false, false],
+        ['OPTIONS=sortpack=', true, false],
+        ['OPTIONS=autodig:', true, true],
+        ['OPTIONS=!autodig:', true, false],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+        assert.equal(parsed.flags.sortpack, sortpack, statement);
+        assert.equal(parsed.flags.autodig, autodig, statement);
+    }
+
+    // parseoptions():644 hands every BoolOpt row to optfn_boolean(), so none
+    // of them may report or stop the read.  bad_negation() answers a row whose
+    // negateok is No before the handler runs, which the sweep leaves out.
+    for (const row of allopt.filter((option) => option.opttyp === 'BoolOpt'
+                                                && option.negateok)) {
+        assert.deepEqual(
+            parseNethackrc(`OPTIONS=!${row.name}:\n`).configErrorFrame.output,
+            [],
+            row.name,
+        );
+    }
+});
+
+// C ref: options.c optfn_boolean() (5233-5237) again, over the whole table
+// rather than the rows whose storage this port owns.  parseoptions() reaches
+// the handler through allopt[matchidx].optfn, so the row's type decides
+// whether the message is emitted.
+test('an unreadable boolean value reports for every row that rejects one',
+    () => {
+        // Six rows compiled their storage away, three are set_wiznofuz and
+        // menucolors admits any value, leaving 103 of the 113 to report.
+        assert.equal(SILENT_BOOLEAN_ROWS.size, 10);
+        for (const row of allopt.filter(
+            (option) => option.opttyp === 'BoolOpt',
+        )) {
+            const statement = `OPTIONS=${row.name}:zebra`;
+            assert.deepEqual(
+                parseNethackrc(`${statement}\n`).configErrorFrame.output,
+                SILENT_BOOLEAN_ROWS.has(row.name) ? [] : [
+                    `\n${statement}`,
+                    ` * Line 1: '${row.name}:zebra' is not valid for a`
+                    + ' boolean.',
+                ],
+                row.name,
+            );
+        }
+
+        // menucolors keeps `negated` as it was and reaches the assignment, so
+        // the value C cannot read still turns the option on.
+        assert.equal(
+            parseNethackrc('OPTIONS=menucolors:zebra\n').flags.menucolors,
+            true,
+        );
+    });
+
+// C ref: options.c optfn_boolean() (5244-5266), `case opt_female:`.  Its two
+// guards compare max(strlen(op), 3) bytes of the whole statement against
+// "female" and "male"; a value long enough to defeat both leaves the switch
+// through its `break` and takes the ordinary `*(allopt[optidx].addr) =
+// !negated`, which writes flags.female without flags.initgend beside it.
+test('a gender statement too long to match its own name falls through', () => {
+    // "false" is five bytes, so the compare reads "male:" against "male" and
+    // stops on the separator: C stores !negated, which the value block has
+    // already made TRUE, so flags.female ends FALSE where the male branch
+    // would have made it TRUE.  Nothing has chosen a gender, so initgend and
+    // the port's mirror of it stay at ROLE_NONE.
+    const fellThrough = parseNethackrc('OPTIONS=male:false\n');
+    assert.deepEqual(fellThrough.configErrorFrame.output, []);
+    assert.equal(fellThrough.flags.female, false);
+    assert.equal(fellThrough.flags.initgend, -1);
+    assert.equal(fellThrough.gender, -1);
+
+    // "off" is three bytes, so max(ln, 3) reads only "mal" and the male
+    // branch takes it: flags.female becomes `negated`, which the value block
+    // set TRUE.
+    const matched = parseNethackrc('OPTIONS=male:off\n');
+    assert.equal(matched.flags.female, true);
+    assert.equal(matched.flags.initgend, 1);
+    assert.equal(matched.gender, 1);
+
+    // "female" is six bytes, so only a seven-byte value defeats it.  atoi()
+    // reads seven zeroes as 0, which is a value optfn_boolean() accepts.
+    const longFemale = parseNethackrc('OPTIONS=female:0000000\n');
+    assert.deepEqual(longFemale.configErrorFrame.output, []);
+    assert.equal(longFemale.flags.female, false);
+    assert.equal(longFemale.flags.initgend, -1);
+
+    // The guards read the statement, not the row the match loop settled on,
+    // so an abbreviation that no longer spells "female" falls through as
+    // well: "fem:false" compares "fem:f" against "femal".
+    const abbreviated = parseNethackrc('OPTIONS=fem:false\n');
+    assert.deepEqual(abbreviated.configErrorFrame.output, []);
+    assert.equal(abbreviated.flags.female, false);
+    assert.equal(abbreviated.flags.initgend, -1);
+
+    // flags.female starts FALSE, so a value that reads as TRUE is what makes
+    // the fall-through's own write visible: digit(*op) sends "00001" to
+    // atoi(), which answers 1, and its five bytes defeat both compares.  C
+    // stores TRUE where the male branch would have stored FALSE.
+    for (const statement of ['OPTIONS=male:00001', 'OPTIONS=fem:00001']) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+        assert.equal(parsed.flags.female, true, statement);
+        assert.equal(parsed.flags.initgend, -1, statement);
+        assert.equal(parsed.gender, -1, statement);
+    }
+
+    // Six bytes still match "female" itself, and three still match "fem".
+    for (const [statement, female, initgend] of [
+        ['OPTIONS=female:false', false, 0],
+        ['OPTIONS=fem:no', false, 0],
+        ['OPTIONS=female:true', true, 1],
+        ['OPTIONS=!female', false, 0],
+        ['OPTIONS=male', false, 0],
+        ['OPTIONS=!male', true, 1],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+        assert.equal(parsed.flags.female, female, statement);
+        assert.equal(parsed.flags.initgend, initgend, statement);
+        assert.equal(parsed.gender, initgend, statement);
+    }
 });

@@ -722,9 +722,8 @@ function booleanValue(result, row, statement, value, negated) {
     // C's third arm (5233-5237) is `else if (!allopt[optidx].valok)`: a row
     // that admits arbitrary values keeps `negated` as it was and falls through
     // to the assignment, and only the rest report and return optn_silenterr.
-    // menucolors is the one BoolOpt row whose valok is Yes, and no caller
-    // reaches this function with it, so the fall-through below is C's branch
-    // written out rather than a branch this port can run.
+    // menucolors is the one BoolOpt row whose optlist.h valok is Yes, so it is
+    // the one row that reaches the fall-through below.
     if (!row.valok) {
         configErrorAdd(result, `'${statement}' is not valid for a boolean`);
         return null;
@@ -2353,9 +2352,29 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
     // whole dispatch rather than inside the arm that owns the flag.
     if (enabled === null) return;
     if (name === 'female' || name === 'male') {
-        const female = name === 'female' ? enabled : !enabled;
-        result.flags.female = female;
-        result.flags.initgend = result.gender = female ? 1 : 0;
+        // C ref: options.c optfn_boolean() (5244-5266), `case opt_female:`.
+        // Both guards read `opts`, the whole statement, rather than the name
+        // the match loop settled on, and compare max(ln, 3) of its bytes,
+        // where ln is strlen(op) and op is empty_optstr for a statement that
+        // carries no value.  go.opt_initial is true throughout a
+        // configuration-file read, so neither nosexchange arm can fire and
+        // each guard that holds writes flags.initgend beside flags.female and
+        // returns.  A statement long enough to defeat both -- "male:false" is
+        // the shortest -- falls past the switch to the ordinary
+        // `*(allopt[optidx].addr) = !negated`, which leaves flags.initgend
+        // alone.  female's optlist.h valok is No, so booleanValue() has
+        // already refused every value that is not an ASCII spelling of true or
+        // false and ln can be measured in characters.
+        const width = Math.max(value?.length ?? 0, 3);
+        if (equal_ncasechars(statement, 'female', width)) {
+            result.flags.female = enabled;
+            result.flags.initgend = result.gender = enabled ? 1 : 0;
+        } else if (equal_ncasechars(statement, 'male', width)) {
+            result.flags.female = !enabled;
+            result.flags.initgend = result.gender = enabled ? 0 : 1;
+        } else {
+            result.flags.female = enabled;
+        }
     } else if (name === 'autopickup') result.flags.pickup = enabled;
     else if (name === 'color') {
         result.flags.color = enabled;
@@ -2430,25 +2449,6 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
     else if (name === 'verbose') result.flags.verbose = enabled;
     else result.flags[name] = enabled;
 }
-
-// Options whose source boolean handlers have concrete state ownership in this
-// startup port.  Explicit true/false values must reach those handlers too;
-// otherwise they fall through to the intentionally opaque compound-option
-// preservation path and create stray string-valued flags.
-const HANDLED_BOOLEAN_OPTIONS = new Set([
-    'female', 'male', 'acoustics', 'autopickup', 'color', 'use_darkgray',
-    'use_inverse',
-    'hilite_pet', 'hilite_pile', 'hitpointbar', 'legacy', 'tutorial',
-    'splash_screen',
-    'status_updates', 'accessiblemsg', 'mention_map', 'mon_movement',
-    'spot_monsters',
-    'menu_overlay', 'eight_bit_tty', 'customcolors', 'customsymbols',
-    'altmeta', 'autoopen', 'cmdassist', 'extmenu', 'safe_pet', 'safe_wait',
-    'pushweapon',
-    'rest_on_space',
-    'mention_decor',
-    'showdamage', 'showexp', 'time', 'verbose',
-]);
 
 function setWhatisCoord(result, value, negated, lineNumber) {
     if (negated) {
@@ -2912,7 +2912,15 @@ function applyOption(result, optionState, element, lineNumber) {
             return;
         }
         result.flags.versinfo = versinfo;
-    } else if (HANDLED_BOOLEAN_OPTIONS.has(name)) {
+    } else if (matchedRow?.opttyp === 'BoolOpt') {
+        // parseoptions():644 hands every BoolOpt row to optfn_boolean(),
+        // whatever value the statement carries, so the row's type selects this
+        // arm rather than the subset of names whose storage the port owns.
+        // Selecting on the name instead sent a boolean carrying a value into
+        // the compound arm below: "sortpack:" stored the empty string in
+        // flags.sortpack where C stores TRUE, "!autodig:" hit that arm's
+        // negation stop, and a value C cannot read reached no handler to
+        // report it.
         applyBooleanOption(result, name, matchedRow, statement, value, negated);
     } else if (value != null) {
         // Only an option whose optlist.h negateok is Yes reaches this: a
