@@ -1,0 +1,41 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8814404,
+      "datetime": "19930906061500",
+      "nethackrc": "OPTIONS=name:HiliteD,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/<50%/mauve\nOPTIONS=hilite_status:condition/bogusname/red\nOPTIONS=hilite_status:bogusfield/always/red\nOPTIONS=hilite_status:hd/<50%/red\nOPTIONS=hilite_status:carryingc/always/red\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 8814405,
+      "datetime": "20221231235000",
+      "nethackrc": "OPTIONS=name:HiliteE,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/always/red/<5%/mauve\nOPTIONS=statushilites:3\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 8814406,
+      "datetime": "20050415120000",
+      "nethackrc": "OPTIONS=name:HiliteF,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/always/red bogusfield/always/blue\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 8814407,
+      "datetime": "20180722033000",
+      "nethackrc": "OPTIONS=name:HiliteG,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/always/mauve bogusfield/always/red time/always/blue\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 8814408,
+      "datetime": "19760602171500",
+      "nethackrc": "OPTIONS=name:HiliteH,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/<0%/red\nOPTIONS=hilite_status:hitpoints/>100%/blue\nOPTIONS=hilite_status:experience/-1/green\nOPTIONS=hilite_status:condition//red\nOPTIONS=hilite_status:condition/blind\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 8814409,
+      "datetime": "20090128094500",
+      "nethackrc": "OPTIONS=name:HiliteI,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/<>=/red\nOPTIONS=hilite_status:hitpoints/always/red&blue\nOPTIONS=hilite_status:hitpoints/always/&red\nOPTIONS=hilite_status:hitpoints/<10%/\n",
+      "moves": "\r"
+    }
+  ]
+}

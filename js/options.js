@@ -7,6 +7,7 @@ import {
     AUTOUNLOCK_FORCE,
     AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
+    CLR_MAX,
     DISCLOSE_PROMPT_DEFAULT_NO,
     EXT_ENCUMBER,
     GFILTER_AREA,
@@ -19,6 +20,7 @@ import {
     GPCOORDS_SCREEN,
     HVY_ENCUMBER,
     Is_rogue_level,
+    LARGEST_INT,
     MENU_COMBINATION,
     MENU_FULL,
     MENU_TRADITIONAL,
@@ -42,6 +44,7 @@ import {
     PICK_ONE,
     ECMD_OK,
     PRIMARYSET,
+    QBUFSZ,
     ROGUESET,
     RUN_CRAWL,
     RUN_LEAP,
@@ -1142,21 +1145,29 @@ const STATUS_HILITE_CONDITIONS = Object.freeze({
     uhold: 'holding',
 });
 
+// C ref: botl.c condition_aliases[] (748-775).  The keys are the C ids
+// verbatim, underscores included, because match_str2conditionbitmask()'s
+// prefix pass compares them with strncmpi() rather than fuzzymatch().
 const STATUS_CONDITION_ALIASES = Object.freeze({
     strangled: ['strngl'],
     all: SOURCE_CONDITION_NAMES,
-    majortroubles: [
+    major_troubles: [
         'foodpois', 'grab', 'lava', 'slime', 'stone', 'strngl', 'termill',
     ],
-    minortroubles: [
+    minor_troubles: [
         'blind', 'conf', 'deaf', 'hallucinat', 'paralyzed', 'submerged',
         'stun',
     ],
     movement: ['levitate', 'fly', 'ride'],
-    optin: SOURCE_CONDITION_NAMES.filter(
+    opt_in: SOURCE_CONDITION_NAMES.filter(
         (name) => !DEFAULT_STATUS_CONDITIONS[name],
     ),
 });
+
+// C ref: botl.c parse_status_hl1()'s MAX_THRESH, the group count one
+// hilite_status statement can hold, and splitsubfields()'s MAX_SUBFIELDS.
+const MAX_THRESH = 21;
+const MAX_SUBFIELDS = 16;
 
 function statusHiliteFieldName(rawName) {
     const normalized = menuHeadingToken(rawName);
@@ -1167,29 +1178,76 @@ function statusHiliteFieldName(rawName) {
     if (Object.hasOwn(STATUS_HILITE_FIELD_ALIASES, normalized)) {
         return STATUS_HILITE_FIELD_ALIASES[normalized];
     }
+    // C ref: fldname_to_bl_indx()'s third pass, strncmpi(), which keeps the
+    // ' ', '-' and '_' the two fuzzymatch() passes above drop.  "carrying" is
+    // a prefix of carrying-capacity where "carryingc" is not.  The keys below
+    // are the initblstats[] names, and strncmpi() folds case, so the lowercase
+    // spelling of "HD" compares the same way.
+    const prefix = String(rawName).toLowerCase();
     const partials = Object.keys(STATUS_HILITE_FIELDS).filter(
-        (name) => menuHeadingToken(name).startsWith(normalized),
+        (name) => name.startsWith(prefix),
     );
     return partials.length === 1 ? partials[0] : null;
 }
 
-function parseStatusHiliteAction(
-    rawAction,
-    lineNumber,
-    { allowRepeatedColors = false, inheritedColor = NO_COLOR } = {},
-) {
-    const subfields = String(rawAction).split(/[+&]/u);
-    if (!subfields.length || subfields.some((part) => !part.trim())) {
-        optionError(lineNumber, `invalid status highlight '${rawAction}'`);
+// C ref: botl.c initblstats[].fldname, which two of the messages below quote
+// verbatim.  Every key of STATUS_HILITE_FIELDS is already its C spelling
+// except this one, whose row reads INIT_BLSTAT("HD", ...).
+function statusHiliteFieldCName(field) {
+    return field === 'hd' ? 'HD' : field;
+}
+
+// C ref: botl.c splitsubfields() (2685-2726).  It splits str in place on '+'
+// and '&', so a trailing separator contributes no field while a leading or
+// doubled one contributes an empty one.  Its -1 answer, spelled null here,
+// needs fifteen separators and is silent; both callers below drop the group.
+function splitsubfields(str, maxsf = 0) {
+    const limit = maxsf === 0 ? MAX_SUBFIELDS : Math.min(maxsf, MAX_SUBFIELDS);
+    if (!str.includes('+') && !str.includes('&')) return [str];
+    const subfields = [];
+    let start = 0;
+    let index = 0;
+    while (index < str.length && subfields.length < limit) {
+        if (str[index] === '&' || str[index] === '+') {
+            subfields.push(str.slice(start, index));
+            start = index + 1;
+        }
+        index += 1;
     }
+    if (subfields.length >= limit - 1) return null;
+    // C's `if (!*c && c != st)`: the tail after the last separator, which a
+    // string that ended on one does not have.
+    if (index >= str.length && index !== start) {
+        subfields.push(str.slice(start));
+    }
+    return subfields;
+}
+
+// C ref: coloratt.c match_str2clr() (348-371).  Every status-highlight caller
+// passes suppress_msg FALSE, so an unmatched name is reported here and comes
+// back as CLR_MAX for the caller to reject a second time.
+function match_str2clr(result, str) {
+    const color = menuHeadingColor(menuHeadingToken(str), str);
+    if (color != null) return color;
+    configErrorAdd(result, `Unknown color '${str.slice(0, 60)}'`);
+    return CLR_MAX;
+}
+
+// C ref: botl.c parse_status_hl2() (3021-3059), its action half: at most one
+// color, any number of attributes, and NO_COLOR when the action named none.
+// Null means it reported and its caller answers FALSE.
+function parseStatusHiliteAction(result, how) {
+    const subfields = splitsubfields(how);
+    // C's `if (sf < 1) return FALSE;`, which reports nothing.
+    if (!subfields) return null;
     let attr = ATR_NONE;
     let clearAttributes = false;
-    let color = inheritedColor;
-    let colorSeen = false;
-    for (const rawSubfield of subfields) {
-        const token = menuHeadingToken(rawSubfield);
-        const parsedAttr = menuHeadingAttribute(token);
+    let coloridx = -1;
+    for (const subfield of subfields) {
+        const parsedAttr = menuHeadingAttribute(menuHeadingToken(subfield));
         if (parsedAttr != null) {
+            // ATR_NONE is C's `disp_attrib = HL_NONE`, which discards the
+            // attributes named before it instead of adding to them.
             if (parsedAttr === ATR_NONE) {
                 attr = ATR_NONE;
                 clearAttributes = true;
@@ -1198,258 +1256,427 @@ function parseStatusHiliteAction(
             }
             continue;
         }
-        const parsedColor = menuHeadingColor(token, rawSubfield.trim());
-        if (parsedColor == null || (colorSeen && !allowRepeatedColors)) {
-            optionError(lineNumber, `invalid status highlight '${rawAction}'`);
+        const color = match_str2clr(result, subfield);
+        if (color >= CLR_MAX || coloridx !== -1) {
+            configErrorAdd(result, `bad color '${color} ${coloridx}'`);
+            return null;
         }
-        color = parsedColor;
-        colorSeen = true;
+        coloridx = color;
     }
-    return { attr, clearAttributes, color };
+    return {
+        attr,
+        clearAttributes,
+        color: coloridx === -1 ? NO_COLOR : coloridx,
+    };
 }
 
-function statusConditionNames(rawConditions, lineNumber) {
+// C ref: botl.c match_str2conditionbitmask() (3170-3206).  Three passes: an
+// exact fuzzymatch against the conditions[] names, an exact fuzzymatch against
+// the aliases, then a strncmpi() prefix over the aliases, which is why "m"
+// selects major_troubles, minor_troubles and movement together.  Only the
+// first two ignore ' ', '-' and '_', so "major_" is a prefix of major_troubles
+// where "majort" is not.  The empty answer is C's zero mask.
+function match_str2conditionbitmask(str) {
+    if (!str) return [];
+    const token = menuHeadingToken(str);
+    // Both tables are indexed by rc text, so an inherited name would
+    // otherwise answer for a condition C's strcmp() walks never spell.
+    if (Object.hasOwn(STATUS_HILITE_CONDITIONS, token)) {
+        return [STATUS_HILITE_CONDITIONS[token]];
+    }
+    const aliases = Object.keys(STATUS_CONDITION_ALIASES);
+    const exact = aliases.find((name) => menuHeadingToken(name) === token);
+    if (exact) return STATUS_CONDITION_ALIASES[exact];
+    const prefix = str.toLowerCase();
+    return aliases.filter((name) => name.startsWith(prefix))
+        .flatMap((name) => STATUS_CONDITION_ALIASES[name]);
+}
+
+// C ref: botl.c str2conditionbitmask() (3208-3229).  Null is its 0UL: either
+// splitsubfields() refused the split, silently, or a subfield named no
+// condition, which it reports.
+function str2conditionbitmask(result, str) {
+    const subfields = splitsubfields(str, SOURCE_CONDITION_NAMES.length);
+    if (!subfields) return null;
     const selected = new Set();
-    for (const rawCondition of String(rawConditions).split(/[+&]/u)) {
-        const token = menuHeadingToken(rawCondition);
-        if (!token) {
-            optionError(
-                lineNumber,
-                `unknown status condition '${rawCondition}'`,
-            );
-        }
-        // Both tables are indexed by rc text, so an inherited name would
-        // otherwise answer for a condition C's strcmp() walks never spell.
-        const canonical = Object.hasOwn(STATUS_HILITE_CONDITIONS, token)
-            ? STATUS_HILITE_CONDITIONS[token] : undefined;
-        const alias = Object.hasOwn(STATUS_CONDITION_ALIASES, token)
-            ? STATUS_CONDITION_ALIASES[token] : undefined;
-        // botl.c accumulates every alias whose name shares this prefix.  In
-        // particular, "m" selects majortroubles, minortroubles, and movement.
-        const partialAliases = Object.keys(STATUS_CONDITION_ALIASES)
-            .filter((name) => name.startsWith(token));
-        const names = canonical ? [canonical]
-            : alias ?? partialAliases.flatMap(
-                (name) => STATUS_CONDITION_ALIASES[name],
-            );
+    for (const subfield of subfields) {
+        const names = match_str2conditionbitmask(subfield);
         if (!names.length) {
-            optionError(lineNumber, `unknown status condition '${rawCondition}'`);
+            configErrorAdd(result, `Unknown condition '${subfield}'`);
+            return null;
         }
         for (const name of names) selected.add(name);
     }
     return [...selected];
 }
 
-function parseNumericStatusThreshold(rawThreshold) {
-    const match = String(rawThreshold).match(
-        /^([<>]=?|=)?([+-]?\d+)(%)?$/u,
-    );
+// C's hsbuf[] is a fixed 21-entry array of strings that parse_status_hl1()
+// blanks before it fills, so a read past the last group answers the empty
+// string rather than running off the end.
+function statusHiliteField(s, index) {
+    return s[index] ?? '';
+}
+
+// C ref: botl.c parse_condition() (3232-3348).  Its color index is set once,
+// before the loop, so a later group naming no color of its own keeps the
+// previous group's, and it reads the conditions before the action, which is
+// the order the two messages arrive in.  Each accepted group becomes one rule
+// in the port's single status_hilites array, standing for the bits C sets in
+// gc.cond_hilites[].
+function parse_condition(result, s, fieldIndex) {
+    let sidx = fieldIndex + 1;
+    let coloridx = NO_COLOR;
+    let accepted = false; /* C's `result` */
+
+    if (!statusHiliteField(s, sidx)) {
+        configErrorAdd(result, 'Missing condition(s)');
+        return false;
+    }
+    while (statusHiliteField(s, sidx)) {
+        const conditions = str2conditionbitmask(
+            result, statusHiliteField(s, sidx),
+        );
+        if (!conditions) return false;
+
+        /* actions */
+        sidx += 1;
+        const how = statusHiliteField(s, sidx);
+        if (!how) {
+            configErrorAdd(result, 'Missing color+attribute');
+            return false;
+        }
+        let attr = ATR_NONE;
+        let clearAttributes = false;
+        // C has no `sf < 1` guard here, so a split it refuses leaves the color
+        // and the attributes at whatever the group before this one left.
+        for (const subfield of splitsubfields(how) ?? []) {
+            const parsedAttr = menuHeadingAttribute(menuHeadingToken(subfield));
+            if (parsedAttr != null) {
+                if (parsedAttr === ATR_NONE) {
+                    attr = ATR_NONE;
+                    clearAttributes = true;
+                } else {
+                    attr |= parsedAttr;
+                }
+                continue;
+            }
+            const color = match_str2clr(result, subfield);
+            // Unlike parse_status_hl2(), this loop has no "one color only"
+            // rule: the last color named wins.
+            if (color >= CLR_MAX) {
+                configErrorAdd(result, `bad color ${color}`);
+                return false;
+            }
+            coloridx = color;
+        }
+        result.iflags.status_hilites.push({
+            field: 'condition',
+            conditions,
+            style: { attr, clearAttributes, color: coloridx },
+        });
+        accepted = true;
+        sidx += 1;
+    }
+    return accepted;
+}
+
+// C ref: botl.c is_ltgt_percentnumber() (2649-2669), the
+// "[<>]?=?[-+]?[0-9]+%?" predicate, together with the pieces
+// parse_status_hl2() reads back out of the same string afterwards: the
+// comparison prefix, the trailing '%', and the signed digits stripchars()
+// leaves behind.  Null is the predicate's FALSE.
+function is_ltgt_percentnumber(str) {
+    const match = /^([<>]=?|=)?([+-]?\d+)(%)?$/u.exec(str);
     if (!match) return null;
-    const operator = match[1] || '=';
+    const operator = match[1] ?? '';
     return {
-        behavior: match[3] ? 'percentage' : 'absolute',
-        relation: operator,
+        percent: match[3] === '%',
+        lt: operator === '<',
+        le: operator === '<=',
+        grt: operator === '>',
+        gte: operator === '>=',
         value: Number.parseInt(match[2], 10),
     };
 }
 
-function parseStatusHiliteRule(field, threshold, action, lineNumber) {
-    const fieldType = STATUS_HILITE_FIELDS[field];
-    const normalized = String(threshold).trim().toLowerCase();
-    let behavior;
-    let relation = '=';
-    let value = null;
-    let text = '';
-    if (normalized === 'always') {
-        behavior = 'always';
-    } else if (normalized === 'up') {
-        behavior = 'changed';
-        relation = fieldType === 'string' ? '=' : '>';
-    } else if (normalized === 'down') {
-        behavior = 'changed';
-        relation = fieldType === 'string' ? '=' : '<';
-    } else if (normalized === 'changed') {
-        behavior = 'changed';
-    } else if (field === 'hitpoints' && normalized === 'criticalhp') {
-        behavior = 'critical';
-    } else {
-        const numeric = parseNumericStatusThreshold(normalized);
-        if (numeric) {
-            if (fieldType === 'string') {
-                optionError(
-                    lineNumber,
-                    `status field '${field}' does not accept numeric thresholds`,
-                );
-            }
-            ({ behavior, relation, value } = numeric);
-            if (behavior === 'percentage') {
-                if (!STATUS_PERCENT_FIELDS.has(field)) {
-                    optionError(
-                        lineNumber,
-                        `status field '${field}' does not accept percentages`,
-                    );
-                }
-                if (value < 0 || value > 100
-                    || (relation === '<' && value === 0)
-                    || (relation === '>' && value === 100)) {
-                    optionError(
-                        lineNumber,
-                        `status percentage '${threshold}' is out of range`,
-                    );
-                }
-            } else {
-                const lower = field === 'armor-class' ? -128
-                    : relation === '>' ? -1 : relation === '<' ? 1 : 0;
-                if (value < lower
-                    || (fieldType === 'int' && value > 32767)) {
-                    optionError(
-                        lineNumber,
-                        `status threshold '${threshold}' is out of range`,
-                    );
-                }
-            }
-        } else if (Object.hasOwn(STATUS_TEXT_THRESHOLDS, field)) {
-            // The inner index is rc text too, so it needs the same guard the
-            // outer one already has.
-            const thresholds = STATUS_TEXT_THRESHOLDS[field];
-            const thresholdToken = menuHeadingToken(normalized);
-            const canonical = Object.hasOwn(thresholds, thresholdToken)
-                ? thresholds[thresholdToken] : undefined;
-            if (!canonical) {
-                optionError(
-                    lineNumber,
-                    `unknown status threshold '${threshold}'`,
-                );
-            }
-            behavior = 'text';
-            text = canonical;
-        } else if (fieldType === 'string') {
-            behavior = 'text';
-            text = normalized;
-        } else {
-            optionError(
-                lineNumber,
-                `unknown status behavior '${threshold}'`,
-            );
-        }
-    }
-    return {
-        field,
-        behavior,
-        relation,
-        value,
-        text,
-        style: parseStatusHiliteAction(action, lineNumber),
-    };
+// C ref: botl.c has_ltgt_percentnumber() (2671-2683), which only chooses
+// between two messages.
+function has_ltgt_percentnumber(str) {
+    return [...str].every((character) => '<>=-+0123456789%'.includes(character));
 }
 
-function parseStatusHiliteComponents(components, lineNumber) {
-    const field = statusHiliteFieldName(components[0]);
+// C ref: botl.c parse_status_hl2() (2811-3106).  `s` is parse_status_hl1()'s
+// split of one statement into a field name followed by threshold and action
+// pairs.  Every group it accepts is installed before the next one is read, so
+// C's closing `return (successes > 0)` is observable: a statement that fails
+// on its third group keeps the two groups before it.
+function parse_status_hl2(result, s) {
+    let sidx = 0;
+    const field = statusHiliteFieldName(statusHiliteField(s, sidx));
+
+    if (field === 'characteristics') {
+        // C rewrites s[0] in place and re-enters once per characteristic, so
+        // every threshold in the statement is parsed six times.
+        for (const target of STATUS_CHARACTERISTIC_FIELDS) {
+            s[sidx] = target;
+            if (!parse_status_hl2(result, s)) return false;
+        }
+        return true;
+    }
     if (!field) {
-        optionError(
-            lineNumber,
-            `unknown status field '${components[0]}'`,
+        configErrorAdd(
+            result, `Unknown status field '${statusHiliteField(s, sidx)}'`,
         );
+        return false;
     }
-    if (components.length < 2) {
-        optionError(lineNumber, 'incomplete status highlight rule');
-    }
-    const fields = field === 'characteristics'
-        ? STATUS_CHARACTERISTIC_FIELDS : [field];
-    const rules = [];
-    if (field === 'condition') {
-        if (components.length < 3 || components.length % 2 === 0) {
-            optionError(lineNumber, 'incomplete condition highlight rule');
-        }
-        let inheritedColor = NO_COLOR;
-        for (let index = 1; index < components.length; index += 2) {
-            const style = parseStatusHiliteAction(
-                components[index + 1],
-                lineNumber,
-                { allowRepeatedColors: true, inheritedColor },
-            );
-            inheritedColor = style.color;
-            rules.push({
-                field: 'condition',
-                conditions: statusConditionNames(
-                    components[index], lineNumber,
-                ),
-                style,
-            });
-        }
-        return rules;
-    }
-    if (components.length === 2) {
-        for (const target of fields) {
-            rules.push(parseStatusHiliteRule(
-                target, 'always', components[1], lineNumber,
-            ));
-        }
-        return rules;
-    }
-    if (components.length % 2 === 0) {
-        optionError(lineNumber, 'incomplete status highlight rule');
-    }
-    for (let index = 1; index < components.length; index += 2) {
-        for (const target of fields) {
-            rules.push(parseStatusHiliteRule(
-                target,
-                components[index],
-                components[index + 1],
-                lineNumber,
-            ));
-        }
-    }
-    return rules;
-}
+    if (field === 'condition') return parse_condition(result, s, sidx);
 
-function parseStatusHiliteRules(value, lineNumber) {
-    const rules = [];
-    let components = [''];
-    let componentIndex = 0;
-    const flush = () => {
-        if (components.some(Boolean)) {
-            rules.push(...parseStatusHiliteComponents(
-                components.map((part) => part.trim()), lineNumber,
-            ));
-        }
-        components = [''];
-        componentIndex = 0;
-    };
-    for (const character of String(value).toLowerCase()) {
-        if (character === '/') {
-            componentIndex++;
-            components[componentIndex] = '';
-        } else if (character === ' ') {
-            if (componentIndex === 1
-                && menuHeadingToken(components[0]) === 'title') {
-                components[componentIndex] += character;
-            } else if (componentIndex > 0) {
-                flush();
+    const fieldType = STATUS_HILITE_FIELDS[field];
+    // C ref: is_fld_arrayvalues() over enc_stat[] for BL_CAP and hutxt[] for
+    // BL_HUNGER, both compared with strcmpi() rather than fuzzymatch().  Its
+    // third caller, aligntxt[] for BL_ALIGN, needs no table: alignment is a
+    // string field, so the same spellings reach the ANY_STR arm below and
+    // store the same text.
+    const textThresholds = Object.hasOwn(STATUS_TEXT_THRESHOLDS, field)
+        ? STATUS_TEXT_THRESHOLDS[field] : null;
+    let successes = 0;
+
+    sidx += 1;
+    while (statusHiliteField(s, sidx)) {
+        const threshold = statusHiliteField(s, sidx);
+        const numericThreshold = is_ltgt_percentnumber(threshold);
+        let text = '';
+        let percent = false;
+        let numeric = false;
+        let always = false;
+        let changed = false;
+        let up = false;
+        let down = false;
+        let criticalhp = false;
+        let lt = false;
+        let le = false;
+        let grt = false;
+        let gte = false;
+        let txtval = false;
+        let value = null;
+
+        if (!statusHiliteField(s, sidx + 1) || threshold === 'always') {
+            /* "field/always/color" OR "field/color" */
+            always = true;
+            // The short spelling steps back so that the action is read out of
+            // this same slot, which is why an even number of groups ends as an
+            // "always" rule rather than as an error.
+            if (!statusHiliteField(s, sidx + 1)) sidx -= 1;
+        } else if (threshold === 'up' || threshold === 'down') {
+            // "LT/GT for the string fields is pointless; treat 'up' or 'down'
+            // for string fields as 'changed' rather than rejecting them".
+            if (fieldType !== 'string') {
+                if (threshold === 'down') down = true;
+                else up = true;
             }
+            changed = true;
+        } else if (textThresholds && Object.hasOwn(textThresholds, threshold)) {
+            text = textThresholds[threshold];
+            txtval = true;
+        } else if (threshold === 'changed') {
+            changed = true;
+        } else if (field === 'hitpoints' && threshold === 'criticalhp') {
+            criticalhp = true;
+        } else if (numericThreshold) {
+            ({ percent, lt, le, grt, gte, value } = numericThreshold);
+            numeric = true;
+            // C's dt: a percentage is compared as an int whatever type the
+            // field itself has, which is how a percentage on a string field
+            // reaches this range check before the one below refuses it.
+            const dt = percent ? 'int' : fieldType;
+            const op = grt ? '>' : gte ? '>=' : lt ? '<' : le ? '<=' : '=';
+            if (dt === 'int'
+                // "AC is the only field where negative values make sense but
+                // accept >-1 for other fields; reject <0 for non-AC"
+                && (value < (field === 'armor-class' ? -128
+                    : grt ? -1 : lt ? 1 : 0)
+                    || value > (percent ? (lt ? 101 : 100) : LARGEST_INT))) {
+                configErrorAdd(
+                    result,
+                    `hilite_status threshold '${op}${value}`
+                    + `${percent ? '%' : ''}' is out of range`,
+                );
+                return false;
+            }
+            if (dt === 'long' && value < (grt ? -1 : lt ? 1 : 0)) {
+                configErrorAdd(
+                    result,
+                    `hilite_status threshold '${op}${value}' is out of range`,
+                );
+                return false;
+            }
+        } else if (fieldType === 'string') {
+            text = threshold;
+            txtval = true;
         } else {
-            components[componentIndex] += character;
+            configErrorAdd(result, has_ltgt_percentnumber(threshold)
+                ? `Wrong format '${threshold}', expected a threshold number`
+                    + ' or percent'
+                : `Unknown behavior '${threshold}'`);
+            return false;
         }
+
+        // C ref: botl.c:2966-2978, hilite.rel.  The status renderer reads it
+        // only for the two numeric behaviors, so this keeps the numeric
+        // relation and spells C's LT_VALUE for 'always' and 'criticalhp' and
+        // its TXT_VALUE for a text match as the '=' the rest carry.
+        const relation = (grt || up) ? '>' : (lt || down) ? '<'
+            : gte ? '>=' : le ? '<=' : '=';
+
+        if (fieldType === 'string' && (percent || numeric)) {
+            configErrorAdd(
+                result,
+                `Field '${statusHiliteFieldCName(field)}' does not support`
+                + ' numeric values',
+            );
+            return false;
+        }
+        if (percent) {
+            // initblstats[fld].idxmax is set only by INIT_BLSTATP, the four
+            // rows that name a maximum to take the percentage of.
+            if (!STATUS_PERCENT_FIELDS.has(field)) {
+                configErrorAdd(
+                    result,
+                    `Cannot use percent with '${statusHiliteFieldCName(field)}'`,
+                );
+                return false;
+            }
+            // C ref: botl.c:2996-3006.  Two of its six tests compare
+            // hilite.value.a_int against a relationship constant where
+            // hilite.rel was meant, so -1 and 101 are refused whatever the
+            // relationship is; the bounds above keep every other combination
+            // out before this runs.
+            if (value <= -1
+                || (value === 0 && relation === '<')
+                || (value === 100 && relation === '>')
+                || value >= 101) {
+                configErrorAdd(
+                    result,
+                    'hilite_status: invalid percentage value'
+                    + ` '${relation}${value}%'`,
+                );
+                return false;
+            }
+        }
+
+        /* actions */
+        sidx += 1;
+        // C ref: botl.c:3013-3016.  Its `if (!how)` tests an array element
+        // that is never null, so the `successes` arm below it is unreachable.
+        const style = parseStatusHiliteAction(
+            result, statusHiliteField(s, sidx),
+        );
+        if (!style) return false;
+
+        // C ref: botl.c:3068-3089, hilite.behavior.  Its closing BL_TH_NONE is
+        // unreachable, because every arm of the threshold chain above sets one
+        // of the flags this reads.
+        const behavior = always ? 'always'
+            : percent ? 'percentage'
+                : changed ? 'changed'
+                    : numeric ? 'absolute'
+                        : txtval ? 'text'
+                            : criticalhp ? 'critical' : 'none';
+
+        result.iflags.status_hilites.push({
+            field,
+            behavior,
+            relation,
+            value,
+            // C copies txt into hilite.textmatch for BL_TH_TEXTMATCH only and
+            // then trimspaces() it; the blanks can only come from a title.
+            text: behavior === 'text' ? trimspaces(text) : '',
+            style,
+        });
+        successes += 1;
+        sidx += 1;
     }
-    flush();
-    if (!rules.length) {
-        optionError(lineNumber, 'hilite_status requires a value');
-    }
-    return rules;
+
+    return successes > 0;
 }
 
-function setStatusHiliteOption(result, value, negated, lineNumber) {
-    if (negated && value != null) {
-        result.iflags.status_hilites.length = 0;
+// C ref: botl.c parse_status_hl1() (2591-2647).  It cuts one hilite_status
+// value into space-separated statements and each statement into '/'-separated
+// groups, handing every statement to parse_status_hl2().  The first statement
+// that fails abandons the rest of the value, and the default highlight
+// duration is stored only when none failed.
+function parse_status_hl1(result, op) {
+    const hsbuf = new Array(MAX_THRESH).fill('');
+    let badopt = false;
+    let fldnum = 0;
+    let ccount = 0;
+    let index = 0;
+
+    while (index < op.length && fldnum < MAX_THRESH && ccount < QBUFSZ - 2) {
+        const c = lowc(op[index]);
+        if (c === ' ') {
+            if (fldnum >= 1) {
+                if (fldnum === 1 && hsbuf[0] === 'title') {
+                    /* spaces are allowed in title */
+                    hsbuf[fldnum] += c;
+                    ccount += 1;
+                    index += 1;
+                    continue;
+                }
+                if (!parse_status_hl2(result, hsbuf)) {
+                    badopt = true;
+                    break;
+                }
+            }
+            hsbuf.fill('');
+            fldnum = 0;
+            ccount = 0;
+        } else if (c === '/') {
+            fldnum += 1;
+            ccount = 0;
+        } else {
+            hsbuf[fldnum] += c;
+            ccount += 1;
+        }
+        index += 1;
+    }
+    // fldnum counts the '/' separators seen, so a value carrying none is
+    // accepted without parse_status_hl2() ever running.
+    if (fldnum >= 1 && !badopt && !parse_status_hl2(result, hsbuf)) {
+        badopt = true;
+    }
+    if (badopt) return false;
+    /* make sure highlighting is On; use short duration for temp highlights */
+    if (!result.iflags.hilite_delta) result.iflags.hilite_delta = 3;
+    return true;
+}
+
+// C ref: botl.c clear_status_hilites() (3349-3366).  It empties each field's
+// threshold list and nothing else, so gc.cond_hilites[] survives; the
+// condition rules this port keeps in the same array have to survive with it.
+function clear_status_hilites(result) {
+    result.iflags.status_hilites = result.iflags.status_hilites.filter(
+        (rule) => rule.field === 'condition',
+    );
+}
+
+// C ref: options.c optfn_hilite_status() (1851-1893), the do_set arm.  Its
+// value comes from string_for_opt(opts, TRUE), so a statement with no ':' and
+// one with nothing after it both arrive as C's empty_optstr; parseoptions()
+// has already stripped the blanks around the element.
+function setStatusHiliteOption(result, value, negated) {
+    const op = value == null || value === '' ? null : value;
+    if (op !== null && negated) {
+        clear_status_hilites(result);
         return;
     }
-    if (value == null || !String(value).trim()) {
-        optionError(lineNumber, 'hilite_status requires a value');
+    if (op === null) {
+        configErrorAdd(result, 'Value is mandatory for hilite_status');
+        return;
     }
-    result.iflags.status_hilites.push(
-        ...parseStatusHiliteRules(value, lineNumber),
-    );
-    if (!result.iflags.hilite_delta) result.iflags.hilite_delta = 3;
+    // parse_status_hl1()'s FALSE is optn_err, which parseoptions() answers by
+    // returning without a message of its own.
+    parse_status_hl1(result, op);
 }
 
 function setStatusHiliteDuration(result, value, negated) {
@@ -2426,7 +2653,7 @@ function applyOption(result, optionState, element, lineNumber) {
     } else if (name === 'petattr') {
         setPetAttribute(result, value, lineNumber);
     } else if (name === 'hilite_status') {
-        setStatusHiliteOption(result, value, negated, lineNumber);
+        setStatusHiliteOption(result, value, negated);
     } else if (name === 'statushilites') {
         setStatusHiliteDuration(result, value, negated);
     } else if (name.startsWith('cond_')) {

@@ -42,6 +42,7 @@ import {
     CLR_BRIGHT_BLUE,
     CLR_BRIGHT_GREEN,
     CLR_BRIGHT_MAGENTA,
+    CLR_BLUE,
     CLR_ORANGE,
     CLR_RED,
     NO_COLOR,
@@ -1593,26 +1594,44 @@ test('status highlighting uses source field and condition vocabularies', () => {
         ['hallucinat', 'ice', 'lava'],
     );
 
-    for (const invalid of [
-        'hitpoints-max/<50%/red',
-        'dexterity/weak/red',
-        'hitpoints/<0%/red',
-        'hitpoints/>100%/red',
-        'condition/hallucinat/red',
+    // Each row was read off the patched C program's raw-print screen for the
+    // same statement, recorded at seed 3310277 and 19960229180000.  None of
+    // them stops the read: the rule list stays empty and the game plays on.
+    for (const [invalid, reported] of [
+        // hitpoints-max is an INIT_BLSTAT() row, so its idxmax is -1 and no
+        // maximum exists to take a percentage of.
+        ['hitpoints-max/<50%/red',
+            "Cannot use percent with 'hitpoints-max'."],
+        // "weak" is a hunger level, and only BL_HUNGER consults hutxt[].
+        ['dexterity/weak/red', "Unknown behavior 'weak'."],
+        // botl.c:2951 rejects a '<' percentage below 1 before the percentage
+        // check at 2996 can see it, so the two bounds report differently.
+        ['hitpoints/<0%/red',
+            "hilite_status threshold '<0%' is out of range."],
+        ['hitpoints/>100%/red',
+            "hilite_status: invalid percentage value '>100%'."],
+        // conditions[] spells this one "Hallu"; "hallucinat" is condtests[].
+        ['condition/hallucinat/red', "Unknown condition 'hallucinat'."],
         // botl.c walks its condition and threshold tables with strcmp(), so a
         // name Object.prototype carries is as unknown as any other.  Only an
         // all-lowercase one can arrive: match_str2clr()'s normalization, which
         // this port spells menuHeadingToken(), folds case and drops '_', so
         // "toString" becomes "tostring" and "__proto__" becomes "proto".
-        'condition/constructor/red',
-        'hunger/constructor/red',
-        'carrying-capacity/constructor/red',
+        ['condition/constructor/red', "Unknown condition 'constructor'."],
+        ['hunger/constructor/red', "Unknown behavior 'constructor'."],
+        ['carrying-capacity/constructor/red',
+            "Unknown behavior 'constructor'."],
     ]) {
-        assert.throws(
-            () => parseNethackrc(`OPTIONS=hilite_status:${invalid}`),
-            /status|condition/u,
-            invalid,
-        );
+        const statement = `OPTIONS=hilite_status:${invalid}`;
+        const rejected = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(rejected.configErrorFrame.output, [
+            `\n${statement}`,
+            ` * Line 1: ${reported}`,
+        ], invalid);
+        assert.deepEqual(rejected.iflags.status_hilites, [], invalid);
+        // parse_status_hl1() stores the default duration only on a clean
+        // parse, so a refused statement leaves highlighting off.
+        assert.equal(rejected.iflags.hilite_delta, 0, invalid);
     }
 });
 
@@ -1625,15 +1644,401 @@ test('status condition alias prefixes union every source match', () => {
         'blind', 'conf', 'deaf', 'hallucinat', 'paralyzed', 'submerged',
         'stun', 'levitate', 'fly', 'ride',
     ]);
-    for (const conditions of ['', '&']) {
-        assert.throws(
-            () => parseNethackrc(
-                `OPTIONS=hilite_status:condition/${conditions}/red`,
+    // A prefix that stops short of the '-' still selects one field, which is
+    // what makes the two rejections in the message test a prefix rule rather
+    // than a ban on partial names.
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=hilite_status:carrying/always/red\n')
+            .iflags.status_hilites.map(({ field }) => field),
+        ['carrying-capacity'],
+    );
+
+    // The prefix pass uses strncmpi(), which keeps the '_' the two exact
+    // passes drop, so the alias id has to be matched as C spells it.
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=hilite_status:condition/major_/red')
+            .iflags.status_hilites[0].conditions,
+        ['foodpois', 'grab', 'lava', 'slime', 'stone', 'strngl', 'termill'],
+    );
+    for (const [conditions, reported] of [
+        // An empty first group is the one parse_condition() names itself,
+        // before str2conditionbitmask() ever runs.
+        ['', 'Missing condition(s).'],
+        // splitsubfields() turns a lone separator into one empty subfield,
+        // which match_str2conditionbitmask() answers with the zero mask.
+        ['&', "Unknown condition ''."],
+        ['majort', "Unknown condition 'majort'."],
+        ['m-a', "Unknown condition 'm-a'."],
+    ]) {
+        const statement = `OPTIONS=hilite_status:condition/${conditions}/red`;
+        const rejected = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(rejected.configErrorFrame.output, [
+            `\n${statement}`,
+            ` * Line 1: ${reported}`,
+        ], JSON.stringify(conditions));
+        assert.deepEqual(rejected.iflags.status_hilites, [],
+            JSON.stringify(conditions));
+        assert.equal(rejected.iflags.hilite_delta, 0,
+            JSON.stringify(conditions));
+    }
+});
+
+// C refs: options.c optfn_hilite_status(); botl.c parse_status_hl2() and
+// parse_condition(); coloratt.c match_str2clr().  Every expected string was
+// read off the patched C program's raw-print screen for the same statement,
+// recorded at seed 3310277 and 19960229180000.
+test('every malformed status highlight reports its C message', () => {
+    for (const [value, reported] of [
+        // match_str2clr() is called with suppress_msg FALSE, so an unknown
+        // color reports before CLR_MAX comes back for the caller to reject.
+        ['hitpoints/<50%/mauve',
+            ["Unknown color 'mauve'.", "bad color '16 -1'."]],
+        // An empty subfield reaches match_str2clr() as the empty string.
+        ['hitpoints/always/&red',
+            ["Unknown color ''.", "bad color '16 -1'."]],
+        // The second '&' splits an empty subfield out between two colors, so
+        // the second number in the message is the red already accepted.
+        ['hitpoints/always/red&&blue',
+            ["Unknown color ''.", "bad color '16 1'."]],
+        // Two colors in one action: match_str2clr() answers blue, and the
+        // "one color only" test refuses it against the red already there.
+        ['hitpoints/always/red&blue', ["bad color '4 1'."]],
+        // A trailing '/' leaves the action empty, so parse_status_hl2() takes
+        // the group for "field/color" and reads the threshold as the color.
+        ['hitpoints/<10%/', ["Unknown color '<10%'.", "bad color '16 -1'."]],
+        ['bogusfield/always/red', ["Unknown status field 'bogusfield'."]],
+        // fldname_to_bl_indx()'s prefix pass is strncmpi(), so the hyphen in
+        // "carrying-capacity" and "hitpoints-max" has to be spelled.
+        ['carryingc/always/red', ["Unknown status field 'carryingc'."]],
+        ['hitpointsm/always/red', ["Unknown status field 'hitpointsm'."]],
+        // alignment is ANY_STR, so a number is refused after the range check.
+        ['alignment/50/red',
+            ["Field 'alignment' does not support numeric values."]],
+        // initblstats[] spells this field "HD", and the message quotes it.
+        ['hd/<50%/red', ["Cannot use percent with 'HD'."]],
+        // LARGEST_INT is 32767, and the message prints the parsed value with
+        // the relationship it was given rather than the text as typed.
+        ['hitpoints/40000/red',
+            ["hilite_status threshold '=40000' is out of range."]],
+        // experience is ANY_LONG, which has a lower bound and no upper one.
+        ['experience/-1/red',
+            ["hilite_status threshold '=-1' is out of range."]],
+        // Percentages: 101 and -1 are refused for every relationship, 100
+        // only for '>', because two of the six C tests read hilite.value
+        // where hilite.rel was meant.
+        ['hitpoints/<101%/red',
+            ["hilite_status: invalid percentage value '<101%'."]],
+        ['hitpoints/>-1%/blue',
+            ["hilite_status: invalid percentage value '>-1%'."]],
+        // has_ltgt_percentnumber() picks between the two closing messages.
+        ['hitpoints/<>=/red',
+            ["Wrong format '<>=', expected a threshold number or percent."]],
+        ['hitpoints/red/blue', ["Unknown behavior 'red'."]],
+        // is_fld_arrayvalues() compares with strcmpi(), not fuzzymatch(), so
+        // the hyphen enc_stat[] does not carry makes this unknown.
+        ['carrying-capacity/over-taxed/red',
+            ["Unknown behavior 'over-taxed'."]],
+        // parse_condition() reads the conditions before the action, so the
+        // unknown one reports and the missing action never does.
+        ['condition/blind+bogus/red', ["Unknown condition 'bogus'."]],
+        ['condition/blind', ['Missing color+attribute.']],
+    ]) {
+        const statement = `OPTIONS=hilite_status:${value}`;
+        const rejected = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(rejected.configErrorFrame.output, [
+            `\n${statement}`,
+            ...reported.map((line) => ` * Line 1: ${line}`),
+        ], value);
+        assert.deepEqual(rejected.iflags.status_hilites, [], value);
+        assert.equal(rejected.iflags.hilite_delta, 0, value);
+    }
+
+    // string_for_opt(opts, TRUE) answers empty_optstr for both spellings with
+    // no value, and the negated one never reaches clear_status_hilites().
+    for (const statement of ['OPTIONS=hilite_status:', 'OPTIONS=!hilite_status',
+        // parseoptions() strips the blanks around an element first, so a
+        // value of nothing but spaces arrives as no value at all.
+        'OPTIONS=hilite_status:   ']) {
+        const rejected = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(rejected.configErrorFrame.output, [
+            `\n${statement.replace(/\s+$/u, '')}`,
+            ' * Line 1: Value is mandatory for hilite_status.',
+        ], statement);
+    }
+});
+
+// C ref: botl.c parse_status_hl1()'s badopt break and parse_status_hl2()'s
+// closing `return (successes > 0)`.  Rules are installed as they parse, so a
+// statement that fails partway keeps what it already accepted, and the value's
+// remaining space-separated statements are abandoned.
+test('a failed status highlight keeps the rules it already accepted', () => {
+    // CLR_RED is 1: the group that parsed is the one still in the list.
+    const partial = parseNethackrc(
+        'OPTIONS=hilite_status:hitpoints/always/red/<5%/mauve\n',
+    );
+    assert.deepEqual(partial.configErrorFrame.output, [
+        '\nOPTIONS=hilite_status:hitpoints/always/red/<5%/mauve',
+        " * Line 1: Unknown color 'mauve'.",
+        " * Line 1: bad color '16 -1'.",
+    ]);
+    assert.deepEqual(
+        partial.iflags.status_hilites.map(
+            ({ field, behavior, style }) => [field, behavior, style.color],
+        ),
+        [['hitpoints', 'always', CLR_RED]],
+    );
+    // The default duration is skipped, so the surviving rule stays dormant
+    // until something else turns highlighting on.
+    assert.equal(partial.iflags.hilite_delta, 0);
+    const revived = parseNethackrc(
+        'OPTIONS=hilite_status:hitpoints/always/red/<5%/mauve\n'
+        + 'OPTIONS=statushilites:3\n',
+    );
+    assert.equal(revived.iflags.hilite_delta, 3);
+    assert.equal(revived.iflags.status_hilites.length, 1);
+
+    // The first failing statement abandons the rest of the value.  Three
+    // statements are needed to see the break that does it: with only two, the
+    // trailing `fldnum >= 1 && !badopt` call already blocks the second one.
+    const value = 'hitpoints/always/mauve bogusfield/always/red'
+        + ' time/always/blue';
+    const cut = parseNethackrc(`OPTIONS=hilite_status:${value}\n`);
+    assert.deepEqual(cut.configErrorFrame.output, [
+        `\nOPTIONS=hilite_status:${value}`,
+        " * Line 1: Unknown color 'mauve'.",
+        " * Line 1: bad color '16 -1'.",
+    ]);
+    assert.deepEqual(cut.iflags.status_hilites, []);
+
+    // With the failure in the second statement instead, the first one's rule
+    // survives and only its own message is reported.
+    const kept = parseNethackrc(
+        'OPTIONS=hilite_status:hitpoints/always/red bogusfield/always/blue\n',
+    );
+    assert.deepEqual(kept.configErrorFrame.output, [
+        '\nOPTIONS=hilite_status:hitpoints/always/red bogusfield/always/blue',
+        " * Line 1: Unknown status field 'bogusfield'.",
+    ]);
+    assert.equal(kept.iflags.status_hilites.length, 1);
+    assert.equal(kept.iflags.hilite_delta, 0);
+});
+
+// C ref: botl.c parse_status_hl1() and the head of parse_status_hl2()'s group
+// loop.  Four shapes that look malformed are accepted, and one that looks
+// well formed is refused without a message.
+test('status highlight shapes C accepts report nothing', () => {
+    // fldnum counts '/' separators, so a value carrying none never reaches
+    // parse_status_hl2() and is accepted with no rule to show for it.
+    const noSlash = parseNethackrc('OPTIONS=hilite_status:hitpoints\n');
+    assert.deepEqual(noSlash.configErrorFrame.output, []);
+    assert.deepEqual(noSlash.iflags.status_hilites, []);
+    assert.equal(noSlash.iflags.hilite_delta, 3);
+
+    // The group loop stops at the first empty component, so an empty
+    // threshold leaves successes at zero: a silent FALSE, and no duration.
+    const emptyGroup = parseNethackrc(
+        'OPTIONS=hilite_status:hitpoints//red\n',
+    );
+    assert.deepEqual(emptyGroup.configErrorFrame.output, []);
+    assert.deepEqual(emptyGroup.iflags.status_hilites, []);
+    assert.equal(emptyGroup.iflags.hilite_delta, 0);
+
+    // splitsubfields() splits in place, so the text after the last separator
+    // is the tail only when there is one; a trailing '&' contributes nothing.
+    const trailingAmpersand = parseNethackrc(
+        'OPTIONS=hilite_status:hitpoints/always/red&\n',
+    );
+    assert.deepEqual(trailingAmpersand.configErrorFrame.output, []);
+    assert.equal(trailingAmpersand.iflags.status_hilites.length, 1);
+
+    // An even number of components is not an error: the last one has no
+    // partner, so the group loop steps back and reads it as "field/color".
+    // CLR_BLUE is 4, and the later always rule is the one get_hilite() keeps.
+    const evenComponents = parseNethackrc(
+        'OPTIONS=hilite_status:hitpoints/always/red/blue\n',
+    );
+    assert.deepEqual(evenComponents.configErrorFrame.output, []);
+    assert.deepEqual(
+        evenComponents.iflags.status_hilites.map(
+            ({ behavior, style }) => [behavior, style.color],
+        ),
+        [['always', CLR_RED], ['always', CLR_BLUE]],
+    );
+
+    // Only field 1 of a title rule keeps its blanks, and the comparisons
+    // against "always", "up" and the rest are made before trimspaces() runs,
+    // so " always" is a text match rather than a persistent rule.
+    const spacedTitle = parseNethackrc(
+        'OPTIONS=hilite_status:title/ always/red\n',
+    );
+    assert.deepEqual(spacedTitle.configErrorFrame.output, []);
+    assert.deepEqual(
+        spacedTitle.iflags.status_hilites.map(
+            ({ behavior, text }) => [behavior, text],
+        ),
+        [['text', 'always']],
+    );
+});
+
+// C refs: botl.c parse_status_hl2():2966-2978 for hilite.rel and :3068-3089
+// for hilite.behavior.  The first four rows were confirmed against the patched
+// C program, which colors HP for '>=5' and '<=20', Pw for '=2' and AC for '>5'
+// on a Valkyrie whose status line reads HP:16(16) Pw:2(2) AC:6.
+test('status highlight thresholds keep their source relationship', () => {
+    for (const [value, expected] of [
+        ['hitpoints/>=5/red', ['absolute', '>=', 5, '']],
+        ['hitpoints/<=20/red', ['absolute', '<=', 20, '']],
+        ['power/=2/red', ['absolute', '=', 2, '']],
+        ['armor-class/>5/red', ['absolute', '>', 5, '']],
+        ['hitpoints/<50%/red', ['percentage', '<', 50, '']],
+        // The behaviors that carry no threshold value keep C's numeric
+        // relationship of record, EQ_VALUE, spelled '=' here.
+        ['hitpoints/always/red', ['always', '=', null, '']],
+        ['hitpoints/changed/red', ['changed', '=', null, '']],
+        ['hitpoints/criticalhp/red', ['critical', '=', null, '']],
+        // 'up' and 'down' are GT_VALUE and LT_VALUE on a numeric field.
+        ['experience-level/up/red', ['changed', '>', null, '']],
+        ['experience-level/down/red', ['changed', '<', null, '']],
+        // On a string field both are treated as 'changed' instead, which
+        // leaves the relationship at EQ_VALUE.
+        ['alignment/up/red', ['changed', '=', null, '']],
+        ['carrying-capacity/overtaxed/red', ['text', '=', null, 'overtaxed']],
+        ['title/stripling/red', ['text', '=', null, 'stripling']],
+    ]) {
+        const parsed = parseNethackrc(`OPTIONS=hilite_status:${value}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], value);
+        assert.deepEqual(
+            parsed.iflags.status_hilites.map(
+                (rule) => [rule.behavior, rule.relation, rule.value, rule.text],
             ),
-            /unknown status condition/u,
-            JSON.stringify(conditions),
+            [expected],
+            value,
         );
     }
+
+    // The long fields share the lower bound but have no upper one: C compares
+    // a_long with 0 for '=', so zero is in range where -1 is not.
+    const zero = parseNethackrc('OPTIONS=hilite_status:experience/0/red\n');
+    assert.deepEqual(zero.configErrorFrame.output, []);
+    assert.equal(zero.iflags.status_hilites[0].value, 0);
+});
+
+// C ref: botl.c parse_status_hl2()'s BL_CHARACTERISTICS arm, which rewrites the
+// field name and re-enters once per characteristic, and stops at the first
+// re-entry that fails.
+test('a characteristics rule expands to six and stops at the first failure',
+    () => {
+        const expanded = parseNethackrc(
+            'OPTIONS=hilite_status:characteristics/always/red\n',
+        );
+        assert.deepEqual(expanded.configErrorFrame.output, []);
+        assert.deepEqual(
+            expanded.iflags.status_hilites.map(({ field }) => field),
+            ['strength', 'dexterity', 'constitution',
+                'intelligence', 'wisdom', 'charisma'],
+        );
+        assert.equal(expanded.iflags.hilite_delta, 3);
+
+        // Strength fails, so the other five are never attempted and the pair
+        // of colour messages is reported once rather than six times.
+        const stopped = parseNethackrc(
+            'OPTIONS=hilite_status:characteristics/always/mauve\n',
+        );
+        assert.deepEqual(stopped.configErrorFrame.output, [
+            '\nOPTIONS=hilite_status:characteristics/always/mauve',
+            " * Line 1: Unknown color 'mauve'.",
+            " * Line 1: bad color '16 -1'.",
+        ]);
+        assert.deepEqual(stopped.iflags.status_hilites, []);
+        assert.equal(stopped.iflags.hilite_delta, 0);
+    });
+
+// C ref: botl.c splitsubfields(), whose MAX_SUBFIELDS is 16 and which answers
+// -1 once fifteen separators have been consumed.  parse_status_hl2() drops the
+// group without a message, so the fifteen-separator action is refused in
+// silence where the fourteen-separator one is accepted.
+test('a status highlight action takes fourteen separators, not fifteen', () => {
+    const action = (separators) => [
+        ...Array.from({ length: separators }, () => 'bold'), 'red',
+    ].join('&');
+
+    const accepted = parseNethackrc(
+        `OPTIONS=hilite_status:hitpoints/always/${action(14)}\n`,
+    );
+    assert.deepEqual(accepted.configErrorFrame.output, []);
+    assert.deepEqual(
+        accepted.iflags.status_hilites.map(({ style }) => style),
+        [{ attr: ATR_BOLD, clearAttributes: false, color: CLR_RED }],
+    );
+    assert.equal(accepted.iflags.hilite_delta, 3);
+
+    const refused = parseNethackrc(
+        `OPTIONS=hilite_status:hitpoints/always/${action(15)}\n`,
+    );
+    assert.deepEqual(refused.configErrorFrame.output, []);
+    assert.deepEqual(refused.iflags.status_hilites, []);
+    assert.equal(refused.iflags.hilite_delta, 0);
+});
+
+// C ref: botl.c parse_condition()'s action loop, which differs from
+// parse_status_hl2()'s in three ways: it reports "bad color %d" without the
+// quotes and without the second index, it accepts a second color rather than
+// refusing it, and ATR_NONE clears the attribute bits for this group's
+// conditions instead of setting one.
+test('a condition rule reads its colors and attributes its own way', () => {
+    const rejected = parseNethackrc(
+        'OPTIONS=hilite_status:condition/blind/mauve\n',
+    );
+    assert.deepEqual(rejected.configErrorFrame.output, [
+        '\nOPTIONS=hilite_status:condition/blind/mauve',
+        " * Line 1: Unknown color 'mauve'.",
+        ' * Line 1: bad color 16.',
+    ]);
+    assert.deepEqual(rejected.iflags.status_hilites, []);
+    assert.equal(rejected.iflags.hilite_delta, 0);
+
+    const cleared = parseNethackrc(
+        'OPTIONS=hilite_status:condition/blind/bold&none&underline\n',
+    );
+    assert.deepEqual(cleared.configErrorFrame.output, []);
+    assert.deepEqual(cleared.iflags.status_hilites, [{
+        field: 'condition',
+        conditions: ['blind'],
+        style: {
+            attr: ATR_UNDERLINE,
+            clearAttributes: true,
+            color: NO_COLOR,
+        },
+    }]);
+
+    // Two colors in one action: the last one wins, and the group that names
+    // none of its own inherits it.
+    const inherited = parseNethackrc(
+        'OPTIONS=hilite_status:condition/blind/red&blue/deaf/bold\n',
+    );
+    assert.deepEqual(inherited.configErrorFrame.output, []);
+    assert.deepEqual(
+        inherited.iflags.status_hilites.map(
+            ({ conditions, style }) => [conditions, style.color],
+        ),
+        [[['blind'], CLR_BLUE], [['deaf'], CLR_BLUE]],
+    );
+});
+
+// C ref: botl.c clear_status_hilites(), which empties every field's threshold
+// list and leaves gc.cond_hilites[] alone.  This port keeps both in one array,
+// so the negated statement has to spare the condition rules.
+test('a negated hilite_status clears fields but not conditions', () => {
+    const cleared = parseNethackrc(
+        'OPTIONS=hilite_status:condition/blind+deaf/red\n'
+        + 'OPTIONS=hilite_status:hitpoints/always/blue\n'
+        + 'OPTIONS=!hilite_status:clear\n',
+    );
+    assert.deepEqual(cleared.configErrorFrame.output, []);
+    assert.deepEqual(cleared.iflags.status_hilites.map(({ field }) => field),
+        ['condition']);
+    // clear_status_hilites() does not reset the duration either.
+    assert.equal(cleared.iflags.hilite_delta, 3);
 });
 
 test('showvers and versinfo preserve the release-build status selection', () => {

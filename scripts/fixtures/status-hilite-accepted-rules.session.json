@@ -1,0 +1,41 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 8814401,
+      "datetime": "20010704081500",
+      "nethackrc": "OPTIONS=name:HiliteA,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints\nOPTIONS=hilite_status:power//red\nOPTIONS=hilite_status:time/always/green&\nOPTIONS=hilite_status:hitpoints/always/red/blue\n",
+      "moves": " "
+    },
+    {
+      "seed": 8814402,
+      "datetime": "19871123143000",
+      "nethackrc": "OPTIONS=name:HiliteB,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/<=0%/red condition/major_/blue\nOPTIONS=hilite_status:carrying-capacity/overtaxed/orange\nOPTIONS=hilite_status:armor-class/-128/cyan\nOPTIONS=hilite_status:characteristics/always/bright-blue&bold\n",
+      "moves": " "
+    },
+    {
+      "seed": 8814403,
+      "datetime": "20140218200000",
+      "nethackrc": "OPTIONS=name:HiliteC,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:title/ always/red\nOPTIONS=hilite_status:hitpoints/always/red&bold&none&underline\nOPTIONS=hilite_status:hitpoints/criticalhp/orange\nOPTIONS=hilite_status:experience-level/up/green\nOPTIONS=hilite_status:title/stripling/red\nOPTIONS=hilite_status:condition/blind/red&blue/deaf/bold\n",
+      "moves": " "
+    },
+    {
+      "seed": 8814410,
+      "datetime": "20030308101500",
+      "nethackrc": "OPTIONS=name:HiliteJ,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/>=5/red\nOPTIONS=hilite_status:power/=2/green\nOPTIONS=hilite_status:experience-level/<=20/cyan\nOPTIONS=hilite_status:armor-class/>5/orange\n",
+      "moves": " "
+    },
+    {
+      "seed": 8814411,
+      "datetime": "19991211175500",
+      "nethackrc": "OPTIONS=name:HiliteK,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:characteristics/always/red\nOPTIONS=hilite_status:hitpoints/always/bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&blue\n",
+      "moves": " "
+    },
+    {
+      "seed": 8814412,
+      "datetime": "20111005063000",
+      "nethackrc": "OPTIONS=name:HiliteL,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/always/bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&bold&red\nOPTIONS=hilite_status:power/always/green\n",
+      "moves": " "
+    }
+  ]
+}
