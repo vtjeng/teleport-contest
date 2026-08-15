@@ -2329,8 +2329,8 @@
         },
         {
           "name": "fixed-clock-literal-check",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "c7baefa8187bf9fc4101db6fdedc49d7ae4b805c"
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",

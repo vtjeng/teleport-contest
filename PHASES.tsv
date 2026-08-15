@@ -467,3 +467,5 @@ utc	event	phase	goal	detail
 2026-08-15T04:08:54.652Z	end	implement	startup-deferral-sweep	initial-pickup-engraving-call-site closed at be84377; two lines deleted, one C save-subsystem divergence found and filed
 2026-08-15T04:09:22.355Z	start	implement	startup-deferral-sweep	config-parser-residue: three small residues in options-config-error-and-parser-residue plus the pickup_burden parser
 2026-08-15T04:54:54.692Z	end	implement	startup-deferral-sweep	config-parser-residue closed at 9157a82 over three commits; one residue was already fixed and needed a test, not production
+2026-08-15T04:55:53.861Z	start	implement	startup-deferral-sweep	fixed-clock-literal-check: two test literals silently take the wall clock; the guard goes in a repo check, not in the ported getnow()
+2026-08-15T05:24:05.783Z	end	implement	startup-deferral-sweep	fixed-clock-literal-check closed at c7baefa; js/ unchanged, check:fixed-datetime added under static sources
