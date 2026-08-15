@@ -3161,6 +3161,24 @@
       "status": "closed",
       "from": "65bbc10559971ca7abd62980272e84da658a14a4",
       "detail": "js/options.js booleanValue() ends on optionError(\"'<value>' is not valid for <option>\"), where options.c optfn_boolean():5233-5237 reports \"'%s' is not valid for a boolean\" -- quoting the whole statement, not the value -- and returns optn_silenterr, so C leaves the option alone and reads the rest of the file. The port loses the segment instead. This is the arm beside the negation one that negated-boolean-with-parameter-still-fail-closed retired, and the two share a guard: C takes the reporting arm only when allopt[optidx].valok is No.\n\nClosing it needs one generated-table column. scripts/generate-options.mjs does not emit optlist.h's valok field (struct allopt_t member 9, the 'v' parameter of NHOPTB/NHOPTC), so js/optlist_data.js has nothing to test and the port cannot tell the reporting arm from the silent one that keeps 'negated' and sets the option. Reading optlist.h directly, menucolors is the only NHOPTB row whose valok is Yes, and it reaches neither booleanValue() call site today, so emitting the column would settle every row this arm can meet.\n\nRecorded case, which fails today and must pass when the arm lands: seed 2884516, datetime 20050621143000, nethackrc 'OPTIONS=name:ValokA,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen / OPTIONS=time:zebra / OPTIONS=showexp', moves '\\r'. C draws \" * Line 2: 'time:zebra' is not valid for a boolean.\" on the raw-print screen, leaves flags.time off and still reads the showexp line below it."
+    },
+    {
+      "id": "compound-empty-value-still-fail-closed",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "db59c7e24219a007d527abbc782f9ddd4a94b808",
+      "detail": "js/options.js applyOption()'s compound arm tests value != null, so a CompOpt statement ending in a separator is treated as carrying a value: OPTIONS=symset: stores the empty string and OPTIONS=statuslines: throws optionError() out of runSegment(), losing the whole segment. C's string_for_opt() at options.c:6672 answers empty_optstr for both !colon and !*++colon, so the handler reports Missing parameter and the game reads on. This is the same defect 8b99f58 fixed for BoolOpt rows, one option type over, and it is the known remaining instance of the shape this goal exists to remove. Closing it needs no unported C for the rows whose handlers are ported; the fix agent left the arm alone because it also covers CompOpt handlers this port has not ported and it had no C evidence for those."
+    },
+    {
+      "id": "boolean-options-store-outside-their-c-address",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "db59c7e24219a007d527abbc782f9ddd4a94b808",
+      "detail": "js/options.js applyBooleanOption()'s fallback writes result.flags[name], but about 70 BoolOpt rows store elsewhere in C: ascii_map writes iflags.wc_ascii_map, menucolors writes iflags.use_menu_color, travel writes flags.travelcmd. So nothing reads what the port stores for those rows, and options.c's post-set switch (opt_ascii_map, opt_tiled_map) is unported for them. This predates the range; 8b99f58 routed more spellings through the fallback, now storing a boolean where it stored a string. Closing it needs each row's addr field, which optlist.h carries and scripts/generate-options.mjs does not yet emit."
     }
   ],
   "areas": [
@@ -13665,6 +13683,112 @@
         }
       },
       "recordedAt": "2026-08-15T13:06:05.527Z"
+    },
+    {
+      "kind": "review",
+      "head": "db59c7e24219a007d527abbc782f9ddd4a94b808",
+      "auditedRange": "3468c5aac76c8b8531423b6a32ac2075085efa3c..db59c7e24219a007d527abbc782f9ddd4a94b808",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "28c62d09650a6718211a22ad9ae8d88731e992e0",
+        "reason": "The active checklist covers monster-melee-attack and stopped at 28c62d0, before this range opens. No slice in this window qualified for one: each closed inside one agent session against a boundary its own deferral record named, and the largest counted 45 lines of game code."
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "display"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 16 raw, 16 deduplicated, 13 confirmed, 13 applied, 0 deferred, 3 rejected, 0 unverified; mutation: 752 survivors of 1185 mutants. Four finders over the goal's second window, 939 changed lines of js/options.js and the generated optlist table beside it. The pass earned itself twice over. Its worst finding was a segment-losing throw the four slices had all walked past: OPTIONS=!autodig: raised a plain Error out of runSegment() on 65 BoolOpt rows, producing zero screens and misaligning every later segment, which is the exact failure this goal exists to remove. Its most useful finding was about the instruments rather than the code: the new valok column had no oracle at all, because a regeneration check compares the committed file against the same generator that produced it, and the two candidate columns differ on exactly one unreachable row. The test that replaced it derives all 217 rows from optlist.h itself. Three more production defects were confirmed and fixed: discarded condition attributes, a female/male arm missing C's fall-through, and 64 rows emitting one fewer configuration error than C. The development score stood at 9 of 33 sessions, 1674 of 7765 screens, 125050 of 610816 random-number values and 1685 of 7765 cursors at every commit in the window, because no recorded session's rc carries a configuration error, sets hilite_status or pairs a boolean name with a value. Applied in 8b99f58, bd18a2a, 9baedcf, 5e4989f, 736a527 and db59c7e.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3236,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 16,
+          "confirmed": 13,
+          "applied": 13,
+          "deferred": 0,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 4,
+          "tests": 7,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/options.js applyOption()'s compound fallback tested `value != null`, so a negated boolean whose statement ends in a separator fell into it and threw. OPTIONS=!autodig: raised a plain Error that escaped runSegment(), producing zero screens and misaligning every later segment, where C's string_for_opt() answers empty_optstr and options.c:5285 sets the option FALSE in silence. A table sweep counted 65 affected BoolOpt rows. The non-negated spelling was corrupt too: OPTIONS=sortpack: stored the empty string that js/invent.js:636 reads as falsy, so the port skipped pack sorting where C sorts.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js parse_condition() deferred a condition group's state to a single push after the subfield loop, so a later subfield failing on a bad colour discarded attribute bits C had already committed to gc.cond_hilites[]. The condition rendered unstyled where C renders it bold, underlined or inverse.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js applyBooleanOption()'s female/male arm modelled only C's two strncmpi(opts, name, max(ln, 3)) branches and never the fall-through, so a spelling long enough to defeat that compare got the wrong sex and a flags.initgend C never writes.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js reached optfn_boolean()'s 'is not valid for a boolean' arm only through the 35-name HANDLED_BOOLEAN_OPTIONS list while the sibling negated-with-parameter exit was keyed on the row type, so 64 BoolOpt rows emitted one fewer configuration error than C. The count of silent rows fell from 74 to the 10 C is genuinely silent about once the dispatch turned on opttyp.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "statusHiliteAttribute() and menuHeadingAttribute() are same-shaped lookups over two tables with the same ten keys but different numeric vocabularies, and nothing marks the hazard.",
+            "counterEvidence": "Refuted at the source: js/options.js:1054-1058, immediately above MENU_HEADING_ATTRIBUTES, already states the distinction in the words the finding proposed adding."
+          },
+          {
+            "summary": "`relation` is a deliberately lossy encoding of C's hilite.rel, collapsing three distinct C values to '=', recorded only in a comment asserting today's renderer does not care.",
+            "counterEvidence": "The C trace holds — botl.c:2977-2990 stores GT, LT, GE, LE, EQ and TXT_VALUE, and the port does collapse three — but no reader distinguishes them today, so the finding names a latent encoding choice rather than a defect. The comment is the right record until a reader needs the difference."
+          },
+          {
+            "summary": "The new BoolOpt guard ports only the negation half of C's `if (op != empty_optstr)` block, leaving the value half behind the name-gated path.",
+            "counterEvidence": "Deduplicated against the confirmed finding at the same site, which the fix applied by turning the dispatch on the row type. The behavioural half reproduces, but it is the same defect rather than a second one."
+          }
+        ],
+        "mutation": {
+          "mutants": 1185,
+          "survivors": 752,
+          "byKind": {
+            "boolean": {
+              "ran": 1135,
+              "killed": 386
+            },
+            "logical": {
+              "ran": 33,
+              "killed": 33
+            },
+            "relational": {
+              "ran": 17,
+              "killed": 14
+            }
+          },
+          "finderConclusion": "The window run enumerated 1,184 mutants because adding one column to a 217-row generated table multiplies the boolean site count; 745 of the 752 survivors sit in js/optlist_data.js on data literals, where a flipped value is caught by npm run check:options rather than by a test. The tests finder read the seven survivors in js/options.js as the signal and landed findings on three of them, plus the mutation-visible gaps at js/display.js:3808 and the valok column. The audit-fix delta added one further mutant, killed. The instrument's own limit is now on the record: the generated table dilutes a window run by an order of magnitude, and the valok column showed that a regeneration check cannot serve as an oracle for the generator that produced it."
+        },
+        "readiness": {
+          "boundary": "The range starts when runSegment(input) hands NethackGame.start() an rc file and ends when the first screen of the segment is captured, with the status line's later repaints inside it for the hilite_status half. parseNethackrc() is called unconditionally at js/jsmain.js:293 and all 33 development sessions replay through it, so the real game executes the path on every segment.",
+          "sourceReview": "Every branch and helper reachable before the ending event was traced against nethack-c/upstream: options.c optfn_hilite_status(), optfn_boolean(), parseoptions()'s negation loop, length_without_val() and match_optname(); botl.c parse_status_hl1(), parse_status_hl2(), parse_condition(), splitsubfields(), str2conditionbitmask() and is_ltgt_percentnumber(); coloratt.c match_str2clr() and match_str2attr(); wintty.c condcolor() and Begin_Attr(). The trace covered state and random-number order, and the five fresh matrices matched every random-number call. Stubs and partial ports were identified and each carries a named refusal or a ledger entry: complain_about_duplicate(), Unknown config statement, Cmd_bind.param, gc.Cmd.mousebtn[], pfxfn_cond_(), pfxfn_font(), count_status_hilites(), the dim/italic/blink disp_attrib reading, and the two gaps this pass surfaced.",
+          "completeness": "No known unsupported behavior remains inside the boundary except the entries named above, and each reachable excluded branch stops before changing state, consuming randomness, or producing output. Two gaps the pass surfaced are filed rather than fixed: compound-empty-value-still-fail-closed, where a CompOpt statement ending in a separator still throws as the BoolOpt case did, and boolean-options-store-outside-their-c-address, where about 70 rows store somewhere C does not read. One divergence is accepted and permanent for now: config_error_done() prints the absolute config path, which no segment input supplies, so every differential over an erroring rc differs in those cells."
+        }
+      },
+      "recordedAt": "2026-08-15T20:30:09.058Z"
     }
   ]
 }
