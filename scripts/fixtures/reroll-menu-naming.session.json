@@ -1,0 +1,89 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 4711711,
+      "datetime": "20030418103000",
+      "nethackrc": "OPTIONS=name:RerollArc,role:Archeologist,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 5280463,
+      "datetime": "19960705141500",
+      "nethackrc": "OPTIONS=name:RerollBar,role:Barbarian,race:human,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 6193028,
+      "datetime": "20111027085500",
+      "nethackrc": "OPTIONS=name:RerollCav,role:Caveman,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 7024915,
+      "datetime": "19881203190000",
+      "nethackrc": "OPTIONS=name:RerollHea,role:Healer,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 8317604,
+      "datetime": "20240909062000",
+      "nethackrc": "OPTIONS=name:RerollKni,role:Knight,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 9450372,
+      "datetime": "20070214213000",
+      "nethackrc": "OPTIONS=name:RerollMon,role:Monk,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 1608239,
+      "datetime": "19920621115500",
+      "nethackrc": "OPTIONS=name:RerollPri,role:Priest,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 2739184,
+      "datetime": "20190402073000",
+      "nethackrc": "OPTIONS=name:RerollRan,role:Ranger,race:human,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 3852706,
+      "datetime": "20010815164500",
+      "nethackrc": "OPTIONS=name:RerollRog,role:Rogue,race:human,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 4963157,
+      "datetime": "19850128104000",
+      "nethackrc": "OPTIONS=name:RerollSam,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 5074628,
+      "datetime": "20221111133000",
+      "nethackrc": "OPTIONS=name:RerollTou,role:Tourist,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 6185039,
+      "datetime": "19990530201500",
+      "nethackrc": "OPTIONS=name:RerollVal,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 7296140,
+      "datetime": "20140719055000",
+      "nethackrc": "OPTIONS=name:RerollWiz,role:Wizard,race:human,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "p"
+    },
+    {
+      "seed": 8307251,
+      "datetime": "20180226092500",
+      "nethackrc": "OPTIONS=name:RerollTwice,role:Wizard,race:gnome,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=reroll\n",
+      "moves": "rrp"
+    }
+  ]
+}

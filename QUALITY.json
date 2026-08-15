@@ -1709,13 +1709,17 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "21a7accf838e86708dd92d0633965c98c90cfdbd",
       "detail": "js/startup_reroll.js identifiedStartingObjectName() (207-274) is an independent port of objnam.c xname() and doname_base(), separate from js/objnam.js. It exists because invent.c reroll_menu():2580-2581 raises iflags.override_ID and gd.distantname around its doname(otmp) calls, and js/objnam.js preflightXname() refuses on override_ID.\n\nThe copy diverges from doname_base() and carries no refusal, so it answers a wrong string rather than stopping. The divergence measured this run is the whole owornmask suffix block, objnam.c:1387-1447: identifiedStartingObjectName() emits no worn suffix at all. allmain.c:816-820 calls u_init_inventory_attrs() before reroll_menu(), and u_init.c ini_inv():134-153 calls setworn() for every starting armor piece, so every worn mask is already set when C names them. C therefore prints 'an uncursed +1 pair of leather gloves (being worn)' for a Healer where this port prints the same line without the suffix, and likewise for every worn weapon, amulet and quivered stack. scripts/startup-reroll.test.mjs pins the suffixless form today.\n\nNothing measures the divergence: instrumenting the function with a stderr write and running scripts/score-development.mjs printed it zero times across all 33 development sessions, because no session answers 'n' at 'Is this ok?'. The objects-deferral-sweep-2 slice that pointed this file's is_poisonable() reading at js/objnam.js isPoisonable() fixed only that one expression and left the rest.\n\nClosing it means either giving js/objnam.js doname a path that honors override_ID and distantname and deleting this copy, or reconciling the copy arm by arm against objnam.c:1221-1751. The first is the smaller of the two and removes a duplicate port; AGENTS.md, 'Keep each source file's port in one place', prefers it.",
       "notes": [
         {
           "text": "This copy now holds the charge-suffix divergence alone. bbf4515 fixed js/objnam.js doname() so a weapon-tool no longer takes the charged-tool arm, and resolved weptool-inventory-lines-add-a-charge-count; js/startup_reroll.js identifiedStartingObjectName() still reads raw obj.oclass in the same condition and still prints a pick-axe as \"a +0 pick-axe (0:0)\", which scripts/startup-reroll.test.mjs pins. That string is a known divergence from C rather than a recorded expectation. Recorded here rather than reopening the closed entry, because this entry owns the duplicate port and its record already says deleting the copy beats reconciling it arm by arm.",
           "at": "0d7678c4b24ac325660b63d3941376c26f250195"
+        },
+        {
+          "text": "Read against the C and a fresh recording rather than taken from the record; the owornmask claim in this entry does not hold. setworn() runs in u_init.c ini_inv_use_obj():1269-1281, which only u_init_skills_discoveries():1400-1402 calls, and allmain.c:824 calls that after the reroll loop at :820-823, so no starting object carries a worn mask, a wielded mask or a quiver mask while the menu is drawn. A fresh Archeologist recording with OPTIONS=reroll prints 'an uncursed +0 leather jacket' with no suffix on any row, and scripts/startup-reroll.test.mjs already asserted that every owornmask is zero at that boundary. The measured divergence was the charge suffix the 0d7678c note named and nothing else: across a 14-segment matrix covering all 13 roles, the only mismatched cell was the opening paren of the pick-axe's '(0:0)'.",
+          "at": "8e95ef8dfe2bfa1e3de27e5e38b898268015fb3f"
         }
       ]
     },
@@ -3231,6 +3235,15 @@
           "at": "e5b48a44ccbb015bf54c488e6d837199fd231f95"
         }
       ]
+    },
+    {
+      "id": "yname-and-do-wear-keep-a-narrower-obj-is-pname",
+      "area": "objects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "8e95ef8dfe2bfa1e3de27e5e38b898268015fb3f",
+      "detail": "js/objnam.js holds two readings of objnam.c obj_is_pname() (332-341). objectIsPersonalName() at :509 is the complete one, and this slice added :337's override_ID skip to it; xname() and doname() call it, so a named artifact already reaches a name through them. The exported obj_is_pname() at :1105 ports only C's first conjunct and calls unsupported('obj_is_pname() for an artifact') for the rest, and yname() at :1120 and do_wear.c on_msg() through js/do_wear.js:339 are its two callers, so those two refuse an artifact that xname() would have named. The narrower reading is not blocked on anything: has_oname() is obj.oextra.oname, not_fully_identified() is notFullyIdentified() at :442, and preflightXname() refuses program_state.gameover upstream, so C's remaining conjunct is settled. Both of its callers' branches are ported too -- the(name) and an(name) at js/do_wear.js:339-340. Closing it means deleting the narrow reading, pointing yname() at objectIsPersonalName(), and rewriting scripts/wear-armor.test.mjs:2150. That changes what a wear message and a wield refusal print for an artifact, which needs a fresh case with an artifact in hand rather than the reroll menu's kit, so it is left out of this slice."
     }
   ],
   "areas": [

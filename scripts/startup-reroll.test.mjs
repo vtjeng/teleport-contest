@@ -41,9 +41,9 @@ import {
 } from '../js/startup_reroll.js';
 import { u_init_misc } from '../js/u_init.js';
 import { u_init_inventory_attrs } from '../js/u_init_inventory_attrs.js';
+import { loadRerollMenuNamingRecipe } from './run-reroll-menu-naming.mjs';
 
 const {
-    identifiedStartingObjectName,
     rerollAttributeLine,
     rerollObjectGlyphInfo,
     strengthText,
@@ -91,13 +91,25 @@ function object(state, otyp, overrides = {}) {
 }
 
 function chain(objects) {
-    for (let index = 0; index + 1 < objects.length; ++index)
-        objects[index].nobj = objects[index + 1];
+    // The last link is cleared explicitly so that reusing an object in a
+    // shorter chain does not leave it pointing at the previous chain's tail.
+    for (const [index, obj] of objects.entries())
+        obj.nobj = objects[index + 1] ?? null;
     return objects[0] ?? null;
 }
 
 function menuTexts(spec) {
     return spec.items.map((item) => item.label ?? item.text ?? '');
+}
+
+// The inventory rows of one reroll menu: the two choices, a blank, the kit,
+// another blank and the attribute line. Naming an object at all is only
+// reachable through the menu now, because that is where invent.c
+// reroll_menu():2579-2588 raises gd.distantname and iflags.override_ID.
+function menuInventoryNames(state, objects, displayRandom = () => 0) {
+    state.invent = chain(objects);
+    const spec = buildRerollMenuSpec(state, { displayRandom });
+    return spec.items.slice(3, -2).map((item) => item.text);
 }
 
 function rowText(state, row) {
@@ -204,7 +216,12 @@ test('lootabc assigns the source-generated a and b menu selectors', () => {
     assert.equal(spec.items[3].text, 'an uncursed food ration');
 });
 
-test('identified startup names cover race, BUC, container, and gem forms', () => {
+// C ref: invent.c reroll_menu():2579-2588, which raises gd.distantname and
+// iflags.override_ID around its doname() loop. Every line below is what
+// doname() prints with the counter raised, not what the objects' stored flags
+// ask for: objnam.c xname_flags():632-639 forces nn, known, dknown and bknown,
+// and doname_base():1254-1262 forces cknown and lknown as well.
+test('the reroll menu identifies a kit the stored flags do not', () => {
     const state = rerollState();
     const water = object(state, O.POT_WATER, {
         blessed: true,
@@ -219,52 +236,100 @@ test('identified startup names cover race, BUC, container, and gem forms', () =>
     });
     const knowledge = state.objects[O.POT_HEALING].oc_name_known;
 
+    // doname_base():1319 reads the water type's own oc_name_known, not the
+    // forced nn, so a hero who knows what water looks like sees no BUC word
+    // ahead of the "holy" that xname_flags():841-843 already supplied.
     state.urole = { mnum: M.PM_CLERIC, filecode: 'Pri' };
     state.objects[O.POT_WATER].oc_name_known = 1;
-    assert.equal(
-        identifiedStartingObjectName(water, state),
-        '4 potions of holy water',
+    assert.deepEqual(
+        menuInventoryNames(state, [water]),
+        ['4 potions of holy water'],
     );
+    // :1328 short-circuits on !flags.implicit_uncursed ahead of the
+    // Role_if(PM_CLERIC) test at :1347, so a Priest still reads "uncursed"
+    // while the option is off.
     state.flags.implicit_uncursed = false;
-    assert.equal(
-        identifiedStartingObjectName(
-            object(state, O.APPLE),
-            state,
-        ),
-        'an uncursed apple',
+    assert.deepEqual(
+        menuInventoryNames(state, [object(state, O.APPLE)]),
+        ['an uncursed apple'],
     );
     state.flags.implicit_uncursed = true;
     state.urole = { mnum: M.PM_HEALER, filecode: 'Hea' };
     state.objects[O.POT_WATER].oc_name_known = 0;
-    assert.equal(
-        identifiedStartingObjectName(water, state),
-        '4 blessed potions of holy water',
+    assert.deepEqual(
+        menuInventoryNames(state, [water, sack, flint, hiddenPotion]),
+        [
+            // The same water, now for a hero who cannot recognize it: the BUC
+            // word returns because :1319's second disjunct holds.
+            '4 blessed potions of holy water',
+            // cknown is one of doname_base():1255's five, so an empty
+            // container says so even though ini_inv only sets that flag for
+            // the containers it creates.
+            'an empty uncursed sack',
+            // objnam.h GemStone(): flint takes the " stone" suffix, and
+            // xname_flags() pluralizes the whole phrase.
+            '14 uncursed flint stones',
+            // nn = 1 names an undiscovered type in full.
+            'an uncursed potion of healing',
+        ],
     );
-    assert.equal(identifiedStartingObjectName(sack, state),
-        'an empty uncursed sack');
-    assert.equal(identifiedStartingObjectName(flint, state),
-        '14 uncursed flint stones');
-    assert.equal(identifiedStartingObjectName(hiddenPotion, state),
-        'an uncursed potion of healing');
+    // The forced flags are locals in C; naming writes none of them back. The
+    // discoveries list is untouched for a different reason: reroll_menu():2579
+    // raises gd.distantname, which stops xname_flags():627 calling
+    // observe_object().
     assert.equal(hiddenPotion.known, false);
     assert.equal(hiddenPotion.dknown, false);
     assert.equal(hiddenPotion.bknown, false);
     assert.equal(state.objects[O.POT_HEALING].oc_name_known, knowledge);
 
     state.urole = { mnum: M.PM_SAMURAI, filecode: 'Sam' };
-    assert.equal(
-        identifiedStartingObjectName(
-            object(state, O.SHORT_SWORD, { spe: 0 }),
-            state,
-        ),
-        'a +0 wakizashi',
+    assert.deepEqual(
+        menuInventoryNames(state, [object(state, O.SHORT_SWORD, { spe: 0 })]),
+        ['a +0 wakizashi'],
     );
 });
 
-test('source-derived startup names cover monster food and charge forms', () => {
+// C ref: invent.c reroll_menu():2579-2588. Both are C ints, raised before the
+// loop and lowered after it, so a menu must leave them exactly where it found
+// them. Leaving iflags.override_ID raised would identify every later name in
+// the game; leaving gd.distantname raised would silence observe_object().
+test('the reroll menu raises and lowers both naming counters', () => {
+    const state = rerollState();
+    const seen = [];
+    const apple = object(state, O.APPLE);
+    Object.defineProperty(apple, 'otyp', {
+        configurable: true,
+        get() {
+            seen.push([
+                state.iflags.override_ID,
+                state.gd.distantname,
+            ]);
+            return O.APPLE;
+        },
+    });
+    // Both start unset, as the C globals do; the menu is the only writer.
+    assert.equal(state.iflags.override_ID, undefined);
+    assert.equal(state.gd?.distantname, undefined);
+    menuInventoryNames(state, [apple]);
+    assert.ok(seen.length > 0);
+    for (const pair of seen) assert.deepEqual(pair, [1, 1]);
+    assert.equal(state.iflags.override_ID, 0);
+    assert.equal(state.gd.distantname, 0);
+
+    // A refusal from any formatter has to lower them too. A blindfold worn and
+    // lit reaches preflightDoname()'s 'lit worn-object suffix' stop, the one
+    // arm of that preflight a startup kit could carry.
+    const lamp = object(state, O.OIL_LAMP, { owornmask: 1, lamplit: 1 });
+    assert.throws(() => menuInventoryNames(state, [lamp]), /unsupported/u);
+    assert.equal(state.iflags.override_ID, 0);
+    assert.equal(state.gd.distantname, 0);
+});
+
+test('the reroll menu names monster food and charge forms from source', () => {
     const state = rerollState();
     const cases = [
-        // objnam.c prefixes a specific egg with its species before pluralizing.
+        // doname_base():1531 prefixes an egg with its species when `known`,
+        // which override_ID forces even for an egg the hero never examined.
         [
             object(state, O.EGG, { corpsenm: M.PM_NEWT, quan: 2 }),
             '2 uncursed newt eggs',
@@ -274,17 +339,31 @@ test('source-derived startup names cover monster food and charge forms', () => {
             object(state, O.CORPSE, { corpsenm: M.PM_NEWT }),
             'an uncursed newt corpse',
         ],
-        // An ordinary nonempty tin uses the species-meat form.
+        // xname_flags():793 reaches eat.c tin_details() only when `known`, so
+        // this is the forced flag again: without it the tin would be "a tin".
+        // eat.c:1442 then reads override_ID for itself, which is why the
+        // preparation appears at all; spe -5 is tintxts[4], "pickled", chosen
+        // because it is neither of the two entries eat.c:1445 puts ahead of
+        // the word "tin", and because a non-negative spe would draw
+        // rn2(TTSZ - 1) at eat.c:1372 for a variety.
         [
-            object(state, O.TIN, { corpsenm: M.PM_NEWT }),
-            'an uncursed tin of newt meat',
+            object(state, O.TIN, { corpsenm: M.PM_NEWT, spe: -5 }),
+            'an uncursed tin of pickled newt meat',
         ],
-        // Charged tools show recharge-count:charges and omit implicit uncursed.
+        // tintxts[1] is one of the two: "homemade" goes ahead of "tin".
+        [
+            object(state, O.TIN, { corpsenm: M.PM_NEWT, spe: -2 }),
+            'an uncursed homemade tin of newt meat',
+        ],
+        // Charged tools show recharge-count:charges and omit implicit
+        // uncursed, because doname_base():1331's `!known || !oc_charged` fails
+        // on both terms.
         [
             object(state, O.TINNING_KIT, { recharged: 2, spe: 30 }),
             'a tinning kit (2:30)',
         ],
-        // Charged rings retain BUC and enchantment prefixes.
+        // A ring is one of :1333's two classes that keep "uncursed" whatever
+        // is known, and :1499 gives it the enchantment.
         [
             object(state, O.RIN_ADORNMENT, { spe: 2 }),
             'an uncursed +2 ring of adornment',
@@ -292,7 +371,7 @@ test('source-derived startup names cover monster food and charge forms', () => {
     ];
 
     for (const [item, expected] of cases)
-        assert.equal(identifiedStartingObjectName(item, state), expected);
+        assert.deepEqual(menuInventoryNames(state, [item]), [expected]);
 });
 
 // C ref: objnam.c xname():685-687, whose `case WEAPON_CLASS:` runs
@@ -313,26 +392,26 @@ test('the startup poisoned prefix needs both the flag and a weapon', () => {
     // objects.h PROJECTILE("arrow", ... -P_BOW ...): WEAPON_CLASS with a
     // non-zero oc_skill of the wrong sign, so is_weptool() is false and the
     // class arm alone admits it. `||` cannot become `&&` here.
-    assert.equal(
-        identifiedStartingObjectName(
-            object(state, O.ARROW, { opoisoned: 1, spe: 0, quan: 3 }), state,
-        ),
-        '3 poisoned +0 arrows',
+    assert.deepEqual(
+        menuInventoryNames(state, [
+            object(state, O.ARROW, { opoisoned: 1, spe: 0, quan: 3 }),
+        ]),
+        ['3 poisoned +0 arrows'],
     );
     // The flag is the other conjunct: the same stack without it loses only
     // the prefix.
-    assert.equal(
-        identifiedStartingObjectName(
-            object(state, O.ARROW, { spe: 0, quan: 3 }), state,
-        ),
-        '3 +0 arrows',
+    assert.deepEqual(
+        menuInventoryNames(state, [
+            object(state, O.ARROW, { spe: 0, quan: 3 }),
+        ]),
+        ['3 +0 arrows'],
     );
     // A potion carries neither arm, so a stray flag adds nothing.
-    assert.equal(
-        identifiedStartingObjectName(
-            object(state, O.POT_WATER, { opoisoned: 1 }), state,
-        ),
-        'an uncursed potion of water',
+    assert.deepEqual(
+        menuInventoryNames(state, [
+            object(state, O.POT_WATER, { opoisoned: 1 }),
+        ]),
+        ['an uncursed potion of water'],
     );
     // objects.h WEAPON("dagger", ... P_DAGGER ...) gives oc_skill 1, outside
     // is_multigen()'s [-P_SHURIKEN, -P_BOW] window, and no dagger but
@@ -340,32 +419,24 @@ test('the startup poisoned prefix needs both the flag and a weapon', () => {
     // C, so a poisoned plain dagger keeps no prefix. A Rogue and a Samurai
     // both start with daggers, so this is the shape the reroll menu would
     // misname first.
-    assert.equal(
-        identifiedStartingObjectName(
-            object(state, O.DAGGER, { opoisoned: 1, spe: 0 }), state,
-        ),
-        'a +0 dagger',
+    assert.deepEqual(
+        menuInventoryNames(state, [
+            object(state, O.DAGGER, { opoisoned: 1, spe: 0 }),
+        ]),
+        ['a +0 dagger'],
     );
     // The weapon-tool half of the old reading. objects.h TOOL("pick-axe",
     // ... P_PICK_AXE ...) makes is_weptool() true, but a pick-axe is
     // TOOL_CLASS, so is_multigen()'s first term fails before its skill window
-    // is consulted. An Archeologist starts with one.
-    assert.equal(
-        identifiedStartingObjectName(
-            object(state, O.PICK_AXE, { opoisoned: 1, spe: 0 }), state,
-        ),
-        // The trailing "(0:0)" is this file's divergence rather than C's
-        // text. objnam.c doname_base():1382 switches on
-        // `is_weptool(obj) ? WEAPON_CLASS : obj->oclass`, so the pick-axe
-        // that invent.c reroll_menu():2581 names with doname() takes the
-        // WEAPON_CLASS arm and never reaches the `charges:` label at :1484.
-        // js/startup_reroll.js names objects with its own port of
-        // doname_base() and still tests obj.oclass here; the deferral
-        // reroll-menu-names-objects-with-its-own-doname-port owns that whole
-        // copy and prefers deleting it to reconciling it arm by arm.
-        // js/objnam.js doname() was corrected separately. This test is about
-        // the poison prefix, which the suffix does not touch.
-        'a +0 pick-axe (0:0)',
+    // is consulted. An Archeologist starts with one, and doname_base():1382
+    // switches on `is_weptool(obj) ? WEAPON_CLASS : obj->oclass`, so that
+    // pick-axe takes the enchantment prefix and never reaches the `charges:`
+    // label at :1484. A fresh Archeologist recording prints "a +0 pick-axe".
+    assert.deepEqual(
+        menuInventoryNames(state, [
+            object(state, O.PICK_AXE, { opoisoned: 1, spe: 0 }),
+        ]),
+        ['a +0 pick-axe'],
     );
 });
 
@@ -491,14 +562,11 @@ test('reroll hallucination requires intrinsic HALLUC without resistance', () => 
     }
 });
 
-test('reroll rows compute glyphs before names and honor artifact fruit articles', () => {
-    const state = rerollState();
-    state.artilist = createArtifactTable();
-    state.u.uprops[HALLUC].intrinsic = 1;
-    const events = [];
-    const fruit = object(state, O.SLIME_MOLD, { spe: 42 });
-    let quantity = 1;
-    Object.defineProperty(fruit, 'quan', {
+// Records one event per read of obj.quan. doname() reads it more than once, so
+// callers compare the run-length-encoded sequence rather than the raw list.
+function probeQuantity(obj, events, initial = 1) {
+    let quantity = initial;
+    Object.defineProperty(obj, 'quan', {
         configurable: true,
         get() {
             events.push('name');
@@ -508,6 +576,23 @@ test('reroll rows compute glyphs before names and honor artifact fruit articles'
             quantity = value;
         },
     });
+    return obj;
+}
+
+function collapse(events) {
+    return events.filter((event, index) => event !== events[index - 1]);
+}
+
+test('reroll rows compute glyphs before names and honor artifact fruit articles', () => {
+    const state = rerollState();
+    state.artilist = createArtifactTable();
+    state.u.uprops[HALLUC].intrinsic = 1;
+    const events = [];
+    const fruit = probeQuantity(
+        object(state, O.SLIME_MOLD, { spe: 42 }),
+        events,
+    );
+    const apple = probeQuantity(object(state, O.APPLE), events);
     state.gf = {
         ffruit: {
             fid: 42,
@@ -515,32 +600,33 @@ test('reroll rows compute glyphs before names and honor artifact fruit articles'
             nextf: null,
         },
     };
-    state.invent = fruit;
-    const spec = buildRerollMenuSpec(state, {
-        displayRandom: () => {
-            events.push('glyph');
-            return O.APPLE - O.FIRST_OBJECT;
-        },
+    // invent.c reroll_menu():2582-2585 computes each row's glyph before it
+    // names that row, and finishes one object before starting the next.
+    const names = menuInventoryNames(state, [fruit, apple], () => {
+        events.push('glyph');
+        return O.APPLE - O.FIRST_OBJECT;
     });
-    assert.deepEqual(events, ['glyph', 'name']);
-    assert.equal(spec.items[3].text, 'uncursed Excalibur');
+    assert.deepEqual(collapse(events), ['glyph', 'name', 'glyph', 'name']);
+    assert.deepEqual(names, ['uncursed Excalibur', 'an uncursed apple']);
 
+    // objnam.c doname_base():1278-1280 keeps the artifact's own "the" and
+    // suppresses the article an() would otherwise add.
     state.gf.ffruit.fname = 'The Orb of Detection';
-    assert.equal(
-        identifiedStartingObjectName(fruit, state),
-        'the uncursed Orb of Detection',
+    assert.deepEqual(
+        menuInventoryNames(state, [fruit], () => O.APPLE - O.FIRST_OBJECT),
+        ['the uncursed Orb of Detection'],
     );
 
     fruit.quan = 2;
     state.gf.ffruit.fname = 'blueberries';
-    assert.equal(
-        identifiedStartingObjectName(fruit, state),
-        '2 uncursed blueberries',
+    assert.deepEqual(
+        menuInventoryNames(state, [fruit], () => O.APPLE - O.FIRST_OBJECT),
+        ['2 uncursed blueberries'],
     );
     state.gf.ffruit.fname = 'foo@';
-    assert.equal(
-        identifiedStartingObjectName(fruit, state),
-        '2 uncursed foo@s',
+    assert.deepEqual(
+        menuInventoryNames(state, [fruit], () => O.APPLE - O.FIRST_OBJECT),
+        ['2 uncursed foo@s'],
     );
 });
 
@@ -680,6 +766,29 @@ test('every valid role and race builds a source-shaped reroll inventory',
         }
     }
     assert.ok(caseNumber > roles.length);
+});
+
+// The differential matrix scripts/run-reroll-menu-naming.mjs replays is what
+// proves the menu against C; this only keeps the recipe from losing coverage
+// silently, since the matrix itself needs the C recorder and does not run here.
+test('the reroll naming matrix covers every role and the reroll arm', () => {
+    const { segments } = loadRerollMenuNamingRecipe();
+    const rolesCovered = segments.map((segment) => (
+        /role:(\w+)/u.exec(segment.nethackrc)?.[1]
+    ));
+    assert.deepEqual(
+        [...new Set(rolesCovered)].sort(),
+        roles.map((role) => role.name.m).sort(),
+    );
+    for (const segment of segments) {
+        // u.uroleplay.reroll is what allmain.c:820 loops on, so a segment
+        // without the option never draws the menu at all.
+        assert.match(segment.nethackrc, /^OPTIONS=reroll$/mu);
+        assert.match(segment.moves, /^r*p$/u);
+    }
+    // allmain.c:820-823 reruns u_init_inventory_attrs() for each 'r', so at
+    // least one segment has to answer the menu more than once.
+    assert.ok(segments.some((segment) => segment.moves.startsWith('rr')));
 });
 
 test('newgame applies startup effects only after multiple rerolls are accepted', async () => {

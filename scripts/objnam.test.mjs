@@ -119,6 +119,11 @@ import {
     DAGGER,
     DIAMOND,
     CROSSBOW_BOLT,
+    AMULET_OF_YENDOR,
+    BAG_OF_TRICKS,
+    EGG,
+    FAKE_AMULET_OF_YENDOR,
+    RIN_ADORNMENT,
 } from '../js/objects.js';
 import { roles } from '../js/roles.js';
 import { CASES, loadWornGloveNameRecipe } from './run-worn-glove-name.mjs';
@@ -1148,6 +1153,203 @@ test('container and tin names follow doname()\'s own branches', () => {
         known: true, bknown: true, spe: 1, corpsenm: NON_PM,
     });
     assert.equal(donameFresh(spinach, state), 'an uncursed tin of spinach');
+});
+
+// C refs: objnam.c xname_flags():632-639, which forces `nn`, `known`, `dknown`
+// and `bknown`, and doname_base():1254-1262, which forces `known`, `dknown`,
+// `cknown`, `bknown` and `lknown`. Each object below is named twice, once with
+// iflags.override_ID clear and once with it raised, so only the substitution
+// separates the two answers. invent.c reroll_menu():2580 is the port's one
+// caller that raises it.
+test('override_ID names a type and charges the hero has not learned', () => {
+    const state = namingState();
+
+    // nn = 0 leaves the shuffled appearance, and a clear `known` withholds the
+    // charges and makes doname_base():1339's `!known` term ask for "uncursed".
+    const wand = objectOf(state, WAN_SLEEP, {
+        dknown: true, bknown: true, spe: 5, recharged: 1,
+    });
+    assert.equal(donameFresh(wand, state), 'an uncursed runed wand');
+    state.iflags.override_ID = 1;
+    assert.equal(donameFresh(wand, state), 'a wand of sleep (1:5)');
+    state.iflags.override_ID = 0;
+
+    // dknown gates the instance name at xname_flags():998 and `known` gates
+    // the enchantment at doname_base():1423; a dart's own type is discovered
+    // from the start, so nn changes nothing here. gd.distantname keeps
+    // xname_flags():628 from setting dknown as a side effect of the first
+    // naming, which is what reroll_menu():2580 raises it for.
+    state.gd = { distantname: 1 };
+    const dart = objectOf(state, DART, {
+        bknown: true, oextra: { oname: 'Zap' },
+    });
+    assert.equal(donameFresh(dart, state), 'an uncursed dart');
+    state.iflags.override_ID = 1;
+    assert.equal(donameFresh(dart, state), 'a +0 dart named Zap');
+    state.iflags.override_ID = 0;
+    state.gd.distantname = 0;
+
+    // doname_base():1500 gives a ring its enchantment only when `known` and
+    // the type's oc_charged both hold. RIN_ADORNMENT carries the second, so
+    // the counter supplies the first; a ring keeps "uncursed" either way,
+    // because :1341 names RING_CLASS as one of the two classes that do.
+    const ring = objectOf(state, RIN_ADORNMENT, {
+        dknown: true, bknown: true, spe: 2,
+    });
+    assert.equal(donameFresh(ring, state), 'an uncursed wooden ring');
+    state.iflags.override_ID = 1;
+    assert.equal(donameFresh(ring, state), 'an uncursed +2 ring of adornment');
+    state.iflags.override_ID = 0;
+
+    // bknown alone: doname_base():1318 prints no BUC word without it.
+    const ration = objectOf(state, FOOD_RATION, { cursed: true });
+    assert.equal(donameFresh(ration, state), 'a food ration');
+    state.iflags.override_ID = 1;
+    assert.equal(donameFresh(ration, state), 'a cursed food ration');
+});
+
+test('override_ID forces the container and lock flags doname() reads', () => {
+    const state = namingState();
+
+    // cknown reaches doname_base():1316's "empty", and nn turns the sack's
+    // appearance into its name in the same breath.
+    const sack = objectOf(state, SACK, { bknown: true });
+    assert.equal(donameFresh(sack, state), 'an uncursed bag');
+    state.iflags.override_ID = 1;
+    assert.equal(donameFresh(sack, state), 'an empty uncursed sack');
+    state.iflags.override_ID = 0;
+
+    // lknown alone: cknown is already set, so only :1358's lock word moves.
+    const box = objectOf(state, LARGE_BOX, { bknown: true, cknown: true });
+    assert.equal(donameFresh(box, state), 'an empty uncursed large box');
+    state.iflags.override_ID = 1;
+    assert.equal(
+        donameFresh(box, state), 'an empty uncursed unlocked large box',
+    );
+    state.iflags.override_ID = 0;
+
+    // The two refusals that read cknown answer the forced flag too, so a
+    // counted container and a bag of tricks stop under override_ID even
+    // though their own cknown is clear. doname_base():1373 counts contents
+    // through pickup.c count_contents(), and :1310-1311 judges those two
+    // types' emptiness by charges.
+    const stuffed = objectOf(state, SACK, { bknown: true });
+    stuffed.cobj = objectOf(state, DART);
+    assert.equal(donameFresh(stuffed, state), 'an uncursed bag');
+    const tricks = objectOf(state, BAG_OF_TRICKS, { bknown: true });
+    assert.equal(donameFresh(tricks, state), 'an uncursed bag');
+    state.iflags.override_ID = 1;
+    assert.throws(
+        () => donameFresh(stuffed, state),
+        (error) => error instanceof UnsupportedObjectNameError
+            && error.branch === 'container contents count',
+    );
+    assert.throws(
+        () => donameFresh(tricks, state),
+        (error) => error instanceof UnsupportedObjectNameError
+            && error.branch === 'charge-based emptiness',
+    );
+});
+
+test('override_ID forces rknown, the tin variety, and the egg species', () => {
+    const state = namingState();
+
+    // add_erosion_words():1148 reads the counter for itself, and rknown is
+    // the only flag that moves here: `known` is already set, so the "+0" and
+    // the missing "uncursed" are the same on both sides.
+    const sword = objectOf(state, LONG_SWORD, {
+        known: true, bknown: true, oerodeproof: true,
+    });
+    assert.equal(donameFresh(sword, state), 'a +0 long sword');
+    state.iflags.override_ID = 1;
+    assert.equal(donameFresh(sword, state), 'a rustproof +0 long sword');
+    state.iflags.override_ID = 0;
+
+    // xname_flags():793 reaches eat.c tin_details() only when `known`, and
+    // eat.c:1442 then reads the counter itself for the preparation word. spe
+    // of -14 selects tintxts[13], "candied".
+    const tin = objectOf(state, TIN, {
+        bknown: true, spe: -14, corpsenm: PM_FOX,
+    });
+    assert.equal(donameFresh(tin, state), 'an uncursed tin');
+    state.iflags.override_ID = 1;
+    assert.equal(
+        donameFresh(tin, state), 'an uncursed tin of candied fox meat',
+    );
+    state.iflags.override_ID = 0;
+
+    // doname_base():1531 needs `known` before it names an egg's species.
+    const egg = objectOf(state, EGG, { bknown: true, corpsenm: PM_FOX });
+    assert.equal(donameFresh(egg, state), 'an uncursed egg');
+    state.iflags.override_ID = 1;
+    assert.equal(donameFresh(egg, state), 'an uncursed fox egg');
+});
+
+test('override_ID lets a unique amulet and a named artifact name themselves',
+    () => {
+        const state = namingState();
+
+        // the_unique_obj():1110 refuses "the" without dknown, and :1113 tells
+        // the hero's own lie: an unidentified fake amulet claims the article
+        // and the real amulet's appearance. Forcing `known` retracts both.
+        const fake = objectOf(state, FAKE_AMULET_OF_YENDOR, {
+            dknown: true, bknown: true,
+        });
+        assert.equal(donameFresh(fake, state), 'the Amulet of Yendor');
+        state.iflags.override_ID = 1;
+        assert.equal(
+            donameFresh(fake, state),
+            'a cheap plastic imitation of the Amulet of Yendor',
+        );
+        state.iflags.override_ID = 0;
+
+        // The real one, still unseen: :1110's dknown test decides the article
+        // and xname_flags():677 decides the name. gd.distantname keeps the
+        // first naming from setting dknown itself.
+        state.gd = { distantname: 1 };
+        const real = objectOf(state, AMULET_OF_YENDOR, { bknown: true });
+        assert.equal(donameFresh(real, state), 'an amulet');
+        state.iflags.override_ID = 1;
+        assert.equal(donameFresh(real, state), 'the Amulet of Yendor');
+        state.iflags.override_ID = 0;
+
+        // With dknown set for real and the counter down, the second disjunct
+        // of :1116 carries "the" on the type alone: xname_flags():625-626 has
+        // cleared obj.known, because the Amulet's type is oc_unique and
+        // oc_uses_known and is not discovered yet.
+        state.gd.distantname = 0;
+        assert.equal(donameFresh(real, state), 'the Amulet of Yendor');
+        assert.equal(real.known, false);
+        assert.equal(real.dknown, true);
+
+        // obj_is_pname():337 skips not_fully_identified() under the counter.
+        // A long sword erodes, so its clear rknown is what withholds the
+        // personal name at not_fully_identified():1812-1818.
+        state.artiexist[ART_GIANTSLAYER].exists = 1;
+        const artifact = objectOf(state, LONG_SWORD, {
+            dknown: true, known: true, bknown: true, rknown: false,
+            oartifact: ART_GIANTSLAYER,
+            oextra: { oname: 'Giantslayer' },
+        });
+        assert.equal(
+            donameFresh(artifact, state),
+            'a +0 long sword named Giantslayer',
+        );
+        state.iflags.override_ID = 1;
+        assert.equal(donameFresh(artifact, state), 'the +0 Giantslayer');
+    });
+
+test('override_ID supplies the bknown that names holy water', () => {
+    const state = namingState();
+    // xname_flags():841-843 needs bknown before it says "holy", and
+    // doname_base():1318 then drops the BUC word it would otherwise repeat.
+    // The type's own oc_name_known is what :1318 reads, not the forced nn,
+    // so this pair only moves once the hero knows water by sight.
+    state.objects[POT_WATER].oc_name_known = 1;
+    const water = objectOf(state, POT_WATER, { dknown: true, blessed: true });
+    assert.equal(donameFresh(water, state), 'a potion of water');
+    state.iflags.override_ID = 1;
+    assert.equal(donameFresh(water, state), 'a potion of holy water');
 });
 
 test('BUC, poison, erosion, and enchantment prefixes retain source order', () => {

@@ -258,9 +258,46 @@ export function gloves_simple_name(gloves, state = game) {
         ? 'gauntlets'
         : 'gloves';
 }
+// C refs: objnam.c xname_flags():632-639, doname_base():1254-1262,
+// the_unique_obj():1108-1110, add_erosion_words():1148 and obj_is_pname():337.
+// Each of those five reads iflags.override_ID for itself and substitutes TRUE
+// for one or more of the object's identification flags; this collects the
+// substitution all five make, so that a formatter below reads the effective
+// flag instead of the stored one. eat.c tin_details():1442 makes the sixth
+// substitution and reads the counter itself, because xname() reaches it
+// through js/eat.js rather than through this file.
+//
+// The counter is raised in two places in C. invent.c reroll_menu():2580 raises
+// it around its naming loop so the startup menu shows a full description of a
+// kit the hero has not identified, and wizcmds.c wiz_identify():53 raises it
+// around wizard-mode ^I. Only the first is ported. It is an int rather than a
+// boolean because wiz_identify() stores the command's own key in it, which
+// invent.c display_pickinv():3249 then offers as a menu accelerator.
+function identificationFlags(obj, type, state) {
+    if (state.iflags?.override_ID) {
+        return {
+            known: true,
+            dknown: true,
+            cknown: true,
+            bknown: true,
+            lknown: true,
+            rknown: true,
+            // C's local `nn`, which starts at objects[otyp].oc_name_known.
+            nameKnown: true,
+        };
+    }
+    return {
+        known: Boolean(obj.known),
+        dknown: Boolean(obj.dknown),
+        cknown: Boolean(obj.cknown),
+        bknown: Boolean(obj.bknown),
+        lknown: Boolean(obj.lknown),
+        rknown: Boolean(obj.rknown),
+        nameKnown: Boolean(type.oc_name_known),
+    };
+}
+
 function preflightXname(obj, type, state) {
-    if (state.iflags?.override_ID)
-        unsupported('override identification', obj);
     if (state.program_state?.gameover)
         unsupported('end-of-game object text', obj);
     if (type.oc_uname)
@@ -269,6 +306,7 @@ function preflightXname(obj, type, state) {
 
 function preflightDoname(obj, type, state, allowLiveShopPrice) {
     preflightXname(obj, type, state);
+    const { cknown } = identificationFlags(obj, type, state);
     if (obj.unpaid)
         unsupported('shop price suffix', obj);
     if (!allowLiveShopPrice && state.iflags?.pricequotes && !type.oc_name_known)
@@ -292,20 +330,20 @@ function preflightDoname(obj, type, state, allowLiveShopPrice) {
         unsupported('lit worn-object suffix', obj);
     // C names a container's contents only when it holds some; counting them
     // is pickup.c count_contents(), which is not ported.
-    if (obj.cknown && hasContents(obj))
+    if (cknown && hasContents(obj))
         unsupported('container contents count', obj);
     // These two judge emptiness by charges rather than contents, and the
     // charge suffix that makes the prefix redundant is a separate branch.
-    if (obj.cknown
+    if (cknown
         && (obj.otyp === BAG_OF_TRICKS || obj.otyp === HORN_OF_PLENTY)) {
         unsupported('charge-based emptiness', obj);
     }
     if (isCandle(obj) && obj.lamplit)
         unsupported('lit candle timer adjustment', obj);
 }
-function xnameBase(obj, type, state) {
-    const knownType = Boolean(type.oc_name_known);
-    const dknown = Boolean(obj.dknown);
+function xnameBase(obj, type, state, ident) {
+    const knownType = ident.nameKnown;
+    const dknown = ident.dknown;
     const actual = sourceActualName(obj, type, state) ?? 'object?';
     const description = sourceDescription(obj, type, state, actual);
 
@@ -314,7 +352,7 @@ function xnameBase(obj, type, state) {
         if (!dknown) return 'amulet';
         if (obj.otyp === AMULET_OF_YENDOR
             || obj.otyp === FAKE_AMULET_OF_YENDOR) {
-            return obj.known ? actual : description;
+            return ident.known ? actual : description;
         }
         if (knownType) return actual;
         return `${description} amulet`;
@@ -368,7 +406,7 @@ function xnameBase(obj, type, state) {
         }
         // C ref: objnam.c xname(). `known` here is the object's own flag, set
         // when the hero knows what is inside the tin, not the type's.
-        if (obj.otyp === TIN && obj.known)
+        if (obj.otyp === TIN && ident.known)
             return tin_details(obj, obj.corpsenm, actual, { state });
         return actual;
     case COIN_CLASS:
@@ -393,7 +431,7 @@ function xnameBase(obj, type, state) {
         if (knownType || !dknown) {
             if (!dknown) return `${prefix}potion`;
             if (knownType) {
-                const holy = obj.otyp === POT_WATER && obj.bknown
+                const holy = obj.otyp === POT_WATER && ident.bknown
                     && (obj.blessed || obj.cursed)
                     ? `${obj.blessed ? 'holy' : 'unholy'} `
                     : '';
@@ -462,16 +500,23 @@ function notFullyIdentified(obj, type, state) {
     }
     return isDamageable(obj, state);
 }
+// C ref: objnam.c obj_is_pname() (332-342), read from xname_flags() and
+// doname_base(). :337 skips the not_fully_identified() test while
+// iflags.override_ID is raised, so an artifact the hero has not identified
+// still answers by its own name. The exported obj_is_pname() below is a
+// second, narrower reading of the same C function that yname() uses.
 function objectIsPersonalName(obj, type, state) {
-    return Boolean(obj.oartifact
-        && obj.oextra?.oname
-        && !notFullyIdentified(obj, type, state));
+    if (!obj.oartifact || !obj.oextra?.oname) return false;
+    if (state.iflags?.override_ID) return true;
+    return !notFullyIdentified(obj, type, state);
 }
-function theUniqueObject(obj, type) {
-    if (!obj.dknown) return false;
-    if (obj.otyp === FAKE_AMULET_OF_YENDOR && !obj.known) return true;
+// C ref: objnam.c the_unique_obj() (1106-1117).
+function theUniqueObject(obj, type, state) {
+    const { known, dknown } = identificationFlags(obj, type, state);
+    if (!dknown) return false;
+    if (obj.otyp === FAKE_AMULET_OF_YENDOR && !known) return true;
     return Boolean(type.oc_unique
-        && (obj.known || obj.otyp === AMULET_OF_YENDOR));
+        && (known || obj.otyp === AMULET_OF_YENDOR));
 }
 // C ref: decl.c vowels[].
 const VOWELS = 'aeiouAEIOU';
@@ -604,33 +649,45 @@ export function xnameFresh(obj, state) {
         throw new RangeError('xnameFresh requires positive quantity');
     const type = objectType(obj, state);
     preflightXname(obj, type, state);
+    // C ref: objnam.c xname_flags():625-626. This runs ahead of the
+    // override_ID block at :632, so it reads the type's stored flag rather
+    // than the `nn` that block forces to 1.
     if (!type.oc_name_known && type.oc_uses_known && type.oc_unique)
         obj.known = false;
     // C ref: objnam.c xname_flags():627, `if (!Blind && !gd.distantname)`.
     // distant_name() raises that counter around a formatting call for an
     // object the hero cannot inspect up close, so naming it neither sets
-    // dknown nor enters the type in the discoveries list.
+    // dknown nor enters the type in the discoveries list. invent.c
+    // reroll_menu():2579 raises it for the same reason: a character the
+    // player has not accepted yet must discover nothing.
     if (!heroIsBlind(state) && !state.gd?.distantname)
         observe_object(obj, state);
     if (state.urole?.mnum === PM_CLERIC)
         obj.bknown = true;
+    const ident = identificationFlags(obj, type, state);
+    // C ref: objnam.c xname_flags():660. C reads the stored dknown here
+    // and says why: wizard-mode ^I must not find an artifact the hero has
+    // only ever held while blind.
     if (obj.oartifact && obj.dknown)
         find_artifact(obj, state);
     const personalName = objectIsPersonalName(obj, type, state);
     let base = personalName
         ? String(obj.oextra.oname)
-        : xnameBase(obj, type, state);
+        : xnameBase(obj, type, state, ident);
     if (quantity !== 1) {
         base = obj.otyp === SLIME_MOLD
             ? makeplural(makesingular(base))
             : makeplural(base);
     }
-    if (!personalName && obj.oextra?.oname && obj.dknown)
+    if (!personalName && obj.oextra?.oname && ident.dknown)
         base += ` named ${obj.oextra.oname}`;
     return base.replace(/^the /iu, '');
 }
-function bucWord(obj, type, state) {
-    if (!obj.bknown || obj.oclass === COIN_CLASS) return '';
+function bucWord(obj, type, state, ident) {
+    if (!ident.bknown || obj.oclass === COIN_CLASS) return '';
+    // C ref: objnam.c doname_base():1319. The water type's stored discovery
+    // flag, not the `nn` override_ID forces: C allows "blessed clear potion"
+    // where the hero does not yet know that clear potions are water.
     if (obj.otyp === POT_WATER && type.oc_name_known
         && (obj.cursed || obj.blessed)) {
         return '';
@@ -639,7 +696,7 @@ function bucWord(obj, type, state) {
     if (obj.blessed) return 'blessed';
     if (state.flags?.implicit_uncursed === false)
         return 'uncursed';
-    const needsUncursed = !obj.known
+    const needsUncursed = !ident.known
         || !type.oc_charged
         || obj.oclass === ARMOR_CLASS
         || obj.oclass === RING_CLASS;
@@ -650,7 +707,10 @@ function bucWord(obj, type, state) {
         && state.urole?.mnum !== PM_CLERIC
         ? 'uncursed' : '';
 }
-function erosionWords(obj, state) {
+// C ref: objnam.c add_erosion_words() (1143-1191). Its first line reads
+// iflags.override_ID for itself, so this takes the effective rknown rather
+// than the object's own.
+function erosionWords(obj, state, rknown) {
     const crysknife = obj.otyp === CRYSKNIFE;
     if (!isDamageable(obj, state) && !crysknife) return [];
     const words = [];
@@ -667,7 +727,7 @@ function erosionWords(obj, state) {
         if (level) words.push(level);
         words.push(isCorrodeable(obj, state) ? 'corroded' : 'rotted');
     }
-    if (obj.rknown && obj.oerodeproof) {
+    if (rknown && obj.oerodeproof) {
         words.push(crysknife ? 'fixed'
             : isRustprone(obj, state) ? 'rustproof'
                 : isCorrodeable(obj, state) ? 'corrodeproof'
@@ -681,8 +741,8 @@ function signed(value) {
     const number = Math.trunc(value);
     return number >= 0 ? `+${number}` : String(number);
 }
-function chargedSuffix(obj, type) {
-    return obj.known && type.oc_charged
+function chargedSuffix(obj, type, known) {
+    return known && type.oc_charged
         ? ` (${Math.trunc(obj.recharged)}:${Math.trunc(obj.spe)})`
         : '';
 }
@@ -1037,8 +1097,15 @@ export function Tobjnam(otmp, verb, state = game) {
 // than "an Excalibur".
 //
 // C's first test settles every object this port can produce: an object with no
-// oartifact answers FALSE outright. The artifact arm reads has_oname() and
-// not_fully_identified(), neither of which is ported, so it stops here.
+// oartifact answers FALSE outright, and the artifact arm stops here.
+//
+// objectIsPersonalName() above is a second reading of the same C function,
+// with that arm ported: has_oname() is obj.oextra.oname, not_fully_identified()
+// is notFullyIdentified() and :337's override_ID skip is there too. xname()
+// and doname() call it, so an artifact already reaches a name through them and
+// only this reading refuses one. Reconciling the two is a change to what
+// yname() and do_wear.c on_msg() print for an artifact, which needs a fresh
+// case of its own; until then the narrower reading is the fail-closed one.
 export function obj_is_pname(obj) {
     if (!obj.oartifact) return false;
     return unsupported('obj_is_pname() for an artifact', obj);
@@ -1078,23 +1145,28 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
     const type = objectType(obj, state);
     preflightDoname(obj, type, state, allowLiveShopPrice);
     let base = xnameFresh(obj, state);
+    // C ref: objnam.c doname_base():1254-1262, which reads these after its own
+    // `bp = xname(obj)` at :1247. xnameFresh() above can clear obj.known for
+    // an undiscovered unique type, so the order matters here as it does there.
+    const ident = identificationFlags(obj, type, state);
     const quantity = Math.trunc(obj.quan);
     const modifiers = [];
-    const buc = bucWord(obj, type, state);
+    const buc = bucWord(obj, type, state, ident);
     if (buc) modifiers.push(buc);
     // C ref: objnam.c doname(). "empty" comes first, before the blessed or
     // uncursed word, when the contents are known and there are none. A bag of
     // tricks or horn of plenty judges emptiness by its charges instead, and
     // both stop above.
-    if (obj.cknown && (isContainer(obj) || obj.otyp === STATUE)
+    if (ident.cknown && (isContainer(obj) || obj.otyp === STATUE)
         && !hasContents(obj)) {
         modifiers.unshift('empty');
     }
     // A box announces a known trap and its known lock state before the
-    // greased prefix.
+    // greased prefix. C reads the stored dknown for the trap, and there is no
+    // override for tknown at all.
     if (isBox(obj) && obj.otrapped && obj.tknown && obj.dknown)
         modifiers.push('trapped');
-    if (obj.lknown && isBox(obj)) {
+    if (ident.lknown && isBox(obj)) {
         modifiers.push(
             obj.obroken ? 'broken' : obj.olocked ? 'locked' : 'unlocked',
         );
@@ -1117,8 +1189,8 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
             base = base.slice('poisoned '.length);
             modifiers.push('poisoned');
         }
-        modifiers.push(...erosionWords(obj, state));
-        if (obj.known) modifiers.push(signed(obj.spe));
+        modifiers.push(...erosionWords(obj, state, ident.rknown));
+        if (ident.known) modifiers.push(signed(obj.spe));
         break;
     case TOOL_CLASS:
         if (isCandle(obj)) {
@@ -1128,7 +1200,7 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
         }
         break;
     case RING_CLASS:
-        if (obj.known && type.oc_charged)
+        if (ident.known && type.oc_charged)
             modifiers.push(signed(obj.spe));
         break;
     case FOOD_CLASS:
@@ -1137,14 +1209,14 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
     case BALL_CLASS:
     case CHAIN_CLASS:
         if (erosionMatters(obj, state))
-            modifiers.push(...erosionWords(obj, state));
+            modifiers.push(...erosionWords(obj, state, ident.rknown));
         break;
     default:
         break;
     }
     if (obj.otyp === CORPSE)
         return corpseDoname(obj, modifiers, state);
-    if (obj.otyp === EGG && obj.corpsenm !== NON_PM && obj.known) {
+    if (obj.otyp === EGG && obj.corpsenm !== NON_PM && ident.known) {
         base = `${monsterObjectName(obj, state)} ${base}`;
         if (obj.spe === 1) base += ' (laid by you)';
     }
@@ -1161,7 +1233,7 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
         base += ' (lit)';
     } else if (nameClass === WAND_CLASS
         || (nameClass === TOOL_CLASS && type.oc_charged)) {
-        base += chargedSuffix(obj, type);
+        base += chargedSuffix(obj, type, ident.known);
     }
     base += wornSuffix(obj, type, state);
     const words = [...modifiers, base].join(' ');
@@ -1171,7 +1243,7 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
         ? matching_artifact_fruit(base, state) : null;
     if (fakeArtifact?.forceThe
         || objectIsPersonalName(obj, type, state)
-        || theUniqueObject(obj, type)) {
+        || theUniqueObject(obj, type, state)) {
         return `the ${words.replace(/^the /iu, '')}`;
     }
     if (fakeArtifact) return words;

@@ -1,6 +1,5 @@
 // Startup attribute-and-inventory reroll menu.
-// C refs: invent.c reroll_menu(), objnam.c xname()/doname(), and
-// win/tty/topl.c tty_yn_function().
+// C refs: invent.c reroll_menu() and win/tty/topl.c tty_yn_function().
 
 import {
     A_CHA,
@@ -11,7 +10,6 @@ import {
     A_WIS,
     HALLUC,
     HALLUC_RES,
-    NON_PM,
     PICK_ONE,
     TOPLINE_NON_EMPTY,
     TOPLINE_SPECIAL_PROMPT,
@@ -22,23 +20,9 @@ import {
     object_glyph_info,
     random_object_glyph_info,
 } from './display.js';
-import {
-    TIN_VARIETIES,
-    nonrotting_corpse,
-    vegetarian,
-} from './eat.js';
-import {
-    fruit_from_indx,
-    makeplural,
-    matching_artifact_fruit,
-    makesingular,
-} from './fruit.js';
 import { game } from './gstate.js';
 import { nhgetch } from './input.js';
-import * as M from './monsters.js';
-import { JAPANESE_ITEM_NAMES } from './objnam_data.js';
-import { isContainer, is_weptool, objectType } from './obj.js';
-import { isPoisonable } from './objnam.js';
+import { donameFresh } from './objnam.js';
 import * as O from './objects.js';
 import { rn2_on_display_rng } from './rng.js';
 import { NO_COLOR } from './terminal.js';
@@ -74,204 +58,6 @@ function rerollObjectGlyphInfo(
         return hallucinated_statue_glyph_info(state, displayRandom);
     if (!hallucinating(state)) return object_glyph_info(obj, state);
     return random_object_glyph_info(state, displayRandom);
-}
-
-function objectActualName(obj, state) {
-    const type = objectType(obj, state);
-    if (state.urole?.mnum === M.PM_SAMURAI
-        && JAPANESE_ITEM_NAMES.has(obj.otyp)) {
-        return JAPANESE_ITEM_NAMES.get(obj.otyp);
-    }
-    return O.OBJ_NAME(type, state) ?? 'object?';
-}
-
-function monsterName(mnum, state) {
-    return state.mons?.[mnum]?.pmnames?.[2] ?? 'monster';
-}
-
-function tinBaseName(obj, state) {
-    if (obj.spe === 1) return 'tin of spinach';
-    if (obj.corpsenm === NON_PM) return 'empty tin';
-
-    let variety = obj.cursed ? 0 : (obj.spe < 0 ? -obj.spe - 1 : null);
-    if (variety === 0 && nonrotting_corpse(obj.corpsenm, state)) {
-        variety = 1;
-    }
-    const preparation = Number.isInteger(variety)
-        ? TIN_VARIETIES[variety]?.name : null;
-    const species = monsterName(obj.corpsenm, state);
-    const filling = vegetarian(state.mons?.[obj.corpsenm])
-        ? species : `${species} meat`;
-    if (variety === 0 || variety === 1)
-        return `${preparation} tin of ${filling}`;
-    return `tin of ${preparation ? `${preparation} ` : ''}${filling}`;
-}
-
-function foodBaseName(obj, state) {
-    if (obj.otyp === O.SLIME_MOLD) {
-        const fruit = fruit_from_indx(obj.spe, state);
-        return fruit?.fname ?? 'fruit';
-    }
-    if (obj.otyp === O.TIN) return tinBaseName(obj, state);
-    if (obj.otyp === O.CORPSE && obj.corpsenm !== NON_PM)
-        return `${monsterName(obj.corpsenm, state)} corpse`;
-    return objectActualName(obj, state);
-}
-
-function gemBaseName(obj, state) {
-    const type = objectType(obj, state);
-    let name = objectActualName(obj, state);
-    const isGemStone = obj.otyp === O.FLINT
-        || (type.oc_material === O.GEMSTONE
-            && ![
-                O.DILITHIUM_CRYSTAL,
-                O.RUBY,
-                O.DIAMOND,
-                O.SAPPHIRE,
-                O.BLACK_OPAL,
-                O.EMERALD,
-                O.OPAL,
-            ].includes(obj.otyp));
-    if (isGemStone) name += ' stone';
-    return name;
-}
-
-function baseObjectName(obj, state) {
-    const actual = objectActualName(obj, state);
-    const type = objectType(obj, state);
-    switch (obj.oclass) {
-    case O.AMULET_CLASS:
-    case O.WEAPON_CLASS:
-    case O.TOOL_CLASS:
-    case O.COIN_CLASS:
-    case O.CHAIN_CLASS:
-    case O.ROCK_CLASS:
-        return actual;
-    case O.ARMOR_CLASS:
-        if (obj.otyp >= O.GRAY_DRAGON_SCALES
-            && obj.otyp <= O.YELLOW_DRAGON_SCALES) {
-            return `set of ${actual}`;
-        }
-        if (type.oc_armcat === O.ARM_BOOTS
-            || type.oc_armcat === O.ARM_GLOVES) {
-            return `pair of ${actual}`;
-        }
-        return actual;
-    case O.FOOD_CLASS:
-        return foodBaseName(obj, state);
-    case O.POTION_CLASS:
-        if (obj.otyp === O.POT_WATER && (obj.blessed || obj.cursed)) {
-            return `potion of ${obj.blessed ? 'holy' : 'unholy'} water`;
-        }
-        return `potion of ${actual}`;
-    case O.SCROLL_CLASS:
-        return `scroll of ${actual}`;
-    case O.SPBOOK_CLASS:
-        return obj.otyp === O.SPE_NOVEL
-            || obj.otyp === O.SPE_BOOK_OF_THE_DEAD
-            ? actual : `spellbook of ${actual}`;
-    case O.WAND_CLASS:
-        return `wand of ${actual}`;
-    case O.RING_CLASS:
-        return `ring of ${actual}`;
-    case O.GEM_CLASS:
-        return gemBaseName(obj, state);
-    case O.BALL_CLASS:
-        return obj.owt > type.oc_weight
-            ? 'very heavy iron ball' : 'heavy iron ball';
-    default:
-        return actual;
-    }
-}
-
-const pluralizeBaseName = makeplural;
-
-function indefiniteArticle(text) {
-    // NetHack's an() has a larger exception table. Startup objects which lack
-    // a BUC or enchantment prefix only need the ordinary leading-vowel rule.
-    return /^[aeiou]/iu.test(text) ? 'an' : 'a';
-}
-
-function isLampOrCandle(obj) {
-    return obj.otyp === O.OIL_LAMP
-        || obj.otyp === O.MAGIC_LAMP
-        || obj.otyp === O.BRASS_LANTERN
-        || obj.otyp === O.TALLOW_CANDLE
-        || obj.otyp === O.WAX_CANDLE;
-}
-
-function identifiedStartingObjectName(obj, state) {
-    const type = objectType(obj, state);
-    const quantity = Math.trunc(obj.quan ?? 1);
-    let base = baseObjectName(obj, state);
-    const artifactFruit = obj.otyp === O.SLIME_MOLD
-        ? matching_artifact_fruit(base, state) : null;
-    if (quantity !== 1) {
-        if (obj.otyp === O.SLIME_MOLD) {
-            // xname() first singularizes user fruit names to avoid adding a
-            // second plural suffix, then pluralizes the result.
-            base = pluralizeBaseName(makesingular(base));
-        } else {
-            base = pluralizeBaseName(base);
-        }
-    }
-
-    const prefixes = [];
-    const empty = (isContainer(obj) || obj.otyp === O.STATUE) && !obj.cobj;
-    if (empty) prefixes.push('empty');
-
-    const identifiedHolyWater = obj.otyp === O.POT_WATER
-        && (obj.blessed || obj.cursed)
-        && Boolean(state.objects[O.POT_WATER].oc_name_known);
-    if (obj.oclass !== O.COIN_CLASS && !identifiedHolyWater) {
-        if (obj.cursed) prefixes.push('cursed');
-        else if (obj.blessed) prefixes.push('blessed');
-        else {
-            const implicitUncursed = state.flags?.implicit_uncursed !== false;
-            const cleric = state.urole?.mnum === M.PM_CLERIC;
-            const omit = implicitUncursed
-                && type.oc_charged
-                && obj.oclass !== O.ARMOR_CLASS
-                && obj.oclass !== O.RING_CLASS;
-            if (!implicitUncursed || (!cleric && !omit))
-                prefixes.push('uncursed');
-        }
-    }
-
-    // objnam.c:686 is `if (is_poisonable(obj) && obj->opoisoned)`. This file
-    // used to spell the macro out as `WEAPON_CLASS || is_weptool()`, which is
-    // neither of obj.h:264-268's two disjuncts: C admits the multigen skill
-    // window, and widens it with permapoisoned(). C reaches 686 only from
-    // `case WEAPON_CLASS:` of the switch on obj->oclass at 670, so
-    // permapoisoned() widens the test within WEAPON_CLASS and not across
-    // classes. The call below carries no class test because artifact.c
-    // permapoisoned() answers TRUE for Grimtooth alone, an orcish dagger; a
-    // permapoisoned non-weapon would need the switch arm this file lacks.
-    if (isPoisonable(obj, state) && obj.opoisoned) prefixes.push('poisoned');
-    if (obj.oclass === O.WEAPON_CLASS
-        || obj.oclass === O.ARMOR_CLASS
-        || is_weptool(obj, state)) {
-        prefixes.push(`${obj.spe >= 0 ? '+' : ''}${Math.trunc(obj.spe)}`);
-    } else if (obj.oclass === O.RING_CLASS && type.oc_charged) {
-        prefixes.push(`${obj.spe >= 0 ? '+' : ''}${Math.trunc(obj.spe)}`);
-    }
-
-    if (obj.otyp === O.EGG && obj.corpsenm !== NON_PM)
-        prefixes.push(monsterName(obj.corpsenm, state));
-
-    if ((obj.oclass === O.WAND_CLASS
-        || (obj.oclass === O.TOOL_CLASS && type.oc_charged))
-        && !isLampOrCandle(obj)) {
-        base += ` (${Math.trunc(obj.recharged ?? 0)}:${Math.trunc(obj.spe)})`;
-    }
-
-    const description = [...prefixes, base].join(' ');
-    if (quantity !== 1) return `${quantity} ${description}`;
-    if (artifactFruit?.forceThe) {
-        return `the ${[...prefixes, base.replace(/^the /iu, '')].join(' ')}`;
-    }
-    if (artifactFruit) return description;
-    return `${indefiniteArticle(description)} ${description}`;
 }
 
 function attributeArray(value) {
@@ -314,15 +100,34 @@ export function buildRerollMenuSpec(
         },
         { text: '' },
     ];
-    for (let obj = state.invent; obj; obj = obj.nobj) {
-        // invent.c:reroll_menu() computes the glyph before doname(). Keep the
-        // order explicit even though ordinary startup glyphs are pure today.
-        const glyphInfo = rerollObjectGlyphInfo(obj, state, displayRandom);
-        const text = identifiedStartingObjectName(obj, state);
-        items.push({
-            text,
-            glyphInfo,
-        });
+    // C ref: invent.c reroll_menu():2579-2588. Both counters are ints that C
+    // raises before the loop and lowers after it, and this is the port's only
+    // writer of either. gd.distantname keeps xname() from entering the kit in
+    // the discoveries list, because the player has not accepted this character
+    // yet; iflags.override_ID makes doname() describe a kit the hero has not
+    // identified in full.
+    state.gd ??= {};
+    state.iflags ??= {};
+    state.gd.distantname = (state.gd.distantname ?? 0) + 1;
+    state.iflags.override_ID = (state.iflags.override_ID ?? 0) + 1;
+    try {
+        for (let obj = state.invent; obj; obj = obj.nobj) {
+            // reroll_menu() computes the glyph before doname(). Keep the order
+            // explicit even though ordinary startup glyphs are pure today.
+            const glyphInfo = rerollObjectGlyphInfo(obj, state, displayRandom);
+            const text = donameFresh(obj, state);
+            items.push({
+                text,
+                glyphInfo,
+            });
+        }
+    } finally {
+        // C's two decrements cannot be skipped. A JavaScript formatter that
+        // refuses an unported name branch throws instead of returning, and a
+        // counter left raised would silence observe_object() and force full
+        // identification for every later name in the same game.
+        state.iflags.override_ID -= 1;
+        state.gd.distantname -= 1;
     }
     items.push({ text: '' }, { text: rerollAttributeLine(state) });
 
@@ -405,8 +210,6 @@ export async function reroll_menu(state = game, options = {}) {
 export const _startupRerollInternals = Object.freeze({
     effectiveAttribute,
     fallbackRerollChoice,
-    identifiedStartingObjectName,
-    pluralizeBaseName,
     rerollAttributeLine,
     rerollObjectGlyphInfo,
     strengthText,
