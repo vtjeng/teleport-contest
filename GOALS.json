@@ -2349,8 +2349,8 @@
         },
         {
           "name": "negated-boolean-parameter-and-hilite-attributes",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "c14a07eb8663c8cca3b23bf31329676e68eafad9"
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",
