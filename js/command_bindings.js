@@ -1,7 +1,7 @@
 // command_bindings.js -- Source command-key binding state.
 // C ref: cmd.c extcmdlist[], commands_init(), and reset_commands().
 
-import { extcmdlist } from './extcmdlist_data.js';
+import { INTERNALCMD, extcmdlist } from './extcmdlist_data.js';
 
 // C ref: cmd.c commands_init(), which walks extcmdlist[] and binds every row
 // carrying a nonzero key. Keeping that order matters because rebinding an
@@ -11,6 +11,15 @@ const SOURCE_EXTENDED_COMMAND_DEFAULTS = Object.freeze(
     extcmdlist.filter((entry) => entry.key)
         .map((entry) => Object.freeze([entry.key, entry.ef_txt])),
 );
+
+// C ref: include/func_tab.h INTERNALCMD, "only for internal use, not for
+// user". cmd.c gives the flag to six extcmdlist[] rows (2060-2065), none of
+// which carries a key, so a `bind` statement in a configuration file is the
+// only thing that can name one.
+const INTERNAL_COMMAND_NAMES = Object.freeze(new Set(
+    extcmdlist.filter((entry) => (entry.flags & INTERNALCMD) !== 0)
+        .map((entry) => entry.ef_txt),
+));
 
 // cmd.c commands_init() registers the number-pad compatibility aliases first,
 // then the unconditional alternate keys. Array order preserves its head
@@ -299,6 +308,11 @@ export function createCommandBindingModel(state) {
             const command = (parameter >= 0
                 ? operation.command.slice(0, parameter)
                 : operation.command).toLowerCase();
+            // cmd.c bind_key() (2690-2693) passes over an INTERNALCMD row
+            // rather than binding it, and no other row carries the same
+            // ef_txt, so the loop runs out and bind_key() returns FALSE. The
+            // key keeps whatever it already held.
+            if (INTERNAL_COMMAND_NAMES.has(command)) continue;
             setBinding(
                 model.bindings,
                 operation.key,

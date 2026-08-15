@@ -27,6 +27,7 @@ import {
     UnsupportedEatError,
     UnsupportedHungerTransitionError,
 } from '../js/eat.js';
+import { INTERNALCMD, extcmdlist } from '../js/extcmdlist_data.js';
 import {
     ALTAR,
     BEAR_TRAP,
@@ -2717,6 +2718,41 @@ test('runtime bindings apply a custom movement binding, phone-layout directions,
         )),
         ['movewest', 'movenorth', 'moveeast', 'movesouth'],
     );
+});
+
+// C ref: cmd.c bind_key() (2688-2694), whose loop skips an INTERNALCMD row
+// and then finds no other row spelled the same way, so it returns FALSE
+// without calling cmdbind_add(). No recorded case can show this: all six rows
+// carry a NUL key, so only a `bind` statement reaches one, and C answers that
+// statement with the config error this port has no non-fatal form of.
+test('a binding to an internal command leaves the key where it was', () => {
+    const internal = extcmdlist.filter(
+        (entry) => (entry.flags & INTERNALCMD) !== 0,
+    );
+    // cmd.c:2060-2065. Naming them here is what makes the loop below a test
+    // rather than a restatement of the production filter.
+    assert.deepEqual(internal.map((entry) => entry.ef_txt), [
+        'clicklook', 'mouseaction', 'altadjust', 'altdip', 'alttakeoff',
+        'altunwield',
+    ]);
+    for (const entry of internal) {
+        assert.equal(entry.key, 0, entry.ef_txt);
+        // 'Z' is #cast's compiled-in key, so a statement C refuses leaves
+        // #cast holding it.
+        const model = createCommandBindingModel(
+            parseNethackrc(`BINDINGS=Z:${entry.ef_txt}\n`),
+        );
+        assert.equal(
+            commandForKey(model, commandKeyCode('Z')), 'cast', entry.ef_txt,
+        );
+    }
+    // The control: an ordinary row with the same statement shape does bind,
+    // so the flag and not the statement is what the skip reads. #dip is
+    // altdip's own handler under a name bind_key() accepts.
+    const bound = createCommandBindingModel(
+        parseNethackrc('BINDINGS=Z:dip\n'),
+    );
+    assert.equal(commandForKey(bound, commandKeyCode('Z')), 'dip');
 });
 
 // C ref: cmd.c's rest_on_space updater (3487-3503). Its `unrestonspace` is a
