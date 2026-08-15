@@ -2354,8 +2354,8 @@
         },
         {
           "name": "boolean-value-c-cannot-read-still-fail-closed",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e942afbd9e05262217a7e0d564b7e7b6ae9dd6e5"
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",
