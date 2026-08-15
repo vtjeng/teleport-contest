@@ -36,6 +36,7 @@ import {
     CROSSWALL,
     DBWALL,
     DO_MOVE,
+    DOMOVE_WALK,
     D_BROKEN,
     D_CLOSED,
     D_ISOPEN,
@@ -2171,6 +2172,100 @@ test('retried fight movement retains its force-fight prefix', async () => {
     assert.equal(game.context.pendingCommand, undefined);
 });
 
+// The other half of do_fight()'s effect. cmd.c do_fight():1632 sets
+// gd.domove_attempting |= DOMOVE_WALK beside svc.context.forcefight, and
+// rhack():3785 picks the walk arm from that word rather than from the run value
+// the row carries; set_move_cmd():1396 leaves svc.context.run alone while the
+// word is set. The test above cannot see the difference, because a plain
+// direction key is run mode 0 and a retry that rebuilt the word from scratch
+// would reach DOMOVE_WALK and svc.context.run 0 anyway.
+//
+// A shift-direction key can, and one is reachable behind the `F` prefix. The
+// eight do_move_<dir> rows are the only ones carrying CMD_gGF_PREFIX
+// (cmd.c:2009-2023), so a bare `FL` is turned away at rhack():3693-3722; but
+// was_m_prefix latches on do_reqmenu() and is never cleared (3771-3772), so
+// after `mF` the accepted flag is CMD_M_PREFIX, which do_run_east does carry
+// (cmd.c:2051). `mFL` therefore reaches the dispatch with DOMOVE_WALK set and
+// run mode 1, where C spends the turn on one forced swing and clears
+// svc.context.forcefight after it.
+test('retried fight movement retains its committed walk intent', async () => {
+    const replay = await runSegment({
+        // The seed and square the sibling test above prepares, for the same
+        // reason: only retry ownership varies.
+        seed: 840006,
+        datetime: COMMAND_DATETIME,
+        nethackrc: 'OPTIONS=name:PendingWalkIntent,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!autopickup',
+        moves: '',
+    });
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
+    resetCommandVars(game);
+    const start = [game.u.ux, game.u.uy];
+    const x = start[0] + 1;
+    const y = start[1];
+    const east = game.level.at(x, y);
+    east.typ = ROOM;
+    east.flags = east.doormask = 0;
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.objects[x][y] = null;
+    game.level.traps = [];
+    game.level.regions = [];
+    game.head_engr = null;
+    // The undetected newt of the sibling test. hack.c runStopsBeforeMonster()
+    // answers FALSE for it at every run value, because display.h mon_visible()
+    // reads mundetected, so the run mode does not change which refusal the
+    // destination reaches.
+    const hidden = newMonster({
+        m_id: 840602,
+        mx: x,
+        my: y,
+        mhp: 3,
+        mcanmove: true,
+        data: game.mons[PM_NEWT],
+    });
+    hidden.mundetected = 1;
+    game.level.monsters[x][y] = hidden;
+    game.level.monlist = hidden;
+    game.nhDisplay.pushKey(commandKeyCode('m'));
+    game.nhDisplay.pushKey(commandKeyCode('F'));
+    // `L` is run-east, the shift-direction row `F` alone could not prefix.
+    game.nhDisplay.pushKey(commandKeyCode('L'));
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            moveloop_core(),
+            (error) => (
+                error instanceof UnsupportedHeroMoveBoundaryError
+                && error.reason === 'attacking a hidden monster'
+            ),
+        );
+        assert.equal(game.context.pendingCommand.key, commandKeyCode('L'));
+        // js/const.js and js/cmd.js hold the same DOMOVE_WALK bit; the
+        // capture has to carry it, because resetCommandVars() zeroed the
+        // live word on the refusal and no later input can rebuild it.
+        assert.equal(
+            game.context.pendingCommand.domoveAttempting,
+            DOMOVE_WALK,
+        );
+        assert.equal(game.domoveAttempting, 0);
+    }
+
+    game.level.monsters[x][y] = null;
+    game.level.monlist = null;
+    await moveloop_core();
+
+    // The walk arm swings once and clears the prefix. A retry that lost the
+    // word takes rhack()'s DOMOVE_RUSH arm instead, which skips
+    // `svc.context.forcefight = 0` and leaves the next movement command a
+    // force-fight the player never typed.
+    assert.deepEqual([game.u.ux, game.u.uy], start);
+    assert.equal(game._ttyToplines, 'You attack thin air.');
+    assert.equal(game.context.forcefight, 0);
+    assert.equal(game.context.pendingCommand, undefined);
+});
+
 test('simple hero movement admits empty room and corridor controls',
     async () => {
         for (const terrain of [ROOM, CORR]) {
@@ -3069,6 +3164,52 @@ test('the segment runner preserves output at an excluded count boundary',
     assert.equal(game._commandDispatchCount, 1);
 });
 
+test('a count ahead of an unadmitted command byte is refused after parse()',
+    async () => {
+    // cmd.c parse() (5096-5151) runs to completion before rhack() looks at the
+    // byte it returned, so a command this port will not dispatch is refused at
+    // the command byte and never at a count digit: get_count() has already
+    // consumed and echoed the digits, parse():5142-5144 has already committed
+    // gm.multi, and parse():5147's clear_nhwindow(WIN_MESSAGE) has already
+    // cleared the row. 'X' is the twoweapon row (cmd.c:1913), which
+    // ADMITTED_COMMANDS omits, so it is refused whether or not a count precedes
+    // it -- and the counted form has to cost the two extra key reads, not stop
+    // at the first digit.
+    for (const [typed, screens, count] of [
+        [' X', 2, 0],
+        [' 12X', 4, 12],
+    ]) {
+        const replay = await runSegment({
+            seed: 840021,
+            datetime: COMMAND_DATETIME,
+            nethackrc: 'OPTIONS=name:CountUnadmitted,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none',
+            // The leading space dismisses startup output, so every later byte
+            // is part of the command under test.
+            moves: typed,
+        });
+        assert.deepEqual(
+            game.context.pendingCommand,
+            {
+                key: commandKeyCode('X'),
+                commandCount: count,
+                lastCommandCount: count,
+                // parse():5142-5144 assigns the count and then decrements it.
+                multi: count ? count - 1 : 0,
+            },
+            `'${typed}' retains the parsed command`,
+        );
+        // One screen per key read. A refusal taken on the byte that opened the
+        // command would stop at the '1' and leave two of these unspent.
+        assert.equal(
+            replay.getScreens().length,
+            screens,
+            `'${typed}' read every byte`,
+        );
+    }
+});
+
 test('a count of 0 or 1 leaves the command identical to a bare one',
     async () => {
     // cmd.c parse():5142-5144 is `gm.multi = gc.command_count; if (gm.multi)
@@ -3090,7 +3231,7 @@ test('a count of 0 or 1 leaves the command identical to a bare one',
         runs.push({
             typed,
             // gl.last_command_count outlives the command, where
-            // gc.command_count is zeroed by parse():5104 on the next entry.
+            // gc.command_count is zeroed by parse():5102 on the next entry.
             lastCommandCount: game.lastCommandCount,
             rng: replay.getRngLog(),
             // The last capture is the prompt the search returned to, so it

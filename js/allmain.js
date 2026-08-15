@@ -546,12 +546,27 @@ function elapsedTurnBoundary(reason) {
     );
 }
 
-// C ref: allmain.c interrupt_multi(), which regen_hp() and regen_pw() reach
-// when the hero regains the last hit point or the last power point during a
-// multi-turn action. A run and a travel are deliberately exempt, and a run is
-// the only way this port reaches a positive multi, so this is a no-op today.
-// A counted repeat would print through Norep(); regen_hp() and regen_pw() are
-// synchronous, so that arm stops before nomul(0) changes anything.
+// C ref: allmain.c interrupt_multi() (975-983), which regen_hp():678 and
+// regen_pw():617 reach when the hero regains the last hit point or the last
+// power point during a multi-turn action. A run and a travel are deliberately
+// exempt; every other positive multi is interrupted.
+//
+// A counted command reaches this. cmd.c rhack():3728-3729 installs a timed
+// occupation with the repeats parse() left in gm.multi and clears neither
+// context.run nor context.travel, so a counted `s` or `.` spanning the turn
+// the hero tops up leaves exactly the state the guard admits. The test named
+// 'a counted occupation leaves the state interrupt_multi() acts on', in
+// scripts/count-prefix.test.mjs, pins that, so the claim cannot go stale
+// unnoticed again.
+//
+// C runs nomul(0) first and then Norep(msg). ttyNorep() is async while
+// regen_hp() and regen_pw() are not, so making the message arm work means
+// making that whole call chain async and adding a message to a turn no input
+// bounds -- new rendering rather than an audit fix. The stop is therefore
+// taken ahead of nomul(0), leaving the interruption wholly unapplied, and
+// QUALITY.json carries `counted-occupation-full-health-interrupt` for the
+// slice that finishes it. The silent half, where flags.verbose is off or the
+// caller passes no message, is ported and runs.
 export function interrupt_multi(message, state) {
     if (!((state.multi ?? 0) > 0)
         || state.context.travel || state.context.run) {

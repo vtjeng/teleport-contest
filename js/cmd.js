@@ -918,7 +918,7 @@ const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
 // The count a command carries is refused separately, below, because parse()
 // admits the count before the command it modifies is even known.
 const COUNTED_BOUNDARY = 'cmd.c parse() committed a count leaving gm.multi '
-    + 'above 0 before a row carrying no occupation text, which allmain.c '
+    + 'above 0 before a row this port will not repeat, which allmain.c '
     + 'moveloop_core():515-531 turns into a repeat of the command; that arm '
     + 'is not ported';
 // context.run values this boundary dispatches. cmd.c set_move_cmd() takes the
@@ -946,10 +946,11 @@ const COUNTED_BOUNDARY = 'cmd.c parse() committed a count leaving gm.multi '
 export const ADMITTED_RUN_MODES = Object.freeze([0, 1, 3]);
 
 // A byte that cmd.c cmdbind_get() finds no command for reaches rhack()'s
-// bad-command path, which this file owns: it prints "Unknown command", clears
-// the canned queue, and zeroes gm.multi at cmd.c:3838-3839. A count parsed
-// ahead of such a byte therefore needs nothing beyond what is already ported,
-// which is why the count refusal below spares it.
+// bad-command path, which this file owns: it prints "Unknown command" at
+// cmd.c:3834, clears the canned and repeat queues at 3835-3836, and zeroes
+// gm.multi at 3841. A count parsed ahead of such a byte therefore needs
+// nothing beyond what is already ported, which is why the count refusal below
+// spares it.
 function unboundCommandKey(key, command) {
     if (command !== null) return false;
     // Escape is admitted by its own test below: it never reaches the
@@ -1198,9 +1199,12 @@ async function executeMovement(command, key, firstTime, state) {
 // deliberately absent for the same reason. A retry retains the effect of every
 // prefix this port owns, because rhack() has already consumed the prefix byte
 // and no later input can reconstruct it: the reqmenu effect before
-// set_move_cmd() copies it to context.nopick, and the fight effect, which is
-// context.forcefight itself. Dropping either would replay the direction key as
-// a plain walk, which is a different command from the one the player typed.
+// set_move_cmd() copies it to context.nopick, and both of do_fight()'s writes,
+// context.forcefight and the DOMOVE_WALK bit it puts in domoveAttempting.
+// Dropping any of them would replay the direction key as a different command
+// from the one the player typed -- a plain walk for the first two, and, for the
+// third, a rush, because set_move_cmd() rebuilds domoveAttempting from the
+// row's own run value once the word is empty.
 function captureParsedCommand(key, state) {
     return {
         key,
@@ -1209,6 +1213,9 @@ function captureParsedCommand(key, state) {
         multi: state.multi,
         ...(state.iflags?.menu_requested ? { menuRequested: true } : {}),
         ...(state.context?.forcefight ? { forcefight: true } : {}),
+        ...(state.domoveAttempting
+            ? { domoveAttempting: state.domoveAttempting }
+            : {}),
     };
 }
 
@@ -1219,6 +1226,7 @@ function restoreParsedCommand(pending, state) {
     state.multi = pending.multi;
     state.iflags.menu_requested = Boolean(pending.menuRequested);
     state.context.forcefight = pending.forcefight ? 1 : 0;
+    state.domoveAttempting = pending.domoveAttempting ?? 0;
     return pending.key;
 }
 
@@ -1947,14 +1955,18 @@ function timedOccupationFunction(row, key, state) {
     }
 }
 
-// C ref: cmd.c rhack(). Only the source handlers the port owns are
-// dispatched here. A fresh excluded physical byte stops retryably before
-// parsing or an unknown-command diagnostic. A supplied nonzero key (normally
-// cmdKey during a repeat) is already logical input and retains the diagnostic
-// behavior until that handler is ported. key === 0 normally reads a fresh
-// command, except that pendingCommand restores its physical or parsed retry
-// phase first. rhack() has no command-result return; context.move reports
-// whether the command took time.
+// C ref: cmd.c rhack(). Only the source handlers the port owns are dispatched
+// here. On a fresh read parse() always runs to completion first, so a byte the
+// port will not dispatch is refused only after get_count() has consumed and
+// echoed its digits and parse()'s closing clear_nhwindow(WIN_MESSAGE) has
+// cleared the row: admission happens at the command byte and never at a count
+// digit, and the refusal is retryable. A supplied nonzero key (normally cmdKey
+// during a repeat) is already logical input and retains the unknown-command
+// diagnostic until that handler is ported. key === 0 normally reads a fresh
+// command, except that pendingCommand restores the last parsed one first; it
+// has one shape only, captureParsedCommand()'s, which carries the parsed count
+// so that no keystroke is ever replayed. rhack() has no command-result return;
+// context.move reports whether the command took time.
 export async function rhack(key, state = game) {
     state.iflags ??= {};
     state.context ??= {};
@@ -2024,7 +2036,7 @@ export async function rhack(key, state = game) {
         let command = cmdqCommand
             ?? commandForKey(commandBindings(state), key);
         if (!await rhackCanDoExtcmd(command, state)) return;
-        // C ref: rhack()'s PREFIXCMD arm (3762-3772). A prefix runs its own
+        // C ref: rhack()'s PREFIXCMD arm (3762-3773). A prefix runs its own
         // handler, is remembered in prefix_seen, and jumps back to
         // got_prefix_input for the command it modifies -- so a prefix may
         // follow a prefix, and this is a loop for the same reason C uses a
@@ -2043,7 +2055,7 @@ export async function rhack(key, state = game) {
                 return;
             }
             prefixSeen = command;
-            // 3770-3771. was_m_prefix latches on do_reqmenu() and is never
+            // 3771-3772. was_m_prefix latches on do_reqmenu() and is never
             // cleared, so `Fm` and `mF` both leave the CMD_M_PREFIX rule in
             // force for the command that follows.
             if (command === 'reqmenu') wasMPrefix = true;
@@ -2090,7 +2102,7 @@ export async function rhack(key, state = game) {
         // first, because parse():5142-5144 already spent one repeat on it.
         //
         // This sits below the prefix loop because each pass through that loop
-        // calls parse() again, which zeroes gc.command_count at cmd.c:5104, so
+        // calls parse() again, which zeroes gc.command_count at cmd.c:5102, so
         // only the last parse's count survives to be spent.
         const row = command !== null ? EXTCMD_BY_NAME.get(command) : null;
         if (row?.f_text && !state.go?.occupation && state.multi) {
@@ -2105,9 +2117,16 @@ export async function rhack(key, state = game) {
             // repeat the command with, and that arm reaches lookaround() and
             // svc.context.mv, neither of which this port drives from a count.
             // A key bound to no command is exempt: the bad-command path below
-            // zeroes gm.multi itself, as cmd.c:3839 does. So is a row that
-            // carries occupation text while one is already running, which C
-            // leaves to the same repeat arm.
+            // zeroes gm.multi itself, as cmd.c:3841 does.
+            //
+            // A row that carries occupation text is not exempt when one is
+            // already running. It fails the `!go.occupation` term above and C
+            // leaves it to the same unported repeat arm, so it is refused
+            // here too, which is why the message names the rows this port will
+            // not repeat rather than the rows without occupation text. No
+            // ported path reaches that state: moveloop_core() returns before
+            // rhack() while an occupation is installed, so both of its rhack()
+            // calls arrive with go.occupation clear.
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
                 COUNTED_BOUNDARY,

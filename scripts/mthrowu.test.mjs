@@ -21,6 +21,7 @@ import { mksobj, mksobj_at } from '../js/obj.js';
 import { BOULDER, WAN_STRIKING } from '../js/objects.js';
 import { blocking_terrain, lined_up, linedup, m_lined_up }
     from '../js/mthrowu.js';
+import { vision_reset } from '../js/vision.js';
 
 // The same Valkyrie several other suites replay: a lit starting room on
 // dungeon level one, with the hero standing in it.
@@ -63,11 +64,13 @@ function clearRow(state, fromX, toX, y) {
     }
 }
 
-// Every case below aims at the hero's own square, so linedup() takes its
-// `u_at(ax, ay) ? couldsee(bx, by)` arm and the state's viz_array decides.
-// vision.c clear_path(), the other arm, reads the module-level transparency
-// index that vision_reset() builds rather than the map this test edits, and
-// scripts/light-vision.test.mjs pins it there.
+// Sets the bit linedup() reads when the ray starts on the hero's own square,
+// where it takes its `u_at(ax, ay) ? couldsee(bx, by)` arm and the state's
+// viz_array decides. vision.c clear_path(), the other arm, answers from the
+// module-level transparency index that vision_reset() builds rather than from
+// the map this test edits, so a case that wants that arm calls vision_reset()
+// after carving the row; scripts/light-vision.test.mjs pins clear_path()
+// itself.
 function setCouldSee(state, x, y, visible) {
     if (visible) state.viz_array[y][x] |= COULD_SEE;
     else state.viz_array[y][x] &= ~COULD_SEE;
@@ -187,6 +190,11 @@ test('linedup reads clear_path() for a ray that misses the hero square',
         // inside BOLT_LIM.
         const targetX = state.u.ux + 3;
         clearRow(state, state.u.ux, targetX, y);
+        // clear_path() answers from the transparency index vision_reset()
+        // builds, not from the map this test edits, so the carved row has to
+        // be published to that index before either answer below means
+        // anything.
+        vision_reset(state);
         setCouldSee(state, targetX, y, true);
 
         // From the hero's own square the couldsee() arm answers TRUE for the
@@ -196,15 +204,32 @@ test('linedup reads clear_path() for a ray that misses the hero square',
                 { state, random: noDraw() }),
             true,
         );
-        // One square east, with the same target, the same cleared row and the
-        // same bit, the answer flips: clear_path() reads the index this test
-        // never rebuilt, and the row it was carved through is still opaque
-        // there. Same inputs, opposite answers, is what pins the condition
-        // rather than either arm.
+        // One square east the other arm decides, and over a transparent row it
+        // answers TRUE as well. This is the case every monster-versus-monster
+        // shot takes, and an implementation that answered a constant FALSE
+        // here would stop all of them.
+        assert.equal(
+            linedup(state.u.ux + 1, y, targetX, y, 0,
+                { state, random: noDraw() }),
+            true,
+        );
+
+        // Rock in the middle of the same row, published to the same index,
+        // flips that arm and only that arm. Two opposite answers on one arm
+        // are what separate reading clear_path() from never reaching it, and
+        // the unchanged hero-square answer is what keeps the pair a test of
+        // the condition rather than of the terrain.
+        state.level.at(state.u.ux + 2, y).typ = STONE;
+        vision_reset(state);
         assert.equal(
             linedup(state.u.ux + 1, y, targetX, y, 0,
                 { state, random: noDraw() }),
             false,
+        );
+        assert.equal(
+            linedup(state.u.ux, y, targetX, y, 0,
+                { state, random: noDraw() }),
+            true,
         );
     });
 

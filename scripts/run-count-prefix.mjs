@@ -9,6 +9,11 @@
 // on a command prompt with a count already committed, so each one exercises
 // parse()'s closing clear_nhwindow(WIN_MESSAGE) as well as the count itself.
 //
+// parse():5110 is a disjunction, and both of its arms are recorded here. With
+// num_pad off every command byte reaches get_count(); with it on the digits are
+// movement keys and only the count key does, so the num_pad segments carry
+// their own option and are the only ones whose moves hold no digit.
+//
 // One seed serves the whole matrix: nothing here depends on level generation,
 // only on which byte parse() returns and what count it leaves behind. The
 // leading space dismisses the startup message so that "Be careful!  New moon
@@ -33,18 +38,29 @@ const DATETIME = '20260814101500';
 // by generating the level and reading the map, not from any recorded session.
 const SEED = 9310001;
 
-function nethackrc(name) {
+function nethackrc(name, numberPad = false) {
     return [
         `OPTIONS=name:${name},role:Valkyrie,race:human,gender:female,`
         + 'align:neutral',
         'OPTIONS=!legacy,!tutorial,!splash_screen',
-        'OPTIONS=pettype:none,!acoustics',
+        `OPTIONS=pettype:none,!acoustics${numberPad ? ',number_pad' : ''}`,
         '',
     ].join('\n');
 }
 
 function segment(name, moves) {
     return { seed: SEED, datetime: DATETIME, nethackrc: nethackrc(name), moves };
+}
+
+// parse():5110 reads the byte itself when num_pad is on and hands only the
+// count key to get_count(), so the whole count path moves behind one option.
+function numberPadSegment(name, moves) {
+    return {
+        seed: SEED,
+        datetime: DATETIME,
+        nethackrc: nethackrc(name, true),
+        moves,
+    };
 }
 
 export function loadCountPrefixRecipe() {
@@ -94,13 +110,21 @@ export function loadCountPrefixRecipe() {
             segment('CountPct', ' 12%'),
             // A prefix after a count. rhack() loops back to parse() for the
             // byte the prefix modifies, and that parse() zeroes
-            // gc.command_count at 5104, so the leading 3 is discarded and the
+            // gc.command_count at 5102, so the leading 3 is discarded and the
             // move is an ordinary uncounted one.
             segment('CountPfx', ' 3mh'),
             // A count parsed by that second parse(). One repeat is owed at
             // most, so gm.multi is 0 and pickup() reads the 1 as its own
             // limit.
             segment('CountMOne', ' m1,'),
+            // The same two count outcomes on parse()'s num_pad arm, where the
+            // digits are movement keys and only the count key reaches
+            // get_count(). An empty count commits 0 at get_count():5063-5067,
+            // so the search runs once as a bare one does; a count of 3 leaves
+            // gm.multi at 2 and installs the occupation, so the same option
+            // carries both sides of rhack():3728.
+            numberPadSegment('CountNumPad', ' ns'),
+            numberPadSegment('CountNumPadThree', ' n3s'),
         ],
     }, 'count prefix recipe');
 }

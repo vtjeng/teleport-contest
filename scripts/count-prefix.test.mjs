@@ -1,26 +1,43 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import {
+    interrupt_multi,
+    UnsupportedTurnBoundaryError,
+} from '../js/allmain.js';
 import { commandKeyCode } from '../js/command_bindings.js';
-import { donull, rhack, set_occupation } from '../js/cmd.js';
+import {
+    donull,
+    rhack,
+    set_occupation,
+    UnsupportedHeroCommandBoundaryError,
+} from '../js/cmd.js';
 import { dosearch } from '../js/detect.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { loadCountPrefixRecipe } from './run-count-prefix.mjs';
 
-// cmd.c parse():5112-5119 sends the command byte straight to get_count() when
+// cmd.c parse():5110-5120 sends the command byte straight to get_count() when
 // num_pad is off, so a digit anywhere before the committing byte is what makes
-// a segment a count case at all.
-const DIGITS = /[0-9]/u;
+// such a segment a count case at all. With num_pad on the digits are movement
+// keys and the count key is what opens get_count(), so a num_pad segment is a
+// count case by its count key instead.
+const COUNT_OPENERS = /[0-9]/u;
+const NUMBER_PAD_COUNT_OPENERS = /n/u;
 
 test('count-prefix matrix contains only source-selected count inputs', () => {
     const recipe = loadCountPrefixRecipe();
     assert.equal(recipe.version, 5);
-    assert.equal(recipe.segments.length, 11);
+    assert.equal(recipe.segments.length, 13);
     for (const segment of recipe.segments) {
         assert.equal(Object.hasOwn(segment, 'steps'), false);
         assert.match(segment.nethackrc, /OPTIONS=!legacy,!tutorial/u);
-        assert.match(segment.moves, DIGITS);
+        assert.match(
+            segment.moves,
+            /number_pad/u.test(segment.nethackrc)
+                ? NUMBER_PAD_COUNT_OPENERS
+                : COUNT_OPENERS,
+        );
     }
     // Distinct hero names keep each segment's recorder lock and save file
     // separate, so one segment stopped at a prompt cannot restore into another.
@@ -47,12 +64,26 @@ test('count-prefix matrix covers every get_count arm it claims', () => {
     // install boundary is covered from both sides on both rows.
     assert.deepEqual(
         moves.filter((keys) => keys.includes('s')),
-        [' 123\b\x7f\x7fs', ' 90\b\bs', ' 12\x1bs', ' 1s0s', ' 9s'],
+        [' 123\b\x7f\x7fs', ' 90\b\bs', ' 12\x1bs', ' 1s0s', ' 9s',
+            ' ns', ' n3s'],
     );
     assert.deepEqual(
         moves.filter((keys) => keys.includes('.')),
         [' 1.', ' 3.'],
     );
+});
+
+test('count-prefix matrix covers both count outcomes on the num_pad arm', () => {
+    // cmd.c parse():5110 is a disjunction: with num_pad off every command byte
+    // reaches get_count(), and with it on only the count key does. The second
+    // arm needs its own recordings, because a supplied count and an empty one
+    // are collected by the same get_count() but arrive at rhack() through a
+    // different read.
+    const numberPad = loadCountPrefixRecipe().segments.filter(
+        (segment) => /number_pad/u.test(segment.nethackrc),
+    );
+    assert.deepEqual(numberPad.map((segment) => segment.moves),
+        [' ns', ' n3s']);
 });
 
 // The segments the matrix above recorded against the C reference, reused here
@@ -185,4 +216,111 @@ test('a counted occupation runs its turns from a single input boundary',
             counted,
         );
     }
+});
+
+test('an empty number-pad count leaves the command identical to a bare one',
+    async () => {
+    // cmd.c get_count():5063-5067 commits whatever cnt has reached when a
+    // non-digit arrives, which for a command byte typed straight after the
+    // count key is 0; parse():5142 then leaves gm.multi at 0. So `ns` is the
+    // bare search command. A count key treated as an unbound byte would reach
+    // rhack()'s bad-command path instead and spend no turn, and one defaulted
+    // to 1 would leave gl.last_command_count at 1.
+    const runs = [];
+    for (const typed of [' ', ' s', ' ns']) {
+        const replay = await runSegment({
+            ...segmentTyping(' ns'),
+            moves: typed,
+        });
+        runs.push({
+            typed,
+            rng: replay.getRngLog(),
+            // The last capture is the prompt the command returned to, so it
+            // carries everything the command drew.
+            screen: replay.getScreens().at(-1),
+            cursor: replay.getCursors().at(-1),
+            moves: game.moves,
+            multi: game.multi,
+            commandCount: game.commandCount,
+            lastCommandCount: game.lastCommandCount,
+            dispatches: game._commandDispatchCount,
+        });
+    }
+    const [dismissal, bare, emptyCount] = runs;
+    // The search really ran: one more turn than the segment that only
+    // dismissed the startup line.
+    assert.equal(bare.moves, dismissal.moves + 1);
+    assert.equal(emptyCount.moves, bare.moves, 'ns spends the search turn');
+    // The count key opened get_count() rather than becoming a command of its
+    // own. Treated as an unbound byte it would reach rhack()'s bad-command
+    // path, which costs a dispatch and no turn, so the turn count alone
+    // cannot tell the two apart.
+    assert.equal(emptyCount.dispatches, bare.dispatches, 'ns dispatch count');
+    assert.deepEqual(emptyCount.rng, bare.rng, 'ns randomness');
+    assert.deepEqual(emptyCount.screen, bare.screen, 'ns screen');
+    assert.deepEqual(emptyCount.cursor, bare.cursor, 'ns cursor');
+    assert.equal(emptyCount.commandCount, 0);
+    assert.equal(emptyCount.lastCommandCount, 0);
+    assert.equal(emptyCount.multi, 0);
+});
+
+test('a counted row refuses while another occupation is already running',
+    async () => {
+    // cmd.c rhack():3728 installs only when `tlist->f_text && !go.occupation
+    // && gm.multi` all hold. A row that carries occupation text and arrives
+    // while one is running fails the middle term and falls to
+    // moveloop_core():515-531's repeat arm, which is not ported, so this port
+    // refuses it -- and the boundary has to name the term the branch actually
+    // tests, since the searching row does carry occupation text.
+    await runSegment(segmentBeforeCount(' 9s'));
+    // Any installed occupation fails rhack()'s `!go.occupation` term; this
+    // one answers "not finished" so nothing about it can end the count.
+    game.go.occupation = () => 1;
+    for (const ch of '9s') game.nhDisplay.pushKey(commandKeyCode(ch));
+
+    await assert.rejects(
+        rhack(0, game),
+        (error) => error instanceof UnsupportedHeroCommandBoundaryError
+            && error.key === commandKeyCode('s')
+            && /a row this port will not repeat/u.test(error.message),
+    );
+});
+
+test('a counted occupation leaves the state interrupt_multi() acts on',
+    async () => {
+    // allmain.c interrupt_multi() (975-983) acts on `gm.multi > 0 &&
+    // !svc.context.travel && !svc.context.run`, and regen_hp():678 and
+    // regen_pw():617 reach it whenever the hero tops up the last hit point or
+    // power point. The counted occupation is the first thing this port
+    // installs that satisfies that guard, so the four assertions below are the
+    // reachability claim itself: they fail the day a counted command stops
+    // leaving gm.multi above 0, or starts setting one of the two exemptions,
+    // and the stop below can be reconsidered then.
+    await runSegment(segmentBeforeCount(' 9s'));
+    for (const ch of '9s') game.nhDisplay.pushKey(commandKeyCode(ch));
+    await rhack(0, game);
+    assert.ok(game.multi > 0, 'the count leaves repeats owed');
+    assert.ok(!game.context.run, 'a counted command is not a run');
+    assert.ok(!game.context.travel, 'a counted command is not a travel');
+    assert.equal(game.flags.verbose, true, 'verbose is on by default');
+
+    // C runs nomul(0) first and then Norep(msg). ttyNorep() is async while
+    // regen_hp() and regen_pw() are not, so the port stops ahead of both
+    // rather than applying half the interruption; QUALITY.json carries
+    // `counted-occupation-full-health-interrupt` for the rest.
+    const owed = game.multi;
+    const occupation = game.go.occupation;
+    assert.throws(
+        () => interrupt_multi('You are in full health.', game),
+        (error) => error instanceof UnsupportedTurnBoundaryError
+            && /a multi-turn interruption message/u.test(error.message),
+    );
+    assert.equal(game.multi, owed, 'the stop changed no state');
+    assert.equal(game.go.occupation, occupation);
+
+    // The half C reaches without printing is ported: nomul(0) ends the count
+    // and the message is what the port cannot follow it with.
+    game.flags.verbose = false;
+    interrupt_multi('You are in full health.', game);
+    assert.equal(game.multi, 0);
 });
