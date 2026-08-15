@@ -89,6 +89,16 @@ export function checkpointCommands(focusedTests = [], {
         command: 'npm',
         args: ['run', 'check:relative-imports'],
     });
+    // Also static, and about the tests rather than the port: recorder patch
+    // 001 leaves calendar.c getnow() falling back to the wall clock on a
+    // datetime it cannot parse, so a malformed literal in a test or a recipe
+    // hands that test a live clock and makes its output depend on when it ran.
+    // See scripts/check-fixed-datetime.mjs.
+    commands.push({
+        label: 'static sources (check:fixed-datetime)',
+        command: 'npm',
+        args: ['run', 'check:fixed-datetime'],
+    });
     // Informational: a name defined twice is sometimes a module-private helper
     // that genuinely differs from its namesake, and only a reader who knows the
     // C function can tell that from a divergent duplicate port. The listing

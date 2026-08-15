@@ -8,6 +8,7 @@
     "test:mutation-runner": "node scripts/run-test-suite.mjs mutation-runner",
     "test:all": "node scripts/run-test-suite.mjs all",
     "check:duplicate-symbols": "node scripts/check-duplicate-symbols.mjs",
+    "check:fixed-datetime": "node scripts/check-fixed-datetime.mjs",
     "check:namespace-members": "node scripts/check-namespace-members.mjs",
     "check:relative-imports": "node scripts/check-relative-imports.mjs",
     "check:extcmds": "node scripts/generate-extcmds.mjs --check",
