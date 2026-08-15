@@ -9,6 +9,7 @@ import {
     NORMAL_SPEED,
 } from './const.js';
 import { friday_13th, phase_of_the_moon } from './calendar.js';
+import { failClosedCommandRefusals } from './cmd.js';
 import { set_wear } from './do_wear.js';
 import { game } from './gstate.js';
 import { update_inventory } from './invent.js';
@@ -101,4 +102,52 @@ export async function moveloop_preamble(
         });
     }
     return state;
+}
+
+// The boundary a startup refusal ends a segment on. It is a class of its own
+// rather than js/allmain.js UnsupportedTurnBoundaryError because no turn has
+// begun: allmain.c:595 reaches moveloop_core() only after the preamble above
+// has returned.
+export class UnsupportedStartupBoundaryError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UnsupportedStartupBoundaryError';
+    }
+}
+
+// allmain.c moveloop() (586-597) calls moveloop_preamble() at 589, before its
+// first moveloop_core(), so a refusal raised above has neither of the two seams
+// that convert one: js/cmd.js failClosedCommand() is not on the stack and
+// cannot be -- the preamble reads no command, so there is no keystroke to
+// leave retryable -- and js/allmain.js converts only what its own loop reaches.
+// Convert the same owner-specific refusals here, so a segment that reaches one
+// stops on the last screen it matched instead of discarding every screen with
+// a hard failure.
+//
+// This wraps the whole preamble rather than the statements that refuse today.
+// Which ones those are keeps changing: set_wear() and preflight_initial_pickup()
+// refuse now, pickup(1) reaches every refusal in js/pickup.js, and
+// update_inventory() at the tail refuses as soon as a window port advertises
+// WC_PERM_INVENT, which js/options.js TTY_WINCAP does not.
+// The arguments are the wrapped function's own, forwarded unchanged; it holds
+// the defaults for all three.
+export async function runMoveloopPreambleAtStartupBoundary(
+    resuming,
+    state,
+    env,
+) {
+    try {
+        return await moveloop_preamble(resuming, state, env);
+    } catch (error) {
+        if (!failClosedCommandRefusals().some(
+            (type) => error instanceof type,
+        )) {
+            throw error;
+        }
+        const boundary = new UnsupportedStartupBoundaryError(
+            `game startup reached ${error.message}`,
+        );
+        boundary.reason = error.reason;
+        throw boundary;
+    }
 }

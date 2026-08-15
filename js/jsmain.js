@@ -45,7 +45,10 @@ import {
     enter_tutorial,
     maybe_do_tutorial,
 } from './tutorial_startup.js';
-import { moveloop_preamble } from './moveloop_preamble.js';
+import {
+    runMoveloopPreambleAtStartupBoundary,
+    UnsupportedStartupBoundaryError,
+} from './moveloop_preamble.js';
 import { initialize_symbols_from_options } from './symbols.js';
 import { ttyPline } from './tty_message.js';
 
@@ -386,9 +389,11 @@ export class NethackGame {
         // precede moveloop(): an existing welcome message can force More
         // before the explore-mode notice and preamble RNG effects.
         await wd_message(g);
-        // C ref: allmain.c moveloop(FALSE).  The preamble's messages and RNG
-        // effects precede the optional tutorial query.
-        await moveloop_preamble(false, g);
+        // C ref: allmain.c moveloop(FALSE):589.  The preamble's messages and
+        // RNG effects precede the optional tutorial query.  The wrapper turns
+        // a refusal raised inside it into the boundary runSegment() below ends
+        // the segment on.
+        await runMoveloopPreambleAtStartupBoundary(false, g);
         const tutorial = await maybe_do_tutorial(g);
         if (tutorial.action === 'enter') await enter_tutorial(tutorial, g);
         return true;
@@ -526,6 +531,14 @@ export async function runSegment(
         // that the replay recipe has no next key.
         if (String(error?.message || '').includes('Input queue empty'))
             return nhGame;
+        // allmain.c moveloop() runs its preamble above the loop below, so a
+        // fail-closed boundary raised there arrives here rather than at the
+        // catch inside that loop. Ending the segment on it preserves every
+        // screen start() captured, which rethrowing would discard.
+        if (error instanceof UnsupportedStartupBoundaryError) {
+            onBoundary?.(error);
+            return nhGame;
+        }
         throw error;
     }
     if (!started) return nhGame;

@@ -1236,6 +1236,9 @@ function restoreParsedCommand(pending, state) {
 // the segment's matching prefix instead of stopping on it.
 // js/allmain.js elapsedTurnPlanningRefusals() is the same list for the turn
 // loop; a class both paths can reach belongs in both.
+// js/moveloop_preamble.js runMoveloopPreambleAtStartupBoundary() reads this
+// list too, for the one stretch of a segment that runs above both: the
+// preamble allmain.c moveloop() runs before its first moveloop_core().
 export function failClosedCommandRefusals() {
     return [
         UnsupportedFeatureDescriptionError,
@@ -1263,8 +1266,7 @@ export function failClosedCommandRefusals() {
         // <X>_on() reaches outside do_wear.c. No slot refuses wholesale: all
         // seven reach a callback. on_msg() raises it for prinv().
         // set_wear() raises it too, from moveloop_preamble() rather than from
-        // a command, so that one raiser is outside everything this list
-        // converts; js/do_wear.js set_wear() records why that is tolerable.
+        // a command, which is the raiser the startup reader above converts.
         UnsupportedWearError,
         // eat.c newuhs() is shared: gethungry() calls it from the turn loop,
         // and done_eating() and lesshungry() call it from doeat().

@@ -792,17 +792,16 @@ function Shirt_off(state) {
 // when she is an elf (u_init.c:233), and at the initial don Cloak_on() is the
 // `known` write for those two types as much as for the five plain ones.
 // Whoever ports either toggle brings initial_don with it.
-// Every refusal below is a hard failure rather than a fail-closed boundary,
-// and that is a property of where this runs rather than a choice. js/cmd.js
-// failClosedCommandRefusals() converts these classes for a command and
-// js/allmain.js does the same for an elapsed turn; both are downstream of
-// js/moveloop_preamble.js, which calls this before either exists. So a
-// refusal here ends the segment outright instead of ending it at a boundary
-// with its matching prefix intact. Nothing reaches one today -- the accessory
-// test below cannot fire, and the startup test walks the roles to show no
-// worn piece reaches a refused otyp -- but the exposure grows with every
-// refusal added to an <X>_on(), which is why it is written down rather than
-// left to be rediscovered. Tracked as set-wear-refusals-do-not-fail-closed.
+// Every refusal below ends the segment at a boundary with its matching prefix
+// intact, which is not this file's doing: js/cmd.js failClosedCommandRefusals()
+// lists the class, and js/moveloop_preamble.js
+// runMoveloopPreambleAtStartupBoundary() wraps the preamble call this function
+// arrives on and reads that list, as js/cmd.js failClosedCommand() does for a
+// command and js/allmain.js for an elapsed turn. Nothing reaches one today --
+// the accessory test below cannot fire, and the startup test walks the roles
+// to show no worn piece reaches a refused otyp -- so that conversion is what
+// keeps the next refusal added to an <X>_on() from costing a segment its whole
+// prefix.
 //
 // This function is synchronous and the seven calls below are not awaited,
 // while js/hack.js unmul() awaits the same callbacks. Both are correct today

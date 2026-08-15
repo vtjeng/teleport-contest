@@ -2543,7 +2543,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "7ef17555b6bd7450a35ad8232f4d200683a91545",
       "detail": "js/do_wear.js set_wear() runs from js/moveloop_preamble.js, upstream of both js/cmd.js failClosedCommandRefusals() and js/allmain.js elapsedTurnPlanningRefusals(), so an UnsupportedWearError raised there is a hard failure rather than a fail-closed boundary: the segment ends outright instead of ending at a boundary with its matching prefix intact. Nothing reaches one today, because the accessory test cannot fire and no starting worn piece reaches a refused otyp, but every refusal added to an <X>_on() widens the exposure and the startup path is the one place the port has no converter. Closes when the preamble wraps the call in a converter of the shape js/allmain.js uses, or when a recorded case shows a startup refusal ending the segment on a named boundary. Confirmed by the goal-closing correctness pass over fc56134..21ef982."
     },
@@ -2576,7 +2576,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "7ef17555b6bd7450a35ad8232f4d200683a91545",
       "detail": "set_wear() refusals are covered only by a direct assert.throws, which passes identically whether the refusal ends the segment on a named boundary or escapes runSegment entirely. It is the latter, which set-wear-refusals-do-not-fail-closed records. Closes with that entry, or sooner by asserting through runSegment what a startup refusal actually does to a segment rather than asserting that a function throws. Confirmed by the goal-closing correctness pass over fc56134..21ef982.",
       "notes": [

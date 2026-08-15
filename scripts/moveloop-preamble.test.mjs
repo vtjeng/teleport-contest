@@ -6,9 +6,12 @@ import { flush_screen } from '../js/display.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { nhgetch } from '../js/input.js';
+import { runSegment } from '../js/jsmain.js';
 import {
     change_luck,
     moveloop_preamble,
+    runMoveloopPreambleAtStartupBoundary,
+    UnsupportedStartupBoundaryError,
 } from '../js/moveloop_preamble.js';
 import {
     enableRngLog,
@@ -576,6 +579,153 @@ test('pline flushes a changed status line before a wrapped More boundary', async
     assert.equal(boundaries.length, 1);
     assert.match(boundaries[0].rows[23], / AC:8 Xp:1$/u);
 });
+
+// A hero standing on an object, which is what allmain.c:75 pickup(1) meets
+// and js/pickup.js preflight_initial_pickup() refuses. The square is the
+// staircase a new game starts on; preflight only tests that the pile is
+// non-empty, so one bare node stands for the wand the recorded case below
+// finds there.
+function preambleStateOnAnObject(datetime) {
+    const state = preambleState(datetime);
+    state.flags = { mention_decor: false, pickup: false };
+    Object.assign(state.u, {
+        ux: 1,
+        uy: 1,
+        uz: { dnum: 0, dlevel: 1 },
+        uhave: { amulet: false },
+    });
+    const locations = Array.from({ length: 3 }, () =>
+        Array.from({ length: 3 }, () => ({ typ: 0 })));
+    locations[1][1].typ = STAIRS;
+    const objects = Array.from({ length: 3 }, () => Array(3).fill(null));
+    objects[1][1] = { nexthere: null };
+    state.level = {
+        locations,
+        objects,
+        at(x, y) { return this.locations[x]?.[y] ?? { typ: 0 }; },
+    };
+    state.invent = { pickup_prev: true, nobj: null };
+    return state;
+}
+
+test('a startup refusal is converted into the boundary that ends a segment',
+    async () => {
+        // 2026-01-29 has no calendar message, so nothing but the refusal
+        // decides what this case does.
+        const state = preambleStateOnAnObject('20260129120000');
+
+        await assert.rejects(
+            runMoveloopPreambleAtStartupBoundary(false, state),
+            (error) => {
+                assert.ok(error instanceof UnsupportedStartupBoundaryError,
+                    `expected the startup boundary, got ${error?.name}: `
+                    + `${error?.message}`);
+                assert.equal(
+                    error.message,
+                    'game startup reached unsupported pickup: '
+                    + 'initial floor object',
+                );
+                // The owner's reason survives the conversion, as it does at
+                // js/allmain.js runUnmulAtTurnBoundary().
+                assert.equal(error.reason, 'initial floor object');
+                return true;
+            },
+        );
+        // allmain.c:74-79. preflight_initial_pickup() refuses in front of
+        // reset_justpicked() at 74 and of the rnd(30) at 79, so a converted
+        // refusal has changed no state and drawn no random number beyond the
+        // rndencode at 72.
+        assert.equal(state.invent.pickup_prev, true);
+        assert.equal(state.context.seer_turn, undefined);
+        assert.deepEqual(
+            getRngLog().map((entry) => entry.slice(0, entry.indexOf('='))),
+            ['rnd(9000)'],
+        );
+    });
+
+test('a startup failure that is not a refusal still escapes the preamble',
+    async () => {
+        // The converter reads js/cmd.js failClosedCommandRefusals(), so a
+        // fault outside that list stays a hard failure: converting one would
+        // turn a port bug into a quietly short segment. The perm_invent hook
+        // is the seam an injected fault can reach without pretending that a
+        // ported function raises it.
+        const state = preambleState('20260129120000');
+        state.iflags.perm_invent = true;
+
+        await assert.rejects(
+            runMoveloopPreambleAtStartupBoundary(false, state, {
+                hooks: {
+                    updateInventory() {
+                        throw new Error('no inventory window');
+                    },
+                },
+            }),
+            (error) => {
+                assert.equal(error.constructor, Error,
+                    `expected a plain Error, got ${error?.name}`);
+                assert.equal(error.message, 'no inventory window');
+                return true;
+            },
+        );
+    });
+
+test('a segment whose startup refuses keeps every screen it matched',
+    async () => {
+        // The end-to-end half of the case above: a refusal raised inside
+        // js/jsmain.js start() must end the segment where it stands rather
+        // than escape runSegment() and discard the whole segment.
+        //
+        // Seed 2021184 puts a wand of probing on the D:1 up staircase, so the
+        // hero starts on it. C is what puts it there: the recorded case below
+        // matches this port call for call over the whole level generation, and
+        // ordinary room filling cannot reach the square, because mkroom.c
+        // somexyspace() (743-756) admits only ROOM, CORR and ICE.
+        //
+        // 15 June 2000 is a full moon, which is what makes the preamble print
+        // before it refuses. Its message needs no key of its own here: the
+        // port defers the --More-- until the next message, and the refusal is
+        // what stops that message from arriving.
+        const inputs = {
+            seed: 2021184,
+            datetime: '20000615103000',
+            nethackrc:
+                'OPTIONS=name:Failclose,role:Val,race:Hum,gender:Fem,align:Neu'
+                + '\nOPTIONS=!legacy,!tutorial,!splash_screen\n',
+            // One Space dismisses the welcome --More--.
+            moves: ' ',
+        };
+        let boundary = null;
+
+        const replay = await runSegment(inputs, {
+            onBoundary: (error) => { boundary = error; },
+        });
+
+        assert.ok(boundary instanceof UnsupportedStartupBoundaryError,
+            `expected the startup boundary, got ${boundary?.name}`);
+        assert.equal(boundary.reason, 'initial floor object');
+        // Recorded with scripts/record-session.mjs on these inputs: C draws
+        // 2848 random numbers over three input boundaries, the last of them
+        // rnd(9000)=5468 at allmain.c:72. The port stops one statement later
+        // and keeps all of them, where before this conversion it returned
+        // none of them at all.
+        assert.equal(replay.getRngLog().length, 2848);
+        assert.equal(replay.getRngLog().at(-1), 'rnd(9000)=5468');
+        // C's first boundary is the welcome --More--, its cursor resting past
+        // that prompt on row 1. The port keeps that boundary and stops before
+        // C's second and third.
+        assert.equal(replay.getScreens().length, 1);
+        assert.deepEqual(replay.getCursors(), [[8, 1, 1]]);
+        // The preamble printed the full-moon line and took its point of Luck
+        // before refusing, so this boundary is not the same case as one raised
+        // before the game has drawn anything.
+        assert.equal(game._pending_message,
+            'You are lucky!  Full moon tonight.');
+        assert.equal(game.u.uluck, 1);
+        // allmain.c:88. The refusal is upstream of it, so the segment never
+        // entered the move loop.
+        assert.equal(game.program_state.in_moveloop, undefined);
+    });
 
 test('resuming skips new-game RNG, movement, and track initialization', async () => {
     // An ordinary calendar date isolates the restore branch from messages.
