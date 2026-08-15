@@ -12,6 +12,7 @@ import {
     u_calc_moveamt,
 } from '../js/allmain.js';
 import {
+    A_DEX,
     CLAIRVOYANT,
     COLNO,
     DETECT_MONSTERS,
@@ -26,15 +27,19 @@ import {
     HUNGRY,
     HALLUC,
     INTRINSIC,
+    LEFT_SIDE,
     LEVITATION,
     M_AP_MONSTER,
     MOD_ENCUMBER,
     NORMAL_SPEED,
     NOT_HUNGRY,
     NO_SPELL,
+    OBJ_CONTAINED,
+    OBJ_FLOOR,
     OVERLOADED,
     PIT,
     PROT_FROM_SHAPE_CHANGERS,
+    ROOM,
     RUN_STEP,
     SATIATED,
     SEARCHING,
@@ -42,6 +47,7 @@ import {
     SLT_ENCUMBER,
     SV0,
     WEAK,
+    WOUNDED_LEGS,
     W_ARMF,
     W_RINGL,
 } from '../js/const.js';
@@ -65,10 +71,14 @@ import {
     PM_GOBLIN,
     PM_KITTEN,
     PM_LICHEN,
+    PM_PONY,
     PM_TENGU,
 } from '../js/monsters.js';
-import { SACK, TOOL_CLASS } from '../js/objects.js';
+import { DAGGER, ROCK, SACK, TOOL_CLASS } from '../js/objects.js';
 import { create_region } from '../js/region.js';
+import { UnsupportedObjectOperationError } from '../js/obj.js';
+import { UnsupportedObjectNameError } from '../js/objnam.js';
+import { UnsupportedMonsterPickupOperationError } from '../js/steal.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import { cansee, vision_recalc } from '../js/vision.js';
@@ -1654,6 +1664,124 @@ test('burdened multi-cycle upkeep stops before region and search work',
         }
     });
 
+// C ref: allmain.c moveloop_core()'s once-per-turn nh_timeout() call.
+// timeout.c:774-776 reaches do.c heal_legs(0) when a WOUNDED_LEGS countdown
+// runs out, and that function writes a line. finishElapsedTurn() hands the
+// owner a silent message() while it is dry running the turn on the clone, and
+// that choice had no oracle: the clone's own _ttyToplines is a copy, and
+// the shared display is repainted with the same text by the live pass a moment
+// later, so passing ttyPline() there left the whole suite green.
+//
+// This case removes both cover stories at once. The plan stops at the region
+// upkeep immediately below nh_timeout_elapsed_turn(), so no live pass follows
+// to repaint what a printing dry run left behind. And the turn begins with the
+// arrival message still pending, which is what an ordinary turn looks like:
+// cmd.c parse() clears the physical row after reading its key and leaves the
+// pending message for the next writer. A clone that printed would find that
+// message occupying the top line, and topl.c update_topl() answers a message
+// too long to share by calling more(), which reads a key from the display and
+// the input queue the clone shares with the live game.
+test('a planned timeout writes no line and reads no key', async () => {
+    const replay = await runSegment({
+        // Independently chosen; nothing below depends on the map this seed
+        // generates beyond the hero having somewhere to stand.
+        seed: 2026081502,
+        datetime: '20260815094500',
+        nethackrc: 'OPTIONS=name:MendingLoad,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.level.regions = [];
+    game.head_engr = null;
+    // A burdened hero is what makes advanceElapsedTurn() supply advanceRound,
+    // so the clone runs the whole once-per-turn block and reaches nh_timeout.
+    // An unburdened clone returns straight after random monster generation.
+    game.invent = {
+        oclass: TOOL_CLASS,
+        otyp: SACK,
+        owt: weight_cap(game) + 5,
+        nobj: null,
+    };
+    assert.ok(projected_capacity(game) > 0, 'the fixture must burden the hero');
+    // do.c set_wounded_legs() leaves the recovery countdown in the intrinsic
+    // field and the wounded side in the extrinsic one. A countdown of 1 is the
+    // turn timeout.c's per-property loop takes to zero, and heal_legs() then
+    // needs the side bit to have anything to clear. The point of temporary
+    // Dexterity is the one set_wounded_legs() spent, which heal_legs() returns.
+    game.u.uprops[WOUNDED_LEGS] = {
+        intrinsic: 1,
+        extrinsic: LEFT_SIDE,
+        blocked: 0,
+    };
+    game.u.atemp[A_DEX] = -1;
+    // encumber_msg() prints only on a change, and its line would need a More
+    // dismissal of its own that has nothing to do with this case.
+    game.go = { ...(game.go ?? {}), oldcap: near_capacity(game) };
+    // The clairvoyance and attribute cadences belong to later turns.
+    game.context.seer_turn = 100000;
+    game.context.next_attrib_check = 100000;
+    // One region, so the plan stops at the guard directly below nh_timeout.
+    game.level.regions.push(create_region([{
+        lx: game.u.ux,
+        ly: game.u.uy,
+        hx: game.u.ux,
+        hy: game.u.uy,
+    }]));
+    game.u.umovement = 0;
+    game.context.move = 1;
+    // The single key the live turn below spends on that More prompt. The plan
+    // must leave it in the queue.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+
+    const before = completeSecondTurnSnapshot(game, replay);
+    const beforeRng = getRngLog().length;
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        game.context.move = 1;
+        await assert.rejects(
+            () => moveloop_core(),
+            (error) => (
+                error instanceof UnsupportedTurnBoundaryError
+                && error.message
+                    === 'elapsed turn reached burdened multi-cycle region upkeep'
+            ),
+            `attempt ${attempt}`,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, replay),
+            before,
+            `attempt ${attempt}`,
+        );
+        assert.equal(getRngLog().length, beforeRng, `attempt ${attempt}`);
+    }
+
+    // The snapshot is the detector; this is what shows the case arrives. With
+    // the region gone the plan runs to the end and the live pass takes the
+    // same turn for real: heal_legs() clears both halves of the property,
+    // gives the Dexterity point back, and writes its line. The queue emptying
+    // here is also what proves the line costs a key: topl.c update_topl()
+    // cannot share a row with the pending arrival message, so it calls more()
+    // first, and a clone that printed the same line would have spent this same
+    // key above. The turn then stops where rhack() asks for the next command.
+    game.level.regions = [];
+    game.context.move = 1;
+    await assert.rejects(() => moveloop_core(), /Input queue empty/u);
+    assert.deepEqual(game.u.uprops[WOUNDED_LEGS], {
+        intrinsic: 0,
+        extrinsic: 0,
+        blocked: 0,
+    });
+    assert.equal(game.u.atemp[A_DEX], 0);
+    assert.equal(game._pending_message, 'Your leg feels better.');
+    assert.equal(
+        game.nhDisplay.grid[0].map(({ ch }) => ch).join('').trimEnd(),
+        'Your leg feels better.',
+    );
+    assert.equal(game.nhDisplay.terminal._inputQueue.length, 0);
+});
+
 // The cloned round reaches makemon() through maybe_generate_rnd_mon(), so
 // UnsupportedMonsterCreationError is one of the classes it can raise. Unlike
 // the boundary classes, js/jsmain.js does not break the segment for it, so a
@@ -1708,6 +1836,189 @@ test('a refused planned monster becomes a turn boundary, not a hard failure',
                 `snapshot attempt ${attempt}`,
             );
             assert.equal(getRngLog().length, beforeRng, `rng attempt ${attempt}`);
+        }
+    });
+
+function fetchedFloorObject(x, y, otyp, o_id) {
+    const type = game.objects[otyp];
+    return {
+        cobj: null,
+        nobj: null,
+        nexthere: null,
+        o_id,
+        oclass: type.oc_class,
+        ox: x,
+        oy: y,
+        otyp,
+        owt: type.oc_weight,
+        quan: 1,
+        spe: 0,
+        where: OBJ_FLOOR,
+    };
+}
+
+// A starting pony standing two squares west of the hero on the object
+// buildObject() returns, with every other monster and object taken off the
+// level. C reads svl.level.objects[omx][omy], the pet's own square, and gates
+// the carry on `rn2(udist) || !rn2(edog->apport)` (dogmove.c:448), where udist
+// is distu() from dogmove.c:1014. Beside the hero that is 1, rn2(1) is always
+// 0, and the arm then needs the one-in-twenty second draw; two squares out it
+// is 4 and the first draw carries the arm. The same distance keeps
+// distant_name() inside its near square, where the name formats through
+// doname().
+async function prepareFetchingPet(buildObject) {
+    const replay = await runSegment({
+        // Independently chosen. What each row below needs from it is a plain
+        // room square two west of the hero that the hero can see.
+        seed: 2026081501,
+        datetime: '20260815090000',
+        nethackrc: 'OPTIONS=name:Fetching,role:Healer,race:human,'
+            + 'gender:female,align:neutral,!legacy,!tutorial,'
+            + '!splash_screen,pettype:none,!acoustics',
+        moves: '',
+    });
+    for (const column of game.level.monsters) column.fill(null);
+    for (const column of game.level.objects) column.fill(null);
+    game.level.monlist = null;
+    game.level.objlist = null;
+    game.level.regions = [];
+    game.head_engr = null;
+
+    const x = game.u.ux - 2;
+    const y = game.u.uy;
+    assert.equal(game.level.at(x, y).typ, ROOM);
+    assert.equal(cansee(x, y), true);
+
+    const pony = place_monster(newMonster({
+        data: game.mons[PM_PONY],
+        m_id: 9001,
+        mnum: PM_PONY,
+        m_lev: game.mons[PM_PONY].mlevel,
+        mhp: 8,
+        mhpmax: 8,
+        mcanmove: true,
+        mcansee: true,
+        mpeaceful: true,
+        mtame: 10,
+        movement: NORMAL_SPEED,
+        mux: game.u.ux,
+        muy: game.u.uy,
+        // dog.c's starting pet. An apport of 20 carries dog_invent()'s
+        // `rn2(20) < edog->apport + 3` whatever the draw answers, leaving the
+        // distance test above as the arm's only gate.
+        mextra: {
+            edog: {
+                apport: 20,
+                dropdist: 10000,
+                droptime: 0,
+                hungrytime: 1000,
+                mhpmax_penalty: 0,
+                ogoal: { x: 0, y: 0 },
+                whistletime: 0,
+            },
+        },
+    }), x, y, game);
+    game.level.monlist = pony;
+    game.context.startingpet_mid = pony.m_id;
+    game.context.startingpet_typ = PM_PONY;
+
+    const item = buildObject(x, y);
+    game.level.objects[x][y] = item;
+    game.level.objlist = item;
+
+    game.u.umovement = 0;
+    game.context.move = 1;
+    return replay;
+}
+
+// C ref: dogmove.c dog_invent()'s carry arm (443-472). It splits the stack
+// through splitobj(), names the result through distant_name(), and hands it to
+// mpickobj(), all from inside the monster scan the elapsed turn dry runs. Each
+// of those three owners refuses with a class of its own, and js/jsmain.js ends
+// a segment only for a turn boundary, so a class the conversion misses escapes
+// runSegment() and discards every screen the segment had already matched
+// instead of stopping on the last one.
+test('a refused planned pickup becomes a turn boundary, not a hard failure',
+    async () => {
+        for (const [name, buildObject, refusal] of [
+            [
+                // objnam.c's shop price suffix is unported. Any guarded branch
+                // of doname() would serve; this is the cheapest to set, and it
+                // is the same one the sibling case in
+                // scripts/unported-monster-actions.test.mjs uses.
+                'naming',
+                (x, y) => Object.assign(
+                    fetchedFloorObject(x, y, DAGGER, 9301),
+                    { unpaid: true },
+                ),
+                UnsupportedObjectNameError,
+            ],
+            [
+                // can_carry() caps a nohands pet at one item, so a stack of two
+                // splits before anything is named. splitobj() reaches obj.js's
+                // splitBill hook first, which is why this row refuses with a
+                // different class than the row above despite the same `unpaid`
+                // bit; the class assertion is what holds the two apart.
+                'split',
+                (x, y) => Object.assign(
+                    fetchedFloorObject(x, y, DAGGER, 9302),
+                    { quan: 2, owt: 20, unpaid: true },
+                ),
+                UnsupportedObjectOperationError,
+            ],
+            [
+                // steal.c mpickobj() bills a container whose contents are
+                // unpaid as well as an unpaid object, and count_unpaid() is
+                // what reads the difference. The sack itself is paid for, so
+                // the name formats and the refusal lands one owner further on.
+                'pickup',
+                (x, y) => {
+                    const sack = fetchedFloorObject(x, y, SACK, 9303);
+                    const inside = fetchedFloorObject(0, 0, ROCK, 9304);
+                    inside.where = OBJ_CONTAINED;
+                    inside.unpaid = true;
+                    inside.v = sack;
+                    sack.cobj = inside;
+                    return sack;
+                },
+                UnsupportedMonsterPickupOperationError,
+            ],
+        ]) {
+            const replay = await prepareFetchingPet(buildObject);
+
+            let raw = null;
+            try {
+                await preflightSimpleMonsterActions(game);
+            } catch (error) {
+                raw = error;
+            }
+            assert.ok(raw instanceof refusal, `${name} raised ${raw}`);
+
+            // The dry run above changed nothing, so the same turn can be taken
+            // again through the coordinator that owns the conversion.
+            const before = completeSecondTurnSnapshot(game, replay);
+            const beforeRng = getRngLog().length;
+            for (let attempt = 0; attempt < 2; ++attempt) {
+                game.context.move = 1;
+                await assert.rejects(
+                    () => moveloop_core(),
+                    (error) => (
+                        error instanceof UnsupportedTurnBoundaryError
+                        && error.message === raw.message
+                    ),
+                    `${name}, attempt ${attempt}`,
+                );
+                assert.deepEqual(
+                    completeSecondTurnSnapshot(game, replay),
+                    before,
+                    `${name}, attempt ${attempt}`,
+                );
+                assert.equal(
+                    getRngLog().length,
+                    beforeRng,
+                    `${name}, attempt ${attempt}`,
+                );
+            }
         }
     });
 

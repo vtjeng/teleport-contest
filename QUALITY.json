@@ -357,7 +357,7 @@
       "area": "startup",
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "roadmap",
       "detail": "`js/allmain.js` now converts `UnsupportedObjectNameError`,\n`UnsupportedObjectOperationError` and `UnsupportedMonsterPickupOperationError`\ninto a turn boundary, because the pet pickup arm can raise all three from\ninside the monster scan and `js/jsmain.js` rethrows anything else, discarding\nthe segment.\n\n`scripts/unported-monster-actions.test.mjs` pins the first half — that the\nnaming path really raises `UnsupportedObjectNameError` — and removing\n`preflightObjectName()`'s unpaid branch fails it. The conversion itself is not\npinned: `advanceElapsedTurn()` is not exported, and driving `moveloop_core()`\nfrom that fixture does not reach the arm. Removing the three classes from\n`ELAPSED_TURN_PLANNING_REFUSALS` leaves the suite green.\n\nClose it with a case that reaches the pickup through a real turn, or by giving\nthe elapsed turn a seam a test can drive without exporting internals."
     },
@@ -2856,7 +2856,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "02fba14de00c81097a0da72119cece782d770ccd",
       "detail": "js/allmain.js:686-688 chooses the elapsed turn's message and status seams with `message: planning ? silentMessage : ttyPline` and `statusRefresh: planning ? () => {} : () => bot()`. Replacing the first with `ttyPline` outright leaves the entire suite green: measured at ee6c7c5, `npm test` reported 3970 pass and 0 fail with the substitution in place. The dry run's write is invisible because planningState() spreads the live state, so `_ttyToplines` on the clone is a copied string, and the shared nhDisplay is painted with the same text the live pass writes over immediately afterwards. What it would not survive is a turn whose clone carries `_pending_message`: ttyPline() would then reach dismissPendingTtyMessage() on the shared display and consume a key from the live input queue.\n\nFound while closing nh-timeout-env-seam-untested, whose new cases pin nh_timeout_elapsed_turn()'s seam from both sides and pin preflightSimpleMonsterActions()'s isolation, but cannot reach this call site: finishElapsedTurn() and advanceElapsedTurn() are both module-private to js/allmain.js, and moveloop_core() runs the planning and live passes together.\n\nQUALITY.json already carries a sibling of exactly this obstacle -- the entry noting that ELAPSED_TURN_PLANNING_REFUSALS' three added classes are unpinned because 'advanceElapsedTurn() is not exported, and driving moveloop_core() from that fixture does not reach the arm'. Both close together if the elapsed turn gains a seam a test can drive.\n\nClosing condition: a case that reaches the planning pass through a real turn and fails when js/allmain.js:687 passes ttyPline while planning -- either by giving the elapsed turn a driveable seam, or by a turn whose clone carries a pending message, where the dry run's ttyPline would consume a keystroke the segment still needs. Found by the tests deferral burn-down.",
       "notes": [
@@ -3023,6 +3023,15 @@
       "status": "open",
       "from": "fb143cda293f3066ceae49493c84c2c70e120e2e",
       "detail": "js/cfgfiles.js config_error_add() keeps the whole message. C truncates twice\nbefore it reaches a screen:\n\n- pline.c vconfig_error_add() formats into a BIGBUFSZ buffer and then writes\n  `buf[BUFSZ - 1] = '\\\\0'`, cutting the message at 255 bytes.\n- pline.c vpline() (212-225) cuts anything still longer than BUFSZ - 1 and\n  rewrites the tail as `...` plus the final three characters, so a long\n  offending line echoed by `pline(\"\\\\n%s\", origline)` arrives elided rather\n  than merely clipped. origline holds up to 4 * BUFSZ bytes, so a\n  1023-character configuration line reaches this.\n\nNothing shorter than 256 bytes can tell the difference, and the recorded\nscreens truncate at 80 columns anyway, so this shows up only in a message the\nport would raw-print onto a second and third row where C prints one. No\ndevelopment session has such a line; a fresh case would need an rc statement\nof its own."
+    },
+    {
+      "id": "elapsed-turn-planning-status-refresh-unpinned",
+      "area": "startup",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "ee289d88e0b8ea6786a5de10e2df8d7295ce03f1",
+      "detail": "js/allmain.js's nh_timeout_elapsed_turn() call chooses `statusRefresh: planning ? () => {} : () => bot()`. Substituting `() => bot()` outright leaves the whole suite green: measured at ee289d8 with this slice's two new cases in place, `npm test` reported 4036 pass and 0 fail with the substitution.\n\nThe message half of the same call is now pinned, by scripts/allmain-turn.test.mjs 'a planned timeout writes no line and reads no key', which reaches do.c heal_legs() through a real burdened turn and stops the plan at the region guard directly below nh_timeout_elapsed_turn(). That case cannot reach this half. timeout.c:775 calls stop_occupation() beside heal_legs(0), and js/allmain.js stop_occupation() forwards its env to eat.c maybe_finished_meal(), which calls eatfood() only when go.occupation is eatfood and the meal's usedtime has reached reqtime. statusRefresh is read no earlier than done_eating()'s newuhs(), so the seam decides one turn shape alone: a meal that finishes on the same turn a WOUNDED_LEGS countdown runs out. A clone calling bot() there repaints the live status line from the clone's own moves and hit points.\n\nClosing condition: a case that installs a finished meal beside an expiring WOUNDED_LEGS countdown on a burdened hero and stops the plan at that same region guard, so completeSecondTurnSnapshot()'s grid comparison sees the clone's bot(). Needs no unported C. Found while closing elapsed-turn-planning-message-choice-unpinned."
     }
   ],
   "areas": [
