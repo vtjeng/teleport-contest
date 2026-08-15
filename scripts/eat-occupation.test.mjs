@@ -622,19 +622,19 @@ test('stop_occupation clears the occupation before the meal it hands off',
         assert.equal(game.go.occupation, null);
     });
 
-test('set_occupation stores the callback and refuses a timeout', () => {
+test('set_occupation stores an untimed callback as the occupation itself', () => {
+    // cmd.c set_occupation():211-212, the else arm eat.c start_eating() and
+    // every other untimed occupation takes. A zero xtime leaves the callback
+    // to decide when it is finished, so it becomes go.occupation directly.
+    // The nonzero xtime a count supplies takes the other arm, which
+    // scripts/count-prefix.test.mjs covers beside the countdown it installs.
     const state = { go: {} };
     const callback = () => 0;
     set_occupation(callback, 'digging', 0, state);
     assert.equal(state.go.occupation, callback);
     assert.equal(state.go.occtxt, 'digging');
     assert.equal(state.go.occtime, 0);
-    // A nonzero xtime installs cmd.c timed_occupation() instead, which counts
-    // gm.multi down; no ported command supplies one.
-    assert.throws(
-        () => set_occupation(callback, 'digging', 3, state),
-        /timeout is unreachable/u,
-    );
+    assert.equal(state.timedOccFn, undefined);
 });
 
 test('the() prefixes an article only where C does', () => {

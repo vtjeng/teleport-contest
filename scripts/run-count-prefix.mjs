@@ -15,10 +15,11 @@
 // tonight." is already on row 0 when the count is typed, which is the case
 // get_count()'s clear_nhwindow() and parse()'s can differ on.
 //
-// A count of 2 or more before a command row is deliberately absent: rhack()
-// spends such a count on an occupation or a repeat, neither of which is
-// ported, and js/cmd.js refuses it. QUALITY.json records those inputs as a
-// deferred entry.
+// A count of 2 or more reaches rhack():3728, which spends it on an occupation
+// for the two rows carrying occupation text and on moveloop_core()'s repeat
+// arm for every other row. The occupations are covered below; the repeat arm
+// is not ported, so a count before any other row is deliberately absent and
+// QUALITY.json records those inputs as a deferred entry.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -78,6 +79,15 @@ export function loadCountPrefixRecipe() {
             segment('CountZero', ' 1s0s'),
             // The other occupation row, waiting, with a count of 1.
             segment('CountWait', ' 1.'),
+            // A count that leaves gm.multi above 0 on the searching row.
+            // rhack():3728-3729 installs timed_occupation() before dispatching
+            // the command, so the 's' runs once here and moveloop_core()'s
+            // occupation arm runs the other eight without reading a key: nine
+            // searches, nine turns, one input boundary.
+            segment('CountSearch', ' 9s'),
+            // The same install on the waiting row, whose handler answers a
+            // plain ECMD_TIME rather than a search result. Three waits.
+            segment('CountWaitThree', ' 3.'),
             // A count before a byte cmdbind_get() finds no command for.
             // rhack():3828-3839 prints the unknown-command line and zeroes
             // gm.multi itself, so the count costs nothing.

@@ -243,12 +243,15 @@ function commandBindings(state) {
 // gm.multi, and answers 0 on the turn that empties it, which is how
 // moveloop_core() learns to stop.
 //
-// C's `(*timed_occ_fn)()` passes no argument and discards the result, so the
-// ECMD_* code the command answers -- ECMD_TIME for a search that ran -- reaches
-// nobody, and the env moveloop_core() hands its occupation stops here.
+// C's `(*timed_occ_fn)()` passes no argument and discards the result, so
+// neither the ECMD_* code the command answers -- ECMD_TIME for a search that
+// ran -- nor the env moveloop_core() hands the occupation goes any further
+// than this.
 //
-// The decrement is guarded because C's is: a helpless hero counts a negative
-// gm.multi up elsewhere, and this must not count it down.
+// The decrement is guarded because C's is. detect.c dosearch0():2048 calls
+// nomul(0) when a search finds a secret door, so the callback can return with
+// the count already spent; an unguarded decrement would take gm.multi below 0,
+// which is the value moveloop_core():485 reads as a helpless hero.
 async function timed_occupation(state) {
     await state.timedOccFn(state);
     if (state.multi > 0) state.multi--;
@@ -269,7 +272,7 @@ async function timed_occupation(state) {
 export function set_occupation(fn, txt, xtime, state = game) {
     state.go ??= {};
     if (xtime) {
-        // cmd.c:208-210. A count makes the wrapper above the occupation and
+        // cmd.c:208-210. A count makes timed_occupation() the occupation and
         // puts the command's own function in cmd.c's file-scope timed_occ_fn.
         // The port keeps that pointer on the state rather than in a module
         // variable, so that two game states in one process cannot share it;
