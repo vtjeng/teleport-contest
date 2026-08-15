@@ -2314,8 +2314,8 @@
         },
         {
           "name": "non-fatal-config-error",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "4b782b1d9ad232c5522e71d94e3ad14f00852048"
         },
         {
           "name": "elapsed-turn-seam-for-two-tests",
