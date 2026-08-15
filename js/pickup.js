@@ -238,15 +238,14 @@ export function preflight_describe_decor_at(x, y, state = game) {
 }
 
 // Temporary startup admission for the portion of pickup(1) selected by this
-// boundary. It runs before reset_justpicked(), so an excluded object,
-// engraving, or terrain leaves inventory and decor memory unchanged.
+// boundary. It runs before reset_justpicked(), so an excluded object or
+// terrain leaves inventory and decor memory unchanged. An engraving under the
+// hero needs none: pickup.c:702-709's no-object arm ends in read_engr_at(),
+// and pickup() below ports that arm whole.
 export function preflight_initial_pickup(state = game) {
     const { u } = state;
     if (state.level?.objects?.[u.ux]?.[u.uy]) {
         throw new UnsupportedPickupError('initial floor object');
-    }
-    if (engr_at(u.ux, u.uy, state)) {
-        throw new UnsupportedPickupError('initial engraving');
     }
     if (state.flags?.mention_decor) startupStairDecor(state);
 }

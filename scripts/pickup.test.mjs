@@ -424,19 +424,6 @@ test('initial pickup rejects every excluded startup family atomically',
                 alter: (state) => { objectUnderHero(state); },
             },
             {
-                // Any engraving would let read_engr_at() print after decor.
-                name: 'engraving',
-                expected: /initial engraving/u,
-                alter: (state) => {
-                    state.head_engr = {
-                        engr_x: state.u.ux,
-                        engr_y: state.u.uy,
-                        engr_txt: 'x',
-                        nxt_engr: null,
-                    };
-                },
-            },
-            {
                 // ROOM selects describe_decor()'s no-feature arm.
                 name: 'other terrain',
                 expected: /outside the initial D:1 staircase/u,
@@ -507,6 +494,41 @@ test('initial pickup rejects every excluded startup family atomically',
             assert.deepEqual([state.u.ux, state.u.uy], position, entry.name);
         }
     });
+
+test('the initial pickup reads an engraving under the hero', async () => {
+    const state = await heroOnAnEmptySquare();
+    // engrave.c make_engr_at(). DUST is the type mklev.c:768 leaves beside a
+    // trapped niche, the only engraving a new hero can start on.
+    make_engr_at(
+        state.u.ux,
+        state.u.uy,
+        'ad aerarium',
+        'ad aerarium',
+        0,
+        DUST,
+        objectGenerationEnv({ state }),
+    );
+    quiet(state);
+
+    // allmain.c:73-75 runs the admission above before pickup(1). An engraving
+    // is not one of the families it holds back, because pickup.c:702-709 ends
+    // its no-object arm in read_engr_at().
+    assert.doesNotThrow(() => preflight_initial_pickup(state));
+    assert.equal(await pickup(1, state), 0);
+
+    // engrave.c:332-333 and 396-397. Both lines fit one top line, so the pair
+    // asks for no --More--; "ad aerarium" ends in a letter, which is why
+    // read_engr_at() supplies the closing period itself.
+    assert.equal(
+        state._ttyToplines,
+        'Something is written here in the dust.'
+        + '  You read: "ad aerarium".',
+    );
+    assert.deepEqual(
+        [state.head_engr.eread, state.head_engr.erevealed],
+        [true, true],
+    );
+});
 
 test('initial staircase decor is independent of autopickup', async () => {
     const outputs = [];

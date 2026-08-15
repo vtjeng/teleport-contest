@@ -727,6 +727,66 @@ test('a segment whose startup refuses keeps every screen it matched',
         assert.equal(game.program_state.in_moveloop, undefined);
     });
 
+test('a hero standing on an engraving reads it before her first command',
+    async () => {
+        // pickup.c pickup() (702-709): a square holding nothing ends the
+        // autopickup arm in read_engr_at(), which allmain.c:75 pickup(1)
+        // reaches before the move loop starts. The segment must therefore
+        // print the engraving rather than stop above it, which is what the
+        // floor-object case above does.
+        //
+        // Seed 100778 puts the "ad aerarium" engraving that mklev.c:768 leaves
+        // beside a trapped niche on the D:1 up staircase, so the hero starts on
+        // it. 11 March 2027 is neither a full nor a new moon and is not Friday
+        // the 13th, so no calendar message shares the top line.
+        const inputs = {
+            seed: 100778,
+            datetime: '20270311094500',
+            nethackrc:
+                'OPTIONS=name:Engraver,role:Valkyrie,race:human,gender:female,'
+                + 'align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n',
+            // One Space dismisses the welcome --More-- that the engraving
+            // message forces; the segment then ends waiting for a command.
+            moves: ' ',
+        };
+        let boundary = null;
+
+        const replay = await runSegment(inputs, {
+            onBoundary: (error) => { boundary = error; },
+        });
+
+        assert.equal(boundary, null,
+            `expected no startup boundary, got ${boundary?.message}`);
+        // Recorded with scripts/record-session.mjs on these inputs: C draws
+        // 2430 random numbers, the last of them the rnd(30) that
+        // moveloop_preamble() makes at allmain.c:79, one statement below the
+        // pickup(1) this case exercises.
+        assert.equal(replay.getRngLog().length, 2430);
+        assert.equal(replay.getRngLog().at(-1), 'rnd(30)=15');
+        // C's two boundaries are the welcome --More-- and the command prompt
+        // that follows the engraving message, its cursor back on the hero at
+        // (15,17): column x-1, row y+1.
+        assert.equal(replay.getScreens().length, 2);
+        assert.deepEqual(replay.getCursors(), [[8, 1, 1], [14, 18, 1]]);
+        // engrave.c read_engr_at() (329-334, 396-397) prints the DUST
+        // sensing line and the text, which share one top line. The
+        // five rubbed-out characters come from mklev.c:769
+        // wipe_engr_at(..., 5, FALSE).
+        assert.equal(
+            game._ttyToplines,
+            'Something is written here in the dust.'
+            + '  You read: "ad ?er?ri?r".',
+        );
+        // engrave.c:399-400. Only read_engr_at() sets these, so they separate
+        // a printed message from a message printed by something else.
+        assert.deepEqual(
+            [game.head_engr.eread, game.head_engr.erevealed],
+            [true, true],
+        );
+        // allmain.c:88. The preamble ran to its end instead of refusing.
+        assert.equal(game.program_state.in_moveloop, 1);
+    });
+
 test('resuming skips new-game RNG, movement, and track initialization', async () => {
     // An ordinary calendar date isolates the restore branch from messages.
     const state = preambleState('20260129120000');

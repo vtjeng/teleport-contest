@@ -641,7 +641,7 @@
       "area": "startup",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "4e2820a66dba54ef99e43e0a9438bc9a21bcce4d",
       "detail": "allmain.c moveloop_preamble()'s !resuming arm calls set_wear(NULL),\nreset_justpicked(gi.invent) and pickup(1) at allmain.c:73-75.\njs/moveloop_preamble.js:61-62 leaves all three out, recorded there as\ninventory side effects the inventory subsystem cannot yet own faithfully.\n\npickup(1) is not only an inventory call. Its local `autopickup` is\n`what > 0`, so a new game always takes it, and pickup.c:702-709's early\nreturn for a square holding nothing ends in read_engr_at(u.ux, u.uy). A hero\nwho starts on an engraved square therefore reads it before her first command,\nand the port prints nothing.\n\nFound while choosing seeds for the Tourist arrival matrix. Reproduce with\n`node scripts/diff-fresh.mjs --seed 9300030 --datetime 20290418073000\n--nethackrc-file <rc> --moves '   '` where the rc reads\n\n  OPTIONS=name:Sightsee,role:Tourist,race:human,gender:male,align:neutral\n  OPTIONS=!legacy,!tutorial,!splash_screen\n  OPTIONS=pettype:dog,!acoustics,!autopickup,showexp\n\nThe PRNG log matches call for call, 2534 either side, and every screen\ndiffers: C draws the welcome line with a --More-- over it and answers the\nfirst space with `Something is written here in the dust.  You read: \"ad\n??rar um\".`, while the port draws the welcome line alone and spends the space\non a command. js/pickup.js and js/engrave.js already hold both functions, so\nthe missing piece is the call site.\n\nClose it with the inventory work that lets moveloop_preamble() run set_wear()\nand reset_justpicked(), or earlier if pickup(1) can be wired without them.",
       "notes": [
@@ -2970,6 +2970,16 @@
           "at": "54510b54da5809cb68e3c1fa213d1ce799ea51fb"
         }
       ]
+    },
+    {
+      "id": "wipe_engr_at strips a leading space that the startup checkpoint puts back",
+      "area": "world-effects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "9db664b12c2687f758d3b2732de344d1b3175e00",
+      "detail": "engrave.c wipe_engr_at() (283-287) advances ep->engr_txt[actual_text] past\nevery leading space wipeout_text() left, and js/engrave.js:394-398 ports that\nwith .replace(/^ +/u, ''). engrave.c save_engravings() (1565-1567) rewinds the\nsame pointer to engr_text_space(ep) whenever it writes an engraving, so those\ncharacters come back. allmain.c newgame():838 calls save_currentstate() under\nINSURANCE, which include/config.h:435 defines and optlist.h:225 leaves on by\ndefault through flags.ins_chkpt, and do.c:1382 savelev() reaches\nsave_engravings(). Every new game therefore reads its engravings unstripped.\ndo.c:1969 and cmd.c:1064 repeat the rewind on each level change, so the strip is\nstill observable between a u_wipe_engr() and the next checkpoint and must stay.\n\nThe port has no save_currentstate(), so it keeps the strip and prints one\ncharacter too few.\n\nReproduce with 'node scripts/diff-fresh.mjs --seed 118228 --datetime\n20270311094500 --nethackrc-file <rc> --moves \" \"' where the rc reads\n\n  OPTIONS=name:Engraver,role:Valkyrie,race:human,gender:female,align:neutral\n  OPTIONS=!legacy,!tutorial,!splash_screen\n\n2800 PRNG calls match either side and both boundaries are drawn; one cell of the\nsecond screen differs, row 0 column 51. C prints You read: \" c aerariun\". and\nthe port prints You read: \"c aerariun\". The five wipeout draws at\nengrave.c:134-135 turn position 0 of \"ad aerarium\" into '?' and then into ' ',\nwhich is what makes the strip fire. Ten sibling seeds -- 100778, 101086, 106755,\n108457, 110419, 111580, 116336, 116864, 119282 and 119999 on the same rc and\ndatetime -- leave position 0 alone and match exactly, so about one hero in\neleven who starts on an engraving hits this.\n\nClose it by porting save_engravings()'s pointer rewind at the point\nallmain.c:838 checkpoints a new game.",
+      "blockedOn": "save_engravings"
     }
   ],
   "areas": [
