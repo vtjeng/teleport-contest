@@ -257,3 +257,41 @@ entries, so that flag rate needs measuring again before the rule is chosen.
 **What it leaves unfixed.** A check that reads `detail` cannot see an entry
 that cites no path at all. Of the 92 open entries measured at `4930664`, 33
 cited none, and those keep whatever label they were filed under.
+
+## Guard cursors in the score ratchet
+
+**What it changes.** `RATCHET_METRICS` in `scripts/score-baseline.mjs` holds
+`screens` and `rngCalls`. Adding `cursors` would make `npm run checkpoint` fail
+on a session that lost cursor matches while keeping its screens.
+
+**Why it matters.** `cursors` is one of the four columns `SCORE.tsv` records and
+`SCORE.md` reports, so a drop there is a scored regression that no gate
+currently catches. It moves independently of `screens`: measured at `16ab32d`
+over the 33 development sessions, 4 disagree, and `seed0006-wizard-water-demon`
+disagrees by 8, at 56 screens against 64 cursors. The comment above
+`RATCHET_METRICS` explains why `rngCalls` was added beside `screens` — a session
+can keep its screens while the state behind them drifts — and the same argument
+covers the cursor.
+
+**Scope.** `raiseBaseline()` and `lowerBaseline()` already iterate
+`RATCHET_METRICS` and skip a metric a caller omits, so neither needs a change.
+The one edit is `main()`'s `lower` verb at `scripts/score-baseline.mjs:164-172`,
+which hardcodes `{ screens: Number(screens), rngCalls: Number(rngCalls) }` from
+two positional arguments. Adding a third positional changes a documented CLI
+signature; the alternative is a `--cursors <n>` flag, which leaves the existing
+form working. The baseline then needs one `raise` from a clean tree to capture
+the cursor figures, after which the guard is live.
+
+**Cost.** Small. One CLI arm, its usage string, and a test for each of the two
+verbs. `lower` has been used once in the file's history, so the signature
+question affects almost nothing in practice.
+
+**What it leaves unfixed.** `animFrames` stays unguarded. It is not a
+`SCORE.tsv` column, but three open deferrals use animation-frame mismatches as
+their differential evidence, so a regression there is invisible to every gate.
+Whether it belongs in the ratchet or in a separate check is undecided.
+
+**What prompted it.** The agent surveying whether the 50 production deferrals
+can be worked in parallel, which found this gap while establishing what the
+fleet's safety check would rest on. The same survey found the ratchet 981
+screens behind, raised at `af15a30`.

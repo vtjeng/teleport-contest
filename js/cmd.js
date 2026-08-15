@@ -238,6 +238,23 @@ function commandBindings(state) {
     return state.commandBindings;
 }
 
+// C ref: cmd.c timed_occupation() (171-178). The occupation a count installs:
+// it runs the command once more, spends one of the repeats parse() left in
+// gm.multi, and answers 0 on the turn that empties it, which is how
+// moveloop_core() learns to stop.
+//
+// C's `(*timed_occ_fn)()` passes no argument and discards the result, so the
+// ECMD_* code the command answers -- ECMD_TIME for a search that ran -- reaches
+// nobody, and the env moveloop_core() hands its occupation stops here.
+//
+// The decrement is guarded because C's is: a helpless hero counts a negative
+// gm.multi up elsewhere, and this must not count it down.
+async function timed_occupation(state) {
+    await state.timedOccFn(state);
+    if (state.multi > 0) state.multi--;
+    return state.multi > 0 ? 1 : 0;
+}
+
 // C ref: cmd.c set_occupation() (205-217). Installs the callback that
 // allmain.c moveloop_core() runs once a turn until it answers 0, together with
 // the text stop_occupation() puts into "You stop <occtxt>."
@@ -250,18 +267,19 @@ function commandBindings(state) {
 // callback therefore arrives as an argument and is never read from a module
 // scope that could still be initializing.
 export function set_occupation(fn, txt, xtime, state = game) {
-    if (xtime) {
-        // cmd.c timed_occupation() counts gm.multi down instead of letting the
-        // callback decide when it is finished. Its one caller is rhack()'s
-        // `if (tlist->f_text && !go.occupation && gm.multi)` at cmd.c:3728,
-        // which needs a count that left gm.multi above 0. rhack() below
-        // refuses such a command ahead of every dispatch arm, so no ported
-        // caller can supply a timeout and every occupation installed here is
-        // one the callback ends itself.
-        throw new Error('set_occupation() with a timeout is unreachable');
-    }
     state.go ??= {};
-    state.go.occupation = fn;
+    if (xtime) {
+        // cmd.c:208-210. A count makes the wrapper above the occupation and
+        // puts the command's own function in cmd.c's file-scope timed_occ_fn.
+        // The port keeps that pointer on the state rather than in a module
+        // variable, so that two game states in one process cannot share it;
+        // like C's static it is left standing when an untimed occupation
+        // replaces this one, because only timed_occupation() reads it.
+        state.go.occupation = timed_occupation;
+        state.timedOccFn = fn;
+    } else {
+        state.go.occupation = fn;
+    }
     state.go.occtxt = txt;
     state.go.occtime = 0;
 }
@@ -897,10 +915,9 @@ const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
 // The count a command carries is refused separately, below, because parse()
 // admits the count before the command it modifies is even known.
 const COUNTED_BOUNDARY = 'cmd.c parse() committed a count leaving gm.multi '
-    + 'above 0, which rhack():3728-3729 turns into an occupation for the two '
-    + 'extcmdlist[] rows carrying occupation text and allmain.c '
-    + 'moveloop_core():515-531 turns into a repeat for every other row; '
-    + 'neither is ported';
+    + 'above 0 before a row carrying no occupation text, which allmain.c '
+    + 'moveloop_core():515-531 turns into a repeat of the command; that arm '
+    + 'is not ported';
 // context.run values this boundary dispatches. cmd.c set_move_cmd() takes the
 // value from the command the key is bound to: 0 for do_move_<dir>, 1 for
 // do_run_<dir>, which the shift-direction keys use, and 3 for do_rush_<dir>
@@ -1499,11 +1516,11 @@ async function runAttributesCommand(key, state) {
 // the ECMD_* result its handler produced, because cmd_safety_prevention() and
 // the search itself already distinguish ECMD_OK from ECMD_TIME.
 //
-// extcmdlist[]'s "searching" occupation text would make rhack() call
-// set_occupation() under a count. rhack() below refuses every command whose
-// count left gm.multi above 0, so this handler runs only with multi at 0 and
-// that call cannot happen; `wait`, the only other command carrying an
-// occupation text, is admitted on the same terms.
+// extcmdlist[]'s "searching" occupation text makes rhack() install a timed
+// occupation ahead of this wrapper whenever a count left gm.multi above 0. The
+// occupation calls dosearch() bare, without the wrapper: it is not running a
+// command, so a refusal from below belongs to the turn loop, which
+// moveloop_core() converts there.
 async function runSearchCommand(key, state) {
     return failClosedCommand(key, state, () => dosearch(state));
 }
@@ -1903,6 +1920,30 @@ async function doextcmd(key, state) {
     }
 }
 
+// C ref: rhack():3727's `func = tlist->ef_funct`, resolved for the rows that
+// can reach set_occupation(). C hands set_occupation() the same pointer the
+// dispatch below calls; this port names its handlers instead, so the row's
+// ef_funct is what maps one to the other, as doextcmd()'s switch above does.
+//
+// Only a row carrying occupation text arrives here, and extcmdlist[] gives
+// exactly two rows one: 's'/dosearch at cmd.c:1846-1847 and '.'/donull at
+// :1930-1931. Both handlers are ported, so the refusal below is unreachable
+// until upstream adds a third row and scripts/generate-extcmds.mjs copies it in.
+function timedOccupationFunction(row, key, state) {
+    switch (row.ef_funct) {
+    case 'dosearch':
+        return dosearch;
+    case 'donull':
+        return donull;
+    default:
+        resetCommandVars(state);
+        throw new UnsupportedHeroCommandBoundaryError(
+            `the counted command '${row.ef_txt}' has no ported occupation`,
+            key,
+        );
+    }
+}
+
 // C ref: cmd.c rhack(). Only the source handlers the port owns are
 // dispatched here. A fresh excluded physical byte stops retryably before
 // parsing or an unknown-command diagnostic. A supplied nonzero key (normally
@@ -2039,16 +2080,31 @@ export async function rhack(key, state = game) {
                 return;
             }
         }
-        // The count refusal sits exactly where C spends a committed count.
-        // rhack():3727-3729 reads gm.multi here to install an occupation for a
-        // row carrying f_text, and every other row leaves gm.multi for
-        // allmain.c moveloop_core():515-531 to repeat the command with; the
-        // port has neither. It is below the prefix loop because each pass
-        // through that loop calls parse() again, which zeroes gc.command_count
-        // at cmd.c:5104, so only the last parse's count survives to be spent.
-        // A key bound to no command is exempt: the bad-command path below
-        // zeroes gm.multi itself, as cmd.c:3839 does.
-        if (state.multi > 0 && command !== null) {
+        // C ref: rhack():3726-3729, where a committed count is spent. A row
+        // carrying occupation text becomes a timed occupation, which
+        // moveloop_core():485-509 then runs once a turn without reading
+        // another key; the command still runs once through the dispatch below
+        // first, because parse():5142-5144 already spent one repeat on it.
+        //
+        // This sits below the prefix loop because each pass through that loop
+        // calls parse() again, which zeroes gc.command_count at cmd.c:5104, so
+        // only the last parse's count survives to be spent.
+        const row = command !== null ? EXTCMD_BY_NAME.get(command) : null;
+        if (row?.f_text && !state.go?.occupation && state.multi) {
+            set_occupation(
+                timedOccupationFunction(row, key, state),
+                row.f_text,
+                state.multi,
+                state,
+            );
+        } else if (state.multi > 0 && command !== null) {
+            // Every other row leaves the count for moveloop_core():515-531 to
+            // repeat the command with, and that arm reaches lookaround() and
+            // svc.context.mv, neither of which this port drives from a count.
+            // A key bound to no command is exempt: the bad-command path below
+            // zeroes gm.multi itself, as cmd.c:3839 does. So is a row that
+            // carries occupation text while one is already running, which C
+            // leaves to the same repeat arm.
             resetCommandVars(state);
             throw new UnsupportedHeroCommandBoundaryError(
                 COUNTED_BOUNDARY,
