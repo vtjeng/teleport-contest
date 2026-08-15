@@ -15,7 +15,6 @@ import {
     HALLUC,
     HALLUC_RES,
     LOST_EXPLODING,
-    MOD_ENCUMBER,
     LOST_NONE,
     LOST_THROWN,
     OBJ_BURIED,
@@ -2593,22 +2592,11 @@ export async function prinv(prefix, obj, quan, env = {}) {
 // invent.c:1261-1264 and pickup.c:1757-1758 are the same two lines:
 // `if (prev_encumbr < flags.pickup_burden) prev_encumbr = flags.pickup_burden`,
 // which is max(current encumbrance, the pickup_burden option). options.c
-// initoptions_init() starts flags.pickup_burden at MOD_ENCUMBER, but
-// parseNethackrc() has no arm for the option and leaves an unported option's
-// raw text in flags[<option name>] -- for this option, the very field the
-// parsed value would occupy. Raw text would make Math.max() NaN, and every `>`
-// against NaN is false, so both callers' capacity tests --
-// projectsHeavyBallDrop()'s calc_capacity() one and hold_another_object()'s
-// `near_capacity(state) > prev_encumbr` -- would go false and this port would
-// hold an object C drops. Refuse until js/options.js gains the parse arm, the
-// way js/pickup.js pickup() already does.
-function encumbranceLimit(current, state, obj) {
-    const pickupBurden = state.flags?.pickup_burden ?? MOD_ENCUMBER;
-    if (!Number.isInteger(pickupBurden)) {
-        throw new UnsupportedObjectOperationError('unparsed pickup_burden',
-                                                  obj);
-    }
-    return Math.max(current, pickupBurden);
+// initoptions_init() starts flags.pickup_burden at MOD_ENCUMBER and
+// optfn_pickup_burden() is what changes it; js/options.js ports both, so the
+// field always holds one of hack.h's encumbrance levels.
+function encumbranceLimit(current, state) {
+    return Math.max(current, state.flags.pickup_burden);
 }
 
 // C ref: invent.c hold_another_object() (1206-1306), restricted to the plain
@@ -2624,8 +2612,7 @@ function projectsHeavyBallDrop(obj, state) {
         && Object.hasOwn(previousGw, 'wc');
     const previousWeightCache = previousGw?.wc;
     try {
-        const projectedLimit = encumbranceLimit(near_capacity(state),
-                                                state, obj);
+        const projectedLimit = encumbranceLimit(near_capacity(state), state);
         return inv_cnt(false, state) + 1 > INVLET_BASIC
             || calc_capacity(obj.owt, state) > projectedLimit;
     } finally {
@@ -2765,8 +2752,7 @@ export async function hold_another_object(
         const oquan = obj.quan;
         /* encumbrance limit is max( current_state, pickup_burden ), taken
            before addinv() */
-        const prev_encumbr = encumbranceLimit(near_capacity(state),
-                                              state, obj);
+        const prev_encumbr = encumbranceLimit(near_capacity(state), state);
         /* C copies drop_arg into a local buffer here, because addinv() could
            recycle the obuf[] doname() built it in; JavaScript strings need no
            such copy */

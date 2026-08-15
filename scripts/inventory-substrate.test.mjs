@@ -144,7 +144,10 @@ function initializedState() {
         // Object/monster id 1 is reserved; startup begins from 2.
         context: { ident: 2 },
         disp: {},
-        flags: { invlet_constant: true },
+        // options.c initoptions_init() (7207) starts flags.pickup_burden at
+        // MOD_ENCUMBER, which is what an rc file that never names the option
+        // leaves behind; invent.c:1261-1264 reads it on every hold.
+        flags: { invlet_constant: true, pickup_burden: MOD_ENCUMBER },
         iflags: {},
         program_state: { in_moveloop: 1 },
         moves: 0,
@@ -2234,9 +2237,9 @@ test('hold_another_object stops on the arms it cannot finish', async () => {
 // invent.c:1258-1264 takes the encumbrance limit before addinv() as
 // max(near_capacity(), flags.pickup_burden), and each operand needs a case
 // where it is the larger.  Without both, a fixture proves only that one of
-// them is read: every other test here leaves flags.pickup_burden unset, so it
-// holds the MOD_ENCUMBER default and a hero at or below Stressed can never
-// tell the two apart.
+// them is read: every other test here leaves flags.pickup_burden at the
+// MOD_ENCUMBER default, and a hero at or below Stressed can never tell the
+// two apart.
 test('the hold limit takes the larger of the load and the burden option',
     async () => {
         // hack.c capacity_from_excess() answers min(trunc(excess * 2 / cap) +

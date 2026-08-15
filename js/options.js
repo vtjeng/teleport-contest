@@ -8,6 +8,7 @@ import {
     AUTOUNLOCK_KICK,
     AUTOUNLOCK_UNTRAP,
     DISCLOSE_PROMPT_DEFAULT_NO,
+    EXT_ENCUMBER,
     GFILTER_AREA,
     GFILTER_NONE,
     GFILTER_VIEW,
@@ -16,12 +17,14 @@ import {
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
+    HVY_ENCUMBER,
     Is_rogue_level,
     MENU_COMBINATION,
     MENU_FULL,
     MENU_TRADITIONAL,
     MOD_ENCUMBER,
     NUM_DISCLOSURE_OPTIONS,
+    OVERLOADED,
     PARANOID_AUTOALL,
     PARANOID_BONES,
     PARANOID_BREAKWAND,
@@ -44,8 +47,10 @@ import {
     RUN_LEAP,
     RUN_STEP,
     RUN_TPORT,
+    SLT_ENCUMBER,
     STONE,
     SYM_BOULDER,
+    UNENCUMBERED,
 } from './const.js';
 import {
     ROLE_ALIGNMASK,
@@ -1772,6 +1777,44 @@ function setRunmode(result, value, negated, lineNumber) {
     result.flags.runmode = match[1];
 }
 
+// C ref: options.c optfn_pickup_burden() (3266-3291), the switch its do_set
+// arm runs. It reads one byte -- lowc(*op) -- so the value's remaining
+// characters are never examined and "burdened" and "banana" both select
+// SLT_ENCUMBER. 'o' and 't' share the overtaxed arm because "overtaxed" and
+// "overloaded" cannot be told apart by their first letter; 't' is what the
+// comment spells "OverTaxed".
+const PICKUP_BURDEN_LEVELS = Object.freeze(new Map([
+    ['u', UNENCUMBERED],
+    ['b', SLT_ENCUMBER],
+    ['s', MOD_ENCUMBER],
+    ['n', HVY_ENCUMBER],
+    ['o', EXT_ENCUMBER],
+    ['t', EXT_ENCUMBER],
+    ['l', OVERLOADED],
+]));
+
+// optlist.h:573 gives pickup_burden negateok No, so parseoptions() answers a
+// negation with bad_negation() before the handler runs. The handler then reads
+// its value with string_for_env_opt(name, opts, FALSE), whose mandatory
+// parameter makes a spelling with no value the "Missing parameter" config
+// error rather than a default. This port stops on each of those errors.
+function setPickupBurden(result, value, negated, lineNumber) {
+    if (negated) {
+        optionError(
+            lineNumber,
+            "negated compound option 'pickup_burden' is not supported",
+        );
+    }
+    if (!value) optionError(lineNumber, "'pickup_burden' requires a value");
+    const level = PICKUP_BURDEN_LEVELS.get(lowc(value[0]));
+    if (level === undefined) {
+        optionError(
+            lineNumber, `unknown pickup_burden parameter '${value}'`,
+        );
+    }
+    result.flags.pickup_burden = level;
+}
+
 // C ref: options.c parsebindings(). Comma-separated bindings recurse into
 // their suffix, so the rightmost alias is appended first and wins collisions.
 function applyMenuBindings(result, bindings, lineNumber) {
@@ -2177,6 +2220,8 @@ function applyOption(result, optionState, option, lineNumber) {
         setWhatisCoord(result, value, negated, lineNumber);
     } else if (name === 'runmode') {
         setRunmode(result, value, negated, lineNumber);
+    } else if (name === 'pickup_burden') {
+        setPickupBurden(result, value, negated, lineNumber);
     } else if (name === 'pile_limit') {
         setPileLimit(result, value, negated, lineNumber);
     } else if (name === 'msg_window') {
@@ -2983,9 +3028,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
         ATTR_NAMES, state.iflags.wc2_petattr,
         `attribute ${state.iflags.wc2_petattr}`,
     ),
-    pickup_burden: (state, option) => burdentype[
-        requireParsedNumber(state, option)
-    ],
+    pickup_burden: (state) => burdentype[state.flags.pickup_burden],
     pickup_types: (state) => {
         // flags.pickup_types holds object-class indices, which
         // optfn_pickup_types()'s do_set arm derives from the option's class
@@ -3107,13 +3150,12 @@ function symsetValue(state, set, withHandling) {
 // it.  packorder is a member on that rule even though it has its own parse
 // arm, because that arm only retains the raw text: its handler reads
 // flags.inv_order.  Where the raw text lands in the very field the handler
-// reads -- autounlock, pickup_burden, pickup_types, suppress_alert and
-// versinfo -- there is nothing left to compare against, so those five are
-// guarded by type inside their handlers instead and are not members.  The
-// other-settings rows need neither guard: each counts live state rather than
-// reading an option field.  scripts/options-menu.test.mjs derives the whole
-// rule from parseNethackrc(), so the set cannot drift from
-// OPTION_VALUE_HANDLERS unnoticed.
+// reads -- autounlock, pickup_types, suppress_alert and versinfo -- there is
+// nothing left to compare against, so those four are guarded by type inside
+// their handlers instead and are not members.  The other-settings rows need
+// neither guard: each counts live state rather than reading an option field.
+// scripts/options-menu.test.mjs derives the whole rule from parseNethackrc(),
+// so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'boulder', 'crash_email', 'crash_name', 'crash_urlmax',
     'disclose', 'glyph', 'menu_objsyms', 'menuinvertmode', 'menustyle',

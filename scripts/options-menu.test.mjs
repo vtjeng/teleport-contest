@@ -337,13 +337,12 @@ test('a configured session reaches the menu\'s value column', async () => {
 test('the menu refuses an option whose value it cannot derive', async () => {
     const state = await startConfiguredGame(0);
     // parseNethackrc() keeps an unported compound option's raw text under
-    // flags[<option name>]; three of the shown options store their parsed
-    // value in that same field, so those are caught by type instead.
+    // flags[<option name>]; one of the shown options stores its parsed value
+    // in that same field, so that one is caught by type instead.
     const raw = [
         ['menustyle', 'flags', 'menustyle'],
         ['packorder', 'flags', 'packorder'],
         ['autounlock', 'flags', 'autounlock'],
-        ['pickup_burden', 'flags', 'pickup_burden'],
     ];
     for (const [name, owner, field] of raw) {
         const saved = state[owner][field];
@@ -492,12 +491,14 @@ test('every shown compound option guards its unparsed raw text', async () => {
     }
     // The two routes that answer the loop above, and nothing else: the frozen
     // set, plus the options whose handler reads flags[<option name>] itself
-    // and tests its type there. versinfo is a fifth of those, but its parse
-    // arm rejects a value it cannot read as a number, so raw text reaches its
-    // field only through the value-less spelling the refusal test covers.
+    // and tests its type there. versinfo and pickup_burden are two more of
+    // those, but each has a parse arm that rejects a value it cannot read --
+    // a non-number and a letter outside "ubsnotl" -- so raw text reaches
+    // their fields only through the value-less spelling the refusal test
+    // covers, and the loop above never reaches their guards.
     assert.deepEqual(needsGuard.slice().sort(), [
         ...UNPARSED_COMPOUND_OPTIONS,
-        'autounlock', 'pickup_burden', 'pickup_types', 'suppress_alert',
+        'autounlock', 'pickup_types', 'suppress_alert',
     ].sort());
     // The other-settings rows need no guard: each counts live state instead
     // of reading an option field, so raw text under their names is inert.
@@ -563,9 +564,9 @@ test('the menu refuses the tab-separated layout menu_tab_sep asks for',
         assert.equal(dosetMenuItems(state, menuHelpers(), false).length, 150);
     });
 
-// C ref: coloratt.c count_menucolors(), options.c msgtype_count() and cmd.c
-// count_autocompletions(). Each walks a list that a configuration statement
-// this port drops is what fills.
+// C ref: coloratt.c count_menucolors(), options.c msgtype_count(),
+// count_apes() and cmd.c count_autocompletions(). Each walks a list that a
+// configuration statement this port drops is what fills.
 test('each Other settings count refuses a statement the parse dropped',
     async () => {
         const dropped = [
@@ -577,6 +578,12 @@ test('each Other settings count refuses a statement the parse dropped',
             // cnf_line_AUTOCOMPLETE() sets AUTOCOMP_ADJ on an extcmdlist[]
             // row, which count_autocompletions() counts.
             ['AUTOCOMPLETE=!terrain', 'autocompletions', 'AUTOCOMPLETE'],
+            // cnf_line_AUTOPICKUP_EXCEPTION() (cfgfiles.c:612) appends one
+            // ga.apelist node, which count_apes() counts. The table row that
+            // dispatches it is CNFL_N(AUTOPICKUP_EXCEPTION, 5) at
+            // cfgfiles.c:1313.
+            ['AUTOPICKUP_EXCEPTION=">*wand"', 'autopickup exceptions',
+                'AUTOPICKUP_EXCEPTION'],
         ];
         for (const [line, row, handler] of dropped) {
             const state = await startGameWithConfig(line);
@@ -587,12 +594,13 @@ test('each Other settings count refuses a statement the parse dropped',
                 row,
             );
         }
-        // Each count stops only on its own statement, so the other two rows
+        // Each count stops only on its own statement, so the other three rows
         // still report the empty list the port really holds.
         const state = await startGameWithConfig('MENUCOLOR="blessed"=green');
         state.unportedConfigStatements = [];
         const items = dosetMenuItems(state, menuHelpers(), false);
-        for (const row of ['menu colors', 'message types', 'autocompletions'])
+        for (const row of ['menu colors', 'message types', 'autocompletions',
+            'autopickup exceptions'])
             assert.equal(valueOf(items, row), '(0 currently set)', row);
     });
 

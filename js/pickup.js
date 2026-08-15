@@ -407,20 +407,13 @@ function preflightPickupObjects(selected, state) {
             'pickup() requiring a partial or failed lift',
         );
     }
-    // pickup.c:1757-1758 is `if (prev_encumbr < flags.pickup_burden)`.
-    // parseNethackrc() has no arm for pickup_burden and keeps an unported
-    // option's raw text in flags[<option name>], which for this option is the
-    // same field its parsed value would occupy. Raw text would make
-    // Math.max() NaN, every `>` against it false, and this refusal disappear,
-    // so the port would lift where C stops at ynq(). Refuse instead, until
-    // js/options.js gains the parse arm.
-    const pickupBurden = state.flags?.pickup_burden ?? MOD_ENCUMBER;
-    if (!Number.isInteger(pickupBurden)) {
-        throw new UnsupportedPickupError(
-            'pickup() with an unparsed pickup_burden',
-        );
-    }
-    const promptLimit = Math.max(near_capacity(state), pickupBurden);
+    // pickup.c:1757-1758 is `if (prev_encumbr < flags.pickup_burden)`, the
+    // max() below. options.c optfn_pickup_burden() writes that field and
+    // initoptions_init() starts it at MOD_ENCUMBER, both ported in
+    // js/options.js, so it always holds one of hack.h's encumbrance levels.
+    const promptLimit = Math.max(
+        near_capacity(state), state.flags.pickup_burden,
+    );
     if (calc_capacity(addedWeight, state) > promptLimit) {
         throw new UnsupportedPickupError('pickup() requiring a burden prompt');
     }

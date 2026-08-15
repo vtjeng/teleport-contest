@@ -145,13 +145,14 @@ test('encumber_msg reports the live weakness capacity transition once',
 // pickup.c pickup() (672-910), the two arms goto_level()'s pickup(1) reaches.
 // The state each case fabricates is the one term of a source condition that
 // separates it from the case above it.
-async function heroOnAnEmptySquare() {
+async function heroOnAnEmptySquare(extraOptions = '') {
     await runSegment({
         seed: 5501234,
         datetime: '20330607081011',
         nethackrc: 'OPTIONS=name:Picker,role:Valkyrie,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,'
-            + '!splash_screen,pettype:none,!acoustics,!autopickup',
+            + '!splash_screen,pettype:none,!acoustics,!autopickup'
+            + extraOptions,
         moves: '',
     });
     const state = game;
@@ -1436,24 +1437,45 @@ test('an autopickup that lifts nothing leaves the pile described as untouched',
     });
 
 
-// pickup.c:1757-1758 raises the burden limit to flags.pickup_burden.
-// parseNethackrc() has no arm for that option and keeps an unported option's
-// raw text in flags[<option name>], which for this one is the field its parsed
-// value would occupy. A string makes Math.max() NaN and every `>` against NaN
-// false, which would delete the burden refusal rather than widen it, so the
-// port would lift where C stops at ynq().
-test('pickup refuses an unparsed pickup_burden rather than ignoring it',
-    async () => {
-        const state = await heroOnAnEmptySquare();
-        const object = objectUnderHero(state);
-        state.flags.pickup_burden = 'overloaded';
-        await assert.rejects(
-            () => pickup(0, state),
-            (error) => error instanceof UnsupportedPickupError
-                && /unparsed pickup_burden/u.test(error.message),
-        );
-        assert.equal(object.where, OBJ_FLOOR);
-    });
+// pickup.c:1757-1758 raises the burden limit to flags.pickup_burden, and
+// options.c optfn_pickup_burden() is what a configuration file writes there.
+// The tests above set that field directly; this one drives it from the rc
+// statement a player would write, which is the only route the running game
+// has to it.
+test('a configured pickup_burden raises the limit pickup admits', async () => {
+    // The switch reads lowc(*op), so 'n' is the straiNed arm, HVY_ENCUMBER.
+    // One weight lands on that threshold exactly, which is one step above the
+    // MOD_ENCUMBER an rc that never names the option leaves behind.
+    const configured = await heroOnAnEmptySquare(
+        '\nOPTIONS=pickup_burden:n',
+    );
+    assert.equal(configured.flags.pickup_burden, HVY_ENCUMBER);
+    const heavy = objectUnderHero(configured);
+    heavy.owt = weightForCapacity(configured, HVY_ENCUMBER);
+    configured.flags.pickup = true;
+    quiet(configured);
+    assert.equal(await pickup(1, configured), 1);
+    assert.equal(heavy.where, OBJ_INVENT);
+    assert.match(
+        configured._ttyToplines ?? '', /^You have much trouble lifting/u,
+    );
+
+    // The same weight on the same hero without the statement: the limit is
+    // MOD_ENCUMBER, the lift crosses it, and C would ask ynq() -- which this
+    // port refuses rather than answers.
+    const stock = await heroOnAnEmptySquare();
+    assert.equal(stock.flags.pickup_burden, MOD_ENCUMBER);
+    const same = objectUnderHero(stock);
+    same.owt = weightForCapacity(stock, HVY_ENCUMBER);
+    stock.flags.pickup = true;
+    quiet(stock);
+    await assert.rejects(
+        () => pickup(1, stock),
+        (error) => error instanceof UnsupportedPickupError
+            && /requiring a burden prompt/u.test(error.message),
+    );
+    assert.equal(same.where, OBJ_FLOOR);
+});
 
 test('pickup refuses the object types it never learned to lift', async () => {
     // pickup.c:1826 hands an artifact to touch_artifact(), which prints and

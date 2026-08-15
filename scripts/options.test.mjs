@@ -4,12 +4,18 @@ import test from 'node:test';
 
 import { parseNethackrc } from '../js/options.js';
 import {
+    EXT_ENCUMBER,
     GPCOORDS_COMPASS,
     GPCOORDS_COMFULL,
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
+    HVY_ENCUMBER,
+    MOD_ENCUMBER,
+    OVERLOADED,
+    SLT_ENCUMBER,
     STONE,
+    UNENCUMBERED,
 } from '../js/const.js';
 import {
     ROLE_NONE,
@@ -23,6 +29,9 @@ import {
     validrace,
 } from '../js/roles.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
+import {
+    MENU_SPELLINGS, loadPickupBurdenRecipe,
+} from './run-pickup-burden.mjs';
 import {
     ATR_BOLD,
     ATR_INVERSE,
@@ -152,6 +161,123 @@ test('pile_limit startup parsing follows optfn_pile_limit and C atoi', () => {
     assert.throws(
         () => parseNethackrc('OPTIONS=!pile_limit:3'),
         /may not both have a value and be negated/u,
+    );
+});
+
+// C ref: options.c optfn_pickup_burden() (3266-3291). Every expected level is
+// the constant that arm assigns for the letter, read from include/hack.h
+// (458-463): UNENCUMBERED 0 through OVERLOADED 5.
+test('pickup_burden parsing follows optfn_pickup_burden switch', () => {
+    const values = [
+        // The switch's seven letters, which are handler_pickup_burden()'s
+        // menu accelerators "ubsntl" plus 't'. Each one is the only spelling
+        // that reliably selects its level.
+        ['OPTIONS=pickup_burden:u', UNENCUMBERED],
+        ['OPTIONS=pickup_burden:b', SLT_ENCUMBER],
+        ['OPTIONS=pickup_burden:s', MOD_ENCUMBER],
+        ['OPTIONS=pickup_burden:n', HVY_ENCUMBER],
+        ['OPTIONS=pickup_burden:o', EXT_ENCUMBER],
+        ['OPTIONS=pickup_burden:t', EXT_ENCUMBER],
+        ['OPTIONS=pickup_burden:l', OVERLOADED],
+        // The six names options.c burdentype[] (213-216) holds, which are
+        // what the options menu prints back and what a player writing a
+        // config file would copy. Only lowc(*op) is read, and the letters
+        // above were chosen from the middle of two of those names -- 'n' for
+        // straiNed and 't' for overTaxed -- so four names agree with the
+        // level they name and two do not.
+        ['OPTIONS=pickup_burden:unencumbered', UNENCUMBERED],
+        ['OPTIONS=pickup_burden:burdened', SLT_ENCUMBER],
+        ['OPTIONS=pickup_burden:stressed', MOD_ENCUMBER],
+        ['OPTIONS=pickup_burden:overtaxed', EXT_ENCUMBER],
+        // "strained" shares its first letter with "stressed", so asking for
+        // heavy encumbrance by name gets moderate encumbrance instead.
+        ['OPTIONS=pickup_burden:strained', MOD_ENCUMBER],
+        // "overloaded" shares its first letter with "overtaxed", so asking
+        // for the highest level by name gets the second highest.
+        ['OPTIONS=pickup_burden:overloaded', EXT_ENCUMBER],
+        // lowc() folds only 'A' through 'Z', and every accepted letter is a
+        // plain ASCII one, so an uppercase spelling reaches the same arm.
+        ['OPTIONS=pickup_burden:Burdened', SLT_ENCUMBER],
+        ['OPTIONS=pickup_burden:L', OVERLOADED],
+        // Nothing past the first byte is examined: a word that no burden is
+        // named after still selects the arm its initial letter holds.
+        ['OPTIONS=pickup_burden:banana', SLT_ENCUMBER],
+        // parseoptions() matches an abbreviated option name through
+        // allopt[].minmatch, and the value is read from the same statement.
+        ['OPTIONS=pickup_bu:n', HVY_ENCUMBER],
+    ];
+    for (const [rc, expected] of values)
+        assert.equal(parseNethackrc(rc).flags.pickup_burden, expected, rc);
+
+    // options.c initoptions_init() (7207) starts the option at MOD_ENCUMBER,
+    // so a file that never names it leaves stressed behind.
+    assert.equal(parseNethackrc('').flags.pickup_burden, MOD_ENCUMBER);
+
+    // string_for_env_opt(name, opts, FALSE) makes the value mandatory, so
+    // both spellings without one are the "Missing parameter" config error.
+    for (const rc of ['OPTIONS=pickup_burden', 'OPTIONS=pickup_burden:']) {
+        assert.throws(
+            () => parseNethackrc(rc),
+            /pickup_burden.*requires a value/u,
+            rc,
+        );
+    }
+    // A letter outside "ubsnotl" falls to the handler's config_error_add()
+    // default. 'x' is the first letter of no burden name.
+    assert.throws(
+        () => parseNethackrc('OPTIONS=pickup_burden:xyzzy'),
+        /unknown pickup_burden parameter 'xyzzy'/u,
+    );
+    // string_for_opt() returns everything after the colon without trimming,
+    // so a leading space is the byte the switch reads and no arm matches it.
+    assert.throws(
+        () => parseNethackrc('OPTIONS=pickup_burden: stressed'),
+        /unknown pickup_burden parameter ' stressed'/u,
+    );
+    // optlist.h:573 gives the option negateok No, so parseoptions() rejects
+    // every negated spelling before optfn_pickup_burden() runs.
+    for (const rc of ['OPTIONS=!pickup_burden', 'OPTIONS=!pickup_burden:l']) {
+        assert.throws(
+            () => parseNethackrc(rc),
+            /negated compound option 'pickup_burden'/u,
+            rc,
+        );
+    }
+});
+
+// scripts/run-pickup-burden.mjs is what proves the mapping against C: five of
+// its segments open the options menu, whose value column prints
+// optfn_pickup_burden()'s get_val arm. Derive those expectations from this
+// parse, so a spelling that changes here stops agreeing with the screen the
+// recording captured.
+test('the recorded burden matrix agrees with the parse', () => {
+    // options.c burdentype[] (213-216), indexed by the encumbrance level.
+    const burdentype = [
+        'unencumbered', 'burdened', 'stressed',
+        'strained', 'overtaxed', 'overloaded',
+    ];
+    for (const [spelling, shown] of MENU_SPELLINGS) {
+        assert.equal(
+            burdentype[
+                parseNethackrc(`OPTIONS=pickup_burden:${spelling}`)
+                    .flags.pickup_burden
+            ],
+            shown,
+            spelling,
+        );
+    }
+    const { segments } = loadPickupBurdenRecipe();
+    // Five menu segments and the two wish segments that spend the level
+    // rather than printing it. Only a debug game admits a wish, so those two
+    // are the only ones that set playmode.
+    assert.equal(segments.length, MENU_SPELLINGS.length + 2);
+    for (const segment of segments)
+        assert.match(segment.nethackrc, /OPTIONS=pickup_burden:/u);
+    assert.equal(
+        segments.filter(
+            ({ nethackrc }) => nethackrc.includes('playmode:debug'),
+        ).length,
+        2,
     );
 });
 
