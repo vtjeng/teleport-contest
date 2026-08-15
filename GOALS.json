@@ -2336,6 +2336,11 @@
           "name": "parseoptions-config-errors",
           "status": "closed",
           "closedBy": "91e78a26180777022bb3526366be7f6d203e74fd"
+        },
+        {
+          "name": "status-hilite-rules-still-fail-closed",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",
