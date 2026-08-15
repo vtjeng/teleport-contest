@@ -291,6 +291,16 @@ test('tutorial menu uses the source config-file fallback text', () => {
         'Put "OPTIONS=!tutorial" in your configuration file to skip this query.',
     );
 
+    // norc is strcmp(get_configfile(), "/dev/null") over the whole path, not
+    // over the basename, so a file merely named "null" is labelled with its
+    // own name.  Only this case separates the two comparisons: the basename of
+    // "/dev/null" is "null" either way.
+    state.configfile = '/home/player/null';
+    assert.equal(
+        buildTutorialMenuSpec(state).items.at(-1).text,
+        'Put "OPTIONS=!tutorial" in null to skip this query.',
+    );
+
     // ask_do_tutorial() labels every other path with nh_basename(..., TRUE),
     // which on a UNIX build cuts at the last '/' and keeps the suffix.
     state.configfile = '/home/player/.nethackrc';

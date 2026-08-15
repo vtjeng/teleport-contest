@@ -126,6 +126,7 @@ import {
     AUTOCOMP_ADJ,
     CMD_PARAM,
     INTERNALCMD,
+    MOUSECMD,
     extcmdlist,
 } from './extcmdlist_data.js';
 import {
@@ -496,8 +497,18 @@ function trimCWhitespaceStart(value) {
     return String(value).replace(/^[\t\n\v\f\r ]+/u, '');
 }
 
-function trimConfigPadding(value) {
-    return String(value).replace(/^[ \t]+|[ \t]+$/gu, '');
+// C ref: hacklib.c trimspaces() (163-176).  Its two halves reach a caller
+// differently: leading blanks are only skipped, by advancing a pointer the
+// caller need not keep, while the trailing run is overwritten with NUL inside
+// the caller's own buffer.  A caller that keeps its own pointer therefore sees
+// the second half alone, which is what trimspacesTrailing() is.  C counts ' '
+// and '\t' and nothing else, unlike trimCWhitespace() above.
+function trimspacesTrailing(value) {
+    return String(value).replace(/[ \t]+$/u, '');
+}
+
+function trimspaces(value) {
+    return trimspacesTrailing(value).replace(/^[ \t]+/u, '');
 }
 
 // C ref: hacklib.c:mungspaces().  Configuration statements other than
@@ -1207,8 +1218,12 @@ function statusConditionNames(rawConditions, lineNumber) {
                 `unknown status condition '${rawCondition}'`,
             );
         }
-        const canonical = STATUS_HILITE_CONDITIONS[token];
-        const alias = STATUS_CONDITION_ALIASES[token];
+        // Both tables are indexed by rc text, so an inherited name would
+        // otherwise answer for a condition C's strcmp() walks never spell.
+        const canonical = Object.hasOwn(STATUS_HILITE_CONDITIONS, token)
+            ? STATUS_HILITE_CONDITIONS[token] : undefined;
+        const alias = Object.hasOwn(STATUS_CONDITION_ALIASES, token)
+            ? STATUS_CONDITION_ALIASES[token] : undefined;
         // botl.c accumulates every alias whose name shares this prefix.  In
         // particular, "m" selects majortroubles, minortroubles, and movement.
         const partialAliases = Object.keys(STATUS_CONDITION_ALIASES)
@@ -1294,9 +1309,12 @@ function parseStatusHiliteRule(field, threshold, action, lineNumber) {
                 }
             }
         } else if (Object.hasOwn(STATUS_TEXT_THRESHOLDS, field)) {
-            const canonical = STATUS_TEXT_THRESHOLDS[field][
-                menuHeadingToken(normalized)
-            ];
+            // The inner index is rc text too, so it needs the same guard the
+            // outer one already has.
+            const thresholds = STATUS_TEXT_THRESHOLDS[field];
+            const thresholdToken = menuHeadingToken(normalized);
+            const canonical = Object.hasOwn(thresholds, thresholdToken)
+                ? thresholds[thresholdToken] : undefined;
             if (!canonical) {
                 optionError(
                     lineNumber,
@@ -1533,9 +1551,13 @@ const MENU_COMMAND_OPTIONS = Object.freeze([
     { name: 'menu_shift_left', command: '{' },
 ]);
 
-const MENU_COMMAND_BY_NAME = Object.freeze(Object.fromEntries(
+// C walks default_menu_cmd_info[] with strcmp(), so only the thirteen names
+// above can match.  A Map answers for those thirteen alone; a plain object
+// would also answer for every name Object.prototype carries, and rc text is
+// free to spell "constructor".
+const MENU_COMMAND_BY_NAME = new Map(
     MENU_COMMAND_OPTIONS.map(({ name, command }) => [name, command]),
-));
+);
 
 // C ref: cmd.c spkeys_binds[]. These names update prompt/navigation keys,
 // not the extended-command binding list queried by nh.eckey().
@@ -1640,8 +1662,11 @@ function firstEscapedByte(text) {
     return meta ? metaByte(value) : value;
 }
 
+// C ref: options.c txt2key() (6970-7067).  It opens on trimspaces(), so both
+// halves apply to the text it reads; only the trailing half is visible to a
+// caller that keeps the buffer it passed in.
 function textToKey(text) {
-    let value = String(text).trim();
+    let value = trimspaces(text);
     if (!value) return 0;
     if (value.length === 1) return byteOf(value);
     if (value === '<enter>') return 10;
@@ -1739,13 +1764,24 @@ function bindingSeparator(bindings) {
 // looking at the table at all.  A FALSE answer is what makes parsebindings()
 // report an unknown command.
 //
-// The two effects C's matched arm has are split.  cmdbind_add() (2694) is the
-// caller's commandOperations push, which js/command_bindings.js
-// createCommandBindingModel() replays -- including the "nothing" spelling,
-// which it turns into the cmdbind_remove() this returns TRUE for.  The three
-// parameter diagnostics (2696-2712) belong to the binding itself and are here:
-// C reports every one of them for a key it has already bound, so none of them
-// changes the answer.
+// C's matched arm has three effects, with three different owners here.
+//
+//  - cmdbind_add() (2694) is the caller's commandOperations push, which
+//    js/command_bindings.js createCommandBindingModel() replays -- including
+//    the "nothing" spelling, which it turns into the cmdbind_remove() this
+//    returns TRUE for.  That push carries the whole command text, parameter
+//    and all, and createCommandBindingModel() cuts it back at the first '('
+//    without asking for the ')' the test below also requires.  The two agree
+//    on every text that reaches the push, because a text this function does
+//    not parenthesize matches no row and is never pushed.
+//  - The three parameter diagnostics (2696-2712) belong to the binding itself
+//    and are here: C reports every one of them for a key it has already
+//    bound, so none of them changes the answer.
+//  - The bind->param store (2706-2708) is unported.  include/func_tab.h:37
+//    declares that field and cmd.c dotoggleoption() (1376-1384) is its only
+//    reader, through gc.cmd_bind->param at 1378-1379; `parameter` below is
+//    computed for the diagnostics and then dropped.  Deferral
+//    bind-key-parameter-is-not-stored covers it.
 function bind_key(result, command) {
     if (command.toLowerCase() === 'nothing') return true;
     // C truncates its copy at the '(' and points p past it only when a ')'
@@ -1776,20 +1812,51 @@ function bind_key(result, command) {
     return true;
 }
 
+// C ref: options.c parsebindings() mousebtn_names[] (7602-7604).  strcmp()
+// compares the key text against these two case-sensitively.
+const MOUSE_BUTTON_NAMES = Object.freeze(['mouse1', 'mouse2']);
+
+// C ref: cmd.c bind_mousebtn() (2623-2659).  Only its answer is ported: the
+// button it stores into gc.Cmd.mousebtn[] has no reader in this port, and its
+// "Wrong mouse button" arm cannot fire from parsebindings(), whose loop runs
+// over exactly the two valid buttons.  The reserved name "nothing" is accepted
+// without consulting the table.  Unlike bind_key() this does not pass over an
+// INTERNALCMD row, so all three MOUSECMD rows -- therecmdmenu, clicklook and
+// mouseaction -- bind, and a name that matches a row without MOUSECMD keeps
+// the loop running and so answers FALSE.
+function bind_mousebtn(command) {
+    if (command.toLowerCase() === 'nothing') return true;
+    return extcmdlist.some((entry) => (
+        entry.ef_txt.toLowerCase() === command.toLowerCase()
+        && (entry.flags & MOUSECMD) !== 0
+    ));
+}
+
 // C ref: options.c parsebindings() (7595-7674) from its ':' split onwards.
 // The four candidates are tried in C's order: a mouse-button name, a special
 // key, a menu command, then an extended command.
 function applyMenuBinding(result, binding) {
     const colon = binding.indexOf(':');
     if (colon < 0) return;
-    const keyText = binding.slice(0, colon);
-    const commandName = binding.slice(colon + 1).trim();
-    // cmd.c bind_mousebtn() is unported: it binds only the two MOUSECMD rows
-    // and the reserved "nothing", and parsebindings() answers anything else
-    // with "Error binding mouse button %i" and then falls out of its loop into
-    // the txt2key() below, which cannot read "mouse1" either.  Both messages
-    // are unported with the button state they describe.
-    if (keyText === 'mouse1' || keyText === 'mouse2') return;
+    const rawKeyText = binding.slice(0, colon);
+    const commandName = trimspaces(binding.slice(colon + 1));
+    // C ref: parsebindings():7635-7641.  Only the accepting arm returns; a
+    // rejected command reports and falls out of the loop into the txt2key()
+    // below, which reads "mouse1" and "mouse2" alike as M-o.  The comparison
+    // runs before txt2key() has trimmed anything, so it sees the padding the
+    // key text still carries and " mouse1" is not a button name.
+    for (const [index, name] of MOUSE_BUTTON_NAMES.entries()) {
+        if (rawKeyText === name) {
+            if (bind_mousebtn(commandName)) return;
+            configErrorAdd(
+                result, `Error binding mouse button ${index + 1}`,
+            );
+        }
+    }
+    // txt2key() opens on trimspaces(), whose trailing half writes into the
+    // buffer parsebindings() holds, so the message below reports the key text
+    // without the blanks and with whatever leading ones it had.
+    const keyText = trimspacesTrailing(rawKeyText);
     const key = textToKey(keyText);
     if (!key) {
         configErrorAdd(result, `Unknown key binding key '${keyText}'`);
@@ -1803,7 +1870,7 @@ function applyMenuBinding(result, binding) {
         });
         return;
     }
-    const command = MENU_COMMAND_BY_NAME[commandName];
+    const command = MENU_COMMAND_BY_NAME.get(commandName);
     if (command !== undefined) {
         // illegal_menu_cmd_key() has already reported which rule the key
         // broke; parsebindings() adds this second message naming the pair.
@@ -2610,7 +2677,7 @@ function configSection(line) {
     let suffixIndex = close + 1;
     while (line[suffixIndex] === ' ') ++suffixIndex;
     if (suffixIndex < line.length && line[suffixIndex] !== '#') return null;
-    return { name: trimConfigPadding(line.slice(1, close)) };
+    return { name: trimspaces(line.slice(1, close)) };
 }
 
 // C ref: cfgfiles.c:choose_random_part().  Keep its separator walk (including
@@ -2666,7 +2733,7 @@ export function parseNethackrc(rc, random = rn2) {
         // line. is_config_section() applies trimspaces() before checking for
         // '[', so that outer padding is removed even from CHOOSE and OPTIONS.
         // parse_config_line() then normalizes a separate copy with mungspaces().
-        const paddingTrimmedLine = trimConfigPadding(configLine.line);
+        const paddingTrimmedLine = trimspaces(configLine.line);
         const mungedLine = mungspaces(paddingTrimmedLine);
         if (!mungedLine || mungedLine.startsWith('#')) continue;
 
@@ -2727,10 +2794,11 @@ export function parseNethackrc(rc, random = rn2) {
             matchesConfigName(statementName, name, minLength)
         ));
         // cfgfiles.c parse_config_line():1436-1437 reports "Unknown config
-        // statement" here.  CONFIG_STATEMENTS holds 12 of config_line_stmt[]'s
-        // rows, so reporting from this table would flag WIZKIT, HILITE_STATUS,
-        // BOULDER, WARNINGS and the rest, which C accepts.  Completing the
-        // table is deferral options-unknown-config-statement.
+        // statement" here.  CONFIG_STATEMENTS holds 13 of config_line_stmt[]'s
+        // 31 non-syscnf_only rows, the ones a player's rc can match, so
+        // reporting from this table would flag WIZKIT, HILITE_STATUS, BOULDER,
+        // WARNINGS and the rest, which C accepts.  Completing the table is
+        // deferral options-unknown-config-statement.
         if (!statement) continue;
         if (statement.kind === 'unported') {
             result.unportedConfigStatements.push(statement.name);

@@ -984,24 +984,37 @@ test('CHOOSE defaults to the core game RNG', () => {
 // 1775-1798 and parse_config_line():1412-1416.  Every one of these four keeps
 // reading the file, so a later statement on the same rc still applies.
 test('a line cfgfiles.c refuses is reported and the rest of the rc runs', () => {
-    for (const [rc, reported] of [
+    // The third element is every rn2() bound the rc should ask for.
+    // choose_random_part() is the only caller these lines reach, so recording
+    // the arguments refuses both a skipped draw and a spurious one.
+    for (const [rc, reported, draws] of [
         // A section header before any CHOOSE is reported and skipped, and
         // config_section_chosen stays null so the next header repeats it.
         [['[early]', '[later]', 'NAME=Kept'],
             ['Section "[early]" without CHOOSE', 'Section "[later]" without'
-                + ' CHOOSE']],
+                + ' CHOOSE'],
+            []],
         // find_optparam() answering null is the format error; the message
-        // already ends in '.' so config_erradd() adds no second one.
-        [['CHOOSE', 'NAME=Kept'], ['Format is CHOOSE=section1,section2,...']],
+        // already ends in '.' so config_erradd() adds no second one.  C
+        // reports and returns before choose_random_part(), so nothing is
+        // drawn here.
+        [['CHOOSE', 'NAME=Kept'], ['Format is CHOOSE=section1,section2,...'],
+            []],
         // choose_random_part() answers null for an empty candidate list, and
-        // C frees config_section_chosen before it asks.
-        [['CHOOSE=', 'NAME=Kept'], ['No config section to choose']],
+        // C frees config_section_chosen before it asks.  The empty value is
+        // still one candidate, so the required rn2(1) happens first.
+        [['CHOOSE=', 'NAME=Kept'], ['No config section to choose'], [1]],
         // Neither ':' nor '=' anywhere in the munged line.
         [['not a statement', 'NAME=Kept'],
-            ["Not a config statement, missing '='"]],
+            ["Not a config statement, missing '='"],
+            []],
     ]) {
-        // rn2 is stubbed because CHOOSE draws before it can fail.
-        const parsed = parseNethackrc(`${rc.join('\n')}\n`, () => 0);
+        const drawn = [];
+        const parsed = parseNethackrc(`${rc.join('\n')}\n`, (bound) => {
+            drawn.push(bound);
+            return 0;
+        });
+        assert.deepEqual(drawn, draws, rc[0]);
         assert.deepEqual(
             parsed.configErrorFrame.output.filter((line) => line.startsWith(' ')),
             reported.map((text, index) => ` * Line ${index + 1}: ${text}${
@@ -1013,8 +1026,14 @@ test('a line cfgfiles.c refuses is reported and the rest of the rc runs', () => 
 
     // A section header after a CHOOSE that picked a section is silent, which
     // is what shows the first case above fails on the missing CHOOSE rather
-    // than on the header itself.
-    const chosen = parseNethackrc('CHOOSE=only\n[only]\nNAME=Kept\n', () => 0);
+    // than on the header itself.  Its one candidate draws the same rn2(1) the
+    // empty list above does.
+    const chosenDraws = [];
+    const chosen = parseNethackrc('CHOOSE=only\n[only]\nNAME=Kept\n', (bound) => {
+        chosenDraws.push(bound);
+        return 0;
+    });
+    assert.deepEqual(chosenDraws, [1]);
     assert.deepEqual(chosen.configErrorFrame.output, []);
     assert.equal(chosen.name, 'Kept');
 
@@ -1580,6 +1599,14 @@ test('status highlighting uses source field and condition vocabularies', () => {
         'hitpoints/<0%/red',
         'hitpoints/>100%/red',
         'condition/hallucinat/red',
+        // botl.c walks its condition and threshold tables with strcmp(), so a
+        // name Object.prototype carries is as unknown as any other.  Only an
+        // all-lowercase one can arrive: match_str2clr()'s normalization, which
+        // this port spells menuHeadingToken(), folds case and drops '_', so
+        // "toString" becomes "tostring" and "__proto__" becomes "proto".
+        'condition/constructor/red',
+        'hunger/constructor/red',
+        'carrying-capacity/constructor/red',
     ]) {
         assert.throws(
             () => parseNethackrc(`OPTIONS=hilite_status:${invalid}`),

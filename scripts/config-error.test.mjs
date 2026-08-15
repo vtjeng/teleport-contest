@@ -112,6 +112,19 @@ test('a binding parsebindings() cannot read is reported, not bound', () => {
         ['BIND=^J:menu_search',
             [" * Line 1: Reserved menu command key '^J'.",
                 ' * Line 1: Bad menu key ^J:menu_search.']],
+        // The special-key candidate sits past this guard, so an unreadable key
+        // text stops before bind_specialkey() and nothing is recorded.  This
+        // name is a cmd.c spkeys_binds[] row, which the next block binds.
+        ['BIND=zorkmid:getpos.self',
+            [" * Line 1: Unknown key binding key 'zorkmid'."]],
+        // txt2key() opens on trimspaces(), whose trailing half writes into the
+        // buffer parsebindings() prints, so the blanks before the ':' are gone
+        // from the message.  mungspaces() has already turned the tab into a
+        // space and condensed the run, so one blank is all that can arrive.
+        ['BIND=zorkmid :redraw',
+            [" * Line 1: Unknown key binding key 'zorkmid'."]],
+        ['BIND=zorkmid\t:redraw',
+            [" * Line 1: Unknown key binding key 'zorkmid'."]],
     ]) {
         const parsed = parseNethackrc(`${statement}\n`);
         assert.deepEqual(parsed.configErrorFrame.output, [
@@ -130,14 +143,94 @@ test('a binding parsebindings() cannot read is reported, not bound', () => {
     assert.equal(bound.iflags.mapped_menu_cmds, '\x01');
     assert.equal(bound.iflags.mapped_menu_op, ':');
 
-    // parsebindings() compares the key text against both mouse-button names
-    // before txt2key() ever sees it, and cmd.c bind_mousebtn() accepts
-    // clicklook, so neither spelling reaches "Unknown key binding key".  The
-    // button state itself is unported, so nothing else changes here.
-    for (const button of ['mouse1', 'mouse2']) {
-        const parsed = parseNethackrc(`BIND=${button}:clicklook\n`);
-        assert.deepEqual(parsed.configErrorFrame.output, [], button);
-        assert.deepEqual(parsed.commandOperations, [], button);
+    // The same for the special-key candidate, so its row above is pinned on
+    // the key text alone.
+    const special = parseNethackrc('BIND=^A:getpos.self\n');
+    assert.deepEqual(special.configErrorFrame.output, []);
+    assert.deepEqual(special.commandOperations, [
+        { type: 'special_key', key: 1, command: 'getpos.self' },
+    ]);
+
+    // trimspaces() skips leading blanks by advancing a pointer parsebindings()
+    // does not keep, so those survive into the message.  Only the recursion
+    // into a comma suffix can deliver one: parse_config_line() has already
+    // eaten the blanks that follow the '='.
+    const leading = parseNethackrc('BIND=v:redraw, zorkmid:redraw\n');
+    assert.deepEqual(leading.configErrorFrame.output, [
+        '\nBIND=v:redraw, zorkmid:redraw',
+        " * Line 1: Unknown key binding key ' zorkmid'.",
+    ]);
+    // The recursion runs before the current element, so the readable half of
+    // the list still binds.
+    assert.deepEqual(leading.commandOperations, [
+        { type: 'bind', key: 118, command: 'redraw' },
+    ]);
+});
+
+// C ref: options.c parsebindings():7635-7641 over cmd.c bind_mousebtn()
+// (2623-2658).  Only the accepting arm returns; the rejecting arm reports and
+// keeps going, so the key text is read as a key afterwards.  The button state
+// bind_mousebtn() stores is unported, which is why an accepted binding leaves
+// nothing behind here.
+test('a mouse-button binding reports and falls through as C does', () => {
+    // bind_mousebtn() takes the reserved "nothing" and every MOUSECMD row.  It
+    // does not pass over INTERNALCMD the way bind_key() does, so clicklook and
+    // mouseaction bind here although BIND=v:clicklook is refused above.
+    for (const command of [
+        'nothing', 'clicklook', 'mouseaction', 'therecmdmenu', 'MouseAction',
+    ]) {
+        for (const button of ['mouse1', 'mouse2']) {
+            const parsed = parseNethackrc(`BIND=${button}:${command}\n`);
+            const label = `${button}:${command}`;
+            assert.deepEqual(parsed.configErrorFrame.output, [], label);
+            assert.deepEqual(parsed.commandOperations, [], label);
+        }
+    }
+
+    // A command bind_mousebtn() refuses reports the button and then falls out
+    // of the loop into txt2key(), which answers M-o (0xEF) for both spellings:
+    // 'm' makes it meta and 'o' is the byte left when the rest runs out.  Each
+    // of the three later candidates is reached that way.
+    for (const [statement, reported, expected] of [
+        // No extcmdlist[] row spells this, so bind_key() refuses it too.
+        ['BIND=mouse1:zorkmid',
+            [' * Line 1: Error binding mouse button 1.',
+                " * Line 1: Unknown key binding command 'zorkmid'."],
+            {}],
+        // inventory has a row but no MOUSECMD, so only the button fails and
+        // the extended command binds to M-o.
+        ['BIND=mouse2:inventory',
+            [' * Line 1: Error binding mouse button 2.'],
+            { operations: [{ type: 'bind', key: 0xEF, command: 'inventory' }] }],
+        // The menu-command candidate is reached the same way, and 0xEF is not
+        // a key illegal_menu_cmd_key() rejects.
+        ['BIND=mouse1:menu_search',
+            [' * Line 1: Error binding mouse button 1.'],
+            { menuCmds: '\xEF', menuOp: ':' }],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            ...reported,
+        ], statement);
+        assert.deepEqual(parsed.commandOperations, expected.operations ?? [],
+            statement);
+        assert.equal(parsed.iflags.mapped_menu_cmds, expected.menuCmds ?? '',
+            statement);
+        assert.equal(parsed.iflags.mapped_menu_op, expected.menuOp ?? '',
+            statement);
+    }
+
+    // strcmp() is case-sensitive and runs before txt2key() trims anything, so
+    // neither of these is a button name.  Both are read as keys instead --
+    // "MOUSE1" as M-O (0xCF) -- and clicklook's INTERNALCMD row is what
+    // bind_key() then refuses.
+    for (const statement of ['BIND=MOUSE1:clicklook', 'BIND=mouse1 :clicklook']) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            " * Line 1: Unknown key binding command 'clicklook'.",
+        ], statement);
     }
 });
 
@@ -151,6 +244,11 @@ test('a binding to a command bind_key() refuses is reported, not bound', () => {
         // cmd.c:2063 gives altdip the INTERNALCMD flag, and bind_key()'s loop
         // passes over such a row rather than binding it.
         ['altdip', 'BIND=v:altdip'],
+        // C walks default_menu_cmd_info[] with strcmp(), so a name carried by
+        // Object.prototype is no more a menu command than any other unknown
+        // one and has to reach bind_key().  Were the port to answer for it,
+        // 'v' would draw the reserved-key pair of messages instead of this.
+        ['constructor', 'BIND=v:constructor'],
     ]) {
         const parsed = parseNethackrc(`${statement}\n`);
         assert.deepEqual(parsed.commandOperations, [], command);
