@@ -2261,8 +2261,8 @@
         },
         {
           "name": "counted-search-occupation",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "c73849ef3e43bf3dbeee3473ee30689f32e3720b"
         }
       ],
       "openedAt": "82e97b4a33faa905e30ba54a4cd233aa4dca83f0",
