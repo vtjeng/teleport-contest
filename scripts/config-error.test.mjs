@@ -168,7 +168,7 @@ test('a binding parsebindings() cannot read is reported, not bound', () => {
 });
 
 // C ref: options.c parsebindings():7635-7641 over cmd.c bind_mousebtn()
-// (2623-2658).  Only the accepting arm returns; the rejecting arm reports and
+// (2623-2659).  Only the accepting arm returns; the rejecting arm reports and
 // keeps going, so the key text is read as a key afterwards.  The button state
 // bind_mousebtn() stores is unported, which is why an accepted binding leaves
 // nothing behind here.

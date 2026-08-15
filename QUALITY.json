@@ -3083,6 +3083,25 @@
       "from": "a634c324370e1c4e640908e4d873b343f45261c0",
       "detail": "js/options.js bind_key() computes the parenthesized parameter for its three diagnostics and then drops it, where cmd.c bind_key() (2706-2708) stores a 30-byte copy of it into the matched key's struct Cmd_bind param field (include/func_tab.h:37). Its one reader is cmd.c dotoggleoption() (1376-1384), which hands gc.cmd_bind->param to toggle_bool_option(); with no param stored it prints \"Use #optionsfull to set any option instead.\" instead. Nothing in this port dispatches the #toggle extended command yet, so the store has no consumer and lands with dotoggleoption().",
       "blockedOn": "dotoggleoption"
+    },
+    {
+      "id": "status-hilite-rules-still-fail-closed",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "e8a88c23bbd0e2b4249a9e18fcce6b213e65b5e5",
+      "detail": "js/options.js statusConditionNames() and parseStatusHiliteRule() throw optionError() for an unknown status condition, alias or threshold, where cfgfiles.c reports a configuration error and reads on. This is the defect class a634c32 fixed for BIND and OPTIONS statements, one subsystem over: a mistyped STATUSHILITE rule costs the whole segment above runSegment()'s catch instead of one line of the error block. Closing it needs no unported C. Found by the fix agent's sweep for unguarded rc-text indexes during the correctness pass over 1842f5e3..a634c32, and not covered by any entry open at that time."
+    },
+    {
+      "id": "mouse-button-state-unported",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "e8a88c23bbd0e2b4249a9e18fcce6b213e65b5e5",
+      "detail": "js/options.js ports cmd.c bind_mousebtn() (2623-2659) for its answer alone, so parsebindings() reports and falls through exactly as C does, but the gc.Cmd.mousebtn[] store the C function writes has no JavaScript home. An accepted mouse binding therefore leaves no state behind. Nothing reads that array until mouse input is ported, so the gap changes no observable behavior today; this entry exists so it has a durable record when it does.",
+      "blockedOn": "Cmd.mousebtn"
     }
   ],
   "areas": [
