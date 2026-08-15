@@ -2299,8 +2299,8 @@
       "slices": [
         {
           "name": "startup-refusals-fail-closed",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "ccc27c8b91c57ba48d45218e1ed50fb7d472f738"
         },
         {
           "name": "initial-pickup-engraving-call-site",
