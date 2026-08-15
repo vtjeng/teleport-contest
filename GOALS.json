@@ -2304,8 +2304,8 @@
         },
         {
           "name": "initial-pickup-engraving-call-site",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "be843776dc6379485dceb7575ff9f943177880bb"
         },
         {
           "name": "config-parser-residue",
