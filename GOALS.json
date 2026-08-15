@@ -2319,8 +2319,8 @@
         },
         {
           "name": "elapsed-turn-seam-for-two-tests",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9ee805331569c3ecc54be9d0d9d5887b7e1d7f25"
         },
         {
           "name": "startup-simplification-pair",

@@ -471,3 +471,5 @@ utc	event	phase	goal	detail
 2026-08-15T05:24:05.783Z	end	implement	startup-deferral-sweep	fixed-clock-literal-check closed at c7baefa; js/ unchanged, check:fixed-datetime added under static sources
 2026-08-15T05:24:24.234Z	start	implement	startup-deferral-sweep	non-fatal-config-error: optn_err and optn_silenterr let the game play on where the port throws
 2026-08-15T07:29:27.920Z	end	implement	startup-deferral-sweep	non-fatal-config-error closed at 4b782b1; 837 insertions across five subsystems, three new deferrals filed
+2026-08-15T07:48:23.228Z	start	implement	startup-deferral-sweep	
+2026-08-15T08:31:52.093Z	end	implement	startup-deferral-sweep	
