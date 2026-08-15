@@ -1911,17 +1911,23 @@ test('status highlight thresholds keep their source relationship', () => {
         ['power/=2/red', ['absolute', '=', 2, '']],
         ['armor-class/>5/red', ['absolute', '>', 5, '']],
         ['hitpoints/<50%/red', ['percentage', '<', 50, '']],
-        // The behaviors that carry no threshold value keep C's numeric
-        // relationship of record, EQ_VALUE, spelled '=' here.
+        // The behaviors that carry no threshold value do not all reach the
+        // same arm of C's relationship chain.  'changed' is one of the four
+        // flags the EQ_VALUE arm tests; 'always' and 'criticalhp' set none of
+        // them and fall to the closing `else hilite.rel = LT_VALUE;`.  The
+        // status renderer reads the relation only for the two numeric
+        // behaviors, so all three carry the same '=' here.
         ['hitpoints/always/red', ['always', '=', null, '']],
         ['hitpoints/changed/red', ['changed', '=', null, '']],
         ['hitpoints/criticalhp/red', ['critical', '=', null, '']],
         // 'up' and 'down' are GT_VALUE and LT_VALUE on a numeric field.
         ['experience-level/up/red', ['changed', '>', null, '']],
         ['experience-level/down/red', ['changed', '<', null, '']],
-        // On a string field both are treated as 'changed' instead, which
-        // leaves the relationship at EQ_VALUE.
+        // On a string field both are treated as 'changed' instead, which does
+        // reach EQ_VALUE.
         ['alignment/up/red', ['changed', '=', null, '']],
+        // A text match is TXT_VALUE, the arm below EQ_VALUE's, and carries
+        // the same '=' for the same reason.
         ['carrying-capacity/overtaxed/red', ['text', '=', null, 'overtaxed']],
         ['title/stripling/red', ['text', '=', null, 'stripling']],
     ]) {
@@ -1941,6 +1947,94 @@ test('status highlight thresholds keep their source relationship', () => {
     const zero = parseNethackrc('OPTIONS=hilite_status:experience/0/red\n');
     assert.deepEqual(zero.configErrorFrame.output, []);
     assert.equal(zero.iflags.status_hilites[0].value, 0);
+});
+
+// C ref: botl.c parse_status_hl2():2947-2963, the two range checks.  The
+// ANY_INT one takes its lower bound from the field and the relationship
+// together -- `(fld == BL_AC) ? -128 : grt ? -1 : lt ? 1 : 0` -- and the
+// ANY_LONG one below it repeats the relationship half without the AC
+// exception.  hitpoints is ANY_INT, armor-class is BL_AC and experience is
+// ANY_LONG, which is what sends the same shapes through the three arms.
+test('an integer threshold takes the lower bound of its field and relation',
+    () => {
+        // A null threshold means C accepted the statement; a string is the
+        // quoted text its "out of range" message carries, which is the
+        // relationship followed by the parsed value.
+        for (const [value, threshold] of [
+            // '=' and the "or equal" spellings set neither grt nor lt, so the
+            // chain ends at 0.
+            ['hitpoints/0/red', null],
+            ['hitpoints/-1/red', '=-1'],
+            ['hitpoints/>=0/red', null],
+            ['hitpoints/>=-1/red', '>=-1'],
+            // '>' takes -1, so one below zero is in range.
+            ['hitpoints/>-1/red', null],
+            ['hitpoints/>-2/red', '>-2'],
+            // '<' takes 1, so zero is out of range where one is not.
+            ['hitpoints/<1/red', null],
+            ['hitpoints/<0/red', '<0'],
+            // BL_AC answers -128 whatever the relationship, which is what
+            // lets an armor class below zero be a threshold at all.
+            ['armor-class/-2/red', null],
+            ['armor-class/-128/red', null],
+            ['armor-class/-129/red', '=-129'],
+            ['armor-class/<-128/red', null],
+            ['armor-class/<-129/red', '<-129'],
+            // The long check repeats the same three relationship arms.
+            ['experience/0/red', null],
+            ['experience/-1/red', '=-1'],
+            ['experience/>-1/red', null],
+            ['experience/>-2/red', '>-2'],
+            ['experience/<1/red', null],
+            ['experience/<0/red', '<0'],
+        ]) {
+            const statement = `OPTIONS=hilite_status:${value}`;
+            const parsed = parseNethackrc(`${statement}\n`);
+            assert.deepEqual(
+                parsed.configErrorFrame.output,
+                threshold === null ? [] : [
+                    `\n${statement}`,
+                    ` * Line 1: hilite_status threshold '${threshold}' is out`
+                    + ' of range.',
+                ],
+                value,
+            );
+            assert.equal(
+                parsed.iflags.status_hilites.length,
+                threshold === null ? 1 : 0,
+                value,
+            );
+        }
+    });
+
+// C ref: botl.c parse_status_hl1():2643-2645, `if (!iflags.hilite_delta)
+// iflags.hilite_delta = 3L;`.  The guard is only visible once the duration is
+// already set, which options.c optfn_statushilites():4029 does
+// unconditionally.
+test('an accepted status highlight leaves an existing duration alone', () => {
+    const kept = parseNethackrc(
+        'OPTIONS=statushilites:7\n'
+        + 'OPTIONS=hilite_status:hitpoints/always/red\n',
+    );
+    assert.deepEqual(kept.configErrorFrame.output, []);
+    assert.equal(kept.iflags.hilite_delta, 7);
+
+    // The same statement on its own stores the default it skipped above.
+    assert.equal(
+        parseNethackrc('OPTIONS=hilite_status:hitpoints/always/red\n')
+            .iflags.hilite_delta,
+        3,
+    );
+
+    // optfn_statushilites() has no such guard, so the reverse order ends at 7
+    // however the rule got there.
+    assert.equal(
+        parseNethackrc(
+            'OPTIONS=hilite_status:hitpoints/always/red\n'
+            + 'OPTIONS=statushilites:7\n',
+        ).iflags.hilite_delta,
+        7,
+    );
 });
 
 // C ref: botl.c parse_status_hl2()'s BL_CHARACTERISTICS arm, which rewrites the
