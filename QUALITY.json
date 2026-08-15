@@ -2937,6 +2937,15 @@
           "at": "8544a59abda62517d5d78bcc1da457103c942607"
         }
       ]
+    },
+    {
+      "id": "proposal-commit-absorbed-a-slice-production-diff",
+      "area": "runtime",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "71af0a34c674dff35e618571d423443d18d5780d",
+      "detail": "fc211b3, subject 'Propose guarding cursors in the score ratchet', contains 114 changed lines of js/cmd.js and 7 of js/dothrow.js: the production half of the counted-search-occupation slice. The orchestrator ran 'git add .agents/proposals.md && git commit' while a slice worker had those two files staged in the shared working tree, and git commit writes the whole index rather than the paths just added. AGENTS.md, 'Stage paths by name', prescribes the check that would have caught it: inspect git diff --cached --name-only and confirm every staged path belongs to the commit. It was not run. The commit is pushed and is not being rewritten. 8544a59's body carries the correction and the Mutants trailer covering both commits' production diff. The live consequence is that 'npm run quality -- slice-mutants --range 1f318bb..71af0a3' reports 'no Mutants trailer: fc211b3', which is this collision rather than an unmeasured diff. Closes when a reader can reach that explanation from the flag, either by a note in the slice-mutants output for a commit whose trailer lives elsewhere, or by whatever the tooling proposal filed alongside settles."
     }
   ],
   "areas": [
