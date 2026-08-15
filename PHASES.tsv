@@ -463,3 +463,4 @@ utc	event	phase	goal	detail
 2026-08-15T02:51:01.253Z	end	select	startup-deferral-sweep	startup at 14 counted entries, all actionable and none blocked; monsters 16 and commands 11 declined on reading cost and on how much each clears
 2026-08-15T02:51:29.827Z	start	implement	startup-deferral-sweep	startup-refusals-fail-closed: an initial-pickup refusal escapes runSegment and costs the whole segment
 2026-08-15T03:34:18.153Z	end	implement	startup-deferral-sweep	startup-refusals-fail-closed closed at ccc27c8; score unchanged, two deferrals resolved, one scope entry filed for the same escape out of newgame()
+2026-08-15T03:34:51.302Z	start	implement	startup-deferral-sweep	initial-pickup-engraving-call-site: read_engr_at() is already called at js/pickup.js:674, so the refusal may guard nothing
