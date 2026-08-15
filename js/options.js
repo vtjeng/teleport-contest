@@ -664,11 +664,11 @@ function stripNegation(element) {
 // reachable while a configuration file is being read.  True means C took one
 // of them, so the caller must leave the option at its previous value.
 //
-// parseoptions() calls this handler for every BoolOpt row, which is why the
-// caller keys on opttyp rather than on the handful of names the dispatch below
-// gives storage to: C reports the negation just the same for a row whose value
-// this port keeps opaque.  bad_negation() has already answered a row whose
-// negateok is No, matching C's order at 618-622.
+// parseoptions() calls this handler for every BoolOpt row, so both this
+// function and applyOption()'s boolean arm select on the row's opttyp: C
+// reports the negation just the same for a row whose storage this port does
+// not own.  bad_negation() has already answered a row whose negateok is No,
+// matching C's order at 618-622.
 //
 // go.opt_initial is TRUE throughout a configuration-file read, so the
 // set_in_config guard at 5205 cannot fire here and only its set_wiznofuz
