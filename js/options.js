@@ -104,6 +104,7 @@ import {
     encodeUtf8Text,
     lowc,
     str_start_is,
+    visctrl,
 } from './hacklib.js';
 // js/display.js, js/invent.js and js/vision.js do not import this file, so
 // these three are plain one-way dependencies; js/tty_message.js reaches
@@ -123,6 +124,7 @@ import { sourceGlyphName } from './glyph_ids.js';
 import { allopt } from './optlist_data.js';
 import {
     AUTOCOMP_ADJ,
+    CMD_PARAM,
     INTERNALCMD,
     extcmdlist,
 } from './extcmdlist_data.js';
@@ -1673,17 +1675,27 @@ function textToKey(text) {
     return 0;
 }
 
-function illegalMenuCommandKey(key) {
+// C ref: options.c illegal_menu_cmd_key().  Each of its two rejecting arms
+// reports its own configuration error before answering TRUE, so a caller adds
+// only whatever message it owes on top of this one.
+function illegalMenuCommandKey(result, key) {
     const ch = String.fromCharCode(key);
     const sourceLetter = (key >= 64 && key <= 90)
         || (key >= 97 && key <= 122);
     if (key === 0 || key === 10 || key === 13 || key === 27 || key === 32
         || (key >= 48 && key <= 57) || (sourceLetter && key !== 64)) {
+        configErrorAdd(result, `Reserved menu command key '${visctrl(key)}'`);
         return true;
     }
     // The comment above illegal_menu_cmd_key() also lists '#', but the
     // executable source omits it. Preserve that upstream quirk.
-    return DEFAULT_OBJECT_CLASS_SYMBOLS.has(ch);
+    if (DEFAULT_OBJECT_CLASS_SYMBOLS.has(ch)) {
+        configErrorAdd(
+            result, `Menu command key '${visctrl(key)}' is an object class`,
+        );
+        return true;
+    }
+    return false;
 }
 
 function addMenuCommandAlias(result, fromKey, command) {
@@ -1695,15 +1707,17 @@ function addMenuCommandAlias(result, fromKey, command) {
 // C ref: options.c spcfn_misc_menu_cmd() (5451-5477), the do_set request.  Its
 // own bad_negation() arm (5458-5460) is unreachable from a configuration file:
 // every menu command option's optlist.h negateok is No, so parseoptions()
-// answers a negated spelling before the handler runs.
-function setMenuCommandOption(result, descriptor, value, lineNumber) {
+// answers a negated spelling before the handler runs.  The remaining two arms
+// both report and leave the alias list alone: string_for_opt(opts, FALSE)
+// names the whole statement when no value follows the separator, and
+// illegal_menu_cmd_key() reports for itself.
+function setMenuCommandOption(result, descriptor, statement, value) {
     if (value == null || value === '') {
-        optionError(lineNumber, `${descriptor.name} requires a value`);
+        configErrorAdd(result, `Missing parameter for '${statement}'`);
+        return;
     }
     const key = textToKey(value);
-    if (illegalMenuCommandKey(key)) {
-        optionError(lineNumber, `reserved menu command key '${value}'`);
-    }
+    if (illegalMenuCommandKey(result, key)) return;
     addMenuCommandAlias(result, key, descriptor.command);
 }
 
@@ -1724,62 +1738,102 @@ function bindingSeparator(bindings) {
 // the loop runs out, and answers TRUE for the reserved name "nothing" without
 // looking at the table at all.  A FALSE answer is what makes parsebindings()
 // report an unknown command.
-function bind_key_matches(command) {
+//
+// The two effects C's matched arm has are split.  cmdbind_add() (2694) is the
+// caller's commandOperations push, which js/command_bindings.js
+// createCommandBindingModel() replays -- including the "nothing" spelling,
+// which it turns into the cmdbind_remove() this returns TRUE for.  The three
+// parameter diagnostics (2696-2712) belong to the binding itself and are here:
+// C reports every one of them for a key it has already bound, so none of them
+// changes the answer.
+function bind_key(result, command) {
     if (command.toLowerCase() === 'nothing') return true;
-    const parameter = command.indexOf('(');
+    // C truncates its copy at the '(' and points p past it only when a ')'
+    // follows; otherwise the copy keeps the parenthesis and matches no row.
+    const opening = command.indexOf('(');
     const closing = command.lastIndexOf(')');
-    const name = (parameter >= 0 && closing > parameter)
-        ? command.slice(0, parameter) : command;
-    return extcmdlist.some((entry) => (
+    const parenthesized = opening >= 0 && closing > opening;
+    const name = parenthesized ? command.slice(0, opening) : command;
+    const parameter = parenthesized
+        ? command.slice(opening + 1, closing) : null;
+    const row = extcmdlist.find((entry) => (
         entry.ef_txt.toLowerCase() === name.toLowerCase()
         && (entry.flags & INTERNALCMD) === 0
     ));
+    if (!row) return false;
+
+    if ((row.flags & CMD_PARAM) !== 0) {
+        if (parameter == null) {
+            configErrorAdd(result, `'${name}' requires a parameter`);
+        } else if (!parameter) {
+            // C's guard is min(30, strlen(p)) + 1 <= 1, which only an empty
+            // parameter satisfies; the 30 is the length it stores.
+            configErrorAdd(result, 'Required parameter cannot be empty');
+        }
+    } else if (parameter) {
+        configErrorAdd(result, `'${name}' does not take a parameter`);
+    }
+    return true;
 }
 
-function applyMenuBinding(result, binding, lineNumber) {
+// C ref: options.c parsebindings() (7595-7674) from its ':' split onwards.
+// The four candidates are tried in C's order: a mouse-button name, a special
+// key, a menu command, then an extended command.
+function applyMenuBinding(result, binding) {
     const colon = binding.indexOf(':');
     if (colon < 0) return;
     const keyText = binding.slice(0, colon);
     const commandName = binding.slice(colon + 1).trim();
-    const command = MENU_COMMAND_BY_NAME[commandName];
+    // cmd.c bind_mousebtn() is unported: it binds only the two MOUSECMD rows
+    // and the reserved "nothing", and parsebindings() answers anything else
+    // with "Error binding mouse button %i" and then falls out of its loop into
+    // the txt2key() below, which cannot read "mouse1" either.  Both messages
+    // are unported with the button state they describe.
+    if (keyText === 'mouse1' || keyText === 'mouse2') return;
     const key = textToKey(keyText);
-    if (command === undefined) {
-        if (keyText === 'mouse1' || keyText === 'mouse2') return;
-        if (!key) {
-            optionError(lineNumber, `unknown key binding key '${keyText}'`);
-        }
-        if (SPECIAL_KEY_COMMANDS.has(commandName)) {
-            result.commandOperations.push({
-                type: 'special_key',
-                key,
-                command: commandName,
-            });
-            return;
-        }
-        // parsebindings() reports whatever bind_key() would not bind and
-        // leaves the key holding what it already had.
-        if (!bind_key_matches(commandName)) {
+    if (!key) {
+        configErrorAdd(result, `Unknown key binding key '${keyText}'`);
+        return;
+    }
+    if (SPECIAL_KEY_COMMANDS.has(commandName)) {
+        result.commandOperations.push({
+            type: 'special_key',
+            key,
+            command: commandName,
+        });
+        return;
+    }
+    const command = MENU_COMMAND_BY_NAME[commandName];
+    if (command !== undefined) {
+        // illegal_menu_cmd_key() has already reported which rule the key
+        // broke; parsebindings() adds this second message naming the pair.
+        if (illegalMenuCommandKey(result, key)) {
             configErrorAdd(
-                result, `Unknown key binding command '${commandName}'`,
+                result, `Bad menu key ${visctrl(key)}:${commandName}`,
             );
             return;
         }
-        // Keep gameplay bindings in source application order.
-        // commandOperations is the authoritative stream consumed by tutorial
-        // key lookup and runtime dispatch; gameplayBindings remains a
-        // compatibility projection of parsed option state.
-        const operation = {
-            key,
-            command: commandName.toLowerCase(),
-        };
-        result.gameplayBindings.push(operation);
-        result.commandOperations.push({ type: 'bind', ...operation });
+        addMenuCommandAlias(result, key, command);
         return;
     }
-    if (!key || illegalMenuCommandKey(key)) {
-        optionError(lineNumber, `reserved menu command key '${keyText}'`);
+    // parsebindings() reports whatever bind_key() would not bind and
+    // leaves the key holding what it already had.
+    if (!bind_key(result, commandName)) {
+        configErrorAdd(
+            result, `Unknown key binding command '${commandName}'`,
+        );
+        return;
     }
-    addMenuCommandAlias(result, key, command);
+    // Keep gameplay bindings in source application order.
+    // commandOperations is the authoritative stream consumed by tutorial
+    // key lookup and runtime dispatch; gameplayBindings remains a
+    // compatibility projection of parsed option state.
+    const operation = {
+        key,
+        command: commandName.toLowerCase(),
+    };
+    result.gameplayBindings.push(operation);
+    result.commandOperations.push({ type: 'bind', ...operation });
 }
 
 // C ref: options.c optfn_number_pad(). These fields affect cmd_from_ecname()
@@ -1859,9 +1913,9 @@ const PICKUP_BURDEN_LEVELS = Object.freeze(new Map([
 // spelling with no value string_for_opt()'s "Missing parameter" config error
 // rather than a default, and both that and an unmatched letter return
 // optn_err with flags.pickup_burden untouched.
-function setPickupBurden(result, option, value) {
+function setPickupBurden(result, statement, value) {
     if (!value) {
-        configErrorAdd(result, `Missing parameter for '${option}'`);
+        configErrorAdd(result, `Missing parameter for '${statement}'`);
         return;
     }
     const level = PICKUP_BURDEN_LEVELS.get(lowc(value[0]));
@@ -1876,13 +1930,13 @@ function setPickupBurden(result, option, value) {
 
 // C ref: options.c parsebindings(). Comma-separated bindings recurse into
 // their suffix, so the rightmost alias is appended first and wins collisions.
-function applyMenuBindings(result, bindings, lineNumber) {
+function applyMenuBindings(result, bindings) {
     const separator = bindingSeparator(bindings);
     if (separator >= 0) {
-        applyMenuBindings(result, bindings.slice(separator + 1), lineNumber);
-        applyMenuBinding(result, bindings.slice(0, separator), lineNumber);
+        applyMenuBindings(result, bindings.slice(separator + 1));
+        applyMenuBinding(result, bindings.slice(0, separator));
     } else {
-        applyMenuBinding(result, bindings, lineNumber);
+        applyMenuBinding(result, bindings);
     }
 }
 
@@ -2234,12 +2288,14 @@ function parseSymbolAssignments(value, lineNumber) {
     return parseAt(0);
 }
 
-function applyOption(result, optionState, option, lineNumber) {
+function applyOption(result, optionState, element, lineNumber) {
     // options.c:538-542 strips the negation prefixes off the whole element,
     // before length_without_val() looks for a value, so `statement` is what
-    // the rest of parseoptions() matches against and what its "Unknown
-    // option" message reports.
-    const { sourceName: statement, negated } = stripNegation(option);
+    // the rest of parseoptions() matches against, what it hands each handler
+    // as `opts`, and what every message naming the statement reports --
+    // "Unknown option" here and string_for_opt()'s "Missing parameter" below.
+    // `element` keeps those prefixes and is read nowhere else.
+    const { sourceName: statement, negated } = stripNegation(element);
     const { name: rawName, value } = splitNameAndValue(statement);
     const parsedName = rawName.toLowerCase();
 
@@ -2309,7 +2365,7 @@ function applyOption(result, optionState, option, lineNumber) {
         result.flags[name] = enabled;
         result.iflags.status_conditions[name.slice('cond_'.length)] = enabled;
     } else if (menuCommand && parsedName === name) {
-        setMenuCommandOption(result, menuCommand, value, lineNumber);
+        setMenuCommandOption(result, menuCommand, statement, value);
     } else if (menuCommand || isMenuCommandPrefix(parsedName)) {
         optionError(
             lineNumber,
@@ -2360,7 +2416,7 @@ function applyOption(result, optionState, option, lineNumber) {
     } else if (name === 'runmode') {
         setRunmode(result, value, negated, lineNumber);
     } else if (name === 'pickup_burden') {
-        setPickupBurden(result, option, value);
+        setPickupBurden(result, statement, value);
     } else if (name === 'pile_limit') {
         setPileLimit(result, value, negated, lineNumber);
     } else if (name === 'msg_window') {
@@ -2402,7 +2458,7 @@ function applyOption(result, optionState, option, lineNumber) {
         // over the whole statement text, and the handler then returns optn_err
         // without touching flags.sortloot.
         if (!value) {
-            configErrorAdd(result, `Missing parameter for '${option}'`);
+            configErrorAdd(result, `Missing parameter for '${statement}'`);
             return;
         }
         const c = lowc(value[0]);
@@ -2424,7 +2480,7 @@ function applyOption(result, optionState, option, lineNumber) {
         // build (js/version.js records the same reading), so have_branch is
         // false and the default is VI_NUMBER.
         if (!value) {
-            configErrorAdd(result, `Missing parameter for '${option}'`);
+            configErrorAdd(result, `Missing parameter for '${statement}'`);
             configErrorAdd(
                 result, "'versinfo' requires a value; defaulting to 1",
             );
@@ -2617,10 +2673,17 @@ export function parseNethackrc(rc, random = rn2) {
         const section = configSection(paddingTrimmedLine);
         if (section) {
             currentSection = null;
-            if (chosenSection != null) {
-                if (section.name) currentSection = section.name;
-                else chosenSection = null;
+            // cfgfiles.c handle_config_section():560-563.  A section header
+            // read before any CHOOSE is reported and then skipped like any
+            // other; the file keeps being read.
+            if (chosenSection == null) {
+                configErrorAdd(
+                    result, `Section "[${section.name}]" without CHOOSE`,
+                );
+                continue;
             }
+            if (section.name) currentSection = section.name;
+            else chosenSection = null;
             continue;
         }
         if (currentSection != null
@@ -2633,19 +2696,41 @@ export function parseNethackrc(rc, random = rn2) {
             ? mungedLine.slice(0, delimiter) : mungedLine;
         const statementName = mungspaces(statementNameText).toLowerCase();
         if (matchesConfigName(statementName, 'choose', 6)) {
-            if (delimiter < 0) continue;
+            // cfgfiles.c parse_conf_buf():1775-1798.  Both arms report and
+            // leave gc.config_section_chosen null, which is what makes every
+            // later section header the "without CHOOSE" case above.
+            if (delimiter < 0) {
+                configErrorAdd(
+                    result, 'Format is CHOOSE=section1,section2,...',
+                );
+                continue;
+            }
             chosenSection = null;
             const rawDelimiter = configDelimiter(paddingTrimmedLine);
             chosenSection = chooseRandomPart(
                 paddingTrimmedLine.slice(rawDelimiter + 1), random,
             );
+            if (chosenSection == null)
+                configErrorAdd(result, 'No config section to choose');
             continue;
         }
-        if (delimiter < 0) continue;
+        if (delimiter < 0) {
+            // cfgfiles.c parse_config_line():1412-1416.  Its
+            // ignore_statement_errors guard belongs to
+            // rcfile_interface_options()'s earlier windowtype-only pass, which
+            // this port does not make.
+            configErrorAdd(result, "Not a config statement, missing '='");
+            continue;
+        }
 
         const statement = CONFIG_STATEMENTS.find(({ name, minLength }) => (
             matchesConfigName(statementName, name, minLength)
         ));
+        // cfgfiles.c parse_config_line():1436-1437 reports "Unknown config
+        // statement" here.  CONFIG_STATEMENTS holds 12 of config_line_stmt[]'s
+        // rows, so reporting from this table would flag WIZKIT, HILITE_STATUS,
+        // BOULDER, WARNINGS and the rest, which C accepts.  Completing the
+        // table is deferral options-unknown-config-statement.
         if (!statement) continue;
         if (statement.kind === 'unported') {
             result.unportedConfigStatements.push(statement.name);
@@ -2691,7 +2776,7 @@ export function parseNethackrc(rc, random = rn2) {
 
         const normalizedValue = mungspaces(rawValue);
         if (statement.kind === 'bindings') {
-            applyMenuBindings(result, normalizedValue, lineNumber);
+            applyMenuBindings(result, normalizedValue);
             continue;
         }
         if (statement.kind === 'symbols') {

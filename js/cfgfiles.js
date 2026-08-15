@@ -12,9 +12,11 @@ export const DEFAULT_CONFIGFILE = '.nethackrc';
 // fopen_config_file() opened, which on UNIX is "$HOME/.nethackrc".  A segment
 // carries its configuration as text (js/jsmain.js runSegment()), never a path,
 // so nothing here can learn $HOME and the port keeps the bare default name.
-// The two readers differ in what that costs: ask_do_tutorial() prints
-// nh_basename() of it and is unaffected, while config_error_done() below
-// prints the whole path and cannot match a recording.
+// state.configfile is the one place that path lives, and both of C's readers
+// come through here: js/tutorial_startup.js ask_do_tutorial() prints
+// nh_basename() of it and is unaffected by the missing $HOME, while
+// config_error_done() below prints the whole path and cannot match a
+// recording.
 export function get_configfile(state = game) {
     return state?.configfile ?? DEFAULT_CONFIGFILE;
 }

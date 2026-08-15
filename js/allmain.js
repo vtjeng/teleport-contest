@@ -621,15 +621,18 @@ async function finishElapsedTurn(
     random,
     { planning = false, randomMonsterOnly = false } = {},
 ) {
-    // Every display seam this block hands a callee is one of these three, so
-    // the planning and live arms are chosen once rather than per callee. The
-    // dry run works on a clone whose state is discarded: a line it writes
-    // paints text the live pass never wrote, ttyPline() on a turn whose clone
-    // still carries a pending message reaches dismissPendingTtyMessage() and
-    // consumes a key the segment still needs, and bot() reads the live game
-    // rather than the clone. scripts/allmain-turn.test.mjs's 'a planned
-    // timeout writes no line and reads no key' pins turnMessage through do.c
-    // heal_legs(), which nh_timeout() reaches below.
+    // Every message and status seam this block hands a callee is one of these
+    // three, so the planning and live arms are chosen once rather than per
+    // callee. Three further values follow the same rule at their single call
+    // site: mcalcdistress()'s redrawSquare and visionRecalc below, and the
+    // regionEnv that run_regions() consumes. The dry run works on a clone
+    // whose state is discarded: a line it writes paints text the live pass
+    // never wrote, ttyPline() on a turn whose clone still carries a pending
+    // message reaches dismissPendingTtyMessage() and consumes a key the
+    // segment still needs, and bot() reads the live game rather than the
+    // clone. scripts/allmain-turn.test.mjs's 'a planned timeout writes no line
+    // and reads no key' pins turnMessage through do.c heal_legs(), which
+    // nh_timeout() reaches below.
     const silentDisplay = async () => {};
     const turnMessage = planning ? silentDisplay : ttyPline;
     const turnNorep = planning ? silentDisplay : ttyNorep;

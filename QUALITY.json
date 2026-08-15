@@ -3064,6 +3064,15 @@
       "from": "6ad9032e73c6a15d7dbdf7845c8c40a45e212de1",
       "detail": "An OPTIONS statement that reaches one of allopt[]'s two pfx rows without\nnaming a condition this port recognizes still stops the segment, at\njs/options.js applyOption()'s `unported prefix option` refusal.\n\noptions.c reaches those rows two ways (556-580): str_start_is() accepts any\nsuffix of the prefix, and match_optname() accepts a leading substring of the\nprefix name itself down to minmatch. So `cond`, `cond_`, `cond_bogus`,\n`cond_blind:on`, `font` and `fontbogus:value` all match, and each one then\ngets its row's handler. pfxfn_cond_() (options.c:2545-2588) hands the whole\nstatement to botl.c parse_cond_option(), which answers 1 for a suffix no\ncondtests[] row matches and 2 for a statement no longer than \"cond_\", and the\nhandler reports \"Unknown condition option %s (%d)\". Because pfx_match is set,\noptions.c:675-682 then adds a second error, \"bad option suffix variation\n'%s'\", over the statement text truncated at its first colon. pfxfn_font() is\nnot ported at all.\n\nTwo errors from one statement is a shape no other rc path in this port\nproduces, and the second one needs pfx_match carried out of the match loop.\nUntil then the refusal is named rather than reported as an unknown option,\nwhich would be the wrong message for every one of these.\n\nInputs and expected C output, taken from the source above rather than a\nrecording: `OPTIONS=cond_bogus` gives\n\" * Line 1: Unknown condition option cond_bogus (1).\" followed by\n\" * Line 1: bad option suffix variation 'cond_bogus'.\", and `OPTIONS=cond`\ngives only \" * Line 1: Unknown condition option cond (2).\" because it matched\nthrough match_optname() with pfx_match still false.",
       "blockedOn": "pfxfn_cond_"
+    },
+    {
+      "id": "options-unknown-config-statement",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "a36313c8254ac7d4ca52fe50de9e849984f5de27",
+      "detail": "js/options.js parseNethackrc() silently skips a line whose statement name matches no CONFIG_STATEMENTS row, where cfgfiles.c parse_config_line() (1436-1437) reports \"Unknown config statement\". Reporting from the table as it stands would wrongly flag HACKDIR, BOULDER, HILITE_STATUS, WARNINGS, WIZKIT and the rest: js/options.js CONFIG_STATEMENTS holds 13 rows against the 31 rows of cfgfiles.c config_line_stmt[] a player's rc file can match (the whole table less its 28 syscnf_only ones). Completing that table is a generated-table job under AGENTS.md, \"Generate large fixed tables from source\", so the error and the table land together."
     }
   ],
   "areas": [
@@ -3073,6 +3082,7 @@
       "paths": [
         "js/allmain.js",
         "js/cfgfiles.js",
+        "js/files.js",
         "js/jsmain.js",
         "js/legacy_startup.js",
         "js/options.js",

@@ -88,6 +88,59 @@ test('raw output past the last column is dropped rather than wrapped', () => {
     assert.deepEqual(nomux_get_cursor(display), [0, 1]);
 });
 
+// C ref: options.c parsebindings():7644-7666.  Both errors leave the binding
+// tables untouched and the file being read: txt2key() answering zero reports
+// the key text it was handed, and a menu command on a key
+// illegal_menu_cmd_key() rejects reports twice, once from that function and
+// once from parsebindings() naming the pair through visctrl().
+test('a binding parsebindings() cannot read is reported, not bound', () => {
+    for (const [statement, reported] of [
+        ['BIND=zorkmid:redraw',
+            [" * Line 1: Unknown key binding key 'zorkmid'."]],
+        // The key text is read before the command is classified, so a menu
+        // command name reaches the same message.
+        ['BIND=zorkmid:menu_search',
+            [" * Line 1: Unknown key binding key 'zorkmid'."]],
+        ['BIND=a:menu_search',
+            [" * Line 1: Reserved menu command key 'a'.",
+                ' * Line 1: Bad menu key a:menu_search.']],
+        // illegal_menu_cmd_key()'s second arm walks def_oc_syms[].
+        ['BIND=):menu_search',
+            [" * Line 1: Menu command key ')' is an object class.",
+                ' * Line 1: Bad menu key ):menu_search.']],
+        // visctrl() renders the key, so a control byte is not written raw.
+        ['BIND=^J:menu_search',
+            [" * Line 1: Reserved menu command key '^J'.",
+                ' * Line 1: Bad menu key ^J:menu_search.']],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            ...reported,
+        ], statement);
+        assert.deepEqual(parsed.commandOperations, [], statement);
+        assert.equal(parsed.iflags.mapped_menu_cmds, '', statement);
+        assert.equal(parsed.iflags.mapped_menu_op, '', statement);
+    }
+
+    // A legal menu key still binds, which is what proves the rows above fail
+    // on their key rather than on the statement shape.
+    const bound = parseNethackrc('BIND=^A:menu_search\n');
+    assert.deepEqual(bound.configErrorFrame.output, []);
+    assert.equal(bound.iflags.mapped_menu_cmds, '\x01');
+    assert.equal(bound.iflags.mapped_menu_op, ':');
+
+    // parsebindings() compares the key text against both mouse-button names
+    // before txt2key() ever sees it, and cmd.c bind_mousebtn() accepts
+    // clicklook, so neither spelling reaches "Unknown key binding key".  The
+    // button state itself is unported, so nothing else changes here.
+    for (const button of ['mouse1', 'mouse2']) {
+        const parsed = parseNethackrc(`BIND=${button}:clicklook\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], button);
+        assert.deepEqual(parsed.commandOperations, [], button);
+    }
+});
+
 // C ref: options.c parsebindings():7669-7672 over cmd.c bind_key().  A command
 // name in no extcmdlist[] row, and one whose row carries INTERNALCMD, both make
 // bind_key() answer FALSE, so the key keeps what it had.
@@ -111,16 +164,41 @@ test('a binding to a command bind_key() refuses is reported, not bound', () => {
     // A name with a row still binds, and so does the reserved "nothing"
     // bind_key() answers TRUE for without consulting the table.  A name
     // carrying a parameter binds too: bind_key() matches the text before the
-    // '(' once a ')' follows it.
-    for (const [statement, command] of [
-        ['BIND=v:inventory', 'inventory'],
-        ['BIND=v:nothing', 'nothing'],
+    // '(' once a ')' follows it.  The three parameter diagnostics
+    // (cmd.c:2698, 2704 and 2712) all sit past cmdbind_add(), so C reports
+    // them for a key it has already bound and the operation is pushed anyway.
+    for (const [statement, command, reported] of [
+        ['BIND=v:inventory', 'inventory', []],
+        ['BIND=v:nothing', 'nothing', []],
+        // strcmpi() makes the reserved name case-insensitive, which is the
+        // only branch of bind_key() that never consults extcmdlist[].
+        ['BIND=v:NOTHING', 'nothing', []],
         // cmd.c:140 gives toggle the CMD_PARAM flag, which is what a
         // parenthesized parameter is for.
-        ['BIND=v:toggle(time)', 'toggle(time)'],
+        ['BIND=v:toggle(time)', 'toggle(time)', []],
+        // C's message quotes buf, the copy truncated at '(', so it keeps the
+        // case the statement spelled rather than the row's.
+        ['BIND=v:toggle', 'toggle',
+            [" * Line 1: 'toggle' requires a parameter."]],
+        ['BIND=v:TOGGLE', 'toggle',
+            [" * Line 1: 'TOGGLE' requires a parameter."]],
+        // min(30, strlen(p)) + 1 <= 1 holds only for an empty parameter.
+        ['BIND=v:toggle()', 'toggle()',
+            [' * Line 1: Required parameter cannot be empty.']],
+        // Every other row lacks CMD_PARAM, so a non-empty parameter is the
+        // third diagnostic.
+        ['BIND=v:redraw(time)', 'redraw(time)',
+            [" * Line 1: 'redraw' does not take a parameter."]],
+        // An empty parameter on such a row is silently accepted: C's guard is
+        // `p && strlen(p) > 0`.
+        ['BIND=v:redraw()', 'redraw()', []],
     ]) {
         const parsed = parseNethackrc(`${statement}\n`);
-        assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+        assert.deepEqual(
+            parsed.configErrorFrame.output,
+            reported.length ? [`\n${statement}`, ...reported] : [],
+            statement,
+        );
         assert.equal(parsed.commandOperations.at(0)?.command, command,
             statement);
     }

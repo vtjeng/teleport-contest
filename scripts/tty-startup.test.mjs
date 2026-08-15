@@ -46,6 +46,25 @@ test('tty startup banner uses the source and pinned-recorder build lines', () =>
     );
 });
 
+// C ref: sys/share/unixtty.c setftty():258, reached from tty_init_nhwindows()
+// before it draws anything.  iflags.cbreak records that the terminal mode
+// changed, so it is raised whether or not this port has a surface to draw on;
+// js/tty_message.js xwaitforspace() reads it to choose between the
+// Return-only set and quitchars[].
+test('the startup banner raises cbreak with no display attached', () => {
+    const state = startupState();
+    state.nhDisplay = null;
+    state.iflags = {};
+    renderTtyStartupBanner(state);
+    assert.equal(state.iflags.cbreak, true);
+
+    // A state with no iflags at all is the same boundary; the banner creates
+    // it rather than throwing.
+    const bare = { nhDisplay: null };
+    renderTtyStartupBanner(bare);
+    assert.equal(bare.iflags.cbreak, true);
+});
+
 test('tty_askname echoes one source-filtered character per input boundary', async () => {
     const state = startupState('1A2\u007f-ice\n');
     const screens = [];

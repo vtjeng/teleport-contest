@@ -29,15 +29,19 @@ export const TTY_STARTUP_BANNER = Object.freeze([
 ]);
 
 export function renderTtyStartupBanner(state = game) {
-    const display = state.nhDisplay;
-    if (!display) return;
-
     // C ref: tty_init_nhwindows() calls gettty() and setftty(), and
     // sys/share/unixtty.c setftty():258 raises iflags.cbreak there.  Every
     // xwaitforspace() below this point therefore reads the quitchars[] set,
-    // while getret() above it reads only Return and Enter.
+    // while getret() above it reads only Return and Enter.  The flag tracks
+    // tty_init_nhwindows() having run, not the presence of a render target,
+    // so it is raised before the guard below: leaving it false for a
+    // display-less caller makes xwaitforspace() reject every key but Return
+    // and drain the input queue.
     state.iflags ??= {};
     state.iflags.cbreak = true;
+
+    const display = state.nhDisplay;
+    if (!display) return;
 
     display.clearScreen();
     for (let i = 0; i < TTY_STARTUP_BANNER.length; i++) {

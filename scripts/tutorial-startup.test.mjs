@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import test from 'node:test';
 
 import { ENGRAVE, SLP_GAS_TRAP, SQKY_BOARD } from '../js/const.js';
+import { nh_basename } from '../js/files.js';
 import { game, resetGame } from '../js/gstate.js';
 import { GameDisplay } from '../js/game_display.js';
 import { PM_HEALER, PM_KNIGHT, PM_MONK } from '../js/monsters.js';
@@ -252,13 +253,57 @@ test('maybe_do_tutorial exposes the transition target without mutating state', a
     });
 });
 
+// C ref: files.c nh_basename() (198-229).  The reference values come from
+// reading that function, not from any recorded output: only ask_do_tutorial()
+// calls it in this port and it always passes keepSuffix TRUE.
+test('nh_basename cuts at the last slash and obeys keepSuffix', () => {
+    assert.equal(nh_basename('/home/player/.nethackrc', true), '.nethackrc');
+    assert.equal(nh_basename('.nethackrc', true), '.nethackrc');
+    assert.equal(nh_basename('/dev/null', true), 'null');
+    // A slash at index 0 is still a slash: strrchr() finds it and the name
+    // starts one byte later.
+    assert.equal(nh_basename('/nethackrc', true), 'nethackrc');
+    // A trailing slash leaves nothing after the cut, which is what
+    // ask_do_tutorial()'s `rc && *rc` guard answers for.
+    assert.equal(nh_basename('/home/player/', true), '');
+    // The suffix cut takes the LAST '.', so a dotfile with a suffix keeps its
+    // leading dot and loses only the tail.
+    assert.equal(nh_basename('/etc/nethack.rc', false), 'nethack');
+    assert.equal(nh_basename('.nethackrc', false), '');
+    // The WIN32/MSDOS backslash cut is not compiled for this build, so a
+    // backslash stays an ordinary name byte.
+    assert.equal(nh_basename(String.raw`a\b.rc`, true), String.raw`a\b.rc`);
+    // basebuf[] is 80 bytes and the cut is skipped when the name part does not
+    // fit, so an 80-character stem keeps its suffix.
+    assert.equal(nh_basename(`${'n'.repeat(80)}.rc`, false),
+        `${'n'.repeat(80)}.rc`);
+    assert.equal(nh_basename(`${'n'.repeat(79)}.rc`, false), 'n'.repeat(79));
+});
+
 test('tutorial menu uses the source config-file fallback text', () => {
     const state = tutorialState();
-    state.configFileName = '/dev/null';
+    // get_configfile() is the one owner of this path, so the fallback is
+    // reached by giving that field C's "/dev/null" rather than a second field.
+    state.configfile = '/dev/null';
     const spec = buildTutorialMenuSpec(state);
     assert.equal(
         spec.items.at(-1).text,
         'Put "OPTIONS=!tutorial" in your configuration file to skip this query.',
+    );
+
+    // ask_do_tutorial() labels every other path with nh_basename(..., TRUE),
+    // which on a UNIX build cuts at the last '/' and keeps the suffix.
+    state.configfile = '/home/player/.nethackrc';
+    assert.equal(
+        buildTutorialMenuSpec(state).items.at(-1).text,
+        'Put "OPTIONS=!tutorial" in .nethackrc to skip this query.',
+    );
+    // With nothing stored, get_configfile() answers cfgfiles.c's UNIX
+    // default_configfile.
+    delete state.configfile;
+    assert.equal(
+        buildTutorialMenuSpec(state).items.at(-1).text,
+        'Put "OPTIONS=!tutorial" in .nethackrc to skip this query.',
     );
 });
 

@@ -815,11 +815,17 @@ test('menu command options preserve source alias order and require full names', 
         );
     }
 
+    // spcfn_misc_menu_cmd() reads its value with string_for_opt(opts, FALSE),
+    // whose mandatory parameter reports the whole statement -- the trailing
+    // colon of the second spelling included, because C's message is the
+    // pointer it was handed rather than the matched name.
     for (const missing of ['menu_search', 'menu_search:']) {
-        assert.throws(
-            () => parseNethackrc(`OPTIONS=${missing}`),
-            /menu_search requires a value/u,
-        );
+        const parsed = parseNethackrc(`OPTIONS=${missing}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\nOPTIONS=${missing}`,
+            ` * Line 1: Missing parameter for '${missing}'.`,
+        ], missing);
+        assert.equal(parsed.iflags.mapped_menu_cmds, '', missing);
     }
 });
 
@@ -873,14 +879,26 @@ OPTIONS=menu_last_page:\m\x23`);
     assert.equal(escaped.iflags.mapped_menu_cmds, '#{}£');
     assert.equal(escaped.iflags.mapped_menu_op, ':>^|');
 
-    for (const key of [
-        'a', 'Z', '7', '?', '.', '<space>', '<esc>', String.raw`\n`,
+    // illegal_menu_cmd_key() reports for itself and quotes visctrl() of the
+    // byte txt2key() produced, not the text the statement spelled.  Its first
+    // arm covers letters, digits and the four control keys; its second walks
+    // def_oc_syms[] and names the class instead.
+    for (const [key, reported] of [
+        ['a', "Reserved menu command key 'a'"],
+        ['Z', "Reserved menu command key 'Z'"],
+        ['7', "Reserved menu command key '7'"],
+        ['?', "Menu command key '?' is an object class"],
+        ['.', "Menu command key '.' is an object class"],
+        ['<space>', "Reserved menu command key ' '"],
+        ['<esc>', "Reserved menu command key '^['"],
+        [String.raw`\n`, "Reserved menu command key '^J'"],
     ]) {
-        assert.throws(
-            () => parseNethackrc(`OPTIONS=menu_search:${key}`),
-            /reserved menu command key/u,
-            key,
-        );
+        const parsed = parseNethackrc(`OPTIONS=menu_search:${key}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\nOPTIONS=menu_search:${key}`,
+            ` * Line 1: ${reported}.`,
+        ], key);
+        assert.equal(parsed.iflags.mapped_menu_cmds, '', key);
     }
     // Every menu command option's optlist.h negateok is No, so parseoptions()
     // answers this with bad_negation() and spcfn_misc_menu_cmd()'s own
@@ -960,6 +978,57 @@ test('CHOOSE defaults to the core game RNG', () => {
 
     assert.equal(parsed.name, 'Default RNG');
     assert.deepEqual(getRngLog(), ['rn2(1)=0']);
+});
+
+// C refs: cfgfiles.c handle_config_section():560-563, parse_conf_buf():
+// 1775-1798 and parse_config_line():1412-1416.  Every one of these four keeps
+// reading the file, so a later statement on the same rc still applies.
+test('a line cfgfiles.c refuses is reported and the rest of the rc runs', () => {
+    for (const [rc, reported] of [
+        // A section header before any CHOOSE is reported and skipped, and
+        // config_section_chosen stays null so the next header repeats it.
+        [['[early]', '[later]', 'NAME=Kept'],
+            ['Section "[early]" without CHOOSE', 'Section "[later]" without'
+                + ' CHOOSE']],
+        // find_optparam() answering null is the format error; the message
+        // already ends in '.' so config_erradd() adds no second one.
+        [['CHOOSE', 'NAME=Kept'], ['Format is CHOOSE=section1,section2,...']],
+        // choose_random_part() answers null for an empty candidate list, and
+        // C frees config_section_chosen before it asks.
+        [['CHOOSE=', 'NAME=Kept'], ['No config section to choose']],
+        // Neither ':' nor '=' anywhere in the munged line.
+        [['not a statement', 'NAME=Kept'],
+            ["Not a config statement, missing '='"]],
+    ]) {
+        // rn2 is stubbed because CHOOSE draws before it can fail.
+        const parsed = parseNethackrc(`${rc.join('\n')}\n`, () => 0);
+        assert.deepEqual(
+            parsed.configErrorFrame.output.filter((line) => line.startsWith(' ')),
+            reported.map((text, index) => ` * Line ${index + 1}: ${text}${
+                text.endsWith('.') ? '' : '.'}`),
+            rc[0],
+        );
+        assert.equal(parsed.name, 'Kept', rc[0]);
+    }
+
+    // A section header after a CHOOSE that picked a section is silent, which
+    // is what shows the first case above fails on the missing CHOOSE rather
+    // than on the header itself.
+    const chosen = parseNethackrc('CHOOSE=only\n[only]\nNAME=Kept\n', () => 0);
+    assert.deepEqual(chosen.configErrorFrame.output, []);
+    assert.equal(chosen.name, 'Kept');
+
+    // find_optparam() answers the separator's position, so a line that opens
+    // with one is not the missing-'=' case whatever else is wrong with it.
+    // C reports "Unknown config statement" for this line instead, which
+    // deferral options-unknown-config-statement covers.
+    const leading = parseNethackrc('=foo\nNAME=Kept\n', () => 0);
+    assert.ok(
+        !leading.configErrorFrame.output.some(
+            (line) => line.includes("missing '='"),
+        ),
+        JSON.stringify(leading.configErrorFrame.output),
+    );
 });
 
 test('config and source option names accept valid abbreviations', () => {
@@ -1923,11 +1992,12 @@ test('every option that refuses negation is answered from allopt[]', () => {
         }
     }
     // A guard that answered nothing would satisfy the loop above for every
-    // negateok Yes row, so pin how many rows the table actually refuses.
-    assert.equal(refused, rows.filter(
-        (row) => !row.negateok && !unported.has(row.name),
-    ).length);
-    assert.ok(refused > 50, `only ${refused} rows refused negation`);
+    // negateok Yes row, so pin how many rows the table actually refuses.  The
+    // 58 is a literal count of js/optlist_data.js: of its 217 allopt[] rows,
+    // 209 survive the pfx and spaced-name filter above, 5 of those are listed
+    // as unported, and 58 of the remaining 204 carry negateok false.  A rerun
+    // of that count is the only thing that may change this number.
+    assert.equal(refused, 58, `${refused} rows refused negation`);
 });
 
 // C ref: options.c optfn_msg_window()'s do_set arm under PREV_MSGS, which is

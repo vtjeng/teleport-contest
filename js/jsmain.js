@@ -297,9 +297,11 @@ export class NethackGame {
         // C ref: sys/share/unixtty.c setftty() (251-259).  iflags is a static
         // struct and no option writes cbreak, so it is false until
         // tty_init_nhwindows() raises it -- which js/tty_startup.js
-        // renderTtyStartupBanner() does below.  Between here and there,
-        // js/tty_message.js xwaitforspace() reads only Return and Enter, which
-        // is what the configuration errors reported just after this wait on.
+        // renderTtyStartupBanner() does below, ahead of its own display guard
+        // so that every caller passes the same boundary.  Between here and
+        // there, js/tty_message.js xwaitforspace() reads only Return and
+        // Enter, which is what the configuration errors reported just after
+        // this wait on.
         g.iflags.cbreak = false;
         g.a11y = { ...opts.a11y };
         g.roleFilter = {

@@ -1,8 +1,10 @@
 // tutorial_startup.js -- Tutorial query at the new-game command boundary.
 // C refs: options.c ask_do_tutorial() and allmain.c maybe_do_tutorial().
 
+import { get_configfile } from './cfgfiles.js';
 import { LR_DOWNTELE, PICK_ONE } from './const.js';
 import { find_level } from './dungeon.js';
+import { nh_basename } from './files.js';
 import { bot, docrt, flush_screen } from './display.js';
 import { read_engr_at } from './engrave.js';
 import { game } from './gstate.js';
@@ -26,18 +28,17 @@ import { setnotworn } from './worn.js';
 
 const REPROMPT = Symbol('tutorial menu needs an explicit choice');
 
-function configFileLabel(configFileName) {
-    if (!configFileName || configFileName === '/dev/null')
-        return 'your configuration file';
-    const components = String(configFileName).split(/[\\/]/u);
-    return components.at(-1) || 'your configuration file';
+// C ref: options.c ask_do_tutorial()'s buf, which reads the one configuration
+// path get_configfile() owns: nh_basename(..., TRUE) for the label and an
+// unabbreviated comparison against "/dev/null" for the fallback.
+function configFileLabel(state) {
+    const configfile = get_configfile(state);
+    const rc = nh_basename(configfile, true);
+    if (!rc || configfile === '/dev/null') return 'your configuration file';
+    return rc;
 }
 
-export function buildTutorialMenuSpec(
-    state = game,
-    repeated = false,
-    configFileName = state.configFileName ?? '.nethackrc',
-) {
+export function buildTutorialMenuSpec(state = game, repeated = false) {
     return {
         title: 'Do you want a tutorial?',
         ...menuTitleStyle(state),
@@ -55,7 +56,7 @@ export function buildTutorialMenuSpec(
             { text: '' },
             {
                 text: `Put "OPTIONS=!tutorial" in ${
-                    configFileLabel(configFileName)
+                    configFileLabel(state)
                 } to skip this query.`,
             },
             ...(repeated
