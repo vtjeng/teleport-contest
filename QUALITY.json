@@ -3178,7 +3178,13 @@
       "effort": "slice",
       "status": "open",
       "from": "db59c7e24219a007d527abbc782f9ddd4a94b808",
-      "detail": "js/options.js applyBooleanOption()'s fallback writes result.flags[name], but about 70 BoolOpt rows store elsewhere in C: ascii_map writes iflags.wc_ascii_map, menucolors writes iflags.use_menu_color, travel writes flags.travelcmd. So nothing reads what the port stores for those rows, and options.c's post-set switch (opt_ascii_map, opt_tiled_map) is unported for them. This predates the range; 8b99f58 routed more spellings through the fallback, now storing a boolean where it stored a string. Closing it needs each row's addr field, which optlist.h carries and scripts/generate-options.mjs does not yet emit."
+      "detail": "js/options.js applyBooleanOption()'s fallback writes result.flags[name], but about 70 BoolOpt rows store elsewhere in C: ascii_map writes iflags.wc_ascii_map, menucolors writes iflags.use_menu_color, travel writes flags.travelcmd. So nothing reads what the port stores for those rows, and options.c's post-set switch (opt_ascii_map, opt_tiled_map) is unported for them. This predates the range; 8b99f58 routed more spellings through the fallback, now storing a boolean where it stored a string. Closing it needs each row's addr field, which optlist.h carries and scripts/generate-options.mjs does not yet emit.",
+      "notes": [
+        {
+          "text": "The blocker this entry was filed with is wrong. scripts/generate-options.mjs already emits addr (FIELD.addr: 13, parseAddress()), js/optlist_data.js carries it on all 217 rows, and js/options.js already reads it twice, at optfn_boolean_returns_before_setting()'s null-address retreat and at booleanOptionValue(). No regeneration is needed. The entry's real content is 74 storage decisions for the BoolOpt rows whose addr is not flags.<name>, each of which needs a live reader before AGENTS.md's 'Complete common gameplay first' allows it, and the options menu already answers the divergence with a named refusal at js/options.js:3434, so nothing shows a wrong value today. Read at b4c1fc7 by the slice-selector; it is a blockedOn candidate at the goal's close rather than a slice.",
+          "at": "b4c1fc75a3e2c7ff8bbe0eb6ce7f93fddf2b334b"
+        }
+      ]
     }
   ],
   "areas": [
