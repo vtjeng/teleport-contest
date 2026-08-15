@@ -2346,6 +2346,11 @@
           "name": "parseoptions-negation-prefix-skips-whitespace",
           "status": "closed",
           "closedBy": "95b3384e7c13642f3091df2ebc05930576b80b7c"
+        },
+        {
+          "name": "negated-boolean-parameter-and-hilite-attributes",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",
