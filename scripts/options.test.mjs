@@ -2359,6 +2359,83 @@ test('an empty option element is its own configuration error', () => {
     ]);
 });
 
+// C ref: options.c parseoptions():539-542, the negation loop.  It advances by
+// exactly one, two or three bytes per prefix and strips no whitespace of its
+// own -- the only strip is the one at 528-533, which ran before it -- so a
+// blank after a prefix stays at the head of the name.  match_optname()
+// (6759-6770) then compares that name with strncmpi(), which no allopt[] name
+// can pass while a blank sits in front of it.
+test('a negation prefix steps over no whitespace', () => {
+    // Each pair is the spelling and what the loop leaves behind, which is what
+    // the unknown-option report at options.c:687-689 names.  optlist.h:410-411
+    // gives legacy an On default and negateok Yes, so a spelling that reached
+    // the row would clear flags.legacy and report nothing; every spelling here
+    // loses the row instead and leaves the default standing.
+    const unmatched = [
+        ['! legacy', ' legacy'], // '!' advances one byte
+        ['no legacy', ' legacy'], // "no" advances two
+        ['no- legacy', ' legacy'], // "no-" advances three
+        ['!\tlegacy', '\tlegacy'], // isspace() covers the tab as well
+        ['!! legacy', ' legacy'], // two prefixes, negation back to FALSE
+        // The report names what the loop left, value and all, because
+        // length_without_val() shortens the match key and not `opts`.
+        ['!  legacy:on', '  legacy:on'],
+    ];
+    for (const [spelling, reported] of unmatched) {
+        const parsed = parseNethackrc(`OPTIONS=${spelling}\n`);
+        assert.equal(parsed.flags.legacy, true, spelling);
+        assert.deepEqual(
+            parsed.configErrorFrame.output.at(-1),
+            ` * Line 1: Unknown option '${reported}'.`,
+            spelling,
+        );
+    }
+
+    // The same prefixes with nothing between them and the name still reach the
+    // row.  '!!' negates twice, so it leaves the On default in place with no
+    // report, which is what tells it apart from the unmatched spellings above.
+    for (const spelling of ['!legacy', 'nolegacy', 'no-legacy', '!!legacy']) {
+        const parsed = parseNethackrc(`OPTIONS=${spelling}\n`);
+        assert.equal(parsed.flags.legacy, spelling === '!!legacy', spelling);
+        assert.deepEqual(parsed.configErrorFrame.output, [], spelling);
+    }
+
+    // A blank at the head survives length_without_val()'s backward scan, so a
+    // statement carrying both a prefix and a value loses its row too.
+    // optlist.h:762-764 gives time an Off default.
+    const valued = parseNethackrc('OPTIONS=no time :on\n');
+    assert.equal(valued.flags.time, false);
+    assert.deepEqual(valued.configErrorFrame.output.at(-1),
+        " * Line 1: Unknown option ' time :on'.");
+
+    // options.c:557-559 reaches a pfx row through str_start_is(), which
+    // compares from the head and so fails on the blank as well.  This port
+    // stops on an unrecognized cond_ suffix that reaches that row, so the
+    // spelling below proves the blank keeps it away from the row entirely.
+    const prefixed = parseNethackrc('OPTIONS=! cond_bogus\n');
+    assert.deepEqual(prefixed.configErrorFrame.output.at(-1),
+        " * Line 1: Unknown option ' cond_bogus'.");
+});
+
+// C ref: options.c length_without_val() (6739-6754).  It backs up over the
+// whitespace in front of a ':' or '=' but never over any at the head of the
+// statement, so the two ends of a name are not treated alike.
+test('whitespace in front of a value separator ends the name', () => {
+    // optlist.h:762-764 gives time an Off default, so a statement that reaches
+    // the row shows up in flags.time.
+    for (const spelling of ['time :on', 'time\t\t:on', 'time  =on']) {
+        const parsed = parseNethackrc(`OPTIONS=${spelling}\n`);
+        assert.equal(parsed.flags.time, true, spelling);
+        assert.deepEqual(parsed.configErrorFrame.output, [], spelling);
+    }
+    // The scan stops at the head rather than running off it, so a statement
+    // that is nothing but a separator is an unknown option and not a crash.
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=:on\n').configErrorFrame.output.at(-1),
+        " * Line 1: Unknown option ':on'.",
+    );
+});
+
 // C ref: options.c parseoptions():625-629 over bad_negation() (6692-6697).
 // The message names allopt[matchidx].name, the row the match landed on, not
 // the spelling the statement used.

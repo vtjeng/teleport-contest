@@ -3059,7 +3059,7 @@
       "area": "startup",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "6ad9032e73c6a15d7dbdf7845c8c40a45e212de1",
       "detail": "js/options.js stripNegation() steps over whitespace after each negation prefix;\noptions.c:539-542 does not.\n\n    while ((*opts == '!') || !strncmpi(opts, \"no\", 2)) {\n        opts += (*opts == '!') ? 1 : (opts[2] != '-') ? 2 : 3;\n        negated = !negated;\n    }\n\nC advances by exactly one, two or three bytes, so `OPTIONS=! time` leaves\nopts as \" time\". optlen is then length_without_val(\" time\", 5) = 5, and\nstrncmpi(name, \" time\", 5) matches no allopt[] row, so the statement is\n\"Unknown option ' time'.\" and flags.time keeps its default. The port trims the\nspace, matches `time` and sets it.\n\nThe port's other parseoptions() port, the one doset() reaches\n(js/options.js:3905-3911), already strips the prefixes exactly as C does, so\nthe two disagree with each other as well as with C. Fixing the rc-side one is\na few lines, but it changes which statements match, so it wants its own\ndevelopment-score check rather than a ride on an unrelated slice. No recorded\nsession spells a negation this way: a census of the 33 development sessions\nfinds 67 negated OPTIONS elements over four option names -- autopickup,\nlegacy, splash_screen and tutorial -- and none carries whitespace after the\nprefix."
     },

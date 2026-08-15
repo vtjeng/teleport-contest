@@ -496,10 +496,6 @@ function trimCWhitespace(value) {
     );
 }
 
-function trimCWhitespaceStart(value) {
-    return String(value).replace(/^[\t\n\v\f\r ]+/u, '');
-}
-
 // C ref: hacklib.c trimspaces() (163-176).  Its two halves reach a caller
 // differently: leading blanks are only skipped, by advancing a pointer the
 // caller need not keep, while the trailing run is overwritten with NUL inside
@@ -618,38 +614,41 @@ function* logicalConfigLines(rc, frame) {
     }
 }
 
-function splitNameAndValue(option) {
-    const colon = option.indexOf(':');
-    const equals = option.indexOf('=');
-    let separator = -1;
-    if (colon >= 0 && equals >= 0) separator = Math.min(colon, equals);
-    else separator = Math.max(colon, equals);
-    if (separator < 0) return { name: trimCWhitespace(option), value: null };
+// C ref: options.c parseoptions() (543-556), which measures the name with
+// length_without_val(), and string_for_opt() (6664-6680), which finds the same
+// ':' or '=' again to answer the value.  The two ends of the name are not
+// treated alike: whitespace in front of the separator belongs to neither side,
+// while whitespace at the head belongs to the name, so "! time:on" looks for
+// an option called " time" and finds none.
+function splitNameAndValue(statement) {
+    // length_without_val() answers the length it was handed only when the
+    // statement carries no separator at all, since a separator at index i
+    // answers at most i.  That is how the two are told apart here, where C
+    // tells them apart by string_for_opt()'s empty_optstr.
+    const nameLength = length_without_val(statement, statement.length);
+    if (nameLength === statement.length) return { name: statement, value: null };
     return {
-        name: trimCWhitespace(option.slice(0, separator)),
-        value: option.slice(separator + 1),
+        name: statement.slice(0, nameLength),
+        value: string_for_opt(statement),
     };
 }
 
-// options.c toggles negation for every leading '!', "no", or "no-".
-function stripNegation(optionName) {
-    let name = trimCWhitespace(optionName);
+// C ref: options.c parseoptions() (539-542).  Negation toggles for every
+// leading '!', "no" or "no-", and each one advances by exactly its own one,
+// two or three bytes.  The loop strips no whitespace: parseoptions() strips
+// the element's leading and trailing whitespace once at 528-533, before this
+// runs, and a blank that follows a prefix therefore stays at the head of the
+// statement the match loop reads.
+function stripNegation(element) {
+    let statement = element;
     let negated = false;
-    for (;;) {
-        if (name.startsWith('!')) {
-            negated = !negated;
-            name = trimCWhitespaceStart(name.slice(1));
-        } else if (/^no-/iu.test(name)) {
-            negated = !negated;
-            name = trimCWhitespaceStart(name.slice(3));
-        } else if (/^no/iu.test(name)) {
-            negated = !negated;
-            name = trimCWhitespaceStart(name.slice(2));
-        } else {
-            break;
-        }
+    while (statement[0] === '!' || equal_ncasechars(statement, 'no', 2)) {
+        statement = statement.slice(
+            statement[0] === '!' ? 1 : (statement[2] !== '-' ? 2 : 3),
+        );
+        negated = !negated;
     }
-    return { name: name.toLowerCase(), sourceName: name, negated };
+    return { statement, negated };
 }
 
 function booleanValue(value, negated, optionName, lineNumber) {
@@ -2591,7 +2590,7 @@ function applyOption(result, optionState, element, lineNumber) {
     // as `opts`, and what every message naming the statement reports --
     // "Unknown option" here and string_for_opt()'s "Missing parameter" below.
     // `element` keeps those prefixes and is read nowhere else.
-    const { sourceName: statement, negated } = stripNegation(element);
+    const { statement, negated } = stripNegation(element);
     const { name: rawName, value } = splitNameAndValue(statement);
     const parsedName = rawName.toLowerCase();
 
@@ -4358,16 +4357,11 @@ export async function parseoptions(
     if (encodeUtf8ByteString(statement).length > OPTION_ELEMENT_BYTE_LIMIT)
         return false; /* "Option too long" */
 
-    let opts = trimCWhitespace(statement);
-    if (!opts) return false; /* "Empty statement" */
+    const element = trimCWhitespace(statement);
+    if (!element) return false; /* "Empty statement" */
 
-    let negated = false;
-    while (opts[0] === '!' || equal_ncasechars(opts, 'no', 2)) {
-        opts = opts.slice(
-            opts[0] === '!' ? 1 : (opts[2] !== '-' ? 2 : 3),
-        );
-        negated = !negated;
-    }
+    /* options.c:539-542, the same loop parseNethackrc() above reaches */
+    const { statement: opts, negated } = stripNegation(element);
 
     let got_match = false;
     let matchidx = -1;

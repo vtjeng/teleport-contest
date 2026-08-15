@@ -1,0 +1,41 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 5510237,
+      "datetime": "20010517134500",
+      "nethackrc": "OPTIONS=name:NegA,role:Valkyrie,race:human,gender:female,align:neutral,!tutorial,!splash_screen\nOPTIONS=! legacy\n",
+      "moves": "\r "
+    },
+    {
+      "seed": 2874193,
+      "datetime": "19850308191500",
+      "nethackrc": "OPTIONS=name:NegB,role:Healer,race:gnome,gender:male,align:neutral,!tutorial,!splash_screen\nOPTIONS=no legacy\n",
+      "moves": "\r "
+    },
+    {
+      "seed": 6031558,
+      "datetime": "20190226044500",
+      "nethackrc": "OPTIONS=name:NegC,role:Samurai,race:human,gender:female,align:lawful,!tutorial,!splash_screen\nOPTIONS=no- legacy\n",
+      "moves": "\r "
+    },
+    {
+      "seed": 4489712,
+      "datetime": "19771230225500",
+      "nethackrc": "OPTIONS=name:NegD,role:Barbarian,race:orc,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=!  legacy:on\nOPTIONS=no time :on\n",
+      "moves": "\r "
+    },
+    {
+      "seed": 8127046,
+      "datetime": "20060911120000",
+      "nethackrc": "OPTIONS=name:NegE,role:Ranger,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=time :on\nOPTIONS=showexp\t=on\n",
+      "moves": " "
+    },
+    {
+      "seed": 3654820,
+      "datetime": "19940722083000",
+      "nethackrc": "OPTIONS=name:NegF,role:Wizard,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=! cond_bogus\nOPTIONS=!!  legacy\n",
+      "moves": "\r "
+    }
+  ]
+}
