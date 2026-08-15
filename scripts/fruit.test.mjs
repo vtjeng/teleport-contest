@@ -149,9 +149,22 @@ test('fruit parsing preserves C whitespace and eight-bit option order', () => {
 });
 
 test('initial fruit negation and duplicate order follow optfn_fruit', () => {
-    assert.equal(parseNethackrc('OPTIONS=!fruit').pl_fruit, DEFAULT_FRUIT);
-    assert.equal(parseNethackrc('OPTIONS=!fru').pl_fruit, DEFAULT_FRUIT);
-    assert.equal(parseNethackrc('OPTIONS=!fruit:').pl_fruit, DEFAULT_FRUIT);
+    // optlist.h:339-340 gives fruit negateok No, so parseoptions() answers
+    // every negated spelling with bad_negation() before optfn_fruit() runs.
+    // Its negation arm would have reset svp.pl_fruit through `goodfruit`;
+    // instead the value a previous statement stored survives, which is what
+    // separates this from the default the option was never given.
+    for (const negated of ['!fruit', '!fru', '!fruit:', '!fruit:banana']) {
+        const parsed = parseNethackrc(
+            `OPTIONS=fruit:kumquats\nOPTIONS=${negated}`,
+        );
+        assert.equal(parsed.pl_fruit, 'kumquats', negated);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\nOPTIONS=${negated}`,
+            ' * Line 2: The fruit option may not both have a value and be'
+            + ' negated.',
+        ], negated);
+    }
     assert.equal(
         parseNethackrc('OPTIONS=fruit:blueberries,fruit:kumquats').pl_fruit,
         'blueberries',
@@ -163,10 +176,6 @@ test('initial fruit negation and duplicate order follow optfn_fruit', () => {
     assert.throws(
         () => parseNethackrc('OPTIONS=fruit:'),
         /fruit requires a value/u,
-    );
-    assert.throws(
-        () => parseNethackrc('OPTIONS=!fruit:banana'),
-        /negated fruit cannot have a value/u,
     );
 });
 

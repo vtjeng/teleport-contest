@@ -907,25 +907,25 @@ function sanitizePetName(value, eightBitTty) {
     return decodeUtf8ByteString(bytes);
 }
 
-function setPetName(result, field, value, negated, lineNumber) {
-    if (!negated && value == null) {
+// optlist.h:221-222, :288-289 and :382-383 give catname, dogname and horsename
+// negateok No, so parseoptions() answers a negated spelling with
+// bad_negation() and none of the three handlers sees one.
+function setPetName(result, field, value, lineNumber) {
+    if (value == null) {
         optionError(lineNumber, `${field} requires a value`);
     }
-    result[field] = negated || value === 'none' || value === '(none)'
+    result[field] = value === 'none' || value === '(none)'
         ? '' : sanitizePetName(value, result.iflags.wc_eight_bit_input);
 }
 
 // C ref: options.c optfn_fruit(do_set) during initial option parsing.
 // Singularization and fruit-chain insertion are deferred to
 // initoptions_finish(), after the complete configuration has been read.
-function setFruit(result, value, negated, lineNumber) {
-    if (negated) {
-        if (value != null && value !== '') {
-            optionError(lineNumber, 'negated fruit cannot have a value');
-        }
-        result.pl_fruit = DEFAULT_FRUIT;
-        return;
-    }
+// optlist.h:339-340 gives fruit negateok No, so parseoptions() answers a
+// negated spelling with bad_negation() and optfn_fruit()'s negation arm
+// (options.c:1717-1724), which resets svp.pl_fruit through `goodfruit`, is
+// unreachable from a configuration file.
+function setFruit(result, value, lineNumber) {
     if (value == null || value === '')
         optionError(lineNumber, 'fruit requires a value');
     result.pl_fruit = normalize_initial_fruit(
@@ -1498,18 +1498,17 @@ function setMenuHeadings(result, value, negated, lineNumber) {
 
 // C ref: options.c:optfn_petattr(). The tty port accepts one text
 // attribute and keeps the chosen style when hilite_pet is later disabled.
-function setPetAttribute(result, value, negated, lineNumber) {
-    if (value != null && negated) {
-        optionError(lineNumber, 'negated petattr cannot have a value');
-    }
+// optlist.h:568-569 gives petattr negateok No, so parseoptions() answers a
+// negated spelling with bad_negation() and both of optfn_petattr()'s negation
+// arms -- its own bad_negation() and the ATR_NONE a value-less negation would
+// store -- are unreachable from a configuration file.
+function setPetAttribute(result, value, lineNumber) {
     if (value != null) {
         const attr = menuHeadingAttribute(menuHeadingToken(value));
         if (attr == null) {
             optionError(lineNumber, `unknown petattr parameter '${value}'`);
         }
         result.iflags.wc2_petattr = attr;
-    } else if (negated) {
-        result.iflags.wc2_petattr = ATR_NONE;
     }
     result.iflags.wc_hilite_pet = result.iflags.wc2_petattr !== ATR_NONE;
 }
@@ -1693,12 +1692,11 @@ function addMenuCommandAlias(result, fromKey, command) {
     result.iflags.mapped_menu_op += command;
 }
 
-function setMenuCommandOption(
-    result, descriptor, value, negated, lineNumber,
-) {
-    if (negated) {
-        optionError(lineNumber, `${descriptor.name} may not be negated`);
-    }
+// C ref: options.c spcfn_misc_menu_cmd() (5451-5477), the do_set request.  Its
+// own bad_negation() arm (5458-5460) is unreachable from a configuration file:
+// every menu command option's optlist.h negateok is No, so parseoptions()
+// answers a negated spelling before the handler runs.
+function setMenuCommandOption(result, descriptor, value, lineNumber) {
     if (value == null || value === '') {
         optionError(lineNumber, `${descriptor.name} requires a value`);
     }
@@ -1786,16 +1784,16 @@ function applyMenuBinding(result, binding, lineNumber) {
 
 // C ref: options.c optfn_number_pad(). These fields affect cmd_from_ecname()
 // during tutorial generation and the same source-ordered runtime bindings.
-function setNumberPadOption(result, value, negated, lineNumber) {
+// optlist.h:535-536 gives the option negateok No, so parseoptions() answers a
+// negated spelling with bad_negation(); the handler's own bad_negation() and
+// its `iflags.num_pad = !negated` both see a negation that cannot happen.
+function setNumberPadOption(result, value, lineNumber) {
     let enabled;
     let mode;
     if (value == null || value === '') {
-        enabled = !negated;
+        enabled = true;
         mode = 0;
     } else {
-        if (negated) {
-            optionError(lineNumber, 'number_pad may not be negated with a value');
-        }
         const parsed = Number.parseInt(value, 10);
         if (!Number.isInteger(parsed) || parsed < -1 || parsed > 4
             || (parsed === 0 && value[0] !== '0')) {
@@ -1855,19 +1853,13 @@ const PICKUP_BURDEN_LEVELS = Object.freeze(new Map([
 ]));
 
 // optlist.h:573 gives pickup_burden negateok No, so parseoptions() answers a
-// negation with bad_negation() before the handler runs; that check is still
-// unported and stops here. The handler then reads its value with
+// negation with bad_negation() before the handler runs and this arrives with
+// `negated` always false. The handler then reads its value with
 // string_for_env_opt(name, opts, FALSE), whose mandatory parameter makes a
 // spelling with no value string_for_opt()'s "Missing parameter" config error
 // rather than a default, and both that and an unmatched letter return
 // optn_err with flags.pickup_burden untouched.
-function setPickupBurden(result, option, value, negated, lineNumber) {
-    if (negated) {
-        optionError(
-            lineNumber,
-            "negated compound option 'pickup_burden' is not supported",
-        );
-    }
+function setPickupBurden(result, option, value) {
     if (!value) {
         configErrorAdd(result, `Missing parameter for '${option}'`);
         return;
@@ -2047,10 +2039,78 @@ function sourceOptionMatch(parsedName) {
     ));
 }
 
-function isSourceOptionPrefix(parsedName) {
-    return SOURCE_OPTION_NAMES.some((canonical) => (
-        canonical.startsWith(parsedName)
+// C ref: options.c:556-580, the two ways parseoptions()'s match loop reaches a
+// pfx row.  str_start_is() accepts any suffix, and match_optname() accepts a
+// leading substring of the prefix itself down to minmatch, so "cond", "cond_",
+// "cond_bogus" and "fontbogus:value" all land on one.  The row's handler --
+// pfxfn_cond_() or pfxfn_font() -- then decides the suffix, and options.c
+// :675-682 adds "bad option suffix variation" on top of whatever it reported.
+// None of that is ported, so a statement that reaches a pfx row without
+// sourceConditionMatch() recognizing it stops rather than being reported as an
+// unknown option.  The two rows are the last in allopt[], so no ordinary row
+// can match after them.
+const PREFIX_OPTION_MATCHES = Object.freeze(SOURCE_OPTION_MATCHES.filter(
+    ([canonical]) => SOURCE_PREFIX_OPTION_NAMES.includes(canonical),
+));
+
+function matchesPrefixOptionRow(statement, parsedName) {
+    return PREFIX_OPTION_MATCHES.some(([canonical, minLength]) => (
+        str_start_is(statement, canonical, true)
+            || (parsedName.length >= minLength
+                && canonical.startsWith(parsedName))
     ));
+}
+
+// C ref: options.c parseoptions()'s allopt[matchidx], the row its two match
+// loops (556-612) settle on.  Three names this parser resolves are not that
+// row's name: "male" is optlist.h:306-308's alias for the female row, every
+// cond_<condition> comes from the single cond_ prefix row, and a name that
+// matched nothing has no row at all.
+const ALLOPT_ROWS = Object.freeze(new Map(
+    allopt.map((option) => [option.name.toLowerCase(), option]),
+));
+
+function matchedOptionRow(name) {
+    if (name.startsWith('cond_')) return ALLOPT_ROWS.get('cond_');
+    if (name === 'male') return ALLOPT_ROWS.get('female');
+    return ALLOPT_ROWS.get(name) ?? null;
+}
+
+// C ref: symbols.c parsesymbols(), which options.c:663 reaches only for a
+// statement that starts with "S_" and only once both match loops have failed.
+// It splits its argument in place at the first unquoted colon -- or, when
+// there is none, at the first '=' -- and mungspaces() what is left before
+// match_sym() decides, so a symbol name C does not know arrives at the
+// "Unknown option" message already cut down to the part before that
+// separator.  A statement carrying neither separator is reported whole.
+function unknownOptionText(statement) {
+    if (!statement.startsWith('S_')) return statement;
+    // parsesymbols()'s scan starts at the second character and stops before
+    // the last one, and passes over a colon that sits between two quotes.
+    let separator = -1;
+    for (let index = 1; index < statement.length - 1; ++index) {
+        if (statement[index] !== ':') continue;
+        if (statement[index - 1] === "'" && statement[index + 1] === "'")
+            continue;
+        separator = index;
+        break;
+    }
+    if (separator < 0) separator = statement.indexOf('=');
+    if (separator < 0) return statement;
+    return mungspaces(statement.slice(0, separator));
+}
+
+// C ref: options.c bad_negation() (6692-6697).  parseoptions() (625-629) is
+// the only caller this parser reaches, and it passes with_parameter TRUE
+// whether or not the statement carried a value, so the message names a value
+// either way.  Every option whose optlist.h negateok is No is answered here
+// rather than in its handler, which is why several C handlers declare their
+// `negated` argument UNUSED.
+function bad_negation(result, optname) {
+    configErrorAdd(
+        result,
+        `The ${optname} option may not both have a value and be negated.`,
+    );
 }
 
 function sourceConditionMatch(parsedName, value) {
@@ -2175,27 +2235,40 @@ function parseSymbolAssignments(value, lineNumber) {
 }
 
 function applyOption(result, optionState, option, lineNumber) {
-    const { name: rawName, value } = splitNameAndValue(option);
-    const {
-        name: parsedName,
-        sourceName,
-        negated,
-    } = stripNegation(rawName);
-    if (!parsedName) optionError(lineNumber, 'empty option');
+    // options.c:538-542 strips the negation prefixes off the whole element,
+    // before length_without_val() looks for a value, so `statement` is what
+    // the rest of parseoptions() matches against and what its "Unknown
+    // option" message reports.
+    const { sourceName: statement, negated } = stripNegation(option);
+    const { name: rawName, value } = splitNameAndValue(statement);
+    const parsedName = rawName.toLowerCase();
 
     const sourceMatch = sourceOptionMatch(parsedName);
     const hasAlias = Object.hasOwn(OPTION_ALIASES, parsedName);
     const conditionMatch = sourceConditionMatch(parsedName, value);
     // options.c strips negation, then checks this prefix case-sensitively.
-    const isSymbolAssignment = isSourceSymbolAssignment(sourceName, value);
+    const isSymbolAssignment = isSourceSymbolAssignment(rawName, value);
     let name = sourceMatch?.[0]
         ?? (hasAlias ? OPTION_ALIASES[parsedName] : null);
     if (!name && conditionMatch) name = conditionMatch;
+    // options.c:618-629 reads allopt[matchidx], the row its two match loops
+    // settled on; a symbol assignment reaches parsesymbols() (663) only with
+    // got_match still false, so it has no row and gets no negation check.
+    const matchedRow = name ? matchedOptionRow(name) : null;
     if (!name && isSymbolAssignment) name = parsedName;
+    if (!name && matchesPrefixOptionRow(statement, parsedName)) {
+        optionError(lineNumber, `unported prefix option '${statement}'`);
+    }
     if (!name) {
-        const description = isSourceOptionPrefix(parsedName)
-            ? 'unknown or ambiguous option' : 'unknown option';
-        optionError(lineNumber, `${description} '${parsedName}'`);
+        // options.c:687-689, the last arm of parseoptions().
+        configErrorAdd(
+            result, `Unknown option '${unknownOptionText(statement)}'`,
+        );
+        return;
+    }
+    if (negated && matchedRow && !matchedRow.negateok) {
+        bad_negation(result, matchedRow.name);
+        return;
     }
 
     const menuCommand = menuCommandOption(name);
@@ -2226,7 +2299,7 @@ function applyOption(result, optionState, option, lineNumber) {
     } else if (name === 'menu_headings') {
         setMenuHeadings(result, value, negated, lineNumber);
     } else if (name === 'petattr') {
-        setPetAttribute(result, value, negated, lineNumber);
+        setPetAttribute(result, value, lineNumber);
     } else if (name === 'hilite_status') {
         setStatusHiliteOption(result, value, negated, lineNumber);
     } else if (name === 'statushilites') {
@@ -2236,9 +2309,7 @@ function applyOption(result, optionState, option, lineNumber) {
         result.flags[name] = enabled;
         result.iflags.status_conditions[name.slice('cond_'.length)] = enabled;
     } else if (menuCommand && parsedName === name) {
-        setMenuCommandOption(
-            result, menuCommand, value, negated, lineNumber,
-        );
+        setMenuCommandOption(result, menuCommand, value, lineNumber);
     } else if (menuCommand || isMenuCommandPrefix(parsedName)) {
         optionError(
             lineNumber,
@@ -2248,15 +2319,16 @@ function applyOption(result, optionState, option, lineNumber) {
         // options.c change_inv_order() rewrites flags.inv_order from this
         // value. That is not ported, so the value is retained and
         // invent.c display_pickinv()'s port stops when it is present rather
-        // than listing the inventory in the default order.
-        result.flags.packorder = negated ? null : value;
+        // than listing the inventory in the default order.  optlist.h:541-542
+        // gives the option negateok No, so a negated spelling never arrives.
+        result.flags.packorder = value;
     } else if (name === 'pettype') {
         setPettype(result, value, negated, lineNumber);
     } else if (name === 'fruit') {
-        setFruit(result, value, negated, lineNumber);
+        setFruit(result, value, lineNumber);
     } else if (name === 'catname' || name === 'dogname'
                || name === 'horsename') {
-        setPetName(result, name, value, negated, lineNumber);
+        setPetName(result, name, value, lineNumber);
     } else if (name === 'blind' || name === 'deaf' || name === 'nudist'
                || name === 'pauper' || name === 'reroll') {
         setRoleplay(result, name, value, negated, lineNumber);
@@ -2282,13 +2354,13 @@ function applyOption(result, optionState, option, lineNumber) {
             rawValue: value,
         }]);
     } else if (name === 'number_pad') {
-        setNumberPadOption(result, value, negated, lineNumber);
+        setNumberPadOption(result, value, lineNumber);
     } else if (name === 'whatis_coord') {
         setWhatisCoord(result, value, negated, lineNumber);
     } else if (name === 'runmode') {
         setRunmode(result, value, negated, lineNumber);
     } else if (name === 'pickup_burden') {
-        setPickupBurden(result, option, value, negated, lineNumber);
+        setPickupBurden(result, option, value);
     } else if (name === 'pile_limit') {
         setPileLimit(result, value, negated, lineNumber);
     } else if (name === 'msg_window') {
@@ -2323,13 +2395,7 @@ function applyOption(result, optionState, option, lineNumber) {
         // lowercased first letter and rejects anything else. optlist.h gives
         // sortloot negateok No, so parseoptions() answers a negation with
         // bad_negation() before the handler runs, which is why the handler
-        // declares its negated argument UNUSED. That check is still unported.
-        if (negated) {
-            optionError(
-                lineNumber,
-                `negated compound option '${name}' is not supported`,
-            );
-        }
+        // declares its negated argument UNUSED.
         // The handler re-reads the value with
         // string_for_env_opt(name, opts, FALSE); its mandatory parameter makes
         // a spelling without one string_for_opt()'s "Missing parameter" error
@@ -2351,13 +2417,7 @@ function applyOption(result, optionState, option, lineNumber) {
         // C ref: options.c optfn_versinfo()'s do_set arm.  optlist.h:816 gives
         // it negateok No, so parseoptions() has already answered a negation
         // with bad_negation() and the handler's own negation arm is dead on
-        // this path; the port still stops on that check.
-        if (negated) {
-            optionError(
-                lineNumber,
-                `negated compound option '${name}' is not supported`,
-            );
-        }
+        // this path.
         // string_for_opt(opts, FALSE) reports the missing parameter itself,
         // and the handler then adds a second error naming the default it does
         // not actually store.  nomakedefs.git_branch is null in a release
@@ -2385,6 +2445,9 @@ function applyOption(result, optionState, option, lineNumber) {
     } else if (HANDLED_BOOLEAN_OPTIONS.has(name)) {
         applyBooleanOption(result, name, value, negated, lineNumber);
     } else if (value != null) {
+        // Only an option whose optlist.h negateok is Yes reaches this: a
+        // negated spelling of any other one is bad_negation()'s above.  What
+        // C's handler does with the negation is what is unported here.
         if (negated) {
             optionError(
                 lineNumber,
@@ -2600,14 +2663,28 @@ export function parseNethackrc(rc, random = rn2) {
             for (let optionIndex = options.length - 1;
                 optionIndex >= 0; --optionIndex) {
                 const rawOption = options[optionIndex];
-                // parseoptions() enforces this before stripping whitespace or
-                // invoking an option handler, and continues with other items.
+                // options.c:520-524 enforces this before stripping whitespace
+                // or invoking an option handler.  The recursion into the comma
+                // suffix has already run, so the other elements on the line
+                // are unaffected.
                 if (encodeUtf8ByteString(rawOption).length
-                    > OPTION_ELEMENT_BYTE_LIMIT) continue;
-                const option = trimCWhitespace(rawOption);
-                if (option) {
-                    applyOption(result, optionState, option, lineNumber);
+                    > OPTION_ELEMENT_BYTE_LIMIT) {
+                    configErrorAdd(
+                        result,
+                        'Option too long, max length is'
+                        + ` ${OPTION_ELEMENT_BYTE_LIMIT} characters`,
+                    );
+                    continue;
                 }
+                const option = trimCWhitespace(rawOption);
+                // options.c:526-538.  An element that is nothing but
+                // whitespace is the "Empty statement" this reports; a bare
+                // `OPTIONS=` reaches it as the line's only element.
+                if (!option) {
+                    configErrorAdd(result, 'Empty statement');
+                    continue;
+                }
+                applyOption(result, optionState, option, lineNumber);
             }
             continue;
         }

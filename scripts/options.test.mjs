@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import { config_error_done } from '../js/cfgfiles.js';
 import { parseNethackrc } from '../js/options.js';
+import { allopt } from '../js/optlist_data.js';
 import {
     EXT_ENCUMBER,
     GPCOORDS_COMPASS,
@@ -240,14 +241,17 @@ test('pickup_burden parsing follows optfn_pickup_burden switch', () => {
             .configErrorFrame.output.at(-1),
         " * Line 1: Unknown pickup_burden parameter ' stressed'.",
     );
-    // optlist.h:573 gives the option negateok No, so parseoptions() rejects
-    // every negated spelling before optfn_pickup_burden() runs.
+    // optlist.h:573 gives the option negateok No, so parseoptions() answers
+    // every negated spelling with bad_negation() before optfn_pickup_burden()
+    // runs, and the default the handler never replaced survives.
     for (const rc of ['OPTIONS=!pickup_burden', 'OPTIONS=!pickup_burden:l']) {
-        assert.throws(
-            () => parseNethackrc(rc),
-            /negated compound option 'pickup_burden'/u,
-            rc,
-        );
+        const negated = parseNethackrc(rc);
+        assert.equal(negated.flags.pickup_burden, MOD_ENCUMBER, rc);
+        assert.deepEqual(negated.configErrorFrame.output, [
+            `\n${rc}`,
+            ' * Line 1: The pickup_burden option may not both have a value'
+            + ' and be negated.',
+        ], rc);
     }
 });
 
@@ -733,10 +737,6 @@ test('pet highlighting preserves the source tty attribute state', () => {
     const plain = parseNethackrc('OPTIONS=petattr:none');
     assert.equal(plain.iflags.wc_hilite_pet, false);
     assert.equal(plain.iflags.wc2_petattr, ATR_NONE);
-    assert.deepEqual(
-        parseNethackrc('OPTIONS=!petattr').iflags,
-        plain.iflags,
-    );
 
     const reenabled = parseNethackrc(
         'OPTIONS=hilite_pet,petattr:none',
@@ -757,10 +757,21 @@ test('pet highlighting preserves the source tty attribute state', () => {
             invalid,
         );
     }
-    assert.throws(
-        () => parseNethackrc('OPTIONS=!petattr:bold'),
-        /negated petattr cannot have a value/u,
-    );
+    // optlist.h:568-569 gives petattr negateok No, so parseoptions() answers
+    // every negated spelling with bad_negation() and optfn_petattr()'s own
+    // negation arms -- its bad_negation() and the ATR_NONE default it stores
+    // for a negated spelling with no value -- never run from a configuration
+    // file.  The defaults therefore survive untouched.
+    const untouched = parseNethackrc('');
+    for (const rc of ['OPTIONS=!petattr', 'OPTIONS=!petattr:bold']) {
+        const refused = parseNethackrc(rc);
+        assert.deepEqual(refused.iflags, untouched.iflags, rc);
+        assert.deepEqual(refused.configErrorFrame.output, [
+            `\n${rc}`,
+            ' * Line 1: The petattr option may not both have a value and be'
+            + ' negated.',
+        ], rc);
+    }
 });
 
 test('menu command options preserve source alias order and require full names', () => {
@@ -871,10 +882,16 @@ OPTIONS=menu_last_page:\m\x23`);
             key,
         );
     }
-    assert.throws(
-        () => parseNethackrc('OPTIONS=!menu_search:#'),
-        /may not be negated/u,
-    );
+    // Every menu command option's optlist.h negateok is No, so parseoptions()
+    // answers this with bad_negation() and spcfn_misc_menu_cmd()'s own
+    // negation arm (options.c:5458-5460) never runs from a configuration file.
+    const negated = parseNethackrc('OPTIONS=!menu_search:#');
+    assert.equal(negated.iflags.mapped_menu_cmds, '');
+    assert.deepEqual(negated.configErrorFrame.output, [
+        '\nOPTIONS=!menu_search:#',
+        ' * Line 1: The menu_search option may not both have a value and be'
+        + ' negated.',
+    ]);
 });
 
 test('comma options apply right-to-left and later rc lines apply afterward', () => {
@@ -990,10 +1007,17 @@ test('config and source option names accept valid abbreviations', () => {
     assert.equal(parseNethackrc('OPTIONS=!acoustics').flags.acoustics, false);
 
     // playmode needs five characters because player_selection shares "play".
-    assert.throws(
-        () => parseNethackrc('OPTIONS=play:debug'),
-        /unknown or ambiguous option 'play'/u,
-    );
+    // A too-short abbreviation matches nothing at all rather than reporting
+    // ambiguity: options.c:583-588's "Ambiguous option" arm is unreachable,
+    // because match_optname() has already measured the same length against
+    // the same minmatch and answered false.  So this falls to the last arm,
+    // which quotes the whole statement including its value.
+    const ambiguous = parseNethackrc('OPTIONS=play:debug');
+    assert.equal(ambiguous.playmode, 'normal');
+    assert.deepEqual(ambiguous.configErrorFrame.output, [
+        '\nOPTIONS=play:debug',
+        " * Line 1: Unknown option 'play:debug'.",
+    ]);
 });
 
 test('acoustics value spellings use the source boolean parser', () => {
@@ -1353,10 +1377,16 @@ test('valid unported startup option mappings remain available', () => {
     assert.equal(parsed.flags.soundlib, 'example');
     assert.equal(parsed.flags.s_vwall, '|');
 
+    // 'constructor' is a prototype key rather than an option name, and 'mal'
+    // is one character short of the "male" alias, whose match needs the whole
+    // alias.  Both reach options.c:687-689 with the value still attached.
     for (const unknown of ['extension:value', 'constructor:value', 'mal']) {
-        assert.throws(
-            () => parseNethackrc(`OPTIONS=${unknown}`),
-            /unknown option/u,
+        assert.deepEqual(
+            parseNethackrc(`OPTIONS=${unknown}`).configErrorFrame.output,
+            [
+                `\nOPTIONS=${unknown}`,
+                ` * Line 1: Unknown option '${unknown}'.`,
+            ],
             unknown,
         );
     }
@@ -1554,17 +1584,28 @@ test('prefix options validate their source suffixes', () => {
     assert.equal(enabled.flags.cond_blind, true);
     assert.equal(disabled.flags.cond_blind, false);
 
+    // Each of these reaches a pfx row, either through str_start_is() or,
+    // for the bare prefix name, through match_optname() on the prefix itself.
+    // C then hands it to pfxfn_cond_() or pfxfn_font() and adds "bad option
+    // suffix variation" on top of whatever that reported; neither is ported,
+    // so the parser stops rather than calling it an unknown option.
     for (const invalid of [
+        'cond',
         'cond_',
         'cond_bli',
         'cond_bogus',
         'cond_blind:on',
         'font',
         'fontbogus:value',
+        // str_start_is() is called case-blind, and only that call can match
+        // these two: their lowercased names are longer than the prefix, so
+        // the minmatch arm cannot reach them.
+        'COND_BOGUS',
+        'FONTBOGUS:x',
     ]) {
         assert.throws(
             () => parseNethackrc(`OPTIONS=${invalid}`),
-            /unknown/u,
+            /unported prefix option/u,
             invalid,
         );
     }
@@ -1600,10 +1641,41 @@ test('symbol assignments accept exactly the source symbol catalog', () => {
     assert.equal(symbols.flags.s_vwall, '|');
     assert.equal(symbols.flags.s_hwall, '-');
     assert.equal(symbols.flags.s_armour, '[');
-    for (const invalid of ['s_vwall:|', 'S_bogus:x']) {
-        assert.throws(
-            () => parseNethackrc(`OPTIONS=${invalid}`),
-            /unknown option/u,
+    // 'S_' is checked case-sensitively, so the lowercase spelling never
+    // reaches parsesymbols() and keeps its value in the report.  The
+    // uppercase one does reach it, and parsesymbols() splits the statement in
+    // place at the colon before match_sym() rejects the name, so what
+    // options.c:688 has left to quote is only the part before it.
+    for (const [invalid, reported] of [
+        ['s_vwall:|', 's_vwall:|'],
+        ['S_bogus:x', 'S_bogus'],
+        // With no separator parsesymbols() returns before writing anything.
+        ['S_bogus', 'S_bogus'],
+        // strchr() finds the '=' wherever it sits, including last.
+        ['S_bogus=', 'S_bogus'],
+        // The colon scan stops one character before the end, so a trailing
+        // colon is not a separator and nothing is cut off.
+        ['S_bogus:', 'S_bogus:'],
+        // parsesymbols() runs mungspaces() over the name it split off, which
+        // condenses interior runs and turns a tab into a space first.
+        ['S_bo  gus :x', 'S_bo gus'],
+        ['S_bogus\t:x', 'S_bogus'],
+        // A colon between two quotes is a value, not a separator, which is
+        // what lets S_boulder:':' name the quote character.  With no other
+        // colon and no '=', parsesymbols() gives up before writing anything.
+        ["S_x':'y", "S_x':'y"],
+        // The '=' fallback then splits what the colon scan passed over.
+        ["S_x':'y=z", "S_x':'y"],
+        // Both neighbours have to be quotes: one quote alone leaves the colon
+        // a separator, so the name keeps the quote and loses the value.
+        ["S_bogus':x", "S_bogus'"],
+    ]) {
+        assert.deepEqual(
+            parseNethackrc(`OPTIONS=${invalid}`).configErrorFrame.output,
+            [
+                `\nOPTIONS=${invalid}`,
+                ` * Line 1: Unknown option '${reported}'.`,
+            ],
             invalid,
         );
     }
@@ -1647,10 +1719,21 @@ test('sortloot keeps one letter and refuses every other spelling', () => {
 
     // optlist.h gives sortloot negateok No, so parseoptions() answers a
     // negation with bad_negation() before optfn_sortloot() runs, whatever
-    // value follows.  That check is a config error in C too, but the port
-    // still stops on it.
-    assert.throws(() => parseNethackrc('OPTIONS=!sortloot:none\n'),
-        /negated compound option 'sortloot'/u);
+    // value follows, and the 'l' default survives.  bad_negation() names the
+    // allopt[] row rather than the spelling the statement used, so an
+    // abbreviation is reported under the full option name.
+    for (const [line, statement] of [
+        ['OPTIONS=!sortloot:none\n', '!sortloot:none'],
+        ['OPTIONS=nosortl\n', 'nosortl'],
+    ]) {
+        const parsed = parseNethackrc(line);
+        assert.equal(parsed.flags.sortloot, 'l', line);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\nOPTIONS=${statement}`,
+            ' * Line 1: The sortloot option may not both have a value and be'
+            + ' negated.',
+        ], line);
+    }
 });
 
 // C ref: cfgfiles.c config_erradd() (1543-1589) and config_error_done()
@@ -1707,6 +1790,144 @@ test('an overlong first line is reported without a line number', () => {
     assert.equal(config_error_done(parsed.configErrorFrame, {}), 1);
     assert.equal(parsed.configErrorFrame.output.at(-1),
         '\n1 error in .nethackrc.\n');
+});
+
+// C ref: options.c parseoptions():520-524, `strlen(opts) > BUFSZ / 2`.  The
+// limit is measured per comma-separated element, on the bytes as the file
+// spelled them, before leading and trailing whitespace is stripped.
+test('an over-long option element is reported and the rest of the line runs',
+    () => {
+        // BUFSZ is 256, so an element of 128 bytes is the longest accepted
+        // one and 129 is the shortest rejected one.  Neither spelling names
+        // an option, so the accepted one falls through to the unknown-option
+        // report, which is how the two are told apart.
+        const accepted = parseNethackrc(`OPTIONS=${'z'.repeat(128)}\n`);
+        assert.deepEqual(accepted.configErrorFrame.output.at(-1),
+            ` * Line 1: Unknown option '${'z'.repeat(128)}'.`);
+        const rejected = parseNethackrc(`OPTIONS=${'z'.repeat(129)}\n`);
+        assert.deepEqual(rejected.configErrorFrame.output.at(-1),
+            ' * Line 1: Option too long, max length is 128 characters.');
+
+        // strlen() counts bytes, so 64 two-byte characters reach the limit
+        // exactly and 65 pass it.
+        const twoByte = 'é';
+        assert.deepEqual(
+            parseNethackrc(`OPTIONS=${twoByte.repeat(65)}\n`)
+                .configErrorFrame.output.at(-1),
+            ' * Line 1: Option too long, max length is 128 characters.',
+        );
+        assert.deepEqual(
+            parseNethackrc(`OPTIONS=${twoByte.repeat(64)}\n`)
+                .configErrorFrame.output.at(-1),
+            ` * Line 1: Unknown option '${twoByte.repeat(64)}'.`,
+        );
+
+        // The recursion into the comma suffix has already run by the time the
+        // length is measured, so the other elements still apply, and the
+        // whitespace an element carries counts toward its length: 125 spaces
+        // plus "time" is 129 bytes, so flags.time keeps its compiled-in
+        // default while the element after the comma is set.
+        const padded = `${' '.repeat(125)}time`;
+        const mixed = parseNethackrc(`OPTIONS=${padded},sortloot:full\n`);
+        assert.equal(mixed.flags.sortloot, 'f');
+        assert.equal(mixed.flags.time, parseNethackrc('').flags.time);
+        assert.deepEqual(mixed.configErrorFrame.output, [
+            `\nOPTIONS=${padded},sortloot:full`,
+            ' * Line 1: Option too long, max length is 128 characters.',
+        ]);
+    });
+
+// C ref: options.c parseoptions():526-538, which strips leading and trailing
+// whitespace and reports what is left of an element that held only that.
+test('an empty option element is its own configuration error', () => {
+    for (const line of ['OPTIONS=', 'OPTIONS=   ', 'OPTIONS=\t']) {
+        assert.deepEqual(
+            parseNethackrc(`${line}\n`).configErrorFrame.output,
+            [`\n${line.trimEnd()}`, ' * Line 1: Empty statement.'],
+            line,
+        );
+    }
+    // Every empty element on a line is reported, right to left, and the
+    // elements around them still apply.
+    const between = parseNethackrc('OPTIONS=time,,sortloot:full\n');
+    assert.equal(between.flags.time, true);
+    assert.equal(between.flags.sortloot, 'f');
+    assert.deepEqual(between.configErrorFrame.output, [
+        '\nOPTIONS=time,,sortloot:full',
+        ' * Line 1: Empty statement.',
+    ]);
+});
+
+// C ref: options.c parseoptions():625-629 over bad_negation() (6692-6697).
+// The message names allopt[matchidx].name, the row the match landed on, not
+// the spelling the statement used.
+test('bad_negation names the matched option row, not the spelling used', () => {
+    // optlist.h:206-208 is the non-MSDOS arm of BIOS, whose negateok is No.
+    // It is the one option that both refuses negation and carries uppercase
+    // letters, so it is what proves the report is not the folded lookup key.
+    for (const spelling of ['!BIOS', '!bios', 'noBIO']) {
+        assert.deepEqual(
+            parseNethackrc(`OPTIONS=${spelling}\n`).configErrorFrame.output,
+            [
+                `\nOPTIONS=${spelling}`,
+                ' * Line 1: The BIOS option may not both have a value and be'
+                + ' negated.',
+            ],
+            spelling,
+        );
+    }
+    // with_parameter is TRUE at that call site whatever the statement holds,
+    // so a spelling with no value still reads "may not both have a value".
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=!versinfo\n').configErrorFrame.output.at(-1),
+        ' * Line 1: The versinfo option may not both have a value and be'
+        + ' negated.',
+    );
+    // An option whose negateok is Yes reaches its handler instead.
+    assert.equal(parseNethackrc('OPTIONS=!msg_window\n')
+        .iflags.prevmsg_window, 's');
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=!msg_window\n').configErrorFrame.output, [],
+    );
+});
+
+// C ref: options.c parseoptions():625-629.  The check is table-driven, so the
+// whole allopt[] table is what it has to answer for, not the handful of
+// options a handler happens to have a test of its own for.
+test('every option that refuses negation is answered from allopt[]', () => {
+    // The two pfx rows never reach the check through this parser, and the two
+    // OthrOpt rows whose names carry a space are menu entries rather than
+    // configuration statements.
+    const rows = allopt.filter(
+        (row) => !row.pfx && !row.name.includes(' '),
+    );
+    // Five negateok Yes rows reach a handler this port has not finished, all
+    // for reasons that predate the negation check: negated role, race, gender
+    // and alignment build the role filter options.c optfn_role() keeps in
+    // gr.rfilter, and negated hilite_status clears the rule list.
+    const unported = new Set([
+        'role', 'race', 'gender', 'alignment', 'hilite_status',
+    ]);
+    let refused = 0;
+    for (const row of rows) {
+        if (unported.has(row.name)) continue;
+        const parsed = parseNethackrc(`OPTIONS=!${row.name}\n`);
+        const reported = parsed.configErrorFrame.output.at(-1) ?? '';
+        const badNegation = ' * Line 1: The '
+            + `${row.name} option may not both have a value and be negated.`;
+        if (row.negateok) {
+            assert.notEqual(reported, badNegation, row.name);
+        } else {
+            assert.equal(reported, badNegation, row.name);
+            refused += 1;
+        }
+    }
+    // A guard that answered nothing would satisfy the loop above for every
+    // negateok Yes row, so pin how many rows the table actually refuses.
+    assert.equal(refused, rows.filter(
+        (row) => !row.negateok && !unported.has(row.name),
+    ).length);
+    assert.ok(refused > 50, `only ${refused} rows refused negation`);
 });
 
 // C ref: options.c optfn_msg_window()'s do_set arm under PREV_MSGS, which is

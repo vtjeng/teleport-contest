@@ -5313,9 +5313,15 @@ test('standalone SYMBOLS validates but does not apply G_* customizations', () =>
         ),
         null,
     );
-    assert.throws(
-        () => parseNethackrc('OPTIONS=G_fountain:U+2603'),
-        /unknown option/u,
+    // parseoptions() checks for the "S_" prefix case-sensitively before it
+    // calls parsesymbols(), so a G_ statement never reaches match_glyph()
+    // there and keeps its whole text in the report.
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=G_fountain:U+2603').configErrorFrame.output,
+        [
+            '\nOPTIONS=G_fountain:U+2603',
+            " * Line 1: Unknown option 'G_fountain:U+2603'.",
+        ],
     );
 });
 

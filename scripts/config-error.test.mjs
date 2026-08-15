@@ -191,3 +191,73 @@ test('a segment with a bad option value reports it and plays on', async () => {
         assert.ok(replay.getRngLog().length > 0);
     });
 });
+
+// C ref: options.c parseoptions() (489-693), whose own four configuration
+// errors sit before, around and after the option handler: the length limit
+// (520-524), "Empty statement" (526-538), bad_negation() (625-629) and
+// "Unknown option" (687-689).  This rc trips all four in one read; a fresh
+// differential at seed 6620941, 19910802143000 over exactly these lines
+// matched C on all 2,522 random-number calls, all nine screens and all nine
+// cursors, save the summary path no segment input can supply.
+test('a segment with parseoptions errors reports all four and plays on',
+    async () => {
+        const nethackrc = [
+            'OPTIONS=name:Ferrum',
+            'OPTIONS=role:Valkyrie,race:human,gender:female,align:neutral',
+            // 129 bytes, one past BUFSZ / 2.
+            `OPTIONS=${'a'.repeat(129)}`,
+            'OPTIONS=',
+            // optlist.h gives sortloot negateok No.
+            'OPTIONS=!sortloot:none',
+            'OPTIONS=zorkmid:yes',
+            // Two unknown elements on one line, to pin the reporting order.
+            'OPTIONS=alpha,beta:1',
+            '',
+        ].join('\n');
+
+        await withSerializedGrids(async () => {
+            const replay = await runSegment({
+                seed: SEED,
+                datetime: DATETIME,
+                nethackrc,
+                moves: '\n',
+            });
+            const screens = replay.getScreens()
+                .map((screen) => JSON.parse(screen));
+            const reported = screens[0].map(
+                (row) => row.map((cell) => cell.ch).join('').replace(/ +$/u, ''),
+            );
+            assert.deepEqual(reported.slice(0, 19), [
+                '',
+                // tty_raw_print() drops what runs past the last column, so the
+                // echoed line stops at 80 characters.
+                `OPTIONS=${'a'.repeat(72)}`,
+                ' * Line 3: Option too long, max length is 128 characters.',
+                '',
+                'OPTIONS=',
+                ' * Line 4: Empty statement.',
+                '',
+                'OPTIONS=!sortloot:none',
+                ' * Line 5: The sortloot option may not both have a value and'
+                + ' be negated.',
+                '',
+                'OPTIONS=zorkmid:yes',
+                " * Line 6: Unknown option 'zorkmid:yes'.",
+                '',
+                'OPTIONS=alpha,beta:1',
+                // parseoptions() recurses into the comma suffix before it
+                // handles the current element, so the rightmost is first.
+                " * Line 7: Unknown option 'beta:1'.",
+                " * Line 7: Unknown option 'alpha'.",
+                '',
+                '6 errors in .nethackrc.',
+                '',
+            ]);
+
+            // The name and character lines before the errors still applied,
+            // and the game reached level generation after the Return.
+            assert.ok(replay.getRngLog().length > 0);
+            assert.ok(screens.length >= 2, `only ${screens.length} screens`);
+            assert.notDeepEqual(screens[1], screens[0]);
+        });
+    });
