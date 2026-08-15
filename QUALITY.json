@@ -3143,6 +3143,15 @@
       "status": "open",
       "from": "b0b2a78b12e002c514496c347dc0a6ee84a5c893",
       "detail": "js/options.js count_status_hilites() at :3403 throws UnsupportedOptionMenuError as soon as any hilite rule exists, and two option-menu readers call it: the hilite_status row at :3544 and o_status_hilites at :3689. So an rc that sets hilite_status and then opens the options menu still loses the whole segment, one function past the parser b0b2a78 fixed. Closing it needs botl.c count_status_hilites()'s gather pass, which the port already reaches, and no unported C. It is the live successor to status-hilite-rules-still-fail-closed, which reported it."
+    },
+    {
+      "id": "negated-boolean-with-parameter-still-fail-closed",
+      "area": "startup",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "95b3384e7c13642f3091df2ebc05930576b80b7c",
+      "detail": "js/options.js booleanValue() throws optionError() for the no-blank negated spelling OPTIONS=!legacy:on, where options.c optfn_boolean():5218-5222 reports \"Negated boolean '%s' should not have a parameter\" and returns optn_silenterr, so C reads the rest of the file. The blank spelling OPTIONS=! legacy:on stopped reaching that throw at 95b3384, because the leading blank now fails match_optname(), which leaves this entry covering the no-blank spelling alone. Closing it needs no unported C. Found by the parseoptions-negation-prefix-skips-whitespace worker and covered by no entry open at that time."
     }
   ],
   "areas": [
