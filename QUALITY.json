@@ -3167,9 +3167,15 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "db59c7e24219a007d527abbc782f9ddd4a94b808",
-      "detail": "js/options.js applyOption()'s compound arm tests value != null, so a CompOpt statement ending in a separator is treated as carrying a value: OPTIONS=symset: stores the empty string and OPTIONS=statuslines: throws optionError() out of runSegment(), losing the whole segment. C's string_for_opt() at options.c:6672 answers empty_optstr for both !colon and !*++colon, so the handler reports Missing parameter and the game reads on. This is the same defect 8b99f58 fixed for BoolOpt rows, one option type over, and it is the known remaining instance of the shape this goal exists to remove. Closing it needs no unported C for the rows whose handlers are ported; the fix agent left the arm alone because it also covers CompOpt handlers this port has not ported and it had no C evidence for those."
+      "detail": "js/options.js applyOption()'s compound arm tests value != null, so a CompOpt statement ending in a separator is treated as carrying a value: OPTIONS=symset: stores the empty string and OPTIONS=statuslines: throws optionError() out of runSegment(), losing the whole segment. C's string_for_opt() at options.c:6672 answers empty_optstr for both !colon and !*++colon, so the handler reports Missing parameter and the game reads on. This is the same defect 8b99f58 fixed for BoolOpt rows, one option type over, and it is the known remaining instance of the shape this goal exists to remove. Closing it needs no unported C for the rows whose handlers are ported; the fix agent left the arm alone because it also covers CompOpt handlers this port has not ported and it had no C evidence for those.",
+      "notes": [
+        {
+          "text": "The record understates the defect and names the wrong arm as its whole extent. Driving parseNethackrc() over every CompOpt row with setwhere <= 4 at b4c1fc7 throws for 18 distinct names, not two: 14 for OPTIONS=<name>, 14 for OPTIONS=<name>:, and 12 for OPTIONS=<name>:zqxj. applyOption()'s compound arm accounts for statuslines alone; the other 17 throw from dedicated arms above it, and optionError() throws a plain Error that runSegment()'s catch rethrows, so each of those sessions emitted zero screens. C throws for none of them. The fix ports the do_set arm of optfn_playmode, optfn_name, optfn_role, optfn_race, optfn_gender and optfn_alignment through parse_role_opt(), optfn_catname, optfn_dogname and optfn_horsename through petname_optfn(), optfn_fruit, optfn_menu_headings, optfn_number_pad, optfn_petattr, optfn_pettype, optfn_pile_limit, optfn_runmode, optfn_statuslines and optfn_whatis_coord, plus string_for_opt()'s val_optional parameter and coloratt.c color_attr_parse_str(). The entry's OPTIONS=symset: example closes with it: optfn_symset(), optfn_roguesymset() and optfn_suppress_alert() all do nothing for an empty value.",
+          "at": "87aea385fa99030cb985cb50875e2ceeabc07bc2"
+        }
+      ]
     },
     {
       "id": "boolean-options-store-outside-their-c-address",
@@ -3185,6 +3191,24 @@
           "at": "b4c1fc75a3e2c7ff8bbe0eb6ce7f93fddf2b334b"
         }
       ]
+    },
+    {
+      "id": "negated-compound-option-still-fail-closed",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "87aea385fa99030cb985cb50875e2ceeabc07bc2",
+      "detail": "js/options.js applyOption()'s compound arm still throws optionError() for a negated CompOpt statement that carries a value, which runSegment()'s catch rethrows, so such a session emits zero screens. Driving parseNethackrc() over OPTIONS=!<name>:zqxj for every CompOpt row with negateok Yes and setwhere <= 4 throws for 27 of the 41: align_message, autounlock, disclose, the nine font_ and font_size_ rows, map_mode, menu_objsyms, menustyle, msghistory, paranoid_confirmation, perminv_mode, scroll_amount, scroll_margin, sortdiscoveries, sortvanquished, tile_height, tile_width, whatis_filter, windowborders. The other 14 have ported handlers as of this entry. No one answer covers the 27: optfn_align_message() reports bad_negation() and returns optn_err, while optfn_whatis_filter() ignores the value and sets GFILTER_NONE with no message, so each handler's do_set arm has to be read."
+    },
+    {
+      "id": "parseoptions-duplicate-detection-unported",
+      "area": "startup",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "87aea385fa99030cb985cb50875e2ceeabc07bc2",
+      "detail": "options.c parseoptions():621-623 calls duplicate_opt_detection(matchidx), which returns allopt[matchidx].dupdetected++ while go.opt_initial and go.opt_from_file both hold, and reports through complain_about_duplicate() for any row whose optlist.h dupeok is No. js/options.js keeps no such counter: optionState.seen covers role, race, gender and alignment alone, for parse_role_opt()'s own duplicate arm. A fresh C recording at this entry's commit shows the gap directly: an rc holding OPTIONS=menu_headings then OPTIONS=menu_headings: reports 'compound option specified multiple times: menu_headings.' before the second statement's own message, and the port reports only the second. Three such pairs made C count nine errors where the port counted six, which shifts config_error_done()'s summary row as well. optfn_playmode() reads the same flag -- 'if (duplicate || negated) return optn_err' -- so a second playmode statement is applied here where C refuses it. Closing it needs a per-row counter in parseNethackrc()'s optionState, one call in applyOption() ahead of the dispatch, and the message complain_about_duplicate() builds from the row's opttyp."
     }
   ],
   "areas": [

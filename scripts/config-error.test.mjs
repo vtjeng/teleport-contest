@@ -7,6 +7,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { RUN_CRAWL, RUN_TPORT } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
@@ -618,8 +619,9 @@ test('a boolean value C cannot read reports and sets nothing', () => {
 
 // global.h enum optset_restrictions.  optfn_boolean():5207 retreats on this
 // one for the whole of a configuration-file read, because go.opt_initial is
-// true throughout.
+// true throughout, and doset() walks the rows up to set_in_config.
 const SET_WIZNOFUZ = 6;
+const SET_IN_CONFIG = 4;
 
 // The three exits optfn_boolean() takes before `*(allopt[optidx].addr)` that
 // report nothing at all: a row whose #ifdef arm compiled its storage away
@@ -808,5 +810,194 @@ test('a gender statement too long to match its own name falls through', () => {
         assert.equal(parsed.flags.female, female, statement);
         assert.equal(parsed.flags.initgend, initgend, statement);
         assert.equal(parsed.gender, initgend, statement);
+    }
+});
+
+// C ref: options.c parseoptions() (639-644) over every CompOpt row it can
+// dispatch from a configuration file.  Nothing a handler does with a value it
+// cannot read may end the read: C's worst answer is optn_silenterr, which
+// parseoptions() turns into a discarded FALSE.
+test('no compound option ends the read over a value C rejects', () => {
+    // setwhere above set_in_config is a row parse_config_line() never reaches,
+    // so the sweep covers exactly the rows a configuration file can name.
+    const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
+                                           && option.setwhere <= SET_IN_CONFIG);
+    assert.equal(rows.length, 95);
+    for (const row of rows) {
+        for (const suffix of [
+            // No separator at all, which string_for_opt() and
+            // length_without_val() answer for alike.
+            '',
+            // A separator that ends the statement: the same empty_optstr,
+            // reached the other way.
+            ':',
+            // Four bytes no option's value grammar accepts.
+            ':zqxj',
+        ]) {
+            const statement = `OPTIONS=${row.name}${suffix}`;
+            const parsed = parseNethackrc(`${statement}\n`);
+            // Every message belongs to this statement, and the read reached
+            // the end of the file rather than stopping inside it.
+            for (const line of parsed.configErrorFrame.output) {
+                assert.equal(
+                    line.startsWith('\n') || line.startsWith(' * Line 1: '),
+                    true,
+                    `${statement}: ${line}`,
+                );
+            }
+        }
+    }
+});
+
+// C ref: options.c petname_optfn() (846-873), the do_set arm optfn_catname(),
+// optfn_dogname() and optfn_horsename() share.  `op == empty_optstr` returns
+// optn_err without a message, because parseoptions() already read the value
+// with val_optional TRUE and the handler asks for no second copy.
+test('a pet-name option with no value is refused in silence', () => {
+    const untouched = parseNethackrc('');
+    for (const field of ['catname', 'dogname', 'horsename']) {
+        for (const suffix of ['', ':']) {
+            const statement = `OPTIONS=${field}${suffix}`;
+            const parsed = parseNethackrc(`${statement}\n`);
+            assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+            assert.equal(parsed[field], untouched[field], statement);
+        }
+        // The two spellings C reads as "no name" clear it, and any other
+        // value is kept, so the refusal above is the only silent one.
+        assert.equal(
+            parseNethackrc(`OPTIONS=${field}:none\n`)[field], '', field,
+        );
+        assert.equal(
+            parseNethackrc(`OPTIONS=${field}:Rex\n`)[field], 'Rex', field,
+        );
+    }
+});
+
+// C ref: options.c optfn_pettype() (3196-3227), its do_set arm.  val_optional
+// is the negation, so only a positive statement has to carry a value, and the
+// negation is otherwise ignored rather than refused.
+test('pettype reads its value whether or not the statement is negated', () => {
+    const missing = parseNethackrc('OPTIONS=pettype\n');
+    assert.deepEqual(missing.configErrorFrame.output, [
+        '\nOPTIONS=pettype',
+        " * Line 1: Missing parameter for 'pettype'.",
+    ]);
+    assert.equal(missing.preferred_pet, '');
+
+    // A negated statement with no value is the "no pet" arm and reports
+    // nothing, because val_optional is the negation; one that carries a value
+    // reaches the switch, which never consults the negation.
+    const negatedBare = parseNethackrc('OPTIONS=!pettype\n');
+    assert.deepEqual(negatedBare.configErrorFrame.output, []);
+    assert.equal(negatedBare.preferred_pet, 'n');
+    const negatedDog = parseNethackrc('OPTIONS=!pettype:dog\n');
+    assert.deepEqual(negatedDog.configErrorFrame.output, []);
+    assert.equal(negatedDog.preferred_pet, 'd');
+
+    // The rejection's format string ends in a period of its own, so
+    // config_erradd() appends none and the message carries exactly one.
+    const rejected = parseNethackrc('OPTIONS=pettype:zqxj\n');
+    assert.deepEqual(rejected.configErrorFrame.output, [
+        '\nOPTIONS=pettype:zqxj',
+        " * Line 1: Unrecognized pet type 'zqxj'.",
+    ]);
+    assert.equal(rejected.preferred_pet, '');
+});
+
+// C ref: options.c optfn_runmode() (3626-3654), its do_set arm.  The negation
+// is tested before the value, so a negated statement never needs one, and the
+// missing-value message is the handler's own rather than string_for_opt()'s.
+test('runmode answers its negation before it looks for a value', () => {
+    const defaults = parseNethackrc('');
+    for (const statement of ['OPTIONS=!runmode', 'OPTIONS=!runmode:walk']) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+        assert.equal(parsed.flags.runmode, RUN_TPORT, statement);
+    }
+    for (const [statement, reported] of [
+        ['OPTIONS=runmode', ' * Line 1: Value is mandatory for runmode.'],
+        ['OPTIONS=runmode:', ' * Line 1: Value is mandatory for runmode.'],
+        ['OPTIONS=runmode:zqxj',
+            " * Line 1: Unknown runmode parameter 'zqxj'."],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            reported,
+        ], statement);
+        assert.equal(parsed.flags.runmode, defaults.flags.runmode, statement);
+    }
+
+    // str_start_is() is called case-blind, and the value is the shorter side:
+    // any prefix of a mode's name selects it whatever its case.
+    for (const [value, mode] of [
+        ['TELE', RUN_TPORT], ['Crawl', RUN_CRAWL],
+    ]) {
+        const parsed = parseNethackrc(`OPTIONS=runmode:${value}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], value);
+        assert.equal(parsed.flags.runmode, mode, value);
+    }
+});
+
+// C ref: options.c optfn_name() (2548-2564), its do_set arm.  The value is
+// mandatory and the handler adds nothing to string_for_opt()'s report.
+test('a name option with no value reports and leaves plname alone', () => {
+    for (const statement of ['OPTIONS=name', 'OPTIONS=name:']) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            ' * Line 1: Missing parameter for'
+            + ` '${statement.slice('OPTIONS='.length)}'.`,
+        ], statement);
+        assert.equal(parsed.name, '', statement);
+    }
+    assert.equal(parseNethackrc('OPTIONS=name:Bilbo\n').name, 'Bilbo');
+});
+
+// C ref: options.c parse_role_opt() (7904-8016), the grammar all four of
+// role, race, gender and alignment share.  Every exit reports and leaves the
+// aspect unchosen; optfn_role() and its three siblings turn the FALSE into
+// optn_silenterr without adding a message of their own.
+test('the role grammar reports each refusal and chooses nothing', () => {
+    const defaults = parseNethackrc('');
+    for (const [statement, reported] of [
+        // string_for_env_opt(fullname, opts, FALSE): the value is mandatory,
+        // and the message quotes the statement, not the option's name.
+        ['OPTIONS=role', " * Line 1: Missing parameter for 'role'."],
+        ['OPTIONS=role:', " * Line 1: Missing parameter for 'role:'."],
+        // A value that is nothing but negation prefixes.
+        ['OPTIONS=race:!', " * Line 1: Negated nothing for 'race'."],
+        ['OPTIONS=gender:no', " * Line 1: Negated nothing for 'gender'."],
+        // A second value that disagrees with the first about negation.  The
+        // message repeats the leading '!' when the statement carried one.
+        ['OPTIONS=role:Sam !Val',
+            " * Line 1: Invalid mixed negation for 'role'."],
+        ['OPTIONS=!role:!Sam !Val',
+            " * Line 1: Invalid mixed negation for '!role'."],
+        // Two positive values, which C accepts only as a negated list.
+        ['OPTIONS=role:Sam Val',
+            ' * Line 1: Multiple role values only allowed when list is'
+            + ' negated.'],
+        // setrolefilter() refuses the value, which reports through the
+        // filter's own message rather than the handler's.
+        ['OPTIONS=alignment:!zqxj',
+            " * Line 1: Invalid alignment 'zqxj'."],
+        // str2<aspect>() refuses it, which is the handler's own message and
+        // names allopt[].name -- "alignment", not the shorter "align" the
+        // statement may have spelled or the field the port writes.
+        ['OPTIONS=align:zqxj', " * Line 1: Unknown alignment 'zqxj'."],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            reported,
+        ], statement);
+        assert.deepEqual(
+            [parsed.flags.initrole, parsed.flags.initrace,
+                parsed.flags.initgend, parsed.flags.initalign],
+            [defaults.flags.initrole, defaults.flags.initrace,
+                defaults.flags.initgend, defaults.flags.initalign],
+            statement,
+        );
     }
 });

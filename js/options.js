@@ -637,7 +637,7 @@ function splitNameAndValue(statement) {
     if (nameLength === statement.length) return { name: statement, value: null };
     return {
         name: statement.slice(0, nameLength),
-        value: string_for_opt(statement),
+        value: string_for_opt(statement, true),
     };
 }
 
@@ -729,12 +729,6 @@ function booleanValue(result, row, statement, value, negated) {
         return null;
     }
     return !negated;
-}
-
-function requireValue(value, optionName, negated, lineNumber) {
-    if (negated) optionError(lineNumber, `${optionName} filters are not supported`);
-    if (!value) optionError(lineNumber, `${optionName} requires a value`);
-    return value;
 }
 
 const CHARACTER_OPTIONS = Object.freeze({
@@ -836,17 +830,35 @@ function stripValueNegation(value) {
     return { token, negated };
 }
 
-// C ref: options.c parse_role_opt() and optfn_role/race/gender/alignment().
+// C ref: options.c parse_role_opt() (7904-8016), the shared body of
+// optfn_role() (3588-3623), optfn_race() (3506-3547), optfn_gender()
+// (1776-1817) and optfn_alignment() (884-925).  This covers everything the
+// four reach from a configuration file, which is their whole do_set arm; the
+// get_val and get_cnf_val requests belong to the options menu.
+//
+// Every message C writes here leaves the file being read, so this reports and
+// returns rather than throwing.  Each return is one of C's two failure exits
+// and they are indistinguishable from applyOption(): parse_role_opt() answering
+// FALSE becomes optn_silenterr and the unknown-value arm becomes optn_err, and
+// parseoptions() turns both into a discarded FALSE for a row whose optlist.h
+// pfx is false, which all four of these are.
+//
+// C's `duplicate` is allopt[optidx].dupdetected, which parseoptions():621 sets
+// for every option; optionState.seen is this port's copy of it for these four
+// names alone.  parseoptions():623 also reports every duplicate before the
+// handler runs, which is unported.
 function setCharacterOption(
-    result, optionState, optionName, value, negated, lineNumber,
+    result, optionState, optionName, statement, negated,
 ) {
-    if (!value) optionError(lineNumber, `${optionName} requires a value`);
+    // parse_role_opt():7935 reads the value with
+    // string_for_env_opt(fullname, opts, FALSE), whose mandatory parameter is
+    // what reports a statement that carries none.  `ok` stays FALSE, so the
+    // handler answers optn_silenterr without a second message.
+    const op = string_for_env_opt(statement, false, result);
+    if (op === '') return;
 
-    const normalized = String(value).trim().replace(/[\t ]+/gu, ' ');
-    if (!normalized) {
-        optionError(lineNumber, `${optionName} requires a value`);
-    }
-    const values = normalized.split(' ');
+    const normalized = mungspaces(op);
+    const values = normalized ? normalized.split(' ') : [];
     const duplicate = optionState.seen.has(optionName);
     optionState.seen.add(optionName);
     let previousValueNegated = false;
@@ -858,21 +870,25 @@ function setCharacterOption(
         const token = valueNegation.token;
         const valueNegated = valueNegation.negated;
         if (!token) {
-            optionError(lineNumber, `negated nothing for '${optionName}'`);
+            configErrorAdd(result, `Negated nothing for '${optionName}'`);
+            return;
         }
         if (index > 0) {
             if ((valueNegated !== previousValueNegated)
                 || (negated && valueNegated)) {
-                optionError(
-                    lineNumber,
-                    `invalid mixed negation for '${negated ? '!' : ''}${optionName}'`,
+                configErrorAdd(
+                    result,
+                    'Invalid mixed negation for'
+                    + ` '${negated ? '!' : ''}${optionName}'`,
                 );
+                return;
             }
             if (!negated && !valueNegated) {
-                optionError(
-                    lineNumber,
-                    'multiple role values only allowed when list is negated',
+                configErrorAdd(
+                    result,
+                    'Multiple role values only allowed when list is negated',
                 );
+                return;
             }
         }
         previousValueNegated = valueNegated;
@@ -883,10 +899,10 @@ function setCharacterOption(
                 clearRoleFilter(result.roleFilter, optionName);
             }
             if (!setRoleFilter(result.roleFilter, token)) {
-                optionError(
-                    lineNumber,
-                    `invalid ${optionName} '${token}'`,
+                configErrorAdd(
+                    result, `Invalid ${optionName} '${token}'`,
                 );
+                return;
             }
             optionState.values[optionName] = roleFilterString(
                 result.roleFilter, optionName,
@@ -894,10 +910,13 @@ function setCharacterOption(
             filtered = true;
         } else {
             if (duplicate && prior?.startsWith('!')) {
-                optionError(
-                    lineNumber,
+                // complain_about_duplicate(), which names the row's opttyp
+                // and its name; all four rows are CompOpt.
+                configErrorAdd(
+                    result,
                     `compound option specified multiple times: ${optionName}`,
                 );
+                return;
             }
             optionState.values[optionName] = token;
             selectedValue = token;
@@ -905,14 +924,19 @@ function setCharacterOption(
         }
     }
 
+    // C's `if (*op != '!')`: parse_role_opt() leaves *opp pointing at the
+    // literal "!" once any value in the list was negated, so a filter skips
+    // the handler's own str2<aspect>() lookup.
     if (filtered) return;
     const choice = CHARACTER_OPTIONS[optionName];
     const parsed = choice.parser(selectedValue);
     if (parsed === ROLE_NONE) {
-        optionError(
-            lineNumber,
-            `unknown ${choice.resultField} '${selectedValue}'`,
+        // C's "Unknown %s '%s'" names allopt[optidx].name, so alignment
+        // reports "alignment" rather than the shorter field it writes.
+        configErrorAdd(
+            result, `Unknown ${optionName} '${selectedValue}'`,
         );
+        return;
     }
     result[choice.resultField] = parsed;
     result.flags[choice.flagField] = parsed;
@@ -921,9 +945,18 @@ function setCharacterOption(
     }
 }
 
-function setPlaymode(result, value, negated, lineNumber) {
-    const mode = requireValue(value, 'playmode', negated, lineNumber)
-        .toLowerCase();
+// C ref: options.c optfn_playmode() (3470-3499), its do_set arm.  The handler
+// reads the value parseoptions() already found rather than asking for one of
+// its own, so a statement with no value is refused with no message at all.
+//
+// Two of C's three refusals cannot fire from a configuration file.  optlist.h
+// gives playmode negateok No, so parseoptions() answers a negated spelling with
+// bad_negation() before the handler runs; and `duplicate` is
+// allopt[optidx].dupdetected, which no part of this port maintains, so a second
+// playmode statement is applied here where C refuses it and reports.
+function setPlaymode(result, value) {
+    if (value == null || value === '') return; /* optn_err, silently */
+    const mode = value.toLowerCase();
     let canonical;
     if (mode.startsWith('normal') || mode === 'play') canonical = 'normal';
     else if (mode.startsWith('explor') || mode.startsWith('discov')) {
@@ -931,20 +964,25 @@ function setPlaymode(result, value, negated, lineNumber) {
     } else if (mode.startsWith('debug') || mode.startsWith('wizard')) {
         canonical = 'debug';
     } else {
-        optionError(lineNumber, `invalid playmode '${value}'`);
+        configErrorAdd(result, `Invalid value for "playmode":${value}`);
+        return;
     }
     result.playmode = canonical;
     result.flags.debug = canonical === 'debug';
     result.flags.explore = canonical === 'explore';
 }
 
-function setPettype(result, value, negated, lineNumber) {
-    if (negated && value == null) {
-        result.preferred_pet = 'n';
+// C ref: options.c optfn_pettype() (3196-3252), its do_set arm.  The value is
+// mandatory only when the statement is not negated, and the negation is
+// otherwise ignored: "!pettype:dog" reaches the switch and selects a dog, the
+// same as "pettype:dog".
+function setPettype(result, statement, negated) {
+    const op = string_for_env_opt(statement, negated, result);
+    if (op === '') {
+        if (negated) result.preferred_pet = 'n';
         return;
     }
-    const pettype = requireValue(value, 'pettype', negated, lineNumber);
-    switch (pettype[0].toLowerCase()) {
+    switch (lowc(op[0])) {
     case 'd': result.preferred_pet = 'd'; break;
     case 'c':
     case 'f': result.preferred_pet = 'c'; break;
@@ -954,7 +992,8 @@ function setPettype(result, value, negated, lineNumber) {
     case 'r':
     case '*': result.preferred_pet = ''; break;
     default:
-        optionError(lineNumber, `unrecognized pet type '${value}'`);
+        // C's format string ends in a period, so config_erradd() adds none.
+        configErrorAdd(result, `Unrecognized pet type '${op}'.`);
     }
 }
 
@@ -978,13 +1017,18 @@ function sanitizePetName(value, eightBitTty) {
     return decodeUtf8ByteString(bytes);
 }
 
+// C ref: options.c petname_optfn() (846-873), the do_set arm shared by
+// optfn_catname() (1248-1254), optfn_dogname() (1562-1568) and
+// optfn_horsename() (1896-1902).
+//
 // optlist.h:221-222, :288-289 and :382-383 give catname, dogname and horsename
 // negateok No, so parseoptions() answers a negated spelling with
-// bad_negation() and none of the three handlers sees one.
-function setPetName(result, field, value, lineNumber) {
-    if (value == null) {
-        optionError(lineNumber, `${field} requires a value`);
-    }
+// bad_negation() and none of the three handlers sees one.  What is left of
+// C's first test is `op == empty_optstr`, which returns optn_err and writes
+// neither a message nor the name: the handler reads the value parseoptions()
+// already found rather than asking for a mandatory one of its own.
+function setPetName(result, field, value) {
+    if (value == null || value === '') return; /* optn_err, silently */
     result[field] = value === 'none' || value === '(none)'
         ? '' : sanitizePetName(value, result.iflags.wc_eight_bit_input);
 }
@@ -996,11 +1040,16 @@ function setPetName(result, field, value, lineNumber) {
 // negated spelling with bad_negation() and optfn_fruit()'s negation arm
 // (options.c:1717-1724), which resets svp.pl_fruit through `goodfruit`, is
 // unreachable from a configuration file.
-function setFruit(result, value, lineNumber) {
-    if (value == null || value === '')
-        optionError(lineNumber, 'fruit requires a value');
+//
+// That negation is also the whole of C's val_optional argument here:
+// `negated || !go.opt_initial` is FALSE for every configuration-file read that
+// gets this far, so the value is mandatory and string_for_opt() reports a
+// statement without one.  The handler adds nothing of its own afterwards.
+function setFruit(result, statement) {
+    const op = string_for_opt(statement, false, result);
+    if (op === '') return;
     result.pl_fruit = normalize_initial_fruit(
-        value,
+        op,
         result.iflags.wc_eight_bit_input,
     );
 }
@@ -1115,6 +1164,48 @@ function menuHeadingColor(token, rawToken = token) {
 function menuHeadingAttribute(token) {
     return Object.hasOwn(MENU_HEADING_ATTRIBUTES, token)
         ? MENU_HEADING_ATTRIBUTES[token] : null;
+}
+
+// C ref: coloratt.c match_str2attr() (373-393).  Null is its -1, the answer
+// its callers read as "not an attribute".  Only a caller that passes complain
+// TRUE reports; color_attr_parse_str() below passes both.
+function match_str2attr(result, str, complain) {
+    const attr = menuHeadingAttribute(menuHeadingToken(str));
+    if (attr === null && complain) {
+        configErrorAdd(result, `Unknown text attribute '${str.slice(0, 50)}'`);
+    }
+    return attr;
+}
+
+// C ref: coloratt.c color_attr_parse_str() (260-299).  Null is its FALSE.
+// Its own comment calls the retry useless because both lookups have already
+// reported, and that is exactly what makes the message order observable: a
+// "color&attribute" pair that matches neither way reports four times, in the
+// order this walk produces them.
+//
+// C splits at the first '&' alone, so "red&bold&underline" asks
+// match_str2attr() about "bold&underline" rather than counting three parts.
+function color_attr_parse_str(result, str) {
+    const amp = str.indexOf('&');
+    if (amp < 0) {
+        /* one param only */
+        const attr = match_str2attr(result, str, false);
+        if (attr !== null) return { attr, color: NO_COLOR };
+        const color = match_str2clr(result, str, false);
+        if (color >= CLR_MAX) return null;
+        return { attr: ATR_NONE, color };
+    }
+    const head = str.slice(0, amp);
+    const tail = str.slice(amp + 1);
+    let color = match_str2clr(result, head, false);
+    let attr = match_str2attr(result, tail, true);
+    if (color >= CLR_MAX && attr === null) {
+        /* try other way around */
+        color = match_str2clr(result, tail, false);
+        attr = match_str2attr(result, head, true);
+    }
+    if (color >= CLR_MAX || attr === null) return null;
+    return { attr, color };
 }
 
 // Null is match_str2attr()'s -1, the answer its two status-highlight callers
@@ -1329,13 +1420,19 @@ function splitsubfields(str, maxsf = 0) {
     return subfields;
 }
 
-// C ref: coloratt.c match_str2clr() (348-371).  Every status-highlight caller
-// passes suppress_msg FALSE, so an unmatched name is reported here and comes
-// back as CLR_MAX for the caller to reject a second time.
-function match_str2clr(result, str) {
+// C ref: coloratt.c match_str2clr() (348-371).  menuHeadingColor() is its
+// table walk and digit fall-back; this adds the report and C's "none of the
+// above" answer, which every caller rejects a second time by comparing against
+// CLR_MAX.  Every status-highlight caller passes suppress_msg FALSE, and
+// color_attr_parse_str() passes FALSE from both of its arms as well, so the
+// suppressing call is the one this port has no caller for -- coloratt.c's own
+// query_color() menu.
+function match_str2clr(result, str, suppress_msg) {
     const color = menuHeadingColor(menuHeadingToken(str), str);
     if (color != null) return color;
-    configErrorAdd(result, `Unknown color '${str.slice(0, 60)}'`);
+    if (!suppress_msg) {
+        configErrorAdd(result, `Unknown color '${str.slice(0, 60)}'`);
+    }
     return CLR_MAX;
 }
 
@@ -1362,7 +1459,7 @@ function parseStatusHiliteAction(result, how) {
             else attrib |= parsedAttr;
             continue;
         }
-        const color = match_str2clr(result, subfield);
+        const color = match_str2clr(result, subfield, false);
         if (color >= CLR_MAX || coloridx !== -1) {
             configErrorAdd(result, `bad color '${color} ${coloridx}'`);
             return null;
@@ -1493,7 +1590,7 @@ function parse_condition(result, s, fieldIndex) {
                 }
                 continue;
             }
-            const color = match_str2clr(result, subfield);
+            const color = match_str2clr(result, subfield, false);
             // Unlike parse_status_hl2(), this loop has no "one color only"
             // rule: the last color named wins.
             if (color >= CLR_MAX) {
@@ -1833,75 +1930,60 @@ function setStatusHiliteDuration(result, value, negated) {
     result.iflags.hilite_delta = parsed < 0 ? 1 : parsed;
 }
 
-function parseMenuHeadingStyle(value, lineNumber) {
-    const rawTokens = String(value).split('&').map((token) => token.trim());
-    const tokens = rawTokens.map(menuHeadingToken);
-    let color = NO_COLOR;
-    let attr = ATR_NONE;
-    let valid = tokens.length > 0 && tokens.length <= 2
-        && tokens.every(Boolean);
-
-    if (valid && tokens.length === 1) {
-        const parsedAttr = menuHeadingAttribute(tokens[0]);
-        const parsedColor = menuHeadingColor(tokens[0], rawTokens[0]);
-        if (parsedAttr != null) attr = parsedAttr;
-        else if (parsedColor != null) color = parsedColor;
-        else valid = false;
-    } else if (valid) {
-        const firstColor = menuHeadingColor(tokens[0], rawTokens[0]);
-        const firstAttr = menuHeadingAttribute(tokens[0]);
-        const secondColor = menuHeadingColor(tokens[1], rawTokens[1]);
-        const secondAttr = menuHeadingAttribute(tokens[1]);
-        if (firstColor != null && secondAttr != null) {
-            color = firstColor;
-            attr = secondAttr;
-        } else if (firstAttr != null && secondColor != null) {
-            color = secondColor;
-            attr = firstAttr;
-        } else {
-            valid = false;
-        }
-    }
-    if (!valid) {
-        optionError(lineNumber, `invalid menu_headings style '${value}'`);
-    }
-    return { attr, color };
-}
-
-function setMenuHeadings(result, value, negated, lineNumber) {
-    if (value == null) {
+// C ref: options.c optfn_menu_headings() (2182-2212), its do_set arm.  The
+// handler reads the value parseoptions() already found, so a statement without
+// one is not an error at all: it means "no colour and inverse", or "no colour
+// and no attribute" when negated.  optlist.h gives menu_headings negateok Yes,
+// so the negation arms below are the live ones, unlike petattr's beneath.
+// color_attr_parse_str() reports everything C says about a value it cannot
+// read, and the handler adds nothing to it.
+function setMenuHeadings(result, value, negated) {
+    if (value == null || value === '') {
         result.iflags.menu_headings = {
             attr: negated ? ATR_NONE : ATR_INVERSE,
             color: NO_COLOR,
         };
-    } else {
-        if (negated) {
-            optionError(
-                lineNumber,
-                'negated menu_headings cannot have a value',
-            );
-        }
-        result.iflags.menu_headings = parseMenuHeadingStyle(
-            value, lineNumber,
-        );
+        return;
     }
+    if (negated) { /* 'op != empty_optstr' to get here */
+        bad_negation(result, 'menu_headings');
+        return;
+    }
+    const ca = color_attr_parse_str(result, value);
+    if (ca === null) return;
+    result.iflags.menu_headings = ca;
 }
 
-// C ref: options.c:optfn_petattr(). The tty port accepts one text
-// attribute and keeps the chosen style when hilite_pet is later disabled.
-// optlist.h:568-569 gives petattr negateok No, so parseoptions() answers a
-// negated spelling with bad_negation() and both of optfn_petattr()'s negation
-// arms -- its own bad_negation() and the ATR_NONE a value-less negation would
-// store -- are unreachable from a configuration file.
-function setPetAttribute(result, value, lineNumber) {
-    if (value != null) {
-        const attr = menuHeadingAttribute(menuHeadingToken(value));
-        if (attr == null) {
-            optionError(lineNumber, `unknown petattr parameter '${value}'`);
+// C ref: options.c optfn_petattr() (3137-3175), its do_set arm.  The tty port
+// accepts one text attribute and keeps the chosen style when hilite_pet is
+// later disabled.  optlist.h:568-569 gives petattr negateok No, so
+// parseoptions() answers a negated spelling with bad_negation() and both of the
+// handler's negation arms -- its own bad_negation() and the ATR_NONE a
+// value-less negation would store -- are unreachable from a configuration file.
+//
+// What is left of C's val_optional argument is therefore FALSE, which makes the
+// value mandatory: a statement without one is reported by string_for_opt() and
+// then falls past both remaining arms to the hilite_pet assignment, which
+// nothing has changed.  The rejection arm names the whole statement rather than
+// the value, because C passes `opts` there where its neighbours pass `op`.
+function setPetAttribute(result, statement) {
+    const op = string_for_opt(statement, false, result);
+    let rejected = false;
+    if (op !== '') {
+        // match_str2attr(op, FALSE) reports nothing itself.
+        const attr = match_str2attr(result, op, false);
+        if (attr === null) {
+            configErrorAdd(
+                result, `Unknown petattr parameter '${statement}'`,
+            );
+            rejected = true;
+        } else {
+            result.iflags.wc2_petattr = attr;
         }
-        result.iflags.wc2_petattr = attr;
     }
-    result.iflags.wc_hilite_pet = result.iflags.wc2_petattr !== ATR_NONE;
+    if (!rejected) {
+        result.iflags.wc_hilite_pet = result.iflags.wc2_petattr !== ATR_NONE;
+    }
 }
 
 // C refs: options.c default_menu_cmd_info[], txt2key(),
@@ -2107,12 +2189,10 @@ function addMenuCommandAlias(result, fromKey, command) {
 // both report and leave the alias list alone: string_for_opt(opts, FALSE)
 // names the whole statement when no value follows the separator, and
 // illegal_menu_cmd_key() reports for itself.
-function setMenuCommandOption(result, descriptor, statement, value) {
-    if (value == null || value === '') {
-        configErrorAdd(result, `Missing parameter for '${statement}'`);
-        return;
-    }
-    const key = textToKey(value);
+function setMenuCommandOption(result, descriptor, statement) {
+    const op = string_for_opt(statement, false, result);
+    if (op === '') return;
+    const key = textToKey(op);
     if (illegalMenuCommandKey(result, key)) return;
     addMenuCommandAlias(result, key, descriptor.command);
 }
@@ -2276,22 +2356,50 @@ function applyMenuBinding(result, binding) {
     result.commandOperations.push({ type: 'bind', ...operation });
 }
 
-// C ref: options.c optfn_number_pad(). These fields affect cmd_from_ecname()
-// during tutorial generation and the same source-ordered runtime bindings.
-// optlist.h:535-536 gives the option negateok No, so parseoptions() answers a
-// negated spelling with bad_negation(); the handler's own bad_negation() and
-// its `iflags.num_pad = !negated` both see a negation that cannot happen.
-function setNumberPadOption(result, value, lineNumber) {
+// C ref: the recorder's glibc atoi(), which skips leading whitespace, reads an
+// optional sign and a decimal run, answers zero when there is none, saturates
+// first to signed long and then narrows to a signed 32-bit int.  BigInt
+// preserves that phase order across JavaScript hosts, and its digit class is
+// ASCII-only, as C's is.
+function atoi(str) {
+    const digits = String(str).match(/^[\t\n\v\f\r ]*[+-]?\d+/u);
+    let wide = digits ? BigInt(digits[0].trim().replace(/^\+/u, '')) : 0n;
+    const longMax = (1n << 63n) - 1n;
+    const longMin = -(1n << 63n);
+    if (wide > longMax) wide = longMax;
+    else if (wide < longMin) wide = longMin;
+    return Number(BigInt.asIntN(32, wide));
+}
+
+// C ref: options.c optfn_number_pad() (2573-2645), its do_set arm.  These
+// fields affect cmd_from_ecname() during tutorial generation and the same
+// source-ordered runtime bindings.  optlist.h:535-536 gives the option
+// negateok No, so parseoptions() answers a negated spelling with
+// bad_negation(); the handler's own bad_negation() and its
+// `iflags.num_pad = !negated` both see a negation that cannot happen.
+//
+// `compat` is what decides whether a statement without a value is reported:
+// C measures the whole statement and treats ten bytes or fewer as the historic
+// spelling that means number_pad:1, so "number_pad" is silent while
+// "number_pad:" is one byte longer and reports.  Either way the arm that
+// follows sets the option, because go.opt_initial makes its guard hold.
+function setNumberPadOption(result, statement) {
+    const compat = encodeUtf8ByteString(statement).length <= 10;
+    const op = string_for_opt(statement, compat, result);
     let enabled;
     let mode;
-    if (value == null || value === '') {
+    if (op === '') {
+        /* for backwards compatibility, "number_pad" without a
+           value is a synonym for number_pad:1 */
         enabled = true;
         mode = 0;
     } else {
-        const parsed = Number.parseInt(value, 10);
-        if (!Number.isInteger(parsed) || parsed < -1 || parsed > 4
-            || (parsed === 0 && value[0] !== '0')) {
-            optionError(lineNumber, `illegal number_pad parameter '${value}'`);
+        const parsed = atoi(op);
+        if (parsed < -1 || parsed > 4 || (parsed === 0 && op[0] !== '0')) {
+            configErrorAdd(
+                result, `Illegal number_pad parameter '${op}'`,
+            );
+            return;
         }
         enabled = parsed > 0;
         mode = parsed < 0 ? 1
@@ -2306,9 +2414,9 @@ function setNumberPadOption(result, value, lineNumber) {
     });
 }
 
-// C ref: options.c optfn_runmode(). Its four names are matched with
-// str_start_is(name, value, TRUE), so any nonempty prefix of a name selects
-// it and the first match in this order wins.
+// C ref: options.c optfn_runmode() (3626-3670). Its four names are matched
+// with str_start_is(name, value, TRUE), so any nonempty prefix of a name
+// selects it and the first match in this order wins.
 const RUNMODE_NAMES = Object.freeze([
     ['teleport', RUN_TPORT],
     ['run', RUN_LEAP],
@@ -2316,17 +2424,26 @@ const RUNMODE_NAMES = Object.freeze([
     ['crawl', RUN_CRAWL],
 ]);
 
-function setRunmode(result, value, negated, lineNumber) {
+// The negation is tested before the value, so "!runmode:walk" is a teleport
+// run rather than a bad_negation(); the handler reads the value parseoptions()
+// already found and reports a missing one in its own words rather than through
+// string_for_opt().
+function setRunmode(result, value, negated) {
     if (negated) {
         result.flags.runmode = RUN_TPORT;
         return;
     }
-    if (value == null || value === '')
-        optionError(lineNumber, 'Value is mandatory for runmode');
-    const lowered = value.toLowerCase();
-    const match = RUNMODE_NAMES.find(([name]) => name.startsWith(lowered));
-    if (!match)
-        optionError(lineNumber, `Unknown runmode parameter '${value}'`);
+    if (value == null || value === '') {
+        configErrorAdd(result, 'Value is mandatory for runmode');
+        return;
+    }
+    const match = RUNMODE_NAMES.find(
+        ([name]) => str_start_is(name, value, true),
+    );
+    if (!match) {
+        configErrorAdd(result, `Unknown runmode parameter '${value}'`);
+        return;
+    }
     result.flags.runmode = match[1];
 }
 
@@ -2353,15 +2470,13 @@ const PICKUP_BURDEN_LEVELS = Object.freeze(new Map([
 // spelling with no value string_for_opt()'s "Missing parameter" config error
 // rather than a default, and both that and an unmatched letter return
 // optn_err with flags.pickup_burden untouched.
-function setPickupBurden(result, statement, value) {
-    if (!value) {
-        configErrorAdd(result, `Missing parameter for '${statement}'`);
-        return;
-    }
-    const level = PICKUP_BURDEN_LEVELS.get(lowc(value[0]));
+function setPickupBurden(result, statement) {
+    const op = string_for_env_opt(statement, false, result);
+    if (op === '') return;
+    const level = PICKUP_BURDEN_LEVELS.get(lowc(op[0]));
     if (level === undefined) {
         configErrorAdd(
-            result, `Unknown pickup_burden parameter '${value}'`,
+            result, `Unknown pickup_burden parameter '${op}'`,
         );
         return;
     }
@@ -2486,49 +2601,72 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
     else result.flags[name] = enabled;
 }
 
-function setWhatisCoord(result, value, negated, lineNumber) {
+// C ref: options.c optfn_whatis_coord() (4702-4749), its do_set arm.  The
+// negation is answered before the value is read, so "!whatis_coord:map" turns
+// the report off rather than reaching bad_negation(); everything past it needs
+// a value, which string_for_env_opt() reports when it is missing.
+function setWhatisCoord(result, statement, negated) {
     if (negated) {
         result.iflags.getpos_coords = GPCOORDS_NONE;
         return;
     }
-    if (!value) optionError(lineNumber, 'whatis_coord requires a value');
-    const mode = value[0].toLowerCase();
+    const op = string_for_env_opt(statement, false, result);
+    if (op === '') return;
+    const mode = lowc(op[0]);
     if (![GPCOORDS_NONE, GPCOORDS_COMPASS, GPCOORDS_COMFULL,
         GPCOORDS_MAP, GPCOORDS_SCREEN].includes(mode)) {
-        optionError(lineNumber, `unknown whatis_coord parameter '${value}'`);
+        configErrorAdd(
+            result, `Unknown whatis_coord parameter '${op}'`,
+        );
+        return;
     }
     result.iflags.getpos_coords = mode;
 }
 
-// C ref: options.c optfn_pile_limit(). The recorder's glibc atoi() accepts an
-// initial signed decimal run, returns zero when there is none, saturates first
-// to signed long, then narrows to flags.pile_limit's signed 32-bit int. The
-// option handler replaces that narrowed result with PILE_LIMIT_DFLT when it is
-// negative. BigInt preserves this phase order across JavaScript hosts. Generic
-// compound-option validation rejects a missing positive value before this
-// handler, while an empty negated spelling means "never skip".
-function setPileLimit(result, value, negated, lineNumber) {
-    if (negated && value != null && value.length > 0) {
-        optionError(
-            lineNumber,
-            "'pile_limit' may not both have a value and be negated",
-        );
+// C ref: options.c:71.
+const PILE_LIMIT_DFLT = 5;
+
+// C ref: options.c optfn_pile_limit() (3403-3434), its do_set arm.  The three
+// arms are a single condition read four ways: a negated statement with no
+// value means "never skip", a plain statement with one stores atoi() of it, a
+// negated statement that carries a value is bad_negation(), and a plain
+// statement without one restores the compiled-in default -- after
+// string_for_opt() has reported the missing parameter, since val_optional is
+// the negation.
+function setPileLimit(result, statement, negated) {
+    const op = string_for_opt(statement, negated, result);
+    if ((negated && op === '') || (!negated && op !== '')) {
+        result.flags.pile_limit = negated ? 0 : atoi(op);
+    } else if (negated) {
+        bad_negation(result, 'pile_limit');
+        return;
+    } else { /* op == empty_optstr */
+        result.flags.pile_limit = PILE_LIMIT_DFLT;
     }
-    if (negated) {
-        result.flags.pile_limit = 0;
+    /* sanity check */
+    if (result.flags.pile_limit < 0) {
+        result.flags.pile_limit = PILE_LIMIT_DFLT;
+    }
+}
+
+// C ref: options.c optfn_statuslines() (4066-4098), its do_set arm.
+// optlist.h gives statuslines negateok No, so parseoptions() answers a negated
+// spelling with bad_negation() and the handler's own negation arm -- which
+// would report and still leave itmp at 2 -- cannot run.  What is left needs a
+// value: string_for_opt() reports a statement without one, and the range test
+// then reports a second time, because itmp is still zero.  Both messages
+// belong to the same statement, which is why C's optn_silenterr is not the
+// silence its name suggests.
+function setStatuslines(result, statement, negated) {
+    const op = string_for_opt(statement, negated, result);
+    const itmp = op !== '' ? atoi(op) : 0;
+    if (itmp < 2 || itmp > 3) {
+        configErrorAdd(
+            result, `'statuslines:${op}' is invalid; must be 2 or 3`,
+        );
         return;
     }
-    if (value == null || value.length === 0) {
-        optionError(lineNumber, "'pile_limit' requires a value");
-    }
-    const match = value.match(/^[\t\n\v\f\r ]*[+-]?\d+/u);
-    let wide = match ? BigInt(match[0].trim()) : 0n;
-    const longMax = (1n << 63n) - 1n;
-    const longMin = -(1n << 63n);
-    if (wide > longMax) wide = longMax;
-    else if (wide < longMin) wide = longMin;
-    const parsed = Number(BigInt.asIntN(32, wide));
-    result.flags.pile_limit = parsed < 0 ? 5 : parsed;
+    result.iflags.wc2_statuslines = itmp;
 }
 
 function sourceOptionMatch(parsedName) {
@@ -2780,32 +2918,28 @@ function applyOption(result, optionState, element, lineNumber) {
     const menuCommand = menuCommandOption(name);
 
     if (name === 'name') {
-        result.name = truncateByteString(
-            requireValue(value, name, negated, lineNumber),
-            PLAYER_NAME_BYTE_LIMIT,
-        );
+        // C ref: options.c optfn_name() (2548-2570), its do_set arm.  The
+        // value is mandatory, so a statement without one is reported by
+        // string_for_env_opt() and leaves svp.plname alone.
+        const op = string_for_env_opt(statement, false, result);
+        if (op === '') return;
+        result.name = truncateByteString(op, PLAYER_NAME_BYTE_LIMIT);
     } else if (name === 'role') {
-        setCharacterOption(
-            result, optionState, 'role', value, negated, lineNumber,
-        );
+        setCharacterOption(result, optionState, 'role', statement, negated);
     } else if (name === 'race') {
-        setCharacterOption(
-            result, optionState, 'race', value, negated, lineNumber,
-        );
+        setCharacterOption(result, optionState, 'race', statement, negated);
     } else if (name === 'gender') {
-        setCharacterOption(
-            result, optionState, 'gender', value, negated, lineNumber,
-        );
+        setCharacterOption(result, optionState, 'gender', statement, negated);
     } else if (name === 'alignment') {
         setCharacterOption(
-            result, optionState, 'alignment', value, negated, lineNumber,
+            result, optionState, 'alignment', statement, negated,
         );
     } else if (name === 'playmode') {
-        setPlaymode(result, value, negated, lineNumber);
+        setPlaymode(result, value);
     } else if (name === 'menu_headings') {
-        setMenuHeadings(result, value, negated, lineNumber);
+        setMenuHeadings(result, value, negated);
     } else if (name === 'petattr') {
-        setPetAttribute(result, value, lineNumber);
+        setPetAttribute(result, statement);
     } else if (name === 'hilite_status') {
         setStatusHiliteOption(result, value, negated);
     } else if (name === 'statushilites') {
@@ -2815,7 +2949,7 @@ function applyOption(result, optionState, element, lineNumber) {
         result.flags[name] = enabled;
         result.iflags.status_conditions[name.slice('cond_'.length)] = enabled;
     } else if (menuCommand && parsedName === name) {
-        setMenuCommandOption(result, menuCommand, statement, value);
+        setMenuCommandOption(result, menuCommand, statement);
     } else if (menuCommand || isMenuCommandPrefix(parsedName)) {
         optionError(
             lineNumber,
@@ -2829,12 +2963,12 @@ function applyOption(result, optionState, element, lineNumber) {
         // gives the option negateok No, so a negated spelling never arrives.
         result.flags.packorder = value;
     } else if (name === 'pettype') {
-        setPettype(result, value, negated, lineNumber);
+        setPettype(result, statement, negated);
     } else if (name === 'fruit') {
-        setFruit(result, value, lineNumber);
+        setFruit(result, statement);
     } else if (name === 'catname' || name === 'dogname'
                || name === 'horsename') {
-        setPetName(result, name, value, lineNumber);
+        setPetName(result, name, value);
     } else if (name === 'blind' || name === 'deaf' || name === 'nudist'
                || name === 'pauper' || name === 'reroll') {
         setRoleplay(result, name, matchedRow, statement, value, negated);
@@ -2860,15 +2994,17 @@ function applyOption(result, optionState, element, lineNumber) {
             rawValue: value,
         }]);
     } else if (name === 'number_pad') {
-        setNumberPadOption(result, value, lineNumber);
+        setNumberPadOption(result, statement);
     } else if (name === 'whatis_coord') {
-        setWhatisCoord(result, value, negated, lineNumber);
+        setWhatisCoord(result, statement, negated);
     } else if (name === 'runmode') {
-        setRunmode(result, value, negated, lineNumber);
+        setRunmode(result, value, negated);
     } else if (name === 'pickup_burden') {
-        setPickupBurden(result, statement, value);
+        setPickupBurden(result, statement);
     } else if (name === 'pile_limit') {
-        setPileLimit(result, value, negated, lineNumber);
+        setPileLimit(result, statement, negated);
+    } else if (name === 'statuslines') {
+        setStatuslines(result, statement, negated);
     } else if (name === 'msg_window') {
         // C ref: options.c optfn_msg_window()'s do_set arm. PREV_MSGS is 1
         // for this tty build. parseoptions() reads this option's value as
@@ -2907,14 +3043,12 @@ function applyOption(result, optionState, element, lineNumber) {
         // a spelling without one string_for_opt()'s "Missing parameter" error
         // over the whole statement text, and the handler then returns optn_err
         // without touching flags.sortloot.
-        if (!value) {
-            configErrorAdd(result, `Missing parameter for '${statement}'`);
-            return;
-        }
-        const c = lowc(value[0]);
+        const op = string_for_env_opt(statement, false, result);
+        if (op === '') return;
+        const c = lowc(op[0]);
         if (!'nlf'.includes(c)) {
             configErrorAdd(
-                result, `Unknown sortloot parameter '${value}'`,
+                result, `Unknown sortloot parameter '${op}'`,
             );
             return;
         }
@@ -2929,8 +3063,8 @@ function applyOption(result, optionState, element, lineNumber) {
         // not actually store.  nomakedefs.git_branch is null in a release
         // build (js/version.js records the same reading), so have_branch is
         // false and the default is VI_NUMBER.
-        if (!value) {
-            configErrorAdd(result, `Missing parameter for '${statement}'`);
+        const op = string_for_opt(statement, false, result);
+        if (op === '') {
             configErrorAdd(
                 result, "'versinfo' requires a value; defaulting to 1",
             );
@@ -2938,7 +3072,7 @@ function applyOption(result, optionState, element, lineNumber) {
         }
         // atoi() answers 0 for text that starts with no digits, and the guard
         // is `!val || (val & ~7) != 0`, which admits exactly 1 through 7.
-        const versinfo = Number.parseInt(value, 10);
+        const versinfo = Number.parseInt(op, 10);
         if (!Number.isInteger(versinfo) || versinfo < 1 || versinfo > 7) {
             configErrorAdd(
                 result,
@@ -2969,30 +3103,32 @@ function applyOption(result, optionState, element, lineNumber) {
                 `negated compound option '${name}' is not supported`,
             );
         }
+        // C refs: options.c optfn_symset() (4166-4201), optfn_roguesymset()
+        // (3543-3572) and optfn_suppress_alert() (4134-4149).  Each opens on
+        // `op != empty_optstr` and does nothing at all when that fails, so a
+        // statement whose separator ends it selects no symbol set and
+        // suppresses no alert; the first two then answer optn_err and the
+        // third optn_ok, which parseoptions() cannot tell apart here.
+        const emptyValue = value === '';
         if (name === 'symset') {
+            if (emptyValue) return;
             result.symset = value;
             appendSymbolSelection(result, 'primary', value);
         } else if (name === 'roguesymset') {
+            if (emptyValue) return;
             result.roguesymset = value;
             appendSymbolSelection(result, 'rogue', value);
         }
         else if (name === 'suppress_alert') {
+            if (emptyValue) return;
             result.flags.suppress_alert = value;
-        } else if (name === 'statuslines') {
-            // options.c:optfn_statuslines() uses atoi() and accepts only the
-            // two window-port layouts supported by tty.
-            const statuslines = Number.parseInt(value, 10);
-            if (statuslines !== 2 && statuslines !== 3) {
-                optionError(
-                    lineNumber,
-                    "'statuslines' must be 2 or 3",
-                );
-            }
-            result.iflags.wc2_statuslines = statuslines;
         } else {
             // This parser currently gives source semantics to the startup
             // subset above. Preserve other valid options for later subsystem
             // ports instead of pretending to interpret their values here.
+            // Nothing reads what this stores, and the empty value each handler
+            // above turns away is read differently by each of the remaining
+            // rows, so no guard here would be right for all of them.
             result.flags[name] = value;
         }
     } else {
@@ -4127,15 +4263,36 @@ function match_optname(user_string, optn_name, min_length, val_allowed) {
     return len >= min_length && equal_ncasechars(optn_name, user_string, len);
 }
 
-// C ref: options.c string_for_opt(opts, TRUE).  Answers the text after the
+// C ref: options.c string_for_opt() (6664-6680).  Answers the text after the
 // first ':' or '=', or the empty string where C answers its empty_optstr
-// sentinel.  The val_optional == FALSE caller adds a configuration-file error
-// message and is not on any path this port reaches.
-function string_for_opt(opts) {
+// sentinel.  C reaches that sentinel exactly when the separator is missing or
+// ends the statement, so an empty answer and empty_optstr are the same thing.
+//
+// The function runs twice per statement.  parseoptions():643 calls it with
+// val_optional TRUE to get the value it hands the handler, and a handler that
+// needs a value calls it again with FALSE, which is the only call that reports
+// the missing parameter.  `result` carries the configuration-error frame C
+// reads from a global, so only the FALSE caller has to supply one.
+function string_for_opt(opts, val_optional, result = null) {
     const colon = opts.indexOf(':');
     const equals = opts.indexOf('=');
     const at = (colon < 0 || (equals >= 0 && equals < colon)) ? equals : colon;
-    return (at < 0 || at + 1 >= opts.length) ? '' : opts.slice(at + 1);
+    if (at < 0 || at + 1 >= opts.length) {
+        if (!val_optional) {
+            configErrorAdd(result, `Missing parameter for '${opts}'`);
+        }
+        return '';
+    }
+    return opts.slice(at + 1);
+}
+
+// C ref: options.c string_for_env_opt() (6683-6691).  go.opt_initial is TRUE
+// for the whole configuration-file read, so rejectoption() -- the arm that
+// refuses an option settable only from NETHACKOPTIONS or the configuration
+// file -- cannot fire here, and what is left is string_for_opt() with the
+// option name discarded.  That name is the parameter this port leaves out.
+function string_for_env_opt(opts, val_optional, result = null) {
+    return string_for_opt(opts, val_optional, result);
 }
 
 // C ref: include/botl.h:213 VIA_WINDOWPORT(), which asks whether the interface
@@ -4234,7 +4391,7 @@ async function optfn_boolean(state, optidx, negated, opts) {
     if (state.go.opt_initial && option.setwhere === set_wiznofuz)
         return optn_err;
 
-    if (string_for_opt(opts) !== '') {
+    if (string_for_opt(opts, true) !== '') {
         // options.c:5211-5241 reads "opt:true", "opt:no", "opt:1" and their
         // relatives, and `ln`, which the opt_female arm below floors at 3,
         // is the length of that value.  doset() builds its statement as
@@ -4447,7 +4604,7 @@ async function optfn_pickup_types(state, optidx, negated, opts, helpers) {
     /* types of objects to pick up automatically */
     const tbuf = oc_to_str(state.flags.pickup_types);
     state.flags.pickup_types = []; /* all */
-    if (string_for_opt(opts) !== '') {
+    if (string_for_opt(opts, true) !== '') {
         throw new UnsupportedOptionMenuError(
             `optfn_${allopt[optidx].optfn}() with an explicit value`,
         );

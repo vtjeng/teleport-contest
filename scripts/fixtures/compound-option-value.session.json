@@ -1,0 +1,53 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 6402117,
+      "datetime": "19970923074500",
+      "nethackrc": "OPTIONS=name:CompA,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=catname\nOPTIONS=dogname:\nOPTIONS=horsename\nOPTIONS=fruit\nOPTIONS=pettype\nOPTIONS=pile_limit\nOPTIONS=runmode\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 3175084,
+      "datetime": "20080215193000",
+      "nethackrc": "OPTIONS=name:CompB,role:Ranger,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=menu_headings\nOPTIONS=number_pad\nOPTIONS=petattr\nOPTIONS=statuslines\nOPTIONS=whatis_coord\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 8830461,
+      "datetime": "20131104112000",
+      "nethackrc": "OPTIONS=name:CompC,role:Wizard,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=menu_headings:zqxj\nOPTIONS=number_p:\nOPTIONS=petattr:zqxj\nOPTIONS=pettype:zqxj\nOPTIONS=runmode:zqxj\nOPTIONS=statusl:zqxj\nOPTIONS=whatis_coord:zqxj\nOPTIONS=fruit:\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 1249370,
+      "datetime": "20211230160500",
+      "nethackrc": "OPTIONS=name:CompD,role:Barbarian,race:human,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=menu_headings:zqxj&wobble\nOPTIONS=number_pad:zqxj\nOPTIONS=!pile_limit:3\nOPTIONS=!pettype:dog\nOPTIONS=!runmode:walk\nOPTIONS=!whatis_coord:map\nOPTIONS=catname:none\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 5561928,
+      "datetime": "19890706205500",
+      "nethackrc": "OPTIONS=name:CompE,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=playmode\nOPTIONS=role\n",
+      "moves": "\ryy"
+    },
+    {
+      "seed": 7094653,
+      "datetime": "20051118094000",
+      "nethackrc": "OPTIONS=name:CompF,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=playmode:zqxj\nOPTIONS=role:Sam !Val\n",
+      "moves": "\ryy"
+    },
+    {
+      "seed": 2718445,
+      "datetime": "19940401133000",
+      "nethackrc": "OPTIONS=name:CompG,role:Valkyrie,!legacy,!tutorial,!splash_screen\nOPTIONS=race:zqxj\nOPTIONS=gender:no\nOPTIONS=alignment:!zqxj\n",
+      "moves": "\ryy"
+    },
+    {
+      "seed": 9036712,
+      "datetime": "20170822061500",
+      "nethackrc": "OPTIONS=role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\nOPTIONS=name\n",
+      "moves": "\rCompH\ryy"
+    }
+  ]
+}

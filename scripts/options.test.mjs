@@ -155,24 +155,35 @@ test('pile_limit startup parsing follows optfn_pile_limit and C atoi', () => {
         ['OPTIONS=!pile_limit', 0],
         ['OPTIONS=!pile_limit:', 0],
     ];
-    for (const [rc, expected] of values)
-        assert.equal(parseNethackrc(rc).flags.pile_limit, expected, rc);
+    for (const [rc, expected] of values) {
+        const parsed = parseNethackrc(`${rc}\n`);
+        assert.equal(parsed.flags.pile_limit, expected, rc);
+        // string_for_opt(opts, negated) makes the value optional for a negated
+        // statement, so none of these reports anything.
+        assert.deepEqual(parsed.configErrorFrame.output, [], rc);
+    }
 
-    // Generic compound-option validation rejects a missing positive value
-    // before optfn_pile_limit() runs, as the fresh C startup did.
+    // The same argument makes it mandatory for a positive statement, so a
+    // spelling without one reports and then takes C's third arm, which
+    // restores PILE_LIMIT_DFLT rather than leaving the option be.
     for (const rc of ['OPTIONS=pile_limit', 'OPTIONS=pile_limit:']) {
-        assert.throws(
-            () => parseNethackrc(rc),
-            /pile_limit.*requires a value/u,
-            rc,
-        );
+        const parsed = parseNethackrc(`${rc}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${rc}`,
+            ` * Line 1: Missing parameter for '${rc.slice('OPTIONS='.length)}'.`,
+        ], rc);
+        assert.equal(parsed.flags.pile_limit, 5, rc);
     }
     // bad_negation() is the handler's own rejection for a negated value;
     // three is the smallest ordinary count threshold above the two edge.
-    assert.throws(
-        () => parseNethackrc('OPTIONS=!pile_limit:3'),
-        /may not both have a value and be negated/u,
-    );
+    // flags.pile_limit keeps the default the parse started from.
+    const negatedValue = parseNethackrc('OPTIONS=!pile_limit:3\n');
+    assert.deepEqual(negatedValue.configErrorFrame.output, [
+        '\nOPTIONS=!pile_limit:3',
+        ' * Line 1: The pile_limit option may not both have a value and be'
+        + ' negated.',
+    ]);
+    assert.equal(negatedValue.flags.pile_limit, 5);
 });
 
 // C ref: options.c optfn_pickup_burden() (3266-3291). Every expected level is
@@ -355,10 +366,15 @@ test('every fully explicit valid character tuple survives parsing unchanged', ()
 });
 
 test('unknown choices fail while incompatible explicit choices reach selection', () => {
-    assert.throws(
-        () => parseNethackrc('OPTIONS=role:BogusRole'),
-        /unknown role 'BogusRole'/u,
-    );
+    // C's optfn_role() reports the value str2role() rejected and returns
+    // optn_err, so flags.initrole stays ROLE_NONE and character selection
+    // asks for a role instead of the file supplying one.
+    const bogus = parseNethackrc('OPTIONS=role:BogusRole\n');
+    assert.deepEqual(bogus.configErrorFrame.output, [
+        '\nOPTIONS=role:BogusRole',
+        " * Line 1: Unknown role 'BogusRole'.",
+    ]);
+    assert.equal(bogus.flags.initrole, ROLE_NONE);
     assert.deepEqual(
         characterFlags(parseNethackrc(
             'OPTIONS=role:Knight,race:dwarf,gender:male,align:lawful',
@@ -430,10 +446,21 @@ test('repeated role filters merge in source parse order', () => {
         filterAfterChoice.roleFilter.roles[str2role('Tourist')],
         true,
     );
-    assert.throws(
-        () => parseNethackrc('OPTIONS=role:Wizard,role:!Tourist'),
-        /compound option specified multiple times: role/u,
-        'the opposite textual order applies the positive duplicate last',
+    // The opposite textual order applies the positive duplicate last, which
+    // parse_role_opt() answers with complain_about_duplicate() and FALSE.
+    // optfn_role() turns that into optn_silenterr, so the filter the negated
+    // element already installed stands and no role is chosen.
+    const positiveDuplicate = parseNethackrc(
+        'OPTIONS=role:Wizard,role:!Tourist\n',
+    );
+    assert.deepEqual(positiveDuplicate.configErrorFrame.output, [
+        '\nOPTIONS=role:Wizard,role:!Tourist',
+        ' * Line 1: compound option specified multiple times: role.',
+    ]);
+    assert.equal(positiveDuplicate.flags.initrole, ROLE_NONE);
+    assert.equal(
+        positiveDuplicate.roleFilter.roles[str2role('Tourist')],
+        true,
     );
 });
 
@@ -493,17 +520,89 @@ test('tty menu presentation options populate interface flags', () => {
         { color: CLR_BRIGHT_BLUE, attr: ATR_BOLD },
     );
 
-    for (const invalid of [
-        'red&blue',
-        'bold&inverse',
-        'red&bold&underline',
+    // color_attr_parse_str() reports through match_str2clr() and
+    // match_str2attr(), so the message names the half that failed rather than
+    // the whole value, and each of these reaches that point differently: the
+    // colour half matched and the attribute half did not, the attribute half
+    // matched and the colour half did not, and a second '&' stays inside the
+    // attribute half because C splits only at the first one.  All three leave
+    // iflags.menu_headings at the default optfn_menu_headings() never reached.
+    for (const [invalid, reported] of [
+        ['red&blue', " * Line 1: Unknown text attribute 'blue'."],
+        ['bold&inverse', " * Line 1: Unknown color 'bold'."],
+        ['red&bold&underline',
+            " * Line 1: Unknown text attribute 'bold&underline'."],
     ]) {
-        assert.throws(
-            () => parseNethackrc(`OPTIONS=menu_headings:${invalid}`),
-            /invalid menu_headings style/u,
-            invalid,
-        );
+        const parsed = parseNethackrc(`OPTIONS=menu_headings:${invalid}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\nOPTIONS=menu_headings:${invalid}`,
+            reported,
+        ], invalid);
+        assert.deepEqual(parsed.iflags.menu_headings, {
+            attr: ATR_INVERSE,
+            color: NO_COLOR,
+        }, invalid);
     }
+
+    // A value with no '&' at all takes the other arm, where the attribute
+    // lookup is asked first and suppresses its own message so that only the
+    // colour lookup reports.
+    const onePart = parseNethackrc('OPTIONS=menu_headings:zqxj\n');
+    assert.deepEqual(onePart.configErrorFrame.output, [
+        '\nOPTIONS=menu_headings:zqxj',
+        " * Line 1: Unknown color 'zqxj'.",
+    ]);
+    assert.deepEqual(onePart.iflags.menu_headings, {
+        attr: ATR_INVERSE,
+        color: NO_COLOR,
+    });
+
+    // A leading '&' still splits, so the colour half is the empty string and
+    // the attribute half carries the whole value.  This is the one place the
+    // two arms answer differently for the same text.
+    const emptyColor = parseNethackrc('OPTIONS=menu_headings:&bold\n');
+    assert.deepEqual(emptyColor.configErrorFrame.output, [
+        '\nOPTIONS=menu_headings:&bold',
+        " * Line 1: Unknown color ''.",
+    ]);
+
+    // A value that matches neither way makes the retry visible: C's own
+    // comment calls it useless because both lookups have already reported,
+    // and that is exactly what produces four messages in this order.
+    const bothWays = parseNethackrc('OPTIONS=menu_headings:zqxj&wobble\n');
+    assert.deepEqual(bothWays.configErrorFrame.output, [
+        '\nOPTIONS=menu_headings:zqxj&wobble',
+        " * Line 1: Unknown color 'zqxj'.",
+        " * Line 1: Unknown text attribute 'wobble'.",
+        " * Line 1: Unknown color 'wobble'.",
+        " * Line 1: Unknown text attribute 'zqxj'.",
+    ]);
+
+    // The handler reads the value parseoptions() already found, so a
+    // statement without one is not an error: it selects inverse, or nothing
+    // at all when negated.  A negated statement that does carry one is the
+    // handler's own bad_negation().
+    for (const [statement, headings] of [
+        ['OPTIONS=menu_headings',
+            { attr: ATR_INVERSE, color: NO_COLOR }],
+        ['OPTIONS=menu_headings:',
+            { attr: ATR_INVERSE, color: NO_COLOR }],
+        ['OPTIONS=!menu_headings', { attr: ATR_NONE, color: NO_COLOR }],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+        assert.deepEqual(parsed.iflags.menu_headings, headings, statement);
+    }
+    const negatedValue = parseNethackrc('OPTIONS=!menu_headings:red\n');
+    assert.deepEqual(negatedValue.configErrorFrame.output, [
+        '\nOPTIONS=!menu_headings:red',
+        ' * Line 1: The menu_headings option may not both have a value and be'
+        + ' negated.',
+    ]);
+    assert.deepEqual(negatedValue.iflags.menu_headings, {
+        attr: ATR_INVERSE,
+        color: NO_COLOR,
+    });
 });
 
 test('use_inverse owns the tty inverse-video interface flag', () => {
@@ -721,14 +820,35 @@ test('whatis_coord selects each source coordinate presentation', () => {
         GPCOORDS_MAP,
         'the source parser applies comma-separated options right to left',
     );
-    assert.throws(
-        () => parseNethackrc('OPTIONS=whatis_coord:bogus'),
-        /unknown whatis_coord parameter/u,
-    );
-    assert.throws(
-        () => parseNethackrc('OPTIONS=whatis_coord'),
-        /requires a value/u,
-    );
+    // The negation is answered before the value is read, so neither negated
+    // spelling reaches string_for_env_opt(): one that carries a value turns
+    // the report off instead of reaching bad_negation(), and one that carries
+    // none is silent rather than a missing parameter.
+    for (const statement of [
+        'OPTIONS=!whatis_coord', 'OPTIONS=!whatis_coord:map',
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+        assert.equal(parsed.iflags.getpos_coords, GPCOORDS_NONE, statement);
+    }
+
+    // Both refusals leave iflags.getpos_coords at its compiled-in default,
+    // and only the mandatory-value one comes from string_for_env_opt().
+    for (const [statement, reported] of [
+        ['OPTIONS=whatis_coord:bogus',
+            " * Line 1: Unknown whatis_coord parameter 'bogus'."],
+        ['OPTIONS=whatis_coord',
+            " * Line 1: Missing parameter for 'whatis_coord'."],
+        ['OPTIONS=whatis_coord:',
+            " * Line 1: Missing parameter for 'whatis_coord:'."],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            reported,
+        ], statement);
+        assert.equal(parsed.iflags.getpos_coords, GPCOORDS_NONE, statement);
+    }
 });
 
 test('hilite_pile owns the tty pile interface flag', () => {
@@ -772,12 +892,33 @@ test('pet highlighting preserves the source tty attribute state', () => {
     assert.equal(disabled.iflags.wc_hilite_pet, false);
     assert.equal(disabled.iflags.wc2_petattr, ATR_BOLD);
 
+    // C's rejection names `opts`, the whole statement, where every neighbour
+    // names `op`; match_str2attr() is called with complain FALSE, so it adds
+    // nothing of its own.  The rejection also skips the hilite_pet assignment
+    // that ends the handler, which is why wc_hilite_pet keeps its default.
     for (const invalid of ['red', 'bold&underline']) {
-        assert.throws(
-            () => parseNethackrc(`OPTIONS=petattr:${invalid}`),
-            /unknown petattr parameter/u,
-            invalid,
-        );
+        const statement = `OPTIONS=petattr:${invalid}`;
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            ` * Line 1: Unknown petattr parameter 'petattr:${invalid}'.`,
+        ], invalid);
+        assert.equal(parsed.iflags.wc2_petattr, ATR_INVERSE, invalid);
+        assert.equal(parsed.iflags.wc_hilite_pet, false, invalid);
+    }
+
+    // The value is mandatory, so a statement without one reports and then
+    // falls past both remaining arms to that same assignment, which nothing
+    // has changed.  "petattr" and "petattr:" differ only in the text quoted.
+    for (const statement of ['OPTIONS=petattr', 'OPTIONS=petattr:']) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            ' * Line 1: Missing parameter for'
+            + ` '${statement.slice('OPTIONS='.length)}'.`,
+        ], statement);
+        assert.equal(parsed.iflags.wc2_petattr, ATR_INVERSE, statement);
+        assert.equal(parsed.iflags.wc_hilite_pet, true, statement);
     }
     // optlist.h:568-569 gives petattr negateok No, so parseoptions() answers
     // every negated spelling with bad_negation() and optfn_petattr()'s own
@@ -887,10 +1028,36 @@ test('number_pad preserves the source modes used by command-key lookup', () => {
     const swapped = parseNethackrc('OPTIONS=number_pad:-1');
     assert.equal(swapped.iflags.num_pad, false);
     assert.equal(swapped.iflags.num_pad_mode, 1);
-    assert.throws(
-        () => parseNethackrc('OPTIONS=number_pad:5'),
-        /illegal number_pad parameter/u,
-    );
+
+    // A value outside -1..4 is reported and stores nothing, so neither field
+    // nor the command-key rebuild the accepted arm queues is reached.
+    const outOfRange = parseNethackrc('OPTIONS=number_pad:5\n');
+    assert.deepEqual(outOfRange.configErrorFrame.output, [
+        '\nOPTIONS=number_pad:5',
+        " * Line 1: Illegal number_pad parameter '5'.",
+    ]);
+    assert.deepEqual(outOfRange.iflags, parseNethackrc('').iflags);
+    assert.deepEqual(outOfRange.commandOperations, []);
+
+    // `compat` is strlen(opts) <= 10, measured over the whole statement, and
+    // it is the val_optional string_for_opt() is called with.  "number_pad"
+    // is exactly ten bytes and "number_p:" is nine, so both are silent, while
+    // "number_pad:" is one byte too long and reports.  All three still set
+    // the option, because the arm that follows holds whenever go.opt_initial
+    // does.
+    for (const [statement, reported] of [
+        ['OPTIONS=number_pad', []],
+        ['OPTIONS=number_p:', []],
+        ['OPTIONS=number_pad:', [
+            '\nOPTIONS=number_pad:',
+            " * Line 1: Missing parameter for 'number_pad:'.",
+        ]],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, reported, statement);
+        assert.equal(parsed.iflags.num_pad, true, statement);
+        assert.equal(parsed.iflags.num_pad_mode, 0, statement);
+    }
 });
 
 test('menu command keys use txt2key syntax and source validation', () => {
@@ -1350,10 +1517,24 @@ test('playmode value aliases canonicalize mutually exclusive state', () => {
         assert.equal(parsed.flags.debug, expected === 'debug', value);
         assert.equal(parsed.flags.explore, expected === 'explore', value);
     }
-    assert.throws(
-        () => parseNethackrc('OPTIONS=playmode:cheat'),
-        /invalid playmode/u,
-    );
+    // C's message keeps the value's own case and spells the name in double
+    // quotes with no space before the colon, unlike its neighbours.
+    const rejected = parseNethackrc('OPTIONS=playmode:CHEAT\n');
+    assert.deepEqual(rejected.configErrorFrame.output, [
+        '\nOPTIONS=playmode:CHEAT',
+        ' * Line 1: Invalid value for "playmode":CHEAT.',
+    ]);
+    assert.equal(rejected.playmode, 'normal');
+
+    // The handler reads the value parseoptions() already found, so a
+    // statement without one is refused with no message at all.
+    for (const statement of ['OPTIONS=playmode', 'OPTIONS=playmode:']) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+        assert.equal(parsed.playmode, 'normal', statement);
+        assert.equal(parsed.flags.debug, false, statement);
+        assert.equal(parsed.flags.explore, false, statement);
+    }
 });
 
 test('pet type aliases and names retain pinned startup values', () => {
@@ -1503,18 +1684,37 @@ test('valid unported startup option mappings remain available', () => {
 });
 
 test('statuslines selects one of the two tty status-window heights', () => {
-    assert.equal(
-        parseNethackrc('OPTIONS=statuslines:3').iflags.wc2_statuslines,
-        3,
-    );
-    assert.equal(
-        parseNethackrc('OPTIONS=statuslines:2').iflags.wc2_statuslines,
-        2,
-    );
-    assert.throws(
-        () => parseNethackrc('OPTIONS=statuslines:4'),
-        /statuslines.*2 or 3/u,
-    );
+    // Two is also the compiled-in default, so the silent read is what
+    // separates an accepted 2 from a 2 the range test rejected.
+    for (const lines of [3, 2]) {
+        const parsed = parseNethackrc(`OPTIONS=statuslines:${lines}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [], `${lines}`);
+        assert.equal(parsed.iflags.wc2_statuslines, lines, `${lines}`);
+    }
+    // The range message rebuilds the statement from the row's name and the
+    // value, so it is not the text the file spelled: an abbreviation reports
+    // as "statuslines:" plus whatever followed the separator.  A statement
+    // with no value reports twice, because the mandatory parameter is missing
+    // and the zero that leaves behind is out of range.
+    for (const [statement, reported, lines] of [
+        ['OPTIONS=statuslines:4',
+            [" * Line 1: 'statuslines:4' is invalid; must be 2 or 3."], 2],
+        ['OPTIONS=statusl:4',
+            [" * Line 1: 'statuslines:4' is invalid; must be 2 or 3."], 2],
+        ['OPTIONS=statuslines',
+            [" * Line 1: Missing parameter for 'statuslines'.",
+                " * Line 1: 'statuslines:' is invalid; must be 2 or 3."], 2],
+        ['OPTIONS=statuslines:',
+            [" * Line 1: Missing parameter for 'statuslines:'.",
+                " * Line 1: 'statuslines:' is invalid; must be 2 or 3."], 2],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            ...reported,
+        ], statement);
+        assert.equal(parsed.iflags.wc2_statuslines, lines, statement);
+    }
 });
 
 test('status highlight options preserve source rules and condition defaults', () => {

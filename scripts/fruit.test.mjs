@@ -169,14 +169,19 @@ test('initial fruit negation and duplicate order follow optfn_fruit', () => {
         parseNethackrc('OPTIONS=fruit:blueberries,fruit:kumquats').pl_fruit,
         'blueberries',
     );
-    assert.throws(
-        () => parseNethackrc('OPTIONS=fruit'),
-        /fruit requires a value/u,
-    );
-    assert.throws(
-        () => parseNethackrc('OPTIONS=fruit:'),
-        /fruit requires a value/u,
-    );
+    // Outside a negation, val_optional is `negated || !go.opt_initial`, which
+    // is FALSE for every configuration-file read: string_for_opt() reports the
+    // missing parameter, quoting the statement rather than the option's name,
+    // and the handler adds nothing and stores nothing.
+    for (const statement of ['OPTIONS=fruit', 'OPTIONS=fruit:']) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            ' * Line 1: Missing parameter for'
+            + ` '${statement.slice('OPTIONS='.length)}'.`,
+        ], statement);
+        assert.equal(parsed.pl_fruit, parseNethackrc('').pl_fruit, statement);
+    }
 });
 
 test('fruit fixed-buffer helpers keep their distinct C terminators', () => {
