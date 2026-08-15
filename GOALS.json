@@ -2364,8 +2364,8 @@
         },
         {
           "name": "live-monster-refusal-preflight",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "145cf2d30e70140a3e6337bf5453ff4bac833306"
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",
