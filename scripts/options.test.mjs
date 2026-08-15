@@ -585,12 +585,22 @@ test('explicit boolean values reach their source-owned state', () => {
             value,
         );
     }
+    // Every other spelling reaches optfn_boolean():5233-5237, which reports
+    // and returns optn_silenterr.  optlist.h:427-429 gives mention_map opt_in
+    // with an initval of Off, so a statement that wrongly set the option
+    // anyway would leave a11y.glyph_updates true instead.  '-1' fails
+    // digit(*op) rather than atoi(), and lands on the same arm.
     for (const value of ['2', '10', '9suffix', '-1']) {
-        assert.throws(
-            () => parseNethackrc(`OPTIONS=mention_map:${value}`),
-            /not valid/u,
+        const refused = parseNethackrc(`OPTIONS=mention_map:${value}\n`);
+        assert.deepEqual(
+            refused.configErrorFrame.output,
+            [
+                `\nOPTIONS=mention_map:${value}`,
+                ` * Line 1: 'mention_map:${value}' is not valid for a boolean.`,
+            ],
             value,
         );
+        assert.equal(refused.a11y.glyph_updates, false, value);
     }
 });
 

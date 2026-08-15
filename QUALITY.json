@@ -3158,7 +3158,7 @@
       "area": "startup",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "65bbc10559971ca7abd62980272e84da658a14a4",
       "detail": "js/options.js booleanValue() ends on optionError(\"'<value>' is not valid for <option>\"), where options.c optfn_boolean():5233-5237 reports \"'%s' is not valid for a boolean\" -- quoting the whole statement, not the value -- and returns optn_silenterr, so C leaves the option alone and reads the rest of the file. The port loses the segment instead. This is the arm beside the negation one that negated-boolean-with-parameter-still-fail-closed retired, and the two share a guard: C takes the reporting arm only when allopt[optidx].valok is No.\n\nClosing it needs one generated-table column. scripts/generate-options.mjs does not emit optlist.h's valok field (struct allopt_t member 9, the 'v' parameter of NHOPTB/NHOPTC), so js/optlist_data.js has nothing to test and the port cannot tell the reporting arm from the silent one that keeps 'negated' and sets the option. Reading optlist.h directly, menucolors is the only NHOPTB row whose valok is Yes, and it reaches neither booleanValue() call site today, so emitting the column would settle every row this arm can meet.\n\nRecorded case, which fails today and must pass when the arm lands: seed 2884516, datetime 20050621143000, nethackrc 'OPTIONS=name:ValokA,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen / OPTIONS=time:zebra / OPTIONS=showexp', moves '\\r'. C draws \" * Line 2: 'time:zebra' is not valid for a boolean.\" on the raw-print screen, leaves flags.time off and still reads the showexp line below it."
     }

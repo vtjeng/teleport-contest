@@ -10,7 +10,7 @@ import test from 'node:test';
 import { GameDisplay } from '../js/game_display.js';
 import { runSegment } from '../js/jsmain.js';
 import { parseNethackrc } from '../js/options.js';
-import { NO_COLOR } from '../js/terminal.js';
+import { ATR_INVERSE, ATR_NONE, NO_COLOR } from '../js/terminal.js';
 import { nomux_get_cursor, tty_raw_print } from '../js/tty_rawprint.js';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
 
@@ -513,4 +513,105 @@ test('a negated boolean with a parameter reports and sets nothing', () => {
     assert.equal(continued.flags.legacy, true);
     assert.equal(continued.flags.showexp, true);
     assert.equal(continued.configErrorFrame.num_errors, 1);
+});
+
+// C ref: options.c optfn_boolean() (5233-5237), the third arm of the do_set
+// value block.  A value that reads as neither true nor false is a config error
+// for every row whose optlist.h valok is No, and C returns optn_silenterr
+// before `*(allopt[optidx].addr) = !negated`, so the option keeps its previous
+// value and the rest of the file is read.  menucolors is the only BoolOpt row
+// whose valok is Yes, and this port never passes it to booleanValue(), because
+// applyOption() keeps a value on menucolors in its compound-preservation arm.
+// Every row that reaches the arm therefore reports.
+test('a boolean value C cannot read reports and sets nothing', () => {
+    for (const [statement, reported] of [
+        // config_error_add() quotes `opts`: the whole trimmed,
+        // negation-stripped statement, in the case the file spelled it,
+        // rather than the value alone or the row's name.
+        ['OPTIONS=time:zebra',
+            [" * Line 1: 'time:zebra' is not valid for a boolean."]],
+        ['OPTIONS=TIME:Zebra',
+            [" * Line 1: 'TIME:Zebra' is not valid for a boolean."]],
+        // strncmpi() over strlen(op) accepts any leading substring of "true",
+        // "yes", "false" and "no", so one letter settles those four.
+        ['OPTIONS=time:t', []],
+        ['OPTIONS=time:y', []],
+        ['OPTIONS=time:f', []],
+        ['OPTIONS=time:n', []],
+        // "on" and "off" are whole-string strcmpi() compares instead, so a
+        // prefix of either reads as neither value.
+        ['OPTIONS=time:on', []],
+        ['OPTIONS=time:off', []],
+        ['OPTIONS=time:o', [" * Line 1: 'time:o' is not valid for a boolean."]],
+        ['OPTIONS=time:of',
+            [" * Line 1: 'time:of' is not valid for a boolean."]],
+        // digit(*op) guards atoi(), which answers 1 and 0 for exactly these
+        // two spellings and something else for every other digit.
+        ['OPTIONS=time:1', []],
+        ['OPTIONS=time:0', []],
+        ['OPTIONS=time:2', [" * Line 1: 'time:2' is not valid for a boolean."]],
+        // parseoptions()'s alias loop settles matchidx on the female row,
+        // whose valok is No, so a statement that spelled "male" reports too.
+        ['OPTIONS=male:Zebra',
+            [" * Line 1: 'male:Zebra' is not valid for a boolean."]],
+        // u.uroleplay's rows reach the same handler.
+        ['OPTIONS=blind:Purple',
+            [" * Line 1: 'blind:Purple' is not valid for a boolean."]],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(
+            parsed.configErrorFrame.output,
+            reported.length ? [`\n${statement}`, ...reported] : [],
+            statement,
+        );
+    }
+
+    // flags.time is Off by default, so a refused value and an accepted one
+    // leave it at opposite values.  Without this the rows above pass whether
+    // the port reports and sets or reports and leaves the option alone.
+    assert.equal(parseNethackrc('OPTIONS=time:zebra\n').flags.time, false);
+    assert.equal(parseNethackrc('OPTIONS=time:on\n').flags.time, true);
+    assert.equal(parseNethackrc('OPTIONS=time:0\n').flags.time, false);
+
+    // Six of applyBooleanOption()'s arms write more than the option's own
+    // flag, so the refusal has to stop ahead of the whole dispatch rather
+    // than inside the arm that owns the flag.  Two of the six are checked
+    // here.  "male" writes flags.female, flags.initgend and the selected
+    // gender, which start at the -1 that means no gender has been chosen.
+    const male = parseNethackrc('OPTIONS=male:Zebra\n');
+    assert.equal(male.flags.initgend, -1);
+    assert.equal(male.gender, -1);
+    assert.equal(parseNethackrc('OPTIONS=male\n').flags.initgend, 0);
+
+    // hilite_pet also raises iflags.wc2_petattr off ATR_NONE, which the
+    // petattr statement above it puts the field at.
+    const pet = parseNethackrc(
+        'OPTIONS=petattr:none\nOPTIONS=hilite_pet:Zebra\n',
+    );
+    assert.equal(pet.iflags.wc_hilite_pet, false);
+    assert.equal(pet.iflags.wc2_petattr, ATR_NONE);
+    assert.equal(
+        parseNethackrc('OPTIONS=petattr:none\nOPTIONS=hilite_pet\n')
+            .iflags.wc2_petattr,
+        ATR_INVERSE,
+    );
+
+    // setRoleplay() has the same shape, and pauper writes nudist beside it.
+    assert.equal(
+        parseNethackrc('OPTIONS=blind:Purple\n').uroleplay.blind, false,
+    );
+    assert.equal(parseNethackrc('OPTIONS=blind\n').uroleplay.blind, true);
+    assert.equal(
+        parseNethackrc('OPTIONS=pauper:Purple\n').uroleplay.nudist, false,
+    );
+    assert.equal(parseNethackrc('OPTIONS=pauper\n').uroleplay.nudist, true);
+
+    // The rest of the file is read after the report: showexp sits on the line
+    // below the refused one and still reaches flags.
+    const continuedAfterValue = parseNethackrc(
+        'OPTIONS=time:zebra\nOPTIONS=showexp\n',
+    );
+    assert.equal(continuedAfterValue.flags.time, false);
+    assert.equal(continuedAfterValue.flags.showexp, true);
+    assert.equal(continuedAfterValue.configErrorFrame.num_errors, 1);
 });

@@ -698,7 +698,13 @@ function optfn_boolean_returns_before_setting(result, row, value, negated) {
 // empty_optstr, which it does both for a statement carrying no separator --
 // splitNameAndValue()'s null -- and for one whose separator ends it, where the
 // value is the empty string.  Either way the option takes !negated.
-function booleanValue(value, negated, optionName, lineNumber) {
+//
+// `row` is allopt[optidx] and `statement` is `opts`, the trimmed
+// negation-stripped element parseoptions() hands the handler, still carrying
+// its value and its original case.  Null means C reported and returned
+// optn_silenterr without reaching `*(allopt[optidx].addr) = !negated`, so the
+// caller must leave the option and everything it drags with it alone.
+function booleanValue(result, row, statement, value, negated) {
     if (value == null || value === '') return !negated;
     const normalized = value.toLowerCase();
     if ('true'.startsWith(normalized)
@@ -714,12 +720,16 @@ function booleanValue(value, negated, optionName, lineNumber) {
         || (/^[0-9]/u.test(normalized)
             && Number.parseInt(normalized, 10) === 0)) return false;
     // C's third arm (5233-5237) is `else if (!allopt[optidx].valok)`: a row
-    // that admits arbitrary values keeps `negated` as it was and sets the
-    // option, and only the rest report and return optn_silenterr.
-    // scripts/generate-options.mjs does not emit optlist.h's valok column, so
-    // js/optlist_data.js has no field to test, and the port stops here rather
-    // than assuming which arm a row takes.
-    optionError(lineNumber, `'${value}' is not valid for ${optionName}`);
+    // that admits arbitrary values keeps `negated` as it was and falls through
+    // to the assignment, and only the rest report and return optn_silenterr.
+    // menucolors is the one BoolOpt row whose valok is Yes, and no caller
+    // reaches this function with it, so the fall-through below is C's branch
+    // written out rather than a branch this port can run.
+    if (!row.valok) {
+        configErrorAdd(result, `'${statement}' is not valid for a boolean`);
+        return null;
+    }
+    return !negated;
 }
 
 function requireValue(value, optionName, negated, lineNumber) {
@@ -996,8 +1006,9 @@ function setFruit(result, value, lineNumber) {
     );
 }
 
-function setRoleplay(result, field, value, negated, lineNumber) {
-    const enabled = booleanValue(value, negated, field, lineNumber);
+function setRoleplay(result, field, row, statement, value, negated) {
+    const enabled = booleanValue(result, row, statement, value, negated);
+    if (enabled === null) return;
     result.uroleplay[field] = enabled;
     if (field === 'pauper') result.uroleplay.nudist = enabled;
 }
@@ -2334,8 +2345,13 @@ function applyMenuBindings(result, bindings) {
     }
 }
 
-function applyBooleanOption(result, name, value, negated, lineNumber) {
-    const enabled = booleanValue(value, negated, name, lineNumber);
+function applyBooleanOption(result, name, row, statement, value, negated) {
+    const enabled = booleanValue(result, row, statement, value, negated);
+    // Every arm below writes at least one field, and six of them -- female,
+    // color, hilite_pet, tutorial, rest_on_space and mention_decor -- write
+    // more than one, so C's "leave the option alone" has to stop ahead of the
+    // whole dispatch rather than inside the arm that owns the flag.
+    if (enabled === null) return;
     if (name === 'female' || name === 'male') {
         const female = name === 'female' ? enabled : !enabled;
         result.flags.female = female;
@@ -2785,7 +2801,7 @@ function applyOption(result, optionState, element, lineNumber) {
         setPetName(result, name, value, lineNumber);
     } else if (name === 'blind' || name === 'deaf' || name === 'nudist'
                || name === 'pauper' || name === 'reroll') {
-        setRoleplay(result, name, value, negated, lineNumber);
+        setRoleplay(result, name, matchedRow, statement, value, negated);
     } else if (name === 'decgraphics') {
         result.flags.decgraphics = !negated;
         if (!negated) {
@@ -2897,7 +2913,7 @@ function applyOption(result, optionState, element, lineNumber) {
         }
         result.flags.versinfo = versinfo;
     } else if (HANDLED_BOOLEAN_OPTIONS.has(name)) {
-        applyBooleanOption(result, name, value, negated, lineNumber);
+        applyBooleanOption(result, name, matchedRow, statement, value, negated);
     } else if (value != null) {
         // Only an option whose optlist.h negateok is Yes reaches this: a
         // negated spelling of any other one is bad_negation()'s above.  What
@@ -2935,7 +2951,7 @@ function applyOption(result, optionState, element, lineNumber) {
             result.flags[name] = value;
         }
     } else {
-        applyBooleanOption(result, name, value, negated, lineNumber);
+        applyBooleanOption(result, name, matchedRow, statement, value, negated);
     }
 }
 

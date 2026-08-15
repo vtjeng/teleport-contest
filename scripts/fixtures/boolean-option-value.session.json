@@ -1,0 +1,29 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2884516,
+      "datetime": "20050621143000",
+      "nethackrc": "OPTIONS=name:ValokA,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=time:zebra\nOPTIONS=showexp\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 7213904,
+      "datetime": "19960214081500",
+      "nethackrc": "OPTIONS=name:ValokB,role:Ranger,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=TIME:Zebra\nOPTIONS=blind:Purple\nOPTIONS=showexp:true\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 1558472,
+      "datetime": "20120903171000",
+      "nethackrc": "OPTIONS=name:ValokC,role:Wizard,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_pet:Zebra\nOPTIONS=mention_decor:Zebra\nOPTIONS=male:Zebra\n",
+      "moves": "\r"
+    },
+    {
+      "seed": 6640183,
+      "datetime": "19831107235500",
+      "nethackrc": "OPTIONS=name:ValokD,role:Barbarian,race:human,gender:male,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=time:1\nOPTIONS=hitpointbar:of\nOPTIONS=verbose:n\n",
+      "moves": "\r"
+    }
+  ]
+}

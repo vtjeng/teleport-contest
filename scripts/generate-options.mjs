@@ -81,6 +81,7 @@ const FIELD = Object.freeze({
     setwhere: 5,
     opttyp: 6,
     negateok: 7,
+    valok: 8,
     pfx: 10,
     termpref: 11,
     addr: 13,
@@ -237,6 +238,7 @@ function parseEntries(expanded) {
             negateok: parseYesNo(
                 fields[FIELD.negateok], 'option negation flag',
             ),
+            valok: parseYesNo(fields[FIELD.valok], 'option value flag'),
             pfx,
             termpref: opttyp === 'BoolOpt'
                 ? parseEnum(
@@ -275,6 +277,7 @@ function formatEntry(entry) {
     return `    { name: '${entry.name}', section: ${entry.section},`
         + ` setwhere: ${entry.setwhere},`
         + ` opttyp: '${entry.opttyp}', negateok: ${entry.negateok},`
+        + ` valok: ${entry.valok},`
         + ` pfx: ${entry.pfx}, termpref: ${entry.termpref},`
         + ` addr: ${addr}, optfn: '${entry.optfn}',`
         + ` initval: ${entry.initval},`
@@ -294,9 +297,11 @@ function formatModule(entries) {
 // walks. termpref is optlist.h enum menu_terminology_preference, addr names
 // the C lvalue holding a boolean option's value, and optfn names the options.c
 // handler minus its optfn_ prefix, or its pfxfn_ prefix when pfx is true.
-// negateok says whether parseoptions() accepts a leading '!' or "no",
-// has_handler whether doset() runs the option's do_handler request instead of
-// prompting, and initval is the compiled-in default initoptions_init() stores.
+// negateok says whether parseoptions() accepts a leading '!' or "no", valok
+// whether optfn_boolean() lets a value it cannot read as true or false stand
+// instead of reporting it, has_handler whether doset() runs the option's
+// do_handler request instead of prompting, and initval is the compiled-in
+// default initoptions_init() stores.
 export const allopt = Object.freeze([
 ${entries.map(formatEntry).join('\n')}
 ].map(Object.freeze));
