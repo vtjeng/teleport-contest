@@ -2223,7 +2223,7 @@
     },
     {
       "id": "counted-command-occupation",
-      "status": "open",
+      "status": "closed",
       "boundary": "A digit typed as the first byte of a command opens a count, and the counted command runs as an occupation. cmd.c parse() (5096-5150) hands the digit to the already-ported get_count() (5010-5089) and sets gm.multi = gc.command_count - 1; rhack() calls set_occupation(func, tlist->f_text, gm.multi) at 3728-3729; cmd.c timed_occupation() (172-178) counts gm.multi down inside allmain.c moveloop_core()'s occupation arm (484-509) until it answers 0 or monster_nearby() stops it. Two conditions bound it. First, extcmdlist[] carries occupation text on exactly two of its 170 rows, 's'/searching at cmd.c:1846-1847 and '.'/waiting at :1930-1931, both already dispatched, so a count before any other row still refuses and no ported line lies under moveloop_core()'s non-occupation gm.multi > 0 arm (515-531): counted movement, lookaround(), end_running() and svc.context.mv stay unported. Second, js/cmd.js set_occupation()'s 'if (xtime) throw' at :260 is replaced by C's timed_occupation() install and nothing else in that function changes, so the untimed occupations eat.c, lock.c and do_wear.c already install keep their present behavior.",
       "upstreamOwners": [
         "cmd.c parse()",
@@ -2271,8 +2271,11 @@
         "screens": 1657,
         "rng": 124279
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "0fcfb88aa4ffac6b9c221c4eb8318b5c610651e7",
+      "delivered": {
+        "screens": 17,
+        "rng": 771
+      }
     }
   ]
 }

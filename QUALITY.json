@@ -13166,6 +13166,121 @@
         ]
       },
       "recordedAt": "2026-08-14T20:45:05.746Z"
+    },
+    {
+      "kind": "review",
+      "head": "1842f5e3dfa349a6f668be4e1a02868c2959f345",
+      "auditedRange": "d0612ef0b8b7db48dc3137831247a5fb02a1ed2f..1842f5e3dfa349a6f668be4e1a02868c2959f345",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "28c62d09650a6718211a22ad9ae8d88731e992e0",
+        "reason": "The counted-command-occupation goal changed 249 production lines across four files in one subsystem, below the 500-line trigger AGENTS.md sets for a checklist, and its boundary is two conditions a reader can test directly: a count before a row carrying no occupation text still refuses, and set_occupation()'s xtime throw is replaced by C's timed_occupation() install. Both were verified at 1842f5e. The rest of the range is test work from a deferral burn-down whose five lanes each held the development score identical."
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "generation",
+        "monsters",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 13 raw, 12 deduplicated, 7 confirmed, 6 applied, 1 deferred, 5 rejected, 0 unverified; mutation: 0 survivors of 8 mutants. Goal-closing pass for counted-command-occupation, covering both slices plus the tests deferral burn-down that ran alongside them, with the concurrency finder enabled because the occupation callback is asynchronous and set_occupation() stores a function on game state that a later turn invokes. The pass's most useful result is the second production defect: js/allmain.js interrupt_multi() carried a comment saying its refusal was a no-op because only a run reaches a positive multi, and this goal's own set_occupation() call falsified that in the same range. It is the second time a review has caught a refusal justified as unreachable becoming reachable when new code lands, after mattacku()'s AT_HUGS arm at d0612ef, and neither was visible to the development score. The first defect, a retried F-prefixed movement leaking context.forcefight into the next command, was confirmed with a wrong input; the fix agent traced the reachable one to mFL and measured it live. No score moved on any fix: 9/33 sessions, 1674/7765 screens, 125050/610816 random-number calls and 1685/7765 cursors before and after. Applied in 0fcfb88.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2440,
+        "counts": {
+          "raw": 13,
+          "deduplicated": 12,
+          "confirmed": 7,
+          "applied": 6,
+          "deferred": 1,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 2,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/cmd.js captureParsedCommand() and restoreParsedCommand() carried context.forcefight but not the DOMOVE_WALK bit cmd.c do_fight():1632 writes into gd.domove_attempting beside it. A retried command reached set_move_cmd() with an empty word, took its `!gd.domove_attempting && !u.dz` guard and became a rush, and rhack():3792's rush arm skips `svc.context.forcefight = 0`, so the flag outlived the command and turned the player's next movement into a force-fight nobody typed. The finding traced it to `FH`, which cannot reach the defect: only the eight do_move_<dir> rows carry CMD_gGF_PREFIX (cmd.c:2009-2023), so rhack():3693-3722 turns `FH` away. `mFL` reaches it, because was_m_prefix latches on do_reqmenu() and is never cleared (cmd.c:3771-3772), leaving CMD_M_PREFIX in force for do_run_east (cmd.c:2051). Driven live before the fix, a single-pass `mFL` ends with context.forcefight 0 and the same command retried past a hidden monster ends with 1.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/allmain.js interrupt_multi() carried the claim that a run is the only way this port reaches a positive multi, so the arm that refuses allmain.c interrupt_multi():975-983's Norep(msg) half was a no-op. cmd.c rhack():3728-3729's set_occupation() call, landed by this goal, falsified it: a counted `s` or `.` leaves gm.multi above 0 with neither svc.context.run nor svc.context.travel set, which is exactly the state the guard admits, so a count spanning the turn the hero regains the last hit point or power point ends the segment where C prints one line and stops the count. The refusal itself is correct and fail-closed: it is taken ahead of nomul(0), which C runs first, so the interruption is wholly unapplied. Deferred rather than fixed because porting Norep(msg) makes js/regen.js regen_hp(), regen_pw() and js/allmain.js interrupt_multi() async and emits a message on a turn no input boundary bounds, which is new rendering behavior and needs a fresh recorded C case.",
+            "foundBy": [
+              "variable-trace",
+              "concurrency"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "deferrals": [
+          {
+            "id": "counted-occupation-full-health-interrupt",
+            "trackedIn": "counted-occupation-full-health-interrupt",
+            "category": "production",
+            "summary": "js/allmain.js interrupt_multi() carried the claim that a run is the only way this port reaches a positive multi, so the arm that refuses allmain.c interrupt_multi():975-983's Norep(msg) half was a no-op. cmd.c rhack():3728-3729's set_occupation() call, landed by this goal, falsified it: a counted `s` or `.` leaves gm.multi above 0 with neither svc.context.run nor svc.context.travel set, which is exactly the state the guard admits, so a count spanning the turn the hero regains the last hit point or power point ends the segment where C prints one line and stops the count. The refusal itself is correct and fail-closed: it is taken ahead of nomul(0), which C runs first, so the interruption is wholly unapplied. Deferred rather than fixed because porting Norep(msg) makes js/regen.js regen_hp(), regen_pw() and js/allmain.js interrupt_multi() async and emits a message on a turn no input boundary bounds, which is new rendering behavior and needs a fresh recorded C case."
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "state.go.occupation holds callbacks with two incompatible signatures, eatfood(state, env) and timed_occupation(state), and timed_occupation() drops the env js/allmain.js:1102 passes, so a timed occupation's handler can receive no injected operation.",
+            "counterEvidence": "The facts hold and the impact does not. Enumerating extcmdlist[] prints exactly two rows carrying f_text, `115 search dosearch \"searching\"` and `46 wait donull \"waiting\"`, so timedOccupationFunction() can return only dosearch or donull. js/detect.js:844 dosearch(state, rawEnv = {}) hands dosearch0() a normalizeSearchEnv() that defaults every operation, and js/cmd.js:388 donull(state) takes no env at all; js/cmd.js:1528 already calls dosearch(state) with none from the typed path. Widening timed_occupation() to forward an env no reachable callee reads is the speculative plumbing AGENTS.md forbids, and it weakens the translation of C's argument-less `(*timed_occ_fn)()`. Do not reopen without a third f_text row in upstream extcmdlist[] whose handler reads an injected operation."
+          },
+          {
+            "summary": "js/mhitu.js could_seduce() refuses on the species half of C's disjunction alone, so an amorous demon's AD_PHYS claw stops the segment where C returns 0 and prints an ordinary hit or miss line, with no deferral recorded.",
+            "counterEvidence": "Three independent refutations. Reachability: monsters.h:2922-2924 puts ATTK(AT_BITE, AD_SSEX, 0, 0) at slot 0 and the two AD_PHYS claws at slots 1 and 2, and mhitu.c mattacku()'s NATTK loop (766-800) resolves slot 0 first, where the hit side already stops at js/uhitm.js:1551 AD_SSEX and the miss side reaches could_seduce() with adtyp AD_SSEX, which the finding concedes is refused correctly; so the claws cannot be reached without an earlier stop. Causality: `git diff d0612ef..1842f5e -- js/mhitu.js` changes comment lines only and the species test at js/mhitu.js:143-144 is byte-identical across the range, so the narrowness is pre-existing rather than introduced. Resolution: mhitu.c hitmsg():43-69 has no AT_CLAW case and falls to `default: verb = \"hits\"`, so the proposed assertion on \"The incubus claws you!\" would fail against a correctly completed port. Do not reopen without a source-reachable input and a diff-causal line."
+          },
+          {
+            "summary": "The only test for a counted occupation ending early drives timed_occupation() with a fabricated callback on a bare object, reaching neither detect.c dosearch0()'s nomul(0), nor js/hack.js nomul(), nor moveloop_core()'s clearing.",
+            "counterEvidence": "Every production line the early stop crosses is exercised elsewhere. scripts/detect.test.mjs:398-411 drives the real secret-door find with multi 4 and asserts the event order ends at nomul(0) with multi 0 and context.run, travel, travel1 and mv all 0, which is nomul()'s `if (multi < nval) return` guard letting a positive multi through. scripts/detect.test.mjs:421-449 replays seed 8100006 with ten `s` presses through js/detect.js:410's own nomulZero injection, matching C's random-number calls, screens and cursors. scripts/count-prefix.test.mjs:180-206 pins moveloop_core() clearing go.occupation. The finding's own suggested validation is self-defeating: it states that removing the state.multi > 0 guard is already caught by the stub it criticises. Do not reopen without a mutation of js/cmd.js timed_occupation() that the present suite fails to kill."
+          },
+          {
+            "summary": "scripts/monster-melee-hit-phys.test.mjs's replacement damage check iterates from index 1, exempting each seed's first row, and seed 6610160's first row is a landed blow that now carries no damage assertion.",
+            "counterEvidence": "The falsification experiment was run and reversed the claim. Substituting `uhp: 16` for seed 6610160's first row in scripts/run-monster-melee-hit-phys.mjs and running `node --test scripts/monster-melee-hit-phys.test.mjs` yields 2 pass and 1 fail: `not ok 3 - each physical hit segment reaches the lines it is here for`, because verifyMonsterMeleeHitPhysSegment() (scripts/run-monster-melee-hit-phys.mjs:167-174) compares game.u.uhp against event.uhp. The replaced bound `landed.every((e) => e.uhp < 16)` was vacuous for seed 880042, whose Healer's maximum is 13, so the change raises net coverage. Do not reopen without a substitution the present suite leaves green."
+          },
+          {
+            "summary": "scanSession()'s keyCursor derivation and its relocated behavioral assignment have no test; scripts/scan-sessions.test.mjs only exercises the consumers, which receive keyCursor as a hand-written fixture field.",
+            "counterEvidence": "The coverage gap is real and immaterial here. Both new rules are three lines mirroring helpers the same file's tests do pin: cursorState()'s read-the-preceding-step convention at scripts/scan-sessions.test.mjs:244-280 and again through commandsIssued() at :355-379, and isCommandRefusal() at :329. scan-sessions.mjs produces a human-read ranking report that no part of npm run checkpoint, the development score, or any generated-data check consumes, so a mislabelled row costs a reader's attention rather than game behavior. The proposed test also cannot be built as described: scan-sessions.mjs:82 and :109 fix DEVELOPMENT_DIR and accept no path, pinned by scripts/scan-sessions.test.mjs:53-59, so a synthetic session would have to be written into sessions/, which AGENTS.md forbids without explicit user approval. Do not reopen except through an exported helper proposed by a simplification pass."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "d0612ef0b8b7db48dc3137831247a5fb02a1ed2f..1842f5e3dfa349a6f668be4e1a02868c2959f345"
+          ],
+          "mutants": 8,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 0,
+              "killed": 0
+            },
+            "logical": {
+              "ran": 5,
+              "killed": 5
+            },
+            "relational": {
+              "ran": 3,
+              "killed": 3
+            }
+          },
+          "deltaRun": "The audit-fix commit 0fcfb88 reports `Mutants: 0/0 kind=boolean,logical,relational` over its uncommitted js/ diff. Its js/ change adds a field to an object literal, a read of that field, one word of a boundary message, and comments, none of which is a relational, logical or boolean site.",
+          "finderConclusion": "The tests finder received an empty survivor list and still reported the pass's two test findings, both confirmed: scripts/cmd.test.mjs's number_pad case had been rewritten off the behavior this goal corrected, and scripts/mthrowu.test.mjs's clear_path() test never observed that arm answering true, so an implementation hard-wired to false passed it. Neither gap sat on a mutable site, so the zero-survivor run understated the range's test debt rather than measuring it. Two mutants at js/cmd.js:2096 timed out rather than failing an assertion, and both are counted as killed."
+        },
+        "readiness": {
+          "boundary": "Starts when the player types a digit at the command prompt, which cmd.c parse():5110 routes into get_count(); ends when the counted command has spent its repeats and the map, message row and status row are redrawn, or when the port refuses a counted row it will not repeat. The running game executes it: scripts/run-count-prefix.mjs records 13 segments with the patched C reference and replays them with the port, matching 33,889 random-number calls, 69 screens and 69 cursors, and the development sessions seed0004-feeding-pony and seed0900-tourist-explore-actions advanced on the same behavior.",
+          "sourceReview": "Every branch and helper reachable before the ending event was traced against cmd.c parse(), get_count(), rhack(), timed_occupation(), set_occupation() and reset_cmd_vars(), allmain.c moveloop_core() and interrupt_multi(), and detect.c dosearch0(). The trace covered state order and random-number order, which the 33,889-call differential then confirmed. The stops inside the boundary were identified and named: COUNTED_BOUNDARY for a row this port will not repeat, moveloop_core()'s non-occupation repeat arm, and interrupt_multi()'s message half, which this pass showed had become reachable.",
+          "completeness": "No unsupported behavior remains unstopped inside the boundary. Every reachable excluded branch refuses before changing state, consuming randomness or producing output: the count refusal calls resetCommandVars() and throws ahead of any dispatch, and interrupt_multi() throws ahead of C's leading nomul(0), leaving the interruption wholly unapplied. The one claim of unreachability this range falsified is that interrupt_multi() arm, now corrected in the comment and recorded as counted-occupation-full-health-interrupt; a sweep of the remaining unreachability claims in js/allmain.js and js/cmd.js found the rest still true."
+        }
+      },
+      "recordedAt": "2026-08-15T02:36:36.157Z"
     }
   ]
 }

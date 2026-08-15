@@ -27,17 +27,18 @@ states it.
 
 ## Current standing
 
-- Development, at `28ee8bf` (2026-08-14): 1,657 of 7,765 screens and 124,279 of
+- Development, at `0fcfb88` (2026-08-15): 1,674 of 7,765 screens and 125,050 of
   610,816 random-number values, over the development set of 33 sessions, of
   which 9 match completely.
-- Reserved holdout, last evaluated at `28ee8bf`: 249 of 3,640 screens, 34,361
+- Reserved holdout, last evaluated at `0fcfb88`: 249 of 3,640 screens, 34,361
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  It moved for the second and third times in this file's history at the last
-  two goal closes, after eleven flat ones: `armor-wear` took it to 234 and
-  `monster-melee-attack` to 249. `docs/goal-history.md` records why a small gap
-  is expected rather than a defect: goals are ranked by capped development
-  look-ahead, so each one is chosen for the development session it unblocks,
-  and carry-over to the hidden set is a by-product.
+  `counted-command-occupation` left every one of those figures unchanged. The
+  holdout moved at two of the last four goal closes, after eleven flat ones:
+  `armor-wear` took it to 234 and `monster-melee-attack` to 249.
+  `docs/goal-history.md` records why a small gap is expected rather than a
+  defect: goals are ranked by capped development look-ahead, so each one is
+  chosen for the development session it unblocks, and carry-over to the hidden
+  set is a by-product.
 
   Three observations now bear on what carries over, and they point the same
   way. Commonness in ordinary play does not predict it: force-fight gained 40

@@ -457,3 +457,5 @@ utc	event	phase	goal	detail
 2026-08-14T23:55:30.931Z	end	implement	counted-command-occupation	count-prefix-admission closed at 4c43663; screens 1657 to 1660, exactly the forecast, only the two predicted sessions moving
 2026-08-15T00:11:47.040Z	start	implement	counted-command-occupation	counted-search-occupation: timed_occupation() and the rhack() install; forecast 31, all seed0004
 2026-08-15T00:47:54.597Z	end	implement	counted-command-occupation	counted-search-occupation closed at 71af0a3; 14 of 31 forecast, seed0004 stopped by a corpse rot timer rather than reaching dopush()
+2026-08-15T02:37:40.235Z	start	review	counted-command-occupation	goal-closing pass over d0612ef..1842f5e; rows appended after the fact, measured wall time 2440s for workflow wf_34cf3efa-e79 and 2116s for the fix agent
+2026-08-15T02:37:40.265Z	end	review	counted-command-occupation	7 of 13 confirmed, 6 applied, 1 deferred, 5 rejected; one production defect and one revived refusal; recorded at 0fcfb88
