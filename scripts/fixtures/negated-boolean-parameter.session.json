@@ -1,0 +1,41 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 7710041,
+      "datetime": "20010704120000",
+      "nethackrc": "OPTIONS=name:BoolA,role:Valkyrie,race:human,gender:female,align:neutral,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/always/bold&dim\nOPTIONS=!legacy:on\n",
+      "moves": "\r "
+    },
+    {
+      "seed": 3348012,
+      "datetime": "19970820153000",
+      "nethackrc": "OPTIONS=name:BoolB,role:Healer,race:gnome,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=!acoustics:on\nOPTIONS=showexp\n",
+      "moves": "\r "
+    },
+    {
+      "seed": 8025476,
+      "datetime": "20120311064500",
+      "nethackrc": "OPTIONS=name:BoolC,role:Samurai,race:human,gender:male,align:lawful,!legacy,!tutorial,!splash_screen\nOPTIONS=!male:on\nOPTIONS=time\n",
+      "moves": "\r "
+    },
+    {
+      "seed": 1963705,
+      "datetime": "19840926201500",
+      "nethackrc": "OPTIONS=name:BoolD,role:Barbarian,race:orc,gender:male,align:chaotic,!tutorial,!splash_screen\nOPTIONS=!legacy:\n",
+      "moves": " "
+    },
+    {
+      "seed": 5417298,
+      "datetime": "20230105094500",
+      "nethackrc": "OPTIONS=name:BoolE,role:Ranger,race:elf,gender:female,align:chaotic,!legacy,!tutorial,!splash_screen\nOPTIONS=!showscore:on\nOPTIONS=!vt_tiledata:on\nOPTIONS=!debug_hunger:on\n",
+      "moves": " "
+    },
+    {
+      "seed": 6851230,
+      "datetime": "19911204175500",
+      "nethackrc": "OPTIONS=name:BoolF,role:Wizard,race:human,gender:male,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=!BIOS:on\nOPTIONS=notime:on\n",
+      "moves": "\r "
+    }
+  ]
+}

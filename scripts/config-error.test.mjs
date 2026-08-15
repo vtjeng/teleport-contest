@@ -437,3 +437,80 @@ test('a segment with parseoptions errors reports all four and plays on',
             assert.notDeepEqual(screens[1], screens[0]);
         });
     });
+
+// C ref: options.c optfn_boolean() (5199-5222), the do_set exits that precede
+// `*(allopt[optidx].addr) = !negated`.  A configuration-file read takes them
+// on a boolean statement carrying a value, and only the negated spelling
+// reports; the other two are silent.  parseoptions():670 turns the
+// optn_silenterr that follows into a bare `return FALSE`, so the rest of the
+// file is read either way.
+test('a negated boolean with a parameter reports and sets nothing', () => {
+    for (const [statement, reported] of [
+        // C quotes allopt[matchidx].name, so an abbreviation is reported
+        // under the full name it matched.
+        ['OPTIONS=!legacy:on',
+            [" * Line 1: Negated boolean 'legacy' should not have a"
+             + ' parameter.']],
+        ['OPTIONS=!leg:yes',
+            [" * Line 1: Negated boolean 'legacy' should not have a"
+             + ' parameter.']],
+        // The alias loop settles matchidx on the row it belongs to, so the
+        // message names "female" for a statement that spelled "male".
+        ['OPTIONS=!male:on',
+            [" * Line 1: Negated boolean 'female' should not have a"
+             + ' parameter.']],
+        // "no" and "no-" negate as "!" does, and '=' separates a value as
+        // ':' does.
+        ['OPTIONS=notime:on',
+            [" * Line 1: Negated boolean 'time' should not have a"
+             + ' parameter.']],
+        ['OPTIONS=no-time=1',
+            [" * Line 1: Negated boolean 'time' should not have a"
+             + ' parameter.']],
+        // bad_negation() runs first (options.c:625-629), so a row whose
+        // negateok is No never reaches optfn_boolean() to report the value.
+        ['OPTIONS=!BIOS:on',
+            [' * Line 1: The BIOS option may not both have a value and be'
+             + ' negated.']],
+        // string_for_opt(opts, TRUE) answers empty_optstr for a separator
+        // that ends the statement, so C skips the whole value block and the
+        // negation applies as it would with no separator at all.
+        ['OPTIONS=!legacy:', []],
+        // The null-address retreat (5203) comes before the value is read.
+        // optlist.h:668-670 compiles showscore's storage away for this build,
+        // and js/optlist_data.js carries the resulting null addr.
+        ['OPTIONS=!showscore:on', []],
+        ['OPTIONS=!vt_tiledata:on', []],
+        // So does the set_wiznofuz guard (5207), which fires because
+        // go.opt_initial is true for the whole configuration-file read.
+        ['OPTIONS=!debug_hunger:on', []],
+    ]) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(
+            parsed.configErrorFrame.output,
+            reported.length ? [`\n${statement}`, ...reported] : [],
+            statement,
+        );
+    }
+
+    // legacy and acoustics are both On by default, so a statement C refused
+    // and one C applied leave the flag at opposite values.  Without this the
+    // rows above pass whether the port reports and sets or reports and sets
+    // the negation anyway.
+    assert.equal(parseNethackrc('OPTIONS=!legacy:on\n').flags.legacy, true);
+    assert.equal(parseNethackrc('OPTIONS=!legacy\n').flags.legacy, false);
+    assert.equal(parseNethackrc('OPTIONS=!legacy:\n').flags.legacy, false);
+    assert.equal(
+        parseNethackrc('OPTIONS=!acoustics:true\n').flags.acoustics, true,
+    );
+    assert.equal(parseNethackrc('OPTIONS=!acoustics\n').flags.acoustics, false);
+
+    // The rest of the file is read after the report: `showexp` sits on the
+    // line below the refused one and still reaches flags.
+    const continued = parseNethackrc(
+        'OPTIONS=!legacy:on\nOPTIONS=showexp\n',
+    );
+    assert.equal(continued.flags.legacy, true);
+    assert.equal(continued.flags.showexp, true);
+    assert.equal(continued.configErrorFrame.num_errors, 1);
+});

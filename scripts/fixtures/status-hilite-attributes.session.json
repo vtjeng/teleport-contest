@@ -1,0 +1,35 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 2290873,
+      "datetime": "19930615071500",
+      "nethackrc": "OPTIONS=name:HiliteN,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/always/bold&dim power/always/underline armor-class/always/inverse\nOPTIONS=hilite_status:gold/always/dim dungeon-level/always/italic experience-level/always/blink\n",
+      "moves": " "
+    },
+    {
+      "seed": 6604512,
+      "datetime": "20070129221500",
+      "nethackrc": "OPTIONS=name:HiliteO,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=hilite_status:hitpoints/always/bold&normal power/always/none&bold armor-class/always/bold&none&dim\nOPTIONS=hilite_status:gold/always/uline&reverse dungeon-level/always/red\n",
+      "moves": " "
+    },
+    {
+      "seed": 4038196,
+      "datetime": "19811108163000",
+      "nethackrc": "OPTIONS=name:HiliteP,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,blind\nOPTIONS=hilite_status:condition/blind/bold&dim\nOPTIONS=hilite_status:condition/blind/italic\n",
+      "moves": " "
+    },
+    {
+      "seed": 9142607,
+      "datetime": "20160923045500",
+      "nethackrc": "OPTIONS=name:HiliteQ,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,blind\nOPTIONS=hilite_status:condition/blind/bold&underline\nOPTIONS=hilite_status:condition/blind/none&inverse\n",
+      "moves": " "
+    },
+    {
+      "seed": 5723384,
+      "datetime": "19890402103000",
+      "nethackrc": "OPTIONS=name:HiliteR,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen,hitpointbar\nOPTIONS=hilite_status:hitpoints/always/underline\n",
+      "moves": " "
+    }
+  ]
+}

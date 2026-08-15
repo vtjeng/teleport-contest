@@ -25,6 +25,7 @@ import {
     AM_CHAOTIC, AM_LAWFUL, AM_MASK, AM_NEUTRAL, AM_SANCTUM,
     ACCESSIBLE, BLINDED, CONFUSION, DEAF, FLYING, HALLUC, HALLUC_RES,
     CORPSTAT_FEMALE, CORPSTAT_GENDER,
+    HL_BOLD, HL_INVERSE, HL_ULINE, HL_UNDEF,
     LEVITATION, NOT_HUNGRY, SICK, SICK_NONVOMITABLE, SICK_VOMITABLE,
     SLIMED, STONED, STR18, STRANGLED, STUNNED, OBJ_FLOOR,
     BACKTRACK, DISP_ALL, DISP_ALWAYS, DISP_BEAM, DISP_CHANGE, DISP_END,
@@ -59,6 +60,8 @@ import {
 import {
     ATR_NONE,
     ATR_INVERSE,
+    ATR_BOLD,
+    ATR_UNDERLINE,
     NO_COLOR,
     CLR_BLACK,
     CLR_BLUE,
@@ -3783,21 +3786,26 @@ function _statusFieldStyle(field, valueSnapshot = null) {
     return selected?.style ?? null;
 }
 
+// C ref: win/tty/wintty.c condattr() (4920-4952), which reads back the
+// gc.cond_hilites[] bits botl.c parse_condition() set.  Those bits are
+// cumulative across statements, so this replays every rule naming the
+// condition in configuration-file order: `clearAttributes` is the `&= ~mask`
+// sweep "none" performs over all six entries, `attrib` the `|= mask` bits.
 function _statusConditionStyle(option) {
     if (!game.iflags?.hilite_delta) return null;
     const colors = new Set();
-    let attr = ATR_NONE;
+    let attrib = HL_UNDEF;
     let matched = false;
     for (const rule of game.iflags.status_hilites ?? []) {
         if (rule.field !== 'condition'
             || !rule.conditions.includes(option)) continue;
         matched = true;
         colors.add(rule.style.color);
-        if (rule.style.clearAttributes) attr = ATR_NONE;
-        attr |= rule.style.attr;
+        if (rule.style.clearAttributes) attrib = HL_UNDEF;
+        attrib |= rule.style.attrib;
     }
     return matched
-        ? { color: Math.min(...colors), attr } : null;
+        ? { color: Math.min(...colors), attrib } : null;
 }
 
 function _statusOwnerStyle(owner) {
@@ -3812,12 +3820,37 @@ function _statusOwnerStyle(owner) {
         const hpStyle = _statusFieldStyle('hitpoints');
         return {
             color: hpStyle?.color ?? NO_COLOR,
-            // wintty.c assigns inverse independently of the configured HP
-            // rule; unsupported blink is intentionally absent from capture.
-            attr: ATR_INVERSE,
+            // C ref: wintty.c:4541 sets this mask from the BL_HP update rather
+            // than from the configured HP rule, as
+            // `HL_INVERSE | (hpbar_crit_hp ? HL_BLINK : 0)`.  HL_BLINK adds
+            // nothing the recorder can see -- see _recorderStatusAttribute()
+            // -- so the port carries the inverse bit alone.
+            attrib: HL_INVERSE,
         };
     }
     return null;
+}
+
+// C ref: win/tty/wintty.c Begin_Attr() (4954-4971), which turns an HL_ mask
+// into term_start_attr() calls, and recorder patch 006's nomux_set_attr(),
+// which records ATR_INVERSE, ATR_BOLD and ATR_ULINE and drops ATR_DIM,
+// ATR_ITALIC and ATR_BLINK.  The three dropped ones therefore leave no trace
+// on a captured screen, and HL_NONE and HL_UNDEF both draw nothing.
+//
+// term_attr_fixup() (termcap.c:1410-1427) sits between the two and rewrites
+// the mask when the terminal lacks a capability: no `us` turns HL_ULINE into
+// HL_BOLD, no `mb` turns HL_BLINK into HL_BOLD, and no `mh` drops HL_DIM.
+// The recorder runs under TERM=xterm-256color, which has all three, so it is
+// the identity there and has no port.  Measured on the reference build at
+// seed 7710041 and 20010704120000: hilite_status:hitpoints/always/underline
+// captures underline rather than bold, and .../blink captures nothing rather
+// than bold, which is only true when `us` and `mb` are both present.
+function _recorderStatusAttribute(attrib) {
+    let attr = ATR_NONE;
+    if (attrib & HL_BOLD) attr |= ATR_BOLD;
+    if (attrib & HL_ULINE) attr |= ATR_UNDERLINE;
+    if (attrib & HL_INVERSE) attr |= ATR_INVERSE;
+    return attr;
 }
 
 function _recorderStatusStyle(style) {
@@ -3829,7 +3862,7 @@ function _recorderStatusStyle(style) {
     return {
         color: style.color === CLR_GRAY || style.color === CLR_BLACK
             ? NO_COLOR : style.color,
-        attr: style.attr,
+        attr: _recorderStatusAttribute(style.attrib),
     };
 }
 

@@ -3122,7 +3122,7 @@
       "area": "startup",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "431e9bc298ac7c2e6416d1da71f90861777af19b",
       "detail": "js/options.js MENU_HEADING_ATTRIBUTES maps 'dim', 'italic' and 'blink' to ATR_NONE, because recorder patch 006 retains only bold, underline and inverse. That is right for menu_headings, where optfn_menu_headings() stores one attribute, and wrong for a status highlight: botl.c parse_status_hl2():3028-3040 sets HL_DIM, HL_ITALIC or HL_BLINK alongside whatever came before, while ATR_NONE alone reaches 'disp_attrib = HL_NONE', which discards the attributes named earlier in the same action. The port therefore reads 'dim' as that discard.\n\nMeasured at seed 3310277 and 19960229180000. OPTIONS=hilite_status:hitpoints/always/bold&dim draws HP with ESC[1m in C and with no attribute in the port, because 'dim' cleared the bold that 'bold' had set. The colour survives either way, so OPTIONS=hilite_status:hitpoints/always/red&italic matches.\n\nFixing it means separating the two readings: parse_status_hl2() and parse_condition() need an answer that distinguishes a tty-invisible attribute from ATR_NONE, which menuHeadingAttribute() cannot give while it is shared with parseMenuHeadingStyle(). It sits outside status-hilite-rules-still-fail-closed, which ports the error arms."
     },
@@ -3149,9 +3149,18 @@
       "area": "startup",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "95b3384e7c13642f3091df2ebc05930576b80b7c",
       "detail": "js/options.js booleanValue() throws optionError() for the no-blank negated spelling OPTIONS=!legacy:on, where options.c optfn_boolean():5218-5222 reports \"Negated boolean '%s' should not have a parameter\" and returns optn_silenterr, so C reads the rest of the file. The blank spelling OPTIONS=! legacy:on stopped reaching that throw at 95b3384, because the leading blank now fails match_optname(), which leaves this entry covering the no-blank spelling alone. Closing it needs no unported C. Found by the parseoptions-negation-prefix-skips-whitespace worker and covered by no entry open at that time."
+    },
+    {
+      "id": "boolean-value-c-cannot-read-still-fail-closed",
+      "area": "startup",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "65bbc10559971ca7abd62980272e84da658a14a4",
+      "detail": "js/options.js booleanValue() ends on optionError(\"'<value>' is not valid for <option>\"), where options.c optfn_boolean():5233-5237 reports \"'%s' is not valid for a boolean\" -- quoting the whole statement, not the value -- and returns optn_silenterr, so C leaves the option alone and reads the rest of the file. The port loses the segment instead. This is the arm beside the negation one that negated-boolean-with-parameter-still-fail-closed retired, and the two share a guard: C takes the reporting arm only when allopt[optidx].valok is No.\n\nClosing it needs one generated-table column. scripts/generate-options.mjs does not emit optlist.h's valok field (struct allopt_t member 9, the 'v' parameter of NHOPTB/NHOPTC), so js/optlist_data.js has nothing to test and the port cannot tell the reporting arm from the silent one that keeps 'negated' and sets the option. Reading optlist.h directly, menucolors is the only NHOPTB row whose valok is Yes, and it reaches neither booleanValue() call site today, so emitting the column would settle every row this arm can meet.\n\nRecorded case, which fails today and must pass when the arm lands: seed 2884516, datetime 20050621143000, nethackrc 'OPTIONS=name:ValokA,role:Valkyrie,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen / OPTIONS=time:zebra / OPTIONS=showexp', moves '\\r'. C draws \" * Line 2: 'time:zebra' is not valid for a boolean.\" on the raw-print screen, leaves flags.time off and still reads the showexp line below it."
     }
   ],
   "areas": [

@@ -18,6 +18,14 @@ import {
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
+    HL_BLINK,
+    HL_BOLD,
+    HL_DIM,
+    HL_INVERSE,
+    HL_ITALIC,
+    HL_NONE,
+    HL_ULINE,
+    HL_UNDEF,
     HVY_ENCUMBER,
     Is_rogue_level,
     LARGEST_INT,
@@ -651,14 +659,47 @@ function stripNegation(element) {
     return { statement, negated };
 }
 
+// C ref: options.c optfn_boolean() (5199-5222), the do_set request's three
+// exits that precede `*(allopt[optidx].addr) = !negated` at 5285 and are
+// reachable while a configuration file is being read.  True means C took one
+// of them, so the caller must leave the option at its previous value.
+//
+// parseoptions() calls this handler for every BoolOpt row, which is why the
+// caller keys on opttyp rather than on the handful of names the dispatch below
+// gives storage to: C reports the negation just the same for a row whose value
+// this port keeps opaque.  bad_negation() has already answered a row whose
+// negateok is No, matching C's order at 618-622.
+//
+// go.opt_initial is TRUE throughout a configuration-file read, so the
+// set_in_config guard at 5205 cannot fire here and only its set_wiznofuz
+// sibling can.  Neither that guard nor the null-address retreat reports
+// anything; the negation arm is the one exit that adds a message.
+function optfn_boolean_returns_before_setting(result, row, value, negated) {
+    /* silent retreat: the #ifdef arm that would have supplied storage for
+       this option compiled to a null pointer */
+    if (!row.addr) return true;
+    /* options that must NOT come from config file */
+    if (row.setwhere === set_wiznofuz) return true;
+    // C's `op = string_for_opt(opts, TRUE); if (op != empty_optstr)`.
+    if (value == null || value === '') return false;
+    if (!negated) return false;
+    configErrorAdd(
+        result,
+        `Negated boolean '${row.name}' should not have a parameter`,
+    );
+    return true;
+}
+
+// C ref: options.c optfn_boolean() (5209-5237), the do_set request's value
+// block, minus the negation arm optfn_boolean_returns_before_setting() above
+// answers first.
+//
+// C skips the whole block when string_for_opt(opts, TRUE) answers
+// empty_optstr, which it does both for a statement carrying no separator --
+// splitNameAndValue()'s null -- and for one whose separator ends it, where the
+// value is the empty string.  Either way the option takes !negated.
 function booleanValue(value, negated, optionName, lineNumber) {
-    if (value == null) return !negated;
-    if (negated) {
-        optionError(
-            lineNumber,
-            `negated boolean '${optionName}' must not have a value`,
-        );
-    }
+    if (value == null || value === '') return !negated;
     const normalized = value.toLowerCase();
     if ('true'.startsWith(normalized)
         || 'yes'.startsWith(normalized)
@@ -672,6 +713,12 @@ function booleanValue(value, negated, optionName, lineNumber) {
         || normalized === 'off'
         || (/^[0-9]/u.test(normalized)
             && Number.parseInt(normalized, 10) === 0)) return false;
+    // C's third arm (5233-5237) is `else if (!allopt[optidx].valok)`: a row
+    // that admits arbitrary values keeps `negated` as it was and sets the
+    // option, and only the rest report and return optn_silenterr.
+    // scripts/generate-options.mjs does not emit optlist.h's valok column, so
+    // js/optlist_data.js has no field to test, and the port stops here rather
+    // than assuming which arm a row takes.
     optionError(lineNumber, `'${value}' is not valid for ${optionName}`);
 }
 
@@ -984,12 +1031,24 @@ const MENU_HEADING_COLORS = Object.freeze({
     transparent: NO_COLOR,
 });
 
+// C ref: coloratt.c attrnames[] (47-58), read by match_str2attr() (374-393).
+// Its seven names are followed by a NULL row and then three aliases, and the
+// match loop walks past the NULL row, so all ten spell an attribute.
+//
+// This table is match_str2attr() composed with what optfn_menu_headings()'s
+// one caller does with the answer: iflags.menu_headings holds a single C ATR_
+// value that wintty.c hands to term_start_attr(), and recorder patch 006's
+// nomux_set_attr() records only ATR_INVERSE, ATR_BOLD and ATR_ULINE.  A
+// heading asking for dim, italic or blink is therefore drawn exactly as an
+// unstyled one, which is why those three share ATR_NONE's captured value here.
+//
+// STATUS_HILITE_ATTRIBUTES below is the other reading of the same ten names.
+// A status highlight accumulates several attributes at once and keeps the
+// tty-invisible ones apart from "none", so it cannot share this collapse.
 const MENU_HEADING_ATTRIBUTES = Object.freeze({
     none: ATR_NONE,
     normal: ATR_NONE,
     bold: ATR_BOLD,
-    // Recorder patch 006 only retains bold, underline, and inverse. These
-    // valid tty styles therefore have the same captured value as ATR_NONE.
     dim: ATR_NONE,
     italic: ATR_NONE,
     blink: ATR_NONE,
@@ -997,6 +1056,31 @@ const MENU_HEADING_ATTRIBUTES = Object.freeze({
     uline: ATR_UNDERLINE,
     inverse: ATR_INVERSE,
     reverse: ATR_INVERSE,
+});
+
+// The status-highlight reading of coloratt.c attrnames[]: match_str2attr()
+// composed with the ATR_ to HL_ chain that botl.c spells identically in
+// parse_status_hl2() (3040-3060) and parse_condition() (3306-3326).  Each
+// answer is the HL_ bit from include/botl.h:251-258 that the chain selects,
+// so a caller ORs it in -- except HL_NONE, which C assigns rather than ORs
+// and which therefore discards whatever the same action named earlier.
+//
+// The C ATR_ numbering (wintype.h:128-134) is deliberately absent: the ATR_
+// names js/terminal.js exports are the recorder's captured attribute bitmask,
+// a different vocabulary that happens to reuse the same identifiers, and
+// routing the status highlights through C's enum would put both in scope at
+// once.  The HL_ bits are the values C stores, so the port stores them too.
+const STATUS_HILITE_ATTRIBUTES = Object.freeze({
+    none: HL_NONE,
+    bold: HL_BOLD,
+    dim: HL_DIM,
+    italic: HL_ITALIC,
+    underline: HL_ULINE,
+    blink: HL_BLINK,
+    inverse: HL_INVERSE,
+    normal: HL_NONE,
+    uline: HL_ULINE,
+    reverse: HL_INVERSE,
 });
 
 function menuHeadingToken(value) {
@@ -1021,6 +1105,14 @@ function menuHeadingColor(token, rawToken = token) {
 function menuHeadingAttribute(token) {
     return Object.hasOwn(MENU_HEADING_ATTRIBUTES, token)
         ? MENU_HEADING_ATTRIBUTES[token] : null;
+}
+
+// Null is match_str2attr()'s -1, the answer its two status-highlight callers
+// take as "not an attribute, try a colour next".  Both pass complain FALSE,
+// so an unmatched name reports nothing here.
+function statusHiliteAttribute(token) {
+    return Object.hasOwn(STATUS_HILITE_ATTRIBUTES, token)
+        ? STATUS_HILITE_ATTRIBUTES[token] : null;
 }
 
 // C refs: botl.c initblstats[], fieldids_alias[], parse_status_hl1(), and
@@ -1235,24 +1327,24 @@ function match_str2clr(result, str) {
 // C ref: botl.c parse_status_hl2() (3021-3059), its action half: at most one
 // color, any number of attributes, and NO_COLOR when the action named none.
 // Null means it reported and its caller answers FALSE.
+//
+// `attrib` is C's disp_attrib, which the rule keeps as the hilite.coloridx
+// high byte (3070).  It starts at HL_UNDEF, gains a bit per named attribute,
+// and is *assigned* HL_NONE by "none" or "normal", so an action can end in
+// three distinguishable states: no attribute clause at all, an explicit
+// "normal", and one or more bits.  A bit named after "normal" still ORs in,
+// leaving HL_NONE set alongside it.
 function parseStatusHiliteAction(result, how) {
     const subfields = splitsubfields(how);
     // C's `if (sf < 1) return FALSE;`, which reports nothing.
     if (!subfields) return null;
-    let attr = ATR_NONE;
-    let clearAttributes = false;
+    let attrib = HL_UNDEF;
     let coloridx = -1;
     for (const subfield of subfields) {
-        const parsedAttr = menuHeadingAttribute(menuHeadingToken(subfield));
+        const parsedAttr = statusHiliteAttribute(menuHeadingToken(subfield));
         if (parsedAttr != null) {
-            // ATR_NONE is C's `disp_attrib = HL_NONE`, which discards the
-            // attributes named before it instead of adding to them.
-            if (parsedAttr === ATR_NONE) {
-                attr = ATR_NONE;
-                clearAttributes = true;
-            } else {
-                attr |= parsedAttr;
-            }
+            if (parsedAttr === HL_NONE) attrib = HL_NONE;
+            else attrib |= parsedAttr;
             continue;
         }
         const color = match_str2clr(result, subfield);
@@ -1263,8 +1355,7 @@ function parseStatusHiliteAction(result, how) {
         coloridx = color;
     }
     return {
-        attr,
-        clearAttributes,
+        attrib,
         color: coloridx === -1 ? NO_COLOR : coloridx,
     };
 }
@@ -1344,18 +1435,26 @@ function parse_condition(result, s, fieldIndex) {
             configErrorAdd(result, 'Missing color+attribute');
             return false;
         }
-        let attr = ATR_NONE;
+        // C sets and clears bits of gc.cond_hilites[] directly, one array
+        // entry per attribute, and those entries outlive the group: "none"
+        // clears the six of them for these conditions, including bits an
+        // earlier statement set, and a name after it sets one again.  The
+        // port replays that at render time from the pair recorded here --
+        // `clearAttributes` for the &= ~mask sweep, `attrib` for the |= mask
+        // bits that survived it -- so the loop below has to keep the two in
+        // the order the subfields arrive.
+        let attrib = HL_UNDEF;
         let clearAttributes = false;
         // C has no `sf < 1` guard here, so a split it refuses leaves the color
         // and the attributes at whatever the group before this one left.
         for (const subfield of splitsubfields(how) ?? []) {
-            const parsedAttr = menuHeadingAttribute(menuHeadingToken(subfield));
+            const parsedAttr = statusHiliteAttribute(menuHeadingToken(subfield));
             if (parsedAttr != null) {
-                if (parsedAttr === ATR_NONE) {
-                    attr = ATR_NONE;
+                if (parsedAttr === HL_NONE) {
+                    attrib = HL_UNDEF;
                     clearAttributes = true;
                 } else {
-                    attr |= parsedAttr;
+                    attrib |= parsedAttr;
                 }
                 continue;
             }
@@ -1371,7 +1470,7 @@ function parse_condition(result, s, fieldIndex) {
         result.iflags.status_hilites.push({
             field: 'condition',
             conditions,
-            style: { attr, clearAttributes, color: coloridx },
+            style: { attrib, clearAttributes, color: coloridx },
         });
         accepted = true;
         sidx += 1;
@@ -2621,6 +2720,10 @@ function applyOption(result, optionState, element, lineNumber) {
         bad_negation(result, matchedRow.name);
         return;
     }
+    if (matchedRow?.opttyp === 'BoolOpt'
+        && optfn_boolean_returns_before_setting(
+            result, matchedRow, value, negated,
+        )) return;
 
     const menuCommand = menuCommandOption(name);
 
@@ -3888,9 +3991,12 @@ export function dosetMenuItems(state, helpers, skiphelp) {
 // ===========================================================================
 
 // C ref: options.c:84, the value each option handler answers with.  The third,
-// optn_silenterr, has no port: C's optfn_boolean() returns it only from the
-// value-parsing and "not anatomically possible" arms, both of which stop with
-// a refusal below, and parseoptions() treats it as every other error anyway.
+// optn_silenterr, has no constant here because this interactive parser never
+// produces one: of optfn_boolean()'s four (5220, 5236, 5267 and 5283), the
+// first two need a value on the statement and doset() builds none, and the
+// other two stop with a refusal below.  parseoptions() treats it as every
+// other error anyway.  The configuration-file parser above does port the
+// negation arm at 5220, in optfn_boolean_returns_before_setting().
 const optn_err = 0;
 const optn_ok = 1;
 

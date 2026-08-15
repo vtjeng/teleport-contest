@@ -12,6 +12,14 @@ import {
     GPCOORDS_MAP,
     GPCOORDS_NONE,
     GPCOORDS_SCREEN,
+    HL_BLINK,
+    HL_BOLD,
+    HL_DIM,
+    HL_INVERSE,
+    HL_ITALIC,
+    HL_NONE,
+    HL_ULINE,
+    HL_UNDEF,
     HVY_ENCUMBER,
     MOD_ENCUMBER,
     OVERLOADED,
@@ -557,10 +565,13 @@ test('explicit boolean values reach their source-owned state', () => {
         parseNethackrc('OPTIONS=altmeta:false').iflags.altmeta,
         false,
     );
-    assert.throws(
-        () => parseNethackrc('OPTIONS=!mention_map:true'),
-        /negated boolean/u,
-    );
+    // options.c optfn_boolean():5216-5221 reports the negation and returns
+    // optn_silenterr, so the statement sets nothing and the option keeps the
+    // opt_in default of Off.  scripts/config-error.test.mjs pins the message
+    // and the on-by-default rows that make the two answers differ.
+    const negatedValue = parseNethackrc('OPTIONS=!mention_map:true\n');
+    assert.equal(negatedValue.configErrorFrame.num_errors, 1);
+    assert.equal(negatedValue.a11y.glyph_updates, false);
 
     // options.c optfn_boolean() uses digit(*op) with atoi(op), so leading
     // decimal 0/1 spellings may contain padding or a nonnumeric suffix.
@@ -1528,8 +1539,7 @@ test('status highlight options preserve source rules and condition defaults', ()
         value: 50,
         text: '',
         style: {
-            attr: ATR_INVERSE,
-            clearAttributes: false,
+            attrib: HL_INVERSE,
             color: CLR_RED,
         },
     });
@@ -1544,13 +1554,13 @@ test('status highlight options preserve source rules and condition defaults', ()
     );
     assert.ok(remaining.slice(0, 6).every(
         ({ style }) => style.color === CLR_BRIGHT_BLUE
-            && style.attr === ATR_BOLD,
+            && style.attrib === HL_BOLD,
     ));
     assert.deepEqual(remaining[6], {
         field: 'condition',
         conditions: ['blind', 'deaf'],
         style: {
-            attr: ATR_UNDERLINE,
+            attrib: HL_ULINE,
             clearAttributes: false,
             color: CLR_BRIGHT_MAGENTA,
         },
@@ -1953,6 +1963,56 @@ test('a characteristics rule expands to six and stops at the first failure',
         assert.equal(stopped.iflags.hilite_delta, 0);
     });
 
+// C refs: coloratt.c match_str2attr() over attrnames[], and the ATR_ to HL_
+// chain botl.c parse_status_hl2() (3040-3060) reads its answer with.  Seven
+// names precede attrnames[]'s NULL row and three aliases follow it, and the
+// match loop walks past that row, so all ten name an attribute.  disp_attrib
+// opens at HL_UNDEF, ORs each named bit in, and is *assigned* HL_NONE by
+// "none" or "normal", which is what makes the three states below distinct.
+test('a status highlight keeps every attribute name apart from none', () => {
+    for (const [action, attrib] of [
+        // The seven attrnames[] rows ahead of the NULL row.
+        ['none', HL_NONE],
+        ['bold', HL_BOLD],
+        ['dim', HL_DIM],
+        ['italic', HL_ITALIC],
+        ['underline', HL_ULINE],
+        ['blink', HL_BLINK],
+        ['inverse', HL_INVERSE],
+        // The three aliases behind it.
+        ['normal', HL_NONE],
+        ['uline', HL_ULINE],
+        ['reverse', HL_INVERSE],
+        // fuzzymatch() drops ' ', '-' and '_' from both sides.
+        ['under_line', HL_ULINE],
+        // Several attributes accumulate; a tty-invisible one adds its bit
+        // rather than discarding the bits before it.
+        ['bold&dim', HL_BOLD | HL_DIM],
+        ['bold&italic', HL_BOLD | HL_ITALIC],
+        ['bold&blink&inverse', HL_BOLD | HL_BLINK | HL_INVERSE],
+        // "normal" replaces the mask; a name after it ORs into HL_NONE.
+        ['bold&normal', HL_NONE],
+        ['none&bold', HL_NONE | HL_BOLD],
+        ['bold&none&dim', HL_NONE | HL_DIM],
+        // An action naming no attribute at all leaves HL_UNDEF, which
+        // hlattr2attrname() answers NULL for where it answers "normal" for
+        // HL_NONE.
+        ['red', HL_UNDEF],
+    ]) {
+        const parsed = parseNethackrc(
+            `OPTIONS=hilite_status:hitpoints/always/${action}\n`,
+        );
+        assert.deepEqual(parsed.configErrorFrame.output, [], action);
+        assert.deepEqual(
+            parsed.iflags.status_hilites.map(({ style }) => style),
+            // C's `if (coloridx == -1) coloridx = NO_COLOR;`.  Only the last
+            // row names a colour.
+            [{ attrib, color: action === 'red' ? CLR_RED : NO_COLOR }],
+            action,
+        );
+    }
+});
+
 // C ref: botl.c splitsubfields(), whose MAX_SUBFIELDS is 16 and which answers
 // -1 once fifteen separators have been consumed.  parse_status_hl2() drops the
 // group without a message, so the fifteen-separator action is refused in
@@ -1968,7 +2028,7 @@ test('a status highlight action takes fourteen separators, not fifteen', () => {
     assert.deepEqual(accepted.configErrorFrame.output, []);
     assert.deepEqual(
         accepted.iflags.status_hilites.map(({ style }) => style),
-        [{ attr: ATR_BOLD, clearAttributes: false, color: CLR_RED }],
+        [{ attrib: HL_BOLD, color: CLR_RED }],
     );
     assert.equal(accepted.iflags.hilite_delta, 3);
 
@@ -2005,7 +2065,7 @@ test('a condition rule reads its colors and attributes its own way', () => {
         field: 'condition',
         conditions: ['blind'],
         style: {
-            attr: ATR_UNDERLINE,
+            attrib: HL_ULINE,
             clearAttributes: true,
             color: NO_COLOR,
         },

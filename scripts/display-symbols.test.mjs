@@ -33,6 +33,14 @@ import {
     FLYING,
     HALLUC,
     HALLUC_RES,
+    HL_BLINK,
+    HL_BOLD,
+    HL_DIM,
+    HL_INVERSE,
+    HL_ITALIC,
+    HL_NONE,
+    HL_ULINE,
+    HL_UNDEF,
     HWALL,
     ICE,
     IN_SIGHT,
@@ -365,11 +373,11 @@ function assertStatusTextStyle(
     row,
     text,
     expected,
-    { from = 0, before = true, after = true } = {},
+    { from = 0, before = true, after = true, label = text } = {},
 ) {
     const start = terminalRow(state, row).indexOf(text, from);
-    assert.notEqual(start, -1, text);
-    assertCellRange(state, row, start, text.length, expected, text);
+    assert.notEqual(start, -1, label);
+    assertCellRange(state, row, start, text.length, expected, label);
     const normal = { color: NO_COLOR, attr: ATR_NONE };
     if (before && start > 0) {
         assert.deepEqual(
@@ -378,7 +386,7 @@ function assertStatusTextStyle(
                 attr: state.nhDisplay.grid[row][start - 1].attr,
             },
             normal,
-            `${text}: preceding cell`,
+            `${label}: preceding cell`,
         );
     }
     if (after && start + text.length < 79) {
@@ -388,7 +396,7 @@ function assertStatusTextStyle(
                 attr: state.nhDisplay.grid[row][start + text.length].attr,
             },
             normal,
-            `${text}: following cell`,
+            `${label}: following cell`,
         );
     }
     return start;
@@ -5633,8 +5641,7 @@ test('the two-line status row reports carrying capacity', async () => {
         behavior: 'text',
         text: 'Strained',
         style: {
-            attr: ATR_BOLD,
-            clearAttributes: false,
+            attrib: HL_BOLD,
             color: CLR_RED,
         },
     }];
@@ -5659,6 +5666,100 @@ test('the two-line status row reports carrying capacity', async () => {
         color: CLR_RED,
     }, { after: false });
 });
+
+// wintty.c Begin_Attr() turns a status highlight's HL_ mask into
+// term_start_attr() calls, and recorder patch 006 nomux_set_attr() records
+// only ATR_INVERSE, ATR_BOLD and ATR_ULINE.  Every row below was read off the
+// reference build for hilite_status:hitpoints/always/<action> at seed 7710041
+// and 20010704120000; the mask is what botl.c parse_status_hl2() leaves for
+// that action.
+test('a status highlight draws only the attributes tty can emit', async () => {
+    for (const [attrib, expected, action] of [
+        // The three tty keeps, whose HL_ bit and captured bit differ in value
+        // for two of the three.
+        [HL_BOLD, ATR_BOLD, 'bold'],
+        [HL_ULINE, ATR_UNDERLINE, 'underline'],
+        [HL_INVERSE, ATR_INVERSE, 'inverse'],
+        // The three nomux_set_attr() has no case for.
+        [HL_DIM, ATR_NONE, 'dim'],
+        [HL_ITALIC, ATR_NONE, 'italic'],
+        [HL_BLINK, ATR_NONE, 'blink'],
+        // A dropped attribute beside a kept one leaves the kept one alone;
+        // this is the pair the ledger entry was measured on.
+        [HL_BOLD | HL_DIM, ATR_BOLD, 'bold&dim'],
+        // "normal" replaces the mask instead of adding to it, so the bold
+        // ahead of it is gone; HL_UNDEF is the no-attribute-named action.
+        [HL_NONE, ATR_NONE, 'bold&normal'],
+        [HL_UNDEF, ATR_NONE, 'red alone'],
+        // A bit named after "normal" ORs in and leaves HL_NONE set.
+        [HL_NONE | HL_BOLD, ATR_BOLD, 'none&bold'],
+    ]) {
+        const state = statusRenderingState();
+        state.flags.showexp = false;
+        state.flags.showvers = false;
+        state.flags.time = false;
+        state.flags.weaponstatus = false;
+        state.flags.armorstatus = false;
+        state.flags.terrainstatus = false;
+        // optfn_hilite_status() stores this default duration whenever a rule
+        // is accepted; render_status() draws no highlight while it is zero.
+        state.iflags.hilite_delta = 3;
+        state.iflags.status_hilites = [{
+            field: 'hitpoints',
+            behavior: 'always',
+            // CLR_RED is any colour the recorder keeps as itself, so a wrong
+            // attribute cannot hide behind a colour the grid normalizes.
+            style: { attrib, color: CLR_RED },
+        }];
+
+        await bot();
+
+        assertStatusTextStyle(state, 23, `HP:${state.u.uhp}`, {
+            attr: expected,
+            color: CLR_RED,
+        }, { label: action });
+    }
+});
+
+// C ref: botl.c parse_condition() writes gc.cond_hilites[], one array entry
+// per attribute, and wintty.c condattr() reads the entries back for the
+// condition being drawn.  Those entries outlive the statement that set them,
+// which is what distinguishes the three rows below.
+test('a condition highlight replays the bits each rule set and cleared',
+    async () => {
+        for (const [statements, expected, label] of [
+            [['condition/blind/bold&underline'],
+                ATR_BOLD | ATR_UNDERLINE, 'one rule'],
+            // Without "none" the second statement only adds to the first.
+            [['condition/blind/bold', 'condition/blind/underline'],
+                ATR_BOLD | ATR_UNDERLINE, 'two rules accumulate'],
+            // "none" clears all six entries for these conditions, so the
+            // bits the earlier statement set are gone and only the name
+            // behind it survives.
+            [['condition/blind/bold&underline', 'condition/blind/none&inverse'],
+                ATR_INVERSE, 'a later none discards the earlier bits'],
+        ]) {
+            const options = parseNethackrc(`${statements
+                .map((rule) => `OPTIONS=hilite_status:${rule}`)
+                .join('\n')}\n`);
+            const state = statusRenderingState();
+            state.iflags.hilite_delta = options.iflags.hilite_delta;
+            state.iflags.status_hilites = options.iflags.status_hilites;
+            state.iflags.status_conditions = options.iflags.status_conditions;
+            state.u.uprops[BLINDED] = {
+                intrinsic: 1, extrinsic: 0, blocked: 0,
+            };
+
+            await bot();
+
+            assertStatusTextStyle(state, 23, 'Blind', {
+                attr: expected,
+                // No rule names a colour, so parse_condition() leaves its
+                // coloridx at the NO_COLOR it opened with.
+                color: NO_COLOR,
+            }, { label });
+        }
+    });
 
 test('tty carrying-capacity vocabulary matches every source row', () => {
     // wintty.c shrink_enc() selects full, shortened, then shortest wording at
@@ -5826,8 +5927,7 @@ test('two-line capacity shrinking uses strict 79-column overflow edges',
                     behavior: 'text',
                     text: 'Strained',
                     style: {
-                        attr: ATR_BOLD,
-                        clearAttributes: false,
+                        attrib: HL_BOLD,
                         color: CLR_RED,
                     },
                 }];
@@ -5865,8 +5965,7 @@ test('three-line conditions align to hunger before carrying capacity',
             behavior: 'text',
             text: 'Strained',
             style: {
-                attr: ATR_BOLD,
-                clearAttributes: false,
+                attrib: HL_BOLD,
                 color: CLR_RED,
             },
         }];
