@@ -621,6 +621,19 @@ async function finishElapsedTurn(
     random,
     { planning = false, randomMonsterOnly = false } = {},
 ) {
+    // Every display seam this block hands a callee is one of these three, so
+    // the planning and live arms are chosen once rather than per callee. The
+    // dry run works on a clone whose state is discarded: a line it writes
+    // paints text the live pass never wrote, ttyPline() on a turn whose clone
+    // still carries a pending message reaches dismissPendingTtyMessage() and
+    // consumes a key the segment still needs, and bot() reads the live game
+    // rather than the clone. scripts/allmain-turn.test.mjs's 'a planned
+    // timeout writes no line and reads no key' pins turnMessage through do.c
+    // heal_legs(), which nh_timeout() reaches below.
+    const silentDisplay = async () => {};
+    const turnMessage = planning ? silentDisplay : ttyPline;
+    const turnNorep = planning ? silentDisplay : ttyNorep;
+    const turnStatusRefresh = planning ? silentDisplay : () => bot();
     // C ref: allmain.c moveloop_core()'s mvl_wtcap, taken once after the
     // monster loop. C reuses this snapshot only for u_calc_moveamt(),
     // regen_hp(), regen_pw(), and the overexertion check, and substitutes
@@ -634,7 +647,7 @@ async function finishElapsedTurn(
     await mcalcdistress(state, {
         state,
         random,
-        message: planning ? async () => {} : ttyPline,
+        message: turnMessage,
         redrawSquare: planning ? () => {} : newsym,
         visionRecalc: planning ? () => {} : vision_recalc,
         minLiquid: elapsedTurnMinLiquid,
@@ -652,7 +665,6 @@ async function finishElapsedTurn(
             random.rn2,
         );
     }
-    const silentMessage = async () => {};
     const planningDisplayRandom = planning
         ? state.displayCtx
             ? createCoreRandom(state.displayCtx, state).rn2
@@ -665,9 +677,9 @@ async function finishElapsedTurn(
     await maybe_generate_rnd_mon(state, {
         random,
         displayRandom: planningDisplayRandom,
-        message: planning ? silentMessage : ttyPline,
-        norepMessage: planning ? silentMessage : ttyNorep,
-        statusRefresh: planning ? silentMessage : () => bot(),
+        message: turnMessage,
+        norepMessage: turnNorep,
+        statusRefresh: turnStatusRefresh,
     });
     // planSimpleMonsterTurn() treats a truthy advanceRound result as "this
     // single unburdened allocation is fully preflighted" and must not plan a
@@ -696,11 +708,9 @@ async function finishElapsedTurn(
         state.disp.time_botl = true;
     }
 
-    // do.c heal_legs() writes a line and reads the hero's load, so the dry run
-    // takes the silent pair that every other display operation here takes.
     await nh_timeout_elapsed_turn(state, {
-        message: planning ? silentMessage : ttyPline,
-        statusRefresh: planning ? () => {} : () => bot(),
+        message: turnMessage,
+        statusRefresh: turnStatusRefresh,
     });
     // Full planning remains specific to the burdened multi-allocation path.
     // An unburdened clone returns just after random monster generation above,
@@ -769,16 +779,16 @@ async function finishElapsedTurn(
     }
     await dosoundsInitialLevel(state, {
         random: random.rn2,
-        pline: planning ? async () => {} : ttyPline,
+        pline: turnMessage,
     });
     await gethungry(state, {
         random,
         // eat.c gethungry() calls near_capacity() live at its accessory-time
         // branch, before newuhs() can lower capacity.
         nearCapacity: () => near_capacity(state),
-        message: planning ? async () => {} : ttyPline,
+        message: turnMessage,
         endRunning,
-        statusRefresh: planning ? async () => {} : () => bot(),
+        statusRefresh: turnStatusRefresh,
     });
     age_spells(state);
     // C ref: allmain.c moveloop_core() calls exerchk() here, before invault()
@@ -789,13 +799,13 @@ async function finishElapsedTurn(
         // gethungry() has run. A WEAK transition lowers weight_cap() through
         // ATEMP(A_STR), so the snapshot above can be a whole band too low.
         nearCapacity: () => near_capacity(state),
-        encumberMessage: planning
-            ? (subject) => encumber_msg(
-                subject,
-                { message: async () => {} },
-            )
-            : encumber_msg,
-        message: planning ? async () => {} : ttyPline,
+        // encumber_msg()'s own default message is ttyPline, so naming the
+        // seam changes nothing on the live pass and silences the dry run.
+        encumberMessage: (subject) => encumber_msg(
+            subject,
+            { message: turnMessage },
+        ),
+        message: turnMessage,
     });
     maybeWipeHeroEngraving(state, random);
 
