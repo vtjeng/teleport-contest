@@ -455,3 +455,4 @@ utc	event	phase	goal	detail
 2026-08-14T22:56:36.644Z	end	select	counted-command-occupation	runner-up pet melee at 19 capped, queued next
 2026-08-14T23:07:08.799Z	start	implement	counted-command-occupation	count-prefix-admission: parse() owns the first byte; refusal moves to a committed count leaving multi > 0
 2026-08-14T23:55:30.931Z	end	implement	counted-command-occupation	count-prefix-admission closed at 4c43663; screens 1657 to 1660, exactly the forecast, only the two predicted sessions moving
+2026-08-15T00:11:47.040Z	start	implement	counted-command-occupation	counted-search-occupation: timed_occupation() and the rhack() install; forecast 31, all seed0004
