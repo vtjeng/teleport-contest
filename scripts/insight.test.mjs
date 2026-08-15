@@ -146,7 +146,7 @@ test('fmt_elapsed_time counts time elapsed since start_timing', () => {
 async function readyGame(options = '', ...configLines) {
     await runSegment({
         seed: 8810051,
-        datetime: '2026-03-04 10:00:00',
+        datetime: '20260304100000',
         nethackrc: 'OPTIONS=name:Insight,role:Valkyrie,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen,'
             + `pettype:none${options ? `,${options}` : ''}\n`
@@ -800,7 +800,7 @@ test('the enhancement summary never takes the wizard shortcut', async () => {
 async function readyExploreGame(role = 'Caveman') {
     await runSegment({
         seed: 8810073,
-        datetime: '2026-03-04 10:00:00',
+        datetime: '20260304100000',
         nethackrc: `OPTIONS=name:Insight,role:${role},race:human,`
             + 'gender:male,align:neutral,!legacy,!tutorial,!splash_screen,'
             + 'pettype:none\nOPTIONS=playmode:explore\n',
