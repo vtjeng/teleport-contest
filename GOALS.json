@@ -2359,8 +2359,8 @@
         },
         {
           "name": "compound-option-values-fail-closed",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "4381faf42ba7ca7a83d07cb5046421593cd3e53c"
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",
