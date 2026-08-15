@@ -13431,6 +13431,181 @@
         }
       },
       "recordedAt": "2026-08-15T02:36:36.157Z"
+    },
+    {
+      "kind": "review",
+      "head": "3468c5aac76c8b8531423b6a32ac2075085efa3c",
+      "auditedRange": "1842f5e3dfa349a6f668be4e1a02868c2959f345..3468c5aac76c8b8531423b6a32ac2075085efa3c",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "28c62d09650a6718211a22ad9ae8d88731e992e0",
+        "reason": "The active checklist covers monster-melee-attack and stopped at 28c62d0, before this range opens. No slice in startup-deferral-sweep qualified for one: the largest changed 157 insertions and 80 deletions in a single file, and each closed inside one agent session against a boundary its own deferral record named."
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 33 raw, 29 deduplicated, 22 confirmed, 21 applied, 1 deferred, 7 rejected, 0 unverified; mutation: 8 survivors of 57 mutants. Two passes over one window, recorded as one entry because the second read the first's fixes. The first read 1842f5e3..a36313c and returned 18 raw, 17 deduplicated, 13 confirmed from five finders; its fixes landed in a634c32 and expanded scope into three C functions no finding named, which .agents/review.md makes a trigger for a full pass, so the second read a36313c..a634c32 and returned 15 raw, 12 deduplicated, 9 confirmed. That second pass is what justifies its cost: two of its nine were correctness defects the first could not have seen, because the fixes created them. One was a false reading of C, since parsebindings():7635-7641's failure arm does not return and txt2key('mouse1') answers M-o, so C reports an error and still binds key 0xEF where the port did neither. The other was a JavaScript hazard rather than a misreading: a bare property read on a prototype-bearing lookup made BIND=v:constructor a menu command, and the sweep it prompted found two more such reads in the status-highlight parser. The development score never moved anywhere in this window, at 9 of 33 sessions, 1674 of 7765 screens, 125050 of 610816 random-number values and 1685 of 7765 cursors at every commit, because no recorded session's rc carries a configuration error. That is why two passes rather than the score are the evidence here. Applied in a634c32, db6eda6, e8a88c2 and 3468c5a.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3888,
+        "counts": {
+          "raw": 33,
+          "deduplicated": 29,
+          "confirmed": 22,
+          "applied": 21,
+          "deferred": 1,
+          "rejected": 7,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 10,
+          "tests": 8,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/options.js bind_key_matches() ported only cmd.c bind_key()'s match/FALSE arm, so the three config_error_add() calls C makes for a binding it accepts (cmd.c 2698, 2704, 2712) were unported and a BIND with a wrong parameter reported nothing. When such a BIND is an rc's only problem, config_error_done() returns 0, the port emits no raw-print screen and never reaches tty_wait_synch(), so the segment has one fewer input boundary than the recording and every later key and cursor is wrong.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js applyMenuBinding() still threw optionError() for parsebindings()'s Unknown key binding key, three lines above the sibling error the same range had converted, so half of one C function failed closed and half played on. BIND=zorkmid:redraw cost the whole segment above runSegment()'s catch.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js parseNethackrc() silently skipped a line with no ':' or '=', where cfgfiles.c parse_config_line() answers with a configuration error that a UNIX build never suppresses. It is one of the two commonest rc typos, and its absence under-counts the error summary whenever it coexists with a reported error.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js parseNethackrc() silently skipped a line whose statement name matches no CONFIG_STATEMENTS row, where cfgfiles.c parse_config_line():1436-1437 reports Unknown config statement. Reporting it today would wrongly flag WIZKIT, HILITE_STATUS, BOULDER and the rest, because the port's table holds 13 of config_line_stmt[]'s 31 non-syscnf_only rows.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/options.js dropped cfgfiles.c's three remaining configuration errors in the section and CHOOSE arms, so a sectioned rc under-reported and under-counted: a player who writes [mysection] headers without a CHOOSE line gets one C error per header and none from the port.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js's three Missing parameter errors interpolated the raw comma element with its negation prefixes, where C's string_for_opt() reports the negation-stripped statement the function already held under another name.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/cfgfiles.js gave the one C value configfile two JavaScript homes: get_configfile() read state.configfile while js/tutorial_startup.js read state.configFileName, each with its own '.nethackrc' literal, so whoever supplies the real path would set one and silently leave the other on the default.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/tty_startup.js raised iflags.cbreak below its display guard, so a state without an nhDisplay kept the getret-only key set for the rest of the game. With cbreak falsy, xwaitforspace() accepts only CR and LF, so such a caller drains the input queue and dies as 'Input queue empty', which runSegment() mistakes for a deliberate end of recording.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js returned early for mouse1 and mouse2 on a false reading of C. In options.c parsebindings():7635-7641 only the accepting arm returns, and txt2key(\"mouse1\") answers M-o, so C reports Error binding mouse button 1 and still binds key 0xEF where the port reported nothing and bound nothing.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js decided whether a name is a menu command with a bare property read on a prototype-bearing object, so inherited names such as constructor were treated as menu commands and appended verbatim to iflags.mapped_menu_op instead of reaching bind_key(). C compares against default_menu_cmd_info[] with strcmp, which holds no such name. The same unguarded read appeared at three further rc-text sites in the status-highlight parser.",
+            "foundBy": [
+              "correctness",
+              "tests"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/options.js parseNethackrc() silently skipped a line whose statement name matches no CONFIG_STATEMENTS row, where cfgfiles.c parse_config_line():1436-1437 reports Unknown config statement. Reporting it today would wrongly flag WIZKIT, HILITE_STATUS, BOULDER and the rest, because the port's table holds 13 of config_line_stmt[]'s 31 non-syscnf_only rows.",
+            "trackedIn": "options-unknown-config-statement",
+            "category": "production"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/options.js:2649 parseNethackrc() drops both of parse_config_line()'s statement-level errors, so the error report and its count are short.",
+            "counterEvidence": "Kept on evidence but not carried by a supporting judgment: it is the same defect as the confirmed correctness finding at the same site, which the deduplication pass left standing separately. The missing '=' half was fixed and the Unknown config statement half deferred as options-unknown-config-statement, so nothing in it is lost."
+          },
+          {
+            "summary": "js/options.js:2684 three sibling continue statements in the OPTIONS loop still drop cfgfiles.c's own errors silently and carry no comment saying so.",
+            "counterEvidence": "The three measurements reproduce, but the finding restates the confirmed section, CHOOSE and statement-level findings from a comment-coverage angle rather than naming a defect of its own. Those fixes landed, and each arm now reports."
+          },
+          {
+            "summary": "js/tty_message.js:75 the new QUITCHARS constant is documented as the set more() and dmore() pass to xwaitforspace(), but neither passes it.",
+            "counterEvidence": "Refuted at the source. The load-bearing claim is false for dmore() at both C sites the port models: win/tty/wintty.c:1547 passes resp inside process_menu_window(), and the other call sites pass the caller's response string, which is quitchars[] on the paths the port reaches."
+          },
+          {
+            "summary": "scripts/config-error.test.mjs:202 the segment-level report is pinned only for parseoptions()'s four errors, leaving four cfgfiles.c sites unported and untested.",
+            "counterEvidence": "The probes reproduce, but three of the four sites are the confirmed section, CHOOSE and missing-'=' findings, now fixed and tested, and the fourth is the deferred Unknown config statement. The finding names no gap the confirmed set leaves open."
+          },
+          {
+            "summary": "js/options.js:1780 applyMenuBinding()'s header comment says the four candidates are tried in C's order but omits the txt2key() step.",
+            "counterEvidence": "Refuted by reading the comment. It says 'from its \":\" split onwards' and lists a mouse-button name, a special key, a menu command, then an extended command; txt2key() is the key-text read that precedes the candidate list rather than a candidate, and the code performs it where the comment implies."
+          },
+          {
+            "summary": "js/options.js:2657 the ownership comment for chosenSection and currentSection does not mention the second meaning the reordered section arm gives chosenSection == null.",
+            "counterEvidence": "Refuted: two comments the same commit added answer it at the places that create it. js/options.js:2674-2677 states the rule outright three lines above the test, citing cfgfiles.c handle_config_section():560-563."
+          },
+          {
+            "summary": "js/tty_startup.js:31 renderTtyStartupBanner() owns a global terminal-mode flag while its name promises only drawing.",
+            "counterEvidence": "Refuted: the ownership is stated in the source the same commit wrote. js/tty_startup.js:1-2 names win/tty/wintty.c tty_init_nhwindows() as the function's C reference, and js/jsmain.js:297-302 tells the reader at the point of the false write where the raise happens."
+          }
+        ],
+        "mutation": {
+          "mutants": 57,
+          "survivors": 8,
+          "byKind": {
+            "boolean": {
+              "ran": 19,
+              "killed": 19
+            },
+            "logical": {
+              "ran": 20,
+              "killed": 19
+            },
+            "relational": {
+              "ran": 18,
+              "killed": 11
+            }
+          },
+          "finderConclusion": "Composed from the window run over 1842f5e3..a36313c (37 mutants, 5 survivors) and the delta runs over the two audit-fix commits (18 mutants with 3 survivors, then 2 mutants with none). The tests finder read the survivors as pointing at real unpinned branches rather than at equivalent mutants: its findings on the bind path, the case-insensitive nothing spelling, and the tautological refused count all landed on lines the runs left alive. Eight survivors remain, every one on a bound or guard whose two spellings agree, each with a recorded reason: two parenthesis cuts in bind_key() that agree because a command starting with '(' matches no extcmdlist row either way, the CHOOSE arm's delimiter test where a separator at index 0 leaves a name that fails matchesConfigName(), and the separator guards in unknownOptionText() where the scan starts at index 1."
+        },
+        "readiness": {
+          "boundary": "The range starts when runSegment(input) hands NethackGame.start() an rc file and ends when the first screen of the segment is captured. In between, parseNethackrc() reads every line, each configuration error reaches config_error_add(), and config_error_done() raw-prints the error block and blocks at tty_wait_synch() for a key. The real game executes that path on every segment: parseNethackrc() is called unconditionally at js/jsmain.js:293, and 33 development sessions replay through it. The elapsed-turn half of the range has its own boundary, a turn in which context.move and u.umovement say a turn elapsed, which moveloop_core() reaches on the ordinary walking path.",
+          "sourceReview": "Every branch and helper reachable before the ending event was traced against nethack-c/upstream: options.c parseoptions(), parsebindings(), illegal_menu_cmd_key(), spcfn_misc_menu_cmd() and txt2key(); cmd.c bind_key() and bind_mousebtn(); cfgfiles.c parse_config_line(), handle_config_section(), config_error_add() and config_error_done(); symbols.c parsesymbols(); hacklib.c trimspaces(); files.c nh_basename(); allmain.c moveloop_core(). The trace covered state and random-number order: the one rn2(1) that choose_random_part() makes is now asserted, and the three fresh differentials at seeds 6193847, 8420571 and 6620941 matched every random-number call. Stubs, explicit stops and partial ports were identified and each carries a named refusal or a ledger entry: complain_about_duplicate(), pfxfn_cond_(), pfxfn_font(), the Cmd_bind.param store, gc.Cmd.mousebtn[], and the 18 config_line_stmt[] rows the port's table lacks.",
+          "completeness": "No known unsupported behavior remains inside the boundary except the entries named above, and each reachable excluded branch stops before changing state, consuming randomness, or producing output: the unported statement names fall through the CONFIG_STATEMENTS lookup without a write, the pfx option handlers refuse by name before their handler runs, and bind_mousebtn()'s unported button store leaves the fall-through path C takes intact. One divergence is accepted and permanent for now: config_error_done() prints the absolute config path, which no segment input supplies and which game code may not read from the filesystem, so every differential over an erroring rc differs in that one cell. It is tracked as config-error-summary-names-an-unknowable-path."
+        }
+      },
+      "recordedAt": "2026-08-15T13:06:05.527Z"
     }
   ]
 }
