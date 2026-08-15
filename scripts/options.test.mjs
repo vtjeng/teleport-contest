@@ -2381,6 +2381,145 @@ test('symbol assignments accept exactly the source symbol catalog', () => {
     }
 });
 
+// Split a comma-separated C list at its top level, leaving commas inside
+// string literals, parentheses and brackets where they are.
+function splitTopLevelCommas(text) {
+    const parts = [];
+    let depth = 0;
+    let quoted = false;
+    let start = 0;
+    for (let index = 0; index < text.length; ++index) {
+        const ch = text[index];
+        if (quoted) {
+            if (ch === '\\') ++index;
+            else if (ch === '"') quoted = false;
+            continue;
+        }
+        if (ch === '"') quoted = true;
+        else if (ch === '(' || ch === '[') ++depth;
+        else if (ch === ')' || ch === ']') --depth;
+        else if (ch === ',' && depth === 0) {
+            parts.push(text.slice(start, index).trim());
+            start = index + 1;
+        }
+    }
+    parts.push(text.slice(start).trim());
+    return parts;
+}
+
+// C ref: include/optlist.h, `struct allopt_t` and the four NHOPT* macros the
+// NHOPT_PARSE arm expands into its initializers.
+//
+// scripts/generate-options.mjs reads each column out of the expanded
+// initializer by position, and valok's position is the one nothing else can
+// check: it sits directly ahead of dupeok, which the port does not carry, and
+// the two disagree on exactly one BoolOpt row.  Reading dupeok as valok
+// therefore regenerates a table `npm run check:options` still verifies.  This
+// derives every row's valok from the header instead, without going through the
+// generator: the struct gives the column's position, the macro definitions say
+// which parameter fills it, and each row's own macro call supplies the value.
+test('the generated option table takes valok from optlist.h', () => {
+    // Comments carry placeholder calls such as "NHOPTC(gender) -- moved to
+    // top", which the call scan below would otherwise read as rows.
+    const header = readFileSync(
+        new URL('../nethack-c/upstream/include/optlist.h', import.meta.url),
+        'utf8',
+    ).replace(/\/\*[\s\S]*?\*\//gu, ' ');
+
+    const structBody = /struct allopt_t \{([\s\S]*?)\n\};/u.exec(header)[1];
+    const members = [];
+    for (const line of structBody.split('\n')) {
+        const declaration = line.trim().replace(/;$/u, '');
+        if (!declaration) continue;
+        // "boolean opt_in_out, *addr" declares two members on one line, so the
+        // type is stripped once and the rest split.
+        for (const name of splitTopLevelCommas(
+            declaration.replace(/^[A-Za-z_][A-Za-z0-9_ ]*\s/u, ''),
+        )) members.push(name.replace(/^\**/u, '').trim());
+    }
+    // The two neighbouring columns the generator has to tell apart.
+    assert.equal(members[8], 'valok');
+    assert.equal(members[9], 'dupeok');
+
+    // Each macro's parameter list and expansion body, which together say which
+    // argument of a call lands in the valok and dupeok columns.
+    const parseArm = header.slice(header.indexOf('#elif defined(NHOPT_PARSE)'));
+    const argumentIndex = {};
+    for (const macro of parseArm.matchAll(
+        /#define NHOPT([BCPO])\(([^)]*)\)((?:[^\n]*\\\n)*[^\n]*)/gu,
+    )) {
+        const parameters = splitTopLevelCommas(macro[2]);
+        const fields = splitTopLevelCommas(
+            /\{([\s\S]*)\}/u.exec(macro[3].replace(/\\\n/gu, ' '))[1],
+        );
+        assert.equal(fields.length, members.length, macro[1]);
+        argumentIndex[macro[1]] = {
+            // NHOPTO names its row with a string literal in the first
+            // argument; the other three stringize their first parameter.
+            name: parameters.indexOf(fields[0].replace('#', '')),
+            valok: parameters.indexOf(fields[8]),
+            dupeok: parameters.indexOf(fields[9]),
+        };
+    }
+    assert.deepEqual(argumentIndex, {
+        B: { name: 0, valok: 7, dupeok: 8 },
+        C: { name: 0, valok: 6, dupeok: 7 },
+        P: { name: 0, valok: 6, dupeok: 7 },
+        O: { name: 0, valok: 7, dupeok: 8 },
+    });
+
+    // Every call in the option list, keyed by the name it gives its row.  A
+    // name appearing twice sits in the two arms of one #ifdef; both are read
+    // here, and the columns compared below have to agree between them.
+    const calls = new Map();
+    for (const call of header.matchAll(/\bNHOPT([BCPO])\s*\(/gu)) {
+        const lineStart = header.lastIndexOf('\n', call.index) + 1;
+        if (header.startsWith('#define', lineStart)) continue;
+        let index = call.index + call[0].length;
+        let depth = 1;
+        let quoted = false;
+        while (depth > 0) {
+            const ch = header[index];
+            if (quoted) {
+                if (ch === '\\') ++index;
+                else if (ch === '"') quoted = false;
+            } else if (ch === '"') quoted = true;
+            else if (ch === '(') ++depth;
+            else if (ch === ')') --depth;
+            ++index;
+        }
+        const where = argumentIndex[call[1]];
+        const args = splitTopLevelCommas(
+            header.slice(call.index + call[0].length, index - 1),
+        );
+        const name = call[1] === 'O'
+            ? JSON.parse(args[where.name]) : args[where.name];
+        if (!calls.has(name)) calls.set(name, []);
+        calls.get(name).push({
+            valok: args[where.valok], dupeok: args[where.dupeok],
+        });
+    }
+
+    let boolOptColumnsDiffer = 0;
+    for (const row of allopt) {
+        const entries = calls.get(row.name);
+        assert.ok(entries, `optlist.h has no NHOPT* call for ${row.name}`);
+        const valok = new Set(entries.map((entry) => entry.valok));
+        assert.equal(valok.size, 1, `${row.name} valok differs by #ifdef arm`);
+        const expected = [...valok][0] === 'Yes';
+        assert.equal(row.valok, expected, row.name);
+
+        const dupeok = new Set(entries.map((entry) => entry.dupeok));
+        if (row.opttyp === 'BoolOpt' && dupeok.size === 1
+            && ([...dupeok][0] === 'Yes') !== expected) ++boolOptColumnsDiffer;
+    }
+    // The whole reason the column needed an oracle: menucolors is the only
+    // BoolOpt row whose two neighbouring columns disagree, and optfn_boolean()
+    // is the only reader of valok this port has.
+    assert.equal(boolOptColumnsDiffer, 1);
+    assert.equal(allopt.find((row) => row.name === 'menucolors').valok, true);
+});
+
 // C ref: options.c optfn_sortloot()'s do_set arm, which keeps the lowercased
 // first letter of the value and rejects everything else.
 test('sortloot keeps one letter and refuses every other spelling', () => {

@@ -2959,9 +2959,10 @@ function applyOption(result, optionState, element, lineNumber) {
         // report it.
         applyBooleanOption(result, name, matchedRow, statement, value, negated);
     } else if (value != null) {
-        // Only an option whose optlist.h negateok is Yes reaches this: a
-        // negated spelling of any other one is bad_negation()'s above.  What
-        // C's handler does with the negation is what is unported here.
+        // Only a negated option whose optlist.h negateok is Yes reaches the
+        // stop below: a negated spelling of any other one is bad_negation()'s
+        // above, and a BoolOpt row took the arm ahead of this.  What C's
+        // compound handler does with the negation is what is unported here.
         if (negated) {
             optionError(
                 lineNumber,

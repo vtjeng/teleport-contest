@@ -698,6 +698,50 @@ test('an unreadable boolean value reports for every row that rejects one',
         );
     });
 
+// C ref: options.c optfn_boolean() (5203-5208), the two do_set exits taken
+// before the value is read at all.  Neither consults the negation or the
+// value, so every spelling has to reach them, and neither reports.
+test('the silent boolean retreats fire whatever the statement carries', () => {
+    const noStorage = allopt.filter(
+        (option) => option.opttyp === 'BoolOpt' && !option.addr,
+    );
+    const wizNoFuz = allopt.filter(
+        (option) => option.opttyp === 'BoolOpt'
+            && option.setwhere === SET_WIZNOFUZ,
+    );
+    // optlist.h compiles six rows' storage away for this build and gives
+    // three the setwhere that keeps them out of a configuration file.
+    assert.equal(noStorage.length, 6);
+    assert.equal(wizNoFuz.length, 3);
+
+    for (const row of [...noStorage, ...wizNoFuz]) {
+        const spellings = [
+            `OPTIONS=${row.name}`,
+            `OPTIONS=${row.name}:on`,
+            `OPTIONS=${row.name}:zebra`,
+        ];
+        // bad_negation() answers a row whose negateok is No before the
+        // handler runs, so those two spellings never reach the retreat.
+        if (row.negateok) {
+            spellings.push(`OPTIONS=!${row.name}`, `OPTIONS=!${row.name}:on`);
+        }
+        for (const statement of spellings) {
+            const parsed = parseNethackrc(`${statement}\n`);
+            assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+            // Nothing reached the dispatch that would have stored a value.
+            assert.equal(parsed.flags[row.name], undefined, statement);
+            if (row.addr) {
+                // The three set_wiznofuz rows do have storage, and C leaves it
+                // at the compiled-in default.
+                assert.equal(row.addr, `iflags.${row.name}`, row.name);
+                assert.equal(
+                    parsed.iflags[row.name], row.initval, statement,
+                );
+            }
+        }
+    }
+});
+
 // C ref: options.c optfn_boolean() (5244-5266), `case opt_female:`.  Its two
 // guards compare max(strlen(op), 3) bytes of the whole statement against
 // "female" and "male"; a value long enough to defeat both leaves the switch
