@@ -1772,8 +1772,10 @@ function bindingSeparator(bindings) {
 //    returns TRUE for.  That push carries the whole command text, parameter
 //    and all, and createCommandBindingModel() cuts it back at the first '('
 //    without asking for the ')' the test below also requires.  The two agree
-//    on every text that reaches the push, because a text this function does
-//    not parenthesize matches no row and is never pushed.
+//    on every text that reaches the push: the looser cut can only differ over
+//    a text holding a '(' that this function leaves unparenthesized, and no
+//    extcmdlist[] row spells a parenthesis, so such a text matches no row and
+//    is never pushed.
 //  - The three parameter diagnostics (2696-2712) belong to the binding itself
 //    and are here: C reports every one of them for a key it has already
 //    bound, so none of them changes the answer.
