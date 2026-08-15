@@ -2334,8 +2334,8 @@
         },
         {
           "name": "parseoptions-config-errors",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "91e78a26180777022bb3526366be7f6d203e74fd"
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",
