@@ -2309,8 +2309,8 @@
         },
         {
           "name": "config-parser-residue",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9157a82369a1f466a4a26e0040b6f27145bb1e97"
         },
         {
           "name": "non-fatal-config-error",
@@ -2324,6 +2324,11 @@
         },
         {
           "name": "startup-simplification-pair",
+          "status": "queued",
+          "closedBy": null
+        },
+        {
+          "name": "fixed-clock-literal-check",
           "status": "queued",
           "closedBy": null
         }

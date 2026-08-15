@@ -465,3 +465,5 @@ utc	event	phase	goal	detail
 2026-08-15T03:34:18.153Z	end	implement	startup-deferral-sweep	startup-refusals-fail-closed closed at ccc27c8; score unchanged, two deferrals resolved, one scope entry filed for the same escape out of newgame()
 2026-08-15T03:34:51.302Z	start	implement	startup-deferral-sweep	initial-pickup-engraving-call-site: read_engr_at() is already called at js/pickup.js:674, so the refusal may guard nothing
 2026-08-15T04:08:54.652Z	end	implement	startup-deferral-sweep	initial-pickup-engraving-call-site closed at be84377; two lines deleted, one C save-subsystem divergence found and filed
+2026-08-15T04:09:22.355Z	start	implement	startup-deferral-sweep	config-parser-residue: three small residues in options-config-error-and-parser-residue plus the pickup_burden parser
+2026-08-15T04:54:54.692Z	end	implement	startup-deferral-sweep	config-parser-residue closed at 9157a82 over three commits; one residue was already fixed and needed a test, not production
