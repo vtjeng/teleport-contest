@@ -41,7 +41,7 @@
   },
   "seed0030-ten-diverse-deaths.session.json": {
     "screens": 23,
-    "rngCalls": 6894,
+    "rngCalls": 6890,
     "lowerings": [
       {
         "metric": "rngCalls",
@@ -70,6 +70,13 @@
         "to": 6894,
         "commit": "b1f11c4",
         "reason": "The port's first divergence in this session is at random-number index 6732, rnd(5) in maybe_smudge_engr(hack.c:3029), both before and after b1f11c4, and its emitted screens are unchanged at 23. I measured both sides by replaying the session's ten segments against a copy of js/ from 2b393bc and then from the working tree, concatenating each run's log and comparing it positionally with C's. What fell is coincidental positional matching after that stop: the pet now fights instead of stopping, which raises the port's own emitted total from 51,579 calls to 51,777 and reshuffles the alignment past the stop. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
+      },
+      {
+        "metric": "rngCalls",
+        "from": 6894,
+        "to": 6890,
+        "commit": "6079433",
+        "reason": "The port's first divergence in this session is at random-number index 6732, rnd(5) in maybe_smudge_engr(hack.c:3029), before and after 6079433, and its emitted screens are unchanged at 23. I measured both sides by replaying the session's ten segments against js/makemon.js from 529f7fc and then from 6079433, concatenating each run's log and comparing it positionally with C's. What fell is coincidental positional matching past that stop: a monster that used to stop at grow_up()'s level gain now keeps playing, which raises the port's own emitted total from 51,777 calls to 52,012 and reshuffles the alignment. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
       }
     ]
   },
