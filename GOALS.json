@@ -2394,6 +2394,40 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "pet-melee-attack",
+      "status": "open",
+      "boundary": "A pet that dogmove.c dog_move() sends to mhitm.c mattackm() against an adjacent hostile carries its melee attack through to that monster's hit points and its death: the armour-class differential (321-325), the NATTK loop's AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT arm with its dieroll = rnd(20 + i) at 441, through missmm(), hitmm(), mdamagem(), passivemm(), the already-ported mon.c monkilled(), and makemon.c grow_up() on the kill. Two testable conditions bound it. First, every mattackm() arm outside that physical group stays refused, so no ported line lies under AT_WEAP's ranged thrwmm() head, AT_HUGS, AT_GAZE, AT_EXPL, AT_ENGL or AT_BREA/AT_SPIT, and gazemm(), gulpmm(), explmm() and mswingsm() stay unported. Second, inside mdamagem() the port covers only what an AD_PHYS attack reaches: the touch_petrifies(pd) pre-check (1031-1057) and the pudding-clone block refuse rather than run, mhitm_adtyping() dispatches the already-ported AD_PHYS arm alone, and passivemm() covers a defender whose first AT_NONE slot carries damn 0 and damd 0, refusing every other damage type at its rn2(3) switch (1363).",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 90,
+        "basis": "Capped look-ahead at HEAD b0a0f83 per .agents/selection.md: cap the leader, work down the raw column, stop at the first raw below the best cap. Engraving interaction is 609 raw capped to 6 at seed0030 step 29 'The kitten bites the newt.', which is this same boundary. level_tele() print_dungeon() is 198 raw capped to about 5, seed0373 step 43 needing fakewiz1 generation. wizgenesis is 148 raw capped to 13 at seed5002 step 88, zap.c buzz() unported. Pet combat is 92 raw capped to 90. nh_timeout at 52 raw is below 90, so it and every row under it lose uncapped.",
+        "sessions": [
+          "seed0900-tourist-explore-actions",
+          "seed0103-knight-ride-pony"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0900-tourist-explore-actions",
+            "evidence": "Tourist, explore mode, D:1, T:6, no rc option touching this path. The port stops at step 13 inside dog_move()'s ALLOW_M arm at the max_passive_dmg() call, js/unported_monster_actions.js:772. C's step 13 log is rnd(20)=14 @ mattackm(mhitm.c:441) then rn2(3)=2 @ passivemm(mhitm.c:1363) for the little dog's missed AT_BITE, then rnd(20)=5 @ mattackm(mhitm.c:441), d(1,6)=6 @ mdamagem(mhitm.c:1025) and the ported rn2(3)/rn2(6) @ mhitm_knockback(uhitm.c:5258,5269) for the hit that kills the jackal; step 73 adds rn2(2)=1 @ corpse_chance(mon.c:3248) and rnd(1)=1 @ grow_up(makemon.c:2095). Steps 14-72 draw nothing and repeat one screen, C blocked at --More-- while xwaitforspace() discards 59 non-dismissing keys. Stretch 13-83, uncapped, 71 steps."
+          },
+          {
+            "session": "seed0103-knight-ride-pony",
+            "evidence": "Knight at HP 4(16), riding, D:1. Step 39's #ride dismounts (rn2(2)=1 and rn2(3)=1 @ landing_spot(steed.c:543), the Ride status field clears), returning the saddled pony to the pet-move loop adjacent to a kobold zombie, and the port stops at the same max_passive_dmg() call. C draws rnd(20)=19 @ mattackm(mhitm.c:441) for slot 0 AT_KICK; step 40 rn2(3)=1 @ passivemm(mhitm.c:1363) then rnd(21)=11 @ mattackm(mhitm.c:441), which is rnd(20+i) with i=1 and witnesses the NATTK loop; step 41 d(1,2)=2 @ mdamagem(mhitm.c:1025) plus the ported knockback pair; step 42 rn2(3)=2 @ corpse_chance and rnd(1)=1 @ grow_up. Stretch 39-59 capped at step 58 'You die...--More--', end.c done() unported, giving 19 steps."
+          }
+        ]
+      },
+      "detail": "Traced findings; the slice-selector divides the goal. (1) The first refusal both sessions hit stands in for a function the port already holds: js/unported_monster_actions.js:772 injects maxPassiveDamage as a refusal while js/mondata.js:1412 is a complete port of mondata.c max_passive_dmg(). Wiring it moves both stops one call deeper, to attackMonster at js/dogmove.js:1105. Neither session reaches monsterReflects or resistsStone. (2) The attackMonster seam collapses more C than its name says: js/dogmove.js:1105-1113 hands mattackm(), the M_ATTK_AGR_DIED test and the whole return-attack block at dogmove.c:1153-1171 to one injection answering MMOVE_DONE or MMOVE_DIED. No recorded call draws its rn2(4), because the miss returns M_ATTK_MISS and both kills return M_ATTK_DEF_DIED, so unported onscary() stays behind the short circuit. (3) grow_up() must land before the first commit: makemon.c:2095 rnd((int) victim->m_lev + 1) fires on every kill and rnd() calls RND() even for x == 1, so both sessions record rnd(1)=1 there. grep -rn 'grow_up|growUp' js/ returns nothing. For a starting little dog or pony killing a level-0 victim the function returns at the hp_threshold test and draws nothing further; the goal needs the head and that early return, not the grow-into-a-dog arm. (4) The kill chain below mdamagem() is already ported: js/mon.js:2047 monkilled() prints C's 'is killed!' and 'is destroyed!' lines, with mondied(), make_corpse() and corpse_chance() under it, and mhitm_adtyping()'s AD_PHYS arm and mhitm_knockback() landed with monster-melee-attack. (5) Three small unported helpers sit on the path and two are outside the monsters area: do_name.c mon_nam_too() belongs to js/do_name.js (objects), uhitm.c shade_miss() to js/uhitm.js (commands) and is pure and false for both defenders, and pre_mm_attack()'s seemimic() and map_invisible() arms sit behind conditions false for an ordinary jackal or zombie. (6) passivemm() is small for these defenders and still spends a draw: its head walks to the first AT_NONE slot carrying damn 0 and damd 0, the AD_ACID/AD_ENCH switch takes default, and a live defender reaches rn2(3) at 1363. Both sessions record it on the missed attack and skip it on the fatal one. (7) mattackm() gives gb.bhitpos its first live read, at the per-slot m_at() check for i > 0, which seed0103 exercises at slot 1; js/dogmove.js:1104 is the write, so the open entry bhitpos-is-stored-in-two-places needs deciding inside this goal. (8) The pacing is the risk, not the arithmetic: C's kill draws land one recorded step after the hit, because monkilled()'s pline blocks at --More-- before mondied() runs, so the differential must check the split rather than only the totals. (9) Cheap width: 59 of the forecast 90 are one --More-- the port has only to hold, since seed0900 steps 14-72 draw no random numbers and repeat one screen.",
+      "slices": [],
+      "openedAt": "b0a0f83033d09c166e7ae763e9500862dae1f5bf",
+      "openStanding": {
+        "sha": "a32f9e3",
+        "screens": 1674,
+        "rng": 125050
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
