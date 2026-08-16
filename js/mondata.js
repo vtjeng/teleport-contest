@@ -1169,7 +1169,6 @@ export function dead_species(m_idx, egg = false, env = {}) {
 //   defended, resists_drli, resists_blnd_by_arti, can_blnd
 //                           need artifact and inventory support that the port
 //                           does not have yet
-//   get_atkdam_type         ROLL_FROM() is a random-number call
 //   pronoun_gender          calls rn2()
 //   set_mon_data, give_u_to_m_resistances, mon_learns_traps, mons_see_trap,
 //   monstseesu             change monster or hero state.  monstunseesu() is
@@ -1238,7 +1237,7 @@ export function completelyrusts(species) {
 }
 
 // C ref: monattk.h DISTANCE_ATTK_TYPE().
-function DISTANCE_ATTK_TYPE(aatyp) {
+export function DISTANCE_ATTK_TYPE(aatyp) {
     return aatyp === M.AT_SPIT || aatyp === M.AT_BREA
         || aatyp === M.AT_MAGC || aatyp === M.AT_GAZE;
 }
@@ -1658,6 +1657,28 @@ export function monstunseesu(seenres, state = game) {
         if (m_canseeu(mtmp, state))
             mtmp.seen_resistance &= ~seenres; /* m_clearseenres() */
     }
+}
+
+// C ref: mondata.c get_atkdam_type() (1659-1669). "translate an attack's
+// damage type into the one it actually delivers this time"; only a random
+// breath differs, and only there does this spend a draw.
+//
+// C declares rnd_breath_typ[] `static const` inside the function; the module
+// constant is the same array with the same order, and that order is what the
+// draw indexes. hack.h:1493 expands ROLL_FROM(array) to array[rn2(SIZE(array))]
+// and global.h:128 expands SIZE(x) to sizeof(x) / sizeof(x[0]), so the bound is
+// the element count.
+const rnd_breath_typ = Object.freeze([
+    M.AD_MAGM, M.AD_FIRE, M.AD_COLD, M.AD_SLEE,
+    M.AD_DISN, M.AD_ELEC, M.AD_DRST, M.AD_ACID,
+]);
+
+export function get_atkdam_type(adtyp, random = { rn2 }) {
+    if (typeof random.rn2 !== 'function')
+        throw new TypeError('get_atkdam_type random injection requires rn2');
+    if (adtyp === M.AD_RBRE)
+        return rnd_breath_typ[random.rn2(rnd_breath_typ.length)];
+    return adtyp;
 }
 
 export const _mondataInternals = Object.freeze({

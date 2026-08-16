@@ -27,6 +27,7 @@ import {
     dead_species,
     flesh_petrifies,
     flaming,
+    get_atkdam_type,
     haseyes,
     hides_under,
     humanoid,
@@ -171,7 +172,15 @@ const S_KOP = 37;                 // defsym.h:338
 
 // include/monattk.h, attack and damage types.
 const AD_ANY = -1;                // monattk.h:41, dmgtype wildcard
+const AD_PHYS = 0;                // monattk.h:42
+const AD_MAGM = 1;                // monattk.h:43
+const AD_FIRE = 2;                // monattk.h:44
+const AD_COLD = 3;                // monattk.h:45
+const AD_SLEE = 4;                // monattk.h:46
+const AD_DISN = 5;                // monattk.h:47
+const AD_ELEC = 6;                // monattk.h:48
 const AD_DRST = 7;                // monattk.h:49
+const AD_ACID = 8;                // monattk.h:50
 const AD_RUST = 24;               // monattk.h:66
 const AD_RBRE = 242;              // monattk.h:89
 const AT_BREA = 12;               // monattk.h:22
@@ -899,3 +908,38 @@ test('movement attack, life-state, web, and trap queries match source tables', (
     assert.equal(mon_knows_traps(monster, ALL_TRAPS), false);
     assert.equal(mon_knows_traps(monster, NO_TRAP), true);
 });
+
+test('get_atkdam_type rolls only a random breath, in the source array order',
+    () => {
+        // C ref: mondata.c get_atkdam_type() (1659-1669). The eight members of
+        // rnd_breath_typ[] and their order are transcribed from that array,
+        // and hack.h:1493 ROLL_FROM() indexes it with rn2(SIZE(array)), so the
+        // bound is eight and index i selects member i.
+        const rnd_breath_typ = [
+            AD_MAGM, AD_FIRE, AD_COLD, AD_SLEE,
+            AD_DISN, AD_ELEC, AD_DRST, AD_ACID,
+        ];
+
+        for (const [index, expected] of rnd_breath_typ.entries()) {
+            const bounds = [];
+            const random = {
+                rn2: (bound) => {
+                    bounds.push(bound);
+                    return index;
+                },
+            };
+            assert.equal(get_atkdam_type(AD_RBRE, random), expected, `${index}`);
+            assert.deepEqual(bounds, [rnd_breath_typ.length]);
+        }
+
+        // Every other damage type is answered unchanged and spends nothing.
+        // AD_PHYS is the zero member, which a truth test would confuse with
+        // "no damage type"; AD_ACID is a member of the breath array itself,
+        // reached here without a roll.
+        const refuse = {
+            rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+        };
+        for (const adtyp of [AD_PHYS, AD_ACID, AD_DRST, AD_RUST]) {
+            assert.equal(get_atkdam_type(adtyp, refuse), adtyp, `${adtyp}`);
+        }
+    });

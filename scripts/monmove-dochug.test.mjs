@@ -9,13 +9,23 @@ import {
     MMOVE_MOVED,
     MMOVE_NOMOVES,
     MMOVE_NOTHING,
+    M_SEEN_SLEEP,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     STRAT_ARRIVE,
     STRAT_WAITFORU,
 } from '../js/const.js';
 import { dochug } from '../js/monmove.js';
-import { AT_CLAW, AT_NONE, AT_WEAP } from '../js/monsters.js';
+import {
+    AD_BLND,
+    AD_RBRE,
+    AT_BREA,
+    AT_CLAW,
+    AT_NONE,
+    AT_SPIT,
+    AT_WEAP,
+    M1_ANIMAL,
+} from '../js/monsters.js';
 
 function makeState() {
     const uprops = [];
@@ -68,6 +78,10 @@ function baseEnv(state, events) {
         wakeMessage: () => events.push('wake-message'),
         wipeEngraving: () => events.push('wipe'),
         setApparentHero: () => events.push('apparxy'),
+        // muse.c find_offensive() refuses through this seam. No fixture below
+        // reaches a refusing arm: every monster the post-move disjunction
+        // carries into find_offensive() is stopped by its first guard.
+        unsupported: (what) => assert.fail(`unexpected refusal: ${what}`),
     };
 }
 
@@ -106,35 +120,228 @@ test('dochug clears arrival and wait state before ordinary movement', async () =
     ]);
 });
 
-test('dochug reaches the post-move ranged weapon phase', async () => {
+test('dochug carries an armed mover into the standard-attack phase',
+    async () => {
+        // C ref: monmove.c:944-949. The AT_WEAP disjunct breaks out of the
+        // post-move switch, and PHASE FOUR at :957-971 is what then calls
+        // mattacku(). The port used to call mattacku() from the switch itself
+        // through a second operation.
+        const state = makeState();
+        const events = [];
+        const monster = makeMonster({
+            data: {
+                mattk: [{ aatyp: AT_WEAP }],
+                mflags2: 0,
+                mflags3: 0,
+            },
+            mux: 6,
+            muy: 4,
+        });
+        let rangeCall = 0;
+        const env = {
+            ...baseEnv(state, events),
+            distanceAndFear: () => {
+                events.push(`range-${++rangeCall}`);
+                return {
+                    inrange: true,
+                    nearby: false,
+                    scared: false,
+                };
+            },
+            moveMonster: () => {
+                events.push('move');
+                return MMOVE_MOVED;
+            },
+            wieldMonsterItem: () => false,
+        };
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.deepEqual(events, [
+            'preflight',
+            'wipe',
+            'apparxy',
+            'range-1',
+            'items',
+            'move',
+            'range-2',
+            'attack',
+        ]);
+    });
+
+test('dochug lets PHASE FOUR reject the armed mover it broke into it with',
+    async () => {
+        // C ref: monmove.c:944-949 and :957-971. The break is not the attack:
+        // an armed monster that moved out of BOLT_LIM range still passes the
+        // AT_WEAP disjunct, and PHASE FOUR's own `(inrange && !scared) ||
+        // panicattk` then refuses it. panicattk stays false because the status
+        // is MMOVE_MOVED rather than MMOVE_NOMOVES.
+        const state = makeState();
+        const events = [];
+        const monster = makeMonster({
+            data: {
+                mattk: [{ aatyp: AT_WEAP }],
+                mflags2: 0,
+                mflags3: 0,
+            },
+        });
+        const env = {
+            ...baseEnv(state, events),
+            distanceAndFear: () => {
+                events.push('range');
+                return { inrange: false, nearby: false, scared: false };
+            },
+            moveMonster: () => {
+                events.push('move');
+                return MMOVE_MOVED;
+            },
+            attackHero: () =>
+                assert.fail('an out-of-range mover does not attack'),
+            wieldMonsterItem: () => false,
+        };
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.deepEqual(events, [
+            'preflight',
+            'wipe',
+            'apparxy',
+            'range',
+            'items',
+            'move',
+            'range',
+        ]);
+    });
+
+test('dochug carries a mover with a distance attack into the attack phase',
+    async () => {
+        // C ref: monmove.c:945, ranged_attk_available(). AT_SPIT satisfies
+        // monattk.h DISTANCE_ATTK_TYPE() with no AT_WEAP attack anywhere in
+        // the list, so this disjunct alone is what reaches PHASE FOUR. AD_BLND
+        // is what a real spitter carries and cvt_adtyp_to_mseenres() maps it
+        // to M_SEEN_NOTHING, so the resistance test admits it.
+        const state = makeState();
+        const events = [];
+        const monster = makeMonster({
+            data: {
+                mattk: [{ aatyp: AT_SPIT, adtyp: AD_BLND }],
+                mflags2: 0,
+                mflags3: 0,
+            },
+            seen_resistance: 0,
+        });
+        const env = {
+            ...baseEnv(state, events),
+            distanceAndFear: () => {
+                events.push('range');
+                return { inrange: true, nearby: false, scared: false };
+            },
+            moveMonster: () => {
+                events.push('move');
+                return MMOVE_MOVED;
+            },
+        };
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.deepEqual(events, [
+            'preflight',
+            'wipe',
+            'apparxy',
+            'range',
+            'items',
+            'move',
+            'range',
+            'attack',
+        ]);
+    });
+
+test('dochug rolls a random breath where C rolls it, before the attack phase',
+    async () => {
+        // C ref: mondata.c get_atkdam_type() (1659-1669) reached through
+        // mhitu.c ranged_attk_available() (2412-2426). AD_RBRE spends
+        // ROLL_FROM(rnd_breath_typ), an rn2(8), inside the first disjunct of
+        // monmove.c:945-948, so the draw lands before PHASE FOUR runs.
+        //
+        // The roll answers AD_SLEE, index 3, and the monster is given
+        // M_SEEN_SLEEP: C then declines that slot and the loop ends with no
+        // further slot to try, so the disjunct is FALSE and the monster
+        // returns from the switch without reaching PHASE FOUR. That is the
+        // arrangement in which the draw is visible and the attack is not.
+        const state = makeState();
+        const events = [];
+        const monster = makeMonster({
+            data: {
+                mattk: [{ aatyp: AT_BREA, adtyp: AD_RBRE }],
+                mflags2: 0,
+                mflags3: 0,
+            },
+            seen_resistance: M_SEEN_SLEEP,
+        });
+        const env = {
+            ...baseEnv(state, events),
+            random: {
+                rn2: (bound) => {
+                    events.push(`rn2:${bound}`);
+                    return 3; // AD_SLEE, the fourth rnd_breath_typ[] member
+                },
+            },
+            distanceAndFear: () => {
+                events.push('range');
+                return { inrange: true, nearby: false, scared: false };
+            },
+            moveMonster: () => {
+                events.push('move');
+                return MMOVE_MOVED;
+            },
+            attackHero: () =>
+                assert.fail('a declined breath reaches no attack'),
+        };
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.deepEqual(events, [
+            'preflight',
+            'wipe',
+            'apparxy',
+            'range',
+            'items',
+            'move',
+            'range',
+            'rn2:8',
+        ]);
+    });
+
+test('dochug keeps a melee-only mover out of the attack phase', async () => {
+    // C ref: monmove.c:945-948, all three disjuncts false. A monster with
+    // neither a distance attack nor AT_WEAP is the only one whose third
+    // disjunct C evaluates at all, and muse.c find_offensive() answers FALSE
+    // at its first guard for an animal, spending nothing.
+    //
+    // The third disjunct's own answer is not observable here and no test can
+    // make it so: every arm of js/muse.js find_offensive() either returns
+    // FALSE or refuses through `unsupported`, so removing the call changes
+    // nothing this boundary can see. What this pins is the arm's result --
+    // a mover with no ranged option reaches no attack -- and the claw keeps
+    // noattacks() false so that PHASE FOUR's own term is not what stops it.
     const state = makeState();
     const events = [];
     const monster = makeMonster({
         data: {
-            mattk: [{ aatyp: AT_WEAP }],
+            mattk: [{ aatyp: AT_CLAW }],
+            mflags1: M1_ANIMAL,
             mflags2: 0,
             mflags3: 0,
         },
-        mux: 6,
-        muy: 4,
     });
-    let rangeCall = 0;
     const env = {
         ...baseEnv(state, events),
         distanceAndFear: () => {
-            events.push(`range-${++rangeCall}`);
-            return {
-                inrange: true,
-                nearby: false,
-                scared: false,
-            };
+            events.push('range');
+            return { inrange: true, nearby: false, scared: false };
         },
         moveMonster: () => {
             events.push('move');
             return MMOVE_MOVED;
         },
-        postMoveRangedAttack: () => events.push('ranged-weapon'),
-        wieldMonsterItem: () => false,
+        attackHero: () =>
+            assert.fail('a mover with no ranged option does not attack'),
     };
 
     assert.equal(await dochug(monster, env), 0);
@@ -142,13 +349,54 @@ test('dochug reaches the post-move ranged weapon phase', async () => {
         'preflight',
         'wipe',
         'apparxy',
-        'range-1',
+        'range',
         'items',
         'move',
-        'range-2',
-        'ranged-weapon',
+        'range',
     ]);
 });
+
+test('dochug stops a mover that fell asleep before it tests its attacks',
+    async () => {
+        // C ref: monmove.c:941-942, `if (helpless(mtmp)) return 0;`, which
+        // sits ahead of the disjunction. A monster that stepped onto a
+        // sleeping-gas trap during m_move() must not spend
+        // ranged_attk_available()'s breath draw, so the injected rn2 fails the
+        // test if the order is wrong.
+        const state = makeState();
+        const events = [];
+        const monster = makeMonster({
+            data: {
+                mattk: [{ aatyp: AT_BREA, adtyp: AD_RBRE }],
+                mflags2: 0,
+                mflags3: 0,
+            },
+        });
+        const env = {
+            ...baseEnv(state, events),
+            distanceAndFear: () => {
+                events.push('range');
+                return { inrange: true, nearby: false, scared: false };
+            },
+            moveMonster: () => {
+                events.push('move');
+                monster.msleeping = true;
+                return MMOVE_MOVED;
+            },
+            attackHero: () => assert.fail('a sleeping monster does not attack'),
+        };
+
+        assert.equal(await dochug(monster, env), 0);
+        assert.deepEqual(events, [
+            'preflight',
+            'wipe',
+            'apparxy',
+            'range',
+            'items',
+            'move',
+            'range',
+        ]);
+    });
 
 test('dochug attacks a nearby hostile after declining movement', async () => {
     const state = makeState();

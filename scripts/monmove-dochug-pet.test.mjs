@@ -99,6 +99,10 @@ function baseEnv(events) {
         trappedPrologue: () => false,
         setApparentHero: () => events.push('apparxy'),
         wipeEngraving: () => events.push('wipe'),
+        // muse.c find_offensive() refuses through this seam. A pet is
+        // mpeaceful, which is find_offensive()'s first guard, so no fixture
+        // here reaches a refusing arm.
+        unsupported: (what) => assert.fail(`unexpected refusal: ${what}`),
     };
 }
 

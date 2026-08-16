@@ -880,21 +880,25 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
         // One dochug() now serves both, as in C. m_move() picks the mover.
         dochug: (subject, actionEnv) => dochug(subject, {
                 ...actionEnv,
-                // Both of this file's seams onto mhitu.c mattacku(). C reaches
-                // it from dochug()'s standard-attack gate whether or not the
-                // monster moved first, and js/monmove.js folds the
-                // moved-then-attack path into the second operation. Two
-                // further seams still refuse ahead of C's steed draw, named by
-                // symbol because both line citations here were wrong:
-                // js/dogmove.js dog_move()'s usteed arm (dogmove.c:911) and
-                // js/dogmove.js pet_ranged_attk() (dogmove.c:1286).
+                // This file's one seam onto mhitu.c mattacku(). C reaches it
+                // from dochug()'s standard-attack gate whether or not the
+                // monster moved first, and js/monmove.js now breaks into that
+                // gate the way monmove.c:948 does instead of calling mattacku()
+                // a second way. Two further seams still refuse ahead of C's
+                // steed draw, named by symbol because both line citations here
+                // were wrong: js/dogmove.js dog_move()'s usteed arm
+                // (dogmove.c:911) and js/dogmove.js pet_ranged_attk()
+                // (dogmove.c:1286).
                 attackHero: attackHeroWithMattacku,
                 monFlee: () => unsupported('monster flight'),
                 monsterCanSeeHero: ordinaryMonsterCanSeeHero,
                 moveMonster: moveSimpleOrdinary,
-                postMoveRangedAttack: attackHeroWithMattacku,
                 selectRangedWeapon: () =>
                     unsupported('monster ranged weapon selection'),
+                // muse.c find_offensive(), which dochug()'s post-move
+                // disjunction calls, refuses through this rather than
+                // answering TRUE.
+                unsupported,
                 usePreMoveItems: (itemUser, itemEnv) => {
                     const selected = select_fresh_monster_item_action(
                         itemUser,

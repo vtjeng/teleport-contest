@@ -1,7 +1,8 @@
 // mhitu.js -- Monsters attacking the hero.
 // C ref: mhitu.c -- hitmsg(), missmu(), mswings_verb(), mswings(), getmattk(),
 // calc_mattacku_vars(), mtrapped_in_pit(), mattacku(), magic_negation(),
-// could_seduce(), hitmu(), mdamageu() and passiveum().
+// could_seduce(), hitmu(), mdamageu(), ranged_attk_available() and
+// passiveum().
 
 import {
     BLINDED,
@@ -40,6 +41,9 @@ import { nomul, showdamage } from './hack.js';
 import { dist2 } from './hacklib.js';
 import { is_home_elemental } from './makemon.js';
 import {
+    DISTANCE_ATTK_TYPE,
+    cvt_adtyp_to_mseenres,
+    get_atkdam_type,
     hides_under,
     is_animal,
     is_demon,
@@ -945,6 +949,39 @@ async function mdamageu(mtmp, n, state, env) {
         state.u.uhp = state.u.uhpmax;
     if (state.u.uhp < 1)
         unsupported('the hero dying of a monster attack');
+}
+
+// C ref: mhitu.c ranged_attk_available() (2412-2426). "returns TRUE if monster
+// has a range attack in its repertoire that it will actually utilize"; the
+// monster declines one whose damage type it has already watched the hero
+// resist, which is what m_seenres() records.
+//
+// The draw is real and belongs to the caller's turn: for an AT_BREA slot whose
+// damage type is AD_RBRE, get_atkdam_type() rolls the breath before the
+// resistance test, and one loop pass can spend that draw and still move on to
+// the next slot. That is why this is not a pure predicate and why
+// monmove.c dochug() must reach it in C's order.
+//
+// C's `(typ = get_atkdam_type(...)) >= 0` guard is left out. `struct attack`
+// declares adtyp a uchar (permonst.h:42) and get_atkdam_type() answers either
+// that field or a member of rnd_breath_typ[], so no attack entry can drive it
+// below zero. `typ` itself, C's -1 initializer included, exists only to carry
+// the value between the two calls.
+//
+// C loops `for (i = 0; i < NATTK; i++)` over an array of NATTK slots
+// (permonst.h:48) whose unused members hold aatyp AT_NONE, which
+// DISTANCE_ATTK_TYPE() rejects; walking the mattk array itself reaches the
+// same slots in the same order.
+export function ranged_attk_available(mtmp, rawEnv = {}) {
+    const random = rawEnv.random ?? { rn2 };
+    const ptr = mtmp.data;
+
+    return Boolean(ptr?.mattk?.some((mattk) => {
+        if (!DISTANCE_ATTK_TYPE(mattk.aatyp)) return false;
+        const typ = get_atkdam_type(mattk.adtyp, random);
+        /* m_seenres() */
+        return (mtmp.seen_resistance & cvt_adtyp_to_mseenres(typ)) === 0;
+    }));
 }
 
 // C ref: mhitu.c passiveum() (2434-2615), as far as `if (!Upolyd)` at 2519.

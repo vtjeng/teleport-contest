@@ -328,7 +328,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "roadmap",
       "detail": "`dochug()`'s `MMOVE_MOVED` arm returns in the port where C breaks out of the\nmovement phase and continues into its attack phase, so a monster that moves and\n*then* throws diverges silently — no refusal, no boundary, just a missing\naction.\n\nReproduce with seed 8930452, `pettype:none`, moves `lllsssjjjss`. Two seeds\nwere dropped from `scripts/run-monster-pickup.mjs` for this rather than have\nthe matrix encode the wrong behavior.\n\nThe neighbouring gate was corrected at `77fa460`: `dochug()`'s standard-attack\ntest used adjacency where C uses `inrange && !scared`, which let ranged\nattackers through in silence. This is the same phase structure seen from one\nstep further on, and it belongs with the combat work.",
       "notes": [
@@ -1041,6 +1041,10 @@
         {
           "text": "This entry's premise is falsified by commit 0ece1a4, which wired touch_artifact() into js/invent.js hold_another_object()'s artifact block. The entry says no production path calls it and that five injections stand in its place; one production caller now exists, on the wizard-wish path, and it is exercised by the recorded matrix in scripts/run-wizard-wish.mjs. What remains open is the rest: the other injections are still in place, and only the hero half of the function is ported, with the blast and evade arms refused. Restate the remaining work against that, not against the original claim.",
           "at": "1f0bffd9766ce378fbea272741201efe64b0d491"
+        },
+        {
+          "text": "Correction: the entry counts five injections standing in for touch_artifact(), one of them `postMoveRangedAttack()`. That seam no longer exists. dochug-post-move-restores-c-disjunction restored monmove.c:948's break into PHASE FOUR, which made the post-move path reach the same `attackHero` operation the standard-attack gate already used, so the second operation was deleted rather than kept as a duplicate.\n\nFour sites remain, verified by `grep -rn touchArtifact js/`: js/unported_monster_actions.js moveSimpleOrdinary(), throwRangedWeapon() and the dochug `wieldMonsterItem` operation, plus js/monmove.js postmov(). The entry's substance is unchanged; only the count and that one name are.",
+          "at": "3dfbff692affa6fe93a29efc05b523f0784cfa6e"
         }
       ]
     },
@@ -2750,7 +2754,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "2be53e4a3ad91647d70605ad98bf4f34727fd02a",
       "detail": "monmove.c:944-949 breaks out of the post-move switch on `!nearby && (ranged_attk_available(mtmp) || attacktype(mdat, AT_WEAP) || find_offensive(mtmp))`, reaching PHASE FOUR mattacku(). js/monmove.js keeps only the attacktype(AT_WEAP) term, and js/unported_monster_actions.js folds the same condition the same way. Both omissions were unavoidable before this range, since neither ranged_attk_available() nor find_offensive() existed in js/; find_offensive() now does, so the port silently skips a call C makes and a monster that would have attacked after moving does not. Closes when the disjunction is restored in C order, so the short-circuit and therefore the draw order match, and ranged_attk_available() is ported or refused. Needs a fresh recorded case because it changes which monsters reach mattacku() after moving. Confirmed by the correctness pass over 0d7678c..2be53e4."
     },
@@ -3361,6 +3365,16 @@
       "from": "8012570348ae2c44efc3451b53ecfa449c4013e4",
       "detail": "cc49c93 fixed a segment-losing refusal in js/mhitm.js: a pet's physical blow on an M1_UNSOLID defender stopped the segment where C requires unsolid(...) && failed_grab() and failed_grab() answers FALSE for a pet's attack types. The fix rests on the C source and unit tests watched failing, with no fresh C differential, because the case cannot occur in ordinary D:1 play: every M1_UNSOLID species has source difficulty 4 or more, and makemon.c rndmonst_adj() caps a D:1 runtime draw at (level_difficulty() + u.ulevel) / 2, which is 1 at experience level 1. A wizard-mode scan of seeds 7710001-7710150 with #levelchange to 30 and 140 waits recorded a pet fight in 51 of the first 80 games and named no unsolid defender in any. Closing this needs a recorded case, which wizard-mode monster creation would supply.",
       "blockedOn": "create_particular"
+    },
+    {
+      "id": "dochug-post-move-break-stops-on-use-offensive",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "3dfbff692affa6fe93a29efc05b523f0784cfa6e",
+      "detail": "The case just outside this slice, kept out of the passing suite because it does not match C yet. Inputs: seed 8930452, datetime 20310203040506, the recorder's canonical timezone, moves `lllsssjjjss`, and an rc of name:Hoarder,role:Barbarian,race:human,gender:male,align:chaotic with pettype:none and !acoustics. The ledger named this seed as the reproducer for `dochug() returns where C breaks into PHASE FOUR`.\n\nExpected failure: the port matches C for 2879 of 2898 PRNG calls and 4 of 12 screens, then ends segment 1 at step 5 on `simple monster action requires monster offensive item use`. That refusal is mhitu.c mattacku()'s find_offensive() call at js/mhitu.js, standing in for muse.c use_offensive() (muse.c:1824), which is not ported. Measured identically before and after dochug-post-move-restores-c-disjunction, so restoring the disjunction neither reached the stop earlier nor moved past it.\n\nCloses when use_offensive() is ported and this recipe replays to the end of its input. Until then it belongs in no committed matrix: a segment trimmed to step 4 would encode four startup screens and none of the monster behaviour the seed was chosen for.",
+      "blockedOn": "use_offensive"
     }
   ],
   "areas": [

@@ -9,6 +9,8 @@ import {
     INVIS,
     M_ATTK_HIT,
     M_ATTK_MISS,
+    M_SEEN_ACID,
+    M_SEEN_FIRE,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
     NO_WEAPON_WANTED,
@@ -39,6 +41,7 @@ import {
     mattacku,
     mswings_verb,
     mtrapped_in_pit,
+    ranged_attk_available,
 } from '../js/mhitu.js';
 import { sticks, thick_skinned } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
@@ -62,7 +65,10 @@ import {
     PM_ALIGNED_CLERIC,
     PM_AMOROUS_DEMON,
     PM_BARROW_WIGHT,
+    PM_BLACK_NAGA,
+    PM_CHROMATIC_DRAGON,
     PM_CLERIC,
+    PM_COBRA,
     PM_GIANT_EEL,
     PM_BABY_GRAY_DRAGON,
     PM_GOBLIN,
@@ -1940,4 +1946,85 @@ test('passiveum finds the hero form\'s empty slot and rolls its dice',
     assert.equal(await mattacku(bug, full.env), false);
     assert.deepEqual(full.bounds.filter((b) => b.startsWith('d(')), ['d(1,1)']);
     state.youmonst.data = ordinary;
+});
+
+// mhitu.c ranged_attk_available() reads only mtmp->data->mattk[] and
+// mtmp->seen_resistance, so the fixture is the real permonst row plus that one
+// field. The species below are chosen for the shape of their attack lists,
+// read from monsters.h.
+function rangedAttacker(mnum, seen_resistance = 0) {
+    const state = {};
+    monst_globals_init(state);
+    return { data: state.mons[mnum], seen_resistance };
+}
+
+test('ranged_attk_available finds the distance attacks C tests for', () => {
+    const refuse = {
+        rn2: (bound) => assert.fail(`unexpected rn2(${bound})`),
+    };
+
+    // A jackal's only attack is AT_BITE, which monattk.h DISTANCE_ATTK_TYPE()
+    // rejects, so the loop ends without calling get_atkdam_type() at all.
+    assert.equal(
+        ranged_attk_available(rangedAttacker(PM_JACKAL), { random: refuse }),
+        false,
+    );
+
+    // A cobra spits AD_BLND, which cvt_adtyp_to_mseenres() maps to
+    // M_SEEN_NOTHING. C's test is `m_seenres(...) == 0`, so an unmapped damage
+    // type can never be declined: the mask is zero and the AND is zero.
+    assert.equal(
+        ranged_attk_available(rangedAttacker(PM_COBRA), { random: refuse }),
+        true,
+    );
+
+    // A black naga spits AD_ACID. Having watched the hero resist acid is what
+    // makes it decline, and that is the only difference between these two.
+    assert.equal(
+        ranged_attk_available(rangedAttacker(PM_BLACK_NAGA), {
+            random: refuse,
+        }),
+        true,
+    );
+    assert.equal(
+        ranged_attk_available(rangedAttacker(PM_BLACK_NAGA, M_SEEN_ACID), {
+            random: refuse,
+        }),
+        false,
+    );
+});
+
+test('ranged_attk_available rolls a random breath and keeps looking', () => {
+    // The Chromatic Dragon is the one species whose list holds two distance
+    // attacks with AT_BREA/AD_RBRE first (monsters.h, Chromatic Dragon), so it
+    // is the only fixture that shows a declined slot leaving the loop running.
+    const bounds = [];
+    const random = {
+        rn2: (bound) => {
+            bounds.push(bound);
+            return 1; // AD_FIRE, rnd_breath_typ[1]
+        },
+    };
+
+    // The roll answers AD_FIRE and the dragon has watched the hero resist
+    // fire, so slot 0 is declined. Slot 1 is AT_MAGC/AD_SPEL, whose
+    // M_SEEN_NOTHING mask cannot be declined, so the answer is still TRUE --
+    // reached from the second slot, after the first slot's draw.
+    assert.equal(
+        ranged_attk_available(
+            rangedAttacker(PM_CHROMATIC_DRAGON, M_SEEN_FIRE),
+            { random },
+        ),
+        true,
+    );
+    assert.deepEqual(bounds, [8]);
+
+    // Without that resistance the first slot answers on its own, and the draw
+    // still happens: C rolls the breath before it tests the resistance.
+    bounds.length = 0;
+    assert.equal(
+        ranged_attk_available(rangedAttacker(PM_CHROMATIC_DRAGON), { random }),
+        true,
+    );
+    assert.deepEqual(bounds, [8]);
 });

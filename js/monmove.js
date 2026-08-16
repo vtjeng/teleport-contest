@@ -17,6 +17,12 @@
 // mon_allowflags() back for mfndpos(). Every crossing happens at call time
 // rather than at module evaluation, which is why the cycle is safe rather than
 // merely pre-existing.
+//
+// dochug()'s post-move disjunction adds two more import cycles of the same
+// shape: js/mhitu.js takes monnear() from here and this file takes
+// ranged_attk_available() back, and js/muse.js takes monnear() and this file
+// takes find_offensive() and searches_for_item(). Both crossings are inside
+// function bodies, so neither module reads the other while it is evaluating.
 
 import {
     ACCESSIBLE,
@@ -154,6 +160,7 @@ import { sengr_at, wipe_engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { dist2, distmin, online2 } from './hacklib.js';
 import { money_cnt } from './invent.js';
+import { ranged_attk_available } from './mhitu.js';
 import {
     curr_mon_load,
     m_carrying,
@@ -254,7 +261,7 @@ import {
     S_VAMPIRE,
 } from './monsters.js';
 import { lined_up } from './mthrowu.js';
-import { searches_for_item } from './muse.js';
+import { find_offensive, searches_for_item } from './muse.js';
 import { isCandle, isContainer, objectType, sobj_at } from './obj.js';
 import {
     AMULET_CLASS,
@@ -1733,9 +1740,19 @@ export async function wield_pre_move_weapon(monster, range, rawEnv = {}) {
 //   mind_blast()                          guards, priests, and AT_MAGC
 //   killer bee jelly, gelcube_digests()   the boundary rejects both species
 //   castmu() undirected spell             the boundary rejects AT_MAGC
-//   mon_offmap(), wormhitu(), cuss()      unreachable on a fresh D:1 level
+//   mon_offmap(), wormhitu()              unreachable on a fresh D:1 level
+//   cuss()                                no MS_CUSS species can be generated
+//                                         at the D:1 difficulty cap
 // A timed fleeing state is reachable for a starting pet after do_attack()'s
 // safe_pet refusal. Other fleeing monsters remain behind the action boundary.
+//
+// cuss() used to be listed with mon_offmap() and wormhitu() because only a
+// nearby monster reached it. It is not distance that stops it now: the
+// post-move break below carries a monster that is *not* nearby into the tail
+// of PHASE FOUR, where C's `inrange && msound == MS_CUSS && ... && !rn2(5)`
+// sits. What stops it is difficulty. makemon.c rndmonst_adj() caps a D:1
+// draw at (level_difficulty() + u.ulevel) / 2 = 1, and the lowest-difficulty
+// MS_CUSS species is the imp at 4.
 export async function dochug(monster, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const random = rawEnv.random ?? { rn2 };
@@ -1749,6 +1766,10 @@ export async function dochug(monster, rawEnv = {}) {
         rawEnv,
         'monsterCanSeeHero',
     );
+    // find_offensive() below refuses through this rather than answering TRUE,
+    // because use_offensive(), the only reader of what it selects, is not
+    // ported.
+    const unsupported = requireDochugOperation(rawEnv, 'unsupported');
     const distanceAndFear = rawEnv.distanceAndFear ?? distfleeck;
     const disturbMonster = rawEnv.disturbMonster ?? disturb;
     const setApparentHero = rawEnv.setApparentHero ?? set_apparxy;
@@ -1756,7 +1777,7 @@ export async function dochug(monster, rawEnv = {}) {
     const wieldPreMoveWeapon = rawEnv.wieldPreMoveWeapon
         ?? wield_pre_move_weapon;
     const redraw = rawEnv.redraw ?? newsym;
-    const env = { ...rawEnv, state, random };
+    const env = { ...rawEnv, state, random, unsupported };
     const hallucinating = () => activeProperty(state, HALLUC)
         && !activeProperty(state, HALLUC_RES);
 
@@ -1819,28 +1840,35 @@ export async function dochug(monster, rawEnv = {}) {
         }
         if (status === MMOVE_DIED) return 1;
         if (status === MMOVE_MOVED) {
-            // C also releases a confused grabber, disturbs buried zombies,
-            // and returns early for a helpless or engulfing monster; none is
-            // reachable here.
-            if (!range.nearby
-                && range.inrange
-                && !range.scared
-                && !monster.mpeaceful
-                && attacktype(monster.data, AT_WEAP)) {
-                const postMoveRangedAttack = requireDochugOperation(
-                    rawEnv,
-                    'postMoveRangedAttack',
-                );
-                await postMoveRangedAttack(monster, env);
+            // C also releases a confused grabber and disturbs buried zombies
+            // for a grounded mover; neither is reachable here.
+            /* Maybe it stepped on a trap and fell asleep... */
+            if (helpless(monster)) return 0;
+            /* Monsters can move and then shoot on same turn;
+               our hero can't.  Is that fair? */
+            const shootsAfterMoving = !range.nearby
+                && (ranged_attk_available(monster, env)
+                    || attacktype(monster.data, AT_WEAP)
+                    || find_offensive(monster, env));
+            if (!shootsAfterMoving) {
+                // C's remaining arm is `if (engulfing_u(mtmp)) return
+                // mattacku(mtmp);` before the plain `return 0`. No ported path
+                // sets u.uswallow -- js/mon.js clears it and nothing writes it
+                // -- so only the plain return is reachable.
+                return 0;
             }
-            return 0;
+            // C breaks out of the switch here rather than returning, so a
+            // monster that moved and can still shoot falls into PHASE FOUR
+            // below and is judged by that phase's own gate.
+        } else {
+            // MMOVE_NOTHING, MMOVE_DONE, and MMOVE_NOMOVES all reach here.  C
+            // redraws a hallucinated monster that did not move.  MMOVE_NOMOVES
+            // additionally sets panicattk when the monster is scared: a
+            // cornered monster attacks even though fear would otherwise stop
+            // it.
+            if (status === MMOVE_NOMOVES && range.scared) panicattk = true;
+            if (hallucinating()) redraw(monster.mx, monster.my);
         }
-        // MMOVE_NOTHING, MMOVE_DONE, and MMOVE_NOMOVES all reach here.  C
-        // redraws a hallucinated monster that did not move.  MMOVE_NOMOVES
-        // additionally sets panicattk when the monster is scared: a cornered
-        // monster attacks even though fear would otherwise stop it.
-        if (status === MMOVE_NOMOVES && range.scared) panicattk = true;
-        if (hallucinating()) redraw(monster.mx, monster.my);
     }
 
     // PHASE FOUR: standard attacks.  A peaceful monster, including every pet,
