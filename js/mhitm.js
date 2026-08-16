@@ -161,8 +161,11 @@ async function noises(magr, mattk, env) {
 // Three arms refuse. A mimic on either side needs mon.c seemimic(), and a
 // monster the hero cannot spot needs display.c map_invisible(); both write to
 // the map and print nothing, so the stop sits exactly where C's branch begins.
-// The mundetected clears themselves are ported: mattackm() has already cleared
-// the defender's, and an aggressor emerging from hiding is ordinary.
+//
+// Both mundetected clears are ported, and only the aggressor's runs. A hidden
+// defender stops mattackm() at its own :337-359 block, well above the call
+// that arrives here, so `mdef.mundetected` is 0 on every path that reaches
+// this function. The clear is written because C writes it.
 function pre_mm_attack(magr, mdef, env) {
     const { state } = env;
     const unsupported = requireAttackOperation(env, 'unsupported');
@@ -253,9 +256,11 @@ async function missmm(magr, mdef, mattk, env) {
 //   AT_BREA and AT_SPIT  breamm() and spitmm().
 //
 // `strike` is C's, declared once above the loop and never re-initialized
-// inside it, so a slot that leaves it alone -- AT_HUGS's failed grab, or a
-// `continue` -- hands the previous slot's answer to passivemm(). That is
-// preserved rather than tidied.
+// inside it, and every arm that reaches passivemm() assigns it in the same
+// iteration. A `continue` cannot carry the previous slot's answer down,
+// because it skips the passivemm() call at the foot of the loop, and C's
+// AT_HUGS arm assigns `strike` before it tests it. The declaration stays where
+// C puts it rather than moving inside the loop.
 export async function mattackm(magr, mdef, rawEnv = {}) {
     const env = attackEnv(rawEnv);
     const { state, random } = env;
@@ -544,21 +549,22 @@ async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
 // C ref: mhitm.c mdamagem() (1014-1120). One landed blow's damage, the death
 // it may cause, and the experience the killer earns for it.
 //
-// Partial: what an AD_PHYS attack reaches. Three arms refuse:
+// Partial: what an AD_PHYS attack reaches. Two arms refuse:
 //
 //   1031-1057  the petrification pre-check, for an attacker that bites a
 //              cockatrice or digests Medusa. It needs mondata.c resists_ston(),
 //              polymon.c mon_to_stone() and mon.c monstone().
-//   1080-1081  gm.mkcorpstat_norevive, whose only setter here is troll_baned()
-//              and whose only reader is js/corpstat.js mkcorpstat(). C writes
-//              it for AT_WEAP and AT_CLAW alone, so an AT_BITE or AT_KICK
-//              killer leaves it as it found it and nothing stops.
 //   1093-1108  the AD_DGST tail: newcham(), healmon() and mon_givit() after a
 //              digesting attack.
 //
-// The gulpmm() square swap at 1073-1078 is ported. Its condition is FALSE for
-// every melee blow -- the defender stands on its own square, not the
-// aggressor's -- and it is cheap, so it is translated rather than stopped.
+// Two blocks are ported although no melee blow can make either do anything,
+// because both are cheap and stopping on them would end a segment C plays
+// through. gm.mkcorpstat_norevive at 1080-1081 is written for AT_WEAP and
+// AT_CLAW alone, and its only setter here, monst.h troll_baned(), needs the
+// wielded Trollsbane that mattackm()'s refused AT_WEAP arm would have to
+// supply; js/corpstat.js mkcorpstat() is its only reader. The gulpmm() square
+// swap at 1073-1078 tests whether the defender stands on the aggressor's
+// square, which no melee blow arranges.
 async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
     const { state, random } = env;
     const unsupported = requireAttackOperation(env, 'unsupported');

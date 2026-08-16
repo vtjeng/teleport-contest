@@ -1393,10 +1393,11 @@ function first_weapon_hit() {
 // A shock attack landing on the hero: the attack's own message, the magic
 // cancellation test, and the item destruction a high-level attacker adds.
 //
-// C's other two arms are the hero's own shock attack (uhitm) and one monster
-// shocking another (mhitm). Neither has a caller here: js/uhitm.js damageum()
-// is unported and js/mhitm.js mattackm() stops long before any damage type, so
-// both refuse.
+// C's other two arms refuse. The hero's own shock attack (uhitm) has no caller
+// here, because js/uhitm.js damageum() is unported. One monster shocking
+// another (mhitm) does: js/mhitm.js mdamagem() reaches mhitm_adtyping(), which
+// dispatches AD_ELEC here, so a pet that fights a shocking monster stops at
+// that arm.
 export async function mhitm_ad_elec(
     magr,
     mattk,
@@ -1454,8 +1455,7 @@ export async function mhitm_ad_elec(
 // mhitm.c hitmm() has already printed.
 //
 // The third arm is the hero's own physical attack (uhitm). It has no caller
-// here, for the reason mhitm_ad_elec() gives above: js/uhitm.js damageum() is
-// unported.
+// here, because js/uhitm.js damageum() is unported.
 //
 // Two pieces of the hero's arm stop where C acts:
 //
@@ -1691,11 +1691,13 @@ export async function missum(
 // and everything past it stops here: is_blunt_weapon(), unsolid(),
 // m_is_steadfast() and the mhurtle() that does the knocking back have no port.
 //
-// Two callers reach this: hmon_hitmon():1927, where the hero is the attacker,
-// and hitmu():1200, where the hero is the defender. C's `hitflags`
-// out-parameter serves neither, because it is first read at 5337 and first
-// written at 5399, both past the stop above; it is left off the signature
-// rather than accepted and ignored.
+// Three ported callers reach this: uhitm.c hmon_hitmon():1928, where the hero
+// is the attacker; mhitu.c hitmu():1193, where the hero is the defender; and
+// mhitm.c mdamagem():1061, where neither is. C's fourth, hmonas():5833, is a
+// polymorphed hero's attack and is unported. The `hitflags` out-parameter
+// serves none of the three, because it is first read at 5337 and first written
+// at 5399, both past the stop below; it is left off the signature rather than
+// accepted and ignored.
 //
 // The hero as defender reaches the `u_def` refusal below whenever an AD_PHYS
 // AT_CLAW, AT_KICK, AT_BUTT or AT_WEAP blow lands on him and rn2(6) answers 0,
@@ -1757,13 +1759,16 @@ export function mhitm_knockback(
     /* subset of test_move() */
     if (!isok(defx + dx, defy + dy)) return false;
     const here = state.level?.at(defx, defy);
-    /* C means this as "the push is diagonal", but it spells it against
-       magr->mx rather than against dx and dy two lines above, and for a hero
-       attacker magr is gy.youmonst, whose mx and my no line of src/ ever
-       assigns -- light.c:16-17 records that they always remain 0. So the test
-       C actually makes here is that the target is on neither column 0 nor row
-       0, and an orthogonal push out of a doorway is refused along with a
-       diagonal one. `?? 0` is that unset coordinate. */
+    /* C means this as "the push is diagonal", and it is that whenever magr is a
+       monster, which mhitm.c mdamagem() and mhitu.c hitmu() both make it. It is
+       not that for a hero attacker: magr is gy.youmonst, whose mx and my no
+       line of src/ ever assigns -- light.c:16-17 records that they always
+       remain 0 -- so the test C makes for uhitm.c hmon_hitmon() is that the
+       target is on neither column 0 nor row 0, and an orthogonal push out of a
+       doorway is refused along with a diagonal one. `?? 0` is that unset
+       coordinate. Of the two monster attackers only mdamagem() reaches this
+       line, because hitmu() makes the hero the defender and the refusal above
+       stops it first. */
     if (IS_DOOR(here?.typ)
         && (defx - (magr.mx ?? 0)) && (defy - (magr.my ?? 0))
         && !doorless_door(here))
