@@ -2510,7 +2510,7 @@
       "upstreamOwners": [],
       "forecast": {
         "steps": 0,
-        "basis": "Measured at 169d01e with node scripts/scan-sessions.mjs over the 33 development sessions, not estimated: no session stops on a startup or options-parser boundary. The 14 boundary-census rows are the repeated-command admission list (7 sessions, 1,703 screens), engraving interaction (1, 1,930), doapply() type 101 (1, 699), level_tele() print_dungeon() (3, 280), #loot (1, 284), #rub (1, 274), garlic_breath() (1, 263), door unlocking (1, 252), nh_timeout (1, 223), reset_glyphmap(gm_optionchange) for the options menu (1, 59), #name (1, 16), optfn pickup_types for the attributes window (1, 6), and the mounting death in format 2 (1, 3). The two rows that touch options code, reset_glyphmap at 59 and pickup_types at 6, are owned by neither this goal nor any of its nine entries. This goal therefore ranks last on development look-ahead, below every row above, and is queued rather than opened.",
+        "basis": "Re-measured at 67870c0 with node scripts/scan-sessions.mjs over the 33 development sessions, replacing the 169d01e figure: still 0, because no development session stops on a startup or options-parser boundary. The re-ranking that produced this restatement capped eight boundary-census candidates and put option-toggle-repaints-the-map on top at 31 steps, so this goal again ranks last on development look-ahead and stays queued rather than opened. The nine startup deferrals it prices are now eight: 67870c0 closed config-error-summary-names-an-unknowable-path by accepting the configuration-file path as a divergence no port can close.",
         "sessions": [],
         "witnesses": []
       },
@@ -2518,6 +2518,44 @@
       "slices": [],
       "openedAt": null,
       "openStanding": null,
+      "closedAt": null,
+      "delivered": null
+    },
+    {
+      "id": "option-toggle-repaints-the-map",
+      "status": "open",
+      "boundary": "An O-menu pick that sets go.opt_need_glyph_reset -- options.c:5379-5385, the arm opt_hilite_pile shares with opt_showrace, opt_use_inverse, opt_perm_invent, opt_ascii_map, opt_tiled_map and opt_wizmgender, and opt_color at 5407-5409 -- runs options.c reset_needed_visuals()'s first arm (8982-8984), display.c reset_glyphmap(gm_optionchange) (2739-3086), and the docrt() below it (9002), rather than raising UnsupportedOptionMenuError at js/options.js:4856. The property that makes that possible is testable on its own against the C source: map memory holds the unresolved glyph number display.c show_glyph() (1877-2072) writes into levl[x][y].glyph, and the character, colour and attributes are resolved from it at print time through map_glyphinfo() (2594-2655), so a repaint draws every remembered square under the option values in force at the repaint rather than the ones in force when the square was recorded.",
+      "upstreamOwners": [
+        "js/display.js",
+        "js/options.js"
+      ],
+      "forecast": {
+        "steps": 31,
+        "basis": "Measured at 67870c0 with node scripts/scan-sessions.mjs over the 33 development sessions, then capped per .agents/selection.md. Raw unlocks 31 on 1 session, and the capping read found no second unported behavior in the stretch, so the capped figure equals the raw one -- the only one of the eight capped candidates whose figure did not fall. The other seven: engraving interaction 609 to 6 (dogmove.c dog_eat(), refused as \"pet eating\" at js/unported_monster_actions.js:776, seed0030 step 30); level_tele print_dungeon for \"?\" 198 to 4 over 3 sessions (every print_dungeon menu row is a special or branch level and each session's first pick is a special one -- bigrm:12 for seed0383 step 42 and seed2600 step 20, Bar-strt:16 for seed0373 step 43 -- which js/teleport.js:1321 refuses); wizgenesis 148 to 13 (zap.c buzz() through weffects(), js/zap.js:256-269); nh_timeout 52 to 17 (hack.c moverock(), refused as \"boulder movement\" at js/hack.js:923, seed0004 step 203); puton 47 to 12 (mhitu.c hitmu() on a hero who cannot spot the attacker, js/mhitu.js:876); #loot 33 to 3 (trap.c trapeffect_magic_trap(), js/trap_effects.js:738 and 760); #rub 33 to 1 (mthrowu.c thrwmu(), js/unported_monster_actions.js:856). Every remaining behavior-table row carries a raw unlocks of 18 or less, below this capped 31, so none was capped. The queued options-config-parser re-measures at 0. seed0006 is a single segment of 123 steps, so the stretch carries no later-segment alignment risk, and the candidate is ranked on the boundary-census row, not on the refused-command row the census labels \"fire (the byte answered a prompt)\".",
+        "sessions": [
+          "seed0006-wizard-water-demon.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0006-wizard-water-demon.session.json",
+            "evidence": "seed 6, datetime 20260503024327, one segment of 123 steps, rc \"OPTIONS=symset:DECgraphics\", playmode normal, stop at step 64 with 64 screens emitted. The recorded step-63 screen is page 2 of the simple options menu showing \"f - hilite_pile [ ]\", and step 64's byte is that f. C path: cmd.c dispatches O into options.c doset_simple() (8704-8735); doset_simple_menu() (8534-8702) runs a PICK_ONE menu, so the pick closes the menu, is applied, and the menu reopens at page 1 -- which is exactly what the step-64 screen shows. The pick resolves to opt_hilite_pile and runs options.c:5379-5385, setting go.opt_need_redraw and go.opt_need_glyph_reset; reset_needed_visuals() (8979) then calls display.c reset_glyphmap(gm_optionchange) (2739) and docrt() (9002). Preconditions hold: iflags.hilite_pile is Off at the pick, so C takes the FALSE-to-TRUE arm, and the symset is DECgraphics rather than the rogue set, so reset_glyphmap()'s has_rogue_ibm_graphics terms are FALSE. Step 66's screen confirms the toggle applied (\"f - hilite_pile [X]\"), and step 71 is where the menu closes and the map repaints under the new value. The port raises UnsupportedOptionMenuError(\"reset_glyphmap(gm_optionchange)\") at js/options.js:4856 on that same byte, so the branch this goal ports is the branch the session executes. The three later picks in the stretch -- autoopen (e, page 1, step 65), showexp (l, page 2, step 67) and time (p, page 2, step 69) -- set no glyph-reset flag and are already ported."
+          }
+        ]
+      },
+      "detail": "The refusal sits in options code but the owner is display code, and QUALITY.json says so: the open display entry remembered-glyph-caches-a-resolved-presentation states the closing condition as \"re-deriving loc.remembered_glyph from the level during the repaint, so map memory stores what C stores rather than a finished presentation; that is a display-subsystem change, not an options one.\"\n\nAlready ported, so not in scope: js/options.js reset_needed_visuals() covers every arm below the glyph reset, including reglyph_darkroom() and the bot() call. Two sibling refusals sit immediately under it for reset_customcolors() and reset_customsymbols(); seed0006 picks neither, so they stay refusals. The resolution half of reset_glyphmap() also largely exists, in a different shape: js/display.js glyphPresentation(), object_glyph_info(), hero_glyph_info() and terrainCmap() are the port's spelling of its per-glyph arms, as js/display.js:771 records. What is missing is the storage: about fifteen sites write a resolved presentation into loc.remembered_glyph through remembered_glyph_from_presentation() (js/display.js:1473), and five readers consume that resolved form (cmap, invisible_monster, genericObject, objectGlyph, same_remembered_glyph).\n\nA branch a starting character never reaches: reset_glyphmap()'s has_rogue_ibm_graphics and has_rogue_color terms, since no development session reaches the rogue level.\n\nA prerequisite that has to land in the same goal, and it is a restoration rather than a port. scripts/run-options-menu.mjs still defines the GLYPH_RESET_PICKS recipe at its original index (line 146: seed 8814277, datetime 20291006161200, moves \" O>f>g> \\x1b\"), but its fresh-differential matrix entry and verifier arm were deleted at 5dbcee2 because this refusal made them unreachable. Restore both when the refusal goes.\n\nA failed attempt already on record, which the goal must not repeat: the refusal was retired once at 0f7b6cf on the argument that this port keeps no glyph table, and restored at 57a84f4 after the correctness pass over 5366349..909a338 disproved it by execution -- with OPTIONS=!color, a remembered out-of-sight door stays NO_COLOR where C repaints it CLR_BROWN. The deferral says outright: \"Do not close it by retiring the refusal again.\"\n\nPartial credit already landed: js/display.js object_glyph_info() stamps objectGlyphId -- display.h obj_to_glyph()'s range and index, with a \":piletop\" suffix for obj_is_piletop() -- onto every object presentation, and remembered_glyph_from_presentation() copies it into map memory as a non-enumerable sidecar, so piletop-ness is recoverable. The resolved colour and the baked-in ATR_INVERSE are not.\n\nMissing prerequisite: the port has no glyph number space. js/glyph_ids.js is only glyphs.c parse_id()'s name catalog for SYMBOLS=G_* rows and carries no GLYPH_*_OFF offsets; display.h's offsets would come in as a generated table under AGENTS.md's \"Generate large fixed tables from source\".\n\nSize. C in scope: display.c reset_glyphmap() 348 lines (2739-3086), back_to_glyph() 141 (2287-2427), show_glyph() 196 (1877-2072), docrt_flags() 65 (1709-1773), map_glyphinfo() 62 (2594-2655); options.c reset_needed_visuals() 36 (8979-9014), already ported except its first arm. On the JavaScript side the work concentrates in js/display.js, which is 4,250 lines. This is very likely to cross AGENTS.md's 500-line threshold and need .agents/implementation-checklist.json.",
+      "slices": [
+        {
+          "name": "object-memory-holds-a-glyph-number",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "67870c0f966e10d69013e3d4174e95bac17d3e22",
+      "openStanding": {
+        "sha": "169d01e",
+        "screens": 1763,
+        "rng": 125584
+      },
       "closedAt": null,
       "delivered": null
     }
