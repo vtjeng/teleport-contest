@@ -464,6 +464,85 @@ test('repeated role filters merge in source parse order', () => {
     );
 });
 
+// C ref: options.c complain_about_duplicate() (6789-6808), reached from
+// parse_role_opt():7990-7994.  Its clause names allopt[optidx].alias, the
+// complained-about row's own spelling, and options.c:503's `using_alias` says
+// whether the clause is printed at all.  That flag is a file static cleared at
+// the top of every parseoptions() call, and the comma recursion at :513-521
+// runs before the level's own match loops, so it survives leftwards along one
+// configuration-file line and no further.
+test('a duplicate role names the alias when the flag C keeps says to', () => {
+    // Each pair below installs a negated value first, which is what makes the
+    // positive one that follows reach complain_about_duplicate() rather than
+    // simply replacing it.
+    for (const [rc, reported] of [
+        // Resolved through the alias table: the clause names the row's alias,
+        // which is the spelling used here only because match_optname() accepts
+        // nothing shorter than the whole alias.
+        ['OPTIONS=character:!Valkyrie\nOPTIONS=character:Samurai',
+            'compound option specified multiple times: role'
+            + ' (via alias: character)'],
+        // Resolved by name on its own line: the flag was cleared for that line
+        // and nothing to the right of the statement raised it.
+        ['OPTIONS=role:!Valkyrie\nOPTIONS=role:Samurai',
+            'compound option specified multiple times: role'],
+        // The alias spelling on the earlier line does not carry over.
+        ['OPTIONS=character:!Valkyrie\nOPTIONS=role:Samurai',
+            'compound option specified multiple times: role'],
+        // The other aliased row of the four.
+        ['OPTIONS=align:!lawful\nOPTIONS=align:chaotic',
+            'compound option specified multiple times: alignment'
+            + ' (via alias: align)'],
+    ]) {
+        const parsed = parseNethackrc(`${rc}\n`);
+        const statement = rc.slice(rc.lastIndexOf('\n') + 1);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            ` * Line 2: ${reported}.`,
+        ], rc);
+    }
+
+    // One line, three elements, applied right to left.  "align:!lawful" is the
+    // rightmost and resolves through the alias table, so the flag it raises is
+    // still up when the leftmost element reports -- even though that element
+    // named its row in full.  A recorded C run of this exact line prints the
+    // clause.
+    for (const [line, reported] of [
+        ['OPTIONS=role:Samurai,role:!Valkyrie,align:!lawful',
+            'compound option specified multiple times: role'
+            + ' (via alias: character)'],
+        // optlist.h gives the race row NoAlias, a null pointer, and the
+        // reference build's C library renders a null "%s" as "(null)".
+        ['OPTIONS=race:human,race:!elf,align:!lawful',
+            'compound option specified multiple times: race'
+            + ' (via alias: (null))'],
+        // The same three elements with the aliased one leftmost: it is applied
+        // last, so nothing had raised the flag when the report was written.
+        ['OPTIONS=align:!lawful,role:Samurai,role:!Valkyrie',
+            'compound option specified multiple times: role'],
+    ]) {
+        const parsed = parseNethackrc(`${line}\n`);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${line}`,
+            ` * Line 1: ${reported}.`,
+        ], line);
+    }
+
+    // The alias loop runs only when the name loop failed, and raises the flag
+    // only when it then matched.  "zqxj" is the rightmost element and fails
+    // both loops, so it leaves the flag down for the two role elements to its
+    // left; treating "the name loop failed" as enough would print the clause.
+    const unknownToTheRight = 'OPTIONS=role:Samurai,role:!Valkyrie,zqxj';
+    assert.deepEqual(
+        parseNethackrc(`${unknownToTheRight}\n`).configErrorFrame.output,
+        [
+            `\n${unknownToTheRight}`,
+            " * Line 1: Unknown option 'zqxj'.",
+            ' * Line 1: compound option specified multiple times: role.',
+        ],
+    );
+});
+
 test('legacy ROLE statements remain distinct from OPTIONS role filters', () => {
     const parsed = parseNethackrc([
         'ROLE=Wizard',
@@ -603,6 +682,46 @@ test('tty menu presentation options populate interface flags', () => {
         attr: ATR_INVERSE,
         color: NO_COLOR,
     });
+});
+
+// C refs: coloratt.c match_str2clr():367 and match_str2attr():386.  Their
+// "%.60s" and "%.50s" precisions count bytes, and parseoptions()
+// (options.c:520-524) turns away only a statement past BUFSZ/2 = 128 bytes, so
+// an ordinary rc line can carry a value that is longer than the precision in
+// bytes and shorter than it in characters.
+test('an over-long colour or attribute is cut at bytes, not characters', () => {
+    // 'é' is two UTF-8 bytes, so thirty of them and an 'a' is 61 bytes in 31
+    // characters: past the sixty-byte precision, less than half way to sixty
+    // characters.  Cutting characters instead would print the whole value.
+    const colour = `${'é'.repeat(30)}a`;
+    const overLong = parseNethackrc(`OPTIONS=menu_headings:${colour}\n`);
+    assert.deepEqual(overLong.configErrorFrame.output, [
+        `\nOPTIONS=menu_headings:${colour}`,
+        ` * Line 1: Unknown color '${'é'.repeat(30)}'.`,
+    ]);
+
+    // The precision can fall inside a character.  '€' is three bytes, so an
+    // 'a' and 21 of them reaches byte 60 two bytes into the twentieth '€';
+    // C copies those two bytes alone, and js/hacklib.js carries an orphaned
+    // byte as 0xDC00 plus its value.
+    const split = `a${'€'.repeat(21)}`;
+    const splitColour = parseNethackrc(`OPTIONS=menu_headings:${split}\n`);
+    assert.deepEqual(splitColour.configErrorFrame.output, [
+        `\nOPTIONS=menu_headings:${split}`,
+        ` * Line 1: Unknown color 'a${'€'.repeat(19)}\uDCE2\uDC82'.`,
+    ]);
+
+    // match_str2attr() reports only from color_attr_parse_str()'s '&' arm,
+    // which is the one that passes complain TRUE, and its precision is fifty
+    // bytes: 25 'é' and an 'a' is 51.
+    const attribute = `${'é'.repeat(25)}a`;
+    const overLongAttr = parseNethackrc(
+        `OPTIONS=menu_headings:red&${attribute}\n`,
+    );
+    assert.deepEqual(overLongAttr.configErrorFrame.output, [
+        `\nOPTIONS=menu_headings:red&${attribute}`,
+        ` * Line 1: Unknown text attribute '${'é'.repeat(25)}'.`,
+    ]);
 });
 
 test('use_inverse owns the tty inverse-video interface flag', () => {

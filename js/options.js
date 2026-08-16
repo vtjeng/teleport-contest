@@ -301,6 +301,17 @@ const OPTION_ALIASES = Object.freeze({
 // options.c's exact "male" alias stays distinct so applyBooleanOption() can
 // invert its value rather than treating it as an ordinary spelling of female.
 
+// C ref: allopt[].alias, the column complain_about_duplicate():6801 prints for
+// the row it names rather than for the spelling the statement used.
+// OPTION_ALIASES above is that same column keyed by the alias, and optlist.h
+// gives no row two of them, so inverting it recovers the field.  A row
+// optlist.h spells NoAlias -- a null pointer, optlist.h:57 -- is missing here.
+// The female row's entry lands under "male", the name applyOption() resolves
+// that alias to; no reader of this map reaches that row.
+const OPTION_ROW_ALIASES = Object.freeze(Object.fromEntries(
+    Object.entries(OPTION_ALIASES).map(([alias, name]) => [name, alias]),
+));
+
 const ROLEPLAY_FIELDS = Object.freeze([
     'blind',
     'nudist',
@@ -830,6 +841,33 @@ function stripValueNegation(value) {
     return { token, negated };
 }
 
+// C ref: options.c complain_about_duplicate() (6789-6808).  Its first
+// conversion is "compound" for every caller this parser reaches, because
+// parse_role_opt() is the only one and all four of its rows are CompOpt.
+//
+// `using_alias` is a file static that options.c:503 clears at the top of every
+// parseoptions() call.  The comma recursion at :513-521 runs before the
+// level's own match loops, so the clear a level writes is overwritten by the
+// level nested inside it, and the alias loop at :592-612 is the only place
+// that raises the flag.  What survives is one flag per configuration-file
+// line: the rightmost element of the line raises it, and every element to the
+// left of that one inherits it whether or not it spelled an alias itself.
+//
+// The alias text is allopt[optidx].alias, the complained-about row's own, not
+// the spelling the statement used.  optlist.h gives the race and gender rows
+// NoAlias, a null pointer, and the reference build's C library renders a null
+// "%s" as "(null)"; a recorded run of
+// `OPTIONS=race:human,race:!elf,align:!lawful` prints exactly that.
+function complain_about_duplicate(result, optionName, usingAlias) {
+    const alias = usingAlias
+        ? ` (via alias: ${OPTION_ROW_ALIASES[optionName] ?? '(null)'})`
+        : '';
+    configErrorAdd(
+        result,
+        `compound option specified multiple times: ${optionName}${alias}`,
+    );
+}
+
 // C ref: options.c parse_role_opt() (7904-8016), the shared body of
 // optfn_role() (3588-3623), optfn_race() (3506-3547), optfn_gender()
 // (1776-1817) and optfn_alignment() (884-925).  This covers everything the
@@ -848,7 +886,7 @@ function stripValueNegation(value) {
 // names alone.  parseoptions():623 also reports every duplicate before the
 // handler runs, which is unported.
 function setCharacterOption(
-    result, optionState, optionName, statement, negated,
+    result, optionState, optionName, statement, negated, usingAlias,
 ) {
     // parse_role_opt():7935 reads the value with
     // string_for_env_opt(fullname, opts, FALSE), whose mandatory parameter is
@@ -910,12 +948,7 @@ function setCharacterOption(
             filtered = true;
         } else {
             if (duplicate && prior?.startsWith('!')) {
-                // complain_about_duplicate(), which names the row's opttyp
-                // and its name; all four rows are CompOpt.
-                configErrorAdd(
-                    result,
-                    `compound option specified multiple times: ${optionName}`,
-                );
+                complain_about_duplicate(result, optionName, usingAlias);
                 return;
             }
             optionState.values[optionName] = token;
@@ -1169,10 +1202,18 @@ function menuHeadingAttribute(token) {
 // C ref: coloratt.c match_str2attr() (373-393).  Null is its -1, the answer
 // its callers read as "not an attribute".  Only a caller that passes complain
 // TRUE reports; color_attr_parse_str() below passes both.
+//
+// The "%.50s" precision is a byte count, and parseoptions() admits a statement
+// of up to BUFSZ/2 bytes, so a value can exceed it while holding fewer than
+// fifty characters.  Cutting the UTF-8 encoding reproduces C's split of a
+// multi-byte character as well as its length.
 function match_str2attr(result, str, complain) {
     const attr = menuHeadingAttribute(menuHeadingToken(str));
     if (attr === null && complain) {
-        configErrorAdd(result, `Unknown text attribute '${str.slice(0, 50)}'`);
+        configErrorAdd(
+            result,
+            `Unknown text attribute '${truncateByteString(str, 50)}'`,
+        );
     }
     return attr;
 }
@@ -1427,11 +1468,14 @@ function splitsubfields(str, maxsf = 0) {
 // color_attr_parse_str() passes FALSE from both of its arms as well, so the
 // suppressing call is the one this port has no caller for -- coloratt.c's own
 // query_color() menu.
+// "%.60s" counts bytes, as match_str2attr()'s "%.50s" above does.
 function match_str2clr(result, str, suppress_msg) {
     const color = menuHeadingColor(menuHeadingToken(str), str);
     if (color != null) return color;
     if (!suppress_msg) {
-        configErrorAdd(result, `Unknown color '${str.slice(0, 60)}'`);
+        configErrorAdd(
+            result, `Unknown color '${truncateByteString(str, 60)}'`,
+        );
     }
     return CLR_MAX;
 }
@@ -2872,7 +2916,10 @@ function parseSymbolAssignments(value, lineNumber) {
     return parseAt(0);
 }
 
-function applyOption(result, optionState, element, lineNumber) {
+// `aliasState` carries options.c's `using_alias` static across the elements of
+// one configuration-file line; complain_about_duplicate() above states how far
+// it reaches and why this parser cannot keep it in a local.
+function applyOption(result, optionState, element, lineNumber, aliasState) {
     // options.c:538-542 strips the negation prefixes off the whole element,
     // before length_without_val() looks for a value, so `statement` is what
     // the rest of parseoptions() matches against, what it hands each handler
@@ -2890,6 +2937,10 @@ function applyOption(result, optionState, element, lineNumber) {
     const isSymbolAssignment = isSourceSymbolAssignment(rawName, value);
     let name = sourceMatch?.[0]
         ?? (hasAlias ? OPTION_ALIASES[parsedName] : null);
+    // options.c:592-612 runs the alias loop only after the name loop has
+    // failed, and raises using_alias there and nowhere else, so a name match
+    // leaves the flag as the element to the right of this one left it.
+    if (!sourceMatch && hasAlias) aliasState.usingAlias = true;
     if (!name && conditionMatch) name = conditionMatch;
     // options.c:618-629 reads allopt[matchidx], the row its two match loops
     // settled on; a symbol assignment reaches parsesymbols() (663) only with
@@ -2924,15 +2975,11 @@ function applyOption(result, optionState, element, lineNumber) {
         const op = string_for_env_opt(statement, false, result);
         if (op === '') return;
         result.name = truncateByteString(op, PLAYER_NAME_BYTE_LIMIT);
-    } else if (name === 'role') {
-        setCharacterOption(result, optionState, 'role', statement, negated);
-    } else if (name === 'race') {
-        setCharacterOption(result, optionState, 'race', statement, negated);
-    } else if (name === 'gender') {
-        setCharacterOption(result, optionState, 'gender', statement, negated);
-    } else if (name === 'alignment') {
+    } else if (name === 'role' || name === 'race' || name === 'gender'
+               || name === 'alignment') {
         setCharacterOption(
-            result, optionState, 'alignment', statement, negated,
+            result, optionState, name, statement, negated,
+            aliasState.usingAlias,
         );
     } else if (name === 'playmode') {
         setPlaymode(result, value);
@@ -3341,6 +3388,12 @@ export function parseNethackrc(rc, random = rn2) {
             // options.c recurses into the comma suffix before applying the
             // current element, so options on one line are processed right to
             // left. This makes the leftmost duplicate the final value.
+            //
+            // The recursion also decides how far options.c:503's `using_alias`
+            // reaches: one line's worth, raised by any element and inherited by
+            // every element to its left.  complain_about_duplicate() above
+            // traces that.
+            const aliasState = { usingAlias: false };
             for (let optionIndex = options.length - 1;
                 optionIndex >= 0; --optionIndex) {
                 const rawOption = options[optionIndex];
@@ -3365,7 +3418,9 @@ export function parseNethackrc(rc, random = rn2) {
                     configErrorAdd(result, 'Empty statement');
                     continue;
                 }
-                applyOption(result, optionState, option, lineNumber);
+                applyOption(
+                    result, optionState, option, lineNumber, aliasState,
+                );
             }
             continue;
         }

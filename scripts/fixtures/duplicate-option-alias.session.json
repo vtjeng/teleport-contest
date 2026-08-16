@@ -1,0 +1,35 @@
+{
+  "version": 5,
+  "segments": [
+    {
+      "seed": 3310771,
+      "datetime": "19951012081500",
+      "nethackrc": "OPTIONS=name:DupA,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=character:!Valkyrie\nOPTIONS=character:Samurai\n",
+      "moves": "\ryy"
+    },
+    {
+      "seed": 4820913,
+      "datetime": "20020318143000",
+      "nethackrc": "OPTIONS=name:DupB,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=role:!Valkyrie\nOPTIONS=role:Samurai\n",
+      "moves": "\ryy"
+    },
+    {
+      "seed": 6172408,
+      "datetime": "20090724101500",
+      "nethackrc": "OPTIONS=name:DupC,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=role:Samurai,role:!Valkyrie,align:!lawful\n",
+      "moves": "\ryy"
+    },
+    {
+      "seed": 7503162,
+      "datetime": "20140205173000",
+      "nethackrc": "OPTIONS=name:DupD,role:Samurai,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=race:human,race:!elf,align:!lawful\n",
+      "moves": "\ryy"
+    },
+    {
+      "seed": 5039284,
+      "datetime": "20180913064500",
+      "nethackrc": "OPTIONS=name:DupE,race:human,gender:female,align:neutral,!legacy,!tutorial,!splash_screen\nOPTIONS=role:Samurai,role:!Valkyrie,zqxj\n",
+      "moves": "\ryy"
+    }
+  ]
+}
