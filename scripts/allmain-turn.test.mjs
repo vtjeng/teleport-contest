@@ -1782,6 +1782,120 @@ test('a planned timeout writes no line and reads no key', async () => {
     assert.equal(game.nhDisplay.terminal._inputQueue.length, 0);
 });
 
+// The status seam of the same nh_timeout_elapsed_turn() call, which the case
+// above cannot reach. timeout.c:775 calls stop_occupation() beside
+// heal_legs(0), and js/allmain.js stop_occupation() reaches a status refresh
+// only through eat.c maybe_finished_meal(), which runs eatfood() when
+// go.occupation is eatfood and the meal has served its whole time. So one turn
+// shape decides this seam alone: a meal that finishes on the same turn a
+// WOUNDED_LEGS countdown runs out. No recording can close it either, because
+// the clone and the live pass paint the same rows a moment apart; the plan has
+// to stop between them, which is what the region below is for.
+//
+// display.c bot() takes no state. It repaints the live status rows and clears
+// the live dirty flags whichever state called it, so a clone that refreshed
+// here would spend disp.botl on a turn the live game has not taken.
+test('a planned finished meal refreshes no status line', async () => {
+    const segment = loadEatOccupationRecipe().segments.find(
+        (entry) => entry.seed === 5820011,
+    );
+    assert.ok(segment);
+    const replay = await runSegment({ ...segment, moves: '.' });
+    // 'd' is this Valkyrie's food ration. The command installs the real
+    // victual and the real eatfood() occupation.
+    game.nhDisplay.terminal.pushKey('d'.charCodeAt(0));
+    await doeat(game, { statusRefresh: async () => {} });
+    // eat.c maybe_finished_meal() finishes a meal instead of abandoning it only
+    // when usedtime has reached reqtime, so this is what makes
+    // stop_occupation() run eatfood() rather than say "You stop eating".
+    // Serving the four remaining turns for real would spend four more turns of
+    // this same seam before the one under test.
+    game.context.victual.usedtime = game.context.victual.reqtime;
+    // The first mouthful already carried the hero past hungerStatus()'s 1000,
+    // and bite() saved the status the meal started from. newuhs() reaches its
+    // status refresh only on a change, so a meal that crossed no boundary
+    // would return before the seam.
+    assert.equal(game.saved_hs, true);
+    assert.equal(game.save_hs, NOT_HUNGRY);
+    assert.ok(game.u.uhunger > 1000, 'the meal must cross into SATIATED');
+
+    for (const column of game.level.monsters) column.fill(null);
+    game.level.monlist = null;
+    game.head_engr = null;
+    // A burdened hero is what makes advanceElapsedTurn() supply advanceRound,
+    // so the clone runs the whole once-per-turn block and reaches nh_timeout.
+    // An unburdened clone returns straight after random monster generation.
+    // The long sword is the one carried object the meal does not consume.
+    const ballast = game.invent;
+    assert.notEqual(ballast, game.context.victual.piece);
+    ballast.owt = weight_cap(game) + 5;
+    assert.ok(projected_capacity(game) > 0, 'the fixture must burden the hero');
+    // encumber_msg() prints only on a change, and its line would need a More
+    // dismissal of its own that has nothing to do with this case.
+    game.go.oldcap = near_capacity(game);
+    // do.c set_wounded_legs() leaves the recovery countdown in the intrinsic
+    // field and the wounded side in the extrinsic one. A countdown of 1 is the
+    // turn timeout.c's per-property loop takes to zero, and heal_legs() reaches
+    // stop_occupation() right after it.
+    game.u.uprops[WOUNDED_LEGS] = {
+        intrinsic: 1,
+        extrinsic: LEFT_SIDE,
+        blocked: 0,
+    };
+    game.u.atemp[A_DEX] = -1;
+    // The clairvoyance and attribute cadences belong to later turns.
+    game.context.seer_turn = 100000;
+    game.context.next_attrib_check = 100000;
+    // One region, so the plan stops at the guard directly below nh_timeout.
+    game.level.regions.push(create_region([{
+        lx: game.u.ux,
+        ly: game.u.uy,
+        hx: game.u.ux,
+        hy: game.u.uy,
+    }]));
+    game.u.umovement = 0;
+    game.context.move = 1;
+    // The command that just ran left the status line dirty, which is the
+    // ordinary state of a turn: moveloop_core() runs its own bot() after the
+    // elapsed block, not before it. A clone that refreshed would clear this.
+    assert.equal(game.disp.botl, true);
+
+    const before = completeSecondTurnSnapshot(game, replay);
+    const beforeRng = getRngLog().length;
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        game.context.move = 1;
+        await assert.rejects(
+            () => moveloop_core(),
+            (error) => (
+                error instanceof UnsupportedTurnBoundaryError
+                && error.message
+                    === 'elapsed turn reached burdened multi-cycle region upkeep'
+            ),
+            `attempt ${attempt}`,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, replay),
+            before,
+            `attempt ${attempt}`,
+        );
+        assert.equal(getRngLog().length, beforeRng, `attempt ${attempt}`);
+    }
+
+    // The snapshot is the detector; this is what shows the case arrives. With
+    // the region gone the plan runs to the end and the live pass takes the same
+    // turn for real: the countdown expires, stop_occupation() finishes the
+    // meal, and newuhs() refreshes the status line for the hunger change the
+    // whole meal made.
+    game.level.regions = [];
+    game.context.move = 1;
+    await assert.rejects(() => moveloop_core(), /Input queue empty/u);
+    assert.equal(game.go.occupation, null);
+    assert.equal(game.context.victual.piece, null);
+    assert.equal(game.u.uhs, SATIATED);
+    assert.equal(game.saved_hs, false);
+    assert.equal(game.u.uprops[WOUNDED_LEGS].intrinsic, 0);
+});
+
 // The cloned round reaches makemon() through maybe_generate_rnd_mon(), so
 // UnsupportedMonsterCreationError is one of the classes it can raise. Unlike
 // the boundary classes, js/jsmain.js does not break the segment for it, so a

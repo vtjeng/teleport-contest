@@ -3074,7 +3074,7 @@
       "area": "startup",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "ee289d88e0b8ea6786a5de10e2df8d7295ce03f1",
       "detail": "js/allmain.js's nh_timeout_elapsed_turn() call chooses `statusRefresh: planning ? () => {} : () => bot()`. Substituting `() => bot()` outright leaves the whole suite green: measured at ee289d8 with this slice's two new cases in place, `npm test` reported 4036 pass and 0 fail with the substitution.\n\nThe message half of the same call is now pinned, by scripts/allmain-turn.test.mjs 'a planned timeout writes no line and reads no key', which reaches do.c heal_legs() through a real burdened turn and stops the plan at the region guard directly below nh_timeout_elapsed_turn(). That case cannot reach this half. timeout.c:775 calls stop_occupation() beside heal_legs(0), and js/allmain.js stop_occupation() forwards its env to eat.c maybe_finished_meal(), which calls eatfood() only when go.occupation is eatfood and the meal's usedtime has reached reqtime. statusRefresh is read no earlier than done_eating()'s newuhs(), so the seam decides one turn shape alone: a meal that finishes on the same turn a WOUNDED_LEGS countdown runs out. A clone calling bot() there repaints the live status line from the clone's own moves and hit points.\n\nClosing condition: a case that installs a finished meal beside an expiring WOUNDED_LEGS countdown on a burdened hero and stops the plan at that same region guard, so completeSecondTurnSnapshot()'s grid comparison sees the clone's bot(). Needs no unported C. Found while closing elapsed-turn-planning-message-choice-unpinned.",
       "notes": [

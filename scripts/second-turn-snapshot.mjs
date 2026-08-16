@@ -65,6 +65,25 @@ function lightSourceSnapshot(state) {
     return sources;
 }
 
+// allmain.c's go.occupation is a function pointer, and structuredClone()
+// throws on a function. A snapshot still has to tell one installed occupation
+// from another and from none, so each function gets a stable identifier the
+// first time it is seen and two snapshots compare those instead.
+const occupationIds = new WeakMap();
+let occupationsSeen = 0;
+function occupationState(go) {
+    if (!go) return go ?? null;
+    const { occupation } = go;
+    if (typeof occupation !== 'function') return structuredClone(go);
+    if (!occupationIds.has(occupation)) {
+        occupationIds.set(occupation, `occupation#${++occupationsSeen}`);
+    }
+    return structuredClone({
+        ...go,
+        occupation: occupationIds.get(occupation),
+    });
+}
+
 function rngContext(context) {
     return {
         a: context.a,
@@ -117,7 +136,7 @@ export function completeSecondTurnSnapshot(state, replay) {
         },
         flags: structuredClone(state.flags),
         gg: structuredClone(state.gg),
-        go: structuredClone(state.go),
+        go: occupationState(state.go),
         gw: structuredClone(state.gw),
         hero: structuredClone(state.u),
         iflags: structuredClone(state.iflags),
