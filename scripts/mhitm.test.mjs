@@ -8,6 +8,7 @@ import {
     M_ATTK_HIT,
     M_ATTK_MISS,
     NATTK,
+    PIT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -339,6 +340,38 @@ test('mattackm widens the die for every later attack slot', async () => {
     ]);
 });
 
+// mhitm.c mattackm():423-424. A kicker held in a pit cannot kick. C continues
+// rather than breaking, so the slot spends no to-hit roll and skips the
+// passivemm() call at the foot of the loop, and the next slot still attacks.
+test('a kicker trapped in a pit skips the kick', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield(1);
+    const pony = fixture(PM_PONY, ax, y, { mtame: 10 });
+    const ant = fixture(PM_GIANT_ANT, dx, y, { mhp: 20, mhpmax: 20 });
+    aim(ant);
+    assert.equal(pony.data.mattk[0].aatyp, AT_KICK);
+    assert.equal(pony.data.mattk[1].aatyp, AT_BITE);
+
+    // Both slots run while nothing holds the pony down, each missing on the
+    // highest roll its own die can return.
+    const free = attackEnv([20, 1, 21, 1]);
+    assert.equal(await mattackm(pony, ant, free), M_ATTK_MISS);
+    assert.deepEqual(free.bounds,
+                     ['rnd(20)', 'rn2(3)', 'rnd(21)', 'rn2(3)']);
+
+    // mhitu.c mtrapped_in_pit() needs the flag and a pit on the square.
+    const traps = game.level.traps;
+    traps.push({ tx: pony.mx, ty: pony.my, ttyp: PIT });
+    pony.mtrapped = true;
+    const trapped = attackEnv([21, 1]);
+    assert.equal(await mattackm(pony, ant, trapped), M_ATTK_MISS);
+    assert.deepEqual(trapped.bounds, ['rnd(21)', 'rn2(3)']);
+    // One line rather than two: the kick is not announced as a miss either.
+    assert.deepEqual(trapped.lines, ['The pony misses the giant ant.']);
+    traps.pop();
+    pony.mtrapped = false;
+});
+
 // mhitm.c mattackm():378-380. Every slot after the first checks that the
 // aimed square still holds the defender. dogmove.c pet_ranged_attk() aims at
 // the aggressor instead, which is how a distant pet spends no draw at all.
@@ -386,21 +419,30 @@ test('a sleeping defender wakes and is easier to hit', async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);
     const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
-    const ant = fixture(PM_GIANT_ANT, dx, y, { msleeping: 1 });
+    const ant = fixture(PM_GIANT_ANT, dx, y,
+                        { msleeping: 1, mhp: 20, mhpmax: 20 });
     aim(ant);
     // A giant ant's AC is 3 and a kitten is level 2, so the differential is 5
-    // awake and 9 asleep. A roll of 7 misses at 5 and hits at 9, which is why
-    // this row proves the bonus rather than merely exercising it.
-    const env = attackEnv([7, 2, 1, 1]);
+    // awake and 9 asleep, and `strike` is `tmp > dieroll`. A roll of 8 lands
+    // from 9 and misses from 8, and a roll of 9 misses from 9 and lands from
+    // 10, so the two rows below hold the bonus to exactly 4 rather than to any
+    // value large enough to clear the roll.
+    const landed = attackEnv([8, 2, 1, 1]);
 
-    assert.equal(await mattackm(pet, ant, env), M_ATTK_HIT);
+    assert.equal(await mattackm(pet, ant, landed), M_ATTK_HIT);
     // C writes the literal 0 rather than FALSE, so the field ends numeric.
     assert.equal(ant.msleeping, 0);
-    assert.equal(ant.mhp, 6);
+    assert.equal(ant.mhp, 18);
 
-    // The same roll against the same defender, now awake, misses.
-    assert.equal(await mattackm(pet, ant, attackEnv([7])), M_ATTK_MISS);
-    assert.equal(ant.mhp, 6);
+    ant.msleeping = 1;
+    assert.equal(await mattackm(pet, ant, attackEnv([9])), M_ATTK_MISS);
+    assert.equal(ant.mhp, 18);
+    assert.equal(ant.msleeping, 0);
+
+    // The lower roll against the same defender, now awake, misses, so the
+    // bonus is what carried the first row.
+    assert.equal(await mattackm(pet, ant, attackEnv([8])), M_ATTK_MISS);
+    assert.equal(ant.mhp, 18);
 });
 
 // mhitm.c mattackm():367, `if (is_elf(pa) && is_orc(pd)) tmp++`. Both halves

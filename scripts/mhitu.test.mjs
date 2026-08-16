@@ -1682,12 +1682,17 @@ test('mhitm_ad_phys adjusts one monster\'s blow on another in silence',
     await mhitm_ad_phys(worm, bite, shrieker, spared, state,
                         physEnv(state).env);
     assert.equal(spared.damage, 3);
-    // Damage below the target's hit points is left alone, which is the
-    // first half of C's `mhm->damage >= mdef->mhp` test.
+    // Damage below the target's hit points is left alone, which is the first
+    // half of C's `mhm->damage >= mdef->mhp` test. The shrieker is raised to
+    // six hit points first, so that the clamp's own answer, mhp - 1 = 5,
+    // differs from the damage the guard preserves; at four they agree and the
+    // row cannot fail.
+    shrieker.mhp = 6;
     const light = physMhm(3);
     await mhitm_ad_phys(worm, bite, shrieker, light, state,
                         physEnv(state).env);
     assert.equal(light.damage, 3);
+    shrieker.mhp = 4;
     // Exactly the target's hit points is still clamped.
     const exact = physMhm(4);
     await mhitm_ad_phys(worm, bite, shrieker, exact, state,

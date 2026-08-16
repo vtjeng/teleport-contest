@@ -43,6 +43,8 @@ import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
 import { initrack, settrack } from '../js/track.js';
 import {
+    AT_BITE,
+    AT_CLAW,
     M1_SWIM,
     M1_ANIMAL,
     M2_ROCKTHROW,
@@ -53,9 +55,11 @@ import {
     PM_FIRE_ELEMENTAL,
     PM_FLOATING_EYE,
     PM_GIANT_ANT,
+    PM_GRID_BUG,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_PONY,
+    PM_ROTHE,
 } from '../js/monsters.js';
 import { place_monster } from '../js/monst.js';
 import {
@@ -67,6 +71,7 @@ import {
     ROCK,
     ROCK_CLASS,
     SADDLE,
+    SCR_SCARE_MONSTER,
     SKELETON_KEY,
 } from '../js/objects.js';
 import { loadPetCursedStepRecipe } from './run-pet-cursed-step.mjs';
@@ -135,8 +140,10 @@ function movementEnv(state, overrides = {}) {
             // at its only valid result for single-candidate selection.
             rn2: (bound) => Math.min(1, bound - 1),
             // mhitm.c mattackm() draws through the same injection once
-            // dog_move() reaches an adjacent target. Both answer the lowest
-            // roll, which misses every defender in this file.
+            // dog_move() reaches an adjacent target. rnd() answers the lowest
+            // roll a die can return, which beats every armour-class
+            // differential in this file, so each blow lands and takes off the
+            // one point d() answers.
             rnd: () => 1,
             d: () => 1,
         },
@@ -1175,11 +1182,12 @@ test('dog_move sets worm-tail attack globals before combat', async () => {
     assert.equal(state.gn.notonhead, true);
 });
 
-// dogmove.c dog_move():1152-1170, the return attack. Every conjunct must
-// hold: the pet must have hit without killing, rn2(4) must be nonzero, the
-// defender must not have moved this turn, the square must not be scary, and
-// the defender must be able to reach the pet. The fixture map is unlit, so
-// each blow is read off hit points rather than off a message.
+// dogmove.c dog_move():1152-1170, the return attack. All five conjuncts must
+// hold, and each row below fixes one of them: the pet must have hit without
+// killing, rn2(4) must be nonzero, the defender must not have moved this turn,
+// the pet's square must not be scary, and the defender must be able to reach
+// the pet. The fixture map is unlit, so each blow is read off hit points rather
+// than off a message.
 test('dog_move lets a struck defender hit back', async () => {
     const { state, monster } = activePetState();
     state.moves = 5;
@@ -1252,6 +1260,117 @@ test('dog_move lets a struck defender hit back', async () => {
     // A defender that has already moved this turn does not act again.
     assert.deepEqual(await round('spent', { mlstmv: state.moves }),
                      { pet: 0, foe: 1 });
+
+    // monmove.c onscary(): a scroll of scare monster on the pet's own square
+    // keeps the defender off it.
+    state.level.objects[monster.mx][monster.my] = {
+        otyp: SCR_SCARE_MONSTER,
+        nexthere: null,
+    };
+    assert.deepEqual(await round('scary'), { pet: 0, foe: 1 });
+    state.level.objects[monster.mx][monster.my] = null;
+
+    // mon.c monnear(): a grid bug cannot use diagonal adjacency, so one the
+    // pet reached diagonally cannot reach back. The pet's own attack is
+    // unaffected, because mattackm():316-317 tests the aggressor's species.
+    //
+    // The grid bug is the only defender that can fail this conjunct, since
+    // NODIAG() names no other species and every other candidate square is
+    // adjacent. Its return attack would leave no mark either way, because
+    // mattackm() would answer M_ATTK_MISS at that same species test before
+    // drawing or moving anything. What separates the two is the second
+    // gb.bhitpos write, which sits inside the conjunction: a declined return
+    // attack leaves the defender's square aimed at.
+    state.level.monsters[defender.mx][defender.my] = null;
+    const bug = {
+        data: state.mons[PM_GRID_BUG],
+        m_lev: 2,
+        mcanmove: true,
+        mcansee: true,
+        mhp: 20,
+        mhpmax: 20,
+        mlstmv: 0,
+        mpeaceful: false,
+        mtame: 0,
+        mx: monster.mx + 1,
+        my: monster.my + 1,
+    };
+    place_monster(bug, bug.mx, bug.my, state);
+    const diagonal = movementEnv(state, {
+        findPositions: fixedCandidates([{ x: bug.mx, y: bug.my, info: ALLOW_M }]),
+    });
+    const before = { pet: monster.mhp, foe: bug.mhp };
+    assert.equal(await dog_move(monster, false, diagonal), MMOVE_DONE);
+    assert.equal(before.foe - bug.mhp, 1, 'the pet still lands its blow');
+    assert.equal(before.pet - monster.mhp, 0, 'the grid bug cannot reply');
+    assert.deepEqual(state.gb.bhitpos, { x: bug.mx, y: bug.my });
+});
+
+// dogmove.c dog_move():1168-1169, the second gb.bhitpos and gn.notonhead
+// write. mattackm():378-380 abandons every slot after the first whose aimed
+// square no longer holds the defender, so a return attacker that is still
+// aimed at its own square gets one slot out of however many it has. A rothe
+// carries three, which is what makes the difference visible.
+test('dog_move re-aims at the pet before the return attack', async () => {
+    const { state, monster } = activePetState();
+    state.moves = 5;
+    monster.m_lev = 2;
+    const rothe = {
+        data: state.mons[PM_ROTHE],
+        m_lev: 2,
+        mcanmove: true,
+        mcansee: true,
+        mhp: 20,
+        mhpmax: 20,
+        mlstmv: 0,
+        mpeaceful: false,
+        mtame: 0,
+        mx: monster.mx + 1,
+        my: monster.my,
+    };
+    assert.deepEqual(
+        rothe.data.mattk.slice(0, 3).map((attack) => attack.aatyp),
+        [AT_CLAW, AT_BITE, AT_BITE],
+    );
+    place_monster(rothe, rothe.mx, rothe.my, state);
+    // The pet's attack aims here first, which is the write this one replaces.
+    state.gb = { bhitpos: { x: 0, y: 0 } };
+    state.gn = { notonhead: true };
+    const bounds = [];
+    const env = movementEnv(state, {
+        findPositions: fixedCandidates([{
+            x: rothe.mx,
+            y: rothe.my,
+            info: ALLOW_M,
+        }]),
+        random: {
+            rn2: (bound) => { bounds.push(`rn2(${bound})`); return Math.min(1, bound - 1); },
+            rnd: (bound) => { bounds.push(`rnd(${bound})`); return 1; },
+            d: (n, x) => { bounds.push(`d(${n},${x})`); return 1; },
+        },
+    });
+
+    assert.equal(await dog_move(monster, false, env), MMOVE_DONE);
+    // The second write, which leaves the pet's own square aimed at.
+    assert.deepEqual(state.gb.bhitpos, { x: monster.mx, y: monster.my });
+    assert.equal(state.gn.notonhead, false);
+    // dog_goal()'s own rn2(4) at dogmove.c:575, the pet's blow, the rn2(4)
+    // that opens the return attack, and then all three of the rothe's slots.
+    // Each landed blow spends its to-hit roll, its damage roll, uhitm.c
+    // mhitm_knockback()'s pair and passivemm()'s rn2(3); the widening die
+    // `rnd(20 + i)` separates the three slots, and without the re-aim above
+    // only the first of them runs.
+    assert.deepEqual(bounds, [
+        'rn2(4)',
+        'rnd(20)', 'd(1,6)', 'rn2(3)', 'rn2(6)', 'rn2(3)',
+        'rn2(4)',
+        'rnd(20)', 'd(1,3)', 'rn2(3)', 'rn2(6)', 'rn2(3)',
+        'rnd(21)', 'd(1,3)', 'rn2(3)', 'rn2(6)', 'rn2(3)',
+        'rnd(22)', 'd(1,8)', 'rn2(3)', 'rn2(6)', 'rn2(3)',
+    ]);
+    // One point from each of the three slots.
+    assert.equal(monster.mhp, 5);
+    assert.equal(rothe.mhp, 19);
 });
 
 test('dog_move unleashes a pet before attacking the hero', async () => {

@@ -675,13 +675,19 @@ test('grow_up clamps the gain to one point past the level ceiling', () => {
 // rather than from its level.
 test('grow_up gives a golem a threshold of its own', () => {
     const state = growState();
-    const golem = grower(state, PM_STRAW_GOLEM, { m_lev: 3, mhp: 20, mhpmax: 20 });
-    // ((20 / 10) + 1) * 10 - 1 is 29, which is far above `m_lev * 8` of 24,
-    // so the golem returns early where an ordinary monster would gain a level.
-    assert.equal(grow_up(golem, grower(state, PM_JACKAL, { m_lev: 0 }),
-                         growEnv(state, [1])),
+    // ((25 / 10) + 1) * 10 - 1 is 29 and `m_lev * 8` is 24, so a maximum of 25
+    // raised by one lands between the two thresholds. That is what makes the
+    // row fail if the golem arm is dropped: against 24 the same monster gains
+    // a level and stops.
+    const golem = grower(state, PM_STRAW_GOLEM,
+                         { m_lev: 3, mhp: 25, mhpmax: 25 });
+    const env = growEnv(state, [1]);
+    assert.equal(grow_up(golem, grower(state, PM_JACKAL, { m_lev: 0 }), env),
                  golem.data);
-    assert.equal(golem.mhpmax, 21);
+    // The clamp at :2096-2097 leaves the roll alone, because 26 is below the
+    // golem threshold; against 24 it would have cut the gain to zero.
+    assert.deepEqual(env.bounds, ['rnd(1)']);
+    assert.equal(golem.mhpmax, 26);
 });
 
 // makemon.c:2101 onwards, the level gain, and :2103-2110, the `!victim` arm

@@ -2553,6 +2553,40 @@ test('simple preflight keeps starting-pet owner seams retryable',
         }
     });
 
+// The planning clone's `gf` entry, over decl.h gf.far_noise. mhitm.c noises()
+// writes it beside gn.noisetime whenever a fight the hero cannot see reaches
+// it, and the two rate-limit "You hear some noises." to one line per ten moves
+// at each distance band. A dry run that raised the live flag and left the live
+// timestamp alone would silence the line the live pass owes.
+test('a dry run leaves the noise rate limit alone', async () => {
+    const target = await prepareStartingPetAction(PM_LITTLE_DOG);
+    // The acid blob's passive is what makes the plan refuse and roll back.
+    installPetDefender(target, 12);
+    // Neither combatant's square carries IN_SIGHT, so mattackm() leaves gv.vis
+    // clear and the blow reaches noises() instead of a named line. The fight
+    // is beside the hero, so the near band is what noises() records; the
+    // sentinel is the other band, which is what a live write would replace.
+    game.gf = { far_noise: true };
+    (game.gn ??= {}).noisetime = 0;
+    const before = completeSecondTurnSnapshot(game, target.replay);
+
+    for (let attempt = 0; attempt < 2; ++attempt) {
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'an acid splash from the monster attacked',
+            `attempt ${attempt + 1}`,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            `attempt ${attempt + 1}`,
+        );
+        assert.deepEqual(game.gf, { far_noise: true }, `attempt ${attempt + 1}`);
+        assert.equal(game.gn.noisetime, 0, `attempt ${attempt + 1}`);
+    }
+});
+
 // C ref: dogmove.c dog_move():1298-1312, which prints through pline.c
 // pline_mon(). This scan runs the same turn against a clone, and the live
 // movemon() adapter runs it again afterwards, so the scan's env.message is a
