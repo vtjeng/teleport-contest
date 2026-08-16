@@ -2379,8 +2379,8 @@
         },
         {
           "name": "counted-occupation-full-health-interrupt",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0044da6356ea5649e0d55348b481dd5b715983f0"
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",
