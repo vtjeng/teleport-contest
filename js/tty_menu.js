@@ -80,17 +80,27 @@ export function menuTitleStyle(state = game) {
 // the recorder shadow grid, so it retains terminal defaults even when the
 // bytes around it were highlighted. js/display.js writes the status line under
 // the same rule.
+//
+// The draw loops this stands for -- process_menu_window():1456-1490 and
+// process_text_window():1808-1833 -- walk curr->str one byte at a time and
+// advance ttyDisplay->curx once per byte, so a multibyte character covers as
+// many cells as it has bytes. Recorder patch 006 hands each of those bytes to
+// nomux_putch() as a signed char, which ignores everything below 32 and so
+// leaves the shadow cell of a high-bit byte holding whatever the preceding
+// clear left there.
 function writeStyledText(display, column, row, text, color, attr) {
-    for (let index = 0; index < text.length;) {
-        const spaces = text[index] === ' ';
+    const bytes = encodeUtf8ByteString(text);
+    for (let index = 0; index < bytes.length;) {
+        const spaces = bytes[index] === 0x20;
         let end = index + 1;
-        while (end < text.length && (text[end] === ' ') === spaces) ++end;
+        while (end < bytes.length && (bytes[end] === 0x20) === spaces) ++end;
         const compressed = spaces && end - index >= 5;
         for (; index < end; ++index) {
+            if (bytes[index] < 0x20 || bytes[index] >= 0x80) continue;
             display.setCell(
                 column + index,
                 row,
-                text[index],
+                String.fromCharCode(bytes[index]),
                 compressed ? NO_COLOR : color,
                 compressed ? 0 : attr,
             );
@@ -466,12 +476,16 @@ export function ttyMenuLayout(display, spec, pageIndex = 0) {
     // stored string that is later drawn, not merely the width the menu window
     // reserves. It also lands two cells short of the terminal, at
     // `curr->str[ttyDisplay->cols - 2] = 0`, because `len` counts one padding
-    // cell on each side. So a line of exactly cols - 2 characters survives
-    // whole and one of cols - 1 loses its last character.
+    // cell on each side. `len` comes from strlen(), so both the measurement
+    // and the cut count bytes: a line of exactly cols - 2 bytes survives whole
+    // and one of cols - 1 loses its last byte.
     for (const line of allLines) {
-        const text = String(line.text ?? '');
-        if (text.length + 2 > display.cols)
-            line.text = text.slice(0, display.cols - 2);
+        const bytes = encodeUtf8ByteString(String(line.text ?? ''));
+        if (bytes.length + 2 > display.cols) {
+            line.text = decodeUtf8ByteString(
+                bytes.slice(0, display.cols - 2),
+            );
+        }
     }
     const pageCount = Math.max(1, Math.ceil(allLines.length / pageSize));
     if (pageIndex < 0 || pageIndex >= pageCount)
@@ -484,10 +498,14 @@ export function ttyMenuLayout(display, spec, pageIndex = 0) {
         ? `(${pageIndex + 1} of ${pageCount})`
         : END_PROMPT;
 
-    // tty_end_menu() reserves one cell on each side of every stored line.
+    // tty_end_menu() reserves one cell on each side of every stored line, and
+    // measures it with the same byte-counting strlen() that drove the cut
+    // above. The footer it compares against is generated here from ASCII.
     const maxcol = Math.max(
         footerText.length + 1,
-        ...allLines.map((line) => String(line.text ?? '').length + 2),
+        ...allLines.map((line) => (
+            encodeUtf8ByteString(String(line.text ?? '')).length + 2
+        )),
     );
     const maxrow = pageCount > 1
         ? pageSize + 1

@@ -865,6 +865,41 @@ test('a highlighted line drops its style across a compressed space run', async (
     await dismissTtyMenu(state, rendered);
 });
 
+// C ref: wintty.c process_menu_window():1456-1490. The draw loop walks
+// curr->str one byte at a time and advances ttyDisplay->curx once per byte,
+// so a multibyte character covers as many cells as it has bytes. Recorder
+// patch 006 hands each of those bytes to nomux_putch() as a signed char,
+// which ignores every high-bit one and leaves that cell as the preceding
+// clear left it.
+test('process_menu_window emits ASCII at recorder-byte columns', () => {
+    const state = menuState();
+    // X, Y and Z follow two-, three- and four-byte code points, so their
+    // columns pin curx's increment for every recorder byte.
+    const spec = {
+        title: null,
+        lines: [{ text: 'a éX €Y 😀Z', attr: 1 }],
+    };
+
+    const rendered = renderTtyMenu(state, spec);
+    const start = rendered.layout.startColumn;
+    const row = state.nhDisplay.grid[0];
+    assert.deepEqual(
+        [row[start].ch, row[start + 4].ch, row[start + 9].ch,
+            row[start + 15].ch],
+        ['a', 'X', 'Y', 'Z'],
+    );
+    assert.equal(row[start + 4].attr, 1);
+    // Every byte column a high-bit byte occupies keeps the space
+    // clearRegion() left there, and the line's highlight never reaches it.
+    for (const offset of [2, 3, 6, 7, 8, 11, 12, 13, 14]) {
+        assert.deepEqual(
+            [row[start + offset].ch, row[start + offset].attr],
+            [' ', 0],
+            `byte column ${offset}`,
+        );
+    }
+});
+
 // C ref: wintty.c tty_end_menu()'s accelerator loop. It runs over every
 // stored line, including the prompt and its blank separator, so an item's
 // letter depends on which page its line index falls on.
@@ -942,4 +977,41 @@ test('tty_end_menu cuts an over-wide stored line at cols - 2', () => {
     renderTtyMenu(state, spec);
     assert.equal(rowText(state, 3), ` ${'d'.repeat(cols - 2)}`);
     assert.equal(state.nhDisplay.grid[3][cols - 1].ch, ' ');
+});
+
+// C ref: wintty.c tty_end_menu():2727-2733. `len` comes from strlen() and the
+// cut writes a NUL at `curr->str[ttyDisplay->cols - 2]`, so both the width the
+// window reserves and the offset it cuts at are byte counts.
+test('tty_end_menu measures and cuts a stored menu line in bytes', () => {
+    const state = menuState();
+    const cols = state.nhDisplay.cols;
+    const storedLine = (text) => ttyMenuLayout(
+        state.nhDisplay, { lines: [text] },
+    );
+
+    // Twenty two-byte characters store 40 bytes, so `len` is 42 and offx is
+    // 80 - 42 - 1. Measuring the same line in code units would leave the
+    // window at the H2344_BROKEN half-terminal cap of 40 instead.
+    assert.equal(storedLine('é'.repeat(20)).firstColumn, 37);
+
+    // Thirty-nine of them store exactly cols - 2 == 78 bytes in 39 code
+    // units: the longest line that survives whole. `len` then fills the
+    // terminal and leaves no column for a right-half overlay.
+    const fits = 'é'.repeat(39);
+    const fitsLayout = storedLine(fits);
+    assert.equal(fitsLayout.lines[0].text, fits);
+    assert.equal(fitsLayout.firstColumn, 0);
+
+    // One more of them stores 80 bytes, so the cut at byte 78 falls between
+    // characters and drops the fortieth whole.
+    assert.equal(storedLine('é'.repeat(40)).lines[0].text, fits);
+
+    // An ASCII lead makes every later character start on an odd byte, so
+    // byte 78 falls inside the thirty-ninth and only its lead byte survives.
+    const inside = encodeUtf8ByteString(
+        storedLine(`A${'é'.repeat(40)}`).lines[0].text,
+    );
+    assert.equal(inside.length, cols - 2);
+    // 0xC3 0xA9 is e-acute; the kept prefix ends on a lone lead byte.
+    assert.deepEqual(inside.slice(-3), [0xC3, 0xA9, 0xC3]);
 });

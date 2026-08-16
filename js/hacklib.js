@@ -120,6 +120,13 @@ export function encodeUtf8ByteString(value) {
     return bytes;
 }
 
+// Cut a string at a byte offset, the unit every fixed C buffer and every
+// "%.Ns" precision counts.  A cut inside a multibyte sequence keeps the bytes
+// it leaves behind, because decodeUtf8ByteString() escapes each one.
+export function truncateByteString(value, limit) {
+    return decodeUtf8ByteString(encodeUtf8ByteString(value).slice(0, limit));
+}
+
 // hacklib.c's string helpers edit a caller-supplied buffer in place and return
 // it.  JavaScript strings are immutable, so each one below takes a string and
 // returns the edited string; callers use the returned buffer either way.  The

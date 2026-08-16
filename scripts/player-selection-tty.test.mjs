@@ -226,6 +226,59 @@ test('tty manual selection reaches confirmation through every facet', async () =
     );
 });
 
+// C ref: role.c plsel_startmenu() (2806-2845). Both of its Sprintf() calls,
+// at 2821 and 2828, cut every field with "%.20s", whose precision counts
+// bytes. Four of the five fields come from the compiled-in role, race, gender
+// and alignment tables and are ASCII; svp.plname is the player's, and
+// options.c nmcpy() lets it reach PL_NSIZ - 1 == 31 bytes. A name of 21 bytes
+// or more is therefore cut here even when it holds 20 characters or fewer.
+//
+// Recorder patch 006 hands each drawn byte to nomux_putch() as a signed char,
+// which ignores every high-bit one, so a multibyte character inside the kept
+// prefix occupies as many blank columns as it has bytes.
+test('plsel_startmenu cuts the hero name at twenty bytes', async () => {
+    for (const [plname, field] of [
+        // 23 ASCII characters, where byte and code-unit counts agree. This
+        // case pins the limit itself rather than the unit it counts.
+        ['Aardvarkbcdefghijklmnop', 'Aardvarkbcdefghijklm'],
+        // 20 characters in 21 bytes, the two-byte one 19th. The cut at byte
+        // 20 falls between characters and drops the final 'm'; the kept
+        // e-acute leaves both of its byte columns blank.
+        ['Aardvarkbcdefghijkém', 'Aardvarkbcdefghijk  '],
+        // 20 characters in 21 bytes, the two-byte one last. The cut falls
+        // inside it and keeps its lead byte, which holds one blank column.
+        // Re-encoding that byte as U+FFFD instead would occupy three.
+        ['Aardvarkbcdefghijklé', 'Aardvarkbcdefghijkl '],
+        // 19 characters in exactly 20 bytes: at the limit, so not cut. This
+        // separates a cut at 20 bytes from one at 19.
+        ['Aardvarkbcdefghijké', 'Aardvarkbcdefghijk  '],
+    ]) {
+        // n chooses menus; w/h/m/n choose Wizard, human, male, neutral.
+        const state = selectionState('nwhmny');
+        state.plname = plname;
+        const captures = captureBoundaries(state);
+        assert.equal(await ttyPlayerSelection(state, noRandom), true, plname);
+        assert.equal(captures.length, 6, plname);
+
+        // The aspect menus take the other Sprintf, which names no hero and
+        // so is the same for every case here.
+        assert.equal(
+            captures[2].rows[2].slice(41),
+            'Wizard <race> <gender> <alignment>',
+            plname,
+        );
+        // tty_end_menu() sizes the window from `strlen(curr->str) + 2`, so
+        // the 20-byte field and the 30-byte " the neutral male human Wizard"
+        // put the header's 50 bytes at offx == 80 - 52 - 1 == 27, one column
+        // left of the first cell the menu draws.
+        assert.equal(
+            captures[5].rows[2],
+            `${' '.repeat(28)}${field} the neutral male human Wizard`,
+            plname,
+        );
+    }
+});
+
 test('uppercase facet accelerators select their unique PICK_ONE entries', async () => {
     // Uppercase race/gender/alignment group accelerators each identify one
     // entry, so PICK_ONE accepts them just like the visible lowercase key.

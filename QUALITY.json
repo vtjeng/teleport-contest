@@ -3281,9 +3281,33 @@
       "area": "startup",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "7bc28f2669926b0dd0a2c57598637d0f722275c5",
-      "detail": "js/player_selection_tty.js clipComponent() cuts each field of the\ncharacter-selection header with String.prototype.slice, which counts UTF-16\ncode units. role.c plsel_startup_msg() (2821 and 2828) cuts with \"%.20s\",\nwhich counts bytes.\n\nOnly one of the five fields can differ: the other four are role, race, gender\nand alignment names from the compiled-in tables, all ASCII. svp.plname is the\nplayer's, and js/options.js keeps it at PLAYER_NAME_BYTE_LIMIT = 31 bytes as\nnmcpy() does, so a name of 21 to 31 bytes holding 20 characters or fewer -- for\ninstance eleven two-byte characters -- prints in full here and cut to 20 bytes\nin C. The header is drawn inside 80 columns, so the difference is on screen.\n\nDerived from the C, not measured: a fresh case cannot isolate it while\nraw-print-splits-a-multibyte-character stands, because the same non-ASCII name\ndiverges at its first byte before the twentieth is reached. The two want fixing\ntogether.\n\nThe same shape was fixed inside coloratt.c match_str2clr() and\nmatch_str2attr() at f7dbf33. The remaining \"%.Ns\" sites in the port are safe:\njs/getline.js:455 slices a buffer tty_getlin() fills one JavaScript character\nper input byte, and options.c:5640, :8801 and role.c:1327's ports slice\ncompiled-in ASCII tables."
+      "detail": "js/player_selection_tty.js clipComponent() cuts each field of the\ncharacter-selection header with String.prototype.slice, which counts UTF-16\ncode units. role.c plsel_startup_msg() (2821 and 2828) cuts with \"%.20s\",\nwhich counts bytes.\n\nOnly one of the five fields can differ: the other four are role, race, gender\nand alignment names from the compiled-in tables, all ASCII. svp.plname is the\nplayer's, and js/options.js keeps it at PLAYER_NAME_BYTE_LIMIT = 31 bytes as\nnmcpy() does, so a name of 21 to 31 bytes holding 20 characters or fewer -- for\ninstance eleven two-byte characters -- prints in full here and cut to 20 bytes\nin C. The header is drawn inside 80 columns, so the difference is on screen.\n\nDerived from the C, not measured: a fresh case cannot isolate it while\nraw-print-splits-a-multibyte-character stands, because the same non-ASCII name\ndiverges at its first byte before the twentieth is reached. The two want fixing\ntogether.\n\nThe same shape was fixed inside coloratt.c match_str2clr() and\nmatch_str2attr() at f7dbf33. The remaining \"%.Ns\" sites in the port are safe:\njs/getline.js:455 slices a buffer tty_getlin() fills one JavaScript character\nper input byte, and options.c:5640, :8801 and role.c:1327's ports slice\ncompiled-in ASCII tables.",
+      "notes": [
+        {
+          "text": "Closed. The record names role.c plsel_startup_msg(); no such function exists.\n'grep -rln plsel_startup_msg nethack-c/upstream/' exits 1 with no output. The\nline numbers 2821 and 2828 are right and the owner is plsel_startmenu(), at\nrole.c:2806.\n\nThe record also called the defect unwitnessable while\nraw-print-splits-a-multibyte-character stands. That is wrong, and the reason it\nis wrong is worth keeping: the header is a menu line, and process_menu_window()\nhands nomux_putch() one signed char per byte, so every high-bit byte is below 32\nthere and leaves its shadow cell blank. The recorded observable is therefore\nentirely ASCII, unlike tty_raw_print()'s, which patch 006 casts to unsigned\nchar and stores. A fresh case at seed 4820577, 20340517080910, over an rc whose\nonly setting is OPTIONS=name:Aardvarkbcdefghijkem with an e-acute, matched every\ncall, screen and cursor after the fix and diverged at one cell before it.\n\nClosing it cost two more corrections in js/tty_menu.js, both the same C fact:\ntty_end_menu() measures and cuts a stored line with strlen(), and\nprocess_menu_window() advances one column per byte. Without them the fix moved\nthe whole menu window one column instead of matching C.",
+          "at": "4387ab3c88f9037724f9ac9eeb53f9f1415046bf"
+        }
+      ]
+    },
+    {
+      "id": "menu-search-stored-line-counts-code-units",
+      "area": "commands",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "4387ab3c88f9037724f9ac9eeb53f9f1415046bf",
+      "detail": "js/tty_menu.js searchItemText() and sourceMenuLineText() both rebuild the line\ntty_end_menu() stored and cut it with String.prototype.slice at columns - 2,\nwhich counts UTF-16 code units. wintty.c:2728-2733 writes the NUL at\ncurr->str[ttyDisplay->cols - 2], a byte offset, and process_menu_window()'s\nMENU_SEARCH arm matches its pattern against that cut string.\n\nttyMenuLayout() was corrected to bytes in the same commit that fixed\nrole.c plsel_startmenu()'s \"%.20s\", so the stored-line cut is now spelled in\ntwo units inside one file. Only the search and PICK_ONE paths still read the\ncode-unit form, and they diverge from C only for a stored line over 78 bytes\nthat also holds a multibyte character -- an object label or fruit name longer\nthan any the dungeon generates. No development session reaches it.\n\nCloses when one helper owns the cut and all three call sites take it."
+    },
+    {
+      "id": "text-window-line-drops-its-g-putch-first-byte",
+      "area": "commands",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "4387ab3c88f9037724f9ac9eeb53f9f1415046bf",
+      "detail": "wintty.c process_text_window() (1808-1833) sends only the first byte of each\nline through g_putch() when its high bit is set, and recorder patch 006 strips\nthat bit before nomux_putch() stores it: a line beginning 0xC3 0xA9 records 'C'\nin the first cell and leaves the second as the clear left it.\n\njs/tty_menu.js has two ports of that loop. writeRecorderTtyWindowLine(), which\ndisplayTtyMenuTextWindow() uses for look_here()'s window, models the first-byte\narm. displayTtyTextWindow(), the paged NHW_TEXT variant, draws through\nwriteStyledText() instead, which has no first-byte arm and now skips a leading\nhigh-bit byte rather than writing 'C' there.\n\nThat skip arrived with the commit that made writeStyledText() count bytes,\nwhich the character-selection header needed; before it the same cell held the\nwhole character and every later cell was one column left, so the arm is newly\nwrong in one cell and newly right in the rest. Nothing reaches it: every\nNHW_TEXT line the port draws starts with ASCII.\n\nCloses when the two ports of process_text_window()'s loop become one that\ncarries both the line's attribute and the first-byte arm."
     }
   ],
   "areas": [

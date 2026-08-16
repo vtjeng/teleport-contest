@@ -3,6 +3,7 @@
 // maybe_skip_seps(), and the confirmation loop; win/tty/topl.c yn_function().
 
 import { game } from './gstate.js';
+import { truncateByteString } from './hacklib.js';
 import { nhgetch } from './input.js';
 import {
     answer_initial_player_selection,
@@ -68,8 +69,13 @@ function gotRoleFilter(state) {
     return Boolean(filter.mask || filter.roles?.some(Boolean));
 }
 
+// role.c plsel_startmenu() builds both header forms with "%.20s", whose
+// precision counts bytes.  Four of the five fields come from the compiled-in
+// role, race, gender and alignment tables and are ASCII, but options.c
+// nmcpy() lets svp.plname reach 31 bytes, so a name of 21 bytes or more is
+// cut here even when it holds 20 characters or fewer.
 function clipComponent(value) {
-    return String(value).slice(0, 20);
+    return truncateByteString(String(value), 20);
 }
 
 function selectionHeader(state) {

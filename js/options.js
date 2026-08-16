@@ -115,6 +115,7 @@ import {
     encodeUtf8Text,
     lowc,
     str_start_is,
+    truncateByteString,
     visctrl,
 } from './hacklib.js';
 // js/display.js, js/invent.js and js/vision.js do not import this file, so
@@ -1028,10 +1029,6 @@ function setPettype(result, statement, negated) {
         // C's format string ends in a period, so config_erradd() adds none.
         configErrorAdd(result, `Unrecognized pet type '${op}'.`);
     }
-}
-
-function truncateByteString(value, limit) {
-    return decodeUtf8ByteString(encodeUtf8ByteString(value).slice(0, limit));
 }
 
 // C refs: options.c:nmcpy() and bones.c:sanitize_name(). Pet names are
