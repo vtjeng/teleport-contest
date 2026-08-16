@@ -551,3 +551,5 @@ utc	event	phase	goal	detail
 2026-08-16T16:10:44.502Z	end	implement	monsters-deferral-sweep-3	
 2026-08-16T21:46:44.331Z	start	select		goal-selector ranks the census against queued options-config-parser
 2026-08-16T22:22:37.046Z	end	select	option-toggle-repaints-the-map	opened option-toggle-repaints-the-map; queued object-memory-holds-a-glyph-number
+2026-08-16T22:23:03.390Z	start	implement	option-toggle-repaints-the-map	object-memory-holds-a-glyph-number
+2026-08-16T23:56:09.267Z	end	implement	option-toggle-repaints-the-map	object-memory-holds-a-glyph-number
