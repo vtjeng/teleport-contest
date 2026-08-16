@@ -1339,6 +1339,70 @@ test('override_ID lets a unique amulet and a named artifact name themselves',
         assert.equal(donameFresh(artifact, state), 'the +0 Giantslayer');
     });
 
+// C refs: objnam.c xname_flags():625-626 and :660, and doname_base():1319 and
+// :1356.  Each reads a flag the object or its type stores where the code
+// around it reads the iflags.override_ID substitution, and :656-659 gives the
+// reason for the second.  Only a raised counter separates the two readings, so
+// every object below is named with it up, and gd.distantname keeps xname()
+// from setting dknown as a side effect of the naming itself.
+test('the four flags C reads directly ignore the override_ID substitution',
+    () => {
+        const state = namingState();
+        state.gd = { distantname: 1 };
+        state.iflags.override_ID = 1;
+
+        // :625-626 runs ahead of the block that forces `nn` to 1 and reads the
+        // type's stored oc_name_known, so an undiscovered type that is both
+        // oc_unique and oc_uses_known still has the object's `known` cleared.
+        // The name is the same either way; the write is the whole effect.
+        const amulet = objectOf(state, AMULET_OF_YENDOR, {
+            dknown: true, known: true, bknown: true,
+        });
+        assert.equal(donameFresh(amulet, state), 'the Amulet of Yendor');
+        assert.equal(amulet.known, false);
+
+        // :660 reads the stored dknown, so an artifact the hero has never seen
+        // stays unfound.  artiexist[].found is what find_artifact() writes.
+        state.artiexist[ART_GIANTSLAYER].exists = 1;
+        const unseen = objectOf(state, LONG_SWORD, {
+            known: true, bknown: true, rknown: true,
+            oartifact: ART_GIANTSLAYER,
+            oextra: { oname: 'Giantslayer' },
+        });
+        assert.equal(donameFresh(unseen, state), 'the +0 Giantslayer');
+        assert.equal(state.artiexist[ART_GIANTSLAYER].found, 0);
+        // The same object once the hero has seen it: the stored flag now holds
+        // and the artifact is found, which is what makes the refusal above a
+        // reading of that flag rather than a path nothing reaches.
+        unseen.dknown = true;
+        assert.equal(donameFresh(unseen, state), 'the +0 Giantslayer');
+        assert.equal(state.artiexist[ART_GIANTSLAYER].found, 1);
+
+        // :1319 reads objects[POT_WATER].oc_name_known, not the forced `nn`.
+        // xname() spells the potion by its actual name because `nn` is forced,
+        // and the BUC word survives because the type itself is undiscovered:
+        // C allows "blessed clear potion" where the hero cannot yet tell that
+        // clear potions are water.
+        assert.equal(state.objects[POT_WATER].oc_name_known, 0);
+        const water = objectOf(state, POT_WATER, { blessed: true });
+        assert.equal(
+            donameFresh(water, state), 'a blessed potion of holy water',
+        );
+
+        // :1356 reads the stored dknown for the trap word alone, so a box the
+        // hero has not seen keeps the lock word the counter supplies and loses
+        // the trap word.
+        const box = objectOf(state, LARGE_BOX, { otrapped: 1, tknown: true });
+        assert.equal(
+            donameFresh(box, state), 'an empty uncursed unlocked large box',
+        );
+        box.dknown = true;
+        assert.equal(
+            donameFresh(box, state),
+            'an empty uncursed trapped unlocked large box',
+        );
+    });
+
 test('override_ID supplies the bknown that names holy water', () => {
     const state = namingState();
     // xname_flags():841-843 needs bknown before it says "holy", and

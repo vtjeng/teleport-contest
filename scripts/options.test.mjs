@@ -1158,6 +1158,23 @@ test('number_pad preserves the source modes used by command-key lookup', () => {
     assert.deepEqual(outOfRange.iflags, parseNethackrc('').iflags);
     assert.deepEqual(outOfRange.commandOperations, []);
 
+    // The value goes through atoi(), which answers zero for text that starts
+    // with no decimal run and reads the run alone when one starts it.  The
+    // zero is what `mode == 0 && *op != '0'` turns into the report; a parser
+    // that answered "not a number" would fall past the whole test.
+    const notANumber = parseNethackrc('OPTIONS=number_pad:zqxj\n');
+    assert.deepEqual(notANumber.configErrorFrame.output, [
+        '\nOPTIONS=number_pad:zqxj',
+        " * Line 1: Illegal number_pad parameter 'zqxj'.",
+    ]);
+    assert.deepEqual(notANumber.iflags, parseNethackrc('').iflags);
+    assert.deepEqual(notANumber.commandOperations, []);
+    const trailingJunk = parseNethackrc('OPTIONS=number_pad:3zqxj\n');
+    assert.deepEqual(trailingJunk.configErrorFrame.output, []);
+    assert.equal(trailingJunk.iflags.num_pad, true);
+    // mode 3 is the phone-keypad layout, num_pad_mode |= 2.
+    assert.equal(trailingJunk.iflags.num_pad_mode, 2);
+
     // `compat` is strlen(opts) <= 10, measured over the whole statement, and
     // it is the val_optional string_for_opt() is called with.  "number_pad"
     // is exactly ten bytes and "number_p:" is nine, so both are silent, while
@@ -1834,7 +1851,72 @@ test('statuslines selects one of the two tty status-window heights', () => {
         ], statement);
         assert.equal(parsed.iflags.wc2_statuslines, lines, statement);
     }
+
+    // itmp comes from atoi(), which answers zero for a value with no leading
+    // decimal run and reads that run alone when one starts it.  The zero fails
+    // the range test and reports; a parser that answered "not a number" would
+    // compare NaN against both bounds and store it in silence.
+    const notANumber = parseNethackrc('OPTIONS=statuslines:zqxj\n');
+    assert.deepEqual(notANumber.configErrorFrame.output, [
+        '\nOPTIONS=statuslines:zqxj',
+        " * Line 1: 'statuslines:zqxj' is invalid; must be 2 or 3.",
+    ]);
+    assert.equal(notANumber.iflags.wc2_statuslines, 2);
+    const trailingJunk = parseNethackrc('OPTIONS=statuslines:3zqxj\n');
+    assert.deepEqual(trailingJunk.configErrorFrame.output, []);
+    assert.equal(trailingJunk.iflags.wc2_statuslines, 3);
 });
+
+// C refs: options.c optfn_symset() (4166-4201), optfn_roguesymset()
+// (3543-3572) and optfn_suppress_alert() (4134-4149).  Each of the three opens
+// its do_set arm on `op != empty_optstr` and does nothing whatever when that
+// fails, and string_for_opt() answers empty_optstr for a statement that ends
+// on its separator as readily as for one that carries no separator at all.
+test('a symbol set or alert version ending on its separator selects nothing',
+    () => {
+        const untouched = parseNethackrc('');
+        for (const name of ['symset', 'roguesymset', 'suppress_alert']) {
+            const parsed = parseNethackrc(`OPTIONS=${name}:\n`);
+            assert.deepEqual(parsed.configErrorFrame.output, [], name);
+            assert.equal(parsed.symset, undefined, name);
+            assert.equal(parsed.roguesymset, undefined, name);
+            assert.equal(
+                parsed.flags.suppress_alert,
+                untouched.flags.suppress_alert,
+                name,
+            );
+            // The two symbol-set rows would otherwise queue a selection for
+            // symbols.c load_symset(), which is the write the empty value has
+            // to leave undone.
+            assert.deepEqual(parsed.symbolOperations, [], name);
+        }
+
+        // The same three names with a value, so that the guards above are the
+        // only difference between the two halves of this test.
+        const primary = parseNethackrc('OPTIONS=symset:DECgraphics\n');
+        assert.equal(primary.symset, 'DECgraphics');
+        assert.deepEqual(primary.symbolOperations, [{
+            kind: 'select',
+            set: 'primary',
+            name: 'DECgraphics',
+            legacyIfUnset: false,
+            legacyIBM: false,
+        }]);
+        const rogue = parseNethackrc('OPTIONS=roguesymset:DECgraphics\n');
+        assert.equal(rogue.roguesymset, 'DECgraphics');
+        assert.deepEqual(rogue.symbolOperations, [{
+            kind: 'select',
+            set: 'rogue',
+            name: 'DECgraphics',
+            legacyIfUnset: false,
+            legacyIBM: false,
+        }]);
+        assert.equal(
+            parseNethackrc('OPTIONS=suppress_alert:3.6.1\n')
+                .flags.suppress_alert,
+            '3.6.1',
+        );
+    });
 
 test('status highlight options preserve source rules and condition defaults', () => {
     const defaults = parseNethackrc('');
