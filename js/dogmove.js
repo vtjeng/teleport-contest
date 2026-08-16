@@ -216,10 +216,15 @@ function petMoveOperation(rawEnv, name) {
     return operation;
 }
 
+// C ref: youprop.h:218 Conflict, `(HConflict || EConflict)`. Two disjuncts and
+// no blocking term. youprop.h gives a `blocked` alias to six properties only
+// -- BLINDED, CLAIRVOYANT, INVIS, STEALTH, LEVITATION and FLYING, at :90,
+// :181, :197, :209, :239 and :252 -- and CONFLICT is not among them, so no C
+// path writes the field. dog_move() reads Conflict at dogmove.c:1017, :1046,
+// :1122 and :1127; js/mon.js:392 keeps the same two-disjunct copy.
 function conflictActive(state) {
     const conflict = state.u?.uprops?.[CONFLICT];
-    return Boolean(conflict?.intrinsic || conflict?.extrinsic)
-        && !conflict?.blocked;
+    return Boolean(conflict?.intrinsic || conflict?.extrinsic);
 }
 
 // C ref: youprop.h:125 Deaf, `(HDeaf || EDeaf || u.uroleplay.deaf)`. Three

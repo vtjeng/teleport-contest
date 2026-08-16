@@ -95,12 +95,14 @@ function attackEnv(rawEnv) {
     return { ...rawEnv, state, random };
 }
 
-// C ref: youprop.h Conflict, over the hero's CONFLICT property. mhitm.c reads
-// it once, in the cockatrice-instinct test at 424.
+// C ref: youprop.h:218 Conflict, `(HConflict || EConflict)`, over the hero's
+// CONFLICT property. Two disjuncts and no blocking term: youprop.h gives a
+// `blocked` alias to BLINDED, CLAIRVOYANT, INVIS, STEALTH, LEVITATION and
+// FLYING alone, so no C path sets it for CONFLICT. mhitm.c reads Conflict
+// once, in the cockatrice-instinct test at 436.
 function Conflict(state) {
     const conflict = state.u?.uprops?.[CONFLICT];
-    return Boolean(conflict?.intrinsic || conflict?.extrinsic)
-        && !conflict?.blocked;
+    return Boolean(conflict?.intrinsic || conflict?.extrinsic);
 }
 
 // C ref: youprop.h:125 Deaf, `HDeaf || EDeaf || u.uroleplay.deaf`. Three

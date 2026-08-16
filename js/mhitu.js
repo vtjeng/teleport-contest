@@ -91,10 +91,21 @@ function requireMattackuOperation(env, name) {
 }
 
 // youprop.h:92-103 and :198. Both properties are intrinsic-or-extrinsic and
-// both are defeated by an artifact block.
+// both are defeated by an artifact block. Only Blind (:103) and Invis (:198)
+// route through here; a macro without a `blocked` alias needs its own copy.
 function activeHeroProperty(state, property) {
     const value = state.u?.uprops?.[property];
     return Boolean((value?.intrinsic || value?.extrinsic) && !value?.blocked);
+}
+
+// C ref: youprop.h:218 Conflict, `(HConflict || EConflict)`. Two disjuncts and
+// no blocking term, which is why it cannot share activeHeroProperty() above:
+// youprop.h gives a `blocked` alias to BLINDED, CLAIRVOYANT, INVIS, STEALTH,
+// LEVITATION and FLYING alone, so no C path sets one for CONFLICT. mhitu.c
+// reads Conflict once, in mattacku()'s cockatrice-instinct test at 803.
+function Conflict(state) {
+    const conflict = state.u?.uprops?.[CONFLICT];
+    return Boolean(conflict?.intrinsic || conflict?.extrinsic);
 }
 
 // C ref: hack.h distu() and mdistu(). mdistu() is distu() applied to a
@@ -615,7 +626,7 @@ export async function mattacku(monster, rawEnv = {}) {
             if (mattk.aatyp === M.AT_KICK && mtrapped_in_pit(monster, state))
                 continue;
             if (!range2 && (!monster.mw /* MON_WEP() */ || monster.mconf
-                            || activeHeroProperty(state, CONFLICT)
+                            || Conflict(state)
                             || !touch_petrifies(state.youmonst.data))) {
                 if (foundyou) {
                     const j = random.rnd(20 + i);

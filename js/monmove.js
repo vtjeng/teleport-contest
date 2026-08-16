@@ -365,6 +365,11 @@ function movementEnv(env = {}) {
     };
 }
 
+// `blockedMatters` spells the `&& !B<prop>` conjunct that youprop.h writes for
+// six properties only: BLINDED, CLAIRVOYANT, INVIS, STEALTH, LEVITATION and
+// FLYING, at :90, :181, :197, :209, :239 and :252. Every other macro is bare
+// intrinsic-or-extrinsic -- Displaced at :204, Conflict at :218 -- and passing
+// the flag for one of those would test a field no C path sets.
 function propertyActive(state, property, blockedMatters = false) {
     const value = state.u?.uprops?.[property];
     return Boolean(value?.intrinsic || value?.extrinsic)
@@ -405,7 +410,7 @@ export function m_avoid_kicked_loc(monster, x, y, state = game) {
         && monster.mcansee
         && !monster.mconf
         && !monster.mstun
-        && !propertyActive(state, CONFLICT, true)
+        && !propertyActive(state, CONFLICT)
         && isok(kicked?.x, kicked?.y)
         && x === kicked.x
         && y === kicked.y
@@ -421,7 +426,7 @@ export function m_avoid_soko_push_loc(monster, x, y, state = game) {
         || (!monster.mpeaceful && !monster.mtame)
         || monster.mconf
         || monster.mstun
-        || propertyActive(state, CONFLICT, true)
+        || propertyActive(state, CONFLICT)
         || dist2(x, y, state.u.ux, state.u.uy) !== 4) {
         return false;
     }

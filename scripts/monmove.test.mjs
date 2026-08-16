@@ -80,6 +80,8 @@ import {
     W_NONDIGGABLE,
     W_NONPASSWALL,
     W_ARM,
+    W_ARMC,
+    W_RINGL,
 } from '../js/const.js';
 import { A_CHA } from '../js/const.js';
 import {
@@ -217,6 +219,14 @@ test('peaceful monsters avoid the hero most recently kicked square', () => {
         blocked: 0,
     };
     assert.equal(m_avoid_kicked_loc(monster, 9, 10, state), false);
+    // monmove.c:1302's `!Conflict`. youprop.h:218 defines Conflict as
+    // (HConflict || EConflict) and declares no BConflict, so a blocked mask
+    // must not take the term back off. W_ARMC is the cloak mask worn.c:127
+    // writes for the six properties that do have a blocked alias; no C path
+    // writes any mask here, which is why this state cannot arise in play and
+    // the case exists only to pin the spelling.
+    state.u.uprops[CONFLICT].blocked = W_ARMC;
+    assert.equal(m_avoid_kicked_loc(monster, 9, 10, state), false);
 });
 
 test('peaceful monsters avoid pushing an intervening Sokoban boulder', () => {
@@ -228,6 +238,17 @@ test('peaceful monsters avoid pushing an intervening Sokoban boulder', () => {
 
     assert.equal(m_avoid_soko_push_loc(monster, 8, 10, state), true);
     state.level.flags.sokoban_rules = false;
+    assert.equal(m_avoid_soko_push_loc(monster, 8, 10, state), false);
+    // monmove.c:1318's `!Conflict`, over youprop.h:218's second disjunct. A
+    // ring of conflict is what sets EConflict, so W_RINGL is the mask
+    // worn.c:127 would write; the blocked field carries the cloak mask that no
+    // C path can write for CONFLICT, since youprop.h declares no BConflict.
+    state.level.flags.sokoban_rules = true;
+    state.u.uprops[CONFLICT] = {
+        intrinsic: 0,
+        extrinsic: W_RINGL,
+        blocked: W_ARMC,
+    };
     assert.equal(m_avoid_soko_push_loc(monster, 8, 10, state), false);
 });
 

@@ -25,6 +25,7 @@ import {
     ROOM,
     STONE,
     UNDEF,
+    W_ARMC,
 } from '../js/const.js';
 import {
     can_reach_location,
@@ -950,6 +951,35 @@ test('dog_move dismisses a conflicted guardian angel', async () => {
     assert.equal(result, MMOVE_DIED);
     assert.deepEqual(events, [monster]);
 });
+
+test('dog_move dismisses a guardian angel whose conflict is blocked',
+    async () => {
+        const { state, monster } = activePetState();
+        delete monster.mextra;
+        monster.isminion = true;
+        state.u.uprops[CONFLICT] = {
+            intrinsic: 1, // An active intrinsic reaches guardian resistance.
+            extrinsic: 0,
+            // youprop.h:218 defines Conflict as (HConflict || EConflict) and
+            // declares no BConflict, so worn.c never writes this field for
+            // CONFLICT and dog_move() must ignore whatever it holds. W_ARMC is
+            // the cloak mask worn.c:127 writes for the six properties that do
+            // have a blocked alias. The state is unreachable in play; the case
+            // pins the spelling rather than a reachable divergence.
+            blocked: W_ARMC,
+        };
+        const events = [];
+
+        const result = await dog_move(monster, false, movementEnv(state, {
+            resistConflict: () => false,
+            loseGuardianAngel(subject) {
+                events.push(subject);
+            },
+        }));
+
+        assert.equal(result, MMOVE_DIED);
+        assert.deepEqual(events, [monster]);
+    });
 
 test('dog_move maps an off-map inventory result through monster life',
     async () => {

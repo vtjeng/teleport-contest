@@ -4,6 +4,7 @@ import test from 'node:test';
 import {
     BEAR_TRAP,
     BLINDED,
+    CONFLICT,
     CQ_CANNED,
     HALF_PHDAM,
     INVIS,
@@ -69,6 +70,7 @@ import {
     PM_CHROMATIC_DRAGON,
     PM_CLERIC,
     PM_COBRA,
+    PM_COCKATRICE,
     PM_GIANT_EEL,
     PM_BABY_GRAY_DRAGON,
     PM_GOBLIN,
@@ -83,6 +85,7 @@ import {
     PM_OWLBEAR,
     PM_PONY,
     PM_PESTILENCE,
+    PM_PLAINS_CENTAUR,
     PM_PYTHON,
     PM_SEWER_RAT,
     PM_SOLDIER_ANT,
@@ -589,6 +592,67 @@ test('mattacku swings a wielded weapon and adds its to-hit bonus',
         (error) => error.reason === ARMED_HIT_STOP,
     );
     assert.deepEqual(raised.lines, ['The goblin swings his long sword.']);
+});
+
+// mhitu.c:801-804. An armed monster declines to touch a cockatrice, and
+// confusion or Conflict suspends that instinct. A plains centaur is the
+// shortest fixture that reaches the test the way C does: monsters.h gives it
+// ATTK(AT_WEAP, AD_PHYS, 1, 6) then ATTK(AT_KICK, AD_PHYS, 1, 6), so
+// mattacku()'s AT_WEAP arm reads MON_WEP() at slot 0 and slot 1 arrives at the
+// physical case with that weapon still in hand.
+test('mattacku suspends the armed cockatrice instinct under conflict',
+    async () => {
+    const state = await meleeHero();
+    // mondata.c touch_petrifies() answers TRUE for the cockatrice and the
+    // chickatrice alone, so the hero has to wear one of those forms before the
+    // instinct engages at all.
+    state.youmonst.data = state.mons[PM_COCKATRICE];
+    const centaur = meleeAttacker(state, PM_PLAINS_CENTAUR, 1, 0);
+    const sword = mksobj(LONG_SWORD, false, false, { state });
+    sword.nobj = null;
+    sword.spe = 0; // hitval() adds spe, and a long sword's oc_hitbon is 0
+    centaur.minvent = sword;
+    centaur.mw = sword;
+    // NO_WEAPON_WANTED keeps mattacku()'s AT_WEAP arm from re-wielding, so the
+    // weapon this fixture put in hand is the one both slots see.
+    centaur.weapon_check = NO_WEAPON_WANTED;
+
+    // tmp is 6 + 10 + 4: the Valkyrie's AC 6, mhitu.c:806's constant, and a
+    // plains centaur's level. The weapon adds nothing, so 20 is slot 0's near
+    // miss on rnd(20) and 21 is slot 1's ordinary miss on rnd(21). Both slots
+    // miss, which keeps hitmu() and the armed blow's fail-closed edge out of
+    // the comparison and leaves the draws as the whole observable.
+    const instinct = meleeEnv(state, [20, 21]);
+    assert.equal(await mattacku(centaur, instinct.env), false);
+    // Slot 1 spends no draw: the centaur holds a weapon, so it declines to
+    // kick a cockatrice and mhitu.c:805's `rnd(20 + i)` never runs.
+    assert.deepEqual(instinct.bounds, ['rnd(20)']);
+    assert.deepEqual(instinct.lines, [
+        'The plains centaur swings his long sword.',
+        'The plains centaur just misses!',
+    ]);
+
+    // An intrinsic alone answers youprop.h:218's first disjunct, and the kick
+    // it admits is the second draw.
+    state.u.uprops[CONFLICT] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    const conflicted = meleeEnv(state, [20, 21]);
+    assert.equal(await mattacku(centaur, conflicted.env), false);
+    assert.deepEqual(conflicted.bounds, ['rnd(20)', 'rnd(21)']);
+    assert.deepEqual(conflicted.lines, [
+        'The plains centaur swings his long sword.',
+        'The plains centaur just misses!',
+        'The plains centaur misses!',
+    ]);
+
+    // youprop.h:218 declares no BConflict, so a blocked mask must leave the
+    // answer alone. W_ARMC is the cloak mask worn.c:127 writes for the six
+    // properties that do have a blocked alias; no C path writes any mask for
+    // CONFLICT, so this state is unreachable in play and the case pins the
+    // spelling rather than a reachable divergence.
+    state.u.uprops[CONFLICT].blocked = W_ARMC;
+    const blocked = meleeEnv(state, [20, 21]);
+    assert.equal(await mattacku(centaur, blocked.env), false);
+    assert.deepEqual(blocked.bounds, ['rnd(20)', 'rnd(21)']);
 });
 
 test('mswings_verb picks its verb from the weapon and the range', async () => {
