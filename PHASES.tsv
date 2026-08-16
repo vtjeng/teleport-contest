@@ -510,3 +510,4 @@ utc	event	phase	goal	detail
 2026-08-15T23:03:26.625Z	start	select	startup-deferral-sweep	
 2026-08-15T23:12:06.212Z	end	select	startup-deferral-sweep	
 2026-08-15T23:12:06.240Z	start	implement	startup-deferral-sweep	
+2026-08-16T00:03:25.879Z	end	implement	startup-deferral-sweep	
