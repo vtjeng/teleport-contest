@@ -40,10 +40,14 @@
 //
 //   Valkyrie/female/neutral, seeds 7710001-7710030: 17 fought, 6 usable.
 //
-// The eleven fights left out stop for owners outside this matrix: worn.c
-// m_dowear() when a monster picks equipment up, mon.c restrap() when a hider
-// hides again, and makemon.c grow_up()'s form change once a pet's level reaches
-// its bigger species.
+// The eleven fights left out stop for owners outside this matrix. Replaying
+// all thirty seeds with eighty spaces each stops seventeen of them before
+// their keys run out: dogmove.c dog_eat() in four, a monster ranged weapon
+// action in three, monster hiding in two, monster engraving wear in two, and
+// monster equipment changes, monster item use, an armed monster attacking
+// another monster and the hero dying in one each. grow_up()'s form change is
+// not among them, because a starting pet needs three more level gains than
+// eighty keys reach.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
