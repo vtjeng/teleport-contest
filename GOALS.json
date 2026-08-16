@@ -2279,7 +2279,7 @@
     },
     {
       "id": "startup-deferral-sweep",
-      "status": "open",
+      "status": "closed",
       "boundary": "Every open startup deferral outside the scope category is read against its C source. An entry closes only when the behavior its record names as its closing condition is ported. A surviving entry carries a blockedOn naming the C symbol it waits on, so the next count reads this reading rather than repeating it. Testable against C: no counted startup entry may remain whose closing condition needs only C the port already holds.",
       "upstreamOwners": [
         "options.c optfn_pickup_burden()",
@@ -2389,8 +2389,11 @@
         "screens": 1674,
         "rng": 125050
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "b6c9025027c603a876d336dc22fd71d2069e3a61",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
