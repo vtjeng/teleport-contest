@@ -617,11 +617,11 @@ test('a boolean value C cannot read reports and sets nothing', () => {
     assert.equal(continuedAfterValue.configErrorFrame.num_errors, 1);
 });
 
-// global.h enum optset_restrictions.  optfn_boolean():5207 retreats on this
-// one for the whole of a configuration-file read, because go.opt_initial is
-// true throughout, and doset() walks the rows up to set_in_config.
+// global.h enum optset_restrictions.  optfn_boolean():5211 retreats on this
+// one for the whole of a configuration-file read, because its guard is
+// `go.opt_initial && allopt[optidx].setwhere == set_wiznofuz` and
+// go.opt_initial is true throughout.
 const SET_WIZNOFUZ = 6;
-const SET_IN_CONFIG = 4;
 
 // The three exits optfn_boolean() takes before `*(allopt[optidx].addr)` that
 // report nothing at all: a row whose #ifdef arm compiled its storage away
@@ -817,36 +817,333 @@ test('a gender statement too long to match its own name falls through', () => {
 // dispatch from a configuration file.  Nothing a handler does with a value it
 // cannot read may end the read: C's worst answer is optn_silenterr, which
 // parseoptions() turns into a discarded FALSE.
-test('no compound option ends the read over a value C rejects', () => {
-    // setwhere above set_in_config is a row parse_config_line() never reaches,
-    // so the sweep covers exactly the rows a configuration file can name.
+//
+// What a configuration read turns on is the message count.  One message more
+// or fewer moves config_error_done()'s summary row, and the tty_wait_synch()
+// boundary that follows it, so the sweep below asserts each statement's whole
+// output rather than the shape of the lines it happened to write.
+//
+// The three spellings the sweep gives every row.  string_for_opt() answers
+// empty_optstr for the first two alike -- no separator at all, and a separator
+// that ends the statement -- and the third is four bytes no option's value
+// grammar accepts.
+const COMPOUND_SWEEP_SUFFIXES = Object.freeze(['', ':', ':zqxj']);
+
+// Every message this parser writes for those three spellings, in that order,
+// without config_erradd()'s " * Line 1: " prefix.  A C recording of all 285
+// spellings confirms each one, message for message.
+const COMPOUND_SWEEP_REPORTS = new Map([
+    ['playmode', [
+        [],
+        [],
+        ['Invalid value for "playmode":zqxj.'],
+    ]],
+    ['name', [
+        ["Missing parameter for 'name'."],
+        ["Missing parameter for 'name:'."],
+        [],
+    ]],
+    ['role', [
+        ["Missing parameter for 'role'."],
+        ["Missing parameter for 'role:'."],
+        ["Unknown role 'zqxj'."],
+    ]],
+    ['race', [
+        ["Missing parameter for 'race'."],
+        ["Missing parameter for 'race:'."],
+        ["Unknown race 'zqxj'."],
+    ]],
+    ['gender', [
+        ["Missing parameter for 'gender'."],
+        ["Missing parameter for 'gender:'."],
+        ["Unknown gender 'zqxj'."],
+    ]],
+    ['alignment', [
+        ["Missing parameter for 'alignment'."],
+        ["Missing parameter for 'alignment:'."],
+        ["Unknown alignment 'zqxj'."],
+    ]],
+    ['fruit', [
+        ["Missing parameter for 'fruit'."],
+        ["Missing parameter for 'fruit:'."],
+        [],
+    ]],
+    ['hilite_status', [
+        ['Value is mandatory for hilite_status.'],
+        ['Value is mandatory for hilite_status.'],
+        [],
+    ]],
+    ['menu_deselect_all', [
+        ["Missing parameter for 'menu_deselect_all'."],
+        ["Missing parameter for 'menu_deselect_all:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_deselect_page', [
+        ["Missing parameter for 'menu_deselect_page'."],
+        ["Missing parameter for 'menu_deselect_page:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_first_page', [
+        ["Missing parameter for 'menu_first_page'."],
+        ["Missing parameter for 'menu_first_page:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_headings', [
+        [],
+        [],
+        ["Unknown color 'zqxj'."],
+    ]],
+    ['menu_invert_all', [
+        ["Missing parameter for 'menu_invert_all'."],
+        ["Missing parameter for 'menu_invert_all:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_invert_page', [
+        ["Missing parameter for 'menu_invert_page'."],
+        ["Missing parameter for 'menu_invert_page:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_last_page', [
+        ["Missing parameter for 'menu_last_page'."],
+        ["Missing parameter for 'menu_last_page:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_next_page', [
+        ["Missing parameter for 'menu_next_page'."],
+        ["Missing parameter for 'menu_next_page:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_previous_page', [
+        ["Missing parameter for 'menu_previous_page'."],
+        ["Missing parameter for 'menu_previous_page:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_search', [
+        ["Missing parameter for 'menu_search'."],
+        ["Missing parameter for 'menu_search:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_select_all', [
+        ["Missing parameter for 'menu_select_all'."],
+        ["Missing parameter for 'menu_select_all:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_select_page', [
+        ["Missing parameter for 'menu_select_page'."],
+        ["Missing parameter for 'menu_select_page:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_shift_left', [
+        ["Missing parameter for 'menu_shift_left'."],
+        ["Missing parameter for 'menu_shift_left:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['menu_shift_right', [
+        ["Missing parameter for 'menu_shift_right'."],
+        ["Missing parameter for 'menu_shift_right:'."],
+        ["Reserved menu command key '^@'."],
+    ]],
+    ['msg_window', [
+        [],
+        [],
+        ["Unknown msg_window parameter 'zqxj'."],
+    ]],
+    ['number_pad', [
+        [],
+        ["Missing parameter for 'number_pad:'."],
+        ["Illegal number_pad parameter 'zqxj'."],
+    ]],
+    ['petattr', [
+        ["Missing parameter for 'petattr'."],
+        ["Missing parameter for 'petattr:'."],
+        ["Unknown petattr parameter 'petattr:zqxj'."],
+    ]],
+    ['pettype', [
+        ["Missing parameter for 'pettype'."],
+        ["Missing parameter for 'pettype:'."],
+        ["Unrecognized pet type 'zqxj'."],
+    ]],
+    ['pickup_burden', [
+        ["Missing parameter for 'pickup_burden'."],
+        ["Missing parameter for 'pickup_burden:'."],
+        ["Unknown pickup_burden parameter 'zqxj'."],
+    ]],
+    ['pile_limit', [
+        ["Missing parameter for 'pile_limit'."],
+        ["Missing parameter for 'pile_limit:'."],
+        [],
+    ]],
+    ['runmode', [
+        ['Value is mandatory for runmode.'],
+        ['Value is mandatory for runmode.'],
+        ["Unknown runmode parameter 'zqxj'."],
+    ]],
+    ['sortloot', [
+        ["Missing parameter for 'sortloot'."],
+        ["Missing parameter for 'sortloot:'."],
+        ["Unknown sortloot parameter 'zqxj'."],
+    ]],
+    ['statuslines', [
+        [
+            "Missing parameter for 'statuslines'.",
+            "'statuslines:' is invalid; must be 2 or 3.",
+        ],
+        [
+            "Missing parameter for 'statuslines:'.",
+            "'statuslines:' is invalid; must be 2 or 3.",
+        ],
+        ["'statuslines:zqxj' is invalid; must be 2 or 3."],
+    ]],
+    ['versinfo', [
+        [
+            "Missing parameter for 'versinfo'.",
+            "'versinfo' requires a value; defaulting to 1.",
+        ],
+        [
+            "Missing parameter for 'versinfo:'.",
+            "'versinfo' requires a value; defaulting to 1.",
+        ],
+        ["'versinfo' must be one of 1, 2, 4, or the sum of two or all"
+            + ' three of those.'],
+    ]],
+    ['whatis_coord', [
+        ["Missing parameter for 'whatis_coord'."],
+        ["Missing parameter for 'whatis_coord:'."],
+        ["Unknown whatis_coord parameter 'zqxj'."],
+    ]],
+]);
+
+// The rows whose silence this port shares with C: neither writes anything for
+// any of the three spellings.
+const SILENT_COMPOUND_ROWS = new Set([
+    'altkeyhandling',
+    'catname',
+    'DECgraphics',
+    'dogname',
+    'dungeon',
+    'effects',
+    'glyph',
+    'horsename',
+    'IBMgraphics',
+    'menu_objsyms',
+    'menuinvertmode',
+    'monsters',
+    'objects',
+    'statushilites',
+    'suppress_alert',
+    'tile_file',
+    'traps',
+]);
+
+// The rows whose silence is this parser's alone.  applyOption() stores the
+// value instead of running the handler, so C reports where the port says
+// nothing.  The counts are how many messages C writes for the three
+// spellings, taken from the same recording.  Naming every row and its count is
+// what makes a row crossing between these three collections an edit rather
+// than a silent pass, and it is the target for whichever handler is ported
+// next.
+const UNPORTED_COMPOUND_ROWS = new Map([
+    ['windowtype', [1, 1, 1]],
+    ['align_message', [1, 1, 1]],
+    ['align_status', [1, 1, 1]],
+    ['autounlock', [0, 0, 1]],
+    ['boulder', [1, 1, 1]],
+    ['crash_email', [1, 1, 0]],
+    ['crash_name', [1, 1, 0]],
+    ['crash_urlmax', [1, 1, 1]],
+    ['disclose', [0, 0, 1]],
+    ['font_map', [1, 1, 0]],
+    ['font_menu', [1, 1, 0]],
+    ['font_message', [1, 1, 0]],
+    ['font_size_map', [1, 1, 0]],
+    ['font_size_menu', [1, 1, 0]],
+    ['font_size_message', [1, 1, 0]],
+    ['font_size_status', [1, 1, 0]],
+    ['font_size_text', [1, 1, 0]],
+    ['font_status', [1, 1, 0]],
+    ['font_text', [1, 1, 0]],
+    ['map_mode', [1, 1, 1]],
+    ['menustyle', [1, 1, 1]],
+    ['mouse_support', [0, 1, 1]],
+    ['msghistory', [1, 1, 0]],
+    ['packorder', [0, 0, 4]],
+    ['paranoid_confirmation', [1, 1, 1]],
+    ['perminv_mode', [1, 1, 1]],
+    ['pickup_types', [1, 1, 1]],
+    ['player_selection', [1, 1, 1]],
+    ['roguesymset', [0, 0, 1]],
+    ['scores', [1, 1, 1]],
+    ['scroll_amount', [1, 1, 0]],
+    ['scroll_margin', [1, 1, 0]],
+    ['sortdiscoveries', [1, 1, 1]],
+    ['sortvanquished', [1, 1, 0]],
+    ['soundlib', [1, 1, 0]],
+    ['symset', [0, 0, 1]],
+    ['term_cols', [1, 1, 1]],
+    ['term_rows', [1, 1, 1]],
+    ['tile_height', [1, 1, 0]],
+    ['tile_width', [1, 1, 0]],
+    ['vary_msgcount', [1, 1, 0]],
+    ['warnings', [1, 1, 0]],
+    ['whatis_filter', [1, 1, 1]],
+    ['windowborders', [1, 1, 0]],
+    ['windowcolors', [1, 1, 1]],
+]);
+
+test('every compound option reports exactly what this parser owes it', () => {
+    // optlist.h gives both prefix rows setwhere set_hidden, which labels them
+    // "placeholder for prefixed entries" rather than stating a reachability
+    // rule: neither parse_config_line() nor parseoptions() consults setwhere
+    // at all.  What keeps the two out of a by-name sweep is their pfx flag.
+    // options.c:556-560 matches such a row by prefix and lets the suffix pick
+    // the handler, and applyOption() stops a statement that lands on one.
+    assert.deepEqual(
+        allopt.filter((option) => option.opttyp === 'CompOpt' && option.pfx)
+            .map((option) => option.name),
+        ['cond_', 'font'],
+    );
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
-                                           && option.setwhere <= SET_IN_CONFIG);
+                                           && !option.pfx);
     assert.equal(rows.length, 95);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 33);
+    assert.equal(SILENT_COMPOUND_ROWS.size, 17);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 45);
+
+    let owed = 0;
     for (const row of rows) {
-        for (const suffix of [
-            // No separator at all, which string_for_opt() and
-            // length_without_val() answer for alike.
-            '',
-            // A separator that ends the statement: the same empty_optstr,
-            // reached the other way.
-            ':',
-            // Four bytes no option's value grammar accepts.
-            ':zqxj',
-        ]) {
+        const reported = COMPOUND_SWEEP_REPORTS.get(row.name);
+        const unported = UNPORTED_COMPOUND_ROWS.get(row.name);
+        // Exactly one of the three collections holds each row.
+        const silent = SILENT_COMPOUND_ROWS.has(row.name) || undefined;
+        assert.equal(
+            [reported, unported, silent]
+                .filter((entry) => entry !== undefined).length,
+            1,
+            row.name,
+        );
+        COMPOUND_SWEEP_SUFFIXES.forEach((suffix, index) => {
             const statement = `OPTIONS=${row.name}${suffix}`;
+            const messages = reported ? reported[index] : [];
             const parsed = parseNethackrc(`${statement}\n`);
-            // Every message belongs to this statement, and the read reached
-            // the end of the file rather than stopping inside it.
-            for (const line of parsed.configErrorFrame.output) {
-                assert.equal(
-                    line.startsWith('\n') || line.startsWith(' * Line 1: '),
-                    true,
-                    `${statement}: ${line}`,
-                );
-            }
-        }
+            assert.deepEqual(
+                parsed.configErrorFrame.output,
+                messages.length
+                    ? [`\n${statement}`,
+                        ...messages.map((text) => ` * Line 1: ${text}`)]
+                    : [],
+                statement,
+            );
+            // num_errors is what config_error_done() prints, and whether it is
+            // zero is what decides that there is a raw-print screen at all.
+            assert.equal(
+                parsed.configErrorFrame.num_errors, messages.length, statement,
+            );
+            if (unported) owed += unported[index];
+        });
     }
+    // 105 messages over 45 rows: what porting those handlers is worth to a
+    // configuration file that names one.
+    assert.equal(owed, 105);
 });
 
 // C ref: options.c petname_optfn() (846-873), the do_set arm optfn_catname(),
