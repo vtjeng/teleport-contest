@@ -267,3 +267,44 @@ test('reaching full forwards the message owner to interrupt_multi',
             assert.deepEqual(seen, [[expected, state, norepMessage]], kind);
         }
     });
+
+// C reaches interrupt_multi() from inside regen_hp() and regen_pw(), and does
+// not leave either of them until Norep() has written its line. The port's
+// Norep() owner is awaitable and can stop for a --More--, so each regenerator
+// has to hold its own completion until the interruption it started finishes.
+// One that resolved first would let allmain.c's next statement -- the
+// overexertion block after regen_hp(), the automatic search after regen_pw() --
+// run while the line it owes is still in flight.
+test('a regenerator resolves only after its interruption does', async () => {
+    for (const [kind, configure] of [
+        ['hp', (state) => { state.u.uhp = state.u.uhpmax - 1; }],
+        // 24 is the level-1 Healer cadence, so this is a turn regen_pw()
+        // draws on.
+        ['pw', (state) => {
+            state.moves = 24;
+            state.u.uen = state.u.uenmax - 1;
+        }],
+    ]) {
+        const state = regenState(PM_HEALER);
+        configure(state);
+        let release;
+        const interruption = new Promise((resolve) => { release = resolve; });
+        let settled = false;
+        const regenerating = (kind === 'hp' ? regen_hp : regen_pw)(0, state, {
+            // A draw of 0 heals one hit point; rn1(upper, 1) returns at least
+            // one power point. Either takes the hero to the maximum from one
+            // below it, which is what reaches the interruption.
+            random: { rn2: () => 0, rn1: () => 1 },
+            interruptMulti: () => interruption,
+            norepMessage: async () => {},
+        }).then(() => { settled = true; });
+        // setImmediate runs after every microtask already queued, so a
+        // regenerator that dropped its await has settled by the time this
+        // resolves however many turns its own promise chain needed.
+        await new Promise((resolve) => { setImmediate(resolve); });
+        assert.equal(settled, false, kind);
+        release();
+        await regenerating;
+        assert.equal(settled, true, kind);
+    }
+});

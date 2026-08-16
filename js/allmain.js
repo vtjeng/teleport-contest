@@ -560,11 +560,14 @@ function elapsedTurnBoundary(reason) {
 // unnoticed again.
 //
 // C ends the count before it prints, and ending it does not clear the
-// occupation: nomul(0) writes gm.multi alone, so moveloop_core():485 still
-// finds go.occupation installed on the following turn and runs it once more.
-// cmd.c timed_occupation() then finds no repeat left to spend and answers 0,
-// which is what clears it. A counted `s` therefore searches one last time
-// after the line prints.
+// occupation. hack.c nomul() (4160-4173) writes disp.botl, u.uinvulnerable,
+// u.usleep, gm.multi, gm.multi_reason and gm.multireasonbuf and then calls
+// end_running(TRUE) and cmdq_clear(CQ_CANNED) -- js/hack.js nomul() ports all
+// of it -- and go.occupation appears nowhere in that list. So
+// moveloop_core():485 still finds the occupation installed on the following
+// turn and runs it once more. cmd.c timed_occupation() then finds no repeat
+// left to spend and answers 0, which is what clears it. A counted `s`
+// therefore searches one last time after the line prints.
 //
 // `norepMessage` is Norep()'s owner. finishElapsedTurn() substitutes a silent
 // one while it dry-runs a burdened turn on the clone, as it does for every
