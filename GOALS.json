@@ -2440,7 +2440,7 @@
     },
     {
       "id": "monsters-deferral-sweep-3",
-      "status": "open",
+      "status": "closed",
       "boundary": "Every counted monsters deferral is read against its C source, and each one the reading shows to be small is closed. The area's four silent divergences are read first, since AGENTS.md ranks a silently skipped C branch worse than a named refusal. Every surviving entry either carries the blockedOn symbol the reading found or is named in the closing report with the slice it needs. Testable against C: no counted monsters entry may remain whose closing condition needs only C the port already holds; js/monmove.js dochug()'s MMOVE_MOVED arm must spell monmove.c:945-948's three disjuncts in C's order and break into PHASE FOUR rather than return; js/dogmove.js heroDeaf() must be youprop.h:125's three-disjunct form with no blocked term; js/makemon_create.js must hold no second copy of mondata.c sliparm()/breakarm(); and js/mthrowu.js blocking_terrain() must answer C's cmd.c isok() for column zero.",
       "upstreamOwners": [
         "makemon.c grow_up()",
@@ -2497,6 +2497,27 @@
         "screens": 1763,
         "rng": 125588
       },
+      "closedAt": "169d01e971f8357a8092a691f409727718b94184",
+      "delivered": {
+        "screens": 0,
+        "rng": -4
+      }
+    },
+    {
+      "id": "options-config-parser",
+      "status": "queued",
+      "boundary": "options.c parseoptions() and cfgfiles.c parse_config_line() report a configuration error and play on where the port throws and loses the whole segment, and every option lands at the C address its optlist.h row names rather than in result.flags.",
+      "upstreamOwners": [],
+      "forecast": {
+        "steps": 0,
+        "basis": "Measured at 169d01e with node scripts/scan-sessions.mjs over the 33 development sessions, not estimated: no session stops on a startup or options-parser boundary. The 14 boundary-census rows are the repeated-command admission list (7 sessions, 1,703 screens), engraving interaction (1, 1,930), doapply() type 101 (1, 699), level_tele() print_dungeon() (3, 280), #loot (1, 284), #rub (1, 274), garlic_breath() (1, 263), door unlocking (1, 252), nh_timeout (1, 223), reset_glyphmap(gm_optionchange) for the options menu (1, 59), #name (1, 16), optfn pickup_types for the attributes window (1, 6), and the mounting death in format 2 (1, 3). The two rows that touch options code, reset_glyphmap at 59 and pickup_types at 6, are owned by neither this goal nor any of its nine entries. This goal therefore ranks last on development look-ahead, below every row above, and is queued rather than opened.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "This goal owns nine open startup deferrals that a sweep would otherwise schedule by entry count. They are one body of porting rather than bookkeeping, so they are priced here and ranked against the boundary census. Config-error reporting: parseoptions-level-config-errors-still-fail-closed (five sites that throw where C reports: bad_negation at options.c:627, the unknown-option message at 689, the ambiguous-prefix message at 585-587, Empty statement at 536, and Option too long); options-config-error-and-parser-residue (four follow-ups, one of which is a three-line UNPORTED_CONFIG_STATEMENTS row for AUTOPICKUP_EXCEPTION); config-error-message-truncation-unported (pline.c vconfig_error_add cutting at BUFSZ - 1, and vpline 212-225 rewriting a long tail as an ellipsis); config-error-summary-names-an-unknowable-path (cfgfiles.c config_error_done 1609-1615 names the absolute path fopen_config_file opened, which runSegment cannot learn, so this one may need a decision rather than a port). Parser coverage: options-unknown-config-statement (13 CONFIG_STATEMENTS rows against cfgfiles.c config_line_stmt[]s 31 player-reachable rows, so it needs a generated table); negated-compound-option-still-fail-closed (27 of 41 CompOpt rows throw on a negated statement carrying a value); parseoptions-duplicate-detection-unported (options.c:621-623 duplicate_opt_detection and the allopt dupdetected counter). Storage and menu: boolean-options-store-outside-their-c-address (about 70 BoolOpt rows whose C address is iflags or flags rather than result.flags); status-hilite-menu-rows-unported (js/options.js count_status_hilites at :3403 throws for any hilite rule, and its closing condition needs botl.c count_status_hilites gather pass and no unported C).",
+      "slices": [],
+      "openedAt": null,
+      "openStanding": null,
       "closedAt": null,
       "delivered": null
     }
