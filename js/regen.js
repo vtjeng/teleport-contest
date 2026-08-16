@@ -33,17 +33,22 @@ function canRegenerate(hero) {
 // && !run` test. Keeping that condition here too would give one C test two
 // owners, and would leave the injected dependency unchecked on every call that
 // happens to have multi <= 0.
-function reachedFull(kind, state, env) {
+//
+// `norepMessage` travels with the call because interrupt_multi() prints
+// through it, and the elapsed turn substitutes a silent owner while it dry-runs
+// a burdened turn on a cloned state.
+async function reachedFull(kind, state, env) {
     if (typeof env.interruptMulti !== 'function') {
         throw new TypeError(
             `${kind} reaching full requires interruptMulti`,
         );
     }
-    env.interruptMulti(
+    await env.interruptMulti(
         kind === 'hp'
             ? 'You are in full health.'
             : 'You feel full of energy.',
         state,
+        { norepMessage: env.norepMessage },
     );
 }
 
@@ -52,7 +57,7 @@ function reachedFull(kind, state, env) {
 // unported. const.js Upolyd() is therefore false and the polymorphed arm below
 // cannot run. Keep the boundary explicit until rehumanize and eel upkeep have
 // a live owner.
-export function regen_hp(wtcap, state = game, env = {}) {
+export async function regen_hp(wtcap, state = game, env = {}) {
     const hero = state.u;
     if (Upolyd(hero)) {
         // allmain.c regen_hp()'s polymorphed arm. Its caller enters on
@@ -84,11 +89,17 @@ export function regen_hp(wtcap, state = game, env = {}) {
     hero.uhp = Math.min(hero.uhp + heal, hero.uhpmax);
     state.disp ??= {};
     state.disp.botl = true;
-    if (hero.uhp === hero.uhpmax) reachedFull('hp', state, env);
+    if (hero.uhp === hero.uhpmax) await reachedFull('hp', state, env);
     return true;
 }
 
-export function regen_pw(wtcap, state = game, env = {}) {
+// No ported code lowers u.uen: js/u_init.js and js/startup_skills.js write it
+// equal to u.uenmax, and exper.c pluslvl() raises the pair by the same amount.
+// The first line therefore returns on every production turn, and the
+// interrupt_multi() call below has no live consumer. It is written out because
+// allmain.c has it, and the tests in scripts/regen.test.mjs are the only proof
+// it is right; spelleffects() is what will first spend a power point.
+export async function regen_pw(wtcap, state = game, env = {}) {
     const hero = state.u;
     if ((hero.uen ?? 0) >= (hero.uenmax ?? 0)) return false;
     const energyRegeneration = propertyActive(hero, ENERGY_REGENERATION);
@@ -115,6 +126,6 @@ export function regen_pw(wtcap, state = game, env = {}) {
     if (hero.uen > hero.uenmax) hero.uen = hero.uenmax;
     state.disp ??= {};
     state.disp.botl = true;
-    if (hero.uen === hero.uenmax) reachedFull('pw', state, env);
+    if (hero.uen === hero.uenmax) await reachedFull('pw', state, env);
     return true;
 }

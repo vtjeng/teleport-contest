@@ -559,22 +559,30 @@ function elapsedTurnBoundary(reason) {
 // scripts/count-prefix.test.mjs, pins that, so the claim cannot go stale
 // unnoticed again.
 //
-// C runs nomul(0) first and then Norep(msg). ttyNorep() is async while
-// regen_hp() and regen_pw() are not, so making the message arm work means
-// making that whole call chain async and adding a message to a turn no input
-// bounds -- new rendering rather than an audit fix. The stop is therefore
-// taken ahead of nomul(0), leaving the interruption wholly unapplied, and
-// QUALITY.json carries `counted-occupation-full-health-interrupt` for the
-// slice that finishes it. The silent half, where flags.verbose is off or the
-// caller passes no message, is ported and runs.
-export function interrupt_multi(message, state) {
+// C ends the count before it prints, and ending it does not clear the
+// occupation: nomul(0) writes gm.multi alone, so moveloop_core():485 still
+// finds go.occupation installed on the following turn and runs it once more.
+// cmd.c timed_occupation() then finds no repeat left to spend and answers 0,
+// which is what clears it. A counted `s` therefore searches one last time
+// after the line prints.
+//
+// `norepMessage` is Norep()'s owner. finishElapsedTurn() substitutes a silent
+// one while it dry-runs a burdened turn on the clone, as it does for every
+// other line that block can write. Resolving it before nomul(0) keeps a caller
+// that omitted the seam from ending the count and then failing on the line.
+export async function interrupt_multi(message, state, env = {}) {
     if (!((state.multi ?? 0) > 0)
         || state.context.travel || state.context.run) {
         return;
     }
-    if (state.flags?.verbose && message)
-        elapsedTurnBoundary('a multi-turn interruption message');
+    const printing = Boolean(state.flags?.verbose && message);
+    if (printing && typeof env.norepMessage !== 'function') {
+        throw new TypeError(
+            'allmain.c interrupt_multi() requires norepMessage',
+        );
+    }
     nomul(0, state);
+    if (printing) await env.norepMessage(message, state);
 }
 
 function regionEffectEnv(state, random) {
@@ -723,11 +731,19 @@ async function finishElapsedTurn(
     if (!planning) await run_regions(regionEnv);
 
     if (state.u.ublesscnt) state.u.ublesscnt--;
+    // Both regenerators reach allmain.c interrupt_multi() on the turn they top
+    // the hero up, and its Norep() is the only output either of them can make,
+    // so they share one env.
+    const regenEnv = {
+        random,
+        interruptMulti: interrupt_multi,
+        norepMessage: turnNorep,
+    };
     // C ref: allmain.c substitutes UNENCUMBERED for an invulnerable hero
     // instead of healing, and the two consumers below then read the
     // substituted value rather than the snapshot taken above.
     if (state.u.uinvulnerable) wtcap = UNENCUMBERED;
-    else regen_hp(wtcap, state, { random, interruptMulti: interrupt_multi });
+    else await regen_hp(wtcap, state, regenEnv);
     // C ref: allmain.c's "moving around while encumbered is hard work" block,
     // between regen_hp() and regen_pw(). The gate is allmain.c's; what it
     // guards is hack.c overexert_hp(), whose port lives in js/hack.js and
@@ -748,7 +764,7 @@ async function finishElapsedTurn(
             () => elapsedTurnBoundary('overexertion hit point loss'),
         );
     }
-    regen_pw(wtcap, state, { random, interruptMulti: interrupt_multi });
+    await regen_pw(wtcap, state, regenEnv);
 
     // C ref: allmain.c moveloop_core():342-344. A Ranger or an Archeologist
     // holds SEARCHING from experience level 1 (js/attrib.js ran_abil and

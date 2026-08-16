@@ -2375,51 +2375,95 @@ function multiState(overrides = {}) {
     };
 }
 
-test('interrupt_multi exempts a run and a travel', () => {
+// Records what Norep() was asked to print and what the count looked like at
+// the moment it was asked, which is how C's statement order is measured.
+function recordingNorep(state, printed) {
+    return async (text) => {
+        printed.push({ text, multi: state.multi });
+    };
+}
+
+test('interrupt_multi exempts a run and a travel', async () => {
     // allmain.c interrupt_multi() acts only when multi > 0 and neither
-    // context.travel nor context.run is set. A run is the only way this port
-    // reaches a positive multi, so both exemptions must hold.
+    // context.travel nor context.run is set. A counted command is the port's
+    // one positive multi outside a run, so both exemptions must hold.
     for (const context of [
         { run: 1, travel: 0, travel1: 0, mv: 1 },
         { run: 0, travel: 1, travel1: 0, mv: 1 },
     ]) {
         const state = multiState({ context });
-        interrupt_multi('You are in full health.', state);
+        const printed = [];
+        await interrupt_multi('You are in full health.', state, {
+            norepMessage: recordingNorep(state, printed),
+        });
         assert.equal(state.multi, COLNO);
         assert.equal(state.u.uinvulnerable, true);
+        assert.deepEqual(printed, []);
     }
 });
 
-test('interrupt_multi ignores a multi that is not positive', () => {
+test('interrupt_multi ignores a multi that is not positive', async () => {
     const state = multiState({ multi: 0, context: { run: 0, travel: 0 } });
-    interrupt_multi('You feel full of energy.', state);
+    const printed = [];
+    await interrupt_multi('You feel full of energy.', state, {
+        norepMessage: recordingNorep(state, printed),
+    });
     assert.equal(state.multi, 0);
     assert.equal(state.u.usleep, 3);
+    assert.deepEqual(printed, []);
 });
 
-test('interrupt_multi ends a silent counted repeat through nomul(0)', () => {
-    // With flags.verbose off, C calls nomul(0) and prints nothing.
+test('interrupt_multi ends a silent counted repeat through nomul(0)',
+    async () => {
+        // With flags.verbose off, C calls nomul(0) and prints nothing. The
+        // message argument is still supplied, so this separates the two terms
+        // of `flags.verbose && msg`.
+        const state = multiState({
+            context: { run: 0, travel: 0, travel1: 0, mv: 0 },
+            flags: { verbose: false },
+        });
+        const printed = [];
+        await interrupt_multi('You are in full health.', state, {
+            norepMessage: recordingNorep(state, printed),
+        });
+        assert.equal(state.multi, 0);
+        assert.equal(state.u.usleep, 0);
+        assert.equal(state.disp.botl, true);
+        assert.deepEqual(printed, []);
+    });
+
+test('interrupt_multi ends the count before Norep prints', async () => {
+    // allmain.c interrupt_multi() is `nomul(0); if (flags.verbose && msg)
+    // Norep("%s", msg);`. The count is already spent when the line goes out,
+    // which is what the recorded multi below reads: a port that printed first
+    // would hand Norep() the count it is about to cancel.
     const state = multiState({
         context: { run: 0, travel: 0, travel1: 0, mv: 0 },
-        flags: { verbose: false },
     });
-    interrupt_multi('You are in full health.', state);
+    const printed = [];
+    await interrupt_multi('You are in full health.', state, {
+        norepMessage: recordingNorep(state, printed),
+    });
+    assert.deepEqual(printed, [{ text: 'You are in full health.', multi: 0 }]);
     assert.equal(state.multi, 0);
     assert.equal(state.u.usleep, 0);
-    assert.equal(state.disp.botl, true);
 });
 
-test('interrupt_multi stops before Norep on a verbose counted repeat', () => {
-    // Norep() needs the message window and regen_hp() is synchronous, so this
-    // arm stops before nomul(0) writes anything.
+test('interrupt_multi refuses to end a count it cannot announce', async () => {
+    // A caller that reaches the printing arm without supplying Norep()'s owner
+    // is a programming error, and the count must survive it: half an
+    // interruption is worse than none, and js/jsmain.js does not convert a
+    // TypeError into a segment boundary.
     const state = multiState({
         context: { run: 0, travel: 0, travel1: 0, mv: 0 },
     });
-    assert.throws(
-        () => interrupt_multi('You are in full health.', state),
-        (error) => error instanceof UnsupportedTurnBoundaryError,
+    await assert.rejects(
+        () => interrupt_multi('You are in full health.', state, {}),
+        (error) => error instanceof TypeError
+            && /requires norepMessage/u.test(error.message),
     );
     assert.equal(state.multi, COLNO);
+    assert.equal(state.u.usleep, 3);
 });
 
 // The four freeze cases in scripts/unported-monster-actions.test.mjs call the

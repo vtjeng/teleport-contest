@@ -1,10 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-    interrupt_multi,
-    UnsupportedTurnBoundaryError,
-} from '../js/allmain.js';
+import { interrupt_multi } from '../js/allmain.js';
 import { commandKeyCode } from '../js/command_bindings.js';
 import {
     donull,
@@ -15,6 +12,7 @@ import {
 import { dosearch } from '../js/detect.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { ttyNorep } from '../js/tty_message.js';
 import { loadCountPrefixRecipe } from './run-count-prefix.mjs';
 
 // cmd.c parse():5110-5120 sends the command byte straight to get_count() when
@@ -294,8 +292,7 @@ test('a counted occupation leaves the state interrupt_multi() acts on',
     // power point. The counted occupation is the first thing this port
     // installs that satisfies that guard, so the four assertions below are the
     // reachability claim itself: they fail the day a counted command stops
-    // leaving gm.multi above 0, or starts setting one of the two exemptions,
-    // and the stop below can be reconsidered then.
+    // leaving gm.multi above 0, or starts setting one of the two exemptions.
     await runSegment(segmentBeforeCount(' 9s'));
     for (const ch of '9s') game.nhDisplay.pushKey(commandKeyCode(ch));
     await rhack(0, game);
@@ -304,23 +301,27 @@ test('a counted occupation leaves the state interrupt_multi() acts on',
     assert.ok(!game.context.travel, 'a counted command is not a travel');
     assert.equal(game.flags.verbose, true, 'verbose is on by default');
 
-    // C runs nomul(0) first and then Norep(msg). ttyNorep() is async while
-    // regen_hp() and regen_pw() are not, so the port stops ahead of both
-    // rather than applying half the interruption; QUALITY.json carries
-    // `counted-occupation-full-health-interrupt` for the rest.
-    const owed = game.multi;
+    // hack.c nomul(0) writes gm.multi and leaves go.occupation alone, so the
+    // interruption spends the count without uninstalling the activity:
+    // allmain.c moveloop_core():485 finds the occupation still there on the
+    // following turn, runs it once more, and clears it when cmd.c
+    // timed_occupation() finds no repeat left to spend. That last search is
+    // part of what the fresh matrix in scripts/run-full-health-interrupt.mjs
+    // compares against C.
     const occupation = game.go.occupation;
-    assert.throws(
-        () => interrupt_multi('You are in full health.', game),
-        (error) => error instanceof UnsupportedTurnBoundaryError
-            && /a multi-turn interruption message/u.test(error.message),
-    );
-    assert.equal(game.multi, owed, 'the stop changed no state');
-    assert.equal(game.go.occupation, occupation);
-
-    // The half C reaches without printing is ported: nomul(0) ends the count
-    // and the message is what the port cannot follow it with.
-    game.flags.verbose = false;
-    interrupt_multi('You are in full health.', game);
+    await interrupt_multi('You are in full health.', game, {
+        norepMessage: ttyNorep,
+    });
     assert.equal(game.multi, 0);
+    assert.strictEqual(game.go.occupation, occupation);
+
+    // The line reaches the top line on a turn no key bounds. cmd.c parse()
+    // cleared the physical row when it read the count's committing byte, so
+    // this message occupies it alone: it neither shares the row with an
+    // earlier line nor spends a key on a --More-- prompt, and the input queue
+    // the segment still owns is untouched.
+    assert.equal(game._pending_message, 'You are in full health.');
+    assert.equal(game._ttyToplines, 'You are in full health.');
+    assert.equal(game.nhDisplay.topMessage, 'You are in full health.');
+    assert.equal(game.nhDisplay.terminal._inputQueue.length, 0);
 });
