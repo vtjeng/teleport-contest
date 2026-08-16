@@ -2477,8 +2477,8 @@
         },
         {
           "name": "copied-predicates-restore-their-c-spelling",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d110b397a96d9975f936987709c1af2c4e949bbf"
         }
       ],
       "openedAt": "e2cbafdc93a7c5ee1255a15ee01ea1790baf8a17",

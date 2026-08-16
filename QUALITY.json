@@ -3385,6 +3385,15 @@
       "from": "529f7fc266cefeb17cb64ec16575222a3af20b94",
       "detail": "makemon.c grow_up() (2121-2163) refuses at 'a monster growing into a bigger form' where C replaces the species: set_mon_data(), the gender fix at :2123 and :2159, the G_GENOD arm's pline() and mondied() at :2125-2132, the pline_mon() 'grows up into' line at :2147-2151, the cham carry-over at :2154-2155, newsym() at :2156, the lev_limit pin at :2157 and the mleashed update_inventory() at :2161-2162. js/makemon.js reaches it when a killer's raised m_lev meets mons[little_to_big(oldtype)].mlevel, which for a starting pet is m_lev 4 against a dog or a housecat -- three level gains past the first. do_name.c YMonnam() (1133) has no port, and js/do_name.js holds x_monnam() and Amonnam() only, so the line cannot be written yet. No case just outside the limit exists yet. Replaying seeds 7710001-7710030 of the pet-melee scan domain (Valkyrie/human/female/neutral, datetime 20260401120000, rest_on_space and !safe_wait) with 80 spaces each stops 17 of the 30 at an earlier unported owner -- dogmove.c dog_eat() in four, monster ranged weapons in three, monster hiding in two, monster engraving wear in two, and monster equipment changes, monster item use, an armed monster attacker and the hero dying in one each -- while the other 13 exhaust their keys without reaching any of them. None reaches the form change. Its case needs either a longer fight than that domain holds or create_particular, which is itself unported. Retire this with the form-change body.",
       "blockedOn": "YMonnam"
+    },
+    {
+      "id": "dogmove-conflictactive-adds-a-blocked-term",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "d110b397a96d9975f936987709c1af2c4e949bbf",
+      "detail": "js/dogmove.js conflictActive() at :219 adds a negated blocked conjunct where youprop.h:218 is `#define Conflict (HConflict || EConflict)` with no blocking term. It is the same defect the chunk at d110b39 fixed in heroDeaf() three lines below, and I verified both sides at 132923c: the C macro has two disjuncts, and the port ANDs a third negated term. It is worse than the heroDeaf one, whose reader was dead. This has four readers inside dog_move(), at js/dogmove.js:956, :1008, :1066 and :1072, all on live paths, so a hero whose conflict is blocked would have pets behave as C's unconflicted where C reads the property as set. Closing it needs no unported C: copy youprop.h:218's two-disjunct form, and pin it with a case that sets uprops[CONFLICT].blocked while leaving intrinsic or extrinsic set. Found by the copied-predicates worker, which correctly left it alone as outside the two entries its chunk named."
     }
   ],
   "areas": [
