@@ -2376,6 +2376,11 @@
           "name": "character-header-clips-at-characters-not-bytes",
           "status": "closed",
           "closedBy": "a302974f55078cff64b43777a0cf3454389e3096"
+        },
+        {
+          "name": "counted-occupation-full-health-interrupt",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "d3b950e3b3dbec4b9d1ad491edc7804d8206fcf0",
