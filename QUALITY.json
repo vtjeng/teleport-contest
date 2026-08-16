@@ -3339,7 +3339,14 @@
       "effort": "small",
       "status": "open",
       "from": "8012570348ae2c44efc3451b53ecfa449c4013e4",
-      "detail": "js/dogmove.js heroDeaf() at :225 carries both errors the correctness pass fixed in js/mhitm.js: it omits youprop.h:125's u.uroleplay.deaf disjunct and adds a blocked conjunct C's macro has no term for. Its one reader is js/dogmove.js:1157, gating the whimper when a leashed pet meets a trap, so a hero playing the deaf conduct hears a line C suppresses. It predates the reviewed range, filed at fe22783, so it was outside the audit fix for 603e370..78e482e. Closing it needs no unported C: copy youprop.h's three-disjunct form as js/mhitm.js now does, and pin it with a case that sets u.uroleplay.deaf while leaving uprops[DEAF] zeroed."
+      "detail": "js/dogmove.js heroDeaf() at :225 carries both errors the correctness pass fixed in js/mhitm.js: it omits youprop.h:125's u.uroleplay.deaf disjunct and adds a blocked conjunct C's macro has no term for. Its one reader is js/dogmove.js:1157, gating the whimper when a leashed pet meets a trap, so a hero playing the deaf conduct hears a line C suppresses. It predates the reviewed range, filed at fe22783, so it was outside the audit fix for 603e370..78e482e. Closing it needs no unported C: copy youprop.h's three-disjunct form as js/mhitm.js now does, and pin it with a case that sets u.uroleplay.deaf while leaving uprops[DEAF] zeroed.",
+      "blockedOn": "use_leash",
+      "notes": [
+        {
+          "text": "Read at 5c05ff9 by the slice-selector, which found three things. The ledger holds three open entries for this one defect: this one, dogmove-deaf-copy-diverged-from-youprop (from 3c74ca6, the fullest record, naming js/apply.js heroDeaf() as the correct spelling and stating a three-part closing condition), and a scope entry from the roadmap. Two of the three inflate the monsters sweep count. The defect also writes no wrong screen today: grep -rn 'mleashed[[:space:]]*=' js returns only js/dog.js:162 and js/bury.js:198, both assigning false, and apply.c use_leash() is C's only writer and is unported, so the reader at js/dogmove.js:1156-1159 is dead in production. And if that branch became reachable it would raise TypeError: dog_move requires a whimper operation rather than a named refusal, because moveSimplePet() supplies no whimper operation — a larger gap than the deaf term, which fixing the term does not remove. Blocked on use_leash accordingly.",
+          "at": "5c05ff9dd5c61d4d601138f56bb40fe538bdde32"
+        }
+      ]
     },
     {
       "id": "unsolid-defender-has-no-fresh-case",
@@ -3348,7 +3355,8 @@
       "effort": "slice",
       "status": "open",
       "from": "8012570348ae2c44efc3451b53ecfa449c4013e4",
-      "detail": "cc49c93 fixed a segment-losing refusal in js/mhitm.js: a pet's physical blow on an M1_UNSOLID defender stopped the segment where C requires unsolid(...) && failed_grab() and failed_grab() answers FALSE for a pet's attack types. The fix rests on the C source and unit tests watched failing, with no fresh C differential, because the case cannot occur in ordinary D:1 play: every M1_UNSOLID species has source difficulty 4 or more, and makemon.c rndmonst_adj() caps a D:1 runtime draw at (level_difficulty() + u.ulevel) / 2, which is 1 at experience level 1. A wizard-mode scan of seeds 7710001-7710150 with #levelchange to 30 and 140 waits recorded a pet fight in 51 of the first 80 games and named no unsolid defender in any. Closing this needs a recorded case, which wizard-mode monster creation would supply."
+      "detail": "cc49c93 fixed a segment-losing refusal in js/mhitm.js: a pet's physical blow on an M1_UNSOLID defender stopped the segment where C requires unsolid(...) && failed_grab() and failed_grab() answers FALSE for a pet's attack types. The fix rests on the C source and unit tests watched failing, with no fresh C differential, because the case cannot occur in ordinary D:1 play: every M1_UNSOLID species has source difficulty 4 or more, and makemon.c rndmonst_adj() caps a D:1 runtime draw at (level_difficulty() + u.ulevel) / 2, which is 1 at experience level 1. A wizard-mode scan of seeds 7710001-7710150 with #levelchange to 30 and 140 waits recorded a pet fight in 51 of the first 80 games and named no unsolid defender in any. Closing this needs a recorded case, which wizard-mode monster creation would supply.",
+      "blockedOn": "create_particular"
     }
   ],
   "areas": [
