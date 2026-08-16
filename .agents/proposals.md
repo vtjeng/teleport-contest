@@ -295,3 +295,40 @@ Whether it belongs in the ratchet or in a separate check is undecided.
 can be worked in parallel, which found this gap while establishing what the
 fleet's safety check would rest on. The same survey found the ratchet 981
 screens behind, raised at `af15a30`.
+
+## Stop the shell deleting a deferral's backticked identifiers
+
+**What it changes.** `defer`, `note-deferral` and `refile-deferral` would take
+`--detail-file <path>` and `--note-file <path>` beside the existing `--detail`
+and `--note`, reading the entry text from a file rather than from an argument.
+No shell then sees the text. `record-pass` already carries that pair, as
+`--audit-metrics <json>` beside `--audit-metrics-file <path>`.
+
+**Scope.** Three verbs in `scripts/quality-status.mjs`, each reading one new
+option and one file, plus the usage block at `:2078-2081` and a test per verb.
+The argument forms stay, so nothing that already works changes.
+
+**What prompted it.** The correction note on `doname-refuses-any-worn-gloves`:
+"Two backticked fragments in this entry were eaten by shell expansion when it
+was written." A backtick inside a double-quoted argument is command
+substitution, so the shell runs the identifier as a command and puts its output
+in the entry. Reproduced on 16 August 2026:
+
+```
+$ sh -c 'echo "the `Cloak_on` arm and the `Boots_on` arm"' 2>/dev/null
+the  arm and the  arm
+```
+
+Both identifiers are gone, `echo` exits 0, and the only sign is a stderr line
+that a caller reading stdout does not see. Of the 432 texts the ledger holds at
+`15c2269`, its 281 details and 151 notes, 166 carry at least one backtick.
+
+**Cost.** Small. One option each on three verbs that already parse a dozen
+between them.
+
+**What it leaves unfixed.** It cannot say how many entries are damaged
+already. Substitution removes the backticks together with the text between
+them, so a corrupted text has an even backtick count exactly as an intact one
+does, and no text in the ledger has an unbalanced backtick. The one confirmed
+instance is a floor rather than a count, and finding the rest means reading
+every entry against the source it cites.
