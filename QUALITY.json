@@ -14039,6 +14039,96 @@
         }
       },
       "recordedAt": "2026-08-16T01:55:21.986Z"
+    },
+    {
+      "kind": "review",
+      "head": "603e370a695e6a7ce17eb3ddb9e20cad4b9b132e",
+      "auditedRange": "29d9c664c7c26fe90af857993ede4d8b7229cfc5..603e370a695e6a7ce17eb3ddb9e20cad4b9b132e",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "28c62d09650a6718211a22ad9ae8d88731e992e0",
+        "reason": "The active checklist covers monster-melee-attack and stopped at 28c62d0, before this range opens. No slice in this window qualified for one: each closed inside one agent session against a boundary its own deferral record named, and the largest counted 42 lines of game code."
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 12 raw, 10 deduplicated, 8 confirmed, 8 applied, 0 deferred, 2 rejected, 0 unverified; mutation: 1 survivors of 9 mutants. The goal's closing pass, over its last three slices: interrupt_multi() ported whole, the character-selection header cut in bytes, and the menu loop measuring bytes rather than code units. Its two production findings are both against a ledger record rather than code, and both matter more than that sounds. The deferral text-window-line-drops-its-g-putch-first-byte recorded that one of the port's two rendering loops correctly models C's first-byte arm; patch 006 hooks nomux_putch() three times on that path, both putchar hooks wrap the call in a curx-- compensation and the g_putch hook has none, and the loop pre-increments curx, so C records the stripped byte one column to the right and neither port matches. A successor closing that entry by merging the loops would have propagated a one-cell column error into every text and menu window. The record now says so, as two appended notes, because a deferral's detail is write-once by policy. The pass also says something about the instrument: five of its eight findings are substitutions scripts/mutate-sites.mjs cannot express, since its site set is relational operators, logical connectives, boolean literals and integer bounds while the unpinned seams here were an identifier and four awaits. The seam the counted-occupation slice exists to protect, norepMessage: turnNorep, had no oracle at all until this pass; swapping it for the live ttyNorep let the planning clone print and left the suite green. The development score stood at 9 of 33 sessions, 1674 of 7765 screens, 125050 of 610816 random-number values and 1685 of 7765 cursors at every commit in the window. Applied in 95223ce, a12b635 and 603e370.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2985,
+        "counts": {
+          "raw": 12,
+          "deduplicated": 10,
+          "confirmed": 8,
+          "applied": 8,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 4,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The deferral text-window-line-drops-its-g-putch-first-byte recorded that js/tty_menu.js writeRecorderTtyWindowLine() correctly models C's g_putch first-byte arm. It does not, and neither port does. Patch 006 hooks nomux_putch() three times on process_text_window()'s path; both putchar hooks wrap the call in a curx-- compensation and the g_putch hook has none, while the loop pre-increments curx in its condition. So C records the stripped byte one column to the right of its own. A successor closing that entry by merging the two loops would have propagated a one-cell column error into every text and menu window instead of removing it, and screen comparison is per cell.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The same deferral omitted a second divergence in the same function: writeRecorderTtyWindowLine() writes a byte below 0x20 into a shadow cell that nomux_putch() discards, while writeStyledText() now drops it. The entry asks for the two loops to be merged, so without this the merge had no recorded statement of which behavior is right for control bytes.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/regen.js reachedFull() validates env.interruptMulti on every call but forwards env.norepMessage unchecked, so the new required seam is validated only behind the other.",
+            "counterEvidence": "Refuted on evidence: the asymmetry exists, but the finding misreads the comment three lines above as stating the opposite rule, and the placement is the principled one."
+          },
+          {
+            "summary": "The new occupationState() identity token in scripts/second-turn-snapshot.mjs has no test: replacing it with a constant null still passes the suite.",
+            "counterEvidence": "Refuted on evidence: the central factual claim is false. The applying reviewer ran the stated mutant, replacing occupationState()'s WeakMap body, and the existing suite killed it."
+          }
+        ],
+        "mutation": {
+          "mutants": 9,
+          "survivors": 1,
+          "byKind": {
+            "boolean": {
+              "ran": 3,
+              "killed": 3
+            },
+            "logical": {
+              "ran": 2,
+              "killed": 2
+            },
+            "relational": {
+              "ran": 4,
+              "killed": 3
+            }
+          },
+          "finderConclusion": "Nine mutants over the window, eight killed and one timing out; the audit-fix delta added none, because both js/-touching fix commits are comment-only. One survivor stands undecided: js/tty_menu.js:484:30, > to >=, which the slice worker claimed equivalent on the ground that it differs only for a line of exactly cols - 2 bytes, where the body assigns a value sliced to its own length. The pass raised no finding against that claim and the fix round did not touch the line, which is now :491. The more useful conclusion is about the instrument rather than the code: five of this pass's eight findings are substitutions scripts/mutate-sites.mjs cannot express, because its site set is relational operators, logical connectives, boolean literals and integer bounds, while the unpinned seams here are an identifier and four awaits. The tests finder found them by substitution on a copy of the worktree, which is the method the runner cannot automate."
+        },
+        "readiness": {
+          "boundary": "Two boundaries. The counted occupation starts when cmd.c rhack() installs a timed occupation with gm.multi > 0 and ends when allmain.c interrupt_multi() spends the count and prints You are in full health.; js/allmain.js finishElapsedTurn() reaches it on each elapsed turn, and an eight-segment matrix executes it. The character-selection header starts when role.c plsel_startmenu() builds its title and ends when the confirmation menu is drawn; every game reaching interactive character selection draws it, and a four-name matrix executes both consumers.",
+          "sourceReview": "Every branch and helper reachable before the ending events was traced against nethack-c/upstream and nethack-c/patches: allmain.c interrupt_multi() with hack.c nomul() and its seven writes, regen_hp() and regen_pw(); role.c plsel_startmenu(); wintty.c tty_end_menu() and process_menu_window(), with patch 006's three nomux_putch() hooks and the curx-- compensation two of them carry. The trace covered state and random-number order, and both fresh matrices matched every random-number call. Stubs and partial ports are identified and each carries a named refusal or a ledger entry.",
+          "completeness": "No known unsupported behavior remains inside the boundaries except the entries named in the pass prompt's accepted list. Each reachable excluded branch stops before changing state, consuming randomness, or producing output. Two divergences are recorded rather than fixed: text-window-line-drops-its-g-putch-first-byte, whose record this pass corrected twice, and raw-print-splits-a-multibyte-character, which names no C to port. The deferral's detail field is write-once by policy, so both corrections are appended notes stamped at c4823e9 rather than a rewrite."
+        }
+      },
+      "recordedAt": "2026-08-16T05:42:37.644Z"
     }
   ]
 }
