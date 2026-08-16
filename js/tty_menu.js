@@ -96,6 +96,13 @@ function writeStyledText(display, column, row, text, color, attr) {
         while (end < bytes.length && (bytes[end] === 0x20) === spaces) ++end;
         const compressed = spaces && end - index >= 5;
         for (; index < end; ++index) {
+            // writeRecorderTtyWindowLine() below keeps both bytes this drops,
+            // and it is wrong to. It ports the same loop for a window that
+            // process_text_window() draws, where g_putch() takes a high-bit
+            // first byte, and it writes every byte below 0x80 rather than
+            // stopping at 0x20. Neither loop matches C: the deferral
+            // text-window-line-drops-its-g-putch-first-byte states what C
+            // records, and closes when the two become one.
             if (bytes[index] < 0x20 || bytes[index] >= 0x80) continue;
             display.setCell(
                 column + index,

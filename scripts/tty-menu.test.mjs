@@ -900,6 +900,43 @@ test('process_menu_window emits ASCII at recorder-byte columns', () => {
     }
 });
 
+// The other half of the same guard. Recorder patch 006's nomux_putch() opens
+// `if (!ttyDisplay || ch < 32) return`, so it discards a control byte for the
+// same reason it discards a high-bit one: the promotion to int is what makes
+// the high-bit byte negative, and both land below 32. A menu line's ESC and
+// its backspace therefore leave their columns as the preceding clear left
+// them, while still costing a column each.
+test('process_menu_window emits no cell for a control byte', () => {
+    const state = menuState();
+    // 0x1b and 0x08 are the two control bytes cmd.c already reads as keys,
+    // so they are the ones a line is likeliest to carry. Both sit below 32
+    // and neither is 0x20, so the compressed-space run around them is
+    // unaffected.
+    const spec = {
+        title: null,
+        lines: [{ text: 'a\x1bb\x08c', attr: 1 }],
+    };
+
+    const rendered = renderTtyMenu(state, spec);
+    const start = rendered.layout.startColumn;
+    const row = state.nhDisplay.grid[0];
+    // Each printable byte lands one column further right than the byte before
+    // it, so the two control bytes were counted even though nothing was
+    // written for them.
+    assert.deepEqual(
+        [row[start].ch, row[start + 2].ch, row[start + 4].ch],
+        ['a', 'b', 'c'],
+    );
+    assert.equal(row[start + 2].attr, 1);
+    for (const offset of [1, 3]) {
+        assert.deepEqual(
+            [row[start + offset].ch, row[start + offset].attr],
+            [' ', 0],
+            `byte column ${offset}`,
+        );
+    }
+});
+
 // C ref: wintty.c tty_end_menu()'s accelerator loop. It runs over every
 // stored line, including the prompt and its blank separator, so an item's
 // letter depends on which page its line index falls on.
