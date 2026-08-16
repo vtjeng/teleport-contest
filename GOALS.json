@@ -2422,8 +2422,8 @@
       "slices": [
         {
           "name": "pet-melee-blow-lands-and-kills",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b99e258f7a3233f8f6eeb26c9a41f537e32d3d61"
         }
       ],
       "openedAt": "b0a0f83033d09c166e7ae763e9500862dae1f5bf",
