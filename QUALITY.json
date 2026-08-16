@@ -3416,6 +3416,15 @@
           "at": "ea8188f20c88c0c5c463fcd207a2e1d7e3658f7f"
         }
       ]
+    },
+    {
+      "id": "monmove-two-property-helpers-disagree-on-blocking",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "e7aee5a74fc4769048c62904add965dd19dd2896",
+      "detail": "js/monmove.js holds two hero-property helpers with identical bodies and opposite defaults, so an omitted third argument answers differently depending on which one a caller happened to pick. propertyActive(state, property, blockedMatters = false) is at :373 and activeProperty(state, property, blockedMatters = true) at :1685; I read both at e7aee5a and the four statements between them are the same. js/unported_monster_actions.js:141 carries a third copy with the true default. CONFLICT is now read through both, at :413, :429 and :2602 through propertyActive and at :1702 through activeProperty with an explicit false, which is what makes the pair reachable rather than theoretical: the chunk at e7aee5a had to know which default each site carried in order to drop a term from five of them. Closing it needs no unported C. One helper spelling per property class is what youprop.h describes, since a property either has a blocked alias or does not, and the caller should not choose. Pin it by giving each C property its own predicate named for the macro, the convention js/display.js:2946-2958 records and js/mhitm.js and js/mhitu.js now follow for Conflict, then delete both general helpers. Found by the conflict-gets-one-spelling worker, which correctly left it alone as outside the entry its chunk named."
     }
   ],
   "areas": [

@@ -2487,8 +2487,8 @@
         },
         {
           "name": "conflict-gets-one-spelling",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "e7aee5a74fc4769048c62904add965dd19dd2896"
         }
       ],
       "openedAt": "e2cbafdc93a7c5ee1255a15ee01ea1790baf8a17",
