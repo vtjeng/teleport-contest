@@ -2403,9 +2403,15 @@
       "area": "monsters",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "fc5613417808880f893c983a735b402db3772876",
-      "detail": "js/makemon_create.js keeps private slipsArmor(), cantWearArmor() and wrappingAllowed() that worn.c m_dowear()'s port still calls, beside the canonical js/mondata.js cantweararm() and js/obj.js WrappingAllowed() this slice landed, and the two pairs disagree: cantWearArmor() omits breakarm()'s PM_MARILITH and PM_WINGED_GARGOYLE term (mondata.c breakarm()), so it lets those two forms wear a suit that C refuses them. One C rule with two homes and two answers. Closes when the private copies are deleted and the m_dowear() port calls the two functions C's own m_dowear() names, with a fresh recorded case covering a monster of an affected species. That changes monster behavior, so .agents/review.md returns it to implementation rather than an audit fix. Confirmed by the correctness pass over b035d790..fc56134."
+      "detail": "js/makemon_create.js keeps private slipsArmor(), cantWearArmor() and wrappingAllowed() that worn.c m_dowear()'s port still calls, beside the canonical js/mondata.js cantweararm() and js/obj.js WrappingAllowed() this slice landed, and the two pairs disagree: cantWearArmor() omits breakarm()'s PM_MARILITH and PM_WINGED_GARGOYLE term (mondata.c breakarm()), so it lets those two forms wear a suit that C refuses them. One C rule with two homes and two answers. Closes when the private copies are deleted and the m_dowear() port calls the two functions C's own m_dowear() names, with a fresh recorded case covering a monster of an affected species. That changes monster behavior, so .agents/review.md returns it to implementation rather than an audit fix. Confirmed by the correctness pass over b035d790..fc56134.",
+      "notes": [
+        {
+          "text": "Closed at 6a5231fb with two corrections to the entry above. First, the marilith diverged through wrappingAllowed(), not cantWearArmor(): private cantWearArmor() already answered TRUE for it through msize >= MZ_LARGE, so only the winged gargoyle was let into a suit C refuses, while private wrappingAllowed() omitted obj.h:446's PM_MARILITH term and opened the W_ARMC slot C skips. Second, the closing condition's fresh recorded case covering a monster of an affected species could not be met and was not met. monst.h:259 caps a D:1 draw at (level_difficulty() + u.ulevel) / 2 = 1 and both species carry difficulty 11, so reaching either needs wizard #genesis and create_particular, which is unported and is already the blockedOn symbol of unsolid-defender-has-no-fresh-case. The corrected branch is pinned by two failing-first unit tests in scripts/makemon-create.test.mjs; five fresh recorded cases cover the goblin, the only D:1 species that runs the two gates, and show no regression.",
+          "at": "6a5231fb383e20024aae9a92c34321a8839d3a37"
+        }
+      ]
     },
     {
       "id": "wear-prompt-answered-with-a-non-armor-letter-stops",
