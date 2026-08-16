@@ -1,0 +1,241 @@
+{
+  "mode": "implementation",
+  "reason": "The slice has just opened and nothing is ported yet. Every candidate below that the slice owns is missing or undecided: the glyph-offset table, the pure object-glyph macros, the eight object arms of reset_glyphmap(), the ttychar resolution in map_glyphinfo(), the print-time attribute chain in wintty.c, and the removal of the objectGlyphId stand-in that currently spells obj_to_glyph()'s range and index as text.",
+  "commitChecked": "e310ec0484c22e2a0be3b00e2b774091ed1a94b2",
+  "boundary": {
+    "goalId": "option-toggle-repaints-the-map",
+    "startingCommit": "e310ec0484c22e2a0be3b00e2b774091ed1a94b2",
+    "startingEvent": "The player picks a boolean row from doset_simple()'s menu whose optfn arm sets go.opt_need_glyph_reset. seed0006-wizard-water-demon reaches it at step 64, byte 'f' on page 2, which is hilite_pile.",
+    "endingEvent": "The screen the port draws after reset_needed_visuals() returns, that is after display.c reset_glyphmap(gm_optionchange) has rebuilt the object ranges and the docrt() at options.c:9002 has repainted the map through them.",
+    "validInputs": "The seven boolean rows sharing options.c:5379-5385 -- wizmgender, showrace, use_inverse, hilite_pile, perm_invent, ascii_map, tiled_map -- picked from doset_simple() or doset(). Configuration families that reach the object arms: hilite_pile on or off, use_inverse on or off, and a level holding at least one object, corpse, statue or pile.",
+    "observables": "levl[x][y].glyph as an unresolved glyph number in map memory rather than a resolved presentation; the MG_OBJPILE glyphflag; the character, colour and attribute the repaint prints for every remembered out-of-sight object square; the screens and cursor positions of the menu and the repaint; and the absence of any new random-number call, since none of the ported arms consumes randomness outside the Hallucination branch.",
+    "exclusions": "The terrain layer -- display.c back_to_glyph() and reset_glyphmap()'s cmap, altar and wall-set arms -- which stays behind the 'color' refusal this slice introduces and belongs to a later slice. Also excluded: reset_customcolors() and reset_customsymbols(), whose sibling refusals stay; reglyph_darkroom() over a dark_room change, which keeps its own refusal; and the monster, pet, detected-monster, invisible, ridden, swallow, explosion, zap and warning arms of reset_glyphmap(), except where MG_DETECT shares the print-time attribute path with MG_OBJPILE."
+  },
+  "candidateListMethod": {
+    "upstreamEntryPoints": "options.c optfn_boolean() arms at 5379-5385 and 5407-5409; options.c reset_needed_visuals() (8979-9014); display.c reset_glyphmap() (2739-3086); display.c map_glyphinfo() (2594-2655); display.c show_glyph() (1877-2072); win/tty/wintty.c tty_print_glyph() attribute chain (3920-3936).",
+    "dispatchTablesAndCatalogs": "include/display.h enum glyph_offsets (497-547) and the object-glyph macros at 638 and 932-968. The enum's inputs were checked one by one against js/: NUMMONS, NUM_OBJECTS, MAXTCHARS, MAXEXPCHARS, WARNCOUNT, S_vwall, S_ndoor, S_grave, S_arrow_trap, S_trwall and S_brdnladder all resolve in js/const.js, js/symbols.js, js/monsters.js or js/objects.js; NUM_ZAP, S_digbeam and S_goodpos do not resolve anywhere in js/ and are the three the generator must supply.",
+    "reachableHelpers": "reset_glyphmap()'s arm chain descends by offset, so the object arms are not contiguous. Reading the whole chain found eight, not the six first reported: the four piletop arms (GLYPH_STATUE_FEM_PILETOP_OFF, GLYPH_STATUE_MALE_PILETOP_OFF, GLYPH_BODY_PILETOP_OFF, GLYPH_OBJ_PILETOP_OFF) sit high in the chain, and GLYPH_STATUE_FEM_OFF and GLYPH_STATUE_MALE_OFF just below them, but GLYPH_OBJ_OFF at 2968 and GLYPH_BODY_OFF at 3004 sit below every cmap arm. Purity was confirmed by reading rather than by name: obj_to_glyph() and statue_to_glyph() both take an rng argument and call random_object(), random_monster() or rng(2) under Hallucination, so they are not pure under AGENTS.md; there is no body_to_glyph(), only corpse_to_glyph().",
+    "javascriptCrossCheck": "grep -rn 'UnsupportedOptionMenuError|reset_glyphmap|reglyph_darkroom' js/ found the refusal at js/options.js:4856 and the sibling one at js/display.js:2434. grep -n 'ATR_INVERSE' js/display.js found the five draw-time bakes at 690, 816, 910, 1185 and 1766. grep -rln 'remembered_glyph' js/ found six files, not the two first reported: js/display.js, js/lock.js, js/detect.js, js/game.js, js/options.js and js/startup_a11y.js. grep -n 'outsideTheLimit' scripts/run-options-menu.mjs found the marked matrix entry at 401 and the filter that skips it at 605.",
+    "remainingLimits": "Three gaps. The rogue-level terms of reset_glyphmap() are asserted unreachable for the development sessions but not yet checked against the sessions. The Hallucination arms of obj_to_glyph() and statue_to_glyph() have no traced reachability for a starting character on D:1. And the arm chain below GLYPH_MON_MALE_OFF was read only far enough to place the two low object arms, so a monster-range arm that also writes MG_OBJPILE would not have been seen."
+  },
+  "entries": [
+    {
+      "candidate": "include/display.h enum glyph_offsets (497-547), as a generated table",
+      "reachability": "Every arm of reset_glyphmap() subtracts one of these offsets, so nothing else in the slice can be written first. No random-number call.",
+      "owner": "None",
+      "effects": "None on its own: a table of constants.",
+      "evidence": "include/display.h:497-547. AGENTS.md, 'Generate large fixed tables from source', requires a generator, the generated file, and a check comparing the two. scripts/generate-symbol-data.mjs to js/symbol_data.js is the pattern already in the repository.",
+      "status": "missing",
+      "remaining": "Write the generator. It must supply NUM_ZAP, S_digbeam and S_goodpos, the three inputs js/ lacks; the other eleven inputs resolve today."
+    },
+    {
+      "candidate": "The pure object-glyph macros: objnum_to_glyph (display.h:638), corpse_to_glyph (938-940), generic_obj_to_glyph (941-943), normal_obj_to_glyph (944-946), obj_is_piletop (798), obj_is_generic (806), glyph_is_generic_object (844), glyph_is_object (858 and 877)",
+      "reachability": "Called from the object arms and from obj_to_glyph(). None makes a random-number call, writes output, or changes state.",
+      "owner": "None",
+      "effects": "None.",
+      "evidence": "Read at include/display.h. Purity confirmed from the source text, not the names.",
+      "status": "missing",
+      "remaining": "Port as a batch under AGENTS.md, 'Port pure functions in bulk', with a test per function pinned to values read from the C source, and with the full suite and an identical development score before the batch commits."
+    },
+    {
+      "candidate": "obj_to_glyph() and statue_to_glyph(), the non-hallucinating arms (display.h:949-968)",
+      "reachability": "Reached from every site that records an object square in map memory. Not pure: both take an rng, so they leave the pure batch and need a live consumer.",
+      "owner": "js/display.js object_glyph_info(), which today produces a resolved presentation instead",
+      "effects": "Returns the glyph number map memory will store.",
+      "evidence": "include/display.h:962-968 for the dispatch order -- STATUE first, then Hallucination, then CORPSE, then obj_is_generic(), then normal.",
+      "status": "missing",
+      "remaining": "Port with the live consumer in the same change."
+    },
+    {
+      "candidate": "obj_to_glyph() and statue_to_glyph(), the Hallucination arms (random_obj_to_glyph at display.h:932-936, statue_to_glyph's random_monster() and rng(2) at 950-952)",
+      "reachability": "Hallucination only. Consumes randomness, and its call order is observable in the log.",
+      "owner": "None",
+      "effects": "One or two random-number calls per object drawn.",
+      "evidence": "include/display.h:932-936 and 949-960. go.otg_temp is a global the macro writes.",
+      "status": "undecided",
+      "remaining": "Decide between matching the random-number order and stopping above the first call with a named refusal. Trace whether any development session hallucinates while an object is drawn before choosing."
+    },
+    {
+      "candidate": "reset_glyphmap()'s four piletop arms: GLYPH_STATUE_FEM_PILETOP_OFF, GLYPH_STATUE_MALE_PILETOP_OFF, GLYPH_BODY_PILETOP_OFF, GLYPH_OBJ_PILETOP_OFF",
+      "reachability": "A square whose top object is one of a pile. Each sets MG_OBJPILE alongside its own flags.",
+      "owner": "None",
+      "effects": "Sets gmap->sym.symidx, a colour, and glyphflags including MG_OBJPILE.",
+      "evidence": "src/display.c, the arms at offsets 44, 51, 58 and 65 of the range beginning at 2739. The OBJ_PILETOP arm carries the BOULDER special case, which redirects symidx to SYM_BOULDER + SYM_OFF_X.",
+      "status": "missing",
+      "remaining": "Port with MG_OBJPILE carried as a flag rather than resolved into an attribute."
+    },
+    {
+      "candidate": "reset_glyphmap()'s four non-piletop object arms: GLYPH_STATUE_FEM_OFF, GLYPH_STATUE_MALE_OFF, GLYPH_OBJ_OFF (2968), GLYPH_BODY_OFF (3004)",
+      "reachability": "A square holding a single object, corpse or statue -- the common case, and the one a session meets before it meets a pile.",
+      "owner": "None",
+      "effects": "As above, without MG_OBJPILE. The BODY arm sets MG_CORPSE; the statue arms set MG_STATUE with MG_MALE or MG_FEMALE.",
+      "evidence": "src/display.c:2968 and 3004, plus the two statue arms above them. These two sit below every cmap arm because the chain descends by offset.",
+      "status": "missing",
+      "remaining": "Port. Do not assume contiguity with the piletop arms."
+    },
+    {
+      "candidate": "reset_glyphmap()'s closing colour clamp (src/display.c:3072-3078)",
+      "reachability": "Runs for every glyph the loop resolves, after the arm chain.",
+      "owner": "None",
+      "effects": "Sets color to NO_COLOR when !has_color(color), when the level is a rogue level without rogue colour, or when !iflags.use_color; then writes gmap->sym.color.",
+      "evidence": "src/display.c:3072-3078. This is where the 'color' option reaches every glyph, which is why the 'color' arm keeps a refusal in this slice.",
+      "status": "missing",
+      "remaining": "Port the !iflags.use_color term with the object arms. The rogue term is covered by the entry below."
+    },
+    {
+      "candidate": "reset_glyphmap()'s has_rogue_color and GMAP_ROGUELEVEL terms",
+      "reachability": "Asserted to require a rogue level, which no development session is believed to reach.",
+      "owner": "None",
+      "effects": "Would force NO_COLOR and change several arms' symidx.",
+      "evidence": "src/display.c, the has_rogue_color computation near the head of the function and the GMAP_ROGUELEVEL term in the clamp at 3072-3078.",
+      "status": "undecided",
+      "remaining": "Confirm against the development sessions that no session reaches a rogue level, then mark cannot-occur with that evidence. The claim is currently inherited from the slice-selector's report and unchecked."
+    },
+    {
+      "candidate": "display.c map_glyphinfo() (2594-2655)",
+      "reachability": "Every print of a map cell resolves through it.",
+      "owner": "js/display.js, whose glyphPresentation() and terrainCmap() are the port's existing spelling of parts of it",
+      "effects": "Produces the ttychar, colour and glyphflags the window port prints.",
+      "evidence": "src/display.c:2594-2655.",
+      "status": "missing",
+      "remaining": "Port the object-range resolution. The terrain ranges stay behind the 'color' refusal."
+    },
+    {
+      "candidate": "wintty.c tty_print_glyph()'s attribute chain (3920-3936)",
+      "reachability": "Every printed cell. The chain is ordered and the port must keep the order.",
+      "owner": "js/display.js, which bakes ATR_INVERSE at draw time at 690, 816, 910, 1185 and 1766",
+      "effects": "Chooses at most one attribute: the bkglyphinfo->framecolor arm first; then (special & MG_PET) && iflags.hilite_pet, which takes iflags.wc2_petattr; then ((MG_OBJPILE && hilite_pile) || (MG_FEMALE && wizard && wizmgender) || (MG_DETECT | MG_BW_LAVA | MG_BW_ICE | MG_BW_SINK | MG_BW_ENGR)) && iflags.use_inverse, which takes ATR_INVERSE.",
+      "evidence": "win/tty/wintty.c:3920-3936, read in full. MG_OBJPILE yields to a pet on the same square because the MG_PET arm precedes it.",
+      "status": "missing",
+      "remaining": "Move the pile bake at js/display.js:1185 and the detected-monster bake at 910 to print time as glyphflags. Check the selector's claim that 690, 816 and 1766 are safe: 816 is the pet arm and is said never to be remembered, and 690 and 1766 are said to be MG_BW_* under !iflags.use_color, which reglyph_darkroom() already refuses."
+    },
+    {
+      "candidate": "options.c reset_needed_visuals() first arm (8982-8984) and the docrt() at 9002",
+      "reachability": "Runs at the end of every options-menu pick loop.",
+      "owner": "js/options.js reset_needed_visuals(), ported except this arm, which throws at js/options.js:4856",
+      "effects": "Calls reset_glyphmap(gm_optionchange), then docrt() repaints the map through the rebuilt table.",
+      "evidence": "src/options.c:8979-9014; js/options.js:4837-4860 for the refusal and the comment recording why it stands.",
+      "status": "missing",
+      "remaining": "Replace the refusal with the call. docrt() re-runs newsym() over COLNO x ROWNO, so the display buffer regenerates itself."
+    },
+    {
+      "candidate": "options.c optfn_boolean()'s seven-option arm (5379-5385) and its 'color' arm (5407-5409)",
+      "reachability": "A pick of wizmgender, showrace, use_inverse, hilite_pile, perm_invent, ascii_map or tiled_map; or a pick of color.",
+      "owner": "js/options.js, at the seven-case arm and the separate 'color' case",
+      "effects": "Both set go.opt_need_redraw and go.opt_need_glyph_reset.",
+      "evidence": "Read at js/options.js: the seven cases fall through to one body, and 'color' has its own case setting the same two flags.",
+      "status": "done",
+      "remaining": "None. Both arms already set the flags; only what happens below them is missing."
+    },
+    {
+      "candidate": "A refusal for the 'color' arm, in the shape of the dark_room arm",
+      "reachability": "A pick of the color row while the terrain layer still stores a resolved presentation.",
+      "owner": "js/options.js",
+      "effects": "Stops before the repaint rather than repainting terrain wrongly.",
+      "evidence": "js/options.js's dark_room case throws UnsupportedOptionMenuError(\"reglyph_darkroom() over a 'dark_room' change\") and is the shape to copy. The deferral remembered-glyph-caches-a-resolved-presentation records the door case that proves colour is still unrecoverable for terrain.",
+      "status": "missing",
+      "remaining": "Add it in the same change that removes the glyph-reset refusal, so no pick reaches the repaint through an unconverted layer."
+    },
+    {
+      "candidate": "The objectGlyphId stand-in and REMEMBERED_GLYPH_IDENTITY_FIELDS",
+      "reachability": "Written for every object presentation; read by same_remembered_glyph().",
+      "owner": "js/display.js object_glyph_info() and remembered_glyph_from_presentation()",
+      "effects": "Stamps strings of the form obj:<otyp>, body:<corpsenm>, statue:<fem|male>:<corpsenm>, generic:<oclass>, with a :piletop suffix -- obj_to_glyph()'s range and index spelled as text.",
+      "evidence": "Read at js/display.js, where the property is defined non-enumerably and the ATR_INVERSE bake follows it immediately.",
+      "status": "missing",
+      "remaining": "Delete it in the same batch that lands the real glyph number, as AGENTS.md requires of an injection the port replaces, and switch same_remembered_glyph() to comparing the integer."
+    },
+    {
+      "candidate": "The five other files that touch remembered_glyph: js/lock.js, js/detect.js, js/game.js, js/options.js, js/startup_a11y.js",
+      "reachability": "js/lock.js:198-210 compares the record across feel_location() for lock.c pick_lock(); js/detect.js:273 writes one through remembered_glyph_from_presentation() and reads one at 293; js/game.js:32-35 documents undefined as the nothing-remembered sentinel; js/options.js:4837 only names it in the refusal comment; js/startup_a11y.js tests it for truthiness at 686, 692 and 726 and chooses between disp_glyph and remembered_glyph at 805.",
+      "owner": "The five files named",
+      "effects": "Each consumes the record's shape, so each is a place the representation change can break silently.",
+      "evidence": "grep -rln 'remembered_glyph' js/ returned exactly these five plus js/display.js.",
+      "status": "undecided",
+      "remaining": "Check each against the new representation. The truthiness tests in js/startup_a11y.js are the sharpest risk: they distinguish 'nothing remembered' from 'something remembered', and an integer glyph number of zero is GLYPH_MON_OFF, a valid glyph. Object-range numbers are never zero, so the slice may be safe today and unsafe after the terrain slice."
+    },
+    {
+      "candidate": "scripts/run-options-menu.mjs: the GLYPH_RESET_PICKS matrix entry, its verifier arm, and the comment above the recipe",
+      "reachability": "The recipe runs seed 8814277 at 20291006161200 with moves ' O>f>g> \\x1b'.",
+      "owner": "scripts/run-options-menu.mjs",
+      "effects": "The entry carries outsideTheLimit: true at line 401 and the runner filters it out at 605. No verifier arm matches GLYPH_RESET_PICKS.",
+      "evidence": "Read at e310ec0. The deferral's note claiming the entry was deleted at 5dbcee2 is stale: it is present and marked.",
+      "status": "missing",
+      "remaining": "Clear the mark, write the verifier arm, and correct the comment at 140-146, which still states the disproved 0f7b6cf argument as fact."
+    },
+    {
+      "candidate": "A second fresh case: a remembered, out-of-sight pile whose highlight must change under a hilite_pile toggle",
+      "reachability": "The GLYPH_RESET_PICKS recipe rests one turn and opens the menu, so its map holds almost no remembered out-of-sight square. It would pass under the argument that 57a84f4 disproved.",
+      "owner": "A new recipe",
+      "effects": "It is the only evidence that separates this slice from the reverted attempt.",
+      "evidence": "The deferral records the equivalent door case for colour: with OPTIONS=!color, a remembered out-of-sight door stays NO_COLOR where C repaints it CLR_BROWN.",
+      "status": "missing",
+      "remaining": "Record it against the C reference and replay it. It must make the point on the object layer, since the colour proof case toggles color, which this slice still refuses."
+    },
+    {
+      "candidate": "The deferral remembered-glyph-caches-a-resolved-presentation (QUALITY.json deferred[137])",
+      "reachability": "It owns this refusal and the case outside the limit.",
+      "owner": "The quality ledger",
+      "effects": "Blocks nothing in code; records what the slice must prove.",
+      "evidence": "Its closing condition is re-deriving loc.remembered_glyph from the level during the repaint. Its first note records that objectGlyphId already recovers piletop-ness and that the resolved colour and baked-in ATR_INVERSE do not.",
+      "status": "missing",
+      "remaining": "Resolve it when the object layer converts, or state precisely which half of it survives into the terrain slice."
+    }
+  ],
+  "missingWorkByOwner": [
+    {
+      "group": "Generated data, which everything below depends on",
+      "candidates": [
+        "include/display.h enum glyph_offsets (497-547), as a generated table"
+      ],
+      "next": "Write the generator and its comparison check, supplying NUM_ZAP, S_digbeam and S_goodpos."
+    },
+    {
+      "group": "display.h pure macros",
+      "candidates": [
+        "The pure object-glyph macros: objnum_to_glyph (display.h:638), corpse_to_glyph (938-940), generic_obj_to_glyph (941-943), normal_obj_to_glyph (944-946), obj_is_piletop (798), obj_is_generic (806), glyph_is_generic_object (844), glyph_is_object (858 and 877)"
+      ],
+      "next": "Port as one batch with a source-pinned test per macro, once the offsets exist."
+    },
+    {
+      "group": "js/display.js, the representation change",
+      "candidates": [
+        "obj_to_glyph() and statue_to_glyph(), the non-hallucinating arms (display.h:949-968)",
+        "obj_to_glyph() and statue_to_glyph(), the Hallucination arms (random_obj_to_glyph at display.h:932-936, statue_to_glyph's random_monster() and rng(2) at 950-952)",
+        "reset_glyphmap()'s four piletop arms: GLYPH_STATUE_FEM_PILETOP_OFF, GLYPH_STATUE_MALE_PILETOP_OFF, GLYPH_BODY_PILETOP_OFF, GLYPH_OBJ_PILETOP_OFF",
+        "reset_glyphmap()'s four non-piletop object arms: GLYPH_STATUE_FEM_OFF, GLYPH_STATUE_MALE_OFF, GLYPH_OBJ_OFF (2968), GLYPH_BODY_OFF (3004)",
+        "reset_glyphmap()'s closing colour clamp (src/display.c:3072-3078)",
+        "reset_glyphmap()'s has_rogue_color and GMAP_ROGUELEVEL terms",
+        "display.c map_glyphinfo() (2594-2655)",
+        "wintty.c tty_print_glyph()'s attribute chain (3920-3936)",
+        "The objectGlyphId stand-in and REMEMBERED_GLYPH_IDENTITY_FIELDS"
+      ],
+      "next": "Store the glyph number for object squares, resolve character, colour and attribute at print time, and delete the stand-in in the same batch."
+    },
+    {
+      "group": "The consumers of map memory",
+      "candidates": [
+        "The five other files that touch remembered_glyph: js/lock.js, js/detect.js, js/game.js, js/options.js, js/startup_a11y.js"
+      ],
+      "next": "Check each against the new representation, starting with the truthiness tests in js/startup_a11y.js."
+    },
+    {
+      "group": "js/options.js, the boundary",
+      "candidates": [
+        "options.c reset_needed_visuals() first arm (8982-8984) and the docrt() at 9002",
+        "A refusal for the 'color' arm, in the shape of the dark_room arm"
+      ],
+      "next": "Replace the glyph-reset refusal with the call, and add the narrower 'color' refusal in the same change."
+    },
+    {
+      "group": "Evidence",
+      "candidates": [
+        "scripts/run-options-menu.mjs: the GLYPH_RESET_PICKS matrix entry, its verifier arm, and the comment above the recipe",
+        "A second fresh case: a remembered, out-of-sight pile whose highlight must change under a hilite_pile toggle",
+        "The deferral remembered-glyph-caches-a-resolved-presentation (QUALITY.json deferred[137])"
+      ],
+      "next": "Bring the existing recipe inside the limit, record the second one that the reverted attempt would have failed, and dispose of the deferral."
+    }
+  ],
+  "sourceReview": "Traced at e310ec0 by the orchestrator, before any implementation. Read in full: include/display.h enum glyph_offsets (497-547) and the object-glyph macros at 638, 798, 806, 844, 858, 877 and 932-968; the arm chain of src/display.c reset_glyphmap() far enough to place all eight object arms and the closing colour clamp at 3072-3078; win/tty/wintty.c:3920-3936; and, on the JavaScript side, the refusal and its neighbouring arms in js/options.js, the objectGlyphId stand-in and the five ATR_INVERSE bakes in js/display.js, the same_remembered_glyph() consumer in js/lock.js, the marked matrix entry in scripts/run-options-menu.mjs, and the deferral text in QUALITY.json. Three claims inherited from the slice-selector's report were checked and corrected: obj_to_glyph() and statue_to_glyph() are not pure, reset_glyphmap() has eight object arms rather than six, and the GLYPH_RESET_PICKS matrix entry was marked outside the limit rather than deleted. Not yet traced: display.c show_glyph() (1877-2072), the arm chain below GLYPH_MON_MALE_OFF, whether any development session reaches a rogue level, and whether any reaches the Hallucination arms with an object drawn. Those four are the entries carrying status undecided or the limits recorded in remainingLimits."
+}
