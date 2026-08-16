@@ -1101,6 +1101,10 @@
         {
           "text": "The non-fatal config error, this entry's fourth residue, is ported: optfn_sortloot(), optfn_versinfo() and optfn_msg_window() now reach cfgfiles.c config_error_add() instead of throwing, the errors are raw-printed through win/tty/wintty.c tty_raw_print() and dismissed at config_error_done()'s wait_synch(), and three fresh differentials match C on every random-number call and cursor. optfn_pickup_burden() and parsebindings()'s unknown-command error went the same way.\n\nThe entry stays open on its second residue, which no part of this slice touched: an unhandled compound option's value is still stored raw, so OPTIONS=<name>:true leaves the string 'true' in result.flags[name] (js/options.js applyOption()'s final else). No blockedOn is recorded because that residue waits on no single C symbol -- it is retired one optfn_ handler at a time, whichever option a reader of that flag needs.\n\nThe note at e269420 counted three of four residues closed while also reporting this one unchanged; the enumeration it gives names only two fixes plus a test.",
           "at": "fb143cda293f3066ceae49493c84c2c70e120e2e"
+        },
+        {
+          "text": "The second residue -- an unhandled compound option's value stored raw -- now has\na number. A C recording of all 285 spellings of the three-suffix sweep in\nscripts/config-error.test.mjs ('', ':' and ':zqxj' against each of the 95\nnon-pfx CompOpt rows) puts 45 of those rows in the residue: C writes 105\nconfiguration errors across them where applyOption() writes none. 33 rows\nreport identically in both, and 17 are silent in both.\n\nThe messages are two shapes. Most are string_for_opt()'s \"Missing parameter\nfor '<statement>'.\" for a handler whose value is mandatory, and the rest are\neach handler's own rejection, from \"Unknown menustyle parameter 'zqxj'.\" to\npackorder's four \"Not an object class '<c>'.\" lines for a four-character value.\nEvery row and its per-spelling count is now written out in\nUNPORTED_COMPOUND_ROWS in that test file, so porting a handler has a target and\nthe sweep fails until the collection is edited.\n\nThe count is what the residue costs: each missing message moves\nconfig_error_done()'s summary row and the tty_wait_synch() boundary after it.",
+          "at": "8fdbc5cc68d03002537fe56f3a58a09aa0860ccb"
         }
       ]
     },
@@ -3244,6 +3248,15 @@
       "status": "open",
       "from": "8e95ef8dfe2bfa1e3de27e5e38b898268015fb3f",
       "detail": "js/objnam.js holds two readings of objnam.c obj_is_pname() (332-341). objectIsPersonalName() at :509 is the complete one, and this slice added :337's override_ID skip to it; xname() and doname() call it, so a named artifact already reaches a name through them. The exported obj_is_pname() at :1105 ports only C's first conjunct and calls unsupported('obj_is_pname() for an artifact') for the rest, and yname() at :1120 and do_wear.c on_msg() through js/do_wear.js:339 are its two callers, so those two refuse an artifact that xname() would have named. The narrower reading is not blocked on anything: has_oname() is obj.oextra.oname, not_fully_identified() is notFullyIdentified() at :442, and preflightXname() refuses program_state.gameover upstream, so C's remaining conjunct is settled. Both of its callers' branches are ported too -- the(name) and an(name) at js/do_wear.js:339-340. Closing it means deleting the narrow reading, pointing yname() at objectIsPersonalName(), and rewriting scripts/wear-armor.test.mjs:2150. That changes what a wear message and a wield refusal print for an artifact, which needs a fresh case with an artifact in hand rather than the reroll menu's kit, so it is left out of this slice."
+    },
+    {
+      "id": "raw-print-splits-a-multibyte-character",
+      "area": "startup",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "8fdbc5cc68d03002537fe56f3a58a09aa0860ccb",
+      "detail": "js/tty_rawprint.js nomux_raw_putch() stores one screen cell per byte, which is\nwhat recorder patch 006 does, but the recorded screen a byte grid produces is\nnot a byte grid. The capture writes the shadow buffer's bytes to a file, and\nthe session loader reads that file as UTF-8, so a two-byte sequence in adjacent\ncells arrives as one character and the recorded row is shorter than 80. The\nport's cells hold one JavaScript character per byte, and frozen/terminal.js\nserializes each cell on its own, so the same sequence arrives as two.\n\nMeasured, not inferred. A fresh case at seed 5128094, 20120919081000, over an\nrc whose second line is `OPTIONS=zqxjé` matches C on every random-number call\nand every cursor and diverges at the first byte of the é: `Cell row 2, column\n13 (ch): C \"é\", JS \"Ã\"`. The statement echo config_erradd() prints is enough to\nreach it, so any non-ASCII byte in an erroring rc line costs the rest of that\nrow and every row below it.\n\nNothing in the port decides this on its own: matching C means the cells a\nmulti-byte sequence occupies have to serialize as one character, and\nfrozen/terminal.js is judge-owned. The fix is therefore in what the port puts\nin the cells, not in how they are written out, and it wants a decision about\nwhat the raw cursor column then counts. No development session has a non-ASCII\nrc line."
     }
   ],
   "areas": [
