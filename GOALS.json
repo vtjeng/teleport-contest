@@ -2437,6 +2437,42 @@
         "screens": 89,
         "rng": 538
       }
+    },
+    {
+      "id": "monsters-deferral-sweep-3",
+      "status": "open",
+      "boundary": "Every counted monsters deferral is read against its C source, and each one the reading shows to be small is closed. The area's four silent divergences are read first, since AGENTS.md ranks a silently skipped C branch worse than a named refusal. Every surviving entry either carries the blockedOn symbol the reading found or is named in the closing report with the slice it needs. Testable against C: no counted monsters entry may remain whose closing condition needs only C the port already holds; js/monmove.js dochug()'s MMOVE_MOVED arm must spell monmove.c:945-948's three disjuncts in C's order and break into PHASE FOUR rather than return; js/dogmove.js heroDeaf() must be youprop.h:125's three-disjunct form with no blocked term; js/makemon_create.js must hold no second copy of mondata.c sliparm()/breakarm(); and js/mthrowu.js blocking_terrain() must answer C's cmd.c isok() for column zero.",
+      "upstreamOwners": [
+        "makemon.c grow_up()",
+        "monmove.c dochug()",
+        "mhitu.c ranged_attk_available()",
+        "mondata.c get_atkdam_type()",
+        "mondata.c sliparm()",
+        "mondata.c breakarm()",
+        "worn.c m_dowear()",
+        "mthrowu.c blocking_terrain()",
+        "youprop.h Deaf",
+        "weapon.c mwepgone()",
+        "mhitu.c mattacku() AT_HUGS",
+        "artifact.c touch_artifact()",
+        "teleport.c rloc_to()"
+      ],
+      "forecast": {
+        "steps": 0,
+        "basis": "A sweep is scheduled by the deferral threshold rather than priced by look-ahead, and this zero is measured at e2cbafd rather than estimated. None of the 14 boundary-census rows names a monsters deferral: the repeated-command admission list in 7 sessions, level_tele() print_dungeon() in 3, engraving interaction, doapply() type 101, #loot, #rub, garlic_breath(), door unlocking, nh_timeout, reset_glyphmap(gm_optionchange), #name, optfn pickup_types, and the mounting death in format 2. score-development reads 1,763 of 7,765 screens and 10 of 33 sessions against 1,773 emitted, and the 10-screen gap is three sessions, seed0006 at 8 plus seed0016 and seed0200 at 1 each, all of it the display scorer artifact in frozen/terminal.js serialize() and none of it a monsters owner. A non-zero delivery would mean a hidden session rather than a mis-forecast. For scale, the best boundary port available is reset_glyphmap at 31 raw, uncapped, about 23 net matched.",
+        "sessions": [],
+        "witnesses": []
+      },
+      "detail": "Traced findings; the slice-selector divides the goal. (1) dochug-post-move-drops-two-of-c-three-terms is larger than its title and should be read first. js/monmove.js:1825-1835 gates on !nearby && inrange && !scared && !mpeaceful && attacktype(AT_WEAP) then returns 0; monmove.c:944-949 gates on !nearby && (ranged_attk_available() || attacktype(AT_WEAP) || find_offensive()) and breaks into PHASE FOUR, whose own gate supplies inrange, scared, panicattk and noattacks. The port drops two disjuncts and hoists three terms from the next phase. Restoring it is not free: ranged_attk_available() calls get_atkdam_type(), whose AD_RBRE arm is ROLL_FROM(rnd_breath_typ), expanded at hack.h:1493 to array[rn2(SIZE(array))], a real draw, and C evaluates that disjunct first so the short-circuit fixes where it lands. find_offensive() is ported at js/muse.js:261, DISTANCE_ATTK_TYPE() and cvt_adtyp_to_mseenres() at js/mondata.js:1241 and :1618, and m_seenres is a bit test at monst.h:89; only get_atkdam_type() and ranged_attk_available() are missing, about 25 lines. On D:1 both new disjuncts should answer FALSE, since rndmonst_adj() caps a draw at (level_difficulty() + u.ulevel) / 2 = 1, so this should be screen-neutral, which is what makes it safe to land and worth measuring. (2) pet-kill-that-gains-a-level-stops is the one entry with a plausible holdout payoff and its case is one edit away: js/makemon.js:290 refuses at unsupported('a monster gaining a level'), little_to_big() is ported at js/mondata.js:857 and set_mon_data() sits in js/mon.js, and seed 7710020 is already committed at scripts/run-pet-melee-attack.mjs:114 with 27 spaces where 29 reach the level gain. (3) m-dowear-armor-fit-rules-have-two-homes is confirmed and wider than recorded: js/makemon_create.js:1981-1999 keeps private slipsArmor, cantWearArmor and wrappingAllowed beside js/mondata.js:1358 cantweararm() and js/obj.js:835 WrappingAllowed(), and beyond the recorded marilith and winged-gargoyle omission, slipsArmor() tests mlet === S_VORTEX || S_GHOST where sliparm() is is_whirly() || msize <= MZ_SMALL || noncorporeal(), also missing PM_AIR_ELEMENTAL. A case needs a species five to nine above the D:1 cap, so expect a re-block on create_particular. (4) The duplicate heroDeaf records no longer inflate the count: of the three, only dogmove-deaf-copy-diverged-from-youprop counts, one is blocked on use_leash and one is scope. (5) Nine entries stay uncounted on blockers absent from js/: thrwmu, hurtle, done_in_by, minliquid_core, update_mon_extrinsics, ranged_attk_available, peffect_hallucination, create_particular and use_leash. The area will still print as a candidate afterwards, sending the loop to a boundary port next. (6) Two entries are the planning clone in js/unported_monster_actions.js, which QUALITY.json records as carrying nine production defects, two of them introduced by fixes for earlier ones. That is an architecture decision rather than a sweep item, so expect it named in the closing report rather than closed.",
+      "slices": [],
+      "openedAt": "e2cbafdc93a7c5ee1255a15ee01ea1790baf8a17",
+      "openStanding": {
+        "sha": "8e5af92",
+        "screens": 1763,
+        "rng": 125588
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
