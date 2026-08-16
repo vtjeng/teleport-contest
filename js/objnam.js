@@ -259,20 +259,32 @@ export function gloves_simple_name(gloves, state = game) {
         : 'gloves';
 }
 // C refs: objnam.c xname_flags():632-639, doname_base():1254-1262,
-// the_unique_obj():1108-1110, add_erosion_words():1148 and obj_is_pname():337.
-// Each of those five reads iflags.override_ID for itself and substitutes TRUE
-// for one or more of the object's identification flags; this collects the
-// substitution all five make, so that a formatter below reads the effective
-// flag instead of the stored one. eat.c tin_details():1442 makes the sixth
-// substitution and reads the counter itself, because xname() reaches it
-// through js/eat.js rather than through this file.
+// the_unique_obj():1108-1110 and add_erosion_words():1148. Each of those four
+// reads iflags.override_ID for itself and substitutes TRUE for one or more of
+// the object's identification flags; this collects the substitution all four
+// make, so that a formatter below reads the effective flag instead of the
+// stored one.
 //
-// The counter is raised in two places in C. invent.c reroll_menu():2580 raises
-// it around its naming loop so the startup menu shows a full description of a
-// kit the hero has not identified, and wizcmds.c wiz_identify():53 raises it
-// around wizard-mode ^I. Only the first is ported. It is an int rather than a
-// boolean because wiz_identify() stores the command's own key in it, which
-// invent.c display_pickinv():3249 then offers as a menu accelerator.
+// Two further readings choose no flag at all, so both read the counter
+// directly instead: objnam.c obj_is_pname():337 skips not_fully_identified(),
+// which objectIsPersonalName() below spells as an early return, and eat.c
+// tin_details():1442 belongs to js/eat.js, which xname() reaches from here.
+//
+// The counter has four writers in C, and half of them treat it as a boolean.
+// invent.c reroll_menu():2580 increments it around its naming loop, so that
+// the startup menu shows a full description of a kit the hero has not
+// identified, and mkobj.c insane_object():3325 increments it around the
+// doname() inside an impossible() diagnostic. wizcmds.c wiz_identify():53 and
+// objnam.c actualoname():2494 assign: the first stores the command's own key,
+// which invent.c display_pickinv():3249 offers as a menu accelerator and which
+// is why the counter is an int rather than a boolean, and the second stores
+// TRUE and then FALSE. A fifth site, invent.c:3391, assigns 0 with no matching
+// raise, to keep a recursive perm_invent update out of the wizard-ID filter.
+//
+// Only reroll_menu() is ported. An assignment clobbers an outer raise where a
+// decrement would restore it, so porting either assigning writer means
+// deciding what happens when it runs inside reroll_menu()'s increment rather
+// than nesting it there.
 function identificationFlags(obj, type, state) {
     if (state.iflags?.override_ID) {
         return {

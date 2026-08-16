@@ -101,11 +101,13 @@ export function buildRerollMenuSpec(
         { text: '' },
     ];
     // C ref: invent.c reroll_menu():2579-2588. Both counters are ints that C
-    // raises before the loop and lowers after it, and this is the port's only
-    // writer of either. gd.distantname keeps xname() from entering the kit in
-    // the discoveries list, because the player has not accepted this character
-    // yet; iflags.override_ID makes doname() describe a kit the hero has not
-    // identified in full.
+    // raises before the loop and lowers after it. This is the port's only
+    // writer of iflags.override_ID, and its second writer of gd.distantname:
+    // js/objnam.js distant_name() raises and lowers that one around a name for
+    // an object the hero cannot inspect up close. gd.distantname keeps xname()
+    // from entering the kit in the discoveries list, because the player has
+    // not accepted this character yet; iflags.override_ID makes doname()
+    // describe a kit the hero has not identified in full.
     state.gd ??= {};
     state.iflags ??= {};
     state.gd.distantname = (state.gd.distantname ?? 0) + 1;

@@ -2782,12 +2782,15 @@ function unknownOptionText(statement) {
     return mungspaces(statement.slice(0, separator));
 }
 
-// C ref: options.c bad_negation() (6692-6697).  parseoptions() (625-629) is
-// the only caller this parser reaches, and it passes with_parameter TRUE
-// whether or not the statement carried a value, so the message names a value
-// either way.  Every option whose optlist.h negateok is No is answered here
-// rather than in its handler, which is why several C handlers declare their
-// `negated` argument UNUSED.
+// C ref: options.c bad_negation() (6692-6697).  Three of its callers are
+// reachable here -- parseoptions() (627), optfn_menu_headings() (2201) and
+// optfn_pile_limit() (3421) -- and all three pass with_parameter TRUE, whether
+// or not the statement carried a value, so the message names a value either
+// way.  The two that pass FALSE, optfn_suppress_alert() (4144) and
+// spcfn_misc_menu_cmd() (5459), sit behind rows whose optlist.h negateok is
+// No, so parseoptions() has already answered the negation by the time either
+// handler runs.  That is also why several C handlers declare their `negated`
+// argument UNUSED.
 function bad_negation(result, optname) {
     configErrorAdd(
         result,
