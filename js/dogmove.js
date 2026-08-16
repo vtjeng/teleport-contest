@@ -222,10 +222,14 @@ function conflictActive(state) {
         && !conflict?.blocked;
 }
 
+// C ref: youprop.h:125 Deaf, `(HDeaf || EDeaf || u.uroleplay.deaf)`. Three
+// disjuncts and no blocking term: the third is the deaf conduct, which only
+// `OPTIONS=roleplay:deaf` sets and nothing clears. js/apply.js and js/mhitm.js
+// each keep their own copy of this one-line macro, as C does.
 function heroDeaf(state) {
     const deafness = state.u?.uprops?.[DEAF];
-    return Boolean(deafness?.intrinsic || deafness?.extrinsic)
-        && !deafness?.blocked;
+    return Boolean(deafness?.intrinsic || deafness?.extrinsic
+        || state.u?.uroleplay?.deaf);
 }
 
 // C ref: youprop.h:120 Hallucination, over :115-119. The comment at :115 says

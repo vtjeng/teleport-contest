@@ -97,13 +97,14 @@ test('blocking_terrain answers for each terrain mthrowu.c names', async () => {
     state.level.at(x, y).typ = LAVAWALL;
     assert.equal(blocking_terrain(x, y, state), true);
 
-    // C's leading !isok(x, y), which js/mthrowu.js reads as an absent cell.
-    // GameMap.at() answers null outside [0, COLNO) x [0, ROWNO), so a
-    // negative column is what reaches that arm; column zero, which C's isok()
-    // also rejects, still has a cell in the port and is turned away one test
-    // later by IS_OBSTRUCTED(STONE).
+    // C's leading !isok(x, y). cmd.c isok():4329 is
+    // x >= 1 && x <= COLNO - 1 && y >= 0 && y <= ROWNO - 1, so column zero is
+    // off the map for C exactly as a negative column is. Carving floor there
+    // first takes the later disjuncts out of the answer: mklev leaves column
+    // zero as rock, where IS_OBSTRUCTED(STONE) would block whether or not
+    // isok() ran.
     assert.equal(blocking_terrain(-1, y, state), true);
-    assert.equal(state.level.at(0, y).typ, STONE, 'column zero is rock');
+    clearRow(state, 0, 0, y);
     assert.equal(blocking_terrain(0, y, state), true);
 });
 

@@ -576,7 +576,7 @@
       "area": "monsters",
       "category": "scope",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "roadmap",
       "detail": "`js/dogmove.js` `heroDeaf()` does not match youprop.h:125, which defines\n`Deaf` as `(HDeaf || EDeaf || u.uroleplay.deaf)`. It reads `u.uprops[DEAF]`\nalone and adds a `blocked` term the macro has no counterpart for, so\n`OPTIONS=deaf` will diverge in dogmove.c's leashed-pet trap arm. The delta\nreview recorded at `2adc5af` confirmed the mismatch and rejected it as a\nfinding, because `js/unported_monster_actions.js` refuses a leashed pet\nbefore `dog_move()` runs, which makes the arm unreachable today. Fix it with\nthe leashed-pet work; every other `Deaf` reader in the port already ORs the\nconduct in."
     },
@@ -2331,7 +2331,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "3c74ca60da133d209b2937c5185623e91bfe8edf",
       "detail": "js/dogmove.js heroDeaf() (:220-224) diverges from youprop.h:125 in two ways at once. C is Deaf = (HDeaf || EDeaf || u.uroleplay.deaf): three terms, no blocked term. The dogmove copy reads (intrinsic || extrinsic) && !blocked, dropping the roleplay conduct C carries and adding a blocked term C does not have. js/apply.js heroDeaf() (:80-84) spells the same macro correctly, which is how the divergence was spotted.\n\nBoth errors push the same way, toward a message C does not write. The single caller is js/dogmove.js:1144, the leashed-pet arm of dog_move()'s trap handling: C runs whimper() under if (!Deaf), so a hero who set OPTIONS=roleplay:deaf hears the port's whimper where C stays silent, and a hero whose deafness is blocked does the same. AGENTS.md ranks a silently wrong screen worse than a refusal, and this is one.\n\nFound by the simplification pass over eb3a084..3ffdb94, inside a proposal to fold the eight Deaf copies into one module. That proposal was rejected on architecture, and correctly: js/display.js:2946-2958 records the port's deliberate convention that a youprop.h macro is expanded once per C file that expands it, with five copies of Flying kept for the same reason and scripts/dismount-steed.test.mjs pinning them together. The convention is not the defect; this copy's contents are.\n\nClosing condition: js/dogmove.js heroDeaf() spells youprop.h:125's three terms and no others, matching js/apply.js; a case pins a roleplay:deaf hero with a leashed pet beside a trap and asserts no whimper, failing when the conduct term is dropped; and a fresh recorded C case with OPTIONS=roleplay:deaf matches call for call and screen for screen, or a stated reason why the port cannot reach one."
     },
@@ -2958,7 +2958,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "02fba14de00c81097a0da72119cece782d770ccd",
       "detail": "js/mthrowu.js blocking_terrain():40-41 reads an absent GameMap cell as C's leading !isok(x, y) at mthrowu.c:1284, and the two are not the same set. cmd.c isok():4329 is x >= 1 && x <= COLNO - 1 && y >= 0 && y <= ROWNO - 1, so C rejects column zero; js/game.js GameMap.at():78-81 rejects only x < 0 and x >= COLNO, so column zero has a cell and the port falls through to IS_OBSTRUCTED(levl[0][y].typ). The answers agree today for one reason only: mklev never puts anything but rock in column zero, and IS_OBSTRUCTED(STONE) is TRUE, so both sides answer TRUE. js/const.js:2028 already exports an isok() that matches C exactly; the fix is to call it. Filed as production rather than tests, and filed rather than fixed, because the burn-down lane that found it was forbidden to move production behavior. scripts/mthrowu.test.mjs now covers both coordinates and says which arm each one reaches, so the fix has a test waiting for it. Found by the tests deferral burn-down."
     },
@@ -3345,7 +3345,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "8012570348ae2c44efc3451b53ecfa449c4013e4",
       "detail": "js/dogmove.js heroDeaf() at :225 carries both errors the correctness pass fixed in js/mhitm.js: it omits youprop.h:125's u.uroleplay.deaf disjunct and adds a blocked conjunct C's macro has no term for. Its one reader is js/dogmove.js:1157, gating the whimper when a leashed pet meets a trap, so a hero playing the deaf conduct hears a line C suppresses. It predates the reviewed range, filed at fe22783, so it was outside the audit fix for 603e370..78e482e. Closing it needs no unported C: copy youprop.h's three-disjunct form as js/mhitm.js now does, and pin it with a case that sets u.uroleplay.deaf while leaving uprops[DEAF] zeroed.",
       "blockedOn": "use_leash",

@@ -16,6 +16,7 @@ import {
     M_AP_NOTHING,
     M_AP_TYPE,
     Upolyd,
+    isok,
     u_at,
 } from './const.js';
 import { game } from './gstate.js';
@@ -35,10 +36,12 @@ import { clear_path, couldsee } from './vision.js';
 // C ref: mthrowu.c blocking_terrain() (1281-1288). "return TRUE if terrain at
 // x,y blocks linedup checks".
 export function blocking_terrain(x, y, state = game) {
-    // An absent cell is C's `!isok(x, y)`: GameMap.at() answers undefined for
-    // every square off the map.
-    const location = state.level?.at(x, y);
-    if (!location) return true;
+    // cmd.c isok() rejects column zero, which GameMap.at() still answers a
+    // cell for, so the two tests are not interchangeable here. Every square
+    // isok() accepts has a cell: GameMap builds the whole COLNO x ROWNO grid
+    // in its constructor (js/game.js:39-47).
+    if (!isok(x, y)) return true;
+    const location = state.level.at(x, y);
     return IS_OBSTRUCTED(location.typ)
         || closed_door(x, y, state)
         || IS_WATERWALL(location.typ)

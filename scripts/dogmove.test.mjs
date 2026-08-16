@@ -8,6 +8,7 @@ import {
     ALLOW_U,
     CADAVER,
     CONFLICT,
+    DEAF,
     DISMOUNT_THROWN,
     DOGFOOD,
     HALLUC,
@@ -1067,6 +1068,75 @@ test('dog_move makes a leashed pet whimper at a trap before moving',
         assert.equal(result, MMOVE_MOVED);
         assert.deepEqual(events, [['whimper', 5, 5]]);
         assert.deepEqual([monster.mx, monster.my], [trap.tx, trap.ty]);
+    });
+
+// Runs the same leashed-pet-onto-a-seen-trap move as the test above and
+// returns what whimper() recorded, so each caller below sets one term of
+// youprop.h:125 `Deaf` and asserts the silence dogmove.c:1200 gives it.
+//
+// `mleashed` is state production never builds: apply.c use_leash() is C's only
+// writer and is unported, and js/unported_monster_actions.js:251 refuses a
+// leashed pet by name before dochugw() runs. These cases reach the arm
+// directly, which is why they are unit tests rather than a recording.
+async function leashedTrapWhimpers(state, monster) {
+    monster.mleashed = true;
+    const trap = {
+        tx: 6,
+        ty: 5,
+        tseen: true,
+    };
+    state.level.traps.push(trap);
+    const events = [];
+
+    const result = await dog_move(monster, false, movementEnv(state, {
+        findPositions: fixedCandidates([{
+            x: trap.tx,
+            y: trap.ty,
+            info: ALLOW_TRAPS,
+        }]),
+        whimper(subject) {
+            events.push(['whimper', subject.mx, subject.my]);
+        },
+    }));
+
+    assert.equal(result, MMOVE_MOVED);
+    // Stepping onto the trap is what proves the leashed arm ran: the
+    // unleashed arm at dogmove.c:1206 draws rn2(40), which movementEnv()
+    // answers 1, and skips the square instead.
+    assert.deepEqual([monster.mx, monster.my], [trap.tx, trap.ty]);
+    return events;
+}
+
+test('dog_move suppresses the leashed pet whimper for the deaf conduct',
+    async () => {
+        const { state, monster } = activePetState();
+        // youprop.h:125's third disjunct, u.uroleplay.deaf. Only
+        // OPTIONS=roleplay:deaf sets it and nothing clears it, so it is deaf
+        // with uprops[DEAF] left zeroed, which activePetState() does.
+        state.u.uroleplay = { deaf: true };
+
+        assert.deepEqual(await leashedTrapWhimpers(state, monster), []);
+    });
+
+test('dog_move suppresses the leashed pet whimper when deafness is blocked',
+    async () => {
+        const { state, monster } = activePetState();
+        // prop.h struct prop carries a blocked field for every property, and
+        // youprop.h:125 reads none of it: HDeaf alone is `Deaf`. The pairing
+        // pins the absence of a blocking conjunct rather than a state the
+        // game reaches.
+        state.u.uprops[DEAF] = { intrinsic: true, blocked: true };
+
+        assert.deepEqual(await leashedTrapWhimpers(state, monster), []);
+    });
+
+test('dog_move suppresses the leashed pet whimper for extrinsic deafness',
+    async () => {
+        const { state, monster } = activePetState();
+        // youprop.h:124 EDeaf, the worn mask, on its own.
+        state.u.uprops[DEAF] = { extrinsic: true };
+
+        assert.deepEqual(await leashedTrapWhimpers(state, monster), []);
     });
 
 test('dog_move always evaluates a ranged attack after candidate scan',
