@@ -2867,9 +2867,13 @@
         {
           "text": "Read by the tests deferral burn-down and left open. The premise stands and the blocker is unmoved: no ported path can make u.ustuck point at a monster. `grep -n \"set_ustuck(\" js/teleport.js js/do.js js/mon.js` returns three call sites, at js/do.js:1103, js/mon.js:1462 and js/teleport.js:1104, and every one passes null. What would install a holder is mhitu.c mattacku()'s AT_HUGS arm at :823-829, which calls failed_grab() and then hitmu() into uhitm.c mhitm_ad_phys():4021-4029; js/mhitu.js:644 refuses that arm with 'a monster crushing the hero'. failed_grab() is unported and defined at nethack-c/upstream/src/mhitm.c:597. The species argument in the entry's own note also still holds. scripts/mhitu.test.mjs:1489 keeps pinning all four combinations of uhitm.c:4122-4123 by calling mhitm_ad_phys() directly, which is the right stand-in until a monster can grab the hero. Two citations in the entry are stale; they are corrected in findingsAgainstTheBrief.",
           "at": "02fba14de00c81097a0da72119cece782d770ccd"
+        },
+        {
+          "text": "Blocker corrected from failed_grab to u_slip_free, on the slice-selector's reading at 51d94ba. The note above, written at 02fba14, named failed_grab while it was genuinely unported; it landed afterward at js/mhitm.js:457, but for the monster-versus-monster caller in mattackm(), not for mattacku()'s AT_HUGS arm. So this entry resumed counting on a symbol that landed for someone else, and the note's own argument is untouched: `grep -n \"set_ustuck(\" js/teleport.js js/do.js js/mon.js` still finds three sites all passing null, and js/mhitu.js:644 still refuses the arm that would install a holder. What closing needs is mhitu.c u_slip_free() at nethack-c/upstream/src/mhitu.c:1047, which `grep -rn u_slip_free js/` does not find and which exits 1. I ran that grep and confirm it. The species argument in the first note is unaffected: all five sit at difficulty 5 or above against a D:1 cap of one, so a fresh differential also waits on create_particular().",
+          "at": "51d94ba1cf13eac17a9848ea1ca8ad7bddc12427"
         }
       ],
-      "blockedOn": "failed_grab"
+      "blockedOn": "u_slip_free"
     },
     {
       "id": "monster-melee-crush-on-the-hero-stops",
@@ -2879,7 +2883,13 @@
       "status": "open",
       "from": "7312050c4131a851757c0bd7a687531ecb89558b",
       "detail": "mhitu.c mattacku()'s AT_HUGS arm (823-831) became reachable when slice two landed hitmu(). C's gate is (!range2 && i >= 2 && sum[i-1] && sum[i-2]) || mtmp == u.ustuck, and M_ATTK_MISS is 0x0 at monattk.h:108, so while hitmu() refused, sum[] stayed all zeros and the gate was always false; hitmu() now returns M_ATTK_HIT, so a monster whose third slot is AT_HUGS reaches js/mhitu.js:626 once its first two slots both land. The port keeps C's whole gate rather than a bare aatyp test, so the stop sits where C's branch begins and precedes failed_grab() and the hitmu() call behind it. The goal's boundary excludes the arm, so this is fail-closed rather than a defect. Two things close it: porting failed_grab() and the AT_HUGS hitmu() call, and re-judging the four mutation survivors recorded on this gate, whose reason was that sum[] never leaves M_ATTK_MISS and expired with slice two. Found by the goal-closing correctness pass over 2be53e4..d0612ef.",
-      "blockedOn": "failed_grab"
+      "blockedOn": "u_slip_free",
+      "notes": [
+        {
+          "text": "Blocker corrected from failed_grab to u_slip_free, on the slice-selector's reading at 51d94ba, which I verified. failed_grab landed at js/mhitm.js:457, but for the monster-versus-monster caller, so this entry began counting on a symbol that landed for someone else. Closing it needs mhitu.c u_slip_free() at nethack-c/upstream/src/mhitu.c:1047, which `grep -rn u_slip_free js/` does not find and which exits 1, plus the AT_HUGS arm of uhitm.c mhitm_ad_phys() at :4021-4037, which js/uhitm.js:1497 refuses by name. I ran that grep myself and confirm both sides. Recording it is harder than porting it: the species whose attack list holds AT_HUGS are the owlbear, carnivorous ape, rope golem, python, kraken and salamander, all above the D:1 draw cap of one, so a fresh differential needs create_particular(), which is unported and is the wizgenesis census row.",
+          "at": "51d94ba1cf13eac17a9848ea1ca8ad7bddc12427"
+        }
+      ]
     },
     {
       "id": "elapsed-turn-planning-message-choice-unpinned",
