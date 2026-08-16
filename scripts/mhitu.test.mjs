@@ -40,7 +40,7 @@ import {
     mswings_verb,
     mtrapped_in_pit,
 } from '../js/mhitu.js';
-import { sticks } from '../js/mondata.js';
+import { sticks, thick_skinned } from '../js/mondata.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     monst_globals_init,
@@ -64,7 +64,10 @@ import {
     PM_BARROW_WIGHT,
     PM_CLERIC,
     PM_GIANT_EEL,
+    PM_BABY_GRAY_DRAGON,
     PM_GOBLIN,
+    PM_PURPLE_WORM,
+    PM_SHRIEKER,
     PM_GRID_BUG,
     PM_HUMAN,
     PM_JACKAL,
@@ -92,6 +95,7 @@ import {
     HAWAIIAN_SHIRT,
     LEATHER_ARMOR,
     LONG_SWORD,
+    ORCISH_DAGGER,
     objects_globals_init,
 } from '../js/objects.js';
 import { mhitm_ad_phys } from '../js/uhitm.js';
@@ -1559,12 +1563,14 @@ test('mhitm_ad_phys stops on a wielded weapon and not on an empty hand',
         { lines: ['The goblin hits!'], hitflags: M_ATTK_HIT, reason: undefined });
 });
 
-test('mhitm_ad_phys stops on the three arms no ported path reaches',
+test('mhitm_ad_phys stops on the two arms no ported path reaches',
     async () => {
-    // uhitm.c:4023, `mattk->aatyp == AT_HUGS && !sticks(pd)`, and the two
-    // outer arms at :3988 and :4128. mattacku() refuses AT_HUGS at
-    // js/mhitu.js:626 and neither outer arm has a ported caller, so these are
-    // fail-closed guards rather than reachable stops.
+    // uhitm.c:4023, `mattk->aatyp == AT_HUGS && !sticks(pd)`, and the uhitm
+    // arm at :3988. mattacku() refuses AT_HUGS at js/mhitu.js:626 and
+    // damageum() is unported, so these are fail-closed guards rather than
+    // reachable stops. The mhitm arm at :4128 is no longer one of them:
+    // mhitm.c mdamagem() reaches it on every landed monster-versus-monster
+    // blow, and the rows at the end of this test cover it.
     const state = await meleeHero();
     const python = meleeAttacker(state, PM_PYTHON, 1, 0);
     const hugs = python.data.mattk[2];
@@ -1608,9 +1614,102 @@ test('mhitm_ad_phys stops on the three arms no ported path reaches',
 
     assert.equal(await refused(state.youmonst, hugs, python),
         "the hero's own physical attack");
+});
+
+// uhitm.c mhitm_ad_phys():4128-4200, the arm mhitm.c mdamagem() reaches. It
+// adjusts the damage mdamagem() already rolled and prints nothing, because
+// hitmm() has printed already.
+test('mhitm_ad_phys adjusts one monster\'s blow on another in silence',
+    async () => {
+    const state = await meleeHero();
+    const python = meleeAttacker(state, PM_PYTHON, 1, 0);
     const rat = meleeAttacker(state, PM_SEWER_RAT, 0, 1);
-    assert.equal(await refused(python, python.data.mattk[0], rat),
-        'one monster hitting another');
+    const bite = python.data.mattk[0];
+    assert.equal(bite.aatyp, AT_BITE);
+    const refused = async (magr, mattk, mdef) => {
+        const { env } = physEnv(state);
+        return mhitm_ad_phys(magr, mattk, mdef, physMhm(1), state, env)
+            .then(() => null, (error) => error.reason);
+    };
+
+    // The ordinary case: no weapon, no shade, no kick, so C falls off the end
+    // of the chain and leaves mdamagem()'s roll untouched.
+    const plain = physEnv(state);
+    const kept = physMhm(5);
+    await mhitm_ad_phys(python, bite, rat, kept, state, plain.env);
+    assert.deepEqual(plain.lines, []);
+    assert.equal(kept.damage, 5);
+    assert.equal(kept.hitflags, M_ATTK_MISS);
+
+    // uhitm.c:4138-4142. A kick against a thick-skinned defender costs it
+    // nothing. A python has no kick, so the attack record is fabricated the
+    // way this file's other structural cases are.
+    const kick = { aatyp: AT_KICK, adtyp: AD_PHYS, damn: 1, damd: 4 };
+    const dragon = meleeAttacker(state, PM_BABY_GRAY_DRAGON, -1, 0);
+    assert.equal(thick_skinned(dragon.data), true);
+    const kicked = physMhm(5);
+    await mhitm_ad_phys(python, kick, dragon, kicked, state, physEnv(state).env);
+    assert.equal(kicked.damage, 0);
+    // The same kick against a defender without a thick hide keeps its damage,
+    // so the arm rests on thick_skinned() rather than on the aatyp.
+    const soft = physMhm(5);
+    await mhitm_ad_phys(python, kick, rat, soft, state, physEnv(state).env);
+    assert.equal(soft.damage, 5);
+
+    // uhitm.c:4143-4188. A wielded weapon is this arm's fail-closed edge, and
+    // only AT_WEAP or AT_CLAW reads one: mhitm.c mattackm() refuses AT_WEAP
+    // outright, so an armed claw is the one way in.
+    const armed = meleeAttacker(state, PM_GOBLIN, 0, -1);
+    armed.mw = mksobj(ORCISH_DAGGER, false, false, { state });
+    const clawed = { aatyp: AT_CLAW, adtyp: AD_PHYS, damn: 1, damd: 3 };
+    assert.equal(
+        await refused(armed, clawed, rat),
+        "a monster's wielded weapon landing on another",
+    );
+    // The same attacker biting rather than clawing drops the weapon from the
+    // decision and lands an ordinary blow.
+    const bit = physMhm(4);
+    await mhitm_ad_phys(armed, bite, rat, bit, state, physEnv(state).env);
+    assert.equal(bit.damage, 4);
+
+    // uhitm.c:4189-4198. A purple worm's bite is held one point short of
+    // killing a shrieker, so that its engulf attack can swallow the corpse.
+    // Both species have to match, and the target has to be worth sparing.
+    const worm = meleeAttacker(state, PM_PURPLE_WORM, 1, 1);
+    const shrieker = meleeAttacker(state, PM_SHRIEKER, -1, 1,
+                                   { mhp: 4, mhpmax: 4 });
+    const spared = physMhm(9);
+    await mhitm_ad_phys(worm, bite, shrieker, spared, state,
+                        physEnv(state).env);
+    assert.equal(spared.damage, 3);
+    // Damage below the target's hit points is left alone, which is the
+    // first half of C's `mhm->damage >= mdef->mhp` test.
+    const light = physMhm(3);
+    await mhitm_ad_phys(worm, bite, shrieker, light, state,
+                        physEnv(state).env);
+    assert.equal(light.damage, 3);
+    // Exactly the target's hit points is still clamped.
+    const exact = physMhm(4);
+    await mhitm_ad_phys(worm, bite, shrieker, exact, state,
+                        physEnv(state).env);
+    assert.equal(exact.damage, 3);
+    // A shrieker already down to one hit point is not worth sparing.
+    shrieker.mhp = 1;
+    const doomed = physMhm(9);
+    await mhitm_ad_phys(worm, bite, shrieker, doomed, state,
+                        physEnv(state).env);
+    assert.equal(doomed.damage, 9);
+    // The same blow from anything else, or against anything else, keeps its
+    // damage, so both halves of the species test are load-bearing.
+    shrieker.mhp = 4;
+    const other = physMhm(9);
+    await mhitm_ad_phys(python, bite, shrieker, other, state,
+                        physEnv(state).env);
+    assert.equal(other.damage, 9);
+    const elsewhere = physMhm(9);
+    rat.mhp = 4;
+    await mhitm_ad_phys(worm, bite, rat, elsewhere, state, physEnv(state).env);
+    assert.equal(elsewhere.damage, 9);
 });
 
 test('mdamageu stops at the hero\'s death and not one hit point above it',

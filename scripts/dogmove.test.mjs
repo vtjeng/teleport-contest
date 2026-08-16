@@ -48,6 +48,7 @@ import {
     M2_ROCKTHROW,
     MS_LEADER,
     MONSTER_TEMPLATES,
+    PM_ACID_BLOB,
     PM_BAT,
     PM_FIRE_ELEMENTAL,
     PM_FLOATING_EYE,
@@ -133,10 +134,19 @@ function movementEnv(state, overrides = {}) {
             // Choose the second outcome when it exists while keeping rn2(1)
             // at its only valid result for single-candidate selection.
             rn2: (bound) => Math.min(1, bound - 1),
+            // mhitm.c mattackm() draws through the same injection once
+            // dog_move() reaches an adjacent target. Both answer the lowest
+            // roll, which misses every defender in this file.
+            rnd: () => 1,
+            d: () => 1,
+        },
+        message: async () => {},
+        redraw: () => {},
+        unsupported: (reason) => {
+            throw new Error(`unsupported: ${reason}`);
         },
         avoidKicked: () => false,
         avoidSokobanPush: () => false,
-        maxPassiveDamage: () => 0,
         monsterReflects: () => false,
         resistsStone: () => false,
         bestTarget: () => null,
@@ -524,7 +534,8 @@ test('best_target uses dy-major ray order and rejects negative scores', () => {
     }), first, 'forced selection retains a negative target');
 });
 
-test('pet_ranged_attk preserves target fuzz and hungry gate ordering', () => {
+test('pet_ranged_attk preserves target fuzz and hungry gate ordering',
+    async () => {
     const { monster, state } = activePetState();
     monster.m_lev = 2;
     monster.mux = 1;
@@ -542,7 +553,7 @@ test('pet_ranged_attk preserves target fuzz and hungry gate ordering', () => {
     };
     place_monster(target, target.mx, target.my, state);
     const events = [];
-    assert.equal(pet_ranged_attk(monster, false, {
+    assert.equal(await pet_ranged_attk(monster, false, {
         state,
         monsterCanSee: () => true,
         random: {
@@ -554,7 +565,7 @@ test('pet_ranged_attk preserves target fuzz and hungry gate ordering', () => {
     assert.deepEqual(events, [['rnd', 5], ['rn2', 5]]);
 
     const accepted = [];
-    assert.equal(pet_ranged_attk(monster, false, {
+    assert.equal(await pet_ranged_attk(monster, false, {
         state,
         monsterCanSee: () => true,
         random: {
@@ -576,7 +587,7 @@ test('pet_ranged_attk preserves target fuzz and hungry gate ordering', () => {
 });
 
 test('pet_ranged_attk rejects negative targets and uses strict hunger time',
-    () => {
+    async () => {
         const { monster, state } = activePetState();
         monster.m_lev = 2;
         monster.mux = 1;
@@ -598,13 +609,14 @@ test('pet_ranged_attk rejects negative targets and uses strict hunger time',
             random: { rnd: () => 1, rn2: () => 0 },
             mattackm: () => assert.fail('a negative target is filtered'),
         };
-        assert.equal(pet_ranged_attk(monster, false, common), MMOVE_NOTHING);
+        assert.equal(await pet_ranged_attk(monster, false, common),
+                     MMOVE_NOTHING);
 
         target.data = state.mons[PM_GIANT_ANT];
         target.mpeaceful = false;
         monster.mextra.edog.hungrytime = state.moves - 300;
         const events = [];
-        assert.equal(pet_ranged_attk(monster, false, {
+        assert.equal(await pet_ranged_attk(monster, false, {
             ...common,
             random: {
                 rnd: () => 1,
@@ -980,11 +992,19 @@ test('dog_move skips goals and ranged attacks after inventory eating',
         assert.deepEqual(events, ['eat']);
     });
 
+// dogmove.c:1122, `max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp`. An acid blob's
+// only attack slot is ATTK(AT_NONE, AD_ACID, 1, 8) (monsters.h:137-140), so
+// mondata.c max_passive_dmg() answers 1 * 8 * (one melee attack) = 8 against a
+// little dog, which is exactly this fixture's hit points and reaches the balk
+// on the `>=`. A dog with one more hit point walks past it and attacks, which
+// is what the second half asserts; mhitm.c mattackm() then answers M_ATTK_MISS
+// because the blob is two squares away.
 test('dog_move rejects lethal passive damage before attacking', async () => {
     const { state, monster } = activePetState();
     const defender = {
-        data: { mflags1: 0, mflags2: 0, msound: 0 },
-        m_lev: 0,
+        data: state.mons[PM_ACID_BLOB],
+        m_lev: 1,
+        mcanmove: true,
         mhp: 1,
         mhpmax: 1,
         mpeaceful: false,
@@ -993,23 +1013,25 @@ test('dog_move rejects lethal passive damage before attacking', async () => {
         my: 5,
     };
     place_monster(defender, defender.mx, defender.my, state);
-    let passiveChecks = 0;
+    const candidate = fixedCandidates([{
+        x: defender.mx,
+        y: defender.my,
+        info: ALLOW_M,
+    }]);
 
+    assert.equal(monster.mhp, 8);
     const result = await dog_move(monster, false, movementEnv(state, {
-        findPositions: fixedCandidates([{
-            x: defender.mx,
-            y: defender.my,
-            info: ALLOW_M,
-        }]),
-        maxPassiveDamage() {
-            passiveChecks++;
-            return monster.mhp; // Equal damage reaches the source balk.
-        },
-        attackMonster: () => assert.fail('lethal passive target'),
+        findPositions: candidate,
     }));
-
     assert.equal(result, MMOVE_MOVED);
-    assert.equal(passiveChecks, 1);
+
+    monster.mhp = 9;
+    await assert.rejects(
+        dog_move(monster, false, movementEnv(state, {
+            findPositions: candidate,
+        })),
+        /an acid splash from the monster attacked/u,
+    );
 });
 
 test('dog_move makes a leashed pet whimper at a trap before moving',
@@ -1115,12 +1137,21 @@ test('dog_move skips food classification on an unreachable candidate',
         ]);
     });
 
+// dogmove.c:1149-1150 aims gb.bhitpos at the square the pet steps into rather
+// than at the defender's own, and derives gn.notonhead from the difference.
+// mhitm.c mattackm() is the reader: its per-slot `m_at(gb.bhitpos.x,
+// gb.bhitpos.y) != mdef` test at :378-380 skips every slot after the first
+// once the target has moved. Here the head sits one column past the candidate,
+// so the pair records a tail hit. mattackm() answers M_ATTK_MISS -- the head
+// is two squares away, so every melee slot takes its `distmin > 1` continue --
+// and dog_move() returns MMOVE_DONE without a return attack.
 test('dog_move sets worm-tail attack globals before combat', async () => {
     const { state, monster } = activePetState();
     monster.m_lev = 3;
     const defender = {
-        data: { mflags1: 0, mflags2: 0, msound: 0 },
+        data: state.mons[PM_GIANT_ANT],
         m_lev: 0,
+        mcanmove: true,
         mhp: 1,
         mhpmax: 1,
         mpeaceful: false,
@@ -1137,14 +1168,90 @@ test('dog_move sets worm-tail attack globals before combat', async () => {
             y: 5,
             info: ALLOW_M,
         }]),
-        attackMonster() {
-            assert.deepEqual(state.gb.bhitpos, { x: 6, y: 5 });
-            assert.equal(state.gn.notonhead, true);
-            return MMOVE_DONE;
-        },
     }));
 
     assert.equal(result, MMOVE_DONE);
+    assert.deepEqual(state.gb.bhitpos, { x: 6, y: 5 });
+    assert.equal(state.gn.notonhead, true);
+});
+
+// dogmove.c dog_move():1152-1170, the return attack. Every conjunct must
+// hold: the pet must have hit without killing, rn2(4) must be nonzero, the
+// defender must not have moved this turn, the square must not be scary, and
+// the defender must be able to reach the pet. The fixture map is unlit, so
+// each blow is read off hit points rather than off a message.
+test('dog_move lets a struck defender hit back', async () => {
+    const { state, monster } = activePetState();
+    state.moves = 5;
+    // A giant ant's armour class is 3, so a second-level attacker's
+    // differential is 5 and the lowest roll lands.
+    monster.m_lev = 2;
+    const defender = {
+        data: state.mons[PM_GIANT_ANT],
+        m_lev: 2,
+        mcanmove: true,
+        mcansee: true,
+        mhp: 20,
+        mhpmax: 20,
+        mlstmv: 0,
+        mpeaceful: false,
+        mtame: 0,
+        mx: 6,
+        my: 5,
+    };
+    place_monster(defender, defender.mx, defender.my, state);
+    const candidate = fixedCandidates([{
+        x: defender.mx,
+        y: defender.my,
+        info: ALLOW_M,
+    }]);
+    const env = (overrides = {}) => movementEnv(state, {
+        findPositions: candidate,
+        ...overrides,
+    });
+    const round = async (label, overrides) => {
+        defender.mlstmv = overrides?.mlstmv ?? 0;
+        const before = { pet: monster.mhp, foe: defender.mhp };
+        assert.equal(await dog_move(monster, false, env(overrides?.env ?? {})),
+                     MMOVE_DONE, label);
+        return {
+            pet: before.pet - monster.mhp,
+            foe: before.foe - defender.mhp,
+        };
+    };
+
+    // movementEnv()'s rnd() answers 1, the lowest roll, so the pet hits and
+    // the ant hits back for one point each.
+    assert.deepEqual(await round('hit'), { pet: 1, foe: 1 });
+
+    // A missed blow leaves mstatus at M_ATTK_MISS while every later conjunct
+    // stays true, so only the first one can be keeping the ant quiet.
+    assert.deepEqual(
+        await round('miss', {
+            env: {
+                random: {
+                    rn2: (bound) => Math.min(1, bound - 1),
+                    // The highest roll rnd(20) can return misses whatever the
+                    // differential is.
+                    rnd: (bound) => bound,
+                    d: () => 1,
+                },
+            },
+        }),
+        { pet: 0, foe: 0 },
+    );
+
+    // rn2(4) answering zero declines the return attack after a hit.
+    assert.deepEqual(
+        await round('declined', {
+            env: { random: { rn2: () => 0, rnd: () => 1, d: () => 1 } },
+        }),
+        { pet: 0, foe: 1 },
+    );
+
+    // A defender that has already moved this turn does not act again.
+    assert.deepEqual(await round('spent', { mlstmv: state.moves }),
+                     { pet: 0, foe: 1 });
 });
 
 test('dog_move unleashes a pet before attacking the hero', async () => {

@@ -30,7 +30,9 @@ import {
     MANFOOD,
     M_AP_NOTHING,
     M_AP_TYPMASK,
+    M_ATTK_AGR_DIED,
     M_ATTK_DEF_DIED,
+    M_ATTK_HIT,
     M_ATTK_MISS,
     MMOVE_DIED,
     MMOVE_DONE,
@@ -71,6 +73,7 @@ import {
     is_swimmer,
     likes_lava,
     locomotion,
+    max_passive_dmg,
     mindless,
     needspick,
     nohands,
@@ -104,6 +107,8 @@ import {
 import {
     mfndpos,
     mon_track_add,
+    monnear,
+    onscary,
     should_displace,
     undesirable_disp,
 } from './monmove.js';
@@ -885,9 +890,11 @@ export function best_target(monster, forced, rawEnv = {}) {
 }
 
 // C ref: dogmove.c pet_ranged_attk(). Covers forced=FALSE and the distant
-// physical miss returned by mhitm.c mattackm(); real ranged attacks and
-// retaliation remain refused by the called narrow owner.
-export function pet_ranged_attk(monster, forced, rawEnv = {}) {
+// miss mhitm.c mattackm() returns: every melee slot falls out at its
+// `distmin > 1` continue, and every later slot at the target-still-there test,
+// because the bhitpos written below names the aggressor's own square rather
+// than the target's. A real ranged attack refuses inside mattackm().
+export async function pet_ranged_attk(monster, forced, rawEnv = {}) {
     if (forced) targetingRefusal(rawEnv, 'an unforced target scan');
     admitOrdinaryStartingPet(monster, rawEnv);
     const state = rawEnv.state ?? game;
@@ -916,7 +923,7 @@ export function pet_ranged_attk(monster, forced, rawEnv = {}) {
     state.gn ??= {};
     state.gn.notonhead = false;
     const attack = rawEnv.mattackm ?? mattackm;
-    const status = attack(monster, target, { ...rawEnv, state, random });
+    const status = await attack(monster, target, { ...rawEnv, state, random });
     if (status !== M_ATTK_MISS)
         targetingRefusal(rawEnv, 'a distant physical miss');
     return MMOVE_NOTHING;
@@ -1053,11 +1060,7 @@ export async function dog_move(monster, after, rawEnv = {}) {
             if (occupant.m_lev >= balk
                 || (occupant.mtame && monster.mtame
                     && !conflictActive(state))
-                || petMoveOperation(env, 'maxPassiveDamage')(
-                    occupant,
-                    monster,
-                    env,
-                ) >= monster.mhp
+                || max_passive_dmg(occupant, monster, state) >= monster.mhp
                 || ((monster.mhp * 4 < monster.mhpmax
                     || occupant.data?.msound === MS_GUARDIAN
                     || occupant.data?.msound === MS_LEADER)
@@ -1100,17 +1103,27 @@ export async function dog_move(monster, after, rawEnv = {}) {
                 // target due to its retained FIXME.
                 continue;
             }
-            if (after) return MMOVE_NOTHING;
+            if (after) return MMOVE_NOTHING; /* hit only once each move */
+
             setMonsterAttackPosition(occupant, x, y, state);
-            const result = await petMoveOperation(env, 'attackMonster')(
-                monster,
-                occupant,
-                after,
-                env,
-            );
-            if (result !== MMOVE_DONE && result !== MMOVE_DIED)
-                throw new RangeError('dog_move attackMonster status');
-            return result;
+            let mstatus = await mattackm(monster, occupant, env);
+
+            /* aggressor (pet) died */
+            if (mstatus & M_ATTK_AGR_DIED) return MMOVE_DIED;
+
+            if ((mstatus & (M_ATTK_HIT | M_ATTK_DEF_DIED)) === M_ATTK_HIT
+                && random.rn2(4)
+                && occupant.mlstmv !== state.moves
+                && !onscary(monster.mx, monster.my, occupant, state)
+                /* monnear check needed: long worms hit on tail */
+                && monnear(occupant, monster.mx, monster.my, state)) {
+                setMonsterAttackPosition(
+                    monster, monster.mx, monster.my, state,
+                );
+                mstatus = await mattackm(occupant, monster, env); /* return attack */
+                if (mstatus & M_ATTK_DEF_DIED) return MMOVE_DIED;
+            }
+            return MMOVE_DONE;
         }
         if ((data.info[index] & ALLOW_MDISP) && occupant
             && betterWithDisplacing

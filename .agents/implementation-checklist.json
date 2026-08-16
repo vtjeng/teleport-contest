@@ -1,295 +1,239 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "All three slices of monster-melee-attack have landed, through 28c62d0, and the goal's two testable conditions were verified at that commit rather than taken from a worker's report. Condition one: all five arms the hero's own state gates still refuse, at js/mhitu.js:510, :513, :516, :543 and :548. Condition two: `grep -c \"unported('mhitm_ad\" js/uhitm.js` answers 37, and exactly AD_PHYS and AD_ELEC have a ported arm. Every entry is done (16), cannot-occur (10), no-effect-yet (2) or later (2) with evidence, and missingWorkByOwner is empty. The goal-closing pass corrected two entries in this file: a count of the refused mhitm_adtyping() arms that read thirty-eight against this note's own thirty-seven, and the AT_HUGS arm, recorded as cannot-occur on the reason that sum[] never leaves M_ATTK_MISS, which expired when slice two landed hitmu(). Two limits apply to this file rather than to the code. It was opened at 7d62df5, after the goal's first two slices had already landed 1,651 changed production lines across eight files, measured by `git diff --numstat a9ba71a..a119cd0 -- js/` with the generated js/monsters.js excluded, so its entries were written against reviewed code rather than ahead of it; the 500-line trigger was passed inside slice one alone and the file should have existed then. And its entries treat the thirty-seven unported arms of mhitm_adtyping() as one entry, because the goal's boundary refuses all of them at a single switch, so this file does not record which a recorded session would reach first. One departure from the goal's headline sentence is deliberate: an armed monster's blow does not reach the hero's hit points, because mhitm_ad_phys()'s AT_WEAP block at uhitm.c:4041-4121 refuses. The goal's two testable conditions do not cover it, AGENTS.md defers rare cases the goal does not name, and 98 seeds scanned for the first slice opened with no armed attacker.",
-  "commitChecked": "28c62d09650a6718211a22ad9ae8d88731e992e0",
+  "mode": "implementation",
+  "reason": "The slice's production work and tests are written and the fresh matrix passes, but the commit that lands them does not exist yet, so commitChecked cannot name it. The follow-up commit that lowers seed0030's score ratchet flips this to ready-for-audit against the implementation commit.",
+  "commitChecked": "648b03a04114a236b965e1c21384fd0400ea8969",
   "boundary": {
-    "goalId": "monster-melee-attack",
-    "startingCommit": "a9ba71a093e6c2192f888083f9d1c36a60ed5050, which is db92431's parent and so the last commit before the goal's first slice",
-    "startingEvent": "monmove.c dochug() calls mhitu.c mattacku() for a monster standing where monnear(mtmp, mtmp->mux, mtmp->muy) holds, which js/monmove.js reaches on the monster's own turn inside moveloop.",
-    "endingEvent": "The hero's hit points have changed and the status line shows it, or the attack missed and missmu() has printed its line. For a landed blow the boundary runs through hitmu(), mhitm_adtyping() and mdamageu() to disp.botl and the passive counter-attack, ending when mattacku() returns its M_ATTK_ flags to dochug().",
-    "validInputs": "Any input sequence that leaves a hostile monster adjacent to the hero at the top of its turn. The recorded cases reach it by walking the hero into a corridor and back so that a sewer rat, a newt or a grid bug closes. Character choices matter only through AC and hit points, which set the to-hit differential and the damage the hero survives.",
-    "observables": "The hit or miss message, the hero's hit points and the status line that shows them, the random-number log through find_roll_to_hit()'s rnd(20), hitmu()'s d(damn, damd) and mdamageu()'s arithmetic, and the screen and cursor after disp.botl. The planning clone runs every monster turn twice, so a message printed outside an env.planning-gated operation appears twice and is an observable defect.",
-    "exclusions": "Every arm the hero's own state gates: u.uswallow (520-528), u.uundetected (551-660), the S_MIMIC and M_AP_OBJECT hero-mimic blocks (663-706), u.uinvulnerable (743-755) and the summonmu() gate (729-741). Every range2 arm. Inside the NATTK loop, AT_HUGS, AT_ENGL, AT_EXPL, AT_GAZE and AT_MAGC. Inside mhitm_adtyping(), every adtyp but AD_PHYS and AD_ELEC. Inside mhitm_ad_phys(), the AT_WEAP && otmp block at uhitm.c:4041-4121. mhitm_knockback() past its msize test at uhitm.c:5325. passiveum() past `if (!Upolyd)` at 2519. The hero's death, which mdamageu() refuses ahead of done_in_by()."
+    "goalId": "pet-melee-attack",
+    "startingCommit": "2b393bcc094605c8bf3917fe173f70686b96f128",
+    "startingEvent": "dogmove.c dog_move() reaches its ALLOW_M arm with an adjacent hostile on the square the pet would step into, which mon.c mon_allowflags() flags for every tame monster.",
+    "endingEvent": "The screen after the defender's death line, once mon.c monkilled(), mondied() and corpse_chance() have run and makemon.c grow_up() has banked the killer's hit point. monkilled()'s line blocks at a --More-- when it is not the turn's first, so the kill's own draws land on the following key and the differential compares per step.",
+    "validInputs": "Any role whose starting pet is a kitten, little dog or pony, with the pet adjacent to an ordinary hostile. The committed matrix presses spaces alone, with rest_on_space and !safe_wait so that one key both rests a move and dismisses a --More--.",
+    "observables": "The to-hit roll rnd(20 + i), missmm()'s and hitmm()'s lines, mdamagem()'s d(damn,damd), mhitm_knockback()'s rn2(3) and rn2(6), passivemm()'s rn2(3) while the defender lives, monkilled()'s line, corpse_chance()'s rn2(tmp), make_corpse() and its corpse timer, grow_up()'s rnd(victim->m_lev + 1) and the mhpmax it banks, and dog_move()'s own rn2(4) for the return attack.",
+    "exclusions": "Every mattackm() arm outside the AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT group: AT_WEAP, AT_HUGS, AT_GAZE, AT_EXPL, AT_ENGL, AT_BREA and AT_SPIT, with gazemm(), gulpmm(), explmm(), mswingsm() and thrwmm() unported. Inside mdamagem(), everything an AD_PHYS blow does not reach: the touch_petrifies() pre-check, the pudding clone and the AD_DGST tail. Inside passivemm(), every damage type but the empty slot's own. makemon.c grow_up()'s level gain and its !victim arm. dogmove.c dog_eat(), which the pet reaches on the turn after a kill that leaves a corpse."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "mhitu.c mattacku() (491-951) and its whole call tree: calc_mattacku_vars() (447-463), mtrapped_in_pit() (466-479), getmattk() (309-444), could_seduce() (1933-1984), missmu() (84-100), mswings() (129-141), mswings_verb() (104-126), hitmsg() (28-81), magic_negation() (1088-1137), hitmu() (1143-1267), mdamageu() (1901-1927) and passiveum() (2434-2615). From hitmu() the tree crosses into uhitm.c: mhitm_adtyping() (4781-4832), mhitm_ad_elec() (2683-2739), mhitm_ad_phys() (3985-4200) and mhitm_knockback() (5245-5372). Two more files supply reachable helpers: muse.c find_offensive() (1420-1594) and mthrowu.c linedup(), m_lined_up() and lined_up().",
-    "dispatchTablesAndCatalogs": "monst.c's mons[] attack arrays, read through include/monsters.h, which fix each monster's six NATTK slots and so decide which aatyp and adtyp arms a recorded session can reach. include/monattk.h's AT_ and AD_ constants, six of which this goal added to scripts/generate-monsters.mjs and js/monsters.js. The sewer rat's ATTK(AT_BITE, AD_PHYS, 1, 3) at monsters.h:891 and the newt's and grid bug's rows are the ones the recorded corpus reaches first.",
-    "reachableHelpers": "Every call inside mattacku()'s tree was followed to a ported owner or a named refusal, by reading mhitu.c 491-951 top to bottom and pairing each branch with a js/mhitu.js line. The pure predicates the loop needs (m_next2u, mdistu, AC_VALUE, Half_physical_damage, mtrapped_in_pit, mswings_verb, magic_negation) arrived as ported functions under their C names. dist2() is a squared distance and never answers 3, which is what makes m_next2u()'s `<= 2` the same set of squares as mattacku()'s `!ranged`.",
-    "javascriptCrossCheck": "grep -n 'unsupported(|^export async function|^export function|^async function|^function |^// C ref' js/mhitu.js enumerated that file's owners and all twenty-two named refusals. git show HEAD:js/uhitm.js | grep -n 'unported(|^export async function|^export function' did the same for the uhitm side without touching the worker's tree. git log --oneline db92431^..HEAD listed the goal's nine commits. npm run quality -- --check reported the gate and the open deferrals. npm run checkpoint at 7d62df5 ran the suite, the seven generated-data checks and the development score together.",
-    "remainingLimits": "Four. The list is built from mattacku()'s static call tree, so a caller reaching these functions from outside mhitu.c would not appear in it; js/dogmove.js dog_move()'s usteed arm and pet_ranged_attk() are the two such seams and both are named in entries below. The AT_WEAP arm has no fresh end-to-end case: 98 seeds were scanned for the miss slice and none opened with an armed AT_WEAP attacker, so mswings() is unit-pinned only, filed as monster-melee-armed-swing blocked on thrwmu. The thirty-seven refused adtyp arms are one entry, not thirty-seven, so this file does not record which of them a recorded session would reach first. And the mutation run over slice two produced few mutable sites relative to its diff, so hand-broken lines recorded in the slice commit bodies stand in for part of that coverage."
+    "upstreamEntryPoints": "mhitm.c mattackm() (292-577) with noises() (26-38), pre_mm_attack() (40-73), missmm() (74-93), hitmm() (642-731), mdamagem() (1014-1120) and passivemm() (1301-1408); makemon.c grow_up() (2049-2179); uhitm.c mhitm_ad_phys()'s mhitm arm (4128-4200) and shade_miss() (2013-2050); do_name.c mon_nam_too() (1189-1216); dogmove.c dog_move()'s ALLOW_M arm (1113-1171).",
+    "dispatchTablesAndCatalogs": "monsters.h's attack lists decide which mattackm() case each slot takes; monst.h's NATTK bounds the loop. uhitm.c mhitm_adtyping()'s switch dispatches the damage type, and mon.c corpse_chance() reads the species geno and size.",
+    "reachableHelpers": "Every call in the ported functions was followed to its port or to a refusal: find_mac(), getmattk(), mtrapped_in_pit(), could_seduce(), distmin(), m_at(), mon_offmap(), monnear(), onscary(), touch_petrifies(), unsolid(), is_elf(), is_orc(), mon_hates_silver(), zombie_maker(), zombie_form(), objectType(), place_monster(), remove_monster(), mhitm_adtyping(), mhitm_knockback(), monkilled(), grow_up(), shade_miss(), mon_nam_too(), max_passive_dmg().",
+    "javascriptCrossCheck": "grep -rn 'unsupported(' js/mhitm.js js/makemon.js lists every stop this slice adds; grep -rn 'attackMonster|maxPassiveDamage' js/ returns nothing, which is how the two removed injections were confirmed gone; grep -rn 'bhitpos' js/ scripts/ shows one JavaScript home, state.gb.bhitpos.",
+    "remainingLimits": "The matrix covers a kitten and a little dog. A pony's two attack slots -- the only ported way to reach mattackm()'s rnd(21) and its per-slot target test with i > 0 -- appear in the development session seed0103 and in scripts/mhitm.test.mjs, not in a fresh recording, because pet_type() gives a pony only to a Knight and a Knight starts riding it."
   },
   "entries": [
     {
-      "candidate": "calc_mattacku_vars(), setting ranged, range2, foundyou and youseeit, then gb.bhitpos and gn.notonhead",
-      "reachability": "Runs first on every mattacku() call, before any branch or random-number call.",
-      "owner": "js/mhitu.js calc_mattacku_vars()",
-      "effects": "No output, no randomness. C writes two globals the port does not.",
-      "evidence": "mhitu.c:447-463. The port computes ranged from mdistu(), the hero's real square, and range2 from monnear(mtmp, mtmp.mux, mtmp.muy), the square the monster believes the hero occupies, matching :453-454 term for term. It ports neither global write, because gb.bhitpos has no ported reader: hitmu() reads neither, and mattacku()'s own u_at(gb.bhitpos.x, gb.bhitpos.y) test at :782 is tautologically false, the only intervening write being the steed retaliation at :545, which returns on every path out of :547.",
+      "candidate": "mhitm.c mattackm() head (306-370): the null guard, helpless(magr), the grid-bug angle test, the armour-class differential, the mconf/helpless bonus with its msleeping clear, the elf-versus-orc point, gv.vis, mlstmv and gs.skipdrin",
+      "reachability": "Every call runs it, before any draw.",
+      "owner": "js/mhitm.js mattackm()",
+      "effects": "Writes mdef.msleeping, gv.vis, magr.mlstmv and gs.skipdrin.",
+      "evidence": "scripts/mhitm.test.mjs pins each: the null guard, the grid bug on a diagonal and inline, the sleeping bonus at the roll that separates 5 from 9, the elf bonus against an orc and against a non-orc, and gv.vis through its three disagreeing configurations.",
       "status": "done",
-      "remaining": "None for this goal. The two JavaScript homes gb.bhitpos already has, state.bhitpos and state.gb.bhitpos, are filed as bhitpos-is-stored-in-two-places."
+      "remaining": ""
     },
     {
-      "candidate": "The `if (!ranged) nomul(0);` preamble",
-      "reachability": "Every call where the attacker is within three squares, which is every case this goal covers.",
-      "owner": "js/mhitu.js mattacku()",
-      "effects": "Clears the hero's occupation and multi-turn state; no randomness.",
-      "evidence": "mhitu.c:512-513. nomul() returns early at hack.c:4161 when gm.multi < nval, which is what leaves u.uinvulnerable and u.usleep set for the two arms below that read them. Pinned by 'an adjacent attacker still balks at an invulnerable hero' in scripts/mhitu.test.mjs, which sets state.multi = -3.",
+      "candidate": "mhitm.c mattackm() (337-359): the mundetected defender's unhide block",
+      "reachability": "A defender that was hiding when the pet reaches it.",
+      "owner": "js/mhitm.js mattackm(), refusal",
+      "effects": "None; the stop precedes every write.",
+      "evidence": "C repaints through newsym() and prints one of four lines, all of which need display.c sensemon() and gl.last_hider. scripts/mhitm.test.mjs 'a hidden defender stops the attack before it starts' asserts the stop and that mlstmv is untouched.",
+      "status": "missing",
+      "remaining": "Port sensemon() and the four lines."
+    },
+    {
+      "candidate": "mhitm.c mattackm() NATTK loop (372-397): the per-slot target test, getmattk() and the AT_TENT/AD_DRIN skip",
+      "reachability": "Slots after the first, once the first has run.",
+      "owner": "js/mhitm.js mattackm()",
+      "effects": "Selects the attack record for each slot.",
+      "evidence": "scripts/mhitm.test.mjs pins the widening die across a pony's two slots, the abandonment when gb.bhitpos names the aggressor's square, and a combatant on one hit point still reaching the later slots.",
       "status": "done",
-      "remaining": "None."
+      "remaining": ""
     },
     {
-      "candidate": "The DEADMONSTER(mtmp) and Underwater guards",
-      "reachability": "DEADMONSTER runs after nomul(0), which cannot kill the attacker. Underwater needs the hero submerged.",
-      "owner": "js/mhitu.js mattacku()",
-      "effects": "Returns 1 or 0; no output, no randomness.",
-      "evidence": "mhitu.c:514-517. No ported path submerges the hero: there is no water to enter, and u.uinwater has no ported writer.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The u.uswallow block, including its u.uinvulnerable arm",
-      "reachability": "Needs the hero swallowed, which needs AT_ENGL to have landed.",
-      "owner": "js/mhitu.js mattacku(), refusing",
-      "effects": "None; the refusal precedes every effect.",
-      "evidence": "mhitu.c:520-528. The goal's boundary excludes it. AT_ENGL refuses inside the NATTK loop at js/mhitu.js:642, so u.uswallow is never set.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The u.usteed block: the steed's own attack, the orc-steals-horse rn2 and the steed's retaliation",
-      "reachability": "Needs u.usteed, which needs a ported #ride.",
-      "owner": "js/mhitu.js mattacku(), returning false for mtmp == u.usteed and refusing the rest",
-      "effects": "The refusal precedes the rn2(is_orc ? 2 : 4) draw at :534, so no randomness is consumed.",
-      "evidence": "mhitu.c:529-549. C returns 0 when the attacker is the hero's own steed at :531-532, which the port returns as false; an earlier draft returned true and the slice-one correctness pass corrected it. Riding is unported, so u.usteed is never set. js/dogmove.js dog_move()'s usteed arm and pet_ranged_attk() are the two seams that would reach this.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The u.uundetected block, its is_hider ceiling arm and its eel arm",
-      "reachability": "Needs the hero hiding, which needs polymorph or a trapper.",
-      "owner": "js/mhitu.js mattacku(), refusing at :510",
-      "effects": "None; the refusal precedes map_invisible() and the u.uundetected write.",
-      "evidence": "mhitu.c:551-660. The goal's boundary excludes it. u.uundetected has no ported writer, because polymorph is unported.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The S_MIMIC and M_AP_OBJECT hero-mimic blocks",
-      "reachability": "Needs the hero polymorphed into a mimic or appearing as an object.",
-      "owner": "js/mhitu.js mattacku(), refusing at :513 and :516",
-      "effects": "None; both refusals precede their messages and their gm.multi writes.",
-      "evidence": "mhitu.c:663-706. The goal's boundary excludes both. U_AP_TYPE has no ported writer.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The to-hit differential: tmp from AC_VALUE(), the gm.multi, Invis, mtmp->mtrapped and tmp <= 0 adjustments",
-      "reachability": "Runs on every call that reaches it, before the NATTK loop and before any attack's own draw.",
-      "owner": "js/mhitu.js mattacku()",
-      "effects": "Computes an integer; no output, no randomness except AC_VALUE()'s draw for a negative AC.",
-      "evidence": "mhitu.c:709-719. AC_VALUE() at hack.h draws only when the hero's AC is negative, which no recorded start reaches. The four adjustments are ported in C's order, which is what keeps the rnd(20) below at the same log position.",
+      "candidate": "mhitm.c mattackm() (399-471): the AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT arm, its trapped-kick and distance continues, the cockatrice instinct, dieroll = rnd(20 + i), hitmm(), missmm() and the pudding clone",
+      "reachability": "Every ported pet attack.",
+      "owner": "js/mhitm.js mattackm()",
+      "effects": "One to-hit draw per slot, then hitmm() or missmm().",
+      "evidence": "The fresh matrix in scripts/run-pet-melee-attack.mjs replays six recordings covering misses, landed blows and kills; scripts/pet-melee-attack.test.mjs pins the draw runs per step.",
       "status": "done",
-      "remaining": "None."
+      "remaining": ""
     },
     {
-      "candidate": "The invisible-eel reveal at mhitu.c:721-727",
-      "reachability": "Needs an S_EEL monster that is invisible on a square the hero can see.",
-      "owner": "js/mhitu.js mattacku()",
-      "effects": "One pline and a newsym; no randomness.",
-      "evidence": "mhitu.c:721-727. Ported rather than refused, because it costs nothing to carry and sits in the middle of the branch order. No recorded session generates an eel, so it does not execute.",
-      "status": "no-effect-yet",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The summonmu() gate for demons and lycanthropes",
-      "reachability": "Needs a demon or were-creature attacker that is not cancelled and not shapechanged.",
-      "owner": "js/mhitu.js mattacku(), refusing at :543",
-      "effects": "None; the refusal precedes summonmu()'s draws.",
-      "evidence": "mhitu.c:729-741. The goal's boundary excludes it. The refusal sits above the block rather than inside summonmu(), so the guard's own reads happen first, as C does.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The u.uinvulnerable arm at mhitu.c:743-755",
-      "reachability": "Needs the hero mid-prayer. The preamble's nomul(0) does not clear the flag when gm.multi < nval, so this is reachable for an adjacent attacker.",
-      "owner": "js/mhitu.js mattacku(), refusing at :548",
-      "effects": "None; the refusal precedes the message and the u.ustuck release.",
-      "evidence": "mhitu.c:743-755. The goal's boundary excludes it. The slice-one correctness pass established that it is reachable rather than dead, and scripts/mhitu.test.mjs pins that with state.multi = -3.",
-      "status": "cannot-occur",
-      "remaining": "None. It becomes live when prayer lands, and the refusal is what holds until then."
-    },
-    {
-      "candidate": "find_offensive() and the use_offensive() path",
-      "reachability": "Runs on every call that reaches it, including the range2 path, which the port previously skipped entirely.",
-      "owner": "js/muse.js find_offensive() for its FALSE answer; js/mhitu.js:557 refuses a TRUE one",
-      "effects": "find_offensive() calls lined_up(), which can draw rn2(25); the port keeps that call where C runs it.",
-      "evidence": "muse.c:1420-1594 and mhitu.c:758-762. Ported for FALSE only, because use_offensive(), the sole reader of what it selects, is unported. Refusing a TRUE answer is fail-closed. This closed the production gap that refuseHeroAttack() had left, which admitted such a monster where C acts.",
-      "status": "done",
-      "remaining": "None for this goal. use_offensive() belongs to monster item use."
-    },
-    {
-      "candidate": "getmattk()'s substitution arms",
-      "reachability": "Runs once per NATTK slot, before each attack is used.",
-      "owner": "js/mhitu.js getmattk(), partially, refusing every substitution",
-      "effects": "None; each refusal precedes the rewrite it would perform.",
-      "evidence": "mhitu.c:309-444. Two arms, the cancelled-weapon and lich-touch rewrites, refuse one term earlier than C evaluates; the slice-one correctness pass confirmed that refusing early skips no C side effect, because the skipped terms are pure reads. SYSOPT_SEDUCE is off in this build, so the first substitution block is omitted rather than refused.",
-      "status": "done",
-      "remaining": "None. The omission of the SYSOPT_SEDUCE block rests on the build flag rather than on a runtime guard, which is why could_seduce() is ported and refuses at js/mhitu.js:131."
-    },
-    {
-      "candidate": "The NATTK loop's DEADMONSTER guard and its `i > 0` u_at(gb.bhitpos) test",
-      "reachability": "Both run on every slot after the first.",
-      "owner": "js/mhitu.js mattacku()",
-      "effects": "A continue; no output, no randomness.",
-      "evidence": "mhitu.c:771-783. The DEADMONSTER guard covers a counterattack having killed the attacker, and every counterattack sits behind code that refuses, so the attacker is always alive. The u_at test is tautologically false, as the calc_mattacku_vars() entry records. Both are omissions rather than stops, so both were re-derived from source rather than taken on trust.",
-      "status": "no-effect-yet",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The AT_CLAW, AT_KICK, AT_BITE, AT_STNG, AT_TUCH, AT_BUTT and AT_TENT arm, through its to-hit test",
-      "reachability": "The common case: any adjacent hostile monster with a hand-to-hand attack slot.",
-      "owner": "js/mhitu.js mattacku()",
-      "effects": "One rnd(20) per slot, then missmu() or hitmu().",
-      "evidence": "mhitu.c:794-821. This is the goal's first named arm. Pinned end to end by scripts/run-monster-melee-miss.mjs: 2 segments, 6068 PRNG calls, 160 screens, 160 cursors, all matching fresh C recordings.",
-      "status": "done",
-      "remaining": "None through the to-hit test. What follows a hit is the hitmu() entries below."
-    },
-    {
-      "candidate": "The AT_GAZE, AT_EXPL, AT_ENGL and AT_MAGC arms",
-      "reachability": "Each needs a monster carrying that attack type adjacent to the hero.",
-      "owner": "js/mhitu.js mattacku(), refusing at :634, :638, :642 and :711",
-      "effects": "None; every refusal precedes its arm's first draw and first message.",
-      "evidence": "mhitu.c:832-845, 926-935. The goal's boundary excludes all four.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The AT_HUGS arm, whose gate reads the two preceding attacks' results",
-      "reachability": "Live since slice two. C's gate is `(!range2 && i >= 2 && sum[i-1] && sum[i-2]) || mtmp == u.ustuck`, and M_ATTK_MISS is 0x0 (monattk.h:108), so while hitmu() refused, sum[] stayed all zeros and the gate was always false. hitmu() now returns M_ATTK_HIT, so a monster whose third slot is AT_HUGS reaches the refusal once its first two slots both land.",
-      "owner": "js/mhitu.js mattacku(), refusing at :626",
-      "effects": "None; the refusal precedes failed_grab() and the hitmu() call behind it.",
-      "evidence": "mhitu.c:823-831. The goal's boundary excludes the arm. The port keeps C's whole gate rather than a bare aatyp test, so the stop sits where C's branch begins. The four mutation survivors recorded on this gate carried the reason that sum[] never leaves M_ATTK_MISS; that reason expired with slice two and the survivors need re-judging against the live gate.",
-      "status": "later",
-      "remaining": "Filed as monster-melee-crush-on-the-hero-stops. The goal-closing pass found this entry recorded as cannot-occur on the expired sum[] reason."
-    },
-    {
-      "candidate": "The AT_WEAP arm's non-range2 half, through mon_wield_item() and mswings()",
-      "reachability": "Needs an adjacent monster wielding a weapon.",
-      "owner": "js/mhitu.js mattacku() and mswings()",
-      "effects": "mon_wield_item() can change the monster's wielded weapon; mswings() prints one line; then the same rnd(20).",
-      "evidence": "mhitu.c:883-925. Ported, but with no fresh end-to-end case: 98 seeds were scanned and none opened with an armed AT_WEAP attacker. mswings() and mswings_verb() are unit-pinned against the C strike-type table instead. Filed as monster-melee-armed-swing, blocked on thrwmu.",
-      "status": "done",
-      "remaining": "A recorded case. The gap is a validation gap rather than an implementation one, and the deferral holds it."
-    },
-    {
-      "candidate": "The AT_BREA and AT_SPIT arms, and every range2 arm",
-      "reachability": "Needs a ranged attacker, which dochug() reaches by a different path.",
-      "owner": "js/mhitu.js mattacku(), refusing at :646 and :650",
+      "candidate": "mhitm.c mattackm() (403-421): the AT_WEAP arm, its ranged thrwmm() head and its mon_wield_item()/possibly_unwield()/mswingsm() melee head",
+      "reachability": "An armed attacker. No starting pet carries AT_WEAP.",
+      "owner": "js/mhitm.js mattackm(), refusal at the case label",
       "effects": "None.",
-      "evidence": "mhitu.c:873-882. The goal's boundary excludes every range2 arm.",
+      "evidence": "scripts/mhitm.test.mjs 'mattackm stops at every attack type outside the physical group' asserts the reason for a fabricated AT_WEAP slot.",
       "status": "cannot-occur",
-      "remaining": "None."
+      "remaining": ""
     },
     {
-      "candidate": "missmu(), including its nearmiss wording and its gh globals",
-      "reachability": "Every slot whose to-hit test fails.",
-      "owner": "js/mhitu.js missmu()",
-      "effects": "One message, a stop_occupation() call, and a clear of the hitmsg globals.",
-      "evidence": "mhitu.c:84-100. Two arms refuse: a miss by a monster the hero cannot spot at :254 and a miss by an invisible monster the hero can see at :256. The first is a real boundary rather than a fixture artifact, because map_invisible() is unported and the fixture corridor is unlit.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "hitmsg(), including its `again` repeat-attack term",
-      "reachability": "Every landed blow.",
-      "owner": "js/mhitu.js hitmsg()",
-      "effects": "One message; no randomness.",
-      "evidence": "mhitu.c:28-81, over the gh globals at decl.h:457-458. The `again` term at js/mhitu.js:225-230 has never printed, and the comment at :174-177 records that: it needs one monster landing two blows in a turn, which needs AD_PHYS, since AD_ELEC monsters in the recorded corpus carry one attack slot.",
-      "status": "done",
-      "remaining": "A case that prints `again`. The queued AD_PHYS slice is the first that can reach it."
-    },
-    {
-      "candidate": "magic_negation(), over a_can and owornmask",
-      "reachability": "Read by hitmu() on every landed blow.",
-      "owner": "js/mhitu.js magic_negation()",
-      "effects": "Returns an integer; no output, no randomness.",
-      "evidence": "mhitu.c:1088-1137. The a_can and owornmask wiring was verified against the C before hitmu() was written: ring mail answers 1 for the seed0004 Knight.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "hitmu()'s preamble: the cannot-spot and was-hiding refusals, then d(damn, damd)",
-      "reachability": "Every landed blow.",
-      "owner": "js/mhitu.js hitmu()",
-      "effects": "The two refusals precede the damage roll; the roll itself draws.",
-      "evidence": "mhitu.c:1143-1267. Both refusals sit above d(damn, damd) at js/mhitu.js:840 and :846, which is what the slice-one brief required of the fail-closed edge and what slice two preserved when it lifted the edge.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "mhitm_adtyping()'s AD_ELEC arm",
-      "reachability": "Needs an adjacent monster with an AD_ELEC attack slot.",
-      "owner": "js/uhitm.js mhitm_ad_elec()",
-      "effects": "Shock damage, its message, and the hero's hit points.",
-      "evidence": "uhitm.c:2683-2739, the mdef == &gy.youmonst arm. Landed in slice two and pinned by scripts/run-monster-melee-hit-elec.mjs; the development score moved 1577 to 1657 of 7765 screens, the slice's full forecast.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "mhitm_adtyping()'s AD_PHYS arm",
-      "reachability": "The most common damage type in the early dungeon: the sewer rat's ATTK(AT_BITE, AD_PHYS, 1, 3) reaches it, as do every claw and butt attack.",
-      "owner": "js/uhitm.js mhitm_ad_phys(), the mdef arm's hand-to-hand path",
-      "effects": "hitmsg()'s line, the mhm->hitflags write, and the damage that reaches mdamageu().",
-      "evidence": "uhitm.c:3985-4200, of which 4038-4040 and 4122-4126 are the hand-to-hand path, under the `aatyp != AT_TUCH || damage != 0 || magr != u.ustuck` guard. Landed at 78a0330 with uhitm.c:4041's `AT_WEAP && otmp` as the fail-closed edge, keeping C's whole `AT_HUGS && !sticks(pd)` condition so the AT_HUGS stop sits where C's branch begins. Pinned by scripts/run-monster-melee-hit-phys.mjs: 2 segments, 7,440 PRNG calls, 291 screens, 291 cursors, verified by the orchestrator. The development score did not move, which was the forecast.",
-      "status": "done",
-      "remaining": "None for this goal. The armed blow at uhitm.c:4041-4121 stays refused and is its own goal, since it brings gm.mhitu_dieroll, dmgval integration, rustm() and the artifact and poison refusals together."
-    },
-    {
-      "candidate": "mhitm_adtyping()'s other thirty-seven adtyp arms",
-      "reachability": "Each needs a monster carrying that damage type.",
-      "owner": "js/uhitm.js mhitm_adtyping(), refusing at the switch",
-      "effects": "None; each refusal is the first statement of its case.",
-      "evidence": "uhitm.c:4781-4832. The goal's boundary refuses every adtyp but AD_PHYS and AD_ELEC, and the switch is where it does so, one named refusal per case.",
+      "candidate": "mhitm.c mattackm() (473-538): the AT_HUGS, AT_GAZE, AT_EXPL, AT_ENGL, AT_BREA and AT_SPIT arms",
+      "reachability": "Species outside the three starting pets.",
+      "owner": "js/mhitm.js mattackm(), refusals at the case labels",
+      "effects": "None.",
+      "evidence": "Same test, one row per attack type.",
       "status": "cannot-occur",
-      "remaining": "None for this goal. This entry stands for thirty-seven C functions and does not record which a recorded session would reach first, which is the third limit named above."
+      "remaining": ""
     },
     {
-      "candidate": "mhitm_knockback()'s gate and its u_def tail",
-      "reachability": "The gate runs on every AD_PHYS blow. Its u_def tail needs AD_PHYS with AT_CLAW, AT_KICK, AT_BUTT or AT_WEAP.",
-      "owner": "js/uhitm.js mhitm_knockback(), refusing at :1689 and past the msize test",
-      "effects": "The refusal precedes the push, so no state changes and no draw is lost.",
-      "evidence": "uhitm.c:5245-5372. The gate at :5273-5277 admits AD_PHYS with AT_CLAW, AT_KICK, AT_BUTT or AT_WEAP and excludes AT_BITE, so roughly one such blow in six now stops here; 11 of 400 scanned fresh walks end there. hitflags is first read at :5338, below the msize test at :5325-5326, so the current signature stays correct. Seed 6610034 is the recorded case, and it shows the refusal is conservative: C prints its message with rn2(6) == 0, then declines the push itself at the msize test, because a goblin is MZ_SMALL against an MZ_HUMAN hero. The port stops two tests above the one C answers on.",
+      "candidate": "mhitm.c mattackm() (540-577): the passivemm() call, the four result tests and the struck answer",
+      "reachability": "Every slot that attacked.",
+      "owner": "js/mhitm.js mattackm()",
+      "effects": "Folds the passive answer into the slot result and ends the loop on a death.",
+      "evidence": "scripts/mhitm.test.mjs asserts M_ATTK_DEF_DIED | M_ATTK_HIT for a fatal blow, which is passivemm() folding the strike in, and that a kill spends no passivemm() draw.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "mhitm.c pre_mm_attack() (40-73): the mimic and mundetected arms and the map_invisible()/newsym() pair",
+      "reachability": "The mundetected clears and the newsym() arm are ordinary; a mimic on either side, or a combatant gv.vis admits but canspotmon() does not, refuses.",
+      "owner": "js/mhitm.js pre_mm_attack()",
+      "effects": "Clears mundetected; may repaint.",
+      "evidence": "scripts/mhitm.test.mjs 'an ordinary blow repaints neither combatant' pins showit's FALSE, and the gv.vis rows reach the unspottable refusals.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "mhitm.c missmm() (74-93) and noises() (26-38)",
+      "reachability": "Every missed blow, named when gv.vis and heard otherwise.",
+      "owner": "js/mhitm.js missmm(), noises()",
+      "effects": "One line, and gf.far_noise and gn.noisetime when heard.",
+      "evidence": "scripts/mhitm.test.mjs pins both distance bands, the ten-move rate limit at its boundary, and a deaf hero's silence with the rate limit left where it was.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "mhitm.c hitmm() (642-731): pre_mm_attack(), could_seduce(), shade_miss(), the aatyp message switch, the silver line and noises()",
+      "reachability": "Every landed blow.",
+      "owner": "js/mhitm.js hitmm()",
+      "effects": "One line, then mdamagem().",
+      "evidence": "The matrix covers AT_BITE; scripts/mhitm.test.mjs adds the AT_TENT possessive. The seduction and silver arms refuse.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "mhitm.c mdamagem() (1024-1029, 1059-1070, 1119): the damage roll, mhitm_adtyping(), mhitm_knockback() and the surviving-defender answer",
+      "reachability": "Every landed blow.",
+      "owner": "js/mhitm.js mdamagem()",
+      "effects": "d(damn,damd), the knockback pair, and the defender's hit points.",
+      "evidence": "The matrix's landed blows, and scripts/mhitm.test.mjs 'damage that leaves one hit point does not kill'.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "mhitm.c mdamagem() (1031-1057): the touch_petrifies()/AD_DGST pre-check",
+      "reachability": "An attack on a cockatrice, or a digesting attack on Medusa.",
+      "owner": "js/mhitm.js mdamagem(), refusal",
+      "effects": "None beyond the damage roll C makes first.",
+      "evidence": "scripts/mhitm.test.mjs 'an attack on a petrifying defender stops above the damage type' asserts the stop, the draw that precedes it, and that a digesting bite on an ordinary defender passes the check.",
+      "status": "missing",
+      "remaining": "Port resists_ston(), mon_to_stone() and monstone()."
+    },
+    {
+      "candidate": "mhitm.c mdamagem() (1071-1119): the kill, gm.mkcorpstat_norevive, gz.zombify, monkilled(), the lifesaved return, the AD_DGST tail and grow_up()",
+      "reachability": "Every fatal blow.",
+      "owner": "js/mhitm.js mdamagem()",
+      "effects": "The death line, the corpse roll, the corpse, and the killer's raised maximum.",
+      "evidence": "The matrix covers a kill with a corpse and five without; scripts/mhitm.test.mjs reads both globals off the kill message.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "mhitm.c passivemm() (1301-1408): the empty-slot search, the damage dice, the AD_ACID and AD_ENCH switch, the mdead return, the rn2(3) guard and assess_dmg",
+      "reachability": "Every attack the aggressor made from an adjacent square.",
+      "owner": "js/mhitm.js passivemm()",
+      "effects": "One rn2(3) while the defender lives.",
+      "evidence": "The matrix's every attack; scripts/mhitm.test.mjs adds the full attack list and the acid refusal.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "mhitm.c passivemm() (1322-1354, 1364-1443): AD_ACID, AD_ENCH, AD_PLYS, AD_COLD, AD_STUN, AD_FIRE and AD_ELEC",
+      "reachability": "A defender whose empty slot carries one of them: an acid blob, a blue jelly, a floating eye.",
+      "owner": "js/mhitm.js passivemm(), refusals",
+      "effects": "None; the damage roll C makes above the switch is spent first.",
+      "evidence": "scripts/mhitm.test.mjs and scripts/dogmove.test.mjs both reach the acid arm, the latter through dog_move() with a pet whose hit points clear the balk.",
+      "status": "missing",
+      "remaining": "Port erode_armor(), acid_damage(), drain_item(), mon_reflects(), paralyze_monst(), golemeffects(), healmon() and split_mon()."
+    },
+    {
+      "candidate": "makemon.c grow_up() (2049-2100): the dead-killer guard, the hit-point threshold, max_increase, cur_increase and the early return",
+      "reachability": "Every kill.",
+      "owner": "js/makemon.js grow_up()",
+      "effects": "Raises mhpmax and mhp; the raise persists through storage.",
+      "evidence": "scripts/makemon.test.mjs pins the victim-level die, the golem threshold, the clamp and both sides of the dead-killer test; the matrix pins the banked point after each of six kills.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "makemon.c grow_up() (2101-2179): the level gain, little_to_big(), the genocide check, the growth line and the sanity limits, plus the !victim arm at 2103-2110",
+      "reachability": "A killer whose raised maximum passes its level ceiling; for a starting pet, its third or fourth kill.",
+      "owner": "js/makemon.js grow_up(), refusals",
+      "effects": "None past the banked maximum, which C writes above its own threshold test.",
+      "evidence": "scripts/makemon.test.mjs 'grow_up stops at a level gain and at a victimless one'. QUALITY.json's pet-kill-that-gains-a-level-stops records the fresh inputs and the expected failure.",
+      "status": "missing",
+      "remaining": "Port the level gain."
+    },
+    {
+      "candidate": "uhitm.c mhitm_ad_phys() mhitm arm (4128-4200): shade_miss(), the thick-skinned kick, the armed blow and the purple-worm hack",
+      "reachability": "Every landed monster-versus-monster blow, through mhitm_adtyping().",
+      "owner": "js/uhitm.js mhitm_ad_phys()",
+      "effects": "Adjusts the damage mdamagem() rolled; prints nothing.",
+      "evidence": "scripts/mhitu.test.mjs 'mhitm_ad_phys adjusts one monster's blow on another in silence' covers the ordinary path, the kick against a thick hide and against a soft one, the armed refusal, and every boundary of the purple-worm clamp.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "uhitm.c shade_miss() (2013-2050)",
+      "reachability": "hitmm() and mhitm_ad_phys() ask it before every blow; the answer is FALSE unless the defender is a shade.",
+      "owner": "js/uhitm.js shade_miss()",
+      "effects": "None for a defender that is not a shade.",
+      "evidence": "scripts/uhitm.test.mjs 'shade_miss answers only for a shade and stops there' covers both disjuncts of the head and both refusing rows.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "do_name.c mon_nam_too() (1189-1216)",
+      "reachability": "missmm() and hitmm() name the defender through it.",
+      "owner": "js/do_name.js mon_nam_too()",
+      "effects": "None; pronoun_gender() spends a draw only for a hallucinating hero.",
+      "evidence": "scripts/do-name.test.mjs pins the ordinary name and all four pronoun rows.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "dogmove.c dog_move() (1113-1171): the balk on max_passive_dmg(), the after guard, the bhitpos pair, mattackm(), the M_ATTK_AGR_DIED test and the return-attack block",
+      "reachability": "Every pet that steps toward an occupied square.",
+      "owner": "js/dogmove.js dog_move()",
+      "effects": "One rn2(4) when the pet hit without killing, then the defender's own mattackm().",
+      "evidence": "scripts/dogmove.test.mjs pins the balk on both sides of its >=, the worm-tail bhitpos pair, and all four conjuncts of the return attack; the matrix records three fresh return attacks, two of which land.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "dogmove.c dog_eat(), reached on the turn after a kill that leaves a corpse",
+      "reachability": "Any kill whose corpse_chance() answers yes, with the pet standing on the corpse.",
+      "owner": "js/unported_monster_actions.js, 'pet eating'",
+      "effects": "None; the stop is the segment's end.",
+      "evidence": "The matrix's corpse row stops at twenty keys for exactly this reason, which its comment records.",
       "status": "later",
-      "remaining": "Filed as monster-melee-knockback-on-the-hero-stops, blocked on hurtle. The first effect sits past this goal's ending event, and the common early-game case declines on size anyway, so what is genuinely missing is test_move()'s hero-knockback caller and hurtle()."
-    },
-    {
-      "candidate": "mdamageu(), through disp.botl",
-      "reachability": "Every landed blow that survives the damage roll.",
-      "owner": "js/mhitu.js mdamageu()",
-      "effects": "Takes hit points and sets disp.botl, which redraws the status line. Both the message and the redraw route through env.planning-gated injected operations, because the planning clone runs each monster turn twice.",
-      "evidence": "mhitu.c:1901-1927. Three arms refuse: negative damage at js/mhitu.js:909, a polymorphed hero at :917 and the hero dying at :925. The death refusal is filed as hero-death-inside-mdamageu-stops, blocked on done_in_by.",
-      "status": "done",
-      "remaining": "None. The death arm is the boundary and stays refused."
-    },
-    {
-      "candidate": "passiveum(), as far as `if (!Upolyd)`",
-      "reachability": "Runs after each landed blow.",
-      "owner": "js/mhitu.js passiveum()",
-      "effects": "None for an unpolymorphed hero.",
-      "evidence": "mhitu.c:2434-2615, ported to 2519. Four arms refuse: a hero form's passive acid at js/mhitu.js:975, petrification at :978, disenchantment at :981 and the general polymorphed counter-attack at :990. No recorded session polymorphs the hero.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "linedup(), m_lined_up() and lined_up(), extracted into js/mthrowu.js",
-      "reachability": "Reached from find_offensive() on every mattacku() call, and from js/monmove.js on the monster's move.",
-      "owner": "js/mthrowu.js",
-      "effects": "m_lined_up()'s hero-concealment gate can draw rn2(25).",
-      "evidence": "mthrowu.c. The extraction replaced a terrain-walk approximation that js/monmove.js had used, and the development score was bit-identical across that swap measured alone. The caller now reads lined_up() directly at js/monmove.js:2534.",
-      "status": "done",
-      "remaining": "Test coverage. Five mutation survivors in js/mthrowu.js carry no recorded reason, and the clear_path() arm, the one branch the extraction actually changed, is reached by no test. Filed as mthrowu-extraction-has-no-covering-test."
+      "remaining": ""
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "mhitu.c mattacku() was read top to bottom over 491-951 at 7d62df5, and every branch it contains is paired above with a js/mhitu.js line, a named refusal, or a recorded reason for an omission. Its call tree was followed into calc_mattacku_vars(), mtrapped_in_pit(), getmattk(), could_seduce(), missmu(), mswings(), mswings_verb(), hitmsg(), magic_negation(), hitmu(), mdamageu() and passiveum(), and across into uhitm.c mhitm_adtyping(), mhitm_ad_elec(), mhitm_ad_phys() and mhitm_knockback(), and into muse.c find_offensive() and mthrowu.c's three lined-up predicates. Random-number order was checked at the three points that draw inside the boundary: AC_VALUE()'s conditional draw, the per-slot rnd(20), and hitmu()'s d(damn, damd), each of which sits below every refusal that could otherwise skip it. Three claims that omit code rather than stop it were re-derived from source rather than accepted: the u_at(gb.bhitpos) test at :782, whose only intervening write at :545 returns on every path out of :547; the NATTK loop's DEADMONSTER guard, which no ported counterattack can trigger; and the SYSOPT_SEDUCE block, dead in this build. Every reachable path inside the boundary is now implemented or refused before it changes state, draws, or prints. The AD_PHYS arm, the last one outstanding when this file was opened, landed at 78a0330; its own AT_WEAP block stays refused at uhitm.c:4041, which is the one place an armed monster's blow stops short of the goal's headline sentence."
+  "missingWorkByOwner": [
+    {
+      "group": "mhitm.c mattackm() and mdamagem() heads",
+      "candidates": ["the mundetected defender's unhide block", "the touch_petrifies()/AD_DGST pre-check"],
+      "next": "Port display.c sensemon() for the unhide lines, then mondata.c resists_ston() with polymon.c mon_to_stone() and mon.c monstone()."
+    },
+    {
+      "group": "mhitm.c passivemm() damage types",
+      "candidates": ["AD_ACID", "AD_ENCH", "AD_PLYS", "AD_COLD", "AD_STUN", "AD_FIRE", "AD_ELEC"],
+      "next": "Port the passive counter-attacks, starting with AD_ACID, which an acid blob beside a pet reaches in ordinary play."
+    },
+    {
+      "group": "makemon.c grow_up()",
+      "candidates": ["the level gain and little_to_big()", "the !victim arm"],
+      "next": "Port the level gain; QUALITY.json's pet-kill-that-gains-a-level-stops holds the case just outside the limit."
+    }
+  ],
+  "sourceReview": "Every branch and helper reachable between dog_move()'s ALLOW_M arm and the screen after the defender's death line was read in nethack-c/upstream/src and traced against the port: mhitm.c mattackm(), noises(), pre_mm_attack(), missmm(), hitmm(), mdamagem() and passivemm() in full; makemon.c grow_up() in full; uhitm.c mhitm_ad_phys() and shade_miss(); do_name.c mon_nam_too(); mhitu.c getmattk(), could_seduce() and mtrapped_in_pit() as already-ported callees; dogmove.c dog_move():1113-1171. Random-number order was checked call by call against six fresh C recordings and against the development sessions seed0900 and seed0103. Every stop this slice adds sits above the first write, draw or line of the branch it refuses, and each is named in the entries above. Three C expressions are ported but provably dead on every admitted path, and are marked as such in js/mhitm.js rather than deleted: the cockatrice instinct at 421-427, hitmm()'s weaponhit and silverhit at 646-650, and mdamagem()'s troll_baned() write at 1080-1081, all of which need a wielded weapon that only the refused AT_WEAP arm can supply."
 }

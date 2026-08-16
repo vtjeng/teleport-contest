@@ -8,6 +8,7 @@ import {
     capitalizedMonsterName,
     christen_monst,
     lookup_novel,
+    mon_nam_too,
     monsterCommonName,
     monsterPossessive,
     noveltitle,
@@ -33,6 +34,7 @@ import { races, roles } from '../js/roles.js';
 import {
     G_NOGEN,
     LOW_PM,
+    M1_HUMANOID,
     M2_PNAME,
     PM_GHOST,
     PM_GNOME_RULER,
@@ -499,4 +501,51 @@ test('oname truncates a name at PL_PSIZ and stops on a held object', () => {
     const held = { otyp: LONG_SWORD, oartifact: 0, where: OBJ_INVENT };
     assert.throws(() => oname(held, 'Fido', ONAME_WISH, { state }),
                   /update_inventory/u);
+});
+
+// do_name.c mon_nam_too() (1189-1216). mhitm.c missmm() and hitmm() name the
+// defender through it, so the pronoun rows are what a monster attacking itself
+// would read. mondata.c pronoun_gender() decides which one, and its
+// PRONOUN_HALLU arm spends the only draw here.
+test('mon_nam_too swaps a second reference for a reflexive pronoun', () => {
+    const state = {
+        mons: [],
+        u: { uprops: [], uroleplay: { blind: false } },
+    };
+    const other = {
+        data: { pmnames: ['jackal'], mflags1: 0, mflags2: 0, mflags3: 0 },
+        mextra: {},
+    };
+    const mon = {
+        data: {
+            pmnames: ['gnome lord'],
+            // mondata.h humanoid() is the first term pronoun_gender() reads
+            // after the neuter test, and M1_HUMANOID is its flag.
+            mflags1: M1_HUMANOID,
+            mflags2: 0,
+            mflags3: 0,
+            geno: 0,
+        },
+        female: false,
+        mextra: {},
+    };
+    const env = { canSpotMonster: () => true, random: { rn2: () => 3 } };
+
+    // Two different monsters read as an ordinary name.
+    assert.equal(mon_nam_too(mon, other, state, env), 'the gnome lord');
+
+    // The same monster twice reads as a pronoun chosen by gender.
+    assert.equal(mon_nam_too(mon, mon, state, env), 'himself');
+    mon.female = true;
+    assert.equal(mon_nam_too(mon, mon, state, env), 'herself');
+
+    // A monster the hero cannot spot is neuter, which is C's `default` arm
+    // sharing its body with `case 2`.
+    const unseen = { ...env, canSpotMonster: () => false };
+    assert.equal(mon_nam_too(mon, mon, state, unseen), 'itself');
+
+    // Hallucination lets pronoun_gender() answer 3, C's "could happen when
+    // hallucinating" row.
+    state.u.uprops[HALLUC] = { intrinsic: 1, extrinsic: 0, blocked: 0 };
+    assert.equal(mon_nam_too(mon, mon, state, env), 'themselves');
 });

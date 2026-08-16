@@ -1,101 +1,648 @@
 // Monster-versus-monster attacks.
-// C ref: mhitm.c mattackm(). This port currently covers only the distant
-// physical miss reached when an ordinary starting pet considers a target.
+// C ref: mhitm.c -- noises(), pre_mm_attack(), missmm(), mattackm(), hitmm(),
+// mdamagem() and passivemm(). The unported neighbours are named where the arm
+// that needs them refuses.
 
 import {
-    helpless,
+    CONFLICT,
+    DEAF,
+    M_AP_TYPE,
+    M_ATTK_AGR_DIED,
+    M_ATTK_AGR_DONE,
+    M_ATTK_DEF_DIED,
+    M_ATTK_HIT,
     M_ATTK_MISS,
+    NATTK,
+    helpless,
 } from './const.js';
-import { game } from './gstate.js';
-import { distmin } from './hacklib.js';
 import {
+    capitalizedMonsterName,
+    mon_nam_too,
+    monsterPossessive,
+} from './do_name.js';
+import { game } from './gstate.js';
+import { dist2, distmin } from './hacklib.js';
+import { grow_up } from './makemon.js';
+import { could_seduce, getmattk, mtrapped_in_pit } from './mhitu.js';
+import { mon_offmap, monkilled, zombie_maker } from './mon.js';
+import {
+    is_elf,
+    is_orc,
+    mon_hates_silver,
+    touch_petrifies,
+    unsolid,
+    zombie_form,
+} from './mondata.js';
+import { m_at, place_monster, remove_monster } from './monst.js';
+import {
+    AD_ACID,
+    AD_DGST,
+    AD_DRIN,
+    AD_ENCH,
     AT_BITE,
+    AT_BREA,
+    AT_BUTT,
+    AT_CLAW,
+    AT_ENGL,
+    AT_EXPL,
+    AT_GAZE,
+    AT_HUGS,
     AT_KICK,
     AT_NONE,
-    AD_PHYS,
-    MS_GUARDIAN,
-    MS_LEADER,
-    PM_KITTEN,
-    PM_LITTLE_DOG,
-    PM_PONY,
+    AT_SPIT,
+    AT_STNG,
+    AT_TENT,
+    AT_TUCH,
+    AT_WEAP,
+    AD_COLD,
+    AD_ELEC,
+    AD_FIRE,
+    AD_PLYS,
+    AD_STUN,
+    NON_PM,
+    PM_GRID_BUG,
+    PM_MEDUSA,
+    S_TROLL,
 } from './monsters.js';
+import { ART_TROLLSBANE } from './artifacts.js';
+import { objectType } from './obj.js';
+import { SILVER } from './objects.js';
+import { d, rn2, rnd } from './rng.js';
 import { canSpotMonster } from './startup_a11y.js';
+import { mhitm_adtyping, mhitm_knockback, shade_miss } from './uhitm.js';
 import { cansee } from './vision.js';
 import { find_mac } from './worn.js';
 
-const STARTING_PETS = new Set([PM_KITTEN, PM_LITTLE_DOG, PM_PONY]);
-const STARTING_PET_ATTACK_TYPES = new Set([AT_NONE, AT_BITE, AT_KICK]);
-
-function refuse(rawEnv, reason) {
-    if (typeof rawEnv.unsupported === 'function')
-        return rawEnv.unsupported(reason);
-    throw new RangeError(`mattackm requires ${reason}`);
+// The operations mhitm.c reaches that this file cannot import: the caller owns
+// the terminal and the fail-closed boundary its own segment stops on.
+function requireAttackOperation(env, name) {
+    const operation = env[name];
+    if (typeof operation !== 'function')
+        throw new TypeError(`mattackm requires a ${name} operation`);
+    return operation;
 }
 
-function admitDistantStartingPetAttack(aggressor, defender, rawEnv) {
-    if (!STARTING_PETS.has(aggressor.data?.pmidx)
-        || !aggressor.mtame
-        || !aggressor.mextra?.edog) {
-        refuse(rawEnv, 'an ordinary starting pet aggressor');
-    }
-    if (aggressor.mconf)
-        refuse(rawEnv, 'an unconfused starting pet aggressor');
-    if (distmin(aggressor.mx, aggressor.my, defender.mx, defender.my) <= 1)
-        refuse(rawEnv, 'a nonadjacent target');
-    if (defender.mundetected
-        || defender.minvis
-        || defender.isminion
-        || defender.ispriest
-        || defender.isshk
-        || defender.isgd
-        || defender.data?.msound === MS_LEADER
-        || defender.data?.msound === MS_GUARDIAN) {
-        refuse(rawEnv, 'an ordinary monster target');
-    }
-    const attacks = aggressor.data?.mattk;
-    const expectedFirst = aggressor.data.pmidx === PM_PONY
-        ? AT_KICK : AT_BITE;
-    if (!Array.isArray(attacks)
-        || attacks.length !== 6
-        || attacks[0]?.aatyp !== expectedFirst
-        || attacks[0]?.adtyp !== AD_PHYS
-        || attacks.some((attack) =>
-            !STARTING_PET_ATTACK_TYPES.has(attack.aatyp)
-                || attack.adtyp !== AD_PHYS)) {
-        refuse(rawEnv, 'a distant physical miss attack array');
-    }
-}
-
-// C ref: mhitm.c mattackm() (293-577). For starting kitten, little dog, and
-// pony attack arrays at distance > 1, the first bite or kick continues without
-// a to-hit draw. pet_ranged_attk() has aimed bhitpos at the aggressor, so every
-// later slot fails mattackm()'s target-still-there check. Preserve the source
-// setup writes which occur before that miss.
-export function mattackm(aggressor, defender, rawEnv = {}) {
-    if (!aggressor || !defender) return M_ATTK_MISS;
-    if (helpless(aggressor)) return M_ATTK_MISS;
-
-    admitDistantStartingPetAttack(aggressor, defender, rawEnv);
+function attackEnv(rawEnv) {
     const state = rawEnv.state ?? game;
+    const random = rawEnv.random ?? { d, rn2, rnd };
+    for (const name of ['d', 'rn2', 'rnd']) {
+        if (typeof random[name] !== 'function')
+            throw new TypeError(`mattackm random injection requires ${name}`);
+    }
+    return { ...rawEnv, state, random };
+}
 
-    // C computes this before waking a helpless defender. It is not consumed
-    // by this distant path, but retaining the read keeps the source order clear.
-    find_mac(defender, state);
-    if (defender.mconf || helpless(defender))
-        defender.msleeping = false;
+// C ref: youprop.h Conflict, over the hero's CONFLICT property. mhitm.c reads
+// it once, in the cockatrice-instinct test at 424.
+function Conflict(state) {
+    const conflict = state.u?.uprops?.[CONFLICT];
+    return Boolean(conflict?.intrinsic || conflict?.extrinsic)
+        && !conflict?.blocked;
+}
 
+// C ref: youprop.h Deaf, over the hero's DEAF property. js/dothrow.js,
+// js/sit.js and js/sounds.js each keep their own copy of this one-line macro
+// beside the call that reads it, as C does.
+function Deaf(state) {
+    const deafness = state.u?.uprops?.[DEAF];
+    return Boolean(deafness?.intrinsic || deafness?.extrinsic)
+        && !deafness?.blocked;
+}
+
+// C ref: mhitm.c noises() (26-38). What the hero hears when a fight he cannot
+// see happens near enough. gf.far_noise and gn.noisetime rate-limit the line
+// to one per ten moves at each distance band; decl.c starts both at 0 and
+// neither appears in save.c, so they live on the game state rather than in
+// `input.storage`, as js/mhitu.js's `gh` pair does.
+async function noises(magr, mattk, env) {
+    const { state } = env;
+    const message = requireAttackOperation(env, 'message');
+    /* hack.h mdistu(): distu() applied to the monster's own square */
+    const farq = dist2(magr.mx, magr.my, state.u.ux, state.u.uy) > 15;
+
+    state.gf ??= {};
+    state.gn ??= {};
+    if (!Deaf(state)
+        && (farq !== state.gf.far_noise
+            || state.moves - (state.gn.noisetime ?? 0) > 10)) {
+        state.gf.far_noise = farq;
+        state.gn.noisetime = state.moves;
+        await message(
+            `You hear ${mattk.aatyp === AT_EXPL ? 'an explosion' : 'some noises'}`
+            + `${farq ? ' in the distance' : ''}.`,
+            state,
+        );
+    }
+}
+
+// C ref: mhitm.c pre_mm_attack() (40-73). "unhiding or unmimicking happens
+// even if hero can't see it because the formerly concealed monster is now in
+// action".
+//
+// Three arms refuse. A mimic on either side needs mon.c seemimic(), and a
+// monster the hero cannot spot needs display.c map_invisible(); both write to
+// the map and print nothing, so the stop sits exactly where C's branch begins.
+// The mundetected clears themselves are ported: mattackm() has already cleared
+// the defender's, and an aggressor emerging from hiding is ordinary.
+function pre_mm_attack(magr, mdef, env) {
+    const { state } = env;
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    const redraw = requireAttackOperation(env, 'redraw');
+    let showit = false;
+
+    if (M_AP_TYPE(mdef)) {
+        unsupported('a disguised monster being attacked');
+    } else if (mdef.mundetected) {
+        mdef.mundetected = 0;
+        showit ||= state.gv.vis;
+    }
+    if (M_AP_TYPE(magr)) {
+        unsupported('a disguised monster attacking');
+    } else if (magr.mundetected) {
+        magr.mundetected = 0;
+        showit ||= state.gv.vis;
+    }
+
+    if (state.gv.vis) {
+        if (!canSpotMonster(magr, state))
+            unsupported('an unseen attacker marked on the map');
+        else if (showit) redraw(magr.mx, magr.my);
+        if (!canSpotMonster(mdef, state))
+            unsupported('an unseen defender marked on the map');
+        else if (showit) redraw(mdef.mx, mdef.my);
+    }
+}
+
+// C ref: mhitm.c missmm() (74-93). "feedback for when a monster-vs-monster
+// attack misses".
+//
+// could_seduce() answers 0 for every aggressor this port admits and refuses
+// for the rest (js/mhitu.js could_seduce()), so the verb is always "misses"
+// and the "pretends to be friendly to" arm has no reachable caller. C's whole
+// expression is kept so the call happens where C makes it.
+async function missmm(magr, mdef, mattk, env) {
+    const { state } = env;
+    const message = requireAttackOperation(env, 'message');
+
+    pre_mm_attack(magr, mdef, env);
+
+    if (state.gv.vis) {
+        await message(
+            `${capitalizedMonsterName(magr, state)} `
+            + `${(magr.mcan || !could_seduce(magr, mdef, mattk, env))
+                ? 'misses' : 'pretends to be friendly to'} `
+            + `${mon_nam_too(mdef, magr, state, env)}.`,
+            state,
+        );
+    } else {
+        await noises(magr, mattk, env);
+    }
+}
+
+/*
+ *  mattackm() -- a monster attacks another monster.
+ *
+ *  Returns the same bitmask C documents at mhitm.c:274-283:
+ *      0x4 M_ATTK_AGR_DIED, 0x2 M_ATTK_DEF_DIED, 0x1 M_ATTK_HIT,
+ *      0x0 M_ATTK_MISS.
+ *
+ *  Attacker has targeted <bhitpos.x,bhitpos.y> rather than
+ *  <mdef->mx,mdef->my>; matters for long worms.
+ */
+// C ref: mhitm.c mattackm() (292-577).
+//
+// The physical melee group is ported: AT_CLAW, AT_KICK, AT_BITE, AT_STNG,
+// AT_TUCH, AT_BUTT and AT_TENT, with their dieroll = rnd(20 + i), hitmm(),
+// missmm() and the passivemm() that follows every one of them. So is the
+// `default` arm, which is where an empty AT_NONE slot lands and where C
+// clears `attk` so passivemm() is skipped.
+//
+// Six arms refuse, each at the `case` label so the stop sits where C's branch
+// begins:
+//
+//   AT_WEAP  both halves need work: the ranged half is mthrowu.c thrwmm(),
+//            and the melee half needs mon_wield_item(), possibly_unwield(),
+//            mswingsm() and hitval() before it falls through to the group
+//            below it.
+//   AT_HUGS  uhitm.c failed_grab(), which spends a draw of its own.
+//   AT_GAZE  gazemm().
+//   AT_EXPL  explmm().
+//   AT_ENGL  gulpmm().
+//   AT_BREA and AT_SPIT  breamm() and spitmm().
+//
+// `strike` is C's, declared once above the loop and never re-initialized
+// inside it, so a slot that leaves it alone -- AT_HUGS's failed grab, or a
+// `continue` -- hands the previous slot's answer to passivemm(). That is
+// preserved rather than tidied.
+export async function mattackm(magr, mdef, rawEnv = {}) {
+    const env = attackEnv(rawEnv);
+    const { state, random } = env;
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    let strike = 0; /* hit this attack */
+    let struck = 0; /* hit at least once */
+    const res = new Array(NATTK).fill(M_ATTK_MISS);
+    let dieroll = 0;
+
+    if (!magr || !mdef) return M_ATTK_MISS; /* mike@genat */
+    if (helpless(magr)) return M_ATTK_MISS;
+    const pa = magr.data;
+    const pd = mdef.data;
+
+    /* Grid bugs cannot attack at an angle. */
+    if (pa === state.mons[PM_GRID_BUG] && magr.mx !== mdef.mx
+        && magr.my !== mdef.my)
+        return M_ATTK_MISS;
+
+    /* Calculate the armour class differential. */
+    let tmp = find_mac(mdef, state) + magr.m_lev;
+    if (mdef.mconf || helpless(mdef)) {
+        tmp += 4;
+        mdef.msleeping = 0;
+    }
+
+    /* mundetected monsters become un-hidden if they are attacked */
+    if (mdef.mundetected) {
+        // C clears the flag, repaints and may print one of four lines through
+        // noname_monnam(), makeplural(), a_monnam() or mon_nam(). Every one
+        // needs display.c sensemon(), which has no port, and the fourth also
+        // needs gl.last_hider, which nothing here writes.
+        unsupported('a hidden monster noticed as it is attacked');
+    }
+
+    /* Elves hate orcs. */
+    if (is_elf(pa) && is_orc(pd)) tmp++;
+
+    /* Set up the visibility of action */
     state.gv ??= {};
-    const aggressorVisible = cansee(aggressor.mx, aggressor.my, state)
-        && canSpotMonster(aggressor, state);
-    const defenderVisible = cansee(defender.mx, defender.my, state)
-        && canSpotMonster(defender, state);
-    state.gv.vis = aggressorVisible || defenderVisible;
-    aggressor.mlstmv = state.moves;
+    state.gv.vis = (cansee(magr.mx, magr.my, state) && canSpotMonster(magr, state))
+        || (cansee(mdef.mx, mdef.my, state) && canSpotMonster(mdef, state));
+
+    /* Set flag indicating monster has moved this turn. */
+    magr.mlstmv = state.moves;
+
+    /* controls whether a mind flayer uses all of its tentacle-for-DRIN
+       attacks */
     state.gs ??= {};
     state.gs.skipdrin = false;
 
-    // Slot zero is the admitted bite or kick and reaches mhitm.c's distance
-    // continue. For every later slot, m_at(bhitpos) is the aggressor rather
-    // than the defender, so the source loop skips before getmattk().
-    return M_ATTK_MISS;
+    /* Now perform all attacks for the monster. */
+    for (let i = 0; i < NATTK; i++) {
+        res[i] = M_ATTK_MISS;
+
+        /* target might no longer be there */
+        if (i > 0 && (m_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state) !== mdef
+                      || magr.mhp < 1 || mdef.mhp < 1))
+            continue;
+
+        const mattk = getmattk(magr, mdef, i, res, env);
+        if (state.gs.skipdrin && mattk.aatyp === AT_TENT
+            && mattk.adtyp === AD_DRIN)
+            continue;
+        const mwep = null; /* MON_WEP() is read only under AT_WEAP */
+        let attk = 1;
+
+        switch (mattk.aatyp) {
+        case AT_WEAP: /* "hand to hand" attacks */
+            unsupported('an armed monster attacking another monster');
+            break;
+
+        case AT_CLAW:
+        case AT_KICK:
+        case AT_BITE:
+        case AT_STNG:
+        case AT_TUCH:
+        case AT_BUTT:
+        case AT_TENT:
+            if (mattk.aatyp === AT_KICK && mtrapped_in_pit(magr, state))
+                continue;
+            /* Nymph that teleported away on first attack? */
+            if (distmin(magr.mx, magr.my, mdef.mx, mdef.my) > 1)
+                /* Continue because the monster may have a ranged attack. */
+                continue;
+            /* Monsters won't attack cockatrices physically if they
+             * have a weapon instead. This instinct doesn't work for
+             * players, or under conflict or confusion. */
+            // `mwep` is null on every path this arm admits, so the whole
+            // condition is FALSE and no test can separate its operators. It
+            // is translated rather than dropped because the AT_WEAP arm that
+            // supplies a weapon is a refusal rather than a gap.
+            if (!magr.mconf && !Conflict(state) && mwep
+                && mattk.aatyp !== AT_WEAP && touch_petrifies(mdef.data)) {
+                strike = 0;
+                break;
+            }
+            dieroll = random.rnd(20 + i);
+            strike = (tmp > dieroll) ? 1 : 0;
+            /* KMH -- don't accumulate to-hit bonuses */
+            /* C's `if (mwep) tmp -= hitval(mwep, mdef);` needs a weapon this
+               arm cannot have: only AT_WEAP sets mwep, and that case refuses
+               above. */
+            if (strike) {
+                if (unsolid(mdef.data)) {
+                    // uhitm.c failed_grab() decides whether an attack on an
+                    // unsolid defender connects at all, and spends a draw
+                    // doing it.
+                    unsupported('an attack on an unsolid monster');
+                }
+                res[i] = await hitmm(magr, mdef, mattk, mwep, dieroll, env);
+                /* C's pudding-splitting block at 447-464 asks next whether
+                   `mwep` is iron or metal. That conjunct is FALSE for every
+                   attack this arm admits, because only the refused AT_WEAP
+                   case can set a weapon, so clone_mon() is unreachable. */
+            } else {
+                await missmm(magr, mdef, mattk, env);
+            }
+            break;
+
+        case AT_HUGS: /* automatic if prev two attacks succeed */
+            unsupported('a monster crushing another monster');
+            break;
+
+        case AT_GAZE:
+            unsupported('a monster gazing at another monster');
+            break;
+
+        case AT_EXPL:
+            unsupported('a monster exploding at another monster');
+            break;
+
+        case AT_ENGL:
+            unsupported('a monster engulfing another monster');
+            break;
+
+        case AT_BREA:
+        case AT_SPIT:
+            unsupported('a monster breathing or spitting at another monster');
+            break;
+
+        default: /* no attack */
+            strike = 0;
+            attk = 0;
+            break;
+        }
+
+        if (attk && !(res[i] & M_ATTK_AGR_DIED)
+            && distmin(magr.mx, magr.my, mdef.mx, mdef.my) <= 1) {
+            res[i] = await passivemm(magr, mdef, Boolean(strike),
+                                     (res[i] & M_ATTK_DEF_DIED), mwep, env);
+        }
+
+        if (res[i] & M_ATTK_DEF_DIED) return res[i];
+        if (res[i] & M_ATTK_AGR_DIED) return res[i];
+        /* return if aggressor can no longer attack */
+        if ((res[i] & M_ATTK_AGR_DONE) || helpless(magr)) return res[i];
+        /* eg. defender was knocked into a level teleport trap */
+        if (mon_offmap(mdef)) return res[i];
+        if (res[i] & M_ATTK_HIT) struck = 1; /* at least one hit */
+    } /* for (;i < NATTK;) loop */
+
+    return struck ? M_ATTK_HIT : M_ATTK_MISS;
+}
+
+// C ref: mhitm.c hitmm() (642-731). "Returns the result of mdamagem()."
+//
+// `weaponhit` and `silverhit` are C's, and both need a weapon: an AT_WEAP
+// attack, which mattackm() refuses, or an AT_CLAW attacker holding one, which
+// only that refused arm can set. They stay because the "%s hits" default arm
+// reads `weaponhit` and would print nothing for an artifact.
+async function hitmm(magr, mdef, mattk, mwep, dieroll, env) {
+    const { state } = env;
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    const message = requireAttackOperation(env, 'message');
+    // Both need a weapon, which only the refused AT_WEAP arm can supply, so
+    // both are constantly FALSE here: `weaponhit` selects the "%s hits"
+    // default arm below and `silverhit` keeps the searing line out of reach.
+    const weaponhit = mattk.aatyp === AT_WEAP
+        || (mattk.aatyp === AT_CLAW && mwep);
+    const silverhit = weaponhit && mwep
+        && objectType(mwep, state).oc_material === SILVER;
+
+    pre_mm_attack(magr, mdef, env);
+
+    const compat = !magr.mcan ? could_seduce(magr, mdef, mattk, env) : 0;
+    if (!compat && shade_miss(magr, mdef, mwep, false, state.gv.vis,
+                              state, env))
+        return M_ATTK_MISS; /* bypass mdamagem() */
+
+    if (state.gv.vis) {
+        const magr_name = capitalizedMonsterName(magr, state);
+        let buf = '';
+
+        if (compat) {
+            // C prints "%s smiles at %s seductively" here. could_seduce()
+            // refuses before it can answer nonzero, so this is where a
+            // completed could_seduce() would first need the line.
+            unsupported('a seductive monster attack');
+        } else {
+            switch (mattk.aatyp) {
+            case AT_BITE: buf = `${magr_name} bites`; break;
+            case AT_STNG: buf = `${magr_name} stings`; break;
+            case AT_BUTT: buf = `${magr_name} butts`; break;
+            case AT_TUCH: buf = `${magr_name} touches`; break;
+            case AT_TENT:
+                buf = `${monsterPossessive(magr, state, true)} tentacles suck`;
+                break;
+            case AT_HUGS:
+                if (magr !== state.u.ustuck) {
+                    buf = `${magr_name} squeezes`;
+                    break;
+                }
+                /* FALLTHRU */
+            default:
+                if (!weaponhit || !mwep || !mwep.oartifact)
+                    buf = `${magr_name} hits`;
+                break;
+            }
+            if (buf) {
+                await message(
+                    `${buf} ${mon_nam_too(mdef, magr, state, env)}.`,
+                    state,
+                );
+            }
+
+            if (mon_hates_silver(mdef) && silverhit) {
+                // C's "%s %s sears %s!" needs objnam.c simpleonames() and the
+                // "its own flesh" substitutions. Only a silver weapon reaches
+                // it, and the AT_WEAP arm refuses ahead of that.
+                unsupported('a silver weapon searing another monster');
+            }
+        }
+    } else {
+        await noises(magr, mattk, env);
+    }
+
+    return mdamagem(magr, mdef, mattk, mwep, dieroll, env);
+}
+
+// C ref: mhitm.c mdamagem() (1014-1120). One landed blow's damage, the death
+// it may cause, and the experience the killer earns for it.
+//
+// Partial: what an AD_PHYS attack reaches. Three arms refuse:
+//
+//   1031-1057  the petrification pre-check, for an attacker that bites a
+//              cockatrice or digests Medusa. It needs mondata.c resists_ston(),
+//              polymon.c mon_to_stone() and mon.c monstone().
+//   1080-1081  gm.mkcorpstat_norevive, whose only setter here is troll_baned()
+//              and whose only reader is js/corpstat.js mkcorpstat(). C writes
+//              it for AT_WEAP and AT_CLAW alone, so an AT_BITE or AT_KICK
+//              killer leaves it as it found it and nothing stops.
+//   1093-1108  the AD_DGST tail: newcham(), healmon() and mon_givit() after a
+//              digesting attack.
+//
+// The gulpmm() square swap at 1073-1078 is ported. Its condition is FALSE for
+// every melee blow -- the defender stands on its own square, not the
+// aggressor's -- and it is cheap, so it is translated rather than stopped.
+async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
+    const { state, random } = env;
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    const pd = mdef.data;
+    const mhm = {
+        damage: random.d(mattk.damn, mattk.damd),
+        hitflags: M_ATTK_MISS,
+        permdmg: 0,
+        specialdmg: 0,
+        dieroll,
+        done: false,
+    };
+
+    if (touch_petrifies(pd)
+        || (mattk.adtyp === AD_DGST && pd === state.mons[PM_MEDUSA])) {
+        // C tests !resists_ston(magr) next and, when the attacker's gloves or
+        // wielded weapon do not cover the attack, turns it to stone.
+        unsupported('an attack on a petrifying monster');
+    }
+
+    await mhitm_adtyping(magr, mattk, mdef, mhm, state, env);
+
+    if (mhitm_knockback(magr, mdef, mattk, Boolean(magr.mw), state, env, random)
+        && ((mhm.hitflags & (M_ATTK_DEF_DIED | M_ATTK_HIT)) !== 0
+            || mon_offmap(mdef)))
+        return mhm.hitflags;
+
+    if (mhm.done) return mhm.hitflags;
+
+    if (!mhm.damage) return mhm.hitflags;
+
+    mdef.mhp -= mhm.damage;
+    if (mdef.mhp < 1) {
+        if (m_at(mdef.mx, mdef.my, state) === magr) { /* see gulpmm() */
+            remove_monster(mdef.mx, mdef.my, state);
+            mdef.mhp = 1; /* otherwise place_monster will complain */
+            place_monster(mdef, mdef.mx, mdef.my, state);
+            mdef.mhp = 0;
+        }
+        if (mattk.aatyp === AT_WEAP || mattk.aatyp === AT_CLAW) {
+            /* monst.h troll_baned() (246-247): only Trollsbane sets the
+               flag, and the AT_WEAP arm of mattackm() refuses before an
+               armed attacker can arrive here. */
+            state.gm ??= {};
+            state.gm.mkcorpstat_norevive = mdef.data.mlet === S_TROLL && mwep
+                && mwep.oartifact === ART_TROLLSBANE;
+        }
+        state.gz ??= {};
+        state.gz.zombify = !mwep && zombie_maker(magr)
+            && (mattk.aatyp === AT_TUCH
+                || mattk.aatyp === AT_CLAW
+                || mattk.aatyp === AT_BITE)
+            && zombie_form(mdef.data) !== NON_PM;
+        await monkilled(mdef, '', mattk.adtyp, state, env);
+        state.gz.zombify = false; /* reset */
+        state.gm ??= {};
+        state.gm.mkcorpstat_norevive = false;
+        if (mdef.mhp >= 1) return mhm.hitflags; /* mdef lifesaved */
+        if (mhm.hitflags === M_ATTK_AGR_DIED)
+            return M_ATTK_DEF_DIED | M_ATTK_AGR_DIED;
+
+        if (mattk.adtyp === AD_DGST) {
+            /* various checks similar to dog_eat and meatobj */
+            unsupported('a monster digesting the monster it killed');
+        }
+
+        return M_ATTK_DEF_DIED
+            | (grow_up(magr, mdef, env) ? 0 : M_ATTK_AGR_DIED);
+    }
+    return (mhm.hitflags === M_ATTK_AGR_DIED) ? M_ATTK_AGR_DIED : M_ATTK_HIT;
+}
+
+// C ref: mhitm.c passivemm() (1301-1408). "Passive responses by defenders.
+// Does not replicate responses already handled above. Returns same values as
+// mattackm."
+//
+// `i` lands on the defender's first empty attack slot, whose damage dice
+// decide `tmp` and whose damage type selects the arms below. A species whose
+// attack list is full has no such slot and returns at 1315-1316.
+//
+// AD_PHYS is the empty slot's own damage type and takes the default arm of
+// both switches, so an ordinary defender's whole live contribution is the
+// rn2(3) that guards the second switch, and only while it is alive. Every
+// other damage type refuses: the first switch (1322-1354) needs
+// mhitm_really_poison()'s siblings -- erode_armor(), acid_damage() and
+// drain_item() -- and the second (1362-1443) needs mon_reflects(),
+// paralyze_monst(), golemeffects(), healmon() and split_mon().
+async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
+    const { state, random } = env;
+    const unsupported = requireAttackOperation(env, 'unsupported');
+    const mddat = mdef.data;
+    let i;
+    let tmp;
+    const mhit = mhitb ? M_ATTK_HIT : M_ATTK_MISS;
+
+    for (i = 0; ; i++) {
+        if (i >= NATTK)
+            return mdead | mhit; /* no passive attacks */
+        if (mddat.mattk[i].aatyp === AT_NONE) break;
+    }
+    if (mddat.mattk[i].damn)
+        tmp = random.d(mddat.mattk[i].damn, mddat.mattk[i].damd);
+    else if (mddat.mattk[i].damd)
+        tmp = random.d(mddat.mlevel + 1, mddat.mattk[i].damd);
+    else
+        tmp = 0;
+
+    /* These affect the enemy even if defender killed */
+    switch (mddat.mattk[i].adtyp) {
+    case AD_ACID:
+        unsupported('an acid splash from the monster attacked');
+        break;
+    case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
+        unsupported('a disenchanting monster being attacked');
+        break;
+    default:
+        break;
+    }
+    if (mdead || mdef.mcan) return mdead | mhit;
+
+    /* These affect the enemy only if defender is still alive */
+    if (random.rn2(3)) {
+        switch (mddat.mattk[i].adtyp) {
+        case AD_PLYS: /* Floating eye */
+            unsupported("a paralyzing monster's passive attack");
+            break;
+        case AD_COLD:
+            unsupported("a cold monster's passive attack");
+            break;
+        case AD_STUN:
+            unsupported("a stunning monster's passive attack");
+            break;
+        case AD_FIRE:
+            unsupported("a fiery monster's passive attack");
+            break;
+        case AD_ELEC:
+            unsupported("a shocking monster's passive attack");
+            break;
+        default:
+            tmp = 0;
+            break;
+        }
+    } else {
+        tmp = 0;
+    }
+
+    /* assess_dmg: */
+    magr.mhp -= tmp;
+    if (magr.mhp <= 0) {
+        await monkilled(magr, '', mddat.mattk[i].adtyp, state, env);
+        return mdead | mhit | M_ATTK_AGR_DIED;
+    }
+    return mdead | mhit;
 }

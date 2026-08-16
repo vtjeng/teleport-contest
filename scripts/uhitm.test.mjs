@@ -24,9 +24,14 @@ import {
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_PONY,
+    PM_SEWER_RAT,
+    PM_SHADE,
 } from '../js/monsters.js';
+import { mksobj } from '../js/obj.js';
+import { ORCISH_DAGGER, SILVER_DAGGER } from '../js/objects.js';
+import { dmgval } from '../js/weapon.js';
 import { initRng } from '../js/rng.js';
-import { do_attack } from '../js/uhitm.js';
+import { do_attack, shade_miss } from '../js/uhitm.js';
 
 const DATETIME = '20300102030405';
 function petRc({
@@ -404,3 +409,53 @@ test('safe-pet refusal continues through the timed fleeing pet turns',
         assert.equal(pet.mflee, false);
         assert.equal(pet.mfleetim, 0);
     });
+
+// uhitm.c shade_miss() (2013-2050). mhitm.c hitmm():660 asks it before every
+// monster-versus-monster blow, and the answer for a defender that is not a
+// shade is FALSE without reaching dmgval(), because C's `||` short-circuits on
+// the species test.
+test('shade_miss answers only for a shade and stops there', async () => {
+    await runSegment({
+        seed: 7710051, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    const ordinary = { data: game.mons[PM_SEWER_RAT], msleeping: 1 };
+    const shade = { data: game.mons[PM_SHADE], msleeping: 1, mx: 1, my: 1 };
+    const attacker = { data: game.mons[PM_KITTEN], mx: 1, my: 2 };
+    const env = {
+        unsupported: (reason) => { throw new Error(reason); },
+    };
+
+    assert.equal(
+        shade_miss(attacker, ordinary, null, false, true, game, env),
+        false,
+    );
+    // The head decides before dmgval() runs; passing an object that would
+    // answer nonzero leaves the answer alone for a defender that is not a
+    // shade, and the msleeping clear at :2056 never happens either.
+    const dagger = mksobj(ORCISH_DAGGER, false, false, { state: game });
+    assert.equal(
+        shade_miss(attacker, ordinary, dagger, false, true, game, env),
+        false,
+    );
+    assert.equal(ordinary.msleeping, 1);
+
+    // A shade and a weapon that harms one -- dmgval() answers nonzero for a
+    // silver dagger against a shade -- is also FALSE, and by the second
+    // disjunct rather than the first.
+    const silver = mksobj(SILVER_DAGGER, false, false, { state: game });
+    assert.ok(dmgval(silver, shade, game) > 0);
+    assert.equal(
+        shade_miss(attacker, shade, silver, false, true, game, env),
+        false,
+    );
+
+    // A shade the attack passes through is where the port stops.
+    assert.throws(
+        () => shade_miss(attacker, shade, null, false, true, game, env),
+        /an attack passing through a shade/u,
+    );
+    assert.throws(
+        () => shade_miss(attacker, shade, dagger, false, true, game, env),
+        /an attack passing through a shade/u,
+    );
+});

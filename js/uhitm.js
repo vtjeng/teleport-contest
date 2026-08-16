@@ -131,9 +131,11 @@ import {
     PM_HEALER,
     PM_KNIGHT,
     PM_MONK,
+    PM_PURPLE_WORM,
     PM_ROGUE,
     PM_SAMURAI,
     PM_SHADE,
+    PM_SHRIEKER,
     S_BLOB,
     S_EYE,
     S_FUNGUS,
@@ -1443,15 +1445,17 @@ export async function mhitm_ad_elec(
     }
 }
 
-// C ref: uhitm.c mhitm_ad_phys() (3980-4200), the `mdef == &gy.youmonst` arm
-// (4021-4127) as far as its hand-to-hand path (4038-4040 and 4122-4126). An
-// ordinary blow landing on the hero prints its line and records the hit; the
-// damage is the roll hitmu() already made, which this arm leaves alone.
+// C ref: uhitm.c mhitm_ad_phys() (3980-4200), two of its three arms: the
+// `mdef == &gy.youmonst` one (4021-4127) as far as its hand-to-hand path
+// (4038-4040 and 4122-4126), and the mhitm one (4128-4200). An ordinary blow
+// landing on the hero prints its line and records the hit; the damage is the
+// roll hitmu() already made, which that arm leaves alone. One monster's blow
+// on another adjusts the damage mdamagem() rolled and prints nothing, because
+// mhitm.c hitmm() has already printed.
 //
-// C's other two arms are the hero's own physical attack (uhitm) and one monster
-// hitting another (mhitm). Neither has a caller here, for the reasons
-// mhitm_ad_elec() gives above: js/uhitm.js damageum() is unported and
-// js/mhitm.js mattackm() stops long before any damage type.
+// The third arm is the hero's own physical attack (uhitm). It has no caller
+// here, for the reason mhitm_ad_elec() gives above: js/uhitm.js damageum() is
+// unported.
 //
 // Two pieces of the hero's arm stop where C acts:
 //
@@ -1482,6 +1486,7 @@ export async function mhitm_ad_phys(
     env = {},
 ) {
     const unsupported = requireAttackOperation(env, 'unsupported');
+    const pa = magr.data;
     const pd = mdef.data;
 
     if (magr === state.youmonst) {
@@ -1509,8 +1514,69 @@ export async function mhitm_ad_phys(
         }
     } else {
         /* mhitm */
-        unsupported('one monster hitting another');
+        let mwep = magr.mw; /* MON_WEP(magr) */
+        /* C's own local, not gv.vis: this arm asks whether the hero sees both
+           combatants, while mhitm.c's gv.vis asks whether it sees either. */
+        const vis = canSeeMonster(magr, state) && canSeeMonster(mdef, state);
+
+        if (mattk.aatyp !== AT_WEAP && mattk.aatyp !== AT_CLAW) mwep = null;
+
+        if (shade_miss(magr, mdef, mwep, false, vis, state, env)) {
+            mhm.damage = 0;
+        } else if (mattk.aatyp === AT_KICK && thick_skinned(pd)) {
+            /* [no 'kicking boots' check needed; monsters with kick attacks
+               can't wear boots and monsters that wear boots don't kick] */
+            mhm.damage = 0;
+        } else if (mwep) { /* non-Null 'mwep' implies AT_WEAP || AT_CLAW */
+            // uhitm.c:4145-4188 is the armed blow: a cockatrice corpse
+            // wielded as a club, dmgval(), the gauntlets of power,
+            // artifact_hit() with the grow_up() that follows it, rustm() and
+            // the poison tail. mhitm.c mattackm() refuses AT_WEAP outright,
+            // so the only way in is an AT_CLAW attacker holding a weapon.
+            unsupported("a monster's wielded weapon landing on another");
+        } else if (pa === state.mons[PM_PURPLE_WORM]
+                   && pd === state.mons[PM_SHRIEKER]) {
+            /* hack to enhance mm_aggression(); we don't want purple
+               worm's bite attack to kill a shrieker because then it
+               won't swallow the corpse; but if the target survives,
+               the subsequent engulf attack should accomplish that */
+            if (mhm.damage >= mdef.mhp && mdef.mhp > 1)
+                mhm.damage = mdef.mhp - 1;
+        }
     }
+}
+
+// C ref: uhitm.c shade_miss() (2013-2050). "used for hero vs monster and
+// monster vs monster; also handles monster vs hero but that won't happen
+// because hero can't be a shade".
+//
+// Partial: the head is the whole answer for every defender that is not a
+// shade, and it is FALSE. C's `||` short-circuits on the species test, so
+// dmgval() is not reached for one and is called here only when it is.
+//
+// A shade defender refuses. Everything below the head prints -- through
+// objnam.c cxname(), hacklib.c vtense() and do_name.c mon_nam() -- and then
+// calls display.c map_invisible() and clears the shade's msleeping. The
+// refusal sits above all of it, and above the TRUE that would tell the caller
+// the blow passed harmlessly through.
+export function shade_miss(
+    magr,
+    mdef,
+    obj,
+    thrown,
+    verbose,
+    state = game,
+    env = {},
+) {
+    const unsupported = requireAttackOperation(env, 'unsupported');
+
+    /* we're using dmgval() for zero/not-zero, not for actual damage amount */
+    if (mdef.data !== state.mons[PM_SHADE]
+        || (obj && dmgval(obj, mdef, state, env)))
+        return false;
+
+    unsupported('an attack passing through a shade');
+    return true;
 }
 
 // C ref: uhitm.c mhitm_adtyping() (4781-4832). One landed blow's damage type

@@ -16,7 +16,7 @@ import {
 } from './const.js';
 import { level_difficulty, on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { always_hostile, always_peaceful } from './mondata.js';
+import { always_hostile, always_peaceful, is_golem } from './mondata.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import {
     G_FREQ,
@@ -258,6 +258,73 @@ export function adj_lev(monster, state = game) {
 
     const upperLimit = Math.min(Math.trunc(3 * monster.mlevel / 2), 49);
     return Math.min(Math.max(adjusted, 0), upperLimit);
+}
+
+// C ref: makemon.c grow_up() (2049-2179). "monster earned experience and will
+// gain some hit points; it might also grow into a bigger monster (baby to
+// adult, soldier to officer, etc)".
+//
+// Partial: the `victim` arm down to the early return at 2100. That is the
+// whole function for a monster whose raised maximum still fits inside its
+// current level's hit-point ceiling, which is where an ordinary starting pet
+// killing a level-0 monster lands. rnd() calls RND() even for x == 1
+// (rnd.c:163), so such a kill still spends a draw and records rnd(1)=1.
+//
+// C raises mhpmax before it tests the threshold, and its own comment at
+// 2078-2081 calls the resulting level gain without a hit-point gain a possible
+// bug. The write therefore sits above the refusal, not below it: a pet that
+// stops here has already banked the point, and it persists through storage.
+//
+// Two arms refuse:
+//
+//   2103-2110  the `!victim` arm, reached from a gain-level potion, a wraith
+//              corpse and mdamagem()'s AD_DGST wraith case. It sets
+//              hp_threshold to 0, so it always continues into the level gain
+//              below; the refusal sits ahead of its own rnd(8).
+//   2101-2179  the level gain itself, with little_to_big(), the genocide
+//              check, the "grows up into" line, set_mon_data(), newsym() and
+//              the closing sanity limits.
+//
+// C's `oldtype`, `newtype` and `lev_limit` are read only by those two arms, so
+// nothing computes them here.
+export function grow_up(mtmp, victim, env = {}) {
+    const state = env.state ?? game;
+    const random = env.random ?? { rn2, rnd };
+    const unsupported = env.unsupported;
+    if (typeof unsupported !== 'function')
+        throw new TypeError('grow_up requires an unsupported operation');
+    const ptr = mtmp.data;
+
+    /* monster died after killing enemy but before calling this function */
+    /* currently possible if killing a gas spore */
+    if (mtmp.mhp < 1) return null; /* DEADMONSTER() */
+
+    if (!victim) unsupported('a monster gaining a level from no victim');
+
+    /* growth limits differ depending on method of advancement */
+    /*
+     * The HP threshold is the maximum number of hit points for the
+     * current level; once exceeded, a level will be gained.
+     */
+    let hp_threshold = mtmp.m_lev * 8; /* normal limit */
+    if (!mtmp.m_lev) hp_threshold = 4;
+    else if (is_golem(ptr)) /* strange creatures */
+        hp_threshold = (Math.trunc(mtmp.mhpmax / 10) + 1) * 10 - 1;
+    else if (is_home_elemental(ptr, state)) hp_threshold *= 3;
+    /* number of hit points to gain; unlike for the player, we put
+       the limit at the bottom of the next level rather than the top */
+    let max_increase = random.rnd(victim.m_lev + 1);
+    if (mtmp.mhpmax + max_increase > hp_threshold + 1)
+        max_increase = Math.max((hp_threshold + 1) - mtmp.mhpmax, 0);
+    const cur_increase = (max_increase > 1) ? random.rn2(max_increase) : 0;
+
+    mtmp.mhpmax += max_increase;
+    mtmp.mhp += cur_increase;
+    if (mtmp.mhpmax <= hp_threshold)
+        return ptr; /* doesn't gain a level */
+
+    unsupported('a monster gaining a level');
+    return null;
 }
 
 // C ref: makemon.c mbirth_limit().

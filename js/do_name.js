@@ -21,6 +21,7 @@ import {
     ONAME_SKIP_INVUPD,
     ONAME_VIA_NAMING,
     PL_PSIZ,
+    PRONOUN_HALLU,
     SUPPRESS_HALLUCINATION,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
@@ -39,7 +40,12 @@ import {
     encodeUtf8ByteString,
     s_suffix,
 } from './hacklib.js';
-import { gender, is_mplayer, type_is_pname } from './mondata.js';
+import {
+    gender,
+    is_mplayer,
+    pronoun_gender,
+    type_is_pname,
+} from './mondata.js';
 import {
     G_NOGEN,
     G_UNIQ,
@@ -398,6 +404,26 @@ export function capitalizedAlwaysVisibleMonsterName(
 ) {
     const name = alwaysVisibleMonsterName(monster, state);
     return `${name.charAt(0).toUpperCase()}${name.slice(1)}`;
+}
+
+// C ref: do_name.c mon_nam_too() (1189-1216). The object of a verb whose
+// subject is `other_mon`: an ordinary name when the two differ, and a
+// reflexive pronoun when they are the same monster.
+//
+// C's `case 2` shares its body with `default`, so any row of role.c genders[]
+// other than male, female and "they" reads as neuter. pronoun_gender() spends
+// an rn2(4) for a hallucinating hero and needs canspotmon() otherwise, so the
+// caller's env is forwarded whole.
+export function mon_nam_too(mon, other_mon, state = game, env = {}) {
+    if (mon !== other_mon) return monsterCommonName(mon, state);
+    switch (pronoun_gender(mon, PRONOUN_HALLU, { ...env, state })) {
+    case 0: return 'himself';
+    case 1: return 'herself';
+    case 3: /* "could happen when hallucinating" */
+        return 'themselves';
+    default:
+    case 2: return 'itself';
+    }
 }
 
 export function monsterPossessive(monster, state = game, capitalized = false) {

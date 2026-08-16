@@ -3322,6 +3322,15 @@
           "at": "c4823e9306d9dd53b236b1826d6738be7b6872b9"
         }
       ]
+    },
+    {
+      "id": "pet-kill-that-gains-a-level-stops",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "648b03a04114a236b965e1c21384fd0400ea8969",
+      "detail": "makemon.c grow_up() (2101-2179) refuses at 'a monster gaining a level' where C raises m_lev, may run little_to_big() into a bigger species through set_mon_data(), prints the 'grows up into' line and applies the closing sanity limits. js/makemon.js reaches it whenever a killer's new maximum passes its hit-point ceiling, which for a starting pet is m_lev * 8 -- so a kitten or little dog stops on its third or fourth kill of the game. The goal pet-melee-attack declares the level gain outside its boundary. Case just outside the limit: seed 7710020 of the pet-melee matrix (scripts/run-pet-melee-attack.mjs, Valkyrie/human/female/neutral, datetime 20260401120000, rest_on_space and !safe_wait) with 29 spaces rather than the 27 the matrix commits. C at step 28 kills a sewer rat and at steps 29-30 kills a jackal, whose grow_up() takes the little dog's maximum from 8 to 9 past a threshold of 8 and gains it a level silently, drawing nothing further; the port emits its last matching screen at step 27 and stops. C's own comment at makemon.c:2078-2081 calls the resulting level gain without a hit-point gain a possible bug, and the maximum is already banked when the port stops, so the state it leaves behind is C's. Retire this with the level-gain arm."
     }
   ],
   "areas": [

@@ -528,6 +528,12 @@ function planningState(state) {
         // The two answer whether a monster's next blow says "again", and the
         // dry run's copy must not decide the live pass's answer.
         gh: { ...(state.gh ?? {}) },
+        // decl.h gf.far_noise, which mhitm.c noises() writes beside
+        // gn.noisetime in `gn` below. The pair rate-limits "You hear some
+        // noises." to one line per ten moves at each distance band, so a dry
+        // run that raised the live flag and left the live timestamp alone
+        // would silence the line the live pass owes.
+        gf: { ...(state.gf ?? {}) },
         gb: state.gb ? {
             ...state.gb,
             bhitpos: { ...(state.gb.bhitpos ?? {}) },
@@ -759,7 +765,6 @@ async function moveSimplePet(monster, after, env) {
     return dog_move(monster, after, {
         ...env,
         attackHero: () => unsupported('pet attack on the hero'),
-        attackMonster: () => unsupported('pet combat'),
         avoidKicked: (subject, x, y) =>
             m_avoid_kicked_loc(subject, x, y, env.state),
         avoidSokobanPush: (subject, x, y) =>
@@ -769,7 +774,6 @@ async function moveSimplePet(monster, after, env) {
         digWeaponCheck: () => false,
         displaceMonster: () => unsupported('pet displacement'),
         eatObject: () => unsupported('pet eating'),
-        maxPassiveDamage: () => unsupported('pet combat evaluation'),
         mayCrossRegion: assertSimpleDestination,
         // Three printing sites share the `message` seam: dog_invent()'s carry
         // arm through dogmove.c pline_xy(), its drop arm through steal.c

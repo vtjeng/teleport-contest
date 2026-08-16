@@ -68,6 +68,7 @@ import {
     PM_CAVE_SPIDER,
     PM_DISPLACER_BEAST,
     PM_FOG_CLOUD,
+    PM_ACID_BLOB,
     PM_GIANT_RAT,
     PM_GNOME,
     PM_GRID_BUG,
@@ -352,9 +353,17 @@ function installObject(target, object) {
     target.object = object;
 }
 
-function installPetDefender(target) {
+// An acid blob is the defender because it is the cheapest monster whose
+// passive attack mhitm.c passivemm() refuses: its one slot is
+// ATTK(AT_NONE, AD_ACID, 1, 8) (monsters.h:137-140). `petHp` lifts the pet
+// over dogmove.c:1122's `max_passive_dmg(mtmp2, mtmp) >= mtmp->mhp` balk,
+// which mondata.c max_passive_dmg() scores as 8 per melee attack the pet has,
+// so the pet swings instead of walking away.
+function installPetDefender(target, petHp) {
+    target.monster.mhp = petHp;
+    target.monster.mhpmax = petHp;
     const defender = ordinaryMonster(
-        PM_GIANT_RAT,
+        PM_ACID_BLOB,
         target.destinationX,
         target.heroY,
         {
@@ -2462,27 +2471,28 @@ test('simple preflight keeps starting-pet owner seams retryable',
     async () => {
         const cases = [
             {
-                name: 'dog combat evaluation',
-                reason: 'pet combat evaluation',
+                name: 'dog passive acid response',
+                reason: 'an acid splash from the monster attacked',
                 prepare: async () => {
                     const target = await prepareStartingPetAction(
                         PM_LITTLE_DOG,
                     );
-                    installPetDefender(target);
+                    // One AT_BITE, so the balk sits at 8 hit points.
+                    installPetDefender(target, 12);
                     return target;
                 },
             },
             {
                 // mon_allowflags() gives tame pets ALLOW_M, so an occupied
-                // square reaches combat evaluation before mfndpos() can
-                // classify it as ALLOW_MDISP. Keep that source precedence
-                // explicit instead of fabricating an unreachable pet
-                // displacement callback.
+                // square reaches combat before mfndpos() can classify it as
+                // ALLOW_MDISP. Keep that source precedence explicit instead
+                // of fabricating an unreachable pet displacement callback.
                 name: 'pony occupied-square displacement precedence',
-                reason: 'pet combat evaluation',
+                reason: 'an acid splash from the monster attacked',
                 prepare: async () => {
                     const target = await prepareStartingPetAction(PM_PONY);
-                    installPetDefender(target);
+                    // AT_KICK and AT_BITE double the balk to 16.
+                    installPetDefender(target, 20);
                     return target;
                 },
             },
