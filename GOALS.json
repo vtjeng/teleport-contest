@@ -2397,7 +2397,7 @@
     },
     {
       "id": "pet-melee-attack",
-      "status": "open",
+      "status": "closed",
       "boundary": "A pet that dogmove.c dog_move() sends to mhitm.c mattackm() against an adjacent hostile carries its melee attack through to that monster's hit points and its death: the armour-class differential (321-325), the NATTK loop's AT_CLAW/AT_KICK/AT_BITE/AT_STNG/AT_TUCH/AT_BUTT/AT_TENT arm with its dieroll = rnd(20 + i) at 441, through missmm(), hitmm(), mdamagem(), passivemm(), the already-ported mon.c monkilled(), and makemon.c grow_up() on the kill. Two testable conditions bound it. First, every mattackm() arm outside that physical group stays refused, so no ported line lies under AT_WEAP's ranged thrwmm() head, AT_HUGS, AT_GAZE, AT_EXPL, AT_ENGL or AT_BREA/AT_SPIT, and gazemm(), gulpmm(), explmm() and mswingsm() stay unported. Second, inside mdamagem() the port covers only what an AD_PHYS attack reaches: the touch_petrifies(pd) pre-check (1031-1057) and the pudding-clone block refuse rather than run, mhitm_adtyping() dispatches the already-ported AD_PHYS arm alone, and passivemm() covers a defender whose first AT_NONE slot carries damn 0 and damd 0, refusing every other damage type at its rn2(3) switch (1363).",
       "upstreamOwners": [],
       "forecast": {
@@ -2432,8 +2432,11 @@
         "screens": 1674,
         "rng": 125050
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "b3a7ed502af89907336f8daf8f9af9be1655c44f",
+      "delivered": {
+        "screens": 89,
+        "rng": 538
+      }
     }
   ]
 }
