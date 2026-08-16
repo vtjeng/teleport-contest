@@ -41,7 +41,7 @@
   },
   "seed0030-ten-diverse-deaths.session.json": {
     "screens": 23,
-    "rngCalls": 6895,
+    "rngCalls": 6894,
     "lowerings": [
       {
         "metric": "rngCalls",
@@ -63,6 +63,13 @@
         "to": 6564,
         "commit": "b866459",
         "reason": "The port's first divergence in this session is at random-number index 6480, rn2(5) in distfleeck(monmove.c:538), both before and after b866459, and its emitted screens are unchanged at 13 while its cursors rise from 13 to 14. I measured both sides by replaying the session's ten segments against js/hack.js from dfc97e3 and from b866459 in turn and comparing the concatenated log positionally. What fell is coincidental positional matching after that stop: segment 3 now swaps with the pet standing on furniture and carries on, raising the port's own emitted total for that segment from 2,834 calls to 4,202, which reshuffles the alignment past the stop. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
+      },
+      {
+        "metric": "rngCalls",
+        "from": 6895,
+        "to": 6894,
+        "commit": "b1f11c4",
+        "reason": "The port's first divergence in this session is at random-number index 6732, rnd(5) in maybe_smudge_engr(hack.c:3029), both before and after b1f11c4, and its emitted screens are unchanged at 23. I measured both sides by replaying the session's ten segments against a copy of js/ from 2b393bc and then from the working tree, concatenating each run's log and comparing it positionally with C's. What fell is coincidental positional matching after that stop: the pet now fights instead of stopping, which raises the port's own emitted total from 51,579 calls to 51,777 and reshuffles the alignment past the stop. rngMatched compares positionally over the whole log, which .agents/validation.md records under Facts about the measuring tools."
       }
     ]
   },

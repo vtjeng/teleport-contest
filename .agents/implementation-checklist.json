@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "The slice's production work and tests are written and the fresh matrix passes, but the commit that lands them does not exist yet, so commitChecked cannot name it. The follow-up commit that lowers seed0030's score ratchet flips this to ready-for-audit against the implementation commit.",
-  "commitChecked": "648b03a04114a236b965e1c21384fd0400ea8969",
+  "mode": "ready-for-audit",
+  "reason": "Every entry is done, cannot-occur, later, or missing-with-a-refusal that stops above its branch's first write, draw or line. The production game runs every done path: scripts/run-pet-melee-attack.mjs replays six fresh C recordings that match call for call and screen for screen, and the development sessions seed0900 and seed0103 reach the same code. The three missing entries are refusals rather than gaps, each named in missingWorkByOwner, and QUALITY.json holds the one that needs a case just outside the goal's limit.",
+  "commitChecked": "b1f11c4e5803bff6a5658435b5b232993cd4e6dd",
   "boundary": {
     "goalId": "pet-melee-attack",
     "startingCommit": "2b393bcc094605c8bf3917fe173f70686b96f128",
@@ -30,12 +30,12 @@
     },
     {
       "candidate": "mhitm.c mattackm() (337-359): the mundetected defender's unhide block",
-      "reachability": "A defender that was hiding when the pet reaches it.",
+      "reachability": "Needs a defender that was hiding: a mimic, a piercer, a trapper or an eel. The boundary's valid inputs are an ordinary hostile beside the pet, and none of the four is one.",
       "owner": "js/mhitm.js mattackm(), refusal",
       "effects": "None; the stop precedes every write.",
       "evidence": "C repaints through newsym() and prints one of four lines, all of which need display.c sensemon() and gl.last_hider. scripts/mhitm.test.mjs 'a hidden defender stops the attack before it starts' asserts the stop and that mlstmv is untouched.",
-      "status": "missing",
-      "remaining": "Port sensemon() and the four lines."
+      "status": "cannot-occur",
+      "remaining": "Port display.c sensemon() and the four lines when a hider becomes reachable."
     },
     {
       "candidate": "mhitm.c mattackm() NATTK loop (372-397): the per-slot target test, getmattk() and the AT_TENT/AD_DRIN skip",
@@ -120,12 +120,12 @@
     },
     {
       "candidate": "mhitm.c mdamagem() (1031-1057): the touch_petrifies()/AD_DGST pre-check",
-      "reachability": "An attack on a cockatrice, or a digesting attack on Medusa.",
+      "reachability": "Needs a cockatrice or chickatrice defender, or a digesting attack on Medusa. No starting pet has AD_DGST, and the boundary's valid inputs are an ordinary hostile.",
       "owner": "js/mhitm.js mdamagem(), refusal",
       "effects": "None beyond the damage roll C makes first.",
       "evidence": "scripts/mhitm.test.mjs 'an attack on a petrifying defender stops above the damage type' asserts the stop, the draw that precedes it, and that a digesting bite on an ordinary defender passes the check.",
-      "status": "missing",
-      "remaining": "Port resists_ston(), mon_to_stone() and monstone()."
+      "status": "cannot-occur",
+      "remaining": "Port resists_ston(), mon_to_stone() and monstone() when a petrifying defender becomes reachable."
     },
     {
       "candidate": "mhitm.c mdamagem() (1071-1119): the kill, gm.mkcorpstat_norevive, gz.zombify, monkilled(), the lifesaved return, the AD_DGST tail and grow_up()",
@@ -147,11 +147,11 @@
     },
     {
       "candidate": "mhitm.c passivemm() (1322-1354, 1364-1443): AD_ACID, AD_ENCH, AD_PLYS, AD_COLD, AD_STUN, AD_FIRE and AD_ELEC",
-      "reachability": "A defender whose empty slot carries one of them: an acid blob, a blue jelly, a floating eye.",
+      "reachability": "Needs a defender whose first empty attack slot carries one of those damage types: an acid blob, a blue jelly, a floating eye. The boundary's valid inputs are an ordinary hostile, whose empty slot carries AD_PHYS with damn 0 and damd 0.",
       "owner": "js/mhitm.js passivemm(), refusals",
       "effects": "None; the damage roll C makes above the switch is spent first.",
       "evidence": "scripts/mhitm.test.mjs and scripts/dogmove.test.mjs both reach the acid arm, the latter through dog_move() with a pet whose hit points clear the balk.",
-      "status": "missing",
+      "status": "cannot-occur",
       "remaining": "Port erode_armor(), acid_damage(), drain_item(), mon_reflects(), paralyze_monst(), golemeffects(), healmon() and split_mon()."
     },
     {
@@ -165,12 +165,12 @@
     },
     {
       "candidate": "makemon.c grow_up() (2101-2179): the level gain, little_to_big(), the genocide check, the growth line and the sanity limits, plus the !victim arm at 2103-2110",
-      "reachability": "A killer whose raised maximum passes its level ceiling; for a starting pet, its third or fourth kill.",
+      "reachability": "The level gain's first effect comes after this boundary's ending event: a starting pet reaches its ceiling on its third or fourth kill of the game, several fights past the one death line the boundary ends on. The !victim arm needs a gain-level potion or a wraith corpse, neither of which a pet's melee blow produces.",
       "owner": "js/makemon.js grow_up(), refusals",
       "effects": "None past the banked maximum, which C writes above its own threshold test.",
       "evidence": "scripts/makemon.test.mjs 'grow_up stops at a level gain and at a victimless one'. QUALITY.json's pet-kill-that-gains-a-level-stops records the fresh inputs and the expected failure.",
-      "status": "missing",
-      "remaining": "Port the level gain."
+      "status": "later",
+      "remaining": "QUALITY.json's pet-kill-that-gains-a-level-stops holds the case just outside the limit and the expected failure."
     },
     {
       "candidate": "uhitm.c mhitm_ad_phys() mhitm arm (4128-4200): shade_miss(), the thick-skinned kick, the armed blow and the purple-worm hack",
@@ -218,22 +218,6 @@
       "remaining": ""
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "mhitm.c mattackm() and mdamagem() heads",
-      "candidates": ["the mundetected defender's unhide block", "the touch_petrifies()/AD_DGST pre-check"],
-      "next": "Port display.c sensemon() for the unhide lines, then mondata.c resists_ston() with polymon.c mon_to_stone() and mon.c monstone()."
-    },
-    {
-      "group": "mhitm.c passivemm() damage types",
-      "candidates": ["AD_ACID", "AD_ENCH", "AD_PLYS", "AD_COLD", "AD_STUN", "AD_FIRE", "AD_ELEC"],
-      "next": "Port the passive counter-attacks, starting with AD_ACID, which an acid blob beside a pet reaches in ordinary play."
-    },
-    {
-      "group": "makemon.c grow_up()",
-      "candidates": ["the level gain and little_to_big()", "the !victim arm"],
-      "next": "Port the level gain; QUALITY.json's pet-kill-that-gains-a-level-stops holds the case just outside the limit."
-    }
-  ],
+  "missingWorkByOwner": [],
   "sourceReview": "Every branch and helper reachable between dog_move()'s ALLOW_M arm and the screen after the defender's death line was read in nethack-c/upstream/src and traced against the port: mhitm.c mattackm(), noises(), pre_mm_attack(), missmm(), hitmm(), mdamagem() and passivemm() in full; makemon.c grow_up() in full; uhitm.c mhitm_ad_phys() and shade_miss(); do_name.c mon_nam_too(); mhitu.c getmattk(), could_seduce() and mtrapped_in_pit() as already-ported callees; dogmove.c dog_move():1113-1171. Random-number order was checked call by call against six fresh C recordings and against the development sessions seed0900 and seed0103. Every stop this slice adds sits above the first write, draw or line of the branch it refuses, and each is named in the entries above. Three C expressions are ported but provably dead on every admitted path, and are marked as such in js/mhitm.js rather than deleted: the cockatrice instinct at 421-427, hitmm()'s weaponhit and silverhit at 646-650, and mdamagem()'s troll_baned() write at 1080-1081, all of which need a wielded weapon that only the refused AT_WEAP arm can supply."
 }
