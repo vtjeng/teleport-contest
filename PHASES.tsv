@@ -528,3 +528,5 @@ utc	event	phase	goal	detail
 2026-08-16T06:12:08.868Z	end	select	pet-melee-attack	
 2026-08-16T06:12:08.896Z	start	implement	pet-melee-attack	
 2026-08-16T07:53:18.517Z	end	implement	pet-melee-attack	
+2026-08-16T07:53:36.939Z	start	review	pet-melee-attack	
+2026-08-16T10:33:22.954Z	end	review	pet-melee-attack	

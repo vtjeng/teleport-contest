@@ -3331,6 +3331,24 @@
       "status": "open",
       "from": "648b03a04114a236b965e1c21384fd0400ea8969",
       "detail": "makemon.c grow_up() (2101-2179) refuses at 'a monster gaining a level' where C raises m_lev, may run little_to_big() into a bigger species through set_mon_data(), prints the 'grows up into' line and applies the closing sanity limits. js/makemon.js reaches it whenever a killer's new maximum passes its hit-point ceiling, which for a starting pet is m_lev * 8 -- so a kitten or little dog stops on its third or fourth kill of the game. The goal pet-melee-attack declares the level gain outside its boundary. Case just outside the limit: seed 7710020 of the pet-melee matrix (scripts/run-pet-melee-attack.mjs, Valkyrie/human/female/neutral, datetime 20260401120000, rest_on_space and !safe_wait) with 29 spaces rather than the 27 the matrix commits. C at step 28 kills a sewer rat and at steps 29-30 kills a jackal, whose grow_up() takes the little dog's maximum from 8 to 9 past a threshold of 8 and gains it a level silently, drawing nothing further; the port emits its last matching screen at step 27 and stops. C's own comment at makemon.c:2078-2081 calls the resulting level gain without a hit-point gain a possible bug, and the maximum is already banked when the port stops, so the state it leaves behind is C's. Retire this with the level-gain arm."
+    },
+    {
+      "id": "dogmove-herodeaf-drops-the-roleplay-term",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "8012570348ae2c44efc3451b53ecfa449c4013e4",
+      "detail": "js/dogmove.js heroDeaf() at :225 carries both errors the correctness pass fixed in js/mhitm.js: it omits youprop.h:125's u.uroleplay.deaf disjunct and adds a blocked conjunct C's macro has no term for. Its one reader is js/dogmove.js:1157, gating the whimper when a leashed pet meets a trap, so a hero playing the deaf conduct hears a line C suppresses. It predates the reviewed range, filed at fe22783, so it was outside the audit fix for 603e370..78e482e. Closing it needs no unported C: copy youprop.h's three-disjunct form as js/mhitm.js now does, and pin it with a case that sets u.uroleplay.deaf while leaving uprops[DEAF] zeroed."
+    },
+    {
+      "id": "unsolid-defender-has-no-fresh-case",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "slice",
+      "status": "open",
+      "from": "8012570348ae2c44efc3451b53ecfa449c4013e4",
+      "detail": "cc49c93 fixed a segment-losing refusal in js/mhitm.js: a pet's physical blow on an M1_UNSOLID defender stopped the segment where C requires unsolid(...) && failed_grab() and failed_grab() answers FALSE for a pet's attack types. The fix rests on the C source and unit tests watched failing, with no fresh C differential, because the case cannot occur in ordinary D:1 play: every M1_UNSOLID species has source difficulty 4 or more, and makemon.c rndmonst_adj() caps a D:1 runtime draw at (level_difficulty() + u.ulevel) / 2, which is 1 at experience level 1. A wizard-mode scan of seeds 7710001-7710150 with #levelchange to 30 and 140 waits recorded a pet fight in 51 of the first 80 games and named no unsolid defender in any. Closing this needs a recorded case, which wizard-mode monster creation would supply."
     }
   ],
   "areas": [
@@ -14138,6 +14156,109 @@
         }
       },
       "recordedAt": "2026-08-16T05:42:37.644Z"
+    },
+    {
+      "kind": "review",
+      "head": "856b9f6963c874dadde7d8eff979fb3977433e67",
+      "auditedRange": "603e370a695e6a7ce17eb3ddb9e20cad4b9b132e..856b9f6963c874dadde7d8eff979fb3977433e67",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "8012570348ae2c44efc3451b53ecfa449c4013e4",
+        "reason": "the checklist covers 80125703, an ancestor of the range head; the 1 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "monsters",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 22 raw, 18 deduplicated, 18 confirmed, 18 applied, 0 deferred, 0 rejected, 0 unverified; mutation: 23 survivors of 105 mutants. Five finders over pet-melee-attack's first slice, which rewrote js/mhitm.js from an M_ATTK_MISS stub into the real mattackm() and moved the development score for the first time in six goals, 1,674 to 1,763 of 7,765 screens. The pass returned 22 raw, 18 deduplicated and 18 confirmed with nothing rejected and nothing unverified, the only pass this session where every finding raised survived. Five were production defects and two of those lose a whole segment: a pet's ordinary blow on any unsolid defender refused where C requires unsolid() && failed_grab() and failed_grab() answers FALSE for a pet's attack types, and passivemm()'s AD_ENCH arm refused unconditionally where C guards its body on a wielded weapon that no admitted path supplies. The second was filed as a comment correction and the applying worker found it was a defect. Three more concern the noise path the slice added: a local Deaf() wrong in both directions against youprop.h, a gf.far_noise compared while undefined, and a line composed directly instead of through You_hear(), each of which prints where C is silent under an ordinary rc option. The applying worker also corrected the pass twice from the C, on failed_grab()'s file and on the claim that six other copies of Deaf() were right, one of which carries both errors and is now filed as debt. Two evidence gaps are filed rather than hidden, since neither fix could get a fresh differential. Applied in cc49c93, c251081, 04b3c66 and 8012570, with the checklist re-verified at 856b9f6.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2583,
+        "counts": {
+          "raw": 22,
+          "deduplicated": 18,
+          "confirmed": 18,
+          "applied": 18,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 5,
+          "tests": 7,
+          "clarity": 6,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/mhitm.js refused on unsolid(mdef.data) alone where mhitm.c requires unsolid(...) && failed_grab(). For every physical attack a pet carries, failed_grab() answers FALSE with no draw and no message, so a bite, claw, kick, butt, sting, touch or tentacle blow on any M1_UNSOLID defender ended the segment and lost every screen after it, where C prints hitmm()'s line and carries the blow through mdamagem().",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/mhitm.js passivemm()'s AD_ENCH arm refused unconditionally, where C's body is one drain_item(mwep, FALSE) guarded on mhitb && !mdef->mcan && mwep. mwep is null on every path mattackm() admits, so the arm is a no-op and the refusal ended a segment for nothing. The pass filed this as a comment correction; reading the C showed it was a fifth segment-losing defect.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/mhitm.js's local Deaf() was wrong in both directions against youprop.h:125, which is HDeaf || EDeaf || u.uroleplay.deaf: it dropped the roleplay disjunct and added a blocked conjunct C has no term for. With OPTIONS=deaf the port printed a line on every unseen monster-vs-monster blow that C suppresses, and wrote gf.far_noise and gn.noisetime that C leaves alone.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/mhitm.js compared gf.far_noise while it was undefined, because nothing initialized it to decl.c's FALSE, so the first near-band unseen fight of a game printed a line C does not and set gn.noisetime, shifting the rate limit for every later line. Two finders reported this at the same line from different angles and the workflow did not deduplicate them; one fix answers both.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/mhitm.js noises() composed and emitted its line directly instead of going through pline.c You_hear(), skipping that function's !flags.acoustics return and its Underwater and Unaware prefixes. With OPTIONS=!acoustics the port printed what C suppresses, and while the hero was Unaware it printed the plain line where C prints 'You dream that you hear ...'.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "mutants": 105,
+          "survivors": 23,
+          "byKind": {
+            "boolean": {
+              "ran": 34,
+              "killed": 27
+            },
+            "logical": {
+              "ran": 36,
+              "killed": 30
+            },
+            "relational": {
+              "ran": 35,
+              "killed": 25
+            }
+          },
+          "finderConclusion": "Composed from the window run over 603e370..78e482e (90 mutants, 22 survivors) and the delta run over the five audit-fix commits (15 mutants, 1 survivor). The slice grouped its 22 into ten claims, the largest being that refusing AT_WEAP makes mwep null on every path mattackm() admits, so C's cockatrice instinct, weaponhit/silverhit and troll_baned() are dead. The pass upheld the deadness argument and then used it against the code: the same nullity makes passivemm()'s AD_ENCH refusal unreachable, which turned a claimed-equivalent survivor's neighbourhood into a segment-losing defect. The delta's one survivor is failed_grab()'s return true, unreachable because unsupported() throws above it, the same shape as shade_miss()'s recorded survivor. Seven of this pass's eighteen findings are substitutions scripts/mutate-sites.mjs cannot express, since its site set is relational operators, logical connectives, boolean literals and integer bounds while these delete a statement or swap an identifier.",
+          "byKindNote": "Per-kind figures are the two runs summed."
+        },
+        "readiness": {
+          "boundary": "The slice's boundary starts when dogmove.c dog_move()'s ALLOW_M arm sends a pet to mhitm.c mattackm() against an adjacent hostile and ends when that monster's hit points reach zero and makemon.c grow_up() returns, with monkilled()'s line and corpse_chance() between them. js/dogmove.js reaches it on any pet turn beside a hostile, and the development sessions seed0900 and seed0103 execute it, seed0900 now matching in full.",
+          "sourceReview": "Every branch and helper reachable before the ending event was traced against nethack-c/upstream: mhitm.c mattackm(), noises(), pre_mm_attack(), missmm(), hitmm(), mdamagem() on the AD_PHYS reach, passivemm() and failed_grab(); makemon.c grow_up(); uhitm.c shade_miss() and mhitm_ad_phys()'s mhitm arm; do_name.c mon_nam_too(); dogmove.c's return-attack block; and pline.c You_hear() with youprop.h's Deaf macro, both of which this pass added. The trace covered state and random-number order, and six fresh recordings matched every call. Stubs and refusals are identified: AT_WEAP, AT_HUGS, AT_GAZE, AT_EXPL, AT_ENGL, AT_BREA and AT_SPIT, the mundetected unhide block, mdamagem()'s petrification pre-check and AD_DGST tail, passivemm()'s AD_ACID and second-switch types, and grow_up()'s level gain.",
+          "completeness": "No known unsupported behavior remains inside the boundary except the refusals named above, and each stops before changing state, consuming randomness or producing output. Two evidence gaps are filed rather than hidden: unsolid-defender-has-no-fresh-case, because every M1_UNSOLID species has source difficulty 4 or more and a D:1 draw caps at 1, so a 150-seed wizard-mode scan found no such defender in 51 recorded pet fights; and dogmove-herodeaf-drops-the-roleplay-term, a copy of the Deaf defect that predates this range and so lay outside the audit fix. The checklist was re-verified at 8012570 rather than re-stamped, because the fixes moved what the goal's second condition asserts about passivemm()."
+        }
+      },
+      "recordedAt": "2026-08-16T10:32:53.382Z"
     }
   ]
 }
