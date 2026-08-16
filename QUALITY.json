@@ -13876,6 +13876,113 @@
         }
       },
       "recordedAt": "2026-08-15T20:30:09.058Z"
+    },
+    {
+      "kind": "review",
+      "head": "29d9c664c7c26fe90af857993ede4d8b7229cfc5",
+      "auditedRange": "db59c7e24219a007d527abbc782f9ddd4a94b808..29d9c664c7c26fe90af857993ede4d8b7229cfc5",
+      "checklist": {
+        "covers": false,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "28c62d09650a6718211a22ad9ae8d88731e992e0",
+        "reason": "The active checklist covers monster-melee-attack and stopped at 28c62d0, before this range opens. No slice in this window qualified for one: each closed inside one agent session against a boundary its own deferral record named, and the largest counted 625 lines of game code in a single file."
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 20 raw, 17 deduplicated, 12 confirmed, 12 applied, 0 deferred, 5 rejected, 0 unverified; mutation: 3 survivors of 89 mutants. Four finders over the goal's third window: the do_set arm of thirteen options.c handlers, a test that proved a stale record rather than a port, and the reroll menu's naming moved onto donameFresh(). Three production defects were confirmed and fixed. Two are the kind only a reader finds: two option messages truncated with String.prototype.slice where C cuts at bytes, and complain_about_duplicate()'s ' (via alias: %s)' clause was missing, a divergence the previous slice introduced by making a throwing site report. The applying worker corrected the pass twice from the C. using_alias is a file static that the comma recursion carries leftwards along an rc line, not a per-statement flag, so the clause attaches to the name-spelled leftmost element; and SET_IN_CONFIG should be 1, but using 1 would have cut the compound-option sweep from 95 rows to 24, because setwhere plays no part in what a config file can name and pfx is the property that actually excludes rows. The pass's most useful result is a number rather than a fix: giving that 95-row sweep a message-count oracle, and recording all 285 spellings against the C reference, showed 45 rows changing verdict and 105 configuration errors the port still owes. That residue was one unquantified ledger entry before this pass and is a measured target after it. The development score stood at 9 of 33 sessions, 1674 of 7765 screens, 125050 of 610816 random-number values and 1685 of 7765 cursors at every commit in the window. Applied in f7dbf33, 29b50ab, 8fdbc5c, 46adc85, 7bc28f2 and 29d9c66.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2566,
+        "counts": {
+          "raw": 20,
+          "deduplicated": 17,
+          "confirmed": 12,
+          "applied": 12,
+          "deferred": 0,
+          "rejected": 5,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 6,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/options.js match_str2attr()'s Unknown text attribute '%.50s' and match_str2clr()'s '%.60s' truncated with String.prototype.slice, which counts UTF-16 code units, where C truncates at 50 and 60 bytes. A value longer than the limit in bytes but shorter in characters printed a longer line than C. The applying worker measured that the precision is reached at byte 86 or 85 while nomux_raw_putch() drops everything past byte 80 of a row, so no recording can witness it; the fix is right and the reachability claim in the finding is not.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/options.js setCharacterOption()'s complain_about_duplicate() message omitted C's ' (via alias: %s)' clause, so a duplicate role or alignment statement written through its alias produced a shorter configuration-error line than C. The text was unreachable before this range because the site threw, so making it report introduced the divergence.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/startup_reroll.js's counter comment claimed buildRerollMenuSpec() is the port's only writer of either counter, but js/objnam.js distant_name() also raises and lowers gd.distantname. The claim is the stated justification for the try/finally discipline, so a maintainer trusting it could collapse the counter to a boolean or drop a guard and silence observe_object() for the rest of the game.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "identificationFlags() returns the union of five different C override_ID substitutions, but each C site substitutes a different subset.",
+            "counterEvidence": "The C facts are right and the asserted problem has no instance: no consumer reads an out-of-scope field, because each formatter reads only the fields its own C site substitutes."
+          },
+          {
+            "summary": "preflightDoname()'s bag-of-tricks and horn-of-plenty refusal now reads the override-substituted cknown, so it fires in a case C would not.",
+            "counterEvidence": "Refuted on causality: the range narrowed refusals rather than widening them, since preflightXname() previously refused override_ID outright, and no reachable case witnesses the residual gap."
+          },
+          {
+            "summary": "match_str2attr() is named and documented as coloratt.c's general attribute lookup but is backed by the menu-heading table.",
+            "counterEvidence": "Refuted on causality: the behavior predates the range and only the helper's name is new. setPetAttribute() read the same table at the base commit."
+          },
+          {
+            "summary": "setPetAttribute() stores match_str2attr()'s answer in iflags.wc2_petattr, but that helper returns the menu-heading vocabulary.",
+            "counterEvidence": "Refuted on causality: `git show db59c7e2:js/options.js` at 1896-1905 shows the same mapping at the base commit, so the divergence is pre-existing and untouched here."
+          },
+          {
+            "summary": "string_for_opt()'s new result parameter is optional and trails a val_optional the C signature does not have, inviting mistranscription at call sites.",
+            "counterEvidence": "Refuted on evidence: the hazards are hypothetical, and both departures from the C signature are documented at the functions themselves."
+          }
+        ],
+        "mutation": {
+          "mutants": 89,
+          "survivors": 3,
+          "byKind": {
+            "boolean": {
+              "ran": 39,
+              "killed": 39
+            },
+            "logical": {
+              "ran": 32,
+              "killed": 32
+            },
+            "relational": {
+              "ran": 18,
+              "killed": 15
+            }
+          },
+          "finderConclusion": "Composed from the window run over db59c7e..df88dfa (83 mutants, 3 survivors) and the delta run over the six audit-fix commits (6 mutants, none surviving). This window's run is legible where the previous one was not: no generated table changed, so 83 mutants rather than 1,184, and the three survivors are specific claims the pass could decide. The tests finder landed findings on the two unpinned atoi() call sites and on the three emptyValue guards, each of which a substitution survived. The applying worker killed one further first-wave survivor on the alias raise by recording a C case that shows no clause, and reports the window's three inherited survivors untouched, now at js/options.js:2413, :2414 and :4338."
+        },
+        "readiness": {
+          "boundary": "The range covers two boundaries. The first starts when runSegment(input) hands NethackGame.start() an rc file and ends when the first screen is captured, with parseNethackrc() called unconditionally at js/jsmain.js:293 on every segment. The second starts when allmain.c:820's reroll loop draws the character-confirmation menu and ends when the player accepts or rerolls; js/allmain.js:238 reaches it whenever u.uroleplay.reroll is set, and a 14-segment matrix over all 13 roles executes it.",
+          "sourceReview": "Every branch and helper reachable before the ending events was traced against nethack-c/upstream: options.c's thirteen handler do_set arms, parse_role_opt(), petname_optfn(), string_for_opt() and string_for_env_opt(), bad_negation(), and complain_about_duplicate() with its file-static using_alias; coloratt.c color_attr_parse_str(), match_str2clr() and match_str2attr(); objnam.c xname_flags(), doname_base(), the_unique_obj(), add_erosion_words() and obj_is_pname(); eat.c tin_details() and tin_variety(); invent.c reroll_menu()'s counter discipline. The trace covered state and random-number order, and three fresh matrices matched every random-number call. Stubs and partial ports are identified and each carries a named refusal or a ledger entry, including the 105 configuration errors the port still owes across 45 of the 95 compound-option rows, which this pass turned from an unquantified residue into a measured figure.",
+          "completeness": "No known unsupported behavior remains inside the boundaries except the entries named above, and each reachable excluded branch stops before changing state, consuming randomness, or producing output. Two divergences found during the fixes are filed rather than fixed: raw-print-splits-a-multibyte-character, where the recorded screen stores a byte per cell but is read back as UTF-8, and character-header-clips-at-characters-not-bytes in js/player_selection_tty.js. One divergence is accepted and permanent for now: config_error_done() prints the absolute config path, which no segment input supplies."
+        }
+      },
+      "recordedAt": "2026-08-16T01:55:21.986Z"
     }
   ]
 }
