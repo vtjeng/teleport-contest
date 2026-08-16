@@ -3336,7 +3336,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "648b03a04114a236b965e1c21384fd0400ea8969",
       "detail": "makemon.c grow_up() (2101-2179) refuses at 'a monster gaining a level' where C raises m_lev, may run little_to_big() into a bigger species through set_mon_data(), prints the 'grows up into' line and applies the closing sanity limits. js/makemon.js reaches it whenever a killer's new maximum passes its hit-point ceiling, which for a starting pet is m_lev * 8 -- so a kitten or little dog stops on its third or fourth kill of the game. The goal pet-melee-attack declares the level gain outside its boundary. Case just outside the limit: seed 7710020 of the pet-melee matrix (scripts/run-pet-melee-attack.mjs, Valkyrie/human/female/neutral, datetime 20260401120000, rest_on_space and !safe_wait) with 29 spaces rather than the 27 the matrix commits. C at step 28 kills a sewer rat and at steps 29-30 kills a jackal, whose grow_up() takes the little dog's maximum from 8 to 9 past a threshold of 8 and gains it a level silently, drawing nothing further; the port emits its last matching screen at step 27 and stops. C's own comment at makemon.c:2078-2081 calls the resulting level gain without a hit-point gain a possible bug, and the maximum is already banked when the port stops, so the state it leaves behind is C's. Retire this with the level-gain arm."
     },
@@ -3375,6 +3375,16 @@
       "from": "3dfbff692affa6fe93a29efc05b523f0784cfa6e",
       "detail": "The case just outside this slice, kept out of the passing suite because it does not match C yet. Inputs: seed 8930452, datetime 20310203040506, the recorder's canonical timezone, moves `lllsssjjjss`, and an rc of name:Hoarder,role:Barbarian,race:human,gender:male,align:chaotic with pettype:none and !acoustics. The ledger named this seed as the reproducer for `dochug() returns where C breaks into PHASE FOUR`.\n\nExpected failure: the port matches C for 2879 of 2898 PRNG calls and 4 of 12 screens, then ends segment 1 at step 5 on `simple monster action requires monster offensive item use`. That refusal is mhitu.c mattacku()'s find_offensive() call at js/mhitu.js, standing in for muse.c use_offensive() (muse.c:1824), which is not ported. Measured identically before and after dochug-post-move-restores-c-disjunction, so restoring the disjunction neither reached the stop earlier nor moved past it.\n\nCloses when use_offensive() is ported and this recipe replays to the end of its input. Until then it belongs in no committed matrix: a segment trimmed to step 4 would encode four startup screens and none of the monster behaviour the seed was chosen for.",
       "blockedOn": "use_offensive"
+    },
+    {
+      "id": "grow-up-form-change-stops",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "529f7fc266cefeb17cb64ec16575222a3af20b94",
+      "detail": "makemon.c grow_up() (2121-2163) refuses at 'a monster growing into a bigger form' where C replaces the species: set_mon_data(), the gender fix at :2123 and :2159, the G_GENOD arm's pline() and mondied() at :2125-2132, the pline_mon() 'grows up into' line at :2147-2151, the cham carry-over at :2154-2155, newsym() at :2156, the lev_limit pin at :2157 and the mleashed update_inventory() at :2161-2162. js/makemon.js reaches it when a killer's raised m_lev meets mons[little_to_big(oldtype)].mlevel, which for a starting pet is m_lev 4 against a dog or a housecat -- three level gains past the first. do_name.c YMonnam() (1133) has no port, and js/do_name.js holds x_monnam() and Amonnam() only, so the line cannot be written yet. No case just outside the limit exists yet. Replaying seeds 7710001-7710030 of the pet-melee scan domain (Valkyrie/human/female/neutral, datetime 20260401120000, rest_on_space and !safe_wait) with 80 spaces each stops 17 of the 30 at an earlier unported owner -- dogmove.c dog_eat() in four, monster ranged weapons in three, monster hiding in two, monster engraving wear in two, and monster equipment changes, monster item use, an armed monster attacker and the hero dying in one each -- while the other 13 exhaust their keys without reaching any of them. None reaches the form change. Its case needs either a longer fight than that domain holds or create_particular, which is itself unported. Retire this with the form-change body.",
+      "blockedOn": "YMonnam"
     }
   ],
   "areas": [

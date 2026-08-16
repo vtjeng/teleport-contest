@@ -3,7 +3,7 @@ import test from 'node:test';
 
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_FOX } from '../js/monsters.js';
+import { PM_FOX, PM_JACKAL } from '../js/monsters.js';
 import { CORPSE } from '../js/objects.js';
 import {
     loadPetMeleeAttackRecipe,
@@ -32,7 +32,7 @@ test('the pet melee matrix carries replay inputs only', () => {
     );
     assert.deepEqual(
         recipe.segments.map(({ moves }) => moves.length),
-        [40, 40, 40, 40, 20, 27],
+        [40, 40, 40, 40, 20, 30],
     );
     // The two options that make a one-key replay possible.
     assert.match(PET_MELEE_RC, /rest_on_space,!safe_wait/u);
@@ -40,7 +40,7 @@ test('the pet melee matrix carries replay inputs only', () => {
 
 // One row per segment, in recipe order. Every draw run below was read off the
 // fresh C recording `node scripts/run-pet-melee-attack.mjs` makes, which
-// passed with 6 segments, 23115 PRNG calls, 213 screens and 213 cursors.
+// passed with 6 segments, 23168 PRNG calls, 216 screens and 216 cursors.
 //
 // `runs` maps a step index to the contiguous runs of draws that step must
 // contain, each in order. Only the monster-versus-monster calls are listed:
@@ -62,6 +62,7 @@ const ROWS = [
         // makemon.c grow_up() banks rnd(victim->m_lev + 1) whether or not the
         // killer gains a level, and a grid bug is a level-zero victim.
         petGrowth: 1,
+        petLevelGain: 0,
         pile: [],
     },
     {
@@ -76,6 +77,7 @@ const ROWS = [
                 'rn2(2)=1', 'rnd(1)=1'],
         },
         petGrowth: 1,
+        petLevelGain: 0,
         pile: [],
     },
     {
@@ -87,6 +89,7 @@ const ROWS = [
             29: ['rn2(3)=2', 'rnd(1)=1'],
         },
         petGrowth: 1,
+        petLevelGain: 0,
         pile: [],
     },
     {
@@ -97,6 +100,7 @@ const ROWS = [
                 'rn2(3)=2', 'rnd(1)=1'],
         },
         petGrowth: 1,
+        petLevelGain: 0,
         pile: [],
     },
     {
@@ -116,12 +120,20 @@ const ROWS = [
             ],
         },
         petGrowth: 1,
+        petLevelGain: 0,
         // PM_FOX is 13 in js/monsters.js; make_corpse() leaves one on the
         // square the fox died on.
         pile: [[CORPSE, PM_FOX, 1]],
     },
     {
-        // A landed return attack again, and a kill on the following key.
+        // The level-gain row. A landed return attack again, and a kill on the
+        // following key, then two more kills: a sewer rat at step 28, whose
+        // rn2(4)=1 declines the corpse, and a jackal whose blow lands at step
+        // 29 and whose kill resolves at step 30 past a --More--. That third
+        // grow_up() takes the little dog's maximum from 8 to 9, one point past
+        // the ceiling of m_lev * 8, so m_lev rises from 1 to 2; a dog is level
+        // 4, so the form does not change and nothing is printed. The jackal's
+        // rn2(2)=0 accepts a corpse, which is what the pet eats on step 31.
         runs: {
             // The hostile's own attack on the hero sits between the pet's
             // miss and the blow it lands, so this step lists two runs.
@@ -130,9 +142,17 @@ const ROWS = [
                 'rnd(20)=4', 'd(1,3)=2', 'rn2(3)=2', 'rn2(6)=5', 'rn2(3)=1'],
             4: ['rnd(20)=6', 'd(1,6)=1', 'rn2(3)=2', 'rn2(6)=3',
                 'rn2(3)=1', 'rnd(1)=1'],
+            28: ['rnd(20)=6', 'd(1,6)=6', 'rn2(3)=0', 'rn2(6)=0',
+                'rn2(4)=1', 'rnd(1)=1'],
+            29: ['rnd(20)=1', 'd(1,6)=4', 'rn2(3)=2', 'rn2(6)=2'],
+            30: ['rn2(2)=0', 'rn2(1000)=310', 'rn2(4)=3', 'rne(4)=1',
+                'rn2(2)=0', 'rnz(10)=7', 'rnd(1)=1'],
         },
-        petGrowth: 1,
-        pile: [],
+        petGrowth: 3,
+        petLevelGain: 1,
+        // PM_JACKAL is 12 in js/monsters.js; the kill at step 30 leaves its
+        // corpse where it died.
+        pile: [[CORPSE, PM_JACKAL, 1]],
     },
 ];
 
@@ -171,10 +191,12 @@ test('every pet fight spends its calls in source order', async () => {
     const recipe = loadPetMeleeAttackRecipe();
     for (const [index, segment] of recipe.segments.entries()) {
         const label = `segment ${index} (seed ${segment.seed})`;
-        // The pet's starting maximum, before any kill raises it, and the
-        // corpses mklev.c left on the floor, which some of these levels have.
+        // The pet's starting maximum and level, before any kill raises
+        // them, and the corpses mklev.c left on the floor, which some of these
+        // levels have.
         await runSegment({ ...segment, moves: '' });
         const before = pet().mhpmax;
+        const beforeLevel = pet().m_lev;
         const generated = corpses();
 
         const replay = await runSegment(segment);
@@ -197,6 +219,10 @@ test('every pet fight spends its calls in source order', async () => {
         assert.ok(survivor, `${label} kept its pet`);
         assert.equal(survivor.mhpmax - before, ROWS[index].petGrowth,
                      `${label} grow_up banked its point`);
+        // makemon.c grow_up():2120 raises m_lev only once the banked maximum
+        // passes the ceiling, which is the last row alone.
+        assert.equal(survivor.m_lev - beforeLevel, ROWS[index].petLevelGain,
+                     `${label} grow_up raised the level`);
 
         assert.deepEqual(corpses(), ROWS[index].pile.map(
             (row) => row.join(','),

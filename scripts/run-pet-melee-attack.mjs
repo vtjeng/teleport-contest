@@ -10,8 +10,8 @@
 // noises() (26-38), hitmm() (642-731), mdamagem() (1014-1120) on its AD_PHYS
 // path, passivemm() (1301-1408), uhitm.c mhitm_ad_phys()'s mhitm arm
 // (4128-4200), mon.c monkilled() (3376-3418) with mondied() and
-// corpse_chance() under it, makemon.c grow_up() (2049-2100), and dogmove.c
-// dog_move()'s return-attack block (1145-1171).
+// corpse_chance() under it, makemon.c grow_up() (2049-2178) short of its form
+// change, and dogmove.c dog_move()'s return-attack block (1145-1171).
 //
 // Every attack draws `dieroll = rnd(20 + i)` at mhitm.c:441 and, while the
 // defender lives, passivemm()'s rn2(3) at :1363. A landed blow adds
@@ -42,8 +42,8 @@
 //
 // The eleven fights left out stop for owners outside this matrix: worn.c
 // m_dowear() when a monster picks equipment up, mon.c restrap() when a hider
-// hides again, and makemon.c grow_up()'s level gain once a pet's maximum hit
-// points pass its level ceiling.
+// hides again, and makemon.c grow_up()'s form change once a pet's level reaches
+// its bigger species.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -106,13 +106,17 @@ export function loadPetMeleeAttackRecipe() {
             // dog_eat() is unported.
             { seed: 7710023, datetime: PET_MELEE_DATETIME,
                 nethackrc: PET_MELEE_RC, moves: waits(20) },
-            // A little dog against a fox again, with the return attack
-            // landing this time, and a kill on the following key. Twenty-seven
-            // keys stop before the pet's third kill of the game, where its
-            // maximum hit points pass its level ceiling and grow_up()'s level
-            // gain is outside this port.
+            // The level-gain row. A little dog against a fox again, with the
+            // return attack landing this time, and a kill on the following
+            // key. A sewer rat at step 28 then takes its maximum to the
+            // ceiling of m_lev * 8, and a jackal whose kill resolves at step
+            // 30 pushes it one point past, so grow_up() raises m_lev from 1 to
+            // 2 and prints nothing. A dog is level 4, which the raised level
+            // does not reach, so the little dog keeps its form. Thirty keys
+            // stop on that step, because the pet eats on the next one and
+            // dogmove.c dog_eat() is unported.
             { seed: 7710020, datetime: PET_MELEE_DATETIME,
-                nethackrc: PET_MELEE_RC, moves: waits(27) },
+                nethackrc: PET_MELEE_RC, moves: waits(30) },
         ],
     }, 'pet melee attack recipe');
 }

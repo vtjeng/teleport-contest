@@ -16,7 +16,14 @@ import {
 } from './const.js';
 import { level_difficulty, on_level } from './dungeon.js';
 import { game } from './gstate.js';
-import { always_hostile, always_peaceful, is_golem } from './mondata.js';
+import {
+    always_hostile,
+    always_peaceful,
+    is_golem,
+    is_mplayer,
+    little_to_big,
+    monsndx,
+} from './mondata.js';
 import { d, rn1, rn2, rnd } from './rng.js';
 import {
     G_FREQ,
@@ -53,12 +60,14 @@ import {
     PM_HIGH_CLERIC,
     PM_HUMAN,
     PM_IRON_GOLEM,
+    PM_KILLER_BEE,
     PM_LEATHER_GOLEM,
     PM_MAIL_DAEMON,
     PM_NAZGUL,
     PM_ORC,
     PM_PAPER_GOLEM,
     PM_PESTILENCE,
+    PM_QUEEN_BEE,
     PM_ROPE_GOLEM,
     PM_STONE_GOLEM,
     PM_STRAW_GOLEM,
@@ -264,29 +273,27 @@ export function adj_lev(monster, state = game) {
 // gain some hit points; it might also grow into a bigger monster (baby to
 // adult, soldier to officer, etc)".
 //
-// Partial: the `victim` arm down to the early return at 2100. That is the
-// whole function for a monster whose raised maximum still fits inside its
-// current level's hit-point ceiling, which is where an ordinary starting pet
-// killing a level-0 monster lands. rnd() calls RND() even for x == 1
-// (rnd.c:163), so such a kill still spends a draw and records rnd(1)=1.
+// Partial: the `victim` arm, including the level gain at 2120 and the closing
+// sanity limits. A monster whose raised maximum still fits inside its current
+// level's hit-point ceiling returns at 2111, which is where an ordinary
+// starting pet killing a level-0 monster lands; rnd() calls RND() even for
+// x == 1 (rnd.c:163), so such a kill still spends a draw and records rnd(1)=1.
 //
 // C raises mhpmax before it tests the threshold, and its own comment at
 // 2078-2081 calls the resulting level gain without a hit-point gain a possible
-// bug. The write therefore sits above the refusal, not below it: a pet that
-// stops here has already banked the point, and it persists through storage.
+// bug. The write therefore sits above the threshold test, not below it.
 //
 // Two arms refuse:
 //
-//   2103-2110  the `!victim` arm, reached from a gain-level potion, a wraith
+//   2099-2106  the `!victim` arm, reached from a gain-level potion, a wraith
 //              corpse and mdamagem()'s AD_DGST wraith case. It sets
 //              hp_threshold to 0, so it always continues into the level gain
 //              below; the refusal sits ahead of its own rnd(8).
-//   2101-2179  the level gain itself, with little_to_big(), the genocide
-//              check, the "grows up into" line, set_mon_data(), newsym() and
-//              the closing sanity limits.
-//
-// C's `oldtype`, `newtype` and `lev_limit` are read only by those two arms, so
-// nothing computes them here.
+//   2121-2163  the form change, entered only when the raised level reaches the
+//              bigger species: set_mon_data(), the "grows up into" line, the
+//              G_GENOD arm's mondied(), newsym() and the leashed-inventory
+//              refresh. The level itself is already raised when this refuses,
+//              because C increments inside the condition at 2120.
 export function grow_up(mtmp, victim, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2, rnd };
@@ -299,9 +306,17 @@ export function grow_up(mtmp, victim, env = {}) {
     /* currently possible if killing a gas spore */
     if (mtmp.mhp < 1) return null; /* DEADMONSTER() */
 
-    if (!victim) unsupported('a monster gaining a level from no victim');
+    /* note:  none of the monsters with special hit point calculations
+       have both little and big forms (killer bee can't grow into queen
+       bee by just killing things, so isn't in the little_to_big list) */
+    const oldtype = monsndx(ptr);
+    const newtype = (oldtype === PM_KILLER_BEE && !victim)
+        ? PM_QUEEN_BEE
+        : little_to_big(oldtype);
 
     /* growth limits differ depending on method of advancement */
+    if (!victim) unsupported('a monster gaining a level from no victim');
+
     /*
      * The HP threshold is the maximum number of hit points for the
      * current level; once exceeded, a level will be gained.
@@ -311,6 +326,12 @@ export function grow_up(mtmp, victim, env = {}) {
     else if (is_golem(ptr)) /* strange creatures */
         hp_threshold = (Math.trunc(mtmp.mhpmax / 10) + 1) * 10 - 1;
     else if (is_home_elemental(ptr, state)) hp_threshold *= 3;
+    /* C truncates the product, not the halved level, so an odd species level
+       keeps the extra half-step: 3 * 3 / 2 is 4 and not 3. */
+    let lev_limit = Math.trunc(3 * ptr.mlevel / 2); /* same as adj_lev() */
+    /* If they can grow up, be sure the level is high enough for that */
+    if (oldtype !== newtype && state.mons[newtype].mlevel > lev_limit)
+        lev_limit = state.mons[newtype].mlevel;
     /* number of hit points to gain; unlike for the player, we put
        the limit at the bottom of the next level rather than the top */
     let max_increase = random.rnd(victim.m_lev + 1);
@@ -323,8 +344,25 @@ export function grow_up(mtmp, victim, env = {}) {
     if (mtmp.mhpmax <= hp_threshold)
         return ptr; /* doesn't gain a level */
 
-    unsupported('a monster gaining a level');
-    return null;
+    if (is_mplayer(ptr)) lev_limit = 30; /* same as player */
+    else if (lev_limit < 5) lev_limit = 5; /* arbitrary */
+    else if (lev_limit > 49) lev_limit = (ptr.mlevel > 49 ? 50 : 49);
+
+    /* C evaluates the increment first, so every grower's level rises here,
+       including one whose species has no bigger form. */
+    if (++mtmp.m_lev >= state.mons[newtype].mlevel && newtype !== oldtype)
+        unsupported('a monster growing into a bigger form');
+
+    /* sanity checks */
+    if (mtmp.m_lev > lev_limit) {
+        mtmp.m_lev--; /* undo increment */
+        /* HP might have been allowed to grow when it shouldn't */
+        if (mtmp.mhpmax === hp_threshold + 1) mtmp.mhpmax--;
+    }
+    if (mtmp.mhpmax > 50 * 8) mtmp.mhpmax = 50 * 8; /* absolute limit */
+    if (mtmp.mhp > mtmp.mhpmax) mtmp.mhp = mtmp.mhpmax;
+
+    return ptr;
 }
 
 // C ref: makemon.c mbirth_limit().
