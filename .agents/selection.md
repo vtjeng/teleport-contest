@@ -16,17 +16,11 @@ entry why a second sweep in a row was selected.
 ### Deferred-area sweeps
 
 A deferred-area sweep resolves the open deferral entries one area has
-accumulated. `npm run quality -- deferrals` reports an area holding ten or
-more. Two kinds of entry do not count, for one reason: only debt a sweep can
-resolve belongs in the number that schedules sweeps.
-
-- A `scope` entry, whose text names unported territory a boundary goal
-  attacks.
-- An entry carrying a `blockedOn` symbol that `js/` does not yet define. The
-  field names the C symbol whose port the entry waits on, so such an entry can
-  only be retired by a port the threshold itself blocks. Once `js/` defines a
-  function of that name the entry counts again, and the listing says how many
-  entries each area stopped counting.
+accumulated. The threshold counts an area's open `production` entries. An
+entry naming a `blockedOn` symbol counts only once `js/` defines that symbol,
+because until then only a port the threshold itself blocks can retire it.
+`npm run quality -- deferrals` applies both rules, reports an area holding ten
+or more, and says how many entries each area stopped counting.
 
 Resolve one of the counted entries before opening the next boundary goal.
 

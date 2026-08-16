@@ -433,10 +433,7 @@ A review frontier is the latest integrated commit covered by a recorded pass.
   <text>`. It appends a note stamped with the commit it was written at and
   leaves `detail` as first written, so a reader can separate an original claim
   from a later correction and date each one. Write a note when a later commit
-  falsifies a claim the entry rests on, or closes part of what it counts. The
-  ten-entry sweep threshold in `.agents/selection.md` counts entries, and an
-  entry whose work is half done counts the same as a fresh one, so an entry
-  that reads larger than it is schedules a sweep before one is due.
+  falsifies a claim the entry rests on, or closes part of what it counts.
   `npm run quality -- deferrals` prints each entry's note count, and
   `--id <id>` prints the notes themselves. A closed entry takes no note;
   recording a deferral against its id reopens it first.

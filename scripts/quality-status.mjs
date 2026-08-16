@@ -1602,17 +1602,15 @@ export function openDeferrals(deferred, { area = null, status = 'open' } = {}) {
     && (!area || entry.area === area));
 }
 
-// Two exclusions, one principle: only debt a sweep can resolve counts toward
-// the ten .agents/selection.md holds every area under.
+// Two exclusions, each with its own reason.
 //
-// A scope entry names unported territory a boundary goal attacks, so counting
-// it here would schedule the rest of the port as sweeps. An entry whose
-// `blockedOn` symbol the port has not defined says the same thing in its
-// closing condition rather than in its category: it can only be retired by a
-// port the sweep threshold itself blocks, so counting it puts a permanent
-// floor under its own gate. On 10 August 2026 four of the ten monsters
-// entries were of that kind, and two sweeps that day spent six worker runs
-// for a combined zero development screens.
+// A non-production entry is excluded because resolving it cannot change what
+// the game does: QUALITY.json's review limits already schedule clarity and
+// simplification, a tests entry records a ported line no recorded case pins,
+// and a scope entry names territory a boundary goal attacks. An entry whose
+// `blockedOn` symbol the port has not defined is excluded because only a port
+// the sweep threshold itself blocks can retire it, so counting it puts a
+// permanent floor under its own gate.
 //
 // blockerLanded expires the second exclusion. AGENTS.md gives a ported
 // function the name of the C function it comes from, so a definition under
@@ -1628,7 +1626,7 @@ export function deferralCounts(deferred, blockerLanded = portDefines) {
   const counts = new Map();
   for (const entry of deferred) {
     if (entry.status !== 'open' || !entry.area) continue;
-    if (entry.category === 'scope') continue;
+    if (entry.category !== 'production') continue;
     const area = counts.get(entry.area) ?? { counted: 0, blocked: 0 };
     if (entry.blockedOn && !blockerLanded(entry.blockedOn)) area.blocked += 1;
     else area.counted += 1;

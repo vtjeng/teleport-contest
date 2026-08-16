@@ -1284,10 +1284,10 @@ test('ledger queries flatten pass rejections and filter deferrals', () => {
     // entry; and the sweep threshold of 2 fires for monsters alone, because
     // closed and area-less entries never count toward a sweep.
     const ledger = [
-        { id: 'A', area: 'monsters', status: 'open' },
-        { id: 'B', area: 'monsters', status: 'open' },
-        { id: 'C', area: 'monsters', status: 'closed' },
-        { id: 'D', area: null, status: 'open' },
+        { id: 'A', area: 'monsters', status: 'open', category: 'production' },
+        { id: 'B', area: 'monsters', status: 'open', category: 'production' },
+        { id: 'C', area: 'monsters', status: 'closed', category: 'production' },
+        { id: 'D', area: null, status: 'open', category: 'production' },
     ];
     assert.deepEqual(openDeferrals(ledger).map(({ id }) => id),
         ['A', 'B', 'D']);
@@ -1301,19 +1301,28 @@ test('ledger queries flatten pass rejections and filter deferrals', () => {
     assert.deepEqual(sweepCandidates(ledger, 3), []);
 });
 
-test('a scope deferral never counts toward a sweep candidate', () => {
-    // A scope entry names unported territory a boundary goal attacks, not
-    // deferred debt a sweep resolves, so counting it would schedule the rest of
-    // the port as sweeps. The threshold of 2 must see the production and tests
-    // entries and ignore the scope one.
+test('only a production deferral counts toward a sweep candidate', () => {
+    // A sweep is scheduled by debt whose resolution changes what the game
+    // does. QUALITY.json's review limits already schedule clarity and
+    // simplification, a tests entry records a ported line no recorded case
+    // pins, and a scope entry names territory a boundary goal attacks. One
+    // entry of each sits beside a single production entry, so a threshold of 2
+    // must stay silent and a threshold of 1 must fire on that entry alone.
     const ledger = [
         { id: 'A', area: 'monsters', status: 'open', category: 'production' },
         { id: 'B', area: 'monsters', status: 'open', category: 'tests' },
         { id: 'C', area: 'monsters', status: 'open', category: 'scope' },
+        { id: 'D', area: 'monsters', status: 'open', category: 'clarity' },
+        {
+            id: 'E', area: 'monsters', status: 'open',
+            category: 'simplification',
+        },
     ];
-    assert.deepEqual(sweepCandidates(ledger, 2),
-        [['monsters', { counted: 2, blocked: 0 }]]);
-    assert.deepEqual(sweepCandidates(ledger, 3), []);
+    assert.deepEqual(deferralCounts(ledger),
+        new Map([['monsters', { counted: 1, blocked: 0 }]]));
+    assert.deepEqual(sweepCandidates(ledger, 2), []);
+    assert.deepEqual(sweepCandidates(ledger, 1),
+        [['monsters', { counted: 1, blocked: 0 }]]);
 });
 
 test('a blocked deferral stops counting until its blocker lands', () => {
