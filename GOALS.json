@@ -2482,8 +2482,8 @@
         },
         {
           "name": "m-dowear-armor-fit-rules-have-two-homes",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d037fb5c4b2c7c10b733abccbe37c5cf35b4470d"
         }
       ],
       "openedAt": "e2cbafdc93a7c5ee1255a15ee01ea1790baf8a17",

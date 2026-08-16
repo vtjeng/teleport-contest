@@ -545,3 +545,5 @@ utc	event	phase	goal	detail
 2026-08-16T14:27:09.904Z	end	select	monsters-deferral-sweep-3	
 2026-08-16T14:27:09.932Z	start	implement	monsters-deferral-sweep-3	
 2026-08-16T14:44:02.108Z	end	implement	monsters-deferral-sweep-3	
+2026-08-16T14:59:38.799Z	start	implement	monsters-deferral-sweep-3	m-dowear-armor-fit-rules-have-two-homes
+2026-08-16T15:29:16.134Z	end	implement	monsters-deferral-sweep-3	
