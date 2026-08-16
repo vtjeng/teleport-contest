@@ -2823,7 +2823,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "a119cd09c0955aefab4fd896b1dfe9948d171a56",
       "detail": "C's single gb.bhitpos global has two JavaScript homes. js/zap.js:558 and js/dothrow.js:792 read and write state.bhitpos; js/dog.js:320 reads and writes state.gb.bhitpos. AGENTS.md requires one JavaScript location per C state value. Neither location is wrong on its own, and no ported path yet writes one and reads the other, so this is latent rather than live: bhitp.c's readers reach it through buzz() and throwit() only. mhitu.c calc_mattacku_vars() (459) writes it too, and js/mhitu.js deliberately ports no write because mattacku()'s own reader at mhitu.c:782 is tautologically false; that third writer is the one that will force the choice. Closes when the two names collapse into one, with the C global named in a comment at the surviving site."
     },

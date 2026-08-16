@@ -538,7 +538,7 @@ test('throwit() lands a thrown weapon at the end of its range', async () => {
     const dagger = item(state, DAGGER);
     assert.equal(state.objects[DAGGER].oc_weight, 10);
     await throwit(dagger, 0, false, null, state);
-    assert.deepEqual(state.bhitpos, { x: 9, y: 4 });
+    assert.deepEqual(state.gb.bhitpos, { x: 9, y: 4 });
     assert.deepEqual(pileAt(state, 9, 4), [dagger]);
     // dothrow.c:1780 asks breaktest() -- one rn2(100) inside obj_resists() --
     // and nothing else draws: :1526's rn2(7) belongs to a cursed or greased
@@ -562,7 +562,7 @@ test('throwit() draws rn2(7) only for a cursed or greased missile',
             // missile keeps the direction it was thrown in.
             assert.deepEqual(draws(), ['rn2(7)', 'rn2(100)'],
                 `a ${flag} missile has to ask whether it slips`);
-            assert.deepEqual(state.bhitpos, { x: 9, y: 4 });
+            assert.deepEqual(state.gb.bhitpos, { x: 9, y: 4 });
         }
         // With no direction to slip away from -- u.dx and u.dy both zero --
         // the second conjunct stops the draw. u.dz is what throwit() reads
@@ -593,7 +593,7 @@ test('throwit() refuses a weapon that would return to the hand', async () => {
     const loose = arena();
     const aklys = item(loose, AKLYS);
     await throwit(aklys, 0, false, null, loose);
-    assert.deepEqual(pileAt(loose, loose.bhitpos.x, 4), [aklys]);
+    assert.deepEqual(pileAt(loose, loose.gb.bhitpos.x, 4), [aklys]);
     // A boomerang returns whatever slot it came from, so the wield mask never
     // reaches its half of the test. dothrow.c:1601 boomhit() is the next
     // unported call, which is what a missed AutoReturn() would stop at
@@ -631,7 +631,7 @@ test('throwit() takes its range from the launcher, not from the hand',
         state.uwep = crossbow;
         carry(state, crossbow);
         await throwit(item(state, DAGGER), 0, false, null, state);
-        assert.deepEqual(state.bhitpos, { x: 9, y: 4 });
+        assert.deepEqual(state.gb.bhitpos, { x: 9, y: 4 });
         // With bolts in the same hands both halves hold, so :1638 replaces
         // the range with BOLT_LIM (8) outright rather than adding one to it.
         const bolts = arena({ last: 20 });
@@ -639,7 +639,7 @@ test('throwit() takes its range from the launcher, not from the hand',
         bolts.uwep = launcher;
         carry(bolts, launcher);
         await throwit(item(bolts, CROSSBOW_BOLT), 0, false, null, bolts);
-        assert.deepEqual(bolts.bhitpos, { x: 9, y: 4 });
+        assert.deepEqual(bolts.gb.bhitpos, { x: 9, y: 4 });
     });
 
 test('throwit() breaks what lands hard and drowns what lands wet',
@@ -820,7 +820,7 @@ test('throwit() sounds a landing in liquid exactly where C sounds it',
             () => throwit(item(submerged, DAGGER), 0, false, null, submerged),
             /landing in water/u,
         );
-        assert.equal(submerged.bhitpos.x, 2);
+        assert.equal(submerged.gb.bhitpos.x, 2);
         assert.equal(submerged._ttyToplines, '');
         // Draw-free because this pool skips breaktest(), not because the
         // Underwater gate suppressed anything: that gate owns the sound
@@ -949,7 +949,7 @@ test('throwit() drops a heavy missile from a tired hand', async () => {
             assert.deepEqual(draws(), ['rn2(2)'], row.name);
         } else {
             await throwit(dagger, 0, false, null, state);
-            assert.deepEqual(pileAt(state, state.bhitpos.x, 4), [dagger],
+            assert.deepEqual(pileAt(state, state.gb.bhitpos.x, 4), [dagger],
                 row.name);
             assert.doesNotMatch(state._ttyToplines, /so little stamina/u,
                 row.name);
@@ -1062,7 +1062,7 @@ test('throw_obj() lets gloves carry a petrifying corpse', async () => {
     gloved.uquiver = corpse;
     aimEast(gloved);
     assert.equal(await throw_obj(corpse, 0, gloved), ECMD_TIME);
-    assert.deepEqual(pileAt(gloved, gloved.bhitpos.x, 4), [corpse]);
+    assert.deepEqual(pileAt(gloved, gloved.gb.bhitpos.x, 4), [corpse]);
     // Bare hands reach the same corpse's third conjunct.
     const bare = arena();
     const deadly = item(bare, CORPSE, { corpsenm: PM_COCKATRICE, owt: 30 });
@@ -1082,7 +1082,7 @@ test('throw_obj() lets gloves carry a petrifying corpse', async () => {
     aimEast(immune);
     immune._ttyToplines = '';
     assert.equal(await throw_obj(harmless, 0, immune), ECMD_TIME);
-    assert.deepEqual(pileAt(immune, immune.bhitpos.x, 4), [harmless]);
+    assert.deepEqual(pileAt(immune, immune.gb.bhitpos.x, 4), [harmless]);
     // C's message belongs to the branch this hero skips, so it must not
     // appear; the throw itself prints nothing.
     assert.doesNotMatch(immune._ttyToplines, /bare/u);
@@ -1096,7 +1096,7 @@ test('throw_obj() lets gloves carry a petrifying corpse', async () => {
     worn.u.uprops[STONE_RES].extrinsic = 1;
     aimEast(worn);
     assert.equal(await throw_obj(spare, 0, worn), ECMD_TIME);
-    assert.deepEqual(pileAt(worn, worn.bhitpos.x, 4), [spare]);
+    assert.deepEqual(pileAt(worn, worn.gb.bhitpos.x, 4), [spare]);
 });
 
 test('throw_obj() opens the multishot block only for a stack it can volley',
@@ -1823,7 +1823,7 @@ test('dothrow() prompts with the suggested letters and throws the answer',
         assert.deepEqual(
             [state.invent.invlet, state.invent.nobj.invlet], ['a', 'c'],
         );
-        assert.deepEqual(pileAt(state, state.bhitpos.x, 4), [dagger]);
+        assert.deepEqual(pileAt(state, state.gb.bhitpos.x, 4), [dagger]);
     });
 
 test('dothrow() prompts with [*] when nothing is suggested', async () => {
@@ -1842,7 +1842,7 @@ test('dothrow() prompts with [*] when nothing is suggested', async () => {
     // A downplayed letter typed by hand is still accepted and thrown.
     assert.equal(state.invent.invlet, 'a');
     assert.equal(state.invent.nobj, null);
-    assert.deepEqual(pileAt(state, state.bhitpos.x, 4), [scroll]);
+    assert.deepEqual(pileAt(state, state.gb.bhitpos.x, 4), [scroll]);
 });
 
 test('dothrow() answers an escaped prompt with ECMD_CANCEL', async () => {

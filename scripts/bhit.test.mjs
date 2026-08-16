@@ -76,16 +76,16 @@ test('bhit() stops on the last passable square and reports no monster', async ()
     // missile lands on the last floor it crossed rather than inside the rock.
     const state = corridor(4);
     assert.equal(await fireEast(state, 8, missile(state)), null);
-    assert.deepEqual(state.bhitpos, { x: 4, y: 4 });
+    assert.deepEqual(state.gb.bhitpos, { x: 4, y: 4 });
     // A range that runs out first stops where the range does.
     const short = corridor(6);
     await fireEast(short, 2, missile(short));
-    assert.deepEqual(short.bhitpos, { x: 3, y: 4 });
+    assert.deepEqual(short.gb.bhitpos, { x: 3, y: 4 });
     // zap.c:4098. `range-- > 0` is a post-decrement, so a range of 1 moves
     // exactly one square.
     const one = corridor(6);
     await fireEast(one, 1, missile(one));
-    assert.deepEqual(one.bhitpos, { x: 2, y: 4 });
+    assert.deepEqual(one.gb.bhitpos, { x: 2, y: 4 });
 });
 
 test('bhit() stops at a wall of water or lava without backing up', async () => {
@@ -95,14 +95,14 @@ test('bhit() stops at a wall of water or lava without backing up', async () => {
         const state = corridor(6);
         state.level.at(3, 4).typ = typ;
         await fireEast(state, 8, missile(state));
-        assert.deepEqual(state.bhitpos, { x: 3, y: 4 });
+        assert.deepEqual(state.gb.bhitpos, { x: 3, y: 4 });
     }
     // A sink stops it too, but only after the square has been drawn on
     // (zap.c:4093-4094), so the missile lands there rather than before it.
     const sink = corridor(6);
     sink.level.at(3, 4).typ = SINK;
     await fireEast(sink, 8, missile(sink));
-    assert.deepEqual(sink.bhitpos, { x: 3, y: 4 });
+    assert.deepEqual(sink.gb.bhitpos, { x: 3, y: 4 });
 });
 
 test('bhit() refuses every call type but a thrown weapon', async () => {
@@ -152,7 +152,7 @@ test('bhit() refuses the four branches along the flight it cannot finish',
         // has just spent its last step lands instead of stopping the segment.
         const spent = corridor(6);
         await fireEast(spent, 1, missile(spent, HEAVY_IRON_BALL));
-        assert.deepEqual(spent.bhitpos, { x: 2, y: 4 });
+        assert.deepEqual(spent.gb.bhitpos, { x: 2, y: 4 });
         // A pick-axe is only caught inside a shop, and nothing here is one.
         const pick = corridor(6);
         assert.equal(await fireEast(pick, 4, missile(pick, PICK_AXE)), null);
@@ -190,7 +190,7 @@ test('bhit() catches a missile in a web on one draw in three', async () => {
     await bhit(1, 0, 8, THROWN_WEAPON, null, null,
         { obj: missile(web, ARROW) }, web, random);
     assert.deepEqual(seen, [3]);
-    assert.deepEqual(web.bhitpos, { x: 3, y: 4 });
+    assert.deepEqual(web.gb.bhitpos, { x: 3, y: 4 });
     assert.equal(web.level.traps[0].tseen, true);
     // The two draws in three that answer nonzero let the missile fly past.
     for (const draw of [1, 2]) {
@@ -199,7 +199,7 @@ test('bhit() catches a missile in a web on one draw in three', async () => {
         await bhit(1, 0, 8, THROWN_WEAPON, null, null,
             { obj: missile(through, ARROW) }, through,
             { rn2: () => draw, rnd: () => 1 });
-        assert.deepEqual(through.bhitpos, { x: 6, y: 4 });
+        assert.deepEqual(through.gb.bhitpos, { x: 6, y: 4 });
         assert.equal(through.level.traps[0].tseen, false);
     }
 });
@@ -219,7 +219,7 @@ test('bhit() stops when a monster stands in the flight path', async () => {
     const past = corridor(6);
     past.level.monsters[5][4] = { mx: 5, my: 4, data: past.mons[0] };
     await assert.rejects(() => fireEast(past, 8, missile(past)), /thitmonst/u);
-    assert.deepEqual(past.bhitpos, { x: 5, y: 4 });
+    assert.deepEqual(past.gb.bhitpos, { x: 5, y: 4 });
 });
 
 test('bhit() treats solid rock beyond the map edge as the end of the run',
@@ -235,5 +235,5 @@ test('bhit() treats solid rock beyond the map edge as the end of the run',
         state.u.ux = COLNO - 4;
         await bhit(1, 0, 8, THROWN_WEAPON, null, null,
             { obj: missile(state) }, state);
-        assert.deepEqual(state.bhitpos, { x: COLNO - 1, y: 4 });
+        assert.deepEqual(state.gb.bhitpos, { x: COLNO - 1, y: 4 });
     });

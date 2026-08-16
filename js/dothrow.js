@@ -790,8 +790,8 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         throw new UnsupportedThrowError('throwit_mon_hit()');
     }
 
-    const bx = state.bhitpos.x;
-    const by = state.bhitpos.y;
+    const bx = state.gb.bhitpos.x;
+    const by = state.gb.bhitpos.y;
     if ((!IS_SOFT(state.level.at(bx, by).typ)
         && breaktest(obj, { state }))
         || obj.oclass === VENOM_CLASS) {
@@ -939,6 +939,9 @@ async function throw_gold(obj, state = game) {
         throw new UnsupportedThrowError('digests() for a swallowed hero');
     }
 
+    /* C's gb.bhitpos is a struct member and always exists; this port creates
+       the struct on first use, and both arms below write into it. */
+    state.gb ??= {};
     if (u.dz) {
         if (u.dz < 0 && !Is_airlevel(u.uz) && !u.uinwater
             && !Is_waterlevel(u.uz)) {
@@ -956,7 +959,7 @@ async function throw_gold(obj, state = game) {
                 );
             }
         }
-        state.bhitpos = { x: u.ux, y: u.uy };
+        state.gb.bhitpos = { x: u.ux, y: u.uy };
     } else {
         /* consistent with range for normal objects */
         const range = Math.trunc(acurrstr(state) / 2)
@@ -968,7 +971,7 @@ async function throw_gold(obj, state = game) {
         if (!isok(odx, ody)
             || !ZAP_POS(state.level.at(odx, ody).typ)
             || closed_door(odx, ody, state)) {
-            state.bhitpos = { x: u.ux, y: u.uy };
+            state.gb.bhitpos = { x: u.ux, y: u.uy };
         } else {
             const pobj = { obj };
             const mon = await bhit(u.dx, u.dy, range, THROWN_WEAPON, null, null,
@@ -982,13 +985,13 @@ async function throw_gold(obj, state = game) {
                    has already woken and angered the monster. */
                 throw new UnsupportedThrowError('ghitm()');
             } else {
-                if (shipsAway(state.bhitpos.x, state.bhitpos.y, state))
+                if (shipsAway(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
                     throw new UnsupportedThrowError('ship_object()');
             }
         }
     }
 
-    if (flooreffects(obj, state.bhitpos.x, state.bhitpos.y, 'fall', {
+    if (flooreffects(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, 'fall', {
         state,
         unsupported: (what) => {
             throw new UnsupportedThrowError(what);
@@ -998,11 +1001,11 @@ async function throw_gold(obj, state = game) {
     if (u.dz > 0) {
         await ttyPline(
             'The gold hits the '
-            + `${surface(state.bhitpos.x, state.bhitpos.y, state)}.`,
+            + `${surface(state.gb.bhitpos.x, state.gb.bhitpos.y, state)}.`,
             state,
         );
     }
-    place_object(obj, state.bhitpos.x, state.bhitpos.y, { state });
+    place_object(obj, state.gb.bhitpos.x, state.gb.bhitpos.y, { state });
     /* `*u.ushops` is the first entry of the room list naming the shops the
        hero stands in, as js/do.js dropx() reads it. */
     if (u.ushops?.[0])
@@ -1011,6 +1014,6 @@ async function throw_gold(obj, state = game) {
        extracts the object it merged with; invent.c obj_extract_self() takes
        that operation from its caller, as throwit() above does. */
     stackobj(obj, { state, hooks: { extractExternalObject: remove_object } });
-    newsym(state.bhitpos.x, state.bhitpos.y);
+    newsym(state.gb.bhitpos.x, state.gb.bhitpos.y);
     return ECMD_TIME;
 }

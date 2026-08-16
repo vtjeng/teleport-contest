@@ -496,9 +496,10 @@ export async function makewish(state = game) {
 // effect shared by a thrown weapon, a kicked object, an immediate wand, a
 // flashed light and an applied mirror: it walks the ray one square at a time,
 // draws the transient glyph, and stops at the first monster, wall or closed
-// door. gb.bhitpos, which C leaves at the final square, is the port's
-// `state.bhitpos`; every caller reads it after the call rather than the return
-// value, which is the monster hit.
+// door. C's gb.bhitpos, which it leaves at the final square, is the port's
+// `state.gb.bhitpos`, the one JavaScript home for that global; dogmove.c's
+// and mon.c's writers use the same name. Every caller reads it after the call
+// rather than the return value, which is the monster hit.
 //
 // Only THROWN_WEAPON is ported, because dothrow.c throwit() is bhit()'s only
 // ported caller. Everything the other five call types reach -- zap_map(),
@@ -555,7 +556,8 @@ export async function bhit(
         // thrown weapon at dothrow.c:1665-1666.
         throw new UnsupportedBhitError('an object or monster callback');
     }
-    state.bhitpos = { x: state.u.ux, y: state.u.uy };
+    state.gb ??= {};
+    state.gb.bhitpos = { x: state.u.ux, y: state.u.uy };
 
     if (obj && obj.otyp === ROCK) {
         ({ skipstart: skiprange_start, skipend: skiprange_end } =
@@ -566,14 +568,14 @@ export async function bhit(
     await tmp_at(DISP_FLASH, obj_to_glyph(obj, state), state);
 
     while (range-- > 0) {
-        state.bhitpos.x += ddx;
-        state.bhitpos.y += ddy;
-        const x = state.bhitpos.x;
-        const y = state.bhitpos.y;
+        state.gb.bhitpos.x += ddx;
+        state.gb.bhitpos.y += ddy;
+        const x = state.gb.bhitpos.x;
+        const y = state.gb.bhitpos.y;
 
         if (!isok(x, y)) {
-            state.bhitpos.x -= ddx;
-            state.bhitpos.y -= ddy;
+            state.gb.bhitpos.x -= ddx;
+            state.gb.bhitpos.y -= ddy;
             break;
         }
 
@@ -634,8 +636,8 @@ export async function bhit(
         }
 
         if (!ZAP_POS(typ) || closed_door(x, y, state)) {
-            state.bhitpos.x -= ddx;
-            state.bhitpos.y -= ddy;
+            state.gb.bhitpos.x -= ddx;
+            state.gb.bhitpos.y -= ddy;
             break;
         }
         /* 'I' present but no monster: erase; do this before tmp_at() */
