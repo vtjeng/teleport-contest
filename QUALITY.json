@@ -3237,13 +3237,17 @@
       "area": "startup",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "fb143cda293f3066ceae49493c84c2c70e120e2e",
       "detail": "cfgfiles.c config_error_done() (1609-1615) closes a configuration read with\n\n    pline(\"\\\\n%d error%s %s %s.\\\\n\", n, plur(n), cmdline ? \"on\" : \"in\",\n          *config_error_data->source ? config_error_data->source : configfile);\n\nand `configfile` is the absolute path fopen_config_file() opened, which on UNIX\nis \"$HOME/.nethackrc\". runSegment() receives the configuration as text and no\npath, so the port cannot learn $HOME and js/cfgfiles.js get_configfile() answers\nwith the bare default name instead.\n\nMeasured, not inferred: three fresh differentials over rc files that trip a\nconfig error (bad sortloot value; an over-long line; eight assorted errors)\nmatch C on every random-number call, every cursor and every other cell, and\ndiverge only at the first character of that path. Seed 3310277 at\n19960229180000 reports `Cell row 20, column 13 (ch): C \"/\", JS \".\"` with\nPRNG 3150/3150 and cursors matching.\n\nOne row of one screen per affected segment is the whole cost, and no port can\nrecover it. ask_do_tutorial() prints nh_basename() of the same value and is\nunaffected, which is why js/tutorial_startup.js already matched.",
       "notes": [
         {
           "text": "The sweep's census reads this entry as unclosable by any port and unable to carry a blockedOn, because it waits on $HOME rather than on a C symbol. It therefore satisfies neither branch of the goal's closing condition. Its disposition belongs to the goal's close, where the choice is between recategorizing it as scope, since the contest's input contract rather than C is what blocks it, and resolving it as an accepted measured divergence pinned by a test. It is not the sweep's to port.",
           "at": "715a93278cf02f747fa1c3a4ad65c1c9521b19e7"
+        },
+        {
+          "text": "Resolved as an accepted measured divergence, the first of the two dispositions the 715a932 note left to a goal close. No port closes this: cfgfiles.c config_error_done() prints the absolute path fopen_config_file() opened, and runSegment() receives configuration as text and no path, so the value is absent from the contest input rather than unported. It also cannot carry a blockedOn, which names a C symbol, so leaving it open put a permanent floor under the startup sweep threshold. Pinned by scripts/config-error.test.mjs, \"the config-error summary names the bare rc file C gives an absolute path\", which asserts that get_configfile() answers DEFAULT_CONFIGFILE and that the answer carries no separator, that config_error_done() builds C's summary row around it for one error, for two errors and not at all for none, and that state.configfile still wins should a later port ever learn the path. Watched failing first by making get_configfile() return the absolute spelling: the test reported expected \".nethackrc\", actual \"/home/you/.nethackrc\". The measured cost stands unchanged at one cell of one row per affected segment, seed 3310277 at 19960229180000 diverging only at row 20, column 13.",
+          "at": "1e1f31706325b9abe288cbed208bd268b73a3d2a"
         }
       ]
     },
