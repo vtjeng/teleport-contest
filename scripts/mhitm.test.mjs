@@ -59,6 +59,13 @@ import {
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { cansee } from '../js/vision.js';
 import { find_mac } from '../js/worn.js';
+import {
+    loadUnseenPetFightRecipe,
+    UNSEEN_PET_FIGHT_DATETIME,
+    UNSEEN_PET_FIGHT_DEAF_RC,
+    UNSEEN_PET_FIGHT_QUIET_RC,
+    UNSEEN_PET_FIGHT_RC,
+} from './run-unseen-pet-fight.mjs';
 
 // A Valkyrie with no pet on a plain first level. The fixtures below place
 // every combatant themselves, so all the seed has to supply is a lit room
@@ -835,6 +842,41 @@ test('an unseen fight is heard rather than named', async () => {
     assert.deepEqual(await overdue('underwater'),
                      ['You barely hear some noises.']);
     game.u.uinwater = false;
+});
+
+// The fresh matrix that pins the same three gates end to end.
+// `node scripts/run-unseen-pet-fight.mjs` records it against the C reference.
+test('the unseen pet fight matrix carries replay inputs only', () => {
+    const recipe = loadUnseenPetFightRecipe();
+    // Version 5 recipes contain replay inputs and no recorded C answers.
+    assert.equal(recipe.version, 5);
+    assert.equal(recipe.segments.length, 3);
+    for (const segment of recipe.segments) {
+        assert.equal(Object.hasOwn(segment, 'steps'), false);
+        assert.equal(segment.datetime, UNSEEN_PET_FIGHT_DATETIME);
+        // One key, repeated: `rest_on_space` makes <space> the wait command
+        // and it doubles as the --More-- dismissal.
+        assert.match(segment.moves, /^ {40}$/u);
+    }
+    // The seed and rc lists are the tripwire for a silent re-recording. Only
+    // the rc separates the second row from the third.
+    assert.deepEqual(
+        recipe.segments.map(({ seed }) => seed),
+        [7710110, 7710395, 7710395],
+    );
+    assert.deepEqual(
+        recipe.segments.map(({ nethackrc }) => nethackrc),
+        [
+            UNSEEN_PET_FIGHT_RC,
+            UNSEEN_PET_FIGHT_DEAF_RC,
+            UNSEEN_PET_FIGHT_QUIET_RC,
+        ],
+    );
+    // The loud row leaves both gates at their defaults, which is what makes it
+    // the control for the other two.
+    assert.doesNotMatch(UNSEEN_PET_FIGHT_RC, /deaf|acoustics/u);
+    assert.match(UNSEEN_PET_FIGHT_DEAF_RC, /\nOPTIONS=deaf\n/u);
+    assert.match(UNSEEN_PET_FIGHT_QUIET_RC, /\nOPTIONS=!acoustics\n/u);
 });
 
 // mhitm.c hitmm():684-687, the AT_TENT arm. Its subject is the attacker's
