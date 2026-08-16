@@ -1,7 +1,7 @@
 // Monster-versus-monster attacks.
-// C ref: mhitm.c -- noises(), pre_mm_attack(), missmm(), mattackm(), hitmm(),
-// mdamagem() and passivemm(). The unported neighbours are named where the arm
-// that needs them refuses.
+// C ref: mhitm.c -- noises(), pre_mm_attack(), missmm(), mattackm(),
+// failed_grab(), hitmm(), mdamagem() and passivemm(). The unported neighbours
+// are named where the arm that needs them refuses.
 
 import {
     CONFLICT,
@@ -33,12 +33,15 @@ import {
     unsolid,
     zombie_form,
 } from './mondata.js';
+import { youHear } from './monmove.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
     AD_ACID,
     AD_DGST,
     AD_DRIN,
     AD_ENCH,
+    AD_STCK,
+    AD_WRAP,
     AT_BITE,
     AT_BREA,
     AT_BUTT,
@@ -100,20 +103,27 @@ function Conflict(state) {
         && !conflict?.blocked;
 }
 
-// C ref: youprop.h Deaf, over the hero's DEAF property. js/dothrow.js,
-// js/sit.js and js/sounds.js each keep their own copy of this one-line macro
-// beside the call that reads it, as C does.
+// C ref: youprop.h:125 Deaf, `HDeaf || EDeaf || u.uroleplay.deaf`. Three
+// disjuncts and no blocking term: the third is the deaf conduct, which only
+// `OPTIONS=roleplay:deaf` sets and nothing clears. js/dothrow.js, js/sit.js
+// and js/sounds.js each keep their own copy of this one-line macro beside the
+// call that reads it, as C does.
 function Deaf(state) {
     const deafness = state.u?.uprops?.[DEAF];
-    return Boolean(deafness?.intrinsic || deafness?.extrinsic)
-        && !deafness?.blocked;
+    return Boolean(deafness?.intrinsic || deafness?.extrinsic
+        || state.u?.uroleplay?.deaf);
 }
 
 // C ref: mhitm.c noises() (26-38). What the hero hears when a fight he cannot
 // see happens near enough. gf.far_noise and gn.noisetime rate-limit the line
-// to one per ten moves at each distance band; decl.c starts both at 0 and
-// neither appears in save.c, so they live on the game state rather than in
-// `input.storage`, as js/mhitu.js's `gh` pair does.
+// to one per ten moves at each distance band; decl.c starts the first at FALSE
+// and the second at 0, and neither appears in save.c, so they live on the game
+// state rather than in `input.storage`, as js/mhitu.js's `gh` pair does.
+//
+// The two gates are separate. This one asks whether the hero is deaf and, when
+// he is not, spends the rate limit; You_hear() then decides independently
+// whether the line reaches the screen and how it is worded. A run that fails
+// only the second still writes both fields, as C does.
 async function noises(magr, mattk, env) {
     const { state } = env;
     const message = requireAttackOperation(env, 'message');
@@ -121,17 +131,26 @@ async function noises(magr, mattk, env) {
     const farq = dist2(magr.mx, magr.my, state.u.ux, state.u.uy) > 15;
 
     state.gf ??= {};
+    /* decl.c:341 starts gf.far_noise at FALSE, and :555 gn.noisetime at 0.
+       Without the first default the comparison below is against undefined,
+       which neither distance band equals, so the near band would speak on the
+       first unseen fight of a game where C stays quiet. */
+    state.gf.far_noise ??= false;
     state.gn ??= {};
+    state.gn.noisetime ??= 0;
     if (!Deaf(state)
         && (farq !== state.gf.far_noise
-            || state.moves - (state.gn.noisetime ?? 0) > 10)) {
+            || state.moves - state.gn.noisetime > 10)) {
         state.gf.far_noise = farq;
         state.gn.noisetime = state.moves;
-        await message(
-            `You hear ${mattk.aatyp === AT_EXPL ? 'an explosion' : 'some noises'}`
+        /* pline.c You_hear() owns the acoustics gate and the Underwater and
+           Unaware prefixes, and C reaches all three from here. */
+        const heard = youHear(
+            `${mattk.aatyp === AT_EXPL ? 'an explosion' : 'some noises'}`
             + `${farq ? ' in the distance' : ''}.`,
             state,
         );
+        if (heard) await message(heard, state);
     }
 }
 
@@ -224,7 +243,10 @@ async function missmm(magr, mdef, mattk, env) {
 //            and the melee half needs mon_wield_item(), possibly_unwield(),
 //            mswingsm() and hitval() before it falls through to the group
 //            below it.
-//   AT_HUGS  uhitm.c failed_grab(), which spends a draw of its own.
+//   AT_HUGS  both of the functions this arm calls, failed_grab() and hitmm(),
+//            are in this file. It stops because no species this port places
+//            as a pet carries the attack, so porting the arm would add code
+//            no game runs.
 //   AT_GAZE  gazemm().
 //   AT_EXPL  explmm().
 //   AT_ENGL  gulpmm().
@@ -338,11 +360,14 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
                arm cannot have: only AT_WEAP sets mwep, and that case refuses
                above. */
             if (strike) {
-                if (unsolid(mdef.data)) {
-                    // uhitm.c failed_grab() decides whether an attack on an
-                    // unsolid defender connects at all, and spends a draw
-                    // doing it.
-                    unsupported('an attack on an unsolid monster');
+                /* for eel AT_TUCH+AD_WRAP attack: can't grab an unsolid
+                   target; the unsolid test is redundant since failed_grab
+                   checks it too, but is cheap and avoids calling failed_grab
+                   for ordinary targets */
+                if (unsolid(mdef.data)
+                    && failed_grab(magr, mdef, mattk, env)) {
+                    strike = 0;
+                    break;
                 }
                 res[i] = await hitmm(magr, mdef, mattk, mwep, dieroll, env);
                 /* C's pudding-splitting block at 447-464 asks next whether
@@ -397,6 +422,48 @@ export async function mattackm(magr, mdef, rawEnv = {}) {
     } /* for (;i < NATTK;) loop */
 
     return struck ? M_ATTK_HIT : M_ATTK_MISS;
+}
+
+// C ref: mhitm.c failed_grab() (594-640). "can't hold an unsolid target
+// (ghosts, lights, vortices, most elementals) or a long worm tail".
+//
+// The head is the whole answer for every attack mattackm()'s physical group
+// admits. None of them is AT_HUGS, and every melee slot a pet carries is
+// AD_PHYS, so the second conjunct is FALSE and an ordinary bite or claw on a
+// fog cloud, a vortex or a will-o-the-wisp lands like any other.
+//
+// The TRUE arm refuses. Its line needs do_name.c s_suffix(), mon_nam() and
+// some_mon_nam(), and it prints for a mon-vs-mon grab only while the hero can
+// spot the defender; the refusal sits above that test rather than inside it,
+// so the stop does not depend on what the hero can see. Every attack that
+// reaches it belongs to a mattackm() arm that refuses anyway -- AT_HUGS and
+// AT_ENGL -- or to an eel, trapper, mimic or purple worm aggressor, none of
+// which this port places as a pet.
+//
+// The gn.notonhead disjunct is unreachable from mattackm(), which
+// short-circuits on its own unsolid() test before calling here. C's comment
+// there calls that test redundant, which holds for the first disjunct alone: a
+// holding attack that landed on a solid long worm's tail never asks this
+// function. The disjunct is written because C writes it.
+//
+// C declares this one non-static for mhitu.c:808, :827 and :1305 and
+// uhitm.c:5652, :5735 and :5779. All six are unported, so it stays
+// module-local until one of them arrives.
+function failed_grab(magr, mdef, mattk, env) {
+    const { state } = env;
+    const unsupported = requireAttackOperation(env, 'unsupported');
+
+    if ((unsolid(mdef.data) || Boolean(state.gn?.notonhead))
+        /* hug attack: most holders (owlbear, python, pit fiend, &c);
+           wrap damage: eel grabbing, trapper/lurker-above engulfing;
+           stick-to damage: mimic, lichen;
+           digestion damage: purple worm swallowing */
+        && (mattk.aatyp === AT_HUGS || mattk.adtyp === AD_WRAP
+            || mattk.adtyp === AD_STCK || mattk.adtyp === AD_DGST)) {
+        unsupported('a grab that passes through its target');
+        return true;
+    }
+    return false;
 }
 
 // C ref: mhitm.c hitmm() (642-731). "Returns the result of mdamagem()."
@@ -574,11 +641,15 @@ async function mdamagem(magr, mdef, mattk, mwep, dieroll, env) {
 //
 // AD_PHYS is the empty slot's own damage type and takes the default arm of
 // both switches, so an ordinary defender's whole live contribution is the
-// rn2(3) that guards the second switch, and only while it is alive. Every
-// other damage type refuses: the first switch (1322-1354) needs
-// mhitm_really_poison()'s siblings -- erode_armor(), acid_damage() and
-// drain_item() -- and the second (1362-1443) needs mon_reflects(),
-// paralyze_monst(), golemeffects(), healmon() and split_mon().
+// rn2(3) that guards the second switch, and only while it is alive.
+//
+// AD_ENCH is the one other damage type this port follows. Its whole body is a
+// drain_item() call C guards on the aggressor's wielded weapon, which no path
+// mattackm() admits can supply, so the arm is a no-op and stopping on it would
+// cost a segment for nothing. The rest refuse: AD_ACID in the first switch
+// (1330-1348) needs erode_armor() and acid_damage(), and the second switch
+// (1362-1443) needs mon_reflects(), paralyze_monst(), golemeffects(),
+// healmon() and split_mon().
 async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
     const { state, random } = env;
     const unsupported = requireAttackOperation(env, 'unsupported');
@@ -605,7 +676,14 @@ async function passivemm(magr, mdef, mhitb, mdead, mwep, env) {
         unsupported('an acid splash from the monster attacked');
         break;
     case AD_ENCH: /* KMH -- remove enchantment (disenchanter) */
-        unsupported('a disenchanting monster being attacked');
+        // C's body is one drain_item(mwep, FALSE) with its own "No message"
+        // comment, so the arm changes nothing else and never draws. `mwep` is
+        // null on every path mattackm() admits -- only the refused AT_WEAP
+        // case sets one -- so the body is unreachable and a pet clawing a
+        // disenchanter passes straight through this arm, as C does.
+        if (mhitb && !mdef.mcan && mwep) {
+            unsupported('a disenchanting monster draining a wielded weapon');
+        }
         break;
     default:
         break;

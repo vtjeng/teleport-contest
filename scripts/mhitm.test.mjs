@@ -16,12 +16,16 @@ import {
     is_elf,
     is_orc,
     touch_petrifies,
+    unsolid,
     zombie_form,
 } from '../js/mondata.js';
 import { accessible } from '../js/monmove.js';
 import {
     AD_DGST,
+    AD_ENCH,
     AD_PHYS,
+    AD_STCK,
+    AD_WRAP,
     AT_BITE,
     AT_BREA,
     AT_ENGL,
@@ -33,10 +37,13 @@ import {
     AT_NONE,
     AT_SPIT,
     AT_TENT,
+    AT_TUCH,
     AT_WEAP,
     NON_PM,
     PM_ACID_BLOB,
     PM_COCKATRICE,
+    PM_DISENCHANTER,
+    PM_FOG_CLOUD,
     PM_GIANT_ANT,
     PM_GRID_BUG,
     PM_HILL_ORC,
@@ -62,7 +69,10 @@ const DATETIME = '20260214031500';
 const RC = [
     'OPTIONS=name:Lich,role:Valkyrie,race:human,gender:female,align:neutral',
     'OPTIONS=!legacy,!tutorial,!splash_screen',
-    'OPTIONS=pettype:none,!acoustics',
+    // acoustics is left at its default so that noises() reaches pline.c
+    // You_hear() the way an ordinary game does; the row that turns it off
+    // below writes the flag directly.
+    'OPTIONS=pettype:none',
     '',
 ].join('\n');
 
@@ -462,6 +472,131 @@ test('a defender with an acid passive stops the attack', async () => {
     assert.deepEqual(env.bounds, ['rnd(20)', 'd(1,8)']);
 });
 
+// mhitm.c passivemm():1349-1354, the AD_ENCH arm. Its whole body is a
+// drain_item() on the aggressor's wielded weapon, which mattackm() never
+// supplies, so C runs the arm and changes nothing. A disenchanter's second
+// slot is ATTK(AT_NONE, AD_ENCH, 0, 0), so it is the passive under test and
+// its zero dice make tmp 0 with no draw.
+test('a defender with a disenchanting passive is fought normally',
+    async () => {
+        await hero();
+        const { ax, dx, y } = battlefield(1);
+        // A disenchanter's armour class is -10, so an ordinary pet cannot
+        // reach it on any roll; the level is raised to make the differential
+        // 10 and let the blow land.
+        const pet = fixture(PM_KITTEN, ax, y, { mtame: 10, m_lev: 20 });
+        const foe = fixture(PM_DISENCHANTER, dx, y, { mhp: 40, mhpmax: 40 });
+        assert.equal(foe.data.mattk[1].adtyp, AD_ENCH);
+        assert.equal(foe.data.mattk[1].aatyp, AT_NONE);
+        aim(foe);
+
+        // rnd(20)=1 lands, d(1,6)=3 is the kitten's bite, and the knockback
+        // pair declines. The passive's own dice are both zero, so passivemm()
+        // spends nothing above its switch and only the rn2(3) that guards the
+        // second one.
+        const landed = attackEnv([1, 3, 1, 1]);
+        assert.equal(await mattackm(pet, foe, landed), M_ATTK_HIT);
+        assert.deepEqual(landed.lines, ['The kitten bites the disenchanter.']);
+        assert.deepEqual(landed.bounds,
+                         ['rnd(20)', 'd(1,6)', 'rn2(3)', 'rn2(6)', 'rn2(3)']);
+        assert.equal(foe.mhp, 37);
+        // AD_ENCH takes the default arm of the second switch, so tmp is
+        // cleared and the aggressor loses nothing.
+        assert.equal(pet.mhp, 8);
+
+        // A missed blow reaches the same arm with mhitb clear.
+        const missed = attackEnv([20]);
+        assert.equal(await mattackm(pet, foe, missed), M_ATTK_MISS);
+        assert.deepEqual(missed.lines,
+                         ['The kitten misses the disenchanter.']);
+        assert.deepEqual(missed.bounds, ['rnd(20)', 'rn2(3)']);
+        assert.equal(pet.mhp, 8);
+    });
+
+// mhitm.c mattackm():447-452 and failed_grab() (594-640). C tests unsolid()
+// only to skip the call for an ordinary target; failed_grab() decides, and it
+// answers FALSE unless the attack is a hug or carries wrap, stick or digestion
+// damage. So an ordinary bite on a fog cloud lands.
+test('an ordinary blow on an unsolid defender lands', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield(1);
+    const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
+    // A fog cloud's armour class is 0, so a second-level attacker's
+    // differential is 2 and the lowest roll lands.
+    const cloud = fixture(PM_FOG_CLOUD, dx, y, { mhp: 20, mhpmax: 20 });
+    assert.equal(unsolid(cloud.data), true);
+    aim(cloud);
+    // The same five draws an ordinary landed bite spends: to-hit, damage,
+    // the knockback pair, and passivemm()'s guard. A fog cloud's second slot
+    // is empty with no dice, so its passive adds none.
+    const env = attackEnv([1, 3, 1, 1]);
+
+    assert.equal(await mattackm(pet, cloud, env), M_ATTK_HIT);
+    assert.deepEqual(env.lines, ['The kitten bites the fog cloud.']);
+    assert.deepEqual(env.bounds,
+                     ['rnd(20)', 'd(1,6)', 'rn2(3)', 'rn2(6)', 'rn2(3)']);
+    assert.equal(cloud.mhp, 17);
+});
+
+// mhitm.c failed_grab():602-607, the head's two conjuncts. The port stops
+// inside the TRUE arm, above a line that needs do_name.c s_suffix(),
+// mon_nam() and some_mon_nam().
+test('a grab that cannot hold its target stops the attack', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield(1);
+    const pet = fixture(PM_KITTEN, ax, y, { mtame: 10 });
+    const cloud = fixture(PM_FOG_CLOUD, dx, y, { mhp: 20, mhpmax: 20 });
+    const ordinary = pet.data;
+    // No pet carries a holding attack, so the record is fabricated the way
+    // this file's other structural cases are.
+    const holding = (adtyp) => {
+        pet.data = {
+            ...ordinary,
+            mattk: [
+                { aatyp: AT_TUCH, adtyp, damn: 1, damd: 4 },
+                ...ordinary.mattk.slice(1),
+            ],
+        };
+    };
+    const attack = async (defender) => {
+        aim(defender);
+        // rnd(20)=1 lands against either defender's armour class, so the
+        // strike is what carries the attack into failed_grab().
+        return mattackm(pet, defender, attackEnv([1, 3, 1, 1]))
+            .then(() => null, (error) => error.message);
+    };
+
+    // Each of C's three damage types refuses on the same unsolid defender.
+    for (const adtyp of [AD_WRAP, AD_STCK, AD_DGST]) {
+        holding(adtyp);
+        assert.equal(await attack(cloud),
+                     'a grab that passes through its target', `adtyp ${adtyp}`);
+    }
+
+    // The same attack on a solid defender passes the head and carries on to
+    // its damage type, which is a different stop in a different file.
+    const ant = fixture(PM_GIANT_ANT, dx, y + 1, { mhp: 20, mhpmax: 20 });
+    assert.equal(unsolid(ant.data), false);
+    holding(AD_STCK);
+    assert.equal(await attack(ant), 'uhitm.c mhitm_ad_stck()');
+
+    // gn.notonhead is the head's other disjunct, and mattackm() is the one
+    // caller that cannot reach it: C's own unsolid() test short-circuits
+    // ahead of the call for every solid defender, so a holding attack that
+    // landed on a long worm's tail carries on to its damage type here. C's
+    // comment at :447-450 calls that test redundant, which holds for the
+    // first disjunct alone.
+    aim(ant);
+    game.gn.notonhead = true;
+    assert.equal(
+        await mattackm(pet, ant, attackEnv([1, 3, 1, 1]))
+            .then(() => null, (error) => error.message),
+        'uhitm.c mhitm_ad_stck()',
+    );
+    game.gn.notonhead = false;
+    pet.data = ordinary;
+});
+
 // mhitm.c mattackm()'s six refusing arms, each at the `case` label. The
 // attack records are fabricated because no species this port can place
 // carries one of them beside a pet's melee slot; mondata.h reads the list off
@@ -526,9 +661,9 @@ test('a hidden defender stops the attack before it starts', async () => {
 });
 
 // mhitm.c missmm():90-91 and noises():26-38. When neither combatant can be
-// seen, C swaps the named line for "You hear some noises." gf.far_noise and
-// gn.noisetime then rate-limit it: the line repeats only when the distance
-// band changes or ten moves have passed.
+// seen, C swaps the named line for the one pline.c You_hear() composes.
+// gf.far_noise and gn.noisetime rate-limit it: the line repeats only when the
+// distance band changes or more than ten moves have passed.
 test('an unseen fight is heard rather than named', async () => {
     await hero();
     // hack.h mdistu() is a squared distance from the hero, and noises()
@@ -544,56 +679,120 @@ test('an unseen fight is heard rather than named', async () => {
         aim(mdef);
         return { magr, mdef };
     };
-
-    game.gf = {};
-    game.gn = { ...game.gn, noisetime: game.moves };
-
     const close = brawl(near);
+    const distant = brawl(far);
+    // A fight this file's other tests never reach, so the rate limit still
+    // holds decl.c's own starting values: :341 gf.far_noise FALSE and :555
+    // gn.noisetime 0.
+    assert.equal(game.gf?.far_noise, undefined);
+    assert.equal(game.gn?.noisetime, undefined);
+    // The ten-move rule cannot have expired yet at this point in the game,
+    // which is what leaves gf.far_noise's starting value deciding the row
+    // below on its own.
+    assert.ok(game.moves <= 10, `moves ${game.moves}`);
+    // The default the rc leaves behind, which pline.c You_hear() reads.
+    assert.equal(game.flags.acoustics, true);
+
+    // The near band equals gf.far_noise's FALSE and ten moves have not
+    // passed, so the first unseen fight of a game says nothing.
+    const silent = attackEnv([20]);
+    assert.equal(await mattackm(close.magr, close.mdef, silent), M_ATTK_MISS);
+    assert.equal(game.gv.vis, false);
+    assert.deepEqual(silent.lines, []);
+    // C's `if` holds both writes, so a quiet fight leaves the pair alone.
+    assert.equal(game.gf.far_noise, false);
+    assert.equal(game.gn.noisetime, 0);
+
+    // A fight in the other band is announced immediately, because
+    // gf.far_noise no longer matches.
+    const remote = attackEnv([20]);
+    assert.equal(await mattackm(distant.magr, distant.mdef, remote),
+                 M_ATTK_MISS);
+    assert.deepEqual(remote.lines,
+                     ['You hear some noises in the distance.']);
+    assert.equal(game.gf.far_noise, true);
+    assert.equal(game.gn.noisetime, game.moves);
+
+    // Back to the near band on the same move: the band has changed again, so
+    // the line returns without its distance tail.
     const heard = attackEnv([20]);
     assert.equal(await mattackm(close.magr, close.mdef, heard), M_ATTK_MISS);
-    assert.equal(game.gv.vis, false);
     assert.deepEqual(heard.lines, ['You hear some noises.']);
+    assert.equal(game.gf.far_noise, false);
 
     // A second miss on the same move and in the same band says nothing.
     const again = attackEnv([20]);
     assert.equal(await mattackm(close.magr, close.mdef, again), M_ATTK_MISS);
     assert.deepEqual(again.lines, []);
 
-    // A fight in the other band is announced immediately, because
-    // gf.far_noise no longer matches.
-    const distant = brawl(far);
-    const remote = attackEnv([20]);
-    assert.equal(await mattackm(distant.magr, distant.mdef, remote),
-                 M_ATTK_MISS);
-    assert.deepEqual(remote.lines,
-                     ['You hear some noises in the distance.']);
-
     // Ten moves is not more than ten, so the same band still says nothing;
     // eleven speaks again.
     game.gn.noisetime = game.moves - 10;
     const early = attackEnv([20]);
-    assert.equal(await mattackm(distant.magr, distant.mdef, early),
-                 M_ATTK_MISS);
+    assert.equal(await mattackm(close.magr, close.mdef, early), M_ATTK_MISS);
     assert.deepEqual(early.lines, []);
     game.gn.noisetime = game.moves - 11;
     const late = attackEnv([20]);
-    assert.equal(await mattackm(distant.magr, distant.mdef, late),
-                 M_ATTK_MISS);
-    assert.deepEqual(late.lines,
-                     ['You hear some noises in the distance.']);
+    assert.equal(await mattackm(close.magr, close.mdef, late), M_ATTK_MISS);
+    assert.deepEqual(late.lines, ['You hear some noises.']);
 
-    // A deaf hero hears nothing whichever way the rate limit falls, and
-    // deafness worn as an extrinsic counts the same as an intrinsic one.
-    game.u.uprops[DEAF] = { intrinsic: 0, extrinsic: 1, blocked: 0 };
-    game.gn.noisetime = game.moves - 20;
-    const deaf = attackEnv([20]);
-    assert.equal(await mattackm(distant.magr, distant.mdef, deaf),
-                 M_ATTK_MISS);
-    assert.deepEqual(deaf.lines, []);
-    // C writes gf.far_noise and gn.noisetime inside the same `if`, so a deaf
-    // hero leaves the rate limit where it was.
+    // Each row below re-opens the rate limit, so anything it silences is
+    // silenced by the row's own condition rather than by the ten-move rule.
+    const overdue = async (label) => {
+        game.gn.noisetime = game.moves - 20;
+        const env = attackEnv([20]);
+        assert.equal(await mattackm(close.magr, close.mdef, env),
+                     M_ATTK_MISS, label);
+        return env.lines;
+    };
+
+    // youprop.h:125 Deaf is `HDeaf || EDeaf || u.uroleplay.deaf`: three
+    // disjuncts, each of which silences noises() on its own, and no blocking
+    // term, so a blocked property still reads as deaf. C writes gf.far_noise
+    // and gn.noisetime inside the same `if`, so a deaf hero leaves the rate
+    // limit where it was.
+    const deafRows = [
+        ['extrinsic', { intrinsic: 0, extrinsic: 1, blocked: 0 }],
+        ['intrinsic', { intrinsic: 1, extrinsic: 0, blocked: 0 }],
+        // A blocking mask exists for other properties and would clear this
+        // one if noises() read a Deaf with a blocked term.
+        ['blocked', { intrinsic: 1, extrinsic: 0, blocked: 1 }],
+    ];
+    for (const [label, property] of deafRows) {
+        game.u.uprops[DEAF] = property;
+        assert.deepEqual(await overdue(label), [], label);
+        assert.equal(game.gn.noisetime, game.moves - 20, label);
+        game.u.uprops[DEAF] = undefined;
+    }
+    // The deaf conduct, which `OPTIONS=roleplay:deaf` sets and nothing clears.
+    game.u.uroleplay = { ...game.u.uroleplay, deaf: true };
+    assert.deepEqual(await overdue('roleplay'), []);
     assert.equal(game.gn.noisetime, game.moves - 20);
-    game.u.uprops[DEAF] = undefined;
+    game.u.uroleplay.deaf = false;
+
+    // pline.c You_hear() returns on !flags.acoustics, which noises() does not
+    // test. So the line is dropped but the rate limit is spent, and the next
+    // fight in this band is silent for the ordinary reason.
+    game.flags.acoustics = false;
+    assert.deepEqual(await overdue('acoustics'), []);
+    assert.equal(game.gn.noisetime, game.moves);
+    game.flags.acoustics = true;
+
+    // youprop.h:399 Unaware, which You_hear() turns into a dream. trap.c
+    // unconscious() is one of its two halves and u.usleep is one of that
+    // half's disjuncts.
+    game.multi = -1;
+    game.u.usleep = 1;
+    assert.deepEqual(await overdue('unaware'),
+                     ['You dream that you hear some noises.']);
+    game.multi = 0;
+    game.u.usleep = 0;
+
+    // youprop.h:279 Underwater, You_hear()'s other prefix.
+    game.u.uinwater = true;
+    assert.deepEqual(await overdue('underwater'),
+                     ['You barely hear some noises.']);
+    game.u.uinwater = false;
 });
 
 // mhitm.c hitmm():684-687, the AT_TENT arm. Its subject is the attacker's
