@@ -3257,6 +3257,15 @@
       "status": "open",
       "from": "8fdbc5cc68d03002537fe56f3a58a09aa0860ccb",
       "detail": "js/tty_rawprint.js nomux_raw_putch() stores one screen cell per byte, which is\nwhat recorder patch 006 does, but the recorded screen a byte grid produces is\nnot a byte grid. The capture writes the shadow buffer's bytes to a file, and\nthe session loader reads that file as UTF-8, so a two-byte sequence in adjacent\ncells arrives as one character and the recorded row is shorter than 80. The\nport's cells hold one JavaScript character per byte, and frozen/terminal.js\nserializes each cell on its own, so the same sequence arrives as two.\n\nMeasured, not inferred. A fresh case at seed 5128094, 20120919081000, over an\nrc whose second line is `OPTIONS=zqxjé` matches C on every random-number call\nand every cursor and diverges at the first byte of the é: `Cell row 2, column\n13 (ch): C \"é\", JS \"Ã\"`. The statement echo config_erradd() prints is enough to\nreach it, so any non-ASCII byte in an erroring rc line costs the rest of that\nrow and every row below it.\n\nNothing in the port decides this on its own: matching C means the cells a\nmulti-byte sequence occupies have to serialize as one character, and\nfrozen/terminal.js is judge-owned. The fix is therefore in what the port puts\nin the cells, not in how they are written out, and it wants a decision about\nwhat the raw cursor column then counts. No development session has a non-ASCII\nrc line."
+    },
+    {
+      "id": "character-header-clips-at-characters-not-bytes",
+      "area": "startup",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "7bc28f2669926b0dd0a2c57598637d0f722275c5",
+      "detail": "js/player_selection_tty.js clipComponent() cuts each field of the\ncharacter-selection header with String.prototype.slice, which counts UTF-16\ncode units. role.c plsel_startup_msg() (2821 and 2828) cuts with \"%.20s\",\nwhich counts bytes.\n\nOnly one of the five fields can differ: the other four are role, race, gender\nand alignment names from the compiled-in tables, all ASCII. svp.plname is the\nplayer's, and js/options.js keeps it at PLAYER_NAME_BYTE_LIMIT = 31 bytes as\nnmcpy() does, so a name of 21 to 31 bytes holding 20 characters or fewer -- for\ninstance eleven two-byte characters -- prints in full here and cut to 20 bytes\nin C. The header is drawn inside 80 columns, so the difference is on screen.\n\nDerived from the C, not measured: a fresh case cannot isolate it while\nraw-print-splits-a-multibyte-character stands, because the same non-ASCII name\ndiverges at its first byte before the twentieth is reached. The two want fixing\ntogether.\n\nThe same shape was fixed inside coloratt.c match_str2clr() and\nmatch_str2attr() at f7dbf33. The remaining \"%.Ns\" sites in the port are safe:\njs/getline.js:455 slices a buffer tty_getlin() fills one JavaScript character\nper input byte, and options.c:5640, :8801 and role.c:1327's ports slice\ncompiled-in ASCII tables."
     }
   ],
   "areas": [
