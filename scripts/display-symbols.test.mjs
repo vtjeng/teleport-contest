@@ -100,15 +100,35 @@ import {
     feel_location,
     feel_newsym,
     flush_screen,
+    glyph_is_body,
+    glyph_is_body_piletop,
+    glyph_is_fem_statue,
+    glyph_is_fem_statue_piletop,
     glyph_is_generic_object,
+    glyph_is_male_statue,
+    glyph_is_male_statue_piletop,
+    glyph_is_normal_generic_obj,
+    glyph_is_normal_object,
+    glyph_is_normal_piletop_obj,
+    glyph_is_object,
+    glyph_is_piletop_generic_obj,
+    glyph_is_statue,
     hero_glyph_info,
+    map_glyphinfo,
+    MG_CORPSE,
+    MG_FEMALE,
+    MG_MALE,
+    MG_OBJPILE,
+    MG_STATUE,
     map_trap,
+    normal_obj_to_glyph,
     monster_glyph_info,
     newsym,
     object_glyph_info,
     random_object_glyph_info,
     reglyph_darkroom,
     remembered_glyph_from_presentation,
+    remembered_glyph_presentation,
     same_remembered_glyph,
     see_nearby_objects,
     show_glyph_cell,
@@ -121,6 +141,16 @@ import {
     UnsupportedStatusRefreshError,
     weapon_status,
 } from '../js/display.js';
+import {
+    GLYPH_BODY_OFF,
+    GLYPH_BODY_PILETOP_OFF,
+    GLYPH_OBJ_OFF,
+    GLYPH_OBJ_PILETOP_OFF,
+    GLYPH_STATUE_FEM_OFF,
+    GLYPH_STATUE_FEM_PILETOP_OFF,
+    GLYPH_STATUE_MALE_OFF,
+    GLYPH_STATUE_MALE_PILETOP_OFF,
+} from '../js/glyph_offsets.js';
 import { rndmonnam } from '../js/do_name.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
 import { GameMap } from '../js/game.js';
@@ -168,7 +198,9 @@ import {
     DIAMOND,
     FEDORA,
     FIRST_OBJECT,
+    FOOD_CLASS,
     GOLD_PIECE,
+    ILLOBJ_CLASS,
     LEATHER_ARMOR,
     LEATHER_GLOVES,
     LOW_BOOTS,
@@ -185,6 +217,7 @@ import {
     SPEAR,
     SPE_FORCE_BOLT,
     STATUE,
+    STRANGE_OBJECT,
     T_SHIRT,
     TWO_HANDED_SWORD,
     WEAPON_CLASS,
@@ -1125,7 +1158,10 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
     state.flags = {};
     state.mons = [{ mlet: S_HUMAN, mcolor: CLR_RED }];
     state.objects = [];
-    state.objects[42] = { oc_color: CLR_YELLOW };
+    // display.c reset_glyphmap()'s object arm reads objects[offset].oc_class
+    // for the symbol and objects[offset].oc_color for the colour, both keyed
+    // by the glyph number's offset rather than by the object.
+    state.objects[42] = { oc_class: WEAPON_CLASS, oc_color: CLR_YELLOW };
     initialize_symbols_from_options({ flags: {} }, state);
     state.viz_array = [];
     state.viz_array[y] = [];
@@ -1145,14 +1181,11 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
 
     newsym(x, y);
     assert.equal(state.level.at(x, y).disp_ch, 'f');
+    // display.h normal_obj_to_glyph(): map memory records the object's glyph
+    // number, not the monster standing over it, and nothing else -- the ')'
+    // and the colour below are re-derived from that number at each draw.
     assert.deepEqual(state.level.at(x, y).remembered_glyph, {
-        ch: ')',
-        color: CLR_YELLOW,
-        decgfx: false,
-        displayCh: null,
-        // display.h glyph_is_object(): map memory records that an object, not
-        // the monster standing over it, is what the hero remembers here.
-        objectGlyph: true,
+        glyph: GLYPH_OBJ_OFF + 42,
     });
 
     state.level.monsters[x][y] = null;
@@ -1160,13 +1193,20 @@ test('newsym remembers an object underneath a visible monster and hero', () => {
     state.u.uy = y;
     newsym(x, y);
     assert.equal(state.level.at(x, y).disp_ch, '@');
-    assert.equal(state.level.at(x, y).remembered_glyph.ch, ')');
+    assert.equal(
+        state.level.at(x, y).remembered_glyph.glyph, GLYPH_OBJ_OFF + 42,
+    );
     assert.deepEqual(object_glyph_info(weapon, state), {
         ch: ')',
         color: CLR_YELLOW,
         dec: false,
-        objectGlyph: true,
     });
+    assert.deepEqual(
+        remembered_glyph_presentation(
+            state.level.at(x, y).remembered_glyph, state,
+        ),
+        { ch: ')', color: CLR_YELLOW, dec: false },
+    );
 });
 
 // C ref: display.c feel_newsym(). The two arms do different work, not the same
@@ -1411,11 +1451,10 @@ test('newsym uses the rogue level pair of darkening rules', () => {
     // alone: only a square remembered as a lit corridor is corrected.
     state.level.objects[x][y] = { otyp: SPEAR, oclass: WEAPON_CLASS };
     seeThenLoseSight(x, y, state);
-    assert.equal(square.remembered_glyph.objectGlyph, true);
+    assert.equal(glyph_is_object(square.remembered_glyph.glyph), true);
     assert.equal(
-        square.remembered_glyph.ch, object_glyph_info(
-            state.level.objects[x][y], state,
-        ).ch,
+        square.remembered_glyph.glyph,
+        normal_obj_to_glyph(state.level.objects[x][y], state),
     );
 });
 
@@ -1669,10 +1708,10 @@ test('same_remembered_glyph separates each part of a glyph number', () => {
         // for a piece of terrain. S_room is an arbitrary index: any value
         // separates a terrain record from one carrying none.
         ['cmap', from({ cmap: S_room })],
-        // object_glyph_info() stamps `objectGlyphId`, which is what
-        // display.h normal_obj_to_glyph() encodes. The string below is the
-        // shape that function writes for an ordinary object.
-        ['objectGlyphId', from({ objectGlyphId: 'obj:1' })],
+        // map_glyphinfo() stamps `glyph`, C's own levl[x][y].glyph. The value
+        // below is what display.h normal_obj_to_glyph() returns for an
+        // ordinary object of type 1 that is not the top of a pile.
+        ['glyph', from({ glyph: GLYPH_OBJ_OFF + 1 })],
         ['ch', from({ ch: '#' })],
         ['color', from({ color: CLR_RED })],
         // `dec` is the presentation term; `decgfx` is the remembered one.
@@ -1685,8 +1724,6 @@ test('same_remembered_glyph separates each part of a glyph number', () => {
         // The trap identity comes from the second argument rather than from
         // the presentation. PIT is one arbitrary ttyp.
         ['trapType', from({}, { ttyp: PIT })],
-        ['objectGlyph', from({ objectGlyph: true })],
-        ['genericObject', from({ genericObject: true })],
         // Nothing writes `invisible_monster` yet: it stands for C's
         // GLYPH_INVISIBLE range, which only the unported map_invisible()
         // fills, so this pair is built on the record rather than through a
@@ -1819,6 +1856,9 @@ test('feel_location maps a seen trap, and an object above it', () => {
 
     // An object on the same square takes the arm above, and the trap identity
     // does not travel with a record that no longer represents the trap.
+    // display.c reset_glyphmap()'s object arm reads objects[ARROW] for the
+    // symbol class and the colour.
+    state.objects[ARROW] = { oc_class: WEAPON_CLASS, oc_color: CLR_GRAY };
     state.level.objects[x][y] = {
         otyp: ARROW,
         oclass: WEAPON_CLASS,
@@ -1829,7 +1869,7 @@ test('feel_location maps a seen trap, and an object above it', () => {
         nexthere: null,
     };
     feel_location(x, y, state);
-    assert.equal(square.remembered_glyph.objectGlyph, true);
+    assert.equal(glyph_is_object(square.remembered_glyph.glyph), true);
     assert.equal(square.remembered_glyph.trapType ?? null, null);
     assert.equal(square.remembered_glyph.cmap ?? null, null);
 });
@@ -4007,7 +4047,12 @@ test('newsym maps a visible object mimic as its remembered chest', () => {
 
     newsym(x, y);
     assert.equal(state.level.at(x, y).disp_ch, '(');
-    assert.equal(state.level.at(x, y).remembered_glyph.ch, '(');
+    assert.equal(
+        remembered_glyph_presentation(
+            state.level.at(x, y).remembered_glyph, state,
+        ).ch,
+        '(',
+    );
 });
 
 test('object mimics use display_monster zeroobj glyph and corpse metadata', () => {
@@ -4022,18 +4067,24 @@ test('object mimics use display_monster zeroobj glyph and corpse metadata', () =
         mx: x,
         my: y,
     };
+    // display.h generic_obj_to_glyph() numbers a generic object by its class,
+    // and display_monster()'s zeroobj has class zero, so the glyph is
+    // GLYPH_OBJ_OFF itself -- objects[STRANGE_OBJECT]. That row's oc_class is
+    // ILLOBJ_CLASS rather than zero (include/objects.h:78-83 says so in as
+    // many words), so reset_glyphmap()'s object arm draws the strange-object
+    // ']' rather than the RANDOM_CLASS symbol. objects[STRANGE_OBJECT]'s
+    // oc_color is CLR_BLACK, which recorderMapColor() folds onto the
+    // terminal default.
     const genericZeroClass = {
-        ch: object_class_symbol(0, state).ch,
-        // Illegal-object class zero is black in objects.c; map_glyphinfo()
-        // suppresses black as the terminal's default color.
+        ch: object_class_symbol(ILLOBJ_CLASS, state, STRANGE_OBJECT).ch,
         color: NO_COLOR,
         dec: false,
     };
     // display.h obj_to_glyph() numbers a generic object into the range
     // glyph_is_generic_object() recognizes, and every case here into the wider
-    // range glyph_is_object() recognizes; object_glyph_info() carries both as
-    // marks on the presentation. The map's disp_* fields hold no such mark, so
-    // only the presentation comparison below expects them.
+    // range glyph_is_object() recognizes. The number rides the presentation
+    // non-enumerably, so deepEqual below compares the drawn fields and the
+    // glyph_is_* assertions compare the number.
     const cases = [
         {
             otyp: POT_BOOZE,
@@ -4084,12 +4135,18 @@ test('object mimics use display_monster zeroobj glyph and corpse metadata', () =
     for (const { otyp, expected, generic, mcorpsenm } of cases) {
         fake.mappearance = otyp;
         fake.mextra = mcorpsenm === undefined ? null : { mcorpsenm };
-        assert.deepEqual(
-            monster_glyph_info(fake, state),
-            generic
-                ? { ...expected, objectGlyph: true, genericObject: true }
-                : { ...expected, objectGlyph: true },
-            `${otyp}`,
+        const presented = monster_glyph_info(fake, state);
+        assert.deepEqual(presented, expected, `${otyp}`);
+        assert.equal(glyph_is_object(presented.glyph), true, `${otyp}`);
+        // obj_is_generic() and glyph_is_generic_object() disagree here, and
+        // C makes them: the zeroobj passes the first by otyp, but its class
+        // is zero, so generic_obj_to_glyph() lands on GLYPH_OBJ_OFF itself,
+        // which the second excludes with `> GLYPH_OBJ_OFF`.
+        assert.equal(
+            presented.glyph === GLYPH_OBJ_OFF, Boolean(generic), `${otyp}`,
+        );
+        assert.equal(
+            glyph_is_generic_object(presented.glyph), false, `${otyp}`,
         );
         state.level.monsters[x][y] = fake;
         newsym(x, y);
@@ -4102,10 +4159,8 @@ test('object mimics use display_monster zeroobj glyph and corpse metadata', () =
             expected,
             `visible ${otyp}`,
         );
-        assert.equal(state.level.at(x, y).remembered_glyph.ch, expected.ch);
         assert.equal(
-            state.level.at(x, y).remembered_glyph.color,
-            expected.color,
+            state.level.at(x, y).remembered_glyph.glyph, presented.glyph,
         );
     }
 });
@@ -4129,12 +4184,23 @@ test('nearby zero-class object mimics stay outside the generic-glyph range', () 
     assert.equal(state.objects[SPE_FORCE_BOLT].oc_encountered, 0);
     assert.equal(
         state.level.at(x, y).disp_ch,
-        object_class_symbol(0, state).ch,
+        object_class_symbol(ILLOBJ_CLASS, state, STRANGE_OBJECT).ch,
     );
     assert.equal(state.level.at(x, y).disp_color, NO_COLOR);
     assert.equal(
-        state.level.at(x, y).remembered_glyph.ch,
-        object_class_symbol(0, state).ch,
+        remembered_glyph_presentation(
+            state.level.at(x, y).remembered_glyph, state,
+        ).ch,
+        object_class_symbol(ILLOBJ_CLASS, state, STRANGE_OBJECT).ch,
+    );
+    // display.h glyph_is_generic_object(): class zero is GLYPH_OBJ_OFF
+    // itself, which the macro's `> GLYPH_OBJ_OFF` term excludes.
+    assert.equal(
+        state.level.at(x, y).remembered_glyph.glyph, GLYPH_OBJ_OFF,
+    );
+    assert.equal(
+        glyph_is_generic_object(state.level.at(x, y).remembered_glyph.glyph),
+        false,
     );
 });
 
@@ -4360,7 +4426,9 @@ test('see invisible keeps a warned detected mimic physically visible', () => {
         'detection defeats the physically visible disguise without inversion',
     );
     assert.equal(
-        state.level.at(x, y).remembered_glyph.ch,
+        remembered_glyph_presentation(
+            state.level.at(x, y).remembered_glyph, state,
+        ).ch,
         disguise.ch,
         'PHYSICALLY_SEEN retains the mimic disguise in map memory',
     );
@@ -4674,7 +4742,10 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     state.u = { ux: 1, uy: 1 };
     state.flags = {};
     state.objects = [];
-    state.objects[42] = { oc_color: CLR_YELLOW };
+    // display.c reset_glyphmap()'s object arm reads objects[offset], where
+    // the offset is the glyph number's index: oc_class picks the symbol and
+    // oc_color the colour.
+    state.objects[42] = { oc_class: WEAPON_CLASS, oc_color: CLR_YELLOW };
     initialize_symbols_from_options({ flags: {} }, state);
     state.viz_array = [];
     state.viz_array[y] = [];
@@ -4706,7 +4777,12 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     newsym(x, y);
     assert.equal(engraving.erevealed, true);
     assert.equal(state.level.at(x, y).disp_ch, ')');
-    assert.equal(state.level.at(x, y).remembered_glyph.ch, ')');
+    assert.equal(
+        remembered_glyph_presentation(
+            state.level.at(x, y).remembered_glyph, state,
+        ).ch,
+        ')',
+    );
 
     state.level.objects[x][y] = null;
     state.level.at(x, y).typ = CORR;
@@ -4847,7 +4923,10 @@ test('newsym layers seen traps below objects and above engravings', () => {
     state.u = { ux: 1, uy: 1, uinwater: false };
     state.flags = {};
     state.objects = [];
-    state.objects[42] = { oc_color: CLR_YELLOW };
+    // display.c reset_glyphmap()'s object arm reads objects[offset], where
+    // the offset is the glyph number's index: oc_class picks the symbol and
+    // oc_color the colour.
+    state.objects[42] = { oc_class: WEAPON_CLASS, oc_color: CLR_YELLOW };
     initialize_symbols_from_options({ flags: {} }, state);
     state.viz_array = [];
     state.viz_array[y] = [];
@@ -4959,26 +5038,311 @@ test('unobserved floor objects use the source generic class glyph', () => {
         dknown: false,
     };
 
-    assert.deepEqual(object_glyph_info(potion, state), {
-        ch: '!',
-        color: NO_COLOR,
-        dec: false,
-        // display.h obj_to_glyph() numbers this into the object range that
-        // dogmove.c dog_move() asks glyph_is_object() about, and within it the
-        // generic range that display.c see_nearby_objects() reads back out of
-        // map memory to decide whether a nearer look needs a redraw.
-        objectGlyph: true,
-        genericObject: true,
-    });
+    const unknown = object_glyph_info(potion, state);
+    assert.deepEqual(unknown, { ch: '!', color: NO_COLOR, dec: false });
+    // display.h generic_obj_to_glyph() numbers this by class, into the range
+    // display.c see_nearby_objects() reads back out of map memory to decide
+    // whether a nearer look needs a redraw, and within the wider range
+    // dogmove.c dog_move() asks glyph_is_object() about.
+    assert.equal(unknown.glyph, GLYPH_OBJ_OFF + POTION_CLASS);
+    assert.equal(glyph_is_generic_object(unknown.glyph), true);
+    assert.equal(glyph_is_object(unknown.glyph), true);
 
     potion.dknown = true;
-    assert.deepEqual(object_glyph_info(potion, state), {
+    const known = object_glyph_info(potion, state);
+    assert.deepEqual(known, {
         ch: '!',
         color: state.objects[POT_BOOZE].oc_color,
         dec: false,
-        // An identified potion leaves the generic range but stays an object.
-        objectGlyph: true,
     });
+    // An identified potion leaves the generic range but stays an object,
+    // because normal_obj_to_glyph() numbers it by otyp instead.
+    assert.equal(known.glyph, GLYPH_OBJ_OFF + POT_BOOZE);
+    assert.equal(glyph_is_generic_object(known.glyph), false);
+    assert.equal(glyph_is_object(known.glyph), true);
+});
+
+// ── display.h object glyph ranges ──
+//
+// Every predicate below is a transcription of a display.h macro, and the only
+// thing that can be wrong about a transcription is a bound. Each case is one
+// glyph number at a bound, chosen from the macro's own text: the first number
+// the macro admits, the last, and the one on each side of them. NUMMONS,
+// NUM_OBJECTS and FIRST_OBJECT are the widths display.h uses, and they come
+// from the generated tables rather than from literals here, so a count that
+// moves moves the cases with it.
+
+// Each row is [predicate name, the macro's text, the numbers it admits and
+// the numbers on either side]. `true` and `false` are the answers read off
+// the macro at include/display.h:814-879.
+function glyphRangeCases() {
+    return [
+        // glyph_is_body_piletop(): >= GLYPH_BODY_PILETOP_OFF and
+        // < GLYPH_BODY_PILETOP_OFF + NUMMONS.
+        [glyph_is_body_piletop, [
+            [GLYPH_BODY_PILETOP_OFF - 1, false],
+            [GLYPH_BODY_PILETOP_OFF, true],
+            [GLYPH_BODY_PILETOP_OFF + NUMMONS - 1, true],
+            [GLYPH_BODY_PILETOP_OFF + NUMMONS, false],
+        ]],
+        // glyph_is_body(): the same over GLYPH_BODY_OFF, or the piletop range.
+        [glyph_is_body, [
+            [GLYPH_BODY_OFF - 1, false],
+            [GLYPH_BODY_OFF, true],
+            [GLYPH_BODY_OFF + NUMMONS - 1, true],
+            [GLYPH_BODY_OFF + NUMMONS, false],
+            [GLYPH_BODY_PILETOP_OFF, true],
+            [GLYPH_BODY_PILETOP_OFF + NUMMONS, false],
+        ]],
+        [glyph_is_fem_statue_piletop, [
+            [GLYPH_STATUE_FEM_PILETOP_OFF - 1, false],
+            [GLYPH_STATUE_FEM_PILETOP_OFF, true],
+            [GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS - 1, true],
+            [GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS, false],
+        ]],
+        [glyph_is_male_statue_piletop, [
+            [GLYPH_STATUE_MALE_PILETOP_OFF - 1, false],
+            [GLYPH_STATUE_MALE_PILETOP_OFF, true],
+            [GLYPH_STATUE_MALE_PILETOP_OFF + NUMMONS - 1, true],
+            [GLYPH_STATUE_MALE_PILETOP_OFF + NUMMONS, false],
+        ]],
+        [glyph_is_fem_statue, [
+            [GLYPH_STATUE_FEM_OFF - 1, false],
+            [GLYPH_STATUE_FEM_OFF, true],
+            [GLYPH_STATUE_FEM_OFF + NUMMONS - 1, true],
+            [GLYPH_STATUE_FEM_OFF + NUMMONS, false],
+            [GLYPH_STATUE_FEM_PILETOP_OFF, true],
+            [GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS, false],
+        ]],
+        [glyph_is_male_statue, [
+            [GLYPH_STATUE_MALE_OFF - 1, false],
+            [GLYPH_STATUE_MALE_OFF, true],
+            [GLYPH_STATUE_MALE_OFF + NUMMONS - 1, true],
+            [GLYPH_STATUE_MALE_OFF + NUMMONS, false],
+            [GLYPH_STATUE_MALE_PILETOP_OFF, true],
+            [GLYPH_STATUE_MALE_PILETOP_OFF + NUMMONS, false],
+        ]],
+        // glyph_is_statue(): the union of the two above, so its cases are one
+        // number inside each of the four ranges and the number below the
+        // lowest of them.
+        [glyph_is_statue, [
+            [GLYPH_STATUE_MALE_OFF - 1, false],
+            [GLYPH_STATUE_MALE_OFF, true],
+            [GLYPH_STATUE_FEM_OFF, true],
+            [GLYPH_STATUE_MALE_PILETOP_OFF, true],
+            [GLYPH_STATUE_FEM_PILETOP_OFF, true],
+            [GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS, false],
+        ]],
+        // glyph_is_normal_generic_obj(): > GLYPH_OBJ_OFF, so the base itself
+        // is excluded, and < GLYPH_OBJ_OFF + FIRST_OBJECT - 1.
+        [glyph_is_normal_generic_obj, [
+            [GLYPH_OBJ_OFF, false],
+            [GLYPH_OBJ_OFF + 1, true],
+            [GLYPH_OBJ_OFF + FIRST_OBJECT - 2, true],
+            [GLYPH_OBJ_OFF + FIRST_OBJECT - 1, false],
+        ]],
+        [glyph_is_piletop_generic_obj, [
+            [GLYPH_OBJ_PILETOP_OFF, false],
+            [GLYPH_OBJ_PILETOP_OFF + 1, true],
+            [GLYPH_OBJ_PILETOP_OFF + FIRST_OBJECT - 2, true],
+            [GLYPH_OBJ_PILETOP_OFF + FIRST_OBJECT - 1, false],
+        ]],
+        [glyph_is_generic_object, [
+            [GLYPH_OBJ_OFF, false],
+            [GLYPH_OBJ_OFF + 1, true],
+            [GLYPH_OBJ_PILETOP_OFF, false],
+            [GLYPH_OBJ_PILETOP_OFF + 1, true],
+        ]],
+        // glyph_is_normal_piletop_obj(): the base on its own, then
+        // > base + FIRST_OBJECT - 1 -- one higher than its non-piletop
+        // sibling below, which is the asymmetry display.h leaves in place.
+        [glyph_is_normal_piletop_obj, [
+            [GLYPH_OBJ_PILETOP_OFF - 1, false],
+            [GLYPH_OBJ_PILETOP_OFF, true],
+            [GLYPH_OBJ_PILETOP_OFF + 1, false],
+            [GLYPH_OBJ_PILETOP_OFF + FIRST_OBJECT - 1, false],
+            [GLYPH_OBJ_PILETOP_OFF + FIRST_OBJECT, true],
+            [GLYPH_OBJ_PILETOP_OFF + NUM_OBJECTS - 1, true],
+            [GLYPH_OBJ_PILETOP_OFF + NUM_OBJECTS, false],
+        ]],
+        [glyph_is_normal_object, [
+            [GLYPH_OBJ_OFF - 1, false],
+            [GLYPH_OBJ_OFF, true],
+            [GLYPH_OBJ_OFF + 1, false],
+            [GLYPH_OBJ_OFF + FIRST_OBJECT - 2, false],
+            [GLYPH_OBJ_OFF + FIRST_OBJECT - 1, true],
+            [GLYPH_OBJ_OFF + NUM_OBJECTS - 1, true],
+            [GLYPH_OBJ_OFF + NUM_OBJECTS, false],
+            [GLYPH_OBJ_PILETOP_OFF, true],
+        ]],
+        // glyph_is_object(): the union of all four families. One number
+        // inside each, and the two numbers just outside the whole span.
+        [glyph_is_object, [
+            [GLYPH_BODY_OFF - 1, false],
+            [GLYPH_BODY_OFF, true],
+            [GLYPH_OBJ_OFF, true],
+            [GLYPH_OBJ_OFF + FIRST_OBJECT, true],
+            [GLYPH_OBJ_OFF + 1, true],
+            [GLYPH_STATUE_MALE_OFF, true],
+            [GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS, false],
+        ]],
+    ];
+}
+
+test('the object glyph range predicates answer at every display.h bound',
+    () => {
+        for (const [predicate, cases] of glyphRangeCases()) {
+            for (const [glyph, expected] of cases) {
+                assert.equal(
+                    predicate(glyph), expected, `${predicate.name}(${glyph})`,
+                );
+            }
+            // A square the hero remembers nothing of carries no number, and
+            // every comparison against undefined is false.
+            assert.equal(predicate(undefined), false, predicate.name);
+        }
+    });
+
+// ── display.c reset_glyphmap()'s eight object arms ──
+
+test('map_glyphinfo resolves each object arm at its own first glyph', () => {
+    const state = visibleCellState();
+    const mons = state.mons;
+    state.iflags = { ...state.iflags, hilite_pile: false };
+
+    const statue = monster_class_symbol(mons[0].mlet, state).ch;
+    const lastStatue = monster_class_symbol(
+        mons[NUMMONS - 1].mlet, state,
+    ).ch;
+    const corpse = object_class_symbol(FOOD_CLASS, state, CORPSE).ch;
+    const statueColor = state.objects[STATUE].oc_color;
+    // The first glyph of each arm, and the glyph one below it, which belongs
+    // to the arm underneath. reset_glyphmap() tests `>= 0` on each
+    // subtraction, so these pairs are what separates one arm from the next.
+    // Each expectation is read from the arm's own three statements in
+    // src/display.c: the symbol index, the colour macro, and the glyphflags.
+    const cases = [
+        [GLYPH_BODY_OFF, {
+            ch: corpse, color: mons[0].mcolor, flags: MG_CORPSE,
+        }],
+        [GLYPH_BODY_OFF + NUMMONS - 1, {
+            ch: corpse, color: mons[NUMMONS - 1].mcolor, flags: MG_CORPSE,
+        }],
+        [GLYPH_OBJ_OFF + FIRST_OBJECT - 1, {
+            ch: object_class_symbol(
+                state.objects[FIRST_OBJECT - 1].oc_class,
+                state,
+                FIRST_OBJECT - 1,
+            ).ch,
+            // objects[FIRST_OBJECT - 1] is the last GENERIC row, whose
+            // include/objects.h:72-75 colour is CLR_GRAY; recorderMapColor()
+            // folds gray onto the terminal default.
+            color: NO_COLOR,
+            flags: 0,
+        }],
+        [GLYPH_STATUE_MALE_OFF, {
+            ch: statue, color: statueColor, flags: MG_STATUE | MG_MALE,
+        }],
+        [GLYPH_STATUE_MALE_OFF + NUMMONS - 1, {
+            ch: lastStatue, color: statueColor, flags: MG_STATUE | MG_MALE,
+        }],
+        [GLYPH_STATUE_FEM_OFF, {
+            ch: statue, color: statueColor, flags: MG_STATUE | MG_FEMALE,
+        }],
+        [GLYPH_OBJ_PILETOP_OFF, {
+            ch: object_class_symbol(
+                state.objects[STRANGE_OBJECT].oc_class,
+                state,
+                STRANGE_OBJECT,
+            ).ch,
+            color: NO_COLOR, // objects[STRANGE_OBJECT] is CLR_BLACK.
+            flags: MG_OBJPILE,
+        }],
+        [GLYPH_BODY_PILETOP_OFF, {
+            ch: corpse,
+            color: mons[0].mcolor,
+            flags: MG_CORPSE | MG_OBJPILE,
+        }],
+        [GLYPH_STATUE_MALE_PILETOP_OFF, {
+            ch: statue,
+            color: statueColor,
+            flags: MG_STATUE | MG_MALE | MG_OBJPILE,
+        }],
+        [GLYPH_STATUE_FEM_PILETOP_OFF, {
+            ch: statue,
+            color: statueColor,
+            flags: MG_STATUE | MG_FEMALE | MG_OBJPILE,
+        }],
+    ];
+    for (const [glyph, expected] of cases) {
+        const resolved = map_glyphinfo(glyph, state);
+        assert.equal(resolved.ch, expected.ch, `ch at ${glyph}`);
+        assert.equal(resolved.color, expected.color, `color at ${glyph}`);
+        assert.equal(resolved.glyph, glyph, `glyph at ${glyph}`);
+        // MG_OBJPILE is the one flag a presentation shows, through the
+        // attribute wintty.c gives it, so the flags column is asserted by
+        // turning the option on and reading the attribute back.
+        state.iflags.hilite_pile = true;
+        assert.equal(
+            map_glyphinfo(glyph, state).attr ?? 0,
+            expected.flags & MG_OBJPILE ? ATR_INVERSE : 0,
+            `pile attribute at ${glyph}`,
+        );
+        state.iflags.hilite_pile = false;
+    }
+
+    // Everything outside the four families is refused rather than resolved
+    // through the arm underneath it.
+    for (const glyph of [
+        GLYPH_BODY_OFF - 1,
+        GLYPH_BODY_OFF + NUMMONS,
+        GLYPH_OBJ_OFF - 1,
+        GLYPH_OBJ_OFF + NUM_OBJECTS,
+        GLYPH_STATUE_MALE_OFF - 1,
+        GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS,
+    ]) {
+        assert.throws(
+            () => map_glyphinfo(glyph, state),
+            TypeError,
+            `${glyph}`,
+        );
+    }
+});
+
+test('the pile and gender attributes are resolved at print time', () => {
+    const state = visibleCellState();
+    // win/tty/wintty.c tty_print_glyph() (3930-3936). Each row is one
+    // combination of the option values that arm reads, over one glyph that
+    // carries the flag under test. A female statue on a pile carries both
+    // MG_OBJPILE and MG_FEMALE, so the rows below use the non-piletop female
+    // statue for the gender term and an ordinary pile-top object for the
+    // pile term, keeping the two independent.
+    const pile = GLYPH_OBJ_PILETOP_OFF + FIRST_OBJECT;
+    const femaleStatue = GLYPH_STATUE_FEM_OFF;
+    const maleStatue = GLYPH_STATUE_MALE_OFF;
+    const cases = [
+        [pile, { hilite_pile: true }, false, ATR_INVERSE],
+        [pile, { hilite_pile: false }, false, 0],
+        // use_inverse gates the whole arm, whatever raised it.
+        [pile, { hilite_pile: true, wc_inverse: false }, false, 0],
+        // MG_OBJPILE is absent here, so hilite_pile alone must not invert.
+        [GLYPH_OBJ_OFF + FIRST_OBJECT, { hilite_pile: true }, false, 0],
+        [femaleStatue, { wizmgender: true }, true, ATR_INVERSE],
+        // Each of the three terms on its own leaves the attribute off.
+        [femaleStatue, { wizmgender: true }, false, 0],
+        [femaleStatue, { wizmgender: false }, true, 0],
+        [maleStatue, { wizmgender: true }, true, 0],
+        [femaleStatue, { wizmgender: true, wc_inverse: false }, true, 0],
+    ];
+    for (const [glyph, iflags, wizard, expected] of cases) {
+        state.wizard = wizard;
+        state.iflags = { ...state.iflags, wc_inverse: true, ...iflags };
+        assert.equal(
+            map_glyphinfo(glyph, state).attr ?? 0,
+            expected,
+            `${glyph} ${JSON.stringify(iflags)} wizard ${wizard}`,
+        );
+    }
 });
 
 // ── display.c see_nearby_objects() ──
@@ -5026,8 +5390,10 @@ test('a nearer look repaints a remembered generic object in its own colour',
         newsym(10, 12);
         const remembered = state.level.at(10, 12).remembered_glyph;
         assert.equal(potion.dknown, false);
-        assert.equal(remembered.color, NO_COLOR);
-        assert.equal(glyph_is_generic_object(state.level.at(10, 12)), true);
+        assert.equal(
+            remembered_glyph_presentation(remembered, state).color, NO_COLOR,
+        );
+        assert.equal(glyph_is_generic_object(remembered.glyph), true);
 
         // dungeon.c u_on_newpos() moves the hero first and calls this after.
         state.u.ux = 10;
@@ -5037,10 +5403,17 @@ test('a nearer look repaints a remembered generic object in its own colour',
         assert.equal(potion.dknown, true);
         assert.equal(state.objects[POT_BOOZE].oc_encountered, 1);
         assert.equal(
-            state.level.at(10, 12).remembered_glyph.color,
+            remembered_glyph_presentation(
+                state.level.at(10, 12).remembered_glyph, state,
+            ).color,
             state.objects[POT_BOOZE].oc_color,
         );
-        assert.equal(glyph_is_generic_object(state.level.at(10, 12)), false);
+        assert.equal(
+            glyph_is_generic_object(
+                state.level.at(10, 12).remembered_glyph.glyph,
+            ),
+            false,
+        );
     });
 
 test('see_nearby_objects scans the whole near square and nothing outside it',

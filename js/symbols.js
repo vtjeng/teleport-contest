@@ -109,6 +109,11 @@ export const S_cloud = requiredCmapSymbol('s_cloud');
 export const S_water = requiredCmapSymbol('s_water');
 export const S_poisoncloud = requiredCmapSymbol('s_poisoncloud');
 export const S_arrow_trap = requiredCmapSymbol('s_arrow_trap');
+// The two ends of defsym.h's zap/effect run. display.h's enum glyph_offsets
+// spaces GLYPH_SWALLOW_OFF by ((S_goodpos - S_digbeam) + 1), so both indices
+// are inputs to js/glyph_offsets.js.
+export const S_digbeam = requiredCmapSymbol('s_digbeam');
+export const S_goodpos = requiredCmapSymbol('s_goodpos');
 
 // C ref: rm.h trap_to_defsym()/defsym_to_trap().
 export function trap_to_defsym(ttyp) {

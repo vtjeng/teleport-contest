@@ -1299,7 +1299,9 @@ export async function dog_move(monster, after, rawEnv = {}) {
             // whether the hero's map memory holds an object there.
             const remembersObject = !Hallucination(state)
                 && Boolean(state.level?.flags?.hero_memory)
-                && glyph_is_object(state.level.at(nextX, nextY));
+                && glyph_is_object(
+                    state.level.at(nextX, nextY).remembered_glyph?.glyph,
+                );
             const top = remembersObject ? vobj_at(nextX, nextY, state) : null;
             // decl.h:36 aliases `something` to the string "something".
             const what = top

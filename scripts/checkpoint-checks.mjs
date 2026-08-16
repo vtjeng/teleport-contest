@@ -12,6 +12,7 @@ import {
 
 const GENERATED_CHECKS = [
     'check:extcmds',
+    'check:glyph-offsets',
     'check:monsters',
     'check:objects',
     'check:options',

@@ -25,15 +25,16 @@ import {
 } from '../js/options.js';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 import {
-    flush_screen, reglyph_darkroom, UnsupportedGlyphRepairError,
+    flush_screen, newsym, reglyph_darkroom, UnsupportedGlyphRepairError,
 } from '../js/display.js';
+import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
 import { choose_classes_menu } from '../js/windows.js';
 import {
-    COULD_SEE, FOUNTAIN, IN_SIGHT,
+    COULD_SEE, FOUNTAIN, IN_SIGHT, OBJ_FLOOR,
     MENU_COMBINATION, MENU_FULL, MENU_TRADITIONAL, PICK_ANY,
 } from '../js/const.js';
 import {
-    FOOD_CLASS, RING_CLASS, WAND_CLASS, WEAPON_CLASS,
+    ARROW, FOOD_CLASS, RING_CLASS, ROCK, ROCK_CLASS, WAND_CLASS, WEAPON_CLASS,
 } from '../js/objects.js';
 import { S_darkroom, S_room } from '../js/symbols.js';
 import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
@@ -353,13 +354,30 @@ test('a redraw option raises both repair flags', async () => {
     assert.equal(state.go.opt_need_redraw, true);
     assert.equal(state.go.opt_need_glyph_reset, true);
 
-    // 'color' has an arm of its own that raises the same pair.
+    // 'hilite_pile' is the other reachable one, and the one seed0006 picks.
     state.go = {};
-    assert.equal(await parseoptions(state, '!color', false, false), true);
-    assert.equal(state.iflags.wc_color, false);
+    assert.equal(await parseoptions(state, 'hilite_pile', false, false), true);
+    assert.equal(state.iflags.hilite_pile, true);
     assert.equal(state.go.opt_need_redraw, true);
     assert.equal(state.go.opt_need_glyph_reset, true);
 });
+
+test('the two arms whose repaint the terrain layer owns are refused',
+    async () => {
+        // 'color' has an arm of its own (options.c:5407-5409) and
+        // 'use_inverse' shares the seven-option arm, but both re-resolve
+        // terrain, whose map memory still holds a finished presentation.
+        const state = await startStockGame();
+        for (const statement of ['!color', '!use_inverse']) {
+            state.go = {};
+            await assert.rejects(
+                () => parseoptions(state, statement, false, false),
+                (error) => error.name === 'UnsupportedOptionMenuError'
+                    && /reset_glyphmap\(\) over a/u.test(error.message),
+                statement,
+            );
+        }
+    });
 
 test('the custom-colour options raise only their own repair flag',
     async () => {
@@ -527,38 +545,63 @@ test('reset_needed_visuals() stops on each unported repair', async () => {
     assert.equal(state.disp.botlx, false);
 });
 
-// C ref: options.c reset_needed_visuals()'s reset_glyphmap(gm_optionchange).
-// C rebuilds glyphmap[] and then repaints, so remembered squares come back
-// under the new option values. This port cannot follow, because
-// js/display.js remembered_glyph_from_presentation() stores an already
-// resolved {ch, color, decgfx, attr} and newsym()'s out-of-sight arm replays
-// it without recomputing: a repaint alone would redraw remembered squares in
-// the presentation they were recorded under. The refusal was briefly retired
-// on the opposite claim and the correctness pass over 5366349..909a338
-// disproved it by execution, so it stands until map memory stores what C
-// stores. Tracked as remembered-glyph-caches-a-resolved-presentation.
-test('a glyph reset stops rather than repainting stale memory', async () => {
+// C ref: options.c reset_needed_visuals()'s reset_glyphmap(gm_optionchange)
+// and the docrt() below it. C rebuilds glyphmap[] and repaints, so a square
+// the hero only remembers comes back under the option values in force at the
+// repaint rather than the ones in force when it was recorded. This is the
+// property the whole slice exists for, and the square below is the one that
+// separates it from a repaint alone: the pile is out of sight, so no draw
+// between the toggle and the repaint can touch it. Retiring the old refusal
+// on the argument that a repaint suffices was tried at 0f7b6cf and reverted
+// at 57a84f4 -- what makes it true now is that map memory holds the object's
+// glyph number instead of a finished presentation.
+test('a glyph reset repaints a remembered out-of-sight pile', async () => {
     const state = await startStockGame();
-    state.go = { opt_need_glyph_reset: true };
-    await assert.rejects(
-        () => reset_needed_visuals(state),
-        (error) => error instanceof UnsupportedOptionMenuError
-            && /reset_glyphmap\(gm_optionchange\)/u.test(error.message),
+    // Two stacked objects, so display.h obj_is_piletop() answers TRUE for the
+    // top one and reset_glyphmap()'s pile-top arm raises MG_OBJPILE. The
+    // square is four rows below the hero's room, chosen so the hero cannot
+    // see it; the assertion below checks that rather than assuming it.
+    const x = state.u.ux;
+    const y = state.u.uy + 4;
+    const under = {
+        otyp: ROCK, oclass: ROCK_CLASS, quan: 1, dknown: true,
+        where: OBJ_FLOOR, ox: x, oy: y, nexthere: null,
+    };
+    const top = {
+        otyp: ARROW, oclass: WEAPON_CLASS, quan: 1, dknown: true,
+        where: OBJ_FLOOR, ox: x, oy: y, nexthere: under,
+    };
+    state.level.objects[x][y] = top;
+    // Record the memory while the square is visible, with hilite_pile off,
+    // then take the sight away. Only newsym()'s out-of-sight arm draws from
+    // memory, and only memory can answer after that.
+    state.viz_array[y][x] = IN_SIGHT | COULD_SEE;
+    newsym(x, y);
+    state.viz_array[y][x] = 0;
+    newsym(x, y);
+    assert.equal(cansee(x, y, state), false);
+    assert.equal(state.level.at(x, y).disp_attr, 0);
+    // display.h normal_obj_to_glyph() with obj_is_piletop() true.
+    assert.equal(
+        state.level.at(x, y).remembered_glyph.glyph,
+        GLYPH_OBJ_PILETOP_OFF + ARROW,
     );
 
-    // The option that reaches it from the simple menu: showrace raises the
-    // flag through optfn_boolean(), and hilite_pile does the same, which is
-    // why seed0006 stops at its step 64 pick.
-    state.go = {};
-    assert.equal(await parseoptions(state, 'showrace', false, false), true);
-    assert.equal(state.flags.showrace, true);
-    assert.equal(state.go.opt_need_glyph_reset, true);
-    assert.equal(state.go.opt_need_redraw, true);
-    clearTopline(state);
-    await assert.rejects(
-        () => reset_needed_visuals(state),
-        (error) => error instanceof UnsupportedOptionMenuError,
-    );
+    // The toggle optfn_boolean()'s hilite_pile arm performs, and the two
+    // flags it raises.
+    state.iflags.hilite_pile = true;
+    state.go = { opt_need_redraw: true, opt_need_glyph_reset: true };
+    await reset_needed_visuals(state);
+
+    assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
+    assert.equal(state.go.opt_need_glyph_reset, false);
+
+    // And back off again, which is the direction a repaint of a stored
+    // attribute could never undo.
+    state.iflags.hilite_pile = false;
+    state.go = { opt_need_redraw: true, opt_need_glyph_reset: true };
+    await reset_needed_visuals(state);
+    assert.equal(state.level.at(x, y).disp_attr, 0);
 });
 
 test('reset_needed_visuals() spends every flag it consumes', async () => {

@@ -291,7 +291,7 @@ test('a square with no door is felt rather than picked', async () => {
     answer(LOCK_PICK_SLOT, 'l');
     assert.equal(await doapply(game), ECMD_OK);
     assert.equal(pendingTopLine(), 'You see no door there.');
-    assert.equal(glyph_is_object(pile), true);
+    assert.equal(glyph_is_object(pile.remembered_glyph.glyph), true);
 });
 
 test('a felt square whose recorded terrain type is new spends the turn',

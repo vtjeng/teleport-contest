@@ -12,6 +12,7 @@
     "check:namespace-members": "node scripts/check-namespace-members.mjs",
     "check:relative-imports": "node scripts/check-relative-imports.mjs",
     "check:extcmds": "node scripts/generate-extcmds.mjs --check",
+    "check:glyph-offsets": "node scripts/generate-glyph-offsets.mjs --check",
     "check:monsters": "node scripts/generate-monsters.mjs --check",
     "check:objects": "node scripts/generate-objects.mjs --check",
     "check:options": "node scripts/generate-options.mjs --check",

@@ -4569,9 +4569,25 @@ async function optfn_boolean(state, optidx, negated, opts) {
         throw new UnsupportedOptionMenuError(
             "reglyph_darkroom() over a 'dark_room' change",
         );
+    case 'use_inverse':
+        // options.c:5379-5385 shares this arm with the six below, and the port
+        // follows it for all of them but this one. win/tty/wintty.c
+        // tty_print_glyph() (3930-3936) gates MG_BW_LAVA, MG_BW_ICE,
+        // MG_BW_SINK and MG_BW_ENGR on iflags.use_inverse alongside
+        // MG_OBJPILE, and those four belong to the terrain layer, whose map
+        // memory still holds a resolved presentation. js/display.js
+        // blackAndWhiteTerrainCue() and engravingGlyph() bake the attribute
+        // into that record, so a repaint replays it: a remembered
+        // out-of-sight corridor engraving stays inverse after the option goes
+        // off, and defsym.h gives S_engrcorr, S_corr and S_litcorr the same
+        // '#' by default, so no unusual symbol set is needed to reach it.
+        // MG_OBJPILE itself is now recoverable, because map memory holds the
+        // object glyph number; the terrain slice is what retires this.
+        throw new UnsupportedOptionMenuError(
+            "reset_glyphmap() over a 'use_inverse' change",
+        );
     case 'wizmgender':
     case 'showrace':
-    case 'use_inverse':
     case 'hilite_pile':
     case 'perm_invent':
     case 'ascii_map':
@@ -4586,9 +4602,20 @@ async function optfn_boolean(state, optidx, negated, opts) {
         }
         break;
     case 'color':
-        state.go.opt_need_redraw = true;
-        state.go.opt_need_glyph_reset = true;
-        break;
+        // options.c:5407-5409 raises the same two flags the seven-option arm
+        // above raises, and reset_needed_visuals() answers both with
+        // reset_glyphmap(gm_optionchange) and a docrt(). This port can follow
+        // it for the object layer, whose map memory holds the unresolved glyph
+        // number, but not for terrain: js/display.js terrainCmap() resolves the
+        // colour into the remembered record, so a repaint replays the colour
+        // the square was recorded under. Proved by execution during the
+        // correctness pass over 5366349..909a338 -- with OPTIONS=!color, a
+        // remembered out-of-sight door stays NO_COLOR where C repaints it
+        // CLR_BROWN. reglyph_darkroom() refuses the same configuration for the
+        // same reason.
+        throw new UnsupportedOptionMenuError(
+            "reset_glyphmap() over a 'color' change",
+        );
     case 'customcolors':
         state.go.opt_reset_customcolors = true;
         break;
@@ -4827,36 +4854,23 @@ const OPTION_HANDLERS = Object.freeze({
 export async function reset_needed_visuals(state) {
     const go = state.go ??= {};
     // display.c reset_glyphmap(gm_optionchange) rebuilds glyphmap[], the
-    // glyph-to-symbol-and-color table the window port prints from, and this
-    // port has no equivalent rebuild.
+    // glyph-to-symbol-and-colour table the window port prints from. This port
+    // keeps no such table: js/display.js map_glyphinfo() resolves one glyph
+    // number on demand, and the docrt() below re-runs newsym() over every
+    // square, so the rebuild and the repaint are one act here.
     //
-    // It was briefly retired on the argument that this port keeps no such
-    // table and maps each glyph where it draws it, so the docrt() below would
-    // repaint every square through the live values.  That is false, and the
-    // correctness pass over 5366349..909a338 proved it by execution.
-    // `loc.remembered_glyph` IS that table: js/display.js
-    // remembered_glyph_from_presentation() stores an already-resolved
-    // {ch, color, decgfx, attr}, with the colour already pushed through
-    // mapColorEnabled(), and newsym()'s out-of-sight arm replays those stored
-    // fields without recomputing any of them.  So a docrt() after the toggle
-    // repaints every remembered, out-of-sight square with the presentation it
-    // was recorded under.  Turning `color` on from the `O` menu leaves a
-    // remembered door at NO_COLOR where C repaints it CLR_BROWN; hilite_pile
-    // is worse, because C carries piletop-ness as MG_OBJPILE in glyphmap[] and
-    // applies ATR_INVERSE at print time, while this port bakes the attribute
-    // in at draw time and records no piletop mark at all, so the highlight
-    // cannot be recovered later even in principle.
-    //
-    // Refusing costs seed0006 the five screens the pick loop earned, because
-    // it picks hilite_pile at step 64.  A stopped segment is worth more than a
-    // segment that runs on painting wrong cells.  Retiring this needs the
-    // memory re-derived during the repaint, not a repaint alone; that is
-    // recorded as remembered-glyph-caches-a-resolved-presentation.
-    if (go.opt_need_glyph_reset) {
-        throw new UnsupportedOptionMenuError(
-            'reset_glyphmap(gm_optionchange)',
-        );
-    }
+    // That argument alone was tried at 0f7b6cf and is false on its own, as the
+    // correctness pass over 5366349..909a338 proved by execution: what makes
+    // it true is that map memory holds the unresolved number, and until this
+    // slice it did not. It now does for object squares alone --
+    // js/display.js remembered_glyph_from_presentation() records the state of
+    // that conversion -- and every other layer still stores a presentation
+    // resolved under the values in force when the square was recorded. So the
+    // arms that reach here are the ones whose repaint the converted layer can
+    // answer: 'hilite_pile', which is MG_OBJPILE, and 'showrace', which
+    // redraws the hero and never enters map memory. optfn_boolean()'s 'color'
+    // arm keeps a refusal of its own, because colour is resolved into every
+    // remembered terrain square.
     if (go.opt_reset_customcolors || go.opt_update_basic_palette
         || go.opt_reset_customsymbols || go.opt_need_redraw) {
         if (go.opt_update_basic_palette) {

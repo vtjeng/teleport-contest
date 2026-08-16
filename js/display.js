@@ -188,6 +188,16 @@ import {
     SYM_OFF_X,
     trap_to_defsym,
 } from './symbols.js';
+import {
+    GLYPH_BODY_OFF,
+    GLYPH_BODY_PILETOP_OFF,
+    GLYPH_OBJ_OFF,
+    GLYPH_OBJ_PILETOP_OFF,
+    GLYPH_STATUE_FEM_OFF,
+    GLYPH_STATUE_FEM_PILETOP_OFF,
+    GLYPH_STATUE_MALE_OFF,
+    GLYPH_STATUE_MALE_PILETOP_OFF,
+} from './glyph_offsets.js';
 import { t_at } from './trap.js';
 // pray.c owns critically_low_hp(); botl.c:2555 and wintty.c:4539 are two of
 // its three C call sites, so the status line reads the one port in js/pray.js
@@ -1106,85 +1116,358 @@ export function object_is_generic(obj) {
 
 // C ref: display.h obj_is_piletop(). A top boulder conceals non-boulders
 // beneath it, but two stacked boulders still use the pile-top glyph family.
-function object_is_piletop(obj, state) {
+export function object_is_piletop(obj, state = game) {
     const next = state.level?.objects?.[obj.ox]?.[obj.oy]?.nexthere;
     return obj.where === OBJ_FLOOR
         && Boolean(next)
         && (obj.otyp !== BOULDER || next.otyp === BOULDER);
 }
 
-export function object_glyph_info(obj, state = game) {
-    if (!obj) throw new TypeError('object_glyph_info requires an object');
-    const generic = object_is_generic(obj);
-    const actualType = state.objects?.[obj.otyp];
-    const type = generic ? state.objects?.[obj.oclass] : actualType;
-    let symbol;
-    let color = type?.oc_color ?? NO_COLOR;
-    if (obj.otyp === BOULDER) {
-        symbol = misc_symbol(SYM_BOULDER, state);
-    } else if (obj.otyp === STATUE && state.mons?.[obj.corpsenm]) {
-        symbol = monster_class_symbol(state.mons[obj.corpsenm].mlet, state);
-    } else {
-        const objectClass = obj.otyp === CORPSE
-            ? FOOD_CLASS
-            : generic ? obj.oclass : actualType?.oc_class ?? obj.oclass;
-        symbol = object_class_symbol(
-            objectClass,
-            state,
-            generic ? objectClass : obj.otyp,
-        );
-        if (obj.otyp === CORPSE && state.mons?.[obj.corpsenm])
-            color = state.mons[obj.corpsenm].mcolor;
-    }
-    const glyph = glyphPresentation(symbol, color, state);
-    // display.h obj_to_glyph() lands in one of the four glyph ranges
-    // glyph_is_object() unions at display.h:877-879: ordinary object, generic
-    // object, statue, and body. Every branch above produces one of those four,
-    // so every presentation this function returns answers that macro TRUE.
-    // This port stores presentations rather than glyph numbers, so it carries
-    // the fact as a mark, which remembered_glyph_from_presentation() copies
-    // into map memory for glyph_is_object() to read back.
-    glyph.objectGlyph = true;
-    // display.h obj_to_glyph() numbers a generic object into the leading
-    // FIRST_OBJECT-1 slots of the object glyph ranges, which is the whole of
-    // what glyph_is_generic_object() recognizes. This port stores
-    // presentations rather than glyph numbers, so it carries the same fact as
-    // a mark, which remembered_glyph_from_presentation() copies into map
-    // memory for see_nearby_objects() to read back.
-    if (generic) glyph.genericObject = true;
-    // C ref: win/tty/wintty.c tty_print_glyph(). Pile highlighting is a tty
-    // presentation attribute and is suppressed together with inverse video.
+// ── display.h object glyph numbers ──
+//
+// C keeps one integer per map square in levl[x][y].glyph and resolves it into
+// a character, a colour and a set of glyphflags at print time. The five macros
+// below produce an object square's number; js/glyph_offsets.js holds the range
+// bases they add, and map_glyphinfo() resolves one back.
+
+// C ref: display.h objnum_to_glyph() (638). Unaffected by hallucination, and
+// deliberately numbers CORPSE and STATUE in the plain object range, so it
+// draws the generic body and the generic statue rather than the species the
+// corpse_to_glyph() and statue_to_glyph() ranges carry.
+export function objnum_to_glyph(onum) {
+    return onum + GLYPH_OBJ_OFF;
+}
+
+// C ref: display.h corpse_to_glyph() (937-939).
+export function corpse_to_glyph(obj, state = game) {
+    return obj.corpsenm + (object_is_piletop(obj, state)
+        ? GLYPH_BODY_PILETOP_OFF : GLYPH_BODY_OFF);
+}
+
+// C ref: display.h generic_obj_to_glyph() (940-942). The index is the object's
+// class rather than its type, which is what hides an unseen potion's
+// description colour behind the class colour.
+export function generic_obj_to_glyph(obj, state = game) {
+    return obj.oclass + (object_is_piletop(obj, state)
+        ? GLYPH_OBJ_PILETOP_OFF : GLYPH_OBJ_OFF);
+}
+
+// C ref: display.h normal_obj_to_glyph() (943-945).
+export function normal_obj_to_glyph(obj, state = game) {
+    return obj.otyp + (object_is_piletop(obj, state)
+        ? GLYPH_OBJ_PILETOP_OFF : GLYPH_OBJ_OFF);
+}
+
+// C ref: display.h statue_to_glyph() (950-961), its !Hallucination arm alone.
+// The hallucinating arm draws a random monster instead of a statue and spends
+// two display-RNG calls doing it; hallucinated_statue_glyph_info() above holds
+// it, because the number it produces lies in the monster ranges rather than in
+// the object ranges map_glyphinfo() below resolves.
+export function statue_to_glyph(obj, state = game) {
+    const female
+        = ((obj.spe ?? 0) & CORPSTAT_GENDER) === CORPSTAT_FEMALE;
     const piletop = object_is_piletop(obj, state);
-    // C ref: display.h obj_to_glyph() (963-968) with Hallucination false;
-    // mappedObjectGlyphInfo() routes the hallucinating cases elsewhere. Its
-    // four macros number a statue by corpsenm and gender (950-961), a corpse
-    // by corpsenm (937-939), a generic object by oclass (940-942), and every
-    // other object by otyp (943-945), each in its own range or its pile-top
-    // range. Two objects share a glyph number only when all of that agrees.
-    // This port stores a presentation rather than that number, so it carries
-    // the number's content as a mark, which
-    // remembered_glyph_from_presentation() copies into map memory for
-    // same_remembered_glyph() to read back where lock.c:584 compares two
-    // glyph numbers.
-    const glyphIdentity = obj.otyp === STATUE
-        ? `statue:${((obj.spe ?? 0) & CORPSTAT_GENDER) === CORPSTAT_FEMALE
-            ? 'fem' : 'male'}:${obj.corpsenm}`
-        : obj.otyp === CORPSE
-            ? `body:${obj.corpsenm}`
-            : generic
-                ? `generic:${obj.oclass}`
-                : `obj:${obj.otyp}`;
+    return obj.corpsenm + (female
+        ? (piletop ? GLYPH_STATUE_FEM_PILETOP_OFF : GLYPH_STATUE_FEM_OFF)
+        : (piletop ? GLYPH_STATUE_MALE_PILETOP_OFF : GLYPH_STATUE_MALE_OFF));
+}
+
+// C refs: display.h glyph_is_body_piletop() (814-816) and glyph_is_body()
+// (817-819). Each predicate below is called with levl[x][y].glyph, which is
+// `undefined` for a square the hero remembers nothing of; every comparison
+// against `undefined` is false, so an unremembered square answers no to all of
+// them, which is the answer C's GLYPH_UNEXPLORED gives.
+export function glyph_is_body_piletop(glyph) {
+    return glyph >= GLYPH_BODY_PILETOP_OFF
+        && glyph < GLYPH_BODY_PILETOP_OFF + NUMMONS;
+}
+
+export function glyph_is_body(glyph) {
+    return (glyph >= GLYPH_BODY_OFF && glyph < GLYPH_BODY_OFF + NUMMONS)
+        || glyph_is_body_piletop(glyph);
+}
+
+// C refs: display.h glyph_is_fem_statue_piletop() (821-823),
+// glyph_is_male_statue_piletop() (824-826), glyph_is_fem_statue() (827-830),
+// glyph_is_male_statue() (831-834) and glyph_is_statue() (835-836).
+export function glyph_is_fem_statue_piletop(glyph) {
+    return glyph >= GLYPH_STATUE_FEM_PILETOP_OFF
+        && glyph < GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS;
+}
+
+export function glyph_is_male_statue_piletop(glyph) {
+    return glyph >= GLYPH_STATUE_MALE_PILETOP_OFF
+        && glyph < GLYPH_STATUE_MALE_PILETOP_OFF + NUMMONS;
+}
+
+export function glyph_is_fem_statue(glyph) {
+    return (glyph >= GLYPH_STATUE_FEM_OFF
+            && glyph < GLYPH_STATUE_FEM_OFF + NUMMONS)
+        || glyph_is_fem_statue_piletop(glyph);
+}
+
+export function glyph_is_male_statue(glyph) {
+    return (glyph >= GLYPH_STATUE_MALE_OFF
+            && glyph < GLYPH_STATUE_MALE_OFF + NUMMONS)
+        || glyph_is_male_statue_piletop(glyph);
+}
+
+export function glyph_is_statue(glyph) {
+    return glyph_is_male_statue(glyph) || glyph_is_fem_statue(glyph);
+}
+
+// C refs: display.h glyph_is_normal_generic_obj() (839-840),
+// glyph_is_piletop_generic_obj() (841-843) and glyph_is_generic_object()
+// (844-846). C's comment: generic objects sit after strange object
+// (GLYPH_OBJ_OFF) and before the other objects (GLYPH_OBJ_OFF +
+// FIRST_OBJECT), which is the block of class placeholder rows objects[] opens
+// with.
+export function glyph_is_normal_generic_obj(glyph) {
+    return glyph > GLYPH_OBJ_OFF
+        && glyph < GLYPH_OBJ_OFF + FIRST_OBJECT - 1;
+}
+
+export function glyph_is_piletop_generic_obj(glyph) {
+    return glyph > GLYPH_OBJ_PILETOP_OFF
+        && glyph < GLYPH_OBJ_PILETOP_OFF + FIRST_OBJECT - 1;
+}
+
+export function glyph_is_generic_object(glyph) {
+    return glyph_is_normal_generic_obj(glyph)
+        || glyph_is_piletop_generic_obj(glyph);
+}
+
+// C refs: display.h glyph_is_normal_piletop_obj() (847-850) and
+// glyph_is_normal_object() (851-855). The two are not mirror images: the
+// non-piletop range admits its FIRST_OBJECT - 1 entry with `>=` and the
+// piletop range excludes it with `>`. Both are transcribed as written. The
+// entry is objects[VENOM_CLASS], which obj_is_generic() never selects -- it
+// takes only potions, gems and spellbooks -- so nothing this port produces
+// lands on the asymmetry.
+export function glyph_is_normal_piletop_obj(glyph) {
+    return glyph === GLYPH_OBJ_PILETOP_OFF
+        || (glyph > GLYPH_OBJ_PILETOP_OFF + FIRST_OBJECT - 1
+            && glyph < GLYPH_OBJ_PILETOP_OFF + NUM_OBJECTS);
+}
+
+export function glyph_is_normal_object(glyph) {
+    return glyph === GLYPH_OBJ_OFF
+        || (glyph >= GLYPH_OBJ_OFF + FIRST_OBJECT - 1
+            && glyph < GLYPH_OBJ_OFF + NUM_OBJECTS)
+        || glyph_is_normal_piletop_obj(glyph);
+}
+
+// C ref: display.h glyph_is_object() (877-879), the union of the four object
+// families. dogmove.c dog_move() asks it of levl[x][y].glyph, which is what
+// js/dogmove.js passes.
+export function glyph_is_object(glyph) {
+    return glyph_is_normal_object(glyph) || glyph_is_generic_object(glyph)
+        || glyph_is_statue(glyph) || glyph_is_body(glyph);
+}
+
+// C ref: display.h:995-1013, the glyphflags reset_glyphmap() encodes and
+// map_glyphinfo() passes on. Only the bits the object arms raise are spelled
+// here; the rest belong with the arms that raise them, which are not ported.
+export const MG_CORPSE = 0x00002;
+export const MG_PET = 0x00010;
+export const MG_STATUE = 0x00040;
+export const MG_OBJPILE = 0x00080;
+export const MG_MALE = 0x01000;
+export const MG_FEMALE = 0x02000;
+
+/**
+ * C ref: win/tty/wintty.c tty_print_glyph() (3919-3937), the ordered chain
+ * that picks at most one attribute for a printed map cell. C runs it on every
+ * print, from the glyphflags glyphmap[] holds, which is why toggling
+ * 'hilite_pile' and repainting changes a remembered pile that no draw has
+ * touched since.
+ *
+ * Three of C's four arms are here. The `bkglyphinfo->framecolor` arm above
+ * them needs iflags.bgcolors, which no ported path sets. The MG_PET arm is
+ * reachable but is spelled at actualMonsterGlyphInfo() instead, where the pet
+ * is: this function is only reached from map_glyphinfo()'s object ranges, and
+ * an object glyph carries no MG_PET. The order still matters and is preserved
+ * by that split rather than in spite of it -- a pet standing on a pile hides
+ * the pile's glyph entirely, so newsym() shows the monster's presentation and
+ * never asks for the object's.
+ *
+ * MG_DETECT and the four MG_BW_* bits share the last arm in C. Neither is
+ * raised by an object glyph: MG_DETECT belongs to detectedMonsterGlyphInfo()
+ * and the MG_BW_* bits to terrainCmap() and engravingGlyph(), all three of
+ * which are recomputed on every draw already, so their attribute is as live as
+ * this one for a square in sight. It is not live for a remembered terrain
+ * square out of sight, which is why js/options.js refuses a 'use_inverse'
+ * toggle; the deferral remembered-glyph-caches-a-resolved-presentation records
+ * that gap, and the terrain layer is what closes it.
+ *
+ * MG_FEMALE is raised here for a statue, because reset_glyphmap()'s two female
+ * statue arms raise it and this resolves those arms. It is not raised for a
+ * female monster, which needs no glyph number to decide; the deferral
+ * wizmgender-never-inverts-a-female-monster records that.
+ */
+function print_glyph_attr(glyphflags, state) {
+    if (state.iflags?.wc_inverse === false) return ATR_NONE;
+    if (((glyphflags & MG_OBJPILE) && state.iflags?.hilite_pile)
+        || ((glyphflags & MG_FEMALE) && state.wizard
+            && state.iflags?.wizmgender)) {
+        return ATR_INVERSE;
+    }
+    return ATR_NONE;
+}
+
+/**
+ * C refs: display.c reset_glyphmap() (2739-3086), its eight object arms and
+ * the closing colour clamp at 3072-3078; and display.c map_glyphinfo()
+ * (2594-2655), which copies the resolved entry and turns sym.symidx into the
+ * ttychar the window port prints.
+ *
+ * C rebuilds glyphmap[] for every glyph at once and reads the entry back at
+ * print time. This port resolves one glyph on demand, which is the same thing
+ * for every path a running game takes: docrt() re-runs newsym() over the whole
+ * map, so the repaint after an option change re-resolves every square through
+ * the values then in force, exactly as C's rebuilt table does.
+ *
+ * Eight arms are ported, and only those, so the guard rejects everything else.
+ * C's chain is one descending run over the whole enum, and the object arms are
+ * not contiguous within it: GLYPH_OBJ_OFF (2968) and GLYPH_BODY_OFF (3004) sit
+ * below every cmap arm. glyph_is_object() supplies the bounds the intervening
+ * arms would otherwise have supplied.
+ *
+ * Two of C's terms are absent because no ported path can make them true.
+ * has_rogue_color needs gc.currentgraphics == ROGUESET with IBM symbol
+ * handling, and the GMAP_ROGUELEVEL clamp needs Is_rogue_level(&u.uz); no
+ * ported path reaches the rogue level, and js/display.js reglyph_darkroom()
+ * already refuses the level for the same reason. The clamp's remaining term,
+ * !iflags.use_color, is recorderMapColor()'s mapColorEnabled() test.
+ */
+export function map_glyphinfo(glyph, state = game) {
+    if (!glyph_is_object(glyph)) {
+        throw new TypeError(
+            `map_glyphinfo() resolves object glyphs only, not ${glyph}`,
+        );
+    }
+    let offset;
+    let symbol;
+    let color;
+    let glyphflags;
+    if ((offset = glyph - GLYPH_STATUE_FEM_PILETOP_OFF) >= 0) {
+        symbol = statueSymbol(offset, state);
+        color = statueColor(state);
+        glyphflags = MG_STATUE | MG_FEMALE | MG_OBJPILE;
+    } else if ((offset = glyph - GLYPH_STATUE_MALE_PILETOP_OFF) >= 0) {
+        symbol = statueSymbol(offset, state);
+        color = statueColor(state);
+        glyphflags = MG_STATUE | MG_MALE | MG_OBJPILE;
+    } else if ((offset = glyph - GLYPH_BODY_PILETOP_OFF) >= 0) {
+        symbol = corpseSymbol(state);
+        color = state.mons?.[offset]?.mcolor ?? NO_COLOR;
+        glyphflags = MG_CORPSE | MG_OBJPILE;
+    } else if ((offset = glyph - GLYPH_OBJ_PILETOP_OFF) >= 0) {
+        symbol = objectSymbol(offset, state);
+        color = state.objects?.[offset]?.oc_color ?? NO_COLOR;
+        glyphflags = MG_OBJPILE;
+    } else if ((offset = glyph - GLYPH_STATUE_FEM_OFF) >= 0) {
+        symbol = statueSymbol(offset, state);
+        color = statueColor(state);
+        glyphflags = MG_STATUE | MG_FEMALE;
+    } else if ((offset = glyph - GLYPH_STATUE_MALE_OFF) >= 0) {
+        symbol = statueSymbol(offset, state);
+        color = statueColor(state);
+        glyphflags = MG_STATUE | MG_MALE;
+    } else if ((offset = glyph - GLYPH_OBJ_OFF) >= 0) {
+        symbol = objectSymbol(offset, state);
+        color = state.objects?.[offset]?.oc_color ?? NO_COLOR;
+        glyphflags = 0;
+    } else {
+        offset = glyph - GLYPH_BODY_OFF;
+        symbol = corpseSymbol(state);
+        color = state.mons?.[offset]?.mcolor ?? NO_COLOR;
+        glyphflags = MG_CORPSE;
+    }
+    const presentation = glyphPresentation(symbol, color, state);
+    const attr = print_glyph_attr(glyphflags, state);
+    if (attr) presentation.attr = attr;
+    // The glyph number itself, which is what C stores in levl[x][y].glyph.
     // Non-enumerable for terrainCmap()'s reason: every existing copy of a
     // presentation record keeps the shape it already had.
-    Object.defineProperty(glyph, 'objectGlyphId', {
-        value: piletop ? `${glyphIdentity}:piletop` : glyphIdentity,
-    });
-    if (piletop
-        && state.iflags?.hilite_pile
-        && state.iflags?.wc_inverse !== false) {
-        glyph.attr = ATR_INVERSE;
+    Object.defineProperty(presentation, 'glyph', { value: glyph });
+    return presentation;
+}
+
+// display.c reset_glyphmap()'s two statue arms: mons[offset].mlet + SYM_OFF_M
+// for the symbol and obj_color(STATUE) for the colour, so every statue takes
+// the statue object's colour and the depicted species' class letter.
+function statueSymbol(mnum, state) {
+    const species = state.mons?.[mnum];
+    if (!species) {
+        throw new Error(
+            'statue display requires the complete monster catalog',
+        );
     }
+    return monster_class_symbol(species.mlet, state);
+}
+
+function statueColor(state) {
+    return state.objects?.[STATUE]?.oc_color ?? NO_COLOR;
+}
+
+// display.c reset_glyphmap()'s two body arms:
+// objects[CORPSE].oc_class + SYM_OFF_O. The class carries the symbol; the
+// species only chooses the colour, through mon_color(offset).
+function corpseSymbol(state) {
+    return object_class_symbol(FOOD_CLASS, state, CORPSE);
+}
+
+// display.c reset_glyphmap()'s two object arms:
+// objects[offset].oc_class + SYM_OFF_O, redirected to SYM_BOULDER + SYM_OFF_X
+// when the offset is BOULDER. `offset` is an otyp for an ordinary object and
+// an oclass for a generic one, and objects[] carries a class placeholder row
+// at each class index, so one lookup answers both.
+function objectSymbol(otyp, state) {
+    if (otyp === BOULDER) return misc_symbol(SYM_BOULDER, state);
+    const type = state.objects?.[otyp];
+    if (!type) {
+        throw new Error(
+            'object display requires the complete object catalog',
+        );
+    }
+    return object_class_symbol(type.oc_class, state, otyp);
+}
+
+/**
+ * C ref: display.h obj_to_glyph() (963-968) with Hallucination false, followed
+ * by the map_glyphinfo() resolution of the number it returns. Its four macros
+ * number a statue by corpsenm and gender (950-961), a corpse by corpsenm
+ * (937-939), a generic object by oclass (940-942) and every other object by
+ * otyp (943-945), each in its own range or its pile-top range. Two objects
+ * share a glyph number only when all of that agrees, which is what
+ * same_remembered_glyph() relies on for lock.c:584.
+ *
+ * obj_to_glyph() below routes the hallucinating cases elsewhere, so the STATUE
+ * test here reaches statue_to_glyph()'s !Hallucination arm only.
+ */
+export function object_glyph_info(obj, state = game) {
+    if (!obj) throw new TypeError('object_glyph_info requires an object');
+    const glyph = map_glyphinfo(
+        obj.otyp === STATUE
+            ? statue_to_glyph(obj, state)
+            : obj.otyp === CORPSE
+                ? corpse_to_glyph(obj, state)
+                : object_is_generic(obj)
+                    ? generic_obj_to_glyph(obj, state)
+                    : normal_obj_to_glyph(obj, state),
+        state,
+    );
     if (!state.a11y?.glyph_updates) return glyph;
+    return withObjectAccessibility(glyph, obj, state);
+}
+
+// The accessibility sidecars object_glyph_info() adds, kept apart from the
+// glyph resolution because they describe the object rather than the number:
+// glyph_to_obj() would recover an ordinary object's otyp from the number, but
+// not a zeroobj mimic's mappearance.
+function withObjectAccessibility(glyph, obj, state) {
+    const generic = object_is_generic(obj);
     // glyph_to_obj() recovers the generic class index from a generic glyph.
     // Class zero is outside that glyph range, so zeroobj gem/spellbook
     // disguises encode STRANGE_OBJECT rather than their mappearance.
@@ -1221,6 +1504,14 @@ export function object_glyph_info(obj, state = game) {
 // right now: the statue test comes first and carries its own hallucination
 // arm, so a hallucinated statue draws a random monster rather than a random
 // object. Every branch consumes the display RNG exactly as the macro does.
+//
+// C returns the glyph number and leaves the resolution to whoever prints it;
+// this returns the resolved presentation, because both consumers take one --
+// show_glyph_cell(), the port's glyph buffer, and tmp_at()'s frame stack in
+// js/zap.js. The number is still there, non-enumerable, on every presentation
+// map_glyphinfo() resolves. The hallucinating arms are the reason this cannot
+// simply be map_glyphinfo(number): a hallucinated statue's number is in the
+// monster ranges, which map_glyphinfo() does not resolve.
 export function obj_to_glyph(obj, state = game, displayRandom = undefined) {
     if (obj.otyp === STATUE) {
         return heroHallucinating(state)
@@ -1460,15 +1751,25 @@ export function show_glyph_cell(x, y, glyph) {
 
 /**
  * Convert a live glyph-presentation record into the persistent levl glyph
- * record used by map memory.  The input must use display.js presentation
- * fields (`dec`, optional browser/RGB metadata); the result uses the
- * persistent `decgfx` field. Pass `trap` only when the remembered layer itself
- * represents that trap; hidden traps beneath another remembered layer must not
- * contribute their logical identity. The cmap index, the accessibility
- * identity and the accessibility subject are canonical remembered-glyph state
- * -- the first is what C's glyph number carries for a piece of terrain, the
- * other two describe hero-memory mimics and hiders -- so this boundary copies
- * all three sidecars explicitly.
+ * record used by map memory.
+ *
+ * One layer has converted to what C stores: an object square keeps the glyph
+ * number display.h obj_to_glyph() produced and nothing else, so the character,
+ * colour and attribute are re-derived from it by map_glyphinfo() at every
+ * draw. Every other layer -- terrain, traps, engravings, the two mimic
+ * disguises -- still keeps a finished presentation, resolved under the option
+ * values in force when the square was recorded. That is why the 'color' arm of
+ * the options menu keeps a refusal while 'hilite_pile' no longer needs one,
+ * and it is what the terrain slice has left to do.
+ *
+ * The presentation input must use display.js fields (`dec`, optional
+ * browser/RGB metadata); the result uses the persistent `decgfx` field. Pass
+ * `trap` only when the remembered layer itself represents that trap; hidden
+ * traps beneath another remembered layer must not contribute their logical
+ * identity. The cmap index, the accessibility identity and the accessibility
+ * subject are canonical remembered-glyph state -- the first is what C's glyph
+ * number carries for a piece of terrain, the other two describe hero-memory
+ * mimics and hiders -- so this boundary copies all three sidecars explicitly.
  */
 export function remembered_glyph_from_presentation(glyph, trap = null) {
     if (!glyph || typeof glyph !== 'object'
@@ -1477,37 +1778,35 @@ export function remembered_glyph_from_presentation(glyph, trap = null) {
             'remembered glyph conversion requires a presentation record',
         );
     }
-    const remembered = {
-        ch: glyph.ch,
-        color: glyph.color,
-        decgfx: glyph.dec,
-        displayCh: glyph.displayCh ?? null,
-    };
+    const remembered = Number.isInteger(glyph.glyph)
+        // C's levl[x][y].glyph for an object square, unresolved. No presentation
+        // field rides along: newsym()'s show_mem arm and feel_location() both
+        // resolve this number afresh, which is what lets a repaint after an
+        // option change draw the square under the new values.
+        ? { glyph: glyph.glyph }
+        : {
+            ch: glyph.ch,
+            color: glyph.color,
+            decgfx: glyph.dec,
+            displayCh: glyph.displayCh ?? null,
+        };
     // C stores a logical glyph number in levl[x][y].glyph.  Presentation can
     // collide after symbol customization, so retain the trap identity needed
     // by detect.c:find_trap() in the same canonical memory record.
     if (trap) remembered.trapType = trap.ttyp;
-    // The two object marks are equally canonical and equally uncopyable from
-    // presentation: `ch` and `color` cannot say "an object is remembered
-    // here" once symbol customization lets an object and a piece of terrain
-    // draw the same cell.
-    if (glyph.objectGlyph) remembered.objectGlyph = true;
-    if (glyph.genericObject) remembered.genericObject = true;
-    if (glyph.attr) remembered.attr = glyph.attr;
-    if (glyph.displayColor) remembered.displayColor = glyph.displayColor;
-    if (glyph.rgb) remembered.rgb = [...glyph.rgb];
+    if (!Number.isInteger(glyph.glyph)) {
+        if (glyph.attr) remembered.attr = glyph.attr;
+        if (glyph.displayColor) remembered.displayColor = glyph.displayColor;
+        if (glyph.rgb) remembered.rgb = [...glyph.rgb];
+    }
     // `cmap` is the index terrainCmap() drew from, which is exactly what
     // cmap_to_glyph() encodes in levl[x][y].glyph. display.c feel_location()
     // (893-897) and reglyph_darkroom() (1826-1848) both ask map memory which
     // cmap it holds, and presentation cannot answer once reglyph_darkroom()
     // has made S_room and S_darkroom draw the same byte in the same colour.
-    // `objectGlyphId` is the same thing one layer up: what obj_to_glyph()
-    // encodes for an object, which two objects of one class and colour do not
-    // share. All four stay non-enumerable for terrainCmap()'s reason: every
-    // existing copy of a remembered record keeps the shape it already had.
-    for (const field of [
-        'cmap', 'objectGlyphId', 'a11yIdentity', 'a11ySubject',
-    ]) {
+    // All three stay non-enumerable for terrainCmap()'s reason: every existing
+    // copy of a remembered record keeps the shape it already had.
+    for (const field of ['cmap', 'a11yIdentity', 'a11ySubject']) {
         if (glyph[field] !== undefined) {
             Object.defineProperty(remembered, field, {
                 configurable: true,
@@ -1518,29 +1817,52 @@ export function remembered_glyph_from_presentation(glyph, trap = null) {
     return remembered;
 }
 
+/**
+ * What to draw for a square the hero only remembers. C has one answer --
+ * show_glyph(x, y, levl[x][y].glyph), at newsym()'s show_mem label
+ * (display.c:1094-1095) -- because the number it stores is resolved at print
+ * time. This port has two, because only the object layer stores that number:
+ * an object square is resolved through map_glyphinfo() under the option values
+ * in force now, and every other layer replays the presentation it was recorded
+ * with. Retiring the second half is the terrain slice's work, and this is the
+ * seam it will close.
+ */
+export function remembered_glyph_presentation(remembered, state = game) {
+    if (Number.isInteger(remembered.glyph))
+        return map_glyphinfo(remembered.glyph, state);
+    return {
+        ch: remembered.ch,
+        color: remembered.color,
+        dec: remembered.decgfx,
+        attr: remembered.attr ?? 0,
+        displayCh: remembered.displayCh,
+        displayColor: remembered.displayColor ?? null,
+        rgb: remembered.rgb ? [...remembered.rgb] : undefined,
+    };
+}
+
 // Every field of a remembered record that carries part of the glyph number C
 // would have stored. `rgb` is an array and is compared separately below.
 const REMEMBERED_GLYPH_IDENTITY_FIELDS = Object.freeze([
-    'cmap', 'objectGlyphId', 'ch', 'color', 'decgfx', 'displayCh',
-    'displayColor', 'attr', 'trapType', 'objectGlyph', 'genericObject',
-    'invisible_monster',
+    'glyph', 'cmap', 'ch', 'color', 'decgfx', 'displayCh',
+    'displayColor', 'attr', 'trapType', 'invisible_monster',
 ]);
 
 /**
  * C ref: lock.c pick_lock() (579, 584), which holds `int oldglyph =
  * door->glyph` across a feel_location() call and asks whether it changed. C
  * compares two glyph numbers with `!=`; this port stores a presentation record
- * that every map-memory write replaces with a fresh object, so `!==` would
- * answer "changed" for a square feel_location() left exactly as it found it.
+ * for every layer but the object one, and every map-memory write replaces that
+ * record with a fresh object, so `!==` would answer "changed" for a square
+ * feel_location() left exactly as it found it.
  *
- * Compare the canonical identity instead. `cmap` separates two pieces of
- * terrain that draw the same byte and `objectGlyphId` separates two objects
- * that do; between them they cover every presentation this port writes into
- * map memory, because terrainCmap() stamps the first, object_glyph_info()
- * stamps the second, and monster_glyph_info()'s two disguises that reach
- * memory route through one or the other. The remaining fields separate the
- * layers and catch a customized symbol set that has made two of them draw
- * alike.
+ * Compare the canonical identity instead. `glyph` is C's own number and settles
+ * an object square outright; `cmap` separates two pieces of terrain that draw
+ * the same byte. Between them they cover every record this port writes into map
+ * memory, because map_glyphinfo() stamps the first, terrainCmap() stamps the
+ * second, and monster_glyph_info()'s two disguises that reach memory route
+ * through one or the other. The remaining fields separate the layers and catch
+ * a customized symbol set that has made two of them draw alike.
  */
 export function same_remembered_glyph(before, after) {
     if (before === after) return true;
@@ -1935,37 +2257,6 @@ export function unmap_object(x, y, state = game) {
 }
 
 /**
- * C ref: display.h glyph_is_generic_object(). C asks the question of the
- * glyph number stored in levl[x][y].glyph; the port asks it of the mark
- * object_glyph_info() puts on a generic object's presentation and
- * remembered_glyph_from_presentation() carries into map memory.
- */
-export function glyph_is_generic_object(location) {
-    return Boolean(location?.remembered_glyph?.genericObject);
-}
-
-/**
- * C ref: display.h glyph_is_object() (877-879), the union of
- * glyph_is_normal_object(), glyph_is_generic_object(), glyph_is_statue() and
- * glyph_is_body(). C asks it of the glyph number in levl[x][y].glyph; the port
- * asks it of the mark object_glyph_info() puts on every object presentation
- * and remembered_glyph_from_presentation() carries into map memory.
- *
- * The mark answers for the whole union rather than one of its four terms
- * because object_glyph_info() is the single producer of every object
- * presentation this port stores, statues and corpses included, and map memory
- * is written only by handing one of its results to
- * remembered_glyph_from_presentation().
- *
- * dogmove.c dog_move() is the caller: it asks whether the hero remembers an
- * object where a pet has just stepped, which is exactly the question glyph_at()
- * could not answer there because the pet is already on the square.
- */
-export function glyph_is_object(location) {
-    return Boolean(location?.remembered_glyph?.objectGlyph);
-}
-
-/**
  * C ref: display.c see_nearby_objects() (1574-1604). Mark the top object of
  * each nearby pile as seen up close, and redraw the ones the map still
  * remembers in their generic form. dungeon.c u_on_newpos() calls this on
@@ -2006,8 +2297,9 @@ export function see_nearby_objects(state = game) {
 
             observe_object(object, state);
             // operate on remembered glyph rather than current one
-            if (glyph_is_generic_object(state.level.at(ix, iy)))
-                newsym(ix, iy);
+            if (glyph_is_generic_object(
+                state.level.at(ix, iy).remembered_glyph?.glyph,
+            )) newsym(ix, iy);
         }
     }
 }
@@ -2264,17 +2556,9 @@ export function newsym(x, y) {
             return;
         }
         // display.c:1094-1095, the show_mem label: memory as it stands.
-        show_glyph_cell(x, y, {
-            ch: loc.remembered_glyph.ch,
-            color: loc.remembered_glyph.color,
-            dec: loc.remembered_glyph.decgfx,
-            attr: loc.remembered_glyph.attr ?? 0,
-            displayCh: loc.remembered_glyph.displayCh,
-            displayColor: loc.remembered_glyph.displayColor ?? null,
-            rgb: loc.remembered_glyph.rgb
-                ? [...loc.remembered_glyph.rgb]
-                : undefined,
-        });
+        show_glyph_cell(
+            x, y, remembered_glyph_presentation(loc.remembered_glyph, game),
+        );
     }
 }
 

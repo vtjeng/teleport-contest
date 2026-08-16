@@ -64,6 +64,7 @@ import {
     PM_ROTHE,
 } from '../js/monsters.js';
 import { place_monster } from '../js/monst.js';
+import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
 import {
     BOULDER,
     CREDIT_CARD,
@@ -1591,9 +1592,12 @@ function rememberedPileState() {
     state.level.objects[destination.x][destination.y] = top;
     setup.top = top;
     state.level.flags = { hero_memory: true };
-    // Map memory holding an object is what glyph_is_object() answers to.
+    // Map memory holding an object is what glyph_is_object() answers to, and
+    // what it reads is C's levl[x][y].glyph. display.h normal_obj_to_glyph()
+    // numbers the rock by otyp into the pile-top range, because the boulder
+    // below it makes obj_is_piletop() true.
     state.level.at(destination.x, destination.y).remembered_glyph = {
-        objectGlyph: true,
+        glyph: GLYPH_OBJ_PILETOP_OFF + ROCK,
     };
     // distant_name() -> donameFresh() -> xnameFresh() reads the object
     // catalog, the hero's blindness, and the discoveries list. Zero choices

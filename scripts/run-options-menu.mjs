@@ -16,14 +16,16 @@
 // reset_needed_visuals() repainting once the loop ends. The fifth commits the
 // one compound pick whose handler this port runs.
 //
-// The last six type 'O' on its own, which doset_simple() answers with
+// The last nine type 'O' on its own, which doset_simple() answers with
 // options.c doset_simple_menu()'s two-page menu. The first two walk to the
 // second page and leave without a pick: one commits an empty selection with a
 // space and the other cancels with Escape, and between them they cover '>' and
-// '<' as well. The last four take picks, so they run the pick loop:
+// '<' as well. The rest take picks, so they run the pick loop:
 // doset_simple_menu()'s three arms, doset_simple()'s do/while around them, the
 // give_opt_msg bracket that silences each toggle's message, and the two flags
-// reset_needed_visuals() spends afterwards.
+// reset_needed_visuals() spends afterwards. One of them walks the hero first,
+// so that the repaint the second flag triggers has a square to redraw that
+// only map memory can answer for.
 
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
@@ -31,6 +33,8 @@ import { fileURLToPath } from 'node:url';
 
 import { game } from '../js/gstate.js';
 import { COIN_CLASS, POTION_CLASS, WAND_CLASS } from '../js/objects.js';
+import { ATR_INVERSE } from '../js/terminal.js';
+import { cansee } from '../js/vision.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
 import { runFreshMatrix } from './fresh-matrix.mjs';
@@ -139,11 +143,40 @@ const RETOGGLE_PICK = ' Oee\x1b\x1b';
 
 // The two picks that raise go.opt_need_glyph_reset and so ask C for a
 // reset_glyphmap(gm_optionchange): page 2's 'f' is 'hilite_pile' and its 'g' is
-// 'showrace'. C rebuilds glyphmap[] from them; this port has no such table and
-// maps each glyph as it draws it, so the repaint that follows is the whole of
-// its answer. 'showrace' is what shows whether the two agree -- it redraws the
-// hero as her race's monster letter, an 'h' for this recipe's dwarf.
+// 'showrace'. C rebuilds glyphmap[] from them and repaints. This port keeps no
+// such table -- js/display.js map_glyphinfo() resolves one glyph number on
+// demand -- and its docrt() re-runs newsym() over every square, so the two
+// together are its answer. That is true only because map memory holds the
+// unresolved number for the layers this recipe's picks touch; the repaint
+// alone is not enough, which is why the recipe below it exists.
+//
+// 'showrace' is what shows whether the two agree here -- it redraws the hero
+// as her race's monster letter, an 'h' for this recipe's dwarf. Both squares
+// this recipe repaints are in sight, so it cannot tell a re-derived memory
+// from a replayed one.
 const GLYPH_RESET_PICKS = ' O>f>g> \x1b';
+
+// The case the recipe above cannot make, and the one that separates this port
+// from the argument reverted at 57a84f4: a pile the hero remembers and cannot
+// see, repainted after 'hilite_pile' goes on.
+//
+// Its own seed, clock and hero. The hero walks out of her room's west doorway
+// into the dark corridor beyond, drops her dagger and her long sword on one
+// square so that display.h obj_is_piletop() answers TRUE for the top of them,
+// then walks two squares further west. A corridor square two away is out of
+// sight, so the pile survives only in map memory, and nothing between the
+// pick and the repaint can redraw it from the level. Page 2's 'f' is
+// 'hilite_pile'; the space commits page 1 with nothing picked, which ends
+// doset_simple()'s loop and spends go.opt_need_glyph_reset, and the Escape is
+// the key the recorder has to read at the command prompt for the repainted
+// screen to be captured.
+const REMEMBERED_PILE_SEED = 6193044;
+const REMEMBERED_PILE_DATETIME = '20281114093000';
+const REMEMBERED_PILE_PICK = ' khhhdadbhhO>f \x1b';
+// Its eight turn-spending keys: five steps, two drops and one more step. The
+// ninth turn is the one the menu opens on, and doset_simple() must not spend
+// it.
+const PILE_WALK_TURNS = 9;
 
 // The give_opt_msg bracket, which needs both menus to show. 'O' turns
 // 'autoopen' off without a word and leaves; 'm' 'O' then opens doset(), where
@@ -240,6 +273,22 @@ function pickNethackrc() {
             + 'align:lawful',
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:cat,!acoustics',
+        'OPTIONS=menu_headings:bold',
+        '',
+    ].join('\n');
+}
+
+// The remembered-pile recipe's base. It starts no pet, because a pet walking
+// onto the pile would draw its own glyph over the square and put the pile back
+// in the display buffer from the level rather than from memory; and it turns
+// autopickup off, because the two dropped objects have to stay on the floor
+// when the hero walks back over neither of them.
+function rememberedPileNethackrc() {
+    return [
+        'OPTIONS=name:Pileton,role:Valkyrie,race:human,gender:female,'
+            + 'align:lawful',
+        'OPTIONS=!legacy,!tutorial,!splash_screen',
+        'OPTIONS=pettype:none,!acoustics,!autopickup',
         'OPTIONS=menu_headings:bold',
         '',
     ].join('\n');
@@ -390,19 +439,17 @@ export function loadOptionsMenuRecipes() {
         },
         {
             name: 'simple menu glyph reset',
-            // 57a84f4 restored reset_needed_visuals()'s
-            // reset_glyphmap(gm_optionchange) refusal after 0f7b6cf had
-            // wrongly retired it, and from then on this port stops at this
-            // recipe's first pick, so no differential over it can pass. It
-            // stays defined here as the case just outside the options-menu
-            // limit; its inputs and expected failure are recorded on the
-            // deferral remembered-glyph-caches-a-resolved-presentation, which
-            // owns the repaint that would let it run again.
-            outsideTheLimit: true,
             seed: PICK_SEED,
             datetime: PICK_DATETIME,
             nethackrc: pickNethackrc(),
             moves: GLYPH_RESET_PICKS,
+        },
+        {
+            name: 'remembered pile repainted by a glyph reset',
+            seed: REMEMBERED_PILE_SEED,
+            datetime: REMEMBERED_PILE_DATETIME,
+            nethackrc: rememberedPileNethackrc(),
+            moves: REMEMBERED_PILE_PICK,
         },
         {
             name: 'blank status under a class menu',
@@ -422,9 +469,8 @@ export function loadOptionsMenuRecipes() {
     // record-session preserves the staged install between one recipe's
     // segments, and each of these leaves the recorder stopped inside a live
     // menu, so each gets its own recipe and fresh install.
-    return segments.map(({ name, outsideTheLimit = false, ...segment }) => ({
+    return segments.map(({ name, ...segment }) => ({
         name,
-        outsideTheLimit,
         recipe: validateCleanRecipe({
             version: 5,
             segments: [segment],
@@ -465,8 +511,13 @@ export async function verifyOptionsMenuSegment(segment) {
     // Neither shape of run may stop early: the paging ones stay inside
     // select_menu(), and the committing one runs the whole pick loop.
     if (boundary) throw boundary;
-    // doset() spends no turn, so the hero must still be on the first one.
-    if (game.moves !== 1)
+    // doset() spends no turn, so the hero must still be on the turn her keys
+    // before the menu left her on. Every recipe but one types nothing but
+    // menu keys, so that turn is the first; the remembered-pile one walks and
+    // drops first, and counts its own turns below.
+    const turnsBeforeTheMenu
+        = segment.moves === REMEMBERED_PILE_PICK ? PILE_WALK_TURNS : 1;
+    if (game.moves !== turnsBeforeTheMenu)
         throw new Error('opening the options menu advanced the turn counter');
 
     if (segment.moves === BLANK_STATUS_CLASS_MENU
@@ -493,6 +544,48 @@ export async function verifyOptionsMenuSegment(segment) {
             throw new Error('the command returned with the status still dirty');
         if (game.iflags.wc2_statuslines !== statusRows)
             throw new Error('the recipe ran at the wrong status height');
+        return;
+    }
+
+    if (segment.moves === GLYPH_RESET_PICKS) {
+        // Both picks share options.c:5379-5385, so both raise
+        // go.opt_need_glyph_reset, and reset_needed_visuals() spends it.
+        if (game.iflags.hilite_pile !== true || game.flags.showrace !== true)
+            throw new Error('a glyph-reset pick was not applied');
+        if (game.go.opt_need_glyph_reset !== false
+            || game.go.opt_need_redraw !== false) {
+            throw new Error('reset_needed_visuals() left a repair pending');
+        }
+        return;
+    }
+
+    if (segment.moves === REMEMBERED_PILE_PICK) {
+        if (game.iflags.hilite_pile !== true)
+            throw new Error("the pick loop left 'hilite_pile' off");
+        if (game.go.opt_need_glyph_reset !== false)
+            throw new Error('reset_needed_visuals() left a repair pending');
+        // The square the recipe is about: two objects the hero dropped, two
+        // squares behind her in a dark corridor. The screens the differential
+        // compares carry the inverse cell, but only if all three of these
+        // hold, and each one is a separate way for the recipe to stop testing
+        // what it is named for.
+        const x = game.u.ux + 2;
+        const y = game.u.uy;
+        const pile = game.level.objects[x][y];
+        if (!pile?.nexthere)
+            throw new Error('the recipe left no pile behind the hero');
+        if (cansee(x, y))
+            throw new Error('the hero can still see the pile she dropped');
+        if (!Number.isInteger(game.level.at(x, y).remembered_glyph?.glyph)) {
+            throw new Error(
+                'the pile square holds no remembered object glyph number',
+            );
+        }
+        if (game.level.at(x, y).disp_attr !== ATR_INVERSE) {
+            throw new Error(
+                'the repaint did not highlight the remembered pile',
+            );
+        }
         return;
     }
 
@@ -597,12 +690,9 @@ export async function verifyOptionsMenuSegment(segment) {
     }
 }
 
-// Every recipe but the one marked outsideTheLimit, which the port refuses at
-// its first pick; the recipe itself carries why.
 export async function runOptionsMenuMatrix() {
     return runFreshMatrix({
         entries: loadOptionsMenuRecipes()
-            .filter((entry) => !entry.outsideTheLimit)
             .map(({ name, recipe }) => ({ label: name, recipe })),
         summaryLabel: 'OPTIONS MENU',
         verifySegment: verifyOptionsMenuSegment,

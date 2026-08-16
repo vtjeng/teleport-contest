@@ -88,7 +88,10 @@ import {
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { GameMap } from '../js/game.js';
-import { flush_screen } from '../js/display.js';
+import {
+    flush_screen,
+    remembered_glyph_presentation,
+} from '../js/display.js';
 import {
     CORPSE,
     ARMOR_CLASS,
@@ -478,9 +481,16 @@ test('blind obstacle refusal records exact tactile viewing vectors',
                         expectedSeenvMatrix[1 - dy][dx + 1],
                     );
                     assert.ok(destination.remembered_glyph);
+                    // Whatever layer _map_location() picked, the cell drawn
+                    // has to be the cell remembered. Some of these squares
+                    // hold a floor object, whose memory is an unresolved
+                    // glyph number rather than a presentation.
                     assert.equal(
                         destination.disp_ch,
-                        destination.remembered_glyph.ch,
+                        remembered_glyph_presentation(
+                            destination.remembered_glyph,
+                            game,
+                        ).ch,
                     );
                     assert.equal(
                         game.level.lastseentyp[x][y],

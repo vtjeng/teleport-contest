@@ -285,6 +285,16 @@ function tactileSearchRandom(expectedBound) {
 }
 
 function rememberedGlyphContract(glyph, trapType = null) {
+    // An object square stores C's own levl[x][y].glyph and nothing else, so
+    // the presentation is re-derived at every draw; every other layer still
+    // stores the presentation it was recorded with. This file's clutter case
+    // is an object square whose custom symbol collides with a trap's, so it
+    // takes the first arm.
+    if (Number.isInteger(glyph.glyph)) {
+        const remembered = { glyph: glyph.glyph };
+        if (trapType !== null) remembered.trapType = trapType;
+        return remembered;
+    }
     const remembered = {
         ch: glyph.ch,
         color: glyph.color,
@@ -292,10 +302,6 @@ function rememberedGlyphContract(glyph, trapType = null) {
         displayCh: glyph.displayCh ?? null,
     };
     if (trapType !== null) remembered.trapType = trapType;
-    // display.h glyph_is_object(): an object presentation carries the mark
-    // into memory even when a custom symbol makes it look like terrain, which
-    // is the collision this file's clutter case constructs.
-    if (glyph.objectGlyph) remembered.objectGlyph = true;
     if (glyph.attr) remembered.attr = glyph.attr;
     if (glyph.displayColor)
         remembered.displayColor = glyph.displayColor;
