@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every entry is done, cannot-occur, later, or missing-with-a-refusal that stops above its branch's first write, draw or line. The production game runs every done path: scripts/run-pet-melee-attack.mjs replays six fresh C recordings that match call for call and screen for screen, and the development sessions seed0900 and seed0103 reach the same code. The three missing entries are refusals rather than gaps, each named in missingWorkByOwner, and QUALITY.json holds the one that needs a case just outside the goal's limit.",
-  "commitChecked": "b1f11c4e5803bff6a5658435b5b232993cd4e6dd",
+  "reason": "Every entry is done, cannot-occur, later, or missing-with-a-refusal that stops above its branch's first write, draw or line. The production game runs every done path: scripts/run-pet-melee-attack.mjs replays six fresh C recordings that match call for call and screen for screen, and the development sessions seed0900 and seed0103 reach the same code. The three missing entries are refusals rather than gaps, each named in missingWorkByOwner, and QUALITY.json holds the one that needs a case just outside the goal's limit. Re-verified at 8012570, the head of the correctness pass's four audit-fix commits. Those commits changed js/mhitm.js and js/uhitm.js, so the checklist no longer covered the head on its b1f11c4 stamp. Two conditions were re-read rather than re-stamped: every mattackm() arm outside the physical group still refuses, and passivemm()'s AD_ENCH arm moved from an unconditional stop to C's own guard, which entry 14 now records.",
+  "commitChecked": "8012570348ae2c44efc3451b53ecfa449c4013e4",
   "boundary": {
     "goalId": "pet-melee-attack",
     "startingCommit": "2b393bcc094605c8bf3917fe173f70686b96f128",
@@ -150,7 +150,7 @@
       "reachability": "Needs a defender whose first empty attack slot carries one of those damage types: an acid blob, a blue jelly, a floating eye. The boundary's valid inputs are an ordinary hostile, whose empty slot carries AD_PHYS with damn 0 and damd 0.",
       "owner": "js/mhitm.js passivemm(), refusals",
       "effects": "None; the damage roll C makes above the switch is spent first.",
-      "evidence": "scripts/mhitm.test.mjs and scripts/dogmove.test.mjs both reach the acid arm, the latter through dog_move() with a pet whose hit points clear the balk.",
+      "evidence": "scripts/mhitm.test.mjs and scripts/dogmove.test.mjs both reach the acid arm, the latter through dog_move() with a pet whose hit points clear the balk. Re-verified at 8012570 after the correctness pass: AD_ENCH no longer refuses unconditionally. cc49c93 ported C's own guard, mhitb && !mdef.mcan && mwep, and refuses inside it; mwep is null on every path mattackm() admits, so the arm is a no-op that runs rather than a stop, and the segment survives it. AD_ACID and the second switch's five types still refuse. The goal's second testable condition should therefore be read as refusing every other damage type that can act.",
       "status": "cannot-occur",
       "remaining": "Port erode_armor(), acid_damage(), drain_item(), mon_reflects(), paralyze_monst(), golemeffects(), healmon() and split_mon()."
     },
