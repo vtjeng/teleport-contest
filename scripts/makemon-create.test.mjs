@@ -112,6 +112,7 @@ import {
     PM_LICHEN,
     PM_LEPRECHAUN,
     PM_LONG_WORM,
+    PM_MARILITH,
     PM_MASTER_LICH,
     PM_MINOTAUR,
     PM_NAZGUL,
@@ -137,6 +138,7 @@ import {
     PM_VAMPIRE,
     PM_VAMPIRE_LEADER,
     PM_WHITE_UNICORN,
+    PM_WINGED_GARGOYLE,
     PM_WOODLAND_ELF,
     PM_YELLOW_LIGHT,
     PM_WOOD_NYMPH,
@@ -1291,6 +1293,83 @@ test('large humanoids can wear only mummy wrapping from generated body armor', (
     assert.equal(monster.misc_worn_check, W_ARMC);
     assert.equal(monster.invis_blkd, true);
     assert.equal(monster.minvis, false);
+});
+
+test('a winged gargoyle is refused every slot cantweararm() closes', () => {
+    // C ref: worn.c m_dowear():776-795. mondata.c breakarm():640-650 names
+    // PM_WINGED_GARGOYLE outright, so mondata.h cantweararm() (133) answers
+    // TRUE and can_wear_armor is FALSE for a form that is otherwise an
+    // ordinary MZ_HUMAN humanoid, which nothing else in either predicate
+    // refuses. That closes the shirt gate at 778, leaves the cloak gate at 784
+    // resting on obj.h WrappingAllowed() (444-446), which names the same
+    // species, and sends the suit call at 795 with RACE_EXCEPTION.
+    const state = initialLevelState();
+    const monster = newMonster({
+        data: state.mons[PM_WINGED_GARGOYLE],
+        mnum: PM_WINGED_GARGOYLE,
+        m_id: 9003,
+        mcanmove: true,
+    });
+    // One object per gated slot, plus a helmet from an ungated slot as the
+    // witness that this monster reached m_dowear_type() at all: every
+    // assertion below would also hold for a monster that returned at
+    // m_dowear():766-773. The suit is elven so that only worn.c
+    // racial_exception():1360-1373 rejecting a non-hobbit can refuse it; a
+    // suit call without RACE_EXCEPTION would put it on.
+    const [shirt, cloak, suit, helm] = [
+        T_SHIRT, ELVEN_CLOAK, ELVEN_MITHRIL_COAT, ORCISH_HELM,
+    ].map((otyp) => {
+        const obj = mksobj(otyp, false, false, {
+            state,
+            random: FIXED_OBJECT_ID_RANDOM,
+        });
+        add_to_minv(monster, obj, { state });
+        return obj;
+    });
+
+    m_dowear(monster, true, { state });
+
+    assert.equal(shirt.owornmask, 0);
+    assert.equal(cloak.owornmask, 0);
+    assert.equal(suit.owornmask, 0);
+    assert.equal(helm.owornmask, W_ARMH);
+    assert.equal(monster.misc_worn_check, W_ARMH);
+});
+
+test('a marilith is refused the cloak slot WrappingAllowed() closes', () => {
+    // C ref: worn.c m_dowear():784. A marilith is MZ_LARGE, so bigmonst()
+    // inside breakarm() already answers cantweararm() and can_wear_armor is
+    // FALSE; the cloak gate therefore rests on obj.h WrappingAllowed()
+    // (444-446) alone, and that macro names PM_MARILITH. A wrapping is the
+    // only cloak m_dowear_type():851-852 would consider above MZ_HUMAN, so it
+    // is the object that shows whether the gate opened.
+    const state = initialLevelState();
+    const monster = newMonster({
+        data: state.mons[PM_MARILITH],
+        mnum: PM_MARILITH,
+        m_id: 9004,
+        mcanmove: true,
+    });
+    const wrapping = mksobj(MUMMY_WRAPPING, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    // The same ungated-slot witness as the winged gargoyle above.
+    const helm = mksobj(ORCISH_HELM, false, false, {
+        state,
+        random: FIXED_OBJECT_ID_RANDOM,
+    });
+    add_to_minv(monster, wrapping, { state });
+    add_to_minv(monster, helm, { state });
+
+    m_dowear(monster, true, { state });
+
+    assert.equal(wrapping.owornmask, 0);
+    assert.equal(helm.owornmask, W_ARMH);
+    assert.equal(monster.misc_worn_check, W_ARMH);
+    // The wrapping stayed off, so worn.c update_mon_extrinsics() never blocked
+    // this monster's (absent) invisibility.
+    assert.equal(monster.invis_blkd, false);
 });
 
 test('discard_minvent reverses wrapping state only for a live monster', () => {

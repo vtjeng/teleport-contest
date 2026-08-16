@@ -113,6 +113,7 @@ import {
 } from './makemon.js';
 import {
     can_be_hatched,
+    cantweararm,
     emits_light,
     is_female,
     is_giant,
@@ -138,7 +139,6 @@ import {
     G_UNIQ,
     M1_AMORPHOUS,
     M1_ANIMAL,
-    M1_HUMANOID,
     M1_MINDLESS,
     M1_NOHANDS,
     M1_UNSOLID,
@@ -253,6 +253,7 @@ import {
 } from './monsters.js';
 import {
     ARM_BONUS,
+    WrappingAllowed,
     mkobj,
     mkobj_at,
     mksobj,
@@ -496,8 +497,6 @@ const M2_PRINCE = 0x00000800;
 const M2_SHAPESHIFTER = 0x00004000;
 const M2_STRONG = 0x04000000;
 const MR_STONE = 0x80;
-const MZ_LARGE = 3;
-const MZ_HUGE = 4;
 // include/monflag.h random-generation group flags.
 const G_LGROUP = 0x0040;
 const G_SGROUP = 0x0080;
@@ -1978,27 +1977,6 @@ function armorCategory(obj, state) {
         : undefined;
 }
 
-function slipsArmor(species) {
-    return species.mlet === S_VORTEX
-        || species.mlet === S_GHOST
-        || species.msize <= MZ_SMALL;
-}
-
-function cantWearArmor(species) {
-    if (slipsArmor(species)) return true;
-    return species.msize >= MZ_LARGE
-        || (species.msize > MZ_SMALL
-            && !(species.mflags1 & M1_HUMANOID));
-}
-
-function wrappingAllowed(species) {
-    return Boolean(species.mflags1 & M1_HUMANOID)
-        && species.msize >= MZ_SMALL
-        && species.msize <= MZ_HUGE
-        && species.mlet !== S_GHOST
-        && species.mlet !== S_CENTAUR;
-}
-
 // The supported initial-level subset contains only these horned species.
 function supportedSpeciesHasHorns(species) {
     return species.pmidx === PM_WHITE_UNICORN
@@ -2193,10 +2171,10 @@ export function m_dowear(monster, creation = false, env = {}) {
     }
 
     m_dowear_type(monster, W_AMUL, creation, wearEnv);
-    const canWearArmor = !cantWearArmor(species);
+    const canWearArmor = !cantweararm(species);
     if (canWearArmor && !(monster.misc_worn_check & W_ARM))
         m_dowear_type(monster, W_ARMU, creation, wearEnv);
-    if (canWearArmor || wrappingAllowed(species))
+    if (canWearArmor || WrappingAllowed(species))
         m_dowear_type(monster, W_ARMC, creation, wearEnv);
     m_dowear_type(monster, W_ARMH, creation, wearEnv);
     if (!monster.mw || !state.objects?.[monster.mw.otyp]?.oc_bimanual)
@@ -2204,6 +2182,11 @@ export function m_dowear(monster, creation = false, env = {}) {
     m_dowear_type(monster, W_ARMG, creation, wearEnv);
     if (!(bodyFlags & M1_SLITHY) && species.mlet !== S_CENTAUR)
         m_dowear_type(monster, W_ARMF, creation, wearEnv);
+    // C ref: worn.c m_dowear():792-795 splits this into two calls, passing
+    // FALSE when can_wear_armor holds and RACE_EXCEPTION (TRUE) when it does
+    // not. The suit slot itself is never skipped, so the branch carries no
+    // information beyond the negation folded in here: a form that cannot wear
+    // a suit is the one form allowed a racial exception to that refusal.
     m_dowear_type(monster, W_ARM, creation, wearEnv, !canWearArmor);
     return monster;
 }
