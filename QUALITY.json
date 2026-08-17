@@ -15099,6 +15099,131 @@
         }
       },
       "recordedAt": "2026-08-17T11:19:17.197Z"
+    },
+    {
+      "kind": "review",
+      "head": "4bca3b7defa6a577ab88345a1a5235e98865d436",
+      "auditedRange": "6f718acbef51aab433293c82701b23a87a2e66e0..4bca3b7defa6a577ab88345a1a5235e98865d436",
+      "checklist": {
+        "covers": false,
+        "path": null,
+        "commitChecked": null,
+        "reason": "The slice needed no checklist: one game system, about 110 lines of C, and one agent session, so none of the three AGENTS.md triggers applied. The previous goal's checklist was retired at its close."
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "world-effects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 14 raw, 12 deduplicated, 6 confirmed, 5 applied, 1 deferred, 6 rejected, 0 unverified; mutation: 0 survivors of 9 mutants. Counts: 14 raw, 12 deduplicated, 6 confirmed, 5 applied, 1 deferred, 6 rejected, 0 unverified; mutation: 9 of 9 relational, logical and boolean mutants killed over the range and no mutants at all over the audit-fix delta, with the slice's four declared integer survivors left standing. The goal's closing pass, run because the goal closes rather than because a threshold forced it; the gate read WATCH at 1 of 10 commits and 293 of 1,000 lines. Half the deduplicated findings were rejected with counter-evidence, the highest proportion any pass here has returned, and the adjudicators earned it: four of the six were refuted on reachability rather than on mechanism.\n\nThe result that mattered is a live escape the implementer had reasoned away. The comment above the elapsed-turn nh_timeout call said the live monster scan cannot take a due corpse off the floor without refusing first, since monster pickup is unported. Monster pickup is ported. mon.c mpickstuff()'s corpse filter lets an M1_COLLECT monster take an acidic or petrifying corpse, and the corpse's ROT_CORPSE element stays in the queue at the same expiry, because obj_timer_checks() runs only for a nonzero timed and acts only on ice. So a turn the pre-turn preflight admitted can reach run_timers() with the corpse at OBJ_MINVENT, which it refuses, and UnsupportedHeroTimeoutBoundaryError is not in js/jsmain.js's boundary list: the segment would have lost every screen it had already matched rather than ending on the last one. advanceElapsedTurn() converts it now, as its two preflights already did. The same finding's sibling, that the comment's ':1009' pointer had drifted to :1023 and now lands inside preflightGetHungry()'s env, is fixed with a name-based reference.\n\nThe second production fix is a message. run_timers() is reached from goto_level()'s arrival and from nh_timeout()'s tail, and both raised a refusal hard-coded to \"elapsed-turn nh_timeout requires\", so a descent stopping on a carried corpse's timer pointed boundary triage at js/allmain.js. The class carries a site now, each call site names itself, and the two assertions that pin them cannot be satisfied by one string.\n\nThree of the six were test gaps, and the mutation runs found none of them. Only two of the nine timeout_funcs[] rows were pinned to their enum index, and the module-load guard checks only the table's length, which any permutation satisfies; a misaligned row would have made the port report the wrong C function in the boundary log that decides what is ported next. The integration fixture built its corpse from PM_LICHEN, which mkobj.c start_corpse_timeout() never schedules, so the one case tying the drain, the planning clone and the live newsym together stood on a queue state no recording can produce. And the dig recorder kept only the coordinates handed to newsym, so moving the redraw to the top of rot_corpse() passed the whole suite -- the redraw's position is this arm's only observable, since it writes no message and draws no random number.\n\nOne finding is deferred rather than tested: the new conversion is pinned by nothing, and two fixtures failed to reach mpickstuff()'s carry arm inside one turn. A gnome standing on the corpse never reaches it, because the arm runs from postmov() after a move; a gnome one square further out did not move at all, since a gnome's speed of 6 against NORMAL_SPEED 12 lets it act every other turn. Both attempts are recorded on live-timer-refusal-conversion-unpinned, which prefers a recording.\n\nThe development score is unchanged across every fix: 10 of 33 sessions, 1,802 screens, 126,961 random-number values and 1,821 cursors before and after, and scripts/run-corpse-rot.mjs still matches C over its three segments. Optional finders: concurrency was enabled, because the once-per-turn upkeep can run on a cloned state whose level cells are the live game's, and it returned no confirmed finding -- the previous goal's leak class was closed here by OBJ_AT()'s new state parameter and the newsym seam the plan binds to a no-op. Performance was not enabled, because the range adds one queue walk bounded by the due prefix. A clarity pass was not run: the pass's own comment findings were applied here, and the four wording findings it rejected were rejected as prose preference.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2143,
+        "counts": {
+          "raw": 14,
+          "deduplicated": 12,
+          "confirmed": 6,
+          "applied": 5,
+          "deferred": 1,
+          "rejected": 6,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 3,
+          "clarity": 0,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/allmain.js advanceElapsedTurn() had no conversion around its live finishElapsedTurn() call, and the comment justifying the omission was false: mon.c mpickstuff() is ported, and its corpse filter lets an M1_COLLECT monster take an acidic or petrifying corpse off the floor while the ROT_CORPSE element stays in the queue, so a turn the pre-turn preflight admitted reaches run_timers() with the corpse at OBJ_MINVENT. UnsupportedHeroTimeoutBoundaryError is not in js/jsmain.js's boundary list, so the segment would have lost every screen it had matched.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/timeout.js run_timers()'s refusal reported itself as an elapsed-turn stop from both its call sites, dropping the wording that told goto_level()'s arrival apart from nh_timeout()'s tail. A descent stopping on a carried corpse's timer pointed boundary triage at js/allmain.js. The refusal class carries a site now and each caller names itself.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/allmain.js:727's new comment cross-referenced ':1009' for the second timer preflight, but the same commit moved that call to :1023; line 1009 is inside preflightGetHungry()'s env literal, a different owner with a different refusal class. The reference is name-based now.",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/dig.js:93 No test asserts the property the atomic-refusal design rests on -- that `unportedRotCorpseReason(obj) === null` implies `rot_corpse(obj)` runs to completion. A floor corpse carrying `owornmask` is admitted by the preflight and then aborts inside obfree(), after obj_extract_self() has already taken it off both floor indexes.",
+            "counterEvidence": "evidence refute: The mechanical probe is accurate (unportedRotCorpseReason() checks where, Has_contents, unpaid, the hidden hero and the newsym seam, and js/invent.js:1636 demands setNotWorn after js/dig.js rot_organic() has already run obj_extract_self()), but the input it needs cannot exist, so the invariant the finding says is violated in fact holds for every reachable state. Counter-evidence: nethack-c/upstream/src/shk.c obfree() ends with `if (obj->owornmask) { impossible(\"obfree: deleting worn obj (%d: %ld)\", ...); setnotworn(obj); }` -- C classifies a worn object reaching obfree as a bug state, not a gameplay branch, and every C path that puts an object on the floor clears the mask first (freeinv()/remove_worn_item() for the hero, mdrop_obj() for a monster). The other two demands preflightObfree() adds cannot fire on a corpse at all: a corpse is never `lamplit` and its otyp is CORPSE, not LEASH. The probe reaches the throw only by constructing the object directly with `newObject({ ..., owornmask: 1 })` and calling place_object() on it. causality refute: The range does introduce the atomic-refusal design, but the stated impact rests on a state neither C nor this port can produce, so it is a hypothetical future regression rather than a defect introduced or exposed here. Counter-evidence: No ported path assigns owornmask to an OBJ_FLOOR object; C's own obfree() answers that"
+          },
+          {
+            "summary": "js/do.js:1261 The newsym seam this range adds to goto_level()'s run_timers() call is exercised by no test: deleting the argument entirely leaves the full default suite identical to baseline.",
+            "counterEvidence": "evidence refute: The narrow observation (no test drives goto_level()'s `{ newsym }` argument) is true, but the mechanism the finding gives for why it matters is impossible in this port, and no reachable arrival reaches the newsym test at all. Counter-evidence: Returning to a visited level is refused before run_timers(): js/do.js:1172 comments \"do.c:1704-1711, the reload: open_levelfile(), two reseed_random() calls, getlev() and oinit(). None is ported\", and scripts/dodown.test.mjs:206-226 pins that refusal (`destinationAlreadyVisited()` / `rejectsAtTheReload()`, UnsupportedLevelChangeError \"returning to a level already visited\"), which fires far above js/do.js:1261. js/timeout.js save_timers() (the loop at :700-710) unlinks every level-local timer at departure, so the queue on arrival holds only global, inventory and migrating timers plus the freshly built level's, whose corpse timeouts start_corpse_timeout() schedules ~250 moves ahead. A due inventory or migrating corpse returns js/dig.js:95's where reason, which precedes the newsym check at js/dig.js:120-121, so the seam is never consulted. causality refute: The argument is causal changed code, but a surviving mutant on a seam no reachable game state consults is not a material coverage gap; the drain contract it guards is already pinned by scripts/level-arrival.test.mjs and by six new run_timers() cases in scripts/timeout.tes"
+          },
+          {
+            "summary": "js/timeout.js:253 The timeout_funcs[] contract comment says a row with neither `f` nor `unported` \"names a function this port has not reached\", but row 0's rot_organic is ported and exported from js/dig.js:133; the row is empty for a different reason the table does not state.",
+            "counterEvidence": "causality refute: The reason the row is empty is already recorded exactly where a maintainer who follows the row's name arrives, so the described trap is defused and the residual issue is wording precision -- prose polish, which this pass is told to leave to a clarity audit. Counter-evidence: js/dig.js:125-131, the comment block immediately above `export function rot_organic`, states it outright: \"rot_corpse() below is its only ported caller, so the contents loop C runs first is left out: unportedRotCorpseReason() refuses a corpse that holds anything, and the ROT_ORGANIC row of timeout_funcs[] -- the other way in, for a buried non-carcass -- is unported.\" The finding's own scenario is a grep for rot_organic, and that grep lands on js/dig.js:133 with this paragraph directly above it. The claim that the reason sits \"three files away\" is also wrong: it is one file away, the file the row names. resolution refute: The primary fix is unobjectionable but its stated validation cannot fail once the edit is made, and the offered alternative would add code for a branch nothing reaches. Counter-evidence: The proposed validation is \"grep timeout_funcs[] for each row name ... and confirm every name that resolves to an exported function in this port has a row comment explaining why it is not dispatched\" -- a check whose only possible failure mode is not having written the comment, so it disti"
+          },
+          {
+            "summary": "js/timeout.js:273 timerFireEnv() overwrites a caller-supplied hooks.newsym with the flat env.newsym, so the seam shape js/dig.js documents is silently discarded and run_timers() dies with a TypeError claiming the seam is missing.",
+            "counterEvidence": "causality refute: Anchored to changed code but the stated impact is not material: no caller can reach it and nothing fails closed differently. Counter-evidence: `grep -rn 'run_timers(\\|nh_timeout_elapsed_turn(\\|preflight_nh_timeout_elapsed_turn(' js/` returns exactly three live call sites -- js/allmain.js:734 `{ message, statusRefresh, newsym }`, js/allmain.js:1023 `{ newsym }`, js/do.js:1261 `{ newsym }` -- all flat, and none passes a `hooks` key at all, so the spread `{ ...env.hooks, ... }` never has anything to clobber. The two shapes are not one contract with two spellings: js/dig.js's rotEnv() comment documents rot_corpse()'s own parameter (and scripts/dig.test.mjs:216+ calls it in that shape and passes), while js/timeout.js:267-273 states explicitly that run_timers() takes the seam flat and lifts it into hooks precisely so neither convention has to follow the other. The probe's failure also lands inside unportedRotCorpseReason() during the preflight walk, before the drain loop unlinks anything, so even the hypothetical caller leaves queue and map untouched -- the fail-closed invariant the range is judged on is not violated. resolution refute: The proposed direction entrenches the ambiguity rather than removing it, and the suggested test pins a contract no code holds. Counter-evidence: Resolving the seam as `env.newsym ?? env.hooks?.newsym` makes run_timers() accept two en"
+          },
+          {
+            "summary": "js/timeout.js:290 The comment that justifies walking the due prefix ahead of the drain attributes element-object distinctness to start_timer()'s duplicate check, which does not provide it; the real guarantee is the `timed === 1` gate 18 lines below.",
+            "counterEvidence": "evidence refute: The comment is accurate as written; the claim that start_timer() does not provide element-object distinctness fails once the set of admitted elements is traced. Counter-evidence: The comment scopes its claim to *admitted* elements. js/timeout.js:302-303 returns a refusal for any row without `f`, and js/timeout.js:255-263's table gives `f` to exactly one row, `rot_corpse`. Every admitted element is therefore a (TIMER_OBJECT, ROT_CORPSE) timer. nethack-c/upstream/src/timeout.c:2258-2263 rejects a new timer when an existing one matches kind, func_index and arg pointer together, and js/timeout.js:459-466 ports that check unchanged (`timer.kind === kind && timer.func_index === funcIndex && timer.arg === arg`). Two admitted elements therefore cannot name the same object, exactly as the comment says. The finding's own counterexample -- ROT_CORPSE plus REVIVE_MON on one corpse -- produces two elements of which only one is ever admitted, so it does not exhibit two admitted elements naming one object. The `timed === 1` gate at js/timeout.js:309 guards a different hazard (a second, unadmitted timer leaving `timed` nonzero after the drain's decrement, so remove_object() reaches obj_timer_checks()), which the comment above it states separately. causality refute: No defect is introduced or exposed: the changed comment states a true invariant with a true justification. Counte"
+          },
+          {
+            "summary": "js/timeout.js:734 The newsym seam is mandatory but every signature on the path declares it optional (`env = {}`), and it is validated only when a floor corpse is actually due, so a call site that omits it or uses the other documented env shape runs silently for hundreds of turns and then fails with a TypeError naming dig.c rather than the wiring.",
+            "counterEvidence": "causality refute: Introduced by the range, but the impact is hypothetical, and the 'late check' half describes the port matching C rather than deviating from it. Counter-evidence: No caller omits the seam or uses the hooks form: js/allmain.js:734, js/allmain.js:1023 and js/do.js:1261 are the only ones and all pass `{ newsym }`. The deferred failure is C's own laziness, not a port artifact -- timeout.c run_timers() (2216-2240) executes nothing while `gt.timer_base->timeout > svm.moves`, and rot_corpse() is the only path that reaches newsym(), so a state with no due floor corpse legitimately needs no seam. When the seam is genuinely missing the throw happens inside the preflight walk (js/timeout.js:311, before the drain loop at :735-746), so the queue and the map are untouched; the described harm reduces to the wording of a message on a call shape that does not exist. resolution refute: The proposed up-front validation would make the port refuse states the C program runs cleanly, and the suggested test asserts exactly that wrong behavior. Counter-evidence: The finding asks that run_timers() 'require the flat one' at the top and drop `env = {}`, and its second validation case demands that `run_timers(state)` with no due timer at all throw a seam error. C's run_timers() over an empty due prefix does nothing and draws nothing (timeout.c:2226-2239), so a port that throws there stops "
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/allmain.js advanceElapsedTurn()'s new conversion is pinned by nothing: deleting the catch leaves the whole suite green. Two fixtures failed to reach mpickstuff()'s carry arm inside one turn, because the arm runs from postmov() after a move and a gnome's speed of 6 against NORMAL_SPEED 12 lets it act every other turn.",
+            "category": "tests",
+            "trackedIn": "live-timer-refusal-conversion-unpinned"
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "6f718acbef51aab433293c82701b23a87a2e66e0..0d5e197977c28f802d66941062d4d6a5bd4bd66d",
+            "0d5e197977c28f802d66941062d4d6a5bd4bd66d..4bca3b7defa6a577ab88345a1a5235e98865d436"
+          ],
+          "mutants": 9,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 0,
+              "killed": 0
+            },
+            "logical": {
+              "ran": 7,
+              "killed": 7
+            },
+            "relational": {
+              "ran": 2,
+              "killed": 2
+            }
+          },
+          "finderConclusion": "Two runs, both mine. The window range ran 9 relational, logical and boolean mutants and killed all 9; the delta over the audit fixes produced no mutants at all, because the fixes are a try/catch, a site string and a comment. Neither found anything the pass reported. Three of its six confirmed findings were test gaps, and each was a guard or an oracle whose absence breaks nothing the committed fixtures set up: most sharply the dig recorder, which kept only the coordinates handed to newsym, so moving the redraw to the top of rot_corpse() passed the whole suite. The slice also left four declared integer survivors, all the ?? 0 inside Math.trunc(x ?? 0) at two sites in js/timeout.js; the pass was asked to test the reachability claim behind them and let them stand, since start_timer() writes a number into arg.timed for every TIMER_OBJECT and the walk admits only timed === 1."
+        },
+        "readiness": {
+          "boundary": "The starting event is the pre-turn preflight_nh_timeout_elapsed_turn() call in advanceElapsedTurn() and the live nh_timeout_elapsed_turn() below it, on the turn entering move 254 of seed0004-feeding-pony, inside the run started by step 186's N. The ending event is step 186's screen and the steps after it: the port emitted 186 of 409 screens and now emits 203, stopping on the boulder push. The real game executes it, and scripts/run-corpse-rot.mjs executes the visible half the session cannot show.",
+          "sourceReview": "Every branch reachable before the ending event was traced against timeout.c run_timers() (2216-2240), timeout_funcs[] (1978-1990) and nh_timeout()'s tail at 947, dig.c rot_corpse() (2146-2189) and rot_organic() (2125-2140), and obj.c obj_extract_self(), remove_object() and obj_timer_checks(). The trace covered state and random-number order: the OBJ_FLOOR arm draws nothing and the development score is identical across the audit fixes. Stubs and stops identified: eight of the nine timeout_funcs[] rows refuse by name, rot_corpse()'s three non-floor arms refuse, and the hero half of the exposure test is unported because the port's hideunder is monster-only. The pass then found what the implementer had not: the live monster scan can move a due corpse between the preflight and the drain, which the slice comment had assumed away.",
+          "completeness": "No known unsupported behavior remains inside the boundary, and every reachable excluded branch stops before changing state, consuming randomness or producing output, through a named refusal class that each of the three call sites now identifies. Two entries stay open and both need a recording: rot-corpse-inventory-arm-unported, which holds a recipe, and live-timer-refusal-conversion-unpinned, which records the two fixtures that failed to reach mpickstuff()'s carry arm."
+        }
+      },
+      "recordedAt": "2026-08-17T13:53:19.869Z"
     }
   ]
 }

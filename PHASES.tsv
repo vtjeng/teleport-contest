@@ -577,3 +577,5 @@ utc	event	phase	goal	detail
 2026-08-17T11:53:29.522Z	end	select	elapsed-turn-fires-a-due-timer	goal opened, first slice queued, no checklist
 2026-08-17T11:53:29.568Z	start	implement	elapsed-turn-fires-a-due-timer	due-timer-rots-a-floor-corpse
 2026-08-17T12:52:25.079Z	end	implement	elapsed-turn-fires-a-due-timer	due-timer-rots-a-floor-corpse closed at 380d9744: screens 1785 to 1802
+2026-08-17T12:52:39.977Z	start	review	elapsed-turn-fires-a-due-timer	correctness 6f718ac..0d5e197, the goal's close
+2026-08-17T13:53:31.900Z	end	review	elapsed-turn-fires-a-due-timer	correctness 6f718ac..4bca3b7: 14 raw, 12 deduped, 6 confirmed, 5 applied, 1 deferred, 6 rejected
