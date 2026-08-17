@@ -2556,8 +2556,8 @@
         },
         {
           "name": "wizmgender-inverts-a-female-monster-at-print-time",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "2aab973bda92d6f57ecdd12b6cdf410299160de4"
         }
       ],
       "openedAt": "67870c0f966e10d69013e3d4174e95bac17d3e22",

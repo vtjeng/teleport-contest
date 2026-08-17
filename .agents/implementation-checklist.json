@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
-  "reason": "The slice is in progress and nothing is committed yet. The candidate list below was traced by the orchestrator against the C source at the slice base 08c2151, before reading any of the worker's uncommitted change. Every entry the slice owns is missing or undecided until the worker reports and the entries are checked against the repository.",
-  "commitChecked": "08c2151bfa105b2262e69f0e48a6a35cffcc7fd7",
+  "mode": "ready-for-audit",
+  "reason": "Every entry is done or cannot-occur. The production game executes every done path: the fresh recipes in scripts/run-options-menu.mjs drive a debug-mode 'mO' menu to the wizmgender row and a configuration file that sets the option outright, and both discriminate against a port that draws the hero and a female pet plain. The development score is identical call for call, which is the guard this slice needed, since no development session picks the option. Three arms are done on a unit test alone and say so: the mimic and ridden arms, the male, female and neuter arms of the objnam.c suffix, whose CORPSTAT_RANDOM arm is the only one a level-generated object reaches, and statue_to_glyph()'s hallucinating gender draw, which is unobservable at its one caller.",
+  "commitChecked": "2aab973bda92d6f57ecdd12b6cdf410299160de4",
   "boundary": {
     "goalId": "option-toggle-repaints-the-map",
     "startingCommit": "08c2151bfa105b2262e69f0e48a6a35cffcc7fd7",
@@ -23,10 +23,10 @@
       "candidate": "That map memory never holds a monster glyph number, which is what makes this slice a print-time change rather than a range conversion",
       "reachability": "Every writer of levl[x][y].glyph.",
       "owner": "None; it is the premise the slice rests on",
-      "effects": "None. Recorded because the deferral wizmgender-never-inverts-a-female-monster prescribes the opposite, and following that would add a number nothing stores and nothing reads back.",
+      "effects": "Confirmed independently by the worker, which reached the same reading: 19 writers of levl[x][y].glyph, the nine in ball.c only copying a number another writer produced. The slice carries the bits on the live-drawn presentations, and monsterGenderFlag() reads mon->female directly, because C's own round trip is mon->female to a range to MG_MALE or MG_FEMALE.",
       "evidence": "grep -rn 'levl\\[.*\\]\\[.*\\]\\.glyph =' over nethack-c/upstream/src/ returns display.c:284, :302, :319, :359, :361, :436 and :555, all cmap, object, trap or engraving numbers; bones.c:569 writes GLYPH_UNEXPLORED; mkmaze.c:1840 writes a cmap number; ball.c's eleven sites restore a value saved from the same field. The one exception is display.c:382, map_invisible(), which writes the constant GLYPH_INVISIBLE, whose reset_glyphmap() arm raises MG_INVIS and no gender bit. detect.c:2205-2209 states the same rule in a comment.",
-      "status": "undecided",
-      "remaining": "Confirm the worker reached the same reading, and note the deferral rather than closing it on this slice's authority alone."
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "display.c display_monster()'s four glyph choices and its M_AP_MONSTER arm, as the gender code each range carries",
@@ -34,8 +34,8 @@
       "owner": "js/display.js actualMonsterGlyphInfo(), presentedMonsterGlyphInfo(), riddenMonsterGlyphInfo() and mimickedMonsterGlyphInfo()",
       "effects": "Each must carry MG_FEMALE or MG_MALE on the presentation, since the port raises no monster glyph number to carry it.",
       "evidence": "display.c:524 computes mgendercode from mon->female and :581 passes it for the mimic arm.",
-      "status": "missing",
-      "remaining": "Port with the mimic arm taking the mimicking monster's gender."
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "display.h hero_glyph (654-656) and you.h Ugender (555)",
@@ -43,8 +43,8 @@
       "owner": "js/display.js hero_glyph_info()",
       "effects": "A female hero's own glyph lands in the female range and gains the inverse attribute the moment wizmgender goes on. This is what makes the differential discriminate without a female monster on the map.",
       "evidence": "hero_glyph passes (Ugender), which is ((Upolyd ? u.mfemale : flags.female) ? 1 : 0). Upolyd() exists in the port and is always false today, so the u.mfemale half is dormant.",
-      "status": "missing",
-      "remaining": "Write both halves even though one is dormant."
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "reset_glyphmap()'s six monster arms, for the bits their ranges carry",
@@ -52,8 +52,8 @@
       "owner": "js/display.js, as the source of the MG_FEMALE and MG_MALE assignments",
       "effects": "Fixes which of the two bits each of the four monster families raises.",
       "evidence": "src/display.c ridden 2986-3003, detect 3011-3028, pet 3034-3049, ordinary 3050-3065.",
-      "status": "missing",
-      "remaining": "Port the bit assignments only; the arms themselves resolve numbers this port does not produce."
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "win/tty/wintty.c tty_print_glyph()'s attribute chain (3925-3937), unified rather than extended",
@@ -61,8 +61,8 @@
       "owner": "js/display.js print_glyph_attr(), actualMonsterGlyphInfo() and presentedMonsterGlyphInfo(), which hold one arm each today",
       "effects": "C picks at most one attribute in a fixed order, and the MG_PET arm sits above the MG_FEMALE disjunct.",
       "evidence": "The three-way split is safe at the slice base only because no glyph reaching print_glyph_attr() carries MG_PET, which its own doc comment states. Adding MG_FEMALE to a pet ends that: a female pet with hilite_pet on must take wc2_petattr, and with it off must fall through to ATR_INVERSE.",
-      "status": "missing",
-      "remaining": "Make the three sites one chain, in C's order."
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "The 'wizmgender' refusal in js/options.js optfn_boolean()",
@@ -70,17 +70,17 @@
       "owner": "js/options.js",
       "effects": "Deleting it folds the name back into the six-name case list beside it and leaves optfn_boolean() with no refusal at all.",
       "evidence": "It is the last of the eight arms this goal's boundary names.",
-      "status": "missing",
-      "remaining": "Delete it, and confirm no other refusal remains in that switch."
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "objnam.c:1549-1559, which reads the same option to name a statue, corpse or figurine's gender",
       "reachability": "Any STATUE, CORPSE or FIGURINE named while wizard && iflags.wizmgender hold. Reachable from a configuration file today, and from the menu once the refusal goes.",
-      "owner": "None at the slice base: js/ has neither the branch nor a refusal for it",
-      "effects": "C appends ' (female)', ' (male)' or ' (neutral)' from genders[mgend].adj, or ' (unspecified gender)' when the CORPSTAT_GENDER bits are CORPSTAT_RANDOM. The port omits the whole clause silently.",
+      "owner": "js/objnam.js wizmgenderSuffix()",
+      "effects": "Ported rather than refused: ten lines against the existing genders[]. One correction to the brief, which said ' (neutral)': role.c:690 gives genders[NEUTRAL].adj as 'neuter'. The CORPSTAT_RANDOM arm is the common case for a level-generated statue, because mkobj.c mksobj() sets a real gender at 1219-1222 and mkcorpstat():2086 then overwrites spe with corpstatflags & CORPSTAT_SPE_VAL, which is zero for mklev.c:1004's bare CORPSTAT_INIT.",
       "evidence": "Read at objnam.c:1549-1559. grep -rn 'wizmgender' js/ finds no producer at the slice base.",
-      "status": "undecided",
-      "remaining": "Port it or add a named refusal. AGENTS.md permits a stop and forbids silently skipping a message-writing branch, so what it must not stay is unrecorded."
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "The fresh differential: a debug-mode 'mO' menu walked to the wizmgender row",
@@ -88,47 +88,55 @@
       "owner": "scripts/run-options-menu.mjs",
       "effects": "It is the slice's closing evidence, since no development session picks the option.",
       "evidence": "The environment satisfies the debug-mode constraint: nethack-c/recorder/install/games/lib/nethackdir/sysconf line 16 reads WIZARDS=root games vtjeng. The checked-in template at nethack-c/recorder/sys/unix/sysconf:16 reads only WIZARDS=root games. One debug segment per recording, so the recipe is its own single-segment entry.",
-      "status": "missing",
-      "remaining": "Record it, and leave the deferral recording-a-debug-mode-session-needs-local-setup open, since a fresh checkout still cannot reproduce it."
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "The debug-mode menu's own layout, which this differential is the first to record against C",
       "reachability": "Every row of the 'mO' menu in a debug game.",
       "owner": "js/options.js, at the pass bounds and dosetEntryFormat()",
-      "effects": "options.c:8820 sets endpass to set_wiznofuz under wizard, adding ten boolean rows and two compound ones and widening longest_option_name(), which moves the padding of every row and the page boundaries with it.",
+      "effects": "It matched C on the first recording. Eight pages rather than seven, with wizmgender on page 5 as 'k'. The risk named in advance did not materialise, and no options work landed inside this display slice on that account.",
       "evidence": "The port mirrors the skips and takes both passes, but nothing has ever checked it, so a first differential failure is as likely to be layout as repaint. dosetEntryFormat() refuses outright when menu_tab_sep is on, and menu_tab_sep is itself set_wizonly.",
-      "status": "undecided",
-      "remaining": "Report whether the menu matched C on the first recording. If it did not, say whether the correction was layout or repaint, because the first is options work landing inside a display slice."
-    }
-  ],
-  "missingWorkByOwner": [
-    {
-      "group": "js/display.js, the gender bits and the attribute chain",
-      "candidates": [
-        "display.c display_monster()'s four glyph choices and its M_AP_MONSTER arm, as the gender code each range carries",
-        "display.h hero_glyph (654-656) and you.h Ugender (555)",
-        "reset_glyphmap()'s six monster arms, for the bits their ranges carry",
-        "win/tty/wintty.c tty_print_glyph()'s attribute chain (3925-3937), unified rather than extended"
-      ],
-      "next": "Carry the bits on the live-drawn presentations, then make the three attribute sites one chain in C's order."
+      "status": "done",
+      "remaining": "None."
     },
     {
-      "group": "js/options.js and the branch the option also feeds",
-      "candidates": [
-        "The 'wizmgender' refusal in js/options.js optfn_boolean()",
-        "objnam.c:1549-1559, which reads the same option to name a statue, corpse or figurine's gender"
-      ],
-      "next": "Delete the refusal only once the objnam arm is ported or refused, so retiring one stop does not widen a silent omission."
+      "candidate": "applyBooleanOption()'s missing wizmgender arm, which made the option settable but inert",
+      "reachability": "Any configuration file carrying OPTIONS=wizmgender in a debug game.",
+      "owner": "js/options.js applyBooleanOption()",
+      "effects": "The value landed at flags.wizmgender and optlist.h:890's reader never saw it, so the option parsed, stored nowhere useful, and every female monster drew plain with no stop.",
+      "evidence": "The first differential of the configuration-file recipe failed at screen 1, row 7, column 11, C attr 1 against JS attr 0. This is the live bug the queue commit predicted, and it was worse than predicted: not merely unguarded but inert. One arm fixes it; the other seventy-odd rows stay with the deferral boolean-options-store-outside-their-c-address.",
+      "status": "done",
+      "remaining": "None."
     },
     {
-      "group": "Evidence",
-      "candidates": [
-        "That map memory never holds a monster glyph number, which is what makes this slice a print-time change rather than a range conversion",
-        "The fresh differential: a debug-mode 'mO' menu walked to the wizmgender row",
-        "The debug-mode menu's own layout, which this differential is the first to record against C"
-      ],
-      "next": "Record the differential, and report whether the debug menu matched C on the first attempt."
+      "candidate": "hallucinated_statue_glyph_info()'s gender draw, which was made and discarded",
+      "reachability": "A hallucinating hero drawing a statue.",
+      "owner": "js/display.js",
+      "effects": "The draw is part of the observable display-RNG stream and its result was thrown away. With MG_FEMALE live that becomes a silent wrong answer, so the draw now feeds the flag.",
+      "evidence": "Unit-tested only: the reroll menu is its one caller and prints no glyph.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "display_monster()'s three worm-tail arms",
+      "reachability": "A long worm on the map.",
+      "owner": "None",
+      "effects": "None reachable.",
+      "evidence": "The recorded rejection ed43517c establishes the condition: grep -rn 'wormno' js/ shows exactly one writer of a nonzero monster.wormno, js/makemon_create.js:2075 inside apply_newcham_form(), and makemon() never calls get_wormno(), so no ported path puts a long worm on a level.",
+      "status": "cannot-occur",
+      "remaining": "None for this slice."
+    },
+    {
+      "candidate": "tty_print_glyph()'s framecolor arm and reset_glyphmap()'s rogue-level terms",
+      "reachability": "The first needs iflags.bgcolors, which no ported path sets; the second needs a rogue level, which reglyph_darkroom() refuses before any repaint.",
+      "owner": "None",
+      "effects": "None reachable: both stop before any state change, random-number call or output.",
+      "evidence": "Carried forward from the previous slice's checklist, where the rogue exclusion was recorded on the refusal rather than on a session census.",
+      "status": "cannot-occur",
+      "remaining": "None."
     }
   ],
-  "sourceReview": "Traced by the orchestrator at 08c2151, the slice base, against the C source and before reading the worker's uncommitted change. Read in full: display.h hero_glyph and you.h Ugender; display.c's mgendercode assignment at 524 and its use at 581; objnam.c:1549-1559; and every writer of levl[x][y].glyph across nethack-c/upstream/src/, which is what establishes that no monster number reaches map memory and therefore that this slice is a print-time change rather than a range conversion. The trace covered state and random-number order: no arm in scope consumes randomness. Not yet traced: display_monster()'s body between its entry and the four glyph choices, reset_glyphmap()'s six monster arms beyond confirming which bit each raises, and the debug-mode pass bounds in options.c beyond the endpass assignment. Those three are the entries carrying status undecided and the limits recorded in remainingLimits."
+  "missingWorkByOwner": [],
+  "sourceReview": "Traced in two independent passes. The orchestrator traced the candidate list at 08c2151 before implementation, reading display.h hero_glyph and you.h Ugender, display.c's mgendercode assignment and its use in the M_AP_MONSTER arm, objnam.c:1549-1559, and every writer of levl[x][y].glyph across nethack-c/upstream/src/ -- which is what establishes that this slice is a print-time change rather than a range conversion, against a deferral that prescribed the conversion. The worker traced the same range while implementing, reached the same reading of the writers independently, and found two things the list did not hold: applyBooleanOption() had no wizmgender arm at all, and hallucinated_statue_glyph_info() made a gender draw it discarded. It also corrected the orchestrator's ' (neutral)' to role.c:690's 'neuter'. The trace covered state and random-number order: no ported arm consumes randomness except the statue draw, which already existed and whose result is now used rather than dropped. Stubs and stops identified: optfn_boolean() has one refusal left, on rest_on_space, which is outside this goal; the framecolor arm, the rogue-level terms and the worm-tail arms are unreachable for the conditions recorded above."
 }
