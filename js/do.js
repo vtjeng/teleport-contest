@@ -1258,7 +1258,10 @@ export async function goto_level(
     // migrating monsters and objects are delivered."
     // The arrival is never a dry run, so a rotting floor corpse draws through
     // the live newsym().
-    run_timers(state, { newsym });
+    run_timers(state, {
+        newsym,
+        site: "goto_level()'s run_timers()",
+    });
 
     const arrivalOccupant = m_at(u.ux, u.uy, state);
     if (arrivalOccupant) u_collide_m(arrivalOccupant, state);

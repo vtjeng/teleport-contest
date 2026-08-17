@@ -256,9 +256,25 @@ function floorRock(state, x, y) {
     return rock;
 }
 
-function recordingNewsym() {
+// dig.c:2186 calls newsym(x, y) as the OBJ_FLOOR arm's last statement, after
+// obfree() and after `mtmp->mundetected = 0`. That ordering is the arm's only
+// observable -- it writes no message and draws no random number -- and a
+// recorder that keeps coordinates alone cannot see it: drawing first would
+// repaint the corpse glyph being deleted and leave a stale '%' behind, which
+// is exactly the cell change seed 334 records at <52,17> on turn 236. So each
+// row keeps the square as newsym saw it: the pile top and the hider's flag at
+// call time.
+function recordingNewsym(state) {
     const drawn = [];
-    return { drawn, newsym: (x, y) => drawn.push([x, y]) };
+    return {
+        drawn,
+        newsym: (x, y) => drawn.push([
+            x,
+            y,
+            state.level.objects[x][y]?.otyp ?? null,
+            state.level.monsters[x][y]?.mundetected ?? null,
+        ]),
+    };
 }
 
 test('rot_corpse deletes a floor corpse and redraws its square', () => {
@@ -270,7 +286,7 @@ test('rot_corpse deletes a floor corpse and redraws its square', () => {
     const y = 5;
     const rock = floorRock(state, x, y);
     const corpse = floorCorpse(state, x, y);
-    const { drawn, newsym } = recordingNewsym();
+    const { drawn, newsym } = recordingNewsym(state);
 
     rot_corpse(corpse, state.moves, { state, hooks: { newsym } });
 
@@ -281,7 +297,8 @@ test('rot_corpse deletes a floor corpse and redraws its square', () => {
     // obfree() -> dealloc_obj() marks the object deleted rather than freeing
     // memory, which is how this port spells C's free().
     assert.equal(corpse.where, OBJ_DELETED);
-    assert.deepEqual(drawn, [[x, y]]);
+    // The rock, not the corpse: the square is already clear when it is drawn.
+    assert.deepEqual(drawn, [[x, y, rock.otyp, null]]);
 });
 
 test('rot_corpse exposes a hider only once nothing is left to hide under',
@@ -304,12 +321,18 @@ test('rot_corpse exposes a hider only once nothing is left to hide under',
             const monster = { mnum: row.mnum, mundetected: 1,
                 data: state.mons[row.mnum] };
             state.level.monsters[x][y] = monster;
-            const { drawn, newsym } = recordingNewsym();
+            const { drawn, newsym } = recordingNewsym(state);
 
             rot_corpse(corpse, state.moves, { state, hooks: { newsym } });
 
             assert.equal(monster.mundetected, row.expected, row.why);
-            assert.deepEqual(drawn, [[x, y]], row.why);
+            // The flag is already at its final value when the square is
+            // drawn, which is what puts newsym() last.
+            assert.deepEqual(
+                drawn,
+                [[x, y, row.under ? ROCK : null, row.expected]],
+                row.why,
+            );
         }
     });
 

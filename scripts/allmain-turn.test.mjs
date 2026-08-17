@@ -78,6 +78,7 @@ import {
     PM_GOBLIN,
     PM_KITTEN,
     PM_LICHEN,
+    PM_ORC,
     PM_PONY,
     PM_TENGU,
 } from '../js/monsters.js';
@@ -1848,9 +1849,15 @@ test('a planned corpse rot touches neither the live map nor the live queue',
         // reads the module-global game rather than the state run_timers() was
         // handed, so a planned rot that drew through the live seam would
         // repaint a square the live turn has not reached yet.
+        // An orc, not a lichen: mkobj.c start_corpse_timeout() (1402-1404)
+        // returns before scheduling for PM_LIZARD and PM_LICHEN, "lizards and
+        // lichen don't rot or revive", so no lichen corpse ever carries a
+        // ROT_CORPSE element. rot_corpse() reads no species, so the seam this
+        // case targets is the same either way, but the queue state has to be
+        // one a recording can produce.
         const corpse = newObject({
             age: 0,
-            corpsenm: PM_LICHEN,
+            corpsenm: PM_ORC,
             o_id: 90001,
             oclass: game.objects[CORPSE].oc_class,
             otyp: CORPSE,

@@ -722,15 +722,21 @@ async function finishElapsedTurn(
         state.disp.time_botl = true;
     }
 
-    // The timer queue's refusal is decided here on the dry run, where
-    // advanceElapsedTurn()'s catch turns it into the turn's boundary, and
-    // again at :1009 against the turn being entered. Nothing between those two
-    // and this call can invalidate either verdict: the live monster scan
-    // cannot take a due corpse off the floor without refusing first, since
-    // monster pickup and dog_eat() are themselves unported, and a corpse a
-    // monster's death creates is scheduled about 250 turns out. So no
-    // converting try belongs here, any more than around the state the same
-    // preflight admits above it.
+    // The timer queue's refusal is decided twice before this call: here on the
+    // dry run, and again by the preflight_nh_timeout_elapsed_turn() call in
+    // advanceElapsedTurn(), against the turn being entered. Neither verdict
+    // survives the live monster scan that runs between them. mon.c
+    // mpickstuff() is ported, and its corpse filter (js/monmove.js, over
+    // mon.c:1875-1880) lets an M1_COLLECT monster take an acidic or petrifying
+    // corpse off the floor; the corpse's ROT_CORPSE element stays in the queue
+    // at the same expiry, because js/obj.js calls obj_timer_checks() only for
+    // a nonzero `timed` and that function acts only on ice. So a turn the
+    // preflight admitted can reach the drain with the corpse at OBJ_MINVENT,
+    // which run_timers() refuses.
+    //
+    // advanceElapsedTurn() converts that refusal around its call to this
+    // function, so the segment ends on its last matching screen instead of
+    // being discarded whole.
     await nh_timeout_elapsed_turn(state, {
         message: turnMessage,
         statusRefresh: turnStatusRefresh,
@@ -1073,7 +1079,23 @@ async function advanceElapsedTurn(state) {
         }
         if (runsOncePerTurnUpkeep) {
             ++upkeepCount;
-            await finishElapsedTurn(state, random);
+            try {
+                await finishElapsedTurn(state, random);
+            } catch (error) {
+                // The same conversion the two preflights above take, for the
+                // one refusal a preflight cannot decide: the live monster scan
+                // can move a due corpse off the floor after the turn was
+                // admitted, and nh_timeout_elapsed_turn() refuses it here.
+                // Without this the class reaches js/jsmain.js, which does not
+                // list it, and the segment loses every screen it had matched.
+                if (!(error instanceof UnsupportedHeroTimeoutBoundaryError))
+                    throw error;
+                const boundary = new UnsupportedTurnBoundaryError(
+                    error.message,
+                );
+                boundary.reason = error.reason;
+                throw boundary;
+            }
         }
     } while (state.u.umovement < NORMAL_SPEED);
     if (initialCapacity > 0 && upkeepCount !== preflight.upkeepCount) {

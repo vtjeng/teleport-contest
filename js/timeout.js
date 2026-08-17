@@ -233,11 +233,17 @@ function currentMove(state) {
     return Math.trunc(state.moves ?? 0);
 }
 
+// The site is part of the message because two callers raise this class over
+// the same field. preflight_nh_timeout_elapsed_turn() guards an elapsed turn;
+// run_timers() guards the drain itself, which goto_level() reaches on arrival
+// and nh_timeout() reaches at its tail. A log line naming only the timer would
+// not say which of the three stopped, and boundary triage reads that line.
 export class UnsupportedHeroTimeoutBoundaryError extends Error {
-    constructor(reason) {
-        super(`elapsed-turn nh_timeout requires ${reason}`);
+    constructor(reason, site = 'elapsed-turn nh_timeout') {
+        super(`${site} requires ${reason}`);
         this.name = 'UnsupportedHeroTimeoutBoundaryError';
         this.reason = reason;
+        this.site = site;
     }
 }
 
@@ -430,7 +436,8 @@ export async function nh_timeout_elapsed_turn(state = game, env = {}) {
        basal-luck block and above every branch nh_timeout() has left. */
     if (state.u?.uinvulnerable) return;
     await decrement_property_timeouts(state, env);
-    run_timers(state, env); /* timeout.c:947, nh_timeout()'s last statement */
+    /* timeout.c:947, nh_timeout()'s last statement. */
+    run_timers(state, { ...env, site: "nh_timeout()'s run_timers()" });
 }
 
 // C inserts before the first timer whose expiry is greater than or equal to
@@ -735,7 +742,11 @@ export function run_timers(state = game, env = {}) {
     timerGlobals(state);
     const fireEnv = timerFireEnv(state, env);
     const reason = unportedDueTimerReason(state, fireEnv);
-    if (reason) throw new UnsupportedHeroTimeoutBoundaryError(reason);
+    if (reason) {
+        throw new UnsupportedHeroTimeoutBoundaryError(
+            reason, env.site ?? 'run_timers()',
+        );
+    }
 
     while (state.gt.timer_base
            && Math.trunc(state.gt.timer_base.timeout) <= currentMove(state)) {

@@ -244,9 +244,18 @@ test('run_timers stops rather than firing an unported timeout arm', () => {
     // Scheduled for move 105, which is still ahead of the arrival turn.
     run_timers(state, { newsym: () => {} });
     state.moves = 105;
+    // The message names goto_level()'s call, not nh_timeout()'s. Both raise
+    // this class over the same field, and boundary triage reads the line to
+    // decide which of the two stopped, so the site marker is asserted here and
+    // the nh_timeout wording is asserted in scripts/timeout.test.mjs. Neither
+    // assertion may be satisfied by the other's string.
     assert.throws(
-        () => run_timers(state, { newsym: () => {} }),
-        /a corpse on the floor, but one is rotting at where=3/u,
+        () => run_timers(state, {
+            newsym: () => {},
+            site: "goto_level()'s run_timers()",
+        }),
+        (error) => error.message === "goto_level()'s run_timers() requires "
+            + 'a corpse on the floor, but one is rotting at where=3',
     );
 });
 

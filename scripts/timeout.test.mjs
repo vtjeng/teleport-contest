@@ -6,6 +6,7 @@ import {
     BURN_OBJECT,
     FIG_TRANSFORM,
     HATCH_EGG,
+    MELT_ICE_AWAY,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
     OBJ_DELETED,
@@ -15,6 +16,7 @@ import {
     REVIVE_MON,
     RIGHT_SIDE,
     ROT_CORPSE,
+    ROT_ORGANIC,
     SHRINK_GLOB,
     TIMER_NONE,
     TIMER_LEVEL,
@@ -321,6 +323,46 @@ test('run_timers drains the due prefix head-first and stops at the future',
         // Head-first, so the earlier expiry rots before the exact one.
         assert.deepEqual(drawn, [[40, 5], [41, 5]]);
     });
+
+// timeout.c timeout_funcs[] (1978-1990) is "listed in order of enum
+// timeout_types", and the port keeps each row's VERBOSE_TIMER name so a stop
+// can say which function it refused. That name is the whole value of an
+// unported row: it becomes the refusal reason, which becomes
+// UnsupportedTurnBoundaryError.reason and lands in the boundary log that
+// decides what is ported next. A row out of order would send the next goal at
+// the wrong C function, and the module-load guard beside the table checks only
+// the length, which any permutation satisfies.
+//
+// Every unported row is driven through run_timers() here, indexed by the
+// js/const.js constant, so the table is pinned against the enum rather than
+// against itself. ROT_CORPSE is absent because it is the one ported row; the
+// drain tests above cover it.
+test('every unported timeout row names its own C function', () => {
+    const rows = [
+        [ROT_ORGANIC, 'rot_organic'],
+        [REVIVE_MON, 'revive_mon'],
+        [ZOMBIFY_MON, 'zombify_mon'],
+        [BURN_OBJECT, 'burn_object'],
+        [HATCH_EGG, 'hatch_egg'],
+        [FIG_TRANSFORM, 'fig_transform'],
+        [SHRINK_GLOB, 'shrink_glob'],
+        [MELT_ICE_AWAY, 'melt_ice_away'],
+    ];
+    // One short of the enum, which is ROT_CORPSE.
+    assert.equal(rows.length, NUM_TIME_FUNCS - 1);
+
+    for (const [index, name] of rows) {
+        const state = rottingState(100);
+        start_timer(0, TIMER_OBJECT, index, { where: OBJ_FLOOR, timed: 0 },
+                    state);
+        assert.throws(
+            () => run_timers(state, { newsym: () => {} }),
+            (error) => error.reason
+                === `a ported timeout function, but ${name}() is due`,
+            `row ${index}`,
+        );
+    }
+});
 
 test('run_timers fires equal expiries in the order start_timer built', () => {
     const state = rottingState(300);
