@@ -1,6 +1,6 @@
 {
   "mode": "implementation",
-  "reason": "The marker now has a representation and a name. display.c map_invisible(), unmap_invisible()'s TRUE arm, reset_glyphmap()'s GLYPH_INVIS_OFF arm and newsym()'s marker arm are ported, glyph_is_invisible() compares C's glyph number, and do_name.c x_monnam()'s do_it arm answers `it`. What is still missing is the writer's consumer: mhitm.c pre_mm_attack()'s two arms, mon.c mondead()'s clear, and the hack.c sites the writer makes reachable.",
+  "reason": "Every candidate the slice owns is done. The marker has a representation (GLYPH_INVISIBLE through map_glyphinfo()), a writer (mhitm.c pre_mm_attack()'s two arms), a lifetime (newsym()'s marker arm, mon.c mondead()'s clear, display.c unmap_invisible()) and a name (do_name.c x_monnam()'s do_it arm). One candidate outside the owner list was ported because it sits between the slice's starting point and its stated result: mon.c make_corpse()'s mummy and zombie group, which seed0006's kobold zombie reaches one call after the message.",
   "commitChecked": "b4a8f01aed5dc8d2f6965592c4dd2f5ab97524ae",
   "boundary": {
     "goalId": "remembered-invisible-monster",
@@ -24,18 +24,18 @@
       "reachability": "gv.vis TRUE, set at mattackm():355-357 from `(cansee(magr) && canspotmon(magr)) || (cansee(mdef) && canspotmon(mdef))`, with the defender not spottable. Runs before hitmm()/missmm() print anything and draws no random number.",
       "owner": "js/mhitm.js pre_mm_attack()",
       "effects": "Writes GLYPH_INVISIBLE into the defender's square in map memory and draws it, unless the square is the hero's own.",
-      "evidence": "The port refuses at js/mhitm.js:195, `unsupported('an unseen defender marked on the map')`. seed0006 step 77 reaches it.",
-      "status": "missing",
-      "remaining": "Port display.c map_invisible() and call it here."
+      "evidence": "Ported at js/mhitm.js pre_mm_attack(), which imports map_invisible() directly rather than taking it as an injected operation: `redraw` is injected because newsym() paints the module-global game, and map_invisible() takes the state it writes. Four rows of the fresh matrix reach this arm.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "mhitm.c pre_mm_attack() (63-64), `if (!canspotmon(magr)) map_invisible(magr->mx, magr->my);`",
       "reachability": "Same gv.vis guard, with the aggressor not spottable. gv.vis can still be TRUE through the defender half of the disjunct, so the arm is reachable.",
       "owner": "js/mhitm.js pre_mm_attack()",
       "effects": "Same write at the aggressor's square.",
-      "evidence": "The port refuses at js/mhitm.js:192, `unsupported('an unseen attacker marked on the map')`. It is the same map_invisible() call as the defender arm, so it closes with it.",
-      "status": "missing",
-      "remaining": "Call the ported map_invisible() here too. No development session is known to reach this arm, so it closes on a unit test unless the fresh recording produces one."
+      "evidence": "Ported beside the defender's arm. Fresh-matrix seed 4310059 reaches it: \"It bites the newt.\" at step 24 marks the attacker's square and the marker stands for the sixteen remaining steps.",
+      "status": "done",
+      "remaining": "None. scripts/mhitm.test.mjs 'an unspottable aggressor is marked on its own square' pins that the spotted defender's square is left alone."
     },
     {
       "candidate": "mhitm.c pre_mm_attack() (48-51 and 55-58), the two M_AP_TYPE arms calling mon.c seemimic()",
@@ -175,20 +175,20 @@
     {
       "candidate": "do_name.c mon_nam_too() (1190-1215), which returns mon_nam(mon) unless the two monsters are the same, in which case it uses a reflexive pronoun",
       "reachability": "hitmm() and missmm() both call it for the defender relative to the aggressor.",
-      "owner": "js/mhitm.js mon_nam_too()",
+      "owner": "js/do_name.js mon_nam_too(), called from js/mhitm.js",
       "effects": "The defender's name in the message.",
-      "evidence": "Ported and already called at js/mhitm.js:218. It inherits do_it through mon_nam(), which is how `it` reaches the seed0006 message line.",
-      "status": "missing",
-      "remaining": "Nothing in mon_nam_too() itself changes; it becomes correct when mon_nam() does. Its reflexive arm is separate and stays as it is."
+      "evidence": "Ported already, and correct now that mon_nam() is: monsterCommonName() answers \"it\" for a defender the hero cannot spot, which is what reaches the message line. Its reflexive arm is unchanged.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "mon.c mondead() (3170-3171), `if (glyph_is_invisible(levl[mtmp->mx][mtmp->my].glyph)) unmap_object(mtmp->mx, mtmp->my);`",
       "reachability": "Any monster death at a square holding the marker. In seed0006 step 77 the kobold dies from the bite that wrote the marker.",
       "owner": "js/mon.js mondead() (1760), which refuses with `forgetting a remembered invisible monster`",
       "effects": "Clears the marker from map memory before m_detach()'s newsym() repaints the square.",
-      "evidence": "Without it the port stops one call after the message. With the marker written but this skipped, a stray `I` would sit at column 62, row 9 for the whole remaining stretch.",
-      "status": "missing",
-      "remaining": "Port the clear. seed0006 step 77 is the differential that covers it."
+      "evidence": "Ported. Fresh-matrix seeds 4310041 and 4310392 are the differential: the defender dies to the blow that marked it, and no screen in either segment ever draws an 'I'.",
+      "status": "done",
+      "remaining": "None. seed0006 step 77 reaches the same pair of calls, and the port now replays through step 94 of that session."
     },
     {
       "candidate": "display.c unmap_invisible() (387-396), the TRUE arm `unmap_object(x, y); newsym(x, y); return TRUE;`",
@@ -209,22 +209,22 @@
       "remaining": "None. 'bhit() erases a remembered invisible monster and nothing else' pins zap.c:4083's conjunction on both halves."
     },
     {
-      "candidate": "The hack.c marker readers at 206, 1935, 2244, 2273 and 2889, and the write at 2902",
-      "reachability": "domove_core(), test_move() and the pickup arms.",
-      "owner": "js/hack.js:1229-1233, :1966, :2035 and :2238, all recorded as unreachable while map_invisible() is unported",
-      "effects": "None yet.",
-      "evidence": "Each site's comment states that the marker has no writer. Once map_invisible() lands, those statements stop being true and each becomes reachable in principle.",
-      "status": "undecided",
-      "remaining": "Re-read all six sites once map_invisible() lands and decide, per site, whether it can now fire inside a game this slice's recordings produce. Any that can and is not ported becomes a deferral with `npm run quality -- defer`, not a silent skip. Resolve before readiness."
+      "candidate": "The hack.c marker readers at 1935, 2244, 2273 and 2889, the write at 2902, and the unmap_invisible() at 2813",
+      "reachability": "domove_core(), domove_bump_mon(), domove_fight_empty() and test_move().",
+      "owner": "js/hack.js domove_fight_empty(), domove_core() and requireNoMonsterBump()",
+      "effects": "A hero who walks into a square she remembers an unseen monster on.",
+      "evidence": "Re-read once map_invisible() had a writer. 2244's disjunct is ported: domove_fight_empty() now runs for a marked square walked into without the 'm' prefix, and its thin-air arm and the unmap_object()/newsym() above it were already there. 2813's unmap_invisible() is ported and called, which is what answers the same step under the 'm' prefix. 2273's two conjuncts stay out and leave the digging refusal wider than C, which is fail-closed. 2889 and 2902 are inside domove_core()'s displaceu block, which js/hack.js refuses above them. hack.c:206 is in moverock(), which has no port at all (`grep -rn moverock js/` finds nothing).",
+      "status": "done",
+      "remaining": "1935's `glyph_is_invisible(glyph)` disjunct in domove_bump_mon() is the one site left out. It is not a silent divergence -- the port falls through to uhitm.c attack_checks(), which refuses an unspottable target -- so both routes end the segment on the same screen. Recorded as the deferral reqmenu-bump-ignores-the-invisible-monster-marker."
     },
     {
       "candidate": "The mhitu.c marker sites at 91, 553, 668, 685 and 1156",
       "reachability": "A hero attacked by a monster it cannot spot.",
       "owner": "js/mhitu.js:272, :539 and :845, refusing",
       "effects": "None inside the boundary.",
-      "evidence": "The goal entry assigns them to later goals; js/mhitu.js:272-275 records that the marker and the `it` name refuse together, which this slice half-resolves by porting the name.",
+      "evidence": "The refusals survive unchanged and none became a silent divergence: js/mhitu.js missmu() and hitmu() still call unsupported() before they print. What changed is the reason, and their comments now say so -- map_invisible() and the \"it\" name both exist, and what is missing is a recorded case for a hero attacked by a monster it cannot spot.",
       "status": "later",
-      "remaining": "Their refusals must survive this slice. Check that porting the name does not turn any of them from a fail-closed stop into a silent divergence; if one does, it becomes a deferral."
+      "remaining": "None for this slice. The goal that records that case retires both refusals."
     },
     {
       "candidate": "mon.c monstone() (3358-3359), the same clear as mondead()'s",
@@ -234,6 +234,15 @@
       "evidence": "No ported path petrifies a monster.",
       "status": "later",
       "remaining": "None for this slice."
+    },
+    {
+      "candidate": "mon.c make_corpse() (622-649), the mummy and zombie group: undead_to_corpse(), mkcorpstat() with the monster itself, and `obj->age -= (TAINT_AGE + 1)`",
+      "reachability": "Any mummy or zombie that dies and leaves a corpse.",
+      "owner": "js/mon.js make_corpse()",
+      "effects": "Leaves the living creature's corpse, already tainted, instead of the undead species'.",
+      "evidence": "Not in the slice's owner list, and ported anyway because it sits between the slice's starting point and its stated result: seed0006 step 77's kobold is a kobold zombie, so the port reached this refusal one call after the message the marker work unblocked. Both helpers already existed -- undead_to_corpse() at js/mondata.js:1067 and mkcorpstat() at js/corpstat.js:105 -- so the arm is five lines. It also needed C's control flow made explicit: `default_1:` is a label inside the switch, so an arm that breaks skips the G_NOCORPSE test and the general mkcorpstat() under it, which every other break arm hid because it refuses.",
+      "status": "done",
+      "remaining": "None. scripts/mon-kill.test.mjs \"a zombie leaves the living creature's old corpse\" pins the species, the age and the saved traits; seed0006 is the differential."
     }
   ],
   "missingWorkByOwner": [
@@ -285,5 +294,5 @@
       "next": "Re-read every site whose comment says the marker has no writer, once one exists. Each must be a fail-closed stop or a ported path; a site that silently takes the wrong branch is what this entry exists to catch."
     }
   ],
-  "sourceReview": "Not yet attested. The candidate list above was built by reading mhitm.c pre_mm_attack() and its two callers, display.c map_invisible(), unmap_invisible(), show_mon_or_warn(), mon_overrides_region(), feel_location(), newsym() and reset_glyphmap(), do_name.c x_monnam() with its six wrappers, and mon.c mondead() and monstone(), and by grepping the whole of nethack-c/upstream/src and include for every marker site. What it does not yet cover: the random-number order through hitmm() and mdamagem() after pre_mm_attack() returns, which the differential must confirm is unchanged; the port's newsym() control flow, which has to be read line by line before the marker arm can be placed; and the four entries left `undecided`, which are feel_location()'s boulder-or-marker arm, noit_mon_nam()'s SUPPRESS_IT, unmap_invisible()'s TRUE arm, and the six hack.c sites."
+  "sourceReview": "Attested. Read in full: mhitm.c pre_mm_attack() with missmm() and hitmm(); display.c map_invisible(), unmap_invisible(), show_mon_or_warn(), mon_overrides_region(), feel_location(), newsym() and reset_glyphmap()'s GLYPH_INVIS_OFF arm; do_name.c x_monnam() with mon_nam(), Monnam(), noit_mon_nam(), some_mon_nam() and mon_nam_too(); mon.c mondead(), monstone(), undead_to_corpse() and make_corpse() including its default_1 label; hack.c domove_bump_mon(), domove_fight_empty() and domove_core()'s !displaceu block; detect.c mfind0() and dosearch0()'s unmap_invisible() call; zap.c bhit()'s marker erase; uhitm.c attack_checks() and do_attack()'s atk_done tail. The four entries left undecided are resolved: feel_location()'s boulder-or-marker arm cannot occur, because it is inside the Levitation Rules block the port refuses wholesale; noit_mon_nam() passes SUPPRESS_IT and is pinned by a test; unmap_invisible()'s TRUE arm landed here, because both ported callers can reach a live marker; and the hack.c sites are ported but for domove_bump_mon()'s, which is a deferral rather than a silent skip. What this review does not cover: the port's own newsym() beyond the four arms of C's chain, and the sixty-odd map_invisible() callers whose commands are unported."
 }

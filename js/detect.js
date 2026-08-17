@@ -496,8 +496,11 @@ function preflightTrap(env, trap) {
 /**
  * The three discovery arms of detect.c mfind0(), which decide whether a
  * monster on an adjacent square is found rather than merely redrawn.  Each one
- * exercises Wisdom, writes a message and needs a helper this port does not
- * have: seemimic(), map_invisible(), or the mundetected reveal.
+ * exercises Wisdom, writes a message and needs something this port does not
+ * have: seemimic(), the mundetected reveal, or -- for an unspotted monster --
+ * detect.c:2003-2005's `You_feel("an unseen monster!")` with the set_msg_xy()
+ * that places its cursor, and the `-1` at 1997 that declines to spend the turn
+ * when the square already carries the marker.
  *
  * mfind0() calls this at the square it is looking at and
  * preflightExplicitSearch() calls it at all eight, so a refusal here always
@@ -523,7 +526,7 @@ function preflightSearchMonster(monster, env) {
     }
     if (!canSpotMonster(monster, state)) {
         throw new UnsupportedSearchError(
-            'searching out an unspotted monster needs map_invisible()',
+            'searching out an unspotted monster needs its own message',
         );
     }
 }

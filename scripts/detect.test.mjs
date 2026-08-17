@@ -1288,9 +1288,10 @@ const FOUND_DOOR_EVENTS = Object.freeze([
 ]);
 
 // C keeps every branch this port cannot finish behind one of dosearch0()'s
-// three `!aflag` tests: feel_location() at detect.c:2040, mfind0() at 2064 and
-// unmap_invisible() at 2076, plus the Norep() at 2023 that a swallowed hero
-// reaches. UnsupportedSearchError therefore belongs to the explicit `s`
+// three `!aflag` tests: feel_location() at detect.c:2040 and mfind0() at 2064,
+// plus the Norep() at 2023 that a swallowed hero reaches. The third,
+// unmap_invisible() at 2076, refuses nothing now that both of its arms are
+// ported. UnsupportedSearchError therefore belongs to the explicit `s`
 // command alone, which js/cmd.js failClosedCommand() converts into a retryable
 // command boundary. allmain.c:342-344 drives the automatic arm from
 // moveloop_core(), where no converting wrapper exists, so a refusal that
@@ -1306,7 +1307,7 @@ test('every explicit search refusal leaves the automatic arm intact', async () =
         }, /needs seemimic\(\)/, [0], FOUND_DOOR_EVENTS],
         ['an unspotted monster', (state) => {
             placeTestMonster(state, 9, 10, { minvis: 1 });
-        }, /needs map_invisible\(\)/, [0], FOUND_DOOR_EVENTS],
+        }, /needs its own message/, [0], FOUND_DOOR_EVENTS],
         ['a hidden eel', (state) => {
             placeTestMonster(state, 9, 10, { mundetected: 1 }, {
                 mlet: S_EEL,
@@ -1470,7 +1471,7 @@ test('explicit search redraws an adjacent spotted monster and draws for its trap
 test('explicit search refuses every mfind0 discovery arm before any draw', async () => {
     const cases = [
         ['a mimic', { m_ap_type: M_AP_OBJECT }, /needs seemimic\(\)/],
-        ['an unspotted monster', { minvis: 1 }, /needs map_invisible\(\)/],
+        ['an unspotted monster', { minvis: 1 }, /needs its own message/],
         // is_hider()/hides_under()/S_EEL, the three species tests mfind0()
         // applies to a mundetected monster.
         ['an eel', { mundetected: 1, mlet: S_EEL }, /hidden monster/],

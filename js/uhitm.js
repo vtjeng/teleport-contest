@@ -279,7 +279,10 @@ export async function mhitm_mgc_atk_negated(
 // Four arms stop instead of porting, and each is the whole of one C branch:
 //
 //   198-199  engulfing_u(): the hero is inside the target.
-//   230-252  a target the hero cannot spot needs display.c map_invisible().
+//   230-252  a target the hero cannot spot, whose arm prints "Wait!  There's
+//            something there you can't see!", marks the square and calls
+//            mon.c wakeup(mtmp, TRUE) before returning TRUE. The line and the
+//            wakeup are what stop it; map_invisible() itself is ported.
 //   254-297  a mimicking or hidden target needs seemimic(),
 //            stumble_onto_mimic() or the hiding reveal, none of them ported.
 //            C splits it into three tests; a mimic appearance or mundetected
@@ -303,9 +306,9 @@ export function attack_checks(mtmp, wep, state = game, env = {}) {
     if (state.context?.forcefight) {
         // C's own canspotmon() test here is inside the commented-out block,
         // so this one is not C's: it is where the port pays for do_attack()'s
-        // unported tail. That tail marks an unspottable survivor with
-        // map_invisible(), and refusing the unspottable target before the
-        // blow is what keeps it out of reach. A target the hero can spot --
+        // unported tail at 577-580, which marks an unspottable survivor.
+        // Refusing the unspottable target before the blow is what keeps that
+        // tail out of reach. A target the hero can spot --
         // the case 'F' is normally pressed for -- runs the whole attack.
         if (!canSpotMonster(mtmp, state))
             unsupported('force-fight at a monster the hero cannot spot');
@@ -530,18 +533,15 @@ export async function do_attack(monster, state = game, env = {}) {
     monster.mstrategy &= ~STRAT_WAITMASK;
 
     // 577-580. C marks the square with an 'I' when a forced blow leaves a
-    // target the hero cannot spot alive. display.c map_invisible() is
-    // unported, and nothing in this port reaches it: attack_checks() admits a
-    // force-fight only against a target the hero can spot, and the arms
-    // between there and here that could take that back stop before they get
-    // to. passive() refuses every counter-attack damage type but AD_PHYS, so
-    // no blow blinds the hero, and mhitm_knockback() refuses the knockback
-    // that could carry the target out of sight. C's own glyph term contributes
-    // nothing either way: glyph_is_invisible() is constantly false here,
-    // because map_invisible() is the only writer of the marker it reads, and
-    // C's conjunct is the negation `!glyph_is_invisible(...)`, so it is
-    // constantly true. What keeps the tail out of reach is the spot check
-    // attack_checks() now performs, together with !DEADMONSTER(mtmp).
+    // target the hero cannot spot alive. Nothing in this port reaches that
+    // tail: attack_checks() admits a force-fight only against a target the
+    // hero can spot, and the arms between there and here that could take that
+    // back stop before they get to. passive() refuses every counter-attack
+    // damage type but AD_PHYS, so no blow blinds the hero, and
+    // mhitm_knockback() refuses the knockback that could carry the target out
+    // of sight. What keeps the tail out of reach is that spot check together
+    // with !DEADMONSTER(mtmp); C's `!glyph_is_invisible(...)` conjunct is not
+    // reached at all, so whether a marker sits on the square is moot.
     return true;
 }
 
@@ -1555,8 +1555,8 @@ export async function mhitm_ad_phys(
 // dmgval() is not reached for one and is called here only when it is.
 //
 // A shade defender refuses. Everything below the head prints -- through
-// objnam.c cxname(), hacklib.c vtense() and do_name.c mon_nam() -- and then
-// calls display.c map_invisible() and clears the shade's msleeping. The
+// objnam.c cxname() and hacklib.c vtense(), neither of them ported for this
+// line -- and then marks the square and clears the shade's msleeping. The
 // refusal sits above all of it, and above the TRUE that would tell the caller
 // the blow passed harmlessly through.
 export function shade_miss(

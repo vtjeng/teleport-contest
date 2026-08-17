@@ -63,6 +63,7 @@ import {
     PROT_FROM_SHAPE_CHANGERS,
     STRAT_WAITFORU,
     STRAT_WAITMASK,
+    TAINT_AGE,
     UNLOCKDOOR,
     W_AMUL,
     WT_HUMAN,
@@ -75,7 +76,7 @@ import {
 } from './const.js';
 import { artifact_exists } from './artifacts.js';
 import { night } from './calendar.js';
-import { glyph_is_invisible, newsym } from './display.js';
+import { glyph_is_invisible, newsym, unmap_object } from './display.js';
 import { capitalizedMonsterName, monsterCommonName } from './do_name.js';
 import { flooreffects } from './do.js';
 import { finish_meating } from './dogmove.js';
@@ -136,6 +137,7 @@ import {
     strongmonst,
     throws_rocks,
     tunnels,
+    undead_to_corpse,
     unique_corpstat,
     unsolid,
     verysmall,
@@ -1757,10 +1759,13 @@ export async function mondead(mtmp, state = game, env = {}) {
     /* "achievement and/or livelog" */
     logdeadmon(mtmp, mndx, state, env);
 
+    /* mon.c:3170-3171. The marker goes before m_detach()'s newsym() repaints
+       the square, so a monster that dies where the hero was only told
+       something invisible stood leaves no stray 'I' behind. */
     if (glyph_is_invisible(
         state.level.at(mtmp.mx, mtmp.my).remembered_glyph?.glyph,
     ))
-        unsupported('forgetting a remembered invisible monster');
+        unmap_object(mtmp.mx, mtmp.my, state);
 
     /* "remove 'mtmp' from play; it will stay on the fmon list until end of
        current move, then dmonsfree() will get rid of it" */
@@ -1861,16 +1866,17 @@ function safe_oname(obj) {
 // include/patchlevel.h:33 sets NH_DEVEL_STATUS to NH_STATUS_RELEASED, so the
 // 154-line PM_ roster at 686-844 is excluded and its `#else default:` at 846
 // is what every unlisted species reaches, falling through to the `default_1`
-// label at 848. What survives is that label and the twelve special groups
-// above it, and each group stops at the top of its own case, above the first
-// draw or object it would make:
+// label at 848. What survives is that label, the mummy and zombie group at
+// 622-649, which is ported, and five groups that stop at the top of their own
+// case, above the first draw or object each would make:
 //
 //   582-597  dragon scales, and the rn2(3) or rn2(20) that decides them.
 //   598-611  a unicorn horn, and the rn2(2) that crumbles a regrown one.
 //   612-614  the long worm's tooth.
-//   615-621  vampires, which need undead_to_corpse() and mkcorpstat() with the
-//            monster itself.
-//   622-645  the mummies and zombies, which need the same pair.
+//   615-621  vampires, whose five lines are the mummy and zombie group's
+//            exactly. It is left refusing because no case has reached it:
+//            mondead()'s is_vampshifter() stop sits above this call for a
+//            shifted vampire, and no recorded game kills a true one.
 //   646-731  the nine golem bodies, seven of which roll for their pieces.
 //   732-746  the four puddings, which need obj_meld() and obj_nexto().
 //
@@ -1894,6 +1900,14 @@ function make_corpse(mtmp, corpseflags, state, env) {
 
     if (mtmp.female) corpstatflags |= CORPSTAT_FEMALE;
     else if (!is_neuter(mtmp.data)) corpstatflags |= CORPSTAT_MALE;
+
+    // C's `default_1:` label sits inside the switch, so every arm that
+    // `break`s -- the vampires, the mummies and zombies, the golems and the
+    // puddings -- skips the G_NOCORPSE test and the general mkcorpstat() under
+    // that label and lands on the closing `if (!obj) return 0;`. All of those
+    // arms but the mummies and zombies still refuse, so this is the only value
+    // that can carry a corpse past the switch.
+    let undeadCorpse = null;
 
     switch (mndx) {
     case PM_GRAY_DRAGON:
@@ -1936,7 +1950,24 @@ function make_corpse(mtmp, corpseflags, state, env) {
     case PM_HUMAN_ZOMBIE:
     case PM_GIANT_ZOMBIE:
     case PM_ETTIN_ZOMBIE:
-        unsupported("a dead mummy or zombie's old corpse");
+        /* 622-649. The body a zombie or a mummy leaves is the living
+           creature's, and C's comment calls it an *OLD* corpse: subtracting
+           TAINT_AGE + 1 from the age mksobj() just stamped puts it one turn
+           past the point where eating it makes the hero ill. C's own comment
+           at 620 says to "include mtmp in the mkcorpstat() call", so every
+           corpse from this group carries save_mtraits()' copy of the monster,
+           where default_1 below passes it only for KEEPTRAITS(). */
+        corpstatflags |= CORPSTAT_INIT;
+        undeadCorpse = mkcorpstat(
+            CORPSE,
+            mtmp,
+            state.mons[undead_to_corpse(mndx)],
+            x,
+            y,
+            corpstatflags,
+            { ...env, state },
+        );
+        undeadCorpse.age -= (TAINT_AGE + 1);
         break;
     case PM_IRON_GOLEM:
     case PM_GLASS_GOLEM:
@@ -1960,18 +1991,21 @@ function make_corpse(mtmp, corpseflags, state, env) {
     }
 
     /* default_1: */
-    if (state.svm.mvitals[mndx].mvflags & G_NOCORPSE) return null;
-    corpstatflags |= CORPSTAT_INIT;
-    /* "preserve the unique traits of some creatures" */
-    const obj = mkcorpstat(
-        CORPSE,
-        KEEPTRAITS(mtmp, state) ? mtmp : null,
-        mdat,
-        x,
-        y,
-        corpstatflags,
-        { ...env, state },
-    );
+    let obj = undeadCorpse;
+    if (!obj) {
+        if (state.svm.mvitals[mndx].mvflags & G_NOCORPSE) return null;
+        corpstatflags |= CORPSTAT_INIT;
+        /* "preserve the unique traits of some creatures" */
+        obj = mkcorpstat(
+            CORPSE,
+            KEEPTRAITS(mtmp, state) ? mtmp : null,
+            mdat,
+            x,
+            y,
+            corpstatflags,
+            { ...env, state },
+        );
+    }
 
     /* "All special cases should precede the G_NOCORPSE check" */
     if (!obj) return null;

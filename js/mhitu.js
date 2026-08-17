@@ -269,10 +269,11 @@ export async function hitmsg(mtmp, mattk, state = game, env = {}) {
 
 // C ref: mhitu.c missmu() (84-100). "monster missed you".
 //
-// C opens with map_invisible() for a monster the hero cannot spot. That
-// function is unported (js/display.js:1778 documents the gap), and the name
-// this prints would be "it" for the same monster, which
-// capitalizedMonsterName() cannot spell either, so the pair refuses together.
+// C opens with map_invisible() for a monster the hero cannot spot. Both that
+// function and the "it" name this would print are ported now, so what is left
+// is the case rather than the machinery: no fresh recording covers a hero
+// missed by a monster it cannot spot, and the goal that owns this arm is the
+// one that will record it. The refusal stands until then.
 async function missmu(mtmp, nearmiss, mattk, rawEnv = {}) {
     const state = rawEnv.state ?? game;
     const unsupported = requireMattackuOperation(rawEnv, 'unsupported');
@@ -536,9 +537,9 @@ export async function mattacku(monster, rawEnv = {}) {
     }
 
     // The three hero-concealment blocks (551-706). Each ends in `return 0`
-    // after revealing the hero, and each needs machinery -- map_invisible(),
-    // enexto()/teleds(), set_ustuck(), unmul() -- that is not ported. Their
-    // shared gate, `!range2 && foundyou && !u.uswallow`, is written once.
+    // after revealing the hero, and each needs machinery -- enexto()/teleds(),
+    // set_ustuck(), unmul() -- that is not ported. Their shared gate,
+    // `!range2 && foundyou && !u.uswallow`, is written once.
     if (!range2 && foundyou) {
         if (u.uundetected) unsupported('a monster finding the hidden hero');
         if (state.youmonst.data.mlet === M.S_MIMIC
@@ -842,8 +843,9 @@ function Half_physical_damage(state) {
 // Ported: the base damage roll, mhitm_adtyping(), mhitm_knockback(), the
 // negative-armor-class reduction, mdamageu() and passiveum().
 //
-// Refused where C acts: map_invisible() for an unspottable attacker, which
-// missmu() refuses for the same reason; the block that reveals an attacker
+// Refused where C acts: the marker for an unspottable attacker, which missmu()
+// refuses for the same reason -- the machinery exists and the recorded case
+// does not; the block that reveals an attacker
 // hidden under an object, which needs doname(), Amonnam() and tp_sensemon();
 // and, inside mdamageu(), the hero's own death.
 //

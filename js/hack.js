@@ -106,9 +106,11 @@ import {
     classify_terrain,
     feel_location,
     flush_screen,
+    glyph_is_invisible,
     glyph_to_cmap,
     newsym,
     back_to_glyph,
+    unmap_invisible,
     unmap_object,
     wall_angle,
 } from './display.js';
@@ -1224,13 +1226,18 @@ function carriesUnlockingTool(state) {
 // because js/hack.js:412, js/cmd.js:844 and js/cmd.js:865 are the only writers
 // of context.travel and all three write 0.
 //
-// The two glyph terms are left out for a different reason. Both stand in for
-// remembering a monster the hero cannot make out, and both are false: the
-// invisible-monster marker has no writer while display.c map_invisible() is
-// unported (js/display.js:1507-1524), and a warning glyph needs a warning
-// level this port never raises. Without them an unspotted target falls through
-// to do_attack(), which is what C does too, and stops inside attack_checks()
-// on the arm that needs map_invisible().
+// The two glyph terms are left out. glyph_is_warning() is constantly false,
+// because a warning glyph needs a warning level this port never raises.
+// glyph_is_invisible() is not: mhitm.c pre_mm_attack() writes the marker now,
+// so a target the hero cannot spot standing where one was written would take
+// C's arm and print. This port falls through to do_attack() instead, and
+// uhitm.c attack_checks() refuses an unseen-monster attack there
+// (js/uhitm.js:307). Both routes end the segment on the same screen, so the
+// term would change which refusal names the stop and nothing else. Adding it
+// without the arm under it would only move the stop, and the arm needs
+// stumble_onto_mimic() and the m_monnam() half of its message pair, neither of
+// which is ported; the deferral
+// reqmenu-bump-ignores-the-invisible-monster-marker owns the gap.
 //
 // cmd.c set_move_cmd() copies the prefix into context.nopick, but
 // executeMovement() runs this seam before that call, so the pending
@@ -1965,11 +1972,15 @@ function domove_fight_web(x, y, state) {
 //     svc.context.forcefight
 //     || (glyph_is_invisible(glyph) && !m_at(x, y) && !svc.context.nopick)
 // Its second disjunct is a remembered 'I' the hero walked into without the
-// prefix. It cannot fire: display.c map_invisible() is the only writer of the
-// marker js/display.js glyph_is_invisible() reads and it is unported, and
-// uhitm.c attack_checks() refuses an unseen-monster attack before any square
-// could come to carry one. Spelling it out would add three terms no test can
-// decide, so this note owns it instead.
+// prefix: C spends the turn swinging at it and forgets it, rather than walking
+// on. mhitm.c pre_mm_attack() is the ported writer of that marker, so the
+// disjunct is live and is carried below.
+//
+// C reads the drawn glyph there (glyph_at() at 2232, the display buffer) where
+// this reads map memory. The two agree wherever the marker exists: display.c
+// map_invisible() writes both together, newsym()'s marker arm re-asserts both,
+// and nothing else writes either. show_glyph_cell() keeps no glyph number on
+// the drawn cell, which is why the memory is the one that can be read.
 //
 // Three message arms are live. The off-edge arm at 2252-2256 answers the one
 // caller that is not domove_core(): move_out_of_bounds() hands a force-fight
@@ -1977,7 +1988,14 @@ function domove_fight_web(x, y, state) {
 // with a remembered appearance, and the thin-air arm at 2314-2316 names
 // nothing. Every other arm stops, each named below.
 async function domove_fight_empty(x, y, state) {
-    if (!state.context.forcefight) return false;
+    // C computes `off_edge` and the glyph above the entry test, and an
+    // off-edge square takes GLYPH_UNEXPLORED, which is not the marker. So the
+    // disjunct needs isok() where the forcefight half does not.
+    const remembersUnseenMonster = isok(x, y)
+        && glyph_is_invisible(state.level.at(x, y).remembered_glyph?.glyph)
+        && !m_at(x, y, state)
+        && !state.context.nopick;
+    if (!state.context.forcefight && !remembersUnseenMonster) return false;
 
     // 2247 explo, whose consequences are the tail at 2324-2334: wake_nearto(),
     // explum(), u.mh = -1 and rehumanize(). Nothing in this port polymorphs the
@@ -2036,8 +2054,9 @@ async function domove_fight_empty(x, y, state) {
     // !glyph_is_monster(glyph), are the "should we dig?" half and both make C
     // swing rather than dig. Neither is ported, so this refusal is wider than
     // C on a square whose map memory holds an unseen-monster marker or a
-    // monster that has since left it -- fail-closed, and the marker has no
-    // writer at all, as the header note above says.
+    // monster that has since left it. It is fail-closed, and the marker now
+    // has a writer, so a hero wielding a digging tool who walks into a
+    // remembered 'I' stops here instead of swinging at thin air.
     if (state.uwep
         && dig_typ(state.uwep, x, y, state) !== DIGTYP_UNDIGGABLE) {
         throw new UnsupportedHeroMoveBoundaryError(
@@ -2234,16 +2253,20 @@ async function domove_core(state = game) {
     // block is entered on every step that gets this far. All three run before
     // the u.utrap block and before test_move(), so a force-fight answers the
     // square whatever else is true of the hero or the terrain.
-    //
-    // C's unmap_invisible(x, y) at 2812 follows them. It is ported and cannot
-    // do anything: display.c map_invisible(), the only writer of the marker it
-    // clears, is not.
     domove_fight_ironbars(newx, newy, state);
     domove_fight_web(newx, newy, state);
     if (await domove_fight_empty(newx, newy, state)) {
         state.domoveAttempting = 0;
         return;
     }
+
+    // C ref: domove_core():2812. The square the hero is about to step onto is
+    // about to become known, so a marker left there by a monster that has
+    // since moved away is cleared and the square repainted. It answers FALSE
+    // and does nothing on every other step. domove_fight_empty() above has
+    // already taken the marker away on the paths its own disjunct admits, so
+    // this fires for the 'm' prefix, which that disjunct excludes.
+    unmap_invisible(newx, newy, state);
 
     // C ref: domove_core():2815-2818, C's first line after unmap_invisible()
     // and its comment "not attacking an animal, so we try to move". A steed

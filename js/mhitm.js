@@ -15,6 +15,7 @@ import {
     NATTK,
     helpless,
 } from './const.js';
+import { map_invisible } from './display.js';
 import {
     capitalizedMonsterName,
     mon_nam_too,
@@ -160,14 +161,21 @@ async function noises(magr, mattk, env) {
 // even if hero can't see it because the formerly concealed monster is now in
 // action".
 //
-// Three arms refuse. A mimic on either side needs mon.c seemimic(), and a
-// monster the hero cannot spot needs display.c map_invisible(); both write to
-// the map and print nothing, so the stop sits exactly where C's branch begins.
+// Two arms refuse. A mimic on either side needs mon.c seemimic(), which writes
+// to the map and prints nothing, so the stop sits exactly where C's branch
+// begins.
 //
 // Both mundetected clears are ported, and only the aggressor's runs. A hidden
 // defender stops mattackm() at its own :337-359 block, well above the call
 // that arrives here, so `mdef.mundetected` is 0 on every path that reaches
 // this function. The clear is written because C writes it.
+//
+// map_invisible() is called directly rather than injected the way `redraw` is.
+// `redraw` is newsym(), which paints the module-global game and so has to be
+// replaced by a no-op for the once-per-turn planning clone; map_invisible()
+// takes the state it writes. No planning caller reaches here in any case:
+// js/allmain.js finishElapsedTurn() is the only function a clone runs with
+// `planning: true`, and it runs after mon.c movemon() rather than inside it.
 function pre_mm_attack(magr, mdef, env) {
     const { state } = env;
     const unsupported = requireAttackOperation(env, 'unsupported');
@@ -188,11 +196,14 @@ function pre_mm_attack(magr, mdef, env) {
     }
 
     if (state.gv.vis) {
+        // C's `if/else if` per participant: a marker write and a redraw are
+        // mutually exclusive, so a monster the hero cannot spot is marked and
+        // not redrawn even when showit is set.
         if (!canSpotMonster(magr, state))
-            unsupported('an unseen attacker marked on the map');
+            map_invisible(magr.mx, magr.my, state);
         else if (showit) redraw(magr.mx, magr.my);
         if (!canSpotMonster(mdef, state))
-            unsupported('an unseen defender marked on the map');
+            map_invisible(mdef.mx, mdef.my, state);
         else if (showit) redraw(mdef.mx, mdef.my);
     }
 }

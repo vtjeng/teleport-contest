@@ -10,6 +10,7 @@ import {
     NATTK,
     PIT,
 } from '../js/const.js';
+import { glyph_is_invisible, unmap_invisible } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { mattackm } from '../js/mhitm.js';
@@ -942,10 +943,10 @@ test('an ordinary blow repaints neither combatant', async () => {
 // each combatant contributes only when the hero can both see its square and
 // spot the monster on it.
 //
-// Every configuration in which the two conjunctions disagree is one
-// pre_mm_attack() refuses, because a combatant the hero cannot spot needs
-// display.c map_invisible(). The rows below therefore read the answer off that
-// refusal and off the line missmm() prints instead of it.
+// Where the two conjunctions disagree, pre_mm_attack() marks the combatant the
+// hero cannot spot with display.c map_invisible() and missmm() names it "it".
+// The rows below read the answer off that marker and off the line printed
+// beside it.
 test('gv.vis needs one combatant both in sight and spotted', async () => {
     await hero();
     const { ax, dx, y } = battlefield(1);
@@ -955,12 +956,25 @@ test('gv.vis needs one combatant both in sight and spotted', async () => {
     const lit = { attacker: game.viz_array[y][ax], defender: game.viz_array[y][dx] };
 
     // The attacker alone contributes, which is enough: the disjunction is
-    // true and the unspottable defender then stops the attack.
+    // true, so the fight is seen, and the unspottable defender is marked on
+    // the map and named "it".
     game.viz_array[y][dx] = 0;
-    await assert.rejects(
-        mattackm(pet, ant, attackEnv([20])),
-        /an unseen defender marked on the map/u,
+    const seen = attackEnv([20]);
+    assert.equal(await mattackm(pet, ant, seen), M_ATTK_MISS);
+    assert.equal(game.gv.vis, true);
+    assert.deepEqual(seen.lines, ['The kitten misses it.']);
+    assert.equal(
+        glyph_is_invisible(game.level.at(dx, y).remembered_glyph?.glyph),
+        true,
     );
+    // The spotted attacker keeps its own square: C's `if/else if` marks only
+    // the combatant the hero cannot spot, and showit is FALSE here anyway.
+    assert.equal(
+        glyph_is_invisible(game.level.at(ax, y).remembered_glyph?.glyph),
+        false,
+    );
+    assert.deepEqual(seen.redraws, []);
+    unmap_invisible(dx, y, game);
 
     // An invisible attacker on a lit square passes cansee() and fails
     // canspotmon(), so its conjunction is false and, with the defender's
@@ -980,6 +994,34 @@ test('gv.vis needs one combatant both in sight and spotted', async () => {
 
     ant.minvis = false;
     game.viz_array[y][ax] = lit.attacker;
+});
+
+// mhitm.c pre_mm_attack():63-64, the aggressor's half of the pair. No
+// development session reaches it, so this is the whole of its coverage: an
+// invisible attacker on a lit square fails canspotmon() while the spotted
+// defender keeps gv.vis TRUE, which is the only way into the arm.
+test('an unspottable aggressor is marked on its own square', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield(1);
+    const pet = fixture(PM_KITTEN, ax, y, { mtame: 10, minvis: true });
+    const ant = fixture(PM_GIANT_ANT, dx, y);
+    aim(ant);
+
+    const env = attackEnv([20]);
+    assert.equal(await mattackm(pet, ant, env), M_ATTK_MISS);
+    assert.equal(game.gv.vis, true);
+    assert.deepEqual(env.lines, ['It misses the giant ant.']);
+    assert.equal(
+        glyph_is_invisible(game.level.at(ax, y).remembered_glyph?.glyph),
+        true,
+    );
+    assert.equal(
+        glyph_is_invisible(game.level.at(dx, y).remembered_glyph?.glyph),
+        false,
+    );
+
+    unmap_invisible(ax, y, game);
+    pet.minvis = false;
 });
 
 // mhitm.c mattackm():378-380, the DEADMONSTER() halves of the per-slot guard.

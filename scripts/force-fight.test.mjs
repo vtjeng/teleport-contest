@@ -26,9 +26,11 @@ import { do_fight, UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
 import {
     back_to_glyph,
     cmap_to_glyph,
+    glyph_is_invisible,
     glyph_to_cmap,
     map_background,
     map_glyphinfo,
+    map_invisible,
     trap_to_glyph,
     unmap_object,
     UnsupportedMapMemoryError,
@@ -401,6 +403,66 @@ test('a force-fight at an engraved square stops in unmap_object', async () => {
     );
     assert.equal(toplines(state), before);
     assert.equal(target(state).remembered_glyph, painted);
+});
+
+// hack.c domove_fight_empty():2243-2246's second disjunct, and the
+// unmap_invisible() at domove_core():2812 that answers the steps it declines.
+// Neither could fire before mhitm.c pre_mm_attack() had a marker to write.
+function walkWest(state) {
+    state.u.dx = WEST[0];
+    state.u.dy = WEST[1];
+    state.u.dz = 0;
+    state.context.forcefight = 0;
+    state.context.move = 1;
+    state.domoveAttempting = 1; /* DOMOVE_WALK */
+    quiet(state);
+    return state;
+}
+
+test('walking into a remembered unseen monster swings at it instead',
+    async () => {
+    const state = await heroInARoom();
+    targetTerrain(state, ROOM);
+    const { ux, uy } = state.u;
+    map_invisible(ux + WEST[0], uy, state);
+
+    await domove(walkWest(state));
+    // C spends the turn on the swing rather than moving, and forgets the
+    // marker on the way through unmap_object() at 2280.
+    assert.equal(toplines(state), 'You attack thin air.');
+    assert.equal(state.u.ux, ux, 'the hero did not move');
+    assert.equal(
+        glyph_is_invisible(target(state).remembered_glyph?.glyph), false,
+    );
+
+    // The same step with no marker walks, which is what the glyph conjunct
+    // decides.
+    const walked = await heroInARoom();
+    targetTerrain(walked, ROOM);
+    await domove(walkWest(walked));
+    assert.equal(toplines(walked), '');
+    assert.equal(walked.u.ux, ux + WEST[0], 'the hero moved');
+});
+
+test("the 'm' prefix clears a remembered unseen monster and walks on",
+    async () => {
+    // svc.context.nopick is the third conjunct, so the disjunct declines and
+    // domove_core() reaches unmap_invisible() at 2812 instead. C clears the
+    // marker there and the hero takes the step.
+    const state = await heroInARoom();
+    targetTerrain(state, ROOM);
+    const { ux, uy } = state.u;
+    map_invisible(ux + WEST[0], uy, state);
+    state.context.nopick = 1;
+
+    await domove(walkWest(state));
+    assert.equal(toplines(state), '');
+    assert.equal(state.u.ux, ux + WEST[0], 'the hero moved');
+    assert.equal(
+        glyph_is_invisible(state.level.at(ux + WEST[0], uy)
+            .remembered_glyph?.glyph),
+        false,
+    );
 });
 
 test('an unseen empty square is thin air, not an unknown obstacle', async () => {

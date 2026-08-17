@@ -103,8 +103,10 @@ import {
     MON_DETACH,
     OBJ_FLOOR,
     OBJ_MINVENT,
+    TAINT_AGE,
     W_AMUL,
 } from '../js/const.js';
+import { glyph_is_invisible, map_invisible } from '../js/display.js';
 
 // A Valkyrie on a plain first level. Any seed that reaches the first prompt
 // will do; 7710044 is the base row of the kill matrix, so this is the hero
@@ -1391,4 +1393,62 @@ test('a long worm stops above the monkilled message', async () => {
     assert.equal(m_at(worm.mx, worm.my, game), worm, 'still on the map');
     assert.equal((worm.mstate ?? 0) & MON_DETACH, 0, 'not detached');
     assert.equal(game.svm.mvitals[PM_LONG_WORM].died, 0, 'not counted');
+});
+
+// mon.c mondead():3170-3171. The clear runs before m_detach()'s newsym()
+// repaints the square, so a monster that dies where the hero was only told
+// something invisible stood leaves no stray 'I' behind. mhitm.c
+// pre_mm_attack() is the writer that puts one there.
+test('mondead forgets the invisible-monster marker on its square', async () => {
+    await hero();
+
+    const mon = spawn(PM_GOBLIN);
+    const { mx, my } = mon;
+    map_invisible(mx, my, game);
+    assert.equal(
+        glyph_is_invisible(game.level.at(mx, my).remembered_glyph?.glyph),
+        true,
+        'the marker is there to clear',
+    );
+
+    await mondead(mon, game, killEnv());
+    assert.equal(
+        glyph_is_invisible(game.level.at(mx, my).remembered_glyph?.glyph),
+        false,
+    );
+
+    // A death on an unmarked square leaves the remembered glyph number as it
+    // found it, which is what C's glyph test is for. m_detach()'s newsym()
+    // rewrites the record either way, so the numbers are compared rather than
+    // the records.
+    const second = spawn(PM_GOBLIN);
+    const before = game.level.at(second.mx, second.my).remembered_glyph?.glyph;
+    await mondead(second, game, killEnv());
+    assert.equal(
+        game.level.at(second.mx, second.my).remembered_glyph?.glyph, before,
+    );
+});
+
+// mon.c make_corpse():622-649, the mummy and zombie group. undead_to_corpse()
+// turns the undead species into the living one whose body it is, mkcorpstat()
+// is passed the monster itself rather than KEEPTRAITS()'s choice, and the age
+// is pushed back past TAINT_AGE so the corpse is already tainted.
+test("a zombie leaves the living creature's old corpse", async () => {
+    await hero();
+
+    const zombie = spawn(PM_KOBOLD_ZOMBIE, { mhp: 0 });
+    const { mx, my } = zombie;
+    // rn2(6) declines the death drop and rn2(2) takes the corpse; the rest of
+    // the list is mksobj()'s, and a fallback of 1 answers each.
+    await killed(zombie, game, killEnv([2, 0]));
+
+    const corpse = game.level.objects[mx][my];
+    assert.equal(corpse.otyp, CORPSE);
+    assert.equal(corpse.corpsenm, PM_KOBOLD, 'the living kobold, not the zombie');
+    // mkobj.c mksobj() stamps svm.moves on a corpse; C then subtracts
+    // TAINT_AGE + 1, so eating it makes the hero ill from the first turn.
+    assert.equal(corpse.age, game.moves - (TAINT_AGE + 1));
+    // C passes mtmp unconditionally here, where default_1 passes it only for
+    // KEEPTRAITS(), and a kobold zombie satisfies none of that macro's terms.
+    assert.equal(corpse.oextra?.omonst?.mnum, PM_KOBOLD_ZOMBIE);
 });

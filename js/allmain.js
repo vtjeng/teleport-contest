@@ -774,12 +774,13 @@ async function finishElapsedTurn(
     //
     // No converting try wraps the call, and none is owed. detect.c dosearch0()
     // keeps every branch this port cannot finish behind one of its `!aflag`
-    // tests -- feel_location() at 2040, mfind0() at 2064, unmap_invisible() at
-    // 2076 -- or behind the Norep() at 2023, so UnsupportedSearchError belongs
-    // to the explicit `s` command alone and js/cmd.js
-    // failClosedCommandRefusals() is its only owner. scripts/detect.test.mjs
+    // tests -- feel_location() at 2040 and mfind0() at 2064 -- or behind the
+    // Norep() at 2023, so UnsupportedSearchError belongs to the explicit `s`
+    // command alone and js/cmd.js failClosedCommandRefusals() is its only
+    // owner. The third `!aflag` test, unmap_invisible() at 2076, refuses
+    // nothing now that both of its arms are ported. scripts/detect.test.mjs
     // 'every explicit search refusal leaves the automatic arm intact' pins
-    // that split on eleven shared states.
+    // that split on ten shared states.
     //
     // detect.c:2079-2088, the trap block, is the one C does not gate on aflag,
     // and js/detect.js preflightTrap() refuses its two unported branches --
