@@ -47,6 +47,7 @@ import {
     create_particular_parse,
 } from '../js/read.js';
 import { roles } from '../js/roles.js';
+import { wiz_genesis } from '../js/wizcmds.js';
 import {
     ESCAPE_KEY,
     EXTCMD_KEY,
@@ -55,7 +56,7 @@ import {
     loadWizardGenesisRecipe,
 } from './run-wizard-genesis.mjs';
 
-// read.c:3159-3160's QUAN_LIMIT, ROWNO * (COLNO - 1) with the shipped map
+// read.c:3162's QUAN_LIMIT, ROWNO * (COLNO - 1) with the shipped map
 // size: one monster per cell of a 21-row, 79-column map.
 const QUAN_LIMIT = 21 * 79;
 
@@ -159,7 +160,7 @@ test('the genesis refusal converts at the command seam', () => {
 test('cant_revive substitutes the species read.c names for each special case',
     () => {
         const state = parseState();
-        // read.c:3113-3121. The five species that only make sense where the
+        // read.c:3117-3122. The five species that only make sense where the
         // level generator put them become a human zombie; the shopkeeper does
         // so only when this is a creation rather than a revival.
         for (const mtype of [
@@ -183,12 +184,12 @@ test('cant_revive substitutes the species read.c names for each special case',
             cant_revive(PM_SHOPKEEPER, true, null, state),
             { changed: false, mtype: PM_SHOPKEEPER },
         );
-        // read.c:3122-3123, the arm whose comment names create_particular().
+        // read.c:3123-3125, the arm whose comment names create_particular().
         assert.deepEqual(
             cant_revive(PM_LONG_WORM_TAIL, false, null, state),
             { changed: true, mtype: PM_LONG_WORM },
         );
-        // read.c:3124-3129. Medusa carries G_UNIQ, which is the whole of
+        // read.c:3126-3131. Medusa carries G_UNIQ, which is the whole of
         // mondata.h unique_corpstat() (mondata.h:174).
         assert.deepEqual(
             cant_revive(PM_MEDUSA, false, null, state),
@@ -219,7 +220,7 @@ test('a plain monster name fills the request read.c makes for it', () => {
     const d = create_particular_parse('gas spore', state);
 
     assert.equal(d.which, PM_GAS_SPORE);
-    // read.c:3150-3157, the fields the untouched arms leave at their defaults.
+    // read.c:3145-3152, the fields the untouched arms leave at their defaults.
     // gm.multi is 0, so one monster; MAXMCLASSES means "no class was named",
     // which is what keeps mkclass() out of the creation loop.
     assert.equal(d.quan, 1);
@@ -234,16 +235,31 @@ test('a plain monster name fills the request read.c makes for it', () => {
         [false, false, false, false],
     );
     // The gender out-parameter mondata.c name_to_mon() carries back. A gas
-    // spore has only a neuter name, so gender_name_var keeps the NEUTRAL it
-    // started at and d->fem takes it -- which contributes no gender bit to
-    // mmflags. js/mondata.js name_to_monplus() defaults the same parameter to
-    // -1, so a call that let it default would answer -1 here instead.
+    // spore has only a neuter name, so d->fem takes NEUTRAL, which contributes
+    // no gender bit to mmflags. This value does not depend on the seed: a
+    // pmname matched, so mondata.c:1078-1082 writes NEUTRAL through the
+    // pointer either way. The test below pins the seed itself.
     assert.equal(d.fem, NEUTRAL);
+});
+
+test('a title-only answer keeps the NEUTRAL gender read.c seeds', () => {
+    // read.c:3141 starts gender_name_var at NEUTRAL, and mondata.c:1078 writes
+    // through the pointer only when a pmname matched. "Digger" matches none:
+    // mondata.c:1074's title_to_mon() fallback resolves it, and the FIXME at
+    // 1073 says titles carry no gender, so the seeded NEUTRAL survives.
+    //
+    // This is the one answer class that distinguishes the seed js/read.js
+    // passes from a call that let js/mondata.js default the parameter to -1,
+    // and a wrong value here is not cosmetic: read.c:3287-3288 turns MALE or
+    // FEMALE into a gender bit and makemon.c:1265-1268 then skips its rn2(2).
+    assert.equal(
+        create_particular_parse('Digger', parseState()).fem, NEUTRAL,
+    );
 });
 
 test('a gendered monster name carries its gender into the request', () => {
     // mondata.c name_to_monplus():1080-1084 writes the matched name's gender
-    // through the pointer read.c:3211 supplies, and read.c:3229 copies it into
+    // through the pointer read.c:3212 supplies, and read.c:3227 copies it into
     // d->fem because no explicit gender word was given. The two names below
     // are the same species; only the gender differs, and
     // create_particular_creation() turns it into MM_MALE or MM_FEMALE.
@@ -263,8 +279,8 @@ test('a gendered monster name carries its gender into the request', () => {
 });
 
 test('the quantity read.c derives from gm.multi bounds the request', () => {
-    // read.c:3151 is `d->quan = 1 + ((gm.multi > 0) ? (int) gm.multi : 0)`,
-    // and 3161-3162 replaces a quantity above QUAN_LIMIT with what the map can
+    // read.c:3145 is `d->quan = 1 + ((gm.multi > 0) ? (int) gm.multi : 0)`,
+    // and 3165-3166 replaces a quantity above QUAN_LIMIT with what the map can
     // still hold, which needs monster_census(). A count that lands exactly on
     // the limit is still C's own answer and needs no census.
     assert.equal(
@@ -292,9 +308,9 @@ test('the quantity read.c derives from gm.multi bounds the request', () => {
 
 test('every qualifier read.c accepts ahead of the name is refused', () => {
     for (const [answer, operation] of [
-        // read.c:3145-3149, the leading count.
+        // read.c:3154-3161, the leading count.
         ['2 gas spore', 'create_particular_parse() count prefix'],
-        // read.c:3167-3193, the six words searched for anywhere in the answer.
+        // read.c:3169-3193, the six words searched for anywhere in the answer.
         ['saddled pony', 'create_particular_parse() "saddled "'],
         ['sleeping newt', 'create_particular_parse() "sleeping "'],
         ['invisible newt', 'create_particular_parse() "invisible "'],
@@ -307,10 +323,16 @@ test('every qualifier read.c accepts ahead of the name is refused', () => {
         ['tame jackal', 'create_particular_parse() "tame "'],
         ['peaceful newt', 'create_particular_parse() "peaceful "'],
         ['hostile newt', 'create_particular_parse() "hostile "'],
+        // C tests these three with strncmpi() rather than strstri(), so a
+        // disposition word anywhere but the front is part of the name and not
+        // a prefix. This answer falls through to name_to_monclass() and is
+        // what pins the `=== 0` in js/read.js against a `>= 0` that would
+        // refuse it as "tame " instead.
+        ['a tame newt', 'mondata.c name_to_monclass()'],
         // read.c:3208-3211, the wizard-only random arm.
         ['*', 'create_particular_parse() random monster'],
         ['random', 'create_particular_parse() random monster'],
-        // read.c:3232-3245, name_to_monclass() and its four arms.
+        // read.c:3231-3246, name_to_monclass() and its four arms.
         ['zzzz', 'mondata.c name_to_monclass()'],
         ['dragon', 'mondata.c name_to_monclass()'],
     ]) {
@@ -351,15 +373,47 @@ test('^G creates the named monster beside the hero without spending a turn',
         const dx = Math.abs(added[0].mx - game.u.ux);
         const dy = Math.abs(added[0].my - game.u.uy);
         assert.ok(dx <= 1 && dy <= 1 && (dx || dy));
-        // wizcmds.c:214 returns ECMD_OK on both arms, so rhack() resets the
+        // wizcmds.c:213 returns ECMD_OK on both arms, so rhack() resets the
         // command variables and no turn elapses however many monsters arrived.
         assert.equal(game.context.move, 0);
-        // wizcmds.c:206-209 clears iflags.debug_mongen across the call and
-        // puts it back. It started false, so a missing restore is invisible
-        // here and a missing clear is what the created monster rules out:
-        // makemon.c:1168 returns before creating anything while it is set.
+        // wizcmds.c:206-210 clears iflags.debug_mongen across the call and
+        // puts it back. It started false, so this pins the untouched-default
+        // case alone: a missing restore is invisible here and only the created
+        // monster rules out a missing clear, because makemon.c:1168 returns
+        // before creating anything while the flag is set. The test below sets
+        // the flag first, which is what pins the restore.
         assert.equal(game.iflags.debug_mongen, false);
     });
+
+test('^G puts iflags.debug_mongen back after clearing it', async () => {
+    // wizcmds.c:206-210 saves the flag, clears it, creates, and restores. A
+    // player reaches the set state from the options menu -- js/optlist_data.js
+    // gives debug_mongen setwhere set_wiznofuz, which options.c:5211 rejects
+    // only while go.opt_initial is true, so a configuration file cannot set it
+    // but a wizard-mode menu can.
+    //
+    // A segment replay offers no point between its keys at which to set the
+    // flag, so this drives wiz_genesis() directly on the state the opening
+    // wait leaves behind. The leading space stands in for the byte rhack()
+    // reads in the real sequence: the wait ends on a --More--, and getlin()
+    // dismisses it through xwaitforspace(), which consumes keys until a space
+    // or a Return.
+    const segment = segmentFor(`${GENESIS_KEY}gas spore\n`);
+    await runSegment({ ...segment, moves: WAIT_KEY });
+    const before = new Set(levelMonsters().map(({ m_id }) => m_id));
+    for (const ch of ' gas spore\n') game.nhDisplay.pushKey(ch.charCodeAt(0));
+
+    game.iflags.debug_mongen = true;
+    await wiz_genesis(game);
+
+    // wizcmds.c:210 puts the saved value back, rather than leaving the clear.
+    assert.equal(game.iflags.debug_mongen, true);
+    // wizcmds.c:208 cleared it first, which is the only reason makemon()
+    // created anything: makemon.c:1168 returns while the flag is up.
+    const added = levelMonsters().filter(({ m_id }) => !before.has(m_id));
+    assert.equal(added.length, 1);
+    assert.equal(added[0].mnum, PM_GAS_SPORE);
+});
 
 test('a gendered name skips makemon()\'s gender roll', async () => {
     // makemon.c:1261-1279. With MM_MALE or MM_FEMALE and a species that is
@@ -394,12 +448,21 @@ test('a gendered name skips makemon()\'s gender roll', async () => {
 });
 
 test('Escape at the genesis prompt creates nothing', async () => {
-    // read.c:3379-3380. getlin() answers "\033" for an Escape over an empty
+    // read.c:3382-3385. getlin() answers "\033" for an Escape over an empty
     // line, and create_particular() returns FALSE before the parse runs, so
     // nothing is created and nothing is said.
     const segment = segmentFor(`${GENESIS_KEY}${ESCAPE_KEY}`);
-    const { added } = await createdBy(segment, segment.moves);
+    // Collect the boundary too. js/jsmain.js swallows a fail-closed command
+    // boundary and returns the segment, so an aborted run creates nothing,
+    // says nothing and spends no turn -- which is what the three assertions
+    // below would report as success. Only an empty boundary list separates
+    // C's early return from a refusal.
+    const boundaries = [];
+    const { added } = await createdBy(segment, segment.moves, {
+        onBoundary: (error) => boundaries.push(error),
+    });
 
+    assert.deepEqual(boundaries, []);
     assert.equal(topLine(), '');
     assert.deepEqual(added, []);
     assert.equal(game.context.move, 0);
@@ -407,7 +470,7 @@ test('Escape at the genesis prompt creates nothing', async () => {
 
 test('an unported request stops the segment rather than escaping',
     async () => {
-        // read.c:3256-3272. A shopkeeper is one of the species cant_revive()
+        // read.c:3260-3272. A shopkeeper is one of the species cant_revive()
         // substitutes, and wizard mode then offers to force the original
         // through y_n(); the port refuses at that prompt. End to end, because
         // what matters is that the refusal converts at the command seam after
@@ -457,7 +520,7 @@ test('an ordinary hero pressing ^G is told the command is unavailable',
     async () => {
         // cmd.c:479-481. rhack() runs can_do_extcmd() before dispatch, so an
         // ordinary game answers the key rather than the creation prompt.
-        // wizcmds.c:214 would print the same string from wiz_genesis()'s else
+        // wizcmds.c:212 would print the same string from wiz_genesis()'s else
         // arm, which is why no recorded screen can tell the two owners apart.
         const segment = segmentFor(`${GENESIS_KEY}`);
         assert.equal(segment.nethackrc.includes('playmode:debug'), false);
@@ -468,7 +531,7 @@ test('an ordinary hero pressing ^G is told the command is unavailable',
         assert.deepEqual(added, []);
     });
 
-// read.c:3286-3287 skips the gender bit for a species that is_male() or
+// read.c:3285-3288 skips the gender bit for a species that is_male() or
 // is_female(), because mons[] has already fixed its gender. That skip changes
 // no mmflags this port can build, and this is why: nothing that answers a
 // non-neuter gender through name_to_monplus() is a fixed-gender species, so

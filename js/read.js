@@ -51,16 +51,19 @@ export class UnsupportedMonsterRequestError extends Error {
     }
 }
 
-// C ref: read.c cant_revive() (3107-3133).
+// C ref: read.c cant_revive() (3111-3134).
 //
 // C answers through an `int *mtype` the caller owns; JavaScript has no such
 // pointer, so the substituted species comes back beside the boolean as
-// `{ changed, mtype }`. Both of C's callers read both halves.
+// `{ changed, mtype }`. All four of C's callers read both halves:
+// bones.c:156, trap.c:746, read.c:3262 and zap.c:982.
 //
 // `from_obj` is the corpse or statue a revival came from, and only the
 // unique-species arm looks at it. read.c create_particular_creation() passes
 // NULL, which short-circuits that look, so mkobj.c has_omonst() has no owner
-// here and an object argument is refused rather than answered wrongly.
+// here and an object argument is refused rather than answered wrongly. The two
+// callers that pass a real from_obj, trap.c:746 and zap.c:982, are what that
+// refusal defers.
 export function cant_revive(mtype, revival, from_obj, state = game) {
     if (from_obj) {
         throw new UnsupportedMonsterRequestError(
@@ -82,11 +85,11 @@ export function cant_revive(mtype, revival, from_obj, state = game) {
     return { changed: false, mtype };
 }
 
-// read.c:3159-3160. The most the command will make is one monster per map
-// cell: (0..ROWNO-1) x (1..COLNO-1).
+// read.c:3162, whose comment at 3163-3164 gives the reason: the most the
+// command will make is one monster per map cell, (0..ROWNO-1) x (1..COLNO-1).
 const QUAN_LIMIT = ROWNO * (COLNO - 1);
 
-// The six words read.c:3167-3193 searches the whole answer for, in source
+// The six words read.c:3169-3193 searches the whole answer for, in source
 // order. Each sets a request field that decides how the monster arrives, and
 // the arm that finds one blanks the word out of the buffer before the species
 // lookup sees it. "female" is searched for before "male" so that the second
@@ -99,10 +102,10 @@ const GEAR_AND_STATE_WORDS = Object.freeze([
 // how the created monster feels about the hero.
 const DISPOSITION_PREFIXES = Object.freeze(['tame ', 'peaceful ', 'hostile ']);
 
-// C ref: read.c create_particular_parse() (3136-3246).
+// C ref: read.c create_particular_parse() (3136-3249).
 //
 // Covers the plain-monster-name arm and nothing else: the answer reaches
-// name_to_mon() at 3211 and returns at 3231 with `which` set. Every arm that
+// name_to_mon() at 3212 and returns at 3230 with `which` set. Every arm that
 // would qualify the request first -- a leading count, the six gear, state and
 // gender words, the three disposition prefixes and the wizard-only "*" -- is
 // refused above it, and so is name_to_monclass() below it, which
@@ -135,11 +138,18 @@ export function create_particular_parse(str, state = game) {
             'create_particular_parse() count prefix',
         );
     }
-    // read.c:3161-3162 replaces an out-of-range quantity with however many
+    // read.c:3165-3166 replaces an out-of-range quantity with however many
     // monsters the map can still hold, which needs monster_census(). With the
     // digit arm above refused, gm.multi is the only thing left that can move
     // the quantity, and it can only raise it, so C's `d->quan < 1` half has
     // nothing that reaches it here.
+    //
+    // gm.multi cannot reach this line either. js/cmd.js:2128 refuses a
+    // positive count with COUNTED_BOUNDARY before the extended command
+    // dispatches, so `3^G` ends the segment without opening the prompt, and
+    // d.quan is 1 on every call the running game makes. The refusal below,
+    // the creation loop's second and later iterations and its break are all
+    // fail-closed guards mirroring C rather than live branches.
     if (d.quan > QUAN_LIMIT) {
         throw new UnsupportedMonsterRequestError('monster_census()');
     }
@@ -173,9 +183,16 @@ export function create_particular_parse(str, state = game) {
     // matched name carries is the second half of this line's result, and
     // js/mondata.js name_to_mon() has no way to hand it back.
     //
-    // `gender_name_var` starts at NEUTRAL rather than at the -1 js/mondata.js
-    // defaults to, which is what stops a name whose only match is the neuter
-    // pmname from reporting NEUTRAL as a discovery.
+    // `gender_name_var` starts at NEUTRAL, as read.c:3141 does, rather than at
+    // the -1 js/mondata.js defaults to. The seed is not what makes a neuter
+    // pmname answer NEUTRAL: mondata.c:1078-1082 writes the matched gender
+    // through the pointer whenever a pmname matched at all, and js/mondata.js
+    // mirrors it, so "gas spore" answers NEUTRAL under either seed. The seed
+    // is observable only where no pmname matched and there is no gender to
+    // write -- the title_to_mon() fallback at mondata.c:1074, whose own FIXME
+    // at 1073 says titles carry no gender, and the no-match case. There C
+    // leaves d->fem at the NEUTRAL it started at and an unseeded call would
+    // leave it at -1.
     const named = name_to_monplus(bufp, { state, gender: NEUTRAL });
     d.which = named.mnum;
     /*
@@ -193,7 +210,7 @@ export function create_particular_parse(str, state = game) {
     throw new UnsupportedMonsterRequestError('mondata.c name_to_monclass()');
 }
 
-// C ref: read.c create_particular_creation() (3251-3356).
+// C ref: read.c create_particular_creation() (3251-3357).
 //
 // Covers the named-species arm: cant_revive() answering FALSE, one loop
 // iteration whose mmflags is MM_NOEXCLAM plus whatever gender the typed name
@@ -253,15 +270,16 @@ async function create_particular_creation(d, state = game) {
     return madeany;
 }
 
-// C ref: read.c create_particular() (3372-3406).
+// C ref: read.c create_particular() (3371-3408).
 //
 // Covers the first pass of C's `do { ... } while (--tryct > 0)` loop and the
-// `return create_particular_creation(&d)` it leaves by. The retry arms at
-// 3396-3405 -- "I've never heard of such monsters.", "Try again (type * for
-// random, ESC to cancel).", the " [type name or symbol]" prompt extension and
-// thats_enough_tries -- have no owner, because create_particular_parse()
-// refuses an answer it cannot use rather than answering FALSE, so no second
-// pass can start.
+// `return create_particular_creation(&d)` at 3405 that it leaves by. The retry
+// arms at 3390-3403 -- "I've never heard of such monsters." at 3392, "Try
+// again (type * for random, ESC to cancel)." at 3394, the
+// " [type name or symbol]" prompt extension at 3398-3399 and
+// thats_enough_tries at 3403 -- have no owner, because
+// create_particular_parse() refuses an answer it cannot use rather than
+// answering FALSE, so no second pass can start.
 export async function create_particular(state = game) {
     const buf = await getlin('Create what kind of monster?', state);
     const bufp = mungspaces(buf);

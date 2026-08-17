@@ -58,7 +58,7 @@ export async function wiz_level_tele(state = game) {
     return ECMD_OK;
 }
 
-// C ref: wizcmds.c wiz_genesis() (203-215), the #wizgenesis command.
+// C ref: wizcmds.c wiz_genesis() (202-214), the #wizgenesis command.
 //
 // Its else arm is dead for the same reason wiz_wish()'s is, and is written out
 // for the same reason: cmd.c can_do_extcmd() refuses the WIZMODECMD row with

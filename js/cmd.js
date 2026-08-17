@@ -2438,12 +2438,12 @@ export async function rhack(key, state = game) {
         }
         if (command === 'wizgenesis') {
             // C ref: rhack()'s result handling, the same shape the `wizwish`
-            // arm above spells out: wizcmds.c:214 ends both arms of
+            // arm above spells out: wizcmds.c:213 ends both arms of
             // wiz_genesis() with `return ECMD_OK`, so reset_cmd_vars() is all
             // of it and creating a monster spends no turn. cmd.c:1961's
             // "wizgenesis" row carries IFBURIED and WIZMODECMD and no movement
             // flag, so the MOVEMENTCMD and domove_attempting tests at
-            // 3773-3800 cannot divert it; it carries no CMD_M_PREFIX either,
+            // 3774-3802 cannot divert it; it carries no CMD_M_PREFIX either,
             // so the prefix test at 3693-3695 refuses `m^G` and `F^G` above.
             await runGenesisCommand(key, state);
             resetCommandVars(state, state.multi < 0);

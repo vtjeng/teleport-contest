@@ -651,9 +651,18 @@ function runtimeAppearanceMessage(monster, mmflags, normalized) {
         state,
         displayRandom: normalized.displayRandom,
     });
-    // C ref: makemon.c:1483-1484. A mimic already wearing another species'
-    // shape is a surprise however it was made, so it takes the exclaiming
-    // form back even under MM_NOEXCLAM.
+    // C ref: makemon.c:1483-1484. In C a mimic already wearing another
+    // species' shape is a surprise however it was made, so it takes the
+    // exclaiming form back even under MM_NOEXCLAM.
+    //
+    // The arm is written out because makemon.c has it, not because a game can
+    // run it. set_mimic_sym() below writes only M_AP_FURNITURE and
+    // M_AP_OBJECT, as makemon.c's does, so no creation-time path sets
+    // M_AP_MONSTER at all; and preflightCreation() throws
+    // 'runtime mimic appearance message' for any runtime S_MIMIC that would
+    // print, with makemon() repeating the refusal for the random shape whose
+    // species preflight cannot know. Either spelling of this line therefore
+    // leaves the suite and the development score unchanged.
     if (appearance === M_AP_MONSTER) exclaim = true;
     const distance = (monster.mx - state.u.ux) ** 2
         + (monster.my - state.u.uy) ** 2;
@@ -1090,7 +1099,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (MM_EDOG | NO_MINVENT);
-    // read.c create_particular_creation():3307 names the species the player
+    // read.c create_particular_creation():3315 names the species the player
     // typed and places it on the hero's own square, so makemon() reaches the
     // enexto() arm below. Its mmflags is MM_NOEXCLAM plus at most one gender
     // bit, and the three values below are the whole of what that expression
