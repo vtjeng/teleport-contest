@@ -22,6 +22,8 @@ import {
     BRCORNER,
     BURN,
     CONFUSION,
+    CORPSTAT_FEMALE,
+    CORPSTAT_MALE,
     CORR,
     CROSSWALL,
     D_CLOSED,
@@ -121,7 +123,11 @@ import {
     MG_OBJPILE,
     MG_STATUE,
     map_trap,
+    corpse_to_glyph,
+    generic_obj_to_glyph,
     normal_obj_to_glyph,
+    objnum_to_glyph,
+    statue_to_glyph,
     monster_glyph_info,
     newsym,
     object_glyph_info,
@@ -1147,6 +1153,106 @@ test('object glyphs apply tty pile highlighting with the source boulder rule', (
     assert.equal(object_glyph_info(top, state).attr, undefined);
 });
 
+test('each object glyph macro picks the base display.h gives it', () => {
+    const state = visibleCellState();
+    const x = 7;
+    const y = 4;
+    // obj_is_piletop() reads the head of the square's object list, so the
+    // object under test becomes that head and carries a second object behind
+    // it. SPEAR is an arbitrary non-boulder filler: the boulder rule at
+    // display.h:798-804 is covered by the test above.
+    const placed = (obj, piletop) => {
+        const object = {
+            ...obj,
+            where: OBJ_FLOOR,
+            ox: x,
+            oy: y,
+            nexthere: piletop ? { otyp: SPEAR } : null,
+        };
+        state.level.objects[x][y] = object;
+        return object;
+    };
+    // corpsenm 0 is the first monster row; any row separates the two bases,
+    // which is all these cases measure.
+    const corpsenm = 0;
+
+    // display.h corpse_to_glyph() (937-939) and generic_obj_to_glyph()
+    // (940-942) each choose between a plain base and a pile-top base. Without
+    // the pair, dropping either pile-top base leaves the whole suite green,
+    // and a remembered corpse or unseen potion on a pile silently loses the
+    // MG_OBJPILE that a 'hilite_pile' toggle is supposed to give it.
+    assert.equal(
+        corpse_to_glyph(placed({ otyp: CORPSE, corpsenm }, false), state),
+        corpsenm + GLYPH_BODY_OFF,
+    );
+    assert.equal(
+        corpse_to_glyph(placed({ otyp: CORPSE, corpsenm }, true), state),
+        corpsenm + GLYPH_BODY_PILETOP_OFF,
+    );
+    assert.equal(
+        generic_obj_to_glyph(
+            placed({ otyp: POT_BOOZE, oclass: POTION_CLASS }, false), state,
+        ),
+        POTION_CLASS + GLYPH_OBJ_OFF,
+    );
+    assert.equal(
+        generic_obj_to_glyph(
+            placed({ otyp: POT_BOOZE, oclass: POTION_CLASS }, true), state,
+        ),
+        POTION_CLASS + GLYPH_OBJ_PILETOP_OFF,
+    );
+
+    // display.h statue_to_glyph() (950-961), its !Hallucination arm: gender
+    // crossed with pile-top, four distinct bases. `spe` carries the gender in
+    // its CORPSTAT_GENDER bits, and only CORPSTAT_FEMALE selects the female
+    // ranges -- CORPSTAT_MALE and an unset `spe` both take the male one.
+    const statueCases = [
+        [CORPSTAT_FEMALE, false, GLYPH_STATUE_FEM_OFF],
+        [CORPSTAT_FEMALE, true, GLYPH_STATUE_FEM_PILETOP_OFF],
+        [CORPSTAT_MALE, false, GLYPH_STATUE_MALE_OFF],
+        [CORPSTAT_MALE, true, GLYPH_STATUE_MALE_PILETOP_OFF],
+        [0, false, GLYPH_STATUE_MALE_OFF],
+    ];
+    for (const [spe, piletop, base] of statueCases) {
+        assert.equal(
+            statue_to_glyph(
+                placed({ otyp: STATUE, corpsenm, spe }, piletop), state,
+            ),
+            corpsenm + base,
+            `statue spe ${spe} piletop ${piletop}`,
+        );
+    }
+
+    // display.h objnum_to_glyph() (638) has no consumer in the running game:
+    // botl.c's encglyph(objnum_to_glyph(GOLD_PIECE)) is unported, so this is
+    // the only proof of its value. It adds the plain object base and asks
+    // obj_is_piletop() nothing, which is why C's own comment says it draws
+    // the generic body and the generic statue rather than the species the
+    // corpse and statue ranges carry.
+    assert.equal(objnum_to_glyph(STRANGE_OBJECT), GLYPH_OBJ_OFF);
+    for (const otyp of [CORPSE, STATUE]) {
+        const glyph = objnum_to_glyph(otyp);
+        assert.equal(glyph, otyp + GLYPH_OBJ_OFF, `objnum ${otyp}`);
+        assert.equal(glyph_is_normal_object(glyph), true, `normal ${otyp}`);
+        assert.equal(glyph_is_body(glyph), false, `body ${otyp}`);
+        assert.equal(glyph_is_statue(glyph), false, `statue ${otyp}`);
+    }
+
+    // The two exported entry points into the range predicates refuse anything
+    // that is not a number. Both took a map location before this port stored
+    // one, and both would otherwise answer a plain `false` for one, since
+    // every comparison against an object is false -- the wrong answer rather
+    // than a missing one.
+    for (const wrong of [{}, state.level.at(x, y), 'abc', null]) {
+        assert.throws(() => glyph_is_object(wrong), TypeError);
+        assert.throws(() => glyph_is_generic_object(wrong), TypeError);
+    }
+    // `undefined` is the square the hero remembers nothing of, which answers
+    // no rather than throwing, as C's GLYPH_UNEXPLORED does.
+    assert.equal(glyph_is_object(undefined), false);
+    assert.equal(glyph_is_generic_object(undefined), false);
+});
+
 test('newsym remembers an object underneath a visible monster and hero', () => {
     const state = resetGame();
     const x = 7;
@@ -1708,10 +1814,6 @@ test('same_remembered_glyph separates each part of a glyph number', () => {
         // for a piece of terrain. S_room is an arbitrary index: any value
         // separates a terrain record from one carrying none.
         ['cmap', from({ cmap: S_room })],
-        // map_glyphinfo() stamps `glyph`, C's own levl[x][y].glyph. The value
-        // below is what display.h normal_obj_to_glyph() returns for an
-        // ordinary object of type 1 that is not the top of a pile.
-        ['glyph', from({ glyph: GLYPH_OBJ_OFF + 1 })],
         ['ch', from({ ch: '#' })],
         ['color', from({ color: CLR_RED })],
         // `dec` is the presentation term; `decgfx` is the remembered one.
@@ -1734,6 +1836,26 @@ test('same_remembered_glyph separates each part of a glyph number', () => {
         assert.equal(same_remembered_glyph(reference, other), false, field);
         assert.equal(same_remembered_glyph(other, reference), false, field);
     }
+
+    // `glyph` needs its own baseline rather than a row in the table above.
+    // remembered_glyph_from_presentation() answers an integer `glyph` with
+    // `{glyph}` and nothing else, so pairing one against the
+    // presentation-shaped `reference` would differ in every field at once and
+    // would pass however little of the number the comparison read. The two
+    // numbers are what display.h normal_obj_to_glyph() returns for ordinary
+    // objects of type 1 and type 2, neither the top of a pile.
+    const oneObject = from({ glyph: GLYPH_OBJ_OFF + 1 });
+    const otherObject = from({ glyph: GLYPH_OBJ_OFF + 2 });
+    assert.equal(same_remembered_glyph(oneObject, otherObject), false, 'glyph');
+    assert.equal(same_remembered_glyph(otherObject, oneObject), false, 'glyph');
+    assert.equal(same_remembered_glyph(oneObject, oneObject), true, 'glyph');
+    // The two shapes never match each other either, whichever way round.
+    assert.equal(
+        same_remembered_glyph(oneObject, reference), false, 'glyph shape',
+    );
+    assert.equal(
+        same_remembered_glyph(reference, oneObject), false, 'glyph shape',
+    );
 });
 
 test('same_remembered_glyph separates two objects that draw the same cell',
@@ -3278,6 +3400,43 @@ test('hallucinated object notices reconstruct buffered near and far identity', (
         assert.equal(followingDraw, expectedFollowingDraw);
     }
 });
+
+test('a random statue and corpse take random_obj_to_glyph()\'s two bases',
+    () => {
+        const state = visibleCellState();
+        init_objects(state, () => 0);
+        // display.h random_obj_to_glyph() (932-936) numbers a random corpse as
+        // random_monster() + GLYPH_BODY_OFF and every other random object as
+        // otg_temp + GLYPH_OBJ_OFF. Neither arm asks obj_is_piletop() and
+        // neither reaches statue_to_glyph(), so a random STATUE takes the
+        // plain object base like any other type, which is what draws the
+        // generic rock-class statue. Routing the synthetic object back through
+        // object_glyph_info() instead sends otyp === STATUE to
+        // statue_to_glyph(), which reads a corpsenm the synthetic object does
+        // not carry; the NaN that returns reaches map_glyphinfo() as a number
+        // it cannot resolve.
+        const scripted = (values) => {
+            let index = 0;
+            return () => values[index++];
+        };
+
+        const statue = random_object_glyph_info(
+            state, scripted([STATUE - FIRST_OBJECT]),
+        );
+        assert.equal(statue.glyph, objnum_to_glyph(STATUE));
+        assert.equal(
+            statue.ch, map_glyphinfo(objnum_to_glyph(STATUE), state).ch,
+        );
+
+        // The corpse arm draws the species second, and takes the plain body
+        // base rather than the pile-top one. Monster row 3 is arbitrary: any
+        // row separates the two bases.
+        const corpsenm = 3;
+        const corpse = random_object_glyph_info(
+            state, scripted([CORPSE - FIRST_OBJECT, corpsenm]),
+        );
+        assert.equal(corpse.glyph, corpsenm + GLYPH_BODY_OFF);
+    });
 
 test('object-shaped mimic notices name buffered object classes and bodies', () => {
     const cases = [
@@ -5279,9 +5438,10 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
         assert.equal(resolved.ch, expected.ch, `ch at ${glyph}`);
         assert.equal(resolved.color, expected.color, `color at ${glyph}`);
         assert.equal(resolved.glyph, glyph, `glyph at ${glyph}`);
-        // MG_OBJPILE is the one flag a presentation shows, through the
-        // attribute wintty.c gives it, so the flags column is asserted by
-        // turning the option on and reading the attribute back.
+        // Two flags of the column reach a presentation, each through the
+        // attribute win/tty/wintty.c tty_print_glyph() gives it, so each is
+        // asserted by turning its option on and reading the attribute back.
+        // MG_OBJPILE is the first.
         state.iflags.hilite_pile = true;
         assert.equal(
             map_glyphinfo(glyph, state).attr ?? 0,
@@ -5289,6 +5449,20 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
             `pile attribute at ${glyph}`,
         );
         state.iflags.hilite_pile = false;
+        // MG_FEMALE is the second, under `wizard && iflags.wizmgender`. It
+        // separates the male arm from the female one on both the piletop and
+        // the plain statue ranges, which the pile term alone cannot do.
+        // MG_STATUE and MG_CORPSE reach no attribute in C's chain, so the
+        // column records them and nothing asserts them.
+        state.wizard = true;
+        state.iflags.wizmgender = true;
+        assert.equal(
+            map_glyphinfo(glyph, state).attr ?? 0,
+            expected.flags & MG_FEMALE ? ATR_INVERSE : 0,
+            `gender attribute at ${glyph}`,
+        );
+        state.iflags.wizmgender = false;
+        state.wizard = false;
     }
 
     // Everything outside the four families is refused rather than resolved
@@ -5469,7 +5643,11 @@ test('see_nearby_objects leaves a memory that is not a generic object alone',
         state.level.traps.push({ tx: 10, ty: 12, ttyp: LANDMINE, tseen: true });
         newsym(10, 12);
         const remembered = state.level.at(10, 12).remembered_glyph;
-        assert.equal(glyph_is_generic_object(state.level.at(10, 12)), false);
+        // The predicate takes C's levl[x][y].glyph. This square remembers a
+        // trap, whose record is a presentation carrying no number at all, so
+        // the answer is no for want of a glyph rather than for want of a
+        // range. Passing the location instead answered no vacuously.
+        assert.equal(glyph_is_generic_object(remembered.glyph), false);
 
         const potion = unobservedPotion(state, 10, 12);
         see_nearby_objects(state);

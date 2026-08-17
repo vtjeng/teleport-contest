@@ -362,13 +362,16 @@ test('a redraw option raises both repair flags', async () => {
     assert.equal(state.go.opt_need_glyph_reset, true);
 });
 
-test('the two arms whose repaint the terrain layer owns are refused',
+test('the three arms whose repaint an unconverted layer owns are refused',
     async () => {
-        // 'color' has an arm of its own (options.c:5407-5409) and
-        // 'use_inverse' shares the seven-option arm, but both re-resolve
-        // terrain, whose map memory still holds a finished presentation.
+        // 'color' has an arm of its own (options.c:5407-5409) while
+        // 'use_inverse' and 'wizmgender' share the seven-option arm, and each
+        // repaint would run over a layer that cannot carry what C gives it:
+        // the first two re-resolve terrain, whose map memory still holds a
+        // finished presentation, and the third needs MG_FEMALE on a monster
+        // glyph, which no monster presentation carries.
         const state = await startStockGame();
-        for (const statement of ['!color', '!use_inverse']) {
+        for (const statement of ['!color', '!use_inverse', '!wizmgender']) {
             state.go = {};
             await assert.rejects(
                 () => parseoptions(state, statement, false, false),

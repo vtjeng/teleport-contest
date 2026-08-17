@@ -1,6 +1,6 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every entry is done or cannot-occur. The production game executes every done path: scripts/run-options-menu.mjs matches C over 14 recipes at 42,605 random-number calls, 224 screens and 224 cursors, and its new recipe 'remembered pile repainted by a glyph reset' walks the hero out of sight of a dropped pile before toggling hilite_pile, which is the case the reverted attempt at 0f7b6cf would have failed. The development session seed0006 reaches the same code at step 64 and gains the five screens the goal forecast. The two cannot-occur entries stop on a condition rather than on a hope: a hallucinated object's glyph number lands in the monster ranges, which map_glyphinfo() does not resolve, and any rogue level stops earlier at reglyph_darkroom()'s refusal, whose third gate term is Is_rogue_level().",
+  "reason": "Every entry is done or cannot-occur. commitChecked still names 61dde4a, the slice's own commit, and the audit-fix commit that follows the correctness pass over 856b9f69..de2a8b5 does change code a pass would read, so a later prepare will ask for its own readiness run rather than accepting this one. The production game executes every done path: scripts/run-options-menu.mjs matches C over 14 recipes at 42,605 random-number calls, 224 screens and 224 cursors, and its new recipe 'remembered pile repainted by a glyph reset' walks the hero out of sight of a dropped pile before toggling hilite_pile, which is the case the reverted attempt at 0f7b6cf would have failed. The development session seed0006 reaches the same code at step 64 and gains the five screens the goal forecast. The two cannot-occur entries stop on a condition rather than on a hope: a hallucinated object's glyph number lands in the monster ranges, which map_glyphinfo() does not resolve, and any rogue level stops earlier at reglyph_darkroom()'s refusal, whose third gate term is Is_rogue_level().",
   "commitChecked": "61dde4a4fbb78cd1dba38fd45f46d6f02153c15a",
   "boundary": {
     "goalId": "option-toggle-repaints-the-map",
@@ -144,6 +144,15 @@
       "evidence": "tty_print_glyph() (3930-3936) gates MG_BW_LAVA, MG_BW_ICE, MG_BW_SINK and MG_BW_ENGR on iflags.use_inverse alongside MG_OBJPILE, and js/display.js blackAndWhiteTerrainCue() and engravingGlyph() bake those into terrain memory. include/defsym.h:116-118 gives S_engrcorr, S_corr and S_litcorr the same '#', so every remembered corridor engraving carries the attribute and no unusual symbol set is needed to reach it. The candidate list judged the two sites safe and was wrong.",
       "status": "done",
       "remaining": "None. The terrain slice retires this refusal together with the 'color' one."
+    },
+    {
+      "candidate": "A refusal for the 'wizmgender' arm, which the correctness pass over the range found missing",
+      "reachability": "A pick of wizmgender, which options.c marks set_wizonly, so it appears in doset()'s rows only in a wizard-mode session and never in the simple menu.",
+      "owner": "js/options.js optfn_boolean()",
+      "effects": "Stops before the repaint.",
+      "evidence": "The refusal removed from reset_needed_visuals() covered the whole seven-option arm, and the slice replaced it on 'color' and 'use_inverse' only. tty_print_glyph() (3930-3931) gives ATR_INVERSE to any glyph carrying MG_FEMALE while wizard and iflags.wizmgender hold, and display.c reset_glyphmap() raises MG_FEMALE on the GLYPH_MON_FEM_OFF arm (3050-3058) as well as the pet, detect, ridden and statue female arms. This port raises it in the statue arms alone, so the repaint would have drawn every visible female monster without the inverse video C gives it, and the segment would have run on those cells rather than stopping.",
+      "status": "done",
+      "remaining": "None. The monster ranges are what retire it, alongside the deferral wizmgender-never-inverts-a-female-monster."
     },
     {
       "candidate": "The objectGlyphId stand-in and REMEMBERED_GLYPH_IDENTITY_FIELDS",

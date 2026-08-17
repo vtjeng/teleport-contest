@@ -848,8 +848,15 @@ export function random_object_glyph_info(
     state = game,
     displayRandom = rn2_on_display_rng,
 ) {
-    // display.h random_obj_to_glyph(): ordinary random objects retain their
-    // concrete object glyph, while a random corpse draws its displayed body.
+    // C ref: display.h random_obj_to_glyph() (932-936). A random corpse draws
+    // its displayed body in the plain body range; every other random object
+    // takes objnum_to_glyph()'s plain object range, a STATUE included, which
+    // is why a hallucinated statue drawn this way shows the generic rock-class
+    // statue. Neither arm asks obj_is_piletop(), and neither reaches
+    // statue_to_glyph(). So this cannot route through object_glyph_info():
+    // that function dispatches otyp === STATUE to statue_to_glyph(), which
+    // reads a corpsenm the synthetic object does not carry, and the NaN it
+    // returns reaches map_glyphinfo() as an unresolvable number.
     const randomType = FIRST_OBJECT + displayDraw(
         displayRandom,
         NUM_OBJECTS - FIRST_OBJECT,
@@ -865,9 +872,18 @@ export function random_object_glyph_info(
         oclass: type.oc_class,
         dknown: true,
     };
+    // C's ternary draws the species only on the corpse arm, after the object
+    // draw, and that order is observable in the display-RNG stream.
     if (randomType === CORPSE)
         randomObject.corpsenm = displayDraw(displayRandom, NUMMONS);
-    return object_glyph_info(randomObject, state);
+    const glyph = map_glyphinfo(
+        randomType === CORPSE
+            ? randomObject.corpsenm + GLYPH_BODY_OFF
+            : objnum_to_glyph(randomType),
+        state,
+    );
+    if (!state.a11y?.glyph_updates) return glyph;
+    return withObjectAccessibility(glyph, randomObject, state);
 }
 
 function heroHallucinating(state) {
@@ -1233,6 +1249,7 @@ export function glyph_is_piletop_generic_obj(glyph) {
 }
 
 export function glyph_is_generic_object(glyph) {
+    assertGlyphNumber(glyph, 'glyph_is_generic_object');
     return glyph_is_normal_generic_obj(glyph)
         || glyph_is_piletop_generic_obj(glyph);
 }
@@ -1260,7 +1277,25 @@ export function glyph_is_normal_object(glyph) {
 // C ref: display.h glyph_is_object() (877-879), the union of the four object
 // families. dogmove.c dog_move() asks it of levl[x][y].glyph, which is what
 // js/dogmove.js passes.
+//
+// This and glyph_is_generic_object() above are the two exported entry points
+// into the range predicates, so the argument check lives here. Both took a map
+// location before this port stored a number, and both would answer a plain
+// `false` for one, since every comparison against an object is false. That
+// silence is the wrong answer rather than a missing one, so anything that is
+// neither a number nor the `undefined` of an unremembered square is refused
+// here, in the shape map_glyphinfo() below already uses.
+function assertGlyphNumber(glyph, caller) {
+    if (glyph !== undefined && !Number.isInteger(glyph)) {
+        throw new TypeError(
+            `${caller}() takes a glyph number, not ${typeof glyph === 'object'
+                ? JSON.stringify(glyph) : glyph}`,
+        );
+    }
+}
+
 export function glyph_is_object(glyph) {
+    assertGlyphNumber(glyph, 'glyph_is_object');
     return glyph_is_normal_object(glyph) || glyph_is_generic_object(glyph)
         || glyph_is_statue(glyph) || glyph_is_body(glyph);
 }
@@ -1282,14 +1317,17 @@ export const MG_FEMALE = 0x02000;
  * 'hilite_pile' and repainting changes a remembered pile that no draw has
  * touched since.
  *
- * Three of C's four arms are here. The `bkglyphinfo->framecolor` arm above
- * them needs iflags.bgcolors, which no ported path sets. The MG_PET arm is
- * reachable but is spelled at actualMonsterGlyphInfo() instead, where the pet
- * is: this function is only reached from map_glyphinfo()'s object ranges, and
- * an object glyph carries no MG_PET. The order still matters and is preserved
- * by that split rather than in spite of it -- a pet standing on a pile hides
- * the pile's glyph entirely, so newsym() shows the monster's presentation and
- * never asks for the object's.
+ * C's chain has three arms, and this function is the third one: its
+ * iflags.use_inverse gate, with the MG_OBJPILE and MG_FEMALE disjuncts an
+ * object glyph can raise. The other two sit elsewhere. The
+ * `bkglyphinfo->framecolor` arm above them needs iflags.bgcolors, which no
+ * ported path sets. The MG_PET arm is reachable but is spelled at
+ * actualMonsterGlyphInfo() instead, where the pet is: this function is only
+ * reached from map_glyphinfo()'s object ranges, and an object glyph carries no
+ * MG_PET. The order still matters and is preserved by that split rather than
+ * in spite of it -- a pet standing on a pile hides the pile's glyph entirely,
+ * so newsym() shows the monster's presentation and never asks for the
+ * object's.
  *
  * MG_DETECT and the four MG_BW_* bits share the last arm in C. Neither is
  * raised by an object glyph: MG_DETECT belongs to detectedMonsterGlyphInfo()
@@ -1303,7 +1341,8 @@ export const MG_FEMALE = 0x02000;
  * MG_FEMALE is raised here for a statue, because reset_glyphmap()'s two female
  * statue arms raise it and this resolves those arms. It is not raised for a
  * female monster, which needs no glyph number to decide; the deferral
- * wizmgender-never-inverts-a-female-monster records that.
+ * wizmgender-never-inverts-a-female-monster records that, and js/options.js
+ * refuses a 'wizmgender' toggle so no repaint runs over the gap.
  */
 function print_glyph_attr(glyphflags, state) {
     if (state.iflags?.wc_inverse === false) return ATR_NONE;
@@ -1779,10 +1818,13 @@ export function remembered_glyph_from_presentation(glyph, trap = null) {
         );
     }
     const remembered = Number.isInteger(glyph.glyph)
-        // C's levl[x][y].glyph for an object square, unresolved. No presentation
-        // field rides along: newsym()'s show_mem arm and feel_location() both
-        // resolve this number afresh, which is what lets a repaint after an
-        // option change draw the square under the new values.
+        // C's levl[x][y].glyph for an object square, unresolved. No
+        // presentation field rides along, because the one reader of the stored
+        // number, newsym()'s show_mem arm through
+        // remembered_glyph_presentation(), resolves it afresh -- which is what
+        // lets a repaint after an option change draw the square under the new
+        // values. feel_location() is not that reader: it rebuilds the square
+        // from live level state and writes map memory rather than reading it.
         ? { glyph: glyph.glyph }
         : {
             ch: glyph.ch,

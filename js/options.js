@@ -4587,6 +4587,22 @@ async function optfn_boolean(state, optidx, negated, opts) {
             "reset_glyphmap() over a 'use_inverse' change",
         );
     case 'wizmgender':
+        // Shares options.c:5379-5385 with the six below, and is refused for
+        // the same reason 'use_inverse' is: the repaint would run over a layer
+        // that cannot carry the attribute. win/tty/wintty.c tty_print_glyph()
+        // (3930-3931) prints ATR_INVERSE for any glyph carrying MG_FEMALE
+        // while wizard and iflags.wizmgender hold, and display.c
+        // reset_glyphmap() raises MG_FEMALE on the GLYPH_MON_FEM_OFF arm
+        // (3050-3058) as well as on the pet, detect, ridden and statue female
+        // arms. This port raises it only for the two statue arms, because a
+        // monster presentation carries no glyphflags, so a repaint would draw
+        // every visible female monster without the inverse video C gives it.
+        // A stopped segment is worth more than a segment that runs on painting
+        // wrong cells. The deferral wizmgender-never-inverts-a-female-monster
+        // owns the gap; the monster ranges are what retire this.
+        throw new UnsupportedOptionMenuError(
+            "reset_glyphmap() over a 'wizmgender' change",
+        );
     case 'showrace':
     case 'hilite_pile':
     case 'perm_invent':
