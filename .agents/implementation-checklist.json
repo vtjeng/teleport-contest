@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every entry is done. The production game executes every done path: scripts/run-options-menu.mjs matches C over 17 recipes at 50,246 random-number calls, 281 screens and 281 cursors, three of them new -- over seed 6193044 at 20281114093000 the hero drops a pile in a dark corridor, walks out of sight of it, and toggles 'color', 'use_inverse' or 'dark_room'. Two of the three discriminate: storing glyph.color beside the number and replaying it fails the colour recipe at screen 17, row 16, column 57, C colour 8 against JS colour 6, and removing print_glyph_attr()'s iflags.use_inverse test fails the inverse recipe at screen 20, row 16, column 57. The development score is identical call for call and screen for screen, which is the guard this slice needed, since no development session picks either option. The one gap is recorded rather than hidden: the four MG_BW_* bits and reglyph_darkroom()'s GLYPH_NOTHING write are unit-tested and reach no fresh differential, because the terrain they need does not occur on the first level and doengrave() has no port. That is the open deferral remembered-cmap-cues-have-no-fresh-case.",
-  "commitChecked": "4eff71bd42165af737c13942fee2c0243bc605cd",
+  "reason": "Every entry is done, and commitChecked names the commit that applied the correctness pass over bea560c..1352173 rather than 4eff71b where the slice landed, since that pass corrected four behaviours the entries describe. The production game executes every done path: scripts/run-options-menu.mjs matches C over 17 recipes at 50,246 random-number calls, 281 screens and 281 cursors, three of them new -- over seed 6193044 at 20281114093000 the hero drops a pile in a dark corridor, walks out of sight of it, and toggles 'color', 'use_inverse' or 'dark_room'. Two of the three discriminate: storing glyph.color beside the number and replaying it fails the colour recipe at screen 17, row 16, column 57, C colour 8 against JS colour 6, and removing print_glyph_attr()'s iflags.use_inverse test fails the inverse recipe at screen 20, row 16, column 57. The development score is identical call for call and screen for screen, which is the guard this slice needed, since no development session picks either option. The one gap is recorded rather than hidden: the four MG_BW_* bits and reglyph_darkroom()'s GLYPH_NOTHING write are unit-tested and reach no fresh differential, because the terrain they need does not occur on the first level and doengrave() has no port. That is the open deferral remembered-cmap-cues-have-no-fresh-case.",
+  "commitChecked": "e414c117058394a58587d00f712af13a5da3fdba",
   "boundary": {
     "goalId": "option-toggle-repaints-the-map",
     "startingEvent": "A pick of the 'color' row from doset_simple()'s menu, or of 'use_inverse' from the full 'mO' menu, which options.c optfn_boolean() answers by setting go.opt_need_redraw and go.opt_need_glyph_reset.",
@@ -169,6 +169,15 @@
       "owner": "js/display.js",
       "effects": "None: no test can distinguish either mutant from the original.",
       "evidence": "glyph_to_cmap()'s `glyph < GLYPH_ALTAR_OFF` -- at GLYPH_ALTAR_OFF the cmap A arm computes S_brdnladder + 1 = 33 = S_altar, what the arm below returns. map_glyphinfo()'s `(offset = glyph - GLYPH_CMAP_A_OFF) >= 0` -- at GLYPH_CMAP_A_OFF a `> 0` test falls into the Sokoban wall arm at offset 11, giving S_vwall + 11 = S_ndoor, and both arms colour it CLR_GRAY. Verified by arithmetic and recorded in the slice's commit body, as .agents/review.md requires.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "The four behaviours the correctness pass over this range corrected",
+      "reachability": "Each sits inside the converted layer.",
+      "owner": "js/display.js, js/region.js, js/monmove.js, js/symbols.js",
+      "effects": "map_glyphinfo()'s GLYPH_NOTHING arm now attaches the accessibility kind js/startup_a11y.js tests for; ALTAR_CUSTOMIZATION_NAMES ends in G_altar_other, the name the glyph registry holds; glyph_to_cmap() transcribes glyphs.c's zap arm rather than answering the fencepost; and js/region.js's cmap index is named glyph_cmap, so `glyph` keeps one meaning across js/.",
+      "evidence": "Applied at the audit-fix commit this checklist now names, each shown failing first by a mutant reversed with git restore. The development score and both fresh differentials are unchanged.",
       "status": "done",
       "remaining": "None."
     }
