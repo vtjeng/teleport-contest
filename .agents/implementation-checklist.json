@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every candidate the slice owns is done. The marker has a representation (GLYPH_INVISIBLE through map_glyphinfo()), a writer (mhitm.c pre_mm_attack()'s two arms), a lifetime (newsym()'s marker arm, mon.c mondead()'s clear, display.c unmap_invisible()) and a name (do_name.c x_monnam()'s do_it arm). One candidate outside the owner list was ported because it sits between the slice's starting point and its stated result: mon.c make_corpse()'s mummy and zombie group, which seed0006's kobold zombie reaches one call after the message.",
-  "commitChecked": "aec58a3c09623e9b24fb273fe2677de3c309ed65",
+  "reason": "Every candidate the slice owns is done, and the correctness pass over 389a8a2..16d4e33 has been applied. That pass found one thing this list had asserted the other way: the once-per-turn planning scan does reach mhitm.c pre_mm_attack(), through preflightSimpleMonsterActions() and dogmove.c dog_move(), so the marker write now goes through a seam the scan binds to a no-op and map_invisible() refuses a foreign state. The four entries below record what it changed. One finding is deferred rather than fixed and is tracked as live-scan-map-memory-refusal-escapes-the-segment.",
+  "commitChecked": "b7cf46847e434137497d2d39880535d2e3e33759",
   "boundary": {
     "goalId": "remembered-invisible-monster",
     "startingCommit": "b4a8f01aed5dc8d2f6965592c4dd2f5ab97524ae",
@@ -243,8 +243,53 @@
       "evidence": "Not in the slice's owner list, and ported anyway because it sits between the slice's starting point and its stated result: seed0006 step 77's kobold is a kobold zombie, so the port reached this refusal one call after the message the marker work unblocked. Both helpers already existed -- undead_to_corpse() at js/mondata.js:1067 and mkcorpstat() at js/corpstat.js:105 -- so the arm is five lines. It also needed C's control flow made explicit: `default_1:` is a label inside the switch, so an arm that breaks skips the G_NOCORPSE test and the general mkcorpstat() under it, which every other break arm hid because it refuses.",
       "status": "done",
       "remaining": "None. scripts/mon-kill.test.mjs \"a zombie leaves the living creature's old corpse\" pins the species, the age and the saved traits; seed0006 is the differential."
+    },
+    {
+      "candidate": "display.c map_invisible() reached from mhitm.c pre_mm_attack() during the once-per-turn planning scan",
+      "reachability": "js/unported_monster_actions.js preflightSimpleMonsterActions() runs moveSimplePet() with planning:true, and a pet's blow arrives at pre_mm_attack() through dogmove.c dog_move() and mhitm.c mattackm().",
+      "owner": "js/mhitm.js pre_mm_attack(), through the injected `markInvisible` operation",
+      "effects": "None on a plan. The live replay of the same turn writes the memory and paints the cell.",
+      "evidence": "planningState() shares level.locations with the live game and show_glyph_cell() takes no state, so a direct call wrote and painted the running game. scripts/unported-monster-actions.test.mjs pins it against freezeLiveState().",
+      "status": "done",
+      "remaining": "None. The plan and the live pass now differ on the marker, which is what the deferred entry below records."
+    },
+    {
+      "candidate": "mon.c mondead()'s marker clear reached during the planning scan",
+      "reachability": "A marker an earlier live turn left behind, on the square a monster dies on during the plan. The plan writes none itself.",
+      "owner": "js/mon.js mondead()",
+      "effects": "Refuses through the injected `unsupported()`, writing nothing.",
+      "evidence": "unmap_object() refuses an engraved square, so skipping the call would hide that refusal from the pass that exists to find it; refusing keeps both the class and the live map. scripts/mon-kill.test.mjs pins it.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "hacklib.c s_suffix() under mhitm.c hitmm()'s AT_TENT line (687-690)",
+      "reachability": "A monster-vs-monster AT_TENT blow whose aggressor the hero cannot spot, which this slice made reachable.",
+      "owner": "js/do_name.js monsterPossessive()",
+      "effects": "Answers \"Its tentacles suck\", as s_suffix() (345-359) special-cases \"it\" case-blind.",
+      "evidence": "The port open-coded the trailing-s half alone and answered \"It's\". scripts/mhitm.test.mjs pins the unspottable row.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "teleport.c rloc_to_core()'s three Monnam() calls (1666, 1714, 1722)",
+      "reachability": "A monster teleporting from a square the hero cannot see to one it can, which mtele_trap() reaches through a themeroom launchplace.",
+      "owner": "js/teleport.js relocateToFixedDestination()",
+      "effects": "Each message names the monster as C names it at that point in the move.",
+      "evidence": "The port read the name once before the move, which was safe until do_it made it depend on canspotmon(); the arrival then said \"It appears!\". scripts/teleport-monster-traps.test.mjs pins the species name.",
+      "status": "done",
+      "remaining": "None."
+    },
+    {
+      "candidate": "display.c unmap_object()'s engraved-square refusal reached from mon.c mondead() on the live monster scan",
+      "reachability": "A monster dying on a square that carries both an engraving and a marker the live pass wrote. The plan cannot see it, because the marker seam is a no-op there.",
+      "owner": "js/allmain.js advanceElapsedTurn(), which converts a refusal only in the catch around the preflight",
+      "effects": "UnsupportedMapMemoryError escapes moveloop_core() and runSegment(), so the segment loses its whole matching prefix instead of ending on its last matching screen.",
+      "evidence": "The class is in elapsedTurnPlanningRefusals() now, which covers the planning half; the live movemon() loop has a finally and no conversion. No development session reaches it.",
+      "status": "later",
+      "remaining": "Deferred as live-scan-map-memory-refusal-escapes-the-segment. Closing it needs a recording of a monster dying on a marked engraved square."
     }
   ],
   "missingWorkByOwner": [],
-  "sourceReview": "Attested. Read in full: mhitm.c pre_mm_attack() with missmm() and hitmm(); display.c map_invisible(), unmap_invisible(), show_mon_or_warn(), mon_overrides_region(), feel_location(), newsym() and reset_glyphmap()'s GLYPH_INVIS_OFF arm; do_name.c x_monnam() with mon_nam(), Monnam(), noit_mon_nam(), some_mon_nam() and mon_nam_too(); mon.c mondead(), monstone(), undead_to_corpse() and make_corpse() including its default_1 label; hack.c domove_bump_mon(), domove_fight_empty() and domove_core()'s !displaceu block; detect.c mfind0() and dosearch0()'s unmap_invisible() call; zap.c bhit()'s marker erase; uhitm.c attack_checks() and do_attack()'s atk_done tail. The four entries left undecided are resolved: feel_location()'s boulder-or-marker arm cannot occur, because it is inside the Levitation Rules block the port refuses wholesale; noit_mon_nam() passes SUPPRESS_IT and is pinned by a test; unmap_invisible()'s TRUE arm landed here, because both ported callers can reach a live marker; and the hack.c sites are ported but for domove_bump_mon()'s, which is a deferral rather than a silent skip. What this review does not cover: the port's own newsym() beyond the four arms of C's chain, and the sixty-odd map_invisible() callers whose commands are unported."
+  "sourceReview": "Attested. Read in full: mhitm.c pre_mm_attack() with missmm() and hitmm(); display.c map_invisible(), unmap_invisible(), show_mon_or_warn(), mon_overrides_region(), feel_location(), newsym() and reset_glyphmap()'s GLYPH_INVIS_OFF arm; do_name.c x_monnam() with mon_nam(), Monnam(), noit_mon_nam(), some_mon_nam() and mon_nam_too(); mon.c mondead(), monstone(), undead_to_corpse() and make_corpse() including its default_1 label; hack.c domove_bump_mon(), domove_fight_empty() and domove_core()'s !displaceu block; detect.c mfind0() and dosearch0()'s unmap_invisible() call; zap.c bhit()'s marker erase; uhitm.c attack_checks() and do_attack()'s atk_done tail. The four entries left undecided are resolved: feel_location()'s boulder-or-marker arm cannot occur, because it is inside the Levitation Rules block the port refuses wholesale; noit_mon_nam() passes SUPPRESS_IT and is pinned by a test; unmap_invisible()'s TRUE arm landed here, because both ported callers can reach a live marker; and the hack.c sites are ported but for domove_bump_mon()'s, which is a deferral rather than a silent skip. What this review does not cover: the port's own newsym() beyond the four arms of C's chain, and the sixty-odd map_invisible() callers whose commands are unported. The correctness pass over 389a8a2..16d4e33 then read the same range independently and returned eighteen confirmed findings, seventeen applied and one deferred; its own attestations are recorded in QUALITY.json."
 }
