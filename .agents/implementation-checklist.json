@@ -1,187 +1,134 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Every entry is done, and commitChecked names the commit that applied the correctness pass over bea560c..1352173 rather than 4eff71b where the slice landed, since that pass corrected four behaviours the entries describe. The production game executes every done path: scripts/run-options-menu.mjs matches C over 17 recipes at 50,246 random-number calls, 281 screens and 281 cursors, three of them new -- over seed 6193044 at 20281114093000 the hero drops a pile in a dark corridor, walks out of sight of it, and toggles 'color', 'use_inverse' or 'dark_room'. Two of the three discriminate: storing glyph.color beside the number and replaying it fails the colour recipe at screen 17, row 16, column 57, C colour 8 against JS colour 6, and removing print_glyph_attr()'s iflags.use_inverse test fails the inverse recipe at screen 20, row 16, column 57. The development score is identical call for call and screen for screen, which is the guard this slice needed, since no development session picks either option. The one gap is recorded rather than hidden: the four MG_BW_* bits and reglyph_darkroom()'s GLYPH_NOTHING write are unit-tested and reach no fresh differential, because the terrain they need does not occur on the first level and doengrave() has no port. That is the open deferral remembered-cmap-cues-have-no-fresh-case.",
-  "commitChecked": "e414c117058394a58587d00f712af13a5da3fdba",
+  "mode": "implementation",
+  "reason": "The slice is in progress and nothing is committed yet. The candidate list below was traced by the orchestrator against the C source at the slice base 08c2151, before reading any of the worker's uncommitted change. Every entry the slice owns is missing or undecided until the worker reports and the entries are checked against the repository.",
+  "commitChecked": "08c2151bfa105b2262e69f0e48a6a35cffcc7fd7",
   "boundary": {
     "goalId": "option-toggle-repaints-the-map",
-    "startingEvent": "A pick of the 'color' row from doset_simple()'s menu, or of 'use_inverse' from the full 'mO' menu, which options.c optfn_boolean() answers by setting go.opt_need_redraw and go.opt_need_glyph_reset.",
-    "startingCommit": "bb7d62f50e68b9f546d4f8112641af5d63636173",
-    "endingEvent": "The screen the port draws after reset_needed_visuals() returns, with every remembered out-of-sight terrain square repainted under the option value now in force rather than the one in force when the square was recorded.",
-    "validInputs": "A pick of 'color' or of 'use_inverse'; any level whose remembered squares include terrain, which is every level. The four wall sets are selected by u.uz through In_mines, In_hell, Is_knox and In_sokoban, so a session in any branch is inside the boundary.",
-    "observables": "levl[x][y].glyph as a cmap glyph number in map memory rather than a resolved presentation; the colour every terrain cell prints, which C takes from defsyms[].color, wallcolors[] and altarcolors[] under iflags.use_color; the four MG_BW_* glyphflags and the attribute they produce at print time; and the screens and cursors of the repaint. No ported arm may consume randomness.",
-    "exclusions": "reset_glyphmap()'s CMAP_C and ZAP arms, which sit above the nine cmap arms in the chain and reach no map memory. The monster ranges and the 'wizmgender' refusal, which a later slice owns. The rogue-level terms, which reglyph_darkroom() already refuses."
+    "startingCommit": "08c2151bfa105b2262e69f0e48a6a35cffcc7fd7",
+    "startingEvent": "A pick of the 'wizmgender' row from doset()'s full 'mO' menu in a debug-mode game, which options.c optfn_boolean() answers by setting go.opt_need_redraw and go.opt_need_glyph_reset. The same option is also settable from a configuration file, where optfn_boolean() returns at options.c:5325's go.opt_initial guard before reaching any of this.",
+    "endingEvent": "The screen the port draws after reset_needed_visuals() returns, with every visible female monster and a female hero carrying the inverse video win/tty/wintty.c tty_print_glyph() gives MG_FEMALE under wizard && iflags.wizmgender.",
+    "validInputs": "A debug-mode game, since wizmgender is set_wizonly and options.c:8842 hides its row outside one. Either gender of hero, since hero_glyph passes Ugender; a pet on the map, which exercises the MG_PET arm that sits above the MG_FEMALE disjunct; and iflags.hilite_pet either way, whose compiled-in default is Off.",
+    "observables": "The attribute of every monster and hero cell after the repaint, and the screens and cursors of the debug-mode menu itself, which no recording has ever covered. No ported arm may consume randomness.",
+    "exclusions": "Numbering the monster ranges in map memory, which no C writer does and this slice therefore does not. The invisible-monster range, whose writer display.c map_invisible() (378-385) is unported and whose arm raises MG_INVIS rather than a gender bit."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "src/display.c back_to_glyph() (2287-2427); src/display.c reset_glyphmap()'s nine map-memory cmap arms; src/display.c map_glyphinfo(); options.c optfn_boolean()'s 'color' arm (5407-5409) and the 'use_inverse' member of its seven-option arm (5379-5385); win/tty/wintty.c tty_print_glyph()'s attribute chain (3919-3937), whose MG_BW_* disjuncts this slice makes reachable.",
-    "dispatchTablesAndCatalogs": "include/display.h altar_to_glyph (569), cmap_walls_to_glyph (598), cmap_a_to_glyph (612), cmap_b_to_glyph (615), cmap_c_to_glyph (618), cmap_to_glyph (621), trap_to_glyph (630), engraving_to_glyph (633) and glyph_is_cmap (723). The colour tables: defsyms[].color, the last argument of every PCHAR and PCHAR2 row in include/defsym.h, read through the cmap_color macro at src/display.c:2684; wallcolors[] at :2677 through wall_color at :2693; altarcolors[] at :2666 through altar_color at :2694. All three macros are gated on iflags.use_color, which is where the 'color' option reaches every terrain cell.",
-    "reachableHelpers": "The nine map-memory cmap arms of reset_glyphmap(), read in chain order: GLYPH_CMAP_B_OFF with its !iflags.use_color switch raising MG_BW_LAVA, MG_BW_ICE and MG_BW_SINK; GLYPH_ALTAR_OFF; GLYPH_CMAP_A_OFF with the S_litcorr recolour and the MG_BW_ENGR arm; then the four wall sets SOKO, KNOX, GEH and MINES; then MAIN; then STONE. The CMAP_C and ZAP arms sit above them and reach no map memory.",
-    "javascriptCrossCheck": "At the slice base bb7d62f, `grep -c 'terrainCmap(' js/display.js` returns 61 and `grep -n 'remembered_glyph = |remembered_glyph_from_presentation(' js/display.js` returns fourteen writer sites, so the conversion touches far more of the file than the object slice did. js/detect.js also writes one through remembered_glyph_from_presentation().",
-    "remainingLimits": "Two. The wall-set selection reads u.uz, so a session in a branch the development set does not visit exercises a wall set no differential covers; wallcolors[] is uniformly CLR_GRAY today, which hides the difference. And no development session picks 'color' or 'use_inverse', so the whole slice rests on fresh differentials rather than on the development score, whose only role here is to show that nothing regressed."
+    "upstreamEntryPoints": "display.c display_monster() (514-622) and its M_AP_MONSTER arm; display.c display_self() (251-260) through display.h hero_glyph (654-656); display.c reset_glyphmap()'s six monster arms (ridden 2986-3003, detect 3011-3028, pet 3034-3049, ordinary 3050-3065); win/tty/wintty.c tty_print_glyph() (3925-3937); options.c optfn_boolean()'s seven-option arm (5376-5385); objnam.c:1549-1559.",
+    "dispatchTablesAndCatalogs": "display.h mon_to_glyph() (554-556), detected_mon_to_glyph() (557-559), ridden_mon_to_glyph() (560-562), pet_to_glyph() (563-565) and monnum_to_glyph() (639-641), each of which takes a gender code and picks a range from it. you.h:555 defines Ugender as ((Upolyd ? u.mfemale : flags.female) ? 1 : 0). objnam.c reads genders[].adj, which js/insight.js and js/player_selection.js already use.",
+    "reachableHelpers": "Two gender sources are easy to transpose and were checked separately. display.c:524 sets mgendercode from mon->female and display.c:581 passes it to monnum_to_glyph() for the M_AP_MONSTER arm, so a mimic takes the mimicking monster's gender rather than the appearance species'. The hero takes Ugender, which reads flags.female rather than any monster field.",
+    "javascriptCrossCheck": "At the slice base, C's one ordered attribute chain is split across three sites in js/display.js: the third arm at print_glyph_attr(), the MG_PET arm at actualMonsterGlyphInfo() (glyph.attr = state.iflags.wc2_petattr ?? ATR_INVERSE), and MG_DETECT inline at presentedMonsterGlyphInfo(). grep -rn 'wizmgender' js/ returns only js/display.js's comment and test of the flag and two comment sites in js/options.js, so the objnam.c arm has neither a port nor a refusal.",
+    "remainingLimits": "Two. The debug-mode 'mO' menu has never been recorded against C, so a first differential failure is as likely to be menu layout as the repaint: options.c:8820 sets endpass to set_wiznofuz under wizard, which adds ten boolean rows and two compound ones and widens longest_option_name(), moving the padding of every row and the page boundaries with it. And the recording depends on this environment's sysconf naming the user in WIZARDS; the checked-in template does not, so a fresh checkout cannot reproduce it."
   },
   "entries": [
     {
-      "candidate": "The defsyms[].color column, wallcolors[] and altarcolors[], as generated tables",
-      "reachability": "Every cmap arm of reset_glyphmap() reads one of the three through cmap_color, wall_color or altar_color, each gated on iflags.use_color.",
-      "owner": "js/symbol_data.js, generated by scripts/generate-symbol-data.mjs, which already parses defsym.h's PCHAR rows for explanations",
-      "effects": "None on their own: tables of constants.",
-      "evidence": "include/defsym.h's PCHAR and PCHAR2 rows; src/display.c:2666-2694.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "That map memory never holds a monster glyph number, which is what makes this slice a print-time change rather than a range conversion",
+      "reachability": "Every writer of levl[x][y].glyph.",
+      "owner": "None; it is the premise the slice rests on",
+      "effects": "None. Recorded because the deferral wizmgender-never-inverts-a-female-monster prescribes the opposite, and following that would add a number nothing stores and nothing reads back.",
+      "evidence": "grep -rn 'levl\\[.*\\]\\[.*\\]\\.glyph =' over nethack-c/upstream/src/ returns display.c:284, :302, :319, :359, :361, :436 and :555, all cmap, object, trap or engraving numbers; bones.c:569 writes GLYPH_UNEXPLORED; mkmaze.c:1840 writes a cmap number; ball.c's eleven sites restore a value saved from the same field. The one exception is display.c:382, map_invisible(), which writes the constant GLYPH_INVISIBLE, whose reset_glyphmap() arm raises MG_INVIS and no gender bit. detect.c:2205-2209 states the same rule in a comment.",
+      "status": "undecided",
+      "remaining": "Confirm the worker reached the same reading, and note the deferral rather than closing it on this slice's authority alone."
     },
     {
-      "candidate": "include/display.h's cmap glyph macros: altar_to_glyph (569), cmap_walls_to_glyph (598), cmap_a_to_glyph (612), cmap_b_to_glyph (615), cmap_c_to_glyph (618), cmap_to_glyph (621), trap_to_glyph (630), engraving_to_glyph (633)",
-      "reachability": "back_to_glyph() and the writers below produce a number through them. None makes a random-number call, writes output or changes state.",
-      "owner": "None",
-      "effects": "None.",
-      "evidence": "Read at include/display.h.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "display.c display_monster()'s four glyph choices and its M_AP_MONSTER arm, as the gender code each range carries",
+      "reachability": "Every drawn monster: ordinary, pet, detected, ridden, and a monster mimicking another monster.",
+      "owner": "js/display.js actualMonsterGlyphInfo(), presentedMonsterGlyphInfo(), riddenMonsterGlyphInfo() and mimickedMonsterGlyphInfo()",
+      "effects": "Each must carry MG_FEMALE or MG_MALE on the presentation, since the port raises no monster glyph number to carry it.",
+      "evidence": "display.c:524 computes mgendercode from mon->female and :581 passes it for the mimic arm.",
+      "status": "missing",
+      "remaining": "Port with the mimic arm taking the mimicking monster's gender."
     },
     {
-      "candidate": "include/display.h glyph_is_cmap (723-725), the live definition",
-      "reachability": "Twelve C call sites, among them hack.c:1059 and :1535, fountain.c:226, uhitm.c:6221 and four in pager.c.",
-      "owner": "None",
-      "effects": "None.",
-      "evidence": "The live macro is one contiguous range from GLYPH_CMAP_STONE_OFF to GLYPH_CMAP_C_OFF + ((S_goodpos - S_digbeam) + 1). GLYPH_ZAP_OFF sits inside that span, since the enum order at 522-524 is CMAP_B, then ZAP, then CMAP_C, so the macro answers true for a zap glyph. The precise decomposition directly above it at 711-722, which excludes the zap range, is disabled under `#if 0` with the comment that it 'expands to a lot of unnecessary code'. glyphs.c:983 writes `glyph_is_cmap(glyph) || glyph_is_cmap_zap(glyph)`, a disjunction that is redundant under the live macro and meaningful under the disabled one.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "display.h hero_glyph (654-656) and you.h Ugender (555)",
+      "reachability": "Every draw of the hero.",
+      "owner": "js/display.js hero_glyph_info()",
+      "effects": "A female hero's own glyph lands in the female range and gains the inverse attribute the moment wizmgender goes on. This is what makes the differential discriminate without a female monster on the map.",
+      "evidence": "hero_glyph passes (Ugender), which is ((Upolyd ? u.mfemale : flags.female) ? 1 : 0). Upolyd() exists in the port and is always false today, so the u.mfemale half is dormant.",
+      "status": "missing",
+      "remaining": "Write both halves even though one is dormant."
     },
     {
-      "candidate": "src/display.c back_to_glyph() (2287-2427)",
-      "reachability": "Every writer of terrain map memory reaches it.",
-      "owner": "js/display.js terrain_glyph(), which returns a resolved presentation today",
-      "effects": "Returns cmap_to_glyph(idx), or the altar_to_glyph() bypass.",
-      "evidence": "It is not a pure function of the square: cmap_walls_to_glyph() reads u.uz through In_mines, In_hell, Is_knox and In_sokoban, so a wall's number is fixed when the square is recorded rather than when it is repainted.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "reset_glyphmap()'s six monster arms, for the bits their ranges carry",
+      "reachability": "Not reached through map memory; read as the specification of which bit each range raises.",
+      "owner": "js/display.js, as the source of the MG_FEMALE and MG_MALE assignments",
+      "effects": "Fixes which of the two bits each of the four monster families raises.",
+      "evidence": "src/display.c ridden 2986-3003, detect 3011-3028, pet 3034-3049, ordinary 3050-3065.",
+      "status": "missing",
+      "remaining": "Port the bit assignments only; the arms themselves resolve numbers this port does not produce."
     },
     {
-      "candidate": "reset_glyphmap()'s GLYPH_CMAP_B_OFF arm, with the MG_BW_LAVA, MG_BW_ICE and MG_BW_SINK switch",
-      "reachability": "A remembered lava, ice or sink square. The three bits are computed only inside `if (!iflags.use_color)`.",
-      "owner": "None",
-      "effects": "Sets the symbol, a colour through cmap_color, and one MG_BW_* bit.",
-      "evidence": "src/display.c, the CMAP_B arm.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "win/tty/wintty.c tty_print_glyph()'s attribute chain (3925-3937), unified rather than extended",
+      "reachability": "Every printed cell.",
+      "owner": "js/display.js print_glyph_attr(), actualMonsterGlyphInfo() and presentedMonsterGlyphInfo(), which hold one arm each today",
+      "effects": "C picks at most one attribute in a fixed order, and the MG_PET arm sits above the MG_FEMALE disjunct.",
+      "evidence": "The three-way split is safe at the slice base only because no glyph reaching print_glyph_attr() carries MG_PET, which its own doc comment states. Adding MG_FEMALE to a pet ends that: a female pet with hilite_pet on must take wc2_petattr, and with it off must fall through to ATR_INVERSE.",
+      "status": "missing",
+      "remaining": "Make the three sites one chain, in C's order."
     },
     {
-      "candidate": "reset_glyphmap()'s GLYPH_CMAP_A_OFF arm, with the S_litcorr recolour and the MG_BW_ENGR arm",
-      "reachability": "A remembered corridor, engraving or other CMAP_A square.",
-      "owner": "None",
-      "effects": "Sets the symbol, a colour, and MG_BW_ENGR.",
-      "evidence": "MG_BW_ENGR sits in the else branch of the rogue-colour test and is computed unconditionally on colour, unlike the three CMAP_B bits. js/display.js blackAndWhiteTerrainCue() folds both into one helper under one gate.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "The 'wizmgender' refusal in js/options.js optfn_boolean()",
+      "reachability": "A pick of the row in a debug-mode game.",
+      "owner": "js/options.js",
+      "effects": "Deleting it folds the name back into the six-name case list beside it and leaves optfn_boolean() with no refusal at all.",
+      "evidence": "It is the last of the eight arms this goal's boundary names.",
+      "status": "missing",
+      "remaining": "Delete it, and confirm no other refusal remains in that switch."
     },
     {
-      "candidate": "reset_glyphmap()'s GLYPH_ALTAR_OFF arm",
-      "reachability": "A remembered altar. Its colour comes from altarcolors[] rather than defsyms[].",
-      "owner": "None",
-      "effects": "Sets the symbol and an altar colour.",
-      "evidence": "src/display.c:2666 for the table and :2694 for the macro.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "objnam.c:1549-1559, which reads the same option to name a statue, corpse or figurine's gender",
+      "reachability": "Any STATUE, CORPSE or FIGURINE named while wizard && iflags.wizmgender hold. Reachable from a configuration file today, and from the menu once the refusal goes.",
+      "owner": "None at the slice base: js/ has neither the branch nor a refusal for it",
+      "effects": "C appends ' (female)', ' (male)' or ' (neutral)' from genders[mgend].adj, or ' (unspecified gender)' when the CORPSTAT_GENDER bits are CORPSTAT_RANDOM. The port omits the whole clause silently.",
+      "evidence": "Read at objnam.c:1549-1559. grep -rn 'wizmgender' js/ finds no producer at the slice base.",
+      "status": "undecided",
+      "remaining": "Port it or add a named refusal. AGENTS.md permits a stop and forbids silently skipping a message-writing branch, so what it must not stay is unrecorded."
     },
     {
-      "candidate": "reset_glyphmap()'s five wall arms: GLYPH_CMAP_SOKO_OFF, GLYPH_CMAP_KNOX_OFF, GLYPH_CMAP_GEH_OFF, GLYPH_CMAP_MINES_OFF and GLYPH_CMAP_MAIN_OFF",
-      "reachability": "A remembered wall. Which arm resolves it is fixed by the number cmap_walls_to_glyph() chose from u.uz when the square was recorded.",
-      "owner": "None",
-      "effects": "Sets the symbol and a colour through wall_color.",
-      "evidence": "src/display.c, the five arms, each with its own wallcolors[] index.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "reset_glyphmap()'s GLYPH_CMAP_STONE_OFF arm",
-      "reachability": "A remembered stone square, the commonest square on a level.",
-      "owner": "None",
-      "effects": "Sets the symbol and a colour.",
-      "evidence": "src/display.c, the last cmap arm in the chain.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The writers that must convert with the layer: map_background(), map_trap(), the engraving arm of _map_location(), feel_location(), unmap_object(), reglyph_darkroom(), the mimic-furniture arm of monster_glyph_info(), and js/detect.js's remembered_glyph_from_presentation() call",
-      "reachability": "Each records a terrain square in map memory.",
-      "owner": "js/display.js and js/detect.js",
-      "effects": "Each stores what the repaint will later resolve, so one left behind leaves a square in the old shape.",
-      "evidence": "At bb7d62f, fourteen sites in js/display.js write remembered_glyph_from_presentation(), and js/detect.js writes one more.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "reglyph_darkroom()'s in-place rewrite of remembered cmap indices",
-      "reachability": "A 'lit_corridor' or 'dark_room' change, and initoptions_finish().",
-      "owner": "js/display.js reglyph_darkroom(), which reads loc.remembered_glyph.cmap and carries its own refusal",
-      "effects": "All four arms of display.c reglyph_darkroom() (1818-1855) now run, where three configurations were refused before. Closing 'color' required them: the colour toggle reaches its !iflags.use_color gate, and the two arms behind that gate need GLYPH_NOTHING.",
-      "evidence": "The refusal it carried, UnsupportedGlyphRepairError, is gone from js/ entirely. That left the separate 'dark_room' option refusal standing on a reason that was no longer true -- dark_room shares C's arm with the already-ported lit_corridor -- so it went too, with its own fresh differential. Three refusals go rather than the two the slice was scoped for, and the third is a consequence of the first rather than added scope.",
-      "status": "done",
-      "remaining": "None for this slice. display.c:1839's `: GLYPH_NOTHING` half and its 1845-1847 reader are unit-tested only, recorded on remembered-cmap-cues-have-no-fresh-case."
-    },
-    {
-      "candidate": "The accessibility sidecars a11yKind, a11yIdentity and a11ySubject, which terrainCmap() derives from the cmap index",
-      "reachability": "Every terrain square recorded while a11y.glyph_updates is on.",
-      "owner": "js/display.js",
-      "effects": "Settled once for the layer, following the object precedent: map_glyphinfo() rebuilds a11yKind, a11yIdentity and a11ySubject from the number for every cmap glyph, and remembered_glyph_from_presentation() copies the two identity sidecars onto the record. trap_glyph_info() still overrides them, because a trap subject carries the live trap object rather than anything the number holds.",
-      "evidence": "The object layer's precedent keeps a11yIdentity and a11ySubject as non-enumerable sidecars on the memory record and lets map_glyphinfo() rebuild only the presentation.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The two refusals this slice removes: \"reset_glyphmap() over a 'color' change\" and \"reset_glyphmap() over a 'use_inverse' change\"",
-      "reachability": "A pick of either row.",
-      "owner": "js/options.js optfn_boolean()",
-      "effects": "Both stop the segment today.",
-      "evidence": "They go together: use_inverse gates the four MG_BW_* bits that reset_glyphmap() raises inside the same cmap arms color repaints, so no smaller cut retires either.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The fresh differential: the 'color' case recorded outside the limit on the deferral remembered-glyph-caches-a-resolved-presentation",
-      "reachability": "The pile base, seed 6193044 at 20281114093000, moves ' khhhdadbhhO>b \\x1b', page 2's 'b' being 'color'. The port applies the toggle and stops after 14 screens where C repaints.",
+      "candidate": "The fresh differential: a debug-mode 'mO' menu walked to the wizmgender row",
+      "reachability": "scripts/run-options-menu.mjs already carries the shape at REMEMBERED_PILE_INVERSE, which walks 'mO' to page 4, picks a boolean and commits.",
       "owner": "scripts/run-options-menu.mjs",
-      "effects": "It is the evidence the slice closes on, since no development session picks either option.",
-      "evidence": "The pile squares are corridor and NO_COLOR, so they discriminate nothing. The cell that separates a re-derived memory from a replayed one is the room's west doorway the hero walks through, which back_to_glyph() gives CLR_BROWN.",
-      "status": "done",
-      "remaining": "None."
+      "effects": "It is the slice's closing evidence, since no development session picks the option.",
+      "evidence": "The environment satisfies the debug-mode constraint: nethack-c/recorder/install/games/lib/nethackdir/sysconf line 16 reads WIZARDS=root games vtjeng. The checked-in template at nethack-c/recorder/sys/unix/sysconf:16 reads only WIZARDS=root games. One debug segment per recording, so the recipe is its own single-segment entry.",
+      "status": "missing",
+      "remaining": "Record it, and leave the deferral recording-a-debug-mode-session-needs-local-setup open, since a fresh checkout still cannot reproduce it."
     },
     {
-      "candidate": "glyphs.c glyph_to_cmap(), and the retirement of the `cmap` and `trapType` sidecars",
-      "reachability": "Every reader that asked map memory which cmap index it held.",
-      "owner": "js/display.js",
-      "effects": "Replaces the sidecar read with arithmetic on the number.",
-      "evidence": "trap_to_defsym() is bijective and glyph_to_cmap() inverts the rest, so both sidecars were duplicate state under AGENTS.md's rule that each C value lives in one JavaScript location.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "map_glyphinfo()'s own resolution guard, kept distinct from the ported glyph_is_cmap()",
-      "reachability": "Every call.",
-      "owner": "js/display.js mapGlyphinfoResolves()",
-      "effects": "Admits GLYPH_NOTHING, the four object families and every cmap range but the zap beams'.",
-      "evidence": "glyph_is_cmap() is transcribed as C compiles it, one contiguous span that includes GLYPH_ZAP_OFF; the guard names the ranges this port resolves instead. zapdir_to_glyph() has no port, so nothing produces a number in that range.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The two first-wave mutants that survive, both provably undecidable",
-      "reachability": "Each sits at a range boundary where the two branches agree.",
-      "owner": "js/display.js",
-      "effects": "None: no test can distinguish either mutant from the original.",
-      "evidence": "glyph_to_cmap()'s `glyph < GLYPH_ALTAR_OFF` -- at GLYPH_ALTAR_OFF the cmap A arm computes S_brdnladder + 1 = 33 = S_altar, what the arm below returns. map_glyphinfo()'s `(offset = glyph - GLYPH_CMAP_A_OFF) >= 0` -- at GLYPH_CMAP_A_OFF a `> 0` test falls into the Sokoban wall arm at offset 11, giving S_vwall + 11 = S_ndoor, and both arms colour it CLR_GRAY. Verified by arithmetic and recorded in the slice's commit body, as .agents/review.md requires.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The four behaviours the correctness pass over this range corrected",
-      "reachability": "Each sits inside the converted layer.",
-      "owner": "js/display.js, js/region.js, js/monmove.js, js/symbols.js",
-      "effects": "map_glyphinfo()'s GLYPH_NOTHING arm now attaches the accessibility kind js/startup_a11y.js tests for; ALTAR_CUSTOMIZATION_NAMES ends in G_altar_other, the name the glyph registry holds; glyph_to_cmap() transcribes glyphs.c's zap arm rather than answering the fencepost; and js/region.js's cmap index is named glyph_cmap, so `glyph` keeps one meaning across js/.",
-      "evidence": "Applied at the audit-fix commit this checklist now names, each shown failing first by a mutant reversed with git restore. The development score and both fresh differentials are unchanged.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "The debug-mode menu's own layout, which this differential is the first to record against C",
+      "reachability": "Every row of the 'mO' menu in a debug game.",
+      "owner": "js/options.js, at the pass bounds and dosetEntryFormat()",
+      "effects": "options.c:8820 sets endpass to set_wiznofuz under wizard, adding ten boolean rows and two compound ones and widening longest_option_name(), which moves the padding of every row and the page boundaries with it.",
+      "evidence": "The port mirrors the skips and takes both passes, but nothing has ever checked it, so a first differential failure is as likely to be layout as repaint. dosetEntryFormat() refuses outright when menu_tab_sep is on, and menu_tab_sep is itself set_wizonly.",
+      "status": "undecided",
+      "remaining": "Report whether the menu matched C on the first recording. If it did not, say whether the correction was layout or repaint, because the first is options work landing inside a display slice."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "Traced in two independent passes. The orchestrator traced the candidate list at bb7d62f against the C source before implementation, reading back_to_glyph(), the nine map-memory cmap arms with their three colour macros and two colour tables, display.h's cmap glyph macros, and both definitions of glyph_is_cmap. The worker traced the same range while implementing and found the list short in three places: reset_glyphmap() has ten cmap arms rather than nine once the GLYPH_NOTHING arm at 2774-2777 is counted, reglyph_darkroom() had to be ported in full rather than left at its refusal, and glyphs.c glyph_to_cmap() was needed to retire the sidecars. The orchestrator verified at 4eff71b that glyph_is_cmap() carries C's compiled contiguous form, that map_glyphinfo()'s guard is a separate narrower predicate, that UnsupportedGlyphRepairError is gone from js/ entirely, that 'wizmgender' is the only refusal left in optfn_boolean(), and that CMAP_COLORS is generated with the hand-written TRAP_COLORS removed. The trace covered state and random-number order: no arm in scope consumes randomness, the development score is identical call for call, and the wall arms' branch dependence through u.uz is state read at record time. Stubs and stops identified: 'wizmgender' is the one refusal remaining inside this neighbourhood and stops before any state change, random-number call or output; the zap, swallow, explosion, warning and GLYPH_UNEXPLORED arms are unported because no ported producer numbers them, and map_glyphinfo()'s guard refuses them rather than resolving them wrongly."
+  "missingWorkByOwner": [
+    {
+      "group": "js/display.js, the gender bits and the attribute chain",
+      "candidates": [
+        "display.c display_monster()'s four glyph choices and its M_AP_MONSTER arm, as the gender code each range carries",
+        "display.h hero_glyph (654-656) and you.h Ugender (555)",
+        "reset_glyphmap()'s six monster arms, for the bits their ranges carry",
+        "win/tty/wintty.c tty_print_glyph()'s attribute chain (3925-3937), unified rather than extended"
+      ],
+      "next": "Carry the bits on the live-drawn presentations, then make the three attribute sites one chain in C's order."
+    },
+    {
+      "group": "js/options.js and the branch the option also feeds",
+      "candidates": [
+        "The 'wizmgender' refusal in js/options.js optfn_boolean()",
+        "objnam.c:1549-1559, which reads the same option to name a statue, corpse or figurine's gender"
+      ],
+      "next": "Delete the refusal only once the objnam arm is ported or refused, so retiring one stop does not widen a silent omission."
+    },
+    {
+      "group": "Evidence",
+      "candidates": [
+        "That map memory never holds a monster glyph number, which is what makes this slice a print-time change rather than a range conversion",
+        "The fresh differential: a debug-mode 'mO' menu walked to the wizmgender row",
+        "The debug-mode menu's own layout, which this differential is the first to record against C"
+      ],
+      "next": "Record the differential, and report whether the debug menu matched C on the first attempt."
+    }
+  ],
+  "sourceReview": "Traced by the orchestrator at 08c2151, the slice base, against the C source and before reading the worker's uncommitted change. Read in full: display.h hero_glyph and you.h Ugender; display.c's mgendercode assignment at 524 and its use at 581; objnam.c:1549-1559; and every writer of levl[x][y].glyph across nethack-c/upstream/src/, which is what establishes that no monster number reaches map memory and therefore that this slice is a print-time change rather than a range conversion. The trace covered state and random-number order: no arm in scope consumes randomness. Not yet traced: display_monster()'s body between its entry and the four glyph choices, reset_glyphmap()'s six monster arms beyond confirming which bit each raises, and the debug-mode pass bounds in options.c beyond the endpass assignment. Those three are the entries carrying status undecided and the limits recorded in remainingLimits."
 }
