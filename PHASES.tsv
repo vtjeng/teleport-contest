@@ -587,3 +587,4 @@ utc	event	phase	goal	detail
 2026-08-17T17:45:46.430Z	end	review	hero-pushes-a-boulder	correctness 4bca3b7..ea331c8: 14 raw, 12 deduped, 8 confirmed, 8 applied, 4 rejected
 2026-08-17T17:47:22.851Z	start	select		next goal after hero-pushes-a-boulder closed
 2026-08-17T18:33:04.628Z	end	select	wizard-create-monster	wizgenesis-creates-the-named-monster queued, the goal's only expected slice
+2026-08-17T18:33:53.172Z	start	implement	wizard-create-monster	wizgenesis-creates-the-named-monster from 4c8c515
