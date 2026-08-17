@@ -553,3 +553,5 @@ utc	event	phase	goal	detail
 2026-08-16T22:22:37.046Z	end	select	option-toggle-repaints-the-map	opened option-toggle-repaints-the-map; queued object-memory-holds-a-glyph-number
 2026-08-16T22:23:03.390Z	start	implement	option-toggle-repaints-the-map	object-memory-holds-a-glyph-number
 2026-08-16T23:56:09.267Z	end	implement	option-toggle-repaints-the-map	object-memory-holds-a-glyph-number
+2026-08-17T00:09:58.080Z	start	review	option-toggle-repaints-the-map	correctness 856b9f69..de2a8b5
+2026-08-17T01:11:46.073Z	end	review	option-toggle-repaints-the-map	correctness 856b9f69..bea560c: 20 raw, 18 deduped, 11 confirmed, 11 applied, 7 rejected
