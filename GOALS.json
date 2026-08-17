@@ -2616,6 +2616,47 @@
         "screens": 17,
         "rng": 663
       }
+    },
+    {
+      "id": "elapsed-turn-fires-a-due-timer",
+      "status": "open",
+      "boundary": "An elapsed turn whose head timer has come due runs timeout.c run_timers() (2216-2240) instead of raising UnsupportedHeroTimeoutBoundaryError at js/timeout.js:284, and a TIMER_OBJECT element whose func_index is ROT_CORPSE dispatches through timeout.c timeout_funcs[] (1978-1990) into dig.c rot_corpse() (2146-2189) for a corpse whose `where` is OBJ_FLOOR. The property that bounds it is testable against the C source on its own: run_timers() drains one expiry-ordered queue head-first, `while (gt.timer_base && gt.timer_base->timeout <= svm.moves)`, decrements (curr->arg.a_obj)->timed for a TIMER_OBJECT before the call and frees the element after it, so an element fires exactly once and equal expiries fire in the order start_timer()'s insert built; and rot_corpse()'s OBJ_FLOOR arm writes no message and makes no random-number call, recording x and y, falling through dig.c rot_organic() (2125-2140) into obj_extract_self() and obfree(), then clearing mundetected for a hides_under() monster at that square once OBJ_AT() is false, re-hiding an undetected hero standing there, and ending at newsym(x, y).",
+      "upstreamOwners": [
+        "timeout.c run_timers()",
+        "timeout.c timeout_funcs[]",
+        "timeout.c nh_timeout()",
+        "dig.c rot_corpse()",
+        "dig.c rot_organic()"
+      ],
+      "forecast": {
+        "steps": 17,
+        "basis": "Measured at 5669dbd with node scripts/scan-sessions.mjs over the 33 development sessions, then capped as .agents/selection.md requires. Raw unlocks 52 on one session; the capping read put the first second-behavior message at recorded step 203, \"With great effort you move the boulder.\", which hack.c's boulder-push feedback (~190-196) writes and js/hack.js:925-926 refuses as boulder movement, so the capped figure is 203 minus 186, or 17. Working down the unlocks column: engraving interaction 609 to 7 (dogmove.c dog_eat(), js/unported_monster_actions.js:775, seed0030 step 30); level_tele print_dungeon for \"?\" 198 to 4 over three sessions (dungeon.c print_dungeon() at 2290 makes every selectable row an sp_levchn special level or a print_branch() branch level, and each session's first pick is a Lua special one, refused at js/teleport.js:1321); wizgenesis 148 to 13 (zap.c buzz() through weffects(), js/zap.js:267, seed5002 step 88); puton 47 to 12 (mhitu.c hitmu() on a hero who cannot spot the attacker, js/mhitu.js:879, seed5006 step 121); #loot 33 to 3 (trap.c trapeffect_magic_trap(), seed0012 step 27); #rub 33 to 1 (mthrowu.c thrwmu(), seed0108 step 30); door unlocking tool 18 to 14 (sounds.c dosounds()'s has_shop arm, js/sounds.js:234, seed0007 step 64). The next row, #name at 16 raw, falls below this capped 17, so it and everything under it lose uncapped.\n\nsonnet-worker classifiers supplied the flagging read; two needed correcting against source and both corrections lowered a figure the brief had left unguarded. The nh_timeout classifier returned 50 with an ambiguous count of 1, because the brief did not list boulder movement among the refusals; the level_tele classifier returned 176 with ambiguous counts of 5, 1 and 1, because it did not know js/teleport.js:1321 refuses a special-level destination. Ambiguous counts for the rest: engraving 14, wizgenesis 7, puton 0, #loot 3, #rub 0, door unlocking 3.\n\nNo candidate caps to 0, so neither the fresh-seed-census route nor the queued options-config-parser goal is admissible. seed0004 is a single segment of 409 steps, so the stretch carries no later-segment alignment risk. The last three closed goals delivered 0 of 0, 0.16 and 0.94 of forecast, so the calibration rule retires no ranking statistic. Runner-up: the door-unlocking tool at capped 14 on seed0007, set aside because its stretch runs out four steps sooner and its own body of C -- lock.c pick_lock(), the occupation and the autounlock option -- is larger than the 110 lines this goal needs.",
+        "sessions": [
+          "seed0004-feeding-pony.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0004-feeding-pony.session.json",
+            "evidence": "Seed 4, datetime 20260414173108, one segment of 409 steps, rc \"OPTIONS=symset:DECgraphics\", playmode normal, Dlvl:1, recorded status at the stop \"Dlvl:1 $:4 HP:16(16) Pw:4(4) AC:3 Xp:1\". scripts/score-development.mjs at 5669dbd reports Screen 186/409 and RNG 8396/12084, so every screen before the stop matches C and the port's move counter agrees with C's. The port stops entering move 254, at js/allmain.js:1009's pre-turn preflight_nh_timeout_elapsed_turn({...state, moves: state.moves + 1}); step 186's byte is N, run southeast, and C's recorded top line there is blank. Replaying the segment and dumping game.gt.timer_base gives the head element as {timeout: 254, kind: 3 TIMER_OBJECT, func_index: 1} over a floor object {otyp: 265 CORPSE, corpsenm: 72 PM_ORC, where: 1 OBJ_FLOOR, ox: 40, oy: 5}, with two more ROT_CORPSE elements behind it at 267 and 272; the hero stands at (10,7) and u.uprops carries no timeout. C path: allmain.c moveloop to timeout.c nh_timeout() (588-948) to its last statement run_timers() at :947; the head timeout 254 is at or below svm.moves and the kind is TIMER_OBJECT, so arg.a_obj->timed is decremented, and timeout_funcs[1].f is rot_corpse (ROT_CORPSE is 1, include/timeout.h:38-39), entering dig.c:2146. obj->where equals OBJ_FLOOR, so on_floor is set with x 40 and y 5 and the OBJ_INVENT, OBJ_MINVENT and OBJ_MIGRATING arms are skipped: the call writes no message and makes no random-number call, rot_organic() runs obj_extract_self() and obfree(), then m_at(40,5) and newsym(40,5) run on a square the hero neither occupies nor sees. Preconditions hold: u.uinvulnerable is false and mtimedone, ucreamed, usptime and ugallop are all zero, so run_timers() is the only live statement nh_timeout() has on this turn."
+          }
+        ]
+      },
+      "detail": "Every helper the OBJ_FLOOR arm needs is already ported: obj_extract_self and obfree (js/invent.js:1356, :1669), bury_an_obj (js/bury.js:248), newsym (js/display.js:2644), m_at, OBJ_AT (js/const.js:2919), hides_under and maybe_unhide_at (js/mon.js:2378). The goal adds dispatch, not machinery, and lands around 110 lines of C.\n\nTwo stubs must both go, because they test gt.timer_base->timeout for two different callers: the timer clause in preflight_nh_timeout_elapsed_turn (js/timeout.js:281-286), reached from js/allmain.js:725 and :1009, and the arrival-side run_timers() stub (js/timeout.js:644-657), called from js/do.js:1259 inside goto_level().\n\nA starting character never reaches rot_corpse()'s other three arms in this session -- OBJ_INVENT, which writes \"Your ... rots away\" and calls remove_worn_item() and stop_occupation(), OBJ_MINVENT, and OBJ_MIGRATING -- nor any of the other eight timeout_funcs[] rows (rot_organic, revive_mon, zombify_mon, burn_object, hatch_egg, fig_transform, shrink_glob, melt_ice_away), so those can keep a named refusal.\n\nThree ROT_CORPSE elements are due at moves 254, 267 and 272 while the 17-step stretch spans moves 254-270, so the same arm fires at least twice inside the stretch and no second func_index appears. Steps 186-202 are N followed by plain l, u and k walks, all supported; step 203 walks onto the boulder square that caps the forecast.",
+      "slices": [
+        {
+          "name": "due-timer-rots-a-floor-corpse",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "5669dbd27e263eb8836e906498cf7d086ce6c4a5",
+      "openStanding": {
+        "sha": "67ab861",
+        "screens": 1785,
+        "rng": 126600
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
