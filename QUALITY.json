@@ -15242,6 +15242,116 @@
         }
       },
       "recordedAt": "2026-08-17T13:53:19.869Z"
+    },
+    {
+      "kind": "review",
+      "head": "ea331c8fed70f7fed318bdc41feb2ba2f389728d",
+      "auditedRange": "4bca3b7defa6a577ab88345a1a5235e98865d436..ea331c8fed70f7fed318bdc41feb2ba2f389728d",
+      "checklist": {
+        "covers": false,
+        "path": null,
+        "commitChecked": null,
+        "reason": "The slice needed no checklist when it opened: one game system and an estimated 180-260 production lines, so none of the three AGENTS.md triggers applied. It landed at about 430 lines, still under the 500-line trigger and still within one system, and it did not span agent sessions."
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "generation",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 14 raw, 12 deduplicated, 8 confirmed, 8 applied, 0 deferred, 4 rejected, 0 unverified; mutation: 5 survivors of 50 mutants. Counts: 14 raw, 12 deduplicated, 8 confirmed, 8 applied, 0 deferred, 4 rejected, 0 unverified; mutation: 45 of 50 killed over the window with 5 declared survivors, all confirmed, and no mutants at all over the audit-fix delta. The goal's closing pass, run because the goal closes rather than because a threshold forced it; the gate read WATCH at 1 of 10 commits and 462 of 1,000 lines. This is the largest single-slice range the project has reviewed, about 430 production lines against a 180-260 estimate, and it is also the first range where a pass found a regression the range itself introduced.\n\nThree of the eight confirmed findings are one defect. preflight_moverock() carries every arm of moverock_core() the slice left unported, and it lived only in cmd.c executeMovement()'s admission seam, which runs once per keystroke. The second and later steps of a run reach test_move() through allmain.c moveloop_core()'s own re-entry with no seam between them, and so does a bear-trapped hero who struggles free; domove_core()'s own call arrives after the boulder has already moved, so the preflight is skipped there too. On those steps the port pushed a boulder onto solid stone, into water, onto a trap or through a closed door, printed the push line, spent an rn2(19) C never draws, advanced the hero and called block_point() on the wrong square, where hack.c cannot_push() prints \"You try to move the boulder, but in vain.\" and returns -1 with no time and no randomness spent. Before this range the unconditional throw at requireSimpleHeroDestination() fail-closed that path, so the range converted a named stop into a silent divergence, which is the failure AGENTS.md ranks worst. The adjudicator reproduced it rather than arguing it: replaying the range's own seed-110 geometry with a wall behind the boulder pushed it onto STONE and added the draw. test_move()'s DO_MOVE arm now asks the questions immediately before moverock(), which covers every entry and still lands ahead of nomul(0) and the next_boulder bookkeeping, and the seam keeps asking so a keystroke refuses before set_move_cmd() commits movement intent.\n\nTwo comments claimed more than the code does. preflight_moverock()'s header said three refusals are wider than their C branch; the Blind arm is a fourth, because C refuses only a boulder the hero has not already felt and pushes one he has, and nothing recorded that, so a later port of glyph_at() would have lifted the refusal without restoring C's glyph_to_obj() guard. And js/obj.js called C's second-boulder guard redundant: the rebuild does reach C's blocked answer, but it also raises vision_full_recalc, which js/allmain.js spends on an extra vision_recalc(0), so a stacked boulder makes a call C skips.\n\nThree test oracles were weak and one of them was load-bearing. The throttle test asserted only that nothing printed, leaving unpinned the invariant the throttle exists to protect: that a silent push still draws exercise()'s rn2(19). Gating that draw on the message is the most natural misreading of dopush(), whose C body nests both under one `if (!u.usteed)`, and it was invisible to the whole unit suite. The rush test's \"spends no time\" half was asserted with Math.trunc(game.moves), an expression domove() cannot change, so its headline claim had no oracle; it reads the hero's movement ration now. And the second boulders added to cmd.test.mjs and hero-bear-trap.test.mjs were inert -- what refuses those fixtures is the wall they already stand in front of, moverock_core():432, not :435's second-boulder term -- and removing them leaves both suites green with the same refusal, which is the evidence they proved nothing.\n\nFour findings were rejected with counter-evidence. The development score is unchanged across every fix: 10 of 33 sessions, 1,833 screens, 127,829 random-number values and 1,852 cursors before and after, and scripts/run-hero-boulder-push.mjs still matches C. Its seed-110 row pushes the boulder mid-run, so the new guard is exercised by a recording rather than by unit tests alone. Optional finders: concurrency was enabled, because the once-per-turn planning clone shares the live game's level cells and the last two closing passes each found a leak of that class; it returned no confirmed finding here. Performance was not enabled, because the range adds one bounded loop over the boulders of a single square. A clarity pass was not run: the pass's own comment findings were applied here.",
+      "auditMetrics": {
+        "wallTimeSeconds": 1799,
+        "counts": {
+          "raw": 14,
+          "deduplicated": 12,
+          "confirmed": 8,
+          "applied": 8,
+          "deferred": 0,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 3,
+          "tests": 3,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/hack.js preflight_moverock() lived only in cmd.c executeMovement()'s admission seam, which runs once per keystroke, so the second and later steps of a run and a bear-trapped hero struggling free reached test_move()'s moverock() call unguarded. Those steps pushed a boulder onto solid stone, into water, onto a trap or through a closed door, printed the push line, spent an rn2(19) C never draws and blocked the wrong square, where hack.c cannot_push() prints \"You try to move the boulder, but in vain.\" and returns -1. The range introduced it: before, the unconditional throw at requireSimpleHeroDestination() fail-closed the same path, so a named stop became a silent divergence. test_move()'s DO_MOVE arm now asks the same questions immediately before moverock().",
+            "foundBy": [
+              "correctness",
+              "tests",
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/hack.js preflight_moverock()'s header said three refusals are wider than the C branch they stand for. The Blind arm is a fourth: C refuses only a boulder the hero has not already felt, `Blind && glyph_to_obj(glyph_at(sx, sy)) != BOULDER` at hack.c:355, and pushes one he has. Nothing recorded that, so a later port of glyph_at() would have lifted the refusal without restoring C's guard.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/obj.js called C's `!otmp2 || otmp2->otyp != BOULDER` guard redundant on the grounds that a full rebuild reaches the same blocked answer. It does, but js/vision.js rebuildVisionPoint() also raises state.vision_full_recalc, which js/allmain.js spends on an extra vision_recalc(0) at the end of the turn, so a second boulder landing where one already stands makes a call C skips entirely. js/object_generation.js repeated the claim as fact. Both comments now say what holds.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/obj.js:1863 The comment justifying the early `requiredHook(normalized, 'blockPoint', obj)` says a caller that cannot supply the vision owner \"leaves the object where it was rather than half-placed\". place_object() only ever runs on an object whose `where` is already OBJ_FREE (enforced two lines above), so there is no place to leave it; on the movobj() path the caller has already run remove_object(), and a throw here strands the boulder off both the pile and the level list.",
+            "counterEvidence": "evidence refute: The comment's guarantee is defensible as written, and the failure mode described cannot be built from any caller in the tree. Counter-evidence: js/obj.js:1860-1861 rejects any object that is not already OBJ_FREE, so within place_object()'s own frame \"where it was\" is precisely OBJ_FREE and unlinked; the hook resolution at 1863-1867 precedes obj_no_longer_held() and every pile/objlist write, so a throw leaves the object exactly as place_object() received it and nothing is half-placed. The stranding scenario requires an env that supplies recalcBlockPoint but not blockPoint. No caller builds one: js/hack.js movobj() (1830-1836) passes boulderVisionEnv(state) (js/hack.js:1671-1679) to both calls, and that env always defines both hooks, while js/obj.js remove_object():2033-2035 resolves recalcBlockPoint before its own unlink -- so a defective env fails at remove_object() with the boulder still on the floor, which is the outcome the comment claims. js/object_generation.js:26 likewise supplies blockPoint. The impact claim of \"silent state corruption\" also fails: requiredHook() (js/obj.js:459-464) throws UnsupportedObjectOperationError, a named refusal class, not a silent write. causality refute: No behaviour the range introduces or exposes is affected, and the residual complaint is prose wording, which this audit assigns to the clarity pass. Counter-evidence: The only"
+          },
+          {
+            "summary": "scripts/hero-boulder-push.test.mjs:606 'a second push inside one turn stays silent' cites hack.c:189's `svm.moves < gb.bldrpushtime` disjunct, but its fixture sets svm.moves *equal* to gb.bldrpushtime, so that disjunct is false throughout and the test never exercises the branch it names.",
+            "counterEvidence": "causality refute: The residue is comment wording with no behavioral or coverage consequence, which this correctness pass leaves to the clarity audit. Counter-evidence: The test does exercise the cited disjunct: mutating it to 'moves <= bldrpushtime' fails test 12 and nothing else, so this case is the sole guard on that operator's strictness. The comment's operative claim is also verified true -- dopush() ends with gb.bldrpushtime = svm.moves (hack.c:202, js/hack.js:1878), so a hasted hero's second push in the same turn arrives with moves exactly equal to bldrpushtime, which is the state the fixture writes. The finding itself concedes 'The test does earn its place -- it uniquely pins < against <='. No assertion, no coverage and no ported branch changes; only a rationale sentence is imprecise. resolution refute: The proposed fix is a comment retitle, and the validation offered for it cannot distinguish the fixed state from the faulty one. Counter-evidence: The two mutants cited as validation behave identically before and after a comment edit: on the unedited tree I observed 'const givemesg = moves > bldrpushtime + 2;' failing only test 3, and 'moves <= bldrpushtime' failing only test 12. A comment change cannot move either result, so the suggested validation reduces to the same inspection the finding already performed -- tautological with respect to the proposed change."
+          },
+          {
+            "summary": "scripts/hero-boulder-push.test.mjs:637 The new test 'a rush into a boulder spends no time and says nothing' asserts that a Blind hero's step pushes the boulder, pinning as correct the exact divergence hack.c moverock_core():355-363 forbids.",
+            "counterEvidence": "evidence refute: The finding quotes hack.c's Blind arm as an unconditional Blind test; it is a conjunction whose second term is satisfied in this fixture, so C pushes the boulder exactly as the port does and the assertion pins no divergence. Counter-evidence: hack.c:358 reads 'if (Blind && glyph_to_obj(glyph_at(sx, sy)) != BOULDER)', not 'if (Blind)'. glyph_at() (display.c:2478-2482) returns gg.gbuf[y][x].glyphinfo.glyph, the glyph currently drawn/remembered for the square. In this fixture heroBesideBoulder() walks the hero in sighted along a corridor to <32,3> adjacent to the boulder at <33,3>, so that square remembers the boulder before BLINDED is set: probing the port after the walk-in gives game.level.at(33,3).remembered_glyph.glyph === 3923, which is GLYPH_OBJ_OFF (3448, js/glyph_offsets.js:51) + BOULDER (475, js/objects.js:550). glyph_to_obj(glyph_at(sx,sy)) therefore equals BOULDER, the second conjunct is false, the arm at 358-363 is skipped, and C falls through to the same push the test asserts. The claim that 'C at hack.c:355-363 ... returns -1, so no push happens' is false for the state this test builds. causality refute: The stated impact -- that the suite certifies wrong behavior -- rests entirely on the misread of hack.c:358 and does not survive it. Counter-evidence: With the boulder remembered at <33,3> (remembered_glyph.glyph === 3923 = GLYPH_OBJ_OFF + BOULDER), "
+          },
+          {
+            "summary": "scripts/hero-boulder-push.test.mjs:637 The suite checks every preflight_moverock() arm through preflightDomoveDestination() only, and its one assertion that drives an unported arm through domove() pins the divergent outcome as expected, so it will resist the fix rather than catch the bug.",
+            "counterEvidence": "evidence refute: The finding's load-bearing claim is the same misquotation of hack.c's Blind guard as index 10, and it fails for the same reason: in this fixture C takes the push, so the assertion at line 637 is not a specification of wrong behavior. Counter-evidence: hack.c:358 is 'if (Blind && glyph_to_obj(glyph_at(sx, sy)) != BOULDER)'. glyph_at() (display.c:2478-2482) reads the drawn glyph, and after heroBesideBoulder() the boulder square remembers the boulder: game.level.at(33,3).remembered_glyph.glyph === 3923 == GLYPH_OBJ_OFF (3448) + BOULDER (475). The second conjunct is therefore false, 358-363 is skipped and C pushes, so 'hack.c:355-363 says a Blind hero gets \"That feels like a boulder.\", map_object(otmp, TRUE), nomul(0) and return -1 -- no push, no move, no draw' does not describe this state. The finding's separate claim that 'Mutating any single guard out of preflight_moverock() would still leave all 13 tests passing' is also wrong for the suite as a whole: every such mutation is caught by test 6, which asserts each arm's reason through refusalReason(). causality refute: The asserted impact -- that the oracle 'actively certifies' a defect and will resist the correct fix -- depends on the same misread and does not survive it. Counter-evidence: Because C's second conjunct is false here (remembered glyph 3923 == GLYPH_OBJ_OFF + BOULDER), assert.deepEqual([boulder.ox, b"
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "4bca3b7defa6a577ab88345a1a5235e98865d436..6e86b830115d3c9979bf1c8f29c7f21ea0fc39f7",
+            "6e86b830115d3c9979bf1c8f29c7f21ea0fc39f7..ea331c8"
+          ],
+          "mutants": 50,
+          "survivors": 5,
+          "byKind": {
+            "boolean": {
+              "ran": 11,
+              "killed": 8
+            },
+            "logical": {
+              "ran": 33,
+              "killed": 31
+            },
+            "relational": {
+              "ran": 6,
+              "killed": 6
+            }
+          },
+          "finderConclusion": "The window range ran 50 mutants and left 5 survivors, all in js/hack.js and each carrying a stated reachability reason: :1637's short-circuit over a case the third disjunct already answers TRUE, :1810's boulder inside a shop, :1929's second loop pass that the one-boulder refusal prevents, :2224's moverock() return that is 0 for every reachable case, and :2749's already-departed boulder. The pass was asked to test each claim rather than accept it and confirmed all five. The delta over the audit fixes produced no mutants, because the fixes are a call, two comments and three test oracles. What the runs could not see is the pass's main result: :2224 survived precisely because moverock() returns 0 for every case the tests reach, and the reason it does is that the tests all enter through the keystroke seam -- the unguarded mid-run entry the pass found is invisible to the same mutant that documents it."
+        },
+        "readiness": {
+          "boundary": "The starting event is a direction byte that walks the hero one square into a boulder, recorded step 203's l in seed0004-feeding-pony, entering domove_core() and test_move(..., DO_MOVE). The ending event is step 203's screen, with \"With great effort you move the boulder.\" and the hero advanced one column, and step 204's screen, with the same map shift and no message; the throttle is what makes 204 a result rather than a mismatch. The real game executes both: the session emitted 203 of 409 screens and now emits 234.",
+          "sourceReview": "Every branch reachable before the ending event was traced against hack.c moverock() (335-345), moverock_core() (347-638), moverock_done() (326-333), dopush() (165-241), movobj() (824-833), could_move_onto_boulder() (144-162) and test_move()'s boulder block (1216-1252), plus mkobj.c place_object(), obj.c remove_object() and vision.c block_point() for the index, and attrib.c exercise() for the push's only draw. The trace covered state and random-number order: rn2(19) fires on silent pushes too, and the development score is identical across the audit fixes. Stubs and stops identified: fourteen arms of moverock_core() and dopush() refuse by name, four of them deliberately wider than their C branch and each now saying so. The pass then found what the implementer had not: those refusals were reachable from one entry point and not from the other two.",
+          "completeness": "No known unsupported behavior remains inside the boundary, and every reachable excluded branch stops before changing state, consuming randomness or producing output, through a named refusal class raised ahead of nomul(0) and of the boulder's next_boulder bookkeeping. The firstboulder, moverock_done() and next_boulder machinery is ported but dormant until a square with two boulders is admitted, and movobj()'s maybe_unhide_at() stays a refusal. One deferral this goal filed stays open, vision-reset-swallows-a-stateless-caller, which records the guard that made the miswired vision hook silent."
+        }
+      },
+      "recordedAt": "2026-08-17T17:45:45.761Z"
     }
   ]
 }

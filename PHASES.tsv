@@ -583,3 +583,5 @@ utc	event	phase	goal	detail
 2026-08-17T14:34:45.926Z	end	select	hero-pushes-a-boulder	goal opened, first slice queued, no checklist
 2026-08-17T14:34:45.973Z	start	implement	hero-pushes-a-boulder	hero-push-advances-a-boulder-onto-clear-ground
 2026-08-17T16:39:31.708Z	end	implement	hero-pushes-a-boulder	hero-push-advances-a-boulder-onto-clear-ground closed at 65add1c: screens 1802 to 1833
+2026-08-17T16:39:40.439Z	start	review	hero-pushes-a-boulder	correctness 4bca3b7..6e86b83, the goal's close
+2026-08-17T17:45:46.430Z	end	review	hero-pushes-a-boulder	correctness 4bca3b7..ea331c8: 14 raw, 12 deduped, 8 confirmed, 8 applied, 4 rejected
