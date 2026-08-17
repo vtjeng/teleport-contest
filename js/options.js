@@ -4552,6 +4552,7 @@ async function optfn_boolean(state, optidx, negated, opts) {
         update_inventory({ state });
         break;
     case 'lit_corridor':
+    case 'dark_room':
         /*
          * All corridor squares seen via night vision or candles & lamps
          * change.  Update them by calling newsym() on them.
@@ -4561,35 +4562,11 @@ async function optfn_boolean(state, optidx, negated, opts) {
         if (state.iflags.wc_color)
             state.go.opt_need_redraw = true; /* darkroom refresh */
         break;
-    case 'dark_room':
-        // options.c:5362-5375 shares its arm with 'lit_corridor', and the
-        // go.opt_need_redraw it raises takes reset_needed_visuals() into
-        // reglyph_darkroom().  js/display.js reglyph_darkroom() explains why
-        // this port cannot repair a map remembered under the other setting.
-        throw new UnsupportedOptionMenuError(
-            "reglyph_darkroom() over a 'dark_room' change",
-        );
-    case 'use_inverse':
-        // options.c:5379-5385 shares this arm with the six below, and the port
-        // follows it for all of them but this one. win/tty/wintty.c
-        // tty_print_glyph() (3930-3936) gates MG_BW_LAVA, MG_BW_ICE,
-        // MG_BW_SINK and MG_BW_ENGR on iflags.use_inverse alongside
-        // MG_OBJPILE, and those four belong to the terrain layer, whose map
-        // memory still holds a resolved presentation. js/display.js
-        // blackAndWhiteTerrainCue() and engravingGlyph() bake the attribute
-        // into that record, so a repaint replays it: a remembered
-        // out-of-sight corridor engraving stays inverse after the option goes
-        // off, and defsym.h gives S_engrcorr, S_corr and S_litcorr the same
-        // '#' by default, so no unusual symbol set is needed to reach it.
-        // MG_OBJPILE itself is now recoverable, because map memory holds the
-        // object glyph number; the terrain slice is what retires this.
-        throw new UnsupportedOptionMenuError(
-            "reset_glyphmap() over a 'use_inverse' change",
-        );
     case 'wizmgender':
-        // Shares options.c:5379-5385 with the six below, and is refused for
-        // the same reason 'use_inverse' is: the repaint would run over a layer
-        // that cannot carry the attribute. win/tty/wintty.c tty_print_glyph()
+        // Shares options.c:5379-5385 with the six below, and is the only one
+        // of the seven still refused: its repaint would run over the one layer
+        // that cannot carry the attribute, the monster ranges, which this port
+        // does not number. win/tty/wintty.c tty_print_glyph()
         // (3930-3931) prints ATR_INVERSE for any glyph carrying MG_FEMALE
         // while wizard and iflags.wizmgender hold, and display.c
         // reset_glyphmap() raises MG_FEMALE on the GLYPH_MON_FEM_OFF arm
@@ -4605,6 +4582,7 @@ async function optfn_boolean(state, optidx, negated, opts) {
         );
     case 'showrace':
     case 'hilite_pile':
+    case 'use_inverse':
     case 'perm_invent':
     case 'ascii_map':
     case 'tiled_map':
@@ -4620,18 +4598,10 @@ async function optfn_boolean(state, optidx, negated, opts) {
     case 'color':
         // options.c:5407-5409 raises the same two flags the seven-option arm
         // above raises, and reset_needed_visuals() answers both with
-        // reset_glyphmap(gm_optionchange) and a docrt(). This port can follow
-        // it for the object layer, whose map memory holds the unresolved glyph
-        // number, but not for terrain: js/display.js terrainCmap() resolves the
-        // colour into the remembered record, so a repaint replays the colour
-        // the square was recorded under. Proved by execution during the
-        // correctness pass over 5366349..909a338 -- with OPTIONS=!color, a
-        // remembered out-of-sight door stays NO_COLOR where C repaints it
-        // CLR_BROWN. reglyph_darkroom() refuses the same configuration for the
-        // same reason.
-        throw new UnsupportedOptionMenuError(
-            "reset_glyphmap() over a 'color' change",
-        );
+        // reset_glyphmap(gm_optionchange) and a docrt().
+        state.go.opt_need_redraw = true;
+        state.go.opt_need_glyph_reset = true;
+        break;
     case 'customcolors':
         state.go.opt_reset_customcolors = true;
         break;
@@ -4877,16 +4847,12 @@ export async function reset_needed_visuals(state) {
     //
     // That argument alone was tried at 0f7b6cf and is false on its own, as the
     // correctness pass over 5366349..909a338 proved by execution: what makes
-    // it true is that map memory holds the unresolved number, and until this
-    // slice it did not. It now does for object squares alone --
-    // js/display.js remembered_glyph_from_presentation() records the state of
-    // that conversion -- and every other layer still stores a presentation
-    // resolved under the values in force when the square was recorded. So the
-    // arms that reach here are the ones whose repaint the converted layer can
-    // answer: 'hilite_pile', which is MG_OBJPILE, and 'showrace', which
-    // redraws the hero and never enters map memory. optfn_boolean()'s 'color'
-    // arm keeps a refusal of its own, because colour is resolved into every
-    // remembered terrain square.
+    // it true is that map memory holds the unresolved number. It now does for
+    // every layer that reaches map memory, so a repaint draws each remembered
+    // square under the option values in force at the repaint. The one arm that
+    // still refuses is 'wizmgender': reset_glyphmap() raises MG_FEMALE on the
+    // monster ranges, which this port does not number, so a repaint would draw
+    // every visible female monster without the inverse video C gives it.
     if (go.opt_reset_customcolors || go.opt_update_basic_palette
         || go.opt_reset_customsymbols || go.opt_need_redraw) {
         if (go.opt_update_basic_palette) {

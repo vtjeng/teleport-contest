@@ -25,18 +25,19 @@ import {
 } from '../js/options.js';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 import {
-    flush_screen, newsym, reglyph_darkroom, UnsupportedGlyphRepairError,
+    flush_screen, newsym, reglyph_darkroom,
 } from '../js/display.js';
 import { GLYPH_OBJ_PILETOP_OFF } from '../js/glyph_offsets.js';
 import { choose_classes_menu } from '../js/windows.js';
 import {
     COULD_SEE, FOUNTAIN, IN_SIGHT, OBJ_FLOOR,
     MENU_COMBINATION, MENU_FULL, MENU_TRADITIONAL, PICK_ANY,
+    SYM_NOTHING,
 } from '../js/const.js';
 import {
     ARROW, FOOD_CLASS, RING_CLASS, ROCK, ROCK_CLASS, WAND_CLASS, WEAPON_CLASS,
 } from '../js/objects.js';
-import { S_darkroom, S_room } from '../js/symbols.js';
+import { S_darkroom, S_room, SYM_OFF_X } from '../js/symbols.js';
 import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import { selectTtyMenu } from '../js/tty_menu.js';
@@ -360,26 +361,41 @@ test('a redraw option raises both repair flags', async () => {
     assert.equal(state.iflags.hilite_pile, true);
     assert.equal(state.go.opt_need_redraw, true);
     assert.equal(state.go.opt_need_glyph_reset, true);
+
+    // 'use_inverse' shares the same arm, and every attribute its repaint
+    // re-resolves now comes from a stored glyph number. Each toggle's message
+    // is cleared first: four of them will not share one top line, and no
+    // replay input is left to dismiss a --More--.
+    state.go = {};
+    clearTopline(state);
+    assert.equal(await parseoptions(state, '!use_inverse', false, false), true);
+    assert.equal(state.iflags.wc_inverse, false);
+    assert.equal(state.go.opt_need_redraw, true);
+    assert.equal(state.go.opt_need_glyph_reset, true);
+
+    // 'color' has an arm of its own at options.c:5407-5409 that raises the
+    // same pair, and every colour its repaint re-resolves comes from
+    // defsyms[], wallcolors[] or altarcolors[] rather than from map memory.
+    state.go = {};
+    clearTopline(state);
+    assert.equal(await parseoptions(state, '!color', false, false), true);
+    assert.equal(state.iflags.wc_color, false);
+    assert.equal(state.go.opt_need_redraw, true);
+    assert.equal(state.go.opt_need_glyph_reset, true);
 });
 
-test('the three arms whose repaint an unconverted layer owns are refused',
+test('the one arm whose repaint an unconverted layer owns is refused',
     async () => {
-        // 'color' has an arm of its own (options.c:5407-5409) while
-        // 'use_inverse' and 'wizmgender' share the seven-option arm, and each
-        // repaint would run over a layer that cannot carry what C gives it:
-        // the first two re-resolve terrain, whose map memory still holds a
-        // finished presentation, and the third needs MG_FEMALE on a monster
-        // glyph, which no monster presentation carries.
+        // 'wizmgender' shares the seven-option arm, and its repaint needs
+        // MG_FEMALE on a monster glyph. This port numbers no monster range, so
+        // a monster presentation carries no glyphflags to raise it on.
         const state = await startStockGame();
-        for (const statement of ['!color', '!use_inverse', '!wizmgender']) {
-            state.go = {};
-            await assert.rejects(
-                () => parseoptions(state, statement, false, false),
-                (error) => error.name === 'UnsupportedOptionMenuError'
-                    && /reset_glyphmap\(\) over a/u.test(error.message),
-                statement,
-            );
-        }
+        state.go = {};
+        await assert.rejects(
+            () => parseoptions(state, '!wizmgender', false, false),
+            (error) => error.name === 'UnsupportedOptionMenuError'
+                && /reset_glyphmap\(\) over a/u.test(error.message),
+        );
     });
 
 test('the custom-colour options raise only their own repair flag',
@@ -820,7 +836,7 @@ test('doset() stops on a boolean whose post-change work is unported',
     async () => {
         const state = await startStockGame();
         for (const [name, what] of [
-            ['dark_room', "reglyph_darkroom() over a 'dark_room' change"],
+            ['wizmgender', "reset_glyphmap() over a 'wizmgender' change"],
             ['rest_on_space', 'update_rest_on_space()'],
         ]) {
             await assert.rejects(
@@ -839,31 +855,33 @@ test('doset() stops on a boolean whose post-change work is unported',
 // refusal has to be one of the classes js/cmd.js failClosedCommandRefusals()
 // lists, or the whole segment fails instead of ending on its last matching
 // screen.
-test("doset() stops closed on a map it cannot repair", async () => {
+test('doset() repairs the map under either glyph-repair option', async () => {
     for (const [config, name] of [
         // optfn_boolean() raises go.opt_need_redraw at its hilite_pet arm
         // (options.c:5300) and its hitpointbar arm (5389) whatever 'color'
         // holds. Its lit_corridor arm (5372) raises it only when
         // iflags.use_color is set, so that one needs 'color' left on and
-        // 'dark_room' turned off instead.
+        // 'dark_room' turned off instead. All three take
+        // reset_needed_visuals() into display.c reglyph_darkroom(), which used
+        // to refuse each of these configurations because two of its four arms
+        // need GLYPH_NOTHING; map memory now holds glyph numbers, so all four
+        // run.
         ['OPTIONS=!color', 'hilite_pet'],
         ['OPTIONS=!color', 'hitpointbar'],
         ['OPTIONS=!dark_room', 'lit_corridor'],
     ]) {
         const state = await startGameWithConfig(config);
+        // The toggle's message reaches the top line before docrt() runs, and
+        // tty_display_nhwindow()'s NHW_MESSAGE arm asks for a key to dismiss
+        // it. The repaint is what this test is about, so give it the space.
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
         const rejection = await doset(state, menuHelpers([
             { value: menuValue(name), count: -1 },
         ])).then(() => null, (error) => error);
-        assert.ok(
-            rejection instanceof UnsupportedGlyphRepairError,
-            `${config} ${name}: ${rejection}`,
-        );
-        assert.ok(
-            failClosedCommandRefusals().some(
-                (type) => rejection instanceof type,
-            ),
-            `${config} ${name} is not a fail-closed command refusal`,
-        );
+        assert.equal(rejection, null, `${config} ${name}`);
+        // reset_needed_visuals() spends both flags on its way out, so the
+        // repair really ran rather than being left pending.
+        assert.equal(state.go.opt_need_redraw, false, `${config} ${name}`);
     }
 });
 
@@ -978,12 +996,21 @@ test('reglyph_darkroom() moves the dark-room symbol with the room symbol',
         assert.equal(state.gs.showsyms[S_darkroom], 'X'.charCodeAt(0));
 
         // Either option switched off sends C down the arms that rewrite
-        // remembered glyphs, which this port has no field to rewrite.
+        // remembered glyphs, and points the dark-room symbol at the blank
+        // SYM_NOTHING byte instead of at the room symbol.
         state.flags.dark_room = false;
-        assert.throws(() => reglyph_darkroom(state), /dark_room/u);
+        reglyph_darkroom(state);
+        assert.equal(
+            state.gs.showsyms[S_darkroom],
+            state.gs.showsyms[SYM_OFF_X + SYM_NOTHING],
+        );
         state.flags.dark_room = true;
         state.iflags.wc_color = false;
-        assert.throws(() => reglyph_darkroom(state), /dark_room/u);
+        reglyph_darkroom(state);
+        assert.equal(
+            state.gs.showsyms[S_darkroom],
+            state.gs.showsyms[SYM_OFF_X + SYM_NOTHING],
+        );
     });
 
 // C ref: windows.c choose_classes_menu()'s accelerator walk (1701-1707) and

@@ -52,7 +52,10 @@ import {
     W_RINGL,
 } from '../js/const.js';
 import { set_occupation } from '../js/cmd.js';
-import { flush_screen } from '../js/display.js';
+import {
+    flush_screen,
+    remembered_glyph_presentation,
+} from '../js/display.js';
 import { doeat } from '../js/eat.js';
 import { make_engr_at } from '../js/engrave.js';
 import { game } from '../js/gstate.js';
@@ -1450,7 +1453,10 @@ test('blind first-turn search maps a discovered door by touch', async () => {
     const foundDoor = game.level.at(game.u.ux + 1, game.u.uy + 1);
     assert.equal(foundDoor.typ, DOOR);
     assert.equal(foundDoor.seenv & SV0, SV0);
-    assert.equal(foundDoor.remembered_glyph.ch, foundDoor.disp_ch);
+    assert.equal(
+        remembered_glyph_presentation(foundDoor.remembered_glyph, game).ch,
+        foundDoor.disp_ch,
+    );
 });
 
 test('first-turn automatic search stays between allocation and ambient sound', async () => {

@@ -173,6 +173,43 @@ const GLYPH_RESET_PICKS = ' O>f>g> \x1b';
 const REMEMBERED_PILE_SEED = 6193044;
 const REMEMBERED_PILE_DATETIME = '20281114093000';
 const REMEMBERED_PILE_PICK = ' khhhdadbhhO>f \x1b';
+
+// The same walk and the same drop, with page 2's 'b' -- 'color' -- in place of
+// its 'f'. options.c:5407-5409 raises the same two flags, so the repaint is the
+// same one; what differs is what it has to re-derive. The discriminating cells
+// are the two the hero remembers and cannot see: the pile she dropped, whose
+// long sword is HI_METAL, and the branch staircase in the room behind her,
+// which is CLR_YELLOW. Under 'OPTIONS=!color' both draw in the terminal
+// default, and a repaint that replayed the presentation each was recorded
+// under would keep their colours. Breaking that -- storing glyph.color beside
+// the number in remembered_glyph_from_presentation() and putting it back in
+// remembered_glyph_presentation() -- fails this differential at screen 17,
+// row 16, column 57, C colour 8 against JS colour 6.
+const REMEMBERED_PILE_COLOR = ' khhhdadbhhO>b \x1b';
+
+// The third toggle over the same square, and the one that needs the full
+// menu: 'use_inverse' has no simple-menu row, because its section sits below
+// OptS_Advanced. Three spaces walk doset()'s pages to page 4, 'u' picks it and
+// Return commits, which ends the pick loop; the space dismisses the --More--
+// the toggle's message raises, and the Escape is the key the recorder has to
+// read at the command prompt for the repainted screen to be captured.
+//
+// win/tty/wintty.c tty_print_glyph() (3927-3936) gates MG_OBJPILE on
+// iflags.use_inverse, so the pile the recipe leaves behind loses its highlight
+// when the option goes off -- and only if the attribute is resolved at print
+// time from the stored number. Its rc turns 'hilite_pile' on, so the pile is
+// already highlighted when the menu opens. Breaking print_glyph_attr()'s
+// iflags.use_inverse test fails this differential at screen 20, row 16,
+// column 57, C attr 0 against JS attr 1.
+const REMEMBERED_PILE_INVERSE = ' khhhdadbhhmO   u\r \x1b';
+
+// The fourth toggle over the same square. options.c:5362-5375 gives
+// 'dark_room' the same arm as 'lit_corridor', so its go.opt_need_redraw takes
+// reset_needed_visuals() into display.c reglyph_darkroom() rather than into
+// reset_glyphmap(); the room the hero left is remembered out of sight, and
+// 1838-1840 moves every square of it from S_darkroom back to S_room. Page 2's
+// 'p' is 'dark_room'.
+const REMEMBERED_PILE_DARKROOM = ' khhhdadbhhmO p\r \x1b';
 // Its eight turn-spending keys: five steps, two drops and one more step. The
 // ninth turn is the one the menu opens on, and doset_simple() must not spend
 // it.
@@ -283,13 +320,13 @@ function pickNethackrc() {
 // in the display buffer from the level rather than from memory; and it turns
 // autopickup off, because the two dropped objects have to stay on the floor
 // when the hero walks back over neither of them.
-function rememberedPileNethackrc() {
+function rememberedPileNethackrc({ hilitePile = false } = {}) {
     return [
         'OPTIONS=name:Pileton,role:Valkyrie,race:human,gender:female,'
             + 'align:lawful',
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics,!autopickup',
-        'OPTIONS=menu_headings:bold',
+        `OPTIONS=menu_headings:bold${hilitePile ? ',hilite_pile' : ''}`,
         '',
     ].join('\n');
 }
@@ -452,6 +489,27 @@ export function loadOptionsMenuRecipes() {
             moves: REMEMBERED_PILE_PICK,
         },
         {
+            name: 'remembered pile repainted by a colour toggle',
+            seed: REMEMBERED_PILE_SEED,
+            datetime: REMEMBERED_PILE_DATETIME,
+            nethackrc: rememberedPileNethackrc(),
+            moves: REMEMBERED_PILE_COLOR,
+        },
+        {
+            name: 'remembered pile repainted by a use_inverse toggle',
+            seed: REMEMBERED_PILE_SEED,
+            datetime: REMEMBERED_PILE_DATETIME,
+            nethackrc: rememberedPileNethackrc({ hilitePile: true }),
+            moves: REMEMBERED_PILE_INVERSE,
+        },
+        {
+            name: 'remembered room repainted by a dark_room toggle',
+            seed: REMEMBERED_PILE_SEED,
+            datetime: REMEMBERED_PILE_DATETIME,
+            nethackrc: rememberedPileNethackrc(),
+            moves: REMEMBERED_PILE_DARKROOM,
+        },
+        {
             name: 'blank status under a class menu',
             seed: BLANK_STATUS_SEED,
             datetime: BLANK_STATUS_DATETIME,
@@ -502,6 +560,12 @@ const COMMITTED_PICKS = Object.freeze([
     ['time', 'flags', 'time'],
 ]);
 
+// The three recipes that walk, drop a pile and open a menu over it.
+const PILE_RECIPES = new Set([
+    REMEMBERED_PILE_PICK, REMEMBERED_PILE_COLOR, REMEMBERED_PILE_INVERSE,
+    REMEMBERED_PILE_DARKROOM,
+]);
+
 export async function verifyOptionsMenuSegment(segment) {
     let boundary = null;
     await runSegment(
@@ -515,8 +579,8 @@ export async function verifyOptionsMenuSegment(segment) {
     // before the menu left her on. Every recipe but one types nothing but
     // menu keys, so that turn is the first; the remembered-pile one walks and
     // drops first, and counts its own turns below.
-    const turnsBeforeTheMenu
-        = segment.moves === REMEMBERED_PILE_PICK ? PILE_WALK_TURNS : 1;
+    const turnsBeforeTheMenu = PILE_RECIPES.has(segment.moves)
+        ? PILE_WALK_TURNS : 1;
     if (game.moves !== turnsBeforeTheMenu)
         throw new Error('opening the options menu advanced the turn counter');
 
@@ -559,16 +623,23 @@ export async function verifyOptionsMenuSegment(segment) {
         return;
     }
 
-    if (segment.moves === REMEMBERED_PILE_PICK) {
-        if (game.iflags.hilite_pile !== true)
-            throw new Error("the pick loop left 'hilite_pile' off");
+    if (PILE_RECIPES.has(segment.moves)) {
         if (game.go.opt_need_glyph_reset !== false)
             throw new Error('reset_needed_visuals() left a repair pending');
-        // The square the recipe is about: two objects the hero dropped, two
-        // squares behind her in a dark corridor. The screens the differential
-        // compares carry the inverse cell, but only if all three of these
-        // hold, and each one is a separate way for the recipe to stop testing
-        // what it is named for.
+        // Each recipe's own toggle, in the direction its menu keys take it.
+        const expected = {
+            [REMEMBERED_PILE_PICK]: () => game.iflags.hilite_pile === true,
+            [REMEMBERED_PILE_COLOR]: () => game.iflags.wc_color === false,
+            [REMEMBERED_PILE_INVERSE]: () => game.iflags.wc_inverse === false,
+            [REMEMBERED_PILE_DARKROOM]: () => game.flags.dark_room === false,
+        }[segment.moves];
+        if (!expected())
+            throw new Error('the pick loop left its option unchanged');
+        // The square all three recipes are about: two objects the hero
+        // dropped, two squares behind her in a dark corridor. The screens the
+        // differential compares carry that cell, but only if all three of
+        // these hold, and each one is a separate way for a recipe to stop
+        // testing what it is named for.
         const x = game.u.ux + 2;
         const y = game.u.uy;
         const pile = game.level.objects[x][y];
@@ -581,9 +652,12 @@ export async function verifyOptionsMenuSegment(segment) {
                 'the pile square holds no remembered object glyph number',
             );
         }
-        if (game.level.at(x, y).disp_attr !== ATR_INVERSE) {
+        // The attribute the two 'hilite_pile' recipes turn on and the
+        // 'use_inverse' one turns off; the colour recipe never raises it.
+        const highlighted = segment.moves === REMEMBERED_PILE_PICK;
+        if ((game.level.at(x, y).disp_attr === ATR_INVERSE) !== highlighted) {
             throw new Error(
-                'the repaint did not highlight the remembered pile',
+                'the repaint gave the remembered pile the wrong attribute',
             );
         }
         return;

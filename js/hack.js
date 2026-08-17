@@ -108,7 +108,7 @@ import {
     flush_screen,
     glyph_to_cmap,
     newsym,
-    terrain_glyph,
+    back_to_glyph,
     unmap_object,
     wall_angle,
 } from './display.js';
@@ -2075,7 +2075,7 @@ async function domove_fight_empty(x, y, state) {
     let buf;
     if (solid) {
         buf = the(CMAP_EXPLANATIONS[
-            glyph_to_cmap(terrain_glyph(location, x, y, state))
+            glyph_to_cmap(back_to_glyph(x, y, state))
         ]);
     } else {
         // 2314-2316. Everything accessible that is not furniture is thin air,

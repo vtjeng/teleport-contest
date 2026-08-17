@@ -18,7 +18,7 @@ import {
     W_ARMF,
 } from '../js/const.js';
 import { rhack } from '../js/cmd.js';
-import { newsym } from '../js/display.js';
+import { glyph_to_cmap, newsym } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { accessible, m_in_air } from '../js/monmove.js';
@@ -409,7 +409,7 @@ test('newsym maps the trap under a monster the hero finds held', async () => {
     watch_again(x, y);
     newsym(x, y);
     assert.equal(trap.tseen, true, 'display.c:1023');
-    assert.equal(game.level.at(x, y).remembered_glyph.cmap,
+    assert.equal(glyph_to_cmap(game.level.at(x, y).remembered_glyph.glyph),
                  trap_to_defsym(BEAR_TRAP),
                  'display.c:1024, the trap under the monster');
 });

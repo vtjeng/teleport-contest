@@ -43,12 +43,13 @@ import {
     WM_X_TR,
 } from '../js/const.js';
 import {
+    back_to_glyph,
+    map_glyphinfo,
     set_wall_state,
-    terrain_glyph,
     wall_angle,
     xy_set_wall_state,
 } from '../js/display.js';
-import { GameMap } from '../js/game.js';
+import { GameMap, makeLocation } from '../js/game.js';
 import {
     cmap_symbol,
     initialize_symbols_from_options,
@@ -63,22 +64,27 @@ import {
 } from '../js/symbols.js';
 
 test('back_to_glyph hides every unseen wall type as stone', () => {
-    const state = {};
+    const state = { level: new GameMap() };
     initialize_symbols_from_options({ flags: {} }, state);
+    // cmap_walls_to_glyph() asks which branch the hero is in, so the state
+    // needs a position and a dungeon list to look it up in.
+    state.dungeons = [{ flags: {} }];
+    state.u = { uz: { dnum: 0, dlevel: 1 } };
     const wallTypes = [
         SDOOR, VWALL, HWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
         CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
     ];
     const stone = cmap_symbol(S_stone, state);
     // Wall rendering does not inspect coordinates; these identify a valid
-    // interior map cell for terrain_glyph().
+    // interior map cell for back_to_glyph().
     const x = 7;
     const y = 4;
 
     for (const typ of wallTypes) {
-        const glyph = terrain_glyph(
-            { typ, seenv: 0, wall_info: 0 }, x, y, state,
+        Object.assign(
+            state.level.at(x, y), makeLocation(), { typ, seenv: 0 },
         );
+        const glyph = map_glyphinfo(back_to_glyph(x, y, state), state);
         assert.deepEqual(
             { ch: glyph.ch, dec: glyph.dec },
             { ch: stone.ch, dec: stone.dec },

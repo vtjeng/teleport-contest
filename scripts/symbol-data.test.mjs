@@ -7,6 +7,7 @@ import {
     DEFAULT_ROGUE_SYMBOLS,
     OBJCLASS_EXPLANATIONS,
     SYMBOL_INDEX_BY_NAME,
+    CMAP_COLORS,
     SYMBOL_SET_DEFINITIONS,
     SYM_MAX,
     SYM_OFF_M,
@@ -20,6 +21,32 @@ import {
     COIN_CLASS, MAXOCLASSES, VENOM_CLASS, WEAPON_CLASS,
 } from '../js/objects.js';
 import {
+    MAXPCHARS,
+    S_bars,
+    S_brupstair,
+    S_darkroom,
+    S_engrcorr,
+    S_lavawall,
+    S_poisoncloud,
+    S_stone,
+    S_throne,
+    S_vodoor,
+    S_vwall,
+} from '../js/symbols.js';
+import {
+    CLR_BLACK,
+    CLR_BRIGHT_BLUE,
+    CLR_BRIGHT_GREEN,
+    CLR_BROWN,
+    CLR_CYAN,
+    CLR_GRAY,
+    CLR_ORANGE,
+    CLR_YELLOW,
+    NO_COLOR,
+} from '../js/terminal.js';
+import {
+    extractCmapColors,
+    extractColorValues,
     extractSymbolLayout,
     extractSymbolSets,
 } from './generate-symbol-data.mjs';
@@ -132,5 +159,59 @@ test('generated symbol sets match the pinned source projection', () => {
             ['Enhanced2', 'UTF8'],
             ['AmigaFont', 'UNKNOWN'],
         ],
+    );
+});
+
+test('generated cmap colours are defsym.h\'s own column', () => {
+    const defsym = readFileSync(
+        new URL('../nethack-c/upstream/include/defsym.h', import.meta.url),
+        'utf8',
+    );
+    const colorValues = extractColorValues(readFileSync(
+        new URL('../nethack-c/upstream/include/color.h', import.meta.url),
+        'utf8',
+    ));
+    // color.h's own numbers, and the two kinds of line that carry them: a
+    // decimal #define and an HI_* alias of one.
+    assert.equal(colorValues.get('NO_COLOR'), 8);
+    assert.equal(colorValues.get('CLR_BROWN'), 3);
+    assert.equal(colorValues.get('HI_METAL'), colorValues.get('CLR_CYAN'));
+    assert.equal(colorValues.get('HI_GOLD'), colorValues.get('CLR_YELLOW'));
+    assert.equal(colorValues.get('HI_ZAP'), colorValues.get('CLR_BRIGHT_BLUE'));
+    // Nothing without a decimal value or a known alias enters the map, so a
+    // later #define cannot be mistaken for a colour.
+    assert.equal(colorValues.has('COLORVAL'), false);
+    assert.equal(colorValues.has('NH_BASIC_COLOR'), false);
+
+    assert.deepEqual(extractCmapColors(defsym, colorValues), [...CMAP_COLORS]);
+    assert.equal(CMAP_COLORS.length, MAXPCHARS);
+
+    // Ten rows read from defsym.h, one for each shape of colour argument the
+    // table has to survive: a bare NO_COLOR, a plain CLR_*, an HI_* alias, a
+    // PCHAR2 row whose tile name precedes the description, a row that wraps
+    // onto a second physical line, and a description holding a parenthesis.
+    for (const [index, expected] of [
+        [S_stone, NO_COLOR],            // PCHAR2( 0, ' ', ..., NO_COLOR)
+        [S_vwall, CLR_GRAY],            // PCHAR2( 1, '|', ..., CLR_GRAY)
+        [S_vodoor, CLR_BROWN],          // PCHAR2(13, '-', ..., CLR_BROWN)
+        [S_bars, CLR_CYAN],             // PCHAR( 17, '#', ..., HI_METAL)
+        [S_darkroom, CLR_BLACK],        // PCHAR( 20, '.', ..., CLR_BLACK)
+        [S_engrcorr, CLR_BRIGHT_BLUE],  // PCHAR2(24, ...) wrapped
+        [S_brupstair, CLR_YELLOW],      // PCHAR( 29, '<', ..., CLR_YELLOW)
+        [S_throne, CLR_YELLOW],         // PCHAR2(35, '\\', ..., HI_GOLD)
+        [S_lavawall, CLR_ORANGE],       // PCHAR( 41, '}', ..., CLR_ORANGE)
+        [S_poisoncloud, CLR_BRIGHT_GREEN], // PCHAR( 86, '#', ...)
+    ]) {
+        assert.equal(CMAP_COLORS[index], expected, `cmap ${index}`);
+    }
+
+    // A row whose colour name color.h does not define is a table that cannot
+    // be trusted, so the generator stops rather than emit a hole.
+    assert.throws(
+        () => extractCmapColors(
+            "    PCHAR( 0, ' ',  S_stone,  \"dark part of a room\", CLR_MAUVE)",
+            colorValues,
+        ),
+        /unknown color 'CLR_MAUVE'/u,
     );
 });

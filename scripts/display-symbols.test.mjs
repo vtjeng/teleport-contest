@@ -3,22 +3,14 @@ import test from 'node:test';
 
 import { createArtifactTable } from '../js/artifacts.js';
 import {
+    ALTAR,
     AM_CHAOTIC,
     AM_LAWFUL,
+    AM_MASK,
     AM_NEUTRAL,
     AM_SANCTUM,
-    ALTAR,
-    BLINDED,
-    DBWALL,
-    DB_FLOOR,
-    DB_ICE,
-    DB_LAVA,
-    DB_MOAT,
-    DRAWBRIDGE_DOWN,
-    DRAWBRIDGE_UP,
-    H_UNK,
-    ROGUESET,
     BLCORNER,
+    BLINDED,
     BRCORNER,
     BURN,
     CONFUSION,
@@ -26,13 +18,23 @@ import {
     CORPSTAT_MALE,
     CORR,
     CROSSWALL,
+    D_BROKEN,
     D_CLOSED,
-    DETECT_MONSTERS,
     D_ISOPEN,
-    DUST,
+    DB_FLOOR,
+    DB_ICE,
+    DB_LAVA,
+    DB_MOAT,
+    DBWALL,
+    def_warnsyms,
+    DETECT_MONSTERS,
     DOOR,
-    FOUNTAIN,
+    DRAWBRIDGE_DOWN,
+    DRAWBRIDGE_UP,
+    DUST,
     FLYING,
+    FOUNTAIN,
+    H_UNK,
     HALLUC,
     HALLUC_RES,
     HL_BLINK,
@@ -46,24 +48,26 @@ import {
     HWALL,
     ICE,
     IN_SIGHT,
+    LA_DOWN,
     LADDER,
     LANDMINE,
-    LA_DOWN,
     LAVAPOOL,
     LAVAWALL,
     LEVITATION,
-    M_AP_FURNITURE,
     M_AP_F_DKNOWN,
+    M_AP_FURNITURE,
     M_AP_MONSTER,
     M_AP_OBJECT,
+    MAXTCHARS,
     OBJ_FLOOR,
     PIT,
     POOL,
     PROT_FROM_SHAPE_CHANGERS,
+    ROGUESET,
     ROOM,
     ROT_CORPSE,
-    SCORR,
     SATIATED,
+    SCORR,
     SDOOR,
     SEE_INVIS,
     SICK,
@@ -73,37 +77,52 @@ import {
     SLIMED,
     STAIRS,
     STONE,
-    SYM_NOTHING,
     STONED,
     STRANGLED,
     STUNNED,
     SVALL,
+    SYM_NOTHING,
     TDWALL,
+    TIMER_OBJECT,
     TLCORNER,
     TLWALL,
     TRCORNER,
     TRWALL,
     TUWALL,
-    TIMER_OBJECT,
     VWALL,
-    WATER,
-    WARNING,
-    WARNCOUNT,
     W_SADDLE,
-    def_warnsyms,
+    WARNCOUNT,
+    WARNING,
+    WATER,
+    WEB,
 } from '../js/const.js';
 import * as symbolExports from '../js/symbols.js';
 import {
-    bot,
+    altar_chaotic,
+    altar_lawful,
+    altar_neutral,
+    altar_other,
+    altar_to_glyph,
+    altar_unaligned,
     armor_status,
+    back_to_glyph,
+    bot,
     classify_terrain,
     cls,
+    cmap_c_to_glyph,
+    cmap_to_glyph,
+    cmap_walls_to_glyph,
+    corpse_to_glyph,
     docrt,
+    engraving_to_glyph,
     feel_location,
     feel_newsym,
     flush_screen,
+    generic_obj_to_glyph,
     glyph_is_body,
     glyph_is_body_piletop,
+    glyph_is_cmap,
+    glyph_is_cmap_zap,
     glyph_is_fem_statue,
     glyph_is_fem_statue_piletop,
     glyph_is_generic_object,
@@ -115,22 +134,21 @@ import {
     glyph_is_object,
     glyph_is_piletop_generic_obj,
     glyph_is_statue,
+    glyph_to_cmap,
     hero_glyph_info,
     map_glyphinfo,
+    map_trap,
     MG_CORPSE,
     MG_FEMALE,
     MG_MALE,
     MG_OBJPILE,
     MG_STATUE,
-    map_trap,
-    corpse_to_glyph,
-    generic_obj_to_glyph,
-    normal_obj_to_glyph,
-    objnum_to_glyph,
-    statue_to_glyph,
     monster_glyph_info,
     newsym,
+    NO_GLYPH,
+    normal_obj_to_glyph,
     object_glyph_info,
+    objnum_to_glyph,
     random_object_glyph_info,
     reglyph_darkroom,
     remembered_glyph_from_presentation,
@@ -138,28 +156,42 @@ import {
     same_remembered_glyph,
     see_nearby_objects,
     show_glyph_cell,
-    terrain_glyph,
+    statue_to_glyph,
     timebot,
     trap_glyph_info,
+    trap_to_glyph,
     tty_capacity_status,
-    UnsupportedGlyphRepairError,
     UnsupportedMapMemoryError,
     UnsupportedStatusRefreshError,
     weapon_status,
 } from '../js/display.js';
 import {
+    GLYPH_ALTAR_OFF,
     GLYPH_BODY_OFF,
     GLYPH_BODY_PILETOP_OFF,
+    GLYPH_CMAP_A_OFF,
+    GLYPH_CMAP_B_OFF,
+    GLYPH_CMAP_C_OFF,
+    GLYPH_CMAP_GEH_OFF,
+    GLYPH_CMAP_KNOX_OFF,
+    GLYPH_CMAP_MAIN_OFF,
+    GLYPH_CMAP_MINES_OFF,
+    GLYPH_CMAP_SOKO_OFF,
+    GLYPH_CMAP_STONE_OFF,
+    GLYPH_NOTHING_OFF,
     GLYPH_OBJ_OFF,
     GLYPH_OBJ_PILETOP_OFF,
     GLYPH_STATUE_FEM_OFF,
     GLYPH_STATUE_FEM_PILETOP_OFF,
     GLYPH_STATUE_MALE_OFF,
     GLYPH_STATUE_MALE_PILETOP_OFF,
+    GLYPH_UNEXPLORED_OFF,
+    GLYPH_ZAP_OFF,
+    NUM_ZAP,
 } from '../js/glyph_offsets.js';
 import { rndmonnam } from '../js/do_name.js';
 import { engr_at, make_engr_at } from '../js/engrave.js';
-import { GameMap } from '../js/game.js';
+import { GameMap, makeLocation } from '../js/game.js';
 import { GameDisplay } from '../js/game_display.js';
 import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
@@ -242,6 +274,7 @@ import {
     CLR_BRIGHT_MAGENTA,
     CLR_BROWN,
     CLR_GRAY,
+    CLR_ORANGE,
     CLR_RED,
     CLR_WHITE,
     CLR_YELLOW,
@@ -254,28 +287,49 @@ import {
 } from '../js/symbol_data.js';
 import {
     cmap_symbol,
+    defsym_to_trap,
     glyph_customization,
     initialize_symbols_from_options,
+    MAXPCHARS,
     misc_symbol,
     monster_class_symbol,
     object_class_symbol,
-    S_hwall,
+    S_altar,
     S_arrow_trap,
-    S_engroom,
-    S_room,
-    S_corr,
-    S_darkroom,
-    S_litcorr,
-    S_stone,
+    S_brdnladder,
     S_brdnstair,
     S_brupstair,
     S_cloud,
+    S_corr,
+    S_darkroom,
+    S_digbeam,
+    S_dnladder,
+    S_engrcorr,
+    S_engroom,
+    S_fountain,
+    S_goodpos,
+    S_grave,
     S_hcdoor,
+    S_hodoor,
+    S_hwall,
+    S_ice,
+    S_lava,
+    S_lavawall,
+    S_litcorr,
+    S_ndoor,
     S_poisoncloud,
+    S_pool,
+    S_room,
+    S_sink,
+    S_stone,
     S_tlcorn,
+    S_trwall,
+    S_upstair,
+    S_vcdoor,
+    S_vodoor,
     S_vwall,
-    trap_to_defsym,
     sym_val,
+    trap_to_defsym,
 } from '../js/symbols.js';
 import {
     _startupA11yInternals,
@@ -301,8 +355,36 @@ const WALL_SYMBOL_CASES = [
     { typ: TRWALL, ascii: '|', dec: 't' },
 ];
 
+// C's back_to_glyph() reads levl[x][y], and cmap_walls_to_glyph() beneath it
+// reads the hero's dungeon position, so a synthetic square is installed on a
+// map before it is drawn. A square that is already the map's own is left in
+// place, so that later assertions still see the cell they set up.
+function terrainGlyphAt(loc, x, y, state) {
+    if (typeof state.level?.at !== 'function') {
+        const map = new GameMap();
+        // Keep whatever level flags the caller set up: back_to_glyph() reads
+        // level.flags.arboreal, and some callers toggle it between draws.
+        if (state.level?.flags) map.flags = state.level.flags;
+        state.level = map;
+    }
+    // cmap_walls_to_glyph() asks which branch the hero is in, which needs both
+    // a position and a dungeon list to look it up in.
+    state.dungeons ??= [{ flags: {} }];
+    state.u ??= {};
+    state.u.uz ??= { dnum: 0, dlevel: 1 };
+    const square = state.level.at(x, y);
+    if (square !== loc) {
+        // Reset before merging, so that a field left by an earlier synthetic
+        // square cannot leak into this one; the cell object itself is kept,
+        // because callers hold a reference to it.
+        for (const key of Object.keys(square)) delete square[key];
+        Object.assign(square, makeLocation(), loc);
+    }
+    return map_glyphinfo(back_to_glyph(x, y, state), state);
+}
+
 function displaySymbol(loc, state) {
-    const { ch, dec } = terrain_glyph(loc, 7, 4, state);
+    const { ch, dec } = terrainGlyphAt(loc, 7, 4, state);
     return { ch, dec };
 }
 
@@ -561,7 +643,7 @@ test('room floors and empty doorways follow the selected cmap', () => {
             { ch: expected.dec, dec: true },
         );
         assert.equal(
-            terrain_glyph(expected.loc, 7, 4, decState).color,
+            terrainGlyphAt(expected.loc, 7, 4, decState).color,
             NO_COLOR,
         );
     }
@@ -598,20 +680,20 @@ test('stairs use rm direction and reveal only traversed branch symbols', () => {
     initialize_symbols_from_options({ flags: {} }, state);
 
     assert.deepEqual(
-        terrain_glyph({ typ: STAIRS, ladder: 0 }, 7, 4, state),
+        terrainGlyphAt({ typ: STAIRS, ladder: 0 }, 7, 4, state),
         { ch: '<', color: CLR_YELLOW, dec: false },
     );
     assert.equal(cmap_symbol(S_brupstair, state).ch, '<');
 
     state.stairs.u_traversed = false;
     assert.deepEqual(
-        terrain_glyph({ typ: STAIRS, ladder: LA_DOWN }, 7, 4, state),
+        terrainGlyphAt({ typ: STAIRS, ladder: LA_DOWN }, 7, 4, state),
         { ch: '>', color: NO_COLOR, dec: false },
     );
 
     state.stairs.u_traversed = true;
     assert.deepEqual(
-        terrain_glyph({ typ: STAIRS, ladder: LA_DOWN }, 7, 4, state),
+        terrainGlyphAt({ typ: STAIRS, ladder: LA_DOWN }, 7, 4, state),
         { ch: '>', color: CLR_YELLOW, dec: false },
     );
     assert.equal(cmap_symbol(S_brdnstair, state).ch, '>');
@@ -640,49 +722,49 @@ test('terrain conversion covers source backgrounds omitted by the old switch', (
         + 'S_pool:p,S_lava:l,S_ice:i,S_room:r',
     ), state);
 
-    assert.equal(terrain_glyph({ typ: STONE }, 7, 4, state).ch, 's');
-    assert.equal(terrain_glyph({ typ: SCORR }, 7, 4, state).ch, 's');
+    assert.equal(terrainGlyphAt({ typ: STONE }, 7, 4, state).ch, 's');
+    assert.equal(terrainGlyphAt({ typ: SCORR }, 7, 4, state).ch, 's');
     state.level.flags.arboreal = true;
-    assert.equal(terrain_glyph({ typ: STONE }, 7, 4, state).ch, 't');
-    assert.equal(terrain_glyph({ typ: SCORR }, 7, 4, state).ch, 't');
+    assert.equal(terrainGlyphAt({ typ: STONE }, 7, 4, state).ch, 't');
+    assert.equal(terrainGlyphAt({ typ: SCORR }, 7, 4, state).ch, 't');
     assert.equal(
-        terrain_glyph({ typ: SDOOR, seenv: 0, candig: true }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: SDOOR, seenv: 0, candig: true }, 7, 4, state).ch,
         't',
     );
     state.level.flags.arboreal = false;
 
     assert.equal(
-        terrain_glyph({ typ: LADDER, ladder: 0 }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: LADDER, ladder: 0 }, 7, 4, state).ch,
         'u',
     );
     assert.equal(
-        terrain_glyph({ typ: LADDER, ladder: LA_DOWN }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: LADDER, ladder: LA_DOWN }, 7, 4, state).ch,
         'd',
     );
     state.stairs.u_traversed = true;
     assert.equal(
-        terrain_glyph({ typ: LADDER, ladder: 0 }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: LADDER, ladder: 0 }, 7, 4, state).ch,
         'U',
     );
     assert.equal(
-        terrain_glyph({ typ: LADDER, ladder: LA_DOWN }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: LADDER, ladder: LA_DOWN }, 7, 4, state).ch,
         'D',
     );
 
     assert.equal(
-        terrain_glyph({ typ: DBWALL, horizontal: false }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: DBWALL, horizontal: false }, 7, 4, state).ch,
         'V',
     );
     assert.equal(
-        terrain_glyph({ typ: DBWALL, horizontal: true }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: DBWALL, horizontal: true }, 7, 4, state).ch,
         'H',
     );
     assert.equal(
-        terrain_glyph({ typ: DRAWBRIDGE_DOWN, horizontal: false }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: DRAWBRIDGE_DOWN, horizontal: false }, 7, 4, state).ch,
         'v',
     );
     assert.equal(
-        terrain_glyph({ typ: DRAWBRIDGE_DOWN, horizontal: true }, 7, 4, state).ch,
+        terrainGlyphAt({ typ: DRAWBRIDGE_DOWN, horizontal: true }, 7, 4, state).ch,
         'h',
     );
 
@@ -694,7 +776,7 @@ test('terrain conversion covers source backgrounds omitted by the old switch', (
         [DB_LAVA | DB_ICE, 'r'], // Invalid masks use source's room fallback.
     ]) {
         assert.equal(
-            terrain_glyph({
+            terrainGlyphAt({
                 typ: DRAWBRIDGE_UP,
                 drawbridgemask: underlay,
             }, 7, 4, state).ch,
@@ -716,7 +798,7 @@ test('altar presentation follows source alignment and sanctum categories', () =>
         [AM_SANCTUM | AM_LAWFUL, CLR_BRIGHT_MAGENTA], // Other/sanctum glyph.
     ]) {
         assert.deepEqual(
-            terrain_glyph({ typ: ALTAR, altarmask }, 7, 4, state),
+            terrainGlyphAt({ typ: ALTAR, altarmask }, 7, 4, state),
             { ch: '_', color, dec: false },
             `altar mask ${altarmask}`,
         );
@@ -728,7 +810,7 @@ test('disabled color suppresses colored terrain glyphs', () => {
     initialize_symbols_from_options({ flags: {} }, state);
 
     assert.equal(
-        terrain_glyph({ typ: DOOR, flags: D_CLOSED }, 7, 4, state).color,
+        terrainGlyphAt({ typ: DOOR, flags: D_CLOSED }, 7, 4, state).color,
         NO_COLOR,
     );
     state.u = { uz: { dnum: 0, dlevel: 1 } };
@@ -740,7 +822,7 @@ test('disabled color suppresses colored terrain glyphs', () => {
         next: null,
     };
     assert.equal(
-        terrain_glyph({ typ: STAIRS, ladder: 0 }, 7, 4, state).color,
+        terrainGlyphAt({ typ: STAIRS, ladder: 0 }, 7, 4, state).color,
         NO_COLOR,
     );
 });
@@ -753,33 +835,33 @@ test('disabled color uses tty inverse cues for ambiguous terrain symbols', () =>
 
     for (const typ of [SINK, ICE, LAVAPOOL, LAVAWALL]) {
         assert.equal(
-            terrain_glyph({ typ }, 7, 4, state).attr,
+            terrainGlyphAt({ typ }, 7, 4, state).attr,
             ATR_INVERSE,
             `terrain type ${typ}`,
         );
     }
     for (const typ of [FOUNTAIN, POOL, WATER]) {
         assert.equal(
-            terrain_glyph({ typ }, 7, 4, state).attr,
+            terrainGlyphAt({ typ }, 7, 4, state).attr,
             undefined,
             `reference terrain type ${typ}`,
         );
     }
     assert.equal(
-        terrain_glyph({ typ: DRAWBRIDGE_UP, flags: DB_LAVA }, 7, 4, state).attr,
+        terrainGlyphAt({ typ: DRAWBRIDGE_UP, flags: DB_LAVA }, 7, 4, state).attr,
         ATR_INVERSE,
         'raised drawbridge lava uses the same cmap cue',
     );
 
     state.iflags.wc_inverse = false;
     assert.equal(
-        terrain_glyph({ typ: SINK }, 7, 4, state).attr,
+        terrainGlyphAt({ typ: SINK }, 7, 4, state).attr,
         undefined,
     );
     state.iflags.wc_inverse = true;
     state.iflags.wc_color = true;
     assert.equal(
-        terrain_glyph({ typ: SINK }, 7, 4, state).attr,
+        terrainGlyphAt({ typ: SINK }, 7, 4, state).attr,
         undefined,
     );
 });
@@ -789,22 +871,22 @@ test('lit corridors use their symbol and retain the black-and-white cue', () => 
     initialize_symbols_from_options({ flags: {} }, state);
 
     assert.deepEqual(
-        terrain_glyph({ typ: CORR, waslit: false }, 7, 4, state),
+        terrainGlyphAt({ typ: CORR, waslit: false }, 7, 4, state),
         { ch: '#', color: NO_COLOR, dec: false },
     );
     assert.deepEqual(
-        terrain_glyph({ typ: CORR, waslit: true }, 7, 4, state),
+        terrainGlyphAt({ typ: CORR, waslit: true }, 7, 4, state),
         { ch: '#', color: CLR_WHITE, dec: false },
     );
     state.flags.lit_corridor = true;
     assert.equal(
-        terrain_glyph({ typ: CORR, waslit: false }, 7, 4, state).color,
+        terrainGlyphAt({ typ: CORR, waslit: false }, 7, 4, state).color,
         CLR_WHITE,
     );
 
     state.iflags.wc_color = false;
     assert.equal(
-        terrain_glyph({ typ: CORR, waslit: true }, 7, 4, state).color,
+        terrainGlyphAt({ typ: CORR, waslit: true }, 7, 4, state).color,
         NO_COLOR,
     );
 });
@@ -1367,7 +1449,10 @@ test('feel_newsym draws the occupant when sighted and the terrain when blind',
         assert.equal(state.level.at(x, y).disp_ch, '.');
         // display.c:894-897. The square is ROOM and unlit, so map memory moves
         // off S_room whatever 'dark_room' says; with it on, to S_darkroom.
-        assert.equal(state.level.at(x, y).remembered_glyph.cmap, S_darkroom);
+        assert.equal(
+        glyph_to_cmap(state.level.at(x, y).remembered_glyph.glyph),
+        S_darkroom,
+    );
         // display.c seenv_matrix[1 - dy][dx + 1] for a step due east.
         assert.equal(state.level.at(x, y).seenv, 0x80);
 
@@ -1377,7 +1462,10 @@ test('feel_newsym draws the occupant when sighted and the terrain when blind',
         state.level.at(x, y).remembered_glyph = null;
         newsym(x, y);
         feel_newsym(x, y, state);
-        assert.equal(state.level.at(x, y).remembered_glyph.cmap, S_stone);
+        assert.equal(
+        glyph_to_cmap(state.level.at(x, y).remembered_glyph.glyph),
+        S_stone,
+    );
         assert.equal(state.level.at(x, y).disp_ch, ' ');
     });
 
@@ -1417,7 +1505,7 @@ test('feel_location darkens a remembered lit corridor', () => {
     corridor.waslit = false;
     state.flags.lit_corridor = true; // makes back_to_glyph() answer S_litcorr
     feel_location(x, y, state);
-    assert.equal(corridor.remembered_glyph.cmap, S_corr);
+    assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_corr);
     assert.equal(corridor.disp_ch, cmap_symbol(S_corr, state).ch);
 
     // A corridor the hero has seen lit keeps the lit symbol, because C's
@@ -1425,7 +1513,7 @@ test('feel_location darkens a remembered lit corridor', () => {
     corridor.waslit = true;
     corridor.remembered_glyph = null;
     feel_location(x, y, state);
-    assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
+    assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_litcorr);
 });
 
 // display.c newsym() corrects map memory only on the pass where the square is
@@ -1452,7 +1540,7 @@ test('newsym darkens a remembered lit corridor once it leaves sight', () => {
     state.flags.lit_corridor = true;
 
     newsym(x, y);
-    assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
+    assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_litcorr);
     // defsym.h:116-117 colours both corridor cmaps CLR_GRAY, so
     // reset_glyphmap() (display.c:2938-2940) recolours the lit one to
     // CLR_WHITE while the two draw the same byte.
@@ -1460,7 +1548,7 @@ test('newsym darkens a remembered lit corridor once it leaves sight', () => {
 
     state.viz_array[y][x] = 0;
     newsym(x, y);
-    assert.equal(corridor.remembered_glyph.cmap, S_corr);
+    assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_corr);
     // recorderMapColor() folds S_corr's CLR_GRAY onto the terminal default.
     assert.equal(corridor.disp_color, NO_COLOR);
     assert.equal(corridor.disp_ch, cmap_symbol(S_corr, state).ch);
@@ -1473,17 +1561,17 @@ test('newsym darkens a remembered lit corridor once it leaves sight', () => {
     state.iflags = { ...state.iflags, wc_color: true };
     seeThenLoseSight(x, y, state);
     assert.equal(corridor.waslit, true);
-    assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
+    assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_litcorr);
 
     state.flags.dark_room = true;
     state.iflags = { ...state.iflags, wc_color: false };
     seeThenLoseSight(x, y, state);
-    assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
+    assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_litcorr);
 
     // Both halves on, and the same square darkens despite waslit.
     state.iflags = { ...state.iflags, wc_color: true };
     seeThenLoseSight(x, y, state);
-    assert.equal(corridor.remembered_glyph.cmap, S_corr);
+    assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_corr);
 });
 
 test('newsym replaces a remembered room floor with DARKROOMSYM', () => {
@@ -1499,10 +1587,10 @@ test('newsym replaces a remembered room floor with DARKROOMSYM', () => {
     state.iflags = { ...state.iflags, wc_color: true };
 
     newsym(x, y);
-    assert.equal(room.remembered_glyph.cmap, S_room);
+    assert.equal(glyph_to_cmap(room.remembered_glyph.glyph), S_room);
     state.viz_array[y][x] = 0;
     newsym(x, y);
-    assert.equal(room.remembered_glyph.cmap, S_darkroom);
+    assert.equal(glyph_to_cmap(room.remembered_glyph.glyph), S_darkroom);
     // reglyph_darkroom() has not run over this state, so S_darkroom still
     // carries defsym.h:114's own byte; only the cmap index is asserted here.
     // The pair drawing alike is scripts/display-symbols.test.mjs's
@@ -1513,14 +1601,14 @@ test('newsym replaces a remembered room floor with DARKROOMSYM', () => {
     state.flags.dark_room = false;
     seeThenLoseSight(x, y, state);
     assert.equal(room.waslit, true);
-    assert.equal(room.remembered_glyph.cmap, S_room);
+    assert.equal(glyph_to_cmap(room.remembered_glyph.glyph), S_room);
 
     // An unlit room square passes `!lev->waslit` and darkens with
     // 'dark_room' still off.
     room.lit = false;
     seeThenLoseSight(x, y, state);
     assert.equal(room.waslit, false);
-    assert.equal(room.remembered_glyph.cmap, S_darkroom);
+    assert.equal(glyph_to_cmap(room.remembered_glyph.glyph), S_darkroom);
 });
 
 test('newsym uses the rogue level pair of darkening rules', () => {
@@ -1538,18 +1626,18 @@ test('newsym uses the rogue level pair of darkening rules', () => {
 
     square.lit = false;
     seeThenLoseSight(x, y, state);
-    assert.equal(square.remembered_glyph.cmap, S_stone);
+    assert.equal(glyph_to_cmap(square.remembered_glyph.glyph), S_stone);
 
     square.lit = true;
     seeThenLoseSight(x, y, state);
-    assert.equal(square.remembered_glyph.cmap, S_room);
+    assert.equal(glyph_to_cmap(square.remembered_glyph.glyph), S_room);
 
     // The corridor half is the same on both levels.
     square.typ = CORR;
     square.lit = false;
     state.flags.lit_corridor = true;
     seeThenLoseSight(x, y, state);
-    assert.equal(square.remembered_glyph.cmap, S_corr);
+    assert.equal(glyph_to_cmap(square.remembered_glyph.glyph), S_corr);
 
     // Both halves of `lev->glyph == cmap_to_glyph(S_litcorr) && lev->typ ==
     // CORR` are load-bearing. A corridor square the hero remembers an object
@@ -1615,7 +1703,10 @@ test('feel_location stops on a sensed monster and a distant square', () => {
         intrinsic: 0, extrinsic: 0, blocked: 0,
     };
     feel_location(x, y, state);
-    assert.equal(state.level.at(x, y).remembered_glyph.cmap, S_darkroom);
+    assert.equal(
+        glyph_to_cmap(state.level.at(x, y).remembered_glyph.glyph),
+        S_darkroom,
+    );
 
     // C's comment restricts the square to the hero's own or one adjacent to
     // it; this port asserts that rather than assuming it.
@@ -1644,19 +1735,94 @@ test('reglyph_darkroom points S_darkroom at S_room or at nothing', () => {
         state.gs.showsyms[SYM_OFF_X + SYM_NOTHING],
     );
 
-    // Once a level exists the repair loop would have squares to rewrite, and
-    // this port cannot run it.
+    // Once a level exists the repair loop has squares to walk, and the tail
+    // still runs after it under either option value.
     state.level = new GameMap();
-    assert.throws(() => reglyph_darkroom(state), UnsupportedGlyphRepairError);
+    state.u = { ...state.u, ux: 1, uy: 1, uz: { dnum: 0, dlevel: 1 } };
+    state.viz_array = [];
+    reglyph_darkroom(state);
+    assert.equal(
+        state.gs.showsyms[S_darkroom],
+        state.gs.showsyms[SYM_OFF_X + SYM_NOTHING],
+    );
     state.flags.dark_room = true;
     reglyph_darkroom(state);
     assert.equal(state.gs.showsyms[S_darkroom], state.gs.showsyms[S_room]);
 
     // display.c:1836-1837 puts Is_rogue_level() beside the two options, so the
-    // rogue level takes the GLYPH_NOTHING arm whatever they say.
+    // rogue level takes the GLYPH_NOTHING arm whatever they say -- and the
+    // tail follows the two options alone, which is why it still points
+    // S_darkroom at S_room here.
     state.u = { ...state.u, uz: { dnum: 3, dlevel: 15 } };
     state.rogue_level = { dnum: 3, dlevel: 15 };
-    assert.throws(() => reglyph_darkroom(state), UnsupportedGlyphRepairError);
+    reglyph_darkroom(state);
+    assert.equal(state.gs.showsyms[S_darkroom], state.gs.showsyms[S_room]);
+});
+
+test('reglyph_darkroom runs the two arms that need GLYPH_NOTHING', () => {
+    // display.c:1838-1840 and 1845-1847, the pair the second gate's arms
+    // reach when 'dark_room' or colour is off. Between them they move a
+    // remembered dark-room square to GLYPH_NOTHING and back, which is the
+    // whole reason this port needed a glyph number rather than a drawn cell.
+    const state = feelingHeroBeside(1, 1);
+    state.iflags = { ...(state.iflags ?? {}), wc_color: true };
+    state.viz_array = [];
+    const seen = state.level.at(10, 6);
+    Object.assign(seen, { typ: ROOM, seenv: SVALL, waslit: false });
+    seen.remembered_glyph = remembered_glyph_from_presentation(
+        map_glyphinfo(cmap_to_glyph(S_darkroom, state), state),
+    );
+    const lit = state.level.at(12, 6);
+    Object.assign(lit, { typ: ROOM, seenv: SVALL, waslit: true });
+    lit.remembered_glyph = remembered_glyph_from_presentation(
+        map_glyphinfo(cmap_to_glyph(S_darkroom, state), state),
+    );
+
+    // 1838-1840: with colour off nothing draws S_darkroom, so a square the
+    // hero saw lit goes back to plain floor and one she did not goes blank.
+    state.iflags.wc_color = false;
+    reglyph_darkroom(state);
+    assert.equal(seen.remembered_glyph.glyph, GLYPH_NOTHING_OFF);
+    assert.equal(lit.remembered_glyph.glyph, cmap_to_glyph(S_room, state));
+
+    // 1845-1847: with colour back on the blank square becomes dark floor
+    // again, which is the arm that reads GLYPH_NOTHING back.
+    state.iflags.wc_color = true;
+    reglyph_darkroom(state);
+    assert.equal(
+        seen.remembered_glyph.glyph, cmap_to_glyph(S_darkroom, state),
+    );
+    // 1842-1844 moves the lit one the same way, by its own arm.
+    assert.equal(
+        lit.remembered_glyph.glyph, cmap_to_glyph(S_darkroom, state),
+    );
+
+    // 1827-1830, the first pair's other arm: with 'dark_room' off a corridor
+    // the hero saw lit is drawn lit again wherever she is standing.
+    const corridor = state.level.at(14, 6);
+    Object.assign(corridor, { typ: CORR, seenv: SVALL, waslit: true });
+    corridor.remembered_glyph = remembered_glyph_from_presentation(
+        map_glyphinfo(cmap_to_glyph(S_corr, state), state),
+    );
+    state.flags.dark_room = false;
+    reglyph_darkroom(state);
+    assert.equal(
+        corridor.remembered_glyph.glyph, cmap_to_glyph(S_litcorr, state),
+    );
+    // Both of that arm's conjuncts matter. A room square the hero saw lit
+    // satisfies `lev->waslit` and not the glyph test, and a corridor she never
+    // saw lit satisfies the glyph test and not `lev->waslit`; neither is
+    // promoted.
+    assert.equal(lit.remembered_glyph.glyph, cmap_to_glyph(S_room, state));
+    const unlitCorridor = state.level.at(16, 6);
+    Object.assign(unlitCorridor, { typ: CORR, seenv: SVALL, waslit: false });
+    unlitCorridor.remembered_glyph = remembered_glyph_from_presentation(
+        map_glyphinfo(cmap_to_glyph(S_corr, state), state),
+    );
+    reglyph_darkroom(state);
+    assert.equal(
+        unlitCorridor.remembered_glyph.glyph, cmap_to_glyph(S_corr, state),
+    );
 });
 
 test('reglyph_darkroom repairs the corridor and room squares it can decide',
@@ -1675,7 +1841,7 @@ test('reglyph_darkroom repairs the corridor and room squares it can decide',
         const square = state.level.at(x, row);
         apply(square);
         square.remembered_glyph = remembered_glyph_from_presentation(
-            terrain_glyph(square, x, row, state),
+            terrainGlyphAt(square, x, row, state),
         );
         return square;
     };
@@ -1687,8 +1853,11 @@ test('reglyph_darkroom repairs the corridor and room squares it can decide',
         square.typ = CORR;
         square.waslit = false;
     });
-    assert.equal(corridor.remembered_glyph.cmap, S_litcorr);
-    assert.equal(corridor.remembered_glyph.color, CLR_WHITE);
+    assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_litcorr);
+    assert.equal(
+        remembered_glyph_presentation(corridor.remembered_glyph, state).color,
+        CLR_WHITE,
+    );
     const seenCorridor = remember(18, (square) => {
         square.typ = CORR;
         square.waslit = false;
@@ -1712,7 +1881,7 @@ test('reglyph_darkroom repairs the corridor and room squares it can decide',
         square.waslit = false;
         square.seenv = SVALL;
     });
-    assert.equal(room.remembered_glyph.cmap, S_room);
+    assert.equal(glyph_to_cmap(room.remembered_glyph.glyph), S_room);
 
     // cansee() reads viz_array; only <18,6> is in sight.
     state.viz_array = [];
@@ -1723,14 +1892,17 @@ test('reglyph_darkroom repairs the corridor and room squares it can decide',
 
     // The whole point of the corridor arm: C repaints the cell in the
     // terminal default rather than in CLR_WHITE.
-    assert.equal(corridor.remembered_glyph.cmap, S_corr);
-    assert.equal(corridor.remembered_glyph.color, NO_COLOR);
-    assert.equal(room.remembered_glyph.cmap, S_darkroom);
+    assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_corr);
+    assert.equal(
+        remembered_glyph_presentation(corridor.remembered_glyph, state).color,
+        NO_COLOR,
+    );
+    assert.equal(glyph_to_cmap(room.remembered_glyph.glyph), S_darkroom);
     // A square the hero can see is repainted by docrt() from what is really
     // there, so C leaves its memory alone.
-    assert.equal(seenCorridor.remembered_glyph.cmap, S_litcorr);
-    assert.equal(unseenRoom.remembered_glyph.cmap, S_room);
-    assert.equal(unlitRoom.remembered_glyph.cmap, S_room);
+    assert.equal(glyph_to_cmap(seenCorridor.remembered_glyph.glyph), S_litcorr);
+    assert.equal(glyph_to_cmap(unseenRoom.remembered_glyph.glyph), S_room);
+    assert.equal(glyph_to_cmap(unlitRoom.remembered_glyph.glyph), S_room);
 });
 
 test('same_remembered_glyph separates S_room from S_darkroom', () => {
@@ -1747,14 +1919,14 @@ test('same_remembered_glyph separates S_room from S_darkroom', () => {
     floor.waslit = true;
 
     const lit = remembered_glyph_from_presentation(
-        terrain_glyph(floor, x, y, state),
+        terrainGlyphAt(floor, x, y, state),
     );
-    assert.equal(lit.cmap, S_room);
+    assert.equal(glyph_to_cmap(lit.glyph), S_room);
     // A second record for the same square is a different object holding the
     // same identity, which is what C's `oldglyph != door->glyph` would call
     // unchanged.
     const again = remembered_glyph_from_presentation(
-        terrain_glyph(floor, x, y, state),
+        terrainGlyphAt(floor, x, y, state),
     );
     assert.notEqual(lit, again);
     assert.equal(same_remembered_glyph(lit, again), true);
@@ -1762,100 +1934,45 @@ test('same_remembered_glyph separates S_room from S_darkroom', () => {
     floor.remembered_glyph = lit;
     feel_location(x, y, state);
     const dark = floor.remembered_glyph;
-    assert.equal(dark.cmap, S_darkroom);
+    assert.equal(glyph_to_cmap(dark.glyph), S_darkroom);
     // Same drawn cell, different glyph.
-    assert.equal(dark.ch, lit.ch);
-    assert.equal(dark.color, lit.color);
-    assert.equal(dark.decgfx, lit.decgfx);
+    const drawnDark = remembered_glyph_presentation(dark, state);
+    const drawnLit = remembered_glyph_presentation(lit, state);
+    assert.equal(drawnDark.ch, drawnLit.ch);
+    assert.equal(drawnDark.color, drawnLit.color);
+    assert.equal(drawnDark.dec, drawnLit.dec);
     assert.equal(same_remembered_glyph(lit, dark), false);
 
     // A missing record on either side is a change; two missing records are not.
     assert.equal(same_remembered_glyph(null, dark), false);
     assert.equal(same_remembered_glyph(dark, null), false);
     assert.equal(same_remembered_glyph(null, null), true);
-
-    // `rgb` reaches a remembered record from a SYMBOLS colour customization,
-    // and is the one identity field held in an array. The arbitrary triples
-    // below differ in their last component only, so a comparison that stopped
-    // at the length would call them equal.
-    const coloured = (rgb) => remembered_glyph_from_presentation({
-        ch: '.', color: NO_COLOR, dec: false, rgb,
-    });
-    assert.equal(
-        same_remembered_glyph(coloured([1, 2, 3]), coloured([1, 2, 3])), true,
-    );
-    assert.equal(
-        same_remembered_glyph(coloured([1, 2, 3]), coloured([1, 2, 4])), false,
-    );
-    assert.equal(
-        same_remembered_glyph(coloured([1, 2, 3]), coloured([1, 2])), false,
-    );
-    // One side customized and the other not is also a change.
-    const plain = remembered_glyph_from_presentation({
-        ch: '.', color: NO_COLOR, dec: false,
-    });
-    assert.equal(same_remembered_glyph(coloured([1, 2, 3]), plain), false);
-    assert.equal(same_remembered_glyph(plain, coloured([1, 2, 3])), false);
 });
 
-test('same_remembered_glyph separates each part of a glyph number', () => {
-    // lock.c:584 answers "changed" whenever the two glyph numbers differ, so
-    // every part of a glyph number this port keeps has to separate a pair on
-    // its own. Each case below changes exactly one term of a presentation
-    // that is otherwise identical, so a term dropped from the comparison
-    // leaves its case answering "unchanged".
-    const base = { ch: '.', color: NO_COLOR, dec: false };
-    const from = (extra, trap = null) => remembered_glyph_from_presentation(
-        { ...base, ...extra }, trap,
-    );
-    const reference = from({});
-    const cases = [
-        // terrainCmap() stamps `cmap`, which is what cmap_to_glyph() encodes
-        // for a piece of terrain. S_room is an arbitrary index: any value
-        // separates a terrain record from one carrying none.
-        ['cmap', from({ cmap: S_room })],
-        ['ch', from({ ch: '#' })],
-        ['color', from({ color: CLR_RED })],
-        // `dec` is the presentation term; `decgfx` is the remembered one.
-        ['decgfx', from({ dec: true })],
-        // The two browser projection fields, which a SYMBOLS customization
-        // fills in and the terminal draw does not.
-        ['displayCh', from({ displayCh: 'x' })],
-        ['displayColor', from({ displayColor: CLR_RED })],
-        ['attr', from({ attr: ATR_INVERSE })],
-        // The trap identity comes from the second argument rather than from
-        // the presentation. PIT is one arbitrary ttyp.
-        ['trapType', from({}, { ttyp: PIT })],
-        // Nothing writes `invisible_monster` yet: it stands for C's
-        // GLYPH_INVISIBLE range, which only the unported map_invisible()
-        // fills, so this pair is built on the record rather than through a
-        // presentation.
-        ['invisible_monster', { ...reference, invisible_monster: true }],
-    ];
-    for (const [field, other] of cases) {
-        assert.equal(same_remembered_glyph(reference, other), false, field);
-        assert.equal(same_remembered_glyph(other, reference), false, field);
-    }
+test('same_remembered_glyph separates each glyph number a square can hold',
+    () => {
+    // lock.c:584 answers "changed" whenever the two numbers differ, and the
+    // number is the whole of what map memory holds, so one pair of numbers
+    // covers the comparison. GLYPH_OBJ_OFF + 1 and + 2 are what display.h
+    // normal_obj_to_glyph() returns for ordinary objects of type 1 and type 2,
+    // neither the top of a pile.
+    const oneObject = { glyph: GLYPH_OBJ_OFF + 1 };
+    const otherObject = { glyph: GLYPH_OBJ_OFF + 2 };
+    assert.equal(same_remembered_glyph(oneObject, otherObject), false);
+    assert.equal(same_remembered_glyph(otherObject, oneObject), false);
+    assert.equal(same_remembered_glyph(oneObject, { ...oneObject }), true);
 
-    // `glyph` needs its own baseline rather than a row in the table above.
-    // remembered_glyph_from_presentation() answers an integer `glyph` with
-    // `{glyph}` and nothing else, so pairing one against the
-    // presentation-shaped `reference` would differ in every field at once and
-    // would pass however little of the number the comparison read. The two
-    // numbers are what display.h normal_obj_to_glyph() returns for ordinary
-    // objects of type 1 and type 2, neither the top of a pile.
-    const oneObject = from({ glyph: GLYPH_OBJ_OFF + 1 });
-    const otherObject = from({ glyph: GLYPH_OBJ_OFF + 2 });
-    assert.equal(same_remembered_glyph(oneObject, otherObject), false, 'glyph');
-    assert.equal(same_remembered_glyph(otherObject, oneObject), false, 'glyph');
-    assert.equal(same_remembered_glyph(oneObject, oneObject), true, 'glyph');
-    // The two shapes never match each other either, whichever way round.
-    assert.equal(
-        same_remembered_glyph(oneObject, reference), false, 'glyph shape',
-    );
-    assert.equal(
-        same_remembered_glyph(reference, oneObject), false, 'glyph shape',
-    );
+    // Nothing writes `invisible_monster` yet: it stands for C's
+    // GLYPH_INVISIBLE, which only the unported map_invisible() writes, and it
+    // has no number of its own in this port, so it separates a pair on its own.
+    const invisible = { ...oneObject, invisible_monster: true };
+    assert.equal(same_remembered_glyph(oneObject, invisible), false);
+    assert.equal(same_remembered_glyph(invisible, oneObject), false);
+
+    // A missing record on either side is a change; two missing records are not.
+    assert.equal(same_remembered_glyph(null, oneObject), false);
+    assert.equal(same_remembered_glyph(oneObject, null), false);
+    assert.equal(same_remembered_glyph(null, null), true);
 });
 
 test('same_remembered_glyph separates two objects that draw the same cell',
@@ -1878,8 +1995,10 @@ test('same_remembered_glyph separates two objects that draw the same cell',
     // against GLYPH_BODY_OFF + 88.
     const jackal = corpse(PM_JACKAL);
     const rat = corpse(PM_SEWER_RAT);
-    assert.equal(jackal.ch, rat.ch);
-    assert.equal(jackal.color, rat.color);
+    const drawnJackal = remembered_glyph_presentation(jackal, state);
+    const drawnRat = remembered_glyph_presentation(rat, state);
+    assert.equal(drawnJackal.ch, drawnRat.ch);
+    assert.equal(drawnJackal.color, drawnRat.color);
     assert.equal(same_remembered_glyph(jackal, rat), false);
     // Two records for the same species are the same glyph number.
     assert.equal(same_remembered_glyph(jackal, corpse(PM_JACKAL)), true);
@@ -1936,7 +2055,10 @@ test('feel_location keeps its four tactile-state terms apart', () => {
         ttyp: PIT, tx: state.u.ux, ty: state.u.uy, tseen: 1,
     }];
     feel_location(x, y, state);
-    assert.equal(state.level.at(x, y).remembered_glyph.cmap, S_darkroom);
+    assert.equal(
+        glyph_to_cmap(state.level.at(x, y).remembered_glyph.glyph),
+        S_darkroom,
+    );
 });
 
 test('feel_location reveals only an engraving that can be felt', () => {
@@ -1965,15 +2087,18 @@ test('feel_location maps a seen trap, and an object above it', () => {
     const state = feelingHeroBeside(x, y);
     const square = state.level.at(x, y);
     square.typ = ROOM;
-    // PIT is one ordinary floor trap; its ttyp is what map_trap() keeps
-    // beside the presentation.
+    // PIT is one ordinary floor trap.
     const trap = { ttyp: PIT, tx: x, ty: y, tseen: 1 };
     state.level.traps = [trap];
     const trapGlyph = trap_glyph_info(trap, state);
 
     feel_location(x, y, state);
-    assert.equal(square.remembered_glyph.cmap, trapGlyph.cmap);
-    assert.equal(square.remembered_glyph.trapType, PIT);
+    assert.equal(square.remembered_glyph.glyph, trap_to_glyph(trap, state));
+    // rm.h trap_to_defsym() is one cmap index per trap type, so the stored
+    // number names the trap without a second field beside it.
+    assert.equal(
+        defsym_to_trap(glyph_to_cmap(square.remembered_glyph.glyph)), PIT,
+    );
     assert.equal(square.disp_ch, trapGlyph.ch);
 
     // An object on the same square takes the arm above, and the trap identity
@@ -1992,8 +2117,9 @@ test('feel_location maps a seen trap, and an object above it', () => {
     };
     feel_location(x, y, state);
     assert.equal(glyph_is_object(square.remembered_glyph.glyph), true);
-    assert.equal(square.remembered_glyph.trapType ?? null, null);
-    assert.equal(square.remembered_glyph.cmap ?? null, null);
+    // glyphs.c glyph_to_cmap() answers MAXPCHARS, defsyms[]'s fencepost, for
+    // a number in no cmap range: the trap identity is gone with the number.
+    assert.equal(glyph_to_cmap(square.remembered_glyph.glyph), MAXPCHARS);
 });
 
 test('feel_location writes a felt engraving to memory only under hero_memory',
@@ -2019,7 +2145,8 @@ test('feel_location writes a felt engraving to memory only under hero_memory',
             `hero_memory ${heroMemory}`,
         );
         assert.equal(
-            square.remembered_glyph?.cmap ?? null,
+            square.remembered_glyph
+                ? glyph_to_cmap(square.remembered_glyph.glyph) : null,
             heroMemory ? S_engroom : null,
             `hero_memory ${heroMemory}`,
         );
@@ -2038,11 +2165,11 @@ test('feel_location darkens a lit room only under dark_room and colour', () => {
     floor.waslit = true;
     state.flags.dark_room = false;
     feel_location(x, y, state);
-    assert.equal(floor.remembered_glyph.cmap, S_room);
+    assert.equal(glyph_to_cmap(floor.remembered_glyph.glyph), S_room);
 
     state.flags.dark_room = true;
     feel_location(x, y, state);
-    assert.equal(floor.remembered_glyph.cmap, S_darkroom);
+    assert.equal(glyph_to_cmap(floor.remembered_glyph.glyph), S_darkroom);
 
     // C's second operand is `flags.dark_room && iflags.use_color`, so turning
     // colour off puts a square the hero has seen lit back out of reach of the
@@ -2053,13 +2180,13 @@ test('feel_location darkens a lit room only under dark_room and colour', () => {
     // would erase the square from the map rather than merely recolour it.
     state.iflags = { ...state.iflags, wc_color: false };
     feel_location(x, y, state);
-    assert.equal(floor.remembered_glyph.cmap, S_room);
+    assert.equal(glyph_to_cmap(floor.remembered_glyph.glyph), S_room);
 
     // The `!lev->waslit` half still fires without colour, because C's two
     // operands are joined by `||`.
     floor.waslit = false;
     feel_location(x, y, state);
-    assert.equal(floor.remembered_glyph.cmap, S_darkroom);
+    assert.equal(glyph_to_cmap(floor.remembered_glyph.glyph), S_darkroom);
 });
 
 test('feel_location paints a gas cloud only for a hero who can see it', () => {
@@ -2089,7 +2216,10 @@ test('feel_location paints a gas cloud only for a hero who can see it', () => {
         );
         // Either way the region is presentation only: map memory holds what
         // the hero felt underneath it.
-        assert.equal(state.level.at(x, y).remembered_glyph.cmap, S_stone);
+        assert.equal(
+        glyph_to_cmap(state.level.at(x, y).remembered_glyph.glyph),
+        S_stone,
+    );
     }
 });
 
@@ -2380,12 +2510,10 @@ test('out-of-sight objects retain memory without display-RNG work', () => {
         oy: y,
         nexthere: null,
     };
-    const priorMemory = {
-        ch: '?',
-        color: CLR_YELLOW,
-        decgfx: false,
-        displayCh: null,
-    };
+    // Any number outside the object ranges the square could draw for itself,
+    // so that a redraw from memory is visibly not a redraw from the statue.
+    // display.h cmap_to_glyph(S_fountain) is the arbitrary choice.
+    const priorMemory = { glyph: cmap_to_glyph(S_fountain, state) };
     state.level.at(x, y).remembered_glyph = priorMemory;
 
     const seed = 2026072410;
@@ -2397,13 +2525,14 @@ test('out-of-sight objects retain memory without display-RNG work', () => {
 
     const location = state.level.at(x, y);
     assert.deepEqual(location.remembered_glyph, priorMemory);
+    const drawn = map_glyphinfo(priorMemory.glyph, state);
     assert.deepEqual(
         [
             location.disp_ch,
             location.disp_color,
             location.disp_decgfx,
         ],
-        ['?', CLR_YELLOW, false],
+        [drawn.ch, drawn.color, drawn.dec],
     );
     assert.equal(rn2_on_display_rng(NUMMONS), firstDraw);
 });
@@ -2523,7 +2652,7 @@ test('shape-changer protection does not reveal an unsensed invisible mimic',
             mx: x,
             my: y,
         };
-        const expected = terrain_glyph(state.level.at(x, y), x, y, state);
+        const expected = terrainGlyphAt(state.level.at(x, y), x, y, state);
         const seed = 2026072411;
         initRng(seed);
         const firstDraw = rn2_on_display_rng(NUMMONS);
@@ -2808,7 +2937,7 @@ test('monster disguises are transient and preserve display-RNG order', () => {
         };
         state.level.monsters[x][y] = monster;
         const expectedMemory = remembered_glyph_from_presentation(
-            terrain_glyph(state.level.at(x, y), x, y, state),
+            terrainGlyphAt(state.level.at(x, y), x, y, state),
         );
 
         const seed = 2026072413;
@@ -2976,9 +3105,12 @@ test('monster disguises preserve divergent hallucinated statue memory', () => {
         location.remembered_glyph,
         remembered_glyph_from_presentation(expectedMemory),
     );
-    assert.notDeepEqual(
-        location.remembered_glyph,
-        remembered_glyph_from_presentation(expectedFloor),
+    // The transient floor draw is a monster presentation, which carries no
+    // glyph number at all; map memory could not hold it even if the code
+    // above tried to file it there.
+    assert.throws(
+        () => remembered_glyph_from_presentation(expectedFloor),
+        TypeError,
         'the transient statue presentation must not replace its object memory',
     );
     assert.equal(rn2_on_display_rng(NUMMONS), followingDraw);
@@ -3097,7 +3229,7 @@ test('glyph updates describe newly revealed objects, traps, and furniture', asyn
         [object_glyph_info(object, state), 'a chest.'],
         [trap_glyph_info({ ttyp: PIT }, state), 'pit.'],
         [
-            terrain_glyph({ ...location, typ: FOUNTAIN }, x, y, state),
+            terrainGlyphAt({ ...location, typ: FOUNTAIN }, x, y, state),
             'fountain.',
         ],
     ];
@@ -3121,7 +3253,7 @@ test('disabled glyph updates do not decorate ordinary render records', () => {
     state.a11y = { glyph_updates: false };
     init_objects(state, () => 0);
     const records = [
-        terrain_glyph({ ...state.level.at(7, 4), typ: FOUNTAIN }, 7, 4, state),
+        terrainGlyphAt({ ...state.level.at(7, 4), typ: FOUNTAIN }, 7, 4, state),
         object_glyph_info({
             otyp: CHEST,
             oclass: state.objects[CHEST].oc_class,
@@ -3151,20 +3283,20 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
     const second = state.level.at(8, 4);
     const unannounced = state.level.at(9, 4);
     const third = state.level.at(10, 4);
-    const fountain = terrain_glyph(
+    const fountain = terrainGlyphAt(
         { ...first, typ: FOUNTAIN },
         7,
         4,
         state,
     );
     const pit = trap_glyph_info({ ttyp: PIT }, state);
-    const room = terrain_glyph(
+    const room = terrainGlyphAt(
         { ...unannounced, typ: ROOM },
         9,
         4,
         state,
     );
-    const altar = terrain_glyph(
+    const altar = terrainGlyphAt(
         { ...third, typ: ALTAR },
         10,
         4,
@@ -3208,7 +3340,9 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
     assert.deepEqual(messages, [
         '(3south,6east): fountain.',
         '(3south,7east): pit.',
-        '(3south,9east): altar.',
+        // terrainGlyphAt() installs the square, so the map really holds an
+        // unaligned altar and js/startup_a11y.js altarDescription() names it.
+        '(3south,9east): unaligned altar.',
     ]);
     assert.deepEqual(frames, [
         [glyphPresentationRecord(fountain), null, null, null],
@@ -3260,7 +3394,7 @@ test('a dirty same-identity furniture rewrite still queues a notice', async () =
     const state = visibleCellState();
     enableGlyphNotices(state);
     const location = state.level.at(7, 4);
-    const fountain = terrain_glyph(
+    const fountain = terrainGlyphAt(
         { ...location, typ: FOUNTAIN },
         7,
         4,
@@ -3290,7 +3424,7 @@ test('hallucinated water notices consume hliquid display RNG in order', () => {
     state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
     const location = state.level.at(7, 4);
     location.typ = POOL;
-    const pool = terrain_glyph(location, 7, 4, state);
+    const pool = terrainGlyphAt(location, 7, 4, state);
     const seed = 0x71abn;
 
     initRng(seed);
@@ -3765,7 +3899,7 @@ test('protected object mimics describe the buffered zeroobj identity', () => {
     );
 
     const location = state.level.at(x, y);
-    location.remembered_glyph = terrain_glyph(
+    location.remembered_glyph = terrainGlyphAt(
         { ...location, typ: ROOM },
         x,
         y,
@@ -3867,7 +4001,7 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
     );
 
     const location = state.level.at(7, 4);
-    location.remembered_glyph = terrain_glyph(location, 7, 4, state);
+    location.remembered_glyph = terrainGlyphAt(location, 7, 4, state);
     assert.match(
         describeMonster(monster(PM_GARTER_SNAKE), { state }),
         /, hiding under something$/u,
@@ -4390,8 +4524,11 @@ test('newsym maps a visible furniture mimic into display and memory', () => {
     newsym(x, y);
     assert.equal(state.level.at(x, y).disp_ch, '+');
     assert.equal(state.level.at(x, y).disp_color, CLR_BROWN);
-    assert.equal(state.level.at(x, y).remembered_glyph.ch, '+');
-    assert.equal(state.level.at(x, y).remembered_glyph.color, CLR_BROWN);
+    const remembered = remembered_glyph_presentation(
+        state.level.at(x, y).remembered_glyph, state,
+    );
+    assert.equal(remembered.ch, '+');
+    assert.equal(remembered.color, CLR_BROWN);
     assert.equal(state.level.lastseentyp[x][y], DOOR);
 });
 
@@ -4401,12 +4538,10 @@ test('a visible gas region covers the hero without refreshing map memory', () =>
     const y = 4;
     state.level = new GameMap();
     state.level.at(x, y).typ = ROOM;
-    state.level.at(x, y).remembered_glyph = {
-        ch: 'x',
-        color: NO_COLOR,
-        decgfx: false,
-        displayCh: null,
-    };
+    // Any glyph a region draw would not write for itself, so an untouched
+    // memory is visible as such. cmap_to_glyph(S_fountain) is arbitrary.
+    const priorMemory = cmap_to_glyph(S_fountain, state);
+    state.level.at(x, y).remembered_glyph = { glyph: priorMemory };
     state.u = { ux: x, uy: y, umonnum: 0 };
     state.urace = { mnum: 0 };
     state.flags = {};
@@ -4424,7 +4559,7 @@ test('a visible gas region covers the hero without refreshing map memory', () =>
 
     newsym(x, y);
     assert.equal(state.level.at(x, y).disp_ch, '#');
-    assert.equal(state.level.at(x, y).remembered_glyph.ch, 'x');
+    assert.equal(state.level.at(x, y).remembered_glyph.glyph, priorMemory);
 });
 
 test('gas colors and ordinary/disguised monster precedence follow newsym', () => {
@@ -4604,7 +4739,9 @@ test('see invisible keeps a warned detected mimic physically visible', () => {
         'detection alone uses detected presentation',
     );
     assert.equal(
-        state.level.at(x, y).remembered_glyph.ch,
+        remembered_glyph_presentation(
+            state.level.at(x, y).remembered_glyph, state,
+        ).ch,
         '.',
         'DETECTED retains the underlying terrain rather than the disguise',
     );
@@ -4925,12 +5062,16 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     assert.equal(engraving.erevealed, true);
     assert.equal(state.level.at(x, y).disp_ch, '`');
     assert.equal(state.level.at(x, y).disp_color, CLR_BRIGHT_BLUE);
-    assert.deepEqual(state.level.at(x, y).remembered_glyph, {
-        ch: '`',
-        color: CLR_BRIGHT_BLUE,
-        decgfx: false,
-        displayCh: null,
-    });
+    assert.deepEqual(
+        remembered_glyph_presentation(
+            state.level.at(x, y).remembered_glyph, state,
+        ),
+        {
+            ch: '`',
+            color: CLR_BRIGHT_BLUE,
+            dec: false,
+        },
+    );
 
     state.level.objects[x][y] = { otyp: 42, oclass: WEAPON_CLASS };
     newsym(x, y);
@@ -4950,7 +5091,9 @@ test('newsym reveals visible engravings beneath higher-priority layers', () => {
     assert.equal(state.level.at(x, y).disp_color, CLR_BRIGHT_BLUE);
     assert.equal(state.level.at(x, y).disp_attr, ATR_INVERSE);
     assert.equal(
-        state.level.at(x, y).remembered_glyph.attr,
+        remembered_glyph_presentation(
+            state.level.at(x, y).remembered_glyph, state,
+        ).attr,
         ATR_INVERSE,
     );
 
@@ -5106,7 +5249,12 @@ test('newsym layers seen traps below objects and above engravings', () => {
     assert.equal(engraving.erevealed, true);
     assert.equal(state.level.at(x, y).disp_ch, '^');
     assert.equal(state.level.at(x, y).disp_color, CLR_RED);
-    assert.equal(state.level.at(x, y).remembered_glyph.ch, '^');
+    assert.equal(
+        remembered_glyph_presentation(
+            state.level.at(x, y).remembered_glyph, state,
+        ).ch,
+        '^',
+    );
 
     trap.ttyp = PIT;
     state.iflags ??= {};
@@ -5465,13 +5613,16 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
         state.wizard = false;
     }
 
-    // Everything outside the four families is refused rather than resolved
-    // through the arm underneath it.
+    // Everything outside the four object families and the cmap ranges is
+    // refused rather than resolved through the arm underneath it. The zap
+    // range is the one part of glyph_is_cmap()'s contiguous span that this
+    // port has no arm for, so it belongs in this list rather than above.
     for (const glyph of [
         GLYPH_BODY_OFF - 1,
         GLYPH_BODY_OFF + NUMMONS,
         GLYPH_OBJ_OFF - 1,
-        GLYPH_OBJ_OFF + NUM_OBJECTS,
+        GLYPH_ZAP_OFF,
+        GLYPH_ZAP_OFF + (NUM_ZAP << 2) - 1,
         GLYPH_STATUE_MALE_OFF - 1,
         GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS,
     ]) {
@@ -5659,7 +5810,9 @@ test('see_nearby_objects leaves a memory that is not a generic object alone',
         // the memory is caught too. newsym() would replace this trap glyph
         // with the potion's, because an object covers a seen trap.
         assert.deepEqual(state.level.at(10, 12).remembered_glyph, remembered);
-        assert.equal(remembered.ch, '^');
+        assert.equal(
+            remembered_glyph_presentation(remembered, game).ch, '^',
+        );
     });
 
 test('see_nearby_objects refuses a state that is not the global one', () => {
@@ -5696,7 +5849,7 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
     );
 
     assert.deepEqual(
-        terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
+        terrainGlyphAt({ typ: FOUNTAIN }, 7, 4, state),
         {
             ch: null,
             color: CLR_BRIGHT_BLUE,
@@ -5710,7 +5863,7 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
 
     state.iflags = { customcolors: false };
     assert.deepEqual(
-        terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
+        terrainGlyphAt({ typ: FOUNTAIN }, 7, 4, state),
         {
             ch: null,
             color: CLR_BRIGHT_BLUE,
@@ -5722,7 +5875,7 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
 
     state.iflags = { customsymbols: false, customcolors: true };
     assert.deepEqual(
-        terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
+        terrainGlyphAt({ typ: FOUNTAIN }, 7, 4, state),
         {
             ch: '{',
             color: CLR_BRIGHT_BLUE,
@@ -5739,7 +5892,7 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
         wc_color: false,
     };
     assert.deepEqual(
-        terrain_glyph({ typ: FOUNTAIN }, 7, 4, state),
+        terrainGlyphAt({ typ: FOUNTAIN }, 7, 4, state),
         {
             ch: null,
             color: NO_COLOR,
@@ -5774,7 +5927,12 @@ test('Enhanced glyph customization reaches the concrete fountain glyph', () => {
         live.level.at(7, 4).disp_browser_color,
         'rgb(0, 150, 255)',
     );
-    assert.deepEqual(live.level.at(7, 4).remembered_glyph.rgb, [0, 150, 255]);
+    assert.deepEqual(
+        remembered_glyph_presentation(
+            live.level.at(7, 4).remembered_glyph, live,
+        ).rgb,
+        [0, 150, 255],
+    );
 
     live.viz_array[4][7] = 0;
     live.level.at(7, 4).disp_glyph = null;
@@ -5804,7 +5962,7 @@ test('standalone SYMBOLS validates but does not apply G_* customizations', () =>
         'SYMBOLS=G_FoUnTaIn:U+2603,G_vWaLl_SoKoBaN:U+2602',
     ].join('\n'));
     assert.equal(
-        terrain_glyph({ typ: FOUNTAIN }, 7, 4, overridden).displayCh,
+        terrainGlyphAt({ typ: FOUNTAIN }, 7, 4, overridden).displayCh,
         '⌠',
     );
     assert.equal(
@@ -5819,7 +5977,7 @@ test('standalone SYMBOLS validates but does not apply G_* customizations', () =>
         'OPTIONS=symset:Enhanced1',
     ].join('\n'));
     assert.equal(
-        terrain_glyph({ typ: FOUNTAIN }, 7, 4, resetBySelection).displayCh,
+        terrainGlyphAt({ typ: FOUNTAIN }, 7, 4, resetBySelection).displayCh,
         '⌠',
     );
 
@@ -8055,3 +8213,479 @@ test('flush_screen takes timebot when only the turn counter is marked',
         await flush_screen(1);
         assert.match(statusRow(), new RegExp(`HP:${game.u.uhp}\\b`, 'u'));
     });
+
+// ── display.h cmap glyph numbers ──
+
+// The dungeon position cmap_walls_to_glyph() reads, made explicit. The three
+// branch numbers are dungeon.c's own d_*_dnum topology fields, and the
+// hellish flag is what In_hell() reads. js/const.js In_mines(), In_sokoban()
+// and Is_knox_level() read those fields off the module-global game rather than
+// off a threaded state, as C reads svd.dungeon_topology, so this installs the
+// state as that global.
+function branchedState({ dnum = 0, dlevel = 1, hellish = false } = {}) {
+    const state = resetGame();
+    state.level = new GameMap();
+    initialize_symbols_from_options({ flags: {} }, state);
+    state.u = { uz: { dnum, dlevel } };
+    state.dungeons = [
+        { flags: {} }, { flags: {} }, { flags: {} }, { flags: {} },
+    ];
+    state.dungeons[dnum] = { flags: { hellish } };
+    state.mines_dnum = 1;
+    state.sokoban_dnum = 2;
+    state.knox_level = { dnum: 3, dlevel: 1 };
+    return state;
+}
+
+test('cmap_to_glyph walks display.h\'s six arms in order', () => {
+    // display.h:621-628. Each expectation is the arm's own arithmetic, spelled
+    // out rather than recomputed by the code under test.
+    const state = branchedState();
+    assert.equal(cmap_to_glyph(S_stone, state), GLYPH_CMAP_STONE_OFF);
+    // A wall in the main dungeon: cmap_walls_to_glyph(), whose base is
+    // GLYPH_CMAP_MAIN_OFF here.
+    assert.equal(
+        cmap_to_glyph(S_trwall, state),
+        (S_trwall - S_vwall) + GLYPH_CMAP_MAIN_OFF,
+    );
+    // Everything from S_ndoor up to but excluding S_altar is cmap A.
+    assert.equal(cmap_to_glyph(S_ndoor, state), GLYPH_CMAP_A_OFF);
+    assert.equal(
+        cmap_to_glyph(S_brdnladder, state),
+        (S_brdnladder - S_ndoor) + GLYPH_CMAP_A_OFF,
+    );
+    // S_altar carries no alignment, so the macro chooses the neutral altar.
+    assert.equal(
+        cmap_to_glyph(S_altar, state), GLYPH_ALTAR_OFF + altar_neutral,
+    );
+    // Cmap B runs from S_grave to the last trap symbol.
+    assert.equal(cmap_to_glyph(S_grave, state), GLYPH_CMAP_B_OFF);
+    assert.equal(
+        cmap_to_glyph(S_arrow_trap + MAXTCHARS - 1, state),
+        (S_arrow_trap + MAXTCHARS - 1 - S_grave) + GLYPH_CMAP_B_OFF,
+    );
+    // Cmap C runs from S_digbeam to S_goodpos, skipping the zap symbols
+    // between it and cmap B.
+    assert.equal(cmap_to_glyph(S_digbeam, state), GLYPH_CMAP_C_OFF);
+    assert.equal(
+        cmap_to_glyph(S_goodpos, state),
+        (S_goodpos - S_digbeam) + GLYPH_CMAP_C_OFF,
+    );
+    // Past the last cmap index there is no glyph. S_sw_tl is the first
+    // swallow symbol, which cmap_to_glyph() deliberately cannot name.
+    assert.equal(cmap_to_glyph(S_goodpos + 1, state), NO_GLYPH);
+    // The one boundary whose answer is unusable either way. C's cmap B test
+    // ends at S_arrow_trap + MAXTCHARS, which is S_vbeam, the first zap
+    // symbol; the chain hands it to the cmap C arm instead, whose subtraction
+    // from S_digbeam goes negative. C has no arm that can name a zap symbol
+    // and this transcribes the boundary rather than inventing one.
+    assert.equal(
+        cmap_to_glyph(S_arrow_trap + MAXTCHARS, state),
+        cmap_c_to_glyph(S_arrow_trap + MAXTCHARS),
+    );
+});
+
+test('cmap_walls_to_glyph reads the branch the hero is standing in', () => {
+    // display.h:598-604, tested in its own order: mines first, then hell,
+    // then Knox, then Sokoban, with the main dungeon as the default.
+    for (const [label, options, base] of [
+        ['main', {}, GLYPH_CMAP_MAIN_OFF],
+        ['mines', { dnum: 1 }, GLYPH_CMAP_MINES_OFF],
+        ['gehennom', { dnum: 0, hellish: true }, GLYPH_CMAP_GEH_OFF],
+        ['knox', { dnum: 3 }, GLYPH_CMAP_KNOX_OFF],
+        ['sokoban', { dnum: 2 }, GLYPH_CMAP_SOKO_OFF],
+    ]) {
+        const state = branchedState(options);
+        assert.equal(cmap_walls_to_glyph(S_vwall, state), base, label);
+        assert.equal(
+            cmap_walls_to_glyph(S_trwall, state),
+            (S_trwall - S_vwall) + base,
+            label,
+        );
+        // The whole chain routes a wall index through the same arm.
+        assert.equal(cmap_to_glyph(S_hwall, state), (S_hwall - S_vwall) + base,
+            label);
+    }
+    // Mines wins over hell, which is C's order and not an alphabetical one:
+    // the Mines' End levels are not hellish, but the test pins the precedence
+    // rather than the dungeon that happens to reach it.
+    assert.equal(
+        cmap_walls_to_glyph(S_vwall, branchedState({
+            dnum: 1, hellish: true,
+        })),
+        GLYPH_CMAP_MINES_OFF,
+    );
+});
+
+test('altar_to_glyph reads the sanctum bit before the alignment', () => {
+    // display.h:569-579 over enum altar_types (346-352). AM_SANCTUM is tested
+    // first and as a whole mask, so a sanctum altar of any alignment is
+    // "other"; everything the three alignment tests miss is unaligned.
+    assert.equal(altar_to_glyph(AM_LAWFUL), GLYPH_ALTAR_OFF + altar_lawful);
+    assert.equal(altar_to_glyph(AM_NEUTRAL), GLYPH_ALTAR_OFF + altar_neutral);
+    assert.equal(altar_to_glyph(AM_CHAOTIC), GLYPH_ALTAR_OFF + altar_chaotic);
+    assert.equal(altar_to_glyph(0), GLYPH_ALTAR_OFF + altar_unaligned);
+    assert.equal(
+        altar_to_glyph(AM_SANCTUM | AM_LAWFUL), GLYPH_ALTAR_OFF + altar_other,
+    );
+    // AM_MASK is three bits with four defined values; the four that are not
+    // defined all fall to unaligned rather than off the end of the range.
+    assert.equal(altar_to_glyph(AM_MASK), GLYPH_ALTAR_OFF + altar_unaligned);
+});
+
+test('glyph_is_cmap answers TRUE for a zap glyph, as display.h:723 does', () => {
+    // The compiled macro is one contiguous span and the `#if 0` decomposition
+    // above it is not; GLYPH_ZAP_OFF sits inside the span, so the two differ
+    // in result. glyphs.c:983 spells the disjunction that makes that visible.
+    assert.equal(glyph_is_cmap(GLYPH_CMAP_STONE_OFF), true);
+    assert.equal(glyph_is_cmap(GLYPH_CMAP_STONE_OFF - 1), false);
+    assert.equal(glyph_is_cmap(GLYPH_ZAP_OFF), true);
+    assert.equal(glyph_is_cmap(GLYPH_ZAP_OFF + (NUM_ZAP << 2) - 1), true);
+    const lastCmapC = GLYPH_CMAP_C_OFF + (S_goodpos - S_digbeam);
+    assert.equal(glyph_is_cmap(lastCmapC), true);
+    assert.equal(glyph_is_cmap(lastCmapC + 1), false);
+
+    // display.h:699-700, the one per-range predicate the port needs.
+    assert.equal(glyph_is_cmap_zap(GLYPH_ZAP_OFF - 1), false);
+    assert.equal(glyph_is_cmap_zap(GLYPH_ZAP_OFF), true);
+    assert.equal(
+        glyph_is_cmap_zap(GLYPH_ZAP_OFF + (NUM_ZAP << 2) - 1), true,
+    );
+    assert.equal(glyph_is_cmap_zap(GLYPH_ZAP_OFF + (NUM_ZAP << 2)), false);
+});
+
+test('glyph_to_cmap inverts cmap_to_glyph where the number allows', () => {
+    // glyphs.c:199-231. Two places are lossy by construction: every branch's
+    // walls come back as the main dungeon's indices, and all five altars come
+    // back as S_altar.
+    const state = branchedState();
+    for (const cmap of [
+        S_stone, S_vwall, S_trwall, S_ndoor, S_brdnladder, S_grave,
+        S_fountain, S_digbeam, S_goodpos,
+    ]) {
+        assert.equal(
+            glyph_to_cmap(cmap_to_glyph(cmap, state)), cmap, `cmap ${cmap}`,
+        );
+    }
+    for (const options of [{ dnum: 1 }, { dnum: 2 }, { dnum: 3 }]) {
+        assert.equal(
+            glyph_to_cmap(cmap_walls_to_glyph(S_hwall, branchedState(options))),
+            S_hwall,
+        );
+    }
+    for (let type = 0; type < 5; ++type)
+        assert.equal(glyph_to_cmap(GLYPH_ALTAR_OFF + type), S_altar);
+    // Everything outside the cmap ranges, and the zap range inside them,
+    // answers defsyms[]'s fencepost entry.
+    assert.equal(glyph_to_cmap(GLYPH_OBJ_OFF), MAXPCHARS);
+    assert.equal(glyph_to_cmap(GLYPH_ZAP_OFF), MAXPCHARS);
+    assert.equal(glyph_to_cmap(GLYPH_CMAP_STONE_OFF - 1), MAXPCHARS);
+});
+
+test('trap and engraving glyph numbers come from their own cmap indices', () => {
+    // display.h:630-634 over rm.h trap_to_defsym() and engrave.h
+    // engraving_to_defsym(). PIT and WEB are two ordinary trap types.
+    const state = branchedState();
+    for (const ttyp of [PIT, WEB]) {
+        assert.equal(
+            trap_to_glyph({ ttyp }, state),
+            cmap_to_glyph(S_arrow_trap + ttyp - 1, state),
+            `trap ${ttyp}`,
+        );
+    }
+    // engraving_to_defsym() reads the terrain under the engraving, not the
+    // engraving, so the same record answers differently on two squares.
+    state.level.at(7, 4).typ = CORR;
+    state.level.at(8, 4).typ = ROOM;
+    assert.equal(
+        engraving_to_glyph({ engr_x: 7, engr_y: 4 }, state),
+        cmap_to_glyph(S_engrcorr, state),
+    );
+    assert.equal(
+        engraving_to_glyph({ engr_x: 8, engr_y: 4 }, state),
+        cmap_to_glyph(S_engroom, state),
+    );
+});
+
+test('map_glyphinfo colours every cmap arm from its own source table', () => {
+    // display.c reset_glyphmap()'s cmap arms (2884-2984) over its
+    // cmap_color(), wall_color() and altar_color() macros (2684-2694). Each
+    // expectation is the defsym.h, wallcolors[] or altarcolors[] value.
+    const state = branchedState();
+    state.iflags = { wc_color: true };
+    const colorOf = (glyph) => map_glyphinfo(glyph, state).color;
+    // cmap_color(), which reads defsyms[].color for cmaps A, B, C and stone.
+    assert.equal(colorOf(cmap_to_glyph(S_vodoor, state)), CLR_BROWN);
+    assert.equal(colorOf(cmap_to_glyph(S_fountain, state)), CLR_BRIGHT_BLUE);
+    assert.equal(colorOf(cmap_to_glyph(S_lavawall, state)), CLR_ORANGE);
+    assert.equal(colorOf(cmap_to_glyph(S_poisoncloud, state)), CLR_BRIGHT_GREEN);
+    // S_stone and S_room are both NO_COLOR on the wire: defsym.h gives the
+    // first NO_COLOR outright and the second CLR_GRAY, which recorder patch
+    // 006 serializes as the terminal default.
+    assert.equal(colorOf(cmap_to_glyph(S_stone, state)), NO_COLOR);
+    assert.equal(colorOf(cmap_to_glyph(S_room, state)), NO_COLOR);
+    // wall_color(), whose table display.c leaves at CLR_GRAY for all five
+    // branches; the four branch ranges have no other source of colour.
+    for (const options of [
+        {}, { dnum: 1 }, { dnum: 2 }, { dnum: 3 }, { dnum: 0, hellish: true },
+    ]) {
+        const branch = branchedState(options);
+        branch.iflags = { wc_color: true };
+        assert.equal(
+            map_glyphinfo(cmap_walls_to_glyph(S_vwall, branch), branch).color,
+            NO_COLOR,
+        );
+    }
+    // altar_color(), display.h enum altar_colors (290-311) without
+    // USE_GENERAL_ALTAR_COLORS: three aligned altars share CLR_GRAY.
+    assert.equal(colorOf(GLYPH_ALTAR_OFF + altar_unaligned), CLR_RED);
+    assert.equal(colorOf(GLYPH_ALTAR_OFF + altar_chaotic), NO_COLOR);
+    assert.equal(colorOf(GLYPH_ALTAR_OFF + altar_neutral), NO_COLOR);
+    assert.equal(colorOf(GLYPH_ALTAR_OFF + altar_lawful), NO_COLOR);
+    assert.equal(colorOf(GLYPH_ALTAR_OFF + altar_other), CLR_BRIGHT_MAGENTA);
+    // The closing clamp: with colour off every arm answers NO_COLOR.
+    state.iflags = { wc_color: false };
+    assert.equal(colorOf(cmap_to_glyph(S_vodoor, state)), NO_COLOR);
+    assert.equal(colorOf(GLYPH_ALTAR_OFF + altar_unaligned), NO_COLOR);
+});
+
+test('map_glyphinfo keeps the two black-and-white gates apart', () => {
+    // The asymmetry display.c reset_glyphmap() has between its two arms.
+    // CMAP_B computes MG_BW_LAVA, MG_BW_ICE and MG_BW_SINK only inside
+    // `if (!iflags.use_color)` (2909-2929); CMAP_A raises MG_BW_ENGR in the
+    // else branch of its rogue-colour test (2953-2958), whatever the colour
+    // option says. Both bits reach the screen through
+    // wintty.c tty_print_glyph()'s iflags.use_inverse arm.
+    //
+    // defsym.h gives each pair the same byte out of the box: S_lava and
+    // S_pool are both '}', S_ice and S_room are both '.', S_sink and
+    // S_fountain are both '{', and S_engrcorr and S_corr are both '#'.
+    const state = branchedState();
+    const attrOf = (cmap) => map_glyphinfo(cmap_to_glyph(cmap, state), state)
+        .attr ?? 0;
+
+    state.iflags = { wc_color: true, wc_inverse: true };
+    for (const cmap of [S_lava, S_lavawall, S_ice, S_sink])
+        assert.equal(attrOf(cmap), 0, `cmap ${cmap} with colour on`);
+    assert.equal(attrOf(S_engrcorr), ATR_INVERSE, 'engraving with colour on');
+
+    state.iflags = { wc_color: false, wc_inverse: true };
+    for (const cmap of [S_lava, S_lavawall, S_ice, S_sink])
+        assert.equal(attrOf(cmap), ATR_INVERSE, `cmap ${cmap} with colour off`);
+    assert.equal(attrOf(S_engrcorr), ATR_INVERSE, 'engraving with colour off');
+    // The three pairs are the only ones the switch names: a corridor draws
+    // '#' like the engraving does and still takes no attribute, because
+    // S_corr is not one of its cases.
+    assert.equal(attrOf(S_corr), 0);
+
+    // tty_print_glyph()'s own gate, which is separate from both of the above.
+    state.iflags = { wc_color: false, wc_inverse: false };
+    for (const cmap of [S_lava, S_ice, S_sink, S_engrcorr])
+        assert.equal(attrOf(cmap), 0, `cmap ${cmap} without inverse`);
+
+    // A symbol set that separates the pair takes the bit away again.
+    const separated = branchedState();
+    initialize_symbols_from_options(
+        parseNethackrc('SYMBOLS=S_lava:L,S_ice:I,S_sink:K,S_engrcorr:E'),
+        separated,
+    );
+    separated.iflags = { wc_color: false, wc_inverse: true };
+    for (const cmap of [S_lava, S_ice, S_sink, S_engrcorr]) {
+        assert.equal(
+            map_glyphinfo(cmap_to_glyph(cmap, separated), separated).attr ?? 0,
+            0,
+            `cmap ${cmap} with its own symbol`,
+        );
+    }
+});
+
+test('map_glyphinfo brightens a lit corridor drawn with the dark byte', () => {
+    // display.c:2949-2952. S_corr and S_litcorr are both '#' in defsym.h, so
+    // the recolour is the only thing that keeps them apart.
+    const state = branchedState();
+    state.iflags = { wc_color: true };
+    assert.equal(
+        map_glyphinfo(cmap_to_glyph(S_litcorr, state), state).color,
+        CLR_WHITE,
+    );
+    // Give the lit corridor a byte of its own and defsyms[].color answers
+    // instead, which is CLR_GRAY and so the terminal default on the wire.
+    const separated = branchedState();
+    initialize_symbols_from_options(
+        parseNethackrc('SYMBOLS=S_litcorr:L'), separated,
+    );
+    separated.iflags = { wc_color: true };
+    assert.equal(
+        map_glyphinfo(cmap_to_glyph(S_litcorr, separated), separated).color,
+        NO_COLOR,
+    );
+});
+
+test('map_glyphinfo resolves GLYPH_NOTHING to the blank the symset gives it',
+    () => {
+    // display.c:2774-2777, the first arm of C's chain. reglyph_darkroom()
+    // is the ported writer of that number.
+    const state = branchedState();
+    state.iflags = { wc_color: true };
+    const nothing = map_glyphinfo(GLYPH_NOTHING_OFF, state);
+    assert.deepEqual(
+        { ch: nothing.ch, color: nothing.color, dec: nothing.dec },
+        { ch: ' ', color: NO_COLOR, dec: false },
+    );
+    // GLYPH_UNEXPLORED sits directly below it and has no ported writer, so it
+    // is refused rather than resolved through the arm underneath.
+    assert.throws(
+        () => map_glyphinfo(GLYPH_UNEXPLORED_OFF, state), TypeError,
+    );
+});
+
+test('back_to_glyph fixes a wall\'s branch where the square is recorded', () => {
+    // display.c back_to_glyph() (2286-2427) ends in cmap_to_glyph(), whose
+    // wall arm reads u.uz. The number therefore records the branch, and a
+    // repaint after the hero has left cannot change it.
+    const state = branchedState({ dnum: 1 });
+    Object.assign(state.level.at(7, 4), { typ: VWALL, seenv: SVALL });
+    const inTheMines = back_to_glyph(7, 4, state);
+    assert.equal(inTheMines, cmap_walls_to_glyph(S_vwall, state));
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    assert.notEqual(back_to_glyph(7, 4, state), inTheMines);
+
+    // Its one bypass: an altar's alignment picks one of five numbers, which
+    // no single cmap index can name.
+    Object.assign(state.level.at(8, 4), { typ: ALTAR, altarmask: AM_CHAOTIC });
+    assert.equal(
+        back_to_glyph(8, 4, state), GLYPH_ALTAR_OFF + altar_chaotic,
+    );
+    Object.assign(
+        state.level.at(9, 4), { typ: ALTAR, altarmask: AM_SANCTUM | AM_LAWFUL },
+    );
+    assert.equal(back_to_glyph(9, 4, state), GLYPH_ALTAR_OFF + altar_other);
+
+    // display.c:2325-2334 reads the doormask three ways, and struct rm aliases
+    // it with `flags`; new level generation fills the second. All three arms
+    // have to see the value, not only the closed-door default at the bottom.
+    for (const [flags, horizontal, expected] of [
+        [D_BROKEN, false, S_ndoor],
+        [D_ISOPEN, false, S_vodoor],
+        [D_ISOPEN, true, S_hodoor],
+        [D_CLOSED, false, S_vcdoor],
+        [D_CLOSED, true, S_hcdoor],
+        [0, false, S_ndoor],
+    ]) {
+        Object.assign(
+            state.level.at(10, 4),
+            makeLocation(), { typ: DOOR, flags, horizontal },
+        );
+        assert.equal(
+            back_to_glyph(10, 4, state),
+            cmap_to_glyph(expected, state),
+            `doormask ${flags} horizontal ${horizontal}`,
+        );
+    }
+});
+
+test('each black-and-white cue reads both of its own comparisons', () => {
+    // display.c:2911-2925 asks two symbol questions for lava and two for ice,
+    // and defsym.h answers both the same way out of the box: S_pool and
+    // S_water are both '}', S_room and S_darkroom are both '.'. A symbol set
+    // that separates one of each pair is what tells the two disjuncts apart.
+    for (const [rc, cases] of [
+        // Water alone moves, so S_lava still matches S_pool.
+        ['SYMBOLS=S_water:W', [[S_lava, ATR_INVERSE], [S_ice, ATR_INVERSE]]],
+        // Pool alone moves, so S_lava now matches only S_water.
+        ['SYMBOLS=S_pool:P', [[S_lava, ATR_INVERSE], [S_ice, ATR_INVERSE]]],
+        // Both move, so neither comparison can succeed.
+        ['SYMBOLS=S_water:W,S_pool:P', [[S_lava, 0], [S_ice, ATR_INVERSE]]],
+        ['SYMBOLS=S_darkroom:D', [[S_lava, ATR_INVERSE], [S_ice, ATR_INVERSE]]],
+        ['SYMBOLS=S_room:R', [[S_lava, ATR_INVERSE], [S_ice, ATR_INVERSE]]],
+        ['SYMBOLS=S_room:R,S_darkroom:D', [[S_lava, ATR_INVERSE], [S_ice, 0]]],
+    ]) {
+        const state = branchedState();
+        initialize_symbols_from_options(parseNethackrc(rc), state);
+        state.iflags = { wc_color: false, wc_inverse: true };
+        for (const [cmap, expected] of cases) {
+            assert.equal(
+                map_glyphinfo(cmap_to_glyph(cmap, state), state).attr ?? 0,
+                expected,
+                `${rc} cmap ${cmap}`,
+            );
+        }
+    }
+
+    // The same for MG_BW_ENGR's pair at display.c:2955-2957: an engraving
+    // matching either the dark or the lit corridor byte takes the bit.
+    for (const [rc, expected] of [
+        ['SYMBOLS=S_litcorr:L', ATR_INVERSE],
+        ['SYMBOLS=S_corr:C', ATR_INVERSE],
+        ['SYMBOLS=S_corr:C,S_litcorr:L', 0],
+    ]) {
+        const state = branchedState();
+        initialize_symbols_from_options(parseNethackrc(rc), state);
+        state.iflags = { wc_color: true, wc_inverse: true };
+        assert.equal(
+            map_glyphinfo(cmap_to_glyph(S_engrcorr, state), state).attr ?? 0,
+            expected,
+            rc,
+        );
+    }
+});
+
+test('map_glyphinfo enters each cmap range at its own first glyph', () => {
+    // display.c reset_glyphmap()'s chain subtracts each offset in turn and
+    // takes the first arm whose difference is not negative, so the first
+    // glyph of every range is the one that separates its arm from the arm
+    // below. The cmap index each arm drew from is what says which one ran.
+    const state = branchedState();
+    state.iflags = { wc_color: true };
+    state.a11y = { glyph_updates: true };
+    for (const [base, cmap, label] of [
+        [GLYPH_CMAP_C_OFF, S_digbeam, 'cmap C'],
+        [GLYPH_CMAP_B_OFF, S_grave, 'cmap B'],
+        [GLYPH_ALTAR_OFF, S_altar, 'altar'],
+        [GLYPH_CMAP_A_OFF, S_ndoor, 'cmap A'],
+        [GLYPH_CMAP_SOKO_OFF, S_vwall, 'sokoban walls'],
+        [GLYPH_CMAP_KNOX_OFF, S_vwall, 'knox walls'],
+        [GLYPH_CMAP_GEH_OFF, S_vwall, 'gehennom walls'],
+        [GLYPH_CMAP_MINES_OFF, S_vwall, 'mines walls'],
+        [GLYPH_CMAP_MAIN_OFF, S_vwall, 'main walls'],
+        [GLYPH_CMAP_STONE_OFF, S_stone, 'stone'],
+    ]) {
+        assert.equal(
+            map_glyphinfo(base, state).a11ySubject.symbol, cmap, label,
+        );
+    }
+    // The altar arm is the one whose five glyphs differ from each other, and
+    // altarcolors[] is what separates them.
+    assert.equal(
+        map_glyphinfo(GLYPH_ALTAR_OFF + altar_unaligned, state).color, CLR_RED,
+    );
+    assert.equal(
+        map_glyphinfo(GLYPH_ALTAR_OFF + altar_other, state).color,
+        CLR_BRIGHT_MAGENTA,
+    );
+});
+
+test('a cmap glyph carries the accessibility kind its index falls in', () => {
+    // The port's own classification, which js/startup_a11y.js reads off the
+    // glyph. Each pair below is a range boundary, so a comparison that moved
+    // by one would reclassify exactly one of them.
+    const state = branchedState();
+    state.iflags = { wc_color: true };
+    state.a11y = { glyph_updates: true };
+    const kindOf = (cmap) => map_glyphinfo(
+        cmap_to_glyph(cmap, state), state,
+    ).a11yKind;
+    assert.equal(kindOf(S_stone), 'wall');
+    assert.equal(kindOf(S_trwall), 'wall');
+    assert.equal(kindOf(S_ndoor), 'cmap');
+    assert.equal(kindOf(S_room), 'room');
+    assert.equal(kindOf(S_darkroom), 'room');
+    assert.equal(kindOf(S_engroom), 'cmap');
+    assert.equal(kindOf(S_upstair), 'furniture');
+    assert.equal(kindOf(S_fountain), 'furniture');
+    assert.equal(kindOf(S_dnladder), 'furniture');
+    // S_grave and S_sink sit inside the same run, so "furniture" reaches past
+    // the staircases into cmap B; S_pool is the first index past its end.
+    assert.equal(kindOf(S_grave), 'furniture');
+    assert.equal(kindOf(S_pool), 'cmap');
+});

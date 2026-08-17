@@ -30,16 +30,18 @@ import { SPFX_SEARCH } from './artifacts.js';
 import { exercise } from './attrib.js';
 import { cmdSafetyPrevention } from './cmd.js';
 import {
+    back_to_glyph,
     cls,
     docrt,
     glyph_is_invisible,
     hero_glyph_info,
+    map_glyphinfo,
     newsym,
     object_glyph_info,
     remembered_glyph_from_presentation,
     show_glyph_cell,
-    terrain_glyph,
     trap_glyph_info,
+    trap_to_glyph,
     unmap_invisible,
 } from './display.js';
 import { on_level } from './dungeon.js';
@@ -172,27 +174,15 @@ function defaultSearchDisplay(x, y, env) {
 // C ref: display.c _map_location().  Every location admitted by this
 // automatic-search owner is a converted adjacent door/corridor or an ordinary
 // floor trap, so the reachable layer order is object, seen trap, terrain.
-// Keep the trap owner beside its presentation so tactile memory can retain its
-// logical identity when custom symbols make two glyphs look identical.
+// The trap identity that used to travel beside the presentation is gone with
+// the presentation: display.h trap_to_glyph() gives each trap type its own
+// glyph number, so the number map memory stores names the trap on its own.
 function mappedSearchLayer(x, y, state) {
     const object = state.level.objects?.[x]?.[y] ?? null;
-    if (object) {
-        return {
-            glyph: object_glyph_info(object, state),
-            trap: null,
-        };
-    }
+    if (object) return object_glyph_info(object, state);
     const trap = t_at(x, y, state);
-    if (trap?.tseen) {
-        return {
-            glyph: trap_glyph_info(trap, state),
-            trap,
-        };
-    }
-    return {
-        glyph: terrain_glyph(state.level.at(x, y), x, y, state),
-        trap: null,
-    };
+    if (trap?.tseen) return trap_glyph_info(trap, state);
+    return map_glyphinfo(back_to_glyph(x, y, state), state);
 }
 
 // C ref: display.c feel_location(), specialized to the reachable-floor,
@@ -267,13 +257,9 @@ function defaultFeelSearchLocation(x, y, env) {
     const engraving = engr_at(x, y, state);
     if (engraving && engr_can_be_felt(engraving)) engraving.erevealed = 1;
 
-    const layer = mappedSearchLayer(x, y, state);
-    const { glyph } = layer;
+    const glyph = mappedSearchLayer(x, y, state);
     if (state.level.flags?.hero_memory)
-        location.remembered_glyph = remembered_glyph_from_presentation(
-            glyph,
-            layer.trap,
-        );
+        location.remembered_glyph = remembered_glyph_from_presentation(glyph);
     show_glyph_cell(x, y, glyph);
     if (state.level.lastseentyp?.[x])
         state.level.lastseentyp[x][y] = location.typ;
@@ -293,7 +279,7 @@ async function defaultFoundTrapDisplay(trap, x, y, env) {
         const remembered = env.state.level.at(x, y).remembered_glyph;
         return Boolean(
             env.state.level.flags?.hero_memory
-            && remembered?.trapType === trap.ttyp,
+            && remembered?.glyph === trap_to_glyph(trap, env.state),
         );
     }
     if (layer?.kind) {

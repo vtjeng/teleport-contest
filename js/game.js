@@ -29,16 +29,13 @@ export function makeLocation() {
         gnew: 0,           // dirty flag for flush_glyph_buf
         glyph_symidx: -1,  // S_* symbol index
         // C ref: rm.h struct rm's `glyph`. js/display.js
-        // remembered_glyph_from_presentation() builds it, and it holds one of
-        // two shapes because one layer has converted to what C stores and the
-        // rest have not. An object square holds `{glyph}` alone: C's own
-        // levl[x][y].glyph number, re-resolved by js/display.js
-        // map_glyphinfo() at every draw. Every other layer holds a drawn
-        // presentation, resolved under the option values in force when the
-        // square was recorded, plus the canonical marks a presentation cannot
-        // carry -- `cmap`, `trapType`, `a11yIdentity`, `a11ySubject`.
-        // js/display.js remembered_glyph_presentation() is the seam that tells
-        // the two apart; `undefined` means the hero remembers nothing here.
+        // remembered_glyph_from_presentation() builds it, and it holds
+        // `{glyph}`: C's own levl[x][y].glyph number, unresolved, which
+        // js/display.js map_glyphinfo() turns back into a character, a colour
+        // and an attribute at every draw. The two accessibility sidecars
+        // `a11yIdentity` and `a11ySubject` ride along non-enumerably, because
+        // they describe what the square holds rather than how it is drawn.
+        // `undefined` means the hero remembers nothing here.
         remembered_glyph: undefined,
     };
 }

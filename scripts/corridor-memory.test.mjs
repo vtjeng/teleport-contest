@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { COLNO, CORR, ROOM, ROWNO } from '../js/const.js';
+import { glyph_to_cmap } from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { allopt } from '../js/optlist_data.js';
@@ -61,7 +62,8 @@ function rememberedTerrain() {
     for (let x = 1; x < COLNO; x++) {
         for (let y = 0; y < ROWNO; y++) {
             const location = game.level.at(x, y);
-            const cmap = location?.remembered_glyph?.cmap;
+            const cmap = location?.remembered_glyph
+                ? glyph_to_cmap(location.remembered_glyph.glyph) : undefined;
             if (cmap === undefined) continue;
             cmaps.set(cmap, (cmaps.get(cmap) ?? 0) + 1);
             if (location.typ === CORR) corridorSquares += 1;

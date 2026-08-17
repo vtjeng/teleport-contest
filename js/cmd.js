@@ -44,7 +44,6 @@ import { dosearch, UnsupportedSearchError } from './detect.js';
 import {
     bot,
     flush_screen,
-    UnsupportedGlyphRepairError,
     UnsupportedMapMemoryError,
     UnsupportedTransientDisplayError,
 } from './display.js';
@@ -1313,12 +1312,6 @@ export function failClosedCommandRefusals() {
         // anything, so an unported option value stops with no output; its
         // pick loop stops after the player has committed a selection.
         UnsupportedOptionMenuError,
-        // display.c reglyph_darkroom() sits one frame below the second of
-        // those: options.c reset_needed_visuals() calls it once the pick loop
-        // has applied every selection, so a toggle that raises
-        // go.opt_need_redraw reaches it under 'OPTIONS=!color' or
-        // 'OPTIONS=!dark_room'.
-        UnsupportedGlyphRepairError,
         // display.c unmap_object() raises this for a square that shows an
         // engraving, which hack.c domove_fight_empty() is the one ported
         // caller that can reach.

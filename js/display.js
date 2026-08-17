@@ -10,7 +10,7 @@ import { game } from './gstate.js';
 import { known_branch_stairs, stairway_at } from './stairs.js';
 import { effective_attribute } from './attrib.js';
 import { near_capacity } from './hack.js';
-import { depth, on_level, update_lastseentyp } from './dungeon.js';
+import { In_hell, depth, on_level, update_lastseentyp } from './dungeon.js';
 import { money_cnt } from './invent.js';
 import { cansee, seenv_matrix, vision_recalc } from './vision.js';
 // js/tty_message.js imports flush_screen() from this file; both sides use the
@@ -45,12 +45,13 @@ import {
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
     IS_STWALL, isok, u_at,
     BEAR_TRAP, NO_TRAP, WEB, is_pit,
+    In_mines, In_sokoban, Is_knox_level, MAXTCHARS,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
     WM_MASK, WM_C_OUTER, WM_C_INNER,
     WM_W_LEFT, WM_W_RIGHT, WM_W_TOP, WM_W_BOTTOM,
     WM_T_LONG, WM_T_BL, WM_T_BR,
     WM_X_TL, WM_X_TR, WM_X_BL, WM_X_BR, WM_X_TLBR, WM_X_BLTR,
-    HI_DOMESTIC, HI_METAL, M_AP_FURNITURE, M_AP_OBJECT, M_AP_MONSTER,
+    HI_DOMESTIC, M_AP_FURNITURE, M_AP_OBJECT, M_AP_MONSTER,
     M_AP_TYPMASK, MON_STILL_ARRIVING, WARN_OF_MON,
     SYM_BOULDER, SYM_NOTHING, SYM_PET_OVERRIDE, SYM_HERO_OVERRIDE,
     WARNING, WARNCOUNT,
@@ -64,19 +65,11 @@ import {
     ATR_UNDERLINE,
     NO_COLOR,
     CLR_BLACK,
-    CLR_BLUE,
     CLR_BRIGHT_GREEN,
-    CLR_BROWN,
-    CLR_BRIGHT_BLUE,
     CLR_BRIGHT_MAGENTA,
-    CLR_CYAN,
-    CLR_GREEN,
     CLR_GRAY,
-    CLR_MAGENTA,
-    CLR_ORANGE,
     CLR_RED,
     CLR_WHITE,
-    CLR_YELLOW,
     DEC_TO_UNICODE,
 } from './terminal.js';
 import { rankOf } from './roles.js';
@@ -135,7 +128,11 @@ import {
     object_class_symbol,
     optional_misc_symbol,
     symbol_at,
+    MAXPCHARS,
     SYM_OFF_W,
+    S_arrow_trap,
+    S_digbeam,
+    S_goodpos,
     S_stone,
     S_bars,
     S_tree,
@@ -189,15 +186,32 @@ import {
     trap_to_defsym,
 } from './symbols.js';
 import {
+    GLYPH_ALTAR_OFF,
     GLYPH_BODY_OFF,
     GLYPH_BODY_PILETOP_OFF,
+    GLYPH_CMAP_A_OFF,
+    GLYPH_CMAP_B_OFF,
+    GLYPH_CMAP_C_OFF,
+    GLYPH_CMAP_GEH_OFF,
+    GLYPH_CMAP_KNOX_OFF,
+    GLYPH_CMAP_MAIN_OFF,
+    GLYPH_CMAP_MINES_OFF,
+    GLYPH_CMAP_SOKO_OFF,
+    GLYPH_CMAP_STONE_OFF,
+    GLYPH_NOTHING_OFF,
     GLYPH_OBJ_OFF,
     GLYPH_OBJ_PILETOP_OFF,
     GLYPH_STATUE_FEM_OFF,
     GLYPH_STATUE_FEM_PILETOP_OFF,
     GLYPH_STATUE_MALE_OFF,
     GLYPH_STATUE_MALE_PILETOP_OFF,
+    GLYPH_ZAP_OFF,
+    MAX_GLYPH,
+    NUM_ZAP,
 } from './glyph_offsets.js';
+// C ref: drawing.c defsyms[].color, the last column of every defsym.h PCHAR
+// row, which display.c reads back through its cmap_color() macro.
+import { CMAP_COLORS } from './symbol_data.js';
 import { t_at } from './trap.js';
 // pray.c owns critically_low_hp(); botl.c:2555 and wintty.c:4539 are two of
 // its three C call sites, so the status line reads the one port in js/pray.js
@@ -223,18 +237,6 @@ import {
 const WALL_TYPES = new Set([
     SDOOR, VWALL, HWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
     CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,
-]);
-
-// C ref: include/defsym.h, trap cmap colors indexed by enum trap_types.
-// Index 0 is NO_TRAP and is intentionally unused.
-const TRAP_COLORS = Object.freeze([
-    NO_COLOR,
-    HI_METAL, HI_METAL, CLR_GRAY, CLR_BROWN, HI_METAL,
-    CLR_RED, CLR_GRAY, CLR_BRIGHT_BLUE, CLR_BLUE, CLR_ORANGE,
-    CLR_BLACK, CLR_BLACK, CLR_BROWN, CLR_BROWN, CLR_MAGENTA,
-    CLR_MAGENTA, CLR_BRIGHT_MAGENTA, CLR_GRAY, CLR_GRAY,
-    CLR_BRIGHT_BLUE, CLR_BRIGHT_BLUE, CLR_BRIGHT_GREEN, CLR_MAGENTA,
-    CLR_ORANGE, CLR_ORANGE,
 ]);
 
 // C ref: display.c wall_matrix[] and cross_matrix[][].
@@ -418,7 +420,8 @@ function cornerAngle(seenv, mode, which, outer, inner) {
 }
 
 // C ref: display.c wall_angle(). This returns an S_* cmap index, not a
-// rendered character; symbol-set selection happens later in terrainCmap().
+// rendered character; cmap_to_glyph() numbers it and map_glyphinfo() picks
+// the symbol.
 export function wall_angle(loc) {
     let seenv = (loc.seenv ?? 0) & 0xFF;
     const mode = wallMode(loc);
@@ -621,25 +624,33 @@ function recorderMapColor(color, state) {
     return color;
 }
 
-// C refs: display.c map_glyphinfo() and wintty.c tty_print_glyph().  When
-// color is explicitly disabled, tty uses inverse video to distinguish terrain
-// pairs whose configured symbols are otherwise identical.
-function blackAndWhiteTerrainCue(index, state) {
-    if (state.iflags?.wc_color !== false
-        || state.iflags?.wc_inverse === false) return false;
-    const symbol = cmap_symbol_byte(index, state);
-    switch (index) {
+/**
+ * C ref: display.c reset_glyphmap()'s GLYPH_CMAP_B_OFF arm (2906-2928), the
+ * half inside its `if (!iflags.use_color)`. Where colour is off and two pieces
+ * of terrain draw the same byte, C marks the rarer one so that tty can print
+ * it in inverse video and keep them apart.
+ *
+ * The gate is C's own, and it is not the gate MG_BW_ENGR sits behind: the
+ * CMAP_A arm raises that bit whatever the colour option says. Only
+ * tty_print_glyph() consults iflags.use_inverse, which is why no term for it
+ * appears here.
+ */
+function cmapBlackAndWhiteFlags(cmap, state) {
+    if (state.iflags?.wc_color !== false) return 0;
+    const symbol = cmap_symbol_byte(cmap, state);
+    switch (cmap) {
     case S_lava:
     case S_lavawall:
         return symbol === cmap_symbol_byte(S_pool, state)
-            || symbol === cmap_symbol_byte(S_water, state);
+            || symbol === cmap_symbol_byte(S_water, state) ? MG_BW_LAVA : 0;
     case S_ice:
         return symbol === cmap_symbol_byte(S_room, state)
-            || symbol === cmap_symbol_byte(S_darkroom, state);
+            || symbol === cmap_symbol_byte(S_darkroom, state) ? MG_BW_ICE : 0;
     case S_sink:
-        return symbol === cmap_symbol_byte(S_fountain, state);
+        return symbol === cmap_symbol_byte(S_fountain, state)
+            ? MG_BW_SINK : 0;
     default:
-        return false;
+        return 0;
     }
 }
 
@@ -674,49 +685,22 @@ function withAccessibilityMetadata(
     return glyph;
 }
 
-/**
- * C ref: display.h glyph_to_cmap(). C recovers the cmap index from a glyph
- * number by arithmetic; this port stores a finished presentation record
- * instead, so terrainCmap() below records the index it drew from and this
- * reads it back. hack.c domove_fight_empty() is the caller that needs it, to
- * index defsyms[].explanation with glyph_to_cmap(back_to_glyph(x, y)).
- */
-export function glyph_to_cmap(glyph) {
-    const index = glyph?.cmap;
-    if (!Number.isInteger(index)) {
-        throw new TypeError(
-            'glyph_to_cmap() needs a presentation drawn from a cmap index',
-        );
-    }
-    return index;
-}
-
-function terrainCmap(index, color, state, customizationName = null) {
-    const customization = customizationName
-        ? glyph_customization(customizationName, state) : null;
-    const glyph = glyphPresentation(
-        cmap_symbol(index, state), color, state, customization,
-    );
-    if (blackAndWhiteTerrainCue(index, state)) glyph.attr = ATR_INVERSE;
-    // The cmap index C keeps inside the glyph number. Non-enumerable, so that
-    // every existing copy of a presentation record -- the display buffer, map
-    // memory, the browser projection -- keeps the shape it already had, and
-    // not configurable, because this is the only writer and the record it
-    // writes to has just been built.
-    Object.defineProperty(glyph, 'cmap', { value: index });
-    if (!state.a11y?.glyph_updates) return glyph;
-    const kind = index >= S_stone && index <= S_trwall
+// The accessibility sidecars a cmap glyph carries. Everything in them is a
+// function of the cmap index, which map_glyphinfo() recovers from the glyph
+// number, so nothing about them has to be stored alongside the number.
+function withCmapAccessibility(glyph, cmap, customizationName) {
+    const kind = cmap >= S_stone && cmap <= S_trwall
         ? 'wall'
-        : index >= S_room && index <= S_darkroom
+        : cmap >= S_room && cmap <= S_darkroom
             ? 'room'
-            : index >= S_upstair && index <= S_fountain
+            : cmap >= S_upstair && cmap <= S_fountain
                 ? 'furniture'
                 : 'cmap';
     return withAccessibilityMetadata(
         glyph,
         kind,
-        `cmap:${index}:${customizationName ?? ''}`,
-        { type: 'cmap', symbol: index },
+        `cmap:${cmap}:${customizationName ?? ''}`,
+        { type: 'cmap', symbol: cmap },
     );
 }
 
@@ -743,38 +727,6 @@ function drawbridgeMask(loc) {
     // drawbridgemask aliases struct rm's flags.  Keep the compatibility
     // field for state written by the earlier JS map representation.
     return loc.flags || loc.drawbridgemask || 0;
-}
-
-function altarPresentation(loc, state) {
-    const mask = (loc.altarmask ?? loc.flags ?? 0);
-    let category;
-    let color;
-    if ((mask & AM_SANCTUM) === AM_SANCTUM) {
-        category = 'other';
-        color = CLR_BRIGHT_MAGENTA;
-    } else {
-        switch (mask & AM_MASK) {
-        case AM_LAWFUL:
-            category = 'lawful';
-            color = CLR_GRAY;
-            break;
-        case AM_NEUTRAL:
-            category = 'neutral';
-            color = CLR_GRAY;
-            break;
-        case AM_CHAOTIC:
-            category = 'chaotic';
-            color = CLR_GRAY;
-            break;
-        default:
-            category = 'unaligned';
-            color = CLR_RED;
-            break;
-        }
-    }
-    return terrainCmap(
-        S_altar, color, state, `G_${category}_altar`,
-    );
 }
 
 function accessibilityOverridesEnabled(state) {
@@ -1014,57 +966,14 @@ export function monster_glyph_info(monster, state = game) {
         throw new TypeError('monster_glyph_info requires monster data');
     const appearanceType = monster.m_ap_type & M_AP_TYPMASK;
     if (appearanceType === M_AP_FURNITURE) {
-        // C ref: display.c display_monster() maps a furniture appearance
-        // through cmap_to_glyph(), independently of the underlying terrain.
-        const sym = monster.mappearance;
-        if (sym >= S_vwall && sym <= S_trwall)
-            return terrainCmap(sym, NO_COLOR, state);
-        switch (sym) {
-        case S_ndoor:
-        case S_room:
-        case S_darkroom:
-        case S_corr:
-        case S_litcorr:
-        case S_upstair:
-        case S_dnstair:
-            return terrainCmap(sym, NO_COLOR, state);
-        case S_vodoor:
-        case S_hodoor:
-        case S_vcdoor:
-        case S_hcdoor:
-        case S_upladder:
-        case S_dnladder:
-            return terrainCmap(sym, CLR_BROWN, state);
-        case S_bars:
-            return terrainCmap(sym, HI_METAL, state);
-        case S_tree:
-            return terrainCmap(sym, CLR_GREEN, state);
-        case S_engroom:
-        case S_engrcorr:
-            return terrainCmap(sym, CLR_BRIGHT_BLUE, state);
-        case S_brupstair:
-        case S_brdnstair:
-        case S_brupladder:
-        case S_brdnladder:
-        case S_throne:
-            return terrainCmap(sym, CLR_YELLOW, state);
-        case S_altar:
-            // cmap_to_glyph(S_altar) deliberately chooses neutral rather than
-            // the alignment stored in the mimic's mcorpsenm overlay.
-            return altarPresentation({ altarmask: AM_NEUTRAL }, state);
-        case S_grave:
-        case S_sink:
-            return terrainCmap(sym, CLR_WHITE, state);
-        case S_fountain:
-            return terrainCmap(
-                sym, CLR_BRIGHT_BLUE, state, 'G_fountain',
-            );
-        default:
-            // Special-level descriptors can name other cmap entries. Keep
-            // their symbol source-faithful even when no specialized color
-            // mapping is needed by initial-level generation.
-            return terrainCmap(sym, NO_COLOR, state);
-        }
+        // C ref: display.c display_monster()'s M_AP_FURNITURE arm (543-562).
+        // makemon.c stores an S_* index in mappearance, and this is the whole
+        // of what C does with it: cmap_to_glyph(sym), independently of the
+        // terrain underneath. cmap_to_glyph() gives S_altar the neutral altar
+        // rather than any alignment the mimic carries.
+        return map_glyphinfo(
+            cmap_to_glyph(monster.mappearance, state), state,
+        );
     }
     if (appearanceType === M_AP_OBJECT) {
         // map_object() observes only glyph_is_generic_object().  Class zero
@@ -1137,6 +1046,180 @@ export function object_is_piletop(obj, state = game) {
     return obj.where === OBJ_FLOOR
         && Boolean(next)
         && (obj.otyp !== BOULDER || next.otyp === BOULDER);
+}
+
+// ── display.h cmap glyph numbers ──
+//
+// The cmap half of the same number space the object macros below occupy: one
+// integer per map square, resolved into a character, a colour and a set of
+// glyphflags at print time by map_glyphinfo(). The cmap ranges are not one
+// block. display.h splits the eleven wall symbols into five copies, one per
+// dungeon branch, and lifts the five altar alignments out of the middle of
+// cmap A, so a cmap index alone does not name a glyph: cmap_to_glyph() below
+// picks the range and js/glyph_offsets.js holds each range's base.
+
+// C ref: display.h enum altar_types (346-352). The order altarcolors[] and
+// the GLYPH_ALTAR_OFF arm of reset_glyphmap() are both indexed by.
+export const altar_unaligned = 0;
+export const altar_chaotic = 1;
+export const altar_neutral = 2;
+export const altar_lawful = 3;
+export const altar_other = 4;
+
+// C ref: display.h enum level_walls (353-354), wallcolors[]'s index.
+export const main_walls = 0;
+export const mines_walls = 1;
+export const gehennom_walls = 2;
+export const knox_walls = 3;
+export const sokoban_walls = 4;
+
+// C ref: display.c altarcolors[] (2666-2670) over display.h enum altar_colors
+// (290-311). USE_GENERAL_ALTAR_COLORS is undefined in this build, so the three
+// aligned altars share CLR_GRAY and only unaligned and sanctum differ.
+const altarcolors = Object.freeze([
+    CLR_RED, CLR_GRAY, CLR_GRAY, CLR_GRAY, CLR_BRIGHT_MAGENTA,
+]);
+
+// C ref: display.c wallcolors[] (2673-2678). C initializes all five branches
+// to defsyms[S_vwall + n].color and leaves the per-branch colours commented
+// out; nothing writes the array afterwards, so every wall is CLR_GRAY.
+const wallcolors = Object.freeze([
+    CLR_GRAY, CLR_GRAY, CLR_GRAY, CLR_GRAY, CLR_GRAY,
+]);
+
+// C ref: display.h NO_GLYPH (548), which is MAX_GLYPH: one past the last real
+// glyph, returned by cmap_to_glyph() for an index outside every cmap range.
+export const NO_GLYPH = MAX_GLYPH;
+
+// C ref: display.h altar_to_glyph() (569-579). Unaligned is the default rather
+// than a tested case, because AM_MASK has three bits and only four of its
+// eight values are defined.
+export function altar_to_glyph(amsk) {
+    if ((amsk & AM_SANCTUM) === AM_SANCTUM)
+        return GLYPH_ALTAR_OFF + altar_other;
+    if ((amsk & AM_MASK) === AM_LAWFUL)
+        return GLYPH_ALTAR_OFF + altar_lawful;
+    if ((amsk & AM_MASK) === AM_NEUTRAL)
+        return GLYPH_ALTAR_OFF + altar_neutral;
+    if ((amsk & AM_MASK) === AM_CHAOTIC)
+        return GLYPH_ALTAR_OFF + altar_chaotic;
+    return GLYPH_ALTAR_OFF + altar_unaligned;
+}
+
+/**
+ * C ref: display.h cmap_walls_to_glyph() (598-604). The one glyph macro that
+ * is not a function of its argument alone: it reads the hero's own position
+ * through In_mines(), In_hell(), Is_knox() and In_sokoban(), so the number a
+ * wall gets is fixed where the square is recorded rather than where it is
+ * repainted. Store what this returns; do not re-derive it at a repaint.
+ */
+export function cmap_walls_to_glyph(cmap_idx, state = game) {
+    const uz = state.u?.uz;
+    return cmap_idx - S_vwall
+        + (In_mines(uz) ? GLYPH_CMAP_MINES_OFF
+            : In_hell(uz, state) ? GLYPH_CMAP_GEH_OFF
+                : Is_knox_level(uz) ? GLYPH_CMAP_KNOX_OFF
+                    : In_sokoban(uz) ? GLYPH_CMAP_SOKO_OFF
+                        : GLYPH_CMAP_MAIN_OFF);
+}
+
+// C ref: display.h cmap_a_to_glyph() (613-614).
+export function cmap_a_to_glyph(cmap_idx) {
+    return (cmap_idx - S_ndoor) + GLYPH_CMAP_A_OFF;
+}
+
+// C ref: display.h cmap_b_to_glyph() (616-617).
+export function cmap_b_to_glyph(cmap_idx) {
+    return (cmap_idx - S_grave) + GLYPH_CMAP_B_OFF;
+}
+
+// C ref: display.h cmap_c_to_glyph() (619-620).
+export function cmap_c_to_glyph(cmap_idx) {
+    return (cmap_idx - S_digbeam) + GLYPH_CMAP_C_OFF;
+}
+
+/**
+ * C ref: display.h cmap_to_glyph() (621-628). The chain that turns a defsym.h
+ * index into a glyph number, in the order C tests it. S_altar takes the
+ * neutral altar deliberately: an index carries no alignment, so a caller that
+ * has one -- back_to_glyph() -- calls altar_to_glyph() itself instead.
+ */
+export function cmap_to_glyph(cmap_idx, state = game) {
+    if (cmap_idx === S_stone) return GLYPH_CMAP_STONE_OFF;
+    if (cmap_idx <= S_trwall) return cmap_walls_to_glyph(cmap_idx, state);
+    if (cmap_idx < S_altar) return cmap_a_to_glyph(cmap_idx);
+    if (cmap_idx === S_altar) return altar_to_glyph(AM_NEUTRAL);
+    if (cmap_idx < S_arrow_trap + MAXTCHARS) return cmap_b_to_glyph(cmap_idx);
+    if (cmap_idx <= S_goodpos) return cmap_c_to_glyph(cmap_idx);
+    return NO_GLYPH;
+}
+
+// C ref: display.h trap_to_glyph() (630-631).
+export function trap_to_glyph(trap, state = game) {
+    return cmap_to_glyph(trap_to_defsym(trap.ttyp), state);
+}
+
+// C ref: display.h engraving_to_glyph() (633-634) over engrave.h
+// engraving_to_defsym() (47-48), which reads the terrain under the engraving
+// rather than anything the engraving carries.
+export function engraving_to_glyph(engraving, state = game) {
+    const location = state.level?.at(engraving.engr_x, engraving.engr_y);
+    return cmap_to_glyph(
+        location?.typ === CORR ? S_engrcorr : S_engroom, state,
+    );
+}
+
+/**
+ * C ref: display.h glyph_is_cmap() (723-725), the whole cmap span as one
+ * contiguous range.
+ *
+ * The `#if 0` block directly above it (711-722) is a disjunction of the ten
+ * per-range predicates, and it is not what the program compiles. The two are
+ * not the same function: GLYPH_ZAP_OFF sits between GLYPH_CMAP_B_OFF and
+ * GLYPH_CMAP_C_OFF in the enum (522-524), so the compiled form answers TRUE
+ * for a zap glyph and the disabled one answers FALSE. glyphs.c:983 spells
+ * `glyph_is_cmap(glyph) || glyph_is_cmap_zap(glyph)`, a disjunction that is
+ * redundant under the compiled form and meaningful under the other, so the
+ * difference was understood upstream. This transcribes the compiled form.
+ */
+export function glyph_is_cmap(glyph) {
+    return glyph >= GLYPH_CMAP_STONE_OFF
+        && glyph < GLYPH_CMAP_C_OFF + ((S_goodpos - S_digbeam) + 1);
+}
+
+// C ref: display.h glyph_is_cmap_zap() (699-700), one of the ten per-range
+// predicates. map_glyphinfo() needs it to exclude the one cmap range it has no
+// arm for from the range glyph_is_cmap() admits.
+export function glyph_is_cmap_zap(glyph) {
+    return glyph >= GLYPH_ZAP_OFF && glyph < (NUM_ZAP << 2) + GLYPH_ZAP_OFF;
+}
+
+/**
+ * C ref: glyphs.c glyph_to_cmap() (199-231). The inverse of cmap_to_glyph(),
+ * and lossy in the two places cmap_to_glyph() is lossy: every branch's walls
+ * come back as the main dungeon's indices, and all five altars come back as
+ * S_altar.
+ *
+ * C's swallow, explosion and zap arms are omitted. No ported path produces a
+ * number in any of those three ranges -- reset_glyphmap()'s arms for them are
+ * unported for the same reason -- so each would be an untested inverse of an
+ * absent forward direction. They fall to C's own default instead, MAXPCHARS,
+ * which is the fencepost entry defsyms[] carries for exactly this.
+ */
+export function glyph_to_cmap(glyph) {
+    if (!glyph_is_cmap(glyph)) return MAXPCHARS;
+    if (glyph === GLYPH_CMAP_STONE_OFF) return S_stone;
+    if (glyph < GLYPH_CMAP_A_OFF) {
+        // The five wall ranges are adjacent and equally sized, so one
+        // remainder covers what C spells as five separate range tests.
+        return ((glyph - GLYPH_CMAP_MAIN_OFF) % ((S_trwall - S_vwall) + 1))
+            + S_vwall;
+    }
+    if (glyph < GLYPH_ALTAR_OFF) return (glyph - GLYPH_CMAP_A_OFF) + S_ndoor;
+    if (glyph < GLYPH_CMAP_B_OFF) return S_altar;
+    if (glyph < GLYPH_ZAP_OFF) return (glyph - GLYPH_CMAP_B_OFF) + S_grave;
+    if (glyph < GLYPH_CMAP_C_OFF) return MAXPCHARS; /* the omitted zap arm */
+    return (glyph - GLYPH_CMAP_C_OFF) + S_digbeam;
 }
 
 // ── display.h object glyph numbers ──
@@ -1307,6 +1390,14 @@ export const MG_CORPSE = 0x00002;
 export const MG_PET = 0x00010;
 export const MG_STATUE = 0x00040;
 export const MG_OBJPILE = 0x00080;
+export const MG_BW_LAVA = 0x00100;
+// display.h:1005-1008 gives these three the same value as each other, with the
+// note that MG_BW_SINK "may become a distinct flag" some day. They are spelled
+// separately because the arms that raise them are separate.
+export const MG_BW_ICE = 0x00200;
+export const MG_BW_SINK = 0x00200;
+export const MG_BW_ENGR = 0x00200;
+export const MG_NOTHING = 0x00400;
 export const MG_MALE = 0x01000;
 export const MG_FEMALE = 0x02000;
 
@@ -1318,25 +1409,19 @@ export const MG_FEMALE = 0x02000;
  * touched since.
  *
  * C's chain has three arms, and this function is the third one: its
- * iflags.use_inverse gate, with the MG_OBJPILE and MG_FEMALE disjuncts an
- * object glyph can raise. The other two sit elsewhere. The
- * `bkglyphinfo->framecolor` arm above them needs iflags.bgcolors, which no
- * ported path sets. The MG_PET arm is reachable but is spelled at
- * actualMonsterGlyphInfo() instead, where the pet is: this function is only
- * reached from map_glyphinfo()'s object ranges, and an object glyph carries no
- * MG_PET. The order still matters and is preserved by that split rather than
- * in spite of it -- a pet standing on a pile hides the pile's glyph entirely,
- * so newsym() shows the monster's presentation and never asks for the
- * object's.
+ * iflags.use_inverse gate, with the MG_OBJPILE, MG_FEMALE and MG_BW_*
+ * disjuncts a glyph map_glyphinfo() resolves can raise. The other two sit
+ * elsewhere. The `bkglyphinfo->framecolor` arm above them needs
+ * iflags.bgcolors, which no ported path sets. The MG_PET arm is reachable but
+ * is spelled at actualMonsterGlyphInfo() instead, where the pet is: no glyph
+ * this function sees carries MG_PET. The order still matters and is preserved
+ * by that split rather than in spite of it -- a pet standing on a pile hides
+ * the pile's glyph entirely, so newsym() shows the monster's presentation and
+ * never asks for the object's.
  *
- * MG_DETECT and the four MG_BW_* bits share the last arm in C. Neither is
- * raised by an object glyph: MG_DETECT belongs to detectedMonsterGlyphInfo()
- * and the MG_BW_* bits to terrainCmap() and engravingGlyph(), all three of
- * which are recomputed on every draw already, so their attribute is as live as
- * this one for a square in sight. It is not live for a remembered terrain
- * square out of sight, which is why js/options.js refuses a 'use_inverse'
- * toggle; the deferral remembered-glyph-caches-a-resolved-presentation records
- * that gap, and the terrain layer is what closes it.
+ * MG_DETECT shares C's last arm with the MG_BW_* bits and is not raised by any
+ * glyph number this port stores: it belongs to detectedMonsterGlyphInfo(),
+ * which is recomputed on every draw, so its attribute is as live as this one.
  *
  * MG_FEMALE is raised here for a statue, because reset_glyphmap()'s two female
  * statue arms raise it and this resolves those arms. It is not raised for a
@@ -1348,15 +1433,38 @@ function print_glyph_attr(glyphflags, state) {
     if (state.iflags?.wc_inverse === false) return ATR_NONE;
     if (((glyphflags & MG_OBJPILE) && state.iflags?.hilite_pile)
         || ((glyphflags & MG_FEMALE) && state.wizard
-            && state.iflags?.wizmgender)) {
+            && state.iflags?.wizmgender)
+        || (glyphflags & (MG_BW_LAVA | MG_BW_ICE | MG_BW_SINK | MG_BW_ENGR))) {
         return ATR_INVERSE;
     }
     return ATR_NONE;
 }
 
+// The G_* customization names display.h's five altar glyphs carry, in
+// altar_types order. glyphs.c apply_customizations() keys every customization
+// by glyph number, so a name is a function of the number and nothing has to
+// travel with a resolved presentation to recover it.
+const ALTAR_CUSTOMIZATION_NAMES = Object.freeze([
+    'G_unaligned_altar', 'G_chaotic_altar', 'G_neutral_altar',
+    'G_lawful_altar', 'G_other_altar',
+]);
+
+// The glyph ranges map_glyphinfo() has an arm for: GLYPH_NOTHING, every object
+// range, and every cmap range but the zap beams'. This is the port's own
+// assertion rather than a ported predicate, and it is deliberately narrower
+// than glyph_is_cmap(): that macro's contiguous span admits the zap range,
+// which zapdir_to_glyph() would have to produce and no ported path does.
+// GLYPH_UNEXPLORED is left out for the same reason -- display.c
+// clear_glyph_buffer() (1651) is its only writer and has no port.
+function mapGlyphinfoResolves(glyph) {
+    return glyph === GLYPH_NOTHING_OFF
+        || glyph_is_object(glyph)
+        || (glyph_is_cmap(glyph) && !glyph_is_cmap_zap(glyph));
+}
+
 /**
- * C refs: display.c reset_glyphmap() (2739-3086), its eight object arms and
- * the closing colour clamp at 3072-3078; and display.c map_glyphinfo()
+ * C refs: display.c reset_glyphmap() (2739-3086), its object and cmap arms
+ * with the closing colour clamp at 3072-3078; and display.c map_glyphinfo()
  * (2594-2655), which copies the resolved entry and turns sym.symidx into the
  * ttychar the window port prints.
  *
@@ -1366,30 +1474,47 @@ function print_glyph_attr(glyphflags, state) {
  * map, so the repaint after an option change re-resolves every square through
  * the values then in force, exactly as C's rebuilt table does.
  *
- * Eight arms are ported, and only those, so the guard rejects everything else.
- * C's chain is one descending run over the whole enum, and the object arms are
- * not contiguous within it: GLYPH_OBJ_OFF (2968) and GLYPH_BODY_OFF (3004) sit
- * below every cmap arm. glyph_is_object() supplies the bounds the intervening
- * arms would otherwise have supplied.
+ * C needs no guard here: reset_glyphmap() walks the whole enum and every
+ * number lands in some arm. This port resolves a subset, so the guard names
+ * that subset -- see mapGlyphinfoResolves() below. C's chain is a single
+ * descending run and the two families interleave within it: the eight object
+ * arms straddle the cmap arms, with GLYPH_OBJ_OFF (2968) and GLYPH_BODY_OFF
+ * (3004) below every one of them. The arms C has in between -- warning,
+ * explosion and swallow -- have no ported producer, and the guard's bounds
+ * stand in for the ones they would otherwise have supplied.
  *
  * Two of C's terms are absent because no ported path can make them true.
  * has_rogue_color needs gc.currentgraphics == ROGUESET with IBM symbol
  * handling, and the GMAP_ROGUELEVEL clamp needs Is_rogue_level(&u.uz); no
  * ported path reaches the rogue level, and js/display.js reglyph_darkroom()
  * already refuses the level for the same reason. The clamp's remaining term,
- * !iflags.use_color, is recorderMapColor()'s mapColorEnabled() test.
+ * !iflags.use_color, is recorderMapColor()'s mapColorEnabled() test, which
+ * also carries C's cmap_color()/wall_color()/altar_color() macros: each is
+ * `iflags.use_color ? <table>[n] : NO_COLOR`, so the arms below read the table
+ * directly and let the clamp answer for the option.
  */
 export function map_glyphinfo(glyph, state = game) {
-    if (!glyph_is_object(glyph)) {
+    if (!mapGlyphinfoResolves(glyph)) {
         throw new TypeError(
-            `map_glyphinfo() resolves object glyphs only, not ${glyph}`,
+            `map_glyphinfo() has no arm for glyph ${glyph}`,
         );
     }
     let offset;
     let symbol;
     let color;
-    let glyphflags;
-    if ((offset = glyph - GLYPH_STATUE_FEM_PILETOP_OFF) >= 0) {
+    let glyphflags = 0;
+    // The defsym index the arm drew from, for the arms that drew from one.
+    let cmap = null;
+    let customizationName = null;
+    if (glyph === GLYPH_NOTHING_OFF) {
+        // display.c:2774-2777, the first arm of C's chain. The square is
+        // known to hold nothing worth drawing, so it draws the blank the
+        // symbol set gives SYM_NOTHING. reglyph_darkroom() is the ported
+        // writer; display.c:1846 reads the number back.
+        symbol = misc_symbol(SYM_NOTHING, state);
+        color = NO_COLOR;
+        glyphflags = MG_NOTHING;
+    } else if ((offset = glyph - GLYPH_STATUE_FEM_PILETOP_OFF) >= 0) {
         symbol = statueSymbol(offset, state);
         color = statueColor(state);
         glyphflags = MG_STATUE | MG_FEMALE | MG_OBJPILE;
@@ -1413,24 +1538,87 @@ export function map_glyphinfo(glyph, state = game) {
         symbol = statueSymbol(offset, state);
         color = statueColor(state);
         glyphflags = MG_STATUE | MG_MALE;
+    } else if ((offset = glyph - GLYPH_CMAP_C_OFF) >= 0) {
+        // display.c:2884-2890. region.c's gas clouds are the ported producer.
+        cmap = S_digbeam + offset;
+        color = CMAP_COLORS[cmap];
+    // display.c:2891-2896's GLYPH_ZAP_OFF arm sits here in C's chain. It is
+    // unported and the guard above rejects its range, so the CMAP_B arm below
+    // is reached directly.
+    } else if ((offset = glyph - GLYPH_CMAP_B_OFF) >= 0) {
+        // display.c:2903-2929.
+        cmap = S_grave + offset;
+        color = CMAP_COLORS[cmap];
+        glyphflags = cmapBlackAndWhiteFlags(cmap, state);
+        if (cmap === S_fountain) customizationName = 'G_fountain';
+    } else if ((offset = glyph - GLYPH_ALTAR_OFF) >= 0) {
+        // display.c:2930-2937. Every altar draws S_altar; only the colour and
+        // the customization separate the five alignments.
+        cmap = S_altar;
+        color = altarcolors[offset];
+        customizationName = ALTAR_CUSTOMIZATION_NAMES[offset];
+    } else if ((offset = glyph - GLYPH_CMAP_A_OFF) >= 0) {
+        // display.c:2938-2959.
+        cmap = S_ndoor + offset;
+        color = CMAP_COLORS[cmap];
+        const sym = cmap_symbol_byte(cmap, state);
+        if (cmap === S_litcorr && sym === cmap_symbol_byte(S_corr, state)) {
+            // A lit corridor drawn with the dark corridor's byte would be
+            // invisible as a distinction; C brightens it instead.
+            color = CLR_WHITE;
+        } else if (cmap === S_engrcorr
+                   && (sym === cmap_symbol_byte(S_corr, state)
+                       || sym === cmap_symbol_byte(S_litcorr, state))) {
+            glyphflags = MG_BW_ENGR;
+        }
+    } else if ((offset = glyph - GLYPH_CMAP_SOKO_OFF) >= 0) {
+        // display.c:2960-2975, the four branch wall sets. Each draws the same
+        // eleven symbols; only wallcolors[] separates them, and every entry of
+        // that table holds CLR_GRAY.
+        cmap = S_vwall + offset;
+        color = wallcolors[sokoban_walls];
+    } else if ((offset = glyph - GLYPH_CMAP_KNOX_OFF) >= 0) {
+        cmap = S_vwall + offset;
+        color = wallcolors[knox_walls];
+    } else if ((offset = glyph - GLYPH_CMAP_GEH_OFF) >= 0) {
+        cmap = S_vwall + offset;
+        color = wallcolors[gehennom_walls];
+    } else if ((offset = glyph - GLYPH_CMAP_MINES_OFF) >= 0) {
+        cmap = S_vwall + offset;
+        color = wallcolors[mines_walls];
+    } else if ((offset = glyph - GLYPH_CMAP_MAIN_OFF) >= 0) {
+        // display.c:2976-2981.
+        cmap = S_vwall + offset;
+        color = wallcolors[main_walls];
+    } else if (glyph - GLYPH_CMAP_STONE_OFF >= 0) {
+        // display.c:2982-2984. One glyph, so C uses SYM_OFF_P by itself.
+        cmap = S_stone;
+        color = CMAP_COLORS[cmap];
     } else if ((offset = glyph - GLYPH_OBJ_OFF) >= 0) {
         symbol = objectSymbol(offset, state);
         color = state.objects?.[offset]?.oc_color ?? NO_COLOR;
-        glyphflags = 0;
     } else {
         offset = glyph - GLYPH_BODY_OFF;
         symbol = corpseSymbol(state);
         color = state.mons?.[offset]?.mcolor ?? NO_COLOR;
         glyphflags = MG_CORPSE;
     }
-    const presentation = glyphPresentation(symbol, color, state);
+    let customization = null;
+    if (cmap !== null) {
+        symbol = cmap_symbol(cmap, state);
+        if (customizationName)
+            customization = glyph_customization(customizationName, state);
+    }
+    const presentation = glyphPresentation(symbol, color, state, customization);
     const attr = print_glyph_attr(glyphflags, state);
     if (attr) presentation.attr = attr;
     // The glyph number itself, which is what C stores in levl[x][y].glyph.
-    // Non-enumerable for terrainCmap()'s reason: every existing copy of a
-    // presentation record keeps the shape it already had.
+    // Non-enumerable, so that every existing copy of a presentation record --
+    // the display buffer, map memory, the browser projection -- keeps the
+    // shape it already had.
     Object.defineProperty(presentation, 'glyph', { value: glyph });
-    return presentation;
+    if (cmap === null || !state.a11y?.glyph_updates) return presentation;
+    return withCmapAccessibility(presentation, cmap, customizationName);
 }
 
 // display.c reset_glyphmap()'s two statue arms: mons[offset].mlet + SYM_OFF_M
@@ -1578,147 +1766,150 @@ function mappedObjectGlyphInfo(obj, state) {
     return { shown, remembered };
 }
 
-// ── Terrain to display character + color + DEC flag ──
-export function terrain_glyph(loc, x, y, state = game) {
-    const typ = loc.typ;
+// ── display.c back_to_glyph ──
+/**
+ * C ref: display.c back_to_glyph() (2286-2427). The glyph number for the
+ * terrain at <x,y>, ignoring everything standing on it. Every arm ends in one
+ * cmap index and the tail runs it through cmap_to_glyph(); the altar arm is
+ * the exception, because an altar's alignment picks one of five glyph numbers
+ * that no single index can name, so it sets bypass_glyph and its `idx` is
+ * dead. C's comment says so: "not really used".
+ *
+ * The dungeon branch enters here rather than at the repaint, through
+ * cmap_walls_to_glyph(), so a wall recorded in the Mines keeps the Mines'
+ * number after the hero leaves.
+ */
+export function back_to_glyph(x, y, state = game) {
+    const ptr = state.level?.at(x, y);
+    let idx;
+    let bypass_glyph = NO_GLYPH;
+    const typ = ptr.typ;
     if (WALL_TYPES.has(typ)) {
-        const arborealSecretDoor = typ === SDOOR
-            && (loc.arboreal_sdoor || loc.candig);
-        return terrainCmap(
-            arborealSecretDoor
-                ? S_tree : loc.seenv ? wall_angle(loc) : S_stone,
-            arborealSecretDoor ? CLR_GREEN : NO_COLOR,
-            state,
-        );
+        // C's SDOOR case falls through to the ten wall cases unless the
+        // secret door hides a tree, so the two share one arm here too.
+        idx = typ === SDOOR && (ptr.arboreal_sdoor || ptr.candig)
+            ? S_tree
+            : ptr.seenv ? wall_angle(ptr) : S_stone;
+        return cmap_to_glyph(idx, state);
     }
 
     switch (typ) {
     case SCORR:
     case STONE:
-        return state.level?.flags?.arboreal
-            ? terrainCmap(S_tree, CLR_GREEN, state)
-            : terrainCmap(S_stone, NO_COLOR, state);
+        idx = state.level?.flags?.arboreal ? S_tree : S_stone;
+        break;
     case ROOM:
-        return terrainCmap(S_room, NO_COLOR, state);
+        idx = S_room;
+        break;
+    case CORR:
+        idx = (ptr.waslit || state.flags?.lit_corridor) ? S_litcorr : S_corr;
+        break;
     case IRONBARS:
-        return terrainCmap(S_bars, HI_METAL, state);
+        idx = S_bars;
+        break;
     case TREE:
-        return terrainCmap(S_tree, CLR_GREEN, state);
-    case ALTAR:
-        return altarPresentation(loc, state);
-    case GRAVE:
-        return terrainCmap(S_grave, CLR_WHITE, state);
-    case THRONE:
-        return terrainCmap(S_throne, CLR_YELLOW, state);
-    case SINK:
-        return terrainCmap(S_sink, CLR_WHITE, state);
-    case FOUNTAIN: {
-        return terrainCmap(
-            S_fountain, CLR_BRIGHT_BLUE, state, 'G_fountain',
-        );
-    }
+        idx = S_tree;
+        break;
     case POOL:
     case MOAT:
-        return terrainCmap(S_pool, CLR_BLUE, state);
-    case ICE:
-        return terrainCmap(S_ice, CLR_CYAN, state);
-    case LAVAPOOL:
-        return terrainCmap(S_lava, CLR_RED, state);
-    case LAVAWALL:
-        return terrainCmap(S_lavawall, CLR_ORANGE, state);
-    case AIR:
-        return terrainCmap(S_air, CLR_CYAN, state);
-    case CLOUD:
-        return terrainCmap(S_cloud, NO_COLOR, state);
-    case WATER:
-        return terrainCmap(S_water, CLR_BRIGHT_BLUE, state);
-    case CORR: {
-        const lit = Boolean(loc.waslit || state.flags?.lit_corridor);
-        const cmap = lit ? S_litcorr : S_corr;
-        const glyph = terrainCmap(cmap, NO_COLOR, state);
-        if (lit) {
-            const darkSymbol = cmap_symbol(S_corr, state);
-            if (mapColorEnabled(state)
-                && glyph.ch === darkSymbol.ch && glyph.dec === darkSymbol.dec) {
-                // reset_glyphmap() preserves a visible distinction when the
-                // configured dark and lit corridor symbols are identical.
-                glyph.color = CLR_WHITE;
-            }
-        }
-        return glyph;
-    }
-    case DOOR: {
-        let cmap;
-        // struct rm aliases flags and doormask. New level generation writes
-        // flags; the fallback keeps older callers which filled doormask.
-        const doormask = loc.flags || loc.doormask || 0;
-        if (!doormask || (doormask & D_BROKEN)) cmap = S_ndoor;
-        else if (doormask & D_ISOPEN) {
-            cmap = loc.horizontal ? S_hodoor : S_vodoor;
-        } else {
-            cmap = loc.horizontal ? S_hcdoor : S_vcdoor;
-        }
-        return terrainCmap(
-            cmap,
-            cmap === S_ndoor ? NO_COLOR : CLR_BROWN,
-            state,
-        );
-    }
+        idx = S_pool;
+        break;
     case STAIRS: {
-        // C refs: display.c:back_to_glyph(), stairs.c:known_branch_stairs().
         const stairway = stairway_at(x, y, state);
-        const down = Boolean(loc.ladder & LA_DOWN);
-        const knownBranch = known_branch_stairs(stairway, state);
-        return terrainCmap(
-            knownBranch
-                ? down ? S_brdnstair : S_brupstair
-                : down ? S_dnstair : S_upstair,
-            knownBranch ? CLR_YELLOW : NO_COLOR,
-            state,
-        );
+        const down = Boolean(ptr.ladder & LA_DOWN);
+        idx = known_branch_stairs(stairway, state)
+            ? down ? S_brdnstair : S_brupstair
+            : down ? S_dnstair : S_upstair;
+        break;
     }
     case LADDER: {
         const stairway = stairway_at(x, y, state);
-        const down = Boolean(loc.ladder & LA_DOWN);
-        const knownBranch = known_branch_stairs(stairway, state);
-        return terrainCmap(
-            knownBranch
-                ? down ? S_brdnladder : S_brupladder
-                : down ? S_dnladder : S_upladder,
-            knownBranch ? CLR_YELLOW : CLR_BROWN,
-            state,
-        );
+        const down = Boolean(ptr.ladder & LA_DOWN);
+        idx = known_branch_stairs(stairway, state)
+            ? down ? S_brdnladder : S_brupladder
+            : down ? S_dnladder : S_upladder;
+        break;
     }
+    case FOUNTAIN:
+        idx = S_fountain;
+        break;
+    case SINK:
+        idx = S_sink;
+        break;
+    case ALTAR:
+        idx = S_altar; /* not really used */
+        // struct rm aliases altarmask and flags; new level generation writes
+        // flags and older callers filled altarmask.
+        bypass_glyph = altar_to_glyph(ptr.altarmask ?? ptr.flags ?? 0);
+        break;
+    case GRAVE:
+        idx = S_grave;
+        break;
+    case THRONE:
+        idx = S_throne;
+        break;
+    case LAVAPOOL:
+        idx = S_lava;
+        break;
+    case LAVAWALL:
+        idx = S_lavawall;
+        break;
+    case ICE:
+        idx = S_ice;
+        break;
+    case AIR:
+        idx = S_air;
+        break;
+    case CLOUD:
+        idx = S_cloud;
+        break;
+    case WATER:
+        idx = S_water;
+        break;
+    case DOOR:
+        // struct rm aliases flags and doormask, as it does for altarmask.
+        if (ptr.flags || ptr.doormask) {
+            const doormask = ptr.flags || ptr.doormask;
+            if (doormask & D_BROKEN) idx = S_ndoor;
+            else if (doormask & D_ISOPEN) {
+                idx = ptr.horizontal ? S_hodoor : S_vodoor;
+            } else idx = ptr.horizontal ? S_hcdoor : S_vcdoor;
+        } else idx = S_ndoor;
+        break;
     case DBWALL:
-        return terrainCmap(
-            loc.horizontal ? S_hcdbridge : S_vcdbridge,
-            CLR_BROWN,
-            state,
-        );
+        idx = ptr.horizontal ? S_hcdbridge : S_vcdbridge;
+        break;
     case DRAWBRIDGE_UP:
-        switch (drawbridgeMask(loc) & DB_UNDER) {
+        switch (drawbridgeMask(ptr) & DB_UNDER) {
         case DB_MOAT:
-            return terrainCmap(S_pool, CLR_BLUE, state);
+            idx = S_pool;
+            break;
         case DB_LAVA:
-            return terrainCmap(S_lava, CLR_RED, state);
+            idx = S_lava;
+            break;
         case DB_ICE:
-            return terrainCmap(S_ice, CLR_CYAN, state);
+            idx = S_ice;
+            break;
         case DB_FLOOR:
+            idx = S_room;
+            break;
         default:
-            // back_to_glyph() diagnoses an invalid underlay and still uses
-            // room floor, so callers always receive a drawable background.
-            return terrainCmap(S_room, NO_COLOR, state);
+            // C diagnoses the invalid underlay with impossible() and still
+            // uses room floor, so callers always receive a drawable glyph.
+            idx = S_room;
+            break;
         }
+        break;
     case DRAWBRIDGE_DOWN:
-        return terrainCmap(
-            loc.horizontal ? S_hodbridge : S_vodbridge,
-            CLR_BROWN,
-            state,
-        );
+        idx = ptr.horizontal ? S_hodbridge : S_vodbridge;
+        break;
     default:
-        // display.c:back_to_glyph() uses room floor after its impossible().
-        return terrainCmap(S_room, NO_COLOR, state);
+        // C's impossible() arm, which also settles on room floor.
+        idx = S_room;
+        break;
     }
+
+    return bypass_glyph !== NO_GLYPH ? bypass_glyph : cmap_to_glyph(idx, state);
 }
 
 // ── show_glyph_cell ──
@@ -1792,63 +1983,28 @@ export function show_glyph_cell(x, y, glyph) {
  * Convert a live glyph-presentation record into the persistent levl glyph
  * record used by map memory.
  *
- * One layer has converted to what C stores: an object square keeps the glyph
- * number display.h obj_to_glyph() produced and nothing else, so the character,
- * colour and attribute are re-derived from it by map_glyphinfo() at every
- * draw. Every other layer -- terrain, traps, engravings, the two mimic
- * disguises -- still keeps a finished presentation, resolved under the option
- * values in force when the square was recorded. That is why the 'color' arm of
- * the options menu keeps a refusal while 'hilite_pile' no longer needs one,
- * and it is what the terrain slice has left to do.
+ * Every layer now stores what C stores. levl[x][y].glyph is one integer, and
+ * the character, colour and attribute are re-derived from it by
+ * map_glyphinfo() at every draw, which is what lets a repaint after an option
+ * change draw a remembered square under the values then in force rather than
+ * the ones it was recorded under. Presentations that carry no number therefore
+ * do not belong in map memory, and this refuses one rather than storing it.
  *
- * The presentation input must use display.js fields (`dec`, optional
- * browser/RGB metadata); the result uses the persistent `decgfx` field. Pass
- * `trap` only when the remembered layer itself represents that trap; hidden
- * traps beneath another remembered layer must not contribute their logical
- * identity. The cmap index, the accessibility identity and the accessibility
- * subject are canonical remembered-glyph state -- the first is what C's glyph
- * number carries for a piece of terrain, the other two describe hero-memory
- * mimics and hiders -- so this boundary copies all three sidecars explicitly.
+ * The two accessibility sidecars ride along because they describe what the
+ * square holds rather than how it is drawn: js/startup_a11y.js reads
+ * a11ySubject straight off the remembered record to name a mimic or a hider,
+ * and a glyph number alone cannot recover a zeroobj mimic's mappearance. They
+ * stay non-enumerable so that every existing copy of a remembered record keeps
+ * the shape it already had.
  */
-export function remembered_glyph_from_presentation(glyph, trap = null) {
-    if (!glyph || typeof glyph !== 'object'
-        || !Object.hasOwn(glyph, 'dec')) {
+export function remembered_glyph_from_presentation(glyph) {
+    if (!Number.isInteger(glyph?.glyph)) {
         throw new TypeError(
-            'remembered glyph conversion requires a presentation record',
+            'remembered glyph conversion requires a resolved glyph number',
         );
     }
-    const remembered = Number.isInteger(glyph.glyph)
-        // C's levl[x][y].glyph for an object square, unresolved. No
-        // presentation field rides along, because the one reader of the stored
-        // number, newsym()'s show_mem arm through
-        // remembered_glyph_presentation(), resolves it afresh -- which is what
-        // lets a repaint after an option change draw the square under the new
-        // values. feel_location() is not that reader: it rebuilds the square
-        // from live level state and writes map memory rather than reading it.
-        ? { glyph: glyph.glyph }
-        : {
-            ch: glyph.ch,
-            color: glyph.color,
-            decgfx: glyph.dec,
-            displayCh: glyph.displayCh ?? null,
-        };
-    // C stores a logical glyph number in levl[x][y].glyph.  Presentation can
-    // collide after symbol customization, so retain the trap identity needed
-    // by detect.c:find_trap() in the same canonical memory record.
-    if (trap) remembered.trapType = trap.ttyp;
-    if (!Number.isInteger(glyph.glyph)) {
-        if (glyph.attr) remembered.attr = glyph.attr;
-        if (glyph.displayColor) remembered.displayColor = glyph.displayColor;
-        if (glyph.rgb) remembered.rgb = [...glyph.rgb];
-    }
-    // `cmap` is the index terrainCmap() drew from, which is exactly what
-    // cmap_to_glyph() encodes in levl[x][y].glyph. display.c feel_location()
-    // (893-897) and reglyph_darkroom() (1826-1848) both ask map memory which
-    // cmap it holds, and presentation cannot answer once reglyph_darkroom()
-    // has made S_room and S_darkroom draw the same byte in the same colour.
-    // All three stay non-enumerable for terrainCmap()'s reason: every existing
-    // copy of a remembered record keeps the shape it already had.
-    for (const field of ['cmap', 'a11yIdentity', 'a11ySubject']) {
+    const remembered = { glyph: glyph.glyph };
+    for (const field of ['a11yIdentity', 'a11ySubject']) {
         if (glyph[field] !== undefined) {
             Object.defineProperty(remembered, field, {
                 configurable: true,
@@ -1860,63 +2016,32 @@ export function remembered_glyph_from_presentation(glyph, trap = null) {
 }
 
 /**
- * What to draw for a square the hero only remembers. C has one answer --
- * show_glyph(x, y, levl[x][y].glyph), at newsym()'s show_mem label
- * (display.c:1094-1095) -- because the number it stores is resolved at print
- * time. This port has two, because only the object layer stores that number:
- * an object square is resolved through map_glyphinfo() under the option values
- * in force now, and every other layer replays the presentation it was recorded
- * with. Retiring the second half is the terrain slice's work, and this is the
- * seam it will close.
+ * What to draw for a square the hero only remembers: C's
+ * show_glyph(x, y, levl[x][y].glyph) at newsym()'s show_mem label
+ * (display.c:1094-1095), with this port's resolution step made explicit
+ * because show_glyph_cell() takes a presentation rather than a number.
  */
 export function remembered_glyph_presentation(remembered, state = game) {
-    if (Number.isInteger(remembered.glyph))
-        return map_glyphinfo(remembered.glyph, state);
-    return {
-        ch: remembered.ch,
-        color: remembered.color,
-        dec: remembered.decgfx,
-        attr: remembered.attr ?? 0,
-        displayCh: remembered.displayCh,
-        displayColor: remembered.displayColor ?? null,
-        rgb: remembered.rgb ? [...remembered.rgb] : undefined,
-    };
+    return map_glyphinfo(remembered.glyph, state);
 }
-
-// Every field of a remembered record that carries part of the glyph number C
-// would have stored. `rgb` is an array and is compared separately below.
-const REMEMBERED_GLYPH_IDENTITY_FIELDS = Object.freeze([
-    'glyph', 'cmap', 'ch', 'color', 'decgfx', 'displayCh',
-    'displayColor', 'attr', 'trapType', 'invisible_monster',
-]);
 
 /**
  * C ref: lock.c pick_lock() (579, 584), which holds `int oldglyph =
  * door->glyph` across a feel_location() call and asks whether it changed. C
- * compares two glyph numbers with `!=`; this port stores a presentation record
- * for every layer but the object one, and every map-memory write replaces that
- * record with a fresh object, so `!==` would answer "changed" for a square
- * feel_location() left exactly as it found it.
+ * compares two glyph numbers with `!=`; this port wraps each number in a fresh
+ * record on every map-memory write, so `!==` would answer "changed" for a
+ * square feel_location() left exactly as it found it.
  *
- * Compare the canonical identity instead. `glyph` is C's own number and settles
- * an object square outright; `cmap` separates two pieces of terrain that draw
- * the same byte. Between them they cover every record this port writes into map
- * memory, because map_glyphinfo() stamps the first, terrainCmap() stamps the
- * second, and monster_glyph_info()'s two disguises that reach memory route
- * through one or the other. The remaining fields separate the layers and catch
- * a customized symbol set that has made two of them draw alike.
+ * Compare the numbers instead, which is C's own comparison. `invisible_monster`
+ * joins them because map_invisible() would store GLYPH_INVISIBLE, a number this
+ * port has no range for yet; glyph_is_invisible() explains that marker.
  */
 export function same_remembered_glyph(before, after) {
     if (before === after) return true;
     if (!before || !after) return false;
-    for (const field of REMEMBERED_GLYPH_IDENTITY_FIELDS) {
-        if ((before[field] ?? null) !== (after[field] ?? null)) return false;
-    }
-    const beforeRgb = before.rgb ?? null;
-    const afterRgb = after.rgb ?? null;
-    if (!beforeRgb || !afterRgb) return beforeRgb === afterRgb;
-    return beforeRgb.length === afterRgb.length
-        && beforeRgb.every((component, i) => component === afterRgb[i]);
+    return before.glyph === after.glyph
+        && (before.invisible_monster ?? null)
+            === (after.invisible_monster ?? null);
 }
 
 // C ref: display.c feel_location() (736-905), the branch taken by a hero who
@@ -2004,25 +2129,46 @@ export function feel_location(x, y, state = game) {
     //
     // The first arm is what lock.c:584 observes: with 'dark_room' and colour
     // both on, a lit room square the hero already remembers moves from S_room
-    // to S_darkroom, and only the cmap index says so, because
+    // to S_darkroom, and only the glyph number says so, because
     // reglyph_darkroom() has made the two draw the same byte.
     const darkroom = Boolean(state.flags?.dark_room);
-    const cmap = location.remembered_glyph?.cmap;
-    if (location.typ === ROOM && cmap === S_room
+    const remembered = location.remembered_glyph?.glyph;
+    if (location.typ === ROOM
+        && remembered === cmap_to_glyph(S_room, state)
         && (!location.waslit || (darkroom && state.iflags?.wc_color))) {
-        const glyph = darkroom
-            // defsym.h:113 gives S_darkroom the colour CLR_BLACK, which
-            // recorderMapColor() folds onto the terminal default.
-            ? terrainCmap(S_darkroom, CLR_BLACK, state)
-            : terrainCmap(S_stone, NO_COLOR, state);
-        location.remembered_glyph = remembered_glyph_from_presentation(glyph);
-        show_glyph_cell(x, y, glyph);
-    } else if (location.typ === CORR && cmap === S_litcorr
+        showRememberedCmap(
+            x, y, darkroom ? S_darkroom : S_stone, state,
+        );
+    } else if (location.typ === CORR
+               && remembered === cmap_to_glyph(S_litcorr, state)
                && !location.waslit) {
-        const glyph = terrainCmap(S_corr, NO_COLOR, state);
-        location.remembered_glyph = remembered_glyph_from_presentation(glyph);
-        show_glyph_cell(x, y, glyph);
+        showRememberedCmap(x, y, S_corr, state);
     }
+}
+
+// The shape C writes as `show_glyph(x, y, lev->glyph = cmap_to_glyph(idx))`:
+// one cmap index becomes the square's memory and its next draw at once. Three
+// places use it -- feel_location()'s tail, newsym()'s out-of-sight corrections
+// and unmap_object()'s dark-room repair -- and all three write map memory
+// directly rather than through map_background(), so none of them consults
+// level.flags.hero_memory.
+function showRememberedCmap(x, y, cmap, state) {
+    const glyph = map_glyphinfo(cmap_to_glyph(cmap, state), state);
+    state.level.at(x, y).remembered_glyph
+        = remembered_glyph_from_presentation(glyph);
+    show_glyph_cell(x, y, glyph);
+}
+
+// C's bare `levl[x][y].glyph = <number>`, with no draw beside it:
+// unmap_object() writes two and reglyph_darkroom() five.
+function rememberedGlyphNumber(glyph, state) {
+    return remembered_glyph_from_presentation(map_glyphinfo(glyph, state));
+}
+
+// The same write from a cmap index, which is how most of those callers spell
+// it: `levl[x][y].glyph = cmap_to_glyph(idx)`.
+function rememberedCmap(cmap, state) {
+    return rememberedGlyphNumber(cmap_to_glyph(cmap, state), state);
 }
 
 // C ref: display.c _map_location() (448-472), the macro map_location() wraps.
@@ -2063,15 +2209,18 @@ function _map_location(x, y, show, state) {
     }
 }
 
-// C ref: region.c show_region() (731-735). C stores a finished glyph number on
-// the region; this port stores the cmap index and the argument that picks its
-// colour, so the presentation is built here.
+// C ref: region.c show_region() (731-735), which is one show_glyph() of the
+// number the region carries. This port stores the cmap index on the region
+// rather than the number -- region.c create_gas_cloud() (1194) sets
+// `cmap_to_glyph(damage ? S_poisoncloud : S_cloud)` and js/region.js keeps the
+// index of that same pair -- so the conversion happens here. The colour comes
+// from defsyms[] with everything else: CLR_BRIGHT_GREEN for poison gas and
+// CLR_GRAY for a harmless cloud, which is what the region's damage argument
+// used to select here.
 function show_region(region, x, y, state) {
-    show_glyph_cell(x, y, terrainCmap(
-        region.glyph,
-        region.arg ? CLR_BRIGHT_GREEN : CLR_GRAY,
-        state,
-    ));
+    show_glyph_cell(
+        x, y, map_glyphinfo(cmap_to_glyph(region.glyph, state), state),
+    );
 }
 
 // C ref: display.c map_object() (325-366). C calls obj_to_glyph() once, then
@@ -2111,26 +2260,17 @@ export function feel_newsym(x, y, state = game) {
 
 // C refs: engrave.h engraving_to_defsym()/spot_shows_engravings();
 // display.c map_engraving(). Ice uses the room engraving symbol.
+//
+// The MG_BW_ENGR test that used to sit here belongs to map_glyphinfo()'s
+// CMAP_A arm, where reset_glyphmap() keeps it, so a remembered engraving
+// answers a 'use_inverse' toggle rather than replaying the attribute it was
+// recorded with.
 function engravingGlyph(engraving, loc, state) {
     if (!engraving?.erevealed
         || (loc.typ !== ROOM && loc.typ !== ICE && loc.typ !== CORR)) {
         return null;
     }
-    const glyph = terrainCmap(
-        loc.typ === CORR ? S_engrcorr : S_engroom,
-        CLR_BRIGHT_BLUE,
-        state,
-    );
-    if (loc.typ === CORR && state.iflags?.wc_inverse !== false) {
-        const engraved = cmap_symbol_byte(S_engrcorr, state);
-        if (engraved === cmap_symbol_byte(S_corr, state)
-            || engraved === cmap_symbol_byte(S_litcorr, state)) {
-            // display.c:reset_glyphmap() marks an otherwise indistinguishable
-            // corridor engraving with MG_BW_ENGR; tty uses inverse video.
-            glyph.attr = ATR_INVERSE;
-        }
-    }
-    return glyph;
+    return map_glyphinfo(engraving_to_glyph(engraving, state), state);
 }
 
 function sameLevel(a, b) {
@@ -2186,13 +2326,11 @@ function floorLayersCovered(loc, state) {
     return pool && !state.u?.uinwater;
 }
 
-// C ref: display.c trap_to_glyph(). Search discovery temporarily needs the
-// canonical trap glyph even when an object or monster covers the square.
+// C ref: display.h trap_to_glyph(), resolved. Search discovery temporarily
+// needs the canonical trap glyph even when an object or monster covers the
+// square.
 export function trap_glyph_info(trap, state = game) {
-    const color = TRAP_COLORS[trap.ttyp];
-    if (color === undefined)
-        throw new RangeError(`trap type ${trap.ttyp} has no display color`);
-    const glyph = terrainCmap(trap_to_defsym(trap.ttyp), color, state);
+    const glyph = map_glyphinfo(trap_to_glyph(trap, state), state);
     if (!state.a11y?.glyph_updates) return glyph;
     return withAccessibilityMetadata(
         glyph,
@@ -2214,10 +2352,8 @@ export function map_trap(trap, show, state = game) {
     if (state.level?.flags?.hero_memory) {
         const location = state.level.at(trap.tx, trap.ty);
         if (location) {
-            location.remembered_glyph = remembered_glyph_from_presentation(
-                glyph,
-                trap,
-            );
+            location.remembered_glyph
+                = remembered_glyph_from_presentation(glyph);
         }
     }
     if (show) show_glyph_cell(trap.tx, trap.ty, glyph);
@@ -2230,7 +2366,7 @@ export function map_trap(trap, show, state = game) {
 export function map_background(x, y, show, state = game) {
     const location = state.level?.at(x, y);
     if (!location) return;
-    const glyph = terrain_glyph(location, x, y, state);
+    const glyph = map_glyphinfo(back_to_glyph(x, y, state), state);
     if (state.level?.flags?.hero_memory) {
         location.remembered_glyph = remembered_glyph_from_presentation(glyph);
     }
@@ -2286,15 +2422,10 @@ export function unmap_object(x, y, state = game) {
         // can only succeed on what map_background() just wrote, and
         // back_to_glyph() writes S_room for exactly the ROOM squares this
         // test already names, so the typ test carries the whole condition.
-        if (!location.waslit && location.typ === ROOM) {
-            location.remembered_glyph = remembered_glyph_from_presentation(
-                terrainCmap(S_stone, NO_COLOR, state),
-            );
-        }
+        if (!location.waslit && location.typ === ROOM)
+            location.remembered_glyph = rememberedCmap(S_stone, state);
     } else {
-        location.remembered_glyph = remembered_glyph_from_presentation(
-            terrainCmap(S_stone, NO_COLOR, state),
-        );
+        location.remembered_glyph = rememberedCmap(S_stone, state);
     }
 }
 
@@ -2468,7 +2599,7 @@ export function newsym(x, y) {
         underlying = rememberedUnderlying = trap_glyph_info(trap, game);
     } else {
         underlying = engravingGlyph(engraving, loc, game)
-            ?? terrain_glyph(loc, x, y);
+            ?? map_glyphinfo(back_to_glyph(x, y, game), game);
         rememberedUnderlying = underlying;
     }
 
@@ -2569,32 +2700,29 @@ export function newsym(x, y) {
         // back_to_glyph(), because they hold only while the square is out of
         // sight; back_to_glyph() runs on the sighted pass too and would undo
         // its own promotion.
-        const cmap = loc.remembered_glyph.cmap;
+        const remembered = loc.remembered_glyph.glyph;
         let darkened = null;
         if (on_level(game.u?.uz, game.rogue_level)) {
             // display.c:1078-1085.
-            if (cmap === S_litcorr && loc.typ === CORR)
-                darkened = terrainCmap(S_corr, NO_COLOR, game);
-            else if (cmap === S_room && loc.typ === ROOM && !loc.waslit)
-                darkened = terrainCmap(S_stone, NO_COLOR, game);
+            if (remembered === cmap_to_glyph(S_litcorr, game)
+                && loc.typ === CORR) darkened = S_corr;
+            else if (remembered === cmap_to_glyph(S_room, game)
+                     && loc.typ === ROOM && !loc.waslit) darkened = S_stone;
         } else if (!loc.waslit
                    || (game.flags?.dark_room && game.iflags?.wc_color)) {
             // display.c:1086-1093.
-            if (cmap === S_litcorr && loc.typ === CORR)
-                darkened = terrainCmap(S_corr, NO_COLOR, game);
-            else if (cmap === S_room && loc.typ === ROOM)
+            if (remembered === cmap_to_glyph(S_litcorr, game)
+                && loc.typ === CORR) darkened = S_corr;
+            else if (remembered === cmap_to_glyph(S_room, game)
+                     && loc.typ === ROOM)
                 // sym.h:96 resolves DARKROOMSYM to S_darkroom here: its other
                 // arm is the rogue level, which the branch above has taken.
-                // defsym.h:114 gives that cmap CLR_BLACK, which
-                // recorderMapColor() folds onto the terminal default.
-                darkened = terrainCmap(S_darkroom, CLR_BLACK, game);
+                darkened = S_darkroom;
         }
-        if (darkened) {
+        if (darkened !== null) {
             // C assigns levl[x][y].glyph inside the show_glyph() argument, so
             // the correction outlives the draw exactly as the promotion does.
-            loc.remembered_glyph
-                = remembered_glyph_from_presentation(darkened);
-            show_glyph_cell(x, y, darkened);
+            showRememberedCmap(x, y, darkened, game);
             return;
         }
         // display.c:1094-1095, the show_mem label: memory as it stands.
@@ -2712,55 +2840,24 @@ export async function docrt() {
 // (7347), from reset_needed_visuals() (8999) and from goto_level() (do.c:1715);
 // js/do.js:910-916 records why the goto_level() call has nothing to repair.
 //
-// Two of those arms need only the cmap index the remembered record carries,
-// and this port runs them: 1831-1833 and 1842-1844, the two the else branches
-// reach with 'dark_room' and colour both on. The other two need GLYPH_NOTHING,
-// which nothing in this port writes -- 1838-1840 writes it and 1845-1847 reads
-// it back -- so the configurations that reach either one are refused instead,
-// which is also what optfn_boolean() refuses at its 'dark_room' and 'color'
-// arms. That leaves 1845-1847 unported inside a configuration this port does
-// admit; it is a no-op here, because only 1838-1840 and magic_map_background()
-// (display.c:247) write GLYPH_NOTHING in C and neither is ported. The open
-// ledger entry remembered-glyph-caches-a-resolved-presentation tracks the
-// wider gap.
+// All four arms run. Each is a comparison against a glyph number and an
+// assignment of another, which is what map memory now holds; the two that
+// need GLYPH_NOTHING were the reason this used to refuse three of the four
+// option configurations, and the number they write is resolved by
+// map_glyphinfo()'s first arm like any other.
 //
-// Is_rogue_level() joins the refusal because it is the third term of C's
-// second gate (1836-1837): on the rogue level C takes the GLYPH_NOTHING arm
-// however the two options stand.
-//
-// The refusal asks first whether a map exists to repair. initoptions_finish()
-// runs before mklev() has built one, so every arm of the loop would compare
-// against a square carrying no remembered glyph at all and find no work; that
-// call must reach the tail below under either option value.
-//
-// The tail is the rest, and it is the reason this exists as a function: a
-// SYMBOLS=S_room override moves S_darkroom with it, and the initoptions_finish()
-// call is what first collapses the two onto one byte.
-//
-// The refusal is its own class because every other caller reaches it from
-// inside a command: js/cmd.js failClosedCommandRefusals() lists it, so an
-// options menu that toggles 'hilite_pet', 'hitpointbar' or 'lit_corridor' under
-// 'OPTIONS=!color' ends the segment on its last matching screen instead of
-// discarding every screen the segment had already matched.
-export class UnsupportedGlyphRepairError extends Error {
-    constructor(message) {
-        super(message);
-        this.name = 'UnsupportedGlyphRepairError';
-    }
-}
-
+// The map test is the whole of what guards the loop. initoptions_finish() runs
+// before mklev() has built one, so every arm would compare against a square
+// carrying no remembered glyph at all and find no work; that call must still
+// reach the tail below, which is the reason this exists as a function: a
+// SYMBOLS=S_room override moves S_darkroom with it, and the
+// initoptions_finish() call is what first collapses the two onto one byte.
 export function reglyph_darkroom(state = game) {
-    const darkroomInColor = Boolean(
-        state.flags?.dark_room && state.iflags?.wc_color,
-    );
-    const repairable = darkroomInColor
+    const darkRoom = Boolean(state.flags?.dark_room);
+    // display.c:1836-1837. On the rogue level C takes the GLYPH_NOTHING arm
+    // however the two options stand.
+    const keepsDarkroomGlyph = darkRoom && state.iflags?.wc_color
         && !on_level(state.u?.uz, state.rogue_level);
-    if (state.level && !repairable) {
-        throw new UnsupportedGlyphRepairError(
-            'reglyph_darkroom() over a map remembered under different '
-            + "'dark_room' or 'color' settings",
-        );
-    }
     if (state.level) {
         // display.c:1822-1823. The bounds are C's own, and every square
         // inside them exists: js/game.js GameMap allocates the whole
@@ -2768,27 +2865,46 @@ export function reglyph_darkroom(state = game) {
         for (let x = 1; x < COLNO; x++) {
             for (let y = 0; y < ROWNO; y++) {
                 const location = state.level.at(x, y);
-                // display.c:1831-1833, the else arm of the first pair. A
-                // corridor remembered lit that the hero cannot see now goes
-                // back to the dark corridor symbol.
-                if (location.remembered_glyph?.cmap === S_litcorr
-                    && !cansee(x, y, state)) {
-                    location.remembered_glyph
-                        = remembered_glyph_from_presentation(
-                            terrainCmap(S_corr, NO_COLOR, state),
-                        );
+                const remembered = () => location.remembered_glyph?.glyph;
+                if (!darkRoom) {
+                    // display.c:1827-1830. With 'dark_room' off a corridor the
+                    // hero saw lit is drawn lit again wherever she is.
+                    if (remembered() === cmap_to_glyph(S_corr, state)
+                        && location.waslit) {
+                        location.remembered_glyph
+                            = rememberedCmap(S_litcorr, state);
+                    }
+                } else if (remembered() === cmap_to_glyph(S_litcorr, state)
+                           && !cansee(x, y, state)) {
+                    // display.c:1831-1833. A corridor remembered lit that the
+                    // hero cannot see now goes back to the dark symbol.
+                    location.remembered_glyph = rememberedCmap(S_corr, state);
                 }
-                // display.c:1842-1844, the first half of the second pair's
-                // else arm. defsym.h:113 gives S_darkroom the colour
-                // CLR_BLACK, which recorderMapColor() folds onto the terminal
-                // default, exactly as feel_location()'s tail does.
-                if (location.remembered_glyph?.cmap === S_room
-                    && location.seenv && location.waslit
-                    && !cansee(x, y, state)) {
+                // C re-reads lev->glyph for this pair, after the pair above
+                // may have rewritten it, so this does too.
+                if (!keepsDarkroomGlyph) {
+                    // display.c:1838-1840. Nothing draws S_darkroom in this
+                    // configuration, so a square remembered that way goes back
+                    // to plain floor if the hero saw it lit and to nothing at
+                    // all if she did not.
+                    if (remembered() === cmap_to_glyph(S_darkroom, state)) {
+                        location.remembered_glyph = location.waslit
+                            ? rememberedCmap(S_room, state)
+                            : rememberedGlyphNumber(GLYPH_NOTHING_OFF, state);
+                    }
+                } else if (remembered() === cmap_to_glyph(S_room, state)
+                           && location.seenv && location.waslit
+                           && !cansee(x, y, state)) {
+                    // display.c:1842-1844.
                     location.remembered_glyph
-                        = remembered_glyph_from_presentation(
-                            terrainCmap(S_darkroom, CLR_BLACK, state),
-                        );
+                        = rememberedCmap(S_darkroom, state);
+                } else if (remembered() === GLYPH_NOTHING_OFF
+                           && location.typ === ROOM && location.seenv
+                           && !cansee(x, y, state)) {
+                    // display.c:1845-1847, the arm that takes back what
+                    // 1838-1840 wrote when the options move the other way.
+                    location.remembered_glyph
+                        = rememberedCmap(S_darkroom, state);
                 }
             }
         }
@@ -2796,7 +2912,7 @@ export function reglyph_darkroom(state = game) {
     // display.c:1850-1853.
     const showsyms = state.gs?.showsyms;
     if (!showsyms) return;
-    showsyms[S_darkroom] = darkroomInColor
+    showsyms[S_darkroom] = darkRoom && state.iflags?.wc_color
         ? showsyms[S_room]
         : showsyms[SYM_OFF_X + SYM_NOTHING];
 }

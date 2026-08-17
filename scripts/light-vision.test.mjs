@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { ART_SUNSWORD } from '../js/artifacts.js';
+import { remembered_glyph_presentation } from '../js/display.js';
 import {
     BLINDED,
     CLOUD,
@@ -647,7 +648,10 @@ test('becoming blind redraws cells which were previously in sight', () => {
     vision_recalc(0);
     const location = state.level.at(10, 7);
     assert.equal(cansee(10, 7), true);
-    assert.equal(location.remembered_glyph.ch, '.');
+    assert.equal(
+        remembered_glyph_presentation(location.remembered_glyph, state).ch,
+        '.',
+    );
     // Model a transient visible overlay.  The blind transition must invoke
     // newsym() for the old IN_SIGHT cell and restore its remembered terrain.
     location.disp_ch = 'X';

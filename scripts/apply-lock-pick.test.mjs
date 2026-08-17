@@ -26,6 +26,7 @@ import {
 } from '../js/const.js';
 import {
     glyph_is_object,
+    glyph_to_cmap,
     object_glyph_info,
     remembered_glyph_from_presentation,
 } from '../js/display.js';
@@ -263,11 +264,11 @@ test('a square with no door is felt rather than picked', async () => {
     await standBeside(5200108, `l${APPLY_KEY}${LOCK_PICK_SLOT}j`, 'l');
     const floor = game.level.at(game.u.ux, game.u.uy + 1);
     assert.equal(floor.typ, ROOM);
-    assert.equal(floor.remembered_glyph.cmap, S_room);
+    assert.equal(glyph_to_cmap(floor.remembered_glyph.glyph), S_room);
     answer(LOCK_PICK_SLOT, 'j');
     assert.equal(await doapply(game), ECMD_TIME);
     assert.equal(pendingTopLine(), 'You see no door there.');
-    assert.equal(floor.remembered_glyph.cmap, S_darkroom);
+    assert.equal(glyph_to_cmap(floor.remembered_glyph.glyph), S_darkroom);
 
     // A wall the hero already sees. feel_location() rewrites nothing there --
     // its two tail arms name ROOM and CORR -- so the answer is
@@ -279,7 +280,7 @@ test('a square with no door is felt rather than picked', async () => {
     answer(LOCK_PICK_SLOT, 'k');
     assert.equal(await doapply(game), ECMD_OK);
     assert.equal(pendingTopLine(), 'You see no door there.');
-    assert.equal(wall.remembered_glyph.cmap, wallMemory.cmap);
+    assert.equal(wall.remembered_glyph.glyph, wallMemory.glyph);
 
     // Room floor holding an object, which is _map_location()'s first arm.
     // The object has to stay in map memory: replacing it with floor would
@@ -313,7 +314,7 @@ test('a felt square whose recorded terrain type is new spends the turn',
     assert.equal(await doapply(game), ECMD_TIME);
     // The glyph really did not move, so the lastseentyp disjunct is the only
     // operand that could have answered.
-    assert.equal(wall.remembered_glyph.cmap, wallMemory.cmap);
+    assert.equal(wall.remembered_glyph.glyph, wallMemory.glyph);
     assert.equal(game.level.lastseentyp[x][y], HWALL);
 });
 

@@ -24,12 +24,16 @@ import {
 } from '../js/const.js';
 import { do_fight, UnsupportedHeroCommandBoundaryError } from '../js/cmd.js';
 import {
+    back_to_glyph,
+    cmap_to_glyph,
     glyph_to_cmap,
     map_background,
-    terrain_glyph,
+    map_glyphinfo,
+    trap_to_glyph,
     unmap_object,
     UnsupportedMapMemoryError,
 } from '../js/display.js';
+import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import {
     domove,
@@ -41,7 +45,7 @@ import { PM_YELLOW_LIGHT } from '../js/monsters.js';
 import { mksobj, mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { AXE, BOULDER, PICK_AXE, STATUE } from '../js/objects.js';
-import { S_stone } from '../js/symbols.js';
+import { MAXPCHARS, S_stone } from '../js/symbols.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     FORCE_FIGHT_CASES,
@@ -325,15 +329,22 @@ test('a force-fight ends a multi-turn action', async () => {
     assert.equal(state.multi, 0);
 });
 
+// A glyph number no arm below would write for itself, so a record left in
+// place is distinguishable from one rewritten. display.h objnum_to_glyph(0) is
+// the strange-object glyph, which no terrain square can draw.
+const PRIOR_MEMORY_GLYPH = GLYPH_OBJ_OFF;
+
 test('a force-fight puts the terrain back into map memory', async () => {
     // hack.c:2288-2290 unmap_object() then newsym(). The square is about to
     // become known empty, so whatever the map was showing there goes.
     const state = await heroInARoom();
     const location = targetTerrain(state, VWALL);
-    location.remembered_glyph = { ch: 'X', color: 1, decgfx: false };
+    location.remembered_glyph = { glyph: PRIOR_MEMORY_GLYPH };
     await forceFightWest(state);
-    const wall = terrain_glyph(location, state.u.ux - 1, state.u.uy, state);
-    assert.equal(location.remembered_glyph.ch, wall.ch);
+    assert.equal(
+        location.remembered_glyph.glyph,
+        back_to_glyph(state.u.ux - 1, state.u.uy, state),
+    );
 });
 
 // ── hack.c domove_fight_empty(), the thin-air arm ──
@@ -670,11 +681,11 @@ function unmapTarget(state) {
 test('unmap_object puts the terrain back over a forgotten layer', async () => {
     const state = await heroWithATargetSquare(FOUNTAIN);
     const location = target(state);
-    location.remembered_glyph = { ch: 'X', color: 1, decgfx: false };
-    const fountain = terrain_glyph(
-        location, state.u.ux + WEST[0], state.u.uy + WEST[1], state,
+    location.remembered_glyph = { glyph: PRIOR_MEMORY_GLYPH };
+    const fountain = back_to_glyph(
+        state.u.ux + WEST[0], state.u.uy + WEST[1], state,
     );
-    assert.equal(unmapTarget(state).remembered_glyph.ch, fountain.ch);
+    assert.equal(unmapTarget(state).remembered_glyph.glyph, fountain);
 });
 
 test('unmap_object keeps an unseen trap out of map memory', async () => {
@@ -684,12 +695,14 @@ test('unmap_object keeps an unseen trap out of map memory', async () => {
     const x = state.u.ux + WEST[0];
     const y = state.u.uy + WEST[1];
     state.level.traps.push({ tx: x, ty: y, ttyp: WEB, tseen: 0 });
-    const fountain = terrain_glyph(target(state), x, y, state);
-    assert.equal(unmapTarget(state).remembered_glyph.ch, fountain.ch);
+    const fountain = back_to_glyph(x, y, state);
+    assert.equal(unmapTarget(state).remembered_glyph.glyph, fountain);
 
     state.level.traps[0].tseen = 1;
     const remembered = unmapTarget(state).remembered_glyph;
-    assert.equal(remembered.trapType, WEB);
+    assert.equal(
+        remembered.glyph, trap_to_glyph(state.level.traps[0], state),
+    );
 });
 
 test('unmap_object rewrites memory without painting the square', async () => {
@@ -711,14 +724,16 @@ test('unmap_object writes stone over a square never seen', async () => {
     // display.c:435-437, the else that has no terrain to put back.
     const state = await heroWithATargetSquare(FOUNTAIN, { seenv: 0 });
     const location = target(state);
-    location.remembered_glyph = { ch: 'X', color: 1, decgfx: false };
-    const stone = map_background_probe(state);
-    assert.equal(unmapTarget(state).remembered_glyph.ch, stone);
+    location.remembered_glyph = { glyph: PRIOR_MEMORY_GLYPH };
+    assert.equal(
+        unmapTarget(state).remembered_glyph.glyph, stoneGlyph(state),
+    );
 });
 
-function map_background_probe(state) {
-    const location = { typ: STONE, seenv: 0 };
-    return terrain_glyph(location, state.u.ux, state.u.uy, state).ch;
+// display.c:436's `cmap_to_glyph(S_stone)`, which back_to_glyph() also answers
+// for unseen stone.
+function stoneGlyph(state) {
+    return cmap_to_glyph(S_stone, state);
 }
 
 test('unmap_object darkens an unlit room square it just repainted',
@@ -728,17 +743,16 @@ test('unmap_object darkens an unlit room square it just repainted',
         const dark = await heroWithATargetSquare(ROOM);
         target(dark).waslit = false;
         assert.equal(
-            unmapTarget(dark).remembered_glyph.ch,
-            map_background_probe(dark),
+            unmapTarget(dark).remembered_glyph.glyph, stoneGlyph(dark),
         );
 
         const lit = await heroWithATargetSquare(ROOM);
         target(lit).waslit = true;
-        const room = terrain_glyph(
-            target(lit), lit.u.ux + WEST[0], lit.u.uy + WEST[1], lit,
+        const room = back_to_glyph(
+            lit.u.ux + WEST[0], lit.u.uy + WEST[1], lit,
         );
-        assert.equal(unmapTarget(lit).remembered_glyph.ch, room.ch);
-        assert.notEqual(room.ch, map_background_probe(lit));
+        assert.equal(unmapTarget(lit).remembered_glyph.glyph, room);
+        assert.notEqual(room, stoneGlyph(lit));
 
         // The negative case for the conjunct the port substituted for C's
         // `lev->glyph == cmap_to_glyph(S_room)` compare. Varying waslit alone
@@ -747,14 +761,13 @@ test('unmap_object darkens an unlit room square it just repainted',
         for (const typ of [CORR, FOUNTAIN]) {
             const other = await heroWithATargetSquare(typ);
             target(other).waslit = false;
-            const own = terrain_glyph(
-                target(other), other.u.ux + WEST[0], other.u.uy + WEST[1],
-                other,
+            const own = back_to_glyph(
+                other.u.ux + WEST[0], other.u.uy + WEST[1], other,
             );
             assert.equal(
-                unmapTarget(other).remembered_glyph.ch, own.ch, `typ ${typ}`,
+                unmapTarget(other).remembered_glyph.glyph, own, `typ ${typ}`,
             );
-            assert.notEqual(own.ch, map_background_probe(other), `typ ${typ}`);
+            assert.notEqual(own, stoneGlyph(other), `typ ${typ}`);
         }
     });
 
@@ -779,8 +792,9 @@ test('unmap_object stops on a square that shows an engraving', async () => {
     const x = wall.u.ux + WEST[0];
     const y = wall.u.uy + WEST[1];
     engraveAt(wall, x, y);
-    const stone = terrain_glyph(target(wall), x, y, wall);
-    assert.equal(unmapTarget(wall).remembered_glyph.ch, stone.ch);
+    assert.equal(
+        unmapTarget(wall).remembered_glyph.glyph, back_to_glyph(x, y, wall),
+    );
 });
 
 test('unmap_object leaves a level with no hero memory alone', async () => {
@@ -790,9 +804,11 @@ test('unmap_object leaves a level with no hero memory alone', async () => {
     // hero_memory test in front of it.
     const state = await heroWithATargetSquare(FOUNTAIN, { seenv: 0 });
     const location = target(state);
-    location.remembered_glyph = { ch: 'X', color: 1, decgfx: false };
+    location.remembered_glyph = { glyph: PRIOR_MEMORY_GLYPH };
     state.level.flags.hero_memory = false;
-    assert.equal(unmapTarget(state).remembered_glyph.ch, 'X');
+    assert.equal(
+        unmapTarget(state).remembered_glyph.glyph, PRIOR_MEMORY_GLYPH,
+    );
 });
 
 test('map_background paints only when asked to show', async () => {
@@ -806,7 +822,7 @@ test('map_background paints only when asked to show', async () => {
     map_background(x, y, 1, state);
     assert.equal(
         target(state).disp_ch,
-        terrain_glyph(target(state), x, y, state).ch,
+        map_glyphinfo(back_to_glyph(x, y, state), state).ch,
     );
 });
 
@@ -827,20 +843,19 @@ function engraveAt(state, x, y) {
 
 // ── display.h glyph_to_cmap() ──
 
-test('glyph_to_cmap reads the index a terrain presentation was drawn from',
+test('glyph_to_cmap reads the index a terrain glyph number was built from',
     async () => {
         const state = await heroInARoom();
-        const location = targetTerrain(state, STONE);
+        targetTerrain(state, STONE);
         assert.equal(
-            glyph_to_cmap(terrain_glyph(
-                location, state.u.ux + WEST[0], state.u.uy + WEST[1], state,
+            glyph_to_cmap(back_to_glyph(
+                state.u.ux + WEST[0], state.u.uy + WEST[1], state,
             )),
             S_stone,
         );
-        assert.throws(
-            () => glyph_to_cmap({ ch: '.', color: 0, dec: false }),
-            TypeError,
-        );
+        // glyphs.c glyph_to_cmap()'s default: MAXPCHARS, defsyms[]'s fencepost
+        // entry, for a number in no cmap range.
+        assert.equal(glyph_to_cmap(PRIOR_MEMORY_GLYPH), MAXPCHARS);
     });
 
 // ── cmd.c rhack(), the prefix that follows a prefix ──

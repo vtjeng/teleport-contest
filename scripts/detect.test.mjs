@@ -46,15 +46,18 @@ import {
     UnsupportedSearchError,
 } from '../js/detect.js';
 import {
+    back_to_glyph,
     glyph_is_invisible,
+    trap_to_glyph,
+    map_glyphinfo,
     monster_glyph_info,
     object_glyph_info,
     remembered_glyph_from_presentation,
-    terrain_glyph,
     trap_glyph_info,
     unmap_invisible,
     UnsupportedMapMemoryError,
 } from '../js/display.js';
+import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { nomul } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
@@ -284,36 +287,16 @@ function tactileSearchRandom(expectedBound) {
     };
 }
 
-function rememberedGlyphContract(glyph, trapType = null) {
-    // An object square stores C's own levl[x][y].glyph and nothing else, so
-    // the presentation is re-derived at every draw; every other layer still
-    // stores the presentation it was recorded with. This file's clutter case
-    // is an object square whose custom symbol collides with a trap's, so it
-    // takes the first arm.
-    if (Number.isInteger(glyph.glyph)) {
-        const remembered = { glyph: glyph.glyph };
-        if (trapType !== null) remembered.trapType = trapType;
-        return remembered;
-    }
-    const remembered = {
-        ch: glyph.ch,
-        color: glyph.color,
-        decgfx: glyph.dec,
-        displayCh: glyph.displayCh ?? null,
-    };
-    if (trapType !== null) remembered.trapType = trapType;
-    if (glyph.attr) remembered.attr = glyph.attr;
-    if (glyph.displayColor)
-        remembered.displayColor = glyph.displayColor;
-    if (glyph.rgb) remembered.rgb = [...glyph.rgb];
-    return remembered;
+// Map memory stores C's own levl[x][y].glyph and nothing else, so every
+// remembered square is the number its presentation carries.
+function rememberedGlyphContract(glyph) {
+    return { glyph: glyph.glyph };
 }
 
 function assertCompleteMappedGlyph(
     location,
     glyph,
     label = '',
-    trapType = null,
 ) {
     assert.deepEqual({
         ch: location.disp_ch,
@@ -335,7 +318,7 @@ function assertCompleteMappedGlyph(
     }, label);
     assert.deepEqual(
         location.remembered_glyph,
-        rememberedGlyphContract(glyph, trapType),
+        rememberedGlyphContract(glyph),
         label,
     );
 }
@@ -527,7 +510,7 @@ test('blind tactile search records all eight source viewing vectors', async () =
             message: async () => {},
         });
 
-        const expected = terrain_glyph(location, x, y, game);
+        const expected = map_glyphinfo(back_to_glyph(x, y, game), game);
         assert.equal(location.typ, CORR);
         assert.equal(location.seenv, seenv, `${dx},${dy}`);
         assert.deepEqual(random.calls, ['rnl(7)', 'rn2(19)']);
@@ -535,41 +518,25 @@ test('blind tactile search records all eight source viewing vectors', async () =
     }
 });
 
-test('presentation-to-memory conversion retains logical and browser metadata', () => {
-    const trap = { ttyp: ANTI_MAGIC };
-    // Distinct non-default sentinels expose dropped or cross-wired color,
-    // attribute, browser, and RGB fields; ANTI_MAGIC is the meaningful logical
-    // trap identity.
-    const glyph = {
-        ch: null,
-        color: 12,
-        dec: false,
-        attr: 4,
-        displayCh: '⌁',
-        displayColor: 'rgb(7, 11, 13)',
-        rgb: [7, 11, 13],
-    };
-
+test('glyph-number-to-memory conversion keeps only what C stores', () => {
+    // display.h trap_to_glyph() for ANTI_MAGIC is one arbitrary cmap glyph
+    // number; the presentation around it carries browser and colour fields
+    // that map memory deliberately drops, because map_glyphinfo() rebuilds
+    // them from the number at every draw.
+    const glyph = map_glyphinfo(
+        trap_to_glyph({ ttyp: ANTI_MAGIC }, game), game,
+    );
     assert.deepEqual(
-        remembered_glyph_from_presentation(glyph, trap),
-        {
-            ch: null,
-            color: 12,
-            decgfx: false,
-            displayCh: '⌁',
-            displayColor: 'rgb(7, 11, 13)',
-            rgb: [7, 11, 13],
-            attr: 4,
-            trapType: ANTI_MAGIC,
-        },
+        remembered_glyph_from_presentation(glyph),
+        { glyph: glyph.glyph },
     );
     assert.throws(
         () => remembered_glyph_from_presentation({
             ch: '^',
             color: 12,
-            decgfx: false,
+            dec: false,
         }),
-        /requires a presentation record/u,
+        /requires a resolved glyph number/u,
     );
 });
 
@@ -653,7 +620,7 @@ test('blind global search maps an ordinary trap through tactile defaults', async
     assert.equal(trap.tseen, true);
     assert.equal(location.seenv, SV4);
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
-    assertCompleteMappedGlyph(location, expected, '', ANTI_MAGIC);
+    assertCompleteMappedGlyph(location, expected);
 });
 
 test('blind tactile mapping refuses a floor the hero cannot feel', async () => {
@@ -858,12 +825,7 @@ test('sighted trap discovery records trap identity without a map wait', async ()
     const location = game.level.at(target.x, target.y);
     assert.equal(target.replay.getScreens().length, beforeWait);
     assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
-    assertCompleteMappedGlyph(
-        location,
-        trap_glyph_info(trap, game),
-        '',
-        ANTI_MAGIC,
-    );
+    assertCompleteMappedGlyph(location, trap_glyph_info(trap, game));
 });
 
 test('sighted trap discovery compares memory retained under a gas region', async () => {
@@ -1018,10 +980,7 @@ test('detect-only mimic presentation retains the underlying trap memory', async 
         }, `wc_inverse=${inverse}`);
         assert.deepEqual(
             location.remembered_glyph,
-            rememberedGlyphContract(
-                trap_glyph_info(trap, game),
-                ANTI_MAGIC,
-            ),
+            rememberedGlyphContract(trap_glyph_info(trap, game)),
         );
         assert.equal(target.replay.getScreens().length, beforeWait);
         assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
@@ -1036,12 +995,10 @@ test('disabled hero memory retains prior visible and tactile memory', async () =
         const target = await blindGlobalSearchState(extraRc);
         game.level.flags.hero_memory = false;
         const location = game.level.at(target.x, target.y);
-        const retained = {
-            ch: '?',
-            color: 7,
-            decgfx: false,
-            displayCh: null,
-        };
+        // A glyph number this square would never write for itself, so a
+        // record left in place is distinguishable from one rewritten.
+        // display.h objnum_to_glyph(0) is the strange-object glyph.
+        const retained = { glyph: GLYPH_OBJ_OFF };
         location.remembered_glyph = retained;
         installUnseenAntiMagicTrap(target);
         const beforeWait = target.replay.getScreens().length;

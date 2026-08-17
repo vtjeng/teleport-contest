@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 
 const PROJECT_ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const UPSTREAM_ROOT = join(PROJECT_ROOT, 'nethack-c', 'upstream');
+const COLOR_PATH = join(UPSTREAM_ROOT, 'include', 'color.h');
 const DEFSYM_PATH = join(UPSTREAM_ROOT, 'include', 'defsym.h');
 const SYMBOLS_PATH = join(UPSTREAM_ROOT, 'dat', 'symbols');
 const OUTPUT_PATH = join(PROJECT_ROOT, 'js', 'symbol_data.js');
@@ -64,6 +65,57 @@ function dataByte(rawValue) {
         return escaped?.charCodeAt(0) ?? 0;
     }
     return value.charCodeAt(0) & 0xFF;
+}
+
+/**
+ * color.h's whole #define chain, as a name-to-number map.  Two kinds of line
+ * contribute: the sixteen numeric CLR_* values plus NO_COLOR, and the HI_*
+ * aliases that name one of them.  Aliases are resolved as the file is read,
+ * which is enough because color.h defines each alias below its target.
+ * Everything else -- CLR_MAX, BRIGHT, the NH_* bit masks and the COLORVAL()
+ * function macro -- has no decimal right-hand side and no already-known name,
+ * so it never enters the map.
+ */
+export function extractColorValues(source) {
+    const values = new Map();
+    for (const [, name, value] of source.matchAll(
+        /^#define\s+([A-Za-z_][A-Za-z0-9_]*)\s+(\S+)/gmu,
+    )) {
+        if (/^\d+$/u.test(value)) values.set(name, Number(value));
+        else if (values.has(value)) values.set(name, values.get(value));
+    }
+    return values;
+}
+
+/**
+ * defsyms[].color, the last argument of every PCHAR/PCHAR2 row.  drawing.c
+ * builds defsyms[] from `{ ch, desc, clr }`, and display.c reads the `clr`
+ * column back through its cmap_color() macro for every cmap glyph it resolves.
+ *
+ * The colour always follows the row's last quoted string, so the scan starts
+ * there rather than at a comma: no PCHAR description contains a comma today,
+ * but one added later would silently move the field.
+ */
+export function extractCmapColors(source, colorValues) {
+    const colors = new Array(SYM_OFF_O);
+    const pcharEntry =
+        /^[ \t]*PCHAR2?\(\s*(\d+)\s*,\s*'(?:\\.|[^'])+'\s*,([^)]*)\)/gmu;
+    for (const entry of source.matchAll(pcharEntry)) {
+        const lastQuote = entry[2].lastIndexOf('"');
+        if (lastQuote < 0)
+            throw new Error(`PCHAR entry ${entry[1]} has no explanation`);
+        const name = entry[2].slice(lastQuote + 1).replace(/^\s*,\s*/u, '')
+            .trim();
+        const value = colorValues.get(name);
+        if (value === undefined) {
+            throw new Error(
+                `PCHAR entry ${entry[1]} has unknown color '${name}'`,
+            );
+        }
+        colors[Number(entry[1])] = value;
+    }
+    assertComplete(colors, 'cmap color');
+    return colors;
 }
 
 function assertComplete(values, label) {
@@ -319,7 +371,7 @@ export function extractSymbolSets(defsymSource, symbolsSource) {
     return definitions;
 }
 
-export function renderSymbolData(definitions, layout) {
+export function renderSymbolData(definitions, layout, cmapColors) {
     const serialized = JSON.stringify(definitions, null, 4)
         .split('\n').map((line) => `    ${line}`).join('\n');
     const defaultSymbols = JSON.stringify(layout.defaults);
@@ -340,6 +392,8 @@ export function renderSymbolData(definitions, layout) {
         + `export const DEFAULT_ROGUE_SYMBOLS = Object.freeze(${defaultRogueSymbols});\n`
         + `export const SYMBOL_INDEX_BY_NAME = Object.freeze(\n${symbolIndices},\n);\n\n`
         + `export const CMAP_EXPLANATIONS = Object.freeze(${cmapExplanations});\n\n`
+        + `export const CMAP_COLORS = `
+        + `Object.freeze(${JSON.stringify(cmapColors)});\n\n`
         + `export const OBJCLASS_EXPLANATIONS = `
         + `Object.freeze(${objectExplanations});\n\n`
         + `function freezeDefinition(definition) {\n`
@@ -383,6 +437,10 @@ function main() {
     const output = renderSymbolData(
         extractSymbolSets(defsymSource, readFileSync(SYMBOLS_PATH, 'utf8')),
         layout,
+        extractCmapColors(
+            defsymSource,
+            extractColorValues(readFileSync(COLOR_PATH, 'utf8')),
+        ),
     );
     if (checkOnly) {
         let existing = '';
