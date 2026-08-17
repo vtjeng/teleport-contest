@@ -593,3 +593,4 @@ utc	event	phase	goal	detail
 2026-08-17T20:55:27.560Z	end	review	wizard-create-monster	correctness ea331c8..2d84dfa: 15 raw, 13 deduped, 11 confirmed, 11 applied, 2 rejected
 2026-08-17T20:58:54.951Z	start	select		next goal after wizard-create-monster closed
 2026-08-17T21:36:43.426Z	end	select	hero-zaps-a-ray-wand	ray-bounces-and-burns-the-hero queued, first of three planned slices
+2026-08-17T21:37:08.771Z	start	implement	hero-zaps-a-ray-wand	ray-bounces-and-burns-the-hero
