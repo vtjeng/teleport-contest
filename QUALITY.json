@@ -14800,6 +14800,100 @@
         }
       },
       "recordedAt": "2026-08-17T04:51:21.248Z"
+    },
+    {
+      "kind": "review",
+      "head": "389a8a22edb2cdb857a51c3c4306e506121d424b",
+      "auditedRange": "683ac584179d4eddf5fc7de17b93da2edccc4b25..389a8a22edb2cdb857a51c3c4306e506121d424b",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "be8cce14a282daaa644ac5a2ba7a67fe8a4d726e",
+        "reason": "the checklist covers be8cce14, an ancestor of the range head; the 2 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 12 raw, 10 deduplicated, 8 confirmed, 8 applied, 0 deferred, 2 rejected, 0 unverified; mutation: 0 survivors of 8 mutants. The goal's closing pass, run because the goal closes rather than because a threshold forced it; the gate read WATCH. Eight of ten deduplicated findings confirmed. The one that mattered most was a citation: hero_glyph_info() acquired its first C reference in this range, to display.h hero_glyph, and ported that macro's gender half while dropping its species disjunct, so a reviewer diffing the function against the named lines would have signed off on a branch that is not there. Porting the disjunct then exposed a second defect the pass did not report: an older fixture built its hero with umonnum and no umonster, which you.h:554's Upolyd reads as polymorphed. Four test findings were coverage gaps no mutation run could see, and one of them is the sharper result of this pass: the live configuration-file bug the slice had found and fixed was pinned by nothing, so reverting the fix left the whole suite green. The menu path cannot catch it, because it never runs applyBooleanOption(). The readiness delta run then caught a survivor of its own, the colour half of the disjunct I had just ported, unpinned because the fixture's polymorph form and HI_DOMESTIC were both CLR_WHITE; a colour assertion killed it. Two findings were rejected with counter-evidence. The development score did not move: 10 of 33 sessions, 1,768 screens, 125,937 random-number values and 1,786 cursors before and after, and both fresh differentials match C, the options menu now over 20 recipes at 57,424 calls and 321 screens. Optional finders: performance was not enabled, because the range adds one flag to a presentation and merges three attribute tests into one chain, with no amplified work and no measured budget; concurrency was not enabled, because the range changes no asynchronous or reentrant flow. A clarity pass was not run: the two comment findings this pass confirmed were applied here.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2498,
+        "counts": {
+          "raw": 12,
+          "deduplicated": 10,
+          "confirmed": 8,
+          "applied": 8,
+          "deferred": 0,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 4,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/display.js hero_glyph_info() cited display.h hero_glyph (654-656) for the first time in this range and ported that macro's Ugender half while dropping its Upolyd species disjunct, so the citation asserted a fidelity the function did not have, and a new test driving Upolyd true made the polymorph case look handled. The disjunct is ported now, with the colour it selects; it is inert while polyself is unported.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "scripts/display-symbols.test.mjs's 'hero and pet symbol overrides' fixture built its hero as { umonnum: 0 } with no umonster, and you.h:554's Upolyd compares the two, so the hero read as polymorphed the moment the disjunct existed. Exposed by the fix above rather than reported on its own, and corrected in the same commit.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/display.js:757 The new `Ugender()` gives `hero_glyph_info()` C's polymorph branch, but the species and colour it sits beside still omit C's `Upolyd ||`, so `hero_glyph` is now polymorph-aware in one half only — and the new test drives the polymorph branch without distinguishing the two readings.",
+            "counterEvidence": "The transcription gap is real but the correctness problem it claims is impossible in any state the port can build. Counter-evidence: `grep -rn \"umonnum\\s*=\" js/ | grep -v \"===\"` returns exactly two hits: js/eat.js:2109 (a comment) and js/u_init.js:370, `u.umonnum = u.umonster = state.urole.mnum;`. There is no writer that makes them differ, so `Upolyd()` is constantly false and `(Upolyd || !flags.showrace)` reduces to `!flags.showrace` for every reachable state — the port and C select the same mnum and the same colour in all of them. The finding concedes this itself: \"Dormant today because Upolyd() is constantly false, so no screen changes now.\" No wrong screen, no wrong random-number call, no wrong state exists to find."
+          },
+          {
+            "summary": "js/objnam.js:775 The recorded reason for waiving end-to-end evidence on the male, female and neuter arms of the gender suffix is false: it argues only about statues from `mkcorpstat()`, while the same branch covers corpses and figurines that the port's own code gives a real gender.",
+            "counterEvidence": "The code trace is right but the record it accuses says the opposite of what the finding reports, and the finding identifies no incorrect behaviour in its stated category. Counter-evidence: The committed entry in .agents/implementation-checklist.json states reachability as \"Any STATUE, CORPSE or FIGURINE named while wizard && iflags.wizmgender hold. Reachable from a configuration file today, and from the menu once the refusal goes.\" — the record already says corpses and figurines reach the branch. Its CORPSTAT_RANDOM sentence is explicitly scoped and true as written: \"The CORPSTAT_RANDOM arm is the common case for a level-generated statue\", which js/corpstat.js:151 (`obj.spe = corpstatflags & CORPSTAT_SPE_VAL`) over mklev's bare CORPSTAT_INIT confirms. Nothing in the record claims the male, female or neuter arms are unreachable. The finding also concedes \"the ported code is correct for all four spe values\", so no correctness defect is asserted."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "683ac584179d4eddf5fc7de17b93da2edccc4b25..a95469b09d932518f7e739b899d2e097d3977ee7",
+            "a95469b09d932518f7e739b899d2e097d3977ee7..389a8a22edb2cdb857a51c3c4306e506121d424b"
+          ],
+          "mutants": 8,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 0,
+              "killed": 0
+            },
+            "logical": {
+              "ran": 8,
+              "killed": 8
+            },
+            "relational": {
+              "ran": 0,
+              "killed": 0
+            }
+          },
+          "finderConclusion": "Two runs compose this record. The window run over the slice ran six mutants and killed all six; the tests finder was asked to judge whether six over 208 changed lines meant few mutable sites or thin coverage, and answered with four confirmed coverage findings no mutation run could see -- a table driving a masked field only within the mask, an unpinned suffix position, an unobserved pet flag, and a live bug with no committed test at all. The delta run over the audit fixes ran two and left one survivor, js/display.js:755's showRace-and-not-Upolyd mutated to a disjunction, which was real: the species half of the disjunct was pinned and the colour half was not, because the fixture gave the polymorph form CLR_WHITE and js/const.js:2424 defines HI_DOMESTIC as CLR_WHITE, so both branches answered the same value. A colour assertion killed it and the rerun is clean at 2 of 2."
+        },
+        "readiness": {
+          "boundary": "The starting event is a pick of the 'wizmgender' row from doset()'s full 'mO' menu in a debug game, or the same option set from a configuration file, where optfn_boolean() returns at options.c:5325's go.opt_initial guard before any menu code runs. The ending event is the screen drawn after reset_needed_visuals() returns, with every visible female monster and a female hero carrying the inverse video tty_print_glyph() gives MG_FEMALE. The real game executes both: two new recipes in scripts/run-options-menu.mjs drive them, and the configuration-file one failed against C before the applyBooleanOption() fix.",
+          "sourceReview": "Traced in two independent passes and recorded entry by entry in .agents/implementation-checklist.json, which reaches ready-for-audit with fourteen entries, twelve done and two cannot-occur. The orchestrator traced the candidate list at the slice base, reading display.h hero_glyph, you.h Ugender, display.c's mgendercode assignment and its use in the M_AP_MONSTER arm, objnam.c:1549-1559, and every writer of levl[x][y].glyph across nethack-c/upstream/src/ -- which is what establishes that this slice is a print-time change rather than a range conversion, against a deferral that prescribed the conversion. The worker reached the same reading independently and found two things the list did not hold: applyBooleanOption() had no wizmgender arm at all, and hallucinated_statue_glyph_info() made a gender draw it discarded. The correctness pass then found the hero_glyph species disjunct missing. The trace covered state and random-number order: no ported arm consumes randomness except the statue draw, which already existed and whose position did not move. Stubs and stops identified: optfn_boolean() has one refusal left, on rest_on_space, outside this goal; the framecolor arm, the rogue-level terms and the worm-tail arms are unreachable for the conditions recorded on their entries.",
+          "completeness": "No known unsupported behavior remains inside the boundary, and every reachable excluded branch stops before changing state, consuming randomness or producing output. Three arms rest on unit tests alone and their entries say which: the mimic and ridden arms, the male, female and neuter arms of the objnam.c suffix, and statue_to_glyph()'s hallucinating gender draw. The deferral wizmgender-never-inverts-a-female-monster is resolved with a note recording that the remedy it prescribed was refuted."
+        }
+      },
+      "recordedAt": "2026-08-17T07:16:02.247Z"
     }
   ]
 }
