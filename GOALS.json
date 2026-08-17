@@ -2553,6 +2553,11 @@
           "name": "terrain-memory-holds-a-glyph-number",
           "status": "closed",
           "closedBy": "4eff71bd42165af737c13942fee2c0243bc605cd"
+        },
+        {
+          "name": "wizmgender-inverts-a-female-monster-at-print-time",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "67870c0f966e10d69013e3d4174e95bac17d3e22",

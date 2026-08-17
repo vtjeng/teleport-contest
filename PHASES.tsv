@@ -561,3 +561,5 @@ utc	event	phase	goal	detail
 2026-08-17T03:31:29.572Z	end	implement	option-toggle-repaints-the-map	terrain-memory-holds-a-glyph-number
 2026-08-17T03:32:16.409Z	start	review	option-toggle-repaints-the-map	correctness bea560c..1352173
 2026-08-17T04:51:36.431Z	end	review	option-toggle-repaints-the-map	correctness bea560c..683ac58: 20 raw, 18 deduped, 17 confirmed, 17 applied, 1 rejected
+2026-08-17T04:55:21.174Z	start	select	option-toggle-repaints-the-map	slice 3 or goal close
+2026-08-17T05:06:14.371Z	end	select	option-toggle-repaints-the-map	wizmgender-inverts-a-female-monster-at-print-time
