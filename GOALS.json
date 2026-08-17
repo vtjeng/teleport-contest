@@ -2736,8 +2736,8 @@
       "slices": [
         {
           "name": "wizgenesis-creates-the-named-monster",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b11f36c8bc578b64250a2f93fec3545c43809a6c"
         }
       ],
       "openedAt": "6926a7bbb1e520061b3a48996ae47438d2cf7bac",

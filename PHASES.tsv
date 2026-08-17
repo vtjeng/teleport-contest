@@ -588,3 +588,4 @@ utc	event	phase	goal	detail
 2026-08-17T17:47:22.851Z	start	select		next goal after hero-pushes-a-boulder closed
 2026-08-17T18:33:04.628Z	end	select	wizard-create-monster	wizgenesis-creates-the-named-monster queued, the goal's only expected slice
 2026-08-17T18:33:53.172Z	start	implement	wizard-create-monster	wizgenesis-creates-the-named-monster from 4c8c515
+2026-08-17T19:34:15.080Z	end	implement	wizard-create-monster	wizgenesis-creates-the-named-monster closed at b11f36c: screens 1833 to 1846
