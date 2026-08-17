@@ -2548,6 +2548,11 @@
           "name": "object-memory-holds-a-glyph-number",
           "status": "closed",
           "closedBy": "61dde4a4fbb78cd1dba38fd45f46d6f02153c15a"
+        },
+        {
+          "name": "terrain-memory-holds-a-glyph-number",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "67870c0f966e10d69013e3d4174e95bac17d3e22",
