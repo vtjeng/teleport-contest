@@ -31,9 +31,14 @@ import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import {
+    COLNO, CORPSTAT_GENDER, CORPSTAT_RANDOM, ROWNO,
+} from '../js/const.js';
 import { game } from '../js/gstate.js';
-import { COIN_CLASS, POTION_CLASS, WAND_CLASS } from '../js/objects.js';
-import { ATR_INVERSE } from '../js/terminal.js';
+import {
+    COIN_CLASS, POTION_CLASS, STATUE, WAND_CLASS,
+} from '../js/objects.js';
+import { ATR_INVERSE, ATR_NONE } from '../js/terminal.js';
 import { cansee } from '../js/vision.js';
 import { runSegment } from '../js/jsmain.js';
 import { validateCleanRecipe } from './diff-fresh.mjs';
@@ -222,6 +227,64 @@ const PILE_WALK_TURNS = 9;
 // restored the flag on its way out.
 const RESTORE_OPT_MSG = ' Oe\x1bmO g\r\x1b';
 
+// The three recipes below are this file's only debug-mode recordings, and
+// 'wizmgender' is why: optlist.h:890 makes it set_wizonly, so options.c:8820's
+// `endpass = (wizard) ? set_wiznofuz : set_in_game` is what puts it in the
+// menu at all. That pass adds ten boolean rows and two compound ones and
+// widens longest_option_name(), so every row's padding and every page
+// boundary differs from the seven-page menu the recipes above walk. The option
+// lands on page 5 of 8, as its 'k'.
+//
+// win/tty/wintty.c tty_print_glyph() (3930-3931) prints ATR_INVERSE for a
+// glyph carrying MG_FEMALE while `wizard` and iflags.wizmgender both hold, and
+// display.c reset_glyphmap() raises MG_FEMALE on the female half of every
+// monster range (2986-3065). The hero's own square is one of those ranges --
+// display.h hero_glyph (654-656) passes you.h:555's Ugender to
+// monnum_to_glyph() -- so a female hero is a discriminating cell on her own,
+// and the recipes need find no female monster to have one.
+const WIZMGENDER_SEED = 5512384;
+const WIZMGENDER_DATETIME = '20281114093000';
+
+// 'mO' opens doset(), four '>' walk to page 5 without committing, 'k' picks
+// 'wizmgender' and Return commits, which ends the pick loop and spends
+// go.opt_need_glyph_reset. The space dismisses the --More-- the toggle's
+// message raises, and the Escape is the key the recorder has to read at the
+// command prompt for the repainted screen to be captured.
+//
+// Two recipes take that pick over the same game in opposite directions, so
+// they are told apart by their rc rather than by their keys. The seed's kitten
+// is female, which is the second discriminating cell and the one that
+// separates tty_print_glyph()'s two arms:
+//
+//   - with 'hilite_pet' left at optlist.h:365's compiled-in Off, the pet falls
+//     past the MG_PET arm into the MG_FEMALE one and turns inverse beside the
+//     hero;
+//   - with 'petattr:bold', which optfn_petattr() (3171) raises
+//     iflags.hilite_pet along with, the pet matches the arm above instead and
+//     stays ATR_BOLD through a pick that changes the hero's attribute.
+//
+// The second rc also turns 'wizmgender' on before the game starts, which is a
+// path of its own: optfn_boolean() returns at options.c:5325's go.opt_initial
+// guard, so the option reaches iflags with no menu code running at all and the
+// first map ever drawn already carries the attribute.
+const WIZMGENDER_PICK = ' mO>>>>k\r \x1b';
+
+// The third recipe is about objnam.c rather than about the map. 'l' three
+// times walks the hero onto a statue three squares east of where she starts,
+// and invent.c look_here() names it: objnam.c doname_base():1549-1559 appends
+// the gender for a STATUE, CORPSE or FIGURINE while the same two conditions
+// hold. mklev.c:1004 makes a room statue with mkcorpstat(CORPSTAT_INIT), and
+// mkobj.c mkcorpstat():2086 stores `corpstatflags & CORPSTAT_SPE_VAL` in spe
+// -- which is zero for CORPSTAT_INIT alone -- so a room statue is always the
+// CORPSTAT_RANDOM arm, "unspecified gender". The menu pick then turns the
+// option off and ':' looks again, so one recording carries the name with the
+// suffix and without it.
+const WIZMGENDER_STATUE_SEED = 5512395;
+const WIZMGENDER_STATUE = ' lllmO>>>>k\r :\x1b';
+// Its three walking keys spend three of the game's turns, leaving the fourth
+// as the one the menu opens on; doset() must not spend that one.
+const STATUE_WALK_TURNS = 4;
+
 // The last two recipes are about the status rows rather than about an option.
 //
 // windows.c select_menu() (1861) raises gb.bot_disabled for as long as a menu
@@ -327,6 +390,22 @@ function rememberedPileNethackrc({ hilitePile = false } = {}) {
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics,!autopickup',
         `OPTIONS=menu_headings:bold${hilitePile ? ',hilite_pile' : ''}`,
+        '',
+    ].join('\n');
+}
+
+// The 'wizmgender' recipes' base. Its hero is female because that is the cell
+// the option changes, and options.c set_playmode() (10138) renames her
+// "wizard" whatever OPTIONS=name says. Every one of these games is debug mode,
+// which is what makes the option settable and what makes tty_print_glyph()'s
+// `wizard` conjunct true.
+function wizmgenderNethackrc({ pet = false, extra = '' } = {}) {
+    return [
+        'OPTIONS=name:Wizmara,role:Valkyrie,race:human,gender:female,'
+            + 'align:lawful',
+        'OPTIONS=!legacy,!tutorial,!splash_screen',
+        `OPTIONS=pettype:${pet ? 'cat' : 'none'},!acoustics,!autopickup`,
+        `OPTIONS=menu_headings:bold,playmode:debug${extra}`,
         '',
     ].join('\n');
 }
@@ -510,6 +589,29 @@ export function loadOptionsMenuRecipes() {
             moves: REMEMBERED_PILE_DARKROOM,
         },
         {
+            name: 'wizmgender inverts a female hero and her pet',
+            seed: WIZMGENDER_SEED,
+            datetime: WIZMGENDER_DATETIME,
+            nethackrc: wizmgenderNethackrc({ pet: true }),
+            moves: WIZMGENDER_PICK,
+        },
+        {
+            name: 'hilite_pet outranks wizmgender on the same pet',
+            seed: WIZMGENDER_SEED,
+            datetime: WIZMGENDER_DATETIME,
+            nethackrc: wizmgenderNethackrc({
+                pet: true, extra: ',wizmgender,petattr:bold',
+            }),
+            moves: WIZMGENDER_PICK,
+        },
+        {
+            name: 'wizmgender names the gender a statue carries',
+            seed: WIZMGENDER_STATUE_SEED,
+            datetime: WIZMGENDER_DATETIME,
+            nethackrc: wizmgenderNethackrc({ extra: ',wizmgender' }),
+            moves: WIZMGENDER_STATUE,
+        },
+        {
             name: 'blank status under a class menu',
             seed: BLANK_STATUS_SEED,
             datetime: BLANK_STATUS_DATETIME,
@@ -526,7 +628,11 @@ export function loadOptionsMenuRecipes() {
     ];
     // record-session preserves the staged install between one recipe's
     // segments, and each of these leaves the recorder stopped inside a live
-    // menu, so each gets its own recipe and fresh install.
+    // menu, so each gets its own recipe and fresh install. The three debug
+    // recipes need that separation for a second reason: the recorder
+    // terminates a playmode:debug game and leaves its save behind, so a second
+    // debug segment in the same chunk would restore the first game instead of
+    // starting its own.
     return segments.map(({ name, ...segment }) => ({
         name,
         recipe: validateCleanRecipe({
@@ -566,6 +672,18 @@ const PILE_RECIPES = new Set([
     REMEMBERED_PILE_DARKROOM,
 ]);
 
+// The pet the two 'wizmgender' pet recipes start, wherever dog_move() has
+// walked it by the time the menu closes.
+function tamePetOnTheLevel() {
+    for (let x = 0; x < COLNO; ++x) {
+        for (let y = 0; y < ROWNO; ++y) {
+            const monster = game.level.monsters?.[x]?.[y];
+            if (monster?.mtame) return monster;
+        }
+    }
+    return null;
+}
+
 export async function verifyOptionsMenuSegment(segment) {
     let boundary = null;
     await runSegment(
@@ -576,13 +694,67 @@ export async function verifyOptionsMenuSegment(segment) {
     // select_menu(), and the committing one runs the whole pick loop.
     if (boundary) throw boundary;
     // doset() spends no turn, so the hero must still be on the turn her keys
-    // before the menu left her on. Every recipe but one types nothing but
-    // menu keys, so that turn is the first; the remembered-pile one walks and
-    // drops first, and counts its own turns below.
+    // before the menu left her on. Most recipes type nothing but menu keys, so
+    // that turn is the first; the remembered-pile ones walk and drop first and
+    // the statue one walks, and each counts its own turns below.
     const turnsBeforeTheMenu = PILE_RECIPES.has(segment.moves)
-        ? PILE_WALK_TURNS : 1;
+        ? PILE_WALK_TURNS
+        : segment.moves === WIZMGENDER_STATUE ? STATUE_WALK_TURNS : 1;
     if (game.moves !== turnsBeforeTheMenu)
         throw new Error('opening the options menu advanced the turn counter');
+
+    if (segment.moves === WIZMGENDER_PICK
+        || segment.moves === WIZMGENDER_STATUE) {
+        // Which direction the pick took the option. The keys are the same in
+        // both directions, so this is read from the rc that set the starting
+        // value.
+        const startedOn = segment.nethackrc.includes(',wizmgender');
+        if (game.iflags.wizmgender === startedOn)
+            throw new Error("the pick loop left 'wizmgender' unchanged");
+        if (game.go.opt_need_glyph_reset !== false
+            || game.go.opt_need_redraw !== false) {
+            throw new Error('reset_needed_visuals() left a repair pending');
+        }
+        // display.h hero_glyph passes Ugender, so the female hero's own square
+        // carries MG_FEMALE and follows the option in either direction.
+        const heroAttr = game.level.at(game.u.ux, game.u.uy).disp_attr;
+        if ((heroAttr === ATR_INVERSE) !== game.iflags.wizmgender)
+            throw new Error('the repaint gave the hero the wrong attribute');
+
+        if (segment.nethackrc.includes('pettype:cat')) {
+            // The seed's kitten is female, which is what puts it within reach
+            // of both arms; a male one would leave the recipe testing nothing
+            // it is named for.
+            const pet = tamePetOnTheLevel();
+            if (!pet?.female)
+                throw new Error('the recipe lost its female pet');
+            // The arm the pet matches, and the reason the two recipes differ:
+            // 'hilite_pet' is above 'wizmgender' in the chain, so it answers
+            // for the pet whatever the pick did to the hero.
+            const expected = game.iflags.wc_hilite_pet
+                ? game.iflags.wc2_petattr
+                : game.iflags.wizmgender ? ATR_INVERSE : ATR_NONE;
+            if (game.level.at(pet.mx, pet.my).disp_attr !== expected)
+                throw new Error('the repaint gave the pet the wrong attribute');
+        }
+
+        if (segment.moves === WIZMGENDER_STATUE) {
+            // The hero ends on the statue look_here() named, once with the
+            // gender suffix and once, after the pick, without it.
+            const statue = game.level.objects[game.u.ux][game.u.uy];
+            if (statue?.otyp !== STATUE)
+                throw new Error('the recipe left the hero off her statue');
+            // mkcorpstat() stores `corpstatflags & CORPSTAT_SPE_VAL`, and
+            // mklev.c:1004 passes CORPSTAT_INIT alone, so a room statue is
+            // always objnam.c's "unspecified gender" arm.
+            if ((statue.spe & CORPSTAT_GENDER) !== CORPSTAT_RANDOM) {
+                throw new Error(
+                    'the room statue carries a gender mkcorpstat() cannot set',
+                );
+            }
+        }
+        return;
+    }
 
     if (segment.moves === BLANK_STATUS_CLASS_MENU
         || segment.moves === THREE_LINE_CLASS_MENU) {

@@ -2585,6 +2585,15 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
         }
     } else if (name === 'hilite_pile') {
         result.iflags.hilite_pile = enabled;
+    } else if (name === 'wizmgender') {
+        // optlist.h:890-891 binds this to &iflags.wizmgender, and
+        // win/tty/wintty.c tty_print_glyph() (3930) is its only reader. It
+        // needs an arm of its own because a debug game can set it from the
+        // configuration file, where optfn_boolean() returns at options.c:5325
+        // before any menu code runs: without one the value lands under
+        // flags.wizmgender, the reader never sees it, and every female
+        // monster draws plain.
+        result.iflags.wizmgender = enabled;
     } else if (name === 'hitpointbar') {
         result.iflags.wc2_hitpointbar = enabled;
     } else if (name === 'legacy') result.flags.legacy = enabled;
@@ -4563,23 +4572,6 @@ async function optfn_boolean(state, optidx, negated, opts) {
             state.go.opt_need_redraw = true; /* darkroom refresh */
         break;
     case 'wizmgender':
-        // Shares options.c:5379-5385 with the six below, and is the only one
-        // of the seven still refused: its repaint would run over the one layer
-        // that cannot carry the attribute, the monster ranges, which this port
-        // does not number. win/tty/wintty.c tty_print_glyph()
-        // (3930-3931) prints ATR_INVERSE for any glyph carrying MG_FEMALE
-        // while wizard and iflags.wizmgender hold, and display.c
-        // reset_glyphmap() raises MG_FEMALE on the GLYPH_MON_FEM_OFF arm
-        // (3050-3058) as well as on the pet, detect, ridden and statue female
-        // arms. This port raises it only for the two statue arms, because a
-        // monster presentation carries no glyphflags, so a repaint would draw
-        // every visible female monster without the inverse video C gives it.
-        // A stopped segment is worth more than a segment that runs on painting
-        // wrong cells. The deferral wizmgender-never-inverts-a-female-monster
-        // owns the gap; the monster ranges are what retire this.
-        throw new UnsupportedOptionMenuError(
-            "reset_glyphmap() over a 'wizmgender' change",
-        );
     case 'showrace':
     case 'hilite_pile':
     case 'use_inverse':
@@ -4849,10 +4841,11 @@ export async function reset_needed_visuals(state) {
     // correctness pass over 5366349..909a338 proved by execution: what makes
     // it true is that map memory holds the unresolved number. It now does for
     // every layer that reaches map memory, so a repaint draws each remembered
-    // square under the option values in force at the repaint. The one arm that
-    // still refuses is 'wizmgender': reset_glyphmap() raises MG_FEMALE on the
-    // monster ranges, which this port does not number, so a repaint would draw
-    // every visible female monster without the inverse video C gives it.
+    // square under the option values in force at the repaint. Monsters need no
+    // stored number: C's comment at detect.c:2205-2209 records that
+    // levl[x][y].glyph never holds one, and docrt_flags() (display.c:1709)
+    // rebuilds every monster cell by re-running newsym(), so the repaint
+    // re-derives their glyphflags from the live monster.
     if (go.opt_reset_customcolors || go.opt_update_basic_palette
         || go.opt_reset_customsymbols || go.opt_need_redraw) {
         if (go.opt_update_basic_palette) {

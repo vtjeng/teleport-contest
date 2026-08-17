@@ -43,7 +43,7 @@ import {
     DBWALL, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN,
     DB_FLOOR, DB_ICE, DB_LAVA, DB_MOAT, DB_UNDER,
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
-    IS_STWALL, isok, u_at,
+    IS_STWALL, isok, u_at, Ugender,
     BEAR_TRAP, NO_TRAP, WEB, is_pit,
     In_mines, In_sokoban, Is_knox_level, MAXTCHARS,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
@@ -744,11 +744,20 @@ export function hero_glyph_info(state = game) {
     const symbol = (accessibilityOverridesEnabled(state)
         ? optional_misc_symbol(SYM_HERO_OVERRIDE, state) : null)
         ?? monster_class_symbol(species?.mlet ?? 53, state);
-    return glyphPresentation(
+    const glyph = glyphPresentation(
         symbol,
         showRace ? HI_DOMESTIC : species?.mcolor ?? CLR_WHITE,
         state,
     );
+    // C ref: display.h hero_glyph (654-656). The hero's own square takes an
+    // ordinary monster glyph, so reset_glyphmap()'s GLYPH_MON arm gives it
+    // MG_MALE or MG_FEMALE like any other monster -- but from Ugender rather
+    // than from a mon->female, because the hero is not a struct monst.
+    const attr = print_glyph_attr(
+        monsterGenderFlag(Ugender(state)), state,
+    );
+    if (attr) glyph.attr = attr;
+    return glyph;
 }
 
 function withMonsterAccessibility(
@@ -773,11 +782,15 @@ function actualMonsterGlyphInfo(monster, state) {
             ?? monster_class_symbol(monster.data.mlet, state)
         : monster_class_symbol(monster.data.mlet, state);
     const glyph = glyphPresentation(symbol, monster.data.mcolor, state);
-    // C ref: win/tty/wintty.c:tty_print_glyph(). Pet highlighting is a tty
-    // presentation attribute; it does not alter the remembered floor glyph.
-    if (monster.mtame && state.iflags?.wc_hilite_pet) {
-        glyph.attr = state.iflags.wc2_petattr ?? ATR_INVERSE;
-    }
+    // C ref: display.h pet_to_glyph() (563-565) and mon_to_glyph() (554-556),
+    // resolved through reset_glyphmap()'s pet arms (3036-3049) and ordinary
+    // monster arms (3050-3065). Pet highlighting is a tty presentation
+    // attribute; it does not alter the remembered floor glyph.
+    const attr = print_glyph_attr(
+        (monster.mtame ? MG_PET : 0) | monsterGenderFlag(monster.female),
+        state,
+    );
+    if (attr) glyph.attr = attr;
     return withMonsterAccessibility(
         glyph,
         monster,
@@ -852,22 +865,24 @@ export function hallucinated_statue_glyph_info(
     displayRandom = rn2_on_display_rng,
 ) {
     // display.h statue_to_glyph(): the random species choice precedes the
-    // gender draw. The current renderer has one class glyph for both genders,
-    // but the second call remains part of the observable display-RNG stream.
+    // gender draw, and the glyph the two build lands in the ordinary monster
+    // range, not in either statue range. `!(rng)(2)` picks the male half, so a
+    // nonzero draw is the female one, and reset_glyphmap()'s GLYPH_MON_FEM
+    // arm gives that half MG_FEMALE.
     const species = state.mons?.[displayDraw(displayRandom, NUMMONS)];
     if (!species) {
         throw new Error(
             'hallucinated statue display requires the complete monster catalog',
         );
     }
-    const shown = actualMonsterGlyphInfo({ data: species, mtame: 0 }, state);
-    displayDraw(displayRandom, 2);
-    return shown;
+    const female = displayDraw(displayRandom, 2) !== 0;
+    return actualMonsterGlyphInfo({ data: species, mtame: 0, female }, state);
 }
 
 // C ref: display.c display_monster()'s final pet/detected/ordinary branch.
 // Hallucination changes the presented species for both detected and physically
-// seen monsters; only detected presentation receives inverse video.
+// seen monsters, but not the gender half of the range each of the three
+// what_mon() macros picks: that stays mon->female whatever species is shown.
 function presentedMonsterGlyphInfo(monster, state, detected) {
     const hallucinating = heroHallucinating(state);
     if (monster.mtame && !hallucinating)
@@ -885,8 +900,11 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
         species.mcolor,
         state,
     );
-    if (detected && state.iflags?.wc_inverse !== false)
-        glyph.attr = ATR_INVERSE;
+    const attr = print_glyph_attr(
+        (detected ? MG_DETECT : 0) | monsterGenderFlag(monster.female),
+        state,
+    );
+    if (attr) glyph.attr = attr;
     return withMonsterAccessibility(
         glyph,
         monster,
@@ -897,7 +915,7 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
 }
 
 // C ref: display.h ridden_mon_to_glyph() (560-562), reached from
-// display_self()'s maybe_display_usteed() (245-249). reset_glyphmap()
+// display_self()'s maybe_display_usteed() (246-249). reset_glyphmap()
 // (display.c:2986-3003) gives a ridden glyph the species symbol and mon_color()
 // and sets MG_RIDDEN rather than MG_PET, so neither the SYM_PET_OVERRIDE
 // accessibility symbol nor win/tty/wintty.c's hilite_pet attribute applies to
@@ -911,11 +929,18 @@ function riddenMonsterGlyphInfo(monster, state) {
             'ridden monster display requires the complete monster catalog',
         );
     }
-    return withMonsterAccessibility(glyphPresentation(
+    const glyph = glyphPresentation(
         monster_class_symbol(species.mlet, state),
         species.mcolor,
         state,
-    ), monster, species, state, 'ridden');
+    );
+    const attr = print_glyph_attr(
+        MG_RIDDEN | monsterGenderFlag(monster.female), state,
+    );
+    if (attr) glyph.attr = attr;
+    return withMonsterAccessibility(
+        glyph, monster, species, state, 'ridden',
+    );
 }
 
 // C ref: display.c display_monster() with sightflags == DETECTED and
@@ -937,11 +962,19 @@ function mimickedMonsterGlyphInfo(monster, state) {
             'mimicked monster display requires the complete monster catalog',
         );
     }
-    return withMonsterAccessibility(glyphPresentation(
+    const glyph = glyphPresentation(
         monster_class_symbol(species.mlet, state),
         species.mcolor,
         state,
-    ), monster, species, state, 'disguise');
+    );
+    // display.c:578-581 passes mgendercode, which :524 read from the
+    // *mimicking* monster's mon->female. The species on show is the
+    // appearance's; the gender half of the range is not.
+    const attr = print_glyph_attr(monsterGenderFlag(monster.female), state);
+    if (attr) glyph.attr = attr;
+    return withMonsterAccessibility(
+        glyph, monster, species, state, 'disguise',
+    );
 }
 
 function mimicObject(monster) {
@@ -1403,10 +1436,13 @@ export function glyph_is_object(glyph) {
 }
 
 // C ref: display.h:995-1013, the glyphflags reset_glyphmap() encodes and
-// map_glyphinfo() passes on. Only the bits the object arms raise are spelled
-// here; the rest belong with the arms that raise them, which are not ported.
+// map_glyphinfo() passes on. Only the bits the object and monster arms raise
+// are spelled here; the rest belong with the arms that raise them, which are
+// not ported.
 export const MG_CORPSE = 0x00002;
+export const MG_DETECT = 0x00008;
 export const MG_PET = 0x00010;
+export const MG_RIDDEN = 0x00020;
 export const MG_STATUE = 0x00040;
 export const MG_OBJPILE = 0x00080;
 export const MG_BW_LAVA = 0x00100;
@@ -1421,42 +1457,50 @@ export const MG_MALE = 0x01000;
 export const MG_FEMALE = 0x02000;
 
 /**
- * C ref: win/tty/wintty.c tty_print_glyph() (3919-3937), the ordered chain
+ * C ref: win/tty/wintty.c tty_print_glyph() (3923-3937), the ordered chain
  * that picks at most one attribute for a printed map cell. C runs it on every
  * print, from the glyphflags glyphmap[] holds, which is why toggling
  * 'hilite_pile' and repainting changes a remembered pile that no draw has
  * touched since.
  *
- * C's chain has three arms, and this function is the third one: its
- * iflags.use_inverse gate, with the MG_OBJPILE, MG_FEMALE and MG_BW_*
- * disjuncts a glyph map_glyphinfo() resolves can raise. The other two sit
- * elsewhere. The `bkglyphinfo->framecolor` arm above them needs
- * iflags.bgcolors, which no ported path sets. The MG_PET arm is reachable but
- * is spelled at actualMonsterGlyphInfo() instead, where the pet is: no glyph
- * this function sees carries MG_PET. The order still matters and is preserved
- * by that split rather than in spite of it -- a pet standing on a pile hides
- * the pile's glyph entirely, so newsym() shows the monster's presentation and
- * never asks for the object's.
+ * C's chain has three arms and this holds the last two, in C's order. The
+ * `bkglyphinfo->framecolor` arm above them needs iflags.bgcolors, which no
+ * ported path sets, so it has no term here. Order is the whole point of the
+ * function: a female pet under 'hilite_pet' takes iflags.wc2_petattr, and the
+ * same pet with 'hilite_pet' off falls through to the inverse arm and takes
+ * ATR_INVERSE from 'wizmgender'.
  *
- * MG_DETECT shares C's last arm with the MG_BW_* bits and is not raised by any
- * glyph number this port stores: it belongs to detectedMonsterGlyphInfo(),
- * which is recomputed on every draw, so its attribute is as live as this one.
- *
- * MG_FEMALE is raised here for a statue, because reset_glyphmap()'s two female
- * statue arms raise it and this resolves those arms. It is not raised for a
- * female monster, which needs no glyph number to decide; the deferral
- * wizmgender-never-inverts-a-female-monster records that, and js/options.js
- * refuses a 'wizmgender' toggle so no repaint runs over the gap.
+ * Every caller supplies the glyphflags reset_glyphmap()'s arm for its glyph
+ * raises. map_glyphinfo() derives them from a stored glyph number; the monster
+ * and hero presentations derive them from the live monster instead, because
+ * this port numbers no monster range and needs none. C's own comment at
+ * detect.c:2205-2209 states the rule its writers keep: levl[x][y].glyph never
+ * holds a monster, only the invisible-monster constant map_invisible()
+ * (display.c:382) stores in its place. So a repaint has to re-derive every
+ * monster cell whatever the port does, and docrt_flags() (display.c:1709) is
+ * where C does it, by re-running newsym() over the level.
  */
 function print_glyph_attr(glyphflags, state) {
+    if ((glyphflags & MG_PET) && state.iflags?.wc_hilite_pet)
+        return state.iflags.wc2_petattr ?? ATR_INVERSE;
     if (state.iflags?.wc_inverse === false) return ATR_NONE;
     if (((glyphflags & MG_OBJPILE) && state.iflags?.hilite_pile)
         || ((glyphflags & MG_FEMALE) && state.wizard
             && state.iflags?.wizmgender)
-        || (glyphflags & (MG_BW_LAVA | MG_BW_ICE | MG_BW_SINK | MG_BW_ENGR))) {
+        || (glyphflags & (MG_DETECT | MG_BW_LAVA | MG_BW_ICE | MG_BW_SINK
+                          | MG_BW_ENGR))) {
         return ATR_INVERSE;
     }
     return ATR_NONE;
+}
+
+// C ref: display.h mon_to_glyph() (554-556) and its four siblings, each of
+// which picks the male or female half of its glyph range from mon->female,
+// and display.c reset_glyphmap()'s six monster arms (2986-3065), which turn
+// that choice back into MG_MALE or MG_FEMALE. The two are a round trip, so a
+// port that stores no monster glyph number reads mon->female directly.
+function monsterGenderFlag(female) {
+    return female ? MG_FEMALE : MG_MALE;
 }
 
 // The G_* customization names display.h's five altar glyphs carry, in

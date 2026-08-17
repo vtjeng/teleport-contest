@@ -2893,6 +2893,15 @@ export function Upolyd(player) {
     return player?.umonnum !== player?.umonster;
 }
 
+// C ref: you.h:555 — #define Ugender ((Upolyd ? u.mfemale : flags.female)
+// ? 1 : 0). A polymorphed hero shows the gender of the form she wears, which
+// polyself.c stores in u.mfemale; otherwise her own flags.female answers.
+// The result is an mgender enum value, so 0 is MALE and 1 is FEMALE.
+export function Ugender(state = game) {
+    return (Upolyd(state?.u) ? state?.u?.mfemale : state?.flags?.female)
+        ? 1 : 0;
+}
+
 // Canonical macros — previously duplicated as local stubs in 15+ files
 // C ref: you.h:562 u_at(). The optional state argument matches the rest of the
 // port's calling convention; the module-global default preserves the reading

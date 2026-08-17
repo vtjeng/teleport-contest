@@ -38,7 +38,7 @@ import {
     ARROW, FOOD_CLASS, RING_CLASS, ROCK, ROCK_CLASS, WAND_CLASS, WEAPON_CLASS,
 } from '../js/objects.js';
 import { S_darkroom, S_room, SYM_OFF_X } from '../js/symbols.js';
-import { ATR_INVERSE, NO_COLOR } from '../js/terminal.js';
+import { ATR_INVERSE, ATR_NONE, NO_COLOR } from '../js/terminal.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import { selectTtyMenu } from '../js/tty_menu.js';
 import { cansee, vision_recalc } from '../js/vision.js';
@@ -384,19 +384,41 @@ test('a redraw option raises both repair flags', async () => {
     assert.equal(state.go.opt_need_glyph_reset, true);
 });
 
-test('the one arm whose repaint an unconverted layer owns is refused',
-    async () => {
-        // 'wizmgender' shares the seven-option arm, and its repaint needs
-        // MG_FEMALE on a monster glyph. This port numbers no monster range, so
-        // a monster presentation carries no glyphflags to raise it on.
-        const state = await startStockGame();
-        state.go = {};
-        await assert.rejects(
-            () => parseoptions(state, '!wizmgender', false, false),
-            (error) => error.name === 'UnsupportedOptionMenuError'
-                && /reset_glyphmap\(\) over a/u.test(error.message),
-        );
-    });
+// C refs: options.c:5379-5385, the arm 'wizmgender' shares with the six
+// options above, and win/tty/wintty.c tty_print_glyph() (3930-3931), which is
+// what the repaint below re-runs over every square. 'wizmgender' is
+// set_wizonly, so only a debug game can show the attribute at all.
+test("'wizmgender' repaints a female hero in inverse video", async () => {
+    // The recipe's hero is a female Valkyrie, so display.h hero_glyph passes
+    // Ugender == 1 and reset_glyphmap()'s GLYPH_MON_FEM arm (3050-3058)
+    // raises MG_FEMALE on her own '@'.
+    const state = await startGameWithConfig('OPTIONS=playmode:debug');
+    assert.equal(state.wizard, true);
+    assert.equal(state.flags.female, true);
+    const heroAttr = () => state.level.at(state.u.ux, state.u.uy).disp_attr;
+    assert.equal(heroAttr(), ATR_NONE);
+
+    state.go = {};
+    assert.equal(await parseoptions(state, 'wizmgender', false, false), true);
+    assert.equal(state.iflags.wizmgender, true);
+    assert.equal(state.go.opt_need_redraw, true);
+    assert.equal(state.go.opt_need_glyph_reset, true);
+    // The toggle's message reaches the top line before the repaint, and
+    // tty_display_nhwindow()'s NHW_MESSAGE arm asks for a key to dismiss it.
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    await reset_needed_visuals(state);
+    assert.equal(heroAttr(), ATR_INVERSE);
+
+    // The repaint answers the option in both directions, which is the whole
+    // claim: the square is redrawn under the value in force at the repaint.
+    state.go = {};
+    clearTopline(state);
+    assert.equal(await parseoptions(state, '!wizmgender', false, false), true);
+    assert.equal(state.iflags.wizmgender, false);
+    state.nhDisplay.pushKey(' '.charCodeAt(0));
+    await reset_needed_visuals(state);
+    assert.equal(heroAttr(), ATR_NONE);
+});
 
 test('the custom-colour options raise only their own repair flag',
     async () => {
@@ -834,20 +856,16 @@ test('choose_classes_menu() lays out the object classes', async () => {
 
 test('doset() stops on a boolean whose post-change work is unported',
     async () => {
+        // 'rest_on_space' is the last one left: optfn_boolean()'s remaining
+        // arms all run, and its own calls cmd.c update_rest_on_space().
         const state = await startStockGame();
-        for (const [name, what] of [
-            ['wizmgender', "reset_glyphmap() over a 'wizmgender' change"],
-            ['rest_on_space', 'update_rest_on_space()'],
-        ]) {
-            await assert.rejects(
-                doset(state, menuHelpers([
-                    { value: menuValue(name), count: -1 },
-                ])),
-                (error) => error instanceof UnsupportedOptionMenuError
-                    && error.what === what,
-                name,
-            );
-        }
+        await assert.rejects(
+            doset(state, menuHelpers([
+                { value: menuValue('rest_on_space'), count: -1 },
+            ])),
+            (error) => error instanceof UnsupportedOptionMenuError
+                && error.what === 'update_rest_on_space()',
+        );
     });
 
 // C ref: options.c reset_needed_visuals() (8999), which calls display.c

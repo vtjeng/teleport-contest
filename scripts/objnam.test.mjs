@@ -81,6 +81,7 @@ import {
     DART,
     DWARVISH_IRON_HELM,
     ELVEN_LEATHER_HELM,
+    FIGURINE,
     FOOD_RATION,
     GAUNTLETS_OF_POWER,
     GOLD_PIECE,
@@ -1549,6 +1550,62 @@ test('corpse, statue, and named-fruit articles include their source nouns', () =
             spe: state.gf.ffruit.fid,
         }), state),
         'the Orb of Detection',
+    );
+});
+
+// C ref: objnam.c doname_base():1549-1559, which names the gender stored in
+// obj->spe. Both halves of its guard are wizard-only state, so an ordinary
+// game never shows this whatever spe holds.
+test("'wizmgender' names the gender a body or statue carries", () => {
+    const state = namingState();
+    state.wizard = true;
+    state.iflags.wizmgender = true;
+    // hack.h:1197-1199, the four values spe's low two bits can hold.
+    // CORPSTAT_RANDOM is what mkcorpstat() leaves when nothing chose a
+    // gender, and C answers it outside genders[] altogether.
+    for (const [spe, adjective] of [
+        [0, 'unspecified gender'],
+        [1, 'female'],
+        [2, 'male'],
+        [3, 'neuter'],
+    ]) {
+        assert.equal(
+            donameFresh(
+                objectOf(state, CORPSE, { corpsenm: PM_NEWT, spe }), state,
+            ),
+            `a newt corpse (${adjective})`,
+        );
+    }
+    // A statue and a figurine reach the same branch through the common tail
+    // rather than through the corpse arm above it.
+    assert.equal(
+        donameFresh(
+            objectOf(state, STATUE, { corpsenm: PM_NEWT, spe: 1 }), state,
+        ),
+        'a statue of a newt (female)',
+    );
+    assert.equal(
+        donameFresh(
+            objectOf(state, FIGURINE, { corpsenm: PM_NEWT, spe: 2 }), state,
+        ),
+        'a figurine of a newt (male)',
+    );
+    // An object type that stores no gender keeps spe's ordinary meaning.
+    assert.equal(
+        donameFresh(objectOf(state, DART, { spe: 1, known: true }), state),
+        'a +1 dart',
+    );
+
+    // Either half of the guard alone leaves every name unchanged.
+    const female = { corpsenm: PM_NEWT, spe: 1 };
+    state.wizard = false;
+    assert.equal(
+        donameFresh(objectOf(state, CORPSE, female), state), 'a newt corpse',
+    );
+    state.wizard = true;
+    state.iflags.wizmgender = false;
+    assert.equal(
+        donameFresh(objectOf(state, CORPSE, female), state), 'a newt corpse',
     );
 });
 

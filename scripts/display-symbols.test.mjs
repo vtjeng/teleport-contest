@@ -136,6 +136,7 @@ import {
     glyph_is_piletop_generic_obj,
     glyph_is_statue,
     glyph_to_cmap,
+    hallucinated_statue_glyph_info,
     hero_glyph_info,
     map_glyphinfo,
     map_trap,
@@ -1178,12 +1179,18 @@ test('UTF-8 hero and pet overrides survive zero raw optional symbols', async () 
     });
 });
 
-test('monster glyphs apply the configured tty attribute only to pets', () => {
+// C ref: win/tty/wintty.c tty_print_glyph() (3923-3937), whose second arm is
+// MG_PET under iflags.hilite_pet and whose third is ATR_INVERSE under
+// iflags.use_inverse. A glyph matches at most one arm, and the first match
+// wins, so which attribute a female pet shows is a question about order.
+test('monster glyphs run the tty attribute chain in source order', () => {
     const state = {
         flags: {},
         iflags: {
             wc_color: true,
             wc_hilite_pet: true,
+            // ATR_BOLD rather than the compiled-in ATR_INVERSE, so that the
+            // two arms can be told apart by the attribute each leaves.
             wc2_petattr: ATR_BOLD,
         },
     };
@@ -1191,6 +1198,10 @@ test('monster glyphs apply the configured tty attribute only to pets', () => {
     const monster = {
         data: { mlet: S_FELINE, mcolor: CLR_WHITE },
         mtame: 0,
+        // display.h mon_to_glyph() (554-556) reads mon->female to pick the
+        // male or female half of the monster range; 0 is the male half, which
+        // reset_glyphmap() (3058-3065) marks MG_MALE and no arm reads.
+        female: 0,
         m_ap_type: 0,
     };
 
@@ -1199,7 +1210,149 @@ test('monster glyphs apply the configured tty attribute only to pets', () => {
     assert.equal(monster_glyph_info(monster, state).attr, ATR_BOLD);
     state.iflags.wc_hilite_pet = false;
     assert.equal(monster_glyph_info(monster, state).attr, undefined);
+
+    // A female pet raises MG_PET and MG_FEMALE together, so it can match both
+    // arms; 'hilite_pet' decides which. iflags.wizmgender is set_wizonly, so
+    // tty_print_glyph() (3930) tests `wizard` beside the option.
+    monster.female = 1;
+    state.wizard = true;
+    state.iflags.wizmgender = true;
+    assert.equal(monster_glyph_info(monster, state).attr, ATR_INVERSE);
+    state.iflags.wc_hilite_pet = true;
+    assert.equal(monster_glyph_info(monster, state).attr, ATR_BOLD);
+
+    // The inverse arm as a whole sits behind iflags.use_inverse; the pet arm
+    // above it does not.
+    state.iflags.wc_hilite_pet = false;
+    state.iflags.wc_inverse = false;
+    assert.equal(monster_glyph_info(monster, state).attr, undefined);
+    state.iflags.wc_hilite_pet = true;
+    assert.equal(monster_glyph_info(monster, state).attr, ATR_BOLD);
+
+    // Both halves of tty_print_glyph()'s MG_FEMALE conjunct are required: a
+    // debug game with the option off, and an ordinary game with it on, each
+    // leave a female monster plain.
+    state.iflags.wc_inverse = true;
+    state.iflags.wc_hilite_pet = false;
+    monster.mtame = 0;
+    state.iflags.wizmgender = false;
+    assert.equal(monster_glyph_info(monster, state).attr, undefined);
+    state.iflags.wizmgender = true;
+    state.wizard = false;
+    assert.equal(monster_glyph_info(monster, state).attr, undefined);
+    state.wizard = true;
+    assert.equal(monster_glyph_info(monster, state).attr, ATR_INVERSE);
 });
+
+// C ref: display.h hero_glyph (654-656), which passes you.h:555's Ugender to
+// monnum_to_glyph(). The hero's square carries an ordinary monster glyph, so
+// reset_glyphmap()'s two GLYPH_MON arms give it MG_FEMALE or MG_MALE from
+// that value rather than from any mon->female.
+test("the hero's own glyph takes its gender bit from Ugender", () => {
+    const state = {
+        // umonnum equal to umonster is you.h:554's !Upolyd, where Ugender
+        // reads flags.female rather than u.mfemale.
+        u: { umonnum: 0, umonster: 0, mfemale: true },
+        flags: { female: false },
+        iflags: { wc_color: true, wizmgender: true },
+        wizard: true,
+        mons: [{ mlet: S_HUMAN, mcolor: CLR_RED }],
+    };
+    initialize_symbols_from_options({ flags: {} }, state);
+
+    assert.equal(hero_glyph_info(state).attr, undefined);
+    state.flags.female = true;
+    assert.equal(hero_glyph_info(state).attr, ATR_INVERSE);
+    // Polymorphed, Ugender reads u.mfemale instead, and this hero's form is
+    // female while she is not.
+    state.flags.female = false;
+    state.u.umonnum = 1;
+    state.mons.push({ mlet: S_FELINE, mcolor: CLR_WHITE });
+    assert.equal(hero_glyph_info(state).attr, ATR_INVERSE);
+});
+
+// C refs: display.c display_monster():524, which reads mgendercode from the
+// *mimicking* monster, and :578-581, which passes it to monnum_to_glyph()
+// beside the appearance's species. The two halves of a disguised glyph
+// therefore come from two different monsters.
+test('a monster disguise shows the mimic gender, not the appearance one',
+    () => {
+        const state = visibleCellState();
+        state.wizard = true;
+        state.iflags = { wc_color: true, wizmgender: true };
+        const monster = {
+            data: state.mons[PM_TENGU],
+            mtame: 0,
+            female: 1,
+            m_ap_type: M_AP_MONSTER,
+            mappearance: PM_GOBLIN,
+            mx: 7,
+            my: 4,
+        };
+        assert.equal(monster_glyph_info(monster, state).attr, ATR_INVERSE);
+        monster.female = 0;
+        assert.equal(monster_glyph_info(monster, state).attr, undefined);
+    });
+
+// C refs: display.h maybe_display_usteed() (246-249) and ridden_mon_to_glyph()
+// (560-562), resolved by display.c reset_glyphmap()'s two ridden arms
+// (2986-3003), which raise MG_RIDDEN beside the gender bit. MG_RIDDEN reaches
+// no arm of tty_print_glyph()'s chain, so a mount is highlighted by its own
+// gender and never by 'hilite_pet', tame though every mount is.
+test('a ridden mount takes its gender bit and no pet highlight', () => {
+    const state = visibleCellState({ ux: 7, uy: 4 });
+    state.wizard = true;
+    state.iflags = {
+        wc_color: true,
+        wizmgender: true,
+        wc_hilite_pet: true,
+        // Distinct from ATR_INVERSE so that a mount wrongly routed through the
+        // pet arm would show this instead.
+        wc2_petattr: ATR_BOLD,
+    };
+    // Monster row 3 is arbitrary: any row gives the mount a symbol to draw.
+    state.u.usteed = {
+        data: state.mons[3],
+        mtame: 10,
+        female: 1,
+        minvis: false,
+        mundetected: false,
+        mx: 7,
+        my: 4,
+    };
+
+    newsym(7, 4);
+    assert.equal(state.level.at(7, 4).disp_attr, ATR_INVERSE);
+    state.u.usteed.female = 0;
+    newsym(7, 4);
+    assert.equal(state.level.at(7, 4).disp_attr, ATR_NONE);
+});
+
+// C ref: display.h statue_to_glyph() (950-964), its Hallucination arm (951-953):
+// random_monster(rng) + (!(rng)(2) ? GLYPH_MON_MALE_OFF : GLYPH_MON_FEM_OFF).
+// The species draw comes first and the gender draw second, and the pair build
+// an ordinary monster glyph rather than either statue glyph, so
+// reset_glyphmap()'s GLYPH_MON_FEM arm (3050-3057) is what marks it MG_FEMALE.
+test('a hallucinated statue takes its gender from the second display draw',
+    () => {
+        const state = visibleCellState();
+        state.wizard = true;
+        state.iflags = { wc_color: true, wizmgender: true };
+        const scripted = (values) => {
+            let index = 0;
+            return () => values[index++];
+        };
+        // Monster row 3 is arbitrary: every row leaves the gender to the
+        // second draw, which is the one under test.
+        assert.equal(
+            hallucinated_statue_glyph_info(state, scripted([3, 0])).attr,
+            undefined,
+        );
+        assert.equal(
+            hallucinated_statue_glyph_info(state, scripted([3, 1])).attr,
+            ATR_INVERSE,
+        );
+    });
 
 test('object glyphs apply tty pile highlighting with the source boulder rule', () => {
     const state = visibleCellState();

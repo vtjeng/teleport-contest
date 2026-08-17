@@ -13,8 +13,10 @@ import {
     ART_EYES_OF_THE_OVERWORLD, find_artifact, permapoisoned,
 } from './artifacts.js';
 import {
-    BLINDED, CORPSTAT_HISTORIC, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
-    CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, HALLUC, HALLUC_RES, HAND, NON_PM,
+    BLINDED, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_HISTORIC,
+    CORPSTAT_MALE, CORPSTAT_RANDOM, CXN_ARTICLE, CXN_NOCORPSE, CXN_NORMAL,
+    CXN_NO_PFX, CXN_PFX_THE, CXN_SINGULAR, FEMALE, HALLUC, HALLUC_RES, HAND,
+    MALE, NEUTRAL, NON_PM,
     P_BOW, W_AMUL, W_ARMOR, W_QUIVER, W_RING, W_RINGL, W_RINGR, W_SADDLE,
     W_SWAPWEP, W_TOOL, W_WEP,
 } from './const.js';
@@ -36,6 +38,7 @@ import {
     PM_WIZARD_OF_YENDOR,
 } from './monsters.js';
 import { type_is_pname } from './mondata.js';
+import { genders } from './roles.js';
 import { observe_object } from './o_init.js';
 import {
     erosionMatters, hasContents, isBox, isCandle, isContainer,
@@ -758,12 +761,32 @@ function chargedSuffix(obj, type, known) {
         ? ` (${Math.trunc(obj.recharged)}:${Math.trunc(obj.spe)})`
         : '';
 }
+// C ref: objnam.c doname_base():1549-1559. A debug game with 'wizmgender' on
+// names the gender that mkcorpstat() stored in obj->spe, for the three object
+// types that carry one. CORPSTAT_RANDOM is the value spe holds when no gender
+// was ever chosen, which is why it reads as a fourth answer rather than as one
+// of the three genders[] rows.
+function wizmgenderSuffix(obj, state) {
+    if (!(obj.otyp === STATUE || obj.otyp === CORPSE || obj.otyp === FIGURINE)
+        || !state.wizard || !state.iflags?.wizmgender) {
+        return '';
+    }
+    const cgend = obj.spe & CORPSTAT_GENDER;
+    const mgend = cgend === CORPSTAT_MALE ? MALE
+        : cgend === CORPSTAT_FEMALE ? FEMALE : NEUTRAL;
+    return ` (${cgend !== CORPSTAT_RANDOM
+        ? genders[mgend].adj : 'unspecified gender'})`;
+}
+
 function corpseDoname(obj, modifiers, state) {
     const species = monsterObjectName(obj, state);
     const quantity = Math.trunc(obj.quan);
+    // objnam.c appends " named " inside xname_flags() (999-1005) and the
+    // gender in doname_base() below it, so the gender comes last.
     const corpse = `${species} corpse${quantity === 1 ? '' : 's'}`
         + (obj.oextra?.oname && obj.dknown
-            ? ` named ${obj.oextra.oname}` : '');
+            ? ` named ${obj.oextra.oname}` : '')
+        + wizmgenderSuffix(obj, state);
     if (quantity !== 1)
         return `${quantity} ${[...modifiers, corpse].join(' ')}`;
     const body = [...modifiers, corpse].join(' ');
@@ -1247,6 +1270,11 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
         || (nameClass === TOOL_CLASS && type.oc_charged)) {
         base += chargedSuffix(obj, type, ident.known);
     }
+    // objnam.c:1549-1559 sits between the class switch above and the
+    // owornmask suffixes wornSuffix() holds, and this is that position. The
+    // CORPSE arm of the same branch is in corpseDoname(), which the early
+    // return above took.
+    base += wizmgenderSuffix(obj, state);
     base += wornSuffix(obj, type, state);
     const words = [...modifiers, base].join(' ');
     if (quantity !== 1)
