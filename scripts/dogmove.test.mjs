@@ -151,6 +151,12 @@ function movementEnv(state, overrides = {}) {
             d: () => 1,
         },
         message: async () => {},
+        // mhitm.c pre_mm_attack() requires the seam whether or not it fires.
+        // Every combatant in this file is one the hero can spot, so a mark
+        // here means the visibility fixture changed, not that C marks.
+        markInvisible: (x, y) => assert.fail(
+            `no combatant in this file is unspottable: marked ${x},${y}`,
+        ),
         redraw: () => {},
         unsupported: (reason) => {
             throw new Error(`unsupported: ${reason}`);

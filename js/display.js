@@ -2409,8 +2409,23 @@ export function glyph_is_invisible(glyph) {
  *
  * The marker lives in the object layer of map memory, which is why
  * newsym()'s monster arms clear it before drawing anything on top.
+ *
+ * The two halves land in different places: the memory write goes to the
+ * `state` handed in, and show_glyph_cell() below takes no state and paints the
+ * module-global `game`. see_nearby_objects() settled what to do about that
+ * shape, and this refuses a foreign state for the same reason rather than
+ * splitting the two halves silently. It matters here because the once-per-turn
+ * planning clone shares its level cells with the live game
+ * (js/unported_monster_actions.js planningState()), so a dry run that reached
+ * this function would leave a remembered 'I' and a painted cell behind in the
+ * running game. The clone never reaches it: js/mhitm.js pre_mm_attack() marks
+ * through an injected operation that a planning scan binds to a no-op, the way
+ * it binds `redraw`.
  */
 export function map_invisible(x, y, state = game) {
+    if (state !== game) {
+        throw new TypeError('map_invisible() draws to the global game');
+    }
     if (x === state.u?.ux && y === state.u?.uy) return;
     const location = state.level?.at(x, y);
     if (!location) return;
@@ -2425,6 +2440,16 @@ export function map_invisible(x, y, state = game) {
  * C ref: display.c unmap_invisible() (387-396).  detect.c dosearch0() calls
  * this for every adjacent square with no monster on it, to clear the
  * remembered 'I' of an invisible monster which has since moved away.
+ *
+ * It splits its two halves the way map_invisible() does: unmap_object() writes
+ * the memory of the `state` handed in, and the newsym() below takes none and
+ * repaints the module-global `game`. map_invisible() refuses a foreign state
+ * over that; this one does not, because every caller in the running game
+ * (js/detect.js dosearch0(), js/dokick.js, js/hack.js domove_core()) passes the
+ * live state, while scripts/detect.test.mjs drives dosearch0() through a
+ * hand-built state whose memory half is exactly what that test reads. The
+ * repaint is covered separately, against the live game, in
+ * scripts/display-symbols.test.mjs.
  */
 export function unmap_invisible(x, y, state = game) {
     if (!isok(x, y)) return false;
@@ -2699,9 +2724,15 @@ export function newsym(x, y) {
     // It is placed above the layer work rather than beside the draw because
     // C's arm skips _map_location() entirely, and _map_location() is what
     // reaches map_object() and its observe_object() -- so taking this arm must
-    // not mark a nearby object as seen up close. The hero's own square cannot
-    // reach it: C runs the chain inside the `else` of `if (u_at(x, y))`, and
-    // map_invisible() would decline that square anyway.
+    // not mark a nearby object as seen up close.
+    //
+    // Every term below is load-bearing, including the hero-square one. C runs
+    // this chain inside the `else` of `if (u_at(x, y))`, so the flat arm here
+    // needs its own exclusion to stand in for that structure. Dropping it on
+    // the grounds that map_invisible() declines the hero's square anyway would
+    // decline the write and the draw but not the `return` below, and newsym()
+    // would then leave the hero undrawn on a square whose memory holds the
+    // marker.
     //
     // update_lastseentyp() above stays where the port already had it, one
     // hoist further out than C's copy inside _map_location().

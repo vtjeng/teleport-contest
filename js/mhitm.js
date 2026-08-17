@@ -15,7 +15,6 @@ import {
     NATTK,
     helpless,
 } from './const.js';
-import { map_invisible } from './display.js';
 import {
     capitalizedMonsterName,
     mon_nam_too,
@@ -170,16 +169,21 @@ async function noises(magr, mattk, env) {
 // that arrives here, so `mdef.mundetected` is 0 on every path that reaches
 // this function. The clear is written because C writes it.
 //
-// map_invisible() is called directly rather than injected the way `redraw` is.
-// `redraw` is newsym(), which paints the module-global game and so has to be
-// replaced by a no-op for the once-per-turn planning clone; map_invisible()
-// takes the state it writes. No planning caller reaches here in any case:
-// js/allmain.js finishElapsedTurn() is the only function a clone runs with
-// `planning: true`, and it runs after mon.c movemon() rather than inside it.
+// The marker write goes through the `markInvisible` seam for the same reason
+// `redraw` does. Both write the live map: newsym() paints the module-global
+// game, and display.c map_invisible() writes map memory and then paints
+// through show_glyph_cell(), which reads that same global. The once-per-turn
+// planning scan reaches this function -- js/unported_monster_actions.js
+// preflightSimpleMonsterActions() runs moveSimplePet() with `planning: true`,
+// and a pet's blow arrives here through dogmove.c dog_move() -- and its clone
+// shares the live level's cells, so a dry run marking a square would leave a
+// remembered 'I' and a painted cell behind in a game the scan may still refuse.
+// The scan binds both seams to no-ops and replays the turn live afterwards.
 function pre_mm_attack(magr, mdef, env) {
     const { state } = env;
     const unsupported = requireAttackOperation(env, 'unsupported');
     const redraw = requireAttackOperation(env, 'redraw');
+    const markInvisible = requireAttackOperation(env, 'markInvisible');
     let showit = false;
 
     if (M_AP_TYPE(mdef)) {
@@ -200,10 +204,10 @@ function pre_mm_attack(magr, mdef, env) {
         // mutually exclusive, so a monster the hero cannot spot is marked and
         // not redrawn even when showit is set.
         if (!canSpotMonster(magr, state))
-            map_invisible(magr.mx, magr.my, state);
+            markInvisible(magr.mx, magr.my);
         else if (showit) redraw(magr.mx, magr.my);
         if (!canSpotMonster(mdef, state))
-            map_invisible(mdef.mx, mdef.my, state);
+            markInvisible(mdef.mx, mdef.my);
         else if (showit) redraw(mdef.mx, mdef.my);
     }
 }

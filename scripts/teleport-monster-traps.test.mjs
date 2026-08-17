@@ -161,7 +161,13 @@ test('a newly seen distant arrival has no relative suffix', async () => {
         [monster.mx, monster.my],
         [destination.x, destination.y],
     );
-    assert.match(messages.at(-1), / appears!$/u);
+    // teleport.c rloc_to_core() calls Monnam(mtmp) at 1722, after
+    // place_monster() and set_apparxy(), rather than reusing a name taken
+    // before the move. It matters because do_name.c x_monnam()'s do_it arm
+    // reads canspotmon(): this monster stands where the hero cannot see it and
+    // lands where the hero can, so a name read before the move is "It" and the
+    // name C reads is its own.
+    assert.equal(messages.at(-1), 'The kitten appears!');
     assert.doesNotMatch(
         messages.at(-1),
         /(?:closer|farther) away/u,

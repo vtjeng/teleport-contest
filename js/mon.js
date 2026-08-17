@@ -1764,8 +1764,24 @@ export async function mondead(mtmp, state = game, env = {}) {
        something invisible stood leaves no stray 'I' behind. */
     if (glyph_is_invisible(
         state.level.at(mtmp.mx, mtmp.my).remembered_glyph?.glyph,
-    ))
+    )) {
+        /* unmap_object() rewrites this square's map memory, and the
+           once-per-turn planning clone shares the live game's cells, so a dry
+           run reaching this line would forget the marker in the running game.
+           killRedraw() above answers the same question by skipping, which
+           works for a repaint because a repaint cannot refuse; this one
+           refuses instead, because unmap_object() refuses an engraved square
+           and skipping would hide that refusal from the pass that exists to
+           find it.
+
+           The plan cannot reach this line for a marker it wrote itself:
+           js/mhitm.js pre_mm_attack() marks through a seam the plan binds to a
+           no-op. What is left is a marker an earlier live turn left behind,
+           which no recorded case produces. */
+        if (env.planning)
+            unsupported('forgetting a remembered invisible monster on a plan');
         unmap_object(mtmp.mx, mtmp.my, state);
+    }
 
     /* "remove 'mtmp' from play; it will stay on the fmon list until end of
        current move, then dmonsfree() will get rid of it" */
@@ -1867,7 +1883,7 @@ function safe_oname(obj) {
 // 154-line PM_ roster at 686-844 is excluded and its `#else default:` at 846
 // is what every unlisted species reaches, falling through to the `default_1`
 // label at 848. What survives is that label, the mummy and zombie group at
-// 622-649, which is ported, and five groups that stop at the top of their own
+// 622-649, which is ported, and six groups that stop at the top of their own
 // case, above the first draw or object each would make:
 //
 //   582-597  dragon scales, and the rn2(3) or rn2(20) that decides them.

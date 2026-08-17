@@ -3403,6 +3403,37 @@ test('a planned dart trap writes nothing to frozen live state', async () => {
     assert.equal(game.level.objects[target.destinationX][target.heroY], null);
 });
 
+test('a planned unspottable defender is not marked on frozen live state',
+    async () => {
+        // mhitm.c pre_mm_attack():67-68 writes GLYPH_INVISIBLE into the
+        // defender's square through display.c map_invisible(), which also
+        // paints through show_glyph_cell(). Both halves land on the live game:
+        // the clone's level cells are the live ones, and show_glyph_cell()
+        // takes no state at all. So the scan binds the marker seam to a no-op
+        // the way it binds `redraw`, and the live replay of the same turn
+        // writes both.
+        //
+        // The pet's square is in sight and the acid blob's is not, so
+        // mattackm():355-357 sets gv.vis from the attacker's half alone and
+        // the defender fails canspotmon() -- the one combination that reaches
+        // the arm. The blob's passive then refuses the plan, which is what
+        // makes a leak here matter: the live game would keep a remembered 'I'
+        // from a turn that never happened.
+        const target = await prepareStartingPetAction(PM_LITTLE_DOG);
+        installPetDefender(target, 12);
+        game.viz_array[target.heroY][target.monsterX] |= IN_SIGHT;
+        const guard = freezeLiveState(game);
+        assertDetectorReachedTheGraph(guard);
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'an acid splash from the monster attacked',
+        );
+
+        guard.assertNoLeak(assert);
+    });
+
 test('a planned distant pet pickup writes nothing to frozen live state',
     async () => {
         // The same carry arm on distant_name()'s far branch, which is the

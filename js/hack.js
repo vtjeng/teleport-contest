@@ -2050,14 +2050,19 @@ async function domove_fight_empty(x, y, state) {
     // An axe reaches that fall-through at every wall, rock, pool and furniture
     // square, and a pick at ROOM, CORR and a tree.
     //
+    // C's block is `if (svc.context.forcefight && uwep && dig_typ(...) &&
+    // !glyph_is_invisible(glyph) && !glyph_is_monster(glyph))`. The forcefight
+    // conjunct is written below because the entry test now admits a second
+    // way in: a hero walking into a remembered 'I' arrives here with
+    // context.forcefight clear, and that is a path on which C skips the dig
+    // block outright and swings.
+    //
     // C's two remaining conjuncts, !glyph_is_invisible(glyph) and
     // !glyph_is_monster(glyph), are the "should we dig?" half and both make C
     // swing rather than dig. Neither is ported, so this refusal is wider than
-    // C on a square whose map memory holds an unseen-monster marker or a
-    // monster that has since left it. It is fail-closed, and the marker now
-    // has a writer, so a hero wielding a digging tool who walks into a
-    // remembered 'I' stops here instead of swinging at thin air.
-    if (state.uwep
+    // C on a force-fought square whose map memory holds an unseen-monster
+    // marker or a monster that has since left it. It is fail-closed.
+    if (state.context.forcefight && state.uwep
         && dig_typ(state.uwep, x, y, state) !== DIGTYP_UNDIGGABLE) {
         throw new UnsupportedHeroMoveBoundaryError(
             'force-fight that digs instead of swinging',

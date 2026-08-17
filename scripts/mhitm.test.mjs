@@ -10,7 +10,11 @@ import {
     NATTK,
     PIT,
 } from '../js/const.js';
-import { glyph_is_invisible, unmap_invisible } from '../js/display.js';
+import {
+    glyph_is_invisible,
+    map_invisible,
+    unmap_invisible,
+} from '../js/display.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { mattackm } from '../js/mhitm.js';
@@ -164,13 +168,18 @@ function scripted(rolls = [], fallback = 1) {
 function attackEnv(rolls = [], fallback = 1) {
     const recorder = scripted(rolls, fallback);
     const redraws = [];
+    const marks = [];
     return {
         bounds: recorder.bounds,
         lines: recorder.lines,
         random: recorder.random,
         redraws,
+        marks,
         state: game,
         message: async (text) => { recorder.lines.push(text); },
+        // The live binding, as js/unported_monster_actions.js supplies it,
+        // with the squares recorded so a test can tell a mark from a repaint.
+        markInvisible: (x, y) => { marks.push([x, y]); map_invisible(x, y); },
         redraw: (x, y) => { redraws.push([x, y]); },
         unsupported: (reason) => { throw new Error(reason); },
     };
@@ -904,6 +913,18 @@ test('a tentacle attack names its owner in the possessive', async () => {
     assert.equal(await mattackm(pet, ant, env), M_ATTK_HIT);
     assert.deepEqual(env.lines,
                      ["The kitten's tentacles suck the giant ant."]);
+
+    // hacklib.c s_suffix() (345-359) special-cases "it" case-blind and
+    // answers "Its", not "It's". The arm is reachable now that
+    // pre_mm_attack() marks an unspottable aggressor instead of refusing it.
+    pet.minvis = true;
+    const unseen = attackEnv([1, 2, 1, 1]);
+    assert.equal(await mattackm(pet, ant, unseen), M_ATTK_HIT);
+    assert.deepEqual(unseen.lines,
+                     ['Its tentacles suck the giant ant.']);
+    unmap_invisible(ax, y, game);
+    pet.minvis = false;
+
     pet.data = ordinary;
 });
 
@@ -1019,6 +1040,36 @@ test('an unspottable aggressor is marked on its own square', async () => {
         glyph_is_invisible(game.level.at(dx, y).remembered_glyph?.glyph),
         false,
     );
+
+    unmap_invisible(ax, y, game);
+    pet.minvis = false;
+});
+
+// mhitm.c pre_mm_attack():63-70 is two `if / else if` pairs, one per
+// combatant, so a marked combatant is never also redrawn. The test above
+// cannot tell the two structures apart, because showit is FALSE there and an
+// `if (showit)` would be just as quiet. This raises showit through the
+// aggressor's mundetected clear at :59-61 and reads both halves at once: the
+// unspottable aggressor is marked and not repainted, and the spotted defender
+// is repainted and not marked.
+test('a marked combatant is not also repainted', async () => {
+    await hero();
+    const { ax, dx, y } = battlefield(1);
+    const pet = fixture(PM_KITTEN, ax, y, {
+        mtame: 10,
+        minvis: true,
+        mundetected: 1,
+    });
+    const ant = fixture(PM_GIANT_ANT, dx, y);
+    aim(ant);
+
+    const env = attackEnv([20]);
+    assert.equal(await mattackm(pet, ant, env), M_ATTK_MISS);
+    assert.equal(game.gv.vis, true);
+    // :59-61 cleared it, which is what sets showit.
+    assert.equal(pet.mundetected, 0);
+    assert.deepEqual(env.marks, [[ax, y]]);
+    assert.deepEqual(env.redraws, [[dx, y]]);
 
     unmap_invisible(ax, y, game);
     pet.minvis = false;

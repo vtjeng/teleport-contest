@@ -1429,6 +1429,37 @@ test('mondead forgets the invisible-monster marker on its square', async () => {
     );
 });
 
+// The clear rewrites map memory, and the once-per-turn planning clone shares
+// the live game's cells (js/unported_monster_actions.js planningState()), so a
+// dry run reaching it would forget the marker in the running game. It refuses
+// rather than skipping, because display.c unmap_object() refuses an engraved
+// square and a skipped call would hide that refusal from the pass whose whole
+// job is to find it. Only a marker an earlier live turn left behind can get
+// here: js/mhitm.js pre_mm_attack() marks through a seam the plan binds to a
+// no-op.
+test('a planned kill refuses to forget the marker rather than writing it',
+    async () => {
+    await hero();
+
+    const mon = spawn(PM_GOBLIN);
+    const { mx, my } = mon;
+    map_invisible(mx, my, game);
+
+    await refusesAsync(
+        () => mondead(mon, game, { ...killEnv(), planning: true }),
+        'forgetting a remembered invisible monster on a plan',
+    );
+    // The point of the refusal: the live square still holds what it held.
+    assert.equal(
+        glyph_is_invisible(game.level.at(mx, my).remembered_glyph?.glyph),
+        true,
+    );
+
+    // A plan that finds no marker runs to the end, which is the ordinary turn.
+    const second = spawn(PM_GOBLIN);
+    await mondead(second, game, { ...killEnv(), planning: true });
+});
+
 // mon.c make_corpse():622-649, the mummy and zombie group. undead_to_corpse()
 // turns the undead species into the living one whose body it is, mkcorpstat()
 // is passed the monster itself rather than KEEPTRAITS()'s choice, and the age
@@ -1438,9 +1469,23 @@ test("a zombie leaves the living creature's old corpse", async () => {
 
     const zombie = spawn(PM_KOBOLD_ZOMBIE, { mhp: 0 });
     const { mx, my } = zombie;
-    // rn2(6) declines the death drop and rn2(2) takes the corpse; the rest of
+    // rn2(6) declines the death drop and rn2(3) takes the corpse; the rest of
     // the list is mksobj()'s, and a fallback of 1 answers each.
-    await killed(zombie, game, killEnv([2, 0]));
+    const env = killEnv([2, 0]);
+    await killed(zombie, game, env);
+
+    // The draw sequence is the invariant the port is scored on, and this arm
+    // is new production code, so it is pinned the way every other kill in this
+    // file is. rn2(6) declines the death drop and rn2(3) is corpse_chance()'s
+    // divisor for an undead on an ordinary level; everything after it belongs
+    // to mkobj.c mksobj(), ending at rnz(10) as the goblin's list above does.
+    // The mummy and zombie arm passes an age already past TAINT_AGE, so it
+    // arms no timer of its own.
+    assert.deepEqual(env.bounds, [
+        'rn2(6)', 'rn2(3)',
+        'rnd(2)', 'rn2(3)', 'rn2(4)', 'rn2(5)', 'rn2(7)', 'rn2(8)',
+        'rn2(11)', 'rn2(15)', 'rn2(16)', 'rn2(21)', 'rn2(2)', 'rnz(10)',
+    ]);
 
     const corpse = game.level.objects[mx][my];
     assert.equal(corpse.otyp, CORPSE);

@@ -1569,9 +1569,16 @@ test('explicit search refuses the feel_location arm before any draw', async () =
 test('explicit search clears a remembered invisible monster', async () => {
     // detect.c:2074-2077, "see if an invisible monster has moved". The marker
     // sits on an adjacent square the monster has left, and unmap_invisible()
-    // clears it and repaints; the square the hero can still see nothing on
-    // keeps its own memory. hero_memory has to be on for unmap_object() to
-    // rewrite anything, exactly as C's map_background() does.
+    // clears it; the square the hero can still see nothing on keeps its own
+    // memory. hero_memory has to be on for unmap_object() to rewrite anything,
+    // exactly as C's map_background() does.
+    //
+    // This reads the memory half alone. unmap_invisible()'s repaint is
+    // newsym(), which takes no state and paints the module-global game, while
+    // this file drives dosearch0() through a hand-built state; the `events`
+    // recorder below sees the operations dosearch0() is handed, not a draw.
+    // scripts/display-symbols.test.mjs covers the repaint against the live
+    // game.
     const state = explicitSearchState();
     state.level.flags = { hero_memory: true };
     const vacated = state.level.at(11, 11);
@@ -1583,7 +1590,7 @@ test('explicit search clears a remembered invisible monster', async () => {
         state, random, ...recordingOperations(state, events),
     }), 1);
     assert.equal(glyph_is_invisible(vacated.remembered_glyph?.glyph), false);
-    // No secret door and no trap, so the whole 3x3 draws nothing.
+    // No secret door and no trap, so the 3x3 asks for no recorded operation.
     assert.deepEqual(events, []);
     random.done();
 });

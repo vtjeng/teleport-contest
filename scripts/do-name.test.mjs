@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { SUPPRESS_NAME } from '../js/const.js';
 import {
     Amonnam,
     bogusmon,
@@ -15,6 +16,7 @@ import {
     oname,
     rndmonnam,
     SIR_TERRY_NOVELS,
+    UnsupportedMonsterNameError,
 } from '../js/do_name.js';
 import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
@@ -123,6 +125,17 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         assert.equal(
             capitalizedAlwaysVisibleMonsterName(monster, state),
             'Your pony',
+        );
+
+        // The mask is checked the way x_monnam()'s is, so the two partial
+        // spellings of one C function agree on an unported flag. A port of
+        // do_name.c noname_monnam() (1104-1107) would pass SUPPRESS_NAME, and
+        // C's do_name at :872 answers the species where the given-name line
+        // here would answer the name; the refusal is what keeps that from
+        // being a silent wrong string.
+        assert.throws(
+            () => monsterCommonName(monster, state, SUPPRESS_NAME),
+            UnsupportedMonsterNameError,
         );
     });
 

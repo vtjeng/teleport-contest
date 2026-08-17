@@ -87,6 +87,7 @@ import {
     flush_screen,
     newsym,
     timebot,
+    UnsupportedMapMemoryError,
 } from './display.js';
 import {
     dismissPendingTtyMessage,
@@ -897,6 +898,12 @@ function elapsedTurnPlanningRefusals() {
         UnsupportedObjectNameError,
         UnsupportedObjectOperationError,
         UnsupportedMonsterPickupOperationError,
+        // mon.c mondead() forgets the invisible-monster marker through
+        // display.c unmap_object(), which refuses an engraved square. A
+        // monster dying on a square that carries both reaches that refusal
+        // from inside the monster scan, where the previous code raised the
+        // injected refusal of the first class above.
+        UnsupportedMapMemoryError,
     ];
 }
 

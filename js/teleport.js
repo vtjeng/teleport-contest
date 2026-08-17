@@ -455,7 +455,13 @@ async function relocateToFixedDestination(monster, x, y, env) {
         throw new TypeError('monster teleport requires a message operation');
     const oldX = monster.mx;
     const oldY = monster.my;
-    const name = capitalizedMonsterName(monster, state);
+    // C ref: teleport.c rloc_to_core() calls Monnam(mtmp) three times, at 1666
+    // before the move and at 1714 and 1722 after it, rather than once into a
+    // buffer. That matters now that do_name.c x_monnam()'s do_it arm is
+    // ported: the name depends on canspotmon(), and the whole point of this
+    // function is that the monster changes square between the two reads. A
+    // monster the hero cannot spot where it stands but can spot where it
+    // lands is named "It" before the move and by its species after it.
     let appearMessage = Boolean(monster.mstrategy & STRAT_APPEARMSG);
     const oldSpotted = canSpotMonster(monster, state);
     const sensedAtOldSquare = sensesMonster(monster, state);
@@ -465,7 +471,10 @@ async function relocateToFixedDestination(monster, x, y, env) {
         if (couldsee(x, y, state) || sensedAtOldSquare) {
             teleportMessage = true;
         } else {
-            await message(`${name} vanishes!`, state);
+            await message(
+                `${capitalizedMonsterName(monster, state)} vanishes!`,
+                state,
+            );
         }
         appearMessage = false;
     }
@@ -483,7 +492,8 @@ async function relocateToFixedDestination(monster, x, y, env) {
             && (couldsee(monster.mx, monster.my, state)
                 || sensedAtNewSquare)) {
             await message(
-                `${name} vanishes and reappears`
+                `${capitalizedMonsterName(monster, state)}`
+                + ' vanishes and reappears'
                 + `${fixedRelocationSuffix(
                     monster,
                     oldX,
@@ -493,8 +503,14 @@ async function relocateToFixedDestination(monster, x, y, env) {
                 state,
             );
         } else {
+            // do_name.c Amonnam() is x_monnam() with ARTICLE_A, and its do_it
+            // term tests only `article != ARTICLE_YOUR`, so an unspottable
+            // monster is "It" under either article and the article swap below
+            // finds no leading "The " to replace.
+            const arrivalName = capitalizedMonsterName(monster, state);
             await message(
-                `${appearMessage ? name.replace(/^The /u, 'A ') : name}`
+                `${appearMessage
+                    ? arrivalName.replace(/^The /u, 'A ') : arrivalName}`
                 + `${appearMessage ? ' suddenly' : ''} `
                 + `${heroBlind(state) ? 'arrives' : 'appears'}`
                 + `${fixedArrivalSuffix(monster, state)}!`,

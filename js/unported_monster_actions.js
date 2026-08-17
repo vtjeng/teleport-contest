@@ -34,7 +34,7 @@ import {
 // ES module cycle initializes before either module body runs; nothing here
 // reads it at module scope.
 import { stop_occupation } from './allmain.js';
-import { bot, newsym } from './display.js';
+import { bot, map_invisible, newsym } from './display.js';
 import {
     best_target,
     dog_move,
@@ -790,6 +790,12 @@ async function moveSimplePet(monster, after, env) {
         // its two no longer needs it repaints for the other, on a turn the
         // scan may still refuse.
         message: env.planning ? async () => {} : ttyPline,
+        // js/mhitm.js pre_mm_attack() marks a combatant the hero cannot spot
+        // through display.c map_invisible(), which writes map memory and then
+        // paints through show_glyph_cell(). This clone's level cells are the
+        // live game's, so the planned pass must write neither half; the live
+        // replay of the same turn writes both.
+        markInvisible: env.planning ? () => {} : map_invisible,
         monsterReflects: () => unsupported('pet combat evaluation'),
         petRangedAttack: pet_ranged_attk,
         redraw: env.planning ? () => {} : newsym,

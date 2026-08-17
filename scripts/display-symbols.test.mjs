@@ -1800,6 +1800,50 @@ test('newsym re-asserts a remembered marker instead of the floor under it',
     assert.equal(location.disp_ch, 'I');
 });
 
+test('the marker arm yields to a monster and to the hero', () => {
+    // display.c:1013-1035 is a four-arm chain, and the marker is its third
+    // arm. Every guard that decides which arm a square takes is read here,
+    // because the row above passes with any of them deleted. The state each
+    // row sets is the ordinary one: mhitm.c pre_mm_attack() writes the marker
+    // onto the square a monster is standing on, so "marker and monster
+    // together" is the follow-up state rather than a corner.
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: x - 1, uy: y });
+    const location = state.level.at(x, y);
+    state.viz_array[y][x] = IN_SIGHT;
+
+    newsym(x, y);
+    const floor = location.remembered_glyph.glyph;
+
+    // A monster the hero can spot takes the first arm. display.c
+    // show_mon_or_warn() (486-493) clears the marker before drawing on the
+    // monster layer, so the memory comes back from the layers.
+    map_invisible(x, y, state);
+    state.level.monsters[x][y] = {
+        data: { mlet: S_FELINE, mcolor: CLR_WHITE },
+        m_ap_type: 0,
+        minvis: false,
+        mundetected: false,
+        mx: x,
+        my: y,
+    };
+    newsym(x, y);
+    assert.equal(location.disp_ch, 'f');
+    assert.equal(location.remembered_glyph.glyph, floor);
+
+    // The hero's own square takes C's `if (u_at(x, y))` arm above the chain.
+    // map_invisible() declines to write the hero's square, so the marker is
+    // planted directly to prove the arm is not taken rather than the write.
+    state.level.monsters[x][y] = null;
+    location.remembered_glyph = { glyph: GLYPH_INVISIBLE };
+    state.u.ux = x;
+    state.u.uy = y;
+    newsym(x, y);
+    assert.notEqual(location.disp_ch, 'I');
+    assert.equal(location.remembered_glyph.glyph, floor);
+});
+
 test('unmap_invisible clears a remembered marker and repaints the square',
     () => {
     // display.c unmap_invisible() (387-396). The FALSE arm answers for a
@@ -4953,6 +4997,31 @@ test('gas colors and ordinary/disguised monster precedence follow newsym', () =>
             'a disguised mimic remains behind gas',
         );
     }
+});
+
+test('a remembered marker overrides gas with no monster to prefer', () => {
+    // display.c mon_overrides_region()'s closing line (697-699): with no
+    // monster to prefer, `glyph_is_invisible(levl[mx][my].glyph)` still
+    // answers TRUE, so a cloud drifting over a remembered 'I' does not erase
+    // it. The negative row is the one that keeps the positive from passing for
+    // the wrong reason.
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y, ux: 1, uy: 1 });
+    const location = state.level.at(x, y);
+    const cloud = create_region();
+    add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
+    cloud.visible = true;
+    cloud.glyph_cmap = S_cloud;
+    add_region(cloud, state, { deferVisual: true });
+
+    newsym(x, y);
+    assert.equal(location.disp_ch, '#');
+
+    map_invisible(x, y, state);
+    newsym(x, y);
+    assert.equal(location.disp_ch, 'I');
+    assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
 });
 
 test('generic monster warning overrides gas without hiding a visible monster', () => {

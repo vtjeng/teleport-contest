@@ -228,7 +228,7 @@ function namingPropertyActive(state, property) {
         && !value?.blocked;
 }
 
-// C ref: do_name.c x_monnam()'s do_it predicate (863-865). Five terms, and
+// C ref: do_name.c x_monnam()'s do_it predicate (863-865). Six terms, and
 // each defeats "it" on its own: the hero can make the monster out; the caller
 // asked for "your <pet>"; the game is over and every monster is disclosed; the
 // monster is the steed the hero is sitting on; the monster has swallowed the
@@ -270,7 +270,21 @@ function x_monnam_it(suppress) {
 // considered. A given name suppresses the article. An unnamed visible monster
 // retains the saddle adjective unless blindness or hallucination prevents
 // recognition.
+//
+// The mask is checked the way x_monnam() below checks its own, so the two
+// partial spellings of one C function agree on what an unported flag means.
+// Dropping a flag silently would answer a name C does not: a port of
+// noname_monnam() (1104-1107) passing SUPPRESS_NAME would get "Fido" from the
+// given-name line below, where do_name.c:872 computes do_name and answers
+// "the dog".
+const MONSTER_COMMON_NAME_FLAGS = SUPPRESS_IT | AUGMENT_IT;
+
 export function monsterCommonName(monster, state = game, suppress = 0) {
+    if (suppress & ~MONSTER_COMMON_NAME_FLAGS) {
+        throw new UnsupportedMonsterNameError(
+            `mon_nam() suppress flags 0x${suppress.toString(16)}`,
+        );
+    }
     // mon_nam() always passes ARTICLE_THE, so the article term is constantly
     // true here and SUPPRESS_IT is the only term a wrapper can move.
     if (x_monnam_do_it(monster, ARTICLE_THE, suppress, state))
@@ -485,11 +499,16 @@ export function mon_nam_too(mon, other_mon, state = game, env = {}) {
     }
 }
 
+// C ref: hacklib.c s_suffix() over mon_nam()/Monnam(), which is how mhitm.c
+// hitmm() spells the AT_TENT line at 687-690. The suffix comes from the ported
+// function rather than from an apostrophe rule written here, because
+// s_suffix() special-cases "it" and "you" case-blind: C answers "Its
+// tentacles suck", and a bare apostrophe rule answers "It's".
 export function monsterPossessive(monster, state = game, capitalized = false) {
     const name = capitalized
         ? capitalizedMonsterName(monster, state)
         : monsterCommonName(monster, state);
-    return `${name}${name.endsWith('s') ? "'" : "'s"}`;
+    return s_suffix(name);
 }
 
 export function rndghostname(env = {}) {

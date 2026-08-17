@@ -43,7 +43,8 @@ import {
     UnsupportedHeroMoveBoundaryError,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
-import { PM_YELLOW_LIGHT } from '../js/monsters.js';
+import { PM_KITTEN, PM_YELLOW_LIGHT } from '../js/monsters.js';
+import { place_monster } from '../js/monst.js';
 import { mksobj, mksobj_at } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { AXE, BOULDER, PICK_AXE, STATUE } from '../js/objects.js';
@@ -444,6 +445,43 @@ test('walking into a remembered unseen monster swings at it instead',
     assert.equal(walked.u.ux, ux + WEST[0], 'the hero moved');
 });
 
+test('a monster still on the marked square declines the swing', async () => {
+    // hack.c:2244's `!m_at(x, y)` conjunct. The marker is written onto the
+    // square a monster is standing on, so marker-and-monster is the ordinary
+    // follow-up state rather than a corner: mhitm.c pre_mm_attack() marks a
+    // combatant that is still alive and still there. Without the conjunct the
+    // hero swings at thin air and spends the turn instead of reaching the
+    // monster path.
+    const state = await heroInARoom();
+    targetTerrain(state, ROOM);
+    const { ux, uy } = state.u;
+    const x = ux + WEST[0];
+    map_invisible(x, uy, state);
+    const kitten = {
+        data: state.mons[PM_KITTEN],
+        mnum: PM_KITTEN,
+        m_id: 4242,
+        mx: x,
+        my: uy,
+        mtame: 10,
+        mpeaceful: 1,
+        mcanmove: 1,
+        msleeping: 0,
+        mflee: 0,
+        mhp: 10,
+        mhpmax: 10,
+        mstrategy: 0,
+        movement: 0,
+    };
+    place_monster(kitten, x, uy, state);
+    state.context.startingpet_mid = kitten.m_id;
+
+    await domove(walkWest(state));
+    assert.notEqual(toplines(state), 'You attack thin air.');
+    assert.equal(state.u.ux, x, 'the hero swapped places with the pet');
+    assert.equal(kitten.mx, ux, 'the pet took the square the hero left');
+});
+
 test("the 'm' prefix clears a remembered unseen monster and walks on",
     async () => {
     // svc.context.nopick is the third conjunct, so the disjunct declines and
@@ -461,6 +499,29 @@ test("the 'm' prefix clears a remembered unseen monster and walks on",
     assert.equal(
         glyph_is_invisible(state.level.at(ux + WEST[0], uy)
             .remembered_glyph?.glyph),
+        false,
+    );
+});
+
+test("the 'm' prefix clears the marker on a step that never completes",
+    async () => {
+    // hack.c:2812 sits above u_rooted(), the u.utrap block and test_move()
+    // (2812-2846), so the clear happens whether or not the step goes through.
+    // The row above cannot tell: its hero ends up standing on the square, and
+    // newsym() at the hero's own position rewrites the memory anyway. Here the
+    // step is declined by the wall, so unmap_invisible() is the only thing
+    // that can have cleared it.
+    const state = await heroInARoom();
+    targetTerrain(state, VWALL);
+    const { ux, uy } = state.u;
+    const x = ux + WEST[0];
+    map_invisible(x, uy, state);
+    state.context.nopick = 1;
+
+    await domove(walkWest(state));
+    assert.equal(state.u.ux, ux, 'the hero stayed put');
+    assert.equal(
+        glyph_is_invisible(state.level.at(x, uy).remembered_glyph?.glyph),
         false,
     );
 });
@@ -530,6 +591,19 @@ test('a force-fight this port cannot answer stops by name', async () => {
         );
         await refusedWest(state, /digs instead of swinging/u);
     }
+
+    // hack.c:2266's first conjunct is svc.context.forcefight, so a hero who
+    // walks into a remembered 'I' with a digging tool in hand skips the dig
+    // block outright and swings. The refusal above is the force-fight path
+    // only; without the conjunct this step would stop instead of printing.
+    const walker = await heroInARoom();
+    targetTerrain(walker, VWALL);
+    walker.uwep = mksobj(
+        PICK_AXE, true, false, objectGenerationEnv({ state: walker }),
+    );
+    map_invisible(walker.u.ux + WEST[0], walker.u.uy, walker);
+    await domove(walkWest(walker));
+    assert.equal(toplines(walker), 'You harmlessly attack the wall.');
 
     // hack.c domove_fight_ironbars() (1993-2016), which runs first.
     const bars = await heroInARoom();
