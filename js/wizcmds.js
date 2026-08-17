@@ -1,9 +1,11 @@
 // wizcmds.js -- the wizard-mode extended commands.
-// C refs: src/wizcmds.c wiz_level_change(), wiz_level_tele() and wiz_wish(),
-// so far the only three rows of that file cmd.c dispatches here.
+// C refs: src/wizcmds.c wiz_genesis(), wiz_level_change(), wiz_level_tele()
+// and wiz_wish(), so far the only four rows of that file cmd.c dispatches
+// here.
 
 import { ECMD_OK, MAXULEV } from './const.js';
 import { pluslvl, UnsupportedExperienceChangeError } from './exper.js';
+import { create_particular } from './read.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
 import { mungspaces } from './hacklib.js';
@@ -52,6 +54,32 @@ export async function wiz_level_tele(state = game) {
         await level_tele(state);
     } else {
         await ttyPline("Unavailable command 'wizlevelport'.", state);
+    }
+    return ECMD_OK;
+}
+
+// C ref: wizcmds.c wiz_genesis() (203-215), the #wizgenesis command.
+//
+// Its else arm is dead for the same reason wiz_wish()'s is, and is written out
+// for the same reason: cmd.c can_do_extcmd() refuses the WIZMODECMD row with
+// this exact line before either dispatch route arrives, and doextcmd() never
+// sees the row at all because extcmds_match() drops it first. C spells the
+// name as ecname_from_fn(wiz_genesis), which finds the "wizgenesis" row.
+//
+// The saved iflags.debug_mongen is what lets the command work in a game that
+// turned random monster generation off: makemon.c:1168 returns without
+// creating anything while the flag is up, and this is the one caller that
+// takes it down. js/options.js seeds the field from optlist.h's initval, so
+// the restore puts a boolean back rather than an undefined.
+export async function wiz_genesis(state = game) {
+    if (state.wizard) {
+        const mongen_saved = state.iflags.debug_mongen;
+
+        state.iflags.debug_mongen = false;
+        await create_particular(state);
+        state.iflags.debug_mongen = mongen_saved;
+    } else {
+        await ttyPline("Unavailable command 'wizgenesis'.", state);
     }
     return ECMD_OK;
 }

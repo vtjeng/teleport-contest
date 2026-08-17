@@ -134,7 +134,10 @@ import { doride, UnsupportedSteedError } from './steed.js';
 import { UnsupportedHitPointLossError } from './hack.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
-import { wiz_level_change, wiz_level_tele, wiz_wish } from './wizcmds.js';
+import { UnsupportedMonsterRequestError } from './read.js';
+import {
+    wiz_genesis, wiz_level_change, wiz_level_tele, wiz_wish,
+} from './wizcmds.js';
 import {
     dozap,
     UnsupportedBhitError,
@@ -908,8 +911,8 @@ export async function parseCommand(state = game) {
 export const ADMITTED_COMMANDS = Object.freeze([
     'wait', 'look', 'inventory', 'showspells', 'known', 'attributes', 'search',
     'eat', 'apply', 'down', 'drop', 'pickup', 'takeoff', 'wear', 'zap',
-    'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport', 'fire', 'throw',
-    'swap', 'kick', '#',
+    'reqmenu', 'fight', 'options', 'wizwish', 'wizlevelport', 'wizgenesis',
+    'fire', 'throw', 'swap', 'kick', '#',
 ]);
 const ADMITTED_BOUNDARY = 'the repeated-command boundary admits only '
     + `${ADMITTED_COMMANDS.join(', ')}, a one-square walk, a shift-direction `
@@ -1325,6 +1328,12 @@ export function failClosedCommandRefusals() {
         // reach it, so leaving it out would discard every screen the wish
         // prompt already matched instead of stopping on the last of them.
         UnsupportedWishError,
+        // read.c raises this from every parse and creation arm of
+        // create_particular() this port leaves unported, all of them after
+        // getlin() has echoed the whole typed monster name. Leaving it out
+        // would discard every screen the ^G prompt already matched instead of
+        // stopping on the last of them.
+        UnsupportedMonsterRequestError,
         // zap.c dozap() raises this from its three effect arms. Each one
         // stops after the command has already spent a charge and painted its
         // prompts, so the segment has to end on them rather than lose the
@@ -1615,6 +1624,12 @@ async function runWishCommand(key, state) {
 // on both arms, so a cancelled level teleport spends no turn.
 async function runLevelTeleCommand(key, state) {
     return failClosedCommand(key, state, () => wiz_level_tele(state));
+}
+
+// C ref: wizcmds.c wiz_genesis(). Like wiz_wish() it ends `return ECMD_OK` on
+// both arms, so creating a monster spends no turn however many arrive.
+async function runGenesisCommand(key, state) {
+    return failClosedCommand(key, state, () => wiz_genesis(state));
 }
 
 // C ref: wield.c dotwoweapon(). Like dosearch() and doeat() it returns its own
@@ -1918,6 +1933,8 @@ async function doextcmd(key, state) {
         return await runLevelTeleCommand(key, state);
     case 'wiz_wish':
         return await runWishCommand(key, state);
+    case 'wiz_genesis':
+        return await runGenesisCommand(key, state);
     default:
         resetCommandVars(state);
         throw new UnsupportedHeroCommandBoundaryError(
@@ -2416,6 +2433,19 @@ export async function rhack(key, state = game) {
             // "The wizlevelport command does not accept 'm' prefix." -- and
             // the row holds no movement flag.
             await runLevelTeleCommand(key, state);
+            resetCommandVars(state, state.multi < 0);
+            return;
+        }
+        if (command === 'wizgenesis') {
+            // C ref: rhack()'s result handling, the same shape the `wizwish`
+            // arm above spells out: wizcmds.c:214 ends both arms of
+            // wiz_genesis() with `return ECMD_OK`, so reset_cmd_vars() is all
+            // of it and creating a monster spends no turn. cmd.c:1961's
+            // "wizgenesis" row carries IFBURIED and WIZMODECMD and no movement
+            // flag, so the MOVEMENTCMD and domove_attempting tests at
+            // 3773-3800 cannot divert it; it carries no CMD_M_PREFIX either,
+            // so the prefix test at 3693-3695 refuses `m^G` and `F^G` above.
+            await runGenesisCommand(key, state);
             resetCommandVars(state, state.multi < 0);
             return;
         }

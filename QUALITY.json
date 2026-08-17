@@ -3746,6 +3746,15 @@
       "status": "open",
       "from": "6926a7bbb1e520061b3a48996ae47438d2cf7bac",
       "detail": "js/mklev.js makelevel() (401) has no counterpart to mklev.c:1267's `slev = Is_special(&u.uz); if (slev && !Is_rogue_level(&u.uz)) makemaz(slev->proto);`, and does not import Is_special from js/dungeon.js, where the function exists at :1261. A level change that lands on a des-file level therefore builds an ordinary random level in silence, where C builds the special one from its .lua prototype.\n\nThis is a live divergence rather than a refusal, which AGENTS.md ranks worse than a named stop: nothing fails, and the first evidence is a screen mismatch on the arrival.\n\nIt was found while capping candidates for the goal ranking at 6926a7b, and it is what caps level_tele()'s print_dungeon() menu at 4 steps rather than 96. Three development sessions reach it, and each one's first menu pick is such a level: y - Bar-strt: 16 at seed0373 step 44, and e - bigrm: 12 at seed0383 step 43 and seed2600 step 21, all confirmed from the recorded menu pages and the arrival status lines (Home 1, Dlvl:12).\n\nClosing it means porting the dispatch and enough of makemaz() to build one prototype, or refusing the branch by name so a special-level arrival stops instead of drawing an ordinary level. The refusal is the smaller change and would convert three silent divergences into three named stops; the port is what those three sessions actually need."
+    },
+    {
+      "id": "create-particular-qualified-requests-refused",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "2a1873454bb167749fa46b10e1f8d9df1cfb5a4a",
+      "detail": "js/read.js create_particular_parse() ports read.c's plain-monster-name arm alone and raises UnsupportedMonsterRequestError for every other answer the ^G prompt accepts. Each refused arm, with an input that reaches it and what C does with it instead:\n\n- The leading count (read.c:3145-3149) and the out-of-range quantity it can produce (3161-3162, which needs monster_census()). Input: `^G`, `2 gas spore`, Return. C makes two.\n- The six gear, state and gender words searched for anywhere in the answer (3167-3193): \"saddled \", \"sleeping \", \"invisible \", \"hidden \", \"female \", \"male \". Each sets a request field create_particular_creation() acts on with put_saddle_on_mon(), mtmp->msleeping, MM_MINVIS, mtmp->mundetected, or an explicit gender that can raise d->genderconf and take the 3294-3305 arm. Input: `^G`, `sleeping newt`, Return.\n- The three disposition prefixes (3197-3206), which reach tamedog() and set_malign(). Input: `^G`, `tame jackal`, Return.\n- The wizard-only random arm (3208-3211) and rndmonst() behind it. Input: `^G`, `*`, Return.\n- mondata.c name_to_monclass() and its four arms (3232-3245), which js/mondata.js:1181 already records as unported. This is where an unknown name, a class letter and an empty answer all land. Inputs: `^G`, `F`, Return; and `^G`, Return alone, which C sends round create_particular()'s retry loop instead.\n- create_particular_creation()'s y_n() force-the-species override (3262-3272), for a species cant_revive() substitutes. Input: `^G`, `shopkeeper`, Return. C offers \"Creating human zombie instead; force shopkeeper?\".\n- create_particular()'s retry loop itself (3386-3405): \"I've never heard of such monsters.\", \"Try again (type * for random, ESC to cancel).\", the \" [type name or symbol]\" prompt extension and thats_enough_tries. No answer can reach it while the parse refuses rather than answering FALSE, so it needs the arms above first.\n\nExpected failure today: each input ends the segment at the command seam with the port's refusal message, after getlin() has echoed the whole typed name. None appears in scripts/run-wizard-genesis.mjs, because a fresh recording cannot pass through a refusal; scripts/wizard-genesis.test.mjs pins each refusal by its message instead.\n\nOne further bound on the same prompt is not read.c's. js/makemon_create.js assertSupportedSpecies() admits only the species bands level generation has been verified for, and ^G is the first command that lets a player name any species at all, so a plain name outside those bands -- `^G`, `jabberwock`, Return -- stops with UnsupportedMonsterCreationError even though the parse accepted it. Widening that allowlist is a separate piece of work from the arms above and needs its own differential per species family."
     }
   ],
   "areas": [
@@ -3901,6 +3910,7 @@
         "js/mthrowu.js",
         "js/muse.js",
         "js/priest.js",
+        "js/read.js",
         "js/shk.js",
         "js/steed.js",
         "js/teleport.js",

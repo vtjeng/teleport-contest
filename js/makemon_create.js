@@ -36,6 +36,7 @@ import {
     MM_FEMALE,
     MM_MALE,
     MM_NOCOUNTBIRTH,
+    MM_NOEXCLAM,
     MM_NOGRP,
     MM_NOMSG,
     M_AP_NOTHING,
@@ -439,6 +440,7 @@ import { which_armor } from './worn.js';
 const SUPPORTED_FLAGS = NO_MINVENT
     | MM_NOCOUNTBIRTH
     | MM_NOMSG
+    | MM_NOEXCLAM
     | MM_ANGRY
     | MM_ASLEEP
     | MM_EDOG
@@ -629,6 +631,10 @@ function redrawSquare(x, y, normalized) {
 function runtimeAppearanceMessage(monster, mmflags, normalized) {
     const { state } = normalized;
     if (mmflags & MM_NOMSG) return null;
+    // C ref: makemon.c:1477. #wizgenesis is the one caller that passes
+    // MM_NOEXCLAM, and read.c create_particular_creation() passes it on every
+    // creation; every other admitted call shape leaves the surprise in.
+    let exclaim = !(mmflags & MM_NOEXCLAM);
     const appearance = M_AP_TYPE(monster);
     if (appearance !== M_AP_NOTHING && appearance !== M_AP_MONSTER) {
         throw new UnsupportedMonsterCreationError(
@@ -645,14 +651,17 @@ function runtimeAppearanceMessage(monster, mmflags, normalized) {
         state,
         displayRandom: normalized.displayRandom,
     });
+    // C ref: makemon.c:1483-1484. A mimic already wearing another species'
+    // shape is a surprise however it was made, so it takes the exclaiming
+    // form back even under MM_NOEXCLAM.
+    if (appearance === M_AP_MONSTER) exclaim = true;
     const distance = (monster.mx - state.u.ux) ** 2
         + (monster.my - state.u.uy) ** 2;
     const suffix = distance <= 2 ? ' next to you'
         : distance <= BOLT_LIM * BOLT_LIM ? ' close by' : '';
-    // MM_NOEXCLAM is outside the admitted runtime call shapes, so every
-    // supported appearance takes makemon.c's exclaiming arm.
     return messageAt(
-        `${name} suddenly ${vtense(name, 'appear')}${suffix}!`,
+        `${name}${exclaim ? ' suddenly' : ''} ${vtense(name, 'appear')}`
+        + `${suffix}${exclaim ? '!' : '.'}`,
         monster.mx,
         monster.my,
         state,
@@ -1081,7 +1090,21 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && x === state.u?.ux
         && y === state.u?.uy
         && mmflags === (MM_EDOG | NO_MINVENT);
-    const runtimeCall = startingPetCall || runtimeRandomCall || runtimeGroupCall;
+    // read.c create_particular_creation():3307 names the species the player
+    // typed and places it on the hero's own square, so makemon() reaches the
+    // enexto() arm below. Its mmflags is MM_NOEXCLAM plus at most one gender
+    // bit, and the three values below are the whole of what that expression
+    // can build: MM_MINVIS and a second gender bit both need a parse arm
+    // js/read.js refuses.
+    const createParticularCall = !state.in_mklev
+        && Boolean(ptr)
+        && x === state.u?.ux
+        && y === state.u?.uy
+        && (mmflags === MM_NOEXCLAM
+            || mmflags === (MM_NOEXCLAM | MM_MALE)
+            || mmflags === (MM_NOEXCLAM | MM_FEMALE));
+    const runtimeCall = startingPetCall || runtimeRandomCall || runtimeGroupCall
+        || createParticularCall;
     if (runtimeCall
         && (!normalized.runtimeContinuation
             || typeof normalized.runtimeContinuation !== 'object')) {
@@ -1114,10 +1137,7 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
             'shopkeeper creation outside shkinit',
         );
     }
-    if (!state.in_mklev
-        && !startingPetCall
-        && !runtimeRandomCall
-        && !runtimeGroupCall) {
+    if (!state.in_mklev && !runtimeCall) {
         throw new UnsupportedMonsterCreationError('outside mklev');
     }
     if (state.in_mklev && (mmflags & MM_EDOG)) {
@@ -2785,8 +2805,9 @@ async function finishRuntimeCreationTail(monster, mmflags, normalized) {
 // Storeroom themed fills, dog.c:makedog(), plus the level-generation random
 // coordinate shape needed by temporary Statuary monsters. Outside mklev(), it
 // also admits the exact initial-D:1 random-generation call
-// makemon(NULL, 0, 0, NO_MM_FLAGS) and that call's explicit-coordinate,
-// MM_NOGRP recursive group members.
+// makemon(NULL, 0, 0, NO_MM_FLAGS), that call's explicit-coordinate,
+// MM_NOGRP recursive group members, and read.c create_particular_creation()'s
+// named species on the hero's own square under MM_NOEXCLAM.
 //
 // After supported-call validation, source no-creation outcomes return null:
 // generation is disabled, the square is occupied, selection has no candidate,
