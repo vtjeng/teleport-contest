@@ -14679,6 +14679,121 @@
         }
       },
       "recordedAt": "2026-08-17T01:11:15.315Z"
+    },
+    {
+      "kind": "review",
+      "head": "683ac584179d4eddf5fc7de17b93da2edccc4b25",
+      "auditedRange": "bea560ccfe15f387b26a54486df6f32c7f08b6b3..683ac584179d4eddf5fc7de17b93da2edccc4b25",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "e414c117058394a58587d00f712af13a5da3fdba",
+        "reason": "the checklist covers e414c117, an ancestor of the range head; the 1 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 20 raw, 18 deduplicated, 17 confirmed, 17 applied, 0 deferred, 1 rejected, 0 unverified; mutation: 2 survivors of 76 mutants. Seventeen of eighteen deduplicated findings confirmed, the highest rate any pass here has produced, and the reason is the shape of the change rather than the quality of the work: a range that redefines what a data structure means leaves every comment, test seed and oracle that described the old shape describing something that no longer exists. Five findings were production defects. Two could produce a wrong screen -- the GLYPH_NOTHING arm's missing accessibility kind, which made js/startup_a11y.js's 'nothing' disjunct unreachable, and the altar customization name the glyph registry does not hold. One was a wrong transcription with no reachable consumer, glyph_to_cmap()'s zap arm, where a test in the same range had pinned the port's omission as if it were C's contract. One was a name collision, js/region.js storing a cmap index in a field called glyph while C's struct region.glyph holds the number; renaming it caught two further readers only because the full suite ran. And one was two dead expressions newsym() still passed. Six test findings were coverage gaps no mutation run can see, because a line with no mutable site produces no mutant: a name table with no test at all, an oracle comparing production output with itself, a seed in a shape no production path can build, and two halves of struct rm's field aliases that the tables never wrote. One finding was rejected and its counter-evidence recorded: the claim that regenerating the second-complete-turn oracle left the stored glyph unguarded was refuted by executing the mutation it offered as proof, which the unit suite killed. One finding was left to Implementation rather than applied: unmap_object()'s engraving refusal cites a helper this range ported, so the stop is avoidable now, but retiring it lets a force-fight at an engraved square keep running and needs a recorded case; its comment was corrected to say so and the open deferral force-fight-engraved-square owns the port. Every fix was watched failing first, by six mutants reversed with git restore. The development score did not move: 10 of 33 sessions, 1,768 screens, 125,937 random-number values and 1,786 cursors before and after, and both fresh differentials match C unchanged. Optional finders: performance was not enabled, because the range replaces stored-field replay with the resolution C performs at print time, which .agents/review.md excludes from the trigger; concurrency was not enabled, because the range changes no asynchronous or reentrant flow. A clarity pass was not run: the six comment findings this pass confirmed were applied here.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2533,
+        "counts": {
+          "raw": 20,
+          "deduplicated": 18,
+          "confirmed": 17,
+          "applied": 17,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 5,
+          "tests": 6,
+          "clarity": 6,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/display.js map_glyphinfo()'s GLYPH_NOTHING arm attached no accessibility metadata, because the sidecars hung off the cmap classifier and that arm draws from no defsym index. js/startup_a11y.js tests oldKind === 'nothing', its transcription of display.c show_glyph()'s disjunct on the old glyph, so the reader fell back to 'other' and that disjunct could never fire for a square reglyph_darkroom() had blanked.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/display.js ALTAR_CUSTOMIZATION_NAMES ended in 'G_other_altar', which the glyph registry does not hold. glyphs.c:1015-1027 prefixes the alignment to the base name for four altars and gives the sanctum one 'altar other' with skip_base set, so C's name is G_altar_other; sourceGlyphName() answers null for the old spelling, so a customization of that altar could never apply.",
+            "foundBy": [
+              "tests"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/display.js glyph_to_cmap() answered MAXPCHARS for a zap glyph where glyphs.c:1003-1004 answers ((glyph - GLYPH_ZAP_OFF) % 4) + S_vbeam, and a test in the same range pinned the wrong answer as if it were C's contract. The arm is pure arithmetic and was transcribed; nothing in the port produces a zap glyph, so no drawn cell moves.",
+            "foundBy": [
+              "tests"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/region.js stored a bare S_* cmap index in a field named glyph, where C's struct region.glyph holds the display.h glyph number, and this range added a cmap_to_glyph() call over it. Renamed to glyph_cmap so glyph keeps one meaning across js/; the full suite caught two readers the first rename missed, currentGas?.glyph and nextGas?.glyph in js/monmove.js.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/display.js newsym() passed a second trap argument at two call sites that remembered_glyph_from_presentation() stopped taking in this range, and JavaScript discarded it silently, leaving two live expressions computing a trap for no consumer.",
+            "foundBy": [
+              "correctness",
+              "readability",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "scripts/fixtures/second-complete-turn.session.json:119 All 17 stateDigest values were rewritten from this commit's own output, and that digest is the only oracle in the repository that sees the stored glyph numbers, so any mis-numbering introduced by the same commit was absorbed rather than caught.",
+            "counterEvidence": "The finding's discriminating experiment is wrong: the mutation it offers as proof that the digest is the sole detector is killed by the unit suite. Counter-evidence: I applied exactly the stated mutation in a scratch copy -- cmap_walls_to_glyph()'s default arm changed from GLYPH_CMAP_MAIN_OFF to GLYPH_CMAP_SOKO_OFF at js/display.js:1123 -- and ran `node --test scripts/display-symbols.test.mjs`: 152 tests, 150 pass, 2 fail. The failures are 'cmap_to_glyph walks display.h's six arms in order' and 'cmap_walls_to_glyph reads the branch the hero is standing in'. The latter, at scripts/display-symbols.test.mjs:8288-8305, pins all five bases explicitly, main dungeon included: the table's first row is `['main', {}, GLYPH_CMAP_MAIN_OFF]`. The claim that this mutation 'makes second-complete-turn.test.mjs fail ... and nothing else in the display suite' is therefore false, and with it the premise that stateDigest is the only detector for mis-numbering of this class."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "bea560ccfe15f387b26a54486df6f32c7f08b6b3..13521736cb87812225f7dbe33bdee5ec7f8fb432",
+            "13521736cb87812225f7dbe33bdee5ec7f8fb432..683ac584179d4eddf5fc7de17b93da2edccc4b25"
+          ],
+          "mutants": 76,
+          "survivors": 2,
+          "byKind": {
+            "boolean": {
+              "ran": 4,
+              "killed": 4
+            },
+            "logical": {
+              "ran": 36,
+              "killed": 36
+            },
+            "relational": {
+              "ran": 36,
+              "killed": 34
+            }
+          },
+          "finderConclusion": "Two runs compose this record. The window run over the slice killed 72 of 74 first-wave mutants at kind=boolean,logical,relational; the delta run over the audit fixes killed both of its two. The window run's two survivors sit at js/display.js:1218 and :1560 and were argued undecidable by arithmetic. The tests finder was asked to check that arithmetic against the generated tables rather than take it on trust, and did not report against either: at GLYPH_ALTAR_OFF the cmap A arm computes S_brdnladder + 1 = 33 = S_altar, and at GLYPH_CMAP_A_OFF a > 0 test falls into the Sokoban wall arm at offset 11 giving S_vwall + 11 = S_ndoor, coloured CLR_GRAY by both arms. Its six confirmed findings were coverage gaps no mutation run could see: a name table with no test, an oracle that compared production output with itself, a seeded record in a shape no production path can build, and two alias halves the tables never wrote."
+        },
+        "readiness": {
+          "boundary": "The starting event is a pick of the 'color' row from doset_simple()'s menu or of 'use_inverse' from the full 'mO' menu; the ending event is the screen drawn after reset_needed_visuals() returns, with every remembered out-of-sight terrain square repainted under the value now in force. The real game executes it: scripts/run-options-menu.mjs's three new recipes over seed 6193044 drive a pile out of sight and toggle each option, and two of the three fail against C when the re-derivation is broken.",
+          "sourceReview": "Traced in two independent passes and recorded entry by entry in .agents/implementation-checklist.json, which reaches ready-for-audit with eighteen entries, all done. The orchestrator traced the candidate list at the slice base before implementation, reading back_to_glyph(), the map-memory cmap arms with their colour macros and tables, display.h's cmap glyph macros and both definitions of glyph_is_cmap; the worker traced the same range while implementing and found the list short in three places. The trace covered state and random-number order: no arm in scope consumes randomness, the development score is identical call for call, and the wall arms' branch dependence through u.uz is state read at record time. Stubs and stops identified: 'wizmgender' is the one refusal left in optfn_boolean(); unmap_object()'s engraving refusal stands and its comment now names the real remaining requirement rather than a helper that is ported; and map_glyphinfo()'s guard refuses the zap, swallow, explosion, warning and GLYPH_UNEXPLORED ranges, which no ported path produces.",
+          "completeness": "No known unsupported behavior remains inside the boundary. Every reachable excluded branch stops before changing state, consuming randomness or producing output. One gap is recorded rather than hidden: the four MG_BW_* bits and reglyph_darkroom()'s GLYPH_NOTHING write are unit-tested and reach no fresh differential, because the terrain they need does not occur on the first level and doengrave() has no port, which is the open deferral remembered-cmap-cues-have-no-fresh-case."
+        }
+      },
+      "recordedAt": "2026-08-17T04:51:21.248Z"
     }
   ]
 }
