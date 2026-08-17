@@ -1271,7 +1271,11 @@ test("the hero's own glyph takes its gender bit from Ugender", () => {
     // female while she is not.
     state.flags.female = false;
     state.u.umonnum = 1;
-    state.mons.push({ mlet: S_FELINE, mcolor: CLR_WHITE });
+    // The form's colour must differ from HI_DOMESTIC, which js/const.js:2424
+    // defines as CLR_WHITE: the species and colour halves of hero_glyph are
+    // two separate tests of the same disjunct, and a form coloured white
+    // would leave the colour half unable to separate them.
+    state.mons.push({ mlet: S_FELINE, mcolor: CLR_RED });
     assert.equal(hero_glyph_info(state).attr, ATR_INVERSE);
 
     // display.h hero_glyph's species half is
@@ -1282,16 +1286,15 @@ test("the hero's own glyph takes its gender bit from Ugender", () => {
     // selects.
     state.urace = { mnum: 0 };
     state.flags.showrace = true;
-    assert.equal(
-        hero_glyph_info(state).ch, monster_class_symbol(S_FELINE, state).ch,
-    );
+    const polymorphed = hero_glyph_info(state);
+    assert.equal(polymorphed.ch, monster_class_symbol(S_FELINE, state).ch);
     // Back in her own form the option decides again, and she takes the race's
-    // letter. The colours do not separate the two branches here, because
-    // HI_DOMESTIC and this form's mcolor are both CLR_WHITE; the letter does.
+    // letter in HI_DOMESTIC. Both halves are asserted, because the species
+    // and the colour read the disjunct separately.
     state.u.umonnum = state.u.umonster;
-    assert.equal(
-        hero_glyph_info(state).ch, monster_class_symbol(S_HUMAN, state).ch,
-    );
+    const ownForm = hero_glyph_info(state);
+    assert.equal(ownForm.ch, monster_class_symbol(S_HUMAN, state).ch);
+    assert.notEqual(ownForm.color, polymorphed.color);
 });
 
 // C refs: display.c display_monster():524, which reads mgendercode from the
