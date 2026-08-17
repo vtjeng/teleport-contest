@@ -2601,8 +2601,8 @@
       "slices": [
         {
           "name": "unspottable-defender-is-marked-named-and-forgotten",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9360b6739d7e7c6cbd0f648b3567b0b6caca1194"
         }
       ],
       "openedAt": "b4a8f01aed5dc8d2f6965592c4dd2f5ab97524ae",

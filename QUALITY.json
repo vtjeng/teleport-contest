@@ -92,7 +92,7 @@
       "area": "world-effects",
       "category": "production",
       "effort": "undecided",
-      "status": "open",
+      "status": "closed",
       "from": "roadmap",
       "detail": "C's `x_monnam()` returns `\"it\"` when `canspotmon()` is false and the article is\nnot `ARTICLE_YOUR` (`do_name.c:863`, `876-882`). `js/do_name.js`'s\n`monsterCommonName()` and `capitalizedMonsterName()` have no such branch and\nnever consult visibility, so every message that names a monster the hero cannot\nspot answers the species name where C answers `It`.\n\nThis is a **silent divergence, not a refusal**: nothing stops, and the first\nevidence would be a screen mismatch. `js/trap_effects.js thitm()` is one\nreachable writer, through `pline_mon(mon, \"%s is almost hit by %s!\",\nMonnam(mon), ...)` at `trap.c:6732-6734`, and there will be others as combat\nlands.\n\nNothing on dungeon level one sets `minvis`, and `assertSimpleActionState()`\nrefuses `is_hider`, so no admitted path reaches it today. It was found by a\ntest that made a monster `minvis` to separate two visibility gates and pinned\nthe species name as correct; that fixture now grants detection instead, which\nkeeps `canspotmon()` true, and `scripts/monmove.test.mjs` asserts both gates\ndirectly. Port the `do_it` branch with the goal that first admits an\nunspottable monster, and give it the mirror case.",
       "blockedOn": "mon_set_minvis"
