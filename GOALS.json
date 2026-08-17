@@ -2663,7 +2663,7 @@
     },
     {
       "id": "hero-pushes-a-boulder",
-      "status": "open",
+      "status": "closed",
       "boundary": "A walking hero whose next square holds a boulder runs hack.c moverock() through its push arm and advances into the square the boulder left, instead of raising UnsupportedHeroMoveBoundaryError('boulder movement') at js/hack.js:926. test_move()'s DO_MOVE arm (hack.c:1222-1231) reaches `else if (moverock() < 0)` at 1229; moverock() (335-345) runs moverock_core() (347-638) and then moverock_done() (326-333).\n\nThe property that bounds it is testable against the C source on its own, in two parts. First, moverock_core() is a `while ((otmp = sobj_at(BOULDER, sx, sy)) != 0)` loop over the boulders on one square, and its push arm is the single conjunction at hack.c:432-435 -- `isok(rx, ry) && !IS_OBSTRUCTED(levl[rx][ry].typ) && levl[rx][ry].typ != IRONBARS && (!IS_DOOR(levl[rx][ry].typ) || !(u.dx && u.dy) || doorless_door(rx, ry)) && !sobj_at(BOULDER, rx, ry)` -- guarded above it by Blind, svc.context.nopick, Levitation or Is_airlevel(&u.uz), and verysmall(gy.youmonst.data), and below it by Sokoban's diagonal rule, revive_nasty(), a corporeal monster at <rx,ry>, closed_door(rx, ry), the six-case trap switch (LANDMINE, PIT and SPIKED_PIT, HOLE and TRAPDOOR, LEVEL_TELEP, TELEP_TRAP, ROLLING_BOULDER_TRAP) and boulder_hits_pool(). Every one of those arms still fails closed, and so does the else arm's cannot_push_msg() and cannot_push() pair.\n\nSecond, dopush()'s feedback is throttled by two globals rather than by Norep(): gb.bldrpush_oid and gb.bldrpushtime (decl.h:203-204, initialised at decl.c:224-225). hack.c:184-186 sets gb.bldrpushtime = svm.moves + 1L whenever the boulder differs from the last one pushed, and hack.c:188-189 makes givemesg true only while svm.moves > gb.bldrpushtime + 2L || svm.moves < gb.bldrpushtime. A consecutive push of the same boulder therefore prints nothing while still calling exercise(A_STR, TRUE) and movobj(); the(xname(otmp)) is evaluated only when the message prints, which is why moverock_done() exists to clear next_boulder on every boulder of the square afterwards.",
       "upstreamOwners": [
         "hack.c moverock()",
@@ -2700,8 +2700,11 @@
         "screens": 1802,
         "rng": 126961
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "6b91a6e4b01210769013dd949c9ed01d0f021fa4",
+      "delivered": {
+        "screens": 31,
+        "rng": 868
+      }
     }
   ]
 }
