@@ -66,10 +66,11 @@ import {
 test('back_to_glyph hides every unseen wall type as stone', () => {
     const state = { level: new GameMap() };
     initialize_symbols_from_options({ flags: {} }, state);
-    // cmap_walls_to_glyph() asks which branch the hero is in, so the state
-    // needs a position and a dungeon list to look it up in.
-    state.dungeons = [{ flags: {} }];
-    state.u = { uz: { dnum: 0, dlevel: 1 } };
+    // No branch state is needed here: with seenv 0 every wall type resolves to
+    // S_stone, which back_to_glyph() numbers through cmap_to_glyph() without
+    // reaching cmap_walls_to_glyph() at all. The branch arms are covered in
+    // scripts/display-symbols.test.mjs, where a state is installed as the
+    // module global because three of the four predicates read it.
     const wallTypes = [
         SDOOR, VWALL, HWALL, TLCORNER, TRCORNER, BLCORNER, BRCORNER,
         CROSSWALL, TUWALL, TDWALL, TLWALL, TRWALL,

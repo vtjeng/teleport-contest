@@ -114,6 +114,9 @@ export const S_arrow_trap = requiredCmapSymbol('s_arrow_trap');
 // are inputs to js/glyph_offsets.js.
 export const S_digbeam = requiredCmapSymbol('s_digbeam');
 export const S_goodpos = requiredCmapSymbol('s_goodpos');
+// The base of the four beam directions a zap glyph carries, which
+// glyphs.c glyph_to_cmap() (1003-1004) adds its remainder to.
+export const S_vbeam = requiredCmapSymbol('s_vbeam');
 
 // C ref: rm.h trap_to_defsym()/defsym_to_trap().
 export function trap_to_defsym(ttyp) {

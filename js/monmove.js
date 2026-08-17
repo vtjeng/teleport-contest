@@ -967,7 +967,7 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
     let throughDoor = Boolean(flags & (ALLOW_WALL | BUSTDOOR));
     const poisonGasOkay = monsterPoisonGasSafe(monster, state);
     const currentGas = visible_region_at(x, y, state);
-    const inPoisonGas = currentGas?.glyph === S_poisoncloud;
+    const inPoisonGas = currentGas?.glyph_cmap === S_poisoncloud;
     let rockOkay = false;
     let treeOkay = false;
 
@@ -1041,7 +1041,7 @@ function mfndposCore(monster, data, initialFlags, env = {}) {
                 }
                 const nextGas = visible_region_at(nx, ny, state);
                 if (!poisonGasOkay && !inPoisonGas
-                    && nextGas?.glyph === S_poisoncloud) {
+                    && nextGas?.glyph_cmap === S_poisoncloud) {
                     continue;
                 }
                 const diagonal = nx !== x && ny !== y;

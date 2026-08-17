@@ -168,6 +168,7 @@ import {
     S_brdnladder,
     S_altar,
     S_grave,
+    S_vbeam,
     S_throne,
     S_sink,
     S_fountain,
@@ -1112,6 +1113,17 @@ export function altar_to_glyph(amsk) {
  * through In_mines(), In_hell(), Is_knox() and In_sokoban(), so the number a
  * wall gets is fixed where the square is recorded rather than where it is
  * repainted. Store what this returns; do not re-derive it at a repaint.
+ *
+ * The `state` argument reaches only one of the four. In_hell() takes a state
+ * (js/dungeon.js), but In_mines(), Is_knox_level() and In_sokoban()
+ * (js/const.js) compare the level they are handed against `game.mines_dnum`,
+ * `game.knox_level` and `game.sokoban_dnum` on the module global, so this
+ * answers correctly only when `state === game`. Passing a state that is not
+ * the global returns main-dungeon wall numbers for Mines, Knox and Sokoban
+ * walls, with no error: every production caller runs on the global, and the
+ * tests that do not install theirs as the global work around it. Threading
+ * those three predicates is a separate change, since js/const.js has other
+ * callers.
  */
 export function cmap_walls_to_glyph(cmap_idx, state = game) {
     const uz = state.u?.uz;
@@ -1218,7 +1230,14 @@ export function glyph_to_cmap(glyph) {
     if (glyph < GLYPH_ALTAR_OFF) return (glyph - GLYPH_CMAP_A_OFF) + S_ndoor;
     if (glyph < GLYPH_CMAP_B_OFF) return S_altar;
     if (glyph < GLYPH_ZAP_OFF) return (glyph - GLYPH_CMAP_B_OFF) + S_grave;
-    if (glyph < GLYPH_CMAP_C_OFF) return MAXPCHARS; /* the omitted zap arm */
+    // glyphs.c:1003-1004. The zap range holds four beam directions per
+    // zap type, so the remainder recovers the direction. Nothing in this
+    // port produces a zap glyph -- zapdir_to_glyph() has no port and
+    // map_glyphinfo() refuses the range -- but C answers this rather than
+    // MAXPCHARS, and the arm is pure arithmetic, so it is transcribed
+    // rather than left to a fencepost that no C caller would see.
+    if (glyph < GLYPH_CMAP_C_OFF)
+        return ((glyph - GLYPH_ZAP_OFF) % 4) + S_vbeam;
     return (glyph - GLYPH_CMAP_C_OFF) + S_digbeam;
 }
 
@@ -1444,9 +1463,9 @@ function print_glyph_attr(glyphflags, state) {
 // altar_types order. glyphs.c apply_customizations() keys every customization
 // by glyph number, so a name is a function of the number and nothing has to
 // travel with a resolved presentation to recover it.
-const ALTAR_CUSTOMIZATION_NAMES = Object.freeze([
+export const ALTAR_CUSTOMIZATION_NAMES = Object.freeze([
     'G_unaligned_altar', 'G_chaotic_altar', 'G_neutral_altar',
-    'G_lawful_altar', 'G_other_altar',
+    'G_lawful_altar', 'G_altar_other',
 ]);
 
 // The glyph ranges map_glyphinfo() has an arm for: GLYPH_NOTHING, every object
@@ -1454,8 +1473,13 @@ const ALTAR_CUSTOMIZATION_NAMES = Object.freeze([
 // assertion rather than a ported predicate, and it is deliberately narrower
 // than glyph_is_cmap(): that macro's contiguous span admits the zap range,
 // which zapdir_to_glyph() would have to produce and no ported path does.
-// GLYPH_UNEXPLORED is left out for the same reason -- display.c
-// clear_glyph_buffer() (1651) is its only writer and has no port.
+// GLYPH_UNEXPLORED is left out on a different footing. mklev.c
+// clear_level_structures() (852) is what fills map memory with it; display.c
+// clear_glyph_buffer() (2107) fills the glyph buffer, which is a separate
+// array. This port encodes "nothing remembered here" as
+// `remembered_glyph === undefined` instead, and newsym()'s
+// `else if (loc.remembered_glyph)` guard stands in for C's show_mem of the
+// unexplored glyph, so no path produces the number and this refuses it.
 function mapGlyphinfoResolves(glyph) {
     return glyph === GLYPH_NOTHING_OFF
         || glyph_is_object(glyph)
@@ -1617,7 +1641,19 @@ export function map_glyphinfo(glyph, state = game) {
     // the display buffer, map memory, the browser projection -- keeps the
     // shape it already had.
     Object.defineProperty(presentation, 'glyph', { value: glyph });
-    if (cmap === null || !state.a11y?.glyph_updates) return presentation;
+    if (!state.a11y?.glyph_updates) return presentation;
+    // The GLYPH_NOTHING arm draws from no defsym index, so it takes its
+    // accessibility kind directly. js/startup_a11y.js:535 tests
+    // `oldKind === 'nothing'`, which is its transcription of display.c
+    // show_glyph()'s disjunct on the old glyph; without this the arm reports
+    // no kind, the reader falls back to 'other', and that disjunct can never
+    // fire for a square the repair blanked.
+    if (glyph === GLYPH_NOTHING_OFF) {
+        return withAccessibilityMetadata(
+            presentation, 'nothing', 'nothing', { type: 'nothing' },
+        );
+    }
+    if (cmap === null) return presentation;
     return withCmapAccessibility(presentation, cmap, customizationName);
 }
 
@@ -2147,11 +2183,11 @@ export function feel_location(x, y, state = game) {
 }
 
 // The shape C writes as `show_glyph(x, y, lev->glyph = cmap_to_glyph(idx))`:
-// one cmap index becomes the square's memory and its next draw at once. Three
-// places use it -- feel_location()'s tail, newsym()'s out-of-sight corrections
-// and unmap_object()'s dark-room repair -- and all three write map memory
-// directly rather than through map_background(), so none of them consults
-// level.flags.hero_memory.
+// one cmap index becomes the square's memory and its next draw at once. Two
+// places use it -- feel_location()'s tail and newsym()'s out-of-sight
+// correction -- and both write map memory directly rather than through
+// map_background(), so neither consults level.flags.hero_memory. Each has
+// already made its own hero_memory decision by the time it gets here.
 function showRememberedCmap(x, y, cmap, state) {
     const glyph = map_glyphinfo(cmap_to_glyph(cmap, state), state);
     state.level.at(x, y).remembered_glyph
@@ -2219,7 +2255,7 @@ function _map_location(x, y, show, state) {
 // used to select here.
 function show_region(region, x, y, state) {
     show_glyph_cell(
-        x, y, map_glyphinfo(cmap_to_glyph(region.glyph, state), state),
+        x, y, map_glyphinfo(cmap_to_glyph(region.glyph_cmap, state), state),
     );
 }
 
@@ -2280,12 +2316,14 @@ function sameLevel(a, b) {
 
 /**
  * C ref: display.h glyph_is_invisible().  C compares levl[x][y].glyph with
- * GLYPH_INVISIBLE; this port's map memory holds a presentation record instead,
- * so the equivalent state is the `invisible_monster` marker that
- * display.c map_invisible() writes when it remembers the 'I' it drew.
- * map_invisible() is not ported, so nothing writes that marker yet and this
- * predicate is currently always false.  Porting map_invisible() is what makes
- * it answer TRUE, and unmap_invisible() below is what has to change with it.
+ * GLYPH_INVISIBLE.  Map memory here holds C's glyph number too, but not that
+ * one: display.c map_invisible() (378-385) is its only writer and has no
+ * port, so map_glyphinfo() has no arm for GLYPH_INVIS_OFF and nothing
+ * produces it.  The boolean `invisible_monster` sidecar stands in until that
+ * arm exists, and nothing writes it either, so this predicate is currently
+ * always false.  Porting map_invisible() replaces the sidecar with the
+ * number; same_remembered_glyph() and unmap_invisible() below are the two
+ * readers that change with it.
  */
 export function glyph_is_invisible(location) {
     return Boolean(location?.remembered_glyph?.invisible_monster);
@@ -2388,10 +2426,13 @@ export class UnsupportedMapMemoryError extends Error {
 // domove_fight_empty() calls it before it names what the hero swung at,
 // because the square is about to become known empty.
 //
-// Its engraving arm stops. engraving_to_glyph() has no standalone port -- the
-// presentation lives inside newsym()'s engravingGlyph(), which folds in the
-// erevealed test this arm performs itself -- so a square that shows an
-// engraving would need that split. spot_shows_engravings() restricts the arm
+// Its engraving arm stops, and no longer for want of a helper:
+// engraving_to_glyph() is ported now, so the arm could be written as C writes
+// it. What it still needs is a recorded case, because retiring the stop lets a
+// force-fight at an engraved square keep running, and no differential covers
+// that square today. The deferral force-fight-engraved-square owns the port;
+// this comment says only why the stop stands, not that it cannot go.
+// spot_shows_engravings() restricts the arm
 // to CORR, ICE and ROOM, all three of them ACCESSIBLE() and none of them
 // furniture, so the squares that can reach it are exactly the ones
 // domove_fight_empty() calls thin air. That arm is live, so a force-fight at
@@ -2614,10 +2655,8 @@ export function newsym(x, y) {
             : hero_glyph_info(game);
         show_glyph_cell(x, y, hero);
         if (game.level?.flags?.hero_memory)
-            loc.remembered_glyph = remembered_glyph_from_presentation(
-                rememberedUnderlying,
-                object ? null : trap?.tseen ? trap : null,
-            );
+            loc.remembered_glyph
+                = remembered_glyph_from_presentation(rememberedUnderlying);
         return;
     }
 
@@ -2684,11 +2723,8 @@ export function newsym(x, y) {
                 && mimicAppearanceType === M_AP_FURNITURE)) {
             // display_monster() writes a furniture disguise directly to
             // levl[x][y].glyph even when ordinary hero memory is disabled.
-            loc.remembered_glyph = remembered_glyph_from_presentation(
-                remembered,
-                remembered === underlying && !object && trap?.tseen
-                    ? trap : null,
-            );
+            loc.remembered_glyph
+                = remembered_glyph_from_presentation(remembered);
         }
         show_glyph_cell(x, y, shown);
     } else if (loc.remembered_glyph) {

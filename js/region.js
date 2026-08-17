@@ -143,7 +143,13 @@ export function create_region(rectangles = []) {
         monsters: [],
         arg: 0,
         visible: false,
-        glyph: S_cloud,
+        // C's struct region.glyph holds a display.h glyph number; this holds
+        // the defsym index that region.c create_gas_cloud() (1194) wraps in
+        // cmap_to_glyph(), so the name says which of the two it is.
+        // js/display.js show_region() does the wrapping, and
+        // js/startup_a11y.js compares this against S_poisoncloud. Converting
+        // it to C's number is a later change.
+        glyph_cmap: S_cloud,
     };
     for (const rectangle of rectangles) add_rect_to_reg(region, rectangle);
     return region;
@@ -787,7 +793,7 @@ async function makeGasCloud(cloud, damage, insideCloud, env) {
     cloud.expire_f = EXPIRE_GAS_CLOUD;
     cloud.arg = damage;
     cloud.visible = true;
-    cloud.glyph = damage ? S_poisoncloud : S_cloud;
+    cloud.glyph_cmap = damage ? S_poisoncloud : S_cloud;
     add_region(cloud, state, {
         ...env,
         deferVisual: Boolean(state.in_mklev),
@@ -917,7 +923,7 @@ export function create_gas_cloud_selection(selection, damage = 0, rawEnv = {}) {
     cloud.expire_f = EXPIRE_GAS_CLOUD;
     cloud.arg = damage;
     cloud.visible = true;
-    cloud.glyph = damage ? S_poisoncloud : S_cloud;
+    cloud.glyph_cmap = damage ? S_poisoncloud : S_cloud;
     return add_region(cloud, state, {
         ...rawEnv,
         deferVisual: true,

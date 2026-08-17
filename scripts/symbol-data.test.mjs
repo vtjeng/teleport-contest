@@ -188,8 +188,10 @@ test('generated cmap colours are defsym.h\'s own column', () => {
 
     // Ten rows read from defsym.h, one for each shape of colour argument the
     // table has to survive: a bare NO_COLOR, a plain CLR_*, an HI_* alias, a
-    // PCHAR2 row whose tile name precedes the description, a row that wraps
-    // onto a second physical line, and a description holding a parenthesis.
+    // PCHAR2 row whose tile name precedes the description, and a row that
+    // wraps onto a second physical line. No row's description holds a
+    // parenthesis, and the assertion below records what would happen if one
+    // ever did.
     for (const [index, expected] of [
         [S_stone, NO_COLOR],            // PCHAR2( 0, ' ', ..., NO_COLOR)
         [S_vwall, CLR_GRAY],            // PCHAR2( 1, '|', ..., CLR_GRAY)
@@ -213,5 +215,20 @@ test('generated cmap colours are defsym.h\'s own column', () => {
             colorValues,
         ),
         /unknown color 'CLR_MAUVE'/u,
+    );
+
+    // extractCmapColors()'s row pattern ends at the first ')', so a
+    // description holding one truncates the match before the colour argument.
+    // No row in defsym.h does that today. If one is ever added the generator
+    // stops rather than emitting a wrong colour, because what it reads as the
+    // colour name is then part of the description and color.h does not define
+    // it. Pinning the failure is what keeps that a loud bound rather than a
+    // silent one.
+    assert.throws(
+        () => extractCmapColors(
+            "    PCHAR( 0, ' ',  S_stone,  \"a (dark) room\", CLR_GRAY)",
+            colorValues,
+        ),
+        /unknown color 'a \(dark'/u,
     );
 });

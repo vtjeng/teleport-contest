@@ -98,6 +98,7 @@ import {
 } from '../js/const.js';
 import * as symbolExports from '../js/symbols.js';
 import {
+    ALTAR_CUSTOMIZATION_NAMES,
     altar_chaotic,
     altar_lawful,
     altar_neutral,
@@ -197,6 +198,7 @@ import { game, resetGame } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { init_objects } from '../js/o_init.js';
 import { parseNethackrc } from '../js/options.js';
+import { sourceGlyphName } from '../js/glyph_ids.js';
 import {
     add_rect_to_reg,
     add_region,
@@ -325,6 +327,7 @@ import {
     S_tlcorn,
     S_trwall,
     S_upstair,
+    S_vbeam,
     S_vcdoor,
     S_vodoor,
     S_vwall,
@@ -2205,7 +2208,7 @@ test('feel_location paints a gas cloud only for a hero who can see it', () => {
         const cloud = create_region();
         add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
         cloud.visible = true;
-        cloud.glyph = S_poisoncloud;
+        cloud.glyph_cmap = S_poisoncloud;
         add_region(cloud, state, { deferVisual: true });
 
         feel_location(x, y, state);
@@ -2809,14 +2812,15 @@ test('map_trap paints on show and remembers only under hero memory', () => {
     // guards are C's and both are pinned here.
     const x = 7;
     const y = 4;
-    // Any trap type with a colour in TRAP_COLORS serves; a pit is the one the
-    // neighbouring cases in this file already use.
+    // Any trap type CMAP_COLORS gives a colour serves; a pit is the one the
+    // neighbouring cases in this file already use, and trap_to_defsym() is
+    // what turns its ttyp into the index.
     const trap = { tx: x, ty: y, ttyp: PIT };
-    // The memory a previous look at the square left, distinguishable from
-    // anything trap_glyph_info() can produce.
-    const priorMemory = {
-        ch: '?', color: CLR_YELLOW, decgfx: false, displayCh: null,
-    };
+    // The memory a previous look at the square left. It has to be a glyph
+    // number, because that is all map memory holds now, and one no trap arm
+    // can produce, so that the no-hero-memory case below shows the square was
+    // left alone rather than rewritten with the same value.
+    const priorMemory = { glyph: GLYPH_OBJ_OFF };
 
     const mapped = (heroMemory, show) => {
         const state = visibleCellState({ x, y });
@@ -2828,15 +2832,14 @@ test('map_trap paints on show and remembers only under hero memory', () => {
     };
 
     // Both halves run. Recomputing the glyph from the same two helpers the
-    // body uses proves the plumbing -- that the trap's own glyph, carried
-    // through remembered_glyph_from_presentation() with the trap attached,
-    // is what reaches the memory and the buffer -- and not that the glyph is
-    // right. A wrong entry in TRAP_COLORS or trap_to_defsym() would satisfy
+    // body uses proves the plumbing -- that the trap's own glyph number is
+    // what reaches the memory and the buffer -- and not that the number is
+    // right. A wrong entry in CMAP_COLORS or trap_to_defsym() would satisfy
     // it just as well; the recorded screens are what answer for that.
     const shown = mapped(true, 1);
     assert.deepEqual(
         shown.location.remembered_glyph,
-        remembered_glyph_from_presentation(shown.glyph, trap),
+        remembered_glyph_from_presentation(shown.glyph),
     );
     assert.equal(shown.location.disp_ch, shown.glyph.ch);
     assert.equal(shown.location.gnew, 1);
@@ -2846,7 +2849,7 @@ test('map_trap paints on show and remembers only under hero memory', () => {
     const unshown = mapped(true, 0);
     assert.deepEqual(
         unshown.location.remembered_glyph,
-        remembered_glyph_from_presentation(unshown.glyph, trap),
+        remembered_glyph_from_presentation(unshown.glyph),
     );
     assert.equal(unshown.location.disp_glyph, undefined);
     assert.equal(unshown.location.gnew, 0);
@@ -4054,7 +4057,7 @@ test('monster look-at descriptions include hidden and region suffixes', () => {
     const cloud = create_region();
     add_rect_to_reg(cloud, { lx: 7, ly: 4, hx: 7, hy: 4 });
     cloud.visible = true;
-    cloud.glyph = S_poisoncloud;
+    cloud.glyph_cmap = S_poisoncloud;
     add_region(cloud, state, { deferVisual: true });
     assert.match(
         describeMonster(monster(PM_TENGU, { mundetected: false }), { state }),
@@ -4554,7 +4557,7 @@ test('a visible gas region covers the hero without refreshing map memory', () =>
     const cloud = create_region();
     add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
     cloud.visible = true;
-    cloud.glyph = S_cloud;
+    cloud.glyph_cmap = S_cloud;
     add_region(cloud, state, { deferVisual: true });
 
     newsym(x, y);
@@ -4569,7 +4572,7 @@ test('gas colors and ordinary/disguised monster precedence follow newsym', () =>
     const cloud = create_region();
     add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
     cloud.visible = true;
-    cloud.glyph = S_cloud;
+    cloud.glyph_cmap = S_cloud;
     add_region(cloud, state, { deferVisual: true });
 
     newsym(x, y);
@@ -4579,7 +4582,7 @@ test('gas colors and ordinary/disguised monster precedence follow newsym', () =>
     );
 
     cloud.arg = 1;
-    cloud.glyph = S_poisoncloud;
+    cloud.glyph_cmap = S_poisoncloud;
     newsym(x, y);
     assert.deepEqual(
         [state.level.at(x, y).disp_ch, state.level.at(x, y).disp_color],
@@ -4633,7 +4636,7 @@ test('generic monster warning overrides gas without hiding a visible monster', (
     const cloud = create_region();
     add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
     cloud.visible = true;
-    cloud.glyph = S_poisoncloud;
+    cloud.glyph_cmap = S_poisoncloud;
     cloud.arg = 1;
     add_region(cloud, state, { deferVisual: true });
     const monster = {
@@ -5023,7 +5026,7 @@ test('newsym is side-effect-only for ordinary, hero, and gas updates', () => {
     const cloud = create_region();
     add_rect_to_reg(cloud, { lx: x, ly: y, hx: x, hy: y });
     cloud.visible = true;
-    cloud.glyph = S_cloud;
+    cloud.glyph_cmap = S_cloud;
     add_region(cloud, state, { deferVisual: true });
     assert.equal(newsym(x, y), undefined);
     assert.equal(state.level.at(x, y).disp_ch, '#');
@@ -6020,6 +6023,21 @@ test('standalone SYMBOLS validates but does not apply G_* customizations', () =>
         () => parseNethackrc('SYMBOLS=G_piletop_generic_weapon:U+2603'),
         /unknown symbol/u,
     );
+
+    // Each of the five altar numbers carries its own customization name, and
+    // glyphs.c:1015-1027 builds four of them by prefixing the alignment to the
+    // base while the sanctum altar takes "altar other" with skip_base set --
+    // so the fifth is G_altar_other, not G_other_altar. Without this loop a
+    // name the registry does not hold looks the same as one it does: the
+    // lookup simply finds nothing and the altar draws uncustomized.
+    for (const name of [
+        'G_unaligned_altar', 'G_chaotic_altar', 'G_neutral_altar',
+        'G_lawful_altar', 'G_altar_other',
+    ]) {
+        assert.doesNotThrow(
+            () => parseNethackrc(`SYMBOLS=${name}:U+2603`), name,
+        );
+    }
     assert.equal(
         glyph_customization(
             'G_long_sword',
@@ -8375,10 +8393,21 @@ test('glyph_to_cmap inverts cmap_to_glyph where the number allows', () => {
     }
     for (let type = 0; type < 5; ++type)
         assert.equal(glyph_to_cmap(GLYPH_ALTAR_OFF + type), S_altar);
-    // Everything outside the cmap ranges, and the zap range inside them,
-    // answers defsyms[]'s fencepost entry.
+    // glyphs.c:1003-1004 answers the zap range with a beam direction rather
+    // than the fencepost: four directions per zap type, recovered by the
+    // remainder. Nothing in this port produces a zap glyph, so this pins the
+    // transcription rather than a reachable answer.
+    for (const direction of [0, 1, 2, 3]) {
+        assert.equal(
+            glyph_to_cmap(GLYPH_ZAP_OFF + direction), S_vbeam + direction,
+            `zap direction ${direction}`,
+        );
+    }
+    // The fifth glyph is the next zap type's first direction, so the
+    // remainder wraps back to S_vbeam.
+    assert.equal(glyph_to_cmap(GLYPH_ZAP_OFF + 4), S_vbeam);
+    // Everything outside the cmap ranges answers defsyms[]'s fencepost entry.
     assert.equal(glyph_to_cmap(GLYPH_OBJ_OFF), MAXPCHARS);
-    assert.equal(glyph_to_cmap(GLYPH_ZAP_OFF), MAXPCHARS);
     assert.equal(glyph_to_cmap(GLYPH_CMAP_STONE_OFF - 1), MAXPCHARS);
 });
 
@@ -8537,6 +8566,17 @@ test('map_glyphinfo resolves GLYPH_NOTHING to the blank the symset gives it',
     assert.throws(
         () => map_glyphinfo(GLYPH_UNEXPLORED_OFF, state), TypeError,
     );
+
+    // The arm draws from no defsym index, so it takes its accessibility kind
+    // directly rather than through the cmap classifier. js/startup_a11y.js
+    // tests `oldKind === 'nothing'`, its transcription of display.c
+    // show_glyph()'s disjunct on the old glyph; with no kind attached the
+    // reader falls back to 'other' and that disjunct can never fire for a
+    // square reglyph_darkroom() blanked.
+    const announced = map_glyphinfo(
+        GLYPH_NOTHING_OFF, { ...state, a11y: { glyph_updates: true } },
+    );
+    assert.equal(announced.a11yKind, 'nothing');
 });
 
 test('back_to_glyph fixes a wall\'s branch where the square is recorded', () => {
@@ -8551,8 +8591,10 @@ test('back_to_glyph fixes a wall\'s branch where the square is recorded', () => 
     assert.notEqual(back_to_glyph(7, 4, state), inTheMines);
 
     // Its one bypass: an altar's alignment picks one of five numbers, which
-    // no single cmap index can name.
-    Object.assign(state.level.at(8, 4), { typ: ALTAR, altarmask: AM_CHAOTIC });
+    // no single cmap index can name. struct rm aliases altarmask with flags,
+    // and mkaltar() writes flags, so the live field takes the first case and
+    // the shim keeps the second.
+    Object.assign(state.level.at(8, 4), { typ: ALTAR, flags: AM_CHAOTIC });
     assert.equal(
         back_to_glyph(8, 4, state), GLYPH_ALTAR_OFF + altar_chaotic,
     );
@@ -8562,24 +8604,63 @@ test('back_to_glyph fixes a wall\'s branch where the square is recorded', () => 
     assert.equal(back_to_glyph(9, 4, state), GLYPH_ALTAR_OFF + altar_other);
 
     // display.c:2325-2334 reads the doormask three ways, and struct rm aliases
-    // it with `flags`; new level generation fills the second. All three arms
-    // have to see the value, not only the closed-door default at the bottom.
-    for (const [flags, horizontal, expected] of [
-        [D_BROKEN, false, S_ndoor],
-        [D_ISOPEN, false, S_vodoor],
-        [D_ISOPEN, true, S_hodoor],
-        [D_CLOSED, false, S_vcdoor],
-        [D_CLOSED, true, S_hcdoor],
-        [0, false, S_ndoor],
+    // it with `flags`. All three arms have to see the value, not only the
+    // closed-door default at the bottom, and each has to see it through
+    // whichever of the two aliased fields the writer filled: js/mklev.js and
+    // js/lock.js write doormask, level generation writes flags.
+    for (const [field, mask, horizontal, expected] of [
+        ['flags', D_BROKEN, false, S_ndoor],
+        ['doormask', D_BROKEN, false, S_ndoor],
+        ['flags', D_ISOPEN, false, S_vodoor],
+        ['doormask', D_ISOPEN, false, S_vodoor],
+        ['flags', D_ISOPEN, true, S_hodoor],
+        ['flags', D_CLOSED, false, S_vcdoor],
+        ['doormask', D_CLOSED, false, S_vcdoor],
+        ['flags', D_CLOSED, true, S_hcdoor],
+        ['doormask', D_CLOSED, true, S_hcdoor],
+        // Neither field set is the no-door default.
+        ['flags', 0, false, S_ndoor],
     ]) {
         Object.assign(
             state.level.at(10, 4),
-            makeLocation(), { typ: DOOR, flags, horizontal },
+            makeLocation(), { typ: DOOR, [field]: mask, horizontal },
         );
         assert.equal(
             back_to_glyph(10, 4, state),
             cmap_to_glyph(expected, state),
-            `doormask ${flags} horizontal ${horizontal}`,
+            `${field} ${mask} horizontal ${horizontal}`,
+        );
+    }
+});
+
+test('each altar number takes its own customization name', () => {
+    // map_glyphinfo() looks a customization up by the name glyphs.c gives the
+    // number, so the five altar names have to line up with the five numbers in
+    // order. glyphs.c:1015-1027 builds four of them by prefixing the alignment
+    // to the base name and gives the sanctum altar "altar other" with
+    // skip_base set, which is why the fifth is G_altar_other rather than
+    // G_other_altar. No symbol set defines an altar customization today and a
+    // standalone SYMBOLS line does not apply one, so the drawn character
+    // cannot separate the five; what can is that each name is one the glyph
+    // registry holds, since a name it does not hold applies nothing at all and
+    // looks exactly like a name that applies nothing because no set defines
+    // it.
+    assert.deepEqual(
+        [...ALTAR_CUSTOMIZATION_NAMES],
+        [
+            'G_unaligned_altar', 'G_chaotic_altar', 'G_neutral_altar',
+            'G_lawful_altar', 'G_altar_other',
+        ],
+    );
+    assert.equal(ALTAR_CUSTOMIZATION_NAMES.length, altar_other + 1);
+    for (const offset of [
+        altar_unaligned, altar_chaotic, altar_neutral, altar_lawful,
+        altar_other,
+    ]) {
+        assert.equal(
+            sourceGlyphName(ALTAR_CUSTOMIZATION_NAMES[offset]),
+            ALTAR_CUSTOMIZATION_NAMES[offset],
+            `altar ${offset}`,
         );
     }
 });

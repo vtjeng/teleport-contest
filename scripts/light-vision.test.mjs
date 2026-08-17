@@ -418,7 +418,7 @@ test('a visible gas region blocks initial line of sight', () => {
     const cloud = create_region();
     add_rect_to_reg(cloud, { lx: 12, ly: 10, hx: 12, hy: 10 });
     cloud.visible = true;
-    cloud.glyph = S_cloud;
+    cloud.glyph_cmap = S_cloud;
     add_region(cloud, state, { deferVisual: true });
 
     vision_reset();

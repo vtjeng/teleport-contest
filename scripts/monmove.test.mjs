@@ -3312,7 +3312,7 @@ test('mfndpos preserves water, lava-wall, and poison-cloud preferences', () => {
     locations.set('3,4', { typ: ROOM, flags: 0, wall_info: 0 });
     const cloud = create_region([{ lx: 3, ly: 4, hx: 3, hy: 4 }]);
     cloud.visible = true;
-    cloud.glyph = S_poisoncloud;
+    cloud.glyph_cmap = S_poisoncloud;
     state.level.regions = [cloud];
     assert.equal(mfndpos(human, data, 0, env), 0);
     const zombie = newMonster({

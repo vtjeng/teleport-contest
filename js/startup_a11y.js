@@ -924,7 +924,7 @@ function monsterHiddenDescription(monster, state) {
     const region = visible_region_at(monster.mx, monster.my, state);
     if (region) {
         suffix += `, in a cloud of ${
-            region.glyph === S_poisoncloud ? 'poison gas' : 'vapor'
+            region.glyph_cmap === S_poisoncloud ? 'poison gas' : 'vapor'
         }`;
     }
     return suffix;

@@ -72,9 +72,12 @@ function dataByte(rawValue) {
  * contribute: the sixteen numeric CLR_* values plus NO_COLOR, and the HI_*
  * aliases that name one of them.  Aliases are resolved as the file is read,
  * which is enough because color.h defines each alias below its target.
- * Everything else -- CLR_MAX, BRIGHT, the NH_* bit masks and the COLORVAL()
- * function macro -- has no decimal right-hand side and no already-known name,
- * so it never enters the map.
+ * The NH_* bit masks and the COLORVAL() function macro have no decimal
+ * right-hand side and no already-known name, so they never enter the map.
+ * CLR_MAX and BRIGHT do enter it, since both are plain decimal defines, and
+ * BRIGHT even shares a value with NO_COLOR. That is harmless because
+ * extractCmapColors() looks up only the names that appear as a PCHAR row's
+ * colour argument, and throws on any it cannot find.
  */
 export function extractColorValues(source) {
     const values = new Map();
@@ -95,6 +98,13 @@ export function extractColorValues(source) {
  * The colour always follows the row's last quoted string, so the scan starts
  * there rather than at a comma: no PCHAR description contains a comma today,
  * but one added later would silently move the field.
+ *
+ * The row pattern's `[^)]*` ends the argument list at the first ')', so a
+ * description holding one truncates the row before its colour. No row does
+ * today, and the bound is loud rather than silent when one does: what the scan
+ * then reads as the colour name is part of the description, color.h does not
+ * define it, and the throw below stops the generator.
+ * scripts/symbol-data.test.mjs pins that failure.
  */
 export function extractCmapColors(source, colorValues) {
     const colors = new Array(SYM_OFF_O);

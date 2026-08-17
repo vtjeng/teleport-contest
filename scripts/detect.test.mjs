@@ -288,9 +288,12 @@ function tactileSearchRandom(expectedBound) {
 }
 
 // Map memory stores C's own levl[x][y].glyph and nothing else, so every
-// remembered square is the number its presentation carries.
+// remembered square is one number. Reading that number back off the
+// presentation the call under test returned would compare production output
+// with itself, so every caller that can derive the number from the source
+// tables does, and this helper only says what the record's shape is.
 function rememberedGlyphContract(glyph) {
-    return { glyph: glyph.glyph };
+    return { glyph: typeof glyph === 'number' ? glyph : glyph.glyph };
 }
 
 function assertCompleteMappedGlyph(
@@ -978,9 +981,12 @@ test('detect-only mimic presentation retains the underlying trap memory', async 
             dec: Boolean(shown.dec),
             attr: inverse ? ATR_INVERSE : 0,
         }, `wc_inverse=${inverse}`);
+        // The expected number comes from display.h trap_to_glyph() over
+        // rm.h trap_to_defsym(), not from trap_glyph_info()'s own answer, so
+        // this fails if the production path stores a different trap's number.
         assert.deepEqual(
             location.remembered_glyph,
-            rememberedGlyphContract(trap_glyph_info(trap, game)),
+            rememberedGlyphContract(trap_to_glyph({ ttyp: trap.ttyp }, game)),
         );
         assert.equal(target.replay.getScreens().length, beforeWait);
         assert.deepEqual(random.calls, ['rnl(8)', 'rn2(19)']);
