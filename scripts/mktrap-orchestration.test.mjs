@@ -65,6 +65,7 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 import { initRng } from '../js/rng.js';
+import { block_point } from '../js/vision.js';
 import {
     start_timer,
     timeout_globals_init,
@@ -167,7 +168,7 @@ test('rolling-boulder traps create symmetric source launch geometry', () => {
     for (let x = 6; x <= 14; ++x)
         state.level.at(x, 5).typ = ROOM;
     const existing = mksobj(BOULDER, true, false, { state });
-    place_object(existing, 14, 5, { state });
+    place_object(existing, 14, 5, { state, hooks: { blockPoint: (bx, by, env) => block_point(bx, by, env.state) } });
     const calls = [];
     const random = {
         rn1(bound, base) {

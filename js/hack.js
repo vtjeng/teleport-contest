@@ -49,6 +49,7 @@ import {
     IS_TREE,
     IS_WALL,
     IS_WATERWALL,
+    In_sokoban,
     Is_airlevel,
     Is_waterlevel,
     IRONBARS,
@@ -80,6 +81,7 @@ import {
     STUNNED,
     TELEPORT,
     TELEPORT_CONTROL,
+    TEST_TRAV,
     TIMER_OBJECT,
     TT_BEARTRAP,
     Upolyd,
@@ -89,6 +91,7 @@ import {
     W_NONDIGGABLE,
     W_NONPASSWALL,
     WT_ELF,
+    WT_SQUEEZABLE_INV,
     WT_WEIGHTCAP_SPARE,
     WT_WEIGHTCAP_STRCON,
     WT_TOOMUCH_DIAGONAL,
@@ -138,6 +141,7 @@ import {
     bigmonst,
     is_flyer,
     is_hider,
+    is_rider,
     is_whirly,
     needspick,
     locomotion,
@@ -151,12 +155,19 @@ import {
     tunnels,
     verysmall,
 } from './mondata.js';
-import { is_pick, objectType, sobj_at } from './obj.js';
+import {
+    is_pick,
+    objectType,
+    place_object,
+    remove_object,
+    sobj_at,
+} from './obj.js';
 import {
     assertObjectNameable,
     assertPricedObjectNameable,
     the,
     UnsupportedObjectNameError,
+    xnameFresh,
 } from './objnam.js';
 import {
     BOULDER,
@@ -178,8 +189,9 @@ import {
     PM_PONY,
     PM_VALKYRIE,
     PM_WIZARD,
+    PM_WIZARD_OF_YENDOR,
 } from './monsters.js';
-import { curr_mon_load } from './mon.js';
+import { curr_mon_load, maybe_unhide_at } from './mon.js';
 import { m_at, place_monster, remove_monster } from './monst.js';
 import {
     accessible,
@@ -219,11 +231,17 @@ import {
     start_timer,
     stop_timer,
 } from './timeout.js';
-import { is_lava, is_pool, reset_utrap, t_at } from './trap.js';
+import {
+    is_lava,
+    is_pool,
+    is_pool_or_lava,
+    reset_utrap,
+    t_at,
+} from './trap.js';
 import { dotrap, preflight_dotrap } from './trap_effects.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
 import { do_attack, is_safemon } from './uhitm.js';
-import { vision_recalc } from './vision.js';
+import { block_point, recalc_block_point, vision_recalc } from './vision.js';
 
 const STARTING_PETS = new Set([PM_LITTLE_DOG, PM_KITTEN, PM_PONY]);
 
@@ -846,7 +864,18 @@ function refusedDiagonalDoorway(x, y, state) {
 // occupied destination before test_move() ever sees it. teleport.c teleds() is
 // the caller that can arrive on an occupied square, and it makes that test
 // itself.
-export function requireSimpleHeroDestination(x, y, state) {
+//
+// `pushesBoulder` says whether the step arrives through hack.c test_move(),
+// which runs moverock() and pushes a boulder off the square before the hero
+// lands on it. The two walking callers pass true. teleport.c teleds() does not
+// and keeps the default: a teleport lands on the boulder's square with the
+// boulder still on it, which is a separate boundary from a push.
+export function requireSimpleHeroDestination(
+    x,
+    y,
+    state,
+    pushesBoulder = false,
+) {
     const location = state.level?.at(x, y);
     // hack.c test_move() admits every IS_FURNITURE type untouched -- stairs,
     // ladder, fountain, throne, sink, grave and altar. Its obstacle chain never
@@ -900,13 +929,25 @@ export function requireSimpleHeroDestination(x, y, state) {
         && (IS_FURNITURE(location.typ) || doorway)) {
         throw new UnsupportedHeroMoveBoundaryError('decor description');
     }
-    const floorObject = state.level?.objects?.[x]?.[y] ?? null;
     // cmd.c set_move_cmd() copies a pending reqmenu prefix to context.nopick
     // before domove(). executeMovement() runs this temporary admission seam
     // first, so read the pending prefix as the same movement intent here.
     const noPickMove = Boolean(
         state.context?.nopick || state.iflags?.menu_requested,
     );
+    // C ref: hack.c test_move():1216-1231. moverock() runs inside test_move(),
+    // above everything spoteffects() and pickup() do after the move, so the
+    // boulder question is asked before them here too.
+    const boulder = pushesBoulder ? sobj_at(BOULDER, x, y, state) : null;
+    if (boulder) preflight_moverock(x, y, noPickMove, state);
+    else if (sobj_at(BOULDER, x, y, state))
+        throw new UnsupportedHeroMoveBoundaryError('boulder movement');
+    // preflight_moverock() admits only a square whose whole pile is that one
+    // boulder, and moverock() clears it off <x,y> before domove_core() commits
+    // the step, so every question below reads the square as empty.
+    const floorObject = boulder
+        ? null
+        : (state.level?.objects?.[x]?.[y] ?? null);
     if (state.flags?.mention_decor && noPickMove) {
         throw new UnsupportedHeroMoveBoundaryError(
             'reqmenu with decor description',
@@ -922,8 +963,6 @@ export function requireSimpleHeroDestination(x, y, state) {
             );
         }
     }
-    if (sobj_at(BOULDER, x, y, state))
-        throw new UnsupportedHeroMoveBoundaryError('boulder movement');
     if (floorObject && state.flags?.pickup && !noPickMove)
         throw new UnsupportedHeroMoveBoundaryError('automatic pickup');
     if (floorObject && !noPickMove && !floorObject.nexthere
@@ -1512,8 +1551,14 @@ export function preflightDomoveDestination(x, y, state = game, run = 0) {
         // the bump and its sibling on `x == ux || y == uy`, so a diagonal
         // step whose autoopen test fails prints nothing and falls through.
         requireAutoopenClosedDoor(x, y, state, run);
+    } else if (boulderStopsRun(x, y, run, state)) {
+        // C ref: test_move():1217-1223. A run stops in front of a boulder the
+        // hero can neither push past nor squeeze onto, without pushing it and
+        // without spending the move. That arm is ported inside test_move(), so
+        // admit the command and let domove() run it, exactly as the
+        // runStopsBeforeMonster() arm above does.
     } else if (!blocksMove(x, y, state)) {
-        requireSimpleHeroDestination(x, y, state);
+        requireSimpleHeroDestination(x, y, state, true);
     }
 }
 
@@ -1572,6 +1617,345 @@ function requiredMessageOperation(env, arm) {
     if (typeof message !== 'function')
         throw new TypeError(`${arm} requires a message operation`);
     return message;
+}
+
+// C ref: hack.c could_move_onto_boulder() (144-162), "can hero move onto a
+// spot containing one or more boulders?". C reads u.dx and u.dy for the giant
+// arm's diagonal squeeze; both are parameters here, because the command
+// admission seam asks this question before cmd.c set_move_cmd() writes them.
+//
+// squeezeablylightinvent() (139-140) is inlined as its own two terms.
+function could_move_onto_boulder(sx, sy, dx, dy, state) {
+    const u = state.u;
+    /* can if able to phaze through rock (must be poly'd, so not riding) */
+    if (propertyPresent(state, PASSES_WALLS)) return true;
+    /* can't when riding */
+    if (u.usteed) return false;
+    /* can if a giant, unless doing so allows hero to pass into a
+       diagonal squeeze at the same time */
+    if (throws_rocks(state.youmonst?.data)) {
+        return !dx || !dy
+            || !(IS_OBSTRUCTED(state.level.at(u.ux, sy).typ)
+                && IS_OBSTRUCTED(state.level.at(sx, u.uy).typ));
+    }
+    /* can if tiny (implies carrying very little else couldn't move at all) */
+    if (verysmall(state.youmonst?.data)) return true;
+    /* can squeeze to spot if carrying extremely little, otherwise can't */
+    return !state.invent || inv_weight(state) <= WT_SQUEEZABLE_INV * -1;
+}
+
+// C ref: hack.c test_move():1217-1223, the run arm of its boulder block. A run
+// stops in front of a boulder the hero can neither push past nor squeeze onto,
+// before moverock() is reached, so it costs no time and no randomness.
+//
+// The command admission seam consults this too, which is why `run` is a
+// parameter rather than a read of svc.context.run: cmd.c executeMovement()
+// calls the seam before set_move_cmd() copies the command's run value there.
+function boulderStopsRun(x, y, run, state) {
+    return Boolean(sobj_at(BOULDER, x, y, state))
+        && (In_sokoban(state.u.uz) || !propertyPresent(state, PASSES_WALLS))
+        && run >= 2
+        && !(heroIsBlind(state) || heroHallucinating(state))
+        && !could_move_onto_boulder(
+            x, y, x - state.u.ux, y - state.u.uy, state,
+        );
+}
+
+// remove_object() and place_object() reach vision.c recalc_block_point() and
+// block_point() through the object lifecycle's hook table rather than by
+// importing them, so that js/obj.js needs no import from js/vision.js. A
+// boulder is the only object type that asks for either.
+function boulderVisionEnv(state) {
+    return {
+        state,
+        // Both hooks take the lifecycle env as their third argument, not a
+        // state; passing block_point itself would hand vision_reset() an
+        // object with no `level` on it, which it answers by doing nothing.
+        hooks: {
+            blockPoint: (x, y, env) => block_point(x, y, env.state),
+            recalcBlockPoint:
+                (x, y, env) => recalc_block_point(x, y, env.state),
+        },
+    };
+}
+
+// C ref: hack.c moverock_core() (347-638), every arm of it except the push at
+// 626-637, plus the parts of dopush() (165-241) that no ported hero reaches.
+// requireSimpleHeroDestination() asks all of them before domove_core() commits
+// the step, in the style of preflight_dotrap(): moverock() runs deep inside
+// test_move(), where a refusal would land after nomul(0) and after the
+// boulder's own next_boulder bookkeeping, leaving the move half made.
+//
+// The questions follow C's order. Three of them are deliberately wider than
+// the branch they stand for, and each says why.
+function preflight_moverock(sx, sy, noPickMove, state) {
+    const u = state.u;
+    const otmp = sobj_at(BOULDER, sx, sy, state);
+    // sx = u.ux + u.dx, so the direction is the offset of the square itself.
+    // Reading u.dx here would be wrong: cmd.c executeMovement() runs this seam
+    // before set_move_cmd() writes it, so it still holds the previous step's.
+    const dx = sx - u.ux;
+    const dy = sy - u.uy;
+    const rx = sx + dx; /* boulder destination position */
+    const ry = sy + dy;
+    const refuse = (reason) => {
+        throw new UnsupportedHeroMoveBoundaryError(reason);
+    };
+    const species = state.youmonst?.data;
+
+    // test_move():1225-1229, which runs before moverock() is called at all:
+    // a tunneller that needs no pick chews the boulder through still_chewing()
+    // instead.
+    if (tunnels(species) && !needspick(species) && !In_sokoban(u.uz))
+        refuse('a boulder chewed rather than pushed');
+
+    // 355-363. "That feels like a boulder." needs display.c glyph_at(), which
+    // has no port, and map_object() draws the boulder into map memory.
+    if (heroIsBlind(state)) refuse('a boulder felt in the dark');
+
+    // The while loop at 353, the `otmp != svl.level.objects[sx][sy]` reorder at
+    // 375-376 and moverock_done() (326-333) all exist for a square holding more
+    // than one boulder, and xname()'s "next boulder" naming is what they carry
+    // between them. This slice pushes one boulder off an otherwise empty
+    // square, which is also what lets requireSimpleHeroDestination() treat the
+    // square as empty once the push has happened.
+    if (otmp.nexthere || state.level.objects[sx][sy] !== otmp)
+        refuse('a boulder sharing its square');
+
+    // 384-410. 'm<dir>' steps over the boulder or squeezes past it instead of
+    // pushing, through could_move_onto_boulder() and sokoban_guilt().
+    if (noPickMove) refuse('a boulder step without a push');
+
+    // 412-421. "You don't have enough leverage to push %s."
+    if (propertyActiveUnblocked(state, LEVITATION) || Is_airlevel(u.uz))
+        refuse('a boulder push without leverage');
+
+    // 422-427. "You're too small to push that %s."
+    if (verysmall(species) && !u.usteed)
+        refuse('a boulder push by a tiny hero');
+
+    // dopush():198-202 reports a steed's push through do_name.c YMonnam() and
+    // skips exercise() altogether, and cannot_push():388-391 needs
+    // P_SKILL(P_RIDING). C reaches both from inside the conjunction below.
+    if (u.usteed) refuse('a mounted boulder push');
+
+    // 428-435, the conjunction that separates a push from a refusal. Its FALSE
+    // arm prints through cannot_push_msg() (243-256) and then chooses between
+    // a squeeze and a lost move in cannot_push() (258-310); both halves need
+    // could_move_onto_boulder()'s message siblings and sokoban_guilt().
+    const destination = isok(rx, ry) ? state.level?.at(rx, ry) : null;
+    if (!destination
+        || IS_OBSTRUCTED(destination.typ)
+        || destination.typ === IRONBARS
+        || (IS_DOOR(destination.typ) && dx && dy
+            && !doorless_door(destination))
+        || sobj_at(BOULDER, rx, ry, state)) {
+        refuse('a boulder that will not move');
+    }
+
+    // 437-443, KMH's rule that Sokoban boulders do not roll diagonally. The
+    // refusal covers the whole branch rather than the diagonal alone, because
+    // sokoban_guilt() and Sokoban's own hole-plugging in flooreffects() are
+    // both unported and an orthogonal Sokoban push reaches them.
+    if (In_sokoban(u.uz)) refuse('a boulder push in Sokoban');
+
+    // 445-447. revive_nasty() (103-137) is a call on the push path, not a
+    // guard around it: it walks the pile at <rx,ry> and revives every Rider
+    // corpse and every Wizard of Yendor corpse there. Only its TRUE arm gives
+    // up the move, so its FALSE arm -- this scan finding neither -- is what
+    // has to be exact. The TRUE arm needs revive_corpse(), enexto() and
+    // rloc_to().
+    for (let obj = state.level?.objects?.[rx]?.[ry] ?? null;
+        obj;
+        obj = obj.nexthere) {
+        if (obj.otyp !== CORPSE) continue;
+        if (is_rider(state.mons?.[obj.corpsenm])
+            || obj.corpsenm === PM_WIZARD_OF_YENDOR) {
+            refuse('a Rider or Wizard corpse behind a boulder');
+        }
+    }
+
+    // 450-476. C pushes the boulder onto a noncorporeal monster, and onto one
+    // already trapped in the pit under it, rather than refusing; this refuses
+    // any monster at all, because both of those leave a boulder standing on a
+    // monster and neither is traced here. The refusing arm needs a_monnam(),
+    // map_invisible() and cannot_push().
+    if (m_at(rx, ry, state)) refuse('a monster behind the boulder');
+
+    // 478-481. cannot_push_msg() again, for a boulder against a closed door.
+    if (closed_door(rx, ry, state)) refuse('a closed door behind the boulder');
+
+    // 490-616, the trap switch. C acts on six types -- LANDMINE, PIT and
+    // SPIKED_PIT, HOLE and TRAPDOOR, LEVEL_TELEP, TELEP_TRAP and
+    // ROLLING_BOULDER_TRAP -- and lets every other type fall through its
+    // `default: break` to the push below. This refuses all of them: the six
+    // need blow_up_landmine(), flooreffects(), bury_objs(), rloco(),
+    // add_to_migration() and launch_obj(), and the rest would leave a boulder
+    // resting on a trap, which nothing here has traced.
+    if (t_at(rx, ry, state)) refuse('a boulder pushed onto a trap');
+
+    // 618-619. do.c boulder_hits_pool() (49-118) is the other unconditional
+    // call on this path. Everything above its `is_pool_or_lava(rx, ry)` test
+    // only rejects a non-boulder, so that test alone is its FALSE arm -- the
+    // one that lets the push happen. js/do.js flooreffects() already records
+    // the TRUE arm as unported.
+    if (is_pool_or_lava(rx, ry, state))
+        refuse('a boulder pushed into water or lava');
+
+    // dopush():217-240, the shop bill, and the `costly` computed for it at
+    // 445-447. addtobill(), subfrombill() and stolen_value() are all live once
+    // a boulder crosses a shop boundary. C's `costly` conjoins costly_spot()
+    // with shop_keeper(*in_rooms(sx, sy, SHOPBASE)); js/shk.js costly_spot()
+    // (491-499) already requires that shopkeeper, so the first term carries it.
+    if (costly_spot(sx, sy, state) || costly_spot(rx, ry, state)
+        || otmp.unpaid) {
+        refuse('a boulder pushed across a shop boundary');
+    }
+
+    // dopush():206-207. unmap_object() forgets a remembered invisible monster
+    // standing where the boulder is about to land, and js/display.js refuses a
+    // square that also shows an engraving. Asking here keeps that refusal from
+    // landing between the message and the move.
+    if (glyph_is_invisible(destination.remembered_glyph?.glyph))
+        refuse('a remembered invisible monster behind the boulder');
+}
+
+// C ref: hack.c movobj() (824-833). Unlink the object, tell the square it
+// left, relink it, tell the square it landed on.
+//
+// maybe_unhide_at() uncovers a monster or the hero that was hiding under the
+// object and throws for either. It cannot fire on the push path: moverock()'s
+// callers reach it only with no monster on the boulder's square, and the hero
+// is still one square back when the boulder leaves.
+export function movobj(obj, ox, oy, state = game) {
+    /* optimize by leaving on the fobj chain? */
+    remove_object(obj, boulderVisionEnv(state));
+    maybe_unhide_at(obj.ox, obj.oy, state);
+    newsym(obj.ox, obj.oy);
+    place_object(obj, ox, oy, boulderVisionEnv(state));
+    newsym(ox, oy);
+}
+
+// C ref: hack.c dopush() (165-241). The feedback is throttled by two globals
+// rather than by Norep(): gb.bldrpush_oid remembers which boulder was pushed
+// last and gb.bldrpushtime the turn it was announced, so a run of pushes
+// against the same boulder says nothing after the first while still exercising
+// Strength and moving the rock. decl.c:224-225 starts both at 0.
+async function dopush(sx, sy, rx, ry, otmp, state, env) {
+    state.gb ??= {};
+    const moves = Math.trunc(state.moves ?? 0);
+    /* give boulder pushing feedback if this is a different
+       boulder than the last one pushed or if it's been at
+       least 2 turns since we last pushed this boulder;
+       unlike with Norep(), intervening messages don't cause
+       it to repeat, only doing something else in the meantime */
+    if (otmp.o_id !== (state.gb.bldrpush_oid ?? 0)) {
+        state.gb.bldrpushtime = moves + 1;
+        state.gb.bldrpush_oid = otmp.o_id;
+    }
+    const bldrpushtime = Math.trunc(state.gb.bldrpushtime ?? 0);
+    const givemesg = moves > bldrpushtime + 2 || moves < bldrpushtime;
+    // 188. C evaluates the(xname(otmp)) only when it is about to print, and
+    // xname() is not a passive read: it observes the object and clears
+    // next_boulder (objnam.c:814-823, js/objnam.js:437-438), so naming a
+    // boulder whose push says nothing would diverge.
+    const what = givemesg ? the(xnameFresh(otmp, state)) : null;
+    // 190-202. The steed arm is refused by preflight_moverock().
+    const easypush = throws_rocks(state.youmonst?.data);
+    if (givemesg) {
+        const message = requiredMessageOperation(env, 'boulder push');
+        await message(
+            `With ${easypush ? 'little' : 'great'} effort you move ${what}.`,
+            state,
+        );
+    }
+    if (!easypush) {
+        await exercise(A_STR, true, state, env.random ?? { rn2 }, {
+            encumberMessage: env.encumberMessage ?? encumber_msg,
+        });
+    }
+    state.gb.bldrpushtime = moves;
+
+    /* Move the boulder *after* the message. */
+    // 206-207, the glyph_is_invisible() unmap_object(), is refused by
+    // preflight_moverock().
+    otmp.next_boulder = 0;
+    movobj(otmp, rx, ry, state); /* does newsym(rx,ry) */
+    // 210-215. The Blind pair of feel_location() calls is refused by
+    // preflight_moverock() along with every other Blind arm of this group.
+    newsym(sx, sy);
+    // 217-240, the shop bill, is refused by preflight_moverock().
+}
+
+// C ref: hack.c moverock_done() (326-333). xname() formats the second and
+// later boulders of one square as "next boulder"; this puts every boulder
+// still standing at <sx,sy> back to its ordinary name.
+function moverock_done(sx, sy, state) {
+    for (let otmp = state.level?.objects?.[sx]?.[sy] ?? null;
+        otmp;
+        otmp = otmp.nexthere) {
+        if (otmp.otyp === BOULDER) otmp.next_boulder = 0;
+    }
+}
+
+// C ref: hack.c moverock() (335-345). u.dx and u.dy are read here as C reads
+// them, because test_move() runs after cmd.c set_move_cmd() has written them.
+async function moverock(state, env) {
+    const sx = state.u.ux + state.u.dx; /* boulder starting position */
+    const sy = state.u.uy + state.u.dy;
+    const ret = await moverock_core(sx, sy, state, env);
+    moverock_done(sx, sy, state);
+    return ret;
+}
+
+// C ref: hack.c moverock_core() (347-638). Its while loop walks every boulder
+// on <sx,sy>; preflight_moverock() admits only a square holding exactly one,
+// so the body runs once and the second test finds the square empty.
+//
+// The return value is C's: 0 lets the hero advance onto <sx,sy>, -1 refuses
+// the step. Only 0 is reachable here, because every arm that answers -1 is
+// refused ahead of the move.
+async function moverock_core(sx, sy, state, env) {
+    const u = state.u;
+    let firstboulder = true;
+    let otmp;
+
+    while ((otmp = sobj_at(BOULDER, sx, sy, state)) !== null) {
+        // 355-363, the Blind arm, is refused by preflight_moverock().
+
+        /* when otmp->next_boulder is 1, xname() will format it as
+           "next boulder" instead of just "boulder" */
+        otmp.next_boulder = firstboulder ? 0 : 1;
+        firstboulder = false;
+
+        /* make sure that this boulder is visible as the top object */
+        if (otmp !== state.level.objects[sx][sy]) movobj(otmp, sx, sy, state);
+
+        const rx = u.ux + 2 * u.dx; /* boulder destination position */
+        const ry = u.uy + 2 * u.dy;
+        nomul(0, state);
+
+        // 384-427 -- the 'm' prefix, Levitation and the air level, and a tiny
+        // hero -- and the FALSE arm of the conjunction at 432-435 are refused
+        // by preflight_moverock(), as are the Sokoban diagonal rule at
+        // 437-443, revive_nasty() at 445-448, the monster behind the boulder
+        // at 450-476, closed_door() at 478-481, the trap switch at 490-616 and
+        // boulder_hits_pool() at 618-619.
+
+        /* rumbling disturbs buried zombies */
+        disturb_buried_zombies(sx, sy, state);
+
+        /*
+         * Re-link at top of fobj chain so that pile order is preserved
+         * when level is restored.
+         */
+        if (otmp !== state.level.objlist) {
+            remove_object(otmp, boulderVisionEnv(state));
+            place_object(otmp, otmp.ox, otmp.oy, boulderVisionEnv(state));
+        }
+        await dopush(sx, sy, rx, ry, otmp, state, env);
+    }
+    return 0;
 }
 
 // C ref: hack.c test_move(). Five of its branches are ported: the
@@ -1806,6 +2190,40 @@ export async function test_move(
             );
         }
         return false;
+    }
+
+    // C ref: hack.c:1216-1252, the boulder block. Two of its four arms are
+    // ported: the run arm that stops in front of a boulder the hero cannot get
+    // past, and the moverock() call that pushes one. The still_chewing() arm
+    // above it and the TEST_TRAV arm below it are not -- the first is refused
+    // by preflight_moverock(), the second belongs to findtravelpath(), which
+    // has no port and is the only caller that asks for TEST_TRAV.
+    //
+    // A Passes_walls hero walks onto the square without touching the boulder,
+    // outside Sokoban. No ported path grants the property, so the guard is
+    // here for its shape rather than for a reachable branch.
+    if (sobj_at(BOULDER, x, y, state)
+        && (In_sokoban(state.u.uz) || !propertyPresent(state, PASSES_WALLS))) {
+        if (mode !== TEST_TRAV
+            && (state.context.run ?? 0) >= 2
+            && !(heroIsBlind(state) || heroHallucinating(state))
+            && !could_move_onto_boulder(x, y, dx, dy, state)) {
+            // C's line is pline_dir(), which carries the accessiblemsg
+            // location prefix that messageAt() adds; the doorway lines above
+            // are plain pline() and carry none.
+            if (mode === DO_MOVE && state.flags?.mention_walls) {
+                const message = requiredMessageOperation(env, 'blocked boulder');
+                await message(
+                    messageAt('A boulder blocks your path.', x, y, state),
+                    state,
+                );
+            }
+            return false;
+        }
+        if (mode === DO_MOVE) {
+            if (await moverock(state, env) < 0) return false;
+        }
+        /* assume you'll be able to push it when you get there... */
     }
     return true;
 }
@@ -2325,7 +2743,10 @@ async function domove_core(state = game) {
         state.domoveAttempting = 0;
         return;
     }
-    if (!destinationMonster) requireSimpleHeroDestination(newx, newy, state);
+    // test_move() has already run moverock() by now, so a boulder that was on
+    // the destination has moved on and this reads the square it left.
+    if (!destinationMonster)
+        requireSimpleHeroDestination(newx, newy, state, true);
 
     if (!await in_out_region(newx, newy, { state })) return;
     u.ux = newx;

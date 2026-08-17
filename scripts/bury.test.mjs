@@ -633,7 +633,8 @@ test('rock and boulder burial deallocates after source visibility effects', () =
         const y = 12;
         place_object(obj, x, y, {
             state,
-            hooks: otyp === BOULDER ? { recalcBlockPoint() {} } : {},
+            hooks: otyp === BOULDER
+                ? { blockPoint() {}, recalcBlockPoint() {} } : {},
         });
         const events = [];
         const hooks = otyp === BOULDER ? {

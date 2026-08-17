@@ -15,10 +15,15 @@ import { is_reviver } from './mondata.js';
 import { monsterObject } from './monster_object.js';
 import { obj_no_longer_held, remove_object } from './obj.js';
 import { obj_stop_timers } from './timeout.js';
+import { block_point } from './vision.js';
 
 export function objectGenerationHooks(overrides = {}) {
     return {
         artifactCount,
+        // mkobj.c place_object() calls vision.c block_point() for every
+        // boulder it places, level generation included: mklev.c dig_corridor()
+        // drops one on about one corridor square in fifty.
+        blockPoint: (x, y, env) => block_point(x, y, env.state),
         deleteObjectLightSource: (obj, env) => {
             del_light_source(LS_OBJECT, obj, env.state);
         },

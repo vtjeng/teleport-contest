@@ -107,6 +107,7 @@ import {
     W_AMUL,
 } from '../js/const.js';
 import { glyph_is_invisible, map_invisible } from '../js/display.js';
+import { block_point } from '../js/vision.js';
 
 // A Valkyrie on a plain first level. Any seed that reaches the first prompt
 // will do; 7710044 is the base row of the kill matrix, so this is the hero
@@ -1149,7 +1150,8 @@ test('the pit and thrown-missile arms read their own conditions',
         const under = spawn(PM_NEWT, { mhp: 0, mtrapped: 1 });
         maketrap(under.mx, under.my, PIT, { state: game });
         const floorRock = mksobj(BOULDER, false, false, { state: game });
-        place_object(floorRock, under.mx, under.my, { state: game });
+        place_object(floorRock, under.mx, under.my,
+            { state: game, hooks: { blockPoint: (bx, by, env) => block_point(bx, by, env.state) } });
         const covered = killEnv();
         await refusesAsync(
             () => killed(under, game, covered),

@@ -92,6 +92,7 @@ import { set_ustuck } from '../js/mon.js';
 import { update_player_regions } from '../js/region.js';
 import { vault_occupied } from '../js/vault.js';
 import { is_pole } from '../js/worn.js';
+import { block_point } from '../js/vision.js';
 import { getRngLog } from '../js/rng.js';
 import { runSegment } from '../js/jsmain.js';
 import { RIDE_COMMAND, loadRideDismountRecipe }
@@ -1076,7 +1077,7 @@ test('landing_spot avoids a boulder on both of the first two passes',
     isolate(state, [DIR_NW, DIR_E]);
     const east = at(state, DIR_E);
     const boulder = mksobj(BOULDER, false, false, { state });
-    place_object(boulder, east.x, east.y, { state });
+    place_object(boulder, east.x, east.y, { state, hooks: { blockPoint: (bx, by, env) => block_point(bx, by, env.state) } });
     try {
         assert.deepEqual(
             await _steedInternals.landing_spot(DISMOUNT_BYCHOICE, 0, state),
@@ -1277,7 +1278,7 @@ test('fill_pit refuses a hole as well as a pit', async () => {
     const state = await mounted();
     const { ux, uy } = state.u;
     const boulder = mksobj(BOULDER, false, false, { state });
-    place_object(boulder, ux, uy, { state });
+    place_object(boulder, ux, uy, { state, hooks: { blockPoint: (bx, by, env) => block_point(bx, by, env.state) } });
     state.level.traps ??= [];
     const trap = { tx: ux, ty: uy, ttyp: PIT };
     state.level.traps.push(trap);

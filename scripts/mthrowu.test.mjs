@@ -21,7 +21,7 @@ import { mksobj, mksobj_at } from '../js/obj.js';
 import { BOULDER, WAN_STRIKING } from '../js/objects.js';
 import { blocking_terrain, lined_up, linedup, m_lined_up }
     from '../js/mthrowu.js';
-import { vision_reset } from '../js/vision.js';
+import { block_point, vision_reset } from '../js/vision.js';
 
 // The same Valkyrie several other suites replay: a lit starting room on
 // dungeon level one, with the hero standing in it.
@@ -241,7 +241,10 @@ test('linedup handles boulders per its three boulderhandling modes',
         const monsterX = state.u.ux + 3;
         clearRow(state, state.u.ux, monsterX, y);
         setCouldSee(state, monsterX, y, false);
-        mksobj_at(BOULDER, state.u.ux + 1, y, false, false, { state });
+        mksobj_at(BOULDER, state.u.ux + 1, y, false, false,
+        // mkobj.c place_object() blocks the square's line of sight for a
+        // boulder; couldsee() is exactly what these cases read back.
+        { state, hooks: { blockPoint: (bx, by, env) => block_point(bx, by, env.state) } });
 
         // mthrowu.c:1355. Mode 0 stops at the lost line of sight and never
         // counts a boulder.
@@ -275,7 +278,8 @@ test('linedup handles boulders per its three boulderhandling modes',
 
         // A second boulder widens the bound, which is what makes a heavily
         // blocked ray less likely to count as lined up.
-        mksobj_at(BOULDER, state.u.ux + 2, y, false, false, { state });
+        mksobj_at(BOULDER, state.u.ux + 2, y, false, false,
+            { state, hooks: { blockPoint: (bx, by, env) => block_point(bx, by, env.state) } });
         const twoBoulders = [];
         linedup(state.u.ux, y, monsterX, y, 2, {
             state,
@@ -301,7 +305,10 @@ test('lined_up picks boulderhandling from the attacker itself', async () => {
     const monsterX = state.u.ux + 3;
     clearRow(state, state.u.ux, monsterX, y);
     setCouldSee(state, monsterX, y, false);
-    mksobj_at(BOULDER, state.u.ux + 1, y, false, false, { state });
+    mksobj_at(BOULDER, state.u.ux + 1, y, false, false,
+        // mkobj.c place_object() blocks the square's line of sight for a
+        // boulder; couldsee() is exactly what these cases read back.
+        { state, hooks: { blockPoint: (bx, by, env) => block_point(bx, by, env.state) } });
     const rat = attacker(state, monsterX, y, state.u.ux, y);
 
     // mthrowu.c:1382-1383. An ordinary monster gets mode 2 and rolls; one

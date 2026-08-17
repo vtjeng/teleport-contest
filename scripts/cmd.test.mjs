@@ -1486,7 +1486,11 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
         })),
         ...[ROOM, CORR].map((typ) => ({
             name: `${typ === ROOM ? 'room' : 'corridor'} boulder`,
-            reason: 'boulder movement',
+            // A lone boulder with clear ground behind it is a push now, so
+            // the boulder that still refuses is one that cannot move:
+            // hack.c moverock_core():435 ends the conjunction when a second
+            // boulder already occupies the destination square.
+            reason: 'a boulder that will not move',
             install: ({ destination, x, y }) => {
                 game.flags.pickup = false;
                 destination.typ = typ;
@@ -1495,9 +1499,15 @@ test('runtime hero refusals do not become phantom elapsed turns', async () => {
                     otyp: BOULDER,
                     nexthere: null,
                 };
+                game.level.objects[x + 1][y] = {
+                    o_id: 7003,
+                    otyp: BOULDER,
+                    nexthere: null,
+                };
             },
             remove: ({ x, y }) => {
                 game.level.objects[x][y] = null;
+                game.level.objects[x + 1][y] = null;
             },
         })),
         // pickup.c describe_decor() owns the line an arrival on a decorated

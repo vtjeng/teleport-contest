@@ -1859,6 +1859,13 @@ export function place_object(obj, x, y, env = {}) {
     }
     if (obj.where !== OBJ_FREE)
         throw new Error(`place_object: object where=${obj.where}, expected free`);
+    // C ref: mkobj.c place_object():2331-2334, `block_point(x, y)` for a
+    // boulder. Resolved before the writes below, as remove_object() resolves
+    // its mirror image, so a caller that cannot supply the vision owner leaves
+    // the object where it was rather than half-placed.
+    const blockPoint = obj.otyp === BOULDER
+        ? requiredHook(normalized, 'blockPoint', obj)
+        : null;
 
     const grid = floorObjectGrid(state);
     let pile = grid[x][y];
@@ -1877,6 +1884,15 @@ export function place_object(obj, x, y, env = {}) {
     obj.where = OBJ_FLOOR;
     obj.nobj = state.level.objlist ?? null;
     state.level.objlist = obj;
+    // Two things about this call do not look like C. C makes it above the pile
+    // insertion, and this port's block_point() is the same full vision_reset()
+    // as unblock_point() and recalc_block_point(), reading the live pile
+    // (js/vision.js blocksVisionAt()); a rebuild run before the insertion would
+    // still read the square as transparent, so it has to run after. C's
+    // `!otmp2 || otmp2->otyp != BOULDER` guard is what a rebuild makes
+    // redundant: a square that already held a boulder rebuilds to the same
+    // blocked answer, so the rebuild is unconditional here.
+    if (blockPoint) blockPoint(x, y, normalized);
     if (obj.timed) obj_timer_checks(obj, x, y, 0, normalized);
     return obj;
 }
