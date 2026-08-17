@@ -14,7 +14,7 @@ defined there.
 - For each coherent implementation chunk, inspect the diff and run focused
   tests plus the full test suite before committing. Use
   `npm run checkpoint -- --focus <test-file>` to run focused tests, the full
-  test suite, the seven generated-data checks, the static-source checks, the
+  test suite, the eight generated-data checks, the static-source checks, the
   duplicate-symbol report, and the development score in one command. Repeat
   `--focus` to add more test files.
   `--skip-score` omits the development score for a quick run; the score still
