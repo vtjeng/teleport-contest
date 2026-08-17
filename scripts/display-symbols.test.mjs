@@ -121,12 +121,14 @@ import {
     flush_screen,
     generic_obj_to_glyph,
     glyph_is_body,
+    GLYPH_INVISIBLE,
     glyph_is_body_piletop,
     glyph_is_cmap,
     glyph_is_cmap_zap,
     glyph_is_fem_statue,
     glyph_is_fem_statue_piletop,
     glyph_is_generic_object,
+    glyph_is_invisible,
     glyph_is_male_statue,
     glyph_is_male_statue_piletop,
     glyph_is_normal_generic_obj,
@@ -139,9 +141,11 @@ import {
     hallucinated_statue_glyph_info,
     hero_glyph_info,
     map_glyphinfo,
+    map_invisible,
     map_trap,
     MG_CORPSE,
     MG_FEMALE,
+    MG_INVIS,
     MG_MALE,
     MG_OBJPILE,
     MG_STATUE,
@@ -163,6 +167,8 @@ import {
     trap_glyph_info,
     trap_to_glyph,
     tty_capacity_status,
+    unmap_invisible,
+    unmap_object,
     UnsupportedMapMemoryError,
     UnsupportedStatusRefreshError,
     weapon_status,
@@ -1707,6 +1713,143 @@ test('feel_location darkens a remembered lit corridor', () => {
     assert.equal(glyph_to_cmap(corridor.remembered_glyph.glyph), S_litcorr);
 });
 
+// display.c map_invisible() (377-385) with the GLYPH_INVIS_OFF arm of
+// reset_glyphmap() (3029-3035) that lets its number round-trip through map
+// memory. defsym.h:336 gives SYM_INVISIBLE the byte 'I'; invis_color()
+// (display.c:2687) is `color = NO_COLOR`.
+test('map_invisible remembers and draws the invisible-monster marker', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y });
+    const location = state.level.at(x, y);
+
+    map_invisible(x, y, state);
+    assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
+    assert.equal(glyph_is_invisible(location.remembered_glyph.glyph), true);
+    assert.equal(location.disp_ch, 'I');
+    assert.equal(location.disp_color, NO_COLOR);
+
+    // MG_INVIS raises no attribute in tty_print_glyph()'s chain
+    // (wintty.c:3923-3937 tests MG_PET, MG_OBJPILE, MG_FEMALE and the
+    // MG_DETECT group, and no arm names MG_INVIS), so the marker prints plain
+    // with every highlighting option on. MG_DETECT or MG_OBJPILE in its place
+    // would answer ATR_INVERSE here.
+    state.wizard = true;
+    state.iflags = {
+        ...state.iflags,
+        hilite_pile: true,
+        wizmgender: true,
+        wc_hilite_pet: true,
+    };
+    map_invisible(x, y, state);
+    assert.equal(location.disp_attr, 0);
+});
+
+test('map_invisible declines the hero square and gates only memory', () => {
+    const x = 7;
+    const y = 4;
+    // The hero standing on the very square the marker would go to.
+    const state = visibleCellState({ x, y, ux: x, uy: y });
+    const location = state.level.at(x, y);
+
+    // display.c:379, "don't display I at hero's location": neither half runs.
+    location.disp_ch = null;
+    map_invisible(x, y, state);
+    assert.equal(location.remembered_glyph, undefined);
+    assert.equal(location.disp_ch, null);
+
+    // display.c:380-382. hero_memory gates the memory write alone, so the
+    // draw at 383 still happens with it off. No ported path clears the flag,
+    // which is why this is pinned here rather than by a recording.
+    state.u.ux = x - 1;
+    state.level.flags.hero_memory = false;
+    map_invisible(x, y, state);
+    assert.equal(location.remembered_glyph, undefined);
+    assert.equal(location.disp_ch, 'I');
+});
+
+test('newsym re-asserts a remembered marker instead of the floor under it',
+    () => {
+    // display.c:1032-1033. A visible square with no monster on it whose
+    // memory already holds the marker keeps the marker; without the arm the
+    // layer choice would put the room floor back on the next repaint.
+    const x = 7;
+    const y = 4;
+    // The hero shares this square's row and neither its column nor its square,
+    // so C's `x != u.ux || y != u.uy` guard inside map_invisible() answers
+    // "not the hero's square" on one coordinate rather than on both.
+    const state = visibleCellState({ x, y, ux: 1, uy: y });
+    const location = state.level.at(x, y);
+    state.viz_array[y][x] = IN_SIGHT;
+
+    newsym(x, y);
+    const floor = location.remembered_glyph.glyph;
+    assert.equal(glyph_is_invisible(floor), false);
+
+    map_invisible(x, y, state);
+    newsym(x, y);
+    assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
+    assert.equal(location.disp_ch, 'I');
+
+    // The same square out of sight draws its memory, which is still the
+    // marker: newsym()'s unsighted arm resolves the remembered number.
+    state.viz_array[y][x] = 0;
+    location.disp_ch = null;
+    newsym(x, y);
+    assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
+    assert.equal(location.disp_ch, 'I');
+});
+
+test('unmap_invisible clears a remembered marker and repaints the square',
+    () => {
+    // display.c unmap_invisible() (387-396). The FALSE arm answers for a
+    // square that holds no marker and for one off the map; the TRUE arm is
+    // `unmap_object(x, y); newsym(x, y); return TRUE;`.
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y });
+    const location = state.level.at(x, y);
+    state.viz_array[y][x] = IN_SIGHT;
+
+    assert.equal(unmap_invisible(x, y, state), false);
+    assert.equal(unmap_invisible(-1, y, state), false);
+
+    newsym(x, y);
+    const floor = location.remembered_glyph.glyph;
+    map_invisible(x, y, state);
+    assert.equal(unmap_invisible(x, y, state), true);
+    assert.equal(location.remembered_glyph.glyph, floor);
+    assert.equal(location.disp_ch, cmap_symbol(S_room, state).ch);
+    // Clearing it twice is a no-op: the second call finds no marker.
+    assert.equal(unmap_invisible(x, y, state), false);
+});
+
+test('feel_location leaves an accurate marker over a monster alone', () => {
+    // display.c:763-767. The hero feels the square her pet is standing on and
+    // whose memory already holds the marker; C returns before set_seenv() so
+    // that searching does not rediscover the monster every turn.
+    const x = 7;
+    const y = 4;
+    const state = feelingHeroBeside(x, y);
+    const location = state.level.at(x, y);
+    location.typ = ROOM;
+    location.remembered_glyph = { glyph: GLYPH_INVISIBLE };
+    state.level.monsters[x][y] = {
+        mx: x, my: y, mhp: 3, data: { mlet: S_HUMAN, mflags1: 0 },
+    };
+
+    feel_location(x, y, state);
+    assert.equal(location.remembered_glyph.glyph, GLYPH_INVISIBLE);
+    assert.equal(location.seenv ?? 0, 0);
+
+    // Remove the monster and the same square is felt normally: C's condition
+    // is a conjunction, so the marker alone does not stop it.
+    state.level.monsters[x][y] = null;
+    feel_location(x, y, state);
+    assert.equal(glyph_is_invisible(location.remembered_glyph.glyph), false);
+    assert.notEqual(location.seenv ?? 0, 0);
+});
+
 // display.c newsym() corrects map memory only on the pass where the square is
 // out of sight, so every case below needs a sighted pass to lay the memory
 // down and an unsighted one to correct it. newsym() reads the module-global
@@ -2153,12 +2296,14 @@ test('same_remembered_glyph separates each glyph number a square can hold',
     assert.equal(same_remembered_glyph(otherObject, oneObject), false);
     assert.equal(same_remembered_glyph(oneObject, { ...oneObject }), true);
 
-    // Nothing writes `invisible_monster` yet: it stands for C's
-    // GLYPH_INVISIBLE, which only the unported map_invisible() writes, and it
-    // has no number of its own in this port, so it separates a pair on its own.
-    const invisible = { ...oneObject, invisible_monster: true };
+    // The invisible-monster marker is one more number, which is the whole
+    // reason the sidecar it replaced is gone: map_invisible() stores
+    // GLYPH_INVISIBLE in levl[x][y].glyph and lock.c:584's `!=` separates it
+    // from an object with no extra term.
+    const invisible = { glyph: GLYPH_INVISIBLE };
     assert.equal(same_remembered_glyph(oneObject, invisible), false);
     assert.equal(same_remembered_glyph(invisible, oneObject), false);
+    assert.equal(same_remembered_glyph(invisible, { ...invisible }), true);
 
     // A missing record on either side is a change; two missing records are not.
     assert.equal(same_remembered_glyph(null, oneObject), false);

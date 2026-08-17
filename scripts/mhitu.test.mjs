@@ -6,6 +6,7 @@ import {
     BLINDED,
     CONFLICT,
     CQ_CANNED,
+    DETECT_MONSTERS,
     HALF_PHDAM,
     INVIS,
     M_ATTK_HIT,
@@ -1502,6 +1503,15 @@ test('hitmu stops for an attacker that was hiding under something',
     // the attacker still undetected, and canspotmon() is the seam this file
     // already lets a caller supply. Past it, an undetected grid bug is neither
     // a hider nor an eel, so both terms of C's guard leave it alone.
+    //
+    // The property is set as well as the seam, because hitmu()'s line names
+    // the attacker through Monnam(), whose do_it arm (do_name.c:863-865) reads
+    // display.h canspotmon() itself rather than through this env. Without a
+    // hero who really senses the grid bug the two would disagree and the line
+    // would read "It bites!".
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 1, extrinsic: 0, blocked: 0,
+    };
     const sensed = { canSpotMonster: () => true };
     const through = meleeEnv(state, [1], sensed);
     assert.equal(await mattacku(bug, through.env), false);

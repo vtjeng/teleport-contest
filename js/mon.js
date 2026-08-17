@@ -1757,7 +1757,9 @@ export async function mondead(mtmp, state = game, env = {}) {
     /* "achievement and/or livelog" */
     logdeadmon(mtmp, mndx, state, env);
 
-    if (glyph_is_invisible(state.level.at(mtmp.mx, mtmp.my)))
+    if (glyph_is_invisible(
+        state.level.at(mtmp.mx, mtmp.my).remembered_glyph?.glyph,
+    ))
         unsupported('forgetting a remembered invisible monster');
 
     /* "remove 'mtmp' from play; it will stay on the fmon list until end of

@@ -19,6 +19,7 @@ import {
 import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
     BLINDED,
+    DETECT_MONSTERS,
     HALLUC,
     M_AP_MONSTER,
     MD_PAD_BOGONS,
@@ -69,6 +70,14 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
                 uroleplay: { blind: false },
             },
         };
+        // display.h canspotmon() is `canseemon(mon) || sensemon(mon)`, and
+        // sensemon()'s Detect_monsters operand is the one this fixture can
+        // satisfy without a map: the monster below stands nowhere, so
+        // canseemon() has no square to test. Without it every name here would
+        // be x_monnam()'s "it", which the last rows of this test pin.
+        state.u.uprops[DETECT_MONSTERS] = {
+            intrinsic: 1, extrinsic: 0, blocked: 0,
+        };
         const monster = {
             data: { pmnames: ['pony'] },
             mextra: {},
@@ -98,6 +107,23 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
         assert.equal(monsterCommonName(monster, state), 'the pony');
         monster.mextra.mgivenname = 'Horses';
         assert.equal(monsterPossessive(monster, state), "Horses'");
+
+        // do_name.c x_monnam():863-865 and 876-885. A hero who cannot spot the
+        // monster gets "it", ahead of the given name, the article and the
+        // saddle adjective alike. noit_mon_nam() (1053-1060) is the one
+        // wrapper that keeps its name, because it passes SUPPRESS_IT.
+        state.u.uprops[DETECT_MONSTERS].intrinsic = 0;
+        assert.equal(monsterCommonName(monster, state), 'it');
+        assert.equal(capitalizedMonsterName(monster, state), 'It');
+        assert.equal(
+            capitalizedAlwaysVisibleMonsterName(monster, state),
+            'Horses',
+        );
+        delete monster.mextra.mgivenname;
+        assert.equal(
+            capitalizedAlwaysVisibleMonsterName(monster, state),
+            'Your pony',
+        );
     });
 
 test('Amonnam preserves gender, invisibility, appearance, and display RNG', () => {
@@ -511,6 +537,12 @@ test('mon_nam_too swaps a second reference for a reflexive pronoun', () => {
     const state = {
         mons: [],
         u: { uprops: [], uroleplay: { blind: false } },
+    };
+    // mon_nam_too() reaches mon_nam(), whose do_it arm answers "it" for a
+    // monster the hero cannot spot. Detect_monsters is sensemon()'s operand
+    // that a monster standing nowhere can still satisfy.
+    state.u.uprops[DETECT_MONSTERS] = {
+        intrinsic: 1, extrinsic: 0, blocked: 0,
     };
     const other = {
         data: { pmnames: ['jackal'], mflags1: 0, mflags2: 0, mflags3: 0 },

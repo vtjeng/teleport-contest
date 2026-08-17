@@ -33,7 +33,6 @@ import {
     back_to_glyph,
     cls,
     docrt,
-    glyph_is_invisible,
     hero_glyph_info,
     map_glyphinfo,
     newsym,
@@ -572,16 +571,9 @@ function preflightExplicitSearch(env) {
                 continue;
             }
             const monster = m_at(x, y, state);
-            if (monster) {
-                preflightSearchMonster(monster, env);
-            } else if (glyph_is_invisible(location)) {
-                // unmap_invisible()'s TRUE arm is unwritten because
-                // map_invisible(), the only writer of the 'I' it clears, is
-                // unported, so the arm has never run.
-                throw new UnsupportedSearchError(
-                    'clearing a remembered invisible monster is not ported',
-                );
-            }
+            if (monster) preflightSearchMonster(monster, env);
+            // detect.c:2076-2077's unmap_invisible() needs no preflight: both
+            // of its arms are ported now, and neither draws.
             const trap = t_at(x, y, state);
             if (trap && !trap.tseen) {
                 // Two source branches the port does not own. They are refused

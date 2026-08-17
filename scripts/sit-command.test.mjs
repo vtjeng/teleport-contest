@@ -60,6 +60,7 @@ import {
 } from '../js/objects.js';
 import { UnsupportedShopError } from '../js/shk.js';
 import { UnsupportedSitError, dosit } from '../js/sit.js';
+import { canSpotMonster } from '../js/startup_a11y.js';
 import {
     SIT,
     WAIT,
@@ -347,25 +348,52 @@ test('a hero who cannot reach the floor gets one of three lines', async () => {
     game.u.ustuck = null;
 });
 
+// sit.c:428 names the holder through Monnam(), whose do_it arm
+// (do_name.c:863-865) answers "it" for a monster display.h canspotmon()
+// rejects. C's comment at 423-424 says the holder "is next to hero", so a
+// fixture that leaves it off the map would take that arm for the wrong reason.
+// The first neighbouring square the hero can spot a monster on is the one C
+// would have put it on.
+function holderBesideHero(data) {
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1],
+        [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+        const monster = newMonster({
+            data, mx: game.u.ux + dx, my: game.u.uy + dy,
+        });
+        if (canSpotMonster(monster, game)) return monster;
+    }
+    throw new Error('no square beside the hero holds a spottable monster');
+}
+
 test('a holder that is not hugging the hero offers no lap', async () => {
     // sit.c:422-429. can_reach_floor() answers TRUE for a holder without
     // AT_HUGS, so this arm is what meets a hero held by, say, an eel.
     await standOnStairs();
-    game.u.ustuck = newMonster({
-        data: species({ pmnames: ['eel', 'eel', 'eel'] }),
-    });
+    game.u.ustuck = holderBesideHero(
+        species({ pmnames: ['eel', 'eel', 'eel'] }),
+    );
     assert.equal(await dosit(game), ECMD_OK);
     assert.equal(toplines(), 'The eel has no lap.');
+
+    // The same holder invisible: canspotmon() fails and the line names it
+    // "It". The arm is unchanged; only the name is.
+    await standOnStairs();
+    game.u.ustuck = holderBesideHero(
+        species({ pmnames: ['eel', 'eel', 'eel'] }),
+    );
+    game.u.ustuck.minvis = true;
+    assert.equal(await dosit(game), ECMD_OK);
+    assert.equal(toplines(), 'It has no lap.');
 
     await standOnStairs();
     // mhis() is you.h:324 over pronoun_gender(), neither of which is ported,
     // so the humanoid half stops instead of printing.
-    game.u.ustuck = newMonster({
-        data: species({
+    game.u.ustuck = holderBesideHero(
+        species({
             pmnames: ['gnome', 'gnome', 'gnome'],
             mflags1: M1_HUMANOID,
         }),
-    });
+    );
     await assert.rejects(
         () => dosit(game),
         (error) => error instanceof UnsupportedSitError

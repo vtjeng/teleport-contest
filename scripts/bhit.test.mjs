@@ -18,6 +18,7 @@ import {
     WEB,
     ZAPPED_WAND,
 } from '../js/const.js';
+import { GLYPH_INVISIBLE, glyph_is_invisible } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { UnsupportedBhitError, bhit } from '../js/zap.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
@@ -236,4 +237,30 @@ test('bhit() treats solid rock beyond the map edge as the end of the run',
         await bhit(1, 0, 8, THROWN_WEAPON, null, null,
             { obj: missile(state) }, state);
         assert.deepEqual(state.gb.bhitpos, { x: COLNO - 1, y: 4 });
+    });
+
+test('bhit() erases a remembered invisible monster and nothing else',
+    async () => {
+        // zap.c:4082-4087, "'I' present but no monster: erase; do this before
+        // tmp_at()". Both conjuncts decide it, and the conjunction is what
+        // separates the two runs below: the marker has to be there and the
+        // hero has to be able to see the square.
+        const state = corridor(6);
+        const marked = state.level.at(3, 4);
+        marked.remembered_glyph = { glyph: GLYPH_INVISIBLE };
+
+        await fireEast(state, 8, missile(state));
+        assert.equal(glyph_is_invisible(marked.remembered_glyph.glyph), false);
+
+        // Out of sight, the same marker survives the flight: unmap_object()
+        // and newsym() are behind cansee(). The missile still crosses the
+        // square, so the difference is the condition and nothing else.
+        const unseen = corridor(6);
+        unseen.viz_array[4][3] = 0;
+        unseen.level.at(3, 4).remembered_glyph = { glyph: GLYPH_INVISIBLE };
+        await fireEast(unseen, 8, missile(unseen));
+        assert.deepEqual(unseen.gb.bhitpos, { x: 6, y: 4 });
+        assert.equal(
+            unseen.level.at(3, 4).remembered_glyph.glyph, GLYPH_INVISIBLE,
+        );
     });

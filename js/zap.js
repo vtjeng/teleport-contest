@@ -641,7 +641,8 @@ export async function bhit(
             break;
         }
         /* 'I' present but no monster: erase; do this before tmp_at() */
-        if (glyph_is_invisible(state.level.at(x, y)) && cansee(x, y, state)) {
+        if (glyph_is_invisible(state.level.at(x, y).remembered_glyph?.glyph)
+            && cansee(x, y, state)) {
             unmap_object(x, y, state);
             newsym(x, y);
         }

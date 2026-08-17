@@ -47,6 +47,7 @@ import {
 } from '../js/detect.js';
 import {
     back_to_glyph,
+    GLYPH_INVISIBLE,
     glyph_is_invisible,
     trap_to_glyph,
     map_glyphinfo,
@@ -54,8 +55,6 @@ import {
     object_glyph_info,
     remembered_glyph_from_presentation,
     trap_glyph_info,
-    unmap_invisible,
-    UnsupportedMapMemoryError,
 } from '../js/display.js';
 import { GLYPH_OBJ_OFF } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
@@ -1336,12 +1335,6 @@ test('every explicit search refusal leaves the automatic arm intact', async () =
             region.visible = true;
             state.level.regions.push(region);
         }, /feels every adjacent square/, [0], FOUND_DOOR_EVENTS],
-        // detect.c:2076.
-        ['a remembered invisible monster', (state) => {
-            state.level.at(11, 11).remembered_glyph = {
-                invisible_monster: true,
-            };
-        }, /remembered invisible monster/, [0], FOUND_DOOR_EVENTS],
         // detect.c:2079-2088 is the one block C does not gate on aflag, so the
         // automatic arm reaches the same two unported branches. It refuses
         // them from preflightTrap() as plain Errors, after the rnl(8) that
@@ -1572,18 +1565,24 @@ test('explicit search refuses the feel_location arm before any draw', async () =
     random.done();
 });
 
-test('explicit search refuses a remembered invisible monster before any draw', async () => {
+test('explicit search clears a remembered invisible monster', async () => {
+    // detect.c:2074-2077, "see if an invisible monster has moved". The marker
+    // sits on an adjacent square the monster has left, and unmap_invisible()
+    // clears it and repaints; the square the hero can still see nothing on
+    // keeps its own memory. hero_memory has to be on for unmap_object() to
+    // rewrite anything, exactly as C's map_background() does.
     const state = explicitSearchState();
-    state.level.at(9, 9).typ = SDOOR;
-    // display.c map_invisible() writes this marker; unmap_invisible()'s TRUE
-    // arm would then need unmap_object().
-    state.level.at(11, 11).remembered_glyph = { invisible_monster: true };
+    state.level.flags = { hero_memory: true };
+    const vacated = state.level.at(11, 11);
+    vacated.remembered_glyph = { glyph: GLYPH_INVISIBLE };
     const events = [];
     const random = scriptedRandom(events, []);
 
-    await assert.rejects(dosearch0(0, {
+    assert.equal(await dosearch0(0, {
         state, random, ...recordingOperations(state, events),
-    }), /remembered invisible monster is not ported/);
+    }), 1);
+    assert.equal(glyph_is_invisible(vacated.remembered_glyph?.glyph), false);
+    // No secret door and no trap, so the whole 3x3 draws nothing.
     assert.deepEqual(events, []);
     random.done();
 });
@@ -1631,26 +1630,6 @@ test('explicit search refuses a hallucinatory trap find before any draw', async 
     random.done();
 });
 
-test('unmap_invisible answers false and refuses a remembered invisible glyph', () => {
-    const state = explicitSearchState();
-    assert.equal(glyph_is_invisible(state.level.at(9, 9)), false);
-    assert.equal(unmap_invisible(9, 9, state), false);
-    // isok() guards the call, as display.c does.
-    assert.equal(unmap_invisible(-1, 9, state), false);
-
-    state.level.at(9, 9).remembered_glyph = { invisible_monster: true };
-    assert.equal(glyph_is_invisible(state.level.at(9, 9)), true);
-    // The TRUE arm is `unmap_object(x, y); newsym(x, y); return TRUE;` and
-    // both callees now exist, but the arm has never run: map_invisible(), the
-    // only writer of the 'I' it clears, is unported. It refuses with a class
-    // js/cmd.js failClosedCommandRefusals() lists, so a caller ends the
-    // segment on it rather than letting a bare Error escape.
-    assert.throws(
-        () => unmap_invisible(9, 9, state),
-        (error) => error instanceof UnsupportedMapMemoryError
-            && /map_invisible\(\)/u.test(error.message),
-    );
-});
 
 test('dosearch answers ECMD_TIME and counts prevented searches', async () => {
     // safe_wait off leaves cmd_safety_prevention() with nothing to test, so

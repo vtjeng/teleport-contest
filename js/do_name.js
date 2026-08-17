@@ -8,6 +8,7 @@ import {
     ARTICLE_NONE,
     ARTICLE_THE,
     ARTICLE_YOUR,
+    AUGMENT_IT,
     BLINDED,
     BOGUSMONFILE,
     HALLUC,
@@ -29,6 +30,7 @@ import {
     SUPPRESS_NAME,
     SUPPRESS_SADDLE,
     W_SADDLE,
+    engulfing_u,
     has_oname,
 } from './const.js';
 import { artifact_exists, artifact_name, exist_artifact } from './artifacts.js';
@@ -59,6 +61,11 @@ import { just_an } from './objnam.js';
 import { get_rnd_text } from './random_text.js';
 import { HLIQUIDS } from './random_text_data.js';
 import { rn2, rn2_on_display_rng } from './rng.js';
+// display.h canspotmon() (129). js/startup_a11y.js owns it and imports
+// capitalizedMonsterName() from this file, so the two modules form a cycle.
+// Neither uses the other's binding while its module body evaluates, which is
+// what an ES module cycle requires; js/obj.js and this file already form one.
+import { canSpotMonster } from './startup_a11y.js';
 
 const GHOST_NAMES = Object.freeze([
     'Adri',
@@ -221,10 +228,53 @@ function namingPropertyActive(state, property) {
         && !value?.blocked;
 }
 
-// C ref: do_name.c mon_nam() and x_monnam(), early ordinary-monster subset.
-// A given name suppresses the article. An unnamed visible monster retains the
-// saddle adjective unless blindness or hallucination prevents recognition.
-export function monsterCommonName(monster, state = game) {
+// C ref: do_name.c x_monnam()'s do_it predicate (863-865). Five terms, and
+// each defeats "it" on its own: the hero can make the monster out; the caller
+// asked for "your <pet>"; the game is over and every monster is disclosed; the
+// monster is the steed the hero is sitting on; the monster has swallowed the
+// hero; or the caller passed SUPPRESS_IT to say it wants a name whatever the
+// hero can see.
+//
+// Both partial spellings of x_monnam() below read it, so it is written once.
+// The article is the one in force after x_monnam()'s two adjustments at
+// do_name.c:848-859, not the one the caller passed.
+function x_monnam_do_it(monster, article, suppress, state) {
+    return !canSpotMonster(monster, state)
+        && article !== ARTICLE_YOUR
+        && !state.program_state?.gameover
+        && monster !== state.u?.usteed
+        && !engulfing_u(monster, state)
+        && !(suppress & SUPPRESS_IT);
+}
+
+// C ref: do_name.c x_monnam()'s do_it arm (876-885). augment_it is the one
+// thing that makes it answer anything but "it", and no caller here raises it:
+// do_name.c some_mon_nam() (1064-1071) and Some_Monnam() (1092-1098) are its
+// only sources, and both are unported. Its hallucinating half draws rn2(2),
+// so admitting it without a caller would put an unspent call in the port.
+function x_monnam_it(suppress) {
+    if (suppress & AUGMENT_IT) {
+        throw new UnsupportedMonsterNameError(
+            "x_monnam()'s AUGMENT_IT arm",
+        );
+    }
+    return 'it';
+}
+
+// C ref: do_name.c mon_nam() (1041-1046) over x_monnam(), early
+// ordinary-monster subset. `suppress` carries only the flags a wrapper of
+// mon_nam() adds: noit_mon_nam() (1053-1060) passes SUPPRESS_IT, which is what
+// keeps alwaysVisibleMonsterName() below out of the do_it arm.
+//
+// A monster the hero cannot spot is named "it" before anything else is
+// considered. A given name suppresses the article. An unnamed visible monster
+// retains the saddle adjective unless blindness or hallucination prevents
+// recognition.
+export function monsterCommonName(monster, state = game, suppress = 0) {
+    // mon_nam() always passes ARTICLE_THE, so the article term is constantly
+    // true here and SUPPRESS_IT is the only term a wrapper can move.
+    if (x_monnam_do_it(monster, ARTICLE_THE, suppress, state))
+        return x_monnam_it(suppress);
     const speciesName = monster.data?.pmnames?.[2]
         ?? monster.data?.pmnames?.find(Boolean)
         ?? 'monster';
@@ -264,14 +314,15 @@ export function mon_pmname(monster) {
     return pmname(monster.data, gender(monster));
 }
 
-// C ref: do_name.c x_monnam() (826-1032), restricted to the one `suppress`
-// combination the port asks for: SUPPRESS_IT | SUPPRESS_INVISIBLE |
-// SUPPRESS_HALLUCINATION, which steed.c mount_steed() uses to build the killer
-// string for a slipped mount ("a saddled pony", or "a saddled pony called
-// Dobbin"). Every other combination stops, because those three flags are what
-// make the do_it, do_invis and do_hallu branches statically dead here; do_hallu
-// in particular draws from the display RNG through rndmonnam(), so admitting it
-// without a caller would put an unspent random-number call in the port.
+// C ref: do_name.c x_monnam() (826-1032), restricted to the `suppress`
+// combinations that carry SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION. Its one
+// caller is steed.c mount_steed(), which builds the killer string for a
+// slipped mount ("a saddled pony", or "a saddled pony called Dobbin") and adds
+// SUPPRESS_IT as well. The two required flags are what make the do_invis and
+// do_hallu branches statically dead here; do_hallu in particular draws from
+// the display RNG through rndmonnam(), so admitting it without a caller would
+// put an unspent random-number call in the port. do_it needs no such flag: it
+// is ported, and shares its predicate with monsterCommonName() above.
 //
 // monsterCommonName() and capitalizedMonsterName() above are the port's older
 // partial mon_nam() and Monnam(); they answer a different article and are not
@@ -284,7 +335,7 @@ export function x_monnam(
     called,
     state = game,
 ) {
-    const REQUIRED = SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION;
+    const REQUIRED = SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION;
     if ((suppress & REQUIRED) !== REQUIRED) {
         throw new UnsupportedMonsterNameError(
             `x_monnam() suppress flags 0x${suppress.toString(16)}`,
@@ -292,14 +343,17 @@ export function x_monnam(
     }
     const mdat = monster.data;
 
-    // do_hallu, do_invis and do_it are all FALSE under the flags above, and
-    // program_state.gameover has no ported counterpart, so the game-over
-    // suppression and the "it"/"someone"/"something" early return cannot run.
+    // do_hallu and do_invis are both FALSE under the flags above, so the
+    // hallucinated bogus name and the "invisible " adjective cannot run.
     let effectiveArticle = article;
     if (effectiveArticle === ARTICLE_YOUR && !monster.mtame)
         effectiveArticle = ARTICLE_THE;
     if (state.u?.uswallow && monster === state.u.ustuck)
         effectiveArticle = ARTICLE_THE;
+
+    // do_name.c:876-885, above the priest and minion block C reaches next.
+    if (x_monnam_do_it(monster, effectiveArticle, suppress, state))
+        return x_monnam_it(suppress);
 
     const do_saddle = !(suppress & SUPPRESS_SADDLE);
     const do_mappear = ((monster.m_ap_type ?? 0) & M_AP_TYPMASK)
@@ -374,6 +428,11 @@ export function x_monnam(
 // rejected species and once more for the gender (do_name.c:1399-1407).
 // monsterCommonName() below has no bogus-name arm and draws nothing, so this
 // stops rather than printing the true species name and skipping the draws.
+//
+// SUPPRESS_IT is passed on to monsterCommonName(). That is the whole point of
+// this wrapper -- C's comment at 1049-1052 says it names a monster "as if the
+// player can always see" it -- and without it a hero who cannot spot her own
+// pet would be told "It moves reluctantly." where C names the pet.
 export function alwaysVisibleMonsterName(
     monster,
     state = game,
@@ -387,7 +446,7 @@ export function alwaysVisibleMonsterName(
             "noit_Monnam()'s hallucinated bogus name",
         );
     }
-    let name = monsterCommonName(monster, state);
+    let name = monsterCommonName(monster, state, SUPPRESS_IT);
     if (monster.mtame
         && !monster.mextra?.mgivenname
         && !monster.mgivenname

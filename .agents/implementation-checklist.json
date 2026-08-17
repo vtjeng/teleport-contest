@@ -1,6 +1,6 @@
 {
   "mode": "implementation",
-  "reason": "The slice has not started. Every candidate that carries the behavior is `missing`: display.c map_invisible() has no port, glyph_is_invisible() reads a boolean sidecar nothing writes instead of C's glyph number, map_glyphinfo() has no GLYPH_INVIS_OFF arm, do_name.c x_monnam()'s do_it arm refuses, and mon.c mondead()'s clear stops. `missingWorkByOwner` orders the four groups so each prerequisite precedes the groups that use it.",
+  "reason": "The marker now has a representation and a name. display.c map_invisible(), unmap_invisible()'s TRUE arm, reset_glyphmap()'s GLYPH_INVIS_OFF arm and newsym()'s marker arm are ported, glyph_is_invisible() compares C's glyph number, and do_name.c x_monnam()'s do_it arm answers `it`. What is still missing is the writer's consumer: mhitm.c pre_mm_attack()'s two arms, mon.c mondead()'s clear, and the hack.c sites the writer makes reachable.",
   "commitChecked": "b4a8f01aed5dc8d2f6965592c4dd2f5ab97524ae",
   "boundary": {
     "goalId": "remembered-invisible-monster",
@@ -69,90 +69,90 @@
       "reachability": "Every caller. Inside this boundary, pre_mm_attack()'s two arms.",
       "owner": "None",
       "effects": "levl[x][y].glyph = GLYPH_INVISIBLE and a glyph-buffer write. Draws no random number.",
-      "evidence": "No js/ definition; js/display.js:2367-2377 records its absence as the reason glyph_is_invisible() reads a sidecar.",
-      "status": "missing",
-      "remaining": "Port it into js/display.js. The hero-square guard and the hero_memory guard are separate conditions and each needs its own test; hero_memory is TRUE in every ported game, so a test has to set it FALSE to pin the second."
+      "evidence": "Ported at js/display.js map_invisible(). Both guards are pinned by 'map_invisible declines the hero square and gates only memory' in scripts/display-symbols.test.mjs, which sets hero_memory FALSE for the second.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "include/display.h glyph_is_invisible() (773), `((glyph) == GLYPH_INVISIBLE)`",
       "reachability": "Six ported readers plus map_glyphinfo().",
       "owner": "js/display.js glyph_is_invisible() (2378)",
       "effects": "None; a predicate.",
-      "evidence": "The port takes a location record and reads `location?.remembered_glyph?.invisible_monster`, a boolean sidecar nothing writes. C compares a glyph number. The goal's testable property is that the port compares the number too.",
-      "status": "missing",
-      "remaining": "Change the signature to take a glyph number and move all six readers with it: js/display.js:2129, :2172, :2397, js/mon.js:1760, js/zap.js:644, js/detect.js:577."
+      "evidence": "The predicate now takes a glyph number and compares it with GLYPH_INVISIBLE, and every reader spells `loc.remembered_glyph?.glyph`. The sidecar is gone from js/ and from the tests.",
+      "status": "done",
+      "remaining": "None. Five readers moved with it; the sixth, js/detect.js:577, was a preflight refusal that unmap_invisible()'s ported TRUE arm retires."
     },
     {
       "candidate": "display.c reset_glyphmap() (3029-3035), the GLYPH_INVIS_OFF arm: `sym.symidx = SYM_INVISIBLE + SYM_OFF_X`, `invis_color(offset)` = NO_COLOR, `glyphflags |= MG_INVIS`",
       "reachability": "Any draw of a square holding the marker.",
       "owner": "js/display.js map_glyphinfo() (1570), which has no arm for the number, and mapGlyphinfoResolves() (1535), which rejects it",
       "effects": "Resolves the marker to the drawn character, colour and attribute.",
-      "evidence": "mapGlyphinfoResolves() admits only GLYPH_NOTHING_OFF, objects and non-zap cmaps. SYM_INVISIBLE exists at js/const.js:2551 and s_invisible at js/symbol_data.js:154, so no generated table changes; MG_INVIS is not defined among js/display.js:1448-1463.",
-      "status": "missing",
-      "remaining": "Add the arm, widen the guard, and define MG_INVIS. seed0006 cannot witness the drawn character, so this needs the fresh recording where the marker survives a step, or a unit test pinned to the C source."
+      "evidence": "The arm is the closing `else` of map_glyphinfo()'s chain, because GLYPH_INVIS_OFF sits below GLYPH_BODY_OFF and the pet arms between them have no port. MG_INVIS is defined beside MG_CORPSE and is write-only: `grep -rn MG_INVIS src/ include/ win/` finds reset_glyphmap():3035 and the #define alone, so tty_print_glyph() never reads it.",
+      "status": "done",
+      "remaining": "None. Pinned by 'map_invisible remembers and draws the invisible-monster marker', which asserts the 'I', NO_COLOR, and that no highlighting option raises an attribute."
     },
     {
       "candidate": "display.c newsym() (1032-1033), `else if (glyph_is_invisible(lev->glyph)) map_invisible(x, y);`",
       "reachability": "A visible square with no monster to display and no warning, whose memory already holds the marker. Reached on every repaint of such a square, including docrt().",
-      "owner": "js/display.js newsym() (2585), which has no such arm",
+      "owner": "js/display.js newsym(), above its layer work",
       "effects": "Re-asserts the marker rather than recomputing the square from its layers.",
-      "evidence": "The port's newsym() is a restructuring; its layer choice would overwrite the marker with the underlying terrain, silently. seed0006 cannot show this, because its marker is cleared in the same step it is written.",
-      "status": "missing",
-      "remaining": "Place the arm in the port's control flow at the point C reaches it, and cover it with the fresh recording where the marker survives a step."
+      "evidence": "Placed above the layer choice rather than beside the draw, because C's arm skips _map_location() and so skips map_object()'s observe_object(). Its four conditions are the port's `visible`, `!shouldDisplayMonster`, `!monsterWarning`, and the hero-square test C spells as the `else` of `if (u_at(x, y))`.",
+      "status": "done",
+      "remaining": "None. Pinned by 'newsym re-asserts a remembered marker instead of the floor under it' in scripts/display-symbols.test.mjs."
     },
     {
       "candidate": "display.c show_mon_or_warn() (486-493), the `if (glyph_is_invisible(levl[x][y].glyph))` clear that calls unmap_object() and re-maps a visible object",
       "reachability": "Drawing anything on the monster layer at a square that holds the marker.",
       "owner": "js/display.js newsym()'s inlined display_monster arms",
       "effects": "Stops remembering the marker and starts remembering a visible object under it.",
-      "evidence": "C's comment at 484-486 states the invariant: the marker lives in the object layer, so putting a monster there must clear it. The port has no such clear, because nothing wrote a marker to clear.",
-      "status": "missing",
-      "remaining": "Port the clear. Its second half, re-mapping a visible object, needs vobj_at() and map_object(), both of which the port has."
+      "evidence": "C reaches show_mon_or_warn() through display_monster(), which newsym()'s monster arm calls only after _map_location(x, y, FALSE) has already rewritten levl[x][y].glyph from the layers under svl.level.flags.hero_memory. So the clear finds no marker left to clear and its vobj_at() re-map repeats _map_location()'s own map_object(). The port's monster arm makes that same memory write. C's warning arm is the one that reaches the clear with the marker intact, and this port raises no warning level.",
+      "status": "later",
+      "remaining": "Nothing to port while hero_memory is on and no warning level is raised. js/display.js records the derivation beside the port’s memory write."
     },
     {
       "candidate": "display.c mon_overrides_region() (697-699), `return glyph_is_invisible(levl[mx][my].glyph) ? TRUE : FALSE;`",
       "reachability": "newsym() on a square inside a visible gas region that also holds the marker.",
-      "owner": "js/display.js newsym()'s region block, which computes monsterSensed, monsterWarning and adjacentVisibleMonster but has no marker term",
+      "owner": "js/display.js newsym()'s region block",
       "effects": "Decides whether the region or the marker is drawn.",
-      "evidence": "The port's region block has three terms where C's helper has four.",
-      "status": "missing",
-      "remaining": "Add the term. No ported path generates a gas region yet, so this closes on source reading and a unit test rather than a recording; confirm that before writing it, and if no region can exist, restate as cannot-occur with the C evidence."
+      "evidence": "The term is added: the region block now also requires `!glyph_is_invisible(loc.remembered_glyph?.glyph)` before it draws the cloud and returns. js/themeroom_fill.js create_gas_cloud_selection() is a ported producer of gas clouds, so the arm is reachable in principle rather than dead.",
+      "status": "done",
+      "remaining": "None. No recorded case puts a gas cloud over a marked square, so it closes on source reading."
     },
     {
       "candidate": "display.c feel_location() (763-767), the accurate-memory return `if (glyph_is_invisible(lev->glyph) && m_at(x, y)) return;`",
       "reachability": "A blind or feeling hero at a square holding both the marker and a monster.",
       "owner": "js/display.js feel_location() (2172)",
       "effects": "Leaves the marker alone so searching does not rediscover the monster every turn.",
-      "evidence": "Ported and correct in shape; it changes only with glyph_is_invisible()'s signature. js/display.js:2170-2171 records that it never returns yet.",
-      "status": "missing",
-      "remaining": "Move it to the glyph-number predicate. Its first TRUE answer arrives with map_invisible(), so a test must construct the state rather than rely on a recording."
+      "evidence": "Moved to the glyph-number predicate. Its first TRUE answer arrives with map_invisible().",
+      "status": "done",
+      "remaining": "None. Pinned by 'feel_location leaves an accurate marker over a monster alone', which also removes the monster to show that C's conjunction needs both halves."
     },
     {
       "candidate": "display.c feel_location() (829-836), the boulder-or-marker arm that suppresses the room glyph",
       "reachability": "A feeling hero at a square whose memory holds a boulder or the marker.",
       "owner": "js/display.js feel_location()",
       "effects": "Chooses map_background() or the room glyph rather than keeping the remembered glyph.",
-      "evidence": "The port carries the boulder half; the marker half rides on the same predicate.",
-      "status": "undecided",
-      "remaining": "Read the port's feel_location() layer choice against display.c:822-838 and decide whether the marker disjunct is present, absent, or unreachable here. This entry must resolve before readiness."
+      "evidence": "The arm is inside display.c feel_location()'s Levitation Rules block, which opens at 776 with `if (!can_reach_floor(FALSE))` and closes at 858. js/display.js feel_location() refuses that whole block at its `!can_reach_floor(false, state)` guard, and the port's own tail at the end of the function is display.c:893-900, the reachable-floor arm, which has no boulder or marker term in C either.",
+      "status": "later",
+      "remaining": "Cannot occur. It arrives with the Levitation Rules block, not with this goal."
     },
     {
       "candidate": "lock.c pick_lock() (579, 584), the oldglyph comparison that same_remembered_glyph() stands in for",
       "reachability": "A hero picking a lock on a door, where feel_location() may or may not change the square.",
       "owner": "js/display.js same_remembered_glyph() (2125)",
       "effects": "Decides whether pick_lock() reports that the door changed.",
-      "evidence": "The port compares `glyph` and the `invisible_monster` sidecar because the marker had no number. With the number, C's plain `!=` on the glyph is the whole comparison and the sidecar term goes.",
-      "status": "missing",
-      "remaining": "Delete the sidecar term. A test must show the comparison still answers correctly for a square feel_location() left as it found it, which is why the wrapper exists."
+      "evidence": "The sidecar term is gone; same_remembered_glyph() is C's plain `!=` on the glyph number, null-safe because this port wraps each number in a fresh record on every write.",
+      "status": "done",
+      "remaining": "None. 'same_remembered_glyph separates each glyph number a square can hold' now separates the marker from an object by number alone."
     },
     {
       "candidate": "do_name.c x_monnam() (863-885), the do_it arm and the do_it predicate `!canspotmon(mtmp) && article != ARTICLE_YOUR && !program_state.gameover && mtmp != u.usteed && !engulfing_u(mtmp) && !(suppress & SUPPRESS_IT)`",
       "reachability": "Any name taken for a monster the hero cannot spot. Inside this boundary, hitmm()'s Monnam(magr) and mon_nam_too(mdef, magr), and missmm()'s Monnam(magr) and mon_nam_too(mdef, magr).",
-      "owner": "js/do_name.js x_monnam() (279), which throws unless SUPPRESS_IT is set, and monsterCommonName() (227), the port's partial mon_nam(), which always returns `the <species>`",
+      "owner": "js/do_name.js x_monnam_do_it() and x_monnam_it(), read by both x_monnam() and monsterCommonName()",
       "effects": "Returns the string `it` and returns early, before the article, invisibility, saddle and naming work below.",
-      "evidence": "js/do_name.js:270-278 records that the port admits only the SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION combination precisely to keep do_it, do_invis and do_hallu statically dead. The two partial spellings of one C function must be reconciled in this slice, because monsterCommonName() does not refuse: it would print `the kobold` where C prints `it`, which is a silent divergence rather than a fail-closed stop.",
-      "status": "missing",
-      "remaining": "Admit the do_it arm and route the port's mon_nam()/Monnam() through it. Each of the five predicate terms needs its own coverage; u.usteed and engulfing_u() may be unreachable, in which case say so with the C evidence rather than leaving them untested."
+      "evidence": "The five predicate terms are written once and read by both partial spellings of x_monnam(). x_monnam() no longer requires SUPPRESS_IT; monsterCommonName() takes a `suppress` argument so noit_mon_nam()'s wrapper can pass it. The arm returns before the article, the given name and the saddle adjective, as C does.",
+      "status": "done",
+      "remaining": "u.usteed and engulfing_u() have no covering case: a ported path never names the steed the hero rides through mon_nam() while it cannot be spotted, and js/uhitm.js refuses an engulfer before naming it. They are carried because C carries them. program_state.gameover is read from state.program_state, which js/allmain.js:1227 already consults."
     },
     {
       "candidate": "do_name.c x_monnam() (877-882), the augment_it arm producing `someone`/`something`",
@@ -168,9 +168,9 @@
       "reachability": "Its own callers, outside this boundary.",
       "owner": "js/do_name.js alwaysVisibleMonsterName() (377)",
       "effects": "Names a monster as if the hero could always see it.",
-      "evidence": "This is the one wrapper that must not inherit the new do_it arm. C makes that explicit by passing SUPPRESS_IT.",
-      "status": "undecided",
-      "remaining": "Confirm that the port's wrapper passes SUPPRESS_IT once x_monnam() admits do_it, and pin it with a test. Resolve before readiness."
+      "evidence": "js/do_name.js alwaysVisibleMonsterName() passes SUPPRESS_IT to monsterCommonName(), which is C's own defence. Its article, ARTICLE_YOUR, defeats do_it independently.",
+      "status": "done",
+      "remaining": "None. Pinned by the closing rows of 'ordinary monster names preserve article, saddle, pet, and possessive rules', where the same unspottable monster is 'It' through Monnam() and 'Your pony' through noit_Monnam()."
     },
     {
       "candidate": "do_name.c mon_nam_too() (1190-1215), which returns mon_nam(mon) unless the two monsters are the same, in which case it uses a reflexive pronoun",
@@ -193,20 +193,20 @@
     {
       "candidate": "display.c unmap_invisible() (387-396), the TRUE arm `unmap_object(x, y); newsym(x, y); return TRUE;`",
       "reachability": "detect.c dosearch0() and eleven other callers, over a marker that outlived the step that wrote it.",
-      "owner": "js/display.js unmap_invisible() (2394), whose FALSE arm is ported and whose TRUE arm throws",
+      "owner": "js/display.js unmap_invisible()",
       "effects": "Clears the marker and repaints.",
-      "evidence": "Both callees exist in the file. The arm is currently unreachable because nothing writes a marker; once map_invisible() lands it becomes reachable through js/dokick.js:352 and js/detect.js:798.",
-      "status": "undecided",
-      "remaining": "This is the entry that decides whether the goal needs a second slice. Determine whether either ported caller can reach a live marker within a game this slice's recordings produce. If it can, the arm lands here; if it cannot, restate as `later` with the C evidence and queue the second slice."
+      "evidence": "Both callers can reach a live marker once map_invisible() writes one: hack.c domove_core():2813 clears the marker on the square the hero steps onto, and detect.c dosearch0():2077 clears one an invisible monster has left. The arm landed here rather than in a second slice.",
+      "status": "done",
+      "remaining": "None. js/detect.js's preflight refusal for the marker is retired with it."
     },
     {
       "candidate": "js/zap.js:644 and js/detect.js:577, the port's two remaining glyph_is_invisible() readers (zap.c:4083, detect.c:1712)",
       "reachability": "Their own commands, none of which this boundary dispatches.",
       "owner": "js/zap.js and js/detect.js",
       "effects": "None inside the boundary.",
-      "evidence": "Both read the predicate whose signature changes, so both are edited by this slice even though neither runs in it.",
-      "status": "later",
-      "remaining": "Move them to the glyph-number predicate. Their behavior is unchanged, and the full test suite plus an identical development score is the proof."
+      "evidence": "Both moved to the glyph-number predicate. js/zap.js keeps C’s arm; js/detect.js’s site was a preflight refusal, which unmap_invisible()’s ported TRUE arm retires.",
+      "status": "done",
+      "remaining": "None. 'bhit() erases a remembered invisible monster and nothing else' pins zap.c:4083's conjunction on both halves."
     },
     {
       "candidate": "The hack.c marker readers at 206, 1935, 2244, 2273 and 2889, and the write at 2902",
