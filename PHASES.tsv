@@ -591,3 +591,4 @@ utc	event	phase	goal	detail
 2026-08-17T19:34:15.080Z	end	implement	wizard-create-monster	wizgenesis-creates-the-named-monster closed at b11f36c: screens 1833 to 1846
 2026-08-17T19:36:59.849Z	start	review	wizard-create-monster	correctness ea331c8..63ab9ed, the goal's close
 2026-08-17T20:55:27.560Z	end	review	wizard-create-monster	correctness ea331c8..2d84dfa: 15 raw, 13 deduped, 11 confirmed, 11 applied, 2 rejected
+2026-08-17T20:58:54.951Z	start	select		next goal after wizard-create-monster closed

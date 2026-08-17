@@ -2708,7 +2708,7 @@
     },
     {
       "id": "wizard-create-monster",
-      "status": "open",
+      "status": "closed",
       "boundary": "The wizard-mode key ^G reaches wizcmds.c wiz_genesis() and creates the monster the player names on the hero's own square, instead of stopping at js/cmd.js's repeated-command boundary, whose ADMITTED_COMMANDS (js/cmd.js:908-913) does not list 'wizgenesis'. wiz_genesis() (wizcmds.c:203-215) takes its `if (wizard)` arm, saves iflags.debug_mongen, clears it, calls read.c create_particular() and restores it; the else arm's pline(unavailcmd, ecname_from_fn(wiz_genesis)) is unreachable from the key, because the extcmdlist[] row at cmd.c:1961-1962 carries WIZMODECMD.\n\nThe property that bounds it is testable against the C source on its own. create_particular() (read.c:3372-3406) is a `do { getlin(prompt, buf); ... } while (--tryct > 0)` loop over at most CP_TRYLIM = 5 answers, and this goal covers exactly the answers create_particular_parse() (read.c:3137-3246) accepts through one arm: `d->which = name_to_mon(bufp, &gender_name_var)` at 3211, followed by `if (ismnum(d->which)) return TRUE;` at 3231. That arm is reached only when the munged answer has no leading digit (3153-3158), holds none of the six substrings \"saddled \", \"sleeping \", \"invisible \", \"hidden \", \"female \", \"male \" (3167-3193), carries none of the three prefixes \"tame \", \"peaceful \", \"hostile \" (3197-3206), and is neither \"*\" nor \"random\" (3208-3211).\n\nEvery other parse arm stays refused, including name_to_monclass()'s class-letter arm at 3232-3245, and so does everything in create_particular_creation() (read.c:3252-3356) past makemon(): the cant_revive() y_n() override at 3262-3272, mkclass() and rndmonst() at 3279-3282, the MM_FEMALE and MM_MALE and genderconf arms at 3283-3305, MM_MINVIS, tamedog(), set_malign(), put_saddle_on_mon(), the mundetected and msleeping assignments, flash_mon() and newcham(). What must run in creation is cant_revive() (read.c:3112-3133) returning FALSE, `whichpm = &mons[d->which]`, one loop iteration whose mmflags is exactly MM_NOEXCLAM, and makemon(whichpm, u.ux, u.uy, mmflags), whose appearance message takes makemon.c:1477's `exclaim = FALSE` arm and prints \"A gas spore appears next to you.\" rather than \"A gas spore suddenly appears next to you!\".",
       "upstreamOwners": [
         "wizcmds.c wiz_genesis()",
@@ -2746,8 +2746,11 @@
         "screens": 1833,
         "rng": 127829
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "62a79a5a0dc11820c6d0fb6ed346700624c203bd",
+      "delivered": {
+        "screens": 13,
+        "rng": 296
+      }
     }
   ]
 }

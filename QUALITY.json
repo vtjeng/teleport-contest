@@ -3608,7 +3608,12 @@
       "status": "open",
       "from": "8012570348ae2c44efc3451b53ecfa449c4013e4",
       "detail": "cc49c93 fixed a segment-losing refusal in js/mhitm.js: a pet's physical blow on an M1_UNSOLID defender stopped the segment where C requires unsolid(...) && failed_grab() and failed_grab() answers FALSE for a pet's attack types. The fix rests on the C source and unit tests watched failing, with no fresh C differential, because the case cannot occur in ordinary D:1 play: every M1_UNSOLID species has source difficulty 4 or more, and makemon.c rndmonst_adj() caps a D:1 runtime draw at (level_difficulty() + u.ulevel) / 2, which is 1 at experience level 1. A wizard-mode scan of seeds 7710001-7710150 with #levelchange to 30 and 140 waits recorded a pet fight in 51 of the first 80 games and named no unsolid defender in any. Closing this needs a recorded case, which wizard-mode monster creation would supply.",
-      "blockedOn": "create_particular"
+      "notes": [
+        {
+          "text": "The blocker landed. b11f36c ports read.c create_particular(), so ^G names a species directly, and five of the twelve M1_UNSOLID rows clear js/makemon_create.js assertSupportedSpecies() without widening it: fog cloud (difficulty 4), yellow light (5), black light (7), wraith (8) and energy vortex (9); the other seven carry difficulty 10 or more, or G_NOGEN, and stop with UnsupportedMonsterCreationError. A wizard-mode recording can therefore create a fog cloud beside a pet and record the blow, which is the fresh case this entry has been waiting for. Two further conditions the recording has to meet, neither of them checked here: the pet must reach the defender before the hero does, and js/mhitm.js's arm needs the pet's attack types, for which failed_grab() answers FALSE.",
+          "at": "62a79a5a0dc11820c6d0fb6ed346700624c203bd"
+        }
+      ]
     },
     {
       "id": "dochug-post-move-break-stops-on-use-offensive",
