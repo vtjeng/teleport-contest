@@ -27,14 +27,17 @@ states it.
 
 ## Current standing
 
-- Development, at `0fcfb88` (2026-08-15): 1,674 of 7,765 screens and 125,050 of
+- Development, at `1225891` (2026-08-17): 1,768 of 7,765 screens and 125,937 of
   610,816 random-number values, over the development set of 33 sessions, of
-  which 9 match completely.
-- Reserved holdout, last evaluated at `0fcfb88`: 249 of 3,640 screens, 34,361
+  which 10 match completely.
+- Reserved holdout, last evaluated at `1225891`: 273 of 3,640 screens, 35,464
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  `counted-command-occupation` left every one of those figures unchanged. The
-  holdout moved at two of the last four goal closes, after eleven flat ones:
-  `armor-wear` took it to 234 and `monster-melee-attack` to 249.
+  `option-toggle-repaints-the-map` left every one of those figures unchanged,
+  which is the reading that matters for it: the goal rewrote what every
+  remembered square of every level stores, and the sealed set did not regress.
+  The holdout moved at three of the last six goal closes, after eleven flat
+  ones: `armor-wear` took it to 234, `monster-melee-attack` to 249 and
+  `pet-melee-attack` to 273.
   `docs/goal-history.md` records why a small gap is expected rather than a
   defect: goals are ranked by capped development look-ahead, so each one is
   chosen for the development session it unblocks, and carry-over to the hidden

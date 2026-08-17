@@ -2523,7 +2523,7 @@
     },
     {
       "id": "option-toggle-repaints-the-map",
-      "status": "open",
+      "status": "closed",
       "boundary": "An O-menu pick that sets go.opt_need_glyph_reset -- options.c:5379-5385, the arm opt_hilite_pile shares with opt_showrace, opt_use_inverse, opt_perm_invent, opt_ascii_map, opt_tiled_map and opt_wizmgender, and opt_color at 5407-5409 -- runs options.c reset_needed_visuals()'s first arm (8982-8984), display.c reset_glyphmap(gm_optionchange) (2739-3086), and the docrt() below it (9002), rather than raising UnsupportedOptionMenuError at js/options.js:4856. The property that makes that possible is testable on its own against the C source: map memory holds the unresolved glyph number display.c show_glyph() (1877-2072) writes into levl[x][y].glyph, and the character, colour and attributes are resolved from it at print time through map_glyphinfo() (2594-2655), so a repaint draws every remembered square under the option values in force at the repaint rather than the ones in force when the square was recorded.",
       "upstreamOwners": [
         "js/display.js",
@@ -2566,8 +2566,11 @@
         "screens": 1763,
         "rng": 125584
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "122589116509f855b1ac1704e6076896c39dedeb",
+      "delivered": {
+        "screens": 5,
+        "rng": 353
+      }
     }
   ]
 }
