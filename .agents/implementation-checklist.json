@@ -1,214 +1,190 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Every entry is done or cannot-occur. commitChecked names d6d2f5a, the commit that applied the correctness pass over 856b9f69..de2a8b5, rather than 61dde4a where the slice landed: that pass added the 'wizmgender' refusal entry below and corrected two others, so its evidence is what the entries now describe. The production game executes every done path: scripts/run-options-menu.mjs matches C over 14 recipes at 42,605 random-number calls, 224 screens and 224 cursors, and its new recipe 'remembered pile repainted by a glyph reset' walks the hero out of sight of a dropped pile before toggling hilite_pile, which is the case the reverted attempt at 0f7b6cf would have failed. The development session seed0006 reaches the same code at step 64 and gains the five screens the goal forecast. The two cannot-occur entries stop on a condition rather than on a hope: a hallucinated object's glyph number lands in the monster ranges, which map_glyphinfo() does not resolve, and any rogue level stops earlier at reglyph_darkroom()'s refusal, whose third gate term is Is_rogue_level().",
-  "commitChecked": "d6d2f5af808be8e8fef1c6fd0f5e0d79af8c77e9",
+  "mode": "implementation",
+  "reason": "The slice is in progress and nothing is committed yet. The candidate list below was traced by the orchestrator against the C source at the slice base bb7d62f, before reading any of the worker's uncommitted change, so it is an independent list rather than a description of what landed. Every entry the slice owns is missing or undecided until the worker reports and the entries are checked against the repository.",
+  "commitChecked": "bb7d62f50e68b9f546d4f8112641af5d63636173",
   "boundary": {
     "goalId": "option-toggle-repaints-the-map",
-    "startingCommit": "e310ec0484c22e2a0be3b00e2b774091ed1a94b2",
-    "startingEvent": "The player picks a boolean row from doset_simple()'s menu whose optfn arm sets go.opt_need_glyph_reset. seed0006-wizard-water-demon reaches it at step 64, byte 'f' on page 2, which is hilite_pile.",
-    "endingEvent": "The screen the port draws after reset_needed_visuals() returns, that is after display.c reset_glyphmap(gm_optionchange) has rebuilt the object ranges and the docrt() at options.c:9002 has repainted the map through them.",
-    "validInputs": "The seven boolean rows sharing options.c:5379-5385 -- wizmgender, showrace, use_inverse, hilite_pile, perm_invent, ascii_map, tiled_map -- picked from doset_simple() or doset(). Of those, use_inverse now raises its own refusal, and only hilite_pile and showrace have a simple-menu row. Configuration families that reach the object arms: hilite_pile on or off, use_inverse on or off, and a level holding at least one object, corpse, statue or pile.",
-    "observables": "levl[x][y].glyph as an unresolved glyph number in map memory rather than a resolved presentation; the MG_OBJPILE glyphflag; the character, colour and attribute the repaint prints for every remembered out-of-sight object square; the screens and cursor positions of the menu and the repaint; and the absence of any new random-number call, since none of the ported arms consumes randomness outside the Hallucination branch.",
-    "exclusions": "The terrain layer -- display.c back_to_glyph() and reset_glyphmap()'s cmap, altar and wall-set arms -- which stays behind the 'color' and 'use_inverse' refusals and belongs to a later slice. Also excluded: reset_customcolors() and reset_customsymbols(), whose sibling refusals stay; reglyph_darkroom() over a dark_room change, which keeps its own refusal; and the monster, pet, detected-monster, invisible, ridden, swallow, explosion, zap and warning arms of reset_glyphmap(), none of which reaches map memory, since newsym() never records a monster presentation there."
+    "startingEvent": "A pick of the 'color' row from doset_simple()'s menu, or of 'use_inverse' from the full 'mO' menu, which options.c optfn_boolean() answers by setting go.opt_need_redraw and go.opt_need_glyph_reset.",
+    "startingCommit": "bb7d62f50e68b9f546d4f8112641af5d63636173",
+    "endingEvent": "The screen the port draws after reset_needed_visuals() returns, with every remembered out-of-sight terrain square repainted under the option value now in force rather than the one in force when the square was recorded.",
+    "validInputs": "A pick of 'color' or of 'use_inverse'; any level whose remembered squares include terrain, which is every level. The four wall sets are selected by u.uz through In_mines, In_hell, Is_knox and In_sokoban, so a session in any branch is inside the boundary.",
+    "observables": "levl[x][y].glyph as a cmap glyph number in map memory rather than a resolved presentation; the colour every terrain cell prints, which C takes from defsyms[].color, wallcolors[] and altarcolors[] under iflags.use_color; the four MG_BW_* glyphflags and the attribute they produce at print time; and the screens and cursors of the repaint. No ported arm may consume randomness.",
+    "exclusions": "reset_glyphmap()'s CMAP_C and ZAP arms, which sit above the nine cmap arms in the chain and reach no map memory. The monster ranges and the 'wizmgender' refusal, which a later slice owns. The rogue-level terms, which reglyph_darkroom() already refuses."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "options.c optfn_boolean() arms at 5379-5385 and 5407-5409; options.c reset_needed_visuals() (8979-9014); display.c reset_glyphmap() (2739-3086); display.c map_glyphinfo() (2594-2655); display.c show_glyph() (1877-2072); win/tty/wintty.c tty_print_glyph() attribute chain (3919-3937).",
-    "dispatchTablesAndCatalogs": "include/display.h enum glyph_offsets (497-547) and the object-glyph macros at 638 and 932-968. The enum's inputs were checked one by one against js/: NUMMONS, NUM_OBJECTS, MAXTCHARS, MAXEXPCHARS, WARNCOUNT, S_vwall, S_ndoor, S_grave, S_arrow_trap, S_trwall and S_brdnladder all resolved already; NUM_ZAP, S_digbeam and S_goodpos did not, and scripts/generate-glyph-offsets.mjs now supplies them into js/glyph_offsets.js under the check:glyph-offsets regeneration check.",
-    "reachableHelpers": "reset_glyphmap()'s arm chain descends by offset, so the object arms are not contiguous. Reading the whole chain found eight, not the six first reported: the four piletop arms sit high in the chain and GLYPH_OBJ_OFF at 2968 and GLYPH_BODY_OFF at 3004 sit below every cmap arm. Purity was confirmed by reading rather than by name: obj_to_glyph() and statue_to_glyph() both take an rng argument and call random_object(), random_monster() or rng(2) under Hallucination, so they are not pure under AGENTS.md; there is no body_to_glyph(), only corpse_to_glyph().",
-    "javascriptCrossCheck": "grep -rn 'UnsupportedOptionMenuError|reset_glyphmap|reglyph_darkroom' js/ found the refusal at js/options.js:4856 and the sibling one in reglyph_darkroom(). grep -n 'ATR_INVERSE' js/display.js found the five draw-time bakes. grep -rln 'remembered_glyph' js/ found six files, not the two first reported: js/display.js, js/lock.js, js/detect.js, js/game.js, js/options.js and js/startup_a11y.js. grep -n 'outsideTheLimit' scripts/run-options-menu.mjs found the marked matrix entry and the filter that skips it.",
-    "remainingLimits": "Two remain. The rogue-level terms are excluded by a refusal rather than by a check against the 33 development sessions, so the exclusion is sound for the running game but the session-level claim is untested. And map_glyphinfo() raises a TypeError rather than a named refusal for a glyph number outside the object ranges; nothing today can hand it one, because only object squares store a number, but the guard is not the shape the port uses elsewhere."
+    "upstreamEntryPoints": "src/display.c back_to_glyph() (2287-2427); src/display.c reset_glyphmap()'s nine map-memory cmap arms; src/display.c map_glyphinfo(); options.c optfn_boolean()'s 'color' arm (5407-5409) and the 'use_inverse' member of its seven-option arm (5379-5385); win/tty/wintty.c tty_print_glyph()'s attribute chain (3919-3937), whose MG_BW_* disjuncts this slice makes reachable.",
+    "dispatchTablesAndCatalogs": "include/display.h altar_to_glyph (569), cmap_walls_to_glyph (598), cmap_a_to_glyph (612), cmap_b_to_glyph (615), cmap_c_to_glyph (618), cmap_to_glyph (621), trap_to_glyph (630), engraving_to_glyph (633) and glyph_is_cmap (723). The colour tables: defsyms[].color, the last argument of every PCHAR and PCHAR2 row in include/defsym.h, read through the cmap_color macro at src/display.c:2684; wallcolors[] at :2677 through wall_color at :2693; altarcolors[] at :2666 through altar_color at :2694. All three macros are gated on iflags.use_color, which is where the 'color' option reaches every terrain cell.",
+    "reachableHelpers": "The nine map-memory cmap arms of reset_glyphmap(), read in chain order: GLYPH_CMAP_B_OFF with its !iflags.use_color switch raising MG_BW_LAVA, MG_BW_ICE and MG_BW_SINK; GLYPH_ALTAR_OFF; GLYPH_CMAP_A_OFF with the S_litcorr recolour and the MG_BW_ENGR arm; then the four wall sets SOKO, KNOX, GEH and MINES; then MAIN; then STONE. The CMAP_C and ZAP arms sit above them and reach no map memory.",
+    "javascriptCrossCheck": "At the slice base bb7d62f, `grep -c 'terrainCmap(' js/display.js` returns 61 and `grep -n 'remembered_glyph = |remembered_glyph_from_presentation(' js/display.js` returns fourteen writer sites, so the conversion touches far more of the file than the object slice did. js/detect.js also writes one through remembered_glyph_from_presentation().",
+    "remainingLimits": "Two. The wall-set selection reads u.uz, so a session in a branch the development set does not visit exercises a wall set no differential covers; wallcolors[] is uniformly CLR_GRAY today, which hides the difference. And no development session picks 'color' or 'use_inverse', so the whole slice rests on fresh differentials rather than on the development score, whose only role here is to show that nothing regressed."
   },
   "entries": [
     {
-      "candidate": "include/display.h enum glyph_offsets (497-547), as a generated table",
-      "reachability": "Every arm of map_glyphinfo() subtracts one of these offsets. No random-number call.",
-      "owner": "js/glyph_offsets.js, generated by scripts/generate-glyph-offsets.mjs",
-      "effects": "None on its own: a table of constants.",
-      "evidence": "Registered as check:glyph-offsets and reported PASS by npm run checkpoint at 61dde4a, alongside the seven existing generated-data checks.",
-      "status": "done",
-      "remaining": "None."
+      "candidate": "The defsyms[].color column, wallcolors[] and altarcolors[], as generated tables",
+      "reachability": "Every cmap arm of reset_glyphmap() reads one of the three through cmap_color, wall_color or altar_color, each gated on iflags.use_color.",
+      "owner": "js/symbol_data.js, generated by scripts/generate-symbol-data.mjs, which already parses defsym.h's PCHAR rows for explanations",
+      "effects": "None on their own: tables of constants.",
+      "evidence": "include/defsym.h's PCHAR and PCHAR2 rows; src/display.c:2666-2694.",
+      "status": "missing",
+      "remaining": "Extend the existing generator rather than starting one, and cover the new column by the existing regeneration check. js/display.js terrain_glyph() hard-codes a colour at each arm today, and every one of those constants has to come from the table instead."
     },
     {
-      "candidate": "The pure object-glyph macros: objnum_to_glyph (display.h:638), corpse_to_glyph (938-940), generic_obj_to_glyph (941-943), normal_obj_to_glyph (944-946), obj_is_piletop (798), obj_is_generic (806), glyph_is_generic_object (844), glyph_is_object (858 and 877)",
-      "reachability": "Called from the object arms and from obj_to_glyph(). None makes a random-number call, writes output, or changes state.",
-      "owner": "js/display.js",
+      "candidate": "include/display.h's cmap glyph macros: altar_to_glyph (569), cmap_walls_to_glyph (598), cmap_a_to_glyph (612), cmap_b_to_glyph (615), cmap_c_to_glyph (618), cmap_to_glyph (621), trap_to_glyph (630), engraving_to_glyph (633)",
+      "reachability": "back_to_glyph() and the writers below produce a number through them. None makes a random-number call, writes output or changes state.",
+      "owner": "None",
       "effects": "None.",
-      "evidence": "Ported with source-pinned tests. glyph_is_normal_piletop_obj() and glyph_is_normal_object() were transcribed as written rather than made mirror images: C uses > against >= at FIRST_OBJECT - 1, and the entry that difference excludes is objects[VENOM_CLASS], which obj_is_generic() never selects.",
-      "status": "done",
-      "remaining": "None."
+      "evidence": "Read at include/display.h.",
+      "status": "missing",
+      "remaining": "Port as a batch under AGENTS.md's 'Port pure functions in bulk', with a test per macro pinned to values read from the C source."
     },
     {
-      "candidate": "obj_to_glyph() and statue_to_glyph(), the non-hallucinating arms (display.h:949-968)",
-      "reachability": "Reached from every site that records an object square in map memory.",
+      "candidate": "include/display.h glyph_is_cmap (723-725), the live definition",
+      "reachability": "Twelve C call sites, among them hack.c:1059 and :1535, fountain.c:226, uhitm.c:6221 and four in pager.c.",
+      "owner": "None",
+      "effects": "None.",
+      "evidence": "The live macro is one contiguous range from GLYPH_CMAP_STONE_OFF to GLYPH_CMAP_C_OFF + ((S_goodpos - S_digbeam) + 1). GLYPH_ZAP_OFF sits inside that span, since the enum order at 522-524 is CMAP_B, then ZAP, then CMAP_C, so the macro answers true for a zap glyph. The precise decomposition directly above it at 711-722, which excludes the zap range, is disabled under `#if 0` with the comment that it 'expands to a lot of unnecessary code'. glyphs.c:983 writes `glyph_is_cmap(glyph) || glyph_is_cmap_zap(glyph)`, a disjunction that is redundant under the live macro and meaningful under the disabled one.",
+      "status": "missing",
+      "remaining": "Transcribe the live contiguous form under AGENTS.md's rule to preserve behavior that looks accidental, and say in a comment that the block above it is not what the program compiles. Keep it distinct from js/display.js map_glyphinfo()'s own gate, which is a port-local assertion and must stay narrower, since a zap or CMAP_C number would reach a chain with no arm for it."
+    },
+    {
+      "candidate": "src/display.c back_to_glyph() (2287-2427)",
+      "reachability": "Every writer of terrain map memory reaches it.",
+      "owner": "js/display.js terrain_glyph(), which returns a resolved presentation today",
+      "effects": "Returns cmap_to_glyph(idx), or the altar_to_glyph() bypass.",
+      "evidence": "It is not a pure function of the square: cmap_walls_to_glyph() reads u.uz through In_mines, In_hell, Is_knox and In_sokoban, so a wall's number is fixed when the square is recorded rather than when it is repainted.",
+      "status": "missing",
+      "remaining": "Store the branch-selected number. Do not re-derive it at the repaint."
+    },
+    {
+      "candidate": "reset_glyphmap()'s GLYPH_CMAP_B_OFF arm, with the MG_BW_LAVA, MG_BW_ICE and MG_BW_SINK switch",
+      "reachability": "A remembered lava, ice or sink square. The three bits are computed only inside `if (!iflags.use_color)`.",
+      "owner": "None",
+      "effects": "Sets the symbol, a colour through cmap_color, and one MG_BW_* bit.",
+      "evidence": "src/display.c, the CMAP_B arm.",
+      "status": "missing",
+      "remaining": "Port with the bits carried as glyphflags rather than resolved into an attribute."
+    },
+    {
+      "candidate": "reset_glyphmap()'s GLYPH_CMAP_A_OFF arm, with the S_litcorr recolour and the MG_BW_ENGR arm",
+      "reachability": "A remembered corridor, engraving or other CMAP_A square.",
+      "owner": "None",
+      "effects": "Sets the symbol, a colour, and MG_BW_ENGR.",
+      "evidence": "MG_BW_ENGR sits in the else branch of the rogue-colour test and is computed unconditionally on colour, unlike the three CMAP_B bits. js/display.js blackAndWhiteTerrainCue() folds both into one helper under one gate.",
+      "status": "missing",
+      "remaining": "Reproduce the asymmetry rather than smoothing it. It is what the 'use_inverse' refusal stands on."
+    },
+    {
+      "candidate": "reset_glyphmap()'s GLYPH_ALTAR_OFF arm",
+      "reachability": "A remembered altar. Its colour comes from altarcolors[] rather than defsyms[].",
+      "owner": "None",
+      "effects": "Sets the symbol and an altar colour.",
+      "evidence": "src/display.c:2666 for the table and :2694 for the macro.",
+      "status": "missing",
+      "remaining": "Port with the altar_to_glyph() bypass that produces its number."
+    },
+    {
+      "candidate": "reset_glyphmap()'s five wall arms: GLYPH_CMAP_SOKO_OFF, GLYPH_CMAP_KNOX_OFF, GLYPH_CMAP_GEH_OFF, GLYPH_CMAP_MINES_OFF and GLYPH_CMAP_MAIN_OFF",
+      "reachability": "A remembered wall. Which arm resolves it is fixed by the number cmap_walls_to_glyph() chose from u.uz when the square was recorded.",
+      "owner": "None",
+      "effects": "Sets the symbol and a colour through wall_color.",
+      "evidence": "src/display.c, the five arms, each with its own wallcolors[] index.",
+      "status": "missing",
+      "remaining": "Port all five. wallcolors[] is uniformly CLR_GRAY today, so a differential cannot separate them by colour; the number they store is what separates them."
+    },
+    {
+      "candidate": "reset_glyphmap()'s GLYPH_CMAP_STONE_OFF arm",
+      "reachability": "A remembered stone square, the commonest square on a level.",
+      "owner": "None",
+      "effects": "Sets the symbol and a colour.",
+      "evidence": "src/display.c, the last cmap arm in the chain.",
+      "status": "missing",
+      "remaining": "Port."
+    },
+    {
+      "candidate": "The writers that must convert with the layer: map_background(), map_trap(), the engraving arm of _map_location(), feel_location(), unmap_object(), reglyph_darkroom(), the mimic-furniture arm of monster_glyph_info(), and js/detect.js's remembered_glyph_from_presentation() call",
+      "reachability": "Each records a terrain square in map memory.",
+      "owner": "js/display.js and js/detect.js",
+      "effects": "Each stores what the repaint will later resolve, so one left behind leaves a square in the old shape.",
+      "evidence": "At bb7d62f, fourteen sites in js/display.js write remembered_glyph_from_presentation(), and js/detect.js writes one more.",
+      "status": "missing",
+      "remaining": "Convert every one, and confirm none is left storing a presentation for a terrain square."
+    },
+    {
+      "candidate": "reglyph_darkroom()'s in-place rewrite of remembered cmap indices",
+      "reachability": "A 'lit_corridor' or 'dark_room' change, and initoptions_finish().",
+      "owner": "js/display.js reglyph_darkroom(), which reads loc.remembered_glyph.cmap and carries its own refusal",
+      "effects": "Rewrites the remembered index for squares whose S_room and S_darkroom spelling the option changes.",
+      "evidence": "Its repair arms sit directly against this slice's boundary, and after the conversion the cmap index becomes arithmetic on the number.",
+      "status": "undecided",
+      "remaining": "Decide whether its refusal narrows or stands once the index is arithmetic, and say which in the commit message."
+    },
+    {
+      "candidate": "The accessibility sidecars a11yKind, a11yIdentity and a11ySubject, which terrainCmap() derives from the cmap index",
+      "reachability": "Every terrain square recorded while a11y.glyph_updates is on.",
       "owner": "js/display.js",
-      "effects": "Returns the glyph number map memory stores.",
-      "evidence": "The dispatch order of display.h:962-968 -- STATUE, then Hallucination, then CORPSE, then obj_is_generic(), then normal -- is preserved. js/display.js obj_to_glyph() still returns a presentation rather than C's number, because js/zap.js:568 hands it to tmp_at(), whose frame stack holds presentations; that is documented at the function.",
-      "status": "done",
-      "remaining": "None."
+      "effects": "Describe what the square holds rather than how it is drawn.",
+      "evidence": "The object layer's precedent keeps a11yIdentity and a11ySubject as non-enumerable sidecars on the memory record and lets map_glyphinfo() rebuild only the presentation.",
+      "status": "undecided",
+      "remaining": "Decide once for the whole layer rather than per call site, and follow the object layer's precedent unless the source contradicts it."
     },
     {
-      "candidate": "obj_to_glyph() and statue_to_glyph(), the Hallucination arms (random_obj_to_glyph at display.h:932-936, statue_to_glyph's random_monster() and rng(2) at 950-952)",
-      "reachability": "Hallucination only, and the number those arms produce lands in the monster ranges, which map_glyphinfo() does not resolve. So no hallucinated object reaches the eight object arms this slice ported.",
-      "owner": "js/display.js hallucinated_statue_glyph_info() and random_object_glyph_info(), both unchanged",
-      "effects": "Unchanged from before the slice: the old presentation path still owns them, including their random-number calls.",
-      "evidence": "The monster-range result is what excludes them; the arms themselves were left where they were rather than converted.",
-      "status": "cannot-occur",
-      "remaining": "None for this slice. The monster or terrain slice that converts those ranges inherits them."
-    },
-    {
-      "candidate": "reset_glyphmap()'s four piletop arms: GLYPH_STATUE_FEM_PILETOP_OFF, GLYPH_STATUE_MALE_PILETOP_OFF, GLYPH_BODY_PILETOP_OFF, GLYPH_OBJ_PILETOP_OFF",
-      "reachability": "A square whose top object is one of a pile. Each sets MG_OBJPILE alongside its own flags.",
-      "owner": "js/display.js map_glyphinfo()",
-      "effects": "Sets the symbol index, a colour, and glyphflags including MG_OBJPILE.",
-      "evidence": "src/display.c:2782-2835. The OBJ_PILETOP arm's BOULDER special case redirects the symbol to SYM_BOULDER.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "reset_glyphmap()'s four non-piletop object arms: GLYPH_STATUE_FEM_OFF, GLYPH_STATUE_MALE_OFF, GLYPH_OBJ_OFF (2968), GLYPH_BODY_OFF (3004)",
-      "reachability": "A square holding a single object, corpse or statue -- the common case.",
-      "owner": "js/display.js map_glyphinfo()",
-      "effects": "As above, without MG_OBJPILE. The BODY arm sets MG_CORPSE; the statue arms set MG_STATUE with MG_MALE or MG_FEMALE.",
-      "evidence": "src/display.c:2968 and 3004, which sit below every cmap arm because the chain descends by offset.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "reset_glyphmap()'s closing colour clamp (src/display.c:3072-3078)",
-      "reachability": "Runs for every glyph the loop resolves.",
-      "owner": "js/display.js, through mapColorEnabled()",
-      "effects": "Forces NO_COLOR when the colour is undefined or !iflags.use_color.",
-      "evidence": "The !iflags.use_color term is carried by mapColorEnabled(); the rogue term is the entry below.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "reset_glyphmap()'s has_rogue_color and GMAP_ROGUELEVEL terms",
-      "reachability": "Requires a rogue level. js/display.js reglyph_darkroom() refuses before the repaint on any rogue level, because Is_rogue_level() is the third term of C's second gate at display.c:1836-1837 and the port's refusal carries it.",
-      "owner": "None; excluded by the refusal above",
-      "effects": "None reachable: the refusal stops before any state change, random-number call or output.",
-      "evidence": "The refusal and its reasoning are written at js/display.js, above reglyph_darkroom(). This exclusion rests on the refusal, not on a check of the 33 development sessions, which was not run.",
-      "status": "cannot-occur",
-      "remaining": "None for this slice."
-    },
-    {
-      "candidate": "display.c map_glyphinfo() (2594-2655)",
-      "reachability": "Every draw of a remembered object square resolves through it.",
-      "owner": "js/display.js map_glyphinfo()",
-      "effects": "Produces the character, colour and glyphflags the window port prints.",
-      "evidence": "Ported for the object ranges. A glyph number outside them raises a TypeError rather than a named refusal; nothing can hand it one today, because only object squares store a number, and the terrain slice extends the same chain rather than adding a parallel resolver.",
-      "status": "done",
-      "remaining": "None for this slice."
-    },
-    {
-      "candidate": "wintty.c tty_print_glyph()'s attribute chain (3919-3937)",
-      "reachability": "Every printed cell.",
-      "owner": "js/display.js print_glyph_attr()",
-      "effects": "Chooses at most one attribute, in C's order: framecolor, then MG_PET with iflags.wc2_petattr, then the MG_OBJPILE / MG_FEMALE / MG_DETECT / MG_BW_* arm gated on iflags.use_inverse.",
-      "evidence": "MG_OBJPILE and MG_FEMALE are resolved at print time by print_glyph_attr(). MG_PET stays at actualMonsterGlyphInfo(), and the ordering holds structurally because a pet on a square hides the pile's glyph entirely. MG_DETECT needed no change: js/detect.js writes mappedSearchLayer(), whose object arm is object_glyph_info(), and newsym() never puts a monster presentation into map memory, so MG_DETECT is recomputed on every draw already.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "options.c reset_needed_visuals() first arm (8982-8984) and the docrt() at 9002",
-      "reachability": "Runs at the end of every options-menu pick loop.",
-      "owner": "js/options.js reset_needed_visuals()",
-      "effects": "Rebuilds the object ranges and repaints the map through them.",
-      "evidence": "The refusal that stood at js/options.js:4856 is gone. seed0006 now completes its step-64 pick loop.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "options.c optfn_boolean()'s seven-option arm (5379-5385) and its 'color' arm (5407-5409)",
-      "reachability": "A pick of one of the seven rows, or of color.",
-      "owner": "js/options.js",
-      "effects": "Both set go.opt_need_redraw and go.opt_need_glyph_reset.",
-      "evidence": "Unchanged by this slice; both arms already set the flags.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "A refusal for the 'color' arm, in the shape of the dark_room arm",
-      "reachability": "A pick of the color row while the terrain layer still stores a resolved presentation.",
+      "candidate": "The two refusals this slice removes: \"reset_glyphmap() over a 'color' change\" and \"reset_glyphmap() over a 'use_inverse' change\"",
+      "reachability": "A pick of either row.",
       "owner": "js/options.js optfn_boolean()",
-      "effects": "Stops before the repaint rather than repainting terrain wrongly.",
-      "evidence": "Raised as UnsupportedOptionMenuError(\"reset_glyphmap() over a 'color' change\"). The case just outside the limit was run at the slice's close: the pile recipe with page 2's 'b' applies the toggle and then stops after 14 screens, where C repaints. Recorded on the deferral.",
-      "status": "done",
-      "remaining": "None."
+      "effects": "Both stop the segment today.",
+      "evidence": "They go together: use_inverse gates the four MG_BW_* bits that reset_glyphmap() raises inside the same cmap arms color repaints, so no smaller cut retires either.",
+      "status": "missing",
+      "remaining": "Remove both. Leave the third refusal, on 'wizmgender', standing: it is the monster layer's."
     },
     {
-      "candidate": "A refusal for the 'use_inverse' arm, which the original candidate list did not hold",
-      "reachability": "A pick of use_inverse, which has no simple-menu row -- its section is below OptS_Advanced -- so it comes only through the full 'mO' menu.",
-      "owner": "js/options.js optfn_boolean()",
-      "effects": "Stops before the repaint.",
-      "evidence": "tty_print_glyph() (3930-3936) gates MG_BW_LAVA, MG_BW_ICE, MG_BW_SINK and MG_BW_ENGR on iflags.use_inverse alongside MG_OBJPILE, and js/display.js blackAndWhiteTerrainCue() and engravingGlyph() bake those into terrain memory. include/defsym.h:116-118 gives S_engrcorr, S_corr and S_litcorr the same '#', so every remembered corridor engraving carries the attribute and no unusual symbol set is needed to reach it. The candidate list judged the two sites safe and was wrong.",
-      "status": "done",
-      "remaining": "None. The terrain slice retires this refusal together with the 'color' one."
-    },
-    {
-      "candidate": "A refusal for the 'wizmgender' arm, which the correctness pass over the range found missing",
-      "reachability": "A pick of wizmgender, which options.c marks set_wizonly, so it appears in doset()'s rows only in a wizard-mode session and never in the simple menu.",
-      "owner": "js/options.js optfn_boolean()",
-      "effects": "Stops before the repaint.",
-      "evidence": "The refusal removed from reset_needed_visuals() covered the whole seven-option arm, and the slice replaced it on 'color' and 'use_inverse' only. tty_print_glyph() (3930-3931) gives ATR_INVERSE to any glyph carrying MG_FEMALE while wizard and iflags.wizmgender hold, and display.c reset_glyphmap() raises MG_FEMALE on the GLYPH_MON_FEM_OFF arm (3050-3058) as well as the pet, detect, ridden and statue female arms. This port raises it in the statue arms alone, so the repaint would have drawn every visible female monster without the inverse video C gives it, and the segment would have run on those cells rather than stopping.",
-      "status": "done",
-      "remaining": "None. The monster ranges are what retire it, alongside the deferral wizmgender-never-inverts-a-female-monster."
-    },
-    {
-      "candidate": "The objectGlyphId stand-in and REMEMBERED_GLYPH_IDENTITY_FIELDS",
-      "reachability": "Was written for every object presentation and read by same_remembered_glyph().",
-      "owner": "js/display.js",
-      "effects": "Deleted. The objectGlyph and genericObject stand-ins went with it.",
-      "evidence": "AGENTS.md requires deleting an injection when the port replaces it. glyph_is_object() and glyph_is_generic_object() are now the display.h macros over the integer.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The five other files that touch remembered_glyph: js/lock.js, js/detect.js, js/game.js, js/options.js, js/startup_a11y.js",
-      "reachability": "Each consumes the record's shape.",
-      "owner": "The five files named",
-      "effects": "js/game.js's comment updated; js/options.js was comment only; js/lock.js needed nothing, because same_remembered_glyph() absorbed the change; js/detect.js needed nothing, because its trapType and disp_ch paths are untouched; js/startup_a11y.js needed nothing today.",
-      "evidence": "All five checked. The js/startup_a11y.js truthiness tests survive only because no object-range glyph number is zero; the monster ranges start at zero, so a later slice storing a monster number must convert them first. That hazard is stated in the slice's commit message.",
-      "status": "done",
-      "remaining": "None for this slice."
-    },
-    {
-      "candidate": "scripts/run-options-menu.mjs: the GLYPH_RESET_PICKS matrix entry, its verifier arm, and the comment above the recipe",
-      "reachability": "seed 8814277 at 20291006161200 with moves ' O>f>g> \\x1b'.",
+      "candidate": "The fresh differential: the 'color' case recorded outside the limit on the deferral remembered-glyph-caches-a-resolved-presentation",
+      "reachability": "The pile base, seed 6193044 at 20281114093000, moves ' khhhdadbhhO>b \\x1b', page 2's 'b' being 'color'. The port applies the toggle and stops after 14 screens where C repaints.",
       "owner": "scripts/run-options-menu.mjs",
-      "effects": "The entry lost its outsideTheLimit mark and gained a verifier arm.",
-      "evidence": "All fourteen recipes match C at 42,605 random-number calls, 224 screens with attributes and 224 cursors.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "A second fresh case: a remembered, out-of-sight pile whose highlight must change under a hilite_pile toggle",
-      "reachability": "seed 6193044 at 20281114093000, moves ' khhhdadbhhO>f <Esc>': the hero leaves her room for a dark corridor, drops two objects, walks two squares further west so the pile is out of sight, then picks hilite_pile.",
-      "owner": "scripts/run-options-menu.mjs, the recipe 'remembered pile repainted by a glyph reset'",
-      "effects": "It is the evidence that separates this slice from the attempt reverted at 57a84f4.",
-      "evidence": "It discriminates: disabling print_glyph_attr()'s MG_OBJPILE disjunct makes it fail against C at screen 17, row 16, column 57 -- C attr 1 (inverse) against JS attr 0.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The deferral remembered-glyph-caches-a-resolved-presentation (QUALITY.json)",
-      "reachability": "It owns this refusal and the case outside the limit.",
-      "owner": "The quality ledger",
-      "effects": "Noted rather than resolved, which is what the entry called for.",
-      "evidence": "The note recorded at 6b9a0c0 separates the closed object half from the open terrain half, names both new refusals, and records the outside-the-limit 'color' case with its inputs and its stopping point.",
-      "status": "done",
-      "remaining": "The entry stays open for the terrain slice."
-    },
-    {
-      "candidate": "A zeroobj object mimic disguised as a gem or spellbook, which the representation change exposed",
-      "reachability": "display_monster()'s zeroobj has class zero, so generic_obj_to_glyph() numbers it GLYPH_OBJ_OFF itself.",
-      "owner": "js/display.js",
-      "effects": "Before the fix it drew the RANDOM_CLASS symbol, a NUL.",
-      "evidence": "objects[STRANGE_OBJECT].oc_class is ILLOBJ_CLASS rather than zero, which include/objects.h:78-83 states in a comment, so C draws ']'. Two tests in scripts/display-symbols.test.mjs changed to expect it.",
-      "status": "done",
-      "remaining": "None."
+      "effects": "It is the evidence the slice closes on, since no development session picks either option.",
+      "evidence": "The pile squares are corridor and NO_COLOR, so they discriminate nothing. The cell that separates a re-derived memory from a replayed one is the room's west doorway the hero walks through, which back_to_glyph() gives CLR_BROWN.",
+      "status": "missing",
+      "remaining": "Bring the case inside the limit with a verifier arm, and record a 'use_inverse' case through the full 'mO' menu, since its section sits below OptS_Advanced."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "Traced in two passes. The orchestrator traced the candidate list at e310ec0 before implementation, reading include/display.h's enum glyph_offsets and object-glyph macros, src/display.c reset_glyphmap()'s arm chain and closing clamp, win/tty/wintty.c:3919-3937, and the JavaScript refusal, stand-in, consumer and recipe sites; that reading corrected three claims from the slice-selector's report, which the checklist opened with. The worker traced the same range while implementing and corrected two more: the slice-selector's judgment that ATR_INVERSE sites 690 and 1766 were safe was wrong, since tty_print_glyph() gates the four MG_BW_* bits on iflags.use_inverse, which is why a use_inverse refusal now exists; and site 910 needed no change, because js/detect.js writes mappedSearchLayer() rather than a monster presentation. Both corrections were verified against source by the orchestrator at 61dde4a. The trace covered state and random-number order: no ported arm consumes randomness, and the two arms that do -- the Hallucination arms of obj_to_glyph() and statue_to_glyph() -- were left unchanged and are excluded by their monster-range result. Stubs, stops and partial implementations were identified: three refusals stand inside the boundary's neighbourhood ('color', 'use_inverse', and reglyph_darkroom() over a dark_room change), each stopping before any state change, random-number call or output, and map_glyphinfo() raises a TypeError for a glyph number outside the object ranges, which nothing can currently produce. 54 of 54 first-wave mutants over the slice's own lines were killed at kind=boolean,logical,relational, recorded in the slice's Mutants: trailer."
+  "missingWorkByOwner": [
+    {
+      "group": "Generated data and pure macros, which everything below depends on",
+      "candidates": [
+        "The defsyms[].color column, wallcolors[] and altarcolors[], as generated tables",
+        "include/display.h's cmap glyph macros: altar_to_glyph (569), cmap_walls_to_glyph (598), cmap_a_to_glyph (612), cmap_b_to_glyph (615), cmap_c_to_glyph (618), cmap_to_glyph (621), trap_to_glyph (630), engraving_to_glyph (633)",
+        "include/display.h glyph_is_cmap (723-725), the live definition"
+      ],
+      "next": "Extend scripts/generate-symbol-data.mjs for the colour column, then port the macros as one batch with source-pinned tests."
+    },
+    {
+      "group": "js/display.js, the resolution half",
+      "candidates": [
+        "src/display.c back_to_glyph() (2287-2427)",
+        "reset_glyphmap()'s GLYPH_CMAP_B_OFF arm, with the MG_BW_LAVA, MG_BW_ICE and MG_BW_SINK switch",
+        "reset_glyphmap()'s GLYPH_CMAP_A_OFF arm, with the S_litcorr recolour and the MG_BW_ENGR arm",
+        "reset_glyphmap()'s GLYPH_ALTAR_OFF arm",
+        "reset_glyphmap()'s five wall arms: GLYPH_CMAP_SOKO_OFF, GLYPH_CMAP_KNOX_OFF, GLYPH_CMAP_GEH_OFF, GLYPH_CMAP_MINES_OFF and GLYPH_CMAP_MAIN_OFF",
+        "reset_glyphmap()'s GLYPH_CMAP_STONE_OFF arm"
+      ],
+      "next": "Extend map_glyphinfo()'s existing chain in C's descending-offset order rather than adding a parallel resolver."
+    },
+    {
+      "group": "js/display.js and js/detect.js, the storage half",
+      "candidates": [
+        "The writers that must convert with the layer: map_background(), map_trap(), the engraving arm of _map_location(), feel_location(), unmap_object(), reglyph_darkroom(), the mimic-furniture arm of monster_glyph_info(), and js/detect.js's remembered_glyph_from_presentation() call",
+        "reglyph_darkroom()'s in-place rewrite of remembered cmap indices",
+        "The accessibility sidecars a11yKind, a11yIdentity and a11ySubject, which terrainCmap() derives from the cmap index"
+      ],
+      "next": "Convert every writer, then settle the two undecided questions once for the layer."
+    },
+    {
+      "group": "The boundary and its evidence",
+      "candidates": [
+        "The two refusals this slice removes: \"reset_glyphmap() over a 'color' change\" and \"reset_glyphmap() over a 'use_inverse' change\"",
+        "The fresh differential: the 'color' case recorded outside the limit on the deferral remembered-glyph-caches-a-resolved-presentation"
+      ],
+      "next": "Remove both refusals only once the differential discriminates on a coloured cell rather than on the corridor squares."
+    }
+  ],
+  "sourceReview": "Traced by the orchestrator at bb7d62f, the slice base, against the C source and against the JavaScript as it stood before the worker's change. Read in full: src/display.c back_to_glyph() and the nine map-memory cmap arms of reset_glyphmap() with their three colour macros and two colour tables; include/display.h's cmap glyph macros and both definitions of glyph_is_cmap, the live one and the disabled precise one; and the enum order that puts GLYPH_ZAP_OFF inside the live macro's span. The trace covered state and random-number order: no arm in scope consumes randomness, and the wall arms' branch dependence through u.uz is state read at record time rather than at repaint time. Not yet traced: display.c map_glyphinfo()'s cmap half beyond the arms named here, and the twelve C call sites of glyph_is_cmap() beyond confirming that they exist and that one of them pairs it with glyph_is_cmap_zap(). Those gaps are the two entries carrying status undecided and the limits recorded in remainingLimits."
 }
