@@ -1617,7 +1617,13 @@
       "effort": "slice",
       "status": "open",
       "from": "32938e6015e391b36b2676d0f93b8b9e77e01014",
-      "detail": "display.c unmap_object()'s engraving arm (422-426) is unported: js/display.js raises UnsupportedMapMemoryError for a square that shows an engraving, and hack.c domove_fight_empty()'s thin-air arm now reaches it, because engrave.h spot_shows_engravings() names CORR, ICE and ROOM, all three of which that arm calls thin air. Landing it needs engraving_to_glyph() and map_engraving() split out of newsym()'s engravingGlyph(), which folds in the erevealed test the arm performs itself. Recorded case, which fails today and must pass when that arm lands: seed 8800038, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,!autopickup / time', moves 'Fk.'. North of the hero's start is a room square carrying mklev.c:1151-1153's random graffito. The recorded C run prints 'You attack thin air.' on that key and runs on; the port ends the segment at the refusal, at 2458 PRNG calls and 2 screens against C's 2463 and 4."
+      "detail": "display.c unmap_object()'s engraving arm (422-426) is unported: js/display.js raises UnsupportedMapMemoryError for a square that shows an engraving, and hack.c domove_fight_empty()'s thin-air arm now reaches it, because engrave.h spot_shows_engravings() names CORR, ICE and ROOM, all three of which that arm calls thin air. Landing it needs engraving_to_glyph() and map_engraving() split out of newsym()'s engravingGlyph(), which folds in the erevealed test the arm performs itself. Recorded case, which fails today and must pass when that arm lands: seed 8800038, datetime 20310203040506, nethackrc 'OPTIONS=name:Forcer,role:Valkyrie,race:human,gender:female,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none,!acoustics,!autopickup / time', moves 'Fk.'. North of the hero's start is a room square carrying mklev.c:1151-1153's random graffito. The recorded C run prints 'You attack thin air.' on that key and runs on; the port ends the segment at the refusal, at 2458 PRNG calls and 2 screens against C's 2463 and 4.",
+      "notes": [
+        {
+          "text": "This entry's blocker changed at 4eff71b and its remaining cost is now only a recording. js/display.js unmap_object()'s engraving refusal used to cite engraving_to_glyph() as unported; that helper is ported now, so the arm can be written as C writes it. What still stops it is that retiring the refusal lets a force-fight at an engraved square keep running, and no differential covers that square. The correctness pass over 856b9f69..bea560c confirmed the finding and .agents/review.md placed the port in Implementation rather than in an audit fix, so the comment at the refusal was corrected to name the real requirement instead of a helper that exists.",
+          "at": "93f8a79b355529827042a58712c8ee0f35ddcd43"
+        }
+      ]
     },
     {
       "id": "dig-tool-guard-refuses-where-dig_typ-answers-undiggable",
@@ -2546,9 +2552,15 @@
       "area": "display",
       "category": "simplification",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "43a517137ed0777610fc017d8cbc71d39de655aa",
-      "detail": "Twenty-one import specifiers name symbols the importing file never reads: seventeen weapon-skill constants in js/display.js's ./const.js import (P_DAGGER through P_WHIP, while weapon_status() reads only the other seven), dmonsfree in js/allmain.js, IS_STWALL in js/monmove.js, MMOVE_NOTHING in js/unported_monster_actions.js, and MON_FLOOR in scripts/unported-monster-actions.test.mjs. Each is a false lead for a reader tracing a C port and a change site for a rename; check-relative-imports.mjs and check-namespace-members.mjs catch neither. Closes when the specifiers are deleted, no import statement disappears, and the suite and score are identical. Confirmed by the simplification pass over eb3a084..3ffdb94 and not applied there."
+      "detail": "Twenty-one import specifiers name symbols the importing file never reads: seventeen weapon-skill constants in js/display.js's ./const.js import (P_DAGGER through P_WHIP, while weapon_status() reads only the other seven), dmonsfree in js/allmain.js, IS_STWALL in js/monmove.js, MMOVE_NOTHING in js/unported_monster_actions.js, and MON_FLOOR in scripts/unported-monster-actions.test.mjs. Each is a false lead for a reader tracing a C port and a change site for a rename; check-relative-imports.mjs and check-namespace-members.mjs catch neither. Closes when the specifiers are deleted, no import statement disappears, and the suite and score are identical. Confirmed by the simplification pass over eb3a084..3ffdb94 and not applied there.",
+      "notes": [
+        {
+          "text": "Closed, and the count this entry recorded had gone stale. It named twenty-one specifiers; thirteen were still unused when the goal option-toggle-repaints-the-map closed. Of the seventeen weapon-skill constants it listed in js/display.js, four are now read by weapon_status() (P_SHORT_SWORD, P_SABER, P_MORNING_STAR, P_QUARTERSTAFF) and four were no longer imported at all (P_BROAD_SWORD, P_LONG_SWORD, P_TWO_HANDED_SWORD, P_SCIMITAR), leaving nine. The other four held: dmonsfree in js/allmain.js, IS_STWALL in js/monmove.js, MMOVE_NOTHING in js/unported_monster_actions.js and MON_FLOOR in scripts/unported-monster-actions.test.mjs. Each was checked by counting occurrences in its own file rather than by trusting the list. The closing condition is met: no import statement disappeared, the suite passes, and the development score is identical at 10 of 33 sessions and 1,768 of 7,765 screens.",
+          "at": "93f8a79b355529827042a58712c8ee0f35ddcd43"
+        }
+      ]
     },
     {
       "id": "mintrap-env-literal-spelled-twice-in-monmove",
@@ -3447,6 +3459,10 @@
         {
           "text": "The blocker this entry was filed with is wrong. scripts/generate-options.mjs already emits addr (FIELD.addr: 13, parseAddress()), js/optlist_data.js carries it on all 217 rows, and js/options.js already reads it twice, at optfn_boolean_returns_before_setting()'s null-address retreat and at booleanOptionValue(). No regeneration is needed. The entry's real content is 74 storage decisions for the BoolOpt rows whose addr is not flags.<name>, each of which needs a live reader before AGENTS.md's 'Complete common gameplay first' allows it, and the options menu already answers the divergence with a named refusal at js/options.js:3434, so nothing shows a wrong value today. Read at b4c1fc7 by the slice-selector; it is a blockedOn candidate at the goal's close rather than a slice.",
           "at": "b4c1fc75a3e2c7ff8bbe0eb6ce7f93fddf2b334b"
+        },
+        {
+          "text": "One of the rows this entry counts landed at 2aab973: applyBooleanOption() now has a wizmgender arm, so the value reaches iflags.wizmgender rather than flags.wizmgender. It was not merely stored at the wrong address but unread -- optlist.h:890-891 binds the option to &iflags.wizmgender, and both ported readers, js/display.js print_glyph_attr() and js/objnam.js wizmgenderSuffix(), look there. A debug game setting the option from a configuration file therefore drew every female monster plain with no stop, which is the shape of the defect the rest of the rows still carry. The entry stays open for the other rows.",
+          "at": "93f8a79b355529827042a58712c8ee0f35ddcd43"
         }
       ]
     },

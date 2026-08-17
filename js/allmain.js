@@ -40,7 +40,6 @@ import {
     were_change,
 } from './mon.js';
 import {
-    dmonsfree,
     m_dowear,
     makemon_runtime,
     UnsupportedMonsterCreationError,

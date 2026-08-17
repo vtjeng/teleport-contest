@@ -31,7 +31,6 @@ import {
     LS_OBJECT,
     MMOVE_DONE,
     MMOVE_NOTHING,
-    MON_FLOOR,
     NATTK,
     NEED_HTH_WEAPON,
     NEED_WEAPON,

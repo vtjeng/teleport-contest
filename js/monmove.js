@@ -77,7 +77,6 @@ import {
     IS_ALTAR,
     IS_DOOR,
     IS_OBSTRUCTED,
-    IS_STWALL,
     IS_TREE,
     IS_WATERWALL,
     LANDMINE,

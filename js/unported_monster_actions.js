@@ -21,7 +21,6 @@ import {
     INVIS,
     IS_FOUNTAIN,
     IS_FURNITURE,
-    MMOVE_NOTHING,
     MON_FLOOR,
     MON_MIGRATING,
     NEED_WEAPON,
