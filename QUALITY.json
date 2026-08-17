@@ -3722,6 +3722,15 @@
       "status": "open",
       "from": "cefdbba1b1e550852e55a8d26166edfc6ebbc47f",
       "detail": "hack.c moverock_core():432-435's FALSE arm, cannot_push_msg() (243-256) and cannot_push() (258-310) are still refused: preflight_moverock() raises 'a boulder that will not move' where C prints \"You try to move the boulder, but in vain.\" and lets the hero stay put. The case just outside hero-pushes-a-boulder's limit is seed 110, datetime 20310203040506, rc OPTIONS=name:Prober,role:Healer,race:human,gender:male,align:neutral / !legacy,!tutorial,!splash_screen / pettype:none, moves lllllllll: the sixth key is the first push, the seventh and eighth push again, and the ninth drives the boulder into the corridor's end wall. node scripts/diff-fresh.mjs --seed 110 --datetime 20310203040506 --role Healer --align neutral --name Prober --options '!legacy,!tutorial,!splash_screen' --options 'pettype:none' --moves lllllllll reports the first screen mismatch at boundary 10. Closing it needs could_move_onto_boulder()'s message siblings and sokoban_guilt(); could_move_onto_boulder() itself is ported."
+    },
+    {
+      "id": "vision-reset-swallows-a-stateless-caller",
+      "area": "display",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "65add1ca57cb51afc7634ebd8b4f933e4b6961df",
+      "detail": "js/vision.js vision_reset() opens with `if (!level) return;`, so a caller that hands it something without a `level` gets silence instead of an error. Every one of block_point(), unblock_point() and recalc_block_point() is that same rebuild, so the guard covers the whole vision-index surface.\n\nhero-pushes-a-boulder found the cost. js/obj.js passes its lifecycle env, not a state, as the third argument to the blockPoint and recalcBlockPoint hooks, so wiring `blockPoint: block_point` directly makes vision_reset(env) see no env.level and return without doing anything. The transparency index then never learns about the pushed boulder, and seed0004 diverges at step 212, where C draws rn2(2 + boulderspots) from mthrowu.c linedup() precisely because the new boulder blocks the line. The correct wiring is `(x, y, env) => block_point(x, y, env.state)`. Four test files carried the same silent no-op before it was found, and the slice's own worker reports the diagnosis cost about an hour.\n\nNothing failed while the wiring was wrong. The guard turned a wiring error into a screen mismatch 22 steps downstream of the call, which is the failure mode AGENTS.md ranks worst: a silently skipped effect rather than a named stop.\n\nClosing this means deciding what the guard is for. If no caller may legitimately pass a state without a level, it should throw rather than return, the way js/display.js see_nearby_objects() refuses a foreign state. If some caller does, that caller should be named in a comment and the rest should throw. Either way the hook's argument shape should be pinned by a test, since the current one passes with the hook bound to a function that does nothing."
     }
   ],
   "areas": [

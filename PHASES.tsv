@@ -581,3 +581,5 @@ utc	event	phase	goal	detail
 2026-08-17T13:53:31.900Z	end	review	elapsed-turn-fires-a-due-timer	correctness 6f718ac..4bca3b7: 14 raw, 12 deduped, 6 confirmed, 5 applied, 1 deferred, 6 rejected
 2026-08-17T13:54:58.948Z	start	select		next goal after elapsed-turn-fires-a-due-timer closed
 2026-08-17T14:34:45.926Z	end	select	hero-pushes-a-boulder	goal opened, first slice queued, no checklist
+2026-08-17T14:34:45.973Z	start	implement	hero-pushes-a-boulder	hero-push-advances-a-boulder-onto-clear-ground
+2026-08-17T16:39:31.708Z	end	implement	hero-pushes-a-boulder	hero-push-advances-a-boulder-onto-clear-ground closed at 65add1c: screens 1802 to 1833

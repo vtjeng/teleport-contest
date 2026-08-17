@@ -2690,8 +2690,8 @@
       "slices": [
         {
           "name": "hero-push-advances-a-boulder-onto-clear-ground",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "65add1ca57cb51afc7634ebd8b4f933e4b6961df"
         }
       ],
       "openedAt": "7f94fa84c954a918e73d88e81bd71a35000d31c2",
