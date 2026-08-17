@@ -2619,7 +2619,7 @@
     },
     {
       "id": "elapsed-turn-fires-a-due-timer",
-      "status": "open",
+      "status": "closed",
       "boundary": "An elapsed turn whose head timer has come due runs timeout.c run_timers() (2216-2240) instead of raising UnsupportedHeroTimeoutBoundaryError at js/timeout.js:284, and a TIMER_OBJECT element whose func_index is ROT_CORPSE dispatches through timeout.c timeout_funcs[] (1978-1990) into dig.c rot_corpse() (2146-2189) for a corpse whose `where` is OBJ_FLOOR. The property that bounds it is testable against the C source on its own: run_timers() drains one expiry-ordered queue head-first, `while (gt.timer_base && gt.timer_base->timeout <= svm.moves)`, decrements (curr->arg.a_obj)->timed for a TIMER_OBJECT before the call and frees the element after it, so an element fires exactly once and equal expiries fire in the order start_timer()'s insert built; and rot_corpse()'s OBJ_FLOOR arm writes no message and makes no random-number call, recording x and y, falling through dig.c rot_organic() (2125-2140) into obj_extract_self() and obfree(), then clearing mundetected for a hides_under() monster at that square once OBJ_AT() is false, re-hiding an undetected hero standing there, and ending at newsym(x, y).",
       "upstreamOwners": [
         "timeout.c run_timers()",
@@ -2655,8 +2655,11 @@
         "screens": 1785,
         "rng": 126600
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "fcc09c66aea5886e1799ced9107fb34196e889a1",
+      "delivered": {
+        "screens": 17,
+        "rng": 361
+      }
     }
   ]
 }

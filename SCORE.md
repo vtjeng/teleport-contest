@@ -27,16 +27,18 @@ states it.
 
 ## Current standing
 
-- Development, at `380d974` (2026-08-17): 1,802 of 7,765 screens and 126,961 of
+- Development, at `fcc09c6` (2026-08-17): 1,802 of 7,765 screens and 126,961 of
   610,816 random-number values, over the development set of 33 sessions, of
   which 10 match completely.
-- Reserved holdout, last evaluated at `67ab861`: 273 of 3,640 screens, 35,464
+- Reserved holdout, last evaluated at `fcc09c6`: 273 of 3,640 screens, 35,464
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  `remembered-invisible-monster` left every one of those figures unchanged, and
-  none was forecast to move: the behavior needs a monster the hero cannot spot
-  fighting another monster in view, and only one development session reaches
-  it. The holdout moved at three of the last seven goal closes, after eleven
-  flat ones: `armor-wear` took it to 234, `monster-melee-attack` to 249 and
+  `elapsed-turn-fires-a-due-timer` left every one of those figures unchanged,
+  and so did `remembered-invisible-monster` before it. Neither was forecast to
+  move the set: the first needs a session to survive past roughly move 180,
+  which is the earliest a corpse timer comes due, and the second needs a
+  monster the hero cannot spot fighting another monster in view. The holdout
+  moved at three of the last eight goal closes, after eleven flat ones:
+  `armor-wear` took it to 234, `monster-melee-attack` to 249 and
   `pet-melee-attack` to 273.
   `docs/goal-history.md` records why a small gap is expected rather than a
   defect: goals are ranked by capped development look-ahead, so each one is
