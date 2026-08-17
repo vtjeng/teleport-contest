@@ -1888,10 +1888,18 @@ export function place_object(obj, x, y, env = {}) {
     // insertion, and this port's block_point() is the same full vision_reset()
     // as unblock_point() and recalc_block_point(), reading the live pile
     // (js/vision.js blocksVisionAt()); a rebuild run before the insertion would
-    // still read the square as transparent, so it has to run after. C's
-    // `!otmp2 || otmp2->otyp != BOULDER` guard is what a rebuild makes
-    // redundant: a square that already held a boulder rebuilds to the same
-    // blocked answer, so the rebuild is unconditional here.
+    // still read the square as transparent, so it has to run after.
+    //
+    // C's `!otmp2 || otmp2->otyp != BOULDER` guard is dropped, and that is not
+    // free. The rebuild reaches C's blocked answer either way, since a square
+    // that already held a boulder rebuilds to the same value. But
+    // js/vision.js rebuildVisionPoint() also raises state.vision_full_recalc
+    // whenever the square is in the viz_array, and js/allmain.js spends that
+    // flag on an extra vision_recalc(0) at the end of the turn -- so on a
+    // second boulder landing where one already stands, this port makes a call
+    // C skips entirely. No ported path stacks boulders yet, which is why the
+    // guard is left out rather than written; restoring it means reading the
+    // pile before insertion.
     if (blockPoint) blockPoint(x, y, normalized);
     if (obj.timed) obj_timer_checks(obj, x, y, 0, normalized);
     return obj;

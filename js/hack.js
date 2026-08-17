@@ -1681,13 +1681,18 @@ function boulderVisionEnv(state) {
 
 // C ref: hack.c moverock_core() (347-638), every arm of it except the push at
 // 626-637, plus the parts of dopush() (165-241) that no ported hero reaches.
-// requireSimpleHeroDestination() asks all of them before domove_core() commits
-// the step, in the style of preflight_dotrap(): moverock() runs deep inside
-// test_move(), where a refusal would land after nomul(0) and after the
-// boulder's own next_boulder bookkeeping, leaving the move half made.
 //
-// The questions follow C's order. Three of them are deliberately wider than
-// the branch they stand for, and each says why.
+// Two callers ask them, and both are needed. test_move()'s DO_MOVE arm asks
+// immediately before moverock(), which is what covers every entry into the
+// push: cmd.c executeMovement()'s admission seam runs once per keystroke, so
+// the second and later steps of a run arrive through allmain.c
+// moveloop_core()'s own re-entry with no seam between them. The seam asks as
+// well, so a keystroke refuses before set_move_cmd() commits movement intent.
+// Either way the refusal lands ahead of nomul(0) and of the boulder's
+// next_boulder bookkeeping, so it never leaves the move half made.
+//
+// The questions follow C's order. Four of them are deliberately wider than the
+// branch they stand for, and each says why.
 function preflight_moverock(sx, sy, noPickMove, state) {
     const u = state.u;
     const otmp = sobj_at(BOULDER, sx, sy, state);
@@ -1709,8 +1714,13 @@ function preflight_moverock(sx, sy, noPickMove, state) {
     if (tunnels(species) && !needspick(species) && !In_sokoban(u.uz))
         refuse('a boulder chewed rather than pushed');
 
-    // 355-363. "That feels like a boulder." needs display.c glyph_at(), which
-    // has no port, and map_object() draws the boulder into map memory.
+    // 355-363, and wider than C's arm. C refuses only a boulder the hero has
+    // not already felt -- `Blind && glyph_to_obj(glyph_at(sx, sy)) != BOULDER`
+    // -- and pushes one he has, so a blind hero pushing a mapped boulder is a
+    // case this refuses and C runs. The narrower test needs display.c
+    // glyph_at(), which has no port; C's own arm also calls map_object() to
+    // draw the boulder into map memory. Restoring the push must restore the
+    // glyph_to_obj() guard with it.
     if (heroIsBlind(state)) refuse('a boulder felt in the dark');
 
     // The while loop at 353, the `otmp != svl.level.objects[sx][sy]` reorder at
@@ -2221,6 +2231,18 @@ export async function test_move(
             return false;
         }
         if (mode === DO_MOVE) {
+            // Every unported arm of moverock_core() is refused here rather
+            // than only in the command-admission seam. cmd.c
+            // executeMovement()'s seam runs once per keystroke, so the second
+            // and later steps of a run reach test_move() through
+            // allmain.c moveloop_core()'s own re-entry with no seam between
+            // them; so does a bear-trapped hero who struggles free. Screening
+            // at the call covers all three, and it lands ahead of
+            // moverock_core()'s nomul(0) and its next_boulder bookkeeping, so
+            // the refusal still precedes every state change.
+            preflight_moverock(
+                x, y, Boolean(state.context?.nopick), state,
+            );
             if (await moverock(state, env) < 0) return false;
         }
         /* assume you'll be able to push it when you get there... */

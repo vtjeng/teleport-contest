@@ -338,19 +338,16 @@ test('a held hero struggles toward a square the seam screens when free',
             },
             // A boulder, written onto the bare floor northwest of seed 395's
             // trap: no generated level puts one beside any of these six traps,
-            // and it is the neighbour a room is likeliest to hold. A second
-            // one goes on the square behind it, because a lone boulder with
-            // clear ground behind it is a push now; hack.c
-            // moverock_core():435 is what refuses this pair.
+            // and it is the neighbour a room is likeliest to hold. A lone
+            // boulder with clear ground behind it is a push now, so what
+            // refuses this one is the rock behind it: hack.c
+            // moverock_core():432's !IS_OBSTRUCTED(levl[rx][ry].typ).
             {
                 index: 1, walkIn: 'j ', dx: -1, dy: -1,
                 freeReason: 'a boulder that will not move',
                 place: (x, y) => {
                     game.level.objects[x][y] = {
                         o_id: 7101, otyp: BOULDER, nexthere: null,
-                    };
-                    game.level.objects[x - 1][y - 1] = {
-                        o_id: 7102, otyp: BOULDER, nexthere: null,
                     };
                 },
             },
@@ -415,9 +412,6 @@ test('a held hero struggles toward a square the seam screens when free',
         const by = game.u.uy - 1;
         game.level.objects[bx][by] = {
             o_id: 7103, otyp: BOULDER, nexthere: null,
-        };
-        game.level.objects[bx - 1][by - 1] = {
-            o_id: 7104, otyp: BOULDER, nexthere: null,
         };
         game.u.utraptype = TT_BURIEDBALL;
         assert.throws(

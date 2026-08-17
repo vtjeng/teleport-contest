@@ -191,13 +191,23 @@ test('dopush throttles its line on gb.bldrpushtime, not on Norep', async () => {
         },
     ];
     for (const { walkIn, line } of cases) {
-        const { boulder } = await heroBesideBoulder(walkIn);
+        const { replay, boulder } = await heroBesideBoulder(walkIn);
         const before = Math.trunc(game.moves);
+        const drawsBefore = replay.getRngLog().length;
         assert.equal(await stepEast(), line, `after "${walkIn}"`);
         // 204. Whether or not it spoke, the push stamps the turn it happened
         // on and claims the boulder.
         assert.equal(game.gb.bldrpush_oid, boulder.o_id);
         assert.equal(game.gb.bldrpushtime, before);
+        // C nests `if (givemesg) pline(...)` and `if (!easypush)
+        // exercise(...)` under one `if (!u.usteed)`, so the natural misreading
+        // is to gate the draw on the message. A silent push draws too, and
+        // nothing else here draws at all: a seed whose hero pushes the same
+        // boulder on consecutive turns would otherwise drop one rn2(19) per
+        // silent push and desynchronise everything after it.
+        const drawn = replay.getRngLog().slice(drawsBefore);
+        assert.equal(drawn.length, 1, `one draw after "${walkIn}"`);
+        assert.match(drawn[0], /rn2\(19\)=/u, `rn2(19) after "${walkIn}"`);
     }
 });
 
@@ -621,19 +631,30 @@ test('a second push inside one turn stays silent', async () => {
 // seam, because svc.context.run is what the arm reads there.
 test('a rush into a boulder spends no time and says nothing', async () => {
     const { sx, sy, rx, ry, boulder } = await heroBesideBoulder();
-    const before = Math.trunc(game.moves);
+    const before = game.u.umovement;
     // The 'g' prefix value, so that the same case pins `>= 2` here too.
     assert.equal(await stepEast(game, 2), '');
     assert.deepEqual([boulder.ox, boulder.oy], [sx, sy]);
     assert.notDeepEqual([game.u.ux, game.u.uy], [sx, sy]);
-    assert.equal(Math.trunc(game.moves), before);
+    // The hero's movement ration, not svm.moves: domove() cannot change the
+    // turn counter, so asserting on it would give the headline claim no
+    // oracle at all. A step the arm declines spends no ration.
+    assert.equal(game.u.umovement, before);
     assert.equal(does_block(rx, ry, null, game), false);
 
-    // `!(Blind || Hallucination)`: a blind hero skips the arm, so the same
-    // step pushes instead. C sends him to moverock()'s Blind arm, which
-    // preflight_moverock() refuses ahead of any step the game itself makes.
+    // `!(Blind || Hallucination)`: a blind hero skips the arm and reaches
+    // moverock(). C's Blind arm at 355-363 prints "That feels like a boulder."
+    // and returns -1; preflight_moverock() refuses it, and test_move() asks
+    // that question at the call rather than only in the keystroke seam, so a
+    // step the game makes for itself refuses too. This drives domove()
+    // directly, which is the entry a continued run uses.
     game.u.uprops[BLINDED].intrinsic = 1;
-    await stepEast(game, 2);
-    assert.deepEqual([boulder.ox, boulder.oy], [rx, ry]);
+    await assert.rejects(
+        () => stepEast(game, 2),
+        (error) => error instanceof UnsupportedHeroMoveBoundaryError
+            && error.reason === 'a boulder felt in the dark',
+    );
+    assert.deepEqual([boulder.ox, boulder.oy], [sx, sy],
+        'the refused step left the boulder where it stood');
     game.u.uprops[BLINDED].intrinsic = 0;
 });
