@@ -575,3 +575,5 @@ utc	event	phase	goal	detail
 2026-08-17T11:19:34.611Z	end	review	remembered-invisible-monster	correctness 389a8a2..6f718ac: 22 raw, 20 deduped, 18 confirmed, 17 applied, 1 deferred, 2 rejected
 2026-08-17T11:23:05.664Z	start	select		next goal after remembered-invisible-monster closed
 2026-08-17T11:53:29.522Z	end	select	elapsed-turn-fires-a-due-timer	goal opened, first slice queued, no checklist
+2026-08-17T11:53:29.568Z	start	implement	elapsed-turn-fires-a-due-timer	due-timer-rots-a-floor-corpse
+2026-08-17T12:52:25.079Z	end	implement	elapsed-turn-fires-a-due-timer	due-timer-rots-a-floor-corpse closed at 380d9744: screens 1785 to 1802

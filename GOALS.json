@@ -2645,8 +2645,8 @@
       "slices": [
         {
           "name": "due-timer-rots-a-floor-corpse",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "380d9744ee9c0114d87b4911818f9a26138605a5"
         }
       ],
       "openedAt": "5669dbd27e263eb8836e906498cf7d086ce6c4a5",

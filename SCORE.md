@@ -27,7 +27,7 @@ states it.
 
 ## Current standing
 
-- Development, at `67ab861` (2026-08-17): 1,785 of 7,765 screens and 126,600 of
+- Development, at `380d974` (2026-08-17): 1,802 of 7,765 screens and 126,961 of
   610,816 random-number values, over the development set of 33 sessions, of
   which 10 match completely.
 - Reserved holdout, last evaluated at `67ab861`: 273 of 3,640 screens, 35,464
