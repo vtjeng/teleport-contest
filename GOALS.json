@@ -2571,6 +2571,48 @@
         "screens": 5,
         "rng": 353
       }
+    },
+    {
+      "id": "remembered-invisible-monster",
+      "status": "open",
+      "boundary": "A monster-vs-monster attack whose defender the hero cannot spot runs mhitm.c pre_mm_attack()'s `if (!canspotmon(mdef)) map_invisible(mdef->mx, mdef->my);` (mhitm.c:62-71) and names that defender through do_name.c x_monnam()'s do_it arm, rather than raising UnportedMonsterActionError at js/mhitm.js:195. The property that makes that possible is testable on its own against the C source: map memory holds one glyph number per square, so a remembered invisible monster is the number GLYPH_INVISIBLE (display.h:549 over GLYPH_INVIS_OFF at :504) that display.c map_invisible() (378-385) writes into levl[x][y].glyph under svl.level.flags.hero_memory and never at the hero's own square, and every reader spells glyph_is_invisible(levl[x][y].glyph) rather than consulting a separate boolean: display_monster()'s clear (484-493), newsym()'s arm (1032-1033), feel_location() (763-767, 830), unmap_invisible() (387-396), and lock.c pick_lock()'s oldglyph comparison (579-584).",
+      "upstreamOwners": [
+        "mhitm.c pre_mm_attack()",
+        "display.c map_invisible()",
+        "display.c unmap_invisible()",
+        "display.c feel_location()",
+        "display.c reset_glyphmap()",
+        "do_name.c x_monnam()"
+      ],
+      "forecast": {
+        "steps": 18,
+        "basis": "Measured at b4a8f01 with node scripts/scan-sessions.mjs over the 33 development sessions, then capped as .agents/selection.md requires. Raw unlocks 18 on one session, and the capping read, a sonnet-worker classifier over the --ahead stream with an ambiguous count of 0, found no second unported behavior in the 18-step stretch, so the capped figure equals the raw one. Working down the unlocks column: engraving interaction 609 to 7 (dogmove.c dog_eat(), refused as pet eating at js/unported_monster_actions.js:775, seed0030 step 30); level_tele print_dungeon for \"?\" 198 to 4 over three sessions (every menu row is a special or branch level and each session's first pick is a Lua special one, refused at js/teleport.js:1321); wizgenesis 148 to 13 (zap.c buzz() through weffects(), js/zap.js:267, seed5002 step 88); nh_timeout 52 to 17 (hack.c moverock(), js/hack.js boulder movement, seed0004 step 203); puton 47 to 12 (mhitu.c hitmu() on a hero who cannot spot the attacker, seed5006 step 121); #loot 33 to 3 (trap.c trapeffect_magic_trap(), seed0012 step 27); #rub 33 to 1 (mthrowu.c thrwmu(), seed0108 step 30); door unlocking tool 18 to 14 (sounds.c dosounds()'s has_shop arm, which js/sounds.js POST_VAULT_SPECIAL_SOUND_FLAGS refuses, seed0007 step 64). The next row, #name at 16 raw, falls below this capped 18, so it and everything under it lose uncapped. No candidate caps to 0, so neither the fresh-seed-census route nor the queued options-config-parser goal is admissible. seed0006 is a single segment of 123 steps, so the stretch carries no later-segment alignment risk, and the candidate is ranked on the boundary-census row, not on the refused-command row. Runner-up: the elapsed-turn timer goal (timer.c run_timers() firing a due timer from timeout.c nh_timeout(), js/timeout.js:281), capped 17 on seed0004; both stand on one session and tie on the sessions tiebreak, so the one-step margin decided it.",
+        "sessions": [
+          "seed0006-wizard-water-demon.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0006-wizard-water-demon.session.json",
+            "evidence": "Seed 6, datetime 20260503024327, one segment of 123 steps, rc OPTIONS=symset:DECgraphics, playmode normal, D:1, T:30. The port emits 77 screens and stops at step 77, whose byte is H, run west. C path: allmain.c moveloop_core() to monmove.c dochug() to dogmove.c dog_move() to mhitm.c mattackm() for the kitten. mattackm():355-357 sets gv.vis = ((cansee(magr) && canspotmon(magr)) || (cansee(mdef) && canspotmon(mdef))); the kitten is adjacent and spotted, so gv.vis is TRUE while the defender is not spottable. missmm() and hitmm() then call pre_mm_attack(), whose if (gv.vis) block reaches if (!canspotmon(mdef)) map_invisible(mdef->mx, mdef->my), the branch this goal ports. Preconditions hold: neither side is an M_AP_TYPE mimic, and mdef->mundetected is already 0 because mattackm():328-350 clears a hidden defender above this call. C's step-77 log records two attacks, rnd(20)=18 @ mattackm(mhitm.c:441) with rn2(3)=1 @ passivemm(mhitm.c:1363) for the miss whose !gv.vis half prints \"You hear some noises.\", then rnd(20)=9 @ mattackm(mhitm.c:441), d(1,6)=3 @ mdamagem(mhitm.c:1025) and the ported knockback pair for the hit. The recorded screen line \"You hear some noises.  The kitten bites it.\" is C's evidence that mon_nam(mdef) resolved to \"it\", the same !canspotmon(mdef) predicate. The rest of step 77 needs only ported work: rn2(3)=0 @ corpse_chance(mon.c:3248), nine rndmonst_adj(makemon.c:1716) draws behind maybe_generate_rnd_mon (js/allmain.js:357, js/makemon.js:659), mksobj with start_corpse_timeout, and rnd(1)=1 @ grow_up(makemon.c:2095)."
+          }
+        ]
+      },
+      "detail": "Traced findings:\n\n- js/display.js:2378 glyph_is_invisible() reads a boolean remembered_glyph.invisible_monster sidecar that nothing writes; this goal replaces it with the glyph number. js/glyph_offsets.js:43 already defines GLYPH_INVIS_OFF and js/symbol_data.js:154 already carries s_invisible, so no generated table changes.\n- js/display.js:2394 unmap_invisible() has the FALSE arm and throws on the TRUE one. C's TRUE arm is three lines (unmap_object, newsym, return TRUE) and both callees are in that file (unmap_object at :2492).\n- Two readers change with the sidecar: js/display.js:2172, feel_location()'s accurate-memory-of-an-invisible-monster return (display.c:763-767), and js/display.js:2125, same_remembered_glyph()'s invisible_monster term, which exists only because lock.c pick_lock():579-584 compares glyph numbers.\n- map_glyphinfo() at js/display.js:1570 has no GLYPH_INVIS_OFF arm. C's is reset_glyphmap() at display.c:3029-3035, six lines with invis_color() and MG_INVIS.\n- The name \"it\" lands with map_invisible(), not after it. js/do_name.js:279 x_monnam() refuses unless SUPPRESS_IT is set, and the port's partial mon_nam(), monsterCommonName() at js/do_name.js:227, always returns \"the <species>\". js/mhitu.js:272-275 already records the pair.\n- The sibling arm !canspotmon(magr), refused at js/mhitm.js:192 as an unseen attacker marked on the map, is the same map_invisible() call and closes with it. The M_AP_TYPE mimic arms need mon.c seemimic() and stay refused.\n- Opened for later goals but not unblocked here: js/mhitu.js:272, :539 and :845 name map_invisible() as the missing piece for a hero attacked by a monster it cannot spot (missmu(), hitmu()); js/hack.js:1227-1233 and :1966 are the domove() and pickup arms gated on the same marker; detect.c dosearch0() is what unmap_invisible() exists for.",
+      "slices": [
+        {
+          "name": "unspottable-defender-is-marked-named-and-forgotten",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "b4a8f01aed5dc8d2f6965592c4dd2f5ab97524ae",
+      "openStanding": {
+        "sha": "122589116509f855b1ac1704e6076896c39dedeb",
+        "screens": 1768,
+        "rng": 125937
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }

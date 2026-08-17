@@ -567,3 +567,5 @@ utc	event	phase	goal	detail
 2026-08-17T06:03:35.768Z	end	implement	option-toggle-repaints-the-map	wizmgender-inverts-a-female-monster-at-print-time
 2026-08-17T06:04:54.996Z	start	review	option-toggle-repaints-the-map	correctness 683ac58..a95469b, the goal's close
 2026-08-17T07:16:19.081Z	end	review	option-toggle-repaints-the-map	correctness 683ac58..389a8a2: 12 raw, 10 deduped, 8 confirmed, 8 applied, 2 rejected
+2026-08-17T07:26:43.824Z	start	select		next goal after option-toggle-repaints-the-map closed
+2026-08-17T08:07:32.981Z	end	select	remembered-invisible-monster	goal remembered-invisible-monster opened, first slice queued, checklist opened

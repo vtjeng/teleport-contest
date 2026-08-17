@@ -1,151 +1,289 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Every entry is done or cannot-occur, and commitChecked names the commit that applied the goal-closing correctness pass rather than 2aab973 where the slice landed, since that pass ported hero_glyph's Upolyd disjunct and pinned three things the entries describe. The production game executes every done path: the fresh recipes in scripts/run-options-menu.mjs drive a debug-mode 'mO' menu to the wizmgender row and a configuration file that sets the option outright, and both discriminate against a port that draws the hero and a female pet plain. The development score is identical call for call, which is the guard this slice needed, since no development session picks the option. Three arms are done on a unit test alone and say so: the mimic and ridden arms, the male, female and neuter arms of the objnam.c suffix, whose CORPSTAT_RANDOM arm is the only one a level-generated object reaches, and statue_to_glyph()'s hallucinating gender draw, which is unobservable at its one caller.",
-  "commitChecked": "be8cce14a282daaa644ac5a2ba7a67fe8a4d726e",
+  "mode": "implementation",
+  "reason": "The slice has not started. Every candidate that carries the behavior is `missing`: display.c map_invisible() has no port, glyph_is_invisible() reads a boolean sidecar nothing writes instead of C's glyph number, map_glyphinfo() has no GLYPH_INVIS_OFF arm, do_name.c x_monnam()'s do_it arm refuses, and mon.c mondead()'s clear stops. `missingWorkByOwner` orders the four groups so each prerequisite precedes the groups that use it.",
+  "commitChecked": "b4a8f01aed5dc8d2f6965592c4dd2f5ab97524ae",
   "boundary": {
-    "goalId": "option-toggle-repaints-the-map",
-    "startingCommit": "08c2151bfa105b2262e69f0e48a6a35cffcc7fd7",
-    "startingEvent": "A pick of the 'wizmgender' row from doset()'s full 'mO' menu in a debug-mode game, which options.c optfn_boolean() answers by setting go.opt_need_redraw and go.opt_need_glyph_reset. The same option is also settable from a configuration file, where optfn_boolean() returns at options.c:5325's go.opt_initial guard before reaching any of this.",
-    "endingEvent": "The screen the port draws after reset_needed_visuals() returns, with every visible female monster and a female hero carrying the inverse video win/tty/wintty.c tty_print_glyph() gives MG_FEMALE under wizard && iflags.wizmgender.",
-    "validInputs": "A debug-mode game, since wizmgender is set_wizonly and options.c:8842 hides its row outside one. Either gender of hero, since hero_glyph passes Ugender; a pet on the map, which exercises the MG_PET arm that sits above the MG_FEMALE disjunct; and iflags.hilite_pet either way, whose compiled-in default is Off.",
-    "observables": "The attribute of every monster and hero cell after the repaint, and the screens and cursors of the debug-mode menu itself, which no recording has ever covered. No ported arm may consume randomness.",
-    "exclusions": "Numbering the monster ranges in map memory, which no C writer does and this slice therefore does not. The invisible-monster range, whose writer display.c map_invisible() (378-385) is unported and whose arm raises MG_INVIS rather than a gender bit."
+    "goalId": "remembered-invisible-monster",
+    "startingCommit": "b4a8f01aed5dc8d2f6965592c4dd2f5ab97524ae",
+    "startingEvent": "A player command that gives a monster its move reaches mhitm.c mattackm() through allmain.c moveloop_core(), monmove.c dochug() and, for a pet, dogmove.c dog_move(), and mattackm() calls hitmm() or missmm() with gv.vis TRUE and at least one participant the hero cannot spot. In seed0006-wizard-water-demon.session.json that is the byte H at step 77, the kitten biting a kobold in an unlit corridor.",
+    "endingEvent": "The screen the port emits at the end of that step: its message line and its map. For seed0006 step 77 the message line is `You hear some noises.  The kitten bites it.` and column 62, row 9 still reads `#`, because the kobold dies from that bite and mon.c mondead():3170-3171 clears the marker before m_detach() repaints the square.",
+    "validInputs": "Any command that advances the turn while a monster attacks another monster with gv.vis TRUE. Both participants ordinary monsters, neither an M_AP_TYPE mimic, mdef->mundetected already 0 because mattackm():328-350 clears a hidden defender above pre_mm_attack(). Covered by seed0006 step 77 for the write-and-clear-within-one-step case, and by a fresh recording for the case where the defender survives and the marker persists across steps.",
+    "observables": "The remembered glyph number at the marked square, which must be GLYPH_INVISIBLE rather than a boolean sidecar; the drawn character, colour and attribute the marker resolves to through map_glyphinfo(), which C spells at display.c reset_glyphmap():3029-3035 as SYM_INVISIBLE + SYM_OFF_X, invis_color() = NO_COLOR and MG_INVIS; the message line from hitmm()/missmm(), whose Monnam()/mon_nam_too() must answer `it` for a defender the hero cannot spot; the random-number call sequence, which this slice must leave unchanged since neither map_invisible() nor x_monnam()'s do_it arm draws; and the cursor.",
+    "exclusions": "The hero-facing marker sites in mhitu.c at 91, 553, 668, 685 and 1156, which js/mhitu.js:272, :539 and :845 already assign to later goals. display.c unmap_invisible()'s TRUE arm and its detect.c dosearch0() consumer, plus the hack.c domove_core() and pickup arms at js/hack.js:1966, :2035 and :2238, which need a marker that outlives its step and so need a recording of their own. x_monnam()'s augment_it, do_hallu, do_invis and priest/minion/shopkeeper arms. mon.c seemimic(), behind pre_mm_attack()'s two M_AP_TYPE arms. mon.c monstone():3358, apply.c, dokick.c, uhitm.c, zap.c, detect.c, sounds.c, muse.c and the other 60-odd map_invisible() callers, whose commands are unported."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "display.c display_monster() (514-622) and its M_AP_MONSTER arm; display.c display_self() (251-260) through display.h hero_glyph (654-656); display.c reset_glyphmap()'s six monster arms (ridden 2986-3003, detect 3011-3028, pet 3034-3049, ordinary 3050-3065); win/tty/wintty.c tty_print_glyph() (3925-3937); options.c optfn_boolean()'s seven-option arm (5376-5385); objnam.c:1549-1559.",
-    "dispatchTablesAndCatalogs": "display.h mon_to_glyph() (554-556), detected_mon_to_glyph() (557-559), ridden_mon_to_glyph() (560-562), pet_to_glyph() (563-565) and monnum_to_glyph() (639-641), each of which takes a gender code and picks a range from it. you.h:555 defines Ugender as ((Upolyd ? u.mfemale : flags.female) ? 1 : 0). objnam.c reads genders[].adj, which js/insight.js and js/player_selection.js already use.",
-    "reachableHelpers": "Two gender sources are easy to transpose and were checked separately. display.c:524 sets mgendercode from mon->female and display.c:581 passes it to monnum_to_glyph() for the M_AP_MONSTER arm, so a mimic takes the mimicking monster's gender rather than the appearance species'. The hero takes Ugender, which reads flags.female rather than any monster field.",
-    "javascriptCrossCheck": "At the slice base, C's one ordered attribute chain is split across three sites in js/display.js: the third arm at print_glyph_attr(), the MG_PET arm at actualMonsterGlyphInfo() (glyph.attr = state.iflags.wc2_petattr ?? ATR_INVERSE), and MG_DETECT inline at presentedMonsterGlyphInfo(). grep -rn 'wizmgender' js/ returns only js/display.js's comment and test of the flag and two comment sites in js/options.js, so the objnam.c arm has neither a port nor a refusal.",
-    "remainingLimits": "Two. The debug-mode 'mO' menu has never been recorded against C, so a first differential failure is as likely to be menu layout as the repaint: options.c:8820 sets endpass to set_wiznofuz under wizard, which adds ten boolean rows and two compound ones and widens longest_option_name(), moving the padding of every row and the page boundaries with it. And the recording depends on this environment's sysconf naming the user in WIZARDS; the checked-in template does not, so a fresh checkout cannot reproduce it."
+    "upstreamEntryPoints": "mhitm.c pre_mm_attack() (41-72) and its two callers missmm() (75-93) and hitmm() (645-...); display.c map_invisible() (377-385) and unmap_invisible() (387-396); do_name.c x_monnam() (826-1032) with its wrappers mon_nam() (1041), Monnam() (1073), noit_mon_nam() (1053), some_mon_nam() (1064) and mon_nam_too() (1190); mon.c mondead() (3170-3171).",
+    "dispatchTablesAndCatalogs": "include/display.h's glyph enum, where GLYPH_INVIS_OFF (504) sits one place below GLYPH_DETECT_OFF and GLYPH_INVISIBLE (549) aliases it, so the marker occupies exactly one number rather than a NUMMONS-wide range. display.c reset_glyphmap()'s descending if-else chain (2739-3086), whose GLYPH_INVIS_OFF arm is 3029-3035. The symbol catalog entry SYM_INVISIBLE, already generated into js/symbol_data.js:154 as s_invisible, and MG_INVIS, which the port does not yet define beside its other MG_* constants at js/display.js:1448-1463.",
+    "reachableHelpers": "Every C site that writes or reads the marker was found with `grep -rn 'glyph_is_invisible|GLYPH_INVISIBLE|map_invisible|unmap_invisible' src/ include/ win/tty/` over nethack-c/upstream. That listed 63 map_invisible() calls, 2 unmap_invisible() definitions with 12 calls, and 34 glyph_is_invisible() reads. The reads inside display.c are show_mon_or_warn() (489), mon_overrides_region() (699), feel_location() (764 and 830) and newsym() (1032); outside it, mon.c mondead() (3170) and monstone() (3358), lock.c pick_lock() (579-584 through an oldglyph comparison), plus readers in hack.c, apply.c, uhitm.c, dokick.c, dothrow.c, zap.c, detect.c, sounds.c, pager.c, cmd.c, glyphs.c, potion.c and wizcmds.c whose commands are unported.",
+    "javascriptCrossCheck": "`grep -rn 'glyph_is_invisible|map_invisible|GLYPH_INVIS|invisible_monster' js/` found the port's six readers -- js/display.js:2129 (same_remembered_glyph), :2172 (feel_location), :2397 (unmap_invisible), js/mon.js:1760 (mondead), js/zap.js:644 and js/detect.js:577 -- the two unmap_invisible() callers at js/dokick.js:352 and js/detect.js:798, the constant at js/glyph_offsets.js:43, and the named refusals at js/mhitm.js:192 and :195, js/mhitu.js:272, :539 and :845, js/hack.js:1229 and :1966, js/uhitm.js:282, :307, :533 and :1559, and js/detect.js:527 and :578. `grep -n 'export function newsym' js/display.js` located the port's restructured newsym() at :2585, which has neither C's marker arm nor mon_overrides_region()'s marker term.",
+    "remainingLimits": "The port's newsym() is a restructuring of C's, not a line-for-line port, so a marker arm has to be placed by reading the port's control flow rather than by matching a line number; a misplacement would show only as a wrong repaint. seed0006 writes and clears the marker inside one step, so it cannot witness the drawn character at all: the GLYPH_INVIS_OFF resolution and newsym()'s marker arm need a fresh recording where the defender survives the round. monsterCommonName() at js/do_name.js:227 is the port's partial mon_nam() and has call sites throughout js/; whether admitting do_it changes any of them other than the intended one is a question the list answers per site, not in bulk."
   },
   "entries": [
     {
-      "candidate": "That map memory never holds a monster glyph number, which is what makes this slice a print-time change rather than a range conversion",
-      "reachability": "Every writer of levl[x][y].glyph.",
-      "owner": "None; it is the premise the slice rests on",
-      "effects": "Confirmed independently by the worker, which reached the same reading: 19 writers of levl[x][y].glyph, the nine in ball.c only copying a number another writer produced. The slice carries the bits on the live-drawn presentations, and monsterGenderFlag() reads mon->female directly, because C's own round trip is mon->female to a range to MG_MALE or MG_FEMALE.",
-      "evidence": "grep -rn 'levl\\[.*\\]\\[.*\\]\\.glyph =' over nethack-c/upstream/src/ returns display.c:284, :302, :319, :359, :361, :436 and :555, all cmap, object, trap or engraving numbers; bones.c:569 writes GLYPH_UNEXPLORED; mkmaze.c:1840 writes a cmap number; ball.c's eleven sites restore a value saved from the same field. The one exception is display.c:382, map_invisible(), which writes the constant GLYPH_INVISIBLE, whose reset_glyphmap() arm raises MG_INVIS and no gender bit. detect.c:2205-2209 states the same rule in a comment.",
+      "candidate": "mhitm.c pre_mm_attack() (67-68), `if (!canspotmon(mdef)) map_invisible(mdef->mx, mdef->my);`",
+      "reachability": "gv.vis TRUE, set at mattackm():355-357 from `(cansee(magr) && canspotmon(magr)) || (cansee(mdef) && canspotmon(mdef))`, with the defender not spottable. Runs before hitmm()/missmm() print anything and draws no random number.",
+      "owner": "js/mhitm.js pre_mm_attack()",
+      "effects": "Writes GLYPH_INVISIBLE into the defender's square in map memory and draws it, unless the square is the hero's own.",
+      "evidence": "The port refuses at js/mhitm.js:195, `unsupported('an unseen defender marked on the map')`. seed0006 step 77 reaches it.",
+      "status": "missing",
+      "remaining": "Port display.c map_invisible() and call it here."
+    },
+    {
+      "candidate": "mhitm.c pre_mm_attack() (63-64), `if (!canspotmon(magr)) map_invisible(magr->mx, magr->my);`",
+      "reachability": "Same gv.vis guard, with the aggressor not spottable. gv.vis can still be TRUE through the defender half of the disjunct, so the arm is reachable.",
+      "owner": "js/mhitm.js pre_mm_attack()",
+      "effects": "Same write at the aggressor's square.",
+      "evidence": "The port refuses at js/mhitm.js:192, `unsupported('an unseen attacker marked on the map')`. It is the same map_invisible() call as the defender arm, so it closes with it.",
+      "status": "missing",
+      "remaining": "Call the ported map_invisible() here too. No development session is known to reach this arm, so it closes on a unit test unless the fresh recording produces one."
+    },
+    {
+      "candidate": "mhitm.c pre_mm_attack() (48-51 and 55-58), the two M_AP_TYPE arms calling mon.c seemimic()",
+      "reachability": "Either participant disguised as an object or furniture.",
+      "owner": "js/mhitm.js pre_mm_attack(), refusing",
+      "effects": "Would reveal the mimic and set showit.",
+      "evidence": "js/mhitm.js:178 and :184 refuse. mon.c seemimic() is unported and belongs to no part of this goal's boundary.",
+      "status": "later",
+      "remaining": "Stays refused. The refusal must survive this slice unchanged."
+    },
+    {
+      "candidate": "mhitm.c pre_mm_attack() (52-54 and 59-61), the two mundetected clears",
+      "reachability": "A hidden participant that is not a mimic.",
+      "owner": "js/mhitm.js pre_mm_attack()",
+      "effects": "Clears mundetected and sets showit.",
+      "evidence": "Both are ported at js/mhitm.js:179-182 and :185-188. The defender's cannot fire, because mattackm():328-350 clears a hidden defender above this call; the port records that at js/mhitm.js:167-170.",
       "status": "done",
       "remaining": "None."
     },
     {
-      "candidate": "display.c display_monster()'s four glyph choices and its M_AP_MONSTER arm, as the gender code each range carries",
-      "reachability": "Every drawn monster: ordinary, pet, detected, ridden, and a monster mimicking another monster.",
-      "owner": "js/display.js actualMonsterGlyphInfo(), presentedMonsterGlyphInfo(), riddenMonsterGlyphInfo() and mimickedMonsterGlyphInfo()",
-      "effects": "Each must carry MG_FEMALE or MG_MALE on the presentation, since the port raises no monster glyph number to carry it.",
-      "evidence": "display.c:524 computes mgendercode from mon->female and :581 passes it for the mimic arm.",
+      "candidate": "mhitm.c pre_mm_attack() (65-66 and 69-70), the two `else if (showit) newsym(...)` arms",
+      "reachability": "A spottable participant whose mundetected the arms above just cleared.",
+      "owner": "js/mhitm.js pre_mm_attack(), through the injected `redraw` operation",
+      "effects": "Redraws the participant's square.",
+      "evidence": "Ported at js/mhitm.js:193 and :196. Unchanged by this slice, but the C `if/else if` chain means a marker write and a redraw are mutually exclusive per participant, which the port must keep.",
       "status": "done",
       "remaining": "None."
     },
     {
-      "candidate": "display.h hero_glyph (654-656) and you.h Ugender (555)",
-      "reachability": "Every draw of the hero.",
-      "owner": "js/display.js hero_glyph_info()",
-      "effects": "A female hero's own glyph lands in the female range and gains the inverse attribute the moment wizmgender goes on. This is what makes the differential discriminate without a female monster on the map.",
-      "evidence": "hero_glyph passes (Ugender), which is ((Upolyd ? u.mfemale : flags.female) ? 1 : 0). Upolyd() exists in the port and is always false today, so the u.mfemale half is dormant.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "reset_glyphmap()'s six monster arms, for the bits their ranges carry",
-      "reachability": "Not reached through map memory; read as the specification of which bit each range raises.",
-      "owner": "js/display.js, as the source of the MG_FEMALE and MG_MALE assignments",
-      "effects": "Fixes which of the two bits each of the four monster families raises.",
-      "evidence": "src/display.c ridden 2986-3003, detect 3011-3028, pet 3034-3049, ordinary 3050-3065.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "win/tty/wintty.c tty_print_glyph()'s attribute chain (3925-3937), unified rather than extended",
-      "reachability": "Every printed cell.",
-      "owner": "js/display.js print_glyph_attr(), actualMonsterGlyphInfo() and presentedMonsterGlyphInfo(), which hold one arm each today",
-      "effects": "C picks at most one attribute in a fixed order, and the MG_PET arm sits above the MG_FEMALE disjunct.",
-      "evidence": "The three-way split is safe at the slice base only because no glyph reaching print_glyph_attr() carries MG_PET, which its own doc comment states. Adding MG_FEMALE to a pet ends that: a female pet with hilite_pet on must take wc2_petattr, and with it off must fall through to ATR_INVERSE.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The 'wizmgender' refusal in js/options.js optfn_boolean()",
-      "reachability": "A pick of the row in a debug-mode game.",
-      "owner": "js/options.js",
-      "effects": "Deleting it folds the name back into the six-name case list beside it and leaves optfn_boolean() with no refusal at all.",
-      "evidence": "It is the last of the eight arms this goal's boundary names.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "objnam.c:1549-1559, which reads the same option to name a statue, corpse or figurine's gender",
-      "reachability": "Any STATUE, CORPSE or FIGURINE named while wizard && iflags.wizmgender hold. Reachable from a configuration file today, and from the menu once the refusal goes.",
-      "owner": "js/objnam.js wizmgenderSuffix()",
-      "effects": "Ported rather than refused: ten lines against the existing genders[]. One correction to the brief, which said ' (neutral)': role.c:690 gives genders[NEUTRAL].adj as 'neuter'. The CORPSTAT_RANDOM arm is the common case for a level-generated statue, because mkobj.c mksobj() sets a real gender at 1219-1222 and mkcorpstat():2086 then overwrites spe with corpstatflags & CORPSTAT_SPE_VAL, which is zero for mklev.c:1004's bare CORPSTAT_INIT.",
-      "evidence": "Read at objnam.c:1549-1559. grep -rn 'wizmgender' js/ finds no producer at the slice base.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The fresh differential: a debug-mode 'mO' menu walked to the wizmgender row",
-      "reachability": "scripts/run-options-menu.mjs already carries the shape at REMEMBERED_PILE_INVERSE, which walks 'mO' to page 4, picks a boolean and commits.",
-      "owner": "scripts/run-options-menu.mjs",
-      "effects": "It is the slice's closing evidence, since no development session picks the option.",
-      "evidence": "The environment satisfies the debug-mode constraint: nethack-c/recorder/install/games/lib/nethackdir/sysconf line 16 reads WIZARDS=root games vtjeng. The checked-in template at nethack-c/recorder/sys/unix/sysconf:16 reads only WIZARDS=root games. One debug segment per recording, so the recipe is its own single-segment entry.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "The debug-mode menu's own layout, which this differential is the first to record against C",
-      "reachability": "Every row of the 'mO' menu in a debug game.",
-      "owner": "js/options.js, at the pass bounds and dosetEntryFormat()",
-      "effects": "It matched C on the first recording. Eight pages rather than seven, with wizmgender on page 5 as 'k'. The risk named in advance did not materialise, and no options work landed inside this display slice on that account.",
-      "evidence": "The port mirrors the skips and takes both passes, but nothing has ever checked it, so a first differential failure is as likely to be layout as repaint. dosetEntryFormat() refuses outright when menu_tab_sep is on, and menu_tab_sep is itself set_wizonly.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "applyBooleanOption()'s missing wizmgender arm, which made the option settable but inert",
-      "reachability": "Any configuration file carrying OPTIONS=wizmgender in a debug game.",
-      "owner": "js/options.js applyBooleanOption()",
-      "effects": "The value landed at flags.wizmgender and optlist.h:890's reader never saw it, so the option parsed, stored nowhere useful, and every female monster drew plain with no stop.",
-      "evidence": "The first differential of the configuration-file recipe failed at screen 1, row 7, column 11, C attr 1 against JS attr 0. This is the live bug the queue commit predicted, and it was worse than predicted: not merely unguarded but inert. One arm fixes it; the other seventy-odd rows stay with the deferral boolean-options-store-outside-their-c-address.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "hallucinated_statue_glyph_info()'s gender draw, which was made and discarded",
-      "reachability": "A hallucinating hero drawing a statue.",
-      "owner": "js/display.js",
-      "effects": "The draw is part of the observable display-RNG stream and its result was thrown away. With MG_FEMALE live that becomes a silent wrong answer, so the draw now feeds the flag.",
-      "evidence": "Unit-tested only: the reroll menu is its one caller and prints no glyph.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "display_monster()'s three worm-tail arms",
-      "reachability": "A long worm on the map.",
+      "candidate": "display.c map_invisible() (378-385), the whole function: the hero-square guard, the svl.level.flags.hero_memory guard on the memory write, and the unconditional show_glyph()",
+      "reachability": "Every caller. Inside this boundary, pre_mm_attack()'s two arms.",
       "owner": "None",
-      "effects": "None reachable.",
-      "evidence": "The recorded rejection ed43517c establishes the condition: grep -rn 'wormno' js/ shows exactly one writer of a nonzero monster.wormno, js/makemon_create.js:2075 inside apply_newcham_form(), and makemon() never calls get_wormno(), so no ported path puts a long worm on a level.",
-      "status": "cannot-occur",
+      "effects": "levl[x][y].glyph = GLYPH_INVISIBLE and a glyph-buffer write. Draws no random number.",
+      "evidence": "No js/ definition; js/display.js:2367-2377 records its absence as the reason glyph_is_invisible() reads a sidecar.",
+      "status": "missing",
+      "remaining": "Port it into js/display.js. The hero-square guard and the hero_memory guard are separate conditions and each needs its own test; hero_memory is TRUE in every ported game, so a test has to set it FALSE to pin the second."
+    },
+    {
+      "candidate": "include/display.h glyph_is_invisible() (773), `((glyph) == GLYPH_INVISIBLE)`",
+      "reachability": "Six ported readers plus map_glyphinfo().",
+      "owner": "js/display.js glyph_is_invisible() (2378)",
+      "effects": "None; a predicate.",
+      "evidence": "The port takes a location record and reads `location?.remembered_glyph?.invisible_monster`, a boolean sidecar nothing writes. C compares a glyph number. The goal's testable property is that the port compares the number too.",
+      "status": "missing",
+      "remaining": "Change the signature to take a glyph number and move all six readers with it: js/display.js:2129, :2172, :2397, js/mon.js:1760, js/zap.js:644, js/detect.js:577."
+    },
+    {
+      "candidate": "display.c reset_glyphmap() (3029-3035), the GLYPH_INVIS_OFF arm: `sym.symidx = SYM_INVISIBLE + SYM_OFF_X`, `invis_color(offset)` = NO_COLOR, `glyphflags |= MG_INVIS`",
+      "reachability": "Any draw of a square holding the marker.",
+      "owner": "js/display.js map_glyphinfo() (1570), which has no arm for the number, and mapGlyphinfoResolves() (1535), which rejects it",
+      "effects": "Resolves the marker to the drawn character, colour and attribute.",
+      "evidence": "mapGlyphinfoResolves() admits only GLYPH_NOTHING_OFF, objects and non-zap cmaps. SYM_INVISIBLE exists at js/const.js:2551 and s_invisible at js/symbol_data.js:154, so no generated table changes; MG_INVIS is not defined among js/display.js:1448-1463.",
+      "status": "missing",
+      "remaining": "Add the arm, widen the guard, and define MG_INVIS. seed0006 cannot witness the drawn character, so this needs the fresh recording where the marker survives a step, or a unit test pinned to the C source."
+    },
+    {
+      "candidate": "display.c newsym() (1032-1033), `else if (glyph_is_invisible(lev->glyph)) map_invisible(x, y);`",
+      "reachability": "A visible square with no monster to display and no warning, whose memory already holds the marker. Reached on every repaint of such a square, including docrt().",
+      "owner": "js/display.js newsym() (2585), which has no such arm",
+      "effects": "Re-asserts the marker rather than recomputing the square from its layers.",
+      "evidence": "The port's newsym() is a restructuring; its layer choice would overwrite the marker with the underlying terrain, silently. seed0006 cannot show this, because its marker is cleared in the same step it is written.",
+      "status": "missing",
+      "remaining": "Place the arm in the port's control flow at the point C reaches it, and cover it with the fresh recording where the marker survives a step."
+    },
+    {
+      "candidate": "display.c show_mon_or_warn() (486-493), the `if (glyph_is_invisible(levl[x][y].glyph))` clear that calls unmap_object() and re-maps a visible object",
+      "reachability": "Drawing anything on the monster layer at a square that holds the marker.",
+      "owner": "js/display.js newsym()'s inlined display_monster arms",
+      "effects": "Stops remembering the marker and starts remembering a visible object under it.",
+      "evidence": "C's comment at 484-486 states the invariant: the marker lives in the object layer, so putting a monster there must clear it. The port has no such clear, because nothing wrote a marker to clear.",
+      "status": "missing",
+      "remaining": "Port the clear. Its second half, re-mapping a visible object, needs vobj_at() and map_object(), both of which the port has."
+    },
+    {
+      "candidate": "display.c mon_overrides_region() (697-699), `return glyph_is_invisible(levl[mx][my].glyph) ? TRUE : FALSE;`",
+      "reachability": "newsym() on a square inside a visible gas region that also holds the marker.",
+      "owner": "js/display.js newsym()'s region block, which computes monsterSensed, monsterWarning and adjacentVisibleMonster but has no marker term",
+      "effects": "Decides whether the region or the marker is drawn.",
+      "evidence": "The port's region block has three terms where C's helper has four.",
+      "status": "missing",
+      "remaining": "Add the term. No ported path generates a gas region yet, so this closes on source reading and a unit test rather than a recording; confirm that before writing it, and if no region can exist, restate as cannot-occur with the C evidence."
+    },
+    {
+      "candidate": "display.c feel_location() (763-767), the accurate-memory return `if (glyph_is_invisible(lev->glyph) && m_at(x, y)) return;`",
+      "reachability": "A blind or feeling hero at a square holding both the marker and a monster.",
+      "owner": "js/display.js feel_location() (2172)",
+      "effects": "Leaves the marker alone so searching does not rediscover the monster every turn.",
+      "evidence": "Ported and correct in shape; it changes only with glyph_is_invisible()'s signature. js/display.js:2170-2171 records that it never returns yet.",
+      "status": "missing",
+      "remaining": "Move it to the glyph-number predicate. Its first TRUE answer arrives with map_invisible(), so a test must construct the state rather than rely on a recording."
+    },
+    {
+      "candidate": "display.c feel_location() (829-836), the boulder-or-marker arm that suppresses the room glyph",
+      "reachability": "A feeling hero at a square whose memory holds a boulder or the marker.",
+      "owner": "js/display.js feel_location()",
+      "effects": "Chooses map_background() or the room glyph rather than keeping the remembered glyph.",
+      "evidence": "The port carries the boulder half; the marker half rides on the same predicate.",
+      "status": "undecided",
+      "remaining": "Read the port's feel_location() layer choice against display.c:822-838 and decide whether the marker disjunct is present, absent, or unreachable here. This entry must resolve before readiness."
+    },
+    {
+      "candidate": "lock.c pick_lock() (579, 584), the oldglyph comparison that same_remembered_glyph() stands in for",
+      "reachability": "A hero picking a lock on a door, where feel_location() may or may not change the square.",
+      "owner": "js/display.js same_remembered_glyph() (2125)",
+      "effects": "Decides whether pick_lock() reports that the door changed.",
+      "evidence": "The port compares `glyph` and the `invisible_monster` sidecar because the marker had no number. With the number, C's plain `!=` on the glyph is the whole comparison and the sidecar term goes.",
+      "status": "missing",
+      "remaining": "Delete the sidecar term. A test must show the comparison still answers correctly for a square feel_location() left as it found it, which is why the wrapper exists."
+    },
+    {
+      "candidate": "do_name.c x_monnam() (863-885), the do_it arm and the do_it predicate `!canspotmon(mtmp) && article != ARTICLE_YOUR && !program_state.gameover && mtmp != u.usteed && !engulfing_u(mtmp) && !(suppress & SUPPRESS_IT)`",
+      "reachability": "Any name taken for a monster the hero cannot spot. Inside this boundary, hitmm()'s Monnam(magr) and mon_nam_too(mdef, magr), and missmm()'s Monnam(magr) and mon_nam_too(mdef, magr).",
+      "owner": "js/do_name.js x_monnam() (279), which throws unless SUPPRESS_IT is set, and monsterCommonName() (227), the port's partial mon_nam(), which always returns `the <species>`",
+      "effects": "Returns the string `it` and returns early, before the article, invisibility, saddle and naming work below.",
+      "evidence": "js/do_name.js:270-278 records that the port admits only the SUPPRESS_IT | SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION combination precisely to keep do_it, do_invis and do_hallu statically dead. The two partial spellings of one C function must be reconciled in this slice, because monsterCommonName() does not refuse: it would print `the kobold` where C prints `it`, which is a silent divergence rather than a fail-closed stop.",
+      "status": "missing",
+      "remaining": "Admit the do_it arm and route the port's mon_nam()/Monnam() through it. Each of the five predicate terms needs its own coverage; u.usteed and engulfing_u() may be unreachable, in which case say so with the C evidence rather than leaving them untested."
+    },
+    {
+      "candidate": "do_name.c x_monnam() (877-882), the augment_it arm producing `someone`/`something`",
+      "reachability": "Only through some_mon_nam()/Some_Monnam(), which pass AUGMENT_IT.",
+      "owner": "None",
+      "effects": "Substitutes a humanoid-aware word for `it`, and under hallucination draws rn2(2).",
+      "evidence": "No caller inside the boundary: hitmm() and missmm() use Monnam() and mon_nam_too(), neither of which passes AUGMENT_IT. The arm also draws a random number, so admitting it without a caller would put an unspent draw in the port.",
+      "status": "later",
+      "remaining": "Stays out. The do_it arm must be written so that augment_it is FALSE on every path this slice admits."
+    },
+    {
+      "candidate": "do_name.c noit_mon_nam() (1053-1060), which passes SUPPRESS_IT precisely to defeat do_it",
+      "reachability": "Its own callers, outside this boundary.",
+      "owner": "js/do_name.js alwaysVisibleMonsterName() (377)",
+      "effects": "Names a monster as if the hero could always see it.",
+      "evidence": "This is the one wrapper that must not inherit the new do_it arm. C makes that explicit by passing SUPPRESS_IT.",
+      "status": "undecided",
+      "remaining": "Confirm that the port's wrapper passes SUPPRESS_IT once x_monnam() admits do_it, and pin it with a test. Resolve before readiness."
+    },
+    {
+      "candidate": "do_name.c mon_nam_too() (1190-1215), which returns mon_nam(mon) unless the two monsters are the same, in which case it uses a reflexive pronoun",
+      "reachability": "hitmm() and missmm() both call it for the defender relative to the aggressor.",
+      "owner": "js/mhitm.js mon_nam_too()",
+      "effects": "The defender's name in the message.",
+      "evidence": "Ported and already called at js/mhitm.js:218. It inherits do_it through mon_nam(), which is how `it` reaches the seed0006 message line.",
+      "status": "missing",
+      "remaining": "Nothing in mon_nam_too() itself changes; it becomes correct when mon_nam() does. Its reflexive arm is separate and stays as it is."
+    },
+    {
+      "candidate": "mon.c mondead() (3170-3171), `if (glyph_is_invisible(levl[mtmp->mx][mtmp->my].glyph)) unmap_object(mtmp->mx, mtmp->my);`",
+      "reachability": "Any monster death at a square holding the marker. In seed0006 step 77 the kobold dies from the bite that wrote the marker.",
+      "owner": "js/mon.js mondead() (1760), which refuses with `forgetting a remembered invisible monster`",
+      "effects": "Clears the marker from map memory before m_detach()'s newsym() repaints the square.",
+      "evidence": "Without it the port stops one call after the message. With the marker written but this skipped, a stray `I` would sit at column 62, row 9 for the whole remaining stretch.",
+      "status": "missing",
+      "remaining": "Port the clear. seed0006 step 77 is the differential that covers it."
+    },
+    {
+      "candidate": "display.c unmap_invisible() (387-396), the TRUE arm `unmap_object(x, y); newsym(x, y); return TRUE;`",
+      "reachability": "detect.c dosearch0() and eleven other callers, over a marker that outlived the step that wrote it.",
+      "owner": "js/display.js unmap_invisible() (2394), whose FALSE arm is ported and whose TRUE arm throws",
+      "effects": "Clears the marker and repaints.",
+      "evidence": "Both callees exist in the file. The arm is currently unreachable because nothing writes a marker; once map_invisible() lands it becomes reachable through js/dokick.js:352 and js/detect.js:798.",
+      "status": "undecided",
+      "remaining": "This is the entry that decides whether the goal needs a second slice. Determine whether either ported caller can reach a live marker within a game this slice's recordings produce. If it can, the arm lands here; if it cannot, restate as `later` with the C evidence and queue the second slice."
+    },
+    {
+      "candidate": "js/zap.js:644 and js/detect.js:577, the port's two remaining glyph_is_invisible() readers (zap.c:4083, detect.c:1712)",
+      "reachability": "Their own commands, none of which this boundary dispatches.",
+      "owner": "js/zap.js and js/detect.js",
+      "effects": "None inside the boundary.",
+      "evidence": "Both read the predicate whose signature changes, so both are edited by this slice even though neither runs in it.",
+      "status": "later",
+      "remaining": "Move them to the glyph-number predicate. Their behavior is unchanged, and the full test suite plus an identical development score is the proof."
+    },
+    {
+      "candidate": "The hack.c marker readers at 206, 1935, 2244, 2273 and 2889, and the write at 2902",
+      "reachability": "domove_core(), test_move() and the pickup arms.",
+      "owner": "js/hack.js:1229-1233, :1966, :2035 and :2238, all recorded as unreachable while map_invisible() is unported",
+      "effects": "None yet.",
+      "evidence": "Each site's comment states that the marker has no writer. Once map_invisible() lands, those statements stop being true and each becomes reachable in principle.",
+      "status": "undecided",
+      "remaining": "Re-read all six sites once map_invisible() lands and decide, per site, whether it can now fire inside a game this slice's recordings produce. Any that can and is not ported becomes a deferral with `npm run quality -- defer`, not a silent skip. Resolve before readiness."
+    },
+    {
+      "candidate": "The mhitu.c marker sites at 91, 553, 668, 685 and 1156",
+      "reachability": "A hero attacked by a monster it cannot spot.",
+      "owner": "js/mhitu.js:272, :539 and :845, refusing",
+      "effects": "None inside the boundary.",
+      "evidence": "The goal entry assigns them to later goals; js/mhitu.js:272-275 records that the marker and the `it` name refuse together, which this slice half-resolves by porting the name.",
+      "status": "later",
+      "remaining": "Their refusals must survive this slice. Check that porting the name does not turn any of them from a fail-closed stop into a silent divergence; if one does, it becomes a deferral."
+    },
+    {
+      "candidate": "mon.c monstone() (3358-3359), the same clear as mondead()'s",
+      "reachability": "A monster turned to stone.",
+      "owner": "None",
+      "effects": "None inside the boundary.",
+      "evidence": "No ported path petrifies a monster.",
+      "status": "later",
       "remaining": "None for this slice."
-    },
-    {
-      "candidate": "tty_print_glyph()'s framecolor arm and reset_glyphmap()'s rogue-level terms",
-      "reachability": "The first needs iflags.bgcolors, which no ported path sets; the second needs a rogue level, which reglyph_darkroom() refuses before any repaint.",
-      "owner": "None",
-      "effects": "None reachable: both stop before any state change, random-number call or output.",
-      "evidence": "Carried forward from the previous slice's checklist, where the rogue exclusion was recorded on the refusal rather than on a session census.",
-      "status": "cannot-occur",
-      "remaining": "None."
-    },
-    {
-      "candidate": "display.h hero_glyph's `Upolyd ||` species disjunct, which the correctness pass found dropped",
-      "reachability": "Every draw of the hero while polyself is ported; inert today, since Upolyd() is always false.",
-      "owner": "js/display.js hero_glyph_info()",
-      "effects": "A polymorphed hero shows her form rather than her race even with 'showrace' on, and takes the form's colour rather than HI_DOMESTIC.",
-      "evidence": "The slice added the C citation and the Ugender half without the species half, so the citation claimed a fidelity the function lacked. Porting it exposed an incomplete fixture in an older test, whose hero carried umonnum without umonster and so read as polymorphed.",
-      "status": "done",
-      "remaining": "None."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "Traced in two independent passes. The orchestrator traced the candidate list at 08c2151 before implementation, reading display.h hero_glyph and you.h Ugender, display.c's mgendercode assignment and its use in the M_AP_MONSTER arm, objnam.c:1549-1559, and every writer of levl[x][y].glyph across nethack-c/upstream/src/ -- which is what establishes that this slice is a print-time change rather than a range conversion, against a deferral that prescribed the conversion. The worker traced the same range while implementing, reached the same reading of the writers independently, and found two things the list did not hold: applyBooleanOption() had no wizmgender arm at all, and hallucinated_statue_glyph_info() made a gender draw it discarded. It also corrected the orchestrator's ' (neutral)' to role.c:690's 'neuter'. The trace covered state and random-number order: no ported arm consumes randomness except the statue draw, which already existed and whose result is now used rather than dropped. Stubs and stops identified: optfn_boolean() has one refusal left, on rest_on_space, which is outside this goal; the framecolor arm, the rogue-level terms and the worm-tail arms are unreachable for the conditions recorded above."
+  "missingWorkByOwner": [
+    {
+      "group": "The marker's representation, in js/display.js",
+      "candidates": [
+        "include/display.h glyph_is_invisible() over the glyph number",
+        "display.c reset_glyphmap()'s GLYPH_INVIS_OFF arm and MG_INVIS",
+        "display.c map_invisible()",
+        "lock.c pick_lock()'s oldglyph comparison through same_remembered_glyph()",
+        "display.c feel_location()'s two marker sites",
+        "js/zap.js and js/detect.js readers"
+      ],
+      "next": "Make glyph_is_invisible() compare C's number, add map_glyphinfo()'s GLYPH_INVIS_OFF arm with MG_INVIS so the number can round-trip through map memory, then port map_invisible(). Every other reader moves with the predicate in the same change, and the proof that nothing else moved is the full suite plus a development score identical call for call and screen for screen."
+    },
+    {
+      "group": "The marker's lifetime on the map, in js/display.js and js/mon.js",
+      "candidates": [
+        "display.c newsym()'s marker arm",
+        "display.c show_mon_or_warn()'s clear",
+        "display.c mon_overrides_region()'s marker term",
+        "mon.c mondead()'s clear",
+        "display.c unmap_invisible()'s TRUE arm"
+      ],
+      "next": "Once a marker can exist, make it survive a repaint, yield to a monster drawn on top of it, and vanish when its monster dies. mondead()'s clear is what seed0006 step 77 needs; newsym()'s arm needs the fresh recording where the defender survives."
+    },
+    {
+      "group": "The name `it`, in js/do_name.js",
+      "candidates": [
+        "do_name.c x_monnam()'s do_it arm",
+        "do_name.c mon_nam()/Monnam() through monsterCommonName()",
+        "do_name.c noit_mon_nam()'s SUPPRESS_IT"
+      ],
+      "next": "Admit do_it in x_monnam() and reconcile the port's two partial spellings of mon_nam(), so that a monster the hero cannot spot is named `it` and noit_mon_nam() still is not. This is a prerequisite of the marker, not a follow-up: hitmm() prints its message in the same breath, and the port's stand-in does not refuse."
+    },
+    {
+      "group": "The consumer, in js/mhitm.js",
+      "candidates": [
+        "mhitm.c pre_mm_attack()'s two !canspotmon arms"
+      ],
+      "next": "Replace the two refusals with the map_invisible() calls, which is what makes seed0006 step 77 emit `You hear some noises.  The kitten bites it.` and leaves column 62, row 9 reading `#`."
+    },
+    {
+      "group": "The sites this slice makes reachable without porting",
+      "candidates": [
+        "The hack.c marker readers and write",
+        "The mhitu.c marker sites"
+      ],
+      "next": "Re-read every site whose comment says the marker has no writer, once one exists. Each must be a fail-closed stop or a ported path; a site that silently takes the wrong branch is what this entry exists to catch."
+    }
+  ],
+  "sourceReview": "Not yet attested. The candidate list above was built by reading mhitm.c pre_mm_attack() and its two callers, display.c map_invisible(), unmap_invisible(), show_mon_or_warn(), mon_overrides_region(), feel_location(), newsym() and reset_glyphmap(), do_name.c x_monnam() with its six wrappers, and mon.c mondead() and monstone(), and by grepping the whole of nethack-c/upstream/src and include for every marker site. What it does not yet cover: the random-number order through hitmm() and mdamagem() after pre_mm_attack() returns, which the differential must confirm is unchanged; the port's newsym() control flow, which has to be read line by line before the marker arm can be placed; and the four entries left `undecided`, which are feel_location()'s boulder-or-marker arm, noit_mon_nam()'s SUPPRESS_IT, unmap_invisible()'s TRUE arm, and the six hack.c sites."
 }
