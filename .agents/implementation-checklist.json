@@ -1,7 +1,7 @@
 {
-  "mode": "implementation",
+  "mode": "ready-for-audit",
   "reason": "Every candidate the slice owns is done. The marker has a representation (GLYPH_INVISIBLE through map_glyphinfo()), a writer (mhitm.c pre_mm_attack()'s two arms), a lifetime (newsym()'s marker arm, mon.c mondead()'s clear, display.c unmap_invisible()) and a name (do_name.c x_monnam()'s do_it arm). One candidate outside the owner list was ported because it sits between the slice's starting point and its stated result: mon.c make_corpse()'s mummy and zombie group, which seed0006's kobold zombie reaches one call after the message.",
-  "commitChecked": "b4a8f01aed5dc8d2f6965592c4dd2f5ab97524ae",
+  "commitChecked": "aec58a3c09623e9b24fb273fe2677de3c309ed65",
   "boundary": {
     "goalId": "remembered-invisible-monster",
     "startingCommit": "b4a8f01aed5dc8d2f6965592c4dd2f5ab97524ae",
@@ -115,8 +115,8 @@
       "owner": "js/display.js newsym()'s region block",
       "effects": "Decides whether the region or the marker is drawn.",
       "evidence": "The term is added: the region block now also requires `!glyph_is_invisible(loc.remembered_glyph?.glyph)` before it draws the cloud and returns. js/themeroom_fill.js create_gas_cloud_selection() is a ported producer of gas clouds, so the arm is reachable in principle rather than dead.",
-      "status": "done",
-      "remaining": "None. No recorded case puts a gas cloud over a marked square, so it closes on source reading."
+      "status": "no-effect-yet",
+      "remaining": "None. The term is present and correct; no recorded case puts a gas cloud over a marked square, so nothing in the running game reaches it yet."
     },
     {
       "candidate": "display.c feel_location() (763-767), the accurate-memory return `if (glyph_is_invisible(lev->glyph) && m_at(x, y)) return;`",
@@ -245,54 +245,6 @@
       "remaining": "None. scripts/mon-kill.test.mjs \"a zombie leaves the living creature's old corpse\" pins the species, the age and the saved traits; seed0006 is the differential."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "The marker's representation, in js/display.js",
-      "candidates": [
-        "include/display.h glyph_is_invisible() over the glyph number",
-        "display.c reset_glyphmap()'s GLYPH_INVIS_OFF arm and MG_INVIS",
-        "display.c map_invisible()",
-        "lock.c pick_lock()'s oldglyph comparison through same_remembered_glyph()",
-        "display.c feel_location()'s two marker sites",
-        "js/zap.js and js/detect.js readers"
-      ],
-      "next": "Make glyph_is_invisible() compare C's number, add map_glyphinfo()'s GLYPH_INVIS_OFF arm with MG_INVIS so the number can round-trip through map memory, then port map_invisible(). Every other reader moves with the predicate in the same change, and the proof that nothing else moved is the full suite plus a development score identical call for call and screen for screen."
-    },
-    {
-      "group": "The marker's lifetime on the map, in js/display.js and js/mon.js",
-      "candidates": [
-        "display.c newsym()'s marker arm",
-        "display.c show_mon_or_warn()'s clear",
-        "display.c mon_overrides_region()'s marker term",
-        "mon.c mondead()'s clear",
-        "display.c unmap_invisible()'s TRUE arm"
-      ],
-      "next": "Once a marker can exist, make it survive a repaint, yield to a monster drawn on top of it, and vanish when its monster dies. mondead()'s clear is what seed0006 step 77 needs; newsym()'s arm needs the fresh recording where the defender survives."
-    },
-    {
-      "group": "The name `it`, in js/do_name.js",
-      "candidates": [
-        "do_name.c x_monnam()'s do_it arm",
-        "do_name.c mon_nam()/Monnam() through monsterCommonName()",
-        "do_name.c noit_mon_nam()'s SUPPRESS_IT"
-      ],
-      "next": "Admit do_it in x_monnam() and reconcile the port's two partial spellings of mon_nam(), so that a monster the hero cannot spot is named `it` and noit_mon_nam() still is not. This is a prerequisite of the marker, not a follow-up: hitmm() prints its message in the same breath, and the port's stand-in does not refuse."
-    },
-    {
-      "group": "The consumer, in js/mhitm.js",
-      "candidates": [
-        "mhitm.c pre_mm_attack()'s two !canspotmon arms"
-      ],
-      "next": "Replace the two refusals with the map_invisible() calls, which is what makes seed0006 step 77 emit `You hear some noises.  The kitten bites it.` and leaves column 62, row 9 reading `#`."
-    },
-    {
-      "group": "The sites this slice makes reachable without porting",
-      "candidates": [
-        "The hack.c marker readers and write",
-        "The mhitu.c marker sites"
-      ],
-      "next": "Re-read every site whose comment says the marker has no writer, once one exists. Each must be a fail-closed stop or a ported path; a site that silently takes the wrong branch is what this entry exists to catch."
-    }
-  ],
+  "missingWorkByOwner": [],
   "sourceReview": "Attested. Read in full: mhitm.c pre_mm_attack() with missmm() and hitmm(); display.c map_invisible(), unmap_invisible(), show_mon_or_warn(), mon_overrides_region(), feel_location(), newsym() and reset_glyphmap()'s GLYPH_INVIS_OFF arm; do_name.c x_monnam() with mon_nam(), Monnam(), noit_mon_nam(), some_mon_nam() and mon_nam_too(); mon.c mondead(), monstone(), undead_to_corpse() and make_corpse() including its default_1 label; hack.c domove_bump_mon(), domove_fight_empty() and domove_core()'s !displaceu block; detect.c mfind0() and dosearch0()'s unmap_invisible() call; zap.c bhit()'s marker erase; uhitm.c attack_checks() and do_attack()'s atk_done tail. The four entries left undecided are resolved: feel_location()'s boulder-or-marker arm cannot occur, because it is inside the Levitation Rules block the port refuses wholesale; noit_mon_nam() passes SUPPRESS_IT and is pinned by a test; unmap_invisible()'s TRUE arm landed here, because both ported callers can reach a live marker; and the hack.c sites are ported but for domove_bump_mon()'s, which is a deferral rather than a silent skip. What this review does not cover: the port's own newsym() beyond the four arms of C's chain, and the sixty-odd map_invisible() callers whose commands are unported."
 }
