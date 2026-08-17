@@ -233,21 +233,20 @@ test('timer locality follows the four timer kinds', () => {
     assert.equal(state.gt.timer_base.next, null);
 });
 
-test('run_timers stops rather than firing a timer that has come due', () => {
+test('run_timers stops rather than firing an unported timeout arm', () => {
     const state = dungeonState();
     timeout_globals_init(state);
     state.moves = 100;
+    // A corpse in the hero's pack: do.c goto_level() carries inventory timers
+    // across the descent, and dig.c rot_corpse()'s OBJ_INVENT arm, which
+    // writes "Your <corpse> rots away", is not ported.
     start_timer(5, TIMER_OBJECT, 1, { where: OBJ_INVENT, timed: 0 }, state);
     // Scheduled for move 105, which is still ahead of the arrival turn.
-    run_timers(state);
+    run_timers(state, { newsym: () => {} });
     state.moves = 105;
-    // The message names run_timers() and the arrival, which is what separates
-    // this stop from preflight_nh_timeout_elapsed_turn()'s. That one guards an
-    // elapsed turn and tests the same gt.timer_base field, so a reason naming
-    // only the timer would not say which of the two fired.
     assert.throws(
-        () => run_timers(state),
-        /run_timers\(\) runs on arrival, but one is due by move 105/u,
+        () => run_timers(state, { newsym: () => {} }),
+        /a corpse on the floor, but one is rotting at where=3/u,
     );
 });
 

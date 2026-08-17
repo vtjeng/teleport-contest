@@ -42,6 +42,7 @@ import {
 import { stop_occupation } from './allmain.js';
 import { artifact_light } from './artifacts.js';
 import { stone_luck } from './attrib.js';
+import { rot_corpse, unportedRotCorpseReason } from './dig.js';
 import { heal_legs } from './do.js';
 import { game } from './gstate.js';
 import { You_can_move_again, nomul } from './hack.js';
@@ -240,11 +241,88 @@ export class UnsupportedHeroTimeoutBoundaryError extends Error {
     }
 }
 
+// C ref: timeout.c timeout_funcs[] (1978-1990), "Table of timeout functions,
+// listed in order of enum timeout_types". Each row keeps the VERBOSE_TIMER
+// name C prints so a stop can say which function it refused. `f` is the ported
+// timeout_proc and `unported` the reason it cannot run yet; a row with neither
+// names a function this port has not reached.
+//
+// C's second TTAB field, `cleanup`, is not here. Only BURN_OBJECT has one, and
+// stop_timer() already owns it through preflightTimerCleanup() above; nothing
+// run_timers() does consults it.
+const timeout_funcs = [
+    { name: 'rot_organic' },
+    { name: 'rot_corpse', f: rot_corpse, unported: unportedRotCorpseReason },
+    { name: 'revive_mon' },
+    { name: 'zombify_mon' },
+    { name: 'burn_object' },
+    { name: 'hatch_egg' },
+    { name: 'fig_transform' },
+    { name: 'shrink_glob' },
+    { name: 'melt_ice_away' },
+];
+if (timeout_funcs.length !== NUM_TIME_FUNCS)
+    throw new Error('timeout_funcs must cover every timeout_types row');
+
+// The environment run_timers() hands a timeout function. dig.c rot_corpse()
+// reaches invent.c obfree() and mkobj.c remove_object(), which take their
+// integration seams under `hooks`, while nh_timeout()'s own callees take theirs
+// flat. Lift the one seam the table passes down rather than making either
+// convention follow the other.
+function timerFireEnv(state, env) {
+    return { ...env, state, hooks: { ...env.hooks, newsym: env.newsym } };
+}
+
+// The reason run_timers() cannot drain the queue's due prefix, or null when it
+// can.
+//
+// C ref: timeout.c run_timers() (2216-2240), read as a predicate over the same
+// prefix its `while (gt.timer_base && gt.timer_base->timeout <= svm.moves)`
+// walks. C cannot fail partway through that drain; this port can, because a
+// row of timeout_funcs[] may be unported or a ported one may meet a branch it
+// has not reached. Deciding the whole prefix first keeps the refusal atomic,
+// so a stopped turn leaves the queue as C would have left it.
+//
+// Walking ahead is sound only because firing an admitted element cannot change
+// the prefix: rot_corpse() over a floor corpse starts no timer and stops none.
+// It reaches stop_timer() through neither remove_object()'s obj_timer_checks()
+// nor dealloc_obj(), because run_timers() has already decremented the corpse's
+// only `timed` count to zero, and each admitted element names a distinct
+// object, since start_timer() rejects a duplicate (kind, function, argument).
+function unportedDueTimerReason(state, env) {
+    for (let timer = state.gt?.timer_base;
+        timer && Math.trunc(timer.timeout) <= currentMove(state);
+        timer = timer.next) {
+        if (timer.kind !== TIMER_OBJECT) {
+            // timeout.h:52-59 timer_is_obj(): every ported row takes an
+            // object.
+            return 'every due timer to be an object timer, but kind '
+                + `${timer.kind} is due`;
+        }
+        const entry = timeout_funcs[timer.func_index];
+        if (!entry.f)
+            return `a ported timeout function, but ${entry.name}() is due`;
+        // A corpse still carrying a second timer would reach obj_timer_checks()
+        // from remove_object() with a nonzero `timed`, and that can stop and
+        // restart a timer on ice, which is exactly the prefix change the walk
+        // above assumes away.
+        if (Math.trunc(timer.arg?.timed ?? 0) !== 1)
+            return 'the due object to hold only its own timer';
+        const reason = entry.unported(timer.arg, env);
+        if (reason) return reason;
+    }
+    return null;
+}
+
 // C ref: timeout.c nh_timeout() and timer.c run_timers(), specialized to the
 // source-inert timeout state admitted by the current repeated-command
 // boundary. Validate those invariants rather than silently skipping a newly
 // reachable timeout branch.
-export function preflight_nh_timeout_elapsed_turn(state = game) {
+//
+// `env` carries the newsym() seam the due timers will draw through, so a turn
+// whose timer cannot fire refuses before the turn starts rather than partway
+// into it.
+export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
     const u = state.u ?? {};
     // timeout.c:621-622 returns for an invulnerable hero, and everything this
     // function validates sits below that return: the mtimedone, ucreamed,
@@ -278,12 +356,8 @@ export function preflight_nh_timeout_elapsed_turn(state = game) {
             `no active property timeout at index ${index}`,
         );
     }
-    const due = state.gt?.timer_base;
-    if (due && Math.trunc(due.timeout) <= currentMove(state)) {
-        throw new UnsupportedHeroTimeoutBoundaryError(
-            `no timer due by move ${currentMove(state)}`,
-        );
-    }
+    const reason = unportedDueTimerReason(state, timerFireEnv(state, env));
+    if (reason) throw new UnsupportedHeroTimeoutBoundaryError(reason);
 }
 
 function carrying(type, state) {
@@ -345,16 +419,18 @@ async function decrement_property_timeouts(state, env) {
 // Source-ordered elapsed-turn owner. The remaining admitted timeout state is
 // source-inert after the live luck prefix and the property countdown.
 //
-// `env` carries the message() that heal_legs() writes its line through and the
-// statusRefresh() stop_occupation() may need, because the elapsed turn is dry
-// run on a cloned state first and that pass has to stay silent.
+// `env` carries the message() that heal_legs() writes its line through, the
+// statusRefresh() stop_occupation() may need, and the newsym() a rotting floor
+// corpse redraws its square with, because the elapsed turn is dry run on a
+// cloned state first and that pass has to stay silent.
 export async function nh_timeout_elapsed_turn(state = game, env = {}) {
-    preflight_nh_timeout_elapsed_turn(state);
+    preflight_nh_timeout_elapsed_turn(state, env);
     adjust_timeout_luck(state);
     /* "things past this point could kill you" -- timeout.c:621-622, below the
        basal-luck block and above every branch nh_timeout() has left. */
     if (state.u?.uinvulnerable) return;
     await decrement_property_timeouts(state, env);
+    run_timers(state, env); /* timeout.c:947, nh_timeout()'s last statement */
 }
 
 // C inserts before the first timer whose expiry is greater than or equal to
@@ -634,25 +710,42 @@ export function save_timers(range, state = game) {
     }
 }
 
-// C ref: timer.c run_timers(), which do.c goto_level() calls once migrating
-// monsters and objects have arrived. Nothing dispatches here yet: the port
-// has no timeout_funcs[] table, so a timer that has come due stops instead of
-// firing the wrong effect. Level-local timers left with the level in
-// save_timers() above, so what can be due is a global timer -- an inventory
-// corpse rotting, a lit candle burning down -- and those are scheduled for
-// future turns rather than for the turn the descent happens on.
-export function run_timers(state = game) {
+// C ref: timeout.c run_timers() (2216-2240). "Pick off timeout elements from
+// the global queue and call their functions. Do this until their time is less
+// than or equal to the move count." nh_timeout() runs it as its last statement
+// and do.c goto_level() runs it once migrating monsters and objects have
+// arrived.
+//
+// The queue is ordered, so C always takes the head and stops at the first
+// element still in the future. Three orderings inside the loop are what make
+// an element fire exactly once, and all three are C's:
+//
+// - the head is unlinked before the call, so a function that schedules a new
+//   timer cannot be handed the element it is already running;
+// - a TIMER_OBJECT's `timed` count is decremented before the call, which is
+//   what lets obfree() and dealloc_obj() free a corpse without demanding that
+//   its timer be stopped first;
+// - the element is released after the call. C memsets and frees it; the port
+//   drops the last reference and clears the link the same way stop_timer()
+//   and save_timers() above do.
+//
+// The refusal is decided over the whole due prefix before the loop starts, so
+// a turn the port cannot finish leaves the queue untouched.
+export function run_timers(state = game, env = {}) {
     timerGlobals(state);
-    const due = state.gt.timer_base;
-    if (due && Math.trunc(due.timeout) <= currentMove(state)) {
-        // Worded apart from preflight_nh_timeout_elapsed_turn(), which tests
-        // the same field: that one guards an elapsed turn, this one guards
-        // goto_level()'s arrival, and a log line naming only the timer would
-        // not say which of the two stopped.
-        throw new UnsupportedHeroTimeoutBoundaryError(
-            `no timer due when run_timers() runs on arrival, but one is due `
-            + `by move ${currentMove(state)}`,
-        );
+    const fireEnv = timerFireEnv(state, env);
+    const reason = unportedDueTimerReason(state, fireEnv);
+    if (reason) throw new UnsupportedHeroTimeoutBoundaryError(reason);
+
+    while (state.gt.timer_base
+           && Math.trunc(state.gt.timer_base.timeout) <= currentMove(state)) {
+        const curr = state.gt.timer_base;
+        state.gt.timer_base = curr.next;
+
+        if (curr.kind === TIMER_OBJECT)
+            curr.arg.timed = Math.trunc(curr.arg.timed ?? 0) - 1;
+        timeout_funcs[curr.func_index].f(curr.arg, curr.timeout, fireEnv);
+        curr.next = null;
     }
 }
 

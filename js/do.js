@@ -1256,7 +1256,9 @@ export async function goto_level(
     kill_genocided_monsters(state);
     // "Expire all timers that have gone off while away. Must be after
     // migrating monsters and objects are delivered."
-    run_timers(state);
+    // The arrival is never a dry run, so a rotting floor corpse draws through
+    // the live newsym().
+    run_timers(state, { newsym });
 
     const arrivalOccupant = m_at(u.ux, u.uy, state);
     if (arrivalOccupant) u_collide_m(arrivalOccupant, state);

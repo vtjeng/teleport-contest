@@ -8,6 +8,8 @@ import {
     HATCH_EGG,
     NUM_TIME_FUNCS,
     NUM_TIMER_KINDS,
+    OBJ_DELETED,
+    OBJ_FLOOR,
     OBJ_FREE,
     OBJ_INVENT,
     REVIVE_MON,
@@ -31,12 +33,16 @@ import {
     PM_TROLL,
     monst_globals_init,
 } from '../js/monsters.js';
+import { GameMap } from '../js/game.js';
+import { newObject, place_object } from '../js/obj.js';
 import {
+    CORPSE,
     FEDORA,
     LONG_SWORD,
     LUCKSTONE,
     MAGIC_LAMP,
     OIL_LAMP,
+    objects_globals_init,
 } from '../js/objects.js';
 import {
     UnsupportedTimerCleanupError,
@@ -48,6 +54,7 @@ import {
     obj_stop_timers,
     peek_timer,
     preflight_end_burn,
+    run_timers,
     spot_stop_timers,
     start_timer,
     start_glob_timeout,
@@ -124,9 +131,12 @@ test('elapsed-turn timeout upkeep admits only source-inert timeout state',
         );
         state.u.uprops[0].intrinsic = 0;
         state.gt.timer_base.timeout = 2;
+        // The timer above holds a bare `{ timed }` stand-in rather than a
+        // floor object, so run_timers() stops on dig.c rot_corpse()'s
+        // where test rather than firing. `where=undefined` is that stand-in.
         await assert.rejects(
             nh_timeout_elapsed_turn(state),
-            /no timer due by move 2/u,
+            /a corpse on the floor, but one is rotting at where=undefined/u,
         );
     });
 
@@ -255,6 +265,153 @@ test('start_timer orders expiries and puts equal expiries newest first', () => {
     assert.deepEqual(
         [later.timed, equalOld.timed, sooner.timed, equalNew.timed],
         [1, 1, 1, 1],
+    );
+});
+
+// run_timers() reaches invent.c obfree() and mkobj.c remove_object(), so the
+// bare timerState() above is not enough: the corpses it drains have to sit in
+// both floor indexes of a real map.
+function rottingState(moves = 254) {
+    const state = timerState(moves);
+    state.level = new GameMap();
+    state.program_state = { gameover: false };
+    state.u = { ux: 1, uy: 1, uundetected: false };
+    state.youmonst = {};
+    objects_globals_init(state);
+    monst_globals_init(state);
+    return state;
+}
+
+let nextTimerObjectId = 2;
+
+function rottingCorpse(state, x, y, when) {
+    const corpse = newObject({
+        age: 0,
+        corpsenm: PM_KOBOLD,
+        o_id: nextTimerObjectId++,
+        oclass: state.objects[CORPSE].oc_class,
+        otyp: CORPSE,
+        quan: 1,
+    });
+    place_object(corpse, x, y, { state });
+    start_timer(when, TIMER_OBJECT, ROT_CORPSE, corpse, state);
+    return corpse;
+}
+
+test('run_timers drains the due prefix head-first and stops at the future',
+    () => {
+        const state = rottingState(254);
+        // Expiries chosen so one is already past, one lands exactly on the
+        // move count -- run_timers()'s condition is `<=` -- and one is still
+        // ahead. The witness session's queue has the same shape at move 254.
+        const past = rottingCorpse(state, 40, 5, -1);
+        const exact = rottingCorpse(state, 41, 5, 0);
+        const future = rottingCorpse(state, 42, 5, 1);
+        const drawn = [];
+
+        run_timers(state, { newsym: (x, y) => drawn.push([x, y]) });
+
+        assert.equal(past.where, OBJ_DELETED);
+        assert.equal(exact.where, OBJ_DELETED);
+        assert.equal(future.where, OBJ_FLOOR);
+        // The queue keeps exactly the element that has not come due.
+        assert.equal(state.gt.timer_base.arg, future);
+        assert.equal(state.gt.timer_base.next, null);
+        assert.equal(future.timed, 1);
+        // Head-first, so the earlier expiry rots before the exact one.
+        assert.deepEqual(drawn, [[40, 5], [41, 5]]);
+    });
+
+test('run_timers fires equal expiries in the order start_timer built', () => {
+    const state = rottingState(300);
+    // Both corpses expire on the same move. insert_timer() puts the newer one
+    // first, so the second call to start_timer() is the first to fire.
+    const older = rottingCorpse(state, 20, 4, 0);
+    const newer = rottingCorpse(state, 21, 4, 0);
+    const drawn = [];
+
+    run_timers(state, { newsym: (x, y) => drawn.push([x, y]) });
+
+    assert.deepEqual(drawn, [[21, 4], [20, 4]]);
+    assert.equal(older.where, OBJ_DELETED);
+    assert.equal(newer.where, OBJ_DELETED);
+    assert.equal(state.gt.timer_base, null);
+});
+
+test('run_timers decrements the object timer count before calling its function',
+    () => {
+        // The ordering this pins is invisible in the result and fatal if
+        // reversed: obfree() runs `if (obj.timed) stopObjectTimers(obj, env)`
+        // for a FOOD_CLASS object, a required hook js/timeout.js cannot supply
+        // from inside its own drain. Nothing here provides that hook, so the
+        // call succeeds only because `timed` is already zero.
+        const state = rottingState();
+        const corpse = rottingCorpse(state, 33, 11, 0);
+        assert.equal(corpse.timed, 1);
+
+        run_timers(state, { newsym: () => {} });
+
+        assert.equal(corpse.timed, 0);
+        assert.equal(corpse.where, OBJ_DELETED);
+    });
+
+test('run_timers refuses the whole due prefix before draining any of it', () => {
+    const state = rottingState();
+    // The first element is drainable and the second is not, so a per-element
+    // check would delete the first corpse and then stop with the queue half
+    // drained. C cannot fail partway through run_timers(), so neither may this.
+    // The corpse expires a turn earlier than the lamp, so the queue really
+    // does hold the drainable element ahead of the refused one; equal expiries
+    // would put the newest first and leave the refusal at the head, where even
+    // a head-only check would find it.
+    const corpse = rottingCorpse(state, 25, 6, -1);
+    const lamp = newObject({
+        o_id: nextTimerObjectId++,
+        oclass: state.objects[OIL_LAMP].oc_class,
+        otyp: OIL_LAMP,
+        quan: 1,
+    });
+    start_timer(0, TIMER_OBJECT, BURN_OBJECT, lamp, state);
+    assert.equal(state.gt.timer_base.arg, corpse);
+    const queueBefore = queue(state).map((timer) => timer.tid);
+
+    assert.throws(
+        () => run_timers(state, { newsym: () => {} }),
+        /a ported timeout function, but burn_object\(\) is due/u,
+    );
+
+    assert.equal(corpse.where, OBJ_FLOOR);
+    assert.equal(corpse.timed, 1);
+    assert.deepEqual(queue(state).map((timer) => timer.tid), queueBefore);
+});
+
+test('run_timers refuses a due corpse that carries a second timer', () => {
+    // remove_object() runs mkobj.c obj_timer_checks() for an object whose
+    // `timed` is still nonzero after the drain's decrement, and on ice that
+    // stops and restarts a timer -- a change to the very prefix the refusal
+    // walk read ahead. Admitting only a corpse holding its own timer alone
+    // keeps that walk sound.
+    const state = rottingState();
+    const corpse = rottingCorpse(state, 26, 6, 0);
+    start_timer(50, TIMER_OBJECT, REVIVE_MON, corpse, state);
+    assert.equal(corpse.timed, 2);
+
+    assert.throws(
+        () => run_timers(state, { newsym: () => {} }),
+        /the due object to hold only its own timer/u,
+    );
+    assert.equal(corpse.where, OBJ_FLOOR);
+});
+
+test('run_timers refuses a due timer that is not an object timer', () => {
+    const state = rottingState();
+    // timeout.h timer_is_pos(): MELT_ICE_AWAY is the only level timer, and its
+    // argument is a packed coordinate rather than an object.
+    start_timer(0, TIMER_LEVEL, 8 /* MELT_ICE_AWAY */, 5 * 0x10000 + 5, state);
+    assert.throws(
+        () => run_timers(state, { newsym: () => {} }),
+        new RegExp(`every due timer to be an object timer, but kind `
+            + `${TIMER_LEVEL} is due`, 'u'),
     );
 });
 

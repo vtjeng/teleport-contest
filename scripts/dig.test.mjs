@@ -11,6 +11,8 @@ import {
     D_CLOSED,
     D_LOCKED,
     D_NODOOR,
+    OBJ_DELETED,
+    OBJ_INVENT,
     POOL,
     ROOM,
     SDOOR,
@@ -18,15 +20,27 @@ import {
     TREE,
     VWALL,
 } from '../js/const.js';
-import { dig_typ } from '../js/dig.js';
+import { dig_typ, rot_corpse, unportedRotCorpseReason } from '../js/dig.js';
 import { GameMap } from '../js/game.js';
+import { newObject, place_object } from '../js/obj.js';
+import {
+    PM_CAVE_SPIDER,
+    PM_JACKAL,
+    PM_ORC,
+    monst_globals_init,
+} from '../js/monsters.js';
 import {
     AXE,
+    CORPSE,
     DWARVISH_MATTOCK,
     LONG_SWORD,
     PICK_AXE,
+    ROCK,
     objects_globals_init,
 } from '../js/objects.js';
+import { timeout_globals_init } from '../js/timeout.js';
+import { RECORDER_SEGMENT_LIMIT } from './fresh-matrix.mjs';
+import { loadCorpseRotRecipe } from './run-corpse-rot.mjs';
 
 // dig_typ() reads a level and an object catalog and nothing else, so a bare
 // map plus objects[] is the whole world it needs.
@@ -189,4 +203,189 @@ test('dig_typ answers undiggable for a square off the map', () => {
     assert.equal(
         dig_typ(tool(PICK_AXE, state), 0, Y, state), DIGTYP_UNDIGGABLE,
     );
+});
+
+// rot_corpse() reads the floor indexes, the monster grid, and the object
+// catalog that obfree() prices merges from; timeout_globals_init() is there
+// because dealloc_obj() clears gt.thrownobj.
+function rotState(moves = 254) {
+    const state = {
+        level: new GameMap(),
+        moves,
+        program_state: { gameover: false },
+        u: { ux: 1, uy: 1, uundetected: false },
+        youmonst: {},
+    };
+    objects_globals_init(state);
+    monst_globals_init(state);
+    timeout_globals_init(state);
+    return state;
+}
+
+let nextRotObjectId = 2;
+
+// A corpse whose ROT_CORPSE timer has already fired: run_timers() decrements
+// `timed` before the call, and obfree() would otherwise demand a
+// stopObjectTimers seam that js/timeout.js cannot supply from inside its own
+// drain. See the run_timers ordering test in scripts/timeout.test.mjs.
+function floorCorpse(state, x, y, corpsenm = PM_ORC) {
+    const corpse = newObject({
+        age: 0,
+        corpsenm,
+        o_id: nextRotObjectId++,
+        oclass: state.objects[CORPSE].oc_class,
+        otyp: CORPSE,
+        quan: 1,
+        timed: 0,
+    });
+    place_object(corpse, x, y, { state });
+    return corpse;
+}
+
+// A second object under the corpse, so OBJ_AT() is still true once the corpse
+// is extracted. The witness session's three due corpses all sit on such a
+// pile, which is why they cannot prove the exposure arm on their own.
+function floorRock(state, x, y) {
+    const rock = newObject({
+        o_id: nextRotObjectId++,
+        oclass: state.objects[ROCK].oc_class,
+        otyp: ROCK,
+        quan: 1,
+    });
+    place_object(rock, x, y, { state });
+    return rock;
+}
+
+function recordingNewsym() {
+    const drawn = [];
+    return { drawn, newsym: (x, y) => drawn.push([x, y]) };
+}
+
+test('rot_corpse deletes a floor corpse and redraws its square', () => {
+    const state = rotState();
+    // An arbitrary interior square; the witness session's head timer names
+    // <40,5>, and rot_corpse() reads the coordinates off the object rather
+    // than from the caller.
+    const x = 40;
+    const y = 5;
+    const rock = floorRock(state, x, y);
+    const corpse = floorCorpse(state, x, y);
+    const { drawn, newsym } = recordingNewsym();
+
+    rot_corpse(corpse, state.moves, { state, hooks: { newsym } });
+
+    // Both floor indexes: the per-square pile and the level object list.
+    assert.equal(state.level.objects[x][y], rock);
+    assert.equal(state.level.objlist, rock);
+    assert.equal(rock.nobj, null);
+    // obfree() -> dealloc_obj() marks the object deleted rather than freeing
+    // memory, which is how this port spells C's free().
+    assert.equal(corpse.where, OBJ_DELETED);
+    assert.deepEqual(drawn, [[x, y]]);
+});
+
+test('rot_corpse exposes a hider only once nothing is left to hide under',
+    () => {
+        // dig.c:2179-2182. The monster is a cave spider, one of the eight
+        // hides_under() species (M1_CONCEAL); a jackal is not.
+        for (const row of [
+            { why: 'lone corpse, hider', under: false, mnum: PM_CAVE_SPIDER,
+                expected: 0 },
+            { why: 'pile under corpse, hider', under: true,
+                mnum: PM_CAVE_SPIDER, expected: 1 },
+            { why: 'lone corpse, non-hider', under: false,
+                mnum: PM_JACKAL, expected: 1 },
+        ]) {
+            const state = rotState();
+            const x = 30;
+            const y = 8;
+            if (row.under) floorRock(state, x, y);
+            const corpse = floorCorpse(state, x, y);
+            const monster = { mnum: row.mnum, mundetected: 1,
+                data: state.mons[row.mnum] };
+            state.level.monsters[x][y] = monster;
+            const { drawn, newsym } = recordingNewsym();
+
+            rot_corpse(corpse, state.moves, { state, hooks: { newsym } });
+
+            assert.equal(monster.mundetected, row.expected, row.why);
+            assert.deepEqual(drawn, [[x, y]], row.why);
+        }
+    });
+
+test('unportedRotCorpseReason names the arm each corpse is waiting on', () => {
+    const state = rotState();
+    const seam = { state, hooks: { newsym: () => {} } };
+    const floor = floorCorpse(state, 12, 6);
+    assert.equal(unportedRotCorpseReason(floor, seam), null);
+
+    // dig.c:2158-2178's three non-floor arms all still stop.
+    const carried = newObject({ otyp: CORPSE, where: OBJ_INVENT });
+    assert.match(
+        unportedRotCorpseReason(carried, seam),
+        /a corpse on the floor, but one is rotting at where=3/u,
+    );
+
+    // rot_organic()'s contents loop at dig.c:2129-2136.
+    const holder = floorCorpse(state, 13, 6);
+    holder.cobj = newObject({ otyp: ROCK });
+    assert.match(
+        unportedRotCorpseReason(holder, seam),
+        /a rotting corpse to hold nothing/u,
+    );
+
+    // shk.c obfree()'s billing seam.
+    const owed = floorCorpse(state, 14, 6);
+    owed.unpaid = true;
+    assert.match(
+        unportedRotCorpseReason(owed, seam),
+        /a rotting corpse nobody owes for/u,
+    );
+
+    // dig.c:2183-2185, mon.c hideunder(&gy.youmonst): the hero is hidden on
+    // the rotting corpse's own square and belongs to a hides_under() species.
+    const underfoot = floorCorpse(state, 20, 9);
+    state.u.ux = 20;
+    state.u.uy = 9;
+    state.u.uundetected = 1;
+    state.youmonst.data = state.mons[PM_CAVE_SPIDER];
+    assert.match(
+        unportedRotCorpseReason(underfoot, seam),
+        /a rotting corpse not under the hidden hero/u,
+    );
+    // A hero of a species that cannot hide under an object reaches neither
+    // C's else-if nor this stop.
+    state.youmonst.data = state.mons[PM_JACKAL];
+    assert.equal(unportedRotCorpseReason(underfoot, seam), null);
+});
+
+test('unportedRotCorpseReason demands the newsym seam it will draw through',
+    () => {
+        const state = rotState();
+        const corpse = floorCorpse(state, 15, 7);
+        assert.throws(
+            () => unportedRotCorpseReason(corpse, { state }),
+            /rot_corpse requires a newsym seam/u,
+        );
+    });
+
+test('the corpse rot matrix rests long enough for a corpse to come due', () => {
+    // loadCorpseRotRecipe() runs validateCleanRecipe(), so calling it is the
+    // cleanliness check as well.
+    const { segments } = loadCorpseRotRecipe();
+    assert.ok(segments.length <= RECORDER_SEGMENT_LIMIT,
+        'the matrix records in one chunk');
+    for (const segment of segments) {
+        // mkobj.c start_corpse_timeout() gives a corpse mklev() placed at
+        // least ROT_AGE - rot_adjust turns, which is 250 - 25. A segment that
+        // stopped short of that would record a game in which nothing rots.
+        const turns = segment.moves.length / 2;
+        assert.ok(turns > 225, `${segment.seed} rests past the earliest expiry`);
+        assert.match(segment.moves, /^(?:m\.)+$/u,
+            `${segment.seed} rests with the no-op prefix throughout`);
+        // The turn counter is what dates each map change, and a pet would be
+        // free to eat the corpse the segment is waiting for.
+        assert.match(segment.nethackrc, /(?:^|,)time(?:,|\n)/u);
+        assert.match(segment.nethackrc, /pettype:none/u);
+    }
 });

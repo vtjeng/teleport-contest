@@ -2916,7 +2916,12 @@ export function Ugender(state = game) {
 export function u_at(x, y, state = game) {
     return state?.u?.ux === x && state?.u?.uy === y;
 }
-export function OBJ_AT(x, y) { return Boolean(game?.level?.objects?.[x]?.[y]); }
+// C ref: rm.h:500 OBJ_AT(). The optional state argument matches u_at() above:
+// dig.c rot_corpse() asks this question about the state its timer is running
+// against, which on a planned turn is the clone rather than the live game.
+export function OBJ_AT(x, y, state = game) {
+    return Boolean(state?.level?.objects?.[x]?.[y]);
+}
 export function Has_contents(obj) { return obj?.cobj != null; }
 // C ref: monst.h:73-74. The mask matters: m_ap_type also carries M_AP_F_DKNOWN
 // (0x8), so an unmasked read answers truthy for a monster whose appearance type

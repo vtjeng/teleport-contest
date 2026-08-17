@@ -13,6 +13,7 @@ import {
 } from '../js/allmain.js';
 import {
     A_DEX,
+    BURN_OBJECT,
     CLAIRVOYANT,
     COLNO,
     DETECT_MONSTERS,
@@ -35,17 +36,20 @@ import {
     NOT_HUNGRY,
     NO_SPELL,
     OBJ_CONTAINED,
+    OBJ_DELETED,
     OBJ_FLOOR,
     OVERLOADED,
     PIT,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
+    ROT_CORPSE,
     RUN_STEP,
     SATIATED,
     SEARCHING,
     DOOR,
     SLT_ENCUMBER,
     SV0,
+    TIMER_OBJECT,
     WEAK,
     WOUNDED_LEGS,
     W_ARMF,
@@ -77,14 +81,26 @@ import {
     PM_PONY,
     PM_TENGU,
 } from '../js/monsters.js';
-import { DAGGER, ROCK, SACK, TOOL_CLASS } from '../js/objects.js';
+import {
+    CORPSE,
+    DAGGER,
+    OIL_LAMP,
+    ROCK,
+    SACK,
+    TOOL_CLASS,
+} from '../js/objects.js';
 import { create_region } from '../js/region.js';
-import { UnsupportedObjectOperationError } from '../js/obj.js';
+import {
+    UnsupportedObjectOperationError,
+    newObject,
+    place_object,
+} from '../js/obj.js';
 import { UnsupportedObjectNameError } from '../js/objnam.js';
 import { UnsupportedMonsterPickupOperationError } from '../js/steal.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
 import { cansee, vision_recalc } from '../js/vision.js';
+import { start_timer } from '../js/timeout.js';
 import {
     loadFirstCompleteTurnRecipe,
 } from './run-first-complete-turn.mjs';
@@ -947,8 +963,13 @@ test('due timeout retries stop at the elapsed coordinator before mutation',
         game.context.move = 1;
         game.context.seer_turn = 1000;
         game.u.umovement = NORMAL_SPEED;
+        // A lit lamp burning down. timeout.c timeout_funcs[]'s BURN_OBJECT row
+        // is unported, so the whole turn stops rather than draining the queue.
         game.gt.timer_base = {
             timeout: game.moves + 1,
+            kind: TIMER_OBJECT,
+            func_index: BURN_OBJECT,
+            arg: { otyp: OIL_LAMP, timed: 1 },
             next: null,
         };
         const before = completeSecondTurnSnapshot(game, replay);
@@ -958,7 +979,9 @@ test('due timeout retries stop at the elapsed coordinator before mutation',
             await assert.rejects(
                 moveloop_core(),
                 (error) => error instanceof UnsupportedTurnBoundaryError
-                    && error.reason === 'no timer due by move 2',
+                    && error.reason
+                        === 'a ported timeout function, but burn_object() '
+                            + 'is due',
             );
             assert.deepEqual(
                 completeSecondTurnSnapshot(game, replay),
@@ -1787,6 +1810,101 @@ test('a planned timeout writes no line and reads no key', async () => {
     );
     assert.equal(game.nhDisplay.terminal._inputQueue.length, 0);
 });
+
+test('a planned corpse rot touches neither the live map nor the live queue',
+    async () => {
+        const replay = await runSegment({
+            // Independently chosen; nothing below depends on the map beyond
+            // the hero having somewhere to stand.
+            seed: 2026081711,
+            datetime: '20260817101500',
+            nethackrc: 'OPTIONS=name:PlannedRot,role:Healer,race:human,'
+                + 'gender:female,align:neutral,!legacy,!tutorial,'
+                + '!splash_screen,pettype:none,!acoustics',
+            moves: '',
+        });
+        for (const column of game.level.monsters) column.fill(null);
+        game.level.monlist = null;
+        game.level.regions = [];
+        game.head_engr = null;
+        // A burdened hero is what makes advanceElapsedTurn() supply
+        // advanceRound, so the clone runs the whole once-per-turn block and
+        // reaches run_timers() at the end of nh_timeout.
+        game.invent = {
+            oclass: TOOL_CLASS,
+            otyp: SACK,
+            owt: weight_cap(game) + 5,
+            nobj: null,
+        };
+        assert.ok(projected_capacity(game) > 0,
+            'the fixture must burden the hero');
+        game.go = { ...(game.go ?? {}), oldcap: near_capacity(game) };
+        game.context.seer_turn = 100000;
+        game.context.next_attrib_check = 100000;
+
+        // The corpse lies on the hero's own square, so cansee() is true there
+        // and newsym() takes its visible arm -- the one that writes
+        // loc.waslit. That write is the leak this case watches for: newsym()
+        // reads the module-global game rather than the state run_timers() was
+        // handed, so a planned rot that drew through the live seam would
+        // repaint a square the live turn has not reached yet.
+        const corpse = newObject({
+            age: 0,
+            corpsenm: PM_LICHEN,
+            o_id: 90001,
+            oclass: game.objects[CORPSE].oc_class,
+            otyp: CORPSE,
+            quan: 1,
+        });
+        place_object(corpse, game.u.ux, game.u.uy, { state: game });
+        // start_timer() counts from the current move, and the once-per-turn
+        // block runs against the turn being entered.
+        start_timer(1, TIMER_OBJECT, ROT_CORPSE, corpse, game);
+        const square = game.level.at(game.u.ux, game.u.uy);
+        square.waslit = !square.lit;
+
+        // One region, so the plan stops at the guard directly below
+        // nh_timeout and the live pass never runs.
+        game.level.regions.push(create_region([{
+            lx: game.u.ux,
+            ly: game.u.uy,
+            hx: game.u.ux,
+            hy: game.u.uy,
+        }]));
+        game.u.umovement = 0;
+        game.context.move = 1;
+
+        const before = completeSecondTurnSnapshot(game, replay);
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            game.context.move = 1;
+            await assert.rejects(
+                () => moveloop_core(),
+                (error) => error instanceof UnsupportedTurnBoundaryError
+                    && error.message === 'elapsed turn reached burdened '
+                        + 'multi-cycle region upkeep',
+                `attempt ${attempt}`,
+            );
+            // world.locations and timers.queue are both in the snapshot, so
+            // this one comparison covers the redraw and the drain alike.
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, replay),
+                before,
+                `attempt ${attempt}`,
+            );
+            assert.equal(corpse.where, OBJ_FLOOR, `attempt ${attempt}`);
+            assert.equal(square.waslit, !square.lit, `attempt ${attempt}`);
+        }
+
+        // With the region gone the live pass takes the turn for real, and the
+        // same corpse leaves the floor.
+        game.level.regions = [];
+        game.context.move = 1;
+        await assert.rejects(() => moveloop_core(), /Input queue empty/u);
+        assert.equal(corpse.where, OBJ_DELETED);
+        assert.equal(game.level.objects[game.u.ux][game.u.uy], null);
+        assert.equal(game.gt.timer_base, null);
+        assert.equal(square.waslit, Boolean(square.lit));
+    });
 
 // The status seam of the same nh_timeout_elapsed_turn() call, which the case
 // above cannot reach. timeout.c:775 calls stop_occupation() beside

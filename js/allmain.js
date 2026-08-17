@@ -722,9 +722,23 @@ async function finishElapsedTurn(
         state.disp.time_botl = true;
     }
 
+    // The timer queue's refusal is decided here on the dry run, where
+    // advanceElapsedTurn()'s catch turns it into the turn's boundary, and
+    // again at :1009 against the turn being entered. Nothing between those two
+    // and this call can invalidate either verdict: the live monster scan
+    // cannot take a due corpse off the floor without refusing first, since
+    // monster pickup and dog_eat() are themselves unported, and a corpse a
+    // monster's death creates is scheduled about 250 turns out. So no
+    // converting try belongs here, any more than around the state the same
+    // preflight admits above it.
     await nh_timeout_elapsed_turn(state, {
         message: turnMessage,
         statusRefresh: turnStatusRefresh,
+        // dig.c rot_corpse() redraws the square it cleared. The dry run works
+        // on a clone whose objects are copies, so its rotting is discarded
+        // with the clone -- but newsym() paints the live map whatever state it
+        // is handed, so the clone must draw nothing.
+        newsym: planning ? () => {} : newsym,
     });
     // Full planning remains specific to the burdened multi-allocation path.
     // An unburdened clone returns just after random monster generation above,
@@ -1009,7 +1023,7 @@ async function advanceElapsedTurn(state) {
             preflight_nh_timeout_elapsed_turn({
                 ...state,
                 moves: (state.moves || 1) + 1,
-            });
+            }, { newsym });
         } catch (error) {
             if (!(error instanceof UnsupportedHeroTimeoutBoundaryError))
                 throw error;
