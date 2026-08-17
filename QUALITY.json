@@ -14928,6 +14928,151 @@
         }
       },
       "recordedAt": "2026-08-17T07:16:02.247Z"
+    },
+    {
+      "kind": "review",
+      "head": "6f718acbef51aab433293c82701b23a87a2e66e0",
+      "auditedRange": "389a8a22edb2cdb857a51c3c4306e506121d424b..6f718acbef51aab433293c82701b23a87a2e66e0",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "b7cf46847e434137497d2d39880535d2e3e33759",
+        "reason": "the checklist covers b7cf4684, an ancestor of the range head; the 1 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 22 raw, 20 deduplicated, 18 confirmed, 17 applied, 1 deferred, 2 rejected, 0 unverified; mutation: 0 survivors of 25 mutants. Counts: 22 raw, 20 deduplicated, 18 confirmed, 18 applied, 1 deferred, 2 rejected, 0 unverified; mutation: 0 survivors of 25 mutants over two runs. The goal's closing pass, run because the goal closes rather than because a threshold forced it; the gate read WATCH at 3 of 10 commits and 512 of 1,000 lines. Eighteen of twenty confirmed, which is the highest proportion any pass here has returned, and the reason is that the range put a writer behind a marker every reader in the port already consulted.\n\nThe result that mattered most is the one the concurrency finder was enabled for. The slice's own comment asserted that no planning caller reaches mhitm.c pre_mm_attack(), naming js/allmain.js finishElapsedTurn() as the only function a clone runs with planning:true. That is false: preflightSimpleMonsterActions() runs moveSimplePet() with planning:true and a pet's blow arrives through dogmove.c dog_move(). The clone's level cells are the live game's and show_glyph_cell() takes no state at all, so a dry run marked a square in the running game and painted it, on a turn the scan may still refuse. Two findings, one from the correctness finder and one from the concurrency finder, described the write and the clear halves of the same leak. Both are closed: the mark goes through a seam the scan binds to a no-op, as it already binds newsym(), and map_invisible() now refuses a foreign state the way see_nearby_objects() does. mondead()'s clear refuses on a plan rather than skipping, because unmap_object() refuses an engraved square and a skipped call would hide that refusal from the pass that exists to find it.\n\nTwo more changed screens. monsterPossessive() open-coded the trailing-s half of hacklib.c s_suffix() and answered \"It's tentacles suck\" where C answers \"Its\", an arm this range made reachable. teleport.c rloc_to_core() calls Monnam() three times, before the move and twice after it, and the port read it once into a buffer; the snapshot was safe until this range made the name depend on canspotmon(), and a monster teleporting from a dark square into view was announced as \"It appears!\". A third, hack.c domove_fight_empty()'s digging refusal, omitted C's svc.context.forcefight conjunct, which became load-bearing when the entry test gained its non-forcefight disjunct.\n\nSeven of the eighteen were test gaps, and they are the pass's real yield: the readiness mutation run killed 24 of 24 and found none of them, because each was a guard whose deletion breaks nothing the committed fixtures set up. The sharpest is newsym()'s !shouldDisplayMonster term, which keeps a monster the hero can spot from being replaced by a remembered 'I' -- and marker-and-monster is the ordinary follow-up state, not a corner, since the marker is written onto the square a monster is standing on. Every new assertion was watched failing against a mutant applied to the staged tree and reversed with git restore.\n\nOne finding is deferred rather than fixed. The marker seam's no-op makes the plan and the live pass diverge on the marker, so unmap_object()'s engraved-square refusal can now be raised by the live scan alone, where js/allmain.js has no class conversion and the segment loses its whole matching prefix. Closing it needs a recording of a monster dying on a marked engraved square; it is tracked as live-scan-map-memory-refusal-escapes-the-segment.\n\nTwo findings were rejected with counter-evidence, one on causality and one as pre-existing. The development score is unchanged across every fix: 10 of 33 sessions, 1,785 screens, 126,600 random-number values and 1,804 cursors before and after, and the fresh differential scripts/run-invisible-monster-marker.mjs still matches C over its five segments. Optional finders: concurrency was enabled and returned the leak; performance was not, because the range replaces a boolean read with an integer comparison and adds one arm to a glyph resolver, with no amplified work and no measured budget. A clarity pass was not run: the four comment findings this pass confirmed were applied here.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3754,
+        "counts": {
+          "raw": 22,
+          "deduplicated": 20,
+          "confirmed": 18,
+          "applied": 17,
+          "deferred": 1,
+          "rejected": 2,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 8,
+          "tests": 7,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/mhitm.js pre_mm_attack() called display.c map_invisible() directly, and the once-per-turn planning scan reaches that function: preflightSimpleMonsterActions() runs moveSimplePet() with planning:true and a pet's blow arrives through dogmove.c dog_move(). The clone's level cells are the live game's and show_glyph_cell() takes no state, so a dry run marked and painted a square in the running game on a turn the scan might still refuse. The mark now goes through a seam the scan binds to a no-op, as it already binds newsym().",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/display.js map_invisible() wrote map memory to the state handed in and painted the module-global game, splitting its two halves silently. It now refuses a foreign state the way see_nearby_objects() does, so the next caller cannot repeat the split. The comment that justified the direct call on the grounds that the function 'takes the state it writes' was false and is corrected.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/mon.js mondead()'s marker clear leaked through the same shared cells. It refuses on a plan rather than skipping, because display.c unmap_object() refuses an engraved square and a skipped call would hide that refusal from the pass whose job is to find it.",
+            "foundBy": [
+              "concurrency"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/mon.js mondead()'s clear calls unmap_object(), whose UnsupportedMapMemoryError neither elapsedTurnPlanningRefusals() nor js/jsmain.js recognised, so a monster dying on a marked engraved square would discard the segment's whole matching prefix rather than ending it on its last matching screen. The planning half landed -- the class is in elapsedTurnPlanningRefusals() now -- and the live half is deferred, because the marker seam's no-op means only the live pass can raise it and closing that needs a recording.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "js/do_name.js monsterPossessive() open-coded the trailing-s half of hacklib.c s_suffix() and answered \"It's tentacles suck\" where C answers \"Its\". The arm became reachable in this range, so the divergence was live. It delegates to the ported s_suffix() now.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/teleport.js relocateToFixedDestination() read the monster's name once before the move, where teleport.c rloc_to_core() calls Monnam() at 1666, 1714 and 1722. The snapshot was safe until this range made the name depend on canspotmon(); a monster teleporting from a dark square into view was announced as \"It appears!\". Each site reads the name where C reads it.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/hack.js domove_fight_empty()'s digging refusal omitted C's svc.context.forcefight conjunct along with the two glyph conjuncts, while its comment enumerated only the glyph pair. The omission became load-bearing in this range, when the entry test gained its non-forcefight disjunct: a hero walking into a remembered 'I' with a digging tool stopped where C swings.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/do_name.js monsterCommonName() accepted a suppress mask and honoured only SUPPRESS_IT, silently dropping every other flag, while its sibling x_monnam() refuses what it cannot spell. A port of noname_monnam() would have got \"Fido\" where C answers \"the dog\". It validates its mask now.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/detect.js:578 The comment retiring unmap_invisible()'s preflight justifies it with 'neither draws', but the preflight exists to hoist refusals, and unmap_invisible() can still throw UnsupportedMapMemoryError from unmap_object() in the middle of dosearch0()'s loop.",
+            "counterEvidence": "The adjudicator refuted causality rather than the mechanism: the mid-loop stop is not a divergence from C and is not a hard failure. js/cmd.js failClosedCommandRefusals() lists UnsupportedMapMemoryError, so an explicit search that reaches it ends the segment on its last matching screen, which is what the preflight buys and what the port promises. The comment's stated criterion is loose; the behaviour it describes is right."
+          },
+          {
+            "summary": "scripts/display-symbols.test.mjs:1815 `assert.equal(unmap_invisible(-1, y, state), false)`, commented as pinning the isok() guard, passes with the guard removed, so it is a false-positive oracle.",
+            "counterEvidence": "Reproduced and real, but pre-existing rather than introduced or exposed by this range: the version of the assertion this range deleted from scripts/detect.test.mjs carried the identical comment and the identical call. GameMap.at() answers null for x < 0, so the predicate answers false either way. It belongs to whoever next touches that guard, not to this pass."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/mon.js mondead()'s clear calls unmap_object(), whose UnsupportedMapMemoryError neither elapsedTurnPlanningRefusals() nor js/jsmain.js recognised, so a monster dying on a marked engraved square would discard the segment's whole matching prefix rather than ending it on its last matching screen. The planning half landed -- the class is in elapsedTurnPlanningRefusals() now -- and the live half is deferred, because the marker seam's no-op means only the live pass can raise it and closing that needs a recording.",
+            "trackedIn": "live-scan-map-memory-refusal-escapes-the-segment",
+            "category": "production"
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "389a8a22edb2cdb857a51c3c4306e506121d424b..16d4e33e86143e9f7a8fffdf1756e1c9a4bcc384",
+            "16d4e33e86143e9f7a8fffdf1756e1c9a4bcc384..6f718acbef51aab433293c82701b23a87a2e66e0"
+          ],
+          "mutants": 25,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 3,
+              "killed": 3
+            },
+            "logical": {
+              "ran": 21,
+              "killed": 21
+            },
+            "relational": {
+              "ran": 1,
+              "killed": 1
+            }
+          },
+          "finderConclusion": "Two runs. The readiness run over the whole frozen range killed 24 of 24, and the delta run over the audit fixes killed 1 of 1. Neither found anything, and the tests finder is what did: seven confirmed coverage gaps no mutation run could see, because each was a guard whose deletion breaks nothing the committed fixtures set up. The sharpest is newsym()'s !shouldDisplayMonster term, which keeps a monster the hero can spot from being replaced by a remembered 'I' on the square it stands on -- the ordinary follow-up state, since the marker is written onto an occupied square -- and which could be deleted with the whole suite green."
+        },
+        "readiness": {
+          "boundary": "The starting event is a player command that gives a monster its move and reaches mhitm.c mattackm() with gv.vis TRUE and one combatant the hero cannot spot; in seed0006-wizard-water-demon that is the byte H at step 77, the kitten biting a kobold zombie in an unlit corridor. The ending event is the screen at the end of that step: the message line 'You hear some noises.  The kitten bites it.' with column 62, row 9 still reading '#', because the kobold dies from the same bite and mon.c mondead() clears the marker before m_detach() repaints. The real game executes it: the session ran to step 77 before this goal and runs to step 95 after it.",
+          "sourceReview": "Traced entry by entry in .agents/implementation-checklist.json, which reaches ready-for-audit with 25 entries, 18 done, 6 later and 1 no-effect-yet. The orchestrator built the candidate list at the slice base by reading mhitm.c pre_mm_attack() and its two callers, display.c map_invisible(), unmap_invisible(), show_mon_or_warn(), mon_overrides_region(), feel_location(), newsym() and reset_glyphmap(), do_name.c x_monnam() with its six wrappers, and mon.c mondead() and monstone(), and by grepping every marker site in nethack-c/upstream. The worker reached the same reading and found one owner the list did not name: mon.c make_corpse()'s mummy and zombie group, which the port stopped on one call after the message. The pass then found what neither had: the planning clone reaches pre_mm_attack(), which the slice comment had asserted it does not. The trace covered state and random-number order; this range adds no draw, and the development score is identical call for call across the audit fixes.",
+          "completeness": "No known unsupported behavior remains inside the boundary, and every reachable excluded branch stops before changing state, consuming randomness or producing output. Six entries are `later` and each names the recording it waits on: the mhitu.c hero-facing marker sites, x_monnam()'s augment_it arm, which draws rn2(2) and has no ported caller, mon.c monstone(), and the two remaining glyph_is_invisible() readers in js/zap.js and js/detect.js, whose commands are unported. One residual defect this pass found is deferred rather than fixed, live-scan-map-memory-refusal-escapes-the-segment, because closing it needs a recording of a monster dying on a marked engraved square."
+        }
+      },
+      "recordedAt": "2026-08-17T11:19:17.197Z"
     }
   ]
 }
