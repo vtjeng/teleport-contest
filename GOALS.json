@@ -2551,8 +2551,8 @@
         },
         {
           "name": "terrain-memory-holds-a-glyph-number",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "4eff71bd42165af737c13942fee2c0243bc605cd"
         }
       ],
       "openedAt": "67870c0f966e10d69013e3d4174e95bac17d3e22",
