@@ -2897,6 +2897,13 @@ export function Upolyd(player) {
 // ? 1 : 0). A polymorphed hero shows the gender of the form she wears, which
 // polyself.c stores in u.mfemale; otherwise her own flags.female answers.
 // The result is an mgender enum value, so 0 is MALE and 1 is FEMALE.
+//
+// Unlike Upolyd() directly above, the single argument is the whole game state
+// rather than the hero struct, because C's macro reads flags.female, which
+// lives outside u. The two are ported from adjacent C lines and read alike, so
+// the difference is worth stating here: handing this a hero struct answers
+// MALE for a female hero, silently, since neither the umonnum comparison nor
+// the flags lookup finds anything on it.
 export function Ugender(state = game) {
     return (Upolyd(state?.u) ? state?.u?.mfemale : state?.flags?.female)
         ? 1 : 0;

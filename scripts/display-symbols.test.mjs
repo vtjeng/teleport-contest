@@ -1049,7 +1049,11 @@ test('UTF-8 object-class overrides retain glyphs.c concrete-object semantics', (
 test('hero and pet symbol overrides require sysconf accessibility', () => {
     const state = {
         flags: {},
-        u: { umonnum: 0 },
+        // umonster as well as umonnum: you.h:554's Upolyd compares the two, so
+        // a hero carrying only one of them reads as polymorphed, and
+        // display.h hero_glyph's `Upolyd ||` disjunct would then show the form
+        // where this test means to show the race.
+        u: { umonnum: 0, umonster: 0 },
         urace: { mnum: 1 },
         mons: [
             { mlet: S_HUMAN, mcolor: CLR_RED },
@@ -1269,6 +1273,25 @@ test("the hero's own glyph takes its gender bit from Ugender", () => {
     state.u.umonnum = 1;
     state.mons.push({ mlet: S_FELINE, mcolor: CLR_WHITE });
     assert.equal(hero_glyph_info(state).attr, ATR_INVERSE);
+
+    // display.h hero_glyph's species half is
+    // (Upolyd || !flags.showrace) ? u.umonnum : gu.urace.mnum, so the
+    // polymorph disjunct outranks the option: a polymorphed hero shows her
+    // form even with 'showrace' on. Without the disjunct she would show her
+    // race's letter in HI_DOMESTIC instead, which is what the option alone
+    // selects.
+    state.urace = { mnum: 0 };
+    state.flags.showrace = true;
+    assert.equal(
+        hero_glyph_info(state).ch, monster_class_symbol(S_FELINE, state).ch,
+    );
+    // Back in her own form the option decides again, and she takes the race's
+    // letter. The colours do not separate the two branches here, because
+    // HI_DOMESTIC and this form's mcolor are both CLR_WHITE; the letter does.
+    state.u.umonnum = state.u.umonster;
+    assert.equal(
+        hero_glyph_info(state).ch, monster_class_symbol(S_HUMAN, state).ch,
+    );
 });
 
 // C refs: display.c display_monster():524, which reads mgendercode from the
@@ -1337,7 +1360,16 @@ test('a hallucinated statue takes its gender from the second display draw',
     () => {
         const state = visibleCellState();
         state.wizard = true;
-        state.iflags = { wc_color: true, wizmgender: true };
+        // hilite_pet and its attribute are set so the synthetic monster's
+        // mtame: 0 is observed rather than assumed: C's chain takes the pet
+        // arm above the gender one, so a draw that treated this as a pet
+        // would answer ATR_BOLD here instead of ATR_INVERSE.
+        state.iflags = {
+            wc_color: true,
+            wizmgender: true,
+            wc_hilite_pet: true,
+            wc2_petattr: ATR_BOLD,
+        };
         const scripted = (values) => {
             let index = 0;
             return () => values[index++];

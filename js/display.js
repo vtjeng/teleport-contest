@@ -43,7 +43,7 @@ import {
     DBWALL, DRAWBRIDGE_UP, DRAWBRIDGE_DOWN,
     DB_FLOOR, DB_ICE, DB_LAVA, DB_MOAT, DB_UNDER,
     D_BROKEN, D_ISOPEN, D_CLOSED, D_LOCKED, D_TRAPPED, LA_DOWN,
-    IS_STWALL, isok, u_at, Ugender,
+    IS_STWALL, isok, u_at, Ugender, Upolyd,
     BEAR_TRAP, NO_TRAP, WEB, is_pit,
     In_mines, In_sokoban, Is_knox_level, MAXTCHARS,
     SV0, SV1, SV2, SV3, SV4, SV5, SV6, SV7,
@@ -738,15 +738,22 @@ function accessibilityOverridesEnabled(state) {
 }
 
 export function hero_glyph_info(state = game) {
+    // C ref: display.h hero_glyph (654-656), the species half:
+    // (Upolyd || !flags.showrace) ? u.umonnum : gu.urace.mnum. A polymorphed
+    // hero shows her form rather than her race even with 'showrace' on, which
+    // is why the disjunct is here and not only the option. Upolyd() is always
+    // false while polyself is unported, so today the option alone decides.
     const showRace = Boolean(state.flags?.showrace);
-    const mnum = showRace ? state.urace?.mnum : state.u?.umonnum;
+    const mnum = (Upolyd(state.u) || !showRace)
+        ? state.u?.umonnum : state.urace?.mnum;
     const species = state.mons?.[mnum] ?? state.youmonst?.data;
     const symbol = (accessibilityOverridesEnabled(state)
         ? optional_misc_symbol(SYM_HERO_OVERRIDE, state) : null)
         ?? monster_class_symbol(species?.mlet ?? 53, state);
     const glyph = glyphPresentation(
         symbol,
-        showRace ? HI_DOMESTIC : species?.mcolor ?? CLR_WHITE,
+        (showRace && !Upolyd(state.u))
+            ? HI_DOMESTIC : species?.mcolor ?? CLR_WHITE,
         state,
     );
     // C ref: display.h hero_glyph (654-656). The hero's own square takes an

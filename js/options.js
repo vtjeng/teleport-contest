@@ -2586,13 +2586,16 @@ function applyBooleanOption(result, name, row, statement, value, negated) {
     } else if (name === 'hilite_pile') {
         result.iflags.hilite_pile = enabled;
     } else if (name === 'wizmgender') {
-        // optlist.h:890-891 binds this to &iflags.wizmgender, and
-        // win/tty/wintty.c tty_print_glyph() (3930) is its only reader. It
-        // needs an arm of its own because a debug game can set it from the
+        // optlist.h:890-891 binds this to &iflags.wizmgender, which two
+        // ported readers ask: js/display.js print_glyph_attr() for
+        // win/tty/wintty.c tty_print_glyph() (3930), and js/objnam.js
+        // wizmgenderSuffix() for objnam.c doname_base() (1550). It needs an
+        // arm of its own because a debug game can set it from the
         // configuration file, where optfn_boolean() returns at options.c:5325
         // before any menu code runs: without one the value lands under
-        // flags.wizmgender, the reader never sees it, and every female
-        // monster draws plain.
+        // flags.wizmgender, neither reader sees it, every female monster
+        // draws plain, and every statue, corpse and figurine loses its
+        // gender suffix.
         result.iflags.wizmgender = enabled;
     } else if (name === 'hitpointbar') {
         result.iflags.wc2_hitpointbar = enabled;

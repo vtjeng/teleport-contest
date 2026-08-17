@@ -420,6 +420,31 @@ test("'wizmgender' repaints a female hero in inverse video", async () => {
     assert.equal(heroAttr(), ATR_NONE);
 });
 
+test("'wizmgender' set from a configuration file reaches its reader",
+    async () => {
+        // options.c:5325 returns from optfn_boolean() at the go.opt_initial
+        // guard, before any of the menu code above, so a configuration file
+        // reaches iflags.wizmgender through applyBooleanOption() alone. That
+        // arm was missing: the value landed under flags.wizmgender, both
+        // readers saw nothing, and every female monster drew plain with no
+        // stop. The menu path above cannot catch that, because it never runs
+        // applyBooleanOption().
+        const state = await startGameWithConfig(
+            'OPTIONS=playmode:debug', 'OPTIONS=wizmgender',
+        );
+        assert.equal(state.wizard, true);
+        assert.equal(state.iflags.wizmgender, true);
+        // The C address is iflags, per optlist.h:890-891; flags is where the
+        // value used to land, and nothing should put it there.
+        assert.equal(state.flags.wizmgender, undefined);
+        // The hero is the recipe's female Valkyrie, so the reader that
+        // matters is reached without a repaint: her own square carries the
+        // attribute from the first draw.
+        assert.equal(
+            state.level.at(state.u.ux, state.u.uy).disp_attr, ATR_INVERSE,
+        );
+    });
+
 test('the custom-colour options raise only their own repair flag',
     async () => {
         const state = await startStockGame();

@@ -1560,14 +1560,23 @@ test("'wizmgender' names the gender a body or statue carries", () => {
     const state = namingState();
     state.wizard = true;
     state.iflags.wizmgender = true;
-    // hack.h:1197-1199, the four values spe's low two bits can hold.
-    // CORPSTAT_RANDOM is what mkcorpstat() leaves when nothing chose a
-    // gender, and C answers it outside genders[] altogether.
+    // hack.h:1190, CORPSTAT_GENDER is 0x03, so C reads spe's low two bits and
+    // nothing above them. The rows below run the field past that mask as well
+    // as through it: hack.h:1191 gives 0x04 to CORPSTAT_HISTORIC, which a
+    // statue carries alongside its gender, so a test that drove spe only over
+    // 0 to 3 could not tell `spe & CORPSTAT_GENDER` from a bare `spe` and
+    // would let the mask be dropped. CORPSTAT_RANDOM is what mkcorpstat()
+    // leaves when nothing chose a gender, and C answers it outside genders[]
+    // altogether.
     for (const [spe, adjective] of [
         [0, 'unspecified gender'],
         [1, 'female'],
         [2, 'male'],
         [3, 'neuter'],
+        [4, 'unspecified gender'],
+        [5, 'female'],
+        [6, 'male'],
+        [7, 'neuter'],
     ]) {
         assert.equal(
             donameFresh(
@@ -1584,11 +1593,44 @@ test("'wizmgender' names the gender a body or statue carries", () => {
         ),
         'a statue of a newt (female)',
     );
+    // A statue is where CORPSTAT_HISTORIC is actually used -- hack.h:1191
+    // says it is not used for a corpse -- so this is the pair that shows the
+    // gender suffix reading only the masked bits while another part of the
+    // same field drives a different clause of the same name.
+    assert.equal(
+        donameFresh(
+            objectOf(state, STATUE, { corpsenm: PM_NEWT, spe: 5 }), state,
+        ),
+        'a historic statue of a newt (female)',
+    );
     assert.equal(
         donameFresh(
             objectOf(state, FIGURINE, { corpsenm: PM_NEWT, spe: 2 }), state,
         ),
         'a figurine of a newt (male)',
+    );
+    // Where the suffix sits among its siblings, which nothing else pins.
+    // objnam.c:1549 puts the gender clause after the " named ..." clause and
+    // before the wielded group, so moving the call would produce a wrong name
+    // with every assertion above still passing.
+    assert.equal(
+        donameFresh(
+            objectOf(state, FIGURINE, {
+                corpsenm: PM_NEWT, spe: 1, owornmask: W_WEP,
+            }),
+            state,
+        ),
+        'a figurine of a newt (female) (wielded)',
+    );
+    assert.equal(
+        donameFresh(
+            objectOf(state, CORPSE, {
+                corpsenm: PM_NEWT, spe: 2, dknown: true,
+                oextra: { oname: 'Rex' },
+            }),
+            state,
+        ),
+        'a newt corpse named Rex (male)',
     );
     // An object type that stores no gender keeps spe's ordinary meaning.
     assert.equal(
