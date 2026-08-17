@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every entry is done or cannot-occur. The production game executes every done path: the fresh recipes in scripts/run-options-menu.mjs drive a debug-mode 'mO' menu to the wizmgender row and a configuration file that sets the option outright, and both discriminate against a port that draws the hero and a female pet plain. The development score is identical call for call, which is the guard this slice needed, since no development session picks the option. Three arms are done on a unit test alone and say so: the mimic and ridden arms, the male, female and neuter arms of the objnam.c suffix, whose CORPSTAT_RANDOM arm is the only one a level-generated object reaches, and statue_to_glyph()'s hallucinating gender draw, which is unobservable at its one caller.",
-  "commitChecked": "2aab973bda92d6f57ecdd12b6cdf410299160de4",
+  "reason": "Every entry is done or cannot-occur, and commitChecked names the commit that applied the goal-closing correctness pass rather than 2aab973 where the slice landed, since that pass ported hero_glyph's Upolyd disjunct and pinned three things the entries describe. The production game executes every done path: the fresh recipes in scripts/run-options-menu.mjs drive a debug-mode 'mO' menu to the wizmgender row and a configuration file that sets the option outright, and both discriminate against a port that draws the hero and a female pet plain. The development score is identical call for call, which is the guard this slice needed, since no development session picks the option. Three arms are done on a unit test alone and say so: the mimic and ridden arms, the male, female and neuter arms of the objnam.c suffix, whose CORPSTAT_RANDOM arm is the only one a level-generated object reaches, and statue_to_glyph()'s hallucinating gender draw, which is unobservable at its one caller.",
+  "commitChecked": "be8cce14a282daaa644ac5a2ba7a67fe8a4d726e",
   "boundary": {
     "goalId": "option-toggle-repaints-the-map",
     "startingCommit": "08c2151bfa105b2262e69f0e48a6a35cffcc7fd7",
@@ -134,6 +134,15 @@
       "effects": "None reachable: both stop before any state change, random-number call or output.",
       "evidence": "Carried forward from the previous slice's checklist, where the rogue exclusion was recorded on the refusal rather than on a session census.",
       "status": "cannot-occur",
+      "remaining": "None."
+    },
+    {
+      "candidate": "display.h hero_glyph's `Upolyd ||` species disjunct, which the correctness pass found dropped",
+      "reachability": "Every draw of the hero while polyself is ported; inert today, since Upolyd() is always false.",
+      "owner": "js/display.js hero_glyph_info()",
+      "effects": "A polymorphed hero shows her form rather than her race even with 'showrace' on, and takes the form's colour rather than HI_DOMESTIC.",
+      "evidence": "The slice added the C citation and the Ugender half without the species half, so the citation claimed a fidelity the function lacked. Porting it exposed an incomplete fixture in an older test, whose hero carried umonnum without umonster and so read as polymorphed.",
+      "status": "done",
       "remaining": "None."
     }
   ],
