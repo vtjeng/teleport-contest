@@ -2574,7 +2574,7 @@
     },
     {
       "id": "remembered-invisible-monster",
-      "status": "open",
+      "status": "closed",
       "boundary": "A monster-vs-monster attack whose defender the hero cannot spot runs mhitm.c pre_mm_attack()'s `if (!canspotmon(mdef)) map_invisible(mdef->mx, mdef->my);` (mhitm.c:62-71) and names that defender through do_name.c x_monnam()'s do_it arm, rather than raising UnportedMonsterActionError at js/mhitm.js:195. The property that makes that possible is testable on its own against the C source: map memory holds one glyph number per square, so a remembered invisible monster is the number GLYPH_INVISIBLE (display.h:549 over GLYPH_INVIS_OFF at :504) that display.c map_invisible() (378-385) writes into levl[x][y].glyph under svl.level.flags.hero_memory and never at the hero's own square, and every reader spells glyph_is_invisible(levl[x][y].glyph) rather than consulting a separate boolean: display_monster()'s clear (484-493), newsym()'s arm (1032-1033), feel_location() (763-767, 830), unmap_invisible() (387-396), and lock.c pick_lock()'s oldglyph comparison (579-584).",
       "upstreamOwners": [
         "mhitm.c pre_mm_attack()",
@@ -2611,8 +2611,11 @@
         "screens": 1768,
         "rng": 125937
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "67ab861a2a4e6a9febeb76aa5cb5a895ccbbaf0e",
+      "delivered": {
+        "screens": 17,
+        "rng": 663
+      }
     }
   ]
 }
