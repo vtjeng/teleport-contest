@@ -713,6 +713,16 @@ export function preflight_dropx(obj, env = {}) {
         throw new UnsupportedDropError('shipping or floor effects at a trap');
     if (is_lava(x, y, state) || is_pool(x, y, state))
         throw new UnsupportedDropError('liquid terrain');
+    // flooreffects()'s first arm reads the object rather than the square, and
+    // it sits past freeinv() in dropx(): without it here, a caller that has
+    // admitted the drop prints its message and empties the inventory slot
+    // before discovering the stop. A wished boulder is how that is reached.
+    // The one other object-reading arm, the potion on hot ground at :399-403,
+    // needs level.flags.temperature above 0, which only a Lua level
+    // description sets and js/mklev.js:271 leaves at 0, so it stays where
+    // flooreffects() has it.
+    if (obj.otyp === BOULDER)
+        throw new UnsupportedDropError('a boulder landing on the floor');
     // A doorway and an up stairway add no flooreffects() branch. They are
     // admitted for the live decorated-pile differential, while every other
     // special terrain remains at this boundary.

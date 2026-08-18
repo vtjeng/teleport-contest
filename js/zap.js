@@ -112,7 +112,7 @@ import { lcase, mungspaces } from './hacklib.js';
 import {
     getobj,
     hold_another_object,
-    prepareHeavyBallDropAdmission,
+    prepareHoldDropAdmission,
     update_inventory,
     useupall,
 } from './invent.js';
@@ -529,10 +529,10 @@ export async function makewish(state = game) {
             dropObject: dropx,
         },
     };
-    // The supported heavy-ball drop tail must be admitted before doname()
-    // records discovery and before wish conduct changes. The returned token
-    // is consumed after addinv() reaches the source drop_it branch.
-    const heavyDropAdmission = prepareHeavyBallDropAdmission(otmp, holdEnv);
+    // The supported drop tail must be admitted before doname() records
+    // discovery and before wish conduct changes. The returned token is
+    // consumed after addinv() reaches the source drop_it branch.
+    const holdDropAdmission = prepareHoldDropAdmission(otmp, holdEnv);
 
     // 6398 builds the livelog string.  Its three arms differ only in the text
     // they write to the livelog file, but doname() runs for all of them and
@@ -557,7 +557,7 @@ export async function makewish(state = game) {
     await hold_another_object(
         otmp, oops_msg, The(aobjnam(otmp, verb, state)), null,
         holdEnv,
-        heavyDropAdmission,
+        holdDropAdmission,
     );
     state.u.ublesscnt += rn1(100, 50); /* the gods take notice */
 }

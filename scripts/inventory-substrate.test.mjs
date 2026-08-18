@@ -75,7 +75,7 @@ import {
     obj_to_let,
     preflight_addinv,
     preflight_addinv_sequence,
-    prepareHeavyBallDropAdmission,
+    prepareHoldDropAdmission,
     prinv,
     reassign,
     resetInventory,
@@ -124,6 +124,7 @@ import {
     LONG_SWORD,
     MIRROR,
     OIL_LAMP,
+    ROCK,
     SACK,
     SILVER_SABER,
     SPE_BOOK_OF_THE_DEAD,
@@ -2226,10 +2227,21 @@ test('hold_another_object stops on the arms it cannot finish', async () => {
         UnsupportedObjectOperationError,
     );
     // 1275-1281 drops what will not fit: a boulder outweighs any hero's
-    // capacity, so near_capacity() rises past the pickup burden.
+    // capacity, so near_capacity() rises past the pickup burden. This env
+    // carries no drop operations, so the admission stops for want of them
+    // rather than running the branch.
     await assert.rejects(
         () => hold_another_object(instance(BOULDER, state), null, null, null,
                                  env),
+        /dropObject is not available/u,
+    );
+    // 1278-1279 splits a stack that merged on the way in, and splitobj() is
+    // unported, so no object with oc_merge may take the drop route at all.
+    // Four hundred rocks weigh 4000, past this hero's capacity of 950, and
+    // reach the encumbrance test with no admission behind them.
+    await assert.rejects(
+        () => hold_another_object(instance(ROCK, state, { quan: 400 }), null,
+                                  null, null, env),
         /held object dropped/u,
     );
 });
@@ -2288,7 +2300,7 @@ test('the hold limit takes the larger of the load and the burden option',
         assert.equal(near_capacity(permitted), HVY_ENCUMBER);
     });
 
-test('heavy-drop projection keeps exact inventory and burden boundaries',
+test('hold-drop projection keeps exact inventory and burden boundaries',
     async () => {
         const state = carryingState();
         let tail = null;
@@ -2325,7 +2337,7 @@ test('heavy-drop projection keeps exact inventory and burden boundaries',
                 preflightDropObject: () => { ++preflights; },
             },
         };
-        const admission = prepareHeavyBallDropAdmission(ball, env);
+        const admission = prepareHoldDropAdmission(ball, env);
 
         const held = await hold_another_object(
             ball,
@@ -2341,7 +2353,7 @@ test('heavy-drop projection keeps exact inventory and burden boundaries',
         assert.equal(ball.where, OBJ_INVENT);
     });
 
-test('heavy-drop admission distinguishes the 52nd and 53rd non-gold slots',
+test('hold-drop admission distinguishes the 52nd and 53rd non-gold slots',
     async () => {
         for (const [existingSlots, expectedDrop] of [
             // The incoming ball receives the last legal non-gold letter.
@@ -2382,7 +2394,7 @@ test('heavy-drop admission distinguishes the 52nd and 53rd non-gold slots',
                     dropObject: () => { ++drops; },
                 },
             };
-            const admission = prepareHeavyBallDropAdmission(ball, env);
+            const admission = prepareHoldDropAdmission(ball, env);
 
             const held = await hold_another_object(
                 ball, null, null, null, env, admission,
@@ -2393,17 +2405,17 @@ test('heavy-drop admission distinguishes the 52nd and 53rd non-gold slots',
         }
     });
 
-test('heavy-drop admission validates its object before reading its type', () => {
+test('hold-drop admission validates its object before reading its type', () => {
     const state = carryingState();
     for (const value of [null, NON_OBJECT_VALUE]) {
         assert.throws(
-            () => prepareHeavyBallDropAdmission(value, { state }),
-            /heavy-drop admission requires an object/u,
+            () => prepareHoldDropAdmission(value, { state }),
+            /hold-drop admission requires an object/u,
         );
     }
 });
 
-test('heavy-drop admission is object-specific, state-specific, and one-shot',
+test('hold-drop admission is object-specific, state-specific, and one-shot',
     async () => {
         const first = ordinaryDropFixture();
         first.obj.where = OBJ_FREE;
@@ -2412,7 +2424,7 @@ test('heavy-drop admission is object-specific, state-specific, and one-shot',
         first.state.u.acurr.a[A_CON] = MINIMUM_HERO_ATTRIBUTE;
         first.hooks.preflightDropObject = () => ({ object: first.obj });
         first.hooks.dropObject = () => {};
-        const admission = prepareHeavyBallDropAdmission(first.obj, first);
+        const admission = prepareHoldDropAdmission(first.obj, first);
         const other = instance(HEAVY_IRON_BALL, first.state);
 
         await assert.rejects(
@@ -2450,7 +2462,7 @@ test('heavy-drop admission is object-specific, state-specific, and one-shot',
         stale.state.u.acurr.a[A_CON] = MINIMUM_HERO_ATTRIBUTE;
         stale.hooks.preflightDropObject = () => ({ object: stale.obj });
         stale.hooks.dropObject = () => {};
-        const staleAdmission = prepareHeavyBallDropAdmission(
+        const staleAdmission = prepareHoldDropAdmission(
             stale.obj,
             stale,
         );
@@ -2480,7 +2492,7 @@ test('heavy-drop admission is object-specific, state-specific, and one-shot',
                 object: changed.obj,
             });
             changed.hooks.dropObject = () => {};
-            const changedAdmission = prepareHeavyBallDropAdmission(
+            const changedAdmission = prepareHoldDropAdmission(
                 changed.obj,
                 changed,
             );
@@ -2672,7 +2684,7 @@ test('heavy-ball retain and drop paths preserve source callback order',
                 };
             }
             const env = { state, hooks };
-            const admission = prepareHeavyBallDropAdmission(obj, env);
+            const admission = prepareHoldDropAdmission(obj, env);
 
             const held = await hold_another_object(
                 obj,
@@ -2744,7 +2756,7 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
             extractExternalObject: (object, env2) => remove_object(object, env2),
         };
         const env = { state, hooks };
-        const admission = prepareHeavyBallDropAdmission(ball, env);
+        const admission = prepareHoldDropAdmission(ball, env);
 
         const held = await hold_another_object(
             ball,
@@ -2761,7 +2773,7 @@ test('hold_another_object drops a nonmerging heavy wish onto ordinary ground',
         assert.equal(ball.where, OBJ_FLOOR);
         assert.equal(ball.nomerge, 0);
         const second = instance(HEAVY_IRON_BALL, state);
-        const secondAdmission = prepareHeavyBallDropAdmission(second, env);
+        const secondAdmission = prepareHoldDropAdmission(second, env);
         assert.equal(await hold_another_object(
             second,
             'Oops!  %s to the floor!',

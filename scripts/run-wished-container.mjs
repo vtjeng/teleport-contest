@@ -4,12 +4,22 @@
 // reference. Every segment contains replay inputs only; runFreshMatrix()
 // records new reference output in an isolated temporary workspace.
 //
-// mkobj.c mksobj():1010-1021 sends five of the seven container types to
-// mkbox_cnts() (303-384), which picks a maximum from the type, spends
-// rn2(n + 1) on how many objects to put inside, and for each one walks
-// boxiprobs[] with rnd(100), calls mkobj() for the class it lands on, and
-// adjusts a few results. objnam.c readobjnam()'s typfnd: tail reaches all of
-// that through mksobj(), so a wish is the shortest input that drives it.
+// mkobj.c mksobj_init() (868-1175) sends six of the seven container types to
+// mkbox_cnts() (303-384) from its arm at 1010-1022. mkbox_cnts() picks a
+// maximum from the type, spends rn2(n + 1) on how many objects to put inside,
+// and for each one walks boxiprobs[] with rnd(100), calls mkobj() for the
+// class it lands on, and adjusts a few results. objnam.c readobjnam()'s
+// typfnd: tail reaches all of that through mksobj(), so a wish is the
+// shortest input that drives it.
+//
+// Two of the six take a route of their own. A chest and a large box spend
+// three draws before the fallthrough (1012-1014): rn2(5) for olocked, rn2(10)
+// for otrapped, and, only when otrapped came out set, rn2(100) for tknown.
+// Their maximum then follows the lock -- 7 or 5 for a chest, 5 or 3 for a
+// large box -- so the bound printed with the count draw is what separates the
+// four. An ice box has a maximum of 20 and a loop body of its own (339-349):
+// mksobj(CORPSE, TRUE, FALSE), age set to 0, and the corpse's ROT_CORPSE,
+// REVIVE_MON and SHRINK_GLOB timers stopped.
 //
 // Nothing on the screen distinguishes a full container from an empty one: a
 // freshly created container has cknown 0 (mkobj.c unknow_object()), and
@@ -18,11 +28,13 @@
 // is what separates the branches, and verifyWishedContainerSegment() below
 // reads the contents the port built so the two are pinned together.
 //
-// Two of the seven types are outside the matrix. A chest and a large box roll
-// their own lock, trap and tknown state in mksobj() and take a bare `break;`
-// in objnam.c's spe switch (5142-5146); an ice box is stocked with corpses
-// whose timers mkbox_cnts() then stops. readobjnam() refuses all three, and
-// scripts/wizard-wish.test.mjs pins that refusal.
+// The ice box is also the one type heavy enough to leave the hero's hands.
+// objects.h:903 gives it 900 before any corpse, so invent.c
+// hold_another_object() (1207-1306) weighs it against
+// max(near_capacity(), flags.pickup_burden) and reaches drop_it for all but
+// the lightest. Two segments sit either side of that test with the same wish:
+// the ice box holding one corpse is carried, and the one holding four is
+// dropped where the hero stands. Nothing about the type decides it.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -32,9 +44,13 @@ import { runSegment } from '../js/jsmain.js';
 import {
     BAG_OF_HOLDING,
     BAG_OF_TRICKS,
+    CHEST,
     COIN_CLASS,
+    CORPSE,
     FOOD_CLASS,
     GEM_CLASS,
+    ICE_BOX,
+    LARGE_BOX,
     OILSKIN_SACK,
     POTION_CLASS,
     RING_CLASS,
@@ -64,7 +80,13 @@ const DATETIME = '20310417113000';
 // records the rnd(100) that boxiprobs[] (mkobj.c:48-56) was walked with: its
 // nine rows are the cumulative bands 1-18 gem, 19-33 food, 34-51 potion,
 // 52-69 scroll, 70-81 spellbook, 82-88 coin, 89-94 wand, 95-99 ring, 100
-// amulet.
+// amulet. An ice box skips that walk, so its `contents` is FOOD_CLASS once per
+// corpse and verifyWishedContainerSegment() checks each one further.
+//
+// `locked` and `trapped` are the state mksobj_init():1012-1014 rolled, and
+// only a chest and a large box carry them. `dropped` marks the one segment
+// where hold_another_object() puts the container on the floor rather than in
+// the hero's inventory; every other case leaves it held.
 export const CASES = [
     // --- SACK and OILSKIN_SACK, whose maximum depends on the turn ---
     // mkbox_cnts():321-327 gives a sack no contents at all while
@@ -129,13 +151,70 @@ export const CASES = [
     { seed: 7710104, wish: 'bag of holding', opened: true,
       otyp: BAG_OF_HOLDING, contents: [SCROLL_CLASS] },
 
-    // --- BAG_OF_TRICKS, the container mksobj() never sends to mkbox_cnts() ---
-    // mksobj():1036-1039 puts a bag of tricks in the HORN_OF_PLENTY arm and
-    // gives it rn1(18, 3) charges instead, so admitting it costs no container
-    // machinery at all. It is here because obj.h Is_container() counts it, and
-    // the refusal this matrix retired was written against that macro.
+    // --- BAG_OF_TRICKS, the one container mkbox_cnts() never sees ---
+    // mksobj_init():1036-1039 puts a bag of tricks in the HORN_OF_PLENTY arm
+    // and gives it rn1(18, 3) charges instead, so admitting it costs no
+    // container machinery at all. It is here because obj.h Is_container()
+    // counts it, and the refusal this matrix retired was written against that
+    // macro.
     { seed: 7710050, wish: 'bag of tricks', opened: true,
       otyp: BAG_OF_TRICKS, contents: [] },
+
+    // --- CHEST, whose maximum is 7 when locked and 5 when not ---
+    // Locked and trapped, so all three of mksobj_init():1012-1014's draws are
+    // spent: rn2(5)=1, rn2(10)=0, and the rn2(100)=65 that C's `&&` makes only
+    // for a trapped box. No other segment in this matrix reaches that third
+    // draw. rn2(8)=4 then counts the contents, and rnd(100) answers 42, 5, 5
+    // and 41 for them.
+    { seed: 7710336, wish: 'chest', opened: true, otyp: CHEST,
+      locked: true, trapped: true,
+      contents: [POTION_CLASS, GEM_CLASS, GEM_CLASS, POTION_CLASS] },
+    // Unlocked and untrapped: rn2(5)=0, rn2(10)=8, and no tknown draw at all.
+    // The count draw is rn2(6), whose 5 is its own upper end -- a port holding
+    // the locked maximum here would draw rn2(8) and diverge on the bound
+    // before the count could matter. rnd(100) answers 45, 55, 76, 79 and 5.
+    { seed: 7710327, wish: 'chest', opened: true, otyp: CHEST,
+      locked: false, trapped: false,
+      contents: [POTION_CLASS, SCROLL_CLASS, SPBOOK_CLASS, SPBOOK_CLASS,
+                 GEM_CLASS] },
+
+    // --- LARGE_BOX, whose maximum is 5 when locked and 3 when not ---
+    // Locked (rn2(5)=2) and untrapped (rn2(10)=4), so rn2(6) counts the
+    // contents, again at its upper end of 5. rnd(100) answers 34, 92, 69, 82
+    // and 89; the 82 is a coin, which re-enters mkbox_cnts():360-363 on a box
+    // that is not a bag of holding and spends rnd(3) and rnd(75) there.
+    { seed: 7710401, wish: 'large box', opened: true, otyp: LARGE_BOX,
+      locked: true, trapped: false,
+      contents: [POTION_CLASS, WAND_CLASS, SCROLL_CLASS, COIN_CLASS,
+                 WAND_CLASS] },
+    // Unlocked (rn2(5)=0) and untrapped (rn2(10)=5), so the count draw is
+    // rn2(4), a bound no other case in this matrix uses, and its 3 is again
+    // the upper end. rnd(100) answers 1, 7 and 68.
+    { seed: 7710408, wish: 'large box', opened: true, otyp: LARGE_BOX,
+      locked: false, trapped: false,
+      contents: [GEM_CLASS, GEM_CLASS, SCROLL_CLASS] },
+
+    // --- ICE_BOX, stocked with corpses and weighed on the way in ---
+    // rn2(21)=1, so one mksobj(CORPSE, TRUE, FALSE) runs and the box weighs
+    // 910. That is inside max(near_capacity(), pickup_burden), so
+    // invent.c:1274-1276 keeps it and prinv() prints the inventory letter.
+    { seed: 7710500, wish: 'ice box', opened: true, otyp: ICE_BOX,
+      contents: [FOOD_CLASS] },
+    // The same wish where rn2(21)=4. Four corpses take the box to 1340, past
+    // that limit, so hold_another_object() reaches drop_it, prints "Oops!  The
+    // ice box drops to the floor!" and leaves the box on the ground. Only the
+    // weight differs between these two segments, which is the whole of what
+    // decides the branch.
+    //
+    // The four corpses stay four stacks even though two share a monster type.
+    // mkobj.c mksobj():1216-1223 rolls each corpse a gender into spe, those
+    // two drew different ones, and invent.c mergable():4416-4419 compares spe,
+    // so add_to_container() links them separately. Where two do merge the
+    // container holds fewer stacks than the count draw made, which is why
+    // `contents` is a list of stacks and not a count.
+    { seed: 7710501, wish: 'ice box', opened: true, otyp: ICE_BOX,
+      dropped: true,
+      contents: [FOOD_CLASS, FOOD_CLASS, FOOD_CLASS, FOOD_CLASS] },
 ];
 
 // pettype:none keeps a pet from moving while the prompt is open, !acoustics
@@ -188,9 +267,9 @@ export function caseFor(recipeSegment) {
     return found;
 }
 
-// Read the contents out of the running game. The recorded screens cannot show
-// them, so without this the matrix would prove only that the port spends C's
-// draws, not that it puts what they chose into the container.
+// Read the container out of the running game. The recorded screens cannot show
+// what is inside it, so without this the matrix would prove only that the port
+// spends C's draws, not that it puts what they chose into the container.
 export async function verifyWishedContainerSegment(recipeSegment) {
     const entry = caseFor(recipeSegment);
     await runSegment(recipeSegment);
@@ -198,21 +277,55 @@ export async function verifyWishedContainerSegment(recipeSegment) {
     const held = [];
     for (let obj = game.invent; obj; obj = obj.nobj)
         if (obj.otyp === entry.otyp) held.push(obj);
-    if (held.length !== 1) {
+    const underfoot = [];
+    for (let obj = game.level.objects[game.u.ux][game.u.uy]; obj;
+        obj = obj.nexthere) {
+        if (obj.otyp === entry.otyp) underfoot.push(obj);
+    }
+    const landed = entry.dropped ? underfoot : held;
+    const elsewhere = entry.dropped ? held : underfoot;
+    if (landed.length !== 1 || elsewhere.length !== 0) {
         throw new Error(
             `seed ${entry.seed}: "${entry.wish}" left ${held.length} objects `
-            + `of otyp ${entry.otyp} in inventory`,
+            + `of otyp ${entry.otyp} in inventory and ${underfoot.length} `
+            + `underfoot, wanted the container ${entry.dropped
+                ? 'dropped' : 'held'}`,
         );
     }
-    const [box] = held;
+    const [box] = landed;
+    if (Object.hasOwn(entry, 'locked')
+        && (Boolean(box.olocked) !== entry.locked
+            || Boolean(box.otrapped) !== entry.trapped)) {
+        throw new Error(
+            `seed ${entry.seed}: "${entry.wish}" came out olocked `
+            + `${Number(Boolean(box.olocked))} otrapped `
+            + `${Number(Boolean(box.otrapped))} rather than `
+            + `${Number(entry.locked)} and ${Number(entry.trapped)}`,
+        );
+    }
+    // mkbox_cnts() prepends each object through add_to_container(), so the
+    // chain runs newest first and `contents` reads the other way.
     const inside = [];
-    for (let obj = box.cobj; obj; obj = obj.nobj) inside.push(obj.oclass);
+    for (let obj = box.cobj; obj; obj = obj.nobj) inside.unshift(obj.oclass);
     if (inside.length !== entry.contents.length
         || inside.some((oclass, at) => oclass !== entry.contents[at])) {
         throw new Error(
             `seed ${entry.seed}: "${entry.wish}" holds classes `
             + `[${inside}] rather than [${entry.contents}]`,
         );
+    }
+    if (entry.otyp !== ICE_BOX) return;
+    // mkbox_cnts():339-349. Every ice-box object is a corpse whose age is 0
+    // and whose three timers are stopped, and `contents` can only say
+    // FOOD_CLASS about that.
+    for (let obj = box.cobj; obj; obj = obj.nobj) {
+        if (obj.otyp !== CORPSE || obj.age !== 0 || obj.timed !== 0) {
+            throw new Error(
+                `seed ${entry.seed}: "${entry.wish}" holds otyp ${obj.otyp} `
+                + `aged ${obj.age} with ${obj.timed} timers, wanted a corpse `
+                + 'aged 0 with none',
+            );
+        }
     }
 }
 

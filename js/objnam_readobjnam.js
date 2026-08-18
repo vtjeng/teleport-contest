@@ -72,7 +72,6 @@ import {
     HEAVY_IRON_BALL,
     HELM_OF_TELEPATHY,
     HORN_OF_PLENTY,
-    ICE_BOX,
     IRON_CHAIN,
     IRON_SHOES,
     KATANA,
@@ -1497,32 +1496,23 @@ function requireSimpleWishedObject(d, type, state) {
     case EGG:
         refuse('a wish for a corpse, statue, figurine, egg or tin');
         break;
-    /* Three of the seven container types.  Both halves of what once stopped
-       them are ported now -- objnam.c:5141-5146's bare `break;` for a chest
-       and a large box is in the spe switch below, and mkbox_cnts():339-351's
-       ice-box corpses are in js/mkobj_container.js -- so what is left is the
-       recorded evidence the deferral entry "a wished-for chest, large box or
-       ice box stops the segment" asks for: a fresh differential per type, in
-       scripts/run-wished-container.mjs.  A drawn chest or large box is inside
-       the boundary, because scripts/run-random-wish.mjs records one. */
-    case CHEST:
-    case LARGE_BOX:
-    case ICE_BOX:
-        refuse('a wish for a chest, large box or ice box');
-        break;
     default:
         break;
     }
-    /* The other four types need nothing this tail lacks.  A sack, an oilskin
-       sack and a bag of holding reach mkbox_cnts() through mksobj() and then
-       the `default:` spe arm, which is where C sends them too; a bag of tricks
-       is not a mkbox_cnts() type at all.  objnam.c:5312's delete_contents()
-       and 5324's lock block need d.contents, d.locked, d.unlocked or
-       d.broken, and requireSimpleWishQualifiers() has already refused all
-       four. */
+    /* All seven container types need nothing this tail lacks.  Six of them
+       reach mkbox_cnts() through mkobj.c mksobj_init() (868-1175), whose arm
+       at 1010-1022 takes a chest and a large box after 1012-1014 has rolled
+       olocked, otrapped and tknown, and an ice box, a sack, an oilskin sack
+       and a bag of holding through the fallthrough under it.  A bag of tricks is not a mkbox_cnts() type at
+       all.  In the spe switch below, a chest and a large box take
+       objnam.c:5141-5146's bare `break;`, which leaves what mksobj() rolled
+       alone, and the other five take the `default:` arm, which is where C
+       sends them too.  objnam.c:5312's delete_contents() and 5324's lock
+       block need d.contents, d.locked, d.unlocked or d.broken, and
+       requireSimpleWishQualifiers() has already refused all four. */
 }
 
-// C ref: objnam.c readobjnam() (4902-5400).  `no_wish` is the caller's
+// C ref: objnam.c readobjnam() (4909-5400).  `no_wish` is the caller's
 // sentinel object, answered for "nothing", "nil" and "none"; C compares its
 // address, so identity is what matters here too.
 export function readobjnam(bp, no_wish, env = {}) {
@@ -1764,7 +1754,7 @@ function readobjnam_typfnd(d, normalized) {
         // CORPSTAT_HISTORIC bit is not set either.
         //
         // The assignment is not a no-op: mksobj() gives a statue and a
-        // figurine the gender of the monster it rolled (mkobj.c:1076-1082),
+        // figurine the gender of the monster it rolled (mkobj.c:1216-1223),
         // and C replaces it with 0 here.
         d.otmp.spe = CORPSTAT_RANDOM;
         break;

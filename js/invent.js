@@ -121,7 +121,6 @@ import {
     FOOD_CLASS,
     GEM_CLASS,
     GLASS,
-    HEAVY_IRON_BALL,
     LEASH,
     LOADSTONE,
     LUCKSTONE,
@@ -2613,13 +2612,22 @@ function encumbranceLimit(current, state) {
     return Math.max(current, state.flags.pickup_burden);
 }
 
-// C ref: invent.c hold_another_object() (1206-1306), restricted to the plain
-// addinv arm and the nonmerging heavy-iron-ball route through drop_it. Artifact,
-// Fumbling, fatal-corpse, merging, and other drop routes remain fail-closed.
+// C ref: invent.c hold_another_object() (1207-1306), restricted to the plain
+// addinv arm and the nonmerging route through drop_it. Artifact, Fumbling,
+// fatal-corpse, merging, and other drop routes remain fail-closed.
+//
+// Predicts invent.c:1274-1276, the test C makes after addinv_core0(). C reads
+// inv_cnt() and near_capacity() once the object is in inventory; this reads
+// them before, so it adds the slot and the weight itself. The two agree only
+// because the caller below admits no object that can merge, which is what
+// makes the added slot exactly one and the added weight exactly obj.owt.
+// C's `obj->otyp != LOADSTONE || !obj->cursed` clause is absent for the same
+// reason: objects.h gives the one loadstone type oc_merge, so no object that
+// reaches here can be one.
 //
 // C calls addinv_core0(obj, NULL, FALSE), whose FALSE holds back the
 // permanent-inventory refresh until the explicit update_inventory() below.
-function projectsHeavyBallDrop(obj, state) {
+function projectsDropOnHold(obj, state) {
     const hadGw = Object.hasOwn(state, 'gw');
     const previousGw = state.gw;
     const hadWeightCache = previousGw
@@ -2645,25 +2653,34 @@ function projectsHeavyBallDrop(obj, state) {
     }
 }
 
-// Prepare the only drop_it route this port can finish. makewish() calls this
-// before doname() records discovery and before it increments wish conduct.
-// The token records both a hold decision and an admitted drop decision so
+// Prepare the only drop_it route this port can finish: the one invent.c:1280
+// jumps to, from the encumbrance test above it. makewish() calls this before
+// doname() records discovery and before it increments wish conduct. The token
+// records both a hold decision and an admitted drop decision so
 // hold_another_object() need not repeat a guard after those source-ordered
 // writes. It also restores near_capacity()'s cache before returning.
-export function prepareHeavyBallDropAdmission(obj, env = {}) {
+//
+// The type is not what decides this. C's drop_it makes no test of one, and the
+// two properties below are what the ported tail needs: a merge would reach
+// splitobj() at 1279, and an artifact would have taken the place_object() and
+// touch_artifact() block at 1218-1244. Which objects then arrive is a question
+// for preflight_dropx(), which answers it from the square, the pile and the
+// object's own timers rather than from its otyp.
+export function prepareHoldDropAdmission(obj, env = {}) {
     const normalized = inventoryEnv(env);
     const { state } = normalized;
     if (!obj || typeof obj !== 'object')
-        throw new TypeError('heavy-drop admission requires an object');
-    if (obj.otyp === HEAVY_IRON_BALL
-        && propertyPresent(state, FUMBLING)) {
-        throw new UnsupportedObjectOperationError('held while fumbling', obj);
-    }
-    if (obj.otyp !== HEAVY_IRON_BALL || obj.quan !== 1
-        || obj.oartifact || state.objects?.[obj.otyp]?.oc_merge) {
+        throw new TypeError('hold-drop admission requires an object');
+    if (obj.oartifact || state.objects?.[obj.otyp]?.oc_merge)
         return null;
-    }
-    const willDrop = projectsHeavyBallDrop(obj, state);
+    // invent.c:1245-1250 sends a fumbling hero to drop_it by a different route,
+    // setting nomerge and skipping the encumbrance test entirely. That route is
+    // unported. hold_another_object() below stops on it anyway, but only after
+    // the writes this token exists to precede, so the objects the token covers
+    // stop here instead.
+    if (propertyPresent(state, FUMBLING))
+        throw new UnsupportedObjectOperationError('held while fumbling', obj);
+    const willDrop = projectsDropOnHold(obj, state);
     let dropObject = null;
     let dropAdmission = null;
     if (willDrop) {
@@ -2692,14 +2709,14 @@ export function prepareHeavyBallDropAdmission(obj, env = {}) {
     };
 }
 
-function consumeHeavyBallDropAdmission(obj, state, admission) {
+function consumeHoldDropAdmission(obj, state, admission) {
     if (!admission) return null;
     if (admission.object !== obj)
-        throw new Error('heavy-drop admission belongs to another object');
+        throw new Error('hold-drop admission belongs to another object');
     if (admission.state !== state)
-        throw new Error('heavy-drop admission belongs to another state');
+        throw new Error('hold-drop admission belongs to another state');
     if (admission.consumed)
-        throw new Error('heavy-drop admission was already consumed');
+        throw new Error('hold-drop admission was already consumed');
     const facts = admission.objectFacts;
     if ((state.invent ?? null) !== admission.inventory
         || obj.oartifact !== facts.oartifact
@@ -2707,26 +2724,26 @@ function consumeHeavyBallDropAdmission(obj, state, admission) {
         || obj.owt !== facts.owt
         || obj.quan !== facts.quan
         || obj.where !== facts.where) {
-        throw new Error('heavy-drop admission is stale');
+        throw new Error('hold-drop admission is stale');
     }
     admission.consumed = true;
     return admission;
 }
 
 export async function hold_another_object(
-    obj, drop_fmt, drop_arg, hold_msg, env = {}, preparedHeavyDrop = null,
+    obj, drop_fmt, drop_arg, hold_msg, env = {}, preparedHoldDrop = null,
 ) {
     const normalized = inventoryEnv(env);
     const { state } = normalized;
 
     // Direct callers retain the old entry contract. makewish() supplies the
-    // prepared token so the supported heavy-ball hold/drop refusal occurs
-    // before discovery and conduct; ordinary-object refusals remain below.
-    const heavyDropAdmission = consumeHeavyBallDropAdmission(
+    // prepared token so the supported hold and drop decisions are made before
+    // discovery and conduct; the refusals below stay where C tests them.
+    const holdDropAdmission = consumeHoldDropAdmission(
         obj,
         state,
-        preparedHeavyDrop
-            ?? prepareHeavyBallDropAdmission(obj, normalized),
+        preparedHoldDrop
+            ?? prepareHoldDropAdmission(obj, normalized),
     );
 
     if (!isBlind(normalized))
@@ -2775,7 +2792,7 @@ export async function hold_another_object(
             || ((obj.otyp !== LOADSTONE || !obj.cursed)
                 && near_capacity(state) > prev_encumbr)) {
             /* 1275-1281 undoes any merge that took place and drops it */
-            if (!heavyDropAdmission?.willDrop || obj.quan !== oquan) {
+            if (!holdDropAdmission?.willDrop || obj.quan !== oquan) {
                 throw new UnsupportedObjectOperationError('held object dropped',
                                                           obj);
             }
@@ -2784,10 +2801,10 @@ export async function hold_another_object(
                 await message(drop_fmt.replace('%s', drop_arg ?? ''), state);
             }
             obj.nomerge = 0;
-            await heavyDropAdmission.dropObject(
+            await holdDropAdmission.dropObject(
                 obj,
                 normalized,
-                heavyDropAdmission.dropAdmission,
+                holdDropAdmission.dropAdmission,
             );
             return null;
         }

@@ -78,6 +78,7 @@ import {
     HEAVY_IRON_BALL,
     HELM_OF_TELEPATHY,
     HORN_OF_PLENTY,
+    ICE_BOX,
     IRON_SHOES,
     JADE,
     JUMPING_BOOTS,
@@ -1664,29 +1665,54 @@ test('a second wish for one artifact still counts against conduct', () => {
 });
 
 // objnam.c readobjnam()'s typfnd: tail sends every type to mksobj(), and
-// mkobj.c mksobj():1010-1021 sends five of the seven container types on to
-// mkbox_cnts(). Four of the seven finish here; three do not, and each of the
-// three has its own reason.
-test('readobjnam admits four container types and refuses three boxes', () => {
+// mkobj.c mksobj_init():1010-1022 sends six of the seven container types on to
+// mkbox_cnts(). All seven finish here.
+test('readobjnam admits all seven container types', () => {
     const state = wishState();
 
-    // The three mkbox_cnts() fills through mksobj()'s SACK/BAG_OF_HOLDING
-    // arms, plus the one Is_container() counts that mkbox_cnts() never sees:
-    // mksobj():1036-1039 gives a bag of tricks rn1(18, 3) charges instead.
+    // The four mkbox_cnts() fills through mksobj_init()'s ICE_BOX, SACK and
+    // BAG_OF_HOLDING labels, and the one Is_container() counts that
+    // mkbox_cnts() never sees: mksobj_init():1036-1039 gives a bag of tricks
+    // rn1(18, 3) charges instead.
     assert.equal(wish(state, 'sack').obj.otyp, SACK);
     assert.equal(wish(state, 'oilskin sack').obj.otyp, OILSKIN_SACK);
     assert.equal(wish(state, 'bag of holding').obj.otyp, BAG_OF_HOLDING);
+    assert.equal(wish(state, 'ice box').obj.otyp, ICE_BOX);
     assert.equal(wish(state, 'bag of tricks').obj.otyp, BAG_OF_TRICKS);
 
-    // The three that stay outside the wish boundary. Both halves of what once
-    // stopped them are ported -- objnam.c:5141-5146's bare `break;` and
-    // mkbox_cnts():339-351's ice-box corpses -- so what is left is the
-    // recorded evidence the "a wished-for chest, large box or ice box stops
-    // the segment" deferral asks for, one fresh differential per type.
-    const reason = 'a wish for a chest, large box or ice box';
-    assert.equal(wish(state, 'chest').refusal, reason);
-    assert.equal(wish(state, 'large box').refusal, reason);
-    assert.equal(wish(state, 'ice box').refusal, reason);
+    // The two that roll a lock and a trap on the way through.
+    assert.equal(wish(state, 'chest').obj.otyp, CHEST);
+    assert.equal(wish(state, 'large box').obj.otyp, LARGE_BOX);
+});
+
+// mksobj_init():1012-1014 rolls olocked, otrapped and, only where 1013 left the
+// box trapped, tknown; mkbox_cnts():315-320 then takes the maximum from that
+// lock. Both decisions show up in the draw list, because the count draw carries
+// its own bound and the tknown draw is either present or absent.
+test('a wished chest and large box draw their lock, trap and maximum', () => {
+    const state = wishState();
+    const steered = (results) => (draws) => steeredRandom(draws, results);
+
+    // steeredRandom() answers an unsteered rn2() with 0, so rn2(5) leaves
+    // olocked clear, rn2(10) leaves otrapped set, and the tknown draw follows.
+    // An unlocked chest holds at most 5 and an unlocked large box at most 3.
+    assert.deepEqual(wish(state, 'chest', steered({})).draws.slice(-4),
+                     ['rn2(5)', 'rn2(10)', 'rn2(100)', 'rn2(6)']);
+    assert.deepEqual(wish(state, 'large box', steered({})).draws.slice(-4),
+                     ['rn2(5)', 'rn2(10)', 'rn2(100)', 'rn2(4)']);
+
+    // rn2(5) answering 3 locks the box and rn2(10) answering 7 leaves it
+    // untrapped, so no tknown draw runs at all and the maxima rise to 7 and 5.
+    const lockedUntrapped = steered({ rn2: { 5: 3, 10: 7 } });
+    assert.deepEqual(wish(state, 'chest', lockedUntrapped).draws.slice(-3),
+                     ['rn2(5)', 'rn2(10)', 'rn2(8)']);
+    assert.deepEqual(wish(state, 'large box', lockedUntrapped).draws.slice(-3),
+                     ['rn2(5)', 'rn2(10)', 'rn2(6)']);
+
+    // An ice box rolls neither, and its maximum of 20 does not move.
+    assert.equal(wish(state, 'ice box', steered({})).draws.at(-1), 'rn2(21)');
+    assert.equal(wish(state, 'ice box', lockedUntrapped).draws.at(-1),
+                 'rn2(21)');
 });
 
 // mkbox_cnts():311-336 picks the maximum from the container's own type, and
@@ -1720,7 +1746,7 @@ test('a wished container spends mkbox_cnts()"s count draw', () => {
 });
 
 // The differential evidence for the container tail lives in
-// scripts/run-wished-container.mjs, which records fresh C output for twelve
+// scripts/run-wished-container.mjs, which records fresh C output for nineteen
 // wishes and compares complete screens, cursors and random-number calls. This
 // guards what that matrix is made of: a matrix that kept only empty containers,
 // or lost the segment that wishes before taking a turn, would still pass.
@@ -1739,11 +1765,12 @@ test('the wished-container matrix keeps its content spread', () => {
         CONTAINER_CASES.filter(({ opened }) => !opened).map(({ wish: text }) => text),
         ['sack'],
     );
-    // Four of the seven container types, and eight of boxiprobs[]'s nine
-    // content classes, counting the empty container as its own outcome.
+    // All seven container types, and eight of boxiprobs[]'s nine content
+    // classes, counting the empty container as its own outcome.
     assert.deepEqual(
         [...new Set(CONTAINER_CASES.map(({ otyp }) => otyp))].sort((a, b) => a - b),
-        [SACK, OILSKIN_SACK, BAG_OF_HOLDING, BAG_OF_TRICKS].sort((a, b) => a - b),
+        [SACK, OILSKIN_SACK, BAG_OF_HOLDING, BAG_OF_TRICKS,
+         CHEST, LARGE_BOX, ICE_BOX].sort((a, b) => a - b),
     );
     assert.deepEqual(
         [...new Set(CONTAINER_CASES.flatMap(({ contents }) => contents))].sort(),
@@ -1753,6 +1780,27 @@ test('the wished-container matrix keeps its content spread', () => {
     assert.equal(
         CONTAINER_CASES.filter(({ contents }) => contents.length === 0).length,
         4,
+    );
+    // Both maxima of both lockable types, so the count draw's bound is
+    // recorded for each of mkbox_cnts():315-320's four answers. The fourth
+    // lock-and-trap combination, an unlocked trapped box, is not here: the two
+    // rolls are independent, so it would repeat draws these four already make.
+    assert.deepEqual(
+        CONTAINER_CASES
+            .filter(({ locked }) => locked !== undefined)
+            .map(({ otyp, locked, trapped }) => [otyp, locked, trapped]),
+        [[CHEST, true, true], [CHEST, false, false],
+         [LARGE_BOX, true, false], [LARGE_BOX, false, false]],
+    );
+    // One segment weighs enough for invent.c hold_another_object() to reach
+    // drop_it, and it shares its wish with one that does not.
+    assert.deepEqual(
+        CONTAINER_CASES.filter(({ dropped }) => dropped)
+            .map(({ wish: text }) => text),
+        ['ice box'],
+    );
+    assert.equal(
+        CONTAINER_CASES.filter(({ otyp }) => otyp === ICE_BOX).length, 2,
     );
 });
 
@@ -1915,7 +1963,7 @@ test('a drawn slime mold, box and figurine keep the spe C leaves them', () => {
 });
 
 test('a drawn figurine loses the gender mksobj() rolled for it', () => {
-    // objnam.c:5147-5165 with C's P null. mkobj.c mksobj():1076-1082 gives a
+    // objnam.c:5147-5165 with C's P null. mkobj.c mksobj():1216-1223 gives a
     // figurine the gender of the monster it rolled, and this arm replaces it
     // with CORPSTAT_RANDOM. The monster machinery needs a dungeon and a
     // monsterObject hook, which the plain wish fixture does not carry.

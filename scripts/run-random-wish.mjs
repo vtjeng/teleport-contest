@@ -105,7 +105,7 @@ export const CASES = [
     // objnam.c:5137-5139's `d.otmp->spe = d.ftype`, the named-fruit spe.
     { seed: 5510603, oclass: FOOD_CLASS, otyp: SLIME_MOLD },
     // objnam.c:5147-5165 with C's P null, which collapses to CORPSTAT_RANDOM
-    // and replaces the gender mksobj():1076-1082 rolled for the figurine.
+    // and replaces the gender mksobj():1216-1223 rolled for the figurine.
     { seed: 5510054, oclass: TOOL_CLASS, otyp: FIGURINE },
     // objnam.c:5141-5146's bare `break;`, which a large box and a chest share
     // with the skeleton key, the heavy iron ball and the iron chain. Both are

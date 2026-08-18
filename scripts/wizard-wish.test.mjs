@@ -28,7 +28,8 @@ import { roles } from '../js/roles.js';
 import { monst_globals_init } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import {
-    DAGGER, GEM_CLASS, HEAVY_IRON_BALL, SACK, objects_globals_init,
+    BOULDER, DAGGER, GEM_CLASS, HEAVY_IRON_BALL, SACK,
+    objects_globals_init,
 } from '../js/objects.js';
 import { readobjnam } from '../js/objnam_readobjnam.js';
 import { UnsupportedWishError, makewish } from '../js/zap.js';
@@ -312,24 +313,23 @@ test('Escape over a typed wish restarts the prompt instead of ending it',
     assert.equal(topLine(), 'For what do you wish? ri');
 });
 
-// invent.c hold_another_object() is reachable from the wish path, and raises
-// UnsupportedObjectOperationError from its drop arm whenever near_capacity()
-// passes flags.pickup_burden. A boulder does that on any hero. The class has to
-// convert at the command seam like every other one makewish() can reach: left
-// out, the throw escapes runSegment() and the scorer discards every screen the
-// wish prompt already matched instead of stopping on the last of them.
+// invent.c hold_another_object() is reachable from the wish path, and reaches
+// drop_it whenever near_capacity() passes flags.pickup_burden. A boulder does
+// that on any hero, and do.c flooreffects() has an arm for a landing boulder
+// that this port does not translate, so preflight_dropx() refuses the drop
+// before makewish() writes anything. The class has to convert at the command
+// seam like every other one makewish() can reach: left out, the throw escapes
+// runSegment() and the scorer discards every screen the wish prompt already
+// matched instead of stopping on the last of them.
 test('a wish the hero cannot carry stops the segment rather than escaping',
     async () => {
-        assert.ok(
-            failClosedCommandRefusals()
-                .includes(UnsupportedObjectOperationError),
-        );
+        assert.ok(failClosedCommandRefusals().includes(UnsupportedDropError));
 
         // End to end: readobjnam() grants a boulder without refusing it, so
-        // the drop arm is the first thing that stops this wish. The matrix has
-        // no boulder segment, because no fresh recording can pass through a
-        // refusal, so this borrows a recorded segment's configuration and
-        // types a different wish.
+        // the drop preflight is the first thing that stops this wish. The
+        // matrix has no boulder segment, because no fresh recording can pass
+        // through a refusal, so this borrows a recorded segment's
+        // configuration and types a different wish.
         //
         // runSegment()'s onBoundary is what makes this an assertion rather
         // than a smoke test: without it the call passes just as happily when
@@ -342,14 +342,23 @@ test('a wish the hero cannot carry stops the segment rather than escaping',
         );
         assert.equal(boundaries.length, 1);
         // failClosedCommand() wraps the original class and keeps its message,
-        // so the boundary names the drop arm rather than any earlier stop.
+        // so the boundary names the arm that stopped rather than any earlier
+        // one.
         assert.ok(boundaries[0] instanceof UnsupportedHeroCommandBoundaryError);
-        // js/objects.js gives BOULDER otyp 475, so the message names the
-        // object the wish created and not some earlier one.
         assert.match(
             boundaries[0].message,
-            /held object dropped is not available for otyp 475/,
+            /unsupported drop: a boulder landing on the floor/u,
         );
+        // The stop precedes every write makewish() makes after readobjnam(),
+        // so the boulder reaches neither the inventory nor the floor and the
+        // wish is never counted.
+        assert.equal(game.u.uconduct.wishes, 0);
+        for (let obj = game.invent; obj; obj = obj.nobj)
+            assert.notEqual(obj.otyp, BOULDER);
+        for (let obj = game.level.objects[game.u.ux][game.u.uy]; obj;
+            obj = obj.nexthere) {
+            assert.notEqual(obj.otyp, BOULDER);
+        }
     });
 
 test('an excluded heavy-ball drop refuses before wish state changes',
