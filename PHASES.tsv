@@ -610,3 +610,4 @@ utc	event	phase	goal	detail
 2026-08-18T07:35:50.889Z	start	select		next goal after hero-zaps-a-ray-wand closed
 2026-08-18T08:14:46.588Z	end	select	objects-deferral-sweep-5	four slices queued, two entries re-blocked; count 14 to 12
 2026-08-18T08:14:46.664Z	start	implement	objects-deferral-sweep-5	bhit-names-the-caller-that-hits-the-monster
+2026-08-18T08:49:58.894Z	end	implement	objects-deferral-sweep-5	bhit-names-the-caller-that-hits-the-monster closed at d4acc49: development unchanged, as forecast

@@ -2837,8 +2837,8 @@
       "slices": [
         {
           "name": "bhit-names-the-caller-that-hits-the-monster",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "d4acc49ec16d9a94e4b3e5a8d94ca6c4b2a78578"
         },
         {
           "name": "yname-reads-the-complete-obj-is-pname",
