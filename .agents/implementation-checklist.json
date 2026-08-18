@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
   "reason": "The slice ray-bounces-and-burns-the-hero is complete. js/zap.js dozap() calls weffects(), which takes an aimed ray wand through ubuzz(), dobuzz(), zap_over_floor(), zap_hit(), bounce_dir() and zhitu()'s ZT_FIRE arm as far as the destroy_items() call at zap.c:4434, which is the new fail-closed boundary. The witness session seed5002-wizard-coverage-pair now emits 103 of its 410 screens, up from 88, and stops on step 103's space at that call. Every entry below is done, later or cannot-occur.",
-  "commitChecked": "dffeaa8",
+  "commitChecked": "dcae5351630683e21a1b1122e7be33904779d167",
   "boundary": {
     "goalId": "hero-zaps-a-ray-wand",
     "startingCommit": "4f5c00cd1ff6adf445056c193e9a7bfed32338c2",

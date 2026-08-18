@@ -594,3 +594,4 @@ utc	event	phase	goal	detail
 2026-08-17T20:58:54.951Z	start	select		next goal after wizard-create-monster closed
 2026-08-17T21:36:43.426Z	end	select	hero-zaps-a-ray-wand	ray-bounces-and-burns-the-hero queued, first of three planned slices
 2026-08-17T21:37:08.771Z	start	implement	hero-zaps-a-ray-wand	ray-bounces-and-burns-the-hero
+2026-08-18T00:22:32.756Z	end	implement	hero-zaps-a-ray-wand	ray-bounces-and-burns-the-hero closed at dcae535: screens 1846 to 1861

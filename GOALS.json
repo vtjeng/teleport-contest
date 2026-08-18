@@ -2787,8 +2787,8 @@
       "slices": [
         {
           "name": "ray-bounces-and-burns-the-hero",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "dcae5351630683e21a1b1122e7be33904779d167"
         }
       ],
       "openedAt": "4f5c00cd1ff6adf445056c193e9a7bfed32338c2",
