@@ -2792,8 +2792,8 @@
         },
         {
           "name": "fire-destroys-the-heros-potions",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "0aac3a736a795093f7517225761ccaed450bdf39"
         }
       ],
       "openedAt": "4f5c00cd1ff6adf445056c193e9a7bfed32338c2",

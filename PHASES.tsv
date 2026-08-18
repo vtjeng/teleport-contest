@@ -600,3 +600,4 @@ utc	event	phase	goal	detail
 2026-08-18T02:08:01.041Z	start	select	hero-zaps-a-ray-wand	second slice after the forced correctness pass
 2026-08-18T02:28:20.519Z	end	select	hero-zaps-a-ray-wand	fire-destroys-the-heros-potions queued, ceiling 9 steps
 2026-08-18T02:28:20.570Z	start	implement	hero-zaps-a-ray-wand	fire-destroys-the-heros-potions
+2026-08-18T03:35:23.575Z	end	implement	hero-zaps-a-ray-wand	fire-destroys-the-heros-potions closed at 0aac3a7: screens 1861 to 1870

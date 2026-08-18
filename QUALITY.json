@@ -3831,6 +3831,15 @@
       "status": "open",
       "from": "239976ed0acf3949796a83e014105c169895c45d",
       "detail": "js/do_name.js docall() ports do_name.c (640-676) down to its '!obj->dknown' guard and raises UnsupportedObjectNamingError for the rest: safe_qbuf() building the 'Call <thing>:' prompt, the fromsink variant for a stream of sink water, name_from_player()'s getlin(), and undiscover_object()/discover_object() on the answer. do.c trycall() is ported whole above it. Reached today from potion.c potionbreathe()'s tail for a potion type the hero has neither identified nor already called something, which a starting inventory never holds because u_init.c ini_inv_use_obj() discovers what it hands over; a potion picked up off the floor and then destroyed by fire does reach it."
+    },
+    {
+      "id": "ignite-items-inventory-throws-unnamed",
+      "area": "objects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "0aac3a736a795093f7517225761ccaed450bdf39",
+      "detail": "js/apply_catch_lit.js catch_item_light() (47-58) throws a bare RangeError, \"unsupported item ignition: non-floor, non-monster inventory\", for an object whose where is OBJ_INVENT. js/cmd.js failClosedCommandRefusals() lists no RangeError, so that throw escapes the command seam instead of ending the segment on its last matching screen. Every screen the segment already earned is lost rather than kept, which AGENTS.md ranks second only to a silent divergence.\n\nThe slice fire-destroys-the-heros-potions made it reachable. It ported zhitu()'s second guard at zap.c:4436, `if (!rn2(3)) ignite_items(gi.invent);`, so a hero carrying an oil lamp, a wax candle, a tallow candle or a potion of oil reaches catch_item_light() with OBJ_INVENT one hit in three. The witness does not fire it -- both rn2(3) draws answer non-zero at recorded step 103 -- but the seed5002 hero carries a potion of oil, so the same input under a different seed would.\n\nClosing it means giving the ignition refusal a named class the way js/read.js and js/zap.js name theirs, and listing that class in failClosedCommandRefusals() beside UnsupportedItemDestructionError and UnsupportedPotionError, which this slice added for the same reason. The alternative, porting ignite_items()' OBJ_INVENT arm, is larger and belongs with whatever goal owns burning inventory: apply.c catch_lit() reaches begin_burn() and the lit-object timer, which js/timeout.js only partly carries.\n\nExpected failure today: a recorded case whose ray hits a hero holding a potion of oil with the second guard answering 0 ends the segment on a RangeError rather than a boundary, and scores zero screens for that segment rather than the screens it had matched. No development session records that case, which is why nothing caught it; the fresh differential in scripts/run-ray-zap.mjs does not reach it either, because both its guards answer non-zero."
     }
   ],
   "areas": [
