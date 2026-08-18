@@ -339,10 +339,14 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                     || haseyes(state.youmonst.data))) {
                 await potionbreathe(obj, state, env);
             }
-            // zap.c:5931-5933 clears gc.current_wand when the destroyed object
-            // is the wand being zapped. gc.current_wand is not modelled, and
-            // destroyable() admits WAND_CLASS only under AD_ELEC, whose case
-            // stops above.
+            // zap.c:5931-5933 clears gc.current_wand when the destroyed
+            // object is the wand being zapped. js/zap.js dozap() models that
+            // value, setting and clearing it around weffects() as zap.c
+            // 2672-2675 does, so the clear has an owner to reach; it is
+            // omitted here only because destroyable() admits WAND_CLASS under
+            // AD_ELEC alone, whose case stops above, so obj can never be the
+            // wand being zapped on the one damage type this function ports.
+            // The AD_ELEC port adds the clear, against js/zap.js's value.
         }
         // C loops invent.c useup() for the hero and mon.c m_useup() for a
         // monster, one call per destroyed item. m_useup() is unported;

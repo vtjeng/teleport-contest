@@ -3846,6 +3846,15 @@
           "at": "edc197d47e7a1d934575db2a36fcc81f6177b2c0"
         }
       ]
+    },
+    {
+      "id": "status-vitals-clamp-has-no-oracle",
+      "area": "display",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "14767dfbb8c1a4d29e81d97e0bc10637803e41ae",
+      "detail": "js/display.js _statusVitals() reads the hit-point total through _statusHitPoints(), which carries botl.c:141-142's clamp of a negative total to zero, and no oracle in the project separates the clamped call from the unclamped `u.uhp || 0` it replaced. The goal's closing correctness pass found this, and the orchestrator measured it rather than reasoning about it: reverting that one call site to `u.uhp || 0` leaves the full suite green at 4,329 tests and the development score identical at 10 of 33 sessions.\n\nThe reason is structural. Of the three renderers that read _statusHitPoints(), _vitalStatusFields() at :3940 and the field at :4382 put the number on a drawn screen, and both witnesses of the-fatal-bolt-says-you-die pin those: seed5002 needs HP:0(12) with u.uhp at -18, seed0103 HP:0(16) with u.uhp at -9. _statusVitals() is different. Nothing draws its string; its two readers, _statusLine2Configuration()'s build() and _statusLine3HungerPrefix(), use only its length, to decide an abbreviation level and a column. A negative total is two characters longer than the clamped zero, and the thresholds those readers compare against move in two-character steps, so the difference cancels for every status line the project builds.\n\nThe clamp stays, because it is what botl.c does before every use of the value and removing it would make the port's three renderers disagree with each other for no reason. What is missing is a case that separates them. Closing this means finding a status line whose length sits exactly where two characters change the abbreviation level or the condition column, and asserting that level or column with a negative hit-point total; or establishing that no such line exists, in which case the right record is a comment at the call site saying the clamp there is for consistency with the drawn renderers rather than for any screen.\n\nThat distinction matters beyond this line. The last four correctness passes each found their sharpest defect in a value with no operator a mutation run can reach, and this is one: a clamp is not an operator a boolean, logical or relational mutant can change, and the run over this range reported js/display.js:3714 as an equivalent survivor for the same reason."
     }
   ],
   "areas": [

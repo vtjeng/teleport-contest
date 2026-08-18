@@ -10,7 +10,11 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { failClosedCommandRefusals } from '../js/cmd.js';
+import { UnsupportedObjectNameError } from '../js/objnam.js';
+
 import {
+    BLINDED,
     FIRE_RES,
     FROMOUTSIDE,
     INVIS,
@@ -45,12 +49,15 @@ import {
     SCR_BLANK_PAPER,
     SCR_FIRE,
     SCR_TELEPORTATION,
+    SPE_BOOK_OF_THE_DEAD,
+    SPE_FORCE_BOLT,
     SPE_BLANK_PAPER,
     SPE_FIREBALL,
     WAN_LIGHTNING,
     WAN_NOTHING,
 } from '../js/objects.js';
 import {
+    UnsupportedItemDestructionError,
     burn_floor_objects,
     destroy_items,
     destroyable,
@@ -1022,4 +1029,103 @@ test('worn fire resistance protects a stack before anything is drawn for it',
     );
     assert.equal(toplines(), 'Your potion of booze boils and explodes!');
     game.u.uprops[FIRE_RES].extrinsic = 0;
+});
+
+test('the destruction refusal is one the command seam converts', () => {
+    // Raised under dozap() through zhitu(), so it has to be in the list js/cmd.js
+    // failClosedCommandRefusals() returns; without it the segment loses every
+    // screen the zap had already matched.
+    assert.ok(
+        failClosedCommandRefusals().includes(UnsupportedItemDestructionError),
+    );
+});
+
+test('the Book of the Dead survives the fire and says so', async () => {
+    // zap.c:5850-5861. The Book is the one destroyable() admits that
+    // maybe_destroy_item() then refuses to destroy: it sets skip, prints its
+    // own line and breaks with quan still 0, so the per-item rn2(3) loop below
+    // runs zero times and nothing is drawn, used up or paid for. That makes
+    // the whole arm invisible to a draw-order test; only the message and the
+    // untouched stack show it ran.
+    await initializedGame(982461, 'HeroBook');
+    emptyPack();
+    // mksobj() refuses the Book, whose makeArtifact() path is unported, so
+    // the stack starts as an ordinary spellbook and is retyped. Only otyp is
+    // read on this arm: destroyable()'s SPBOOK_CLASS test, the skip guard and
+    // xnameFresh()'s name all take it from there.
+    const book = carriedByHero(SPE_FORCE_BOLT, 1);
+    book.otyp = SPE_BOOK_OF_THE_DEAD;
+    game.u.uhp = 12;
+    game.u.uhpmax = 12;
+    const drawn = [];
+    // Only destroy_items()' own scaling draw; the item loop draws nothing.
+    const script = [[5, 0]];
+
+    const damage = await destroy_items(game.youmonst, AD_FIRE, 5, {
+        random: scriptedRandom(script, drawn),
+        state: game,
+    });
+
+    // Undiscovered, so xname() answers the appearance. A discovered Book
+    // takes objnam.c the()'s proper-noun branch, which js/objnam.js refuses;
+    // the case below pins that half.
+    assert.equal(
+        toplines(),
+        'The papyrus spellbook glows a strange dark red, but remains intact.',
+    );
+    assert.equal(damage, 0);
+    assert.equal(book.quan, 1);
+    assert.equal(game.u.uhp, 12);
+    assert.deepEqual(drawn, [['rn2', 5, 0]]);
+    assert.equal(script.length, 0);
+});
+
+test('a blind hero is told nothing when the Book survives', async () => {
+    // The same arm's `u_carry ? !heroIsBlind(state) : vis` selector. C prints
+    // through hcolor() only for a hero who can see it, and the skip stands
+    // either way, so a blind hero loses the message and keeps the Book.
+    await initializedGame(982462, 'BlindBook');
+    emptyPack();
+    const book = carriedByHero(SPE_FORCE_BOLT, 1);
+    book.otyp = SPE_BOOK_OF_THE_DEAD;
+    game.u.uprops[BLINDED] = { intrinsic: FROMOUTSIDE, extrinsic: 0 };
+    const drawn = [];
+    const script = [[5, 0]];
+
+    const damage = await destroy_items(game.youmonst, AD_FIRE, 5, {
+        random: scriptedRandom(script, drawn),
+        state: game,
+    });
+
+    assert.equal(toplines(), '');
+    assert.equal(damage, 0);
+    assert.equal(book.quan, 1);
+    game.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0 };
+});
+
+test('a discovered Book stops on the proper noun the() will not build',
+    async () => {
+    // objnam.c The() over xname() names a discovered Book "the Book of the
+    // Dead", and js/objnam.js refuses the() for a name that may be a proper
+    // noun. So the arm above prints only while the Book is unidentified, and
+    // a hero who has identified one meets a named stop instead. js/cmd.js
+    // failClosedCommandRefusals() lists the class, so the segment ends on its
+    // last matching screen rather than losing every screen the zap earned.
+    await initializedGame(982463, 'KnownBook');
+    emptyPack();
+    const book = carriedByHero(SPE_FORCE_BOLT, 1);
+    book.otyp = SPE_BOOK_OF_THE_DEAD;
+    discover_object(SPE_BOOK_OF_THE_DEAD, true, true, false, game);
+    const drawn = [];
+
+    await assert.rejects(
+        () => destroy_items(game.youmonst, AD_FIRE, 5, {
+            random: scriptedRandom([[5, 0]], drawn),
+            state: game,
+        }),
+        UnsupportedObjectNameError,
+    );
+    assert.ok(
+        failClosedCommandRefusals().includes(UnsupportedObjectNameError),
+    );
 });

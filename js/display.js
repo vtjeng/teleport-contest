@@ -3709,6 +3709,13 @@ function _statusLevelDescription(u, short = false) {
 //
 // Both C sites clamp before their min(hp, 9999) cap; that cap is left out
 // because no ported path can lift a hero above 9999 hit points.
+//
+// They also select `Upolyd ? u.mh : u.uhp` on the line above the clamp, and
+// that is left out for the same kind of reason: no ported path leaves the hero
+// polymorphed while a status line is drawn, because hack.c losehp()'s own
+// Upolyd arm still raises UnsupportedHitPointLossError. A polyself port adds
+// the selection here, and here only, since this is the one owner all three
+// renderers read.
 function _statusHitPoints(u) {
     const hp = u?.uhp ?? 0;
     return hp < 0 ? 0 : hp;

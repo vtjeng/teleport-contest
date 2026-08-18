@@ -19,6 +19,7 @@ import {
     DISINT_RES,
     DOOR,
     D_CLOSED,
+    KILLED_BY_AN,
     ER_DAMAGED,
     ERODE_BURN,
     EF_GREASE,
@@ -577,6 +578,10 @@ test('Half_spell_damage halves a wand and a spell but never a breath', () => {
     for (const source of ['intrinsic', 'extrinsic']) {
         // (25 + 1) / 2 is 13 in C integer arithmetic.
         assert.equal(halved(1, 25, source), 13, source);
+        // An even damage is what separates C's truncating division from
+        // JavaScript's: (24 + 1) / 2 is 12 in C and 12.5 without the
+        // truncation, and 25 answers 13 either way.
+        assert.equal(halved(1, 24, source), 12, source);
         // A spell is still under 20, so it halves too; a breath is not.
         assert.equal(halved(19, 25, source), 13, source);
         assert.equal(halved(20, 25, source), 25, source);
@@ -595,14 +600,24 @@ test('a bolt a monster fired stops before the killer names it', () => {
         () => zhituLosehpArguments(-31, 1, 6, 'bolt of fire', killerState()),
         /death_inflicted_by\(\)/u,
     );
+    // zap.c:4572 is `type < 0 || (type == 0 && gb.buzzer != 0)`, and the two
+    // halves of the conjunct need separating. A type of 0 with a buzzer set is
+    // the only hero-band combination C sends to the monster arm.
     assert.throws(
-        () => zhituLosehpArguments(1, 1, 6, 'bolt of fire',
+        () => zhituLosehpArguments(0, 1, 6, 'bolt of fire',
             killerState({ buzzer: { mnum: 1 } })),
         /death_inflicted_by\(\)/u,
     );
-    // BZ_U_WAND(BZ_OFS_WAN(WAN_MAGIC_MISSILE)) is 0, and 4571's second half is
-    // what keeps that hero's own zap out of the monster arm: `type == 0` alone
-    // would send every magic missile there.
+    // The same buzzer at any other hero type takes the else at 4578, which is
+    // what a guard reading `type < 0 || gb.buzzer` would get wrong.
+    assert.equal(
+        zhituLosehpArguments(1, 1, 6, 'bolt of fire',
+            killerState({ buzzer: { mnum: 1 } })).kbuf,
+        'bolt of fire zapped by herself',
+    );
+    // BZ_U_WAND(BZ_OFS_WAN(WAN_MAGIC_MISSILE)) is 0, so a hero's own magic
+    // missile is the type the conjunct's first half would otherwise catch; with
+    // no buzzer it takes the else.
     assert.equal(
         zhituLosehpArguments(0, 0, 6, 'magic missile', killerState()).kbuf,
         'magic missile zapped by herself',
@@ -731,6 +746,9 @@ test('a downward ray kills the hero and stops on the death More', async () => {
     // game is the only place the whole chain -- flash_str(), the verb, uhim()
     // and losehp() -- can be read back together.
     assert.equal(game.killer.name, 'bolt of fire zapped by herself');
+    // zap.c:4588 hands losehp() KILLED_BY_AN, which decides the article
+    // end.c done() puts in front of that string.
+    assert.equal(game.killer.format, KILLED_BY_AN);
 });
 
 test('burnarmor rolls again for a slot the hero has nothing in', async () => {

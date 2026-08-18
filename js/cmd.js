@@ -1296,7 +1296,7 @@ export function failClosedCommandRefusals() {
         UnsupportedBhitError,
         UnsupportedTransientDisplayError,
         UnsupportedHitPointLossError,
-        // The three classes a killing blow reaches below
+        // Two classes a killing blow reaches below
         // UnsupportedHitPointLossError, each after the status line has already
         // been redrawn with the hero at zero. hack.c losehp() prints
         // urgent_pline("You die..."), which win/tty/topl.c update_topl():265
@@ -1304,9 +1304,14 @@ export function failClosedCommandRefusals() {
         // is the last screen the segment can match; end.c done() owns
         // everything after it. tty_message.js raises the second from that same
         // urgent_pline() when the player has an Escape-suppressed message
-        // window, and apply_catch_lit.js the third from the ignite_items()
-        // call one guard earlier in zhitu(), for an ignitable object in the
-        // hero's own pack.
+        // window.
+        //
+        // The third is not a killing blow's. apply_catch_lit.js raises it from
+        // zhitu()'s ignite_items() call at zap.c:4437, one guard above the
+        // killer block at 4561-4589, for an ignitable object in the hero's own
+        // pack. The hero may still be at full hit points there and the bolt
+        // may not kill at all, so the last screen a segment ending on it
+        // matched carries whatever the status line held before the ray.
         UnsupportedEndOfGameError,
         UnsupportedUrgentMessageError,
         UnsupportedItemIgnitionError,

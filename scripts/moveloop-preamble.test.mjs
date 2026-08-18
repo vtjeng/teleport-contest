@@ -569,6 +569,25 @@ test('an urgent message stops where Escape has suppressed the window',
     assert.equal(running._pending_message, 'You die...');
     assert.equal(running._ttyToplines, 'You die...');
 
+    // topl.c more():232-234. WIN_NOSTOP's second reader: an Escape answered at
+    // the --More-- this urgent message itself raises must not set WIN_STOP,
+    // where the same Escape at an ordinary message's --More-- does. The port
+    // models that through ttyPlineCore()'s deathComparisonReached clear rather
+    // than through a WIN_NOSTOP flag, which is the same answer for every input
+    // either rule can see while "You die..." is urgent_pline()'s only caller.
+    const escaped = preambleState('20260129120000', '\x1b');
+    await ttyPline('A prior message.', escaped);
+    await ttyUrgentPline('You die...', escaped);
+    assert.equal(escaped._ttyMessageStopped, false);
+
+    // The control: the same Escape at an ordinary message's --More--. Two
+    // 50-byte messages are what raise it, since a short pair shares the top
+    // line and never stops at all.
+    const ordinary = preambleState('20260129120000', '\x1b');
+    await ttyPline('P'.repeat(50), ordinary);
+    await ttyPline('Q'.repeat(50), ordinary);
+    assert.equal(ordinary._ttyMessageStopped, true);
+
     // urgent_pline() sets URGENT_MESSAGE alone. PLINE_NOREPEAT is Norep()'s
     // flag (pline.c:326-335), so vpline():253 compares nothing against
     // gp.prevmsg and the same urgent line is written a second time.

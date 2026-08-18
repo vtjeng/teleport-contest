@@ -334,11 +334,21 @@ export class UnsupportedUrgentMessageError extends Error {
 // Neither of the first two matters here: the port models no MSGTYPE rules, so
 // vpline() suppresses nothing. The third does, and it stops. With WIN_STOP
 // clear -- which is every message the port has drawn so far -- the arm sets
-// only WIN_NOSTOP, and update_topl():257 reads that as `skip = FALSE`, exactly
-// what a clear WIN_STOP already gives, so an urgent message is an ordinary
-// one. With WIN_STOP set it is not: tty_clear_nhwindow(WIN_MESSAGE) wipes the
-// top line before the message is written, where an ordinary message would
-// have been held back invisibly.
+// only WIN_NOSTOP, which has two readers. update_topl():257 reads it as
+// `skip = FALSE`, exactly what a clear WIN_STOP already gives; and more():233
+// reads it when the player answers this message's own --More-- with Escape,
+// where it is what stops that Escape setting WIN_STOP for whatever comes
+// next.
+//
+// The second reader is modelled, but by text rather than by a flag:
+// ttyPlineCore()'s `deathComparisonReached` clears the stop after the --More--
+// is dismissed, which is the same clearing for every input either rule can
+// see, because "You die..." is urgent_pline()'s only caller in this port. A
+// second urgent caller would separate them, and would want the flag instead.
+//
+// With WIN_STOP set at entry the arm does more still: tty_clear_nhwindow(
+// WIN_MESSAGE) wipes the top line before the message is written, where an
+// ordinary message would have been held back invisibly, and that stops.
 export async function ttyUrgentPline(message, state = game) {
     if (state._ttyMessageStopped) {
         throw new UnsupportedUrgentMessageError(

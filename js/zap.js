@@ -769,9 +769,9 @@ export async function bhit(
 //   0..5 for the six ray wands (objects.h:1488 orders them so), so it is
 //   false and the deferred second zap_over_floor() at 5021-5022 never runs.
 //
-// Only zhitu()'s ZT_FIRE arm is ported, down to the end of its burnarmor()
-// block at 4438; the other six damage types and the killer-and-losehp() tail
-// below them stop by name.
+// Only zhitu()'s ZT_FIRE arm is ported; the other six damage types stop by
+// name. The killer-and-losehp() tail below them is ported too, and the doc
+// comment on zhitu() itself records what of it still refuses.
 
 // C ref: zap.c:45-57. ZT_<element> is the damage type minus one, and the three
 // ZT_ macros shift it into the wand, spell and breath bands.
@@ -1028,10 +1028,15 @@ export function zhituLosehpArguments(type, abstyp, dam, fltxt, state = game) {
             : (abstyp < 30) ? 'exhaled'
                 : 'imagined'; /* should never happen */
 
-    if (type < 0 || state.gb?.buzzer) {
-        // 4570-4577 names the monster that fired the bolt, through
-        // mcastu.c death_inflicted_by() and hacklib.c strsubst(). Neither half
-        // of the condition can hold here: dobuzz() refuses a negative type one
+    if (type < 0 || (type === 0 && state.gb?.buzzer)) {
+        // 4572-4577 names the monster that fired the bolt, through
+        // mcastu.c death_inflicted_by() and hacklib.c strsubst(). C's guard is
+        // `type < 0 || (type == 0 && gb.buzzer != 0)`, and the conjunct
+        // matters: a hero's own magic missile is type 0, so only a set
+        // gb.buzzer separates it from the else at 4578, while every other
+        // hero type takes the else whatever gb.buzzer holds.
+        //
+        // Neither half can hold here. dobuzz() refuses a negative type one
         // frame above, and gb.buzzer is written only by mcastu.c, muse.c,
         // mthrowu.c, priest.c and timeout.c, none of them ported. A hero's own
         // ricochet therefore always takes the else at 4578.

@@ -3,6 +3,7 @@
 
 import {
     OBJ_FLOOR,
+    OBJ_INVENT,
     OBJ_MINVENT,
 } from './const.js';
 import {
@@ -58,15 +59,13 @@ export class UnsupportedItemIgnitionError extends Error {
 
 export async function catch_item_light(obj, env) {
     if (obj.lamplit || !ignitable(obj)) return false;
-    if (obj.where !== OBJ_FLOOR && obj.where !== OBJ_MINVENT) {
-        // apply.c catch_lit():1598-1614 handles OBJ_INVENT too: it announces
-        // the item with Yname2() and otense(), makeknown()s a potion of oil,
-        // and bills an unpaid one to the shopkeeper who is watching it burn.
-        // None of that is ported, and zap.c zhitu():4437 is the caller that
-        // reaches it -- one hit in three for a hero carrying an oil lamp, a
-        // wax or tallow candle, or a potion of oil.
+    if (obj.where !== OBJ_FLOOR && obj.where !== OBJ_MINVENT
+        && obj.where !== OBJ_INVENT) {
+        // C's own gate is get_obj_location() answering FALSE at 1581, which is
+        // what a buried, migrating or contained object gets. The three `where`
+        // values above are the ones it locates.
         throw new UnsupportedItemIgnitionError(
-            'non-floor, non-monster inventory',
+            'an object get_obj_location() does not place',
         );
     }
     const carrier = obj.where === OBJ_MINVENT ? obj.ocarry : null;
@@ -82,6 +81,21 @@ export async function catch_item_light(obj, env) {
     if ((obj.otyp === OIL_LAMP || obj.otyp === MAGIC_LAMP)
         && obj.cursed && !env.random.rn2(2)) {
         return false;
+    }
+    if (obj.where === OBJ_INVENT) {
+        // Every guard C evaluates first has now run, so an object C declines
+        // to light -- a brass lantern, an empty magic lamp or candelabrum, a
+        // burnt-out candle, a cursed candelabrum, or a cursed lamp whose
+        // rn2(2) came up zero -- has already answered false, and the draw that
+        // last one makes has been spent.
+        //
+        // What remains is apply.c catch_lit():1598-1614, which announces the
+        // item with Yname2() and otense(), makeknown()s a potion of oil, and
+        // bills an unpaid one to the shopkeeper watching it burn. None of that
+        // is ported, and zap.c zhitu():4437 is the caller that reaches it, one
+        // hit in three for a hero carrying an oil lamp, a wax or tallow
+        // candle, or a potion of oil.
+        throw new UnsupportedItemIgnitionError("the hero's own pack");
     }
 
     const squareVisible = ignitionOperation(env, 'squareVisible', cansee);

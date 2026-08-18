@@ -13,8 +13,10 @@ import {
 } from '../js/apply_catch_lit.js';
 import { failClosedCommandRefusals } from '../js/cmd.js';
 import {
+    BRASS_LANTERN,
     OIL_LAMP,
     POT_OIL,
+    WAX_CANDLE,
     ROCK,
 } from '../js/objects.js';
 
@@ -75,6 +77,52 @@ test('an ignitable object in the hero own pack stops by name', async () => {
     // the zap had already matched instead of ending on the last of them.
     assert.ok(
         failClosedCommandRefusals().includes(UnsupportedItemIgnitionError),
+    );
+});
+
+test('the pack refusal stands behind every guard C answers first', async () => {
+    // apply.c catch_lit():1582-1596 runs four early returns before it reaches
+    // any of the OBJ_INVENT work the refusal above stands for, and C answers
+    // FALSE at each with no message, no draw and no state change. A refusal
+    // raised ahead of them would end the segment where C carries the bolt on
+    // to zhitu()'s killer block, and a brass lantern is ordinary equipment.
+    const inPack = (overrides) => ({
+        age: 100, cursed: false, lamplit: false, spe: 0,
+        where: OBJ_INVENT, ...overrides,
+    });
+
+    // 1587-1588: "lantern is classified as ignitable() but not by fire".
+    assert.equal(
+        await catch_item_light(inPack({ otyp: BRASS_LANTERN }), ignitionEnv()),
+        false,
+    );
+    // 1586: age_is_relative and age == 0 means out of fuel.
+    assert.equal(
+        await catch_item_light(
+            inPack({ otyp: WAX_CANDLE, age: 0 }), ignitionEnv(),
+        ),
+        false,
+    );
+    // 1592-1596: a cursed lamp fails to light on a zero rn2(2), and the draw
+    // is spent whichever way it lands.
+    const draws = [];
+    const scripted = { rn2: (bound) => { draws.push(bound); return 0; } };
+    assert.equal(
+        await catch_item_light(
+            inPack({ otyp: OIL_LAMP, cursed: true }),
+            ignitionEnv({ random: scripted }),
+        ),
+        false,
+    );
+    assert.deepEqual(draws, [2]);
+    // The same lamp on a non-zero draw passes the guard and reaches the pack
+    // refusal, which is what shows the draw is not the thing stopping it.
+    await assert.rejects(
+        () => catch_item_light(
+            inPack({ otyp: OIL_LAMP, cursed: true }),
+            ignitionEnv({ random: { rn2: () => 1 } }),
+        ),
+        UnsupportedItemIgnitionError,
     );
 });
 

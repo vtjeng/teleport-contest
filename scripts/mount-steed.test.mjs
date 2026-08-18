@@ -66,6 +66,7 @@ import {
 } from '../js/monsters.js';
 import { bot } from '../js/display.js';
 import { UnsupportedEndOfGameError } from '../js/end.js';
+import { UnsupportedUrgentMessageError } from '../js/tty_message.js';
 import { is_mplayer } from '../js/mondata.js';
 import { game } from '../js/gstate.js';
 import { m_at } from '../js/monst.js';
@@ -549,6 +550,23 @@ test('a slip that kills carries the killer string x_monnam built', async () => {
     assert.equal(game.killer.name,
         'slipped while mounting a saddled pony called Dobbin');
     assert.equal(game.killer.format, NO_KILLER_PREFIX);
+});
+
+test('the death message goes out through urgent_pline, not pline', async () => {
+    // hack.c:4287 is urgent_pline("You die..."), and the difference is only
+    // observable through win/tty/wintty.c:2277-2283's WIN_NOSTOP arm: with a
+    // message window the player has already escaped, ttyUrgentPline() refuses
+    // where ttyPline() would print. Swapping the two leaves every other
+    // assertion in this file green, so this is what pins the choice.
+    const segment = knightSlipSegment();
+    const { error } = await mountAfter(segment, (state) => {
+        const pony = m_at(state.u.ux, state.u.uy + 1);
+        state.u.uhp = 1;
+        // The Escape-suppressed window win/tty/topl.c more():233 protects.
+        state._ttyMessageStopped = true;
+        return pony;
+    });
+    assert.ok(error instanceof UnsupportedUrgentMessageError, String(error));
 });
 
 test('a non-Knight spends a point of tameness on every attempt', async () => {

@@ -10,6 +10,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { failClosedCommandRefusals } from '../js/cmd.js';
+
 import { INVIS, SEE_INVIS, BLINDED, FROMOUTSIDE } from '../js/const.js';
 import { trycall } from '../js/do.js';
 import { UnsupportedObjectNamingError, docall } from '../js/do_name.js';
@@ -46,7 +48,7 @@ import {
     POT_WATER,
     TOWEL,
 } from '../js/objects.js';
-import { potionbreathe } from '../js/potion.js';
+import { UnsupportedPotionError, potionbreathe } from '../js/potion.js';
 
 const POTION_TYPES = Object.freeze({
     POT_GAIN_ABILITY,
@@ -358,4 +360,15 @@ test('a message that names the potion identifies its type', async () => {
     assert.equal(type.oc_name_known, 1);
     assert.equal(type.oc_encountered, 1);
     assert.deepEqual(drawn, [19]);
+});
+
+test('the potion refusals are ones the command seam converts', () => {
+    // js/cmd.js failClosedCommandRefusals() decides whether a refusal ends the
+    // segment on its last matching screen or escapes and loses every screen
+    // the command earned. Both classes below are raised under dozap(), so
+    // dropping either from that list would turn a clean stop into a lost
+    // segment with nothing failing.
+    const listed = failClosedCommandRefusals();
+    assert.ok(listed.includes(UnsupportedPotionError));
+    assert.ok(listed.includes(UnsupportedObjectNamingError));
 });
