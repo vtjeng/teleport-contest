@@ -2918,6 +2918,45 @@
         "screens": 70,
         "rng": 0
       }
+    },
+    {
+      "id": "stethoscope-reaches-an-adjacent-square",
+      "status": "open",
+      "boundary": "apply.c use_stethoscope() runs its adjacent-square arm (384-470) through to a return for every direction the hero can point at, instead of raising UnsupportedApplyError('listening to an adjacent square') at js/apply.js below confdir(). The arm covers the isok() guard, the m_at() branch through mon.c seemimic(), insight.c mstatusline() and display.c map_invisible(), the unmap_invisible() line, the SDOOR and SCORR arms, and apply.c its_dead()'s answer beneath them.\n\nThe C this reaches, with the spans read against nethack-c/upstream/src: use_stethoscope()'s unported arm at 384-470, its_dead() at 196-309, insight.c mstatusline() at 3273-3398 and size_str() at 3202-3231, mkobj.c init_dummyobj() at 3346-3371, mon.c seemimic() at 4406-4426, invent.c nxtobj() at 1477-1491, and objnam.c simple_typename() at 296-307. About 430 lines, of which the recorded session exercises use_stethoscope()'s arm, seemimic(), mstatusline()'s empty-info path and its_dead()'s fall-through.\n\nOne prerequisite lands before the first observable. js/do_name.js x_monnam() demands SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION and throws otherwise, and both new callers pass SUPPRESS_IT | SUPPRESS_INVISIBLE without the hallucination bit (apply.c:408, insight.c:3392), so the guard fires before any stethoscope output. Widening it means admitting the do_hallu branch, whose rndmonnam() js/do_name.js already ports. The neighbouring refusal below it does not fire here, because its do_mappear term needs M_AP_MONSTER and this mimic carries M_AP_OBJECT.\n\nLeft outside: use_stethoscope()'s SDOOR and SCORR arms and its !isok() arm; its_dead()'s hallucination, blind, healer and statue arms; and mstatusline()'s long-worm, u.ustuck and u.usteed arms. mstatusline()'s mhidden_description arm is unreachable from a stethoscope by construction, and C says so at insight.c:3313-3315: the stethoscope clears the disguise before mstatusline() runs, so only the wand of probing gets there.",
+      "upstreamOwners": [
+        "apply.c use_stethoscope()",
+        "apply.c its_dead()",
+        "mon.c seemimic()",
+        "insight.c mstatusline()",
+        "insight.c size_str()",
+        "mkobj.c init_dummyobj()",
+        "objnam.c simple_typename()",
+        "invent.c nxtobj()",
+        "do_name.c x_monnam()"
+      ],
+      "forecast": {
+        "steps": 33,
+        "basis": "Capped look-ahead, measured by me at 25675b2 with my own run of node scripts/scan-sessions.mjs and its --ahead stream, not taken from the goal-selector's report.\n\nOne session stops here, seed5002-wizard-coverage-pair, at 190 of 410 screens, raw unlocks 33 over steps 190..222 of segment 1. The capping read leaves all 33 standing, which no other candidate manages. The stretch is nine screens of the stethoscope's own three misses and their prompts, then 22 identical \"That chest is really a small mimic.--More--\" redraws, then mstatusline()'s status line and the search assist at the end.\n\nThe one step in it that is not stethoscope work is the giant bat's two bites, and monster melee is ported: js/mhitu.js holds no fail-closed refusal class at all, which grep -c Unsupported js/mhitu.js confirms as 0. The 22 held --More-- redraws are the part the goal-selector could not verify, and the goal that just closed settles it with evidence rather than inference: seed5002 segment 0's own last four screens are three identical \"You die...--More--\" redraws for non-dismissing keys plus the query, and all four matched, so the port already reproduces a held --More-- redraw in this exact session. The last screen, \"You already found a monster. Use 'm' prefix to force another search.\", is one js/detect.js already prints, and step 223 is the c byte of close, this session's next unmet behavior.\n\nEvery candidate above it in the raw column caps below 33, and I confirmed the leader's cap myself last cycle. Engraving interaction, raw 609, caps at 7 on \"Your kitten eats a newt corpse.\", which is dogmove.c dog_eat(); level_tele() reaching print_dungeon(), raw 198 over three sessions, caps at 4, because each materializes onto a special level and js/mklev.js makelevel() has no Is_special() dispatch; puton, raw 47, caps at 12 on do_wear.c Blindf_on() over make_blinded(); and #l and #rub, both raw 33, cap at 3 and 1 on trap.c domagictrap() and mthrowu.c thrwmu(). Appendix A then stops the capping read at the door unlocking tool, raw 18, which is below 33.\n\nSegment 1 is seed5002's last and its segment 0 is already complete, so nothing rides behind this one: the 33 is the whole of what the boundary gates in the development set.",
+        "sessions": [
+          "seed5002-wizard-coverage-pair.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5002-wizard-coverage-pair.session.json",
+            "evidence": "Observed stop at 25675b2: 190 of 410 screens, segment 1, on the h byte, refused as \"an unported branch of this command: applying a tool requires listening to an adjacent square\", with C's next screen \"You hear nothing special.\" The segment is seed 5003 at datetime 20260509120000 with playmode:debug, and the hero wished for an uncursed stethoscope as inventory letter n. The C path: apply.c use_stethoscope() (317-470) is entered with u.usteed NULL, u.uswallow FALSE, u.dz 0 and obj->cursed FALSE, so every arm above confdir(FALSE) is skipped; confdir() yields dx -1 and dy 0, isok(rx, ry) holds, m_at(rx, ry) is NULL, lev->typ is neither SDOOR nor SCORR, and its_dead(rx, ry, &res) finds no corpse and no statue and returns FALSE, so apply.c:468 prints \"You hear nothing special.\" Two more directions repeat it. Pointing at the small mimic then takes apply.c:408, which builds the name through x_monnam(mtmp, ARTICLE_A, NULL, SUPPRESS_IT|SUPPRESS_INVISIBLE, FALSE), :434 seemimic(), :435 \"That chest is really a small mimic.\" and :442 mstatusline(), whose info string stays empty and which prints \"Status of the small mimic (neutral, medium):  Level 6  HP 22(22)  AC 7.\""
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
+      "openStanding": {
+        "sha": "32126ec",
+        "screens": 1949,
+        "rng": 133468
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
