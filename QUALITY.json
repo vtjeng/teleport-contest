@@ -15494,6 +15494,112 @@
         }
       },
       "recordedAt": "2026-08-17T20:55:07.303Z"
+    },
+    {
+      "kind": "review",
+      "head": "4fe4f5615b58d437ee37bbd373b96eb808aa5585",
+      "auditedRange": "2d84dfac2961bbc87a20edf5f4ed517885a89819..4fe4f5615b58d437ee37bbd373b96eb808aa5585",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "fa05bea2b7d6b02fc36d9d812a171ebe99bf9ccc",
+        "reason": "the checklist covers fa05bea2, an ancestor of the range head; the 1 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "world-effects",
+        "display",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 18 raw, 14 deduplicated, 11 confirmed, 10 applied, 1 deferred, 3 rejected, 0 unverified; mutation: 13 survivors of 106 mutants. Counts: 18 raw, 14 deduplicated, 11 confirmed, 10 applied, 1 deferred, 3 rejected, 0 unverified; mutation: 93 of 106 killed over the window with 13 declared survivors, all confirmed, and 7 of 7 killed over the audit-fix delta. The first slice of hero-zaps-a-ray-wand, reviewed because the gate forced it rather than because the goal closes: npm run quality read DUE at 1,207 changed production lines against the 1,000 limit, on one commit. The development score is identical before and after the fixes at 1,861 of 7,765 screens and 128,006 of 610,816 random-number values, which is what two defects unreachable from any recorded session should look like.\n\nTwo production defects, both on the ray's own damage path and both shaped like a table rather than a branch.\n\nGrease blocked fire. trap.c erode_obj() assigns check_grease per erosion type and clears it inside `case ERODE_BURN` at 208, as it does inside `case ERODE_ROT` at 217; the grease arm at 246 reads `check_grease && otmp->greased`, so C never greases a burn away. The port tested the caller's EF_GREASE flag alone, and this range made burnarmor()'s `burn_dmg(obj, descr) = erode_obj(obj, descr, ERODE_BURN, EF_GREASE)` the first live ERODE_BURN caller. A hero wearing a greased cloak would have drawn an rn2(2) C never draws and printed \"Your cloak is protected by the layer of grease!\" where C prints \"Your cloak smoulders!\". The adjudicator reproduced both answers from the ray matrix's own segment rather than arguing them. The EROSION table now carries check_grease as a third per-type output beside the vulnerability test and the resistance damage type.\n\nThe pre-existing oracle actively pinned the wrong answer: scripts/trap-erode-obj.test.mjs's 'grease blocks fire before material and erosion checks' asserted ER_GREASED and the grease message for exactly the ERODE_BURN combination C excludes. It now asserts what C does. A new test walks all five erosion types through the grease arm, and that is what pins the rest of the table: three of the five rows survived their own flip until it existed.\n\nThe second defect is four invented rows. zap.c adtyp_to_prop() (5656-5670) is five cases and a default, and the port added AD_DRST, AD_DRLI, AD_SLEE and AD_STON on top, so the ported pure function answered a resistance property where C answers 0. Nothing reachable passes those damage types, so no screen moved, but u_adtyp_resistance_obj() reads the answer to decide whether to roll at all, and the test asserted only rows C also has. The rows are gone and the test now names all five of C's and all four of the port's inventions.\n\nTwo comments claimed more than the code does, and both were settled by running the experiment rather than by reading. js/timeout.js justified a second copy of invent.c carrying() by a cycle \"this file is written to avoid\"; the file already sits inside that cycle through './dig.js' and './do.js', both of which import js/invent.js. Importing carrying() and deleting the copy leaves the suite green, so the copy is gone and the comment says what the display boundary is actually for. And the negate() helper's comment described a hazard that does not exist: -0 and 0 are indistinguishable to every branch on this path, including zapdir_to_glyph()'s own `dx ? 1 : 0`, so the helper keeps a delta identical to the int C holds and fixes no branch, which is now what it says.\n\nFive oracles could not fail, and each was confirmed by an adjudicator running the mutation rather than reasoning about it. zapcolors[] had three of eight entries asserted while a hero's wand of sleep or lightning paints entries 3 and 5 onto a screen the scorer compares; all eight are now read from display.h's enum zap_colors, with entry 4 asserted through js/display.js recorderMapColor()'s documented folding of CLR_BLACK onto the terminal default. The invisible-monster-memory test asserted that squares with no memory showed none, which held whether or not unmap_invisible() ran; it now seeds a memory on the bolt's line and one off it. dobuzz()'s `zap_hit(Math.trunc(state.u.uac), 0, random)` argument had no oracle and survived `+ 5` against the whole suite; two runs differing only in u.uac now pin it, stopped at Reflecting so the hit does not run on into zhitu(). The miss arm -- \"whizzes by you!\" and the stop_occupation() tail below it -- had no cover in the unit tests or the five-segment differential. And inventory_resistance_check()'s rn2(100) bound was scripted past rather than recorded.\n\nOne confirmed finding is applied as a deferral rather than as a test, because its proposed fix does not work. dobuzz()'s `if (dx === 0 && dy === 0) range = 1;` is genuinely unpinned, and the mutation to 2 surviving the suite reproduces. The pass proposed counting nh_delay_output() frames for a forced-miss vertical bolt and asserting exactly one; under the mutant that bolt still draws one frame and still prints its miss message once, both measured. Writing an assertion that cannot fail is the mistake this pass exists to catch, so vertical-ray-range-one-is-unpinned records the measurement and the structural question behind it: in C the assignment stops a stationary bolt re-entering the hero-square block, and something else in the port's loop is already doing that, which is worth understanding before the line is called equivalent.\n\nThree rejections hold, each refuted on a specific reading rather than on judgment. zap_over_floor()'s burn_floor_objects() call does carry the named refusal and the comment the finding said it lacked. save_bhitpos's reference-versus-copy shape rests on a C statement the finding quoted as present above line 1260, and only C's comment is there. And no reachable input produces a dobuzz type in 6 through 9, because weffects() reaches ubuzz() only over the six consecutive ray wands.\n\nThe mutation evidence is worth stating plainly, because it is the second consecutive pass whose main result is a value no mutant can reach. The window ran 106 mutants over a baseline of 3,807 tests, the largest run this project has made, and neither production defect is of a kind it could find: a missing table field and four extra switch cases are not operators. Five of the six test findings are the same shape.\n\nEvery new assertion was watched failing against the line it covers, by editing that line and putting it back: the ERODE_BURN grease test against the unconditional guard; the five-type test against each of ERODE_ROT, ERODE_CORRODE and ERODE_CRACK in turn; the adtyp_to_prop assertions against a restored AD_SLEE row; the zapcolors block against a wrong entry 3; the unmap_invisible test against a deleted call; the armor-class test against `u.uac + 5`; the miss test against a changed message; and the resistance bound against rn2(1000).\n\nOne measurement kept out of the finding list. Driving the hit path with a random source that answers 0 to every rn2 hangs, and C hangs the same way: trap.c burnarmor() is `while (1) { switch (rn2(5)) { case 0: ... continue; }`, so a source that always answers 0 never leaves the helmet arm. That is a degenerate script rather than a defect, and the tests avoid it.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2996,
+        "counts": {
+          "raw": 18,
+          "deduplicated": 14,
+          "confirmed": 11,
+          "applied": 10,
+          "deferred": 1,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 6,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/trap_erode_obj.js erode_obj() applied the grease-protection arm to ERODE_BURN, where trap.c clears check_grease inside `case ERODE_BURN` at 208 and `case ERODE_ROT` at 217 and gates the arm at 246 on `check_grease && otmp->greased`. This range made burnarmor()'s `burn_dmg(obj, descr) = erode_obj(obj, descr, ERODE_BURN, EF_GREASE)` the first live ERODE_BURN caller, so a hero wearing a greased cloak would have drawn an rn2(2) C never draws and printed \"Your cloak is protected by the layer of grease!\" where C prints \"Your cloak smoulders!\". The EROSION table now carries check_grease as a third per-type output beside the vulnerability test and the resistance damage type.",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/zap.js adtyp_to_prop() carried four switch rows zap.c adtyp_to_prop() (5656-5670) does not have -- AD_DRST to POISON_RES, AD_DRLI to DRAIN_RES, AD_SLEE to SLEEP_RES and AD_STON to STONE_RES -- so the ported pure function answered a resistance property where C falls to `default: break;` and returns 0. Nothing reachable passes those damage types, so no screen moved, but u_adtyp_resistance_obj() reads the answer to decide whether to roll at all. The four rows are deleted and their now-unused imports with them.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "js/zap.js dobuzz()'s vertical `range = 1` is not pinned: changing it to 2 leaves the whole suite green, although the checklist cites scripts/zap-ray.test.mjs as driving every ray wand through that line.",
+            "category": "tests",
+            "trackedIn": "vertical-ray-range-one-is-unpinned"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/zap.js:1159 zap_over_floor()'s burn_floor_objects() call drops C's result test and the two statements it guards -- couldsee(), newsym() and the \"You see a puff of smoke.\" message -- with no comment or named refusal.",
+            "counterEvidence": "evidence refute: The central claim, that the arm is dropped 'with no comment or named refusal' so a maintainer reads it as complete, is contradicted by the code it cites. Counter-evidence: js/zap.js:1159-1169 does not call burn_floor_objects() bare. It passes `unsupported: (reason) => { throw new UnsupportedZapError(\\`burn_floor_objects() reached ${reason}\\`); }` and carries the comment 'js/zap_destroy_items.js keeps the hero-caused half fail-closed, because useupf() charges a shopkeeper for what it burns.' js/zap_destroy_items.js:197-202 refuses on uCaused before touching any object, so the hero-caused path this range makes reachable stops by name rather than diverging silently, and the two statements C guards with the result cannot be reached without first passing that refusal."
+          },
+          {
+            "summary": "js/zap.js:1231 `save_bhitpos` binds a reference to the live `state.gb.bhitpos` object, so the save and restore pair at 1231 and 1378 is correct only because line 1260 replaces the object rather than mutating it, which is the opposite of the in-place convention three other ported writers of the same value use.",
+            "counterEvidence": "causality refute: The deviation is harmless as written and the stated impact is entirely counterfactual, resting on a future edit the finding calls obvious but which the file's own conventions do not support. Counter-evidence: three of the finding's supporting claims fail on inspection. The claimed C text is not quoted above line 1260, which carries only C's comment `/* hit() and miss() need gb.bhitpos to match the target */` rather than the assignment, so the premise that the port must match a quoted C statement is false; the competing in-place convention it cites does not hold across the writers it names; and no reachable caller observes the difference, because the restore at 1378 runs on every path out of dobuzz() that the port admits."
+          },
+          {
+            "summary": "scripts/zap-ray.test.mjs:737 The type-9 assertion in 'dobuzz admits a hero wand zap and nothing else' accepts any error whose message merely lacks the band-refusal phrase, so an outright crash on flash_types[]' empty row passes as success.",
+            "counterEvidence": "causality refute: The stated impact, the running game aborting a segment on an unnamed error instead of a named refusal, cannot occur, because no reachable input produces a dobuzz type in 6 through 9. Counter-evidence: js/zap.js weffects() reaches ubuzz() only through `Math.abs(otyp - WAN_MAGIC_MISSILE) % 10` over the six consecutive ray wands WAN_MAGIC_MISSILE through WAN_LIGHTNING, which yields types 0 through 5; every negative monster type and every type at or above 10 is stopped by dobuzz()'s own band guard at js/zap.js:1206-1210; and spell casting is refused earlier at weffects(). Nothing in the running game can hand dobuzz() a type the assertion is loose about."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "2d84dfac2961bbc87a20edf5f4ed517885a89819..2325a5ba33e3253659a35e2891dcfec6c9004d7c",
+            "2325a5ba33e3253659a35e2891dcfec6c9004d7c..4fe4f5615b58d437ee37bbd373b96eb808aa5585"
+          ],
+          "mutants": 106,
+          "survivors": 13,
+          "byKind": {
+            "boolean": {
+              "ran": 23,
+              "killed": 15
+            },
+            "logical": {
+              "ran": 60,
+              "killed": 57
+            },
+            "relational": {
+              "ran": 23,
+              "killed": 21
+            }
+          },
+          "finderConclusion": "The window range ran 106 mutants of the three gating kinds over a baseline of 3,807 tests in 194 files, the largest run this project has made, and left 13 survivors, all in js/zap.js and each carrying a stated reason in dcae535's commit body. The pass was asked to test each claim rather than accept it, and reported none of them as wrong. The delta over the audit fixes ran 7 mutants and killed all 7, which is the five checkGrease rows of js/trap_erode_obj.js's EROSION table plus two operators, and the five rows are worth naming: three of them survived their own flip until this pass added the test that walks every erosion type through the grease arm.\n\nWhat the runs could not see is most of what the pass found. Two production defects sit in places no mutant of these kinds reaches: erode_obj()'s missing per-type check_grease is an absent table field rather than a wrong operator, and adtyp_to_prop()'s four invented rows are extra switch cases, which a mutation regime over booleans, logicals and relationals cannot add or remove. Five of the six test findings are the same shape, including zapcolors[]'s eight constants and dobuzz()'s `zap_hit(Math.trunc(state.u.uac), 0, random)` argument, which survived `+ 5` against the whole suite. This is the second consecutive pass whose main result is a value with no operator to mutate."
+        },
+        "readiness": {
+          "boundary": "The starting event is recorded step 88 of seed5002-wizard-coverage-pair, the byte l answering 'In what direction?' for a zap of a wished wand of fire, which raised UnsupportedZapError at js/zap.js:267-269 before this range. The ending event is step 88's screen, 'The bolt of fire bounces!  The bolt of fire hits you!--More--' with the beam painted across map row 7 at columns 73-77 and the cursor at [61,0,1]; the --More-- exists because a turn's third message arrived, and the third is burnarmor()'s 'Your cloak smoulders!'. The real game executes the path: the session emitted 88 of its 410 screens before the range and now emits 103, with animation frames going from 0 of 8 to 8 of 8, and scripts/run-ray-zap.mjs drives five fresh C recordings end to end.",
+          "sourceReview": "Every branch reachable before the ending event was traced against zap.c weffects() (3430-3476), ubuzz() (4758-4762), dobuzz() (4779-5037), bounce_dir() (4663-4701), zap_hit() (4704-4720), zhitu() (4400-4591) through its destroy_items() call at 4434, zap_over_floor() (5140-5497), zaptype() (88-96), flash_types[] (71-85), flash_str() (6428-6445), adtyp_to_prop() (5653-5674), u_adtyp_resistance_obj() (5675-5698) and inventory_resistance_check() (5709-5718); trap.c burnarmor() (87-160) and erode_obj()'s uvictim half; display.c zapdir_to_glyph() (2460-2470), reset_glyphmap()'s GLYPH_ZAP_OFF arm (2877-2883) and zapcolors[] (2661-2665); and pline.c pline_dir() (113-123) with set_msg_dir() (83-89). The trace covered state and random-number order: step 88's five draws are rn2(19) at exercise(attrib.c:509), rn2(7) at dobuzz(zap.c:4823), rn2(20) at zap_hit(zap.c:4709), d(6,6) at zhitu(zap.c:4422) and rn2(5) at burnarmor(trap.c:113), with no bounce draw and no floor draw, and the orchestrator measured the port's common prefix against C at 5,888 with C's next entry being the declared boundary. Stubs and stops identified: buzz() and its seven unported callers, dobuzz()'s swallow, monster, steed, Reflecting, flashburn(), air-level and shop-door arms, zap_over_floor()'s nine other terrain arms, zhitu()'s other six damage types and its losehp() tail, and weffects()'s five other arms. The pass then found what the trace had not: two table-shaped defects, erode_obj()'s missing per-type check_grease and adtyp_to_prop()'s four invented rows, neither of which any mutant of the run's kinds can reach.",
+          "completeness": "No known unsupported behavior remains inside the boundary, and every reachable excluded branch stops before changing state, consuming randomness or producing output, through a named refusal class. Three deferrals record cases just outside it: vertical-ray-reaches-destroy-items, for the vertical bolt that cannot stop inside the boundary because with no bounce message ahead of it the turn's third message never arrives; zap-over-floor-terrain-arms-refuse, for the seven terrains that stop instead, with C spans and a reproducible input for the water arm; and vertical-ray-range-one-is-unpinned, opened by this pass, which records that dobuzz()'s `range = 1` for a vertical bolt has no oracle and that the fix the pass proposed does not discriminate, measured two ways."
+        }
+      },
+      "recordedAt": "2026-08-18T02:07:20.037Z"
     }
   ]
 }

@@ -595,3 +595,5 @@ utc	event	phase	goal	detail
 2026-08-17T21:36:43.426Z	end	select	hero-zaps-a-ray-wand	ray-bounces-and-burns-the-hero queued, first of three planned slices
 2026-08-17T21:37:08.771Z	start	implement	hero-zaps-a-ray-wand	ray-bounces-and-burns-the-hero
 2026-08-18T00:22:32.756Z	end	implement	hero-zaps-a-ray-wand	ray-bounces-and-burns-the-hero closed at dcae535: screens 1846 to 1861
+2026-08-18T00:24:01.765Z	start	review	hero-zaps-a-ray-wand	correctness 2d84dfa..2325a5b, forced by the review gate
+2026-08-18T02:07:47.136Z	end	review	hero-zaps-a-ray-wand	correctness 2d84dfa..4fe4f56: 18 raw, 14 deduped, 11 confirmed, 10 applied, 1 deferred, 3 rejected
