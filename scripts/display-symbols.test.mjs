@@ -6794,6 +6794,60 @@ test('the two-line status row reports carrying capacity', async () => {
     }, { after: false });
 });
 
+// C ref: botl.c do_statusline2():140-142 and bot_via_windowport():1036-1037,
+// the same `if (hp < 0) hp = 0` written once for the string the status line
+// draws and once for the BL_HP value the field system stores and compares.
+//
+// hack.c losehp() leaves u.uhp wherever the killing blow put it and calls
+// done() from there, so every status drawn between the two reads a negative.
+// -18 of 12 is what seed5002-wizard-coverage-pair records: zhitu()'s d(6, 6)
+// took 25 from a Wizard standing at 7.
+test('a hero below zero hit points is drawn and compared at zero', async () => {
+    for (const lines of [2, 3]) {
+        const state = statusRenderingState();
+        state.iflags = { wc2_statuslines: lines };
+        state.u.uhp = -18;
+        state.u.uhpmax = 12;
+
+        await bot();
+
+        const rows = [21, 22, 23].map((row) => terminalRow(state, row));
+        const health = rows.find((row) => row.includes('HP:'));
+        assert.match(health, /HP:0\(12\)/u, `${lines} lines`);
+        assert.equal(health.includes('-18'), false, health);
+    }
+
+    // The stored value is clamped too, which a threshold highlight is what
+    // reads back: `hp>=0` matches a dead hero because BL_HP holds zero, and
+    // would not match the -18 that u.uhp still carries.
+    const state = statusRenderingState();
+    state.u.uhp = -18;
+    state.u.uhpmax = 12;
+    state.iflags = {
+        wc2_statuslines: 2,
+        // optfn_hilite_status() stores this default duration whenever a rule
+        // is accepted; render_status() draws no highlight while it is zero.
+        hilite_delta: 3,
+        status_hilites: [{
+            field: 'hitpoints',
+            behavior: 'absolute',
+            relation: '>=',
+            value: 0,
+            text: '',
+            // CLR_RED is a colour the recorder keeps as itself, so a wrong
+            // attribute cannot hide behind a colour the grid normalizes.
+            style: { attrib: HL_UNDEF, color: CLR_RED },
+        }],
+    };
+
+    await bot();
+
+    assertStatusTextStyle(state, 23, 'HP:0', {
+        attr: ATR_NONE,
+        color: CLR_RED,
+    });
+});
+
 // wintty.c Begin_Attr() turns a status highlight's HL_ mask into
 // term_start_attr() calls, and recorder patch 006 nomux_set_attr() records
 // only ATR_INVERSE, ATR_BOLD and ATR_ULINE.  Every row below was read off the
@@ -9170,3 +9224,4 @@ test('a cmap glyph carries the accessibility kind its index falls in', () => {
     assert.equal(kindOf(S_grave), 'furniture');
     assert.equal(kindOf(S_pool), 'cmap');
 });
+

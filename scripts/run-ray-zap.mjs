@@ -9,7 +9,7 @@
 // wand in the pack; nothing else about the game is arranged, so the room the
 // hero starts in is whatever the seed built.
 //
-// What the five segments separate, all of them inside zap.c dobuzz():
+// What the six segments separate, all of them inside zap.c dobuzz():
 //
 // - The first case aims west, into the wall one square away. The bolt
 //   bounces off it and comes straight back onto the hero, so the turn's
@@ -42,6 +42,14 @@
 //   is what carries this segment past zhitu():4434 and into destroy_items(),
 //   maybe_destroy_item() and potionbreathe(). The first case stops one
 //   message earlier and reaches none of them.
+//
+//   It is also the case that kills the hero. Its three trailing spaces answer
+//   the --More-- each burning item raises, and after the last of them
+//   zhitu():4588 hands d(6, 6) to hack.c losehp() with the hero already down
+//   to nine hit points. The segment ends on the --More-- that
+//   urgent_pline("You die...") forces onto the line before it, with the
+//   status row reading HP:0 where botl.c:141-142 clamps the negative total;
+//   the screen after that one belongs to end.c done(), which is unported.
 //
 // Two things every segment relies on and the verifier below checks: the wished
 // wand's objects[] row carries oc_dir RAY, which is what sends dozap() into
@@ -103,14 +111,20 @@ export const RAY_CASES = [
         dir: SOUTHEAST,
     },
     {
-        label: 'downward ray destroys the potions',
+        label: 'downward ray kills the hero',
         wand: 'wand of fire',
         dir: DOWN,
+        // One space per --More-- the burning inventory raises, counted off the
+        // recording: the spellbook, the potion and the second spellbook. A
+        // fourth would answer the death --More-- and carry the segment into
+        // end.c done().
+        dismissals: 3,
     },
 ];
 
-export function movesFor({ wand, dir }) {
-    return `${WISH}${wand}\n${ZAP}${WAND_LETTER}${dir}`;
+export function movesFor({ wand, dir, dismissals = 0 }) {
+    return `${WISH}${wand}\n${ZAP}${WAND_LETTER}${dir}`
+        + ' '.repeat(dismissals);
 }
 
 // The keys up to and including the wish, which is what verifyRaySegment()

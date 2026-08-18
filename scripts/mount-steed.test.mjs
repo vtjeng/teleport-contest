@@ -64,6 +64,8 @@ import {
     PM_VALKYRIE,
     PM_WIZARD,
 } from '../js/monsters.js';
+import { bot } from '../js/display.js';
+import { UnsupportedEndOfGameError } from '../js/end.js';
 import { is_mplayer } from '../js/mondata.js';
 import { game } from '../js/gstate.js';
 import { m_at } from '../js/monst.js';
@@ -525,22 +527,28 @@ test('the roll fails only when the hero and the steed fall short of it',
 });
 
 test('a slip that kills carries the killer string x_monnam built', async () => {
-    // steed.c:349-355. losehp()'s knam is read only on the death branch, so
-    // this is the one place the buffer is observable at all. `called` TRUE is
-    // what turns a given name into "<species> called <name>".
+    // steed.c:349-355. losehp()'s knam reaches svk.killer only on the death
+    // branch, so this is the one place the buffer is observable at all.
+    // `called` TRUE is what turns a given name into "<species> called <name>".
     const segment = knightSlipSegment();
     const { error } = await mountAfter(segment, (state) => {
         const pony = m_at(state.u.ux, state.u.uy + 1);
         pony.mextra = { ...pony.mextra, mgivenname: 'Dobbin' };
         // rn1(5, 10) is at least 10, so one hit point cannot survive it.
         state.u.uhp = 1;
+        // urgent_pline("You die...") cannot share the top line with the slip
+        // message above it, so it raises a --More-- that wants an answer
+        // before done() is reached.
+        state.nhDisplay.pushKey(' '.charCodeAt(0));
         return pony;
     });
-    assert.ok(error instanceof UnsupportedHitPointLossError);
-    assert.match(
-        error.message,
-        /slipped while mounting a saddled pony called Dobbin/u,
-    );
+    assert.ok(error instanceof UnsupportedEndOfGameError);
+    // hack.c:4284-4285 copies knam into svk.killer.name under the format the
+    // caller chose; steed.c:354 passes NO_KILLER_PREFIX so the tombstone would
+    // read the string exactly as x_monnam() built it.
+    assert.equal(game.killer.name,
+        'slipped while mounting a saddled pony called Dobbin');
+    assert.equal(game.killer.format, NO_KILLER_PREFIX);
 });
 
 test('a non-Knight spends a point of tameness on every attempt', async () => {
@@ -853,12 +861,29 @@ test('losehp takes the hit points, redraws the status line and stops at '
     assert.equal(game.u.uhp, game.u.uhpmax);
     assert.equal(game.u.uhpmax, started + 2 - 3 + 3);
 
-    // hack.c:4280-4287, the branch that calls done(DIED).
+    // hack.c:4283-4288, the branch that records the killer and calls
+    // done(DIED). The loss is exactly the hero's remaining points, so u.uhp
+    // lands on zero: `u.uhp < 1` is what makes an unwounded-looking zero
+    // fatal, and a hero who kept one point would live.
+    clearTtyMessageWindow(game);
+    game._ttyToplines = '';
     await assert.rejects(
         losehp(game.u.uhp, 'slipped while mounting a saddled pony',
                NO_KILLER_PREFIX, game),
-        UnsupportedHitPointLossError,
+        UnsupportedEndOfGameError,
     );
+    assert.equal(game.u.uhp, 0);
+    assert.equal(game.killer.name, 'slipped while mounting a saddled pony');
+    assert.equal(game.killer.format, NO_KILLER_PREFIX);
+    assert.equal(toplines(), 'You die...');
+    // botl.c do_statusline2():141-142 shows a dead hero at zero rather than
+    // at whatever the killing blow left behind. -9 of 16 is what
+    // seed0103-knight-ride-pony records: rn1(5, 10) took 13 from a Knight
+    // standing at 4.
+    game.u.uhp = -9;
+    game.u.uhpmax = 16;
+    await bot();
+    assert.match(statusLine(), /HP:0\(16\)/u);
 });
 
 test('losehp stops for a polymorphed hero before it spends a hit point',
@@ -1140,19 +1165,24 @@ test('test_move(TEST_MOVE) leaves a closed door shut and a doorway silent',
 
 test('a slip that kills the hero stops the command rather than the segment',
     async () => {
-    // cmd.c failClosedCommand() converts an UnsupportedHitPointLossError into
+    // cmd.c failClosedCommand() converts an UnsupportedEndOfGameError into
     // the command boundary, which keeps the segment's matching prefix. A
     // second #ride is what reaches it: rn1(5, 10) is at least 10 and a level 1
     // Knight has 16 hit points, so a second slip always leaves too few. This
     // is the female Knight's segment, whose second roll also fails.
+    //
+    // The trailing space answers the --More-- that urgent_pline("You die...")
+    // raises on the slip message. Without it the segment runs out of input at
+    // that prompt and never reaches done(), which is exactly what the two
+    // recorded witnesses do.
     const segment = segmentFor(`${RIDE_COMMAND}l.`);
     let boundary = null;
     await runSegment(
-        { ...segment, moves: `.${RIDE_COMMAND}l${RIDE_COMMAND}l` },
+        { ...segment, moves: `.${RIDE_COMMAND}l${RIDE_COMMAND}l ` },
         { onBoundary: (error) => { boundary = error; } },
     );
     assert.equal(boundary?.name, 'UnsupportedHeroCommandBoundaryError');
-    assert.match(boundary.message, /death, killer "slipped while mounting/u);
+    assert.match(boundary.message, /done\(0\) for killer "slipped while /u);
 });
 
 test('an unsaddled fixture monster refuses a saddle, which is what keeps the '

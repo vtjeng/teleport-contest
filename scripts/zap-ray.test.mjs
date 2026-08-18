@@ -25,6 +25,7 @@ import {
     FIRE_RES,
     SHOCK_RES,
     FROMOUTSIDE,
+    HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
     OBJ_FLOOR,
@@ -61,6 +62,7 @@ import {
     SPE_DIG,
     SPE_FINGER_OF_DEATH,
     SPE_MAGIC_MISSILE,
+    TOOL_CLASS,
     TOWEL,
     WAN_COLD,
     WAN_DEATH,
@@ -69,6 +71,7 @@ import {
     WAN_LIGHTNING,
     WAN_MAGIC_MISSILE,
     WAN_SLEEP,
+    WAND_CLASS,
 } from '../js/objects.js';
 import { enableRngLog, getRngLog } from '../js/rng.js';
 // Read straight out of the generated defsym.h index rather than through
@@ -90,6 +93,7 @@ import {
     weffects,
     zap_hit,
     zaptype,
+    zhituLosehpArguments,
 } from '../js/zap.js';
 import {
     RAY_CASES,
@@ -487,6 +491,124 @@ test('an unprotected pack rolls nothing when fire looks for a resistance',
     game.u.uprops[1].extrinsic = 0;
 });
 
+// A hero and the globals zhituLosehpArguments() reads: gc.current_wand,
+// gb.buzzer, flags.female and u.uprops[]. Nothing else in the block is read,
+// so the whole state it needs fits here.
+function killerState({ female = true, wand = null, buzzer = null,
+    halfSpellDamage = null } = {}) {
+    const uprops = [];
+    if (halfSpellDamage)
+        uprops[HALF_SPDAM] = { intrinsic: 0, extrinsic: 0,
+            [halfSpellDamage]: FROMOUTSIDE };
+    return {
+        flags: { female },
+        u: { uprops },
+        current_wand: wand,
+        gb: { buzzer },
+    };
+}
+
+test('the killer zhitu builds names the bolt, the verb and the hero', () => {
+    // zap.c zhitu():4560-4589. Nothing reads svk.killer until end.c done()
+    // names the death by it, so no screen, cursor or draw moves with these
+    // strings and a differential cannot separate a right one from a wrong one.
+    // Every row below is read off the C rather than off a recording.
+    const wand = { oclass: WAND_CLASS };
+    // music.c:633 puts a fire or frost horn into the same gc.current_wand and
+    // hands it to buzz() as a wand, which is the whole reason 4564 asks for the
+    // object class instead of assuming one.
+    const horn = { oclass: TOOL_CLASS };
+
+    // The one row a ported zap reaches: BZ_U_WAND is 0..9, so a hero's own
+    // wand of fire arrives as type 1 and abstyp 1, and 4582's Sprintf is
+    // "%s %s by %sself" over uhim(), which you.h:315 reads out of
+    // genders[1].him for a female hero.
+    assert.deepEqual(
+        zhituLosehpArguments(1, 1, 25, 'bolt of fire',
+            killerState({ wand })),
+        { dam: 25, kbuf: 'bolt of fire zapped by herself' },
+    );
+    // genders[0].him is "him", so the same bolt names a male hero "himself".
+    assert.equal(
+        zhituLosehpArguments(1, 1, 25, 'bolt of fire',
+            killerState({ female: false, wand })).kbuf,
+        'bolt of fire zapped by himself',
+    );
+    // 4563-4565: `otmp && otmp->oclass == TOOL_CLASS` is what separates the
+    // horn from the wand, and the NULL half covers a bolt no held object
+    // fired, such as the divine lightning 4559's comment names.
+    assert.equal(
+        zhituLosehpArguments(1, 1, 6, 'blast of fire',
+            killerState({ wand: horn })).kbuf,
+        'blast of fire played by herself',
+    );
+    assert.equal(
+        zhituLosehpArguments(1, 1, 6, 'bolt of lightning',
+            killerState()).kbuf,
+        'bolt of lightning zapped by herself',
+    );
+
+    // 4565-4568's three remaining bands, read at their own boundaries:
+    // BZ_U_SPELL starts at 10, BZ_U_BREATH at 20, and 30 is past every band a
+    // BZ_ macro produces, which is why C calls that arm "should never happen".
+    for (const [abstyp, verb] of [
+        [9, 'zapped'], [10, 'cast'], [19, 'cast'],
+        [20, 'exhaled'], [29, 'exhaled'], [30, 'imagined'],
+    ]) {
+        assert.equal(
+            zhituLosehpArguments(abstyp, abstyp, 6, 'fireball',
+                killerState({ wand })).kbuf,
+            `fireball ${verb} by herself`,
+            `abstyp ${abstyp}`,
+        );
+    }
+});
+
+test('Half_spell_damage halves a wand and a spell but never a breath', () => {
+    // zap.c:4585-4587. `dam` is the roll the switch above produced; 25 is the
+    // d(6, 6) the seed5002 witness records at zhitu():4422.
+    const wand = { oclass: WAND_CLASS };
+    const halved = (abstyp, dam, source) => zhituLosehpArguments(
+        abstyp, abstyp, dam, 'bolt of fire',
+        killerState({ wand, halfSpellDamage: source }),
+    ).dam;
+
+    // youprop.h:295 is either source, so both answer the same.
+    for (const source of ['intrinsic', 'extrinsic']) {
+        // (25 + 1) / 2 is 13 in C integer arithmetic.
+        assert.equal(halved(1, 25, source), 13, source);
+        // A spell is still under 20, so it halves too; a breath is not.
+        assert.equal(halved(19, 25, source), 13, source);
+        assert.equal(halved(20, 25, source), 25, source);
+    }
+    // Without the property nothing is halved, whatever the band.
+    assert.equal(halved(1, 25, null), 25);
+    assert.equal(halved(19, 25, null), 25);
+});
+
+test('a bolt a monster fired stops before the killer names it', () => {
+    // zap.c:4570-4577 hands the killer to mcastu.c death_inflicted_by(), which
+    // names the monster gb.buzzer points at. `type < 0` is a monster's own
+    // zap and gb.buzzer is written only by mcastu.c, muse.c, mthrowu.c,
+    // priest.c and timeout.c, none of them ported.
+    assert.throws(
+        () => zhituLosehpArguments(-31, 1, 6, 'bolt of fire', killerState()),
+        /death_inflicted_by\(\)/u,
+    );
+    assert.throws(
+        () => zhituLosehpArguments(1, 1, 6, 'bolt of fire',
+            killerState({ buzzer: { mnum: 1 } })),
+        /death_inflicted_by\(\)/u,
+    );
+    // BZ_U_WAND(BZ_OFS_WAN(WAN_MAGIC_MISSILE)) is 0, and 4571's second half is
+    // what keeps that hero's own zap out of the monster arm: `type == 0` alone
+    // would send every magic missile there.
+    assert.equal(
+        zhituLosehpArguments(0, 0, 6, 'magic missile', killerState()).kbuf,
+        'magic missile zapped by herself',
+    );
+});
+
 test('weffects hands the ray six dice, and magic missile two', async () => {
     // zap.c weffects():3463-3465. Nothing a player can see separates those
     // two numbers from any other pair: the only reader of `nd` this port
@@ -524,10 +646,11 @@ test('weffects hands the ray six dice, and magic missile two', async () => {
     const wand = {
         otyp: WAN_FIRE, oclass: game.objects[WAN_FIRE].oc_class, quan: 1,
     };
-    await assert.rejects(
-        () => weffects(wand, game, random),
-        /losehp\(\) for the bolt's damage/u,
-    );
+    const before = game.u.uhp;
+    await weffects(wand, game, random);
+    // d(6, 6) is 6 through the stream above, and the hero has no
+    // Half_spell_damage, so the whole roll reaches losehp().
+    assert.equal(game.u.uhp, before - 6);
     assert.deepEqual(rolled, [[6, 6]]);
     // weffects()'s exercise(A_WIS, TRUE), zap_hit()'s rn2(20), burnarmor()'s
     // one rn2(5) slot roll -- a return of 1 lands on the cloak first time --
@@ -577,6 +700,37 @@ test('a wand of fire aimed at a wall burns the hero it bounces back onto',
     // zhitu()'s ZT_FIRE arm does not touch hit points before the
     // destroy_items() call this port stops at.
     assert.equal(game.u.uhp, game.u.uhpmax);
+});
+
+test('a downward ray kills the hero and stops on the death More', async () => {
+    // The matrix's sixth segment end to end, over the same keys
+    // scripts/run-ray-zap.mjs records against C: wish, zap down, then one
+    // space for each --More-- the burning inventory raises.
+    let boundary = null;
+    await runSegment(raySegment(5), {
+        onBoundary: (error) => { boundary = error; },
+    });
+    // The segment runs out of keys at the --More-- rather than stopping on a
+    // refusal, so end.c done() is never entered.
+    assert.equal(boundary, null);
+    // urgent_pline("You die...") cannot share the top line with the message
+    // before it (topl.c update_topl():265), so the last screen is that
+    // message under the --More-- the death raised.
+    assert.equal(
+        topLine(),
+        'Your spellbook of force bolt catches fire and burns!--More--',
+    );
+    // zhitu():4588 took d(6, 6) from a hero already down to nine points, and
+    // botl.c:141-142 shows the debt as zero.
+    assert.ok(game.u.uhp < 0, `${game.u.uhp}`);
+    assert.equal(
+        game.nhDisplay.grid[23].map(({ ch }) => ch).join('').trimEnd(),
+        'Dlvl:1 $:0 HP:0(12) Pw:7(7) AC:9 Xp:1',
+    );
+    // hack.c:4283-4285. Nothing draws this string on a screen, so the running
+    // game is the only place the whole chain -- flash_str(), the verb, uhim()
+    // and losehp() -- can be read back together.
+    assert.equal(game.killer.name, 'bolt of fire zapped by herself');
 });
 
 test('burnarmor rolls again for a slot the hero has nothing in', async () => {
@@ -682,11 +836,15 @@ test('the ray matrix keeps replay inputs and one wand per case', () => {
         ({ nethackrc }) => nethackrc.includes('pettype:none'),
     ));
     // Every case zaps exactly once, and the keys are the wish, the zap, the
-    // wand letter and the direction, in that order.
+    // wand letter and the direction, in that order. What follows the direction
+    // is one space per --More-- the case has to answer to reach its own
+    // boundary, so a case that acquires a stray key fails here.
     for (const entry of RAY_CASES) {
         const moves = movesFor(entry);
         assert.ok(moves.startsWith(movesThroughWish(entry)), entry.label);
-        assert.equal(moves.slice(movesThroughWish(entry).length).length, 3,
+        const zap = moves.slice(movesThroughWish(entry).length);
+        assert.equal(zap.slice(0, 3).length, 3, entry.label);
+        assert.equal(zap.slice(3), ' '.repeat(entry.dismissals ?? 0),
             entry.label);
         assert.equal(moves.split('z').length - 1, 1, entry.label);
     }
@@ -872,16 +1030,15 @@ test('a hallucinating hero stops before the beam takes a colour', async () => {
         /rnd_hallublast\(\) and the rn2\(6\) beam colour/u,
     );
     // Either source of resistance suppresses it, and the bolt runs on to the
-    // arm the resistance-free hero reaches.
+    // damage the resistance-free hero takes.
     for (const source of ['intrinsic', 'extrinsic']) {
         wand = await aimedWand(0, 0, 1);
         game.u.uprops[HALLUC].intrinsic = 5;
         game.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0 };
         game.u.uprops[HALLUC_RES][source] = FROMOUTSIDE;
-        await assert.rejects(
-            () => weffects(wand, game, straightThrough()),
-            /losehp\(\) for the bolt's damage/u,
-        );
+        const before = game.u.uhp;
+        await weffects(wand, game, straightThrough());
+        assert.equal(game.u.uhp, before - 6, source);
     }
 });
 
@@ -994,11 +1151,12 @@ test('weffects turns each ray wand into the dobuzz type its row implies',
     // hack.h:1477 BZ_OFS_WAN(otyp) is `abs(otyp - WAN_MAGIC_MISSILE) % 10`
     // and :1480 BZ_U_WAND(bztyp) is `0 + bztyp`, so objects.h:1488's ordering
     // of the six ray wands is what numbers them. zhitu() names the number
-    // back in its refusal, which is how each row is read here.
+    // back in its refusal, which is how each row is read here. Fire is the one
+    // arm that runs instead of refusing, so it is read from the damage it
+    // does: d(6, 6) is 6 through straightThrough().
     const cases = [
         [WAN_MAGIC_MISSILE, 'zhitu() for damage type 0'],
-        [WAN_FIRE,
-            "losehp() for the bolt's damage, under the killer built at 4582"],
+        [WAN_FIRE, null],
         [WAN_COLD, 'zhitu() for damage type 2'],
         [WAN_SLEEP, 'zhitu() for damage type 3'],
         [WAN_DEATH, 'zhitu() for damage type 4'],
@@ -1007,6 +1165,12 @@ test('weffects turns each ray wand into the dobuzz type its row implies',
     for (const [otyp, ending] of cases) {
         const wand = await aimedWand(0, 0, 1, otyp);
         assert.equal(game.objects[otyp].oc_dir, RAY, `oc_dir of ${otyp}`);
+        if (ending === null) {
+            const before = game.u.uhp;
+            await weffects(wand, game, straightThrough());
+            assert.equal(game.u.uhp, before - 6, `${otyp}`);
+            continue;
+        }
         await assert.rejects(
             () => weffects(wand, game, straightThrough()),
             (error) => error.message.endsWith(ending),

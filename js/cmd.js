@@ -136,6 +136,8 @@ import {
 import { nhgetch } from './input.js';
 import { doride, UnsupportedSteedError } from './steed.js';
 import { UnsupportedHitPointLossError } from './hack.js';
+import { UnsupportedEndOfGameError } from './end.js';
+import { UnsupportedItemIgnitionError } from './apply_catch_lit.js';
 import { UnsupportedAbilityChangeError } from './attrib.js';
 import { UnsupportedExperienceChangeError } from './exper.js';
 import { UnsupportedMonsterRequestError } from './read.js';
@@ -159,6 +161,7 @@ import {
     clearTtyMessageWindow,
     ttyNorep,
     ttyPline,
+    UnsupportedUrgentMessageError,
 } from './tty_message.js';
 
 export const MAX_COMMAND_COUNT = 32767;
@@ -1293,6 +1296,20 @@ export function failClosedCommandRefusals() {
         UnsupportedBhitError,
         UnsupportedTransientDisplayError,
         UnsupportedHitPointLossError,
+        // The three classes a killing blow reaches below
+        // UnsupportedHitPointLossError, each after the status line has already
+        // been redrawn with the hero at zero. hack.c losehp() prints
+        // urgent_pline("You die..."), which win/tty/topl.c update_topl():265
+        // forces onto a line of its own, so the --More-- that message raises
+        // is the last screen the segment can match; end.c done() owns
+        // everything after it. tty_message.js raises the second from that same
+        // urgent_pline() when the player has an Escape-suppressed message
+        // window, and apply_catch_lit.js the third from the ignite_items()
+        // call one guard earlier in zhitu(), for an ignitable object in the
+        // hero's own pack.
+        UnsupportedEndOfGameError,
+        UnsupportedUrgentMessageError,
+        UnsupportedItemIgnitionError,
         UnsupportedArtifactDisplayError,
         UnsupportedDropError,
         UnsupportedLevelChangeError,

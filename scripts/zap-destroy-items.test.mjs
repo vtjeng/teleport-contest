@@ -15,10 +15,13 @@ import {
     FROMOUTSIDE,
     INVIS,
     ismnum,
+    KILLED_BY,
+    KILLED_BY_AN,
     OBJ_FLOOR,
     OBJ_INVENT,
     OBJ_MINVENT,
 } from '../js/const.js';
+import { UnsupportedEndOfGameError } from '../js/end.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { AD_COLD, AD_ELEC, AD_FIRE, PM_NEWT } from '../js/monsters.js';
@@ -129,6 +132,18 @@ function toplines() {
 // The segment that starts each test leaves its own last message on the top
 // line. Clearing it keeps the message under test off a shared line, which
 // would otherwise reach a --More-- these tests have no keystrokes for.
+// hack.c losehp()'s death branch copies `knam` into svk.killer and then prints
+// urgent_pline("You die..."), which win/tty/topl.c update_topl():265 refuses
+// to let share the top line with the explosion message already on it. The
+// pushed space answers the --More-- that raises, so end.c done() is reached
+// and the killer can be read back off the state it was written to.
+async function assertKilledBy(call, name, format, label = name) {
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await assert.rejects(call, UnsupportedEndOfGameError, label);
+    assert.equal(game.killer.name, name, label);
+    assert.equal(game.killer.format, format, label);
+}
+
 function clearTopline() {
     game._pending_message = '';
     game._ttyToplines = '';
@@ -753,14 +768,15 @@ test('the vapors reach a hero who breathes or a hero who has eyes',
 
 test('the killer names the destroy_strings row rather than the glob override',
     async () => {
-    // zap.c:5941-5948. `how` is read only on losehp()'s death branch, which
-    // js/hack.js stops at and names in its message, so a hero who dies of the
-    // explosion is the one input that separates the three killers below.
+    // zap.c:5941-5948. `how` reaches svk.killer only on losehp()'s death
+    // branch, and nothing reads svk.killer back until end.c done(), so a hero
+    // who dies of the explosion is the one input that separates the three
+    // killers below.
     const cases = [
         // [otyp, quan, per-item rolls, killer, k_format]
-        [POT_BOOZE, 1, [0], 'boiling potion', 0], // KILLED_BY_AN
-        [POT_BOOZE, 2, [0, 0], 'boiling potions', 1], // KILLED_BY
-        [POT_OIL, 1, [0], 'exploding potion', 0], // dindx 2's third column
+        [POT_BOOZE, 1, [0], 'boiling potion', KILLED_BY_AN],
+        [POT_BOOZE, 2, [0, 0], 'boiling potions', KILLED_BY],
+        [POT_OIL, 1, [0], 'exploding potion', KILLED_BY_AN], // dindx 2's third
     ];
     for (const [otyp, quan, rolls, killer, format] of cases) {
         await initializedGame(982445, 'HeroKiller');
@@ -777,15 +793,14 @@ test('the killer names the destroy_strings row rather than the glob override',
         game.u.uhp = 1;
         game.u.uhpmax = 12;
         clearTopline();
-        await assert.rejects(
+        await assertKilledBy(
             () => destroy_items(game.youmonst, AD_FIRE, 5, {
                 random: scriptedRandom(
                     [[5, 4], [6, 4], ...rolls.map((r) => [3, r])], [],
                 ),
                 state: game,
             }),
-            new RegExp(`death, killer "${killer}" in format ${format}`, 'u'),
-            `${otyp}/${quan}`,
+            killer, format, `${otyp}/${quan}`,
         );
     }
 });
@@ -826,12 +841,12 @@ test('a glob of green slime takes its own weight and its own killer',
     game.u.uhp = 2;
     game.u.uhpmax = 20;
     clearTopline();
-    await assert.rejects(
+    await assertKilledBy(
         () => destroy_items(game.youmonst, AD_FIRE, 5, {
             random: scriptedRandom([[5, 4], [3, 0]], []),
             state: game,
         }),
-        /death, killer "exploding glob of slime" in format 0/u,
+        'exploding glob of slime', KILLED_BY_AN,
     );
 });
 
@@ -864,12 +879,12 @@ test('a burning spellbook takes its own row and one point of damage',
     game.u.uhp = 1;
     game.u.uhpmax = 12;
     clearTopline();
-    await assert.rejects(
+    await assertKilledBy(
         () => destroy_items(game.youmonst, AD_FIRE, 5, {
             random: scriptedRandom([[5, 4], [3, 0]], []),
             state: game,
         }),
-        /death, killer "burning book" in format 0/u,
+        'burning book', KILLED_BY_AN,
     );
 });
 

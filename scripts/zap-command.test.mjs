@@ -862,9 +862,11 @@ test('every zap refusal names a zap.c function the port has not ported',
             'backfire', 'losehp', 'shieldeff', 'zapyourself',
             // flash_str() and zap_hit().
             'rnd_hallublast', 'spell_hit_bonus',
-            // zhitu(): the fire-resistant hero, the other six damage types,
-            // and the killer and losehp() tail below the switch.
-            'zhitu', 'zhitu', 'losehp',
+            // zhituLosehpArguments(): the arm that names the monster whose
+            // bolt this was, which a hero's own ricochet never takes.
+            'death_inflicted_by',
+            // zhitu(): the fire-resistant hero and the other six damage types.
+            'zhitu', 'zhitu',
             // zap_over_floor(): the exploding-wand caller, then the four
             // terrains the fire arm acts on, the cold arm's two, poison gas,
             // iron bars, and the three arms of the shared tail.

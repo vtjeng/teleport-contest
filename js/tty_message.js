@@ -316,3 +316,34 @@ export async function ttyPline(message, state = game) {
 export async function ttyNorep(message, state = game) {
     return ttyPlineCore(message, state, true);
 }
+
+export class UnsupportedUrgentMessageError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = 'UnsupportedUrgentMessageError';
+    }
+}
+
+// C ref: pline.c urgent_pline() (313-323). It is custompline(URGENT_MESSAGE),
+// and that flag reaches the top line twice: vpline():253 stops MSGTYPE=hide
+// and MSGTYPE=norep from swallowing the message, and putmesg():72-74 turns it
+// into tty_putstr()'s ATR_URGENT, whose arm at wintty.c:2277-2283 clears a
+// WIN_STOP the player set with Escape at an earlier --More-- and marks this
+// one message WIN_NOSTOP.
+//
+// Neither of the first two matters here: the port models no MSGTYPE rules, so
+// vpline() suppresses nothing. The third does, and it stops. With WIN_STOP
+// clear -- which is every message the port has drawn so far -- the arm sets
+// only WIN_NOSTOP, and update_topl():257 reads that as `skip = FALSE`, exactly
+// what a clear WIN_STOP already gives, so an urgent message is an ordinary
+// one. With WIN_STOP set it is not: tty_clear_nhwindow(WIN_MESSAGE) wipes the
+// top line before the message is written, where an ordinary message would
+// have been held back invisibly.
+export async function ttyUrgentPline(message, state = game) {
+    if (state._ttyMessageStopped) {
+        throw new UnsupportedUrgentMessageError(
+            'tty_putstr()\'s ATR_URGENT arm clearing WIN_STOP',
+        );
+    }
+    return ttyPlineCore(message, state, false);
+}

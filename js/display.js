@@ -3700,8 +3700,22 @@ function _statusLevelDescription(u, short = false) {
     return `${label}:${depth(u.uz)}`;
 }
 
+// C ref: botl.c do_statusline2() (140-142) and bot_via_windowport() (1036-1037)
+// -- the same guard written twice, once for the string the two-line status
+// draws and once for the BL_HP value the field-based status stores. A hero's
+// hit points go below zero for exactly as long as it takes hack.c losehp() to
+// reach end.c done(), and every status drawn in that window, including the one
+// urgent_pline("You die...") flushes, shows zero rather than the debt.
+//
+// Both C sites clamp before their min(hp, 9999) cap; that cap is left out
+// because no ported path can lift a hero above 9999 hit points.
+function _statusHitPoints(u) {
+    const hp = u?.uhp ?? 0;
+    return hp < 0 ? 0 : hp;
+}
+
 function _statusVitals(u) {
-    return `$:${money_cnt(game.invent)} HP:${u.uhp || 0}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}`;
+    return `$:${money_cnt(game.invent)} HP:${_statusHitPoints(u)}(${u.uhpmax || 0}) Pw:${u.uen || 0}(${u.uenmax || 0}) AC:${u.uac ?? 10} Xp:${_statusExperience(u)}`;
 }
 
 // C ref: botl.c initblstats[]'s BL_TIME entry, whose "%ld" is filled from
@@ -3916,7 +3930,7 @@ function _vitalStatusFields(u) {
     const fields = [
         _statusField(`$:${money_cnt(game.invent)}`, _fieldOwner('gold')),
         _statusField(' '),
-        _statusField(`HP:${u.uhp || 0}`, _fieldOwner('hitpoints')),
+        _statusField(`HP:${_statusHitPoints(u)}`, _fieldOwner('hitpoints')),
         _statusField(`(${u.uhpmax || 0})`, _fieldOwner('hitpoints-max')),
         _statusField(' '),
         _statusField(`Pw:${u.uen || 0}`, _fieldOwner('power')),
@@ -4358,8 +4372,8 @@ function _statusFieldData(field, valueSnapshot = null) {
         };
     case 'hitpoints':
         return {
-            value: u?.uhp ?? 0,
-            percent: _statusPercentage(u?.uhp ?? 0, u?.uhpmax ?? 0),
+            value: _statusHitPoints(u),
+            percent: _statusPercentage(_statusHitPoints(u), u?.uhpmax ?? 0),
         };
     case 'hitpoints-max': return { value: u?.uhpmax ?? 0 };
     case 'dungeon-level': return { text: _statusLevelDescription(u) };

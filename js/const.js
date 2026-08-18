@@ -22,6 +22,9 @@ import { COMMIT_NUMBER, TELEPORT_BUILD_DATE } from './version.js';
 // No imports from non-constant files — const.js is a leaf in the DAG
 import { game } from './gstate.js';
 import { NUMMONS } from './monsters.js';
+// role.c genders[], read by the you.h pronoun macro below. roles.js imports
+// nothing, so this edge cannot close a cycle.
+import { genders } from './roles.js';
 import { CLR_BLACK, CLR_BLUE, CLR_BRIGHT_BLUE, CLR_BRIGHT_CYAN, CLR_BRIGHT_GREEN, CLR_BRIGHT_MAGENTA, CLR_BROWN, CLR_CYAN, CLR_GRAY, CLR_GREEN, CLR_MAGENTA, CLR_ORANGE, CLR_RED, CLR_WHITE, CLR_YELLOW, NO_COLOR } from './terminal.js';
 
 // C macro: SIZE(arr) = sizeof(arr)/sizeof(arr[0]) → JS: arr.length
@@ -2920,6 +2923,14 @@ export function Upolyd(player) {
 export function Ugender(state = game) {
     return (Upolyd(state?.u) ? state?.u?.mfemale : state?.flags?.female)
         ? 1 : 0;
+}
+
+// C ref: you.h:315 — #define uhim() (genders[flags.female ? 1 : 0].him), the
+// hero's objective pronoun, "him" or "her". Unlike Ugender() directly above it
+// ignores u.mfemale, so a polymorphed hero is still named by her own gender.
+// zap.c zhitu():4582 splices it into "<bolt> zapped by <uhim()>self".
+export function uhim(state = game) {
+    return genders[state?.flags?.female ? 1 : 0].him;
 }
 
 // Canonical macros — previously duplicated as local stubs in 15+ files

@@ -45,6 +45,7 @@ import {
     GETOBJ_EXCLUDE,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    HALF_SPDAM,
     HALLUC,
     HALLUC_RES,
     ICE,
@@ -55,6 +56,7 @@ import {
     IS_WALL,
     IS_WATERWALL,
     In_mines,
+    KILLED_BY_AN,
     Is_airlevel,
     Is_waterlevel,
     LAVAWALL,
@@ -81,6 +83,7 @@ import {
     ZAP_POS,
     isok,
     u_at,
+    uhim,
 } from './const.js';
 import { stop_occupation } from './allmain.js';
 import { exercise } from './attrib.js';
@@ -100,7 +103,9 @@ import { dropx, preflight_dropx } from './do.js';
 import { more_experienced } from './exper.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
-import { check_capacity, nh_delay_output, nomul } from './hack.js';
+import {
+    check_capacity, losehp, nh_delay_output, nomul,
+} from './hack.js';
 import { lcase, mungspaces } from './hacklib.js';
 import {
     getobj,
@@ -131,6 +136,7 @@ import {
     SPE_FINGER_OF_DEATH,
     SPE_MAGIC_MISSILE,
     SPE_SLEEP,
+    TOOL_CLASS,
     WAND_CLASS,
     WAN_DIGGING,
     WAN_LIGHTNING,
@@ -148,7 +154,7 @@ import {
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
 import { body_part } from './polyself.js';
-import { d, rn1, rn2, rnd, rnl } from './rng.js';
+import { d, rn1, rn2, rnd, rne, rnl } from './rng.js';
 import { m_at } from './monst.js';
 import { check_unpaid, inside_shop } from './shk.js';
 import { canSpotMonster, messageAt } from './startup_a11y.js';
@@ -321,7 +327,15 @@ export async function dozap(state = game) {
         // temple the chain names is behind the monster arm dobuzz() refuses --
         // so the wand below is still the one getobj() answered and C's
         // `obj &&` term has no reachable false case.
+        //
+        // gc.current_wand is what makes the wand reachable from the bottom of
+        // that chain without being passed down it. zhitu():4563 is this port's
+        // one reader, telling a wand's "zapped" from a horn's "played" in the
+        // killer it builds. muse.c, music.c, priest.c and apply.c are C's
+        // other writers, and none of them is ported.
+        state.current_wand = obj;
         await weffects(obj, state);
+        state.current_wand = null;
     }
     if (obj.spe < 0) {
         await ttyPline(`${Tobjnam(obj, 'turn', state)} to dust.`, state);
@@ -824,6 +838,15 @@ function Reflecting(state) {
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
 
+// C ref: youprop.h:293-295 Half_spell_damage, another "either source"
+// spelling. Only an artifact carrying SPFX_HSPDAM confers it, and no ported
+// path puts one in a hero's hand, so the halving it gates at zap.c:4586 has
+// yet to fire in a running game.
+function Half_spell_damage(state) {
+    const property = state.u?.uprops?.[HALF_SPDAM];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
 // C ref: zap.c flash_str() (6428-6445). "Fills buf with the appropriate string
 // for this ray. In the hallucination case, insert 'blast of <silly thing>'."
 //
@@ -988,22 +1011,67 @@ export function zap_hit(ac, type, random = { rn2, rnd }) {
     return (3 - chance < ac + spell_bonus);
 }
 
+// C ref: zap.c zhitu() (4560-4589), the braced block that turns the bolt into
+// the two arguments losehp() reads at 4588: the killer string and the damage.
+//
+// It stands apart from zhitu() because nothing observes svk.killer until end.c
+// done() names the death by it, and done() is unported. No screen, cursor or
+// random-number call moves with the string, so a fresh differential cannot
+// tell a right killer from a wrong one and the test that pins it is the only
+// proof it is correct.
+export function zhituLosehpArguments(type, abstyp, dam, fltxt, state = game) {
+    const otmp = state.current_wand;
+    /* fire horn and frost horn get handled as wands by caller */
+    const verb = (abstyp < 10) /* wand */
+        ? ((otmp && otmp.oclass === TOOL_CLASS) ? 'played' : 'zapped')
+        : (abstyp < 20) ? 'cast'
+            : (abstyp < 30) ? 'exhaled'
+                : 'imagined'; /* should never happen */
+
+    if (type < 0 || state.gb?.buzzer) {
+        // 4570-4577 names the monster that fired the bolt, through
+        // mcastu.c death_inflicted_by() and hacklib.c strsubst(). Neither half
+        // of the condition can hold here: dobuzz() refuses a negative type one
+        // frame above, and gb.buzzer is written only by mcastu.c, muse.c,
+        // mthrowu.c, priest.c and timeout.c, none of them ported. A hero's own
+        // ricochet therefore always takes the else at 4578.
+        throw new UnsupportedZapError(
+            'death_inflicted_by() for a bolt a monster fired',
+        );
+    }
+    /* FIXME: "zapped by herself" is suitable for a rebound;
+       "zapped at herself" would be better if player explicitly
+       targeted hero */
+    const kbuf = `${fltxt} ${verb} by ${uhim(state)}self`;
+    /* Half_spell_damage protection yields half-damage for wands & spells,
+       including hero's own ricochets; breath attacks do full damage */
+    if (dam && Half_spell_damage(state) && abstyp < 20)
+        dam = Math.trunc((dam + 1) / 2);
+    return { dam, kbuf };
+}
+
 // C ref: zap.c zhitu() (4400-4591), the damage a bolt does to the hero, and
 // the only caller of burnarmor() this port reaches.
 //
 // The ZT_FIRE arm (4421-4439) is ported whole, including both !rn2(3) guards:
 // the first hands the pack to zap.c destroy_items() and the second to
-// apply.c ignite_items(). What is below it -- the killer built at 4561-4582 and
-// the losehp(dam, kbuf, KILLED_BY_AN) at 4588 -- belongs to a later slice of
-// this goal, so both exits below refuse.
+// apply.c ignite_items(). So is the tail below it, through the
+// losehp(dam, kbuf, KILLED_BY_AN) at 4588 that kills the hero this bolt was
+// aimed back at.
 //
 // `dam` and `orig_dam` are separate in C because a fire-resistant hero takes
 // no damage but still has the full roll fed to ugolemeffects() and to
 // destroy_items(). Only the else at 4428-4431 is ported, where the two are
 // equal.
 async function zhitu(type, nd, fltxt, sx, sy, state, random) {
+    let dam = 0;
     const abstyp = zaptype(type);
     let orig_dam = 0;
+
+    // sx and sy are read by shieldeff() alone, and every arm that calls it
+    // refuses above the call.
+    void sx;
+    void sy;
 
     switch (abstyp % 10) {
     case ZT_FIRE:
@@ -1017,6 +1085,7 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
                 "zhitu()'s fire-resistant hero, over ugolemeffects()",
             );
         }
+        dam = orig_dam;
         monstunseesu(M_SEEN_FIRE, state);
         burn_away_slime(state);
         /* "body hit" */
@@ -1034,14 +1103,8 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
             `zhitu() for damage type ${abstyp % 10}`,
         );
     }
-    // 4561-4588: the kbuf the killer is built into, Half_spell_damage, and
-    // losehp(). `fltxt` exists only to be spliced into that killer.
-    void fltxt;
-    void sx;
-    void sy;
-    throw new UnsupportedZapError(
-        "losehp() for the bolt's damage, under the killer built at 4582",
-    );
+    const killed = zhituLosehpArguments(type, abstyp, dam, fltxt, state);
+    await losehp(killed.dam, killed.kbuf, KILLED_BY_AN, state);
 }
 
 // C ref: zap.c zap_over_floor() (5140-5497), "location", "damage type plus
@@ -1196,7 +1259,7 @@ export async function dobuzz(
     sayhit, saymiss,    /* report out of sight hit/miss events */
     forcemiss,
     state = game,
-    random = { d, rn1, rn2, rnd, rnl },
+    random = { d, rn1, rn2, rnd, rne, rnl },
 ) {
     const fltyp = zaptype(type);
     const damgtype = fltyp % 10;
@@ -1386,7 +1449,7 @@ export async function dobuzz(
 // an explicit origin, for the monsters and traps that fire one; none of its
 // callers is ported, so it has no port here.
 export async function ubuzz(
-    type, nd, state = game, random = { d, rn1, rn2, rnd, rnl },
+    type, nd, state = game, random = { d, rn1, rn2, rnd, rne, rnl },
 ) {
     return dobuzz(
         type, nd, state.u.ux, state.u.uy, state.u.dx, state.u.dy,
@@ -1407,7 +1470,7 @@ export async function ubuzz(
 // :1480 BZ_U_WAND(bztyp) is `0 + bztyp`, so the six ray wands become dobuzz()
 // types 0..5 in the order objects.h:1488 lists them.
 export async function weffects(
-    obj, state = game, random = { d, rn1, rn2, rnd, rnl },
+    obj, state = game, random = { d, rn1, rn2, rnd, rne, rnl },
 ) {
     const otyp = obj.otyp;
     let disclose = false;

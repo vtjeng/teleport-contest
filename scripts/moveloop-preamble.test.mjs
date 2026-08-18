@@ -22,6 +22,8 @@ import { maybe_do_tutorial } from '../js/tutorial_startup.js';
 import {
     dismissPendingTtyMessage,
     ttyPline,
+    ttyUrgentPline,
+    UnsupportedUrgentMessageError,
 } from '../js/tty_message.js';
 import { CLR_GRAY, NO_COLOR } from '../js/terminal.js';
 
@@ -535,6 +537,46 @@ test('You die clears suppression set while dismissing the prior message', async 
     assert.equal(state._ttyMessageStopped, false);
     assert.equal(state._pending_message, 'You die from a test.');
     assert.equal(state._ttyToplines, 'You die from a test.');
+});
+
+test('an urgent message stops where Escape has suppressed the window',
+    async () => {
+    // pline.c putmesg():72-74 turns urgent_pline()'s URGENT_MESSAGE into
+    // tty_putstr()'s ATR_URGENT, and wintty.c:2277-2283 answers it by wiping
+    // the message window and clearing the WIN_STOP an Escape at an earlier
+    // --More-- set. Ordinary pline() holds the message back invisibly instead,
+    // so the urgent caller cannot borrow that path.
+    //
+    // Two 50-byte messages are what set WIN_STOP: the second cannot share the
+    // top line with the first, so it raises the --More-- the queued Escape
+    // answers.
+    const stopped = preambleState('20260129120000', '\x1b');
+    await ttyPline('P'.repeat(50), stopped);
+    await ttyPline('Q'.repeat(50), stopped);
+    assert.equal(stopped._ttyMessageStopped, true);
+    await assert.rejects(
+        () => ttyUrgentPline('You die...', stopped),
+        UnsupportedUrgentMessageError,
+    );
+
+    // With WIN_STOP clear the arm sets only WIN_NOSTOP, which update_topl():257
+    // reads as the `skip = FALSE` a clear WIN_STOP already gives. The message
+    // then travels the ordinary path, where "You die" still takes a line of its
+    // own and forces a --More-- on the one before it.
+    const running = preambleState('20260129120000', ' ');
+    await ttyPline('A prior message.', running);
+    await ttyUrgentPline('You die...', running);
+    assert.equal(running._pending_message, 'You die...');
+    assert.equal(running._ttyToplines, 'You die...');
+
+    // urgent_pline() sets URGENT_MESSAGE alone. PLINE_NOREPEAT is Norep()'s
+    // flag (pline.c:326-335), so vpline():253 compares nothing against
+    // gp.prevmsg and the same urgent line is written a second time.
+    const repeated = preambleState('20260129120000', ' ');
+    await ttyUrgentPline('The bolt of fire hits you!', repeated);
+    await ttyUrgentPline('The bolt of fire hits you!', repeated);
+    assert.equal(repeated._pending_message,
+        'The bolt of fire hits you!  The bolt of fire hits you!');
 });
 
 test('a long prior line preserves Escape suppression before You die comparison', async () => {

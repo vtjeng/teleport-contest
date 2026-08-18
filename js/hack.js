@@ -11,6 +11,7 @@ import {
     COLD_RES,
     CONFUSION,
     CORR,
+    DIED,
     DISINT_RES,
     DOOR,
     DO_MOVE,
@@ -127,6 +128,7 @@ import { dig_typ } from './dig.js';
 import { alwaysVisibleMonsterName, hliquid } from './do_name.js';
 import { u_on_newpos } from './dungeon.js';
 import { gethungry } from './eat.js';
+import { done } from './end.js';
 import { dist2, highc } from './hacklib.js';
 import {
     can_reach_floor,
@@ -239,7 +241,9 @@ import {
     t_at,
 } from './trap.js';
 import { dotrap, preflight_dotrap } from './trap_effects.js';
-import { ttyNorep, ttyPline } from './tty_message.js';
+import {
+    ttyNorep, ttyPline, ttyUrgentPline,
+} from './tty_message.js';
 import { do_attack, is_safemon } from './uhitm.js';
 import { block_point, recalc_block_point, vision_recalc } from './vision.js';
 
@@ -727,8 +731,9 @@ export async function showdamage(dmg, state, env = {}) {
         + ' left]', state);
 }
 
-// C ref: hack.c losehp() (4255-4290). `knam` and `k_format` describe the
-// killer and are read only on the death branch, which stops below.
+// C ref: hack.c losehp() (4255-4292). `knam` and `k_format` describe the
+// killer; only the death branch records them, and only end.c done() reads them
+// back.
 export async function losehp(n, knam, k_format, state = game) {
     state.disp ??= {};
     state.disp.botl = true; /* u.uhp or u.mh is changing */
@@ -747,13 +752,22 @@ export async function losehp(n, knam, k_format, state = game) {
     if (state.u.uhp > state.u.uhpmax)
         state.u.uhpmax = state.u.uhp; /* perhaps n was negative */
     if (state.u.uhp < 1) {
-        // svk.killer, urgent_pline("You die...") and done(DIED) own the whole
-        // end of game, which no part of the port yet covers. knam and
-        // k_format are consumed here and nowhere else, so a surviving hero
-        // never observes them.
-        throw new UnsupportedHitPointLossError(
-            `death, killer "${knam}" in format ${k_format}`,
-        );
+        // C ref: decl.h:1151 `struct kinfo killer` inside svk. Nothing reads
+        // it back until done() names the death by it, so this is where the
+        // whole record lives and dies.
+        state.killer ??= {};
+        state.killer.format = k_format;
+        // C guards the copy with `svk.killer.name != knam`, a pointer test
+        // that spares Strcpy() a self-copy for the callers that hand it
+        // svk.killer.name itself. Assigning the same string is that same
+        // no-op here.
+        state.killer.name = knam ?? '';
+        // urgent_pline() rather than pline(): win/tty/topl.c update_topl():265
+        // refuses to let a line starting "You die" share the top line with the
+        // message before it, so this is the --More-- the player answers before
+        // the death is even drawn.
+        await ttyUrgentPline('You die...', state);
+        done(DIED, state);
     } else if (n > 0 && state.u.uhp * 10 < state.u.uhpmax) {
         await maybe_wail(state);
     }

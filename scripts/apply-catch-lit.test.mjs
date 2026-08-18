@@ -3,12 +3,15 @@ import test from 'node:test';
 
 import {
     OBJ_FLOOR,
+    OBJ_INVENT,
     OBJ_MINVENT,
 } from '../js/const.js';
 import {
     catch_item_light,
     ignite_items,
+    UnsupportedItemIgnitionError,
 } from '../js/apply_catch_lit.js';
+import { failClosedCommandRefusals } from '../js/cmd.js';
 import {
     OIL_LAMP,
     POT_OIL,
@@ -45,6 +48,34 @@ test('nonignitable and fuel-empty objects stop before integration', async () => 
 
     assert.equal(await catch_item_light(rock, ignitionEnv()), false);
     assert.equal(await catch_item_light(emptyLamp, ignitionEnv()), false);
+});
+
+test('an ignitable object in the hero own pack stops by name', async () => {
+    // apply.c catch_lit():1598-1614 handles OBJ_INVENT: it announces the item
+    // with Yname2() and otense(), makeknown()s a potion of oil and bills an
+    // unpaid one to the shopkeeper watching it burn. None of that is ported.
+    //
+    // zap.c zhitu():4437 is the caller, `if (!rn2(3)) ignite_items(gi.invent)`,
+    // so a hero carrying a potion of oil reaches this one hit in three.
+    const oil = {
+        age: 100,
+        cursed: false,
+        lamplit: false,
+        otyp: POT_OIL,
+        spe: 0,
+        where: OBJ_INVENT,
+    };
+
+    await assert.rejects(
+        () => catch_item_light(oil, ignitionEnv()),
+        UnsupportedItemIgnitionError,
+    );
+    // The class has to be one js/cmd.js failClosedCommandRefusals() names, or
+    // the throw escapes the command seam and the segment loses every screen
+    // the zap had already matched instead of ending on the last of them.
+    assert.ok(
+        failClosedCommandRefusals().includes(UnsupportedItemIgnitionError),
+    );
 });
 
 test('a migrating monster inventory has no fire-visible location', async () => {
