@@ -633,3 +633,6 @@ utc	event	phase	goal	detail
 2026-08-18T18:13:28.677Z	end	select	stethoscope-reaches-an-adjacent-square	monster hiding scoped as slice 2, measured at 9 screens by an isolated probe
 2026-08-18T18:13:28.704Z	start	implement	stethoscope-reaches-an-adjacent-square	hider-rehides-before-the-listen-resolves
 2026-08-18T19:09:01.566Z	end	implement	stethoscope-reaches-an-adjacent-square	hider-rehides-before-the-listen-resolves, 9 of a measured 9
+2026-08-18T19:09:38.895Z	start	select	stethoscope-reaches-an-adjacent-square	scoping the mimic reveal, the goal's last slice
+2026-08-18T19:29:12.835Z	end	select	stethoscope-reaches-an-adjacent-square	the remaining 24 measured as one slice, not two
+2026-08-18T19:29:12.865Z	start	implement	stethoscope-reaches-an-adjacent-square	listen-at-a-monster-names-and-reveals-it

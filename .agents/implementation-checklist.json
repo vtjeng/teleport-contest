@@ -1,6 +1,6 @@
 {
   "mode": "implementation",
-  "reason": "Slice 2 closed: mon.c restrap() and mondata.h ceiling_hider() are ported and js/unported_monster_actions.js no longer refuses an M1_HIDE monster before movemon_singlemon() runs. It delivered the 9 screens a probe forecast -- seed5002-wizard-coverage-pair goes 190 to 199 of 410 and no other session moves -- and the session now stops on the mimic reveal, which is slice 3. Slice 3 is mon.c seemimic() with apply.c's M_AP_OBJECT arm; slice 4 is insight.c mstatusline() behind js/do_name.js x_monnam()'s hallucination guard. its_dead()'s corpse arm remains traced only to the depth that places it in a later slice.",
+  "reason": "Two slices closed: the empty-square path at ebb827a (0 screens) and mon.c restrap() at 53c360b (9). The remaining 24 are one slice, not the two this checklist first planned. A probe measured each half at 0 and both together at 24: the screens hang on one keystroke C answers with two pline() calls, apply.c:435's \"That chest is really a small mimic.\" at 35 characters and insight.c:3394's status line at 71, whose combined length overflows the 80-column top line and forces the --More-- that 21 non-dismissing keys then redraw. Neither message alone forces it.",
   "commitChecked": "022cd9a1951fd8c1fa092fe0a29e22d286dfeae3",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
@@ -207,38 +207,42 @@
       "evidence": "js/monmove.js raises 'monster hiding under an object' and js/mon.js raises UnsupportedHideError.",
       "status": "cannot-occur",
       "remaining": "None. Slice 2 narrowed js/unported_monster_actions.js assertSimpleScanState() to the S_EEL half alone and left both of these standing."
+    },
+    {
+      "candidate": "mon.c seemimic()'s has_mcorpsenm() and freemcorpsenm() calls (4413-4414)",
+      "reachability": "seed5002's chest mimic carries mcorpsenm 6, left by makemon()'s set_mimic_sym() STATUE branch before sp_lev.c:2038-2039 overwrote mappearance to CHEST without re-running it. C does the same, so this is faithful rather than a defect, and seemimic() calls freemcorpsenm() for real on this session.",
+      "owner": "None; js/ has neither helper, only MCORPSENM() in js/const.js and a comment at js/mon.js:1501.",
+      "effects": "Frees the corpse-species record before m_ap_type and mappearance are cleared.",
+      "evidence": "mon.c:4413-4414 read at 7d16487; grep -rn 'freemcorpsenm|has_mcorpsenm' js/ returns one comment and no definition.",
+      "status": "missing",
+      "remaining": "The last slice ports both. A probe hit this as a hard stop before implementing it, so it is not optional."
+    },
+    {
+      "candidate": "insight.c mstatusline() mhidden_description arm, the m_ap_type term (3317)",
+      "reachability": "A mimic whose mappearance is STRANGE_OBJECT, otyp 0: apply.c:404's `else if (mtmp->mappearance)` is false for it, so seemimic() never runs and m_ap_type survives into mstatusline(). set_mimic_sym() assigns STRANGE_OBJECT for S_MIMIC_DEF, and a trace found two such mimics in seed5002 alone.",
+      "owner": "None",
+      "effects": "mhidden_description() appends \", mimicking something\".",
+      "evidence": "insight.c:3316-3318 is a three-term disjunct and two terms are reachable through a stethoscope: this one and visible_region_at(gb.bhitpos). The goal's boundary text in GOALS.json says the arm is unreachable by construction, and it is wrong on both.",
+      "status": "missing",
+      "remaining": "The last slice refuses on the whole disjunct, named after mhidden_description() rather than after a cloud clause, because a cloud names only one of the two reachable terms."
     }
   ],
   "missingWorkByOwner": [
     {
-      "group": "js/apply.js use_stethoscope(), the adjacent-square frame",
+      "group": "js/apply.js use_stethoscope()'s monster arm with js/mon.js seemimic() and js/insight.js mstatusline()",
       "candidates": [
-        "!isok arm",
-        "m_at arm",
-        "SDOOR and SCORR arms",
-        "its_dead tiny-statue walk",
-        "its_dead hallucination arm",
-        "its_dead corpse arm",
-        "its_dead statue arm"
-      ],
-      "next": "Done at the slice-1 commit: the empty-square path runs and every other arm stops in C's branch order, so a square carrying two of them stops where C would branch. What is left in this group is outside the goal."
-    },
-    {
-      "group": "js/do_name.js x_monnam() and js/insight.js mstatusline()",
-      "candidates": [
-        "x_monnam SUPPRESS_HALLUCINATION requirement",
-        "mstatusline mhidden_description arm"
-      ],
-      "next": "Slice 2: widen the guard to a runtime Hallucination test, port mstatusline()'s ordinary-monster path with an ordered fragment table shaped like ustatusline()'s, and refuse on visible_region_at(bhitpos)."
-    },
-    {
-      "group": "js/mon.js seemimic() and the mimic reveal",
-      "candidates": [
+        "apply.c m_at arm 391-446",
         "mon.c seemimic()",
-        "M_AP_FURNITURE and M_AP_MONSTER arms",
-        "M_AP_OBJECT SLIME_MOLD sub-branch"
+        "mon.c seemimic()'s has_mcorpsenm() and freemcorpsenm() calls",
+        "insight.c mstatusline() and size_str()",
+        "mkobj.c init_dummyobj()",
+        "objnam.c simple_typename()",
+        "do_name.c x_monnam() SUPPRESS_HALLUCINATION requirement",
+        "insight.c mstatusline() mhidden_description arm, both reachable terms",
+        "apply.c M_AP_FURNITURE and M_AP_MONSTER arms",
+        "apply.c M_AP_OBJECT SLIME_MOLD sub-branch"
       ],
-      "next": "Slice 3: port seemimic() into js/mon.js with one live caller, port M_AP_OBJECT, refuse the other two appearance arms and the slime-mold sub-branch."
+      "next": "One slice, measured at 24 development screens by a probe, after which seed5002 stops at 223 of 410 on the c byte of close."
     }
   ],
   "sourceReview": "apply.c use_stethoscope() (317-470) and its_dead() (196-309) were read in full at 073cd13 against nethack-c/upstream, and every branch between confdir() at 379 and the return at 469 is entered above. Random-number order is unaffected: no arm inside the boundary draws, which is why the goal forecasts 33 screens and no change in the random-number total. Helpers were checked for existing ports one by one, and the four checks recorded in javascriptCrossCheck were run rather than assumed. Two limits stand: its_dead()'s corpse arm and mstatusline()'s info fragments are traced only to the depth that places them in later slices, and both are named in remainingLimits. Re-read at 9657e3b for slice 1: apply.c its_dead() (196-309) and use_stethoscope() (384-470) line by line, invent.c nxtobj() (1477-1491), trap.c uteetering_at_seen_pit() (6647-6653) and cmd.c:3346 sdir[]. The ported frame draws no random number, which both fresh differentials confirm: 1,813 and 2,701 calls, matching C exactly. Re-read at 022cd9a for slice 2: mon.c restrap() (4661-4693) and restore_cham() above it, mondata.h ceiling_hider() (43-45) and the is_hider, is_clinger and is_flyer macros it reads, monsters.h's eight M1_HIDE rows (675, 684, 694, 805, 814, 823, 986, 995), you.h:560 m_next2u(), display.h _sensemon() (55-58), trap.h:113 is_pit() and monst.h:73 M_AP_TYPE(). The guard's eight terms were traced in order against their positions in the random-number stream: rn2(3) is the fourth, so the three terms above it short-circuit with no draw and the four below it are reached only after the draw. m_next2u() was exported from js/mhitu.js rather than copied, because the duplicate-symbol report treats one C macro under two spellings as one defect."

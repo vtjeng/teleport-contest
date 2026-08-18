@@ -2958,6 +2958,11 @@
           "name": "hider-rehides-before-the-listen-resolves",
           "status": "closed",
           "closedBy": "53c360b23c20fa5ce87ab48098670fffc78fb867"
+        },
+        {
+          "name": "listen-at-a-monster-names-and-reveals-it",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
