@@ -599,3 +599,4 @@ utc	event	phase	goal	detail
 2026-08-18T02:07:47.136Z	end	review	hero-zaps-a-ray-wand	correctness 2d84dfa..4fe4f56: 18 raw, 14 deduped, 11 confirmed, 10 applied, 1 deferred, 3 rejected
 2026-08-18T02:08:01.041Z	start	select	hero-zaps-a-ray-wand	second slice after the forced correctness pass
 2026-08-18T02:28:20.519Z	end	select	hero-zaps-a-ray-wand	fire-destroys-the-heros-potions queued, ceiling 9 steps
+2026-08-18T02:28:20.570Z	start	implement	hero-zaps-a-ray-wand	fire-destroys-the-heros-potions
