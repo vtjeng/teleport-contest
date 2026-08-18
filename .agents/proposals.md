@@ -332,3 +332,53 @@ them, so a corrupted text has an even backtick count exactly as an intact one
 does, and no text in the ledger has an unbalanced backtick. The one confirmed
 instance is a floor rather than a count, and finding the rest means reading
 every entry against the source it cites.
+
+## Flag the values a mutation run cannot reach
+
+**What it changes.** `scripts/mutate-sites.mjs` would gain a reporting mode
+that lists, for the lines a run covers, the sites it generated no mutant for
+and could not: a table literal's elements, a `switch` label set, a whole
+argument at a call site, and a value passed through unchanged. The checkpoint
+would print the count beside the mutant figures, and `npm run mutate`'s report
+would carry the list, so a slice's author sees what the run did not measure
+rather than only what it did. It changes no verdict and blocks nothing.
+
+**Scope.** One traversal beside the existing site selection, which already
+walks the same syntax tree to find operators; its test; and a line in the
+checkpoint summary, in the pattern of the sweep-candidate line.
+
+**What prompted it.** Four consecutive closing correctness passes found their
+sharpest defect in a value no mutant of any kind this project runs can reach,
+and the last found two.
+
+- `wizard-create-monster`, pass over `ea331c8..2d84dfa`: `js/read.js` seeds
+  `name_to_monplus()` with `gender: NEUTRAL`. It is a whole argument. Two
+  mutation runs reported the line covered while both comments explaining the
+  seed described a mechanism `js/mondata.js` does not have, and the one input
+  class that makes the seed observable had no test.
+- `hero-zaps-a-ray-wand` slice 1, pass over `2d84dfa..4fe4f56`: two production
+  defects, neither reachable. `trap.c erode_obj()`'s per-type `check_grease`
+  was a missing table field, and `zap.c adtyp_to_prop()` had four extra
+  `switch` cases. The window ran 106 mutants over a baseline of 3,807 tests,
+  the largest run this project has made, and found neither. Five of the same
+  pass's six test findings were the same shape.
+- `hero-zaps-a-ray-wand` slice 3, pass over `4fe4f56..ac46567`: a refusal
+  placed ahead of the guards `apply.c catch_lit()` answers first, which is an
+  ordering error rather than an operator; and `js/display.js`'s hit-point
+  clamp, which the run reported as an equivalent survivor and which the
+  orchestrator then measured as having no oracle at all.
+
+**Cost.** Small to medium. The traversal is mechanical, but deciding what
+counts as a value "no mutant can reach" is a judgment the tool has to encode:
+an argument the callee ignores is not worth listing, and a table whose every
+row a test already reads is not either. Starting narrow — array literals of
+more than four elements, `switch` label sets, and arguments that are bare
+identifiers or literals — would cover every instance above.
+
+**What it leaves unfixed.** The sharpest finding of the fourth pass is outside
+its reach entirely. `zap.c:4572`'s dropped `type == 0 &&` conjunct *is* an
+operator the run mutates, and every mutant of it died — against a test that
+asserted the port's reading rather than C's. A mutation run measures whether
+the tests notice a change; it cannot notice that the tests agree with the code
+against the source. Nothing proposed here detects that, and the only instrument
+that has is a reviewer reading the C.

@@ -2754,7 +2754,7 @@
     },
     {
       "id": "hero-zaps-a-ray-wand",
-      "status": "open",
+      "status": "closed",
       "boundary": "A wand whose objects[] row carries oc_dir RAY, aimed by the hero in a horizontal direction, runs zap.c weffects()'s ubuzz() arm at 3463-3465 and resolves the ray, instead of raising UnsupportedZapError('weffects() for object type N') at js/zap.js:267-269. The ray runs until hack.c losehp() reaches `urgent_pline(\"You die...\"); done(DIED);` at 4287-4288, which js/hack.js:754-756 still refuses.\n\nThe property that bounds it is testable against the C source in three parts.\n\nFirst, the ray's length is fixed arithmetic. dobuzz() (4779-5037) is one `while (range-- > 0)` loop over a range seeded by rn1(7, 7) at 4823 and forced to 1 only for a vertical bolt at 4824-4825. A hit costs `range -= 2` (4951 for a monster, 4963 for the hero) and a bounce costs `--range` (5006); bounce_dir() (4663-4701) reverses on a 1-in-bchance draw over the 10/20/75 selector at 5003-5005. `fireball` is `type == ZT_SPELL(ZT_FIRE)` at 4793, so it is false for every wand: each square runs zap_over_floor() at 4858 and no explode() runs at 5027.\n\nSecond, the hero-square arm is one guarded block. zap.c:4957-4992 is entered only on `u_at(sx, sy) && range >= 0`. It calls nomul(0), then zap_hit((int) u.uac, 0) (4704-4720), and on a hit prints \"%s hits you!\" through pline_dir at 4964-4965 and, with no Reflecting, calls zhitu().\n\nThird, zhitu()'s ZT_FIRE arm (4421-4439) is the whole damage path: `orig_dam = d(nd, 6)`, the Fire_resistance test, burn_away_slime(), and `if (burnarmor(&gy.youmonst))` (trap.c:87-160) gating two independent !rn2(3) rolls, the first into destroy_items(&gy.youmonst, AD_FIRE, orig_dam) at 4435 and the second into ignite_items() at 4437. The function ends at the shared losehp(dam, kbuf, KILLED_BY_AN) at 4588, under the \"%s %s by %sself\" killer built at 4582. The hero arm of destroy_items() reaches maybe_destroy_item(), whose POTION_CLASS row picks dindx 1 or 2 on POT_OIL at 5841, calls potionbreathe() at 5917 for the hero alone, and can itself kill through losehp() at 5947-5948.",
       "upstreamOwners": [
         "zap.c weffects()",
@@ -2807,8 +2807,11 @@
         "screens": 1846,
         "rng": 128125
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "34eb41e7a4de7edae379e3732a17b6220e1e657c",
+      "delivered": {
+        "screens": 33,
+        "rng": 5343
+      }
     }
   ]
 }

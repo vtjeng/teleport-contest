@@ -27,21 +27,21 @@ states it.
 
 ## Current standing
 
-- Development, at `62a79a5` (2026-08-17): 1,846 of 7,765 screens and 128,125 of
+- Development, at `34eb41e` (2026-08-18): 1,879 of 7,765 screens and 133,468 of
   610,816 random-number values, over the development set of 33 sessions, of
   which 10 match completely.
-- Reserved holdout, last evaluated at `62a79a5`: 273 of 3,640 screens, 35,464
+- Reserved holdout, last evaluated at `ac46567`: 273 of 3,640 screens, 35,464
   of 182,022 random-number values, and 1 of 11 sessions, with 0 replay errors.
-  Five evaluations running have reported those same figures, while development
-  gained 249 screens over the same stretch. The five goals are
+  Six evaluations running have reported those same figures, while development
+  gained 282 screens over the same stretch. The six goals are
   `option-toggle-repaints-the-map`, `remembered-invisible-monster`,
-  `elapsed-turn-fires-a-due-timer`, `hero-pushes-a-boulder` and
-  `wizard-create-monster`, and none was forecast to move the set. Four of the
-  five need a wizard-mode game or a specific option; the fifth needs a boulder
-  in the hero's path, which `mklev.c dig_corridor()` drops on about one
-  corridor square in fifty. The holdout moved at three of the last eleven goal
-  closes, after eleven flat ones: `armor-wear` took it to 234,
-  `monster-melee-attack` to 249 and `pet-melee-attack` to 273.
+  `elapsed-turn-fires-a-due-timer`, `hero-pushes-a-boulder`,
+  `wizard-create-monster` and `hero-zaps-a-ray-wand`, and none was forecast to
+  move the set. Five of the six need a wizard-mode game or a specific option;
+  the sixth needs a boulder in the hero's path, which `mklev.c dig_corridor()`
+  drops on about one corridor square in fifty. The holdout moved at three of
+  the last twelve goal closes, after eleven flat ones: `armor-wear` took it to
+  234, `monster-melee-attack` to 249 and `pet-melee-attack` to 273.
   `docs/goal-history.md` records why a small gap is expected rather than a
   defect: goals are ranked by capped development look-ahead, so each one is
   chosen for the development session it unblocks, and carry-over to the hidden
