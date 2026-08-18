@@ -2877,7 +2877,7 @@
     },
     {
       "id": "hero-death-reaches-done",
-      "status": "open",
+      "status": "closed",
       "boundary": "A hero death that hack.c losehp() funnels through its `u.uhp < 1` branch (4283-4288) runs end.c done() (1019-1126) through its forced status update and its wizard-mode continue-playing query, drawing \"Die? [yn] (n)\" and waiting there, instead of raising UnsupportedEndOfGameError at js/end.js done().\n\nThe property that bounds it is testable against the C source alone. done() is straight-line code above `really_done(how)` at 1124, and for `how == DIED` every arm between is decided by `how` and by state the caller has already written. The TRICKED arm (1024-1034) is dead. program_state.panicking is false and `how == QUIT && done_stopprint` is false, so the else at 1043-1046 runs `disp.botlx = TRUE; bot();`. iflags.debug_fuzzer is off (1056-1059). The three killer-format defaults at 1061-1067 are all no-ops because losehp() filled svk.killer at 4284-4286, so deaths[] is never read. `how < PANICKED` holds, so 1069-1080 increments u.umortality and forces `u.uhp = u.mh = 0` with disp.botl = TRUE. The Lifesaved arm (1081-1103) needs an amulet of life saving.\n\nWhat remains is the one condition at 1105-1112, whose last term draws the prompt: cmd.c paranoid_query() (5655) calls paranoid_ynq() (5588), which takes its non-paranoid arm at 5645, `yn_function(prompt, ynchars, 'n', FALSE)`, because initoptions_init() leaves flags.paranoia_bits = PARANOID_PRAY | PARANOID_SWIM | PARANOID_TRAP (options.c:7173) and ParanoidDie (flag.h:560, testing PARANOID_DIE = 0x0004) is clear. HANGUPHANDLING is defined on UNIX, so the program_state.done_hup term at 1110 is compiled in and short-circuits false in a recorded run.\n\nThe unported continuations remain refused: the life-saving arm's savelife() at 1094; after the query, savelife() at 1115, the `survive` return at 1119-1123, and really_done() (1130-1590) with its disclosure, tombstone, bones and score-file work. The goal ends at the unanswered prompt, because seed5002's segment 0 input is exhausted there, so neither answer arm runs.",
       "upstreamOwners": [
         "end.c done()",
@@ -2913,8 +2913,11 @@
         "screens": 1879,
         "rng": 133468
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "32126eca489ef0d87d461fb4d1a529a0a0d20079",
+      "delivered": {
+        "screens": 70,
+        "rng": 0
+      }
     }
   ]
 }

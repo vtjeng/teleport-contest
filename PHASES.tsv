@@ -624,3 +624,4 @@ utc	event	phase	goal	detail
 2026-08-18T14:03:32.722Z	start	implement	hero-death-reaches-done	death-draws-the-wizard-mode-die-query
 2026-08-18T14:55:17.793Z	end	implement	hero-death-reaches-done	death-draws-the-wizard-mode-die-query, 70 of 70 forecast
 2026-08-18T15:00:51.020Z	start	review	hero-death-reaches-done	correctness c8394b4..1b2bcac, the goal's close
+2026-08-18T16:42:37.892Z	end	review	hero-death-reaches-done	correctness c8394b4..2338437 recorded at 32126ec
