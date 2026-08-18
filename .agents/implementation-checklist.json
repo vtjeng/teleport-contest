@@ -1,22 +1,22 @@
 {
   "mode": "implementation",
-  "reason": "Two slices closed: the empty-square path at ebb827a (0 screens) and mon.c restrap() at 53c360b (9). The remaining 24 are one slice, not the two this checklist first planned. A probe measured each half at 0 and both together at 24: the screens hang on one keystroke C answers with two pline() calls, apply.c:435's \"That chest is really a small mimic.\" at 35 characters and insight.c:3394's status line at 71, whose combined length overflows the 80-column top line and forces the --More-- that 21 non-dismissing keys then redraw. Neither message alone forces it.",
-  "commitChecked": "022cd9a1951fd8c1fa092fe0a29e22d286dfeae3",
+  "reason": "Commit 3752851 delivered the remaining 24 development screens and the common monster-listening path. The boundary survey after it found three source-reachable appearance families without strict fresh evidence: named fruit, furniture, and M_AP_MONSTER. The preserved uncommitted candidate covers their apply.c and mhidden_description() bodies; validation now follows the source setup owners rather than narrowing the boundary or substituting a constructed state without authorization: makemon.c's runtime mimic appearance message for a directly created furniture mimic, and dogmove.c dog_eat()/quickmimic() for M_AP_MONSTER.",
+  "commitChecked": "37528511ff46b9edcb8be76ff1655b0669c7ef71",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
     "startingEvent": "The hero applies a stethoscope and answers the direction prompt with an adjacent square: js/cmd.js dispatches `a` to doapply(), which reaches use_stethoscope() past confdir().",
     "endingEvent": "The top line C prints for that square, and the turn the listen does or does not spend. For an empty square that is \"You hear nothing special.\" at apply.c:468; for a monster it is mstatusline()'s status line; for a mimic it is \"That chest is really a small mimic.\" and then the status line.",
-    "validInputs": "Any of the eight directions, plus the hero's own square. A Healer starts with an uncursed stethoscope at u_init.c:79, so no wizard mode and no wish are needed to reach the boundary.",
+    "validInputs": "Any of the eight directions, plus the hero's own square, over every monster appearance the supported source build can produce. A Healer starts with an uncursed stethoscope at u_init.c:79. Ordinary generation, shipped special levels, dogmove.c quickmimic(), and wizard.c clonewiz() can all determine the adjacent monster's appearance before the listen begins.",
     "observables": "The top line and its --More-- redraws; the status line mstatusline() writes; gb.bhitpos and gn.notonhead; the free-versus-costly listen alternation already held in state.context.stethoscope_seq; and the vision map writes seemimic() and map_invisible() make. The arm consumes no randomness.",
     "exclusions": "Everything above confdir() at apply.c:379, which the port already refuses: a steed, an engulfer, a nonzero u.dz, and a cursed stethoscope. Below it: its_dead()'s statue arm, use_stethoscope()'s SDOOR and SCORR arms, and mstatusline()'s long-worm, u.ustuck and u.usteed arms, each of which needs setup no ported command reaches."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
-    "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation, which apply.c:430 reads and js/display.js does not carry (grep -n explanation js/display.js returns nothing); mstatusline()'s ordered info fragments.",
+    "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation and the generated CMAP_EXPLANATIONS projection; mstatusline()'s ordered info fragments; makemon.c syms[] and set_mimic_sym(); dogmove.c qm[]; wizard.c wizapp[]; and every shipped Lua appear_as descriptor under nethack-c/upstream/dat/.",
     "reachableHelpers": "Read from the C call graph of the two entry points. Already ported and needing no work: unmap_invisible(), newsym(), sobj_at(), can_reach_floor() (js/engrave.js, with the checkPit parameter), m_at(), find_mac, align_str, map_invisible(), obj_typename(), ustatusline(), mon_aligntyp(), rndmonnam(), set_mimic_sym() (js/makemon_create.js).",
     "javascriptCrossCheck": "grep -rn '^seemimic' nethack-c/upstream/src/*.c returns only mon.c:4409, so js/mon.js's two 'display.c seemimic()' citations are wrong. grep -rn seemimic js/*.js returns six sites naming it as missing. grep -c Unsupported js/mhitu.js returns 0, so the giant bat's bites inside the stretch need nothing. grep -n explanation js/display.js returns nothing, so M_AP_FURNITURE needs a generated table. Re-run at 9657e3b while closing slice 1: `grep -rn \"export function nxtobj\" js/` and `grep -n \"MZ_TINY\" js/monsters.js` both return nothing, which is why apply.c:210-211's tiny-statue walk is refused rather than ported; js/monsters.js is generated by scripts/generate-monsters.mjs, so adding MZ_TINY is a generator change.",
-    "remainingLimits": "its_dead()'s corpse arm (226-306) is traced only far enough to place it in a later slice; its Healer REVIVE_MON loop and Blind sub-arm are not enumerated. mstatusline()'s info fragments are not individually listed. The 22 held --More-- redraws are evidenced by the previous goal reproducing three of the same shape in this same session, not by a fresh run of this arm. Slice 2 measured the first 9 of the 33 forecast steps and they landed, so the remaining 24 are still a forecast. One divergence outside this goal now bounds how long a fresh case on a hider can run: on seed 9130095 at turn 34 C hatches two monsters the port never makes, silently, which is the deferral a-due-timer-hatches-two-monsters-the-port-never-makes."
+    "remainingLimits": "The boundary survey classified its_dead()'s excluded arms only to the depth needed to prove they stop before effects. Strict fresh cases now cover the common monster path, STRANGE_OBJECT, and visible-region mhidden_description(). A complete D:5 seed scan over 1..20000 found one adjacent named fruit whose level already diverges before the listen, and no adjacent furniture or monster disguise. A follow-up ordinary-level scan found furniture mimics at depths 15, 17, and 19 but not adjacent to arrival. Shipped Lua defines fixed furniture mimics in Rog-strt.lua and juiblex.lua; no shipped descriptor requests M_AP_MONSTER. Its source producers are dogmove.c quickmimic(), wizard.c clonewiz(), and arbitrary external Lua, so the first two supported-build routes are the remaining validation owners."
   },
   "entries": [
     {
@@ -225,9 +225,35 @@
       "evidence": "insight.c:3316-3318 is a three-term disjunct and two terms are reachable through a stethoscope: this one and visible_region_at(gb.bhitpos). The goal's boundary text in GOALS.json says the arm is unreachable by construction, and it is wrong on both.",
       "status": "missing",
       "remaining": "The last slice refuses on the whole disjunct, named after mhidden_description() rather than after a cloud clause, because a cloud names only one of the two reachable terms."
+    },
+    {
+      "candidate": "makemon.c runtime mimic appearance message (1476-1497), as a furniture-disguise setup",
+      "reachability": "A debug #wizgenesis creates a mimic next to the hero. set_mimic_sym() can choose M_AP_FURNITURE from makemon.c syms[], then makemon() names the hidden appearance through mhidden_description() before the stethoscope command begins.",
+      "owner": "js/makemon_create.js runtimeAppearanceMessage() and preflightCreation()",
+      "effects": "Draws the created mimic, writes the source appearance message and leaves the disguised mimic alive and adjacent for the listen. No new random draw belongs to the message itself.",
+      "evidence": "makemon.c:1476-1497 and set_mimic_sym(); js/makemon_create.js currently refuses 'runtime furniture or object appearance message' and preflights every runtime mimic appearance. The boundary survey found ordinary furniture mimics at D:15, D:17 and D:19, proving the generated type is live, but a directly created adjacent case is the shortest strict setup.",
+      "status": "missing",
+      "remaining": "Port the M_AP_FURNITURE/M_AP_OBJECT message through the already required pager.c mhidden_description() semantics, then record a #wizgenesis-plus-listen differential."
+    },
+    {
+      "candidate": "dogmove.c dog_eat(), dog_nutrition() and quickmimic() (pet eating a mimic corpse), as an M_AP_MONSTER setup",
+      "reachability": "A tame dog or cat eats a mimic corpse. dog_eat() sets meating and calls quickmimic(); dogmove.c qm[] can select M_AP_MONSTER for the ordinary starting pet species before the hero listens.",
+      "owner": "js/dogmove.js plus its existing pet-movement consumer",
+      "effects": "Updates hunger, eating time, object ownership, billing and pet training; quickmimic() draws through qm[], writes m_ap_type/mappearance, redraws, and may print or release a leash. These occur before the stethoscope starting event and determine its M_AP_MONSTER input.",
+      "evidence": "dogmove.c dog_nutrition(), dog_eat() and quickmimic(), including the nine-row qm[] table. set_mimic_sym() never writes M_AP_MONSTER; wizard.c clonewiz() is the other supported-build producer but requires the Wizard's later spell lifecycle. js/ currently has finish_meating() but no dog_eat() or quickmimic().",
+      "status": "missing",
+      "remaining": "Port the smallest source-complete pet-eating path that creates a quickmimic disguise, record the setup through the listen, and leave unrelated dog_eat() branches fail-closed before effects."
     }
   ],
   "missingWorkByOwner": [
+    {
+      "group": "source-reachable setup owners for rare monster appearances",
+      "candidates": [
+        "makemon.c runtime mimic appearance message",
+        "dogmove.c dog_eat(), dog_nutrition() and quickmimic()"
+      ],
+      "next": "Use live source paths to create adjacent M_AP_FURNITURE and M_AP_MONSTER inputs, avoiding the constructed-test exception while Q9 remains open."
+    },
     {
       "group": "js/apply.js use_stethoscope()'s monster arm with js/mon.js seemimic() and js/insight.js mstatusline()",
       "candidates": [
