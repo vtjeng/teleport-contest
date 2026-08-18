@@ -2847,8 +2847,8 @@
         },
         {
           "name": "oilskin-and-smock-cloaks-go-on",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "cda9e5917fd1d832f6670aeb44af18d45791e912"
         },
         {
           "name": "wished-container-arrives-with-its-contents",

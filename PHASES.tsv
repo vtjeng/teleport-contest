@@ -614,3 +614,4 @@ utc	event	phase	goal	detail
 2026-08-18T08:50:23.220Z	start	implement	objects-deferral-sweep-5	yname-reads-the-complete-obj-is-pname
 2026-08-18T09:24:23.760Z	end	implement	objects-deferral-sweep-5	yname-reads-the-complete-obj-is-pname closed at 526eee3: development unchanged, as forecast
 2026-08-18T09:24:49.876Z	start	implement	objects-deferral-sweep-5	oilskin-and-smock-cloaks-go-on
+2026-08-18T09:58:38.495Z	end	implement	objects-deferral-sweep-5	oilskin-and-smock-cloaks-go-on closed at cda9e59: objects falls below the sweep threshold
