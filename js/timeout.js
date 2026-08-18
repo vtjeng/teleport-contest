@@ -28,6 +28,7 @@ import {
     ROT_AGE,
     ROT_CORPSE,
     SHRINK_GLOB,
+    SLIMED,
     TAINT_AGE,
     TIMEOUT,
     TIMER_NONE,
@@ -366,11 +367,31 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
     if (reason) throw new UnsupportedHeroTimeoutBoundaryError(reason);
 }
 
+// C ref: invent.c carrying() (1493-1504). js/invent.js exports the same
+// function, and this second copy stays because the header comment above
+// records why: importing js/invent.js here would close the cycle
+// timeout -> invent -> obj -> timeout that this file is written to avoid.
 function carrying(type, state) {
     for (let object = state.invent; object; object = object.nobj) {
         if (object.otyp === type) return object;
     }
     return null;
+}
+
+// C ref: timeout.c burn_away_slime() (446-453). Fire cures green slime, and
+// zap.c zhitu()'s ZT_FIRE arm calls this before it burns any armor.
+//
+// youprop.h:113 Slimed is u.uprops[SLIMED].intrinsic, a countdown to turning
+// into a green slime. Nothing ported raises it -- AD_SLIM comes from a green
+// slime's attack or from eating its corpse, and neither is ported -- so the
+// arm below has never run. make_slimed() is what it needs: it clears the
+// timer, prints the message and repaints the hero's own glyph.
+export function burn_away_slime(state = game) {
+    if (state.u?.uprops?.[SLIMED]?.intrinsic) {
+        throw new UnsupportedHeroTimeoutBoundaryError(
+            'make_slimed() to burn the slime away', 'burn_away_slime',
+        );
+    }
 }
 
 // C ref: timeout.c nh_timeout(), through its always-live basal-luck prefix.

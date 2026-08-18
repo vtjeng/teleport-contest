@@ -5,6 +5,7 @@
 // passiveum().
 
 import {
+    AC_VALUE,
     BLINDED,
     CONFLICT,
     HALF_PHDAM,
@@ -447,12 +448,6 @@ export function mtrapped_in_pit(mtmp, state = game) {
         : (mtmp.mtrapped ? t_at(mtmp.mx, mtmp.my, state) : null);
 
     return Boolean(ttmp && is_pit(ttmp.ttyp));
-}
-
-// C ref: hack.h AC_VALUE(). A hero whose armor class has gone negative spends
-// a draw here, so mattacku()'s differential is not a pure calculation.
-function AC_VALUE(ac, random) {
-    return ac >= 0 ? ac : -random.rnd(-ac);
 }
 
 // C ref: mhitu.c mattacku() (491-951). "monster attacks you; returns 1 if

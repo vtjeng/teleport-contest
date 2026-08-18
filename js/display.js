@@ -65,11 +65,15 @@ import {
     ATR_UNDERLINE,
     NO_COLOR,
     CLR_BLACK,
+    CLR_BRIGHT_BLUE,
     CLR_BRIGHT_GREEN,
     CLR_BRIGHT_MAGENTA,
     CLR_GRAY,
+    CLR_GREEN,
+    CLR_ORANGE,
     CLR_RED,
     CLR_WHITE,
+    CLR_YELLOW,
     DEC_TO_UNICODE,
 } from './terminal.js';
 import { rankOf } from './roles.js';
@@ -1122,6 +1126,17 @@ const altarcolors = Object.freeze([
     CLR_RED, CLR_GRAY, CLR_GRAY, CLR_GRAY, CLR_BRIGHT_MAGENTA,
 ]);
 
+// C ref: display.c zapcolors[] (2661-2665) over display.h enum zap_colors
+// (279-288). Indexed by the zap type dobuzz() carries, which is why C's
+// comment there says "This must be the same order as used for buzz() in
+// zap.c": entry n is the colour of flash_types[n]'s beam. HI_ZAP is
+// CLR_BRIGHT_BLUE (color.h:55).
+const zapcolors = Object.freeze([
+    CLR_BRIGHT_BLUE, CLR_ORANGE, CLR_WHITE,
+    CLR_BRIGHT_BLUE, CLR_BLACK, CLR_WHITE,
+    CLR_GREEN, CLR_YELLOW,
+]);
+
 // C ref: display.c wallcolors[] (2673-2678). C initializes all five branches
 // to defsyms[S_vwall + n].color and leaves the per-branch colours commented
 // out; nothing writes the array afterwards, so every wall is CLR_GRAY.
@@ -1247,8 +1262,9 @@ export function glyph_is_cmap(glyph) {
 }
 
 // C ref: display.h glyph_is_cmap_zap() (699-700), one of the ten per-range
-// predicates. map_glyphinfo() needs it to exclude the one cmap range it has no
-// arm for from the range glyph_is_cmap() admits.
+// predicates. It names the sub-range glyph_is_cmap() above admits along with
+// every other cmap glyph, which zapdir_to_glyph() produces and
+// map_glyphinfo()'s GLYPH_ZAP_OFF arm resolves.
 export function glyph_is_cmap_zap(glyph) {
     return glyph >= GLYPH_ZAP_OFF && glyph < (NUM_ZAP << 2) + GLYPH_ZAP_OFF;
 }
@@ -1278,11 +1294,8 @@ export function glyph_to_cmap(glyph) {
     if (glyph < GLYPH_CMAP_B_OFF) return S_altar;
     if (glyph < GLYPH_ZAP_OFF) return (glyph - GLYPH_CMAP_B_OFF) + S_grave;
     // glyphs.c:1003-1004. The zap range holds four beam directions per
-    // zap type, so the remainder recovers the direction. Nothing in this
-    // port produces a zap glyph -- zapdir_to_glyph() has no port and
-    // map_glyphinfo() refuses the range -- but C answers this rather than
-    // MAXPCHARS, and the arm is pure arithmetic, so it is transcribed
-    // rather than left to a fencepost that no C caller would see.
+    // zap type, so the remainder recovers the direction, discarding the
+    // type that zapdir_to_glyph() packed above it.
     if (glyph < GLYPH_CMAP_C_OFF)
         return ((glyph - GLYPH_ZAP_OFF) % 4) + S_vbeam;
     return (glyph - GLYPH_CMAP_C_OFF) + S_digbeam;
@@ -1548,7 +1561,7 @@ function mapGlyphinfoResolves(glyph) {
     return glyph === GLYPH_NOTHING_OFF
         || glyph === GLYPH_INVISIBLE
         || glyph_is_object(glyph)
-        || (glyph_is_cmap(glyph) && !glyph_is_cmap_zap(glyph));
+        || glyph_is_cmap(glyph);
 }
 
 /**
@@ -1631,9 +1644,13 @@ export function map_glyphinfo(glyph, state = game) {
         // display.c:2884-2890. region.c's gas clouds are the ported producer.
         cmap = S_digbeam + offset;
         color = CMAP_COLORS[cmap];
-    // display.c:2891-2896's GLYPH_ZAP_OFF arm sits here in C's chain. It is
-    // unported and the guard above rejects its range, so the CMAP_B arm below
-    // is reached directly.
+    } else if ((offset = glyph - GLYPH_ZAP_OFF) >= 0) {
+        // display.c:2877-2883. zapdir_to_glyph() below packs the beam
+        // direction into the low two bits and the zap type above them, so the
+        // mask recovers the S_vbeam..S_rslant offset and the shift recovers
+        // zapcolors[]'s index.
+        cmap = S_vbeam + (offset & 0x3);
+        color = zapcolors[offset >> 2];
     } else if ((offset = glyph - GLYPH_CMAP_B_OFF) >= 0) {
         // display.c:2903-2929.
         cmap = S_grave + offset;
@@ -3106,6 +3123,31 @@ export function reglyph_darkroom(state = game) {
         : showsyms[SYM_OFF_X + SYM_NOTHING];
 }
 
+// ── zapdir_to_glyph ──
+//
+// C ref: display.c zapdir_to_glyph() (2460-2470). "Change the given zap
+// direction and beam type into a glyph. Each beam type has four glyphs, one
+// for each of the symbols below. The order of the zap symbols [0-3] as defined
+// in defsym.h are: | S_vbeam (0,1) or (0,-1); - S_hbeam (1,0) or (-1,0);
+// \ S_lslant (1,1) or (-1,-1); / S_rslant (-1,1) or (1,-1)."
+//
+// C returns the glyph number; this returns the resolved presentation, for the
+// reason obj_to_glyph() records above: tmp_at()'s frame stack and
+// show_glyph_cell() both take one. The number stays reachable on it.
+//
+// C's out-of-range guard is `impossible("zapdir_to_glyph: illegal beam type")`
+// followed by beam_type = 0. Every ported caller passes dobuzz()'s hdmgtype,
+// which is a wand's damage type (0..5) or Hallucination's rn2(6), so the guard
+// is unreachable and a wrong number is a defect here rather than a glyph to
+// substitute for.
+export function zapdir_to_glyph(dx, dy, beam_type, state = game) {
+    if (beam_type < 0 || beam_type >= NUM_ZAP) {
+        throw new RangeError(`zapdir_to_glyph: illegal beam type ${beam_type}`);
+    }
+    const dir = (dx === dy) ? 2 : (dx && dy) ? 3 : dx ? 1 : 0;
+    return map_glyphinfo(((beam_type << 2) | dir) + GLYPH_ZAP_OFF, state);
+}
+
 // ── tmp_at ──
 //
 // C ref: display.c tmp_at() (1174-1296) over its `struct tmp_glyph` (1165-1171)
@@ -3126,9 +3168,11 @@ function tmpAtStack(state) {
     return state.tmp_at_stack;
 }
 
-// C ref: display.c tether_glyph() (1123-1132). Only DISP_TETHER draws it, and
-// nothing ported opens that style, so the one caller below refuses instead.
-// Reproducing it needs zapdir_to_glyph(), which has no port.
+// C ref: display.c tether_glyph() (1126-1133). Only DISP_TETHER draws it, and
+// nothing ported opens that style: its three callers are dothrow.c:1578,
+// mthrowu.c:653 and zap.c bhit():3866, each behind a tethered-weapon test no
+// ported path satisfies. The one call site below therefore refuses rather
+// than computing zapdir_to_glyph(sgn(u.ux - x), sgn(u.uy - y), 2).
 function tether_glyph() {
     throw new UnsupportedTransientDisplayError('tether_glyph()');
 }

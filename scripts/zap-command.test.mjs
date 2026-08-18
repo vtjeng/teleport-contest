@@ -379,24 +379,30 @@ test('only a zap that chose a wand spends the turn', async () => {
     assert.equal(game.moves, waited + 1);
 });
 
-test('an aimed zap stops at the effect the port has not ported', async () => {
+test('an aimed zap reaches the ray and stops in zhitu', async () => {
     const segment = segmentFor(`${ZAP_KEY}${HEALER_WAND}${ESCAPE_KEY}`);
     // A real direction, which is C's `else` at zap.c:2665. The self arm beside
     // it runs instead of stopping; 'a self-zap of sleep' below owns it.
+    // weffects() now sends the sleep ray through dobuzz(), which walks it and
+    // stops only when the bolt reaches the hero: zhitu()'s ZT_SLEEP arm is
+    // one of the six damage types this port has not reached.
     const aimed = await boundaryFor(segment, `.${ZAP_KEY}${HEALER_WAND}h`);
-    assert.match(aimed?.message ?? '', /weffects\(\) for object type 432/u);
+    assert.match(aimed?.message ?? '', /zhitu\(\) for damage type 3/u);
     // Up and down leave u.dx and u.dy at 0 and set u.dz, so only the third
     // conjunct of zap.c:2657 separates them from the self arm, and a hero who
-    // zapped upward must reach weffects() rather than fall asleep.
+    // zapped upward must reach weffects() rather than fall asleep. A vertical
+    // bolt is forced to range 1 at zap.c:4824-4825 and never leaves the hero's
+    // own square, so it stops in the same arm.
     for (const key of ['<', '>']) {
         const vertical =
             await boundaryFor(segment, `.${ZAP_KEY}${HEALER_WAND}${key}`);
         assert.match(
-            vertical?.message ?? '', /weffects\(\) for object type 432/u, key,
+            vertical?.message ?? '', /zhitu\(\) for damage type 3/u, key,
         );
     }
-    // WAN_SLEEP is the wand both arms name; the refusals carry the type so a
-    // session that reaches one says which wand it wanted.
+    // WAN_SLEEP is the wand both arms name. BZ_OFS_WAN(432) is
+    // (432 - WAN_MAGIC_MISSILE) % 10 = 3, which is the ZT_SLEEP the refusal
+    // reports and flash_types[]'s "sleep ray" row.
     assert.equal(WAN_SLEEP, 432);
 });
 
@@ -416,11 +422,13 @@ test('a NODIR wand is never asked which way to point', async () => {
     enableRngLog();
     await assert.rejects(
         () => dozap(game),
-        new RegExp(`weffects\\(\\) for object type ${WAN_LIGHT}`, 'u'),
+        /zapnodir\(\) for a directionless wand/u,
     );
     // zappable() spent the charge on the way past and drew nothing for it.
+    // weffects()'s exercise(A_WIS, TRUE) precedes the zapnodir() arm, so the
+    // one draw the log carries is attrib.c's.
     assert.equal(carriedWand().spe, 3);
-    assert.deepEqual(getRngLog(), []);
+    assert.deepEqual(getRngLog(), ['rn2(19)=3']);
 });
 
 test('a wand with no charge left says so and crumbles', async () => {
@@ -827,18 +835,55 @@ test('every zap refusal names a zap.c function the port has not ported',
         new URL('../js/zap.js', import.meta.url), 'utf8',
     );
     // Every refusal the file carries, in source order, and nothing else: an
-    // extra one would mean an arm that C runs and this port does not.
+    // extra one would mean an arm that C runs and this port does not. Each
+    // entry is the C function the refusal names, which is the text up to its
+    // first parenthesis.
     //
-    // - backfire() and weffects() are two of dozap()'s five effect arms.
+    // The first four are the `z` command's own, above the ray:
+    //
+    // - backfire() and weffects() are two of dozap()'s five effect arms;
+    //   weffects() no longer stops, so only backfire() is left here.
     // - losehp() is dozap()'s self arm reacting to damage. zapyourself()
     //   returns 0 for the one object type it handles, so nothing reaches it.
     // - shieldeff() stands for the Sleep_resistance half of zapyourself()'s
     //   WAN_SLEEP arm, which also needs monstseesu().
     // - zapyourself() is that function's `default:`, where C calls
     //   impossible(); it covers every object type but the two that sleep.
+    //
+    // The rest are the ray's, in the order the section declares them:
+    // flash_str(), zap_hit(), zhitu(), zap_over_floor(), dobuzz(), ubuzz()
+    // and weffects().
     assert.deepEqual(
-        [...source.matchAll(/new UnsupportedZapError\(\s*[`']([^`']*)/gu)]
-            .map(([, text]) => text.split('(')[0]),
-        ['backfire', 'losehp', 'weffects', 'shieldeff', 'zapyourself'],
+        [...source.matchAll(
+            /new UnsupportedZapError\(\s*['"`]([^'"`]*)/gu,
+        )].map(([, text]) => text.split('(')[0]),
+        [
+            // dozap() and zapyourself().
+            'backfire', 'losehp', 'shieldeff', 'zapyourself',
+            // flash_str() and zap_hit().
+            'rnd_hallublast', 'spell_hit_bonus',
+            // zhitu(): the fire-resistant hero, the destroy_items() call this
+            // slice stops at, the other six damage types, and the killer and
+            // losehp() tail below the switch.
+            'zhitu', 'destroy_items', 'zhitu', 'losehp',
+            // zap_over_floor(): the exploding-wand caller, then the four
+            // terrains the fire arm acts on, the cold arm's two, poison gas,
+            // iron bars, and the three arms of the shared tail.
+            'zap_over_floor',
+            'delfloortrap', 'melt_ice', 'create_gas_cloud', 'dryup',
+            'start_melt_ice_timeout', 'start_melt_ice_timeout',
+            'create_gas_cloud', 'dissolve_bars',
+            'cvt_sdoor_to_door', 'add_damage', 'burn_floor_objects', 'wakeup',
+            // dobuzz(): a type that is not a hero wand zap, a hallucinating
+            // hero, the swallowed hero, the monster arm, the steed, the
+            // reflecting hero, lightning's flashburn(), the Plane of Air and
+            // the shop door.
+            'dobuzz', 'rnd_hallublast', 'dobuzz', 'dobuzz', 'dobuzz',
+            'ureflects', 'flashburn', 'Is_airlevel', 'pay_for_damage',
+            // weffects(): the steed, the immediate wand, the directionless
+            // wand, digging, a cast spell, and C's own impossible().
+            'zap_steed', 'zapsetup', 'zapnodir', 'zap_dig', 'ubuzz',
+            'weffects',
+        ],
     );
 });

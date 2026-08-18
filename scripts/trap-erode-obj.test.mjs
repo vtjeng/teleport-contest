@@ -20,7 +20,7 @@ import {
     IRON_SHOES,
     LEATHER_GLOVES,
 } from '../js/objects.js';
-import { erode_monster_object } from '../js/trap_erode_obj.js';
+import { erode_obj } from '../js/trap_erode_obj.js';
 
 async function initializedMonster(seed, name) {
     await runSegment({
@@ -63,7 +63,7 @@ test('visible rust damage increments primary erosion after its message',
         const shoes = carried(monster, IRON_SHOES);
         const events = [];
 
-        const result = await erode_monster_object(
+        const result = await erode_obj(
             shoes,
             'shoes',
             ERODE_RUST,
@@ -91,7 +91,7 @@ test('blessed protection uses rnl before changing erosion', async () => {
     const shoes = carried(monster, IRON_SHOES, { blessed: true });
     const draws = [];
 
-    const result = await erode_monster_object(
+    const result = await erode_obj(
         shoes,
         'shoes',
         ERODE_RUST,
@@ -119,7 +119,7 @@ test('grease blocks fire before material and erosion checks', async () => {
     const gloves = carried(monster, LEATHER_GLOVES, { greased: true });
     const events = [];
 
-    const result = await erode_monster_object(
+    const result = await erode_obj(
         gloves,
         'gloves',
         ERODE_BURN,
@@ -152,7 +152,7 @@ test('verbose proof recognition records monster-visible knowledge', async () => 
     });
     const messages = [];
 
-    const result = await erode_monster_object(
+    const result = await erode_obj(
         shoes,
         'shoes',
         ERODE_RUST,

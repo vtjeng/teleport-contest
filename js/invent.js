@@ -1113,6 +1113,20 @@ export function inventoryObjects(state = game) {
     return result;
 }
 
+// C ref: invent.c carrying() (1493-1504). "return inventory object of type
+// 'type' if hero has one, otherwise Null". C returns the loop variable after
+// the loop, so a run that finds nothing answers NULL through the same
+// statement; this returns null explicitly.
+//
+// trap.c burnarmor() is the ported caller: it starts its wet-towel scan at the
+// first towel and then walks the rest of the pack from there, so the returned
+// object is a position in the list rather than only a hit.
+export function carrying(type, state = game) {
+    for (let obj = inventoryHead(state); obj; obj = obj.nobj)
+        if (obj.otyp === type) return obj;
+    return null;
+}
+
 export function initializeInventory(state = game) {
     if (inventoryHead(state)) {
         throw new Error(

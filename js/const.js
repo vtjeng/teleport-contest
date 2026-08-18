@@ -334,6 +334,19 @@ export const KILLED_BY_AN = 0;
 export const KILLED_BY = 1;
 export const NO_KILLER_PREFIX = 2;
 
+// C ref: decl.c materialnm[] (90-95). Its own comment: "the order of these
+// words exactly corresponds to the order of oc_material values #define'd in
+// objclass.h". trap.c burnarmor() is the port's only reader, naming the
+// material of the helmet it burns.
+export const materialnm = Object.freeze([
+    'mysterious', 'liquid', 'wax', 'organic',
+    'flesh', 'paper', 'cloth', 'leather',
+    'wooden', 'bone', 'dragonhide', 'iron',
+    'metal', 'copper', 'silver', 'gold',
+    'platinum', 'mithril', 'plastic', 'glass',
+    'gemstone', 'stone',
+]);
+
 // cf. decl.c c_common_strings — frequently used string constants
 export const nothing_happens = "Nothing happens.";
 export const nothing_seems_to_happen = "Nothing seems to happen.";
@@ -2923,6 +2936,15 @@ export function OBJ_AT(x, y, state = game) {
     return Boolean(state?.level?.objects?.[x]?.[y]);
 }
 export function Has_contents(obj) { return obj?.cobj != null; }
+// C ref: hack.h:1538 `#define AC_VALUE(AC) ((AC) >= 0 ? (AC) : -rnd(-(AC)))`.
+// "very high armor protection does not achieve invulnerability": a negative
+// armor class is re-rolled rather than used, so a hero whose armor class has
+// gone below zero spends a draw here and mhitu.c mattacku()'s and zap.c
+// zap_hit()'s differentials stop being pure calculations. `random` is passed
+// in because this file holds no game-random import.
+export function AC_VALUE(ac, random) {
+    return ac >= 0 ? ac : -random.rnd(-ac);
+}
 // C ref: monst.h:73-74. The mask matters: m_ap_type also carries M_AP_F_DKNOWN
 // (0x8), so an unmasked read answers truthy for a monster whose appearance type
 // is M_AP_NOTHING and whose display-known flag is set.

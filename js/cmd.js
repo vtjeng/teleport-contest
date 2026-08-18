@@ -64,6 +64,7 @@ import { UnsupportedObjectOperationError } from './obj.js';
 import { UnsupportedPickupError } from './pickup.js';
 import { UnsupportedPositionCheckError } from './teleport.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
+import { UnsupportedErosionError } from './trap_erode_obj.js';
 import {
     doeat,
     UnsupportedEatError,
@@ -1334,11 +1335,17 @@ export function failClosedCommandRefusals() {
         // would discard every screen the ^G prompt already matched instead of
         // stopping on the last of them.
         UnsupportedMonsterRequestError,
-        // zap.c dozap() raises this from its three effect arms. Each one
+        // zap.c raises this from dozap()'s effect arms and from every arm of
+        // the ray below weffects() that this port has not reached. Each one
         // stops after the command has already spent a charge and painted its
-        // prompts, so the segment has to end on them rather than lose the
-        // screens they matched.
+        // prompts -- and, for the ray, after the bolt has already been drawn
+        // across the map -- so the segment has to end on them rather than
+        // lose the screens they matched.
         UnsupportedZapError,
+        // trap.c burnarmor() and erode_obj() raise this for a monster victim
+        // and for the wet towel a hero's own fire would dry. zhitu()'s fire
+        // arm is the ported caller, one frame below UnsupportedZapError.
+        UnsupportedErosionError,
         // Two paths raise this. invent.c hold_another_object(), which
         // makewish() calls unguarded, raises it from its drop, artifact,
         // Fumbling and autoquiver arms. A wish heavy or numerous enough to

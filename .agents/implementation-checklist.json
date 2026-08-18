@@ -1,138 +1,138 @@
 {
-  "mode": "implementation",
-  "reason": "The slice ray-bounces-and-burns-the-hero has not started. Every entry naming a zap.c, trap.c, display.c or pline.c function on the ray path is missing, because js/zap.js dozap() still throws UnsupportedZapError at its final else and nothing downstream of weffects() exists.",
-  "commitChecked": "4f5c00cd1ff6adf445056c193e9a7bfed32338c2",
+  "mode": "ready-for-audit",
+  "reason": "The slice ray-bounces-and-burns-the-hero is complete. js/zap.js dozap() calls weffects(), which takes an aimed ray wand through ubuzz(), dobuzz(), zap_over_floor(), zap_hit(), bounce_dir() and zhitu()'s ZT_FIRE arm as far as the destroy_items() call at zap.c:4434, which is the new fail-closed boundary. The witness session seed5002-wizard-coverage-pair now emits 103 of its 410 screens, up from 88, and stops on step 103's space at that call. Every entry below is done, later or cannot-occur.",
+  "commitChecked": "dffeaa8",
   "boundary": {
     "goalId": "hero-zaps-a-ray-wand",
     "startingCommit": "4f5c00cd1ff6adf445056c193e9a7bfed32338c2",
     "startingEvent": "seed5002-wizard-coverage-pair segment 0 step 88, the byte l answering In what direction? for a zap of a wished wand of fire. The port already emits screens 0-87, so getobj(), zappable() and getdir() run today and u.dx = 1, u.dy = 0, u.dz = 0 is set when UnsupportedZapError('weffects() for object type 430') fires at js/zap.js:267-269.",
     "endingEvent": "The --More-- the top line raises when the turn's third message arrives. Recorded screen 88 is 'The bolt of fire bounces!  The bolt of fire hits you!--More--', cursor [61,0,1], with the beam painted across map row 7 at columns 73-77. The slice stops at zhitu()'s `if (!rn2(3)) (void) destroy_items(&gy.youmonst, AD_FIRE, orig_dam);` at zap.c:4434-4435, which becomes the new fail-closed boundary.",
-    "validInputs": "A hero-aimed horizontal zap of a wand whose objects[] row carries oc_dir RAY, in a game the port already reaches. seed5002 is playmode:debug with a ^W-wished wand of fire; the fresh differential picks its own seed and terrain. Vertical zaps (u.dz nonzero), monster-aimed rays and spell rays are outside.",
+    "validInputs": "A hero-aimed zap of a wand whose objects[] row carries oc_dir RAY, in a game the port already reaches. seed5002 is playmode:debug with a ^W-wished wand of fire; the fresh differential picks its own seed and terrain. A vertical zap (u.dz nonzero) turned out to be inside rather than outside: dobuzz() forces the range to 1 for a bolt with no horizontal delta at zap.c:4824-4825, that one line is ported, and scripts/zap-ray.test.mjs drives every ray wand through it. What such a bolt cannot do is stop inside the boundary, because it hits the hero with no bounce message ahead of it and so raises no --More-- before destroy_items(); the deferral vertical-ray-reaches-destroy-items records that case and its recorded C answer. Monster-aimed rays and spell rays remain outside, refused by name at dobuzz()'s and weffects()' own entries.",
     "observables": "Every random-number call in source order, every screen and cursor from step 88 through step 102, and the transient beam glyphs. Step 88's whole log is five draws: rn2(19) from weffects()'s exercise(A_WIS, TRUE), rn2(7)=5 from dobuzz()'s rn1(7, 7) giving range 12, rn2(20)=2 from zap_hit(), d(6, 6)=25 from zhitu()'s ZT_FIRE arm, and rn2(5)=1 from burnarmor(). The status line reads HP:12(12) at steps 85, 88 and 103, so the hero loses no hit points anywhere inside this boundary.",
     "exclusions": "zhitu()'s destroy_items() call at 4434 and everything after it, including ignite_items() at 4436-4437, the killer built at 4582 and losehp() at 4588; end.c done(); dobuzz()'s u.uswallow block (4802-4820); its whole `if (mon)` arm (4864-4956); u.usteed (4959-4961); Reflecting (4966-4976); flashburn() (4988-4989); Is_airlevel (5008-5013); explode() (5026-5027); pay_for_damage() (5028-5035); zap_over_floor()'s web, ice, pool and fountain arms and its non-fire damage types; burn_floor_objects()'s hero arm; and zhitu()'s other six damage types."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "zap.c weffects() (3430-3476) reached from dozap()'s final else, and through it ubuzz() (4758-4762), buzz() (4764-4768) and dobuzz() (4779-5037). Every span was verified with awk from each function's return-type line to its closing brace.",
-    "dispatchTablesAndCatalogs": "zap.c flash_types[] (71-85) selected by zaptype() (88-96); display.c zapcolors[] (2661-2665) with zap_color_fire = CLR_ORANGE at include/display.h:281; objects.h's oc_dir column, whose WAN_MAGIC_MISSILE <= otyp <= WAN_LIGHTNING ordering at objects.h:1488 is what weffects()'s test at 3463 relies on; the BZ_U_WAND and BZ_OFS_WAN macros at hack.h:1477 and 1480.",
-    "reachableHelpers": "Traced from dobuzz()'s loop body outward: bounce_dir() (4663-4701), zap_hit() (4704-4720), zhitu() (4400-4591), zap_over_floor() (5140-5497), flash_str() (6428-6445), display.c zapdir_to_glyph() (2460-2470) and map_glyphinfo()'s zap arm (2877-2883), pline.c pline_dir() (113-123) and set_msg_dir() (83-89), trap.c burnarmor() (87-160) and erode_obj()'s uvictim half, and zap.c inventory_resistance_check() (5709-5718). The recorded random-number log of seed5002 step 88 was read to confirm which of those actually draw on this path: five draws, no bounce draw and no floor draw.",
+    "dispatchTablesAndCatalogs": "zap.c flash_types[] (71-85) selected by zaptype() (88-96); display.c zapcolors[] (2661-2665) with zap_color_fire = CLR_ORANGE at include/display.h:281; objects.h's oc_dir column, whose WAN_MAGIC_MISSILE <= otyp <= WAN_LIGHTNING ordering at objects.h:1488 is what weffects()'s test at 3463 relies on; the BZ_U_WAND and BZ_OFS_WAN macros at hack.h:1477 and 1480. decl.c materialnm[] (90-95) joined the list once burnarmor()'s helmet arm was read; it is now js/const.js's.",
+    "reachableHelpers": "Traced from dobuzz()'s loop body outward: bounce_dir() (4663-4701), zap_hit() (4704-4720), zhitu() (4400-4591), zap_over_floor() (5140-5497), flash_str() (6428-6445), display.c zapdir_to_glyph() (2460-2470) and map_glyphinfo()'s zap arm (2877-2883), pline.c pline_dir() (113-123) and set_msg_dir() (83-89), trap.c burnarmor() (87-160) and erode_obj()'s uvictim half, and zap.c inventory_resistance_check() (5709-5718). Three more turned up while porting and are now ported too: zap.c adtyp_to_prop() (5653-5674) and u_adtyp_resistance_obj() (5675-5698), which inventory_resistance_check() reads, invent.c carrying() (1493-1504), which burnarmor()'s towel scan starts from, and timeout.c burn_away_slime() (446-453), which zhitu()'s fire arm calls before it burns any armor. The recorded random-number log of seed5002 step 88 was read to confirm which of those actually draw on this path: five draws, no bounce draw and no floor draw.",
     "javascriptCrossCheck": "grep -rn for each C function name under js/ established what exists: tmp_at() is ported whole at js/display.js:3147 with DISP_BEAM, DISP_CHANGE and DISP_END; ignite_items() at js/apply_catch_lit.js:107; bhit() at js/zap.js:535, which is the IMMEDIATE-wand traversal rather than a helper of dobuzz(); destroy_items() in js/zap_destroy_items.js for OBJ_MINVENT alone; burn_floor_objects() there with its refusal at 198-202; erode_obj() at js/trap_erode_obj.js, rejecting anything not OBJ_MINVENT at 113-117; AC_VALUE as a file-local function at js/mhitu.js:454. The zap glyph range is unported and js/display.js:1634 records it, citing display.c:2891-2896 where the arm is at 2877-2883.",
-    "remainingLimits": "The entries below come from one slice-selector's reading, cross-checked by the orchestrator on the four screen boundaries, the HP claim and the step-88 draw count, but not on every span. Three values on the path carry no mutation operator, so no counter can report them uncovered: dobuzz()'s nd, the literal 6 weffects() passes at 3463-3465 and the only thing feeding d(nd, 6) at 4422; dobuzz()'s type, which selects flash_types[1] and the ZT_FIRE arm; and zap_hit()'s ac, (int) u.uac = 9. Each needs a source-read test rather than a mutant. The terrain of the fresh differential decides which zap_over_floor() arms run at all, so a recording over plain floor cannot prove the pool, fountain, ice or web arms refuse."
+    "remainingLimits": "The entries below started from one slice-selector's reading and are now the worker's own, each verified against the C span and against the port. Three values on the path carry no mutation operator, so no counter can report them uncovered, and each has a source-read test in scripts/zap-ray.test.mjs: dobuzz()'s nd, the literal 6 weffects() passes at 3463-3465 (pinned twice, by reading the call site out of nethack-c/upstream/src/zap.c and by watching a downward bolt roll d(6, 6)); dobuzz()'s type, pinned by driving all six ray wands through weffects() and reading the damage type back out of zhitu()'s refusal; and zap_hit()'s ac, (int) u.uac = 9, pinned by scripting the roll on both sides of `3 - chance < AC_VALUE(ac)`. The terrain of the fresh differential still decides which zap_over_floor() arms run at all, and the matrix's five segments all cross plain room floor and walls; the deferral zap-over-floor-terrain-arms-refuse records the seven terrains that stop instead, and scripts/zap-ray.test.mjs drives one of them, a cold bolt over a POOL square, through the production path."
   },
   "entries": [
     {
       "candidate": "zap.c weffects() (3430-3476), the ubuzz() arm at 3463-3465",
       "reachability": "dozap()'s final else, for oc_dir RAY and otyp between WAN_MAGIC_MISSILE and WAN_LIGHTNING. Draws exercise(A_WIS, TRUE)'s rn2(19) first, before any ray draw.",
-      "owner": "None",
-      "effects": "exercise(A_WIS, TRUE), then ubuzz(BZ_U_WAND(BZ_OFS_WAN(otyp)), otyp == WAN_MAGIC_MISSILE ? 2 : 6), then disclose = TRUE.",
-      "evidence": "js/zap.js:267-269 throws UnsupportedZapError('weffects() for object type 430') where C calls ubuzz(); u.usteed is null in the witness, so 3437-3439 is skipped.",
-      "status": "missing",
-      "remaining": "Port the whole function with its other arms refused by name."
+      "owner": "js/zap.js weffects(), translated whole",
+      "effects": "exercise(A_WIS, TRUE), then ubuzz(BZ_U_WAND(BZ_OFS_WAN(otyp)), otyp == WAN_MAGIC_MISSILE ? 2 : 6), then disclose = TRUE, learnwand() and more_experienced(0, 10).",
+      "evidence": "js/zap.js dozap() awaits weffects(obj, state) where the throw stood. The four arms C reaches for other objects stop by name: zap_steed(), zapsetup() for an immediate wand, zapnodir(), zap_dig(), ubuzz() for a cast spell, and C's own impossible(). scripts/zap-ray.test.mjs 'weffects turns each ray wand into the dobuzz type its row implies' drives all six ray wands, and 'weffects sends digging and a cast ray to their own arms' drives WAN_DIGGING, SPE_DIG, SPE_MAGIC_MISSILE and SPE_FINGER_OF_DEATH. The witness's step-88 log opens with rn2(19)=2 @ exercise(attrib.c:509), which the port now emits in the same position.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "zap.c ubuzz() (4758-4762), buzz() (4764-4768), zaptype() (88-96), flash_types[] (71-85), flash_str() (6428-6445)",
       "reachability": "ubuzz() is weffects()'s only route into dobuzz() for a hero ray. zaptype() and flash_types[] name the bolt in the messages.",
-      "owner": "None",
-      "effects": "None beyond selecting the type and the message wording; no random-number call.",
-      "evidence": "No zaptype, flash_str or flash_types appears under js/.",
-      "status": "missing",
-      "remaining": "Port as a group; flash_types[] is a fixed table and AGENTS.md's generated-table rule applies if it is large enough to warrant a generator."
+      "owner": "js/zap.js ubuzz(), zaptype(), flash_types[] and flash_str()",
+      "effects": "None beyond selecting the type and the message wording; no random-number call, unless the hero hallucinates, which flash_str() stops on.",
+      "evidence": "scripts/zap-ray.test.mjs 'zaptype folds a monster zap onto the hero band it shares' covers the -39..-30 shift and both bands' abs(); 'flash_str names the row of flash_types the ray type indexes' reads all six wand rows plus one spell and one breath row out of the table. flash_types[] is 30 short string rows, well under the size AGENTS.md's generated-table rule is for, so it is transcribed rather than generated.",
+      "status": "done",
+      "remaining": "buzz() has no port. It is dobuzz() with an explicit origin, for the monsters and traps that fire a ray -- muse.c use_offensive():1833, mcastu.c:1006, mthrowu.c:1123, priest.c:870, music.c:634, polyself.c:1445 and timeout.c:1872 -- and not one of those callers is ported, so porting it would be code with no consumer."
     },
     {
       "candidate": "zap.c dobuzz() (4779-5037), the non-swallow, no-monster loop",
       "reachability": "Entered from ubuzz() with type >= 0 and dx nonzero, so range = rn1(7, 7) at 4823 rather than the vertical 1 at 4824-4825. fireball is false for every wand, because it tests type == ZT_SPELL(ZT_FIRE) at 4793.",
-      "owner": "None",
+      "owner": "js/zap.js dobuzz()",
       "effects": "rn1(7, 7); tmp_at(DISP_BEAM) at 4828; gb.bhitpos saved at 4826, written at 4851 and restored at 5036; zap_over_floor() at 4858 on every square; the hero arm at 4957-4992; bounce_dir() and --range at 5003-5006; tmp_at(DISP_END, 0) at 5025.",
-      "evidence": "The witness's step-88 log holds exactly one rn2(7), so the loop runs its range once per square without redrawing it.",
-      "status": "missing",
-      "remaining": "Port the loop with every excluded arm refused by name. tmp_at() already exists at js/display.js:3147."
+      "evidence": "The witness's step-88 log holds exactly one rn2(7), which the port now emits in position, and its eight recorded animation frames all match (animFrames 8/8 for seed5002, up from 0/8). scripts/run-ray-zap.mjs records five fresh segments against the C reference and all five match on PRNG, screens, cursors and animation frames. The vertical arm is ported too: a bolt with dx == dy == 0 is forced to range 1 and hits the hero on its own square. `fireball`, `gas_hit` and `spell_type` are absent rather than computed, because the entry guard admits only a hero wand zap (0..9) and all three are then constants; the section header in js/zap.js records that argument.",
+      "status": "done",
+      "remaining": "None. state.gb.bhitpos is the one JavaScript home for C's gb.bhitpos; js/zap.js bhit() already wrote it, and dobuzz() saves, writes and restores it at the three source positions."
     },
     {
       "candidate": "zap.c bounce_dir() (4663-4701) and the 10/20/75 bchance selector at 5003-5005",
       "reachability": "Called only when the bolt meets an obstruction. For a horizontal ray dy is 0, so the !*ddy short-circuit at 4668 means bounceback = 75 is never read.",
-      "owner": "None",
+      "owner": "js/zap.js bounce_dir()",
       "effects": "Reverses the direction; draws nothing on a horizontal ray, which is why step 88's log carries no bounce draw.",
-      "evidence": "Step 88's five draws contain no bounce roll, and the screen still says 'The bolt of fire bounces!', so the message comes from the reversal rather than from a draw.",
-      "status": "missing",
-      "remaining": "Port the function. The selector rule at 5003-5005 cannot be exercised by any horizontal ray, so its test must be source-read rather than differential."
+      "evidence": "scripts/zap-ray.test.mjs 'bounce_dir reverses a bolt on a row without drawing for it' hands the function a random source that throws if it is called. The body is reached only by a diagonal bolt, and the matrix's fifth segment is one: its recorded log carries rn2(75)=28 at zap.c:4668 for the room wall and rn2(10)=9 for the stone behind it, which 'a bounce off stone rolls against a different chance than a wall' asserts from the replay. 'bounce_dir picks a side from the two squares beside the obstacle' covers all three `bounce` outcomes, the rn2(2) that picks between two open sides, the closed door that is not an opening, and the corridor whose side counts only when the square beyond it is open.",
+      "status": "done",
+      "remaining": "The 20-in-1 arm needs a wall in the Gnomish Mines, which no ported path reaches; the diagonal segment separates it from the other two by taking 75 and 10 in one bolt."
     },
     {
       "candidate": "zap.c zap_hit() (4704-4720)",
       "reachability": "Called at 4962 for the hero square. ac is (int) u.uac = 9 in the witness.",
-      "owner": "None",
+      "owner": "js/zap.js zap_hit(), over js/const.js AC_VALUE()",
       "effects": "One rn2(20); answers whether the bolt hits.",
-      "evidence": "Step 88's third draw is rn2(20)=2, and the screen says the bolt hits.",
-      "status": "missing",
-      "remaining": "Port it, and pin the ac argument by a source-read test: 3 - 2 < AC_VALUE(9) hits for every plausible value, so no differential separates it. AC_VALUE already exists as a file-local function at js/mhitu.js:454 and must not be defined a second time."
+      "evidence": "Step 88's third draw is rn2(20)=2, and the screen says the bolt hits. scripts/zap-ray.test.mjs 'zap_hit rolls once and compares the roll with the armor class' scripts both arms: the zero roll's rnd(10) < ac, the ordinary 3 - chance < ac on both sides of the boundary, and AC_VALUE()'s extra rnd() for a negative armor class. AC_VALUE moved from js/mhitu.js:454 to js/const.js beside the other hack.h macros, and js/mhitu.js now imports it, so the macro has one home.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "zap.c zhitu() (4400-4409 frame, ZT_FIRE arm 4421-4438) through the destroy_items() call at 4434",
       "reachability": "Called at 4977 when the bolt hits and the hero does not reflect. The hero is a level-1 human Wizard with no fire resistance, so the else at 4428 runs and dam = orig_dam.",
-      "owner": "None",
+      "owner": "js/zap.js zhitu()",
       "effects": "orig_dam = d(nd, 6); burn_away_slime(); burnarmor(&gy.youmonst) gating !rn2(3) into destroy_items().",
-      "evidence": "Step 88's fourth draw is d(6,6)=25. HP is 12(12) at steps 85, 88 and 103, so nothing in this arm reduces hit points before the boundary.",
-      "status": "missing",
-      "remaining": "Port through 4434 and refuse there by name."
+      "evidence": "Step 88's fourth draw is d(6,6)=25, which the port now emits in position. HP is 12(12) at steps 85, 88 and 103, and scripts/zap-ray.test.mjs asserts u.uhp == u.uhpmax after the replayed zap. Both exits refuse: the destroy_items() call at 4434 and the killer-and-losehp() tail below the switch. The fire-resistant arm stops on ugolemeffects(), and every other damage type on its own refusal, each pinned by 'a hero the bolt cannot burn stops it before the damage roll' and 'weffects turns each ray wand into the dobuzz type its row implies'.",
+      "status": "done",
+      "remaining": "None inside the boundary. timeout.c burn_away_slime() is ported in js/timeout.js and stops on make_slimed() for a Slimed hero, which nothing ported can produce."
     },
     {
       "candidate": "trap.c burnarmor() (87-160) and erode_obj()'s uvictim half (170 onward)",
       "reachability": "Called from zhitu()'s ZT_FIRE arm. Its message is the turn's third, which is what raises the --More-- this slice ends on.",
-      "owner": "js/trap_erode_obj.js, OBJ_MINVENT only; it rejects a hero victim at 113-117",
-      "effects": "One rn2(5) in the witness; submits 'Your cloak smoulders!'; reads inventory_resistance_check(AD_FIRE) at trap.c:205 and calls update_inventory() at 297-298.",
-      "evidence": "Step 88's fifth draw is rn2(5)=1, and its screen carries the cloak message behind the --More--.",
-      "status": "missing",
-      "remaining": "Add the hero arm to js/trap_erode_obj.js with the 'Your %s' wording. It carries visobj, which reads gb.bhitpos at 199-201, a global dobuzz() saves at 4826, writes at 4851 and restores at 5036 and which the port has no owner for."
+      "owner": "js/trap_erode_obj.js burnarmor() and erode_obj()",
+      "effects": "One rn2(5) per slot until the torso is picked; submits 'Your cloak smoulders!'; reads inventory_resistance_check(AD_FIRE) at trap.c:205 and calls update_inventory() at 297-298.",
+      "evidence": "Step 88's fifth draw is rn2(5)=1, and its screen carries the cloak message behind the --More--. erode_monster_object() was renamed erode_obj() and given the hero arm, so one function covers both victims C reaches; js/trap_water_damage.js and scripts/trap-erode-obj.test.mjs follow the rename. scripts/zap-ray.test.mjs covers the slot loop, the three erosion adverbs, the fall-through from cloak to suit to shirt, the non-torso answer of FALSE, the monster victim's refusal and the wet towel's. The witness's own turn draws rn2(5) twice in the fresh case recorded at seed 20260817, which is the empty-slot fall-through running once.",
+      "status": "done",
+      "remaining": "None. `visobj` is refused rather than ported: it decides a floor object's visibility from gb.bhitpos, and neither ported caller passes an object a victim is not carrying."
     },
     {
       "candidate": "zap.c inventory_resistance_check() (5709-5718) and u_adtyp_resistance_obj",
       "reachability": "Read by erode_obj()'s hero arm at trap.c:205.",
-      "owner": "None",
-      "effects": "Pure; no draw, no output.",
-      "evidence": "No such name appears under js/.",
-      "status": "missing",
-      "remaining": "Port with erode_obj()'s hero arm; AGENTS.md's pure-function rule applies if it turns out to be pure."
+      "owner": "js/zap.js inventory_resistance_check(), u_adtyp_resistance_obj() and adtyp_to_prop()",
+      "effects": "One rn2(100), and only when the hero has equipment that protects the pack; a starting hero has none, which is why the witness's burnarmor() draws no such roll.",
+      "evidence": "scripts/zap-ray.test.mjs 'an unprotected pack rolls nothing when fire looks for a resistance' hands the check a random source that throws if it is called, then covers the 90% dwarvish-cloak arm on both sides of its threshold and the 99% extrinsic arm. adtyp_to_prop()'s rows are read from zap.c:5653-5674.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "zap.c zap_over_floor() (5140-5497), the ZT_FIRE plain fall-through 5162-5236 and the shared tail 5376-5496",
       "reachability": "Called at 4858 for every square the bolt crosses. The witness's eight squares are plain dark room floor and the room's right wall at x=77, with no objects, traps or monsters.",
-      "owner": "None",
+      "owner": "js/zap.js zap_over_floor()",
       "effects": "None on that terrain, which is why step 88's log holds no floor draw. burn_floor_objects() sits behind C's own OBJ_AT(x, y) guard at 5489.",
-      "evidence": "Step 88's five draws are all accounted for by weffects(), dobuzz(), zap_hit(), zhitu() and burnarmor().",
-      "status": "missing",
-      "remaining": "Port the frame and the fire fall-through, refusing the web, ice, pool and fountain arms and the non-fire damage types. js/zap_destroy_items.js:198-202 keeps its existing hero-arm refusal behind the OBJ_AT guard. Choosing the fresh differential's terrain is part of the slice: a pool, fountain, ice, web, closed door or one floor scroll each lands on a different refusal."
+      "evidence": "The frame and the fire fall-through are ported; the web, ice, water and fountain arms, the cold arm's water and ice, poison gas, the iron bars a lightning or acid bolt melts, the secret door and the closed door each stop by name. The deferral zap-over-floor-terrain-arms-refuse lists all seven with their C spans, and scripts/zap-ray.test.mjs 'a cold bolt over water stops at the steam it would raise' drives one of them through the production path by setting one square to POOL. js/zap_destroy_items.js:198-202 keeps its existing hero-arm refusal behind the OBJ_AT guard, reached through an `unsupported` hook that raises UnsupportedZapError so the segment ends rather than the run.",
+      "status": "done",
+      "remaining": "None inside the boundary. The 5376-5395 zapverb block is absent rather than computed, because its only readers are the two door arms that stop."
     },
     {
       "candidate": "display.c zapdir_to_glyph() (2460-2470), map_glyphinfo()'s zap arm (2877-2883), zapcolors[] (2661-2665)",
       "reachability": "Reached through tmp_at(DISP_BEAM) for every square of the bolt.",
-      "owner": "None; js/display.js:1634 records the arm as unported and cites display.c:2891-2896, which is the !iflags.use_color spec_cmap block of the next branch rather than this arm",
+      "owner": "js/display.js zapdir_to_glyph(), the GLYPH_ZAP_OFF arm of map_glyphinfo(), and zapcolors[]",
       "effects": "Paints the transient beam. tmp_at(DISP_END, 0) is at 5025, after the loop, so a refusal inside zhitu() leaves the glyphs on the map; C's own screens 88, 103 and 112 all show row 7 with five DECgraphics q at columns 73-77 in \\u001b[91m, covering the hero's @.",
-      "evidence": "Read from the witness's recorded screens rather than inferred.",
-      "status": "missing",
-      "remaining": "Port the arm with zapcolors[] and zap_color_fire = CLR_ORANGE (include/display.h:281), and correct the stale citation at js/display.js:1634. Getting the beam wrong loses every screen from 88 to the end of the segment rather than one."
+      "evidence": "seed5002's screens 88-102 now match, beam included, and its eight animation frames match too. mapGlyphinfoResolves() admits the whole of glyph_is_cmap() now that the arm exists; scripts/display-symbols.test.mjs moved the two zap glyphs out of its refusal list, and scripts/zap-ray.test.mjs pins the four directions, the four defsym symbols and three zapcolors[] entries. The stale citation at js/display.js:1634 is gone, and the tether_glyph() comment beside it no longer claims zapdir_to_glyph() has no port.",
+      "status": "done",
+      "remaining": "None."
     },
     {
       "candidate": "pline.c pline_dir() (113-123) and set_msg_dir() (83-89)",
       "reachability": "Called at 4964-4965 for '%s hits you!'.",
-      "owner": "None",
-      "effects": "Message direction only.",
-      "evidence": "No pline_dir appears under js/.",
-      "status": "missing",
-      "remaining": "Port both; they are what places the hit message in the turn's message order."
+      "owner": "js/startup_a11y.js messageAt(), over js/cmd.js xytodir() and dirtocoord()",
+      "effects": "Message direction only, and only when a11y.accessiblemsg is set: pline.c vpline():175-189 is the one reader, and it prefixes the line with coord_desc() of the coordinate.",
+      "evidence": "js/startup_a11y.js messageAt() is this port's single owner of that prefix, and eleven other files already call it for pline_xy()-shaped messages, so a second copy would have split the option's one reader. dobuzz() computes the coordinate the way set_msg_dir() does, through the already-ported xytodir() and dirtocoord(), and hands it to messageAt(); the comment at the call site names both C functions. A vertical bolt makes xytodir() answer DIR_ERR, where C leaves a11y.msg_loc at the (0, 0) vpline() reset it to, so the message lands on the hero's own square; the port spells that fallback out.",
+      "status": "done",
+      "remaining": "None. No segment of the ray matrix sets accessiblemsg, so the prefix itself is exercised by the eleven existing callers rather than by this one."
     },
     {
       "candidate": "zap.c dobuzz()'s u.uswallow block (4802-4820), its whole `if (mon)` arm (4864-4956), u.usteed (4959-4961), Reflecting (4966-4976), flashburn() (4988-4989), Is_airlevel (5008-5013), explode() (5026-5027), pay_for_damage() (5028-5035)",
       "reachability": "None of these conditions holds for a level-1 hero zapping horizontally in a plain room with nothing in line. u.uswallow is false because the witness's ^G gas spore was created beside the hero rather than around her.",
-      "owner": "None",
+      "owner": "js/zap.js dobuzz(), one refusal each",
       "effects": "None inside the boundary.",
-      "evidence": "The witness's step-88 log holds no draw from any of them.",
-      "status": "missing",
-      "remaining": "Each must stop by name before changing state, consuming randomness or producing output. The status becomes cannot-occur once the refusal exists and the reachability argument is recorded at the site."
+      "evidence": "The witness's step-88 log holds no draw from any of them, and the port emits the same log. Each stops before it changes state, draws or writes: the swallow block at the top of dobuzz(), the monster arm where C reads mstrategy, the steed inside the hero arm's first branch, Reflecting after the hit message C also prints, flashburn() after the lightning arm's own message, Is_airlevel inside the bounce block, and pay_for_damage() after the loop. explode() is absent rather than refused, because it is inside `if (fireball)` and the entry guard makes fireball a constant false. scripts/zap-ray.test.mjs drives three of them directly: the monster arm with the level's own monster moved onto the bolt's first square, the steed through weffects()'s own guard, and Reflecting through the property.",
+      "status": "cannot-occur",
+      "remaining": "None."
     },
     {
       "candidate": "zhitu()'s other six damage types and its killer and losehp() tail (4561-4588)",
       "reachability": "The other damage types need a wand this slice does not admit; the tail is after the ending event.",
-      "owner": "js/hack.js:754-756 refuses losehp()'s death path",
+      "owner": "js/zap.js zhitu(), one refusal per damage type and one for the tail; js/hack.js:754-756 refuses losehp()'s death path",
       "effects": "After the ending event.",
-      "evidence": "The witness's losehp() first fires at step 112, nine steps past this slice's ceiling.",
+      "evidence": "The witness's losehp() first fires at step 112, nine steps past this slice's ceiling. scripts/zap-ray.test.mjs reads each damage type back out of the refusal for all six ray wands.",
       "status": "later",
       "remaining": "Slice 3, the-fatal-bolt-says-you-die, owns it."
     },
@@ -141,48 +141,11 @@
       "reachability": "Reached from zhitu():4434-4435 on !rn2(3), which is this slice's new boundary.",
       "owner": "js/zap_destroy_items.js, OBJ_MINVENT only",
       "effects": "After the ending event; the witness's first such draw is rn2(3)=0 at zhitu(zap.c:4434) on step 103.",
-      "evidence": "Read from the witness's recorded log at step 103.",
+      "evidence": "Read from the witness's recorded log at step 103, and from the fresh case the deferral vertical-ray-reaches-destroy-items records, whose C recording carries the same rn2(3)=0 followed by the destroy_items() and maybe_destroy_item() draws.",
       "status": "later",
       "remaining": "Slice 2, fire-destroys-the-heros-potions, owns it."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "zap.c ray entry",
-      "candidates": [
-        "zap.c weffects() (3430-3476), the ubuzz() arm at 3463-3465",
-        "zap.c ubuzz() (4758-4762), buzz() (4764-4768), zaptype() (88-96), flash_types[] (71-85), flash_str() (6428-6445)"
-      ],
-      "next": "Create js/zap.js's ray entry beside the existing dozap(), replacing the throw at 267-269, and port the type selection and message wording as a group."
-    },
-    {
-      "group": "display.c and pline.c, the beam and the message",
-      "candidates": [
-        "display.c zapdir_to_glyph() (2460-2470), map_glyphinfo()'s zap arm (2877-2883), zapcolors[] (2661-2665)",
-        "pline.c pline_dir() (113-123) and set_msg_dir() (83-89)"
-      ],
-      "next": "Port the zap glyph range and the directional message before the loop, since every square of the bolt paints through them and a wrong beam loses every later screen of the segment."
-    },
-    {
-      "group": "zap.c dobuzz() loop",
-      "candidates": [
-        "zap.c dobuzz() (4779-5037), the non-swallow, no-monster loop",
-        "zap.c bounce_dir() (4663-4701) and the 10/20/75 bchance selector at 5003-5005",
-        "zap.c zap_hit() (4704-4720)",
-        "zap.c zap_over_floor() (5140-5497), the ZT_FIRE plain fall-through 5162-5236 and the shared tail 5376-5496",
-        "zap.c dobuzz()'s u.uswallow block (4802-4820), its whole `if (mon)` arm (4864-4956), u.usteed (4959-4961), Reflecting (4966-4976), flashburn() (4988-4989), Is_airlevel (5008-5013), explode() (5026-5027), pay_for_damage() (5028-5035)"
-      ],
-      "next": "Port the loop and its per-square helpers together, with every excluded arm refused by name, and own gb.bhitpos's save, write and restore in one place."
-    },
-    {
-      "group": "the hero-square damage arm",
-      "candidates": [
-        "zap.c zhitu() (4400-4409 frame, ZT_FIRE arm 4421-4438) through the destroy_items() call at 4434",
-        "trap.c burnarmor() (87-160) and erode_obj()'s uvictim half (170 onward)",
-        "zap.c inventory_resistance_check() (5709-5718) and u_adtyp_resistance_obj"
-      ],
-      "next": "Port zhitu()'s ZT_FIRE arm through 4434 and add erode_obj()'s hero arm, which is what produces the turn's third message and therefore the --More-- this slice ends on."
-    }
-  ],
-  "sourceReview": "Not yet attested. The slice-selector traced every branch and helper reachable from weffects() through zhitu():4434 against zap.c, trap.c, display.c and pline.c, verifying each span with awk from the return-type line to the closing brace, and read the witness's recorded random-number log, screens, cursors and status lines rather than inferring them. The orchestrator independently confirmed four of its claims against the session file: recorded index 88 is the first bolt screen, 103 the first cloak-and-potion screen, 119 the last oil screen and 120 the first death screen; the status line reads HP:12(12) at steps 85, 88 and 103, so the hero loses no hit points inside the boundary; and step 88 carries five random-number values, so the fifteen screens are one ray iteration rather than fifteen. The attestation this field will hold is the worker's to earn and the orchestrator's to verify once every entry above is done, no-effect-yet, later or cannot-occur."
+  "missingWorkByOwner": [],
+  "sourceReview": "Attested by the worker who ported the slice. Every C span named in the entries above was read in nethack-c/upstream before the JavaScript was written: zap.c weffects() 3430-3476, ubuzz() 4758-4762, buzz() 4764-4768, dobuzz() 4779-5037, zhitu() 4400-4591, bounce_dir() 4663-4701, zap_hit() 4704-4720, zap_over_floor() 5140-5497, burn_floor_objects() 4596-4656, zaptype() 88-96, flash_types[] 71-85, flash_str() 6428-6445, adtyp_to_prop() 5653-5674, u_adtyp_resistance_obj() 5675-5698 and inventory_resistance_check() 5709-5718; trap.c burnarmor() 87-160, erode_obj() 170-353 and grease_protect() 358-385; display.c zapdir_to_glyph() 2460-2470, reset_glyphmap()'s zap arm 2877-2883, zapcolors[] 2661-2665 and tether_glyph() 1126-1133; pline.c set_msg_dir() 83-89, pline_dir() 113-123 and vpline()'s a11y prefix 155-190; invent.c carrying() 1493-1504; timeout.c burn_away_slime() 446-453; decl.c materialnm[] 88-95; and the hack.h, objclass.h, youprop.h and display.h macros each of those reads.\n\nThe evidence: seed5002-wizard-coverage-pair goes from 88 to 103 of 410 screens, its cursors from 89 to 104 and its animation frames from 0/8 to 8/8, and scripts/scan-sessions.mjs reports its stop as the destroy_items() refusal on step 103's space, which is the boundary this slice set. The first random-number divergence for that session is now index 5888, measured by replaying both segments and comparing the logs; indices 5883-5887 are exactly the five draws step 88 records, and the port made none of them before. scripts/run-ray-zap.mjs records five fresh segments with the patched C reference and replays them with the port: 5 segments, 20069 PRNG calls, 99 screens, 99 cursors and 33 animation frames, all matching. Every one of the 28 tests in scripts/zap-ray.test.mjs was watched failing on a targeted edit to the production line it covers before it was committed.\n\nWhat this attestation does not cover: the terrain arms of zap_over_floor(), which the matrix's plain-floor segments cannot reach and which the deferral zap-over-floor-terrain-arms-refuse records; and the case one call past the boundary, which the deferral vertical-ray-reaches-destroy-items records with its recorded C answer."
 }

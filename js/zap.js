@@ -1,12 +1,13 @@
-// zap.js -- the `z` command and the wish prompt.
+// zap.js -- the `z` command, the ray it fires, and the wish prompt.
 // C refs: src/zap.c learnwand(), zappable(), zap_ok(), dozap(), zapyourself()
-// and makewish().
+// and makewish(); then the ray, whose own section header below lists it.
 //
 // dozap() is ported whole, and so is the command around its effect arms: the
 // two guards, the object prompt, the charge, the direction prompt, the wand
 // that glows and fades when no direction is given, and the worn-out wand that
-// crumbles. Two of its five effect arms still stop: backfire(), and weffects()
-// with the whole aimed-zap machinery below it.
+// crumbles. One of its five effect arms still stops: backfire(). The fifth,
+// weffects(), runs, and takes an aimed ray wand as far as the fire damage
+// zhitu() does to the hero.
 //
 // The shop usage fee stops the command earlier than any of them. check_unpaid()
 // runs between the object prompt and the charge, and js/shk.js raises
@@ -26,23 +27,48 @@
 
 import { artifact_origin } from './artifacts.js';
 import {
+    ACID_RES,
+    AC_VALUE,
+    ARM,
+    A_WIS,
     BLINDED,
+    COLD_RES,
+    DISINT_RES,
+    DISP_BEAM,
+    DISP_CHANGE,
     DISP_END,
     DISP_FLASH,
+    DRAIN_RES,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
+    FIRE_RES,
     GETOBJ_EXCLUDE,
     GETOBJ_NOFLAGS,
     GETOBJ_SUGGEST,
+    HALLUC,
+    HALLUC_RES,
     ICE,
     IRONBARS,
+    IS_FOUNTAIN,
+    IS_ROOM,
     IS_SINK,
+    IS_WALL,
     IS_WATERWALL,
+    In_mines,
     Is_airlevel,
     Is_waterlevel,
     LAVAWALL,
+    M_SEEN_FIRE,
+    M_SEEN_REFL,
     M_SEEN_SLEEP,
+    OBJ_AT,
+    POISON_RES,
+    REFLECTING,
+    SDOOR,
+    SHOCK_RES,
+    STONE,
+    STONE_RES,
     nothing_happens,
     ONAME_KNOW_ARTI,
     ONAME_WISH,
@@ -51,22 +77,33 @@ import {
     WAND_BACKFIRE_CHANCE,
     WAND_WREST_CHANCE,
     WEB,
+    W_ACCESSORY,
+    W_ART,
+    W_ARMOR,
+    W_WEP,
     ZAP_POS,
     isok,
+    u_at,
 } from './const.js';
-import { getdir } from './cmd.js';
+import { stop_occupation } from './allmain.js';
+import { exercise } from './attrib.js';
+import { dirtocoord, getdir, xytodir } from './cmd.js';
 import {
     bot,
     glyph_is_invisible,
+    map_invisible,
     newsym,
     obj_to_glyph,
     tmp_at,
+    unmap_invisible,
     unmap_object,
+    zapdir_to_glyph,
 } from './display.js';
 import { dropx, preflight_dropx } from './do.js';
+import { more_experienced } from './exper.js';
 import { getlin } from './windows.js';
 import { game } from './gstate.js';
-import { check_capacity, nh_delay_output } from './hack.js';
+import { check_capacity, nh_delay_output, nomul } from './hack.js';
 import { lcase, mungspaces } from './hacklib.js';
 import {
     getobj,
@@ -76,16 +113,35 @@ import {
     useupall,
 } from './invent.js';
 import { monstunseesu, nohands } from './mondata.js';
+import {
+    AD_ACID,
+    AD_COLD,
+    AD_DISN,
+    AD_DRLI,
+    AD_DRST,
+    AD_ELEC,
+    AD_FIRE,
+    AD_SLEE,
+    AD_STON,
+} from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { is_pick, objectType, remove_object } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
 import {
+    DWARVISH_CLOAK,
     HEAVY_IRON_BALL,
+    IMMEDIATE,
     NODIR,
     ROCK,
     SPBOOK_CLASS,
+    SPE_DIG,
+    SPE_FINGER_OF_DEATH,
+    SPE_MAGIC_MISSILE,
     SPE_SLEEP,
     WAND_CLASS,
+    WAN_DIGGING,
+    WAN_LIGHTNING,
+    WAN_MAGIC_MISSILE,
     WAN_SLEEP,
 } from './objects.js';
 import {
@@ -98,14 +154,19 @@ import {
 } from './objnam.js';
 import { UnsupportedWishError, readobjnam } from './objnam_readobjnam.js';
 import { encumber_msg } from './pickup.js';
-import { rn1, rn2, rnd } from './rng.js';
+import { body_part } from './polyself.js';
+import { d, rn1, rn2, rnd, rnl } from './rng.js';
 import { m_at } from './monst.js';
 import { check_unpaid, inside_shop } from './shk.js';
+import { canSpotMonster, messageAt } from './startup_a11y.js';
 import { closed_door } from './monmove.js';
-import { is_pool, t_at } from './trap.js';
+import { is_ice } from './terrain.js';
+import { is_lava, is_pool, t_at } from './trap.js';
+import { burnarmor } from './trap_erode_obj.js';
 import { cansee } from './vision.js';
-import { fall_asleep } from './timeout.js';
+import { burn_away_slime, fall_asleep } from './timeout.js';
 import { ttyPline } from './tty_message.js';
+import { burn_floor_objects } from './zap_destroy_items.js';
 
 // The wish parser raises every other refusal, so the class lives with it.
 export { UnsupportedWishError };
@@ -261,12 +322,12 @@ export async function dozap(state = game) {
          * useup -> obfree -> dealloc_obj -> free(obj)
          */
         // That chain is why C reloads `obj` from gc.current_wand afterwards
-        // and tests it for NULL below: weffects() can free the wand. This port
-        // never enters the arm, so the wand below is always the one getobj()
-        // answered and C's `obj &&` term has no reachable false case.
-        throw new UnsupportedZapError(
-            `weffects() for object type ${obj.otyp}`,
-        );
+        // and tests it for NULL below: weffects() can free the wand. Nothing
+        // this port reaches inside weffects() frees it -- the priest whose
+        // temple the chain names is behind the monster arm dobuzz() refuses --
+        // so the wand below is still the one getobj() answered and C's
+        // `obj &&` term has no reachable false case.
+        await weffects(obj, state);
     }
     if (obj.spe < 0) {
         await ttyPline(`${Tobjnam(obj, 'turn', state)} to dust.`, state);
@@ -669,4 +730,734 @@ export async function bhit(
     // The return value is the monster the missile hit. It is always null here,
     // because the arm that would name one stops.
     return null;
+}
+
+// ── The ray ──
+//
+// C refs: zap.c weffects() (3430-3476), ubuzz() (4758-4762), dobuzz()
+// (4779-5037), zhitu() (4400-4591), zap_over_floor() (5140-5497),
+// bounce_dir() (4663-4701), zap_hit() (4704-4720), zaptype() (88-96),
+// flash_types[] (71-85), flash_str() (6428-6445), adtyp_to_prop() (5653-5674),
+// u_adtyp_resistance_obj() (5675-5698) and inventory_resistance_check()
+// (5709-5718).
+//
+// This is the aimed-ray half of the file: the hero points a wand of magic
+// missile, fire, cold, sleep, death or lightning in a direction and dobuzz()
+// walks the bolt one square at a time until its range runs out. bhit() above
+// is the sibling traversal for an IMMEDIATE wand and shares none of it.
+//
+// The whole of it is entered from one place, weffects()'s ubuzz() arm, so
+// `type` is always a hero wand zap, 0..9. Three things C computes follow from
+// that and are written here as constants rather than tests:
+//
+// - `fireball` is `type == ZT_SPELL(ZT_FIRE)`, which is 11, so it is false.
+//   Its four consequences -- the skipped zap_over_floor(), the `break` on a
+//   monster, the explode-before-the-obstacle arm and explode() itself -- are
+//   all absent below rather than refused.
+// - `spell_type` is `is_hero_spell(type) ? SPE_MAGIC_MISSILE + damgtype : 0`,
+//   and is_hero_spell() needs 10..19, so it is 0. zap_hit() takes that 0 and
+//   never reaches spell_hit_bonus().
+// - `gas_hit` is `damgtype == ZT_POISON_GAS`, which is 6. BZ_OFS_WAN() answers
+//   0..5 for the six ray wands (objects.h:1488 orders them so), so it is
+//   false and the deferred second zap_over_floor() at 5021-5022 never runs.
+//
+// Only zhitu()'s ZT_FIRE arm is ported, through the destroy_items() call at
+// 4434; the other six damage types and the killer-and-losehp() tail below
+// them stop by name.
+
+// C ref: zap.c:45-57. ZT_<element> is the damage type minus one, and the three
+// ZT_ macros shift it into the wand, spell and breath bands.
+const ZT_MAGIC_MISSILE = 0;
+const ZT_FIRE = 1;
+const ZT_COLD = 2;
+const ZT_SLEEP = 3;
+const ZT_DEATH = 4;
+const ZT_LIGHTNING = 5;
+const ZT_POISON_GAS = 6;
+const ZT_ACID = 7;
+
+// C ref: zap.c flash_types[] (71-85). "A positive index means zapped/cast/
+// breathed by hero. A negative index means zapped/cast/breathed by a monster,
+// with value index fixup beyond abs() needed for wand zaps." Wands are 0-9,
+// spell equivalents 10-19 and dragon-breath equivalents 20-29; the empty
+// strings are the unassigned slots in each band.
+const flash_types = Object.freeze([
+    'magic missile', /* Wands must be 0-9 */
+    'bolt of fire', 'bolt of cold', 'sleep ray', 'death ray',
+    'bolt of lightning', '', '', '', '',
+
+    'magic missile', /* Spell equivalents must be 10-19 */
+    'fireball', 'cone of cold', 'sleep ray', 'finger of death',
+    'bolt of lightning', /* there is no spell, used for retribution */
+    '', '', '', '',
+
+    'blast of missiles', /* Dragon breath equivalents 20-29*/
+    'blast of fire', 'blast of frost', 'blast of sleep gas',
+    'blast of disintegration', 'blast of lightning',
+    'blast of poison gas', 'blast of acid', '', '',
+]);
+
+// C ref: zap.c zaptype() (88-96), "convert monster zap/spell/breath value to
+// hero zap/spell/breath value". A monster's wand zap is -39..-30 rather than
+// -9..-0 because -0 is ambiguous, so it is shifted before the abs().
+export function zaptype(type) {
+    if (type <= -30 && -39 <= type) /* monster wand zap */
+        type += 30; /* first convert -39..-30 to -9..0 so that abs()
+                     * will yield 0..9 (hero wand zap) for it */
+    return Math.abs(type);
+}
+
+// C ref: youprop.h:120 Hallucination, over :116-119. The property is an
+// intrinsic timeout alone, and either source of Halluc_resistance suppresses
+// it.
+function Hallucination(state) {
+    const halluc = state.u?.uprops?.[HALLUC];
+    const resistance = state.u?.uprops?.[HALLUC_RES];
+    return Boolean(halluc?.intrinsic)
+        && !(resistance?.intrinsic || resistance?.extrinsic);
+}
+
+// C ref: youprop.h:28 Fire_resistance and :381 Reflecting, both the plain
+// "either source" spelling.
+function Fire_resistance(state) {
+    const property = state.u?.uprops?.[FIRE_RES];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+function Reflecting(state) {
+    const property = state.u?.uprops?.[REFLECTING];
+    return Boolean(property?.intrinsic || property?.extrinsic);
+}
+
+// C ref: zap.c flash_str() (6428-6445). "Fills buf with the appropriate string
+// for this ray. In the hallucination case, insert 'blast of <silly thing>'."
+//
+// `nohallu` suppresses hallucination for a death reason, so the killer a
+// player reads afterwards names the bolt that killed them. The hallucinating
+// arm needs rnd_hallublast(), which draws, so it stops; dobuzz() stops on the
+// same property one call earlier.
+export function flash_str(typ, nohallu, state = game) {
+    typ = zaptype(typ);
+    if (!nohallu && Hallucination(state)) {
+        throw new UnsupportedZapError(
+            'rnd_hallublast() for a hallucinating hero',
+        );
+    }
+    return flash_types[typ];
+}
+
+// C ref: zap.c adtyp_to_prop() (5653-5674). The resistance property that
+// answers a damage type, or 0 for a type no property covers.
+export function adtyp_to_prop(dmgtyp) {
+    switch (dmgtyp) {
+    case AD_COLD: return COLD_RES;
+    case AD_FIRE: return FIRE_RES;
+    case AD_ELEC: return SHOCK_RES;
+    case AD_ACID: return ACID_RES;
+    case AD_DISN: return DISINT_RES;
+    case AD_DRST: return POISON_RES;
+    case AD_DRLI: return DRAIN_RES;
+    case AD_SLEE: return SLEEP_RES;
+    case AD_STON: return STONE_RES;
+    default: return 0;
+    }
+}
+
+// C ref: zap.c u_adtyp_resistance_obj() (5675-5698). How well the hero's own
+// equipment protects the pack from a damage type, as a percentage. C's own
+// comment: "FIXME? these percentages (99 and 90) seem too high..."
+//
+// The 99% arm needs an extrinsic from armor, an accessory, the wielded weapon
+// or an artifact; the 90% arm needs a worn dwarvish cloak against heat or
+// cold. A starting hero has neither, which is why the ray's first burnarmor()
+// spends no draw on inventory_resistance_check().
+export function u_adtyp_resistance_obj(dmgtyp, state = game) {
+    const prop = adtyp_to_prop(dmgtyp);
+    if (!prop) return 0;
+
+    /* items that give an extrinsic resistance when worn or wielded or
+       carried give 99% protection to your items */
+    if ((Math.trunc(state.u?.uprops?.[prop]?.extrinsic ?? 0)
+         & (W_ARMOR | W_ACCESSORY | W_WEP | W_ART)) !== 0)
+        return 99;
+
+    /* worn dwarvish cloaks give 90% protection against heat and cold to
+       carried items */
+    if (state.uarmc && state.uarmc.otyp === DWARVISH_CLOAK
+        && (dmgtyp === AD_COLD || dmgtyp === AD_FIRE))
+        return 90;
+
+    return 0;
+}
+
+// C ref: zap.c inventory_resistance_check() (5709-5718). "Rolls to see whether
+// an object in inventory resists damage from the given damage type, due to an
+// equipped item protecting it." No protection means no roll, which is what
+// keeps an unprotected hero's erosion draw-free.
+export function inventory_resistance_check(
+    dmgtyp,
+    state = game,
+    random = { rn2 },
+) {
+    const prob = u_adtyp_resistance_obj(dmgtyp, state);
+    if (!prob) return false;
+    return random.rn2(100) < prob;
+}
+
+// C ref: zap.c bounce_dir() (4663-4701). "which direction a ray bounces.
+// current location is sx,sy, direction is ddx, ddy. bounceback is 1/n chance
+// of bouncing back. caller must ensure sx,sy is a bouncing location: !ZAP_POS
+// or closed_door".
+//
+// C writes the new direction back through two pointers; this returns it.
+//
+// A ray travelling along a row or a column takes the first arm on `!*ddx ||
+// !*ddy` before the bounceback roll is reached, so it always reverses and
+// never draws. That is why a horizontal zap's log carries no bounce roll and
+// why no horizontal zap can exercise the 10/20/75 selector dobuzz() picks
+// `bounceback` from.
+// C's `*ddx = -(*ddx)` on an int 0 is 0; JavaScript's unary minus answers -0,
+// which Object.is separates from 0 and which every truthiness test -- including
+// zapdir_to_glyph()'s own `dx ? 1 : 0` -- reads as false. Subtracting from
+// zero negates without producing it.
+function negate(delta) {
+    return 0 - delta;
+}
+
+export function bounce_dir(
+    sx, sy, ddx, ddy, bounceback, state = game, random = { rn2 },
+) {
+    if (!ddx || !ddy || (bounceback > 0 && !random.rn2(bounceback))) {
+        return { dx: negate(ddx), dy: negate(ddy) };
+    }
+    let rmn;
+    let bounce = 0;
+    const lsy = sy - ddy;
+    const lsx = sx - ddx;
+
+    if (isok(sx, lsy) && ZAP_POS(rmn = state.level.at(sx, lsy).typ)
+        && !closed_door(sx, lsy, state)
+        && (IS_ROOM(rmn) || (isok(sx + ddx, lsy)
+                             && ZAP_POS(state.level.at(sx + ddx, lsy).typ))))
+        bounce = 1;
+    if (isok(lsx, sy) && ZAP_POS(rmn = state.level.at(lsx, sy).typ)
+        && !closed_door(lsx, sy, state)
+        && (IS_ROOM(rmn) || (isok(lsx, sy + ddy)
+                             && ZAP_POS(state.level.at(lsx, sy + ddy).typ))))
+        if (!bounce || random.rn2(2))
+            bounce = 2;
+    switch (bounce) {
+    case 0:
+        ddx = negate(ddx);
+        /* FALLTHRU */
+    case 1:
+        ddy = negate(ddy);
+        break;
+    case 2:
+        ddx = negate(ddx);
+        break;
+    default:
+        break;
+    }
+    return { dx: ddx, dy: ddy };
+}
+
+// C ref: zap.c zap_hit() (4704-4720). "will zap/spell/breath attack score a
+// hit against armor class `ac'?"
+//
+// `type` is a hero-cast spell type or 0; every ported caller passes 0, because
+// dobuzz()'s `spell_type` is 0 for a wand. The rn2(20) precedes the
+// spell_hit_bonus() the refusal stands in for, exactly as C evaluates them.
+export function zap_hit(ac, type, random = { rn2, rnd }) {
+    const chance = random.rn2(20);
+    if (type) {
+        throw new UnsupportedZapError(
+            'spell_hit_bonus() for a spell the hero cast',
+        );
+    }
+    const spell_bonus = 0;
+
+    /* small chance for naked target to avoid being hit */
+    if (!chance)
+        return random.rnd(10) < ac + spell_bonus;
+
+    /* very high armor protection does not achieve invulnerability */
+    ac = AC_VALUE(ac, random);
+
+    return (3 - chance < ac + spell_bonus);
+}
+
+// C ref: zap.c zhitu() (4400-4591), the damage a bolt does to the hero, and
+// the only caller of burnarmor() this port reaches.
+//
+// The ZT_FIRE arm (4421-4438) is ported down to the destroy_items() call at
+// 4434, which is where this stops. Everything below that call -- the second
+// !rn2(3) into ignite_items(), the killer built at 4561-4582 and the
+// losehp(dam, kbuf, KILLED_BY_AN) at 4588 -- belongs to the later slices of
+// this goal, so both exits below refuse.
+//
+// `dam` and `orig_dam` are separate in C because a fire-resistant hero takes
+// no damage but still has the full roll fed to ugolemeffects() and to
+// destroy_items(). Only the else at 4428-4431 is ported, where the two are
+// equal.
+async function zhitu(type, nd, fltxt, sx, sy, state, random) {
+    const abstyp = zaptype(type);
+    let orig_dam = 0;
+
+    switch (abstyp % 10) {
+    case ZT_FIRE:
+        orig_dam = random.d(nd, 6);
+        if (Fire_resistance(state)) {
+            // shieldeff() is a tmp_at() animation, monstseesu() the ledger of
+            // what monsters noticed the hero shrug off, and ugolemeffects()
+            // the iron golem that heals on fire. None is ported and no ported
+            // hero resists fire.
+            throw new UnsupportedZapError(
+                "zhitu()'s fire-resistant hero, over ugolemeffects()",
+            );
+        }
+        monstunseesu(M_SEEN_FIRE, state);
+        burn_away_slime(state);
+        /* "body hit" */
+        if (await burnarmor(state.youmonst, { state, random })) {
+            throw new UnsupportedZapError(
+                'destroy_items() and ignite_items() for the burning hero',
+            );
+        }
+        break;
+
+    default:
+        throw new UnsupportedZapError(
+            `zhitu() for damage type ${abstyp % 10}`,
+        );
+    }
+    // 4561-4588: the kbuf the killer is built into, Half_spell_damage, and
+    // losehp(). `fltxt` exists only to be spliced into that killer, and
+    // `orig_dam` only to be handed to destroy_items() above.
+    void fltxt;
+    void orig_dam;
+    void sx;
+    void sy;
+    throw new UnsupportedZapError(
+        "losehp() for the bolt's damage, under the killer built at 4582",
+    );
+}
+
+// C ref: zap.c zap_over_floor() (5140-5497), "location", "damage type plus
+// {wand|spell|breath} info", "extra output if shop door is destroyed",
+// "ignore any monster here", and "supplied when breaking a wand; or POT_OIL
+// when a lit potion of oil explodes". Returns the amount the bolt's remaining
+// range changes by.
+//
+// dobuzz() calls this for every square the bolt crosses, walls included. On
+// ordinary room floor with nothing on it, every arm below is skipped and the
+// answer is 0, which is why a ray across a plain room draws nothing here.
+//
+// Each terrain the fire arm acts on stops by name instead: a web
+// (delfloortrap()), ice (melt_ice()), water (create_gas_cloud() and the pit
+// maketrap() leaves behind) and a fountain (dryup()). So do the two arms the
+// other wand damage types reach, and the secret door, the closed door and the
+// floor objects in the shared tail.
+async function zap_over_floor(
+    x, y,
+    type,
+    shopdamage,
+    ignoremon,
+    exploding_wand_typ,
+    state = game,
+    random = { rn2, rnd },
+) {
+    const lev = state.level.at(x, y);
+    const rangemod = 0;
+    const lavawall = lev.typ === LAVAWALL;
+    const damgtype = zaptype(type) % 10;
+
+    // 5157-5160's PHYS_EXPL_TYPE (hack.h:1470, -1) is explode.c's gas-spore
+    // constant; ubuzz() cannot produce a negative type.
+    if (exploding_wand_typ) {
+        throw new UnsupportedZapError(
+            'zap_over_floor() for a wand that broke or burning oil',
+        );
+    }
+
+    switch (damgtype) {
+    case ZT_FIRE: {
+        const t = t_at(x, y, state);
+        if (t && t.ttyp === WEB) {
+            throw new UnsupportedZapError(
+                'delfloortrap() for a web the bolt burns',
+            );
+        }
+        if (is_ice(x, y, state)) {
+            throw new UnsupportedZapError('melt_ice() under the bolt');
+        } else if (is_pool(x, y, state)) {
+            throw new UnsupportedZapError(
+                'create_gas_cloud() over the water the bolt boils',
+            );
+        } else if (IS_FOUNTAIN(lev.typ)) {
+            throw new UnsupportedZapError(
+                'dryup() at the fountain the bolt boils',
+            );
+        }
+        break; /* ZT_FIRE */
+    }
+
+    case ZT_COLD:
+        if (is_pool(x, y, state) || is_lava(x, y, state) || lavawall) {
+            throw new UnsupportedZapError(
+                'start_melt_ice_timeout() for the water or lava a cold bolt '
+                + 'freezes',
+            );
+        } else if (is_ice(x, y, state)) {
+            throw new UnsupportedZapError(
+                'start_melt_ice_timeout() firming up ice the cold bolt crossed',
+            );
+        }
+        break; /* ZT_COLD */
+
+    case ZT_POISON_GAS:
+        // Unreachable from a wand: BZ_OFS_WAN() answers 0..5 for the six ray
+        // wands and this arm needs 6. Dragon breath and an iron golem's are
+        // what reach it, through buzz() and mcastu(), neither of them ported.
+        throw new UnsupportedZapError(
+            'create_gas_cloud() for a poison-gas zap',
+        );
+
+    case ZT_LIGHTNING:
+        /* FALLTHRU */
+    case ZT_ACID:
+        if (lev.typ === IRONBARS) {
+            throw new UnsupportedZapError(
+                'dissolve_bars() for the iron bars the bolt melts',
+            );
+        }
+        break; /* ZT_ACID */
+
+    default:
+        break;
+    }
+
+    // 5376-5395 builds `yourzap` and `zapverb` for the door feedback alone,
+    // and both door arms below stop, so neither is computed here.
+
+    /* secret door gets revealed, converted into regular door */
+    if (lev.typ === SDOOR) {
+        throw new UnsupportedZapError(
+            'cvt_sdoor_to_door() for the secret door the bolt reveals',
+        );
+    }
+
+    /* regular door absorbs remaining zap range, possibly gets destroyed */
+    if (closed_door(x, y, state)) {
+        throw new UnsupportedZapError(
+            'add_damage() for the closed door that absorbs the bolt or burns '
+            + 'away',
+        );
+    }
+
+    if (OBJ_AT(x, y, state) && damgtype === ZT_FIRE) {
+        await burn_floor_objects(x, y, false, type > 0, {
+            state,
+            random,
+            // js/zap_destroy_items.js keeps the hero-caused half fail-closed,
+            // because useupf() charges a shopkeeper for what it burns.
+            unsupported: (reason) => {
+                throw new UnsupportedZapError(
+                    `burn_floor_objects() reached ${reason}`,
+                );
+            },
+        });
+    }
+    if (!ignoremon && m_at(x, y, state)) {
+        throw new UnsupportedZapError(
+            'wakeup() for a monster the bolt passed over',
+        );
+    }
+    return rangemod;
+}
+
+// C ref: zap.c dobuzz() (4779-5037). One `while (range-- > 0)` loop that walks
+// the bolt square by square, painting a transient glyph, running the floor
+// effect, and stopping range short by 2 for a hit and by 1 for a bounce.
+//
+// `sayhit` and `saymiss` "report out of sight hit/miss events" and belong to
+// the monster arm; `forcemiss` is muse.c's. ubuzz() passes TRUE, FALSE, FALSE.
+//
+// The arms that stop, each before it changes state, draws or writes:
+// u.uswallow (4802-4820), the whole `if (mon)` arm (4864-4956), u.usteed
+// (4959-4961), Reflecting (4966-4976), flashburn() (4988-4989), Is_airlevel
+// (5008-5013) and pay_for_damage() (5028-5035).
+export async function dobuzz(
+    type,               /* 0..29 (by hero) or -39..-10 (by monster) */
+    nd,                 /* damage strength ('number of dice') */
+    sx, sy,             /* starting point */
+    dx, dy,             /* direction delta */
+    sayhit, saymiss,    /* report out of sight hit/miss events */
+    forcemiss,
+    state = game,
+    random = { d, rn1, rn2, rnd, rnl },
+) {
+    const fltyp = zaptype(type);
+    const damgtype = fltyp % 10;
+
+    // ubuzz() is the only ported entry, so `type` is a hero wand zap. The
+    // section header above records what that settles.
+    if (type < 0 || type > 9) {
+        throw new UnsupportedZapError(
+            `dobuzz() for a spell, breath or monster zap of type ${type}`,
+        );
+    }
+    if (Hallucination(state)) {
+        // hdmgtype is `Hallucination ? rn2(6) : damgtype` at 4797, so a
+        // hallucinating hero draws for the beam's colour before anything else
+        // in the loop, and flash_str() then draws again for every message.
+        throw new UnsupportedZapError(
+            "rnd_hallublast() and the rn2(6) beam colour a hallucinating "
+            + 'hero draws',
+        );
+    }
+    const hdmgtype = damgtype;
+
+    if (state.u.uswallow) {
+        throw new UnsupportedZapError(
+            "dobuzz()'s swallowed hero, over zhitm() on the engulfer",
+        );
+    }
+    // 4821-4822's `if (type < 0) newsym(u.ux, u.uy)` is a monster zap's.
+    let range = random.rn1(7, 7);
+    if (dx === 0 && dy === 0)
+        range = 1;
+    state.gb ??= {};
+    const save_bhitpos = state.gb.bhitpos;
+    // C's `boolean shopdamage`, taken by address. Only the door arm of
+    // zap_over_floor() raises it and that arm stops, so the tail below reads
+    // it back false on every reachable path.
+    const shopdamage = { value: false };
+
+    await tmp_at(DISP_BEAM, zapdir_to_glyph(dx, dy, hdmgtype, state), state);
+    while (range-- > 0) {
+        const lsx = sx;
+        sx += dx;
+        const lsy = sy;
+        sy += dy;
+        let make_bounce = !isok(sx, sy) || state.level.at(sx, sy).typ === STONE;
+
+        if (!make_bounce) {
+            let mon = m_at(sx, sy, state);
+            if (cansee(sx, sy, state)) {
+                /* reveal/unreveal invisible monsters before tmp_at() */
+                if (mon && !canSpotMonster(mon, state))
+                    map_invisible(sx, sy, state);
+                else if (!mon)
+                    unmap_invisible(sx, sy, state);
+                if (ZAP_POS(state.level.at(sx, sy).typ)
+                    || (isok(lsx, lsy) && cansee(lsx, lsy, state)))
+                    await tmp_at(sx, sy, state);
+                await nh_delay_output(state); /* wait a little */
+            }
+
+            /* hit() and miss() need gb.bhitpos to match the target */
+            state.gb.bhitpos = { x: sx, y: sy };
+            range += await zap_over_floor(
+                sx, sy, type, shopdamage, true, 0, state, random,
+            );
+            /* zap with fire -> melt ice -> drown monster, so monster
+               found and cached above might not be here any more */
+            mon = m_at(sx, sy, state);
+
+            if (mon) {
+                // 4864-4956: mstrategy, zap_hit(find_mac(mon)), mon_reflects(),
+                // zhitm(), the Rider and PM_DEATH arms, disintegrate_mon(),
+                // xkilled(), slept_monst() and wakeup(), plus the miss() at
+                // 4954. None of it is ported.
+                throw new UnsupportedZapError(
+                    "dobuzz()'s monster arm, over zhitm()",
+                );
+            } else if (u_at(sx, sy, state) && range >= 0) {
+                nomul(0, state);
+                if (state.u.usteed) {
+                    // 4959-4961 gives the steed a 1-in-3 chance of taking the
+                    // bolt instead, through the same monster arm above.
+                    throw new UnsupportedZapError(
+                        "dobuzz()'s steed taking the bolt",
+                    );
+                } else if (!forcemiss
+                           && zap_hit(Math.trunc(state.u.uac), 0, random)) {
+                    range -= 2;
+                    // C ref: pline.c pline_dir() (113-123) over set_msg_dir()
+                    // (83-89): the message is placed at the square the bolt
+                    // came from, which vpline() reads back only when
+                    // a11y.accessiblemsg is set. messageAt() is this port's
+                    // one owner of that prefix.
+                    //
+                    // A vertical bolt has dx == dy == 0, so xytodir() answers
+                    // DIR_ERR and cmd.c dirtocoord() leaves its coord alone.
+                    // vpline() zeroes a11y.msg_loc at the top of every message
+                    // it prints, so the coord set_msg_dir() then adds u.ux and
+                    // u.uy to is (0, 0) and the message lands on the hero's
+                    // own square.
+                    const from = dirtocoord(xytodir(-dx, -dy))
+                        ?? { x: 0, y: 0 };
+                    await ttyPline(
+                        messageAt(
+                            `${The(flash_str(fltyp, false, state))} hits you!`,
+                            state.u.ux + from.x, state.u.uy + from.y, state,
+                        ),
+                        state,
+                    );
+                    if (Reflecting(state)) {
+                        throw new UnsupportedZapError(
+                            'ureflects() for a hero the bolt bounces off',
+                        );
+                    } else {
+                        /* flash_str here only used for killer; suppress
+                         * hallucination */
+                        await zhitu(
+                            type, nd, flash_str(fltyp, true, state), sx, sy,
+                            state, random,
+                        );
+                        monstunseesu(M_SEEN_REFL, state);
+                    }
+                } else if (!heroIsBlind(state)) {
+                    await ttyPline(
+                        `${The(flash_str(fltyp, false, state))} whizzes `
+                        + 'by you!',
+                        state,
+                    );
+                } else if (damgtype === ZT_LIGHTNING) {
+                    await ttyPline(
+                        `Your ${body_part(ARM, state.youmonst)} tingles.`,
+                        state,
+                    );
+                }
+                if (damgtype === ZT_LIGHTNING) {
+                    throw new UnsupportedZapError(
+                        'flashburn() for the lightning that blinds the hero',
+                    );
+                }
+                await stop_occupation(state, { message: ttyPline });
+                nomul(0, state);
+            }
+            // 5019-5022's deferred gas cloud needs gas_hit, which is false.
+
+            if (!ZAP_POS(state.level.at(sx, sy).typ)
+                || (closed_door(sx, sy, state) && range >= 0))
+                make_bounce = true;
+        }
+
+        if (make_bounce) {
+            const bchance = (!isok(sx, sy)
+                             || state.level.at(sx, sy).typ === STONE) ? 10
+                : (In_mines(state.u.uz)
+                   && IS_WALL(state.level.at(sx, sy).typ)) ? 20
+                    : 75;
+            if (--range > 0 && isok(lsx, lsy) && cansee(lsx, lsy, state)) {
+                if (Is_airlevel(state.u.uz)) { /* nothing to bounce off of */
+                    throw new UnsupportedZapError(
+                        "Is_airlevel()'s bolt vanishing into the aether",
+                    );
+                }
+                await ttyPline(
+                    `The ${flash_str(fltyp, false, state)} bounces!`, state,
+                );
+            }
+            ({ dx, dy } = bounce_dir(
+                sx, sy, dx, dy, bchance, state, random,
+            ));
+            await tmp_at(
+                DISP_CHANGE, zapdir_to_glyph(dx, dy, hdmgtype, state), state,
+            );
+        }
+    }
+    await tmp_at(DISP_END, 0, state);
+    if (shopdamage.value) {
+        throw new UnsupportedZapError(
+            'pay_for_damage() for the shop door the bolt destroyed',
+        );
+    }
+    state.gb.bhitpos = save_bhitpos;
+    void sayhit;
+    void saymiss;
+}
+
+// C ref: zap.c ubuzz() (4758-4762). The hero's own ray, fired from their own
+// square along u.dx/u.dy. buzz() beside it at 4764-4768 is the same call with
+// an explicit origin, for the monsters and traps that fire one; none of its
+// callers is ported, so it has no port here.
+export async function ubuzz(
+    type, nd, state = game, random = { d, rn1, rn2, rnd, rnl },
+) {
+    return dobuzz(
+        type, nd, state.u.ux, state.u.uy, state.u.dx, state.u.dy,
+        true, false, false, state, random,
+    );
+}
+
+// C ref: zap.c weffects() (3430-3476), "called for various wand and spell
+// effects - M. Stephenson". dozap()'s final else is its ported caller, so
+// `obj` is a wand the hero aimed or a wand with no direction at all.
+//
+// Only the ray arm at 3463-3465 runs. `disclose` is what turns the wand into
+// "a wand of fire" in the discoveries once its effect has been seen, and the
+// ray arm is the one that sets it, so the learnwand() below is reached only
+// after a bolt has resolved.
+//
+// hack.h:1477 BZ_OFS_WAN(otyp) is `abs(otyp - WAN_MAGIC_MISSILE) % 10` and
+// :1480 BZ_U_WAND(bztyp) is `0 + bztyp`, so the six ray wands become dobuzz()
+// types 0..5 in the order objects.h:1488 lists them.
+export async function weffects(
+    obj, state = game, random = { d, rn1, rn2, rnd, rnl },
+) {
+    const otyp = obj.otyp;
+    let disclose = false;
+    const was_unkn = !objectType(obj, state).oc_name_known;
+    const oc_dir = objectType(obj, state).oc_dir;
+
+    await exercise(A_WIS, true, state, random);
+    if (state.u.usteed && oc_dir !== NODIR && !state.u.dx && !state.u.dy
+        && state.u.dz > 0) {
+        // zap_steed() lets a ridden steed take a downward zap. C's condition
+        // ends in `&& zap_steed(obj)`, so the refusal stands one term short of
+        // the call rather than inside it.
+        throw new UnsupportedZapError(
+            'zap_steed() for a downward zap while riding',
+        );
+    } else if (oc_dir === IMMEDIATE) {
+        // zapsetup(), bhitm(), zap_updown() and bhit()'s ZAPPED_WAND call
+        // type, plus zapwrapup()'s "You feel shuddering vibrations." Every one
+        // of them belongs to the immediate wands rather than to the ray.
+        throw new UnsupportedZapError(
+            'zapsetup() and the immediate-wand arm of weffects()',
+        );
+    } else if (oc_dir === NODIR) {
+        throw new UnsupportedZapError('zapnodir() for a directionless wand');
+    } else {
+        /* neither immediate nor directionless */
+
+        if (otyp === WAN_DIGGING || otyp === SPE_DIG) {
+            throw new UnsupportedZapError('zap_dig()');
+        } else if (otyp >= SPE_MAGIC_MISSILE && otyp <= SPE_FINGER_OF_DEATH) {
+            // A cast ray takes the same dobuzz(), at BZ_U_SPELL() types 10..19
+            // and u.ulevel / 2 + 1 dice. spell.c casting is unported.
+            throw new UnsupportedZapError('ubuzz() for a spell the hero cast');
+        } else if (otyp >= WAN_MAGIC_MISSILE && otyp <= WAN_LIGHTNING) {
+            await ubuzz(
+                Math.abs(otyp - WAN_MAGIC_MISSILE) % 10,
+                (otyp === WAN_MAGIC_MISSILE) ? 2 : 6,
+                state, random,
+            );
+        } else {
+            // C's impossible("weffects: unexpected spell or wand"), for a
+            // directional object that is neither a dig nor a ray.
+            throw new UnsupportedZapError(
+                `weffects() for unexpected object type ${otyp}`,
+            );
+        }
+        disclose = true;
+    }
+    if (disclose) {
+        learnwand(obj, state);
+        if (was_unkn)
+            more_experienced(0, 10, state);
+    }
 }

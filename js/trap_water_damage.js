@@ -12,7 +12,7 @@ import {
     W_WEP,
 } from './const.js';
 import { splash_monster_light } from './apply_splash_lit.js';
-import { erode_monster_object } from './trap_erode_obj.js';
+import { erode_obj } from './trap_erode_obj.js';
 
 function waterOperation(env, name, fallback) {
     const operation = env[name] ?? fallback;
@@ -56,7 +56,7 @@ export async function water_damage_monster_equipment(
     const erodeObject = waterOperation(
         env,
         'erodeObject',
-        erode_monster_object,
+        erode_obj,
     );
     return erodeObject(
         obj,

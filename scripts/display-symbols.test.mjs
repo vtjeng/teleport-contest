@@ -6020,14 +6020,12 @@ test('map_glyphinfo resolves each object arm at its own first glyph', () => {
 
     // Everything outside the four object families and the cmap ranges is
     // refused rather than resolved through the arm underneath it. The zap
-    // range is the one part of glyph_is_cmap()'s contiguous span that this
-    // port has no arm for, so it belongs in this list rather than above.
+    // range is inside glyph_is_cmap()'s contiguous span and now has an arm of
+    // its own, so it belongs above rather than here; the zap-ray tests pin it.
     for (const glyph of [
         GLYPH_BODY_OFF - 1,
         GLYPH_BODY_OFF + NUMMONS,
         GLYPH_OBJ_OFF - 1,
-        GLYPH_ZAP_OFF,
-        GLYPH_ZAP_OFF + (NUM_ZAP << 2) - 1,
         GLYPH_STATUE_MALE_OFF - 1,
         GLYPH_STATUE_FEM_PILETOP_OFF + NUMMONS,
     ]) {
