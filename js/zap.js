@@ -1011,7 +1011,7 @@ export function zap_hit(ac, type, random = { rn2, rnd }) {
     return (3 - chance < ac + spell_bonus);
 }
 
-// C ref: zap.c zhitu() (4560-4589), the braced block that turns the bolt into
+// C ref: zap.c zhitu() (4561-4589), the braced block that turns the bolt into
 // the two arguments losehp() reads at 4588: the killer string and the damage.
 //
 // It stands apart from zhitu() because nothing observes svk.killer until end.c
