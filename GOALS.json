@@ -2953,6 +2953,11 @@
           "name": "empty-adjacent-square-hears-nothing-special",
           "status": "closed",
           "closedBy": "ebb827aebc00c536674c98ce17b7d9f416c7da8c"
+        },
+        {
+          "name": "hider-rehides-before-the-listen-resolves",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",

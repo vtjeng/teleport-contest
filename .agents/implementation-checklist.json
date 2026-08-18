@@ -1,6 +1,6 @@
 {
   "mode": "implementation",
-  "reason": "Slice 1 of three is done and slices 2 and 3 are not started. use_stethoscope()'s adjacent-square frame and its_dead()'s frame are ported; the monster arm, the mimic reveal and mstatusline() are not, and each stops under its own name. its_dead()'s corpse arm (226-306) is still traced only to the depth needed to place it outside this goal, and insight.c mstatusline()'s roughly twenty appendable info fragments are still not individually enumerated; both stay in remainingLimits rather than being assumed complete. Closing slice 1 also exposed a blocker outside every owner this goal names, recorded as its own entry below: the development witness no longer stops in js/apply.js at all.",
+  "reason": "Slice 1 closed at ebb827a and delivered 0 of a forecast 9: seed5002's costly listen spends a turn, and the level's small mimic is a hider that js/unported_monster_actions.js refuses before movemon_singlemon() runs. Slice 2 is now mon.c restrap(), which a probe measured as worth exactly the 9. its_dead()'s corpse arm and mstatusline()'s info fragments remain traced only to the depth that places them in later slices.",
   "commitChecked": "9657e3b14c0ffeb272c20a75dfc740f425dff775",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
@@ -162,9 +162,64 @@
       "evidence": "Replaying seed5002 segment 1 through its first 66 keys at 9657e3b plus the slice-1 working tree leaves \"You hear nothing special.\" as the pending message and reports the boundary \"simple monster action requires monster hiding\". The listen is the costly one of the alternation -- the self-listen three keys earlier was free -- so C spends the turn there too, and C's own screen for that key shows no monster message. The hider is the small mimic at <42,17>, whose movement is 12 against NORMAL_SPEED.",
       "status": "missing",
       "remaining": "Outside every owner this goal names. It blocks the whole 33-screen stretch the goal forecast, so no slice of this goal can move the development score until it lands. Nothing in this goal can close it."
+    },
+    {
+      "candidate": "mon.c restrap() guard chain (4666-4675)",
+      "reachability": "movemon_singlemon() calls it for every is_hider() monster with movement to spend. mon.c:4666's chain is mcan, M_AP_TYPE, cansee, rn2(3), u.ustuck, the trapped-not-in-a-pit test, the ceiling_hider without a ceiling test, and sensemon with m_next2u. rn2(3) is the fourth term, so any term above it short-circuits with no draw.",
+      "owner": "None; js/mon.js already calls operations.restrap() at its movemon_singlemon() port, and both injections are stubs.",
+      "effects": "Returns FALSE with no state change and, above the fourth term, no random-number call.",
+      "evidence": "mon.c:4662-4675 read at d2d3199. seed5002's mimic carries M_AP_TYPE M_AP_OBJECT, so C short-circuits at the second term before rn2(3); a probe logged four restrap() entries in the session, all with that appearance, and the random-number log stayed matched across the nine new screens.",
+      "status": "missing",
+      "remaining": "Slice 2 ports it. The draw's position in the chain is the correctness story and no screen shows it: a port that evaluates rn2(3) before cansee() diverges on the random-number log on turn one and is otherwise invisible."
+    },
+    {
+      "candidate": "mon.c restrap() S_MIMIC arm (4677-4686)",
+      "reachability": "A mimic whose M_AP_TYPE is already 0, which the guard's second term otherwise excludes. Only seemimic() clears it, and that is this goal's last slice; even then seed5002's revealed mimic sits where cansee() holds, so the guard short-circuits three terms earlier.",
+      "owner": "None",
+      "effects": "set_mimic_sym(), which draws randomness and rewrites monster appearance state.",
+      "evidence": "mon.c:4677-4686. set_mimic_sym() is fully ported and module-private in js/makemon_create.js. set_mimic_sym()'s only early exit is Protection_from_shape_changers, which needs puton or #wizintrinsic, both unported, so no fresh case reaches this arm either.",
+      "status": "missing",
+      "remaining": "Slice 2 ports the msleeping and mfrozen FALSE return and refuses at the set_mimic_sym() call under its own name, with a deferral. Exporting set_mimic_sym() to wire it would add a randomness-consuming consumer with no case to validate it, which AGENTS.md forbids."
+    },
+    {
+      "candidate": "mon.c restrap() ROOM arm and fall-through (4687-4692)",
+      "reachability": "A non-mimic hider on a ROOM square passes the guard: mundetected is set and the monster forfeits its turn. On any other terrain the function falls through to return FALSE.",
+      "owner": "None",
+      "effects": "Writes mundetected. Calls no newsym(), so success is silent.",
+      "evidence": "mon.c:4687-4692. has_ceiling(&u.uz) is true on D:1, so the ceiling_hider guard never short-circuits there and a fresh case measures the draw rather than the guard.",
+      "status": "missing",
+      "remaining": "Slice 2 ports both. Verified on the random-number log and the monster's subsequent non-movement, not on a message; a reviewer looking for a screen will not find one."
+    },
+    {
+      "candidate": "mondata.h ceiling_hider() (43-45)",
+      "reachability": "Read by restrap()'s seventh guard term.",
+      "owner": "None",
+      "effects": "Pure predicate.",
+      "evidence": "mondata.h:43-45, read at d2d3199: is_hider and either a non-mimic clinger or a flyer.",
+      "status": "missing",
+      "remaining": "Slice 2 ports it into js/mondata.js. A rock piercer is a ceiling_hider and a trapper is not, so one recorded pair covers both polarities."
+    },
+    {
+      "candidate": "mon.c hideunder() and maybe_unhide_at(), the eel and hides-under halves",
+      "reachability": "monmove.c:1692-1699 and mon.c:1295-1302, neither on seed5002's path.",
+      "owner": "js/monmove.js and js/mon.js, each already carrying its own named refusal.",
+      "effects": "None inside this boundary.",
+      "evidence": "js/monmove.js raises 'monster hiding under an object' and js/mon.js raises UnsupportedHideError.",
+      "status": "cannot-occur",
+      "remaining": "None. Slice 2 narrows js/unported_monster_actions.js's guard to the S_EEL half alone and leaves these two standing."
     }
   ],
   "missingWorkByOwner": [
+    {
+      "group": "js/mon.js restrap() and js/mondata.js ceiling_hider()",
+      "candidates": [
+        "mon.c restrap() guard chain",
+        "mon.c restrap() S_MIMIC arm",
+        "mon.c restrap() ROOM arm and fall-through",
+        "mondata.h ceiling_hider()"
+      ],
+      "next": "Slice 2: port restrap() into js/mon.js behind the two existing injection sites, port ceiling_hider(), and narrow the js/unported_monster_actions.js guard to S_EEL. Worth a measured 9 development screens, after which seed5002 stops at 199 of 410 on the mimic reveal."
+    },
     {
       "group": "js/apply.js use_stethoscope(), the adjacent-square frame",
       "candidates": [

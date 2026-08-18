@@ -629,3 +629,6 @@ utc	event	phase	goal	detail
 2026-08-18T17:19:43.316Z	end	select	stethoscope-reaches-an-adjacent-square	goal-selector then slice-selector; three slices forecast, checklist opened
 2026-08-18T17:19:43.349Z	start	implement	stethoscope-reaches-an-adjacent-square	empty-adjacent-square-hears-nothing-special, 9 of the goal's 33
 2026-08-18T17:55:59.399Z	end	implement	stethoscope-reaches-an-adjacent-square	empty-adjacent-square-hears-nothing-special, 0 of a forecast 9: the stretch is gated behind monster hiding
+2026-08-18T17:56:52.728Z	start	select	stethoscope-reaches-an-adjacent-square	scoping monster hiding after the forecast falsification
+2026-08-18T18:13:28.677Z	end	select	stethoscope-reaches-an-adjacent-square	monster hiding scoped as slice 2, measured at 9 screens by an isolated probe
+2026-08-18T18:13:28.704Z	start	implement	stethoscope-reaches-an-adjacent-square	hider-rehides-before-the-listen-resolves
