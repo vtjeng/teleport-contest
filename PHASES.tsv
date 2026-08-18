@@ -617,3 +617,4 @@ utc	event	phase	goal	detail
 2026-08-18T09:58:38.495Z	end	implement	objects-deferral-sweep-5	oilskin-and-smock-cloaks-go-on closed at cda9e59: objects falls below the sweep threshold
 2026-08-18T09:58:53.631Z	start	implement	objects-deferral-sweep-5	wished-container-arrives-with-its-contents
 2026-08-18T10:46:24.049Z	end	implement	objects-deferral-sweep-5	wished-container-arrives-with-its-contents closed at 775778a: all four slices closed
+2026-08-18T10:46:49.494Z	start	review	objects-deferral-sweep-5	correctness ac46567..HEAD, the goal's close
