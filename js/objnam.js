@@ -528,7 +528,12 @@ function notFullyIdentified(obj, type, state) {
 // the way every other exported name in this file does.
 export function obj_is_pname(obj, state = game) {
     if (!obj.oartifact || !obj.oextra?.oname) return false;
-    if (state.iflags?.override_ID) return true;
+    // C's guard at objnam.c:337 is a conjunction, and both halves skip the
+    // identification test: `!program_state.gameover && !iflags.override_ID`.
+    // Once the game is over the tombstone names an artifact whatever the hero
+    // learned about it, which is why gameover suppresses the check rather than
+    // only the wizard-mode override does.
+    if (state.program_state?.gameover || state.iflags?.override_ID) return true;
     return !notFullyIdentified(obj, objectType(obj, state), state);
 }
 // C ref: objnam.c the_unique_obj() (1106-1117).

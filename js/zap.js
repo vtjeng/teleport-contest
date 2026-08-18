@@ -578,11 +578,17 @@ export async function makewish(state = game) {
 // bhitpile(), flash_hits_mon(), hits_bars(), doorlock() -- belongs to the
 // commands that use them.
 //
-// Nine branches inside the thrown-weapon walk stop, each at its own condition
-// and before it changes anything: a shopkeeper catching a pick-axe, a lit
-// object lighting the squares it passes, iron bars, a rock skipping over
-// water, a mimic disguised as an object, and a heavy iron ball's four range
-// limits.
+// Ten branches inside the thrown-weapon walk stop, each at its own condition:
+// a shopkeeper catching a pick-axe, a lit object lighting the squares it
+// passes, iron bars, a rock skipping over water, a mimic disguised as an
+// object, a heavy iron ball's four range limits, and a shade the missile
+// passes through.
+//
+// Nine of the ten stop before changing anything. The shade does not: C's
+// shade_miss() at uhitm.c:1575 reads dmgval() for zero or not-zero, and
+// dmgval() rolls the damage dice, so the draw is spent before the refusal is
+// raised. It is raised through an injected callback rather than a visible
+// throw here, which is why it is easy to miss in this list.
 //
 // A monster in the path is not one of them. C's THROWN_WEAPON arm at 4021-4029
 // ends the flight, maps an unseen monster and returns it, leaving the caller

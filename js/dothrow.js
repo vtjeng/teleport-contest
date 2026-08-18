@@ -924,9 +924,10 @@ export function impact_disturbs_zombies(obj, violent, state = game) {
 //   pair, and js/dungeon.js surface() on digests() and enfolds().
 // - dokick.c ghitm() (295-407), for gold a monster in the flight path catches:
 //   likes_gold(), wakeup(), setmangry(), finish_meating() and the shopkeeper's
-//   bribe accounting. Unreachable from here today, exactly as throwit()'s
-//   own monster arm is, because js/zap.js bhit() stops for a monster in the
-//   path before it can return one.
+//   bribe accounting. This one is reachable. js/zap.js bhit() ports C's
+//   THROWN_WEAPON arm at zap.c:4021-4029, so it returns the monster rather
+//   than stopping for it, and the refusal below is what holds the branch --
+//   the same is true of throwit()'s own monster arm.
 // - shk.c sellobj(), for gold that lands on a shop's floor.
 async function throw_gold(obj, state = game) {
     const u = state.u;

@@ -63,6 +63,7 @@ import {
     xnameFresh,
     yname,
     Yname2,
+    obj_is_pname,
 } from '../js/objnam.js';
 import {
     MZ_MEDIUM,
@@ -1342,6 +1343,19 @@ test('override_ID lets a unique amulet and a named artifact name themselves',
         );
         state.iflags.override_ID = 1;
         assert.equal(donameFresh(artifact, state), 'the +0 Giantslayer');
+
+        // C's guard at objnam.c:337 is a conjunction, and gameover is its
+        // other half: once the game is over the tombstone names the artifact
+        // whatever the hero learned about it. It is asserted on the function
+        // rather than through doname(), because js/objnam.js refuses
+        // "end-of-game object text" one frame above, so no ported naming path
+        // reaches this half today. A port keeping only the override_ID half
+        // answers the case above correctly and this one wrongly.
+        state.iflags.override_ID = 0;
+        assert.equal(obj_is_pname(artifact, state), false);
+        state.program_state = { ...state.program_state, gameover: 1 };
+        assert.equal(obj_is_pname(artifact, state), true);
+        state.program_state.gameover = 0;
     });
 
 // C refs: objnam.c xname_flags():625-626 and :660, and doname_base():1319 and

@@ -389,3 +389,40 @@ test('a worn helmet adds a second line to the ceiling message', async () => {
     assert.equal(topLine(), 'Fortunately, you are wearing a helm!');
     assert.deepEqual(coinsAt(game.u.ux, game.u.uy), [PURSE.debug]);
 });
+
+test('each caller names the C function it would reach for a monster in the path',
+    async () => {
+    // zap.c bhit() returns the monster and leaves the caller to decide what
+    // hits it: dothrow.c throwit_mon_hit():1492 reaches thitmonst(), and
+    // throw_gold():2712 reaches dokick.c ghitm(). The port has neither, so the
+    // two callers stop -- and which name each stop carries is the whole
+    // deliverable of the slice that moved these refusals out of bhit(),
+    // because the boundary census .agents/selection.md ranks goals with reads
+    // that name. Nothing else in the passing suite asserts either string:
+    // every throw, fire and gold matrix sets pettype:none precisely so no
+    // segment reaches a monster.
+    //
+    // These two recipes are the ones QUALITY.json records as expected
+    // failures. Dropping pettype:none leaves the Healer's little dog directly
+    // north of her, so both the purse and the thrown weapon go into it.
+    const rc = 'OPTIONS=name:Volley,role:Healer,race:human,gender:female,'
+        + 'align:neutral\nOPTIONS=!legacy,!tutorial,!splash_screen\n'
+        + 'OPTIONS=!acoustics\n';
+    const base = { seed: 6120001, datetime: '20000110090000', nethackrc: rc };
+
+    const goldBoundaries = [];
+    await runSegment({ ...base, moves: '.t$k' }, {
+        onBoundary: (error) => goldBoundaries.push(error),
+    });
+    assert.equal(goldBoundaries.length, 1);
+    assert.match(goldBoundaries[0].message, /ghitm\(\)/u);
+    assert.doesNotMatch(goldBoundaries[0].message, /thitmonst\(\)/u);
+
+    const weaponBoundaries = [];
+    await runSegment({ ...base, moves: '.tck' }, {
+        onBoundary: (error) => weaponBoundaries.push(error),
+    });
+    assert.equal(weaponBoundaries.length, 1);
+    assert.match(weaponBoundaries[0].message, /thitmonst\(\)/u);
+    assert.doesNotMatch(weaponBoundaries[0].message, /ghitm\(\)/u);
+});

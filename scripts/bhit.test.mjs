@@ -29,7 +29,7 @@ import { PM_SHADE, monst_globals_init } from '../js/monsters.js';
 import { newObject } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { objects_globals_init } from '../js/objects.js';
-import { initRng } from '../js/rng.js';
+import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { resetGame } from '../js/gstate.js';
 import {
     ARROW,
@@ -222,6 +222,11 @@ test('bhit() hands a monster in the flight path back to its caller',
         state.level.monsters[3][4] = adjacent;
         assert.equal(await fireEast(state, 8, missile(state)), adjacent);
         assert.deepEqual(state.gb.bhitpos, { x: 3, y: 4 });
+        // zap.c:4023-4024 ends the transient beam before the `goto bhit_done`,
+        // and this arm returns rather than falling through to the DISP_END at
+        // the foot of the function, so it is the only one that runs. An unended
+        // frame would be left on the stack for whatever draws next.
+        assert.deepEqual(state.tmp_at_stack, []);
 
         // With the same monster one square further on, the missile crosses the
         // squares before it first, so the position reports how far it got.
@@ -247,6 +252,14 @@ test('bhit() records whether the missile stopped away from the head',
         tail.level.monsters[3][4] = { mx: 2, my: 4, data: tail.mons[0] };
         await fireEast(tail, 8, missile(tail));
         assert.equal(tail.gn.notonhead, true);
+
+        // C's test is `x != mtmp->mx || y != mtmp->my`, and the case above
+        // varies only x, so the y disjunct needs its own row: a segment whose
+        // head sits one row off the square the flight stopped on.
+        const offRow = corridor(6);
+        offRow.level.monsters[3][4] = { mx: 3, my: 3, data: offRow.mons[0] };
+        await fireEast(offRow, 8, missile(offRow));
+        assert.equal(offRow.gn.notonhead, true);
     });
 
 test('bhit() maps a monster it stops at but cannot spot', async () => {
@@ -290,10 +303,19 @@ test('bhit() consults shade_miss() before it stops at a monster', async () => {
     // one here that needs a seeded context. The seed is arbitrary: every roll
     // an arrow can produce is zeroed again by dmgval()'s own shade clamp.
     initRng(1);
+    enableRngLog();
+    const before = getRngLog().length;
     await assert.rejects(
         () => fireEast(shade, 8, missile(shade)),
         /passing through a shade/u,
     );
+    // The obj argument is what makes shade_miss() reach dmgval() at all:
+    // uhitm.c:1575 is `|| (obj && dmgval(obj, mdef, ...))`, so handing it null
+    // would take the refusal with no draw spent. That draw is the one thing
+    // separating the two, and it is state, so it belongs in the assertion
+    // rather than only in the fixture's comment.
+    assert.ok(getRngLog().length > before,
+        'dmgval() rolls the missile damage before the refusal');
 });
 
 test('bhit() refuses a mimic disguised as an object', async () => {

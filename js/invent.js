@@ -2612,10 +2612,6 @@ function encumbranceLimit(current, state) {
     return Math.max(current, state.flags.pickup_burden);
 }
 
-// C ref: invent.c hold_another_object() (1207-1306), restricted to the plain
-// addinv arm and the nonmerging route through drop_it. Artifact, Fumbling,
-// fatal-corpse, merging, and other drop routes remain fail-closed.
-//
 // Predicts invent.c:1274-1276, the test C makes after addinv_core0(). C reads
 // inv_cnt() and near_capacity() once the object is in inventory; this reads
 // them before, so it adds the slot and the weight itself. The two agree only
@@ -2730,6 +2726,10 @@ function consumeHoldDropAdmission(obj, state, admission) {
     return admission;
 }
 
+// C ref: invent.c hold_another_object() (1207-1306), restricted to the plain
+// addinv arm and the nonmerging route through drop_it. Artifact, Fumbling,
+// fatal-corpse, merging and the other drop routes remain fail-closed, and
+// projectsDropOnHold() above is what predicts which of the two arms C takes.
 export async function hold_another_object(
     obj, drop_fmt, drop_arg, hold_msg, env = {}, preparedHoldDrop = null,
 ) {
