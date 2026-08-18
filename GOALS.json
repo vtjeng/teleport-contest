@@ -2797,8 +2797,8 @@
         },
         {
           "name": "the-fatal-bolt-says-you-die",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "9b01443006ed2e80519cc3d5c03896a08fbfd4ab"
         }
       ],
       "openedAt": "4f5c00cd1ff6adf445056c193e9a7bfed32338c2",
