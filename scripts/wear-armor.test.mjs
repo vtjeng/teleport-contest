@@ -4,6 +4,7 @@ import test from 'node:test';
 import { ART_SUNSWORD } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
+    ACID_RES,
     BASICENLIGHTENMENT,
     ECMD_CANCEL,
     ECMD_OK,
@@ -16,6 +17,7 @@ import {
     GLIB,
     JUMPING,
     MAGICENLIGHTENMENT,
+    POISON_RES,
     TT_BEARTRAP,
     TT_BURIEDBALL,
     TT_INFLOOR,
@@ -603,6 +605,76 @@ test('Cloak_on reveals a wished cloak\'s enchantment', async () => {
     }
 });
 
+// The keys scripts/run-wear-armor.mjs records for Cloak_on()'s two acting
+// arms, spelled here so that the segments the tests below replay are located
+// by what they type rather than by their shared seed.
+const OILSKIN_MOVES = `${TAKEOFF_KEY}${WISH_KEY}+0 oilskin cloak\n`
+    + `${WEAR_KEY}n${SPACE_KEY}`;
+const SMOCK_MOVES = `${TAKEOFF_KEY}${WISH_KEY}+0 alchemy smock\n${WEAR_KEY}n`;
+
+test('Cloak_on tells the hero an oilskin cloak fits tightly', async () => {
+    // do_wear.c:365-367, pline("%s very tightly.", Tobjnam(uarmc, "fit")).
+    // The Wizard knows neither cloak type -- u_init.c calls knows_class() for
+    // her at no point -- so objects.h:623 names the piece by its appearance.
+    const segment = segmentFor(OILSKIN_MOVES, loadWearWishRecipe());
+    // The recorded keys without the space that answers the --More--, so the
+    // replay stops between Cloak_on() and on_msg().
+    const throughCallback = `${WAIT}${OILSKIN_MOVES.slice(0, -1)}`;
+
+    await runSegment({ ...segment, moves: throughCallback });
+    assert.equal(topLine(), 'The slippery cloak fits very tightly.--More--');
+    // The `known` write at 375-378 runs after the pline, so it has already
+    // happened while on_msg() waits at the prompt.
+    assert.equal(game.uarmc.otyp, OILSKIN_CLOAK);
+    assert.equal(game.uarmc.known, true);
+    // The arm prints and raises nothing. Trading the two case labels would
+    // leave WORN_CLOAK here and print about an apron above.
+    assert.equal(game.u.uprops[ACID_RES].extrinsic, 0);
+    // u.uac is find_ac()'s output and botl.c bot() is what recomputes it, so
+    // it still reads the Wizard's cloakless 10 here even though setworn()
+    // filled the slot several statements ago. The recorded C frame agrees:
+    // its status line reads AC:10 under this very --More--.
+    assert.equal(game.u.uac, 10);
+
+    // The same keys with the space, which dismisses the prompt and lets
+    // on_msg() reach the top line. This is the second message of the same
+    // turn, which is why C stopped for a --More-- at all.
+    await runSegment({ ...segment, moves: `${WAIT}${OILSKIN_MOVES}` });
+    assert.equal(topLine(), 'You are now wearing a slippery cloak.');
+    // objects.h:623 gives the type ac 9, so ARMOR's `10 - ac` makes its a_ac
+    // 1, and the redraw this message travelled with is where u.uac catches up.
+    assert.equal(game.u.uac, 9);
+    // The 'W' spent the fourth turn: the opening wait is T:2, the 'T' T:3.
+    assert.equal(game.moves, 4);
+});
+
+test('Cloak_on makes an alchemy smock acid resistant', async () => {
+    // do_wear.c:369-371, EAcid_resistance |= WORN_CLOAK, under C's own comment
+    // that the smock confers poison resistance and acid resistance both.
+    const segment = segmentFor(SMOCK_MOVES, loadWearWishRecipe());
+
+    await runSegment({ ...segment, moves: `${WAIT}${SMOCK_MOVES}` });
+    // objects.h:630 gives the smock no oc_delay, so this arm and on_msg() both
+    // ran on the turn the 'W' was typed. The smock prints once, so there is no
+    // --More-- between them.
+    assert.equal(topLine(), 'You are now wearing an apron.');
+    assert.equal(game.uarmc.otyp, ALCHEMY_SMOCK);
+    assert.equal(game.moves, 4);
+
+    // prop.h:153 defines WORN_CLOAK as W_ARMC, which prop.h:102 gives the
+    // value below. The literal is what pins the mask: every other worn slot
+    // would read as acid resistance just as truthily, and only a value taken
+    // from prop.h can tell a wrong bit from the right one. Cloak_off()'s
+    // `EAcid_resistance &= ~WORN_CLOAK` is what will one day need it to be
+    // this bit and not another.
+    assert.equal(game.u.uprops[ACID_RES].extrinsic, 0x00000002);
+    // The second half of C's comment, and the reason the arm exists: worn.c
+    // setworn() raises only the type's own oc_oprop, which objects.h:631 makes
+    // POISON_RES. Both bits are the cloak's, and this arm is the only writer
+    // of the acid one.
+    assert.equal(game.u.uprops[POISON_RES].extrinsic, 0x00000002);
+});
+
 test('canwearobj refuses a cloak and a shirt over what covers them',
     async () => {
     // do_wear.c:2157-2177, both arms, each recorded fresh. Neither spends a
@@ -767,23 +839,18 @@ test('every one of the seven slots installs its own callback', async () => {
     }
 });
 
-test('the seven cloaks Cloak_on cannot run are refused unwritten',
+test('the five cloaks Cloak_on cannot run are refused unwritten',
     async () => {
-    // do_wear.c:338-373. Five of Cloak_on()'s labels fall to a bare break;
-    // the other seven makeknown(), toggle stealth or displacement, redraw the
-    // hero, print, or set EAcid_resistance, all outside do_wear.c. The refusal
-    // is hoisted above setworn(), so a refused cloak never reaches the slot
-    // and its oc_delay 0 never gets the chance to run the callback.
-    //
-    // Two of the seven are the cases just outside this goal's stated limit,
-    // recorded as the QUALITY.json deferral wear-oilskin-and-smock-cloaks-stop:
-    // a wished oilskin cloak, which C answers with "fits very tightly", and a
-    // wished alchemy smock, which C wears while setting EAcid_resistance.
+    // do_wear.c:338-363. Five of Cloak_on()'s labels fall to a bare break and
+    // two more act without leaving do_wear.c; the remaining five makeknown(),
+    // toggle stealth or displacement, or redraw the hero with the
+    // See_invisible messages, all outside this file. The refusal is hoisted
+    // above setworn(), so a refused cloak never reaches the slot and its
+    // oc_delay 0 never gets the chance to run the callback.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
     for (const otyp of [CLOAK_OF_PROTECTION, ELVEN_CLOAK,
-        CLOAK_OF_DISPLACEMENT, MUMMY_WRAPPING, CLOAK_OF_INVISIBILITY,
-        OILSKIN_CLOAK, ALCHEMY_SMOCK]) {
+        CLOAK_OF_DISPLACEMENT, MUMMY_WRAPPING, CLOAK_OF_INVISIBILITY]) {
         const obj = armor(otyp, { dknown: 1, spe: 0 });
 
         await assert.rejects(
@@ -794,13 +861,18 @@ test('the seven cloaks Cloak_on cannot run are refused unwritten',
         assert.equal(game.uarmc ?? null, null, `otyp ${otyp}`);
         assert.equal(obj.owornmask, 0, `otyp ${otyp}`);
     }
-    // The five that go on. Two of them, CLOAK_OF_PROTECTION and
-    // OILSKIN_CLOAK, are absent here and present in Cloak_off()'s own set:
-    // reusing that set would wear both with their on-behavior missing. The
-    // message is not asserted, because four of the twelve cloak appearances
-    // are shuffled by o_init.c and the magic resistance one is among them.
+    // Six of the seven that go on. CLOAK_OF_PROTECTION is the one member of
+    // Cloak_off()'s bare-break set missing here, and it is why the two sets
+    // are named apart: reusing the take-off list would wear it with its
+    // makeknown() missing. The seventh admitted type, the oilskin cloak, is
+    // absent for a reason of the harness rather than the source: its arm
+    // prints, which makes a second message in the same turn and so a --More--
+    // this test has no key for. The two tests above replay its recorded
+    // segment instead. No message is asserted here either, because four of the
+    // twelve cloak appearances are shuffled by o_init.c and the magic
+    // resistance one is among them.
     for (const otyp of [ORCISH_CLOAK, DWARVISH_CLOAK,
-        CLOAK_OF_MAGIC_RESISTANCE, ROBE, LEATHER_CLOAK]) {
+        CLOAK_OF_MAGIC_RESISTANCE, ROBE, LEATHER_CLOAK, ALCHEMY_SMOCK]) {
         // A fresh segment per type, so each wearing starts from an empty
         // cloak slot and an empty top line.
         await setup(segment, OFF);
@@ -810,6 +882,10 @@ test('the seven cloaks Cloak_on cannot run are refused unwritten',
             `otyp ${otyp}`);
         assert.equal(game.uarmc, obj, `otyp ${otyp}`);
         assert.equal(obj.known, true, `otyp ${otyp}`);
+        // Only the smock's arm raises it, so every other type here shows the
+        // hoisted test admitting a cloak without Cloak_on() acting on it.
+        assert.equal(game.u.uprops[ACID_RES].extrinsic,
+            otyp === ALCHEMY_SMOCK ? 0x00000002 : 0, `otyp ${otyp}`);
     }
 });
 
@@ -1046,7 +1122,7 @@ test('set_wear runs the startup callbacks and stops on the slots it cannot',
     // tested on its own so that no one of them can hide the others.
     for (const field of ['ublindf', 'uright', 'uleft', 'uamul']) {
         game[field] = { oclass: AMULET_CLASS, otyp: AMULET_OF_ESP };
-        assert.throws(() => set_wear(game),
+        await assert.rejects(() => set_wear(game),
             refusal(UnsupportedWearError, 'set_wear() accessories'), field);
         game[field] = null;
     }
@@ -1076,7 +1152,7 @@ test('set_wear runs the startup callbacks and stops on the slots it cannot',
     game.uarmg = armor(LEATHER_GLOVES, { known: false });
     game.uarmh = armor(HELMET, { known: false });
     game.uarms = armor(SMALL_SHIELD, { known: false });
-    set_wear(game);
+    await set_wear(game);
     assert.equal(game.uarmu.known, true, 'Shirt_on() ran');
     assert.equal(game.uarm.known, true, 'Armor_on() ran');
     assert.equal(game.uarmc.known, true, 'Cloak_on() ran');
@@ -1095,7 +1171,7 @@ test('set_wear runs the startup callbacks and stops on the slots it cannot',
     // A boot type Boots_on() cannot run still stops set_wear(), which is the
     // one caller with no frame above it to hoist the question into.
     game.uarmf = armor(SPEED_BOOTS, { known: false });
-    assert.throws(() => set_wear(game),
+    await assert.rejects(() => set_wear(game),
         refusal(UnsupportedWearError, `Boots_on() for otyp ${SPEED_BOOTS}`));
     assert.equal(game.uarmf.known, false);
     game.uarmf = null;
@@ -1939,23 +2015,30 @@ test('Shirt_on stops for a slot holding something that is not a shirt',
     game.uarmu = null;
 });
 
-test('Cloak_on answers for an empty cloak slot', async () => {
-    // do_wear.c:375, C's own "no known instance of !uarmc here". Nothing in
-    // this port reaches it: accessory_or_armor_on() installs the callback one
-    // statement after setworn() fills the slot, and every cloak's oc_delay is
-    // 0, so unmul("") runs it before any other code can empty the slot.
+test('Cloak_on reads the cloak slot before it tests it', async () => {
+    // do_wear.c:329 and :331 both read uarmc->otyp, so C's own guard at 375 --
+    // "no known instance of !uarmc here" -- can never answer FALSE: a null
+    // uarmc has already been dereferenced twice. This port reads it in the
+    // same place, so an empty slot ends the call rather than answering 0, and
+    // the guard survives only because it is C's line. Nothing reaches either:
+    // accessory_or_armor_on() installs the callback one statement after
+    // setworn() fills the slot, and every cloak's oc_delay is 0, so unmul("")
+    // runs it before any other code can empty the slot.
     const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
     await setup(segment, OFF);
     assert.equal(game.uarmc ?? null, null, 'a Valkyrie starts without a cloak');
-    assert.equal(Cloak_on(game), 0);
+    await assert.rejects(() => Cloak_on(game), (error) => {
+        assert.ok(error instanceof TypeError, `got ${error?.name}`);
+        assert.match(error.message, /otyp/u);
+        return true;
+    });
 
-    // With a cloak in the slot the same call sets obj->known instead, and
-    // leaves it alone when it is already set.
+    // With a cloak in the slot the same call sets obj->known instead.
     const cloak = armor(LEATHER_CLOAK, { dknown: 1, spe: 2, known: false });
     await accessory_or_armor_on(cloak, game);
     assert.equal(cloak.known, true, 'the oc_delay 0 arm ran the callback');
     cloak.known = false;
-    assert.equal(Cloak_on(game), 0);
+    assert.equal(await Cloak_on(game), 0);
     assert.equal(cloak.known, true);
 });
 

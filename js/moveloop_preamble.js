@@ -69,7 +69,7 @@ export async function moveloop_preamble(
         // bare setworn() calls, so this is where the <X>_on() callbacks run
         // over the finished gear; do_wear.c set_wear() lists what each one
         // does for the types a new game can start in.
-        set_wear(state);
+        await set_wear(state);
         preflight_initial_pickup(state);
         reset_justpicked(state.invent);
         await pickup(1, state);

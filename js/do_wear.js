@@ -29,6 +29,7 @@
 // names the C function it stops in front of.
 
 import {
+    ACID_RES,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -106,6 +107,7 @@ import {
     set_bknown,
 } from './obj.js';
 import {
+    ALCHEMY_SMOCK,
     AMULET_CLASS,
     AMULET_OF_UNCHANGING,
     ARMOR_CLASS,
@@ -153,6 +155,7 @@ import {
     obj_is_pname,
     suit_simple_name,
     the,
+    Tobjnam,
     xnameFresh,
 } from './objnam.js';
 import { body_part } from './polyself.js';
@@ -483,9 +486,9 @@ function Boots_on(state) {
 // the same list twice. Cloak_off() has seven such labels at do_wear.c:393-400;
 // Cloak_on() has five at 332-337, because two types do something on the way on
 // that they do not do on the way off: CLOAK_OF_PROTECTION calls makeknown()
-// and OILSKIN_CLOAK prints through Tobjnam(). Wearing either through the
-// take-off list would run neither, so the two sets are named apart even though
-// five of their members coincide.
+// and OILSKIN_CLOAK prints through Tobjnam() at 365-367. Wearing either
+// through the take-off list would run neither, so the two sets are named apart
+// even though five of their members coincide.
 //
 // Every cloak carries an oc_delay of 0 (objects.h:611-650), so all twelve
 // types reach Cloak_off(), and Cloak_on() always runs on the turn the 'W' is
@@ -499,35 +502,65 @@ const PLAIN_CLOAKS_ON = new Set([
     LEATHER_CLOAK,
 ]);
 
+// The cloak types Cloak_on() carries: the five with no statement of their own,
+// plus the two whose statement stays inside do_wear.c. Only
+// accessory_or_armor_on() asks, because every cloak's oc_delay is 0 and so the
+// callback would otherwise run with the slot and the status line already
+// moved; set_wear() asks nothing, for the reason Cloak_on() records below.
+function cloakOnPorted(otyp) {
+    return otyp === OILSKIN_CLOAK || otyp === ALCHEMY_SMOCK
+        || PLAIN_CLOAKS_ON.has(otyp);
+}
+
 // C ref: do_wear.c Cloak_on() (325-380), the ga.afternmv callback
 // accessory_or_armor_on() installs for the cloak slot.
 //
 // C's switch has no statement of its own for the five types PLAIN_CLOAKS_ON
-// names, and every other arm -- including C's `default:` impossible() --
-// reaches outside do_wear.c. accessory_or_armor_on() therefore refuses the
-// other seven by otyp above setworn(): hoisting is what keeps the refusal
+// names, and the two arms below are the whole of what the other seven do
+// without leaving do_wear.c: OILSKIN_CLOAK prints at 365-367, ALCHEMY_SMOCK
+// raises acid resistance at 369-371. The remaining five -- and C's `default:`
+// impossible() -- reach outside this file, so accessory_or_armor_on() refuses
+// those five by otyp above setworn(): hoisting is what keeps the refusal
 // honest, because by the time this callback runs unmul() has already worn the
 // cloak and moved AC. Armor_on()'s dragon-armor guard sits there for the same
 // reason.
 //
-// No switch survives here even so, and that is a second decision rather than a
-// consequence of the first. set_wear() reaches this callback at startup with
-// whatever u_init.c wore, which for a Ranger or an elf Ranger is a cloak the
-// hoisted test would refuse -- so a guard here would stop a game C finishes.
-// It is safe to have none because the arms those cloaks take, toggle_stealth()
-// and toggle_displacement(), return without acting while gi.initial_don is
-// set; set_wear()'s own comment carries that derivation.
+// The switch below therefore has no `default:`, and that is a second decision
+// rather than a consequence of the first. set_wear() reaches this callback at
+// startup with whatever u_init.c wore, which for a Ranger or an elf Ranger is
+// a cloak the hoisted test would refuse -- so a guard here would stop a game C
+// finishes. Falling through is safe because the arms those cloaks take,
+// toggle_stealth() and toggle_displacement(), return without acting while
+// gi.initial_don is set; set_wear()'s own comment carries that derivation.
 //
 // C's `oldprop` at 328 is read only by the arms that refusal stops --
 // toggle_stealth(), toggle_displacement() and the invisibility test -- so it
 // is not computed, which is the reasoning Cloak_off() below already records.
 //
-// The `known` write is the whole of what is left, and it is what tells a cloak
-// this callback finished donning from one setworn() merely moved. Only a cloak
-// the game creates after startup witnesses it: mkobj.c mksobj() (864) leaves
-// obj->known 0 for armor where u_init.c ini_inv_adjust_obj() (1215-1216) sets
-// it to 1.
-function Cloak_on(state) {
+// Neither arm here touches AC or the slot: worn.c setworn() has already raised
+// the extrinsic objects.h names as the type's oc_oprop, which for the smock is
+// POISON_RES (630-632). C's comment at 368 says why this arm exists at all --
+// the smock is the one cloak conferring two resistances, and only the second
+// needs a statement.
+//
+// The `known` write then runs whatever the switch did, and it is what tells a
+// cloak this callback finished donning from one setworn() merely moved. Only a
+// cloak the game creates after startup witnesses it: mkobj.c mksobj() (864)
+// leaves obj->known 0 for armor where u_init.c ini_inv_adjust_obj()
+// (1215-1216) sets it to 1.
+async function Cloak_on(state) {
+    switch (state.uarmc.otyp) {
+    case OILSKIN_CLOAK:
+        await ttyPline(
+            `${Tobjnam(state.uarmc, 'fit', state)} very tightly.`,
+            state,
+        );
+        break;
+    /* Alchemy smock gives poison _and_ acid resistance */
+    case ALCHEMY_SMOCK:
+        state.u.uprops[ACID_RES].extrinsic |= WORN_CLOAK;
+        break;
+    }
     if (state.uarmc && !state.uarmc.known) { /* no known instance of !uarmc */
         /* cloak's +/- evident because of status line AC */
         state.uarmc.known = true;
@@ -803,13 +836,14 @@ function Shirt_off(state) {
 // keeps the next refusal added to an <X>_on() from costing a segment its whole
 // prefix.
 //
-// This function is synchronous and the seven calls below are not awaited,
-// while js/hack.js unmul() awaits the same callbacks. Both are correct today
-// because every <X>_on() is a plain function: awaiting one is a no-op, and not
-// awaiting one loses nothing. The day a callback needs to print through
-// ttyPline() it becomes async, and then this caller silently stops waiting for
-// it while the other still does. Make both await it, or neither.
-export function set_wear(state = game) {
+// The seven calls below are awaited, as js/hack.js unmul() awaits the same
+// callbacks. Cloak_on() is what made that necessary rather than tidy: its
+// OILSKIN_CLOAK arm prints through ttyPline(), so the callback is async, and
+// an unawaited call would return a pending promise while the preamble ran on.
+// The other six are plain functions, where awaiting is a no-op; they are
+// awaited anyway, so that the next callback to print does not have to
+// rediscover this.
+export async function set_wear(state = game) {
     if (state.ublindf || state.uright || state.uleft || state.uamul) {
         // do_wear.c:1544-1551 Blindf_on(), Ring_on() twice and Amulet_on().
         // ini_inv_use_obj() fills only the seven armor slots, so a new game
@@ -817,9 +851,9 @@ export function set_wear(state = game) {
         // worn ring, amulet or blindfold.
         throw new UnsupportedWearError('set_wear() accessories');
     }
-    if (state.uarmu) Shirt_on(state);
-    if (state.uarm) Armor_on(state);
-    if (state.uarmc) Cloak_on(state);
+    if (state.uarmu) await Shirt_on(state);
+    if (state.uarm) await Armor_on(state);
+    if (state.uarmc) await Cloak_on(state);
     // do_wear.c:1558-1559. No role's starting gear fills W_ARMF: u_init.c
     // names boots nowhere but in the elven discovery list at :825, and
     // scripts/wear-armor.test.mjs pins the worn set of every distinct starting
@@ -830,10 +864,10 @@ export function set_wear(state = game) {
     // refusal because Boots_on() is ported: a refusal standing in front of a
     // ported function would stop a game C finishes if a role ever gained
     // boots, which is the opposite of what a fail-closed boundary is for.
-    if (state.uarmf) Boots_on(state);
-    if (state.uarmg) Gloves_on(state);
-    if (state.uarmh) Helmet_on(state);
-    if (state.uarms) Shield_on(state);
+    if (state.uarmf) await Boots_on(state);
+    if (state.uarmg) await Gloves_on(state);
+    if (state.uarmh) await Helmet_on(state);
+    if (state.uarms) await Shield_on(state);
 }
 
 // C ref: do_wear.c count_worn_stuff() (1731-1766). C stores its two counts in
@@ -1541,9 +1575,9 @@ async function accessory_or_armor_on(obj, state = game) {
         afternmv = Armor_on;
         break;
     case W_ARMC:
-        // Cloak_on()'s other seven arms, which makeknown(), toggle stealth or
-        // displacement, redraw the hero, print, or set EAcid_resistance.
-        if (!PLAIN_CLOAKS_ON.has(obj.otyp))
+        // Cloak_on()'s five remaining arms, which makeknown(), toggle stealth
+        // or displacement, or redraw the hero with the See_invisible messages.
+        if (!cloakOnPorted(obj.otyp))
             throw new UnsupportedWearError(`Cloak_on() for otyp ${obj.otyp}`);
         afternmv = Cloak_on;
         break;

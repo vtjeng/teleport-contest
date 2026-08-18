@@ -361,6 +361,43 @@ export function loadWearWishRecipe() {
             // the same cloak_simple_name(): the Monk keeps his robe on and is
             // told about a robe rather than about a cloak.
             wishSegment(7720156, '+0 leather cloak', `${WEAR_KEY}l`, MONK),
+            // Cloak_on()'s two arms that act, at do_wear.c:365-367 and
+            // 369-371. Both types sit above objects.h:636's shuffle marker, so
+            // "slippery cloak" and "apron" are their appearances at every
+            // seed, and a Wizard learns neither: u_init.c knows_class() at 626
+            // skips an oc_magic type, which the smock is, and gives the Wizard
+            // no knows_class(ARMOR_CLASS) at all.
+            //
+            // The oilskin cloak is the one wearing in this file that prints
+            // twice in a turn. topl.c update_topl():264 shares the line only
+            // while `n0 + strlen(gt.toplines) + 3 < CO - 8`, and its two
+            // messages are 37 characters each, so C stops for --More-- with
+            // the AC field still at 10 -- setworn() moved u.uac before the
+            // callback ran, and nothing has redrawn the status line yet. The
+            // space dismisses that prompt; the closing wait then shows the
+            // command spent one turn and the AC field caught up.
+            //
+            // The space is what the QUALITY.json deferral
+            // wear-oilskin-and-smock-cloaks-stop left out. Its case ends the
+            // segment with '.', which getline.c xwaitforspace():250 rings the
+            // bell at rather than accepting, so the recording stopped on the
+            // --More-- and never showed on_msg(), the AC or the turn.
+            segment(7720148,
+                `${TAKEOFF_KEY}${WISH_KEY}+0 oilskin cloak\n`
+                + `${WEAR_KEY}n${SPACE_KEY}`,
+                WIZARD, DEBUG),
+            // The smock prints once, so its wearing needs no dismissal. C's
+            // arm at 369-371 raises EAcid_resistance, which nothing in this
+            // segment can show: worn.c setworn() has already raised
+            // EPoison_resistance from the type's oc_oprop, and the port's one
+            // reader of either, eat.c eatcorpse()'s acidic arm, needs a corpse
+            // that only a wish can supply -- and js/objnam_readobjnam.js
+            // refuses that wish. The message, the AC and the turn are what
+            // this case can witness; scripts/wear-armor.test.mjs pins the
+            // extrinsic itself.
+            segment(7720148,
+                `${TAKEOFF_KEY}${WISH_KEY}+0 alchemy smock\n${WEAR_KEY}n`,
+                WIZARD, DEBUG),
             // The c_armor half of the shirt refusal, which needs a suit and no
             // cloak. No role starts that way, so the leather jacket -- the one
             // suit with oc_delay 0 -- is wished for and worn first.
