@@ -1,0 +1,361 @@
+// potion.c potionbreathe() and do.c trycall().
+//
+// potionbreathe()'s eighteen case labels carry no operator a mutation can
+// move, and the witness reaches exactly one of them. The tests below read the
+// label list out of potion.c and then separate the three groups it falls into:
+// the arm this port runs, the arms that stop by name, and the types that have
+// no label at all and fall out of the switch.
+
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+import { INVIS, SEE_INVIS, BLINDED, FROMOUTSIDE } from '../js/const.js';
+import { trycall } from '../js/do.js';
+import { UnsupportedObjectNamingError, docall } from '../js/do_name.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { discover_object } from '../js/o_init.js';
+import { mksobj } from '../js/obj.js';
+import {
+    POT_ACID,
+    POT_BLINDNESS,
+    POT_BOOZE,
+    POT_CONFUSION,
+    POT_ENLIGHTENMENT,
+    POT_EXTRA_HEALING,
+    POT_FRUIT_JUICE,
+    POT_FULL_HEALING,
+    POT_GAIN_ABILITY,
+    POT_GAIN_ENERGY,
+    POT_GAIN_LEVEL,
+    POT_HALLUCINATION,
+    POT_HEALING,
+    POT_INVISIBILITY,
+    POT_LEVITATION,
+    POT_MONSTER_DETECTION,
+    POT_OBJECT_DETECTION,
+    POT_OIL,
+    POT_PARALYSIS,
+    POT_POLYMORPH,
+    POT_RESTORE_ABILITY,
+    POT_SEE_INVISIBLE,
+    POT_SICKNESS,
+    POT_SLEEPING,
+    POT_SPEED,
+    POT_WATER,
+    TOWEL,
+} from '../js/objects.js';
+import { potionbreathe } from '../js/potion.js';
+
+const POTION_TYPES = Object.freeze({
+    POT_GAIN_ABILITY,
+    POT_RESTORE_ABILITY,
+    POT_CONFUSION,
+    POT_BLINDNESS,
+    POT_PARALYSIS,
+    POT_SPEED,
+    POT_LEVITATION,
+    POT_HALLUCINATION,
+    POT_INVISIBILITY,
+    POT_SEE_INVISIBLE,
+    POT_HEALING,
+    POT_EXTRA_HEALING,
+    POT_GAIN_LEVEL,
+    POT_ENLIGHTENMENT,
+    POT_MONSTER_DETECTION,
+    POT_OBJECT_DETECTION,
+    POT_GAIN_ENERGY,
+    POT_SLEEPING,
+    POT_FULL_HEALING,
+    POT_POLYMORPH,
+    POT_BOOZE,
+    POT_SICKNESS,
+    POT_FRUIT_JUICE,
+    POT_ACID,
+    POT_OIL,
+    POT_WATER,
+});
+
+// The types with no case label in potion.c's switch. C's commented-out block
+// at 2096-2105 names the first seven; the last two are absent from that comment
+// and reach the same nothing, because the switch has no `default:`.
+const NO_OP_TYPES = Object.freeze([
+    'POT_GAIN_LEVEL', 'POT_GAIN_ENERGY', 'POT_LEVITATION', 'POT_FRUIT_JUICE',
+    'POT_MONSTER_DETECTION', 'POT_OBJECT_DETECTION', 'POT_OIL',
+    'POT_SEE_INVISIBLE', 'POT_ENLIGHTENMENT',
+]);
+
+function potionSource() {
+    return readFileSync(
+        new URL('../nethack-c/upstream/src/potion.c', import.meta.url),
+        'utf8',
+    );
+}
+
+// The body of potionbreathe()'s switch, from the `switch (` line to the closing
+// brace before the `if (!already_in_use)` tail, split into the code the
+// compiler sees and the block comments it does not. The split is the point:
+// seven `case POT_...:` lines sit inside a comment, and reading them as labels
+// is exactly the mistake this file exists to rule out.
+function breatheSwitchBody() {
+    const source = potionSource();
+    const start = source.indexOf(
+        'switch (Half_gas_damage ? TOWEL : obj->otyp) {',
+    );
+    assert.ok(start > 0, 'potion.c still switches on Half_gas_damage');
+    const end = source.indexOf('if (!already_in_use)', start);
+    assert.ok(end > start);
+    const body = source.slice(start, end);
+    const comments = [...body.matchAll(/\/\*[\s\S]*?\*\//gu)]
+        .map(([text]) => text).join('\n');
+    return { code: body.replace(/\/\*[\s\S]*?\*\//gu, ''), comments };
+}
+
+async function startedGame(seed, name) {
+    await runSegment({
+        seed,
+        datetime: '20260724120000',
+        nethackrc: `OPTIONS=name:${name},role:Healer,race:human,`
+            + 'gender:female,align:neutral,!legacy,!tutorial,!splash_screen',
+        moves: ' ',
+    });
+}
+
+function toplines() {
+    return game._ttyToplines ?? '';
+}
+
+// The top line as pline.c leaves it after the segment's own last message.
+// Clearing it is what keeps each call below from sharing a line with the one
+// before it, which would otherwise reach the --More-- these tests have no
+// keystrokes for.
+function clearTopline() {
+    game._pending_message = '';
+    game._ttyToplines = '';
+    game._ttyPreviousMessage = '';
+    game._ttyMessageStopped = false;
+}
+
+function vaporPotion(otyp) {
+    const obj = mksobj(otyp, false, false, { state: game });
+    obj.quan = 1;
+    obj.dknown = true;
+    return obj;
+}
+
+test('potion.c still labels the arms this port refuses and none it skips',
+    () => {
+    const { code, comments } = breatheSwitchBody();
+    const labelled = new Set(
+        [...code.matchAll(/case (POT_[A-Z_]+|TOWEL):/gu)].map(([, n]) => n),
+    );
+    // Eighteen labels, of which TOWEL is not a potion type.
+    assert.equal(labelled.size, 18);
+    assert.ok(labelled.has('TOWEL'));
+    for (const name of NO_OP_TYPES) {
+        assert.equal(
+            labelled.has(name), false,
+            `${name} still falls out of the switch`,
+        );
+    }
+    // C's comment names seven of the nine; the two it leaves out are why this
+    // port lists all nine rather than copying the comment.
+    const commented = new Set(
+        [...comments.matchAll(/case (POT_[A-Z_]+):/gu)].map(([, n]) => n),
+    );
+    assert.equal(commented.size, 7);
+    for (const name of commented)
+        assert.ok(NO_OP_TYPES.includes(name), name);
+    assert.deepEqual(
+        NO_OP_TYPES.filter((name) => !commented.has(name)),
+        ['POT_SEE_INVISIBLE', 'POT_ENLIGHTENMENT'],
+    );
+    // Every potion type is either labelled or in the fall-through group, so
+    // the two lists together account for all 26 rows of objects.h.
+    const names = Object.keys(POTION_TYPES);
+    assert.equal(names.length, 26);
+    for (const name of names) {
+        assert.equal(
+            labelled.has(name) || NO_OP_TYPES.includes(name), true,
+            `${name} is accounted for`,
+        );
+    }
+});
+
+test('the labelled arms this port has not reached stop by name', async () => {
+    await startedGame(771001, 'VaporRefuse');
+    const labelled = [
+        ...breatheSwitchBody().code.matchAll(/case (POT_[A-Z_]+):/gu),
+    ].map(([, name]) => name);
+    for (const name of labelled) {
+        if (name === 'POT_INVISIBILITY') continue;
+        const otyp = POTION_TYPES[name];
+        assert.equal(typeof otyp, 'number', name);
+        await assert.rejects(
+            () => potionbreathe(vaporPotion(otyp), game),
+            /a potion's vapors require /u,
+            name,
+        );
+    }
+});
+
+test('the unlabelled types reach the naming tail and nothing else', async () => {
+    await startedGame(771002, 'VaporNoop');
+    for (const name of NO_OP_TYPES) {
+        const otyp = POTION_TYPES[name];
+        // Identify the type first, so trycall() finds oc_name_known set and
+        // the tail stays silent. An unidentified type would reach docall().
+        discover_object(otyp, true, true, false, game);
+        const obj = vaporPotion(otyp);
+        clearTopline();
+        await potionbreathe(obj, game);
+        assert.equal(toplines(), '', name);
+        assert.equal(obj.in_use, false, name);
+    }
+});
+
+test('an unidentified potion sends the naming tail to docall', async () => {
+    await startedGame(771003, 'VaporCall');
+    // do.c trycall() reads the shared objects[] row, not the object, so this
+    // separates an identified type from an unidentified one with the same
+    // object shape.
+    const obj = vaporPotion(POT_FRUIT_JUICE);
+    game.objects[POT_FRUIT_JUICE].oc_name_known = 0;
+    game.objects[POT_FRUIT_JUICE].oc_uname = null;
+    await assert.rejects(
+        () => potionbreathe(obj, game),
+        UnsupportedObjectNamingError,
+    );
+    // Either half of trycall()'s guard suppresses the prompt on its own.
+    game.objects[POT_FRUIT_JUICE].oc_uname = 'fizzy';
+    trycall(obj, game);
+    game.objects[POT_FRUIT_JUICE].oc_uname = null;
+    game.objects[POT_FRUIT_JUICE].oc_name_known = 1;
+    trycall(obj, game);
+    // do_name.c docall()'s own first line: a hero who cannot see the object
+    // has nothing to call it by.
+    docall({ ...obj, dknown: false });
+    assert.throws(() => docall({ ...obj, dknown: true }),
+        UnsupportedObjectNamingError);
+});
+
+test('a potion whose vapors are not seen prints nothing and is not learned',
+    async () => {
+    await startedGame(771004, 'VaporInvis');
+    discover_object(POT_INVISIBILITY, true, true, false, game);
+    // potion.c:2034 `if (!Blind && !Invis)`. Each of the two properties
+    // suppresses the message on its own, and neither is what the other tests.
+    for (const property of [BLINDED, INVIS]) {
+        const obj = vaporPotion(POT_INVISIBILITY);
+        game.u.uprops[property].intrinsic = FROMOUTSIDE;
+        clearTopline();
+        await potionbreathe(obj, game);
+        assert.equal(toplines(), '', `${property}`);
+        game.u.uprops[property].intrinsic = 0;
+    }
+    // BBlinded cancels the blindness again, so the message returns.
+    const obj = vaporPotion(POT_INVISIBILITY);
+    game.u.uprops[BLINDED].intrinsic = FROMOUTSIDE;
+    game.u.uprops[BLINDED].blocked = FROMOUTSIDE;
+    clearTopline();
+    await potionbreathe(obj, game);
+    assert.equal(toplines(), "For an instant you couldn't see yourself!");
+    game.u.uprops[BLINDED].intrinsic = 0;
+    game.u.uprops[BLINDED].blocked = 0;
+});
+
+test('See_invisible picks the other half of the invisibility line', async () => {
+    await startedGame(771005, 'VaporSeeInvis');
+    discover_object(POT_INVISIBILITY, true, true, false, game);
+    clearTopline();
+    await potionbreathe(vaporPotion(POT_INVISIBILITY), game);
+    assert.equal(toplines(), "For an instant you couldn't see yourself!");
+    // youprop.h:152 See_invisible is either source and has no blocked term, so
+    // this one property is the only input that separates the two strings.
+    game.u.uprops[SEE_INVIS].extrinsic = 1;
+    clearTopline();
+    await potionbreathe(vaporPotion(POT_INVISIBILITY), game);
+    assert.equal(
+        toplines(),
+        'For an instant you could see right through yourself!',
+    );
+    game.u.uprops[SEE_INVIS].extrinsic = 0;
+});
+
+test('a wet towel takes the TOWEL arm whatever the potion is', async () => {
+    await startedGame(771006, 'VaporTowel');
+    discover_object(POT_INVISIBILITY, true, true, false, game);
+    const towel = mksobj(TOWEL, false, false, { state: game });
+    towel.spe = 1;
+    game.ublindf = towel;
+    // youprop.h:405 Half_gas_damage needs the towel damp: `spe > 0`. One
+    // charge is the smallest amount that qualifies and zero the largest that
+    // does not, which is the pair that fixes the comparison.
+    await assert.rejects(
+        () => potionbreathe(vaporPotion(POT_INVISIBILITY), game),
+        /the wet towel/u,
+    );
+    towel.spe = 0;
+    clearTopline();
+    await potionbreathe(vaporPotion(POT_INVISIBILITY), game);
+    assert.equal(toplines(), "For an instant you couldn't see yourself!");
+    game.ublindf = null;
+});
+
+test('an in-use potion keeps its flag through the vapors', async () => {
+    await startedGame(771007, 'VaporInUse');
+    discover_object(POT_OIL, true, true, false, game);
+    // potion.c:1936-1940: the flag is set for the duration and restored only
+    // when the caller had not set it. A caller that had is the pair that
+    // separates the restore from an unconditional clear.
+    const fresh = vaporPotion(POT_OIL);
+    fresh.in_use = false;
+    await potionbreathe(fresh, game);
+    assert.equal(fresh.in_use, false);
+    const held = vaporPotion(POT_OIL);
+    held.in_use = true;
+    await potionbreathe(held, game);
+    assert.equal(held.in_use, true);
+});
+
+test('a potion the hero cannot make out skips the naming tail', async () => {
+    await startedGame(771008, 'VaporUnknown');
+    // potion.c:2110 `if (obj->dknown)`. The invisibility arm sets kn, so with
+    // dknown clear the tail skips a makeknown() it would otherwise run: the
+    // hero saw the effect but not the bottle it came out of. An unidentified
+    // type is what makes that visible, and the message prints either way.
+    const type = game.objects[POT_INVISIBILITY];
+    type.oc_name_known = 0;
+    type.oc_encountered = 0;
+    type.oc_uname = null;
+    const obj = vaporPotion(POT_INVISIBILITY);
+    obj.dknown = false;
+    clearTopline();
+    await potionbreathe(obj, game);
+    assert.equal(toplines(), "For an instant you couldn't see yourself!");
+    assert.equal(type.oc_name_known, 0);
+    assert.equal(type.oc_encountered, 0);
+});
+
+test('a message that names the potion identifies its type', async () => {
+    await startedGame(771009, 'VaporLearn');
+    // hack.h:1530 makeknown(x) is discover_object(x, TRUE, TRUE, TRUE): it
+    // marks the type known, marks it encountered, and credits the hero with
+    // the discovery through exercise(A_WIS, TRUE), whose rn2(19) is the only
+    // draw potionbreathe() makes. An already identified type reaches none of
+    // the three, so the potion below starts unidentified.
+    const type = game.objects[POT_INVISIBILITY];
+    type.oc_name_known = 0;
+    type.oc_encountered = 0;
+    type.oc_uname = null;
+    const drawn = [];
+    clearTopline();
+    await potionbreathe(vaporPotion(POT_INVISIBILITY), game, {
+        random: { rn2: (bound) => { drawn.push(bound); return 18; } },
+    });
+    assert.equal(toplines(), "For an instant you couldn't see yourself!");
+    assert.equal(type.oc_name_known, 1);
+    assert.equal(type.oc_encountered, 1);
+    assert.deepEqual(drawn, [19]);
+});

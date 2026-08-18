@@ -60,8 +60,11 @@ import {
 import { reset_pick, UnsupportedLockError } from './lock.js';
 import { UnsupportedMonsterCreationError } from './makemon_create.js';
 import { UnsupportedRegionPlacementError } from './mkmaze.js';
+import { UnsupportedObjectNamingError } from './do_name.js';
 import { UnsupportedObjectOperationError } from './obj.js';
 import { UnsupportedPickupError } from './pickup.js';
+import { UnsupportedPotionError } from './potion.js';
+import { UnsupportedItemDestructionError } from './zap_destroy_items.js';
 import { UnsupportedPositionCheckError } from './teleport.js';
 import { UnsupportedHeroTimeoutBoundaryError } from './timeout.js';
 import { UnsupportedErosionError } from './trap_erode_obj.js';
@@ -1346,6 +1349,17 @@ export function failClosedCommandRefusals() {
         // and for the wet towel a hero's own fire would dry. zhitu()'s fire
         // arm is the ported caller, one frame below UnsupportedZapError.
         UnsupportedErosionError,
+        // The three classes zhitu()'s destroy_items() call reaches below
+        // UnsupportedErosionError, each after the bolt has been drawn and the
+        // items it destroyed have been announced. zap.c maybe_destroy_item()
+        // raises the first from its AD_COLD and AD_ELEC cases and from a worn
+        // or wielded object; potion.c potionbreathe() raises the second from
+        // the sixteen vapor arms this port leaves unported; do_name.c docall()
+        // raises the third for an object type the hero has neither identified
+        // nor already called something.
+        UnsupportedItemDestructionError,
+        UnsupportedPotionError,
+        UnsupportedObjectNamingError,
         // Two paths raise this. invent.c hold_another_object(), which
         // makewish() calls unguarded, raises it from its drop, artifact,
         // Fumbling and autoquiver arms. A wish heavy or numerous enough to

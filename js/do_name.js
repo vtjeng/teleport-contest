@@ -1,5 +1,5 @@
 // Monster names and novel-title data.
-// C ref: src/do_name.c christen_monst(), rndghostname(), bogusmon(),
+// C ref: src/do_name.c christen_monst(), docall(), rndghostname(), bogusmon(),
 // rndmonnam(),
 // sir_Terry_novels[], noveltitle(), and lookup_novel().
 
@@ -211,6 +211,32 @@ export function christen_monst(monster, name, env = {}) {
     );
     if (monster.mleashed) updateInventory(env);
     return monster;
+}
+
+// An object-naming prompt this port cannot open yet.
+export class UnsupportedObjectNamingError extends Error {
+    constructor(reason) {
+        super(`naming an object type requires ${reason}`);
+        this.name = 'UnsupportedObjectNamingError';
+        this.reason = reason;
+    }
+}
+
+// C ref: do_name.c docall() (640-676). Everything below its `!obj->dknown`
+// guard is one getlin() prompt -- safe_qbuf() builds "Call <thing>:",
+// name_from_player() reads the answer, and undiscover_object() or
+// discover_object() records it -- and no ported command reaches an input
+// boundary here, so the prompt stops.
+//
+// C's first line is not part of that stop. A hero who cannot see the object
+// has nothing to call it by, so docall() returns in silence; the comment there
+// reads "probably blind; Blind || Hallucination for 'fromsink'".
+export function docall(obj) {
+    if (!obj.dknown)
+        return; /* probably blind; Blind || Hallucination for 'fromsink' */
+    throw new UnsupportedObjectNamingError(
+        "getlin()'s \"Call <thing>:\" prompt",
+    );
 }
 
 // A monster name this port cannot format yet.

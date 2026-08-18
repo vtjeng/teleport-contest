@@ -1,6 +1,6 @@
 // do.js -- Commands that drop, dig into, or descend through the floor.
 // C refs: do.c -- dodrop(), flooreffects(), canletgo(), drop(), dropx(),
-// dropy(), dropz(), u_stuck_cannot_go(), dodown(), goto_level(),
+// dropy(), dropz(), trycall(), u_stuck_cannot_go(), dodown(), goto_level(),
 // u_collide_m(), temperature_change_msg() and set_wounded_legs(); dokick.c
 // obj_delivery(); mon.c kill_genocided_monsters(); questpgr.c
 // deliver_splev_message().
@@ -61,6 +61,7 @@ import { reset_trapset } from './apply.js';
 import { next_to_u } from './apply_next_to_u.js';
 import { reset_occupations, set_move_cmd } from './cmd.js';
 import { docrt, flush_screen, newsym } from './display.js';
+import { docall } from './do_name.js';
 import { setwornEnv } from './do_wear.js';
 import { keepdogs, losedogs, update_mlstmv } from './dog.js';
 import { can_reach_floor, engr_at } from './engrave.js';
@@ -111,7 +112,7 @@ import { set_ustuck } from './mon.js';
 import { m_at } from './monst.js';
 import { PM_ROGUE, PM_TOURIST } from './monsters.js';
 import {
-    is_pick, place_object, remove_object, set_bknown,
+    is_pick, objectType, place_object, remove_object, set_bknown,
 } from './obj.js';
 import { donameFresh, vtense } from './objnam.js';
 import {
@@ -401,6 +402,20 @@ export function flooreffects(obj, x, y, verb, env = {}) {
         unsupported('a potion landing on the hot ground of a hot level');
     }
     return false;
+}
+
+// C ref: do.c trycall() (393-400), translated whole. "If obj is neither
+// formally identified nor informally called something already, prompt the
+// player to call its object type."
+//
+// Both terms read the shared objects[] row rather than the object: a hero who
+// has identified one potion of oil is never asked to name another. That is why
+// potion.c potionbreathe()'s tail is silent for a starting inventory, whose
+// types u_init.c ini_inv_use_obj() discovered as it handed them over.
+export function trycall(obj, state = game) {
+    const type = objectType(obj, state);
+    if (!type.oc_name_known && !type.oc_uname)
+        docall(obj);
 }
 
 // Every branch of the drop chain -- dodrop(), drop() and the

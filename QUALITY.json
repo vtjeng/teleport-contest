@@ -3766,7 +3766,7 @@
       "area": "objects",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "dffeaa8e97c96743d1d45ea0cda5aeb74a0d0ce6",
       "detail": "A hero-aimed fire ray that reaches the hero without bouncing first stops one call past this goal's current boundary, at zap.c zhitu():4434 `if (!rn2(3)) (void) destroy_items(&gy.youmonst, AD_FIRE, orig_dam);`, which js/zap.js zhitu() raises UnsupportedZapError('destroy_items() and ignite_items() for the burning hero') for.\n\nThe reproducible case, recorded with the C reference at 20260817 and replayed with scripts/diff-fresh.mjs. Seed 20260817, datetime 20260817120000, and the same rc scripts/run-ray-zap.mjs builds:\n\n  OPTIONS=name:RayDown,role:Wizard,race:human,gender:female,align:neutral,playmode:debug\n  OPTIONS=!legacy,!tutorial,!splash_screen\n  OPTIONS=pettype:none,!acoustics\n  OPTIONS=symset:DECgraphics\n\nMoves: Ctrl-W, `wand of fire`, Return, then `zn>`.\n\nExpected failure today: C records 18 steps and the port emits 17. C's step 17 is \"The bolt of fire hits you!  Your cloak smoulders!--More--\" at cursor [57,0,1], with the hero's own square drawing S_lslant in CLR_ORANGE. The port stops before that screen, because the bolt reaches the hero on its first square -- dobuzz() forces the range to 1 for a bolt with no horizontal delta -- so only two messages precede the boundary, both fit on the top line, and nothing raises a --More-- that would end the segment one message earlier. The recorded log for that step is rn2(19), rn2(7), rn2(20), d(6,6), two rn2(5) from burnarmor(), then rn2(3)=0 at zhitu():4434 and the destroy_items() and maybe_destroy_item() draws behind it.\n\nThe matrix in scripts/run-ray-zap.mjs deliberately does not carry this segment, because a fresh differential cannot pass through a refusal. Its first case reaches the same zhitu() arm through a bounce, which raises the --More-- one message earlier and lands inside the boundary instead.\n\nWhat closes it: the slice fire-destroys-the-heros-potions, which owns zap.c destroy_items() (5964-6097) and maybe_destroy_item() (5797-5954) for the hero, and potion.c potionbreathe() (1931-2118) behind them. js/zap_destroy_items.js already carries the OBJ_MINVENT half of both.",
       "blockedOn": "destroy_items"
@@ -3795,6 +3795,42 @@
           "at": "2325a5ba33e3253659a35e2891dcfec6c9004d7c"
         }
       ]
+    },
+    {
+      "id": "potionbreathe-vapor-arms-refuse",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "239976ed0acf3949796a83e014105c169895c45d",
+      "detail": "js/potion.js potionbreathe() ports potion.c (1931-2118) with one live arm. Sixteen of its eighteen case labels raise UnsupportedPotionError by name rather than acting: POT_RESTORE_ABILITY and POT_GAIN_ABILITY (the eye sting and the ABASE bump), the POT_FULL_HEALING/POT_EXTRA_HEALING/POT_HEALING fall-through chain over make_blinded() and make_deaf(), POT_SICKNESS, POT_HALLUCINATION, POT_CONFUSION and POT_BOOZE over make_confused(), POT_PARALYSIS and POT_SLEEPING over nomul() and Free_action, POT_SPEED over incr_itimeout(&HFast), POT_BLINDNESS over make_blinded(), POT_WATER over split_mon() and you_were(), POT_ACID and POT_POLYMORPH over exercise(A_CON, FALSE), and the TOWEL arm a wet blindfold takes. Nine potion types carry no label at all and fall through to the naming tail, which is ported. What reaches an unported arm today: zap.c maybe_destroy_item():5917 for any starting potion but invisibility and oil, which is every hero whose pack holds one when a fire ray lands. scripts/potion.test.mjs pins each refusal against the case labels read out of potion.c."
+    },
+    {
+      "id": "maybe-destroy-item-cold-and-elec-refuse",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "239976ed0acf3949796a83e014105c169895c45d",
+      "detail": "js/zap_destroy_items.js maybe_destroy_item() ports zap.c (5797-5954) for AD_FIRE alone. Its AD_COLD case (rnd(4) and the shattered-potion row 0) and its AD_ELEC case (the ring arm over recharge() and Ring_gone(), and the wand arm's rnd(10)) each raise UnsupportedItemDestructionError before drawing. destroyable() and destroy_strings are ported whole, so only the two switch cases are missing. The consumer waiting on AD_ELEC is js/uhitm.js:1438, which refuses 'electricity destroying the hero-s items' where uhitm.c:2718 calls destroy_items(&gy.youmonst, AD_ELEC, mhm.damage); AD_COLD waits on zhitu()'s ZT_COLD arm, which js/zap.js refuses one frame higher."
+    },
+    {
+      "id": "destroy-items-worn-object-refuses",
+      "area": "objects",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "239976ed0acf3949796a83e014105c169895c45d",
+      "detail": "js/zap_destroy_items.js maybe_destroy_item() raises UnsupportedItemDestructionError for a destroyed object that carries an owornmask, where zap.c:5921-5926 calls Ring_gone() for a worn ring and worn.c setnotworn() for everything else. js/worn.js setnotworn() exists and needs the cancelDoff, monsterUnseesProperty and setArtifactIntrinsic hooks wired from this call site; Ring_gone() has no port at all and cannot be reached under AD_FIRE, because destroyable() admits no ring. The stop is lifted above the pline() at 5909 so the segment ends before the message rather than one message past it. Reachable today only by a hero who wields a potion, scroll or spellbook when a fire ray lands."
+    },
+    {
+      "id": "docall-naming-prompt-unported",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "239976ed0acf3949796a83e014105c169895c45d",
+      "detail": "js/do_name.js docall() ports do_name.c (640-676) down to its '!obj->dknown' guard and raises UnsupportedObjectNamingError for the rest: safe_qbuf() building the 'Call <thing>:' prompt, the fromsink variant for a stream of sink water, name_from_player()'s getlin(), and undiscover_object()/discover_object() on the answer. do.c trycall() is ported whole above it. Reached today from potion.c potionbreathe()'s tail for a potion type the hero has neither identified nor already called something, which a starting inventory never holds because u_init.c ini_inv_use_obj() discovers what it hands over; a potion picked up off the floor and then destroyed by fire does reach it."
     }
   ],
   "areas": [
@@ -3868,6 +3904,7 @@
         "js/objnam_data.js",
         "js/objnam_readobjnam.js",
         "js/pickup.js",
+        "js/potion.js",
         "js/questpgr.js",
         "js/steal.js",
         "js/u_init_inventory.js",

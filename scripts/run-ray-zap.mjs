@@ -17,9 +17,7 @@
 //   bolt of fire hits you!" from pline_dir() at :4964, and "Your cloak
 //   smoulders!" from burnarmor() through zhitu()'s ZT_FIRE arm. The third
 //   does not fit on the top line, so the segment ends at the --More-- that
-//   message raises. This is the only shape that reaches zhitu() and still
-//   stops inside this port's boundary; see the deferral
-//   vertical-ray-reaches-destroy-items for a shape that does not.
+//   message raises.
 // - The second aims east, at the wall seven squares away. rn1(7, 7) cannot
 //   reach that wall and come back, so the bolt runs out of range on the
 //   return leg, tmp_at(DISP_END) erases the whole beam, and the turn
@@ -37,6 +35,13 @@
 //   without drawing at all. This segment draws twice there, once against the
 //   75-in-1 wall chance and once against the 10-in-1 chance dobuzz():5003
 //   picks for a square off the map or made of stone.
+// - The sixth aims down. dobuzz():4824-4825 forces the range to 1 for a bolt
+//   with no horizontal delta, so the hero's own square is the only one the
+//   loop visits and the bolt hits with no bounce message ahead of it. Two
+//   messages fit on the top line where the first case's three did not, which
+//   is what carries this segment past zhitu():4434 and into destroy_items(),
+//   maybe_destroy_item() and potionbreathe(). The first case stops one
+//   message earlier and reaches none of them.
 //
 // Two things every segment relies on and the verifier below checks: the wished
 // wand's objects[] row carries oc_dir RAY, which is what sends dozap() into
@@ -72,6 +77,8 @@ const WAND_LETTER = 'n';
 const WEST = 'h';
 const EAST = 'l';
 const SOUTHEAST = 'n';
+// cmd.c getdir() reads '>' as down, which leaves u.dx and u.dy at zero.
+const DOWN = '>';
 
 // One seed for every segment. It was chosen by recording the start until the
 // hero appeared in an ordinary lit room with a wall one square west, a wall
@@ -94,6 +101,11 @@ export const RAY_CASES = [
         label: 'diagonal ray bounces twice',
         wand: 'wand of fire',
         dir: SOUTHEAST,
+    },
+    {
+        label: 'downward ray destroys the potions',
+        wand: 'wand of fire',
+        dir: DOWN,
     },
 ];
 
@@ -149,6 +161,10 @@ export function loadRayZapRecipe() {
 // bolt's path fails here rather than passing a differential against a case
 // that reaches the unported monster arm.
 function monsterOnLine(dx, dy, state) {
+    // A downward bolt has no line: dobuzz():4824-4825 forces its range to 1
+    // and the loop's first square is the hero's own, where m_at() answers
+    // nothing because the hero is not on the monster chain.
+    if (!dx && !dy) return null;
     let x = state.u.ux;
     let y = state.u.uy;
     // rn1(7, 7) is at most 13, and a bolt cannot travel further than that
@@ -166,6 +182,7 @@ const DIRECTION_DELTA = {
     [WEST]: { dx: -1, dy: 0 },
     [EAST]: { dx: 1, dy: 0 },
     [SOUTHEAST]: { dx: 1, dy: 1 },
+    [DOWN]: { dx: 0, dy: 0 },
 };
 
 export async function verifyRaySegment(recipeSegment) {

@@ -504,11 +504,14 @@ test('weffects hands the ray six dice, and magic missile two', async () => {
     // with no horizontal delta, so the first square the loop visits is the
     // hero's own and the bolt hits without bouncing first.
     const rolled = [];
+    const bounds = [];
     const random = {
         d: (n, x) => { rolled.push([n, x]); return n; },
         rn1: (x, y) => y,
-        rn2: () => 1, // never zero: zap_hit() hits and burnarmor() picks the
-                      // cloak slot, which is what ends the bolt in zhitu()
+        rn2: (x) => { bounds.push(x); return 1; },
+        // never zero: zap_hit() hits, burnarmor() picks the cloak slot, and
+        // both of zhitu()'s !rn2(3) guards fail, so the bolt goes straight to
+        // the losehp() below them
         rnd: (x) => x,
         rnl: () => 1,
     };
@@ -523,9 +526,13 @@ test('weffects hands the ray six dice, and magic missile two', async () => {
     };
     await assert.rejects(
         () => weffects(wand, game, random),
-        /destroy_items\(\) and ignite_items\(\) for the burning hero/u,
+        /losehp\(\) for the bolt's damage/u,
     );
     assert.deepEqual(rolled, [[6, 6]]);
+    // weffects()'s exercise(A_WIS, TRUE), zap_hit()'s rn2(20), burnarmor()'s
+    // one rn2(5) slot roll -- a return of 1 lands on the cloak first time --
+    // and then zhitu():4434 and :4436, whose two guards are 1-in-3 each.
+    assert.deepEqual(bounds, [19, 20, 5, 3, 3]);
 });
 
 test('a wand of fire aimed at a wall burns the hero it bounces back onto',
@@ -683,15 +690,16 @@ test('the ray matrix keeps replay inputs and one wand per case', () => {
             entry.label);
         assert.equal(moves.split('z').length - 1, 1, entry.label);
     }
-    // The three wand names the matrix wishes for, and the three directions.
-    // A fourth wand type would reach an unported zhitu() arm; a fourth
-    // direction would change which of dobuzz()'s bounce paths runs.
+    // The three wand names the matrix wishes for, and the four directions. A
+    // fourth wand type would reach an unported zhitu() arm; each direction
+    // changes which of dobuzz()'s paths runs, and '>' is the one that forces
+    // the range to 1 and lands the bolt on the hero without a bounce.
     assert.deepEqual(
         [...new Set(RAY_CASES.map(({ wand }) => wand))],
         ['wand of fire', 'wand of cold', 'wand of magic missile'],
     );
     assert.deepEqual(
-        [...new Set(RAY_CASES.map(({ dir }) => dir))], ['h', 'l', 'n'],
+        [...new Set(RAY_CASES.map(({ dir }) => dir))], ['h', 'l', 'n', '>'],
     );
 });
 
@@ -872,7 +880,7 @@ test('a hallucinating hero stops before the beam takes a colour', async () => {
         game.u.uprops[HALLUC_RES][source] = FROMOUTSIDE;
         await assert.rejects(
             () => weffects(wand, game, straightThrough()),
-            /destroy_items\(\) and ignite_items\(\) for the burning hero/u,
+            /losehp\(\) for the bolt's damage/u,
         );
     }
 });
@@ -989,7 +997,8 @@ test('weffects turns each ray wand into the dobuzz type its row implies',
     // back in its refusal, which is how each row is read here.
     const cases = [
         [WAN_MAGIC_MISSILE, 'zhitu() for damage type 0'],
-        [WAN_FIRE, 'destroy_items() and ignite_items() for the burning hero'],
+        [WAN_FIRE,
+            "losehp() for the bolt's damage, under the killer built at 4582"],
         [WAN_COLD, 'zhitu() for damage type 2'],
         [WAN_SLEEP, 'zhitu() for damage type 3'],
         [WAN_DEATH, 'zhitu() for damage type 4'],

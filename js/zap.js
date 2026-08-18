@@ -21,7 +21,7 @@
 // wizcmds.c wiz_wish() calls makewish(); potion.c, sit.c and zap.c's own
 // wand code reach it too, and none of those callers is ported.
 //
-// zap.c's elemental destruction of monster inventory lives in
+// zap.c's elemental destruction of carried and floor-borne objects lives in
 // js/zap_destroy_items.js, which the C file separates as its own group of
 // functions.
 
@@ -159,7 +159,8 @@ import { burnarmor } from './trap_erode_obj.js';
 import { cansee } from './vision.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
 import { ttyPline } from './tty_message.js';
-import { burn_floor_objects } from './zap_destroy_items.js';
+import { burn_floor_objects, destroy_items } from './zap_destroy_items.js';
+import { ignite_items } from './apply_catch_lit.js';
 
 // The wish parser raises every other refusal, so the class lives with it.
 export { UnsupportedWishError };
@@ -754,9 +755,9 @@ export async function bhit(
 //   0..5 for the six ray wands (objects.h:1488 orders them so), so it is
 //   false and the deferred second zap_over_floor() at 5021-5022 never runs.
 //
-// Only zhitu()'s ZT_FIRE arm is ported, through the destroy_items() call at
-// 4434; the other six damage types and the killer-and-losehp() tail below
-// them stop by name.
+// Only zhitu()'s ZT_FIRE arm is ported, down to the end of its burnarmor()
+// block at 4438; the other six damage types and the killer-and-losehp() tail
+// below them stop by name.
 
 // C ref: zap.c:45-57. ZT_<element> is the damage type minus one, and the three
 // ZT_ macros shift it into the wand, spell and breath bands.
@@ -811,8 +812,9 @@ function Hallucination(state) {
 }
 
 // C ref: youprop.h:28 Fire_resistance and :381 Reflecting, both the plain
-// "either source" spelling.
-function Fire_resistance(state) {
+// "either source" spelling. Fire_resistance is exported because
+// js/zap_destroy_items.js maybe_destroy_item() reads it too, at zap.c:5834.
+export function Fire_resistance(state) {
     const property = state.u?.uprops?.[FIRE_RES];
     return Boolean(property?.intrinsic || property?.extrinsic);
 }
@@ -989,10 +991,10 @@ export function zap_hit(ac, type, random = { rn2, rnd }) {
 // C ref: zap.c zhitu() (4400-4591), the damage a bolt does to the hero, and
 // the only caller of burnarmor() this port reaches.
 //
-// The ZT_FIRE arm (4421-4438) is ported down to the destroy_items() call at
-// 4434, which is where this stops. Everything below that call -- the second
-// !rn2(3) into ignite_items(), the killer built at 4561-4582 and the
-// losehp(dam, kbuf, KILLED_BY_AN) at 4588 -- belongs to the later slices of
+// The ZT_FIRE arm (4421-4439) is ported whole, including both !rn2(3) guards:
+// the first hands the pack to zap.c destroy_items() and the second to
+// apply.c ignite_items(). What is below it -- the killer built at 4561-4582 and
+// the losehp(dam, kbuf, KILLED_BY_AN) at 4588 -- belongs to a later slice of
 // this goal, so both exits below refuse.
 //
 // `dam` and `orig_dam` are separate in C because a fire-resistant hero takes
@@ -1019,9 +1021,11 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
         burn_away_slime(state);
         /* "body hit" */
         if (await burnarmor(state.youmonst, { state, random })) {
-            throw new UnsupportedZapError(
-                'destroy_items() and ignite_items() for the burning hero',
-            );
+            if (!random.rn2(3))
+                await destroy_items(state.youmonst, AD_FIRE, orig_dam,
+                    { state, random });
+            if (!random.rn2(3))
+                await ignite_items(state.invent, { state, random });
         }
         break;
 
@@ -1031,10 +1035,8 @@ async function zhitu(type, nd, fltxt, sx, sy, state, random) {
         );
     }
     // 4561-4588: the kbuf the killer is built into, Half_spell_damage, and
-    // losehp(). `fltxt` exists only to be spliced into that killer, and
-    // `orig_dam` only to be handed to destroy_items() above.
+    // losehp(). `fltxt` exists only to be spliced into that killer.
     void fltxt;
-    void orig_dam;
     void sx;
     void sy;
     throw new UnsupportedZapError(
