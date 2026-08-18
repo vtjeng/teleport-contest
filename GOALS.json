@@ -2509,10 +2509,17 @@
       "boundary": "options.c parseoptions() and cfgfiles.c parse_config_line() report a configuration error and play on where the port throws and loses the whole segment, and every option lands at the C address its optlist.h row names rather than in result.flags.",
       "upstreamOwners": [],
       "forecast": {
-        "steps": 0,
-        "basis": "Re-measured at 67870c0 with node scripts/scan-sessions.mjs over the 33 development sessions, replacing the 169d01e figure: still 0, because no development session stops on a startup or options-parser boundary. The re-ranking that produced this restatement capped eight boundary-census candidates and put option-toggle-repaints-the-map on top at 31 steps, so this goal again ranks last on development look-ahead and stays queued rather than opened. The nine startup deferrals it prices are now eight: 67870c0 closed config-error-summary-names-an-unknowable-path by accepting the configuration-file path as a divergence no port can close.",
-        "sessions": [],
-        "witnesses": []
+        "steps": 6,
+        "basis": "Re-measured at 5bc785a with my own run of node scripts/scan-sessions.mjs over the 33 development sessions, replacing the 67870c0 figure of 0. That figure said no development session stops on a startup or options-parser boundary, and that is no longer true: seed0017-samurai-altar-pray stops at 61 of 67 steps on \"the attributes window requires parseoptions() to interpret 'pickup_types'\", raw unlocks 6, supports 6. Its rc sets OPTIONS=autopickup,pickup_types:%, the port leaves the raw % in flags.pickup_types, and js/insight.js throws rather than running options.c optfn_pickup_types()'s do_set arm. The remaining 6 steps are the rest of the attributes window and a look.\n\nThe 6 is a raw figure. .agents/selection.md Appendix A caps only the candidates that can still win, and 6 sits far below the leader hero-death-reaches-done at a capped 70, so no capping read was performed; capping never raises a figure, so 6 bounds it from above. On raw look-ahead this goal now ranks eleventh-equal of the 18 stopped boundaries, tied with the garlic-breath row, rather than last at 0.\n\nOne caveat carried from the goal-selector rather than measured: the refusal site predates 67870c0, since git log -S returns 7a1278f and 65d1bba, both ancestors of it, so the earlier basis may have been wrong when written rather than overtaken. Confirming that needs a replay at 67870c0, which nobody ran. The boundary also sits at the edge of this goal's stated scope, which names configuration-error reporting and option storage addresses rather than a CompOpt value handler.",
+        "sessions": [
+          "seed0017-samurai-altar-pray.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed0017-samurai-altar-pray.session.json",
+            "evidence": "Observed stop at 5bc785a: 61 of 67 steps, on the CTRL-X byte bound to the attributes command, refused as \"an unported branch of this command: the attributes window requires parseoptions() to interpret 'pickup_types'\", with C's next screen \" Akira the Samurai's attributes:\". The C path is options.c parseoptions() over the rc line OPTIONS=autopickup,pickup_types:%, reaching optfn_pickup_types()'s do_set arm; the port stores the raw % in flags.pickup_types and js/insight.js throws when the attributes window reads it."
+          }
+        ]
       },
       "detail": "This goal owns nine open startup deferrals that a sweep would otherwise schedule by entry count. They are one body of porting rather than bookkeeping, so they are priced here and ranked against the boundary census. Config-error reporting: parseoptions-level-config-errors-still-fail-closed (five sites that throw where C reports: bad_negation at options.c:627, the unknown-option message at 689, the ambiguous-prefix message at 585-587, Empty statement at 536, and Option too long); options-config-error-and-parser-residue (four follow-ups, one of which is a three-line UNPORTED_CONFIG_STATEMENTS row for AUTOPICKUP_EXCEPTION); config-error-message-truncation-unported (pline.c vconfig_error_add cutting at BUFSZ - 1, and vpline 212-225 rewriting a long tail as an ellipsis); config-error-summary-names-an-unknowable-path (cfgfiles.c config_error_done 1609-1615 names the absolute path fopen_config_file opened, which runSegment cannot learn, so this one may need a decision rather than a port). Parser coverage: options-unknown-config-statement (13 CONFIG_STATEMENTS rows against cfgfiles.c config_line_stmt[]s 31 player-reachable rows, so it needs a generated table); negated-compound-option-still-fail-closed (27 of 41 CompOpt rows throw on a negated statement carrying a value); parseoptions-duplicate-detection-unported (options.c:621-623 duplicate_opt_detection and the allopt dupdetected counter). Storage and menu: boolean-options-store-outside-their-c-address (about 70 BoolOpt rows whose C address is iflags or flags rather than result.flags); status-hilite-menu-rows-unported (js/options.js count_status_hilites at :3403 throws for any hilite rule, and its closing condition needs botl.c count_status_hilites gather pass and no unported C).",
       "slices": [],
@@ -2867,6 +2874,41 @@
         "screens": 0,
         "rng": 0
       }
+    },
+    {
+      "id": "hero-death-reaches-done",
+      "status": "open",
+      "boundary": "A hero death that hack.c losehp() funnels through its `u.uhp < 1` branch (4283-4288) runs end.c done() (1019-1126) through its forced status update and its wizard-mode continue-playing query, drawing \"Die? [yn] (n)\" and waiting there, instead of raising UnsupportedEndOfGameError at js/end.js done().\n\nThe property that bounds it is testable against the C source alone. done() is straight-line code above `really_done(how)` at 1124, and for `how == DIED` every arm between is decided by `how` and by state the caller has already written. The TRICKED arm (1024-1034) is dead. program_state.panicking is false and `how == QUIT && done_stopprint` is false, so the else at 1043-1046 runs `disp.botlx = TRUE; bot();`. iflags.debug_fuzzer is off (1056-1059). The three killer-format defaults at 1061-1067 are all no-ops because losehp() filled svk.killer at 4284-4286, so deaths[] is never read. `how < PANICKED` holds, so 1069-1080 increments u.umortality and forces `u.uhp = u.mh = 0` with disp.botl = TRUE. The Lifesaved arm (1081-1103) needs an amulet of life saving.\n\nWhat remains is the one condition at 1105-1112, whose last term draws the prompt: cmd.c paranoid_query() (5655) calls paranoid_ynq() (5588), which takes its non-paranoid arm at 5645, `yn_function(prompt, ynchars, 'n', FALSE)`, because initoptions_init() leaves flags.paranoia_bits = PARANOID_PRAY | PARANOID_SWIM | PARANOID_TRAP (options.c:7173) and ParanoidDie (flag.h:560, testing PARANOID_DIE = 0x0004) is clear. HANGUPHANDLING is defined on UNIX, so the program_state.done_hup term at 1110 is compiled in and short-circuits false in a recorded run.\n\nEverything below that condition stays refused: savelife() at 1094 and 1115, the `survive` return at 1119-1123, and really_done() (1130-1590) with its disclosure, tombstone, bones and score-file work. The goal ends at the unanswered prompt, because seed5002's segment 0 input is exhausted there, so neither answer arm runs.",
+      "upstreamOwners": [
+        "end.c done()",
+        "hack.c losehp()",
+        "botl.c bot()",
+        "cmd.c paranoid_query()",
+        "cmd.c paranoid_ynq()"
+      ],
+      "forecast": {
+        "steps": 70,
+        "basis": "Capped look-ahead, measured by me at 5bc785a with node scripts/scan-sessions.mjs and its --ahead stream, not taken from the goal-selector's report.\n\nRaw unlocks 103, one session, steps 120..223. I counted the stream myself: 4 screens finish seed5002's segment 0 (\"You die...--More--\" three times, then \"Die? [yn] (n)\"), and segment 1 then runs 66 further screens before its first message implying a second unported behavior, \"You hear nothing special.\", which is apply.c use_stethoscope()'s adjacent-square arm. js/apply.js use_stethoscope() ports the self arm through ustatusline() and throws UnsupportedApplyError('listening to an adjacent square') for a nonzero direction, so that is where the stretch caps. 4 + 66 = 70.\n\nThe two candidates with larger raw figures both cap far below it, and I capped each myself rather than relying on the report. Engraving interaction, raw 609 on seed0030, caps at 7: the stretch clears a descent and the kitten's kill and reaches \"Your kitten eats a newt corpse.\", which is dogmove.c dog_eat(), routed to an unsupported() injection in js/unported_monster_actions.js. That collapse is the one .agents/selection.md predicts, since seed0030's hero dies inside the stretch. level_tele() reaching print_dungeon(), raw 198 over three sessions, caps at a handful: every one of the three materializes onto a special level (fakewiz1, fakewiz2, bigrm) on its first step past the stop, and js/do.js goto_level() calls mklev() with no special-level loader behind it. Appendix A then stops the capping read at puton, raw 47, which is below 70; capping never raises a figure, so everything under it has lost.\n\nTwo limits on this figure, both stated rather than resolved. Segment 1's 66 credited screens have never been replayed by the port, because segment 0 aborts first, so they are a modelled read of C's recorded screens; the corroboration is that segment 0 already replays the identical \"^V 5\" level-teleport opening that segment 1 repeats. And the goal earns those 66 only by finishing segment 0, which is what the 4 buys.",
+        "sessions": [
+          "seed5002-wizard-coverage-pair.session.json"
+        ],
+        "witnesses": [
+          {
+            "session": "seed5002-wizard-coverage-pair.session.json",
+            "evidence": "Observed stop at 5bc785a: 120 of 410 screens, segment 0 step 120 of 124, refused as \"an unported branch of this command: done(0) for killer \\\"bolt of fire zapped by herself\\\" in format 0\", with C's next screen \"You die...--More--\". The rc sets playmode:debug, so wizard is TRUE, and sets no paranoid_confirmation, so ParanoidDie is clear. The C path: the hero zaps her wished-for wand of fire at herself, so zap.c zhitu()'s fire arm builds kbuf and calls losehp(dam, \"bolt of fire zapped by herself\", KILLED_BY_AN); hack.c losehp() takes its u.uhp < 1 branch at 4283, writes svk.killer.format and svk.killer.name at 4284-4286, prints urgent_pline(\"You die...\") at 4287 and calls done(DIED) at 4288. In done(), how == DIED skips TRICKED, takes the else at 1043-1046, leaves the killer-format defaults at 1061-1067 as no-ops, runs 1069-1080, skips Lifesaved at 1081, and reaches 1105-1112 with wizard TRUE and how <= GENOCIDED, whose paranoid_query(ParanoidDie, \"Die?\") draws the recorded \"Die? [yn] (n)\" at step 123, where the segment's input ends."
+          }
+        ]
+      },
+      "detail": "",
+      "slices": [],
+      "openedAt": "5bc785a075533ffa5af88f9349fe6fd27f85cbe8",
+      "openStanding": {
+        "sha": "f73acac",
+        "screens": 1879,
+        "rng": 133468
+      },
+      "closedAt": null,
+      "delivered": null
     }
   ]
 }
