@@ -15,3 +15,10 @@ Entry shape:
 - Provisional decision: what the loop did meanwhile, or "slice parked".
 - Answer: (open)
 ```
+
+## Q9 (2026-08-18) May constructed tests close the rare stethoscope disguise arms?
+
+- Context: The queued `listen-at-a-monster-names-and-reveals-it` slice now has strict fresh C/JavaScript differentials for its common path, a natural `STRANGE_OBJECT` mimic, and a visible cloud region. A complete D:5 seed scan over 1..20,000 found one adjacent named-fruit mimic whose map already diverges before the listen, and no adjacent furniture or monster disguise; source tracing found no shipped-level `M_AP_MONSTER` producer reachable before other unported behavior.
+- Question: May C source analysis plus constructed integration tests substitute for fresh C differentials for the named-fruit, furniture, and monster-disguise branches?
+- Provisional decision: slice parked; the worker's nine-file unstaged implementation diff is preserved pending the answer because its sandboxed cleanup was rejected.
+- Answer: (open)
