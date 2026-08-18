@@ -2815,7 +2815,7 @@
     },
     {
       "id": "objects-deferral-sweep-5",
-      "status": "open",
+      "status": "closed",
       "boundary": "Resolve the objects area's open production deferrals, which npm run quality names as a sweep candidate at fourteen counted entries against a threshold of ten, before the next fail-closed boundary port opens. .agents/selection.md forecloses the choice: \"Clear every deferred-area sweep the report names before opening a fail-closed boundary port.\"\n\nThe goal is complete when the counted set is below ten and every entry this reading showed to be small is closed. Four close: throw-gold-at-a-monster-stops-under-the-wrong-name, yname-and-do-wear-keep-a-narrower-obj-is-pname, wear-oilskin-and-smock-cloaks-stop, and the wished-for chest, large box or ice box. Two are re-blocked on a symbol js/ does not define: destroy-items-worn-object-refuses on dowield, and docall-naming-prompt-unported on safe_qbuf. That leaves eight counted.\n\nThe property that bounds it is testable without a recording. Every one of the thirty open objects entries was read against the tree, and not one is a silent divergence: each stops on a named refusal before changing state or writing a message. The class .agents/selection.md asks to be ordered first -- an entry where the port skips a message-writing C branch silently -- is empty for this area, which is why the ordering below runs by what the port reports at the stop and then by cost.\n\nOne entry misreports rather than omits, and it goes first. js/zap.js:704 raises UnsupportedBhitError('thitmonst()') for any monster in a thrown object's path, and bhit() never calls thitmonst() for a thrown weapon: zap.c:4021-4029's `weapon != ZAPPED_WAND` arm runs tmp_at(DISP_END, 0), maps an unseen monster, sets result = mtmp and returns it, leaving the caller to decide. throwit() calls thitmonst(); throw_gold() calls ghitm() at dothrow.c:2712. Both JavaScript callers, js/dothrow.js:777 and :977, therefore stop under a name belonging to the other one, and every downstream instrument reads that name, including the boundary census .agents/selection.md ranks goals with.",
       "upstreamOwners": [
         "zap.c bhit()",
@@ -2862,8 +2862,11 @@
         "screens": 1879,
         "rng": 133468
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "f73acac17abc24bbd3319ca44429dec59580c308",
+      "delivered": {
+        "screens": 0,
+        "rng": 0
+      }
     }
   ]
 }
