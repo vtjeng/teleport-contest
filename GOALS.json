@@ -2842,8 +2842,8 @@
         },
         {
           "name": "yname-reads-the-complete-obj-is-pname",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "526eee3e1b8d42ef05e3aaef9884dd2176de275b"
         },
         {
           "name": "oilskin-and-smock-cloaks-go-on",
