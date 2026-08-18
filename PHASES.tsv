@@ -622,3 +622,4 @@ utc	event	phase	goal	detail
 2026-08-18T13:22:12.738Z	end	review	objects-deferral-sweep-5	recorded at c8394b4 and f73acac; the end row is written late, after the select start above
 2026-08-18T14:03:32.689Z	end	select	hero-death-reaches-done	goal-selector then slice-selector; I re-ran the census and capped the three leading candidates myself
 2026-08-18T14:03:32.722Z	start	implement	hero-death-reaches-done	death-draws-the-wizard-mode-die-query
+2026-08-18T14:55:17.793Z	end	implement	hero-death-reaches-done	death-draws-the-wizard-mode-die-query, 70 of 70 forecast

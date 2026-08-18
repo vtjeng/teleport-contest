@@ -2903,8 +2903,8 @@
       "slices": [
         {
           "name": "death-draws-the-wizard-mode-die-query",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "1da5569cee87a1deb12dabb516b5c50f620fa402"
         }
       ],
       "openedAt": "5bc785a075533ffa5af88f9349fe6fd27f85cbe8",
