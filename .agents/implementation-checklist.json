@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
   "reason": "Every entry is done or cannot-occur. hack.c losehp()'s death branch records svk.killer and prints urgent_pline(\"You die...\") before refusing at end.c done(DIED) under UnsupportedEndOfGameError; zap.c zhitu()'s killer tail is ported as zhituLosehpArguments(); botl.c's hit-point clamp is in js/display.js _statusHitPoints(), which all three status renderers read; and the ignite_items() exposure now raises the named UnsupportedItemIgnitionError. The evidence applies to 4a97bd1: c7241af holds the production lines, 0b4eadf corrects one comment span, 9b01443 records that commit's Mutants trailer, and 4a97bd1 changes only trackers. The goal's closing correctness pass over 4fe4f56..14767df then confirmed fourteen findings, applied at f72f6ed, two of them production defects in entries above: js/apply_catch_lit.js's OBJ_INVENT refusal stood ahead of every guard apply.c catch_lit() answers first, and js/zap.js's killer guard dropped C's `type == 0 &&` conjunct. Both entries stay done with the corrected behavior and its tests; the evidence in this file applies to f72f6ed.",
-  "commitChecked": "f72f6ed",
+  "commitChecked": "f72f6ed5ec933c54f7c4286f8a1086fed817ac2c",
   "boundary": {
     "goalId": "hero-zaps-a-ray-wand",
     "startingCommit": "0c903d4",
