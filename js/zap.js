@@ -38,7 +38,6 @@ import {
     DISP_CHANGE,
     DISP_END,
     DISP_FLASH,
-    DRAIN_RES,
     ECMD_CANCEL,
     ECMD_OK,
     ECMD_TIME,
@@ -63,12 +62,10 @@ import {
     M_SEEN_REFL,
     M_SEEN_SLEEP,
     OBJ_AT,
-    POISON_RES,
     REFLECTING,
     SDOOR,
     SHOCK_RES,
     STONE,
-    STONE_RES,
     nothing_happens,
     ONAME_KNOW_ARTI,
     ONAME_WISH,
@@ -117,12 +114,8 @@ import {
     AD_ACID,
     AD_COLD,
     AD_DISN,
-    AD_DRLI,
-    AD_DRST,
     AD_ELEC,
     AD_FIRE,
-    AD_SLEE,
-    AD_STON,
 } from './monsters.js';
 import { discover_object, observe_object } from './o_init.js';
 import { is_pick, objectType, remove_object } from './obj.js';
@@ -855,10 +848,10 @@ export function adtyp_to_prop(dmgtyp) {
     case AD_ELEC: return SHOCK_RES;
     case AD_ACID: return ACID_RES;
     case AD_DISN: return DISINT_RES;
-    case AD_DRST: return POISON_RES;
-    case AD_DRLI: return DRAIN_RES;
-    case AD_SLEE: return SLEEP_RES;
-    case AD_STON: return STONE_RES;
+    // C's switch holds these five rows and nothing else. Every other damage
+    // type falls to `default: break;` and the `return 0` below it, which
+    // zap.c:5670's own comment explains: prop_types start at 1, so 0 is the
+    // no-property answer u_adtyp_resistance_obj() tests for.
     default: return 0;
     }
 }
@@ -916,10 +909,16 @@ export function inventory_resistance_check(
 // never draws. That is why a horizontal zap's log carries no bounce roll and
 // why no horizontal zap can exercise the 10/20/75 selector dobuzz() picks
 // `bounceback` from.
-// C's `*ddx = -(*ddx)` on an int 0 is 0; JavaScript's unary minus answers -0,
-// which Object.is separates from 0 and which every truthiness test -- including
-// zapdir_to_glyph()'s own `dx ? 1 : 0` -- reads as false. Subtracting from
-// zero negates without producing it.
+// C's `*ddx = -(*ddx)` on an int 0 is 0; JavaScript's unary minus answers -0.
+// No branch this port takes can tell the two apart: `-0 === 0` holds, `-0` is
+// falsy exactly as `0` is, and so zapdir_to_glyph()'s `dx ? 1 : 0`,
+// dobuzz()'s `dx === 0 && dy === 0` and the `!ddx || !ddy` test below all
+// answer the same either way. js/zap.js's own `xytodir(-dx, -dy)` passes -0
+// for a horizontal bolt and resolves correctly.
+//
+// What separates them is identity: Object.is and assert.deepStrictEqual. This
+// keeps a delta the same value C's int holds, so an assertion or a future
+// serialization comparing by identity stays meaningful. It fixes no branch.
 function negate(delta) {
     return 0 - delta;
 }

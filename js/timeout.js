@@ -45,6 +45,7 @@ import { artifact_light } from './artifacts.js';
 import { stone_luck } from './attrib.js';
 import { rot_corpse, unportedRotCorpseReason } from './dig.js';
 import { heal_legs } from './do.js';
+import { carrying } from './invent.js';
 import { game } from './gstate.js';
 import { You_can_move_again, nomul } from './hack.js';
 import {
@@ -131,10 +132,13 @@ function requiredCleanupHook(env, operation, funcIndex) {
 }
 
 // Keep this display boundary synchronized with invent.js update_inventory().
-// Timers cannot import that object-owning module without creating the cycle
-// timeout -> invent -> obj -> timeout. For a carried lit object, the optional
-// window hook is used whenever display is active and unsuppressed; it becomes
-// mandatory only for a permanent-inventory display.
+// It is spelled out here rather than imported so a timer's display decision
+// stays readable beside the timers, not because an import is impossible: this
+// file already sits inside that cycle through './dig.js' and './do.js', both
+// of which import invent.js, and it imports carrying() from invent.js
+// directly. For a carried lit object, the optional window hook is used
+// whenever display is active and unsuppressed; it becomes mandatory only for
+// a permanent-inventory display.
 function burnInventoryRefreshActive(state) {
     const programState = state.program_state;
     return Boolean(programState?.in_moveloop
@@ -365,17 +369,6 @@ export function preflight_nh_timeout_elapsed_turn(state = game, env = {}) {
     }
     const reason = unportedDueTimerReason(state, timerFireEnv(state, env));
     if (reason) throw new UnsupportedHeroTimeoutBoundaryError(reason);
-}
-
-// C ref: invent.c carrying() (1493-1504). js/invent.js exports the same
-// function, and this second copy stays because the header comment above
-// records why: importing js/invent.js here would close the cycle
-// timeout -> invent -> obj -> timeout that this file is written to avoid.
-function carrying(type, state) {
-    for (let object = state.invent; object; object = object.nobj) {
-        if (object.otyp === type) return object;
-    }
-    return null;
 }
 
 // C ref: timeout.c burn_away_slime() (446-453). Fire cures green slime, and

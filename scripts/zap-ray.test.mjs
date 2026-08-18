@@ -12,14 +12,18 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import {
+    ACID_RES,
     AC_VALUE,
+    COLD_RES,
     CORR,
+    DISINT_RES,
     DOOR,
     D_CLOSED,
     ER_DAMAGED,
     ERODE_BURN,
     EF_GREASE,
     FIRE_RES,
+    SHOCK_RES,
     FROMOUTSIDE,
     HALLUC,
     HALLUC_RES,
@@ -36,13 +40,17 @@ import {
 import {
     GLYPH_INVISIBLE,
     map_glyphinfo,
+    map_invisible,
     zapdir_to_glyph,
 } from '../js/display.js';
 import { GLYPH_ZAP_OFF } from '../js/glyph_offsets.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { relocate_monster } from '../js/monst.js';
-import { AD_ACID, AD_COLD, AD_FIRE, AD_PHYS } from '../js/monsters.js';
+import {
+    AD_ACID, AD_COLD, AD_DISN, AD_DRLI, AD_DRST, AD_ELEC, AD_FIRE, AD_PHYS,
+    AD_SLEE, AD_STON,
+} from '../js/monsters.js';
 import {
     ARMOR_CLASS,
     DWARVISH_CLOAK,
@@ -69,7 +77,9 @@ import { enableRngLog, getRngLog } from '../js/rng.js';
 import { SYMBOL_INDEX_BY_NAME } from '../js/symbol_data.js';
 import { cmap_symbol } from '../js/symbols.js';
 import { burnarmor, erode_obj } from '../js/trap_erode_obj.js';
-import { CLR_BRIGHT_BLUE, CLR_ORANGE, CLR_WHITE } from '../js/terminal.js';
+import {
+    CLR_BRIGHT_BLUE, CLR_GREEN, CLR_ORANGE, CLR_WHITE, CLR_YELLOW, NO_COLOR,
+} from '../js/terminal.js';
 import {
     adtyp_to_prop,
     bounce_dir,
@@ -214,13 +224,33 @@ test('the zap glyph arm reads S_vbeam and zapcolors by its two fields',
     assert.equal(lslant.ch, '\\');
     assert.equal(lslant.dec, false);
     // display.c zapcolors[] (2661-2665) over display.h enum zap_colors
-    // (279-287). Types 0, 1 and 2 are the three the ray matrix separates:
-    // HI_ZAP is CLR_BRIGHT_BLUE (color.h:55), fire is CLR_ORANGE and frost is
-    // CLR_WHITE (display.h:280-282).
-    assert.equal(map_glyphinfo(GLYPH_ZAP_OFF + 0, game).color,
-        CLR_BRIGHT_BLUE);
-    assert.equal(map_glyphinfo(GLYPH_ZAP_OFF + 4, game).color, CLR_ORANGE);
-    assert.equal(map_glyphinfo(GLYPH_ZAP_OFF + 8, game).color, CLR_WHITE);
+    // (279-288), every entry, read from C's enum rather than from what the
+    // port answers: HI_ZAP is CLR_BRIGHT_BLUE (color.h:55) for magic missile
+    // and sleep, fire is CLR_ORANGE, frost and lightning are CLR_WHITE, death
+    // is CLR_BLACK, poison gas is CLR_GREEN and acid is CLR_YELLOW.
+    //
+    // The matrix separates only types 0, 1 and 2, but the beam is painted
+    // before any refusal, so a hero's wand of sleep or lightning puts entries
+    // 3 and 5 on a screen the scorer compares. Types 6 and 7 are unreachable
+    // from a wand, since BZ_OFS_WAN yields 0 through 5, and are asserted here
+    // because the table is transcribed whole and no mutant of any kind can
+    // reach a constant.
+    // One entry is asserted through the recorder's own normalization rather
+    // than at face value: js/display.js recorderMapColor() folds CLR_BLACK and
+    // CLR_GRAY onto NO_COLOR, because that is what recorder patch 006
+    // serializes. So entry 4's assertion pins it against every colour except
+    // CLR_GRAY, which is the one substitution no recorded screen can show.
+    const expectedZapColors = [
+        CLR_BRIGHT_BLUE, CLR_ORANGE, CLR_WHITE, CLR_BRIGHT_BLUE,
+        NO_COLOR, CLR_WHITE, CLR_GREEN, CLR_YELLOW,
+    ];
+    for (const [type, color] of expectedZapColors.entries()) {
+        assert.equal(
+            map_glyphinfo(GLYPH_ZAP_OFF + (type << 2), game).color,
+            color,
+            `zapcolors[${type}]`,
+        );
+    }
 });
 
 test('zap_hit rolls once and compares the roll with the armor class', () => {
@@ -401,13 +431,23 @@ test('an unprotected pack rolls nothing when fire looks for a resistance',
     await runSegment({
         ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
     });
-    // zap.c adtyp_to_prop() (5653-5674).
-    assert.equal(adtyp_to_prop(AD_FIRE), 1); // FIRE_RES
-    assert.equal(adtyp_to_prop(AD_COLD), 2); // COLD_RES
-    assert.equal(adtyp_to_prop(AD_ACID), 7); // ACID_RES
+    // zap.c adtyp_to_prop() (5656-5670) is five rows and a default, and the
+    // five are asserted here so a sixth cannot be added unnoticed.
+    assert.equal(adtyp_to_prop(AD_COLD), COLD_RES);
+    assert.equal(adtyp_to_prop(AD_FIRE), FIRE_RES);
+    assert.equal(adtyp_to_prop(AD_ELEC), SHOCK_RES);
+    assert.equal(adtyp_to_prop(AD_ACID), ACID_RES);
+    assert.equal(adtyp_to_prop(AD_DISN), DISINT_RES);
     // A damage type no resistance covers answers 0, which is what makes
-    // inventory_resistance_check() return without drawing.
+    // inventory_resistance_check() return without drawing. These four have a
+    // named resistance property in the port and no row in C's switch, so a
+    // port that offered one would be inventing behavior; zap.c:5670's comment
+    // says why 0 is the sentinel: prop_types start at 1.
     assert.equal(adtyp_to_prop(AD_PHYS), 0);
+    assert.equal(adtyp_to_prop(AD_DRST), 0);
+    assert.equal(adtyp_to_prop(AD_DRLI), 0);
+    assert.equal(adtyp_to_prop(AD_SLEE), 0);
+    assert.equal(adtyp_to_prop(AD_STON), 0);
     // zap.c u_adtyp_resistance_obj() (5675-5698). A starting Wizard wears a
     // cloak of magic resistance and carries nothing that grants extrinsic
     // fire resistance, so the answer is 0.
@@ -425,12 +465,19 @@ test('an unprotected pack rolls nothing when fire looks for a resistance',
     assert.equal(u_adtyp_resistance_obj(AD_COLD, game), 90);
     assert.equal(u_adtyp_resistance_obj(AD_ACID, game), 0);
     // The roll is `rn2(100) < prob`, so 89 protects and 90 does not.
+    // The bound is C's own literal at zap.c:5716 and no operator mutates it,
+    // so it is recorded here rather than only scripted past.
+    const bounds = [];
+    const recording = (answer) => ({
+        rn2: (bound) => { bounds.push(bound); return answer; },
+    });
     assert.equal(
-        inventory_resistance_check(AD_FIRE, game, { rn2: () => 89 }), true,
+        inventory_resistance_check(AD_FIRE, game, recording(89)), true,
     );
     assert.equal(
-        inventory_resistance_check(AD_FIRE, game, { rn2: () => 90 }), false,
+        inventory_resistance_check(AD_FIRE, game, recording(90)), false,
     );
+    assert.deepEqual(bounds, [100, 100]);
     worn.otyp = savedOtyp;
     // "items that give an extrinsic resistance when worn or wielded or
     // carried give 99% protection". W_ARMC is inside the W_ARMOR mask the
@@ -1060,4 +1107,99 @@ test('a bolt over an empty square leaves no invisible-monster memory',
             mapCell(game.u.ux + step, game.u.uy).ch, invisible, `${step}`,
         );
     }
+});
+
+test('a bolt erases the invisible-monster memory on every square it crosses',
+    async () => {
+    // The assertion above pins map_invisible() against a flipped guard, but
+    // not unmap_invisible(): a square with no remembered 'I' shows none
+    // whether the call runs or not. Seed one on the bolt's line and one off
+    // it, so the erase has something to erase and something to leave alone.
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const onLine = { x: game.u.ux + 2, y: game.u.uy };
+    const offLine = { x: game.u.ux + 2, y: game.u.uy + 1 };
+    map_invisible(onLine.x, onLine.y, game);
+    map_invisible(offLine.x, offLine.y, game);
+    const invisible = map_glyphinfo(GLYPH_INVISIBLE, game).ch;
+    assert.equal(mapCell(onLine.x, onLine.y).ch, invisible);
+    assert.equal(mapCell(offLine.x, offLine.y).ch, invisible);
+
+    await dobuzz(
+        1, 6, game.u.ux, game.u.uy, 1, 0, true, false, true, game,
+        { ...straightThrough(), rn1: () => 8 },
+    );
+
+    // zap.c dobuzz():4844-4847. The bolt's own squares lose the memory; a
+    // square one row down never sees the bolt and keeps it.
+    assert.notEqual(mapCell(onLine.x, onLine.y).ch, invisible);
+    assert.equal(mapCell(offLine.x, offLine.y).ch, invisible);
+});
+
+test('the bolt that misses says so and stops what the hero was doing',
+    async () => {
+    // zap.c dobuzz():4979-4991. zap_hit() answering false takes the miss arm:
+    // "The bolt of fire whizzes by you!" through pline_dir, then
+    // stop_occupation() and nomul(0) below it. Nothing in the five-segment
+    // matrix misses, so this is the arm's only cover.
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    const before = game._ttyToplines ?? '';
+    await dobuzz(
+        1, 6, game.u.ux, game.u.uy, 0, 0, true, false, true, game,
+        { ...straightThrough(), rn1: () => 8 },
+    );
+    // The wish line is still on the top line and the miss joins it there,
+    // which is why this reads the accumulated messages rather than the grid.
+    assert.equal(
+        (game._ttyToplines ?? '').slice(before.length).trim(),
+        'The bolt of fire whizzes by you!',
+    );
+});
+
+test('dobuzz hands zap_hit the hero own armor class', async () => {
+    // zap.c dobuzz():4962 passes `(int) u.uac`, and nothing else on the path
+    // reads it. The argument carries no operator a mutant can change, so it
+    // needs its own oracle, and mutating it to `u.uac + 5` survives the whole
+    // suite without one.
+    //
+    // The two runs below differ only in u.uac. rn2(20) = 0 takes zap_hit()'s
+    // "small chance for naked target to avoid" arm, where the comparison is
+    // `3 - rnd(10) < AC_VALUE(ac)`; with rnd(10) = 1 that is `2 < AC_VALUE(ac)`,
+    // true at 9 and false at 0. Reflecting is set so the hit stops one line
+    // later, at ureflects(), rather than running on into zhitu() and burning
+    // the hero's armor.
+    await runSegment({
+        ...raySegment(0), moves: movesThroughWish(RAY_CASES[0]),
+    });
+    game.u.uprops[REFLECTING] = { intrinsic: FROMOUTSIDE, extrinsic: 0 };
+    const roll = { ...straightThrough(), rn1: () => 8, rn2: () => 0,
+        rnd: () => 1 };
+
+    game.u.uac = 9;
+    // "The bolt of fire hits you!" arrives behind the wish line, so the top
+    // line raises a --More-- the prompt has to be answered before it prints.
+    game.nhDisplay.pushKey(' '.charCodeAt(0));
+    await assert.rejects(
+        () => dobuzz(
+            1, 6, game.u.ux, game.u.uy, 0, 0, true, false, false, game, roll,
+        ),
+        /ureflects\(\)/u,
+        'AC_VALUE(9) is above the roll, so the bolt hits',
+    );
+
+    game.u.uac = 0;
+    await dobuzz(
+        1, 6, game.u.ux, game.u.uy, 0, 0, true, false, false, game, roll,
+    );
+    // The --More-- above cleared the top line, so the miss stands alone on it.
+    assert.match(
+        game._ttyToplines ?? '',
+        /The bolt of fire whizzes by you!$/u,
+        'AC_VALUE(0) is not above the roll, so the same bolt misses',
+    );
+    game.u.uac = 9;
+    game.u.uprops[REFLECTING] = { intrinsic: 0, extrinsic: 0 };
 });

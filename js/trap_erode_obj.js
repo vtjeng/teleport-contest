@@ -65,6 +65,7 @@ const EROSION = Object.freeze({
     [ERODE_BURN]: {
         action: 'smoulder',
         affectedBy: 'heat',
+        checkGrease: false,
         primary: true,
         resistanceDamageType: AD_FIRE,
         result: 'burnt',
@@ -73,6 +74,7 @@ const EROSION = Object.freeze({
     [ERODE_RUST]: {
         action: 'rust',
         affectedBy: 'oxidation',
+        checkGrease: true,
         primary: true,
         resistanceDamageType: 0,
         result: 'rusted',
@@ -81,6 +83,7 @@ const EROSION = Object.freeze({
     [ERODE_ROT]: {
         action: 'rot',
         affectedBy: 'decay',
+        checkGrease: false,
         primary: false,
         resistanceDamageType: 0,
         result: 'rotten',
@@ -89,6 +92,7 @@ const EROSION = Object.freeze({
     [ERODE_CORRODE]: {
         action: 'corrode',
         affectedBy: 'corrosion',
+        checkGrease: true,
         primary: false,
         resistanceDamageType: AD_ACID,
         result: 'corroded',
@@ -97,6 +101,7 @@ const EROSION = Object.freeze({
     [ERODE_CRACK]: {
         action: 'crack',
         affectedBy: 'impact',
+        checkGrease: true,
         primary: true,
         resistanceDamageType: 0,
         result: 'cracked',
@@ -207,7 +212,14 @@ export async function erode_obj(obj, description, type, flags, env) {
     // call site. Its `ostr == NULL` arm is unreachable, because erode_obj()
     // fills ostr in from cxname() above. erode_obj() answers ER_GREASED
     // whether or not the grease wore off.
-    if ((flags & EF_GREASE) && obj.greased) {
+    //
+    // C's guard at trap.c:246 is `check_grease && otmp->greased`, and
+    // check_grease is not the caller's flag alone: the switch above clears it
+    // inside `case ERODE_BURN` (208) and `case ERODE_ROT` (217), so grease
+    // protects against rust, corrosion and cracking and never against fire or
+    // decay. `details.checkGrease` carries that third switch output, beside
+    // the vulnerability test and the resistance damage type.
+    if (details.checkGrease && (flags & EF_GREASE) && obj.greased) {
         if (visible) {
             await message(
                 `${possessive} ${name} ${verbFor(name, 'are')} `
