@@ -2852,8 +2852,8 @@
         },
         {
           "name": "wished-container-arrives-with-its-contents",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "775778a5d8fbd676010ab33d67c43ff31ba830e6"
         }
       ],
       "openedAt": "0beefa5df13f3aebdb190ab5bbf7632cf24e1463",
