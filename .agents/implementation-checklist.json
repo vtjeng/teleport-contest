@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "The slice ray-bounces-and-burns-the-hero is complete. js/zap.js dozap() calls weffects(), which takes an aimed ray wand through ubuzz(), dobuzz(), zap_over_floor(), zap_hit(), bounce_dir() and zhitu()'s ZT_FIRE arm as far as the destroy_items() call at zap.c:4434, which is the new fail-closed boundary. The witness session seed5002-wizard-coverage-pair now emits 103 of its 410 screens, up from 88, and stops on step 103's space at that call. Every entry below is done, later or cannot-occur.",
-  "commitChecked": "dcae5351630683e21a1b1122e7be33904779d167",
+  "reason": "The slice ray-bounces-and-burns-the-hero is complete. js/zap.js dozap() calls weffects(), which takes an aimed ray wand through ubuzz(), dobuzz(), zap_over_floor(), zap_hit(), bounce_dir() and zhitu()'s ZT_FIRE arm as far as the destroy_items() call at zap.c:4434, which is the new fail-closed boundary. The witness session seed5002-wizard-coverage-pair now emits 103 of its 410 screens, up from 88, and stops on step 103's space at that call. Every entry below is done, later or cannot-occur. The goal's correctness pass over 2d84dfa..2325a5b then confirmed eleven findings, applied at fa05bea, and two of them changed entries above: trap.c erode_obj() now carries C's per-type check_grease, so a burn never consults grease, and zap.c adtyp_to_prop() holds exactly C's five rows. Both entries stay done, with the corrected behavior and its tests; the evidence in this file applies to fa05bea.",
+  "commitChecked": "fa05bea2b7d6b02fc36d9d812a171ebe99bf9ccc",
   "boundary": {
     "goalId": "hero-zaps-a-ray-wand",
     "startingCommit": "4f5c00cd1ff6adf445056c193e9a7bfed32338c2",
