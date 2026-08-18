@@ -2794,6 +2794,11 @@
           "name": "fire-destroys-the-heros-potions",
           "status": "closed",
           "closedBy": "0aac3a736a795093f7517225761ccaed450bdf39"
+        },
+        {
+          "name": "the-fatal-bolt-says-you-die",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "4f5c00cd1ff6adf445056c193e9a7bfed32338c2",

@@ -1,106 +1,104 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "The slice fire-destroys-the-heros-potions is complete. js/zap.js zhitu() runs both !rn2(3) guards at zap.c:4434-4437, js/zap_destroy_items.js carries destroy_items(), maybe_destroy_item(), destroyable() and destroy_strings under C's own names for the hero as well as a monster, and js/potion.js potionbreathe() with do.c trycall() behind it raises the --More-- on screen 103. The witness gains recorded screens 103 through 111 and stops at js/zap.js:1042-1044, the refusal slice 3 owns. The fresh differential is the sixth segment of scripts/run-ray-zap.mjs, which the deferral vertical-ray-reaches-destroy-items recorded and which is now closed.",
-  "commitChecked": "239976e5a1e6c0e37dbe0a0dcb26fe2b1a5a5e64",
+  "mode": "implementation",
+  "reason": "The slice the-fatal-bolt-says-you-die has not started. js/hack.js:754-756 still raises UnsupportedHitPointLossError for a hero whose hit points reach zero, js/zap.js:1042-1044 still refuses zhitu()'s killer tail, and js/display.js renders a negative hit-point total where botl.c:141-142 clamps it to zero.",
+  "commitChecked": "edc197d47e7a1d934575db2a36fcc81f6177b2c0",
   "boundary": {
     "goalId": "hero-zaps-a-ray-wand",
-    "startingCommit": "239976e5a1e6c0e37dbe0a0dcb26fe2b1a5a5e64",
-    "startingEvent": "seed5002-wizard-coverage-pair segment 0 step 103, the space that dismisses the --More-- burnarmor()'s 'Your cloak smoulders!' raised. The port emitted screens 0-102 and stopped inside zhitu() at js/zap.js:1021-1025, which stood for zap.c:4433-4438.",
-    "endingEvent": "Recorded screen 111, \"For an instant you couldn't see yourself!--More--\", with HP:11(12) and cursor [49,0,1]. The slice stops at the refusal one frame lower, js/zap.js:1042-1044, 'losehp() for the bolt's damage, under the killer built at 4582', which stands for zap.c:4561-4589.",
-    "validInputs": "A hero-aimed ray zap that reaches zhitu()'s ZT_FIRE arm and passes its !rn2(3) guard, in a game the port already reaches. The witness is a wished wand of fire in a playmode:debug game; the fresh differential is seed 20260817, datetime 20260817120000, the scripts/run-ray-zap.mjs rc, and the moves ^W, 'wand of fire', Return, z n >.",
-    "observables": "Every random-number call in source order and every screen and cursor from index 103 through 111. Three screens read \"Your cloak smoulders!  Your potion of invisibility boils and explodes!--More--\" and six read \"For an instant you couldn't see yourself!--More--\". The recorded log carries rn2(5)=4 at destroy_items(zap.c:6045) exactly once, and rn2(2)=0 at exercise(attrib.c:509) from maybe_destroy_item()'s exercise(A_STR, FALSE) at 5949. HP moves 12 to 11, from maybe_destroy_item()'s own losehp(1) at 5947-5948.",
-    "exclusions": "zhitu()'s killer tail and losehp() at 4561-4589, which slice 3 owns; end.c done(); potionbreathe()'s other sixteen arms and its TOWEL arm; maybe_destroy_item()'s AD_COLD and AD_ELEC cases and recharge(); its worn-object arm at 5921-5926; do_name.c docall()'s getlin prompt; and zap_over_floor()'s burn_floor_objects() seam, which needs its caller's dropped tail at zap.c:5490-5493 restored with it and is recorded as the eighth stop of zap-over-floor-terrain-arms-refuse."
+    "startingCommit": "edc197d47e7a1d934575db2a36fcc81f6177b2c0",
+    "startingEvent": "Two events, one per session. seed5002-wizard-coverage-pair segment 0 byte 112, the Return that dismisses the --More-- on 'For an instant you couldn't see yourself!' and lets destroy_items() finish; and seed0103-knight-ride-pony byte 57, the h that reaches steed.c mount_steed():354's losehp(Maybe_Half_Phys(rn1(5, 10)), buf, NO_KILLER_PREFIX). Both stop at js/hack.js:754-756 today.",
+    "endingEvent": "The --More-- that urgent_pline(\"You die...\") forces on the preceding message through win/tty/topl.c update_topl()'s strncmp(bp, \"You die\", 7) test at 265, which js/tty_message.js:252 already models. seed5002 gains recorded indices 112-119, eight identical \"Your potion of oil ignites and explodes!--More--\" screens; seed0103 gains index 57, \"You slip while trying to get on the saddled pony.--More--\" at HP:0(16). The slice stops one frame lower, at end.c done(DIED).",
+    "validInputs": "Any ported path that drives the hero's hit points to zero or below. Two reach it today: zhitu()'s ZT_FIRE arm through its own losehp() at zap.c:4588, and mount_steed()'s losehp() at steed.c:354. The fresh differential is a seventh segment of scripts/run-ray-zap.mjs.",
+    "observables": "Every random-number call in source order and every screen and cursor from seed5002 index 112 through 119 and seed0103 index 57. The status line must read HP:0(12) with u.uhp at -18 and HP:0(16) with u.uhp at -9. dam is 25, from d(6,6)=25 at zhitu(zap.c:4422) on step 88, and the hero reaches it at 7 hit points after maybe_destroy_item()'s two losehp() calls of 1 and 4.",
+    "exclusions": "end.c done() whole, including disclosure, bones and topten; zhitu()'s first killer arm at zap.c:4572 and mcastu.c death_inflicted_by(), unreachable because gb.buzzer is written only by mcastu.c, muse.c, mthrowu.c, priest.c and timeout.c, none of them ported; losehp()'s Upolyd arm; and urgent_pline()'s WIN_STOP arm at win/tty/wintty.c:2277-2283, which neither witness exercises."
   },
   "candidateListMethod": {
-    "upstreamEntryPoints": "zap.c zhitu()'s two guards at 4434-4437, reached from dobuzz()'s hero-square arm, and through them zap.c destroy_items() (5964-6097) and maybe_destroy_item() (5797-5954), potion.c potionbreathe() (1931-2118) and do.c trycall() (394-399). Every span was verified with awk from each function's return-type line to its closing brace, and every one of those functions was read in full before it was written.",
-    "dispatchTablesAndCatalogs": "zap.c destroy_strings[][3] (5778-5787), seven rows of three, now copied row for row and pinned against the C source by scripts/zap-destroy-items.test.mjs; potionbreathe()'s eighteen-label switch, of which one arm is ported, sixteen stop by name and the TOWEL arm stops too; the nine potion types that carry no label and fall through; zap.c destroyable() (5612-5650), ported whole for all three damage types in place of the file-local fireDestroyable; the DMG_DESTROY_SCALE and MAX_ITEMS_DESTROYED constants; the dindx selector at 5841; and the five-prefix mult chain at 5904-5908.",
-    "reachableHelpers": "Traced from zhitu():4434 outward through destroy_items()'s reservoir, the elig_stacks clamp and the two-pass defer loop (6079-6092), maybe_destroy_item()'s AD_FIRE case, its inventory_resistance_check() guard at 5816, its losehp() at 5947-5948 and exercise(A_STR, FALSE) at 5949, potionbreathe()'s frame (1934-1946), POT_INVISIBILITY arm (2033-2040) and tail (2108-2117), and do.c trycall() over do_name.c docall(). win/tty/topl.c update_topl() (259-278) was read to establish which line raises each --More--.",
-    "javascriptCrossCheck": "js/zap_destroy_items.js held destroy_monster_fire_items() and maybe_destroy_monster_item() for OBJ_MINVENT alone with no production caller; both now carry C's names, destroy_items() and maybe_destroy_item(), and the hero arm is their first live consumer. ignite_items() was already ported at js/apply_catch_lit.js:107 and is now called from zhitu():4436. js/hack.js losehp() (732-760) needed no new work. adtyp_to_prop(), u_adtyp_resistance_obj() and inventory_resistance_check() were already ported in js/zap.js and are imported from there; Fire_resistance() was a file-local in js/zap.js and is now exported for the same reason. js/potion.js is new and was assigned to the objects area with `npm run quality -- assign` in the same chunk.",
-    "remainingLimits": "The values on this path that carry no operator a mutant can change are each pinned by a source-read or input-pair test, named in the test's own comment: destroy_strings' 21 strings are compared against the table parsed out of zap.c; potionbreathe()'s labels are compared against the case list parsed out of potion.c, with its block comments stripped, which is what separates the seven commented no-op labels from the eighteen live ones; DMG_DESTROY_SCALE is fixed by the rn2(5) bound and the limit arithmetic either side of it; MAX_ITEMS_DESTROYED by a 21-stack case whose first reservoir draw is rn2(20); the dindx selector by a potion of oil against a potion of booze; and the mult chain by five counts against three quantities. The killer column, which only a dying hero reads, is fixed by three deaths naming 'boiling potion', 'boiling potions' and 'exploding glob of slime'."
+    "upstreamEntryPoints": "hack.c losehp() (4255-4292) and zap.c zhitu()'s killer tail (4561-4589), reached from zhitu()'s ZT_FIRE arm and from steed.c mount_steed():354. Spans verified with awk from each function's return-type line to its closing brace.",
+    "dispatchTablesAndCatalogs": "you.h:315 uhim() over genders[], already ported at js/roles.js:419; the four arms of zhitu()'s verb selection, of which abstyp is 1 for every reachable zap so three are dead.",
+    "reachableHelpers": "Traced from zap.c:4561 through losehp() to done(), and from botl.c bot() for the status line. win/tty/topl.c update_topl():265 and tty_yn_function():390-392 were read to establish which line draws each --More--: the ending event's comes from the \"You die\" exception, and the one after it from tty_yn_function() inside done().",
+    "javascriptCrossCheck": "grep established that js/zap.js:1028 is ignite_items()'s only caller; that js/cmd.js failClosedCommandRefusals() at 1248 lists UnsupportedHitPointLossError at 1295 and no RangeError; and that js/display.js:3704, :3919 and :4361 each render hit points without a clamp.",
+    "remainingLimits": "The entries come from one slice-selector's reading, with the orchestrator confirming the two guard draws and botl.c's clamp directly. Three values here carry no operator a mutant can change: the killer format string at zap.c:4582, flags.female as an index into genders[], and the clamp itself. Each needs a source-read test that says what breaking it would fail. All six existing segments of scripts/run-ray-zap.mjs currently end at js/zap.js:1042, so each either dies with new expected screens or survives into a second pass of dobuzz()'s loop; expect the matrix to need re-recording rather than extending."
   },
   "entries": [
     {
-      "candidate": "zap.c zhitu()'s two guards at 4434-4437",
-      "reachability": "Reached whenever the ZT_FIRE arm's burnarmor() answers true, which the witness does on step 103.",
-      "owner": "js/zap.js:1023-1029",
-      "effects": "Two independent !rn2(3) rolls, the first into destroy_items(&gy.youmonst, AD_FIRE, orig_dam) and the second into ignite_items(gi.invent).",
-      "evidence": "The recorded log's first draw past the boundary is rn2(3)=0 at zhitu(zap.c:4434), and the fresh differential replays both guards in order. scripts/zap-ray.test.mjs pins the two bounds as the tail of a downward zap's draw list, [19, 20, 5, 3, 3].",
-      "status": "done",
-      "remaining": "None. ignite_items() is js/apply_catch_lit.js:107; it is not entered on either recorded case, because both draws answer non-zero there."
+      "candidate": "hack.c losehp() (4255-4292), the death branch at 4283-4288",
+      "reachability": "Every caller whose damage takes u.uhp below 1. Two are ported: zhitu()'s losehp() at zap.c:4588 and mount_steed()'s at steed.c:354.",
+      "owner": "js/hack.js:754-756 throws UnsupportedHitPointLossError instead",
+      "effects": "Sets svk.killer.format from k_format, copies knam into svk.killer.name, prints urgent_pline(\"You die...\"), then calls done(DIED).",
+      "evidence": "Both witnesses stop there today; the existing comment at js/hack.js:730 cites 4255-4290 where the closing brace is 4292.",
+      "status": "missing",
+      "remaining": "Port the branch and refuse at done(DIED) under a named class, listed in js/cmd.js failClosedCommandRefusals() beside UnsupportedHitPointLossError."
     },
     {
-      "candidate": "zap.c destroy_items() (5964-6097), the u_carry half",
-      "reachability": "Called from zhitu():4435 for the hero.",
-      "owner": "js/zap_destroy_items.js destroy_items()",
-      "effects": "Walks the pack, counts eligible stacks into a MAX_ITEMS_DESTROYED reservoir, clamps them to a limit, and calls maybe_destroy_item() per selection over two passes. Draws rn2(5) once in the witness, at 6045.",
-      "evidence": "The recorded rn2(5)=4 at destroy_items(zap.c:6045) fires exactly once, which says six eligible stacks met a limit of five, and the fresh differential matches every draw. Unit cases drive seven stacks against a limit of two and twenty-one against the clamped twenty.",
-      "status": "done",
-      "remaining": "None. The two-pass defer loop is ported and exercised: a wielded potion of levitation is the one fire-destroyable object whose oc_oprop reaches 6062-6064, and the POT_WATER disjunct at 6066-6068 is unreachable because u.ulycn is NON_PM for every hero js/u_init.js builds."
+      "candidate": "zap.c zhitu()'s killer tail (4561-4589)",
+      "reachability": "Reached on every hero hit that survives to the end of the damage arm.",
+      "owner": "js/zap.js:1042-1044 refuses",
+      "effects": "Builds verb, then Sprintf(kbuf, \"%s %s by %sself\", fltxt, verb, uhim()) at 4582, halves dam under Half_spell_damage at 4586-4587, and calls losehp(dam, kbuf, KILLED_BY_AN) at 4588.",
+      "evidence": "The witness's dam is 25 and its hero is at 7 hit points, so this call is the death rather than maybe_destroy_item()'s, whose rnd(6) is capped at 6.",
+      "status": "missing",
+      "remaining": "Port the tail. The killer string is unobservable in any differential, because nothing reads svk.killer until done(), so it needs a source-read test over the builder as a named function."
     },
     {
-      "candidate": "zap.c maybe_destroy_item() (5797-5954), the AD_FIRE case of the u_carry half",
-      "reachability": "Called per selected stack from destroy_items().",
-      "owner": "js/zap_destroy_items.js maybe_destroy_item()",
-      "effects": "Checks inventory_resistance_check(), picks dindx at 5841, builds the message with the mult prefix chain at 5904-5908, prints it at 5909, calls potionbreathe() at 5917 for the hero alone, uses the stack up one item at a time, and runs losehp() at 5947-5948 with exercise(A_STR, FALSE) at 5949.",
-      "evidence": "HP moves 12 to 11 across the witness's screens 103 to 106, and the log carries rn2(2)=0 at exercise(attrib.c:509). The fresh differential matches all 4017 draws and all 18 screens.",
-      "status": "done",
-      "remaining": "The AD_COLD and AD_ELEC cases and the worn-object arm stop by name; see the two entries below."
+      "candidate": "you.h:315 uhim() and the genders[] row it indexes",
+      "reachability": "Read by the Sprintf at zap.c:4582.",
+      "owner": "js/roles.js:419 holds genders[]",
+      "effects": "Pure.",
+      "evidence": "genders[flags.female ? 1 : 0].him.",
+      "status": "missing",
+      "remaining": "Port uhim() and pin both genders, since flags.female is an index with no operator a mutant can change."
     },
     {
-      "candidate": "zap.c destroyable() (5612-5650) and destroy_strings[][3] (5778-5787)",
-      "reachability": "destroyable() decides which stacks are eligible; destroy_strings supplies every message and killer reason the case prints.",
-      "owner": "js/zap_destroy_items.js destroyable() and destroy_strings",
-      "effects": "Pure; no draw and no output of their own.",
-      "evidence": "The witness's two messages, 'Your potion of invisibility boils and explodes!' and 'Your potion of oil ignites and explodes!', are rows of that table. The table is compared string for string against the declaration parsed out of zap.c, and destroyable() is exercised for all three damage types, each pair differing in one term.",
-      "status": "done",
-      "remaining": "None. Both are ported whole, including the AD_COLD and AD_ELEC arms of destroyable(), which are pure and cost nothing to carry."
+      "candidate": "botl.c bot()'s hit-point clamp at 141-142",
+      "reachability": "Every status-line render once a hero can hold negative hit points, which this slice makes possible for the first time.",
+      "owner": "None; js/display.js:3704, :3919 and :4361 each use `u.uhp || 0` or `u?.uhp ?? 0`, which pass a negative through",
+      "effects": "Renders HP:0 where the stored total is below zero.",
+      "evidence": "seed5002 screen 112 needs HP:0(12) with u.uhp at -18, and seed0103 screen 57 needs HP:0(16) with u.uhp at -9. Both slices' screens fail without it.",
+      "status": "missing",
+      "remaining": "Port the clamp in one place all three renderers read. It is a guard with no operator to mutate, never exercised because no hero has gone below zero before."
     },
     {
-      "candidate": "potion.c potionbreathe() (1931-2118), the frame, the POT_INVISIBILITY arm and the tail",
-      "reachability": "Called from maybe_destroy_item():5917 for the hero alone. The witness's potion of invisibility takes 2033-2040; POT_OIL has no case label and falls through to the tail.",
-      "owner": "js/potion.js",
-      "effects": "Prints \"For an instant you couldn't see yourself!\" under the `!Blind && !Invis` guard at 2034, and reaches do.c trycall() from the tail for POT_OIL.",
-      "evidence": "Screens 106-111 carry that message and its --More--, and the fresh differential reproduces both. Blind and Invis are separated one at a time, and See_invisible picks the other half of the sentence.",
-      "status": "done",
-      "remaining": "The other sixteen labelled arms stop by name and are recorded as the deferral potionbreathe-vapor-arms-refuse. `Blind` is imported from js/startup_a11y.js rather than copied; `Invis`, `See_invisible` and `Half_gas_damage` are new names with no other home in js/, so no duplicate symbol was added."
+      "candidate": "js/apply_catch_lit.js catch_item_light()'s OBJ_INVENT refusal (47-58)",
+      "reachability": "zhitu():4436's second guard reaches it one hit in three for a hero carrying an oil lamp, a wax or tallow candle, or a potion of oil. js/zap.js:1028 is its only caller anywhere in js/.",
+      "owner": "js/apply_catch_lit.js throws a bare RangeError, which js/cmd.js failClosedCommandRefusals() does not list",
+      "effects": "The throw escapes the command seam and loses every screen the segment had earned, rather than ending it on the last matching one.",
+      "evidence": "The deferral ignite-items-inventory-throws-unnamed records it. The witness is spared by one draw, rn2(3)=2 at zhitu(zap.c:4436).",
+      "status": "missing",
+      "remaining": "Give the refusal a named class and list it, about five lines. Folded into this slice because the goal's authorized holdout evaluation runs at its close, and a holdout hero carrying an ignitable object would lose a segment."
     },
     {
-      "candidate": "do.c trycall() (394-399) and do_name.c docall() (635-676)",
-      "reachability": "potionbreathe()'s tail sends POT_OIL to trycall(), which reaches docall()'s getlin prompt unless oc_name_known or oc_uname is already set.",
-      "owner": "js/do.js trycall() and js/do_name.js docall()",
-      "effects": "None in the witness, because both potion types were discovered at startup.",
-      "evidence": "The recorded messages read 'potion of invisibility' and 'potion of oil' rather than appearance names, which proves both types were known before zap.c:5909 ran; js/u_init_inventory_use.js:86-89 ports the ini_inv_use_obj() discovery that does it, and the fresh differential's screens carry the same two names. Unit cases separate the oc_name_known half of trycall()'s guard from the oc_uname half.",
-      "status": "done",
-      "remaining": "docall() is ported down to its `!obj->dknown` guard and stops above the prompt; recorded as the deferral docall-naming-prompt-unported."
-    },
-    {
-      "candidate": "attrib.c exercise()'s encumber_msg() tail at 516-517",
-      "reachability": "exercise(A_STR, FALSE) at zap.c:5949 runs it when svm.moves > 0, and destroying potions changes the hero's weight.",
-      "owner": "js/attrib.js exercise(), whose encumberMessage callback maybe_destroy_item() supplies from js/pickup.js encumber_msg",
-      "effects": "Silent in the witness.",
-      "evidence": "js/attrib.js:616-617 and :650 carry the tail, for A_STR and A_CON alike, and throw when a caller that could reach it supplies no callback. No encumbrance message appears on screens 103-111 or on the fresh case, and the port prints none.",
-      "status": "done",
-      "remaining": "None."
-    },
-    {
-      "candidate": "zhitu()'s killer tail and losehp() at 4561-4589, and end.c done()",
-      "reachability": "After the ending event.",
-      "owner": "js/zap.js:1042-1044 and js/hack.js:754-756 refuse",
-      "effects": "After the ending event; the witness's HP reaches 0 at step 112.",
-      "evidence": "Read from the witness's recorded status lines, and confirmed by the port: it now emits screens 103-111 and stops on js/zap.js's losehp refusal while processing the key at step 112.",
-      "status": "later",
-      "remaining": "Slice 3, the-fatal-bolt-says-you-die, owns the first; end.c done() is a later goal."
-    },
-    {
-      "candidate": "potionbreathe()'s other sixteen arms and its TOWEL arm; maybe_destroy_item()'s AD_COLD and AD_ELEC cases and recharge(); its worn-object arm; zap_over_floor()'s burn_floor_objects() seam",
-      "reachability": "None on this path: the witness carries no other potion type, the bolt is fire, the hero wields a quarterstaff rather than a potion, and no object lies on the traversed squares.",
-      "owner": "js/potion.js's sixteen throws, js/zap_destroy_items.js's AD_COLD, AD_ELEC and owornmask throws, and js/zap_destroy_items.js:486-491 for the floor half",
+      "candidate": "end.c done(); zhitu()'s first killer arm at 4572 with mcastu.c death_inflicted_by(); losehp()'s Upolyd arm; urgent_pline()'s WIN_STOP arm",
+      "reachability": "None on this path. gb.buzzer is written only by unported files, so a hero's own zap always takes the else at 4578; neither witness escapes a --More--.",
+      "owner": "js/hack.js refuses the Upolyd arm already",
       "effects": "None inside the boundary.",
-      "evidence": "The witness's log holds no draw from any of them, and each stop is exercised by a unit case that shows it fires before the arm can draw, print or change state. The worn-object stop is lifted above the pline() at 5909 so that it cannot fire one message past what the port can follow.",
-      "status": "cannot-occur",
-      "remaining": "Recorded as potionbreathe-vapor-arms-refuse, maybe-destroy-item-cold-and-elec-refuse, destroy-items-worn-object-refuses and the existing zap-over-floor-terrain-arms-refuse."
+      "evidence": "The selector verified gb.buzzer's writers by grep across the C sources.",
+      "status": "missing",
+      "remaining": "Each must stop by name before changing state, consuming randomness or producing output. The status becomes cannot-occur once the refusal exists and its argument is recorded at the site."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "Attested by the worker. Every function named in the boundary was read in the C source before it was written: zap.c destroyable() (5612-5650), inventory_resistance_check() (5709-5718) with adtyp_to_prop() and u_adtyp_resistance_obj() above it, destroy_strings[][3] (5778-5787), maybe_destroy_item() (5797-5954), destroy_items() (5964-6097) and zhitu()'s ZT_FIRE arm (4421-4439); potion.c potionbreathe() (1931-2118); do.c trycall() (393-400); do_name.c docall() (640-676); attrib.c exercise() (498-518); win/tty/topl.c update_topl() (251-279).\n\nFour things the earlier plan did not settle, each decided against the source rather than the trace. First, potionbreathe()'s fall-through group is nine types, not the seven C's comment at 2096-2105 names: POT_SEE_INVISIBLE and POT_ENLIGHTENMENT have no case label either, and the switch has no `default:`, so they reach the same nothing. scripts/potion.test.mjs asserts that split by parsing potion.c with its block comments separated from its code. Second, objnam.c cxname() is xname(), which pluralises but prints no count, so C's `yname(obj)` for three scrolls reads 'your scrolls of blank paper' and not 'your 3 scrolls'; the message tests were corrected to that reading. Third, the deferred second pass of destroy_items() is not empty for AD_FIRE after all: POT_LEVITATION carries oc_oprop LEVITATION and is a potion, so a wielded one satisfies 6062-6064. The unreachable disjunct is the POT_WATER one at 6066-6068, because js/u_init.js:371 writes NON_PM into u.ulycn and js/eat.js:1363 stops set_ulycn(). Fourth, C's `yname()` reaches shk.c shk_your() and its mon_owns() arm for an object in a monster's pack, which js/shk.js stops at; the monster arm of the message therefore keeps its do_name.c monsterPossessive() construction and says so at the site, while the hero arm calls Yname2() and yname() as C does.\n\nFive mutants survive the slice's own lines and no test can kill any of them. Three are boolean: `let xresist = false` and `skip = true` inside maybe_destroy_item(), and `deferred: false` in destroy_items()'s reservoir initializer. C's own comment calls the first group lint suppression; every reader of xresist is preceded by the AD_FIRE case's assignment, and the other two cases stop above it. The Book of the Dead arm breaks with quan still 0, so with skip false the rn2(3) loop runs zero times, `if (!cnt) return 0` returns the same 0, and nothing observable differs. Every reservoir slot the destroy loop reads was written by the walk, which sets deferred in the same statement as oid and otmp. Two are relational: `limit > MAX_ITEMS_DESTROYED` and `elig_stacks > limit`, both clamps that assign the value they compare against, so `>` and `>=` differ only where the assignment is a no-op."
+  "missingWorkByOwner": [
+    {
+      "group": "the death itself",
+      "candidates": [
+        "hack.c losehp() (4255-4292), the death branch at 4283-4288",
+        "zap.c zhitu()'s killer tail (4561-4589)",
+        "you.h:315 uhim() and the genders[] row it indexes"
+      ],
+      "next": "Port the killer construction and the death branch together, refusing at done(DIED) under a named class that js/cmd.js failClosedCommandRefusals() lists. Forgetting that list loses both witnesses' whole segments."
+    },
+    {
+      "group": "what a negative hit-point total exposes",
+      "candidates": [
+        "botl.c bot()'s hit-point clamp at 141-142",
+        "js/apply_catch_lit.js catch_item_light()'s OBJ_INVENT refusal (47-58)"
+      ],
+      "next": "Port the clamp in one place all three renderers read, and name the ignition refusal. Both are guards this goal made reachable and neither has an operator a mutation run can reach."
+    },
+    {
+      "group": "the arms that stay refused",
+      "candidates": [
+        "end.c done(); zhitu()'s first killer arm at 4572 with mcastu.c death_inflicted_by(); losehp()'s Upolyd arm; urgent_pline()'s WIN_STOP arm"
+      ],
+      "next": "Give each a named stop with its reachability argument recorded at the site."
+    }
+  ],
+  "sourceReview": "Not yet attested. The slice-selector traced every branch reachable from zap.c:4561 through the ending event, verified each span with awk, and corrected two claims the previous slice's handoff carried: the witness dies at zhitu()'s losehp() rather than maybe_destroy_item()'s, since dam is 25 against 7 hit points while maybe_destroy_item()'s rnd(6) is capped at 6; and only the second of zhitu()'s two rn2(3) guards answers non-zero, the first having answered 0 and run destroy_items(). The orchestrator confirmed both from the recorded log and confirmed botl.c:141-142's clamp. The attestation this field will hold is the worker's to earn and the orchestrator's to verify."
 }
