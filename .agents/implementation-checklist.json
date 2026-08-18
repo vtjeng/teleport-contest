@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every entry is done or cannot-occur. hack.c losehp()'s death branch records svk.killer and prints urgent_pline(\"You die...\") before refusing at end.c done(DIED) under UnsupportedEndOfGameError; zap.c zhitu()'s killer tail is ported as zhituLosehpArguments(); botl.c's hit-point clamp is in js/display.js _statusHitPoints(), which all three status renderers read; and the ignite_items() exposure now raises the named UnsupportedItemIgnitionError.",
-  "commitChecked": "0c903d4",
+  "reason": "Every entry is done or cannot-occur. hack.c losehp()'s death branch records svk.killer and prints urgent_pline(\"You die...\") before refusing at end.c done(DIED) under UnsupportedEndOfGameError; zap.c zhitu()'s killer tail is ported as zhituLosehpArguments(); botl.c's hit-point clamp is in js/display.js _statusHitPoints(), which all three status renderers read; and the ignite_items() exposure now raises the named UnsupportedItemIgnitionError. The evidence applies to 4a97bd1: c7241af holds the production lines, 0b4eadf corrects one comment span, 9b01443 records that commit's Mutants trailer, and 4a97bd1 changes only trackers.",
+  "commitChecked": "4a97bd1ed472639c18f22d6dc2120416a43c7628",
   "boundary": {
     "goalId": "hero-zaps-a-ray-wand",
     "startingCommit": "0c903d4",
