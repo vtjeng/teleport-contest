@@ -603,3 +603,4 @@ utc	event	phase	goal	detail
 2026-08-18T03:35:23.575Z	end	implement	hero-zaps-a-ray-wand	fire-destroys-the-heros-potions closed at 0aac3a7: screens 1861 to 1870
 2026-08-18T03:35:58.941Z	start	select	hero-zaps-a-ray-wand	third slice
 2026-08-18T03:51:36.136Z	end	select	hero-zaps-a-ray-wand	the-fatal-bolt-says-you-die queued, the goal's last slice, ceiling 9
+2026-08-18T03:51:36.209Z	start	implement	hero-zaps-a-ray-wand	the-fatal-bolt-says-you-die
