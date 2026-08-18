@@ -661,9 +661,12 @@ export function double_punch(state = game, random = { rn2 }) {
 //                             damage type but AD_PHYS before reaching it.
 //                             Port that arm and this term becomes live.
 //   u.umortality > oldumort   the hero killed by that counter-attack and then
-//                             life-saved. `grep -rn 'umortality' js/` returns
-//                             one hit, js/u_init.js:214, which initializes it
-//                             to 0; nothing increments it.
+//                             life-saved. js/end.js done() is the counter's
+//                             one writer, at end.c:1070, and it raises
+//                             UnsupportedEndOfGameError before returning, so
+//                             no caller of this function ever sees the count
+//                             move. js/u_init.js:217 initializes it to 0 and
+//                             js/insight.js:1190 is its only other reader.
 //
 // The two that remain are written out, and only one of them can currently
 // decide anything. `m_at(x, y) != mon` is live: the second swing is aimed at

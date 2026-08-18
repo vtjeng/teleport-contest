@@ -767,7 +767,12 @@ export async function losehp(n, knam, k_format, state = game) {
         // message before it, so this is the --More-- the player answers before
         // the death is even drawn.
         await ttyUrgentPline('You die...', state);
-        done(DIED, state);
+        // done() is asynchronous because cmd.c paranoid_query() is: its
+        // "Die?" prompt waits for a key. Dropping the await would let this
+        // function return while that prompt is still unanswered, and the
+        // caller would spend the rest of its turn behind the query C stops
+        // at.
+        await done(DIED, state);
     } else if (n > 0 && state.u.uhp * 10 < state.u.uhpmax) {
         await maybe_wail(state);
     }
