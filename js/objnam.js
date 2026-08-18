@@ -211,6 +211,27 @@ export function obj_typename(otyp, state = game) {
     return buf;
 }
 
+// C ref: objnam.c simple_typename() (296-307). Either the actual name or the
+// description, never both, and never the name the player gave the type.
+//
+// C suppresses that user-assigned name by clearing objects[otyp].oc_uname
+// around the obj_typename() call and putting it back afterwards, and the port
+// does the same rather than passing a flag: obj_typename() reads the catalog
+// entry, and it stops with 'user-assigned type name' for an entry that still
+// carries one, so a port that skipped the clear would refuse a named type
+// where C answers.
+export function simple_typename(otyp, state = game) {
+    const ocl = state.objects[otyp];
+    const save_uname = ocl.oc_uname;
+
+    ocl.oc_uname = 0; /* suppress any name given by user */
+    const bufp = obj_typename(otyp, state);
+    ocl.oc_uname = save_uname;
+    const pp = bufp.indexOf(' (');
+    /* strip the appended description */
+    return pp >= 0 ? bufp.slice(0, pp) : bufp;
+}
+
 // C refs: objnam.c suit_simple_name(), cloak_simple_name(),
 // helm_simple_name(), and gloves_simple_name().
 export function suit_simple_name(suit, state = game) {

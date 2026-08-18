@@ -1,6 +1,6 @@
 // Monster selection, birth limits, hit points, and attitude.
-// C refs: makemon.c rndmonst_adj(), mkclass(), and elemental filtering;
-// mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
+// C refs: makemon.c rndmonst_adj(), mkclass(), freemcorpsenm(), and elemental
+// filtering; mkobj.c rndmonnum_adj(); questpgr.c qt_montype().
 
 import {
     A_NONE,
@@ -12,6 +12,7 @@ import {
     G_EXTINCT,
     G_GENOD,
     G_GONE,
+    has_mcorpsenm,
     MAXMONNO,
 } from './const.js';
 import { level_difficulty, on_level } from './dungeon.js';
@@ -717,4 +718,16 @@ export function rndmonnum_adj(minadj = 0, maxadj = 0, env = {}) {
 
 export function rndmonnum(env = {}) {
     return rndmonnum_adj(0, 0, env);
+}
+
+// C ref: makemon.c freemcorpsenm() (2377-2383), which C's own comment calls
+// "basically a no-op": mextra.h keeps mcorpsenm inline rather than behind a
+// pointer, so releasing the record means writing NON_PM back into it.
+//
+// mon.c seemimic() is the one caller here. It guards the call with
+// has_mcorpsenm() exactly as this function does, so the guard is doubled the
+// way C doubles it.
+export function freemcorpsenm(mtmp) {
+    if (has_mcorpsenm(mtmp))
+        mtmp.mextra.mcorpsenm = NON_PM;
 }

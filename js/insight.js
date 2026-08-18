@@ -1,11 +1,12 @@
 // insight.js -- the attributes window that `^X` opens, and the one-line
-// self-report a stethoscope produces.
+// reports a stethoscope produces for the hero and for a monster.
 // C ref: src/insight.c enlght_out(), enlght_line(), enl_msg(), you_are(),
 // you_have(), attrval(), fmt_elapsed_time(), enlightenment(),
 // background_enlightenment(), basics_enlightenment(),
 // characteristics_enlightenment(), one_characteristic(),
 // status_enlightenment(), weapon_insight(), attributes_enlightenment(),
-// doattributes(), align_str(), piousness(), and ustatusline().
+// doattributes(), align_str(), size_str(), piousness(), mstatusline(), and
+// ustatusline().
 //
 // `doattributes()` is the only ported caller, so `mode` is BASICENLIGHTENMENT,
 // or BASICENLIGHTENMENT | MAGICENLIGHTENMENT under playmode:explore and
@@ -53,6 +54,7 @@ import {
     ADORNED,
     AGGRAVATE_MONSTER,
     ANTIMAGIC,
+    ARTICLE_YOUR,
     BASICENLIGHTENMENT,
     BLINDED,
     BLND_RES,
@@ -65,6 +67,7 @@ import {
     DISINT_RES,
     DISPLACED,
     DRAIN_RES,
+    EDOG,
     ENL_GAMEINPROGRESS,
     EXT_ENCUMBER,
     FAST,
@@ -98,7 +101,9 @@ import {
     M_AP_NOTHING,
     MAGICAL_BREATHING,
     MAGICENLIGHTENMENT,
+    MFAST,
     MOD_ENCUMBER,
+    MSLOW,
     N_ACH,
     NEW_MOON,
     NO_SPELL,
@@ -132,7 +137,10 @@ import {
     STONED,
     STR18,
     STRANGLED,
+    STRAT_WAITMASK,
     STUNNED,
+    SUPPRESS_INVISIBLE,
+    SUPPRESS_IT,
     SWIMMING,
     TELEPAT,
     TELEPORT,
@@ -181,6 +189,17 @@ import {
     is_clinger,
     lays_eggs,
 } from './mondata.js';
+import {
+    MZ_GIGANTIC,
+    MZ_HUGE,
+    MZ_LARGE,
+    MZ_MEDIUM,
+    MZ_SMALL,
+    MZ_TINY,
+    PM_LONG_WORM,
+} from './monsters.js';
+import { x_monnam } from './do_name.js';
+import { mon_aligntyp } from './priest.js';
 import { align_gname, can_pray, u_gname } from './pray.js';
 import { spellid } from './spell.js';
 import { is_ammo, isMetallic } from './obj.js';
@@ -197,6 +216,7 @@ import { costly_spot } from './shk.js';
 import { ttyPline } from './tty_message.js';
 import { find_ac } from './u_init_inventory_attrs.js';
 import { hidden_gold } from './vault.js';
+import { find_mac } from './worn.js';
 import {
     can_advance,
     skill_level_name,
@@ -328,6 +348,21 @@ export function align_str(alignment) {
     case A_LAWFUL: return 'lawful';
     case A_NONE: return 'unaligned';
     default: return 'unknown';
+    }
+}
+
+// C ref: insight.c size_str() (3202-3231). The six named sizes of
+// monflag.h:177-183, plus the fallback C keeps for a value outside them.
+// MZ_HUMAN is MZ_MEDIUM under another spelling, so it needs no arm of its own.
+export function size_str(msize) {
+    switch (msize) {
+    case MZ_TINY: return 'tiny';
+    case MZ_SMALL: return 'small';
+    case MZ_MEDIUM: return 'medium';
+    case MZ_LARGE: return 'large';
+    case MZ_HUGE: return 'huge';
+    case MZ_GIGANTIC: return 'gigantic';
+    default: return `unknown size (${msize})`;
     }
 }
 
@@ -1368,6 +1403,124 @@ const UNPORTED_USTATUS_CONDITIONS = Object.freeze([
     [FAST, 'the fast clause'],
     [INVIS, 'the invisible clause'],
 ]);
+
+// C ref: insight.c mstatusline() (3273-3398), the one-line report a
+// stethoscope or a wand of probing produces for a monster.
+//
+// C builds `info` by appending in source order and interpolates the finished
+// string after the armor class, so a monster carrying two conditions needs
+// both fragments in that sequence. Every fragment whose wording is a literal
+// is ported. The four that need source this port does not have stop instead,
+// each from C's own position in the sequence, so a monster carrying one stops
+// where C would have appended it rather than printing a line short a clause:
+//
+//   the long-worm segment count   worm.c count_wsegs() and wseg_at()
+//   the hidden/mimicking clause   insight.c mhidden_description()
+//   the u.ustuck clause           digests(), enfolds() and sticks()
+//   the u.usteed clause           Wounded_legs and EWounded_legs
+//
+// That split follows ustatusline() above, whose UNPORTED_USTATUS_CONDITIONS
+// rows are the clauses needing unported wording rather than every clause.
+//
+// The tame arm's wizard-mode detail is not a debugging aside that can be
+// dropped: playmode:debug sets `wizard`, and a listen at a pet in a debug game
+// prints the pet's tameness, hungrytime and apport as part of the line.
+export async function mstatusline(mtmp, state = game) {
+    const alignment = mon_aligntyp(mtmp);
+    let info = '';
+
+    if (mtmp.mtame) {
+        info += ', tame';
+        if (state.wizard) {
+            info += ` (${mtmp.mtame}`;
+            if (!mtmp.isminion) {
+                const edog = EDOG(mtmp);
+                info += `; hungry ${edog.hungrytime}; apport ${edog.apport}`;
+            }
+            info += ')';
+        }
+    } else if (mtmp.mpeaceful) {
+        info += ', peaceful';
+    }
+
+    if (mtmp.data === state.mons[PM_LONG_WORM]) {
+        throw new UnsupportedEnlightenmentError(
+            "mstatusline()'s long-worm segment count",
+        );
+    }
+    /* don't reveal the innate form (chameleon, vampire, &c),
+       just expose the fact that this current form isn't it */
+    if (ismnum(mtmp.cham) && mtmp.data !== state.mons[mtmp.cham])
+        info += ', shapechanger';
+    /* pets eating mimic corpses mimic while eating, so this comes first */
+    if (mtmp.meating)
+        info += ', eating';
+    // insight.c:3316-3318. C's comment above it covers the mimic alone, and
+    // the stethoscope does clear that disguise before getting here; but the
+    // disjunct has three terms and two of them survive a listen. A mimic whose
+    // mappearance is STRANGE_OBJECT never reaches seemimic() at all, because
+    // apply.c:404 tests `mtmp->mappearance` and otyp 0 is false; and a visible
+    // gas cloud over the target square is not something seemimic() touches.
+    // So this is named after the function it needs rather than after either
+    // term. C reads m_ap_type unmasked, which M_AP_F_DKNOWN can raise on its
+    // own, so the port reads it unmasked too.
+    if (mtmp.mundetected || mtmp.m_ap_type
+        || visible_region_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
+        throw new UnsupportedEnlightenmentError('mhidden_description()');
+    if (mtmp.mcan)
+        info += ', cancelled';
+    if (mtmp.mconf)
+        info += ', confused';
+    if (mtmp.mblinded || !mtmp.mcansee)
+        info += ', blind';
+    if (mtmp.mstun)
+        info += ', stunned';
+    if (mtmp.msleeping)
+        info += ', asleep';
+    // C's #if 0 above this arm explains the wording: mfrozen also covers
+    // temporary sleep and being busy, so it cannot say "paralyzed".
+    else if (mtmp.mfrozen || !mtmp.mcanmove)
+        info += ", can't move";
+    /* [arbitrary reason why it isn't moving] */
+    else if ((mtmp.mstrategy & STRAT_WAITMASK) !== 0)
+        info += ', meditating';
+    if (mtmp.mflee)
+        info += ', scared';
+    if (mtmp.mtrapped)
+        info += ', trapped';
+    if (mtmp.mspeed) {
+        info += mtmp.mspeed === MFAST ? ', fast'
+            : mtmp.mspeed === MSLOW ? ', slow'
+                : ', [? speed]';
+    }
+    if (mtmp.minvis)
+        info += ', invisible';
+    if (mtmp === state.u.ustuck) {
+        throw new UnsupportedEnlightenmentError(
+            "mstatusline()'s u.ustuck clause",
+        );
+    }
+    if (mtmp === state.u.usteed) {
+        throw new UnsupportedEnlightenmentError(
+            "mstatusline()'s u.usteed clause",
+        );
+    }
+    if (mtmp.mleashed)
+        info += ', leashed';
+
+    /* avoid "Status of the invisible newt ..., invisible" */
+    /* and unlike a normal mon_nam, use "saddled" even if it has a name */
+    const monnambuf = x_monnam(mtmp, ARTICLE_YOUR, null,
+                               SUPPRESS_IT | SUPPRESS_INVISIBLE, false, state);
+
+    await ttyPline(
+        `Status of ${monnambuf} (${align_str(alignment)}, `
+        + `${size_str(mtmp.data.msize)}):  Level ${mtmp.m_lev}  `
+        + `HP ${mtmp.mhp}(${mtmp.mhpmax})  AC ${find_mac(mtmp, state)}`
+        + `${info}.`,
+        state,
+    );
+}
 
 // C ref: insight.c ustatusline() (3401-3489), the one-line report a
 // stethoscope or a probe applied to the hero produces. Every writer of C's

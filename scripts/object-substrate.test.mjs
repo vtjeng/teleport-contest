@@ -22,6 +22,7 @@ import {
     copy_oextra,
     dealloc_obj,
     isFlammable,
+    init_dummyobj,
     is_launcher,
     is_missile,
     is_pick,
@@ -52,6 +53,7 @@ import {
     BOULDER,
     BOW,
     CANDY_BAR,
+    CHEST,
     COIN_CLASS,
     CROSSBOW,
     CROSSBOW_BOLT,
@@ -81,7 +83,10 @@ import {
     RIN_TELEPORTATION,
     SACK,
     SCR_MAGIC_MAPPING,
+    LEASH,
+    LEATHER_GLOVES,
     SLIME_MOLD,
+    TOOL_CLASS,
     SHURIKEN,
     SLING,
     SMALL_SHIELD,
@@ -364,6 +369,66 @@ test('newObject starts from zeroobj before mksobj applies sentinels', () => {
     assert.equal(obj.corpsenm, 0);
     assert.equal(obj.leashmon, 0);
     assert.equal(obj.novelidx, 0);
+});
+
+test('init_dummyobj fills in only the fields the obj.h tests read', () => {
+    const state = initializedState();
+    state.context.current_fruit = 7; // a fruit id svc.context could hold
+
+    // mkobj.c init_dummyobj(). apply.c:410 is the one ported caller, and it
+    // asks for a quantity of one.
+    const chest = init_dummyobj(newObject(), CHEST, 1, state);
+    assert.equal(chest.otyp, CHEST);
+    assert.equal(chest.oclass, TOOL_CLASS);
+    assert.equal(chest.quan, 1);
+    assert.equal(chest.corpsenm, NON_PM);
+    // objects.h gives a chest oc_uses_known 0, so `known` is set: the default
+    // is "on" for types which do not use the flag.
+    assert.equal(chest.known, true);
+    assert.equal(chest.dknown, false);
+
+    // A type that does use oc_uses_known keeps `known` clear. Leather gloves
+    // are one, and are also one of the three kinds apply.c:422 gives a plural
+    // verb.
+    assert.equal(state.objects[LEATHER_GLOVES].oc_uses_known, 1);
+    assert.equal(
+        init_dummyobj(newObject(), LEATHER_GLOVES, 1, state).known, false,
+    );
+
+    // An amulet keeps whatever the zeroed struct had, which is false. Its
+    // oc_uses_known is 0, so without C's AMULET_CLASS arm this one would come
+    // back identified, which is what the arm exists to prevent for fakes and
+    // for the real Amulet of Yendor.
+    assert.equal(state.objects[AMULET_OF_REFLECTION].oc_uses_known, 0);
+    assert.equal(
+        init_dummyobj(newObject(), AMULET_OF_REFLECTION, 1, state).known,
+        false,
+    );
+
+    // A zero quantity becomes one; any other value is kept.
+    assert.equal(init_dummyobj(newObject(), CHEST, 0, state).quan, 1);
+    assert.equal(init_dummyobj(newObject(), CHEST, 4, state).quan, 4);
+
+    // corpsenm is a union in C, so the two types that overload it get their
+    // own zero instead of NON_PM.
+    assert.equal(init_dummyobj(newObject(), LEASH, 1, state).leashmon, 0);
+    assert.equal(init_dummyobj(newObject(), LEASH, 1, state).corpsenm, 0);
+    assert.equal(init_dummyobj(newObject(), BOULDER, 1, state).next_boulder, 0);
+    // "suppressing fruit details leads to bad fruit #0", so a slime mold gets
+    // the current fruit rather than the zeroed spe.
+    assert.equal(init_dummyobj(newObject(), SLIME_MOLD, 1, state).spe, 7);
+
+    // The struct is zeroed from cg.zeroobj first, so a caller's leftovers do
+    // not survive into the answer.
+    const reused = newObject({ blessed: true, quan: 12, spe: 5, owt: 99 });
+    init_dummyobj(reused, CHEST, 1, state);
+    assert.equal(reused.blessed, false);
+    assert.equal(reused.spe, 0);
+    assert.equal(reused.owt, 0);
+
+    // C guards the whole body on a non-null pointer and returns what it was
+    // given either way.
+    assert.equal(init_dummyobj(null, CHEST, 1, state), null);
 });
 
 test('object-class macro aliases write through to their shared fields', () => {

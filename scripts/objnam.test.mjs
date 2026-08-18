@@ -56,6 +56,8 @@ import {
     distant_name,
     isPoisonable,
     just_an,
+    obj_typename,
+    simple_typename,
     suit_simple_name,
     UnsupportedObjectNameError,
     donameFresh,
@@ -193,6 +195,43 @@ function objectOf(state, otyp, overrides = {}) {
         ...overrides,
     });
 }
+
+test('simple_typename drops the description and the user-assigned name', () => {
+    const state = namingState();
+    // objnam.c simple_typename() over obj_typename(). An undiscovered ring's
+    // full type name carries its randomized appearance in parentheses; the
+    // simple name stops at the " ". init_objects(state, () => 0) above picks
+    // the first description of each shuffled class, which for RING_CLASS is
+    // "black onyx".
+    assert.equal(obj_typename(RIN_PROTECTION, state), 'ring (black onyx)');
+    assert.equal(simple_typename(RIN_PROTECTION, state), 'ring');
+
+    // Discovered, the actual name arrives and the description is still cut.
+    state.objects[RIN_PROTECTION].oc_name_known = 1;
+    assert.equal(
+        obj_typename(RIN_PROTECTION, state), 'ring of protection (black onyx)',
+    );
+    assert.equal(simple_typename(RIN_PROTECTION, state), 'ring of protection');
+
+    // A name the player gave the type is suppressed and put back. The clear
+    // is what lets this answer at all: obj_typename() stops with
+    // 'user-assigned type name' for a type that still carries one, so a port
+    // that skipped C's save-and-restore would refuse here.
+    state.objects[RIN_PROTECTION].oc_uname = 'zappy';
+    assert.throws(
+        () => obj_typename(RIN_PROTECTION, state), UnsupportedObjectNameError,
+    );
+    assert.equal(simple_typename(RIN_PROTECTION, state), 'ring of protection');
+    assert.equal(state.objects[RIN_PROTECTION].oc_uname, 'zappy');
+
+    // A type whose name is its whole answer passes through unchanged. CHEST
+    // is what dat/themerms.lua's Storeroom dresses its mimics in, and
+    // apply.c:435 prints this string verbatim.
+    assert.equal(simple_typename(CHEST, state), 'chest');
+    // obj_typename() appends " gem" to a gem's description inside the same
+    // arm, with no parentheses, so the strip leaves the suffix standing.
+    assert.equal(simple_typename(DIAMOND, state), 'white gem');
+});
 
 test('simple suit names preserve dragon, suffix, and fallback categories',
     () => {

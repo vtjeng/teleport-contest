@@ -7,11 +7,12 @@
 // other arm, and the wand, spellbook and coin shortcuts above the switch,
 // stops at a refusal naming the C function it needs. use_stethoscope() covers
 // its three guards, the free-action rule, the self-probe that confdir() leads
-// to, and the adjacent square that holds nothing to report; the mounted,
-// swallowed, vertical and cursed arms stop, as do the monster, secret-terrain
-// and dead-thing arms of the adjacent square.
+// to, the monster on the adjacent square, and the adjacent square that holds
+// nothing to report; the mounted, swallowed, vertical and cursed arms stop, as
+// do the secret-terrain and dead-thing arms of the adjacent square.
 
 import {
+    ARTICLE_A,
     DEAF,
     ECMD_CANCEL,
     ECMD_OK,
@@ -24,21 +25,41 @@ import {
     HALLUC,
     HALLUC_RES,
     HAND,
+    has_mcorpsenm,
     isok,
+    M_AP_FURNITURE,
+    M_AP_MONSTER,
+    M_AP_OBJECT,
+    M_AP_TYPE,
     SCORR,
     SDOOR,
+    SUPPRESS_INVISIBLE,
+    SUPPRESS_IT,
 } from './const.js';
 import { confdir, getdir } from './cmd.js';
-import { unmap_invisible } from './display.js';
+import { map_invisible, newsym, unmap_invisible } from './display.js';
+import { x_monnam } from './do_name.js';
 import { can_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity } from './hack.js';
-import { ustatusline } from './insight.js';
+import { mstatusline, ustatusline } from './insight.js';
 import { getobj } from './invent.js';
 import { pick_lock } from './lock.js';
+import { seemimic } from './mon.js';
 import { nohands } from './mondata.js';
 import { m_at } from './monst.js';
-import { is_axe, is_graystone, is_pick, objectType, sobj_at } from './obj.js';
+import {
+    init_dummyobj,
+    is_axe,
+    is_boots,
+    is_gloves,
+    is_graystone,
+    is_pick,
+    newObject,
+    objectType,
+    sobj_at,
+} from './obj.js';
+import { simple_typename } from './objnam.js';
 import {
     BANANA,
     BULLWHIP,
@@ -47,11 +68,13 @@ import {
     CREAM_PIE,
     CREDIT_CARD,
     EUCALYPTUS_LEAF,
+    LENSES,
     LOCK_PICK,
     LUMP_OF_ROYAL_JELLY,
     POT_OIL,
     POTION_CLASS,
     SKELETON_KEY,
+    SLIME_MOLD,
     SPBOOK_CLASS,
     STATUE,
     STETHOSCOPE,
@@ -61,6 +84,7 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { body_part } from './polyself.js';
+import { canSpotMonster } from './startup_a11y.js';
 import { ttyPline } from './tty_message.js';
 import { is_pole } from './worn.js';
 
@@ -229,9 +253,10 @@ function its_dead(rx, ry, state) {
 // the cursed arm on obj.cursed alone keeps that draw out of the random-number
 // stream for the uncursed tools the ported path uses.
 //
-// Below confdir() the adjacent-square arm (384-470) runs as far as the empty
-// square's answer. Its four other arms stop, each in C's own branch order, so
-// a square carrying two of them stops where C would have branched.
+// Below confdir() the adjacent-square arm (384-470) runs through the monster
+// branch and as far as the empty square's answer. The remaining arms stop,
+// each in C's own branch order, so a square carrying two of them stops where C
+// would have branched.
 async function use_stethoscope(obj, state = game) {
     const u = state.u;
 
@@ -255,9 +280,20 @@ async function use_stethoscope(obj, state = game) {
         ? ECMD_TIME : ECMD_OK;
     state.context.stethoscope_seq = state.hero_seq;
 
-    // gb.bhitpos and gn.notonhead are read only by mstatusline() for a long
-    // worm, and every arm that reaches mstatusline() stops below, so the two
-    // tentative assignments C makes here have no reader yet.
+    // apply.c:340-341. C calls these tentative because the monster arm below
+    // overwrites both; mstatusline() reads gb.bhitpos for its long-worm and
+    // region terms, and gn.notonhead for nothing this port reaches yet.
+    // js/dog.js setMonsterObservationPosition() makes the same coupled write
+    // from mon.c see_monster_closeup(); this pair is not that one, because
+    // gn.notonhead here is u.uswallow rather than a comparison with the
+    // monster's own square.
+    state.gb ??= {};
+    state.gb.bhitpos ??= {};
+    state.gb.bhitpos.x = u.ux;
+    state.gb.bhitpos.y = u.uy;
+    state.gn ??= {};
+    state.gn.notonhead = Boolean(u.uswallow);
+
     if (u.usteed && u.dz > 0)
         throw new UnsupportedApplyError('mstatusline() for a steed');
     if (u.uswallow)
@@ -279,11 +315,81 @@ async function use_stethoscope(obj, state = game) {
     // rather than returning it. Its Soundeffect() interface is unported.
     if (!isok(rx, ry))
         throw new UnsupportedApplyError('listening off the edge of the map');
-    // apply.c:391-446, the monster arm: x_monnam(), the gb.bhitpos and
-    // gn.notonhead writes, the mundetected and mappearance branches,
-    // mstatusline() and map_invisible().
-    if (m_at(rx, ry, state))
-        throw new UnsupportedApplyError('listening to an adjacent monster');
+    const mtmp = m_at(rx, ry, state);
+    if (mtmp) {
+        // Named before seemimic() runs, so a mimic is still wearing its
+        // disguise here; x_monnam() ignores that for M_AP_OBJECT and answers
+        // the true species either way. insight.c:3392 names it a second time
+        // afterwards, with a different article and no disguise left.
+        const mnm = x_monnam(mtmp, ARTICLE_A, null,
+                             SUPPRESS_IT | SUPPRESS_INVISIBLE, false, state);
+
+        /* gb.bhitpos needed by mstatusline() iff mtmp is a long worm */
+        state.gb.bhitpos.x = rx;
+        state.gb.bhitpos.y = ry;
+        state.gn.notonhead = (mtmp.mx !== rx || mtmp.my !== ry);
+
+        if (mtmp.mundetected) {
+            if (!canSpotMonster(mtmp, state))
+                await ttyPline(`There is ${mnm} hidden there.`, state);
+            mtmp.mundetected = 0;
+            newsym(mtmp.mx, mtmp.my);
+        } else if (mtmp.mappearance) {
+            let what = 'thing';
+            let use_plural = false;
+
+            switch (M_AP_TYPE(mtmp)) {
+            case M_AP_OBJECT: {
+                /* FIXME?
+                 *  we should probably be using object_from_map() here
+                 */
+                const odummy = init_dummyobj(newObject(), mtmp.mappearance,
+                                             1, state);
+                /* simple_typename() yields "fruit" for any named fruit;
+                   we want the same thing '//' or ';' shows: "slime mold"
+                   or "grape" or "slice of pizza" */
+                if (odummy.otyp === SLIME_MOLD && has_mcorpsenm(mtmp)) {
+                    // apply.c:418-421 then reads the fruit through
+                    // simpleonames(), which is unported.
+                    throw new UnsupportedApplyError(
+                        'naming a mimic disguised as a named fruit',
+                    );
+                }
+                what = simple_typename(odummy.otyp, state);
+                use_plural = (is_boots(odummy, state)
+                    || is_gloves(odummy, state)
+                    || odummy.otyp === LENSES);
+                break;
+            }
+            case M_AP_MONSTER: /* ignore Hallucination here */
+                // apply.c:423-424 reads pmname(&mons[mappearance]); nothing
+                // creates an M_AP_MONSTER mimic yet, and x_monnam() above
+                // would have taken its own do_mappear branch for one.
+                throw new UnsupportedApplyError(
+                    'listening to a mimic disguised as a monster',
+                );
+            case M_AP_FURNITURE:
+                // apply.c:426-427 reads defsyms[mappearance].explanation, a
+                // table js/display.js does not carry.
+                throw new UnsupportedApplyError(
+                    'listening to a mimic disguised as furniture',
+                );
+            }
+            seemimic(mtmp, state);
+            await ttyPline(
+                `${use_plural ? 'Those' : 'That'} ${what} `
+                + `${use_plural ? 'are' : 'is'} really ${mnm}.`,
+                state,
+            );
+        } else if (state.flags.verbose && !canSpotMonster(mtmp, state)) {
+            await ttyPline(`There is ${mnm} there.`, state);
+        }
+
+        await mstatusline(mtmp, state);
+        if (!canSpotMonster(mtmp, state))
+            map_invisible(rx, ry, state);
+        return res;
+    }
     if (unmap_invisible(rx, ry, state))
         await ttyPline('The invisible monster must have moved.', state);
 

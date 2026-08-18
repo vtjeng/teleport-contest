@@ -142,11 +142,11 @@ function isWallMimicAppearance(appearance) {
     return appearance >= S_stone && appearance < S_ndoor;
 }
 
-// C refs: monst.h is_lightblocker_mappear(); vision.c does_block().
-function mimicBlocksLight(x, y, state) {
-    const monster = m_at(x, y, state);
-    if (!monster || (monster.minvis && !heroSeesInvisible(state))) return false;
-    const appearanceType = monster.m_ap_type & M_AP_TYPMASK;
+// C ref: monst.h is_lightblocker_mappear() (233-239) over is_obj_mappear()
+// (243-244). Exported because mon.c seemimic() reads it too, and one C macro
+// under two spellings is one defect rather than two functions.
+export function is_lightblocker_mappear(monster) {
+    const appearanceType = (monster?.m_ap_type ?? 0) & M_AP_TYPMASK;
     if (appearanceType === M_AP_OBJECT)
         return monster.mappearance === BOULDER;
     return appearanceType === M_AP_FURNITURE
@@ -154,6 +154,14 @@ function mimicBlocksLight(x, y, state) {
             || monster.mappearance === S_vcdoor
             || isWallMimicAppearance(monster.mappearance)
             || monster.mappearance === S_tree);
+}
+
+// C ref: vision.c does_block() (188-190), the mimic term alone: a mimic the
+// hero cannot see through because of what it is pretending to be.
+function mimicBlocksLight(x, y, state) {
+    const monster = m_at(x, y, state);
+    if (!monster || (monster.minvis && !heroSeesInvisible(state))) return false;
+    return is_lightblocker_mappear(monster);
 }
 
 function blocksVisionAt(x, y, state) {

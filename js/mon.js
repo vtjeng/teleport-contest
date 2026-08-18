@@ -34,6 +34,7 @@ import {
     G_GENOD,
     HALLUC,
     HALLUC_RES,
+    has_mcorpsenm,
     has_mgivenname,
     has_oname,
     In_endgame,
@@ -92,6 +93,7 @@ import { delobj, obj_extract_self, stackobj } from './invent.js';
 import { any_light_source, del_light_source } from './light.js';
 import { mkcorpstat } from './corpstat.js';
 import { change_luck } from './moveloop_preamble.js';
+import { freemcorpsenm } from './makemon.js';
 import {
     dmonsfree,
     newcham_distress,
@@ -290,7 +292,12 @@ import { mpickobj, relobj } from './steal.js';
 import { noteleport_level } from './teleport.js';
 import { fill_pit, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
-import { cansee } from './vision.js';
+import {
+    cansee,
+    does_block,
+    is_lightblocker_mappear,
+    unblock_point,
+} from './vision.js';
 import { which_armor } from './worn.js';
 
 function monsterTurnEnv(env = {}) {
@@ -1256,6 +1263,35 @@ export async function wake_nearby(rawEnv = {}) {
     const state = rawEnv.state ?? game;
     return wake_nearto(state.u.ux, state.u.uy, state.u.ulevel * 20,
                        { ...rawEnv, state });
+}
+
+// C ref: mon.c seemimic() (4406-4426), which strips a mimic's disguise. C's
+// own comment above it says the caller must have checked for mimicry first,
+// and the one ported caller -- apply.c use_stethoscope()'s monster arm -- does.
+//
+// is_blocker_appear is read before the appearance is cleared and used after,
+// because the point of the pair is that a mimic which was blocking light as a
+// boulder or a door stops blocking it once it is recognized. does_block() is
+// asked again afterwards so that a square blocked by something else as well --
+// a real boulder lying there, a cloud -- keeps its block.
+export function seemimic(mtmp, state = game) {
+    const is_blocker_appear = is_lightblocker_mappear(mtmp);
+
+    if (has_mcorpsenm(mtmp))
+        freemcorpsenm(mtmp);
+
+    mtmp.m_ap_type = M_AP_NOTHING;
+    mtmp.mappearance = 0;
+
+    /*
+     *  Discovered mimics don't block light.
+     */
+    if (is_blocker_appear
+        && !does_block(mtmp.mx, mtmp.my, state.level.at(mtmp.mx, mtmp.my),
+                       state))
+        unblock_point(mtmp.mx, mtmp.my, state);
+
+    newsym(mtmp.mx, mtmp.my);
 }
 
 async function wakeNearForWereHowl(x, y, distance, normalized) {

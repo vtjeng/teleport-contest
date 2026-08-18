@@ -355,14 +355,19 @@ export function mon_pmname(monster) {
 }
 
 // C ref: do_name.c x_monnam() (826-1032), restricted to the `suppress`
-// combinations that carry SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION. Its one
-// caller is steed.c mount_steed(), which builds the killer string for a
-// slipped mount ("a saddled pony", or "a saddled pony called Dobbin") and adds
-// SUPPRESS_IT as well. The two required flags are what make the do_invis and
-// do_hallu branches statically dead here; do_hallu in particular draws from
-// the display RNG through rndmonnam(), so admitting it without a caller would
-// put an unspent random-number call in the port. do_it needs no such flag: it
-// is ported, and shares its predicate with monsterCommonName() above.
+// combinations that carry SUPPRESS_INVISIBLE. Three callers are ported:
+// steed.c mount_steed(), which builds the killer string for a slipped mount
+// ("a saddled pony", or "a saddled pony called Dobbin"); and apply.c
+// use_stethoscope():392 and insight.c mstatusline():3392, which name the
+// monster a stethoscope was pointed at. All three pass SUPPRESS_IT as well.
+//
+// SUPPRESS_INVISIBLE is what makes the do_invis branch statically dead here.
+// SUPPRESS_HALLUCINATION is not required, because the two stethoscope callers
+// do not pass it; instead do_hallu is computed as C computes it, and a
+// hallucinating hero stops. That branch replaces the whole name with
+// rndmonnam(), which draws from the display RNG once per rejected species and
+// once more for the gender, so admitting it without a differential that
+// measures those draws would put unspent calls in the port.
 //
 // monsterCommonName() and capitalizedMonsterName() above are the port's older
 // partial mon_nam() and Monnam(); they answer a different article and are not
@@ -375,30 +380,48 @@ export function x_monnam(
     called,
     state = game,
 ) {
-    const REQUIRED = SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION;
-    if ((suppress & REQUIRED) !== REQUIRED) {
+    if (!(suppress & SUPPRESS_INVISIBLE)) {
         throw new UnsupportedMonsterNameError(
             `x_monnam() suppress flags 0x${suppress.toString(16)}`,
         );
     }
     const mdat = monster.data;
 
-    // do_hallu and do_invis are both FALSE under the flags above, so the
-    // hallucinated bogus name and the "invisible " adjective cannot run.
+    let effectiveSuppress = suppress;
+    // do_name.c:845-846. Disclosure names every monster truly, so the game
+    // being over suppresses hallucination however the caller asked.
+    if (state.program_state?.gameover)
+        effectiveSuppress |= SUPPRESS_HALLUCINATION;
+
+    // do_invis is FALSE under the required flag above, so the hallucinated
+    // bogus name is the only one of the two branches that can be reached.
     let effectiveArticle = article;
     if (effectiveArticle === ARTICLE_YOUR && !monster.mtame)
         effectiveArticle = ARTICLE_THE;
     if (state.u?.uswallow && monster === state.u.ustuck)
         effectiveArticle = ARTICLE_THE;
 
-    // do_name.c:876-885, above the priest and minion block C reaches next.
-    if (x_monnam_do_it(monster, effectiveArticle, suppress, state))
-        return x_monnam_it(suppress);
+    // do_name.c:861. C computes do_hallu here and reads it at :917 for a
+    // shopkeeper and at :950 for the name itself; both are unreachable in this
+    // port -- the shopkeeper stops below whatever the hero sees -- so the one
+    // stop stands for the whole branch.
+    if (namingPropertyActive(state, HALLUC)
+        && !namingPropertyActive(state, HALLUC_RES)
+        && !(effectiveSuppress & SUPPRESS_HALLUCINATION)) {
+        throw new UnsupportedMonsterNameError(
+            "x_monnam()'s rndmonnam() branch",
+        );
+    }
 
-    const do_saddle = !(suppress & SUPPRESS_SADDLE);
+    // do_name.c:876-885, above the priest and minion block C reaches next.
+    if (x_monnam_do_it(monster, effectiveArticle, effectiveSuppress, state))
+        return x_monnam_it(effectiveSuppress);
+
+    const do_saddle = !(effectiveSuppress & SUPPRESS_SADDLE);
     const do_mappear = ((monster.m_ap_type ?? 0) & M_AP_TYPMASK)
-        === M_AP_MONSTER && !(suppress & SUPPRESS_MAPPEARANCE);
-    const do_name = !(suppress & SUPPRESS_NAME) || type_is_pname(mdat);
+        === M_AP_MONSTER && !(effectiveSuppress & SUPPRESS_MAPPEARANCE);
+    const do_name = !(effectiveSuppress & SUPPRESS_NAME)
+        || type_is_pname(mdat);
 
     if (monster.ispriest || monster.isminion || monster.isshk
         || do_mappear || is_mplayer(mdat)) {

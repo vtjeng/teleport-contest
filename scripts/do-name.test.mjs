@@ -17,18 +17,24 @@ import {
     rndmonnam,
     SIR_TERRY_NOVELS,
     UnsupportedMonsterNameError,
+    x_monnam,
 } from '../js/do_name.js';
 import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
+    ARTICLE_A,
     BLINDED,
     DETECT_MONSTERS,
     HALLUC,
+    HALLUC_RES,
     M_AP_MONSTER,
     MD_PAD_BOGONS,
     OBJ_FREE,
     OBJ_INVENT,
     ONAME_WISH,
     PL_PSIZ,
+    SUPPRESS_HALLUCINATION,
+    SUPPRESS_INVISIBLE,
+    SUPPRESS_IT,
     W_SADDLE,
     has_oname,
 } from '../js/const.js';
@@ -212,6 +218,68 @@ test('Amonnam preserves gender, invisibility, appearance, and display RNG', () =
         }`,
     );
     assert.deepEqual(displayDraws, []);
+});
+
+test('x_monnam decides hallucination at run time, not by suppress flag', () => {
+    const state = {
+        u: { uprops: [], uroleplay: { blind: false } },
+        program_state: {},
+    };
+    monst_globals_init(state);
+    state.u.uprops[HALLUC] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    state.u.uprops[HALLUC_RES] = { intrinsic: 0, extrinsic: 0, blocked: 0 };
+    const monster = {
+        data: state.mons[PM_NEWT],
+        mextra: {},
+        m_ap_type: 0,
+        mtame: 0,
+        cham: -1,
+        mx: 1,
+        my: 1,
+    };
+    // apply.c:392 and insight.c:3392 pass exactly these two bits, and nothing
+    // else; before this pair of callers arrived the port demanded
+    // SUPPRESS_HALLUCINATION as well and stopped here.
+    const STETHOSCOPE = SUPPRESS_IT | SUPPRESS_INVISIBLE;
+    assert.equal(
+        x_monnam(monster, ARTICLE_A, null, STETHOSCOPE, false, state),
+        'a newt',
+    );
+
+    // do_name.c:861 raises do_hallu for a hallucinating hero whose caller did
+    // not suppress it, and :950-955 then replaces the whole name with
+    // rndmonnam(), which draws from the display RNG once per rejected species
+    // and once more for the gender. Neither draw is measured yet.
+    state.u.uprops[HALLUC].intrinsic = 1;
+    assert.throws(
+        () => x_monnam(monster, ARTICLE_A, null, STETHOSCOPE, false, state),
+        UnsupportedMonsterNameError,
+    );
+
+    // youprop.h:119-120 spells Hallucination as the intrinsic minus
+    // resistance from either source, so a resistant hero is not hallucinating.
+    state.u.uprops[HALLUC_RES].extrinsic = 1;
+    assert.equal(
+        x_monnam(monster, ARTICLE_A, null, STETHOSCOPE, false, state),
+        'a newt',
+    );
+    state.u.uprops[HALLUC_RES].extrinsic = 0;
+
+    // steed.c mount_steed() passes SUPPRESS_HALLUCINATION, which is what its
+    // killer string needs: the same hallucinating hero gets the true name.
+    assert.equal(
+        x_monnam(monster, ARTICLE_A, null,
+                 STETHOSCOPE | SUPPRESS_HALLUCINATION, false, state),
+        'a newt',
+    );
+
+    // do_name.c:845-846. Disclosure names every monster truly, so the game
+    // being over sets the bit for a caller that did not.
+    state.program_state.gameover = true;
+    assert.equal(
+        x_monnam(monster, ARTICLE_A, null, STETHOSCOPE, false, state),
+        'a newt',
+    );
 });
 
 test('the source novel catalog has all 41 titles in stable order', () => {

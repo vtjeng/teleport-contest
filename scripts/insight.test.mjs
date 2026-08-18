@@ -16,6 +16,7 @@ import {
     attrval,
     enlightenment,
     fmt_elapsed_time,
+    size_str,
     UnsupportedEnlightenmentError,
 } from '../js/insight.js';
 import {
@@ -68,6 +69,23 @@ import {
 import { skillSlot } from '../js/startup_skills.js';
 import { ROOMOFFSET, SHOPBASE, W_ARM, W_ARMC } from '../js/const.js';
 import { costly_spot } from '../js/shk.js';
+import {
+    monst_globals_init,
+    MZ_GIGANTIC,
+    MZ_HUGE,
+    MZ_LARGE,
+    MZ_MEDIUM,
+    MZ_SMALL,
+    MZ_TINY,
+} from '../js/monsters.js';
+
+// The generated monster catalog on a state of its own, so the size sweep
+// below reads every species without touching the running game.
+function monsterCatalog() {
+    const state = {};
+    monst_globals_init(state);
+    return state;
+}
 
 test('align_str names the four alignments insight.c switches on', () => {
     // insight.c align_str(); the default arm covers every other value.
@@ -76,6 +94,28 @@ test('align_str names the four alignments insight.c switches on', () => {
     assert.equal(align_str(A_LAWFUL), 'lawful');
     assert.equal(align_str(A_NONE), 'unaligned');
     assert.equal(align_str(7), 'unknown');
+});
+
+test('size_str names the six monster sizes monflag.h defines', () => {
+    // insight.c size_str() over monflag.h:177-183. The values are read from
+    // that header rather than from the switch's own order: MZ_GIGANTIC is 7,
+    // not 5, so 5 and 6 fall to the default arm C keeps for a bad value.
+    assert.equal(size_str(MZ_TINY), 'tiny');
+    assert.equal(size_str(MZ_SMALL), 'small');
+    assert.equal(size_str(MZ_MEDIUM), 'medium');
+    assert.equal(size_str(MZ_LARGE), 'large');
+    assert.equal(size_str(MZ_HUGE), 'huge');
+    assert.equal(size_str(MZ_GIGANTIC), 'gigantic');
+    // MZ_HUMAN is monflag.h:180's second spelling of MZ_MEDIUM, so it needs no
+    // arm; 5 is the gap below MZ_GIGANTIC.
+    assert.equal(size_str(5), 'unknown size (5)');
+
+    // Every species in the catalog lands on one of the six named arms, so no
+    // real monster can reach that default.
+    for (const species of monsterCatalog().mons) {
+        assert.ok(!size_str(species.msize).startsWith('unknown'),
+            species.pmnames[2] ?? String(species.pmidx));
+    }
 });
 
 test('attrval renders Strength on its own scale', () => {

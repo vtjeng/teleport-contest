@@ -766,14 +766,22 @@ test('x_monnam builds the killer string and refuses every other flag set',
         'an angry saddled pony',
     );
 
-    // Any flag set that leaves do_it, do_invis or do_hallu live stops.
-    for (const flags of [0, SUPPRESS_IT, SUPPRESS_IT | SUPPRESS_INVISIBLE]) {
+    // Any flag set that leaves do_invis live stops. do_hallu is decided at
+    // run time instead, so SUPPRESS_IT | SUPPRESS_INVISIBLE -- what the two
+    // stethoscope callers pass -- is admitted for this unhallucinating hero;
+    // scripts/do-name.test.mjs pins the hallucinating half.
+    for (const flags of [0, SUPPRESS_IT]) {
         assert.throws(
             () => x_monnam(pony, ARTICLE_A, null, flags, true, game),
             UnsupportedMonsterNameError,
             String(flags),
         );
     }
+    assert.equal(
+        x_monnam(pony, ARTICLE_A, null, SUPPRESS_IT | SUPPRESS_INVISIBLE,
+                 true, game),
+        'a saddled pony',
+    );
 
     // do_name.c:1006-1010, name_at_start. A bare given name with no adjective
     // in front of it drops the article; with ARTICLE_YOUR it drops even when

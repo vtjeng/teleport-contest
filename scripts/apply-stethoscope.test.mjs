@@ -18,30 +18,56 @@ import {
     HALLUC,
     HALLUC_RES,
     INVIS,
+    MFAST,
+    MSLOW,
     SICK,
     SLIMED,
     STONED,
     STRANGLED,
+    STRAT_WAITFORU,
     STUNNED,
     VOMITING,
     WOUNDED_LEGS,
 } from '../js/const.js';
-import { CONFUSION, LEVITATION, OBJ_INVENT, PIT, ROOM, SCORR, SDOOR }
-    from '../js/const.js';
+import {
+    CONFUSION,
+    LEVITATION,
+    M_AP_FURNITURE,
+    M_AP_MONSTER,
+    M_AP_OBJECT,
+    OBJ_INVENT,
+    PIT,
+    ROOM,
+    SCORR,
+    SDOOR,
+} from '../js/const.js';
 import { glyph_is_invisible, map_invisible } from '../js/display.js';
 import { freehand } from '../js/engrave.js';
+import { UnsupportedMonsterNameError } from '../js/do_name.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
-import { piousness, ustatusline } from '../js/insight.js';
+import {
+    piousness,
+    UnsupportedEnlightenmentError,
+    ustatusline,
+} from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
-import { monst_globals_init, PM_NEWT } from '../js/monsters.js';
+import {
+    monst_globals_init,
+    NON_PM,
+    PM_GNOME,
+    PM_LONG_WORM,
+    PM_NEWT,
+    PM_SMALL_MIMIC,
+} from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import { is_axe, mksobj_at, set_bknown } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     ARMOR_CLASS,
     AXE,
+    CHEST,
     BALL_CLASS,
     BANANA,
     BATTLE_AXE,
@@ -59,16 +85,20 @@ import {
     IRON_CHAIN,
     LANCE,
     LEATHER_GLOVES,
+    LENSES,
     LOCK_PICK,
+    LOW_BOOTS,
     LONG_SWORD,
     LUMP_OF_ROYAL_JELLY,
     PICK_AXE,
     POT_OIL,
     POT_WATER,
     POTION_CLASS,
+    RIN_PROTECTION,
     ROCK,
     SACK,
     SCALPEL,
+    SLIME_MOLD,
     SPBOOK_CLASS,
     SPE_HEALING,
     SPEAR,
@@ -83,12 +113,15 @@ import {
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
+import { S_altar } from '../js/symbols.js';
+import { create_region } from '../js/region.js';
 import { welded } from '../js/wield.js';
 import {
     APPLY_KEY,
     ESCAPE_KEY,
     loadApplyPromptRecipe,
     loadApplyStethoscopeRecipe,
+    loadListenAtMonsterRecipe,
 } from './run-apply-stethoscope.mjs';
 
 function topLine() {
@@ -716,8 +749,14 @@ async function heroWithEmptyWest() {
 
 // One listen west, answered from the Healer's stethoscope slot. Reports the
 // refusal's branch, or null when the listen ran through to its message.
-async function listenWest() {
-    for (const key of ['c', 'h']) game.nhDisplay.pushKey(key.charCodeAt(0));
+//
+// `dismissals` is one space per --More-- the listen will raise. A listen that
+// prints two messages needs one, because the second overflows the 80-column
+// top line the first is sitting on; that overflow is exactly what makes the
+// mimic arm worth twenty-four screens in seed5002-wizard-coverage-pair.
+async function listenWest(dismissals = 0) {
+    for (const key of ['c', 'h', ...Array(dismissals).fill(' ')])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
     return doapply(game).then(() => null, (error) => {
         if (!(error instanceof UnsupportedApplyError)) throw error;
         return error.branch;
@@ -734,12 +773,24 @@ function floorCorpstat(otyp, { x, y }) {
     return obj;
 }
 
-// A monster of the kind that would answer the listen: makemon() leaves mcansee
-// set and place_monster() rejects one at zero hit points.
-function monsterAt({ x, y }) {
+// A monster of the kind that would answer the listen. The fields are the ones
+// makemon() sets and js/monst.js newMonster() zeroes: place_monster() rejects
+// a monster at zero hit points; mcansee and mcanmove clear are two of
+// mstatusline()'s conditions, so leaving them zero would add ", blind" and
+// ", can't move" to every line below; and cham stays 0, which is a real
+// species index, so makemon.c:2953's NON_PM is needed or mstatusline() reads
+// the newt as a shapechanger.
+function monsterAt({ x, y }, overrides = {}) {
     const monster = place_monster(
-        newMonster({ data: game.mons[PM_NEWT], mhp: 3, mcansee: 1 }), x, y,
-        game,
+        newMonster({
+            data: game.mons[PM_NEWT],
+            mhp: 3,
+            mhpmax: 3,
+            mcansee: 1,
+            mcanmove: 1,
+            cham: NON_PM,
+            ...overrides,
+        }), x, y, game,
     );
     monster.nmon = game.level.monlist;
     game.level.monlist = monster;
@@ -763,13 +814,18 @@ test('use_stethoscope walks the adjacent square in apply.c order',
     game.u.ux = 1;
     assert.equal(await listenWest(), 'listening off the edge of the map');
 
-    // apply.c:391 returns inside the monster arm, so nothing below it runs.
-    // The secret door under the newt is what the port would answer with if
-    // the m_at() test sat below the terrain switch.
+    // apply.c:391-446 returns inside the monster arm, so nothing below it
+    // runs. The secret door under the newt is what the port would answer with
+    // if the m_at() test sat below the terrain switch: instead the listen
+    // reports the newt and never mentions a hollow sound.
     const withMonster = await heroWithEmptyWest();
     monsterAt(withMonster);
     game.level.at(withMonster.x, withMonster.y).typ = SDOOR;
-    assert.equal(await listenWest(), 'listening to an adjacent monster');
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'Status of the newt (neutral, tiny):  Level 0  HP 3(3)  AC 8.',
+    );
 
     // apply.c:447-448 sits between the monster arm and the switch. A monster
     // standing on a remembered 'I' therefore leaves the marker alone, because
@@ -777,7 +833,7 @@ test('use_stethoscope walks the adjacent square in apply.c order',
     const marked = await heroWithEmptyWest();
     map_invisible(marked.x, marked.y, game);
     monsterAt(marked);
-    assert.equal(await listenWest(), 'listening to an adjacent monster');
+    assert.equal(await listenWest(), null);
     assert.ok(glyph_is_invisible(
         game.level.at(marked.x, marked.y).remembered_glyph?.glyph),
     'the monster arm returns before unmap_invisible() clears the marker');
@@ -807,6 +863,317 @@ test('use_stethoscope walks the adjacent square in apply.c order',
         game.level.at(secret.x, secret.y).typ = typ;
         assert.equal(await listenWest(), branch, String(typ));
     }
+});
+
+// The first of the two messages a listen prints when it prints two. It is
+// flushed to the grid when the second overflows the top line, while the second
+// stays pending.
+async function listenLine() {
+    assert.equal(await listenWest(1), null);
+    return topLine().replace(/--More--$/u, '');
+}
+
+// A mimic wearing an object, as makemon()'s set_mimic_sym() leaves one.
+function mimicAt({ x, y }, appearance, overrides = {}) {
+    return monsterAt({ x, y }, {
+        data: game.mons[PM_SMALL_MIMIC],
+        // monst.c's small mimic row: level 7, AC 7, MZ_MEDIUM, neutral. The
+        // hit points are the ones seed5002-wizard-coverage-pair's mimic rolled,
+        // so the line below is the one that session's C screen shows.
+        m_lev: 6,
+        mhp: 22,
+        mhpmax: 22,
+        m_ap_type: M_AP_OBJECT,
+        mappearance: appearance,
+        ...overrides,
+    });
+}
+
+// The newt's own row in monst.c: level 0, AC 8, MZ_TINY, neutral. Every
+// mstatusline() case below prints this line with its `info` clause appended.
+const NEWT_STATUS = 'Status of the newt (neutral, tiny):  Level 0  HP 3(3)'
+    + '  AC 8';
+
+test('the monster arm answers in apply.c branch order', async () => {
+    // apply.c:400-403, the first arm. A hidden monster cannot be spotted, so
+    // C names it before revealing it, and the reveal is what lets
+    // mstatusline() print a line for a monster the hero could not see.
+    const hidden = await heroWithEmptyWest();
+    const piercer = monsterAt(hidden, { mundetected: 1 });
+    assert.equal(await listenWest(1), null);
+    assert.equal(piercer.mundetected, 0);
+    assert.equal(pendingTopLine(), `${NEWT_STATUS}.`);
+
+    // apply.c:404 is an `else if`, so a monster that is both hidden and
+    // disguised takes the arm above and keeps its disguise; insight.c:3316
+    // then reads that surviving m_ap_type and stops.
+    const both = await heroWithEmptyWest();
+    const disguised = mimicAt(both, CHEST, { mundetected: 1 });
+    await assert.rejects(listenWest(1), UnsupportedEnlightenmentError);
+    assert.equal(disguised.mundetected, 0);
+    assert.equal(disguised.m_ap_type, M_AP_OBJECT);
+
+    // apply.c:438-439, the last arm. An invisible monster is neither hidden
+    // nor disguised, so it is announced under flags.verbose and then, at
+    // apply.c:444-445, remembered on the map as an 'I'.
+    const unseen = await heroWithEmptyWest();
+    monsterAt(unseen, { minvis: true });
+    assert.equal(await listenWest(1), null);
+    assert.equal(pendingTopLine(), `${NEWT_STATUS}, invisible.`);
+    assert.ok(glyph_is_invisible(
+        game.level.at(unseen.x, unseen.y).remembered_glyph?.glyph),
+    'an unspottable monster leaves a remembered invisible marker');
+
+    // flags.verbose guards only the announcement. The report and the marker
+    // below it are printed either way, so the quiet listen raises no --More--.
+    const quiet = await heroWithEmptyWest();
+    game.flags.verbose = false;
+    monsterAt(quiet, { minvis: true });
+    assert.equal(await listenWest(), null);
+    assert.equal(pendingTopLine(), `${NEWT_STATUS}, invisible.`);
+    assert.ok(glyph_is_invisible(
+        game.level.at(quiet.x, quiet.y).remembered_glyph?.glyph));
+
+    // A monster the hero can spot gets neither the announcement nor the
+    // marker, which is what makes the canspotmon() test at apply.c:444 do
+    // something rather than mark every square a listen touched.
+    const seen = await heroWithEmptyWest();
+    monsterAt(seen);
+    assert.equal(await listenWest(), null);
+    assert.equal(pendingTopLine(), `${NEWT_STATUS}.`);
+    assert.ok(!glyph_is_invisible(
+        game.level.at(seen.x, seen.y).remembered_glyph?.glyph));
+
+    // Both x_monnam() calls pass `called` FALSE -- apply.c:393 and
+    // insight.c:3393 -- so a monster the player has named is reported under
+    // that name alone, in the announcement and in the report. TRUE would
+    // answer "the newt called Rex" in both.
+    const named = await heroWithEmptyWest();
+    monsterAt(named, { minvis: true, mextra: { mgivenname: 'Rex' } });
+    assert.equal(await listenLine(), 'There is Rex there.');
+    assert.equal(
+        pendingTopLine(),
+        'Status of Rex (neutral, tiny):  Level 0  HP 3(3)  AC 8, invisible.',
+    );
+
+    // apply.c:396-397. gn.notonhead is FALSE while the monster stands on the
+    // square the listen pointed at. Only a long worm can answer m_at()
+    // somewhere other than its own <mx,my>, and insight.c:3290 stops for one,
+    // but the write happens at :397, well above that stop.
+    const wormHead = await heroWithEmptyWest();
+    monsterAt(wormHead, { data: game.mons[PM_LONG_WORM] });
+    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+    assert.equal(game.gb.bhitpos.x, wormHead.x);
+    assert.equal(game.gb.bhitpos.y, wormHead.y);
+    assert.equal(game.gn.notonhead, false);
+
+    // The same worm with its head one square further on, which is what a tail
+    // segment under the stethoscope looks like: the two coordinates disagree
+    // one at a time, so neither half of the comparison can be dropped.
+    for (const [dx, dy] of [[1, 0], [0, 1]]) {
+        const tail = await heroWithEmptyWest();
+        const worm = monsterAt(tail, { data: game.mons[PM_LONG_WORM] });
+        worm.mx += dx;
+        worm.my += dy;
+        await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+        assert.equal(game.gn.notonhead, true, `${dx},${dy}`);
+    }
+});
+
+test('a listened-to mimic is exposed and named by what it was wearing',
+    async () => {
+    // apply.c:406-436 over mkobj.c init_dummyobj(), objnam.c
+    // simple_typename() and mon.c seemimic(). This is the pair of lines
+    // seed5002-wizard-coverage-pair records, and their combined length is
+    // what forces the --More-- between them.
+    const chestGround = await heroWithEmptyWest();
+    const chest = mimicAt(chestGround, CHEST);
+    assert.equal(await listenWest(1), null);
+    assert.equal(chest.m_ap_type, 0);
+    assert.equal(chest.mappearance, 0);
+    assert.equal(
+        pendingTopLine(),
+        'Status of the small mimic (neutral, medium):  Level 6  HP 22(22)'
+        + '  AC 7.',
+    );
+
+    // apply.c:422. Boots, gloves and lenses take a plural demonstrative and a
+    // plural verb, which is the only place `use_plural` shows. The shoes are
+    // named by their description, which o_init.c shuffles per game; the
+    // matrix segment's seed and datetime are fixed, so it is the same string
+    // every run.
+    const bootGround = await heroWithEmptyWest();
+    mimicAt(bootGround, LOW_BOOTS);
+    assert.equal(await listenLine(),
+        'Those pair of walking shoes are really a small mimic.');
+
+    // The other two kinds apply.c:422 names, so no operand of that disjunct
+    // can be dropped: gloves reach it through is_gloves(), and lenses are the
+    // one object type named there outright.
+    const gloveGround = await heroWithEmptyWest();
+    mimicAt(gloveGround, LEATHER_GLOVES);
+    // Named rather than described, because u_init.c gives this Healer a pair
+    // and ini_inv_use_obj() discovers the type at startup.
+    assert.equal(await listenLine(),
+        'Those pair of leather gloves are really a small mimic.');
+    const lensGround = await heroWithEmptyWest();
+    mimicAt(lensGround, LENSES);
+    assert.equal(await listenLine(), 'Those lenses are really a small mimic.');
+
+    // A type whose full name carries a parenthesized description: objnam.c
+    // simple_typename() cuts it, so the mimic is "a ring" rather than "a ring
+    // (black onyx)".
+    const ringGround = await heroWithEmptyWest();
+    mimicAt(ringGround, RIN_PROTECTION);
+    assert.equal(await listenLine(), 'That ring is really a small mimic.');
+
+    // apply.c:418-421 and :426-427, two of the three sub-branches this slice
+    // leaves unported, each reached by its own kind of disguise.
+    for (const [appearance, overrides, branch] of [
+        [SLIME_MOLD, { mextra: { mcorpsenm: PM_NEWT } },
+            'naming a mimic disguised as a named fruit'],
+        [S_altar, { m_ap_type: M_AP_FURNITURE },
+            'listening to a mimic disguised as furniture'],
+    ]) {
+        const ground = await heroWithEmptyWest();
+        mimicAt(ground, appearance, overrides);
+        assert.equal(await listenWest(), branch);
+    }
+
+    // The third, apply.c:423-424, cannot be seen from here: do_name.c:867
+    // raises do_mappear for an M_AP_MONSTER mimic, and x_monnam() at
+    // apply.c:392 runs before the switch does. js/apply.js keeps its own stop
+    // for the arm anyway, so a later widening of x_monnam() cannot let a
+    // monster-shaped mimic through as "thing".
+    const shaped = await heroWithEmptyWest();
+    mimicAt(shaped, PM_NEWT, { m_ap_type: M_AP_MONSTER });
+    await assert.rejects(listenWest(), UnsupportedMonsterNameError);
+
+    // apply.c:410's SLIME_MOLD test is a pair, and the second half is what
+    // C's comment there is about: a slime-mold disguise carrying no corpse
+    // species falls to simple_typename(), which answers the type description
+    // "fruit" rather than the fruit the mimic is pretending to be.
+    const moldGround = await heroWithEmptyWest();
+    mimicAt(moldGround, SLIME_MOLD);
+    assert.equal(await listenLine(), 'That fruit is really a small mimic.');
+});
+
+test('mstatusline appends the conditions insight.c names, in its order',
+    async () => {
+    // insight.c:3277-3388. Every row is one condition and the clause it adds
+    // after the armor class; the rows are in the order C appends them, so a
+    // port that moved one would still pass each row alone and fail the pair at
+    // the end. Ordinary game, so `wizard` is false and the tame arm's
+    // debugging detail is left off.
+    for (const [overrides, info] of [
+        [{ mtame: 5 }, ', tame'],
+        [{ mpeaceful: 1 }, ', peaceful'],
+        // insight.c:3286 is an `else if`: a tame monster is never "peaceful".
+        [{ mtame: 5, mpeaceful: 1 }, ', tame'],
+        // insight.c:3305. mons[PM_GNOME] is not the newt this monster is, so
+        // its current form is not its innate one.
+        [{ cham: PM_GNOME }, ', shapechanger'],
+        [{ meating: 3 }, ', eating'],
+        [{ mcan: true }, ', cancelled'],
+        [{ mconf: true }, ', confused'],
+        // insight.c:3325 is a disjunct: either field alone says blind.
+        [{ mblinded: 4 }, ', blind'],
+        [{ mcansee: 0 }, ', blind'],
+        [{ mstun: true }, ', stunned'],
+        // insight.c:3329-3341, one chain of three.
+        [{ msleeping: true }, ', asleep'],
+        [{ mcanmove: 0 }, ", can't move"],
+        [{ mfrozen: 2 }, ", can't move"],
+        [{ msleeping: true, mfrozen: 2 }, ', asleep'],
+        [{ mstrategy: STRAT_WAITFORU }, ', meditating'],
+        [{ mcanmove: 0, mstrategy: STRAT_WAITFORU }, ", can't move"],
+        [{ mflee: true }, ', scared'],
+        [{ mtrapped: true }, ', trapped'],
+        // monst.h:207-208 and the third arm C keeps for a value that is
+        // neither.
+        [{ mspeed: MFAST }, ', fast'],
+        [{ mspeed: MSLOW }, ', slow'],
+        [{ mspeed: 3 }, ', [? speed]'],
+        [{ mleashed: true }, ', leashed'],
+        // Two at once, from opposite ends of the sequence.
+        [{ mpeaceful: 1, mblinded: 1 }, ', peaceful, blind'],
+    ]) {
+        const ground = await heroWithEmptyWest();
+        monsterAt(ground, overrides);
+        assert.equal(await listenWest(), null, JSON.stringify(overrides));
+        // A tame monster is "your newt"; every other row is "the newt".
+        const name = overrides.mtame ? 'your' : 'the';
+        assert.equal(
+            pendingTopLine(),
+            `Status of ${name} newt (neutral, tiny):  Level 0  HP 3(3)`
+            + `  AC 8${info}.`,
+            JSON.stringify(overrides),
+        );
+    }
+});
+
+test('a debug game reports a pet\'s tameness, hunger and apport', async () => {
+    // insight.c:3281-3288, the arm playmode:debug turns on. It is not a
+    // developer aside that can be dropped: seed5002-wizard-coverage-pair and
+    // every fresh case recorded with ^V or ^G run with `wizard` set, so a
+    // listen at a pet in one of them prints this.
+    const ground = await heroWithEmptyWest();
+    game.wizard = true;
+    monsterAt(ground, {
+        mtame: 5,
+        mextra: { edog: { hungrytime: 1, apport: 2 } },
+    });
+    // 91 characters, so win/tty/topl.c wraps it and asks for a --More--
+    // before the caller sees it; the wrapped text stays in gt.toplines.
+    assert.equal(await listenWest(1), null);
+    assert.equal(
+        game._ttyToplines,
+        'Status of your newt (neutral, tiny):  Level 0  HP 3(3)  AC 8'
+        + ', tame (5; hungry 1; apport 2).',
+    );
+
+    // insight.c:3283's !isminion guard. A tame minion has no EDOG to read, so
+    // dropping the guard would throw a TypeError here instead of reaching
+    // x_monnam(), which refuses a minion at insight.c:3392.
+    const minionGround = await heroWithEmptyWest();
+    game.wizard = true;
+    monsterAt(minionGround, { mtame: 5, isminion: true });
+    await assert.rejects(listenWest(), UnsupportedMonsterNameError);
+});
+
+test('mstatusline stops on the three clauses that need unported source',
+    async () => {
+    // insight.c:3290-3303, the long-worm segment count, which needs worm.c
+    // count_wsegs() and wseg_at().
+    const worm = await heroWithEmptyWest();
+    monsterAt(worm, { data: game.mons[PM_LONG_WORM] });
+    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+
+    // insight.c:3316-3318's third term. gb.bhitpos is the square the listen
+    // pointed at, not the hero's, so a cloud over the monster reaches
+    // mhidden_description() while the hero stands in clear air.
+    const clouded = await heroWithEmptyWest();
+    monsterAt(clouded);
+    const region = create_region([
+        { lx: clouded.x, ly: clouded.y, hx: clouded.x, hy: clouded.y },
+    ]);
+    region.visible = true;
+    game.level.regions.push(region);
+    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+    game.level.regions.pop();
+
+    // insight.c:3355-3373 and :3374-3387, the two clauses about a monster that
+    // has hold of the hero or is carrying her. Neither is reachable from a
+    // listen in an ordinary game, and both need source the goal leaves out.
+    const holder = await heroWithEmptyWest();
+    game.u.ustuck = monsterAt(holder);
+    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+    game.u.ustuck = null;
+
+    const steed = await heroWithEmptyWest();
+    game.u.usteed = monsterAt(steed);
+    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+    game.u.usteed = null;
 });
 
 test('its_dead stops on what it finds in apply.c its_dead order', async () => {
@@ -948,17 +1315,19 @@ test('ustatusline stops for every clause it would have to name', async () => {
     );
 });
 
-test('the apply matrix holds the two clean recipes the slice was closed on',
+test('the apply matrix holds the three clean recipes the slices close on',
     () => {
-    const recipes = [loadApplyStethoscopeRecipe(), loadApplyPromptRecipe()];
+    const priorRecipes = [loadApplyStethoscopeRecipe(), loadApplyPromptRecipe()];
+    const recipes = [...priorRecipes, loadListenAtMonsterRecipe()];
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 22);
+    assert.equal(segments.length, 28);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
-    // Every segment opens and closes with a wait, so a command that wrongly
-    // spent or wrongly saved a turn shows in the screen after it.
-    assert.ok(segments.every(({ moves }) =>
+    // The two prior recipes open and close with a wait, so a command that
+    // wrongly spent or wrongly saved a turn shows in the screen after it.
+    assert.ok(priorRecipes.flatMap(({ segments: rows }) => rows)
+        .every(({ moves }) =>
         moves.startsWith('.') && moves.endsWith('.')));
     // The prompt half varies the role and the stethoscope half varies the
     // keys, so neither half is a copy of the other.

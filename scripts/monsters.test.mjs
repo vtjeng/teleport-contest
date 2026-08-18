@@ -102,9 +102,15 @@ test('generated monster catalog matches the complete pinned C export', () => {
     assert.equal(M2_GREEDY, 0x10000000);
     assert.equal(monsterExports.M2_PNAME, 0x00080000);
     assert.equal(M3_INFRAVISION, 0x0100);
+    // monflag.h:177-183. The six sizes insight.c size_str() names, including
+    // the two whose values are not their position in the list: MZ_TINY is the
+    // zero the catalog stores for a newt, and MZ_GIGANTIC skips 5 and 6.
+    assert.equal(monsterExports.MZ_TINY, 0);
     assert.equal(MZ_SMALL, 1);
     assert.equal(MZ_MEDIUM, 2);
+    assert.equal(monsterExports.MZ_LARGE, 3);
     assert.equal(monsterExports.MZ_HUGE, 4);
+    assert.equal(monsterExports.MZ_GIGANTIC, 7);
     assert.equal(MS_GUARDIAN, 38);
     assert.equal(monsterExports.MR_SLEEP, 4);
     assert.equal(monsterExports.MR_DISINT, 8);
@@ -128,7 +134,7 @@ test('generated monster catalog matches the complete pinned C export', () => {
     // name, attack, generation flag, level, weight, resistance, and color.
     assert.equal(
         digest,
-        '14c75dd48789d9db9191f2716a614a1c5b92ef922f186526ec72d596101212f2',
+        'fb6504245adb6828b6b4a5fc6a1119e2008695778323dfcb3e6427a579994a60',
     );
 });
 

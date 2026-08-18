@@ -7,13 +7,17 @@
 // The command is apply.c doapply() as far as its STETHOSCOPE arm, which
 // reaches apply.c apply_ok() through invent.c getobj(), apply.c
 // use_stethoscope() through the switch, insight.c ustatusline() through the
-// self direction, and apply.c its_dead() through any other direction. The
-// matrix splits into two halves. The first drives use_stethoscope(): the free
-// first listen, the second listen in the same move that costs a turn, both
-// cancels, both self keys, the Deaf guard, a sweep of all eight compass
-// directions, and a listen at a square carrying an ordinary object. The
-// second drives apply_ok(): one role per answer it can give, chosen so that a
-// term returning the wrong answer changes the advertised letter set.
+// self direction, insight.c mstatusline() through a direction holding a
+// monster, and apply.c its_dead() through any other direction. The matrix
+// splits into three parts. The first drives use_stethoscope(): the free first
+// listen, the second listen in the same move that costs a turn, both cancels,
+// both self keys, the Deaf guard, a sweep of all eight compass directions, a
+// listen at a square carrying an ordinary object, and a listen at the hero's
+// own pet. The second drives apply_ok(): one role per answer it can give,
+// chosen so that a term returning the wrong answer changes the advertised
+// letter set. The third drives the monster arm at apply.c:391-446, which needs
+// a monster standing next to the hero and is therefore recorded on levels the
+// hero materializes onto in a debug game.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -83,6 +87,12 @@ const DECORATED =
 // monster-hiding branch on the turn after the listen and would end every
 // segment there for a reason this matrix does not measure.
 const QUIET_SEED = 4711002;
+
+// The pet listen. Seed 7031 leaves the little dog directly south of the hero
+// after her opening wait, which is the direction the segment points at.
+const PET_SEED = 7031;
+const PET_DATETIME = '20260615101500';
+const PET_DIRECTION = 'j';
 
 // Two seeds for the adjacent-square segments below, chosen by looking at the
 // map each one draws rather than at any recorded session. On 8823147 the hero
@@ -159,8 +169,94 @@ export function loadApplyStethoscopeRecipe() {
             segment(`d${APPLES_SLOT}l${APPLY_KEY}${STETHOSCOPE_SLOT}${WEST}`,
                 { name: 'Percuss', gender: 'male' }, PLAIN, DROPPED_SEED,
                 DROPPED_DATETIME),
+            // The monster arm at its most ordinary: the hero listens at her own
+            // pet, which is next to her from the first turn of every game with
+            // one. insight.c:3280 adds ", tame" and x_monnam()'s ARTICLE_YOUR
+            // survives for a tame monster, so the report is about "your little
+            // dog"; `wizard` is off here, which is what leaves the tameness,
+            // hungrytime and apport out of it.
+            segment(`${APPLY_KEY}${STETHOSCOPE_SLOT}${PET_DIRECTION}`,
+                { name: 'Vetlis' }, PET, PET_SEED, PET_DATETIME),
         ],
     }, 'apply stethoscope recipe');
+}
+
+// The monster arm needs a monster the hero can point at, which an ordinary
+// first turn supplies only for a pet. The four segments below use ^V, the
+// wizard level teleport, to drop the hero onto D:5, where every seed was
+// chosen by reading the arrival square's neighbours rather than by copying any
+// recorded session. Each records exactly one listen, and that listen is the
+// first of its move, so it is free and no monster takes a turn inside the
+// recording.
+const MONSTER_DATETIME = '20260615101500';
+const DEBUG_PLAIN = 'pettype:none,!acoustics,!autopickup,time,playmode:debug';
+const DEBUG_PET = 'pettype:dog,!acoustics,!autopickup,time,playmode:debug';
+// cmd.c binds C('v') to the wizard level teleport, which asks for a level
+// number and takes the hero there without a trap or a scroll.
+const LEVEL_TELEPORT = '\x165\n';
+
+// The four D:5 seeds, and what stands next to the hero when she arrives.
+// 1057: a newt, which takes apply.c:438's `else` and prints no announcement,
+// because a Healer standing next to a newt in a lit room can see it.
+const NEWT_SEED = 1057;
+// 1205: a garter snake that hid at level creation, so mtmp->mundetected is set
+// and apply.c:400-403 names it before clearing the flag.
+const HIDDEN_SEED = 1205;
+// 8860 and 7040: mimics wearing a potion and a scroll. Both full type names
+// carry a parenthesized appearance for objnam.c simple_typename() to cut, and
+// the potion's is a type this Healer already knows, so the name in front of
+// the parentheses is the real one rather than a description. The scroll's
+// wearer is a large mimic, which is the second of the two sizes
+// insight.c size_str() can reach here.
+const POTION_MIMIC_SEED = 8860;
+const SCROLL_MIMIC_SEED = 7040;
+// 7031 in a debug game: the pet again, this time with `wizard` set, which is
+// what insight.c:3281-3288 needs.
+const DEBUG_PET_SEED = 7031;
+
+function debugSegment(seed, moves, options = DEBUG_PLAIN) {
+    return {
+        seed,
+        datetime: MONSTER_DATETIME,
+        nethackrc: nethackrc({ name: 'Auscult', role: 'Healer', options }),
+        moves,
+    };
+}
+
+export function loadListenAtMonsterRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            // An ordinary hostile monster: mstatusline()'s `info` stays empty
+            // and the line ends at the armor class.
+            debugSegment(NEWT_SEED, `${SPACE_KEY}${LEVEL_TELEPORT}`
+                + `${APPLY_KEY}${STETHOSCOPE_SLOT}u`),
+            // A hidden one: "There is a garter snake hidden there." and then
+            // the report, which needs the reveal above it to have happened.
+            // Two messages, so one --More-- to dismiss.
+            debugSegment(HIDDEN_SEED, `${SPACE_KEY}${LEVEL_TELEPORT}`
+                + `${APPLY_KEY}${STETHOSCOPE_SLOT}k${SPACE_KEY}`),
+            // The mimic pair, which is the whole of the M_AP_OBJECT arm:
+            // init_dummyobj(), simple_typename() and seemimic(), and then the
+            // two messages whose combined length forces a --More--. Each
+            // arrival prints a second message of its own, so each needs one
+            // more space before the apply command.
+            // Both arrivals land inside a shop, so the second space clears
+            // the shopkeeper's greeting before the apply command.
+            debugSegment(POTION_MIMIC_SEED,
+                `${SPACE_KEY}${LEVEL_TELEPORT}${SPACE_KEY}${SPACE_KEY}`
+                + `${APPLY_KEY}${STETHOSCOPE_SLOT}l${SPACE_KEY}`),
+            debugSegment(SCROLL_MIMIC_SEED,
+                `${SPACE_KEY}${LEVEL_TELEPORT}${SPACE_KEY}${SPACE_KEY}`
+                + `${APPLY_KEY}${STETHOSCOPE_SLOT}n${SPACE_KEY}`),
+            // The pet in a debug game, on D:1 with no teleport: the tameness
+            // detail makes the line longer than the top row, so C wraps it and
+            // asks for a --More-- of its own.
+            debugSegment(DEBUG_PET_SEED,
+                `${SPACE_KEY}${WAIT}${APPLY_KEY}${STETHOSCOPE_SLOT}u`
+                + SPACE_KEY, DEBUG_PET),
+        ],
+    }, 'listen at a monster recipe');
 }
 
 // One pack per apply_ok() term. Each role below advertises a letter set that
@@ -230,13 +326,26 @@ export async function runApplyStethoscopeMatrix() {
         chunkLimit: 5,
     });
     if (!stethoscope.passed) return stethoscope;
-    return runFreshMatrix({
+    const prompt = await runFreshMatrix({
         entries: [{
             label: 'apply prompt',
             recipe: loadApplyPromptRecipe(),
         }],
         summaryLabel: 'APPLY PROMPT',
         chunkLimit: 5,
+    });
+    if (!prompt.passed) return prompt;
+    // Every segment below is a playmode:debug game, and
+    // scripts/record-session.mjs clears the install directory only before a
+    // chunk's first segment, so two debug games in one chunk would leave the
+    // second restoring the first one's save.
+    return runFreshMatrix({
+        entries: [{
+            label: 'listen at a monster',
+            recipe: loadListenAtMonsterRecipe(),
+        }],
+        summaryLabel: 'LISTEN AT A MONSTER',
+        chunkLimit: 1,
     });
 }
 

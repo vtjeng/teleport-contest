@@ -2891,6 +2891,14 @@ export function has_emin(mtmp) { return !!mtmp?.mextra?.emin; }
 export function has_egd(mtmp) { return !!mtmp?.mextra?.egd; }
 export function has_edog(mtmp) { return !!mtmp?.mextra?.edog; }
 export function has_ebones(mtmp) { return !!mtmp?.mextra?.ebones; }
+// mextra.h:234 pairs the record's presence with a species check, because
+// newmcorpsenm() allocates the field and leaves NON_PM in it. MCORPSENM()
+// above answers NON_PM for a monster carrying no mextra at all, so the
+// species test alone would already be false there; the presence test is
+// kept because C has it.
+export function has_mcorpsenm(mtmp) {
+    return !!mtmp?.mextra && MCORPSENM(mtmp) !== NON_PM;
+}
 
 // Object extra accessors
 // C: ONAME(obj) → ((char *)(obj)->oextra->oname)

@@ -1,5 +1,6 @@
 // Object allocation, initialization, and weight.
-// C refs: include/obj.h, src/mkobj.c mkobj(), mksobj(), and weight().
+// C refs: include/obj.h, src/mkobj.c mkobj(), mksobj(), init_dummyobj(), and
+// weight().
 
 import {
     A_NONE,
@@ -378,6 +379,41 @@ export function newObject(overrides = {}) {
         oextra: null,
     });
     Object.assign(obj, overrides);
+    return obj;
+}
+
+// C ref: mkobj.c init_dummyobj() (3346-3371), which fills in just enough of an
+// object for the obj.h predicates that take an object pointer. Its one ported
+// caller is apply.c use_stethoscope()'s M_AP_OBJECT arm, which needs to know
+// what a mimic's disguise is called and whether that name takes a plural verb.
+//
+// C's caller owns the storage -- `struct obj dummyobj` on the stack, passed by
+// address -- and this function zeroes it from cg.zeroobj. The port keeps the
+// parameter so the call reads the same, and the caller passes newObject(),
+// which is the port's cg.zeroobj and carries the union aliases that
+// `leashmon` and `next_boulder` below write through.
+export function init_dummyobj(obj, otyp, oquan, state = game) {
+    if (obj) {
+        Object.assign(obj, newObject()); /* *obj = cg.zeroobj */
+        obj.otyp = otyp;
+        const ocl = objectType(otyp, state);
+        obj.oclass = ocl.oc_class;
+        /* obj.dknown = 0; */
+        /* suppress known except for amulets (needed for fakes & real AoY) */
+        obj.known = (obj.oclass === AMULET_CLASS)
+            ? obj.known
+            /* default is "on" for types which don't use it */
+            : !ocl.oc_uses_known;
+        obj.quan = oquan || 1;
+        obj.corpsenm = NON_PM; /* suppress statue and figurine details */
+        if (obj.otyp === LEASH)
+            obj.leashmon = 0; /* overloads corpsenm, avoid NON_PM */
+        if (obj.otyp === BOULDER)
+            obj.next_boulder = 0; /* overloads corpsenm, avoid NON_PM */
+        /* but suppressing fruit details leads to "bad fruit #0" */
+        if (obj.otyp === SLIME_MOLD)
+            obj.spe = state.context.current_fruit;
+    }
     return obj;
 }
 

@@ -7,6 +7,8 @@ import {
     IN_SIGHT,
     I_SPECIAL,
     M_AP_FURNITURE,
+    M_AP_NOTHING,
+    M_AP_OBJECT,
     MFAST,
     MON_FLOOR,
     MON_MIGRATING,
@@ -34,6 +36,7 @@ import {
     movemon,
     movemon_singlemon,
     mpickstuff,
+    seemimic,
     wake_msg,
     wake_nearto,
 } from '../js/mon.js';
@@ -49,15 +52,22 @@ import {
     PM_DWARF,
     PM_GNOME,
     PM_HUMAN_WEREWOLF,
+    PM_SMALL_MIMIC,
     PM_VAMPIRE,
     PM_WEREWOLF,
     S_EEL,
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
-import { newObject } from '../js/obj.js';
+import { mksobj_at, newObject } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
+import { does_block } from '../js/vision.js';
 import {
     BOULDER,
+    CHEST,
     DAGGER,
     FOOD_RATION,
     GOLD_PIECE,
@@ -1704,4 +1714,108 @@ test('mpickstuff demands the whole random set only when it splits', async () => 
     );
     assert.equal(split.monster.minvent, null);
     assert.equal(gold.quan, 4);
+});
+
+// mon.c seemimic() writes the level's transparency index and repaints the
+// square, so its cases run on a real game rather than on a hand-built state.
+// The seed is the quiet one scripts/run-apply-stethoscope.mjs records on; the
+// square west of the hero is ordinary lit room floor with nothing on it.
+const MIMIC_DATETIME = '20310203040506';
+const MIMIC_RC = [
+    'OPTIONS=name:Seem,role:Healer,race:human,gender:female,align:neutral',
+    'OPTIONS=!legacy,!tutorial,!splash_screen',
+    'OPTIONS=pettype:none,!acoustics,!autopickup,time',
+    '',
+].join('\n');
+
+async function mimicGround() {
+    await runSegment({
+        seed: 4711002, datetime: MIMIC_DATETIME, nethackrc: MIMIC_RC,
+        moves: '',
+    });
+    const west = { x: game.u.ux - 1, y: game.u.uy };
+    assert.equal(m_at(west.x, west.y, game), null);
+    return west;
+}
+
+// A mimic wearing an object, shaped the way makemon()'s set_mimic_sym() leaves
+// one. cham is NON_PM because js/monst.js newMonster() zeroes it and zero is a
+// real species index.
+function mimicAt({ x, y }, appearance, overrides = {}) {
+    const mon = newMonster({
+        data: game.mons[PM_SMALL_MIMIC],
+        cham: NON_PM,
+        mhp: 22,
+        mhpmax: 22,
+        m_lev: 6,
+        mcansee: 1,
+        mcanmove: 1,
+        m_ap_type: M_AP_OBJECT,
+        mappearance: appearance,
+        ...overrides,
+    });
+    place_monster(mon, x, y, game);
+    mon.nmon = game.level.monlist;
+    game.level.monlist = mon;
+    return mon;
+}
+
+test('seemimic strips the disguise and unblocks only a blocking one',
+    async () => {
+    // monst.h:233-239. A mimic wearing a boulder blocks light while it is
+    // disguised, and mon.c:4419-4423 is what stops it blocking once it has
+    // been recognized.
+    const west = await mimicGround();
+    const boulderMimic = mimicAt(west, BOULDER, {
+        mextra: { mcorpsenm: PM_GNOME },
+    });
+    assert.equal(does_block(west.x, west.y, null, game), true);
+    game.vision_full_recalc = 0;
+
+    seemimic(boulderMimic, game);
+    assert.equal(boulderMimic.m_ap_type, M_AP_NOTHING);
+    assert.equal(boulderMimic.mappearance, 0);
+    // mon.c:4413-4414. set_mimic_sym() leaves a species behind for some
+    // appearances and seemimic() releases it, which for mextra.h's inline
+    // field means writing NON_PM back.
+    assert.equal(boulderMimic.mextra.mcorpsenm, NON_PM);
+    assert.equal(does_block(west.x, west.y, null, game), false);
+    // vision.c unblock_point() rebuilds the transparency index and raises
+    // vision_full_recalc for a square the hero can currently see, which is the
+    // only trace the call leaves.
+    assert.equal(game.vision_full_recalc, 1);
+
+    // A disguise that never blocked light leaves the index alone, so the
+    // first term of mon.c:4422 has to be read before the second.
+    const chestGround = await mimicGround();
+    const chestMimic = mimicAt(chestGround, CHEST);
+    assert.equal(does_block(chestGround.x, chestGround.y, null, game), false);
+    game.vision_full_recalc = 0;
+    seemimic(chestMimic, game);
+    assert.equal(chestMimic.m_ap_type, M_AP_NOTHING);
+    assert.equal(game.vision_full_recalc, 0);
+    // A mimic that carried no species record keeps none: has_mcorpsenm() is
+    // false and mextra.h allocates nothing.
+    assert.equal(chestMimic.mextra, null);
+
+    // mextra.h:234 is a conjunction, and a monster carrying an mextra that
+    // holds something else is what separates its two halves: a pet's edog is
+    // not a corpse species, so freemcorpsenm() must not write one in.
+    const petGround = await mimicGround();
+    const petMimic = mimicAt(petGround, CHEST, {
+        mtame: 5, mextra: { edog: { hungrytime: 1, apport: 2 } },
+    });
+    seemimic(petMimic, game);
+    assert.ok(!('mcorpsenm' in petMimic.mextra));
+
+    // The second term: a boulder-mimic standing on a real boulder leaves the
+    // square blocked once its own disguise is gone, so nothing is unblocked.
+    const rockGround = await mimicGround();
+    const onRealBoulder = mimicAt(rockGround, BOULDER);
+    mksobj_at(BOULDER, rockGround.x, rockGround.y, false, false,
+              objectGenerationEnv({ state: game }));
+    game.vision_full_recalc = 0;
+    seemimic(onRealBoulder, game);
+    assert.equal(does_block(rockGround.x, rockGround.y, null, game), true);
+    assert.equal(game.vision_full_recalc, 0);
 });
