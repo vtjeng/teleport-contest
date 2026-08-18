@@ -6,12 +6,14 @@
 //
 // The command is apply.c doapply() as far as its STETHOSCOPE arm, which
 // reaches apply.c apply_ok() through invent.c getobj(), apply.c
-// use_stethoscope() through the switch, and insight.c ustatusline() through
-// the self direction. The matrix splits into two halves. The first drives
-// use_stethoscope(): the free first listen, the second listen in the same
-// move that costs a turn, both cancels, both self keys, and the Deaf guard.
-// The second drives apply_ok(): one role per answer it can give, chosen so
-// that a term returning the wrong answer changes the advertised letter set.
+// use_stethoscope() through the switch, insight.c ustatusline() through the
+// self direction, and apply.c its_dead() through any other direction. The
+// matrix splits into two halves. The first drives use_stethoscope(): the free
+// first listen, the second listen in the same move that costs a turn, both
+// cancels, both self keys, the Deaf guard, a sweep of all eight compass
+// directions, and a listen at a square carrying an ordinary object. The
+// second drives apply_ok(): one role per answer it can give, chosen so that a
+// term returning the wrong answer changes the advertised letter set.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -30,6 +32,9 @@ const DATETIME = '20310203040506';
 export const APPLY_KEY = 'a';
 export const APPLY_BY_NAME = '#apply\n';
 export const STETHOSCOPE_SLOT = 'c';
+// u_init.c:76-89's last Healer row, the apples, which is the non-corpse object
+// the dropped-object segment leaves on the floor.
+export const APPLES_SLOT = 'j';
 export const SELF = '.';
 export const SELF2 = 's';
 export const ESCAPE_KEY = '\x1b';
@@ -40,6 +45,13 @@ export const WAIT = '.';
 // direction. Spelling it once keeps the repeated-listen segments readable,
 // because the free-action rule counts listens rather than keys.
 const LISTEN = `${APPLY_KEY}${STETHOSCOPE_SLOT}${SELF}`;
+
+// The eight compass keys of cmd.c:3346's sdir[], "hykulnjb><", without the two
+// vertical ones, each preceded by a fresh apply command. That is what the
+// eight-direction sweep sends.
+const EIGHT_WAY_SWEEP = [...'hykulnjb']
+    .map((key) => `${APPLY_KEY}${STETHOSCOPE_SLOT}${key}`).join('');
+const WEST = 'h';
 
 function nethackrc({ name, role, race = 'human', gender = 'female',
     align = 'neutral', options }) {
@@ -72,12 +84,25 @@ const DECORATED =
 // segment there for a reason this matrix does not measure.
 const QUIET_SEED = 4711002;
 
+// Two seeds for the adjacent-square segments below, chosen by looking at the
+// map each one draws rather than at any recorded session. On 8823147 the hero
+// starts on the up staircase against a room's north wall, so a sweep of all
+// eight directions covers five floor squares and three wall ones; on 3419682
+// she has open floor to the east to step onto. Each carries a datetime of its
+// own, because calendar.c's new-moon warning would otherwise queue a --More--
+// ahead of the first key and eat it.
+const SWEEP_SEED = 8823147;
+const SWEEP_DATETIME = '20260324134500';
+const DROPPED_SEED = 3419682;
+const DROPPED_DATETIME = '20260707194500';
+
 // Every segment opens and closes with a wait, so a command that wrongly spent
 // or wrongly saved a turn shows up in the screen after it.
-function segment(moves, character = {}, options = PLAIN, seed = QUIET_SEED) {
+function segment(moves, character = {}, options = PLAIN, seed = QUIET_SEED,
+    datetime = DATETIME) {
     return {
         seed,
-        datetime: DATETIME,
+        datetime,
         nethackrc: nethackrc({
             name: 'Stetho',
             role: 'Healer',
@@ -121,6 +146,19 @@ export function loadApplyStethoscopeRecipe() {
             // A pet whose position a wrongly spent turn would move, and a
             // second listen to spend one on purpose.
             segment(`${LISTEN}${LISTEN}`, {}, PET),
+            // All eight directions from one standing hero. Every square is
+            // floor or wall with nothing on it, so each listen reaches
+            // apply.c:468 through its_dead()'s fall-through, and the eight in
+            // a row alternate free and costly four times over.
+            segment(EIGHT_WAY_SWEEP, { name: 'Auscult' }, PLAIN, SWEEP_SEED,
+                SWEEP_DATETIME),
+            // A square with an ordinary object on it, which still answers
+            // "You hear nothing special.": apply.c:203-204 asks sobj_at() for
+            // a corpse and a statue, not for whatever is lying there. The
+            // Healer drops her apples, steps east off them, and listens back.
+            segment(`d${APPLES_SLOT}l${APPLY_KEY}${STETHOSCOPE_SLOT}${WEST}`,
+                { name: 'Percuss', gender: 'male' }, PLAIN, DROPPED_SEED,
+                DROPPED_DATETIME),
         ],
     }, 'apply stethoscope recipe');
 }

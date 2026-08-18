@@ -1,13 +1,15 @@
 // apply.js -- the `a` command: using a tool.
-// C refs: src/apply.c apply_ok(), doapply(), use_stethoscope(), and
-// reset_trapset().
+// C refs: src/apply.c apply_ok(), doapply(), use_stethoscope(), its_dead(),
+// and reset_trapset().
 //
 // doapply()'s switch has thirty-odd arms. Two are live: STETHOSCOPE, and the
 // LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c pick_lock() serves. Every
 // other arm, and the wand, spellbook and coin shortcuts above the switch,
 // stops at a refusal naming the C function it needs. use_stethoscope() covers
-// its three guards, the free-action rule, and the self-probe that confdir()
-// leads to; the mounted, swallowed, vertical and cursed arms stop.
+// its three guards, the free-action rule, the self-probe that confdir() leads
+// to, and the adjacent square that holds nothing to report; the mounted,
+// swallowed, vertical and cursed arms stop, as do the monster, secret-terrain
+// and dead-thing arms of the adjacent square.
 
 import {
     DEAF,
@@ -22,20 +24,26 @@ import {
     HALLUC,
     HALLUC_RES,
     HAND,
+    isok,
+    SCORR,
+    SDOOR,
 } from './const.js';
 import { confdir, getdir } from './cmd.js';
-import { freehand } from './engrave.js';
+import { unmap_invisible } from './display.js';
+import { can_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity } from './hack.js';
 import { ustatusline } from './insight.js';
 import { getobj } from './invent.js';
 import { pick_lock } from './lock.js';
 import { nohands } from './mondata.js';
-import { is_axe, is_graystone, is_pick, objectType } from './obj.js';
+import { m_at } from './monst.js';
+import { is_axe, is_graystone, is_pick, objectType, sobj_at } from './obj.js';
 import {
     BANANA,
     BULLWHIP,
     COIN_CLASS,
+    CORPSE,
     CREAM_PIE,
     CREDIT_CARD,
     EUCALYPTUS_LEAF,
@@ -45,6 +53,7 @@ import {
     POTION_CLASS,
     SKELETON_KEY,
     SPBOOK_CLASS,
+    STATUE,
     STETHOSCOPE,
     TOOL_CLASS,
     TOUCHSTONE,
@@ -160,17 +169,69 @@ export function apply_ok(obj, state = game) {
     return GETOBJ_EXCLUDE_SELECTABLE;
 }
 
-// C ref: apply.c use_stethoscope() (313-424), as far as the hero listening to
-// her own chest. C's comment explains the free action: one use per turn costs
-// nothing, so a second use in the same move is what makes a cursed
-// stethoscope's wasted listen cost anything.
+// C ref: apply.c its_dead() (196-309), the floor-object half of a listen.
+// C answers TRUE when it printed something and FALSE when the square holds
+// neither a corpse nor a statue, which is when the caller falls through to
+// "You hear nothing special."
+//
+// C takes `int *resp` so that its hallucination arm can charge the turn
+// (apply.c:253); that is the only arm that writes through the pointer, and it
+// refuses here, so the port answers a bare boolean instead.
+//
+// The message arms (226-307) all refuse, and 214-220 -- the uppermost-object
+// tie-break and the more_corpses count -- feed nothing but those arms, so they
+// are unported. What is ported is the frame: the two sobj_at() lookups, the
+// out-of-reach block, and the fall-through.
+function its_dead(rx, ry, state) {
+    let corpse = sobj_at(CORPSE, rx, ry, state);
+    const statue = sobj_at(STATUE, rx, ry, state);
+
+    if (!can_reach_floor(true, state)) { /* levitation or unskilled riding */
+        corpse = null;                   /* can't reach corpse on floor */
+        // apply.c:210-211 then walks `statue` past the tiny statues an
+        // out-of-reach hero cannot touch, through invent.c nxtobj(), so a
+        // square holding none but tiny ones reaches the fall-through below.
+        // The port refuses every statue here instead, which over-refuses
+        // exactly that square: the walk needs nxtobj() and MZ_TINY, and
+        // js/monsters.js exports neither, while every statue the walk would
+        // leave standing refuses one test lower down anyway.
+        if (statue)
+            throw new UnsupportedApplyError('an out-of-reach statue');
+    }
+    if (corpse || statue) {
+        // C's chain at 223-307 is `neither`, `Hallucination`, `corpse`,
+        // `statue`, and that order is what these three keep. The corpse and
+        // statue arms need glyph_at(), get_mtraits(), obj_pmname() and the
+        // Healer REVIVE_MON walk; the hallucination arm sits above both and
+        // would answer for either object, so it is named separately.
+        if (heroHallucinating(state)) {
+            throw new UnsupportedApplyError(
+                'a hallucinated listen to the dead');
+        }
+        if (corpse) {
+            throw new UnsupportedApplyError(
+                'a corpse on the listened-to square');
+        }
+        throw new UnsupportedApplyError('a statue on the listened-to square');
+    }
+    return false; /* no corpse or statue */
+}
+
+// C ref: apply.c use_stethoscope() (317-470), with C's own comment above it at
+// 313-316 explaining the free action: one use per turn costs nothing, so a
+// second use in the same move is what makes a cursed stethoscope's wasted
+// listen cost anything.
 //
 // Four arms between the direction prompt and confdir() stop rather than run.
 // The u.usteed and the two u.uswallow arms need mstatusline(); u.dz needs
-// its_dead(), cant_reach_floor() and the Soundeffect() interface; and the
-// cursed arm draws an rn2(2) whose "You hear your heart beat." nothing has
-// checked. Refusing the cursed arm on obj.cursed alone keeps that draw out of
-// the random-number stream for the uncursed tools the ported path uses.
+// cant_reach_floor() and the Soundeffect() interface; and the cursed arm draws
+// an rn2(2) whose "You hear your heart beat." nothing has checked. Refusing
+// the cursed arm on obj.cursed alone keeps that draw out of the random-number
+// stream for the uncursed tools the ported path uses.
+//
+// Below confdir() the adjacent-square arm (384-470) runs as far as the empty
+// square's answer. Its four other arms stop, each in C's own branch order, so
+// a square carrying two of them stops where C would have branched.
 async function use_stethoscope(obj, state = game) {
     const u = state.u;
 
@@ -211,7 +272,32 @@ async function use_stethoscope(obj, state = game) {
         await ustatusline(state);
         return res;
     }
-    throw new UnsupportedApplyError('listening to an adjacent square');
+    const rx = u.ux + u.dx;
+    const ry = u.uy + u.dy;
+    // apply.c:386-390 answers a square off the map with "You hear a faint
+    // typing noise." and ECMD_OK, the one arm below here that discards `res`
+    // rather than returning it. Its Soundeffect() interface is unported.
+    if (!isok(rx, ry))
+        throw new UnsupportedApplyError('listening off the edge of the map');
+    // apply.c:391-446, the monster arm: x_monnam(), the gb.bhitpos and
+    // gn.notonhead writes, the mundetected and mappearance branches,
+    // mstatusline() and map_invisible().
+    if (m_at(rx, ry, state))
+        throw new UnsupportedApplyError('listening to an adjacent monster');
+    if (unmap_invisible(rx, ry, state))
+        await ttyPline('The invisible monster must have moved.', state);
+
+    const lev = state.level.at(rx, ry);
+    // apply.c:452-464. Both arms rewrite the terrain the listen exposed, and
+    // no ported command creates either kind of square to listen at.
+    if (lev.typ === SDOOR)
+        throw new UnsupportedApplyError('listening to a secret door');
+    if (lev.typ === SCORR)
+        throw new UnsupportedApplyError('listening to a secret corridor');
+
+    if (!its_dead(rx, ry, state))
+        await ttyPline('You hear nothing special.', state); /* not You_hear() */
+    return res;
 }
 
 // C ref: apply.c doapply() (4213-4430), the `a` command.

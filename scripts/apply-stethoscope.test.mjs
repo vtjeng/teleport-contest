@@ -26,15 +26,19 @@ import {
     VOMITING,
     WOUNDED_LEGS,
 } from '../js/const.js';
-import { CONFUSION, OBJ_INVENT } from '../js/const.js';
+import { CONFUSION, LEVITATION, OBJ_INVENT, PIT, ROOM, SCORR, SDOOR }
+    from '../js/const.js';
+import { glyph_is_invisible, map_invisible } from '../js/display.js';
 import { freehand } from '../js/engrave.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { piousness, ustatusline } from '../js/insight.js';
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
-import { monst_globals_init } from '../js/monsters.js';
-import { is_axe, set_bknown } from '../js/obj.js';
+import { monst_globals_init, PM_NEWT } from '../js/monsters.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
+import { is_axe, mksobj_at, set_bknown } from '../js/obj.js';
+import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     ARMOR_CLASS,
     AXE,
@@ -43,6 +47,7 @@ import {
     BATTLE_AXE,
     BULLWHIP,
     COIN_CLASS,
+    CORPSE,
     CREAM_PIE,
     DWARVISH_MATTOCK,
     EUCALYPTUS_LEAF,
@@ -67,6 +72,7 @@ import {
     SPBOOK_CLASS,
     SPE_HEALING,
     SPEAR,
+    STATUE,
     STETHOSCOPE,
     TIN_OPENER,
     TOOL_CLASS,
@@ -621,15 +627,12 @@ test('doapply refuses every class and arm this slice does not port',
     assert.match(sack?.message ?? '',
         new RegExp(`doapply\\(\\)'s arm for object type ${SACK}`, 'u'));
 
-    // The two direction arms below confdir(): 'j' names an adjacent square
-    // and '>' names the floor.
-    for (const [key, branch] of [
-        ['j', 'listening to an adjacent square'],
-        ['>', 'listening to the floor or ceiling'],
-    ]) {
-        assert.match(await refusal(`.ac${key}`),
-            new RegExp(`applying a tool requires ${branch}`, 'u'), key);
-    }
+    // The one direction arm still above the port's reach: '>' names the floor,
+    // which apply.c:363 answers before confdir() ever runs. 'j', the adjacent
+    // square beside it, now answers rather than stopping, and the test below
+    // covers where it stops instead.
+    assert.match(await refusal('.ac>'),
+        /applying a tool requires listening to the floor or ceiling/u);
 });
 
 // The arms between the free-action write and confdir() that no key sequence
@@ -690,6 +693,177 @@ test('use_stethoscope stops for the states its own keys cannot reach',
     // is the order: C tests u.dz at 363 before cursed at 374.
     assert.equal((await drive(cursed, ['c', '>'])).error?.branch,
         'listening to the floor or ceiling');
+});
+
+// C refs: apply.c use_stethoscope() (384-470) and its_dead() (196-309). The
+// adjacent-square arm keeps five stops above the answer it prints, and none of
+// them is reachable from a recorded case: the matrix seeds leave the hero's
+// neighbours empty, and no ported command builds a secret door or a corpse
+// next to her. Each square below is furnished by hand and doapply() driven
+// directly, and every case pins an order -- each would answer with the other
+// guard's name if the two traded places.
+
+// Replay the matrix Healer's opening move and hand back the square west of
+// her. On this seed it is ordinary room floor with nothing on it, which is
+// what makes it the blank the cases below write on.
+async function heroWithEmptyWest() {
+    await runSegment({ ...segmentFor('ac.'), moves: '.' });
+    const west = { x: game.u.ux - 1, y: game.u.uy };
+    assert.equal(game.level.at(west.x, west.y).typ, ROOM);
+    assert.equal(m_at(west.x, west.y, game), null);
+    return west;
+}
+
+// One listen west, answered from the Healer's stethoscope slot. Reports the
+// refusal's branch, or null when the listen ran through to its message.
+async function listenWest() {
+    for (const key of ['c', 'h']) game.nhDisplay.pushKey(key.charCodeAt(0));
+    return doapply(game).then(() => null, (error) => {
+        if (!(error instanceof UnsupportedApplyError)) throw error;
+        return error.branch;
+    });
+}
+
+// A corpse and a statue as mkobj.c leaves them on the floor. its_dead()'s
+// ported frame reads only whether sobj_at() found one, but the arms that stop
+// read corpsenm, so a newt is named rather than nothing.
+function floorCorpstat(otyp, { x, y }) {
+    const obj = mksobj_at(otyp, x, y, false, false,
+        objectGenerationEnv({ state: game }));
+    obj.corpsenm = PM_NEWT;
+    return obj;
+}
+
+// A monster of the kind that would answer the listen: makemon() leaves mcansee
+// set and place_monster() rejects one at zero hit points.
+function monsterAt({ x, y }) {
+    const monster = place_monster(
+        newMonster({ data: game.mons[PM_NEWT], mhp: 3, mcansee: 1 }), x, y,
+        game,
+    );
+    monster.nmon = game.level.monlist;
+    game.level.monlist = monster;
+    return monster;
+}
+
+test('a listen at an empty adjacent square hears nothing special', async () => {
+    await heroWithEmptyWest();
+    assert.equal(await listenWest(), null);
+    // apply.c:468. C writes it with You() rather than You_hear(), so the
+    // sentence is not the one a deafened hero would be spared.
+    assert.equal(pendingTopLine(), 'You hear nothing special.');
+});
+
+test('use_stethoscope walks the adjacent square in apply.c order',
+    async () => {
+    // apply.c:386-390. isok() guards every reader below it, so the hero is
+    // moved to the west edge, where the square she points at is off the map.
+    // Without the guard js/const.js isok() would let levl[0][y] through.
+    await heroWithEmptyWest();
+    game.u.ux = 1;
+    assert.equal(await listenWest(), 'listening off the edge of the map');
+
+    // apply.c:391 returns inside the monster arm, so nothing below it runs.
+    // The secret door under the newt is what the port would answer with if
+    // the m_at() test sat below the terrain switch.
+    const withMonster = await heroWithEmptyWest();
+    monsterAt(withMonster);
+    game.level.at(withMonster.x, withMonster.y).typ = SDOOR;
+    assert.equal(await listenWest(), 'listening to an adjacent monster');
+
+    // apply.c:447-448 sits between the monster arm and the switch. A monster
+    // standing on a remembered 'I' therefore leaves the marker alone, because
+    // C returned two lines above it.
+    const marked = await heroWithEmptyWest();
+    map_invisible(marked.x, marked.y, game);
+    monsterAt(marked);
+    assert.equal(await listenWest(), 'listening to an adjacent monster');
+    assert.ok(glyph_is_invisible(
+        game.level.at(marked.x, marked.y).remembered_glyph?.glyph),
+    'the monster arm returns before unmap_invisible() clears the marker');
+
+    // The same marker with no monster on it: the line runs, and it runs above
+    // the switch, so the secret door still stops the listen afterwards.
+    const movedOff = await heroWithEmptyWest();
+    map_invisible(movedOff.x, movedOff.y, game);
+    game.level.at(movedOff.x, movedOff.y).typ = SDOOR;
+    assert.equal(await listenWest(), 'listening to a secret door');
+    assert.equal(pendingTopLine(), 'The invisible monster must have moved.');
+    // display.c unmap_object() replaces the marker with the memory of what
+    // lies under it rather than clearing the square, so the check is that the
+    // 'I' is gone, not that nothing is remembered.
+    assert.ok(!glyph_is_invisible(
+        game.level.at(movedOff.x, movedOff.y).remembered_glyph?.glyph),
+    'the marker is cleared before the switch reads the terrain');
+
+    // apply.c:452-464, the two terrain arms, each above its_dead(). The corpse
+    // underneath is what the port would answer with if the switch sat below.
+    for (const [typ, branch] of [
+        [SDOOR, 'listening to a secret door'],
+        [SCORR, 'listening to a secret corridor'],
+    ]) {
+        const secret = await heroWithEmptyWest();
+        floorCorpstat(CORPSE, secret);
+        game.level.at(secret.x, secret.y).typ = typ;
+        assert.equal(await listenWest(), branch, String(typ));
+    }
+});
+
+test('its_dead stops on what it finds in apply.c its_dead order', async () => {
+    // apply.c:203-204 and the two arms at 261 and 281, each reached alone.
+    const onlyCorpse = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, onlyCorpse);
+    assert.equal(await listenWest(), 'a corpse on the listened-to square');
+
+    const onlyStatue = await heroWithEmptyWest();
+    floorCorpstat(STATUE, onlyStatue);
+    assert.equal(await listenWest(), 'a statue on the listened-to square');
+
+    // C's chain tests `corpse` at 261 before falling to the statue at 281, so
+    // a square carrying both stops on the corpse.
+    const both = await heroWithEmptyWest();
+    floorCorpstat(STATUE, both);
+    floorCorpstat(CORPSE, both);
+    assert.equal(await listenWest(), 'a corpse on the listened-to square');
+
+    // apply.c:226 sits above both, and answers for either object.
+    const hallucinated = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, hallucinated);
+    game.u.uprops[HALLUC].intrinsic = 1;
+    assert.equal(await listenWest(), 'a hallucinated listen to the dead');
+});
+
+test('its_dead clears the corpse a levitating hero cannot reach', async () => {
+    // apply.c:206-207. A levitating hero reaches no corpse on the floor, so
+    // C's chain finds nothing and the caller prints its ordinary answer. The
+    // corpse test has to sit below this block for that to happen.
+    const floated = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, floated);
+    game.u.uprops[LEVITATION].intrinsic = 1;
+    assert.equal(await listenWest(), null);
+    assert.equal(pendingTopLine(), 'You hear nothing special.');
+
+    // The TRUE argument at apply.c:206. engrave.c can_reach_floor() only
+    // consults trap.c uteetering_at_seen_pit() and uescaped_shaft() when its
+    // caller asks it to, so a hero on the edge of a pit she has seen reaches
+    // no corpse either. Passing FALSE would leave the corpse in her reach.
+    const teetering = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, teetering);
+    game.level.traps.push({
+        tx: game.u.ux, ty: game.u.uy, ttyp: PIT, tseen: true, madeby_u: 0,
+    });
+    assert.equal(await listenWest(), null);
+    assert.equal(pendingTopLine(), 'You hear nothing special.');
+
+    // apply.c:210-211 would walk past a tiny statue and leave a larger one
+    // standing; the port refuses both from inside the block, under a name of
+    // its own. What pins the guard to the inside of the block is the ordinary
+    // statue above, which still answers with the arm's name; this case pins
+    // that an unreachable one is told apart from it.
+    const outOfReach = await heroWithEmptyWest();
+    floorCorpstat(STATUE, outOfReach);
+    game.u.uprops[LEVITATION].intrinsic = 1;
+    assert.equal(await listenWest(), 'an out-of-reach statue');
 });
 
 test('ustatusline stops for every clause it would have to name', async () => {
@@ -780,7 +954,7 @@ test('the apply matrix holds the two clean recipes the slice was closed on',
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 20);
+    assert.equal(segments.length, 22);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // Every segment opens and closes with a wait, so a command that wrongly
     // spent or wrongly saved a turn shows in the screen after it.
