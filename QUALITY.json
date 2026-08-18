@@ -15819,6 +15819,103 @@
         }
       },
       "recordedAt": "2026-08-18T07:31:29.949Z"
+    },
+    {
+      "kind": "review",
+      "head": "c8394b464532ad3beb372ac2b2840c5ba0809210",
+      "auditedRange": "ac465670593aba5ade9649f55e40c81334fdafdf..c8394b464532ad3beb372ac2b2840c5ba0809210",
+      "checklist": {
+        "covers": false,
+        "path": null,
+        "commitChecked": null,
+        "reason": "A deferred-area sweep needs no checklist: .agents/selection.md says each open deferral entry is a slice, scoped when it was deferred, and the four this goal closed each carried its own scope and closing condition in the ledger."
+      },
+      "level": "full",
+      "areas": [
+        "hero",
+        "objects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 14 raw, 14 deduplicated, 11 confirmed, 10 applied, 1 deferred, 3 rejected, 0 unverified; mutation: 2 survivors of 12 mutants. The goal's closing pass, over a deferred-area sweep whose forecast was zero and whose four slices each met it. The development score is identical before and after the fixes at 10 of 33 sessions, 1,879 of 7,765 screens and 133,468 of 610,816 random-number values, and the suite is 4,341 tests passing. Nothing here was expected to move a screen, and nothing did.\n\nThe sharpest finding is a coverage hole the sweep itself opened, and an adjudicator proved it by running the mutation rather than arguing it. The first slice moved the monster refusal out of bhit() and into throwit() and throw_gold(), deleted the assertion in scripts/bhit.test.mjs that had covered it, and put none at either new site. Changing `if (mon)` to `if (false)` at both js/dothrow.js:788 and :990 left all 4,340 tests green: with those guards gone, throwit() falls through to breaktest(), flooreffects(), place_object() and stackobj() and deposits the missile on the monster's square with no thitmonst() and no draws. The slice's whole deliverable was equally unpinned. Its deliverable is a name, not a screen -- throwit() must stop under thitmonst() and throw_gold() under ghitm() -- and both could be reverted to their pre-slice values with the suite still green, which is what the boundary census .agents/selection.md ranks goals with reads. Both are now pinned by segment replays of the two recipes QUALITY.json already records as expected failures, asserting each name and the absence of the other. The test was watched failing twice: once against the restored pre-slice names, once against both guards disabled.\n\nThe single production defect is the one the sweep's own consolidation slice was supposed to prevent. js/objnam.js obj_is_pname() kept half of objnam.c:337; the restored half is `!program_state.gameover`, and both halves skip the identification test because once the game is over the tombstone names an artifact whatever the hero learned about it. It is asserted on the function rather than through doname(), because js/objnam.js refuses end-of-game object text one frame above, so no ported naming path reaches it; that came out of writing the test the other way first and watching it stop on the refusal.\n\nThree comments claimed more than the code does, all three about work this range did. throw_gold()'s header still said its ghitm() refusal is unreachable because bhit() stops for a monster -- the claim this range falsified. UnsupportedBhitError's census still said \"nine branches\" and that each stops before it changes anything; the range added a tenth, the shade, and that one fires only after uhitm.c:1575's dmgval() has rolled the damage dice. And hold_another_object()'s C reference and fail-closed scope sat as the header of a private helper while the function itself had none.\n\nFour oracles could not fail, and each now has an assertion watched failing against its own line: the shade's obj argument, whose replacement by null removes the draws entirely; the y disjunct of the newly ported gn.notonhead write, whose test varied only x; the tmp_at(DISP_END) the THROWN_WEAPON arm adds; and the gameover half above.\n\nOne finding became a deferral, and it is the second time in this goal that an assertion which cannot fail was caught before it was committed. The pass reported the set_wear() await chain unpinned; the test written for it passed with the caller's await removed, so the claim was measured from the other side instead. That measurement is what startup-set-wear-await-has-no-observable records, and it is the third entry of that shape in two goals.\n\nThe score attribution is that there is none to make. Every slice in this goal was chosen from the deferred ledger rather than from a session that stops, the scan over the 33 development sessions found no objects refusal among the thirteen boundaries where sessions do stop, and the fixes touched no path a recorded session reaches. What the goal delivers instead is the census repair the first slice exists for, and the pass's own result is that the repair had no oracle until now.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2953,
+        "counts": {
+          "raw": 14,
+          "deduplicated": 14,
+          "confirmed": 11,
+          "applied": 10,
+          "deferred": 1,
+          "rejected": 3,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 1,
+          "tests": 6,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/objnam.js obj_is_pname() kept only half of objnam.c:337, which is `!program_state.gameover && !iflags.override_ID`. The slice's whole deliverable was that one reading survives and that it is C's; the surviving reading answered the identification test on an end-of-game path where C skips it, so a carried, named, not-fully-identified artifact would take the wrong article on the tombstone -- 'an Excalibur' where C writes 'the Excalibur'. Both halves are restored. The assertion sits on the function rather than on doname(), because js/objnam.js refuses end-of-game object text one frame above, so no ported naming path reaches it; the orchestrator found that by writing the test the other way first and watching it stop on the refusal.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "The await chain 103c010 added to set_wear() and moveloop_preamble() is unpinned: dropping either await leaves the whole suite green. The pass reported that dropping the caller's await reorders the startup callbacks against preflight_initial_pickup(). The orchestrator wrote that test, found it passed with the await removed, and measured the claim from the other side instead: with the caller's await gone, all 4,341 tests pass and the development score is unchanged. The reordering is real in the abstract and reaches no observable this project has.",
+            "category": "tests",
+            "trackedIn": "startup-set-wear-await-has-no-observable"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/do.js:716's comment justifying the new boulder refusal was said to misdescribe C's flooreffects() arms in three ways: a square-gated first arm, an uncounted glob arm, and a potion-arm citation pointing at an unrelated function.",
+            "counterEvidence": "evidence refute: two of the three claims fail on a source read and the third is inert. Every noun in the comment refers to this port's flooreffects(): js/do.js:383-384 refuses `obj.otyp === BOULDER` unconditionally, and dropx() calls freeinv() before dropzAdmitted() reaches flooreffects(), so 'reads the object rather than the square' and 'sits past freeinv() in dropx()' are both true as written. The ':399-403' citation is a bare same-file reference, and js/do.js:399-403 is exactly the potion-on-hot-ground arm, not do.c's trycall()/polymorph_sink(). The one accurate sub-claim, the glob arm, points at a branch the same function already refuses forty-five lines earlier, so trusting the two-item enumeration cannot admit an unpreflighted object. The proposed fix would enshrine an error: retargeting the citation at do.c:318-355 breaks the bare-colon convention the neighbouring citations establish for this file. Do not reopen without a citation the file's own convention reads as pointing at do.c."
+          },
+          {
+            "summary": "js/objnam.js:526's new obj_is_pname() header was said to assert a closed set of four callers using C function names while C calls obj_is_pname() from at least eleven sites across five files.",
+            "counterEvidence": "evidence refute: the sentence states this port's call graph, not C's, and under that reading it is exact. `grep -n obj_is_pname js/objnam.js js/do_wear.js` returns readers at js/objnam.js:694 (xnameFresh), :1152 (yname), :1277 (donameFreshInternal) and js/do_wear.js:342 (on_msg) -- four, as written -- and the next clause draws the C/port distinction explicitly. Naming them by their C identifiers is the repository's stated convention. None of mthrowu.c:101/:286/:1225, uhitm.c:1973, eat.c:2803 or objnam.c:1996/:2268 has a counterpart in js/, so no ported path is missing from the list, and the moment one is ported the list is updated with it, as this range did for on_msg(). Do not reopen without a ported js/ caller the sentence omits."
+          },
+          {
+            "summary": "js/zap.js:728's new shade_miss() call was said to drop bhit()'s injected `random`, so the only randomness the new guard spends (dmgval()'s damage dice) comes from the module-level RNG rather than the generator every other draw in the function uses.",
+            "counterEvidence": "evidence refute: the mechanical trace is right and the stated problem does not exist. The finding rests on 'no test can pin the number, order or bounds of the draws' and 'the one randomness-consuming path in bhit() that a unit test cannot steer'; both are false. js/rng.js:26-27 exports enableRngLog() and getRngLog(), and an adjudicator used them on the unmodified head worktree to pin the shade arm exactly, recording draws [\"rnd(6)=4\"] against [] for the same non-shade fixture, and the existing fixture already calls initRng(1) to make those draws deterministic. js/weapon.js:430 resolves `env.random ?? { d, rn2, rnd }` and bhit()'s own default at js/zap.js:620 is `{ rn2, rnd }`, the same module-level functions, so the two bind identically in production and the range introduces no divergence in draw count, order or value. The proposed fix is also unsafe: `{ rn2, rnd }` has no `d`, and js/weapon.js:441-442 calls `random.d(2, 4)` in the bigmonst arm, so threading it works only while the defender is small. Do not reopen without an input where the two generators differ."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "ac465670593aba5ade9649f55e40c81334fdafdf..6da61ac67f8c6a01c4710b44cd83687857e2646a"
+          ],
+          "mutants": 12,
+          "survivors": 2,
+          "byKind": {
+            "boolean": {
+              "ran": 2,
+              "killed": 0
+            },
+            "logical": {
+              "ran": 9,
+              "killed": 9
+            },
+            "relational": {
+              "ran": 1,
+              "killed": 1
+            }
+          },
+          "finderConclusion": "The window ran 12 mutants of the three gating kinds over a baseline of 1,142 tests in 36 files and left 2 survivors, both at js/zap.js:728, the two boolean literals in the shade_miss() call. Both are the site of a confirmed finding: the pass reported that the obj argument handed to shade_miss() is unpinned, and an adjudicator showed that replacing it with null removes dmgval()'s draws entirely while the suite stays green. The delta over the audit fixes ran 2 mutants at js/objnam.js:536, the restored gameover conjunct, and killed both.\n\nThe run again could not see the pass's sharpest result, which is now the fifth consecutive time. The deleted assertion at js/dothrow.js:788 and :990 is a missing test rather than an operator, and the two refusal names the slice exists to correct are string literals mutate-sites.mjs generates no mutant for; an adjudicator had to run `if (mon)` -> `if (false)` and the pre-slice names by hand to prove either. The user's standing trigger on this pattern fired at the close of the previous goal, and .agents/proposals.md now carries 'Flag the values a mutation run cannot reach'.\n\nThe one production defect is the same shape from the other side: a dropped conjunct in a disjunction the run does mutate, whose surviving mutants all died against tests that asserted the port's own reading. A mutation run measures whether the tests notice a change; it cannot notice that the tests agree with the code against C."
+        },
+        "readiness": {
+          "boundary": "A deferred-area sweep with a forecast of zero, met by all four slices: 10 of 33 sessions, 1,879 of 7,765 screens and 133,468 of 610,816 random-number values, unchanged at every slice close and unchanged again after the audit fixes. No development session moves, so the boundary is per-slice rather than a session's starting and ending events. bhit-names-the-caller-that-hits-the-monster is bounded by two recorded segments at seed 6120001, the `.t$k` throw at a monster and the `.tck` throw at empty floor, each carrying its caller's own refusal name. oilskin-and-smock-cloaks-go-on is bounded by the two recordings its ledger entry specified, the oilskin cloak's pline and the alchemy smock's EAcid_resistance write. wished-container-arrives-with-its-contents is bounded by six fresh differentials, a locked and an unlocked draw for each of the chest, large box and ice box. yname-reads-the-complete-obj-is-pname is a pure-function batch with no reachable recording, so its worker measured the score both ways, writing the previous versions over the changed files and scoring again.",
+          "sourceReview": "Every changed line was traced against its C original: zap.c bhit()'s mtmp-clearing guard at 3983-3992, the gn.notonhead write at 3995 and the THROWN_WEAPON arm at 4021-4029, over uhitm.c shade_miss():2027 and display.c map_invisible(); dothrow.c throwit()'s route to thitmonst() through throwit_mon_hit():1492 and throw_gold():2712's route to dokick.c ghitm(); objnam.c obj_is_pname():337 and not_fully_identified(), with yname()'s !carried(obj) and oartifact >= ART_ORB_OF_DETECTION; do_wear.c Cloak_on()'s OILSKIN_CLOAK and ALCHEMY_SMOCK arms and set_wear()'s seven callbacks at allmain.c:73's place in the preamble; invent.c hold_another_object() over the nonmerging route; and do.c flooreffects()'s boulder arm against dropx()'s freeinv() ordering. The trace covered random-number order: the sweep adds no draw to any development session, and the one new consumer is dmgval() inside the shade guard. The pass then found what the trace had not: half of objnam.c:337 missing from the one function the slice exists to consolidate, and a coverage hole the sweep's own first slice opened by deleting the assertion that covered the monster refusal.",
+          "completeness": "Every reachable excluded branch stops before changing state, consuming randomness or producing output, through a named refusal class js/cmd.js failClosedCommandRefusals() lists -- with one stated exception the range introduced and the fixes now document at the site: bhit()'s shade stop fires after uhitm.c:1575's dmgval() has rolled the damage dice, so a draw is spent first. The counted objects deferrals fell from fourteen at the goal's opening to below ten, which is the goal's own closing condition and .agents/selection.md's precondition for the next fail-closed boundary port; two more are re-blocked on symbols js/ does not define, dowield and safe_qbuf. One deferral is opened by this pass, startup-set-wear-await-has-no-observable, the third entry in two goals whose shape is a line the port is right to have and whose correctness no oracle in the project can separate from its absence."
+        }
+      },
+      "recordedAt": "2026-08-18T13:15:28.706Z"
     }
   ]
 }
