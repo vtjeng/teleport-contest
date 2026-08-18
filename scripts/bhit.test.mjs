@@ -11,6 +11,9 @@ import {
     IRONBARS,
     KICKED_WEAPON,
     LAVAWALL,
+    M_AP_FURNITURE,
+    M_AP_MONSTER,
+    M_AP_OBJECT,
     ROOM,
     SINK,
     THROWN_WEAPON,
@@ -22,10 +25,11 @@ import { GLYPH_INVISIBLE, glyph_is_invisible } from '../js/display.js';
 import { GameMap } from '../js/game.js';
 import { UnsupportedBhitError, bhit } from '../js/zap.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
-import { monst_globals_init } from '../js/monsters.js';
+import { PM_SHADE, monst_globals_init } from '../js/monsters.js';
 import { newObject } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { objects_globals_init } from '../js/objects.js';
+import { initRng } from '../js/rng.js';
 import { resetGame } from '../js/gstate.js';
 import {
     ARROW,
@@ -205,22 +209,117 @@ test('bhit() catches a missile in a web on one draw in three', async () => {
     }
 });
 
-test('bhit() stops when a monster stands in the flight path', async () => {
-    // zap.c:3990-4001 leads to dothrow.c thitmonst(), which is unported, and
-    // the tests just above it can clear the monster and let the missile fly
-    // on -- so this stops before any of them rather than inside the arm.
-    const state = corridor(6);
-    // js/monst.js m_at() reads level.monsters as a column-major grid.
-    state.level.monsters[3][4] = { mx: 3, my: 4, data: state.mons[0] };
-    await assert.rejects(
-        () => fireEast(state, 8, missile(state)), /thitmonst/u,
+test('bhit() hands a monster in the flight path back to its caller',
+    async () => {
+        // zap.c:4021-4029, the `weapon != ZAPPED_WAND` arm. It ends the flight
+        // and returns the monster; deciding what hits it is the caller's, and
+        // the two callers reach different C functions -- thitmonst() through
+        // dothrow.c throwit_mon_hit():1492 and dokick.c ghitm() from
+        // throw_gold():2712.
+        const state = corridor(6);
+        // js/monst.js m_at() reads level.monsters as a column-major grid.
+        const adjacent = { mx: 3, my: 4, data: state.mons[0] };
+        state.level.monsters[3][4] = adjacent;
+        assert.equal(await fireEast(state, 8, missile(state)), adjacent);
+        assert.deepEqual(state.gb.bhitpos, { x: 3, y: 4 });
+
+        // With the same monster one square further on, the missile crosses the
+        // squares before it first, so the position reports how far it got.
+        const past = corridor(6);
+        const further = { mx: 5, my: 4, data: past.mons[0] };
+        past.level.monsters[5][4] = further;
+        assert.equal(await fireEast(past, 8, missile(past)), further);
+        assert.deepEqual(past.gb.bhitpos, { x: 5, y: 4 });
+    });
+
+test('bhit() records whether the missile stopped away from the head',
+    async () => {
+        // zap.c:3995. gn.notonhead compares the square the flight stopped on
+        // with the monster's own square; they differ for a long worm's tail,
+        // which m_at() answers for from anywhere along the worm.
+        const head = corridor(6);
+        head.level.monsters[3][4] = { mx: 3, my: 4, data: head.mons[0] };
+        await fireEast(head, 8, missile(head));
+        assert.equal(head.gn.notonhead, false);
+
+        // The tail one square east of a head the hero can still spot.
+        const tail = corridor(6);
+        tail.level.monsters[3][4] = { mx: 2, my: 4, data: tail.mons[0] };
+        await fireEast(tail, 8, missile(tail));
+        assert.equal(tail.gn.notonhead, true);
+    });
+
+test('bhit() maps a monster it stops at but cannot spot', async () => {
+    // zap.c:4026-4027, display.c map_invisible(). Both conjuncts decide it:
+    // the hero has to see the square and not be able to spot what is on it.
+    const unseen = corridor(6);
+    unseen.level.monsters[3][4] = {
+        mx: 3, my: 4, data: unseen.mons[0], minvis: 1,
+    };
+    await fireEast(unseen, 8, missile(unseen));
+    assert.equal(
+        glyph_is_invisible(unseen.level.at(3, 4).remembered_glyph?.glyph),
+        true,
     );
-    // With the same monster one square further on, the missile crosses the
-    // squares before it first, so the position reports how far it got.
-    const past = corridor(6);
-    past.level.monsters[5][4] = { mx: 5, my: 4, data: past.mons[0] };
-    await assert.rejects(() => fireEast(past, 8, missile(past)), /thitmonst/u);
-    assert.deepEqual(past.gb.bhitpos, { x: 5, y: 4 });
+
+    // The same monster where the hero can spot it leaves no marker.
+    const spotted = corridor(6);
+    spotted.level.monsters[3][4] = { mx: 3, my: 4, data: spotted.mons[0] };
+    await fireEast(spotted, 8, missile(spotted));
+    assert.equal(spotted.level.at(3, 4).remembered_glyph, undefined);
+
+    // Nor does an unspottable one on a square the hero cannot see.
+    const dark = corridor(6);
+    dark.viz_array[4][3] = 0;
+    dark.level.monsters[3][4] = {
+        mx: 3, my: 4, data: dark.mons[0], minvis: 1,
+    };
+    await fireEast(dark, 8, missile(dark));
+    assert.equal(dark.level.at(3, 4).remembered_glyph, undefined);
+});
+
+test('bhit() consults shade_miss() before it stops at a monster', async () => {
+    // zap.c:3985. uhitm.c shade_miss() is the first of the two tests that can
+    // clear the monster and let the missile fly on, and js/uhitm.js refuses
+    // for a shade an arrow cannot hurt rather than answering that it passed
+    // harmlessly through.
+    const shade = corridor(6);
+    shade.level.monsters[3][4] = { mx: 3, my: 4, data: shade.mons[PM_SHADE] };
+    // shade_miss() reaches weapon.c dmgval() only for a shade, and dmgval()
+    // rolls the missile's damage dice on the game RNG, so this fixture is the
+    // one here that needs a seeded context. The seed is arbitrary: every roll
+    // an arrow can produce is zeroed again by dmgval()'s own shade clamp.
+    initRng(1);
+    await assert.rejects(
+        () => fireEast(shade, 8, missile(shade)),
+        /passing through a shade/u,
+    );
+});
+
+test('bhit() refuses a mimic disguised as an object', async () => {
+    // zap.c:3986-3989. C decides whether the missile flies past by reading the
+    // glyph drawn on the square through display.c glyph_at(); this port's
+    // glyph buffer holds no glyph number for a square showing a monster, so
+    // the disguise the hero has seen through cannot be told from the one they
+    // have not.
+    const mimic = corridor(6);
+    mimic.level.monsters[3][4] = {
+        mx: 3, my: 4, data: mimic.mons[0], m_ap_type: M_AP_OBJECT,
+    };
+    await assert.rejects(
+        () => fireEast(mimic, 8, missile(mimic)), /glyph_at/u,
+    );
+
+    // C names one appearance here, not any appearance: a mimic wearing
+    // furniture or another monster is hit like anything else.
+    for (const appearance of [M_AP_FURNITURE, M_AP_MONSTER]) {
+        const other = corridor(6);
+        const disguised = {
+            mx: 3, my: 4, data: other.mons[0], m_ap_type: appearance,
+        };
+        other.level.monsters[3][4] = disguised;
+        assert.equal(await fireEast(other, 8, missile(other)), disguised);
+    }
 });
 
 test('bhit() treats solid rock beyond the map edge as the end of the run',

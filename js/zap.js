@@ -60,6 +60,8 @@ import {
     Is_airlevel,
     Is_waterlevel,
     LAVAWALL,
+    M_AP_OBJECT,
+    M_AP_TYPE,
     M_SEEN_FIRE,
     M_SEEN_REFL,
     M_SEEN_SLEEP,
@@ -162,6 +164,7 @@ import { closed_door } from './monmove.js';
 import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { burnarmor } from './trap_erode_obj.js';
+import { shade_miss } from './uhitm.js';
 import { cansee } from './vision.js';
 import { burn_away_slime, fall_asleep } from './timeout.js';
 import { ttyPline } from './tty_message.js';
@@ -578,10 +581,14 @@ export async function makewish(state = game) {
 // Nine branches inside the thrown-weapon walk stop, each at its own condition
 // and before it changes anything: a shopkeeper catching a pick-axe, a lit
 // object lighting the squares it passes, iron bars, a rock skipping over
-// water, a monster in the path, and a heavy iron ball's four range limits.
-// thitmonst() is the largest of them and is what makes the monster arm stop:
-// it is dothrow.c's own 380-line function over find_mac(), omon_adj(),
-// gem_accept() and hmon(), and none of that is ported.
+// water, a mimic disguised as an object, and a heavy iron ball's four range
+// limits.
+//
+// A monster in the path is not one of them. C's THROWN_WEAPON arm at 4021-4029
+// ends the flight, maps an unseen monster and returns it, leaving the caller
+// to decide what hits it: dothrow.c throwit() reaches thitmonst() through
+// throwit_mon_hit():1492, and dothrow.c throw_gold():2712 reaches dokick.c
+// ghitm(). Neither is ported, and each caller refuses under its own name.
 export class UnsupportedBhitError extends Error {
     constructor(branch) {
         super(`zap.c bhit() reached ${branch}`);
@@ -697,11 +704,60 @@ export async function bhit(
         // by the arm that stops just above, so its branches -- another bounce
         // and a monster the rock passes over -- are unreachable.
 
+        /* if mtmp is a shade and missile passes harmlessly through it,
+           give message and skip it in order to keep going;
+           ...
+           thrown objects don't hit mimics pretending to be objects (both
+           because the hero is likely aiming to throw over what seems to
+           be an object rather than at it, and for balance because
+           otherwise mimics are too easy to identify by throwing gold at
+           them); exception: if the hero knows there is a monster there,
+           they will be aiming at the monster */
+        // zap.c:3983-3992, the guard that can clear mtmp and let the missile
+        // fly past a monster standing in its path. Its FLASHED_LIGHT disjunct
+        // belongs to a call type the head of this function refuses, so only
+        // the THROWN_WEAPON half is here.
+        //
+        // shade_miss() answers false for every defender that is not a shade,
+        // and js/uhitm.js refuses rather than answering true for one, so the
+        // `mtmp = 0` C writes on a true answer has no reachable site to be
+        // written at. Its false answer still costs a dmgval() roll for a shade
+        // that the missile can hurt, which is why it is called rather than
+        // skipped.
         if (mtmp) {
-            // shade_miss(), the mimic-as-object test and glyph_at() can all
-            // clear mtmp and let the missile continue, so this stops ahead of
-            // them rather than inside the arm they guard.
-            throw new UnsupportedBhitError('thitmonst()');
+            shade_miss(state.youmonst, mtmp, obj, true, true, state, {
+                unsupported: (what) => {
+                    throw new UnsupportedBhitError(what);
+                },
+            });
+            if (M_AP_TYPE(mtmp) === M_AP_OBJECT) {
+                // The three glyph tests at 3987-3989 ask what the hero sees
+                // drawn on the square, which display.c glyph_at() reads out of
+                // gg.gbuf as a glyph number. This port's glyph buffer stores
+                // resolved presentations, and only js/display.js
+                // map_glyphinfo() puts a number on one (:1733); the monster
+                // presentations are built by glyphPresentation() and carry
+                // none, and map_glyphinfo() has no monster arm at all. So a
+                // square showing a monster cannot answer glyph_is_monster()
+                // here, and the disguise the hero has seen through cannot be
+                // told from the one they have not.
+                throw new UnsupportedBhitError('glyph_at()');
+            }
+        }
+
+        if (mtmp) {
+            /* THROWN_WEAPON, KICKED_WEAPON */
+            // zap.c:3994-3995 and 4021-4029. `tethered_weapon` is false for
+            // every call this port admits, so the DISP_END always runs here
+            // and the one at 4125-4127 is what `goto bhit_done` skips.
+            state.gn ??= {};
+            state.gn.notonhead = x !== mtmp.mx || y !== mtmp.my;
+            await tmp_at(DISP_END, 0, state);
+            if (cansee(x, y, state) && !canSpotMonster(mtmp, state))
+                map_invisible(x, y, state);
+            // goto bhit_done. transient_light_cleanup() there is inert for the
+            // same reason as at the tail below.
+            return mtmp;
         }
 
         if (!ZAP_POS(typ) || closed_door(x, y, state)) {
@@ -735,8 +791,8 @@ export async function bhit(
     // transient_light_cleanup(): only a lit object registers a transient
     // light, and the arm that would have shown one stops above.
     //
-    // The return value is the monster the missile hit. It is always null here,
-    // because the arm that would name one stops.
+    // The return value is the monster the missile hit. Reaching the tail means
+    // the flight ended on terrain or on its own range instead, so it is null.
     return null;
 }
 

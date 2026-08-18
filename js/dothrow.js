@@ -786,8 +786,16 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
     }
 
     if (mon) {
-        /* throwit_mon_hit() calls thitmonst(); bhit() stops ahead of it */
-        throw new UnsupportedThrowError('throwit_mon_hit()');
+        /* C ref: dothrow.c throwit_mon_hit() (1482-1506), reached from 1695.
+           Three statements stand between its entry and thitmonst() at 1492,
+           and none of them can act on a path this port admits. The shopkeeper
+           arm at 1487-1489 needs obj->where == OBJ_MINVENT, which only shk.c
+           shkcatch() produces and js/zap.js bhit() refuses. snuff_candle()
+           at 1490 needs obj->lamplit, which bhit()'s show_transient_light()
+           arm refuses. The gn.notonhead write at 1491 recomputes from
+           gb.bhitpos what bhit() already wrote at zap.c:3995 from the same
+           square. So thitmonst() is the first thing here that would run. */
+        throw new UnsupportedThrowError('thitmonst()');
     }
 
     const bx = state.gb.bhitpos.x;
