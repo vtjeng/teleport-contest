@@ -184,6 +184,10 @@ itself when to come back.
 
 ## Stop a blank line hiding a `Mutants:` trailer
 
+**Landed at `3fdfbdb`, "Find a Mutants record anywhere in the commit
+message".** It took the `sliceMutants()` fallback of the two options below.
+The entry stays for the reasoning; nothing here is outstanding.
+
 **What it changes.** `mutate-sites --emit-trailer` would print its line with no
 trailing blank, or `sliceMutants()` would fall back to scanning the message body
 for `^Mutants: ` when `%(trailers:key=Mutants)` returns nothing. Either way a

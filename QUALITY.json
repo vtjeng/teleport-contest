@@ -3199,7 +3199,7 @@
       "area": "runtime",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "02fba14de00c81097a0da72119cece782d770ccd",
       "detail": ".agents/proposals.md, section 'Stop a blank line hiding a `Mutants:` trailer', proposes the sliceMutants() fallback that commit 3fdfbdb landed, and cites 1f3e323 as what prompted it. The proposal now describes finished work and will read as outstanding to the next reader. .agents/ belongs to the orchestrator, so this lane left the file untouched. Delete the section or mark it landed at that SHA. Found by the tests deferral burn-down."
     },
