@@ -47,7 +47,9 @@
 // monster equipment changes, monster item use, an armed monster attacking
 // another monster and the hero dying in one each. grow_up()'s form change is
 // not among them, because a starting pet needs three more level gains than
-// eighty keys reach.
+// eighty keys reach. That census was taken before mon.c restrap() landed, so
+// the two seeds it counts under monster hiding now run past that stop; which
+// owner each reaches instead has not been re-measured.
 
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';

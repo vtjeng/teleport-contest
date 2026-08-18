@@ -115,10 +115,11 @@ function mdistu(monster, state) {
     return dist2(monster.mx, monster.my, state.u.ux, state.u.uy);
 }
 
-// C ref: you.h m_next2u(), `distu((m)->mx, (m)->my) <= 2`. dist2() is a
+// C ref: you.h:560 m_next2u(), `distu((m)->mx, (m)->my) <= 2`. dist2() is a
 // squared distance, so it never equals 3 and this is the same set of squares
-// as mattacku()'s `!ranged`.
-function m_next2u(monster, state) {
+// as mattacku()'s `!ranged`. Exported because mon.c restrap()'s last guard
+// term reads it too, and one C macro gets one port.
+export function m_next2u(monster, state) {
     return mdistu(monster, state) <= 2;
 }
 

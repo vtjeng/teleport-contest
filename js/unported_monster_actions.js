@@ -48,13 +48,13 @@ import { mattacku } from './mhitu.js';
 import {
     adaptMonsterActionToDochugwSignature,
     movemon_singlemon,
+    restrap,
     wake_msg,
 } from './mon.js';
 import {
     attacktype,
     can_teleport,
     is_covetous,
-    is_hider,
     monsndx,
     nohands,
     passes_walls,
@@ -169,8 +169,11 @@ function assertSimpleScanState(monster, state) {
         || is_lava(monster.mx, monster.my, state)) {
         unsupported('monster liquid effects');
     }
-    if (is_hider(monster.data) || monster.data?.mlet === S_EEL)
-        unsupported('monster hiding');
+    // mon.c restrap() is ported, so an M1_HIDE monster is scanned like any
+    // other; the eel half stands, because movemon_singlemon()'s S_EEL arm ends
+    // in mon.c hideunder(), which is not.
+    if (monster.data?.mlet === S_EEL)
+        unsupported('eel concealment');
     if (activeProperty(state, CONFLICT, false))
         unsupported('conflict combat');
     return true;
@@ -1009,7 +1012,13 @@ async function planSimpleMonsterScan(monster, env) {
             ...subjectEnv,
             wearArmor: () => unsupported('monster equipment changes'),
         }),
-        restrap: () => unsupported('monster hiding'),
+        // C ref: mon.c restrap(). js/allmain.js binds the same function for the
+        // live pass; only the S_MIMIC arm's set_mimic_sym() call refuses, and
+        // each side names the refusal in the class its own catch converts.
+        restrap: (subject, subjectEnv) => restrap(subject, {
+            ...subjectEnv,
+            setMimicSym: () => unsupported('a mimic re-disguising itself'),
+        }),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         hideUnder: () => unsupported('eel concealment'),
         // movemon_singlemon() requires these three, but its conflict arm is

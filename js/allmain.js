@@ -36,6 +36,7 @@ import {
     mcalcmove,
     movemon,
     movemon_singlemon,
+    restrap,
     UnsupportedMonsterDistressError,
     were_change,
 } from './mon.js';
@@ -948,7 +949,16 @@ async function moveElapsedTurnMonster(monster, env) {
                 'monster equipment changes',
             ),
         }),
-        restrap: unavailableElapsedTurnOperation('monster hiding'),
+        // C ref: mon.c restrap(), which js/mon.js ports whole apart from the
+        // set_mimic_sym() call in its S_MIMIC arm. The planning scan binds the
+        // same function with a refusal of its own, so the two passes take the
+        // same branches and spend the same draws.
+        restrap: (subject, subjectEnv) => restrap(subject, {
+            ...subjectEnv,
+            setMimicSym: unavailableElapsedTurnOperation(
+                'a mimic re-disguising itself',
+            ),
+        }),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         hideUnder: unavailableElapsedTurnOperation('eel concealment'),
         canSeeHero: () => true,

@@ -1,0 +1,295 @@
+// Pin mon.c restrap(), the function that lets an unwatched M1_HIDE monster
+// hide again, and the recipe that records it against the C reference program.
+//
+// restrap() produces no message and repaints nothing: cansee() being false is
+// a precondition of every success, so a reviewer looking for a screen will not
+// find one. What it does produce is a single rn2(3) at the fourth position of
+// an eight-term guard, and every case below therefore asserts on the draws the
+// call spends as well as on its answer. A port that rolled before it tested
+// cansee() would pass every screen comparison in the repository and fail only
+// these.
+
+import assert from 'node:assert/strict';
+import test from 'node:test';
+
+import {
+    BEAR_TRAP,
+    CORR,
+    DETECT_MONSTERS,
+    IN_SIGHT,
+    M_AP_OBJECT,
+    NON_PM,
+    PIT,
+    ROOM,
+} from '../js/const.js';
+import { game } from '../js/gstate.js';
+import { runSegment } from '../js/jsmain.js';
+import { restrap } from '../js/mon.js';
+import { newMonster, place_monster } from '../js/monst.js';
+import {
+    PM_ROCK_PIERCER,
+    PM_SMALL_MIMIC,
+    PM_TRAPPER,
+} from '../js/monsters.js';
+import { GENESIS_KEY, loadMonsterHidingRecipe } from './run-monster-hiding.mjs';
+
+// The seed scripts/run-monster-hiding.mjs records its watched segment on,
+// played without that matrix's playmode:debug so the fixture is an ordinary
+// game. Its hero stands at the west end of a room seven squares wide, which
+// leaves both neighbouring squares and squares outside m_next2u()'s reach.
+const DATETIME = '20260214031500';
+const RC = [
+    'OPTIONS=name:Hidr,role:Valkyrie,race:human,gender:female,align:neutral',
+    'OPTIONS=!legacy,!tutorial,!splash_screen',
+    'OPTIONS=pettype:none,!acoustics,time',
+    '',
+].join('\n');
+
+// Fresh squares are handed out in order, so two fixtures in one test never
+// land on top of each other -- place_monster() would overwrite the first and
+// the second case would answer for a monster that is no longer on the map.
+let nextNear = 0;
+let nextFar = 0;
+
+async function hero() {
+    await runSegment({
+        seed: 9130009, datetime: DATETIME, nethackrc: RC, moves: '',
+    });
+    game.level.traps = [];
+    game.u.ustuck = null;
+    nextNear = 0;
+    nextFar = 0;
+    return game;
+}
+
+// hack.h distu() is a squared distance, so these three offsets answer 1, 1 and
+// 2, and m_next2u()'s `<= 2` accepts all of them. The hero stands against the
+// room's west wall, so every offset points east or north of her.
+const NEAR_OFFSETS = [[1, 0], [0, -1], [1, -1]];
+
+function near() {
+    const [dx, dy] = NEAR_OFFSETS[nextNear++];
+    return [game.u.ux + dx, game.u.uy + dy];
+}
+
+// Two columns east and onward: distu() answers 4 or more, so m_next2u() is
+// false for every square this hands out.
+function far() {
+    return [game.u.ux + 2 + nextFar++, game.u.uy];
+}
+
+let nextFixtureId = 700;
+
+// A hider standing on <x,y>, shaped the way makemon() leaves one. The square
+// is forced out of the hero's sight unless a case asks otherwise, because
+// cansee() is restrap()'s third guard term and the starting room is lit.
+function hiderAt(pmidx, [x, y], overrides = {}) {
+    const species = game.mons[pmidx];
+    const mon = newMonster({
+        cham: NON_PM,
+        m_lev: Math.max(1, species.mlevel),
+        m_id: ++nextFixtureId,
+        mhp: 20,
+        mhpmax: 20,
+        mcanmove: 1,
+        mcansee: true,
+        data: species,
+        mnum: pmidx,
+        mx: x,
+        my: y,
+        ...overrides,
+    });
+    place_monster(mon, x, y, game);
+    mon.nmon = game.level.monlist;
+    game.level.monlist = mon;
+    game.viz_array[y][x] &= ~IN_SIGHT;
+    // ROOM is what restrap()'s second arm requires; the starting room already
+    // supplies it, and asserting it here keeps a case that silently moved onto
+    // another terrain from passing for the wrong reason.
+    assert.equal(game.level.at(x, y).typ, ROOM);
+    return mon;
+}
+
+// Every call goes through this, so a case can never forget to count draws.
+// `rolls` is consumed in order; an extra draw runs off the end and fails
+// rather than returning a stale value.
+function listenToRestrap(monster, rolls = []) {
+    const bounds = [];
+    const answer = restrap(monster, {
+        state: game,
+        random: {
+            rn2(bound) {
+                bounds.push(bound);
+                assert.ok(bounds.length <= rolls.length,
+                    `restrap drew rn2(${bound}) more often than expected`);
+                return rolls[bounds.length - 1];
+            },
+        },
+        setMimicSym: () => assert.fail('set_mimic_sym() is unported'),
+    });
+    return { answer, bounds };
+}
+
+test('restrap answers the first four guard terms without drawing', async () => {
+    await hero();
+
+    // mon.c:4666 term 1, `mtmp->mcan`. A cancelled hider gives up before
+    // anything else is read, so no rn2(3) is spent on it.
+    const cancelled = hiderAt(PM_ROCK_PIERCER, far(), { mcan: 1 });
+    assert.deepEqual(listenToRestrap(cancelled), { answer: false, bounds: [] });
+
+    // Term 2, `M_AP_TYPE(mtmp)`. This is the term seed5002's small mimic stops
+    // at: makemon.c:1305 gave it a disguise, so it never reaches the roll.
+    const disguised = hiderAt(PM_SMALL_MIMIC, far(),
+        { m_ap_type: M_AP_OBJECT });
+    assert.deepEqual(listenToRestrap(disguised), { answer: false, bounds: [] });
+
+    // Term 3, `cansee(mtmp->mx, mtmp->my)`. A watched hider stays where it is
+    // and, because the roll sits below this term, spends nothing doing so.
+    // This is the case that pins the draw's position in the chain.
+    const [wx, wy] = far();
+    const watched = hiderAt(PM_ROCK_PIERCER, [wx, wy]);
+    game.viz_array[wy][wx] |= IN_SIGHT;
+    assert.deepEqual(listenToRestrap(watched), { answer: false, bounds: [] });
+
+    // Term 4, the roll itself: two of its three outcomes refuse the hide, and
+    // the bound is 3 rather than any other number.
+    const unlucky = hiderAt(PM_ROCK_PIERCER, far());
+    assert.deepEqual(listenToRestrap(unlucky, [1]),
+        { answer: false, bounds: [3] });
+});
+
+test('restrap answers the four guard terms below the roll', async () => {
+    await hero();
+
+    // mon.c:4667 term 5, `mtmp == u.ustuck`. The roll has already happened, so
+    // the held monster costs a draw and hides anyway not at all.
+    const held = hiderAt(PM_ROCK_PIERCER, near());
+    game.u.ustuck = held;
+    assert.deepEqual(listenToRestrap(held, [0]),
+        { answer: false, bounds: [3] });
+    game.u.ustuck = null;
+
+    // Terms 6, mon.c:4670-4672: "can't hide while trapped except in pits". A
+    // bear trap holds the monster where it is; a pit does not, which is the
+    // whole point of the is_pit() operand.
+    const [bx, by] = far();
+    const bearTrapped = hiderAt(PM_TRAPPER, [bx, by], { mtrapped: 1 });
+    game.level.traps = [{ tx: bx, ty: by, ttyp: BEAR_TRAP, tseen: false }];
+    assert.deepEqual(listenToRestrap(bearTrapped, [0]),
+        { answer: false, bounds: [3] });
+
+    game.level.traps = [{ tx: bx, ty: by, ttyp: PIT, tseen: false }];
+    assert.deepEqual(listenToRestrap(bearTrapped, [0]),
+        { answer: true, bounds: [3] });
+    assert.equal(bearTrapped.mundetected, 1);
+    game.level.traps = [];
+
+    // Term 7, mon.c:4674: "can't hide on ceiling if there isn't one". D:1 has
+    // one, so a rock piercer -- which mondata.h ceiling_hider() accepts on
+    // M1_CLING -- hides rather than being turned away by this term.
+    const clinger = hiderAt(PM_ROCK_PIERCER, far());
+    assert.deepEqual(listenToRestrap(clinger, [0]),
+        { answer: true, bounds: [3] });
+    assert.equal(clinger.mundetected, 1);
+
+    // Term 8, mon.c:4676: "won't hide when adjacent to hero". Both operands
+    // are needed. A trapper beside a hero who senses it stays visible; the
+    // same trapper five squares away hides, and so does one beside a hero who
+    // senses nothing.
+    const [dx, dy] = near();
+    const sensed = hiderAt(PM_TRAPPER, [dx, dy]);
+    game.u.uprops[DETECT_MONSTERS] = { intrinsic: 1 };
+    assert.deepEqual(listenToRestrap(sensed, [0]),
+        { answer: false, bounds: [3] });
+
+    const distant = hiderAt(PM_TRAPPER, far());
+    assert.deepEqual(listenToRestrap(distant, [0]),
+        { answer: true, bounds: [3] });
+    game.u.uprops[DETECT_MONSTERS] = undefined;
+
+    const unsensed = hiderAt(PM_TRAPPER, near());
+    assert.deepEqual(listenToRestrap(unsensed, [0]),
+        { answer: true, bounds: [3] });
+});
+
+test('restrap hides a floor monster and leaves a corridor one alone',
+    async () => {
+        await hero();
+
+        // mon.c:4687-4690, the ROOM arm. The success is silent: it writes
+        // mundetected and calls no display function, so this field is the only
+        // observable the port produces.
+        const inRoom = hiderAt(PM_TRAPPER, far());
+        assert.ok(!inRoom.mundetected);
+        assert.deepEqual(listenToRestrap(inRoom, [0]),
+            { answer: true, bounds: [3] });
+        assert.equal(inRoom.mundetected, 1);
+
+        // mon.c:4692, the fall-through. A hider that is neither a mimic nor
+        // standing on ROOM passes the whole guard, spends the roll and hides
+        // nowhere. The square is rewritten rather than searched for, because
+        // which corridor square the level generated is not what this measures.
+        const [cx, cy] = far();
+        const inCorridor = hiderAt(PM_TRAPPER, [cx, cy]);
+        game.level.at(cx, cy).typ = CORR;
+        assert.deepEqual(listenToRestrap(inCorridor, [0]),
+            { answer: false, bounds: [3] });
+        assert.ok(!inCorridor.mundetected);
+        game.level.at(cx, cy).typ = ROOM;
+    });
+
+test('restrap re-disguises only a mimic that is awake and undisguised',
+    async () => {
+        await hero();
+
+        // mon.c:4678-4685. "The mimic needs to be awake to disguise itself as
+        // something else", and C tests two fields for that: a sleeping mimic
+        // and a frozen one both return FALSE with the roll already spent.
+        const asleep = hiderAt(PM_SMALL_MIMIC, far(), { msleeping: 1 });
+        assert.deepEqual(listenToRestrap(asleep, [0]),
+            { answer: false, bounds: [3] });
+        assert.ok(!asleep.mundetected);
+
+        const frozen = hiderAt(PM_SMALL_MIMIC, far(), { mfrozen: 4 });
+        assert.deepEqual(listenToRestrap(frozen, [0]),
+            { answer: false, bounds: [3] });
+        assert.ok(!frozen.mundetected);
+
+        // mon.c:4684-4685. An awake, undisguised mimic reaches set_mimic_sym(),
+        // which this port refuses; the operation stands in for it here so the
+        // TRUE that follows can be pinned. The mimic arm returns before the
+        // ROOM arm, so mundetected stays clear even on a ROOM square.
+        const awake = hiderAt(PM_SMALL_MIMIC, far());
+        let redisguised = 0;
+        const answer = restrap(awake, {
+            state: game,
+            random: { rn2: () => 0 },
+            setMimicSym: () => { ++redisguised; },
+        });
+        assert.equal(answer, true);
+        assert.equal(redisguised, 1);
+        assert.ok(!awake.mundetected);
+    });
+
+test('the monster hiding matrix carries replay inputs only', () => {
+    const recipe = loadMonsterHidingRecipe();
+    // Version 5 recipes contain replay inputs and no recorded C answers.
+    assert.equal(recipe.version, 5);
+    assert.ok(recipe.segments.every(
+        (segment) => !Object.hasOwn(segment, 'steps'),
+    ));
+    // Every segment creates its hider with C('g'), which cmd.c
+    // can_do_extcmd() admits only in debug mode, so a segment that lost the
+    // playmode option would record an ordinary game and create nothing.
+    assert.ok(recipe.segments.every(
+        ({ moves, nethackrc }) => moves.includes(GENESIS_KEY)
+            && nethackrc.includes('playmode:debug'),
+    ));
+    // The seed list is the tripwire for a silent re-recording. The first is a
+    // lit starting room and the other two are one unlit room, played twice.
+    assert.deepEqual(
+        recipe.segments.map(({ seed }) => seed),
+        [9130009, 9130095, 9130095],
+    );
+});

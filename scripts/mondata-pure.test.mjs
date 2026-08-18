@@ -32,6 +32,7 @@ import {
     completelyburns,
     completelyrots,
     completelyrusts,
+    ceiling_hider,
     cvt_adtyp_to_mseenres,
     cvt_prop_to_mseenres,
     dmgtype_fromattack,
@@ -296,6 +297,39 @@ test('hates_blessings covers undead and demons', () => {
         mon_hates_blessings({ data: pm(M.PM_HUMAN_ZOMBIE), cham: -1 }),
         true,
     );
+});
+
+test('ceiling_hider keeps mimics off the ceiling and admits the lurker', () => {
+    // mondata.h:43-45 is `is_hider(ptr) && ((is_clinger(ptr)
+    // && (ptr)->mlet != S_MIMIC) || is_flyer(ptr))`, and monsters.h holds
+    // exactly eight M1_HIDE species. Each row below names the flags its
+    // species carries at the monsters.h line given, so the three operands are
+    // covered in every combination the table actually contains.
+    //
+    // M1_CLING, no M1_FLY, S_PIERCER (monsters.h:805, 814, 823): the arm the
+    // macro's own comment calls "piercers cling to the ceiling".
+    assert.equal(ceiling_hider(pm(M.PM_ROCK_PIERCER)), true);
+    assert.equal(ceiling_hider(pm(M.PM_IRON_PIERCER)), true);
+    assert.equal(ceiling_hider(pm(M.PM_GLASS_PIERCER)), true);
+    // M1_FLY, no M1_CLING, S_TRAPPER (monsters.h:986): "lurkers above are
+    // hiders but they fly so aren't classified as clingers", so the flyer
+    // operand is the only one that admits it.
+    assert.equal(ceiling_hider(pm(M.PM_LURKER_ABOVE)), true);
+    // Neither flag, S_TRAPPER (monsters.h:995): the lurker above's sibling,
+    // which shares its mlet and hides on the floor.
+    assert.equal(ceiling_hider(pm(M.PM_TRAPPER)), false);
+    // M1_CLING with S_MIMIC (monsters.h:684, 694): "unfortunately mimics are
+    // classified as both hiders and clingers but have nothing to do with
+    // ceilings". Only the mlet test removes these two.
+    assert.equal(ceiling_hider(pm(M.PM_LARGE_MIMIC)), false);
+    assert.equal(ceiling_hider(pm(M.PM_GIANT_MIMIC)), false);
+    // S_MIMIC without M1_CLING (monsters.h:675): false through both operands.
+    assert.equal(ceiling_hider(pm(M.PM_SMALL_MIMIC)), false);
+    // "wumpuses (not wumpi :-) cling but aren't hiders": M1_CLING with no
+    // M1_HIDE, which the first operand is what stops.
+    assert.equal(ceiling_hider(pm(M.PM_WUMPUS)), false);
+    // A flyer that is no hider either, so neither operand can carry it.
+    assert.equal(ceiling_hider(pm(M.PM_BAT)), false);
 });
 
 test('sliparm and breakarm split armor destruction by body shape', () => {

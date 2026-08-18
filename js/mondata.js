@@ -153,6 +153,19 @@ export function tunnels(species) { return flag1(species, M.M1_TUNNEL); }
 export function needspick(species) { return flag1(species, M.M1_NEEDPICK); }
 export function hides_under(species) { return flag1(species, M.M1_CONCEAL); }
 export function is_hider(species) { return flag1(species, M.M1_HIDE); }
+// C ref: mondata.h:43-45 ceiling_hider(), "piercers cling to the ceiling;
+// lurkers above are hiders but they fly so aren't classified as clingers;
+// unfortunately mimics are classified as both hiders and clingers but have
+// nothing to do with ceilings; wumpuses (not wumpi :-) cling but aren't
+// hiders". All three operands earn their place against the eight M1_HIDE
+// species: the piercers pass on M1_CLING, the lurker above passes on M1_FLY
+// alone, the large and giant mimics carry M1_CLING and are removed by the mlet
+// test, and the small mimic and the trapper carry neither flag.
+export function ceiling_hider(species) {
+    return is_hider(species)
+        && ((is_clinger(species) && species.mlet !== M.S_MIMIC)
+            || is_flyer(species));
+}
 export function haseyes(species) { return !flag1(species, M.M1_NOEYES); }
 export function nohands(species) { return flag1(species, M.M1_NOHANDS); }
 export function nolimbs(species) {
