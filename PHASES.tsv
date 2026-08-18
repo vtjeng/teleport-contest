@@ -597,3 +597,5 @@ utc	event	phase	goal	detail
 2026-08-18T00:22:32.756Z	end	implement	hero-zaps-a-ray-wand	ray-bounces-and-burns-the-hero closed at dcae535: screens 1846 to 1861
 2026-08-18T00:24:01.765Z	start	review	hero-zaps-a-ray-wand	correctness 2d84dfa..2325a5b, forced by the review gate
 2026-08-18T02:07:47.136Z	end	review	hero-zaps-a-ray-wand	correctness 2d84dfa..4fe4f56: 18 raw, 14 deduped, 11 confirmed, 10 applied, 1 deferred, 3 rejected
+2026-08-18T02:08:01.041Z	start	select	hero-zaps-a-ray-wand	second slice after the forced correctness pass
+2026-08-18T02:28:20.519Z	end	select	hero-zaps-a-ray-wand	fire-destroys-the-heros-potions queued, ceiling 9 steps
