@@ -2900,7 +2900,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "death-draws-the-wizard-mode-die-query",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "5bc785a075533ffa5af88f9349fe6fd27f85cbe8",
       "openStanding": {
         "sha": "f73acac",
