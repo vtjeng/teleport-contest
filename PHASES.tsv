@@ -608,3 +608,4 @@ utc	event	phase	goal	detail
 2026-08-18T05:16:01.831Z	start	review	hero-zaps-a-ray-wand	correctness 4fe4f56..HEAD, the goal's close
 2026-08-18T07:31:58.517Z	end	review	hero-zaps-a-ray-wand	correctness 4fe4f56..ac46567: 22 raw, 18 deduped, 14 confirmed, 13 applied, 1 deferred, 4 rejected
 2026-08-18T07:35:50.889Z	start	select		next goal after hero-zaps-a-ray-wand closed
+2026-08-18T08:14:46.588Z	end	select	objects-deferral-sweep-5	four slices queued, two entries re-blocked; count 14 to 12

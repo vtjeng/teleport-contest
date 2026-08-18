@@ -3821,7 +3821,8 @@
       "effort": "small",
       "status": "open",
       "from": "239976ed0acf3949796a83e014105c169895c45d",
-      "detail": "js/zap_destroy_items.js maybe_destroy_item() raises UnsupportedItemDestructionError for a destroyed object that carries an owornmask, where zap.c:5921-5926 calls Ring_gone() for a worn ring and worn.c setnotworn() for everything else. js/worn.js setnotworn() exists and needs the cancelDoff, monsterUnseesProperty and setArtifactIntrinsic hooks wired from this call site; Ring_gone() has no port at all and cannot be reached under AD_FIRE, because destroyable() admits no ring. The stop is lifted above the pline() at 5909 so the segment ends before the message rather than one message past it. Reachable today only by a hero who wields a potion, scroll or spellbook when a fire ray lands."
+      "detail": "js/zap_destroy_items.js maybe_destroy_item() raises UnsupportedItemDestructionError for a destroyed object that carries an owornmask, where zap.c:5921-5926 calls Ring_gone() for a worn ring and worn.c setnotworn() for everything else. js/worn.js setnotworn() exists and needs the cancelDoff, monsterUnseesProperty and setArtifactIntrinsic hooks wired from this call site; Ring_gone() has no port at all and cannot be reached under AD_FIRE, because destroyable() admits no ring. The stop is lifted above the pline() at 5909 so the segment ends before the message rather than one message past it. Reachable today only by a hero who wields a potion, scroll or spellbook when a fire ray lands.",
+      "blockedOn": "dowield"
     },
     {
       "id": "docall-naming-prompt-unported",
@@ -3830,7 +3831,8 @@
       "effort": "slice",
       "status": "open",
       "from": "239976ed0acf3949796a83e014105c169895c45d",
-      "detail": "js/do_name.js docall() ports do_name.c (640-676) down to its '!obj->dknown' guard and raises UnsupportedObjectNamingError for the rest: safe_qbuf() building the 'Call <thing>:' prompt, the fromsink variant for a stream of sink water, name_from_player()'s getlin(), and undiscover_object()/discover_object() on the answer. do.c trycall() is ported whole above it. Reached today from potion.c potionbreathe()'s tail for a potion type the hero has neither identified nor already called something, which a starting inventory never holds because u_init.c ini_inv_use_obj() discovers what it hands over; a potion picked up off the floor and then destroyed by fire does reach it."
+      "detail": "js/do_name.js docall() ports do_name.c (640-676) down to its '!obj->dknown' guard and raises UnsupportedObjectNamingError for the rest: safe_qbuf() building the 'Call <thing>:' prompt, the fromsink variant for a stream of sink water, name_from_player()'s getlin(), and undiscover_object()/discover_object() on the answer. do.c trycall() is ported whole above it. Reached today from potion.c potionbreathe()'s tail for a potion type the hero has neither identified nor already called something, which a starting inventory never holds because u_init.c ini_inv_use_obj() discovers what it hands over; a potion picked up off the floor and then destroyed by fire does reach it.",
+      "blockedOn": "safe_qbuf"
     },
     {
       "id": "ignite-items-inventory-throws-unnamed",
