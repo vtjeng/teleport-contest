@@ -628,3 +628,4 @@ utc	event	phase	goal	detail
 2026-08-18T16:43:04.439Z	start	select		
 2026-08-18T17:19:43.316Z	end	select	stethoscope-reaches-an-adjacent-square	goal-selector then slice-selector; three slices forecast, checklist opened
 2026-08-18T17:19:43.349Z	start	implement	stethoscope-reaches-an-adjacent-square	empty-adjacent-square-hears-nothing-special, 9 of the goal's 33
+2026-08-18T17:55:59.399Z	end	implement	stethoscope-reaches-an-adjacent-square	empty-adjacent-square-hears-nothing-special, 0 of a forecast 9: the stretch is gated behind monster hiding
