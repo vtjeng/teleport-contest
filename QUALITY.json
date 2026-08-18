@@ -15662,6 +15662,117 @@
         }
       },
       "recordedAt": "2026-08-18T02:07:20.037Z"
+    },
+    {
+      "kind": "review",
+      "head": "ac465670593aba5ade9649f55e40c81334fdafdf",
+      "auditedRange": "4fe4f5615b58d437ee37bbd373b96eb808aa5585..ac465670593aba5ade9649f55e40c81334fdafdf",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "f72f6ed5ec933c54f7c4286f8a1086fed817ac2c",
+        "reason": "the checklist covers f72f6ed5, an ancestor of the range head; the 1 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "world-effects",
+        "display",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 22 raw, 18 deduplicated, 14 confirmed, 13 applied, 1 deferred, 4 rejected, 0 unverified; mutation: 8 survivors of 84 mutants. Counts: 22 raw, 18 deduplicated, 14 confirmed, 13 applied, 1 deferred, 4 rejected, 0 unverified; mutation: 76 of 84 killed over the window with 8 declared survivors, all confirmed, and 5 of 5 killed over the audit-fix delta. The goal's closing pass, which the gate also forced at 1,079 changed production lines against the 1,000 limit. The development score is identical before and after the fixes at 1,879 of 7,765 screens and 133,468 of 610,816 random-number values.\n\nTwo production defects, and the first is one this pass's own orchestrator created. The previous slice wired zhitu():4436 to ignite_items(gi.invent), and the orchestrator folded into it a named class for js/apply_catch_lit.js's OBJ_INVENT refusal, which until then threw a bare RangeError that no fail-closed list carried. The naming was right and the placement was wrong: the refusal stood ahead of every guard apply.c catch_lit() evaluates first, so a hero carrying a brass lantern -- which obj.h:397's own comment says can be lit but not by fire -- ended the segment where C returns FALSE at 1583-1588 and does nothing at all. The same covered an empty magic lamp or candelabrum, a burnt-out candle, a cursed candelabrum, and a cursed lamp whose rn2(2) came up zero, whose draw the port never made. The adjudicator traced C's order rather than arguing it. OBJ_INVENT now falls through those guards and the refusal stands at 1598, where C's inventory-specific work begins.\n\nThe second is a dropped conjunct with a test that agreed with it. zap.c:4572 is `type < 0 || (type == 0 && gb.buzzer != 0)`, and the port wrote `type < 0 || gb.buzzer`. A hero's own magic missile is type 0, so the conjunct is the whole of what separates it from every other hero band; without it a set gb.buzzer would send a fire bolt to the monster killer arm. scripts/zap-ray.test.mjs pinned the port's reading as if it were C's, asserting a refusal at type 1 that C sends to \"zapped by herself\". Both are corrected, and the test now drives the pair that separates the terms: type 0 with a buzzer must refuse, type 1 with the same buzzer must answer the ordinary killer string.\n\nThat second defect is the pass's sharpest general lesson, and it is about the instruments rather than the code. A mutation run measures whether the tests notice a change; it cannot notice that the tests agree with the code against C. Every mutant of that disjunction died -- against an oracle that was itself wrong.\n\nFour comments claimed more than the code does. The refusal-class header said all three new classes follow a killing blow, where the ignition one fires a guard earlier on a hit that need not be fatal. _statusHitPoints() named one omission from botl.c and silently dropped a second, the `Upolyd ? u.mh : u.uhp` selection, which a polyself port must add here and nowhere else. maybe_destroy_item() said gc.current_wand is not modelled, which the last slice made false, and the deferral that comment justified covers the one damage type where C's clear actually fires. And js/zap.js's ray header still said the killer-and-losehp() tail refuses, 280 lines above the doc comment that now says the opposite.\n\nSeven oracles could not fail. Four of the five refusal classes this range registers could be deleted from failClosedCommandRefusals() with the whole suite green, which is the failure mode that costs a segment every screen it earned; each now has a membership assertion beside the site that raises it, and each was watched failing against its own deletion. losehp()'s death branch could have used ttyPline() instead of ttyUrgentPline() unnoticed, which would have removed the only path to UnsupportedUrgentMessageError. The Half_spell_damage test used only dam = 25, where (25 + 1) / 2 is 13 in JavaScript too, so Math.trunc() was never exercised; 24 is the smallest input that separates them. The k_format KILLED_BY_AN was asserted nowhere. And the Book of the Dead arm had no test at all, which turned up something no finding predicted: the arm prints only while the Book is unidentified, because objnam.c The() over a discovered one takes the proper-noun branch js/objnam.js refuses. Both halves are now pinned, the second by the named refusal.\n\nOne confirmed finding became a deferral, measured rather than argued. _statusVitals()'s clamp has no oracle: reverting that one call site to `u.uhp || 0` leaves all 4,329 tests green and the development score identical, because its two readers use only the string's length and a negative total is two characters longer, which cancels against thresholds that move in two-character steps. status-vitals-clamp-has-no-oracle records the measurement and what closing it needs. The clamp stays, because botl.c applies it before every use and the other two renderers are pinned by both witnesses.\n\nOne confirmed finding was applied and then withdrawn, which is worth recording because the withdrawal is the correct outcome rather than a retreat. It asked for WIN_NOSTOP's second reader, topl.c more():233, to be modelled with a flag threaded through ttyUrgentPline(). That was written, and then the assertion added for it passed with the change removed: ttyPlineCore()'s existing deathComparisonReached clear already does the same work, and \"You die...\" is urgent_pline()'s only caller, so the two rules answer identically for every reachable input. Keeping the flag would have been production code with no owner, which AGENTS.md forbids. The comment now names both readers and says which mechanism models the second, and the test pins that mechanism: breaking the clear fails it.\n\nFour rejections hold, each refuted on a specific reading. The bare Error for C's own impossible() is a programming-error report rather than an unported path. state.current_wand's placement departs from no convention the files that carry gc values actually share. Its plumbing is untested only to a reader no reachable input distinguishes, and the branch it feeds is pinned directly. And the clear it omits on a refusal is unobservable, because the refusal ends the segment and js/jsmain.js resets the game before the next one.\n\nEvery new assertion was watched failing against the line it covers: the ignition guards against the old refusal placement; the killer guard against the dropped conjunct; each of the three refusal classes against its own deletion from the list; the urgent-pline test against ttyPline(); the halving against a removed Math.trunc(); the killer format against a changed constant; the Book's blind selector against a forced true; and the WIN_NOSTOP test against a disabled deathComparisonReached clear.",
+      "auditMetrics": {
+        "wallTimeSeconds": 2377,
+        "counts": {
+          "raw": 22,
+          "deduplicated": 18,
+          "confirmed": 14,
+          "applied": 13,
+          "deferred": 1,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 7,
+          "clarity": 5,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/apply_catch_lit.js catch_item_light() raised its OBJ_INVENT refusal ahead of every guard apply.c catch_lit() evaluates first, so a hero carrying a brass lantern -- which obj.h:397's own comment says can be lit but not by fire -- ended the segment where C returns FALSE at 1583-1588 and does nothing at all. The same covered an empty magic lamp or candelabrum, a burnt-out candle, a cursed candelabrum, and a cursed lamp whose rn2(2) came up zero, whose draw the port never made. OBJ_INVENT now falls through those guards in C's order and the refusal stands where C's inventory-specific work begins at 1598. The exposure was created by the previous slice, which wired zhitu():4436 to ignite_items(gi.invent), and by the orchestrator's own decision to fold the naming of that class into it.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/zap.js zhituLosehpArguments() dropped C's `type == 0 &&` conjunct from zap.c:4572's `type < 0 || (type == 0 && gb.buzzer != 0)`, so a set gb.buzzer would have sent every hero band to the monster killer arm rather than magic missile alone. scripts/zap-ray.test.mjs pinned the port's reading as if it were C's, asserting a refusal at type 1 that C sends to the ordinary \"zapped by herself\" arm. The conjunct is restored and the test now uses the pair that separates the two terms.",
+            "foundBy": [
+              "correctness",
+              "tests"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "Of the three status renderers the checklist says now read _statusHitPoints(), only two are covered: reverting _statusVitals() to the unclamped `u.uhp || 0` leaves the whole suite green.",
+            "category": "tests",
+            "trackedIn": "status-vitals-clamp-has-no-oracle"
+          }
+        ],
+        "rejections": [
+          {
+            "summary": "js/zap_destroy_items.js:442 destroy_items() raises a bare Error for C's impossible(\"destroy_item: items in multiple chains\"), in a file where every other unported or should-not-happen path raises the named UnsupportedItemDestructionError.",
+            "counterEvidence": "causality refute: C's own impossible() is a programming-error report rather than an unported path, and the port's bare Error is the shape this repository uses for that class throughout. Counter-evidence: the condition requires an object whose where field disagrees with the chain it was reached through, which no caller can build; the named class exists so a refusal ends the segment on its last matching screen, and a state that cannot arise needs no such conversion. Naming it would put an unreachable arm into failClosedCommandRefusals() and invite a reader to treat it as a stop the game can take."
+          },
+          {
+            "summary": "js/zap.js:336 C's gc.current_wand is stored at the bare path state.current_wand, while the port's established home for the gc struct is state.gc.* and the same function three hundred lines below uses state.gb.bhitpos for gb.bhitpos.",
+            "counterEvidence": "evidence refute: The premise that state.gc.* is the port's established home does not hold across the files that carry gc values, several of which use the bare path, so there is no single convention the placement departs from. Counter-evidence: the value has exactly one writer and one reader, both added by this range and both in js/zap.js, so no other module has to agree on where it lives; and the gb.bhitpos comparison is not parallel, because that value is read by js/trap_erode_obj.js across a module boundary, which is what put it on the struct."
+          },
+          {
+            "summary": "js/zap.js:337 The gc.current_wand modelling this range adds to dozap() -- both the set before weffects() and the clear after it -- is pinned by no test; deleting all three lines leaves the suite green.",
+            "counterEvidence": "causality refute: The value's only reader is zhitu()'s verb selection, whose TOOL_CLASS arm needs a fire horn that music.c would have to reach, and no ported path reaches it. Counter-evidence: the range's own tests pin the verb selection directly over zhituLosehpArguments(), including the played/zapped pair, so the branch the value feeds is covered at the point it is read; what is untested is the plumbing to a reader no reachable input distinguishes, and a test asserting it would assert the port's own bookkeeping rather than any C behavior."
+          },
+          {
+            "summary": "js/zap.js:338 dozap() clears state.current_wand only on the normal return from weffects(); every refusal raised inside the ray leaves the wand recorded, where zap.c:2672-2675 always clears it.",
+            "counterEvidence": "resolution refute: A refusal ends the segment, and js/jsmain.js resets the game before the next one, so no reachable state observes the stale value. Counter-evidence: the only reader is zhitu()'s verb selection inside the same weffects() call that would have to have already refused; the segment cannot continue past the refusal to reach a second zap, and the next segment starts from resetGame(). Wrapping the call in a try/finally would serve a control-flow path whose successor is the end of the segment, which AGENTS.md's 'Complete common gameplay first' rules out."
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "4fe4f5615b58d437ee37bbd373b96eb808aa5585..14767dfbb8c1a4d29e81d97e0bc10637803e41ae",
+            "14767dfbb8c1a4d29e81d97e0bc10637803e41ae..ac465670593aba5ade9649f55e40c81334fdafdf"
+          ],
+          "mutants": 84,
+          "survivors": 8,
+          "byKind": {
+            "boolean": {
+              "ran": 34,
+              "killed": 30
+            },
+            "logical": {
+              "ran": 30,
+              "killed": 29
+            },
+            "relational": {
+              "ran": 20,
+              "killed": 17
+            }
+          },
+          "finderConclusion": "The window ran 84 mutants of the three gating kinds over a baseline of 1,439 tests in 53 files and left 8 survivors, three in js/display.js and five in js/zap_destroy_items.js, each carrying a stated reason in the commit body of 0aac3a7 or c7241af. The pass tested those claims and reported none of them wrong. The delta over the audit fixes ran 5 mutants and killed all 5.\n\nWhat the runs could not see is both production defects and five of the seven test findings, which is the fourth consecutive pass where that holds. A refusal placed ahead of the guards C answers first is an ordering error, not an operator; a dropped `type == 0 &&` conjunct changes a disjunction the run does mutate, but the surviving oracle asserted the port's own reading, so every mutant of that line died against a test that was itself wrong. That second case is the sharper lesson: a mutation run measures whether the tests notice a change, and cannot notice that the tests agree with the code against C.\n\nThe deferral status-vitals-clamp-has-no-oracle records the same shape from the other side: js/display.js:3714 survived as an equivalent mutant, and the orchestrator then measured that removing the clamp entirely leaves all 4,329 tests green and the development score identical, because the value's readers use only its string length and the difference cancels against thresholds that move in two-character steps."
+        },
+        "readiness": {
+          "boundary": "Two starting events, one per moving session. seed5002-wizard-coverage-pair segment 0 step 103, the space dismissing the --More-- burnarmor()'s 'Your cloak smoulders!' raised; and seed0103-knight-ride-pony byte 57, the h that reaches steed.c mount_steed():354's losehp(). The ending event is the --More-- that urgent_pline('You die...') forces on the preceding message through win/tty/topl.c update_topl():265's strncmp exception. The real game executes both: seed5002 emitted 103 of its 410 screens before the range and now emits 120, seed0103 57 of 60 and now 58, and scripts/run-ray-zap.mjs drives six fresh C recordings whose sixth carries its zap through to the death.",
+          "sourceReview": "Every branch reachable before the ending event was traced against zap.c zhitu()'s guards at 4434-4437 and its killer block at 4561-4589, destroyable() (5612-5650), destroy_strings[][3] (5778-5787), maybe_destroy_item() (5797-5954) and destroy_items() (5964-6097); potion.c potionbreathe() (1931-2118); do.c trycall() (394-399) over do_name.c docall(); hack.c losehp() (4255-4292); botl.c bot()'s clamp at 141-142; you.h:315 uhim() over genders[]; and win/tty/topl.c update_topl() with tty_yn_function(). The trace covered state and random-number order: the range adds no draw to seed0103 and none to seed5002 past index 112, dam is 25 against 7 hit points so u.uhp reaches -18, and the status line must still read HP:0(12). Stubs and stops identified: end.c done() whole, zhitu()'s death_inflicted_by() arm, losehp()'s Upolyd arm, urgent_pline()'s WIN_STOP arm, potionbreathe()'s sixteen other arms, maybe_destroy_item()'s AD_COLD, AD_ELEC and owornmask arms, docall()'s prompt, and zap_over_floor()'s burn_floor_objects() seam. The pass then found what the trace had not: an ignition refusal standing ahead of the guards C answers first, and a killer guard missing a conjunct whose own test asserted the missing form.",
+          "completeness": "No known unsupported behavior remains inside the boundary, and every reachable excluded branch stops before changing state, consuming randomness or producing output, through a named refusal class that js/cmd.js failClosedCommandRefusals() lists -- which four of the five classes this range adds could previously have been dropped from with the suite green, and each now has a membership assertion beside the site that raises it. Eight deferrals record cases outside the boundary or evidence still owed: zap-over-floor-terrain-arms-refuse, vertical-ray-range-one-is-unpinned, potionbreathe-vapor-arms-refuse, maybe-destroy-item-cold-and-elec-refuse, destroy-items-worn-object-refuses, docall-naming-prompt-unported, ignite-items-inventory-throws-unnamed (closed by this range's own slice) and status-vitals-clamp-has-no-oracle, opened by this pass. One behavior the pass surfaced that the plan had not: the Book of the Dead arm prints only while the Book is unidentified, because objnam.c The() over a discovered one takes the proper-noun branch js/objnam.js refuses; both halves are now pinned."
+        }
+      },
+      "recordedAt": "2026-08-18T07:31:29.949Z"
     }
   ]
 }

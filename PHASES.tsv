@@ -605,3 +605,5 @@ utc	event	phase	goal	detail
 2026-08-18T03:51:36.136Z	end	select	hero-zaps-a-ray-wand	the-fatal-bolt-says-you-die queued, the goal's last slice, ceiling 9
 2026-08-18T03:51:36.209Z	start	implement	hero-zaps-a-ray-wand	the-fatal-bolt-says-you-die
 2026-08-18T05:15:38.717Z	end	implement	hero-zaps-a-ray-wand	the-fatal-bolt-says-you-die closed at 9b01443: screens 1870 to 1879
+2026-08-18T05:16:01.831Z	start	review	hero-zaps-a-ray-wand	correctness 4fe4f56..HEAD, the goal's close
+2026-08-18T07:31:58.517Z	end	review	hero-zaps-a-ray-wand	correctness 4fe4f56..ac46567: 22 raw, 18 deduped, 14 confirmed, 13 applied, 1 deferred, 4 rejected
