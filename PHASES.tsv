@@ -626,3 +626,5 @@ utc	event	phase	goal	detail
 2026-08-18T15:00:51.020Z	start	review	hero-death-reaches-done	correctness c8394b4..1b2bcac, the goal's close
 2026-08-18T16:42:37.892Z	end	review	hero-death-reaches-done	correctness c8394b4..2338437 recorded at 32126ec
 2026-08-18T16:43:04.439Z	start	select		
+2026-08-18T17:19:43.316Z	end	select	stethoscope-reaches-an-adjacent-square	goal-selector then slice-selector; three slices forecast, checklist opened
+2026-08-18T17:19:43.349Z	start	implement	stethoscope-reaches-an-adjacent-square	empty-adjacent-square-hears-nothing-special, 9 of the goal's 33

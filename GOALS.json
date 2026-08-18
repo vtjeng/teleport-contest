@@ -2948,7 +2948,13 @@
         ]
       },
       "detail": "",
-      "slices": [],
+      "slices": [
+        {
+          "name": "empty-adjacent-square-hears-nothing-special",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
       "openStanding": {
         "sha": "32126ec",

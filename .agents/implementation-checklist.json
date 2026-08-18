@@ -1,0 +1,174 @@
+{
+  "mode": "implementation",
+  "reason": "Slice 1 of three or four is not started. The candidate list below covers apply.c use_stethoscope()'s adjacent-square arm (384-470) and its_dead()'s frame, which is what slices 1 to 3 port. its_dead()'s corpse arm (226-306) is traced only to the depth needed to decide it is a later slice, and insight.c mstatusline()'s roughly twenty appendable info fragments are not individually enumerated yet; both are stated in remainingLimits rather than assumed complete.",
+  "commitChecked": "073cd133fe267426a76ce9ce4628430954d3b8e2",
+  "boundary": {
+    "goalId": "stethoscope-reaches-an-adjacent-square",
+    "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
+    "startingEvent": "The hero applies a stethoscope and answers the direction prompt with an adjacent square: js/cmd.js dispatches `a` to doapply(), which reaches use_stethoscope() past confdir().",
+    "endingEvent": "The top line C prints for that square, and the turn the listen does or does not spend. For an empty square that is \"You hear nothing special.\" at apply.c:468; for a monster it is mstatusline()'s status line; for a mimic it is \"That chest is really a small mimic.\" and then the status line.",
+    "validInputs": "Any of the eight directions, plus the hero's own square. A Healer starts with an uncursed stethoscope at u_init.c:79, so no wizard mode and no wish are needed to reach the boundary.",
+    "observables": "The top line and its --More-- redraws; the status line mstatusline() writes; gb.bhitpos and gn.notonhead; the free-versus-costly listen alternation already held in state.context.stethoscope_seq; and the vision map writes seemimic() and map_invisible() make. The arm consumes no randomness.",
+    "exclusions": "Everything above confdir() at apply.c:379, which the port already refuses: a steed, an engulfer, a nonzero u.dz, and a cursed stethoscope. Below it: its_dead()'s statue arm, use_stethoscope()'s SDOOR and SCORR arms, and mstatusline()'s long-worm, u.ustuck and u.usteed arms, each of which needs setup no ported command reaches."
+  },
+  "candidateListMethod": {
+    "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
+    "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation, which apply.c:430 reads and js/display.js does not carry (grep -n explanation js/display.js returns nothing); mstatusline()'s ordered info fragments.",
+    "reachableHelpers": "Read from the C call graph of the two entry points. Already ported and needing no work: unmap_invisible(), newsym(), sobj_at(), can_reach_floor() (js/engrave.js, with the checkPit parameter), m_at(), find_mac, align_str, map_invisible(), obj_typename(), ustatusline(), mon_aligntyp(), rndmonnam(), set_mimic_sym() (js/makemon_create.js).",
+    "javascriptCrossCheck": "grep -rn '^seemimic' nethack-c/upstream/src/*.c returns only mon.c:4409, so js/mon.js's two 'display.c seemimic()' citations are wrong. grep -rn seemimic js/*.js returns six sites naming it as missing. grep -c Unsupported js/mhitu.js returns 0, so the giant bat's bites inside the stretch need nothing. grep -n explanation js/display.js returns nothing, so M_AP_FURNITURE needs a generated table.",
+    "remainingLimits": "its_dead()'s corpse arm (226-306) is traced only far enough to place it in a later slice; its Healer REVIVE_MON loop and Blind sub-arm are not enumerated. mstatusline()'s info fragments are not individually listed. The 22 held --More-- redraws are evidenced by the previous goal reproducing three of the same shape in this same session, not by a fresh run of this arm."
+  },
+  "entries": [
+    {
+      "candidate": "apply.c use_stethoscope() !isok(rx, ry) (386-390)",
+      "reachability": "The hero points at a square off the map edge. No random-number call.",
+      "owner": "None",
+      "effects": "You_hear(\"a faint typing noise.\") and a Soundeffect.",
+      "evidence": "apply.c:386-390, read at 073cd13.",
+      "status": "missing",
+      "remaining": "Slice 1 refuses it under its own name, in C's branch order above the m_at test."
+    },
+    {
+      "candidate": "apply.c use_stethoscope() m_at(rx, ry) != 0 (391-446)",
+      "reachability": "A monster stands on the target square. No random-number call.",
+      "owner": "None",
+      "effects": "x_monnam(), gb.bhitpos and gn.notonhead writes, the mundetected and M_AP_TYPE arms, mstatusline() and map_invisible().",
+      "evidence": "apply.c:391-446.",
+      "status": "missing",
+      "remaining": "Slices 2 and 3. Slice 1 refuses it under its own name, above the SDOOR test."
+    },
+    {
+      "candidate": "apply.c use_stethoscope() unmap_invisible() line (447-448)",
+      "reachability": "The target square carries a remembered-invisible marker and no monster.",
+      "owner": "None",
+      "effects": "pline_The(\"invisible monster must have moved.\") and the marker cleared.",
+      "evidence": "apply.c:447-448; js/display.js already ports unmap_invisible().",
+      "status": "missing",
+      "remaining": "Slice 1 ports it. No ported command sets the marker on a chosen square, so its test is a deferred entry rather than a fresh case."
+    },
+    {
+      "candidate": "apply.c use_stethoscope() SDOOR and SCORR arms (452-464)",
+      "reachability": "The target square holds a secret door or secret corridor.",
+      "owner": "None",
+      "effects": "You_hear a hollow sound, cvt_sdoor_to_door() or the CORR write, recalc_block_point() or unblock_point(), feel_newsym().",
+      "evidence": "apply.c:452-464. The helpers are ported; the setup is not, because no wizard command creates a secret door and wizmap and teleport are unported.",
+      "status": "missing",
+      "remaining": "Outside the goal. Slice 1 refuses each under its own name; a deferred entry records the setup a fresh case would need."
+    },
+    {
+      "candidate": "apply.c its_dead() !can_reach_floor(TRUE) block (206-212)",
+      "reachability": "The hero is levitating or riding unskilled. No random-number call.",
+      "owner": "None",
+      "effects": "Clears corpse and walks statue past MZ_TINY entries through nxtobj(). Inert when both sobj_at results are already null.",
+      "evidence": "apply.c:206-212, read at 073cd13. This is not a refusal site: with no corpse and no statue the block does nothing and C falls through to \"You hear nothing special.\"",
+      "status": "missing",
+      "remaining": "Slice 1 ports the fall-through and must not refuse on the levitation test itself."
+    },
+    {
+      "candidate": "apply.c its_dead() corpse arm (226-306)",
+      "reachability": "sobj_at(CORPSE, rx, ry) is non-null and reachable.",
+      "owner": "None",
+      "effects": "The corpse age message, the Healer REVIVE_MON loop, and the Blind sub-arm.",
+      "evidence": "apply.c:226-306.",
+      "status": "missing",
+      "remaining": "A later slice. Slice 1 refuses on the corpse result being non-null. The Blind sub-arm needs glyph_at(), which is unported."
+    },
+    {
+      "candidate": "apply.c its_dead() statue arm (283-307)",
+      "reachability": "sobj_at(STATUE, rx, ry) is non-null.",
+      "owner": "None",
+      "effects": "The statue health message over obj_pmname() and type_is_pname()'s The() path.",
+      "evidence": "apply.c:283-307.",
+      "status": "missing",
+      "remaining": "Outside the goal. Slice 1 refuses on the statue result being non-null; a deferred entry records it."
+    },
+    {
+      "candidate": "apply.c its_dead() return FALSE (308)",
+      "reachability": "No corpse and no statue on the square. This is the recorded session's path.",
+      "owner": "None",
+      "effects": "The caller prints \"You hear nothing special.\" at 468 and returns res.",
+      "evidence": "apply.c:308 and 467-469.",
+      "status": "missing",
+      "remaining": "Slice 1 ports it. This is the slice's whole observable."
+    },
+    {
+      "candidate": "do_name.c x_monnam() SUPPRESS_HALLUCINATION requirement",
+      "reachability": "apply.c:392 and insight.c:3392 both pass SUPPRESS_IT | SUPPRESS_INVISIBLE without the hallucination bit.",
+      "owner": "js/do_name.js x_monnam()",
+      "effects": "The port throws UnsupportedMonsterNameError before any stethoscope output.",
+      "evidence": "js/do_name.js, read at 073cd13: REQUIRED is SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION and the guard throws unless both are set. do_name.c:861 spells do_hallu as Hallucination && !(suppress & SUPPRESS_HALLUCINATION).",
+      "status": "missing",
+      "remaining": "Slice 2 owns it, because slice 2 is the first with a live caller. Widen to a runtime test on Hallucination rather than dropping the requirement, so rndmonnam()'s draws stay out."
+    },
+    {
+      "candidate": "insight.c mstatusline() mhidden_description arm (3317-3320)",
+      "reachability": "mtmp->mundetected, mtmp->m_ap_type, or visible_region_at(gb.bhitpos.x, gb.bhitpos.y).",
+      "owner": "None",
+      "effects": "mhidden_description() appends to info.",
+      "evidence": "insight.c:3317-3318, read at 073cd13. C's comment above it covers the mimic alone; seemimic() clears the first two terms and not the third, so a monster in a visible gas cloud reaches this arm through a stethoscope. The goal's own boundary text in GOALS.json says this arm is unreachable from a stethoscope by construction, and that is wrong.",
+      "status": "missing",
+      "remaining": "Slice 2 refuses on visible_region_at(bhitpos), mirroring ustatusline()'s existing cloud-of-vapor stop in js/insight.js."
+    },
+    {
+      "candidate": "mon.c seemimic() (4406-4426)",
+      "reachability": "apply.c:434, when the target is a mimic.",
+      "owner": "None",
+      "effects": "Clears m_ap_type and mappearance, unblock_point(), newsym().",
+      "evidence": "mon.c:4409 is the only definition; display.c has none.",
+      "status": "missing",
+      "remaining": "Slice 3 ports it into js/mon.js with one live caller. The five other js/ sites naming it stay refused: each needs its own consumer and differential."
+    },
+    {
+      "candidate": "apply.c M_AP_FURNITURE and M_AP_MONSTER arms (422-437)",
+      "reachability": "A mimic whose mappearance is furniture or a monster.",
+      "owner": "None",
+      "effects": "defsyms[mtmp->mappearance].explanation, or the monster name.",
+      "evidence": "apply.c:430 reads defsyms[].explanation; grep -n explanation js/display.js returns nothing, so the port carries only defsyms[].color.",
+      "status": "missing",
+      "remaining": "Slice 3 refuses both and ports M_AP_OBJECT alone, which is what the session exercises. The furniture arm needs a generated table under AGENTS.md's rule for large fixed tables."
+    },
+    {
+      "candidate": "apply.c M_AP_OBJECT SLIME_MOLD sub-branch (418-421)",
+      "reachability": "A mimic appearing as a slime mold with has_mcorpsenm().",
+      "owner": "None",
+      "effects": "simpleonames() names the object.",
+      "evidence": "apply.c:418-421; simpleonames() is unported and is not among the goal's named owners.",
+      "status": "missing",
+      "remaining": "Slice 3 refuses it on otyp === SLIME_MOLD && has_mcorpsenm(mtmp)."
+    }
+  ],
+  "missingWorkByOwner": [
+    {
+      "group": "js/apply.js use_stethoscope(), the adjacent-square frame",
+      "candidates": [
+        "!isok arm",
+        "m_at arm",
+        "unmap_invisible line",
+        "SDOOR and SCORR arms",
+        "its_dead frame and return FALSE",
+        "its_dead corpse arm",
+        "its_dead statue arm",
+        "its_dead levitation block"
+      ],
+      "next": "Slice 1: port the empty-square path and place every other arm's refusal in C's branch order, so a square carrying two of them stops where C would branch."
+    },
+    {
+      "group": "js/do_name.js x_monnam() and js/insight.js mstatusline()",
+      "candidates": [
+        "x_monnam SUPPRESS_HALLUCINATION requirement",
+        "mstatusline mhidden_description arm"
+      ],
+      "next": "Slice 2: widen the guard to a runtime Hallucination test, port mstatusline()'s ordinary-monster path with an ordered fragment table shaped like ustatusline()'s, and refuse on visible_region_at(bhitpos)."
+    },
+    {
+      "group": "js/mon.js seemimic() and the mimic reveal",
+      "candidates": [
+        "mon.c seemimic()",
+        "M_AP_FURNITURE and M_AP_MONSTER arms",
+        "M_AP_OBJECT SLIME_MOLD sub-branch"
+      ],
+      "next": "Slice 3: port seemimic() into js/mon.js with one live caller, port M_AP_OBJECT, refuse the other two appearance arms and the slime-mold sub-branch."
+    }
+  ],
+  "sourceReview": "apply.c use_stethoscope() (317-470) and its_dead() (196-309) were read in full at 073cd13 against nethack-c/upstream, and every branch between confdir() at 379 and the return at 469 is entered above. Random-number order is unaffected: no arm inside the boundary draws, which is why the goal forecasts 33 screens and no change in the random-number total. Helpers were checked for existing ports one by one, and the four checks recorded in javascriptCrossCheck were run rather than assumed. Two limits stand: its_dead()'s corpse arm and mstatusline()'s info fragments are traced only to the depth that places them in later slices, and both are named in remainingLimits."
+}
