@@ -60,7 +60,7 @@ const RIDE = '#ride\n';
 const MORE = ' ';
 
 // The inventory letter the wish lands on. A Tourist starts with thirteen
-// stacks plus gold, so the wand arrives at `n`; verifyHeroDeathSegment()
+// stacks plus gold, so the wand arrives at `n`; verifyHeroDeathSetup()
 // checks that rather than trusting it.
 const WAND_LETTER = 'n';
 
@@ -71,9 +71,9 @@ const PONY_DELTA = Object.freeze({ dx: 1, dy: -1 });
 
 export const WIZARD_CASE = Object.freeze({
     label: 'a debug-mode Tourist zaps a wand of fire at himself',
-    // No natural seed is needed: the wish puts the wand in the pack and the
-    // bolt cannot miss its own square. This seed was taken as given and the
-    // assertions below say what it produced.
+    // The wish puts the wand in the pack, but zap.c:4962 still calls
+    // zap_hit(u.uac, 0) for a vertical self-zap. Retain this recorded seed for
+    // the hit and damage rolls that reach the intended death.
     seed: 4820613,
     // A fixed clock on an ordinary day: no full moon, no Friday the 13th, and
     // no midnight rollover, so nothing competes for the top line.
@@ -152,6 +152,9 @@ export function loadHeroDeathRecipe() {
     }, 'hero death recipe');
 }
 
+// Replay recipes omit expected results, so map each segment back to its case
+// by its unique (seed, moves) pair. Keep that pair unique when extending
+// HERO_DEATH_CASES.
 function caseFor(recipeSegment) {
     const found = HERO_DEATH_CASES.find(
         (entry) => entry.seed === recipeSegment.seed
@@ -209,14 +212,18 @@ export async function verifyHeroDeathSetup(recipeSegment) {
         }
         return;
     }
-    await runSegment({ ...recipeSegment, moves: MORE });
-    const pony = m_at(game.u.ux + PONY_DELTA.dx, game.u.uy + PONY_DELTA.dy,
-                      game);
-    if (!pony || !pony.mtame) {
-        throw new Error(
-            `no tame monster stands ${PONY_DIRECTION} of the Knight`,
-        );
+    if (entry === EXPLORE_CASE) {
+        await runSegment({ ...recipeSegment, moves: MORE });
+        const pony = m_at(game.u.ux + PONY_DELTA.dx, game.u.uy + PONY_DELTA.dy,
+                          game);
+        if (!pony || !pony.mtame) {
+            throw new Error(
+                `no tame monster stands ${PONY_DIRECTION} of the Knight`,
+            );
+        }
+        return;
     }
+    throw new Error(`no setup verifier for ${entry.label}`);
 }
 
 export async function runHeroDeathMatrix() {

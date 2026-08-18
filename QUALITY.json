@@ -3920,6 +3920,16 @@
       "from": "dc55ae8dc64fda6b25677ca6277c3622e7631f6d",
       "detail": "end.c really_done() (1130-1590) owns everything below done()'s query: the \"Do not pass Go.  Do not collect 200 zorkmids.\" line, the disclosure prompts, the tombstone, bones, the score file and the window teardown. js/end.js done() raises UnsupportedEndOfGameError(\"really_done(<how>) for killer \\\"<name>\\\" in format <format>\") at end.c:1124's place instead, and scripts/hero-death.test.mjs \"an ordinary game reaches really_done() without drawing a query\" pins that refusal.\n\nTwo recorded cases, each one key outside this goal's limit.\n\nThe ordinary death, which never reaches the query at all because end.c:1105 needs wizard or discover. Seed 8300003, datetime 20260624101500, rc:\n\nOPTIONS=name:Doomed,role:Knight,race:human,gender:male,align:lawful\nOPTIONS=!legacy,!tutorial,!splash_screen\nOPTIONS=!acoustics\n\nKeys: space, \"#ride\", Return, y, \"#ride\", Return, y, space, space. C records 18 screens and 3145 random-number calls; the port matches 16 and 3144. C's 17th screen puts really_done()'s line on the same row as the death, \"You die...  Do not pass Go.  Do not collect 200 zorkmids.--More--\", and its 18th is \"Do you want your possessions identified? [ynq] (n)\"; the first call the port does not make is rn2(1) from can_make_bones(bones.c:377). This case is the guard that porting done()'s head leaks neither a screen nor a status repaint into the ordinary path: the port's 16 matching screens are the same 16 it matched before done() was ported, and sessions/seed0103-knight-ride-pony.session.json holds the same boundary at 58 of 60 screens.\n\nThe accepted death in debug mode, which answers the query \"y\". That is scripts/run-hero-death.mjs WIZARD_CASE with one more key: seed 4820613, datetime 20260311073000, its rc, and keys Ctrl-W, \"wand of fire\", Return, z, n, >, space, space, y. C records 21 screens and 5941 random-number calls; the port matches 20 and 5940. C's 21st screen is \"Do not pass Go.  Do not collect 200 zorkmids.--More--\" with the cursor at [53,0], and the first call the port does not make is again rn2(1) from can_make_bones(bones.c:377).\n\nClosing condition: port end.c really_done(), then replay both cases to strict parity.",
       "blockedOn": "really_done"
+    },
+    {
+      "id": "paranoid-die-config-needs-option-handler",
+      "area": "startup",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "9d5ba845dd5671d2516ac586410e04666cbb4266",
+      "detail": "js/end.js ParanoidDie() must reject any raw flags.paranoid_confirmation value because js/options.js applyOption() has not ported options.c optfn_paranoid_confirmation() into flags.paranoia_bits. This also rejects valid reset forms such as !paranoid_confirmation, paranoid_confirmation:none, and paranoid_confirmation:pray even though C leaves PARANOID_DIE clear and end.c done() would use the already-ported single-key Die? prompt. Port the complete do_set handler in js/options.js, remove the raw-value guard, and retain the early fail-closed preflight for configurations that set PARANOID_DIE until cmd.c paranoid_ynq()'s spelled-out input and savelife() return path are ported.",
+      "blockedOn": "optfn_paranoid_confirmation"
     }
   ],
   "areas": [

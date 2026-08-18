@@ -502,12 +502,13 @@ export async function y_n(query, state = game) {
 // attack,&c prompting; allows yes, n|no, or q|quit; result is one of 'y' or
 // 'n' or 'q'; ESC yields 'q'".
 //
-// `be_paranoid` is ParanoidConfirm at every call site, not the caller's own
-// paranoia bit: the caller tests its own bit before asking at all. C's
-// PARANOID_CONFIRM arm reads a whole line through getlin() and reprompts with
-// "\"Yes\" or \"No\": " up to five times, which is a different prompt, a
-// different reader and a different history entry from the single-key arm; it
-// stops rather than being approximated.
+// `be_paranoid` switches this query from a key to a spelled-out answer. That
+// arm always requires "yes" spelled out. The separate ParanoidConfirm bit
+// also requires "no" spelled out and permits five retries after an invalid
+// answer; without it, one non-"yes", non-"quit" answer defaults to no. pray.c
+// first tests ParanoidPray and passes ParanoidConfirm; end.c passes ParanoidDie
+// directly. The spelled-out arm uses a different prompt, reader, and history
+// entry from the single-key arm, so it stops rather than being approximated.
 //
 // C's `char c` is a key byte here, which is what yn_function() answers and
 // what readchar() below it produces, so the comparisons are against codes.
@@ -1296,15 +1297,15 @@ export function failClosedCommandRefusals() {
         UnsupportedBhitError,
         UnsupportedTransientDisplayError,
         UnsupportedHitPointLossError,
-        // Two classes a killing blow reaches below
-        // UnsupportedHitPointLossError, each after the status line has already
-        // been redrawn with the hero at zero. hack.c losehp() prints
-        // urgent_pline("You die..."), which win/tty/topl.c update_topl():265
-        // forces onto a line of its own, so the --More-- that message raises
-        // is the last screen the segment can match; end.c done() owns
-        // everything after it. tty_message.js raises the second from that same
-        // urgent_pline() when the player has an Escape-suppressed message
-        // window.
+        // A killing blow reaches the next two classes below
+        // UnsupportedHitPointLossError. UnsupportedEndOfGameError now has
+        // several source-ordered endpoints: a return-capable paranoid query
+        // is preflighted before done() paints or mutates, an ordinary death
+        // stops above really_done() after the forced status work, and a debug
+        // or explore death can draw "Die?" before savelife() refuses.
+        // UnsupportedUrgentMessageError remains the earlier boundary from
+        // hack.c losehp()'s urgent_pline("You die...") when an
+        // Escape-suppressed message window prevents that line.
         //
         // The third is not a killing blow's. apply_catch_lit.js raises it from
         // zhitu()'s ignite_items() call at zap.c:4437, one guard above the

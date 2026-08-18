@@ -5,14 +5,18 @@
 // through. Its head is ported: the forced status update, the killer-format
 // defaults, the mortality count and the hit-point force, down to and
 // including the wizard-and-explore-mode query at 1112 that asks whether the
-// hero really dies. Everything the answer opens is refused -- savelife(), the
-// life-saving amulet's reprieve, and really_done() (1130-1590) with its
-// disclosure, tombstone, bones and score file.
+// hero really dies. The life-saving amulet's earlier reprieve, savelife()
+// after a declined query, and really_done() (1130-1590) with its disclosure,
+// tombstone, bones and score file remain refused, in that source order.
 //
 // The one caller this port reaches is hack.c losehp()'s death branch, one
 // statement after urgent_pline("You die..."), so a segment that runs out of
 // input at the query ends on the "Die? [yn] (n)" this file draws.
 
+// js/cmd.js imports UnsupportedEndOfGameError back from this file. Both cycle
+// edges are safe because their imported bindings are read only inside
+// functions, after module initialization; neither belongs in a module-scope
+// value initializer while the cycle remains.
 import { paranoid_query } from './cmd.js';
 import {
     ASCENDED,
@@ -55,10 +59,9 @@ export const deaths = Object.freeze([
 ]);
 
 // C ref: youprop.h:387 Lifesaved, the extrinsic alone. The amulet of life
-// saving is the only item that confers it, and js/worn.js setworn() is this
-// port's only writer of an extrinsic property, so the answer is FALSE in
-// every game the port can reach: an amulet goes on through do_wear.c
-// doputon(), and js/cmd.js dispatches no command row to that handler.
+// saving is the only item that confers it. No ported command can put that
+// amulet on: it uses do_wear.c doputon(), and js/cmd.js dispatches no command
+// row to that handler. Lifesaved is therefore FALSE in every reachable game.
 function Lifesaved(state) {
     return Boolean(state.u?.uprops?.[LIFESAVED]?.extrinsic);
 }
@@ -72,7 +75,9 @@ function Lifesaved(state) {
 // paranoid_confirmation's raw text in flags.paranoid_confirmation and never
 // folds it into flags.paranoia_bits, so reading the startup default for a
 // game that asked for the confirmation would draw "Die? [yn] (n)" where C
-// spells the whole prompt out through getlin().
+// spells the whole prompt out through getlin(). done() calls this as a
+// preflight before its first output or mutation whenever its supported path
+// can reach the query.
 function ParanoidDie(state) {
     if (state.flags.paranoid_confirmation !== undefined)
         throw new UnsupportedEndOfGameError('optfn_paranoid_confirmation()');
@@ -81,8 +86,10 @@ function ParanoidDie(state) {
 
 // C ref: end.c done() (1019-1126), "Be careful not to call panic from here!".
 //
-// `how` is a game_end_types value; svk.killer, which the caller has already
-// filled in, is what done() names the death by.
+// `how` is a game_end_types value. Before calling, a direct caller must ensure
+// state.killer exists; use { name: '', format: KILLED_BY_AN } when C supplied
+// no killer, or preserve the source-supplied name and format. done() applies
+// the deaths[] name and format defaults below.
 //
 // C's `boolean survive` is not carried. Its only two writers are the
 // life-saving body at 1099 and the query's "no" arm at 1116, and both are
@@ -94,6 +101,11 @@ function ParanoidDie(state) {
 // and the hangup term at 1110, which the done_hup refusal below stands in
 // for. Storing a counter no ported line reads would be a second home for a
 // value the port cannot yet spend.
+//
+// This partial port never resolves successfully. It mutates state through the
+// last supported C statement, then throws at the first unported continuation.
+// Callers must await it before resuming behind a live query or a partially
+// processed death.
 export async function done(how, state = game) {
     if (how === TRICKED) {
         // 1024-1034. The arm paniclogs the killer and, in wizard mode, prints
@@ -106,6 +118,23 @@ export async function done(how, state = game) {
     }
     const killer = state.killer;
     const programState = state.program_state;
+
+    // paranoid_ynq()'s spelled-out input arm and the raw compound-option
+    // parser can both return to done() through a declined death and
+    // savelife(). Detect either unsupported path before the status paint and
+    // death-state prefix below. The other exclusions are the branches that
+    // stop before end.c:1105 in this port, so they retain their own refusal.
+    if (!state.iflags.debug_fuzzer
+        && !Lifesaved(state)
+        && (state.wizard || state.discover)
+        && how <= GENOCIDED
+        && !programState?.done_hup) {
+        if (ParanoidDie(state)) {
+            throw new UnsupportedEndOfGameError(
+                'paranoid_ynq() reading "yes" or "no" for ParanoidDie',
+            );
+        }
+    }
     if (programState?.panicking
         || programState?.done_hup
         || (how === QUIT && programState?.stopprint)) {
@@ -172,7 +201,12 @@ export async function done(how, state = game) {
                 'gd.done_seq for a hung-up game',
             );
         }
-        if (!await paranoid_query(ParanoidDie(state), 'Die?', state)) {
+        // Reaching this point means the preflight evaluated ParanoidDie(state)
+        // as false; every path that skipped that evaluation refused before
+        // this call. The supported query therefore uses the single-key arm.
+        // Porting a life-saving path through here must revise that proof and
+        // pass the live bit without moving the refusal below observable work.
+        if (!await paranoid_query(false, 'Die?', state)) {
             // 1113-1116. "OK, so you don't die." over PLNMSG_OK_DONT_DIE, and
             // then savelife(), which restores the hit points, revives the
             // hero on the map and hands the turn back to the move loop.
