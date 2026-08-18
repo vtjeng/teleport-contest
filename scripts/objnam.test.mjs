@@ -4,6 +4,8 @@ import test from 'node:test';
 import {
     ART_GIANTSLAYER,
     ART_GRIMTOOTH,
+    ART_ORB_OF_DETECTION,
+    ART_SUNSWORD,
     init_artifacts,
 } from '../js/artifacts.js';
 import {
@@ -18,6 +20,7 @@ import {
     LOOKHERE_NOFLAGS,
     LOOKHERE_PICKED_SOME,
     OBJ_FLOOR,
+    OBJ_FREE,
     OBJ_INVENT,
     NON_PM,
     PLNMSG_ONE_ITEM_HERE,
@@ -77,6 +80,7 @@ import {
     CHEST,
     CHAIN_MAIL,
     CORPSE,
+    CRYSTAL_BALL,
     OIL_LAMP,
     DART,
     DWARVISH_IRON_HELM,
@@ -1671,11 +1675,11 @@ test('artifact naming records discovery before choosing its article', () => {
     assert.equal(donameFresh(artifact, state), 'the +0 Giantslayer');
 });
 
-// C ref: objnam.c obj_is_pname() (334-343), which withholds the personal name
-// while not_fully_identified() (1787-1820) holds. Its last clause returns
+// C ref: objnam.c obj_is_pname() (332-342), which withholds the personal name
+// while not_fully_identified() (1786-1819) holds. Its last clause returns
 // FALSE early for every class outside armor, weapons, weapon-tools and the
 // ball, so only those four fall through to `return is_damageable(otmp)` at
-// 1820 -- meaning a weapon with rknown clear is still not fully identified.
+// 1818 -- meaning a weapon with rknown clear is still not fully identified.
 test('a named artifact weapon needs rknown before it names itself', () => {
     const state = namingState();
     state.artiexist[ART_GIANTSLAYER].exists = 1;
@@ -2079,7 +2083,7 @@ test('aobjnam names the object and agrees the verb with it', () => {
     assert.equal(cxname(corpse, state), 'newt corpses');
 });
 
-// objnam.c yname() (2357-2374) and Yname2() (2376-2383). wield.c
+// objnam.c yname() (2358-2374) and Yname2() (2376-2383). wield.c
 // can_twoweapon() opens two of its refusals with Yname2(), so the capital and
 // the ownership prefix both land at the start of a sentence.
 test('yname prefixes the owner and Yname2 capitalizes it', () => {
@@ -2096,15 +2100,61 @@ test('yname prefixes the owner and Yname2 capitalizes it', () => {
     // A stack pluralizes through cxname(), and the prefix is unchanged.
     lamp.quan = 2;
     assert.equal(Yname2(lamp, state), 'Your lamps');
+});
 
-    // C skips the prefix for an artifact whose name stands on its own, which
-    // needs obj_is_pname(); naming one at all needs artiname().
-    state.artiexist[ART_GIANTSLAYER].exists = 1;
-    const artifact = objectOf(state, LONG_SWORD, {
-        dknown: true,
-        oartifact: ART_GIANTSLAYER,
-        oextra: { oname: 'Giantslayer' },
+// objnam.c yname():2365-2366, the three conjuncts that decide whether the
+// prefix is written at all. C's comment above them states the rule: "leave off
+// 'your' for most of your artifacts, but prepend 'your' for unique objects and
+// 'foo of bar' quest artifacts".
+//
+// The bound is obj.h any_quest_artifact() (271) spelled out. artilist.h orders
+// the quest artifacts last, opening with The Orb of Detection at 219, so
+// ART_ORB_OF_DETECTION is the lowest index on the quest side and Sunsword, the
+// row before it at 209, is the highest index off it. The two together are what
+// separate `>=` from `>` and from `<`.
+test('yname drops the prefix only for a held, non-quest artifact', () => {
+    const state = namingState();
+
+    // Sunsword is ART_ORB_OF_DETECTION - 1, so it is an ordinary artifact and
+    // its own name is the whole answer. not_fully_identified() (1786-1819) has
+    // to answer FALSE first: a long sword is WEAPON_CLASS, so its last clause
+    // reaches is_damageable() and rknown is read along with the other three
+    // identification flags.
+    state.artiexist[ART_SUNSWORD].exists = 1;
+    const sunsword = objectOf(state, LONG_SWORD, {
+        oartifact: ART_SUNSWORD,
+        oextra: { oname: 'Sunsword' },
         where: OBJ_INVENT,
+        known: true, dknown: true, bknown: true, rknown: true,
     });
-    assert.throws(() => yname(artifact, state), UnsupportedObjectNameError);
+    assert.equal(yname(sunsword, state), 'Sunsword');
+
+    // The same object in flight, which is where a thrown weapon sits while
+    // zap.c bhit() names it. C tests carried() first, so the prefix returns
+    // and shk.c shk_your() writes "the " rather than "your ".
+    sunsword.where = OBJ_FREE;
+    assert.equal(yname(sunsword, state), 'the Sunsword');
+    sunsword.where = OBJ_INVENT;
+
+    // Back in the pack, but no longer fully identified: obj_is_pname() answers
+    // FALSE, so xname() appends the instance name to the ordinary type name
+    // and the prefix returns with it.
+    sunsword.rknown = false;
+    assert.equal(yname(sunsword, state), 'your long sword named Sunsword');
+
+    // The quest side of the comparison, at the exact bound. The Orb is a
+    // crystal ball, whose oc_name_known has to be raised for
+    // not_fully_identified() to clear; a tool is outside that function's last
+    // clause, so rknown does not matter here as it does for the sword.
+    state.artiexist[ART_ORB_OF_DETECTION].exists = 1;
+    state.objects[CRYSTAL_BALL].oc_name_known = 1;
+    const orb = objectOf(state, CRYSTAL_BALL, {
+        oartifact: ART_ORB_OF_DETECTION,
+        oextra: { oname: 'The Orb of Detection' },
+        where: OBJ_INVENT,
+        known: true, dknown: true, bknown: true,
+    });
+    // xname() strips the artifact's own leading "The ", and yname() puts the
+    // possessive back because the index is on the quest side.
+    assert.equal(yname(orb, state), 'your Orb of Detection');
 });

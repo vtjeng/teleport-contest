@@ -105,9 +105,11 @@ export function Glib(state) {
 // ported, and neither can be reached from any input it accepts.
 //
 // wield.c:791-793 refuses an artifact in the secondary slot with
-// Yobjnam2(uswapwep, "resist"). objnam.c yname(), under it, needs
-// obj_is_pname() and artiname() to name an artifact, and u_init.c:1310 calls
-// mksobj() with artif FALSE, so no role starts with one in either hand.
+// Yobjnam2(uswapwep, "resist"), and objnam.c yobjnam() under it is not ported;
+// weldmsg() below stops at the same pair. No input reaches the arm in any
+// case: u_init.c:1315 calls mksobj() with artif FALSE, so no role starts with
+// an artifact in either hand, and wield.c dowield() is unported, so nothing
+// puts one there later.
 //
 // wield.c:797-801 sets uswapwep's bknown and drops it through
 // drop_uswapwep() (808-831). Two things there are still missing. Its three

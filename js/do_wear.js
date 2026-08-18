@@ -336,7 +336,7 @@ async function on_msg(otmp, state) {
             ? ` around your ${body_part(HEAD, state.youmonst)}` : '';
 
         await ttyPline(
-            `You are now wearing ${obj_is_pname(otmp)
+            `You are now wearing ${obj_is_pname(otmp, state)
                 ? the(otmp_name) : an(otmp_name)}${how}.`,
             state,
         );

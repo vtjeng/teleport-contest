@@ -10,7 +10,8 @@
 // object construction through js/obj.js.
 
 import {
-    ART_EYES_OF_THE_OVERWORLD, find_artifact, permapoisoned,
+    ART_EYES_OF_THE_OVERWORLD, ART_ORB_OF_DETECTION, find_artifact,
+    permapoisoned,
 } from './artifacts.js';
 import {
     BLINDED, CORPSTAT_FEMALE, CORPSTAT_GENDER, CORPSTAT_HISTORIC,
@@ -41,7 +42,7 @@ import { type_is_pname } from './mondata.js';
 import { genders } from './roles.js';
 import { observe_object } from './o_init.js';
 import {
-    erosionMatters, hasContents, isBox, isCandle, isContainer,
+    carried, erosionMatters, hasContents, isBox, isCandle, isContainer,
     isCorrodeable, isCrackable,
     isDamageable, isFlammable, isMultigen, isRottable, isRustprone,
     is_ammo, is_missile, is_weptool, objectType,
@@ -270,7 +271,7 @@ export function gloves_simple_name(gloves, state = game) {
 //
 // Two further readings choose no flag at all, so both read the counter
 // directly instead: objnam.c obj_is_pname():337 skips not_fully_identified(),
-// which objectIsPersonalName() below spells as an early return, and eat.c
+// which obj_is_pname() below spells as an early return, and eat.c
 // tin_details():1442 belongs to js/eat.js, which xname() reaches from here.
 //
 // The counter has four writers in C, and half of them treat it as a boolean.
@@ -515,15 +516,20 @@ function notFullyIdentified(obj, type, state) {
     }
     return isDamageable(obj, state);
 }
-// C ref: objnam.c obj_is_pname() (332-342), read from xname_flags() and
-// doname_base(). :337 skips the not_fully_identified() test while
+// C ref: objnam.c obj_is_pname() (332-342). Whether an object's name stands on
+// its own as a proper name, so that a caller writes "the Excalibur" rather than
+// "an Excalibur". :337 skips the not_fully_identified() test while
 // iflags.override_ID is raised, so an artifact the hero has not identified
-// still answers by its own name. The exported obj_is_pname() below is a
-// second, narrower reading of the same C function that yname() uses.
-function objectIsPersonalName(obj, type, state) {
+// still answers by its own name.
+//
+// Its four callers are xname_flags(), doname_base() and yname() below, and
+// do_wear.c on_msg(). C reads objects[obj->otyp] inside not_fully_identified()
+// rather than taking it as an argument, so this looks the type up for itself
+// the way every other exported name in this file does.
+export function obj_is_pname(obj, state = game) {
     if (!obj.oartifact || !obj.oextra?.oname) return false;
     if (state.iflags?.override_ID) return true;
-    return !notFullyIdentified(obj, type, state);
+    return !notFullyIdentified(obj, objectType(obj, state), state);
 }
 // C ref: objnam.c the_unique_obj() (1106-1117).
 function theUniqueObject(obj, type, state) {
@@ -685,7 +691,7 @@ export function xnameFresh(obj, state) {
     // only ever held while blind.
     if (obj.oartifact && obj.dknown)
         find_artifact(obj, state);
-    const personalName = objectIsPersonalName(obj, type, state);
+    const personalName = obj_is_pname(obj, state);
     let base = personalName
         ? String(obj.oextra.oname)
         : xnameBase(obj, type, state, ident);
@@ -1127,40 +1133,26 @@ export function Tobjnam(otmp, verb, state = game) {
     return bp;
 }
 
-// C ref: objnam.c obj_is_pname() (331-341). Whether an object's name stands
-// on its own as a proper name, so that callers write "the Excalibur" rather
-// than "an Excalibur".
-//
-// C's first test settles every object this port can produce: an object with no
-// oartifact answers FALSE outright, and the artifact arm stops here.
-//
-// objectIsPersonalName() above is a second reading of the same C function,
-// with that arm ported: has_oname() is obj.oextra.oname, not_fully_identified()
-// is notFullyIdentified() and :337's override_ID skip is there too. xname()
-// and doname() call it, so an artifact already reaches a name through them and
-// only this reading refuses one. Reconciling the two is a change to what
-// yname() and do_wear.c on_msg() print for an artifact, which needs a fresh
-// case of its own; until then the narrower reading is the fail-closed one.
-export function obj_is_pname(obj) {
-    if (!obj.oartifact) return false;
-    return unsupported('obj_is_pname() for an artifact', obj);
-}
-
-// C ref: objnam.c yname() (2357-2374). "your <cxname>" for what the hero
+// C ref: objnam.c yname() (2358-2374). "your <cxname>" for what the hero
 // carries, "the <cxname>" for what she does not, and a shopkeeper's or a
 // monster's possessive where shk_your() finds an owner.
 //
-// C skips the prefix for an artifact whose proper name stands alone; see
-// obj_is_pname() above for why that arm stops. C's two other conjuncts,
-// carried(obj) and `obj->oartifact >= ART_ORB_OF_DETECTION`, only matter once
-// obj_is_pname() can answer TRUE, so neither is ported. C tests carried()
-// first and so leaves an artifact on the floor unnamed rather than stopping;
-// this reaches obj_is_pname() for that object too, which is the stop the
-// previous port made for every artifact alike.
+// The prefix is dropped only for an artifact the hero is holding whose proper
+// name stands alone, and C's own comment says why the other two conjuncts are
+// there: "leave off 'your' for most of your artifacts, but prepend 'your' for
+// unique objects and 'foo of bar' quest artifacts". obj.h any_quest_artifact()
+// (271) is that second test spelled out, and artilist.h orders the quest
+// artifacts last, from The Orb of Detection at 219 onward, so one comparison
+// separates them. C evaluates carried() first, which is why an artifact lying
+// on the floor keeps the prefix without obj_is_pname() being asked at all.
 export function yname(obj, state = game) {
     const s = cxname(obj, state);
 
-    if (!obj_is_pname(obj)) return `${shk_your(obj, state)}${s}`;
+    if (!carried(obj)
+        || !obj_is_pname(obj, state)
+        || obj.oartifact >= ART_ORB_OF_DETECTION) {
+        return `${shk_your(obj, state)}${s}`;
+    }
     return s;
 }
 
@@ -1282,7 +1274,7 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
     const fakeArtifact = obj.otyp === SLIME_MOLD
         ? matching_artifact_fruit(base, state) : null;
     if (fakeArtifact?.forceThe
-        || objectIsPersonalName(obj, type, state)
+        || obj_is_pname(obj, state)
         || theUniqueObject(obj, type, state)) {
         return `the ${words.replace(/^the /iu, '')}`;
     }

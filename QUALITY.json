@@ -3525,7 +3525,7 @@
       "area": "objects",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "8e95ef8dfe2bfa1e3de27e5e38b898268015fb3f",
       "detail": "js/objnam.js holds two readings of objnam.c obj_is_pname() (332-341). objectIsPersonalName() at :509 is the complete one, and this slice added :337's override_ID skip to it; xname() and doname() call it, so a named artifact already reaches a name through them. The exported obj_is_pname() at :1105 ports only C's first conjunct and calls unsupported('obj_is_pname() for an artifact') for the rest, and yname() at :1120 and do_wear.c on_msg() through js/do_wear.js:339 are its two callers, so those two refuse an artifact that xname() would have named. The narrower reading is not blocked on anything: has_oname() is obj.oextra.oname, not_fully_identified() is notFullyIdentified() at :442, and preflightXname() refuses program_state.gameover upstream, so C's remaining conjunct is settled. Both of its callers' branches are ported too -- the(name) and an(name) at js/do_wear.js:339-340. Closing it means deleting the narrow reading, pointing yname() at objectIsPersonalName(), and rewriting scripts/wear-armor.test.mjs:2150. That changes what a wear message and a wield refusal print for an artifact, which needs a fresh case with an artifact in hand rather than the reroll menu's kit, so it is left out of this slice."
     },

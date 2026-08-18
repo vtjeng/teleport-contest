@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { ART_SUNSWORD } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     BASICENLIGHTENMENT,
@@ -142,7 +143,7 @@ import {
     WATER_WALKING_BOOTS,
     WEAPON_CLASS,
 } from '../js/objects.js';
-import { UnsupportedObjectNameError, obj_is_pname } from '../js/objnam.js';
+import { obj_is_pname } from '../js/objnam.js';
 import { find_ac } from '../js/u_init_inventory_attrs.js';
 import {
     ESCAPE_KEY,
@@ -2147,17 +2148,55 @@ test('has_horns holds from one horn up, not from two', async () => {
     assert.equal(has_horns(species(PM_VALKYRIE)), false);
 });
 
-test('obj_is_pname answers FALSE for a non-artifact and stops for one',
-    async () => {
-    // objnam.c:331-341. The first test settles every object this port can
-    // produce; the artifact arm needs has_oname() and
-    // not_fully_identified().
-    assert.equal(obj_is_pname({ oartifact: 0 }), false);
-    assert.equal(obj_is_pname({}), false);
-    assert.throws(
-        () => obj_is_pname({ oartifact: 1 }),
-        refusal(UnsupportedObjectNameError, 'obj_is_pname() for an artifact'),
-    );
+// do_wear.c on_msg():89-97 formats the name and then asks objnam.c
+// obj_is_pname() (332-342) whether the line reads "the <name>" or "an <name>".
+// on_msg() reads the whole C conjunction; it used to call a second, narrower
+// copy that refused every artifact. The two disagree only for an artifact, and
+// no 'W' reaches one: accessory_or_armor_on() refuses it at retouch_object(),
+// which the test above pins.
+test('on_msg asks the complete obj_is_pname', async () => {
+    const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+    await setup(segment, WAIT);
+
+    // Each object below is fully identified except where the case is about
+    // not_fully_identified() itself, so that one term of the conjunction
+    // decides each answer alone. Sunsword has been seen, which clears that
+    // function's undiscovered-artifact arm.
+    const identified = { known: 1, dknown: 1, bknown: 1, rknown: 1 };
+    game.artiexist[ART_SUNSWORD].exists = 1;
+    game.artiexist[ART_SUNSWORD].found = 1;
+
+    // C's first term. A shield the hero has called something is still named
+    // by its type: a called name is not an artifact's own name.
+    const called = armor(SMALL_SHIELD, {
+        ...identified, oextra: { oname: 'Fido' },
+    });
+    assert.equal(obj_is_pname(called, game), false);
+
+    // has_oname(), C's second term: an artifact carrying no instance name has
+    // nothing to print in place of its type name.
+    const unnamed = armor(SMALL_SHIELD, {
+        ...identified, oartifact: ART_SUNSWORD,
+    });
+    assert.equal(obj_is_pname(unnamed, game), false);
+
+    // The arm the narrower copy refused instead of answering.
+    // not_fully_identified() holds while the hero has not learned the
+    // shield's enchantment, so the artifact still goes by its type name.
+    const named = armor(SMALL_SHIELD, {
+        ...identified, known: 0,
+        oartifact: ART_SUNSWORD, oextra: { oname: 'Sunsword' },
+    });
+    assert.equal(obj_is_pname(named, game), false);
+
+    // objnam.c:337 skips that test outright while iflags.override_ID is up.
+    game.iflags.override_ID = 1;
+    assert.equal(obj_is_pname(named, game), true);
+    game.iflags.override_ID = 0;
+
+    // And with the enchantment learned it answers by its own name unaided.
+    named.known = 1;
+    assert.equal(obj_is_pname(named, game), true);
 });
 
 test('the W command reaches no unported branch on the matrix inputs',
