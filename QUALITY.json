@@ -3967,6 +3967,114 @@
       "status": "open",
       "from": "022cd9a1951fd8c1fa092fe0a29e22d286dfeae3",
       "detail": "Found while recording the mon.c restrap() slice's fresh differentials, and outside its goal: a turn the port and C agree on screen by screen diverges on the random-number log.\n\nThe case, which is not a hider case and needs no hider to reproduce: seed 9130095 at datetime 20260214031500, a wizard-mode female neutral human Valkyrie named Hidr with pettype:none,!acoustics,playmode:debug,time, moves 'nlllllllllll' then 45 waits. C and the port agree for 2,816 random-number calls and all 58 screens and cursors. On turn 34, after rn2(70)=60 at maybe_generate_rnd_mon(allmain.c:166), C draws start_corpse_timeout(mkobj.c:1413), then 45 calls of collect_coords(teleport.c:700), then next_ident(mkobj.c:521) and newmonhp(makemon.c:1039), and repeats the corpse and monster pair once more; the port draws rn2(20) at gethungry(eat.c:3191) instead and creates neither monster. Nothing appears on screen, so the whole recording still matches cell for cell.\n\nenexto() is what draws collect_coords(), and timeout.c hatch_egg() (1017-1063) calls enexto() and then makemon() once per egg in the stack, which is what the doubled group looks like. js/timeout.js carries hatch_egg as a name-only row of timeout_funcs[] with no ported function beside it, and js/timeout.js run_timers() refuses a due timer whose row has none -- so the port did not skip a callback it holds, it never held the timer. What starts that timer, and which object the two start_corpse_timeout() groups belong to, is not diagnosed; the corpse groups do not fit hatch_egg() on their own, since it passes NO_MINVENT.\n\nThe port is silent here rather than fail-closed, which is what makes it worth an entry: the divergence costs the rest of a replay's random-number log and shows nothing. Closing it starts by finding which object holds the due timer at turn 34 of that seed."
+    },
+    {
+      "id": "audit-stethoscope-nonslime-species-overlay-test",
+      "area": "commands",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Add a valid non-SLIME_MOLD object-disguise fixture carrying mcorpsenm; assert ordinary exposure/naming and kill apply.js:353 && to ||. Retain a strict source-real case if this appearance family remains claimed complete."
+    },
+    {
+      "id": "audit-dog-eat-one-hp-boundary-test",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Add a one-HP admitted mimic-corpse meal case asserting MMOVE_MOVED and retained HP; kill dogmove.js:565 less-than to less-than-or-equal."
+    },
+    {
+      "id": "audit-dog-eat-apport-conjunction-test",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Give an admitted dropped mimic corpse a nonempty inventory letter, assert CADAVER classification and unchanged apport, and kill the dogmove.js:555 conjunction mutation."
+    },
+    {
+      "id": "audit-restrap-redisguise-atomic-refusal-test",
+      "area": "monsters",
+      "category": "tests",
+      "effort": "small",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Cover a stethoscope-revealed unseen mimic whose selecting restrap roll reaches the real planning refusal; assert unchanged live RNG/state, and cover the nonselecting fall-through. Do not implement redisguise in this fix."
+    },
+    {
+      "id": "audit-fatal-corpse-safety-comment-inverted",
+      "area": "commands",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Correct do.js commentary: u_safe_from_fatal_corpse returns true for harmless or protected handling; the existing negated condition is source-correct."
+    },
+    {
+      "id": "audit-tiny-statue-comment-stale-mz-tiny",
+      "area": "commands",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Correct apply.js dependency commentary because MZ_TINY is now exported; nxtobj traversal remains the real deferred dependency. Do not port the branch as an audit fix."
+    },
+    {
+      "id": "audit-mimic-corpse-wish-comment-stale",
+      "area": "objects",
+      "category": "clarity",
+      "effort": "small",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Update objnam_readobjnam commentary so the control-flow block names both dragons and the three admitted mimic-corpse species."
+    },
+    {
+      "id": "audit-stethoscope-refusal-effects-not-preflighted",
+      "area": "commands",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Preflight off-map, secret-terrain, corpse, statue, and hallucinated-dead refusals before stethoscope sequence/global/map/output effects, while preserving C order for admitted paths; validate retry atomicity."
+    },
+    {
+      "id": "audit-quickmimic-logical-glyph-identity",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Preserve transient logical glyph identity and compare glyph IDs in quickmimic instead of rendered presentation; validate identical customized renderings with distinct glyph IDs and a strict differential."
+    },
+    {
+      "id": "audit-invisible-pet-eating-name",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Port the noit_Monnam and y_monnam invisibility adjective semantics used by dog_eat and quickmimic; assert exact invisible-pet meal and disguise lines."
+    },
+    {
+      "id": "audit-runtime-mimic-article-exceptions",
+      "area": "monsters",
+      "category": "production",
+      "effort": "small",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Use source-exact an or just_an article logic in runtime mimic hidden descriptions, including eucalyptus and other long-u exceptions; add focused and live evidence."
+    },
+    {
+      "id": "audit-set-mimic-sym-protection-guard",
+      "area": "monsters",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "detail": "Add the Protection_from_shape_changers guard at set_mimic_sym entry before appearance RNG; test intrinsic and extrinsic sources, M_AP_NOTHING, messages, and PRNG order."
     }
   ],
   "areas": [
@@ -16084,6 +16192,183 @@
         }
       },
       "recordedAt": "2026-08-18T16:37:59.890Z"
+    },
+    {
+      "kind": "review",
+      "head": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "auditedRange": "23384371480ab760d2784d9e16c623ff005211a6..6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "3435132bb046fb21eacd52773b822649f00c3714",
+        "reason": "the checklist covers 3435132b, an ancestor of the range head; the 5 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "no-change",
+      "evidence": "Counts: 16 raw, 13 deduplicated, 12 confirmed, 0 applied, 12 deferred, 1 rejected, 0 unverified; mutation: 7 survivors of 113 mutants. Full correctness pass used four independent core perspectives and two clean adjudication batches. Twelve confirmed findings were deferred because three require returning to Implementation for input-boundary, rendering, or PRNG changes; one flag-abstraction candidate was rejected. Contaminated preliminary adjudication was discarded and rerun cleanly.",
+      "auditMetrics": {
+        "wallTimeSeconds": 4059,
+        "counts": {
+          "raw": 16,
+          "deduplicated": 13,
+          "confirmed": 12,
+          "applied": 0,
+          "deferred": 12,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 5,
+          "tests": 4,
+          "clarity": 3,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "Stethoscope refusals for off-map, secret-terrain, and corpse/statue paths occur after sequence, mapping, and message effects instead of failing atomically before them.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "Quickmimic compares rendered cells instead of C glyph identities, so customized symbols can select the wrong appearance message.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "Invisible pet eating and quickmimic messages omit the source-visible invisible adjective.",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "Runtime mimic appearance messages use a simplified article rule that produces forms such as an eucalyptus leaf instead of the source article.",
+            "foundBy": [
+              "correctness",
+              "readability"
+            ],
+            "resolution": "deferred"
+          },
+          {
+            "summary": "set_mimic_sym lacks the Protection_from_shape_changers guard before random selection, causing extra RNG and disguise effects.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "deferred"
+          }
+        ],
+        "mutation": {
+          "mutants": 113,
+          "survivors": 7,
+          "byKind": {
+            "boolean": {
+              "ran": 19,
+              "killed": 18
+            },
+            "logical": {
+              "ran": 86,
+              "killed": 84
+            },
+            "relational": {
+              "ran": 8,
+              "killed": 4
+            }
+          },
+          "finderConclusion": "Three survivors expose actionable test gaps and four are source or admitted-caller invariants."
+        },
+        "readiness": {
+          "boundary": "The reviewed boundary starts with applying the stethoscope and an adjacent direction, continues through empty-square or monster output, and includes only the bounded setup owners needed for the completed monster cases; later terrain and corpse/statue branches remain excluded or refused.",
+          "sourceReview": "Every reachable branch and helper in the completed monster path was traced through apply, insight, mon, makemon, dogmove, objnam, display, state, and PRNG ownership; later branches were identified separately.",
+          "completeness": "At launch the checklist marked the declared in-boundary entries complete and later entries pre-effect; the pass then found the defects recorded here and returned the goal to implementation."
+        },
+        "rejections": [
+          {
+            "summary": "mhidden_description option abstraction differs from the source MHID flags.",
+            "counterEvidence": "Current admitted callers match the source flag combinations: status and look-at behavior agree, object and furniture appearances use the helper, explicit monster appearances are handled by the earlier naming arm, and no concrete visible-region mismatch is reachable through the admitted visibility predicates."
+          }
+        ],
+        "deferrals": [
+          {
+            "summary": "A non-slime object disguise carrying mcorpsenm can be routed into slime-mold naming without a test that distinguishes the branches.",
+            "category": "tests",
+            "trackedIn": "audit-stethoscope-nonslime-species-overlay-test"
+          },
+          {
+            "summary": "A one-hit-point pet can be misreported as dead after eating without a focused boundary test.",
+            "category": "tests",
+            "trackedIn": "audit-dog-eat-one-hp-boundary-test"
+          },
+          {
+            "summary": "A dropped mimic corpse retaining its inventory letter can incorrectly earn apport without a conjunction test.",
+            "category": "tests",
+            "trackedIn": "audit-dog-eat-apport-conjunction-test"
+          },
+          {
+            "summary": "The later-turn restrap refusal lacks a live atomicity and nonselecting fall-through integration test.",
+            "category": "tests",
+            "trackedIn": "audit-restrap-redisguise-atomic-refusal-test"
+          },
+          {
+            "summary": "The fatal-corpse safety comment reverses the helper's boolean meaning.",
+            "category": "clarity",
+            "trackedIn": "audit-fatal-corpse-safety-comment-inverted"
+          },
+          {
+            "summary": "The tiny-statue comment says MZ_TINY is unavailable even though the size constant is exported.",
+            "category": "clarity",
+            "trackedIn": "audit-tiny-statue-comment-stale-mz-tiny"
+          },
+          {
+            "summary": "The mimic-corpse wish comment says only dragons reach a carrier block that admitted mimic corpses also reach.",
+            "category": "clarity",
+            "trackedIn": "audit-mimic-corpse-wish-comment-stale"
+          },
+          {
+            "summary": "Stethoscope refusals for off-map, secret-terrain, and corpse/statue paths occur after sequence, mapping, and message effects instead of failing atomically before them.",
+            "category": "production",
+            "trackedIn": "audit-stethoscope-refusal-effects-not-preflighted"
+          },
+          {
+            "summary": "Quickmimic compares rendered cells instead of C glyph identities, so customized symbols can select the wrong appearance message.",
+            "category": "production",
+            "trackedIn": "audit-quickmimic-logical-glyph-identity"
+          },
+          {
+            "summary": "Invisible pet eating and quickmimic messages omit the source-visible invisible adjective.",
+            "category": "production",
+            "trackedIn": "audit-invisible-pet-eating-name"
+          },
+          {
+            "summary": "Runtime mimic appearance messages use a simplified article rule that produces forms such as an eucalyptus leaf instead of the source article.",
+            "category": "production",
+            "trackedIn": "audit-runtime-mimic-article-exceptions"
+          },
+          {
+            "summary": "set_mimic_sym lacks the Protection_from_shape_changers guard before random selection, causing extra RNG and disguise effects.",
+            "category": "production",
+            "trackedIn": "audit-set-mimic-sym-protection-guard"
+          }
+        ]
+      },
+      "recordedAt": "2026-08-19T01:40:59.358Z"
     }
   ]
 }
