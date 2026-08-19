@@ -640,3 +640,4 @@ utc	event	phase	goal	detail
 2026-08-18T21:43:45.684Z	start	implement	stethoscope-reaches-an-adjacent-square	continue listen-at-a-monster-names-and-reveals-it: reconcile source-reachable checklist gaps and the seemimic blocker before closure
 2026-08-18T22:17:27.870Z	end	implement	stethoscope-reaches-an-adjacent-square	listen-at-a-monster-names-and-reveals-it parked: strict STRANGE_OBJECT and visible-region cases pass, but rare appearance branches need authorized constructed-test substitution; no worker commit
 2026-08-18T22:25:08.342Z	start	implement	stethoscope-reaches-an-adjacent-square	Port source setup owners for furniture and monster mimic appearances, then resume the preserved listen-at-a-monster candidate
+2026-08-19T00:28:04.785Z	end	implement	stethoscope-reaches-an-adjacent-square	listen-at-a-monster-names-and-reveals-it closed at 3435132: 24 screens delivered, all 33 fresh matrix segments exact, Score and Coverage CI successful

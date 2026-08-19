@@ -2961,8 +2961,8 @@
         },
         {
           "name": "listen-at-a-monster-names-and-reveals-it",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "3435132bb046fb21eacd52773b822649f00c3714"
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
