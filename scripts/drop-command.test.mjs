@@ -27,8 +27,9 @@ import { stairway_at } from '../js/stairs.js';
 import { clearTtyMessageWindow } from '../js/tty_message.js';
 import {
     ELVEN_DAGGER, FOOD_CLASS, GEM_CLASS, LEASH, LOADSTONE, MEAT_RING,
-    RING_CLASS, RIN_PROTECTION, SPEAR, TWO_HANDED_SWORD, WEAPON_CLASS,
+    CORPSE, RING_CLASS, RIN_PROTECTION, SPEAR, TWO_HANDED_SWORD, WEAPON_CLASS,
 } from '../js/objects.js';
+import { PM_SMALL_MIMIC } from '../js/monsters.js';
 import {
     DROP_CASES,
     LOADSTONE_CASE,
@@ -555,6 +556,32 @@ test('a second like object merges into the floor pile', async () => {
     assert.equal(pile[0].quan, MERGE_CASE.mergedQuantity);
     // The second scroll took the lowest free letter, 'f', and left the pack.
     assert.ok(!letters(game).includes('f'));
+});
+
+test('a harmless timed mimic corpse follows an ordinary drop', async () => {
+    // do.c better_not_try_to_drop_that() returns FALSE because pickup.c
+    // u_safe_from_fatal_corpse(st_all) sees that a mimic does not petrify.
+    // The corpse timer follows the surviving object onto the floor; stackobj()
+    // only stops timers on an older pile member it absorbs.
+    let boundary = null;
+    await runSegment({
+        seed: 24,
+        datetime: '20270318143000',
+        nethackrc: [
+            'OPTIONS=name:PetMim,role:Healer,race:human,gender:female,align:neutral',
+            'OPTIONS=!legacy,!tutorial,!splash_screen',
+            'OPTIONS=pettype:dog,!acoustics,!autopickup,time,playmode:debug',
+            '',
+        ].join('\n'),
+        moves: '.\x17small mimic corpse\ndl',
+    }, { onBoundary: (error) => { boundary = error; } });
+    assert.equal(boundary, null);
+    const corpse = pileAt(game, game.u.ux, game.u.uy)
+        .find((obj) => obj.otyp === CORPSE);
+    assert.ok(corpse);
+    assert.equal(corpse.corpsenm, PM_SMALL_MIMIC);
+    assert.equal(corpse.timed, 1);
+    assert.ok(!letters(game).includes('l'));
 });
 
 // C ref: invent.c merged() (851-854 and 928), reached through stackobj(). It

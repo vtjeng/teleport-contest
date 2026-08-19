@@ -24,7 +24,6 @@ import {
     MAXULEV,
     MALE,
     M_AP_FURNITURE,
-    M_AP_MONSTER,
     M_AP_OBJECT,
     NEUTRAL,
     NO_KILLER_PREFIX,
@@ -817,13 +816,12 @@ test('x_monnam builds the killer string and refuses every other flag set',
         game.u.ustuck = null;
     }
 
-    // do_name.c:886-935. Each of the five classes this port does not format
+    // do_name.c:886-935. Each of the four classes this port does not format
     // stops on its own.
     for (const mutate of [
         (m) => { m.ispriest = 1; },
         (m) => { m.isminion = 1; },
         (m) => { m.isshk = 1; },
-        (m) => { m.m_ap_type = M_AP_MONSTER; },
         // mondata.h:157 is_mplayer() is the PM_ARCHEOLOGIST..PM_WIZARD range.
         (m) => { m.data = game.mons[PM_ARCHEOLOGIST]; },
     ]) {

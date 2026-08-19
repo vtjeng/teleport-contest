@@ -2466,6 +2466,38 @@ test('a starting pony targets at range and later refusal stays retryable',
     }
 });
 
+test('simple preflight separates each altered monster state before movement',
+    async () => {
+        const cases = [
+            ['confused monster', prepareSelectedAction,
+                (monster) => { monster.mconf = true; }],
+            ['stunned monster', prepareSelectedAction,
+                (monster) => { monster.mstun = true; }],
+            ['non-tame eating dog',
+                () => prepareStartingPetAction(PM_LITTLE_DOG),
+                (monster) => {
+                    monster.mtame = 0;
+                    monster.meating = 1;
+                }],
+            ['minion eating dog',
+                () => prepareStartingPetAction(PM_LITTLE_DOG),
+                (monster) => {
+                    monster.isminion = true;
+                    monster.meating = 1;
+                }],
+        ];
+        for (const [name, prepare, mutate] of cases) {
+            const target = await prepare();
+            mutate(target.monster);
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === 'altered monster movement state',
+                name,
+            );
+        }
+    });
+
 test('simple preflight keeps starting-pet owner seams retryable',
     async () => {
         const cases = [
@@ -2497,7 +2529,7 @@ test('simple preflight keeps starting-pet owner seams retryable',
             },
             {
                 name: 'kitten eating',
-                reason: 'pet eating',
+                reason: 'the starting little dog',
                 prepare: async () => {
                     const target = await prepareStartingPetAction(PM_KITTEN);
                     installObject(
@@ -2514,7 +2546,7 @@ test('simple preflight keeps starting-pet owner seams retryable',
             },
             {
                 name: 'kitten moving onto adjacent food',
-                reason: 'pet eating',
+                reason: 'the starting little dog',
                 prepare: async () => {
                     const target = await prepareStartingPetAction(PM_KITTEN);
                     installObject(

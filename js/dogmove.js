@@ -1,8 +1,8 @@
 // Pet movement, goals, hunger, and inventory decisions.
 // C ref: dogmove.c — droppables(), cursed_object_at(), dog_hunger(),
-// dog_invent(), dog_goal(), find_targ(), find_friends(), score_targ(),
-// best_target(), pet_ranged_attk(), dog_move(), could_reach_item(), and
-// can_reach_location().
+// dog_nutrition(), dog_eat(), dog_invent(), dog_goal(), find_targ(),
+// find_friends(), score_targ(), best_target(), pet_ranged_attk(), dog_move(),
+// finish_meating(), quickmimic(), could_reach_item(), and can_reach_location().
 
 import {
     ACCFOOD,
@@ -29,6 +29,9 @@ import {
     MAGIC_PORTAL,
     MANFOOD,
     M_AP_NOTHING,
+    M_AP_FURNITURE,
+    M_AP_MONSTER,
+    M_AP_OBJECT,
     M_AP_TYPMASK,
     M_ATTK_AGR_DIED,
     M_ATTK_DEF_DIED,
@@ -41,14 +44,17 @@ import {
     MTSZ,
     NEED_HTH_WEAPON,
     NEED_WEAPON,
+    PROT_FROM_SHAPE_CHANGERS,
     ROWNO,
     UNDEF,
     W_ARMS,
 } from './const.js';
 import { glyph_is_object, newsym, vobj_at } from './display.js';
 import {
+    alwaysVisibleMonsterName,
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
+    pmname,
 } from './do_name.js';
 import { on_level } from './dungeon.js';
 import { dogfood as classifyDogFood } from './dogfood.js';
@@ -60,7 +66,9 @@ import {
     distmin,
     sgn,
 } from './hacklib.js';
-import { check_gear_next_turn, mon_allowflags } from './mon.js';
+import {
+    check_gear_next_turn, m_consume_obj, mon_allowflags,
+} from './mon.js';
 import { can_carry } from './moncarry.js';
 import {
     attacktype,
@@ -85,6 +93,7 @@ import {
     tunnels,
     verysmall,
     is_vampshifter,
+    gender,
 } from './mondata.js';
 import {
     AT_NONE,
@@ -92,11 +101,26 @@ import {
     MS_GUARDIAN,
     MS_LEADER,
     PM_KITTEN,
+    PM_DOG,
+    PM_GIANT_RAT,
+    PM_HOUSECAT,
+    PM_GIANT_MIMIC,
+    PM_LARGE_CAT,
+    PM_LARGE_DOG,
+    PM_LARGE_MIMIC,
     PM_LITTLE_DOG,
+    PM_SMALL_MIMIC,
     PM_PONY,
     PM_FLOATING_EYE,
     PM_GELATINOUS_CUBE,
     S_MIMIC,
+    S_DOG,
+    MZ_GIGANTIC,
+    MZ_HUGE,
+    MZ_LARGE,
+    MZ_MEDIUM,
+    MZ_SMALL,
+    MZ_TINY,
 } from './monsters.js';
 import { mattackm } from './mhitm.js';
 import {
@@ -115,13 +139,15 @@ import {
 import { may_dig } from './hack.js';
 import { sobj_at, splitobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
-import { distant_name, donameFresh, vtense } from './objnam.js';
+import { an, distant_name, donameFresh, vtense } from './objnam.js';
 import {
     BALL_CLASS,
     BOULDER,
     CHAIN_CLASS,
     CREDIT_CARD,
+    CORPSE,
     DWARVISH_MATTOCK,
+    FOOD_CLASS,
     GOLD_PIECE,
     LOCK_PICK,
     PICK_AXE,
@@ -129,12 +155,19 @@ import {
     SCR_MAIL,
     SKELETON_KEY,
     UNICORN_HORN,
+    OBJ_DESCR,
+    OBJ_NAME,
+    TRIPE_RATION,
 } from './objects.js';
 import { rn1, rn2, rnd, rne } from './rng.js';
-import { messageAt } from './startup_a11y.js';
+import {
+    canSpotMonster, messageAt, monsterVisible,
+} from './startup_a11y.js';
+import { CMAP_EXPLANATIONS } from './symbol_data.js';
+import { S_sink } from './symbols.js';
 import { mpickobj, relobj } from './steal.js';
 import { gettrack } from './track.js';
-import { ttyPline } from './tty_message.js';
+import { dismissPendingTtyMessage, ttyPline } from './tty_message.js';
 import {
     is_lava,
     is_pool,
@@ -423,17 +456,232 @@ export async function dog_hunger(monster, edog, rawEnv = {}) {
     return false;
 }
 
+// C ref: dogmove.c dog_nutrition() (156-215), the corpse arm used when a pet
+// eats a mimic.  Other food and the coin/odd-object branches have no caller in
+// this slice and remain outside this function's admitted boundary.
+export function dog_nutrition(mtmp, obj, state = game) {
+    if (obj?.oclass !== FOOD_CLASS || obj.otyp !== CORPSE)
+        throw new TypeError('dog_nutrition requires a corpse');
+    if (obj.oeaten)
+        throw new TypeError('dog_nutrition requires a whole corpse');
+    const corpse = state.mons?.[obj.corpsenm];
+    if (!corpse)
+        throw new RangeError(`dog_nutrition requires monster ${obj.corpsenm}`);
+
+    mtmp.meating = 3 + (corpse.cwt >> 6);
+    let nutrit = corpse.cnutrit;
+    switch (mtmp.data.msize) {
+    case MZ_TINY: nutrit *= 8; break;
+    case MZ_SMALL: nutrit *= 6; break;
+    default:
+    case MZ_MEDIUM: nutrit *= 5; break;
+    case MZ_LARGE: nutrit *= 4; break;
+    case MZ_HUGE: nutrit *= 3; break;
+    case MZ_GIGANTIC: nutrit *= 2; break;
+    }
+    return nutrit;
+}
+
+function mimicCorpse(obj) {
+    return obj?.otyp === CORPSE
+        && (obj.corpsenm === PM_SMALL_MIMIC
+            || obj.corpsenm === PM_LARGE_MIMIC
+            || obj.corpsenm === PM_GIANT_MIMIC);
+}
+
+// C ref: dogmove.c dog_eat() (218-340), for an ordinary starting little dog
+// eating one whole mimic corpse from the floor.  The validation is ahead of
+// hungrytime and meating so stacks, shops, pools, special eaters, partly eaten
+// food, and other food types remain atomic fail-closed paths.
+export async function dog_eat(mtmp, obj, x, y, devour, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const edog = mtmp?.mextra?.edog;
+    const unsupported = rawEnv.unsupported;
+    const stop = (reason) => {
+        if (typeof unsupported === 'function') unsupported(reason);
+        throw new TypeError(`dog_eat requires ${reason}`);
+    };
+    if (!edog || mtmp.data?.pmidx !== PM_LITTLE_DOG)
+        stop('the starting little dog');
+    if (!mimicCorpse(obj) || obj.oclass !== FOOD_CLASS || obj.oeaten)
+        stop('one whole mimic corpse');
+    if (obj.quan !== 1 || obj.unpaid || obj.oartifact || obj.cobj)
+        stop('one ordinary floor corpse');
+    if (devour) stop('the ordinary eat path');
+    if (is_pool(mtmp.mx, mtmp.my, state) && !state.u?.uinwater)
+        stop('a dry eating square');
+
+    if (edog.hungrytime < state.moves) edog.hungrytime = state.moves;
+    const nutrit = dog_nutrition(mtmp, obj, state);
+    edog.hungrytime += nutrit;
+    mtmp.mconf = 0;
+    if (edog.mhpmax_penalty) {
+        mtmp.mhpmax += edog.mhpmax_penalty;
+        edog.mhpmax_penalty = 0;
+    }
+    if (mtmp.mflee && mtmp.mfleetim > 1)
+        mtmp.mfleetim = Math.trunc(mtmp.mfleetim / 2);
+    if (mtmp.mtame < 20) mtmp.mtame++;
+
+    const redraw = rawEnv.redraw ?? newsym;
+    if (x !== mtmp.mx || y !== mtmp.my) {
+        redraw(x, y);
+        redraw(mtmp.mx, mtmp.my);
+    }
+
+    const seeobj = cansee(mtmp.mx, mtmp.my, state);
+    const sawpet = cansee(x, y, state) && monsterVisible(mtmp, state);
+    const message = rawEnv.message ?? ttyPline;
+    if (sawpet || (seeobj && canSpotMonster(mtmp, state))) {
+        const objName = distant_name(obj, donameFresh, state);
+        const action = tunnels(mtmp.data) ? 'digs in'
+            : `eats ${objName}`;
+        await message(
+            messageAt(
+                `${capitalizedAlwaysVisibleMonsterName(mtmp, state)}`
+                + ` ${action}.`,
+                mtmp.mx,
+                mtmp.my,
+                state,
+            ),
+            state,
+        );
+    } else if (seeobj) {
+        const objName = distant_name(obj, donameFresh, state);
+        await message(`It eats ${objName}.`, state);
+    }
+
+    if (classifyDogFood(mtmp, obj, { ...rawEnv, state }) === DOGFOOD
+        && obj.invlet) {
+        const denominator = edog.dropdist + state.moves - edog.droptime;
+        edog.apport += Math.trunc(200 / denominator);
+        if (edog.apport <= 0) edog.apport = 1;
+    }
+    await m_consume_obj(mtmp, obj, {
+        ...rawEnv,
+        state,
+        quickMimic: quickmimic,
+    });
+    return mtmp.mhp < 1 ? MMOVE_DIED : MMOVE_MOVED;
+}
+
+const QUICK_MIMIC_CHOICES = Object.freeze([
+    Object.freeze([PM_LITTLE_DOG, 0, PM_KITTEN, M_AP_MONSTER]),
+    Object.freeze([PM_DOG, 0, PM_HOUSECAT, M_AP_MONSTER]),
+    Object.freeze([PM_LARGE_DOG, 0, PM_LARGE_CAT, M_AP_MONSTER]),
+    Object.freeze([PM_KITTEN, 0, PM_LITTLE_DOG, M_AP_MONSTER]),
+    Object.freeze([PM_HOUSECAT, 0, PM_DOG, M_AP_MONSTER]),
+    Object.freeze([PM_LARGE_CAT, 0, PM_LARGE_DOG, M_AP_MONSTER]),
+    Object.freeze([PM_HOUSECAT, 0, PM_GIANT_RAT, M_AP_MONSTER]),
+    Object.freeze([0, S_DOG, S_sink, M_AP_FURNITURE]),
+    Object.freeze([0, 0, TRIPE_RATION, M_AP_OBJECT]),
+]);
+
+function activeHeroProperty(state, property) {
+    const value = state.u?.uprops?.[property];
+    return Boolean(value?.intrinsic || value?.extrinsic);
+}
+
+function sameDisplayedGlyph(left, right) {
+    if (!left || !right) return left === right;
+    return left.ch === right.ch
+        && left.color === right.color
+        && Boolean(left.dec) === Boolean(right.dec)
+        && (left.attr ?? 0) === (right.attr ?? 0)
+        && left.displayCh === right.displayCh
+        && left.displayColor === right.displayColor;
+}
+
+// C ref: dogmove.c quickmimic() (1481-1530).  The source table and retry
+// loop are complete.  The steed and leash effects are excluded before the
+// first draw; the live starting-pet caller has neither state.
+export async function quickmimic(mtmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    if (activeHeroProperty(state, PROT_FROM_SHAPE_CHANGERS)
+        || !mtmp.meating) return;
+    const unsupported = rawEnv.unsupported;
+    const stop = (reason) => {
+        if (typeof unsupported === 'function') unsupported(reason);
+        throw new TypeError(`quickmimic requires ${reason}`);
+    };
+    if (mtmp === state.u?.usteed) stop('a non-steed pet');
+    if (mtmp.mleashed) stop('an unleashed pet');
+    const random = rawEnv.random ?? { rn2 };
+    if (typeof random.rn2 !== 'function')
+        throw new TypeError('quickmimic random injection requires rn2');
+
+    let idx = 0;
+    let trycnt = 5;
+    do {
+        idx = random.rn2(QUICK_MIMIC_CHOICES.length);
+        const [mndx, mlet] = QUICK_MIMIC_CHOICES[idx];
+        if ((mndx && mtmp.data.pmidx === mndx)
+            || (mlet && mtmp.data.mlet === mlet)
+            || (!mndx && !mlet)) break;
+    } while (--trycnt > 0);
+    if (trycnt === 0) idx = QUICK_MIMIC_CHOICES.length - 1;
+
+    const oldName = alwaysVisibleMonsterName(mtmp, state);
+    const spotted = canSpotMonster(mtmp, state);
+    const seeloc = cansee(mtmp.mx, mtmp.my, state);
+    const [, , appearance, appearanceType] = QUICK_MIMIC_CHOICES[idx];
+    mtmp.m_ap_type = appearanceType;
+    mtmp.mappearance = appearance;
+
+    if (spotted || seeloc || canSpotMonster(mtmp, state)) {
+        const location = state.level.at(mtmp.mx, mtmp.my);
+        // display.h glyph_at() reads the transient glyph buffer, not
+        // levl[x][y].glyph.  M_AP_MONSTER deliberately leaves the underlying
+        // floor memory unchanged while replacing this presentation.
+        const previousGlyph = location.disp_glyph
+            ? { ...location.disp_glyph } : null;
+        let what = 'something';
+        if (appearanceType === M_AP_FURNITURE) {
+            what = CMAP_EXPLANATIONS[appearance];
+        } else if (appearanceType === M_AP_OBJECT) {
+            const type = state.objects[appearance];
+            what = OBJ_DESCR(type, state) ?? OBJ_NAME(type, state)
+                ?? 'something';
+        } else if (appearanceType === M_AP_MONSTER) {
+            what = pmname(state.mons[appearance], gender(mtmp));
+        }
+
+        const redraw = rawEnv.redraw ?? newsym;
+        redraw(mtmp.mx, mtmp.my);
+        const currentGlyph = location.disp_glyph;
+        const message = rawEnv.message ?? ttyPline;
+        if (!sameDisplayedGlyph(currentGlyph, previousGlyph)) {
+            await message(
+                `You ${seeloc ? 'see' : 'sense that'} `
+                + `${what !== 'something' ? an(what) : what} `
+                + `${seeloc ? 'appear' : 'has appeared'} where `
+                + `${oldName} was!`,
+                state,
+            );
+        } else {
+            await message(
+                `You sense that ${oldName} feels rather ${what}-ish.`,
+                state,
+            );
+        }
+        const waitMap = rawEnv.waitMap
+            ?? ((waitState) => dismissPendingTtyMessage(waitState));
+        await waitMap(state);
+    }
+}
+
 // C ref: dogmove.c finish_meating() (1447-1457). Ends a meal in progress. The
 // second arm restores the appearance of a pet that was eating a mimic and had
 // taken on its disguise; M_AP_TYPE() is monst.h:73's masked read.
-export function finish_meating(mtmp) {
+export function finish_meating(mtmp, rawEnv = {}) {
     mtmp.meating = 0;
     if (((mtmp.m_ap_type ?? 0) & M_AP_TYPMASK) !== M_AP_NOTHING
         && mtmp.data.mlet !== S_MIMIC) {
         /* was eating a mimic and now appearance needs resetting */
         mtmp.m_ap_type = M_AP_NOTHING;
         mtmp.mappearance = 0;
-        newsym(mtmp.mx, mtmp.my);
+        const redraw = rawEnv.redraw ?? newsym;
+        redraw(mtmp.mx, mtmp.my);
     }
 }
 

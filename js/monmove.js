@@ -2495,7 +2495,7 @@ export async function m_move(monster, rawEnv = {}) {
     }
     if (monster.meating) {
         --monster.meating;
-        if (monster.meating <= 0) finishEating(monster);
+        if (monster.meating <= 0) finishEating(monster, env);
         return MMOVE_DONE;
     }
     set_apparxy(monster, env);

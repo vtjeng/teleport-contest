@@ -37,7 +37,9 @@ import { stop_occupation } from './allmain.js';
 import { bot, map_invisible, newsym } from './display.js';
 import {
     best_target,
+    dog_eat,
     dog_move,
+    finish_meating,
     pet_ranged_attk,
 } from './dogmove.js';
 import { engr_at } from './engrave.js';
@@ -244,8 +246,13 @@ function assertSimpleActionState(monster, state) {
         if (heldBy && heldBy.ttyp !== BEAR_TRAP)
             unsupported('a trapped monster');
     }
-    if (monster.mconf || monster.mstun || monster.meating)
+    if (monster.mconf || monster.mstun)
         unsupported('altered monster movement state');
+    if (monster.meating
+        && !(monster.mtame && !monster.isminion
+            && STARTING_PETS.has(monster.data?.pmidx))) {
+        unsupported('altered monster movement state');
+    }
 
     if (monster.mtame && !monster.isminion) {
         if (!STARTING_PETS.has(monster.data?.pmidx))
@@ -775,7 +782,7 @@ async function moveSimplePet(monster, after, env) {
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         digWeaponCheck: () => false,
         displaceMonster: () => unsupported('pet displacement'),
-        eatObject: () => unsupported('pet eating'),
+        eatObject: dog_eat,
         mayCrossRegion: assertSimpleDestination,
         // Three printing sites share the `message` seam: dog_invent()'s carry
         // arm through dogmove.c pline_xy(), its drop arm through steal.c
@@ -793,6 +800,7 @@ async function moveSimplePet(monster, after, env) {
         // its two no longer needs it repaints for the other, on a turn the
         // scan may still refuse.
         message: env.planning ? async () => {} : ttyPline,
+        waitMap: env.planning ? async () => {} : undefined,
         // js/mhitm.js pre_mm_attack() marks a combatant the hero cannot spot
         // through display.c map_invisible(), which writes map memory and then
         // paints through show_glyph_cell(). This clone's level cells are the
@@ -933,7 +941,7 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
                 },
                 wakeMessage: env.planning ? () => {} : wake_msg,
                 wipeEngraving: wipeSimpleEngraving,
-                finishEating: () => unsupported('pet eating'),
+                finishEating: finish_meating,
                 movePet: moveSimplePet,
                 preflight: assertSimpleActionState,
             }),

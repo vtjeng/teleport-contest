@@ -51,6 +51,7 @@ import {
     CLOAK_OF_DISPLACEMENT,
     CLOAK_OF_MAGIC_RESISTANCE,
     COIN_CLASS,
+    CORPSE,
     CREAM_PIE,
     DUNCE_CAP,
     DWARVISH_MATTOCK,
@@ -147,20 +148,24 @@ import {
     YELLOW_DRAGON_SCALES,
     YELLOW_DRAGON_SCALE_MAIL,
 } from '../js/objects.js';
-import { CORPSTAT_RANDOM, NON_PM, SPE_LIM } from '../js/const.js';
+import {
+    CORPSTAT_FEMALE, CORPSTAT_MALE, CORPSTAT_RANDOM, NON_PM, SPE_LIM,
+} from '../js/const.js';
 import {
     ART_GRAYSWANDIR, ART_STING, ART_VORPAL_BLADE, init_artifacts,
 } from '../js/artifacts.js';
 import { name_to_monplus } from '../js/mondata.js';
 import {
-    PM_GRAY_DRAGON, PM_RED_DRAGON, PM_YELLOW_DRAGON, monst_globals_init,
-    reset_mvitals,
+    PM_GIANT_MIMIC, PM_GRAY_DRAGON, PM_RED_DRAGON, PM_SMALL_MIMIC,
+    PM_YELLOW_DRAGON,
+    monst_globals_init, reset_mvitals,
 } from '../js/monsters.js';
 import { mksobj } from '../js/obj.js';
 import { init_objects } from '../js/o_init.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import { objects_globals_init } from '../js/objects.js';
 import { roles } from '../js/roles.js';
+import { timeout_globals_init } from '../js/timeout.js';
 import {
     CASES as RANDOM_WISH_CASES, loadRandomWishRecipe,
 } from './run-random-wish.mjs';
@@ -627,6 +632,7 @@ function recordingRandom(draws) {
         rnd: (x) => { draws.push(`rnd(${x})`); return 1; },
         rn1: (x, y) => { draws.push(`rn1(${x},${y})`); return y; },
         rne: (x) => { draws.push(`rne(${x})`); return 1; },
+        rnz: (x) => { draws.push(`rnz(${x})`); return x; },
     };
 }
 
@@ -962,6 +968,59 @@ test('readobjnam refuses a monster name outside the dragon range', () => {
     assert.equal(corpse.refusal,
                  'a wish for a corpse, statue, figurine, egg or tin');
     assert.deepEqual(corpse.draws, ['rn2(1)']);
+});
+
+test('readobjnam makes the named mimic corpse used by pet quickmimic', () => {
+    const state = wishState();
+    Object.assign(state, DUNGEON_FIXTURE);
+    state.u.uz = { dnum: 0, dlevel: 1 };
+    reset_mvitals(state);
+    timeout_globals_init(state);
+    const draws = [];
+    const corpse = readobjnam('small mimic corpse', NO_WISH,
+        objectGenerationEnv({ state, random: recordingRandom(draws) }));
+
+    // objnam.c:5147-5165 uses rn2(2) for a species without a fixed gender;
+    // recordingRandom() answers 0, selecting CORPSTAT_FEMALE.  Lines
+    // 5216-5224 then replace the random corpse mksobj() made and restart its
+    // corpse timer with the requested monster.
+    assert.equal(corpse.otyp, CORPSE);
+    assert.equal(corpse.corpsenm, PM_SMALL_MIMIC);
+    assert.equal(corpse.spe, CORPSTAT_FEMALE);
+    assert.equal(corpse.timed, 1);
+    assert.equal(corpse.owt, 300);
+    assert.ok(draws.some((draw) => draw.startsWith('rnz(')));
+
+    const maleState = wishState();
+    Object.assign(maleState, DUNGEON_FIXTURE);
+    maleState.u.uz = { dnum: 0, dlevel: 1 };
+    reset_mvitals(maleState);
+    timeout_globals_init(maleState);
+    const maleDraws = [];
+    const maleRandom = recordingRandom(maleDraws);
+    maleRandom.rn2 = (bound) => {
+        maleDraws.push(`rn2(${bound})`);
+        return bound === 2 ? 1 : 0;
+    };
+    const male = readobjnam('small mimic corpse', NO_WISH,
+        objectGenerationEnv({
+            state: maleState,
+            random: maleRandom,
+        }));
+    assert.equal(male.corpsenm, PM_SMALL_MIMIC);
+    assert.equal(male.spe, CORPSTAT_MALE);
+
+    const giantState = wishState();
+    Object.assign(giantState, DUNGEON_FIXTURE);
+    giantState.u.uz = { dnum: 0, dlevel: 1 };
+    reset_mvitals(giantState);
+    timeout_globals_init(giantState);
+    const giant = readobjnam('giant mimic corpse', NO_WISH,
+        objectGenerationEnv({
+            state: giantState,
+            random: recordingRandom([]),
+        }));
+    assert.equal(giant.corpsenm, PM_GIANT_MIMIC);
 });
 
 test('readobjnam refuses a count above one', () => {

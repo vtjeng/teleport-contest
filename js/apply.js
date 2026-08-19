@@ -27,6 +27,7 @@ import {
     HAND,
     has_mcorpsenm,
     isok,
+    MCORPSENM,
     M_AP_FURNITURE,
     M_AP_MONSTER,
     M_AP_OBJECT,
@@ -38,7 +39,7 @@ import {
 } from './const.js';
 import { confdir, getdir } from './cmd.js';
 import { map_invisible, newsym, unmap_invisible } from './display.js';
-import { x_monnam } from './do_name.js';
+import { pmname, x_monnam } from './do_name.js';
 import { can_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity } from './hack.js';
@@ -46,7 +47,7 @@ import { mstatusline, ustatusline } from './insight.js';
 import { getobj } from './invent.js';
 import { pick_lock } from './lock.js';
 import { seemimic } from './mon.js';
-import { nohands } from './mondata.js';
+import { gender, nohands } from './mondata.js';
 import { m_at } from './monst.js';
 import {
     init_dummyobj,
@@ -59,7 +60,7 @@ import {
     objectType,
     sobj_at,
 } from './obj.js';
-import { simple_typename } from './objnam.js';
+import { simple_typename, simpleonames } from './objnam.js';
 import {
     BANANA,
     BULLWHIP,
@@ -85,6 +86,7 @@ import {
 } from './objects.js';
 import { body_part } from './polyself.js';
 import { canSpotMonster } from './startup_a11y.js';
+import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { ttyPline } from './tty_message.js';
 import { is_pole } from './worn.js';
 
@@ -349,31 +351,22 @@ async function use_stethoscope(obj, state = game) {
                    we want the same thing '//' or ';' shows: "slime mold"
                    or "grape" or "slice of pizza" */
                 if (odummy.otyp === SLIME_MOLD && has_mcorpsenm(mtmp)) {
-                    // apply.c:418-421 then reads the fruit through
-                    // simpleonames(), which is unported.
-                    throw new UnsupportedApplyError(
-                        'naming a mimic disguised as a named fruit',
-                    );
+                    odummy.spe = MCORPSENM(mtmp);
+                    what = simpleonames(odummy, state);
+                } else {
+                    what = simple_typename(odummy.otyp, state);
                 }
-                what = simple_typename(odummy.otyp, state);
                 use_plural = (is_boots(odummy, state)
                     || is_gloves(odummy, state)
                     || odummy.otyp === LENSES);
                 break;
             }
             case M_AP_MONSTER: /* ignore Hallucination here */
-                // apply.c:423-424 reads pmname(&mons[mappearance]); nothing
-                // creates an M_AP_MONSTER mimic yet, and x_monnam() above
-                // would have taken its own do_mappear branch for one.
-                throw new UnsupportedApplyError(
-                    'listening to a mimic disguised as a monster',
-                );
+                what = pmname(state.mons[mtmp.mappearance], gender(mtmp));
+                break;
             case M_AP_FURNITURE:
-                // apply.c:426-427 reads defsyms[mappearance].explanation, a
-                // table js/display.js does not carry.
-                throw new UnsupportedApplyError(
-                    'listening to a mimic disguised as furniture',
-                );
+                what = CMAP_EXPLANATIONS[mtmp.mappearance];
+                break;
             }
             seemimic(mtmp, state);
             await ttyPline(

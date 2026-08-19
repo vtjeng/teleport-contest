@@ -2896,15 +2896,13 @@ test('ordinary drop preflight atomically refuses every excluded do.c tail',
                 obj.where = OBJ_FLOOR;
             }],
             // invent.c merged() asks its caller for an operation for each of
-            // these three before it can absorb the landing object into a pile
-            // member, and shk.c obfree() asks for two of them again.
-            ['lit lamp', /lit, timed, or globby/u, ({ obj }) => {
+            // these two before it can absorb the landing object into a pile
+            // member, and shk.c obfree() asks for both of them again. A timer
+            // on the surviving dropped object follows it onto the floor.
+            ['lit lamp', /lit or globby/u, ({ obj }) => {
                 obj.lamplit = true;
             }, OIL_LAMP],
-            ['timed object', /lit, timed, or globby/u, ({ obj }) => {
-                obj.timed = true;
-            }],
-            ['globby object', /lit, timed, or globby/u, ({ obj }) => {
+            ['globby object', /lit or globby/u, ({ obj }) => {
                 obj.globby = true;
             }],
             // shk.c obfree()'s last operation: lock.c reset_pick(), for the

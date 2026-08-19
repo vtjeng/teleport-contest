@@ -164,6 +164,18 @@ test('Amonnam preserves gender, invisibility, appearance, and display RNG', () =
     monster.m_ap_type = M_AP_MONSTER;
     monster.mappearance = PM_GNOME_RULER;
     assert.equal(Amonnam(monster, { state }), 'An invisible saddled gnome queen');
+    assert.equal(
+        x_monnam(
+            monster,
+            ARTICLE_A,
+            null,
+            SUPPRESS_IT | SUPPRESS_INVISIBLE,
+            false,
+            state,
+        ),
+        'a saddled gnome queen',
+        'x_monnam changes only the base name for a monster appearance',
+    );
 
     const pname = state.mons.find((species) => species.mflags2 & M2_PNAME);
     assert.ok(pname, 'catalog has an apparent personal name');

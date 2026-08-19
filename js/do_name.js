@@ -423,15 +423,21 @@ export function x_monnam(
     const do_name = !(effectiveSuppress & SUPPRESS_NAME)
         || type_is_pname(mdat);
 
-    if (monster.ispriest || monster.isminion || monster.isshk
-        || do_mappear || is_mplayer(mdat)) {
+    if (((monster.ispriest || monster.isminion || monster.isshk)
+            && !do_mappear)
+        || is_mplayer(mdat)) {
         throw new UnsupportedMonsterNameError(
-            'x_monnam() for a priest, minion, shopkeeper, mimic or player'
-            + ' monster',
+            'x_monnam() for a priest, minion, shopkeeper, or player monster',
         );
     }
 
-    const pm_name = mon_pmname(monster);
+    // do_name.c:907-910. A monster-shaped appearance replaces only the base
+    // species name. The given-name and article decisions below continue to
+    // read the real monster species, which produces C's deliberately odd
+    // article when the apparent species has a personal name.
+    const pm_name = do_mappear
+        ? pmname(state.mons[monster.mappearance], gender(monster))
+        : mon_pmname(monster);
     let buf = '';
 
     if (adjective) buf += `${adjective} `;

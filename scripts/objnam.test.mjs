@@ -57,6 +57,7 @@ import {
     isPoisonable,
     just_an,
     obj_typename,
+    simpleonames,
     simple_typename,
     suit_simple_name,
     UnsupportedObjectNameError,
@@ -231,6 +232,18 @@ test('simple_typename drops the description and the user-assigned name', () => {
     // obj_typename() appends " gem" to a gem's description inside the same
     // arm, with no parentheses, so the strip leaves the suffix standing.
     assert.equal(simple_typename(DIAMOND, state), 'white gem');
+});
+
+test('simpleonames preserves a named-fruit disguise', () => {
+    const state = namingState();
+    state.gf = {
+        ffruit: { fname: 'slice of pizza', fid: 7, nextf: null },
+    };
+    const fruit = objectOf(state, SLIME_MOLD, { spe: 7 });
+
+    assert.equal(simpleonames(fruit, state), 'slice of pizza');
+    fruit.quan = 2;
+    assert.equal(simpleonames(fruit, state), 'slices of pizza');
 });
 
 test('simple suit names preserve dragon, suffix, and fallback categories',

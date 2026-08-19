@@ -205,6 +205,7 @@ import { spellid } from './spell.js';
 import { is_ammo, isMetallic } from './obj.js';
 import { body_part } from './polyself.js';
 import { visible_region_at } from './region.js';
+import { mhidden_description } from './startup_a11y.js';
 import {
     genders,
     rankOf,
@@ -1410,12 +1411,11 @@ const UNPORTED_USTATUS_CONDITIONS = Object.freeze([
 // C builds `info` by appending in source order and interpolates the finished
 // string after the armor class, so a monster carrying two conditions needs
 // both fragments in that sequence. Every fragment whose wording is a literal
-// is ported. The four that need source this port does not have stop instead,
+// is ported. The three that need source this port does not have stop instead,
 // each from C's own position in the sequence, so a monster carrying one stops
 // where C would have appended it rather than printing a line short a clause:
 //
 //   the long-worm segment count   worm.c count_wsegs() and wseg_at()
-//   the hidden/mimicking clause   insight.c mhidden_description()
 //   the u.ustuck clause           digests(), enfolds() and sticks()
 //   the u.usteed clause           Wounded_legs and EWounded_legs
 //
@@ -1465,8 +1465,11 @@ export async function mstatusline(mtmp, state = game) {
     // term. C reads m_ap_type unmasked, which M_AP_F_DKNOWN can raise on its
     // own, so the port reads it unmasked too.
     if (mtmp.mundetected || mtmp.m_ap_type
-        || visible_region_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state))
-        throw new UnsupportedEnlightenmentError('mhidden_description()');
+        || visible_region_at(state.gb.bhitpos.x, state.gb.bhitpos.y, state)) {
+        info += mhidden_description(mtmp, state, {
+            showAlternateMonster: true,
+        });
+    }
     if (mtmp.mcan)
         info += ', cancelled';
     if (mtmp.mconf)

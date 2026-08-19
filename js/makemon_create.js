@@ -97,6 +97,7 @@ import {
 import { newsym } from './display.js';
 import { depth, level_difficulty, on_level } from './dungeon.js';
 import { game } from './gstate.js';
+import { upstart } from './hacklib.js';
 import {
     add_to_minv,
     obfree,
@@ -415,6 +416,7 @@ import { enexto_core, goodpos } from './teleport.js';
 import {
     canSeeMonster,
     canSpotMonster,
+    mhidden_description,
     messageAt,
     sensesMonster,
 } from './startup_a11y.js';
@@ -636,33 +638,33 @@ function runtimeAppearanceMessage(monster, mmflags, normalized) {
     // creation; every other admitted call shape leaves the surprise in.
     let exclaim = !(mmflags & MM_NOEXCLAM);
     const appearance = M_AP_TYPE(monster);
-    if (appearance !== M_AP_NOTHING && appearance !== M_AP_MONSTER) {
-        throw new UnsupportedMonsterCreationError(
-            'runtime furniture or object appearance message',
-        );
-    }
-    if (!((canSeeMonster(monster, state)
+    let name = null;
+    if ((canSeeMonster(monster, state)
             && (appearance === M_AP_NOTHING
                 || appearance === M_AP_MONSTER))
-        || sensesMonster(monster, state))) {
-        return null;
+        || sensesMonster(monster, state)) {
+        name = Amonnam(monster, {
+            state,
+            displayRandom: normalized.displayRandom,
+        });
+    } else if (canSeeMonster(monster, state)) {
+        // This condition is retained to mirror makemon.c's `else if
+        // (canseemon())`, even though canSeeMonster() is also the first
+        // condition's left operand. Furniture and object appearances are the
+        // cases where the appearance-type test makes the first arm false.
+        name = upstart(mhidden_description(monster, state, {
+            includePrefix: false,
+            includeArticle: true,
+            showAlternateMonster: true,
+        }));
     }
-    const name = Amonnam(monster, {
-        state,
-        displayRandom: normalized.displayRandom,
-    });
+    if (!name) return null;
     // C ref: makemon.c:1483-1484. In C a mimic already wearing another
     // species' shape is a surprise however it was made, so it takes the
     // exclaiming form back even under MM_NOEXCLAM.
     //
-    // The arm is written out because makemon.c has it, not because a game can
-    // run it. set_mimic_sym() below writes only M_AP_FURNITURE and
-    // M_AP_OBJECT, as makemon.c's does, so no creation-time path sets
-    // M_AP_MONSTER at all; and preflightCreation() throws
-    // 'runtime mimic appearance message' for any runtime S_MIMIC that would
-    // print, with makemon() repeating the refusal for the random shape whose
-    // species preflight cannot know. Either spelling of this line therefore
-    // leaves the suite and the development score unchanged.
+    // set_mimic_sym() writes only M_AP_FURNITURE and M_AP_OBJECT, but keep the
+    // source arm for explicit callers which supply an M_AP_MONSTER form.
     if (appearance === M_AP_MONSTER) exclaim = true;
     const distance = (monster.mx - state.u.ux) ** 2
         + (monster.my - state.u.uy) ** 2;
@@ -1125,11 +1127,6 @@ function preflightCreation(ptr, x, y, mmflags, normalized) {
         && typeof normalized.hooks?.stopOccupation !== 'function') {
         throw new UnsupportedMonsterCreationError(
             'runtime creation while an occupation lacks stopOccupation',
-        );
-    }
-    if (runtimeCall && ptr?.mlet === S_MIMIC && !(mmflags & MM_NOMSG)) {
-        throw new UnsupportedMonsterCreationError(
-            'runtime mimic appearance message',
         );
     }
     const shopkeeperCall = state.in_mklev
@@ -2873,16 +2870,6 @@ export function makemon(ptr, x, y, mmflags = 0, env = {}) {
                 gpflags,
                 normalized,
             ));
-    }
-    if (normalized.runtimeContinuation
-        && ptr.mlet === S_MIMIC
-        && !(mmflags & MM_NOMSG)) {
-        // A random runtime call does not know its species during preflight.
-        // The once-per-turn planning clone reaches this after the same
-        // selection draws and refuses before the live constructor runs.
-        throw new UnsupportedMonsterCreationError(
-            'runtime mimic appearance message',
-        );
     }
     const mndx = ptr.pmidx;
     let allowMinvent = !(mmflags & NO_MINVENT);

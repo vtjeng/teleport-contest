@@ -1443,7 +1443,8 @@ export function delobj_core(obj, force, env = {}) {
         // the map from level state at the next flush, so the square a floor
         // delete vacated is already redrawn by the time any screen is
         // compared. It is here because C draws it here.
-        newsym(obj.ox, obj.oy);
+        const redraw = normalized.redraw ?? newsym;
+        redraw(obj.ox, obj.oy);
     }
     obfree(obj, null, normalized); /* "frees contents also" */
 }

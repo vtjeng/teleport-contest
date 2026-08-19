@@ -35,6 +35,7 @@ import {
     M_AP_FURNITURE,
     M_AP_MONSTER,
     M_AP_OBJECT,
+    M_AP_TYPMASK,
     OBJ_INVENT,
     PIT,
     ROOM,
@@ -906,12 +907,32 @@ test('the monster arm answers in apply.c branch order', async () => {
 
     // apply.c:404 is an `else if`, so a monster that is both hidden and
     // disguised takes the arm above and keeps its disguise; insight.c:3316
-    // then reads that surviving m_ap_type and stops.
+    // then reads that surviving m_ap_type. The remembered glyph under this
+    // hand-placed mimic lets pager.c mhidden_description() name the chest.
     const both = await heroWithEmptyWest();
     const disguised = mimicAt(both, CHEST, { mundetected: 1 });
-    await assert.rejects(listenWest(1), UnsupportedEnlightenmentError);
+    assert.equal(await listenWest(2), null);
     assert.equal(disguised.mundetected, 0);
-    assert.equal(disguised.m_ap_type, M_AP_OBJECT);
+    assert.equal(disguised.m_ap_type & M_AP_TYPMASK, M_AP_OBJECT);
+    assert.equal(
+        game._ttyToplines,
+        'Status of the small mimic (neutral, medium):  Level 6  HP 22(22)'
+        + '  AC 7, mimicking a chest.',
+    );
+
+    // insight.c passes MHID_ALTMON, so a surviving monster appearance is
+    // included even though pager.c's look-at caller deliberately omits it.
+    const shapedAndHidden = await heroWithEmptyWest();
+    mimicAt(shapedAndHidden, PM_NEWT, {
+        m_ap_type: M_AP_MONSTER,
+        mundetected: 1,
+    });
+    assert.equal(await listenWest(2), null);
+    assert.equal(
+        game._ttyToplines,
+        'Status of the newt (neutral, medium):  Level 6  HP 22(22)  AC 7,'
+        + ' masquerading as a newt.',
+    );
 
     // apply.c:438-439, the last arm. An invisible monster is neither hidden
     // nor disguised, so it is announced under flags.verbose and then, at
@@ -1027,27 +1048,28 @@ test('a listened-to mimic is exposed and named by what it was wearing',
     mimicAt(ringGround, RIN_PROTECTION);
     assert.equal(await listenLine(), 'That ring is really a small mimic.');
 
-    // apply.c:418-421 and :426-427, two of the three sub-branches this slice
-    // leaves unported, each reached by its own kind of disguise.
-    for (const [appearance, overrides, branch] of [
-        [SLIME_MOLD, { mextra: { mcorpsenm: PM_NEWT } },
-            'naming a mimic disguised as a named fruit'],
+    // apply.c:418-421 and :426-427. Named-fruit disguises retain the fruit id
+    // set_mimic_sym() saved, while furniture reads drawing.c defsyms[]'s
+    // source-generated explanation.
+    for (const [appearance, overrides, expected] of [
+        [SLIME_MOLD,
+            { mextra: { mcorpsenm: game.context.current_fruit } },
+            'That slime mold is really a small mimic.'],
         [S_altar, { m_ap_type: M_AP_FURNITURE },
-            'listening to a mimic disguised as furniture'],
+            'That altar is really a small mimic.'],
     ]) {
         const ground = await heroWithEmptyWest();
         mimicAt(ground, appearance, overrides);
-        assert.equal(await listenWest(), branch);
+        assert.equal(await listenLine(), expected);
     }
 
-    // The third, apply.c:423-424, cannot be seen from here: do_name.c:867
-    // raises do_mappear for an M_AP_MONSTER mimic, and x_monnam() at
-    // apply.c:392 runs before the switch does. js/apply.js keeps its own stop
-    // for the arm anyway, so a later widening of x_monnam() cannot let a
-    // monster-shaped mimic through as "thing".
+    // apply.c:423-424 and do_name.c:907-910. x_monnam() names the apparent
+    // species before seemimic() reveals the real one, and the switch uses the
+    // same apparent species for `what`. This is why C's line says "newt"
+    // twice even though mstatusline() below reports the small mimic.
     const shaped = await heroWithEmptyWest();
     mimicAt(shaped, PM_NEWT, { m_ap_type: M_AP_MONSTER });
-    await assert.rejects(listenWest(), UnsupportedMonsterNameError);
+    assert.equal(await listenLine(), 'That newt is really a newt.');
 
     // apply.c:410's SLIME_MOLD test is a pair, and the second half is what
     // C's comment there is about: a slime-mold disguise carrying no corpse
@@ -1151,7 +1173,8 @@ test('mstatusline stops on the three clauses that need unported source',
 
     // insight.c:3316-3318's third term. gb.bhitpos is the square the listen
     // pointed at, not the hero's, so a cloud over the monster reaches
-    // mhidden_description() while the hero stands in clear air.
+    // mhidden_description() while the hero stands in clear air. The region's
+    // default cmap is harmless vapor rather than poison gas.
     const clouded = await heroWithEmptyWest();
     monsterAt(clouded);
     const region = create_region([
@@ -1159,7 +1182,11 @@ test('mstatusline stops on the three clauses that need unported source',
     ]);
     region.visible = true;
     game.level.regions.push(region);
-    await assert.rejects(listenWest(), UnsupportedEnlightenmentError);
+    assert.equal(await listenWest(1), null);
+    assert.equal(
+        game._ttyToplines,
+        `${NEWT_STATUS}, in a cloud of vapor.`,
+    );
     game.level.regions.pop();
 
     // insight.c:3355-3373 and :3374-3387, the two clauses about a monster that
@@ -1322,7 +1349,7 @@ test('the apply matrix holds the three clean recipes the slices close on',
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 28);
+    assert.equal(segments.length, 33);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // The two prior recipes open and close with a wait, so a command that
     // wrongly spent or wrongly saved a turn shows in the screen after it.

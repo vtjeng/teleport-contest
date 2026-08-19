@@ -12,19 +12,25 @@ import {
     artifact_name, nartifact_exist, permapoisoned,
 } from './artifacts.js';
 import {
-    CORPSTAT_RANDOM, FEMALE, GOLD_SYM, LOW_PM, MALE, NEUTRAL, NON_PM,
-    ONAME_WISH, SPE_LIM, ismnum,
+    CORPSTAT_FEMALE, CORPSTAT_MALE, CORPSTAT_NEUTER, CORPSTAT_RANDOM,
+    FEMALE, GOLD_SYM, LOW_PM, MALE, NEUTRAL, NON_PM, ONAME_WISH, SPE_LIM,
+    ismnum,
 } from './const.js';
 import { lookup_novel, oname } from './do_name.js';
 import { makeplural, makesingular } from './fruit.js';
 import { game } from './gstate.js';
 import { digit, fuzzymatch, lcase, lowc, mungspaces, strstri } from './hacklib.js';
-import { name_to_monplus } from './mondata.js';
-import { PM_GRAY_DRAGON, PM_YELLOW_DRAGON } from './monsters.js';
+import {
+    is_female, is_male, is_neuter, name_to_monplus,
+} from './mondata.js';
+import {
+    PM_GIANT_MIMIC, PM_GRAY_DRAGON, PM_LARGE_MIMIC, PM_SMALL_MIMIC,
+    PM_YELLOW_DRAGON,
+} from './monsters.js';
 import { JAPANESE_ITEMS } from './objnam_data.js';
 import {
     curseFreeObject, erosionMatters, mkobj, mksobj, objectType,
-    rnd_class, weight,
+    rnd_class, set_corpsenm, weight,
 } from './obj.js';
 import { is_quest_artifact } from './questpgr.js';
 import { rn1, rn2, rnd } from './rng.js';
@@ -1471,6 +1477,12 @@ function requireSimpleRandomWishedObject(d) {
     }
 }
 
+function isMimicCorpseSpecies(mndx) {
+    return mndx === PM_SMALL_MIMIC
+        || mndx === PM_LARGE_MIMIC
+        || mndx === PM_GIANT_MIMIC;
+}
+
 function requireSimpleWishedObject(d, type, state) {
     const refuse = (reason) => {
         throw new UnsupportedWishError(reason, origbp(d));
@@ -1488,9 +1500,12 @@ function requireSimpleWishedObject(d, type, state) {
        recorded case drives one.  A drawn tin, egg, figurine or slime mold is
        inside it: requireSimpleRandomWishedObject() stops the same monster
        carriers, and the arms of the spe switch below are ported. */
+    case CORPSE:
+        if (isMimicCorpseSpecies(d.mntmp)) break;
+        refuse('a wish for a corpse, statue, figurine, egg or tin');
+        break;
     case TIN:
     case SLIME_MOLD:
-    case CORPSE:
     case STATUE:
     case FIGURINE:
     case EGG:
@@ -1576,8 +1591,10 @@ function readobjnam_lookup(d, normalized) {
     let action = readobjnam_postparse1(d, normalized);
     // This refusal stands here rather than at typfnd:, because
     // readobjnam_postparse3() would otherwise draw first -- "gnome corpse"
-    // spends rn2(1) on CORPSE before its monster becomes visible again.
+    // spends rn2(1) on CORPSE before its monster becomes visible again.  The
+    // three mimic corpses are the one live carrier path implemented below.
     if (d.mntmp >= LOW_PM
+        && !isMimicCorpseSpecies(d.mntmp)
         && !(d.mntmp >= PM_GRAY_DRAGON && d.mntmp <= PM_YELLOW_DRAGON)) {
         // objnam.c:5026-5030 turns a wished-for pudding corpse into a glob,
         // and 5206-5245 sets corpsenm for a tin, corpse, egg, figurine or
@@ -1753,10 +1770,25 @@ function readobjnam_typfnd(d, normalized) {
         // d.ishistoric is 0 -- UNSUPPORTED_WISH_FIELDS refuses it -- so 5163's
         // CORPSTAT_HISTORIC bit is not set either.
         //
-        // The assignment is not a no-op: mksobj() gives a statue and a
-        // figurine the gender of the monster it rolled (mkobj.c:1216-1223),
-        // and C replaces it with 0 here.
-        d.otmp.spe = CORPSTAT_RANDOM;
+        // The assignment is not a no-op: mksobj() gives each carrier the
+        // gender of the monster it rolled (mkobj.c:1216-1223).  C replaces
+        // that with the requested mimic corpse's gender below; the remaining
+        // reachable random statue/figurine paths have no named monster and
+        // are reset to CORPSTAT_RANDOM.
+        if (isMimicCorpseSpecies(d.mntmp)) {
+            const monster = state.mons[d.mntmp];
+            d.otmp.spe = is_neuter(monster) ? CORPSTAT_NEUTER
+                : d.mgend === FEMALE && !is_male(monster)
+                    ? CORPSTAT_FEMALE
+                    : d.mgend === MALE && !is_female(monster)
+                        ? CORPSTAT_MALE
+                        : is_male(monster) ? CORPSTAT_MALE
+                            : is_female(monster) ? CORPSTAT_FEMALE
+                                : random.rn2(2) ? CORPSTAT_MALE
+                                    : CORPSTAT_FEMALE;
+        } else {
+            d.otmp.spe = CORPSTAT_RANDOM;
+        }
         break;
     /* scroll of mail:  0: delivered in-game via external event (or randomly
        for fake mail); 1: from bones or wishing; 2: written with marker */
@@ -1786,6 +1818,10 @@ function readobjnam_typfnd(d, normalized) {
         // werecreature to its human form.  Only the ten dragons reach here,
         // and none of them is either, so both rewrites are dead.
         switch (d.typ) {
+        case CORPSE:
+            if (isMimicCorpseSpecies(d.mntmp))
+                set_corpsenm(d.otmp, d.mntmp, normalized);
+            break;
         case SCALE_MAIL:
             /* Dragon mail - depends on the order of objects & dragons. */
             // Both operands hold for every wish that arrives, because the

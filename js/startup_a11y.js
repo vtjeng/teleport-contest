@@ -51,6 +51,7 @@ import {
     LAVAWALL,
     M_AP_FURNITURE,
     M_AP_F_DKNOWN,
+    M_AP_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     MOAT,
@@ -91,6 +92,7 @@ import { visible_region_at } from './region.js';
 import {
     capitalizedMonsterName,
     hliquid,
+    pmname,
     rndmonnam,
 } from './do_name.js';
 import {
@@ -106,6 +108,7 @@ import { observe_object } from './o_init.js';
 import { obj_stop_timers } from './timeout.js';
 import {
     hides_under,
+    gender,
     is_clinger,
     is_flyer,
     is_hider,
@@ -864,25 +867,52 @@ function hiddenObjectPhrase(object, state) {
         ? name : `${indefiniteArticle(name)} ${name}`;
 }
 
-function monsterHiddenDescription(monster, state) {
+// C ref: pager.c mhidden_description(), with the fixed flag set insight.c
+// mstatusline() passes. describeMonster() is the existing look-at consumer;
+// mstatusline() is the second live consumer. Both request the prefix, article,
+// alternate-monster, and visible-region clauses together.
+export function mhidden_description(
+    monster,
+    state,
+    {
+        includePrefix = true,
+        includeArticle = true,
+        showAlternateMonster = false,
+    } = {},
+) {
     let suffix = '';
     const appearance = monster.m_ap_type & M_AP_TYPMASK;
     if (appearance === M_AP_FURNITURE) {
         const what = furnitureDescription(monster.mappearance) ?? 'something';
-        suffix = `, mimicking ${indefiniteArticle(what)} ${what}`;
+        const article = includeArticle ? `${indefiniteArticle(what)} ` : '';
+        suffix = `${includePrefix ? ', mimicking ' : ''}${article}${what}`;
     } else if (appearance === M_AP_OBJECT) {
         const subject = bufferedObjectSubjectAt(monster, state);
         if (subject) {
-            const what = withBufferedObject(
+            let what = withBufferedObject(
                 subject,
                 monster.mx,
                 monster.my,
                 state,
                 (object) => hiddenObjectPhrase(object, state),
             );
-            suffix = `, mimicking ${what}`;
+            if (!includeArticle) {
+                what = what.replace(/^(?:an?|the) /iu, '');
+            }
+            suffix = `${includePrefix ? ', mimicking ' : ''}${what}`;
         } else {
-            suffix = ', mimicking something';
+            suffix = `${includePrefix ? ', mimicking ' : ''}something`;
+        }
+    } else if (appearance === M_AP_MONSTER) {
+        if (showAlternateMonster) {
+            const what = pmname(
+                state.mons[monster.mappearance],
+                gender(monster),
+            );
+            const article = includeArticle
+                ? `${indefiniteArticle(what)} ` : '';
+            suffix = `${includePrefix ? ', masquerading as ' : ''}`
+                + `${article}${what}`;
         }
     } else if (!appearance && monster.mundetected) {
         suffix = ', hiding';
@@ -981,7 +1011,7 @@ export function describeMonster(monster, env = {}) {
         && (monster.mundetected
             || (monster.m_ap_type & M_AP_TYPMASK)
             || visible_region_at(monster.mx, monster.my, state))) {
-        text += monsterHiddenDescription(monster, state);
+        text += mhidden_description(monster, state);
     }
     return text;
 }

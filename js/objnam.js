@@ -1,6 +1,7 @@
 // Runtime object naming for the early movement, pet, trap, and combat paths.
-// C refs: objnam.c xname(), corpse_xname(), doname(), distant_name(), cxname(),
-// The(), aobjnam(), otense(), singular(), yname() and Yname2().
+// C refs: objnam.c xname(), corpse_xname(), minimal_xname(), simpleonames(),
+// doname(), distant_name(), cxname(), The(), aobjnam(), otense(), singular(),
+// yname() and Yname2().
 //
 // objnam.c is split across two files. Its wish-parsing group lives in
 // js/objnam_readobjnam.js: readobjnam() and its five-function chain,
@@ -729,6 +730,23 @@ export function xnameFresh(obj, state) {
     if (!personalName && obj.oextra?.oname && ident.dknown)
         base += ` named ${obj.oextra.oname}`;
     return base.replace(/^the /iu, '');
+}
+
+// C ref: objnam.c minimal_xname() and simpleonames(), restricted to the
+// SLIME_MOLD object apply.c use_stethoscope() constructs for a named-fruit
+// mimic. That caller sets spe to the mimic's saved fruit id and quan to one,
+// so instance naming, damage, charges, and every other object class are
+// outside this live call. Fruit pluralization is kept because simpleonames()
+// owns it even though the caller's dummy object is singular.
+export function simpleonames(obj, state = game) {
+    if (obj.otyp !== SLIME_MOLD) {
+        unsupported('simpleonames() outside the named-fruit branch', obj);
+    }
+    const fruit = fruit_from_indx(obj.spe, state);
+    let name = fruit?.fname ?? 'fruit';
+    if (Math.trunc(obj.quan ?? 1) !== 1)
+        name = makeplural(makesingular(name));
+    return name;
 }
 function bucWord(obj, type, state, ident) {
     if (!ident.bknown || obj.oclass === COIN_CLASS) return '';

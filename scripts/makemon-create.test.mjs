@@ -20,9 +20,11 @@ import {
     MM_NOGRP,
     MM_NOMSG,
     MON_DETACH,
+    M_AP_FURNITURE,
     M_AP_OBJECT,
     NO_MINVENT,
     OBJ_MINVENT,
+    OROOM,
     P_POLEARMS,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
@@ -1985,26 +1987,35 @@ test('runtime creation validates output owners before RNG or state', async () =>
     }
 });
 
-test('a runtime-random mimic refuses after selection but before live mutation',
+test('a runtime-random mimic names its furniture appearance after selection',
     async () => {
         const state = initialLevelState();
         state.in_mklev = false;
         state.mons[PM_SMALL_MIMIC].difficulty = 1;
         leaveOnlyRandomSpecies(state, [PM_SMALL_MIMIC]);
-        state.level.at(17, 4).typ = ROOM;
+        state.level.rooms = [{ rtype: OROOM }];
+        for (let x = 1; x < COLNO; ++x) {
+            for (let y = 0; y < ROWNO; ++y) {
+                state.level.at(x, y).typ = ROOM;
+                state.level.at(x, y).roomno = ROOMOFFSET;
+            }
+        }
+        state.viz_array = Array.from(
+            { length: ROWNO },
+            () => new Uint8Array(COLNO).fill(IN_SIGHT | COULD_SEE),
+        );
         const random = recordingRandom({
             rn1Result: (_range, base) => base === 2 ? 17 : base,
             rn2Result: (bound) => bound === 21 ? 4 : 0,
         });
         const ident = state.context.ident;
+        const messages = [];
 
-        await assert.rejects(
-            makemon_runtime(null, 0, 0, 0, {
-                state,
-                random: random.random,
-            }),
-            /runtime mimic appearance message/u,
-        );
+        const mimic = await makemon_runtime(null, 0, 0, 0, {
+            state,
+            random: random.random,
+            norepMessage: async (message) => messages.push(message),
+        });
         assert.deepEqual(
             random.calls.slice(0, 2).map(({ kind, args, result }) => [
                 kind,
@@ -2016,10 +2027,13 @@ test('a runtime-random mimic refuses after selection but before live mutation',
                 ['rn2', [21], 4],
             ],
         );
-        assert.equal(state.context.ident, ident);
-        assert.equal(state.mvitals[PM_SMALL_MIMIC].born, 0);
-        assert.equal(state.level.monlist, null);
-        assert.equal(state.level.monsters[17][4], null);
+        assert.ok(mimic);
+        assert.equal(mimic.m_ap_type, M_AP_FURNITURE);
+        assert.equal(state.context.ident, ident + 1);
+        assert.equal(state.mvitals[PM_SMALL_MIMIC].born, 1);
+        assert.equal(state.level.monsters[mimic.mx][mimic.my], mimic);
+        assert.equal(messages.length, 1);
+        assert.match(messages[0], /^A staircase up suddenly appears/u);
     });
 
 test('runtime random creation builds source-order hostile groups', async () => {

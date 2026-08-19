@@ -56,6 +56,7 @@ import {
     is_hole,
     plur,
     something,
+    st_all,
 } from './const.js';
 import { reset_trapset } from './apply.js';
 import { next_to_u } from './apply_next_to_u.js';
@@ -129,6 +130,7 @@ import {
     encumber_msg,
     pickup,
     preflight_projected_random_arrival_pickup,
+    u_safe_from_fatal_corpse,
 } from './pickup.js';
 import { com_pager } from './questpgr.js';
 import { in_out_region, visible_region_at } from './region.js';
@@ -574,11 +576,13 @@ async function drop(obj, state = game) {
         return ECMD_FAIL;
     if (!await canletgo(obj, 'drop', state))
         return ECMD_FAIL;
-    if (obj.otyp === CORPSE) {
+    if (obj.otyp === CORPSE
+        && !u_safe_from_fatal_corpse(obj, st_all, state)) {
         // do.c:720-721 better_not_try_to_drop_that() (946-962), which asks
         // paranoid_ynq() to confirm before a bare-handed hero drops a corpse
-        // that could petrify her. Neither it nor u_safe_from_fatal_corpse() is
-        // ported, so every corpse stops here rather than skip the question.
+        // that could petrify her.  u_safe_from_fatal_corpse() owns the source
+        // predicate; harmless corpses return false from the helper and follow
+        // the ordinary drop path, while the unported prompt still stops here.
         throw new UnsupportedDropError('better_not_try_to_drop_that()');
     }
     if (obj === state.uwep) {
@@ -655,16 +659,13 @@ export function preflight_dropx(obj, env = {}) {
         throw new TypeError('preflight_dropx requires an object');
     if (obj.where !== OBJ_FREE && obj.where !== OBJ_INVENT)
         throw new UnsupportedDropError(`object ownership ${obj.where}`);
-    // stackobj() merges the landing object into a like pile member, and
-    // invent.c merged() and shk.c obfree() ask their caller for an operation
-    // for each of these three: a light source to move and then delete, a timer
-    // to stop, and a glob to absorb. Refusing them here keeps the admission
-    // atomic, because a missing operation would otherwise be discovered after
-    // freeinv() had already emptied the slot. merged() reads the same three
-    // fields on the pile member it absorbs rather than on this object, so the
-    // walk below covers that half; neither test implies the other.
-    if (obj.lamplit || obj.timed || obj.globby)
-        throw new UnsupportedDropError('a lit, timed, or globby object');
+    // stackobj() preserves the newly dropped object and absorbs an older pile
+    // member into it.  A light or glob on the survivor has merge effects that
+    // are not ported.  A timer does not: it remains attached to the survivor,
+    // exactly as a corpse timer follows an ordinary drop.  The pile walk below
+    // still refuses a timed member that merged() would absorb and free.
+    if (obj.lamplit || obj.globby)
+        throw new UnsupportedDropError('a lit or globby object');
     // obfree()'s remaining operations are reached by an object the drop chain
     // already stops: canletgo() refuses a leash tied to a pet, the unpaid test
     // below refuses a billed object and the shop-level test refuses an unpaid

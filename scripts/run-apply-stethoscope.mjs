@@ -182,15 +182,17 @@ export function loadApplyStethoscopeRecipe() {
 }
 
 // The monster arm needs a monster the hero can point at, which an ordinary
-// first turn supplies only for a pet. The four segments below use ^V, the
+// first turn supplies only for a pet. Most segments below use ^V, the
 // wizard level teleport, to drop the hero onto D:5, where every seed was
 // chosen by reading the arrival square's neighbours rather than by copying any
-// recorded session. Each records exactly one listen, and that listen is the
-// first of its move, so it is free and no monster takes a turn inside the
-// recording.
+// recorded session. The cloud case instead walks an ordinary D:1 hero to the
+// clear-air edge of a visible region. Each records exactly one listen, and
+// that listen is the first of its move, so it is free.
 const MONSTER_DATETIME = '20260615101500';
 const DEBUG_PLAIN = 'pettype:none,!acoustics,!autopickup,time,playmode:debug';
+const DEBUG_NAMED_FRUIT = `${DEBUG_PLAIN},fruit:slice of pizza`;
 const DEBUG_PET = 'pettype:dog,!acoustics,!autopickup,time,playmode:debug';
+const GENESIS_KEY = '\x07';
 // cmd.c binds C('v') to the wizard level teleport, which asks for a level
 // number and takes the hero there without a trap or a scroll.
 const LEVEL_TELEPORT = '\x165\n';
@@ -210,9 +212,43 @@ const HIDDEN_SEED = 1205;
 // insight.c size_str() can reach here.
 const POTION_MIMIC_SEED = 8860;
 const SCROLL_MIMIC_SEED = 7040;
+// 73: a small mimic wears STRANGE_OBJECT (object type zero). apply.c's
+// `else if (mappearance)` deliberately skips seemimic(), leaving m_ap_type
+// for insight.c mstatusline() and pager.c mhidden_description() to report.
+const STRANGE_MIMIC_SEED = 169;
+// A direct source setup for the named SLIME_MOLD arm. #wizgenesis puts this
+// small mimic southeast of the hero, and makemon.c set_mimic_sym() chooses a
+// slime mold carrying the configured fruit id. The non-default fruit makes
+// objnam.c simpleonames() observable without relying on divergent D:5 setup.
+const FRUIT_MIMIC_SEED = 57;
+const FRUIT_MIMIC_DATETIME = '20270318143000';
+// A direct source setup for M_AP_FURNITURE. #wizgenesis puts this small
+// mimic northwest of the hero, and makemon.c set_mimic_sym() gives it the
+// closed-door entry from syms[]/cmap. The creation message and the subsequent
+// listen exercise the same live appearance without a constructed monster.
+const FURNITURE_MIMIC_SEED = 8;
+const FURNITURE_MIMIC_DATETIME = '20270318143000';
+// A second direct appearance setup. The Healer wishes for a small-mimic
+// corpse, drops it west of her little dog, and steps west. dog_eat() consumes
+// the corpse and quickmimic() changes the pet into the kitten it then mimics.
+// The two spaces dismiss the eating and appearance messages before the
+// stethoscope points east at the now-disguised pet.
+const PET_MIMIC_SEED = 24;
+const PET_MIMIC_DATETIME = '20270318143000';
+const WISH_KEY = '\x17';
 // 7031 in a debug game: the pet again, this time with `wizard` set, which is
 // what insight.c:3281-3288 needs.
 const DEBUG_PET_SEED = 7031;
+
+// Seed 148 has a fog cloud at (15,10), a hostile kobold zombie in it, and a
+// clear-air square at (16,11). This independently chosen walk stays within
+// the ported D:1 movement boundary and reaches that edge without crossing the
+// region. Listening northwest exercises visible_region_at() after the monster's
+// otherwise ordinary status fields have been assembled.
+const CLOUD_SEED = 148;
+const CLOUD_DATETIME = '20000110090000';
+const CLOUD_OPTIONS = 'pettype:none,!acoustics,!autopickup,time';
+const CLOUD_WALK = 'llljjhhjhjhhhjhjjjjhjjjhhhkkkhhhhkkhy';
 
 function debugSegment(seed, moves, options = DEBUG_PLAIN) {
     return {
@@ -249,12 +285,67 @@ export function loadListenAtMonsterRecipe() {
             debugSegment(SCROLL_MIMIC_SEED,
                 `${SPACE_KEY}${LEVEL_TELEPORT}${SPACE_KEY}${SPACE_KEY}`
                 + `${APPLY_KEY}${STETHOSCOPE_SLOT}n${SPACE_KEY}`),
+            // Object type zero is false in C, so this mimic remains disguised
+            // and its status line says it is "mimicking something".
+            debugSegment(STRANGE_MIMIC_SEED,
+                `${SPACE_KEY}${LEVEL_TELEPORT}${SPACE_KEY}${SPACE_KEY}`
+                + `${APPLY_KEY}${STETHOSCOPE_SLOT}l${SPACE_KEY}`),
+            // The same path with a named SLIME_MOLD appearance reaches
+            // simpleonames() before seemimic() exposes the small mimic.
+            {
+                seed: FRUIT_MIMIC_SEED,
+                datetime: FRUIT_MIMIC_DATETIME,
+                nethackrc: nethackrc({
+                    name: 'FruitLis',
+                    role: 'Healer',
+                    options: DEBUG_NAMED_FRUIT,
+                }),
+                moves: `${WAIT}${GENESIS_KEY}small mimic\n`
+                    + `${APPLY_KEY}${STETHOSCOPE_SLOT}n${SPACE_KEY}`,
+            },
+            {
+                seed: FURNITURE_MIMIC_SEED,
+                datetime: FURNITURE_MIMIC_DATETIME,
+                nethackrc: nethackrc({
+                    name: 'FurnLis',
+                    role: 'Healer',
+                    options: DEBUG_PLAIN,
+                }),
+                moves: `${WAIT}${GENESIS_KEY}small mimic\n`
+                    + `${APPLY_KEY}${STETHOSCOPE_SLOT}y${SPACE_KEY}`,
+            },
+            {
+                seed: PET_MIMIC_SEED,
+                datetime: PET_MIMIC_DATETIME,
+                nethackrc: nethackrc({
+                    name: 'PetMim',
+                    role: 'Healer',
+                    options: DEBUG_PET,
+                }),
+                moves: `${WAIT}${WISH_KEY}small mimic corpse\n`
+                    + `dlh${SPACE_KEY}${SPACE_KEY}`
+                    + `${APPLY_KEY}${STETHOSCOPE_SLOT}l`,
+            },
             // The pet in a debug game, on D:1 with no teleport: the tameness
             // detail makes the line longer than the top row, so C wraps it and
             // asks for a --More-- of its own.
             debugSegment(DEBUG_PET_SEED,
                 `${SPACE_KEY}${WAIT}${APPLY_KEY}${STETHOSCOPE_SLOT}u`
                 + SPACE_KEY, DEBUG_PET),
+            // A non-debug D:1 control for mhidden_description()'s region
+            // clause. The hero remains outside the cloud and points into it.
+            {
+                seed: CLOUD_SEED,
+                datetime: CLOUD_DATETIME,
+                nethackrc: nethackrc({
+                    name: 'CloudLis',
+                    role: 'Healer',
+                    gender: 'male',
+                    options: CLOUD_OPTIONS,
+                }),
+                moves: `${CLOUD_WALK}${APPLY_KEY}${STETHOSCOPE_SLOT}y`
+                    + SPACE_KEY,
+            },
         ],
     }, 'listen at a monster recipe');
 }
@@ -335,10 +426,11 @@ export async function runApplyStethoscopeMatrix() {
         chunkLimit: 5,
     });
     if (!prompt.passed) return prompt;
-    // Every segment below is a playmode:debug game, and
+    // Most segments below are playmode:debug games, and
     // scripts/record-session.mjs clears the install directory only before a
     // chunk's first segment, so two debug games in one chunk would leave the
-    // second restoring the first one's save.
+    // second restoring the first one's save. chunkLimit 1 is harmless for the
+    // one ordinary cloud segment and preserves that isolation for the rest.
     return runFreshMatrix({
         entries: [{
             label: 'listen at a monster',

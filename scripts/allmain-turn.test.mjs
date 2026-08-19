@@ -2037,7 +2037,8 @@ test('a refused planned monster becomes a turn boundary, not a hard failure',
         const replay = await runSegment({
             // First qualifying seed in an independently selected fresh scan.
             // The shortened unburdened plan enters rn2(25), selects a mimic,
-            // and refuses its unported runtime appearance before live birth.
+            // and reaches the still-unported roomless set_mimic_sym() arm
+            // before live birth.
             seed: 2026123986,
             datetime: '20260804120000',
             nethackrc: 'OPTIONS=name:PlannedMimic,role:Healer,race:human,'
@@ -2071,7 +2072,7 @@ test('a refused planned monster becomes a turn boundary, not a hard failure',
                 () => moveloop_core(),
                 (error) => (
                     error instanceof UnsupportedTurnBoundaryError
-                    && /runtime mimic appearance message/u.test(error.message)
+                    && /mimic room type none/u.test(error.message)
                 ),
                 `rejects attempt ${attempt}`,
             );

@@ -1,10 +1,11 @@
 // mon.js -- Runtime monster turn state, and the removal lifecycle a monster
 // runs when the hero kills it.
 // C refs: mon.c movemon(), mcalcmove(), mpickstuff(), curr_mon_load(),
-// max_mon_load(), zombie_maker(), unstuck(), mon_leaving_level(), m_detach(),
-// mlifesaver(), lifesaved_monster(), logdeadmon(), mondead(), corpse_chance(),
-// make_corpse(), mondied(), monkilled(), killed(), xkilled() and adj_erinys();
-// mthrowu.c m_carrying(); do_name.c safe_oname().
+// max_mon_load(), m_consume_obj(), zombie_maker(), unstuck(),
+// mon_leaving_level(), m_detach(), mlifesaver(), lifesaved_monster(),
+// logdeadmon(), mondead(), corpse_chance(), make_corpse(), mondied(),
+// monkilled(), killed(), xkilled() and adj_erinys(); mthrowu.c m_carrying();
+// do_name.c safe_oname().
 
 import {
     A_CHAOTIC,
@@ -218,6 +219,8 @@ import {
     PM_IRON_GOLEM,
     PM_KOBOLD_MUMMY,
     PM_KOBOLD_ZOMBIE,
+    PM_GIANT_MIMIC,
+    PM_LARGE_MIMIC,
     PM_LEATHER_GOLEM,
     PM_LIZARD,
     PM_LONG_WORM,
@@ -232,6 +235,7 @@ import {
     PM_ROPE_GOLEM,
     PM_SILVER_DRAGON,
     PM_SKELETON,
+    PM_SMALL_MIMIC,
     PM_STEAM_VORTEX,
     PM_STONE_GOLEM,
     PM_VAMPIRE,
@@ -600,6 +604,40 @@ export function m_carrying(monster, type, state = game) {
         if (obj.otyp === type) return obj;
     }
     return null;
+}
+
+// C ref: mon.c m_consume_obj() (1392-1461), the tame-monster branch for a
+// mimic corpse.  dogmove.c dog_eat() is its live caller.  Other object types
+// can polymorph, grow, heal, blind, petrify, slime, explode, spill container
+// contents, or interact with punishment; those branches stop before this
+// function changes the pet or object.
+export async function m_consume_obj(mtmp, otmp, rawEnv = {}) {
+    const state = rawEnv.state ?? game;
+    const mimicCorpse = otmp?.otyp === CORPSE
+        && (otmp.corpsenm === PM_SMALL_MIMIC
+            || otmp.corpsenm === PM_LARGE_MIMIC
+            || otmp.corpsenm === PM_GIANT_MIMIC);
+    const unsupported = rawEnv.unsupported;
+    const stop = (reason) => {
+        if (typeof unsupported === 'function') unsupported(reason);
+        throw new TypeError(`m_consume_obj requires ${reason}`);
+    };
+
+    // Every excluded source arm precedes delobj(), so reject the complete
+    // branch set before consuming the object.  Mimics convey no intrinsic
+    // (monst.c gives them mconveys 0 and they are not giants), so mon_givit()
+    // has no effect and makes no random draw for this admitted branch.
+    if (!mtmp?.mtame) stop('a tame monster');
+    if (!mimicCorpse) stop('a mimic corpse');
+    if (otmp.cobj) stop('an empty corpse object');
+    if (otmp === state.uball || otmp === state.uchain)
+        stop('an unpunished corpse object');
+    if (otmp.oartifact) stop('an ordinary corpse object');
+    if (typeof rawEnv.quickMimic !== 'function')
+        throw new TypeError('m_consume_obj requires a quickMimic operation');
+
+    delobj(otmp, objectGenerationEnv({ ...rawEnv, state })); /* munch */
+    await rawEnv.quickMimic(mtmp, { ...rawEnv, state });
 }
 
 // C ref: mon.c check_gear_next_turn(). Setting misc_worn_check's I_SPECIAL bit
