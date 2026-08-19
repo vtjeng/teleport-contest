@@ -1,22 +1,22 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Commit d350fca closes stethoscope-reports-an-ordinary-corpse: the live sighted ordinary path traverses nexthere piles, excludes REVIVE_MON, prints singular/plural source grammar, and preserves free/costly results, while exceptional dead-object siblings remain pre-effect refusals. Two fresh cases match 6,093 PRNG calls and 84 screens/cursors exactly; the independent checkpoint at b7bfeed passes 4,409 tests with development unchanged.",
-  "commitChecked": "b7bfeedce0fbb7c70f1e7f3822d66068a7048971",
+  "mode": "implementation",
+  "reason": "The queued stethoscope-reports-an-ordinary-statue slice must admit apply.c its_dead()'s reachable, sighted, non-hallucinating statue-only result through source-owned obj_pmname() naming, exact message, and return semantics. Blind, hallucinated, out-of-reach, mixed corpse/statue, Healer statue-trap/content, and off-map cases must remain pre-effect refusals.",
+  "commitChecked": "e44fa7eb4e87c78b01542e9c1237a90a5b5b5be9",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
     "startingEvent": "The hero applies a stethoscope and answers the direction prompt with an adjacent square: js/cmd.js dispatches `a` to doapply(), which reaches use_stethoscope() past confdir().",
-    "endingEvent": "For a reachable ordinary corpse, its_dead() prints C's death determination with singular or plural grammar and use_stethoscope() returns its free-or-costly result. For every excluded adjacent target, the observable remains an atomic named refusal before shared state, output, map, or PRNG effects.",
-    "validInputs": "A sighted, non-hallucinating hero points at a reachable square whose ordered pile contains one or more corpses, no statue, and no corpse with a REVIVE_MON timer. The fresh source-real setup is debug Healer seed 9240001 at 20340102030405, wishing and dropping a small-mimic corpse before listening back at it.",
-    "observables": "Exact death message and grammar; pile order and corpse count; timer inspection; stethoscope_seq, gb.bhitpos and gn.notonhead; return/turn cost; complete screens, attributes and cursors; and unchanged PRNG order. Excluded variants must remain retry-atomic.",
-    "exclusions": "Blind and hallucinating corpse listens; any REVIVE_MON corpse; mixed corpse/statue and statue-only piles; the out-of-reach tiny-statue walk; the Healer revival loop; and off-map output remain unported and must stop before effects. Secret terrain and monster/status branches are complete; later-turn restrap and unrelated audit deferrals have different live consumers."
+    "endingEvent": "For a reachable ordinary statue, its_dead() prints C's statue-health message using obj_pmname() and use_stethoscope() returns its free-or-costly result. For every excluded adjacent target, the observable remains an atomic named refusal before shared state, output, map, or PRNG effects.",
+    "validInputs": "A sighted, non-hallucinating hero points at a reachable square whose pile contains a statue and no corpse, trap, or statue contents. The fresh source-real setup is Healer seed 9251062 at 20340102030405, whose natural D:1 newt statue is directly north of the hero.",
+    "observables": "Exact statue name, article/proper-name and gender behavior, health message, stethoscope_seq, gb.bhitpos and gn.notonhead, return/turn cost, complete screens/attributes/cursors, and unchanged PRNG order. Excluded variants must remain retry-atomic.",
+    "exclusions": "Blind or hallucinating statue listens; out-of-reach and tiny-statue walks; mixed corpse/statue piles; Healer statue traps or contents; and off-map output remain unported and must stop before effects. Corpse, secret-terrain, and monster/status branches are complete; unrelated naming audit deferrals have separate consumers."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
     "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation and the generated CMAP_EXPLANATIONS projection; mstatusline()'s ordered info fragments; makemon.c syms[] and set_mimic_sym(); dogmove.c qm[]; wizard.c wizapp[]; and every shipped Lua appear_as descriptor under nethack-c/upstream/dat/.",
     "reachableHelpers": "Read from the C call graph of the two entry points. Already ported and needing no work: unmap_invisible(), newsym(), sobj_at(), can_reach_floor() (js/engrave.js, with the checkPit parameter), m_at(), find_mac, align_str, map_invisible(), obj_typename(), ustatusline(), mon_aligntyp(), rndmonnam(), set_mimic_sym() (js/makemon_create.js).",
     "javascriptCrossCheck": "grep -rn '^seemimic' nethack-c/upstream/src/*.c returns only mon.c:4409, so js/mon.js's two 'display.c seemimic()' citations are wrong. grep -rn seemimic js/*.js returns six sites naming it as missing. grep -c Unsupported js/mhitu.js returns 0, so the giant bat's bites inside the stretch need nothing. grep -n explanation js/display.js returns nothing, so M_AP_FURNITURE needs a generated table. Re-run at 9657e3b while closing slice 1: `grep -rn \"export function nxtobj\" js/` and `grep -n \"MZ_TINY\" js/monsters.js` both return nothing, which is why apply.c:210-211's tiny-statue walk is refused rather than ported; js/monsters.js is generated by scripts/generate-monsters.mjs, so adding MZ_TINY is a generator change.",
-    "remainingLimits": "The ordinary sighted corpse result is complete. Blind logical-glyph mapping, hallucination, REVIVE_MON, statue naming, mixed piles, Healer revival, and off-map output remain later. The seed-9240001 singular and separated two-corpse cases provide strict source-real evidence."
+    "remainingLimits": "This slice admits only the ordinary reachable sighted statue result and ports the pure do_name.c obj_pmname() helper as a batch. Blind/hallucinated, out-of-reach/tiny, mixed-pile, Healer trap/content, and off-map paths remain later. Seed 9251062 supplies the natural newt-statue case."
   },
   "entries": [
     {
@@ -34,8 +34,8 @@
       "owner": "js/apply.js use_stethoscope() and its_dead() admission checks",
       "effects": "No effects are permitted: no stethoscope_seq, gb.bhitpos, gn.notonhead, remembered-map, message, screen, cursor, turn, or PRNG change before the named refusal.",
       "evidence": "The full correctness pass over 2338437..6755a8c confirmed that the current refusal sites occur after shared effects; tracked as audit-stethoscope-refusal-effects-not-preflighted.",
-      "status": "done",
-      "remaining": "None inside this slice. Commit d350fca admits the ordinary sighted path and keeps every excluded sibling retry-atomic with source-order precedence tests."
+      "status": "missing",
+      "remaining": "Refine the preflight to admit only the ordinary statue family, retain atomicity for every excluded sibling, and pin branch precedence and retry snapshots."
     },
     {
       "candidate": "apply.c use_stethoscope() m_at(rx, ry) != 0 (391-446)",
@@ -115,8 +115,17 @@
       "owner": "js/apply.js its_dead()",
       "effects": "The statue health message over obj_pmname() and type_is_pname()'s The() path.",
       "evidence": "apply.c:283-307.",
-      "status": "later",
-      "remaining": "Outside this reviewed slice but still inside the open goal. The named refusal remains before the statue message."
+      "status": "missing",
+      "remaining": "Port the reachable sighted non-hallucinating statue-only message and return path using source-owned obj_pmname(); retain pre-effect stops for blind, hallucinated, out-of-reach, mixed-pile, and Healer trap/content variants."
+    },
+    {
+      "candidate": "do_name.c obj_pmname() (1321-1358)",
+      "reachability": "apply.c its_dead() names the statue through obj_pmname(statue) before formatting its health message. The helper is pure and its full CORPSTAT gender and aligned-cleric cases are source-table behavior.",
+      "owner": "js/do_name.js obj_pmname()",
+      "effects": "Returns the monster name selected by corpsenm, object gender flags, monster gender, and aligned-cleric substitution; makes no RNG call and writes no state or output.",
+      "evidence": "do_name.c:1321-1358; reuse mondata.h type_is_pname() and objnam.c The(). The existing private neutral-only monsterObjectName() approximation belongs to objnam.c and does not cover the source helper.",
+      "status": "missing",
+      "remaining": "Port the complete pure helper in source order, replace or reconcile the duplicate approximation without duplicating ownership, and add source-pinned tests for every meaningful gender/proper-name branch."
     },
     {
       "candidate": "apply.c its_dead() return FALSE (308)",
@@ -263,6 +272,23 @@
       "remaining": "None inside the bounded setup path. Seed 24 wishes and drops a small-mimic corpse, the starting pet consumes it and takes M_AP_MONSTER, and the strict replay matches through the listen; unrelated food/eater branches remain fail-closed before effects."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The goal-wide trace remains recorded in the entries above. For the completed ordinary-corpse slice, apply.c its_dead() 203-220 and 256-279, its use_stethoscope() consumer at 467-469, invent.c nxtobj() 1477-1491, and timeout.c obj_has_timer() were traced in full. Commit d350fca preserves nexthere ordering, corpse counting, timer exclusion, singular/plural grammar, and return semantics. Focused tests separate nobj from nexthere and pin every excluded sibling's precedence and retry atomicity; fresh singular and two-corpse cases match complete C screens, attributes, cursors, and PRNG logs."
+  "missingWorkByOwner": [
+    {
+      "group": "do_name.c statue naming prerequisite",
+      "candidates": [
+        "complete pure obj_pmname() helper",
+        "ownership reconciliation with the existing objnam.js approximation"
+      ],
+      "next": "Port and source-pin obj_pmname() before wiring the observable statue message."
+    },
+    {
+      "group": "apply.c its_dead() ordinary sighted statue family",
+      "candidates": [
+        "ordinary statue message and command result",
+        "pre-effect refusal split for exceptional statue and mixed-pile families"
+      ],
+      "next": "Wire the natural seed-9251062 statue through doapply(), retain atomic excluded paths, and record the complete C/JavaScript boundary."
+    }
+  ],
+  "sourceReview": "The goal-wide trace remains recorded in the entries above. For this slice the selector re-read apply.c its_dead() 283-307, do_name.c obj_pmname() 1321-1358, the existing mondata.h type_is_pname() and objnam.c The() ports, and the real doapply() consumer. The seed-9251062 D:1 natural newt statue establishes a direct live setup. Implementation must still trace every obj_pmname() gender/proper-name branch, reconcile the existing approximation, and prove excluded statue/mixed-pile variants remain pre-effect before readiness."
 }
