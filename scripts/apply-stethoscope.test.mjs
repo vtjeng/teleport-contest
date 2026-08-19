@@ -887,6 +887,100 @@ test('a listen at an empty adjacent square hears nothing special', async () => {
     assert.equal(pendingTopLine(), 'You hear nothing special.');
 });
 
+test('an off-map adjacent listen uses You_hear and always stays free',
+    async () => {
+    // This is the constructed live-consumer substitute authorized on
+    // 2026-08-19. The exact setup starts the ordinary Healer fixture, makes
+    // her valid boundary coordinate (1, uy) ROOM, assigns that coordinate to
+    // u.ux, and drives doapply() with the starting stethoscope's `c` letter
+    // and west direction `h`. The target (0, uy) fails cmd.c isok(). A declared
+    // D:1 and D:2-D:30 search over 7,680 generated setups found no accessible
+    // boundary coordinate, and every ported placement path preserves isok(),
+    // so no valid recorder input could create this starting state.
+    //
+    // apply.c use_stethoscope():340-390 controls the writes, message, and
+    // result. pline.c You_hear():435-451 supplies the acoustics gate, and the
+    // no-sound-library half of sndprocs.h makes Soundeffect() a tty no-op. This
+    // test reaches that code through doapply(), its production consumer. It
+    // does not prove that a source-real input can place the hero here, compare
+    // this unreachable arm against a C recording, or exercise a sound-library
+    // backend. The checked-in fresh matrix instead guards every reachable
+    // adjacent-listen sibling against regression.
+    await heroWithEmptyWest();
+    const edgeY = game.u.uy;
+    game.level.at(1, edgeY).typ = ROOM;
+    game.u.ux = 1;
+    game.flags.acoustics = true;
+    game.context.stethoscope_seq = game.hero_seq - 1;
+    game.gb ??= {};
+    game.gb.bhitpos = { x: 17, y: 9 };
+    game.gn ??= {};
+    game.gn.notonhead = true;
+
+    const before = adjacentRefusalEffects({ x: 1, y: edgeY });
+    const offMapCell = structuredClone(game.level.at(0, edgeY));
+    for (const key of ['c', 'h']) game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(pendingTopLine(), 'You hear a faint typing noise.');
+    assert.deepEqual(
+        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow], [0, edgeY + 1],
+    );
+    assert.equal(game.context.stethoscope_seq, game.hero_seq);
+    assert.deepEqual(game.gb.bhitpos, { x: 1, y: edgeY });
+    assert.equal(game.gn.notonhead, false);
+    assert.equal((getRngLog() ?? []).length, before.rngCalls);
+    assert.equal(game.moves, before.moves);
+    assert.equal(game.context.move, before.contextMove);
+    assert.deepEqual(game.level.at(0, edgeY), offMapCell);
+    assert.deepEqual(
+        adjacentRefusalEffects({ x: 1, y: edgeY }).terrain,
+        before.terrain,
+    );
+    assert.deepEqual(
+        adjacentRefusalEffects({ x: 1, y: edgeY }).screen,
+        before.screen,
+    );
+
+    // The second listen sees the unchanged hero sequence and computes
+    // ECMD_TIME, but apply.c:390 returns ECMD_OK unconditionally. The leading
+    // space dismisses the first message before getobj() opens its prompt.
+    for (const key of [' ', 'c', 'h'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(pendingTopLine(), 'You hear a faint typing noise.');
+    assert.equal((getRngLog() ?? []).length, before.rngCalls);
+    assert.equal(game.moves, before.moves);
+    assert.equal(game.context.move, before.contextMove);
+
+    // You_hear() suppresses the line when acoustics is disabled, while the
+    // source-order shared writes and unconditional result remain the same.
+    await heroWithEmptyWest();
+    const quietY = game.u.uy;
+    game.level.at(1, quietY).typ = ROOM;
+    game.u.ux = 1;
+    game.flags.acoustics = false;
+    game.context.stethoscope_seq = game.hero_seq;
+    game.gb ??= {};
+    game.gb.bhitpos = { x: 23, y: 7 };
+    game.gn ??= {};
+    game.gn.notonhead = true;
+    const quietBefore = adjacentRefusalEffects({ x: 1, y: quietY });
+    for (const key of ['c', 'h']) game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(pendingTopLine(), quietBefore.pendingMessage);
+    assert.equal(game.context.stethoscope_seq, game.hero_seq);
+    assert.deepEqual(game.gb.bhitpos, { x: 1, y: quietY });
+    assert.equal(game.gn.notonhead, false);
+    assert.equal((getRngLog() ?? []).length, quietBefore.rngCalls);
+    assert.deepEqual(
+        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow], [0, 0],
+    );
+    assert.deepEqual(
+        adjacentRefusalEffects({ x: 1, y: quietY }).screen,
+        quietBefore.screen,
+    );
+});
+
 test('use_stethoscope walks the adjacent square in apply.c order',
     async () => {
     // apply.c:386-390. isok() guards every reader below it, so the hero is
@@ -894,7 +988,9 @@ test('use_stethoscope walks the adjacent square in apply.c order',
     // Without the guard js/const.js isok() would let levl[0][y] through.
     await heroWithEmptyWest();
     game.u.ux = 1;
-    assert.equal(await listenWest(), 'listening off the edge of the map');
+    game.flags.acoustics = true;
+    assert.equal(await listenWest(), null);
+    assert.equal(pendingTopLine(), 'You hear a faint typing noise.');
 
     // apply.c:391-446 returns inside the monster arm, so nothing below it
     // runs. The secret door under the newt is what the port would answer with
@@ -1678,13 +1774,6 @@ test('its_dead keeps exceptional object paths in source order', async () => {
 test('still-unported adjacent listens refuse before shared effects',
     async () => {
     const cases = [
-        {
-            branch: 'listening off the edge of the map',
-            setup() {
-                game.u.ux = 1;
-                return null;
-            },
-        },
         {
             branch: 'a Healer examining statue contents',
             setup(target) {

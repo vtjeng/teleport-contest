@@ -315,10 +315,10 @@ export async function its_dead(rx, ry, state) {
 // Fail-closed commands are retryable. Inspect only the adjacent paths that
 // still refuse before apply.c:340 starts changing the listen sequence and
 // observation globals. The checks follow use_stethoscope()'s C branch order:
-// an off-map square first; a monster or secret terrain returns before
-// its_dead(); then the dead-thing family. Admitted paths run the source body
-// below, where unmap_invisible(), messages, terrain, vision, and display still
-// happen in C order.
+// an off-map square returns before any map reader; a monster or secret terrain
+// returns before its_dead(); then the dead-thing family. Admitted paths run the
+// source body below, where unmap_invisible(), messages, terrain, vision, and
+// display still happen in C order.
 function preflightAdjacentStethoscope(obj, state) {
     const u = state.u;
     // These source arms precede confdir() and the adjacent-square body. Their
@@ -330,9 +330,7 @@ function preflightAdjacentStethoscope(obj, state) {
 
     const rx = u.ux + u.dx;
     const ry = u.uy + u.dy;
-    if (!isok(rx, ry)) {
-        throw new UnsupportedApplyError('listening off the edge of the map');
-    }
+    if (!isok(rx, ry)) return;
     if (m_at(rx, ry, state)) return;
 
     const lev = state.level.at(rx, ry);
@@ -354,9 +352,9 @@ function preflightAdjacentStethoscope(obj, state) {
 // the cursed arm on obj.cursed alone keeps that draw out of the random-number
 // stream for the uncursed tools the ported path uses.
 //
-// Below confdir() the adjacent-square arm (384-470) runs through the monster
-// branch, both secret-terrain arms, and the empty square's answer. The
-// remaining off-map and dead-thing arms stop before the shared listen effects,
+// Below confdir() the adjacent-square arm (384-470) runs through the off-map
+// answer, monster branch, both secret-terrain arms, and the empty square's
+// answer. The remaining dead-thing arms stop before the shared listen effects,
 // so retrying their command cannot retain half of the unported path.
 async function use_stethoscope(obj, state = game) {
     const u = state.u;
@@ -415,9 +413,13 @@ async function use_stethoscope(obj, state = game) {
     const ry = u.uy + u.dy;
     // apply.c:386-390 answers a square off the map with "You hear a faint
     // typing noise." and ECMD_OK, the one arm below here that discards `res`
-    // rather than returning it. Its Soundeffect() interface is unported.
-    if (!isok(rx, ry))
-        throw new UnsupportedApplyError('listening off the edge of the map');
+    // rather than returning it. Soundeffect(se_typing_noise, 100) expands to
+    // nothing in the tty build; You_hear() still applies the acoustics gate.
+    if (!isok(rx, ry)) {
+        const heard = youHear('a faint typing noise.', state);
+        if (heard) await ttyPline(heard, state);
+        return ECMD_OK;
+    }
     const mtmp = m_at(rx, ry, state);
     if (mtmp) {
         // Named before seemimic() runs, so a mimic is still wearing its
