@@ -661,3 +661,4 @@ utc	event	phase	goal	detail
 2026-08-19T05:25:10.550Z	end	implement	stethoscope-reaches-an-adjacent-square	blind-statue-health-report closed at 67e2ad0: natural blind newt exact, 4417-test checkpoint green, development unchanged, excluded siblings remain atomic
 2026-08-19T05:26:06.951Z	start	select	stethoscope-reaches-an-adjacent-square	Select the next adjacent-square slice after Blind statue naming closed with exceptional siblings still atomic
 2026-08-19T05:29:30.009Z	end	select	stethoscope-reaches-an-adjacent-square	Selected off-map-listen-returns-free: apply.c use_stethoscope 384-390 and You_hear, unconditional ECMD_OK after shared writes; zero development ceiling; tiny-statue walk runner-up
+2026-08-19T05:30:23.253Z	start	implement	stethoscope-reaches-an-adjacent-square	Port off-map-listen-returns-free through acoustics-gated typing noise, shared observation writes, and unconditional ECMD_OK
