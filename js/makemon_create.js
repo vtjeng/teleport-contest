@@ -838,13 +838,14 @@ function hideunder(monster, state) {
     return hidden;
 }
 
-// C ref: makemon.c set_mimic_sym() (2467-2486), whole: the ordinary and
-// themed initial-room arms and the `rt >= SHOPBASE` shop arm alike.
+// C ref: makemon.c set_mimic_sym(), restricted to the ordinary and themed
+// initial-room arms and the `rt >= SHOPBASE` shop arm.
 // The descriptor which requested the Storeroom mimic overwrites m_ap_type and
 // mappearance only. All RNG, temporary-object allocation, fruit state, and any
 // mcorpsenm overlay established here remain intact.
-function set_mimic_sym(monster, normalized) {
+export function set_mimic_sym(monster, normalized) {
     const { random, state } = normalized;
+    if (!monster || heroHasProperty(state, PROT_FROM_SHAPE_CHANGERS)) return;
     const x = monster.mx;
     const y = monster.my;
     const object = state.level.objects?.[x]?.[y];

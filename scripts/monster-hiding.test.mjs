@@ -18,19 +18,26 @@ import {
     DETECT_MONSTERS,
     IN_SIGHT,
     M_AP_OBJECT,
+    M_AP_TYPMASK,
     NON_PM,
     PIT,
+    PROT_FROM_SHAPE_CHANGERS,
     ROOM,
 } from '../js/const.js';
+import { moveloop_core } from '../js/allmain.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { set_mimic_sym } from '../js/makemon_create.js';
 import { restrap } from '../js/mon.js';
-import { newMonster, place_monster } from '../js/monst.js';
+import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
     PM_ROCK_PIERCER,
     PM_SMALL_MIMIC,
     PM_TRAPPER,
 } from '../js/monsters.js';
+import { STRANGE_OBJECT } from '../js/objects.js';
+import { freezeLiveState } from './planning-isolation-test-support.mjs';
+import { loadCostlyMimicRedisguiseRecipe } from './run-apply-stethoscope.mjs';
 import { GENESIS_KEY, loadMonsterHidingRecipe } from './run-monster-hiding.mjs';
 
 // The seed scripts/run-monster-hiding.mjs records its watched segment on,
@@ -256,20 +263,108 @@ test('restrap re-disguises only a mimic that is awake and undisguised',
             { answer: false, bounds: [3] });
         assert.ok(!frozen.mundetected);
 
-        // mon.c:4684-4685. An awake, undisguised mimic reaches set_mimic_sym(),
-        // which this port refuses; the operation stands in for it here so the
-        // TRUE that follows can be pinned. The mimic arm returns before the
-        // ROOM arm, so mundetected stays clear even on a ROOM square.
+        // A nonzero rn2(3) result stops before set_mimic_sym(), even for the
+        // exact monster type which owns that success arm.
+        const unlucky = hiderAt(PM_SMALL_MIMIC, far());
+        assert.deepEqual(listenToRestrap(unlucky, [2]),
+            { answer: false, bounds: [3] });
+        assert.equal(unlucky.m_ap_type & M_AP_TYPMASK, 0);
+
+        // mon.c:4684-4685. The zero result reaches makemon.c
+        // set_mimic_sym(). Selecting S_MIMIC_DEF needs no temporary object,
+        // so these are exactly the two source draws and STRANGE_OBJECT is the
+        // resulting disguise. The mimic arm returns before the ROOM arm, so
+        // mundetected stays clear even on a ROOM square.
         const awake = hiderAt(PM_SMALL_MIMIC, far());
-        let redisguised = 0;
+        const rolls = [0, 15];
+        const bounds = [];
         const answer = restrap(awake, {
             state: game,
-            random: { rn2: () => 0 },
-            setMimicSym: () => { ++redisguised; },
+            random: {
+                rn2(bound) {
+                    bounds.push(bound);
+                    assert.ok(bounds.length <= rolls.length);
+                    return rolls[bounds.length - 1];
+                },
+            },
+            setMimicSym: set_mimic_sym,
         });
         assert.equal(answer, true);
-        assert.equal(redisguised, 1);
+        assert.deepEqual(bounds, [3, 17]);
+        assert.equal(awake.m_ap_type & M_AP_TYPMASK, M_AP_OBJECT);
+        assert.equal(awake.mappearance, STRANGE_OBJECT);
         assert.ok(!awake.mundetected);
+
+        // makemon.c:2402 returns before disguise selection when the hero has
+        // Protection_from_shape_changers. restrap() has already won its own
+        // roll and still returns TRUE, so the mimic forfeits the action while
+        // remaining revealed and spends no rn2(17).
+        game.u.uprops[PROT_FROM_SHAPE_CHANGERS] = { intrinsic: 1 };
+        const protectedMimic = hiderAt(PM_SMALL_MIMIC, far());
+        const protectedBounds = [];
+        assert.equal(restrap(protectedMimic, {
+            state: game,
+            random: {
+                rn2(bound) {
+                    protectedBounds.push(bound);
+                    return 0;
+                },
+            },
+            setMimicSym: set_mimic_sym,
+        }), true);
+        assert.deepEqual(protectedBounds, [3]);
+        assert.equal(protectedMimic.m_ap_type & M_AP_TYPMASK, 0);
+        game.u.uprops[PROT_FROM_SHAPE_CHANGERS] = undefined;
+    });
+
+test('a costly listen re-disguises its revealed mimic through the sentinel',
+    async () => {
+        const [input] = loadCostlyMimicRedisguiseRecipe().segments;
+        const replay = await runSegment(input);
+        const mimic = m_at(game.u.ux, game.u.uy + 1, game);
+
+        // Freshly recorded from the C reference for this recipe. The extra 27
+        // calls begin with restrap()'s rn2(3), then run set_mimic_sym()'s
+        // ordinary-room selection. Matching through the final wait also shows
+        // that the selected disguise made the monster forfeit its action.
+        assert.equal(replay.getRngLog().length, 3138);
+        assert.equal(replay.getScreens().length, 25);
+        assert.equal(replay.getCursors().length, 25);
+        assert.equal(game.nhDisplay.inputQueueLength, 0);
+        assert.equal(mimic.mnum, PM_SMALL_MIMIC);
+        assert.equal(mimic.m_ap_type & M_AP_TYPMASK, M_AP_OBJECT);
+    });
+
+test('the costly-listen planning disguise changes only the cloned monster',
+    async () => {
+        const [recorded] = loadCostlyMimicRedisguiseRecipe().segments;
+        // Remove the message dismissal and wait which follow the second
+        // listen. The live game now holds an undisguised mimic immediately
+        // before moveloop_core() plans the costly turn.
+        assert.ok(recorded.moves.endsWith(' .'));
+        const input = { ...recorded, moves: recorded.moves.slice(0, -2) };
+        await runSegment(input);
+        const mimic = m_at(game.u.ux, game.u.uy + 1, game);
+        assert.equal(game.context.move, 1);
+        assert.equal(mimic.m_ap_type & M_AP_TYPMASK, 0);
+
+        const coreBefore = structuredClone(game.coreCtx);
+        const guard = freezeLiveState(game);
+        let caught = null;
+        try {
+            await moveloop_core();
+        } catch (error) {
+            caught = error;
+        }
+        guard.assertNoLeak(assert);
+
+        // The preflight completed and the first intended live write hit the
+        // freeze. A clone leak would throw from preflightSimpleMonsterActions,
+        // alter the live mimic, or advance the live ISAAC context instead.
+        assert.ok(caught instanceof TypeError, `threw ${caught}`);
+        assert.doesNotMatch(caught.stack, /preflightSimpleMonsterActions/u);
+        assert.equal(mimic.m_ap_type & M_AP_TYPMASK, 0);
+        assert.deepEqual(game.coreCtx, coreBefore);
     });
 
 test('the monster hiding matrix carries replay inputs only', () => {

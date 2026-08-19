@@ -156,6 +156,7 @@ import {
     loadApplyStethoscopeRecipe,
     loadBlindCorpseRecipe,
     loadBlindStatueRecipe,
+    loadCostlyMimicRedisguiseRecipe,
     loadHealerStatueTrapRecipe,
     loadListenAtMonsterRecipe,
     loadOrdinaryCorpseRecipe,
@@ -1886,7 +1887,7 @@ test('ustatusline stops for every clause it would have to name', async () => {
     );
 });
 
-test('the apply matrix holds the ten clean recipes the slices close on',
+test('the apply matrix holds the eleven clean recipes the slices close on',
     () => {
     const priorRecipes = [loadApplyStethoscopeRecipe(), loadApplyPromptRecipe()];
     const recipes = [
@@ -1899,11 +1900,12 @@ test('the apply matrix holds the ten clean recipes the slices close on',
         loadBlindStatueRecipe(),
         loadBlindCorpseRecipe(),
         loadHealerStatueTrapRecipe(),
+        loadCostlyMimicRedisguiseRecipe(),
     ];
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 44);
+    assert.equal(segments.length, 45);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // The two prior recipes open and close with a wait, so a command that
     // wrongly spent or wrongly saved a turn shows in the screen after it.

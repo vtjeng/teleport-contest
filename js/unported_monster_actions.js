@@ -45,7 +45,7 @@ import {
 import { engr_at } from './engrave.js';
 import { game } from './gstate.js';
 import { any_light_source } from './light.js';
-import { m_dowear } from './makemon_create.js';
+import { m_dowear, set_mimic_sym } from './makemon_create.js';
 import { mattacku } from './mhitu.js';
 import {
     adaptMonsterActionToDochugwSignature,
@@ -1021,11 +1021,10 @@ async function planSimpleMonsterScan(monster, env) {
             wearArmor: () => unsupported('monster equipment changes'),
         }),
         // C ref: mon.c restrap(). js/allmain.js binds the same function for the
-        // live pass; only the S_MIMIC arm's set_mimic_sym() call refuses, and
-        // each side names the refusal in the class its own catch converts.
+        // live pass, including set_mimic_sym()'s disguise selection.
         restrap: (subject, subjectEnv) => restrap(subject, {
             ...subjectEnv,
-            setMimicSym: () => unsupported('a mimic re-disguising itself'),
+            setMimicSym: set_mimic_sym,
         }),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         hideUnder: () => unsupported('eel concealment'),

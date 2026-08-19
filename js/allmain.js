@@ -43,6 +43,7 @@ import {
 import {
     m_dowear,
     makemon_runtime,
+    set_mimic_sym,
     UnsupportedMonsterCreationError,
 } from './makemon_create.js';
 import { init_objects } from './o_init.js';
@@ -949,15 +950,12 @@ async function moveElapsedTurnMonster(monster, env) {
                 'monster equipment changes',
             ),
         }),
-        // C ref: mon.c restrap(), which js/mon.js ports whole apart from the
-        // set_mimic_sym() call in its S_MIMIC arm. The planning scan binds the
-        // same function with a refusal of its own, so the two passes take the
-        // same branches and spend the same draws.
+        // C ref: mon.c restrap(). The planning scan binds the same
+        // set_mimic_sym() implementation, so the two passes take the same
+        // branches and spend the same draws.
         restrap: (subject, subjectEnv) => restrap(subject, {
             ...subjectEnv,
-            setMimicSym: unavailableElapsedTurnOperation(
-                'a mimic re-disguising itself',
-            ),
+            setMimicSym: set_mimic_sym,
         }),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         hideUnder: unavailableElapsedTurnOperation('eel concealment'),

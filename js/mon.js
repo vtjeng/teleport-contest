@@ -2483,14 +2483,10 @@ function trappedOutsideAPit(monster, state) {
 // the rn2(3) it keeps drawing on every action afterwards, because C calls
 // restrap() before it reads mundetected.
 //
-// One arm is unported. C's S_MIMIC arm re-disguises a waking mimic through
-// makemon.c set_mimic_sym(), which draws randomness and rewrites m_ap_type and
-// mappearance; that call refuses through the caller's `setMimicSym` operation.
-// It is unreachable today in any case: the second guard term already excludes
-// every mimic that carries a disguise, and only mon.c seemimic() clears one.
-// The msleeping and mfrozen return above it is C's own answer and is ported,
-// so a sleeping mimic that has been revealed stays revealed rather than
-// stopping the turn.
+// C's S_MIMIC arm re-disguises a waking mimic through makemon.c
+// set_mimic_sym(), which draws randomness and rewrites m_ap_type and
+// mappearance. The msleeping and mfrozen return above it leaves a sleeping or
+// frozen mimic revealed after spending only restrap()'s rn2(3).
 export function restrap(monster, env = {}) {
     const state = env.state ?? game;
     const random = env.random ?? { rn2 };

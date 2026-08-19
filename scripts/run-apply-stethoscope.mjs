@@ -10,7 +10,8 @@
 // self direction, insight.c mstatusline() through a direction holding a
 // monster, apply.c's secret-terrain switch, and apply.c its_dead() through an
 // empty square, an ordinary corpse pile, an ordinary statue, a blind statue,
-// a blind corpse, or a Healer's statue trap. The matrix splits into ten parts.
+// a blind corpse, a Healer's statue trap, or a revealed mimic that re-disguises
+// during a costly listen. The matrix splits into eleven parts.
 // The first drives use_stethoscope(): the free first
 // listen, the second listen in the same move that costs a turn, both cancels,
 // both self keys, the Deaf guard, a sweep of all eight compass directions, a
@@ -552,6 +553,30 @@ export function loadHealerStatueTrapRecipe() {
     }, 'Healer statue trap recipe');
 }
 
+// A source-real revealed mimic for mon.c restrap():4662-4693. The first
+// stethoscope use clears the adjacent mimic's disguise for free. The second
+// use costs a turn, so the following message dismissal lets the monster scan
+// spend rn2(3), select a new disguise through makemon.c set_mimic_sym(), and
+// forfeit the mimic's action before the final wait is read.
+export function loadCostlyMimicRedisguiseRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            seed: 2,
+            datetime: '20270318143000',
+            nethackrc: nethackrc({
+                name: 'CostMim',
+                role: 'Healer',
+                options: 'blind,pettype:none,!acoustics,!autopickup,time,'
+                    + 'playmode:debug',
+            }),
+            moves: `${WAIT}${GENESIS_KEY}small mimic\n.${APPLY_KEY}`
+                + `${STETHOSCOPE_SLOT}j ${APPLY_KEY}${STETHOSCOPE_SLOT}j `
+                + WAIT,
+        }],
+    }, 'costly mimic redisguise recipe');
+}
+
 // One pack per apply_ok() term. Each role below advertises a letter set that
 // only the named term produces, so a term answering wrongly would change the
 // prompt rather than leave it alone. Every segment cancels at the prompt,
@@ -696,12 +721,21 @@ export async function runApplyStethoscopeMatrix() {
         chunkLimit: 1,
     });
     if (!blindCorpse.passed) return blindCorpse;
-    return runFreshMatrix({
+    const healerStatueTrap = await runFreshMatrix({
         entries: [{
             label: 'Healer statue trap',
             recipe: loadHealerStatueTrapRecipe(),
         }],
         summaryLabel: 'HEALER STATUE TRAP',
+        chunkLimit: 1,
+    });
+    if (!healerStatueTrap.passed) return healerStatueTrap;
+    return runFreshMatrix({
+        entries: [{
+            label: 'costly mimic redisguise',
+            recipe: loadCostlyMimicRedisguiseRecipe(),
+        }],
+        summaryLabel: 'COSTLY MIMIC REDISGUISE',
         chunkLimit: 1,
     });
 }
