@@ -15,7 +15,7 @@ import {
     ROT_CORPSE,
     TIMER_OBJECT,
 } from '../js/const.js';
-import { mkcorpstat } from '../js/corpstat.js';
+import { get_mtraits, mkcorpstat } from '../js/corpstat.js';
 import { GameMap } from '../js/game.js';
 import { init_objects } from '../js/o_init.js';
 import { monsterObject } from '../js/monster_object.js';
@@ -176,6 +176,43 @@ function idDraw() {
     // next_ident() starts this fixture at id 2 and advances it by rnd(2).
     return call('rnd', [2], 1);
 }
+
+test('get_mtraits restores inline traits or returns a complete copy', () => {
+    const state = objectMonsterState();
+    assert.equal(get_mtraits(newObject(), false, state), null);
+    assert.equal(get_mtraits(newObject(), true, state), null);
+
+    const chain = { marker: 'chain pointer' };
+    const inventory = { marker: 'inventory pointer' };
+    const saved = {
+        mnum: PM_KOBOLD,
+        data: null,
+        nmon: chain,
+        minvent: inventory,
+        mtrack: [{ x: 2, y: 3 }],
+        mgoal: { x: 7, y: 8 },
+        mextra: { edog: { hungrytime: 99 } },
+    };
+    const corpse = newObject({ oextra: { omonst: saved } });
+
+    assert.strictEqual(get_mtraits(corpse, false, state), saved);
+    assert.strictEqual(saved.data, state.mons[PM_KOBOLD]);
+
+    saved.data = null;
+    const copy = get_mtraits(corpse, true, state);
+    assert.notStrictEqual(copy, saved);
+    assert.strictEqual(copy.data, state.mons[PM_KOBOLD]);
+    assert.strictEqual(copy.nmon, chain);
+    assert.strictEqual(copy.minvent, inventory);
+    assert.deepEqual(copy.mtrack, saved.mtrack);
+    assert.notStrictEqual(copy.mtrack, saved.mtrack);
+    assert.deepEqual(copy.mgoal, saved.mgoal);
+    assert.notStrictEqual(copy.mgoal, saved.mgoal);
+    assert.deepEqual(copy.mextra, saved.mextra);
+    assert.notStrictEqual(copy.mextra, saved.mextra);
+    assert.notStrictEqual(copy.mextra.edog, saved.mextra.edog);
+    assert.equal(saved.data, null, 'copyof leaves inline data untouched');
+});
 
 test('ordinary corpse preserves species, sex, and rot-timer RNG order', () => {
     const state = objectMonsterState();

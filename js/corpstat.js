@@ -1,5 +1,5 @@
 // corpstat.js -- Corpse and statue construction.
-// C ref: mkobj.c mkcorpstat() and save_mtraits().
+// C ref: mkobj.c mkcorpstat(), save_mtraits(), and get_mtraits().
 
 import {
     CORPSTAT_INIT,
@@ -100,6 +100,30 @@ function save_mtraits(obj, mtmp) {
     obj.oextra ??= {};
     obj.oextra.omonst = mtmp2;
     return obj;
+}
+
+// C ref: mkobj.c get_mtraits() (2201-2224). Restore the species pointer on
+// the monster snapshot carried by a corpse or statue. With copyof false C
+// returns that inline record; with copyof true it allocates a by-value struct
+// copy and duplicates mextra while retaining the other pointer fields.
+export function get_mtraits(obj, copyof, state = game) {
+    const saved = obj?.oextra?.omonst;
+    if (!saved) return null;
+
+    let result = saved;
+    if (copyof) {
+        result = {
+            ...saved,
+            mtrack: Array.isArray(saved.mtrack)
+                ? saved.mtrack.map((point) => ({ ...point }))
+                : saved.mtrack,
+            mgoal: saved.mgoal ? { ...saved.mgoal } : saved.mgoal,
+            mextra: null,
+        };
+        if (saved.mextra) copy_mextra(result, saved);
+    }
+    result.data = state.mons[result.mnum];
+    return result;
 }
 
 export function mkcorpstat(

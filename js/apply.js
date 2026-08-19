@@ -9,8 +9,8 @@
 // the no-hands, Deaf and free-hand guards, the free-action rule, self and
 // off-map probes, the adjacent monster arm, both secret-terrain arms, an empty
 // adjacent square, ordinary sighted and blind corpses and statues, and a
-// Healer's statue-trap report. Mounted, swallowed, vertical, cursed, and the
-// remaining exceptional dead-thing arms still stop.
+// Healer's statue-trap report. Mounted, swallowed, vertical, and cursed uses
+// still stop.
 
 import {
     ARTICLE_A,
@@ -34,6 +34,7 @@ import {
     M_AP_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPE,
+    PRONOUN_NO_IT,
     REVIVE_MON,
     SCORR,
     SDOOR,
@@ -57,13 +58,23 @@ import { obj_pmname, pmname, x_monnam } from './do_name.js';
 import { can_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity } from './hack.js';
+import { highc } from './hacklib.js';
 import { mstatusline, ustatusline } from './insight.js';
 import { getobj, nxtobj } from './invent.js';
 import { pick_lock } from './lock.js';
 import { seemimic } from './mon.js';
-import { gender, humanoid, nohands, type_is_pname } from './mondata.js';
+import {
+    gender,
+    humanoid,
+    is_female,
+    is_male,
+    nohands,
+    pronoun_gender,
+    type_is_pname,
+} from './mondata.js';
 import { youHear } from './monmove.js';
 import { m_at } from './monst.js';
+import { get_mtraits } from './corpstat.js';
 import {
     init_dummyobj,
     is_axe,
@@ -109,6 +120,7 @@ import { t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole } from './worn.js';
+import { genders } from './roles.js';
 
 // Thrown where apply.c reaches a tool or a branch this port has not ported.
 export class UnsupportedApplyError extends Error {
@@ -220,12 +232,9 @@ export function apply_ok(obj, state = game) {
 // neither a corpse nor a statue, which is when the caller falls through to
 // "You hear nothing special."
 //
-// C takes `int *resp` so that its hallucination arm can charge the turn
-// (apply.c:253); that arm still refuses here, so the port answers a bare
-// boolean. The admitted corpse branch is sighted or blind and includes the
-// Healer's REVIVE_MON wording. The admitted statue branch has separate sighted
-// and blind names. A mixed pile admits whichever kind is uppermost. The
-// remaining exceptional sibling stays a named refusal.
+// C takes `int *resp` so that its hallucination arm can charge the turn. The
+// private consumer accepts a response holder for that write while the exported
+// source-named helper retains its established boolean result.
 function selectedDeadObject(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     let statue = sobj_at(STATUE, rx, ry, state);
@@ -249,27 +258,40 @@ function selectedDeadObject(rx, ry, state) {
         if (nxtobj(statue, CORPSE, true) === corpse) corpse = null;
         else statue = null;
     }
-    return { corpse, statue, canReachFloor };
+    return { corpse, statue };
 }
 
-function unportedItsDeadBranch(rx, ry, state) {
+// The private body accepts use_stethoscope()'s response holder while the
+// exported source-named helper below retains its established boolean result.
+async function its_dead_after_preflight(rx, ry, state, response = null) {
     const { corpse, statue } = selectedDeadObject(rx, ry, state);
-
-    if (!corpse && !statue) return null;
-
-    // apply.c:223-260 tests Hallucination before either selected object's
-    // message arm. Keep that precedence even for a mixed pile.
-    if (heroHallucinating(state))
-        return 'a hallucinated listen to the dead';
-
-    return null;
-}
-
-// The body below assumes that the caller has excluded every exceptional arm.
-// Keep it private so the exported C-named entry point cannot bypass the same
-// preflight use_stethoscope() runs before changing its shared listen state.
-async function its_dead_after_preflight(rx, ry, state) {
-    const { corpse, statue } = selectedDeadObject(rx, ry, state);
+    if ((corpse || statue) && heroHallucinating(state)) {
+        let answer;
+        if (!corpse) {
+            answer = "You're both stoned";
+        } else {
+            const more_corpses = Boolean(nxtobj(corpse, CORPSE, true));
+            if (corpse.quan === 1 && !more_corpses) {
+                let gndr = 2;
+                const saved = get_mtraits(corpse, false, state);
+                if (saved) {
+                    gndr = pronoun_gender(saved, PRONOUN_NO_IT, { state });
+                } else {
+                    const species = state.mons[corpse.corpsenm];
+                    if (is_female(species)) gndr = 1;
+                    else if (is_male(species)) gndr = 0;
+                }
+                const pronoun = genders[gndr].he;
+                answer = `${highc(pronoun[0])}${pronoun.slice(1)}'s dead`;
+            } else {
+                answer = "They're dead";
+            }
+        }
+        const heard = youHear(`a voice say, "${answer}, Jim."`, state);
+        if (heard) await ttyPline(heard, state);
+        if (response) response.value = ECMD_TIME;
+        return true;
+    }
     if (corpse) {
         const more_corpses = Boolean(nxtobj(corpse, CORPSE, true));
         const one = (corpse.quan === 1 && !more_corpses);
@@ -324,18 +346,12 @@ async function its_dead_after_preflight(rx, ry, state) {
 }
 
 export async function its_dead(rx, ry, state = game) {
-    const branch = unportedItsDeadBranch(rx, ry, state);
-    if (branch) throw new UnsupportedApplyError(branch);
     return its_dead_after_preflight(rx, ry, state);
 }
 
-// Fail-closed commands are retryable. Inspect only the adjacent paths that
-// still refuse before apply.c:340 starts changing the listen sequence and
-// observation globals. The checks follow use_stethoscope()'s C branch order:
-// an off-map square returns before any map reader; a monster or secret terrain
-// returns before its_dead(); then the dead-thing family. Admitted paths run the
-// source body below, where unmap_invisible(), messages, terrain, vision, and
-// display still happen in C order.
+// Fail-closed commands are retryable. Inspect the earlier adjacent paths that
+// still refuse before apply.c:340 changes the listen sequence and observation
+// globals. The complete its_dead() family no longer needs preflight.
 function preflightAdjacentStethoscope(obj, state) {
     const u = state.u;
     // These source arms precede confdir() and the adjacent-square body. Their
@@ -352,9 +368,6 @@ function preflightAdjacentStethoscope(obj, state) {
 
     const lev = state.level.at(rx, ry);
     if (lev.typ === SDOOR || lev.typ === SCORR) return;
-
-    const branch = unportedItsDeadBranch(rx, ry, state);
-    if (branch) throw new UnsupportedApplyError(branch);
 }
 
 // C ref: apply.c use_stethoscope() (317-470), with C's own comment above it at
@@ -370,9 +383,8 @@ function preflightAdjacentStethoscope(obj, state) {
 // stream for the uncursed tools the ported path uses.
 //
 // Below confdir() the adjacent-square arm (384-470) runs through the off-map
-// answer, monster branch, both secret-terrain arms, and the empty square's
-// answer. The remaining hallucinated dead-thing arm stops before the shared
-// listen effects, so retrying its command cannot retain half of that path.
+// answer, monster branch, both secret-terrain arms, and the complete
+// dead-object family.
 async function use_stethoscope(obj, state = game) {
     const u = state.u;
 
@@ -532,9 +544,10 @@ async function use_stethoscope(obj, state = game) {
         return res;
     }
 
-    if (!await its_dead_after_preflight(rx, ry, state))
+    const response = { value: res };
+    if (!await its_dead_after_preflight(rx, ry, state, response))
         await ttyPline('You hear nothing special.', state); /* not You_hear() */
-    return res;
+    return response.value;
 }
 
 // C ref: apply.c doapply() (4213-4430), the `a` command.

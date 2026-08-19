@@ -94,6 +94,7 @@ import {
     PM_GNOME,
     PM_GNOME_RULER,
     PM_LONG_WORM,
+    PM_KEYSTONE_KOP,
     PM_MEDUSA,
     PM_MONK,
     PM_NEWT,
@@ -923,23 +924,6 @@ function directItsDeadEffects(target) {
         pile,
         timers,
     };
-}
-
-async function assertDirectItsDeadRefusal(target, branch) {
-    const before = directItsDeadEffects(target);
-    await assert.rejects(
-        its_dead(target.x, target.y, game),
-        (error) => {
-            assert.equal(error.constructor, UnsupportedApplyError);
-            assert.equal(error.name, 'UnsupportedApplyError');
-            assert.equal(error.branch, branch);
-            assert.equal(
-                error.message, `applying a tool requires ${branch}`,
-            );
-            return true;
-        },
-    );
-    assert.deepEqual(directItsDeadEffects(target), before, branch);
 }
 
 function isolatedItsDeadState() {
@@ -2269,16 +2253,22 @@ test('a Healer hears mostly dead for a corpse with a revival timer',
 });
 
 test('its_dead keeps exceptional object paths in source order', async () => {
-    // The exported source-named helper applies the same exceptional preflight
-    // as use_stethoscope(). Direct test callers cannot enter a partially
-    // supported arm after the command caller would have refused it.
+    // Hallucination precedes the timed-corpse and ordinary corpse reports.
     const direct = await heroWithEmptyWest();
     const hallucinatedTimedCorpse = floorCorpstat(CORPSE, direct);
     start_timer(100, TIMER_OBJECT, REVIVE_MON, hallucinatedTimedCorpse, game);
     game.u.uprops[HALLUC].intrinsic = 1;
-    await assertDirectItsDeadRefusal(
-        direct, 'a hallucinated listen to the dead',
+    game.flags.acoustics = true;
+    const directBefore = directItsDeadEffects(direct);
+    assert.equal(await its_dead(direct.x, direct.y, game), true);
+    assert.equal(
+        pendingTopLine(),
+        'You hear a voice say, "It\'s dead, Jim."',
     );
+    const directAfter = directItsDeadEffects(direct);
+    assert.deepEqual(directAfter.pile, directBefore.pile);
+    assert.deepEqual(directAfter.timers, directBefore.timers);
+    assert.equal(directAfter.shared.rngCalls, directBefore.shared.rngCalls);
 
     // Blindness changes only the statue's name. The Healer's trap check below
     // that name changes the adjective and keeps the first listen free.
@@ -2347,13 +2337,18 @@ test('its_dead keeps exceptional object paths in source order', async () => {
         'The newt is in fine health for a statue.',
     );
 
-    // apply.c:226 sits above both object arms and therefore above the mixed
-    // pile's selected-object report and the admitted blind-statue name.
+    // apply.c:226 sits above both ordinary object arms and therefore above the
+    // filled, blind statue report.
     const hallucinated = await heroWithEmptyWest();
     floorCorpstat(STATUE, hallucinated).cobj = newObject({ quan: 1 });
     game.u.uprops[HALLUC].intrinsic = 1;
     game.u.uprops[BLINDED].intrinsic = 1;
-    assert.equal(await listenWest(), 'a hallucinated listen to the dead');
+    game.flags.acoustics = true;
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You hear a voice say, "You\'re both stoned, Jim."',
+    );
 
     // The blind glyph update at :264-265 precedes the Healer's timer walk.
     const blindReviver = await heroWithEmptyWest();
@@ -2450,49 +2445,144 @@ test('its_dead admitted body reads and writes the supplied state', async () => {
     assert.deepEqual(directItsDeadEffects(target), globalBefore);
 });
 
-test('still-unported adjacent listens refuse before shared effects',
+test('hallucinated dead objects speak and always charge the listen',
     async () => {
-    const cases = [
+    // User-authorized direct live setup, 2026-08-19. No current player input
+    // writes Hallucination, so these fixtures set its intrinsic on the
+    // ordinary doapply() state. apply.c its_dead():226-260 is otherwise fully
+    // exercised through its production consumer. This proves source ordering,
+    // output, state, and result semantics, but cannot supply C replay parity
+    // for the unavailable Hallucination setup.
+    const statueTarget = await heroWithEmptyWest();
+    floorCorpstat(STATUE, statueTarget);
+    game.u.uprops[HALLUC].intrinsic = 1;
+    game.flags.acoustics = true;
+    game.context.stethoscope_seq = game.hero_seq - 1;
+    const statueBefore = directItsDeadEffects(statueTarget);
+    const statueMessage = 'You hear a voice say, "You\'re both stoned, Jim."';
+    for (const key of ['c', 'h', 'x'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_TIME, 'first listen is forced costly');
+    assert.equal(pendingTopLine(), statueMessage);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(await game.nhDisplay.readKey(), 'x'.charCodeAt(0));
+    const statueAfter = directItsDeadEffects(statueTarget);
+    assert.deepEqual(statueAfter.pile, statueBefore.pile);
+    assert.deepEqual(statueAfter.timers, statueBefore.timers);
+    assert.equal(statueAfter.shared.rngCalls, statueBefore.shared.rngCalls);
+    await flush_screen(1);
+    assert.deepEqual(
+        game.nhDisplay.grid[0],
+        [...statueMessage.padEnd(80)].map((ch, index) => ({
+            ch,
+            color: index < statueMessage.length ? NO_COLOR : CLR_GRAY,
+            attr: 0,
+        })),
+    );
+    assert.deepEqual(
+        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+        [statueTarget.x, statueTarget.y + 1],
+    );
+
+    // Without saved traits, fixed-sex species select He or She and an
+    // ordinary species remains It. A stack or another corpse selects They.
+    for (const { corpsenm, setup, message } of [
         {
-            branch: 'a hallucinated listen to the dead',
-            setup(target) {
-                map_invisible(target.x, target.y, game);
-                floorCorpstat(CORPSE, target);
-                game.u.uprops[HALLUC].intrinsic = 1;
-                return target;
-            },
+            corpsenm: PM_KEYSTONE_KOP,
+            message: 'You hear a voice say, "He\'s dead, Jim."',
         },
-    ];
-
-    for (const { branch, setup } of cases) {
-        const west = await heroWithEmptyWest();
-        const target = setup(west);
-        game.context.stethoscope_seq = 73;
-        game.gb ??= {};
-        game.gb.bhitpos = { x: 17, y: 9 };
-        game.gn ??= {};
-        game.gn.notonhead = true;
-        // Hand-built remembered glyphs are buffered until the next display
-        // boundary. Flush them now so the prompt is not mistaken for the
-        // stethoscope drawing a marker that setup had merely queued.
-        await flush_screen(1);
-        const before = adjacentRefusalEffects(target);
-        assert.equal(await listenWest(), branch);
-        const refused = adjacentRefusalEffects(target);
-        // getobj() and getdir() move the tty cursor while consuming their
-        // prompts. That prompt cursor is not a shared stethoscope effect; the
-        // second attempt starts from its cleared <0,0> position. Everything
-        // the listen itself could have changed remains equal to the setup.
-        const { cursor: _beforeCursor, ...beforeListenEffects } = before;
-        const { cursor: _refusedCursor, ...refusedListenEffects } = refused;
-        assert.deepEqual(refusedListenEffects, beforeListenEffects, branch);
-        assert.deepEqual(refused.cursor, [0, 0], branch);
-
-        // Replaying the retryable command reaches the same named refusal and
-        // leaves even the prompt cursor byte-for-byte unchanged.
-        assert.equal(await listenWest(), branch);
-        assert.deepEqual(adjacentRefusalEffects(target), refused, branch);
+        {
+            corpsenm: PM_MEDUSA,
+            message: 'You hear a voice say, "She\'s dead, Jim."',
+        },
+        {
+            corpsenm: PM_NEWT,
+            message: 'You hear a voice say, "It\'s dead, Jim."',
+        },
+        {
+            corpsenm: PM_NEWT,
+            setup(corpse) { corpse.quan = 2; },
+            message: 'You hear a voice say, "They\'re dead, Jim."',
+        },
+    ]) {
+        const target = await heroWithEmptyWest();
+        const corpse = floorCorpstat(CORPSE, target);
+        corpse.corpsenm = corpsenm;
+        setup?.(corpse);
+        game.u.uprops[HALLUC].intrinsic = 1;
+        game.flags.acoustics = true;
+        const before = directItsDeadEffects(target);
+        assert.equal(await listenWest(), null);
+        assert.equal(pendingTopLine(), message);
+        const after = directItsDeadEffects(target);
+        assert.deepEqual(after.pile, before.pile);
+        assert.equal(after.shared.rngCalls, before.shared.rngCalls);
     }
+
+    // Saved sex takes precedence over the corpse species. get_mtraits(FALSE)
+    // restores C's data pointer in place before pronoun_gender(NO_IT).
+    const savedTarget = await heroWithEmptyWest();
+    const savedCorpse = floorCorpstat(CORPSE, savedTarget);
+    savedCorpse.oextra = {
+        omonst: { mnum: PM_GNOME, female: true, data: null },
+    };
+    game.u.uprops[HALLUC].intrinsic = 1;
+    game.flags.acoustics = true;
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You hear a voice say, "She\'s dead, Jim."',
+    );
+    assert.strictEqual(savedCorpse.oextra.omonst.data, game.mons[PM_GNOME]);
+
+    // Mixed-pile selection occurs before this arm. The upper statue wins over
+    // a corpse below a separating rock; two separated corpses are plural.
+    const mixedTarget = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, mixedTarget);
+    mksobj_at(ROCK, mixedTarget.x, mixedTarget.y, false, false,
+        objectGenerationEnv({ state: game }));
+    floorCorpstat(STATUE, mixedTarget);
+    game.u.uprops[HALLUC].intrinsic = 1;
+    game.flags.acoustics = true;
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You hear a voice say, "You\'re both stoned, Jim."',
+    );
+
+    const pluralTarget = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, pluralTarget);
+    mksobj_at(ROCK, pluralTarget.x, pluralTarget.y, false, false,
+        objectGenerationEnv({ state: game }));
+    const upperPluralCorpse = floorCorpstat(CORPSE, pluralTarget);
+    // invent.c nxtobj(..., TRUE) walks the square's nexthere chain. Make the
+    // independent level-wide nobj chain end here so the two arguments differ.
+    upperPluralCorpse.nobj = null;
+    game.u.uprops[HALLUC].intrinsic = 1;
+    game.flags.acoustics = true;
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You hear a voice say, "They\'re dead, Jim."',
+    );
+
+    // You_hear suppresses the line when acoustics are disabled, but its_dead
+    // still writes ECMD_TIME and consumes only the tool and direction keys.
+    const quietTarget = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, quietTarget);
+    game.u.uprops[HALLUC].intrinsic = 1;
+    game.flags.acoustics = false;
+    game.context.stethoscope_seq = game.hero_seq - 1;
+    const quietBefore = directItsDeadEffects(quietTarget);
+    for (const key of ['c', 'h', 'z'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_TIME);
+    assert.equal(pendingTopLine(), quietBefore.shared.pendingMessage);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(await game.nhDisplay.readKey(), 'z'.charCodeAt(0));
+    const quietAfter = directItsDeadEffects(quietTarget);
+    assert.deepEqual(quietAfter.pile, quietBefore.pile);
+    assert.equal(quietAfter.shared.rngCalls, quietBefore.shared.rngCalls);
 });
 
 test('its_dead clears unreachable corpses and skips only tiny statues',
