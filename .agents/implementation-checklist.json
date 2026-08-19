@@ -1,15 +1,15 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Commit f7eea1a ports apply.c its_dead():299-305's Healer contents adjective through the real doapply() consumer. The authorized constructed fixture proves `remarkable`, both command results, exact terminal state, zero branch RNG, contents preservation, and the next input boundary; focused controls preserve trap-first `extraordinary`, non-Healer and empty-statue `fine`, blind naming, hallucination precedence, and mixed-pile selection. The full checkpoint and all 47 source-real sibling segments pass.",
-  "commitChecked": "f7eea1a679b1a06236ae2a8b63a9e75db69745a3",
+  "mode": "implementation",
+  "reason": "The next authorized constructed-test slice must port apply.c its_dead():206-211's out-of-reach tiny-statue walk. A hero who cannot reach the floor must skip every MZ_TINY statue through the nexthere chain and fall through to `You hear nothing special.`, while any selected non-tiny statue remains an atomic refusal.",
+  "commitChecked": "b2075c767d79450fc6269525e4f1c8ed3bf924e0",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
-    "startingCommit": "4e115ea3a6a17938eb31cf51e2d7059c33760411",
-    "startingEvent": "A sighted Healer applies the starting stethoscope to an adjacent reachable selected newt statue that contains a rock and is not on a STATUE_TRAP; the command has accepted the tool and direction.",
-    "endingEvent": "apply.c its_dead() preserves trap-first precedence, selects the `remarkable` contents adjective, prints the existing statue-health sentence, returns the free or costly command result, and reaches the next input boundary.",
-    "validInputs": "Use the user-authorized constructed doapply() fixture because direct statue wishes are refused, the natural D:1 statue is empty, and the source-real D:8 filled candidate is on a higher-priority STATUE_TRAP. Record the exact constructed state, controlling source, setup-route limitation, integration evidence, and what the substitute cannot prove.",
-    "observables": "Exact `The newt is in remarkable health for a statue.` message, ECMD_OK then ECMD_TIME, zero branch PRNG calls, exact terminal attributes and cursor, preserved pile and contents, unread sentinel, trap precedence, non-Healer fine result, blind naming, and ignored unselected lower filled statues.",
-    "exclusions": "Hallucination, selected REVIVE_MON corpses, out-of-reach tiny statues, and fog-region movement remain separate slices. Do not port statue creation or contents-generation commands merely to create this state."
+    "startingCommit": "b2075c767d79450fc6269525e4f1c8ed3bf924e0",
+    "startingEvent": "A hero who cannot reach the floor applies the starting stethoscope to an adjacent square containing one or more selected statues; the command has accepted the tool and direction and its_dead() is about to filter the pile.",
+    "endingEvent": "apply.c its_dead() clears any corpse, walks past every MZ_TINY statue through nxtobj(..., STATUE, TRUE), returns FALSE when none remains, and use_stethoscope() prints `You hear nothing special.` before the next input boundary.",
+    "validInputs": "Use the user-authorized constructed doapply() fixture with intrinsic LEVITATION, two newt statues and a separating rock. No currently ported command enables levitation or unskilled riding, so record the exact state, controlling source, setup-route limitation, integration evidence, and what the substitute cannot prove.",
+    "observables": "Exact fall-through message and terminal state, ECMD_OK then ECMD_TIME, zero branch PRNG calls, unchanged pile/timers/moves/lower screen, unread sentinel, nexthere rather than nobj traversal, supplied monster-catalog ownership, reachable-tiny ordinary report, and atomic refusal at the first non-tiny out-of-reach statue.",
+    "exclusions": "Do not port levitation, riding, quaffing, or statue creation merely to build the setup. The selected non-tiny out-of-reach statue arm, REVIVE_MON wording, Hallucination messages, and fog-region movement remain separate slices."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); monmove.c m_everyturn_effect() (624-665); region.c create_gas_cloud() (1194-1308); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
@@ -88,8 +88,8 @@
       "owner": "js/apply.js its_dead()",
       "effects": "Walks statue past every MZ_TINY entry through invent.c nxtobj(), so a square holding none but tiny statues reaches the fall-through.",
       "evidence": "apply.c:208-211 and invent.c nxtobj() (1477-1491). Both nxtobj() and MZ_TINY now exist in js/; the remaining gap is the source tiny-statue walk and its authorized constructed live-consumer validation because no ported levitation or unskilled-riding setup reaches it.",
-      "status": "later",
-      "remaining": "Refused as 'an out-of-reach statue'. Port the now-available nxtobj()/MZ_TINY walk in its own authorized constructed-test slice and preserve the non-tiny selected-statue refusal."
+      "status": "missing",
+      "remaining": "Port the now-available nxtobj()/MZ_TINY walk through preflight and execution; validate two tiny statues separated by another object, nexthere/catalog ownership, free/costly fall-through, and non-tiny stopping controls while preserving the named refusal."
     },
     {
       "candidate": "apply.c its_dead() Hallucination arm (226-260)",
@@ -335,6 +335,12 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The completed goal-wide trace remains recorded above. Commit f7eea1a closes apply.c:299-305: for a Healer's selected reachable statue, STATUE_TRAP chooses `extraordinary` before hasContents(statue) chooses `remarkable`; otherwise the existing result is `fine`. Preflight now admits the selected statue and execution reads trap and contents from the supplied state. No ported input constructs a filled non-trap statue, so the user's 2026-08-19 authorization supplies a documented live integration fixture; it cannot prove player-input reachability or direct C parity for that unavailable setup. The ordinary-statue and seed-259 trap differentials remain exact surrounding C evidence. REVIVE_MON `mostly dead`, out-of-reach tiny-statue selection, the full Hallucination message arm, and fog m_in_out_region() remain separate confirmed gaps."
+  "missingWorkByOwner": [
+    {
+      "group": "apply.c its_dead() out-of-reach statue selection",
+      "candidates": ["apply.c its_dead() tiny-statue walk (208-211)"],
+      "next": "Port the MZ_TINY nexthere traversal in the shared selection/preflight path and validate the authorized constructed doapply() consumer plus non-tiny refusal controls."
+    }
+  ],
+  "sourceReview": "The completed goal-wide trace remains recorded above. The next slice isolates apply.c:206-211 before mixed-pile selection: an unreachable hero loses the corpse candidate, then advances the statue candidate through nxtobj(..., STATUE, TRUE) while mons[corpsenm].msize == MZ_TINY. If all statues are tiny, its_dead() returns FALSE and use_stethoscope() prints the ordinary nothing-special line; the first non-tiny statue remains selected. nxtobj() and MZ_TINY are now ported. No current input enables levitation or the unskilled-riding condition, so the user's 2026-08-19 authorization supplies a documented live doapply() fixture that cannot prove player-input reachability, future status wiring, or direct C parity for the constructed state. REVIVE_MON `mostly dead`, the full Hallucination message arm, selected non-tiny out-of-reach behavior, and fog m_in_out_region() remain separate confirmed gaps."
 }
