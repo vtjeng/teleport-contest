@@ -156,6 +156,7 @@ import {
     loadApplyStethoscopeRecipe,
     loadBlindCorpseRecipe,
     loadBlindStatueRecipe,
+    loadHealerStatueTrapRecipe,
     loadListenAtMonsterRecipe,
     loadOrdinaryCorpseRecipe,
     loadOrdinaryStatueRecipe,
@@ -1578,16 +1579,39 @@ test('its_dead reports blind statues by location and body shape', async () => {
 });
 
 test('its_dead keeps exceptional object paths in source order', async () => {
-    // Blindness changes only the statue's name. The Healer checks below that
-    // name still refuse before the live command applies any shared effects.
+    // Blindness changes only the statue's name. The Healer's trap check below
+    // that name changes the adjective and keeps the first listen free.
     const trapped = await heroWithEmptyWest();
     floorCorpstat(STATUE, trapped);
     game.u.uprops[BLINDED].intrinsic = 1;
     game.level.traps.push({
         tx: trapped.x, ty: trapped.y, ttyp: STATUE_TRAP, tseen: false,
     });
-    assert.equal(await listenWest(), 'a Healer examining a statue trap');
+    for (const key of ['c', 'h']) game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(
+        pendingTopLine(),
+        'That creature is in extraordinary health for a statue.',
+    );
+    for (const key of [' ', 'c', 'h'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_TIME);
 
+    // Has_contents() is an else-if below the trap test. A Healer therefore
+    // still hears "extraordinary" when the selected trap statue has contents.
+    const trappedFilled = await heroWithEmptyWest();
+    floorCorpstat(STATUE, trappedFilled).cobj = newObject({ quan: 1 });
+    game.level.traps.push({
+        tx: trappedFilled.x, ty: trappedFilled.y,
+        ttyp: STATUE_TRAP, tseen: false,
+    });
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'The newt is in extraordinary health for a statue.',
+    );
+
+    // Contents without the higher-priority trap remain outside this slice.
     const filled = await heroWithEmptyWest();
     floorCorpstat(STATUE, filled).cobj = newObject({ quan: 1 });
     assert.equal(await listenWest(), 'a Healer examining statue contents');
@@ -1658,18 +1682,6 @@ test('still-unported adjacent listens refuse before shared effects',
             setup() {
                 game.u.ux = 1;
                 return null;
-            },
-        },
-        {
-            branch: 'a Healer examining a statue trap',
-            setup(target) {
-                map_invisible(target.x, target.y, game);
-                floorCorpstat(STATUE, target);
-                game.level.traps.push({
-                    tx: target.x, ty: target.y,
-                    ttyp: STATUE_TRAP, tseen: false,
-                });
-                return target;
             },
         },
         {
@@ -1874,7 +1886,7 @@ test('ustatusline stops for every clause it would have to name', async () => {
     );
 });
 
-test('the apply matrix holds the nine clean recipes the slices close on',
+test('the apply matrix holds the ten clean recipes the slices close on',
     () => {
     const priorRecipes = [loadApplyStethoscopeRecipe(), loadApplyPromptRecipe()];
     const recipes = [
@@ -1886,11 +1898,12 @@ test('the apply matrix holds the nine clean recipes the slices close on',
         loadOrdinaryStatueRecipe(),
         loadBlindStatueRecipe(),
         loadBlindCorpseRecipe(),
+        loadHealerStatueTrapRecipe(),
     ];
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 43);
+    assert.equal(segments.length, 44);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // The two prior recipes open and close with a wait, so a command that
     // wrongly spent or wrongly saved a turn shows in the screen after it.

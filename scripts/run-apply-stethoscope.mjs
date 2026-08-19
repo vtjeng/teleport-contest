@@ -9,8 +9,8 @@
 // use_stethoscope() through the switch, insight.c ustatusline() through the
 // self direction, insight.c mstatusline() through a direction holding a
 // monster, apply.c's secret-terrain switch, and apply.c its_dead() through an
-// empty square, an ordinary corpse pile, an ordinary statue, or a blind
-// statue, or a blind corpse. The matrix splits into nine parts.
+// empty square, an ordinary corpse pile, an ordinary statue, a blind statue,
+// a blind corpse, or a Healer's statue trap. The matrix splits into ten parts.
 // The first drives use_stethoscope(): the free first
 // listen, the second listen in the same move that costs a turn, both cancels,
 // both self keys, the Deaf guard, a sweep of all eight compass directions, a
@@ -530,6 +530,28 @@ export function loadBlindCorpseRecipe() {
     }, 'blind corpse recipe');
 }
 
+// A source-real statue trap for apply.c its_dead():295-305. The level
+// teleport lands the Healer at (68,13) on D:8; the gray-ooze statue west at
+// (67,13) lies on a STATUE_TRAP. The final wait proves the free listen returns
+// and later monster movement consumes the sentinel.
+export function loadHealerStatueTrapRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            seed: 259,
+            datetime: '20340102030405',
+            nethackrc: nethackrc({
+                name: 'TrapStat',
+                role: 'Healer',
+                options: 'pettype:none,!acoustics,!autopickup,time,'
+                    + 'playmode:debug',
+            }),
+            moves: `${SPACE_KEY}\x168\n${SPACE_KEY}`
+                + `${APPLY_KEY}${STETHOSCOPE_SLOT}${WEST}${WAIT}`,
+        }],
+    }, 'Healer statue trap recipe');
+}
+
 // One pack per apply_ok() term. Each role below advertises a letter set that
 // only the named term produces, so a term answering wrongly would change the
 // prompt rather than leave it alone. Every segment cancels at the prompt,
@@ -665,12 +687,21 @@ export async function runApplyStethoscopeMatrix() {
         chunkLimit: 1,
     });
     if (!blindStatue.passed) return blindStatue;
-    return runFreshMatrix({
+    const blindCorpse = await runFreshMatrix({
         entries: [{
             label: 'blind corpse',
             recipe: loadBlindCorpseRecipe(),
         }],
         summaryLabel: 'BLIND CORPSE',
+        chunkLimit: 1,
+    });
+    if (!blindCorpse.passed) return blindCorpse;
+    return runFreshMatrix({
+        entries: [{
+            label: 'Healer statue trap',
+            recipe: loadHealerStatueTrapRecipe(),
+        }],
+        summaryLabel: 'HEALER STATUE TRAP',
         chunkLimit: 1,
     });
 }

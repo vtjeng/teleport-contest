@@ -9,9 +9,9 @@
 // its three guards, the free-action rule, the self-probe that confdir() leads
 // to, the monster on the adjacent square, both secret-terrain arms, and the
 // adjacent square that holds nothing to report, the ordinary sighted corpse
-// and statue results, and a blind hero's ordinary statue report. The mounted,
-// swallowed, vertical, cursed, off-map, and exceptional dead-thing arms still
-// stop.
+// and statue results, a blind hero's ordinary statue report, and a Healer's
+// statue-trap report. The mounted, swallowed, vertical, cursed, off-map, and
+// remaining exceptional dead-thing arms still stop.
 
 import {
     ARTICLE_A,
@@ -225,9 +225,9 @@ export function apply_ok(obj, state = game) {
 // (apply.c:253); that arm still refuses here, so the port answers a bare
 // boolean. The admitted corpse branch is sighted, reachable, has no statue in
 // its pile, and has no REVIVE_MON timer. The admitted statue branch is
-// reachable, has no corpse in its pile, and is not a Healer's statue trap or
-// statue carrying contents; it has separate sighted and blind names. The
-// remaining exceptional siblings stay named refusals.
+// reachable, has no corpse in its pile, and either carries no contents or lies
+// on a statue trap; it has separate sighted and blind names. The remaining
+// exceptional siblings stay named refusals.
 function unportedItsDeadBranch(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     const statue = sobj_at(STATUE, rx, ry, state);
@@ -256,9 +256,9 @@ function unportedItsDeadBranch(rx, ry, state) {
     if (statue) {
         if (state.urole?.mnum === PM_HEALER) {
             const trap = t_at(rx, ry, state);
-            if (trap?.ttyp === STATUE_TRAP)
-                return 'a Healer examining a statue trap';
-            if (hasContents(statue))
+            // apply.c:299-303 gives the trap priority over contents. Admit
+            // that adjective while keeping contents-only statues retryable.
+            if (trap?.ttyp !== STATUE_TRAP && hasContents(statue))
                 return 'a Healer examining statue contents';
         }
         return null;
@@ -295,6 +295,7 @@ export async function its_dead(rx, ry, state) {
     if (statue) {
         const species = state.mons[statue.corpsenm];
         let what;
+        let how = 'fine';
         if (heroIsBlind(state)) {
             what = `${u_at(rx, ry, state) ? 'This' : 'That'} ${
                 humanoid(species) ? 'person' : 'creature'}`;
@@ -302,7 +303,10 @@ export async function its_dead(rx, ry, state) {
             what = obj_pmname(statue, state);
             if (!type_is_pname(species)) what = The(what, state);
         }
-        await ttyPline(`${what} is in fine health for a statue.`, state);
+        if (state.urole?.mnum === PM_HEALER
+            && t_at(rx, ry, state)?.ttyp === STATUE_TRAP)
+            how = 'extraordinary';
+        await ttyPline(`${what} is in ${how} health for a statue.`, state);
         return true;
     }
     return false;
