@@ -85,6 +85,8 @@ import {
 import { runSegment } from '../js/jsmain.js';
 import { getRngLog } from '../js/rng.js';
 import {
+    MZ_SMALL,
+    MZ_TINY,
     monst_globals_init,
     NON_PM,
     PM_ALIGNED_CLERIC,
@@ -2192,7 +2194,8 @@ test('its_dead keeps exceptional object paths in source order', async () => {
     );
 
     const directUnreachable = await heroWithEmptyWest();
-    floorCorpstat(STATUE, directUnreachable);
+    const directUnreachableGnome = floorCorpstat(STATUE, directUnreachable);
+    directUnreachableGnome.corpsenm = PM_GNOME;
     game.u.uprops[LEVITATION].intrinsic = 1;
     await assertDirectItsDeadRefusal(
         directUnreachable, 'an out-of-reach statue',
@@ -2425,7 +2428,8 @@ test('still-unported adjacent listens refuse before shared effects',
             branch: 'an out-of-reach statue',
             setup(target) {
                 map_invisible(target.x, target.y, game);
-                floorCorpstat(STATUE, target);
+                const statue = floorCorpstat(STATUE, target);
+                statue.corpsenm = PM_GNOME;
                 game.u.uprops[LEVITATION].intrinsic = 1;
                 return target;
             },
@@ -2463,7 +2467,8 @@ test('still-unported adjacent listens refuse before shared effects',
     }
 });
 
-test('its_dead clears the corpse a levitating hero cannot reach', async () => {
+test('its_dead clears unreachable corpses and stops at a non-tiny statue',
+    async () => {
     // apply.c:206-207. A levitating hero reaches no corpse on the floor, so
     // C's chain finds nothing and the caller prints its ordinary answer. The
     // corpse test has to sit below this block for that to happen.
@@ -2485,16 +2490,191 @@ test('its_dead clears the corpse a levitating hero cannot reach', async () => {
     assert.equal(await listenWest(), null);
     assert.equal(pendingTopLine(), 'You hear nothing special.');
 
-    // apply.c:210-211 would walk past a tiny statue and leave a larger one
-    // standing; the port refuses both from inside the block, under a name of
-    // its own. What pins the guard to the inside of the block is the ordinary
-    // statue above, which still answers with the arm's name; this case pins
-    // that an unreachable one is told apart from it.
+    // A reachable tiny statue still enters the ordinary statue arm. The walk
+    // at apply.c:210-211 belongs only inside the failed reachability block.
+    const reachableTiny = await heroWithEmptyWest();
+    floorCorpstat(STATUE, reachableTiny);
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'The newt is in fine health for a statue.',
+    );
+
+    // A levitating hero stops at the first non-tiny statue. monst.c's gnome
+    // row is MZ_SMALL, separating it from the MZ_TINY newt used above.
     const outOfReach = await heroWithEmptyWest();
-    floorCorpstat(STATUE, outOfReach);
+    const gnomeStatue = floorCorpstat(STATUE, outOfReach);
+    gnomeStatue.corpsenm = PM_GNOME;
+    game.u.uprops[LEVITATION].intrinsic = 1;
+    assert.equal(await listenWest(), 'an out-of-reach statue');
+
+    // The same refusal survives a tiny statue above the non-tiny one: the
+    // loop skips the newt, finds the gnome, and leaves it selected.
+    const mixedSizes = await heroWithEmptyWest();
+    const lowerGnome = floorCorpstat(STATUE, mixedSizes);
+    lowerGnome.corpsenm = PM_GNOME;
+    floorCorpstat(STATUE, mixedSizes);
     game.u.uprops[LEVITATION].intrinsic = 1;
     assert.equal(await listenWest(), 'an out-of-reach statue');
 });
+
+test('a levitating Healer hears nothing from a pile of tiny statues',
+    async () => {
+        // Authorized constructed live-consumer substitute, 2026-08-19. The
+        // exact setup starts the ordinary sighted Healer fixture, grants
+        // intrinsic LEVITATION, then places two newt statues on the adjacent
+        // west square with a rock between them. It drives the state through
+        // doapply() using the starting stethoscope's `c` slot and west `h`.
+        // There is no ported player-input route to this state: levitation
+        // boots stop before do_wear.c Boots_on() calls float_up(), drinking a
+        // levitation potion has no ported dodrink() consumer, and no mounted
+        // input route supplies an unskilled rider here.
+        //
+        // apply.c its_dead():203-224 clears the corpse when
+        // can_reach_floor(TRUE) is false, then :208-211 walks each statue for
+        // which mons[corpsenm].msize is MZ_TINY using invent.c
+        // nxtobj(..., TRUE). With no statue left, :223-224 does nothing and
+        // :308 returns FALSE; use_stethoscope():467-468 prints the ordinary
+        // nothing-special message. A detached gnome statue on the upper
+        // newt's nobj chain makes a mistaken level-wide traversal refuse,
+        // while the real nexthere chain crosses the rock to the lower newt.
+        // This test pins the live command's free and costly results, exact
+        // output and terminal state, object and timer preservation, branch
+        // PRNG count, and unread sentinels. It cannot prove a future input
+        // constructor creates this state or compare the unavailable setup to
+        // a C recording; source-real reachable-statue and unreachable-corpse
+        // cases provide the surrounding differential evidence.
+        const target = await heroWithEmptyWest();
+        const lowerTiny = floorCorpstat(STATUE, target);
+        mksobj_at(ROCK, target.x, target.y, false, false,
+            objectGenerationEnv({ state: game }));
+        const upperTiny = floorCorpstat(STATUE, target);
+        const foreignNobjStatue = newObject({
+            o_id: -973,
+            otyp: STATUE,
+            quan: 1,
+            corpsenm: PM_GNOME,
+        });
+        upperTiny.nobj = foreignNobjStatue;
+        game.u.uprops[LEVITATION].intrinsic = 1;
+        // Paint the setup's Lev status before taking the lower-screen
+        // baseline; the listen itself must leave every lower row unchanged.
+        game.disp.botl = true;
+        await flush_screen(1);
+        const before = directItsDeadEffects(target);
+        const lowerRowsBefore = game.nhDisplay.grid.slice(1).map(
+            (row) => row.map(({ ch, color, attr }) => ({ ch, color, attr })),
+        );
+        const message = 'You hear nothing special.';
+
+        assert.deepEqual(
+            before.pile.map(({ otyp, corpsenm }) => ({ otyp, corpsenm })),
+            [
+                { otyp: STATUE, corpsenm: PM_NEWT },
+                { otyp: ROCK, corpsenm: -1 },
+                { otyp: STATUE, corpsenm: PM_NEWT },
+            ],
+        );
+        assert.strictEqual(upperTiny.nexthere.nexthere, lowerTiny);
+        assert.strictEqual(upperTiny.nobj, foreignNobjStatue);
+        assert.equal(game.mons[PM_NEWT].msize, MZ_TINY);
+        assert.equal(game.mons[PM_GNOME].msize, MZ_SMALL);
+
+        for (const key of ['c', 'h', 'x'])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_OK);
+        assert.equal(pendingTopLine(), message);
+        assert.equal(game.nhDisplay.inputQueueLength, 1);
+        assert.equal(game.context.stethoscope_seq, game.hero_seq);
+        assert.equal(game.moves, before.shared.moves);
+        assert.equal(game.context.move, before.shared.contextMove);
+        let after = directItsDeadEffects(target);
+        assert.deepEqual(after.pile, before.pile);
+        assert.deepEqual(after.timers, before.timers);
+        assert.equal(after.shared.rngCalls, before.shared.rngCalls);
+
+        await flush_screen(1);
+        assert.deepEqual(
+            game.nhDisplay.grid[0],
+            [...message.padEnd(80)].map((ch, index) => ({
+                ch,
+                color: index < message.length ? NO_COLOR : CLR_GRAY,
+                attr: 0,
+            })),
+        );
+        assert.deepEqual(
+            game.nhDisplay.grid.slice(1).map(
+                (row) => row.map(({ ch, color, attr }) => ({
+                    ch, color, attr,
+                })),
+            ),
+            lowerRowsBefore,
+        );
+        assert.deepEqual(
+            [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+            [target.x, target.y + 1],
+        );
+        assert.equal(await game.nhDisplay.readKey(), 'x'.charCodeAt(0));
+
+        // No hero action separates these calls, so only the command result
+        // changes. Space dismisses the first message; `y` remains unread.
+        for (const key of [' ', 'c', 'h', 'y'])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_TIME);
+        assert.equal(pendingTopLine(), message);
+        assert.equal(game.nhDisplay.inputQueueLength, 1);
+        await flush_screen(1);
+        assert.deepEqual(
+            game.nhDisplay.grid[0],
+            [...message.padEnd(80)].map((ch, index) => ({
+                ch,
+                color: index < message.length ? NO_COLOR : CLR_GRAY,
+                attr: 0,
+            })),
+        );
+        assert.deepEqual(
+            game.nhDisplay.grid.slice(1).map(
+                (row) => row.map(({ ch, color, attr }) => ({
+                    ch, color, attr,
+                })),
+            ),
+            lowerRowsBefore,
+        );
+        assert.deepEqual(
+            [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+            [target.x, target.y + 1],
+        );
+        assert.equal(await game.nhDisplay.readKey(), 'y'.charCodeAt(0));
+        after = directItsDeadEffects(target);
+        assert.deepEqual(after.pile, before.pile);
+        assert.deepEqual(after.timers, before.timers);
+        assert.equal(after.shared.rngCalls, before.shared.rngCalls);
+        assert.equal(game.moves, before.shared.moves);
+        assert.equal(game.context.move, before.shared.contextMove);
+    });
+
+test('its_dead uses the supplied monster catalog for tiny statues',
+    async () => {
+        const target = await heroWithEmptyWest();
+        const supplied = isolatedItsDeadState();
+        placeStateCorpstat(supplied, STATUE, target);
+        supplied.u.uprops[LEVITATION].intrinsic = 1;
+        supplied.mons[PM_NEWT].msize = MZ_TINY;
+        const suppliedBefore = suppliedItsDeadEffects(supplied, target);
+        const globalSize = game.mons[PM_NEWT].msize;
+        game.mons[PM_NEWT].msize = MZ_SMALL;
+        try {
+            assert.equal(
+                await its_dead(target.x, target.y, supplied),
+                false,
+            );
+            assert.deepEqual(
+                suppliedItsDeadEffects(supplied, target), suppliedBefore,
+            );
+        } finally {
+            game.mons[PM_NEWT].msize = globalSize;
+        }
+    });
 
 test('ustatusline stops for every clause it would have to name', async () => {
     await runSegment({ ...segmentFor('ac.'), moves: '.' });

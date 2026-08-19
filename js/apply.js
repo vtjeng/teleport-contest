@@ -100,7 +100,7 @@ import {
     WAND_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
-import { PM_HEALER } from './monsters.js';
+import { MZ_TINY, PM_HEALER } from './monsters.js';
 import { body_part } from './polyself.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
@@ -233,12 +233,13 @@ function selectedDeadObject(rx, ry, state) {
 
     if (!canReachFloor) {               /* levitation or unskilled riding */
         corpse = null;                   /* can't reach corpse on floor */
-        // apply.c:210-211 then walks `statue` past the tiny statues an
-        // out-of-reach hero cannot touch, through invent.c nxtobj(), so a
-        // square holding none but tiny ones reaches the fall-through below.
-        // The port refuses every out-of-reach statue here, including the
-        // source's tiny-statue walk. nxtobj() and MZ_TINY are available, but
-        // the walk remains outside this reachable-statue slice.
+        // apply.c:208-211. An out-of-reach hero cannot touch tiny statues;
+        // walk this square's pile until the first statue whose species is not
+        // tiny. When none remains, its_dead() reaches its FALSE fall-through.
+        while (statue
+            && state.mons[statue.corpsenm].msize === MZ_TINY) {
+            statue = nxtobj(statue, STATUE, true);
+        }
     }
     // apply.c:213-219. sobj_at() found the first object of each kind. If the
     // first corpse follows the first statue in the square's nexthere chain,
