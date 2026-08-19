@@ -3031,8 +3031,8 @@
         },
         {
           "name": "unreachable-non-tiny-statue-reports-health",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "18cc498b764d7b84f84993bc6804bec88e7af86d"
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",

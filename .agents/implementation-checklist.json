@@ -1,6 +1,6 @@
 {
-  "mode": "implementation",
-  "reason": "The next authorized constructed-test slice must remove the JS-only out-of-reach non-tiny statue refusal. After apply.c its_dead():206-211 skips any MZ_TINY statues, the first non-tiny statue remains selected and enters the existing ordinary health-report arm.",
+  "mode": "ready-for-audit",
+  "reason": "The out-of-reach non-tiny statue slice is complete at 18cc498. The JS-only refusal is gone and the authorized constructed live doapply fixture proves that the first non-tiny statue after the tiny-statue walk enters the existing health-report arm. Independent checkpoint and the 47-segment sibling matrix are green; development remains unchanged at the slice's zero-development ceiling.",
   "commitChecked": "63c8e8a39d0f648970a39552fe5216d2cdf0d7f9",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
@@ -97,8 +97,8 @@
       "owner": "js/apply.js unportedItsDeadBranch() and its_dead_after_preflight()",
       "effects": "Uses the existing sighted/blind subject naming and Healer trap/contents adjective, prints the statue-health sentence, and returns TRUE to the free/costly stethoscope caller.",
       "evidence": "apply.c:203-211 and 281-307. The post-9519b07 source reread confirms that `an out-of-reach statue` is a JS-only refusal. No current input enables the required reachability state, so the user authorized a constructed live doapply() fixture on 2026-08-19.",
-      "status": "missing",
-      "remaining": "Delete the JS-only refusal and prove a tiny-above-gnome pile reaches the gnome report through doapply(), with exact timing/output/state and all-tiny, reachable, hallucination, trap, and contents controls."
+      "status": "done",
+      "remaining": "None. Commit 18cc498 deletes the JS-only refusal. The authorized constructed live doapply fixture walks a tiny newt statue, separating rock, then gnome statue and pins the ordinary health report, free/costly results, exact terminal state, zero branch RNG, pile/timer/map/move preservation, unread sentinels, and nexthere ownership. It cannot prove a current player input creates levitation or provide direct C replay parity for that unavailable setup; the 47 source-real sibling segments remain exact."
     },
     {
       "candidate": "apply.c its_dead() Hallucination arm (226-260)",
@@ -344,12 +344,6 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "apply.c its_dead() out-of-reach non-tiny statue result",
-      "candidates": ["apply.c its_dead() out-of-reach non-tiny statue result (203-211, 281-307)"],
-      "next": "Remove the JS-only refusal and validate the selected gnome statue through the authorized constructed doapply() consumer with source-order controls."
-    }
-  ],
-  "sourceReview": "The completed goal-wide trace remains recorded above. The post-9519b07 source reread corrected the remaining out-of-reach claim: apply.c:206-211 clears the corpse and skips only MZ_TINY statues; it does not refuse or discard the first non-tiny statue. That statue flows unchanged into apply.c:281-307's already-ported ordinary health report. No current input enables levitation or unskilled riding, so the user's 2026-08-19 authorization supplies a documented live doapply() fixture that cannot prove player-input reachability, future status wiring, or direct C parity for the constructed state. REVIVE_MON `mostly dead`, the full Hallucination message arm, and fog m_in_out_region() remain separate confirmed gaps."
+  "missingWorkByOwner": [],
+  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 18cc498 corrects the final out-of-reach claim: apply.c:206-211 clears the corpse and skips only MZ_TINY statues; it does not refuse or discard the first non-tiny statue, which flows into the existing health report. The authorized constructed doapply fixture records the unavailable levitation setup and its limitations, while the 47 source-real sibling segments remain exact. REVIVE_MON `mostly dead`, the full Hallucination message arm, and fog m_in_out_region() remain separate confirmed gaps; the user's speed direction means their future constructed validation should use the smallest direct source-pinned consumer rather than further setup searches."
 }
