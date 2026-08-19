@@ -29,3 +29,10 @@ Entry shape:
 - Question: May C source analysis plus a constructed live-consumer integration test substitute for a fresh C differential for apply.c use_stethoscope()'s off-map arm at 384-390?
 - Provisional decision: slice parked with no production edit or commit; the loop continues with another remaining adjacent-square slice.
 - Answer: (open)
+
+## Q11 (2026-08-19) May constructed tests close the remaining setup-unreachable adjacent-listen branches?
+
+- Context: After closing the source-real costly-listen fog-vapor path, the selector found no remaining branch that a currently ported input can reach with a complete fresh differential. Off-map remains Q10; Hallucination, levitation or unskilled riding, a timed troll corpse, both mixed-pile orders, and a populated statue each lack a ported setup writer. The closest elapsed-turn case is a fog leaving its one-cell region, but declared searches over 64 short seeds, five delayed variants, and three moved-hero variants all completed without reaching the transition.
+- Question: May C source analysis plus constructed live-consumer integration tests substitute for fresh C differentials for these remaining state-unreachable branches, including the off-map arm in Q10?
+- Provisional decision: the loop stops with the goal open and makes no production edit. Without authorization, these branches remain parked and the single-open-goal workflow has no unblocked next slice.
+- Answer: (open)
