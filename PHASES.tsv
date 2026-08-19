@@ -645,3 +645,4 @@ utc	event	phase	goal	detail
 2026-08-19T01:41:17.172Z	end	review	stethoscope-reaches-an-adjacent-square	Full correctness pass: 16 raw, 13 deduplicated, 12 confirmed, 0 applied, 12 deferred, 1 rejected; return to implementation for input-boundary, rendering, PRNG, message, test, and clarity fixes
 2026-08-19T01:44:01.340Z	start	select	stethoscope-reaches-an-adjacent-square	Select the next bounded implementation slice after the full correctness pass returned twelve confirmed findings
 2026-08-19T01:54:37.462Z	end	select	stethoscope-reaches-an-adjacent-square	Selected stethoscope-reveals-secret-terrain: apply.c use_stethoscope SDOOR/SCORR switch with natural seed-12 and seed-186 setups; zero development-session ceiling; corpse/statue arm remains runner-up
+2026-08-19T01:56:14.940Z	start	implement	stethoscope-reaches-an-adjacent-square	Port stethoscope-reveals-secret-terrain and make still-deferred adjacent-square refusals atomic before shared effects
