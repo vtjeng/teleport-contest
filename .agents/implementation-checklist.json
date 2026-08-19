@@ -1,15 +1,15 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Commit 9519b07 ports apply.c its_dead():206-211's out-of-reach MZ_TINY traversal. The authorized constructed doapply() fixture proves the all-tiny fall-through, both command results, exact terminal state, supplied monster-catalog ownership, nexthere rather than nobj traversal, zero branch RNG, and state preservation; controls keep the first non-tiny statue as an atomic refusal. The full checkpoint and all 47 source-real sibling segments pass, and the original mutation wave killed both eligible mutants.",
-  "commitChecked": "9519b07c5cc69aa11b379ef1b493287f44ba3a46",
+  "mode": "implementation",
+  "reason": "The next authorized constructed-test slice must remove the JS-only out-of-reach non-tiny statue refusal. After apply.c its_dead():206-211 skips any MZ_TINY statues, the first non-tiny statue remains selected and enters the existing ordinary health-report arm.",
+  "commitChecked": "63c8e8a39d0f648970a39552fe5216d2cdf0d7f9",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
-    "startingCommit": "f9294dd6937de005d038089a3c2ea29507b992f3",
-    "startingEvent": "A hero who cannot reach the floor applies the starting stethoscope to an adjacent square containing one or more selected statues; the command has accepted the tool and direction and its_dead() is about to filter the pile.",
-    "endingEvent": "apply.c its_dead() clears any corpse, walks past every MZ_TINY statue through nxtobj(..., STATUE, TRUE), returns FALSE when none remains, and use_stethoscope() prints `You hear nothing special.` before the next input boundary.",
-    "validInputs": "Use the user-authorized constructed doapply() fixture with intrinsic LEVITATION, two newt statues and a separating rock. No currently ported command enables levitation or unskilled riding, so record the exact state, controlling source, setup-route limitation, integration evidence, and what the substitute cannot prove.",
-    "observables": "Exact fall-through message and terminal state, ECMD_OK then ECMD_TIME, zero branch PRNG calls, unchanged pile/timers/moves/lower screen, unread sentinel, nexthere rather than nobj traversal, supplied monster-catalog ownership, reachable-tiny ordinary report, and atomic refusal at the first non-tiny out-of-reach statue.",
-    "exclusions": "Do not port levitation, riding, quaffing, or statue creation merely to build the setup. The selected non-tiny out-of-reach statue arm, REVIVE_MON wording, Hallucination messages, and fog-region movement remain separate slices."
+    "startingCommit": "63c8e8a39d0f648970a39552fe5216d2cdf0d7f9",
+    "startingEvent": "A hero who cannot reach the floor applies the starting stethoscope to an adjacent pile whose first statue after any MZ_TINY entries is a non-tiny species; the command has accepted the tool and direction.",
+    "endingEvent": "apply.c its_dead() keeps the first non-tiny statue selected, executes the existing statue-health arm, returns TRUE, and doapply() reaches the next input boundary with the free or costly command result.",
+    "validInputs": "Use the user-authorized constructed doapply() fixture with intrinsic LEVITATION and a west pile containing a tiny newt statue, separating rock, and small gnome statue. No current input enables levitation or unskilled riding, so record the exact state, source, setup-route limitation, evidence, and what the substitute cannot prove.",
+    "observables": "Exact `The gnome is in fine health for a statue.` terminal line/attributes/cursor, ECMD_OK then ECMD_TIME, zero branch PRNG calls, unchanged pile/timers/map/moves, unread sentinels, square-local traversal, all-tiny fall-through control, reachable ordinary report, and unchanged hallucination/trap/contents precedence.",
+    "exclusions": "Do not port levitation, riding, quaffing, or statue creation merely to build the setup. REVIVE_MON wording, Hallucination messages, and fog-region movement remain separate slices."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); monmove.c m_everyturn_effect() (624-665); region.c create_gas_cloud() (1194-1308); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
@@ -90,6 +90,15 @@
       "evidence": "apply.c:208-211 and invent.c nxtobj() (1477-1491). Both nxtobj() and MZ_TINY now exist in js/; the remaining gap is the source tiny-statue walk and its authorized constructed live-consumer validation because no ported levitation or unskilled-riding setup reaches it.",
       "status": "done",
       "remaining": "None. The authorized constructed doapply() fixture walks two newt statues separated by a rock, with a detached gnome on nobj to distinguish nexthere traversal, and pins both command results, exact fall-through output, terminal state, zero RNG, and unchanged state. Supplied-state and non-tiny controls distinguish catalog ownership and the retained refusal."
+    },
+    {
+      "candidate": "apply.c its_dead() out-of-reach non-tiny statue result (203-211, 281-307)",
+      "reachability": "can_reach_floor(TRUE) is false and the first statue remaining after the MZ_TINY walk has a larger species size. C leaves it selected and reaches the ordinary statue arm; no separate out-of-reach message or random-number call exists.",
+      "owner": "js/apply.js unportedItsDeadBranch() and its_dead_after_preflight()",
+      "effects": "Uses the existing sighted/blind subject naming and Healer trap/contents adjective, prints the statue-health sentence, and returns TRUE to the free/costly stethoscope caller.",
+      "evidence": "apply.c:203-211 and 281-307. The post-9519b07 source reread confirms that `an out-of-reach statue` is a JS-only refusal. No current input enables the required reachability state, so the user authorized a constructed live doapply() fixture on 2026-08-19.",
+      "status": "missing",
+      "remaining": "Delete the JS-only refusal and prove a tiny-above-gnome pile reaches the gnome report through doapply(), with exact timing/output/state and all-tiny, reachable, hallucination, trap, and contents controls."
     },
     {
       "candidate": "apply.c its_dead() Hallucination arm (226-260)",
@@ -335,6 +344,12 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 9519b07 closes apply.c:206-211 before mixed-pile selection: an unreachable hero loses the corpse candidate, then advances the statue through nxtobj(..., STATUE, TRUE) while the supplied mons[corpsenm].msize is MZ_TINY. When all statues are tiny, its_dead() returns FALSE and use_stethoscope() prints the ordinary nothing-special line; the first non-tiny statue remains selected and refused before effects. No current input enables levitation or the unskilled-riding condition, so the user's 2026-08-19 authorization supplies a documented live doapply() fixture; it cannot prove player-input reachability, future status wiring, or direct C parity for the constructed state. REVIVE_MON `mostly dead`, the full Hallucination message arm, selected non-tiny out-of-reach behavior, and fog m_in_out_region() remain separate confirmed gaps."
+  "missingWorkByOwner": [
+    {
+      "group": "apply.c its_dead() out-of-reach non-tiny statue result",
+      "candidates": ["apply.c its_dead() out-of-reach non-tiny statue result (203-211, 281-307)"],
+      "next": "Remove the JS-only refusal and validate the selected gnome statue through the authorized constructed doapply() consumer with source-order controls."
+    }
+  ],
+  "sourceReview": "The completed goal-wide trace remains recorded above. The post-9519b07 source reread corrected the remaining out-of-reach claim: apply.c:206-211 clears the corpse and skips only MZ_TINY statues; it does not refuse or discard the first non-tiny statue. That statue flows unchanged into apply.c:281-307's already-ported ordinary health report. No current input enables levitation or unskilled riding, so the user's 2026-08-19 authorization supplies a documented live doapply() fixture that cannot prove player-input reachability, future status wiring, or direct C parity for the constructed state. REVIVE_MON `mostly dead`, the full Hallucination message arm, and fog m_in_out_region() remain separate confirmed gaps."
 }
