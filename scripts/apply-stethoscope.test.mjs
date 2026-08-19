@@ -20,6 +20,7 @@ import {
     INVIS,
     MFAST,
     MSLOW,
+    REVIVE_MON,
     SICK,
     SLIMED,
     STONED,
@@ -44,6 +45,7 @@ import {
     ROOM,
     SCORR,
     SDOOR,
+    TIMER_OBJECT,
 } from '../js/const.js';
 import {
     flush_screen,
@@ -123,6 +125,7 @@ import {
 } from '../js/objects.js';
 import { S_altar } from '../js/symbols.js';
 import { create_region } from '../js/region.js';
+import { start_timer } from '../js/timeout.js';
 import { welded } from '../js/wield.js';
 import {
     APPLY_KEY,
@@ -130,6 +133,7 @@ import {
     loadApplyPromptRecipe,
     loadApplyStethoscopeRecipe,
     loadListenAtMonsterRecipe,
+    loadOrdinaryCorpseRecipe,
     loadSecretTerrainRecipe,
 } from './run-apply-stethoscope.mjs';
 
@@ -1290,28 +1294,94 @@ test('mstatusline stops on the three clauses that need unported source',
     game.u.usteed = null;
 });
 
-test('its_dead stops on what it finds in apply.c its_dead order', async () => {
-    // apply.c:203-204 and the two arms at 261 and 281, each reached alone.
-    const onlyCorpse = await heroWithEmptyWest();
-    floorCorpstat(CORPSE, onlyCorpse);
-    assert.equal(await listenWest(), 'a corpse on the listened-to square');
+test('its_dead reports singular, stacked, and separated corpses', async () => {
+    // apply.c:261-279. The first listen of a hero sequence is free, and a
+    // single corpse object with quantity one takes every singular operand.
+    const single = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, single);
+    for (const key of ['c', 'h']) game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(
+        pendingTopLine(),
+        'You determine that that unfortunate being is dead.',
+    );
 
+    // A second listen in the same hero sequence returns ECMD_TIME. Dismiss
+    // the first message before the object and direction prompts are drawn.
+    for (const key of [' ', 'c', 'h'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_TIME);
+
+    // corpse->quan alone makes the message plural.
+    const stacked = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, stacked).quan = 2;
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You determine that those unfortunate beings are dead.',
+    );
+
+    // A second corpse object does the same through nxtobj(), even with an
+    // unrelated object between them on the nexthere pile chain.
+    const separated = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, separated);
+    mksobj_at(ROCK, separated.x, separated.y, false, false,
+        objectGenerationEnv({ state: game }));
+    const upper = floorCorpstat(CORPSE, separated);
+    // The level-wide ownership chain can leave this square immediately;
+    // nxtobj(..., TRUE) must use nexthere and still find the lower corpse.
+    upper.nobj = null;
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You determine that those unfortunate beings are dead.',
+    );
+});
+
+test('its_dead keeps exceptional object paths in source order', async () => {
+    // apply.c:281's statue arm remains outside the slice.
     const onlyStatue = await heroWithEmptyWest();
     floorCorpstat(STATUE, onlyStatue);
     assert.equal(await listenWest(), 'a statue on the listened-to square');
 
-    // C's chain tests `corpse` at 261 before falling to the statue at 281, so
-    // a square carrying both stops on the corpse.
+    // Both uppermost-object outcomes remain excluded. The source tie-break at
+    // :214-219 would select the object placed last, but neither pile may enter
+    // the ordinary corpse branch while a statue is present.
     const both = await heroWithEmptyWest();
     floorCorpstat(STATUE, both);
     floorCorpstat(CORPSE, both);
-    assert.equal(await listenWest(), 'a corpse on the listened-to square');
+    assert.equal(await listenWest(), 'a mixed corpse and statue pile');
+    const reversed = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, reversed);
+    floorCorpstat(STATUE, reversed);
+    assert.equal(await listenWest(), 'a mixed corpse and statue pile');
 
-    // apply.c:226 sits above both, and answers for either object.
+    // apply.c:226 sits above both object arms and therefore above the mixed
+    // refusal too.
     const hallucinated = await heroWithEmptyWest();
+    floorCorpstat(STATUE, hallucinated);
     floorCorpstat(CORPSE, hallucinated);
     game.u.uprops[HALLUC].intrinsic = 1;
     assert.equal(await listenWest(), 'a hallucinated listen to the dead');
+
+    // The blind glyph update at :264-265 precedes the Healer's timer walk.
+    // When both exclusions apply, the blind refusal wins without mapping.
+    const blindReviver = await heroWithEmptyWest();
+    const timed = floorCorpstat(CORPSE, blindReviver);
+    start_timer(100, TIMER_OBJECT, REVIVE_MON, timed, game);
+    game.u.uprops[BLINDED].intrinsic = 1;
+    assert.equal(await listenWest(), 'a blind listen to a corpse');
+
+    const reviver = await heroWithEmptyWest();
+    const revivingCorpse = floorCorpstat(CORPSE, reviver);
+    mksobj_at(ROCK, reviver.x, reviver.y, false, false,
+        objectGenerationEnv({ state: game }));
+    const ordinaryCorpse = floorCorpstat(CORPSE, reviver);
+    ordinaryCorpse.nobj = null;
+    // The first corpse has no timer; only a nexthere traversal reaches the
+    // lower corpse carrying REVIVE_MON.
+    start_timer(100, TIMER_OBJECT, REVIVE_MON, revivingCorpse, game);
+    assert.equal(await listenWest(), 'a corpse with a REVIVE_MON timer');
 });
 
 test('still-unported adjacent listens refuse before shared effects',
@@ -1322,14 +1392,6 @@ test('still-unported adjacent listens refuse before shared effects',
             setup() {
                 game.u.ux = 1;
                 return null;
-            },
-        },
-        {
-            branch: 'a corpse on the listened-to square',
-            setup(target) {
-                map_invisible(target.x, target.y, game);
-                floorCorpstat(CORPSE, target);
-                return target;
             },
         },
         {
@@ -1346,6 +1408,33 @@ test('still-unported adjacent listens refuse before shared effects',
                 map_invisible(target.x, target.y, game);
                 floorCorpstat(CORPSE, target);
                 game.u.uprops[HALLUC].intrinsic = 1;
+                return target;
+            },
+        },
+        {
+            branch: 'a mixed corpse and statue pile',
+            setup(target) {
+                map_invisible(target.x, target.y, game);
+                floorCorpstat(STATUE, target);
+                floorCorpstat(CORPSE, target);
+                return target;
+            },
+        },
+        {
+            branch: 'a blind listen to a corpse',
+            setup(target) {
+                map_invisible(target.x, target.y, game);
+                floorCorpstat(CORPSE, target);
+                game.u.uprops[BLINDED].intrinsic = 1;
+                return target;
+            },
+        },
+        {
+            branch: 'a corpse with a REVIVE_MON timer',
+            setup(target) {
+                map_invisible(target.x, target.y, game);
+                const corpse = floorCorpstat(CORPSE, target);
+                start_timer(100, TIMER_OBJECT, REVIVE_MON, corpse, game);
                 return target;
             },
         },
@@ -1506,18 +1595,19 @@ test('ustatusline stops for every clause it would have to name', async () => {
     );
 });
 
-test('the apply matrix holds the four clean recipes the slices close on',
+test('the apply matrix holds the five clean recipes the slices close on',
     () => {
     const priorRecipes = [loadApplyStethoscopeRecipe(), loadApplyPromptRecipe()];
     const recipes = [
         ...priorRecipes,
         loadListenAtMonsterRecipe(),
         loadSecretTerrainRecipe(),
+        loadOrdinaryCorpseRecipe(),
     ];
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 35);
+    assert.equal(segments.length, 37);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // The two prior recipes open and close with a wait, so a command that
     // wrongly spent or wrongly saved a turn shows in the screen after it.

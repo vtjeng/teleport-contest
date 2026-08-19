@@ -71,6 +71,7 @@ import {
     mergable,
     merged,
     money_cnt,
+    nxtobj,
     obj_extract_self,
     obj_to_let,
     preflight_addinv,
@@ -185,6 +186,25 @@ function instance(otyp, state, overrides = {}) {
         obj.owt = weight(obj, { state });
     return obj;
 }
+
+test('nxtobj starts after its object and follows the selected source chain',
+    () => {
+        const head = newObject({ otyp: CORPSE });
+        const floorOther = newObject({ otyp: APPLE });
+        const floorCorpse = newObject({ otyp: CORPSE });
+        const ownerOther = newObject({ otyp: ROCK });
+        const ownerCorpse = newObject({ otyp: CORPSE });
+
+        head.nexthere = floorOther;
+        floorOther.nexthere = floorCorpse;
+        head.nobj = ownerOther;
+        ownerOther.nobj = ownerCorpse;
+
+        assert.equal(nxtobj(head, CORPSE, true), floorCorpse);
+        assert.equal(nxtobj(head, CORPSE, false), ownerCorpse);
+        assert.equal(nxtobj(floorCorpse, CORPSE, true), null);
+        assert.equal(nxtobj(ownerCorpse, CORPSE, false), null);
+    });
 
 test('addinv assigns stable letters, keeps chain order, and merges stacks', () => {
     const state = initializedState();

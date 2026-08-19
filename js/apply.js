@@ -8,8 +8,9 @@
 // stops at a refusal naming the C function it needs. use_stethoscope() covers
 // its three guards, the free-action rule, the self-probe that confdir() leads
 // to, the monster on the adjacent square, both secret-terrain arms, and the
-// adjacent square that holds nothing to report. The mounted, swallowed,
-// vertical, cursed, off-map, and dead-thing arms still stop.
+// adjacent square that holds nothing to report, and the ordinary sighted
+// corpse result. The mounted, swallowed, vertical, cursed, off-map, and
+// exceptional dead-thing arms still stop.
 
 import {
     ARTICLE_A,
@@ -33,10 +34,12 @@ import {
     M_AP_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPE,
+    REVIVE_MON,
     SCORR,
     SDOOR,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
+    u_at,
 } from './const.js';
 import { confdir, getdir } from './cmd.js';
 import { cvt_sdoor_to_door } from './detect.js';
@@ -51,7 +54,7 @@ import { can_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity } from './hack.js';
 import { mstatusline, ustatusline } from './insight.js';
-import { getobj } from './invent.js';
+import { getobj, nxtobj } from './invent.js';
 import { pick_lock } from './lock.js';
 import { seemimic } from './mon.js';
 import { gender, nohands } from './mondata.js';
@@ -93,8 +96,9 @@ import {
     WEAPON_CLASS,
 } from './objects.js';
 import { body_part } from './polyself.js';
-import { canSpotMonster } from './startup_a11y.js';
+import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
+import { obj_has_timer } from './timeout.js';
 import { ttyPline } from './tty_message.js';
 import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole } from './worn.js';
@@ -210,13 +214,10 @@ export function apply_ok(obj, state = game) {
 // "You hear nothing special."
 //
 // C takes `int *resp` so that its hallucination arm can charge the turn
-// (apply.c:253); that is the only arm that writes through the pointer, and it
-// refuses here, so the port answers a bare boolean instead.
-//
-// The message arms (226-307) all refuse, and 214-220 -- the uppermost-object
-// tie-break and the more_corpses count -- feed nothing but those arms, so they
-// are unported. What is ported is the frame: the two sobj_at() lookups, the
-// out-of-reach block, and the fall-through.
+// (apply.c:253); that arm still refuses here, so the port answers a bare
+// boolean. The admitted corpse branch is sighted, reachable, has no statue in
+// its pile, and has no REVIVE_MON timer. Its blind glyph update, Healer timer
+// result, hallucination message, and statue sibling remain named refusals.
 function unportedItsDeadBranch(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     const statue = sobj_at(STATUE, rx, ry, state);
@@ -227,30 +228,52 @@ function unportedItsDeadBranch(rx, ry, state) {
         // out-of-reach hero cannot touch, through invent.c nxtobj(), so a
         // square holding none but tiny ones reaches the fall-through below.
         // The port refuses every statue here instead, which over-refuses
-        // exactly that square: the walk needs nxtobj() and MZ_TINY, and
-        // js/monsters.js exports neither, while every statue the walk would
-        // leave standing refuses one test lower down anyway.
+        // exactly that square. nxtobj() and MZ_TINY are now available, but
+        // this slice excludes every statue path; the later statue slice must
+        // port this walk with the message arm it selects.
         if (statue) return 'an out-of-reach statue';
     }
-    if (corpse || statue) {
-        // C's chain at 223-307 is `neither`, `Hallucination`, `corpse`,
-        // `statue`, and that order is what these three keep. The corpse and
-        // statue arms need glyph_at(), get_mtraits(), obj_pmname() and the
-        // Healer REVIVE_MON walk; the hallucination arm sits above both and
-        // would answer for either object, so it is named separately.
-        if (heroHallucinating(state)) {
-            return 'a hallucinated listen to the dead';
-        }
-        if (corpse) return 'a corpse on the listened-to square';
-        return 'a statue on the listened-to square';
+    if (!corpse && !statue) return null;
+
+    // apply.c:223-260 tests Hallucination before either selected object's
+    // message arm. Keep that precedence even for a mixed pile.
+    if (heroHallucinating(state))
+        return 'a hallucinated listen to the dead';
+
+    // The source chooses the uppermost corpse or statue at :214-219. This
+    // slice excludes both mixed outcomes, because admitting either would also
+    // admit the statue naming arm when pile order changes.
+    if (corpse && statue) return 'a mixed corpse and statue pile';
+    if (statue) return 'a statue on the listened-to square';
+
+    // glyph_at(), obj_to_glyph(), and map_object() precede the Healer timer
+    // walk at :264-274. Their blind path therefore wins when both exclusions
+    // apply, and refusing it here keeps its display effects out of a retry.
+    if (heroIsBlind(state)) return 'a blind listen to a corpse';
+
+    for (let current = corpse; current;
+        current = nxtobj(current, CORPSE, true)) {
+        if (obj_has_timer(current, REVIVE_MON, state))
+            return 'a corpse with a REVIVE_MON timer';
     }
     return null;
 }
 
-function its_dead(rx, ry, state) {
-    const branch = unportedItsDeadBranch(rx, ry, state);
-    if (branch) throw new UnsupportedApplyError(branch);
-    return false; /* no corpse or statue */
+async function its_dead(rx, ry, state) {
+    let corpse = sobj_at(CORPSE, rx, ry, state);
+    if (!can_reach_floor(true, state)) corpse = null;
+    if (!corpse) return false; /* no reachable corpse or admitted statue */
+
+    const more_corpses = Boolean(nxtobj(corpse, CORPSE, true));
+    const one = (corpse.quan === 1 && !more_corpses);
+    const here = u_at(rx, ry, state);
+    await ttyPline(
+        `You determine that ${one ? (here ? 'this' : 'that')
+            : (here ? 'these' : 'those')} unfortunate being${one ? '' : 's'} `
+        + `${one ? 'is' : 'are'} dead.`,
+        state,
+    );
+    return true;
 }
 
 // Fail-closed commands are retryable. Inspect only the adjacent paths that
@@ -454,7 +477,7 @@ async function use_stethoscope(obj, state = game) {
         return res;
     }
 
-    if (!its_dead(rx, ry, state))
+    if (!await its_dead(rx, ry, state))
         await ttyPline('You hear nothing special.', state); /* not You_hear() */
     return res;
 }

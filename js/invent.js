@@ -1,5 +1,5 @@
 // Hero inventory and nobj-chain primitives.
-// C refs: src/invent.c addinv(), mergable(), merged(), useupall();
+// C refs: src/invent.c addinv(), mergable(), merged(), nxtobj(), useupall();
 //         src/mkobj.c extract_nobj(), add_to_container(), and add_to_buried().
 
 import { calc_capacity, inv_cnt, near_capacity } from './hack.js';
@@ -166,6 +166,17 @@ import { UnsupportedShopError, costly_spot } from './shk.js';
 
 export const INVLET_BASIC = 52;
 export const NOINVSYM = '#';
+
+// C ref: invent.c nxtobj() (1477-1491). Start after `obj` and follow either
+// the ownership chain or the floor-pile chain until the requested type.
+export function nxtobj(obj, type, by_nexthere) {
+    let current = obj;
+    do {
+        current = by_nexthere ? current.nexthere : current.nobj;
+        if (!current) break;
+    } while (current.otyp !== type);
+    return current;
+}
 
 // Thrown where invent.c reads a terrain description this port has not reached
 // yet. dfeature_at() is otherwise a complete translation, so every stop below

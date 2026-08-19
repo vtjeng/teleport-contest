@@ -8,9 +8,9 @@
 // reaches apply.c apply_ok() through invent.c getobj(), apply.c
 // use_stethoscope() through the switch, insight.c ustatusline() through the
 // self direction, insight.c mstatusline() through a direction holding a
-// monster, apply.c's secret-terrain switch, and apply.c its_dead() through any
-// other direction. The matrix splits into four parts. The first drives
-// use_stethoscope(): the free first
+// monster, apply.c's secret-terrain switch, and apply.c its_dead() through an
+// empty square or an ordinary corpse pile. The matrix splits into five parts.
+// The first drives use_stethoscope(): the free first
 // listen, the second listen in the same move that costs a turn, both cancels,
 // both self keys, the Deaf guard, a sweep of all eight compass directions, a
 // listen at a square carrying an ordinary object, and a listen at the hero's
@@ -388,6 +388,38 @@ export function loadSecretTerrainRecipe() {
     }, 'secret terrain recipe');
 }
 
+// Source-real ordinary corpse piles for apply.c its_dead():261-279. The first
+// is the selector's minimal singular case. The second drops two distinct mimic
+// corpse objects with a prompt dismissal after each message, so nxtobj() must
+// skip from the upper corpse to the lower one through the nexthere chain.
+export function loadOrdinaryCorpseRecipe() {
+    const seed = 9240001;
+    const datetime = '20340102030405';
+    const options = 'pettype:none,!acoustics,!autopickup,time,playmode:debug';
+    const character = (name) => ({
+        seed,
+        datetime,
+        nethackrc: nethackrc({ name, role: 'Healer', options }),
+    });
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            {
+                ...character('CorpLis'),
+                moves: `${WAIT}${WISH_KEY}small mimic corpse\n`
+                    + `dlh${APPLY_KEY}${STETHOSCOPE_SLOT}l${WAIT}`,
+            },
+            {
+                ...character('CorpPile'),
+                moves: `${WAIT}${WISH_KEY}small mimic corpse\n${SPACE_KEY}`
+                    + `${WISH_KEY}large mimic corpse\n${SPACE_KEY}`
+                    + `dl${SPACE_KEY}dm${SPACE_KEY}h`
+                    + `${APPLY_KEY}${STETHOSCOPE_SLOT}l${WAIT}`,
+            },
+        ],
+    }, 'ordinary corpse recipe');
+}
+
 // One pack per apply_ok() term. Each role below advertises a letter set that
 // only the named term produces, so a term answering wrongly would change the
 // prompt rather than leave it alone. Every segment cancels at the prompt,
@@ -478,12 +510,21 @@ export async function runApplyStethoscopeMatrix() {
         chunkLimit: 1,
     });
     if (!monster.passed) return monster;
-    return runFreshMatrix({
+    const secret = await runFreshMatrix({
         entries: [{
             label: 'secret terrain',
             recipe: loadSecretTerrainRecipe(),
         }],
         summaryLabel: 'SECRET TERRAIN',
+        chunkLimit: 1,
+    });
+    if (!secret.passed) return secret;
+    return runFreshMatrix({
+        entries: [{
+            label: 'ordinary corpse',
+            recipe: loadOrdinaryCorpseRecipe(),
+        }],
+        summaryLabel: 'ORDINARY CORPSE',
         chunkLimit: 1,
     });
 }
