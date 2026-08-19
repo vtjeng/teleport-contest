@@ -1,22 +1,22 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Commit 67e2ad0 closes blind-statue-health-report: the live Blind statue path preserves u_at() wording, humanoid person-versus-creature selection, the shared fine-health suffix, and free/costly results, while excluded dead-object siblings remain pre-effect refusals. The natural case matches 4,165 PRNG calls and 5 screens/cursors exactly; the independent checkpoint passes 4,417 tests with development unchanged.",
-  "commitChecked": "67e2ad0714d771300bed485402ebf9080211313e",
+  "mode": "implementation",
+  "reason": "The queued off-map-listen-returns-free slice must admit apply.c use_stethoscope()'s !isok(rx, ry) arm through You_hear(), the tty Soundeffect no-op, and its unusual unconditional ECMD_OK return after shared stethoscope observation writes. Every dead-object and other exceptional adjacent path must retain its pre-effect refusal.",
+  "commitChecked": "0da95b77487bbe9ef56ec664cf60706d029b40ef",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
     "startingEvent": "The hero applies a stethoscope and answers the direction prompt with an adjacent square: js/cmd.js dispatches `a` to doapply(), which reaches use_stethoscope() past confdir().",
-    "endingEvent": "For a reachable statue while Blind, its_dead() prints C's adjacent `That person/creature` health message and use_stethoscope() returns its free-or-costly result. For every excluded target, the observable remains an atomic named refusal before shared state, output, map, or PRNG effects.",
-    "validInputs": "A blind, non-hallucinating hero points at a reachable statue-only square with no corpse, trap, or statue contents. The fresh source-real setup is blind Healer seed 9251062 at 20340102030405; its natural D:1 newt statue is directly north and `ack.` reaches the branch.",
-    "observables": "Exact `That` wording and humanoid person-versus-creature noun, stethoscope_seq, gb.bhitpos and gn.notonhead, free/costly return, complete screens/attributes/cursors, and unchanged PRNG order. Excluded variants remain retry-atomic.",
-    "exclusions": "Blind corpses; hallucinated dead; mixed corpse/statue piles; out-of-reach/tiny statues; Healer statue traps or contents; and off-map output remain unported and must stop before effects. Sighted corpse/statue, secret-terrain, and monster/status branches are complete."
+    "endingEvent": "For a direction beyond the map edge, use_stethoscope() optionally prints `You hear a faint typing noise.` through You_hear() and returns ECMD_OK unconditionally. All other excluded targets retain an atomic refusal before effects.",
+    "validInputs": "A Healer at any source-reachable map edge applies the starting stethoscope and points outward. Acoustics enabled and disabled are both valid; two consecutive listens in one hero sequence must both return ECMD_OK, followed by a wait that observes no charged turn.",
+    "observables": "Acoustics-gated typing-noise message, complete screens/attributes/cursors, stethoscope_seq, gb.bhitpos and gn.notonhead shared writes, unconditional ECMD_OK even on repeat use, move/turn state, and unchanged PRNG order. Excluded dead-object variants remain retry-atomic.",
+    "exclusions": "All remaining its_dead() hallucination, Blind corpse, mixed-pile, out-of-reach/tiny-statue, and Healer-special paths remain unported and stop before effects. Monster, terrain, sighted corpse/statue, and Blind-statue branches are complete."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
     "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation and the generated CMAP_EXPLANATIONS projection; mstatusline()'s ordered info fragments; makemon.c syms[] and set_mimic_sym(); dogmove.c qm[]; wizard.c wizapp[]; and every shipped Lua appear_as descriptor under nethack-c/upstream/dat/.",
     "reachableHelpers": "Read from the C call graph of the two entry points. Already ported and needing no work: unmap_invisible(), newsym(), sobj_at(), can_reach_floor() (js/engrave.js, with the checkPit parameter), m_at(), find_mac, align_str, map_invisible(), obj_typename(), ustatusline(), mon_aligntyp(), rndmonnam(), set_mimic_sym() (js/makemon_create.js).",
     "javascriptCrossCheck": "grep -rn '^seemimic' nethack-c/upstream/src/*.c returns only mon.c:4409, so js/mon.js's two 'display.c seemimic()' citations are wrong. grep -rn seemimic js/*.js returns six sites naming it as missing. grep -c Unsupported js/mhitu.js returns 0, so the giant bat's bites inside the stretch need nothing. grep -n explanation js/display.js returns nothing, so M_AP_FURNITURE needs a generated table. Re-run at 9657e3b while closing slice 1: `grep -rn \"export function nxtobj\" js/` and `grep -n \"MZ_TINY\" js/monsters.js` both return nothing, which is why apply.c:210-211's tiny-statue walk is refused rather than ported; js/monsters.js is generated by scripts/generate-monsters.mjs, so adding MZ_TINY is a generator change.",
-    "remainingLimits": "Blind statue naming is complete. Blind corpses require glyph_at()/map_object logical-glyph work and remain later; hallucination, mixed piles, out-of-reach/tiny statues, Healer trap/content, and off-map paths also remain later. The blind seed-9251062 newt statue supplies strict natural evidence."
+    "remainingLimits": "This slice admits only off-map targeting. A natural shortest map-edge setup still needs finite search/minimization, with acoustics-on and repeat-listen evidence. Dead-object exceptional paths remain later and retain pre-effect refusals."
   },
   "entries": [
     {
@@ -25,8 +25,8 @@
       "owner": "js/apply.js use_stethoscope()",
       "effects": "You_hear(\"a faint typing noise.\") and a Soundeffect.",
       "evidence": "apply.c:386-390, read at 073cd13.",
-      "status": "later",
-      "remaining": "Refused atomically as 'listening off the edge of the map' before shared effects. Porting its answer still needs the You_hear message and Soundeffect interface, and it is the one arm below confdir() that answers ECMD_OK rather than res. Recorded in stethoscope-listen-arms-outside-the-goal."
+      "status": "missing",
+      "remaining": "Admit the arm after shared writes, call the existing You_hear message path, preserve the tty Soundeffect no-op, and return ECMD_OK rather than res. Record a natural edge case with acoustics and repeated listens."
     },
     {
       "candidate": "Fail-closed preflight for still-unported off-map and exceptional its_dead() paths",
@@ -34,8 +34,8 @@
       "owner": "js/apply.js use_stethoscope() and its_dead() admission checks",
       "effects": "No effects are permitted: no stethoscope_seq, gb.bhitpos, gn.notonhead, remembered-map, message, screen, cursor, turn, or PRNG change before the named refusal.",
       "evidence": "The full correctness pass over 2338437..6755a8c confirmed that the current refusal sites occur after shared effects; tracked as audit-stethoscope-refusal-effects-not-preflighted.",
-      "status": "done",
-      "remaining": "None inside this slice. Commit 67e2ad0 admits Blind statue naming while retaining atomic source-order stops for Blind corpse and every other excluded sibling."
+      "status": "missing",
+      "remaining": "Remove only the off-map path from preflight while retaining atomic source-order stops for every still-unported dead-object sibling."
     },
     {
       "candidate": "apply.c use_stethoscope() m_at(rx, ry) != 0 (391-446)",
@@ -281,6 +281,18 @@
       "remaining": "None inside the bounded setup path. Seed 24 wishes and drops a small-mimic corpse, the starting pet consumes it and takes M_AP_MONSTER, and the strict replay matches through the listen; unrelated food/eater branches remain fail-closed before effects."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The goal-wide trace remains recorded in the entries above. For the completed Blind-statue slice, apply.c its_dead() 281-307 was traced with u_at(), mondata.h humanoid(), shared statue suffix selection, and the real doapply() consumer. Commit 67e2ad0 preserves adjacent/hero-square wording and person/creature selection, and leaves Hallucination, Blind-corpse, mixed, out-of-reach, and Healer-special variants pre-effect. Focused tests cover both polarities; blind seed 9251062 matches complete C screens, attributes, cursors, and PRNG logs."
+  "missingWorkByOwner": [
+    {
+      "group": "apply.c use_stethoscope() off-map arm",
+      "candidates": [
+        "natural player-input map-edge setup",
+        "You_hear acoustics gate and tty Soundeffect no-op",
+        "shared observation writes before the branch",
+        "unconditional ECMD_OK on repeated listens",
+        "preflight split from remaining exceptional targets"
+      ],
+      "next": "Find and minimize a source-real edge walk, port the bounded arm, and record acoustics/message/turn behavior through the next wait."
+    }
+  ],
+  "sourceReview": "The goal-wide trace remains recorded in the entries above. For this slice the selector re-read apply.c use_stethoscope() 384-390 with pline.c You_hear() and confirmed Soundeffect is a tty compile-time no-op. The branch follows the shared sequence/global writes but discards res and returns ECMD_OK. Implementation must still establish a natural source-real map-edge setup, pin acoustics on/off and repeated-listen semantics, and prove the remaining dead-object preflights stay atomic before readiness."
 }
