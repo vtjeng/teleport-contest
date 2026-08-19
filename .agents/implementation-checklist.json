@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every entry in the reviewed stethoscope window is done, later, or cannot occur with source and validation evidence. Commit 3855898 fixes all 12 findings from the full correctness audit: live/planning mimic visibility, helper admission and display-state contracts, state-owned article selection, and the focused coverage gaps. The full checkpoint and all 46 fresh C/JS differential segments pass; the two whole-suite mutation survivors are unreachable behind the earlier hallucinating-beam refusal.",
-  "commitChecked": "3855898cf05ac3727e5ddab2f5e62fdb68e42d29",
+  "reason": "Every entry in the reviewed stethoscope window is done, later, or cannot occur with source and validation evidence. Commit 3855898 fixes all 12 findings from the full correctness audit, and commit 0b6a404 fixes all five findings from its light follow-up: planning-time random mimic creation now owns cloned vision state, blocking creation and redisguise are isolated on success and refusal, exceptional its_dead() admissions are directly atomic, the 46-case matrix has one signed recipe inventory, and all corrected article callers have state-ownership contracts. The unrestricted full checkpoint and all 46 fresh C/JS differential segments pass; the earlier two whole-suite mutation survivors remain unreachable behind the hallucinating-beam refusal, and the follow-up production delta has no eligible boolean/logical/relational sites.",
+  "commitChecked": "0b6a404c53ce2fd6ad4bd3d62853660247308c1f",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
