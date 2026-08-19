@@ -358,6 +358,8 @@ test('planning a blocking redisguise restores live vision on every exit',
             // set_mimic_sym() raises it again for the bearer's ration, after
             // the mimic has become a blocker.
             game.vision_full_recalc = 0;
+            const liveVisionFullRecalc = game.vision_full_recalc;
+            const liveVisionView = game.viz_array;
             assert.equal(does_block(awake.mx, awake.my, null, game), false);
             assert.equal(
                 transparencyIndexViews()[awake.my][awake.mx],
@@ -457,6 +459,8 @@ test('planning a blocking redisguise restores live vision on every exit',
             ]);
             assert.equal(awake.m_ap_type & M_AP_TYPMASK, 0);
             assert.equal(does_block(awake.mx, awake.my, null, game), false);
+            assert.equal(game.viz_array, liveVisionView);
+            assert.equal(game.vision_full_recalc, liveVisionFullRecalc);
             assert.equal(
                 transparencyIndexViews()[awake.my][awake.mx],
                 1,

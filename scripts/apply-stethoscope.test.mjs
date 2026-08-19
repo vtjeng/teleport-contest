@@ -940,7 +940,7 @@ async function assertDirectItsDeadRefusal(target, branch) {
 }
 
 function isolatedItsDeadState() {
-    const state = Object.create(game);
+    const state = { ...game };
     state.level = new GameMap();
     state.u = structuredClone(game.u);
     state.youmonst = { ...game.youmonst };
@@ -2102,6 +2102,12 @@ test('its_dead admitted body reads and writes the supplied state', async () => {
     });
     const supplied = isolatedItsDeadState();
     placeStateCorpstat(supplied, STATUE, target);
+    supplied.level.traps.push({
+        tx: target.x,
+        ty: target.y,
+        ttyp: STATUE_TRAP,
+        tseen: false,
+    });
     supplied.mons[PM_NEWT].pmnames = [
         'foreign newt', 'foreign newt', 'foreign newt',
     ];
@@ -2115,7 +2121,7 @@ test('its_dead admitted body reads and writes the supplied state', async () => {
     assert.equal(await its_dead(target.x, target.y, supplied), true);
     assert.equal(
         supplied._pending_message,
-        'The foreign newt is in fine health for a statue.',
+        'The foreign newt is in extraordinary health for a statue.',
     );
     assert.equal(supplied._ttyToplines, supplied._pending_message);
     assert.equal(

@@ -2162,6 +2162,8 @@ test('a planned blocking mimic birth restores live vision on every exit',
                 lightBearer,
                 game,
             );
+            const liveVisionFullRecalc = game.vision_full_recalc;
+            assert.equal(liveVisionFullRecalc, 1);
 
             // Keep rndmonst()'s reservoir focused on the source behavior under
             // test. Seed 7585's independent stream, after the first clone scan,
@@ -2289,6 +2291,7 @@ test('a planned blocking mimic birth restores live vision on every exit',
             assert.equal(transparencyIndexViews()[17][39], 1);
             assert.equal(clear_path(38, 17, 40, 17), 1);
             assert.equal(does_block(39, 17, null, game), false);
+            assert.equal(game.vision_full_recalc, liveVisionFullRecalc);
             assert.deepEqual(game.coreCtx, rngBefore.core);
             assert.deepEqual(game.displayCtx, rngBefore.display);
         }
