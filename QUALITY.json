@@ -16375,6 +16375,157 @@
         ]
       },
       "recordedAt": "2026-08-19T01:40:59.358Z"
+    },
+    {
+      "kind": "review",
+      "head": "5ab21788bb73dbc298625f6137d73f92ecb15393",
+      "auditedRange": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76..5ab21788bb73dbc298625f6137d73f92ecb15393",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "aa8d1ff8382764bf0c76482e46ee7841b208e4b6",
+        "reason": "the checklist covers aa8d1ff8, an ancestor of the range head; the 1 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "objects",
+        "monsters",
+        "world-effects",
+        "commands",
+        "display"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 32 raw, 30 deduplicated, 26 confirmed, 26 applied, 0 deferred, 4 rejected, 0 unverified; mutation: 2 survivors of 80 mutants. Composite full correctness review fixed seven production defects, eighteen test gaps, and one stale clarity issue across the stethoscope boundary. The final checkpoint passed 4,442 tests, generated/static checks, and unchanged development scoring at 10/33 sessions; the 46-segment C/JavaScript matrix remained exact at 144,153 PRNG calls and 598 screens/cursors. Five light follow-ups closed every audit-fix delta, ending with zero raw findings.",
+      "auditMetrics": {
+        "wallTimeSeconds": 8248,
+        "counts": {
+          "raw": 32,
+          "deduplicated": 30,
+          "confirmed": 26,
+          "applied": 26,
+          "deferred": 0,
+          "rejected": 4,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 7,
+          "tests": 18,
+          "clarity": 1,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "js/makemon_create.js set_mimic_sym() omitted makemon.c's post-disguise does_block()/block_point() tail, leaving a boulder-disguised mimic visually transparent in live and planned scans.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/apply.js its_dead() was exported below the exceptional-branch admission checks, so direct callers could bypass atomic refusals and mutate output or map state.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/display.js glyph_at() returned undefined for a cleared in-bounds cell instead of C's GLYPH_UNEXPLORED logical glyph.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/display.js map_object() split one operation between a supplied state and the module-global game display, permitting partial live-state mutation from a foreign or cloned state.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "State-dependent js/objnam.js the()/The() callers built names from an owning state but silently article-selected through the global monster, fruit, and artifact catalogs.",
+            "foundBy": [
+              "readability"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/allmain.js finishElapsedTurn() let planning-time random monster creation reach set_mimic_sym() without the clone-aware vision hooks used by redisguise, so cleanup could skip a borrowed transparency index.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "js/allmain.js finishElapsedTurn() initially marked a planned random mimic's borrowed transparency index without first installing clone-owned terrain and COULD_SEE buffers, so a later planned vision consumer could refuse or read live state.",
+            "foundBy": [
+              "concurrency"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76..e8358205eb4a7779b661bc4959f41816fa813432",
+            "e8358205eb4a7779b661bc4959f41816fa813432..db5bbab8f1e0d788709592ad99ffad2bef2071ed",
+            "db5bbab8f1e0d788709592ad99ffad2bef2071ed..82dac81603f823fd19898998a1097f0d4a94d28b",
+            "82dac81603f823fd19898998a1097f0d4a94d28b..b5cb51b25a485bc9e7c7b62925954a85573c4cc8",
+            "b5cb51b25a485bc9e7c7b62925954a85573c4cc8..c911091de583398077b2c58757028948da09f121",
+            "c911091de583398077b2c58757028948da09f121..5ab21788bb73dbc298625f6137d73f92ecb15393"
+          ],
+          "mutants": 80,
+          "survivors": 2,
+          "byKind": {
+            "boolean": {
+              "ran": 19,
+              "killed": 17
+            },
+            "logical": {
+              "ran": 37,
+              "killed": 37
+            },
+            "relational": {
+              "ran": 24,
+              "killed": 24
+            }
+          },
+          "finderConclusion": "The first frozen-range wave ran 78 gating mutants and left 15 first-wave survivors; the audit assertions and preserved-report reruns killed those 15. The first audit-fix delta added two boolean sites in js/zap.js flash_str(), and both survived even the whole suite because the admitted dobuzz() path refuses hallucinating rays earlier at the beam-colour rnd_hallublast boundary. All later production and test-only deltas had zero eligible sites. The seven production defects show the mutator's limits: missing calls, wrong state ownership, wrapper placement, logical defaults, and shared-buffer setup are not reliably expressible as boolean/logical/relational substitutions."
+        },
+        "readiness": {
+          "boundary": "The reviewed boundary starts when the hero applies a stethoscope and supplies an adjacent direction, includes immediate off-map, terrain, monster, corpse, and statue results plus any costly-listen elapsed-turn effects, and ends at the next input boundary after messages, screens, cursors, state writes, and random draws are complete.",
+          "sourceReview": "Every branch and helper reachable before that ending event was traced against upstream apply.c use_stethoscope()/its_dead() and the required display, vision, naming, mimic, dogmove, monmove, region, inventory, trap, message, and PRNG owners. The review checked exact state and random order, identified explicit stops and partial implementations, and included both live execution and cloned planning paths.",
+          "completeness": "Every checklist entry inside the adjacent-square boundary is implemented and validated. Remaining exceptional dead-object or later monster-region cases are outside the selected endings or remain named, atomic pre-effect exclusions; no known unsupported behavior remains between a valid admitted start and the reviewed observable result."
+        },
+        "rejections": [
+          {
+            "summary": "js/makemon_create.js set_mimic_sym() was said to need the Inhell altar-disguise branch in this reviewed boundary.",
+            "counterEvidence": "No supported redisguise path in the range reaches Gehennom: main-dungeon arrivals are the admitted consumer, while dodown() and level_tele() refuse before the Valley/Gehennom transition. Reopen only with a source-reachable Hell consumer and a diff-causal line."
+          },
+          {
+            "summary": "The fog planning path was said to lack a positive ration-crossing test proving create_gas_cloud() ran.",
+            "counterEvidence": "scripts/unported-monster-actions.test.mjs drives a NORMAL_SPEED fog with no region to the later region-transition refusal, which cannot occur unless planning created the region; focused region tests separately pin TTL, visibility, fields, and rn2(3). Reopen only with a concrete source invariant those tests do not decide."
+          },
+          {
+            "summary": "js/apply.js unportedItsDeadBranch() was said to mishandle the internal refusal ordering for a levitating, hallucinating hero over a non-tiny statue.",
+            "counterEvidence": "The port intentionally refuses every out-of-reach statue before effects, and neither proposed internal label is admitted behavior; the suggested test distinguished two atomic refusal names rather than JavaScript output from C. Reopen only when that behavior is admitted or a source-reachable input exposes a diff-causal effect."
+          },
+          {
+            "summary": "A blind corpse passed to exported js/apply.js its_dead() with a foreign standalone state was said to be a running-game defect because js/display.js map_object() rejects that state.",
+            "counterEvidence": "Upstream its_dead() is global and every running-game JavaScript caller uses the module game; no source-reachable caller supplies a foreign state, and the export plus map_object() guard predate the focused test delta. Reopen only with a source-reachable distinct-state caller and a causal production change."
+          }
+        ],
+        "deferrals": [],
+        "warnings": [
+          "The no-tail follow-up recognized the shared-state trigger after its three core finders; the added concurrency finder and its independent adjudicator both completed, with no missing judgment.",
+          "One follow-up environment did not expose the packaged Workflow runner, so equivalent independent finders and adjudication ran through the session's collaboration tools; all requested perspectives completed.",
+          "One preliminary final follow-up was discarded after it recursively invoked codex inside the isolated sandbox and could not open the read-only state database; no finding from that incomplete run was counted, and the replacement pass completed cleanly.",
+          "isolatedItsDeadState() shallow-copies the global object before replacing every owner used by the current statue path; future foreign-state fixtures must explicitly replace any additional subsystem owner they exercise."
+        ]
+      },
+      "recordedAt": "2026-08-19T16:00:11.236Z"
     }
   ]
 }
