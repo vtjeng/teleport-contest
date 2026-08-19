@@ -3001,8 +3001,8 @@
         },
         {
           "name": "healer-statue-trap-health-is-extraordinary",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b583c7cf06b80a207d651ee9697cdcfa68d5c411"
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
