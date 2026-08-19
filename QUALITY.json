@@ -3954,7 +3954,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "022cd9a1951fd8c1fa092fe0a29e22d286dfeae3",
       "detail": "js/mon.js restrap() ports mon.c restrap() (4661-4693) apart from the set_mimic_sym() call in its S_MIMIC arm at mon.c:4684. The arm refuses through the caller's setMimicSym operation: 'elapsed turn reached a mimic re-disguising itself' on the live pass and 'simple monster action requires a mimic re-disguising itself' on the cloned one.\n\nReaching it needs a mimic whose M_AP_TYPE is already 0, because restrap()'s second guard term excludes every mimic that carries a disguise, and mon.c seemimic() is the only thing that clears one. seemimic() is the last slice of the stethoscope-reaches-an-adjacent-square goal, and even after it lands, seed5002-wizard-coverage-pair's revealed mimic sits where cansee() holds, which is the third guard term. So the arm has no case in the development set either way.\n\nThe case just outside the goal's limit, and the reason it is deferred rather than tested: no fresh C recording can build one. #wizgenesis is the only ported way to create a monster at will, and js/makemon_create.js refuses every runtime S_MIMIC with 'runtime mimic appearance message', which is the arm makemon.c:1483-1484 owns; the trapper and the lurker above are refused by difficulty. So the three piercers are the whole M1_HIDE population a fresh case can reach, and none of them is a mimic.\n\nClosing it means exporting set_mimic_sym() from js/makemon_create.js, where it is module-private at :844, and wiring it into restrap()'s arm. It draws randomness and rewrites m_ap_type and mappearance, so AGENTS.md, 'Complete common gameplay first', forbids adding it before a case exercises it. Expected failure today: a revealed, awake, unwatched mimic on a turn where rn2(3) rolls 0 ends the segment instead of taking a new disguise.",
       "blockedOn": "seemimic"
@@ -4000,7 +4000,7 @@
       "area": "monsters",
       "category": "tests",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
       "detail": "Cover a stethoscope-revealed unseen mimic whose selecting restrap roll reaches the real planning refusal; assert unchanged live RNG/state, and cover the nonselecting fall-through. Do not implement redisguise in this fix."
     },
@@ -4074,7 +4074,13 @@
       "effort": "slice",
       "status": "open",
       "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
-      "detail": "Add the Protection_from_shape_changers guard at set_mimic_sym entry before appearance RNG; test intrinsic and extrinsic sources, M_AP_NOTHING, messages, and PRNG order."
+      "detail": "Add the Protection_from_shape_changers guard at set_mimic_sym entry before appearance RNG; test intrinsic and extrinsic sources, M_AP_NOTHING, messages, and PRNG order.",
+      "notes": [
+        {
+          "text": "Commit 2f7e936 adds the source guard and covers intrinsic protection, M_AP_NOTHING, and PRNG order through restrap(). Keep this entry open until an explicit extrinsic-source and no-message assertion completes its recorded closure condition.",
+          "at": "2f7e936995fb983dbec59d9afb0223ed0b958e86"
+        }
+      ]
     }
   ],
   "areas": [

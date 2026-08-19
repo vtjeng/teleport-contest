@@ -3006,8 +3006,8 @@
         },
         {
           "name": "revealed-mimic-re-disguises-during-a-costly-listen",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "2f7e936995fb983dbec59d9afb0223ed0b958e86"
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
