@@ -2998,6 +2998,11 @@
           "name": "blind-corpse-maps-and-reports",
           "status": "closed",
           "closedBy": "f054dc3cad9c8cd42944b1fe39e55fc47c3a114c"
+        },
+        {
+          "name": "healer-statue-trap-health-is-extraordinary",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",

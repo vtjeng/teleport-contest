@@ -1,22 +1,22 @@
 {
   "mode": "implementation",
-  "reason": "The blind-corpse mapping/report slice is complete and independently verified. The off-map slice remains parked on Q10 authorization; the next selector must choose another source-real missing branch inside the adjacent-square goal without treating the parked slice as resolved.",
-  "commitChecked": "f054dc3cad9c8cd42944b1fe39e55fc47c3a114c",
+  "reason": "The selected healer-statue-trap-health-is-extraordinary slice ports apply.c its_dead()'s Healer-only statue-trap health adjective and its precedence over statue contents. It must preserve the ordinary non-Healer `fine` result and leave contents, mixed-pile, hallucination, revival, off-map, and out-of-reach paths fail-closed or unchanged.",
+  "commitChecked": "ae97cd079c87617aa6320d7e55b83b66b48ca015",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
-    "startingEvent": "A permanently blind Healer points a stethoscope at an adjacent reachable floor pile whose selected object is a corpse and which contains no statue, hallucination case, or REVIVE_MON timer.",
-    "endingEvent": "its_dead() compares the remembered logical glyph with obj_to_glyph(corpse), optionally calls map_object(corpse, TRUE), prints the ordinary singular/plural dead-being report, returns TRUE, and a following wait exposes whether the listen was free or costly.",
-    "validInputs": "Seed 9240001 at 20340102030405 in a blind debug-Healer game. One wished-corpse input leaves equal logical IDs; a second drops apples above the corpse with color disabled so the presentations match while the logical IDs differ and map_object() must run.",
-    "observables": "Both sides of the logical-glyph comparison; remembered and transient display state; accessibility sidecars; ordinary death-report grammar; zero animation frames; refusal atomicity for excluded siblings; listen return cost; and exact PRNG/screens/cursors through the following wait.",
-    "exclusions": "Hallucination, mixed corpse/statue piles, REVIVE_MON and Healer revival, off-map, and out-of-reach/tiny-statue paths remain parked or later. Do not broaden blind movement, combat, timer, revival, or unrelated display consumers."
+    "startingEvent": "A sighted female Healer on D:8 points a stethoscope at an adjacent reachable gray-ooze statue whose square also carries a STATUE_TRAP.",
+    "endingEvent": "its_dead() detects the statue trap through t_at(), selects `extraordinary` before considering contents, prints the statue health report, returns TRUE, and the trailing wait is consumed.",
+    "validInputs": "Debug Healer seed 259 at 20340102030405 with `pettype:none,!acoustics,!autopickup,time,playmode:debug`; wizard level teleport to D:8, dismiss arrival, then apply stethoscope west and send a wait sentinel. The hero arrives at (68,13); (67,13) holds STATUE_TRAP 19 and gray-ooze STATUE 476.",
+    "observables": "Exact `The gray ooze is in extraordinary health for a statue.` message, trap-over-contents precedence, ordinary non-Healer `fine` control, listen return cost, trailing wait consumption, and exact PRNG/screens/cursors including later monster movement.",
+    "exclusions": "Statue contents without a trap, mixed corpse/statue pile ordering, hallucination, REVIVE_MON, off-map, and out-of-reach/tiny-statue paths remain parked or later. Do not broaden trap activation, statue contents, wizard teleport, or unrelated role behavior."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
     "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation and the generated CMAP_EXPLANATIONS projection; mstatusline()'s ordered info fragments; makemon.c syms[] and set_mimic_sym(); dogmove.c qm[]; wizard.c wizapp[]; and every shipped Lua appear_as descriptor under nethack-c/upstream/dat/.",
     "reachableHelpers": "Read from the C call graph of the two entry points. Already ported and needing no work: unmap_invisible(), newsym(), sobj_at(), can_reach_floor() (js/engrave.js, with the checkPit parameter), m_at(), find_mac, align_str, map_invisible(), obj_typename(), ustatusline(), mon_aligntyp(), rndmonnam(), set_mimic_sym() (js/makemon_create.js).",
     "javascriptCrossCheck": "grep -rn '^seemimic' nethack-c/upstream/src/*.c returns only mon.c:4409, so js/mon.js's two 'display.c seemimic()' citations are wrong. grep -rn seemimic js/*.js returns six sites naming it as missing. grep -c Unsupported js/mhitu.js returns 0, so the giant bat's bites inside the stretch need nothing. grep -n explanation js/display.js returns nothing, so M_AP_FURNITURE needs a generated table. Re-run at 9657e3b while closing slice 1: `grep -rn \"export function nxtobj\" js/` and `grep -n \"MZ_TINY\" js/monsters.js` both return nothing, which is why apply.c:210-211's tiny-statue walk is refused rather than ported; js/monsters.js is generated by scripts/generate-monsters.mjs, so adding MZ_TINY is a generator change.",
-    "remainingLimits": "The ordinary reachable blind-corpse result and optional map_object() write are complete. Off-map remains parked on Q10; hallucination, revival, mixed piles, and out-of-reach statues remain later and must be re-read against current prerequisites before selection."
+    "remainingLimits": "This slice covers only apply.c its_dead()'s Healer statue-trap adjective and its source precedence over contents. Off-map remains parked on Q10; contents-only statues, mixed piles, hallucination, revival, and out-of-reach statues remain later."
   },
   "entries": [
     {
@@ -126,6 +126,15 @@
       "evidence": "apply.c:283-307.",
       "status": "done",
       "remaining": "None inside this slice. The natural newt statue matches C for both the free first listen and repeated costly listen; exceptional variants remain later."
+    },
+    {
+      "candidate": "apply.c its_dead() Healer statue-trap adjective (295-305)",
+      "reachability": "A Healer inspects a selected reachable statue on a square where t_at() returns STATUE_TRAP. Hallucination is false; the trap test precedes statue contents.",
+      "owner": "js/apply.js its_dead(), reusing js/trap.js t_at()",
+      "effects": "Selects `extraordinary` instead of `fine` or the contents-dependent adjective, then prints the existing statue health sentence and returns TRUE.",
+      "evidence": "apply.c:295-305. A declared seed 1..2000 D:8 scan found seed 259: the hero arrives at (68,13), with a gray-ooze statue and STATUE_TRAP west at (67,13). The current port reaches the direction key after a matching 6,903-call prefix, then stops at `a Healer examining a statue trap`; C prints the extraordinary-health line and consumes the trailing wait.",
+      "status": "missing",
+      "remaining": "Admit only the Healer statue-trap case, pin trap-over-contents precedence and non-Healer `fine`, and replay the source-real seed-259 command through the sentinel wait."
     },
     {
       "candidate": "apply.c its_dead() Blind statue naming sub-arm (285-290)",
@@ -310,7 +319,17 @@
         "preflight split from remaining exceptional targets"
       ],
       "next": "Parked on Q10 after 7,680 generated setups and source analysis found no currently reachable edge route; do not implement without authorization or a new source-real route."
+    },
+    {
+      "group": "apply.c its_dead() Healer statue-trap adjective",
+      "candidates": [
+        "Healer plus STATUE_TRAP selects extraordinary",
+        "trap test precedes statue contents",
+        "non-Healer keeps fine",
+        "source-real D:8 listen through trailing wait"
+      ],
+      "next": "Port the bounded adjective branch and replay seed 259 through the health report and following wait."
     }
   ],
-  "sourceReview": "The goal-wide trace remains recorded above, including the parked off-map evidence. The selector correctly traced apply.c its_dead() 261-279 plus display.c glyph_at()/map_object() and display.h obj_to_glyph(), but incorrectly claimed its proposed inputs already reached the listen; both actually stopped in an overbroad js/do.js grounded-Blind drop guard. The worker traced do.c dropz(), fixed only that prerequisite, and then established both source-real logical-ID outcomes. Commit f054dc3 preserves source order and refusal atomicity for hallucination, revival, mixed-pile, off-map, and out-of-reach siblings."
+  "sourceReview": "The goal-wide trace remains recorded above, including the parked off-map evidence. After f054dc3 the selector re-read all remaining `later` entries, proved a source-real corpse-upper mixed-pile refusal at seed 55 but found no currently ported source-real statue-upper constructor, and therefore set it aside. A finite D:8 scan over seeds 1..2000 found seed 259's adjacent gray-ooze statue trap. The exact direction key reaches js/apply.js's Healer trap refusal after a 6,903-call matching prefix, and a trailing wait proves C continues through the extraordinary-health result."
 }
