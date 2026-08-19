@@ -1,6 +1,6 @@
 {
-  "mode": "implementation",
-  "reason": "The next timeboxed slice ports apply.c its_dead()'s Healer REVIVE_MON wording using the timed-corpse fixtures already present in the focused suite. It requires no setup search or new subsystem: the existing timer walk becomes role-gated and the ordinary corpse message gains the source `mostly` term.",
+  "mode": "ready-for-audit",
+  "reason": "The Healer REVIVE_MON wording slice is complete at 41d344e. Existing constructed timed-corpse doapply fixtures now prove the role-gated timer walk and exact `mostly dead` grammar without any setup search or subsystem expansion; independent checkpoint, mutation, matrix, and CI are green.",
   "commitChecked": "93e97407f39918188a6a0aa372cd5ee3e7557a3c",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
@@ -133,8 +133,8 @@
       "owner": "js/apply.js its_dead(), reusing timeout.js obj_has_timer()",
       "effects": "Detects REVIVE_MON while counting the selected corpse chain and changes the Healer's singular report from `dead` to `mostly dead`; it does not revive the corpse or restart traversal.",
       "evidence": "apply.c:265-278. The post-2f7e936 source reread corrected the older revival-loop claim: this branch only checks obj_has_timer() and formats the report.",
-      "status": "missing",
-      "remaining": "Use the existing timed-corpse doapply fixtures to port the role-gated timer walk and `mostly dead` term, with ordinary-role, chain-order, grammar, timing, zero-RNG, preservation, and Hallucination-precedence controls. No source-real timed-corpse input route is currently available."
+      "status": "done",
+      "remaining": "None. Commit 41d344e ports the Healer-only timer walk and exact `mostly dead` term. Existing authorized constructed doapply fixtures pin top and lower timers, no timer, non-Healer behavior, singular/plural grammar, free/costly results, exact terminal state, zero branch RNG, preservation, sentinels, and Hallucination precedence. The fixture cannot prove a currently unavailable source-real timed-corpse input route or direct C replay parity for that setup."
     },
     {
       "candidate": "apply.c its_dead() statue arm (283-307)",
@@ -344,12 +344,6 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "apply.c its_dead() Healer REVIVE_MON wording",
-      "candidates": ["apply.c its_dead() REVIVE_MON/Healer corpse sub-arm (265-270)"],
-      "next": "Replace the blanket timer refusal with the source role-gated timer walk and exact `mostly dead` grammar using the existing constructed doapply fixtures."
-    }
-  ],
-  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 18cc498 completed the out-of-reach non-tiny statue result. The next compact source unit is apply.c:265-278: only a Healer scans the selected corpse chain for REVIVE_MON, and the observable difference is the `mostly` word in the existing message; no revival action or new RNG belongs to this branch. Existing constructed timed-corpse fixtures already reach the real doapply consumer, so the user's speed direction rules out further setup search. The full Hallucination message arm and fog m_in_out_region() remain separate confirmed gaps."
+  "missingWorkByOwner": [],
+  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 41d344e ports apply.c:265-278 exactly: only a Healer scans the selected corpse chain for REVIVE_MON, and the observable difference is the `mostly` word; no revival action or new RNG belongs to this branch. Existing constructed timed-corpse fixtures reach the real doapply consumer without setup search. The full Hallucination message arm and fog m_in_out_region() remain separate confirmed gaps and will use the user's requested direct-test fallback rather than further source-real setup searches."
 }
