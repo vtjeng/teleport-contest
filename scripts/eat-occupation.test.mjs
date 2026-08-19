@@ -640,15 +640,16 @@ test('set_occupation stores an untimed callback as the occupation itself', () =>
 test('the() prefixes an article only where C does', () => {
     // objnam.c the(): a lower-case name needs the article, an existing "the "
     // prefix is folded to lower case rather than doubled, and a capitalized
-    // name reaches the proper-noun analysis this port stops at.
+    // name goes through the source proper-noun analysis.
     assert.equal(the('food ration'), 'the food ration');
     assert.equal(the('The Amulet of Yendor'), 'the Amulet of Yendor');
-    assert.throws(() => the('Excalibur'), /proper noun/u);
+    assert.equal(the('Excalibur'), 'Excalibur');
     assert.throws(() => the(''), /empty name/u);
     // C's test is `*str < 'A' || *str > 'Z'`, so both ends of the range are
-    // capitals and neither is an article's business.
-    assert.throws(() => the('Amulet of Yendor'), /proper noun/u);
-    assert.throws(() => the('Zorkmid'), /proper noun/u);
+    // capitals and both enter the proper-name decisions rather than the
+    // unconditional article arm.
+    assert.equal(the('Amulet of Yendor'), 'the Amulet of Yendor');
+    assert.equal(the('Zorkmid'), 'Zorkmid');
     // The characters either side of the range are not.
     assert.equal(the('@ symbol'), 'the @ symbol'); /* '@' is 'A' - 1 */
     assert.equal(the('[ symbol'), 'the [ symbol'); /* '[' is 'Z' + 1 */

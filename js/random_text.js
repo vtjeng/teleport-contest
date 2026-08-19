@@ -1,14 +1,21 @@
 // Random-access rumor, epitaph, and engraving text.
-// C refs: rumors.c getrumor(), get_rnd_line(), get_rnd_text(); hacklib.c xcrypt().
+// C refs: rumors.c getrumor(), get_rnd_line(), get_rnd_text(), CapitalMon();
+// hacklib.c xcrypt().
 
 import {
     A_WIS,
+    BOGUSMONFILE,
     BUFSZ,
+    MALE,
     MD_PAD_RUMORS,
+    NUM_MGENDERS,
     RUMORFILE,
 } from './const.js';
+import { bogon_is_pname } from './do_name.js';
 import { game } from './gstate.js';
-import { decodeUtf8ByteString, xcrypt } from './hacklib.js';
+import { decodeUtf8ByteString, lowc, xcrypt } from './hacklib.js';
+import { G_UNIQ, LOW_PM, NUMMONS } from './monsters.js';
+import { the_unique_pm } from './objnam.js';
 import { RANDOM_TEXT_FILES } from './random_text_data.js';
 import { rn2 } from './rng.js';
 
@@ -35,6 +42,50 @@ function decodeByteString(bytes) {
     return decodeUtf8ByteString(
         Array.from(bytes, (character) => character.charCodeAt(0)),
     );
+}
+
+function isFullWordPrefix(name, word) {
+    if (word.length < name.length || !word.startsWith(name)) return false;
+    const next = word[name.length];
+    return next === undefined || next === ' ' || next === "'";
+}
+
+// C ref: rumors.c CapitalMon() and init_CapMons() (791-907). The source
+// caches this catalog after its first two-pass build; scanning the small fixed
+// monster and bogus-name catalogs directly keeps the result pure and preserves
+// the same case-sensitive, full-word match.
+export function CapitalMon(word, state = game, env = {}) {
+    if (!word || word[0] === lowc(word[0])) return false;
+
+    for (let mndx = LOW_PM; mndx < NUMMONS; ++mndx) {
+        const species = state.mons?.[mndx];
+        if (!species) continue;
+        if ((species.geno & G_UNIQ) !== 0 && !the_unique_pm(species))
+            continue;
+        for (let mgend = MALE; mgend < NUM_MGENDERS; ++mgend) {
+            const name = species.pmnames?.[mgend];
+            if (name && name[0] !== lowc(name[0])
+                && isFullWordPrefix(name, word)) {
+                return true;
+            }
+        }
+    }
+
+    const data = (env.files ?? RANDOM_TEXT_FILES)[BOGUSMONFILE];
+    if (typeof data !== 'string') return false;
+    const records = data.split('\n').slice(1);
+    for (const encrypted of records) {
+        if (!encrypted) continue;
+        const decoded = decodeByteString(xcrypt(encrypted))
+            .replace(/_+$/u, '');
+        const code = '-_+|='.includes(decoded[0]) ? decoded[0] : '';
+        const name = code ? decoded.slice(1) : decoded;
+        if (name && name[0] !== lowc(name[0]) && !bogon_is_pname(code)
+            && isFullWordPrefix(name, word)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 // C ref: rumors.c get_rnd_line().  data is the complete encrypted file byte

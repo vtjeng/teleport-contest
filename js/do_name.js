@@ -11,8 +11,14 @@ import {
     AUGMENT_IT,
     BLINDED,
     BOGUSMONFILE,
+    CORPSTAT_FEMALE,
+    CORPSTAT_GENDER,
+    CORPSTAT_MALE,
+    CORPSTAT_RANDOM,
+    FEMALE,
     HALLUC,
     HALLUC_RES,
+    ismnum,
     MALE,
     MD_PAD_BOGONS,
     M_AP_MONSTER,
@@ -53,10 +59,13 @@ import {
     G_UNIQ,
     LOW_PM,
     M2_PNAME,
+    PM_ALIGNED_CLERIC,
+    PM_CLERIC,
     PM_GHOST,
     PM_WIZARD_OF_YENDOR,
     SPECIAL_PM,
 } from './monsters.js';
+import { CORPSE, FIGURINE, STATUE } from './objects.js';
 import { just_an } from './objnam.js';
 import { get_rnd_text } from './random_text.js';
 import { HLIQUIDS } from './random_text_data.js';
@@ -354,6 +363,29 @@ export function mon_pmname(monster) {
     return pmname(monster.data, gender(monster));
 }
 
+// C ref: do_name.c obj_pmname() (1321-1358). Corpses, statues, and figurines
+// store their selected gender in the low two bits of obj->spe. A random-gender
+// aligned cleric deliberately uses the role monster's neutral "cleric" name
+// rather than the monster priest's "aligned cleric" name.
+export function obj_pmname(obj, state = game) {
+    if ([CORPSE, STATUE, FIGURINE].includes(obj.otyp)
+        && ismnum(obj.corpsenm)) {
+        const cgend = obj.spe & CORPSTAT_GENDER;
+        const mgend = cgend === CORPSTAT_MALE ? MALE
+            : cgend === CORPSTAT_FEMALE ? FEMALE : NEUTRAL;
+        let mndx = obj.corpsenm;
+
+        if (mndx === PM_ALIGNED_CLERIC && cgend === CORPSTAT_RANDOM)
+            mndx = PM_CLERIC;
+
+        return pmname(state.mons[mndx], mgend);
+    }
+    // C reports impossible() and returns this sentinel. Keeping the return
+    // makes the helper total without adding output or mutation to this pure
+    // port; valid callers never reach it.
+    return 'two-legged glorkum-seeker';
+}
+
 // C ref: do_name.c x_monnam() (826-1032), restricted to the `suppress`
 // combinations that carry SUPPRESS_INVISIBLE. Three callers are ported:
 // steed.c mount_steed(), which builds the killer string for a slipped mount
@@ -604,6 +636,11 @@ export function bogusmon(env = {}) {
     };
 }
 
+// C ref: do_name.c bogon_is_pname() (1415-1421).
+export function bogon_is_pname(code) {
+    return Boolean(code && '-+='.includes(code));
+}
+
 // C ref: do_name.c rndmonnam(). Candidate selection shares the display RNG
 // with monster glyph randomization and may retry excluded species. An ordinary
 // monster then draws its gender; a bogus name instead uses get_rnd_text()'s
@@ -669,7 +706,7 @@ export function Amonnam(monster, env = {}) {
             random: env.displayRandom ?? rn2_on_display_rng,
         });
         text += randomName.name;
-        nameAtStart = '-+='.includes(randomName.code);
+        nameAtStart = bogon_is_pname(randomName.code);
     } else {
         const mdat = monster.data;
         const appearance = (monster.m_ap_type ?? 0) & M_AP_TYPMASK;

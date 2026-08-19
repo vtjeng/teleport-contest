@@ -9,8 +9,8 @@
 // its three guards, the free-action rule, the self-probe that confdir() leads
 // to, the monster on the adjacent square, both secret-terrain arms, and the
 // adjacent square that holds nothing to report, and the ordinary sighted
-// corpse result. The mounted, swallowed, vertical, cursed, off-map, and
-// exceptional dead-thing arms still stop.
+// corpse and statue results. The mounted, swallowed, vertical, cursed,
+// off-map, and exceptional dead-thing arms still stop.
 
 import {
     ARTICLE_A,
@@ -37,6 +37,7 @@ import {
     REVIVE_MON,
     SCORR,
     SDOOR,
+    STATUE_TRAP,
     SUPPRESS_INVISIBLE,
     SUPPRESS_IT,
     u_at,
@@ -49,7 +50,7 @@ import {
     newsym,
     unmap_invisible,
 } from './display.js';
-import { pmname, x_monnam } from './do_name.js';
+import { obj_pmname, pmname, x_monnam } from './do_name.js';
 import { can_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
 import { check_capacity } from './hack.js';
@@ -57,7 +58,7 @@ import { mstatusline, ustatusline } from './insight.js';
 import { getobj, nxtobj } from './invent.js';
 import { pick_lock } from './lock.js';
 import { seemimic } from './mon.js';
-import { gender, nohands } from './mondata.js';
+import { gender, nohands, type_is_pname } from './mondata.js';
 import { youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import {
@@ -67,11 +68,12 @@ import {
     is_gloves,
     is_graystone,
     is_pick,
+    hasContents,
     newObject,
     objectType,
     sobj_at,
 } from './obj.js';
-import { simple_typename, simpleonames } from './objnam.js';
+import { simple_typename, simpleonames, The } from './objnam.js';
 import {
     BANANA,
     BULLWHIP,
@@ -95,10 +97,12 @@ import {
     WAND_CLASS,
     WEAPON_CLASS,
 } from './objects.js';
+import { PM_HEALER } from './monsters.js';
 import { body_part } from './polyself.js';
 import { canSpotMonster, heroIsBlind } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { obj_has_timer } from './timeout.js';
+import { t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole } from './worn.js';
@@ -216,8 +220,10 @@ export function apply_ok(obj, state = game) {
 // C takes `int *resp` so that its hallucination arm can charge the turn
 // (apply.c:253); that arm still refuses here, so the port answers a bare
 // boolean. The admitted corpse branch is sighted, reachable, has no statue in
-// its pile, and has no REVIVE_MON timer. Its blind glyph update, Healer timer
-// result, hallucination message, and statue sibling remain named refusals.
+// its pile, and has no REVIVE_MON timer. The admitted statue branch is
+// sighted, reachable, has no corpse in its pile, and is not a Healer's statue
+// trap or statue carrying contents. The remaining exceptional siblings stay
+// named refusals.
 function unportedItsDeadBranch(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     const statue = sobj_at(STATUE, rx, ry, state);
@@ -227,10 +233,9 @@ function unportedItsDeadBranch(rx, ry, state) {
         // apply.c:210-211 then walks `statue` past the tiny statues an
         // out-of-reach hero cannot touch, through invent.c nxtobj(), so a
         // square holding none but tiny ones reaches the fall-through below.
-        // The port refuses every statue here instead, which over-refuses
-        // exactly that square. nxtobj() and MZ_TINY are now available, but
-        // this slice excludes every statue path; the later statue slice must
-        // port this walk with the message arm it selects.
+        // The port refuses every out-of-reach statue here, including the
+        // source's tiny-statue walk. nxtobj() and MZ_TINY are available, but
+        // the walk remains outside this reachable-statue slice.
         if (statue) return 'an out-of-reach statue';
     }
     if (!corpse && !statue) return null;
@@ -244,7 +249,17 @@ function unportedItsDeadBranch(rx, ry, state) {
     // slice excludes both mixed outcomes, because admitting either would also
     // admit the statue naming arm when pile order changes.
     if (corpse && statue) return 'a mixed corpse and statue pile';
-    if (statue) return 'a statue on the listened-to square';
+    if (statue) {
+        if (heroIsBlind(state)) return 'a blind listen to a statue';
+        if (state.urole?.mnum === PM_HEALER) {
+            const trap = t_at(rx, ry, state);
+            if (trap?.ttyp === STATUE_TRAP)
+                return 'a Healer examining a statue trap';
+            if (hasContents(statue))
+                return 'a Healer examining statue contents';
+        }
+        return null;
+    }
 
     // glyph_at(), obj_to_glyph(), and map_object() precede the Healer timer
     // walk at :264-274. Their blind path therefore wins when both exclusions
@@ -261,19 +276,28 @@ function unportedItsDeadBranch(rx, ry, state) {
 
 async function its_dead(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
+    const statue = sobj_at(STATUE, rx, ry, state);
     if (!can_reach_floor(true, state)) corpse = null;
-    if (!corpse) return false; /* no reachable corpse or admitted statue */
-
-    const more_corpses = Boolean(nxtobj(corpse, CORPSE, true));
-    const one = (corpse.quan === 1 && !more_corpses);
-    const here = u_at(rx, ry, state);
-    await ttyPline(
-        `You determine that ${one ? (here ? 'this' : 'that')
-            : (here ? 'these' : 'those')} unfortunate being${one ? '' : 's'} `
-        + `${one ? 'is' : 'are'} dead.`,
-        state,
-    );
-    return true;
+    if (corpse) {
+        const more_corpses = Boolean(nxtobj(corpse, CORPSE, true));
+        const one = (corpse.quan === 1 && !more_corpses);
+        const here = u_at(rx, ry, state);
+        await ttyPline(
+            `You determine that ${one ? (here ? 'this' : 'that')
+                : (here ? 'these' : 'those')} unfortunate being${
+                one ? '' : 's'} ${one ? 'is' : 'are'} dead.`,
+            state,
+        );
+        return true;
+    }
+    if (statue) {
+        const species = state.mons[statue.corpsenm];
+        let what = obj_pmname(statue, state);
+        if (!type_is_pname(species)) what = The(what, state);
+        await ttyPline(`${what} is in fine health for a statue.`, state);
+        return true;
+    }
+    return false;
 }
 
 // Fail-closed commands are retryable. Inspect only the adjacent paths that

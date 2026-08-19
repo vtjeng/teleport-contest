@@ -11,7 +11,8 @@
 // object construction through js/obj.js.
 
 import {
-    ART_EYES_OF_THE_OVERWORLD, ART_ORB_OF_DETECTION, find_artifact,
+    ART_EYES_OF_THE_OVERWORLD, ART_ORB_OF_DETECTION, artifact_name,
+    find_artifact,
     permapoisoned,
 } from './artifacts.js';
 import {
@@ -23,8 +24,10 @@ import {
     W_SWAPWEP, W_TOOL, W_WEP,
 } from './const.js';
 import {
-    fruit_from_indx, makeplural, makesingular, matching_artifact_fruit,
+    fruit_from_indx, fruit_from_name, makeplural, makesingular,
+    matching_artifact_fruit,
 } from './fruit.js';
+import { obj_pmname, pmname } from './do_name.js';
 import { tin_details } from './eat.js';
 import { game } from './gstate.js';
 import {
@@ -41,6 +44,7 @@ import {
 } from './monsters.js';
 import { type_is_pname } from './mondata.js';
 import { genders } from './roles.js';
+import { CapitalMon } from './random_text.js';
 import { observe_object } from './o_init.js';
 import {
     carried, erosionMatters, hasContents, isBox, isCandle, isContainer,
@@ -100,10 +104,6 @@ function heroIsBlind(state) {
 // article joined to the name, which is what this returns.
 function articleName(text) {
     return an(text);
-}
-function monsterObjectName(obj, state) {
-    if (obj.corpsenm === NON_PM) return 'thing';
-    return state.mons?.[obj.corpsenm]?.pmnames?.[2] ?? 'monster';
 }
 // C ref: obj.h is_poisonable() (264-268). The first disjunct repeats
 // is_multigen()'s three terms verbatim, so it is written as that call here.
@@ -410,7 +410,7 @@ function xnameBase(obj, type, state, ident) {
             ? description
             : knownType ? actual : description}`;
         if (obj.otyp === FIGURINE && obj.corpsenm !== NON_PM) {
-            const species = monsterObjectName(obj, state);
+            const species = obj_pmname(obj, state);
             result += ` of ${articleName(species)}`;
         }
         return result;
@@ -452,7 +452,7 @@ function xnameBase(obj, type, state, ident) {
         return actual;
     case ROCK_CLASS:
         if (obj.otyp === STATUE && obj.corpsenm !== NON_PM) {
-            const species = monsterObjectName(obj, state);
+            const species = obj_pmname(obj, state);
             const historic = state.urole?.filecode === 'Arc'
                 && (obj.spe & CORPSTAT_HISTORIC) ? 'historic ' : '';
             return `${historic}${actual} of ${articleName(species)}`;
@@ -829,7 +829,7 @@ function wizmgenderSuffix(obj, state) {
 }
 
 function corpseDoname(obj, modifiers, state) {
-    const species = monsterObjectName(obj, state);
+    const species = obj_pmname(obj, state);
     const quantity = Math.trunc(obj.quan);
     // objnam.c appends " named " inside xname_flags() (999-1005) and the
     // gender in doname_base() below it, so the gender comes last.
@@ -1017,9 +1017,7 @@ export function corpse_xname(otmp, adjective, cxn_flags, state = game) {
     } else if (omndx === NON_PM) { /* paranoia */
         mnam = 'thing';
     } else {
-        // C's obj_pmname(); monsterObjectName() above is this port's reading of
-        // it, and covers do_name.c:1355's NEUTRAL arm alone.
-        mnam = monsterObjectName(otmp, state);
+        mnam = obj_pmname(otmp, state);
         const species = state.mons[omndx];
         if (the_unique_pm(species) || type_is_pname(species)) {
             mnam = s_suffix(mnam);
@@ -1103,14 +1101,10 @@ export function singular(otmp, func, state) {
 // C ref: objnam.c the() (2170-2237). Prefixes "the " to a name that needs an
 // article.
 //
-// Only the two branches a lower-case name reaches are ported. C's third branch
-// decides whether a capitalized name is a proper noun, and needs CapitalMon(),
-// fruit_from_name() and artifact_name(); the arm above it that spares an
-// already-prefixed string is one `strncmpi`, so it is cheaper to port than to
-// justify leaving out. eat.c food_xname() is the only caller, and a comestible
-// whose xname() starts with a capital needs a named fruit, so the stop below is
-// reachable only through the `fruit:` option.
-export function the(str) {
+// The capitalized branch distinguishes monster titles and types from personal
+// names, and treats a configured fruit as an ordinary noun unless an artifact
+// of that name deliberately lacks the article.
+export function the(str, state = game) {
     if (!str) {
         // C's impossible() returns "the []" and carries on. Reaching it means
         // a caller handed this an empty name, which is a defect here.
@@ -1118,20 +1112,49 @@ export function the(str) {
     }
     if (str.slice(0, 4).toLowerCase() === 'the ')
         return str[0].toLowerCase() + str.slice(1);
-    if (str[0] >= 'A' && str[0] <= 'Z') {
-        throw new UnsupportedObjectNameError(
-            'the() for a name that may be a proper noun',
-            null,
-        );
+    let insertThe = str[0] < 'A' || str[0] > 'Z'
+        || CapitalMon(str, state);
+    if (!insertThe) {
+        const fruit = fruit_from_name(str, true, state);
+        if (fruit) {
+            const artifact = artifact_name(str, null, false, state);
+            insertThe = !artifact
+                || artifact.slice(0, 4).toLowerCase() === 'the ';
+        }
     }
-    /* not a proper name, needs an article */
-    return `the ${str}`;
+    if (!insertThe) {
+        const lastSpace = str.lastIndexOf(' ');
+        const separator = lastSpace >= 0 ? lastSpace : str.lastIndexOf('-');
+        if (separator >= 0
+            && (str[separator + 1] < 'A' || str[separator + 1] > 'Z')) {
+            insertThe = !str.includes("'");
+        } else if (separator >= 0) {
+            const firstSpace = str.indexOf(' ');
+            if (firstSpace >= 0 && firstSpace < separator) {
+                const folded = str.toLowerCase();
+                const ofIndex = folded.indexOf(' of ');
+                const namedIndex = folded.indexOf(' named ');
+                const calledIndex = folded.indexOf(' called ');
+                const namingIndex = calledIndex >= 0
+                    && (namedIndex < 0 || calledIndex < namedIndex)
+                    ? calledIndex : namedIndex;
+                if (ofIndex >= 0
+                    && (namingIndex < 0 || ofIndex < namingIndex)) {
+                    insertThe = true;
+                } else if (namingIndex < 0 && str.length >= 31
+                    && str.endsWith('Platinum Yendorian Express Card')) {
+                    insertThe = true;
+                }
+            }
+        }
+    }
+    return `${insertThe ? 'the ' : ''}${str}`;
 }
 
 // C ref: objnam.c The() (2234-2241). the() with its first character
 // capitalized.
-export function The(str) {
-    const tmp = the(str);
+export function The(str, state = game) {
+    const tmp = the(str, state);
     return highc(tmp[0]) + tmp.slice(1);
 }
 
@@ -1288,7 +1311,7 @@ function donameFreshInternal(obj, state, allowLiveShopPrice) {
     if (obj.otyp === CORPSE)
         return corpseDoname(obj, modifiers, state);
     if (obj.otyp === EGG && obj.corpsenm !== NON_PM && ident.known) {
-        base = `${monsterObjectName(obj, state)} ${base}`;
+        base = `${pmname(state.mons[obj.corpsenm], NEUTRAL)} ${base}`;
         if (obj.spe === 1) base += ' (laid by you)';
     }
     if (obj.otyp === CANDELABRUM_OF_INVOCATION) {

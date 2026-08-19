@@ -3,7 +3,12 @@ import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-import { A_WIS, HALLUC, HALLUC_RES } from '../js/const.js';
+import {
+    A_WIS,
+    HALLUC,
+    HALLUC_RES,
+    NUM_MGENDERS,
+} from '../js/const.js';
 import { random_engraving } from '../js/random_engraving.js';
 import {
     HLIQUIDS,
@@ -12,11 +17,19 @@ import {
 } from '../js/random_text_data.js';
 import { hliquid } from '../js/do_name.js';
 import {
+    CapitalMon,
     get_rnd_line,
     getrumor,
     parseRumorHeader,
     xcrypt,
 } from '../js/random_text.js';
+import {
+    NUMMONS,
+    PM_ARCHON,
+    PM_MEDUSA,
+    PM_WIZARD_OF_YENDOR,
+    monst_globals_init,
+} from '../js/monsters.js';
 import {
     buildDoNameTables,
     buildRandomTextFiles,
@@ -98,6 +111,48 @@ test('generated random-text data matches the pinned source and byte layout', () 
     for (const [filename, data] of Object.entries(RANDOM_TEXT_FILES))
         assert.equal(sha256(data, 'latin1'), RANDOM_TEXT_FILE_HASHES[filename]);
 });
+
+test('CapitalMon matches catalog titles and non-personal bogus names', () => {
+    const state = {};
+    monst_globals_init(state);
+
+    // rumors.c init_CapMons(): actual capitalized types and titles are kept,
+    // while a unique personal name is skipped through the_unique_pm().
+    assert.equal(state.mons[PM_ARCHON].pmnames[2], 'Archon');
+    assert.equal(CapitalMon('Archon', state), true);
+    assert.equal(CapitalMon('Archon corpse', state), true);
+    assert.equal(CapitalMon('Archonette', state), false);
+    assert.equal(
+        CapitalMon(state.mons[PM_WIZARD_OF_YENDOR].pmnames[2], state),
+        true,
+    );
+    assert.equal(state.mons[PM_MEDUSA].pmnames[2], 'Medusa');
+    assert.equal(CapitalMon('Medusa', state), false);
+    assert.equal(CapitalMon('newt', state), false);
+
+    // The generated bogusmon file carries all five prefix-code families.
+    // Uncoded and '_' names are general types; '+' marks a personal name.
+    assert.equal(CapitalMon('Y2K bug', state), true);
+    assert.equal(CapitalMon('Semigorgon', state), true);
+    assert.equal(CapitalMon('Dudley', state), false);
+});
+
+test('CapitalMon stops at both source catalog bounds and a missing data file',
+    () => {
+        const state = {};
+        monst_globals_init(state);
+        const noBogons = { files: {} };
+
+        state.mons[NUMMONS] = {
+            geno: 0,
+            pmnames: ['Past monster bound', null, 'Past monster bound'],
+        };
+        assert.equal(CapitalMon('Past monster bound', state, noBogons), false);
+
+        state.mons[PM_ARCHON].pmnames[NUM_MGENDERS] = 'Past gender bound';
+        assert.equal(CapitalMon('Past gender bound', state, noBogons), false);
+        assert.equal(CapitalMon('Missing bogus type', state, noBogons), false);
+    });
 
 test('hliquid preserves its preferred value or consumes one display draw', () => {
     const state = {

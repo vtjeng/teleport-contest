@@ -4,6 +4,7 @@ import test from 'node:test';
 import { SUPPRESS_NAME } from '../js/const.js';
 import {
     Amonnam,
+    bogon_is_pname,
     bogusmon,
     capitalizedAlwaysVisibleMonsterName,
     capitalizedMonsterName,
@@ -13,6 +14,7 @@ import {
     monsterCommonName,
     monsterPossessive,
     noveltitle,
+    obj_pmname,
     oname,
     rndmonnam,
     SIR_TERRY_NOVELS,
@@ -23,6 +25,11 @@ import { ART_EXCALIBUR, init_artifacts } from '../js/artifacts.js';
 import {
     ARTICLE_A,
     BLINDED,
+    CORPSTAT_FEMALE,
+    CORPSTAT_HISTORIC,
+    CORPSTAT_MALE,
+    CORPSTAT_NEUTER,
+    CORPSTAT_RANDOM,
     DETECT_MONSTERS,
     HALLUC,
     HALLUC_RES,
@@ -38,13 +45,21 @@ import {
     W_SADDLE,
     has_oname,
 } from '../js/const.js';
-import { LONG_SWORD, objects_globals_init } from '../js/objects.js';
+import {
+    CORPSE,
+    FIGURINE,
+    LONG_SWORD,
+    STATUE,
+    objects_globals_init,
+} from '../js/objects.js';
 import { races, roles } from '../js/roles.js';
 import {
     G_NOGEN,
     LOW_PM,
     M1_HUMANOID,
     M2_PNAME,
+    NUMMONS,
+    PM_ALIGNED_CLERIC,
     PM_GHOST,
     PM_GNOME_RULER,
     PM_NEWT,
@@ -144,6 +159,67 @@ test('ordinary monster names preserve article, saddle, pet, and possessive rules
             UnsupportedMonsterNameError,
         );
     });
+
+test('obj_pmname reads every corpse-statue gender and cleric substitution',
+    () => {
+        const state = {};
+        monst_globals_init(state);
+        const body = (otyp, corpsenm, spe) => ({ otyp, corpsenm, spe });
+
+        // do_name.c:1336 admits exactly these three object types. All three
+        // take the same neutral newt row from monsters.h.
+        for (const otyp of [CORPSE, STATUE, FIGURINE]) {
+            assert.equal(
+                obj_pmname(body(otyp, PM_NEWT, CORPSTAT_RANDOM), state),
+                'newt',
+            );
+        }
+
+        // hack.h puts gender in spe's low two bits. The historic statue bit
+        // above them must not interfere with the male selection.
+        for (const [spe, expected] of [
+            [CORPSTAT_FEMALE, 'gnome queen'],
+            [CORPSTAT_MALE | CORPSTAT_HISTORIC, 'gnome king'],
+            [CORPSTAT_NEUTER, 'gnome ruler'],
+            [CORPSTAT_RANDOM, 'gnome ruler'],
+        ]) {
+            assert.equal(
+                obj_pmname(body(STATUE, PM_GNOME_RULER, spe), state),
+                expected,
+            );
+        }
+
+        // A random aligned cleric substitutes the role species so that its
+        // neutral name is "cleric". Explicit neuter is deliberately distinct
+        // and retains "aligned cleric"; explicit sexes retain priest/priestess.
+        for (const [spe, expected] of [
+            [CORPSTAT_RANDOM, 'cleric'],
+            [CORPSTAT_FEMALE, 'priestess'],
+            [CORPSTAT_MALE, 'priest'],
+            [CORPSTAT_NEUTER, 'aligned cleric'],
+        ]) {
+            assert.equal(
+                obj_pmname(body(STATUE, PM_ALIGNED_CLERIC, spe), state),
+                expected,
+            );
+        }
+
+        // C's impossible() branch still returns its fixed sentinel. Pin both
+        // halves of the admission condition independently.
+        assert.equal(
+            obj_pmname(body(LONG_SWORD, PM_NEWT, 0), state),
+            'two-legged glorkum-seeker',
+        );
+        assert.equal(
+            obj_pmname(body(STATUE, NUMMONS, 0), state),
+            'two-legged glorkum-seeker',
+        );
+    });
+
+test('bogon_is_pname recognizes only the three personal-name codes', () => {
+    for (const code of ['-', '+', '=']) assert.equal(bogon_is_pname(code), true);
+    for (const code of ['', '_', '|']) assert.equal(bogon_is_pname(code), false);
+});
 
 test('Amonnam preserves gender, invisibility, appearance, and display RNG', () => {
     const state = {

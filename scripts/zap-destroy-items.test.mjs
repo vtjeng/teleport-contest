@@ -11,7 +11,6 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { failClosedCommandRefusals } from '../js/cmd.js';
-import { UnsupportedObjectNameError } from '../js/objnam.js';
 
 import {
     BLINDED,
@@ -1103,14 +1102,10 @@ test('a blind hero is told nothing when the Book survives', async () => {
     game.u.uprops[BLINDED] = { intrinsic: 0, extrinsic: 0 };
 });
 
-test('a discovered Book stops on the proper noun the() will not build',
+test('a discovered Book uses the article from its capitalized name',
     async () => {
-    // objnam.c The() over xname() names a discovered Book "the Book of the
-    // Dead", and js/objnam.js refuses the() for a name that may be a proper
-    // noun. So the arm above prints only while the Book is unidentified, and
-    // a hero who has identified one meets a named stop instead. js/cmd.js
-    // failClosedCommandRefusals() lists the class, so the segment ends on its
-    // last matching screen rather than losing every screen the zap earned.
+    // objnam.c The() over xname() finds " of " before any naming clause and
+    // names a discovered Book "The Book of the Dead".
     await initializedGame(982463, 'KnownBook');
     emptyPack();
     const book = carriedByHero(SPE_FORCE_BOLT, 1);
@@ -1118,14 +1113,15 @@ test('a discovered Book stops on the proper noun the() will not build',
     discover_object(SPE_BOOK_OF_THE_DEAD, true, true, false, game);
     const drawn = [];
 
-    await assert.rejects(
-        () => destroy_items(game.youmonst, AD_FIRE, 5, {
-            random: scriptedRandom([[5, 0]], drawn),
-            state: game,
-        }),
-        UnsupportedObjectNameError,
+    const damage = await destroy_items(game.youmonst, AD_FIRE, 5, {
+        random: scriptedRandom([[5, 0]], drawn),
+        state: game,
+    });
+    assert.equal(
+        toplines(),
+        'The Book of the Dead glows a strange dark red, but remains intact.',
     );
-    assert.ok(
-        failClosedCommandRefusals().includes(UnsupportedObjectNameError),
-    );
+    assert.equal(damage, 0);
+    assert.equal(book.quan, 1);
+    assert.deepEqual(drawn, [['rn2', 5, 0]]);
 });

@@ -70,10 +70,13 @@ import {
 } from '../js/objnam.js';
 import {
     MZ_MEDIUM,
+    PM_ARCHON,
     PM_CLERIC,
     PM_COCKATRICE,
+    PM_MEDUSA,
     PM_NEWT,
     PM_SAMURAI,
+    PM_WIZARD_OF_YENDOR,
     monst_globals_init,
     PM_FOX,
     M1_HUMANOID,
@@ -2148,6 +2151,71 @@ test('aobjnam names the object and agrees the verb with it', () => {
     corpse.quan = 2;
     assert.equal(cxname(corpse, state), 'newt corpses');
 });
+
+test('The distinguishes capitalized monster types, names, and object names',
+    () => {
+        const state = namingState();
+        assert.equal(state.mons[PM_ARCHON].pmnames[2], 'Archon');
+        assert.equal(The('Archon', state), 'The Archon');
+        assert.equal(
+            The(state.mons[PM_WIZARD_OF_YENDOR].pmnames[2], state),
+            'The Wizard of Yendor',
+        );
+        assert.equal(state.mons[PM_MEDUSA].pmnames[2], 'Medusa');
+        assert.equal(The('Medusa', state), 'Medusa');
+
+        // Configured capitalized fruit is an ordinary noun, except when its
+        // name collides with an artifact that deliberately lacks "the".
+        state.gf.ffruit.fname = 'Blueberries';
+        assert.equal(The('Blueberries', state), 'The Blueberries');
+        state.gf.ffruit.fname = 'Excalibur';
+        assert.equal(The('Excalibur', state), 'Excalibur');
+
+        // objnam.c's proper-name heuristic: a lower-case final word normally
+        // needs the article, an apostrophe suppresses it, and "of" wins only
+        // when it precedes a later naming clause.
+        assert.equal(The('Shiny object', state), 'The Shiny object');
+        assert.equal(The("Rex's corpse", state), "Rex's corpse");
+        assert.equal(The('Orb of Detection', state), 'The Orb of Detection');
+        assert.equal(
+            The('Orb named Eye of Detection', state),
+            'Orb named Eye of Detection',
+        );
+        assert.equal(
+            The('Platinum Yendorian Express Card', state),
+            'The Platinum Yendorian Express Card',
+        );
+    });
+
+test('The preserves the source boundary cases in its proper-name heuristic',
+    () => {
+        const state = namingState();
+
+        // 'A' and 'Z' are both capital letters in objnam.c's ASCII test,
+        // including when they begin the final word after a separator.
+        assert.equal(The('A', state), 'A');
+        assert.equal(The('X A', state), 'X A');
+        assert.equal(The('X Z', state), 'X Z');
+
+        // fruit_from_name() is exact here. A longer name with a fruit prefix
+        // remains a proper name, while an exact fruit spelling that only
+        // fuzzily resembles an artifact still needs the article.
+        state.gf.ffruit.fname = 'Blueberries';
+        assert.equal(The('Blueberries Pie', state), 'Blueberries Pie');
+        state.gf.ffruit.fname = 'Magic Bane';
+        assert.equal(The('Magic Bane', state), 'The Magic Bane');
+
+        // The Platinum-card exception applies only when no naming clause has
+        // already made the whole string a proper name.
+        assert.equal(
+            The('X named Platinum Yendorian Express Card', state),
+            'X named Platinum Yendorian Express Card',
+        );
+        assert.equal(
+            The('Orb called Eye of Detection', state),
+            'Orb called Eye of Detection',
+        );
+    });
 
 // objnam.c yname() (2358-2374) and Yname2() (2376-2383). wield.c
 // can_twoweapon() opens two of its refusals with Yname2(), so the capital and

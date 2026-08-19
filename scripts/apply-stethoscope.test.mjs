@@ -5,6 +5,9 @@ import { apply_ok, doapply, UnsupportedApplyError } from '../js/apply.js';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     BLINDED,
+    CORPSTAT_FEMALE,
+    CORPSTAT_NEUTER,
+    CORPSTAT_RANDOM,
     DEAF,
     ECMD_CANCEL,
     ECMD_OK,
@@ -45,6 +48,7 @@ import {
     ROOM,
     SCORR,
     SDOOR,
+    STATUE_TRAP,
     TIMER_OBJECT,
 } from '../js/const.js';
 import {
@@ -66,13 +70,18 @@ import { getRngLog } from '../js/rng.js';
 import {
     monst_globals_init,
     NON_PM,
+    PM_ALIGNED_CLERIC,
+    PM_ARCHON,
     PM_GNOME,
+    PM_GNOME_RULER,
     PM_LONG_WORM,
+    PM_MEDUSA,
+    PM_MONK,
     PM_NEWT,
     PM_SMALL_MIMIC,
 } from '../js/monsters.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
-import { is_axe, mksobj_at, set_bknown } from '../js/obj.js';
+import { is_axe, mksobj_at, newObject, set_bknown } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     ARMOR_CLASS,
@@ -134,6 +143,7 @@ import {
     loadApplyStethoscopeRecipe,
     loadListenAtMonsterRecipe,
     loadOrdinaryCorpseRecipe,
+    loadOrdinaryStatueRecipe,
     loadSecretTerrainRecipe,
 } from './run-apply-stethoscope.mjs';
 
@@ -1338,11 +1348,112 @@ test('its_dead reports singular, stacked, and separated corpses', async () => {
     );
 });
 
+test('its_dead reports ordinary statues through obj_pmname and The',
+    async () => {
+        // apply.c:281-307. Each row reaches the real doapply() consumer and
+        // pins a naming decision that its_dead() delegates to do_name.c or
+        // objnam.c. The first listen in a hero sequence remains free.
+        for (const { corpsenm, spe, message } of [
+            {
+                corpsenm: PM_NEWT,
+                spe: CORPSTAT_RANDOM,
+                message: 'The newt is in fine health for a statue.',
+            },
+            {
+                corpsenm: PM_GNOME_RULER,
+                spe: CORPSTAT_FEMALE,
+                message: 'The gnome queen is in fine health for a statue.',
+            },
+            {
+                corpsenm: PM_ALIGNED_CLERIC,
+                spe: CORPSTAT_RANDOM,
+                message: 'The cleric is in fine health for a statue.',
+            },
+            {
+                corpsenm: PM_ALIGNED_CLERIC,
+                spe: CORPSTAT_NEUTER,
+                message: 'The aligned cleric is in fine health for a statue.',
+            },
+            {
+                corpsenm: PM_MEDUSA,
+                spe: CORPSTAT_FEMALE,
+                message: 'Medusa is in fine health for a statue.',
+            },
+            {
+                corpsenm: PM_ARCHON,
+                spe: CORPSTAT_RANDOM,
+                message: 'The Archon is in fine health for a statue.',
+            },
+        ]) {
+            const target = await heroWithEmptyWest();
+            Object.assign(floorCorpstat(STATUE, target), { corpsenm, spe });
+            for (const key of ['c', 'h'])
+                game.nhDisplay.pushKey(key.charCodeAt(0));
+            assert.equal(await doapply(game), ECMD_OK, message);
+            assert.equal(pendingTopLine(), message);
+        }
+
+        // A second listen without a move between finds the same statue and
+        // returns the costly result. Space dismisses the first report before
+        // the second object and direction prompts.
+        const charged = await heroWithEmptyWest();
+        floorCorpstat(STATUE, charged);
+        for (const key of ['c', 'h'])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_OK);
+        for (const key of [' ', 'c', 'h'])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_TIME);
+
+        // sobj_at() selects the upper statue even with an unrelated object in
+        // between, so a statue-only pile is not reduced to a single object.
+        const piled = await heroWithEmptyWest();
+        floorCorpstat(STATUE, piled);
+        mksobj_at(ROCK, piled.x, piled.y, false, false,
+            objectGenerationEnv({ state: game }));
+        const upper = floorCorpstat(STATUE, piled);
+        upper.corpsenm = PM_GNOME_RULER;
+        upper.spe = CORPSTAT_FEMALE;
+        assert.equal(await listenWest(), null);
+        assert.equal(
+            pendingTopLine(),
+            'The gnome queen is in fine health for a statue.',
+        );
+    });
+
 test('its_dead keeps exceptional object paths in source order', async () => {
-    // apply.c:281's statue arm remains outside the slice.
-    const onlyStatue = await heroWithEmptyWest();
-    floorCorpstat(STATUE, onlyStatue);
-    assert.equal(await listenWest(), 'a statue on the listened-to square');
+    // Blindness is the first exceptional check inside the selected statue
+    // arm, above both of the Healer-only descriptions.
+    const blindStatue = await heroWithEmptyWest();
+    floorCorpstat(STATUE, blindStatue);
+    game.u.uprops[BLINDED].intrinsic = 1;
+    assert.equal(await listenWest(), 'a blind listen to a statue');
+
+    const trapped = await heroWithEmptyWest();
+    floorCorpstat(STATUE, trapped);
+    game.level.traps.push({
+        tx: trapped.x, ty: trapped.y, ttyp: STATUE_TRAP, tseen: false,
+    });
+    assert.equal(await listenWest(), 'a Healer examining a statue trap');
+
+    const filled = await heroWithEmptyWest();
+    floorCorpstat(STATUE, filled).cobj = newObject({ quan: 1 });
+    assert.equal(await listenWest(), 'a Healer examining statue contents');
+
+    // The trap and contents affect the adjective only for a Healer. Another
+    // role reaches the ordinary answer even when both are present.
+    const nonHealer = await heroWithEmptyWest();
+    const ordinary = floorCorpstat(STATUE, nonHealer);
+    ordinary.cobj = newObject({ quan: 1 });
+    game.level.traps.push({
+        tx: nonHealer.x, ty: nonHealer.y, ttyp: STATUE_TRAP, tseen: false,
+    });
+    game.urole.mnum = PM_MONK;
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'The newt is in fine health for a statue.',
+    );
 
     // Both uppermost-object outcomes remain excluded. The source tie-break at
     // :214-219 would select the object placed last, but neither pile may enter
@@ -1395,10 +1506,31 @@ test('still-unported adjacent listens refuse before shared effects',
             },
         },
         {
-            branch: 'a statue on the listened-to square',
+            branch: 'a blind listen to a statue',
             setup(target) {
                 map_invisible(target.x, target.y, game);
                 floorCorpstat(STATUE, target);
+                game.u.uprops[BLINDED].intrinsic = 1;
+                return target;
+            },
+        },
+        {
+            branch: 'a Healer examining a statue trap',
+            setup(target) {
+                map_invisible(target.x, target.y, game);
+                floorCorpstat(STATUE, target);
+                game.level.traps.push({
+                    tx: target.x, ty: target.y,
+                    ttyp: STATUE_TRAP, tseen: false,
+                });
+                return target;
+            },
+        },
+        {
+            branch: 'a Healer examining statue contents',
+            setup(target) {
+                map_invisible(target.x, target.y, game);
+                floorCorpstat(STATUE, target).cobj = newObject({ quan: 1 });
                 return target;
             },
         },
@@ -1595,7 +1727,7 @@ test('ustatusline stops for every clause it would have to name', async () => {
     );
 });
 
-test('the apply matrix holds the five clean recipes the slices close on',
+test('the apply matrix holds the six clean recipes the slices close on',
     () => {
     const priorRecipes = [loadApplyStethoscopeRecipe(), loadApplyPromptRecipe()];
     const recipes = [
@@ -1603,11 +1735,12 @@ test('the apply matrix holds the five clean recipes the slices close on',
         loadListenAtMonsterRecipe(),
         loadSecretTerrainRecipe(),
         loadOrdinaryCorpseRecipe(),
+        loadOrdinaryStatueRecipe(),
     ];
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 37);
+    assert.equal(segments.length, 39);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // The two prior recipes open and close with a wait, so a command that
     // wrongly spent or wrongly saved a turn shows in the screen after it.

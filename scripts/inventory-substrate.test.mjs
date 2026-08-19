@@ -100,7 +100,12 @@ import {
     UnsupportedObjectOperationError,
     weight,
 } from '../js/obj.js';
-import { PM_COCKATRICE, PM_KNIGHT } from '../js/monsters.js';
+import {
+    PM_COCKATRICE,
+    PM_FOX,
+    PM_KNIGHT,
+    monst_globals_init,
+} from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
 import { add_rect_to_reg, create_region } from '../js/region.js';
 import {
@@ -133,8 +138,8 @@ import {
     objects_globals_init,
 } from '../js/objects.js';
 
-// Any valid non-sentinel monster index works for identity-only object tests.
-const TEST_SPECIES = 4;
+// A concrete catalog member keeps body-object names source-backed too.
+const TEST_SPECIES = PM_FOX;
 const LETTERS_PER_CASE = 26; // a-z or A-Z inventory slots
 const MINIMUM_HERO_ATTRIBUTE = 3; // makes a normal heavy ball exceed MOD_ENCUMBER
 const NON_OBJECT_VALUE = 7; // exercises a truthy primitive object argument
@@ -2015,6 +2020,7 @@ test('hold_another_object adds the object and prints its letter', async () => {
     // 1250-1256 drops only a corpse the wish marked; an ordinary one is held
     // like anything else.
     lines.length = 0;
+    monst_globals_init(state);
     const corpse = instance(CORPSE, state, {
         corpsenm: TEST_SPECIES,
         owt: PLACEHOLDER_CORPSE_WEIGHT,

@@ -708,16 +708,18 @@ test('a cursed outer layer keeps the layer under it on', async () => {
         'You cannot remove your suit to take off the leather jacket.',
     );
 
-    // A real shirt reaches the same refusal, and stops in objnam.c the(),
-    // whose proper-noun branch is unported: both shirt names are capitalized.
+    // A real shirt reaches the same refusal. objnam.c the() recognizes the
+    // lower-case final word in its capitalized type name and adds the article.
     game.uarmu = {
         oclass: ARMOR_CLASS, otyp: HAWAIIAN_SHIRT, owornmask: W_ARMU,
         cursed: 0, quan: 1, dknown: 1, known: 1,
     };
     reset_remarm(game);
-    await assert.rejects(
-        () => select_off(game.uarmu, game),
-        /the\(\) for a name that may be a proper noun/,
+    await select_off(game.uarmu, game);
+    assert.equal(takeoffContext(game).mask, 0);
+    assert.equal(
+        takePendingTopLine(),
+        'You cannot remove your suit to take off the Hawaiian shirt.',
     );
     game.uarmu = shirt;
 

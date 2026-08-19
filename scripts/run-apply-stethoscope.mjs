@@ -9,7 +9,8 @@
 // use_stethoscope() through the switch, insight.c ustatusline() through the
 // self direction, insight.c mstatusline() through a direction holding a
 // monster, apply.c's secret-terrain switch, and apply.c its_dead() through an
-// empty square or an ordinary corpse pile. The matrix splits into five parts.
+// empty square, an ordinary corpse pile, or an ordinary statue. The matrix
+// splits into six parts.
 // The first drives use_stethoscope(): the free first
 // listen, the second listen in the same move that costs a turn, both cancels,
 // both self keys, the Deaf guard, a sweep of all eight compass directions, a
@@ -420,6 +421,35 @@ export function loadOrdinaryCorpseRecipe() {
     }, 'ordinary corpse recipe');
 }
 
+// A source-real statue for apply.c its_dead():281-307. Seed 9251062 places a
+// newt statue directly north of the starting Healer. The first segment is the
+// shortest replay through the next wait; the second listens twice without a
+// move between them, so the first result is free and the second is costly.
+export function loadOrdinaryStatueRecipe() {
+    const seed = 9251062;
+    const datetime = '20340102030405';
+    const options = 'pettype:none,!acoustics,!autopickup,time';
+    const character = (name) => ({
+        seed,
+        datetime,
+        nethackrc: nethackrc({ name, role: 'Healer', options }),
+    });
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            {
+                ...character('StatLis'),
+                moves: `${APPLY_KEY}${STETHOSCOPE_SLOT}k${WAIT}`,
+            },
+            {
+                ...character('StatCost'),
+                moves: `${APPLY_KEY}${STETHOSCOPE_SLOT}k${SPACE_KEY}`
+                    + `${APPLY_KEY}${STETHOSCOPE_SLOT}k${WAIT}`,
+            },
+        ],
+    }, 'ordinary statue recipe');
+}
+
 // One pack per apply_ok() term. Each role below advertises a letter set that
 // only the named term produces, so a term answering wrongly would change the
 // prompt rather than leave it alone. Every segment cancels at the prompt,
@@ -519,13 +549,22 @@ export async function runApplyStethoscopeMatrix() {
         chunkLimit: 1,
     });
     if (!secret.passed) return secret;
-    return runFreshMatrix({
+    const corpse = await runFreshMatrix({
         entries: [{
             label: 'ordinary corpse',
             recipe: loadOrdinaryCorpseRecipe(),
         }],
         summaryLabel: 'ORDINARY CORPSE',
         chunkLimit: 1,
+    });
+    if (!corpse.passed) return corpse;
+    return runFreshMatrix({
+        entries: [{
+            label: 'ordinary statue',
+            recipe: loadOrdinaryStatueRecipe(),
+        }],
+        summaryLabel: 'ORDINARY STATUE',
+        chunkLimit: 2,
     });
 }
 
