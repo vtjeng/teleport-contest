@@ -13,6 +13,7 @@ import {
 import { GameMap } from '../js/game.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import { M1_BREATHLESS, M2_UNDEAD, PM_FOG_CLOUD } from '../js/monsters.js';
+import { S_cloud } from '../js/symbols.js';
 import {
     UnsupportedRegionCallbackError,
     UnsupportedRegionOperationError,
@@ -246,6 +247,13 @@ test('fresh fog vapor of size one draws only its rn1-expanded ttl call', async (
 
     assert.deepEqual(bounds, [3]);
     assert.equal(cloud.ttl, 6);
+    assert.equal(cloud.visible, true);
+    assert.equal(cloud.glyph_cmap, S_cloud);
+    assert.equal(cloud.arg, 0);
+    assert.equal(cloud.heros_fault, false);
+    assert.equal(cloud.hero_inside, false);
+    assert.equal(cloud.inside_f, 'inside_gas_cloud');
+    assert.equal(cloud.expire_f, 'expire_gas_cloud');
     assert.deepEqual(cloud.rects, [
         { lx: 10, ly: 10, hx: 10, hy: 10 },
     ]);

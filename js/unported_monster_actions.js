@@ -90,6 +90,7 @@ import {
 import { select_fresh_monster_item_action } from './muse.js';
 import { newObject } from './obj.js';
 import {
+    create_gas_cloud,
     inside_region,
     mon_in_region,
 } from './region.js';
@@ -112,6 +113,7 @@ import { is_ice } from './terrain.js';
 import { is_lava, is_pool, t_at } from './trap.js';
 import { ttyPline } from './tty_message.js';
 import {
+    block_point,
     cansee,
     couldsee,
     makeVisionBuffers,
@@ -444,10 +446,10 @@ function planningState(state) {
                 teledest: trap.teledest ? { ...trap.teledest } : trap.teledest,
             })),
             // vision.c keeps one cached transparency index, which the planned
-            // state borrows: it describes the planned map throughout the scan,
-            // because admitDoorOpening() is the only thing that changes the
-            // planned map and it rebuilds the index. Off-hero do_clear_area()
-            // may therefore share it.
+            // state borrows. A planned door opening or visible-region change
+            // rebuilds the index from the clone, and the planning wrapper
+            // restores it from the live map afterward. Off-hero
+            // do_clear_area() may therefore share it.
             _visionTransparencyOwner: state.level,
         },
     );
@@ -660,11 +662,18 @@ function isolatePlannedVision(state) {
     state._visionBuffers = makeVisionBuffers();
 }
 
+function admitPlannedVisionChange(x, y, state) {
+    isolatePlannedVision(state);
+    // block_point() rebuilds the complete module-wide transparency index, so
+    // one affected coordinate is sufficient to rebuild it from the live map
+    // when planning finishes, even when the clone makes several changes.
+    state._plannedVisionChange ??= { x, y };
+}
+
 function admitDoorOpening(x, y, env) {
     const { state } = env;
     if (!env.planning) return;
-    isolatePlannedVision(state);
-    state._plannedDoorOpening ??= { x, y };
+    admitPlannedVisionChange(x, y, state);
 }
 
 function assertSimpleDestination(monster, x, y, env) {
@@ -962,22 +971,25 @@ export async function runSimpleMonsterAction(monster, rawEnv = {}) {
 async function planningEveryTurnEffect(monster, env) {
     await m_everyturn_effect(monster, {
         ...env,
-        // C ref: monmove.c:657-661. A fog cloud lays a one-square vapour
-        // region through create_gas_cloud(). The PRNG is not what stops the
-        // dry run following it: at cloudsize 1 that is a single rn1(3, 4)
-        // (region.c:1303), which the cloned ISAAC context can afford.
-        // add_region() is. For a visible region it calls block_point() on the
-        // inside square (region.c:326-328), and js/vision.js keeps the
-        // transparency index that rebuilds in module constants (64-66), which
-        // the caller's restore below repairs only for a planned door opening;
-        // and it repaints through newsym() (region.c:329-330), for which
-        // js/allmain.js regionEffectEnv() is the live owner and the plan has
-        // no counterpart.
-        //
-        // The reason this comment used to give was that rebuildVisionPoint()
-        // refuses a state other than the live game. It does not; js/vision.js
-        // takes a state, and the door path already runs it against the clone.
-        createGasCloud: () => unsupported('monster region creation'),
+        // C ref: monmove.c:657-661 and region.c create_gas_cloud(). The
+        // one-square harmless vapor spends one rn1(3, 4) draw, then adds a
+        // visible region. The clone owns the region, locations and COULD_SEE
+        // buffers. It temporarily borrows the module-wide transparency index,
+        // paints nothing, and the planning wrapper restores that index from the
+        // live map before returning. The live pass uses allmain.js's ordinary
+        // region hooks and commits the same effects to the display and vision.
+        createGasCloud: (x, y, size, damage, effectEnv) => {
+            const { state } = effectEnv;
+            admitPlannedVisionChange(x, y, state);
+            return create_gas_cloud(x, y, size, damage, {
+                ...effectEnv,
+                blockPoint: (cloudX, cloudY) =>
+                    block_point(cloudX, cloudY, state),
+                canSee: (cloudX, cloudY) => cansee(cloudX, cloudY, state),
+                newsym: () => {},
+                message: async () => {},
+            });
+        },
     });
 }
 
@@ -991,17 +1003,18 @@ async function planSimpleMonsterScan(monster, env) {
         // no randomness, but it writes seenv and waslit on the map cells and
         // swaps the COULD_SEE pair.
         //
-        // planningVisionRecalc() cannot stand in here, which is what the
-        // sentence this replaces got wrong. It is safe only after
-        // isolatePlannedVision(), which gives the clone its own COULD_SEE
-        // buffers and its own level.locations; admitDoorOpening() is that
-        // function's only caller, and this arm can be the first vision work in
-        // a plan where no door was opened. Without the isolation
-        // visionBuffers() falls back to the live pair and GameMap.at() reads
-        // the live cells, so the plan would write through to the running game.
-        visionRecalc: () => unsupported(
-            'monster light-source vision recalculation',
-        ),
+        // A newly visible fog region sets vision_full_recalc before this same
+        // monster's movement-ration work. Its planning createGasCloud() call
+        // has already isolated the clone's COULD_SEE buffers and terrain, so
+        // that source-ordered recalculation is safe. An unrelated light source
+        // can reach this arm without any planned map change or isolation and
+        // remains fail-closed rather than writing through to the live buffers.
+        visionRecalc: (control) => {
+            if (!env.state._visionBuffers) {
+                unsupported('monster light-source vision recalculation');
+            }
+            return planningVisionRecalc(env.state)(control);
+        },
         clearBypasses: () => unsupported('monster bypass cleanup'),
         // unportedMinliquidReason() is the live owner's predicate too, so both
         // tables refuse the same squares. Its water and lava arm duplicates
@@ -1075,8 +1088,8 @@ export async function preflightSimpleMonsterActions(
         // vision_recalc(0) C never performs, so the flag is saved and written
         // back — the restore has to restore everything it touches, not only
         // the index it came for.
-        if (planned._plannedDoorOpening) {
-            const { x, y } = planned._plannedDoorOpening;
+        if (planned._plannedVisionChange) {
+            const { x, y } = planned._plannedVisionChange;
             const fullRecalcBefore = state.vision_full_recalc;
             recalc_block_point(x, y, state);
             state.vision_full_recalc = fullRecalcBefore;

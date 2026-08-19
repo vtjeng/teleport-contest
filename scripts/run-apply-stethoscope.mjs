@@ -11,7 +11,9 @@
 // monster, apply.c's secret-terrain switch, and apply.c its_dead() through an
 // empty square, an ordinary corpse pile, an ordinary statue, a blind statue,
 // a blind corpse, a Healer's statue trap, or a revealed mimic that re-disguises
-// during a costly listen. The matrix splits into eleven parts.
+// during a costly listen. A final segment keeps a source-created fog cloud on
+// the level while a second listen spends a turn and lets it lay vapor. The
+// matrix splits into twelve parts.
 // The first drives use_stethoscope(): the free first
 // listen, the second listen in the same move that costs a turn, both cancels,
 // both self keys, the Deaf guard, a sweep of all eight compass directions, a
@@ -577,6 +579,30 @@ export function loadCostlyMimicRedisguiseRecipe() {
     }, 'costly mimic redisguise recipe');
 }
 
+// A source-real fog cloud for monmove.c m_everyturn_effect():650-664 and
+// region.c create_gas_cloud():1213-1308. #wizgenesis places it north of the
+// hero. The first westward listen is free and creates no region; the second is
+// costly, so its monster scan lays one square of harmless vapor before the
+// final wait sentinel is read.
+export function loadCostlyFogVaporRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            seed: 1,
+            datetime: '20270318143000',
+            nethackrc: nethackrc({
+                name: 'FogVap',
+                role: 'Healer',
+                options: 'pettype:none,!acoustics,!autopickup,time,'
+                    + 'playmode:debug',
+            }),
+            moves: `${WAIT}${GENESIS_KEY}fog cloud\n`
+                + `${APPLY_KEY}${STETHOSCOPE_SLOT}${WEST}`
+                + `${APPLY_KEY}${STETHOSCOPE_SLOT}${WEST}${WAIT}`,
+        }],
+    }, 'costly fog vapor recipe');
+}
+
 // One pack per apply_ok() term. Each role below advertises a letter set that
 // only the named term produces, so a term answering wrongly would change the
 // prompt rather than leave it alone. Every segment cancels at the prompt,
@@ -730,12 +756,21 @@ export async function runApplyStethoscopeMatrix() {
         chunkLimit: 1,
     });
     if (!healerStatueTrap.passed) return healerStatueTrap;
-    return runFreshMatrix({
+    const costlyMimic = await runFreshMatrix({
         entries: [{
             label: 'costly mimic redisguise',
             recipe: loadCostlyMimicRedisguiseRecipe(),
         }],
         summaryLabel: 'COSTLY MIMIC REDISGUISE',
+        chunkLimit: 1,
+    });
+    if (!costlyMimic.passed) return costlyMimic;
+    return runFreshMatrix({
+        entries: [{
+            label: 'costly fog vapor',
+            recipe: loadCostlyFogVaporRecipe(),
+        }],
+        summaryLabel: 'COSTLY FOG VAPOR',
         chunkLimit: 1,
     });
 }

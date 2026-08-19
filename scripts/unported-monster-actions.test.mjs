@@ -732,38 +732,89 @@ test('a scan after a planned allocation refuses the light-source rebuild',
         );
     });
 
-test('fog upkeep is planned below and at its movement ration atomically',
+test('fog upkeep is planned atomically before the movement-ration gate',
     async () => {
-        for (const movement of [0, NORMAL_SPEED]) {
+        const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
+        target.monster.movement = 0;
+        game.level.regions = [];
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const beforeRandom = rngSnapshot();
+
+        // mon.c runs m_everyturn_effect() before its movement-ration test.
+        // Planning creates the one-square vapor on the cloned level and spends
+        // its cloned TTL draw, then discards both while restoring the shared
+        // vision index. Repeating the plan must leave the live turn retryable.
+        for (let attempt = 0; attempt < 2; ++attempt) {
+            await preflightSimpleMonsterActions(game);
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                `attempt ${attempt}`,
+            );
+            assert.deepEqual(rngSnapshot(), beforeRandom);
+            assert.deepEqual(game.level.regions, []);
+        }
+    });
+
+test('planned fog vapor leaves later region transitions fail-closed',
+    async () => {
+        const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
+        target.monster.movement = NORMAL_SPEED;
+        const before = completeSecondTurnSnapshot(game, target.replay);
+        const beforeRandom = rngSnapshot();
+
+        // After rebuilding cloned vision, moving the resident fog out of its
+        // new region reaches m_in_out_region(), which remains outside this
+        // slice. The refusal therefore advances from region creation to the
+        // later transition while retaining atomicity.
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'a region transition',
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
+        assert.deepEqual(rngSnapshot(), beforeRandom);
+        assert.deepEqual(game.level.regions, []);
+    });
+
+test('planned fog upkeep skips closed doors and existing visible regions',
+    async () => {
+        for (const setup of [
+            (target) => {
+                const square = game.level.at(target.monsterX, target.heroY);
+                square.typ = DOOR;
+                square.flags = square.doormask = D_CLOSED;
+            },
+            (target) => {
+                game.level.regions = [Object.assign(
+                    create_region([{
+                        lx: target.monsterX,
+                        ly: target.heroY,
+                        hx: target.monsterX,
+                        hy: target.heroY,
+                    }]),
+                    { visible: true },
+                )];
+            },
+        ]) {
             const target = await prepareSelectedAction({
                 pmidx: PM_FOG_CLOUD,
             });
-            target.monster.movement = movement;
-            game.level.regions = [];
+            target.monster.movement = 0;
+            setup(target);
             const before = completeSecondTurnSnapshot(game, target.replay);
             const beforeRandom = rngSnapshot();
 
-            // mon.c runs m_everyturn_effect() before the movement-ration test,
-            // so both rations reach the fog cloud's gas-cloud upkeep. Planning
-            // cannot reproduce region.c's block_point() side effect on a
-            // cloned state, so it stops there either way rather than admitting
-            // a scan whose later monsters would diverge live.
-            for (let attempt = 0; attempt < 2; ++attempt) {
-                await assert.rejects(
-                    preflightSimpleMonsterActions(game),
-                    (error) => (
-                        error instanceof UnsupportedSimpleMonsterActionError
-                        && error.reason === 'monster region creation'
-                    ),
-                );
-                assert.deepEqual(
-                    completeSecondTurnSnapshot(game, target.replay),
-                    before,
-                    `movement ${movement}, attempt ${attempt}`,
-                );
-                assert.deepEqual(rngSnapshot(), beforeRandom);
-                assert.deepEqual(game.level.regions, []);
-            }
+            await preflightSimpleMonsterActions(game);
+
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+            );
+            assert.deepEqual(rngSnapshot(), beforeRandom);
         }
     });
 
@@ -3355,6 +3406,23 @@ test('a planned door opening writes nothing to frozen live state',
         assert.equal(target.location.doormask, D_CLOSED);
         assert.equal(doorLetsLightThrough(target), 0);
     });
+
+test('a planned fog vapor writes nothing to frozen live state', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
+    target.monster.movement = 0;
+    game.level.regions = [];
+    // prepareSelectedAction() constructs its corridor directly. Bring the
+    // borrowed transparency index into step with that map before freezing it,
+    // as a running game's map-changing owners do.
+    recalc_block_point(target.monsterX, target.heroY, game);
+    const guard = freezeLiveState(game);
+    assertDetectorReachedTheGraph(guard);
+
+    await preflightSimpleMonsterActions(game);
+
+    guard.assertNoLeak(assert);
+    assert.deepEqual(game.level.regions, []);
+});
 
 test('a planned pet pickup writes nothing to frozen live state',
     async () => {

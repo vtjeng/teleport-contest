@@ -4092,7 +4092,7 @@ test('moveloop allocates live monster movement once after elapsed input', async 
     assert.equal(game.nhDisplay.inputQueueLength, 0);
 });
 
-test('first-turn fog upkeep and later monster work stay source-owned', async () => {
+test('first-turn fog upkeep commits before later monster work', async () => {
     await runSegment({
         seed: 840015,
         datetime: COMMAND_DATETIME,
@@ -4125,43 +4125,24 @@ test('first-turn fog upkeep and later monster work stay source-owned', async () 
     game.level.at(game.u.ux - 1, game.u.uy).typ = STONE;
 
     // mon.c runs m_everyturn_effect() before the movement-ration gate, so this
-    // ration-less fog cloud still reaches gas-cloud creation. region.c's
-    // block_point() rebuilds vision.c's transparency index, and the dry run
-    // cannot reproduce that on a cloned state, so the whole turn stops before
-    // any live state or PRNG moves rather than admitting a scan whose later
-    // monsters would take different vision-dependent branches.
+    // ration-less fog cloud reaches region.c create_gas_cloud().
     // This call only dispatches the wait; its elapsed turn runs on the next
     // moveloop_core().
     game.nhDisplay.pushKey(commandKeyCode('.'));
     await moveloop_core();
-    const beforeFog = {
-        hunger: game.u.uhunger,
-        moves: game.moves,
-        movement: game.u.umovement,
-    };
+    const movesBeforeFog = game.moves;
 
-    // Two attempts, to show the stop leaves the turn retryable. No key is
-    // queued: the elapsed turn throws before the next command is read, so the
-    // pending input is exactly what it was.
-    for (let attempt = 0; attempt < 2; ++attempt) {
-        game.context.move = 1;
-        await assert.rejects(
-            () => moveloop_core(),
-            (error) => (
-                error instanceof UnsupportedTurnBoundaryError
-                && error.reason === 'monster region creation'
-            ),
-            `attempt ${attempt}`,
-        );
-        assert.equal(game.moves, beforeFog.moves, `attempt ${attempt}`);
-        assert.equal(game.u.uhunger, beforeFog.hunger, `attempt ${attempt}`);
-        assert.equal(
-            game.u.umovement,
-            beforeFog.movement,
-            `attempt ${attempt}`,
-        );
-        assert.deepEqual(game.level.regions, [], `attempt ${attempt}`);
-    }
+    game.context.move = 1;
+    game.nhDisplay.pushKey(commandKeyCode('~'));
+    await moveloop_core();
+    assert.equal(game.moves, movesBeforeFog + 1);
+    assert.equal(game.level.regions.length, 1);
+    const vapor = game.level.regions[0];
+    assert.equal(vapor.visible, true);
+    assert.equal(vapor.heros_fault, false);
+    assert.equal(vapor.arg, 0);
+    assert.deepEqual(vapor.rects, [{ lx: x, ly: y, hx: x, hy: y }]);
+    assert.deepEqual(vapor.monsters, [fogCloud.m_id]);
 
     game.level.regions = [];
     fogCloud.movement = 0;
