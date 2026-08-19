@@ -153,6 +153,7 @@ import {
 import { S_altar, S_room } from '../js/symbols.js';
 import { create_region } from '../js/region.js';
 import { start_timer } from '../js/timeout.js';
+import { CLR_GRAY, NO_COLOR } from '../js/terminal.js';
 import { welded } from '../js/wield.js';
 import {
     APPLY_KEY,
@@ -1898,6 +1899,159 @@ test('its_dead reports blind statues by location and body shape', async () => {
     );
 });
 
+test('its_dead selects the uppermost dead object in a mixed pile', async () => {
+    // apply.c:203-220. place_object() prepends each non-boulder, so this pile
+    // is corpse, rock, statue. The lower statue's contents are exceptional for
+    // a Healer, but C clears the lower kind before it checks either object arm.
+    // The unrelated rock proves the decision follows nxtobj(..., TRUE) rather
+    // than assuming the two dead objects are adjacent in the pile.
+    const corpseTarget = await heroWithEmptyWest();
+    const ignoredFilledStatue = floorCorpstat(STATUE, corpseTarget);
+    ignoredFilledStatue.cobj = newObject({ otyp: ROCK, quan: 1 });
+    mksobj_at(ROCK, corpseTarget.x, corpseTarget.y, false, false,
+        objectGenerationEnv({ state: game }));
+    const selectedCorpse = floorCorpstat(CORPSE, corpseTarget);
+    selectedCorpse.corpsenm = PM_SMALL_MIMIC;
+    const corpseBefore = directItsDeadEffects(corpseTarget);
+
+    assert.deepEqual(
+        corpseBefore.pile.map(({ otyp }) => otyp),
+        [CORPSE, ROCK, STATUE],
+    );
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You determine that that unfortunate being is dead.',
+    );
+    const corpseAfter = directItsDeadEffects(corpseTarget);
+    assert.deepEqual(corpseAfter.pile, corpseBefore.pile);
+    assert.deepEqual(corpseAfter.timers, corpseBefore.timers);
+    assert.equal(
+        corpseAfter.shared.rngCalls, corpseBefore.shared.rngCalls,
+    );
+
+    // Authorized constructed live-consumer substitute, 2026-08-19. The exact
+    // reverse setup starts from the ordinary Healer fixture, places a newt
+    // corpse on the adjacent west square, starts REVIVE_MON on it, places a
+    // rock above it, then places a newt statue uppermost. It drives that pile
+    // through doapply() with the starting stethoscope's `c` slot and west `h`
+    // direction. Direct `newt statue` and `statue of a newt` wishes are
+    // refused, no other ported player command places a statue, and dropping a
+    // wished corpse onto a generated statue only constructs the opposite
+    // corpse-upper order. The source-route inventory therefore has no ported
+    // constructor for statue above corpse; no finite seed scan is claimed.
+    //
+    // apply.c its_dead():203-220 and invent.c nxtobj():1477-1491 select the
+    // upper statue; apply.c:223-307 then ignores the lower corpse's timer and
+    // uses the already-differentially-proven statue report. This test exercises
+    // the real doapply() consumer and pins both command results, exact output,
+    // terminal attributes and cursor, PRNG count, pile/timer preservation, and
+    // the next unread key. It cannot prove that an unported future input will
+    // build the same pile or compare this reverse order with a C recording;
+    // the checked-in seed-55 recipe proves the source-real corpse-upper order
+    // and all reachable rendering/result behavior against C.
+    const statueTarget = await heroWithEmptyWest();
+    const ignoredTimedCorpse = floorCorpstat(CORPSE, statueTarget);
+    start_timer(
+        100, TIMER_OBJECT, REVIVE_MON, ignoredTimedCorpse, game,
+    );
+    mksobj_at(ROCK, statueTarget.x, statueTarget.y, false, false,
+        objectGenerationEnv({ state: game }));
+    const selectedStatue = floorCorpstat(STATUE, statueTarget);
+    // The level-wide nobj chain is independent from the per-square nexthere
+    // chain C passes to nxtobj() here. Ending nobj at the upper statue makes a
+    // false by_nexthere argument select the timed corpse and fail this case.
+    selectedStatue.nobj = null;
+    const statueBefore = directItsDeadEffects(statueTarget);
+    const lowerRowsBefore = game.nhDisplay.grid.slice(1).map(
+        (row) => row.map(({ ch, color, attr }) => ({ ch, color, attr })),
+    );
+    const statueMessage = 'The newt is in fine health for a statue.';
+
+    assert.deepEqual(
+        statueBefore.pile.map(({ otyp }) => otyp),
+        [STATUE, ROCK, CORPSE],
+    );
+    for (const key of ['c', 'h', 'x'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(pendingTopLine(), statueMessage);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(game.context.stethoscope_seq, game.hero_seq);
+    assert.equal(game.moves, statueBefore.shared.moves);
+    assert.equal(game.context.move, statueBefore.shared.contextMove);
+    let statueAfter = directItsDeadEffects(statueTarget);
+    assert.deepEqual(statueAfter.pile, statueBefore.pile);
+    assert.deepEqual(statueAfter.timers, statueBefore.timers);
+    assert.equal(
+        statueAfter.shared.rngCalls, statueBefore.shared.rngCalls,
+    );
+
+    await flush_screen(1);
+    assert.deepEqual(
+        game.nhDisplay.grid[0],
+        [...statueMessage.padEnd(80)].map((ch, index) => ({
+            ch,
+            color: index < statueMessage.length ? NO_COLOR : CLR_GRAY,
+            attr: 0,
+        })),
+    );
+    assert.deepEqual(
+        game.nhDisplay.grid.slice(1).map(
+            (row) => row.map(({ ch, color, attr }) => ({ ch, color, attr })),
+        ),
+        lowerRowsBefore,
+    );
+    assert.deepEqual(
+        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+        [game.u.ux - 1, game.u.uy + 1],
+    );
+
+    // Consume only the sentinel from the first call, then leave a different
+    // one behind the second. Space dismisses the first report. With no hero
+    // action between listens, apply.c:367-368 changes only the returned command
+    // result; the chosen pile and the branch's zero PRNG calls stay the same.
+    assert.equal(await game.nhDisplay.readKey(), 'x'.charCodeAt(0));
+    for (const key of [' ', 'c', 'h', 'y'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_TIME);
+    assert.equal(pendingTopLine(), statueMessage);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(await game.nhDisplay.readKey(), 'y'.charCodeAt(0));
+    statueAfter = directItsDeadEffects(statueTarget);
+    assert.deepEqual(statueAfter.pile, statueBefore.pile);
+    assert.deepEqual(statueAfter.timers, statueBefore.timers);
+    assert.equal(
+        statueAfter.shared.rngCalls, statueBefore.shared.rngCalls,
+    );
+
+    // The same selection controls fail closed before effects when the upper
+    // object itself is exceptional. These two direct source-helper calls also
+    // pin the full mixed pile and timer list across each refusal.
+    const timedCorpseTarget = await heroWithEmptyWest();
+    floorCorpstat(STATUE, timedCorpseTarget);
+    mksobj_at(ROCK, timedCorpseTarget.x, timedCorpseTarget.y, false, false,
+        objectGenerationEnv({ state: game }));
+    const selectedTimedCorpse = floorCorpstat(CORPSE, timedCorpseTarget);
+    start_timer(
+        100, TIMER_OBJECT, REVIVE_MON, selectedTimedCorpse, game,
+    );
+    await assertDirectItsDeadRefusal(
+        timedCorpseTarget, 'a corpse with a REVIVE_MON timer',
+    );
+
+    const filledStatueTarget = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, filledStatueTarget);
+    mksobj_at(ROCK, filledStatueTarget.x, filledStatueTarget.y, false, false,
+        objectGenerationEnv({ state: game }));
+    floorCorpstat(STATUE, filledStatueTarget).cobj = newObject({
+        otyp: ROCK, quan: 1,
+    });
+    await assertDirectItsDeadRefusal(
+        filledStatueTarget, 'a Healer examining statue contents',
+    );
+});
+
 test('its_dead keeps exceptional object paths in source order', async () => {
     // The exported source-named helper applies the same exceptional preflight
     // as use_stethoscope(). Direct test callers cannot enter a partially
@@ -1907,21 +2061,6 @@ test('its_dead keeps exceptional object paths in source order', async () => {
     game.u.uprops[HALLUC].intrinsic = 1;
     await assertDirectItsDeadRefusal(
         direct, 'a hallucinated listen to the dead',
-    );
-
-    // apply.c:214-219 would select whichever kind is uppermost. Both orders
-    // remain one fail-closed class, and the direct export preserves each pile.
-    const directMixedCorpse = await heroWithEmptyWest();
-    floorCorpstat(STATUE, directMixedCorpse);
-    floorCorpstat(CORPSE, directMixedCorpse);
-    await assertDirectItsDeadRefusal(
-        directMixedCorpse, 'a mixed corpse and statue pile',
-    );
-    const directMixedStatue = await heroWithEmptyWest();
-    floorCorpstat(CORPSE, directMixedStatue);
-    floorCorpstat(STATUE, directMixedStatue);
-    await assertDirectItsDeadRefusal(
-        directMixedStatue, 'a mixed corpse and statue pile',
     );
 
     const directContents = await heroWithEmptyWest();
@@ -2018,20 +2157,8 @@ test('its_dead keeps exceptional object paths in source order', async () => {
         'The newt is in fine health for a statue.',
     );
 
-    // Both uppermost-object outcomes remain excluded. The source tie-break at
-    // :214-219 would select the object placed last, but neither pile may enter
-    // the ordinary corpse branch while a statue is present.
-    const both = await heroWithEmptyWest();
-    floorCorpstat(STATUE, both);
-    floorCorpstat(CORPSE, both);
-    assert.equal(await listenWest(), 'a mixed corpse and statue pile');
-    const reversed = await heroWithEmptyWest();
-    floorCorpstat(CORPSE, reversed);
-    floorCorpstat(STATUE, reversed);
-    assert.equal(await listenWest(), 'a mixed corpse and statue pile');
-
     // apply.c:226 sits above both object arms and therefore above the mixed
-    // refusal and the newly admitted blind-statue name.
+    // pile's selected-object report and the admitted blind-statue name.
     const hallucinated = await heroWithEmptyWest();
     floorCorpstat(STATUE, hallucinated);
     floorCorpstat(CORPSE, hallucinated);
@@ -2164,11 +2291,27 @@ test('still-unported adjacent listens refuse before shared effects',
             },
         },
         {
-            branch: 'a mixed corpse and statue pile',
+            branch: 'a Healer examining statue contents',
+            setup(target) {
+                map_invisible(target.x, target.y, game);
+                floorCorpstat(CORPSE, target);
+                mksobj_at(ROCK, target.x, target.y, false, false,
+                    objectGenerationEnv({ state: game }));
+                floorCorpstat(STATUE, target).cobj = newObject({
+                    otyp: ROCK, quan: 1,
+                });
+                return target;
+            },
+        },
+        {
+            branch: 'a corpse with a REVIVE_MON timer',
             setup(target) {
                 map_invisible(target.x, target.y, game);
                 floorCorpstat(STATUE, target);
-                floorCorpstat(CORPSE, target);
+                mksobj_at(ROCK, target.x, target.y, false, false,
+                    objectGenerationEnv({ state: game }));
+                const corpse = floorCorpstat(CORPSE, target);
+                start_timer(100, TIMER_OBJECT, REVIVE_MON, corpse, game);
                 return target;
             },
         },
@@ -2348,7 +2491,7 @@ test('ustatusline stops for every clause it would have to name', async () => {
     );
 });
 
-test('the apply matrix holds the twelve clean recipes the slices close on',
+test('the apply matrix holds the thirteen clean recipes the slices close on',
     () => {
     const inventory = loadApplyStethoscopeRecipeInventory();
     assert.deepEqual(inventory.map(({
@@ -2403,6 +2546,13 @@ test('the apply matrix holds the twelve clean recipes the slices close on',
             digest: '650ff690107b3bb9712bfe0cc30fcbf2bbfb0c0ddd6e2357273fd446df4d3645',
         },
         {
+            label: 'mixed dead object',
+            summaryLabel: 'MIXED DEAD OBJECT',
+            chunkLimit: 1,
+            segments: 1,
+            digest: 'd6c9272b1d28816fd8d18fa3a00ccaccf6f478e41c31579b4da2c3939ece9d04',
+        },
+        {
             label: 'ordinary statue',
             summaryLabel: 'ORDINARY STATUE',
             chunkLimit: 2,
@@ -2450,7 +2600,7 @@ test('the apply matrix holds the twelve clean recipes the slices close on',
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 46);
+    assert.equal(segments.length, 47);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // The two prior recipes open and close with a wait, so a command that
     // wrongly spent or wrongly saved a turn shows in the screen after it.

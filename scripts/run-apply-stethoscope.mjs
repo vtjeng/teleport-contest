@@ -9,11 +9,11 @@
 // use_stethoscope() through the switch, insight.c ustatusline() through the
 // self direction, insight.c mstatusline() through a direction holding a
 // monster, apply.c's secret-terrain switch, and apply.c its_dead() through an
-// empty square, an ordinary corpse pile, an ordinary statue, a blind statue,
-// a blind corpse, a Healer's statue trap, or a revealed mimic that re-disguises
-// during a costly listen. A final segment keeps a source-created fog cloud on
-// the level while a second listen spends a turn and lets it lay vapor. The
-// matrix splits into twelve parts.
+// empty square, an ordinary corpse pile, a mixed corpse/statue pile, an
+// ordinary statue, a blind statue, a blind corpse, a Healer's statue trap, or
+// a revealed mimic that re-disguises during a costly listen. A final segment
+// keeps a source-created fog cloud on the level while a second listen spends a
+// turn and lets it lay vapor. The matrix splits into thirteen parts.
 // The first drives use_stethoscope(): the free first
 // listen, the second listen in the same move that costs a turn, both cancels,
 // both self keys, the Deaf guard, a sweep of all eight compass directions, a
@@ -448,6 +448,31 @@ export function loadOrdinaryCorpseRecipe() {
     }, 'ordinary corpse recipe');
 }
 
+// Source-real mixed-pile selection for apply.c its_dead():203-220. Seed 55
+// starts beside a generated newt statue at (5,17). The debug wish creates a
+// small-mimic corpse, the hero steps onto the statue, drops that corpse, steps
+// back west, and listens east. mkobj.c place_object() leaves the corpse above
+// the statue, so C's nxtobj(statue, CORPSE, TRUE) comparison selects the corpse
+// and its ordinary dead-being report. The final wait is the next input
+// boundary and exposes a wrongly free or costly return in the status line.
+export function loadMixedDeadObjectRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            seed: 55,
+            datetime: '20340102030405',
+            nethackrc: nethackrc({
+                name: 'MixCorp',
+                role: 'Healer',
+                options: 'pettype:none,!acoustics,!autopickup,time,'
+                    + 'playmode:debug',
+            }),
+            moves: `${WISH_KEY}small mimic corpse\n`
+                + `ldlh${APPLY_KEY}${STETHOSCOPE_SLOT}l${WAIT}`,
+        }],
+    }, 'mixed dead-object recipe');
+}
+
 // A source-real statue for apply.c its_dead():281-307. Seed 9251062 places a
 // newt statue directly north of the starting Healer. The first segment is the
 // shortest replay through the next wait; the second listens twice without a
@@ -705,6 +730,12 @@ export function loadApplyStethoscopeRecipeInventory() {
             summaryLabel: 'ORDINARY CORPSE',
             chunkLimit: 1,
             recipe: loadOrdinaryCorpseRecipe(),
+        },
+        {
+            label: 'mixed dead object',
+            summaryLabel: 'MIXED DEAD OBJECT',
+            chunkLimit: 1,
+            recipe: loadMixedDeadObjectRecipe(),
         },
         {
             label: 'ordinary statue',

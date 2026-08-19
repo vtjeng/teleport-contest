@@ -222,16 +222,17 @@ export function apply_ok(obj, state = game) {
 //
 // C takes `int *resp` so that its hallucination arm can charge the turn
 // (apply.c:253); that arm still refuses here, so the port answers a bare
-// boolean. The admitted corpse branch is sighted, reachable, has no statue in
-// its pile, and has no REVIVE_MON timer. The admitted statue branch is
-// reachable, has no corpse in its pile, and either carries no contents or lies
-// on a statue trap; it has separate sighted and blind names. The remaining
+// boolean. The admitted corpse branch is sighted, reachable, and has no
+// REVIVE_MON timer. The admitted statue branch is reachable and either carries
+// no contents or lies on a statue trap; it has separate sighted and blind
+// names. A mixed pile admits whichever kind is uppermost. The remaining
 // exceptional siblings stay named refusals.
-function unportedItsDeadBranch(rx, ry, state) {
+function selectedDeadObject(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
-    const statue = sobj_at(STATUE, rx, ry, state);
+    let statue = sobj_at(STATUE, rx, ry, state);
+    const canReachFloor = can_reach_floor(true, state);
 
-    if (!can_reach_floor(true, state)) { /* levitation or unskilled riding */
+    if (!canReachFloor) {               /* levitation or unskilled riding */
         corpse = null;                   /* can't reach corpse on floor */
         // apply.c:210-211 then walks `statue` past the tiny statues an
         // out-of-reach hero cannot touch, through invent.c nxtobj(), so a
@@ -239,8 +240,24 @@ function unportedItsDeadBranch(rx, ry, state) {
         // The port refuses every out-of-reach statue here, including the
         // source's tiny-statue walk. nxtobj() and MZ_TINY are available, but
         // the walk remains outside this reachable-statue slice.
-        if (statue) return 'an out-of-reach statue';
     }
+    // apply.c:213-219. sobj_at() found the first object of each kind. If the
+    // first corpse follows the first statue in the square's nexthere chain,
+    // the statue is uppermost; otherwise the corpse is. An unrelated object
+    // between them does not affect the comparison.
+    if (corpse && statue) {
+        if (nxtobj(statue, CORPSE, true) === corpse) corpse = null;
+        else statue = null;
+    }
+    return { corpse, statue, canReachFloor };
+}
+
+function unportedItsDeadBranch(rx, ry, state) {
+    const { corpse, statue, canReachFloor }
+        = selectedDeadObject(rx, ry, state);
+
+    if (!canReachFloor && statue)
+        return 'an out-of-reach statue';
     if (!corpse && !statue) return null;
 
     // apply.c:223-260 tests Hallucination before either selected object's
@@ -248,10 +265,6 @@ function unportedItsDeadBranch(rx, ry, state) {
     if (heroHallucinating(state))
         return 'a hallucinated listen to the dead';
 
-    // The source chooses the uppermost corpse or statue at :214-219. This
-    // slice excludes both mixed outcomes, because admitting either would also
-    // admit the statue naming arm when pile order changes.
-    if (corpse && statue) return 'a mixed corpse and statue pile';
     if (statue) {
         if (state.urole?.mnum === PM_HEALER) {
             const trap = t_at(rx, ry, state);
@@ -275,9 +288,7 @@ function unportedItsDeadBranch(rx, ry, state) {
 // Keep it private so the exported C-named entry point cannot bypass the same
 // preflight use_stethoscope() runs before changing its shared listen state.
 async function its_dead_after_preflight(rx, ry, state) {
-    let corpse = sobj_at(CORPSE, rx, ry, state);
-    const statue = sobj_at(STATUE, rx, ry, state);
-    if (!can_reach_floor(true, state)) corpse = null;
+    const { corpse, statue } = selectedDeadObject(rx, ry, state);
     if (corpse) {
         const more_corpses = Boolean(nxtobj(corpse, CORPSE, true));
         const one = (corpse.quan === 1 && !more_corpses);
