@@ -2027,9 +2027,9 @@ test('its_dead selects the uppermost dead object in a mixed pile', async () => {
         statueAfter.shared.rngCalls, statueBefore.shared.rngCalls,
     );
 
-    // The same selection controls the exceptional branch when the upper dead
-    // object is the corpse. The direct source-helper call pins the full mixed
-    // pile and timer list across that refusal.
+    // The same selection controls the timer report when the upper dead object
+    // is the corpse. The direct source-helper call pins the full mixed pile
+    // and timer list across the report.
     const timedCorpseTarget = await heroWithEmptyWest();
     floorCorpstat(STATUE, timedCorpseTarget);
     mksobj_at(ROCK, timedCorpseTarget.x, timedCorpseTarget.y, false, false,
@@ -2038,9 +2038,18 @@ test('its_dead selects the uppermost dead object in a mixed pile', async () => {
     start_timer(
         100, TIMER_OBJECT, REVIVE_MON, selectedTimedCorpse, game,
     );
-    await assertDirectItsDeadRefusal(
-        timedCorpseTarget, 'a corpse with a REVIVE_MON timer',
+    const timedBefore = directItsDeadEffects(timedCorpseTarget);
+    assert.equal(
+        await its_dead(timedCorpseTarget.x, timedCorpseTarget.y, game), true,
     );
+    assert.equal(
+        pendingTopLine(),
+        'You determine that that unfortunate being is mostly dead.',
+    );
+    const timedAfter = directItsDeadEffects(timedCorpseTarget);
+    assert.deepEqual(timedAfter.pile, timedBefore.pile);
+    assert.deepEqual(timedAfter.timers, timedBefore.timers);
+    assert.equal(timedAfter.shared.rngCalls, timedBefore.shared.rngCalls);
 
     // The reverse order selects the filled statue and ignores the lower
     // corpse. Contents now affect only the selected statue's adjective.
@@ -2153,44 +2162,122 @@ test('a Healer hears remarkable health from a filled selected statue',
         assert.equal(after.shared.rngCalls, before.shared.rngCalls);
     });
 
+test('a Healer hears mostly dead for a corpse with a revival timer',
+    async () => {
+    // Authorized constructed live-consumer substitute, 2026-08-19. Start
+    // from the ordinary sighted Healer fixture, place a timed newt corpse
+    // below a separating rock and an untimed newt corpse, then drive doapply()
+    // with stethoscope slot `c` and west direction `h`. No current input path
+    // creates a selectable timed corpse, so this cannot provide direct C
+    // replay parity or prove future timer execution. apply.c its_dead():
+    // 265-278 only reads REVIVE_MON and adds ` mostly`; it does not revive,
+    // reschedule, mutate, or draw randomness.
+    const target = await heroWithEmptyWest();
+    const lowerTimed = floorCorpstat(CORPSE, target);
+    start_timer(100, TIMER_OBJECT, REVIVE_MON, lowerTimed, game);
+    mksobj_at(ROCK, target.x, target.y, false, false,
+        objectGenerationEnv({ state: game }));
+    const upperUntimed = floorCorpstat(CORPSE, target);
+    // nxtobj(..., TRUE) owns this walk; make nobj disagree with nexthere.
+    upperUntimed.nobj = null;
+    const before = directItsDeadEffects(target);
+    const lowerRowsBefore = game.nhDisplay.grid.slice(1).map(
+        (row) => row.map(({ ch, color, attr }) => ({ ch, color, attr })),
+    );
+    const message = 'You determine that those unfortunate beings are mostly dead.';
+
+    for (const key of ['c', 'h', 'x'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(pendingTopLine(), message);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(game.context.stethoscope_seq, game.hero_seq);
+    assert.equal(game.moves, before.shared.moves);
+    assert.equal(game.context.move, before.shared.contextMove);
+    let after = directItsDeadEffects(target);
+    assert.deepEqual(after.pile, before.pile);
+    assert.deepEqual(after.timers, before.timers);
+    assert.equal(after.shared.rngCalls, before.shared.rngCalls);
+
+    await flush_screen(1);
+    assert.deepEqual(
+        game.nhDisplay.grid[0],
+        [...message.padEnd(80)].map((ch, index) => ({
+            ch,
+            color: index < message.length ? NO_COLOR : CLR_GRAY,
+            attr: 0,
+        })),
+    );
+    assert.deepEqual(
+        game.nhDisplay.grid.slice(1).map(
+            (row) => row.map(({ ch, color, attr }) => ({ ch, color, attr })),
+        ),
+        lowerRowsBefore,
+    );
+    assert.deepEqual(
+        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+        [target.x, target.y + 1],
+    );
+    assert.equal(await game.nhDisplay.readKey(), 'x'.charCodeAt(0));
+
+    for (const key of [' ', 'c', 'h', 'y'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_TIME);
+    assert.equal(pendingTopLine(), message);
+    assert.equal(game.nhDisplay.inputQueueLength, 1);
+    assert.equal(await game.nhDisplay.readKey(), 'y'.charCodeAt(0));
+    after = directItsDeadEffects(target);
+    assert.deepEqual(after.pile, before.pile);
+    assert.deepEqual(after.timers, before.timers);
+    assert.equal(after.shared.rngCalls, before.shared.rngCalls);
+
+    // The timer on the selected top corpse produces singular grammar.
+    const top = await heroWithEmptyWest();
+    const topTimed = floorCorpstat(CORPSE, top);
+    start_timer(100, TIMER_OBJECT, REVIVE_MON, topTimed, game);
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You determine that that unfortunate being is mostly dead.',
+    );
+
+    // An untimed corpse keeps the ordinary report, and a non-Healer ignores
+    // the same REVIVE_MON timer rather than walking or changing it.
+    const untimed = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, untimed);
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You determine that that unfortunate being is dead.',
+    );
+    const ordinaryRole = await heroWithEmptyWest();
+    const ignoredTimer = floorCorpstat(CORPSE, ordinaryRole);
+    start_timer(100, TIMER_OBJECT, REVIVE_MON, ignoredTimer, game);
+    game.urole.mnum = PM_MONK;
+    const ordinaryBefore = directItsDeadEffects(ordinaryRole);
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You determine that that unfortunate being is dead.',
+    );
+    const ordinaryAfter = directItsDeadEffects(ordinaryRole);
+    assert.deepEqual(ordinaryAfter.pile, ordinaryBefore.pile);
+    assert.deepEqual(ordinaryAfter.timers, ordinaryBefore.timers);
+    assert.equal(
+        ordinaryAfter.shared.rngCalls, ordinaryBefore.shared.rngCalls,
+    );
+});
+
 test('its_dead keeps exceptional object paths in source order', async () => {
     // The exported source-named helper applies the same exceptional preflight
     // as use_stethoscope(). Direct test callers cannot enter a partially
     // supported arm after the command caller would have refused it.
     const direct = await heroWithEmptyWest();
-    floorCorpstat(CORPSE, direct);
+    const hallucinatedTimedCorpse = floorCorpstat(CORPSE, direct);
+    start_timer(100, TIMER_OBJECT, REVIVE_MON, hallucinatedTimedCorpse, game);
     game.u.uprops[HALLUC].intrinsic = 1;
     await assertDirectItsDeadRefusal(
         direct, 'a hallucinated listen to the dead',
-    );
-
-    const directTimer = await heroWithEmptyWest();
-    const directTimedCorpse = floorCorpstat(CORPSE, directTimer);
-    map_invisible(directTimer.x, directTimer.y, game);
-    game.u.uprops[BLINDED].intrinsic = 1;
-    start_timer(
-        100, TIMER_OBJECT, REVIVE_MON, directTimedCorpse, game,
-    );
-    await assertDirectItsDeadRefusal(
-        directTimer, 'a corpse with a REVIVE_MON timer',
-    );
-
-    // nxtobj(..., TRUE) must also find the timer on a lower corpse through an
-    // unrelated intervening object. The exported refusal preserves the full
-    // pile and the timer record after that traversal.
-    const directLowerTimer = await heroWithEmptyWest();
-    const lowerTimedCorpse = floorCorpstat(CORPSE, directLowerTimer);
-    mksobj_at(
-        ROCK, directLowerTimer.x, directLowerTimer.y, false, false,
-        objectGenerationEnv({ state: game }),
-    );
-    const upperOrdinaryCorpse = floorCorpstat(CORPSE, directLowerTimer);
-    upperOrdinaryCorpse.nobj = null;
-    start_timer(
-        100, TIMER_OBJECT, REVIVE_MON, lowerTimedCorpse, game,
-    );
-    await assertDirectItsDeadRefusal(
-        directLowerTimer, 'a corpse with a REVIVE_MON timer',
     );
 
     // Blindness changes only the statue's name. The Healer's trap check below
@@ -2268,26 +2355,16 @@ test('its_dead keeps exceptional object paths in source order', async () => {
     game.u.uprops[BLINDED].intrinsic = 1;
     assert.equal(await listenWest(), 'a hallucinated listen to the dead');
 
-    // The blind glyph update at :264-265 precedes the Healer's timer walk in
-    // C. The port preflights the excluded timer before either effect so a
-    // retry cannot retain the map write; the named refusal is the timer that
-    // keeps this otherwise-admitted blind corpse outside the slice.
+    // The blind glyph update at :264-265 precedes the Healer's timer walk.
     const blindReviver = await heroWithEmptyWest();
     const timed = floorCorpstat(CORPSE, blindReviver);
     start_timer(100, TIMER_OBJECT, REVIVE_MON, timed, game);
     game.u.uprops[BLINDED].intrinsic = 1;
-    assert.equal(await listenWest(), 'a corpse with a REVIVE_MON timer');
-
-    const reviver = await heroWithEmptyWest();
-    const revivingCorpse = floorCorpstat(CORPSE, reviver);
-    mksobj_at(ROCK, reviver.x, reviver.y, false, false,
-        objectGenerationEnv({ state: game }));
-    const ordinaryCorpse = floorCorpstat(CORPSE, reviver);
-    ordinaryCorpse.nobj = null;
-    // The first corpse has no timer; only a nexthere traversal reaches the
-    // lower corpse carrying REVIVE_MON.
-    start_timer(100, TIMER_OBJECT, REVIVE_MON, revivingCorpse, game);
-    assert.equal(await listenWest(), 'a corpse with a REVIVE_MON timer');
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You determine that that unfortunate being is mostly dead.',
+    );
 });
 
 test('its_dead filled-statue body reads and writes the supplied state',
@@ -2382,37 +2459,6 @@ test('still-unported adjacent listens refuse before shared effects',
                 map_invisible(target.x, target.y, game);
                 floorCorpstat(CORPSE, target);
                 game.u.uprops[HALLUC].intrinsic = 1;
-                return target;
-            },
-        },
-        {
-            branch: 'a corpse with a REVIVE_MON timer',
-            setup(target) {
-                map_invisible(target.x, target.y, game);
-                floorCorpstat(STATUE, target);
-                mksobj_at(ROCK, target.x, target.y, false, false,
-                    objectGenerationEnv({ state: game }));
-                const corpse = floorCorpstat(CORPSE, target);
-                start_timer(100, TIMER_OBJECT, REVIVE_MON, corpse, game);
-                return target;
-            },
-        },
-        {
-            branch: 'a corpse with a REVIVE_MON timer',
-            setup(target) {
-                map_invisible(target.x, target.y, game);
-                const corpse = floorCorpstat(CORPSE, target);
-                start_timer(100, TIMER_OBJECT, REVIVE_MON, corpse, game);
-                return target;
-            },
-        },
-        {
-            branch: 'a corpse with a REVIVE_MON timer',
-            setup(target) {
-                map_invisible(target.x, target.y, game);
-                const corpse = floorCorpstat(CORPSE, target);
-                start_timer(100, TIMER_OBJECT, REVIVE_MON, corpse, game);
-                game.u.uprops[BLINDED].intrinsic = 1;
                 return target;
             },
         },

@@ -222,10 +222,10 @@ export function apply_ok(obj, state = game) {
 //
 // C takes `int *resp` so that its hallucination arm can charge the turn
 // (apply.c:253); that arm still refuses here, so the port answers a bare
-// boolean. The admitted corpse branch is sighted, reachable, and has no
-// REVIVE_MON timer. The admitted statue branch is reachable and has separate
-// sighted and blind names. A mixed pile admits whichever kind is uppermost.
-// The remaining exceptional siblings stay named refusals.
+// boolean. The admitted corpse branch is sighted or blind and includes the
+// Healer's REVIVE_MON wording. The admitted statue branch has separate sighted
+// and blind names. A mixed pile admits whichever kind is uppermost. The
+// remaining exceptional sibling stays a named refusal.
 function selectedDeadObject(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     let statue = sobj_at(STATUE, rx, ry, state);
@@ -262,13 +262,6 @@ function unportedItsDeadBranch(rx, ry, state) {
     if (heroHallucinating(state))
         return 'a hallucinated listen to the dead';
 
-    if (statue) return null;
-
-    for (let current = corpse; current;
-        current = nxtobj(current, CORPSE, true)) {
-        if (obj_has_timer(current, REVIVE_MON, state))
-            return 'a corpse with a REVIVE_MON timer';
-    }
     return null;
 }
 
@@ -283,12 +276,26 @@ async function its_dead_after_preflight(rx, ry, state) {
         const here = u_at(rx, ry, state);
         const visglyph = glyph_at(rx, ry, state);
         const corpseglyph = obj_to_glyph(corpse, state);
+        let reviver = false;
         if (heroIsBlind(state) && visglyph !== corpseglyph.glyph)
             map_object(corpse, true, state);
+        if (state.urole?.mnum === PM_HEALER) {
+            // apply.c:265-274. This only detects a pending revival; it neither
+            // runs nor changes the timer. Walk the square's nexthere chain,
+            // stopping at the first corpse with REVIVE_MON.
+            let current = corpse;
+            do {
+                if (obj_has_timer(current, REVIVE_MON, state))
+                    reviver = true;
+                else
+                    current = nxtobj(current, CORPSE, true);
+            } while (current && !reviver);
+        }
         await ttyPline(
             `You determine that ${one ? (here ? 'this' : 'that')
                 : (here ? 'these' : 'those')} unfortunate being${
-                one ? '' : 's'} ${one ? 'is' : 'are'} dead.`,
+                one ? '' : 's'} ${one ? 'is' : 'are'}${
+                reviver ? ' mostly' : ''} dead.`,
             state,
         );
         return true;
@@ -364,8 +371,8 @@ function preflightAdjacentStethoscope(obj, state) {
 //
 // Below confdir() the adjacent-square arm (384-470) runs through the off-map
 // answer, monster branch, both secret-terrain arms, and the empty square's
-// answer. The remaining dead-thing arms stop before the shared listen effects,
-// so retrying their command cannot retain half of the unported path.
+// answer. The remaining hallucinated dead-thing arm stops before the shared
+// listen effects, so retrying its command cannot retain half of that path.
 async function use_stethoscope(obj, state = game) {
     const u = state.u;
 
