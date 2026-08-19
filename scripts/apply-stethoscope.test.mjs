@@ -2025,9 +2025,9 @@ test('its_dead selects the uppermost dead object in a mixed pile', async () => {
         statueAfter.shared.rngCalls, statueBefore.shared.rngCalls,
     );
 
-    // The same selection controls fail closed before effects when the upper
-    // object itself is exceptional. These two direct source-helper calls also
-    // pin the full mixed pile and timer list across each refusal.
+    // The same selection controls the exceptional branch when the upper dead
+    // object is the corpse. The direct source-helper call pins the full mixed
+    // pile and timer list across that refusal.
     const timedCorpseTarget = await heroWithEmptyWest();
     floorCorpstat(STATUE, timedCorpseTarget);
     mksobj_at(ROCK, timedCorpseTarget.x, timedCorpseTarget.y, false, false,
@@ -2040,17 +2040,116 @@ test('its_dead selects the uppermost dead object in a mixed pile', async () => {
         timedCorpseTarget, 'a corpse with a REVIVE_MON timer',
     );
 
+    // The reverse order selects the filled statue and ignores the lower
+    // corpse. Contents now affect only the selected statue's adjective.
     const filledStatueTarget = await heroWithEmptyWest();
     floorCorpstat(CORPSE, filledStatueTarget);
     mksobj_at(ROCK, filledStatueTarget.x, filledStatueTarget.y, false, false,
         objectGenerationEnv({ state: game }));
-    floorCorpstat(STATUE, filledStatueTarget).cobj = newObject({
+    const selectedFilledStatue = floorCorpstat(STATUE, filledStatueTarget);
+    selectedFilledStatue.cobj = newObject({
         otyp: ROCK, quan: 1,
     });
-    await assertDirectItsDeadRefusal(
-        filledStatueTarget, 'a Healer examining statue contents',
+    // Keep the level-wide nobj chain from accidentally agreeing with the
+    // per-square nexthere chain that apply.c passes to nxtobj() here.
+    selectedFilledStatue.nobj = null;
+    const filledPileBefore = directItsDeadEffects(filledStatueTarget).pile;
+    assert.equal(
+        await its_dead(filledStatueTarget.x, filledStatueTarget.y, game), true,
+    );
+    assert.equal(
+        pendingTopLine(),
+        'The newt is in remarkable health for a statue.',
+    );
+    assert.deepEqual(
+        directItsDeadEffects(filledStatueTarget).pile, filledPileBefore,
     );
 });
+
+test('a Healer hears remarkable health from a filled selected statue',
+    async () => {
+        // Authorized constructed live-consumer substitute, 2026-08-19. The
+        // exact setup starts the ordinary sighted Healer fixture, places a
+        // reachable newt statue on the adjacent west square, attaches one rock
+        // as its cobj contents, leaves that square without a trap, and drives
+        // doapply() with the starting stethoscope's `c` slot and west `h`.
+        // Direct `newt statue` and `statue of a newt` wishes are refused. The
+        // natural D:1 statue is empty, while the known source-created filled
+        // D:8 candidate lies on a higher-priority STATUE_TRAP. No ported input
+        // route can therefore supply this filled non-trap state.
+        //
+        // apply.c its_dead():281-307 selects the statue name, sets `how` to
+        // "fine", then :295-303 changes it to "remarkable" for a Healer when
+        // t_at() finds no STATUE_TRAP and Has_contents(statue) is true. This
+        // test reaches that code through doapply(), its production consumer,
+        // and pins the command results, exact output, terminal attributes and
+        // cursor, zero branch PRNG calls, pile and contents preservation, and
+        // the unread next key. It cannot prove a future input constructor will
+        // build the same state or compare this unavailable setup directly to a
+        // C recording. The checked-in ordinary-statue and statue-trap recipes
+        // remain the direct C evidence for the surrounding reachable paths.
+        const target = await heroWithEmptyWest();
+        const statue = floorCorpstat(STATUE, target);
+        const contents = newObject({ otyp: ROCK, quan: 1 });
+        statue.cobj = contents;
+        const before = directItsDeadEffects(target);
+        const contentsBefore = structuredClone(contents);
+        const lowerRowsBefore = game.nhDisplay.grid.slice(1).map(
+            (row) => row.map(({ ch, color, attr }) => ({ ch, color, attr })),
+        );
+        const message = 'The newt is in remarkable health for a statue.';
+
+        for (const key of ['c', 'h', 'x'])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_OK);
+        assert.equal(pendingTopLine(), message);
+        assert.equal(game.nhDisplay.inputQueueLength, 1);
+        assert.equal(game.context.stethoscope_seq, game.hero_seq);
+        assert.equal(game.moves, before.shared.moves);
+        assert.equal(game.context.move, before.shared.contextMove);
+        let after = directItsDeadEffects(target);
+        assert.deepEqual(after.pile, before.pile);
+        assert.strictEqual(statue.cobj, contents);
+        assert.deepEqual(statue.cobj, contentsBefore);
+        assert.equal(after.shared.rngCalls, before.shared.rngCalls);
+
+        await flush_screen(1);
+        assert.deepEqual(
+            game.nhDisplay.grid[0],
+            [...message.padEnd(80)].map((ch, index) => ({
+                ch,
+                color: index < message.length ? NO_COLOR : CLR_GRAY,
+                attr: 0,
+            })),
+        );
+        assert.deepEqual(
+            game.nhDisplay.grid.slice(1).map(
+                (row) => row.map(({ ch, color, attr }) => ({
+                    ch, color, attr,
+                })),
+            ),
+            lowerRowsBefore,
+        );
+        assert.deepEqual(
+            [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+            [target.x, target.y + 1],
+        );
+        assert.equal(await game.nhDisplay.readKey(), 'x'.charCodeAt(0));
+
+        // No hero action separates the calls, so use_stethoscope():367-368
+        // changes the second result to ECMD_TIME without changing this branch.
+        for (const key of [' ', 'c', 'h', 'y'])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_TIME);
+        assert.equal(pendingTopLine(), message);
+        assert.equal(game.nhDisplay.inputQueueLength, 1);
+        assert.equal(await game.nhDisplay.readKey(), 'y'.charCodeAt(0));
+        after = directItsDeadEffects(target);
+        assert.deepEqual(after.pile, before.pile);
+        assert.strictEqual(statue.cobj, contents);
+        assert.deepEqual(statue.cobj, contentsBefore);
+        assert.equal(after.shared.rngCalls, before.shared.rngCalls);
+    });
 
 test('its_dead keeps exceptional object paths in source order', async () => {
     // The exported source-named helper applies the same exceptional preflight
@@ -2061,12 +2160,6 @@ test('its_dead keeps exceptional object paths in source order', async () => {
     game.u.uprops[HALLUC].intrinsic = 1;
     await assertDirectItsDeadRefusal(
         direct, 'a hallucinated listen to the dead',
-    );
-
-    const directContents = await heroWithEmptyWest();
-    floorCorpstat(STATUE, directContents).cobj = newObject({ quan: 1 });
-    await assertDirectItsDeadRefusal(
-        directContents, 'a Healer examining statue contents',
     );
 
     const directTimer = await heroWithEmptyWest();
@@ -2137,10 +2230,25 @@ test('its_dead keeps exceptional object paths in source order', async () => {
         'The newt is in extraordinary health for a statue.',
     );
 
-    // Contents without the higher-priority trap remain outside this slice.
+    // Contents without the higher-priority trap select the Healer's second
+    // adjective. The ordinary empty-statue tests above pin the default.
     const filled = await heroWithEmptyWest();
     floorCorpstat(STATUE, filled).cobj = newObject({ quan: 1 });
-    assert.equal(await listenWest(), 'a Healer examining statue contents');
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'The newt is in remarkable health for a statue.',
+    );
+
+    // Blindness changes the subject but not the Healer's contents adjective.
+    const blindFilled = await heroWithEmptyWest();
+    floorCorpstat(STATUE, blindFilled).cobj = newObject({ quan: 1 });
+    game.u.uprops[BLINDED].intrinsic = 1;
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'That creature is in remarkable health for a statue.',
+    );
 
     // The trap and contents affect the adjective only for a Healer. Another
     // role reaches the ordinary answer even when both are present.
@@ -2160,8 +2268,7 @@ test('its_dead keeps exceptional object paths in source order', async () => {
     // apply.c:226 sits above both object arms and therefore above the mixed
     // pile's selected-object report and the admitted blind-statue name.
     const hallucinated = await heroWithEmptyWest();
-    floorCorpstat(STATUE, hallucinated);
-    floorCorpstat(CORPSE, hallucinated);
+    floorCorpstat(STATUE, hallucinated).cobj = newObject({ quan: 1 });
     game.u.uprops[HALLUC].intrinsic = 1;
     game.u.uprops[BLINDED].intrinsic = 1;
     assert.equal(await listenWest(), 'a hallucinated listen to the dead');
@@ -2188,12 +2295,14 @@ test('its_dead keeps exceptional object paths in source order', async () => {
     assert.equal(await listenWest(), 'a corpse with a REVIVE_MON timer');
 });
 
-test('its_dead exceptional preflight reads the supplied state', async () => {
+test('its_dead filled-statue body reads and writes the supplied state',
+    async () => {
     const target = await heroWithEmptyWest();
     // The global state is admitted: an ordinary statue has no contents. The
-    // supplied state owns the opposite classification at the same coordinate.
-    // Reading the global pile or dropping the state argument would execute the
-    // ordinary global statue body instead of raising this boundary.
+    // supplied state owns the opposite adjective at the same coordinate.
+    // Reading the global pile or dropping the state argument would print
+    // "fine" to the global display instead of "remarkable" to the supplied
+    // display.
     floorCorpstat(STATUE, target);
     const supplied = isolatedItsDeadState();
     placeStateCorpstat(supplied, STATUE, target).cobj = newObject({
@@ -2202,19 +2311,18 @@ test('its_dead exceptional preflight reads the supplied state', async () => {
     const globalBefore = directItsDeadEffects(target);
     const suppliedBefore = suppliedItsDeadEffects(supplied, target);
 
-    await assert.rejects(
-        its_dead(target.x, target.y, supplied),
-        (error) => {
-            assert.equal(error.constructor, UnsupportedApplyError);
-            assert.equal(
-                error.branch, 'a Healer examining statue contents',
-            );
-            return true;
-        },
+    assert.equal(await its_dead(target.x, target.y, supplied), true);
+    assert.equal(
+        supplied._pending_message,
+        'The newt is in remarkable health for a statue.',
     );
     assert.deepEqual(directItsDeadEffects(target), globalBefore);
-    assert.deepEqual(
-        suppliedItsDeadEffects(supplied, target), suppliedBefore,
+    const suppliedAfter = suppliedItsDeadEffects(supplied, target);
+    assert.deepEqual(suppliedAfter.pile, suppliedBefore.pile);
+    assert.deepEqual(suppliedAfter.catalogName, suppliedBefore.catalogName);
+    assert.equal(suppliedAfter.ttyToplines, suppliedAfter.pendingMessage);
+    assert.equal(
+        suppliedAfter.display.topMessage, suppliedAfter.pendingMessage,
     );
 });
 
@@ -2274,32 +2382,11 @@ test('still-unported adjacent listens refuse before shared effects',
     async () => {
     const cases = [
         {
-            branch: 'a Healer examining statue contents',
-            setup(target) {
-                map_invisible(target.x, target.y, game);
-                floorCorpstat(STATUE, target).cobj = newObject({ quan: 1 });
-                return target;
-            },
-        },
-        {
             branch: 'a hallucinated listen to the dead',
             setup(target) {
                 map_invisible(target.x, target.y, game);
                 floorCorpstat(CORPSE, target);
                 game.u.uprops[HALLUC].intrinsic = 1;
-                return target;
-            },
-        },
-        {
-            branch: 'a Healer examining statue contents',
-            setup(target) {
-                map_invisible(target.x, target.y, game);
-                floorCorpstat(CORPSE, target);
-                mksobj_at(ROCK, target.x, target.y, false, false,
-                    objectGenerationEnv({ state: game }));
-                floorCorpstat(STATUE, target).cobj = newObject({
-                    otyp: ROCK, quan: 1,
-                });
                 return target;
             },
         },

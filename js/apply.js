@@ -223,10 +223,9 @@ export function apply_ok(obj, state = game) {
 // C takes `int *resp` so that its hallucination arm can charge the turn
 // (apply.c:253); that arm still refuses here, so the port answers a bare
 // boolean. The admitted corpse branch is sighted, reachable, and has no
-// REVIVE_MON timer. The admitted statue branch is reachable and either carries
-// no contents or lies on a statue trap; it has separate sighted and blind
-// names. A mixed pile admits whichever kind is uppermost. The remaining
-// exceptional siblings stay named refusals.
+// REVIVE_MON timer. The admitted statue branch is reachable and has separate
+// sighted and blind names. A mixed pile admits whichever kind is uppermost.
+// The remaining exceptional siblings stay named refusals.
 function selectedDeadObject(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     let statue = sobj_at(STATUE, rx, ry, state);
@@ -265,16 +264,7 @@ function unportedItsDeadBranch(rx, ry, state) {
     if (heroHallucinating(state))
         return 'a hallucinated listen to the dead';
 
-    if (statue) {
-        if (state.urole?.mnum === PM_HEALER) {
-            const trap = t_at(rx, ry, state);
-            // apply.c:299-303 gives the trap priority over contents. Admit
-            // that adjective while keeping contents-only statues retryable.
-            if (trap?.ttyp !== STATUE_TRAP && hasContents(statue))
-                return 'a Healer examining statue contents';
-        }
-        return null;
-    }
+    if (statue) return null;
 
     for (let current = corpse; current;
         current = nxtobj(current, CORPSE, true)) {
@@ -316,9 +306,12 @@ async function its_dead_after_preflight(rx, ry, state) {
             what = obj_pmname(statue, state);
             if (!type_is_pname(species)) what = The(what, state);
         }
-        if (state.urole?.mnum === PM_HEALER
-            && t_at(rx, ry, state)?.ttyp === STATUE_TRAP)
-            how = 'extraordinary';
+        if (state.urole?.mnum === PM_HEALER) {
+            if (t_at(rx, ry, state)?.ttyp === STATUE_TRAP)
+                how = 'extraordinary';
+            else if (hasContents(statue))
+                how = 'remarkable';
+        }
         await ttyPline(`${what} is in ${how} health for a statue.`, state);
         return true;
     }
