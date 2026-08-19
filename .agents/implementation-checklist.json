@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "Every entry in the reviewed stethoscope window is done, later, or cannot occur with source and validation evidence. The production game executes every supported reachable path; the user-authorized off-map substitute records its exact constructed consumer and limitations; and every excluded reachable sibling remains fail-closed before output, state, input, or randomness.",
-  "commitChecked": "7604dc471e7ba050cb276b6e820220eee213debd",
+  "reason": "Every entry in the reviewed stethoscope window is done, later, or cannot occur with source and validation evidence. Commit 3855898 fixes all 12 findings from the full correctness audit: live/planning mimic visibility, helper admission and display-state contracts, state-owned article selection, and the focused coverage gaps. The full checkpoint and all 46 fresh C/JS differential segments pass; the two whole-suite mutation survivors are unreachable behind the earlier hallucinating-beam refusal.",
+  "commitChecked": "3855898cf05ac3727e5ddab2f5e62fdb68e42d29",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
