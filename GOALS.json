@@ -3021,8 +3021,8 @@
         },
         {
           "name": "healer-statue-contents-sounds-remarkable",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f7eea1a679b1a06236ae2a8b63a9e75db69745a3"
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",

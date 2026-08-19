@@ -1,10 +1,10 @@
 {
-  "mode": "implementation",
-  "reason": "The next authorized constructed-test slice must port apply.c its_dead():299-305's Healer filled-statue adjective. A selected reachable statue with contents and no STATUE_TRAP must report `remarkable` through the live doapply() consumer, while trap precedence and every exceptional sibling remain unchanged.",
-  "commitChecked": "89eb635add2786e31b821064e5583538b2913461",
+  "mode": "ready-for-audit",
+  "reason": "Commit f7eea1a ports apply.c its_dead():299-305's Healer contents adjective through the real doapply() consumer. The authorized constructed fixture proves `remarkable`, both command results, exact terminal state, zero branch RNG, contents preservation, and the next input boundary; focused controls preserve trap-first `extraordinary`, non-Healer and empty-statue `fine`, blind naming, hallucination precedence, and mixed-pile selection. The full checkpoint and all 47 source-real sibling segments pass.",
+  "commitChecked": "f7eea1a679b1a06236ae2a8b63a9e75db69745a3",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
-    "startingCommit": "89eb635add2786e31b821064e5583538b2913461",
+    "startingCommit": "4e115ea3a6a17938eb31cf51e2d7059c33760411",
     "startingEvent": "A sighted Healer applies the starting stethoscope to an adjacent reachable selected newt statue that contains a rock and is not on a STATUE_TRAP; the command has accepted the tool and direction.",
     "endingEvent": "apply.c its_dead() preserves trap-first precedence, selects the `remarkable` contents adjective, prints the existing statue-health sentence, returns the free or costly command result, and reaches the next input boundary.",
     "validInputs": "Use the user-authorized constructed doapply() fixture because direct statue wishes are refused, the natural D:1 statue is empty, and the source-real D:8 filled candidate is on a higher-priority STATUE_TRAP. Record the exact constructed state, controlling source, setup-route limitation, integration evidence, and what the substitute cannot prove.",
@@ -142,8 +142,8 @@
       "owner": "js/apply.js unportedItsDeadBranch() and its_dead_after_preflight()",
       "effects": "Selects `remarkable` rather than `fine`, then prints the existing statue health sentence and returns TRUE. No random-number call or object mutation belongs to the arm.",
       "evidence": "apply.c:295-305. The ordinary-statue and seed-259 statue-trap strict differentials prove the surrounding naming and trap-first behavior. No current player input constructs a filled non-trap statue; the user authorized the reverse live doapply() fixture on 2026-08-19.",
-      "status": "missing",
-      "remaining": "Remove only the filled-statue refusal, port the contents adjective, and prove free/costly results, exact terminal state, preserved contents, trap precedence, non-Healer fine, blind subject naming, unselected lower contents, and exceptional sibling atomicity."
+      "status": "done",
+      "remaining": "None. The authorized constructed doapply() fixture records its exact state and limits and pins free/costly results, exact terminal state, preserved contents, zero PRNG calls, and unread sentinels. Focused controls preserve trap precedence, non-Healer and empty-statue fine reports, blind remarkable naming, hallucination precedence, and ignored unselected lower contents."
     },
     {
       "candidate": "apply.c its_dead() Healer statue-trap adjective (295-305)",
@@ -335,12 +335,6 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "apply.c its_dead() Healer statue adjective",
-      "candidates": ["apply.c its_dead() Healer statue-contents adjective (299-305)"],
-      "next": "Port `remarkable` through the shared preflight/live selected-statue path and validate the authorized constructed doapply() consumer with surrounding controls."
-    }
-  ],
-  "sourceReview": "The completed goal-wide trace remains recorded above. The post-0208e71 boundary survey found five confirmed constructed-test gaps and no unverified branch. This slice isolates apply.c:299-305: for a Healer's selected reachable statue, STATUE_TRAP chooses `extraordinary` before hasContents(statue) chooses `remarkable`; otherwise the existing result is `fine`. All helpers and the doapply() consumer are present. No ported input constructs a filled non-trap statue, so the user's 2026-08-19 authorization supplies a documented live integration fixture that cannot prove player-input reachability or direct C parity for that unavailable setup. REVIVE_MON `mostly dead`, out-of-reach tiny-statue selection, the full Hallucination message arm, and fog m_in_out_region() remain separate confirmed gaps."
+  "missingWorkByOwner": [],
+  "sourceReview": "The completed goal-wide trace remains recorded above. Commit f7eea1a closes apply.c:299-305: for a Healer's selected reachable statue, STATUE_TRAP chooses `extraordinary` before hasContents(statue) chooses `remarkable`; otherwise the existing result is `fine`. Preflight now admits the selected statue and execution reads trap and contents from the supplied state. No ported input constructs a filled non-trap statue, so the user's 2026-08-19 authorization supplies a documented live integration fixture; it cannot prove player-input reachability or direct C parity for that unavailable setup. The ordinary-statue and seed-259 trap differentials remain exact surrounding C evidence. REVIVE_MON `mostly dead`, out-of-reach tiny-statue selection, the full Hallucination message arm, and fog m_in_out_region() remain separate confirmed gaps."
 }
