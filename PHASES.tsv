@@ -657,3 +657,4 @@ utc	event	phase	goal	detail
 2026-08-19T04:51:27.285Z	end	implement	stethoscope-reaches-an-adjacent-square	stethoscope-reports-an-ordinary-statue closed at 39c6860: free/costly natural statue cases exact, 4416-test checkpoint green, development unchanged, complete source naming prerequisite ported
 2026-08-19T04:52:33.257Z	start	select	stethoscope-reaches-an-adjacent-square	Select the next adjacent-square slice after ordinary statue reporting and its source naming chain closed
 2026-08-19T04:57:28.093Z	end	select	stethoscope-reaches-an-adjacent-square	Selected blind-statue-health-report: apply.c its_dead 285-290 over u_at and humanoid; natural seed-9251062 blind Healer newt statue; zero development ceiling; off-map remains runner-up
+2026-08-19T04:58:25.013Z	start	implement	stethoscope-reaches-an-adjacent-square	Port blind-statue-health-report through u_at wording and humanoid person-versus-creature naming while retaining atomic excluded paths
