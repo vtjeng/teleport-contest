@@ -253,11 +253,8 @@ function selectedDeadObject(rx, ry, state) {
 }
 
 function unportedItsDeadBranch(rx, ry, state) {
-    const { corpse, statue, canReachFloor }
-        = selectedDeadObject(rx, ry, state);
+    const { corpse, statue } = selectedDeadObject(rx, ry, state);
 
-    if (!canReachFloor && statue)
-        return 'an out-of-reach statue';
     if (!corpse && !statue) return null;
 
     // apply.c:223-260 tests Hallucination before either selected object's
