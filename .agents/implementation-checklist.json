@@ -1,7 +1,7 @@
 {
   "mode": "implementation",
-  "reason": "The selected quickmimic-compares-logical-glyphs repair must preserve display.c glyph_at()'s logical glyph identity through the JavaScript presentation buffer and make dogmove.c quickmimic() compare those IDs, not rendered character/style. The parked off-map slice remains missing on Q10 authorization; no work in this slice may weaken presentation shape, accessibility metadata, sparse-frame reporting, or planning isolation.",
-  "commitChecked": "36caf6087cccc0b206836213aad094a4ad884c1c",
+  "reason": "The quickmimic logical-glyph repair is complete and independently verified. The off-map slice remains parked on Q10 authorization; the next selector must choose another source-real missing branch inside the adjacent-square goal without treating the parked slice as resolved.",
+  "commitChecked": "fee2a0f808cb5c08be270b59009734a7de0e217c",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
@@ -285,9 +285,9 @@
       "reachability": "The admitted starting pet eats a mimic corpse and quickmimic() changes from the pet glyph to an M_AP_MONSTER disguise. Custom symbols can render both logical glyphs identically without making their glyph IDs equal.",
       "owner": "js/dogmove.js quickmimic()/sameDisplayedGlyph() and js/display.js transient glyph presentation buffer",
       "effects": "Snapshots the pre-disguise logical glyph, redraws after choosing the disguise, compares the post-redraw logical glyph, and selects `appear where ... was` when IDs differ or `feels rather ...-ish` when they match.",
-      "evidence": "dogmove.c:1509-1531 and display.c:2478-2482. Seed 24 with `!color` and identical dog/feline symbol customization matches 3,110 PRNG calls but currently selects the wrong JS message at step 26.",
-      "status": "missing",
-      "remaining": "Carry the non-enumerable logical glyph ID through show_glyph_cell() without altering presentation contracts, compare it in quickmimic(), and pin normal/custom-symbol plus planning-clone behavior through the listen."
+      "evidence": "dogmove.c:1509-1531 and display.c:2478-2482. Commit fee2a0f carries logical glyph IDs non-enumerably through monster, hero, warning, transient-buffer, and sparse-frame presentations, and quickmimic() compares those IDs. The source-real seed-24 custom-symbol case matches C through the subsequent stethoscope listen at 3,110 PRNG calls and 30 screens/cursors.",
+      "status": "done",
+      "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
   "missingWorkByOwner": [
@@ -301,17 +301,7 @@
         "preflight split from remaining exceptional targets"
       ],
       "next": "Parked on Q10 after 7,680 generated setups and source analysis found no currently reachable edge route; do not implement without authorization or a new source-real route."
-    },
-    {
-      "group": "display.c glyph identity and dogmove.c quickmimic comparison",
-      "candidates": [
-        "logical glyph ID preservation in the transient display buffer",
-        "quickmimic pre/post ID comparison",
-        "custom-symbol message selection",
-        "presentation/accessibility/planning contract preservation"
-      ],
-      "next": "Repair the display/consumer contract and replay the customized seed-24 setup through quickmimic and the subsequent stethoscope listen."
     }
   ],
-  "sourceReview": "The goal-wide trace remains recorded above, including the parked off-map evidence. For the current repair the selector traced dogmove.c quickmimic() 1481-1531 and display.c glyph_at() 2478-2482, then reproduced the admitted seed-24 pet route with distinct logical glyphs collapsed to identical presentation. Implementation must still trace every JavaScript copy of transient glyph data, preserve non-render contracts and planning isolation, and verify the corrected source message plus subsequent listen before readiness."
+  "sourceReview": "The goal-wide trace remains recorded above, including the parked off-map evidence. Commit fee2a0f closes the dogmove.c quickmimic()/display.c glyph_at() repair with focused presentation, sparse-frame, and planning-isolation tests plus a strict source-real replay through the subsequent listen. The next selector must re-read the remaining `later` entries against current source and choose a source-real branch that does not depend on Q10."
 }
