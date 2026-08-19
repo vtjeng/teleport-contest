@@ -1,13 +1,13 @@
 {
-  "mode": "implementation",
-  "reason": "The completed correctness pass cleared the prior review window. The next authorized constructed-test slice must replace js/apply.js's blanket mixed corpse/statue refusal with apply.c its_dead()'s uppermost-object selection, while keeping preflight and live execution identical and leaving exceptional selected objects fail-closed before effects.",
-  "commitChecked": "c2abe9b738756cf12d52d899fd7c3ba9201ac8ad",
+  "mode": "ready-for-audit",
+  "reason": "Commit 0208e71 ports apply.c its_dead():203-220 through one shared preflight/execution selector. The source-real corpse-upper replay and authorized constructed statue-upper doapply consumer prove both orderings; exceptional state on an unselected lower object is ignored, while selected exceptional objects remain atomic refusals. The full checkpoint and 47-segment stethoscope matrix pass, and all four eligible boolean/logical mutation sites are killed.",
+  "commitChecked": "0208e714bcbca33188697b57f9e3da1f0544361a",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
-    "startingCommit": "c2abe9b738756cf12d52d899fd7c3ba9201ac8ad",
+    "startingCommit": "4f919155e96c36d8d13f5686da272e70c7be3be0",
     "startingEvent": "A Healer applies a stethoscope to an adjacent reachable square containing both a corpse and a statue; the command has accepted the tool and direction and its_dead() is about to select which dead object controls the result.",
     "endingEvent": "apply.c its_dead() selects the uppermost corpse or statue by source pile order, executes only that object's already-ported report, returns the free or costly command result, and reaches the next input boundary.",
-    "validInputs": "Use the source-real corpse-upper seed-9251062 setup for direct C/JS parity and the user-authorized constructed doapply() fixture for the unavailable statue-upper polarity. Record the constructed state, controlling source, exhausted source-real setup limitation, integration evidence, and what the substitute cannot prove.",
+    "validInputs": "Use the established source-real corpse-upper seed-55 setup for direct C/JS parity and the user-authorized constructed doapply() fixture for the unavailable statue-upper polarity. Record the constructed state, controlling source, setup-route limitation, integration evidence, and what the substitute cannot prove.",
     "observables": "Exact selected-object message, ECMD_OK on the first listen and the next input boundary, zero branch PRNG calls, full terminal attributes and cursor, pile and timer preservation, and no refusal or effect from an exceptional unselected lower object.",
     "exclusions": "Hallucination, an out-of-reach selected statue, a selected REVIVE_MON corpse, and a selected filled Healer statue remain fail-closed. Do not port a statue placement command or another setup writer merely to reverse the source-real pile."
   },
@@ -78,9 +78,9 @@
       "reachability": "Both sobj_at(CORPSE, rx, ry) and sobj_at(STATUE, rx, ry) return objects. nxtobj(statue, CORPSE, TRUE) == corpse means the statue is lower in the pile and the corpse remains selected; otherwise C clears corpse and selects the statue. No random-number call belongs to selection.",
       "owner": "js/apply.js unportedItsDeadBranch() and its_dead_after_preflight(), reusing js/invent.js nxtobj() and js/obj.js sobj_at()",
       "effects": "Only the uppermost dead object's existing corpse or statue branch may inspect exceptional state, write its message, and determine the command result. The unselected lower object and its contents or timer have no effects.",
-      "evidence": "apply.c:203-220. A source-real adjacent natural statue can receive a wished corpse above it for the corpse-upper polarity. No currently ported input places a statue above an existing corpse, so the user authorized a constructed live-consumer doapply() fixture for that polarity on 2026-08-19.",
-      "status": "missing",
-      "remaining": "Replace the blanket mixed-pile refusal with one shared source-order selector used by preflight and execution; prove both pile orders, a separating rock, exceptional unselected lower objects, exceptional selected controls, exact messages, atomic state, and the next input boundary."
+      "evidence": "apply.c:203-220. Seed 55 at 20340102030405 provides a source-real adjacent natural statue that receives a wished corpse above it. Direct statue wishes are refused and no other currently ported command places a statue above an existing corpse, so the user authorized a constructed live-consumer doapply() fixture for that polarity on 2026-08-19.",
+      "status": "done",
+      "remaining": "None. Seed 55 strictly verifies the source-real corpse-upper order. The authorized constructed statue-upper doapply fixture records its exact state and limitations, separates the two dead objects with a rock, ignores lower contents and REVIVE_MON, and pins selected exceptional refusals, pile/timer preservation, exact terminal state, both command results, zero PRNG calls, and the unread sentinel."
     },
     {
       "candidate": "apply.c its_dead() tiny-statue walk (208-211)",
@@ -326,12 +326,6 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "apply.c its_dead() dead-object selection",
-      "candidates": ["apply.c its_dead() mixed corpse/statue uppermost selection (203-220)"],
-      "next": "Port the shared preflight/live source-order selector and validate the source-real corpse-upper and authorized constructed statue-upper live consumers."
-    }
-  ],
-  "sourceReview": "The completed goal-wide trace remains recorded above. The next slice reopens implementation only for apply.c:203-220's mixed-pile selection: sobj_at() finds the first corpse and statue, nxtobj(statue, CORPSE, TRUE) determines whether the corpse occurs after the statue, and exactly one existing downstream arm owns the result. The source-real constructor covers corpse above a natural statue; current wishes and placement commands cannot construct statue above corpse, so the user's 2026-08-19 blanket authorization supplies that polarity through a live doapply() integration fixture. The slice must keep preflight and execution selection identical so contents or REVIVE_MON on an unselected lower object cannot cause a refusal or effect. Other remaining constructed-test candidates stay separate."
+  "missingWorkByOwner": [],
+  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 0208e71 closes apply.c:203-220's mixed-pile selection: sobj_at() finds the first corpse and statue, nxtobj(statue, CORPSE, TRUE) determines which occurs later in the nexthere chain, and exactly one existing downstream arm owns the result. Preflight and execution share selectedDeadObject(), including one cached can_reach_floor(TRUE) result in source order. Seed 55 proves the player-reachable corpse-upper polarity against C. Direct statue wishes remain refused and no ported command places a statue above a corpse, so the user's 2026-08-19 authorization supplies the reverse polarity through a documented live doapply() integration fixture; that substitute does not prove player-input reachability or direct C parity for the unavailable arrangement. Hallucination, selected REVIVE_MON, selected filled Healer statues, out-of-reach tiny statues, and fog-region movement remain separate later entries."
 }
