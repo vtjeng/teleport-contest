@@ -1,22 +1,22 @@
 {
   "mode": "implementation",
-  "reason": "The quickmimic logical-glyph repair is complete and independently verified. The off-map slice remains parked on Q10 authorization; the next selector must choose another source-real missing branch inside the adjacent-square goal without treating the parked slice as resolved.",
-  "commitChecked": "fee2a0f808cb5c08be270b59009734a7de0e217c",
+  "reason": "The selected blind-corpse-maps-and-reports slice ports apply.c its_dead()'s reachable blind corpse sub-arm through its logical-glyph comparison, optional map_object() update, ordinary death report, and listen return. It must admit this sub-arm without allowing hallucinated, mixed-pile, REVIVE_MON, off-map, or out-of-reach siblings to mutate state before their named refusals.",
+  "commitChecked": "99c241b42295fe6dc15e6a736e35a3e11d94b0a9",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
-    "startingEvent": "A starting pet eats a wished mimic corpse through dog_eat() and m_consume_obj(), causing dogmove.c quickmimic() to choose and draw a disguise before the hero listens to that pet.",
-    "endingEvent": "quickmimic() prints the source message selected by whether the logical glyph ID changed, redraws the pet, and the subsequent stethoscope listen reports the disguised monster.",
-    "validInputs": "The strict seed-24 debug-Healer mimic-corpse route, with color disabled and dog/feline symbols both customized to `d`, so the pre/post glyph IDs differ while every rendered presentation field is identical.",
-    "observables": "Exact quickmimic message and --More-- boundary; logical glyph ID before/after newsym(); unchanged rendered character/color/attributes; accessibility sidecars and sparse-frame notices; planning-clone isolation; subsequent listen screens/cursors; and exact PRNG order through all draws.",
-    "exclusions": "No new display consumer, renderer shape, accessibility behavior, or monster action is admitted. Off-map and exceptional its_dead() paths remain parked/later; unrelated quickmimic naming/article/shape-protection findings retain separate consumers and deferrals."
+    "startingEvent": "A permanently blind Healer points a stethoscope at an adjacent reachable floor pile whose selected object is a corpse and which contains no statue, hallucination case, or REVIVE_MON timer.",
+    "endingEvent": "its_dead() compares the remembered logical glyph with obj_to_glyph(corpse), optionally calls map_object(corpse, TRUE), prints the ordinary singular/plural dead-being report, returns TRUE, and a following wait exposes whether the listen was free or costly.",
+    "validInputs": "Seed 9240001 at 20340102030405 in a blind debug-Healer game. One wished-corpse input leaves equal logical IDs; a second drops apples above the corpse with color disabled so the presentations match while the logical IDs differ and map_object() must run.",
+    "observables": "Both sides of the logical-glyph comparison; remembered and transient display state; accessibility sidecars; ordinary death-report grammar; zero animation frames; refusal atomicity for excluded siblings; listen return cost; and exact PRNG/screens/cursors through the following wait.",
+    "exclusions": "Hallucination, mixed corpse/statue piles, REVIVE_MON and Healer revival, off-map, and out-of-reach/tiny-statue paths remain parked or later. Do not broaden blind movement, combat, timer, revival, or unrelated display consumers."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
     "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation and the generated CMAP_EXPLANATIONS projection; mstatusline()'s ordered info fragments; makemon.c syms[] and set_mimic_sym(); dogmove.c qm[]; wizard.c wizapp[]; and every shipped Lua appear_as descriptor under nethack-c/upstream/dat/.",
     "reachableHelpers": "Read from the C call graph of the two entry points. Already ported and needing no work: unmap_invisible(), newsym(), sobj_at(), can_reach_floor() (js/engrave.js, with the checkPit parameter), m_at(), find_mac, align_str, map_invisible(), obj_typename(), ustatusline(), mon_aligntyp(), rndmonnam(), set_mimic_sym() (js/makemon_create.js).",
     "javascriptCrossCheck": "grep -rn '^seemimic' nethack-c/upstream/src/*.c returns only mon.c:4409, so js/mon.js's two 'display.c seemimic()' citations are wrong. grep -rn seemimic js/*.js returns six sites naming it as missing. grep -c Unsupported js/mhitu.js returns 0, so the giant bat's bites inside the stretch need nothing. grep -n explanation js/display.js returns nothing, so M_AP_FURNITURE needs a generated table. Re-run at 9657e3b while closing slice 1: `grep -rn \"export function nxtobj\" js/` and `grep -n \"MZ_TINY\" js/monsters.js` both return nothing, which is why apply.c:210-211's tiny-statue walk is refused rather than ported; js/monsters.js is generated by scripts/generate-monsters.mjs, so adding MZ_TINY is a generator change.",
-    "remainingLimits": "This slice repairs only logical glyph identity preservation and quickmimic's comparison. The seed-24 custom-symbol probe already has exact 3,110-call PRNG parity and a message mismatch at step 26. The off-map arm remains missing and parked on Q10; dead-object exceptional paths remain later."
+    "remainingLimits": "This slice covers only the ordinary reachable blind-corpse result and its optional map_object() write. The equal-ID and identical-render/different-ID seed-9240001 inputs both reproduce the current named refusal. Off-map remains parked on Q10; hallucination, revival, mixed piles, and out-of-reach statues remain later."
   },
   "entries": [
     {
@@ -101,13 +101,22 @@
       "remaining": "None inside this slice. Blind, hallucinated, revival, and statue siblings remain separate later entries or exclusions."
     },
     {
-      "candidate": "apply.c its_dead() Blind and REVIVE_MON/Healer corpse sub-arms (261-277)",
-      "reachability": "A reachable corpse is inspected while Blind, or carries REVIVE_MON while the hero is a Healer. Hallucination has already been excluded above this point.",
-      "owner": "js/apply.js its_dead(), with display.c logical glyph/map_object and revive/timer consumers",
-      "effects": "Blind may replace a remembered glyph and redraw; a Healer may revive timed corpses and retry the pile before selecting the ordinary or plural message.",
-      "evidence": "apply.c:261-277. The current slice preflights these cases before effects; the logical-glyph requirement overlaps audit-quickmimic-logical-glyph-identity but has a different consumer.",
+      "candidate": "apply.c its_dead() ordinary Blind corpse sub-arm (261-279)",
+      "reachability": "A reachable corpse is inspected while Blind, Hallucination is false, the pile has no statue, and no traversed corpse carries a REVIVE_MON timer.",
+      "owner": "js/apply.js its_dead(), with js/display.js glyph_at(), obj_to_glyph(), and map_object()",
+      "effects": "Compares the remembered logical glyph with the corpse glyph, optionally maps and redraws the corpse, then prints the ordinary singular/plural death determination and returns TRUE.",
+      "evidence": "apply.c:261-279 and display.c glyph_at()/map_object(). Seed 9240001 supplies one equal-ID case and one no-color apples-over-corpse case whose presentation is identical while logical IDs differ; both currently stop at `a blind listen to a corpse`.",
+      "status": "missing",
+      "remaining": "Admit only the ordinary blind corpse case, port or expose the required map_object() consumer without changing presentation contracts, and verify both logical-ID outcomes plus the following wait."
+    },
+    {
+      "candidate": "apply.c its_dead() REVIVE_MON/Healer corpse sub-arm (265-270)",
+      "reachability": "A traversed corpse carries a REVIVE_MON timer while the hero is a Healer; Hallucination has already been excluded above this point.",
+      "owner": "js/apply.js its_dead(), with revive/timer consumers",
+      "effects": "Calls revive(), restarts the pile walk when revival succeeds, and then selects the surviving ordinary or plural result.",
+      "evidence": "apply.c:265-270. The current slice must keep this path pre-effect because its setup and revival-loop consumers are separate from blind map repair.",
       "status": "later",
-      "remaining": "Port in a later slice with source-real blind/timed setups, logical glyph identity, map_object(), and revival-loop evidence."
+      "remaining": "Port in a later slice with a source-real timed-corpse setup and revival-loop evidence."
     },
     {
       "candidate": "apply.c its_dead() statue arm (283-307)",
@@ -301,7 +310,18 @@
         "preflight split from remaining exceptional targets"
       ],
       "next": "Parked on Q10 after 7,680 generated setups and source analysis found no currently reachable edge route; do not implement without authorization or a new source-real route."
+    },
+    {
+      "group": "apply.c its_dead() ordinary blind corpse arm",
+      "candidates": [
+        "equal remembered and corpse logical glyph IDs",
+        "identical presentation with different logical glyph IDs",
+        "map_object corpse memory and transient display update",
+        "ordinary singular/plural death report and return cost",
+        "atomic exclusions for hallucination, mixed piles, and REVIVE_MON"
+      ],
+      "next": "Port the bounded blind-corpse branch and replay both seed-9240001 logical-ID cases through the following wait."
     }
   ],
-  "sourceReview": "The goal-wide trace remains recorded above, including the parked off-map evidence. Commit fee2a0f closes the dogmove.c quickmimic()/display.c glyph_at() repair with focused presentation, sparse-frame, and planning-isolation tests plus a strict source-real replay through the subsequent listen. The next selector must re-read the remaining `later` entries against current source and choose a source-real branch that does not depend on Q10."
+  "sourceReview": "The goal-wide trace remains recorded above, including the parked off-map evidence. The selector re-read every remaining `later` entry after fee2a0f, traced apply.c its_dead() 261-279 plus display.c glyph_at()/map_object() and display.h obj_to_glyph(), and produced two source-real seed-9240001 blind-Healer cases that separately exercise equal logical IDs and identical rendered presentations with different IDs. Implementation must preserve source order and refusal atomicity around the still-excluded siblings."
 }

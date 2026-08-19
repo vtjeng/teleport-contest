@@ -668,3 +668,4 @@ utc	event	phase	goal	detail
 2026-08-19T05:46:19.364Z	start	implement	stethoscope-reaches-an-adjacent-square	Repair quickmimic logical glyph identity under identical custom symbols and preserve display/planning contracts
 2026-08-19T06:18:41.572Z	end	implement	stethoscope-reaches-an-adjacent-square	quickmimic-compares-logical-glyphs closed at fee2a0f: independent 4421-test checkpoint and 41-segment fresh matrix pass; development unchanged; CI Score and Coverage succeeded
 2026-08-19T06:20:14.219Z	start	select	stethoscope-reaches-an-adjacent-square	Select the next source-real adjacent-square slice while off-map-listen-returns-free remains parked on Q10 authorization
+2026-08-19T06:29:10.059Z	end	select	stethoscope-reaches-an-adjacent-square	Selected blind-corpse-maps-and-reports: apply.c its_dead 261-279 plus logical glyph/map_object; seed 9240001 supplies equal-ID and identical-render/different-ID source-real cases; zero development ceiling

@@ -2993,6 +2993,11 @@
           "name": "quickmimic-compares-logical-glyphs",
           "status": "closed",
           "closedBy": "fee2a0f808cb5c08be270b59009734a7de0e217c"
+        },
+        {
+          "name": "blind-corpse-maps-and-reports",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
