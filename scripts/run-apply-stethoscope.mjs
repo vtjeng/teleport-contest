@@ -10,7 +10,7 @@
 // self direction, insight.c mstatusline() through a direction holding a
 // monster, apply.c's secret-terrain switch, and apply.c its_dead() through an
 // empty square, an ordinary corpse pile, an ordinary statue, or a blind
-// statue. The matrix splits into eight parts.
+// statue, or a blind corpse. The matrix splits into nine parts.
 // The first drives use_stethoscope(): the free first
 // listen, the second listen in the same move that costs a turn, both cancels,
 // both self keys, the Deaf guard, a sweep of all eight compass directions, a
@@ -494,6 +494,42 @@ export function loadBlindStatueRecipe() {
     }, 'blind statue recipe');
 }
 
+// Source-real blind corpses for apply.c its_dead():261-279. The first segment
+// leaves the corpse glyph in the transient buffer before blindness hides the
+// square, so glyph_at() and obj_to_glyph() agree. The second drops apples over
+// the corpse before stepping away; with color disabled, apples and corpses
+// render as the same `%` while their logical glyph IDs differ, so map_object()
+// must replace the remembered and transient glyph with the corpse.
+export function loadBlindCorpseRecipe() {
+    const seed = 9240001;
+    const datetime = '20340102030405';
+    const character = (name, extraOptions = '') => ({
+        seed,
+        datetime,
+        nethackrc: nethackrc({
+            name,
+            role: 'Healer',
+            options: 'blind,pettype:none,!acoustics,!autopickup,time,'
+                + `playmode:debug${extraOptions}`,
+        }),
+    });
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            {
+                ...character('BlindCorpEq'),
+                moves: `${WAIT}${WISH_KEY}small mimic corpse\n`
+                    + `dlh${APPLY_KEY}${STETHOSCOPE_SLOT}l${WAIT}`,
+            },
+            {
+                ...character('BlindCorpMap', ',!color'),
+                moves: `${WAIT}${WISH_KEY}small mimic corpse\n`
+                    + `dldjh${APPLY_KEY}${STETHOSCOPE_SLOT}l${WAIT}`,
+            },
+        ],
+    }, 'blind corpse recipe');
+}
+
 // One pack per apply_ok() term. Each role below advertises a letter set that
 // only the named term produces, so a term answering wrongly would change the
 // prompt rather than leave it alone. Every segment cancels at the prompt,
@@ -620,12 +656,21 @@ export async function runApplyStethoscopeMatrix() {
         chunkLimit: 2,
     });
     if (!statue.passed) return statue;
-    return runFreshMatrix({
+    const blindStatue = await runFreshMatrix({
         entries: [{
             label: 'blind statue',
             recipe: loadBlindStatueRecipe(),
         }],
         summaryLabel: 'BLIND STATUE',
+        chunkLimit: 1,
+    });
+    if (!blindStatue.passed) return blindStatue;
+    return runFreshMatrix({
+        entries: [{
+            label: 'blind corpse',
+            recipe: loadBlindCorpseRecipe(),
+        }],
+        summaryLabel: 'BLIND CORPSE',
         chunkLimit: 1,
     });
 }

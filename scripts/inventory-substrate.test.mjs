@@ -2882,9 +2882,16 @@ test('ordinary drop preflight refuses excluded floor effects before mutation',
 
         state.level.flags.has_shop = false;
         state.u.uprops[BLINDED].intrinsic = 1;
-        assert.throws(
-            () => preflight_dropx(ball, { state, hooks: {} }),
-            /blind/u,
+        assert.doesNotThrow(
+            () => preflight_dropx(ball, {
+                state,
+                hooks: {
+                    newsym() {},
+                    encumberMessage() {},
+                    extractExternalObject() {},
+                },
+            }),
+            'grounded blindness has no special do.c dropz() effect',
         );
         state.u.uprops[BLINDED].intrinsic = 0;
         state.u.uprops[HALLUC].intrinsic = 1;

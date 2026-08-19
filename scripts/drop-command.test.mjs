@@ -4,10 +4,14 @@ import test from 'node:test';
 import { reset_trapset } from '../js/apply.js';
 import { reset_occupations } from '../js/cmd.js';
 import {
+    BLINDED,
     ECMD_FAIL,
+    ECMD_TIME,
     GETOBJ_EXCLUDE,
     GETOBJ_SUGGEST,
     LOST_DROPPED,
+    HALLUC,
+    LEVITATION,
     OBJ_FLOOR,
     OBJ_INVENT,
     PIT,
@@ -399,6 +403,41 @@ test('a carried object lands on the square with its message', async () => {
     assert.equal(state.context.takeoff.mask, 0);
     assert.equal(state.xlock.usedtime, 0);
     assert.deepEqual(state.gt.trapinfo, { tobj: null, force_bungle: false });
+});
+
+test('a grounded blind hero uses the ordinary drop tail', async () => {
+    // do.c dropz():836 has a special map_object() call only for the conjunction
+    // Blind && Levitation. Grounded blindness reaches place_object(), stackobj()
+    // and newsym() exactly like sighted play; Hallucination and unreachable
+    // floor behavior remain outside that admitted display path.
+    const state = await startedGame();
+    let ration = state.invent;
+    while (ration && ration.invlet !== 'd') ration = ration.nobj;
+    assert.ok(ration, 'the pack has no food ration');
+    state.u.uprops[BLINDED].intrinsic = 1;
+    assert.equal(await _dropInternals.drop(ration, state), ECMD_TIME);
+    assert.equal(pileAt(state, state.u.ux, state.u.uy)[0], ration);
+
+    const hallucinating = await startedGame();
+    let hallucinatedRation = hallucinating.invent;
+    while (hallucinatedRation && hallucinatedRation.invlet !== 'd')
+        hallucinatedRation = hallucinatedRation.nobj;
+    hallucinating.u.uprops[HALLUC].intrinsic = 1;
+    await assert.rejects(
+        () => _dropInternals.drop(hallucinatedRation, hallucinating),
+        /hallucinated display/u,
+    );
+
+    const floating = await startedGame();
+    let floatingRation = floating.invent;
+    while (floatingRation && floatingRation.invlet !== 'd')
+        floatingRation = floatingRation.nobj;
+    floating.u.uprops[BLINDED].intrinsic = 1;
+    floating.u.uprops[LEVITATION].intrinsic = 1;
+    await assert.rejects(
+        () => _dropInternals.drop(floatingRation, floating),
+        /hitfloor/u,
+    );
 });
 
 // C ref: do.c drop() (722-728). The wielded weapon leaves its slot before it

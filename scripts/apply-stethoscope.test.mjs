@@ -10,6 +10,7 @@ import {
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     BLINDED,
+    COLNO,
     CORPSTAT_FEMALE,
     CORPSTAT_NEUTER,
     CORPSTAT_RANDOM,
@@ -29,6 +30,7 @@ import {
     MFAST,
     MSLOW,
     REVIVE_MON,
+    ROWNO,
     SICK,
     SLIMED,
     STONED,
@@ -57,9 +59,14 @@ import {
     TIMER_OBJECT,
 } from '../js/const.js';
 import {
+    cmap_to_glyph,
     flush_screen,
+    glyph_at,
     glyph_is_invisible,
     map_invisible,
+    obj_to_glyph,
+    remembered_glyph_from_presentation,
+    show_glyph_cell,
 } from '../js/display.js';
 import { freehand } from '../js/engrave.js';
 import { UnsupportedMonsterNameError } from '../js/do_name.js';
@@ -90,6 +97,7 @@ import { is_axe, mksobj_at, newObject, set_bknown } from '../js/obj.js';
 import { objectGenerationEnv } from '../js/object_generation.js';
 import {
     ARMOR_CLASS,
+    APPLE,
     AXE,
     CHEST,
     BALL_CLASS,
@@ -137,7 +145,7 @@ import {
     WEAPON_CLASS,
     objects_globals_init,
 } from '../js/objects.js';
-import { S_altar } from '../js/symbols.js';
+import { S_altar, S_room } from '../js/symbols.js';
 import { create_region } from '../js/region.js';
 import { start_timer } from '../js/timeout.js';
 import { welded } from '../js/wield.js';
@@ -146,10 +154,12 @@ import {
     ESCAPE_KEY,
     loadApplyPromptRecipe,
     loadApplyStethoscopeRecipe,
+    loadBlindCorpseRecipe,
     loadBlindStatueRecipe,
     loadListenAtMonsterRecipe,
     loadOrdinaryCorpseRecipe,
     loadOrdinaryStatueRecipe,
+    loadQuickmimicLogicalGlyphRecipe,
     loadSecretTerrainRecipe,
 } from './run-apply-stethoscope.mjs';
 
@@ -1354,6 +1364,105 @@ test('its_dead reports singular, stacked, and separated corpses', async () => {
     );
 });
 
+test('blind its_dead compares logical corpse glyphs before mapping', async () => {
+    // apply.c:261-265. Start with the selected corpse already in the transient
+    // buffer. The unrelated map-memory sentinel proves that an equal logical
+    // glyph skips map_object(): comparing presentation objects by identity
+    // would repaint it even though C's two integer glyphs are equal.
+    const equal = await heroWithEmptyWest();
+    const equalCorpse = floorCorpstat(CORPSE, equal);
+    game.a11y ??= {};
+    game.a11y.glyph_updates = true;
+    const equalGlyph = obj_to_glyph(equalCorpse, game);
+    show_glyph_cell(equal.x, equal.y, equalGlyph);
+    const equalMemory = { glyph: equalGlyph.glyph + 1 };
+    game.level.at(equal.x, equal.y).remembered_glyph = equalMemory;
+    game.u.uprops[BLINDED].intrinsic = 1;
+
+    assert.equal(glyph_at(equal.x, equal.y, game), equalGlyph.glyph);
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You determine that that unfortunate being is dead.',
+    );
+    assert.equal(
+        game.level.at(equal.x, equal.y).remembered_glyph,
+        equalMemory,
+        'an equal transient glyph skips map_object()',
+    );
+
+    // display.c glyph_at() has its own bounds guard, wider than isok(). Its
+    // fallback is the logical room number, not a room presentation record.
+    const roomGlyph = cmap_to_glyph(S_room, game);
+    assert.equal(glyph_at(-1, equal.y, game), roomGlyph);
+    assert.equal(glyph_at(COLNO, equal.y, game), roomGlyph);
+    assert.equal(glyph_at(equal.x, -1, game), roomGlyph);
+    assert.equal(glyph_at(equal.x, ROWNO, game), roomGlyph);
+    // Column zero and row zero are inside glyph_at()'s C buffer even though
+    // ordinary movement never uses column zero. Put a non-room number at each
+    // edge so turning either `< 0` guard into `<= 0` is observable.
+    show_glyph_cell(0, equal.y, equalGlyph);
+    show_glyph_cell(equal.x, 0, equalGlyph);
+    assert.equal(glyph_at(0, equal.y, game), equalGlyph.glyph);
+    assert.equal(glyph_at(equal.x, 0, game), equalGlyph.glyph);
+
+    // The other source branch: an apple is above the corpse. With color off,
+    // both presentations are the same `%`, but their glyph ranges and IDs are
+    // different. map_object() must update both the transient buffer and map
+    // memory with the corpse, including the non-enumerable accessibility
+    // subject that names what was mapped.
+    const different = await heroWithEmptyWest();
+    const hiddenCorpse = floorCorpstat(CORPSE, different);
+    const apple = mksobj_at(APPLE, different.x, different.y, false, false,
+        objectGenerationEnv({ state: game }));
+    game.iflags.wc_color = false;
+    game.a11y ??= {};
+    game.a11y.glyph_updates = true;
+    const corpseGlyph = obj_to_glyph(hiddenCorpse, game);
+    const appleGlyph = obj_to_glyph(apple, game);
+    assert.deepEqual({ ...appleGlyph }, { ...corpseGlyph });
+    assert.notEqual(appleGlyph.glyph, corpseGlyph.glyph);
+    show_glyph_cell(different.x, different.y, appleGlyph);
+    game.level.at(different.x, different.y).remembered_glyph
+        = remembered_glyph_from_presentation(appleGlyph);
+    game.u.uprops[BLINDED].intrinsic = 1;
+
+    assert.equal(await listenWest(), null);
+    const mapped = game.level.at(different.x, different.y);
+    assert.equal(glyph_at(different.x, different.y, game), corpseGlyph.glyph);
+    assert.equal(mapped.remembered_glyph.glyph, corpseGlyph.glyph);
+    assert.deepEqual(mapped.disp_glyph.a11ySubject, {
+        type: 'object', generic: false, otyp: CORPSE,
+        oclass: hiddenCorpse.oclass, corpsenm: PM_NEWT,
+    });
+    assert.deepEqual(
+        mapped.remembered_glyph.a11ySubject,
+        mapped.disp_glyph.a11ySubject,
+    );
+    assert.equal(
+        mapped.disp_glyph.a11yIdentity,
+        `object:corpse:${PM_NEWT}`,
+    );
+    assert.ok(!Object.keys(mapped.disp_glyph).includes('glyph'));
+    assert.ok(!Object.keys(mapped.disp_glyph).includes('a11ySubject'));
+    assert.ok(!Object.keys(mapped.remembered_glyph).includes('a11ySubject'));
+});
+
+test('blind its_dead keeps the ordinary plural grammar', async () => {
+    // Blindness changes only the optional map_object() call. A stack quantity
+    // still selects every plural operand in apply.c:276-278.
+    const target = await heroWithEmptyWest();
+    const corpse = floorCorpstat(CORPSE, target);
+    corpse.quan = 2;
+    show_glyph_cell(target.x, target.y, obj_to_glyph(corpse, game));
+    game.u.uprops[BLINDED].intrinsic = 1;
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'You determine that those unfortunate beings are dead.',
+    );
+});
+
 test('its_dead reports ordinary statues through obj_pmname and The',
     async () => {
         // apply.c:281-307. Each row reaches the real doapply() consumer and
@@ -1519,13 +1628,15 @@ test('its_dead keeps exceptional object paths in source order', async () => {
     game.u.uprops[BLINDED].intrinsic = 1;
     assert.equal(await listenWest(), 'a hallucinated listen to the dead');
 
-    // The blind glyph update at :264-265 precedes the Healer's timer walk.
-    // When both exclusions apply, the blind refusal wins without mapping.
+    // The blind glyph update at :264-265 precedes the Healer's timer walk in
+    // C. The port preflights the excluded timer before either effect so a
+    // retry cannot retain the map write; the named refusal is the timer that
+    // keeps this otherwise-admitted blind corpse outside the slice.
     const blindReviver = await heroWithEmptyWest();
     const timed = floorCorpstat(CORPSE, blindReviver);
     start_timer(100, TIMER_OBJECT, REVIVE_MON, timed, game);
     game.u.uprops[BLINDED].intrinsic = 1;
-    assert.equal(await listenWest(), 'a blind listen to a corpse');
+    assert.equal(await listenWest(), 'a corpse with a REVIVE_MON timer');
 
     const reviver = await heroWithEmptyWest();
     const revivingCorpse = floorCorpstat(CORPSE, reviver);
@@ -1588,11 +1699,11 @@ test('still-unported adjacent listens refuse before shared effects',
             },
         },
         {
-            branch: 'a blind listen to a corpse',
+            branch: 'a corpse with a REVIVE_MON timer',
             setup(target) {
                 map_invisible(target.x, target.y, game);
-                floorCorpstat(CORPSE, target);
-                game.u.uprops[BLINDED].intrinsic = 1;
+                const corpse = floorCorpstat(CORPSE, target);
+                start_timer(100, TIMER_OBJECT, REVIVE_MON, corpse, game);
                 return target;
             },
         },
@@ -1602,6 +1713,7 @@ test('still-unported adjacent listens refuse before shared effects',
                 map_invisible(target.x, target.y, game);
                 const corpse = floorCorpstat(CORPSE, target);
                 start_timer(100, TIMER_OBJECT, REVIVE_MON, corpse, game);
+                game.u.uprops[BLINDED].intrinsic = 1;
                 return target;
             },
         },
@@ -1762,21 +1874,23 @@ test('ustatusline stops for every clause it would have to name', async () => {
     );
 });
 
-test('the apply matrix holds the seven clean recipes the slices close on',
+test('the apply matrix holds the nine clean recipes the slices close on',
     () => {
     const priorRecipes = [loadApplyStethoscopeRecipe(), loadApplyPromptRecipe()];
     const recipes = [
         ...priorRecipes,
         loadListenAtMonsterRecipe(),
+        loadQuickmimicLogicalGlyphRecipe(),
         loadSecretTerrainRecipe(),
         loadOrdinaryCorpseRecipe(),
         loadOrdinaryStatueRecipe(),
         loadBlindStatueRecipe(),
+        loadBlindCorpseRecipe(),
     ];
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 40);
+    assert.equal(segments.length, 43);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // The two prior recipes open and close with a wait, so a command that
     // wrongly spent or wrongly saved a turn shows in the screen after it.

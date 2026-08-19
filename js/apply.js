@@ -47,8 +47,11 @@ import { confdir, getdir } from './cmd.js';
 import { cvt_sdoor_to_door } from './detect.js';
 import {
     feel_newsym,
+    glyph_at,
+    map_object,
     map_invisible,
     newsym,
+    obj_to_glyph,
     unmap_invisible,
 } from './display.js';
 import { obj_pmname, pmname, x_monnam } from './do_name.js';
@@ -261,11 +264,6 @@ function unportedItsDeadBranch(rx, ry, state) {
         return null;
     }
 
-    // glyph_at(), obj_to_glyph(), and map_object() precede the Healer timer
-    // walk at :264-274. Their blind path therefore wins when both exclusions
-    // apply, and refusing it here keeps its display effects out of a retry.
-    if (heroIsBlind(state)) return 'a blind listen to a corpse';
-
     for (let current = corpse; current;
         current = nxtobj(current, CORPSE, true)) {
         if (obj_has_timer(current, REVIVE_MON, state))
@@ -282,6 +280,10 @@ export async function its_dead(rx, ry, state) {
         const more_corpses = Boolean(nxtobj(corpse, CORPSE, true));
         const one = (corpse.quan === 1 && !more_corpses);
         const here = u_at(rx, ry, state);
+        const visglyph = glyph_at(rx, ry, state);
+        const corpseglyph = obj_to_glyph(corpse, state);
+        if (heroIsBlind(state) && visglyph !== corpseglyph.glyph)
+            map_object(corpse, true, state);
         await ttyPline(
             `You determine that ${one ? (here ? 'this' : 'that')
                 : (here ? 'these' : 'those')} unfortunate being${

@@ -2190,6 +2190,16 @@ export function show_glyph_cell(x, y, glyph) {
     );
 }
 
+// C ref: display.c glyph_at() (2478-2482). Read the logical number from the
+// transient glyph buffer rather than levl[x][y].glyph, which is only map
+// memory. The out-of-bounds fallback is C's room glyph; callers may ask about
+// column zero even though isok() excludes it from ordinary map movement.
+export function glyph_at(x, y, state = game) {
+    if (x < 0 || y < 0 || x >= COLNO || y >= ROWNO)
+        return cmap_to_glyph(S_room, state);
+    return state.level?.at(x, y)?.disp_glyph?.glyph;
+}
+
 /**
  * Convert a live glyph-presentation record into the persistent levl glyph
  * record used by map memory.
@@ -2434,7 +2444,7 @@ function show_region(region, x, y, state) {
 // The first of those two calls draws from the display RNG only while
 // hallucinating, and the branch between them requires !Hallucination, so
 // observing first and drawing once is the same sequence.
-function map_object(obj, show, state = game) {
+export function map_object(obj, show, state = game) {
     const { ox: x, oy: y } = obj;
     observeNearbyObject(obj, x, y, state);
     const mapped = mappedObjectGlyphInfo(obj, state);
