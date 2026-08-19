@@ -663,7 +663,10 @@ function isolatePlannedVision(state) {
     state._visionBuffers = makeVisionBuffers();
 }
 
-function admitPlannedVisionChange(x, y, state) {
+// Shared by the cloned movement scan and allmain.js's cloned elapsed-turn
+// allocation. Every planned block_point() caller must enter through here
+// before it rebuilds the borrowed transparency index.
+export function admitPlannedVisionChange(x, y, state) {
     isolatePlannedVision(state);
     // block_point() rebuilds the complete module-wide transparency index, so
     // one affected coordinate is sufficient to rebuild it from the live map

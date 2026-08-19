@@ -17,6 +17,7 @@ import {
     CORR,
     DETECT_MONSTERS,
     IN_SIGHT,
+    LS_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     NORMAL_SPEED,
@@ -24,14 +25,17 @@ import {
     PIT,
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
+    TEMP_LIT,
 } from '../js/const.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
+import { new_light_source } from '../js/light.js';
 import { set_mimic_sym } from '../js/makemon_create.js';
 import { restrap } from '../js/mon.js';
 import { m_at, newMonster, place_monster } from '../js/monst.js';
 import {
     PM_ROCK_PIERCER,
+    PM_JACKAL,
     PM_SMALL_MIMIC,
     PM_TRAPPER,
 } from '../js/monsters.js';
@@ -41,7 +45,11 @@ import {
     preflightSimpleMonsterActions,
     UnsupportedSimpleMonsterActionError,
 } from '../js/unported_monster_actions.js';
-import { does_block } from '../js/vision.js';
+import {
+    clear_path,
+    does_block,
+    transparencyIndexViews,
+} from '../js/vision.js';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { loadCostlyMimicRedisguiseRecipe } from './run-apply-stethoscope.mjs';
 import { GENESIS_KEY, loadMonsterHidingRecipe } from './run-monster-hiding.mjs';
@@ -329,10 +337,41 @@ test('planning a blocking redisguise restores live vision on every exit',
             await hero();
             for (const column of game.level.monsters) column.fill(null);
             game.level.monlist = null;
+            const lightBearer = hiderAt(PM_JACKAL, far(), {
+                mcanmove: 0,
+                movement: NORMAL_SPEED,
+            });
             const awake = hiderAt(PM_SMALL_MIMIC, far(), {
                 movement: NORMAL_SPEED,
             });
+            assert.equal(lightBearer.mx, awake.mx - 1);
+            assert.equal(lightBearer.my, awake.my);
+            new_light_source(
+                lightBearer.mx,
+                lightBearer.my,
+                2,
+                LS_MONSTER,
+                lightBearer,
+                game,
+            );
+            // The first scan must reach restrap() before any recalculation.
+            // set_mimic_sym() raises it again for the bearer's ration, after
+            // the mimic has become a blocker.
+            game.vision_full_recalc = 0;
             assert.equal(does_block(awake.mx, awake.my, null, game), false);
+            assert.equal(
+                transparencyIndexViews()[awake.my][awake.mx],
+                1,
+            );
+            assert.equal(
+                clear_path(
+                    lightBearer.mx,
+                    lightBearer.my,
+                    awake.mx + 1,
+                    awake.my,
+                ),
+                1,
+            );
 
             // The first four draws from this independent stream are
             // rn2(3)=0, rn2(17)=12, rnd(1000)=91, rnd(2)=1.  They take
@@ -342,6 +381,7 @@ test('planning a blocking redisguise restores live vision on every exit',
                 core: structuredClone(game.coreCtx),
                 display: structuredClone(game.displayCtx),
             };
+            const liveActiveBuffer = game.active_buf;
             const guard = freezeLiveState(game);
             let planned = null;
             let plannedRngSentinel = null;
@@ -355,12 +395,24 @@ test('planning a blocking redisguise restores live vision on every exit',
                     planned = {
                         m_ap_type: plannedMimic.m_ap_type & M_AP_TYPMASK,
                         mappearance: plannedMimic.mappearance,
-                        blocks: does_block(
-                            awake.mx,
+                        index: transparencyIndexViews()[awake.my][awake.mx],
+                        clearPath: clear_path(
+                            lightBearer.mx,
+                            lightBearer.my,
+                            awake.mx + 1,
                             awake.my,
-                            null,
-                            planningState,
                         ),
+                        activeBuffer: planningState.active_buf,
+                        ownsCurrentView: planningState.viz_array
+                            === planningState._visionBuffers.rows[
+                                planningState.active_buf
+                            ],
+                        sourceLit: planningState.viz_array[
+                            lightBearer.my
+                        ][lightBearer.mx] & TEMP_LIT,
+                        behindMimicLit: planningState.viz_array[
+                            awake.my
+                        ][awake.mx + 1] & TEMP_LIT,
                         marked: planningState._plannedVisionChange,
                     };
                     plannedRngSentinel = [
@@ -390,7 +442,12 @@ test('planning a blocking redisguise restores live vision on every exit',
             assert.deepEqual(planned, {
                 m_ap_type: M_AP_OBJECT,
                 mappearance: BOULDER,
-                blocks: true,
+                index: 0,
+                clearPath: 0,
+                activeBuffer: liveActiveBuffer === 0 ? 1 : 0,
+                ownsCurrentView: true,
+                sourceLit: TEMP_LIT,
+                behindMimicLit: 0,
                 marked: { x: awake.mx, y: awake.my },
             });
             assert.deepEqual(plannedRngSentinel, [
@@ -400,6 +457,19 @@ test('planning a blocking redisguise restores live vision on every exit',
             ]);
             assert.equal(awake.m_ap_type & M_AP_TYPMASK, 0);
             assert.equal(does_block(awake.mx, awake.my, null, game), false);
+            assert.equal(
+                transparencyIndexViews()[awake.my][awake.mx],
+                1,
+            );
+            assert.equal(
+                clear_path(
+                    lightBearer.mx,
+                    lightBearer.my,
+                    awake.mx + 1,
+                    awake.my,
+                ),
+                1,
+            );
             assert.deepEqual(game.coreCtx, rngBefore.core);
             assert.deepEqual(game.displayCtx, rngBefore.display);
         }

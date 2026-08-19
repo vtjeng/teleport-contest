@@ -133,6 +133,7 @@ import {
 } from './eat.js';
 import { m_everyturn_effect } from './monmove.js';
 import {
+    admitPlannedVisionChange,
     preflightSimpleMonsterActions,
     runSimpleMonsterAction,
     unportedMinliquidReason,
@@ -702,7 +703,7 @@ export async function finishElapsedTurn(
             normalized.state,
         ),
         blockPoint: (x, y, normalized) => {
-            normalized.state._plannedVisionChange ??= { x, y };
+            admitPlannedVisionChange(x, y, normalized.state);
             block_point(x, y, normalized.state);
         },
     } : null;

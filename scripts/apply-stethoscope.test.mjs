@@ -74,6 +74,8 @@ import { GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { freehand } from '../js/engrave.js';
 import { UnsupportedMonsterNameError } from '../js/do_name.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
+import { GameMap } from '../js/game.js';
+import { GameDisplay } from '../js/game_display.js';
 import { game } from '../js/gstate.js';
 import {
     piousness,
@@ -935,6 +937,77 @@ async function assertDirectItsDeadRefusal(target, branch) {
         },
     );
     assert.deepEqual(directItsDeadEffects(target), before, branch);
+}
+
+function isolatedItsDeadState() {
+    const state = Object.create(game);
+    state.level = new GameMap();
+    state.u = structuredClone(game.u);
+    state.youmonst = { ...game.youmonst };
+    state.urole = { ...game.urole };
+    state.mons = structuredClone(game.mons);
+    state.objects = structuredClone(game.objects);
+    state.obj_descr = structuredClone(game.obj_descr);
+    state.nhDisplay = new GameDisplay(null);
+    state.a11y = { glyph_updates: false };
+    state._pending_message = '';
+    state._ttyPreviousMessage = '';
+    state._ttyToplines = '';
+    state._ttyMessageStopped = false;
+    state._emittingGlyphUpdateNotices = false;
+    return state;
+}
+
+function placeStateCorpstat(state, otyp, { x, y }) {
+    const obj = newObject({
+        otyp,
+        quan: 1,
+        spe: CORPSTAT_RANDOM,
+        corpsenm: PM_NEWT,
+        ox: x,
+        oy: y,
+    });
+    state.level.objects[x][y] = obj;
+    state.level.objlist = obj;
+    return obj;
+}
+
+function suppliedItsDeadEffects(state, target) {
+    const location = state.level.at(target.x, target.y);
+    const pile = [];
+    for (let obj = state.level.objects[target.x][target.y]; obj;
+        obj = obj.nexthere) {
+        pile.push({
+            otyp: obj.otyp,
+            quan: obj.quan,
+            spe: obj.spe,
+            corpsenm: obj.corpsenm,
+            dknown: obj.dknown,
+            has_contents: Boolean(obj.cobj),
+            cobj_otyp: obj.cobj?.otyp ?? null,
+        });
+    }
+    return {
+        pile,
+        catalogName: [...state.mons[PM_NEWT].pmnames],
+        rememberedGlyph: location.remembered_glyph?.glyph ?? null,
+        transientGlyph: location.disp_glyph?.glyph ?? null,
+        pendingMessage: state._pending_message,
+        ttyToplines: state._ttyToplines,
+        previousMessage: state._ttyPreviousMessage,
+        display: {
+            topMessage: state.nhDisplay.topMessage,
+            toplines: state.nhDisplay.toplines,
+            toplin: state.nhDisplay.toplin,
+            messages: [...state.nhDisplay.messages],
+            cursor: [
+                state.nhDisplay.cursorCol, state.nhDisplay.cursorRow,
+            ],
+            firstRow: state.nhDisplay.grid[0].map(
+                ({ ch, color, attr }) => [ch, color, attr],
+            ),
+        },
+    };
 }
 
 // A monster of the kind that would answer the listen. The fields are the ones
@@ -1988,6 +2061,78 @@ test('its_dead keeps exceptional object paths in source order', async () => {
     assert.equal(await listenWest(), 'a corpse with a REVIVE_MON timer');
 });
 
+test('its_dead exceptional preflight reads the supplied state', async () => {
+    const target = await heroWithEmptyWest();
+    // The global state is admitted: an ordinary statue has no contents. The
+    // supplied state owns the opposite classification at the same coordinate.
+    // Reading the global pile or dropping the state argument would execute the
+    // ordinary global statue body instead of raising this boundary.
+    floorCorpstat(STATUE, target);
+    const supplied = isolatedItsDeadState();
+    placeStateCorpstat(supplied, STATUE, target).cobj = newObject({
+        otyp: ROCK, quan: 1,
+    });
+    const globalBefore = directItsDeadEffects(target);
+    const suppliedBefore = suppliedItsDeadEffects(supplied, target);
+
+    await assert.rejects(
+        its_dead(target.x, target.y, supplied),
+        (error) => {
+            assert.equal(error.constructor, UnsupportedApplyError);
+            assert.equal(
+                error.branch, 'a Healer examining statue contents',
+            );
+            return true;
+        },
+    );
+    assert.deepEqual(directItsDeadEffects(target), globalBefore);
+    assert.deepEqual(
+        suppliedItsDeadEffects(supplied, target), suppliedBefore,
+    );
+});
+
+test('its_dead admitted body reads and writes the supplied state', async () => {
+    const target = await heroWithEmptyWest();
+    // The global state is exceptional, while the supplied state has an
+    // ordinary statue. The foreign monster catalog makes body ownership
+    // visible in the result, and its independent TTY records where the
+    // message effect lands.
+    floorCorpstat(STATUE, target).cobj = newObject({
+        otyp: ROCK, quan: 1,
+    });
+    const supplied = isolatedItsDeadState();
+    placeStateCorpstat(supplied, STATUE, target);
+    supplied.mons[PM_NEWT].pmnames = [
+        'foreign newt', 'foreign newt', 'foreign newt',
+    ];
+    const globalBefore = directItsDeadEffects(target);
+    const suppliedPileBefore
+        = suppliedItsDeadEffects(supplied, target).pile;
+    const suppliedCatalogBefore = [
+        ...supplied.mons[PM_NEWT].pmnames,
+    ];
+
+    assert.equal(await its_dead(target.x, target.y, supplied), true);
+    assert.equal(
+        supplied._pending_message,
+        'The foreign newt is in fine health for a statue.',
+    );
+    assert.equal(supplied._ttyToplines, supplied._pending_message);
+    assert.equal(
+        supplied.nhDisplay.topMessage, supplied._pending_message,
+    );
+    assert.equal(
+        supplied.nhDisplay.toplines, supplied._pending_message,
+    );
+    assert.deepEqual(
+        suppliedItsDeadEffects(supplied, target).pile, suppliedPileBefore,
+    );
+    assert.deepEqual(
+        supplied.mons[PM_NEWT].pmnames, suppliedCatalogBefore,
+    );
+    assert.deepEqual(directItsDeadEffects(target), globalBefore);
+});
+
 test('still-unported adjacent listens refuse before shared effects',
     async () => {
     const cases = [
@@ -2196,68 +2341,96 @@ test('ustatusline stops for every clause it would have to name', async () => {
 test('the apply matrix holds the twelve clean recipes the slices close on',
     () => {
     const inventory = loadApplyStethoscopeRecipeInventory();
-    assert.deepEqual(inventory.map(({ label, recipe }) => ({
+    assert.deepEqual(inventory.map(({
+        label, summaryLabel, chunkLimit, recipe,
+    }) => ({
         label,
+        summaryLabel,
+        chunkLimit,
         segments: recipe.segments.length,
         digest: recipeInputDigest(recipe),
     })), [
         {
             label: 'apply stethoscope',
+            summaryLabel: 'APPLY STETHOSCOPE',
+            chunkLimit: 5,
             segments: 13,
             digest: '06275f8cfc21b5fa32fd90427a75a8d31646b83f68f85501bf53848aa1730411',
         },
         {
             label: 'apply prompt',
+            summaryLabel: 'APPLY PROMPT',
+            chunkLimit: 5,
             segments: 10,
             digest: 'a4a5c61afdc1e214a347de9d58aea1c0c0a20430cac82845ec417d679a7a9ed4',
         },
         {
             label: 'listen at a monster',
+            summaryLabel: 'LISTEN AT A MONSTER',
+            chunkLimit: 1,
             segments: 10,
             digest: '4affea37d0cdd7e417ac24cc716b8c2ea09a8fc63e550cc0066b688cc6fff805',
         },
         {
             label: 'quickmimic logical glyph',
+            summaryLabel: 'QUICKMIMIC LOGICAL GLYPH',
+            chunkLimit: 1,
             segments: 1,
             digest: '858acde8c339663df94fc3fbb6a92c4b7d50c26e1c0a977c63ea0015be3ec8a3',
         },
         {
             label: 'secret terrain',
+            summaryLabel: 'SECRET TERRAIN',
+            chunkLimit: 1,
             segments: 2,
             digest: 'ad491fc8ef1e59f5c48bea71708a7e3cbb53d9c6bfce8f2717b767c4562a7551',
         },
         {
             label: 'ordinary corpse',
+            summaryLabel: 'ORDINARY CORPSE',
+            chunkLimit: 1,
             segments: 2,
             digest: '650ff690107b3bb9712bfe0cc30fcbf2bbfb0c0ddd6e2357273fd446df4d3645',
         },
         {
             label: 'ordinary statue',
+            summaryLabel: 'ORDINARY STATUE',
+            chunkLimit: 2,
             segments: 2,
             digest: 'a08199639218650a6fcb6379681dfa1b4b38b9d11398599609d0103de0ccc5c1',
         },
         {
             label: 'blind statue',
+            summaryLabel: 'BLIND STATUE',
+            chunkLimit: 1,
             segments: 1,
             digest: 'bd899ee620af522f340b52948b419479c82e0bb998aaf00be0732a8460beefdd',
         },
         {
             label: 'blind corpse',
+            summaryLabel: 'BLIND CORPSE',
+            chunkLimit: 1,
             segments: 2,
             digest: '4eabe9c46c502a442c15471b77ab12a02e53baf476f28273f3d57982bae29285',
         },
         {
             label: 'Healer statue trap',
+            summaryLabel: 'HEALER STATUE TRAP',
+            chunkLimit: 1,
             segments: 1,
             digest: '571cca24fec42f017e6920347468971ab84a72765780163c99401a39b1eca573',
         },
         {
             label: 'costly mimic redisguise',
+            summaryLabel: 'COSTLY MIMIC REDISGUISE',
+            chunkLimit: 1,
             segments: 1,
             digest: '4c763b25e15abd2ac9bee4d405ce926b1bed35a1a870d1c78a9ab55fb29689f9',
         },
         {
             label: 'costly fog vapor',
+            summaryLabel: 'COSTLY FOG VAPOR',
+            chunkLimit: 1,
             segments: 1,
             digest: 'eb89ff021300662e52aa5e1421d86356fc3e6afdfcc9ea2ff2ce2ab9e461aa3a',
         },

@@ -32,11 +32,13 @@ import {
     INTRINSIC,
     LEFT_SIDE,
     LEVITATION,
+    LS_MONSTER,
     M_AP_MONSTER,
     M_AP_OBJECT,
     M_AP_TYPMASK,
     MOD_ENCUMBER,
     NORMAL_SPEED,
+    NON_PM,
     NOT_HUNGRY,
     NO_SPELL,
     OBJ_CONTAINED,
@@ -54,6 +56,7 @@ import {
     SLT_ENCUMBER,
     SV0,
     TIMER_OBJECT,
+    TEMP_LIT,
     WEAK,
     WOUNDED_LEGS,
     W_ARMF,
@@ -73,6 +76,7 @@ import {
     weight_cap,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
+import { new_light_source } from '../js/light.js';
 import { getRngLog, initRng } from '../js/rng.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
@@ -80,6 +84,7 @@ import {
     M1_CLING,
     M1_HIDE,
     PM_GOBLIN,
+    PM_JACKAL,
     PM_KITTEN,
     PM_LICHEN,
     PM_ORC,
@@ -106,7 +111,13 @@ import { UnsupportedObjectNameError } from '../js/objnam.js';
 import { UnsupportedMonsterPickupOperationError } from '../js/steal.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
-import { cansee, does_block, vision_recalc } from '../js/vision.js';
+import {
+    cansee,
+    clear_path,
+    does_block,
+    transparencyIndexViews,
+    vision_recalc,
+} from '../js/vision.js';
 import { start_timer } from '../js/timeout.js';
 import {
     loadFirstCompleteTurnRecipe,
@@ -2093,7 +2104,7 @@ test('a refused planned monster becomes a turn boundary, not a hard failure',
 
 test('a planned blocking mimic birth restores live vision on every exit',
     async () => {
-        for (const refuseAfterBirth of [false, true]) {
+        for (const refuseAfterConsumer of [false, true]) {
             await runSegment({
                 seed: 1,
                 datetime: '20260804120000',
@@ -2104,12 +2115,7 @@ test('a planned blocking mimic birth restores live vision on every exit',
             });
             for (const column of game.level.monsters) column.fill(null);
             game.level.monlist = null;
-            game.level.regions = refuseAfterBirth ? [create_region([{
-                lx: game.u.ux,
-                ly: game.u.uy,
-                hx: game.u.ux,
-                hy: game.u.uy,
-            }])] : [];
+            game.level.regions = [];
             game.head_engr = null;
             game.u.ulevel = 15;
             game.u.uevent.udemigod = true;
@@ -2117,59 +2123,130 @@ test('a planned blocking mimic birth restores live vision on every exit',
             game.context.seer_turn = 100000;
             game.context.next_attrib_check = 100000;
             game.u.umovement = 0;
+            game.invent = {
+                oclass: TOOL_CLASS,
+                otyp: SACK,
+                owt: weight_cap(game) * 2,
+                nobj: null,
+            };
+            game.go.oldcap = near_capacity(game);
+            assert.ok(projected_capacity(game) > 0,
+                'the fixture must need multiple movement allocations');
+
+            // This speed-12 monster reaches a ration on the allocation after
+            // the mimic is born. Its real light source makes movemon() request
+            // vision_recalc(), which must use the buffers installed before
+            // set_mimic_sym() borrows the module transparency index.
+            const lightBearer = newMonster({
+                data: game.mons[PM_JACKAL],
+                mnum: PM_JACKAL,
+                cham: NON_PM,
+                m_id: 9501,
+                m_lev: game.mons[PM_JACKAL].mlevel,
+                mhp: 5,
+                mhpmax: 5,
+                mcanmove: 0,
+                mcansee: true,
+                movement: 0,
+                mux: game.u.ux,
+                muy: game.u.uy,
+            });
+            place_monster(lightBearer, 38, 17, game);
+            lightBearer.nmon = game.level.monlist;
+            game.level.monlist = lightBearer;
+            new_light_source(
+                lightBearer.mx,
+                lightBearer.my,
+                2,
+                LS_MONSTER,
+                lightBearer,
+                game,
+            );
 
             // Keep rndmonst()'s reservoir focused on the source behavior under
-            // test. Seed 4509's independent stream enters the generation gate,
-            // places that small mimic at <38,17>, and chooses ROCK_CLASS then
-            // BOULDER for its ordinary-room disguise.
+            // test. Seed 7585's independent stream, after the first clone scan,
+            // enters the generation gate, places the small mimic at <39,17>,
+            // and chooses ROCK_CLASS then BOULDER for its disguise.
             for (let i = 0; i < game.mvitals.length; ++i) {
                 if (i !== PM_SMALL_MIMIC)
                     game.mvitals[i].mvflags |= G_GENOD;
             }
-            initRng(4509);
+            initRng(7585);
             const rngBefore = {
                 core: structuredClone(game.coreCtx),
                 display: structuredClone(game.displayCtx),
             };
+            const liveActiveBuffer = game.active_buf;
+            assert.equal(transparencyIndexViews()[17][39], 1);
+            assert.equal(clear_path(38, 17, 40, 17), 1);
             const guard = freezeLiveState(game);
-            let plannedOutcome = null;
+            let allocation = 0;
+            let plannedBirth = null;
+            let plannedConsumer = null;
             let plannedRngSentinel = null;
             const run = preflightSimpleMonsterActions(game, {
                 async advanceRound(planned, planningRandom) {
-                    try {
-                        return await finishElapsedTurn(
+                    ++allocation;
+                    if (allocation === 1) {
+                        const answer = await finishElapsedTurn(
                             planned,
                             planningRandom,
                             {
                                 planning: true,
-                                randomMonsterOnly: !refuseAfterBirth,
+                                randomMonsterOnly: false,
                             },
                         );
-                    } finally {
                         const mimic = planned.level.monlist;
-                        plannedOutcome = {
-                            mnum: mimic?.mnum,
-                            x: mimic?.mx,
-                            y: mimic?.my,
-                            m_ap_type: mimic?.m_ap_type & M_AP_TYPMASK,
-                            mappearance: mimic?.mappearance,
-                            blocks: does_block(
-                                mimic?.mx,
-                                mimic?.my,
-                                null,
-                                planned,
-                            ),
+                        plannedBirth = {
+                            mnum: mimic.mnum,
+                            x: mimic.mx,
+                            y: mimic.my,
+                            m_ap_type: mimic.m_ap_type & M_AP_TYPMASK,
+                            mappearance: mimic.mappearance,
+                            ownsBuffers: Boolean(planned._visionBuffers),
                             marked: planned._plannedVisionChange,
+                            index: transparencyIndexViews()[17][39],
+                            clearPath: clear_path(38, 17, 40, 17),
                         };
-                        plannedRngSentinel = [
-                            planningRandom.rn2(1000000),
-                            planningRandom.rn2(1000000),
-                            planningRandom.rn2(1000000),
-                        ];
+                        return answer;
                     }
+
+                    // Between the callbacks the light-bearer's newly earned
+                    // ration consumed vision_full_recalc. The light reaches
+                    // its own square but not <40,17>, because clear_path()
+                    // reads the boulder mimic from the borrowed clone index.
+                    plannedConsumer = {
+                        activeBuffer: planned.active_buf,
+                        ownsCurrentView: planned.viz_array
+                            === planned._visionBuffers.rows[planned.active_buf],
+                        sourceLit: planned.viz_array[17][38] & TEMP_LIT,
+                        behindMimicLit: planned.viz_array[17][40] & TEMP_LIT,
+                        index: transparencyIndexViews()[17][39],
+                        clearPath: clear_path(38, 17, 40, 17),
+                    };
+                    plannedRngSentinel = [
+                        planningRandom.rn2(1000000),
+                        planningRandom.rn2(1000000),
+                        planningRandom.rn2(1000000),
+                    ];
+                    if (!refuseAfterConsumer) return true;
+
+                    // A genuine later planning refusal exercises the same
+                    // finally cleanup after both the index borrow and its
+                    // clone-buffer consumer have completed.
+                    planned.level.regions.push(create_region([{
+                        lx: planned.u.ux,
+                        ly: planned.u.uy,
+                        hx: planned.u.ux,
+                        hy: planned.u.uy,
+                    }]));
+                    return finishElapsedTurn(planned, planningRandom, {
+                        planning: true,
+                        randomMonsterOnly: false,
+                    });
                 },
             });
-            if (refuseAfterBirth) {
+            if (refuseAfterConsumer) {
                 await assert.rejects(
                     run,
                     (error) => error instanceof UnsupportedTurnBoundaryError
@@ -2185,19 +2262,33 @@ test('a planned blocking mimic birth restores live vision on every exit',
             assert.ok(guard.views > 0,
                 `snapshotted only ${guard.views} typed arrays`);
 
-            assert.deepEqual(plannedOutcome, {
+            assert.equal(allocation, 2);
+            assert.deepEqual(plannedBirth, {
                 mnum: PM_SMALL_MIMIC,
-                x: 38,
+                x: 39,
                 y: 17,
                 m_ap_type: M_AP_OBJECT,
                 mappearance: BOULDER,
-                blocks: true,
-                marked: { x: 38, y: 17 },
+                ownsBuffers: true,
+                marked: { x: 39, y: 17 },
+                index: 0,
+                clearPath: 0,
             });
-            assert.deepEqual(plannedRngSentinel, [297084, 3732, 475708]);
-            assert.equal(game.level.monlist, null);
-            assert.equal(game.level.monsters[38][17], null);
-            assert.equal(does_block(38, 17, null, game), false);
+            assert.deepEqual(plannedConsumer, {
+                activeBuffer: liveActiveBuffer === 0 ? 1 : 0,
+                ownsCurrentView: true,
+                sourceLit: TEMP_LIT,
+                behindMimicLit: 0,
+                index: 0,
+                clearPath: 0,
+            });
+            assert.deepEqual(plannedRngSentinel, [935476, 917390, 516939]);
+            assert.equal(game.level.monlist, lightBearer);
+            assert.equal(lightBearer.movement, 0);
+            assert.equal(game.level.monsters[39][17], null);
+            assert.equal(transparencyIndexViews()[17][39], 1);
+            assert.equal(clear_path(38, 17, 40, 17), 1);
+            assert.equal(does_block(39, 17, null, game), false);
             assert.deepEqual(game.coreCtx, rngBefore.core);
             assert.deepEqual(game.displayCtx, rngBefore.display);
         }
