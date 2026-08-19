@@ -7,12 +7,13 @@
 // other arm, and the wand, spellbook and coin shortcuts above the switch,
 // stops at a refusal naming the C function it needs. use_stethoscope() covers
 // its three guards, the free-action rule, the self-probe that confdir() leads
-// to, the monster on the adjacent square, and the adjacent square that holds
-// nothing to report; the mounted, swallowed, vertical and cursed arms stop, as
-// do the secret-terrain and dead-thing arms of the adjacent square.
+// to, the monster on the adjacent square, both secret-terrain arms, and the
+// adjacent square that holds nothing to report. The mounted, swallowed,
+// vertical, cursed, off-map, and dead-thing arms still stop.
 
 import {
     ARTICLE_A,
+    CORR,
     DEAF,
     ECMD_CANCEL,
     ECMD_OK,
@@ -38,7 +39,13 @@ import {
     SUPPRESS_IT,
 } from './const.js';
 import { confdir, getdir } from './cmd.js';
-import { map_invisible, newsym, unmap_invisible } from './display.js';
+import { cvt_sdoor_to_door } from './detect.js';
+import {
+    feel_newsym,
+    map_invisible,
+    newsym,
+    unmap_invisible,
+} from './display.js';
 import { pmname, x_monnam } from './do_name.js';
 import { can_reach_floor, freehand } from './engrave.js';
 import { game } from './gstate.js';
@@ -48,6 +55,7 @@ import { getobj } from './invent.js';
 import { pick_lock } from './lock.js';
 import { seemimic } from './mon.js';
 import { gender, nohands } from './mondata.js';
+import { youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import {
     init_dummyobj,
@@ -88,6 +96,7 @@ import { body_part } from './polyself.js';
 import { canSpotMonster } from './startup_a11y.js';
 import { CMAP_EXPLANATIONS } from './symbol_data.js';
 import { ttyPline } from './tty_message.js';
+import { recalc_block_point, unblock_point } from './vision.js';
 import { is_pole } from './worn.js';
 
 // Thrown where apply.c reaches a tool or a branch this port has not ported.
@@ -208,7 +217,7 @@ export function apply_ok(obj, state = game) {
 // tie-break and the more_corpses count -- feed nothing but those arms, so they
 // are unported. What is ported is the frame: the two sobj_at() lookups, the
 // out-of-reach block, and the fall-through.
-function its_dead(rx, ry, state) {
+function unportedItsDeadBranch(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     const statue = sobj_at(STATUE, rx, ry, state);
 
@@ -221,8 +230,7 @@ function its_dead(rx, ry, state) {
         // exactly that square: the walk needs nxtobj() and MZ_TINY, and
         // js/monsters.js exports neither, while every statue the walk would
         // leave standing refuses one test lower down anyway.
-        if (statue)
-            throw new UnsupportedApplyError('an out-of-reach statue');
+        if (statue) return 'an out-of-reach statue';
     }
     if (corpse || statue) {
         // C's chain at 223-307 is `neither`, `Hallucination`, `corpse`,
@@ -231,16 +239,48 @@ function its_dead(rx, ry, state) {
         // Healer REVIVE_MON walk; the hallucination arm sits above both and
         // would answer for either object, so it is named separately.
         if (heroHallucinating(state)) {
-            throw new UnsupportedApplyError(
-                'a hallucinated listen to the dead');
+            return 'a hallucinated listen to the dead';
         }
-        if (corpse) {
-            throw new UnsupportedApplyError(
-                'a corpse on the listened-to square');
-        }
-        throw new UnsupportedApplyError('a statue on the listened-to square');
+        if (corpse) return 'a corpse on the listened-to square';
+        return 'a statue on the listened-to square';
     }
+    return null;
+}
+
+function its_dead(rx, ry, state) {
+    const branch = unportedItsDeadBranch(rx, ry, state);
+    if (branch) throw new UnsupportedApplyError(branch);
     return false; /* no corpse or statue */
+}
+
+// Fail-closed commands are retryable. Inspect only the adjacent paths that
+// still refuse before apply.c:340 starts changing the listen sequence and
+// observation globals. The checks follow use_stethoscope()'s C branch order:
+// an off-map square first; a monster or secret terrain returns before
+// its_dead(); then the dead-thing family. Admitted paths run the source body
+// below, where unmap_invisible(), messages, terrain, vision, and display still
+// happen in C order.
+function preflightAdjacentStethoscope(obj, state) {
+    const u = state.u;
+    // These source arms precede confdir() and the adjacent-square body. Their
+    // existing refusals therefore win over anything at the pointed square.
+    if (u.uswallow) return;
+    if (u.dz) return;
+    if (obj.cursed) return;
+    if (!u.dx && !u.dy) return;
+
+    const rx = u.ux + u.dx;
+    const ry = u.uy + u.dy;
+    if (!isok(rx, ry)) {
+        throw new UnsupportedApplyError('listening off the edge of the map');
+    }
+    if (m_at(rx, ry, state)) return;
+
+    const lev = state.level.at(rx, ry);
+    if (lev.typ === SDOOR || lev.typ === SCORR) return;
+
+    const branch = unportedItsDeadBranch(rx, ry, state);
+    if (branch) throw new UnsupportedApplyError(branch);
 }
 
 // C ref: apply.c use_stethoscope() (317-470), with C's own comment above it at
@@ -256,9 +296,9 @@ function its_dead(rx, ry, state) {
 // stream for the uncursed tools the ported path uses.
 //
 // Below confdir() the adjacent-square arm (384-470) runs through the monster
-// branch and as far as the empty square's answer. The remaining arms stop,
-// each in C's own branch order, so a square carrying two of them stops where C
-// would have branched.
+// branch, both secret-terrain arms, and the empty square's answer. The
+// remaining off-map and dead-thing arms stop before the shared listen effects,
+// so retrying their command cannot retain half of the unported path.
 async function use_stethoscope(obj, state = game) {
     const u = state.u;
 
@@ -277,6 +317,8 @@ async function use_stethoscope(obj, state = game) {
     }
     if (!await getdir(null, state))
         return ECMD_CANCEL;
+
+    preflightAdjacentStethoscope(obj, state);
 
     const res = (state.hero_seq === state.context.stethoscope_seq)
         ? ECMD_TIME : ECMD_OK;
@@ -387,12 +429,30 @@ async function use_stethoscope(obj, state = game) {
         await ttyPline('The invisible monster must have moved.', state);
 
     const lev = state.level.at(rx, ry);
-    // apply.c:452-464. Both arms rewrite the terrain the listen exposed, and
-    // no ported command creates either kind of square to listen at.
-    if (lev.typ === SDOOR)
-        throw new UnsupportedApplyError('listening to a secret door');
-    if (lev.typ === SCORR)
-        throw new UnsupportedApplyError('listening to a secret corridor');
+    // apply.c:452-464. Soundeffect() is a no-op in the tty build; You_hear()
+    // still owns the acoustics gate and its alternate underwater prefix.
+    if (lev.typ === SDOOR) {
+        const heard = youHear(
+            'a hollow sound.  This must be a secret door!', state,
+        );
+        if (heard) await ttyPline(heard, state);
+        cvt_sdoor_to_door(lev, state); /* ->typ = DOOR */
+        recalc_block_point(rx, ry, state);
+        feel_newsym(rx, ry, state);
+        return res;
+    }
+    if (lev.typ === SCORR) {
+        const heard = youHear(
+            'a hollow sound.  This must be a secret passage!', state,
+        );
+        if (heard) await ttyPline(heard, state);
+        lev.typ = CORR;
+        lev.flags = 0;
+        lev.doormask = 0;
+        unblock_point(rx, ry, state);
+        feel_newsym(rx, ry, state);
+        return res;
+    }
 
     if (!its_dead(rx, ry, state))
         await ttyPline('You hear nothing special.', state); /* not You_hear() */

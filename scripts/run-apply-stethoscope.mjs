@@ -8,8 +8,9 @@
 // reaches apply.c apply_ok() through invent.c getobj(), apply.c
 // use_stethoscope() through the switch, insight.c ustatusline() through the
 // self direction, insight.c mstatusline() through a direction holding a
-// monster, and apply.c its_dead() through any other direction. The matrix
-// splits into three parts. The first drives use_stethoscope(): the free first
+// monster, apply.c's secret-terrain switch, and apply.c its_dead() through any
+// other direction. The matrix splits into four parts. The first drives
+// use_stethoscope(): the free first
 // listen, the second listen in the same move that costs a turn, both cancels,
 // both self keys, the Deaf guard, a sweep of all eight compass directions, a
 // listen at a square carrying an ordinary object, and a listen at the hero's
@@ -350,6 +351,43 @@ export function loadListenAtMonsterRecipe() {
     }, 'listen at a monster recipe');
 }
 
+// Natural generated secret terrain, reached without mutating the JavaScript
+// state. Seed 12 starts beside an SDOOR on D:1. Seed 186 has an SCORR one step
+// south after a direct wizard teleport to D:5 and the shortest unobstructed
+// walk to its north side. Acoustics remains enabled so pline.c You_hear()'s
+// message is part of the strict boundary; the final wait observes that the
+// first listen in a hero sequence stayed free.
+export function loadSecretTerrainRecipe() {
+    const options = 'pettype:none,playmode:debug,!autopickup,time';
+    const datetime = '20310203040506';
+    return validateCleanRecipe({
+        version: 5,
+        segments: [
+            {
+                seed: 12,
+                datetime,
+                nethackrc: nethackrc({
+                    name: 'SecretDoor',
+                    role: 'Healer',
+                    options,
+                }),
+                moves: `${APPLY_KEY}${STETHOSCOPE_SLOT}n${WAIT}`,
+            },
+            {
+                seed: 186,
+                datetime,
+                nethackrc: nethackrc({
+                    name: 'SecretPassage',
+                    role: 'Healer',
+                    options,
+                }),
+                moves: `${LEVEL_TELEPORT}hhhjjj`
+                    + `${APPLY_KEY}${STETHOSCOPE_SLOT}j${WAIT}`,
+            },
+        ],
+    }, 'secret terrain recipe');
+}
+
 // One pack per apply_ok() term. Each role below advertises a letter set that
 // only the named term produces, so a term answering wrongly would change the
 // prompt rather than leave it alone. Every segment cancels at the prompt,
@@ -431,12 +469,21 @@ export async function runApplyStethoscopeMatrix() {
     // chunk's first segment, so two debug games in one chunk would leave the
     // second restoring the first one's save. chunkLimit 1 is harmless for the
     // one ordinary cloud segment and preserves that isolation for the rest.
-    return runFreshMatrix({
+    const monster = await runFreshMatrix({
         entries: [{
             label: 'listen at a monster',
             recipe: loadListenAtMonsterRecipe(),
         }],
         summaryLabel: 'LISTEN AT A MONSTER',
+        chunkLimit: 1,
+    });
+    if (!monster.passed) return monster;
+    return runFreshMatrix({
+        entries: [{
+            label: 'secret terrain',
+            recipe: loadSecretTerrainRecipe(),
+        }],
+        summaryLabel: 'SECRET TERRAIN',
         chunkLimit: 1,
     });
 }

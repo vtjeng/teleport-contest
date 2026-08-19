@@ -31,6 +31,9 @@ import {
 } from '../js/const.js';
 import {
     CONFUSION,
+    CORR,
+    D_CLOSED,
+    DOOR,
     LEVITATION,
     M_AP_FURNITURE,
     M_AP_MONSTER,
@@ -42,7 +45,11 @@ import {
     SCORR,
     SDOOR,
 } from '../js/const.js';
-import { glyph_is_invisible, map_invisible } from '../js/display.js';
+import {
+    flush_screen,
+    glyph_is_invisible,
+    map_invisible,
+} from '../js/display.js';
 import { freehand } from '../js/engrave.js';
 import { UnsupportedMonsterNameError } from '../js/do_name.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
@@ -123,6 +130,7 @@ import {
     loadApplyPromptRecipe,
     loadApplyStethoscopeRecipe,
     loadListenAtMonsterRecipe,
+    loadSecretTerrainRecipe,
 } from './run-apply-stethoscope.mjs';
 
 function topLine() {
@@ -707,6 +715,14 @@ test('use_stethoscope stops for the states its own keys cannot reach',
         (await drive(() => { game.u.uswallow = 1; }, ['c', '.'])).error?.branch,
         'mstatusline() for an engulfer',
     );
+    // The same source arm wins when the swallowed hero points horizontally at
+    // a corpse. Adjacent-path preflight must not reorder it below its_dead().
+    const swallowedDead = () => {
+        game.u.uswallow = 1;
+        floorCorpstat(CORPSE, { x: game.u.ux - 1, y: game.u.uy });
+    };
+    assert.equal((await drive(swallowedDead, ['c', 'h'])).error?.branch,
+        'mstatusline() for an engulfer');
 
     // C's cursed arm is `obj->cursed && !rn2(2)`, so the port must stop on
     // obj.cursed alone to keep that draw out of the stream. Refusing it must
@@ -723,6 +739,15 @@ test('use_stethoscope stops for the states its own keys cannot reach',
     assert.equal((getRngLog() ?? []).length, drawsBefore,
         'the refused cursed arm draws no random number');
 
+    // The cursed arm also stays above an adjacent corpse. Preflight inspects
+    // only paths whose earlier use_stethoscope() arms are admitted.
+    const cursedDead = () => {
+        cursed();
+        floorCorpstat(CORPSE, { x: game.u.ux - 1, y: game.u.uy });
+    };
+    assert.equal((await drive(cursedDead, ['c', 'h'])).error?.branch,
+        'a cursed stethoscope');
+
     // The same cursed tool pointed down answers the u.dz arm instead, which
     // is the order: C tests u.dz at 363 before cursed at 374.
     assert.equal((await drive(cursed, ['c', '>'])).error?.branch,
@@ -730,10 +755,8 @@ test('use_stethoscope stops for the states its own keys cannot reach',
 });
 
 // C refs: apply.c use_stethoscope() (384-470) and its_dead() (196-309). The
-// adjacent-square arm keeps five stops above the answer it prints, and none of
-// them is reachable from a recorded case: the matrix seeds leave the hero's
-// neighbours empty, and no ported command builds a secret door or a corpse
-// next to her. Each square below is furnished by hand and doapply() driven
+// adjacent-square arm keeps the off-map and dead-thing stops around the paths
+// it answers. Each square below is furnished by hand and doapply() driven
 // directly, and every case pins an order -- each would answer with the other
 // guard's name if the two traded places.
 
@@ -772,6 +795,32 @@ function floorCorpstat(otyp, { x, y }) {
         objectGenerationEnv({ state: game }));
     obj.corpsenm = PM_NEWT;
     return obj;
+}
+
+function adjacentRefusalEffects(target = null) {
+    const location = target ? game.level.at(target.x, target.y) : null;
+    return {
+        stethoscopeSeq: game.context.stethoscope_seq,
+        bhitpos: structuredClone(game.gb?.bhitpos ?? null),
+        notonhead: game.gn?.notonhead,
+        rememberedGlyph: structuredClone(location?.remembered_glyph ?? null),
+        terrain: location ? {
+            typ: location.typ,
+            flags: location.flags,
+            doormask: location.doormask,
+        } : null,
+        pendingMessage: pendingTopLine(),
+        // Rows 22-23 are the status window. Hand-setting Hallucination in one
+        // fixture does not schedule bot(), so the next prompt can refresh
+        // those rows even though the stethoscope did not write them.
+        screen: game.nhDisplay.grid.slice(0, 22).map((row) => row.map(
+            ({ ch, color, attr }) => `${ch}\u0001${color}\u0001${attr}`,
+        ).join('\u0002')),
+        cursor: [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+        rngCalls: (getRngLog() ?? []).length,
+        moves: game.moves,
+        contextMove: game.context.move,
+    };
 }
 
 // A monster of the kind that would answer the listen. The fields are the ones
@@ -840,12 +889,16 @@ test('use_stethoscope walks the adjacent square in apply.c order',
     'the monster arm returns before unmap_invisible() clears the marker');
 
     // The same marker with no monster on it: the line runs, and it runs above
-    // the switch, so the secret door still stops the listen afterwards.
+    // the switch, so the secret door is revealed afterwards.
     const movedOff = await heroWithEmptyWest();
     map_invisible(movedOff.x, movedOff.y, game);
     game.level.at(movedOff.x, movedOff.y).typ = SDOOR;
-    assert.equal(await listenWest(), 'listening to a secret door');
-    assert.equal(pendingTopLine(), 'The invisible monster must have moved.');
+    assert.equal(await listenWest(1), null);
+    assert.equal(
+        pendingTopLine(),
+        'The invisible monster must have moved.',
+    );
+    assert.equal(game.level.at(movedOff.x, movedOff.y).typ, DOOR);
     // display.c unmap_object() replaces the marker with the memory of what
     // lies under it rather than clearing the square, so the check is that the
     // 'I' is gone, not that nothing is remembered.
@@ -854,15 +907,49 @@ test('use_stethoscope walks the adjacent square in apply.c order',
     'the marker is cleared before the switch reads the terrain');
 
     // apply.c:452-464, the two terrain arms, each above its_dead(). The corpse
-    // underneath is what the port would answer with if the switch sat below.
-    for (const [typ, branch] of [
-        [SDOOR, 'listening to a secret door'],
-        [SCORR, 'listening to a secret corridor'],
-    ]) {
+    // underneath would stop the listen if the switch sat below it.
+    for (const typ of [SDOOR, SCORR]) {
         const secret = await heroWithEmptyWest();
         floorCorpstat(CORPSE, secret);
         game.level.at(secret.x, secret.y).typ = typ;
-        assert.equal(await listenWest(), branch, String(typ));
+        assert.equal(await listenWest(), null, String(typ));
+    }
+});
+
+test('secret terrain changes the map, vision, display, and turn result',
+    async () => {
+    for (const [secretType, exposedType, message, symbol] of [
+        [SDOOR, DOOR,
+            'You hear a hollow sound.  This must be a secret door!', '+'],
+        [SCORR, CORR,
+            'You hear a hollow sound.  This must be a secret passage!', '#'],
+    ]) {
+        const target = await heroWithEmptyWest();
+        const location = game.level.at(target.x, target.y);
+        location.typ = secretType;
+        location.flags = 0;
+        location.doormask = 0;
+        game.flags.acoustics = true;
+        game.vision_full_recalc = 0;
+
+        for (const key of ['c', 'h'])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_OK, String(secretType));
+        assert.equal(pendingTopLine(), message, String(secretType));
+        assert.equal(location.typ, exposedType, String(secretType));
+        assert.equal(location.flags,
+            secretType === SDOOR ? D_CLOSED : 0, String(secretType));
+        assert.equal(location.doormask,
+            secretType === SDOOR ? D_CLOSED : 0, String(secretType));
+        assert.equal(location.disp_ch, symbol, String(secretType));
+        assert.equal(game.vision_full_recalc, 1, String(secretType));
+
+        // The next listen in the same hero sequence costs the turn. The
+        // first line is still pending, so the leading space dismisses it
+        // before getobj() asks for the tool.
+        for (const key of [' ', 'c', 'h'])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_TIME, String(secretType));
     }
 });
 
@@ -1227,6 +1314,83 @@ test('its_dead stops on what it finds in apply.c its_dead order', async () => {
     assert.equal(await listenWest(), 'a hallucinated listen to the dead');
 });
 
+test('still-unported adjacent listens refuse before shared effects',
+    async () => {
+    const cases = [
+        {
+            branch: 'listening off the edge of the map',
+            setup() {
+                game.u.ux = 1;
+                return null;
+            },
+        },
+        {
+            branch: 'a corpse on the listened-to square',
+            setup(target) {
+                map_invisible(target.x, target.y, game);
+                floorCorpstat(CORPSE, target);
+                return target;
+            },
+        },
+        {
+            branch: 'a statue on the listened-to square',
+            setup(target) {
+                map_invisible(target.x, target.y, game);
+                floorCorpstat(STATUE, target);
+                return target;
+            },
+        },
+        {
+            branch: 'a hallucinated listen to the dead',
+            setup(target) {
+                map_invisible(target.x, target.y, game);
+                floorCorpstat(CORPSE, target);
+                game.u.uprops[HALLUC].intrinsic = 1;
+                return target;
+            },
+        },
+        {
+            branch: 'an out-of-reach statue',
+            setup(target) {
+                map_invisible(target.x, target.y, game);
+                floorCorpstat(STATUE, target);
+                game.u.uprops[LEVITATION].intrinsic = 1;
+                return target;
+            },
+        },
+    ];
+
+    for (const { branch, setup } of cases) {
+        const west = await heroWithEmptyWest();
+        const target = setup(west);
+        game.context.stethoscope_seq = 73;
+        game.gb ??= {};
+        game.gb.bhitpos = { x: 17, y: 9 };
+        game.gn ??= {};
+        game.gn.notonhead = true;
+        // Hand-built remembered glyphs are buffered until the next display
+        // boundary. Flush them now so the prompt is not mistaken for the
+        // stethoscope drawing a marker that setup had merely queued.
+        await flush_screen(1);
+        const before = adjacentRefusalEffects(target);
+        assert.equal(await listenWest(), branch);
+        const refused = adjacentRefusalEffects(target);
+        // getobj() and getdir() move the tty cursor while consuming their
+        // prompts. That prompt cursor is not a shared stethoscope effect; the
+        // second attempt starts from its cleared <0,0> position. Everything
+        // the listen itself could have changed remains equal to the setup.
+        const { cursor: _beforeCursor, ...beforeListenEffects } = before;
+        const { cursor: _refusedCursor, ...refusedListenEffects } = refused;
+        assert.deepEqual(refusedListenEffects, beforeListenEffects, branch);
+        assert.deepEqual(refused.cursor, [0, 0], branch);
+
+        // Replaying the retryable command reaches the same named refusal and
+        // leaves even the prompt cursor byte-for-byte unchanged.
+        assert.equal(await listenWest(), branch);
+        assert.deepEqual(adjacentRefusalEffects(target), refused, branch);
+    }
+});
+
 test('its_dead clears the corpse a levitating hero cannot reach', async () => {
     // apply.c:206-207. A levitating hero reaches no corpse on the floor, so
     // C's chain finds nothing and the caller prints its ordinary answer. The
@@ -1342,14 +1506,18 @@ test('ustatusline stops for every clause it would have to name', async () => {
     );
 });
 
-test('the apply matrix holds the three clean recipes the slices close on',
+test('the apply matrix holds the four clean recipes the slices close on',
     () => {
     const priorRecipes = [loadApplyStethoscopeRecipe(), loadApplyPromptRecipe()];
-    const recipes = [...priorRecipes, loadListenAtMonsterRecipe()];
+    const recipes = [
+        ...priorRecipes,
+        loadListenAtMonsterRecipe(),
+        loadSecretTerrainRecipe(),
+    ];
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 33);
+    assert.equal(segments.length, 35);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // The two prior recipes open and close with a wait, so a command that
     // wrongly spent or wrongly saved a turn shows in the screen after it.
