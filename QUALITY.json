@@ -4018,7 +4018,7 @@
       "area": "commands",
       "category": "clarity",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
       "detail": "Correct apply.js dependency commentary because MZ_TINY is now exported; nxtobj traversal remains the real deferred dependency. Do not port the branch as an audit fix."
     },
