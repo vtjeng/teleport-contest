@@ -2996,8 +2996,8 @@
         },
         {
           "name": "blind-corpse-maps-and-reports",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "f054dc3cad9c8cd42944b1fe39e55fc47c3a114c"
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",

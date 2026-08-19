@@ -670,3 +670,4 @@ utc	event	phase	goal	detail
 2026-08-19T06:20:14.219Z	start	select	stethoscope-reaches-an-adjacent-square	Select the next source-real adjacent-square slice while off-map-listen-returns-free remains parked on Q10 authorization
 2026-08-19T06:29:10.059Z	end	select	stethoscope-reaches-an-adjacent-square	Selected blind-corpse-maps-and-reports: apply.c its_dead 261-279 plus logical glyph/map_object; seed 9240001 supplies equal-ID and identical-render/different-ID source-real cases; zero development ceiling
 2026-08-19T06:31:01.090Z	start	implement	stethoscope-reaches-an-adjacent-square	Port apply.c its_dead ordinary blind corpse mapping and report for both logical-glyph outcomes while preserving exceptional refusal atomicity
+2026-08-19T07:18:43.809Z	end	implement	stethoscope-reaches-an-adjacent-square	blind-corpse-maps-and-reports closed at f054dc3: independent 4424-test checkpoint and 43-segment fresh matrix pass; development unchanged; Score and Coverage CI succeeded
