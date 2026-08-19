@@ -1,15 +1,15 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "The out-of-reach non-tiny statue slice is complete at 18cc498. The JS-only refusal is gone and the authorized constructed live doapply fixture proves that the first non-tiny statue after the tiny-statue walk enters the existing health-report arm. Independent checkpoint and the 47-segment sibling matrix are green; development remains unchanged at the slice's zero-development ceiling.",
-  "commitChecked": "63c8e8a39d0f648970a39552fe5216d2cdf0d7f9",
+  "mode": "implementation",
+  "reason": "The next timeboxed slice ports apply.c its_dead()'s Healer REVIVE_MON wording using the timed-corpse fixtures already present in the focused suite. It requires no setup search or new subsystem: the existing timer walk becomes role-gated and the ordinary corpse message gains the source `mostly` term.",
+  "commitChecked": "93e97407f39918188a6a0aa372cd5ee3e7557a3c",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
-    "startingCommit": "63c8e8a39d0f648970a39552fe5216d2cdf0d7f9",
-    "startingEvent": "A hero who cannot reach the floor applies the starting stethoscope to an adjacent pile whose first statue after any MZ_TINY entries is a non-tiny species; the command has accepted the tool and direction.",
-    "endingEvent": "apply.c its_dead() keeps the first non-tiny statue selected, executes the existing statue-health arm, returns TRUE, and doapply() reaches the next input boundary with the free or costly command result.",
-    "validInputs": "Use the user-authorized constructed doapply() fixture with intrinsic LEVITATION and a west pile containing a tiny newt statue, separating rock, and small gnome statue. No current input enables levitation or unskilled riding, so record the exact state, source, setup-route limitation, evidence, and what the substitute cannot prove.",
-    "observables": "Exact `The gnome is in fine health for a statue.` terminal line/attributes/cursor, ECMD_OK then ECMD_TIME, zero branch PRNG calls, unchanged pile/timers/map/moves, unread sentinels, square-local traversal, all-tiny fall-through control, reachable ordinary report, and unchanged hallucination/trap/contents precedence.",
-    "exclusions": "Do not port levitation, riding, quaffing, or statue creation merely to build the setup. REVIVE_MON wording, Hallucination messages, and fog-region movement remain separate slices."
+    "startingCommit": "93e97407f39918188a6a0aa372cd5ee3e7557a3c",
+    "startingEvent": "A Healer applies the starting stethoscope to an adjacent selected corpse chain where at least one corpse carries a REVIVE_MON timer; the command has accepted the tool and direction.",
+    "endingEvent": "apply.c its_dead() finishes the role-gated timer walk, prints the singular or plural corpse determination with `mostly dead` only for the Healer reviver case, returns TRUE, and doapply() reaches the next input boundary.",
+    "validInputs": "Reuse the user-authorized constructed timed-corpse doapply fixtures already in scripts/apply-stethoscope.test.mjs. Do not search seeds or port corpse creation/combat merely to build the state.",
+    "observables": "Exact Healer `mostly dead` grammar for top and lower timers, ordinary-role `dead`, singular/plural and first-free/repeated-costly results, zero branch PRNG, unchanged pile/timers/map/moves, unread sentinels, and Hallucination precedence.",
+    "exclusions": "Do not port corpse revival, timer execution, combat, Hallucination messages, or fog-region movement. If the branch expands beyond js/apply.js and its existing focused test, stop and defer it under the user's timebox."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); monmove.c m_everyturn_effect() (624-665); region.c create_gas_cloud() (1194-1308); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
@@ -133,8 +133,8 @@
       "owner": "js/apply.js its_dead(), reusing timeout.js obj_has_timer()",
       "effects": "Detects REVIVE_MON while counting the selected corpse chain and changes the Healer's singular report from `dead` to `mostly dead`; it does not revive the corpse or restart traversal.",
       "evidence": "apply.c:265-278. The post-2f7e936 source reread corrected the older revival-loop claim: this branch only checks obj_has_timer() and formats the report.",
-      "status": "later",
-      "remaining": "Port in a later authorized constructed-test slice with role-gated traversal and singular/plural controls; no source-real timed-corpse input route is currently available."
+      "status": "missing",
+      "remaining": "Use the existing timed-corpse doapply fixtures to port the role-gated timer walk and `mostly dead` term, with ordinary-role, chain-order, grammar, timing, zero-RNG, preservation, and Hallucination-precedence controls. No source-real timed-corpse input route is currently available."
     },
     {
       "candidate": "apply.c its_dead() statue arm (283-307)",
@@ -344,6 +344,12 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 18cc498 corrects the final out-of-reach claim: apply.c:206-211 clears the corpse and skips only MZ_TINY statues; it does not refuse or discard the first non-tiny statue, which flows into the existing health report. The authorized constructed doapply fixture records the unavailable levitation setup and its limitations, while the 47 source-real sibling segments remain exact. REVIVE_MON `mostly dead`, the full Hallucination message arm, and fog m_in_out_region() remain separate confirmed gaps; the user's speed direction means their future constructed validation should use the smallest direct source-pinned consumer rather than further setup searches."
+  "missingWorkByOwner": [
+    {
+      "group": "apply.c its_dead() Healer REVIVE_MON wording",
+      "candidates": ["apply.c its_dead() REVIVE_MON/Healer corpse sub-arm (265-270)"],
+      "next": "Replace the blanket timer refusal with the source role-gated timer walk and exact `mostly dead` grammar using the existing constructed doapply fixtures."
+    }
+  ],
+  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 18cc498 completed the out-of-reach non-tiny statue result. The next compact source unit is apply.c:265-278: only a Healer scans the selected corpse chain for REVIVE_MON, and the observable difference is the `mostly` word in the existing message; no revival action or new RNG belongs to this branch. Existing constructed timed-corpse fixtures already reach the real doapply consumer, so the user's speed direction rules out further setup search. The full Hallucination message arm and fog m_in_out_region() remain separate confirmed gaps."
 }
