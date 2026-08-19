@@ -2093,15 +2093,19 @@ test('its_dead exceptional preflight reads the supplied state', async () => {
 
 test('its_dead admitted body reads and writes the supplied state', async () => {
     const target = await heroWithEmptyWest();
-    // The global state is exceptional, while the supplied state has an
-    // ordinary statue. The foreign monster catalog makes body ownership
-    // visible in the result, and its independent TTY records where the
-    // message effect lands.
-    floorCorpstat(STATUE, target).cobj = newObject({
+    // Both states have contents, but only the supplied state's trap admits
+    // them through the source's trap-over-contents precedence. Their species
+    // differ so the body must also select the supplied statue object. The
+    // foreign catalog and independent TTY expose where naming and output land.
+    const globalStatue = floorCorpstat(STATUE, target);
+    globalStatue.corpsenm = PM_GNOME;
+    globalStatue.cobj = newObject({
         otyp: ROCK, quan: 1,
     });
     const supplied = isolatedItsDeadState();
-    placeStateCorpstat(supplied, STATUE, target);
+    placeStateCorpstat(supplied, STATUE, target).cobj = newObject({
+        otyp: ROCK, quan: 1,
+    });
     supplied.level.traps.push({
         tx: target.x,
         ty: target.y,
