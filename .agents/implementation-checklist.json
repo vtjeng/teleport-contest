@@ -1,7 +1,7 @@
 {
   "mode": "implementation",
   "reason": "On 2026-08-19 the user authorized C source analysis plus constructed live-consumer integration tests for all remaining setup-unreachable branches. The next queued slice is the off-map adjacent listen, whose declared source-real setup search exhausted 7,680 generated cases without finding an accessible map-edge square.",
-  "commitChecked": "489c6744544df42c33520989db50e596479151ea",
+  "commitChecked": "7604dc471e7ba050cb276b6e820220eee213debd",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
@@ -24,9 +24,9 @@
       "reachability": "The hero points at a square off the map edge. No random-number call.",
       "owner": "js/apply.js use_stethoscope()",
       "effects": "You_hear(\"a faint typing noise.\") and a Soundeffect.",
-      "evidence": "apply.c:386-390, read at 073cd13.",
-      "status": "missing",
-      "remaining": "Admit the arm after shared writes, call the existing You_hear message path, preserve the tty Soundeffect no-op, and return ECMD_OK rather than res. Record a natural edge case with acoustics and repeated listens."
+      "evidence": "apply.c:386-390, pline.c You_hear():435-451, and sndprocs.h's no-sound-library Soundeffect macro. Commit 7604dc4 removes the preflight refusal and ports the live branch. The user-authorized constructed doapply() fixture places the hero at (1,uy), points west to (0,uy), and pins audible and suppressed output, cursor state, shared sequence/observation writes, repeated-listen ECMD_OK, no RNG or turn cost, and unrelated map/display state. The existing 46-segment source-real matrix remains exact for every reachable sibling.",
+      "status": "done",
+      "remaining": "None. The constructed substitute does not prove a source-real input can place the hero at the edge, C-recording parity for that unreachable setup, or a sound-library backend; the declared 7,680-case search and these limits are recorded in the integration test."
     },
     {
       "candidate": "Fail-closed preflight for still-unported off-map and exceptional its_dead() paths",
@@ -34,8 +34,8 @@
       "owner": "js/apply.js use_stethoscope() and its_dead() admission checks",
       "effects": "No effects are permitted: no stethoscope_seq, gb.bhitpos, gn.notonhead, remembered-map, message, screen, cursor, turn, or PRNG change before the named refusal.",
       "evidence": "The full correctness pass over 2338437..6755a8c confirmed that the current refusal sites occur after shared effects; tracked as audit-stethoscope-refusal-effects-not-preflighted.",
-      "status": "missing",
-      "remaining": "Remove only the off-map path from preflight while retaining atomic source-order stops for every still-unported dead-object sibling."
+      "status": "done",
+      "remaining": "None for the off-map split. Commit 7604dc4 admits !isok before map readers while the six exceptional dead-object siblings remain pre-effect, retryable, and directly asserted."
     },
     {
       "candidate": "apply.c use_stethoscope() m_at(rx, ry) != 0 (391-446)",
@@ -317,18 +317,6 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "apply.c use_stethoscope() off-map arm",
-      "candidates": [
-        "natural player-input map-edge setup",
-        "You_hear acoustics gate and tty Soundeffect no-op",
-        "shared observation writes before the branch",
-        "unconditional ECMD_OK on repeated listens",
-        "preflight split from remaining exceptional targets"
-      ],
-      "next": "Implement with the explicitly authorized constructed live-consumer integration test after recording the exhausted 7,680-case source-real search and the substitute's limits."
-    }
-  ],
-  "sourceReview": "The goal-wide trace remains recorded above, including the off-map evidence. After 2f7e936 the selector corrected the REVIVE_MON entry's stale effect claim: the Healer arm only detects the timer and prints `mostly dead`; it does not revive or restart the pile walk. A declared seed 1-64 troll-combat search still found no source-real corpse setup: the lowest-HP troll retained 17 HP after 12 scalpel attacks because it regenerated, while alternate kill routes stop earlier in zap_hit(), thitmonst(), knockback, or hero death. Direct statue wishes, levitation boots, hallucination, and unskilled riding also remain blocked in their setup owners. Commit ebf3474 closes the seed-1 fog-cloud witness: the second listen's elapsed-turn scan creates the clone and live vapor regions before the trailing sentinel. The differential exposed source-required vision_recalc(0) immediately after add_region() sets vision_full_recalc; planning admits it only after cloned terrain and COULD_SEE buffers are installed. The next selector then exhausted a declared region-transition search: all seeds 1-64 with the two-turn recipe, seed 1 with 9-13 adjacent waits, and seed 1 with a south move plus 10-12 waits matched without reaching m_in_out_region(). The longest case spent the fog's ration attacking the hero's remembered old square. Mixed corpse/statue ordering still has only a corpse-upper source-real constructor, and every other remaining branch still lacks its setup writer. On 2026-08-19 the user explicitly authorized constructed live-consumer integration tests for all of those remaining branches, including the off-map arm."
+  "missingWorkByOwner": [],
+  "sourceReview": "The goal-wide trace remains recorded above. Commit 7604dc4 closes the off-map branch with the explicitly authorized constructed doapply() integration test after 7,680 generated setups established that no currently ported input reaches an accessible map edge; its exact setup, controlling source, state and output assertions, and C-recording/sound-backend limitations are recorded in the test. After 2f7e936 the selector corrected the REVIVE_MON entry's stale effect claim: the Healer arm only detects the timer and prints `mostly dead`; it does not revive or restart the pile walk. A declared seed 1-64 troll-combat search still found no source-real corpse setup: the lowest-HP troll retained 17 HP after 12 scalpel attacks because it regenerated, while alternate kill routes stop earlier in zap_hit(), thitmonst(), knockback, or hero death. Direct statue wishes, levitation boots, hallucination, and unskilled riding also remain blocked in their setup owners. Commit ebf3474 closes the seed-1 fog-cloud witness: the second listen's elapsed-turn scan creates the clone and live vapor regions before the trailing sentinel. The differential exposed source-required vision_recalc(0) immediately after add_region() sets vision_full_recalc; planning admits it only after cloned terrain and COULD_SEE buffers are installed. The next selector then exhausted a declared region-transition search: all seeds 1-64 with the two-turn recipe, seed 1 with 9-13 adjacent waits, and seed 1 with a south move plus 10-12 waits matched without reaching m_in_out_region(). The longest case spent the fog's ration attacking the hero's remembered old square. Mixed corpse/statue ordering still has only a corpse-upper source-real constructor, and every other remaining branch still lacks its setup writer. On 2026-08-19 the user explicitly authorized constructed live-consumer integration tests for all of those remaining branches."
 }

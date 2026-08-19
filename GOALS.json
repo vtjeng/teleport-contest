@@ -2986,8 +2986,8 @@
         },
         {
           "name": "off-map-listen-returns-free",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "7604dc471e7ba050cb276b6e820220eee213debd"
         },
         {
           "name": "quickmimic-compares-logical-glyphs",
