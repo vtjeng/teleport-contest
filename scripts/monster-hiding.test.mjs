@@ -24,7 +24,6 @@ import {
     PROT_FROM_SHAPE_CHANGERS,
     ROOM,
 } from '../js/const.js';
-import { moveloop_core } from '../js/allmain.js';
 import { game } from '../js/gstate.js';
 import { runSegment } from '../js/jsmain.js';
 import { set_mimic_sym } from '../js/makemon_create.js';
@@ -35,7 +34,9 @@ import {
     PM_SMALL_MIMIC,
     PM_TRAPPER,
 } from '../js/monsters.js';
-import { STRANGE_OBJECT } from '../js/objects.js';
+import { BOULDER, GOLD_PIECE, STRANGE_OBJECT } from '../js/objects.js';
+import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
+import { block_point, does_block } from '../js/vision.js';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { loadCostlyMimicRedisguiseRecipe } from './run-apply-stethoscope.mjs';
 import { GENESIS_KEY, loadMonsterHidingRecipe } from './run-monster-hiding.mjs';
@@ -317,6 +318,65 @@ test('restrap re-disguises only a mimic that is awake and undisguised',
         game.u.uprops[PROT_FROM_SHAPE_CHANGERS] = undefined;
     });
 
+test('a blocking mimic disguise updates vision after its final draw',
+    async () => {
+        await hero();
+        const awake = hiderAt(PM_SMALL_MIMIC, far());
+        assert.equal(does_block(awake.mx, awake.my, null, game), false);
+
+        const draws = [];
+        const visionCalls = [];
+        const random = {
+            d: () => assert.fail('boulder disguise drew d()'),
+            rn1: () => assert.fail('boulder disguise drew rn1()'),
+            rn2(bound) {
+                draws.push(`rn2(${bound})`);
+                if (bound === 3) return 0;
+                if (bound === 17) return 12; // ROCK_CLASS in makemon.c syms[]
+                return assert.fail(`unexpected rn2(${bound})`);
+            },
+            rnd(bound) {
+                draws.push(`rnd(${bound})`);
+                return 1;
+            },
+            rne: () => assert.fail('boulder disguise drew rne()'),
+        };
+        const answer = restrap(awake, {
+            state: game,
+            random,
+            setMimicSym: (mimic, env) => set_mimic_sym(mimic, {
+                ...env,
+                hooks: {
+                    doesBlock(x, y, location, normalized) {
+                        visionCalls.push('doesBlock');
+                        assert.deepEqual(draws, [
+                            'rn2(3)',
+                            'rn2(17)',
+                            'rnd(1000)',
+                            'rnd(2)',
+                        ]);
+                        assert.equal(mimic.mappearance, BOULDER);
+                        return does_block(
+                            x,
+                            y,
+                            location,
+                            normalized.state,
+                        );
+                    },
+                    blockPoint(x, y, normalized) {
+                        visionCalls.push('blockPoint');
+                        block_point(x, y, normalized.state);
+                    },
+                },
+            }),
+        });
+
+        assert.equal(answer, true);
+        assert.equal(awake.mappearance, BOULDER);
+        assert.equal(does_block(awake.mx, awake.my, null, game), true);
+        assert.deepEqual(visionCalls, ['doesBlock', 'blockPoint']);
+    });
+
 test('a costly listen re-disguises its revealed mimic through the sentinel',
     async () => {
         const [input] = loadCostlyMimicRedisguiseRecipe().segments;
@@ -350,19 +410,41 @@ test('the costly-listen planning disguise changes only the cloned monster',
 
         const coreBefore = structuredClone(game.coreCtx);
         const guard = freezeLiveState(game);
-        let caught = null;
-        try {
-            await moveloop_core();
-        } catch (error) {
-            caught = error;
-        }
+        let plannedAppearance = null;
+        let plannedRngSentinel = null;
+        await preflightSimpleMonsterActions(game, {
+            // The callback runs after the cloned monster scans and receives
+            // their cloned ISAAC stream. Returning true stops before a second
+            // allocation round, which is outside this test's boundary.
+            advanceRound(planned, planningRandom) {
+                const plannedMimic = m_at(
+                    planned.u.ux,
+                    planned.u.uy + 1,
+                    planned,
+                );
+                plannedAppearance = {
+                    m_ap_type: plannedMimic.m_ap_type & M_AP_TYPMASK,
+                    mappearance: plannedMimic.mappearance,
+                };
+                plannedRngSentinel = [
+                    planningRandom.rn2(1000000),
+                    planningRandom.rn2(1000000),
+                    planningRandom.rn2(1000000),
+                ];
+                return true;
+            },
+        });
         guard.assertNoLeak(assert);
 
-        // The preflight completed and the first intended live write hit the
-        // freeze. A clone leak would throw from preflightSimpleMonsterActions,
-        // alter the live mimic, or advance the live ISAAC context instead.
-        assert.ok(caught instanceof TypeError, `threw ${caught}`);
-        assert.doesNotMatch(caught.stack, /preflightSimpleMonsterActions/u);
+        // makemon.c set_mimic_sym()'s object-at-square arm gives this cloned
+        // mimic the floor gold piece's disguise. The fixed-seed sentinel pins
+        // the cloned stream after the whole planned scan; the live stream
+        // remains at its entry state.
+        assert.deepEqual(plannedAppearance, {
+            m_ap_type: M_AP_OBJECT,
+            mappearance: GOLD_PIECE,
+        });
+        assert.deepEqual(plannedRngSentinel, [590788, 802859, 924435]);
         assert.equal(mimic.m_ap_type & M_AP_TYPMASK, 0);
         assert.deepEqual(game.coreCtx, coreBefore);
     });

@@ -25,14 +25,19 @@ import { dirname, join } from 'node:path';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
+import { ART_EXCALIBUR } from '../js/artifacts.js';
 import {
     ECMD_TIME,
     HALLUC,
     HUNGRY,
     NOT_HUNGRY,
+    OBJ_INVENT,
     SATIATED,
 } from '../js/const.js';
-import { CRAM_RATION, FOOD_RATION, PANCAKE } from '../js/objects.js';
+import { PM_FOX } from '../js/monsters.js';
+import {
+    CRAM_RATION, FOOD_RATION, PANCAKE, SLIME_MOLD,
+} from '../js/objects.js';
 import {
     UnsupportedEatError,
     doeat,
@@ -225,6 +230,69 @@ test('a meal that stays under the choking threshold says it finished',
             'This cram ration is bland.  You finish eating the cram ration.',
         );
         assert.equal(slotFor(CRAM_RATION).quan, beforeRations - 1);
+    });
+
+test('a finished meal uses one state for its food name and article',
+    async () => {
+        await runSegment({ ...segmentFor(5820011, 'ed '), moves: '.' });
+
+        // This foreign state shares the initialized game shape but owns every
+        // catalog the() can consult. The fruit is deliberately named after an
+        // artifact which this state's artifact catalog has renamed.
+        const state = Object.create(game);
+        state.mons = structuredClone(game.mons);
+        state.mons[PM_FOX].pmnames = [
+            'foreign fox', 'foreign fox', 'foreign fox',
+        ];
+        state.gf = {
+            ffruit: { fname: 'Excalibur', fid: 7, nextf: null },
+        };
+        state.artilist = structuredClone(game.artilist);
+        state.artiexist = structuredClone(game.artiexist);
+        state.artilist[ART_EXCALIBUR].name = 'Elsecalibur';
+        state.objects = structuredClone(game.objects);
+        state.obj_descr = structuredClone(game.obj_descr);
+        state.u = structuredClone(game.u);
+        state.youmonst = { ...game.youmonst };
+        state.go = { ...game.go, occupation: eatfood };
+        state.program_state = {
+            ...game.program_state,
+            in_moveloop: false,
+        };
+        state.saved_hs = false;
+        state.save_hs = state.u.uhs;
+        state.force_save_hs = false;
+        state.nomovemsg = null;
+
+        // Closing a hand-built two-item stack reaches
+        // eatfood()->done_eating()->food_xname() while avoiding the unrelated
+        // inventory-removal hooks needed for the last item in a stack.
+        const mold = {
+            ...slotFor(FOOD_RATION),
+            nobj: null,
+            oeaten: 0,
+            otyp: SLIME_MOLD,
+            owt: game.objects[SLIME_MOLD].oc_weight,
+            quan: 2,
+            spe: 7,
+            where: OBJ_INVENT,
+        };
+        state.context = {
+            ...structuredClone(game.context),
+            victual: {
+                ...zero_victual(),
+                eating: 1,
+                o_id: mold.o_id,
+                piece: mold,
+                reqtime: 1,
+                usedtime: 1,
+            },
+        };
+        const said = [];
+
+        assert.equal(await eatfood(state, recordingEnv(said)), 0);
+        assert.deepEqual(said, ['You finish eating the Excalibur.']);
+        assert.equal(mold.quan, 1);
     });
 
 test('a second meal in the same segment runs to its end', async () => {

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    ART_EXCALIBUR,
     ART_GIANTSLAYER,
     ART_GRIMTOOTH,
     ART_ORB_OF_DETECTION,
@@ -45,6 +46,7 @@ import { LEFT_HANDED, RIGHT_HANDED } from '../js/u_init.js';
 import { newObject } from '../js/obj.js';
 import {
     The,
+    Tobjnam,
     an,
     aobjnam,
     assertObjectNameable,
@@ -2150,6 +2152,45 @@ test('aobjnam names the object and agrees the verb with it', () => {
     assert.equal(cxname(corpse, state), 'newt corpse');
     corpse.quan = 2;
     assert.equal(cxname(corpse, state), 'newt corpses');
+});
+
+test('Tobjnam uses the supplied naming catalogs for its article', () => {
+    // Tobjnam() first runs xname() and then The(). Both C calls read the same
+    // globals, so the JavaScript pair must keep using the supplied state.
+    const monsterState = namingState();
+    monsterState.mons = structuredClone(monsterState.mons);
+    monsterState.artilist = structuredClone(monsterState.artilist);
+    monsterState.artiexist = structuredClone(monsterState.artiexist);
+    monsterState.gf = structuredClone(monsterState.gf);
+    monsterState.mons[PM_FOX].pmnames = [
+        'Blueberries', 'Blueberries', 'Blueberries',
+    ];
+    monsterState.artilist[ART_GIANTSLAYER].name = 'Blueberries';
+    monsterState.artiexist[ART_GIANTSLAYER].exists = 1;
+    monsterState.artiexist[ART_GIANTSLAYER].found = 1;
+    monsterState.iflags.override_ID = true;
+    const artifact = objectOf(monsterState, LONG_SWORD, {
+        dknown: true,
+        oartifact: ART_GIANTSLAYER,
+        oextra: { oname: 'Blueberries' },
+    });
+    assert.equal(
+        Tobjnam(artifact, 'turn', monsterState),
+        'The Blueberries turns',
+    );
+
+    // A configured capitalized fruit takes an article unless an artifact of
+    // that name lacks one. This clone deliberately changes both catalogs.
+    const fruitState = namingState();
+    fruitState.mons = structuredClone(fruitState.mons);
+    fruitState.artilist = structuredClone(fruitState.artilist);
+    fruitState.artiexist = structuredClone(fruitState.artiexist);
+    fruitState.gf = {
+        ffruit: { fname: 'Excalibur', fid: 7, nextf: null },
+    };
+    fruitState.artilist[ART_EXCALIBUR].name = 'Elsecalibur';
+    const fruit = objectOf(fruitState, SLIME_MOLD, { spe: 7 });
+    assert.equal(Tobjnam(fruit, null, fruitState), 'The Excalibur');
 });
 
 test('The distinguishes capitalized monster types, names, and object names',

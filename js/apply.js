@@ -6,11 +6,10 @@
 // LOCK_PICK/CREDIT_CARD/SKELETON_KEY arm that lock.c pick_lock() serves. Every
 // other arm, and the wand, spellbook and coin shortcuts above the switch,
 // stops at a refusal naming the C function it needs. use_stethoscope() covers
-// its three guards, the free-action rule, the self-probe that confdir() leads
-// to, the monster on the adjacent square, both secret-terrain arms, and the
-// adjacent square that holds nothing to report, the ordinary sighted corpse
-// and statue results, a blind hero's ordinary statue report, and a Healer's
-// statue-trap report. The mounted, swallowed, vertical, cursed, off-map, and
+// the no-hands, Deaf and free-hand guards, the free-action rule, self and
+// off-map probes, the adjacent monster arm, both secret-terrain arms, an empty
+// adjacent square, ordinary sighted and blind corpses and statues, and a
+// Healer's statue-trap report. Mounted, swallowed, vertical, cursed, and the
 // remaining exceptional dead-thing arms still stop.
 
 import {
@@ -272,7 +271,10 @@ function unportedItsDeadBranch(rx, ry, state) {
     return null;
 }
 
-export async function its_dead(rx, ry, state) {
+// The body below assumes that the caller has excluded every exceptional arm.
+// Keep it private so the exported C-named entry point cannot bypass the same
+// preflight use_stethoscope() runs before changing its shared listen state.
+async function its_dead_after_preflight(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     const statue = sobj_at(STATUE, rx, ry, state);
     if (!can_reach_floor(true, state)) corpse = null;
@@ -310,6 +312,12 @@ export async function its_dead(rx, ry, state) {
         return true;
     }
     return false;
+}
+
+export async function its_dead(rx, ry, state = game) {
+    const branch = unportedItsDeadBranch(rx, ry, state);
+    if (branch) throw new UnsupportedApplyError(branch);
+    return its_dead_after_preflight(rx, ry, state);
 }
 
 // Fail-closed commands are retryable. Inspect only the adjacent paths that
@@ -515,7 +523,7 @@ async function use_stethoscope(obj, state = game) {
         return res;
     }
 
-    if (!await its_dead(rx, ry, state))
+    if (!await its_dead_after_preflight(rx, ry, state))
         await ttyPline('You hear nothing special.', state); /* not You_hear() */
     return res;
 }

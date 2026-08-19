@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { ART_EXCALIBUR } from '../js/artifacts.js';
 import {
     ALTAR,
     DEAF,
@@ -41,6 +42,7 @@ import {
     M1_SLITHY,
     M1_SWIM,
     PM_ACID_BLOB,
+    PM_FOX,
     PM_GREMLIN,
     PM_LICHEN,
     PM_TRAPPER,
@@ -56,6 +58,7 @@ import {
     GOLD_PIECE,
     LARGE_BOX,
     SACK,
+    SLIME_MOLD,
     TOWEL,
 } from '../js/objects.js';
 import { UnsupportedShopError } from '../js/shk.js';
@@ -467,6 +470,56 @@ test('a slithy hero coils around the object instead of sitting on it',
         "You coil up around the food ration.  It's not very comfortable...",
     );
 });
+
+test('object sitting uses the supplied state for both naming steps',
+    async () => {
+        for (const [slithyHero, verb] of [
+            [false, 'sit on'],
+            [true, 'coil up around'],
+        ]) {
+            await standOnStairs();
+            putObject(SLIME_MOLD, { spe: 7 });
+
+            // dosit() is also used by state projections. This foreign state
+            // shares the live level but owns the catalogs which xname() and
+            // the() must read as one C global state.
+            const state = Object.create(game);
+            state.mons = structuredClone(game.mons);
+            state.mons[PM_FOX].pmnames = [
+                'foreign fox', 'foreign fox', 'foreign fox',
+            ];
+            state.gf = {
+                ffruit: { fname: 'Excalibur', fid: 7, nextf: null },
+            };
+            state.artilist = structuredClone(game.artilist);
+            state.artiexist = structuredClone(game.artiexist);
+            state.artilist[ART_EXCALIBUR].name = 'Elsecalibur';
+            state.objects = structuredClone(game.objects);
+            state.obj_descr = structuredClone(game.obj_descr);
+            state.context = { ...game.context };
+            state.gd = { ...game.gd };
+            state.iflags = { ...game.iflags };
+            state.program_state = { ...game.program_state };
+            state.u = structuredClone(game.u);
+            state.youmonst = {
+                ...game.youmonst,
+                data: slithyHero
+                    ? species({ mflags1: M1_SLITHY })
+                    : game.youmonst.data,
+            };
+            state.nhDisplay = { ...game.nhDisplay };
+            state._pending_message = '';
+            state._ttyPreviousMessage = '';
+            state._ttyToplines = '';
+            state._ttyMessageStopped = false;
+
+            assert.equal(await dosit(state), ECMD_TIME);
+            assert.equal(
+                state._ttyToplines,
+                `You ${verb} the Excalibur.  It's not very comfortable...`,
+            );
+        }
+    });
 
 test('a towel is answered before the object is ever named', async () => {
     // sit.c:449-450. The towel arm sits above the xname() line, so the towel

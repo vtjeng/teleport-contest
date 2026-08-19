@@ -803,7 +803,7 @@ function food_xname(food, the_pfx, state) {
         /* the ordinary case */
         result = singular(food, xnameFresh, state);
     }
-    return prefix_the ? the(result) : result;
+    return prefix_the ? the(result, state) : result;
 }
 
 // C ref: eat.c obj_nutrition() (322-334).

@@ -246,10 +246,12 @@ async function maybe_destroy_item(carrier, obj, dmgtyp, env) {
                 // ported hallucinates and js/zap.js stops a hallucinating hero
                 // several calls above this one.
                 await ttyPline(
-                    `${The(u_carry
-                        ? xnameFresh(obj, state)
-                        : distant_name(obj, xnameFresh, state))
-                    } glows a strange dark red, but remains intact.`,
+                    `${The(
+                        u_carry
+                            ? xnameFresh(obj, state)
+                            : distant_name(obj, xnameFresh, state),
+                        state,
+                    )} glows a strange dark red, but remains intact.`,
                     state,
                 );
             }

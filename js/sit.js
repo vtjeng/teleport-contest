@@ -182,12 +182,12 @@ export async function dosit(state = game) {
             // argument of whichever You() line it reached.
             if (slithy(species)) {
                 await ttyPline(
-                    `You coil up around ${the(xnameFresh(obj, state))}.`,
+                    `You coil up around ${the(xnameFresh(obj, state), state)}.`,
                     state,
                 );
             } else {
                 await ttyPline(
-                    `You sit on ${the(xnameFresh(obj, state))}.`, state,
+                    `You sit on ${the(xnameFresh(obj, state), state)}.`, state,
                 );
             }
             if (obj.otyp === CORPSE && amorphous(state.mons[obj.corpsenm])) {

@@ -20,12 +20,17 @@ import {
     finish_meating,
     quickmimic,
 } from '../js/dogmove.js';
+import { newsym } from '../js/display.js';
 import { GameMap } from '../js/game.js';
+import { resetGame } from '../js/gstate.js';
 import {
+    GLYPH_MON_FEM_OFF,
     GLYPH_MON_MALE_OFF,
+    GLYPH_PET_FEM_OFF,
     GLYPH_PET_MALE_OFF,
 } from '../js/glyph_offsets.js';
 import { m_consume_obj } from '../js/mon.js';
+import { place_monster } from '../js/monst.js';
 import {
     MZ_GIGANTIC,
     MZ_HUGE,
@@ -40,6 +45,7 @@ import {
     monst_globals_init,
 } from '../js/monsters.js';
 import { init_objects } from '../js/o_init.js';
+import { parseNethackrc } from '../js/options.js';
 import { newObject, place_object } from '../js/obj.js';
 import {
     CORPSE,
@@ -48,6 +54,7 @@ import {
     TRIPE_RATION,
     WEAPON_CLASS,
 } from '../js/objects.js';
+import { initialize_symbols_from_options } from '../js/symbols.js';
 
 function transientGlyph(glyph, ch) {
     const presentation = {
@@ -117,6 +124,50 @@ function quickState(visible = true) {
         mx: 5,
         my: 5,
     };
+    return { monster, state };
+}
+
+// quickmimic() compares display.c glyph_at() values from the transient glyph
+// buffer. Build those values through the real newsym() path so this test does
+// not merely inject the IDs it expects quickmimic() to distinguish.
+function newsymQuickState(female) {
+    const fixture = quickState(true);
+    const state = resetGame();
+    Object.assign(state, fixture.state, {
+        dungeons: [{
+            ledger_start: 0,
+            depth_start: 1,
+            entry_lev: 1,
+            num_dunlevs: 20,
+            flags: 0,
+        }],
+        iflags: {},
+        quest_dnum: -1,
+        rogue_level: { dnum: 0, dlevel: 0 },
+        sanctum_level: { dnum: 0, dlevel: 0 },
+        specialLevels: [],
+    });
+    state.u = {
+        ...state.u,
+        uhave: { amulet: 0 },
+        ulevel: 1,
+        umonnum: 0,
+        uz: { dnum: 0, dlevel: 1 },
+    };
+    state.urace = { mnum: 0 };
+    state.urole = { mnum: PM_LITTLE_DOG };
+    initialize_symbols_from_options(
+        parseNethackrc('SYMBOLS=S_dog:d,S_feline:d'),
+        state,
+    );
+
+    const monster = fixture.monster;
+    monster.female = female;
+    monster.nmon = null;
+    state.level.monlist = monster;
+    place_monster(monster, monster.mx, monster.my, state);
+    state.level.at(monster.mx, monster.my).disp_glyph = null;
+    newsym(monster.mx, monster.my);
     return { monster, state };
 }
 
@@ -397,25 +448,33 @@ test('quickmimic turns a visible little dog into a kitten appearance',
 
 test('quickmimic distinguishes logical glyphs with identical presentations',
     async () => {
-        const { monster, state } = quickState(true);
-        const previous = state.level.at(5, 5).disp_glyph;
-        const messages = [];
-        await quickmimic(monster, {
-            state,
-            random: { rn2: () => 0 },
-            redraw(x, y) {
-                state.level.at(x, y).disp_glyph = transientGlyph(
-                    GLYPH_MON_MALE_OFF + PM_KITTEN,
-                    previous.ch,
-                );
-            },
-            message: async (message) => messages.push(message),
-            waitMap: async () => {},
-        });
+        for (const [female, petOffset, monsterOffset] of [
+            [false, GLYPH_PET_MALE_OFF, GLYPH_MON_MALE_OFF],
+            [true, GLYPH_PET_FEM_OFF, GLYPH_MON_FEM_OFF],
+        ]) {
+            const { monster, state } = newsymQuickState(female);
+            const location = state.level.at(5, 5);
+            const previousPresentation = location.disp_glyph;
+            assert.equal(
+                previousPresentation.glyph,
+                petOffset + PM_LITTLE_DOG,
+            );
+            const messages = [];
+            await quickmimic(monster, {
+                state,
+                random: { rn2: () => 0 },
+                redraw: newsym,
+                message: async (message) => messages.push(message),
+                waitMap: async () => {},
+            });
 
-        assert.deepEqual(messages, [
-            'You see a kitten appear where your little dog was!',
-        ]);
+            assert.equal(location.disp_glyph.glyph,
+                monsterOffset + PM_KITTEN);
+            assert.equal(location.disp_glyph.ch, previousPresentation.ch);
+            assert.deepEqual(messages, [
+                'You see a kitten appear where your little dog was!',
+            ]);
+        }
     });
 
 test('quickmimic keeps C fallback for one logical glyph drawn two ways',

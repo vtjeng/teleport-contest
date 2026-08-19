@@ -302,7 +302,7 @@ export async function dozap(state = game) {
     } else if (need_dir && !await getdir(null, state)) {
         if (!heroIsBlind(state))
             await ttyPline(
-                `${The(xnameFresh(obj, state))} glows and fades.`, state,
+                `${The(xnameFresh(obj, state), state)} glows and fades.`, state,
             );
         /* make him pay for knowing !NODIR */
     } else if (need_dir && !state.u.dx && !state.u.dy && !state.u.dz) {
@@ -555,7 +555,7 @@ export async function makewish(state = game) {
 
     /* The(aobjnam()) is safe since otmp is unidentified -dlc */
     await hold_another_object(
-        otmp, oops_msg, The(aobjnam(otmp, verb, state)), null,
+        otmp, oops_msg, The(aobjnam(otmp, verb, state), state), null,
         holdEnv,
         holdDropAdmission,
     );
@@ -1431,7 +1431,9 @@ export async function dobuzz(
                         ?? { x: 0, y: 0 };
                     await ttyPline(
                         messageAt(
-                            `${The(flash_str(fltyp, false, state))} hits you!`,
+                            `${The(
+                                flash_str(fltyp, false, state), state,
+                            )} hits you!`,
                             state.u.ux + from.x, state.u.uy + from.y, state,
                         ),
                         state,
@@ -1451,7 +1453,7 @@ export async function dobuzz(
                     }
                 } else if (!heroIsBlind(state)) {
                     await ttyPline(
-                        `${The(flash_str(fltyp, false, state))} whizzes `
+                        `${The(flash_str(fltyp, false, state), state)} whizzes `
                         + 'by you!',
                         state,
                     );

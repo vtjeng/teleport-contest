@@ -63,11 +63,13 @@ import {
     flush_screen,
     glyph_at,
     glyph_is_invisible,
+    map_object,
     map_invisible,
     obj_to_glyph,
     remembered_glyph_from_presentation,
     show_glyph_cell,
 } from '../js/display.js';
+import { GLYPH_UNEXPLORED_OFF } from '../js/glyph_offsets.js';
 import { freehand } from '../js/engrave.js';
 import { UnsupportedMonsterNameError } from '../js/do_name.js';
 import { extcmdlist } from '../js/extcmdlist_data.js';
@@ -156,6 +158,7 @@ import {
     loadApplyStethoscopeRecipe,
     loadBlindCorpseRecipe,
     loadBlindStatueRecipe,
+    loadCostlyFogVaporRecipe,
     loadCostlyMimicRedisguiseRecipe,
     loadHealerStatueTrapRecipe,
     loadListenAtMonsterRecipe,
@@ -944,10 +947,14 @@ test('an off-map adjacent listen uses You_hear and always stays free',
     // The second listen sees the unchanged hero sequence and computes
     // ECMD_TIME, but apply.c:390 returns ECMD_OK unconditionally. The leading
     // space dismisses the first message before getobj() opens its prompt.
+    game.gb.bhitpos = { x: COLNO - 1, y: ROWNO - 1 };
+    game.gn.notonhead = true;
     for (const key of [' ', 'c', 'h'])
         game.nhDisplay.pushKey(key.charCodeAt(0));
     assert.equal(await doapply(game), ECMD_OK);
     assert.equal(pendingTopLine(), 'You hear a faint typing noise.');
+    assert.deepEqual(game.gb.bhitpos, { x: 1, y: edgeY });
+    assert.equal(game.gn.notonhead, false);
     assert.equal((getRngLog() ?? []).length, before.rngCalls);
     assert.equal(game.moves, before.moves);
     assert.equal(game.context.move, before.contextMove);
@@ -1052,32 +1059,39 @@ test('secret terrain changes the map, vision, display, and turn result',
         [SCORR, CORR,
             'You hear a hollow sound.  This must be a secret passage!', '#'],
     ]) {
-        const target = await heroWithEmptyWest();
-        const location = game.level.at(target.x, target.y);
-        location.typ = secretType;
-        location.flags = 0;
-        location.doormask = 0;
-        game.flags.acoustics = true;
-        game.vision_full_recalc = 0;
+        for (const acoustics of [true, false]) {
+            const label = `${secretType}, acoustics ${acoustics}`;
+            const target = await heroWithEmptyWest();
+            const location = game.level.at(target.x, target.y);
+            location.typ = secretType;
+            location.flags = 0;
+            location.doormask = 0;
+            game.flags.acoustics = acoustics;
+            game.vision_full_recalc = 0;
+            const priorMessage = pendingTopLine();
 
-        for (const key of ['c', 'h'])
-            game.nhDisplay.pushKey(key.charCodeAt(0));
-        assert.equal(await doapply(game), ECMD_OK, String(secretType));
-        assert.equal(pendingTopLine(), message, String(secretType));
-        assert.equal(location.typ, exposedType, String(secretType));
-        assert.equal(location.flags,
-            secretType === SDOOR ? D_CLOSED : 0, String(secretType));
-        assert.equal(location.doormask,
-            secretType === SDOOR ? D_CLOSED : 0, String(secretType));
-        assert.equal(location.disp_ch, symbol, String(secretType));
-        assert.equal(game.vision_full_recalc, 1, String(secretType));
+            for (const key of ['c', 'h'])
+                game.nhDisplay.pushKey(key.charCodeAt(0));
+            assert.equal(await doapply(game), ECMD_OK, label);
+            assert.equal(
+                pendingTopLine(), acoustics ? message : priorMessage, label,
+            );
+            assert.equal(location.typ, exposedType, label);
+            assert.equal(location.flags,
+                secretType === SDOOR ? D_CLOSED : 0, label);
+            assert.equal(location.doormask,
+                secretType === SDOOR ? D_CLOSED : 0, label);
+            assert.equal(location.disp_ch, symbol, label);
+            assert.equal(game.vision_full_recalc, 1, label);
 
-        // The next listen in the same hero sequence costs the turn. The
-        // first line is still pending, so the leading space dismisses it
-        // before getobj() asks for the tool.
-        for (const key of [' ', 'c', 'h'])
-            game.nhDisplay.pushKey(key.charCodeAt(0));
-        assert.equal(await doapply(game), ECMD_TIME, String(secretType));
+            // The next listen in the same hero sequence costs the turn. Only
+            // the acoustics-on case has a first line to dismiss before
+            // getobj() asks for the tool.
+            const keys = acoustics ? [' ', 'c', 'h'] : ['c', 'h'];
+            for (const key of keys)
+                game.nhDisplay.pushKey(key.charCodeAt(0));
+            assert.equal(await doapply(game), ECMD_TIME, label);
+        }
     }
 });
 
@@ -1462,7 +1476,7 @@ test('its_dead reports singular, stacked, and separated corpses', async () => {
     );
 });
 
-test('blind its_dead compares logical corpse glyphs before mapping', async () => {
+test('its_dead maps only a blind mismatched corpse glyph', async () => {
     // apply.c:261-265. Start with the selected corpse already in the transient
     // buffer. The unrelated map-memory sentinel proves that an equal logical
     // glyph skips map_object(): comparing presentation objects by identity
@@ -1496,6 +1510,13 @@ test('blind its_dead compares logical corpse glyphs before mapping', async () =>
     assert.equal(glyph_at(COLNO, equal.y, game), roomGlyph);
     assert.equal(glyph_at(equal.x, -1, game), roomGlyph);
     assert.equal(glyph_at(equal.x, ROWNO, game), roomGlyph);
+    // clear_glyph_buffer() fills every in-bounds third-screen entry with
+    // GLYPH_UNEXPLORED. The JS buffer represents the cleared record as null,
+    // but glyph_at() still returns that logical number rather than undefined.
+    game.level.at(equal.x, equal.y).disp_glyph = null;
+    assert.equal(
+        glyph_at(equal.x, equal.y, game), GLYPH_UNEXPLORED_OFF,
+    );
     // Column zero and row zero are inside glyph_at()'s C buffer even though
     // ordinary movement never uses column zero. Put a non-room number at each
     // edge so turning either `< 0` guard into `<= 0` is observable.
@@ -1503,6 +1524,32 @@ test('blind its_dead compares logical corpse glyphs before mapping', async () =>
     show_glyph_cell(equal.x, 0, equalGlyph);
     assert.equal(glyph_at(0, equal.y, game), equalGlyph.glyph);
     assert.equal(glyph_at(equal.x, 0, game), equalGlyph.glyph);
+
+    // Sightedness gates map_object() independently from the glyph comparison.
+    // A visible apple above the selected corpse gives different logical IDs,
+    // but a sighted listen leaves both the transient glyph and memory alone.
+    const sighted = await heroWithEmptyWest();
+    const sightedCorpse = floorCorpstat(CORPSE, sighted);
+    const sightedApple = mksobj_at(
+        APPLE, sighted.x, sighted.y, false, false,
+        objectGenerationEnv({ state: game }),
+    );
+    const sightedCorpseGlyph = obj_to_glyph(sightedCorpse, game);
+    const sightedAppleGlyph = obj_to_glyph(sightedApple, game);
+    assert.notEqual(sightedAppleGlyph.glyph, sightedCorpseGlyph.glyph);
+    show_glyph_cell(sighted.x, sighted.y, sightedAppleGlyph);
+    const sightedMemory = remembered_glyph_from_presentation(
+        sightedAppleGlyph,
+    );
+    game.level.at(sighted.x, sighted.y).remembered_glyph = sightedMemory;
+
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        glyph_at(sighted.x, sighted.y, game), sightedAppleGlyph.glyph,
+    );
+    assert.equal(
+        game.level.at(sighted.x, sighted.y).remembered_glyph, sightedMemory,
+    );
 
     // The other source branch: an apple is above the corpse. With color off,
     // both presentations are the same `%`, but their glyph ranges and IDs are
@@ -1544,6 +1591,30 @@ test('blind its_dead compares logical corpse glyphs before mapping', async () =>
     assert.ok(!Object.keys(mapped.disp_glyph).includes('glyph'));
     assert.ok(!Object.keys(mapped.disp_glyph).includes('a11ySubject'));
     assert.ok(!Object.keys(mapped.remembered_glyph).includes('a11ySubject'));
+});
+
+test('map_object rejects foreign state before observation or display writes',
+    async () => {
+    const target = await heroWithEmptyWest();
+    const potion = mksobj_at(
+        POT_WATER, target.x, target.y, false, false,
+        objectGenerationEnv({ state: game }),
+    );
+    potion.dknown = false;
+    const location = game.level.at(target.x, target.y);
+    const remembered = location.remembered_glyph;
+    const displayed = location.disp_glyph;
+
+    assert.throws(
+        () => map_object(potion, true, { ...game }),
+        {
+            name: 'TypeError',
+            message: 'map_object() draws to the global game',
+        },
+    );
+    assert.equal(potion.dknown, false);
+    assert.equal(location.remembered_glyph, remembered);
+    assert.equal(location.disp_glyph, displayed);
 });
 
 test('blind its_dead keeps the ordinary plural grammar', async () => {
@@ -1676,6 +1747,19 @@ test('its_dead reports blind statues by location and body shape', async () => {
 });
 
 test('its_dead keeps exceptional object paths in source order', async () => {
+    // The exported source-named helper applies the same exceptional preflight
+    // as use_stethoscope(). Direct test callers cannot enter a partially
+    // supported arm after the command caller would have refused it.
+    const direct = await heroWithEmptyWest();
+    floorCorpstat(CORPSE, direct);
+    game.u.uprops[HALLUC].intrinsic = 1;
+    const directBefore = adjacentRefusalEffects(direct);
+    await assert.rejects(
+        its_dead(direct.x, direct.y, game),
+        { branch: 'a hallucinated listen to the dead' },
+    );
+    assert.deepEqual(adjacentRefusalEffects(direct), directBefore);
+
     // Blindness changes only the statue's name. The Healer's trap check below
     // that name changes the adjective and keeps the first listen free.
     const trapped = await heroWithEmptyWest();
@@ -1976,7 +2060,7 @@ test('ustatusline stops for every clause it would have to name', async () => {
     );
 });
 
-test('the apply matrix holds the eleven clean recipes the slices close on',
+test('the apply matrix holds the twelve clean recipes the slices close on',
     () => {
     const priorRecipes = [loadApplyStethoscopeRecipe(), loadApplyPromptRecipe()];
     const recipes = [
@@ -1990,11 +2074,12 @@ test('the apply matrix holds the eleven clean recipes the slices close on',
         loadBlindCorpseRecipe(),
         loadHealerStatueTrapRecipe(),
         loadCostlyMimicRedisguiseRecipe(),
+        loadCostlyFogVaporRecipe(),
     ];
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 45);
+    assert.equal(segments.length, 46);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // The two prior recipes open and close with a wait, so a command that
     // wrongly spent or wrongly saved a turn shows in the screen after it.

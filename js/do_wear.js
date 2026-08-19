@@ -340,7 +340,7 @@ async function on_msg(otmp, state) {
 
         await ttyPline(
             `You are now wearing ${obj_is_pname(otmp, state)
-                ? the(otmp_name) : an(otmp_name)}${how}.`,
+                ? the(otmp_name, state) : an(otmp_name)}${how}.`,
             state,
         );
     }
@@ -1387,7 +1387,7 @@ export async function select_off(otmp, state = game) {
         if (why) {
             await ttyPline(
                 `You cannot ${buf} to take off `
-                + `${the(xnameFresh(otmp, state))}.`,
+                + `${the(xnameFresh(otmp, state), state)}.`,
                 state,
             );
             set_bknown(why, 1, { state });

@@ -952,10 +952,28 @@ async function moveElapsedTurnMonster(monster, env) {
         }),
         // C ref: mon.c restrap(). The planning scan binds the same
         // set_mimic_sym() implementation, so the two passes take the same
-        // branches and spend the same draws.
+        // branches and spend the same draws. This live binding also preserves
+        // makemon.c set_mimic_sym()'s final visibility-blocking update against
+        // the live monster map.
         restrap: (subject, subjectEnv) => restrap(subject, {
             ...subjectEnv,
-            setMimicSym: set_mimic_sym,
+            setMimicSym: (mimic, mimicEnv) => set_mimic_sym(mimic, {
+                ...mimicEnv,
+                hooks: {
+                    ...(mimicEnv.hooks ?? {}),
+                    doesBlock: (x, y, location, normalized) => does_block(
+                        x,
+                        y,
+                        location,
+                        normalized.state,
+                    ),
+                    blockPoint: (x, y, normalized) => block_point(
+                        x,
+                        y,
+                        normalized.state,
+                    ),
+                },
+            }),
         }),
         canSeeMonster: (subject) => canSeeMonster(subject, env.state),
         hideUnder: unavailableElapsedTurnOperation('eel concealment'),

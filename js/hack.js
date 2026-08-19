@@ -1888,7 +1888,7 @@ async function dopush(sx, sy, rx, ry, otmp, state, env) {
     // xname() is not a passive read: it observes the object and clears
     // next_boulder (objnam.c:814-823, js/objnam.js:437-438), so naming a
     // boulder whose push says nothing would diverge.
-    const what = givemesg ? the(xnameFresh(otmp, state)) : null;
+    const what = givemesg ? the(xnameFresh(otmp, state), state) : null;
     // 190-202. The steed arm is refused by preflight_moverock().
     const easypush = throws_rocks(state.youmonst?.data);
     if (givemesg) {
@@ -2559,7 +2559,7 @@ async function domove_fight_empty(x, y, state) {
     if (solid) {
         buf = the(CMAP_EXPLANATIONS[
             glyph_to_cmap(back_to_glyph(x, y, state))
-        ]);
+        ], state);
     } else {
         // 2314-2316. Everything accessible that is not furniture is thin air,
         // which is ordinary floor, a corridor, ice, and a doorway with no

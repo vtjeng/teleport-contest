@@ -219,6 +219,7 @@ import {
     GLYPH_STATUE_FEM_PILETOP_OFF,
     GLYPH_STATUE_MALE_OFF,
     GLYPH_STATUE_MALE_PILETOP_OFF,
+    GLYPH_UNEXPLORED_OFF,
     GLYPH_WARNING_OFF,
     GLYPH_ZAP_OFF,
     MAX_GLYPH,
@@ -2197,7 +2198,7 @@ export function show_glyph_cell(x, y, glyph) {
 export function glyph_at(x, y, state = game) {
     if (x < 0 || y < 0 || x >= COLNO || y >= ROWNO)
         return cmap_to_glyph(S_room, state);
-    return state.level?.at(x, y)?.disp_glyph?.glyph;
+    return state.level?.at(x, y)?.disp_glyph?.glyph ?? GLYPH_UNEXPLORED_OFF;
 }
 
 /**
@@ -2445,6 +2446,9 @@ function show_region(region, x, y, state) {
 // hallucinating, and the branch between them requires !Hallucination, so
 // observing first and drawing once is the same sequence.
 export function map_object(obj, show, state = game) {
+    if (state !== game) {
+        throw new TypeError('map_object() draws to the global game');
+    }
     const { ox: x, oy: y } = obj;
     observeNearbyObject(obj, x, y, state);
     const mapped = mappedObjectGlyphInfo(obj, state);

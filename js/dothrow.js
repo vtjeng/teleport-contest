@@ -711,7 +711,7 @@ export async function throwit(obj, wep_mask, twoweap, oldslot, state = game) {
         && obj.owt > u.uhp * 2
         && !Is_airlevel(u.uz)) {
         await ttyPline(
-            `You have so little stamina, ${the(xnameFresh(obj, state))}`
+            `You have so little stamina, ${the(xnameFresh(obj, state), state)}`
             + ' drops from your grasp.',
             state,
         );

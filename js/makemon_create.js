@@ -421,7 +421,7 @@ import {
     sensesMonster,
 } from './startup_a11y.js';
 import { ttyNorep, ttyPline } from './tty_message.js';
-import { cansee, couldsee } from './vision.js';
+import { block_point, cansee, couldsee, does_block } from './vision.js';
 import { get_shop_item } from './shknam.js';
 import {
     S_altar,
@@ -994,6 +994,23 @@ export function set_mimic_sym(monster, normalized) {
         );
     } else if (monster.mextra && 'mcorpsenm' in monster.mextra) {
         monster.mextra.mcorpsenm = NON_PM;
+    }
+
+    // C's tail re-evaluates the square only after the disguise and any
+    // species overlay have consumed all their randomness. Runtime monster
+    // planning supplies clone-owned hooks here because vision.c's compact
+    // transparency index is shared outside the game-state object.
+    const doesBlock = normalized.hooks?.doesBlock
+        ?? ((bx, by, cell, env) => does_block(
+            bx,
+            by,
+            cell,
+            env.state,
+        ));
+    if (doesBlock(x, y, location, normalized)) {
+        const blockPoint = normalized.hooks?.blockPoint
+            ?? ((bx, by, env) => block_point(bx, by, env.state));
+        blockPoint(x, y, normalized);
     }
 }
 

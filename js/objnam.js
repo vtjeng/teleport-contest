@@ -1193,7 +1193,7 @@ export function aobjnam(otmp, verb, state = game) {
 // prepend 'The', not count, and use xname". zap.c dozap() names the wand that
 // crumbles with it.
 export function Tobjnam(otmp, verb, state = game) {
-    const bp = The(xnameFresh(otmp, state));
+    const bp = The(xnameFresh(otmp, state), state);
 
     if (verb)
         return `${bp} ${otense(otmp, verb)}`;
