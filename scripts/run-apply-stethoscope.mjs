@@ -660,119 +660,103 @@ export function loadApplyPromptRecipe() {
     }, 'apply prompt recipe');
 }
 
-export async function runApplyStethoscopeMatrix() {
-    const stethoscope = await runFreshMatrix({
-        entries: [{
+// The runner and its focused inventory test consume this one ordered list.
+// Keep each recipe's fresh-matrix label, summary label, and chunk isolation
+// beside its loader so adding or removing a recipe changes both consumers.
+export function loadApplyStethoscopeRecipeInventory() {
+    return [
+        {
             label: 'apply stethoscope',
+            summaryLabel: 'APPLY STETHOSCOPE',
+            chunkLimit: 5,
             recipe: loadApplyStethoscopeRecipe(),
-        }],
-        summaryLabel: 'APPLY STETHOSCOPE',
-        chunkLimit: 5,
-    });
-    if (!stethoscope.passed) return stethoscope;
-    const prompt = await runFreshMatrix({
-        entries: [{
+        },
+        {
             label: 'apply prompt',
+            summaryLabel: 'APPLY PROMPT',
+            chunkLimit: 5,
             recipe: loadApplyPromptRecipe(),
-        }],
-        summaryLabel: 'APPLY PROMPT',
-        chunkLimit: 5,
-    });
-    if (!prompt.passed) return prompt;
-    // Most segments below are playmode:debug games, and
-    // scripts/record-session.mjs clears the install directory only before a
-    // chunk's first segment, so two debug games in one chunk would leave the
-    // second restoring the first one's save. chunkLimit 1 is harmless for the
-    // one ordinary cloud segment and preserves that isolation for the rest.
-    const monster = await runFreshMatrix({
-        entries: [{
+        },
+        // Most remaining recipes are playmode:debug games, and
+        // scripts/record-session.mjs clears the install directory only before
+        // a chunk's first segment. A limit of one prevents a later debug game
+        // from restoring the preceding game's save. The ordinary cloud
+        // segment keeps the same limit because it shares the monster recipe.
+        {
             label: 'listen at a monster',
+            summaryLabel: 'LISTEN AT A MONSTER',
+            chunkLimit: 1,
             recipe: loadListenAtMonsterRecipe(),
-        }],
-        summaryLabel: 'LISTEN AT A MONSTER',
-        chunkLimit: 1,
-    });
-    if (!monster.passed) return monster;
-    const quickmimic = await runFreshMatrix({
-        entries: [{
+        },
+        {
             label: 'quickmimic logical glyph',
+            summaryLabel: 'QUICKMIMIC LOGICAL GLYPH',
+            chunkLimit: 1,
             recipe: loadQuickmimicLogicalGlyphRecipe(),
-        }],
-        summaryLabel: 'QUICKMIMIC LOGICAL GLYPH',
-        chunkLimit: 1,
-    });
-    if (!quickmimic.passed) return quickmimic;
-    const secret = await runFreshMatrix({
-        entries: [{
+        },
+        {
             label: 'secret terrain',
+            summaryLabel: 'SECRET TERRAIN',
+            chunkLimit: 1,
             recipe: loadSecretTerrainRecipe(),
-        }],
-        summaryLabel: 'SECRET TERRAIN',
-        chunkLimit: 1,
-    });
-    if (!secret.passed) return secret;
-    const corpse = await runFreshMatrix({
-        entries: [{
+        },
+        {
             label: 'ordinary corpse',
+            summaryLabel: 'ORDINARY CORPSE',
+            chunkLimit: 1,
             recipe: loadOrdinaryCorpseRecipe(),
-        }],
-        summaryLabel: 'ORDINARY CORPSE',
-        chunkLimit: 1,
-    });
-    if (!corpse.passed) return corpse;
-    const statue = await runFreshMatrix({
-        entries: [{
+        },
+        {
             label: 'ordinary statue',
+            summaryLabel: 'ORDINARY STATUE',
+            chunkLimit: 2,
             recipe: loadOrdinaryStatueRecipe(),
-        }],
-        summaryLabel: 'ORDINARY STATUE',
-        chunkLimit: 2,
-    });
-    if (!statue.passed) return statue;
-    const blindStatue = await runFreshMatrix({
-        entries: [{
+        },
+        {
             label: 'blind statue',
+            summaryLabel: 'BLIND STATUE',
+            chunkLimit: 1,
             recipe: loadBlindStatueRecipe(),
-        }],
-        summaryLabel: 'BLIND STATUE',
-        chunkLimit: 1,
-    });
-    if (!blindStatue.passed) return blindStatue;
-    const blindCorpse = await runFreshMatrix({
-        entries: [{
+        },
+        {
             label: 'blind corpse',
+            summaryLabel: 'BLIND CORPSE',
+            chunkLimit: 1,
             recipe: loadBlindCorpseRecipe(),
-        }],
-        summaryLabel: 'BLIND CORPSE',
-        chunkLimit: 1,
-    });
-    if (!blindCorpse.passed) return blindCorpse;
-    const healerStatueTrap = await runFreshMatrix({
-        entries: [{
+        },
+        {
             label: 'Healer statue trap',
+            summaryLabel: 'HEALER STATUE TRAP',
+            chunkLimit: 1,
             recipe: loadHealerStatueTrapRecipe(),
-        }],
-        summaryLabel: 'HEALER STATUE TRAP',
-        chunkLimit: 1,
-    });
-    if (!healerStatueTrap.passed) return healerStatueTrap;
-    const costlyMimic = await runFreshMatrix({
-        entries: [{
+        },
+        {
             label: 'costly mimic redisguise',
+            summaryLabel: 'COSTLY MIMIC REDISGUISE',
+            chunkLimit: 1,
             recipe: loadCostlyMimicRedisguiseRecipe(),
-        }],
-        summaryLabel: 'COSTLY MIMIC REDISGUISE',
-        chunkLimit: 1,
-    });
-    if (!costlyMimic.passed) return costlyMimic;
-    return runFreshMatrix({
-        entries: [{
+        },
+        {
             label: 'costly fog vapor',
+            summaryLabel: 'COSTLY FOG VAPOR',
+            chunkLimit: 1,
             recipe: loadCostlyFogVaporRecipe(),
-        }],
-        summaryLabel: 'COSTLY FOG VAPOR',
-        chunkLimit: 1,
-    });
+        },
+    ];
+}
+
+export async function runApplyStethoscopeMatrix() {
+    let result;
+    for (const { label, recipe, summaryLabel, chunkLimit }
+        of loadApplyStethoscopeRecipeInventory()) {
+        result = await runFreshMatrix({
+            entries: [{ label, recipe }],
+            summaryLabel,
+            chunkLimit,
+        });
+        if (!result.passed) return result;
+    }
+    return result;
 }
 
 async function main(argv) {

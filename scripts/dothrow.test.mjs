@@ -140,7 +140,9 @@ import {
     YUMI,
     objects_globals_init,
 } from '../js/objects.js';
-import { ART_MJOLLNIR } from '../js/artifacts.js';
+import {
+    ART_EXCALIBUR, ART_MJOLLNIR, init_artifacts,
+} from '../js/artifacts.js';
 import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import { initialize_symbols_from_options } from '../js/symbols.js';
 import { HeadlessTerminal } from '../js/terminal.js';
@@ -958,6 +960,33 @@ test('throwit() drops a heavy missile from a tired hand', async () => {
         }
     }
 });
+
+test('throwit() keeps its foreign naming state for the stamina message',
+    async () => {
+        const foreign = arena({ str: 3, con: 3, uhp: 5, uhpmax: 12 });
+        foreign.flags.initalign = 0;
+        init_artifacts(foreign);
+        foreign.gf = {
+            ffruit: { fname: 'Excalibur', fid: 7, nextf: null },
+        };
+        foreign.artilist[ART_EXCALIBUR].name = 'Elsecalibur';
+        const daggerType = foreign.objects[DAGGER];
+        foreign.obj_descr[daggerType.oc_name_idx].oc_name = 'Excalibur';
+        carry(foreign, item(foreign, DAGGER, { owt: 270 }));
+        foreign._ttyToplines = '';
+
+        await assert.rejects(
+            () => throwit(
+                item(foreign, DAGGER, { owt: 30 }),
+                0, false, null, foreign,
+            ),
+            /straight up or down/u,
+        );
+        assert.equal(
+            foreign._ttyToplines,
+            'You have so little stamina, the Excalibur drops from your grasp.',
+        );
+    });
 
 test('throwit() reads the stamina test differently in each direction',
     async () => {

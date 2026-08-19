@@ -1103,9 +1103,10 @@ export async function preflightSimpleMonsterActions(
     try {
         upkeepCount = await planSimpleMonsterTurn(planned, random, advanceRound);
     } finally {
-        // admitDoorOpening() rebuilt js/vision.js's shared transparency index
-        // from the planned map. Deriving it again from the live map restores
-        // it, whether the plan finished or refused partway through.
+        // A planned door opening or blocking mimic disguise rebuilt
+        // js/vision.js's shared transparency index from the planned map.
+        // Deriving it again from the live map restores it, whether the plan
+        // finished or refused partway through.
         //
         // recalc_block_point() is not side-effect-free on the live state:
         // rebuildVisionPoint() sets vision_full_recalc whenever the change

@@ -629,7 +629,7 @@ function elapsedTurnMinLiquid(monster, env) {
     return false;
 }
 
-async function finishElapsedTurn(
+export async function finishElapsedTurn(
     state,
     random,
     { planning = false, randomMonsterOnly = false } = {},
@@ -690,9 +690,26 @@ async function finishElapsedTurn(
                 );
             }
         : undefined;
+    // A random mimic can be born during this cloned allocation. makemon.c
+    // set_mimic_sym() rebuilds vision after choosing a blocking disguise, so
+    // run that tail against the cloned monster map and mark the borrowed
+    // transparency index for preflightSimpleMonsterActions() to restore.
+    const planningCreationVisionHooks = planning ? {
+        doesBlock: (x, y, location, normalized) => does_block(
+            x,
+            y,
+            location,
+            normalized.state,
+        ),
+        blockPoint: (x, y, normalized) => {
+            normalized.state._plannedVisionChange ??= { x, y };
+            block_point(x, y, normalized.state);
+        },
+    } : null;
     await maybe_generate_rnd_mon(state, {
         random,
         displayRandom: planningDisplayRandom,
+        hooks: planningCreationVisionHooks,
         message: turnMessage,
         norepMessage: turnNorep,
         statusRefresh: turnStatusRefresh,

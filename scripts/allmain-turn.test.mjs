@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import {
+    finishElapsedTurn,
     finishHeroTimeEffects,
     interrupt_multi,
     maybe_generate_rnd_mon,
@@ -22,6 +23,7 @@ import {
     FAST,
     FLYING,
     FROMOUTSIDE,
+    G_GENOD,
     HOLE,
     HUNGER,
     HVY_ENCUMBER,
@@ -31,6 +33,8 @@ import {
     LEFT_SIDE,
     LEVITATION,
     M_AP_MONSTER,
+    M_AP_OBJECT,
+    M_AP_TYPMASK,
     MOD_ENCUMBER,
     NORMAL_SPEED,
     NOT_HUNGRY,
@@ -69,7 +73,7 @@ import {
     weight_cap,
 } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
-import { getRngLog } from '../js/rng.js';
+import { getRngLog, initRng } from '../js/rng.js';
 import { newMonster, place_monster } from '../js/monst.js';
 import {
     AT_HUGS,
@@ -80,9 +84,11 @@ import {
     PM_LICHEN,
     PM_ORC,
     PM_PONY,
+    PM_SMALL_MIMIC,
     PM_TENGU,
 } from '../js/monsters.js';
 import {
+    BOULDER,
     CORPSE,
     DAGGER,
     OIL_LAMP,
@@ -100,7 +106,7 @@ import { UnsupportedObjectNameError } from '../js/objnam.js';
 import { UnsupportedMonsterPickupOperationError } from '../js/steal.js';
 import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
 import { clearTtyMessageWindow, ttyPline } from '../js/tty_message.js';
-import { cansee, vision_recalc } from '../js/vision.js';
+import { cansee, does_block, vision_recalc } from '../js/vision.js';
 import { start_timer } from '../js/timeout.js';
 import {
     loadFirstCompleteTurnRecipe,
@@ -2085,6 +2091,118 @@ test('a refused planned monster becomes a turn boundary, not a hard failure',
         }
     });
 
+test('a planned blocking mimic birth restores live vision on every exit',
+    async () => {
+        for (const refuseAfterBirth of [false, true]) {
+            await runSegment({
+                seed: 1,
+                datetime: '20260804120000',
+                nethackrc: 'OPTIONS=name:PlannedBlocker,role:Healer,'
+                    + 'race:human,gender:female,align:neutral,!legacy,'
+                    + '!tutorial,!splash_screen,pettype:none,!acoustics',
+                moves: '',
+            });
+            for (const column of game.level.monsters) column.fill(null);
+            game.level.monlist = null;
+            game.level.regions = refuseAfterBirth ? [create_region([{
+                lx: game.u.ux,
+                ly: game.u.uy,
+                hx: game.u.ux,
+                hy: game.u.uy,
+            }])] : [];
+            game.head_engr = null;
+            game.u.ulevel = 15;
+            game.u.uevent.udemigod = true;
+            game.u.uhave.amulet = true;
+            game.context.seer_turn = 100000;
+            game.context.next_attrib_check = 100000;
+            game.u.umovement = 0;
+
+            // Keep rndmonst()'s reservoir focused on the source behavior under
+            // test. Seed 4509's independent stream enters the generation gate,
+            // places that small mimic at <38,17>, and chooses ROCK_CLASS then
+            // BOULDER for its ordinary-room disguise.
+            for (let i = 0; i < game.mvitals.length; ++i) {
+                if (i !== PM_SMALL_MIMIC)
+                    game.mvitals[i].mvflags |= G_GENOD;
+            }
+            initRng(4509);
+            const rngBefore = {
+                core: structuredClone(game.coreCtx),
+                display: structuredClone(game.displayCtx),
+            };
+            const guard = freezeLiveState(game);
+            let plannedOutcome = null;
+            let plannedRngSentinel = null;
+            const run = preflightSimpleMonsterActions(game, {
+                async advanceRound(planned, planningRandom) {
+                    try {
+                        return await finishElapsedTurn(
+                            planned,
+                            planningRandom,
+                            {
+                                planning: true,
+                                randomMonsterOnly: !refuseAfterBirth,
+                            },
+                        );
+                    } finally {
+                        const mimic = planned.level.monlist;
+                        plannedOutcome = {
+                            mnum: mimic?.mnum,
+                            x: mimic?.mx,
+                            y: mimic?.my,
+                            m_ap_type: mimic?.m_ap_type & M_AP_TYPMASK,
+                            mappearance: mimic?.mappearance,
+                            blocks: does_block(
+                                mimic?.mx,
+                                mimic?.my,
+                                null,
+                                planned,
+                            ),
+                            marked: planned._plannedVisionChange,
+                        };
+                        plannedRngSentinel = [
+                            planningRandom.rn2(1000000),
+                            planningRandom.rn2(1000000),
+                            planningRandom.rn2(1000000),
+                        ];
+                    }
+                },
+            });
+            if (refuseAfterBirth) {
+                await assert.rejects(
+                    run,
+                    (error) => error instanceof UnsupportedTurnBoundaryError
+                        && error.message === 'elapsed turn reached burdened '
+                            + 'multi-cycle region upkeep',
+                );
+            } else {
+                await run;
+            }
+            guard.assertNoLeak(assert);
+            assert.ok(guard.frozen > 1000,
+                `froze only ${guard.frozen} objects`);
+            assert.ok(guard.views > 0,
+                `snapshotted only ${guard.views} typed arrays`);
+
+            assert.deepEqual(plannedOutcome, {
+                mnum: PM_SMALL_MIMIC,
+                x: 38,
+                y: 17,
+                m_ap_type: M_AP_OBJECT,
+                mappearance: BOULDER,
+                blocks: true,
+                marked: { x: 38, y: 17 },
+            });
+            assert.deepEqual(plannedRngSentinel, [297084, 3732, 475708]);
+            assert.equal(game.level.monlist, null);
+            assert.equal(game.level.monsters[38][17], null);
+            assert.equal(does_block(38, 17, null, game), false);
+            assert.deepEqual(game.coreCtx, rngBefore.core);
+            assert.deepEqual(game.displayCtx, rngBefore.display);
+        }
+    });
+
 // The same conversion reached from recorded keystrokes rather than from a
 // hand-built state, which is what shows the shape it protects: runSegment()
 // returns the screens the segment had already matched instead of discarding
@@ -2717,11 +2835,9 @@ test('interrupt_multi refuses to end a count it cannot announce', async () => {
 // the once-per-turn planning round. That round runs the whole of
 // finishElapsedTurn() on the clone -- hunger, region upkeep, monster
 // generation, timeouts -- and is the largest single surface the clone has to
-// isolate. This case is the only one that covers it.
-//
-// finishElapsedTurn() is not exported, so the round is reached the way the
-// game reaches it: a burdened hero makes projected_capacity() positive, which
-// is what makes advanceElapsedTurn() supply advanceRound at all.
+// isolate. The blocking-mimic case above reaches it directly; this case also
+// pins its production coordinator. A burdened hero makes projected_capacity()
+// positive, which is what makes advanceElapsedTurn() supply advanceRound.
 //
 // The assertion is about where the turn's first live write happens rather than
 // whether one happens. Under a total freeze the live pass must fail -- it is

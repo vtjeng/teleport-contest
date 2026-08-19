@@ -19,6 +19,7 @@ import {
     IN_SIGHT,
     M_AP_OBJECT,
     M_AP_TYPMASK,
+    NORMAL_SPEED,
     NON_PM,
     PIT,
     PROT_FROM_SHAPE_CHANGERS,
@@ -35,8 +36,12 @@ import {
     PM_TRAPPER,
 } from '../js/monsters.js';
 import { BOULDER, GOLD_PIECE, STRANGE_OBJECT } from '../js/objects.js';
-import { preflightSimpleMonsterActions } from '../js/unported_monster_actions.js';
-import { block_point, does_block } from '../js/vision.js';
+import { initRng } from '../js/rng.js';
+import {
+    preflightSimpleMonsterActions,
+    UnsupportedSimpleMonsterActionError,
+} from '../js/unported_monster_actions.js';
+import { does_block } from '../js/vision.js';
 import { freezeLiveState } from './planning-isolation-test-support.mjs';
 import { loadCostlyMimicRedisguiseRecipe } from './run-apply-stethoscope.mjs';
 import { GENESIS_KEY, loadMonsterHidingRecipe } from './run-monster-hiding.mjs';
@@ -318,63 +323,86 @@ test('restrap re-disguises only a mimic that is awake and undisguised',
         game.u.uprops[PROT_FROM_SHAPE_CHANGERS] = undefined;
     });
 
-test('a blocking mimic disguise updates vision after its final draw',
+test('planning a blocking redisguise restores live vision on every exit',
     async () => {
-        await hero();
-        const awake = hiderAt(PM_SMALL_MIMIC, far());
-        assert.equal(does_block(awake.mx, awake.my, null, game), false);
+        for (const refuseAfterScan of [false, true]) {
+            await hero();
+            for (const column of game.level.monsters) column.fill(null);
+            game.level.monlist = null;
+            const awake = hiderAt(PM_SMALL_MIMIC, far(), {
+                movement: NORMAL_SPEED,
+            });
+            assert.equal(does_block(awake.mx, awake.my, null, game), false);
 
-        const draws = [];
-        const visionCalls = [];
-        const random = {
-            d: () => assert.fail('boulder disguise drew d()'),
-            rn1: () => assert.fail('boulder disguise drew rn1()'),
-            rn2(bound) {
-                draws.push(`rn2(${bound})`);
-                if (bound === 3) return 0;
-                if (bound === 17) return 12; // ROCK_CLASS in makemon.c syms[]
-                return assert.fail(`unexpected rn2(${bound})`);
-            },
-            rnd(bound) {
-                draws.push(`rnd(${bound})`);
-                return 1;
-            },
-            rne: () => assert.fail('boulder disguise drew rne()'),
-        };
-        const answer = restrap(awake, {
-            state: game,
-            random,
-            setMimicSym: (mimic, env) => set_mimic_sym(mimic, {
-                ...env,
-                hooks: {
-                    doesBlock(x, y, location, normalized) {
-                        visionCalls.push('doesBlock');
-                        assert.deepEqual(draws, [
-                            'rn2(3)',
-                            'rn2(17)',
-                            'rnd(1000)',
-                            'rnd(2)',
-                        ]);
-                        assert.equal(mimic.mappearance, BOULDER);
-                        return does_block(
-                            x,
-                            y,
-                            location,
-                            normalized.state,
+            // The first four draws from this independent stream are
+            // rn2(3)=0, rn2(17)=12, rnd(1000)=91, rnd(2)=1.  They take
+            // restrap() and set_mimic_sym()'s ROCK_CLASS arm to BOULDER.
+            initRng(511);
+            const rngBefore = {
+                core: structuredClone(game.coreCtx),
+                display: structuredClone(game.displayCtx),
+            };
+            const guard = freezeLiveState(game);
+            let planned = null;
+            let plannedRngSentinel = null;
+            const run = preflightSimpleMonsterActions(game, {
+                advanceRound(planningState, planningRandom) {
+                    const plannedMimic = m_at(
+                        awake.mx,
+                        awake.my,
+                        planningState,
+                    );
+                    planned = {
+                        m_ap_type: plannedMimic.m_ap_type & M_AP_TYPMASK,
+                        mappearance: plannedMimic.mappearance,
+                        blocks: does_block(
+                            awake.mx,
+                            awake.my,
+                            null,
+                            planningState,
+                        ),
+                        marked: planningState._plannedVisionChange,
+                    };
+                    plannedRngSentinel = [
+                        planningRandom.rn2(1000000),
+                        planningRandom.rn2(1000000),
+                        planningRandom.rn2(1000000),
+                    ];
+                    if (refuseAfterScan) {
+                        throw new UnsupportedSimpleMonsterActionError(
+                            'post-redisguise test refusal',
                         );
-                    },
-                    blockPoint(x, y, normalized) {
-                        visionCalls.push('blockPoint');
-                        block_point(x, y, normalized.state);
-                    },
+                    }
+                    return true;
                 },
-            }),
-        });
+            });
+            if (refuseAfterScan) {
+                await assert.rejects(run, UnsupportedSimpleMonsterActionError);
+            } else {
+                await run;
+            }
+            guard.assertNoLeak(assert);
+            assert.ok(guard.frozen > 1000,
+                `froze only ${guard.frozen} objects`);
+            assert.ok(guard.views > 0,
+                `snapshotted only ${guard.views} typed arrays`);
 
-        assert.equal(answer, true);
-        assert.equal(awake.mappearance, BOULDER);
-        assert.equal(does_block(awake.mx, awake.my, null, game), true);
-        assert.deepEqual(visionCalls, ['doesBlock', 'blockPoint']);
+            assert.deepEqual(planned, {
+                m_ap_type: M_AP_OBJECT,
+                mappearance: BOULDER,
+                blocks: true,
+                marked: { x: awake.mx, y: awake.my },
+            });
+            assert.deepEqual(plannedRngSentinel, [
+                584456,
+                102362,
+                994105,
+            ]);
+            assert.equal(awake.m_ap_type & M_AP_TYPMASK, 0);
+            assert.equal(does_block(awake.mx, awake.my, null, game), false);
+            assert.deepEqual(game.coreCtx, rngBefore.core);
+            assert.deepEqual(game.displayCtx, rngBefore.display);
+        }
     });
 
 test('a costly listen re-disguises its revealed mimic through the sentinel',

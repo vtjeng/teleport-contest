@@ -41,6 +41,7 @@ import {
     canwearobj,
     dowear,
     equip_ok,
+    select_off,
     set_wear,
     wear_ok,
 } from '../js/do_wear.js';
@@ -1962,6 +1963,70 @@ test('on_msg prints only when flags.verbose is on', async () => {
     );
     game.flags.verbose = true;
 });
+
+test('wear and take-off messages keep their foreign naming state',
+    async () => {
+        const segment = segmentFor(`${TAKEOFF_KEY}${WEAR_KEY}c`);
+        await setup(segment, WAIT);
+
+        function foreignState() {
+            const state = Object.create(game);
+            state.mons = structuredClone(game.mons);
+            state.mons[PM_LICHEN].pmnames = [
+                'Blueberries', 'Blueberries', 'Blueberries',
+            ];
+            state.gf = {
+                ffruit: { fname: 'foreign fruit', fid: 7, nextf: null },
+            };
+            state.artilist = structuredClone(game.artilist);
+            state.artiexist = structuredClone(game.artiexist);
+            state.artilist[ART_SUNSWORD].name = 'Blueberries';
+            state.artiexist[ART_SUNSWORD].exists = 1;
+            state.artiexist[ART_SUNSWORD].found = 1;
+            state.objects = structuredClone(game.objects);
+            state.obj_descr = structuredClone(game.obj_descr);
+            state.flags = { ...game.flags, verbose: true };
+            state.iflags = { ...game.iflags, override_ID: true };
+            state.program_state = { ...game.program_state };
+            state.context = structuredClone(game.context);
+            state.u = structuredClone(game.u);
+            state.nhDisplay = { ...game.nhDisplay };
+            state._pending_message = '';
+            state._ttyPreviousMessage = '';
+            state._ttyToplines = '';
+            return state;
+        }
+
+        function blueberries(overrides = {}) {
+            return armor(SMALL_SHIELD, {
+                dknown: 1,
+                oartifact: ART_SUNSWORD,
+                oextra: { oname: 'Blueberries' },
+                ...overrides,
+            });
+        }
+
+        const wearing = foreignState();
+        await on_msg(blueberries({ owornmask: W_ARMS }), wearing);
+        assert.equal(
+            wearing._pending_message,
+            'You are now wearing the Blueberries.',
+        );
+
+        const takingOff = foreignState();
+        const namedSuit = blueberries({ owornmask: W_ARM });
+        takingOff.uarm = namedSuit;
+        takingOff.uarmc = armor(LEATHER_CLOAK, {
+            cursed: true,
+            owornmask: W_ARMC,
+        });
+        takingOff.context.takeoff = { mask: 0 };
+        assert.equal(await select_off(namedSuit, takingOff), 0);
+        assert.equal(
+            takingOff._pending_message,
+            'You cannot remove your cloak to take off the Blueberries.',
+        );
+    });
 
 test('already_wearing picks its punctuation from the c_that_ string',
     async () => {

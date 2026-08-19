@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
+import { ART_EXCALIBUR } from '../js/artifacts.js';
 import { ADMITTED_COMMANDS, failClosedCommandRefusals } from '../js/cmd.js';
 import {
     ECMD_OK,
@@ -19,6 +20,7 @@ import { extcmdlist } from '../js/extcmdlist_data.js';
 import { game } from '../js/gstate.js';
 import { inv_weight, near_capacity, weight_cap } from '../js/hack.js';
 import { runSegment } from '../js/jsmain.js';
+import { PM_FOX } from '../js/monsters.js';
 import { Tobjnam } from '../js/objnam.js';
 import {
     NODIR,
@@ -354,6 +356,54 @@ test('the zap command asks for an object and then for a direction',
     await runSegment({ ...segment, moves: `.${ZAP_BY_NAME}` });
     assert.equal(topLine(), 'What do you want to zap? [g or ?*]');
 });
+
+test('dozap() keeps its foreign naming state after an escaped direction',
+    async () => {
+        await heroCarryingWand({ spe: 4 });
+        const foreign = Object.create(game);
+        foreign.mons = structuredClone(game.mons);
+        foreign.mons[PM_FOX].pmnames = [
+            'foreign fox', 'foreign fox', 'foreign fox',
+        ];
+        foreign.gf = {
+            ffruit: { fname: 'Excalibur', fid: 7, nextf: null },
+        };
+        foreign.artilist = structuredClone(game.artilist);
+        foreign.artiexist = structuredClone(game.artiexist);
+        foreign.artilist[ART_EXCALIBUR].name = 'Elsecalibur';
+        foreign.artiexist[ART_EXCALIBUR].exists = 1;
+        foreign.artiexist[ART_EXCALIBUR].found = 1;
+        foreign.objects = structuredClone(game.objects);
+        foreign.obj_descr = structuredClone(game.obj_descr);
+        foreign.flags = { ...game.flags };
+        foreign.iflags = { ...game.iflags, override_ID: true };
+        foreign.program_state = { ...game.program_state };
+        foreign.context = structuredClone(game.context);
+        foreign.u = structuredClone(game.u);
+        foreign.youmonst = {
+            ...game.youmonst,
+            data: foreign.mons[foreign.u.umonnum],
+        };
+        const wand = { ...carriedWand(), nobj: null };
+        wand.oartifact = ART_EXCALIBUR;
+        wand.oextra = { oname: 'Excalibur' };
+        foreign.invent = wand;
+        const wandType = foreign.objects[wand.otyp];
+        wandType.oc_name_known = 1;
+        foreign.obj_descr[wandType.oc_name_idx].oc_name = 'Excalibur';
+        wand.dknown = 1;
+        foreign.nhDisplay = game.nhDisplay;
+        foreign._pending_message = '';
+        foreign._ttyPreviousMessage = '';
+        foreign._ttyToplines = '';
+        typeAtPrompts(wand.invlet, ESCAPE_KEY);
+
+        assert.equal(await dozap(foreign), ECMD_TIME);
+        assert.equal(
+            foreign._pending_message,
+            'The Excalibur glows and fades.',
+        );
+    });
 
 test('only a zap that chose a wand spends the turn', async () => {
     // rhack()'s result handling at cmd.c:3810-3818 over dozap()'s two
