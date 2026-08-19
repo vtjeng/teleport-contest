@@ -1,10 +1,10 @@
 {
-  "mode": "implementation",
-  "reason": "The next authorized constructed-test slice must port apply.c its_dead():206-211's out-of-reach tiny-statue walk. A hero who cannot reach the floor must skip every MZ_TINY statue through the nexthere chain and fall through to `You hear nothing special.`, while any selected non-tiny statue remains an atomic refusal.",
-  "commitChecked": "b2075c767d79450fc6269525e4f1c8ed3bf924e0",
+  "mode": "ready-for-audit",
+  "reason": "Commit 9519b07 ports apply.c its_dead():206-211's out-of-reach MZ_TINY traversal. The authorized constructed doapply() fixture proves the all-tiny fall-through, both command results, exact terminal state, supplied monster-catalog ownership, nexthere rather than nobj traversal, zero branch RNG, and state preservation; controls keep the first non-tiny statue as an atomic refusal. The full checkpoint and all 47 source-real sibling segments pass, and the original mutation wave killed both eligible mutants.",
+  "commitChecked": "9519b07c5cc69aa11b379ef1b493287f44ba3a46",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
-    "startingCommit": "b2075c767d79450fc6269525e4f1c8ed3bf924e0",
+    "startingCommit": "f9294dd6937de005d038089a3c2ea29507b992f3",
     "startingEvent": "A hero who cannot reach the floor applies the starting stethoscope to an adjacent square containing one or more selected statues; the command has accepted the tool and direction and its_dead() is about to filter the pile.",
     "endingEvent": "apply.c its_dead() clears any corpse, walks past every MZ_TINY statue through nxtobj(..., STATUE, TRUE), returns FALSE when none remains, and use_stethoscope() prints `You hear nothing special.` before the next input boundary.",
     "validInputs": "Use the user-authorized constructed doapply() fixture with intrinsic LEVITATION, two newt statues and a separating rock. No currently ported command enables levitation or unskilled riding, so record the exact state, controlling source, setup-route limitation, integration evidence, and what the substitute cannot prove.",
@@ -88,8 +88,8 @@
       "owner": "js/apply.js its_dead()",
       "effects": "Walks statue past every MZ_TINY entry through invent.c nxtobj(), so a square holding none but tiny statues reaches the fall-through.",
       "evidence": "apply.c:208-211 and invent.c nxtobj() (1477-1491). Both nxtobj() and MZ_TINY now exist in js/; the remaining gap is the source tiny-statue walk and its authorized constructed live-consumer validation because no ported levitation or unskilled-riding setup reaches it.",
-      "status": "missing",
-      "remaining": "Port the now-available nxtobj()/MZ_TINY walk through preflight and execution; validate two tiny statues separated by another object, nexthere/catalog ownership, free/costly fall-through, and non-tiny stopping controls while preserving the named refusal."
+      "status": "done",
+      "remaining": "None. The authorized constructed doapply() fixture walks two newt statues separated by a rock, with a detached gnome on nobj to distinguish nexthere traversal, and pins both command results, exact fall-through output, terminal state, zero RNG, and unchanged state. Supplied-state and non-tiny controls distinguish catalog ownership and the retained refusal."
     },
     {
       "candidate": "apply.c its_dead() Hallucination arm (226-260)",
@@ -335,12 +335,6 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "apply.c its_dead() out-of-reach statue selection",
-      "candidates": ["apply.c its_dead() tiny-statue walk (208-211)"],
-      "next": "Port the MZ_TINY nexthere traversal in the shared selection/preflight path and validate the authorized constructed doapply() consumer plus non-tiny refusal controls."
-    }
-  ],
-  "sourceReview": "The completed goal-wide trace remains recorded above. The next slice isolates apply.c:206-211 before mixed-pile selection: an unreachable hero loses the corpse candidate, then advances the statue candidate through nxtobj(..., STATUE, TRUE) while mons[corpsenm].msize == MZ_TINY. If all statues are tiny, its_dead() returns FALSE and use_stethoscope() prints the ordinary nothing-special line; the first non-tiny statue remains selected. nxtobj() and MZ_TINY are now ported. No current input enables levitation or the unskilled-riding condition, so the user's 2026-08-19 authorization supplies a documented live doapply() fixture that cannot prove player-input reachability, future status wiring, or direct C parity for the constructed state. REVIVE_MON `mostly dead`, the full Hallucination message arm, selected non-tiny out-of-reach behavior, and fog m_in_out_region() remain separate confirmed gaps."
+  "missingWorkByOwner": [],
+  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 9519b07 closes apply.c:206-211 before mixed-pile selection: an unreachable hero loses the corpse candidate, then advances the statue through nxtobj(..., STATUE, TRUE) while the supplied mons[corpsenm].msize is MZ_TINY. When all statues are tiny, its_dead() returns FALSE and use_stethoscope() prints the ordinary nothing-special line; the first non-tiny statue remains selected and refused before effects. No current input enables levitation or the unskilled-riding condition, so the user's 2026-08-19 authorization supplies a documented live doapply() fixture; it cannot prove player-input reachability, future status wiring, or direct C parity for the constructed state. REVIVE_MON `mostly dead`, the full Hallucination message arm, selected non-tiny out-of-reach behavior, and fog m_in_out_region() remain separate confirmed gaps."
 }
