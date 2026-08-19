@@ -2966,8 +2966,8 @@
         },
         {
           "name": "stethoscope-reveals-secret-terrain",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "788038047c82228dfbd7a5aff9e9fc656b2b7fda"
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
