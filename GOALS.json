@@ -2978,6 +2978,11 @@
           "name": "stethoscope-reports-an-ordinary-statue",
           "status": "closed",
           "closedBy": "39c68602f5e60a2648d66e5d74d1d76aed8b1fd1"
+        },
+        {
+          "name": "blind-statue-health-report",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
