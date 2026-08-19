@@ -1,15 +1,15 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Every entry in the reviewed stethoscope window is done, later, or cannot occur with source and validation evidence. Commit 3855898 fixes all 12 findings from the full correctness audit, commit 0b6a404 fixes all five findings from its first light follow-up, commit 1c11616 fixes all four confirmed findings from the no-tail follow-up, commit 85818b3 closes that pass's three vision/state test-oracle gaps, and commit aa8d1ff distinguishes the remaining preflight trap and body statue ownership edges. Planned random mimic births install clone-owned vision buffers before borrowing the shared transparency index; creation and redisguise tests inspect the intermediate index, a real light consumer, and both live vision_full_recalc restoration polarities; exported its_dead() is pinned against paired standalone foreign/global states whose contents, trap precedence, statue species, catalogs, and displays differ; and the signed 46-case recipe inventory includes its labels and chunk limits. The unrestricted full checkpoint and all 46 fresh C/JS differential segments pass; targeted loader mutations prove every final state-ownership oracle, the earlier two whole-suite mutation survivors remain unreachable behind the hallucinating-beam refusal, and the final production delta has no eligible boolean/logical/relational sites.",
-  "commitChecked": "aa8d1ff8382764bf0c76482e46ee7841b208e4b6",
+  "mode": "implementation",
+  "reason": "The completed correctness pass cleared the prior review window. The next authorized constructed-test slice must replace js/apply.js's blanket mixed corpse/statue refusal with apply.c its_dead()'s uppermost-object selection, while keeping preflight and live execution identical and leaving exceptional selected objects fail-closed before effects.",
+  "commitChecked": "c2abe9b738756cf12d52d899fd7c3ba9201ac8ad",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
-    "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
-    "startingEvent": "A constructed live-consumer state places the hero on a valid map-edge square and points the stethoscope one step beyond isok(), after the ordinary command path has accepted the tool and direction.",
-    "endingEvent": "apply.c use_stethoscope() emits the acoustics-gated faint typing-noise message, performs no tty sound-library effect, returns ECMD_OK even for a repeated listen, and leaves every still-unported dead-object sibling fail-closed before effects.",
-    "validInputs": "The exact constructed setup and its limitations must be recorded with the integration test. The substitution is explicitly authorized because the declared D:1 and D:2-D:30 search over 7,680 generated setups found no accessible boundary coordinate and all currently ported movement and placement paths preserve isok().",
-    "observables": "Source-order shared sequence and observation writes, no PRNG call, You_hear acoustics behavior, exact terminal message and cursor, unconditional ECMD_OK rather than the previously computed repeated-listen result, retry atomicity for excluded siblings, and no mutation of unrelated level or display state.",
-    "exclusions": "Do not port a movement, teleport, digging, polymorph, or special-level setup writer merely to create the edge state. Hallucinated dead objects, mixed piles, REVIVE_MON corpses, out-of-reach tiny statues, Healer statue contents, and fog-region transitions remain separate constructed-test slices under the same authorization."
+    "startingCommit": "c2abe9b738756cf12d52d899fd7c3ba9201ac8ad",
+    "startingEvent": "A Healer applies a stethoscope to an adjacent reachable square containing both a corpse and a statue; the command has accepted the tool and direction and its_dead() is about to select which dead object controls the result.",
+    "endingEvent": "apply.c its_dead() selects the uppermost corpse or statue by source pile order, executes only that object's already-ported report, returns the free or costly command result, and reaches the next input boundary.",
+    "validInputs": "Use the source-real corpse-upper seed-9251062 setup for direct C/JS parity and the user-authorized constructed doapply() fixture for the unavailable statue-upper polarity. Record the constructed state, controlling source, exhausted source-real setup limitation, integration evidence, and what the substitute cannot prove.",
+    "observables": "Exact selected-object message, ECMD_OK on the first listen and the next input boundary, zero branch PRNG calls, full terminal attributes and cursor, pile and timer preservation, and no refusal or effect from an exceptional unselected lower object.",
+    "exclusions": "Hallucination, an out-of-reach selected statue, a selected REVIVE_MON corpse, and a selected filled Healer statue remain fail-closed. Do not port a statue placement command or another setup writer merely to reverse the source-real pile."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); monmove.c m_everyturn_effect() (624-665); region.c create_gas_cloud() (1194-1308); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
@@ -72,6 +72,15 @@
       "evidence": "apply.c:206-207, ported at the slice-1 commit. This is not a refusal site: with no corpse and no statue the block does nothing and C falls through to \"You hear nothing special.\" scripts/apply-stethoscope.test.mjs covers both halves of the can_reach_floor(TRUE) argument -- a levitating hero and a hero teetering at a seen pit -- each with a corpse on the square she listens at.",
       "status": "done",
       "remaining": "None."
+    },
+    {
+      "candidate": "apply.c its_dead() mixed corpse/statue uppermost selection (203-220)",
+      "reachability": "Both sobj_at(CORPSE, rx, ry) and sobj_at(STATUE, rx, ry) return objects. nxtobj(statue, CORPSE, TRUE) == corpse means the statue is lower in the pile and the corpse remains selected; otherwise C clears corpse and selects the statue. No random-number call belongs to selection.",
+      "owner": "js/apply.js unportedItsDeadBranch() and its_dead_after_preflight(), reusing js/invent.js nxtobj() and js/obj.js sobj_at()",
+      "effects": "Only the uppermost dead object's existing corpse or statue branch may inspect exceptional state, write its message, and determine the command result. The unselected lower object and its contents or timer have no effects.",
+      "evidence": "apply.c:203-220. A source-real adjacent natural statue can receive a wished corpse above it for the corpse-upper polarity. No currently ported input places a statue above an existing corpse, so the user authorized a constructed live-consumer doapply() fixture for that polarity on 2026-08-19.",
+      "status": "missing",
+      "remaining": "Replace the blanket mixed-pile refusal with one shared source-order selector used by preflight and execution; prove both pile orders, a separating rock, exceptional unselected lower objects, exceptional selected controls, exact messages, atomic state, and the next input boundary."
     },
     {
       "candidate": "apply.c its_dead() tiny-statue walk (208-211)",
@@ -317,6 +326,12 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The goal-wide trace remains recorded above. Commit 7604dc4 closes the off-map branch with the explicitly authorized constructed doapply() integration test after 7,680 generated setups established that no currently ported input reaches an accessible map edge; its exact setup, controlling source, state and output assertions, and C-recording/sound-backend limitations are recorded in the test. After 2f7e936 the selector corrected the REVIVE_MON entry's stale effect claim: the Healer arm only detects the timer and prints `mostly dead`; it does not revive or restart the pile walk. A declared seed 1-64 troll-combat search still found no source-real corpse setup: the lowest-HP troll retained 17 HP after 12 scalpel attacks because it regenerated, while alternate kill routes stop earlier in zap_hit(), thitmonst(), knockback, or hero death. Direct statue wishes, levitation boots, hallucination, and unskilled riding also remain blocked in their setup owners. Commit ebf3474 closes the seed-1 fog-cloud witness: the second listen's elapsed-turn scan creates the clone and live vapor regions before the trailing sentinel. The differential exposed source-required vision_recalc(0) immediately after add_region() sets vision_full_recalc; planning admits it only after cloned terrain and COULD_SEE buffers are installed. The next selector then exhausted a declared region-transition search: all seeds 1-64 with the two-turn recipe, seed 1 with 9-13 adjacent waits, and seed 1 with a south move plus 10-12 waits matched without reaching m_in_out_region(). The longest case spent the fog's ration attacking the hero's remembered old square. Mixed corpse/statue ordering still has only a corpse-upper source-real constructor, and every other remaining branch still lacks its setup writer. On 2026-08-19 the user explicitly authorized constructed live-consumer integration tests for all of those remaining branches."
+  "missingWorkByOwner": [
+    {
+      "group": "apply.c its_dead() dead-object selection",
+      "candidates": ["apply.c its_dead() mixed corpse/statue uppermost selection (203-220)"],
+      "next": "Port the shared preflight/live source-order selector and validate the source-real corpse-upper and authorized constructed statue-upper live consumers."
+    }
+  ],
+  "sourceReview": "The completed goal-wide trace remains recorded above. The next slice reopens implementation only for apply.c:203-220's mixed-pile selection: sobj_at() finds the first corpse and statue, nxtobj(statue, CORPSE, TRUE) determines whether the corpse occurs after the statue, and exactly one existing downstream arm owns the result. The source-real constructor covers corpse above a natural statue; current wishes and placement commands cannot construct statue above corpse, so the user's 2026-08-19 blanket authorization supplies that polarity through a live doapply() integration fixture. The slice must keep preflight and execution selection identical so contents or REVIVE_MON on an unselected lower object cannot cause a refusal or effect. Other remaining constructed-test candidates stay separate."
 }
