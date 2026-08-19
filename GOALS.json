@@ -2971,8 +2971,8 @@
         },
         {
           "name": "stethoscope-reports-an-ordinary-corpse",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "b7bfeedce0fbb7c70f1e7f3822d66068a7048971"
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
