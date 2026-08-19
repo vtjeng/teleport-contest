@@ -1,22 +1,22 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Commit 3435132 closes the monster-listening slice and its source-reachable appearance families. The common path landed at 3752851; the closing commit adds strict source-real cases for named fruit, furniture, M_AP_MONSTER, STRANGE_OBJECT, and visible-region descriptions, plus the bounded runtime-mimic and pet-corpse setup owners those cases require. The full adjacent-square goal remains open: off-map, secret-terrain, corpse, statue, and dependency-heavy status branches are marked later below and stop before effects inside this reviewed boundary.",
-  "commitChecked": "3435132bb046fb21eacd52773b822649f00c3714",
+  "mode": "implementation",
+  "reason": "The queued stethoscope-reveals-secret-terrain slice must port apply.c use_stethoscope()'s SDOOR and SCORR switch through its terrain, vision, map, message, and turn-cost effects. The preceding full correctness pass also found that still-deferred off-map and dead-object paths refuse only after shared stethoscope state or display effects; this slice must move only those refusals ahead of effects while preserving C order for admitted secret terrain.",
+  "commitChecked": "2b10aacab37a24aca32fb801018a14b456964790",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
     "startingEvent": "The hero applies a stethoscope and answers the direction prompt with an adjacent square: js/cmd.js dispatches `a` to doapply(), which reaches use_stethoscope() past confdir().",
-    "endingEvent": "The top line C prints for that square, and the turn the listen does or does not spend. For an empty square that is \"You hear nothing special.\" at apply.c:468; for a monster it is mstatusline()'s status line; for a mimic it is \"That chest is really a small mimic.\" and then the status line.",
-    "validInputs": "Any of the eight directions, plus the hero's own square, over every monster appearance the supported source build can produce. A Healer starts with an uncursed stethoscope at u_init.c:79. Ordinary generation, shipped special levels, dogmove.c quickmimic(), and wizard.c clonewiz() can all determine the adjacent monster's appearance before the listen begins.",
-    "observables": "The top line and its --More-- redraws; the status line mstatusline() writes; gb.bhitpos and gn.notonhead; the free-versus-costly listen alternation already held in state.context.stethoscope_seq; and the vision map writes seemimic() and map_invisible() make. The arm consumes no randomness.",
-    "exclusions": "Everything above confdir() at apply.c:379, which the port already refuses: a steed, an engulfer, a nonzero u.dz, and a cursed stethoscope. Below it: its_dead()'s statue arm, use_stethoscope()'s SDOOR and SCORR arms, and mstatusline()'s long-worm, u.ustuck and u.usteed arms, each of which needs setup no ported command reaches."
+    "endingEvent": "For an adjacent SDOOR or SCORR, the hollow-door or secret-passage message, the converted terrain and vision/display update, and use_stethoscope()'s return value. For any still-unported adjacent target, the observable is an atomic fail-closed boundary before shared stethoscope state, map, message, or random-number effects.",
+    "validInputs": "Any adjacent direction targeting a natural secret door or secret corridor. The selected source-real setups are debug Healer seed 12 on D:1 for SDOOR and seed 186 after wizard teleport to D:5 for SCORR. Off-map and corpse/statue/hallucination targets are in-scope only to prove their existing refusal is pre-effect.",
+    "observables": "Exact message screens and cursors; terrain type and flags; vision blocking; remembered and presented glyphs; stethoscope_seq, gb.bhitpos and gn.notonhead; return/turn cost; and the unchanged PRNG log. Refused paths must leave every listed value and output unchanged.",
+    "exclusions": "Everything above confdir() at apply.c:379 remains outside this slice. The off-map Soundeffect and its_dead() corpse, statue, hallucination, blind, Healer-revival, and tiny-statue behaviors remain unported, but their stops are in-scope for atomicity before effects. Monster/status branches are already complete; later-turn restrap and unrelated audit deferrals have different live consumers."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
     "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation and the generated CMAP_EXPLANATIONS projection; mstatusline()'s ordered info fragments; makemon.c syms[] and set_mimic_sym(); dogmove.c qm[]; wizard.c wizapp[]; and every shipped Lua appear_as descriptor under nethack-c/upstream/dat/.",
     "reachableHelpers": "Read from the C call graph of the two entry points. Already ported and needing no work: unmap_invisible(), newsym(), sobj_at(), can_reach_floor() (js/engrave.js, with the checkPit parameter), m_at(), find_mac, align_str, map_invisible(), obj_typename(), ustatusline(), mon_aligntyp(), rndmonnam(), set_mimic_sym() (js/makemon_create.js).",
     "javascriptCrossCheck": "grep -rn '^seemimic' nethack-c/upstream/src/*.c returns only mon.c:4409, so js/mon.js's two 'display.c seemimic()' citations are wrong. grep -rn seemimic js/*.js returns six sites naming it as missing. grep -c Unsupported js/mhitu.js returns 0, so the giant bat's bites inside the stretch need nothing. grep -n explanation js/display.js returns nothing, so M_AP_FURNITURE needs a generated table. Re-run at 9657e3b while closing slice 1: `grep -rn \"export function nxtobj\" js/` and `grep -n \"MZ_TINY\" js/monsters.js` both return nothing, which is why apply.c:210-211's tiny-statue walk is refused rather than ported; js/monsters.js is generated by scripts/generate-monsters.mjs, so adding MZ_TINY is a generator change.",
-    "remainingLimits": "The reviewed boundary closes the monster-listening slice, not the whole adjacent-square goal. Off-map, secret-door/corridor, corpse, statue, and dependency-heavy status paths remain later and retain pre-effect refusals. Strict fresh cases cover the common monster path, STRANGE_OBJECT, visible-region mhidden_description(), furniture and named fruit through #wizgenesis, and M_AP_MONSTER through a starting pet consuming a wished mimic corpse. The final 33-segment matrix matches 96,451 PRNG calls and 331 screens/cursors exactly."
+    "remainingLimits": "The current slice closes only secret-door and secret-corridor listening plus atomic refusal placement for paths that remain deferred. Off-map output and its_dead() corpse/statue families require later slices. Strict source-real SDOOR and SCORR cases still need recording; the selector identified seeds 12 and 186 as live setups."
   },
   "entries": [
     {
@@ -27,6 +27,15 @@
       "evidence": "apply.c:386-390, read at 073cd13.",
       "status": "later",
       "remaining": "Refused as 'listening off the edge of the map', above the m_at test, at the slice-1 commit. It also needs the Soundeffect() interface, and it is the one arm below confdir() that answers ECMD_OK rather than res. Recorded in the deferral stethoscope-listen-arms-outside-the-goal."
+    },
+    {
+      "candidate": "Fail-closed preflight for still-unported off-map and its_dead() paths",
+      "reachability": "An adjacent-square listen selects the off-map, corpse, statue, hallucination, blind, Healer-revival, or tiny-statue path that remains outside this slice. These are recognized before use_stethoscope() mutates shared sequence and observation state.",
+      "owner": "js/apply.js use_stethoscope() and its_dead() admission checks",
+      "effects": "No effects are permitted: no stethoscope_seq, gb.bhitpos, gn.notonhead, remembered-map, message, screen, cursor, turn, or PRNG change before the named refusal.",
+      "evidence": "The full correctness pass over 2338437..6755a8c confirmed that the current refusal sites occur after shared effects; tracked as audit-stethoscope-refusal-effects-not-preflighted.",
+      "status": "missing",
+      "remaining": "Preflight only the paths that still refuse, preserve source order for admitted secret terrain, and pin atomic snapshots for each refused family."
     },
     {
       "candidate": "apply.c use_stethoscope() m_at(rx, ry) != 0 (391-446)",
@@ -52,8 +61,8 @@
       "owner": "js/apply.js use_stethoscope()",
       "effects": "You_hear a hollow sound, cvt_sdoor_to_door() or the CORR write, recalc_block_point() or unblock_point(), feel_newsym().",
       "evidence": "apply.c:452-464. The helpers are ported; the setup is not, because no wizard command creates a secret door and wizmap and teleport are unported.",
-      "status": "later",
-      "remaining": "Outside this reviewed slice but still inside the open goal. The named refusals remain above its_dead(), and the next selector must cover both terrain mutations with fresh source-real cases."
+      "status": "missing",
+      "remaining": "Port both terrain mutations and source-order messages, vision updates, feel_newsym() redraw, return value, and turn cost. Record strict source-real C/JavaScript cases for natural SDOOR and SCORR targets."
     },
     {
       "candidate": "apply.c its_dead() !can_reach_floor(TRUE) corpse clear (206-207)",
@@ -247,15 +256,13 @@
   ],
   "missingWorkByOwner": [
     {
-      "group": "adjacent-square arms deferred beyond the reviewed monster-listening slice",
+      "group": "apply.c use_stethoscope() secret-terrain switch and fail-closed admission",
       "candidates": [
-        "apply.c off-map answer",
         "apply.c secret-door and secret-corridor mutations",
-        "apply.c its_dead() corpse, statue, hallucination, and tiny-statue arms",
-        "mon.c later-turn mimic re-disguise and other hiding consumers"
+        "pre-effect refusals for off-map and its_dead() families"
       ],
-      "next": "Keep the goal open and ask the next slice-selector to group the source-reachable terrain and dead-object branches; reconcile the stale seemimic blocker on the later-turn restrap deferral."
+      "next": "Implement the shared admission decision and both terrain arms, then verify the seed-12 SDOOR and seed-186 SCORR paths through complete fresh C/JavaScript differential boundaries."
     }
   ],
-  "sourceReview": "apply.c use_stethoscope() (317-470) and its_dead() (196-309) were read in full at 073cd13 against nethack-c/upstream, and every branch between confdir() at 379 and the return at 469 is entered above. Random-number order is unaffected inside the listen arm. Re-read at 9657e3b for the empty-square slice: apply.c its_dead() (196-309), use_stethoscope() (384-470), invent.c nxtobj() (1477-1491), trap.c uteetering_at_seen_pit() (6647-6653), and cmd.c sdir[]. Re-read at 022cd9a for the hiding prerequisite: mon.c restrap() (4661-4693), restore_cham(), mondata.h ceiling_hider() (43-45), the is_hider/is_clinger/is_flyer macros, monsters.h's M1_HIDE rows, you.h m_next2u(), display.h _sensemon(), trap.h is_pit(), and monst.h M_AP_TYPE(). The closing slice traced apply.c's complete monster switch, insight.c mstatusline()/size_str()/mhidden_description(), mon.c seemimic()/m_consume_obj(), objnam.c naming and targeted corpse-wish tail, makemon.c runtime appearance messages, and dogmove.c dog_nutrition()/dog_eat()/quickmimic() including qm[]. Source-real strict cases exercise ordinary, hidden, STRANGE_OBJECT, furniture, named fruit, visible-region, and pet M_AP_MONSTER paths. Remaining off-map, terrain, dead-object, and later-turn hiding branches are explicitly marked later and retain pre-effect stops."
+  "sourceReview": "The goal-wide trace remains recorded in the entries above. For the current slice, the selector re-read apply.c use_stethoscope() 452-464 and its calls to detect.c cvt_sdoor_to_door(), vision.c recalc_block_point()/unblock_point(), and display.c feel_newsym(), and established natural live setups for both switch arms. The formal correctness pass established the shared preflight gap. Implementation must still verify every state and display effect, source order, and the complete refused-path atomicity set before this checklist can return to ready-for-audit."
 }
