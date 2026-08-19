@@ -1,22 +1,22 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "Commit ba8ba75 closes stethoscope-reveals-secret-terrain: both SDOOR and SCORR execute through source-order message, terrain, vision, display, and turn-result effects, and every adjacent path still outside the slice is preflighted before shared effects. Two natural fresh cases match C exactly over 7,635 PRNG calls and 19 screens/cursors; the independent checkpoint at 7880380 passes 4,407 tests with development unchanged.",
-  "commitChecked": "788038047c82228dfbd7a5aff9e9fc656b2b7fda",
+  "mode": "implementation",
+  "reason": "The queued stethoscope-reports-an-ordinary-corpse slice must admit apply.c its_dead()'s reachable, sighted, non-hallucinating corpse path through pile traversal, timer classification, message grammar, and return value. Blind, hallucinated, REVIVE_MON, statue, mixed-pile, and off-map cases must remain pre-effect refusals while the ordinary corpse path is removed from that preflight.",
+  "commitChecked": "6109e1199d1f47dbc255e7afc6d4b9108bef5f35",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
     "startingEvent": "The hero applies a stethoscope and answers the direction prompt with an adjacent square: js/cmd.js dispatches `a` to doapply(), which reaches use_stethoscope() past confdir().",
-    "endingEvent": "For an adjacent SDOOR or SCORR, the hollow-door or secret-passage message, the converted terrain and vision/display update, and use_stethoscope()'s return value. For any still-unported adjacent target, the observable is an atomic fail-closed boundary before shared stethoscope state, map, message, or random-number effects.",
-    "validInputs": "Any adjacent direction targeting a natural secret door or secret corridor. The selected source-real setups are debug Healer seed 12 on D:1 for SDOOR and seed 186 after wizard teleport to D:5 for SCORR. Off-map and corpse/statue/hallucination targets are in-scope only to prove their existing refusal is pre-effect.",
-    "observables": "Exact message screens and cursors; terrain type and flags; vision blocking; remembered and presented glyphs; stethoscope_seq, gb.bhitpos and gn.notonhead; return/turn cost; and the unchanged PRNG log. Refused paths must leave every listed value and output unchanged.",
-    "exclusions": "Everything above confdir() at apply.c:379 remains outside this slice. The off-map Soundeffect and its_dead() corpse, statue, hallucination, blind, Healer-revival, and tiny-statue behaviors remain unported, but their stops are in-scope for atomicity before effects. Monster/status branches are already complete; later-turn restrap and unrelated audit deferrals have different live consumers."
+    "endingEvent": "For a reachable ordinary corpse, its_dead() prints C's death determination with singular or plural grammar and use_stethoscope() returns its free-or-costly result. For every excluded adjacent target, the observable remains an atomic named refusal before shared state, output, map, or PRNG effects.",
+    "validInputs": "A sighted, non-hallucinating hero points at a reachable square whose ordered pile contains one or more corpses, no statue, and no corpse with a REVIVE_MON timer. The fresh source-real setup is debug Healer seed 9240001 at 20340102030405, wishing and dropping a small-mimic corpse before listening back at it.",
+    "observables": "Exact death message and grammar; pile order and corpse count; timer inspection; stethoscope_seq, gb.bhitpos and gn.notonhead; return/turn cost; complete screens, attributes and cursors; and unchanged PRNG order. Excluded variants must remain retry-atomic.",
+    "exclusions": "Blind and hallucinating corpse listens; any REVIVE_MON corpse; mixed corpse/statue and statue-only piles; the out-of-reach tiny-statue walk; the Healer revival loop; and off-map output remain unported and must stop before effects. Secret terrain and monster/status branches are complete; later-turn restrap and unrelated audit deferrals have different live consumers."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
     "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation and the generated CMAP_EXPLANATIONS projection; mstatusline()'s ordered info fragments; makemon.c syms[] and set_mimic_sym(); dogmove.c qm[]; wizard.c wizapp[]; and every shipped Lua appear_as descriptor under nethack-c/upstream/dat/.",
     "reachableHelpers": "Read from the C call graph of the two entry points. Already ported and needing no work: unmap_invisible(), newsym(), sobj_at(), can_reach_floor() (js/engrave.js, with the checkPit parameter), m_at(), find_mac, align_str, map_invisible(), obj_typename(), ustatusline(), mon_aligntyp(), rndmonnam(), set_mimic_sym() (js/makemon_create.js).",
     "javascriptCrossCheck": "grep -rn '^seemimic' nethack-c/upstream/src/*.c returns only mon.c:4409, so js/mon.js's two 'display.c seemimic()' citations are wrong. grep -rn seemimic js/*.js returns six sites naming it as missing. grep -c Unsupported js/mhitu.js returns 0, so the giant bat's bites inside the stretch need nothing. grep -n explanation js/display.js returns nothing, so M_AP_FURNITURE needs a generated table. Re-run at 9657e3b while closing slice 1: `grep -rn \"export function nxtobj\" js/` and `grep -n \"MZ_TINY\" js/monsters.js` both return nothing, which is why apply.c:210-211's tiny-statue walk is refused rather than ported; js/monsters.js is generated by scripts/generate-monsters.mjs, so adding MZ_TINY is a generator change.",
-    "remainingLimits": "The secret-door and secret-corridor slice is complete, including atomic refusal placement for paths that remain deferred. Off-map output and the its_dead() corpse/statue families require later slices. Seeds 12 and 186 provide strict source-real SDOOR and SCORR evidence."
+    "remainingLimits": "This slice admits only the ordinary sighted corpse result. Blind logical-glyph mapping, hallucination, REVIVE_MON, statue naming, mixed piles, Healer revival, and off-map output remain later. The fresh seed-9240001 probe has exact 3,017-call PRNG parity but C leads by the two listen screens."
   },
   "entries": [
     {
@@ -29,13 +29,13 @@
       "remaining": "Refused atomically as 'listening off the edge of the map' before shared effects. Porting its answer still needs the You_hear message and Soundeffect interface, and it is the one arm below confdir() that answers ECMD_OK rather than res. Recorded in stethoscope-listen-arms-outside-the-goal."
     },
     {
-      "candidate": "Fail-closed preflight for still-unported off-map and its_dead() paths",
-      "reachability": "An adjacent-square listen selects the off-map, corpse, statue, hallucination, blind, Healer-revival, or tiny-statue path that remains outside this slice. These are recognized before use_stethoscope() mutates shared sequence and observation state.",
+      "candidate": "Fail-closed preflight for still-unported off-map and exceptional its_dead() paths",
+      "reachability": "An adjacent-square listen selects off-map, blind, hallucinated, REVIVE_MON, statue, mixed-pile, Healer-revival, or tiny-statue behavior outside this slice. These are recognized before use_stethoscope() mutates shared sequence and observation state, while an ordinary corpse must now pass through.",
       "owner": "js/apply.js use_stethoscope() and its_dead() admission checks",
       "effects": "No effects are permitted: no stethoscope_seq, gb.bhitpos, gn.notonhead, remembered-map, message, screen, cursor, turn, or PRNG change before the named refusal.",
       "evidence": "The full correctness pass over 2338437..6755a8c confirmed that the current refusal sites occur after shared effects; tracked as audit-stethoscope-refusal-effects-not-preflighted.",
-      "status": "done",
-      "remaining": "None. Commit ba8ba75 preflights the five refused families and pins repeat-attempt snapshots plus swallowed and cursed precedence."
+      "status": "missing",
+      "remaining": "Refine the preflight to admit only the ordinary corpse family, retain atomicity for every excluded sibling, and pin branch precedence and retry snapshots."
     },
     {
       "candidate": "apply.c use_stethoscope() m_at(rx, ry) != 0 (391-446)",
@@ -97,8 +97,8 @@
       "owner": "js/apply.js its_dead()",
       "effects": "The corpse age message, the Healer REVIVE_MON loop, and the Blind sub-arm.",
       "evidence": "apply.c:226-306.",
-      "status": "later",
-      "remaining": "A later slice. Refused as 'a corpse on the listened-to square' at the slice-1 commit, below the hallucination arm and above the statue arm. The Blind sub-arm needs glyph_at(), which is unported. apply.c:214-219, the uppermost-object tie-break, and :220, the more_corpses count, feed nothing but this arm and the two beside it, so they are unported too."
+      "status": "missing",
+      "remaining": "Port the sighted ordinary arm only: nexthere traversal through nxtobj(), corpse count and singular/plural grammar, REVIVE_MON exclusion via obj_has_timer(), exact message, and return value. Keep the blind, hallucinated, Healer-revival, and statue siblings pre-effect."
     },
     {
       "candidate": "apply.c its_dead() statue arm (283-307)",
@@ -254,6 +254,17 @@
       "remaining": "None inside the bounded setup path. Seed 24 wishes and drops a small-mimic corpse, the starting pet consumes it and takes M_AP_MONSTER, and the strict replay matches through the listen; unrelated food/eater branches remain fail-closed before effects."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The goal-wide trace remains recorded in the entries above. For the completed terrain slice, apply.c use_stethoscope() 317-470 was re-read with detect.c cvt_sdoor_to_door(), vision.c recalc_block_point()/unblock_point(), display.c feel_newsym(), pline.c You_hear(), and the tty Soundeffect no-op. Commit ba8ba75 preserves message-to-terrain-to-vision-to-display order for admitted SDOOR/SCORR paths and moves only still-unported adjacent targets ahead of shared effects. Focused tests pin terrain flags, vision, display, turn cost, branch precedence, and refusal atomicity; natural seeds 12 and 186 match complete C screens, attributes, cursors, and PRNG logs."
+  "missingWorkByOwner": [
+    {
+      "group": "apply.c its_dead() ordinary sighted corpse family",
+      "candidates": [
+        "invent.c nxtobj() traversal of the target pile",
+        "apply.c corpse counting and REVIVE_MON timer exclusion",
+        "ordinary corpse message grammar and command result",
+        "pre-effect refusal split for exceptional dead-object families"
+      ],
+      "next": "Port the bounded ordinary branch, retain atomic exceptional-path stops, and record the seed-9240001 setup through the complete C message and following boundary."
+    }
+  ],
+  "sourceReview": "The goal-wide trace remains recorded in the entries above. For this slice the selector re-read apply.c its_dead() 203-220 and 256-279, its use_stethoscope() consumer at 467-469, invent.c nxtobj() 1477-1491, and the existing timeout.c obj_has_timer() port. The seed-9240001 debug-Healer probe establishes a live ordinary-corpse path with exact pre-boundary PRNG parity. Implementation must still trace nexthere ownership and ordering, all timer and count terms, message grammar, return/turn semantics, and every excluded sibling before readiness."
 }
