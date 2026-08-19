@@ -1,22 +1,22 @@
 {
   "mode": "implementation",
-  "reason": "The Healer statue-trap adjective slice is complete and independently verified. The off-map slice remains parked on Q10 authorization; the next selector must choose another source-real missing branch inside the adjacent-square goal without treating the parked slice as resolved.",
-  "commitChecked": "b583c7cf06b80a207d651ee9697cdcfa68d5c411",
+  "reason": "The selected revealed-mimic-re-disguises-during-a-costly-listen slice ports the S_MIMIC success arm of mon.c restrap() and connects makemon.c set_mimic_sym() to both the planning and live monster passes. A source-real witness proves that the refusal occurs during the second listen's charged monster turn before the next input boundary, correcting the earlier stale exclusion.",
+  "commitChecked": "5d388c22a2be47cfbf92b752ac2263ed96c4cbdc",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "073cd133fe267426a76ce9ce4628430954d3b8e2",
-    "startingEvent": "A sighted female Healer on D:8 points a stethoscope at an adjacent reachable gray-ooze statue whose square also carries a STATUE_TRAP.",
-    "endingEvent": "its_dead() detects the statue trap through t_at(), selects `extraordinary` before considering contents, prints the statue health report, returns TRUE, and the trailing wait is consumed.",
-    "validInputs": "Debug Healer seed 259 at 20340102030405 with `pettype:none,!acoustics,!autopickup,time,playmode:debug`; wizard level teleport to D:8, dismiss arrival, then apply stethoscope west and send a wait sentinel. The hero arrives at (68,13); (67,13) holds STATUE_TRAP 19 and gray-ooze STATUE 476.",
-    "observables": "Exact `The gray ooze is in extraordinary health for a statue.` message, trap-over-contents precedence, ordinary non-Healer `fine` control, listen return cost, trailing wait consumption, and exact PRNG/screens/cursors including later monster movement.",
-    "exclusions": "Statue contents without a trap, mixed corpse/statue pile ordering, hallucination, REVIVE_MON, off-map, and out-of-reach/tiny-statue paths remain parked or later. Do not broaden trap activation, statue contents, wizard teleport, or unrelated role behavior."
+    "startingEvent": "A blind female Healer uses a stethoscope on an awake adjacent small mimic that the preceding free listen revealed.",
+    "endingEvent": "The second listen spends a turn; its monster scan calls restrap(), the successful rn2(3) roll reaches set_mimic_sym(), the mimic re-disguises and forfeits its move, the listen returns, and the queued wait sentinel is consumed at the next input boundary.",
+    "validInputs": "Debug Healer seed 2 at 20270318143000 with `blind,pettype:none,!acoustics,!autopickup,time,playmode:debug`; dismiss startup, create a small mimic with #wizgenesis, wait once while it is disguised, listen south twice, dismiss prompts, and leave a final wait sentinel. Exact input is `.\\x07small mimic\\n.acj acj .` with literal control-G and newline.",
+    "observables": "The second listen's turn cost, restrap guard and rn2(3) order, successful and failed redisguise rolls, asleep/frozen post-roll returns, Protection_from_shape_changers short-circuiting before selection randomness, set_mimic_sym state and presentation, planning-clone isolation, one unconsumed sentinel at the old refusal, and exact PRNG/screens/cursors through the next input boundary.",
+    "exclusions": "Off-map remains parked on Q10. Mixed corpse/statue ordering, hallucination, REVIVE_MON, out-of-reach/tiny statues, statue contents without a trap, restrap ROOM behavior already ported, and unrelated monster actions remain unchanged. Do not broaden mimic creation, monster movement, or shape-changing beyond the source branches this live consumer reaches."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
     "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation and the generated CMAP_EXPLANATIONS projection; mstatusline()'s ordered info fragments; makemon.c syms[] and set_mimic_sym(); dogmove.c qm[]; wizard.c wizapp[]; and every shipped Lua appear_as descriptor under nethack-c/upstream/dat/.",
     "reachableHelpers": "Read from the C call graph of the two entry points. Already ported and needing no work: unmap_invisible(), newsym(), sobj_at(), can_reach_floor() (js/engrave.js, with the checkPit parameter), m_at(), find_mac, align_str, map_invisible(), obj_typename(), ustatusline(), mon_aligntyp(), rndmonnam(), set_mimic_sym() (js/makemon_create.js).",
     "javascriptCrossCheck": "grep -rn '^seemimic' nethack-c/upstream/src/*.c returns only mon.c:4409, so js/mon.js's two 'display.c seemimic()' citations are wrong. grep -rn seemimic js/*.js returns six sites naming it as missing. grep -c Unsupported js/mhitu.js returns 0, so the giant bat's bites inside the stretch need nothing. grep -n explanation js/display.js returns nothing, so M_AP_FURNITURE needs a generated table. Re-run at 9657e3b while closing slice 1: `grep -rn \"export function nxtobj\" js/` and `grep -n \"MZ_TINY\" js/monsters.js` both return nothing, which is why apply.c:210-211's tiny-statue walk is refused rather than ported; js/monsters.js is generated by scripts/generate-monsters.mjs, so adding MZ_TINY is a generator change.",
-    "remainingLimits": "The Healer statue-trap adjective and its source precedence over contents are complete. Off-map remains parked on Q10; contents-only statues, mixed piles, hallucination, revival, and out-of-reach statues remain later and must be re-read against current prerequisites before selection."
+    "remainingLimits": "The costly-listen mimic redisguise is the selected slice. Off-map remains parked on Q10; contents-only statues, mixed piles, hallucination, revival, and out-of-reach statues remain later and must be re-read against current prerequisites before selection."
   },
   "entries": [
     {
@@ -228,12 +228,12 @@
     },
     {
       "candidate": "mon.c restrap() S_MIMIC arm (4677-4686)",
-      "reachability": "A mimic whose M_AP_TYPE is already 0, which the guard's second term otherwise excludes. Only seemimic() clears it, and that is this goal's last slice; even then seed5002's revealed mimic sits where cansee() holds, so the guard short-circuits three terms earlier.",
-      "owner": "js/mon.js restrap(), whose set_mimic_sym() call refuses under the caller's setMimicSym operation",
-      "effects": "The msleeping and mfrozen FALSE return is ported and runs. The set_mimic_sym() call raises the live pass's 'elapsed turn reached a mimic re-disguising itself' and the cloned pass's 'simple monster action requires a mimic re-disguising itself'.",
-      "evidence": "mon.c:4677-4686. The stethoscope can now clear a mimic disguise, and runtime mimic creation is ported, so the former seemimic/setup blocker has landed. The arm remains outside this listen boundary because its first effect occurs only on a later monster action after the listen returns.",
-      "status": "later",
-      "remaining": "Outside this reviewed listen boundary: the first re-disguise effect occurs on a later monster turn. The deferral remains open, but its old seemimic blocker is stale and must be reconciled by the orchestrator."
+      "reachability": "A mimic whose M_AP_TYPE is already 0 passes the earlier appearance guard after seemimic() reveals it. On the second listen, the charged turn runs movemon_singlemon(); seed 2 is blind so cansee() is false, rn2(3) returns 0, and the S_MIMIC arm runs before the command returns to the next input boundary.",
+      "owner": "js/mon.js restrap(), with makemon.c set_mimic_sym() supplied by js/makemon_create.js to the planning and live monster-action bindings in js/unported_monster_actions.js and js/allmain.js",
+      "effects": "After the guard roll, sleeping or frozen mimics return FALSE. An active mimic calls set_mimic_sym(), forfeits its movement by returning TRUE, and preserves the source appearance selection, state, display, and random-number order. Protection_from_shape_changers is an earlier no-draw guard.",
+      "evidence": "mon.c:4661-4693 and makemon.c:2393-2602. Seed 2 at 20270318143000 reaches the live refusal during the costly second listen: C and JS match 3,111 PRNG calls and 23 screens/cursors, the first missing call is restrap's rn2(3), and JS still holds the final wait sentinel. C reaches 3,138 calls and 25 screens/cursors.",
+      "status": "missing",
+      "remaining": "Connect the complete existing appearance selector to planning and live passes, add the missing Protection_from_shape_changers guard, preserve clone isolation, and cover successful and failed rolls plus sleeping/frozen post-roll returns with the source-real listen through its sentinel."
     },
     {
       "candidate": "mon.c restrap() ROOM arm and fall-through (4687-4692)",
@@ -319,7 +319,19 @@
         "preflight split from remaining exceptional targets"
       ],
       "next": "Parked on Q10 after 7,680 generated setups and source analysis found no currently reachable edge route; do not implement without authorization or a new source-real route."
+    },
+    {
+      "group": "mon.c restrap() S_MIMIC redisguise during a costly listen",
+      "candidates": [
+        "successful rn2(3) redisguise roll",
+        "nonzero roll leaves the revealed mimic unchanged",
+        "sleeping and frozen post-roll returns",
+        "Protection_from_shape_changers early guard",
+        "planning and live set_mimic_sym bindings",
+        "source-real second-listen turn through the next input boundary"
+      ],
+      "next": "Port the bounded S_MIMIC success path, keep planning clones isolated, and replay seed 2 through the redisguise and queued wait sentinel."
     }
   ],
-  "sourceReview": "The goal-wide trace remains recorded above, including the parked off-map evidence. After f054dc3 the selector re-read all remaining `later` entries, proved a source-real corpse-upper mixed-pile refusal at seed 55 but found no currently ported source-real statue-upper constructor, and therefore set it aside. A finite D:8 scan over seeds 1..2000 found seed 259's adjacent gray-ooze statue trap. Commit b583c7c closes the exact Healer branch with source precedence intact and leaves contents-only and all other exceptional siblings pre-effect."
+  "sourceReview": "The goal-wide trace remains recorded above, including the parked off-map evidence. After b583c7c the selector rejected the Healer REVIVE_MON candidate because direct troll-corpse wishes are refused, wand-of-death stops earlier in zap_hit(), and melee reaches hero death. It then corrected the restrap S_MIMIC entry's stale scope claim: in seed 2 the first listen reveals the mimic for free, the second listen is costly, and that listen's own monster scan reaches rn2(3) and set_mimic_sym() while the trailing wait remains queued. The selected slice therefore ends at the next input boundary of the charged listen, not at a later command. Mixed corpse/statue ordering still has only a corpse-upper source-real constructor, and off-map remains parked on Q10."
 }
