@@ -3018,6 +3018,11 @@
           "name": "mixed-pile-selects-uppermost-dead-object",
           "status": "closed",
           "closedBy": "0208e714bcbca33188697b57f9e3da1f0544361a"
+        },
+        {
+          "name": "healer-statue-contents-sounds-remarkable",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
