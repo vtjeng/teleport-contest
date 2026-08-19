@@ -8,9 +8,10 @@
 // stops at a refusal naming the C function it needs. use_stethoscope() covers
 // its three guards, the free-action rule, the self-probe that confdir() leads
 // to, the monster on the adjacent square, both secret-terrain arms, and the
-// adjacent square that holds nothing to report, and the ordinary sighted
-// corpse and statue results. The mounted, swallowed, vertical, cursed,
-// off-map, and exceptional dead-thing arms still stop.
+// adjacent square that holds nothing to report, the ordinary sighted corpse
+// and statue results, and a blind hero's ordinary statue report. The mounted,
+// swallowed, vertical, cursed, off-map, and exceptional dead-thing arms still
+// stop.
 
 import {
     ARTICLE_A,
@@ -58,7 +59,7 @@ import { mstatusline, ustatusline } from './insight.js';
 import { getobj, nxtobj } from './invent.js';
 import { pick_lock } from './lock.js';
 import { seemimic } from './mon.js';
-import { gender, nohands, type_is_pname } from './mondata.js';
+import { gender, humanoid, nohands, type_is_pname } from './mondata.js';
 import { youHear } from './monmove.js';
 import { m_at } from './monst.js';
 import {
@@ -221,9 +222,9 @@ export function apply_ok(obj, state = game) {
 // (apply.c:253); that arm still refuses here, so the port answers a bare
 // boolean. The admitted corpse branch is sighted, reachable, has no statue in
 // its pile, and has no REVIVE_MON timer. The admitted statue branch is
-// sighted, reachable, has no corpse in its pile, and is not a Healer's statue
-// trap or statue carrying contents. The remaining exceptional siblings stay
-// named refusals.
+// reachable, has no corpse in its pile, and is not a Healer's statue trap or
+// statue carrying contents; it has separate sighted and blind names. The
+// remaining exceptional siblings stay named refusals.
 function unportedItsDeadBranch(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     const statue = sobj_at(STATUE, rx, ry, state);
@@ -250,7 +251,6 @@ function unportedItsDeadBranch(rx, ry, state) {
     // admit the statue naming arm when pile order changes.
     if (corpse && statue) return 'a mixed corpse and statue pile';
     if (statue) {
-        if (heroIsBlind(state)) return 'a blind listen to a statue';
         if (state.urole?.mnum === PM_HEALER) {
             const trap = t_at(rx, ry, state);
             if (trap?.ttyp === STATUE_TRAP)
@@ -274,7 +274,7 @@ function unportedItsDeadBranch(rx, ry, state) {
     return null;
 }
 
-async function its_dead(rx, ry, state) {
+export async function its_dead(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     const statue = sobj_at(STATUE, rx, ry, state);
     if (!can_reach_floor(true, state)) corpse = null;
@@ -292,8 +292,14 @@ async function its_dead(rx, ry, state) {
     }
     if (statue) {
         const species = state.mons[statue.corpsenm];
-        let what = obj_pmname(statue, state);
-        if (!type_is_pname(species)) what = The(what, state);
+        let what;
+        if (heroIsBlind(state)) {
+            what = `${u_at(rx, ry, state) ? 'This' : 'That'} ${
+                humanoid(species) ? 'person' : 'creature'}`;
+        } else {
+            what = obj_pmname(statue, state);
+            if (!type_is_pname(species)) what = The(what, state);
+        }
         await ttyPline(`${what} is in fine health for a statue.`, state);
         return true;
     }

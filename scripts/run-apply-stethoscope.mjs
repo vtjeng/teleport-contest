@@ -9,8 +9,8 @@
 // use_stethoscope() through the switch, insight.c ustatusline() through the
 // self direction, insight.c mstatusline() through a direction holding a
 // monster, apply.c's secret-terrain switch, and apply.c its_dead() through an
-// empty square, an ordinary corpse pile, or an ordinary statue. The matrix
-// splits into six parts.
+// empty square, an ordinary corpse pile, an ordinary statue, or a blind
+// statue. The matrix splits into seven parts.
 // The first drives use_stethoscope(): the free first
 // listen, the second listen in the same move that costs a turn, both cancels,
 // both self keys, the Deaf guard, a sweep of all eight compass directions, a
@@ -450,6 +450,26 @@ export function loadOrdinaryStatueRecipe() {
     }, 'ordinary statue recipe');
 }
 
+// The source-real blind statue for apply.c its_dead():285-290. On the same
+// seed as the ordinary case, the adjacent newt statue selects the nonhumanoid
+// "That creature" name. The focused tests cover the humanoid and u_at()
+// polarities which no currently ported command can set up naturally.
+export function loadBlindStatueRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            seed: 9251062,
+            datetime: '20340102030405',
+            nethackrc: nethackrc({
+                name: 'BlindStat',
+                role: 'Healer',
+                options: 'blind,pettype:none,!acoustics,!autopickup,time',
+            }),
+            moves: `${APPLY_KEY}${STETHOSCOPE_SLOT}k${WAIT}`,
+        }],
+    }, 'blind statue recipe');
+}
+
 // One pack per apply_ok() term. Each role below advertises a letter set that
 // only the named term produces, so a term answering wrongly would change the
 // prompt rather than leave it alone. Every segment cancels at the prompt,
@@ -558,13 +578,22 @@ export async function runApplyStethoscopeMatrix() {
         chunkLimit: 1,
     });
     if (!corpse.passed) return corpse;
-    return runFreshMatrix({
+    const statue = await runFreshMatrix({
         entries: [{
             label: 'ordinary statue',
             recipe: loadOrdinaryStatueRecipe(),
         }],
         summaryLabel: 'ORDINARY STATUE',
         chunkLimit: 2,
+    });
+    if (!statue.passed) return statue;
+    return runFreshMatrix({
+        entries: [{
+            label: 'blind statue',
+            recipe: loadBlindStatueRecipe(),
+        }],
+        summaryLabel: 'BLIND STATUE',
+        chunkLimit: 1,
     });
 }
 

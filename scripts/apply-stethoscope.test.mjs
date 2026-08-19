@@ -1,7 +1,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { apply_ok, doapply, UnsupportedApplyError } from '../js/apply.js';
+import {
+    apply_ok,
+    doapply,
+    its_dead,
+    UnsupportedApplyError,
+} from '../js/apply.js';
 import { ADMITTED_COMMANDS } from '../js/cmd.js';
 import {
     BLINDED,
@@ -141,6 +146,7 @@ import {
     ESCAPE_KEY,
     loadApplyPromptRecipe,
     loadApplyStethoscopeRecipe,
+    loadBlindStatueRecipe,
     loadListenAtMonsterRecipe,
     loadOrdinaryCorpseRecipe,
     loadOrdinaryStatueRecipe,
@@ -1421,16 +1427,53 @@ test('its_dead reports ordinary statues through obj_pmname and The',
         );
     });
 
-test('its_dead keeps exceptional object paths in source order', async () => {
-    // Blindness is the first exceptional check inside the selected statue
-    // arm, above both of the Healer-only descriptions.
-    const blindStatue = await heroWithEmptyWest();
-    floorCorpstat(STATUE, blindStatue);
+test('its_dead reports blind statues by location and body shape', async () => {
+    // apply.c:285-290. An adjacent nonhumanoid statue takes every false arm:
+    // u_at() chooses "That" and mondata.h humanoid() chooses "creature".
+    // The result still follows use_stethoscope()'s one-free-listen rule.
+    const creature = await heroWithEmptyWest();
+    floorCorpstat(STATUE, creature);
     game.u.uprops[BLINDED].intrinsic = 1;
-    assert.equal(await listenWest(), 'a blind listen to a statue');
+    for (const key of ['c', 'h']) game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(
+        pendingTopLine(),
+        'That creature is in fine health for a statue.',
+    );
+    for (const key of [' ', 'c', 'h'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_TIME);
 
+    // A gnome has M1_HUMANOID, so the same adjacent production path selects
+    // "person" without consulting the statue's visible species name.
+    const person = await heroWithEmptyWest();
+    floorCorpstat(STATUE, person).corpsenm = PM_GNOME;
+    game.u.uprops[BLINDED].intrinsic = 1;
+    assert.equal(await listenWest(), null);
+    assert.equal(
+        pendingTopLine(),
+        'That person is in fine health for a statue.',
+    );
+
+    // use_stethoscope() cannot call its_dead() on the hero's square until its
+    // vertical arm is ported. Drive the source helper directly to pin the
+    // other u_at() polarity without widening that command boundary.
+    await heroWithEmptyWest();
+    floorCorpstat(STATUE, { x: game.u.ux, y: game.u.uy }).corpsenm = PM_GNOME;
+    game.u.uprops[BLINDED].intrinsic = 1;
+    assert.equal(await its_dead(game.u.ux, game.u.uy, game), true);
+    assert.equal(
+        pendingTopLine(),
+        'This person is in fine health for a statue.',
+    );
+});
+
+test('its_dead keeps exceptional object paths in source order', async () => {
+    // Blindness changes only the statue's name. The Healer checks below that
+    // name still refuse before the live command applies any shared effects.
     const trapped = await heroWithEmptyWest();
     floorCorpstat(STATUE, trapped);
+    game.u.uprops[BLINDED].intrinsic = 1;
     game.level.traps.push({
         tx: trapped.x, ty: trapped.y, ttyp: STATUE_TRAP, tseen: false,
     });
@@ -1468,11 +1511,12 @@ test('its_dead keeps exceptional object paths in source order', async () => {
     assert.equal(await listenWest(), 'a mixed corpse and statue pile');
 
     // apply.c:226 sits above both object arms and therefore above the mixed
-    // refusal too.
+    // refusal and the newly admitted blind-statue name.
     const hallucinated = await heroWithEmptyWest();
     floorCorpstat(STATUE, hallucinated);
     floorCorpstat(CORPSE, hallucinated);
     game.u.uprops[HALLUC].intrinsic = 1;
+    game.u.uprops[BLINDED].intrinsic = 1;
     assert.equal(await listenWest(), 'a hallucinated listen to the dead');
 
     // The blind glyph update at :264-265 precedes the Healer's timer walk.
@@ -1503,15 +1547,6 @@ test('still-unported adjacent listens refuse before shared effects',
             setup() {
                 game.u.ux = 1;
                 return null;
-            },
-        },
-        {
-            branch: 'a blind listen to a statue',
-            setup(target) {
-                map_invisible(target.x, target.y, game);
-                floorCorpstat(STATUE, target);
-                game.u.uprops[BLINDED].intrinsic = 1;
-                return target;
             },
         },
         {
@@ -1727,7 +1762,7 @@ test('ustatusline stops for every clause it would have to name', async () => {
     );
 });
 
-test('the apply matrix holds the six clean recipes the slices close on',
+test('the apply matrix holds the seven clean recipes the slices close on',
     () => {
     const priorRecipes = [loadApplyStethoscopeRecipe(), loadApplyPromptRecipe()];
     const recipes = [
@@ -1736,11 +1771,12 @@ test('the apply matrix holds the six clean recipes the slices close on',
         loadSecretTerrainRecipe(),
         loadOrdinaryCorpseRecipe(),
         loadOrdinaryStatueRecipe(),
+        loadBlindStatueRecipe(),
     ];
     // Version 5 recipes contain replay inputs and no recorded C answers.
     assert.ok(recipes.every(({ version }) => version === 5));
     const segments = recipes.flatMap(({ segments: rows }) => rows);
-    assert.equal(segments.length, 39);
+    assert.equal(segments.length, 40);
     assert.ok(segments.every((segment) => !Object.hasOwn(segment, 'steps')));
     // The two prior recipes open and close with a wait, so a command that
     // wrongly spent or wrongly saved a turn shows in the screen after it.
