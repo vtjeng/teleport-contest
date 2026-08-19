@@ -21,6 +21,10 @@ import {
     quickmimic,
 } from '../js/dogmove.js';
 import { GameMap } from '../js/game.js';
+import {
+    GLYPH_MON_MALE_OFF,
+    GLYPH_PET_MALE_OFF,
+} from '../js/glyph_offsets.js';
 import { m_consume_obj } from '../js/mon.js';
 import {
     MZ_GIGANTIC,
@@ -45,14 +49,27 @@ import {
     WEAPON_CLASS,
 } from '../js/objects.js';
 
+function transientGlyph(glyph, ch) {
+    const presentation = {
+        attr: 0,
+        ch,
+        color: 7,
+        dec: false,
+        displayCh: null,
+        displayColor: null,
+    };
+    Object.defineProperty(presentation, 'glyph', { value: glyph });
+    return presentation;
+}
+
 function quickState(visible = true) {
     const level = new GameMap();
     level.at(5, 5).typ = ROOM;
     level.at(5, 5).remembered_glyph = { glyph: 101 };
-    level.at(5, 5).disp_glyph = {
-        attr: 0, ch: 'd', color: 7, dec: false,
-        displayCh: null, displayColor: null,
-    };
+    level.at(5, 5).disp_glyph = transientGlyph(
+        GLYPH_PET_MALE_OFF + PM_LITTLE_DOG,
+        'd',
+    );
     const state = {
         context: { mon_moving: false },
         flags: {},
@@ -126,10 +143,10 @@ function eatingEnv(state, messages = [], redraws = []) {
         redraw(x, y) {
             redraws.push([x, y]);
             if (x === 5 && y === 5) {
-                state.level.at(x, y).disp_glyph = {
-                    attr: 0, ch: 'f', color: 7, dec: false,
-                    displayCh: null, displayColor: null,
-                };
+                state.level.at(x, y).disp_glyph = transientGlyph(
+                    GLYPH_MON_MALE_OFF + PM_KITTEN,
+                    'f',
+                );
             }
         },
         message: async (message) => messages.push(message),
@@ -360,10 +377,10 @@ test('quickmimic turns a visible little dog into a kitten appearance',
             },
             redraw(x, y) {
                 assert.deepEqual([x, y], [5, 5]);
-                state.level.at(x, y).disp_glyph = {
-                    attr: 0, ch: 'f', color: 7, dec: false,
-                    displayCh: null, displayColor: null,
-                };
+                state.level.at(x, y).disp_glyph = transientGlyph(
+                    GLYPH_MON_MALE_OFF + PM_KITTEN,
+                    'f',
+                );
             },
             message: async (message) => messages.push(message),
             waitMap: async () => { ++waits; },
@@ -376,6 +393,82 @@ test('quickmimic turns a visible little dog into a kitten appearance',
             'You see a kitten appear where your little dog was!',
         ]);
         assert.equal(waits, 1);
+    });
+
+test('quickmimic distinguishes logical glyphs with identical presentations',
+    async () => {
+        const { monster, state } = quickState(true);
+        const previous = state.level.at(5, 5).disp_glyph;
+        const messages = [];
+        await quickmimic(monster, {
+            state,
+            random: { rn2: () => 0 },
+            redraw(x, y) {
+                state.level.at(x, y).disp_glyph = transientGlyph(
+                    GLYPH_MON_MALE_OFF + PM_KITTEN,
+                    previous.ch,
+                );
+            },
+            message: async (message) => messages.push(message),
+            waitMap: async () => {},
+        });
+
+        assert.deepEqual(messages, [
+            'You see a kitten appear where your little dog was!',
+        ]);
+    });
+
+test('quickmimic keeps C fallback for one logical glyph drawn two ways',
+    async () => {
+        const { monster, state } = quickState(true);
+        const previousGlyph = state.level.at(5, 5).disp_glyph.glyph;
+        const messages = [];
+        await quickmimic(monster, {
+            state,
+            random: { rn2: () => 0 },
+            redraw(x, y) {
+                state.level.at(x, y).disp_glyph = transientGlyph(
+                    previousGlyph,
+                    'f',
+                );
+            },
+            message: async (message) => messages.push(message),
+            waitMap: async () => {},
+        });
+
+        assert.deepEqual(messages, [
+            'You sense that your little dog feels rather kitten-ish.',
+        ]);
+    });
+
+test('a planned quickmimic leaves the shared live glyph buffer unchanged',
+    async () => {
+        const { monster, state } = quickState(true);
+        const plannedMonster = {
+            ...monster,
+            mextra: structuredClone(monster.mextra),
+        };
+        const liveGlyph = state.level.at(5, 5).disp_glyph;
+        const liveDescriptor = Object.getOwnPropertyDescriptor(
+            liveGlyph,
+            'glyph',
+        );
+
+        await quickmimic(plannedMonster, {
+            state,
+            random: { rn2: () => 0 },
+            redraw: () => {},
+            message: async () => {},
+            waitMap: async () => {},
+        });
+
+        assert.strictEqual(state.level.at(5, 5).disp_glyph, liveGlyph);
+        assert.deepEqual(
+            Object.getOwnPropertyDescriptor(liveGlyph, 'glyph'),
+            liveDescriptor,
+        );
+        assert.equal(monster.m_ap_type, M_AP_NOTHING);
+        assert.equal(plannedMonster.m_ap_type, M_AP_MONSTER);
     });
 
 test('quickmimic retries five misses and falls back to tripe', async () => {
@@ -425,10 +518,10 @@ test('quickmimic announces a visible square even when the pet is invisible',
             state,
             random: { rn2: () => 0 },
             redraw(x, y) {
-                state.level.at(x, y).disp_glyph = {
-                    attr: 0, ch: 'f', color: 7, dec: false,
-                    displayCh: null, displayColor: null,
-                };
+                state.level.at(x, y).disp_glyph = transientGlyph(
+                    GLYPH_MON_MALE_OFF + PM_KITTEN,
+                    'f',
+                );
             },
             message: async (message) => messages.push(message),
             waitMap: async () => {},
@@ -445,10 +538,10 @@ test('quickmimic compares a newly drawn glyph with an empty prior buffer',
             state,
             random: { rn2: () => 0 },
             redraw(x, y) {
-                state.level.at(x, y).disp_glyph = {
-                    attr: 0, ch: 'f', color: 7, dec: false,
-                    displayCh: null, displayColor: null,
-                };
+                state.level.at(x, y).disp_glyph = transientGlyph(
+                    GLYPH_MON_MALE_OFF + PM_KITTEN,
+                    'f',
+                );
             },
             message: async (message) => messages.push(message),
             waitMap: async () => {},

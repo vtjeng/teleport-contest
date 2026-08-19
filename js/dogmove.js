@@ -582,16 +582,6 @@ function activeHeroProperty(state, property) {
     return Boolean(value?.intrinsic || value?.extrinsic);
 }
 
-function sameDisplayedGlyph(left, right) {
-    if (!left || !right) return left === right;
-    return left.ch === right.ch
-        && left.color === right.color
-        && Boolean(left.dec) === Boolean(right.dec)
-        && (left.attr ?? 0) === (right.attr ?? 0)
-        && left.displayCh === right.displayCh
-        && left.displayColor === right.displayColor;
-}
-
 // C ref: dogmove.c quickmimic() (1481-1530).  The source table and retry
 // loop are complete.  The steed and leash effects are excluded before the
 // first draw; the live starting-pet caller has neither state.
@@ -633,8 +623,7 @@ export async function quickmimic(mtmp, rawEnv = {}) {
         // display.h glyph_at() reads the transient glyph buffer, not
         // levl[x][y].glyph.  M_AP_MONSTER deliberately leaves the underlying
         // floor memory unchanged while replacing this presentation.
-        const previousGlyph = location.disp_glyph
-            ? { ...location.disp_glyph } : null;
+        const previousGlyph = location.disp_glyph?.glyph;
         let what = 'something';
         if (appearanceType === M_AP_FURNITURE) {
             what = CMAP_EXPLANATIONS[appearance];
@@ -648,9 +637,9 @@ export async function quickmimic(mtmp, rawEnv = {}) {
 
         const redraw = rawEnv.redraw ?? newsym;
         redraw(mtmp.mx, mtmp.my);
-        const currentGlyph = location.disp_glyph;
+        const currentGlyph = location.disp_glyph?.glyph;
         const message = rawEnv.message ?? ttyPline;
-        if (!sameDisplayedGlyph(currentGlyph, previousGlyph)) {
+        if (currentGlyph !== previousGlyph) {
             await message(
                 `You ${seeloc ? 'see' : 'sense that'} `
                 + `${what !== 'something' ? an(what) : what} `

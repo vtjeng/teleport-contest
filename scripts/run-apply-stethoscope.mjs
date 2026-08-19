@@ -10,7 +10,7 @@
 // self direction, insight.c mstatusline() through a direction holding a
 // monster, apply.c's secret-terrain switch, and apply.c its_dead() through an
 // empty square, an ordinary corpse pile, an ordinary statue, or a blind
-// statue. The matrix splits into seven parts.
+// statue. The matrix splits into eight parts.
 // The first drives use_stethoscope(): the free first
 // listen, the second listen in the same move that costs a turn, both cancels,
 // both self keys, the Deaf guard, a sweep of all eight compass directions, a
@@ -352,6 +352,30 @@ export function loadListenAtMonsterRecipe() {
     }, 'listen at a monster recipe');
 }
 
+// dogmove.c quickmimic() compares the logical glyph numbers in display.c's
+// third-screen buffer. These custom symbols deliberately draw the starting
+// dog and its kitten disguise with the same byte, so presentation comparison
+// would select the fallback message even though C selects the changed-glyph
+// message. The subsequent listen proves that the disguise and command state
+// remain intact after that message boundary.
+export function loadQuickmimicLogicalGlyphRecipe() {
+    return validateCleanRecipe({
+        version: 5,
+        segments: [{
+            seed: PET_MIMIC_SEED,
+            datetime: PET_MIMIC_DATETIME,
+            nethackrc: nethackrc({
+                name: 'GlyphMim',
+                role: 'Healer',
+                options: `${DEBUG_PET},!color`,
+            }) + 'SYMBOLS=S_dog:d,S_feline:d\n',
+            moves: `${WAIT}${WISH_KEY}small mimic corpse\n`
+                + `dlh${SPACE_KEY}${SPACE_KEY}`
+                + `${APPLY_KEY}${STETHOSCOPE_SLOT}l`,
+        }],
+    }, 'quickmimic logical glyph recipe');
+}
+
 // Natural generated secret terrain, reached without mutating the JavaScript
 // state. Seed 12 starts beside an SDOOR on D:1. Seed 186 has an SCORR one step
 // south after a direct wizard teleport to D:5 and the shortest unobstructed
@@ -560,6 +584,15 @@ export async function runApplyStethoscopeMatrix() {
         chunkLimit: 1,
     });
     if (!monster.passed) return monster;
+    const quickmimic = await runFreshMatrix({
+        entries: [{
+            label: 'quickmimic logical glyph',
+            recipe: loadQuickmimicLogicalGlyphRecipe(),
+        }],
+        summaryLabel: 'QUICKMIMIC LOGICAL GLYPH',
+        chunkLimit: 1,
+    });
+    if (!quickmimic.passed) return quickmimic;
     const secret = await runFreshMatrix({
         entries: [{
             label: 'secret terrain',

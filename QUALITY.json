@@ -4045,7 +4045,7 @@
       "area": "monsters",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "6755a8c0487f2c574bbfc4d32c12f08a0eb2da76",
       "detail": "Preserve transient logical glyph identity and compare glyph IDs in quickmimic instead of rendered presentation; validate identical customized renderings with distinct glyph IDs and a strict differential."
     },

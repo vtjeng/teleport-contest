@@ -332,7 +332,7 @@ function clonePresentation(glyph) {
     if (!glyph) return glyph;
     const clone = { ...glyph };
     if (glyph.rgb) clone.rgb = [...glyph.rgb];
-    for (const field of ['a11yIdentity', 'a11ySubject']) {
+    for (const field of ['glyph', 'a11yIdentity', 'a11ySubject']) {
         if (glyph[field] !== undefined) {
             Object.defineProperty(clone, field, {
                 configurable: true,
@@ -398,6 +398,7 @@ function sameBufferedPresentation(left, right) {
             'attr',
             'displayCh',
             'displayColor',
+            'glyph',
             'a11yKind',
             'a11yDescription',
             'a11yIdentity',

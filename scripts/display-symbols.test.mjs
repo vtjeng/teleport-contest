@@ -189,6 +189,7 @@ import {
     GLYPH_NOTHING_OFF,
     GLYPH_OBJ_OFF,
     GLYPH_OBJ_PILETOP_OFF,
+    GLYPH_PET_MALE_OFF,
     GLYPH_STATUE_FEM_OFF,
     GLYPH_STATUE_FEM_PILETOP_OFF,
     GLYPH_STATUE_MALE_OFF,
@@ -3485,13 +3486,13 @@ test('monster disguises preserve divergent hallucinated statue memory', () => {
         location.remembered_glyph,
         remembered_glyph_from_presentation(expectedMemory),
     );
-    // The transient floor draw is a monster presentation, which carries no
-    // glyph number at all; map memory could not hold it even if the code
-    // above tried to file it there.
-    assert.throws(
-        () => remembered_glyph_from_presentation(expectedFloor),
-        TypeError,
-        'the transient statue presentation must not replace its object memory',
+    // The transient floor draw now retains its C monster glyph number for the
+    // display buffer. It still must not replace the independently drawn
+    // object glyph which map_object() files in map memory.
+    assert.notDeepEqual(
+        location.remembered_glyph,
+        remembered_glyph_from_presentation(expectedFloor),
+        'the transient statue presentation did not replace its object memory',
     );
     assert.equal(rn2_on_display_rng(NUMMONS), followingDraw);
 });
@@ -3701,6 +3702,7 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
         : null;
     const roomSidecars = [];
     const roomSubjects = [];
+    const roomGlyphs = [];
     const messages = await emitGlyphUpdateNotices(state, {
         pline: async () => {
             frames.push([
@@ -3715,6 +3717,7 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
             ]);
             roomSidecars.push(sidecars(unannounced.disp_glyph));
             roomSubjects.push(unannounced.disp_glyph?.a11ySubject ?? null);
+            roomGlyphs.push(unannounced.disp_glyph?.glyph ?? null);
         },
     });
     assert.deepEqual(messages, [
@@ -3754,6 +3757,11 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
     assert.strictEqual(pitFrameSubject, room.a11ySubject);
     assert.strictEqual(altarFrameSubject, room.a11ySubject);
     assert.deepEqual(
+        roomGlyphs,
+        [null, room.glyph, room.glyph],
+        'filtered logical glyph IDs were replayed in later frames',
+    );
+    assert.deepEqual(
         sidecars(unannounced.disp_glyph),
         expectedRoomSidecars,
         'filtered accessibility sidecars survived final-buffer restoration',
@@ -3762,6 +3770,11 @@ test('cumulative sparse notice frames retain filtered writes', async () => {
         unannounced.disp_glyph.a11ySubject,
         room.a11ySubject,
         'final restoration retained the mutable subject reference',
+    );
+    assert.equal(
+        unannounced.disp_glyph.glyph,
+        room.glyph,
+        'final restoration retained the logical glyph ID',
     );
     assert.deepEqual(
         [first.gnew, second.gnew, unannounced.gnew, third.gnew],
@@ -5355,6 +5368,35 @@ test('show_glyph_cell accepts presentation records, not map-memory records', () 
         ],
         ['x', CLR_RED, true],
     );
+});
+
+test('show_glyph_cell retains a non-enumerable logical monster glyph', () => {
+    const x = 7;
+    const y = 4;
+    const state = visibleCellState({ x, y });
+    const presentation = monster_glyph_info({
+        data: state.mons[PM_TENGU],
+        female: false,
+        mtame: 10,
+    }, state);
+
+    assert.equal(
+        presentation.glyph,
+        GLYPH_PET_MALE_OFF + PM_TENGU,
+    );
+    assert.equal(
+        Object.getOwnPropertyDescriptor(presentation, 'glyph').enumerable,
+        false,
+    );
+    show_glyph_cell(x, y, presentation);
+
+    const buffered = state.level.at(x, y).disp_glyph;
+    assert.equal(buffered.glyph, presentation.glyph);
+    assert.equal(
+        Object.getOwnPropertyDescriptor(buffered, 'glyph').enumerable,
+        false,
+    );
+    assert.deepEqual(buffered, glyphPresentationRecord(presentation));
 });
 
 test('show_glyph_cell retains each complete ordered presentation', () => {
@@ -9224,4 +9266,3 @@ test('a cmap glyph carries the accessibility kind its index falls in', () => {
     assert.equal(kindOf(S_grave), 'furniture');
     assert.equal(kindOf(S_pool), 'cmap');
 });
-

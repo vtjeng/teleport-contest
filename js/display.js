@@ -203,14 +203,23 @@ import {
     GLYPH_CMAP_MINES_OFF,
     GLYPH_CMAP_SOKO_OFF,
     GLYPH_CMAP_STONE_OFF,
+    GLYPH_DETECT_FEM_OFF,
+    GLYPH_DETECT_MALE_OFF,
     GLYPH_INVIS_OFF,
+    GLYPH_MON_FEM_OFF,
+    GLYPH_MON_MALE_OFF,
     GLYPH_NOTHING_OFF,
     GLYPH_OBJ_OFF,
     GLYPH_OBJ_PILETOP_OFF,
+    GLYPH_PET_FEM_OFF,
+    GLYPH_PET_MALE_OFF,
+    GLYPH_RIDDEN_FEM_OFF,
+    GLYPH_RIDDEN_MALE_OFF,
     GLYPH_STATUE_FEM_OFF,
     GLYPH_STATUE_FEM_PILETOP_OFF,
     GLYPH_STATUE_MALE_OFF,
     GLYPH_STATUE_MALE_PILETOP_OFF,
+    GLYPH_WARNING_OFF,
     GLYPH_ZAP_OFF,
     MAX_GLYPH,
     NUM_ZAP,
@@ -729,6 +738,21 @@ function glyphPresentation(symbol, color, state, customization = null) {
     return result;
 }
 
+// C's glyph_info carries the glyph number beside its resolved presentation.
+// Keep the number non-enumerable so renderer-facing records retain their
+// established shape while display.c glyph_at() consumers can read identity.
+function withLogicalGlyph(presentation, glyph) {
+    if (!Number.isInteger(glyph)) return presentation;
+    Object.defineProperty(presentation, 'glyph', { value: glyph });
+    return presentation;
+}
+
+function genderedMonsterGlyph(mnum, female, maleOffset, femaleOffset) {
+    return Number.isInteger(mnum)
+        ? mnum + (female ? femaleOffset : maleOffset)
+        : undefined;
+}
+
 function drawbridgeMask(loc) {
     // drawbridgemask aliases struct rm's flags.  Keep the compatibility
     // field for state written by the earlier JS map representation.
@@ -769,7 +793,15 @@ export function hero_glyph_info(state = game) {
         monsterGenderFlag(Ugender(state)), state,
     );
     if (attr) glyph.attr = attr;
-    return glyph;
+    return withLogicalGlyph(
+        glyph,
+        genderedMonsterGlyph(
+            mnum,
+            Ugender(state),
+            GLYPH_MON_MALE_OFF,
+            GLYPH_MON_FEM_OFF,
+        ),
+    );
 }
 
 function withMonsterAccessibility(
@@ -803,6 +835,23 @@ function actualMonsterGlyphInfo(monster, state) {
         state,
     );
     if (attr) glyph.attr = attr;
+    const mnum = monster.data?.pmidx;
+    withLogicalGlyph(
+        glyph,
+        monster.mtame
+            ? genderedMonsterGlyph(
+                mnum,
+                monster.female,
+                GLYPH_PET_MALE_OFF,
+                GLYPH_PET_FEM_OFF,
+            )
+            : genderedMonsterGlyph(
+                mnum,
+                monster.female,
+                GLYPH_MON_MALE_OFF,
+                GLYPH_MON_FEM_OFF,
+            ),
+    );
     return withMonsterAccessibility(
         glyph,
         monster,
@@ -917,6 +966,23 @@ function presentedMonsterGlyphInfo(monster, state, detected) {
         state,
     );
     if (attr) glyph.attr = attr;
+    const mnum = species.pmidx;
+    withLogicalGlyph(
+        glyph,
+        detected
+            ? genderedMonsterGlyph(
+                mnum,
+                monster.female,
+                GLYPH_DETECT_MALE_OFF,
+                GLYPH_DETECT_FEM_OFF,
+            )
+            : genderedMonsterGlyph(
+                mnum,
+                monster.female,
+                GLYPH_MON_MALE_OFF,
+                GLYPH_MON_FEM_OFF,
+            ),
+    );
     return withMonsterAccessibility(
         glyph,
         monster,
@@ -950,6 +1016,15 @@ function riddenMonsterGlyphInfo(monster, state) {
         MG_RIDDEN | monsterGenderFlag(monster.female), state,
     );
     if (attr) glyph.attr = attr;
+    withLogicalGlyph(
+        glyph,
+        genderedMonsterGlyph(
+            species.pmidx,
+            monster.female,
+            GLYPH_RIDDEN_MALE_OFF,
+            GLYPH_RIDDEN_FEM_OFF,
+        ),
+    );
     return withMonsterAccessibility(
         glyph, monster, species, state, 'ridden',
     );
@@ -984,6 +1059,15 @@ function mimickedMonsterGlyphInfo(monster, state) {
     // appearance's; the gender half of the range is not.
     const attr = print_glyph_attr(monsterGenderFlag(monster.female), state);
     if (attr) glyph.attr = attr;
+    withLogicalGlyph(
+        glyph,
+        genderedMonsterGlyph(
+            speciesIndex,
+            monster.female,
+            GLYPH_MON_MALE_OFF,
+            GLYPH_MON_FEM_OFF,
+        ),
+    );
     return withMonsterAccessibility(
         glyph, monster, species, state, 'disguise',
     );
@@ -1059,6 +1143,7 @@ function warningGlyphInfo(monster, state) {
         state,
         glyph_customization(`G_warning${warningLevel}`, state),
     );
+    withLogicalGlyph(glyph, warningLevel + GLYPH_WARNING_OFF);
     if (!state.a11y?.glyph_updates) return glyph;
     return withAccessibilityMetadata(
         glyph,
@@ -2067,7 +2152,7 @@ export function show_glyph_cell(x, y, glyph) {
         a11yDescription: glyph.a11yDescription ?? null,
     };
     if (glyph.rgb) logicalPresentation.rgb = [...glyph.rgb];
-    for (const field of ['a11yIdentity', 'a11ySubject']) {
+    for (const field of ['glyph', 'a11yIdentity', 'a11ySubject']) {
         if (glyph[field] !== undefined) {
             Object.defineProperty(logicalPresentation, field, {
                 configurable: true,
