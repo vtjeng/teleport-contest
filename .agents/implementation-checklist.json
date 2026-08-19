@@ -1,15 +1,15 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "The Healer REVIVE_MON wording slice is complete at 41d344e. Existing constructed timed-corpse doapply fixtures now prove the role-gated timer walk and exact `mostly dead` grammar without any setup search or subsystem expansion; independent checkpoint, mutation, matrix, and CI are green.",
-  "commitChecked": "93e97407f39918188a6a0aa372cd5ee3e7557a3c",
+  "mode": "implementation",
+  "reason": "The next direct-test slice ports apply.c its_dead()'s complete Hallucination response arm without searching for an unavailable live Hallucination writer. Existing dead-object doapply fixtures cover statue, singular corpse, saved traits, and plural corpse; mkobj.c get_mtraits() is the only adjacent source helper not yet present.",
+  "commitChecked": "10bb9caef784419e4797b88b60e5662b25c6d2a4",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
-    "startingCommit": "93e97407f39918188a6a0aa372cd5ee3e7557a3c",
-    "startingEvent": "A Healer applies the starting stethoscope to an adjacent selected corpse chain where at least one corpse carries a REVIVE_MON timer; the command has accepted the tool and direction.",
-    "endingEvent": "apply.c its_dead() finishes the role-gated timer walk, prints the singular or plural corpse determination with `mostly dead` only for the Healer reviver case, returns TRUE, and doapply() reaches the next input boundary.",
-    "validInputs": "Reuse the user-authorized constructed timed-corpse doapply fixtures already in scripts/apply-stethoscope.test.mjs. Do not search seeds or port corpse creation/combat merely to build the state.",
-    "observables": "Exact Healer `mostly dead` grammar for top and lower timers, ordinary-role `dead`, singular/plural and first-free/repeated-costly results, zero branch PRNG, unchanged pile/timers/map/moves, unread sentinels, and Hallucination precedence.",
-    "exclusions": "Do not port corpse revival, timer execution, combat, Hallucination messages, or fog-region movement. If the branch expands beyond js/apply.js and its existing focused test, stop and defer it under the user's timebox."
+    "startingCommit": "10bb9caef784419e4797b88b60e5662b25c6d2a4",
+    "startingEvent": "A hallucinating hero applies the starting stethoscope to an adjacent selected corpse or statue; the command has accepted the tool and direction before shared listen effects.",
+    "endingEvent": "apply.c its_dead() constructs the complete statue, singular-corpse, saved-trait, or plural-corpse voice line, applies You_hear() semantics, forces ECMD_TIME, and doapply() reaches the next input boundary.",
+    "validInputs": "Use the user-authorized constructed dead-object doapply fixtures already in scripts/apply-stethoscope.test.mjs. Do not search seeds or port a Hallucination status writer merely to build the state.",
+    "observables": "Exact `You're both stoned`, `He's/She's/It's dead`, and `They're dead` voice lines with `, Jim.`, acoustics suppression, forced ECMD_TIME even on the first listen, no branch RNG, saved-trait and species-sex selection, unchanged piles/timers/map/moves, sentinels, and mixed-pile precedence.",
+    "exclusions": "Do not port make_hallucinated(), potion/status writers, corpse revival, or fog-region movement. The adjacent helper may be the complete mkobj.c get_mtraits() in js/corpstat.js; if any other subsystem appears, stop under the user's timebox."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); monmove.c m_everyturn_effect() (624-665); region.c create_gas_cloud() (1194-1308); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
@@ -106,8 +106,8 @@
       "owner": "js/apply.js its_dead()",
       "effects": "get_mtraits(), pronoun_gender(), You_hear(\"a voice say, ...\") and *resp = ECMD_TIME.",
       "evidence": "apply.c:226-260, read at 9657e3b. Because it is the only writer of resp, the port answers a bare boolean instead of taking the pointer.",
-      "status": "later",
-      "remaining": "Outside this reviewed slice but still inside the open goal. The refusal remains above both object arms and before their effects."
+      "status": "missing",
+      "remaining": "Port the complete response arm with direct constructed doapply tests for statue, singular species sex, saved monster traits, and plural corpse; preserve You_hear acoustics behavior, forced ECMD_TIME, mixed-pile ordering, zero branch RNG, and state preservation. No current input writes Hallucination, so no setup search is authorized or needed."
     },
     {
       "candidate": "apply.c its_dead() ordinary sighted corpse sub-arm (261-279)",
@@ -344,6 +344,12 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 41d344e ports apply.c:265-278 exactly: only a Healer scans the selected corpse chain for REVIVE_MON, and the observable difference is the `mostly` word; no revival action or new RNG belongs to this branch. Existing constructed timed-corpse fixtures reach the real doapply consumer without setup search. The full Hallucination message arm and fog m_in_out_region() remain separate confirmed gaps and will use the user's requested direct-test fallback rather than further source-real setup searches."
+  "missingWorkByOwner": [
+    {
+      "group": "apply.c its_dead() Hallucination response",
+      "candidates": ["apply.c its_dead() Hallucination arm (226-260)"],
+      "next": "Replace the atomic refusal with the complete voice-response arm and the source response override, using existing constructed dead-object fixtures and the mkobj.c get_mtraits() helper only."
+    }
+  ],
+  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 41d344e completed apply.c:265-278. The next coherent source unit is apply.c:226-260: statue, singular corpse with optional saved monster traits, and plural corpse all share one You_hear() line and force ECMD_TIME. The only missing adjacent helper is mkobj.c get_mtraits(), whose existing owner is js/corpstat.js; pronoun_gender(), fixed-sex predicates, genders[], highc(), and You_hear() already exist. Existing constructed dead-object fixtures reach doapply directly, so the user's speed direction rules out further setup search. Fog m_in_out_region() remains the final separate confirmed gap."
 }

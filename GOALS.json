@@ -3038,6 +3038,11 @@
           "name": "healer-timed-corpse-is-mostly-dead",
           "status": "closed",
           "closedBy": "41d344e1f7ff6579df036f1d1be915894e8a5c5e"
+        },
+        {
+          "name": "hallucinated-dead-objects-speak",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
