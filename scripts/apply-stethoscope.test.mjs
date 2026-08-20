@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import test from 'node:test';
+import { Worker } from 'node:worker_threads';
 
 import {
     apply_ok,
@@ -155,7 +156,7 @@ import {
 } from '../js/objects.js';
 import { S_altar, S_room } from '../js/symbols.js';
 import { create_region } from '../js/region.js';
-import { start_timer } from '../js/timeout.js';
+import { start_timer, timeout_globals_init } from '../js/timeout.js';
 import { CLR_GRAY, NO_COLOR } from '../js/terminal.js';
 import { welded } from '../js/wield.js';
 import {
@@ -932,6 +933,7 @@ function isolatedItsDeadState() {
     state.u = structuredClone(game.u);
     state.youmonst = { ...game.youmonst };
     state.urole = { ...game.urole };
+    state.flags = { ...game.flags };
     state.mons = structuredClone(game.mons);
     state.objects = structuredClone(game.objects);
     state.obj_descr = structuredClone(game.obj_descr);
@@ -942,6 +944,9 @@ function isolatedItsDeadState() {
     state._ttyToplines = '';
     state._ttyMessageStopped = false;
     state._emittingGlyphUpdateNotices = false;
+    state.gt = {};
+    state.svt = {};
+    timeout_globals_init(state);
     return state;
 }
 
@@ -1179,6 +1184,32 @@ test('use_stethoscope walks the adjacent square in apply.c order',
     assert.ok(!glyph_is_invisible(
         game.level.at(movedOff.x, movedOff.y).remembered_glyph?.glyph),
     'the marker is cleared before the switch reads the terrain');
+
+    // The same source order continues into the newly admitted dead-object
+    // result: clear and report the remembered marker, then report the corpse.
+    const markedCorpse = await heroWithEmptyWest();
+    map_invisible(markedCorpse.x, markedCorpse.y, game);
+    floorCorpstat(CORPSE, markedCorpse);
+    for (const key of ['c', 'h', ' ', 'z'])
+        game.nhDisplay.pushKey(key.charCodeAt(0));
+    assert.equal(await doapply(game), ECMD_OK);
+    assert.equal(
+        topLine().replace(/--More--$/u, ''),
+        'The invisible monster must have moved.',
+    );
+    assert.equal(
+        pendingTopLine(),
+        'You determine that that unfortunate being is dead.',
+    );
+    assert.ok(!glyph_is_invisible(
+        game.level.at(markedCorpse.x, markedCorpse.y)
+            .remembered_glyph?.glyph,
+    ));
+    assert.deepEqual(
+        [game.nhDisplay.cursorCol, game.nhDisplay.cursorRow],
+        [46, 0],
+    );
+    assert.equal(await game.nhDisplay.readKey(), 'z'.charCodeAt(0));
 
     // apply.c:452-464, the two terrain arms, each above its_dead(). The corpse
     // underneath would stop the listen if the switch sat below it.
@@ -2252,6 +2283,37 @@ test('a Healer hears mostly dead for a corpse with a revival timer',
     );
 });
 
+test('timed-corpse traversal is bounded outside the test runner thread',
+    async () => {
+        const worker = new Worker(new URL(
+            './fixtures/apply-stethoscope-timed-corpse-worker.mjs',
+            import.meta.url,
+        ));
+        let timeout;
+        try {
+            const result = await Promise.race([
+                new Promise((resolve, reject) => {
+                    worker.once('message', resolve);
+                    worker.once('error', reject);
+                    worker.once('exit', (code) => {
+                        if (code !== 0) reject(new Error(
+                            `timed-corpse worker exited ${code}`,
+                        ));
+                    });
+                }),
+                new Promise((_, reject) => {
+                    timeout = setTimeout(() => reject(new Error(
+                        'timed-corpse traversal exceeded 5 seconds',
+                    )), 5_000);
+                }),
+            ]);
+            assert.equal(result, 'done');
+        } finally {
+            clearTimeout(timeout);
+            await worker.terminate();
+        }
+    });
+
 test('its_dead keeps exceptional object paths in source order', async () => {
     // Hallucination precedes the timed-corpse and ordinary corpse reports.
     const direct = await heroWithEmptyWest();
@@ -2445,6 +2507,67 @@ test('its_dead admitted body reads and writes the supplied state', async () => {
     assert.deepEqual(directItsDeadEffects(target), globalBefore);
 });
 
+test('its_dead owns supplied role, timers, Hallucination, and saved traits',
+    async () => {
+        const timedTarget = await heroWithEmptyWest();
+        const timedState = isolatedItsDeadState();
+        const timedCorpse = placeStateCorpstat(
+            timedState, CORPSE, timedTarget,
+        );
+        start_timer(
+            100, TIMER_OBJECT, REVIVE_MON, timedCorpse, timedState,
+        );
+        const globalRole = game.urole.mnum;
+        const globalBefore = directItsDeadEffects(timedTarget);
+        game.urole.mnum = PM_MONK;
+        try {
+            const response = { value: ECMD_OK };
+            assert.equal(await its_dead(
+                timedTarget.x, timedTarget.y, timedState, response,
+            ), true);
+            assert.equal(response.value, ECMD_OK);
+            assert.equal(
+                timedState._pending_message,
+                'You determine that that unfortunate being is mostly dead.',
+            );
+            assert.equal(timedState.gt.timer_base?.arg, timedCorpse);
+            assert.equal(timedCorpse.timed, 1);
+            assert.deepEqual(directItsDeadEffects(timedTarget), globalBefore);
+        } finally {
+            game.urole.mnum = globalRole;
+        }
+
+        const savedTarget = await heroWithEmptyWest();
+        const savedState = isolatedItsDeadState();
+        const savedCorpse = placeStateCorpstat(
+            savedState, CORPSE, savedTarget,
+        );
+        savedCorpse.oextra = {
+            omonst: { mnum: PM_GNOME, female: true, data: null },
+        };
+        savedState.u.uprops[HALLUC].intrinsic = 1;
+        savedState.flags.acoustics = true;
+        savedState.mons[PM_GNOME].pmnames = [
+            'foreign gnome', 'foreign gnome', 'foreign gnome',
+        ];
+        game.u.uprops[HALLUC].intrinsic = 0;
+        const savedGlobalBefore = directItsDeadEffects(savedTarget);
+        const response = { value: ECMD_OK };
+        assert.equal(await its_dead(
+            savedTarget.x, savedTarget.y, savedState, response,
+        ), true);
+        assert.equal(response.value, ECMD_TIME);
+        assert.equal(
+            savedState._pending_message,
+            'You hear a voice say, "She\'s dead, Jim."',
+        );
+        assert.strictEqual(
+            savedCorpse.oextra.omonst.data,
+            savedState.mons[PM_GNOME],
+        );
+        assert.deepEqual(directItsDeadEffects(savedTarget), savedGlobalBefore);
+    });
+
 test('hallucinated dead objects speak and always charge the listen',
     async () => {
     // User-authorized direct live setup, 2026-08-19. No current player input
@@ -2585,6 +2708,26 @@ test('hallucinated dead objects speak and always charge the listen',
     assert.equal(quietAfter.shared.rngCalls, quietBefore.shared.rngCalls);
 });
 
+test('Hallucination does not turn an empty-square listen into a dead voice',
+    async () => {
+        await heroWithEmptyWest();
+        game.u.uprops[HALLUC].intrinsic = 1;
+        game.flags.acoustics = true;
+        game.context.stethoscope_seq = game.hero_seq - 1;
+
+        for (const key of ['c', 'h', 'x'])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_OK);
+        assert.equal(pendingTopLine(), 'You hear nothing special.');
+        assert.equal(await game.nhDisplay.readKey(), 'x'.charCodeAt(0));
+
+        for (const key of [' ', 'c', 'h', 'y'])
+            game.nhDisplay.pushKey(key.charCodeAt(0));
+        assert.equal(await doapply(game), ECMD_TIME);
+        assert.equal(pendingTopLine(), 'You hear nothing special.');
+        assert.equal(await game.nhDisplay.readKey(), 'y'.charCodeAt(0));
+    });
+
 test('its_dead clears unreachable corpses and skips only tiny statues',
     async () => {
     // apply.c:206-207. A levitating hero reaches no corpse on the floor, so
@@ -2629,6 +2772,45 @@ test('its_dead clears unreachable corpses and skips only tiny statues',
         pendingTopLine(),
         'The gnome is in fine health for a statue.',
     );
+
+    // Reachability is resolved before corpse/statue pile order. Whether the
+    // unreachable corpse sits above or below the non-tiny statue, clearing it
+    // leaves the statue as the selected report.
+    for (const corpseOnTop of [true, false]) {
+        const mixed = await heroWithEmptyWest();
+        const first = floorCorpstat(
+            corpseOnTop ? STATUE : CORPSE, mixed,
+        );
+        if (first.otyp === STATUE) first.corpsenm = PM_GNOME;
+        mksobj_at(ROCK, mixed.x, mixed.y, false, false,
+            objectGenerationEnv({ state: game }));
+        const last = floorCorpstat(
+            corpseOnTop ? CORPSE : STATUE, mixed,
+        );
+        if (last.otyp === STATUE) last.corpsenm = PM_GNOME;
+        game.u.uprops[LEVITATION].intrinsic = 1;
+        assert.equal(await listenWest(), null, String(corpseOnTop));
+        assert.equal(
+            pendingTopLine(),
+            'The gnome is in fine health for a statue.',
+            String(corpseOnTop),
+        );
+    }
+
+    const unreachableCorpseAndTiny = await heroWithEmptyWest();
+    floorCorpstat(STATUE, unreachableCorpseAndTiny);
+    mksobj_at(
+        ROCK,
+        unreachableCorpseAndTiny.x,
+        unreachableCorpseAndTiny.y,
+        false,
+        false,
+        objectGenerationEnv({ state: game }),
+    );
+    floorCorpstat(CORPSE, unreachableCorpseAndTiny);
+    game.u.uprops[LEVITATION].intrinsic = 1;
+    assert.equal(await listenWest(), null);
+    assert.equal(pendingTopLine(), 'You hear nothing special.');
 
     // When every statue is tiny, the walk exhausts the pile and the caller
     // prints its ordinary fall-through message.

@@ -72,6 +72,7 @@ import {
     PM_GNOME,
     PM_GRID_BUG,
     PM_GREMLIN,
+    PM_HEZROU,
     PM_KITTEN,
     PM_LITTLE_DOG,
     PM_ORC_SHAMAN,
@@ -80,6 +81,7 @@ import {
     PM_ROCK_MOLE,
     PM_RUST_MONSTER,
     PM_SHRIEKER,
+    PM_STEAM_VORTEX,
     S_HUMAN,
 } from '../js/monsters.js';
 import {
@@ -105,7 +107,6 @@ import {
 import { m_move } from '../js/monmove.js';
 import {
     create_region,
-    UnsupportedRegionCallbackError,
 } from '../js/region.js';
 import { canSeeMonster } from '../js/startup_a11y.js';
 import {
@@ -793,8 +794,29 @@ test('planned fog leaves its cloned vapor without changing live state',
         );
         assert.equal(planned.level.regions.length, 1);
         assert.deepEqual(planned.level.regions[0].monsters, []);
+        assert.deepEqual(planned.level.regions[0].bounding_box, {
+            lx: target.monsterX,
+            ly: target.heroY,
+            hx: target.monsterX,
+            hy: target.heroY,
+        });
+        assert.deepEqual(planned.level.regions[0].rects, [{
+            lx: target.monsterX,
+            ly: target.heroY,
+            hx: target.monsterX,
+            hy: target.heroY,
+        }]);
+        assert.equal(planned.level.regions[0].ttl, 5);
+        assert.equal(planned.level.regions[0].visible, true);
+        assert.equal(planned.level.regions[0].expire_f, 'expire_gas_cloud');
         assert.equal(planned.level.regions[0].inside_f, 'inside_gas_cloud');
         assert.equal(planned.level.regions[0].arg, 0);
+        assert.equal(planned.level.regions[0].attach_2_u, false);
+        assert.equal(planned.level.regions[0].attach_2_m, 0);
+        assert.equal(planned.level.regions[0].can_enter_f, null);
+        assert.equal(planned.level.regions[0].enter_f, null);
+        assert.equal(planned.level.regions[0].can_leave_f, null);
+        assert.equal(planned.level.regions[0].leave_f, null);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
@@ -839,34 +861,85 @@ test('a later ranged refusal discards a planned fog-region leave', async () => {
 
 test('fog-region transition callbacks remain fail-closed and inert',
     async () => {
-        const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
-        target.monster.movement = NORMAL_SPEED;
-        const vapor = create_region([{
-            lx: target.monsterX,
-            ly: target.heroY,
-            hx: target.monsterX,
-            hy: target.heroY,
-        }]);
-        Object.assign(vapor, {
-            arg: 0,
-            inside_f: 'inside_gas_cloud',
-            leave_f: 'must_not_run',
-            monsters: [target.monster.m_id],
-            visible: true,
-        });
-        game.level.regions = [vapor];
-        const before = completeSecondTurnSnapshot(game, target.replay);
+        for (const [name, leave_f] of [
+            ['numeric', 0],
+            ['function', () => { throw new Error('must not run'); }],
+            ['injected', 'must_not_run'],
+        ]) {
+            const target = await prepareSelectedAction({
+                pmidx: PM_FOG_CLOUD,
+            });
+            target.monster.movement = NORMAL_SPEED;
+            const vapor = create_region([{
+                lx: target.monsterX,
+                ly: target.heroY,
+                hx: target.monsterX,
+                hy: target.heroY,
+            }]);
+            Object.assign(vapor, {
+                arg: 0,
+                inside_f: 'inside_gas_cloud',
+                leave_f,
+                monsters: [target.monster.m_id],
+                visible: true,
+            });
+            game.level.regions = [vapor];
+            const membersBefore = [...vapor.monsters];
+            const positionBefore = [target.monster.mx, target.monster.my];
+            const randomBefore = rngSnapshot();
+            const messagesBefore = [...game.nhDisplay.messages];
+            let calls = 0;
 
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => error instanceof UnsupportedRegionCallbackError
-                && error.callback === 'must_not_run',
-        );
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === 'a region transition',
+                name,
+            );
+            assert.equal(calls, 0, name);
+            assert.deepEqual(vapor.monsters, membersBefore, name);
+            assert.deepEqual(
+                [target.monster.mx, target.monster.my],
+                positionBefore,
+                name,
+            );
+            assert.deepEqual(rngSnapshot(), randomBefore, name);
+            assert.deepEqual(game.nhDisplay.messages, messagesBefore, name);
+        }
+    });
 
-        assert.deepEqual(
-            completeSecondTurnSnapshot(game, target.replay),
-            before,
-        );
+test('harmless fog-vapor exits do not admit postmove-effect species',
+    async () => {
+        for (const pmidx of [PM_HEZROU, PM_STEAM_VORTEX]) {
+            const target = await prepareSelectedAction({ pmidx });
+            target.monster.movement = NORMAL_SPEED;
+            const vapor = create_region([{
+                lx: target.monsterX,
+                ly: target.heroY,
+                hx: target.monsterX,
+                hy: target.heroY,
+            }]);
+            Object.assign(vapor, {
+                arg: 0,
+                inside_f: 'inside_gas_cloud',
+                monsters: [target.monster.m_id],
+                visible: true,
+            });
+            game.level.regions = [vapor];
+            const before = completeSecondTurnSnapshot(game, target.replay);
+
+            await assert.rejects(
+                preflightSimpleMonsterActions(game),
+                (error) => error instanceof UnsupportedSimpleMonsterActionError
+                    && error.reason === 'a region transition',
+                String(pmidx),
+            );
+            assert.deepEqual(
+                completeSecondTurnSnapshot(game, target.replay),
+                before,
+                String(pmidx),
+            );
+        }
     });
 
 test('fog movement still refuses region entry and harmful vapor', async () => {
@@ -2540,6 +2613,7 @@ test('live fog movement leaves harmless vapor without extra output or RNG',
                 game.level.regions = [region];
             }
             const messagesBefore = [...game.nhDisplay.messages];
+            const regionBefore = region ? structuredClone(region) : null;
 
             const result = await runSimpleMonsterAction(target.monster, {
                 state: game,
@@ -2547,6 +2621,8 @@ test('live fog movement leaves harmless vapor without extra output or RNG',
 
             return {
                 members: region?.monsters ?? null,
+                region: region ? structuredClone(region) : null,
+                regionBefore,
                 messages: game.nhDisplay.messages.slice(
                     messagesBefore.length,
                 ),
@@ -2566,6 +2642,11 @@ test('live fog movement leaves harmless vapor without extra output or RNG',
         assert.equal(leftVapor.result, MMOVE_NOTHING);
         assert.deepEqual(leftVapor.members, []);
         assert.deepEqual(sameRegion.members, [9001]);
+        assert.deepEqual(
+            leftVapor.region,
+            { ...leftVapor.regionBefore, monsters: [] },
+        );
+        assert.deepEqual(sameRegion.region, sameRegion.regionBefore);
         assert.deepEqual(leftVapor.messages, []);
         assert.deepEqual(leftVapor.messages, ordinary.messages);
         assert.deepEqual(leftVapor.rng, ordinary.rng);

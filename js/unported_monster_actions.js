@@ -68,6 +68,7 @@ import {
     AT_MAGC,
     AT_WEAP,
     PM_ERINYS,
+    PM_FOG_CLOUD,
     PM_GELATINOUS_CUBE,
     PM_GREMLIN,
     PM_KILLER_BEE,
@@ -705,7 +706,7 @@ function admitDoorOpening(x, y, env) {
     admitPlannedVisionChange(x, y, state);
 }
 
-async function mayCrossSimpleRegion(monster, x, y, env) {
+async function admitSimpleDestinationAndRegion(monster, x, y, env) {
     const { state } = env;
     const location = state.level.at(x, y);
     const doorMask = location?.flags || location?.doormask || 0;
@@ -755,11 +756,18 @@ async function mayCrossSimpleRegion(monster, x, y, env) {
 
         // This boundary admits only monmove.c m_everyturn_effect()'s harmless
         // fog vapor. Its transition callbacks are unset, so the selected path
-        // only removes the moving fog's cached ID. m_in_out_region() still
-        // preflights any callback-bearing variant before membership changes.
+        // only removes the moving fog's cached ID. Other species can reach
+        // monmove.c m_postmove_effect() after this transition, and callback-
+        // bearing regions can change more than cached membership; both stay
+        // fail-closed until their complete source paths are ported.
         const leavesHarmlessFogVapor = currentlyInside
+            && monsndx(monster.data) === PM_FOG_CLOUD
             && region.inside_f === 'inside_gas_cloud'
-            && Math.trunc(region.arg ?? 0) === 0;
+            && Math.trunc(region.arg ?? 0) === 0
+            && region.can_enter_f == null
+            && region.enter_f == null
+            && region.can_leave_f == null
+            && region.leave_f == null;
         if (!leavesHarmlessFogVapor)
             unsupported('a region transition');
     }
@@ -800,7 +808,7 @@ async function moveSimpleOrdinary(monster, env) {
     return m_move(monster, {
         ...env,
         ...doorVisionOperations(env),
-        mayCrossRegion: mayCrossSimpleRegion,
+        mayCrossRegion: admitSimpleDestinationAndRegion,
         resistsTrapEffect,
         // mon.c can_touch_safely() asks artifact.c touch_artifact() about
         // every item a monster considers, and that function can blast the
@@ -830,7 +838,7 @@ async function moveSimplePet(monster, after, env) {
         digWeaponCheck: () => false,
         displaceMonster: () => unsupported('pet displacement'),
         eatObject: dog_eat,
-        mayCrossRegion: mayCrossSimpleRegion,
+        mayCrossRegion: admitSimpleDestinationAndRegion,
         // Three printing sites share the `message` seam: dog_invent()'s carry
         // arm through dogmove.c pline_xy(), its drop arm through steal.c
         // mdrop_obj(), and dog_move()'s cursed-step line through pline.c

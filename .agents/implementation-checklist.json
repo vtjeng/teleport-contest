@@ -15,7 +15,7 @@
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); monmove.c m_everyturn_effect() (624-665); region.c create_gas_cloud() (1194-1308); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
     "dispatchTablesAndCatalogs": "The M_AP_TYPE switch at apply.c:404-437 over M_AP_OBJECT, M_AP_MONSTER and M_AP_FURNITURE; defsyms[].explanation and the generated CMAP_EXPLANATIONS projection; mstatusline()'s ordered info fragments; makemon.c syms[] and set_mimic_sym(); dogmove.c qm[]; wizard.c wizapp[]; and every shipped Lua appear_as descriptor under nethack-c/upstream/dat/.",
     "reachableHelpers": "Read from the C call graph of the two entry points. Already ported and needing no work: unmap_invisible(), newsym(), sobj_at(), can_reach_floor() (js/engrave.js, with the checkPit parameter), m_at(), find_mac, align_str, map_invisible(), obj_typename(), ustatusline(), mon_aligntyp(), rndmonnam(), set_mimic_sym() (js/makemon_create.js).",
-    "javascriptCrossCheck": "The earlier 9657e3b checks for nxtobj() and MZ_TINY are now stale: js/invent.js exports nxtobj() and js/monsters.js exports MZ_TINY. Current js/apply.js still names the filled-statue refusal in unportedItsDeadBranch(), while hasContents(), t_at(), STATUE_TRAP, obj_pmname(), The(), ttyPline(), and the doapply() consumer are all present. The remaining Hallucination, REVIVE_MON, tiny-statue and region-transition refusals were re-read in the post-0208e71 boundary survey.",
+    "javascriptCrossCheck": "The earlier 9657e3b checks for nxtobj() and MZ_TINY are stale: js/invent.js exports nxtobj() and js/monsters.js exports MZ_TINY. Current js/apply.js owns complete dead-object selection in selectedDeadObject() and reporting in its_dead(), reusing hasContents(), t_at(), STATUE_TRAP, obj_pmname(), The(), ttyPline(), and the doapply() consumer. The final region-transition owner remains the bounded planning/live binding in js/unported_monster_actions.js.",
     "remainingLimits": "The fog cloud's size-1, damage-0 every-turn region creation during a costly listen and its planning/live isolation are complete. The user's 2026-08-19 authorization answers Q9-Q11 for every remaining setup-unreachable branch. Each substitute must still record the exact constructed setup, controlling C source, integration evidence, exhausted source-real search, and what the substitute cannot prove, as validation.md requires."
   },
   "entries": [
@@ -76,7 +76,7 @@
     {
       "candidate": "apply.c its_dead() mixed corpse/statue uppermost selection (203-220)",
       "reachability": "Both sobj_at(CORPSE, rx, ry) and sobj_at(STATUE, rx, ry) return objects. nxtobj(statue, CORPSE, TRUE) == corpse means the statue is lower in the pile and the corpse remains selected; otherwise C clears corpse and selects the statue. No random-number call belongs to selection.",
-      "owner": "js/apply.js unportedItsDeadBranch() and its_dead_after_preflight(), reusing js/invent.js nxtobj() and js/obj.js sobj_at()",
+      "owner": "js/apply.js selectedDeadObject() and its_dead(), reusing js/invent.js nxtobj() and js/obj.js sobj_at()",
       "effects": "Only the uppermost dead object's existing corpse or statue branch may inspect exceptional state, write its message, and determine the command result. The unselected lower object and its contents or timer have no effects.",
       "evidence": "apply.c:203-220. Seed 55 at 20340102030405 provides a source-real adjacent natural statue that receives a wished corpse above it. Direct statue wishes are refused and no other currently ported command places a statue above an existing corpse, so the user authorized a constructed live-consumer doapply() fixture for that polarity on 2026-08-19.",
       "status": "done",
@@ -94,7 +94,7 @@
     {
       "candidate": "apply.c its_dead() out-of-reach non-tiny statue result (203-211, 281-307)",
       "reachability": "can_reach_floor(TRUE) is false and the first statue remaining after the MZ_TINY walk has a larger species size. C leaves it selected and reaches the ordinary statue arm; no separate out-of-reach message or random-number call exists.",
-      "owner": "js/apply.js unportedItsDeadBranch() and its_dead_after_preflight()",
+      "owner": "js/apply.js selectedDeadObject() and its_dead()",
       "effects": "Uses the existing sighted/blind subject naming and Healer trap/contents adjective, prints the statue-health sentence, and returns TRUE to the free/costly stethoscope caller.",
       "evidence": "apply.c:203-211 and 281-307. The post-9519b07 source reread confirms that `an out-of-reach statue` is a JS-only refusal. No current input enables the required reachability state, so the user authorized a constructed live doapply() fixture on 2026-08-19.",
       "status": "done",
@@ -148,7 +148,7 @@
     {
       "candidate": "apply.c its_dead() Healer statue-contents adjective (299-305)",
       "reachability": "A Healer inspects the selected reachable statue, Hallucination is false, t_at(rx, ry) is not STATUE_TRAP, and hasContents(statue) is true. The trap test precedes the contents test.",
-      "owner": "js/apply.js unportedItsDeadBranch() and its_dead_after_preflight()",
+      "owner": "js/apply.js selectedDeadObject() and its_dead()",
       "effects": "Selects `remarkable` rather than `fine`, then prints the existing statue health sentence and returns TRUE. No random-number call or object mutation belongs to the arm.",
       "evidence": "apply.c:295-305. The ordinary-statue and seed-259 statue-trap strict differentials prove the surrounding naming and trap-first behavior. No current player input constructs a filled non-trap statue; the user authorized the reverse live doapply() fixture on 2026-08-19.",
       "status": "done",
