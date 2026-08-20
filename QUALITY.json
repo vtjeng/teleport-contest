@@ -1260,6 +1260,10 @@
         {
           "text": "Commit 7a05b264 ports optfn_menustyle()'s mandatory-value and invalid-parameter reports and stores flags.menu_style as C's enum, removing menustyle from this entry's measured raw-string/error residue. The entry stays open for the other unhandled compound handlers.",
           "at": "7a05b26482d45b93535f3d8b09dbc8785721868b"
+        },
+        {
+          "text": "Commit 44707664 ports optfn_packorder() and change_inv_order() through startup and the inventory menu, so packorder no longer stores raw text or omits its per-byte errors in this entry's measured residue. The entry stays open for the remaining unhandled compound handlers.",
+          "at": "4470766402e995031eb446b34323893f9e975a53"
         }
       ]
     },
