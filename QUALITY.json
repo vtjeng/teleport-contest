@@ -1256,6 +1256,10 @@
         {
           "text": "The second residue -- an unhandled compound option's value stored raw -- now has\na number. A C recording of all 285 spellings of the three-suffix sweep in\nscripts/config-error.test.mjs ('', ':' and ':zqxj' against each of the 95\nnon-pfx CompOpt rows) puts 45 of those rows in the residue: C writes 105\nconfiguration errors across them where applyOption() writes none. 33 rows\nreport identically in both, and 17 are silent in both.\n\nThe messages are two shapes. Most are string_for_opt()'s \"Missing parameter\nfor '<statement>'.\" for a handler whose value is mandatory, and the rest are\neach handler's own rejection, from \"Unknown menustyle parameter 'zqxj'.\" to\npackorder's four \"Not an object class '<c>'.\" lines for a four-character value.\nEvery row and its per-spelling count is now written out in\nUNPORTED_COMPOUND_ROWS in that test file, so porting a handler has a target and\nthe sweep fails until the collection is edited.\n\nThe count is what the residue costs: each missing message moves\nconfig_error_done()'s summary row and the tty_wait_synch() boundary after it.",
           "at": "8fdbc5cc68d03002537fe56f3a58a09aa0860ccb"
+        },
+        {
+          "text": "Commit 7a05b264 ports optfn_menustyle()'s mandatory-value and invalid-parameter reports and stores flags.menu_style as C's enum, removing menustyle from this entry's measured raw-string/error residue. The entry stays open for the other unhandled compound handlers.",
+          "at": "7a05b26482d45b93535f3d8b09dbc8785721868b"
         }
       ]
     },
@@ -3501,7 +3505,13 @@
       "effort": "slice",
       "status": "open",
       "from": "87aea385fa99030cb985cb50875e2ceeabc07bc2",
-      "detail": "js/options.js applyOption()'s compound arm still throws optionError() for a negated CompOpt statement that carries a value, which runSegment()'s catch rethrows, so such a session emits zero screens. Driving parseNethackrc() over OPTIONS=!<name>:zqxj for every CompOpt row with negateok Yes and setwhere <= 4 throws for 27 of the 41: align_message, autounlock, disclose, the nine font_ and font_size_ rows, map_mode, menu_objsyms, menustyle, msghistory, paranoid_confirmation, perminv_mode, scroll_amount, scroll_margin, sortdiscoveries, sortvanquished, tile_height, tile_width, whatis_filter, windowborders. The other 14 have ported handlers as of this entry. No one answer covers the 27: optfn_align_message() reports bad_negation() and returns optn_err, while optfn_whatis_filter() ignores the value and sets GFILTER_NONE with no message, so each handler's do_set arm has to be read."
+      "detail": "js/options.js applyOption()'s compound arm still throws optionError() for a negated CompOpt statement that carries a value, which runSegment()'s catch rethrows, so such a session emits zero screens. Driving parseNethackrc() over OPTIONS=!<name>:zqxj for every CompOpt row with negateok Yes and setwhere <= 4 throws for 27 of the 41: align_message, autounlock, disclose, the nine font_ and font_size_ rows, map_mode, menu_objsyms, menustyle, msghistory, paranoid_confirmation, perminv_mode, scroll_amount, scroll_margin, sortdiscoveries, sortvanquished, tile_height, tile_width, whatis_filter, windowborders. The other 14 have ported handlers as of this entry. No one answer covers the 27: optfn_align_message() reports bad_negation() and returns optn_err, while optfn_whatis_filter() ignores the value and sets GFILTER_NONE with no message, so each handler's do_set arm has to be read.",
+      "notes": [
+        {
+          "text": "Commit 7a05b264 ports optfn_menustyle()'s do_set arm through startup parsing, so menustyle is no longer one of this entry's 27 negated-valued CompOpt refusals. The entry stays open for the remaining handlers.",
+          "at": "7a05b26482d45b93535f3d8b09dbc8785721868b"
+        }
+      ]
     },
     {
       "id": "parseoptions-duplicate-detection-unported",
@@ -4093,6 +4103,15 @@
           "at": "2f7e936995fb983dbec59d9afb0223ed0b958e86"
         }
       ]
+    },
+    {
+      "id": "pickup-traditional-interface-after-menustyle",
+      "area": "objects",
+      "category": "production",
+      "effort": "slice",
+      "status": "open",
+      "from": "7a05b26482d45b93535f3d8b09dbc8785721868b",
+      "detail": "js/pickup.js pickup() explicitly refuses flags.menu_style === MENU_TRADITIONAL at the 'pickup() traditional interface' boundary after startup OPTIONS=menustyle:traditional is now parsed by js/options.js optfn_menustyle(). The fresh one-object case retained as scripts/run-pickup-one-object.mjs DEFERRED_TRADITIONAL_PICKUP_CASE reaches that boundary; port pickup.c pickup()'s traditional class prompt and per-item selection path, then restore the case to the active matrix and match C through the next observable result."
     }
   ],
   "areas": [
