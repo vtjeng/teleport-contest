@@ -16694,6 +16694,153 @@
         ]
       },
       "recordedAt": "2026-08-20T03:25:02.317Z"
+    },
+    {
+      "kind": "review",
+      "head": "f8edc45feec89ef35b4183a5ad5da6a53e08402f",
+      "auditedRange": "373130c18444404e262cda94d9bdaa1a8a637814..f8edc45feec89ef35b4183a5ad5da6a53e08402f",
+      "checklist": {
+        "covers": false,
+        "path": null,
+        "commitChecked": null,
+        "reason": "Ten independently planned source-contained slices accumulated into the cadence review window; the audit-fix deltas did not expand that planned boundary"
+      },
+      "level": "full",
+      "areas": [
+        "startup",
+        "hero",
+        "objects",
+        "commands",
+        "runtime"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 24 raw, 21 deduplicated, 20 confirmed, 20 applied, 0 deferred, 1 rejected, 0 unverified; mutation: 5 survivors of 86 mutants. The cadence-triggered full review fixed eight production defects, ten test gaps, and two clarity issues. The final no-tail correctness and variable-flow reviews returned zero findings. Focused tests, the 17-segment exact matrix, generated and static checks, and unchanged development scoring pass; the sole full-suite exception is the user-approved missing-user-systemd mutation smoke.",
+      "auditMetrics": {
+        "wallTimeSeconds": 14242,
+        "counts": {
+          "raw": 24,
+          "deduplicated": 21,
+          "confirmed": 20,
+          "applied": 20,
+          "deferred": 0,
+          "rejected": 1,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 8,
+          "tests": 10,
+          "clarity": 2,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The direct HILITE_STATUS handler discarded its parsed value instead of applying parse_status_hl1() state changes.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "parse_status_hl2() measured JavaScript characters where botl.c enforces byte-sized buffers.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "parse_status_hl2() admitted a component at the MAX_STATUS_FIELD limit that botl.c rejects.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "parse_status_hl2() inferred field exhaustion from slash counts and rejected valid components containing embedded separators.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "parse_status_hl2() failed to preserve botl.c's in-range partial writes when characteristic and ordinary component arrays reached their boundary.",
+            "foundBy": [
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "parse_status_hl2() classified a condition alias failure as the wrong diagnostic arm.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "parse_status_hl2() stored the complete JavaScript text-match value instead of botl.c's 79-byte textmatch buffer with its leading- and trailing-space behavior.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "parse_status_hl2() erased an all-space or all-tab text match even though botl.c ignores trimspaces()'s returned interior pointer and retains that buffer.",
+            "foundBy": [
+              "correctness",
+              "variable-trace"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "373130c18444404e262cda94d9bdaa1a8a637814..3ca2325b1f69bdf5fa0b2cbb7b5a379bf29c3296",
+            "3ca2325b1f69bdf5fa0b2cbb7b5a379bf29c3296..52fb897",
+            "52fb897..b20b1e7",
+            "b20b1e7..376be3c",
+            "376be3c..9f2637c",
+            "9f2637c..241ad95",
+            "241ad95..f8edc45feec89ef35b4183a5ad5da6a53e08402f"
+          ],
+          "mutants": 86,
+          "survivors": 5,
+          "byKind": {
+            "relational": {
+              "ran": 15,
+              "killed": 11
+            },
+            "logical": {
+              "ran": 26,
+              "killed": 26
+            },
+            "boolean": {
+              "ran": 45,
+              "killed": 44
+            }
+          },
+          "finderConclusion": "The frozen range and six audit-fix deltas ran 86 relational, logical, and boolean mutants and killed 81. The five survivors are source-equivalent under proved invariants: the paranoia alias walk immediately overwrites one synthetic sign boolean, normalized token scans cannot observe zero at two relational sites, and the wintty 20 and 128 clamp mutations only reassign each exact boundary to itself. Every audit-fix eligible mutant died. Negative controls separately proved the non-mutable 79-byte truncation, ignored all-whitespace trim return, truncate-before-trim order, and ASCII-only trailing trim; every bounded run had zero timeout, resource, or unmeasured result."
+        },
+        "readiness": {
+          "boundary": "The reviewed boundary starts when startup reads a player configuration line, follows comma-separated option parsing, duplicate and alias handling, recognized-statement dispatch, error accumulation and continuation, and ends when the running game consumes the resulting state in pickup, inventory ordering, #optionsfull, status highlighting, prayer, or the next supported startup input boundary.",
+          "sourceReview": "The pass traced options.c parseoptions() and the selected optfn handlers, cfgfiles.c parse_config_line(), botl.c status-highlight parsing and gathering, and wintty.c message-history clamping against every reachable branch and helper in the ten selected slices. It checked state ownership, right-to-left evaluation, aliases, diagnostics, byte buffers, unsigned conversions, partial writes, output ordering, and PRNG order; the selected code adds no new random draw. Explicit stops and unported handlers were identified at their pre-effect boundaries.",
+          "completeness": "All ten source-contained slices in the review window have a real consumer and fresh differential evidence, and every queued slice is complete. No confirmed review finding is deferred. Remaining startup option handlers, interactive option editing, spelled-out paranoid_ynq() input, and downstream output owners lie outside the selected slice boundaries and continue to fail closed before unsupported state, randomness, or output occurs."
+        },
+        "rejections": [
+          {
+            "summary": "Generated option metadata hides an untested source-order contract.",
+            "counterEvidence": "The generator and regeneration tests deep-compare the ordered array from optlist.h, and the parser consumer iterates that order directly. Do not reopen without a concrete source-order mismatch caused by the reviewed diff."
+          }
+        ],
+        "deferrals": [],
+        "warnings": [
+          "The host has no /run/user/1000 directory or user-systemd bus. Under the user's goal-scoped process approval, the standard real bounded mutation smoke is the sole full-suite failure and each mutation wave used the exported serial engine with authenticated process-group timeouts; all runs had zero timeout, resource-limit, or unmeasured result. The exception expires when options-config-parser closes.",
+          "The packaged Workflow runner was unavailable in this environment. Equivalent mandatory correctness, readability-risk, test-quality, and variable-flow perspectives ran through independent collaboration tasks, followed by independent adjudication and repeated no-tail reviews.",
+          "The collaboration thread cap prevented a third fresh finder in the final no-tail delta, so the pass reused a prior independent read-only variable-flow reviewer that had not implemented the fix; it and the fresh correctness reviewer both returned zero findings.",
+          "Five frozen-range mutation survivors are source-equivalent under the documented parser and clamp invariants; all audit-fix eligible mutants were killed.",
+          "At botl.c's out-of-bounds status-field-array edge, C output is undefined and unstable. The port deterministically fails closed after preserving the same in-range writes, which is the declared boundary and is separately tested."
+        ]
+      },
+      "recordedAt": "2026-08-20T16:44:32.894Z"
     }
   ]
 }
