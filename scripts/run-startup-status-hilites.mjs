@@ -97,6 +97,14 @@ export const STARTUP_STATUS_HILITE_CASES = Object.freeze([
         expectedStoredRules: 1,
     }),
     Object.freeze({
+        label: 'direct title at the final accepted byte length',
+        optionLines: Object.freeze([
+            `HILITE_STATUS=title/${'a'.repeat(125)}/red`,
+        ]),
+        expectedCount: 1,
+        expectedStoredRules: 1,
+    }),
+    Object.freeze({
         label: 'direct title at the byte component limit',
         optionLines: Object.freeze(afterAsciiErrors(
             `HILITE_STATUS=title/${'é'.repeat(63)}/red`,

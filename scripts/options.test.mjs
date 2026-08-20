@@ -2307,6 +2307,19 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
         assert.equal(below.iflags.status_hilites[0].style.color, CLR_RED);
         assert.equal(below.iflags.hilite_delta, 3);
 
+        // 125 bytes is the final accepted component length.  The loop copies
+        // all of them, then consumes the following slash on its next pass;
+        // one byte more fills the counter before the delimiter is read.
+        const edgeText = 'a'.repeat(125);
+        const edge = parseNethackrc(
+            `HILITE_STATUS=title/${edgeText}/red\n`,
+        );
+        assert.deepEqual(edge.configErrorFrame.output, []);
+        assert.equal(edge.iflags.status_hilites.length, 1);
+        assert.equal(edge.iflags.status_hilites[0].text, edgeText);
+        assert.equal(edge.iflags.status_hilites[0].style.color, CLR_RED);
+        assert.equal(edge.iflags.hilite_delta, 3);
+
         // botl.c counts bytes, so 63 two-byte characters fill the whole
         // QBUFSZ-2 component and leave the same component to be parsed as the
         // missing action.  The /red tail is never read.
@@ -2338,6 +2351,27 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
         ]);
         assert.deepEqual(split.iflags.status_hilites, []);
         assert.equal(split.iflags.hilite_delta, 0);
+
+        // The color error above has its own 60-byte precision, which also
+        // happens to cut after a leading 0xC3.  A condition error prints the
+        // whole parser component and therefore observes the orphan at the
+        // actual 126-byte boundary.
+        const splitConditionValue = `a${'é'.repeat(63)}`;
+        const splitConditionStatement =
+            `HILITE_STATUS=condition/${splitConditionValue}/red`;
+        const splitCondition = parseNethackrc(
+            `${splitConditionStatement}\n`,
+        );
+        const unknownCondition = splitCondition.configErrorFrame.output[1]
+            .slice(" * Line 1: Unknown condition '".length, -2);
+        const conditionBytes = encodeUtf8ByteString(unknownCondition);
+        assert.equal(conditionBytes.length, 126);
+        assert.equal(unknownCondition.charCodeAt(
+            unknownCondition.length - 1,
+        ), 0xDCC3);
+        assert.equal(conditionBytes.at(-1), 0xC3);
+        assert.deepEqual(splitCondition.iflags.status_hilites, []);
+        assert.equal(splitCondition.iflags.hilite_delta, 0);
 
         const upperA = parseNethackrc(
             'HILITE_STATUS=HITPOINTS/ALWAYS/RED\n',
