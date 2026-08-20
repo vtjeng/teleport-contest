@@ -1,15 +1,15 @@
 {
-  "mode": "ready-for-audit",
-  "reason": "The complete Hallucination response slice is finished at 50a72ea. Existing constructed doapply fixtures cover every message family and response override, mkobj.c get_mtraits() is complete in its source-owned module, and independent checkpoint, mutation, matrix, and CI are green without any status-writer or setup-search expansion.",
-  "commitChecked": "10bb9caef784419e4797b88b60e5662b25c6d2a4",
+  "mode": "implementation",
+  "reason": "The final in-boundary gap is the planned fog-cloud move across the one-cell vapor region created by the costly listen. region.c m_in_out_region() is already complete; the existing deterministic planned-fog test reaches the refusal, so this slice only replaces the planning/live refusal binding and requires no setup search or new fixture.",
+  "commitChecked": "3b6cfce3ed7fb8af9318aef6bde06dc8cb8e4f4d",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
-    "startingCommit": "10bb9caef784419e4797b88b60e5662b25c6d2a4",
-    "startingEvent": "A hallucinating hero applies the starting stethoscope to an adjacent selected corpse or statue; the command has accepted the tool and direction before shared listen effects.",
-    "endingEvent": "apply.c its_dead() constructs the complete statue, singular-corpse, saved-trait, or plural-corpse voice line, applies You_hear() semantics, forces ECMD_TIME, and doapply() reaches the next input boundary.",
-    "validInputs": "Use the user-authorized constructed dead-object doapply fixtures already in scripts/apply-stethoscope.test.mjs. Do not search seeds or port a Hallucination status writer merely to build the state.",
-    "observables": "Exact `You're both stoned`, `He's/She's/It's dead`, and `They're dead` voice lines with `, Jim.`, acoustics suppression, forced ECMD_TIME even on the first listen, no branch RNG, saved-trait and species-sex selection, unchanged piles/timers/map/moves, sentinels, and mixed-pile precedence.",
-    "exclusions": "Do not port make_hallucinated(), potion/status writers, corpse revival, or fog-region movement. The adjacent helper may be the complete mkobj.c get_mtraits() in js/corpstat.js; if any other subsystem appears, stop under the user's timebox."
+    "startingCommit": "3b6cfce3ed7fb8af9318aef6bde06dc8cb8e4f4d",
+    "startingEvent": "During the costly second adjacent-square listen, a fog cloud has created a one-cell vapor region in the cloned monster-action scan and selects a legal move from inside that region to a square outside it.",
+    "endingEvent": "region.c m_in_out_region() removes the fog's cached monster ID from the cloned region before relocation, the planning scan completes or reaches a later genuine refusal without touching live state, and the live pass commits the same transition before the listen reaches the next input boundary.",
+    "validInputs": "Reuse the existing deterministic `planned fog vapor leaves later region transitions fail-closed` fixture and its frozen-state variants. Do not search seeds or build another source-real route; the user authorized constructed tests and requested the simplest direct proof.",
+    "observables": "Correct cloned/live region membership removal, unchanged harmless region geometry/TTL until ordinary aging, monster relocation, no callback/message/RNG addition, planning success and later-refusal atomicity, frozen live vision/region/monster/RNG isolation, and unchanged source-real 47-segment sibling matrix.",
+    "exclusions": "Do not port region callbacks, entering a different region, attached regions, monster postmove species effects, or new monster movement families. If m_in_out_region() needs an owner beyond the existing unported-monster-actions binding and tests, stop under the user's timebox."
   },
   "candidateListMethod": {
     "upstreamEntryPoints": "apply.c use_stethoscope() (317-470) and its_dead() (196-309), read in full; insight.c mstatusline() (3273-3398) and size_str() (3202-3231); mon.c seemimic() (4406-4426); monmove.c m_everyturn_effect() (624-665); region.c create_gas_cloud() (1194-1308); mkobj.c init_dummyobj() (3346-3371); objnam.c simple_typename() (296-307); invent.c nxtobj() (1477-1491).",
@@ -281,6 +281,15 @@
       "remaining": "None for stationary size-1 harmless fog creation. Focused tests pin the free/costly turn split, non-fog and guard skips, cloned TTL/region/vision state, live isolation, no hero fault or enveloping message, and the live commit. A fog moving across its region boundary remains fail-closed as a separate transition."
     },
     {
+      "candidate": "monmove.c m_move() fog transition through region.c m_in_out_region()",
+      "reachability": "The costly listen's planned scan first creates a one-cell harmless vapor around an awake fog cloud, then the same fog selects a legal destination outside that new region. The existing deterministic focused fixture reaches this transition directly; no additional random draw belongs to m_in_out_region().",
+      "owner": "js/unported_monster_actions.js planning/live mayCrossRegion binding, reusing complete js/region.js m_in_out_region() and js/monmove.js m_move()",
+      "effects": "Validates the ordinary destination, removes the fog's cached monster ID from the region before relocation, runs no callback for the harmless vapor, then lets postmov and run_regions handle the moved fog and ordinary TTL aging. Planning must perform the same mutation only on the clone and restore every borrowed live index on success or a later refusal.",
+      "evidence": "monmove.c:2039 calls m_in_out_region() before remove_monster/place_monster; region.c m_in_out_region() is complete in js/region.js. scripts/unported-monster-actions.test.mjs already constructs a fog whose planned vapor immediately reaches the named `a region transition` refusal and carries frozen success/refusal isolation fixtures. The earlier finite source-real domains did not produce this movement, so the user-authorized direct fixture is the validation substitute.",
+      "status": "missing",
+      "remaining": "Replace the named refusal with a planning/live wrapper that preserves assertSimpleDestination's guards and calls m_in_out_region() on the supplied state. Convert the existing refusal case into transition outcome, later-refusal atomicity, frozen live-state and callback-inert controls; do not add a new setup search or recipe."
+    },
+    {
       "candidate": "mondata.h ceiling_hider() (43-45)",
       "reachability": "Read by restrap()'s seventh guard term.",
       "owner": "js/mondata.js ceiling_hider()",
@@ -344,6 +353,12 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [],
-  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 50a72ea completes apply.c:226-260 and mkobj.c get_mtraits(): statue, singular corpse with species or saved-monster sex, and plural corpse share the source You_hear() line and force ECMD_TIME. Existing constructed dead-object fixtures reach doapply directly without a status-writer port or setup search. The fog m_in_out_region() planned transition remains the final separate confirmed in-boundary gap."
+  "missingWorkByOwner": [
+    {
+      "group": "planned fog m_in_out_region transition",
+      "candidates": ["monmove.c m_move() fog transition through region.c m_in_out_region()"],
+      "next": "Replace assertSimpleDestination's region refusal with a wrapper that retains destination guards and delegates the cloned/live membership transition to complete m_in_out_region()."
+    }
+  ],
+  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 50a72ea completes apply.c:226-260 and mkobj.c get_mtraits(). The final in-boundary gap is the already-reached fog movement transition: monmove.c calls region.c m_in_out_region() before relocation, and the JavaScript region function is complete, but the planning mayCrossRegion seam still refuses any membership change. The existing deterministic planned-fog fixture and frozen success/refusal tests supply the user's requested direct proof; no source-real setup search or new subsystem is needed."
 }

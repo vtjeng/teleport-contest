@@ -3043,6 +3043,11 @@
           "name": "hallucinated-dead-objects-speak",
           "status": "closed",
           "closedBy": "50a72ea3b0157b6ec06bd00e44ef67bca6151d85"
+        },
+        {
+          "name": "fog-moves-out-of-its-vapor-region",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
