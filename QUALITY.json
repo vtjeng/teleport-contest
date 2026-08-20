@@ -3304,7 +3304,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "fb143cda293f3066ceae49493c84c2c70e120e2e",
       "detail": "The non-fatal config error now works end to end, but only for the errors an\noption handler raises. options.c parseoptions() raises five more before or\naround the handler, and each one is still js/options.js optionError(), which\nthrows and loses the whole segment where C reports and plays on:\n\n- `bad_negation()` for an option whose optlist.h negateok is No (options.c:627).\n- `config_error_add(\"Unknown option '%s'\", opts)` (689).\n- the ambiguous-prefix message (585-587).\n- `\"Empty statement\"` (536) and `\"Option too long, max length is %i characters\"`\n  (523).\n- `complain_about_duplicate()` (6791-6806) through\n  `duplicate_opt_detection()` (6782), which the port does not have at all: a\n  repeated compound option is applied silently where C first prints\n  \"compound option specified multiple times: <name>\".\n\nThe duplicate one is measured. A fresh differential at seed 3310277,\n19960229180000 over an rc repeating versinfo, msg_window and pickup_burden\nmatches C for every other message and diverges by exactly the three\n\"specified multiple times\" lines, leaving the raw cursor three rows short\n(C [0,34,1], JS [0,31,1]).\n\nPorting it needs two more columns in the generated option table: `dupok`,\nwhich suppresses the complaint, and `alias`, which\ncomplain_about_duplicate() appends as \" (via alias: %s)\". js/optlist_data.js\ncarries neither, so scripts/generate-options.mjs and its check:options\ncomparison have to grow them first.",
       "notes": [
@@ -3508,7 +3508,7 @@
       "area": "startup",
       "category": "production",
       "effort": "small",
-      "status": "open",
+      "status": "closed",
       "from": "87aea385fa99030cb985cb50875e2ceeabc07bc2",
       "detail": "options.c parseoptions():621-623 calls duplicate_opt_detection(matchidx), which returns allopt[matchidx].dupdetected++ while go.opt_initial and go.opt_from_file both hold, and reports through complain_about_duplicate() for any row whose optlist.h dupeok is No. js/options.js keeps no such counter: optionState.seen covers role, race, gender and alignment alone, for parse_role_opt()'s own duplicate arm. A fresh C recording at this entry's commit shows the gap directly: an rc holding OPTIONS=menu_headings then OPTIONS=menu_headings: reports 'compound option specified multiple times: menu_headings.' before the second statement's own message, and the port reports only the second. Three such pairs made C count nine errors where the port counted six, which shifts config_error_done()'s summary row as well. optfn_playmode() reads the same flag -- 'if (duplicate || negated) return optn_err' -- so a second playmode statement is applied here where C refuses it. Closing it needs a per-row counter in parseNethackrc()'s optionState, one call in applyOption() ahead of the dispatch, and the message complain_about_duplicate() builds from the row's opttyp."
     },
