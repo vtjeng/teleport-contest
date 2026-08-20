@@ -340,12 +340,16 @@ test('a configured session reaches the menu\'s value column', async () => {
         assert.equal(valueOf(items, name), value, name);
 });
 
-test('the menu value column reads the parsed menustyle enum', async () => {
-    const state = await startGameWithConfig('OPTIONS=menustyle:partial');
-    assert.equal(
-        valueOf(dosetMenuItems(state, menuHelpers(), false), 'menustyle'),
-        'partial',
-    );
+test('the menu value column renders every parsed menustyle enum', async () => {
+    for (const style of [
+        'traditional', 'combination', 'full', 'partial',
+    ]) {
+        const state = await startGameWithConfig(`OPTIONS=menustyle:${style}`);
+        assert.equal(
+            valueOf(dosetMenuItems(state, menuHelpers(), false), 'menustyle'),
+            style,
+        );
+    }
 });
 
 test('the menu value column reads the parsed inventory order', async () => {
@@ -380,6 +384,29 @@ test('the menu value column reads the parsed paranoia bitset', async () => {
         'die attack pray Remove',
     );
 });
+
+test('the paranoia value column hides bones except in wizard play and stops '
+    + 'before config-only rows', async () => {
+        const state = await startGameWithConfig(
+            'OPTIONS=paranoid_confirmation:all',
+        );
+        const value = () => valueOf(
+            dosetMenuItems(state, menuHelpers(), false),
+            'paranoid_confirmation',
+        );
+        assert.equal(
+            value(),
+            'Confirm quit die attack wand-break eat Were-change pray trap '
+                + 'Autoall swim Remove',
+        );
+        state.wizard = true;
+        assert.equal(
+            value(),
+            'Confirm quit die bones attack wand-break eat Were-change pray '
+                + 'trap Autoall swim Remove',
+        );
+        assert.doesNotMatch(value(), /\b(?:none|all)\b/u);
+    });
 
 test('the menu counts final status highlight rows without changing rules',
     async () => {

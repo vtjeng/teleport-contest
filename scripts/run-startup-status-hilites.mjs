@@ -50,6 +50,13 @@ export const STARTUP_STATUS_HILITE_CASES = Object.freeze([
         ]),
         expectedCount: 0,
     }),
+    Object.freeze({
+        label: 'direct config statement field rule',
+        optionLines: Object.freeze([
+            'HILITE_STATUS=hitpoints/always/red',
+        ]),
+        expectedCount: 1,
+    }),
 ]);
 
 function nethackrc(entry) {

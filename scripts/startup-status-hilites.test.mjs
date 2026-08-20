@@ -12,7 +12,7 @@ test('the startup status highlight recipe covers field and condition counts',
     () => {
         const recipe = loadStartupStatusHiliteRecipe();
         assert.equal(recipe.version, 5);
-        assert.equal(recipe.segments.length, 3);
+        assert.equal(recipe.segments.length, 4);
         for (const [index, segment] of recipe.segments.entries()) {
             const entry = STARTUP_STATUS_HILITE_CASES[index];
             assert.equal(Object.hasOwn(segment, 'steps'), false, entry.label);

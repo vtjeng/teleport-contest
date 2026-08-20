@@ -5,7 +5,7 @@ import test from 'node:test';
 import { config_error_done } from '../js/cfgfiles.js';
 import { configLineStatements } from '../js/config_statement_data.js';
 import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
-import { parseNethackrc } from '../js/options.js';
+import { optionAliasTarget, parseNethackrc } from '../js/options.js';
 import { allopt, optionParserMetadata } from '../js/optlist_data.js';
 import {
     EXT_ENCUMBER,
@@ -2258,6 +2258,38 @@ test('status highlight options preserve source rules and condition defaults', ()
     });
 });
 
+// C refs: cfgfiles.c cnf_line_HILITE_STATUS() and botl.c
+// parse_status_hl1().  This is a separate config statement, not the
+// OPTIONS=hilite_status compound spelling above.
+test('direct HILITE_STATUS statements install rules and keep partial writes',
+    () => {
+        const parsed = parseNethackrc(
+            'HILITE_STATUS=hitpoints/always/red\n',
+        );
+        assert.deepEqual(parsed.configErrorFrame.output, []);
+        assert.deepEqual(parsed.unportedConfigStatements, []);
+        assert.equal(parsed.iflags.hilite_delta, 3);
+        assert.deepEqual(
+            parsed.iflags.status_hilites.map(
+                ({ field, behavior, style }) => [
+                    field, behavior, style.color,
+                ],
+            ),
+            [['hitpoints', 'always', CLR_RED]],
+        );
+
+        const statement = 'HILITE_STATUS=hitpoints/always/red '
+            + 'bogusfield/always/blue';
+        const partial = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(partial.configErrorFrame.output, [
+            `\n${statement}`,
+            " * Line 1: Unknown status field 'bogusfield'.",
+        ]);
+        assert.equal(partial.iflags.status_hilites.length, 1);
+        assert.equal(partial.iflags.status_hilites[0].style.color, CLR_RED);
+        assert.equal(partial.iflags.hilite_delta, 0);
+    });
+
 test('status option recursion keeps the source right-to-left precedence', () => {
     const disabled = parseNethackrc(
         'OPTIONS=statushilites:0,'
@@ -3211,6 +3243,23 @@ test('the generated option table takes parser metadata from optlist.h', () => {
     assert.equal(allopt.find((row) => row.name === 'menucolors').valok, true);
 });
 
+test('every generated option alias resolves through its source-owned row',
+    () => {
+        for (const [canonical, metadata] of Object.entries(
+            optionParserMetadata,
+        )) {
+            const { alias } = metadata;
+            if (!alias || alias === canonical) continue;
+            assert.equal(
+                optionAliasTarget(alias),
+                alias === 'male' ? 'male' : canonical,
+                alias,
+            );
+        }
+        assert.equal(optionAliasTarget('customsymbols'), null);
+        assert.equal(optionAliasTarget('constructor'), null);
+    });
+
 // C ref: options.c optfn_sortloot()'s do_set arm, which keeps the lowercased
 // first letter of the value and rejects everything else.
 test('sortloot keeps one letter and refuses every other spelling', () => {
@@ -3586,7 +3635,7 @@ test('msg_window keeps one letter and answers its value-less spellings', () => {
     ]);
 });
 
-// C ref: cfgfiles.c config_line_stmt[]. Nine handlers above are ported. Every
+// C ref: cfgfiles.c config_line_stmt[]. Ten handlers above are ported. Every
 // other player row is recognized and recorded so a later consumer can refuse
 // the missing cnf_line_<NAME>() state rather than silently use a default.
 test('the parser records the config statements it cannot interpret', () => {
@@ -3595,7 +3644,7 @@ test('the parser records the config statements it cannot interpret', () => {
         'autopickup_exception', 'autocomplete', 'msgtype',
         'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir', 'datadir',
         'scoredir', 'lockdir', 'configdir', 'troubledir',
-        'boulder', 'menucolor', 'hilite_status', 'warnings', 'wizkit',
+        'boulder', 'menucolor', 'warnings', 'wizkit',
         'qt_tilewidth', 'qt_tileheight', 'qt_fontsize', 'qt_compact',
     ];
     assert.deepEqual(

@@ -286,23 +286,22 @@ const SOURCE_SYMBOL_NAMES = new Set((
     + '|s_vwall|s_wand|s_water|s_weapon|s_web|s_worm|s_worm_tail'
     + '|s_wraith|s_xan|s_xorn|s_yeti|s_zombie|s_zruty'
 ).split('|'));
-const OPTION_ALIASES = Object.freeze({
-    character: 'role',
-    align: 'alignment',
-    altkeyhandler: 'altkeyhandling',
-    permablind: 'blind',
-    permadeaf: 'deaf',
-    colour: 'color',
-    customcolours: 'customcolors',
-    pet: 'pettype',
-    prayconfirm: 'paranoid_confirmation',
-    termcolumns: 'term_cols',
-    use_menu_glyphs: 'menu_objsyms',
-    use_truecolour: 'use_truecolor',
-    male: 'male',
-});
-// options.c's exact "male" alias stays distinct so applyBooleanOption() can
-// invert its value rather than treating it as an ordinary spelling of female.
+// C ref: options.c parseoptions()'s alias loop over allopt[].alias.  The
+// generated metadata is the sole owner of ordinary aliases; a self-alias can
+// never reach C's alias loop because the canonical-name loop matched first.
+// "male" stays distinct from its female row so applyBooleanOption() can invert
+// it using the original spelling, as options.c's opt_female arm does.
+const OPTION_ALIASES = Object.freeze(Object.fromEntries(
+    Object.entries(optionParserMetadata).flatMap(([canonical, { alias }]) => (
+        !alias || alias === canonical
+            ? [] : [[alias, alias === 'male' ? 'male' : canonical]]
+    )),
+));
+
+export function optionAliasTarget(alias) {
+    return Object.hasOwn(OPTION_ALIASES, alias)
+        ? OPTION_ALIASES[alias] : null;
+}
 
 const ROLEPLAY_FIELDS = Object.freeze([
     'blind',
@@ -2765,7 +2764,7 @@ function optfn_msghistory(result, statement, negated) {
 // is converted back to uint32; in particular, paranoia[]'s ~0 "all" row is
 // 0xFFFFFFFF rather than JavaScript's signed -1.
 function optfn_paranoid_confirmation(
-    result, value, negated, usingPrayconfirmAlias,
+    result, value, optionNegated, usingPrayconfirmAlias,
 ) {
     let op = value ?? '';
 
@@ -2777,19 +2776,20 @@ function optfn_paranoid_confirmation(
         if (op !== '') {
             configErrorAdd(
                 result,
-                `deprecated ${negated ? '!' : ''}prayconfirm option takes no`
-                    + ` parameters (found '${op}')`,
+                `deprecated ${optionNegated ? '!' : ''}`
+                    + 'prayconfirm option takes no parameters '
+                    + `(found '${op}')`,
             );
             return;
         }
         configErrorAdd(
             result,
-            `${negated ? '!' : ''}prayconfirm option is deprecated; switching`
-                + ` to paranoid_confirmation:${negated ? '-' : '+'}pray`,
+            `${optionNegated ? '!' : ''}`
+                + 'prayconfirm option is deprecated; switching to '
+                + `paranoid_confirmation:${optionNegated ? '-' : '+'}pray`,
         );
-        op = `${negated ? '-' : '+'}pray`;
-        negated = false;
-    } else if (negated) {
+        op = `${optionNegated ? '-' : '+'}pray`;
+    } else if (optionNegated) {
         if (op === '') {
             result.flags.paranoia_bits = 0;
             return;
@@ -2808,12 +2808,16 @@ function optfn_paranoid_confirmation(
 
     op = mungspaces(op);
     let plusOrMinus = false;
+    // options.c says "context is changed" here: optionNegated described the
+    // leading '!' on the compound option, while listNegated describes the '-'
+    // modifier that applies to every token in its value.
+    let listNegated = false;
     let index = 0;
     if (op[0] !== '+' && op[0] !== '-') {
         result.flags.paranoia_bits = 0;
     } else {
         plusOrMinus = true;
-        negated = op[0] === '-';
+        listNegated = op[0] === '-';
         index = 1;
         if (op[index] === ' ') ++index;
     }
@@ -2857,7 +2861,7 @@ function optfn_paranoid_confirmation(
         const [mask] = matched;
         if (mask === 0) {
             if (!plusOrMinus) result.flags.paranoia_bits = 0;
-        } else if (negated || fieldNegated) {
+        } else if (listNegated || fieldNegated) {
             result.flags.paranoia_bits = (
                 result.flags.paranoia_bits & ~mask
             ) >>> 0;
@@ -3204,12 +3208,12 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     const parsedName = rawName.toLowerCase();
 
     const sourceMatch = sourceOptionMatch(parsedName);
-    const hasAlias = Object.hasOwn(OPTION_ALIASES, parsedName);
+    const aliasTarget = optionAliasTarget(parsedName);
+    const hasAlias = aliasTarget !== null;
     const conditionMatch = sourceConditionMatch(parsedName, value);
     // options.c strips negation, then checks this prefix case-sensitively.
     const isSymbolAssignment = isSourceSymbolAssignment(rawName, value);
-    let name = sourceMatch?.[0]
-        ?? (hasAlias ? OPTION_ALIASES[parsedName] : null);
+    let name = sourceMatch?.[0] ?? aliasTarget;
     // options.c:592-612 runs the alias loop only after the name loop has
     // failed, and raises using_alias there and nowhere else, so a name match
     // leaves the flag as the element to the right of this one left it.
@@ -3529,6 +3533,7 @@ const CONFIG_STATEMENT_HANDLERS = Object.freeze({
     bindings: Object.freeze({ kind: 'bindings' }),
     roguesymbols: Object.freeze({ kind: 'symbols', set: 'rogue' }),
     symbols: Object.freeze({ kind: 'symbols', set: 'primary' }),
+    hilite_status: Object.freeze({ kind: 'status-hilite' }),
     name: Object.freeze({ kind: 'direct', directName: 'name' }),
     role: Object.freeze({ kind: 'direct', directName: 'role' }),
     character: Object.freeze({ kind: 'direct', directName: 'role' }),
@@ -3739,6 +3744,16 @@ export function parseNethackrc(rc, random = rn2) {
                 statement.set,
                 parseSymbolAssignments(normalizedValue, lineNumber),
             );
+            continue;
+        }
+        if (statement.kind === 'status-hilite') {
+            // cfgfiles.c cnf_line_HILITE_STATUS() passes parse_config_line()'s
+            // munged post-delimiter value directly to parse_status_hl1() with
+            // from_configfile TRUE.  OPTIONS=hilite_status reaches the same
+            // parser while reading an rc file, so its port already has those
+            // semantics; unlike that option handler, an empty direct value is
+            // accepted and enables the default duration.
+            parse_status_hl1(result, normalizedValue);
             continue;
         }
 
