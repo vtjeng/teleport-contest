@@ -2552,6 +2552,11 @@
           "name": "startup-sortdiscoveries-to-known",
           "status": "closed",
           "closedBy": "3b8be8aab3ead57df92078433447bf7e4c059308"
+        },
+        {
+          "name": "startup-status-hilite-count-to-optionsfull",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
