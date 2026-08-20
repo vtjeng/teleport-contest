@@ -2889,6 +2889,42 @@ function optfn_packorder(result, value) {
     change_inv_order(result, value);
 }
 
+// C ref: options.c optfn_sortdiscoveries() (3863-3903), its startup do_set
+// arm.  The mandatory-value helper runs before the negation test, so a
+// negated spelling without a value reports and then resets to discovery
+// order.  Otherwise the first lowercased byte selects the order; an unknown
+// parameter reports without changing the prior selection.
+function optfn_sortdiscoveries(result, statement, negated) {
+    const op = string_for_env_opt(statement, false, result);
+    if (negated) {
+        result.flags.discosort = 'o';
+    } else if (op !== '') {
+        switch (lowc(op[0])) {
+        case '0':
+        case 'o':
+            result.flags.discosort = 'o';
+            break;
+        case '1':
+        case 's':
+            result.flags.discosort = 's';
+            break;
+        case '2':
+        case 'c':
+            result.flags.discosort = 'c';
+            break;
+        case '3':
+        case 'a':
+            result.flags.discosort = 'a';
+            break;
+        default:
+            configErrorAdd(
+                result, `Unknown sortdiscoveries parameter '${op}'`,
+            );
+            break;
+        }
+    }
+}
+
 // C ref: options.c bad_negation() (6692-6697).  Three of its callers are
 // reachable here -- parseoptions() (627), optfn_menu_headings() (2201) and
 // optfn_pile_limit() (3421) -- and all three pass with_parameter TRUE, whether
@@ -3244,6 +3280,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
             return;
         }
         result.flags.sortloot = c;
+    } else if (name === 'sortdiscoveries') {
+        optfn_sortdiscoveries(result, statement, negated);
     } else if (name === 'versinfo') {
         // C ref: options.c optfn_versinfo()'s do_set arm.  optlist.h:816 gives
         // it negateok No, so parseoptions() has already answered a negation
@@ -4193,7 +4231,7 @@ export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'boulder', 'crash_email', 'crash_name', 'crash_urlmax',
     'disclose', 'glyph', 'menu_objsyms', 'menuinvertmode',
     'msghistory', 'paranoid_confirmation',
-    'scores', 'sortdiscoveries', 'sortvanquished',
+    'scores', 'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',
 ]));
 

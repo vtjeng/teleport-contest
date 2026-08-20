@@ -591,12 +591,6 @@ export async function dodiscovered(
 ) {
     if (typeof message !== 'function' || typeof textWindow !== 'function')
         throw new TypeError('dodiscovered needs message and window owners');
-    // options.c optfn_sortdiscoveries() is what turns this option into
-    // flags.discosort; it is not ported, so js/options.js retains the raw
-    // value and the command stops rather than using the default order.
-    if (state.flags.sortdiscoveries != null)
-        throw new UnsupportedDiscoveryDisplayError('optfn_sortdiscoveries()');
-
     if (!state.flags.discosort
         || !DISCO_ORDER_LET.includes(state.flags.discosort))
         state.flags.discosort = 'o';

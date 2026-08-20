@@ -1068,6 +1068,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'sortloot:'."],
         ["Unknown sortloot parameter 'zqxj'."],
     ]],
+    ['sortdiscoveries', [
+        ["Missing parameter for 'sortdiscoveries'."],
+        ["Missing parameter for 'sortdiscoveries:'."],
+        ["Unknown sortdiscoveries parameter 'zqxj'."],
+    ]],
     ['statuslines', [
         [
             "Missing parameter for 'statuslines'.",
@@ -1157,7 +1162,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['scores', [1, 1, 1]],
     ['scroll_amount', [1, 1, 0]],
     ['scroll_margin', [1, 1, 0]],
-    ['sortdiscoveries', [1, 1, 1]],
     ['sortvanquished', [1, 1, 0]],
     ['soundlib', [1, 1, 0]],
     ['symset', [0, 0, 1]],
@@ -1187,9 +1191,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 36);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 37);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 42);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 41);
 
     let owed = 0;
     for (const row of rows) {
@@ -1223,9 +1227,75 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 95 messages over 42 rows: what porting those handlers is worth to a
+    // 92 messages over 41 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 95);
+    assert.equal(owed, 92);
+});
+
+// C ref: options.c optfn_sortdiscoveries() (3863-3903).  Its startup
+// do_set request stores one of disco_order_let[]'s four bytes in
+// flags.discosort; the raw option name is not another state value.
+test('startup sortdiscoveries parses first bytes and negated resets', () => {
+    const defaults = parseNethackrc('');
+    assert.equal(defaults.flags.discosort, 'o');
+    assert.equal(defaults.flags.sortdiscoveries, undefined);
+
+    for (const [value, order] of [
+        ['0-tail', 'o'],
+        ['Order-tail', 'o'],
+        ['1-tail', 's'],
+        ['Sortloot-tail', 's'],
+        ['2-tail', 'c'],
+        ['Class-tail', 'c'],
+        ['3-tail', 'a'],
+        ['Alphabetical-tail', 'a'],
+    ]) {
+        const parsed = parseNethackrc(`OPTIONS=sortdiscoveries:${value}\n`);
+        assert.equal(parsed.flags.discosort, order, value);
+        assert.equal(parsed.flags.sortdiscoveries, undefined, value);
+        assert.deepEqual(parsed.configErrorFrame.output, [], value);
+    }
+
+    // string_for_env_opt() reports before the handler examines negated, then
+    // both missing-value spellings still restore the default order.  A value
+    // on a negated statement is ignored rather than diagnosed.
+    for (const statement of ['!sortdiscoveries', '!sortdiscoveries:']) {
+        const parsed = parseNethackrc(
+            `OPTIONS=sortdiscoveries:3\nOPTIONS=${statement}\n`,
+        );
+        assert.equal(parsed.flags.discosort, 'o', statement);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\nOPTIONS=${statement}`,
+            ' * Line 2: compound option specified multiple times:'
+                + ' sortdiscoveries.',
+            ` * Line 2: Missing parameter for '${statement.slice(1)}'.`,
+        ], statement);
+    }
+    const negatedValue = parseNethackrc(
+        'OPTIONS=sortdiscoveries:2\nOPTIONS=!sortdiscoveries:zqxj\n',
+    );
+    assert.equal(negatedValue.flags.discosort, 'o');
+    assert.deepEqual(negatedValue.configErrorFrame.output, [
+        '\nOPTIONS=!sortdiscoveries:zqxj',
+        ' * Line 2: compound option specified multiple times:'
+            + ' sortdiscoveries.',
+    ]);
+
+    // An unknown positive parameter returns optn_silenterr after its report.
+    // The prior accepted value remains, and the file continues with later
+    // statements even though duplicate detection reports this second use.
+    const unknown = parseNethackrc(
+        'OPTIONS=sortdiscoveries:3\n'
+            + 'OPTIONS=sortdiscoveries:zqxj\nOPTIONS=!color\n',
+    );
+    assert.equal(unknown.flags.discosort, 'a');
+    assert.equal(unknown.iflags.wc_color, false);
+    assert.deepEqual(unknown.configErrorFrame.output, [
+        '\nOPTIONS=sortdiscoveries:zqxj',
+        ' * Line 2: compound option specified multiple times:'
+            + ' sortdiscoveries.',
+        " * Line 2: Unknown sortdiscoveries parameter 'zqxj'.",
+    ]);
 });
 
 // C refs: options.c optfn_packorder() (2670-2691), change_inv_order()

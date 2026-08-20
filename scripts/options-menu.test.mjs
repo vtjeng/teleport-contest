@@ -357,6 +357,16 @@ test('the menu value column reads the parsed inventory order', async () => {
     );
 });
 
+test('the menu value column reads the parsed discovery order', async () => {
+    const state = await startGameWithConfig('OPTIONS=sortdiscoveries:2-tail');
+    assert.equal(state.flags.sortdiscoveries, undefined);
+    assert.equal(
+        valueOf(dosetMenuItems(state, menuHelpers(), false),
+            'sortdiscoveries'),
+        'alphabetical within each class',
+    );
+});
+
 test('the menu refuses an option whose value it cannot derive', async () => {
     const state = await startConfiguredGame(STOCK);
     // parseNethackrc() keeps an unported compound option's raw text under

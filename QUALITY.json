@@ -4116,6 +4116,16 @@
       "status": "open",
       "from": "7a05b26482d45b93535f3d8b09dbc8785721868b",
       "detail": "js/pickup.js pickup() explicitly refuses flags.menu_style === MENU_TRADITIONAL at the 'pickup() traditional interface' boundary after startup OPTIONS=menustyle:traditional is now parsed by js/options.js optfn_menustyle(). The fresh one-object case retained as scripts/run-pickup-one-object.mjs DEFERRED_TRADITIONAL_PICKUP_CASE reaches that boundary; port pickup.c pickup()'s traditional class prompt and per-item selection path, then restore the case to the active matrix and match C through the next observable result."
+    },
+    {
+      "id": "sorted-discoveries-output-unported",
+      "area": "objects",
+      "category": "scope",
+      "effort": "slice",
+      "status": "open",
+      "from": "40c2f2fdbe53aadc13e4848a277668eab622976b",
+      "detail": "js/o_init.js dodiscovered() accepts flags.discosort 's', 'c', and 'a' from startup parsing, gathers a discovered type, then refuses at disco_output_sorted() before rendering sorted lines. scripts/run-startup-sortdiscoveries.mjs preserves a clean sortdiscoveries:1-tail recipe that reaches the real backslash command; closing this boundary needs o_init.c discovered_cmp(), disco_output_sorted(), and the sortloot_descr() prefix path for 's', with fresh cases for all three orders.",
+      "blockedOn": "disco_output_sorted"
     }
   ],
   "areas": [
