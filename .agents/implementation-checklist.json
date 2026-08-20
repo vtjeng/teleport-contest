@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "The final in-boundary fog transition is complete at 6abd24b, and the full correctness pass's confirmed production, contract, checklist, and test findings are fixed at 45b086e. The final 47-case matrix is exact, focused and gameplay tests are green, and the audit-fix mutation wave killed 6/6 mutants without timeouts or survivors.",
-  "commitChecked": "45b086e39deedf7918be4af92391858407da10a7",
+  "reason": "The final in-boundary fog transition is complete at 6abd24b, and the full correctness pass plus its light follow-up have every confirmed production, contract, checklist, and test finding fixed through a4f2abe. The final 47-case matrix is exact, focused and gameplay tests are green, and the production audit-fix mutation wave killed 6/6 mutants without timeouts or survivors.",
+  "commitChecked": "a4f2abe8d690834d50851dd4ef6819e303a6b713",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "3b6cfce3ed7fb8af9318aef6bde06dc8cb8e4f4d",
