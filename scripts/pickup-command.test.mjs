@@ -316,8 +316,8 @@ test('the interactive arm stops before a second object on the square',
 test('the interactive arm refuses the settings it cannot answer for',
     async () => {
         // flags.menu_style == MENU_TRADITIONAL without the reqmenu prefix is
-        // pickup.c:793's old-style interface. Nothing parses menustyle, so
-        // this is the refusal a future parser would meet.
+        // pickup.c:793's old-style interface. Startup menustyle parsing can
+        // now reach it; this test keeps its separate fail-closed boundary.
         const traditional = await heroOnAnEmptySquare();
         objectUnderHero(traditional);
         traditional.flags.menu_style = MENU_TRADITIONAL;

@@ -23,6 +23,10 @@ import {
     HL_ULINE,
     HL_UNDEF,
     HVY_ENCUMBER,
+    MENU_COMBINATION,
+    MENU_FULL,
+    MENU_PARTIAL,
+    MENU_TRADITIONAL,
     MOD_ENCUMBER,
     OVERLOADED,
     SLT_ENCUMBER,
@@ -46,6 +50,10 @@ import {
 } from './run-pickup-burden.mjs';
 import { loadOptionsDuplicateRecipe } from './run-options-duplicates.mjs';
 import { loadStartupPickupTypesRecipe } from './run-startup-pickup-types.mjs';
+import {
+    STARTUP_MENUSTYLE_CASES,
+    loadStartupMenustyleRecipe,
+} from './run-startup-menustyle.mjs';
 import {
     loadUnknownConfigStatementRecipe,
 } from './run-unknown-config-statements.mjs';
@@ -328,6 +336,34 @@ test('the startup pickup_types recipe reaches attributes with parsed classes',
             [WEAPON_CLASS, FOOD_CLASS],
         );
         assert.equal(segment.moves, '\x18\x1b:');
+    });
+
+test('the startup menustyle recipe reaches the full menu with parsed enums',
+    () => {
+        const { segments } = loadStartupMenustyleRecipe();
+        assert.equal(segments.length, STARTUP_MENUSTYLE_CASES.length);
+        assert.equal(segments.length, 9);
+        assert.ok(segments.every(
+            (segment) => !Object.hasOwn(segment, 'steps')
+                && segment.moves.includes('mO'),
+        ));
+        assert.deepEqual(
+            segments.map(
+                (segment) => parseNethackrc(segment.nethackrc)
+                    .flags.menu_style,
+            ),
+            [
+                MENU_TRADITIONAL,
+                MENU_COMBINATION,
+                MENU_PARTIAL,
+                MENU_FULL,
+                MENU_FULL,
+                MENU_FULL,
+                MENU_TRADITIONAL,
+                MENU_FULL,
+                MENU_PARTIAL,
+            ],
+        );
     });
 
 test('explicit character options and pinned aliases produce source indices', () => {

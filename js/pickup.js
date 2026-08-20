@@ -721,9 +721,9 @@ export async function pickup(what, state = game) {
             && !state.iflags?.menu_requested) {
             // pickup.c:793-892, the "old style interface": a class query, a
             // per-object ynaq() and the counted single-object shortcut. For
-            // one object it reaches the same pickup_object() this arm does,
-            // but nothing here parses menustyle, so flags.menu_style is always
-            // MENU_FULL and this refusal is what a future parser would meet.
+            // one object it reaches the same pickup_object() this arm does.
+            // Startup parsing can now select this branch; porting that
+            // traditional interface remains a separate behavior slice.
             throw new UnsupportedPickupError('pickup() traditional interface');
         }
         if (what < 0) {

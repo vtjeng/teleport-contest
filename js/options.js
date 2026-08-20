@@ -31,6 +31,7 @@ import {
     LARGEST_INT,
     MENU_COMBINATION,
     MENU_FULL,
+    MENU_PARTIAL,
     MENU_TRADITIONAL,
     MOD_ENCUMBER,
     NUM_DISCLOSURE_OPTIONS,
@@ -2515,6 +2516,37 @@ function setPickupBurden(result, statement) {
     result.flags.pickup_burden = level;
 }
 
+// C ref: options.c optfn_menustyle() (2320-2376), its do_set arm.  The
+// handler measures the whole negation-stripped statement, not the canonical
+// option name parseoptions() matched: a bare five-byte "menus" abbreviation
+// therefore defaults to Full, while the full name without a value reports a
+// missing parameter.  A negation makes the value optional; when one is
+// present its first byte wins and the negation is otherwise ignored.
+function optfn_menustyle(result, statement, negated) {
+    const valRequired = encodeUtf8ByteString(statement).length > 5 && !negated;
+    const op = string_for_opt(statement, !valRequired, result);
+    let initial;
+    if (op === '') {
+        if (valRequired) return;
+        initial = negated ? 'n' : 'f';
+    } else {
+        initial = lowc(op[0]);
+    }
+
+    const style = {
+        n: MENU_TRADITIONAL,
+        t: MENU_TRADITIONAL,
+        c: MENU_COMBINATION,
+        f: MENU_FULL,
+        p: MENU_PARTIAL,
+    }[initial];
+    if (style === undefined) {
+        configErrorAdd(result, `Unknown menustyle parameter '${op}'`);
+        return;
+    }
+    result.flags.menu_style = style;
+}
+
 // C ref: options.c parsebindings(). Comma-separated bindings recurse into
 // their suffix, so the rightmost alias is appended first and wins collisions.
 function applyMenuBindings(result, bindings) {
@@ -3093,6 +3125,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setRunmode(result, value, negated);
     } else if (name === 'pickup_burden') {
         setPickupBurden(result, statement);
+    } else if (name === 'menustyle') {
+        optfn_menustyle(result, statement, negated);
     } else if (name === 'pickup_types') {
         // optfn_pickup_types() clears the restriction before looking for its
         // value.  During startup a missing or empty value still reports the
@@ -4114,7 +4148,7 @@ function symsetValue(state, set, withHandling) {
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'boulder', 'crash_email', 'crash_name', 'crash_urlmax',
-    'disclose', 'glyph', 'menu_objsyms', 'menuinvertmode', 'menustyle',
+    'disclose', 'glyph', 'menu_objsyms', 'menuinvertmode',
     'msghistory', 'packorder', 'paranoid_confirmation',
     'scores', 'sortdiscoveries', 'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',

@@ -340,13 +340,20 @@ test('a configured session reaches the menu\'s value column', async () => {
         assert.equal(valueOf(items, name), value, name);
 });
 
+test('the menu value column reads the parsed menustyle enum', async () => {
+    const state = await startGameWithConfig('OPTIONS=menustyle:partial');
+    assert.equal(
+        valueOf(dosetMenuItems(state, menuHelpers(), false), 'menustyle'),
+        'partial',
+    );
+});
+
 test('the menu refuses an option whose value it cannot derive', async () => {
     const state = await startConfiguredGame(STOCK);
     // parseNethackrc() keeps an unported compound option's raw text under
     // flags[<option name>]; one of the shown options stores its parsed value
     // in that same field, so that one is caught by type instead.
     const raw = [
-        ['menustyle', 'flags', 'menustyle'],
         ['packorder', 'flags', 'packorder'],
         ['autounlock', 'flags', 'autounlock'],
     ];

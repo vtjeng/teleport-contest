@@ -10,7 +10,14 @@ import test from 'node:test';
 import {
     DEFAULT_CONFIGFILE, config_error_done, get_configfile,
 } from '../js/cfgfiles.js';
-import { RUN_CRAWL, RUN_TPORT } from '../js/const.js';
+import {
+    MENU_COMBINATION,
+    MENU_FULL,
+    MENU_PARTIAL,
+    MENU_TRADITIONAL,
+    RUN_CRAWL,
+    RUN_TPORT,
+} from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { runSegment } from '../js/jsmain.js';
 import {
@@ -998,6 +1005,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'menu_shift_right:'."],
         ["Reserved menu command key '^@'."],
     ]],
+    ['menustyle', [
+        ["Missing parameter for 'menustyle'."],
+        ["Missing parameter for 'menustyle:'."],
+        ["Unknown menustyle parameter 'zqxj'."],
+    ]],
     ['msg_window', [
         [],
         [],
@@ -1123,7 +1135,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['font_status', [1, 1, 0]],
     ['font_text', [1, 1, 0]],
     ['map_mode', [1, 1, 1]],
-    ['menustyle', [1, 1, 1]],
     ['mouse_support', [0, 1, 1]],
     ['msghistory', [1, 1, 0]],
     ['packorder', [0, 0, 4]],
@@ -1164,9 +1175,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 34);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 35);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 44);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 43);
 
     let owed = 0;
     for (const row of rows) {
@@ -1200,10 +1211,68 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 102 messages over 44 rows: what porting those handlers is worth to a
+    // 99 messages over 43 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 102);
+    assert.equal(owed, 99);
 });
+
+// C ref: options.c optfn_menustyle() (2320-2376), reached from
+// parseoptions() with the abbreviation exactly as the player wrote it.  The
+// handler distinguishes the five-byte minimum match from every longer bare
+// spelling, defaults missing optional values from negation, and otherwise
+// reads only the lowercased first byte of the value.
+test('startup menustyle stores the source enum with C abbreviation semantics',
+    () => {
+        const defaults = parseNethackrc('');
+        assert.equal(defaults.flags.menu_style, MENU_FULL);
+
+        for (const [value, style] of [
+            ['traditional-tail', MENU_TRADITIONAL],
+            ['NONE', MENU_TRADITIONAL],
+            ['Combination-or-anything', MENU_COMBINATION],
+            ['fuller', MENU_FULL],
+            ['Partial-word', MENU_PARTIAL],
+        ]) {
+            const parsed = parseNethackrc(`OPTIONS=menustyle:${value}\n`);
+            assert.equal(parsed.flags.menu_style, style, value);
+            assert.equal(parsed.flags.menustyle, undefined, value);
+            assert.deepEqual(parsed.configErrorFrame.output, [], value);
+        }
+
+        // MENUTYPELEN is sizeof("traditional "), but do_set's compatibility
+        // rule is the literal strlen(opts) > 5.  "menus" is the shortest
+        // unambiguous name and is exactly five bytes before any separator.
+        const abbreviated = parseNethackrc('OPTIONS=menus\n');
+        assert.equal(abbreviated.flags.menu_style, MENU_FULL);
+        assert.deepEqual(abbreviated.configErrorFrame.output, []);
+
+        for (const statement of ['menustyle', 'menustyle:']) {
+            const parsed = parseNethackrc(`OPTIONS=${statement}\n`);
+            assert.equal(parsed.flags.menu_style, MENU_FULL, statement);
+            assert.deepEqual(parsed.configErrorFrame.output, [
+                `\nOPTIONS=${statement}`,
+                ` * Line 1: Missing parameter for '${statement}'.`,
+            ], statement);
+        }
+
+        for (const statement of ['!menustyle', '!menustyle:']) {
+            const parsed = parseNethackrc(`OPTIONS=${statement}\n`);
+            assert.equal(
+                parsed.flags.menu_style, MENU_TRADITIONAL, statement,
+            );
+            assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+        }
+        const negatedValue = parseNethackrc('OPTIONS=!menus:partial-tail\n');
+        assert.equal(negatedValue.flags.menu_style, MENU_PARTIAL);
+        assert.deepEqual(negatedValue.configErrorFrame.output, []);
+
+        const rejected = parseNethackrc('OPTIONS=menustyle:zebra-tail\n');
+        assert.equal(rejected.flags.menu_style, MENU_FULL);
+        assert.deepEqual(rejected.configErrorFrame.output, [
+            '\nOPTIONS=menustyle:zebra-tail',
+            " * Line 1: Unknown menustyle parameter 'zebra-tail'.",
+        ]);
+    });
 
 // C ref: options.c optfn_pickup_types() (3320-3390), reached with
 // go.opt_initial set during the rc-file read.  These cases form the startup
