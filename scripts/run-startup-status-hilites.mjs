@@ -20,6 +20,22 @@ const SCRIPT_PATH = fileURLToPath(import.meta.url);
 const SEED = 5938147;
 const DATETIME = '20370419111500';
 const OPEN_AND_DISMISS_FULL_OPTIONS = ' mO       \x1b';
+const ERROR_REPEAT_COUNT = 12;
+
+function conditionGroups(count, suffix = '') {
+    return [
+        'condition',
+        ...Array.from({ length: count }, () => ['blind', 'red']).flat(),
+    ].join('/') + suffix;
+}
+
+function afterAsciiErrors(statement) {
+    return [
+        ...Array(ERROR_REPEAT_COUNT)
+            .fill('HILITE_STATUS=bogusfield/always/red'),
+        statement,
+    ];
+}
 
 export const STARTUP_STATUS_HILITE_CASES = Object.freeze([
     Object.freeze({
@@ -57,6 +73,58 @@ export const STARTUP_STATUS_HILITE_CASES = Object.freeze([
         ]),
         expectedCount: 1,
     }),
+    Object.freeze({
+        label: 'empty direct statement enables highlighting',
+        optionLines: Object.freeze(['HILITE_STATUS=']),
+        expectedCount: 0,
+        expectedStoredRules: 0,
+    }),
+    Object.freeze({
+        label: 'direct title below the byte component limit',
+        optionLines: Object.freeze([
+            `HILITE_STATUS=title/${'é'.repeat(62)}/red`,
+        ]),
+        expectedCount: 1,
+        expectedStoredRules: 1,
+    }),
+    Object.freeze({
+        label: 'direct title at the byte component limit',
+        optionLines: Object.freeze(afterAsciiErrors(
+            `HILITE_STATUS=title/${'é'.repeat(63)}/red`,
+        )),
+        expectedCount: 0,
+        expectedStoredRules: 0,
+        expectedDelta: 0,
+        reports: true,
+    }),
+    Object.freeze({
+        label: 'nine direct condition groups stay inside the field array',
+        optionLines: Object.freeze([
+            `HILITE_STATUS=${conditionGroups(9)}`,
+        ]),
+        expectedCount: 1,
+        expectedStoredRules: 9,
+    }),
+    Object.freeze({
+        label: 'ten direct condition groups stop at the field-array edge',
+        optionLines: Object.freeze(afterAsciiErrors(
+            `HILITE_STATUS=${conditionGroups(10)}`,
+        )),
+        expectedCount: 1,
+        expectedStoredRules: 10,
+        expectedDelta: 0,
+        reports: true,
+    }),
+    Object.freeze({
+        label: 'bytes beyond the direct field-array edge stay unread',
+        optionLines: Object.freeze(afterAsciiErrors(
+            `HILITE_STATUS=${conditionGroups(10, '/extra')}`,
+        )),
+        expectedCount: 1,
+        expectedStoredRules: 10,
+        expectedDelta: 0,
+        reports: true,
+    }),
 ]);
 
 function nethackrc(entry) {
@@ -75,7 +143,8 @@ function segmentFor(entry) {
         seed: SEED,
         datetime: DATETIME,
         nethackrc: nethackrc(entry),
-        moves: OPEN_AND_DISMISS_FULL_OPTIONS,
+        moves: `${entry.reports ? '\n' : ''}`
+            + OPEN_AND_DISMISS_FULL_OPTIONS,
     };
 }
 
@@ -112,6 +181,20 @@ export async function verifyStartupStatusHiliteSegment(segment) {
     if (boundary) throw boundary;
 
     const configuredRules = structuredClone(game.iflags.status_hilites);
+    const expectedDelta = entry.expectedDelta ?? 3;
+    if (game.iflags.hilite_delta !== expectedDelta) {
+        throw new Error(
+            `${entry.label} stored hilite_delta ${game.iflags.hilite_delta}, `
+                + `not ${expectedDelta}`,
+        );
+    }
+    if (entry.expectedStoredRules !== undefined
+        && configuredRules.length !== entry.expectedStoredRules) {
+        throw new Error(
+            `${entry.label} stored ${configuredRules.length} rule(s), not `
+                + `${entry.expectedStoredRules}`,
+        );
+    }
     const helpers = {
         headingStyle: game.iflags.menu_headings,
         countBindKeys: () => 0,

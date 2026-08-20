@@ -1552,8 +1552,10 @@ function str2conditionbitmask(result, str) {
 // is unguarded and its loop only stops once fldnum has already reached
 // MAX_THRESH, so hsbuf[20] is the last entry ever written; a statement that
 // fills every group then leaves parse_status_hl2()'s `while (s[sidx][0])` and
-// parse_condition()'s reading hsbuf[21], one past the end of the array.  This
-// port answers the empty string there instead, which ends the group loop.
+// parse_condition() reading hsbuf[21], one past the end of the array.  This
+// helper supplies an empty string so the in-range groups can make their same
+// partial writes.  parse_status_hl1() then refuses the unstable out-of-bounds
+// continuation before enabling highlighting.
 function statusHiliteField(s, index) {
     return s[index] ?? '';
 }
@@ -1879,43 +1881,69 @@ function parse_status_hl2(result, s) {
 // that fails abandons the rest of the value, and the default highlight
 // duration is stored only when none failed.
 function parse_status_hl1(result, op) {
-    const hsbuf = new Array(MAX_THRESH).fill('');
+    // `op` is a char pointer in C.  Its component limit and pointer walk are
+    // byte-based, including a cut through the middle of a UTF-8 sequence.
+    // Keep the groups as bytes until parse_status_hl2() reads them so the
+    // repository's reversible decoder preserves such a cut.
+    const opBytes = encodeUtf8ByteString(op);
+    const hsbufBytes = Array.from({ length: MAX_THRESH }, () => []);
     let badopt = false;
     let fldnum = 0;
     let ccount = 0;
     let index = 0;
 
-    while (index < op.length && fldnum < MAX_THRESH && ccount < QBUFSZ - 2) {
-        const c = lowc(op[index]);
-        if (c === ' ') {
+    const parsedFields = () => hsbufBytes.map(decodeUtf8ByteString);
+    const parseFields = () => {
+        const fields = parsedFields();
+        const parsed = parse_status_hl2(result, fields);
+        if (parsed && fldnum >= MAX_THRESH - 1) {
+            // C reads hsbuf[MAX_THRESH] here.  Fresh runs of the pinned binary
+            // produce different stack garbage even between adjacent segments,
+            // so no deterministic string can reproduce that undefined read.
+            // Refuse after the same in-range partial writes and before
+            // hilite_delta changes; the error shape keeps config_error_done()
+            // and its later startup wait aligned with the reference runtime.
+            configErrorAdd(result, fields[0] === 'condition'
+                ? "Unknown condition ''" : "Unknown behavior ''");
+            return false;
+        }
+        return parsed;
+    };
+    while (index < opBytes.length
+           && fldnum < MAX_THRESH && ccount < QBUFSZ - 2) {
+        const sourceByte = opBytes[index];
+        const c = sourceByte >= 0x41 && sourceByte <= 0x5A
+            ? sourceByte | 0x20 : sourceByte;
+        if (c === 0x20) {
             if (fldnum >= 1) {
-                if (fldnum === 1 && hsbuf[0] === 'title') {
+                if (fldnum === 1
+                    && decodeUtf8ByteString(hsbufBytes[0]) === 'title') {
                     /* spaces are allowed in title */
-                    hsbuf[fldnum] += c;
+                    hsbufBytes[fldnum].push(c);
                     ccount += 1;
                     index += 1;
                     continue;
                 }
-                if (!parse_status_hl2(result, hsbuf)) {
+                if (!parseFields()) {
                     badopt = true;
                     break;
                 }
             }
-            hsbuf.fill('');
+            for (const field of hsbufBytes) field.length = 0;
             fldnum = 0;
             ccount = 0;
-        } else if (c === '/') {
+        } else if (c === 0x2F) {
             fldnum += 1;
             ccount = 0;
         } else {
-            hsbuf[fldnum] += c;
+            hsbufBytes[fldnum].push(c);
             ccount += 1;
         }
         index += 1;
     }
     // fldnum counts the '/' separators seen, so a value carrying none is
     // accepted without parse_status_hl2() ever running.
-    if (fldnum >= 1 && !badopt && !parse_status_hl2(result, hsbuf)) {
+    if (fldnum >= 1 && !badopt && !parseFields()) {
         badopt = true;
     }
     if (badopt) return false;

@@ -2290,6 +2290,74 @@ test('direct HILITE_STATUS statements install rules and keep partial writes',
         assert.equal(partial.iflags.hilite_delta, 0);
     });
 
+test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
+    () => {
+        const empty = parseNethackrc('HILITE_STATUS=\n');
+        assert.deepEqual(empty.configErrorFrame.output, []);
+        assert.deepEqual(empty.unportedConfigStatements, []);
+        assert.deepEqual(empty.iflags.status_hilites, []);
+        assert.equal(empty.iflags.hilite_delta, 3);
+
+        const belowValue = `title/${'é'.repeat(62)}/red`;
+        const below = parseNethackrc(`HILITE_STATUS=${belowValue}\n`);
+        assert.deepEqual(below.configErrorFrame.output, []);
+        assert.equal(below.iflags.status_hilites.length, 1);
+        assert.equal(below.iflags.status_hilites[0].text, 'é'.repeat(62));
+        assert.equal(below.iflags.status_hilites[0].style.color, CLR_RED);
+        assert.equal(below.iflags.hilite_delta, 3);
+
+        // botl.c counts bytes, so 63 two-byte characters fill the whole
+        // QBUFSZ-2 component and leave the same component to be parsed as the
+        // missing action.  The /red tail is never read.
+        const atValue = `title/${'é'.repeat(63)}/red`;
+        const atStatement = `HILITE_STATUS=${atValue}`;
+        const at = parseNethackrc(`${atStatement}\n`);
+        assert.deepEqual(at.configErrorFrame.output, [
+            `\n${atStatement}`,
+            ` * Line 1: Unknown color '${'é'.repeat(30)}'.`,
+            " * Line 1: bad color '16 -1'.",
+        ]);
+        assert.deepEqual(at.iflags.status_hilites, []);
+        assert.equal(at.iflags.hilite_delta, 0);
+
+        const upperA = parseNethackrc(
+            'HILITE_STATUS=HITPOINTS/ALWAYS/RED\n',
+        );
+        assert.deepEqual(upperA.configErrorFrame.output, []);
+        assert.equal(upperA.iflags.status_hilites[0].behavior, 'always');
+        assert.equal(upperA.iflags.status_hilites[0].style.color, CLR_RED);
+        const upperZ = parseNethackrc('HILITE_STATUS=TITLE/Z/RED\n');
+        assert.deepEqual(upperZ.configErrorFrame.output, []);
+        assert.equal(upperZ.iflags.status_hilites[0].text, 'z');
+
+        const conditionValue = (groups, suffix = '') => [
+            'condition',
+            ...Array.from({ length: groups }, () => ['blind', 'red']).flat(),
+        ].join('/') + suffix;
+        const inRange = parseNethackrc(
+            `HILITE_STATUS=${conditionValue(9)}\n`,
+        );
+        assert.deepEqual(inRange.configErrorFrame.output, []);
+        assert.equal(inRange.iflags.status_hilites.length, 9);
+        assert.equal(inRange.iflags.hilite_delta, 3);
+
+        // With ten groups C reads hsbuf[21], outside its array.  Two adjacent
+        // fresh segments produced different garbage condition names.  The
+        // port makes the boundary deterministic while preserving all ten
+        // partial writes, the error count, and the disabled duration.
+        for (const suffix of ['', '/', '/extra']) {
+            const value = conditionValue(10, suffix);
+            const statement = `HILITE_STATUS=${value}`;
+            const bounded = parseNethackrc(`${statement}\n`);
+            assert.deepEqual(bounded.configErrorFrame.output, [
+                `\n${statement}`,
+                " * Line 1: Unknown condition ''.",
+            ]);
+            assert.equal(bounded.iflags.status_hilites.length, 10);
+            assert.equal(bounded.iflags.hilite_delta, 0);
+        }
+    });
+
 test('status option recursion keeps the source right-to-left precedence', () => {
     const disabled = parseNethackrc(
         'OPTIONS=statushilites:0,'
