@@ -233,8 +233,8 @@ export function apply_ok(obj, state = game) {
 // "You hear nothing special."
 //
 // C takes `int *resp` so that its hallucination arm can charge the turn. The
-// private consumer accepts a response holder for that write while the exported
-// source-named helper retains its established boolean result.
+// exported source-named helper retains its boolean result and optionally
+// accepts the caller-owned response holder for that write.
 function selectedDeadObject(rx, ry, state) {
     let corpse = sobj_at(CORPSE, rx, ry, state);
     let statue = sobj_at(STATUE, rx, ry, state);

@@ -861,10 +861,11 @@ test('a later ranged refusal discards a planned fog-region leave', async () => {
 
 test('fog-region transition callbacks remain fail-closed and inert',
     async () => {
-        for (const [name, leave_f] of [
-            ['numeric', 0],
-            ['function', () => { throw new Error('must not run'); }],
-            ['injected', 'must_not_run'],
+        for (const [field, kind] of [
+            ['can_enter_f', 'numeric'],
+            ['enter_f', 'function'],
+            ['can_leave_f', 'injected'],
+            ['leave_f', 'function'],
         ]) {
             const target = await prepareSelectedAction({
                 pmidx: PM_FOG_CLOUD,
@@ -876,35 +877,40 @@ test('fog-region transition callbacks remain fail-closed and inert',
                 hx: target.monsterX,
                 hy: target.heroY,
             }]);
+            let calls = 0;
+            const callback = kind === 'numeric'
+                ? 0
+                : kind === 'function'
+                    ? () => { calls += 1; return true; }
+                    : 'must_not_run';
             Object.assign(vapor, {
                 arg: 0,
                 inside_f: 'inside_gas_cloud',
-                leave_f,
                 monsters: [target.monster.m_id],
                 visible: true,
+                [field]: callback,
             });
             game.level.regions = [vapor];
             const membersBefore = [...vapor.monsters];
             const positionBefore = [target.monster.mx, target.monster.my];
             const randomBefore = rngSnapshot();
             const messagesBefore = [...game.nhDisplay.messages];
-            let calls = 0;
 
             await assert.rejects(
                 preflightSimpleMonsterActions(game),
                 (error) => error instanceof UnsupportedSimpleMonsterActionError
                     && error.reason === 'a region transition',
-                name,
+                field,
             );
-            assert.equal(calls, 0, name);
-            assert.deepEqual(vapor.monsters, membersBefore, name);
+            assert.equal(calls, 0, field);
+            assert.deepEqual(vapor.monsters, membersBefore, field);
             assert.deepEqual(
                 [target.monster.mx, target.monster.my],
                 positionBefore,
-                name,
+                field,
             );
-            assert.deepEqual(rngSnapshot(), randomBefore, name);
-            assert.deepEqual(game.nhDisplay.messages, messagesBefore, name);
+            assert.deepEqual(rngSnapshot(), randomBefore, field);
+            assert.deepEqual(game.nhDisplay.messages, messagesBefore, field);
         }
     });
 

@@ -105,7 +105,7 @@
       "reachability": "A corpse or a statue on the square and a hallucinating hero. C tests Hallucination above both object arms, and this is the only arm that writes through resp. No random-number call.",
       "owner": "js/apply.js its_dead()",
       "effects": "get_mtraits(), pronoun_gender(), You_hear(\"a voice say, ...\") and *resp = ECMD_TIME.",
-      "evidence": "apply.c:226-260, read at 9657e3b. Because it is the only writer of resp, the port answers a bare boolean instead of taking the pointer.",
+      "evidence": "apply.c:226-260, read at 9657e3b. The exported port retains the source boolean result and accepts an optional caller-owned response holder; use_stethoscope() supplies that holder so the Hallucination arm can force ECMD_TIME.",
       "status": "done",
       "remaining": "None. Commit 50a72ea ports the complete statue, singular-corpse, saved-trait and plural-corpse voice response, You_hear acoustics behavior, and forced ECMD_TIME. Authorized constructed doapply tests cover all branches, mixed selection, exact terminal state, zero branch RNG, preservation and sentinels; no current input writes Hallucination, so the substitute cannot prove player-input reachability or direct C replay parity for that unavailable state."
     },
