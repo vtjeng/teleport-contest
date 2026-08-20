@@ -1272,6 +1272,10 @@
         {
           "text": "Commit 270f83ce ports optfn_msghistory() with mandatory-value, negation, atoi, unsigned-storage, and error-preservation behavior, then applies tty_create_nhwindow(NHW_MESSAGE) startup clamping before #optionsfull reads it. This removes msghistory from the measured raw-string/error residue; the entry stays open for the remaining unhandled compound handlers.",
           "at": "270f83ce0d70dd6e8c9e0f3b54d7df432aa4e309"
+        },
+        {
+          "text": "Commit 20782de3 ports the full optfn_paranoid_confirmation() do_set handler into flags.paranoia_bits, including aliases, token modifiers, all/none, partial-error state, and exact diagnostics. This removes paranoid_confirmation from the measured raw-string/error residue; the entry stays open for the remaining unhandled compound handlers.",
+          "at": "20782de3039136dafaa9d284286514ef9795378a"
         }
       ]
     },
@@ -3530,6 +3534,10 @@
         {
           "text": "Commit 270f83ce ports optfn_msghistory() through startup parsing, including the negated-with-value error arm and prior-state preservation, so msghistory is no longer one of this entry's negated-valued CompOpt refusals. The entry stays open for the remaining handlers.",
           "at": "270f83ce0d70dd6e8c9e0f3b54d7df432aa4e309"
+        },
+        {
+          "text": "Commit 20782de3 ports optfn_paranoid_confirmation() through startup parsing, including negated valued forms and partial-state diagnostics, so paranoid_confirmation is no longer one of this entry's negated-valued CompOpt refusals. The entry stays open for the remaining handlers.",
+          "at": "20782de3039136dafaa9d284286514ef9795378a"
         }
       ]
     },
@@ -3956,7 +3964,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "9d5ba845dd5671d2516ac586410e04666cbb4266",
       "detail": "js/end.js ParanoidDie() must reject any raw flags.paranoid_confirmation value because js/options.js applyOption() has not ported options.c optfn_paranoid_confirmation() into flags.paranoia_bits. This also rejects valid reset forms such as !paranoid_confirmation, paranoid_confirmation:none, and paranoid_confirmation:pray even though C leaves PARANOID_DIE clear and end.c done() would use the already-ported single-key Die? prompt. Port the complete do_set handler in js/options.js, remove the raw-value guard, and retain the early fail-closed preflight for configurations that set PARANOID_DIE until cmd.c paranoid_ynq()'s spelled-out input and savelife() return path are ported.",
       "blockedOn": "optfn_paranoid_confirmation"
