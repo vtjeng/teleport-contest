@@ -1,6 +1,6 @@
 {
-  "mode": "implementation",
-  "reason": "The final in-boundary gap is the planned fog-cloud move across the one-cell vapor region created by the costly listen. region.c m_in_out_region() is already complete; the existing deterministic planned-fog test reaches the refusal, so this slice only replaces the planning/live refusal binding and requires no setup search or new fixture.",
+  "mode": "ready-for-audit",
+  "reason": "The final in-boundary fog transition is complete at 6abd24b. The existing deterministic planned-fog fixture now reaches complete m_in_out_region() in clone and live passes, the one production owner stayed isolated, all gameplay/check/matrix evidence is green, 2/2 mutants were killed through the documented serial runner fallback, and Score/Coverage CI succeeded.",
   "commitChecked": "3b6cfce3ed7fb8af9318aef6bde06dc8cb8e4f4d",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
@@ -286,8 +286,8 @@
       "owner": "js/unported_monster_actions.js planning/live mayCrossRegion binding, reusing complete js/region.js m_in_out_region() and js/monmove.js m_move()",
       "effects": "Validates the ordinary destination, removes the fog's cached monster ID from the region before relocation, runs no callback for the harmless vapor, then lets postmov and run_regions handle the moved fog and ordinary TTL aging. Planning must perform the same mutation only on the clone and restore every borrowed live index on success or a later refusal.",
       "evidence": "monmove.c:2039 calls m_in_out_region() before remove_monster/place_monster; region.c m_in_out_region() is complete in js/region.js. scripts/unported-monster-actions.test.mjs already constructs a fog whose planned vapor immediately reaches the named `a region transition` refusal and carries frozen success/refusal isolation fixtures. The earlier finite source-real domains did not produce this movement, so the user-authorized direct fixture is the validation substitute.",
-      "status": "missing",
-      "remaining": "Replace the named refusal with a planning/live wrapper that preserves assertSimpleDestination's guards and calls m_in_out_region() on the supplied state. Convert the existing refusal case into transition outcome, later-refusal atomicity, frozen live-state and callback-inert controls; do not add a new setup search or recipe."
+      "status": "done",
+      "remaining": "None. Commit 6abd24b preserves every ordinary destination guard and delegates only a fog cloud leaving harmless callback-free vapor to complete m_in_out_region() in planning and live passes. Existing tests pin cloned/live membership removal and movement, later-refusal rollback, callback and harmful/entry refusals, frozen vision/region/monster/RNG state, and no extra output or draw. The substitute cannot prove source-real reachability for the exhausted fog-movement setup domains."
     },
     {
       "candidate": "mondata.h ceiling_hider() (43-45)",
@@ -353,12 +353,6 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "planned fog m_in_out_region transition",
-      "candidates": ["monmove.c m_move() fog transition through region.c m_in_out_region()"],
-      "next": "Replace assertSimpleDestination's region refusal with a wrapper that retains destination guards and delegates the cloned/live membership transition to complete m_in_out_region()."
-    }
-  ],
-  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 50a72ea completes apply.c:226-260 and mkobj.c get_mtraits(). The final in-boundary gap is the already-reached fog movement transition: monmove.c calls region.c m_in_out_region() before relocation, and the JavaScript region function is complete, but the planning mayCrossRegion seam still refuses any membership change. The existing deterministic planned-fog fixture and frozen success/refusal tests supply the user's requested direct proof; no source-real setup search or new subsystem is needed."
+  "missingWorkByOwner": [],
+  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 6abd24b closes the final in-boundary gap by preserving the existing destination gates and sending harmless fog-vapor exits through complete region.c m_in_out_region() in clone and live passes. Existing deterministic and frozen-state fixtures supply the user-authorized direct proof without another source-real setup search. Entries and harmful vapor, callbacks, attached regions, unrelated postmove species effects, hideunder/maybe_unhide_at, and later movement families remain outside this bounded adjacent-square goal."
 }

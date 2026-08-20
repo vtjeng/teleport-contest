@@ -3046,8 +3046,8 @@
         },
         {
           "name": "fog-moves-out-of-its-vapor-region",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "6abd24b98d24e02a149686df10a7d1e0d2ada894"
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
