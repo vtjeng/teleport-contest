@@ -16526,6 +16526,98 @@
         ]
       },
       "recordedAt": "2026-08-19T16:00:11.236Z"
+    },
+    {
+      "kind": "review",
+      "head": "373130c18444404e262cda94d9bdaa1a8a637814",
+      "auditedRange": "5ab21788bb73dbc298625f6137d73f92ecb15393..373130c18444404e262cda94d9bdaa1a8a637814",
+      "checklist": {
+        "covers": true,
+        "path": ".agents/implementation-checklist.json",
+        "commitChecked": "a4f2abe8d690834d50851dd4ef6819e303a6b713",
+        "reason": "the checklist covers a4f2abe8, an ancestor of the range head; the 1 path(s) changed between them own no QUALITY.json area"
+      },
+      "level": "full",
+      "areas": [
+        "objects",
+        "monsters",
+        "commands"
+      ],
+      "outcome": "changed",
+      "evidence": "Counts: 14 raw, 13 deduplicated, 13 confirmed, 13 applied, 0 deferred, 0 rejected, 0 unverified; mutation: 0 survivors of 23 mutants. The goal-closing full correctness review fixed two production boundary defects, seven test gaps, and four clarity/contract issues. The final no-tail light review returned zero findings. Focused tests, the 47-segment exact matrix, generated/static checks, unchanged development scoring, and Score/Coverage CI are green; the sole full-suite exception was the documented missing-user-systemd mutation smoke.",
+      "auditMetrics": {
+        "wallTimeSeconds": 3900,
+        "counts": {
+          "raw": 14,
+          "deduplicated": 13,
+          "confirmed": 13,
+          "applied": 13,
+          "deferred": 0,
+          "rejected": 0,
+          "unverified": 0
+        },
+        "categories": {
+          "production": 2,
+          "tests": 7,
+          "clarity": 4,
+          "simplification": 0,
+          "other": 0
+        },
+        "productionDefects": [
+          {
+            "summary": "The harmless-vapor region-exit admission accepted Hezrou and steam-vortex movers even though their source-required m_postmove_effect() gas effects remain unported.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          },
+          {
+            "summary": "The harmless-vapor region-exit admission accepted callback-bearing regions, allowing transition callbacks outside the stated callback-free boundary.",
+            "foundBy": [
+              "correctness"
+            ],
+            "resolution": "applied"
+          }
+        ],
+        "mutation": {
+          "ranges": [
+            "5ab21788bb73dbc298625f6137d73f92ecb15393..7c80c5490c25d856172c314fcd194aa868399856",
+            "7c80c5490c25d856172c314fcd194aa868399856..ba87f9b4e206365a3d50d5c68ac7fc9b0cdb866c",
+            "ba87f9b4e206365a3d50d5c68ac7fc9b0cdb866c..373130c18444404e262cda94d9bdaa1a8a637814"
+          ],
+          "mutants": 23,
+          "survivors": 0,
+          "byKind": {
+            "boolean": {
+              "ran": 9,
+              "killed": 9
+            },
+            "logical": {
+              "ran": 14,
+              "killed": 14
+            },
+            "relational": {
+              "ran": 0,
+              "killed": 0
+            }
+          },
+          "finderConclusion": "The frozen goal range killed 17/17 mutants. Two nontermination mutations were initially killed only by the adapter's 60-second ceiling, exposing that the ordinary test runner would wait for the CI job timeout; the applied Worker fixture now bounds that traversal at five seconds. The production audit-fix delta then killed 6/6 logical mutants with a 225-test baseline and no timeout or resource event, while the final documentation/test delta had zero eligible production sites. The production defects were missing or over-broad source-path admissions, which substitution mutation cannot reliably synthesize."
+        },
+        "readiness": {
+          "boundary": "The reviewed boundary starts when the hero applies a stethoscope and supplies an adjacent direction. It includes off-map, terrain, monster and mimic, corpse and statue, and costly-listen elapsed-turn effects, and ends at the next input boundary after every message, screen, cursor, state write, planning check, and random draw caused by the command.",
+          "sourceReview": "The pass traced apply.c use_stethoscope()/its_dead(), invent.c nxtobj(), mkobj.c get_mtraits(), mon.c restrap(), monmove.c m_everyturn_effect()/m_move()/m_postmove_effect(), region.c create_gas_cloud()/m_in_out_region(), and every named helper and callback owner reached before the ending event. It checked live and cloned planning state, source branch order, object-chain order, output, glyph identity, cursor state, and PRNG order.",
+          "completeness": "Every checklist entry inside the adjacent-square boundary is implemented and validated, including the user-authorized constructed cases whose source-real setup routes were exhausted. The final no-tail light review returned zero findings, no confirmed finding is deferred, and no known unsupported behavior remains between an admitted start and the reviewed observable result."
+        },
+        "rejections": [],
+        "deferrals": [],
+        "warnings": [
+          "The host lacked /run/user/1000 and its user-systemd bus. The standard mutation smoke was the sole full-suite failure, so frozen-range and audit-fix mutation used the exported serial timeout-bounded engine; generated/static checks, gameplay tests, development score, Score CI, and Coverage CI passed.",
+          "The packaged Workflow runner was unavailable in this environment. Equivalent independent finder and adjudicator roles ran through the session collaboration tools; every requested full, light, concurrency, and no-tail perspective completed with no unverified batch.",
+          "Two original apply.js loop mutants were timeout kills under the 60-second adapter. The confirmed test-quality fix moved the traversal into a Worker with a five-second parent deadline, and later mutation completed without timeouts.",
+          "User-authorized constructed integration tests execute the real JavaScript consumers but do not prove a player-input route or direct C recorder parity for setup-unreachable branches. The source owner, exhausted setup limitation, state ordering, and observable result remain pinned in the checklist and tests."
+        ]
+      },
+      "recordedAt": "2026-08-20T03:25:02.317Z"
     }
   ]
 }
