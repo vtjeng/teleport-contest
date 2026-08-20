@@ -1,7 +1,7 @@
 {
   "mode": "ready-for-audit",
-  "reason": "The final in-boundary fog transition is complete at 6abd24b. The existing deterministic planned-fog fixture now reaches complete m_in_out_region() in clone and live passes, the one production owner stayed isolated, all gameplay/check/matrix evidence is green, 2/2 mutants were killed through the documented serial runner fallback, and Score/Coverage CI succeeded.",
-  "commitChecked": "6abd24b98d24e02a149686df10a7d1e0d2ada894",
+  "reason": "The final in-boundary fog transition is complete at 6abd24b, and the full correctness pass's confirmed production, contract, checklist, and test findings are fixed at 45b086e. The final 47-case matrix is exact, focused and gameplay tests are green, and the audit-fix mutation wave killed 6/6 mutants without timeouts or survivors.",
+  "commitChecked": "45b086e39deedf7918be4af92391858407da10a7",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
     "startingCommit": "3b6cfce3ed7fb8af9318aef6bde06dc8cb8e4f4d",
