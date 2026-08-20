@@ -57,6 +57,8 @@ import {
 } from './moveloop_preamble.js';
 import { initialize_symbols_from_options } from './symbols.js';
 import { ttyPline } from './tty_message.js';
+import { tty_create_nhwindow } from './wintty.js';
+import { NHW_MESSAGE } from './const.js';
 
 const RECORDER_SYSTEM_OPTIONS = Object.freeze({
     // nethack-c/upstream/sys/unix/sysconf, which nethack-c/build-recorder.sh
@@ -411,6 +413,12 @@ export class NethackGame {
         // C filters generic Unix usernames, prompts when necessary, then
         // strips any role/race/gender/alignment suffix before selection.
         await ttyPlayerNameAndSuffix(g);
+
+        // C ref: unixmain.c nethack_main() calls
+        // init_sound_disp_gamewindows() after plnamesuffix() and before
+        // player_selection(); its first window is NHW_MESSAGE.  This port
+        // models only tty_create_nhwindow()'s live message-history clamp.
+        tty_create_nhwindow(NHW_MESSAGE, g);
         if (!await ttyPlayerSelection(g)) {
             g.program_state.gameover = true;
             return false;

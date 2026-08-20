@@ -4155,7 +4155,8 @@
         "js/startup_reroll.js",
         "js/tty_rawprint.js",
         "js/tty_startup.js",
-        "js/tutorial_startup.js"
+        "js/tutorial_startup.js",
+        "js/wintty.js"
       ],
       "generatedOutputs": [
         {

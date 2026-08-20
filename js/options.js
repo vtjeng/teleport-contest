@@ -2745,6 +2745,21 @@ function setStatuslines(result, statement, negated) {
     result.iflags.wc2_statuslines = itmp;
 }
 
+// C ref: options.c optfn_msghistory() (2523-2545), its do_set request.
+// A positive statement requires a value, while a negated statement without
+// one stores zero.  The destination is an unsigned int, so atoi() narrows to
+// signed int first and the assignment then wraps that value to 32 bits.  A
+// missing positive value or a negated statement carrying a value reports and
+// leaves the previous value intact.
+function optfn_msghistory(result, statement, negated) {
+    const op = string_for_env_opt(statement, negated, result);
+    if ((negated && op === '') || (!negated && op !== '')) {
+        result.iflags.msg_history = (negated ? 0 : atoi(op)) >>> 0;
+    } else if (negated) {
+        bad_negation(result, 'msghistory');
+    }
+}
+
 function sourceOptionMatch(parsedName) {
     return SOURCE_OPTION_MATCHES.find(([canonical, minLength]) => (
         !SOURCE_PREFIX_OPTION_NAMES.includes(canonical)
@@ -3232,6 +3247,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setPileLimit(result, statement, negated);
     } else if (name === 'statuslines') {
         setStatuslines(result, statement, negated);
+    } else if (name === 'msghistory') {
+        optfn_msghistory(result, statement, negated);
     } else if (name === 'msg_window') {
         // C ref: options.c optfn_msg_window()'s do_set arm. PREV_MSGS is 1
         // for this tty build. parseoptions() reads this option's value as
@@ -4281,7 +4298,7 @@ function symsetValue(state, set, withHandling) {
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'boulder', 'crash_email', 'crash_name', 'crash_urlmax',
     'disclose', 'glyph', 'menu_objsyms', 'menuinvertmode',
-    'msghistory', 'paranoid_confirmation',
+    'paranoid_confirmation',
     'scores', 'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',
 ]));

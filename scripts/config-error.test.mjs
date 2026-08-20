@@ -1013,6 +1013,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'menustyle:'."],
         ["Unknown menustyle parameter 'zqxj'."],
     ]],
+    ['msghistory', [
+        ["Missing parameter for 'msghistory'."],
+        ["Missing parameter for 'msghistory:'."],
+        [],
+    ]],
     ['msg_window', [
         [],
         [],
@@ -1154,7 +1159,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['font_text', [1, 1, 0]],
     ['map_mode', [1, 1, 1]],
     ['mouse_support', [0, 1, 1]],
-    ['msghistory', [1, 1, 0]],
     ['paranoid_confirmation', [1, 1, 1]],
     ['perminv_mode', [1, 1, 1]],
     ['player_selection', [1, 1, 1]],
@@ -1191,9 +1195,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 37);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 38);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 41);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 40);
 
     let owed = 0;
     for (const row of rows) {
@@ -1227,9 +1231,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 92 messages over 41 rows: what porting those handlers is worth to a
+    // 90 messages over 40 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 92);
+    assert.equal(owed, 90);
 });
 
 // C ref: options.c optfn_sortdiscoveries() (3863-3903).  Its startup

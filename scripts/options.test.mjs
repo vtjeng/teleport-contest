@@ -2102,6 +2102,51 @@ test('statuslines selects one of the two tty status-window heights', () => {
     assert.equal(trailingJunk.iflags.wc2_statuslines, 3);
 });
 
+// C ref: options.c optfn_msghistory() (2523-2545).  This pins the parser's
+// raw unsigned value before wintty.c tty_create_nhwindow(NHW_MESSAGE) applies
+// its live startup clamp.
+test('msghistory parses atoi into unsigned storage and preserves errors', () => {
+    const values = [
+        ['OPTIONS=msghistory:37', 37],
+        ['OPTIONS=msghistory:9rows', 9],
+        ['OPTIONS=msghistory:nonnumeric', 0],
+        ['OPTIONS=msghistory:-1', 0xFFFFFFFF],
+        ['OPTIONS=msghistory:4294967296', 0],
+        ['OPTIONS=!msghistory', 0],
+        ['OPTIONS=!msghistory:', 0],
+    ];
+    for (const [statement, expected] of values) {
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.equal(parsed.iflags.msg_history, expected, statement);
+        assert.equal(parsed.flags.msghistory, undefined, statement);
+        assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+    }
+
+    for (const statement of ['msghistory', 'msghistory:']) {
+        const parsed = parseNethackrc(
+            `OPTIONS=msghistory:41\nOPTIONS=${statement}\n`,
+        );
+        assert.equal(parsed.iflags.msg_history, 41, statement);
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\nOPTIONS=${statement}`,
+            ' * Line 2: compound option specified multiple times:'
+                + ' msghistory.',
+            ` * Line 2: Missing parameter for '${statement}'.`,
+        ], statement);
+    }
+
+    const negatedValue = parseNethackrc(
+        'OPTIONS=msghistory:41\nOPTIONS=!msghistory:12\n',
+    );
+    assert.equal(negatedValue.iflags.msg_history, 41);
+    assert.deepEqual(negatedValue.configErrorFrame.output, [
+        '\nOPTIONS=!msghistory:12',
+        ' * Line 2: compound option specified multiple times: msghistory.',
+        ' * Line 2: The msghistory option may not both have a value and be'
+            + ' negated.',
+    ]);
+});
+
 // C refs: options.c optfn_symset() (4166-4201), optfn_roguesymset()
 // (3543-3572) and optfn_suppress_alert() (4134-4149).  Each of the three opens
 // its do_set arm on `op != empty_optstr` and does nothing whatever when that
