@@ -645,12 +645,6 @@ export async function display_pickinv(
         throw new UnsupportedFeatureDescriptionError('reassign()');
     if (!state.flags.sortpack)
         throw new UnsupportedFeatureDescriptionError('an unpacked inventory');
-    // options.c change_inv_order() would have rewritten flags.inv_order from
-    // a packorder setting; the port keeps the default order, so a session
-    // that sets packorder stops rather than listing the wrong order.
-    if (state.flags.packorder)
-        throw new UnsupportedFeatureDescriptionError('change_inv_order()');
-
     // C's n counts 0, 1, or "more than 1"; with no letter subset it then adds
     // one, so the single-item message-line shortcut cannot apply here.
     // C answers "Not carrying anything." here. Every starting character

@@ -379,9 +379,9 @@ function defaultResult() {
             // loot but not inventory; display_pickinv() compares against 'f'.
             sortloot: 'l',
             // options.c def_inv_order[], the class order the inventory menu
-            // walks. The trailing 0 terminates the list in C. options.c
-            // change_inv_order() rewrites this from the packorder option,
-            // which is not ported; js/invent.js stops when a session sets it.
+            // walks. The trailing 0 terminates the list in C, so the array
+            // holds only its class bytes. change_inv_order() below is the one
+            // startup path that rewrites it.
             inv_order: [
                 COIN_CLASS, AMULET_CLASS, WEAPON_CLASS, ARMOR_CLASS,
                 FOOD_CLASS, SCROLL_CLASS, SPBOOK_CLASS, POTION_CLASS,
@@ -2840,6 +2840,55 @@ function pickupTypesFromSymbols(symbols) {
     return { types, badopt };
 }
 
+// C ref: options.c change_inv_order() (7466-7508), reached from
+// optfn_packorder()'s do_set request.  The source walks bytes and diagnoses
+// each bad, disallowed, or non-final repeated symbol, but still installs the
+// good classes.  Gold leads only when omitted; every other omitted class
+// follows in the order that was active before this statement.
+export function change_inv_order(result, op) {
+    const symbols = encodeUtf8ByteString(op);
+    const previous = result.flags.inv_order;
+    const reordered = [];
+    let accepted = true;
+
+    const goldSymbol = DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + COIN_CLASS];
+    if (!symbols.includes(goldSymbol)) reordered.push(COIN_CLASS);
+
+    for (let index = 0; index < symbols.length; ++index) {
+        const byte = symbols[index];
+        const symbol = decodeUtf8ByteString([byte]);
+        const objectClass = def_char_to_objclass(symbol);
+        let rejected = false;
+
+        if (objectClass === MAXOCLASSES) {
+            configErrorAdd(result, `Not an object class '${symbol}'`);
+            rejected = true;
+        } else if (!previous.includes(objectClass)) {
+            configErrorAdd(result, `Object class '${symbol}' not allowed`);
+            rejected = true;
+        } else if (symbols.includes(byte, index + 1)) {
+            configErrorAdd(result, `Duplicate object class '${symbol}'`);
+            rejected = true;
+        }
+        if (rejected) accepted = false;
+        else reordered.push(objectClass);
+    }
+
+    for (const objectClass of previous) {
+        if (!reordered.includes(objectClass)) reordered.push(objectClass);
+    }
+    result.flags.inv_order = reordered.slice(0, MAXOCLASSES - 1);
+    return accepted;
+}
+
+// C ref: options.c optfn_packorder() (2670-2691), its startup do_set arm.
+// string_for_opt() supplies empty_optstr both without a separator and after
+// an empty one; either spelling rejects silently and keeps the prior order.
+function optfn_packorder(result, value) {
+    if (value == null || value === '') return;
+    change_inv_order(result, value);
+}
+
 // C ref: options.c bad_negation() (6692-6697).  Three of its callers are
 // reachable here -- parseoptions() (627), optfn_menu_headings() (2201) and
 // optfn_pile_limit() (3421) -- and all three pass with_parameter TRUE, whether
@@ -3080,12 +3129,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
             `menu command option '${parsedName}' requires its full canonical name`,
         );
     } else if (name === 'packorder') {
-        // options.c change_inv_order() rewrites flags.inv_order from this
-        // value. That is not ported, so the value is retained and
-        // invent.c display_pickinv()'s port stops when it is present rather
-        // than listing the inventory in the default order.  optlist.h:541-542
-        // gives the option negateok No, so a negated spelling never arrives.
-        result.flags.packorder = value;
+        // optlist.h gives negateok No, so a negated spelling never arrives.
+        optfn_packorder(result, value);
     } else if (name === 'pettype') {
         setPettype(result, statement, negated);
     } else if (name === 'fruit') {
@@ -4137,10 +4182,8 @@ function symsetValue(state, set, withHandling) {
 // Membership is every shown compound option that parseNethackrc() leaves as
 // raw text under flags[<option name>] and whose handler above reads some
 // other field, so the raw text sits beside the value rather than replacing
-// it.  packorder is a member on that rule even though it has its own parse
-// arm, because that arm only retains the raw text: its handler reads
-// flags.inv_order.  Where the raw text lands in the very field the handler
-// reads -- autounlock, suppress_alert and versinfo -- there is nothing left
+// it.  Where the raw text lands in the very field the handler reads --
+// autounlock, suppress_alert and versinfo -- there is nothing left
 // to compare against, so those three are guarded by type inside
 // their handlers instead and are not members.  The other-settings rows need
 // neither guard: each counts live state rather than reading an option field.
@@ -4149,7 +4192,7 @@ function symsetValue(state, set, withHandling) {
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'boulder', 'crash_email', 'crash_name', 'crash_urlmax',
     'disclose', 'glyph', 'menu_objsyms', 'menuinvertmode',
-    'msghistory', 'packorder', 'paranoid_confirmation',
+    'msghistory', 'paranoid_confirmation',
     'scores', 'sortdiscoveries', 'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',
 ]));

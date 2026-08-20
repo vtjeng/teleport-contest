@@ -348,15 +348,21 @@ test('the menu value column reads the parsed menustyle enum', async () => {
     );
 });
 
+test('the menu value column reads the parsed inventory order', async () => {
+    const state = await startGameWithConfig('OPTIONS=packorder:%)[');
+    assert.equal(state.flags.packorder, undefined);
+    assert.equal(
+        valueOf(dosetMenuItems(state, menuHelpers(), false), 'packorder'),
+        '$%)["?+!=/(*`0_',
+    );
+});
+
 test('the menu refuses an option whose value it cannot derive', async () => {
     const state = await startConfiguredGame(STOCK);
     // parseNethackrc() keeps an unported compound option's raw text under
     // flags[<option name>]; one of the shown options stores its parsed value
     // in that same field, so that one is caught by type instead.
-    const raw = [
-        ['packorder', 'flags', 'packorder'],
-        ['autounlock', 'flags', 'autounlock'],
-    ];
+    const raw = [['autounlock', 'flags', 'autounlock']];
     for (const [name, owner, field] of raw) {
         const saved = state[owner][field];
         state[owner][field] = 'kick';

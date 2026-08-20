@@ -19,12 +19,15 @@ import {
     RUN_TPORT,
 } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
+import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { runSegment } from '../js/jsmain.js';
 import {
     FOOD_CLASS, RING_CLASS, WEAPON_CLASS,
 } from '../js/objects.js';
 import { allopt } from '../js/optlist_data.js';
-import { parseNethackrc } from '../js/options.js';
+import {
+    change_inv_order, oc_to_str, parseNethackrc,
+} from '../js/options.js';
 import { ATR_INVERSE, ATR_NONE, NO_COLOR } from '../js/terminal.js';
 import { nomux_get_cursor, tty_raw_print } from '../js/tty_rawprint.js';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
@@ -1020,6 +1023,16 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'number_pad:'."],
         ["Illegal number_pad parameter 'zqxj'."],
     ]],
+    ['packorder', [
+        [],
+        [],
+        [
+            "Not an object class 'z'.",
+            "Not an object class 'q'.",
+            "Not an object class 'x'.",
+            "Not an object class 'j'.",
+        ],
+    ]],
     ['petattr', [
         ["Missing parameter for 'petattr'."],
         ["Missing parameter for 'petattr:'."],
@@ -1137,7 +1150,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['map_mode', [1, 1, 1]],
     ['mouse_support', [0, 1, 1]],
     ['msghistory', [1, 1, 0]],
-    ['packorder', [0, 0, 4]],
     ['paranoid_confirmation', [1, 1, 1]],
     ['perminv_mode', [1, 1, 1]],
     ['player_selection', [1, 1, 1]],
@@ -1175,9 +1187,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 35);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 36);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 43);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 42);
 
     let owed = 0;
     for (const row of rows) {
@@ -1211,10 +1223,90 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 99 messages over 43 rows: what porting those handlers is worth to a
+    // 95 messages over 42 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 99);
+    assert.equal(owed, 95);
 });
+
+// C refs: options.c optfn_packorder() (2670-2691), change_inv_order()
+// (7466-7508), and def_inv_order[] (118-123).  The parser supplies statements
+// right to left, and each change fills omissions from the order installed by
+// the preceding call.  flags.inv_order is the result: no raw packorder value
+// remains beside it.
+test('startup packorder rewrites inv_order with source diagnostics and fill',
+    () => {
+        const defaultOrder = '$")[%?+!=/(*`0_';
+        const defaults = parseNethackrc('');
+        assert.equal(defaults.flags.inv_order.length, 15);
+        assert.equal(defaults.flags.packorder, undefined);
+
+        // Gold is prepended only when absent.  When supplied, it keeps its
+        // requested position; omitted classes retain their previous order.
+        for (const [value, order] of [
+            ['%)[', '$%)["?+!=/(*`0_'],
+            ['[%$', '[%$")?+!=/(*`0_'],
+        ]) {
+            const parsed = parseNethackrc(`OPTIONS=packorder:${value}\n`);
+            assert.equal(parsed.flags.packorder, undefined, value);
+            assert.equal(oc_to_str(parsed.flags.inv_order), order, value);
+            assert.deepEqual(parsed.configErrorFrame.output, [], value);
+        }
+
+        const validResult = parseNethackrc('');
+        assert.equal(change_inv_order(validResult, '%)['), true);
+        const invalidResult = parseNethackrc('');
+        assert.equal(change_inv_order(invalidResult, '%Z'), false);
+
+        for (const suffix of ['', ':']) {
+            const statement = `OPTIONS=packorder${suffix}`;
+            const parsed = parseNethackrc(`${statement}\n`);
+            assert.equal(
+                oc_to_str(parsed.flags.inv_order), defaultOrder, statement,
+            );
+            assert.deepEqual(parsed.configErrorFrame.output, [], statement);
+        }
+
+        // The rightmost statement runs first.  The left one therefore fills
+        // from `$)?"[%+...`, not from def_inv_order[], and its duplicate-option
+        // report does not prevent either handler call.
+        const repeated = parseNethackrc(
+            'OPTIONS=packorder:[%,packorder:)?\n',
+        );
+        assert.equal(oc_to_str(repeated.flags.inv_order), '$[%)?"+!=/(*`0_');
+        assert.deepEqual(repeated.configErrorFrame.output, [
+            '\nOPTIONS=packorder:[%,packorder:)?',
+            ' * Line 1: compound option specified multiple times: packorder.',
+        ]);
+
+        // change_inv_order() diagnoses every rejected byte and still commits
+        // `%`, `[`, the final `)`, and `(`.  strchr(sp + 1, *sp) rejects each
+        // non-final `)` rather than only the first duplicate.
+        const partial = parseNethackrc('OPTIONS=packorder:%[ZZ].))))(\n');
+        assert.equal(oc_to_str(partial.flags.inv_order), '$%[)("?+!=/*`0_');
+        assert.deepEqual(partial.configErrorFrame.output, [
+            '\nOPTIONS=packorder:%[ZZ].))))(',
+            " * Line 1: Not an object class 'Z'.",
+            " * Line 1: Not an object class 'Z'.",
+            " * Line 1: Object class ']' not allowed.",
+            " * Line 1: Object class '.' not allowed.",
+            " * Line 1: Duplicate object class ')'.",
+            " * Line 1: Duplicate object class ')'.",
+            " * Line 1: Duplicate object class ')'.",
+        ]);
+
+        // C walks the UTF-8 bytes C3 A9 separately.  The frame preserves each
+        // raw byte as a byte-string escape, so re-encoding both messages gives
+        // one diagnostic for each input byte rather than one for `é`.
+        const multibyte = parseNethackrc('OPTIONS=packorder:é%\n');
+        assert.equal(oc_to_str(multibyte.flags.inv_order), '$%\")[?+!=/(*`0_');
+        assert.equal(multibyte.configErrorFrame.output.length, 3);
+        assert.deepEqual(
+            multibyte.configErrorFrame.output.slice(1).map(
+                (message) => encodeUtf8ByteString(message).at(-3),
+            ),
+            [0xC3, 0xA9],
+        );
+    });
 
 // C ref: options.c optfn_menustyle() (2320-2376), reached from
 // parseoptions() with the abbreviation exactly as the player wrote it.  The
