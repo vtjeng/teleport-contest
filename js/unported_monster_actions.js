@@ -92,6 +92,7 @@ import { newObject } from './obj.js';
 import {
     create_gas_cloud,
     inside_region,
+    m_in_out_region,
     mon_in_region,
 } from './region.js';
 import {
@@ -704,7 +705,7 @@ function admitDoorOpening(x, y, env) {
     admitPlannedVisionChange(x, y, state);
 }
 
-function assertSimpleDestination(monster, x, y, env) {
+async function mayCrossSimpleRegion(monster, x, y, env) {
     const { state } = env;
     const location = state.level.at(x, y);
     const doorMask = location?.flags || location?.doormask || 0;
@@ -748,14 +749,23 @@ function assertSimpleDestination(monster, x, y, env) {
     // before the live pass, so a refusal that late is still atomic.
     for (const region of state.level.regions) {
         if (region.attach_2_m === monster.m_id) continue;
-        if (mon_in_region(region, monster)
-            !== inside_region(region, x, y)) {
+        const currentlyInside = mon_in_region(region, monster);
+        const destinationInside = inside_region(region, x, y);
+        if (currentlyInside === destinationInside) continue;
+
+        // This boundary admits only monmove.c m_everyturn_effect()'s harmless
+        // fog vapor. Its transition callbacks are unset, so the selected path
+        // only removes the moving fog's cached ID. m_in_out_region() still
+        // preflights any callback-bearing variant before membership changes.
+        const leavesHarmlessFogVapor = currentlyInside
+            && region.inside_f === 'inside_gas_cloud'
+            && Math.trunc(region.arg ?? 0) === 0;
+        if (!leavesHarmlessFogVapor)
             unsupported('a region transition');
-        }
     }
     // Last, so that a destination another guard rejects prepares nothing.
     if (opensDoor) admitDoorOpening(x, y, env);
-    return true;
+    return m_in_out_region(monster, x, y, env);
 }
 
 function wipeSimpleEngraving(x, y, _count, _magical, env) {
@@ -790,7 +800,7 @@ async function moveSimpleOrdinary(monster, env) {
     return m_move(monster, {
         ...env,
         ...doorVisionOperations(env),
-        mayCrossRegion: assertSimpleDestination,
+        mayCrossRegion: mayCrossSimpleRegion,
         resistsTrapEffect,
         // mon.c can_touch_safely() asks artifact.c touch_artifact() about
         // every item a monster considers, and that function can blast the
@@ -820,7 +830,7 @@ async function moveSimplePet(monster, after, env) {
         digWeaponCheck: () => false,
         displaceMonster: () => unsupported('pet displacement'),
         eatObject: dog_eat,
-        mayCrossRegion: assertSimpleDestination,
+        mayCrossRegion: mayCrossSimpleRegion,
         // Three printing sites share the `message` seam: dog_invent()'s carry
         // arm through dogmove.c pline_xy(), its drop arm through steal.c
         // mdrop_obj(), and dog_move()'s cursed-step line through pline.c

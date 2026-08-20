@@ -103,7 +103,10 @@ import {
     WAX_CANDLE,
 } from '../js/objects.js';
 import { m_move } from '../js/monmove.js';
-import { create_region } from '../js/region.js';
+import {
+    create_region,
+    UnsupportedRegionCallbackError,
+} from '../js/region.js';
 import { canSeeMonster } from '../js/startup_a11y.js';
 import {
     clear_path,
@@ -756,29 +759,149 @@ test('fog upkeep is planned atomically before the movement-ration gate',
         }
     });
 
-test('planned fog vapor leaves later region transitions fail-closed',
+test('planned fog leaves its cloned vapor without changing live state',
     async () => {
         const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
         target.monster.movement = NORMAL_SPEED;
+        game.u.umovement = 0;
+        recalc_block_point(target.monsterX, target.heroY, game);
+        const pathBefore = clear_path(
+            target.monsterX - 1,
+            target.heroY,
+            target.monsterX + 1,
+            target.heroY,
+        );
+        assert.equal(pathBefore, 1);
         const before = completeSecondTurnSnapshot(game, target.replay);
         const beforeRandom = rngSnapshot();
+        let planned = null;
 
-        // After rebuilding cloned vision, moving the resident fog out of its
-        // new region reaches m_in_out_region(), which remains outside this
-        // slice. The refusal therefore advances from region creation to the
-        // later transition while retaining atomicity.
-        await assert.rejects(
-            preflightSimpleMonsterActions(game),
-            (error) => error instanceof UnsupportedSimpleMonsterActionError
-                && error.reason === 'a region transition',
+        // m_everyturn_effect() first creates one harmless vapor square around
+        // the fog. m_move() then leaves it through m_in_out_region(), which
+        // removes the cached ID before relocation. The next allocation hook
+        // exposes the discarded clone after both writes.
+        await preflightSimpleMonsterActions(game, {
+            advanceRound(state) {
+                planned = state;
+                return true;
+            },
+        });
+        const plannedFog = planned?.level.monlist;
+        assert.deepEqual(
+            [plannedFog?.mx, plannedFog?.my],
+            [target.destinationX, target.heroY],
         );
+        assert.equal(planned.level.regions.length, 1);
+        assert.deepEqual(planned.level.regions[0].monsters, []);
+        assert.equal(planned.level.regions[0].inside_f, 'inside_gas_cloud');
+        assert.equal(planned.level.regions[0].arg, 0);
         assert.deepEqual(
             completeSecondTurnSnapshot(game, target.replay),
             before,
         );
         assert.deepEqual(rngSnapshot(), beforeRandom);
         assert.deepEqual(game.level.regions, []);
+        assert.equal(clear_path(
+            target.monsterX - 1,
+            target.heroY,
+            target.monsterX + 1,
+            target.heroY,
+        ), pathBefore);
     });
+
+test('a later ranged refusal discards a planned fog-region leave', async () => {
+    const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
+    target.monster.movement = NORMAL_SPEED;
+    // Preserve fog identity for m_everyturn_effect(), but borrow the gnome's
+    // weapon attack so dochug() reaches its already-named post-move refusal.
+    target.monster.data = {
+        ...game.mons[PM_GNOME],
+        pmidx: PM_FOG_CLOUD,
+    };
+    const dagger = monsterObject(DAGGER);
+    dagger.owornmask = W_WEP;
+    target.monster.minvent = dagger;
+    target.monster.mw = dagger;
+    target.monster.weapon_check = NEED_WEAPON;
+    const before = completeSecondTurnSnapshot(game, target.replay);
+    const beforeRandom = rngSnapshot();
+
+    await assert.rejects(
+        preflightSimpleMonsterActions(game),
+        (error) => error instanceof UnsupportedSimpleMonsterActionError
+            && error.reason === 'monster ranged weapon action',
+    );
+
+    assert.deepEqual(completeSecondTurnSnapshot(game, target.replay), before);
+    assert.deepEqual(rngSnapshot(), beforeRandom);
+    assert.deepEqual(game.level.regions, []);
+});
+
+test('fog-region transition callbacks remain fail-closed and inert',
+    async () => {
+        const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
+        target.monster.movement = NORMAL_SPEED;
+        const vapor = create_region([{
+            lx: target.monsterX,
+            ly: target.heroY,
+            hx: target.monsterX,
+            hy: target.heroY,
+        }]);
+        Object.assign(vapor, {
+            arg: 0,
+            inside_f: 'inside_gas_cloud',
+            leave_f: 'must_not_run',
+            monsters: [target.monster.m_id],
+            visible: true,
+        });
+        game.level.regions = [vapor];
+        const before = completeSecondTurnSnapshot(game, target.replay);
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => error instanceof UnsupportedRegionCallbackError
+                && error.callback === 'must_not_run',
+        );
+
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+        );
+    });
+
+test('fog movement still refuses region entry and harmful vapor', async () => {
+    for (const variant of ['enter', 'harmful']) {
+        const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
+        target.monster.movement = NORMAL_SPEED;
+        const enters = variant === 'enter';
+        const vapor = create_region([{
+            lx: enters ? target.destinationX : target.monsterX,
+            ly: target.heroY,
+            hx: enters ? target.destinationX : target.monsterX,
+            hy: target.heroY,
+        }]);
+        Object.assign(vapor, {
+            arg: variant === 'harmful' ? 1 : 0,
+            inside_f: 'inside_gas_cloud',
+            monsters: enters ? [] : [target.monster.m_id],
+            visible: true,
+        });
+        game.level.regions = [vapor];
+        const before = completeSecondTurnSnapshot(game, target.replay);
+
+        await assert.rejects(
+            preflightSimpleMonsterActions(game),
+            (error) => error instanceof UnsupportedSimpleMonsterActionError
+                && error.reason === 'a region transition',
+            variant,
+        );
+        assert.deepEqual(
+            completeSecondTurnSnapshot(game, target.replay),
+            before,
+            variant,
+        );
+    }
+});
 
 test('planned fog upkeep skips closed doors and existing visible regions',
     async () => {
@@ -2389,6 +2512,66 @@ test('simple monster movement continues through an ignored object',
         );
     });
 
+test('live fog movement leaves harmless vapor without extra output or RNG',
+    async () => {
+        const run = async (regionKind) => {
+            const target = await prepareSelectedAction({
+                pmidx: PM_FOG_CLOUD,
+            });
+            let region = null;
+            if (regionKind) {
+                region = create_region([{
+                    lx: target.monsterX,
+                    ly: target.heroY,
+                    hx: regionKind === 'same'
+                        ? target.destinationX : target.monsterX,
+                    hy: target.heroY,
+                }]);
+                region.monsters = [target.monster.m_id];
+                if (regionKind === 'vapor') {
+                    Object.assign(region, {
+                        arg: 0,
+                        expire_f: 'expire_gas_cloud',
+                        inside_f: 'inside_gas_cloud',
+                        ttl: 5,
+                        visible: true,
+                    });
+                }
+                game.level.regions = [region];
+            }
+            const messagesBefore = [...game.nhDisplay.messages];
+
+            const result = await runSimpleMonsterAction(target.monster, {
+                state: game,
+            });
+
+            return {
+                members: region?.monsters ?? null,
+                messages: game.nhDisplay.messages.slice(
+                    messagesBefore.length,
+                ),
+                position: [target.monster.mx, target.monster.my],
+                result,
+                rng: rngSnapshot(),
+            };
+        };
+
+        const ordinary = await run(null);
+        const sameRegion = await run('same');
+        const leftVapor = await run('vapor');
+
+        assert.deepEqual(leftVapor.position, sameRegion.position);
+        assert.deepEqual(leftVapor.position, ordinary.position);
+        assert.deepEqual(leftVapor.position, [8, 10]);
+        assert.equal(leftVapor.result, MMOVE_NOTHING);
+        assert.deepEqual(leftVapor.members, []);
+        assert.deepEqual(sameRegion.members, [9001]);
+        assert.deepEqual(leftVapor.messages, []);
+        assert.deepEqual(leftVapor.messages, ordinary.messages);
+        assert.deepEqual(leftVapor.rng, ordinary.rng);
+        assert.deepEqual(sameRegion.rng, ordinary.rng);
+    });
+
 test('simple ordinary monster and starting pet can land in a corridor',
     async () => {
         const cases = [
@@ -3407,9 +3590,10 @@ test('a planned door opening writes nothing to frozen live state',
         assert.equal(doorLetsLightThrough(target), 0);
     });
 
-test('a planned fog vapor writes nothing to frozen live state', async () => {
+test('a planned fog-region leave writes nothing to frozen live state',
+    async () => {
     const target = await prepareSelectedAction({ pmidx: PM_FOG_CLOUD });
-    target.monster.movement = 0;
+    target.monster.movement = NORMAL_SPEED;
     game.level.regions = [];
     // prepareSelectedAction() constructs its corridor directly. Bring the
     // borrowed transparency index into step with that map before freezing it,
