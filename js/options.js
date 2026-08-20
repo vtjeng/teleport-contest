@@ -2760,6 +2760,118 @@ function optfn_msghistory(result, statement, negated) {
     }
 }
 
+// C ref: options.c optfn_paranoid_confirmation() (2816-3042), its do_set
+// request.  flags.paranoia_bits is C unsigned storage, so every bitwise result
+// is converted back to uint32; in particular, paranoia[]'s ~0 "all" row is
+// 0xFFFFFFFF rather than JavaScript's signed -1.
+function optfn_paranoid_confirmation(
+    result, value, negated, usingPrayconfirmAlias,
+) {
+    let op = value ?? '';
+
+    // "prayconfirm" is a full-length alias.  Detect this element itself
+    // rather than reading parseoptions()'s line-wide using_alias static: comma
+    // recursion can leave that static raised for an unrelated element to its
+    // left.  COMPLAIN_ABOUT_PRAYCONFIRM is defined in the recorder build.
+    if (usingPrayconfirmAlias) {
+        if (op !== '') {
+            configErrorAdd(
+                result,
+                `deprecated ${negated ? '!' : ''}prayconfirm option takes no`
+                    + ` parameters (found '${op}')`,
+            );
+            return;
+        }
+        configErrorAdd(
+            result,
+            `${negated ? '!' : ''}prayconfirm option is deprecated; switching`
+                + ` to paranoid_confirmation:${negated ? '-' : '+'}pray`,
+        );
+        op = `${negated ? '-' : '+'}pray`;
+        negated = false;
+    } else if (negated) {
+        if (op === '') {
+            result.flags.paranoia_bits = 0;
+            return;
+        }
+        configErrorAdd(
+            result, '!paranoid_confirmation does not accept a value',
+        );
+        return;
+    } else if (op === '') {
+        configErrorAdd(
+            result,
+            "paranoid_confirmation requires a value; use 'none' to cancel all",
+        );
+        return;
+    }
+
+    op = mungspaces(op);
+    let plusOrMinus = false;
+    let index = 0;
+    if (op[0] !== '+' && op[0] !== '-') {
+        result.flags.paranoia_bits = 0;
+    } else {
+        plusOrMinus = true;
+        negated = op[0] === '-';
+        index = 1;
+        if (op[index] === ' ') ++index;
+    }
+
+    for (;;) {
+        let fieldNegated = op[index] === '!';
+        if (fieldNegated) {
+            ++index;
+            if (op[index] === ' ') ++index;
+        } else {
+            const first = op[index] ?? '\0';
+            const second = op[index + 1] ?? '\0';
+            const third = op[index + 2] ?? '\0';
+            // Preserve options.c:2971-2972 literally.  Its misplaced lowc()
+            // makes the third-byte exclusion case-sensitive: "none" is not
+            // a negation, but "noNone" is.  A space also passes this test, so
+            // "no pray" advances onto the space and reports an empty token.
+            if (lowc(first) === 'n' && lowc(second) === 'o'
+                && third !== 'n' && lowc(third) !== '\0') {
+                fieldNegated = true;
+                index += 2;
+            }
+        }
+
+        const space = op.indexOf(' ', index);
+        const token = op.slice(index, space < 0 ? op.length : space);
+        const matched = paranoia.find(([, argname, argMinLen,
+            synonym, synMinLen]) => (
+            match_optname(token, argname, argMinLen, false)
+                || (synonym
+                    && match_optname(token, synonym, synMinLen, false))
+        ));
+        if (!matched) {
+            configErrorAdd(
+                result,
+                `Unknown paranoid_confirmation parameter '${token}'`,
+            );
+            return;
+        }
+
+        const [mask] = matched;
+        if (mask === 0) {
+            if (!plusOrMinus) result.flags.paranoia_bits = 0;
+        } else if (negated || fieldNegated) {
+            result.flags.paranoia_bits = (
+                result.flags.paranoia_bits & ~mask
+            ) >>> 0;
+        } else {
+            result.flags.paranoia_bits = (
+                result.flags.paranoia_bits | mask
+            ) >>> 0;
+        }
+
+        if (space < 0) break;
+        index = space + 1;
+    }
+}
+
 function sourceOptionMatch(parsedName) {
     return SOURCE_OPTION_MATCHES.find(([canonical, minLength]) => (
         !SOURCE_PREFIX_OPTION_NAMES.includes(canonical)
@@ -3249,6 +3361,11 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setStatuslines(result, statement, negated);
     } else if (name === 'msghistory') {
         optfn_msghistory(result, statement, negated);
+    } else if (name === 'paranoid_confirmation') {
+        optfn_paranoid_confirmation(
+            result, value, negated,
+            parsedName === 'prayconfirm',
+        );
     } else if (name === 'msg_window') {
         // C ref: options.c optfn_msg_window()'s do_set arm. PREV_MSGS is 1
         // for this tty build. parseoptions() reads this option's value as
@@ -3907,23 +4024,25 @@ const disclosure_options = 'iavgco';
 const known_handling = Object.freeze([
     'UNKNOWN', 'IBM', 'DEC', 'CURS', 'MAC', 'UTF8',
 ]);
-// C ref: options.c paranoia[], in the order optfn_paranoid_confirmation()
-// walks when it spells the current bits.  The two config-only trailing rows,
-// "none" and "all", carry no bit of their own and never print.
+// C ref: options.c paranoia[].  The setter walks all fifteen rows, including
+// the two config-only choices at the end.  The value getter stops at "none",
+// the first zero mask, so neither config-only choice is ever printed.
 const paranoia = Object.freeze([
-    [PARANOID_CONFIRM, 'Confirm'],
-    [PARANOID_QUIT, 'quit'],
-    [PARANOID_DIE, 'die'],
-    [PARANOID_BONES, 'bones'],
-    [PARANOID_HIT, 'attack'],
-    [PARANOID_BREAKWAND, 'wand-break'],
-    [PARANOID_EATING, 'eat'],
-    [PARANOID_WERECHANGE, 'Were-change'],
-    [PARANOID_PRAY, 'pray'],
-    [PARANOID_TRAP, 'trap'],
-    [PARANOID_AUTOALL, 'Autoall'],
-    [PARANOID_SWIM, 'swim'],
-    [PARANOID_REMOVE, 'Remove'],
+    [PARANOID_CONFIRM, 'Confirm', 1, 'Paranoia', 2],
+    [PARANOID_QUIT, 'quit', 1, 'explore', 2],
+    [PARANOID_DIE, 'die', 1, 'death', 2],
+    [PARANOID_BONES, 'bones', 1, null, 0],
+    [PARANOID_HIT, 'attack', 1, 'hit', 1],
+    [PARANOID_BREAKWAND, 'wand-break', 2, 'break-wand', 2],
+    [PARANOID_EATING, 'eat', 1, 'continue', 4],
+    [PARANOID_WERECHANGE, 'Were-change', 2, null, 0],
+    [PARANOID_PRAY, 'pray', 1, null, 0],
+    [PARANOID_TRAP, 'trap', 1, 'move-trap', 1],
+    [PARANOID_AUTOALL, 'Autoall', 2, 'autoselect-all', 2],
+    [PARANOID_SWIM, 'swim', 1, null, 0],
+    [PARANOID_REMOVE, 'Remove', 1, 'Takeoff', 1],
+    [0, 'none', 4, null, 0],
+    [0xFFFFFFFF, 'all', 3, null, 0],
 ]);
 // C ref: options.c n_currently_set.
 function n_currently_set(count) {
@@ -4169,6 +4288,7 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     paranoid_confirmation: (state) => {
         const bits = state.flags.paranoia_bits;
         const names = paranoia
+            .slice(0, paranoia.findIndex(([mask]) => mask === 0))
             // paranoid_confirm:bones is hidden during play outside debug mode.
             .filter(([mask]) => (bits & mask)
                 && (mask !== PARANOID_BONES || state.wizard))
@@ -4298,7 +4418,6 @@ function symsetValue(state, set, withHandling) {
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'boulder', 'crash_email', 'crash_name', 'crash_urlmax',
     'disclose', 'glyph', 'menu_objsyms', 'menuinvertmode',
-    'paranoid_confirmation',
     'scores', 'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',
 ]));

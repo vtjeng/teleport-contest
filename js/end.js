@@ -69,18 +69,10 @@ function Lifesaved(state) {
 // C ref: flag.h:560 ParanoidDie, over flag.h:85 PARANOID_DIE.
 //
 // options.c initoptions_init():7173 leaves PARANOID_DIE out of the startup
-// flags.paranoia_bits, so a game that never names the option answers FALSE
-// here and paranoid_ynq() takes its single-key arm. The guard above the read
-// is js/do_wear.js ParanoidRemove()'s, for its reason: parseNethackrc() keeps
-// paranoid_confirmation's raw text in flags.paranoid_confirmation and never
-// folds it into flags.paranoia_bits, so reading the startup default for a
-// game that asked for the confirmation would draw "Die? [yn] (n)" where C
-// spells the whole prompt out through getlin(). done() calls this as a
-// preflight before its first output or mutation whenever its supported path
-// can reach the query.
+// flags.paranoia_bits, and optfn_paranoid_confirmation() writes every startup
+// setting into that same field. done() calls this as a preflight before its
+// first output or mutation whenever its supported path can reach the query.
 function ParanoidDie(state) {
-    if (state.flags.paranoid_confirmation !== undefined)
-        throw new UnsupportedEndOfGameError('optfn_paranoid_confirmation()');
     return (state.flags.paranoia_bits & PARANOID_DIE) !== 0;
 }
 
@@ -119,9 +111,8 @@ export async function done(how, state = game) {
     const killer = state.killer;
     const programState = state.program_state;
 
-    // paranoid_ynq()'s spelled-out input arm and the raw compound-option
-    // parser can both return to done() through a declined death and
-    // savelife(). Detect either unsupported path before the status paint and
+    // paranoid_ynq()'s spelled-out input arm can return to done() through a
+    // declined death and savelife(). Detect it before the status paint and
     // death-state prefix below. The other exclusions are the branches that
     // stop before end.c:1105 in this port, so they retain their own refusal.
     if (!state.iflags.debug_fuzzer

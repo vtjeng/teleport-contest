@@ -367,6 +367,20 @@ test('the menu value column reads the parsed discovery order', async () => {
     );
 });
 
+test('the menu value column reads the parsed paranoia bitset', async () => {
+    const state = await startGameWithConfig(
+        'OPTIONS=paranoid_confirmation:death hit pray Takeoff',
+    );
+    assert.equal(state.flags.paranoid_confirmation, undefined);
+    assert.equal(
+        valueOf(
+            dosetMenuItems(state, menuHelpers(), false),
+            'paranoid_confirmation',
+        ),
+        'die attack pray Remove',
+    );
+});
+
 test('the menu counts final status highlight rows without changing rules',
     async () => {
         const state = await startGameWithConfig(

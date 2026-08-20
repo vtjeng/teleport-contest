@@ -60,12 +60,13 @@ const DATETIME = '20260311073000';
 // race's fixed 2. Both random components are zero, so this row is stable.
 const STARTING_HP_STATUS = /HP:10\(10\)/u;
 
-function nethackrc(playmode) {
+function nethackrc(playmode, options = []) {
     return [
         'OPTIONS=name:Doomed,role:Tourist,race:human,gender:male,'
         + `align:neutral${playmode ? `,playmode:${playmode}` : ''}`,
         'OPTIONS=!legacy,!tutorial,!splash_screen',
         'OPTIONS=pettype:none,!acoustics',
+        ...options.map((option) => `OPTIONS=${option}`),
         '',
     ].join('\n');
 }
@@ -78,11 +79,11 @@ function nethackrc(playmode) {
 //
 // The seed is the wizard case's, so a re-recording that changed the Tourist's
 // starting hit points would move both together.
-async function dyingGame({ playmode = null } = {}) {
+async function dyingGame({ playmode = null, options = [] } = {}) {
     await runSegment({
         seed: WIZARD_CASE.seed,
         datetime: DATETIME,
-        nethackrc: nethackrc(playmode),
+        nethackrc: nethackrc(playmode, options),
         moves: '',
     });
     game.killer = { name: 'a falling rock trap', format: KILLED_BY_AN };
@@ -468,17 +469,17 @@ test('an ordinary game reaches really_done() without drawing a query',
     );
 });
 
-test('the query stops for a hung-up game and preflights raw options',
+test('the query stops for a hung-up game and preflights ParanoidDie',
      async () => {
     await dyingGame({ playmode: 'debug' });
     game.program_state.done_hup = true;
     assert.match(await refusal(DIED), /gd\.done_seq/u);
 
-    await dyingGame({ playmode: 'debug' });
-    // parseNethackrc() leaves the option's raw text here and never folds it
-    // into flags.paranoia_bits, so reading the startup default would answer
-    // for a game that asked for the opposite.
-    game.flags.paranoid_confirmation = 'die';
+    await dyingGame({
+        playmode: 'debug', options: ['paranoid_confirmation:die'],
+    });
+    assert.equal(game.flags.paranoid_confirmation, undefined);
+    assert.notEqual(game.flags.paranoia_bits & PARANOID_DIE, 0);
     // Leave the displayed HP at 10 while the state says zero. A misplaced
     // preflight after bot() would repaint this row before it refused.
     game.u.uhp = 0;
@@ -486,7 +487,7 @@ test('the query stops for a hung-up game and preflights raw options',
     const rawKiller = { ...game.killer };
     const rawMortality = game.u.umortality;
     const rawHp = game.u.uhp;
-    assert.match(await refusal(DIED), /optfn_paranoid_confirmation\(\)/u);
+    assert.match(await refusal(DIED), /paranoid_ynq\(\)/u);
     assert.equal(statusRow(), rawStatus);
     assert.deepEqual(game.killer, rawKiller);
     assert.equal(game.u.umortality, rawMortality);
@@ -494,14 +495,16 @@ test('the query stops for a hung-up game and preflights raw options',
 });
 
 test('the query preflight preserves every earlier exclusion', async () => {
-    await dyingGame({ playmode: 'debug' });
+    await dyingGame({
+        playmode: 'debug', options: ['paranoid_confirmation:die'],
+    });
     game.iflags.debug_fuzzer = 1;
-    game.flags.paranoid_confirmation = 'die';
     assert.match(await refusal(DIED), /fuzzer_savelife\(\)/u);
 
-    await dyingGame({ playmode: 'debug' });
+    await dyingGame({
+        playmode: 'debug', options: ['paranoid_confirmation:die'],
+    });
     game.u.uprops[LIFESAVED].extrinsic = 1;
-    game.flags.paranoid_confirmation = 'die';
     game.killer = { name: '', format: KILLED_BY_AN };
     // Distinct positive sentinels make the pre-force repaint show uhp=5 and
     // prove that end.c:1072-1077 later zeroes both HP fields together.
@@ -519,26 +522,27 @@ test('the query preflight preserves every earlier exclusion', async () => {
     assert.equal(game.disp.botl, true);
     assert.equal(game.disp.botlx, false);
 
-    await dyingGame();
-    // Ordinary mode never reaches end.c:1105, so an unparsed query option is
+    await dyingGame({ options: ['paranoid_confirmation:die'] });
+    // Ordinary mode never reaches end.c:1105, so the parsed query bit is
     // irrelevant to this done() call and must not preempt really_done().
-    game.flags.paranoid_confirmation = 'die';
     assert.match(
         await refusal(DIED),
         new RegExp(`^really_done\\(${DIED}\\)`, 'u'),
     );
 
-    await dyingGame({ playmode: 'debug' });
+    await dyingGame({
+        playmode: 'debug', options: ['paranoid_confirmation:die'],
+    });
     // GENOCIDED is end.c:1105's inclusive upper boundary.
-    game.flags.paranoid_confirmation = 'die';
     assert.match(
         await refusal(GENOCIDED),
-        /optfn_paranoid_confirmation\(\)/u,
+        /paranoid_ynq\(\)/u,
     );
 
-    await dyingGame({ playmode: 'debug' });
+    await dyingGame({
+        playmode: 'debug', options: ['paranoid_confirmation:die'],
+    });
     game.program_state.done_hup = true;
-    game.flags.paranoid_confirmation = 'die';
     game.killer = { name: '', format: KILLED_BY_AN };
     // The same sentinels prove the joint zeroing even though done_hup skips
     // the status repaint that would otherwise display uhp=5.

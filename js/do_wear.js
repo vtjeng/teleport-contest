@@ -1724,17 +1724,9 @@ export async function armor_or_accessory_off(obj, state = game) {
 
 // C ref: flag.h:570 ParanoidRemove.
 //
-// options.c optfn_paranoid_confirmation() is unported: parseNethackrc() keeps
-// the option's raw text in flags.paranoid_confirmation and never folds it into
-// flags.paranoia_bits, which therefore still holds the startup default
-// options.c initoptions_init() sets. Reading that default would silently
-// answer FALSE for a game that asked for the confirmation and take the
-// no-prompt arm where C prompts, so a game that supplied the option at all
-// stops here. The port cannot narrow the stop to the games that named Remove
-// or Takeoff without parsing the value, which is that handler's own work.
+// options.c optfn_paranoid_confirmation() stores every startup setting in the
+// same flags.paranoia_bits field this macro reads.
 function ParanoidRemove(state) {
-    if (state.flags.paranoid_confirmation !== undefined)
-        throw new UnsupportedTakeOffError('optfn_paranoid_confirmation()');
     return (state.flags.paranoia_bits & PARANOID_REMOVE) !== 0;
 }
 

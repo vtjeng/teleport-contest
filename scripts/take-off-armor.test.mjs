@@ -1114,17 +1114,19 @@ test('Is_dragon_armor() spans the two obj.h ranges and nothing else', () => {
     }
 });
 
-test('a paranoid_confirmation game stops rather than guessing', async () => {
-    // options.c optfn_paranoid_confirmation() is unported, so
-    // flags.paranoia_bits never learns about PARANOID_REMOVE and reading it
-    // would answer FALSE for a game that asked C to prompt.
+test('paranoid_confirmation controls the one-piece takeoff prompt', async () => {
     const segment = segmentFor(TAKEOFF_KEY);
     const paranoid = {
         ...segment,
         nethackrc: `${segment.nethackrc}OPTIONS=paranoid_confirmation:Remove\n`,
     };
-    const boundary = await boundaryFor(paranoid, `${WAIT}${TAKEOFF_KEY}`);
-    assert.match(boundary?.message ?? '', /optfn_paranoid_confirmation\(\)/);
+    await runSegment({ ...paranoid, moves: WAIT });
+    assert.equal(game.flags.paranoid_confirmation, undefined);
+    assert.notEqual(game.flags.paranoia_bits & PARANOID_REMOVE, 0);
+    game.nhDisplay.pushKey(ESCAPE_KEY.charCodeAt(0));
+    assert.equal(await dotakeoff(game), ECMD_CANCEL);
+    assert.equal(takePendingTopLine(), 'Never mind.');
+    assert.ok(game.uarmc, 'the parsed prompt left the cloak on');
 
     // Without the option the default bits decide, and they do not hold
     // PARANOID_REMOVE, so the one-piece Wizard is not prompted.
@@ -1134,17 +1136,18 @@ test('a paranoid_confirmation game stops rather than guessing', async () => {
     assert.equal(await dotakeoff(game), ECMD_TIME);
     assert.equal(game.uarmc, null);
 
-    // With the bit set by hand, the same one-piece hero is prompted instead.
-    // An Escape is queued for the prompt to read, so what the command reports
-    // is getobj() cancelled -- "Never mind.", ECMD_CANCEL and the cloak still
-    // worn -- rather than any throw that reaching getobj() might raise.
-    await runSegment({ ...segment, moves: WAIT });
-    game.flags.paranoia_bits |= PARANOID_REMOVE;
-    game.nhDisplay.pushKey(ESCAPE_KEY.charCodeAt(0));
-    assert.equal(await dotakeoff(game), ECMD_CANCEL);
-    assert.equal(takePendingTopLine(), 'Never mind.');
-    assert.ok(game.uarmc, 'the prompt left the cloak on');
-    game.flags.paranoia_bits &= ~PARANOID_REMOVE;
+    // A later removal setting clears only this bit and restores the same
+    // no-prompt behavior while preserving the other startup paranoia bits.
+    const cleared = {
+        ...segment,
+        nethackrc: `${segment.nethackrc}`
+            + 'OPTIONS=paranoid_confirmation:+Remove\n'
+            + 'OPTIONS=paranoid_confirmation:-Remove\n',
+    };
+    await runSegment({ ...cleared, moves: WAIT });
+    assert.equal(game.flags.paranoia_bits & PARANOID_REMOVE, 0);
+    assert.equal(await dotakeoff(game), ECMD_TIME);
+    assert.equal(game.uarmc, null);
 });
 
 test('taking armor off clears what monsters had seen it resist',

@@ -15,6 +15,11 @@ import {
     MENU_FULL,
     MENU_PARTIAL,
     MENU_TRADITIONAL,
+    PARANOID_DIE,
+    PARANOID_HIT,
+    PARANOID_PRAY,
+    PARANOID_SWIM,
+    PARANOID_TRAP,
     RUN_CRAWL,
     RUN_TPORT,
 } from '../js/const.js';
@@ -1058,6 +1063,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'pickup_types:'."],
         ["Unknown pickup_types parameter ''."],
     ]],
+    ['paranoid_confirmation', [
+        ["paranoid_confirmation requires a value; use 'none' to cancel all."],
+        ["paranoid_confirmation requires a value; use 'none' to cancel all."],
+        ["Unknown paranoid_confirmation parameter 'zqxj'."],
+    ]],
     ['pile_limit', [
         ["Missing parameter for 'pile_limit'."],
         ["Missing parameter for 'pile_limit:'."],
@@ -1159,7 +1169,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['font_text', [1, 1, 0]],
     ['map_mode', [1, 1, 1]],
     ['mouse_support', [0, 1, 1]],
-    ['paranoid_confirmation', [1, 1, 1]],
     ['perminv_mode', [1, 1, 1]],
     ['player_selection', [1, 1, 1]],
     ['roguesymset', [0, 0, 1]],
@@ -1195,9 +1204,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 38);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 39);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 40);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 39);
 
     let owed = 0;
     for (const row of rows) {
@@ -1231,9 +1240,229 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 90 messages over 40 rows: what porting those handlers is worth to a
+    // 87 messages over 39 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 90);
+    assert.equal(owed, 87);
+});
+
+// C ref: options.c paranoia[] and optfn_paranoid_confirmation()'s do_set
+// request.  Each accepted spelling writes only flags.paranoia_bits; the raw
+// option text is not a second state value.
+test('startup paranoid_confirmation parses every name and synonym', () => {
+    // The masks are flag.h:83-95 literals rather than imported constants, so
+    // drift in const.js cannot validate the parser table against itself.
+    const rows = [
+        [0x0001, 'C', 'Pa'],
+        [0x0002, 'q', 'ex'],
+        [0x0004, 'd', 'de'],
+        [0x0008, 'b', null],
+        [0x0010, 'a', 'h'],
+        [0x0080, 'wa', 'br'],
+        [0x0200, 'e', 'cont'],
+        [0x0100, 'We', null],
+        [0x0020, 'p', null],
+        [0x0800, 't', 'm'],
+        [0x1000, 'Au', 'autose'],
+        [0x0400, 's', null],
+        [0x0040, 'R', 'Ta'],
+        [0, 'none', null],
+        [0xFFFFFFFF, 'all', null],
+    ];
+    for (const [mask, primary, synonym] of rows) {
+        for (const spelling of [primary, synonym].filter(Boolean)) {
+            const parsed = parseNethackrc(
+                `OPTIONS=paranoid_confirmation:${spelling}\n`,
+            );
+            assert.equal(parsed.flags.paranoia_bits, mask >>> 0, spelling);
+            assert.equal(
+                parsed.flags.paranoid_confirmation, undefined, spelling,
+            );
+            assert.deepEqual(parsed.configErrorFrame.output, [], spelling);
+        }
+    }
+
+    // Both two-letter primaries require both letters; one is not a match.
+    for (const spelling of ['w', 'W']) {
+        const parsed = parseNethackrc(
+            `OPTIONS=paranoid_confirmation:${spelling}\n`,
+        );
+        assert.equal(parsed.flags.paranoia_bits, 0, spelling);
+        assert.match(
+            parsed.configErrorFrame.output.at(-1),
+            /Unknown paranoid_confirmation parameter/u,
+            spelling,
+        );
+    }
+    // "a"ttack takes precedence over "A"utoall, as paranoia[]'s source
+    // comment specifies; Autoall therefore needs its two-letter minimum.
+    assert.equal(
+        parseNethackrc('OPTIONS=paranoid_confirmation:A\n')
+            .flags.paranoia_bits,
+        PARANOID_HIT,
+    );
+});
+
+test('startup paranoid_confirmation applies list modifiers in token order',
+    () => {
+        const defaults = PARANOID_PRAY | PARANOID_SWIM | PARANOID_TRAP;
+        const cases = [
+            ['+die', defaults | PARANOID_DIE],
+            ['-pray trap', PARANOID_SWIM],
+            ['+!pray noTrap', PARANOID_SWIM],
+            ['die !die pray', PARANOID_PRAY],
+            ['all', 0xFFFFFFFF],
+            ['-all', 0],
+            ['+all', 0xFFFFFFFF],
+            ['+none', defaults],
+            ['-none', defaults],
+            ['pray none trap', PARANOID_TRAP],
+        ];
+        for (const [value, expected] of cases) {
+            const parsed = parseNethackrc(
+                `OPTIONS=paranoid_confirmation:${value}\n`,
+            );
+            assert.equal(
+                parsed.flags.paranoia_bits, expected >>> 0, value,
+            );
+            assert.deepEqual(parsed.configErrorFrame.output, [], value);
+        }
+    });
+
+test('startup paranoid_confirmation preserves partial state on an error',
+    () => {
+        const statement = 'OPTIONS=paranoid_confirmation:die pray zqxj';
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.equal(
+            parsed.flags.paranoia_bits, PARANOID_DIE | PARANOID_PRAY,
+        );
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            " * Line 1: Unknown paranoid_confirmation parameter 'zqxj'.",
+        ]);
+
+        // options.c's mutable walk accepts one space after '!', but its
+        // misspelled no-prefix predicate advances onto a space and therefore
+        // reports the empty token after clearing the starting default.
+        assert.equal(parseNethackrc(
+            'OPTIONS=paranoid_confirmation:! pray\n',
+        ).flags.paranoia_bits, 0);
+        const noSpace = parseNethackrc(
+            'OPTIONS=paranoid_confirmation:no pray\n',
+        );
+        assert.equal(noSpace.flags.paranoia_bits, 0);
+        assert.match(
+            noSpace.configErrorFrame.output.at(-1),
+            /Unknown paranoid_confirmation parameter ''/u,
+        );
+
+        // match_optname() receives val_allowed FALSE for both a primary name
+        // and a synonym.  A delimiter inside the token therefore stays part
+        // of it and makes the whole token unknown.
+        for (const value of ['pray:tail', 'death:tail']) {
+            const delimited = parseNethackrc(
+                `OPTIONS=paranoid_confirmation:${value}\n`,
+            );
+            assert.equal(delimited.flags.paranoia_bits, 0, value);
+            assert.match(
+                delimited.configErrorFrame.output.at(-1),
+                new RegExp(`Unknown paranoid_confirmation parameter '${value}'`,
+                    'u'),
+                value,
+            );
+        }
+    });
+
+test('startup paranoid_confirmation composes duplicates right to left', () => {
+    const setAfterClear = parseNethackrc(
+        'OPTIONS=paranoid_confirmation:+die,paranoid_confirmation:none\n',
+    );
+    assert.equal(setAfterClear.flags.paranoia_bits, PARANOID_DIE);
+    const clearAfterSet = parseNethackrc(
+        'OPTIONS=paranoid_confirmation:none,paranoid_confirmation:+die\n',
+    );
+    assert.equal(clearAfterSet.flags.paranoia_bits, 0);
+    assert.deepEqual(setAfterClear.configErrorFrame.output, []);
+    assert.deepEqual(clearAfterSet.configErrorFrame.output, []);
+
+    // using_alias is line-wide after the comma recursion, but the handler
+    // identifies prayconfirm from its own opts pointer.  Neither an unrelated
+    // alias nor a prayconfirm element to the right changes how this canonical
+    // element is parsed.
+    const unrelatedAlias = parseNethackrc(
+        'OPTIONS=paranoid_confirmation:none,align:lawful\n',
+    );
+    assert.equal(unrelatedAlias.flags.paranoia_bits, 0);
+    assert.deepEqual(unrelatedAlias.configErrorFrame.output, []);
+    const prayconfirmToRight = parseNethackrc(
+        'OPTIONS=paranoid_confirmation:none,prayconfirm\n',
+    );
+    assert.equal(prayconfirmToRight.flags.paranoia_bits, 0);
+    assert.equal(prayconfirmToRight.configErrorFrame.num_errors, 1);
+    assert.match(
+        prayconfirmToRight.configErrorFrame.output.at(-1),
+        /switching to paranoid_confirmation:\+pray/u,
+    );
+});
+
+test('prayconfirm reports deprecation and changes only the prayer bit', () => {
+    const enabled = parseNethackrc(
+        'OPTIONS=!paranoid_confirmation\nOPTIONS=prayconfirm\n',
+    );
+    assert.equal(enabled.flags.paranoia_bits, PARANOID_PRAY);
+    assert.match(
+        enabled.configErrorFrame.output.at(-1),
+        /prayconfirm option is deprecated; switching to paranoid_confirmation:\+pray/u,
+    );
+
+    const disabled = parseNethackrc('OPTIONS=!prayconfirm\n');
+    assert.equal(
+        disabled.flags.paranoia_bits, PARANOID_SWIM | PARANOID_TRAP,
+    );
+    assert.match(
+        disabled.configErrorFrame.output.at(-1),
+        /!prayconfirm option is deprecated; switching to paranoid_confirmation:-pray/u,
+    );
+
+    const parameter = parseNethackrc('OPTIONS=prayconfirm:true\n');
+    assert.equal(
+        parameter.flags.paranoia_bits,
+        PARANOID_PRAY | PARANOID_SWIM | PARANOID_TRAP,
+    );
+    assert.match(
+        parameter.configErrorFrame.output.at(-1),
+        /deprecated prayconfirm option takes no parameters \(found 'true'\)/u,
+    );
+});
+
+test('paranoid_confirmation reports missing and negated values exactly', () => {
+    const statements = [
+        [
+            'paranoid_confirmation',
+            "paranoid_confirmation requires a value; use 'none' to cancel all",
+        ],
+        [
+            '!paranoid_confirmation:pray',
+            '!paranoid_confirmation does not accept a value',
+        ],
+    ];
+    for (const [option, message] of statements) {
+        const statement = `OPTIONS=${option}`;
+        const parsed = parseNethackrc(`${statement}\n`);
+        assert.equal(
+            parsed.flags.paranoia_bits,
+            PARANOID_PRAY | PARANOID_SWIM | PARANOID_TRAP,
+            option,
+        );
+        assert.deepEqual(parsed.configErrorFrame.output, [
+            `\n${statement}`,
+            ` * Line 1: ${message}.`,
+        ]);
+    }
+    assert.equal(
+        parseNethackrc('OPTIONS=!paranoid_confirmation\n')
+            .flags.paranoia_bits,
+        0,
+    );
 });
 
 // C ref: options.c optfn_sortdiscoveries() (3863-3903).  Its startup
