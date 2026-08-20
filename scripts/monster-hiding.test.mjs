@@ -313,21 +313,27 @@ test('restrap re-disguises only a mimic that is awake and undisguised',
         // Protection_from_shape_changers. restrap() has already won its own
         // roll and still returns TRUE, so the mimic forfeits the action while
         // remaining revealed and spends no rn2(17).
-        game.u.uprops[PROT_FROM_SHAPE_CHANGERS] = { intrinsic: 1 };
         const protectedMimic = hiderAt(PM_SMALL_MIMIC, far());
-        const protectedBounds = [];
-        assert.equal(restrap(protectedMimic, {
-            state: game,
-            random: {
-                rn2(bound) {
-                    protectedBounds.push(bound);
-                    return 0;
+        for (const term of ['intrinsic', 'extrinsic']) {
+            game.u.uprops[PROT_FROM_SHAPE_CHANGERS] = { [term]: 1 };
+            const protectedBounds = [];
+            const messagesBefore = [...game.nhDisplay.messages];
+            assert.equal(restrap(protectedMimic, {
+                state: game,
+                random: {
+                    rn2(bound) {
+                        protectedBounds.push(bound);
+                        return 0;
+                    },
                 },
-            },
-            setMimicSym: set_mimic_sym,
-        }), true);
-        assert.deepEqual(protectedBounds, [3]);
-        assert.equal(protectedMimic.m_ap_type & M_AP_TYPMASK, 0);
+                setMimicSym: set_mimic_sym,
+            }), true, term);
+            assert.deepEqual(protectedBounds, [3], term);
+            assert.equal(
+                protectedMimic.m_ap_type & M_AP_TYPMASK, 0, term,
+            );
+            assert.deepEqual(game.nhDisplay.messages, messagesBefore, term);
+        }
         game.u.uprops[PROT_FROM_SHAPE_CHANGERS] = undefined;
     });
 

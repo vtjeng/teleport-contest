@@ -252,6 +252,7 @@ test('dog_eat consumes each admitted mimic corpse and updates its little dog',
         for (const corpsenm of [PM_SMALL_MIMIC, PM_GIANT_MIMIC]) {
             const { monster, state } = quickState(true);
             const corpse = floorMimicCorpse(state, corpsenm);
+            corpse.invlet = 'a';
             const messages = [];
             const redraws = [];
             assert.equal(
@@ -271,12 +272,25 @@ test('dog_eat consumes each admitted mimic corpse and updates its little dog',
             assert.equal(monster.mextra.edog.mhpmax_penalty, 0);
             assert.equal(monster.mfleetim, 2);
             assert.equal(monster.mtame, 11);
+            assert.equal(monster.mextra.edog.apport, 5);
             assert.equal(monster.m_ap_type, M_AP_MONSTER);
             assert.equal(monster.mappearance, PM_KITTEN);
             assert.deepEqual(redraws.slice(0, 2), [[4, 5], [5, 5]]);
             assert.equal(messages.length, 2);
             assert.match(messages[0], /^Your little dog eats /u);
         }
+    });
+
+test('dog_eat keeps a one-HP pet alive after an admitted mimic corpse',
+    async () => {
+        const { monster, state } = quickState(false);
+        monster.mhp = 1;
+        const corpse = floorMimicCorpse(state);
+        assert.equal(
+            await dog_eat(monster, corpse, 5, 5, false, eatingEnv(state)),
+            MMOVE_MOVED,
+        );
+        assert.equal(monster.mhp, 1);
     });
 
 test('dog_eat validates every excluded mimic-meal state before mutation',

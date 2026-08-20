@@ -1319,6 +1319,17 @@ test('the monster arm answers in apply.c branch order', async () => {
         + '  AC 7, mimicking a chest.',
     );
 
+    // pager.c uses objnam.c just_an(), including its long-u exceptions, for
+    // a remembered object under the still-disguised monster.
+    const leaf = await heroWithEmptyWest();
+    mimicAt(leaf, EUCALYPTUS_LEAF, { mundetected: 1 });
+    assert.equal(await listenWest(2), null);
+    assert.equal(
+        game._ttyToplines,
+        'Status of the small mimic (neutral, medium):  Level 6  HP 22(22)'
+        + '  AC 7, mimicking a eucalyptus leaf.',
+    );
+
     // insight.c passes MHID_ALTMON, so a surviving monster appearance is
     // included even though pager.c's look-at caller deliberately omits it.
     const shapedAndHidden = await heroWithEmptyWest();
@@ -1442,9 +1453,12 @@ test('a listened-to mimic is exposed and named by what it was wearing',
 
     // A type whose full name carries a parenthesized description: objnam.c
     // simple_typename() cuts it, so the mimic is "a ring" rather than "a ring
-    // (black onyx)".
+    // (black onyx)". The irrelevant mcorpsenm overlay proves only a
+    // SLIME_MOLD appearance may switch to simpleonames().
     const ringGround = await heroWithEmptyWest();
-    mimicAt(ringGround, RIN_PROTECTION);
+    mimicAt(ringGround, RIN_PROTECTION, {
+        mextra: { mcorpsenm: game.context.current_fruit },
+    });
     assert.equal(await listenLine(), 'That ring is really a small mimic.');
 
     // apply.c:418-421 and :426-427. Named-fruit disguises retain the fruit id

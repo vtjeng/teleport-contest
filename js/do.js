@@ -580,8 +580,9 @@ async function drop(obj, state = game) {
         // do.c:720-721 better_not_try_to_drop_that() (946-962), which asks
         // paranoid_ynq() to confirm before a bare-handed hero drops a corpse
         // that could petrify her.  u_safe_from_fatal_corpse() owns the source
-        // predicate; harmless corpses return false from the helper and follow
-        // the ordinary drop path, while the unported prompt still stops here.
+        // predicate; harmless or safely handled corpses return true and follow
+        // the ordinary drop path, while an unsafe corpse reaches the unported
+        // prompt and still stops here.
         throw new UnsupportedDropError('better_not_try_to_drop_that()');
     }
     if (obj === state.uwep) {

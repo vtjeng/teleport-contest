@@ -104,6 +104,7 @@ import {
 import { m_at } from './monst.js';
 import { dealloc_obj, mkobj, mksobj } from './obj.js';
 import { objectGenerationEnv } from './object_generation.js';
+import { just_an } from './objnam.js';
 import { observe_object } from './o_init.js';
 import { obj_stop_timers } from './timeout.js';
 import {
@@ -862,10 +863,7 @@ function simpleObjectName(object, state) {
 function hiddenObjectPhrase(object, state) {
     const name = simpleObjectName(object, state);
     if (Math.trunc(object.quan ?? 1) !== 1) return name;
-    // C ref: objnam.c just_an() suppresses an added article for every name
-    // beginning with "the ", not only for artifact-named fruit.
-    return /^the /iu.test(name)
-        ? name : `${indefiniteArticle(name)} ${name}`;
+    return `${just_an(name)}${name}`;
 }
 
 // C ref: pager.c mhidden_description(), with the fixed flag set insight.c
@@ -885,7 +883,7 @@ export function mhidden_description(
     const appearance = monster.m_ap_type & M_AP_TYPMASK;
     if (appearance === M_AP_FURNITURE) {
         const what = furnitureDescription(monster.mappearance) ?? 'something';
-        const article = includeArticle ? `${indefiniteArticle(what)} ` : '';
+        const article = includeArticle ? just_an(what) : '';
         suffix = `${includePrefix ? ', mimicking ' : ''}${article}${what}`;
     } else if (appearance === M_AP_OBJECT) {
         const subject = bufferedObjectSubjectAt(monster, state);
@@ -911,7 +909,7 @@ export function mhidden_description(
                 gender(monster),
             );
             const article = includeArticle
-                ? `${indefiniteArticle(what)} ` : '';
+                ? just_an(what) : '';
             suffix = `${includePrefix ? ', masquerading as ' : ''}`
                 + `${article}${what}`;
         }
