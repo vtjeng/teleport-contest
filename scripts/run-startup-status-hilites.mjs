@@ -107,9 +107,9 @@ export const STARTUP_STATUS_HILITE_CASES = Object.freeze([
     Object.freeze({
         label: 'long title text truncates before live matching',
         optionLines: Object.freeze([
-            'HILITE_STATUS=title/always/red title/Stripling'
-                + '-'.repeat(70) + 'x'.repeat(46)
-                + '/bright-green',
+            'OPTIONS=hilite_status:title/always/red',
+            'OPTIONS=hilite_status:title/Stripling'
+                + '-'.repeat(69) + '\t' + 'x/bright-green',
         ]),
         expectedCount: 2,
         expectedStoredRules: 2,

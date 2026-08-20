@@ -2800,6 +2800,39 @@ test('status highlight shapes C accepts report nothing', () => {
         ),
         [['text', ' always']],
     );
+
+    // parse_status_hl2() ignores trimspaces()'s returned pointer.  A buffer
+    // containing only blanks therefore keeps all of them: the local pointer
+    // reaches NUL before the in-place trailing loop begins.  Once a nonblank
+    // byte is present, only trailing ASCII space and tab bytes are erased.
+    for (const [threshold, expected] of [
+        [' ', ' '],
+        ['\t\t', '\t\t'],
+        ['  rank \t', '  rank'],
+        ['rank\u00a0', 'rank\u00a0'],
+    ]) {
+        const parsed = parseNethackrc(
+            `OPTIONS=hilite_status:title/${threshold}/red\n`,
+        );
+        assert.deepEqual(parsed.configErrorFrame.output, [], threshold);
+        assert.equal(parsed.iflags.status_hilites.length, 1, threshold);
+        assert.equal(
+            parsed.iflags.status_hilites[0].text,
+            expected,
+            threshold,
+        );
+    }
+
+    // C truncates into textmatch[80] before trimspaces() runs.  A tab in byte
+    // 79 is trailing only after byte 80 is discarded, so it must disappear.
+    const orderedPrefix = 'a'.repeat(78);
+    const orderedThreshold = `${orderedPrefix}\tx`;
+    const ordered = parseNethackrc(
+        `OPTIONS=hilite_status:title/${orderedThreshold}/red\n`,
+    );
+    assert.deepEqual(ordered.configErrorFrame.output, []);
+    assert.equal(ordered.iflags.status_hilites.length, 1);
+    assert.equal(ordered.iflags.status_hilites[0].text, orderedPrefix);
 });
 
 // C refs: botl.c parse_status_hl2():2966-2978 for hilite.rel and :3068-3089

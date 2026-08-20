@@ -516,6 +516,14 @@ function trimspacesTrailing(value) {
     return String(value).replace(/[ \t]+$/u, '');
 }
 
+// botl.c parse_status_hl2() ignores trimspaces()'s returned pointer after
+// copying a title threshold.  When that buffer is all blanks, trimspaces()
+// advances its local pointer to NUL and its trailing loop changes nothing.
+function trimspacesIgnoredReturn(value) {
+    const text = String(value);
+    return /^[ \t]*$/u.test(text) ? text : trimspacesTrailing(text);
+}
+
 function trimspaces(value) {
     return trimspacesTrailing(value).replace(/^[ \t]+/u, '');
 }
@@ -1880,7 +1888,7 @@ function parse_status_hl2(result, s) {
             // last byte, then ignores trimspaces()'s returned pointer.  The
             // buffer therefore keeps leading blanks but loses trailing ones.
             text: behavior === 'text'
-                ? trimspacesTrailing(
+                ? trimspacesIgnoredReturn(
                     truncateByteString(text, MAXVALWIDTH - 1),
                 )
                 : '',

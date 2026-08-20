@@ -8111,13 +8111,14 @@ test('title formatting and matching use source byte limits', async () => {
         }
     }
 
-    // parse_status_hl2() accepts this 125-byte component, then copies only
-    // 79 bytes into hilite.textmatch[].  Ignored punctuation in that prefix
-    // leaves "Digger"; the significant suffix must not prevent the match.
-    const longThreshold = 'Digger' + '-'.repeat(73) + 'x'.repeat(46);
+    // parse_status_hl2() copies only 79 bytes into hilite.textmatch[], then
+    // trims it.  The tab is byte 79 and the significant x is byte 80: only
+    // truncating before trimming leaves the fuzzy text "Digger".
+    const longThreshold = 'Digger' + '-'.repeat(72) + '\t' + 'x';
     state.iflags = {
         ...parseNethackrc(
-            `HILITE_STATUS=title/always/red title/${longThreshold}/bright-green`,
+            'OPTIONS=hilite_status:title/always/red\n'
+                + `OPTIONS=hilite_status:title/${longThreshold}/bright-green`,
         ).iflags,
         wc2_statuslines: 2,
     };
@@ -8126,7 +8127,7 @@ test('title formatting and matching use source byte limits', async () => {
     assert.equal(
         state.nhDisplay.grid[22][0].color,
         CLR_BRIGHT_GREEN,
-        'the discarded suffix cannot prevent the 79-byte text match',
+        'the byte-79 tab is trimmed only after the suffix is discarded',
     );
 });
 
