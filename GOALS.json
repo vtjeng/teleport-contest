@@ -2550,8 +2550,8 @@
         },
         {
           "name": "startup-sortdiscoveries-to-known",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "3b8be8aab3ead57df92078433447bf7e4c059308"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",

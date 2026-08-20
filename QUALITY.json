@@ -1264,6 +1264,10 @@
         {
           "text": "Commit 44707664 ports optfn_packorder() and change_inv_order() through startup and the inventory menu, so packorder no longer stores raw text or omits its per-byte errors in this entry's measured residue. The entry stays open for the remaining unhandled compound handlers.",
           "at": "4470766402e995031eb446b34323893f9e975a53"
+        },
+        {
+          "text": "Commit 3b8be8aa ports optfn_sortdiscoveries()'s missing/unknown-value diagnostics and stores flags.discosort, removing sortdiscoveries from this entry's raw-string/error residue. The entry stays open for the remaining unhandled compound handlers.",
+          "at": "3b8be8aab3ead57df92078433447bf7e4c059308"
         }
       ]
     },
@@ -3514,6 +3518,10 @@
         {
           "text": "Commit 7a05b264 ports optfn_menustyle()'s do_set arm through startup parsing, so menustyle is no longer one of this entry's 27 negated-valued CompOpt refusals. The entry stays open for the remaining handlers.",
           "at": "7a05b26482d45b93535f3d8b09dbc8785721868b"
+        },
+        {
+          "text": "Commit 3b8be8aa ports optfn_sortdiscoveries()'s do_set arm through startup parsing, so sortdiscoveries is no longer one of this entry's negated-valued CompOpt refusals. The entry stays open for the remaining handlers.",
+          "at": "3b8be8aab3ead57df92078433447bf7e4c059308"
         }
       ]
     },
