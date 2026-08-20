@@ -234,3 +234,42 @@ export const allopt = Object.freeze([
     { name: 'cond_', section: 4, setwhere: 7, opttyp: 'CompOpt', negateok: true, valok: false, pfx: true, termpref: 0, addr: null, optfn: 'cond_', initval: false, has_handler: true },
     { name: 'font', section: 4, setwhere: 7, opttyp: 'CompOpt', negateok: true, valok: true, pfx: true, termpref: 0, addr: null, optfn: 'font', initval: false, has_handler: false },
 ].map(Object.freeze));
+
+// The allopt[] parser fields whose values differ from the default dupeok=false
+// and alias=null. Keeping only exceptional rows avoids repeating those defaults
+// across the generated menu table while preserving the source's row ownership.
+export const optionParserMetadata = Object.freeze({
+    'role': Object.freeze({ dupeok: true, alias: 'character' }),
+    'race': Object.freeze({ dupeok: true }),
+    'gender': Object.freeze({ dupeok: true }),
+    'alignment': Object.freeze({ dupeok: true, alias: 'align' }),
+    'altkeyhandling': Object.freeze({ alias: 'altkeyhandler' }),
+    'blind': Object.freeze({ alias: 'permablind' }),
+    'color': Object.freeze({ alias: 'colour' }),
+    'customcolors': Object.freeze({ alias: 'customcolours' }),
+    'customsymbols': Object.freeze({ alias: 'customsymbols' }),
+    'deaf': Object.freeze({ alias: 'permadeaf' }),
+    'female': Object.freeze({ alias: 'male' }),
+    'font_map': Object.freeze({ dupeok: true }),
+    'font_menu': Object.freeze({ dupeok: true }),
+    'font_message': Object.freeze({ dupeok: true }),
+    'font_size_map': Object.freeze({ dupeok: true }),
+    'font_size_menu': Object.freeze({ dupeok: true }),
+    'font_size_message': Object.freeze({ dupeok: true }),
+    'font_size_status': Object.freeze({ dupeok: true }),
+    'font_size_text': Object.freeze({ dupeok: true }),
+    'font_status': Object.freeze({ dupeok: true }),
+    'font_text': Object.freeze({ dupeok: true }),
+    'glyph': Object.freeze({ dupeok: true }),
+    'hilite_status': Object.freeze({ dupeok: true }),
+    'menu_objsyms': Object.freeze({ alias: 'use_menu_glyphs' }),
+    'paranoid_confirmation': Object.freeze({ dupeok: true, alias: 'prayconfirm' }),
+    'pettype': Object.freeze({ alias: 'pet' }),
+    'statushilites': Object.freeze({ dupeok: true }),
+    'suppress_alert': Object.freeze({ dupeok: true }),
+    'term_cols': Object.freeze({ alias: 'termcolumns' }),
+    'use_truecolor': Object.freeze({ alias: 'use_truecolour' }),
+    'windowcolors': Object.freeze({ dupeok: true }),
+    'cond_': Object.freeze({ dupeok: true }),
+    'font': Object.freeze({ dupeok: true }),
+});

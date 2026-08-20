@@ -219,13 +219,13 @@ function recordingOperations(state, events) {
     };
 }
 
-async function blindGlobalSearchState(extraRc = '') {
+async function globalSearchState(extraRc = '', { blind = true } = {}) {
     const replay = await runSegment({
         seed: 2026072301,
         datetime: '20260723120000',
         nethackrc: 'OPTIONS=name:TactileSearch,role:Ranger,race:human,'
             + 'gender:female,align:neutral,!legacy,!tutorial,'
-            + `!splash_screen,blind\n${extraRc}`,
+            + `!splash_screen${blind ? ',blind' : ''}\n${extraRc}`,
         moves: ' ',
     });
     const target = { x: game.u.ux - 1, y: game.u.uy - 1 };
@@ -488,7 +488,7 @@ test('automatic search reveals a secret corridor before exercise and display', a
 });
 
 test('blind tactile search records all eight source viewing vectors', async () => {
-    const origin = await blindGlobalSearchState(
+    const origin = await globalSearchState(
         String.raw`SYMBOLS=S_corr:\m#` + '\n',
     );
     // display.c set_seenv() indexes by sign(hero.y - target.y), so the upper
@@ -611,7 +611,7 @@ test('injected trap display must return semantic visibility', async () => {
 });
 
 test('blind global search maps an ordinary trap through tactile defaults', async () => {
-    const target = await blindGlobalSearchState();
+    const target = await globalSearchState();
     const trap = installUnseenAntiMagicTrap(target);
     const random = tactileSearchRandom(8);
 
@@ -638,7 +638,7 @@ test('blind tactile mapping refuses a floor the hero cannot feel', async () => {
         ['uchain', (state) => { state.uchain = { owornmask: W_CHAIN }; }],
     ];
     for (const [label, punish] of cases) {
-        const target = await blindGlobalSearchState();
+        const target = await globalSearchState();
         installUnseenAntiMagicTrap(target);
         punish(game);
 
@@ -674,7 +674,7 @@ test('default trap comparison preserves injected mapping contracts', async () =>
         },
     ];
     for (const { label, descriptor, waits } of cases) {
-        const target = await blindGlobalSearchState();
+        const target = await globalSearchState();
         const trap = installUnseenAntiMagicTrap(target);
         const location = game.level.at(target.x, target.y);
         const expected = trap_glyph_info(trap, game);
@@ -728,7 +728,7 @@ test('blind tactile mapping reveals only feelable engravings below a trap', asyn
         [ENGRAVE, 1],
         [DUST, 0],
     ]) {
-        const target = await blindGlobalSearchState();
+        const target = await globalSearchState();
         const engraving = {
             engr_x: target.x,
             engr_y: target.y,
@@ -751,7 +751,7 @@ test('blind tactile mapping reveals only feelable engravings below a trap', asyn
 });
 
 test('trap clutter uses logical layers when custom symbols collide', async () => {
-    const target = await blindGlobalSearchState(
+    const target = await globalSearchState(
         'OPTIONS=!color\nSYMBOLS=S_food:^\n',
     );
     const location = game.level.at(target.x, target.y);
@@ -816,7 +816,7 @@ test('trap clutter uses logical layers when custom symbols collide', async () =>
 });
 
 test('sighted trap discovery records trap identity without a map wait', async () => {
-    const target = await blindGlobalSearchState('OPTIONS=!blind\n');
+    const target = await globalSearchState('', { blind: false });
     assert.ok(game.viz_array[target.y][target.x] & IN_SIGHT);
     const trap = installUnseenAntiMagicTrap(target);
     const beforeWait = target.replay.getScreens().length;
@@ -831,7 +831,7 @@ test('sighted trap discovery records trap identity without a map wait', async ()
 });
 
 test('sighted trap discovery compares memory retained under a gas region', async () => {
-    const target = await blindGlobalSearchState('OPTIONS=!blind\n');
+    const target = await globalSearchState('', { blind: false });
     assert.ok(game.viz_array[target.y][target.x] & IN_SIGHT);
     const location = game.level.at(target.x, target.y);
     const priorMemory = location.remembered_glyph;
@@ -861,7 +861,7 @@ test('sighted trap discovery compares memory retained under a gas region', async
 });
 
 test('a telepathically sensed visible mimic shows real form and remembers disguise', async () => {
-    const target = await blindGlobalSearchState('OPTIONS=!blind\n');
+    const target = await globalSearchState('', { blind: false });
     assert.ok(game.viz_array[target.y][target.x] & IN_SIGHT);
     const location = game.level.at(target.x, target.y);
     const trap = installUnseenAntiMagicTrap(target);
@@ -932,7 +932,7 @@ test('a telepathically sensed visible mimic shows real form and remembers disgui
 
 test('detect-only mimic presentation retains the underlying trap memory', async () => {
     for (const inverse of [true, false]) {
-        const target = await blindGlobalSearchState('OPTIONS=!blind\n');
+        const target = await globalSearchState('', { blind: false });
         const location = game.level.at(target.x, target.y);
         const trap = installUnseenAntiMagicTrap(target);
         installVisibleGasOverlay(target);
@@ -993,11 +993,11 @@ test('detect-only mimic presentation retains the underlying trap memory', async 
 });
 
 test('disabled hero memory retains prior visible and tactile memory', async () => {
-    for (const [label, extraRc] of [
-        ['visible', 'OPTIONS=!blind\n'],
-        ['tactile', ''],
+    for (const [label, blind] of [
+        ['visible', false],
+        ['tactile', true],
     ]) {
-        const target = await blindGlobalSearchState(extraRc);
+        const target = await globalSearchState('', { blind });
         game.level.flags.hero_memory = false;
         const location = game.level.at(target.x, target.y);
         // A glyph number this square would never write for itself, so a
@@ -1025,7 +1025,7 @@ test('disabled hero memory retains prior visible and tactile memory', async () =
 });
 
 test('WIN_STOP suppresses trap input waiting but still redraws', async () => {
-    const target = await blindGlobalSearchState('OPTIONS=!blind\n');
+    const target = await globalSearchState('', { blind: false });
     const location = game.level.at(target.x, target.y);
     const trap = installUnseenAntiMagicTrap(target);
     installVisibleGasOverlay(target);
@@ -1048,7 +1048,7 @@ test('WIN_STOP suppresses trap input waiting but still redraws', async () => {
 });
 
 test('injected trap messaging requires paired wait ownership', async () => {
-    const target = await blindGlobalSearchState();
+    const target = await globalSearchState();
     const trap = installUnseenAntiMagicTrap(target);
     const random = tactileSearchRandom(8);
 

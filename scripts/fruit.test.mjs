@@ -151,6 +151,8 @@ test('fruit parsing preserves C whitespace and eight-bit option order', () => {
 test('initial fruit negation and duplicate order follow optfn_fruit', () => {
     // optlist.h:339-340 gives fruit negateok No, so parseoptions() answers
     // every negated spelling with bad_negation() before optfn_fruit() runs.
+    // duplicate_opt_detection() has already counted the earlier fruit row, so
+    // complain_about_duplicate() reports first on each second line.
     // Its negation arm would have reset svp.pl_fruit through `goodfruit`;
     // instead the value a previous statement stored survives, which is what
     // separates this from the default the option was never given.
@@ -161,14 +163,19 @@ test('initial fruit negation and duplicate order follow optfn_fruit', () => {
         assert.equal(parsed.pl_fruit, 'kumquats', negated);
         assert.deepEqual(parsed.configErrorFrame.output, [
             `\nOPTIONS=${negated}`,
+            ' * Line 2: compound option specified multiple times: fruit.',
             ' * Line 2: The fruit option may not both have a value and be'
             + ' negated.',
         ], negated);
     }
-    assert.equal(
-        parseNethackrc('OPTIONS=fruit:blueberries,fruit:kumquats').pl_fruit,
-        'blueberries',
+    const repeated = parseNethackrc(
+        'OPTIONS=fruit:blueberries,fruit:kumquats',
     );
+    assert.equal(repeated.pl_fruit, 'blueberries');
+    assert.deepEqual(repeated.configErrorFrame.output, [
+        '\nOPTIONS=fruit:blueberries,fruit:kumquats',
+        ' * Line 1: compound option specified multiple times: fruit.',
+    ]);
     // Outside a negation, val_optional is `negated || !go.opt_initial`, which
     // is FALSE for every configuration-file read: string_for_opt() reports the
     // missing parameter, quoting the statement rather than the option's name,

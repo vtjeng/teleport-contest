@@ -5,7 +5,7 @@ import test from 'node:test';
 import { config_error_done } from '../js/cfgfiles.js';
 import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
-import { allopt } from '../js/optlist_data.js';
+import { allopt, optionParserMetadata } from '../js/optlist_data.js';
 import {
     EXT_ENCUMBER,
     GPCOORDS_COMPASS,
@@ -43,6 +43,7 @@ import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     MENU_SPELLINGS, loadPickupBurdenRecipe,
 } from './run-pickup-burden.mjs';
+import { loadOptionsDuplicateRecipe } from './run-options-duplicates.mjs';
 import { loadStartupPickupTypesRecipe } from './run-startup-pickup-types.mjs';
 import {
     ATR_BOLD,
@@ -555,6 +556,108 @@ test('a duplicate role names the alias when the flag C keeps says to', () => {
             ' * Line 1: compound option specified multiple times: role.',
         ],
     );
+});
+
+// C refs: options.c parseoptions() (621-623),
+// reset_duplicate_opt_detection() (6773-6779),
+// duplicate_opt_detection() (6782-6787), and
+// complain_about_duplicate() (6789-6808). read_config_file() resets one
+// counter per allopt[] row before reading the rc; each match advances its
+// counter before bad_negation() and handler dispatch.
+test('startup duplicate detection follows each allopt row', () => {
+    const repeatedBoolean = parseNethackrc(
+        'OPTIONS=autopickup,!autopickup\n',
+    );
+    assert.equal(repeatedBoolean.flags.pickup, true);
+    assert.deepEqual(repeatedBoolean.configErrorFrame.output, [
+        '\nOPTIONS=autopickup,!autopickup',
+        ' * Line 1: boolean option specified multiple times: autopickup.',
+    ]);
+
+    // The rightmost alias raises options.c's file-static using_alias flag.
+    // Complain_about_duplicate() then prints the matched row's own alias even
+    // though the left element used the canonical spelling.
+    const viaAlias = parseNethackrc('OPTIONS=color,!colour\n');
+    assert.deepEqual(viaAlias.configErrorFrame.output, [
+        '\nOPTIONS=color,!colour',
+        ' * Line 1: boolean option specified multiple times: color'
+        + ' (via alias: colour).',
+    ]);
+
+    // The counter advances before bad_negation(), so the valid occurrence on
+    // the next line is already a duplicate and still reaches its handler.
+    const rejectedFirst = parseNethackrc([
+        'OPTIONS=!sortloot:none',
+        'OPTIONS=sortloot:full',
+        '',
+    ].join('\n'));
+    assert.equal(rejectedFirst.flags.sortloot, 'f');
+    assert.deepEqual(rejectedFirst.configErrorFrame.output, [
+        '\nOPTIONS=!sortloot:none',
+        ' * Line 1: The sortloot option may not both have a value and be'
+        + ' negated.',
+        '\nOPTIONS=sortloot:full',
+        ' * Line 2: compound option specified multiple times: sortloot.',
+    ]);
+
+    // optfn_playmode() consumes the same duplicate value. It refuses the
+    // leftmost setting after the general report, leaving the rightmost one.
+    const repeatedPlaymode = parseNethackrc(
+        'OPTIONS=playmode:debug,playmode:normal\n',
+    );
+    assert.equal(repeatedPlaymode.playmode, 'normal');
+    assert.equal(repeatedPlaymode.flags.debug, false);
+    assert.deepEqual(repeatedPlaymode.configErrorFrame.output, [
+        '\nOPTIONS=playmode:debug,playmode:normal',
+        ' * Line 1: compound option specified multiple times: playmode.',
+    ]);
+
+    // OthrOpt is the third allopt_t type, but C's conditional calls every row
+    // other than CompOpt "boolean" in this message.
+    const repeatedOther = parseNethackrc(
+        'OPTIONS=autocompletions:x,autocompletions:y\n',
+    );
+    assert.deepEqual(repeatedOther.configErrorFrame.output, [
+        '\nOPTIONS=autocompletions:x,autocompletions:y',
+        ' * Line 1: boolean option specified multiple times: autocompletions.',
+    ]);
+
+    // The four character rows set dupeok. Their handlers retain their own
+    // duplicate rules, so two positive values select the leftmost one without
+    // a general report.
+    const repeatAllowed = parseNethackrc(
+        'OPTIONS=role:Valkyrie,role:Healer\n',
+    );
+    assert.equal(repeatAllowed.flags.initrole, str2role('Valkyrie'));
+    assert.deepEqual(repeatAllowed.configErrorFrame.output, []);
+
+    // A new parseNethackrc() call models the next read_config_file() call and
+    // therefore starts with reset counters.
+    assert.deepEqual(
+        parseNethackrc('OPTIONS=autopickup\n').configErrorFrame.output,
+        [],
+    );
+});
+
+// The fresh matrix drives each duplicate case through rcfile() and the first
+// gameplay boundary. Keep its setup tied to the focused parser assertions so
+// a recipe edit cannot silently stop exercising the intended C branches.
+test('the duplicate-option recipe retains its source branch matrix', () => {
+    const recipe = loadOptionsDuplicateRecipe();
+    assert.equal(recipe.segments.length, 6);
+    const parsed = recipe.segments.map(
+        ({ nethackrc }) => parseNethackrc(nethackrc),
+    );
+    assert.deepEqual(
+        parsed.map(({ configErrorFrame }) => configErrorFrame.num_errors),
+        [22, 22, 22, 23, 0, 22],
+    );
+    assert.equal(parsed[0].flags.pickup, true);
+    assert.deepEqual(parsed[1].flags.pickup_types, [WEAPON_CLASS]);
+    assert.equal(parsed[2].iflags.wc_color, true);
+    assert.equal(parsed[3].flags.sortloot, 'f');
+    assert.equal(parsed[4].flags.initrole, str2role('Valkyrie'));
+    assert.equal(parsed[5].playmode, 'normal');
 });
 
 test('legacy ROLE statements remain distinct from OPTIONS role filters', () => {
@@ -2826,14 +2929,13 @@ function splitTopLevelCommas(text) {
 // NHOPT_PARSE arm expands into its initializers.
 //
 // scripts/generate-options.mjs reads each column out of the expanded
-// initializer by position, and valok's position is the one nothing else can
-// check: it sits directly ahead of dupeok, which the port does not carry, and
-// the two disagree on exactly one BoolOpt row.  Reading dupeok as valok
-// therefore regenerates a table `npm run check:options` still verifies.  This
-// derives every row's valok from the header instead, without going through the
-// generator: the struct gives the column's position, the macro definitions say
-// which parameter fills it, and each row's own macro call supplies the value.
-test('the generated option table takes valok from optlist.h', () => {
+// initializer by position. valok and dupeok sit next to each other, and the
+// two disagree on exactly one BoolOpt row, so a shifted column could still
+// regenerate a plausible table. This derives both flags from the header
+// without going through the generator: the struct gives each column's
+// position, the macro definitions say which parameter fills it, and each
+// row's own macro call supplies the value.
+test('the generated option table takes parser metadata from optlist.h', () => {
     // Comments carry placeholder calls such as "NHOPTC(gender) -- moved to
     // top", which the call scan below would otherwise read as rows.
     const header = readFileSync(
@@ -2874,13 +2976,14 @@ test('the generated option table takes valok from optlist.h', () => {
             name: parameters.indexOf(fields[0].replace('#', '')),
             valok: parameters.indexOf(fields[8]),
             dupeok: parameters.indexOf(fields[9]),
+            alias: parameters.indexOf(fields[15]),
         };
     }
     assert.deepEqual(argumentIndex, {
-        B: { name: 0, valok: 7, dupeok: 8 },
-        C: { name: 0, valok: 6, dupeok: 7 },
-        P: { name: 0, valok: 6, dupeok: 7 },
-        O: { name: 0, valok: 7, dupeok: 8 },
+        B: { name: 0, valok: 7, dupeok: 8, alias: 9 },
+        C: { name: 0, valok: 6, dupeok: 7, alias: 9 },
+        P: { name: 0, valok: 6, dupeok: 7, alias: 9 },
+        O: { name: 0, valok: 7, dupeok: 8, alias: 9 },
     });
 
     // Every call in the option list, keyed by the name it gives its row.  A
@@ -2912,6 +3015,7 @@ test('the generated option table takes valok from optlist.h', () => {
         if (!calls.has(name)) calls.set(name, []);
         calls.get(name).push({
             valok: args[where.valok], dupeok: args[where.dupeok],
+            alias: args[where.alias],
         });
     }
 
@@ -2925,6 +3029,15 @@ test('the generated option table takes valok from optlist.h', () => {
         assert.equal(row.valok, expected, row.name);
 
         const dupeok = new Set(entries.map((entry) => entry.dupeok));
+        assert.equal(dupeok.size, 1, `${row.name} dupeok differs by #ifdef arm`);
+        const metadata = optionParserMetadata[row.name] ?? {};
+        assert.equal(metadata.dupeok ?? false,
+            [...dupeok][0] === 'Yes', row.name);
+        const aliases = new Set(entries.map((entry) => entry.alias));
+        assert.equal(aliases.size, 1, `${row.name} alias differs by #ifdef arm`);
+        const alias = [...aliases][0];
+        assert.equal(metadata.alias ?? null,
+            alias === 'NoAlias' ? null : JSON.parse(alias));
         if (row.opttyp === 'BoolOpt' && dupeok.size === 1
             && ([...dupeok][0] === 'Yes') !== expected) ++boolOptColumnsDiffer;
     }
@@ -3008,14 +3121,17 @@ test('a configuration error is reported the way config_erradd() prints it',
         assert.deepEqual(parsed.configErrorFrame.output, [
             '\nOPTIONS=sortloot:x,sortloot:y',
             " * Line 2: Unknown sortloot parameter 'y'.",
+            ' * Line 2: compound option specified multiple times: sortloot.',
             " * Line 2: Unknown sortloot parameter 'x'.",
+            '\nOPTIONS=sortloot:full',
+            ' * Line 4: compound option specified multiple times: sortloot.',
         ]);
         // Parsing continued past both errors.
         assert.equal(parsed.flags.sortloot, 'f');
 
-        assert.equal(config_error_done(parsed.configErrorFrame, {}), 2);
+        assert.equal(config_error_done(parsed.configErrorFrame, {}), 4);
         assert.deepEqual(parsed.configErrorFrame.output.at(-1),
-            '\n2 errors in .nethackrc.\n');
+            '\n4 errors in .nethackrc.\n');
     });
 
 // C ref: cfgfiles.c config_error_done(), the `if (n)` guard.  A clean file

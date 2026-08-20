@@ -133,7 +133,7 @@ import { reassign, update_inventory } from './invent.js';
 import { ttyPline } from './tty_message.js';
 import { vision_recalc } from './vision.js';
 import { sourceGlyphName } from './glyph_ids.js';
-import { allopt } from './optlist_data.js';
+import { allopt, optionParserMetadata } from './optlist_data.js';
 import {
     AUTOCOMP_ADJ,
     CMD_PARAM,
@@ -301,17 +301,6 @@ const OPTION_ALIASES = Object.freeze({
 });
 // options.c's exact "male" alias stays distinct so applyBooleanOption() can
 // invert its value rather than treating it as an ordinary spelling of female.
-
-// C ref: allopt[].alias, the column complain_about_duplicate():6801 prints for
-// the row it names rather than for the spelling the statement used.
-// OPTION_ALIASES above is that same column keyed by the alias, and optlist.h
-// gives no row two of them, so inverting it recovers the field.  A row
-// optlist.h spells NoAlias -- a null pointer, optlist.h:57 -- is missing here.
-// The female row's entry lands under "male", the name applyOption() resolves
-// that alias to; no reader of this map reaches that row.
-const OPTION_ROW_ALIASES = Object.freeze(Object.fromEntries(
-    Object.entries(OPTION_ALIASES).map(([alias, name]) => [name, alias]),
-));
 
 const ROLEPLAY_FIELDS = Object.freeze([
     'blind',
@@ -842,9 +831,9 @@ function stripValueNegation(value) {
     return { token, negated };
 }
 
-// C ref: options.c complain_about_duplicate() (6789-6808).  Its first
-// conversion is "compound" for every caller this parser reaches, because
-// parse_role_opt() is the only one and all four of its rows are CompOpt.
+// C ref: options.c complain_about_duplicate() (6789-6808).  OthrOpt rows use
+// the source's "boolean" fallback too; CompOpt is the only type printed as
+// "compound".
 //
 // `using_alias` is a file static that options.c:503 clears at the top of every
 // parseoptions() call.  The comma recursion at :513-521 runs before the
@@ -855,17 +844,18 @@ function stripValueNegation(value) {
 // left of that one inherits it whether or not it spelled an alias itself.
 //
 // The alias text is allopt[optidx].alias, the complained-about row's own, not
-// the spelling the statement used.  optlist.h gives the race and gender rows
+// the spelling the statement used. optlist.h gives the race and gender rows
 // NoAlias, a null pointer, and the reference build's C library renders a null
 // "%s" as "(null)"; a recorded run of
 // `OPTIONS=race:human,race:!elf,align:!lawful` prints exactly that.
-function complain_about_duplicate(result, optionName, usingAlias) {
+function complain_about_duplicate(result, option, metadata, usingAlias) {
     const alias = usingAlias
-        ? ` (via alias: ${OPTION_ROW_ALIASES[optionName] ?? '(null)'})`
+        ? ` (via alias: ${metadata.alias ?? '(null)'})`
         : '';
+    const type = option.opttyp === 'CompOpt' ? 'compound' : 'boolean';
     configErrorAdd(
         result,
-        `compound option specified multiple times: ${optionName}${alias}`,
+        `${type} option specified multiple times: ${option.name}${alias}`,
     );
 }
 
@@ -882,13 +872,13 @@ function complain_about_duplicate(result, optionName, usingAlias) {
 // parseoptions() turns both into a discarded FALSE for a row whose optlist.h
 // pfx is false, which all four of these are.
 //
-// C's `duplicate` is allopt[optidx].dupdetected, which parseoptions():621 sets
-// for every option; optionState.seen is this port's copy of it for these four
-// names alone.  parseoptions():623 also reports every duplicate before the
-// handler runs, which is unported.
+// C's `duplicate` is the value duplicate_opt_detection() returned before this
+// handler ran. The general parse path owns that counter and passes its answer
+// here, just as parseoptions() leaves the file-static value for optfn_role().
 function setCharacterOption(
-    result, optionState, optionName, statement, negated, usingAlias,
+    result, optionState, option, statement, negated, usingAlias, duplicate,
 ) {
+    const optionName = option.name.toLowerCase();
     // parse_role_opt():7935 reads the value with
     // string_for_env_opt(fullname, opts, FALSE), whose mandatory parameter is
     // what reports a statement that carries none.  `ok` stays FALSE, so the
@@ -898,8 +888,6 @@ function setCharacterOption(
 
     const normalized = mungspaces(op);
     const values = normalized ? normalized.split(' ') : [];
-    const duplicate = optionState.seen.has(optionName);
-    optionState.seen.add(optionName);
     let previousValueNegated = false;
     let filtered = false;
     let selectedValue = '';
@@ -949,7 +937,10 @@ function setCharacterOption(
             filtered = true;
         } else {
             if (duplicate && prior?.startsWith('!')) {
-                complain_about_duplicate(result, optionName, usingAlias);
+                complain_about_duplicate(
+                    result, option, optionParserMetadata[option.name] ?? {},
+                    usingAlias,
+                );
                 return;
             }
             optionState.values[optionName] = token;
@@ -983,12 +974,11 @@ function setCharacterOption(
 // reads the value parseoptions() already found rather than asking for one of
 // its own, so a statement with no value is refused with no message at all.
 //
-// Two of C's three refusals cannot fire from a configuration file.  optlist.h
-// gives playmode negateok No, so parseoptions() answers a negated spelling with
-// bad_negation() before the handler runs; and `duplicate` is
-// allopt[optidx].dupdetected, which no part of this port maintains, so a second
-// playmode statement is applied here where C refuses it and reports.
-function setPlaymode(result, value) {
+// A negated spelling cannot reach this handler because optlist.h gives
+// playmode negateok No. A duplicate does reach it after parseoptions() has
+// reported the repeated row, and this handler silently refuses that value.
+function setPlaymode(result, value, duplicate) {
+    if (duplicate) return;
     if (value == null || value === '') return; /* optn_err, silently */
     const mode = value.toLowerCase();
     let canonical;
@@ -2995,6 +2985,22 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         );
         return;
     }
+    // C refs: options.c reset_duplicate_opt_detection() (6773-6779) and
+    // duplicate_opt_detection() (6782-6787). parseNethackrc() represents one
+    // read_config_file() call, so its new optionState is the reset and this
+    // Set is allopt[].dupdetected. The counter advances before bad_negation()
+    // and before the option handler, even when either one rejects the value.
+    let duplicate;
+    if (matchedRow) {
+        const metadata = optionParserMetadata[matchedRow.name] ?? {};
+        duplicate = optionState.seen.has(matchedRow.name);
+        optionState.seen.add(matchedRow.name);
+        if (duplicate && !metadata.dupeok) {
+            complain_about_duplicate(
+                result, matchedRow, metadata, aliasState.usingAlias,
+            );
+        }
+    }
     if (negated && matchedRow && !matchedRow.negateok) {
         bad_negation(result, matchedRow.name);
         return;
@@ -3016,11 +3022,11 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
     } else if (name === 'role' || name === 'race' || name === 'gender'
                || name === 'alignment') {
         setCharacterOption(
-            result, optionState, name, statement, negated,
-            aliasState.usingAlias,
+            result, optionState, matchedRow, statement, negated,
+            aliasState.usingAlias, duplicate,
         );
     } else if (name === 'playmode') {
-        setPlaymode(result, value);
+        setPlaymode(result, value, duplicate);
     } else if (name === 'menu_headings') {
         setMenuHeadings(result, value, negated);
     } else if (name === 'petattr') {
