@@ -1268,6 +1268,10 @@
         {
           "text": "Commit 3b8be8aa ports optfn_sortdiscoveries()'s missing/unknown-value diagnostics and stores flags.discosort, removing sortdiscoveries from this entry's raw-string/error residue. The entry stays open for the remaining unhandled compound handlers.",
           "at": "3b8be8aab3ead57df92078433447bf7e4c059308"
+        },
+        {
+          "text": "Commit 270f83ce ports optfn_msghistory() with mandatory-value, negation, atoi, unsigned-storage, and error-preservation behavior, then applies tty_create_nhwindow(NHW_MESSAGE) startup clamping before #optionsfull reads it. This removes msghistory from the measured raw-string/error residue; the entry stays open for the remaining unhandled compound handlers.",
+          "at": "270f83ce0d70dd6e8c9e0f3b54d7df432aa4e309"
         }
       ]
     },
@@ -3522,6 +3526,10 @@
         {
           "text": "Commit 3b8be8aa ports optfn_sortdiscoveries()'s do_set arm through startup parsing, so sortdiscoveries is no longer one of this entry's negated-valued CompOpt refusals. The entry stays open for the remaining handlers.",
           "at": "3b8be8aab3ead57df92078433447bf7e4c059308"
+        },
+        {
+          "text": "Commit 270f83ce ports optfn_msghistory() through startup parsing, including the negated-with-value error arm and prior-state preservation, so msghistory is no longer one of this entry's negated-valued CompOpt refusals. The entry stays open for the remaining handlers.",
+          "at": "270f83ce0d70dd6e8c9e0f3b54d7df432aa4e309"
         }
       ]
     },

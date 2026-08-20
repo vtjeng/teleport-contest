@@ -2560,8 +2560,8 @@
         },
         {
           "name": "startup-msghistory-to-optionsfull",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "270f83ce0d70dd6e8c9e0f3b54d7df432aa4e309"
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
