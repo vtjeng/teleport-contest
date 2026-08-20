@@ -2505,26 +2505,36 @@
     },
     {
       "id": "options-config-parser",
-      "status": "queued",
+      "status": "open",
       "boundary": "options.c parseoptions() and cfgfiles.c parse_config_line() report a configuration error and play on where the port throws and loses the whole segment, and every option lands at the C address its optlist.h row names rather than in result.flags.",
       "upstreamOwners": [],
       "forecast": {
         "steps": 6,
-        "basis": "Re-measured at 5bc785a with my own run of node scripts/scan-sessions.mjs over the 33 development sessions, replacing the 67870c0 figure of 0. That figure said no development session stops on a startup or options-parser boundary, and that is no longer true: seed0017-samurai-altar-pray stops at 61 of 67 steps on \"the attributes window requires parseoptions() to interpret 'pickup_types'\", raw unlocks 6, supports 6. Its rc sets OPTIONS=autopickup,pickup_types:%, the port leaves the raw % in flags.pickup_types, and js/insight.js throws rather than running options.c optfn_pickup_types()'s do_set arm. The remaining 6 steps are the rest of the attributes window and a look.\n\nThe 6 is a raw figure. .agents/selection.md Appendix A caps only the candidates that can still win, and 6 sits far below the leader hero-death-reaches-done at a capped 70, so no capping read was performed; capping never raises a figure, so 6 bounds it from above. On raw look-ahead this goal now ranks eleventh-equal of the 18 stopped boundaries, tied with the garlic-breath row, rather than last at 0.\n\nOne caveat carried from the goal-selector rather than measured: the refusal site predates 67870c0, since git log -S returns 7a1278f and 65d1bba, both ancestors of it, so the earlier basis may have been wrong when written rather than overtaken. Confirming that needs a replay at 67870c0, which nobody ran. The boundary also sits at the edge of this goal's stated scope, which names configuration-error reporting and option storage addresses rather than a CompOpt value handler.",
+        "basis": "Fresh census at a474023 over all 33 development sessions. seed0017 still stops at step 61 of 67 on pickup_types parsing; the six-step attributes-and-look tail contains no second unported behavior, so raw and capped forecasts are both 6. The queued-goal rule opens this previously queued goal even though the current table contains larger unqueued candidates.",
         "sessions": [
           "seed0017-samurai-altar-pray.session.json"
         ],
         "witnesses": [
           {
             "session": "seed0017-samurai-altar-pray.session.json",
-            "evidence": "Observed stop at 5bc785a: 61 of 67 steps, on the CTRL-X byte bound to the attributes command, refused as \"an unported branch of this command: the attributes window requires parseoptions() to interpret 'pickup_types'\", with C's next screen \" Akira the Samurai's attributes:\". The C path is options.c parseoptions() over the rc line OPTIONS=autopickup,pickup_types:%, reaching optfn_pickup_types()'s do_set arm; the port stores the raw % in flags.pickup_types and js/insight.js throws when the attributes window reads it."
+            "evidence": "The rc line OPTIONS=autopickup,pickup_types:% reaches cfgfiles.c parse_config_line() and options.c parseoptions(), whose matched pickup_types row calls optfn_pickup_types(do_set) to convert % into the object-class index stored in flags.pickup_types. The JS port retains the raw string and insight.js refuses it before the attributes window."
           }
         ]
       },
       "detail": "This goal owns nine open startup deferrals that a sweep would otherwise schedule by entry count. They are one body of porting rather than bookkeeping, so they are priced here and ranked against the boundary census. Config-error reporting: parseoptions-level-config-errors-still-fail-closed (five sites that throw where C reports: bad_negation at options.c:627, the unknown-option message at 689, the ambiguous-prefix message at 585-587, Empty statement at 536, and Option too long); options-config-error-and-parser-residue (four follow-ups, one of which is a three-line UNPORTED_CONFIG_STATEMENTS row for AUTOPICKUP_EXCEPTION); config-error-message-truncation-unported (pline.c vconfig_error_add cutting at BUFSZ - 1, and vpline 212-225 rewriting a long tail as an ellipsis); config-error-summary-names-an-unknowable-path (cfgfiles.c config_error_done 1609-1615 names the absolute path fopen_config_file opened, which runSegment cannot learn, so this one may need a decision rather than a port). Parser coverage: options-unknown-config-statement (13 CONFIG_STATEMENTS rows against cfgfiles.c config_line_stmt[]s 31 player-reachable rows, so it needs a generated table); negated-compound-option-still-fail-closed (27 of 41 CompOpt rows throw on a negated statement carrying a value); parseoptions-duplicate-detection-unported (options.c:621-623 duplicate_opt_detection and the allopt dupdetected counter). Storage and menu: boolean-options-store-outside-their-c-address (about 70 BoolOpt rows whose C address is iflags or flags rather than result.flags); status-hilite-menu-rows-unported (js/options.js count_status_hilites at :3403 throws for any hilite rule, and its closing condition needs botl.c count_status_hilites gather pass and no unported C).",
-      "slices": [],
-      "openedAt": null,
-      "openStanding": null,
+      "slices": [
+        {
+          "name": "startup-pickup-types-to-attributes",
+          "status": "queued",
+          "closedBy": null
+        }
+      ],
+      "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
+      "openStanding": {
+        "sha": "48256a5ae094df9ec9b5fcc53750e9d0a07a0516",
+        "screens": 1982,
+        "rng": 133543
+      },
       "closedAt": null,
       "delivered": null
     },
