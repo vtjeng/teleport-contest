@@ -2921,7 +2921,7 @@
     },
     {
       "id": "stethoscope-reaches-an-adjacent-square",
-      "status": "open",
+      "status": "closed",
       "boundary": "apply.c use_stethoscope() runs its adjacent-square arm (384-470) through to a return for every direction the hero can point at, instead of raising UnsupportedApplyError('listening to an adjacent square') at js/apply.js below confdir(). The arm covers the isok() guard, the m_at() branch through mon.c seemimic(), insight.c mstatusline() and display.c map_invisible(), the unmap_invisible() line, the SDOOR and SCORR arms, and apply.c its_dead()'s answer beneath them.\n\nThe C this reaches, with the spans read against nethack-c/upstream/src: use_stethoscope()'s unported arm at 384-470, its_dead() at 196-309, insight.c mstatusline() at 3273-3398 and size_str() at 3202-3231, mkobj.c init_dummyobj() at 3346-3371, mon.c seemimic() at 4406-4426, invent.c nxtobj() at 1477-1491, and objnam.c simple_typename() at 296-307. About 430 lines, of which the recorded session exercises use_stethoscope()'s arm, seemimic(), mstatusline()'s empty-info path and its_dead()'s fall-through.\n\nOne prerequisite lands before the first observable. js/do_name.js x_monnam() demands SUPPRESS_INVISIBLE | SUPPRESS_HALLUCINATION and throws otherwise, and both new callers pass SUPPRESS_IT | SUPPRESS_INVISIBLE without the hallucination bit (apply.c:408, insight.c:3392), so the guard fires before any stethoscope output. Widening it means admitting the do_hallu branch, whose rndmonnam() js/do_name.js already ports. The neighbouring refusal below it does not fire here, because its do_mappear term needs M_AP_MONSTER and this mimic carries M_AP_OBJECT.\n\nLeft outside: use_stethoscope()'s SDOOR and SCORR arms and its !isok() arm; its_dead()'s hallucination, blind, healer and statue arms; and mstatusline()'s long-worm, u.ustuck and u.usteed arms. mstatusline()'s mhidden_description arm is unreachable from a stethoscope by construction, and C says so at insight.c:3313-3315: the stethoscope clears the disguise before mstatusline() runs, so only the wand of probing gets there.",
       "upstreamOwners": [
         "apply.c use_stethoscope()",
@@ -3056,8 +3056,11 @@
         "screens": 1949,
         "rng": 133468
       },
-      "closedAt": null,
-      "delivered": null
+      "closedAt": "48256a5ae094df9ec9b5fcc53750e9d0a07a0516",
+      "delivered": {
+        "screens": 33,
+        "rng": 75
+      }
     }
   ]
 }
