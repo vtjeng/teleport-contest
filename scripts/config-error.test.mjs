@@ -21,6 +21,9 @@ import { parseNethackrc } from '../js/options.js';
 import { ATR_INVERSE, ATR_NONE, NO_COLOR } from '../js/terminal.js';
 import { nomux_get_cursor, tty_raw_print } from '../js/tty_rawprint.js';
 import { withSerializedGrids } from './terminal-grid-capture.mjs';
+import {
+    loadUnknownConfigStatementRecipe,
+} from './run-unknown-config-statements.mjs';
 
 // Two seeds and one datetime chosen for this file; neither appears in a
 // recorded session, and a configuration error is settled before any of the
@@ -440,6 +443,52 @@ test('a segment with parseoptions errors reports all four and plays on',
 
             // The name and character lines before the errors still applied,
             // and the game reached level generation after the Return.
+            assert.ok(replay.getRngLog().length > 0);
+            assert.ok(screens.length >= 2, `only ${screens.length} screens`);
+            assert.notDeepEqual(screens[1], screens[0]);
+        });
+    });
+
+// C ref: cfgfiles.c parse_config_line():1422-1438 and rcfile():1943-1945.
+// NethackGame.start() must expose the unknown-statement report as its first
+// input boundary, dismiss config_error_done()'s wait, and keep starting the
+// game. Eight errors put the unrepresentable absolute rc path below row 24.
+test('a segment reports unknown config statements and keeps starting',
+    async () => {
+        const [segment] = loadUnknownConfigStatementRecipe().segments;
+        await withSerializedGrids(async () => {
+            const replay = await runSegment(segment);
+            const screens = replay.getScreens().map((screen) => JSON.parse(screen));
+            const reported = screens[0].map(
+                (row) => row.map((cell) => cell.ch).join('').replace(/ +$/u, ''),
+            );
+            assert.deepEqual(reported, [
+                '',
+                'ZORKMID=x',
+                ' * Line 3: Unknown config statement.',
+                '',
+                'FROBNICATE=x',
+                ' * Line 4: Unknown config statement.',
+                '',
+                'TILESETTINGS=x',
+                ' * Line 5: Unknown config statement.',
+                '',
+                'KEYMAP=x',
+                ' * Line 6: Unknown config statement.',
+                '',
+                'PLAYERDIR=x',
+                ' * Line 7: Unknown config statement.',
+                '',
+                'RECORDER=x',
+                ' * Line 8: Unknown config statement.',
+                '',
+                'FOOBAR=x',
+                ' * Line 9: Unknown config statement.',
+                '',
+                'NOPE=x',
+                ' * Line 10: Unknown config statement.',
+            ]);
+            assert.deepEqual(replay.getCursors()[0], [0, 27, 1]);
             assert.ok(replay.getRngLog().length > 0);
             assert.ok(screens.length >= 2, `only ${screens.length} screens`);
             assert.notDeepEqual(screens[1], screens[0]);

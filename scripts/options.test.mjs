@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { config_error_done } from '../js/cfgfiles.js';
+import { configLineStatements } from '../js/config_statement_data.js';
 import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
 import { allopt, optionParserMetadata } from '../js/optlist_data.js';
@@ -45,6 +46,9 @@ import {
 } from './run-pickup-burden.mjs';
 import { loadOptionsDuplicateRecipe } from './run-options-duplicates.mjs';
 import { loadStartupPickupTypesRecipe } from './run-startup-pickup-types.mjs';
+import {
+    loadUnknownConfigStatementRecipe,
+} from './run-unknown-config-statements.mjs';
 import {
     ATR_BOLD,
     ATR_INVERSE,
@@ -1450,6 +1454,8 @@ test('a line cfgfiles.c refuses is reported and the rest of the rc runs', () => 
         [['not a statement', 'NAME=Kept'],
             ["Not a config statement, missing '='"],
             []],
+        // parse_config_line() found a separator but no config_line_stmt[] row.
+        [['ZORKMID=x', 'NAME=Kept'], ['Unknown config statement'], []],
     ]) {
         const drawn = [];
         const parsed = parseNethackrc(`${rc.join('\n')}\n`, (bound) => {
@@ -1481,16 +1487,92 @@ test('a line cfgfiles.c refuses is reported and the rest of the rc runs', () => 
 
     // find_optparam() answers the separator's position, so a line that opens
     // with one is not the missing-'=' case whatever else is wrong with it.
-    // C reports "Unknown config statement" for this line instead, which
-    // deferral options-unknown-config-statement covers.
+    // C reports "Unknown config statement" for this line and keeps reading.
     const leading = parseNethackrc('=foo\nNAME=Kept\n', () => 0);
-    assert.ok(
-        !leading.configErrorFrame.output.some(
-            (line) => line.includes("missing '='"),
-        ),
-        JSON.stringify(leading.configErrorFrame.output),
-    );
+    assert.deepEqual(leading.configErrorFrame.output, [
+        '\n=foo',
+        ' * Line 1: Unknown config statement.',
+    ]);
+    assert.equal(leading.name, 'Kept');
 });
+
+// C ref: cfgfiles.c config_line_stmt[] (1309-1380), after the recorder build
+// excludes USER_SOUNDS and before parse_config_line() skips syscnf_only rows
+// for a player rc. The generator checks this list against fresh preprocessor
+// output; this assertion pins the values the parser's matching tests consume.
+test('the generated player config statement catalog matches cfgfiles.c', () => {
+    assert.deepEqual(configLineStatements, [
+        { name: 'options', minLength: 4 },
+        { name: 'autopickup_exception', minLength: 5 },
+        { name: 'bindings', minLength: 4 },
+        { name: 'autocomplete', minLength: 5 },
+        { name: 'msgtype', minLength: 7 },
+        { name: 'hackdir', minLength: 4 },
+        { name: 'leveldir', minLength: 4 },
+        { name: 'levels', minLength: 4 },
+        { name: 'savedir', minLength: 4 },
+        { name: 'bonesdir', minLength: 5 },
+        { name: 'datadir', minLength: 4 },
+        { name: 'scoredir', minLength: 4 },
+        { name: 'lockdir', minLength: 4 },
+        { name: 'configdir', minLength: 4 },
+        { name: 'troubledir', minLength: 4 },
+        { name: 'name', minLength: 4 },
+        { name: 'role', minLength: 4 },
+        { name: 'character', minLength: 4 },
+        { name: 'dogname', minLength: 3 },
+        { name: 'catname', minLength: 3 },
+        { name: 'boulder', minLength: 3 },
+        { name: 'menucolor', minLength: 9 },
+        { name: 'hilite_status', minLength: 6 },
+        { name: 'warnings', minLength: 5 },
+        { name: 'roguesymbols', minLength: 4 },
+        { name: 'symbols', minLength: 4 },
+        { name: 'wizkit', minLength: 6 },
+        { name: 'qt_tilewidth', minLength: 12 },
+        { name: 'qt_tileheight', minLength: 13 },
+        { name: 'qt_fontsize', minLength: 11 },
+        { name: 'qt_compact', minLength: 10 },
+    ]);
+});
+
+// C ref: cfgfiles.c parse_config_line():1422-1438 over config_line_stmt[].
+// Every row accepts a case-insensitive prefix at its declared minimum, while
+// the spelling one byte shorter reaches the common unknown-statement report.
+test('every generated config statement participates in source prefix matching',
+    () => {
+        const values = {
+            options: 'name:Catalog',
+            bindings: 'a:inventory',
+            roguesymbols: 'S_room:.',
+            symbols: 'S_room:.',
+            name: 'Catalog',
+            role: 'Healer',
+            character: 'Healer',
+            dogname: 'Fido',
+            catname: 'Mog',
+        };
+        for (const row of configLineStatements) {
+            const acceptedName = row.name.slice(0, row.minLength).toUpperCase();
+            const accepted = `${acceptedName}=${values[row.name] ?? 'x'}`;
+            assert.deepEqual(
+                parseNethackrc(`${accepted}\n`).configErrorFrame.output,
+                [],
+                accepted,
+            );
+
+            const rejectedName = row.name.slice(0, row.minLength - 1);
+            const rejected = `${rejectedName}=x`;
+            assert.deepEqual(
+                parseNethackrc(`${rejected}\n`).configErrorFrame.output,
+                [
+                    `\n${rejected}`,
+                    ' * Line 1: Unknown config statement.',
+                ],
+                rejected,
+            );
+        }
+    });
 
 test('config and source option names accept valid abbreviations', () => {
     const parsed = parseNethackrc([
@@ -3423,28 +3505,22 @@ test('msg_window keeps one letter and answers its value-less spellings', () => {
     ]);
 });
 
-// C ref: cfgfiles.c config_line_stmt[], whose AUTOCOMPLETE, MSGTYPE and
-// MENUCOLOR rows dispatch to handlers this port has not ported. Recording the
-// statement is what lets options.c doset()'s counts refuse rather than report
-// the empty list the port built.
+// C ref: cfgfiles.c config_line_stmt[]. Nine handlers above are ported. Every
+// other player row is recognized and recorded so a later consumer can refuse
+// the missing cnf_line_<NAME>() state rather than silently use a default.
 test('the parser records the config statements it cannot interpret', () => {
     assert.deepEqual(parseNethackrc('').unportedConfigStatements, []);
-    // parse_config_line() matches a case-insensitive prefix of at least the
-    // row's length: CNFL_N(AUTOCOMPLETE, 5), CNFL_N(MSGTYPE, 7) and
-    // CNFL_N(MENUCOLOR, 9).
+    const unported = [
+        'autopickup_exception', 'autocomplete', 'msgtype',
+        'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir', 'datadir',
+        'scoredir', 'lockdir', 'configdir', 'troubledir',
+        'boulder', 'menucolor', 'hilite_status', 'warnings', 'wizkit',
+        'qt_tilewidth', 'qt_tileheight', 'qt_fontsize', 'qt_compact',
+    ];
     assert.deepEqual(
-        parseNethackrc('AUTOCOMPLETE=!terrain\n').unportedConfigStatements,
-        ['autocomplete'],
-    );
-    assert.deepEqual(
-        parseNethackrc('MSGTYPE=hide "You swap places*"\n')
+        parseNethackrc(`${unported.map((name) => `${name}=x`).join('\n')}\n`)
             .unportedConfigStatements,
-        ['msgtype'],
-    );
-    assert.deepEqual(
-        parseNethackrc('MENUCOLOR="blessed"=green\n')
-            .unportedConfigStatements,
-        ['menucolor'],
+        unported,
     );
     // The shortest accepted prefix of each, and the longest rejected one.
     assert.deepEqual(
@@ -3457,6 +3533,11 @@ test('the parser records the config statements it cannot interpret', () => {
             .unportedConfigStatements,
         [],
     );
+    assert.equal(
+        parseNethackrc('AUTO=x\nMSGTYP=x\nMENUCOLO=x\n')
+            .configErrorFrame.num_errors,
+        3,
+    );
     // Every occurrence is recorded, because each one appends its own node to
     // the list the count walks.
     assert.deepEqual(
@@ -3464,4 +3545,25 @@ test('the parser records the config statements it cannot interpret', () => {
             .unportedConfigStatements,
         ['menucolor', 'menucolor'],
     );
+});
+
+// The fresh matrix reaches cfgfiles.c config_error_done() with the three name
+// shapes above, then dismisses tty_wait_synch() and enters the running game.
+// Keep its eight-error screen arrangement and newly cataloged inert rows tied
+// to the focused parser assertions.
+test('the unknown-config recipe retains its source branch matrix', () => {
+    const recipe = loadUnknownConfigStatementRecipe();
+    assert.equal(recipe.segments.length, 3);
+    const parsed = recipe.segments.map(
+        ({ nethackrc }) => parseNethackrc(nethackrc),
+    );
+    assert.deepEqual(
+        parsed.map(({ configErrorFrame }) => configErrorFrame.num_errors),
+        [8, 8, 8],
+    );
+    assert.deepEqual(parsed[2].unportedConfigStatements, [
+        'hackdir', 'leveldir', 'levels', 'savedir', 'bonesdir', 'datadir',
+        'scoredir', 'lockdir', 'configdir', 'troubledir', 'wizkit',
+        'qt_tilewidth', 'qt_tileheight', 'qt_fontsize', 'qt_compact',
+    ]);
 });

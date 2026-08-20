@@ -4102,6 +4102,7 @@
       "paths": [
         "js/allmain.js",
         "js/cfgfiles.js",
+        "js/config_statement_data.js",
         "js/files.js",
         "js/jsmain.js",
         "js/legacy_startup.js",
@@ -4116,6 +4117,11 @@
         "js/tutorial_startup.js"
       ],
       "generatedOutputs": [
+        {
+          "path": "js/config_statement_data.js",
+          "generator": "scripts/generate-config-statements.mjs",
+          "check": "node scripts/generate-config-statements.mjs --check"
+        },
         {
           "path": "js/optlist_data.js",
           "generator": "scripts/generate-options.mjs",

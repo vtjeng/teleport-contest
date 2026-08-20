@@ -134,6 +134,7 @@ import { ttyPline } from './tty_message.js';
 import { vision_recalc } from './vision.js';
 import { sourceGlyphName } from './glyph_ids.js';
 import { allopt, optionParserMetadata } from './optlist_data.js';
+import { configLineStatements } from './config_statement_data.js';
 import {
     AUTOCOMP_ADJ,
     CMD_PARAM,
@@ -464,9 +465,9 @@ function defaultResult() {
         symbolOperations: [],
         rogueSymbols: {},
         // The configuration statements this parser recognizes but does not
-        // interpret, in the order the file spelled them.  Each one makes
-        // cfgfiles.c append to a list the options menu counts, so the count
-        // has to know the statement was there; see UNPORTED_CONFIG_STATEMENTS.
+        // interpret, in the order the file spelled them. A consumer that would
+        // read state owned by one of their cnf_line_<NAME>() handlers checks
+        // this list and refuses instead of using an invented default.
         unportedConfigStatements: [],
         // C ref: cfgfiles.c config_error_data, the frame rcfile() (1943) opens
         // around the configuration read.  parseNethackrc() feeds it one line
@@ -3267,36 +3268,22 @@ function applyDirectOption(result, key, value) {
     }
 }
 
-// C ref: cfgfiles.c config_line_stmt[].  Each row here dispatches to a
-// cnf_line_<NAME>() this port has not ported, and each of those appends to a
-// list the options menu counts.  parse_config_line() matches on the same
-// case-insensitive prefix of at least `minLength` bytes, so these lengths are
-// the C table's: CNFL_N(AUTOPICKUP_EXCEPTION, 5), CNFL_N(AUTOCOMPLETE, 5),
-// CNFL_N(MSGTYPE, 7) and CNFL_N(MENUCOLOR, 9).  Recording the statement lets
-// the readers of the list refuse rather than report a list the port never
-// built.
-const UNPORTED_CONFIG_STATEMENTS = Object.freeze([
-    { name: 'autopickup_exception', minLength: 5, kind: 'unported' },
-    { name: 'autocomplete', minLength: 5, kind: 'unported' },
-    { name: 'msgtype', minLength: 7, kind: 'unported' },
-    { name: 'menucolor', minLength: 9, kind: 'unported' },
-]);
-
-const CONFIG_STATEMENTS = Object.freeze([
-    { name: 'options', minLength: 4, kind: 'options' },
-    { name: 'bindings', minLength: 4, kind: 'bindings' },
-    ...UNPORTED_CONFIG_STATEMENTS,
-    { name: 'roguesymbols', minLength: 4, kind: 'symbols', set: 'rogue' },
-    { name: 'symbols', minLength: 4, kind: 'symbols', set: 'primary' },
-    { name: 'name', minLength: 4, kind: 'direct', directName: 'name' },
-    { name: 'role', minLength: 4, kind: 'direct', directName: 'role' },
-    {
-        name: 'character', minLength: 4,
-        kind: 'direct', directName: 'role',
-    },
-    { name: 'dogname', minLength: 3, kind: 'direct', directName: 'dogname' },
-    { name: 'catname', minLength: 3, kind: 'direct', directName: 'catname' },
-]);
+// C ref: cfgfiles.c config_line_stmt[] and parse_config_line(). The generated
+// table owns every player-reachable name and minimum prefix length. This map
+// owns only handlers that have been ported. A generated row absent here is
+// still recognized, then recorded in unportedConfigStatements so a later
+// consumer can refuse its missing cnf_line_<NAME>() state explicitly.
+const CONFIG_STATEMENT_HANDLERS = Object.freeze({
+    options: Object.freeze({ kind: 'options' }),
+    bindings: Object.freeze({ kind: 'bindings' }),
+    roguesymbols: Object.freeze({ kind: 'symbols', set: 'rogue' }),
+    symbols: Object.freeze({ kind: 'symbols', set: 'primary' }),
+    name: Object.freeze({ kind: 'direct', directName: 'name' }),
+    role: Object.freeze({ kind: 'direct', directName: 'role' }),
+    character: Object.freeze({ kind: 'direct', directName: 'role' }),
+    dogname: Object.freeze({ kind: 'direct', directName: 'dogname' }),
+    catname: Object.freeze({ kind: 'direct', directName: 'catname' }),
+});
 
 function configDelimiter(line) {
     const colon = line.indexOf(':');
@@ -3429,18 +3416,19 @@ export function parseNethackrc(rc, random = rn2) {
             continue;
         }
 
-        const statement = CONFIG_STATEMENTS.find(({ name, minLength }) => (
+        const statementRow = configLineStatements.find(({ name, minLength }) => (
             matchesConfigName(statementName, name, minLength)
         ));
-        // cfgfiles.c parse_config_line():1436-1437 reports "Unknown config
-        // statement" here.  CONFIG_STATEMENTS holds 13 of config_line_stmt[]'s
-        // 31 non-syscnf_only rows, the ones a player's rc can match, so
-        // reporting from this table would flag WIZKIT, HILITE_STATUS, BOULDER,
-        // WARNINGS and the rest, which C accepts.  Completing the table is
-        // deferral options-unknown-config-statement.
-        if (!statement) continue;
-        if (statement.kind === 'unported') {
-            result.unportedConfigStatements.push(statement.name);
+        // cfgfiles.c parse_config_line():1436-1437. The earlier
+        // rcfile_interface_options() pass ignores unmatched rows, but the full
+        // rcfile() read that builds this result reports and keeps reading.
+        if (!statementRow) {
+            configErrorAdd(result, 'Unknown config statement');
+            continue;
+        }
+        const statement = CONFIG_STATEMENT_HANDLERS[statementRow.name];
+        if (!statement) {
+            result.unportedConfigStatements.push(statementRow.name);
             continue;
         }
 
