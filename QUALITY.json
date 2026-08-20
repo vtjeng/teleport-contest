@@ -3450,7 +3450,7 @@
       "area": "startup",
       "category": "production",
       "effort": "slice",
-      "status": "open",
+      "status": "closed",
       "from": "b0b2a78b12e002c514496c347dc0a6ee84a5c893",
       "detail": "js/options.js count_status_hilites() at :3403 throws UnsupportedOptionMenuError as soon as any hilite rule exists, and two option-menu readers call it: the hilite_status row at :3544 and o_status_hilites at :3689. So an rc that sets hilite_status and then opens the options menu still loses the whole segment, one function past the parser b0b2a78 fixed. Closing it needs botl.c count_status_hilites()'s gather pass, which the port already reaches, and no unported C. It is the live successor to status-hilite-rules-still-fail-closed, which reported it."
     },
