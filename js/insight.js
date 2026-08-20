@@ -636,16 +636,8 @@ function basics_enlightenment(final, state, lines) {
             /* being in a shop inhibits autopickup, even 'pickup_thrown' */
             buf += ', but temporarily disabled while inside the shop';
         } else {
-            // options.c optfn_pickup_types() turns the option's class symbols
-            // into the class indices oc_to_str() reads, and parseNethackrc()
-            // has no arm for the option, so a configuration file that sets it
-            // leaves its raw text in this field. js/options.js
-            // OPTION_VALUE_HANDLERS.pickup_types stops on the same string.
-            if (typeof state.flags.pickup_types === 'string') {
-                throw new UnsupportedEnlightenmentError(
-                    "parseoptions() to interpret 'pickup_types'",
-                );
-            }
+            // options.c optfn_pickup_types() turns the configured class
+            // symbols into the class indices oc_to_str() reads.
             const ocl = oc_to_str(state.flags.pickup_types);
             buf += ` for ${ocl ? `'${ocl}'` : 'all types'}`;
             /* show when not 'all types' */

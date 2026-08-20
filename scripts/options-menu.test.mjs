@@ -361,15 +361,6 @@ test('the menu refuses an option whose value it cannot derive', async () => {
         );
         state[owner][field] = saved;
     }
-    // pickup_types holds an array of object-class indices, which
-    // optfn_pickup_types() writes. parseNethackrc() has no arm for the option,
-    // so a string there is the raw fallback's class symbols instead.
-    state.flags.pickup_types = '$';
-    assert.throws(
-        () => dosetMenuItems(state, menuHelpers(), false),
-        (error) => error.what === "parseoptions() to interpret 'pickup_types'",
-    );
-    state.flags.pickup_types = [];
     // versinfo is a fifth option whose parsed home is its own name. Its parse
     // arm sits behind the test for a value, so `OPTIONS=versinfo` -- which C
     // answers with a config error that leaves flags.versinfo at its default --
@@ -504,7 +495,7 @@ test('every shown compound option guards its unparsed raw text', async () => {
     // covers, and the loop above never reaches their guards.
     assert.deepEqual(needsGuard.slice().sort(), [
         ...UNPARSED_COMPOUND_OPTIONS,
-        'autounlock', 'pickup_types', 'suppress_alert',
+        'autounlock', 'suppress_alert',
     ].sort());
     // The other-settings rows need no guard: each counts live state instead
     // of reading an option field, so raw text under their names is inert.

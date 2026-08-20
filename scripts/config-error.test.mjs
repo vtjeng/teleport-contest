@@ -13,6 +13,9 @@ import {
 import { RUN_CRAWL, RUN_TPORT } from '../js/const.js';
 import { GameDisplay } from '../js/game_display.js';
 import { runSegment } from '../js/jsmain.js';
+import {
+    FOOD_CLASS, RING_CLASS, WEAPON_CLASS,
+} from '../js/objects.js';
 import { allopt } from '../js/optlist_data.js';
 import { parseNethackrc } from '../js/options.js';
 import { ATR_INVERSE, ATR_NONE, NO_COLOR } from '../js/terminal.js';
@@ -971,6 +974,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         ["Missing parameter for 'pickup_burden:'."],
         ["Unknown pickup_burden parameter 'zqxj'."],
     ]],
+    ['pickup_types', [
+        ["Missing parameter for 'pickup_types'."],
+        ["Missing parameter for 'pickup_types:'."],
+        ["Unknown pickup_types parameter ''."],
+    ]],
     ['pile_limit', [
         ["Missing parameter for 'pile_limit'."],
         ["Missing parameter for 'pile_limit:'."],
@@ -1072,7 +1080,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['packorder', [0, 0, 4]],
     ['paranoid_confirmation', [1, 1, 1]],
     ['perminv_mode', [1, 1, 1]],
-    ['pickup_types', [1, 1, 1]],
     ['player_selection', [1, 1, 1]],
     ['roguesymset', [0, 0, 1]],
     ['scores', [1, 1, 1]],
@@ -1108,9 +1115,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 33);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 34);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 45);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 44);
 
     let owed = 0;
     for (const row of rows) {
@@ -1144,10 +1151,52 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 105 messages over 45 rows: what porting those handlers is worth to a
+    // 102 messages over 44 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 105);
+    assert.equal(owed, 102);
 });
+
+// C ref: options.c optfn_pickup_types() (3320-3390), reached with
+// go.opt_initial set during the rc-file read.  These cases form the startup
+// matrix: ordinary symbols, both all-class spellings, both empty-value
+// spellings, and a list containing one invalid and one repeated symbol.
+test('startup pickup_types converts symbols and keeps partial accepted state',
+    () => {
+        const valid = parseNethackrc('OPTIONS=pickup_types:%=)\n');
+        assert.deepEqual(
+            valid.flags.pickup_types,
+            [FOOD_CLASS, RING_CLASS, WEAPON_CLASS],
+        );
+        assert.deepEqual(valid.configErrorFrame.output, []);
+
+        for (const all of ['a', 'A']) {
+            const parsed = parseNethackrc(`OPTIONS=pickup_types:${all}Z\n`);
+            assert.deepEqual(parsed.flags.pickup_types, [], all);
+            assert.deepEqual(parsed.configErrorFrame.output, [], all);
+        }
+
+        for (const suffix of ['', ':']) {
+            const statement = `OPTIONS=pickup_types${suffix}`;
+            const parsed = parseNethackrc(`${statement}\n`);
+            assert.equal(parsed.flags.pickup, true, statement);
+            assert.deepEqual(parsed.flags.pickup_types, [], statement);
+            assert.deepEqual(parsed.configErrorFrame.output, [
+                `\n${statement}`,
+                ` * Line 1: Missing parameter for 'pickup_types${suffix}'.`,
+            ], statement);
+        }
+
+        const statement = 'OPTIONS=pickup_types:)%Z)';
+        const partial = parseNethackrc(`${statement}\n`);
+        assert.deepEqual(
+            partial.flags.pickup_types,
+            [WEAPON_CLASS, FOOD_CLASS],
+        );
+        assert.deepEqual(partial.configErrorFrame.output, [
+            `\n${statement}`,
+            " * Line 1: Unknown pickup_types parameter ''.",
+        ]);
+    });
 
 // C ref: options.c petname_optfn() (846-873), the do_set arm optfn_catname(),
 // optfn_dogname() and optfn_horsename() share.  `op == empty_optstr` returns

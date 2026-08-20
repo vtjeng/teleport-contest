@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 import { config_error_done } from '../js/cfgfiles.js';
+import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
 import { parseNethackrc } from '../js/options.js';
 import { allopt } from '../js/optlist_data.js';
 import {
@@ -42,6 +43,7 @@ import { enableRngLog, getRngLog, initRng } from '../js/rng.js';
 import {
     MENU_SPELLINGS, loadPickupBurdenRecipe,
 } from './run-pickup-burden.mjs';
+import { loadStartupPickupTypesRecipe } from './run-startup-pickup-types.mjs';
 import {
     ATR_BOLD,
     ATR_INVERSE,
@@ -310,6 +312,18 @@ test('the recorded burden matrix agrees with the parse', () => {
         2,
     );
 });
+
+test('the startup pickup_types recipe reaches attributes with parsed classes',
+    () => {
+        const { segments } = loadStartupPickupTypesRecipe();
+        assert.equal(segments.length, 1);
+        const [segment] = segments;
+        assert.deepEqual(
+            parseNethackrc(segment.nethackrc).flags.pickup_types,
+            [WEAPON_CLASS, FOOD_CLASS],
+        );
+        assert.equal(segment.moves, '\x18\x1b:');
+    });
 
 test('explicit character options and pinned aliases produce source indices', () => {
     const parsed = parseNethackrc(

@@ -41,7 +41,9 @@ import {
     M2_DEMON,
 } from '../js/monsters.js';
 import {
+    AMULET_CLASS,
     ARMOR_CLASS,
+    COIN_CLASS,
     DAGGER,
     DWARVISH_CLOAK,
     GREEN_DRAGON_SCALE_MAIL,
@@ -504,17 +506,19 @@ test('the autopickup line reports a shop instead of the class list',
         );
     });
 
-// C ref: options.c optfn_pickup_types(), which is what turns the option's
-// class symbols into the class indices oc_to_str() reads. parseNethackrc() has
-// no arm for the option, so a configuration file that sets it leaves raw text
-// where the enlightenment line expects a list.
-test('the autopickup line stops on a configured pickup_types', async () => {
+// C ref: options.c optfn_pickup_types(), which turns the option's class
+// symbols into the class indices insight.c oc_to_str() reads.
+test('the autopickup line consumes configured pickup_types', async () => {
     const state = await readyGame('autopickup,pickup_types:$"');
-    assert.equal(state.flags.pickup_types, '$"');
-    await assert.rejects(
-        () => enlightenment(BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state),
-        (error) => error instanceof UnsupportedEnlightenmentError
-            && error.branch === "parseoptions() to interpret 'pickup_types'",
+    assert.deepEqual(state.flags.pickup_types, [COIN_CLASS, AMULET_CLASS]);
+    assert.equal(
+        statusLine(
+            await enlightenment(
+                BASICENLIGHTENMENT, ENL_GAMEINPROGRESS, state,
+            ),
+            ' Autopickup ',
+        ),
+        " Autopickup is on for '$\"' plus thrown.",
     );
 });
 

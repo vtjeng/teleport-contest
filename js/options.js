@@ -2791,6 +2791,32 @@ function unknownOptionText(statement) {
     return mungspaces(statement.slice(0, separator));
 }
 
+// C ref: options.c optfn_pickup_types() (3369-3389), the class-symbol loop
+// shared by startup parsing and the interactive handler.  C clears the
+// destination before this loop, preserves the first occurrence of each valid
+// class in input order, and keeps those accepted classes even when a later
+// byte is invalid or repeated.  A leading 'a' or 'A' means all classes; only
+// literal spaces at the head are skipped before that test.
+function pickupTypesFromSymbols(symbols) {
+    let op = symbols;
+    while (op.startsWith(' ')) op = op.slice(1);
+    if (op[0] === 'a' || op[0] === 'A') {
+        return { types: [], badopt: false };
+    }
+
+    const types = [];
+    let badopt = false;
+    for (const symbol of op) {
+        const objectClass = def_char_to_objclass(symbol);
+        if (objectClass !== MAXOCLASSES && !types.includes(objectClass)) {
+            types.push(objectClass);
+        } else {
+            badopt = true;
+        }
+    }
+    return { types, badopt };
+}
+
 // C ref: options.c bad_negation() (6692-6697).  Three of its callers are
 // reachable here -- parseoptions() (627), optfn_menu_headings() (2201) and
 // optfn_pile_limit() (3421) -- and all three pass with_parameter TRUE, whether
@@ -3060,6 +3086,26 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         setRunmode(result, value, negated);
     } else if (name === 'pickup_burden') {
         setPickupBurden(result, statement);
+    } else if (name === 'pickup_types') {
+        // optfn_pickup_types() clears the restriction before looking for its
+        // value.  During startup a missing or empty value still reports the
+        // mandatory-parameter error, then enables autopickup for all classes
+        // instead of opening the interactive class menu.
+        result.flags.pickup_types = [];
+        const op = string_for_opt(statement, false, result);
+        if (op === '') {
+            result.flags.pickup = true;
+        } else {
+            const parsed = pickupTypesFromSymbols(op);
+            result.flags.pickup_types = parsed.types;
+            if (parsed.badopt) {
+                // `op` points at its terminating NUL after C's loop, so the
+                // reported parameter is empty even when earlier bytes failed.
+                configErrorAdd(
+                    result, "Unknown pickup_types parameter ''",
+                );
+            }
+        }
     } else if (name === 'pile_limit') {
         setPileLimit(result, statement, negated);
     } else if (name === 'statuslines') {
@@ -3957,17 +4003,6 @@ const OPTION_VALUE_HANDLERS = Object.freeze({
     ),
     pickup_burden: (state) => burdentype[state.flags.pickup_burden],
     pickup_types: (state) => {
-        // flags.pickup_types holds object-class indices, which
-        // optfn_pickup_types()'s do_set arm derives from the option's class
-        // symbols. parseNethackrc() has no arm for this option, so a
-        // configuration file that sets it leaves its raw class symbols in the
-        // same field; a string here is that raw text rather than a parsed
-        // list.
-        if (typeof state.flags.pickup_types === 'string') {
-            throw new UnsupportedOptionMenuError(
-                "parseoptions() to interpret 'pickup_types'",
-            );
-        }
         const ocl = oc_to_str(state.flags.pickup_types);
         return ocl || 'all';
     },
@@ -4077,8 +4112,8 @@ function symsetValue(state, set, withHandling) {
 // it.  packorder is a member on that rule even though it has its own parse
 // arm, because that arm only retains the raw text: its handler reads
 // flags.inv_order.  Where the raw text lands in the very field the handler
-// reads -- autounlock, pickup_types, suppress_alert and versinfo -- there is
-// nothing left to compare against, so those four are guarded by type inside
+// reads -- autounlock, suppress_alert and versinfo -- there is nothing left
+// to compare against, so those three are guarded by type inside
 // their handlers instead and are not members.  The other-settings rows need
 // neither guard: each counts live state rather than reading an option field.
 // scripts/options-menu.test.mjs derives the whole rule from parseNethackrc(),
@@ -4688,30 +4723,15 @@ async function optfn_pickup_types(state, optidx, negated, opts, helpers) {
             'optfn_pickup_types()\'s getlin("New %s: [%s am] (%s)")',
         );
     }
-    let op = await choose_classes_menu(
+    const op = await choose_classes_menu(
         state, 'Autopickup what?', ocl, tbuf, helpers,
     );
-
-    while (op.startsWith(' ')) op = op.slice(1);
-    if (op[0] !== 'a' && op[0] !== 'A') {
-        /* make sure all are valid obj symbols occurring once */
-        const types = [];
-        let badopt = false;
-        for (const symbol of op) {
-            const oc_sym = def_char_to_objclass(symbol);
-            if (oc_sym !== MAXOCLASSES && !types.includes(oc_sym))
-                types.push(oc_sym);
-            else badopt = true;
-        }
-        // C writes each accepted class into flags.pickup_types as it goes, so
-        // a rejected one later in the list does not undo the earlier ones.
-        state.flags.pickup_types = types;
-        if (badopt) {
-            /* config_error_add("Unknown %s parameter '%s'") */
-            return optn_err;
-        }
-    }
-    return optn_ok;
+    const parsed = pickupTypesFromSymbols(op);
+    state.flags.pickup_types = parsed.types;
+    // Outside a configuration-file frame, config_error_add() writes through
+    // pline().  That interactive message remains outside this startup slice;
+    // parseoptions() still receives C's optn_err answer here.
+    return parsed.badopt ? optn_err : optn_ok;
 }
 
 // C ref: options.c parseoptions() (489-681)'s handler table, C's
