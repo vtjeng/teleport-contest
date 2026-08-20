@@ -908,6 +908,11 @@ const COMPOUND_SWEEP_REPORTS = new Map([
         [],
         ['Invalid value for "playmode":zqxj.'],
     ]],
+    ['disclose', [
+        [],
+        [],
+        ["Unknown disclose parameter 'z'."],
+    ]],
     ['name', [
         ["Missing parameter for 'name'."],
         ["Missing parameter for 'name:'."],
@@ -1156,7 +1161,6 @@ const UNPORTED_COMPOUND_ROWS = new Map([
     ['crash_email', [1, 1, 0]],
     ['crash_name', [1, 1, 0]],
     ['crash_urlmax', [1, 1, 1]],
-    ['disclose', [0, 0, 1]],
     ['font_map', [1, 1, 0]],
     ['font_menu', [1, 1, 0]],
     ['font_message', [1, 1, 0]],
@@ -1204,9 +1208,9 @@ test('every compound option reports exactly what this parser owes it', () => {
     const rows = allopt.filter((option) => option.opttyp === 'CompOpt'
                                            && !option.pfx);
     assert.equal(rows.length, 95);
-    assert.equal(COMPOUND_SWEEP_REPORTS.size, 39);
+    assert.equal(COMPOUND_SWEEP_REPORTS.size, 40);
     assert.equal(SILENT_COMPOUND_ROWS.size, 17);
-    assert.equal(UNPORTED_COMPOUND_ROWS.size, 39);
+    assert.equal(UNPORTED_COMPOUND_ROWS.size, 38);
 
     let owed = 0;
     for (const row of rows) {
@@ -1240,9 +1244,9 @@ test('every compound option reports exactly what this parser owes it', () => {
             if (unported) owed += unported[index];
         });
     }
-    // 87 messages over 39 rows: what porting those handlers is worth to a
+    // 86 messages over 38 rows: what porting those handlers is worth to a
     // configuration file that names one.
-    assert.equal(owed, 87);
+    assert.equal(owed, 86);
 });
 
 // C ref: options.c paranoia[] and optfn_paranoid_confirmation()'s do_set

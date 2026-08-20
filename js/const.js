@@ -958,6 +958,7 @@ export const DISCLOSE_PROMPT_DEFAULT_NO = 'n';
 export const DISCLOSE_PROMPT_DEFAULT_SPECIAL = '?';
 export const DISCLOSE_YES_WITHOUT_PROMPT = '+';
 export const DISCLOSE_NO_WITHOUT_PROMPT = '-';
+export const DISCLOSE_SPECIAL_WITHOUT_PROMPT = '#';
 export const GPCOORDS_NONE = 'n';
 export const GPCOORDS_MAP = 'm';
 export const GPCOORDS_COMPASS = 'c';

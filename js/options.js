@@ -9,6 +9,11 @@ import {
     AUTOUNLOCK_UNTRAP,
     CLR_MAX,
     DISCLOSE_PROMPT_DEFAULT_NO,
+    DISCLOSE_PROMPT_DEFAULT_YES,
+    DISCLOSE_PROMPT_DEFAULT_SPECIAL,
+    DISCLOSE_SPECIAL_WITHOUT_PROMPT,
+    DISCLOSE_NO_WITHOUT_PROMPT,
+    DISCLOSE_YES_WITHOUT_PROMPT,
     EXT_ENCUMBER,
     GFILTER_AREA,
     GFILTER_NONE,
@@ -3235,6 +3240,76 @@ function parseSymbolAssignments(value, lineNumber) {
 // `aliasState` carries options.c's `using_alias` static across the elements of
 // one configuration-file line; complain_about_duplicate() above states how far
 // it reaches and why this parser cannot keep it in a local.
+//
+// C ref: options.c optfn_disclose() (1442-1560), the do_set request during
+// configuration-file parsing.  `flags.end_disclose` is the sole copy of this
+// option: the existing get_val formatter below reads the same six bytes for
+// the #optionsfull value column.
+function optfn_disclose(result, statement, negated) {
+    const op = string_for_opt(statement, true);
+    if (op !== '' && negated) {
+        bad_negation(result, 'disclose');
+        return;
+    }
+
+    const isAll = op.length === 3 && equal_ncasechars(op, 'all', 3);
+    const isNone = op.length === 4 && equal_ncasechars(op, 'none', 4);
+    // A bare disclose asks each question with Yes preselected; a bare
+    // negation, or "none", suppresses every question without asking.
+    if (op === '' || isAll || isNone) {
+        if (isNone) negated = true;
+        result.flags.end_disclose.fill(
+            negated ? DISCLOSE_NO_WITHOUT_PROMPT
+                : DISCLOSE_PROMPT_DEFAULT_YES,
+        );
+        return;
+    }
+
+    let num = 0;
+    let prefixVal = null;
+    const validSettings = new Set([
+        DISCLOSE_PROMPT_DEFAULT_YES,
+        DISCLOSE_PROMPT_DEFAULT_NO,
+        DISCLOSE_PROMPT_DEFAULT_SPECIAL,
+        DISCLOSE_YES_WITHOUT_PROMPT,
+        DISCLOSE_NO_WITHOUT_PROMPT,
+        DISCLOSE_SPECIAL_WITHOUT_PROMPT,
+    ]);
+    // C's source declares `num` for this bound but never increments it.  Keep
+    // that exact fixed-array condition: every byte before the terminating NUL
+    // is parsed, including one beyond the six disclosure categories.
+    for (let index = 0; index < op.length
+        && num < NUM_DISCLOSURE_OPTIONS; ++index) {
+        let c = lowc(op[index]);
+        if (c === 'k') c = 'v'; // killed -> vanquished
+        if (c === 'd') c = 'o'; // dungeon -> overview
+        const disclosureIndex = disclosure_options.indexOf(c);
+        if (disclosureIndex >= 0) {
+            if (prefixVal !== null) {
+                let setting = prefixVal;
+                if (c !== 'v' && c !== 'g') {
+                    if (setting === DISCLOSE_PROMPT_DEFAULT_SPECIAL)
+                        setting = DISCLOSE_PROMPT_DEFAULT_YES;
+                    if (setting === DISCLOSE_SPECIAL_WITHOUT_PROMPT)
+                        setting = DISCLOSE_YES_WITHOUT_PROMPT;
+                }
+                result.flags.end_disclose[disclosureIndex] = setting;
+                prefixVal = null;
+            } else {
+                result.flags.end_disclose[disclosureIndex]
+                    = DISCLOSE_YES_WITHOUT_PROMPT;
+            }
+        } else if (validSettings.has(c)) {
+            prefixVal = c;
+        } else if (c !== ' ') {
+            configErrorAdd(
+                result, `Unknown disclose parameter '${op[index]}'`,
+            );
+            return;
+        }
+    }
+}
+
 function applyOption(result, optionState, element, lineNumber, aliasState) {
     // options.c:538-542 strips the negation prefixes off the whole element,
     // before length_without_val() looks for a value, so `statement` is what
@@ -3307,6 +3382,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         const op = string_for_env_opt(statement, false, result);
         if (op === '') return;
         result.name = truncateByteString(op, PLAYER_NAME_BYTE_LIMIT);
+    } else if (name === 'disclose') {
+        optfn_disclose(result, statement, negated);
     } else if (name === 'role' || name === 'race' || name === 'gender'
                || name === 'alignment') {
         setCharacterOption(
@@ -4471,7 +4548,7 @@ function symsetValue(state, set, withHandling) {
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'boulder', 'crash_email', 'crash_name', 'crash_urlmax',
-    'disclose', 'glyph', 'menu_objsyms', 'menuinvertmode',
+    'glyph', 'menu_objsyms', 'menuinvertmode',
     'scores', 'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',
 ]));
