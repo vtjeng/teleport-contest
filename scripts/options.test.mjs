@@ -4,6 +4,7 @@ import test from 'node:test';
 
 import { config_error_done } from '../js/cfgfiles.js';
 import { configLineStatements } from '../js/config_statement_data.js';
+import { encodeUtf8ByteString } from '../js/hacklib.js';
 import { FOOD_CLASS, WEAPON_CLASS } from '../js/objects.js';
 import { optionAliasTarget, parseNethackrc } from '../js/options.js';
 import { allopt, optionParserMetadata } from '../js/optlist_data.js';
@@ -2320,6 +2321,24 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
         assert.deepEqual(at.iflags.status_hilites, []);
         assert.equal(at.iflags.hilite_delta, 0);
 
+        // The byte limit can also split a multibyte character.  One ASCII
+        // byte followed by 63 two-byte characters leaves the leading byte of
+        // the last character in hsbuf[].  C's %.60s diagnostic ends on an
+        // earlier leading byte; the reversible byte-string representation
+        // must retain it rather than replacing it.
+        const splitValue = `title/a${'é'.repeat(63)}/red`;
+        const splitStatement = `HILITE_STATUS=${splitValue}`;
+        const split = parseNethackrc(`${splitStatement}\n`);
+        const quoted = split.configErrorFrame.output[1]
+            .slice(" * Line 1: Unknown color '".length, -2);
+        assert.equal(quoted.charCodeAt(quoted.length - 1), 0xDCC3);
+        assert.equal(encodeUtf8ByteString(quoted).at(-1), 0xC3);
+        assert.deepEqual(split.configErrorFrame.output.slice(2), [
+            " * Line 1: bad color '16 -1'.",
+        ]);
+        assert.deepEqual(split.iflags.status_hilites, []);
+        assert.equal(split.iflags.hilite_delta, 0);
+
         const upperA = parseNethackrc(
             'HILITE_STATUS=HITPOINTS/ALWAYS/RED\n',
         );
@@ -2341,6 +2360,25 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
         assert.equal(inRange.iflags.status_hilites.length, 9);
         assert.equal(inRange.iflags.hilite_delta, 3);
 
+        // An empty in-range slot ends the condition walk.  Later fields in a
+        // space-separated statement are still parsed; merely seeing many
+        // separators is not an overflow.
+        const earlyEmpty = [
+            'cond',
+            ...Array.from({ length: 9 }, () => ['st', '1']).flat(),
+        ].join('/') + '// time/always/blue';
+        for (const line of [
+            `HILITE_STATUS=${earlyEmpty}`,
+            `OPTIONS=hilite_status:${earlyEmpty}`,
+        ]) {
+            const accepted = parseNethackrc(`${line}\n`);
+            assert.deepEqual(accepted.configErrorFrame.output, [], line);
+            assert.equal(accepted.iflags.status_hilites.length, 10, line);
+            assert.equal(accepted.iflags.status_hilites.at(-1).field,
+                'time', line);
+            assert.equal(accepted.iflags.hilite_delta, 3, line);
+        }
+
         // With ten groups C reads hsbuf[21], outside its array.  Two adjacent
         // fresh segments produced different garbage condition names.  The
         // port makes the boundary deterministic while preserving all ten
@@ -2348,6 +2386,47 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
         for (const suffix of ['', '/', '/extra']) {
             const value = conditionValue(10, suffix);
             const statement = `HILITE_STATUS=${value}`;
+            const bounded = parseNethackrc(`${statement}\n`);
+            assert.deepEqual(bounded.configErrorFrame.output, [
+                `\n${statement}`,
+                " * Line 1: Unknown condition ''.",
+            ]);
+            assert.equal(bounded.iflags.status_hilites.length, 10);
+            assert.equal(bounded.iflags.hilite_delta, 0);
+        }
+
+        const ordinaryValue = [
+            'time',
+            ...Array.from(
+                { length: 10 }, () => ['always', 'red'],
+            ).flat(),
+        ].join('/');
+        const ordinaryStatement = `HILITE_STATUS=${ordinaryValue}`;
+        const ordinary = parseNethackrc(`${ordinaryStatement}\n`);
+        assert.deepEqual(ordinary.configErrorFrame.output, [
+            `\n${ordinaryStatement}`,
+            " * Line 1: Unknown behavior ''.",
+        ]);
+        assert.equal(ordinary.iflags.status_hilites.length, 10);
+        assert.ok(ordinary.iflags.status_hilites.every(
+            ({ field }) => field === 'time',
+        ));
+        assert.equal(ordinary.iflags.hilite_delta, 0);
+
+        // The same actual access boundary belongs to the condition parser
+        // even when the field used an alias.  The diagnostic is selected from
+        // the resolved field, not from the raw spelling.
+        for (const [prefix, fieldName] of [
+            ['HILITE_STATUS=', 'flags'],
+            ['OPTIONS=hilite_status:', 'cond'],
+        ]) {
+            const value = [
+                fieldName,
+                ...Array.from(
+                    { length: 10 }, () => ['blind', 'red'],
+                ).flat(),
+            ].join('/');
+            const statement = `${prefix}${value}`;
             const bounded = parseNethackrc(`${statement}\n`);
             assert.deepEqual(bounded.configErrorFrame.output, [
                 `\n${statement}`,
@@ -2846,6 +2925,27 @@ test('a characteristics rule expands to six and stops at the first failure',
         ]);
         assert.deepEqual(stopped.iflags.status_hilites, []);
         assert.equal(stopped.iflags.hilite_delta, 0);
+
+        // Ten pairs fill every in-range field slot.  The first recursive
+        // strength pass installs all ten before its loop attempts hsbuf[21];
+        // that failure stops the other five characteristic fields.
+        const boundaryValue = [
+            'characteristics',
+            ...Array.from(
+                { length: 10 }, () => ['always', 'red'],
+            ).flat(),
+        ].join('/');
+        const boundaryStatement = `HILITE_STATUS=${boundaryValue}`;
+        const boundary = parseNethackrc(`${boundaryStatement}\n`);
+        assert.deepEqual(boundary.configErrorFrame.output, [
+            `\n${boundaryStatement}`,
+            " * Line 1: Unknown behavior ''.",
+        ]);
+        assert.equal(boundary.iflags.status_hilites.length, 10);
+        assert.ok(boundary.iflags.status_hilites.every(
+            ({ field }) => field === 'strength',
+        ));
+        assert.equal(boundary.iflags.hilite_delta, 0);
     });
 
 // C refs: coloratt.c match_str2attr() over attrnames[], and the ATR_ to HL_

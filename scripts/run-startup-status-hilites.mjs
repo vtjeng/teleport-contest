@@ -37,6 +37,14 @@ function afterAsciiErrors(statement) {
     ];
 }
 
+function beforeAsciiErrors(statement) {
+    return [
+        statement,
+        ...Array(ERROR_REPEAT_COUNT)
+            .fill('HILITE_STATUS=bogusfield/always/red'),
+    ];
+}
+
 export const STARTUP_STATUS_HILITE_CASES = Object.freeze([
     Object.freeze({
         label: 'field rules and coalesced conditions',
@@ -69,9 +77,10 @@ export const STARTUP_STATUS_HILITE_CASES = Object.freeze([
     Object.freeze({
         label: 'direct config statement field rule',
         optionLines: Object.freeze([
-            'HILITE_STATUS=hitpoints/always/red',
+            'HILITE_STATUS=HITPOINTS/ALWAYS/RED TITLE/Z/BLUE',
         ]),
-        expectedCount: 1,
+        expectedCount: 2,
+        expectedStoredRules: 2,
     }),
     Object.freeze({
         label: 'empty direct statement enables highlighting',
@@ -98,6 +107,16 @@ export const STARTUP_STATUS_HILITE_CASES = Object.freeze([
         reports: true,
     }),
     Object.freeze({
+        label: 'direct ASCII title at the byte component limit',
+        optionLines: Object.freeze(beforeAsciiErrors(
+            `HILITE_STATUS=title/${'a'.repeat(126)}/red`,
+        )),
+        expectedCount: 0,
+        expectedStoredRules: 0,
+        expectedDelta: 0,
+        reports: true,
+    }),
+    Object.freeze({
         label: 'nine direct condition groups stay inside the field array',
         optionLines: Object.freeze([
             `HILITE_STATUS=${conditionGroups(9)}`,
@@ -106,9 +125,59 @@ export const STARTUP_STATUS_HILITE_CASES = Object.freeze([
         expectedStoredRules: 9,
     }),
     Object.freeze({
+        label: 'an early empty field keeps a later statement in range',
+        optionLines: Object.freeze([
+            `HILITE_STATUS=${conditionGroups(9, '// time/always/blue')}`,
+        ]),
+        expectedCount: 2,
+        expectedStoredRules: 10,
+    }),
+    Object.freeze({
         label: 'ten direct condition groups stop at the field-array edge',
         optionLines: Object.freeze(afterAsciiErrors(
             `HILITE_STATUS=${conditionGroups(10)}`,
+        )),
+        expectedCount: 1,
+        expectedStoredRules: 10,
+        expectedDelta: 0,
+        reports: true,
+    }),
+    Object.freeze({
+        label: 'characteristics stops on its first out-of-range access',
+        optionLines: Object.freeze(afterAsciiErrors(
+            `HILITE_STATUS=${[
+                'characteristics',
+                ...Array.from(
+                    { length: 10 }, () => ['always', 'red'],
+                ).flat(),
+            ].join('/')}`,
+        )),
+        expectedCount: 10,
+        expectedStoredRules: 10,
+        expectedDelta: 0,
+        reports: true,
+    }),
+    Object.freeze({
+        label: 'ordinary field stops on its out-of-range access',
+        optionLines: Object.freeze(afterAsciiErrors(
+            `HILITE_STATUS=${[
+                'time',
+                ...Array.from(
+                    { length: 10 }, () => ['always', 'red'],
+                ).flat(),
+            ].join('/')}`,
+        )),
+        expectedCount: 10,
+        expectedStoredRules: 10,
+        expectedDelta: 0,
+        reports: true,
+    }),
+    Object.freeze({
+        label: 'condition alias owns its out-of-range diagnostic',
+        optionLines: Object.freeze(afterAsciiErrors(
+            `HILITE_STATUS=${conditionGroups(10).replace(
+                /^condition/u, 'flags',
+            )}`,
         )),
         expectedCount: 1,
         expectedStoredRules: 10,

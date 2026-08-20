@@ -1550,14 +1550,19 @@ function str2conditionbitmask(result, str) {
 //
 // Index MAX_THRESH is not inside it.  parse_status_hl1()'s `fldnum++` on '/'
 // is unguarded and its loop only stops once fldnum has already reached
-// MAX_THRESH, so hsbuf[20] is the last entry ever written; a statement that
-// fills every group then leaves parse_status_hl2()'s `while (s[sidx][0])` and
-// parse_condition() reading hsbuf[21], one past the end of the array.  This
-// helper supplies an empty string so the in-range groups can make their same
-// partial writes.  parse_status_hl1() then refuses the unstable out-of-bounds
-// continuation before enabling highlighting.
-function statusHiliteField(s, index) {
-    return s[index] ?? '';
+// MAX_THRESH, so hsbuf[20] is the last entry ever written.  The pinned C
+// binary then reads changing stack garbage when a parser actually asks for
+// hsbuf[21].  The port preserves every in-range write, but makes that access a
+// deterministic configuration error and propagates the failure immediately.
+const STATUS_HILITE_BOUNDARY_ERROR = Symbol('statusHiliteBoundaryError');
+
+function statusHiliteField(result, s, index, boundaryMessage) {
+    if (index < s.length) return s[index] ?? '';
+    if (!s[STATUS_HILITE_BOUNDARY_ERROR]) {
+        s[STATUS_HILITE_BOUNDARY_ERROR] = true;
+        configErrorAdd(result, boundaryMessage);
+    }
+    return '';
 }
 
 // One accepted or partly accepted condition group, standing for the
@@ -1583,20 +1588,23 @@ function parse_condition(result, s, fieldIndex) {
     let sidx = fieldIndex + 1;
     let coloridx = NO_COLOR;
     let accepted = false; /* C's `result` */
+    const fieldAt = (index) => statusHiliteField(
+        result, s, index, "Unknown condition ''",
+    );
 
-    if (!statusHiliteField(s, sidx)) {
+    if (!fieldAt(sidx)) {
         configErrorAdd(result, 'Missing condition(s)');
         return false;
     }
-    while (statusHiliteField(s, sidx)) {
+    while (fieldAt(sidx)) {
         const conditions = str2conditionbitmask(
-            result, statusHiliteField(s, sidx),
+            result, fieldAt(sidx),
         );
         if (!conditions) return false;
 
         /* actions */
         sidx += 1;
-        const how = statusHiliteField(s, sidx);
+        const how = fieldAt(sidx);
         if (!how) {
             configErrorAdd(result, 'Missing color+attribute');
             return false;
@@ -1652,7 +1660,7 @@ function parse_condition(result, s, fieldIndex) {
         accepted = true;
         sidx += 1;
     }
-    return accepted;
+    return s[STATUS_HILITE_BOUNDARY_ERROR] ? false : accepted;
 }
 
 // C ref: botl.c is_ltgt_percentnumber() (2649-2669), the
@@ -1687,7 +1695,10 @@ function has_ltgt_percentnumber(str) {
 // on its third group keeps the two groups before it.
 function parse_status_hl2(result, s) {
     let sidx = 0;
-    const field = statusHiliteFieldName(statusHiliteField(s, sidx));
+    const fieldAt = (index) => statusHiliteField(
+        result, s, index, "Unknown behavior ''",
+    );
+    const field = statusHiliteFieldName(fieldAt(sidx));
 
     if (field === 'characteristics') {
         // C rewrites s[0] in place and re-enters once per characteristic, so
@@ -1700,7 +1711,7 @@ function parse_status_hl2(result, s) {
     }
     if (!field) {
         configErrorAdd(
-            result, `Unknown status field '${statusHiliteField(s, sidx)}'`,
+            result, `Unknown status field '${fieldAt(sidx)}'`,
         );
         return false;
     }
@@ -1717,8 +1728,8 @@ function parse_status_hl2(result, s) {
     let successes = 0;
 
     sidx += 1;
-    while (statusHiliteField(s, sidx)) {
-        const threshold = statusHiliteField(s, sidx);
+    while (fieldAt(sidx)) {
+        const threshold = fieldAt(sidx);
         const numericThreshold = is_ltgt_percentnumber(threshold);
         let text = '';
         let percent = false;
@@ -1735,13 +1746,14 @@ function parse_status_hl2(result, s) {
         let txtval = false;
         let value = null;
 
-        if (!statusHiliteField(s, sidx + 1) || threshold === 'always') {
+        const nextField = fieldAt(sidx + 1);
+        if (!nextField || threshold === 'always') {
             /* "field/always/color" OR "field/color" */
             always = true;
             // The short spelling steps back so that the action is read out of
             // this same slot, which is why an even number of groups ends as an
             // "always" rule rather than as an error.
-            if (!statusHiliteField(s, sidx + 1)) sidx -= 1;
+            if (!nextField) sidx -= 1;
         } else if (threshold === 'up' || threshold === 'down') {
             // "LT/GT for the string fields is pointless; treat 'up' or 'down'
             // for string fields as 'changed' rather than rejecting them".
@@ -1843,9 +1855,8 @@ function parse_status_hl2(result, s) {
         sidx += 1;
         // C ref: botl.c:3013-3016.  Its `if (!how)` tests an array element
         // that is never null, so the `successes` arm below it is unreachable.
-        const style = parseStatusHiliteAction(
-            result, statusHiliteField(s, sidx),
-        );
+        const action = fieldAt(sidx);
+        const style = parseStatusHiliteAction(result, action);
         if (!style) return false;
 
         // C ref: botl.c:3068-3089, hilite.behavior.  Its closing BL_TH_NONE is
@@ -1872,7 +1883,7 @@ function parse_status_hl2(result, s) {
         sidx += 1;
     }
 
-    return successes > 0;
+    return s[STATUS_HILITE_BOUNDARY_ERROR] ? false : successes > 0;
 }
 
 // C ref: botl.c parse_status_hl1() (2591-2647).  It cuts one hilite_status
@@ -1893,22 +1904,7 @@ function parse_status_hl1(result, op) {
     let index = 0;
 
     const parsedFields = () => hsbufBytes.map(decodeUtf8ByteString);
-    const parseFields = () => {
-        const fields = parsedFields();
-        const parsed = parse_status_hl2(result, fields);
-        if (parsed && fldnum >= MAX_THRESH - 1) {
-            // C reads hsbuf[MAX_THRESH] here.  Fresh runs of the pinned binary
-            // produce different stack garbage even between adjacent segments,
-            // so no deterministic string can reproduce that undefined read.
-            // Refuse after the same in-range partial writes and before
-            // hilite_delta changes; the error shape keeps config_error_done()
-            // and its later startup wait aligned with the reference runtime.
-            configErrorAdd(result, fields[0] === 'condition'
-                ? "Unknown condition ''" : "Unknown behavior ''");
-            return false;
-        }
-        return parsed;
-    };
+    const parseFields = () => parse_status_hl2(result, parsedFields());
     while (index < opBytes.length
            && fldnum < MAX_THRESH && ccount < QBUFSZ - 2) {
         const sourceByte = opBytes[index];
