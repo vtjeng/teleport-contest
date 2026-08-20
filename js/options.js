@@ -3919,14 +3919,65 @@ function petname_optfn(state, option) {
     return petname || none;
 }
 
-// C ref: botl.c count_status_hilites().  Its gather pass walks every status
-// field and every condition; with no rule of either kind configured it
-// counts nothing, and this port has no representation for the line-per-rule
-// count the pass produces once rules exist.
+// C ref: botl.c status_hilite_linestr_gather_conditions().  Condition rules
+// are stored as writes to gc.cond_hilites[], unlike the one-node-per-rule
+// threshold lists for ordinary fields.  Replaying those writes gives each
+// condition its final lowest-numbered color and accumulated attributes.  C
+// then coalesces conditions with the same final pair into one menu line, so
+// this count is the number of distinct non-empty pairs rather than the number
+// of configuration statements.
+function status_hilite_linestr_gather_conditions(rules) {
+    const conditionStyles = new Map();
+    for (const rule of rules) {
+        if (rule.field !== 'condition') continue;
+        for (const condition of rule.conditions) {
+            const style = conditionStyles.get(condition) ?? {
+                colors: new Set(),
+                attrib: HL_UNDEF,
+            };
+            if (rule.style.clearAttributes) style.attrib = HL_UNDEF;
+            style.attrib |= rule.style.attrib;
+            // A null color marks parse_condition() returning after it had
+            // stored attributes but before its final color-array write.
+            if (rule.style.color !== null)
+                style.colors.add(rule.style.color);
+            conditionStyles.set(condition, style);
+        }
+    }
+
+    const gathered = new Set();
+    for (const condition of SOURCE_CONDITION_NAMES) {
+        const style = conditionStyles.get(condition);
+        if (!style) continue;
+        const color = style.colors.size
+            ? Math.min(...style.colors) : NO_COLOR;
+        // gather_conditions() begins with HL_NONE and removes that sentinel
+        // when any real attribute bit is present.
+        const attrib = style.attrib === HL_UNDEF ? HL_NONE
+            : style.attrib & ~HL_NONE;
+        if (color !== NO_COLOR || attrib !== HL_NONE)
+            gathered.add(`${color}:${attrib}`);
+    }
+    return [...gathered];
+}
+
+// C ref: botl.c status_hilite_linestr_gather().  count_status_hilites() only
+// observes the gathered list's length, so its entries can be opaque here:
+// every ordinary field rule contributes one, then the coalesced condition
+// entries follow.  Building a fresh array also preserves C's gather/done
+// idempotence without changing the configured rule list.
+function status_hilite_linestr_gather(state) {
+    const rules = state.iflags?.status_hilites ?? [];
+    return [
+        ...rules.filter((rule) => rule.field !== 'condition'),
+        ...status_hilite_linestr_gather_conditions(rules),
+    ];
+}
+
+// C ref: botl.c count_status_hilites(), used by options.c
+// optfn_hilite_status(get_val) and optfn_o_status_hilites(get_val).
 function count_status_hilites(state) {
-    if (state.iflags?.status_hilites?.length)
-        throw new UnsupportedOptionMenuError('count_status_hilites() rules');
-    return 0;
+    return status_hilite_linestr_gather(state).length;
 }
 
 // C ref: options.c count_cond(), over botl.c condtests[].

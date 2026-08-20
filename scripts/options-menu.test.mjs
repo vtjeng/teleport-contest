@@ -367,6 +367,39 @@ test('the menu value column reads the parsed discovery order', async () => {
     );
 });
 
+test('the menu counts final status highlight rows without changing rules',
+    async () => {
+        const state = await startGameWithConfig(
+            'OPTIONS=hilite_status:hitpoints/<50%/red&bold '
+                + 'hitpoints/<25%/orange title/always/blue',
+            'OPTIONS=hilite_status:condition/blind+deaf/red&bold/'
+                + 'conf/red&bold',
+            // normal clears blind's bold bit, then underline gives it a
+            // distinct final style. Deaf and conf retain the shared red+bold
+            // style, so the three condition statements gather into two rows.
+            'OPTIONS=hilite_status:condition/blind/normal&underline',
+        );
+        const configuredRules = structuredClone(state.iflags.status_hilites);
+
+        const first = dosetMenuItems(state, menuHelpers(), false);
+        assert.equal(
+            valueOf(first, 'hilite_status'),
+            '(see "status highlight rules" below)',
+        );
+        // Three ordinary field rules plus two final condition-style groups.
+        assert.equal(
+            valueOf(first, 'status highlight rules'),
+            '(5 currently set)',
+        );
+
+        const second = dosetMenuItems(state, menuHelpers(), false);
+        assert.equal(
+            valueOf(second, 'status highlight rules'),
+            '(5 currently set)',
+        );
+        assert.deepEqual(state.iflags.status_hilites, configuredRules);
+    });
+
 test('the menu refuses an option whose value it cannot derive', async () => {
     const state = await startConfiguredGame(STOCK);
     // parseNethackrc() keeps an unported compound option's raw text under
