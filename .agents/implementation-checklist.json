@@ -1,6 +1,6 @@
 {
-  "mode": "implementation",
-  "reason": "The next direct-test slice ports apply.c its_dead()'s complete Hallucination response arm without searching for an unavailable live Hallucination writer. Existing dead-object doapply fixtures cover statue, singular corpse, saved traits, and plural corpse; mkobj.c get_mtraits() is the only adjacent source helper not yet present.",
+  "mode": "ready-for-audit",
+  "reason": "The complete Hallucination response slice is finished at 50a72ea. Existing constructed doapply fixtures cover every message family and response override, mkobj.c get_mtraits() is complete in its source-owned module, and independent checkpoint, mutation, matrix, and CI are green without any status-writer or setup-search expansion.",
   "commitChecked": "10bb9caef784419e4797b88b60e5662b25c6d2a4",
   "boundary": {
     "goalId": "stethoscope-reaches-an-adjacent-square",
@@ -106,8 +106,8 @@
       "owner": "js/apply.js its_dead()",
       "effects": "get_mtraits(), pronoun_gender(), You_hear(\"a voice say, ...\") and *resp = ECMD_TIME.",
       "evidence": "apply.c:226-260, read at 9657e3b. Because it is the only writer of resp, the port answers a bare boolean instead of taking the pointer.",
-      "status": "missing",
-      "remaining": "Port the complete response arm with direct constructed doapply tests for statue, singular species sex, saved monster traits, and plural corpse; preserve You_hear acoustics behavior, forced ECMD_TIME, mixed-pile ordering, zero branch RNG, and state preservation. No current input writes Hallucination, so no setup search is authorized or needed."
+      "status": "done",
+      "remaining": "None. Commit 50a72ea ports the complete statue, singular-corpse, saved-trait and plural-corpse voice response, You_hear acoustics behavior, and forced ECMD_TIME. Authorized constructed doapply tests cover all branches, mixed selection, exact terminal state, zero branch RNG, preservation and sentinels; no current input writes Hallucination, so the substitute cannot prove player-input reachability or direct C replay parity for that unavailable state."
     },
     {
       "candidate": "apply.c its_dead() ordinary sighted corpse sub-arm (261-279)",
@@ -344,12 +344,6 @@
       "remaining": "None. Focused tests pin ordinary identity, identical rendered presentation with distinct logical IDs, sparse-frame restoration, and planning isolation; the full 41-segment matrix matches 125,791 PRNG calls and 483 screens/cursors."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "apply.c its_dead() Hallucination response",
-      "candidates": ["apply.c its_dead() Hallucination arm (226-260)"],
-      "next": "Replace the atomic refusal with the complete voice-response arm and the source response override, using existing constructed dead-object fixtures and the mkobj.c get_mtraits() helper only."
-    }
-  ],
-  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 41d344e completed apply.c:265-278. The next coherent source unit is apply.c:226-260: statue, singular corpse with optional saved monster traits, and plural corpse all share one You_hear() line and force ECMD_TIME. The only missing adjacent helper is mkobj.c get_mtraits(), whose existing owner is js/corpstat.js; pronoun_gender(), fixed-sex predicates, genders[], highc(), and You_hear() already exist. Existing constructed dead-object fixtures reach doapply directly, so the user's speed direction rules out further setup search. Fog m_in_out_region() remains the final separate confirmed gap."
+  "missingWorkByOwner": [],
+  "sourceReview": "The completed goal-wide trace remains recorded above. Commit 50a72ea completes apply.c:226-260 and mkobj.c get_mtraits(): statue, singular corpse with species or saved-monster sex, and plural corpse share the source You_hear() line and force ECMD_TIME. Existing constructed dead-object fixtures reach doapply directly without a status-writer port or setup search. The fog m_in_out_region() planned transition remains the final separate confirmed in-boundary gap."
 }

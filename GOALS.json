@@ -3041,8 +3041,8 @@
         },
         {
           "name": "hallucinated-dead-objects-speak",
-          "status": "queued",
-          "closedBy": null
+          "status": "closed",
+          "closedBy": "50a72ea3b0157b6ec06bd00e44ef67bca6151d85"
         }
       ],
       "openedAt": "25675b27b24d1db0582c5f90886eebbf7ac1863b",
