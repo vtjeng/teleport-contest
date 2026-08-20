@@ -8110,6 +8110,24 @@ test('title formatting and matching use source byte limits', async () => {
             assert.equal(state.nhDisplay.grid[22][0].color, NO_COLOR, name);
         }
     }
+
+    // parse_status_hl2() accepts this 125-byte component, then copies only
+    // 79 bytes into hilite.textmatch[].  Ignored punctuation in that prefix
+    // leaves "Digger"; the significant suffix must not prevent the match.
+    const longThreshold = 'Digger' + '-'.repeat(73) + 'x'.repeat(46);
+    state.iflags = {
+        ...parseNethackrc(
+            `HILITE_STATUS=title/always/red title/${longThreshold}/bright-green`,
+        ).iflags,
+        wc2_statuslines: 2,
+    };
+    state.plname = 'Edge';
+    await bot();
+    assert.equal(
+        state.nhDisplay.grid[22][0].color,
+        CLR_BRIGHT_GREEN,
+        'the discarded suffix cannot prevent the 79-byte text match',
+    );
 });
 
 test('gray and black status rules normalize at the recorder-facing grid boundary', async () => {

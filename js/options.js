@@ -1386,8 +1386,10 @@ const STATUS_CONDITION_ALIASES = Object.freeze({
 });
 
 // C ref: botl.c parse_status_hl1()'s MAX_THRESH, the group count one
-// hilite_status statement can hold, and splitsubfields()'s MAX_SUBFIELDS.
+// hilite_status statement can hold; botl.h's MAXVALWIDTH, the fixed storage
+// for a text-match threshold; and splitsubfields()'s MAX_SUBFIELDS.
 const MAX_THRESH = 21;
+const MAXVALWIDTH = 80;
 const MAX_SUBFIELDS = 16;
 
 function statusHiliteFieldName(rawName) {
@@ -1874,9 +1876,14 @@ function parse_status_hl2(result, s) {
             behavior,
             relation,
             value,
-            // C copies txt into hilite.textmatch for BL_TH_TEXTMATCH only and
-            // then trimspaces() it; the blanks can only come from a title.
-            text: behavior === 'text' ? trimspaces(text) : '',
+            // C copies txt into hilite.textmatch[MAXVALWIDTH], terminates its
+            // last byte, then ignores trimspaces()'s returned pointer.  The
+            // buffer therefore keeps leading blanks but loses trailing ones.
+            text: behavior === 'text'
+                ? trimspacesTrailing(
+                    truncateByteString(text, MAXVALWIDTH - 1),
+                )
+                : '',
             style,
         });
         successes += 1;

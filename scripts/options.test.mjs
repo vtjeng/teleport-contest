@@ -2303,7 +2303,9 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
         const below = parseNethackrc(`HILITE_STATUS=${belowValue}\n`);
         assert.deepEqual(below.configErrorFrame.output, []);
         assert.equal(below.iflags.status_hilites.length, 1);
-        assert.equal(below.iflags.status_hilites[0].text, 'é'.repeat(62));
+        const storedBelowText = below.iflags.status_hilites[0].text;
+        assert.equal(encodeUtf8ByteString(storedBelowText).length, 79);
+        assert.equal(storedBelowText, 'é'.repeat(39) + '\uDCC3');
         assert.equal(below.iflags.status_hilites[0].style.color, CLR_RED);
         assert.equal(below.iflags.hilite_delta, 3);
 
@@ -2316,7 +2318,7 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
         );
         assert.deepEqual(edge.configErrorFrame.output, []);
         assert.equal(edge.iflags.status_hilites.length, 1);
-        assert.equal(edge.iflags.status_hilites[0].text, edgeText);
+        assert.equal(edge.iflags.status_hilites[0].text, 'a'.repeat(79));
         assert.equal(edge.iflags.status_hilites[0].style.color, CLR_RED);
         assert.equal(edge.iflags.hilite_delta, 3);
 
@@ -2362,6 +2364,10 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
         const splitCondition = parseNethackrc(
             `${splitConditionStatement}\n`,
         );
+        assert.equal(
+            splitCondition.configErrorFrame.output[0],
+            `\n${splitConditionStatement}`,
+        );
         const unknownCondition = splitCondition.configErrorFrame.output[1]
             .slice(" * Line 1: Unknown condition '".length, -2);
         const conditionBytes = encodeUtf8ByteString(unknownCondition);
@@ -2370,6 +2376,7 @@ test('direct HILITE_STATUS keeps empty, byte, and field-count boundaries',
             unknownCondition.length - 1,
         ), 0xDCC3);
         assert.equal(conditionBytes.at(-1), 0xC3);
+        assert.deepEqual(splitCondition.configErrorFrame.output.slice(2), []);
         assert.deepEqual(splitCondition.iflags.status_hilites, []);
         assert.equal(splitCondition.iflags.hilite_delta, 0);
 
@@ -2781,7 +2788,8 @@ test('status highlight shapes C accepts report nothing', () => {
 
     // Only field 1 of a title rule keeps its blanks, and the comparisons
     // against "always", "up" and the rest are made before trimspaces() runs,
-    // so " always" is a text match rather than a persistent rule.
+    // so " always" is a text match rather than a persistent rule.  botl.c
+    // ignores trimspaces()'s returned pointer, preserving the leading blank.
     const spacedTitle = parseNethackrc(
         'OPTIONS=hilite_status:title/ always/red\n',
     );
@@ -2790,7 +2798,7 @@ test('status highlight shapes C accepts report nothing', () => {
         spacedTitle.iflags.status_hilites.map(
             ({ behavior, text }) => [behavior, text],
         ),
-        [['text', 'always']],
+        [['text', ' always']],
     );
 });
 
