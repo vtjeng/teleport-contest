@@ -116,7 +116,7 @@
         "monsterCount": 2,
         "pet": null,
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "258bba75dd0e7817771e77f478e36d0692aff39f8b59bade36bfb008436db17d",
+        "stateDigest": "3bbb5a183611eb422922f00446f798e2e5f08f0eda396dc88537e530965dee8f",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [8, 19, 1], [8, 19, 1]],
@@ -136,7 +136,7 @@
         "monsterCount": 2,
         "pet": null,
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "bb814305ba02e7969450ef1b7a784afc946f71ee523daad6f6bbfc7d5554b3c6",
+        "stateDigest": "69d4155c7367f4712141a3da6a9e12bb8e77d4ea2de49da4cb82241fd5b5a102",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [8, 19, 1], [7, 19, 1]],
@@ -156,7 +156,7 @@
         "monsterCount": 2,
         "pet": null,
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "17cb70922a12ae25a856d55dcd43b205b6b39817d0d911317247afffa527d1ac",
+        "stateDigest": "eb6b494964a2c9b67ed56e1a6c89697e29963f76b61775854c105a1937c3999b",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [7, 19, 1], [7, 19, 1]],
@@ -176,7 +176,7 @@
         "monsterCount": 2,
         "pet": null,
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "0e64dcfff594e451985ed634426c58a83b89fbe06747fd6511b3625b1f4fb16f",
+        "stateDigest": "59266e6415d922023875cb0622ac679d702d4211e1857f6b1f7e2b3966114fd3",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[8, 19, 1], [7, 19, 1], [6, 19, 1]],
@@ -196,7 +196,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "a05978621fd0c61b29ad21749f47058be38bc2ac4edcb4c3eeb5a842ad9fed23",
+        "stateDigest": "e71d22565db5c121ce067955296e3cf32d291811cca3b0125993781815a7ad3d",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1]],
@@ -216,7 +216,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 14, "pmidx": 16 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "c1ab6ec1723c20cc9d192a16763acd0aebc664f58cd7834b4a8d3a8282796df4",
+        "stateDigest": "f108b1992de37c5e4c91a6799ae561ff57ed981b4f7b3d51303f9d7ffb225c6d",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 14, 1]],
@@ -236,7 +236,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "eb92cd68d5ffda6f21ad7ced3d6a204a92df68a7270d4140efe453bee06ceb4e",
+        "stateDigest": "d5bafda5e3e76f8a4fb2223fa6fef9c7b11451a6d41f4092b1bd0c8dd2769290",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [42, 13, 1], [42, 13, 1]],
@@ -256,7 +256,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 16 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "5d2e07c68685371371d9f71e40ff718e96ead8be2a4389eea7cc8e5ec947dc44",
+        "stateDigest": "a68ef7fbeae62f3448549c6aeb9323dc06a2367c8c6d5a9b6062e15150379bdf",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [42, 14, 1], [43, 15, 1]],
@@ -276,7 +276,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 24, "mx": 42, "my": 13, "pmidx": 32 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "d11c4a7834dfe8cea592327f9dad14bd5ee43ebeeef33a159345ada9aa6cd6be",
+        "stateDigest": "212f317cb61b01de97f9268ea499ec263a5a238fdd1fdd88573392ad0c545689",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 13, 1]],
@@ -296,7 +296,7 @@
         "monsterCount": 2,
         "pet": { "id": 26, "movement": 12, "mx": 42, "my": 14, "pmidx": 32 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "a7e7265d3eef3d129c40d2094186ed228894bfc05282dc0e89993ff13f3032de",
+        "stateDigest": "26e22142a7890405c227cdfc700a42ac6b5a9fb6de2a2101fbef3dd6a0729195",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[41, 13, 1], [41, 13, 1], [41, 14, 1]],
@@ -316,7 +316,7 @@
         "monsterCount": 4,
         "pet": { "id": 38, "movement": 24, "mx": 11, "my": 17, "pmidx": 100 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "8e193dc91acb05c91d5c8d2fc8ce0779c93f0146ee28c44d575ec3efe5890fdb",
+        "stateDigest": "e32c973e91bc506d96bc0cedeeacb5e15a90e149aaa3d665aa5a2d0ec53ca2ec",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[15, 1, 1], [9, 19, 1], [9, 18, 1], [9, 18, 1]],
@@ -336,7 +336,7 @@
         "monsterCount": 4,
         "pet": { "id": 42, "movement": 0, "mx": 10, "my": 2, "pmidx": 32 },
         "scheduler": { "purgeMonsters": null, "somebodyCanMove": null, "visionFullRecalc": 0 },
-        "stateDigest": "a6823859ffdc62eceec87be95cea0c78a7fb84270fdc21f7ad71e9ac36d0c21c",
+        "stateDigest": "658e03af2ca94dfef17a87dcdfc65dccda28d312fa22e8708639d8bf3f66270a",
         "turn": { "commandDispatchCount": 2, "heroSeq": 8, "moves": 1 },
         "output": {
           "cursors": [[10, 3, 1], [10, 3, 1], [10, 3, 1]],
@@ -356,7 +356,7 @@
         "monsterCount": 4,
         "pet": { "id": 42, "movement": 24, "mx": 10, "my": 2, "pmidx": 32 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "6bb5dbc4519efe27fce22e4b0f485b5d7718120031c6c4494370177254b3f9d9",
+        "stateDigest": "85487754035269bca01c687fd6efb4efac525cac5391c0999f64a93994595aa6",
         "turn": { "commandDispatchCount": 2, "heroSeq": 17, "moves": 2 },
         "output": {
           "cursors": [[10, 3, 1], [10, 3, 1], [11, 3, 1]],
@@ -376,7 +376,7 @@
         "monsterCount": 2,
         "pet": { "id": 42, "movement": 24, "mx": 6, "my": 7, "pmidx": 16 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "80e018533460ab897156137089982bdeebe5995b431241218599e9b3d9954421",
+        "stateDigest": "32dd3762c13a87d1f5dd8e0e96ad99e9904a98bd1d5df2af9581cac7ee1bb6bd",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[5, 9, 1], [4, 9, 1], [4, 8, 1]],
@@ -396,7 +396,7 @@
         "monsterCount": 6,
         "pet": { "id": 35, "movement": 12, "mx": 34, "my": 10, "pmidx": 100 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "82dd365f0538d89b2f1abf8d876d5849f46afa9ef82fe372c77d062d6d9a9425",
+        "stateDigest": "6e9272d0bd364d66c6b545b6bf1b3ae53082a210ce4f41613ee972050c29a9f2",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[15, 1, 1], [33, 10, 1], [33, 10, 1], [33, 10, 1]],
@@ -416,7 +416,7 @@
         "monsterCount": 4,
         "pet": { "id": 43, "movement": 12, "mx": 51, "my": 5, "pmidx": 16 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "cd7da0f03a068e668138fa553389293083961127ce351e9537b742a8c06e2c8f",
+        "stateDigest": "223b60fedfc8177b71fed8a0aa26ee5d479dbf8ae02979e55a3794f98e6d1eaf",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[52, 4, 1], [52, 5, 1], [52, 5, 1]],
@@ -436,7 +436,7 @@
         "monsterCount": 3,
         "pet": { "id": 34, "movement": 24, "mx": 59, "my": 3, "pmidx": 16 },
         "scheduler": { "purgeMonsters": 0, "somebodyCanMove": false, "visionFullRecalc": 0 },
-        "stateDigest": "8747f62fb65b8b304b774406eba4d7746782e19607c0916c18fdf23834b8e5cc",
+        "stateDigest": "9fc6e56c267771c1c65ee975c188023160fcf7a46b0727ae3acb7e22160cabcb",
         "turn": { "commandDispatchCount": 2, "heroSeq": 25, "moves": 3 },
         "output": {
           "cursors": [[15, 1, 1], [57, 4, 1], [57, 4, 1], [57, 4, 1]],

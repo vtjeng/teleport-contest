@@ -588,6 +588,18 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
     if (layout.fullScreen) display.clearScreen();
     else clearRegion(display, layout.firstColumn, visibleRows);
 
+    // process_menu_window() decides once from the complete linked menu, before
+    // it selects a page.  A zero identifier is any display-only line or
+    // heading in this representation.
+    let showObjectSymbols = state.iflags?.use_menu_glyphs === true;
+    if ((state.iflags?.menuobjsyms & 4) !== 0) {
+        const hasHeader = (spec.items ?? []).some((item) => (
+            typeof item !== 'object' || item === null
+                || !Object.hasOwn(item, 'value')
+        ));
+        if (hasHeader) showObjectSymbols = false;
+    }
+
     for (let row = 0; row < layout.lines.length; row++) {
         const line = layout.lines[row];
         const text = String(line.text ?? '');
@@ -599,6 +611,20 @@ export function renderTtyMenu(state = game, spec, pageIndex = 0,
             line.color ?? NO_COLOR,
             line.attr ?? 0,
         );
+        // C substitutes the glyph at curr->str byte offset two.  A selection
+        // marker wins at that same offset, and a missing glyph leaves '-'.
+        const glyphInfo = line.item?.glyphInfo;
+        if (showObjectSymbols && !line.item?.selected && glyphInfo
+            && glyphInfo.ch != null) {
+            writeStyledText(
+                display,
+                layout.startColumn + 2,
+                row,
+                glyphInfo.ch,
+                glyphInfo.color ?? NO_COLOR,
+                0,
+            );
+        }
     }
     for (let index = 0; index < layout.footerText.length; index++) {
         display.setCell(

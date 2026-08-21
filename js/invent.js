@@ -81,7 +81,11 @@ import { makeplural } from './fruit.js';
 import { digit } from './hacklib.js';
 import { observe_object } from './o_init.js';
 import { ttyPline } from './tty_message.js';
-import { CMAP_EXPLANATIONS } from './symbol_data.js';
+import {
+    CMAP_EXPLANATIONS,
+    DEFAULT_PRIMARY_SYMBOLS,
+    SYM_OFF_O,
+} from './symbol_data.js';
 import {
     S_fountain,
     S_grave,
@@ -97,7 +101,7 @@ import {
 } from './symbols.js';
 import { hides_under, touch_petrifies } from './mondata.js';
 import { UnsupportedHideError, maybe_unhide_at } from './mon.js';
-import { newsym } from './display.js';
+import { newsym, obj_to_glyph } from './display.js';
 import { visible_region_at } from './region.js';
 import { stairs_description, stairway_at } from './stairs.js';
 import { is_drawbridge_wall } from './startup_a11y.js';
@@ -271,9 +275,13 @@ export function let_to_name(letter, unpaid, showsym) {
     const oclass = (letter >= 1 && letter < MAXOCLASSES) ? letter : 0;
     const class_name = CLASS_NAMES[oclass] ?? CLASS_NAMES[ILLOBJ_CLASS];
     if (!oclass || !showsym) return class_name;
-    // C appends the class symbol from def_oc_syms[], padded to eight columns.
-    // Only iflags.menu_head_objsym asks for that, and it is not ported.
-    throw new UnsupportedFeatureDescriptionError('menu_head_objsym');
+    // The loop pads short names through byte column seven, then ocsymfmt
+    // contributes two more spaces and the quoted compiled-in class symbol.
+    const padded = class_name.padEnd(7, ' ');
+    const symbol = String.fromCharCode(
+        DEFAULT_PRIMARY_SYMBOLS[SYM_OFF_O + oclass],
+    );
+    return `${padded}  ('${symbol}')`;
 }
 
 // Thrown where invent.c getobj() reaches an arm this port has not
@@ -678,10 +686,15 @@ export async function display_pickinv(
                 });
                 classcount++;
             }
+            // display_pickinv() computes the glyph before doname().  That
+            // order is observable under hallucination because both can draw
+            // from the display RNG.
+            const glyphInfo = obj_to_glyph(otmp, state);
             items.push({
                 selector: otmp.invlet,
                 label: donameFresh(otmp, state),
                 value: otmp.invlet,
+                glyphInfo,
             });
         }
     }

@@ -454,9 +454,6 @@ function defaultResult() {
             msg_history: 20,
             // initoptions_init()'s TTY_GRAPHICS arm; this build is tty.
             prevmsg_window: 's',
-            // optfn_menu_objsyms()'s do_init arm calls
-            // set_menuobjsyms_flags(4), "conditional".
-            menuobjsyms: 4,
             menuinvertmode: 1,
             getloc_filter: GFILTER_NONE,
         },
@@ -494,6 +491,9 @@ function defaultResult() {
         configErrorFrame: config_error_init(),
     };
     applyBooleanOptionDefaults(result);
+    // allopt_array_init() invokes this compound handler's do_init arm after
+    // the instance-flags struct has been zeroed.
+    set_menuobjsyms_flags(result, 4);
     return result;
 }
 
@@ -2066,6 +2066,55 @@ function setMenuHeadings(result, value, negated) {
     result.iflags.menu_headings = ca;
 }
 
+// C ref: options.c set_menuobjsyms_flags() (7446-7451).  The numeric mode is
+// the sole stored option value; the other two fields are its execution flags.
+function set_menuobjsyms_flags(result, newobjsyms) {
+    result.iflags.menuobjsyms = newobjsyms;
+    result.iflags.menu_head_objsym = (newobjsyms & 1) !== 0;
+    result.iflags.use_menu_glyphs = (newobjsyms & (2 | 4)) !== 0;
+}
+
+// C ref: options.c optfn_menu_objsyms() (2225-2287), its startup do_set arm.
+// The interactive handler remains outside this startup slice; get_val reads
+// the numeric field through OPTION_VALUE_HANDLERS below.
+function optfn_menu_objsyms(result, statement, value, negated) {
+    let osyms;
+    if (negated) {
+        osyms = 0;
+    } else if (value == null || value === '') {
+        // C checks the original spelling case-sensitively after its
+        // case-insensitive alias match.  Preserve that quirk for the obsolete
+        // alias instead of checking the canonical name chosen by the parser.
+        osyms = statement.startsWith('use_menu_glyphs') ? 2 : 1;
+    } else if (/^[0-9]/u.test(value)) {
+        const parsed = atoi(value);
+        if (parsed >= objsymvals.length) {
+            configErrorAdd(
+                result, `Illegal menu_objsyms parameter '${value}'`,
+            );
+            return;
+        }
+        osyms = parsed;
+    } else {
+        const alternate = 'one-or-the-other';
+        osyms = 0;
+        for (let index = 0; index < objsymvals.length; ++index) {
+            const canonical = objsymvals[index];
+            const width = value.length >= 4
+                ? value.length : canonical.length;
+            if (equal_ncasechars(canonical, value, width)
+                || (index === 5
+                    && equal_ncasechars(
+                        alternate, value, alternate.length,
+                    ))) {
+                osyms = index;
+                break;
+            }
+        }
+    }
+    set_menuobjsyms_flags(result, osyms);
+}
+
 // C ref: options.c optfn_petattr() (3137-3175), its do_set arm.  The tty port
 // accepts one text attribute and keeps the chosen style when hilite_pet is
 // later disabled.  optlist.h:568-569 gives petattr negateok No, so
@@ -3589,6 +3638,8 @@ function applyOption(result, optionState, element, lineNumber, aliasState) {
         );
     } else if (name === 'playmode') {
         setPlaymode(result, value, duplicate);
+    } else if (name === 'menu_objsyms') {
+        optfn_menu_objsyms(result, statement, value, negated);
     } else if (name === 'menu_headings') {
         setMenuHeadings(result, value, negated);
     } else if (name === 'petattr') {
@@ -4757,7 +4808,7 @@ function symsetValue(state, set, withHandling) {
 // so the set cannot drift from OPTION_VALUE_HANDLERS unnoticed.
 export const UNPARSED_COMPOUND_OPTIONS = Object.freeze(new Set([
     'crash_email', 'crash_name', 'crash_urlmax',
-    'glyph', 'menu_objsyms', 'menuinvertmode',
+    'glyph', 'menuinvertmode',
     'scores', 'sortvanquished',
     'soundlib', 'whatis_filter', 'windowtype',
 ]));

@@ -1,6 +1,6 @@
 {
   "mode": "implementation",
-  "reason": "Startup menu_objsyms parsing does not install its three coupled iflags, and the ordinary inventory/TTY menu path drops the header and entry object-symbol effects those flags control.",
+  "reason": "The complete startup, ordinary sorted-inventory, TTY rendering, and #optionsfull boundary is implemented and source/fresh validated; the implementation commit identity is pending the readiness follow-up.",
   "commitChecked": "d473a62ac00f0aed355157508dbba6de65345345",
   "boundary": {
     "goalId": "options-config-parser",
@@ -24,117 +24,117 @@
       "reachability": "Every startup initialization invokes do_init before configuration parsing.",
       "owner": "js/options.js parseNethackrc() defaults",
       "effects": "Initializes mode 4, menu_head_objsym false, and use_menu_glyphs true as one coupled state update.",
-      "evidence": "options.c optfn_menu_objsyms(do_init) calls set_menuobjsyms_flags(4); JavaScript currently initializes only iflags.menuobjsyms.",
-      "status": "missing",
-      "remaining": "Initialize all three C-owned fields together and pin their default values."
+      "evidence": "options.c optfn_menu_objsyms(do_init) calls set_menuobjsyms_flags(4); parseNethackrc() now invokes the same source-mapped helper and focused tests pin all three defaults.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "bare canonical, bare alias, negation, and empty-value forms",
       "reachability": "The optlist row permits negation and a value; parseoptions alias matching can deliver either spelling to do_set with empty_optstr.",
       "owner": "js/options.js optfn_menu_objsyms startup arm",
       "effects": "Bare menu_objsyms selects headers (1), bare use_menu_glyphs selects entries (2), either negation selects none (0), while an explicit empty value follows the source empty-opt behavior.",
-      "evidence": "options.c optfn_menu_objsyms do_set first two branches; include/optlist.h menu_objsyms row and alias.",
-      "status": "missing",
-      "remaining": "Port exact canonical/alias/negation dispatch and pin each spelling."
+      "evidence": "options.c optfn_menu_objsyms do_set first two branches; focused tests pin canonical and alias case quirks, empty values, negation, and ignored negated parameters.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "numeric mode values 0 through 5",
       "reachability": "A non-negated value whose first byte is a decimal digit enters atoi().",
       "owner": "js/options.js optfn_menu_objsyms startup arm",
       "effects": "Selects the parsed integer mode and derives both companion flags.",
-      "evidence": "options.c optfn_menu_objsyms digit/atoi branch and six-entry objsymvals[].",
-      "status": "missing",
-      "remaining": "Preserve C atoi prefix behavior and test every accepted numeric mode."
+      "evidence": "options.c optfn_menu_objsyms digit/atoi branch and six-entry objsymvals[]; focused tests pin modes 0 through 5 and numeric suffix consumption.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "numeric values at or above six",
       "reachability": "A value beginning with a digit whose atoi result is at least SIZE(objsymvals) reaches the only handler diagnostic.",
       "owner": "js/options.js optfn_menu_objsyms startup arm",
       "effects": "Adds Illegal menu_objsyms parameter, returns without changing the prior mode, and waits through config_error_done().",
-      "evidence": "options.c optfn_menu_objsyms numeric guard; current generic parser silently stores the raw value.",
-      "status": "missing",
-      "remaining": "Match exact diagnostic and no-write behavior, including a prior accepted value."
+      "evidence": "options.c optfn_menu_objsyms numeric guard; focused and fresh error cases pin the exact diagnostic and preservation of a prior accepted mode.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "canonical mode names and abbreviations",
       "reachability": "A nonnumeric value is compared case-insensitively against the six objsymvals names; canonical abbreviations need at least four bytes.",
       "owner": "js/options.js optfn_menu_objsyms startup arm",
       "effects": "Selects the first matching mode; nonmatching text silently falls back to none (0).",
-      "evidence": "options.c optfn_menu_objsyms k/l prefix loop over objsymvals[].",
-      "status": "missing",
-      "remaining": "Pin all six names, representative four-byte prefixes, short/nonmatching text, and case folding."
+      "evidence": "options.c optfn_menu_objsyms k/l prefix loop over objsymvals[]; focused tests pin all names, four-byte prefixes, case folding, suffix rejection, and fallback to none.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "one-or-the-other compatibility spelling",
       "reachability": "The exact long alternate for mode 5 is checked only on the i==5 loop entry.",
       "owner": "js/options.js optfn_menu_objsyms startup arm",
       "effects": "Selects one-or-other mode 5 without a diagnostic.",
-      "evidence": "options.c optfn_menu_objsyms alt5 branch.",
-      "status": "missing",
-      "remaining": "Pin the exact alternate and its nonmatching prefixes."
+      "evidence": "options.c optfn_menu_objsyms alt5 branch; tests pin the exact alternate, its source-permitted suffix, and nonmatching short forms.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "set_menuobjsyms_flags coupled storage",
       "reachability": "Every accepted/default/negated do_set outcome calls the helper exactly once.",
       "owner": "js/options.js source-mapped set_menuobjsyms_flags()",
       "effects": "Stores mode; sets menu_head_objsym from bit 1 and use_menu_glyphs from bits 2 or 4, with no duplicate state elsewhere.",
-      "evidence": "options.c set_menuobjsyms_flags(); current JavaScript stores raw configured text under flags.menu_objsyms instead.",
-      "status": "missing",
-      "remaining": "Install one helper as the sole owner and test the full six-row truth table."
+      "evidence": "options.c set_menuobjsyms_flags(); js/options.js now keeps all three fields in one helper and retains no raw flags.menu_objsyms value.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "#optionsfull menu_objsyms value",
       "reachability": "The O/m menu invokes optfn_menu_objsyms(get_val) after startup configuration.",
       "owner": "js/options.js OPTION_VALUE_HANDLERS.menu_objsyms and UNPARSED_COMPOUND_OPTIONS",
       "effects": "Reports the canonical objsymvals name for the effective numeric mode without refusing the menu.",
-      "evidence": "options.c get_val/get_cnf_val; the JavaScript value handler exists but the generic raw fallback triggers its guard.",
-      "status": "missing",
-      "remaining": "Remove the guard after source storage is installed and pin all six reported names."
+      "evidence": "options.c get_val/get_cnf_val; menu_objsyms no longer needs the raw-text guard, and the fresh matrix reaches the canonical value for every effective mode.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "let_to_name padded object-class header symbol",
       "reachability": "Ordinary i inventory with sortpack and want_reply inserts one heading for each present class; odd menuobjsyms modes request showsym.",
       "owner": "js/invent.js let_to_name()",
       "effects": "Pads the class name toward eight columns and appends two spaces plus the quoted compiled-in default object-class symbol.",
-      "evidence": "invent.c let_to_name(); JavaScript currently throws UnsupportedFeatureDescriptionError when showsym is true.",
-      "status": "missing",
-      "remaining": "Port the source padding loop and compiled-in symbol lookup for the reachable paid object-class headings."
+      "evidence": "invent.c let_to_name(); js/invent.js now reproduces the seven-byte padding target and def_oc_syms byte, with focused and inventory-screen tests.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "display_pickinv object glyph metadata",
       "reachability": "Every normal inventory object calls obj_to_glyph/map_glyphinfo before add_menu regardless of whether TTY later displays entry symbols.",
       "owner": "js/invent.js display_pickinv() menu-item construction",
       "effects": "Carries the object glyph byte and glyph color with each selectable entry while retaining selector, label, and value.",
-      "evidence": "invent.c display_pickinv normal-item arm; JavaScript items currently carry no glyph metadata.",
-      "status": "missing",
-      "remaining": "Use existing display glyph ownership to attach source-equivalent byte/color without adding PRNG draws."
+      "evidence": "invent.c display_pickinv normal-item arm; js/invent.js now computes obj_to_glyph before doname and carries the resolved byte/color to every ordinary entry.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "conditional whole-menu header scan",
       "reachability": "Modes 4 and 5 set bit 4; process_menu_window scans the complete linked menu before pagination and suppresses entry glyphs if any identifier-zero header exists.",
       "owner": "js/tty_menu.js menu layout/render preparation",
       "effects": "Derives one show_obj_syms value for the whole menu, independent of the visible page.",
-      "evidence": "wintty.c process_menu_window only_if_no_headers loop; ordinary sorted inventory always contains headers but the scan still owns the decision.",
-      "status": "missing",
-      "remaining": "Scan the full item set before page slicing and test a header on another page."
+      "evidence": "wintty.c process_menu_window only_if_no_headers loop; renderTtyMenu() scans the full spec before page rendering and a focused two-page case puts the decisive header on page two.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "TTY entry glyph overwrite and color",
       "reachability": "A selectable entry with a real glyph reaches draw-loop byte offset 2 when use_menu_glyphs is effective and the entry is not selected.",
       "owner": "js/tty_menu.js itemLine()/renderTtyMenu()",
       "effects": "Replaces the '-' marker with glyph ttychar at byte column 2 using glyph color for that cell, then restores line styling.",
-      "evidence": "wintty.c process_menu_window draw loop; current itemLine hardcodes '-' and drops glyph information.",
-      "status": "missing",
-      "remaining": "Carry the item reference into the rendered line and apply byte/color overwrite with selected marker precedence."
+      "evidence": "wintty.c process_menu_window draw loop; renderTtyMenu() overwrites byte column two with glyph color and focused tests pin selected-marker precedence.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "six-mode ordinary inventory behavior",
       "reachability": "Each effective mode 0 through 5 can be configured before the same ordinary i inventory.",
       "owner": "js/options.js, js/invent.js, and js/tty_menu.js integrated path",
       "effects": "Produces the source combination of header symbols and entry glyphs, then dismisses with matching screen, cursor, and PRNG sequence.",
-      "evidence": "Fresh seed 921337 matrix retains 2,796 matching PRNG calls and three cursors in every mode; headers, entries, both, and one-or-other currently mismatch the inventory screen while none and conditional match by coincidence.",
-      "status": "missing",
-      "remaining": "Check in and pass the six-mode/alias/error matrix through inventory and #optionsfull."
+      "evidence": "The final seed 921337 ten-segment matrix matched 27,490 PRNG calls and 141 complete screens/cursors through inventory dismissal and #optionsfull across all six modes and parser families.",
+      "status": "done",
+      "remaining": ""
     },
     {
       "candidate": "interactive handler_menu_objsyms",
@@ -155,38 +155,6 @@
       "remaining": "Retain existing named boundaries for their own slices."
     }
   ],
-  "missingWorkByOwner": [
-    {
-      "group": "options.c menu_objsyms startup parsing and storage",
-      "candidates": [
-        "optfn_menu_objsyms do_init defaults",
-        "bare canonical, bare alias, negation, and empty-value forms",
-        "numeric mode values 0 through 5",
-        "numeric values at or above six",
-        "canonical mode names and abbreviations",
-        "one-or-the-other compatibility spelling",
-        "set_menuobjsyms_flags coupled storage",
-        "#optionsfull menu_objsyms value"
-      ],
-      "next": "Port the complete startup/get-value branches and replace the raw flags.menu_objsyms fallback with the three C-owned iflags."
-    },
-    {
-      "group": "invent.c header and glyph production",
-      "candidates": [
-        "let_to_name padded object-class header symbol",
-        "display_pickinv object glyph metadata"
-      ],
-      "next": "Finish reachable heading text and attach existing object glyph byte/color to ordinary inventory entries."
-    },
-    {
-      "group": "wintty.c conditional and glyph rendering",
-      "candidates": [
-        "conditional whole-menu header scan",
-        "TTY entry glyph overwrite and color",
-        "six-mode ordinary inventory behavior"
-      ],
-      "next": "Derive whole-menu glyph visibility, render the column-2 byte/color, and close the fresh six-mode matrix."
-    }
-  ],
-  "sourceReview": "Read-only survey traced every startup optfn_menu_objsyms branch, the exhaustive six-mode table and coupled flag helper, ordinary sorted inventory heading/glyph producers, and TTY conditional/entry-symbol consumers through dismissal and #optionsfull. Thirteen reachable startup/rendering candidates remain missing in three dependent owner groups; interactive and alternate inventory/window modes remain explicitly later. No selected branch changes PRNG order."
+  "missingWorkByOwner": [],
+  "sourceReview": "Source-derived implementation now covers all thirteen reachable candidates from optfn_menu_objsyms()/set_menuobjsyms_flags() through let_to_name()/display_pickinv(), TTY process_menu_window(), inventory dismissal, and #optionsfull. The final ten-segment seed 921337 comparison matched 27,490 PRNG calls and 141 complete screens/cursors with zero animation frames. It also settled the case-sensitive bare-alias quirk and the alternate mode-5 suffix behavior directly from source. Interactive application and alternate inventory/window modes remain later as declared."
 }
