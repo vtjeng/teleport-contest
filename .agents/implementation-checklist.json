@@ -1,0 +1,141 @@
+{
+  "mode": "implementation",
+  "reason": "Unknown primary symset names still escape after configuration error aggregation instead of reporting, clearing the failed selection, and continuing with default map symbols.",
+  "commitChecked": "d273810cbd94e229e43a08865081499289edb048",
+  "boundary": {
+    "goalId": "options-config-parser",
+    "startingCommit": "d273810cbd94e229e43a08865081499289edb048",
+    "startingEvent": "Startup parses a non-negated OPTIONS=symset:<value> statement.",
+    "endingEvent": "Configuration errors are dismissed and the first map is rendered, or a valid selected set renders that map and appears in #optionsfull.",
+    "validInputs": "Empty values, the 14 bundled primary set names, source default aliases, unknown primary names, repeated selections, and SYMBOLS overrides in either source-permitted order.",
+    "observables": "Configuration-error text and raw wait, selection cleanup, symbol metadata and byte/UTF-8 tables, option ordering, redraw flags, complete screens and attributes, cursors, persisted startup state, and unchanged PRNG order.",
+    "exclusions": "roguesymset, interactive handler_symset(), runtime symbol-file mutation or removal, and display behavior after the first rendered map/#optionsfull boundary."
+  },
+  "candidateListMethod": {
+    "upstreamEntryPoints": "options.c optfn_symset(), files.c read_sym_file(), symbols.c clear_symsetentry()/switch_symbols(), and jsmain.js startup installation.",
+    "dispatchTablesAndCatalogs": "The generated optlist.h row fixes parser eligibility; dat/symbols and scripts/generate-symbol-data.mjs define the exhaustive 14-set bundled universe.",
+    "reachableHelpers": "Traced every optfn_symset request arm, read_sym_file success/failure/default branches, selected-set parsing, cleanup, switch_symbols(), ordered SYMBOLS overrides, menu value reporting, and first map consumption.",
+    "javascriptCrossCheck": "Searched js/options.js, js/symbols.js, js/jsmain.js, generated symbol data, parser/menu/display tests, and unsupported/error paths for symset selection and delayed exceptions.",
+    "remainingLimits": "The scorer's pinned symbols data makes missing files and malformed bundled sets unreachable; rogue and interactive selection are explicitly outside this boundary."
+  },
+  "entries": [
+    {
+      "candidate": "symset parser eligibility and non-negated value dispatch",
+      "reachability": "The generated CompOpt row accepts a value during startup and generic parseoptions() rejects negation before optfn_symset().",
+      "owner": "js/options.js parseNethackrc()/applyOption()",
+      "effects": "Dispatches the value in source option order without changing PRNG state.",
+      "evidence": "include/optlist.h symset row; options.c parseoptions() and optfn_symset(); existing parser tests.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "empty symset value",
+      "reachability": "A statement ending at its separator reaches do_set with empty_optstr.",
+      "owner": "js/options.js applyOption()",
+      "effects": "Queues no selection and emits no output through the boundary.",
+      "evidence": "options.c optfn_symset() returns optn_err without state or output; scripts/options.test.mjs pins the no-op.",
+      "status": "no-effect-yet",
+      "remaining": ""
+    },
+    {
+      "candidate": "14 bundled named primary symbol sets",
+      "reachability": "Each exact case-insensitive name in dat/symbols can be supplied as symset:<name>.",
+      "owner": "js/symbols.js loadSymbolSet()/initialize_symbols_from_options()",
+      "effects": "Loads metadata and byte/UTF-8 symbols, switches the active table, and renders the selected map.",
+      "evidence": "dat/symbols; generated SYMBOL_SET_DEFINITIONS; scripts/symbol-data.test.mjs and display-symbols tests; valid symset use in development sessions.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "default and Default symbols aliases",
+      "reachability": "read_sym_file() accepts fuzzy Default symbols or exact default when no named block matched.",
+      "owner": "js/symbols.js isDefaultSymset()/loadSymbolSet()",
+      "effects": "Clears primary selection metadata and switches to default symbols.",
+      "evidence": "files.c read_sym_file(); symbols.c clear_symsetentry()/switch_symbols(); existing display-symbols tests.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "unknown primary symbol-set name",
+      "reachability": "Any nonempty name absent from all 14 bundled Start records reaches read_sym_file() failure.",
+      "owner": "js/options.js startup symset handler and js/symbols.js selection validation",
+      "effects": "Must add the source configuration error, clear failed selection metadata, preserve later option order, wait at config_error_done(), and continue with default map symbols.",
+      "evidence": "options.c optfn_symset(); files.c read_sym_file(); focused unknown-name reproduction shows JavaScript currently throws after config_error_done().",
+      "status": "missing",
+      "remaining": "Move validation into startup parsing, connect source error/cleanup semantics, and prove invalid-before/after-valid ordering plus continued map startup with a fresh differential."
+    },
+    {
+      "candidate": "missing symbols file",
+      "reachability": "Requires the installed pinned symbols data to be absent, which valid scorer inputs cannot cause.",
+      "owner": "None",
+      "effects": "No reachable effect inside the supported runtime.",
+      "evidence": "files.c fopen_sym_file(); generated symbol data is committed and verified by check:symbols.",
+      "status": "cannot-occur",
+      "remaining": ""
+    },
+    {
+      "candidate": "malformed bundled set without finish",
+      "reachability": "Requires modifying pinned dat/symbols; all 14 generated definitions terminate.",
+      "owner": "None",
+      "effects": "No reachable effect for valid inputs.",
+      "evidence": "symbols.c parse_sym_line(); scripts/generate-symbol-data.mjs rejects unterminated sets and checks the pinned source.",
+      "status": "cannot-occur",
+      "remaining": ""
+    },
+    {
+      "candidate": "unavailable UTF-8 symset handler",
+      "reachability": "The diagnostic branch is compiled only without ENHANCED_SYMBOLS, but the supported source build defines it.",
+      "owner": "None",
+      "effects": "No reachable effect in this build.",
+      "evidence": "include/config.h defines ENHANCED_SYMBOLS; options.c optfn_symset() guards the branch with #ifndef ENHANCED_SYMBOLS.",
+      "status": "cannot-occur",
+      "remaining": ""
+    },
+    {
+      "candidate": "primary selection and SYMBOLS override ordering",
+      "reachability": "Repeated OPTIONS and SYMBOLS statements can occur in either source-permitted order.",
+      "owner": "js/options.js symbolOperations and js/symbols.js initialize_symbols_from_options()",
+      "effects": "Later operations reset or layer symbol tables in source order before map rendering.",
+      "evidence": "options.c right-to-left option parsing; symbols.c selection/override behavior; display-symbols ordering tests.",
+      "status": "done",
+      "remaining": "Add invalid-name ordering cases while closing the missing branch."
+    },
+    {
+      "candidate": "selected primary set reaches startup map and #optionsfull",
+      "reachability": "Every normal startup initializes symbols before the first level display; #optionsfull reads gs.symset.",
+      "owner": "js/jsmain.js startup; js/symbols.js switch_symbols(); js/options.js symsetValue()",
+      "effects": "Renders the selected map bytes/UTF-8 glyphs and reports the selected name and handling.",
+      "evidence": "Existing display-symbols and options-menu tests plus valid symset development sessions.",
+      "status": "done",
+      "remaining": ""
+    },
+    {
+      "candidate": "interactive primary symset handler",
+      "reachability": "Requires do_handler after startup rather than configuration parsing.",
+      "owner": "None",
+      "effects": "First effect occurs after this slice's startup boundary.",
+      "evidence": "options.c optfn_symset(do_handler) calls handler_symset(); selector scoped it as a separate slice.",
+      "status": "later",
+      "remaining": "Separate interactive-handler slice."
+    },
+    {
+      "candidate": "rogue symbol-set selection",
+      "reachability": "Requires the distinct roguesymset option and ROGUESET state owner.",
+      "owner": "None",
+      "effects": "Outside the selected primary-set boundary.",
+      "evidence": "options.c optfn_roguesymset() has separate cleanup and active-set behavior.",
+      "status": "later",
+      "remaining": "Separate rogue symset slice."
+    }
+  ],
+  "missingWorkByOwner": [
+    {
+      "group": "startup primary symset validation and error continuation",
+      "candidates": [
+        "unknown primary symbol-set name"
+      ],
+      "next": "Validate against generated symbol definitions during startup parsing, add source-owned diagnostics and cleanup, preserve operation order, and prove continued default-map startup."
+    }
+  ],
+  "sourceReview": "The survey traced every optfn_symset request arm and every read_sym_file outcome reachable with the pinned symbols data through selection cleanup, switch_symbols(), ordered overrides, first map rendering, and #optionsfull. It identified the delayed unknown-name exception as the only reachable unsupported branch inside this boundary; rogue and interactive paths are explicitly later."
+}

@@ -2587,6 +2587,11 @@
           "name": "startup-boolean-options-to-c-addresses",
           "status": "closed",
           "closedBy": "1f2ae7844b3eb5c9b800ad927c7e055c6f4b3c18"
+        },
+        {
+          "name": "startup-symset-errors-to-map",
+          "status": "queued",
+          "closedBy": null
         }
       ],
       "openedAt": "a4740238469b8e715893bfcf67eb49bcc5a7f99e",
